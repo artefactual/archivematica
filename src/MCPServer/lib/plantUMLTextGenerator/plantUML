@@ -1,0 +1,235 @@
+@startumlimg/1.png
+title %watchDirectoryPath%uploadDIP/
+(*) --> [%watchDirectoryPath%uploadDIP/] "-->[uploadDIP MicroServiceChain]"
+-->[uploadDIP MicroServiceChain] "5. Upload DIP"
+  if "5. default" 
+ -->[True] "End Of Chain" 
+ endif
+@enduml
+@startumlimg/2.png
+title %watchDirectoryPath%storeAIP/
+(*) --> [%watchDirectoryPath%storeAIP/] "-->[storeAIP MicroServiceChain]"
+-->[storeAIP MicroServiceChain] "9. Store AIP"
+  if "9. default" 
+ -->[True] "End Of Chain" 
+ endif
+@enduml
+@startumlimg/3.png
+title %watchDirectoryPath%approveNormalization/preservationAndAccess/
+(*) --> [%watchDirectoryPath%approveNormalization/preservationAndAccess/] "-->[approveNormalization MicroServiceChain]"
+-->[approveNormalization MicroServiceChain] "35. Approve normalization"
+  if "35. default" 
+ -->[True] "End Of Chain" 
+ endif
+@enduml
+@startumlimg/4.png
+title %watchDirectoryPath%approveNormalization/preservation/
+(*) --> [%watchDirectoryPath%approveNormalization/preservation/] "-->[approveNormalization MicroServiceChain]"
+-->[approveNormalization MicroServiceChain] "67. Approve normalization"
+  if "67. default" 
+ -->[True] "End Of Chain" 
+ endif
+@enduml
+@startumlimg/5.png
+title %watchDirectoryPath%workFlowDecisions/createDip/
+(*) --> [%watchDirectoryPath%workFlowDecisions/createDip/] "-->[Create DIP ? MicroServiceChain]"
+-->[Create DIP ? MicroServiceChain] "74. Find options to normalize as"
+  if "74. default" 
+  -->[true] "true 1. Move to the failed directory"
+   if "exitCodeIs 0" then
+    -->[true] "End Of Chain" 
+    else
+    ->[false] if "1. default" then 
+    -->[True] "End Of Chain" 
+     endif
+   endif
+ endif
+@enduml
+@startumlimg/6.png
+title %watchDirectoryPath%system/autoProcessSIP
+(*) --> [%watchDirectoryPath%system/autoProcessSIP] "-->[SIP Creation complete MicroServiceChain]"
+-->[SIP Creation complete MicroServiceChain] "89. Set file permissions"
+ if "exitCodeIs 0" then
+  -->[true] "88. Move to processing directory"
+   if "exitCodeIs 0" then
+    -->[true] "87. Verify SIP compliance"
+     if "exitCodeIs 0" then
+      -->[true] "85. Rename SIP directory with SIP UUID"
+       if "exitCodeIs 0" then
+        -->[true] "84. Include default SIP processingMCP.xml"
+         if "exitCodeIs 0" then
+          -->[true] "83. Remove thumbs.db files"
+           if "exitCodeIs 0" then
+            -->[true] "82. Set file permissions"
+             if "exitCodeIs 0" then
+              -->[true] "81. Sanitize object's file and directory names"
+               if "exitCodeIs 0" then
+                -->[true] "80. Sanitize SIP name"
+                 if "exitCodeIs 0" then
+                  -->[true] "79. Check for Service directory"
+                   if "exitCodeIs 0" then
+                    -->[true] "78. Check for Access directory"
+                     if "exitCodeIs 0" then
+                      -->[true] "76. Grant normalization options for no pre-existing DIP"
+                       if "exitCodeIs 0" then
+                        -->[true] "75. Move to workFlowDecisions-createDip directory"
+                         if "exitCodeIs 0" then
+                          -->[true] "End Of Chain" 
+                          else
+                          ->[false] if "75. default" then 
+                          -->[True] "End Of Chain" 
+                           endif
+                         endif
+                        else
+                        ->[false] if "76. default" then 
+                         -->[true] "true 1. Move to the failed directory"
+                         endif
+                       endif
+                     else
+                      ->[false]if "exitCodeIs 179" then
+                       -->[true] "77. Grant normalization options for pre-existing DIP"
+                        if "exitCodeIs 0" then
+                         -->[true] "75. Move to workFlowDecisions-createDip directory"
+                         else
+                         ->[false] if "77. default" then 
+                          -->[true] "true 1. Move to the failed directory"
+                          endif
+                        endif
+                       else
+                       ->[false] if "78. default" then 
+                        -->[true] "true 1. Move to the failed directory"
+                        endif
+                       endif
+                     endif
+                    else
+                    ->[false] if "79. default" then 
+                     -->[true] "true 78. Check for Access directory"
+                     endif
+                   endif
+                  else
+                  ->[false] if "80. default" then 
+                   -->[true] "true 1. Move to the failed directory"
+                   endif
+                 endif
+                else
+                ->[false] if "81. default" then 
+                 -->[true] "true 1. Move to the failed directory"
+                 endif
+               endif
+              else
+              ->[false] if "82. default" then 
+               -->[true] "true 1. Move to the failed directory"
+               endif
+             endif
+            else
+            ->[false] if "83. default" then 
+             -->[true] "true 82. Set file permissions"
+             endif
+           endif
+          else
+          ->[false] if "84. default" then 
+           -->[true] "true 1. Move to the failed directory"
+           endif
+         endif
+        else
+        ->[false] if "85. default" then 
+         -->[true] "true 1. Move to the failed directory"
+         endif
+       endif
+      else
+      ->[false] if "87. default" then 
+       -->[true] "true 86. Failed compliance. See output in dashboard. SIP moved back to SIPsUnderConstruction"
+        if "exitCodeIs 0" then
+         -->[true] "End Of Chain" 
+         else
+         ->[false] if "86. default" then 
+         -->[True] "End Of Chain" 
+          endif
+        endif
+       endif
+     endif
+    else
+    ->[false] if "88. default" then 
+     -->[true] "true 1. Move to the failed directory"
+     endif
+   endif
+  else
+  ->[false] if "89. default" then 
+   -->[true] "true 1. Move to the failed directory"
+   endif
+ endif
+@enduml
+@startumlimg/7.png
+title %watchDirectoryPath%SIPCreation/SIPsUnderConstruction
+(*) --> [%watchDirectoryPath%SIPCreation/SIPsUnderConstruction] "-->[SIP Creation MicroServiceChain]"
+-->[SIP Creation MicroServiceChain] "90. Approve SIP Creation"
+  if "90. default" 
+ -->[True] "End Of Chain" 
+ endif
+@enduml
+@startumlimg/8.png
+title %watchDirectoryPath%SIPCreation/completedTransfers/
+(*) --> [%watchDirectoryPath%SIPCreation/completedTransfers/] "-->[Check transfer directory for objects MicroServiceChain]"
+-->[Check transfer directory for objects MicroServiceChain] "101. Check transfer directory for objects"
+ if "exitCodeIs 0" then
+  -->[true] "End Of Chain" 
+ else
+  ->[false]if "exitCodeIs 179" then
+   -->[true] "100. Create SIP(s)"
+     if "100. default" 
+    -->[True] "End Of Chain" 
+    endif
+   else
+   ->[false] if "101. default" then 
+   -->[True] "End Of Chain" 
+    endif
+   endif
+ endif
+@enduml
+@startumlimg/9.png
+title %watchDirectoryPath%quarantined/
+(*) --> [%watchDirectoryPath%quarantined/] "-->[Unquarantine MicroServiceChain]"
+-->[Unquarantine MicroServiceChain] "114. Find type to remove from quarantine as"
+  if "114. default" 
+  -->[true] "true 91. Move to the failed directory"
+   if "exitCodeIs 0" then
+    -->[true] "End Of Chain" 
+    else
+    ->[false] if "91. default" then 
+    -->[True] "End Of Chain" 
+     endif
+   endif
+ endif
+@enduml
+@startumlimg/10.png
+title %watchDirectoryPath%workFlowDecisions/quarantineSIP/
+(*) --> [%watchDirectoryPath%workFlowDecisions/quarantineSIP/] "-->[quarantineSIP ? MicroServiceChain]"
+-->[quarantineSIP ? MicroServiceChain] "120. Find type to process as"
+  if "120. default" 
+  -->[true] "true 91. Move to the failed directory"
+ endif
+@enduml
+@startumlimg/11.png
+title %watchDirectoryPath%workFlowDecisions/createTransferBackup/
+(*) --> [%watchDirectoryPath%workFlowDecisions/createTransferBackup/] "-->[create transfer backup ? MicroServiceChain]"
+-->[create transfer backup ? MicroServiceChain] "132. Find type to process as"
+  if "132. default" 
+  -->[true] "true 91. Move to the failed directory"
+ endif
+@enduml
+@startumlimg/12.png
+title %watchDirectoryPath%activeTransfers/standardTransfer
+(*) --> [%watchDirectoryPath%activeTransfers/standardTransfer] "-->[Transfers In progress MicroServiceChain]"
+-->[Transfers In progress MicroServiceChain] "142. Approve transfer"
+  if "142. default" 
+ -->[True] "End Of Chain" 
+ endif
+@enduml
+@startumlimg/13.png
+title %watchDirectoryPath%activeTransfers/Dspace1.7
+(*) --> [%watchDirectoryPath%activeTransfers/Dspace1.7] "-->[DSpace 1.7 Transfers In progress MicroServiceChain]"
+-->[DSpace 1.7 Transfers In progress MicroServiceChain] "180. Approve DSpace 1.7 transfer"
+  if "180. default" 
+ -->[True] "End Of Chain" 
+ endif
+@enduml

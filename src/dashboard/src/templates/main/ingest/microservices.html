@@ -1,0 +1,31 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block content %}
+  <div class="row">
+    <div class="span12">
+
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Ingest' main.views.ingest_grid %}
+        {% breadcrumb_url name main.views.ingest_detail uuid %}
+        {% breadcrumb 'Micro-Services' %}
+      </ul>
+
+      <h1>Micro-Services<br /><small>{{ name }}</small></h1>
+
+      {% regroup jobs by microservicegroup as groups %}
+
+      {% for item in groups %}
+        <div>
+          {{ item.grouper }}<br />
+          <ul>
+            {% for i in item.list %}
+              <li><strong>{{ i.jobtype }}:</strong> {{ i.currentstep }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+
+    </div>
+  </div>
+{% endblock %}

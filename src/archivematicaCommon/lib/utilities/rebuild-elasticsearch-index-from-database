@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+
+import sys, MySQLdb, cPickle, base64
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import databaseInterface
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
+import pyes
+
+def index_documents_from_database(index, type):
+    indexed = 0
+
+    sql = "SELECT docId, data FROM ElasticsearchIndexBackup WHERE indexName='%s' AND typeName='%s'" % (index, type)
+    c, sqlLock = databaseInterface.querySQL(sql)
+    row = c.fetchone()
+    while row != None:
+        sys.stdout.write('.')
+        docId = row[0].__str__()
+        data  = cPickle.loads(base64.decodestring(str(row[1])))
+        result = conn.index(data, index, type, docId)
+        indexed = indexed + 1
+        row = c.fetchone()
+    sqlLock.release()
+
+    return indexed
+
+# establish allows index names and document types
+indexTypes = {
+    'transfers': 'transfer',
+    'aips': 'aip'
+}
+
+# make sure command-line usage and specified index name are valid
+if len(sys.argv) != 2:
+    print 'Usage: %s <aips|transfers>' % (sys.argv[0])
+    sys.exit(1)
+else:
+    index = sys.argv[1]
+    if index not in indexTypes:
+        print 'Index name must be "aips" or "transfers".'
+        sys.exit(1)
+    else:
+        type = indexTypes[index]
+
+conn = pyes.ES('127.0.0.1:9200')
+
+# delete index if it exists
+try:
+    conn.delete_index(index)
+except:
+    print "Error deleting %s index or index already deleted." % (index)
+
+# create new index
+conn.create_index(index)
+
+print 'Indexing data.'
+
+indexed = index_documents_from_database(index, type)
+print
+print '%d documents indexed.' % (indexed)

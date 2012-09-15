@@ -1,0 +1,4 @@
+#!/bin/sh
+
+a2enmod wsgi
+/etc/init.d/apache2 restart

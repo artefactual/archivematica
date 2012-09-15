@@ -1,0 +1,257 @@
+﻿{% extends "layout_fluid.html" %}
+
+{% block title %}Ingest{% endblock %}
+{% block h1 %}Ingest{% endblock %}
+{% block page_id %}ingest{% endblock %}
+
+{% block css %}
+<link href="{{ STATIC_URL }}vendor/select2/select2.css" rel="stylesheet" type="text/css" />
+
+<!-- browser related -->
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/backbone-file-explorer.css" />
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/directory_picker.css" />
+{% endblock %}
+
+{% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/jobs.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/online.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}vendor/select2/select2.js"></script>
+
+  <!-- browser related -->
+  <script type="text/javascript" src="{{ STATIC_URL }}vendor/jquery.event.drag-1.5.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}vendor/jquery.event.drop-1.1.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/file-explorer.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/file_browser.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/ingest_file_browser.js"></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function()
+      {
+        {% if polling_interval %}
+          window.pollingInterval = {{ polling_interval }};
+        {% endif %}
+
+        window.Sips = new SipCollection;
+        window.App = new AppView({
+          statusUrl: '/ingest/status/'
+        });
+      });
+
+    window.microservices_help = {
+      {% for x, y in microservices_help.iteritems %}
+        '{{ x }}': '{{ y }}',
+      {% endfor %}
+    };
+
+  </script>
+{% endblock %}
+
+{% block topbar %}
+  <div id="connection-status" class="pull-right"></div>
+{% endblock %}
+
+{% block content %}
+
+  <!--
+  <div id='originals' class='backbone-file-explorer' style='float:left'></div>
+  <div style='margin-left: 30px; float:left;'>
+    <div id='arrange' class='backbone-file-explorer' style='float:left'></div>
+    <div id='arrange_controls'>
+       <span id='arrange_delete_button' class='btn'>Delete</span>
+       <span id='arrange_create_sip_button' class='btn'>Create SIP</span>
+    </div>
+  </div>
+  -->
+
+  <script>
+  $(document).ready(function() {
+
+    /*
+    var arrange = setupBacklogBrowser(
+      '/var/archivematica/sharedDirectory/watchedDirectories/SIPCreation/completedTransfers',
+      '/var/archivematica/sharedDirectory/arrange'
+    );
+
+    // delete button functionality
+    $('#arrange_delete_button').click(function() {
+      console.log(arrange.selectedEntryId);
+      var path = arrange.getPathForCssId(arrange.selectedEntryId)
+        , type = arrange.getTypeForCssId(arrange.selectedEntryId);
+
+      arrange.confirm(
+        'Delete',
+        'Are you sure you want to delete this directory or file?',
+        function() {
+          arrange.deleteEntry(path, type);
+        }
+      );
+    });
+
+    // create SIP button functionality
+    $('#arrange_create_sip_button').click(function() {
+      var entryDiv = $('#' + arrange.selectedEntryId)
+        , path = arrange.getPathForCssId(arrange.selectedEntryId);
+
+      arrange.confirm(
+        'Create SIP',
+        'Are you sure you want to create a SIP?',
+        function() {
+          $.post(
+            '/filesystem/copy_from_arrange/',
+            {filepath: path},
+            function(result) {
+              var title = (result.error) ? 'Error' : '';
+              arrange.alert(
+                title,
+                result.message
+              );
+              if (!result.error) {
+                $(entryDiv).next().hide();
+                $(entryDiv).hide();
+              }
+            }
+          );
+        }
+      );
+    });
+    */
+  });
+  </script>
+
+<!-- <br clear='all'/> -->
+
+  <div class="span12" id="sip-container">
+    <div id="sip-header">
+      <div id="sip-header-directory">Submission Information Package</div>
+      <div id="sip-header-uuid">UUID</div>
+      <div id="sip-header-timestamp">Ingest start time</div>
+      <div id="sip-header-actions">&nbsp;</div>
+    </div>
+    <div id="sip-body">
+    </div>
+  </div>
+
+  <!-- Templates -->
+
+  <script type="text/template" id='template-dir-level'>
+    <div class="backbone-file-explorer-level"></div>
+  </script>
+
+  <script type="text/template" id='template-dir-entry'>
+    <div class="backbone-file-explorer-entry" style='clear:both'>
+      <span class="backbone-file-explorer-directory_icon_button"></span>
+      <span class="backbone-file-explorer-directory_entry_name"><%= name %></span>
+      <span class="backbone-file-explorer-directory_entry_actions"></span>
+    </div>
+  </script>
+
+
+  <script type="text/template" id="sip-template">
+    <div class="sip-row">
+      <div class="sip-detail-icon-status"><%= this.model.jobs.getIcon() %></div>
+      <div class="sip-detail-directory">
+        <%= directory %>
+        <abbr title="<%= uuid %>">UUID</span>
+      </div>
+      <div class="sip-detail-uuid"><%= uuid %></div>
+      <div class="sip-detail-timestamp"><%= this.getIngestStartTime() %></div>
+      <div class="sip-detail-actions">
+        <a class="btn_show_metadata" href="#" title="Metadata"><span>Micro-Services</span></a>
+        <a class="btn_remove_sip" href="#" title="Remove"><span>Remove</span></a>
+      </div>
+    </div>
+    <div class="sip-detail-job-container"></div>
+  </script>
+
+  <script type="text/template" id="microservice-group-template">
+    <div class="microservice-group" style="padding-bottom: 3px">
+      &nbsp;<span class="microservice-group-arrow">&#x25B8;</span> 
+      <span class="microservice-group-name">Micro-service: <%= name %></span>
+    </div>
+  </script>
+
+  <script type="text/template" id="job-template">
+    <div class="job-detail-microservice">
+      <span class="job-type-label">Job:&nbsp;</span><span title="<%= uuid %>"><%= type %> <% if(obj.filename) { %>(file: <i><%= filename %></i>)<% } %></span>
+      <% tmp = window.microservices_help[type]; %>
+      <% if (tmp !== undefined) { %>
+        [<a href="#" title="<%= tmp %>">?</a>]
+      <% } %>
+    </div>
+    <div class="job-detail-currentstep"><span title="<%= new Date(timestamp * 1000).getArchivematicaDateTime() %>  /  <%= timestamp %>"><%= currentstep %></span></div>
+    <div class="job-detail-actions">
+      <a class="btn_show_tasks" href="#" title="Tasks"><span>Tasks</span></a>
+    </div>
+  </script>
+
+  <script type="text/template" id="directory-browser-template">
+    <div id="directory-browser-tab">Directory browser (<a href="#">Close</a>)</div>
+    <div id="directory-browser-content"></div>
+  </script>
+
+  <script type="text/template" id="status-template">
+    <div id="status-bullet">
+      <span>Initializing...</span>
+      <img src="{{ STATIC_URL }}images/bullet_delete.png" />
+    </div>
+  </script>
+
+  <script type=="text/template" id="metadata-dialog">
+    <form class="form-stacked">
+      {% for field in form %}
+        <div class="form-item clearfix">
+          {{ field.errors }}
+          {{ field.label_tag }}
+          <div class="input">
+            {% if field.name == "rights" or field.name == "description" %}
+              <textarea class="span9" name="{{ field.name }}" rows="4"><%= {{ field.name }} %></textarea>
+            {% else %}
+              <input class="xlarge span9" type="text" name="{{ field.name }}" value="<%= {{ field.name }} %>" />
+            {% endif %}
+            {% if field.help_text %}
+              <span class="help-block">{{ field.help_text }}</p>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </form>
+  </script>
+
+  <div id="upload-dip-modal" class="modal hide fade">
+    <div class="modal-header">
+      <a href="#" class="close">&times;</a>
+      <h3>Upload DIP</h3>
+    </div>
+    <div class="modal-body">
+      <p>Upload the generated DIP to ICA-AtoM (Qubit) using the permalink of the target description.</p>
+      <form class="form-stacked">
+        <div class="clearfix">
+          <label>Enter the permalink of the target description</label>
+          <div class="input">
+            <input class="span8" type="text" />
+            <span class="help-block">Example: if url is http://myICA-AtoM.ca/newsletters-2;rad enter <strong>newsletters-2</strong></span>
+          </div>
+        </div>
+        <div class="clearfix">
+          <div class="input">
+            <ul class="inputs-list">
+              <li>
+                <label>
+                  <input type="checkbox" value="intermediate">
+                  <span>Create intermediate level of description</span>
+                </label>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <a href="#" class="btn primary">Upload</a>
+      <a href="#" class="btn secondary">Cancel</a>
+    </div>
+  </div>
+
+{% endblock %}

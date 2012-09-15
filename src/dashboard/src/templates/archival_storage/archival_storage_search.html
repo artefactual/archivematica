@@ -1,0 +1,48 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block title %}Archival storage{% endblock %}
+{% block h1 %}Archival storage{% endblock %}
+{% block page_id %}archival-storage{% endblock %}
+
+{% block css %}
+  <link href="{{ STATIC_URL }}css/archival_storage.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block content %}
+
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Archival storage' components.archival_storage.views.archival_storage %}
+    {% breadcrumb 'Search' %}
+  </ul>
+
+  <form action='{% url components.archival_storage.views.archival_storage_search %}' method='GET'>
+  {{ form }}
+  <input type='submit' value='Search archival storage'/>
+  </form>
+
+  {% if results %}
+    {% include "archival_storage/_archival_storage_search_summary.html" %}
+
+    {% for item in results %}
+      <div>{{item.filename}}</div>
+      <div class='aip-search-item-details'>
+        <div>
+          {% if item.sipname %}
+            <span class='aip-search-item-detail-field'>AIP: {{ item.sipname }} <a class='uuid' href="{% url components.archival_storage.views.archival_storage_sip_download item.href %}">{{item.AIPUUID}}</a></span>
+            <span class='aip-search-item-detail-field'>Indexed at: <script>document.write(timestampToLocal({{item.indexedAt}}))</script></span>
+            <a href='/archival-storage/search/json/file/{{ item.document_id_no_hyphens }}/' target='_blank'>(view raw)</a>
+          {% else %}
+            (AIP {{item.AIPUUID}} details missing from database.)
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+
+    {% include "archival_storage/_archival_storage_search_summary.html" %}
+
+  {% else %}
+    <div id='aip-search-summary'>No results, please try another search.</div>
+  {% endif %}
+
+{% endblock %}

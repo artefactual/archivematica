@@ -1,0 +1,34 @@
+{% load forms %}
+
+{{ form.non_field_errors }}
+
+{% for field in form.hidden_fields %}
+  {{ field }}
+{% endfor %}
+
+{% for field in form.visible_fields %}
+  <div class="clearfix{% if field.errors %} error{% endif %}">
+    {% if field|is_checkbox %}
+      <ul class="inputs-list">
+        <li>
+          <div class="input">
+            <label>{{ field }} <span>{{ field.label }}</span></label>
+          </div>
+        </li>
+      </ul>
+    {% else %}
+      {{ field.label_tag }}
+      <div class="input">
+        {{ field }}
+        {% if field.help_text %}
+          <span class="help-block">{{ field.help_text }}</span>
+        {% endif %}
+        {% if field.errors %}
+          {% for error in field.errors %}
+            <span class="help-inline">{{ error }}</span>
+          {% endfor %}
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+{% endfor %}

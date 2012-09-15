@@ -1,0 +1,9 @@
+#!/bin/sh
+
+userID=`id -u archivematica`
+
+if [ "${userID}" = 333 ]; then
+  echo "User archivematica exists"
+else
+  adduser --uid 333 --group --system --home /var/lib/archivematica/ archivematica
+fi

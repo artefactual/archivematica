@@ -1,0 +1,71 @@
+# NameVirtualHost directive is assigned at ports.conf
+
+<VirtualHost *:80>
+  ServerAdmin webmaster@localhost
+  DocumentRoot /var/www
+
+  <Directory />
+    Options FollowSymLinks
+    AllowOverride None
+  </Directory>
+
+  ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+
+  <Directory "/usr/lib/cgi-bin">
+    AllowOverride None
+    Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+    Order allow,deny
+    Allow from all
+  </Directory>
+
+  ErrorLog /var/log/apache2/error.log
+
+  # Possible values include: debug, info, notice, warn, error, crit,
+  # alert, emerg.
+  LogLevel warn
+
+  CustomLog /var/log/apache2/access.log combined
+  ServerSignature On
+
+  Alias /dcb "/var/www/dcb/"
+  <Directory "/var/www/dcb/">
+    Options Indexes MultiViews FollowSymLinks
+    AllowOverride None
+    Order allow,deny
+    Allow from all
+  </Directory>
+
+  Alias /qubit "/var/www/qubit/"
+  <Directory "/var/www/qubit/">
+    Options Indexes MultiViews FollowSymLinks
+    AllowOverride None
+    Order allow,deny
+    Allow from all
+  </Directory>
+
+  Alias /ica-atom "/var/www/ica-atom/"
+  <Directory "/var/www/ica-atom/">
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride All
+    Order allow,deny
+    Allow from all
+  </Directory>
+
+  # Serve static files from Dashboard
+  Alias /media "/usr/share/archivematica/dashboard/media/"
+  <Directory "/usr/share/archivematica/dashboard/media/">
+    Order allow,deny
+    Allow from all
+  </Directory>
+
+  # Django with mod_wsgi
+  # http://code.google.com/p/modwsgi/wiki/IntegrationWithDjango
+  WSGIScriptAlias / /usr/share/archivematica/dashboard/apache/django.wsgi
+  WSGIDaemonProcess dashboard user=archivematica group=archivematica
+  WSGIProcessGroup dashboard
+  <Directory "/usr/share/archivematica/dashboard/apache/">
+    Order allow,deny
+    Allow from all
+  </Directory>
+
+</VirtualHost>

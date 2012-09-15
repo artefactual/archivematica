@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block title %}Welcome{% endblock %}
+{% block h1 %}Welcome{% endblock %}
+{% block page_id %}welcome{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block css %}
+  <style type="text/css">
+
+    .form-stacked {
+      padding-left: 0;
+    }
+
+    .well {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+
+  </style>
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    <div class="span9 offset2">
+
+      <img src="{{ STATIC_URL }}images/logo_welcome.gif" style="margin-bottom: 20px;" />
+
+      <div class="well">
+        <h2>Welcome!</h2>
+        <p>It seems that Archivematica has been installed successfully. Now, please take a minute to create your first user in the system.</p>
+      </div>
+
+      <form class="form-stacked" method="post" action="{% url installer.views.welcome %}">
+
+        {% include "_form.html" %}
+
+        <div class="well span9">
+          <button class="btn primary" type="submit">Create</button>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+{% endblock %}

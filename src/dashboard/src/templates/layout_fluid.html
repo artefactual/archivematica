@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+  <div class="container-fluid">
+
+    <div class="content">
+
+      <div id="notifications"></div>
+
+      <script>
+        var archivematicaNotifications;
+        $(document).ready(function() {
+          archivematicaNotifications = new NotificationView({
+            el: $('#notifications')
+          });
+          archivematicaNotifications.render();
+        });
+      </script>
+
+      {% block content %}{% endblock %}
+
+    </div>
+
+  </div>
+
+{% endblock %}

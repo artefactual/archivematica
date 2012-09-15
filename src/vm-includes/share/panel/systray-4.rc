@@ -1,0 +1,9 @@
+[Global]
+ShowFrame=false
+Rows=1
+
+[Applications]
+gnome-volume-control-applet=false
+networkmanager applet=false
+update-notifier=false
+

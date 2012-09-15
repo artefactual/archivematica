@@ -1,0 +1,13 @@
+file:///var/archivematica/sharedDirectory/watchedDirectories/receiveSIP
+file:///var/archivematica/sharedDirectory/watchedDirectories/appraiseSIPForSubmission
+file:///var/archivematica/sharedDirectory/watchedDirectories/appraiseSIPForPreservation
+file:///var/archivematica/sharedDirectory/watchedDirectories/approveNormalization
+file:///var/archivematica/sharedDirectory/watchedDirectories/storeAIP 
+file:///var/archivematica/sharedDirectory/AIPsStore
+file:///var/archivematica/sharedDirectory/watchedDirectories/uploadDIP
+file:///var/archivematica/sharedDirectory/DIPbackups
+file:///var/archivematica/sharedDirectory/SIPbackups
+file:///var/archivematica/sharedDirectory/watchedDirectories/failed
+file:///var/archivematica/sharedDirectory/watchedDirectories/failedNormalization
+file:///var/archivematica/sharedDirectory/rejected
+file:///usr/share/archivematica/sampleData

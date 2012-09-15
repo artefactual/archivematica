@@ -1,0 +1,48 @@
+#transfer_component_form {
+  border-bottom: 1px dotted #ddd;
+  margin-bottom: 5px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+#transfer-type {
+  width: 100px;
+}
+
+#transfer-type-container {
+  float: left;
+  margin-right: 10px;
+}
+
+.transfer-component-activity-indicator {
+  float: right;
+  display: none;
+}
+
+#transfer-name-container {
+  float: left;
+  margin-right: 10px;
+}
+
+#transfer-accession-number {
+  width: 75px;
+  margin-right: 10px;
+}
+
+#tranfer_paths_area {
+  float:left;
+  width: 450px;
+}
+
+#path_add_button {
+  margin-right: 10px;
+}
+
+#path_source_select {
+  margin-right: 10px;
+}
+
+#path_container {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}

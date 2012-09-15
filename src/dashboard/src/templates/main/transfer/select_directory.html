@@ -1,0 +1,70 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/file-explorer.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/transfer/directory_picker.js"></script>
+{% endblock %}
+
+{% block css %}
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/backbone-file-explorer.css" />
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/directory_picker.css" />
+{% endblock %}
+
+{% block content %}
+
+<ul class="breadcrumb">
+  {% breadcrumb_url 'Transfer' main.views.transfer_grid %}
+  {% breadcrumb 'Add Files to Backlog' %}
+</ul>
+
+<h1>Select Directory</h1>
+
+<p id='page_instructions' style='margin-left: 5px'>Please select a subdirectory of {{ directory }} using the selector below:</p>
+
+<div id='explorer' class='backbone-file-explorer'></div>
+
+<script>
+$(document).ready(function() {
+  createDirectoryPicker('{{ directory }}');
+});
+</script>
+
+<!-- templates below -->
+
+<script type="text/template" id='template-dir-level'>
+  <div class="backbone-file-explorer-level"></div>
+</script>
+
+<script type="text/template" id='template-dir-entry'>
+  <div class="backbone-file-explorer-entry" style='clear:both'>
+    <span class="backbone-file-explorer-directory_icon_button"></span>
+    <span class="backbone-file-explorer-directory_entry_name"><%= name %></span>
+    <span class="backbone-file-explorer-directory_entry_actions"></span>
+  </div>
+</script>
+
+<script type="text/template" id="template-source-directory-table">
+<table>
+  <thead>
+    <th>Path</th>
+    <th></th>
+  </thead>
+  <tbody>
+    <%= rows %>
+  </tbody>
+</table>
+</script>
+
+<script type="text/template" id="template-source-directory-table-row">
+  <tr>
+    <td><%= path %></td>
+    <td><a href='#' id='directory_<%= id %>' class='btn' style='float:right'>Delete</a></td>
+  </tr>
+</script>
+
+{% endblock %}

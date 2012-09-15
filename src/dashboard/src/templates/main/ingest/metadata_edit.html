@@ -1,0 +1,52 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block content %}
+  <div class="row">
+    <div class="span12">
+
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Ingest' main.views.ingest_grid %}
+        {% breadcrumb_url name main.views.ingest_detail uuid %}
+        {% breadcrumb_url 'Metadata' main.views.ingest_metadata_list uuid %}
+        {% if id %}
+          {% breadcrumb 'Edit' %}
+        {% else %}
+          {% breadcrumb 'Add' %}
+        {% endif %}
+      </ul>
+
+      <h1>Metadata<br /><small>{{ name }}</small></h1>
+
+      {% if id %}
+        <form class="form-stacked" method="post" action="{% url main.views.ingest_metadata_edit uuid id %}">
+      {% else %}
+        <form class="form-stacked" method="post" action="{% url main.views.ingest_metadata_edit uuid %}">
+      {% endif %}
+
+        <div class="clearfix">
+          <label>Applies to</label>
+          <div class="input">
+            <select class="span7" disabled="disabled">
+              <option>{{ name }}</option>
+            </select>
+            <span class="help-block">In Archivematica 0.9 metadata can be added at the SIP level only</span>
+          </div>
+        </div>
+
+        {% include "_form.html" %}
+
+        <div class="actions">
+          {% if id %}
+            <button type="submit" class="btn primary">Save</button>
+          {% else %}
+            <button type="submit" class="btn primary">Create</button>
+          {% endif %}
+          <a href="{% url main.views.ingest_metadata_list uuid %}" class="btn">Cancel</a>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,1 @@
+/usr/lib/archivematica/SIPCreationTools/createMD5Checksum/createMD5.sh "$@"

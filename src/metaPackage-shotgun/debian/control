@@ -1,0 +1,12 @@
+Source: archivematica-shotgun
+Section: utils
+Priority: extra
+Maintainer: Austin Trask <austin@artefactual.com>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://archivematica.org
+
+Package: archivematica-shotgun
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, archivematica-common, archivematica-forensic-tools, archivematica-mcp-server, archivematica-mcp-client, archivematica-thunar-uca, archivematica-dashboard, archivematica-vm-includes, archivematica-transcoder, archivematica-mcp-rpccli, upload-qubit, droid, fits, jhove, xena, easy-extract, bagit, nfs-kernel-server, nfs-common, fusesmb, smbfs, samba-common, hfsplus, hfsprogs, vlc, dosfstools, ghostscript, ffmpeg, imagemagick, libapache2-mod-php5, mysql-server, php5-cli, php5-mysql, php5-xsl, subversion-tools, mysql-client, adobe-flashplugin, evolution, digikam, kipi-plugins, openssh-server, openntpd, automysqlbackup
+Description: archivematica Shotgun meta package

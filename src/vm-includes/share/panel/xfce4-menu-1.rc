@@ -1,0 +1,7 @@
+use_default_menu=false
+menu_file=/etc/xdg/xubuntu/menus/xfce-applications.menu
+icon_file=/usr/share/pixmaps/xubuntu-logo.png
+show_menu_icons=true
+button_title=Applications
+show_button_title=true
+

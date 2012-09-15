@@ -1,0 +1,12 @@
+{% extends "layout_fluid.html" %}
+
+{% block content %}
+
+<h1>{{ prompt }}</h1>
+
+<form method="POST" action="">
+  <input type="hidden" name="__confirm__" value="1" />
+  <input type="submit" value="{{ action }}" class='btn primary' /> <a href="{{ cancel_url }}" class='btn'>Cancel</a>
+</form>
+
+{% endblock %}

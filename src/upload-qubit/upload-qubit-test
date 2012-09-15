@@ -1,0 +1,106 @@
+#!/bin/bash
+
+# upload-qubit script location
+UPLOAD_QUBIT_PATH="${HOME}/archivematica/src/upload-qubit/upload-qubit"
+
+# Qubit URL and login
+URL="http://localhost/ica-atom/index.php/sword/deposit/archivematica"
+LOGIN="demo@example.com demo"
+
+# DIP directory
+DIP_DIRECTORY="${HOME}/dips"
+
+# Example UUID (upload-qubit.php will put this into the MCP.access table)
+UUID="be495e18-54a0-4451-b02f-401ae9146c0b"
+
+# If you are using "referenced-rsync" mode
+RSYNC_CMD="ssh -l YOURUSERNAME -p 22"
+RSYNC_TO="remote.host.tld:~/deposits"
+
+# Check directory existence
+if [ ! -d "$DIP_DIRECTORY" ]; then
+  echo "Directory not found:"
+  echo $DIP_DIRECTORY
+  exit 1
+fi
+
+# Show list of directory
+COUNTER=0
+echo "Select a DIP from the list:"
+echo "--------------------"
+for i in `ls $DIP_DIRECTORY`; do
+  if [ -d $DIP_DIRECTORY/$i ]; then
+    let COUNTER+=1
+    echo "$COUNTER: $i"
+  fi
+done
+
+# Read choice
+echo -n " > "
+read choice
+echo ${choice} | grep -E '^[[:alnum:]]{1,2}$' > /dev/null
+
+# Check integer
+if ! [[ $choice =~ ^[0-9]+$ ]] ; then
+  echo "Not a number!"
+  exit 1
+fi
+
+COUNTER=0
+for i in `ls $DIP_DIRECTORY`; do
+  if [ -d $DIP_DIRECTORY/$i ]; then
+    let COUNTER+=1
+    if [ $COUNTER -eq $choice ]; then
+      DIP="$DIP_DIRECTORY/$i"
+    fi
+  fi
+done
+
+# Check DIP directory existence
+if [ ! -d "$DIP" ]; then
+  echo "DIP not found."
+  exit 1
+fi
+
+echo "--> $DIP"
+
+if [ "$1" = "1" ]; then
+
+  ${UPLOAD_QUBIT_PATH} \
+    attached \
+    ${URL} \
+    ${LOGIN} \
+    ${DIP} \
+    ${UUID}
+
+elif [ "$1" = "2" ]; then
+
+  ${UPLOAD_QUBIT_PATH} \
+    referenced \
+    ${URL} \
+    ${LOGIN} \
+    ${DIP} \
+    ${UUID}
+
+elif [ "$1" = "3" ]; then
+
+  ${UPLOAD_QUBIT_PATH} \
+    referenced-sync \
+    ${URL} \
+    ${LOGIN} \
+    ${DIP} \
+    ${UUID} \
+    ${RSYNC_CMD} \
+    ${RSYNC_TO}
+
+else
+
+  echo "!! You have to add the type of upload as a parameter"
+  echo "1 = attached"
+  echo "2 = referenced"
+  echo "3 = referenced-rsync"
+  exit
+
+fi
+
+echo "Exit status: $?"

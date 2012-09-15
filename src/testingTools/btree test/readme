@@ -1,0 +1,25 @@
+See Issue 1205:	Evaluate performance of indexing Files.currentLocation.
+
+extract and run...
+mysql -u root MCP --execute 'source ./btreeTest1.sql'
+mysql -u root MCP --execute 'source ./btreeTest2.sql'
+
+
+
+time ./btreeTest1.py btreeTest1
+16872
+
+real	9m6.201s
+user	0m2.916s
+sys	0m0.288s
+
+
+time ./btreeTest1.py btreeTest2
+16872
+
+real	0m6.933s
+user	0m1.636s
+sys	0m0.224s
+
+
+The data is the same except on string starts with %'s. 

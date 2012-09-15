@@ -1,0 +1,38 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block title %}Users - Add new{% endblock %}
+{% block h1 %}Users - Add new{% endblock %}
+{% block page_id %}accounts-add{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "main/administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Users' components.accounts.views.list %}
+        {% breadcrumb 'Add new user' %}
+      </ul>
+
+      <form method="post" action="{% url components.accounts.views.add %}">
+
+        {% csrf_token %}
+
+        {% include "_form.html" %}
+
+        <div class="actions">
+          <button type="submit" class="btn primary">Create</button>
+          <a class="btn" href="{% url components.accounts.views.list %}">Cancel</a>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+{% endblock %}

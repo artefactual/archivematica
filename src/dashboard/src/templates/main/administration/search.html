@@ -1,0 +1,40 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block js %}
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "main/administration/sidebar.html" %}
+
+    <div class="span12">
+
+      {% if message %}
+        <div class="alert-message">{{ message }}</div>
+      {% endif %}
+
+      <h3>Search administration</h3>
+
+      <p>{{ aip_files_indexed }} AIP files indexed.</p>
+
+      {% if user.is_superuser %}
+      <form action='{% url main.views.administration_search_flush_aips %}' method='POST'>
+        <input type='submit' value='Flush AIP Index' class='btn' />
+      </form>
+      {% endif %}
+
+    </div>
+
+  </div>
+
+{% endblock %}

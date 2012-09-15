@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE config SYSTEM "config.dtd">
+<panels>
+	<panel>
+		<properties>
+			<property name="size" value="24"/>
+			<property name="monitor" value="0"/>
+			<property name="screen-position" value="1"/>
+			<property name="fullwidth" value="1"/>
+			<property name="xoffset" value="0"/>
+			<property name="yoffset" value="0"/>
+			<property name="handlestyle" value="0"/>
+			<property name="autohide" value="0"/>
+			<property name="transparency" value="20"/>
+			<property name="activetrans" value="0"/>
+		</properties>
+		<items>
+			<item name="xfce4-menu" id="1"/>
+			<item name="places" id="2"/>
+			<item name="launcher" id="2"/>
+			<item name="launcher" id="3"/>
+			<item name="separator" id="3"/>
+			<item name="systray" id="4"/>
+			<item name="xfce4-mixer-plugin" id="5"/>
+			<item name="clock" id="5"/>
+			<item name="actions" id="6"/>
+		</items>
+	</panel>
+	<panel>
+		<properties>
+			<property name="size" value="24"/>
+			<property name="monitor" value="0"/>
+			<property name="screen-position" value="11"/>
+			<property name="fullwidth" value="1"/>
+			<property name="xoffset" value="0"/>
+			<property name="yoffset" value="743"/>
+			<property name="handlestyle" value="0"/>
+			<property name="autohide" value="0"/>
+			<property name="transparency" value="20"/>
+			<property name="activetrans" value="0"/>
+		</properties>
+		<items>
+			<item name="showdesktop" id="1"/>
+			<item name="tasklist" id="2"/>
+			<item name="pager" id="3"/>
+		</items>
+	</panel>
+</panels>

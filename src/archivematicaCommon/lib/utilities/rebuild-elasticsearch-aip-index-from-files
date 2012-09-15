@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+
+import os, sys, subprocess, tempfile, shutil, ConfigParser
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import elasticSearchFunctions, databaseInterface
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
+import pyes
+
+# Determine root of shared directories
+clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
+config = ConfigParser.SafeConfigParser()
+config.read(clientConfigFilePath)
+
+try:
+    sharedDirectory = config.get('MCPClient', "sharedDirectoryMounted")
+except:
+    print "Configuration item 'sharedDirectoryMounted' not available at /etc/archivematica/MCPClient/clientConfig.conf."
+    quit(1)
+
+# Clear database backups of indexed AIPs
+sql = "DELETE FROM ElasticsearchIndexBackup WHERE indexName='aips' AND typeName='aip'"
+databaseInterface.runSQL(sql)
+
+rootdir = os.path.join(sharedDirectory, 'www/AIPsStore')
+
+print "Rebuilding AIPS index from AIPS in " + rootdir + "..."
+
+def processAIP(path, temp_dir):
+    archive_file = os.path.basename(path)
+    subdir = archive_file[:-3]
+    uuid =  archive_file[-39:-3]
+    mets_file_relative_path = subdir + "/data/METS." + uuid + ".xml"
+
+    print 'Processing AIP ' + uuid + '...'
+
+    command_data = [
+        '7za',
+        'e',
+        '-o' + temp_dir,
+        path,
+        mets_file_relative_path
+    ]
+
+    subprocess.call(command_data)
+
+    elasticSearchFunctions.connect_and_index('aips', 'aip', uuid, temp_dir)
+
+conn = pyes.ES('127.0.0.1:9200')
+
+try:
+    conn.delete_index('aips')
+except:
+    print "Error deleting index or index already deleted."
+
+temp_dir = tempfile.mkdtemp()
+
+for root, subFolders, files in os.walk(rootdir):
+    for file in files:
+        try:
+            file.index('.7z')
+            processAIP(os.path.join(root, file), temp_dir)
+        except:
+            pass
+
+print "Cleaning up..."
+
+shutil.rmtree(temp_dir)
+
+print "Indexing complete."

@@ -1,0 +1,76 @@
+﻿{% extends "layout.html" %}
+{% load breadcumbs %}
+
+{% block title %}AIP{% endblock %}
+{% block h1 %}AIP{% endblock %}
+{% block page_id %}aip{% endblock %}
+
+{% block css %}
+  <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/backbone-file-explorer.css" />
+  <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/directory_picker.css" />
+{% endblock %}
+
+{% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/online.js"></script>
+
+  <!-- browser related -->
+  <script type="text/javascript" src="{{ STATIC_URL }}vendor/jquery.event.drag-1.5.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}vendor/jquery.event.drop-1.1.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/file-explorer.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/file_browser.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/aip_browser.js"></script>
+{% endblock %}
+
+{% block topbar %}
+  <div id="connection-status" class="pull-right"></div>
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    <div class="offset2 span12">
+
+      <h2>{{ title }}</h2>
+
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Ingest' main.views.ingest_grid %}
+        {% breadcrumb name %}
+      </ul>
+
+      <div id="explorer" class="backbone-file-explorer" style="float: left;"></div>
+
+      <script>
+        $(document).ready(function() {
+          setupAIPBrowser('{{ directory }}');
+        });
+      </script>
+
+      <br clear="all" />
+
+      <!-- Templates -->
+
+      <script type="text/template" id="template-dir-level">
+        <div class="backbone-file-explorer-level"></div>
+      </script>
+
+      <script type="text/template" id="template-dir-entry">
+        <div class="backbone-file-explorer-entry" style="clear: both;">
+          <span class="backbone-file-explorer-directory_icon_button"></span>
+          <span class="backbone-file-explorer-directory_entry_name"><%= name %></span>
+          <span class="backbone-file-explorer-directory_entry_actions"></span>
+        </div>
+      </script>
+
+      <script type="text/template" id="status-template">
+        <div id="status-bullet">
+          <span>Initializing...</span>
+          <img src="{{ STATIC_URL }}images/bullet_delete.png" />
+        </div>
+      </script>
+
+    </div>
+
+  </div>
+
+{% endblock %}

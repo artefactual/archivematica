@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fits_configuration>
+
+	<!-- Order of the tools determines preference -->
+	<tools>		
+		<!-- exclude-exts attribute is a comma delimited list of file extensions that the tool should not try to process -->
+		<tool class="edu.harvard.hul.ois.fits.tools.oisfileinfo.AudioInfo"/>
+		<tool class="edu.harvard.hul.ois.fits.tools.jhove.Jhove" exclude-exts=""/> 		   
+	 	<tool class="edu.harvard.hul.ois.fits.tools.fileutility.FileUtility" exclude-exts="dng,wps"/>	 	 
+	 	<tool class="edu.harvard.hul.ois.fits.tools.exiftool.Exiftool" exclude-exts="txt,wps,vsd"/>
+	 	<tool class="edu.harvard.hul.ois.fits.tools.droid.Droid"  exclude-exts=""/>
+	 	<tool class="edu.harvard.hul.ois.fits.tools.nlnz.MetadataExtractor" exclude-exts="dng,zip,odb,ott,odg,otg,odp,otp,ods,ots,odc,otc,odi,oti,odf,otf,odm,oth"/>	
+		<tool class="edu.harvard.hul.ois.fits.tools.oisfileinfo.FileInfo"/>
+		<tool class="edu.harvard.hul.ois.fits.tools.oisfileinfo.XmlMetadata"/>	
+		<tool class="edu.harvard.hul.ois.fits.tools.ffident.FFIdent" exclude-exts="dng,wps,vsd"/>		
+	</tools>
+		
+	<output>
+		<dataConsolidator class="edu.harvard.hul.ois.fits.consolidation.OISConsolidator"/>
+		<display-tool-output>true</display-tool-output>
+		<report-conflicts>true</report-conflicts>	
+		<validate-tool-output>true</validate-tool-output>
+		<internal-output-schema>xml/fits_output.xsd</internal-output-schema>
+		<external-output-schema>http://hul.harvard.edu/ois/xml/xsd/fits/fits_output.xsd</external-output-schema>
+		<fits-xml-namespace>http://hul.harvard.edu/ois/xml/ns/fits/fits_output</fits-xml-namespace>
+	</output>
+	
+	<!-- file name of the droid signature file to use in tools/droid/-->
+	<droid_sigfile>DROID_SignatureFile_V35.xml</droid_sigfile>
+	
+</fits_configuration>

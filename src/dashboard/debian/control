@@ -1,0 +1,14 @@
+Source: archivematica-dashboard
+Section: utils
+Priority: extra
+Maintainer: Austin Trask <austin@artefactual.com>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://archivematica.org
+
+Package: archivematica-dashboard
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libapache2-mod-wsgi, apache2-mpm-prefork, python-django, python-django-doc, python-gearman, php5, php5-xsl, php5-mysql, php5-cli
+Description: Web Dashboard for Archivematica
+  Web based dashboard interface
+  

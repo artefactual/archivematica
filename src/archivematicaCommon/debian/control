@@ -1,0 +1,13 @@
+Source: archivematica-common
+Section: utils
+Priority: extra
+Maintainer: Austin Trask <austin@artefactual.com>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://archivematica.org
+
+Package: archivematica-common
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, python, python2.7-elementtree
+Description: Common libraries for archivematica
+  This package is a support package for archivematica. It contains a library of functions used in the archivematica system.  

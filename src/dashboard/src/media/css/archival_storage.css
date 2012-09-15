@@ -1,0 +1,84 @@
+td, th {
+  border: 1px solid #eee;
+  text-align: left;
+}
+
+th > a.selected {
+  color: Black;
+}
+
+thead > tr > th {
+  background-color: #ddd;
+}
+
+td.link-sip > a {
+  background: transparent url(/media/images/package_go.png) no-repeat 0% 50%;
+  padding-left: 22px;
+  height: 16px;
+  display: block;
+}
+
+td.uuid, .uuid {
+  font-family: "Courier New", Courier, "Lucida Console", monospace;
+}
+
+th > div {
+  position: relative;
+}
+
+th > div > a {
+  display: block;
+  text-indent: -10000px;
+  position: absolute;
+  width: 16px;
+  height: 16px;
+}
+
+th > div > a.up {
+  background: transparent url(/media/images/bullet_arrow_up.png) no-repeat 0% 0%;
+  top: -8px;
+  right: -4px;
+}
+
+th > div > a.down {
+  background: transparent url(/media/images/bullet_arrow_down.png) no-repeat 0% 0%;
+  top: 6px;
+  right: -4px;
+}
+
+th > div > a.selected_up {
+  background-image: url(/media/images/bullet_orange.png);
+}
+
+th > div > a.selected_down {
+  background-image: url(/media/images/bullet_orange.png);
+}
+
+tbody > tr:last-child > td {
+  border-bottom: 2px solid #ddd;
+}
+
+tfoot > tr > td {
+  border: 0px;
+}
+
+td.size {
+  text-align: right;
+}
+
+/* AIP search */
+#aip-search-summary {
+  margin-bottom: 1em;
+  padding: .5em;
+  background-color: whitesmoke;
+}
+
+.aip-search-item-details {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  margin-left: 2em;
+}
+
+.aip-search-item-detail-field {
+  margin-right: 1em;
+}

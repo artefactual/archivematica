@@ -1,0 +1,38 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block content %}
+  <div class="row">
+    <div class="span12">
+
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Transfer' main.views.transfer_grid %}
+        {% breadcrumb name %}
+      </ul>
+
+      <h1>Transfer<br /><small>{{ name }}</small></h1>
+
+      <p><strong>UUID:</strong> {{ uuid }}</p>
+
+      {% if is_waiting %}
+        <div class="alert-message block-message">
+          <p>There are micro-services awaiting user decisions.</p>
+          <div class="alert-actions">
+            <a class="btn small" href="{% url main.views.ingest_microservices uuid %}">View micro-services</a>
+          </div>
+        </div>
+      {% endif %}
+
+      <h5>Micro-Services</h5>
+      <ul>
+        <li><a href="{% url main.views.transfer_microservices uuid %}">List</a></li>
+      </ul>
+      <h5>Rights</h5>
+      <ul>
+        <li><a href="{% url main.views.transfer_rights_list uuid %}">List</a></li>
+        <li><a href="{% url main.views.transfer_rights_edit uuid %}">Add</a></li>
+      </ul>
+
+    </div>
+  </div>
+{% endblock %}

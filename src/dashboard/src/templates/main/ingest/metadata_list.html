@@ -1,0 +1,44 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block content %}
+  <div class="row">
+    <div class="span12">
+
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Ingest' main.views.ingest_grid %}
+        {% breadcrumb_url name main.views.ingest_detail uuid %}
+        {% breadcrumb 'Metadata' %}
+      </ul>
+
+      <h1>Metadata<br /><small>{{ name }}</small></h1>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Applies to</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in metadata %}
+            <tr>
+              <td>{{ item }}</td>
+              <td>{{ name }}</td>
+              <td>
+                <a href='{% url main.views.ingest_metadata_edit uuid item.id %}'>Edit</a>
+                <a href='{% url main.views.ingest_metadata_delete uuid item.id %}'>Delete</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="actions" style="padding-left: 1em;">
+        <a class="btn primary" href="{% url main.views.ingest_metadata_edit uuid %}">Add</a>
+      </div>
+
+    </div>
+  </div>
+{% endblock %}

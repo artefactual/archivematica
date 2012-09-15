@@ -1,0 +1,3 @@
+#!/bin/sh
+
+./usr/share/archivematica/MCPrpcCLI.py

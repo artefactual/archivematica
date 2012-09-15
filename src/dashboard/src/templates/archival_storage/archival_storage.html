@@ -1,0 +1,99 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block title %}Archival storage{% endblock %}
+{% block h1 %}Archival storage{% endblock %}
+{% block page_id %}archival-storage{% endblock %}
+
+{% block css %}
+  <link href="{{ STATIC_URL }}css/archival_storage.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block content %}
+
+  <form action='{% url components.archival_storage.views.archival_storage_search %}' method='GET'>
+  {{ form }}
+  <input type='submit' value='Search archival storage'/>
+  </form>
+
+  {% if sips %}
+    <h1>
+      Browse archival storage<br/>
+      <small>
+        Total size: {{ total_size }} MB
+      {% if aip_indexed_file_count %}
+        &nbsp;&nbsp;Total files: {{ aip_indexed_file_count }} indexed
+      {% endif %}
+      </small>
+    </h1>
+
+    <table>
+      <thead>
+        <th>
+          <div>
+            AIP
+            <a class="up {% if order_by == 'name' and sort_by == 'up' %} selected_up{% endif %}" href="?order_by=name&sort_by=up">Sort</a>
+            <a class="down {% if order_by == 'name' and sort_by == 'down' %} selected_down{% endif %}" href="?order_by=name&sort_by=down">Sort</a>
+          </div>
+        </th>
+        <th>
+          <div>
+            Size
+            <a class="up {% if order_by == 'size' and sort_by == 'up' %} selected_up"{% endif %}" href="?order_by=size&sort_by=up">Sort</a>
+            <a class="down {% if order_by == 'size' and sort_by == 'down' %} selected_down"{% endif %}" href="?order_by=size&sort_by=down">Sort</a>
+          </div>
+        </th>
+        <th>
+          <div>
+            UUID
+            <a class="up {% if order_by == 'uuid' and sort_by == 'up' %} selected_up"{% endif %}" href="?order_by=uuid&sort_by=up">Sort</a>
+            <a class="down {% if order_by == 'uuid' and sort_by == 'down' %} selected_down"{% endif %}" href="?order_by=uuid&sort_by=down">Sort</a>
+          </div>
+        </th>
+        <th>
+          <div>
+            Date stored
+            <a class="up {% if order_by == 'date' and sort_by == 'up' %} selected_up{% endif %}" href="?order_by=date&sort_by=up">Sort</a>
+            <a class="down {% if order_by == 'date' and sort_by == 'down' %} selected_down"{% endif %}" href="?order_by=date&sort_by=down">Sort</a>
+          </div>
+        </th>
+      </thead>
+      <tbody>
+        {% for item in sips %}
+          <tr>
+            <td class="link-sip"><a href="{% url components.archival_storage.views.archival_storage_sip_download item.href %}">{{ item.name }}</a></td>
+            <td class="size">{{ item.size }}</td>
+            <td class="uuid">{{ item.uuid }}</td>
+            <td><span class='utcDate'>{{ item.date }}</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if has_other_pages %}
+      {% if has_previous %}
+        <a href="{% url components.archival_storage.views.archival_storage_page previous_page %}">Previous</a>
+        {% if has_next %}
+          |
+        {% endif %}
+      {% endif %}
+      {% if has_next %}
+        <a href="{% url components.archival_storage.views.archival_storage_page next_page %}">Next</a>
+      {% endif %}
+    {% endif %}
+
+  {% else %}
+
+    <div class="alert-message">
+      <p>Archival storage is empty.</p>
+    </div>
+
+  {% endif %}
+
+  <script>
+  $(document).ready(function() {
+    localizeUtcDateElements();
+  });
+  </script>
+
+{% endblock %}

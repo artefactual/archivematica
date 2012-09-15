@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+
+  <div id="login">
+
+    <h1><a href="http://www.archivematica.org">Archivematica</a></h1>
+
+    <form class="form-stacked" method="post" action="{% url django.contrib.auth.views.login %}">
+
+      {% csrf_token %}
+
+      <div class="fields">
+        {% include "_form.html" %}
+      </div>
+
+      <div class="actions">
+        <a id="forgot-password" style="display: none;" href="{% url django.contrib.auth.views.login %}">Forgot your password?</a>
+        <button class="btn primary" type="submit">Log in</button>
+      </div>
+
+    </form>
+
+  </div>
+
+{% endblock %}

@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# source debconf stuff
+. /usr/share/debconf/confmodule
+. /usr/share/dbconfig-common/dpkg/postinst
+
+dbc_go archivematica-mcp-server $@
+
+userID=`id -u archivematica`
+
+if [ "${userID}" = 333 ]; then
+  echo "User archivematica exists"
+else
+  adduser --uid 333 --group --system --home /var/lib/archivematica/ archivematica
+fi
+
+sudo usermod -a -G audio archivematica
+chown -R archivematica:archivematica "/var/archivematica/"
+chmod -R g+s "/var/archivematica/"
+chmod -R 775 "/var/archivematica/"
+echo "archivematica ALL=NOPASSWD:/bin/mv,/bin/chown,/bin/chmod,/usr/bin/gs,/usr/lib/transcoder/transcoderScripts/DocumentConverter.py,/usr/bin/inkscape,/usr/lib/archivematica/transcoder/transcoderScripts/restartOpenOffice.sh" >> /etc/sudoers
+#chown archivematica:archivematica /etc/archivematica/MCPServer/dbsettings
+#chmod 700 /etc/archivematica/MCPServer/dbsettings

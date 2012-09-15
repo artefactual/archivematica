@@ -1,0 +1,72 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/file-explorer.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/directory_picker.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/administration/source_directory_picker.js"></script>
+{% endblock %}
+
+{% block css %}
+  <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/backbone-file-explorer.css" />
+  <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/directory_picker.css" />
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "main/administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <h3>Transfer source directories</h3>
+
+      <div id="directories"></div>
+
+      <p id="source_page_instructions" style="margin-left: 5px">Select new source directories using the selector below:</p>
+
+      <div id="explorer" class="backbone-file-explorer"></div>
+
+    </div>
+
+  </div>
+
+  <!-- Templates below -->
+
+  <script type="text/template" id="template-dir-level">
+    <div class="backbone-file-explorer-level"></div>
+  </script>
+
+  <script type="text/template" id="template-dir-entry">
+    <div class="backbone-file-explorer-entry" style="clear: both;">
+      <span class="backbone-file-explorer-directory_icon_button"></span>
+      <span class="backbone-file-explorer-directory_entry_name"><%= name %></span>
+      <span class="backbone-file-explorer-directory_entry_actions"></span>
+    </div>
+  </script>
+
+  <script type="text/template" id="template-source-directory-table">
+    <table>
+      <thead>
+        <th>Path</th>
+        <th></th>
+      </thead>
+      <tbody>
+        <%= rows %>
+      </tbody>
+    </table>
+  </script>
+
+  <script type="text/template" id="template-source-directory-table-row">
+    <tr>
+      <td><%= path %></td>
+      <td><a href="#" id="directory_<%= id %>" class="btn" style="float: right;">Remove</a></td>
+    </tr>
+  </script>
+
+{% endblock %}

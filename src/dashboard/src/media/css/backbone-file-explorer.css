@@ -1,0 +1,50 @@
+.backbone-file-explorer {
+  width: 100%;
+  background-repeat: no-repeat;
+  background-position: right top;
+}
+
+.backbone-file-explorer-busy {
+  background-color: '#eee';
+  opacity: .5;
+  background-image: url('../img/ajax-loader.gif');
+  background-position: 99% 50%;
+}
+
+.backbone-file-explorer-idle {
+  background-color: 'white';
+  opacity: 1;
+  background-image: none;
+}
+
+.backbone-file-explorer-entry {
+  position: relative;
+  padding: 6px;
+}
+
+.backbone-file-explorer-entry-odd {
+  background-color: #f5f5f5;
+}
+
+.backbone-file-explorer-directory {
+  background-image: url('../img/folder.png');
+  background-repeat: no-repeat;
+  background-position: 3px 50%;
+}
+
+.backbone-file-explorer-directory_open {
+  background-image: url('../img/folderopen.png');
+}
+
+.backbone-file-explorer-directory_icon_button {
+  display: block;
+  float: left;
+  width: 28px;
+  height: 16px;
+}
+
+.backbone-file-explorer-directory_entry_actions {
+  float: right;
+}
+
+.backbone-file-explorer-level { padding-left: 10px; }

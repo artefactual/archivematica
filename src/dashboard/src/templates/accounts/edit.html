@@ -1,0 +1,38 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block title %}Users - Edit {{ user }}{% endblock %}
+{% block h1 %}Users - Edit {{ user }}{% endblock %}
+{% block page_id %}accounts-edit{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "main/administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Users' components.accounts.views.list %}
+        {% breadcrumb title %}
+      </ul>
+
+      <form method="post" action="{% url components.accounts.views.edit user.id %}">
+
+        {% csrf_token %}
+
+        {% include "_form.html" %}
+
+        <div class="actions">
+          <button type="submit" class="btn primary">Save</button>
+          <a class="btn" href="{% url main.views.home %}">Cancel</a>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+{% endblock %}

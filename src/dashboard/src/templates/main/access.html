@@ -1,0 +1,45 @@
+{% extends "layout_fluid.html" %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Access{% endblock %}
+{% block page_id %}access{% endblock %}
+
+{% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/access.js"></script>
+  <script type="text/javascript">
+
+    $(document).ready(function()
+      {
+      });
+
+  </script>
+{% endblock %}
+
+{% block content %}
+
+  <div class="alert-message">
+    <p>Reload this page manually to get updates.</p>
+  </div>
+
+  <table>
+    <thead>
+      <th>AIP</th>
+      <th>DIP URL</th>
+      <th>Upload date</th>
+      <th>Upload status</th>
+      <th>Actions</th>
+    </thead>
+    <tbody>
+      {% for item in access %}
+        <tr>
+          <td><a href="{% url main.views.ingest_detail item.sipuuid %}">{{ item.get_title }}</a></th>
+          <td><a href="{{ item.resource }}">{{ item.resource }}</a></th>
+          <td>{{ item.createdtime }}</th>
+          <td>{{ item.status }}</th>
+          <td><a href="{% url main.views.access_delete item.pk %}">Delete</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

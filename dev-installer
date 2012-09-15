@@ -1,0 +1,190 @@
+#!/bin/bash
+
+# This file is part of Archivematica.
+#
+# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+#
+# Archivematica is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# Archivematica is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+
+# @package Archivematica
+# @author Joseph Perry <joseph@artefactual.com>
+# @version svn: $Id$
+
+cd `dirname $0`
+
+part="create the archivematica user"
+echo -n "\"Would you like to ${part}?\" (y/N) "
+read a
+if [[ $a == "Y" || $a == "y" ]]; then
+        echo "Going to ${part} ..."
+        sudo adduser --uid 333 --group --system --home /var/lib/archivematica/ archivematica
+        sudo gpasswd -a $USER archivematica
+else
+        echo "Not going to ${part}"
+fi
+
+
+part="install Gearman"
+echo -n "\"Would you like to ${part}?\" (y/N) "
+read a
+if [[ $a == "Y" || $a == "y" ]]; then
+        echo "Going to ${part} ..."
+        sudo apt-get install gearman 
+	sudo apt-get install python-setuptools 
+	sudo apt-get install python-gearman
+        #sudo easy_install gearman
+else
+        echo "Not going to ${part}"
+fi
+
+part="install/update MySQL"
+echo -n "\"Would you like to ${part}?\" (y/N) "
+read a
+if [[ $a == "Y" || $a == "y" ]]; then
+        echo "Going to ${part} ..."
+        sudo apt-get install mysql-server -y
+else
+        echo "Not going to ${part}"
+fi
+
+part="install/update Apache"
+echo -n "\"Would you like to ${part}?\" (y/N) "
+read a
+if [[ $a == "Y" || $a == "y" ]]; then
+        echo "Going to ${part} ..."
+        sudo apt-get install apache2 -y
+else
+        echo "Not going to ${part}"
+fi
+
+part="add ppa repositories"
+echo -n "\"Would you like to ${part}?\" (y/N) "
+read a
+if [[ $a == "Y" || $a == "y" ]]; then
+	sudo apt-get install python-software-properties -y
+        sudo add-apt-repository ppa:archivematica/externals-dev
+        #sudo add-apt-repository ppa:twisted-dev/ppa
+        sudo apt-get update
+else
+        echo "Not going to ${part}"
+fi
+
+part="run the MCP Server preMCPLogging.sh"
+echo -n "\"Would you like to ${part}?\" (y/N) "
+read a
+if [[ $a == "Y" || $a == "y" ]]; then
+        echo "Going to ${part} ..."
+        tmp="`pwd`"
+        cd ./src/MCPServer/share/
+        sudo ./preMCPLogging.sh
+        cd "$tmp"
+else
+        echo "Not going to ${part}"
+fi
+
+part="run the MCP Server postinst script"
+echo -n "\"Would you like to ${part}?\" (y/N) "
+read a
+if [[ $a == "Y" || $a == "y" ]]; then
+        echo "Going to ${part} ..."
+        sudo ./src/MCPServer/debian/postinst
+else
+        echo "Not going to ${part}"
+fi
+
+part="install ICA-AtoM"
+echo -n "\"Would you like to ${part}?\" (y/N) "
+read a
+if [[ $a == "Y" || $a == "y" ]]; then
+
+        # { GIT }
+        # sudo apt-get --quiet --quiet --yes install git-core
+        # { SVN }
+        sudo apt-get --quiet --quiet --yes install subversion
+
+	# Working directory
+	WDIR=$(pwd)
+
+	# Remove
+	sudo rm -rf /var/www/ica-atom
+	sudo rm -rf ${WDIR}/qubit-git # Old name
+	sudo rm -rf ${WDIR}/ica-atom-svn # Old name
+        sudo rm -rf ${WDIR}/qubit-svn
+
+        # { GIT }
+	# Clone git repository, create bran experimental from original/experimental
+	# git clone git://github.com/sevein/qubit.git ${WDIR}/qubit-git
+        # cd ${WDIR}/qubit-git
+        # git checkout --track origin/experimental
+        # cd ${WDIR}
+        # { SVN }
+        # Checkout SVN repo
+        svn checkout http://qubit-toolkit.googlecode.com/svn/trunk ${WDIR}/qubit-svn
+
+	# Link
+        # /var/www is created by the Apache package
+        # so it needs to be installer at this point
+	sudo ln -sf ${WDIR}/qubit-svn /var/www/ica-atom
+
+	# Permissions
+	sudo chown -R www-data:www-data ${WDIR}/qubit-svn
+
+	# Restart database
+	echo "Enter mysql root password (hit enter if blank)"
+	mysql -u root --execute="DROP DATABASE IF EXISTS qubit; CREATE DATABASE qubit CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+
+        # Workaround for issue 1188
+        sudo rm -rf ${WDIR}/qubit-svn/cache/*
+	sudo -u www-data php ${WDIR}/qubit-svn/symfony cc
+
+	# Restart Apache (not really needed)
+	sudo apache2ctl restart
+
+else
+        echo "Not going to ${part}."
+fi
+
+part="reinstall archivematica upstart services - requires restart"
+echo -n "\"Would you like to ${part}?\" (y/N) "
+read a
+if [[ $a == "Y" || $a == "y" ]]; then
+        echo "Going to ${part} ..."
+        sudo stop archivematica-mcp-client
+        sleep 1
+        sudo stop archivematica-mcp-server
+        sleep 3
+        sudo stop qubit-sword
+        sudo rm \
+          /etc/init/archivematica-mcp-server.conf \
+          /etc/init/archivematica-mcp-client.conf \
+          /etc/init/qubit-sword.conf \
+          /etc/init/openoffice-service.conf
+        sudo ln src/MCPServer/init/archivematica-mcp-server.conf /etc/init/
+        sudo ln src/MCPClient/init/archivematica-mcp-client.conf /etc/init/
+        #sudo ln src/MCPClient/init/openoffice-service.conf /etc/init/
+        sudo ln qubit-svn/init/qubit-sword.conf /etc/init/
+else
+        echo "Not going to ${part}."
+fi
+
+exit
+
+part="example"
+echo -n "\"Would you like to ${part}?\" (y/N) "
+read a
+if [[ $a == "Y" || $a == "y" ]]; then
+        echo "Going to ${part} ..."
+else
+        echo "Not going to ${part}"
+fi

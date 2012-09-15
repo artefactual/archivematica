@@ -1,0 +1,55 @@
+{% extends "layout_fluid.html" %}
+
+{% block title %}Users{% endblock %}
+{% block h1 %}Users{% endblock %}
+{% block page_id %}accounts-list{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "main/administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <h3>Users</h3>
+
+      <table>
+
+        <tr>
+          <th>Username</th>
+          <th>Name</th>
+          <th>E-mail</th>
+          <th>Administrator</th>
+          <th>Active</th>
+          <th>&nbsp;</th>
+        </tr>
+
+        {% for item in users %}
+
+          <tr>
+            <td><a href="{% url components.accounts.views.edit item.id %}">{{ item.username }}</a></td>
+            <td>{{ item.get_full_name }}</td>
+            <td>{{ item.email }}</td>
+            <td>{{ item.is_superuser }}</td>
+            <td>{{ item.is_active }}</td>
+            <td>
+              {% if user.is_superuser or user.id == item.id %}
+                <a class="btn edit small" href="{% url components.accounts.views.edit item.id %}">Edit</a>
+                <a class="btn danger small" href="{% url components.accounts.views.delete item.id %}">Delete</a>
+              {% endif %}
+          </tr>
+
+        {% endfor %}
+
+      </table>
+
+      <div class="actions">
+        <a class="btn" href="{% url components.accounts.views.add %}">Add new</a>
+      </div>
+
+    </div>
+
+  </div>
+
+{% endblock %}

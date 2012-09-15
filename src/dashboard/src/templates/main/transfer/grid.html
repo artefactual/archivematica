@@ -1,0 +1,223 @@
+{% extends "layout_fluid.html" %}
+
+{% block title %}Transfer{% endblock %}
+{% block h1 %}Transfer{% endblock %}
+{% block page_id %}transfer{% endblock %}
+
+{% block css %}
+<link href="{{ STATIC_URL }}vendor/select2/select2.css" rel="stylesheet" type="text/css" />
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/backbone-file-explorer.css" />
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/directory_picker.css" />
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/transfer_grid.css" />
+{% endblock %}
+
+{% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/jobs.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/online.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/transfer.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}vendor/select2/select2.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/transfer/component_form.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/file-explorer.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/transfer/component_directory_select.js"></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function()
+      {
+        {% if polling_interval %}
+          window.pollingInterval = {{ polling_interval }};
+        {% endif %}
+
+        window.Sips = new SipCollection;
+        window.App = new AppView({
+          statusUrl: '/transfer/status/'
+        });
+
+        // add hint to add transfer form
+        $('#id_name').val('Add transfer').click(function() {
+          if ($(this).val() == 'Add transfer') {
+            $(this).val('');
+          }
+        });
+      });
+
+    window.microservices_help = {
+      {% for x, y in microservices_help.iteritems %}
+        '{{ x }}': '{{ y }}',
+      {% endfor %}
+    };
+
+    // briefly show message if source directories not configured
+    setTimeout(function() {
+      $('.content > footer').fadeOut();
+    }, 4000);
+  </script>
+{% endblock %}
+
+{% block topbar %}
+  <div id="connection-status" class="pull-right"></div>
+{% endblock %}
+
+{% block content %}
+
+  {% if source_directories %}
+
+    <div id='transfer_component_form'></div>
+
+    <script>
+    $(document).ready(function() {
+      var sourceDirectories = {
+        {% for dir in source_directories %}
+          '{{ dir.id }}': '{{ dir.path }}',
+        {% endfor %}
+      };
+
+      var form = new TransferComponentFormView({
+        el: $('#transfer_component_form'),
+        form_layout_template: $('#transfer-component-layout').html(),
+        modal_template: $('#transfer-component-select-modal-layout').html(),
+        sourceDirectories: sourceDirectories
+      });
+
+      form.render();
+    });
+    </script>
+  {% endif %}
+
+  <div class="span12" id="sip-container">
+    <div id="sip-header">
+      <div id="sip-header-directory">Transfer</div>
+      <div id="sip-header-uuid">UUID</div>
+      <div id="sip-header-timestamp">Transfer start time</div>
+      <div id="sip-header-actions">&nbsp;</div>
+    </div>
+    <div id="sip-body">
+    </div>
+  </div>
+
+  <!--
+  {% if not form %}
+     <footer>If you wish to add transfers using the web interface,
+     configure your source directories <a href='/administration/sources/'>here</a>.</footer>
+  {% endif %}
+  -->
+
+  <!-- Templates -->
+
+  <script type="text/template" id="sip-template">
+    <div class="sip-row">
+      <div class="sip-detail-icon-status"><%= this.model.jobs.getIcon() %></div>
+      <div class="sip-detail-directory">
+        <%= directory %>
+        <abbr title="<%= uuid %>">UUID</span>
+      </div>
+      <div class="sip-detail-uuid"><%= uuid %></div>
+      <div class="sip-detail-timestamp"><%= this.getIngestStartTime() %></div>
+      <div class="sip-detail-actions">
+        <a class="btn_show_metadata" href="#" title="Metadata"><span>Micro-Services</span></a>
+        <a class="btn_remove_sip" href="#" title="Remove"><span>Remove</span></a>
+      </div>
+    </div>
+    <div class="sip-detail-job-container"></div>
+  </script>
+
+  <script type="text/template" id="microservice-group-template">
+    <div class="microservice-group" style="padding-bottom: 3px">
+      &nbsp;<span class="microservice-group-arrow">&#x25B8;</span>
+      <span class="microservice-group-name">Micro-service: <%= name %></span>
+    </div>
+  </script>
+
+  <script type="text/template" id="job-template">
+    <div class="job-detail-microservice">
+      <span class="job-type-label">Job:&nbsp;</span><span title="<%= uuid %>"><%= type %></span>
+      <% tmp = window.microservices_help[type]; %>
+      <% if (tmp !== undefined) { %>
+        [<a href="#" title="<%= tmp %>">?</a>]
+      <% } %>
+    </div>
+    <div class="job-detail-currentstep"><span title="<%= new Date(timestamp * 1000).getArchivematicaDateTime() %>  /  <%= timestamp %>"><%= currentstep %></span></div>
+    <div class="job-detail-actions">
+      <a class="btn_show_tasks" href="#" title="Tasks"><span>Tasks</span></a>
+    </div>
+  </script>
+
+  <script type="text/template" id="directory-browser-template">
+    <div id="directory-browser-tab">Directory browser (<a href="#">Close</a>)</div>
+    <div id="directory-browser-content"></div>
+  </script>
+
+  <script type="text/template" id="status-template">
+    <div id="status-bullet">
+      <span>Initializing...</span>
+      <img src="{{ STATIC_URL }}images/bullet_delete.png" />
+    </div>
+  </script>
+
+  <!-- Transfer component form layout templates -->
+  <script type="text/template" id='transfer-component-layout'>
+    <div id="transfer-component-form">
+      <div class="transfer-component-activity-indicator">
+        <img src='/media/images/ajax-loader.gif' />
+      </div>
+      <div style="float:left">
+        <form>
+          <div id='transfer-type-container'>
+            <select type='text' id='transfer-type'>
+              <option value='standard'>Standard</option>
+              <option value='unzipped bag'>Unzipped Bag</option>
+              <option value='zipped bag'>Zipped Bag</option>
+              <option value='dspace'>DSpace</option>
+              <option value='maildir'>Maildir</option>
+            </select>
+            <div class="help-block">Type</div>
+          </div>
+          <div id='transfer-name-container'>
+            <input type='text' id='transfer-name'></input>
+            <div class="help-block">Transfer name</div>
+          </div>
+          <!--
+          <div style="float:left;">
+            <input type='text' id='transfer-accession-number'></input>
+            <div class="help-block">Accession no.</div>
+          </div>
+          -->
+        </form>
+      </div>
+      <div id="transfer_paths_area">
+        <%= transfer_paths %>
+      </div>
+    </div>
+    <br clear='all'/>
+  </script>
+
+  <script type="text/template" id='transfer-component-select-modal-layout'>
+    <div class="modal hide" id="transfer-component-select-modal">
+      <div class="modal-header">
+        <button type="button" class="close" id="transfer-component-select-close" data-dismiss="modal">×</button>
+        <h3>Select a directory</h3>
+      </div>
+      <div class="modal-body" id="transfer-component-select-body">
+        <div id="explorer" class="backbone-file-explorer"></div>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal" id="transfer-component-select-cancel">Cancel</a>
+      </div>
+    </div>
+  </script>
+
+  <!-- File explorer templates -->
+
+  <script type="text/template" id='template-dir-level'>
+    <div class="backbone-file-explorer-level"></div>
+  </script>
+
+  <script type="text/template" id='template-dir-entry'>
+    <div class="backbone-file-explorer-entry" style='clear:both'>
+      <span class="backbone-file-explorer-directory_icon_button"></span>
+      <span class="backbone-file-explorer-directory_entry_name"><%= name %></span>
+      <span class="backbone-file-explorer-directory_entry_actions"></span>
+    </div>
+  </script>
+
+{% endblock %}
