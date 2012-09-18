@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage sanitizeNames
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 
 import string
 import os

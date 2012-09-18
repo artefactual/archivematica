@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage archivematicaDev
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 
 #Depends: ${shlibs:Depends}, ${misc:Depends}, libapache2-mod-wsgi, python-django, python-django-doc
 import os

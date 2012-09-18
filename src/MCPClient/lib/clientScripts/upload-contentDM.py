@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Mark Jordan <EMAIL@EMAIL.email>
-# @version svn: $Id$
 
 import os
 import stat

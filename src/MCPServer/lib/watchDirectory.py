@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 # @thanks to http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html
 import os
 import time

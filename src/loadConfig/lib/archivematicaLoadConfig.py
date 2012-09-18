@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage Ingest
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 
 import sys
 

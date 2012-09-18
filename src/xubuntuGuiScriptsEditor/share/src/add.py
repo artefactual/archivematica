@@ -19,7 +19,6 @@
 # @package Archivematica
 # @subpackage xubuntuGUI
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 
 from lxml import etree
 from optparse import OptionParser

@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage MCPrpcCLI
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 
 import gearman
 admin = gearman.admin_client.GearmanAdminClient(host_list=["127.0.0.1"])

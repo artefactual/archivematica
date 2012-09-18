@@ -21,7 +21,6 @@
 # @package Archivematica
 # @subpackage Dashboard
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 
 def getNormalizationReportQuery():
     return """
