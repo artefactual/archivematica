@@ -33,8 +33,7 @@ var TransferComponentFormView = Backbone.View.extend({
   },
 
   startTransfer: function(transfer) {
-    var path
-      , copied = 0;
+    var path;
 
     $('.transfer-component-activity-indicator').show();
     // get path to temp directory in which to copy individual transfer
@@ -62,10 +61,13 @@ var TransferComponentFormView = Backbone.View.extend({
               destination: tempDir
             },
             success: function(results) {
-              copied++;
+              if (results['error']) {
+                alert(results.message);
+              }
             }
           });
         }
+
         // move from temp directory to appropriate watchdir
         var url = '/filesystem/ransfer/'
           , isZipFile = path.toLowerCase().indexOf('.zip') != -1
@@ -88,6 +90,10 @@ var TransferComponentFormView = Backbone.View.extend({
             type:     transfer.type
           },
           success: function(results) {
+            if (results['error']) {
+              alert(results.message);
+            }
+
             $('#transfer-name').val('');
             $('#transfer-name-container').show();
             $('#transfer-type').val('standard');

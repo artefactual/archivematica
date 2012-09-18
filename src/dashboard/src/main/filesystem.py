@@ -296,7 +296,7 @@ def copy_to_start_transfer(request):
                     destination
                 )
             except:
-                error = 'Error copying from ' + entry_path + ' to ' + destination_dir + '. (' + str(sys.exc_info()[0]) + ')'
+                error = 'Error copying from ' + filepath + ' to ' + destination + '. (' + str(sys.exc_info()[0]) + ')'
 
     response = {}
 
