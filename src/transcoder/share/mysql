@@ -557,7 +557,7 @@ CREATE TABLE DefaultCommandsForClassifications (
     Foreign Key (MicroserviceChainLink) references MicroServiceChainLinks(pk),
     forClassification   INT,
     Foreign Key (forClassification) references CommandClassifications(pk)
-);
+)DEFAULT CHARSET=utf8;
 
 INSERT INTO DefaultCommandsForClassifications
     (MicroserviceChainLink, forClassification)
