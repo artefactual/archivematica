@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# This file is part of Archivematica.
+#
+# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>>
+#
+# Archivematica is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Archivematica is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Archivematica. If not, see <http://www.gnu.org/licenses/>>.
+
+# @package Archivematica
+# @author Joseph Perry <joseph@artefactual.com>>
+# @version svn: $Id$
+
+databaseName="MCP"
+set -e
+echo -n "Enter the DATABASE root password (Hit enter if blank):"
+read dbpassword
+
+if [ ! -z "$dbpassword" ] ; then
+  dbpassword="-p${dbpassword}"
+else
+  dbpassword=""
+fi
+
+
+
+
+mysqldump="mysqldump -u root ${dbpassword} ${databaseName}"
+dumpTables="--skip-triggers --compact -d"
+dumpData="--skip-triggers --compact --no-create-info"
+MCPDumpSQLLocation="../src/MCPServer/share/mysql2"
+
+#MCP
+#-- MCP dump tables --
+$mysqldump Accesses Agents MetadataAppliesToTypes Dublincore RightsStatement RightsStatementCopyright RightsStatementCopyrightNote RightsStatementCopyrightDocumentationIdentifier RightsStatementLicense RightsStatementLicenseDocumentationIdentifier RightsStatementLicenseNote ArchivematicaRightsStatement RightsStatementStatuteInformation RightsStatementStatuteInformationNote RightsStatementStatuteDocumentationIdentifier RightsStatementOtherRightsInformation RightsStatementOtherRightsDocumentationIdentifier RightsStatementOtherRightsNote RightsStatementRightsGranted RightsStatementRightsGrantedRestriction RightsStatementRightsGrantedNote RightsStatementLinkingAgentIdentifier Transfers Tasks AIPs SIPs Files FilesFits FilesIDs Events Derivations Notifications Sounds TaskTypes TasksConfigs MicroServiceChainLinks MicroServiceChainLinksExitCodes Jobs MicroServiceChains MicroServiceChainChoice MicroServiceChoiceReplacementDic WatchedDirectoriesExpectedTypes WatchedDirectories StandardTasksConfigs SourceDirectories $dumpTables > $MCPDumpSQLLocation
+
+#-- MCP dump data --
+$mysqldump Accesses Agents MetadataAppliesToTypes Sounds TaskTypes TasksConfigs MicroServiceChainLinks MicroServiceChainLinksExitCodes MicroServiceChains MicroServiceChainChoice MicroServiceChoiceReplacementDic WatchedDirectoriesExpectedTypes WatchedDirectories StandardTasksConfigs SourceDirectories $dumpData >> $MCPDumpSQLLocation
+
+#-- MCP-views --
+$mysqldump filesPreservationAccessFormatStatus jobDurationsView lastJobsInfo lastJobsTasks processingDurationInformation processingDurationInformation2 processingDurationInformationByClient taskDurationsView transfersAndSIPs $dumpTables >> $MCPDumpSQLLocation
+
+
+
+#Transcoder
+$mysqldump CommandTypes CommandClassifications CommandsSupportedBy Commands FileIDs FilesIdentifiedIDs CommandRelationships FileIDsByExtension FileIDsByPronom Groups FileIDGroupMembers SubGroups DefaultCommandsForClassifications $dumpTables >> $MCPDumpSQLLocation
+$mysqldump CommandTypes CommandClassifications CommandsSupportedBy Commands FileIDs FilesIdentifiedIDs CommandRelationships FileIDsByExtension FileIDsByPronom Groups FileIDGroupMembers SubGroups DefaultCommandsForClassifications $dumpData >> $MCPDumpSQLLocation #Source of FPR DATA
+#-- Transcoder-views --
+$mysqldump filesPreservationAccessFormatStatus  >> $MCPDumpSQLLocation
+
+
+#ElasticsearchIndexBackup
+$mysqldump ElasticsearchIndexBackup >> $MCPDumpSQLLocation
+
+
+
+#Dashboard
+#-- Dashboard dump tables --
+$mysqldump auth_message auth_user auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type $dumpTables >> $MCPDumpSQLLocation
+$mysqldump auth_message auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type $dumpData >> $MCPDumpSQLLocation
+
+#-- Dashboard dump Dashboard-views --
+$mysqldump developmentAide_choicesDisplayed django_content_type django_session  $dumpTables >> $MCPDumpSQLLocation
+
+
+
