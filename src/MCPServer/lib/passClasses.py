@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 
 class replacementDic:
     def __init__(self, dictionary):

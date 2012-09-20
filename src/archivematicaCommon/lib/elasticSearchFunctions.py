@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Mike Cantelon <mike@artefactual.com>
-# @version svn: $Id$
 
 import time
 import os

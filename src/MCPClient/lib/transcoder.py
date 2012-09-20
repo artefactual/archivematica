@@ -19,7 +19,6 @@
 # @package Archivematica
 # @subpackage archivematicaClient
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 import re
 import math
 import sys

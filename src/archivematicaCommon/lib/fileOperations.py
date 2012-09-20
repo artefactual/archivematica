@@ -19,7 +19,6 @@
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 
 import os
 import uuid

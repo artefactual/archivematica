@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 import os
 import sys
 import databaseInterface

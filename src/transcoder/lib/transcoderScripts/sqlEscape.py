@@ -19,7 +19,6 @@
 # @package Archivematica
 # @subpackage transcoder
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 
 #-- used to Escape to sql string
 

@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage MCPServer-plantUMLTextGenerator
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 
 #sudo apt-get install graphviz
 

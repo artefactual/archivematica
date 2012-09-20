@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Mark Jordan <email>
-# @version svn: $Id$
 import sys
 import json
 import urllib
