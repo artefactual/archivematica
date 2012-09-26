@@ -1,8 +1,24 @@
+Git cheat sheet
+#updates regardless of branch
+git add
+git commit
+git pull origin master
+git push origin joseph
+
+
+==
+
+SELECT Table_Name FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'MCP' AND COLUMN_NAME = 'pk' AND NOT COLUMN_TYPE = 'varchar(50)';
+
+echo -e \\a
 Altered db recreate script to populate a db (MCP2) as MCP would be created new.
 
 Determined some things:
 
-mysqldump -u root MCP2 CommandsSupportedBy FileIDs FileIDsByExtension CommandClassifications CommandTypes Commands CommandRelationships DefaultCommandsForClassifications 
+mysqldump -u root MCP CommandsSupportedBy FileIDs FileIDsByExtension CommandClassifications CommandTypes Commands CommandRelationships DefaultCommandsForClassifications
+mysqldump -u root MCP CommandsSupportedBy FileIDs FileIDsByExtension CommandClassifications CommandTypes Commands CommandRelationships DefaultCommandsForClassifications --skip-triggers --compact --no-create-info
+
+mysqldump -u root MCP CommandsSupportedBy FileIDs FileIDsByExtension CommandClassifications CommandTypes Commands CommandRelationships DefaultCommandsForClassifications > ~/archivematica/src/transcoder/share/mysql2.sql
 
 To restore data:
 DefaultCommands for classification

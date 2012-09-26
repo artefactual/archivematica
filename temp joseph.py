@@ -36,27 +36,6 @@ def runSQL(sql):
         databaseInterface.runSQL(sql)
 
 
-tables = ['CommandsSupportedBy', 'FileIDs', 'FileIDsByExtension', 'CommandClassifications', 'CommandTypes', 'Commands', 'CommandRelationships', 'DefaultCommandsForClassifications', 'StandardTasksConfigs']
-
-sql = """
-        select 
-        concat(table_name, '.', column_name) as 'foreign key',  
-        concat(referenced_table_name, '.', referenced_column_name) as 'references',
-        table_name,
-        column_name,
-        referenced_table_name,
-        referenced_column_name,
-        CONSTRAINT_NAME
-    from
-        information_schema.key_column_usage
-    where
-        referenced_table_name is not null
-    AND(
-        referenced_table_name = '%s'
-    ) GROUP BY concat(table_name, '.', column_name)
-    ORDER BY  concat(table_name, '.', column_name);""" % ("' OR \n        referenced_table_name = '".join(tables))
-rowsRelationships = databaseInterface.queryAllSQL(sql)
-
 #(table, column Type, column Type Value, column FK):(table, column)
 combinedForeignKeys = {
     ("TasksConfigs", "taskType", "0", "taskTypePKReference"):("StandardTasksConfigs", "pk"),
@@ -69,22 +48,30 @@ combinedForeignKeys = {
     ("TasksConfigs", "taskType", "10", "taskTypePKReference"):("StandardTasksConfigs", "pk")
 }
 
-global limitSetSet
-limitSetSet = {}
-def limitSet(setKey):
-    global limitSetSet
-    if limitSetSet.contains(setKey):
-        return False
-    else:
-        limitSetSet[setKey] = None
-        return True
+def part1(tables, doPart2=False):
+    #find what relationships exist
+    sql = """
+            select 
+            concat(table_name, '.', column_name) as 'foreign key',  
+            concat(referenced_table_name, '.', referenced_column_name) as 'references',
+            table_name,
+            column_name,
+            referenced_table_name,
+            referenced_column_name,
+            CONSTRAINT_NAME
+        from
+            information_schema.key_column_usage
+        where
+            referenced_table_name is not null
+        AND(
+            referenced_table_name = '%s'
+        ) GROUP BY concat(table_name, '.', column_name)
+        ORDER BY  concat(table_name, '.', column_name);""" % ("' OR \n        referenced_table_name = '".join(tables))
+    rowsRelationships = databaseInterface.queryAllSQL(sql)
     
-    
-
-def part1():
     #Create new pk columns and assign them random UUIDs
     for table in tables:
-        sql = "ALTER TABLE %s  ADD newPK VARCHAR(50);" % (table)
+        sql = "ALTER TABLE %s  ADD newPK VARCHAR(50) AFTER pk;" % (table)
         runSQL(sql)
         sql = "SELECT pk from %s" % (table)
         rows = databaseInterface.queryAllSQL(sql)
@@ -103,64 +90,45 @@ def part1():
         referenced_column_name = row[5]
         constraint_name = row[6]
         
-        try:
-            runSQL("ALTER TABLE %s ADD %s_new VARCHAR(50)" % (table_name, column_name) )
+        runSQL("ALTER TABLE %s ADD %s_new VARCHAR(50) AFTER %s" % (table_name, column_name, column_name) )
+            
+        sql = "SELECT pk, newPK from %s" % (referenced_table_name)
+        rows2 = databaseInterface.queryAllSQL(sql)
+        for row2 in rows2:
+            pk, newPK = row2
+            runSQL("UPDATE %s SET %s='%s' WHERE %s = %d;" % (table_name, column_name+"_new", newPK, column_name, pk ))
+           
+        runSQL("ALTER TABLE %s DROP FOREIGN KEY %s;" % (table_name, constraint_name) )
+        runSQL("ALTER TABLE %s DROP COLUMN %s;" % (table_name, column_name) )
+                
+
+    
+    if doPart2:
+        #create new foreign key columns for implicit
+        combinedForeignKeysFKs = {}
+        for key, value in combinedForeignKeys.iteritems():
+            table, columnType, columnTypeValue, columnFK = key
+            combinedForeignKeysFKs[(table, columnType, columnFK)] = None #ensures uniqueness/remove duplicates
+
+        for table, columnType, columnFK in combinedForeignKeysFKs.iterkeys():
+            runSQL("ALTER TABLE %s ADD %s_new VARCHAR(50) AFTER %s" % (table, columnFK, columnFK) )
+
+        #check implicit relationships + update new columns
+        for key, value in combinedForeignKeys.iteritems():
+            referenced_table_name, referenced_column_name = value
+            table_name, keyColumn, keyValue, column_name = key
             
             sql = "SELECT pk, newPK from %s" % (referenced_table_name)
             rows2 = databaseInterface.queryAllSQL(sql)
             for row2 in rows2:
                 pk, newPK = row2
-                runSQL("UPDATE %s SET %s='%s' WHERE %s = %d;" % (table_name, column_name+"_new", newPK, column_name, pk ))
-            
-            #http://lists.mysql.com/mysql/204199
-            try:
-                #print "trying part 2"
-                sql = "ALTER TABLE %s DROP FOREIGN KEY %s;" % (table_name, constraint_name) 
-                runSQL(sql)
-                #databaseInterface.runSQL(sql)
-            except:
-                print >>sys.stderr, "except 2"
-            
-            try:
-                #print "trying part 3"
-                sql = "ALTER TABLE %s DROP COLUMN %s;" % (table_name, column_name)
-                runSQL(sql)
-                #databaseInterface.runSQL(sql)
-            except:
-                print >>sys.stderr, "except 3"
-                
-        except Exception as inst:
-            traceback.print_exc(file=sys.stdout)
-            print >>sys.stderr, "DEBUG EXCEPTION!"
-            print >>sys.stderr, type(inst)     # the exception instance
-            print >>sys.stderr, inst.args
-            continue
+                runSQL( "UPDATE %s SET %s='%s' WHERE %s = %d AND %s = %s;" % (table_name, column_name+"_new", newPK, column_name, pk, keyColumn, keyValue) )
+                    
 
-    #create new foreign key columns for implicit
-    combinedForeignKeysFKs = {}
-    for key, value in combinedForeignKeys.iteritems():
-        table, columnType, columnTypeValue, columnFK = key
-        combinedForeignKeysFKs[(table, columnType, columnFK)] = None #ensures uniqueness/remove duplicates
-
-    for table, columnType, columnFK in combinedForeignKeysFKs.iterkeys():
-        runSQL("ALTER TABLE %s ADD %s_new VARCHAR(50)" % (table, columnFK) )
-
-    #check implicit relationships + update new columns
-    for key, value in combinedForeignKeys.iteritems():
-        referenced_table_name, referenced_column_name = value
-        table_name, keyColumn, keyValue, column_name = key
-        
-        sql = "SELECT pk, newPK from %s" % (referenced_table_name)
-        rows2 = databaseInterface.queryAllSQL(sql)
-        for row2 in rows2:
-            pk, newPK = row2
-            runSQL( "UPDATE %s SET %s='%s' WHERE %s = %d AND %s = %s;" % (table_name, column_name+"_new", newPK, column_name, pk, keyColumn, keyValue) )
-                
-
-    #Remove old, rename new columns for implicit relationships
-    for table, columnType, columnFK in combinedForeignKeysFKs.iterkeys():
-        runSQL("ALTER TABLE %s DROP COLUMN %s;" % (table, columnFK))
-        runSQL( "ALTER TABLE %s  CHANGE %s_new %s VARCHAR(50) AFTER %s;" % (table, columnFK, columnFK, columnType) )
+        #Remove old, rename new columns for implicit relationships
+        for table, columnType, columnFK in combinedForeignKeysFKs.iterkeys():
+            runSQL("ALTER TABLE %s DROP COLUMN %s;" % (table, columnFK))
+            runSQL( "ALTER TABLE %s  CHANGE %s_new %s VARCHAR(50);" % (table, columnFK, columnFK) )
         
     #Set the pk as the new pk, and 
     for table in tables:
@@ -171,34 +139,34 @@ def part1():
         runSQL( "ALTER TABLE %s CHANGE newPK pk VARCHAR(50) FIRST;" % (table) )
         runSQL( "ALTER TABLE %s ADD INDEX %s(pk);" % (table, table) )
         
-    
-        
-def part2():    
+
     #rename the fk_new to fk
     #set the fk relationship    
     for row in rowsRelationships:
-        print >>sys.stderr, "\n", row[0], " -> ",  row[1]
+        #print >>sys.stderr, "\n", row[0], " -> ",  row[1]
         table_name = row[2]
         column_name = row[3]
         referenced_table_name = row[4]
         referenced_column_name = row[5]
         constraint_name = row[6]
-        try:
-            runSQL( "ALTER TABLE %s  CHANGE %s_new %s VARCHAR(50) AFTER pk;" % (table_name, column_name, column_name) )
-            print >>sys.stderr, "renamed"
-        except Exception as inst:
-            traceback.print_exc(file=sys.stdout)
-            print >>sys.stderr, "DEBUG EXCEPTION!"
-        try:
-            runSQL( "ALTER TABLE %s ADD FOREIGN KEY (%s) REFERENCES %s(%s)" %(table_name, column_name, referenced_table_name, referenced_column_name) )
-            print >>sys.stderr, "added fk"
-        except Exception as inst:
-            traceback.print_exc(file=sys.stdout)
-            print >>sys.stderr, "DEBUG EXCEPTION!"
+        runSQL( "ALTER TABLE %s  CHANGE %s_new %s VARCHAR(50);" % (table_name, column_name, column_name) )
+        runSQL( "ALTER TABLE %s ADD FOREIGN KEY (%s) REFERENCES %s(%s)" %(table_name, column_name, referenced_table_name, referenced_column_name) )
+           
+def part3(tables):    
+    for table in tables:
+        runSQL( "ALTER TABLE %s ADD replaces VARCHAR(50)" % (table) )
+        runSQL( "ALTER TABLE %s ADD lastModified TIMESTAMP" % (table) )
+        runSQL( "UPDATE %s SET lastModified=NOW();" % (table) )
+        
+
 
 if __name__ == '__main__':
-    part1()
-    part2()
+    tables1 = ['CommandsSupportedBy', 'FileIDs', 'FileIDsByExtension', 'CommandClassifications', 'CommandTypes', 'Commands', 'CommandRelationships', 'DefaultCommandsForClassifications', 'StandardTasksConfigs', 'FileIDGroupMembers', 'FileIDsByPronom', 'FilesIDs', 'Groups']
+    tables2 = ['MetadataAppliesToTypes', 'MicroServiceChainChoice', 'MicroServiceChainLinks', 'MicroServiceChainLinksExitCodes', 'MicroServiceChains', 'MicroServiceChoiceReplacementDic', 'Sounds', 'SourceDirectories', 'TaskTypes', 'TasksConfigs', 'WatchedDirectories', 'WatchedDirectoriesExpectedTypes']
+
+    part1(tables1, doPart2=True)
+    part1(tables2)
+    part3(tables1 + tables2)
     
 #SHOW CREATE TABLE CommandRelationships;
     
