@@ -48,7 +48,7 @@ class linkTaskManagerSplitOnFileIdAndruleset:
         self.jobChainLink = jobChainLink
         self.exitCode = 0
         self.clearToNextLink = False
-        sql = """SELECT * FROM StandardTasksConfigs where pk = """ + pk.__str__()
+        sql = """SELECT * FROM StandardTasksConfigs where pk = '%s'""" % (pk.__str__())
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         while row != None:
@@ -107,13 +107,11 @@ class linkTaskManagerSplitOnFileIdAndruleset:
             sql = """SELECT MicroServiceChainLinks.pk FROM FilesIdentifiedIDs JOIN CommandRelationships ON FilesIdentifiedIDs.fileID = CommandRelationships.fileID JOIN CommandClassifications ON CommandClassifications.pk = CommandRelationships.commandClassification JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = CommandRelationships.pk JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE TasksConfigs.taskType = 8 AND FilesIdentifiedIDs.fileUUID = '%s' AND CommandClassifications.classification = '%s';""" % (fileUUID, ComandClassification)
             rows = databaseInterface.queryAllSQL(sql)
             if rows and len(rows):
-                print "DEBUGGING 6772: ", fileUUID, ComandClassification, rows
                 for row in rows:
                      jobChainLink.jobChain.nextChainLink(row[0], passVar=passVar, incrementLinkSplit=True, subJobOf=self.jobChainLink.UUID)
             else:
                 sql = """SELECT MicroserviceChainLink FROM DefaultCommandsForClassifications JOIN CommandClassifications ON CommandClassifications.pk = DefaultCommandsForClassifications.forClassification WHERE CommandClassifications.classification = '%s'""" % (ComandClassification)
                 rows = databaseInterface.queryAllSQL(sql)
-                print "DEBUGGING2 6772: ", fileUUID, ComandClassification, rows
                 for row in rows:
                      jobChainLink.jobChain.nextChainLink(row[0], passVar=passVar, incrementLinkSplit=True, subJobOf=self.jobChainLink.UUID)
                 

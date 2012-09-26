@@ -69,7 +69,7 @@ def jobChainLinkTextGet(indent, leadIn, pk, label = ""):
         execute = row[9]
         
         if taskType == 3:
-            sql = """SELECT execute FROM StandardTasksConfigs WHERE pk = %d; """ % (taskTypePKReference)
+            sql = """SELECT execute FROM StandardTasksConfigs where pk = '%s'""" % (pk)
             rows = databaseInterface.queryAllSQL(sql)
             leadOut = "%d. %s" % (pk, description)
             if label != "":

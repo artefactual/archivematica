@@ -103,7 +103,7 @@ class Command:
         sql = """SELECT CT.type, C.verificationCommand, C.eventDetailCommand, C.command, C.outputLocation, C.description
         FROM Commands AS C
         JOIN CommandTypes AS CT ON C.commandType = CT.pk
-        WHERE C.pk = """ + commandID.__str__() + """
+        WHERE C.pk = '""" + commandID.__str__() + """'
         ;"""
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
@@ -222,14 +222,14 @@ class CommandLinker:
         self.commandObject.__str__()
 
     def execute(self):
-        sql = "UPDATE CommandRelationships SET countAttempts=countAttempts+1 WHERE pk=" + self.pk.__str__() + ";"
+        sql = "UPDATE CommandRelationships SET countAttempts=countAttempts+1 WHERE pk='" + self.pk.__str__() + "';"
         databaseInterface.runSQL(sql)
         if self.commandObject.exitCode != None:
             if self.commandObject.exitCode:
                 column = "countNotOK"
             else:
                 column = "countOK"
-            sql = "UPDATE CommandRelationships SET " + column + "=" + column + "+1 WHERE pk=" + self.pk.__str__() + ";"
+            sql = "UPDATE CommandRelationships SET " + column + "=" + column + "+1 WHERE pk='" + self.pk.__str__() + "';"
             databaseInterface.runSQL(sql)
             return self.commandObject.exitCode
         else:
@@ -238,7 +238,7 @@ class CommandLinker:
                 column = "countNotOK"
             else:
                 column = "countOK"
-            sql = "UPDATE CommandRelationships SET " + column + "=" + column + "+1 WHERE pk=" + self.pk.__str__() + ";"
+            sql = "UPDATE CommandRelationships SET " + column + "=" + column + "+1 WHERE pk='" + self.pk.__str__() + "';"
             databaseInterface.runSQL(sql)
             return ret
 

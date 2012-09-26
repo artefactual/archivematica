@@ -49,7 +49,7 @@ class linkTaskManagerAssignMagicLink:
 
         ###GET THE MAGIC NUMBER FROM THE TASK stuff
         link = 0
-        sql = """SELECT execute FROM StandardTasksConfigs where pk = """ + pk.__str__()
+        sql = """SELECT execute FROM StandardTasksConfigs where pk = '%s'""" % (pk)
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         while row != None:

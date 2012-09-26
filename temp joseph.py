@@ -27,13 +27,16 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 import traceback
 
+databaseInterface.printSQL = True
+
+
 #used to control testing of an individual call to databaseInterface.runSQL() 
 def runSQL(sql):
     if True:
         databaseInterface.runSQL(sql)
 
 
-tables = ['CommandsSupportedBy', 'FileIDs', 'FileIDsByExtension', 'CommandClassifications', 'CommandTypes', 'Commands', 'CommandRelationships', 'DefaultCommandsForClassifications']
+tables = ['CommandsSupportedBy', 'FileIDs', 'FileIDsByExtension', 'CommandClassifications', 'CommandTypes', 'Commands', 'CommandRelationships', 'DefaultCommandsForClassifications', 'StandardTasksConfigs']
 
 sql = """
         select 
@@ -49,18 +52,34 @@ sql = """
     where
         referenced_table_name is not null
     AND(
-        referenced_table_name = 'CommandsSupportedBy' OR 
-        referenced_table_name = 'FileIDs' OR 
-        referenced_table_name = 'FileIDsByExtension' OR 
-        referenced_table_name = 'CommandClassifications' OR 
-        referenced_table_name = 'CommandTypes' OR 
-        referenced_table_name = 'Commands' OR 
-        referenced_table_name = 'CommandRelationships' OR 
-        referenced_table_name = 'DefaultCommandsForClassifications'
+        referenced_table_name = '%s'
     ) GROUP BY concat(table_name, '.', column_name)
-    ORDER BY  concat(table_name, '.', column_name);"""
+    ORDER BY  concat(table_name, '.', column_name);""" % ("' OR \n        referenced_table_name = '".join(tables))
 rowsRelationships = databaseInterface.queryAllSQL(sql)
 
+#(table, column Type, column Type Value, column FK):(table, column)
+combinedForeignKeys = {
+    ("TasksConfigs", "taskType", "0", "taskTypePKReference"):("StandardTasksConfigs", "pk"),
+    ("TasksConfigs", "taskType", "1", "taskTypePKReference"):("StandardTasksConfigs", "pk"),
+    ("TasksConfigs", "taskType", "3", "taskTypePKReference"):("StandardTasksConfigs", "pk"),
+    ("TasksConfigs", "taskType", "6", "taskTypePKReference"):("StandardTasksConfigs", "pk"),
+    ("TasksConfigs", "taskType", "7", "taskTypePKReference"):("StandardTasksConfigs", "pk"),
+    ("TasksConfigs", "taskType", "8", "taskTypePKReference"):("CommandRelationships", "pk"),
+    ("TasksConfigs", "taskType", "9", "taskTypePKReference"):("StandardTasksConfigs", "pk"),   
+    ("TasksConfigs", "taskType", "10", "taskTypePKReference"):("StandardTasksConfigs", "pk")
+}
+
+global limitSetSet
+limitSetSet = {}
+def limitSet(setKey):
+    global limitSetSet
+    if limitSetSet.contains(setKey):
+        return False
+    else:
+        limitSetSet[setKey] = None
+        return True
+    
+    
 
 def part1():
     #Create new pk columns and assign them random UUIDs
@@ -73,6 +92,7 @@ def part1():
             UUID = uuid.uuid4().__str__()
             sql = "UPDATE %s SET newPK='%s' WHERE pk = %d;" % (table, UUID, row[0])
             runSQL(sql)
+    
     
     #Create new foreign key columns and populate them with the appropriate UUID's
     for row in rowsRelationships:
@@ -115,9 +135,33 @@ def part1():
             print >>sys.stderr, type(inst)     # the exception instance
             print >>sys.stderr, inst.args
             continue
+
+    #create new foreign key columns for implicit
+    combinedForeignKeysFKs = {}
+    for key, value in combinedForeignKeys.iteritems():
+        table, columnType, columnTypeValue, columnFK = key
+        combinedForeignKeysFKs[(table, columnType, columnFK)] = None #ensures uniqueness/remove duplicates
+
+    for table, columnType, columnFK in combinedForeignKeysFKs.iterkeys():
+        runSQL("ALTER TABLE %s ADD %s_new VARCHAR(50)" % (table, columnFK) )
+
+    #check implicit relationships + update new columns
+    for key, value in combinedForeignKeys.iteritems():
+        referenced_table_name, referenced_column_name = value
+        table_name, keyColumn, keyValue, column_name = key
         
+        sql = "SELECT pk, newPK from %s" % (referenced_table_name)
+        rows2 = databaseInterface.queryAllSQL(sql)
+        for row2 in rows2:
+            pk, newPK = row2
+            runSQL( "UPDATE %s SET %s='%s' WHERE %s = %d AND %s = %s;" % (table_name, column_name+"_new", newPK, column_name, pk, keyColumn, keyValue) )
+                
+
+    #Remove old, rename new columns for implicit relationships
+    for table, columnType, columnFK in combinedForeignKeysFKs.iterkeys():
+        runSQL("ALTER TABLE %s DROP COLUMN %s;" % (table, columnFK))
+        runSQL( "ALTER TABLE %s  CHANGE %s_new %s VARCHAR(50) AFTER %s;" % (table, columnFK, columnFK, columnType) )
         
-    
     #Set the pk as the new pk, and 
     for table in tables:
         runSQL( "ALTER TABLE %s CHANGE pk pk INT;" % (table) )

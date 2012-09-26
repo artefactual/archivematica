@@ -52,6 +52,8 @@ import databaseInterface
 from databaseFunctions import logTaskAssignedSQL
 printOutputLock = threading.Lock()
 
+databaseInterface.printSQL = True
+
 config = ConfigParser.SafeConfigParser({'MCPArchivematicaServerInterface': ""})
 config.read("/etc/archivematica/MCPClient/clientConfig.conf")
 
@@ -156,12 +158,16 @@ def startThread(threadNumber):
         gm_worker.register_task(key, executeCommand)
     
     #load transoder jobs
-    sql = """SELECT CommandRelationships.pk FROM CommandRelationships JOIN Commands on CommandRelationships.command = Commands.pk WHERE supportedBy = 1;"""
+    sql = """SELECT CommandRelationships.pk 
+                FROM CommandRelationships 
+                JOIN Commands ON CommandRelationships.command = Commands.pk
+                JOIN CommandsSupportedBy ON Commands.supportedBy = CommandsSupportedBy.pk 
+                WHERE CommandsSupportedBy.description = 'supported by default archivematica client';"""
     rows = databaseInterface.queryAllSQL(sql)
     if rows:
         for row in rows:
             CommandRelationshipsPK = row[0]
-            key = "transcoder_cr%d" % (CommandRelationshipsPK)
+            key = "transcoder_cr%s" % (CommandRelationshipsPK.__str__())
             printOutputLock.acquire()
             print "registering:", '"' + key + '"'
             printOutputLock.release()

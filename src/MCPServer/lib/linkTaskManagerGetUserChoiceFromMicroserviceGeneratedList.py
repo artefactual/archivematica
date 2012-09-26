@@ -48,7 +48,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
         self.jobChainLink = jobChainLink
         self.UUID = uuid.uuid4().__str__()
         self.unit = unit
-        sql = """SELECT execute FROM StandardTasksConfigs where pk = """ + pk.__str__()
+        sql = sql = """SELECT execute FROM StandardTasksConfigs where pk = '%s'""" % (pk)
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         choiceIndex = 0

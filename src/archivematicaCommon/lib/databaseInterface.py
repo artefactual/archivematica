@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import MySQLdb
+import warnings
 import os
 import threading
 import string
@@ -44,6 +45,7 @@ def reconnect():
         try:
             database=MySQLdb.connect(**DB_CONNECTION_OPTS)
             database.autocommit(0)
+            warnings.filterwarnings('error', category=MySQLdb.Warning)
             break
         except Exception as inst:
             print >>sys.stderr, "Error connecting to database:"
@@ -157,10 +159,11 @@ def querySQL(sql):
 
 def queryAllSQL(sql):
     global database
-    if printSQL:
-        print sql
     if isinstance(sql, unicode):
         sql = sql.encode('utf-8')
+    if printSQL:
+        print sql
+
     sqlLock.acquire()
     #print sql
     rows = []
