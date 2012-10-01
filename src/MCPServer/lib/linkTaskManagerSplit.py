@@ -48,18 +48,19 @@ class linkTaskManagerSplit:
         self.jobChainLink = jobChainLink
         self.exitCode = 0
         self.clearToNextLink = False
-        sql = """SELECT * FROM StandardTasksConfigs where pk = '%s'""" % (pk.__str__())
+        sql = """SELECT filterSubDir, execute FROM TasksConfigsStartLinkForEachFile where pk = '%s'""" % (pk.__str__())
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
+        
         while row != None:
-            filterFileEnd = deUnicode(row[1])
-            filterFileStart = deUnicode(row[2])
-            filterSubDir = deUnicode(row[3])
-            requiresOutputLock = row[4]
-            self.standardOutputFile = deUnicode(row[5])
-            self.standardErrorFile = deUnicode(row[6])
-            self.execute = deUnicode(row[7])
-            self.arguments = deUnicode(row[8])
+            filterFileEnd = "" #deUnicode(row[1])
+            filterFileStart = "" #deUnicode(row[2])
+            filterSubDir = deUnicode(row[0])
+            requiresOutputLock = "" #row[4]
+            self.standardOutputFile = "" #deUnicode(row[5])
+            self.standardErrorFile = "" #deUnicode(row[6])
+            self.execute = deUnicode(row[1])
+            self.arguments = "" #deUnicode(row[8])
             row = c.fetchone()
         sqlLock.release()
         if requiresOutputLock:
@@ -70,7 +71,6 @@ class linkTaskManagerSplit:
         SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
 
         self.tasksLock.acquire()
-        print "Debug - ", unit.fileList.items()
         for file, fileUnit in unit.fileList.items():
             #print "file:", file, fileUnit
             if filterFileEnd:
@@ -86,7 +86,7 @@ class linkTaskManagerSplit:
                 #print filterSubDir, type(filterSubDir)
 
                 if not file.startswith(unit.pathString + filterSubDir):
-                    print "skipping file", file, filterSubDir
+                    print "skipping file", file, filterSubDir, " :   \t Doesn't start with: ", unit.pathString + filterSubDir 
                     continue
 
             standardOutputFile = self.standardOutputFile

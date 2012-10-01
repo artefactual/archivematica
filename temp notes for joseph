@@ -8,6 +8,8 @@ git push origin joseph
 
 ==
 
+echo -e "y\n" | ./dev-helper restart; clear; sleep 1; clear; tail -n 100 /tmp/archivematicaMCPServer-* -f
+
 SELECT Table_Name FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'MCP' AND COLUMN_NAME = 'pk' AND NOT COLUMN_TYPE = 'varchar(50)';
 
 echo -e \\a

@@ -34,19 +34,62 @@ databaseInterface.printSQL = True
 def runSQL(sql):
     if True:
         databaseInterface.runSQL(sql)
+    if True:
+        sys.stdout.flush()
+        sys.stderr.flush()
 
 
 #(table, column Type, column Type Value, column FK):(table, column)
 combinedForeignKeys = {
     ("TasksConfigs", "taskType", "0", "taskTypePKReference"):("StandardTasksConfigs", "pk"),
     ("TasksConfigs", "taskType", "1", "taskTypePKReference"):("StandardTasksConfigs", "pk"),
-    ("TasksConfigs", "taskType", "3", "taskTypePKReference"):("StandardTasksConfigs", "pk"),
-    ("TasksConfigs", "taskType", "6", "taskTypePKReference"):("StandardTasksConfigs", "pk"),
+    ("TasksConfigs", "taskType", "3", "taskTypePKReference"):("TasksConfigsAssignMagicLink", "pk"),
+    ("TasksConfigs", "taskType", "6", "taskTypePKReference"):("TasksConfigsStartLinkForEachFile", "pk"),
     ("TasksConfigs", "taskType", "7", "taskTypePKReference"):("StandardTasksConfigs", "pk"),
     ("TasksConfigs", "taskType", "8", "taskTypePKReference"):("CommandRelationships", "pk"),
     ("TasksConfigs", "taskType", "9", "taskTypePKReference"):("StandardTasksConfigs", "pk"),   
     ("TasksConfigs", "taskType", "10", "taskTypePKReference"):("StandardTasksConfigs", "pk")
 }
+
+def part0():
+    try:
+        runSQL("""DROP TABLE IF EXISTS TasksConfigsAssignMagicLink;""")
+    except:
+        print
+    runSQL("""CREATE TABLE TasksConfigsAssignMagicLink (
+    pk                  INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    execute             INT UNSIGNED,
+    Foreign Key (execute) references MicroServiceChainLinks(pk)
+) DEFAULT CHARSET=utf8;""")
+    
+    for row in databaseInterface.queryAllSQL("""SELECT StandardTasksConfigs.pk, execute FROM TasksConfigs JOIN StandardTasksConfigs ON taskTypePKReference = StandardTasksConfigs.pk  WHERE TasksConfigs.taskType = 3;"""):
+        runSQL( """INSERT INTO TasksConfigsAssignMagicLink(pk, execute) VALUES ( %s, %s)""" % (row[0].__str__(), row[1]) )
+        runSQL( """DELETE FROM StandardTasksConfigs WHERE pk = %s;""" % (row[0].__str__()) )
+    
+    
+        
+    #Split creating Jobs for each file
+    try:
+        runSQL("""DROP TABLE IF EXISTS TasksConfigsStartLinkForEachFile;""")
+    except:
+        print
+    runSQL("""CREATE TABLE TasksConfigsStartLinkForEachFile (
+    pk                  INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    filterSubDir        VARCHAR(50),
+    execute             INT UNSIGNED,
+    Foreign Key (execute) references MicroServiceChains(pk)
+) DEFAULT CHARSET=utf8;""")
+    
+    for row in databaseInterface.queryAllSQL("""SELECT StandardTasksConfigs.pk, StandardTasksConfigs.filterSubDir, execute  FROM TasksConfigs JOIN StandardTasksConfigs ON StandardTasksConfigs.pk = TasksConfigs.taskTypePKReference WHERE TasksConfigs.taskType = 6  GROUP BY StandardTasksConfigs.pk;"""):
+        runSQL( """INSERT INTO TasksConfigsStartLinkForEachFile(pk, filterSubDir, execute) VALUES ( %s, '%s', %s)""" % (row[0].__str__(), row[1], row[2]) )
+        runSQL( """DELETE FROM StandardTasksConfigs WHERE pk = %s;""" % (row[0].__str__()) )
+    
+    
+    
+    runSQL("ALTER TABLE Transfers ADD FOREIGN KEY (magicLink) REFERENCES MicroServiceChainLinks(pk);")
+    runSQL("ALTER TABLE SIPs ADD FOREIGN KEY (magicLink) REFERENCES MicroServiceChainLinks(pk);")
+    
+    
 
 def part1(tables, doPart2=False):
     #find what relationships exist
@@ -161,9 +204,10 @@ def part3(tables):
 
 
 if __name__ == '__main__':
-    tables1 = ['CommandsSupportedBy', 'FileIDs', 'FileIDsByExtension', 'CommandClassifications', 'CommandTypes', 'Commands', 'CommandRelationships', 'DefaultCommandsForClassifications', 'StandardTasksConfigs', 'FileIDGroupMembers', 'FileIDsByPronom', 'FilesIDs', 'Groups']
+    tables1 = ['CommandsSupportedBy', 'FileIDs', 'FileIDsByExtension', 'CommandClassifications', 'CommandTypes', 'Commands', 'CommandRelationships', 'DefaultCommandsForClassifications', 'StandardTasksConfigs', 'FileIDGroupMembers', 'FileIDsByPronom', 'Groups', 'TasksConfigsAssignMagicLink', 'TasksConfigsStartLinkForEachFile']
     tables2 = ['MetadataAppliesToTypes', 'MicroServiceChainChoice', 'MicroServiceChainLinks', 'MicroServiceChainLinksExitCodes', 'MicroServiceChains', 'MicroServiceChoiceReplacementDic', 'Sounds', 'SourceDirectories', 'TaskTypes', 'TasksConfigs', 'WatchedDirectories', 'WatchedDirectoriesExpectedTypes']
 
+    part0()
     part1(tables1, doPart2=True)
     part1(tables2)
     part3(tables1 + tables2)

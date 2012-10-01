@@ -85,7 +85,7 @@ class linkTaskManagerSplitOnFileIdAndruleset:
                 #print filterSubDir, type(filterSubDir)
 
                 if not file.startswith(unit.pathString + filterSubDir):
-                    print "skipping file", file, filterSubDir
+                    print "skipping file", file, filterSubDir, " :   \t Doesn't start with: ", unit.pathString + filterSubDir
                     continue
 
             standardOutputFile = self.standardOutputFile
@@ -104,7 +104,8 @@ class linkTaskManagerSplitOnFileIdAndruleset:
             toPassVar.update({"%standardErrorFile%":standardErrorFile, "%standardOutputFile%":standardOutputFile, '%commandClassifications%':ComandClassification})
             print "debug", toPassVar
             passVar=replacementDic(toPassVar)
-            sql = """SELECT MicroServiceChainLinks.pk FROM FilesIdentifiedIDs JOIN CommandRelationships ON FilesIdentifiedIDs.fileID = CommandRelationships.fileID JOIN CommandClassifications ON CommandClassifications.pk = CommandRelationships.commandClassification JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = CommandRelationships.pk JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE TasksConfigs.taskType = 8 AND FilesIdentifiedIDs.fileUUID = '%s' AND CommandClassifications.classification = '%s';""" % (fileUUID, ComandClassification)
+            taskType = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Transcoder task type"))[0][0]
+            sql = """SELECT MicroServiceChainLinks.pk FROM FilesIdentifiedIDs JOIN CommandRelationships ON FilesIdentifiedIDs.fileID = CommandRelationships.fileID JOIN CommandClassifications ON CommandClassifications.pk = CommandRelationships.commandClassification JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = CommandRelationships.pk JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE TasksConfigs.taskType = '%s' AND FilesIdentifiedIDs.fileUUID = '%s' AND CommandClassifications.classification = '%s';""" % (taskType, fileUUID, ComandClassification)
             rows = databaseInterface.queryAllSQL(sql)
             if rows and len(rows):
                 for row in rows:

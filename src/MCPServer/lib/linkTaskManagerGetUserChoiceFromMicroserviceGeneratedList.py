@@ -131,7 +131,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
                     #if int(preconfiguredChoice.find("appliesTo").text) == self.jobChainLink.pk:
                     if preconfiguredChoice.find("appliesTo").text == self.jobChainLink.description:
                         desiredChoice = preconfiguredChoice.find("goToChain").text
-                        sql = """SELECT MicroServiceChoiceReplacementDic.replacementDic FROM MicroServiceChoiceReplacementDic  WHERE MicroServiceChoiceReplacementDic.description = '%s' AND MicroServiceChoiceReplacementDic.choiceAvailableAtLink = %s;""" % (desiredChoice, self.jobChainLink.pk.__str__())
+                        sql = """SELECT MicroServiceChoiceReplacementDic.replacementDic FROM MicroServiceChoiceReplacementDic  WHERE MicroServiceChoiceReplacementDic.description = '%s' AND MicroServiceChoiceReplacementDic.choiceAvailableAtLink = '%s';""" % (desiredChoice, self.jobChainLink.pk.__str__())
                         c, sqlLock = databaseInterface.querySQL(sql)
                         row = c.fetchone()
                         while row != None:
