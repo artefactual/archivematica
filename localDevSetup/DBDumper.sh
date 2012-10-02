@@ -36,27 +36,26 @@ fi
 
 
 mysqldump="mysqldump -u root ${dbpassword} ${databaseName}"
-dumpTables="--skip-triggers --compact -d"
-dumpData="--skip-triggers --compact --no-create-info"
+dumpTables="--skip-triggers --skip-comments -d"
+dumpData="--skip-triggers --skip-comments --no-create-info"
 MCPDumpSQLLocation="../src/MCPServer/share/mysql2"
 
+#echo 'START TRANSACTION;' > $MCPDumpSQLLocation
+echo 'SET foreign_key_checks = 0;' > $MCPDumpSQLLocation
 #MCP
 #-- MCP dump tables --
-$mysqldump Accesses Agents MetadataAppliesToTypes Dublincore RightsStatement RightsStatementCopyright RightsStatementCopyrightNote RightsStatementCopyrightDocumentationIdentifier RightsStatementLicense RightsStatementLicenseDocumentationIdentifier RightsStatementLicenseNote ArchivematicaRightsStatement RightsStatementStatuteInformation RightsStatementStatuteInformationNote RightsStatementStatuteDocumentationIdentifier RightsStatementOtherRightsInformation RightsStatementOtherRightsDocumentationIdentifier RightsStatementOtherRightsNote RightsStatementRightsGranted RightsStatementRightsGrantedRestriction RightsStatementRightsGrantedNote RightsStatementLinkingAgentIdentifier Transfers Tasks AIPs SIPs Files FilesFits FilesIDs Events Derivations Notifications Sounds TaskTypes TasksConfigs MicroServiceChainLinks MicroServiceChainLinksExitCodes Jobs MicroServiceChains MicroServiceChainChoice MicroServiceChoiceReplacementDic WatchedDirectoriesExpectedTypes WatchedDirectories StandardTasksConfigs SourceDirectories $dumpTables > $MCPDumpSQLLocation
+$mysqldump Accesses Agents MetadataAppliesToTypes Dublincore RightsStatement RightsStatementCopyright RightsStatementCopyrightNote RightsStatementCopyrightDocumentationIdentifier RightsStatementLicense RightsStatementLicenseDocumentationIdentifier RightsStatementLicenseNote ArchivematicaRightsStatement RightsStatementStatuteInformation RightsStatementStatuteInformationNote RightsStatementStatuteDocumentationIdentifier RightsStatementOtherRightsInformation RightsStatementOtherRightsDocumentationIdentifier RightsStatementOtherRightsNote RightsStatementRightsGranted RightsStatementRightsGrantedRestriction RightsStatementRightsGrantedNote RightsStatementLinkingAgentIdentifier Tasks AIPs Notifications Sounds TaskTypes TasksConfigs MicroServiceChainLinks Transfers SIPs Files FilesFits FilesIDs Events Derivations MicroServiceChainLinksExitCodes Jobs MicroServiceChains MicroServiceChainChoice MicroServiceChoiceReplacementDic WatchedDirectoriesExpectedTypes WatchedDirectories StandardTasksConfigs SourceDirectories TasksConfigsAssignMagicLink TasksConfigsStartLinkForEachFile  $dumpTables >> $MCPDumpSQLLocation
 
 #-- MCP dump data --
-$mysqldump Accesses Agents MetadataAppliesToTypes Sounds TaskTypes TasksConfigs MicroServiceChainLinks MicroServiceChainLinksExitCodes MicroServiceChains MicroServiceChainChoice MicroServiceChoiceReplacementDic WatchedDirectoriesExpectedTypes WatchedDirectories StandardTasksConfigs SourceDirectories $dumpData >> $MCPDumpSQLLocation
+$mysqldump Accesses Agents MetadataAppliesToTypes Sounds TaskTypes TasksConfigs MicroServiceChainLinks MicroServiceChainLinksExitCodes MicroServiceChains MicroServiceChainChoice MicroServiceChoiceReplacementDic WatchedDirectoriesExpectedTypes WatchedDirectories StandardTasksConfigs SourceDirectories TasksConfigsAssignMagicLink TasksConfigsStartLinkForEachFile $dumpData >> $MCPDumpSQLLocation
 
-#-- MCP-views --
-$mysqldump filesPreservationAccessFormatStatus jobDurationsView lastJobsInfo lastJobsTasks processingDurationInformation processingDurationInformation2 processingDurationInformationByClient taskDurationsView transfersAndSIPs $dumpTables >> $MCPDumpSQLLocation
+
 
 
 
 #Transcoder
 $mysqldump CommandTypes CommandClassifications CommandsSupportedBy Commands FileIDs FilesIdentifiedIDs CommandRelationships FileIDsByExtension FileIDsByPronom Groups FileIDGroupMembers SubGroups DefaultCommandsForClassifications $dumpTables >> $MCPDumpSQLLocation
 $mysqldump CommandTypes CommandClassifications CommandsSupportedBy Commands FileIDs FilesIdentifiedIDs CommandRelationships FileIDsByExtension FileIDsByPronom Groups FileIDGroupMembers SubGroups DefaultCommandsForClassifications $dumpData >> $MCPDumpSQLLocation #Source of FPR DATA
-#-- Transcoder-views --
-$mysqldump filesPreservationAccessFormatStatus  >> $MCPDumpSQLLocation
 
 
 #ElasticsearchIndexBackup
@@ -66,11 +65,22 @@ $mysqldump ElasticsearchIndexBackup >> $MCPDumpSQLLocation
 
 #Dashboard
 #-- Dashboard dump tables --
-$mysqldump auth_message auth_user auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type $dumpTables >> $MCPDumpSQLLocation
-$mysqldump auth_message auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type $dumpData >> $MCPDumpSQLLocation
+$mysqldump auth_message auth_user auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type django_session $dumpTables >> $MCPDumpSQLLocation
+$mysqldump auth_message auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type django_session  $dumpData >> $MCPDumpSQLLocation
+
+
+
+echo 'SET foreign_key_checks = 1;' >> $MCPDumpSQLLocation
+#echo 'COMMIT;' >> $MCPDumpSQLLocation
+
+
+#VIEWS
+#-- MCP-views --
+##$mysqldump filesPreservationAccessFormatStatus jobDurationsView lastJobsInfo lastJobsTasks processingDurationInformation processingDurationInformation2 processingDurationInformationByClient taskDurationsView transfersAndSIPs $dumpTables >> $MCPDumpSQLLocation
+
+#-- Transcoder-views --
+##$mysqldump filesPreservationAccessFormatStatus  >> $MCPDumpSQLLocation
 
 #-- Dashboard dump Dashboard-views --
-$mysqldump developmentAide_choicesDisplayed django_content_type django_session  $dumpTables >> $MCPDumpSQLLocation
-
-
+##$mysqldump developmentAide_choicesDisplayed $dumpTables >> $MCPDumpSQLLocation
 
