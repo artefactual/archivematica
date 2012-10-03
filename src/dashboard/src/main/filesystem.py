@@ -147,9 +147,9 @@ def get_temp_directory(request):
     )
 
 def copy_transfer_component(request):
-    transfer_name = request.POST.get('name', '')
-    path = request.POST.get('path', '')
-    destination = request.POST.get('destination', '')
+    transfer_name = archivematicaFunctions.unicodeToStr(request.POST.get('name', ''))
+    path = archivematicaFunctions.unicodeToStr(request.POST.get('path', ''))
+    destination = archivematicaFunctions.unicodeToStr(request.POST.get('destination', ''))
 
     error = None
 
