@@ -26,7 +26,7 @@ COMPLETED_TRANSFERS_DIR = SHARED_DIRECTORY_ROOT + '/watchedDirectories/SIPCreati
 
 def sorted_directory_list(path):
     cleaned = []
-    entries = os.listdir(path)
+    entries = os.listdir(archivematicaFunctions.unicodeToStr(path))
     for entry in entries:
         cleaned.append(archivematicaFunctions.unicodeToStr(entry))
     return sorted(cleaned, cmp=locale.strcoll)
