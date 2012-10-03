@@ -1,11 +1,16 @@
 function createDirectoryPicker(baseDirectory, modalCssId, targetCssId) {
-  var url = '/filesystem/contents/?path=' + encodeURIComponent(baseDirectory)
-
   var selector = new DirectoryPickerView({
+    ajaxChildDataUrl: '/filesystem/children/',
     el: $('#explorer'),
     levelTemplate: $('#template-dir-level').html(),
     entryTemplate: $('#template-dir-entry').html()
   });
+
+  selector.structure = {
+    'name': baseDirectory.replace(/\\/g,'/').replace( /.*\//, '' ),      // parse out path basename
+    'parent': baseDirectory.replace(/\\/g,'/').replace(/\/[^\/]*$/, ''), // parse out path directory
+    'children': []
+  };
 
   selector.options.entryDisplayFilter = function(entry) {
     // if a file and not a ZIP file, then hide
@@ -31,7 +36,7 @@ function createDirectoryPicker(baseDirectory, modalCssId, targetCssId) {
         $transferPathRowEl.remove();
       });
 
-      $transferPathEl.html('/' + result.path);
+      $transferPathEl.html(result.path);
       $transferPathRowEl.append($transferPathEl);
       $transferPathRowEl.append($transferPathDeleteRl);
       $('#' + targetCssId).append($transferPathRowEl);
@@ -47,12 +52,5 @@ function createDirectoryPicker(baseDirectory, modalCssId, targetCssId) {
     }
   }];
 
-  selector.busy();
-
-  $.get(url, function(results) {
-    selector.structure = results;
-    selector.render();
-
-    selector.idle();
-  });
+  selector.render();
 }
