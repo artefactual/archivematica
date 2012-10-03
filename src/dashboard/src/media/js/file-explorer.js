@@ -265,7 +265,7 @@
 
         var uiUpdateLogic = function() {
           if (!rendered) {
-            if (self.ajaxChildDataUrl) {
+            if (self.ajaxChildDataUrl && entry.type() == 'directory') {
               $.ajax({
                 url: self.ajaxChildDataUrl,
                 data: {
@@ -402,6 +402,7 @@
           var child = structure.children[index];
           if (child.children != undefined) {
             var parent = base.addDir({name: child.name});
+console.log(parent);
             parent = this.structureToObjects(child, parent);
           } else {
             base.addFile({name: child.name});
