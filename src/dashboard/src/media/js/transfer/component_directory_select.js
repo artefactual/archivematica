@@ -1,35 +1,24 @@
-var DirectorySelectorView = fileBrowser.FileExplorer.extend({
-
-  initialize: function() {
-    this.structure = {};
-    this.options.closeDirsByDefault = true;
-    this.options.entryDisplayFilter = function(entry) {
-      // if a file and not a ZIP file, then hide
-      if (
-        entry.children == undefined
-        && entry.attributes.name.toLowerCase().indexOf('.zip') == -1
-      ) {
-          return false;
-      }
-      return true;
-    };
-
-    this.render();
-
-    this.options.actionHandlers = []
-  }
-});
-
 function createDirectoryPicker(baseDirectory, modalCssId, targetCssId) {
   var url = '/filesystem/contents/?path=' + encodeURIComponent(baseDirectory)
 
-  var selector = new DirectorySelectorView({
+  var selector = new DirectoryPickerView({
     el: $('#explorer'),
     levelTemplate: $('#template-dir-level').html(),
     entryTemplate: $('#template-dir-entry').html()
   });
 
-  selector.options.actionHandlers.push({
+  selector.options.entryDisplayFilter = function(entry) {
+    // if a file and not a ZIP file, then hide
+    if (
+      entry.children == undefined
+      && entry.attributes.name.toLowerCase().indexOf('.zip') == -1
+    ) {
+        return false;
+    }
+    return true;
+  };
+
+  selector.options.actionHandlers = [{
     name: 'Select',
     description: 'Select',
     iconHtml: 'Add',
@@ -56,7 +45,7 @@ function createDirectoryPicker(baseDirectory, modalCssId, targetCssId) {
         $(this).parent().css('background-color', '#eee');
       });
     }
-  });
+  }];
 
   selector.busy();
 
