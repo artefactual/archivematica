@@ -11,8 +11,7 @@ import sys
 import uuid
 import mimetypes
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
-import databaseFunctions
+import archivematicaFunctions, databaseInterface, databaseFunctions
 from archivematicaCreateStructuredDirectory import createStructuredDirectory
 
 # for unciode sorting support
@@ -26,7 +25,11 @@ STANDARD_TRANSFER_DIR = ACTIVE_TRANSFER_DIR + '/standardTransfer'
 COMPLETED_TRANSFERS_DIR = SHARED_DIRECTORY_ROOT + '/watchedDirectories/SIPCreation/completedTransfers'
 
 def sorted_directory_list(path):
-    return sorted(os.listdir(path), cmp=locale.strcoll)
+    cleaned = []
+    entries = os.listdir(path)
+    for entry in entries:
+        cleaned.append(archivematicaFunctions.unicodeToStr(entry))
+    return sorted(cleaned, cmp=locale.strcoll)
 
 def directory_to_dict(path, directory={}, entry=False):
     # if starting traversal, set entry to directory root
@@ -56,6 +59,8 @@ def directory_to_dict(path, directory={}, entry=False):
     # return fully traversed data
     return directory
 
+import archivematicaFunctions
+
 def directory_children(request, basePath=False):
     path = ''
     if (basePath):
@@ -68,10 +73,11 @@ def directory_children(request, basePath=False):
     directories = []
 
     for entry in sorted_directory_list(path):
-        if entry[0] != '.':
+        entry = archivematicaFunctions.strToUnicode(entry)
+        if unicode(entry)[0] != '.':
             entries.append(entry)
             entry_path = os.path.join(path, entry)
-            if os.path.isdir(entry_path) and os.access(entry_path, os.R_OK):
+            if os.path.isdir(archivematicaFunctions.unicodeToStr(entry_path)) and os.access(archivematicaFunctions.unicodeToStr(entry_path), os.R_OK):
                 directories.append(entry)
 
     response = {
@@ -80,7 +86,7 @@ def directory_children(request, basePath=False):
     }
 
     return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
+        simplejson.JSONEncoder(encoding='utf-8').encode(response),
         mimetype='application/json'
     )
 
