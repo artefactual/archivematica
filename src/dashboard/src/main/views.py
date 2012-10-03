@@ -824,13 +824,6 @@ def transfer_grid(request):
     microservices_help = django_settings.MICROSERVICES_HELP
     return render(request, 'main/transfer/grid.html', locals())
 
-# get rid of this?
-def transfer_select(request, source_directory_id):
-    source_directory = models.SourceDirectory.objects.get(pk=source_directory_id)
-    # TODO: check that path exists
-    directory = source_directory.path
-    return render(request, 'main/transfer/select_directory.html', locals())
-
 def transfer_browser(request):
     originals_directory = '/var/archivematica/sharedDirectory/transferBackups/originals'
     arrange_directory = '/var/archivematica/sharedDirectory/transferBackups/arrange'
