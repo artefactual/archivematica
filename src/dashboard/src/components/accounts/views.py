@@ -64,6 +64,13 @@ def edit(request, id=None):
         form = UserChangeForm(request.POST, instance=user)
         if form.is_valid():
             user = form.save(commit=False)
+            password = request.POST.get('password', '')
+            password_confirmation = request.POST.get('password_confirmation', '')
+            if (password != ''):
+                if (password_confirmation != password):
+                    return HttpResponse('Passwords do not match')
+                else:
+                    user.set_password(password)
             user.save()
             return HttpResponseRedirect(reverse('components.accounts.views.list'))
     else:
