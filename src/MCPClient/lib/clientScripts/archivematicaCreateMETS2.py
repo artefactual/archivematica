@@ -29,6 +29,8 @@ import sys
 import MySQLdb
 import PyICU
 import traceback
+from archivematicaCreateMETSMetadataCSV import parseMetadata
+from archivematicaCreateMETSMetadataCSV import CSVMetadata
 from archivematicaCreateMETSRights import archivematicaGetRights
 from archivematicaCreateMETSRightsDspaceMDRef import archivematicaCreateMETSRightsDspaceMDRef
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
@@ -148,7 +150,63 @@ def getDublinCore(type_, id):
     sqlLock.release()
     return ret
 
-def createDublincoreDMDSec(type, id):
+
+def createDMDIDSFromCSVParsedMetadataFiles(filePath):
+    simpleMetadataCSVkey, simpleMetadataCSV, compoundMetadataCSVkey, compoundMetadataCSV = CSVMetadata
+    if filePath in simpleMetadataCSV:
+        return createDMDIDSFromCSVParsedMetadataPart2(simpleMetadataCSVkey, simpleMetadataCSV[filePath])
+
+def createDMDIDSFromCSVParsedMetadataDirectories(directory):
+    simpleMetadataCSVkey, simpleMetadataCSV, compoundMetadataCSVkey, compoundMetadataCSV = CSVMetadata
+    for key, values in compoundMetadataCSV.iteritems():
+        if directory == key:
+            return createDMDIDSFromCSVParsedMetadataPart2(compoundMetadataCSVkey, values)
+
+                
+def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
+    global globalDmdSecCounter
+    global dmdSecs
+    dc = None
+    other = None
+    ret = []
+    for i in range(len(keys)):
+        key = keys[i]
+        value = values[i]
+        if key.startswith("dc."):
+            #print "dc item: ", key, value
+            if dc == None:
+                globalDmdSecCounter += 1
+                dmdSec = etree.Element("dmdSec")
+                dmdSecs.append(dmdSec)
+                ID = "dmdSec_" + globalDmdSecCounter.__str__()
+                ret.append(ID)
+                dmdSec.set("ID", ID)
+                mdWrap = newChild(dmdSec, "mdWrap")
+                mdWrap.set("MDTYPE", "DC")
+                xmlData = newChild(mdWrap, "xmlData")
+                dc = etree.Element( "dublincore", nsmap = {None: dcNS, "dcterms": dctermsNS} )
+                dc.set(xsiBNS+"schemaLocation", dcNS + " http://dublincore.org/schemas/xmls/qdc/dc.xsd " + dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+                xmlData.append(dc)
+            etree.SubElement(dc, key.replace("dc.", "", 1)).text = value
+        else: #not a dublin core item
+            #print "non dc: ", key, value
+            if other == None:
+                globalDmdSecCounter += 1
+                dmdSec = etree.Element("dmdSec")
+                dmdSecs.append(dmdSec)
+                ID = "dmdSec_" + globalDmdSecCounter.__str__()
+                ret.append(ID)
+                dmdSec.set("ID", ID)
+                mdWrap = newChild(dmdSec, "mdWrap")
+                mdWrap.set("MDTYPE", "OTHER")
+                mdWrap.set("OTHERMDTYPE", "CUSTOM")
+                other = newChild(mdWrap, "xmlData")
+            etree.SubElement(other, key).text = value
+    return  " ".join(ret)
+            
+    
+
+def createDublincoreDMDSecFromDBData(type, id):
     dc = getDublinCore(type, id)
     if dc == None:
         transfers = os.path.join(baseDirectoryPath, "metadata/transfers/")
@@ -515,10 +573,11 @@ def createFileSec(directoryPath, structMapDiv):
             
         #myuuid = uuid.uuid4()
         myuuid=""
+        DMDIDS=""
         #directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath + "objects", "objects", 1)
         directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, baseDirectoryPathString, 1)
 
-        sql = """SELECT fileUUID, fileGrpUse, fileGrpUUID, transferUUID, label FROM Files WHERE removedTime = 0 AND %s = '%s' AND Files.currentLocation = '%s';""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(directoryPathSTR))
+        sql = """SELECT fileUUID, fileGrpUse, fileGrpUUID, transferUUID, label, originalLocation FROM Files WHERE removedTime = 0 AND %s = '%s' AND Files.currentLocation = '%s';""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(directoryPathSTR))
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         if row == None:
@@ -532,6 +591,7 @@ def createFileSec(directoryPath, structMapDiv):
             fileGrpUUID = row[2]
             transferUUID = row[3]
             label = row[4]
+            originalLocation = row[5]
             row = c.fetchone()
         sqlLock.release()
         
@@ -558,6 +618,10 @@ def createFileSec(directoryPath, structMapDiv):
             
         elif  use == "original" or use == "submissionDocumentation":
             GROUPID = "Group-%s" % (myuuid)
+            if use == "original":
+                DMDIDS = createDMDIDSFromCSVParsedMetadataFiles(originalLocation.replace('%transferDirectory%', "", 1))
+                if DMDIDS:
+                    fileDiv.set("DMDID", DMDIDS)
 
         elif use == "preservation":
             sql = "SELECT * FROM Derivations WHERE derivedFileUUID = '" + myuuid + "';"
@@ -569,8 +633,6 @@ def createFileSec(directoryPath, structMapDiv):
             sqlLock.release()
 
         elif use == "license" or use == "text/ocr" or use == "DSPACEMETS":
-            sql = """SELECT originalLocation FROM Files where fileUUID = '%s'""" % (myuuid)
-            originalLocation = databaseInterface.queryAllSQL(sql)[0][0]
             sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse = 'original' AND originalLocation LIKE '%s/%%'""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(os.path.dirname(originalLocation)).replace("%", "\%"))
             c, sqlLock = databaseInterface.querySQL(sql)
             row = c.fetchone()
@@ -637,7 +699,12 @@ def createFileSec(directoryPath, structMapDiv):
     
     for item in sorted(delayed, cmp=sharedVariablesAcrossModules.collator.compare):
         itemdirectoryPath = os.path.join(directoryPath, item)
-        createFileSec(itemdirectoryPath, newChild(structMapDiv, "div", sets=[("TYPE","directory"), ("LABEL",item)]))
+        directoryDiv = newChild(structMapDiv, "div", sets=[("TYPE","directory"), ("LABEL",item)])
+        DMDIDS = createDMDIDSFromCSVParsedMetadataDirectories(itemdirectoryPath.replace(baseDirectoryPath, "", 1))
+        if DMDIDS:
+            directoryDiv.set("DMDID", DMDIDS)
+        createFileSec(itemdirectoryPath, directoryDiv)
+        
 
 
 if __name__ == '__main__':
@@ -646,13 +713,14 @@ if __name__ == '__main__':
         import time
         time.sleep(10)
 
+    parseMetadata(baseDirectoryPath)
+
     if not baseDirectoryPath.endswith('/'):
         baseDirectoryPath += '/'
     structMap = etree.Element("structMap")
     structMap.set("TYPE", "physical")
     structMap.set("LABEL", "Archivematica default")
     structMapDiv = newChild(structMap, "div", sets=[("TYPE","directory"), ("LABEL","%s-%s" % (os.path.basename(baseDirectoryPath[:-1]), fileGroupIdentifier))])
-    #dmdSec, dmdSecID = createDublincoreDMDSec(SIP)
     structMapDiv = newChild(structMapDiv, "div", sets=[("TYPE","directory"), ("LABEL","objects") ])
     createFileSec(os.path.join(baseDirectoryPath, "objects"), structMapDiv)
 
@@ -671,7 +739,7 @@ if __name__ == '__main__':
 
 
 
-    dc = createDublincoreDMDSec(SIPMetadataAppliesToType, fileGroupIdentifier)
+    dc = createDublincoreDMDSecFromDBData(SIPMetadataAppliesToType, fileGroupIdentifier)
     if dc != None:
         (dmdSec, ID) = dc
         structMapDiv.set("DMDID", ID)
