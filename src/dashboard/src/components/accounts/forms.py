@@ -17,7 +17,15 @@
 
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import UserChangeForm
+
+class UserCreationForm(UserCreationForm):
+    def clean_password1(self):
+        data = self.cleaned_data['password1']
+        if data != '' and len(data) < 8:
+            raise forms.ValidationError('Password should be at least 8 characters long')
+        return data
 
 class UserChangeForm(UserChangeForm):
     email = forms.EmailField(required=True)
