@@ -204,9 +204,9 @@ var BaseSipView = Backbone.View.extend({
     'click .sip-detail-directory': 'toggleJobs',
     'click .sip-detail-uuid': 'toggleJobs',
     'click .sip-detail-timestamp': 'toggleJobs',
-    'click .sip-row > .sip-detail-actions > .btn_show_panel': 'openPanel',
-    'click .sip-row > .sip-detail-actions > .btn_show_metadata': 'openPanel',
-    'click .sip-row > .sip-detail-actions > .btn_remove_sip': 'remove'
+    'click .sip-detail-actions > .btn_show_panel': 'openPanel',
+    'click .sip-detail-actions > .btn_show_metadata': 'openPanel',
+    'click .sip-detail-actions > .btn_remove_sip': 'remove'
   },
 
   render: function()

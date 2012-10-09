@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Mike Cantelon <mike@artefactual.com>
-# @version svn: $Id$
 import sys, os, time, ConfigParser
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")

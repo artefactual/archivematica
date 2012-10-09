@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage MCPrpcCLI
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 
 import gearman
 import cPickle

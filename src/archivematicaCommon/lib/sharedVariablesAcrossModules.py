@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 
 class SharedVariablesAcrossModules:
     "used to share variables across multiple files"

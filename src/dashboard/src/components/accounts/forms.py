@@ -21,6 +21,8 @@ from django.contrib.auth.forms import UserChangeForm
 
 class UserChangeForm(UserChangeForm):
     email = forms.EmailField(required=True)
+    password = forms.CharField(widget=forms.PasswordInput, required=False)
+    password_confirmation = forms.CharField(widget=forms.PasswordInput, required=False)
 
     class Meta:
         model = User
@@ -32,7 +34,6 @@ class UserChangeForm(UserChangeForm):
         if 1 == User.objects.filter(is_superuser=True).count():
             del self.fields['is_active']
             del self.fields['is_superuser']
-
 
     def save(self, commit=True):
         user = super(UserChangeForm, self).save(commit=False)

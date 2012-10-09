@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 import sys
 import os
 from optparse import OptionParser

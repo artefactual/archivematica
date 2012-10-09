@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 
 import uuid
 from unit import unit

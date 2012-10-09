@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 import os
 import subprocess
 import shlex

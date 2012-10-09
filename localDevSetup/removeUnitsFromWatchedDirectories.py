@@ -20,7 +20,6 @@
 # @package Archivematica
 # @subpackage DevCleanup
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")

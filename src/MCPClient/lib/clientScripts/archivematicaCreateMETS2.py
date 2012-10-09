@@ -21,7 +21,6 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 from archivematicaXMLNamesSpace import *
 import lxml.etree as etree
 from xml.sax.saxutils import quoteattr
