@@ -40,7 +40,7 @@ function svn-update() {
       cd localDevSetup/
       colour ./cleanup.sh
       cd ..
-      git pull --rebase
+      git pull --rebase || git pull origin master
 
       echo "Integrating into environment..."
       cd localDevSetup/
