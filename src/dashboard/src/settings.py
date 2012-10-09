@@ -4,7 +4,7 @@ BASE_PATH = os.path.dirname(__file__)
 
 # Django settings for app project.
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
