@@ -16,13 +16,13 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.contrib.auth.decorators import user_passes_test
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
 
+from components.accounts.forms import UserCreationForm
 from components.accounts.forms import UserChangeForm
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
