@@ -387,7 +387,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
     if request.GET.get('created', '') != '':
         new_content_type_created = request.GET.get('created', '')
 
-    return render(request, 'main/rights_edit.html', locals())
+    return render(request, 'rights/rights_edit.html', locals())
 
 def rights_grants_edit(request, uuid, id, section='ingest'):
     jobs = models.Job.objects.filter(sipuuid=uuid)
@@ -472,7 +472,7 @@ def rights_grants_edit(request, uuid, id, section='ingest'):
                 pass
             return HttpResponseRedirect(url)
     else:
-        return render(request, 'main/rights_grants_edit.html', locals())
+        return render(request, 'rights/rights_grants_edit.html', locals())
 
 def rights_delete(request, uuid, id, section):
     models.RightsStatement.objects.get(pk=id).delete()
@@ -552,4 +552,4 @@ def rights_list(request, uuid, section):
         except:
             pass
 
-    return render(request, 'main/rights_list.html', locals())
+    return render(request, 'rights/rights_list.html', locals())

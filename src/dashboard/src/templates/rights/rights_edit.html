@@ -1,0 +1,293 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block js %}
+  <script src="{{ STATIC_URL }}vendor/jquery.inputmask.js" type="text/javascript"></script>
+  <script src="{{ STATIC_URL }}js/repeating-ajax-data.js" type="text/javascript"></script>
+  <script src="{{ STATIC_URL }}js/rights_edit.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="span12">
+
+      <ul class="breadcrumb">
+        {% if section == 'ingest' %}
+          {% breadcrumb_url 'Ingest' main.views.ingest_grid %}
+          {% breadcrumb_url name main.views.ingest_detail uuid %}
+          {% breadcrumb_url 'Rights' components.rights.views.ingest_rights_list uuid %}
+        {% else %}
+          {% breadcrumb_url 'Transfer' main.views.transfer_grid %}
+          {% breadcrumb_url name main.views.transfer_detail uuid %}
+          {% breadcrumb_url 'Rights' components.rights.views.transfer_rights_list uuid %}
+        {% endif %}
+        {% if id %}
+          {% breadcrumb 'Edit' %}
+        {% else %}
+          {% breadcrumb 'Add' %}
+        {% endif %}
+      </ul>
+
+      <h1>Rights<br /><small>{{ name }}</small></h1>
+
+      {% if request.method == 'POST' %}
+        {% if form.is_valid %}
+          <div class="alert-message success">
+            <p><strong>Saved!</p>
+          </div>
+        {% else %}
+          <div class="alert-message error">
+            <p>An error has occurred.</p>
+          </div>
+        {% endif %}
+      {% endif %}
+
+      {% if new_content_type_created %}
+          <div class="alert-message info">
+            {% if new_content_type_created == 'Other' %}
+              <p>New content added.</p>
+            {% else %}
+              <p>New {{ new_content_type_created|lower }} content added.</p>
+            {% endif %}
+          </div>
+      {% endif %}
+
+      {% if section == 'ingest' %}
+        {% if id %}
+          <form class="form-stacked" method="post" action="{% url components.rights.views.ingest_rights_edit uuid id %}">
+        {% else %}
+          <form class="form-stacked" method="post" action="{% url components.rights.views.ingest_rights_edit uuid %}">
+        {% endif %}
+      {% else %}
+        {% if id %}
+          <form class="form-stacked" method="post" action="{% url components.rights.views.transfer_rights_edit uuid id %}">
+        {% else %}
+          <form class="form-stacked" method="post" action="{% url components.rights.views.transfer_rights_edit uuid %}">
+        {% endif %}
+      {% endif %}
+
+        {% include "_form.html" %}
+
+        <div id='copyright_formset' class='non-repeating-formset'>
+          {{ copyrightFormset.management_form }}
+          {{ copyrightFormset.non_form_errors.as_ul }}
+
+          {% for form in copyrightFormset %}
+            {% include "_form.html" %}
+
+            <input name='copyright_previous_pk' type='hidden' value='{{ form.instance.pk }}'>
+
+            <div class='repeating-ajax-data-fieldset'>
+              <label>Copyright documentation identifier:</label>
+
+              <div id='copyrightdocidfields_{{ form.instance.pk }}' class='repeating-data repeating-data-multifield'></div>
+              <div class='repeating-ajax-data-row repeating-data-multifield'>
+                <div>
+                  <strong>Type</strong><br/>
+                  <input name='copyright_documentation_identifier_type'>
+                </div>
+                <div>
+                  <strong>Value</strong><br/>
+                  <input name='copyright_documentation_identifier_value'>
+                </div>
+                <div>
+                  <strong>Role</strong><br/>
+                  <input name='copyright_documentation_identifier_role'>
+                </div>
+              </div>
+            </div>
+
+            <div class='repeating-ajax-data-fieldset'>
+              <label>Copyright note</label>
+
+              <div id='copyrightnotes_{{ form.instance.pk }}' class='repeating-data'></div>
+
+              <div class='repeating-ajax-data-row'>
+                <textarea name='copyright_note'></textarea>
+              </div>
+            </div>
+
+            <script>
+            $(document).ready(function() {
+              setUpRepeatingCopyrightDocumentationIdentifierRecords('{{ form.instance.pk }}');
+              setUpRepeatingCopyrightNotesRecords('{{ form.instance.pk }}');
+            });
+            </script>
+          {% endfor %}
+        </div>
+
+        <div id='statute_formset'>
+          {{ statuteFormset.management_form }}
+          {{ statuteFormset.non_form_errors.as_ul }}
+
+        {% for form in statuteFormset %}
+
+          <div class='statute-fieldset'>
+
+            {% include "_form.html" %}
+
+            <input name='statute_previous_pk' type='hidden' value='{{ form.instance.pk }}'>
+
+              <div class='repeating-ajax-data-fieldset'>
+                <label>Statute documentation identifier:</label>
+
+                <div id='statutedocidfields_{{ form.instance.pk }}' class='repeating-data repeating-data-multifield'></div>
+
+                <div class='repeating-ajax-data-row repeating-data-multifield'>
+                  <div>
+                    <strong>Type</strong><br/>
+                    <input name='statute_documentation_identifier_type_{{ form.instance.pk }}'>
+                  </div>
+                  <div>
+                    <strong>Value</strong><br/>
+                    <input name='statute_documentation_identifier_value_{{ form.instance.pk }}'>
+                  </div>
+                  <div>
+                    <strong>Role</strong><br/>
+                    <input name='statute_documentation_identifier_role_{{ form.instance.pk }}'>
+                  </div>
+                </div>
+              </div>
+
+              <div class='repeating-ajax-data-fieldset'>
+                <label>Statute note</label>
+
+                <div class='repeating-ajax-data-row'>
+                  <textarea name='new_statute_note_{{ form.instance.pk }}'></textarea>
+                </div>
+
+                <div id='statutenotes_{{ form.instance.pk }}' class='repeating-data'></div>
+              </div>
+
+            <script>
+            $(document).ready(function() {
+              setUpRepeatingStatuteDocumentationIdentifierRecords('{{ form.instance.pk }}');
+              setUpRepeatingStatuteNotesRecords('{{ form.instance.pk }}');
+            });
+            </script>
+          </div>
+        {% endfor %}
+        </div>
+
+        <div id='license_formset' class='non-repeating-formset'>
+          {{ licenseFormset.management_form }}
+          {{ licenseFormset.non_form_errors.as_ul }}
+
+          {% for form in licenseFormset %}
+            {% include "_form.html" %}
+
+            <input name='license_previous_pk' type='hidden' value='{{ form.instance.pk }}'>
+
+            <div class='repeating-ajax-data-fieldset'>
+              <label>License documentation identifier:</label>
+
+              <div id='licensedocidfields_{{ form.instance.pk }}' class='repeating-data repeating-data-multifield'></div>
+
+              <div class='repeating-ajax-data-row repeating-data-multifield'>
+                <div>
+                  <strong>Type</strong><br/>
+                  <input name='license_documentation_identifier_type'>
+                </div>
+                <div>
+                  <strong>Value</strong><br/>
+                  <input name='license_documentation_identifier_value'>
+                </div>
+                <div>
+                  <strong>Role</strong><br/>
+                  <input name='license_documentation_identifier_role'>
+                </div>
+              </div>
+            </div>
+
+            <div class='repeating-ajax-data-fieldset'>
+              <label>License note</label>
+
+              <div class='repeating-ajax-data-row'>
+                <textarea name='license_note'></textarea>
+              </div>
+              <div id='licensenotes_{{ form.instance.pk }}' class='repeating-data'></div>
+            </div>
+
+            <script>
+            $(document).ready(function() {
+              setUpRepeatingLicenseDocumentationIdentifierRecords('{{ form.instance.pk }}');
+              setUpRepeatingLicenseNotesRecords('{{ form.instance.pk }}');
+            });
+            </script>
+          {% endfor %}
+        </div>
+
+        <div id='other_formset' class='non-repeating-formset'>
+          {{ otherFormset.management_form }}
+          {{ otherFormset.non_form_errors.as_ul }}
+
+          {% for form in otherFormset %}
+            {% include "_form.html" %}
+
+            <input name='other_previous_pk' type='hidden' value='{{ form.instance.pk }}'>
+
+            <div class='repeating-ajax-data-fieldset'>
+              <label id='other_documentation_identifier_label'>Documentation identifier</label>
+
+              <div id='otherrightsdocidfields_{{ form.instance.pk }}' class='repeating-data repeating-data-multifield'></div>
+
+              <div class='repeating-ajax-data-row repeating-data-multifield'>
+                <div>
+                  <strong>Type</strong><br/>
+                  <input name='other_documentation_identifier_type'>
+                </div>
+                <div>
+                  <strong>Value</strong><br/>
+                  <input name='other_documentation_identifier_value'>
+                </div>
+                <div>
+                  <strong>Role</strong><br/>
+                  <input name='other_documentation_identifier_role'>
+                </div>
+              </div>
+            </div>
+
+            <div class='repeating-ajax-data-fieldset'>
+              <label id='other_rights_notes_label'>Note</label>
+
+              <div id='otherrightsnotes_{{ form.instance.pk }}' class='repeating-data'></div>
+
+              <div class='repeating-ajax-data-row'>
+                <textarea name='otherrights_note'></textarea>
+              </div>
+            </div>
+
+            <script>
+            $(document).ready(function() {
+              setUpRepeatingOtherRightsDocumentationIdentifierRecords('{{ form.instance.pk }}');
+              setUpRepeatingOtherRightsNotesRecords('{{ form.instance.pk }}');
+            });
+            </script>
+          {% endfor %}
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn primary">Save</button>
+
+          <button type="submit" name='next_button' value='Next' class="btn primary">Next</button>
+
+          {% if section == 'ingest' %}
+            <a href="{% url components.rights.views.ingest_rights_list uuid %}" class="btn">Cancel</a>
+          {% else %}
+             <a href="{% url components.rights.views.transfer_rights_list uuid %}" class="btn">Cancel</a>
+          {% endif %}
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <script>
+  // hide form to create new child data: if removed then child data can be freely created
+  $(document).ready(function() {
+    setInterval(function() {
+      hideNewFormsWhenDataExists();
+    }, 200);
+  });
+  </script>
+{% endblock %}

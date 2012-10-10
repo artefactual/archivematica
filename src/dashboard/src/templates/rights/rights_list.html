@@ -1,0 +1,80 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block content %}
+  <div class="row">
+    <div class="span12">
+
+      <ul class="breadcrumb">
+        {% if section == 'ingest' %}
+          {% breadcrumb_url 'Ingest' main.views.ingest_grid %}
+          {% breadcrumb_url name main.views.ingest_detail uuid %}
+        {% else %}
+          {% breadcrumb_url 'Transfer' main.views.transfer_grid %}
+          {% breadcrumb_url name main.views.transfer_detail uuid %}
+        {% endif %}
+        {% breadcrumb 'Rights' %}
+      </ul>
+
+      <h1>Rights<br /><small>{{ name }}</small></h1>
+
+      <table>
+        <thead>
+          <th>Act</th>
+          <th>Basis</th>
+          <th>Restriction(s)</th>
+          <th>Start</th>
+          <th>End</th>
+          <th></th>
+        </thead>
+        <tbody>
+          {% for grant in grants %}
+            <tr>
+              <td>{{ grant.act }}</td>
+              <td>{{ grant.basis }}</td>
+              <td>
+                {% for restriction in grant.restrictions %}
+                  <div>{{ restriction }}</div>
+                {% endfor %}
+              </td>
+              <td>{{ grant.startdate }}</td>
+              <td>{{ grant.enddate }}</td>
+              <td>
+                {% if section == 'ingest' %}
+                  <a href="{% url components.rights.views.ingest_rights_edit uuid grant.rightsstatement.id %}">Edit</a>
+                  <a href="{% url components.rights.views.ingest_rights_delete uuid grant.rightsstatement.id %}">Delete</a>
+                {% else %}
+                  <a href="{% url components.rights.views.transfer_rights_edit uuid grant.rightsstatement.id %}">Edit</a>
+                  <a href="{% url components.rights.views.transfer_rights_delete uuid grant.rightsstatement.id %}">Delete</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+          {% for grant in transfer_grants %}
+            <tr>
+              <td>{{ grant.act }}</td>
+              <td>{{ grant.basis }}</td>
+              <td>
+                {% for restriction in grant.restrictions %}
+                  <div>{{ restriction }}</div>
+                {% endfor %}
+              </td>
+              <td>{{ grant.startdate }}</td>
+              <td>{{ grant.enddate }}</td>
+              <td>Transfer</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="actions" style="padding-left: 1em;">
+        {% if section == 'ingest' %}
+          <a class="btn primary" href="{% url components.rights.views.ingest_rights_edit uuid %}">Add</a>
+        {% else %}
+          <a class="btn primary" href="{% url components.rights.views.transfer_rights_edit uuid %}">Add</a>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+{% endblock %}
