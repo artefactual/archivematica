@@ -6,9 +6,9 @@
     <div class="span12">
 
       <ul class="breadcrumb">
-        {% breadcrumb_url 'Ingest' main.views.ingest_grid %}
-        {% breadcrumb_url name main.views.ingest_detail uuid %}
-        {% breadcrumb_url 'Metadata' main.views.ingest_metadata_list uuid %}
+        {% breadcrumb_url 'Ingest' components.ingest.views.ingest_grid %}
+        {% breadcrumb_url name components.ingest.views.ingest_detail uuid %}
+        {% breadcrumb_url 'Metadata' components.ingest.views.ingest_metadata_list uuid %}
         {% if id %}
           {% breadcrumb 'Edit' %}
         {% else %}
@@ -19,9 +19,9 @@
       <h1>Metadata<br /><small>{{ name }}</small></h1>
 
       {% if id %}
-        <form class="form-stacked" method="post" action="{% url main.views.ingest_metadata_edit uuid id %}">
+        <form class="form-stacked" method="post" action="{% url components.ingest.views.ingest_metadata_edit uuid id %}">
       {% else %}
-        <form class="form-stacked" method="post" action="{% url main.views.ingest_metadata_edit uuid %}">
+        <form class="form-stacked" method="post" action="{% url componetns.ingest.views.ingest_metadata_edit uuid %}">
       {% endif %}
 
         <div class="clearfix">
@@ -42,7 +42,7 @@
           {% else %}
             <button type="submit" class="btn primary">Create</button>
           {% endif %}
-          <a href="{% url main.views.ingest_metadata_list uuid %}" class="btn">Cancel</a>
+          <a href="{% url components.ingest.views.ingest_metadata_list uuid %}" class="btn">Cancel</a>
         </div>
 
       </form>

@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     (r'transfer/(?P<uuid>' + UUID_REGEX + ')/rights/', include('components.rights.transfer_urls')),
     (r'transfer/', include('components.transfer.urls')),
     (r'ingest/(?P<uuid>' + UUID_REGEX + ')/rights/', include('components.rights.ingest_urls')),
+    (r'ingest/', include('components.ingest.urls')),
     (r'^administration/', include('components.administration.urls')),
     (r'', include('main.urls'))
 )

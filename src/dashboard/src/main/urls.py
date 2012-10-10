@@ -12,22 +12,6 @@ urlpatterns = patterns('main.views',
     # Forbidden
     (r'forbidden/$', 'forbidden'),
 
-    # Ingest
-    (r'ingest/$', 'ingest_grid'),
-    (r'ingest/(?P<uuid>' + UUID_REGEX + ')/$', 'ingest_detail'),
-    (r'ingest/(?P<uuid>' + UUID_REGEX + ')/delete/$', 'ingest_delete'),
-    (r'ingest/(?P<uuid>' + UUID_REGEX + ')/metadata/$', 'ingest_metadata_list'),
-    (r'ingest/(?P<uuid>' + UUID_REGEX + ')/metadata/add/$', 'ingest_metadata_edit'),
-    (r'ingest/(?P<uuid>' + UUID_REGEX + ')/metadata/(?P<id>\d+)/$', 'ingest_metadata_edit'),
-    (r'ingest/(?P<uuid>' + UUID_REGEX + ')/metadata/delete/(?P<id>\d+)/$', 'ingest_metadata_delete'),
-    (r'ingest/(?P<uuid>' + UUID_REGEX + ')/microservices/$', 'ingest_microservices'),
-    (r'ingest/(?P<uuid>' + UUID_REGEX + ')/upload/$', 'ingest_upload'),
-    (r'ingest/status/$', 'ingest_status'),
-    (r'ingest/status/(?P<uuid>' + UUID_REGEX + ')/$', 'ingest_status'),
-    (r'ingest/normalization-report/(?P<uuid>' + UUID_REGEX + ')/$', 'ingest_normalization_report'),
-    (r'ingest/preview/aip/(?P<jobuuid>' + UUID_REGEX + ')/$', 'ingest_browse_aip'),
-    (r'ingest/preview/normalization/(?P<jobuuid>' + UUID_REGEX + ')/$', 'ingest_browse_normalization'),
-
     # Jobs and tasks (is part of ingest)
     (r'jobs/(?P<uuid>' + UUID_REGEX + ')/explore/$', 'jobs_explore'),
     (r'jobs/(?P<uuid>' + UUID_REGEX + ')/list-objects/$', 'jobs_list_objects'),

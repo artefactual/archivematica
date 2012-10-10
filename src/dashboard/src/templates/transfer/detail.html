@@ -18,7 +18,7 @@
         <div class="alert-message block-message">
           <p>There are micro-services awaiting user decisions.</p>
           <div class="alert-actions">
-            <a class="btn small" href="{% url main.views.ingest_microservices uuid %}">View micro-services</a>
+            <a class="btn small" href="{% url components.ingest.views.ingest_microservices uuid %}">View micro-services</a>
           </div>
         </div>
       {% endif %}
