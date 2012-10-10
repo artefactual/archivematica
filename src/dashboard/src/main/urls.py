@@ -53,18 +53,6 @@ urlpatterns = patterns('main.views',
     # Autocomplete
 #    (r'autocomplete/rightsholders$', 'rights_holders_autocomplete'),
 
-    # Administration
-    (r'administration/$', 'administration'),
-    #(r'administration/edit/(?P<id>\d+)/$', 'administration_edit'),
-    (r'administration/dip/$', 'administration_dip'),
-    (r'administration/dip/edit/(?P<id>\d+)/$', 'administration_dip_edit'),
-    (r'administration/dips/atom/$', 'administration_atom_dips'),
-    (r'administration/dips/contentdm/$', 'administration_contentdm_dips'),
-    (r'administration/sources/$', 'administration_sources'),
-    (r'administration/sources/delete/json/(?P<id>\d+)/$', 'administration_sources_delete_json'),
-    (r'administration/processing/$', 'administration_processing'),
-    (r'administration/sources/json/$', 'administration_sources_json'),
-
     # Disabled until further development can be done
     #(r'administration/search/$', 'administration_search'),
     #(r'administration/search/flush/aips/$', 'administration_search_flush_aips'),
