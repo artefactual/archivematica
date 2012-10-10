@@ -90,10 +90,10 @@ def ingest_status(request, uuid=None):
                     newJob['filename'] = task.filename
 
                 newJob['uuid'] = job.jobuuid
-                newJob['type'] = job.jobtype #map_known_values(job.jobtype)
+                newJob['type'] = job.jobtype
                 newJob['microservicegroup'] = job.microservicegroup
                 newJob['subjobof'] = job.subjobof
-                newJob['currentstep'] = job.currentstep #map_known_values(job.currentstep)
+                newJob['currentstep'] = job.currentstep
                 newJob['timestamp'] = '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1])
                 try: mcp_status
                 except NameError: pass
