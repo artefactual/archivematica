@@ -15,11 +15,11 @@
         {% if section == 'ingest' %}
           {% breadcrumb_url 'Ingest' main.views.ingest_grid %}
           {% breadcrumb_url name main.views.ingest_detail uuid %}
-          {% breadcrumb_url 'Rights' main.views.ingest_rights_list uuid %}
+          {% breadcrumb_url 'Rights' components.rights.views.ingest_rights_list uuid %}
         {% else %}
-          {% breadcrumb_url 'Transfer' main.views.transfer_grid %}
-          {% breadcrumb_url name main.views.transfer_detail uuid %}
-          {% breadcrumb_url 'Rights' main.views.transfer_rights_list uuid %}
+          {% breadcrumb_url 'Transfer' components.transfer.views.transfer_grid %}
+          {% breadcrumb_url name components.transfer.views.transfer_detail uuid %}
+          {% breadcrumb_url 'Rights' components.rights.views.transfer_rights_list uuid %}
         {% endif %}
         {% if id %}
           {% breadcrumb 'Edit' %}
@@ -54,15 +54,15 @@
 
       {% if section == 'ingest' %}
         {% if id %}
-          <form class="form-stacked" method="post" action="{% url main.views.ingest_rights_edit uuid id %}">
+          <form class="form-stacked" method="post" action="{% url components.rights.views.ingest_rights_edit uuid id %}">
         {% else %}
-          <form class="form-stacked" method="post" action="{% url main.views.ingest_rights_edit uuid %}">
+          <form class="form-stacked" method="post" action="{% url components.rights.views.ingest_rights_edit uuid %}">
         {% endif %}
       {% else %}
         {% if id %}
-          <form class="form-stacked" method="post" action="{% url main.views.transfer_rights_edit uuid id %}">
+          <form class="form-stacked" method="post" action="{% url components.rights.views.transfer_rights_edit uuid id %}">
         {% else %}
-          <form class="form-stacked" method="post" action="{% url main.views.transfer_rights_edit uuid %}">
+          <form class="form-stacked" method="post" action="{% url components.rights.views.transfer_rights_edit uuid %}">
         {% endif %}
       {% endif %}
 
@@ -272,9 +272,9 @@
           <button type="submit" name='next_button' value='Next' class="btn primary">Next</button>
 
           {% if section == 'ingest' %}
-            <a href="{% url main.views.ingest_rights_list uuid %}" class="btn">Cancel</a>
+            <a href="{% url components.rights.views.ingest_rights_list uuid %}" class="btn">Cancel</a>
           {% else %}
-             <a href="{% url main.views.transfer_rights_list uuid %}" class="btn">Cancel</a>
+             <a href="{% url components.rights.views.transfer_rights_list uuid %}" class="btn">Cancel</a>
           {% endif %}
         </div>
 

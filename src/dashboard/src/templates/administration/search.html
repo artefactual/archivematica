@@ -15,7 +15,7 @@
 
   <div class="row">
 
-    {% include "main/administration/sidebar.html" %}
+    {% include "administration/sidebar.html" %}
 
     <div class="span12">
 
@@ -28,7 +28,7 @@
       <p>{{ aip_files_indexed }} AIP files indexed.</p>
 
       {% if user.is_superuser %}
-      <form action='{% url main.views.administration_search_flush_aips %}' method='POST'>
+      <form action='{% url components.administration.views.administration_search_flush_aips %}' method='POST'>
         <input type='submit' value='Flush AIP Index' class='btn' />
       </form>
       {% endif %}

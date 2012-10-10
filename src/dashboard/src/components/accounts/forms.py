@@ -17,7 +17,15 @@
 
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import UserChangeForm
+
+class UserCreationForm(UserCreationForm):
+    def clean_password1(self):
+        data = self.cleaned_data['password1']
+        if data != '' and len(data) < 8:
+            raise forms.ValidationError('Password should be at least 8 characters long')
+        return data
 
 class UserChangeForm(UserChangeForm):
     email = forms.EmailField(required=True)
@@ -34,6 +42,19 @@ class UserChangeForm(UserChangeForm):
         if 1 == User.objects.filter(is_superuser=True).count():
             del self.fields['is_active']
             del self.fields['is_superuser']
+
+    def clean_password(self):
+        data = self.cleaned_data['password']
+        if self.cleaned_data['password'] != '' and len(self.cleaned_data['password']) < 8:
+            raise forms.ValidationError('Password should be at least 8 characters long')
+        return data
+
+    def clean(self):
+        cleaned_data = super(UserChangeForm, self).clean()
+        if cleaned_data.get('password') != '' or cleaned_data.get('password_confirmation') != '':
+            if cleaned_data.get('password') != cleaned_data.get('password_confirmation'):
+                raise forms.ValidationError('Password and password confirmation do not match')
+        return cleaned_data
 
     def save(self, commit=True):
         user = super(UserChangeForm, self).save(commit=False)

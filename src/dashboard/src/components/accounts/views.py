@@ -16,13 +16,13 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.contrib.auth.decorators import user_passes_test
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
 
+from components.accounts.forms import UserCreationForm
 from components.accounts.forms import UserChangeForm
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
@@ -65,12 +65,7 @@ def edit(request, id=None):
         if form.is_valid():
             user = form.save(commit=False)
             password = request.POST.get('password', '')
-            password_confirmation = request.POST.get('password_confirmation', '')
-            if (password != ''):
-                if (password_confirmation != password):
-                    return HttpResponse('Passwords do not match')
-                else:
-                    user.set_password(password)
+            user.set_password(password)
             user.save()
             return HttpResponseRedirect(reverse('components.accounts.views.list'))
     else:

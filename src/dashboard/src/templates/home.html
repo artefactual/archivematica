@@ -15,7 +15,7 @@
   <div class="row">
     <div class="span6">
       <h2>Transfer</h2>
-      <p>The user transfers digital files into the repository. Archivematica verifies the transfer, unpacks any zipped files, assigns file UUIDs and checksums, runs a virus check, characterizes and extracts metadata, and generates a METS file showing the physical arrangement of the transfer. The user can then choose among multiple options for arranging the transfer into one or more Submission Information Packages (SIPs). <a class="" href="{% url main.views.transfer_grid %}">Go &raquo;</a></p>
+      <p>The user transfers digital files into the repository. Archivematica verifies the transfer, unpacks any zipped files, assigns file UUIDs and checksums, runs a virus check, characterizes and extracts metadata, and generates a METS file showing the physical arrangement of the transfer. The user can then choose among multiple options for arranging the transfer into one or more Submission Information Packages (SIPs). <a class="" href="{% url components.transfer.views.transfer_grid %}">Go &raquo;</a></p>
     </div>
     <div class="span5">
       <h2>Ingest</h2>

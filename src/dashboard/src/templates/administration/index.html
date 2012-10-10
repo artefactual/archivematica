@@ -1,0 +1,31 @@
+{% extends "layout_fluid.html" %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <h1>Administration</h1>
+
+      <p><a href="{% url components.administration.views.administration_dip %}" class="btn">Configure AtoM DIP upload</a></p>
+
+      <p><a href="{% url components.administration.views.administration_contentdm_dips %}" class="btn">Configure ContentDM DIP upload</a></p>
+
+      <p><a href="{% url components.administration.views.administration_sources %}" class="btn">Configure transfer source directories</a></p>
+
+      {% if user.is_superuser %}
+        <p><a href="{% url accounts.views.list %}" class="btn">Users</a></p>
+      {% endif %}
+
+    </div>
+
+  </div>
+
+{% endblock %}
