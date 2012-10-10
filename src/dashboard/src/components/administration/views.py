@@ -38,11 +38,11 @@ def administration(request):
 def administration_search(request):
     message = request.GET.get('message', '')
     aip_files_indexed = archival_storage_indexed_count('aips')
-    return render(request, 'main/administration/search.html', locals())
+    return render(request, 'administration/search.html', locals())
 
 def administration_search_flush_aips_context(request):
     prompt = 'Flush AIP search index?'
-    cancel_url = reverse("main.views.administration_search")
+    cancel_url = reverse("components.administration.views.administration_search")
     return RequestContext(request, {'action': 'Flush', 'prompt': prompt, 'cancel_url': cancel_url})
 
 @decorators.confirm_required('simple_confirm.html', administration_search_flush_aips_context)
@@ -64,11 +64,11 @@ def administration_search_flush_aips(request):
         pass
 
     params = urllib.urlencode({'message': message})
-    return HttpResponseRedirect(reverse("main.views.administration_search") + "?%s" % params)
+    return HttpResponseRedirect(reverse("components.administration.views.administration_search") + "?%s" % params)
 
 def administration_dip(request):
     upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
-    return render(request, 'main/administration/dip.html', locals())
+    return render(request, 'administration/dip.html', locals())
 
 def administration_dip_edit(request, id):
     if request.method == 'POST':
@@ -91,7 +91,7 @@ def administration_atom_dips(request):
     if request.method != 'POST' or valid_submission:
         formset = ReplaceDirChoiceFormSet(queryset=ReplaceDirChoices)
 
-    return render(request, 'main/administration/dips_edit.html', locals())
+    return render(request, 'administration/dips_edit.html', locals())
 
 def administration_contentdm_dips(request):
     link_id = administration_contentdm_dip_destination_select_link_id()
@@ -104,7 +104,7 @@ def administration_contentdm_dips(request):
     if request.method != 'POST' or valid_submission:
         formset = ReplaceDirChoiceFormSet(queryset=ReplaceDirChoices)
 
-    return render(request, 'main/administration/dips_contentdm_edit.html', locals())
+    return render(request, 'administration/dips_contentdm_edit.html', locals())
 
 def administration_atom_dip_destination_select_link_id():
     taskconfigs = models.TaskConfig.objects.filter(description='Select DIP upload destination')
@@ -151,7 +151,7 @@ def administration_dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet
     return valid_submission, formset
 
 def administration_sources(request):
-    return render(request, 'main/administration/sources.html', locals())
+    return render(request, 'administration/sources.html', locals())
 
 def administration_sources_json(request):
     message = ''
@@ -187,7 +187,7 @@ def administration_sources_delete_json(request, id):
     response = {}
     response['message'] = 'Deleted.'
     return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
-    #return HttpResponseRedirect(reverse('main.views.administration_sources'))
+    #return HttpResponseRedirect(reverse('components.administration.views.administration_sources'))
 
 def administration_processing(request):
     file_path = '/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'
@@ -200,4 +200,4 @@ def administration_processing(request):
         file = open(file_path, 'r')
         xml = file.read()
 
-    return render(request, 'main/administration/processing.html', locals())
+    return render(request, 'administration/processing.html', locals())
