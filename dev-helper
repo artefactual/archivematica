@@ -41,7 +41,6 @@ function svn-update() {
       colour ./cleanup.sh
       cd ..
       git pull --rebase || git pull origin master
-
       echo "Integrating into environment..."
       cd localDevSetup/
       colour ./createLocalDevDirectories.sh
@@ -90,7 +89,7 @@ function recreate-db() {
           sudo stop archivematica-mcp-server
           sudo stop archivematica-mcp-client
           sudo apache2ctl stop
-          colour ./recreateDB.sh
+          colour ./recreateDB2.sh
           cd ..
           sudo start archivematica-mcp-server
           sudo start archivematica-mcp-client
