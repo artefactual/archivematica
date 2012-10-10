@@ -25,7 +25,7 @@ from main import models
 from lxml import etree
 import calendar
 import os
-import subprocess
+from components import helpers
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Transfer
@@ -63,7 +63,7 @@ def transfer_status(request, uuid=None):
             # Check if hidden (TODO: this method is slow)
             if models.Transfer.objects.is_hidden(item['sipuuid']):
                 continue
-            jobs = get_jobs_by_sipuuid(item['sipuuid'])
+            jobs = helpers.get_jobs_by_sipuuid(item['sipuuid'])
             item['directory'] = os.path.basename(utils.get_directory_name(jobs[0]))
             item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
             item['uuid'] = item['sipuuid']
@@ -116,135 +116,3 @@ def transfer_delete(request, uuid):
         return HttpResponse(response, mimetype='application/json')
     except:
         raise Http404
-
-
-
-def map_known_values(value):
-    #changes should be made in the database, not this map
-    map = {
-      # currentStep
-      'completedSuccessfully': 'Completed successfully',
-      'completedUnsuccessfully': 'Failed',
-      'exeCommand': 'Executing command(s)',
-      'verificationCommand': 'Executing command(s)',
-      'requiresAprroval': 'Requires approval',
-      'requiresApproval': 'Requires approval',
-      # jobType
-      'acquireSIP': 'Acquire SIP',
-      'addDCToMETS': 'Add DC to METS',
-      'appraiseSIP': 'Appraise SIP',
-      'assignSIPUUID': 'Asign SIP UUID',
-      'assignUUID': 'Assign file UUIDs and checksums',
-      'bagit': 'Bagit',
-      'cleanupAIPPostBagit': 'Cleanup AIP post bagit',
-      'compileMETS': 'Compile METS',
-      'copyMETSToDIP': 'Copy METS to DIP',
-      'createAIPChecksum': 'Create AIP checksum',
-      'createDIPDirectory': 'Create DIP directory',
-      'createOrMoveDC': 'Create or move DC',
-      'createSIPBackup': 'Create SIP backup',
-      'detoxFileNames': 'Detox filenames',
-      'extractPackage': 'Extract package',
-      'FITS': 'FITS',
-      'normalize': 'Normalize',
-      'Normalization Failed': 'Normalization failed',
-      'quarantine': 'Place in quarantine',
-      'reviewSIP': 'Review SIP',
-      'scanForRemovedFilesPostAppraiseSIPForPreservation': 'Scan for removed files post appraise SIP for preservation',
-      'scanForRemovedFilesPostAppraiseSIPForSubmission': 'Scan for removed files post appraise SIP for submission',
-      'scanWithClamAV': 'Scan with ClamAV',
-      'seperateDIP': 'Seperate DIP',
-      'storeAIP': 'Store AIP',
-      'unquarantine': 'Remove from Quarantine',
-      'Upload DIP': 'Upload DIP',
-      'verifyChecksum': 'Verify checksum',
-      'verifyMetadataDirectoryChecksums': 'Verify metadata directory checksums',
-      'verifySIPCompliance': 'Verify SIP compliance',
-    }
-    if value in map:
-        return map[value]
-    else:
-        return value
-
-def get_jobs_by_sipuuid(uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid).order_by('-createdtime')
-    priorities = {
-        'completedUnsuccessfully': 0,
-        'requiresAprroval': 1,
-        'requiresApproval': 1,
-        'exeCommand': 2,
-        'verificationCommand': 3,
-        'completedSuccessfully': 4,
-        'cleanupSuccessfulCommand': 5,
-    }
-    def get_priority(job):
-        try: return priorities[job.currentstep]
-        except Exception: return 0
-    return sorted(jobs, key = get_priority) # key = lambda job: priorities[job.currentstep]
-
-def jobs_list_objects(request, uuid):
-    response = []
-    job = models.Job.objects.get(jobuuid=uuid)
-
-    for root, dirs, files in os.walk(job.directory + '/objects', False):
-        for name in files:
-            directory = root.replace(job.directory + '/objects', '')
-            response.append(os.path.join(directory, name))
-
-    return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
-
-def jobs_explore(request, uuid):
-    # Database query
-    job = models.Job.objects.get(jobuuid=uuid)
-    # Prepare response object
-    contents = []
-    response = {}
-    response['contents'] = contents
-    # Parse request
-    if 'path' in request.REQUEST and len(request.REQUEST['path']) > 0:
-        directory = os.path.join(job.directory, request.REQUEST['path'])
-        response['base'] = request.REQUEST['path'].replace('.', '')
-    else:
-        directory = job.directory
-        response['base'] = ''
-    # Build directory
-    directory = os.path.abspath(directory)
-    # Security check
-    tmpDirectory = os.path.realpath(directory)
-    while True:
-        if tmpDirectory == os.path.realpath(job.directory):
-            break
-        elif tmpDirectory == '/':
-            raise Http404
-        else:
-            tmpDirectory = os.path.dirname(tmpDirectory)
-    # If it is a file, return the contents
-    if os.path.isfile(directory):
-        mime = subprocess.Popen('/usr/bin/file --mime-type ' + directory, shell=True, stdout=subprocess.PIPE).communicate()[0].split(' ')[-1].strip()
-        response = HttpResponse(mimetype=mime)
-        response['Content-Disposition'] = 'attachment; filename=%s' %  os.path.basename(directory)
-        with open(directory) as resource:
-            response.write(resource.read())
-        return response
-    # Cleaning path
-    parentDir = os.path.dirname(directory)
-    parentDir = parentDir.replace('%s/' % job.directory, '')
-    parentDir = parentDir.replace('%s' % job.directory, '')
-    response['parent'] = parentDir
-    # Check if it is or not the root dir to add the "Go parent" link
-    if os.path.realpath(directory) != os.path.realpath(job.directory):
-        parent = {}
-        parent['name'] = 'Go to parent directory...'
-        parent['type'] = 'parent'
-        contents.append(parent)
-    # Add contents of the directory
-    for item in os.listdir(directory):
-        newItem = {}
-        newItem['name'] = item
-        if os.path.isdir(os.path.join(directory, item)):
-            newItem['type'] = 'dir'
-        else:
-            newItem['type'] = 'file'
-            newItem['size'] = os.path.getsize(os.path.join(directory, item))
-        contents.append(newItem)
-    return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
