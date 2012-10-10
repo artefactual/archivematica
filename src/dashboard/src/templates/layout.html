@@ -33,7 +33,7 @@
             <a class="brand" href="{% url main.views.home %}">Archivematica</a>
 
             {% url main.views.home as url_home %}
-            {% url main.views.transfer_grid as url_transfer %}
+            {% url components.transfer.views.transfer_grid as url_transfer %}
             {% url main.views.ingest_grid as url_ingest %}
             {% url components.archival_storage.views.archival_storage as url_archival_storage %}
             {% url components.preservation_planning.views.preservation_planning as url_preservation_planning %}

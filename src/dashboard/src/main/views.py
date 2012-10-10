@@ -62,7 +62,7 @@ def dictfetchall(cursor):
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 def home(request):
-    return HttpResponseRedirect(reverse('main.views.transfer_grid'))
+    return HttpResponseRedirect(reverse('components.transfer.views.transfer_grid'))
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Status
@@ -294,96 +294,6 @@ def ingest_browse_aip(request, jobuuid):
     directory = '/var/archivematica/sharedDirectory/watchedDirectories/storeAIP'
 
     return render(request, 'main/ingest/aip_browse.html', locals())
-
-""" @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-      Transfer
-    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
-
-def transfer_grid(request):
-    if models.SourceDirectory.objects.count() > 0:
-        source_directories = models.SourceDirectory.objects.all()
-
-    polling_interval = django_settings.POLLING_INTERVAL
-    microservices_help = django_settings.MICROSERVICES_HELP
-    return render(request, 'main/transfer/grid.html', locals())
-
-def transfer_browser(request):
-    originals_directory = '/var/archivematica/sharedDirectory/transferBackups/originals'
-    arrange_directory = '/var/archivematica/sharedDirectory/transferBackups/arrange'
-    if not os.path.exists(originals_directory):
-        os.mkdir(directory)
-    if not os.path.exists(arrange_directory):
-        os.mkdir(arrange_directory)
-    return render(request, 'main/transfer/browser.html', locals())
-
-def transfer_status(request, uuid=None):
-    # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs GROUP BY SIPUUID
-    objects = models.Job.objects.filter(hidden=False, subjobof='', unittype__exact='unitTransfer').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains = 'None')
-    mcp_available = False
-    try:
-        client = MCPClient()
-        mcp_status = etree.XML(client.list())
-        mcp_available = True
-    except Exception: pass
-    def encoder(obj):
-        items = []
-        for item in obj:
-            # Check if hidden (TODO: this method is slow)
-            if models.Transfer.objects.is_hidden(item['sipuuid']):
-                continue
-            jobs = get_jobs_by_sipuuid(item['sipuuid'])
-            item['directory'] = os.path.basename(utils.get_directory_name(jobs[0]))
-            item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
-            item['uuid'] = item['sipuuid']
-            item['id'] = item['sipuuid']
-            del item['sipuuid']
-            item['jobs'] = []
-            for job in jobs:
-                newJob = {}
-                item['jobs'].append(newJob)
-                newJob['uuid'] = job.jobuuid
-                newJob['type'] = job.jobtype #map_known_values(job.jobtype)
-                newJob['microservicegroup'] = job.microservicegroup
-                newJob['subjobof'] = job.subjobof
-                newJob['currentstep'] = job.currentstep #map_known_values(job.currentstep)
-                newJob['timestamp'] = '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1])
-                try: mcp_status
-                except NameError: pass
-                else:
-                    xml_unit = mcp_status.xpath('choicesAvailableForUnit[UUID="%s"]' % job.jobuuid)
-                    if xml_unit:
-                        xml_unit_choices = xml_unit[0].findall('choices/choice')
-                        choices = {}
-                        for choice in xml_unit_choices:
-                            choices[choice.find("chainAvailable").text] = choice.find("description").text
-                        newJob['choices'] = choices
-            items.append(item)
-        return items
-    response = {}
-    response['objects'] = objects
-    response['mcp'] = mcp_available
-    return HttpResponse(simplejson.JSONEncoder(default=encoder).encode(response), mimetype='application/json')
-
-def transfer_detail(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid)
-    name = utils.get_directory_name(jobs[0])
-    is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
-    return render(request, 'main/transfer/detail.html', locals())
-
-def transfer_microservices(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid)
-    name = utils.get_directory_name(jobs[0])
-    return render(request, 'main/transfer/microservices.html', locals())
-
-def transfer_delete(request, uuid):
-    try:
-        transfer = models.Transfer.objects.get(uuid__exact=uuid)
-        transfer.hidden = True
-        transfer.save()
-        response = simplejson.JSONEncoder().encode({'removed': True})
-        return HttpResponse(response, mimetype='application/json')
-    except:
-        raise Http404
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Access

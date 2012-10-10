@@ -12,15 +12,6 @@ urlpatterns = patterns('main.views',
     # Forbidden
     (r'forbidden/$', 'forbidden'),
 
-    # Transfer
-    (r'transfer/$', 'transfer_grid'),
-    (r'transfer/(?P<uuid>' + UUID_REGEX + ')/$', 'transfer_detail'),
-    (r'transfer/(?P<uuid>' + UUID_REGEX + ')/delete/$', 'transfer_delete'),
-    (r'transfer/(?P<uuid>' + UUID_REGEX + ')/microservices/$', 'transfer_microservices'),
-    (r'transfer/status/$', 'transfer_status'),
-    (r'transfer/status/(?P<uuid>' + UUID_REGEX + ')/$', 'transfer_status'),
-    (r'transfer/browser/$', 'transfer_browser'),
-
     # Ingest
     (r'ingest/$', 'ingest_grid'),
     (r'ingest/(?P<uuid>' + UUID_REGEX + ')/$', 'ingest_detail'),
