@@ -37,7 +37,7 @@ def transfer_grid(request):
 
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
-    return render(request, 'main/transfer/grid.html', locals())
+    return render(request, 'transfer/grid.html', locals())
 
 def transfer_browser(request):
     originals_directory = '/var/archivematica/sharedDirectory/transferBackups/originals'
@@ -46,7 +46,7 @@ def transfer_browser(request):
         os.mkdir(directory)
     if not os.path.exists(arrange_directory):
         os.mkdir(arrange_directory)
-    return render(request, 'main/transfer/browser.html', locals())
+    return render(request, 'transfer/browser.html', locals())
 
 def transfer_status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs GROUP BY SIPUUID
@@ -100,12 +100,12 @@ def transfer_detail(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid)
     name = utils.get_directory_name(jobs[0])
     is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
-    return render(request, 'main/transfer/detail.html', locals())
+    return render(request, 'transfer/detail.html', locals())
 
 def transfer_microservices(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid)
     name = utils.get_directory_name(jobs[0])
-    return render(request, 'main/transfer/microservices.html', locals())
+    return render(request, 'transfer/microservices.html', locals())
 
 def transfer_delete(request, uuid):
     try:
