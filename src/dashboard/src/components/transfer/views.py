@@ -17,29 +17,15 @@
 from django.db.models import Max
 from django.conf import settings as django_settings
 from django.shortcuts import render
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import Http404, HttpResponse
 from django.utils import simplejson
-from django.template import RequestContext
-from django.utils.dateformat import format
 from contrib.mcp.client import MCPClient
 from contrib import utils
-from main import forms
 from main import models
-from main import filesystem
 from lxml import etree
-from lxml import objectify
 import calendar
-import cPickle
-from datetime import datetime
 import os
-import re
 import subprocess
-import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes
-from django.contrib.auth.decorators import user_passes_test
-import urllib
-import components.decorators as decorators
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Transfer
