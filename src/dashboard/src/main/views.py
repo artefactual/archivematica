@@ -15,38 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.db.models import Max
-from django.conf import settings as django_settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.db import connection, transaction
-from django.forms.models import modelformset_factory, inlineformset_factory
-from django.shortcuts import render_to_response, get_object_or_404, redirect, render
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
-from django.template import RequestContext
-from django.utils.dateformat import format
-from views_NormalizationReport import getNormalizationReportQuery
 from contrib.mcp.client import MCPClient
-from contrib import utils
-from main import forms
 from main import models
-from main import filesystem
 from lxml import etree
-from lxml import objectify
-import calendar
-import cPickle
-from datetime import datetime
 import os
-import re
 import subprocess
-import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes
-from django.contrib.auth.decorators import user_passes_test
-import urllib
-import components.decorators as decorators
 from components import helpers
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -387,5 +364,3 @@ def chain_insert():
     code.nextmicroservicechainlink = 4
     code.exitmessage = 'Completed successfully'
     code.save()
-    
-
