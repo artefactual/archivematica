@@ -1,8 +1,6 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
-#
-# Archivematica is free software: you can redistribute it and/or modify
+# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactua# Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
@@ -15,31 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.db.models import Max
-from django.conf import settings as django_settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.db import connection, transaction
-from django.forms.models import modelformset_factory, inlineformset_factory
-from django.shortcuts import render_to_response, get_object_or_404, redirect, render
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.forms.models import modelformset_factory
+from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
 from django.template import RequestContext
-from django.utils.dateformat import format
-from contrib.mcp.client import MCPClient
-from contrib import utils
 from main import forms
 from main import models
-from main import filesystem
-from lxml import etree
-from lxml import objectify
-import calendar
-import cPickle
-from datetime import datetime
-import os
-import re
-import subprocess
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
