@@ -18,11 +18,11 @@
 {% block content %}
 
 <ul class="breadcrumb">
-  {% breadcrumb_url 'Administration' main.views.administration %}
+  {% breadcrumb_url 'Administration' component.administration.views.administration %}
   {% breadcrumb 'Upload Atom DIP' %}
 </ul>
 
-<form class="form-stacked" method="post" action="{% url main.views.administration_atom_dips %}">
+<form class="form-stacked" method="post" action="{% url component.administration.views.administration_atom_dips %}">
 
   <div class="span12">
 

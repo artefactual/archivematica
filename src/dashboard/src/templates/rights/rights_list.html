@@ -7,11 +7,11 @@
 
       <ul class="breadcrumb">
         {% if section == 'ingest' %}
-          {% breadcrumb_url 'Ingest' main.views.ingest_grid %}
-          {% breadcrumb_url name main.views.ingest_detail uuid %}
+          {% breadcrumb_url 'Ingest' components.ingest.views.ingest_grid %}
+          {% breadcrumb_url name components.ingest.views.ingest_detail uuid %}
         {% else %}
-          {% breadcrumb_url 'Transfer' main.views.transfer_grid %}
-          {% breadcrumb_url name main.views.transfer_detail uuid %}
+          {% breadcrumb_url 'Transfer' components.transfer.views.transfer_grid %}
+          {% breadcrumb_url name components.transfer.views.transfer_detail uuid %}
         {% endif %}
         {% breadcrumb 'Rights' %}
       </ul>
@@ -41,11 +41,11 @@
               <td>{{ grant.enddate }}</td>
               <td>
                 {% if section == 'ingest' %}
-                  <a href="{% url main.views.ingest_rights_edit uuid grant.rightsstatement.id %}">Edit</a>
-                  <a href="{% url main.views.ingest_rights_delete uuid grant.rightsstatement.id %}">Delete</a>
+                  <a href="{% url components.rights.views.ingest_rights_edit uuid grant.rightsstatement.id %}">Edit</a>
+                  <a href="{% url components.rights.views.ingest_rights_delete uuid grant.rightsstatement.id %}">Delete</a>
                 {% else %}
-                  <a href="{% url main.views.transfer_rights_edit uuid grant.rightsstatement.id %}">Edit</a>
-                  <a href="{% url main.views.transfer_rights_delete uuid grant.rightsstatement.id %}">Delete</a>
+                  <a href="{% url components.rights.views.transfer_rights_edit uuid grant.rightsstatement.id %}">Edit</a>
+                  <a href="{% url components.rights.views.transfer_rights_delete uuid grant.rightsstatement.id %}">Delete</a>
                 {% endif %}
               </td>
             </tr>
@@ -69,9 +69,9 @@
 
       <div class="actions" style="padding-left: 1em;">
         {% if section == 'ingest' %}
-          <a class="btn primary" href="{% url main.views.ingest_rights_edit uuid %}">Add</a>
+          <a class="btn primary" href="{% url components.rights.views.ingest_rights_edit uuid %}">Add</a>
         {% else %}
-          <a class="btn primary" href="{% url main.views.transfer_rights_edit uuid %}">Add</a>
+          <a class="btn primary" href="{% url components.rights.views.transfer_rights_edit uuid %}">Add</a>
         {% endif %}
       </div>
 

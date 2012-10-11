@@ -1,10 +1,10 @@
 {% load active %}
 <div class="span3 sidebar">
 
-  {% url main.views.administration_dip as url_dip %}
-  {% url main.views.administration_contentdm_dips as url_contentdm_dips %}
-  {% url main.views.administration_sources as url_sources %}
-  {% url main.views.administration_processing as url_processing %}
+  {% url components.administration.views.administration_dip as url_dip %}
+  {% url components.administration.views.administration_contentdm_dips as url_contentdm_dips %}
+  {% url components.administration.views.administration_sources as url_sources %}
+  {% url components.administration.views.administration_processing as url_processing %}
   {% url components.accounts.views.list as url_user_list %}
 
   <ul>

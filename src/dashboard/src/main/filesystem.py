@@ -260,7 +260,7 @@ def copy_to_originals(request):
     )
 
 def copy_to_start_transfer(request):
-    filepath = request.POST.get('filepath', '')
+    filepath = archivematicaFunctions.unicodeToStr(request.POST.get('filepath', ''))
     type = request.POST.get('type', '')
 
     error = check_filepath_exists('/' + filepath)
