@@ -29,8 +29,7 @@ import traceback
 import lxml.etree as etree
 from optparse import OptionParser
 
-databaseInterface.printSQL = True
-
+databaseInterface.printSQL = False
 
 def identifyFromFileUUID(fileUUID, callWithIDs):
     #get the fits text from the database
@@ -55,43 +54,84 @@ def identifyFromXMLObjects(FITS_XML, fileUUID, callWithIDs):
     
 
 def callWithIDs(anID, fileUUID):
-    if not alreadyExistsCheck(anID):
+    existingID = alreadyExistsCheck(anID)
+    if not existingID:
         print "new id: ", anID
         newIDUUID = uuid.uuid4().__str__()
         newFileID = uuid.uuid4().__str__()
-        createNewID(newIDUUID, newFileID, anID)
-        
+        createNewID(newIDUUID, newFileID, anID, fileUUID)
+        existingID = newFileID 
+    
         
     for relationship in findRelationshipsForExtensionIDsForfileUUID(fileUUID):
-        createNewReleationshipBasedOn(relationShip[0], anID)
+        createNewReleationshipBasedOn(relationship[0], existingID)
             
-def createNewReleationshipBasedOn(relationShip[0], anID):
+def createNewReleationshipBasedOn(relationship, existingID):
     #find the command
-    #see if there is already a relationship between this id and the command
-    #if not, create the releationship
-    
-    #update is valid access/preservation
-    print "TODO" 
+    sql = "SELECT Command, CommandClassification, GroupMember FROM CommandRelationships WHERE pk = '%s';" % (relationship)
+    rows = databaseInterface.queryAllSQL(sql)
+    for row in rows:
+        Command, Classification, GroupMember = row
+        #see if there is already a relationship between this id and the command
+        sql = "SELECT PK FROM CommandRelationships WHERE Command = '%s' AND CommandClassification = '%s' AND fileID = '%s';" % (Command, Classification, existingID)
+        rows2 = databaseInterface.queryAllSQL(sql)
+        if not len(rows2):
+            newCommandRelationship = uuid.uuid4().__str__()
+            sql = """INSERT INTO CommandRelationships (pk, commandClassification, command, fileID, GroupMember) VALUES ('%s', '%s', '%s', '%s', '%s');""" % (newCommandRelationship, Classification, Command, existingID, GroupMember)
+            databaseInterface.runSQL(sql)
+        
 
 def alreadyExistsCheck(anID):
     #check db for instances of this id
-    sql = """SELECT pk FROM FileIDsByFitsFileUtilityFormat where id = '%s'""" % (anID)
+    sql = """SELECT FileIDs FROM FileIDsByFitsFileUtilityFormat where id = '%s'""" % (anID)
     rows = databaseInterface.queryAllSQL(sql)
     if len(rows) > 1:
         print >>sys.stderr, "Warning. More than one id for %s: %s" % (anID, rows.__str__())
     if len(rows):
-        return True
+        return rows[0][0]
     else:
         return False
     
-def createNewID(newIDUUID, FileID, anID):
+def createNewID(newIDUUID, FileID, anID, fileUUID):
+    #find the valid preservation/access status
+    sql = """SELECT validPreservationFormat, validAccessFormat
+                FROM FilesIdentifiedIDs 
+                JOIN FileIDs ON FilesIdentifiedIDs.fileID = FileIDs.pk 
+                WHERE FileIDType = '16ae42ff-1018-4815-aac8-cceacd8d88a8' 
+                AND FilesIdentifiedIDs.fileUUID = '%s';""" % (fileUUID)
+    rows = databaseInterface.queryAllSQL(sql) 
+    if len(rows):
+        validPreservationFormat, validAccessFormat = rows[0]
+    else:
+        validPreservationFormat, validAccessFormat = (False, False)
+        
+    
     description = anID
     fileIDType = '076cce1b-9b46-4343-a193-11c2662c9e02'
-    sql = """INSERT INTO FileIDs (pk, description, fileIDType) VALUES ('%s', '%s', '%s');""" % (FileID, anID, fileIDType)
+    sql = """INSERT INTO FileIDs (pk, description, fileIDType, validPreservationFormat, validAccessFormat) VALUES ('%s', '%s', '%s', '%s', '%s');""" % (FileID, anID, fileIDType, validPreservationFormat, validAccessFormat)
     databaseInterface.runSQL(sql)
     
     sql = """INSERT INTO FileIDsByFitsFileUtilityFormat (pk, FileIDs, id) VALUES ('%s', '%s', '%s');""" % (newIDUUID, FileID, anID)
     databaseInterface.runSQL(sql)
+    
+    
+
+def findRelationshipsForExtensionIDsForfileUUID(fileUUID):
+    sql = """SELECT CommandRelationships.pk 
+                FROM FilesIdentifiedIDs 
+                JOIN FileIDs ON FilesIdentifiedIDs.fileID = FileIDs.pk 
+                JOIN CommandRelationships ON CommandRelationships.fileID = FileIDs.pk 
+                WHERE FileIDType = '16ae42ff-1018-4815-aac8-cceacd8d88a8' 
+                AND FilesIdentifiedIDs.fileUUID = '%s';""" % (fileUUID)
+    rows = databaseInterface.queryAllSQL(sql)
+    return rows
+
+def printResetCommands():
+    print """#DELETE CommandRelationships FROM CommandRelationships JOIN FileIDs ON CommandRelationships.FileID = FileIDs.pk WHERE FileIDs.fileIDType = '076cce1b-9b46-4343-a193-11c2662c9e02';
+
+#DELETE FileIDsByFitsFileUtilityFormat FROM FileIDsByFitsFileUtilityFormat;
+
+#DELETE FileIDs FROM FileIDs  WHERE FileIDs.fileIDType = '076cce1b-9b46-4343-a193-11c2662c9e02';"""
 
 if __name__ == '__main__':
     parser = OptionParser()
