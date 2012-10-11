@@ -169,7 +169,7 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
     dc = None
     other = None
     ret = []
-    for i in range(len(keys)):
+    for i in range(1, len(keys)):
         key = keys[i]
         value = values[i]
         if key.startswith("dc."):
