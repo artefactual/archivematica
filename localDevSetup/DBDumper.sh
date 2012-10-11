@@ -54,8 +54,8 @@ $mysqldump Accesses Agents MetadataAppliesToTypes Sounds TaskTypes TasksConfigs 
 
 
 #Transcoder
-$mysqldump CommandTypes CommandClassifications CommandsSupportedBy Commands FileIDTypes FileIDs FilesIdentifiedIDs CommandRelationships FileIDsByExtension FileIDsByPronom Groups FileIDGroupMembers SubGroups DefaultCommandsForClassifications $dumpTables >> $MCPDumpSQLLocation
-$mysqldump CommandTypes CommandClassifications CommandsSupportedBy Commands FileIDTypes FileIDs FilesIdentifiedIDs CommandRelationships FileIDsByExtension FileIDsByPronom Groups FileIDGroupMembers SubGroups DefaultCommandsForClassifications $dumpData >> $MCPDumpSQLLocation #Source of FPR DATA
+$mysqldump CommandTypes CommandClassifications CommandsSupportedBy Commands FileIDTypes FileIDs CommandRelationships FileIDsByExtension FileIDsByFitsFileUtilityFormat FileIDsByPronom Groups FileIDGroupMembers SubGroups DefaultCommandsForClassifications FilesIdentifiedIDs  $dumpTables >> $MCPDumpSQLLocation
+$mysqldump CommandTypes CommandClassifications CommandsSupportedBy Commands FileIDTypes FileIDs CommandRelationships FileIDsByExtension FileIDsByFitsFileUtilityFormat FileIDsByPronom Groups FileIDGroupMembers SubGroups DefaultCommandsForClassifications $dumpData >> $MCPDumpSQLLocation #Source of FPR DATA
 
 
 #ElasticsearchIndexBackup
