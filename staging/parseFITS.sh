@@ -9,6 +9,7 @@ cd "`dirname $0`"
 ./parseFITS.ffident.py
 
 #in DROID output: <IdentificationFile>
+./parseFITS.DROID.py
 
 #in JHOVE output: <format>
 
