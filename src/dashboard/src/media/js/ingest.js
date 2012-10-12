@@ -320,6 +320,11 @@ $(function()
 
             modal
 
+              .on('shown', function()
+                {
+                  $(this).find('input').first().focus();
+                })
+
               .one('show', function()
                 {
                   var xhr = $.ajax(url, { type: 'GET' });
