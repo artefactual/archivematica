@@ -19,6 +19,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from contrib.mcp.client import MCPClient
 from main import models
 from lxml import etree
@@ -79,6 +80,19 @@ def task(request, uuid):
 def tasks(request, uuid):
     job = models.Job.objects.get(jobuuid=uuid)
     objects = job.task_set.all().order_by('-exitcode', '-endtime', '-starttime', '-createdtime')
+    current_page_number = request.GET.get('page', None);
+
+    # handle pagination
+    p                   = Paginator(objects, 5)
+    current_page_number = 1 if current_page_number == None else int(current_page_number)
+    page                = p.page(current_page_number)
+    has_next            = page.has_next()
+    next_page           = current_page_number + 1
+    has_previous        = page.has_previous()
+    previous_page       = current_page_number - 1
+    has_other_pages     = page.has_other_pages()
+
+    objects = page.object_list
 
     # figure out duration in seconds
     for object in objects:

@@ -1,4 +1,26 @@
 {% block content %}
+<script>
+function reloadTaskDialog(destinationDomElement, uuid, page) {
+  $.ajax({
+    type: 'GET',
+    cache: false,
+    data: {
+      'page': page
+    },
+    success: function(data)
+      {
+        $(destinationDomElement).html(data);
+        localizeUtcDateElements();
+      },
+    url: '/tasks/' + uuid + '/'
+  });
+}
+</script>
+
+<a name='tasks_top'></a>
+
+{% include "main/_tasks_pager.html" %}
+
   <table>
     <tbody>
       {% for item in objects %}
@@ -44,4 +66,7 @@
       {% endfor %}
     </tbody>
   </table>
+
+{% include "main/_tasks_pager.html" %}
+
 {% endblock %}

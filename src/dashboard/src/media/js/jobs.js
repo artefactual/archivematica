@@ -571,7 +571,7 @@ var BaseJobView = Backbone.View.extend({
 
   taskDialog: function(data, options)
     {
-      var dialog = $('<div class="task-dialog"></div>');
+      var dialog = $('<div class="task-dialog"><a name="tasks-dialog-top"></a></div>');
 
       if (options == undefined) {
         options = {};
