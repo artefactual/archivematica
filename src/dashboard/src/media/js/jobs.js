@@ -589,7 +589,10 @@ var BaseJobView = Backbone.View.extend({
         options.height = 640;
       }
 
-      dialog.append('<table>' + options.theadHtml + $(data).find('tbody').html() + '</table>')
+      var table = $('<table></table>');
+      table.append(options.theadHtml);
+      table.append(data);
+      dialog.append(table)
 
       return dialog.dialog({
           title: this.model.sip.get('directory') + ' &raquo ' + this.model.get('type') + ' &raquo Tasks',
