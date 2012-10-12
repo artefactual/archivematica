@@ -12,6 +12,7 @@ cd "`dirname $0`"
 ./parseFITS.DROID.py
 
 #in JHOVE output: <format>
+./parseFITS.Jhove.py
 
 #in FITS output: <identify format>
 
