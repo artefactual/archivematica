@@ -1,0 +1,9 @@
+{% if has_previous %}
+<a class='btn' href='#tasks-dialog-top' onClick="javascript:reloadTaskDialog($(this).parent(), '{{ uuid }}', '{{ previous_page }} ')">Previous Page</a>
+{% endif %}
+
+{% if has_next and has_previous %}&nbsp;{% endif %}
+
+{% if has_next %}
+<a class='btn' href='#tasks-dialog-top' onClick="javascript:reloadTaskDialog($(this).parent(), '{{ uuid }}', '{{ next_page }} ')">Next Page</a>
+{% endif %}
