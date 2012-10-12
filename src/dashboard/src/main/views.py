@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.conf import settings as django_settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -83,7 +84,7 @@ def tasks(request, uuid):
     current_page_number = request.GET.get('page', None);
 
     # handle pagination
-    p                   = Paginator(objects, 5)
+    p                   = Paginator(objects, django_settings.TASKS_PER_PAGE)
     current_page_number = 1 if current_page_number == None else int(current_page_number)
     page                = p.page(current_page_number)
     has_next            = page.has_next()
