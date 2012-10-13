@@ -53,7 +53,7 @@ def task_duration_in_seconds(task):
     return duration
 
 def get_jobs_by_sipuuid(uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid).order_by('-createdtime')
+    jobs = models.Job.objects.filter(sipuuid=uuid).order_by('-createdtime', 'subjobof')
     priorities = {
         'completedUnsuccessfully': 0,
         'requiresAprroval': 1,
