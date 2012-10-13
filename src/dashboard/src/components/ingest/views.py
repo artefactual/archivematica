@@ -19,32 +19,18 @@ from django.db.models import Max
 from django.conf import settings as django_settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.db import connection, transaction
-from django.forms.models import modelformset_factory, inlineformset_factory
-from django.shortcuts import render_to_response, get_object_or_404, redirect, render
+from django.db import connection
+from django.shortcuts import render
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.utils import simplejson
-from django.template import RequestContext
-from django.utils.dateformat import format
 from contrib.mcp.client import MCPClient
 from contrib import utils
 from main import forms
 from main import models
 from lxml import etree
-from lxml import objectify
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
 import calendar
 import cPickle
-from datetime import datetime
-import os
-import re
-import subprocess
-import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes
-from django.contrib.auth.decorators import user_passes_test
-import urllib
 import components.decorators as decorators
 from components import helpers
 
