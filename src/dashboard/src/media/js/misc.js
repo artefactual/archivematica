@@ -137,6 +137,22 @@ function timestampToLocal(timestamp) {
   return date.getArchivematicaDateString();
 }
 
+function reloadPageableElement(destinationDomElement, url, page) {
+  $.ajax({
+    type: 'GET',
+    cache: false,
+    data: {
+      'page': page
+    },
+    success: function(data)
+      {
+        $(destinationDomElement).html(data);
+        localizeUtcDateElements();
+      },
+    url: url
+  });
+}
+
 $(document).ready(
   function()
     {
