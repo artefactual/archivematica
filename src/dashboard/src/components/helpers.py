@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.utils.dateformat import format
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from main import models
 import sys
 
@@ -27,6 +28,23 @@ def dictfetchall(cursor):
         dict(zip([col[0] for col in desc], row))
         for row in cursor.fetchall()
     ]
+
+def pager(objects, items_per_page, current_page_number):
+    page = {}
+
+    p                    = Paginator(objects, items_per_page)
+
+    page['current']      = 1 if current_page_number == None else int(current_page_number)
+    pager                = p.page(page['current'])
+    page['has_next']     = pager.has_next()
+    page['next']         = page['current'] + 1
+    page['has_previous'] = pager.has_previous()
+    page['previous']     = page['current'] - 1
+    page['has_other']    = pager.has_other_pages()
+
+    page['objects']      = pager.object_list
+
+    return page
 
 def task_duration_in_seconds(task):
     duration = int(format(task.endtime, 'U')) - int(format(task.starttime, 'U'))
