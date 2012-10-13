@@ -13,5 +13,6 @@ urlpatterns = patterns('',
     (r'ingest/(?P<uuid>' + UUID_REGEX + ')/rights/', include('components.rights.ingest_urls')),
     (r'ingest/', include('components.ingest.urls')),
     (r'^administration/', include('components.administration.urls')),
+    (r'^filesystem/', include('components.filesystem_ajax.urls')),
     (r'', include('main.urls'))
 )

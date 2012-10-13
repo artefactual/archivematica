@@ -21,7 +21,7 @@ from django.http import HttpResponse
 from django.utils import simplejson
 from components.archival_storage import forms
 from main import models
-from main import filesystem
+from components.filesystem_ajax.views import send_file
 import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
@@ -125,7 +125,7 @@ def archival_storage_indexed_count(index):
 
 def archival_storage_sip_download(request, path):
     full_path = os.path.join(os.path.dirname(AIPSTOREPATH), path)
-    return filesystem.send_file(request, full_path)
+    return send_file(request, full_path)
 
 def archival_storage_sip_display(request, current_page_number=None):
     form = forms.StorageSearchForm()
