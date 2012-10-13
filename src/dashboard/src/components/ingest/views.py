@@ -33,7 +33,7 @@ from main import forms
 from main import models
 from lxml import etree
 from lxml import objectify
-from main.views_NormalizationReport import getNormalizationReportQuery
+from components.ingest.views_NormalizationReport import getNormalizationReportQuery
 import calendar
 import cPickle
 from datetime import datetime
