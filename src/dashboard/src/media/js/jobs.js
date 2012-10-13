@@ -577,10 +577,6 @@ var BaseJobView = Backbone.View.extend({
         options = {};
       }
 
-      if (options.theadHtml == undefined) {
-        options.theadHtml = '';
-      }
-
       if (options.width == undefined) {
         options.width = 640;
       }
@@ -590,7 +586,6 @@ var BaseJobView = Backbone.View.extend({
       }
 
       var table = $('<table></table>');
-      table.append(options.theadHtml);
       table.append(data);
       dialog.append(table)
 
