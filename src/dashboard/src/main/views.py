@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.conf import settings as django_settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -79,6 +80,9 @@ def task(request, uuid):
 def tasks(request, uuid):
     job = models.Job.objects.get(jobuuid=uuid)
     objects = job.task_set.all().order_by('-exitcode', '-endtime', '-starttime', '-createdtime')
+
+    page    = helpers.pager(objects, django_settings.TASKS_PER_PAGE, request.GET.get('page', None))
+    objects = page['objects']
 
     # figure out duration in seconds
     for object in objects:

@@ -4,7 +4,7 @@ BASE_PATH = os.path.dirname(__file__)
 
 # Django settings for app project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -193,6 +193,7 @@ else:
 MCP_SERVER = ('127.0.0.1', 4730) # localhost:4730
 POLLING_INTERVAL = 5 # Seconds
 STATUS_POLLING_INTERVAL = 5 # Seconds
+TASKS_PER_PAGE = 10 # for paging in tasks dialog
 
 MICROSERVICES_HELP = {
     'Approve transfer': 'Select "Approve transfer" to begin processing or "Reject transfer" to start over again.',

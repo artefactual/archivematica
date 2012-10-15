@@ -37,18 +37,3 @@ urlpatterns = patterns('main.views',
     (r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/(?P<delete_id>\d+)/$', 'formdata_delete'),
     (r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/$', 'formdata'),
 )
-
-# Filesystem related JSON views
-urlpatterns += patterns('main.filesystem',
-    (r'filesystem/download/$', 'download'),
-    (r'filesystem/contents/$', 'contents'),
-    (r'filesystem/children/$', 'directory_children'),
-
-    (r'filesystem/delete/$', 'delete'),
-    (r'filesystem/copy_to_originals/$', 'copy_to_originals'),
-    (r'filesystem/copy_to_arrange/$', 'copy_to_arrange'),
-    (r'filesystem/copy_transfer_component/$', 'copy_transfer_component'),
-    (r'filesystem/get_temp_directory/$', 'get_temp_directory'),
-    (r'filesystem/ransfer/$', 'copy_to_start_transfer'),
-    (r'filesystem/copy_from_arrange/$', 'copy_from_arrange_to_completed')
-)

@@ -19,33 +19,18 @@ from django.db.models import Max
 from django.conf import settings as django_settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.db import connection, transaction
-from django.forms.models import modelformset_factory, inlineformset_factory
-from django.shortcuts import render_to_response, get_object_or_404, redirect, render
+from django.db import connection
+from django.shortcuts import render
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.utils import simplejson
-from django.template import RequestContext
-from django.utils.dateformat import format
 from contrib.mcp.client import MCPClient
 from contrib import utils
 from main import forms
 from main import models
-from main import filesystem
 from lxml import etree
-from lxml import objectify
-from main.views_NormalizationReport import getNormalizationReportQuery
+from components.ingest.views_NormalizationReport import getNormalizationReportQuery
 import calendar
 import cPickle
-from datetime import datetime
-import os
-import re
-import subprocess
-import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes
-from django.contrib.auth.decorators import user_passes_test
-import urllib
 import components.decorators as decorators
 from components import helpers
 
@@ -56,7 +41,7 @@ from components import helpers
 def ingest_grid(request):
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
-    return render(request, 'main/ingest/grid.html', locals())
+    return render(request, 'ingest/grid.html', locals())
 
 def ingest_status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs WHERE unitType='unitSIP' GROUP BY SIPUUID
@@ -118,7 +103,7 @@ def ingest_metadata_list(request, uuid, jobs, name):
     # types = { 'ingest': 1, 'transfer': 2, 'file': 3 }
     metadata = models.DublinCore.objects.filter(metadataappliestotype__exact=1, metadataappliestoidentifier__exact=uuid)
 
-    return render(request, 'main/ingest/metadata_list.html', locals())
+    return render(request, 'ingest/metadata_list.html', locals())
 
 def ingest_metadata_edit(request, uuid, id=None):
     if id:
@@ -150,7 +135,7 @@ def ingest_metadata_edit(request, uuid, id=None):
         jobs = models.Job.objects.filter(sipuuid=uuid)
         name = utils.get_directory_name(jobs[0])
 
-    return render(request, 'main/ingest/metadata_edit.html', locals())
+    return render(request, 'ingest/metadata_edit.html', locals())
 
 def ingest_metadata_delete(request, uuid, id):
     try:
@@ -163,12 +148,12 @@ def ingest_detail(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid)
     is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
     name = utils.get_directory_name(jobs[0])
-    return render(request, 'main/ingest/detail.html', locals())
+    return render(request, 'ingest/detail.html', locals())
 
 def ingest_microservices(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid)
     name = utils.get_directory_name(jobs[0])
-    return render(request, 'main/ingest/microservices.html', locals())
+    return render(request, 'ingest/microservices.html', locals())
 
 def ingest_delete(request, uuid):
     try:
@@ -225,7 +210,7 @@ def ingest_normalization_report(request, uuid):
     cursor.execute(query, ( uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid ))
     objects = helpers.dictfetchall(cursor)
 
-    return render(request, 'main/normalization_report.html', locals())
+    return render(request, 'ingest/normalization_report.html', locals())
 
 def ingest_browse_normalization(request, jobuuid):
     jobs = models.Job.objects.filter(jobuuid=jobuuid)
@@ -234,7 +219,7 @@ def ingest_browse_normalization(request, jobuuid):
     name = utils.get_directory_name(job)
     directory = '/var/archivematica/sharedDirectory/watchedDirectories/approveNormalization'
 
-    return render(request, 'main/ingest/aip_browse.html', locals())
+    return render(request, 'ingest/aip_browse.html', locals())
 
 def ingest_browse_aip(request, jobuuid):
     """
@@ -260,4 +245,4 @@ def ingest_browse_aip(request, jobuuid):
     name = utils.get_directory_name(job)
     directory = '/var/archivematica/sharedDirectory/watchedDirectories/storeAIP'
 
-    return render(request, 'main/ingest/aip_browse.html', locals())
+    return render(request, 'ingest/aip_browse.html', locals())

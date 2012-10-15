@@ -1,6 +1,8 @@
-{% extends "layout_ajax.html" %}
-
 {% block content %}
+<a name='tasks_top'></a>
+
+{% include "main/_tasks_pager.html" %}
+
   <table>
     <tbody>
       {% for item in objects %}
@@ -46,4 +48,7 @@
       {% endfor %}
     </tbody>
   </table>
+
+{% include "main/_tasks_pager.html" %}
+
 {% endblock %}

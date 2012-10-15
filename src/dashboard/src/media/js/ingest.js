@@ -320,6 +320,11 @@ $(function()
 
             modal
 
+              .on('shown', function()
+                {
+                  $(this).find('input').first().focus();
+                })
+
               .one('show', function()
                 {
                   var xhr = $.ajax(url, { type: 'GET' });
@@ -401,7 +406,6 @@ $(function()
             success: function(data)
               {
                 this.taskDialog(data, {
-                  theadHtml: $(data).find('thead').html(),
                   width: 950
                 })
                   .find('a.file-location')
