@@ -27,7 +27,7 @@ from shutil import move as rename
 import sys
 from unidecode import unidecode
 
-VERSION = "1.0." +  "$Rev: 3268 $".replace(" $", "").replace("$Rev: ","")
+VERSION = "1.1.0"
 valid = "-_.()" + string.ascii_letters + string.digits
 replacementChar = "_"
 
