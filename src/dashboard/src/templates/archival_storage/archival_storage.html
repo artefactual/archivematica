@@ -70,16 +70,18 @@
       </tbody>
     </table>
 
-    {% if has_other_pages %}
-      {% if has_previous %}
-        <a href="{% url components.archival_storage.views.archival_storage_page previous_page %}">Previous</a>
-        {% if has_next %}
-          |
+    {% if page.has_other %}
+      <div style='float:right'>
+      {% if page.has_previous %}
+        <a href="{% url components.archival_storage.views.archival_storage_page page.previous %}" class="btn">Previous</a>
+        {% if page.has_next %}
+          &nbsp;
         {% endif %}
       {% endif %}
-      {% if has_next %}
-        <a href="{% url components.archival_storage.views.archival_storage_page next_page %}">Next</a>
+      {% if page.has_next %}
+        <a href="{% url components.archival_storage.views.archival_storage_page page.next %}" class="btn">Next</a>
       {% endif %}
+      </div>
     {% endif %}
 
   {% else %}
