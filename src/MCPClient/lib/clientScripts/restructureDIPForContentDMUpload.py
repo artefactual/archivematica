@@ -89,9 +89,10 @@ def parseDcXml(dublincore, label = '[Placeholder title]'):
 
 # Takes in a DOM object containing the METS structMap, returns a dictionary with 
 # fptrValue : [ order, parent, dmdSec, label, filename ] members.
-# Files in the DIP objects directory start with the UUID (i.e., first 36 characters of the filename)
-# of the of the file named in the fptr FILEID in the structMap; each file ends in the UUID.
-# Also, we are only interested in divs that are direct children of a div with TYPE=directory and LABEL=objects:
+# Files in the DIP objects directory start with the UUID (i.e., first 36 characters 
+# of the filename) # of the of the file named in the fptr FILEID in the structMap; 
+# each file ends in the UUID. Also, we are only interested in divs that are direct
+# children of a div with TYPE=directory and LABEL=objects:
 #  <div TYPE="directory" LABEL="DigitizationOutput-50a3c71f-92d6-46d1-98ce-8227caa79f85-50a3c71f-92d6-46d1-98ce-8227caa79f85">
 #      <div TYPE="directory" LABEL="objects" DMDID="dmdSec_1">
 #        <div LABEL="Page 1">
@@ -713,7 +714,8 @@ if __name__ == '__main__':
         print "Sorry, ingestFormat must be either 'directupload' or 'projectclient'"
         sys.exit(1)
 
-    # Read and parse the METS file. Assumes there is one METS file in the DIP directory.
+    # Read and parse the METS file. Assumes there is one METS file in the DIP directory,
+    # which is true for both single-item transfers and bulk transfers.
     for infile in glob.glob(os.path.join(inputDipDir, "METS*.xml")):
         metsFile = infile
     metsDom = parse(metsFile)
