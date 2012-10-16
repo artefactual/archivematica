@@ -19,7 +19,7 @@
 
 # @package Archivematica
 # @subpackage archivematicaClientScript
-# @author Mark Jordan <EMAIL@EMAIL.email>
+# @author Mark Jordan <mark2jordan@gmail.com>
 
 import os
 import stat
@@ -28,6 +28,8 @@ import argparse
 import json
 import urllib
 
+# This function queries the CONTENTdm collection configuration to determine
+# where the collection's import directory is on the server.
 def getDestinationImportDirectory(targetCollection, contentdmServer):
   try:
     CollectionParametersUrl = 'http://' + contentdmServer + '/dmwebservices/index.php?q=dmGetCollectionParameters' + targetCollection + '/json'
@@ -73,7 +75,7 @@ if __name__ == '__main__':
     else:
         destinationImportDirectory = os.path.join(contentdmCollectionDirectory, 'import')
 
-    # We need to remove the port, if any, from server.
+    # We need to remove the port, if any, from server, since we don't use it while scping or sshing.
     server, sep, port = args.contentdmServer.partition(':')
     destPath = args.contentdmUser + '@' + server + ':' + destinationImportDirectory
 

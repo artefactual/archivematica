@@ -19,7 +19,7 @@
 
 # @package Archivematica
 # @subpackage archivematicaClientScript
-# @author Mark Jordan <email>
+# @author Mark Jordan <mark2jordan@gmail.com>
 import sys
 import json
 import urllib
