@@ -111,7 +111,7 @@ def createNewID(newIDUUID, FileID, anID, fileUUID):
     
     description = anID
     fileIDType = 'ac5d97dc-df9e-48b2-81c5-4a8b044355fa'
-    sql = """INSERT INTO FileIDs (pk, description, fileIDType, validPreservationFormat, validAccessFormat) VALUES ('%s', '%s', '%s', '%s', '%s');""" % (FileID, anID, fileIDType, validPreservationFormat, validAccessFormat)
+    sql = """INSERT INTO FileIDs (pk, description, fileIDType, validPreservationFormat, validAccessFormat) VALUES ('%s', '%s', '%s', %s, %s);""" % (FileID, anID, fileIDType, validPreservationFormat, validAccessFormat)
     databaseInterface.runSQL(sql)
     
     sql = """INSERT INTO FileIDsByFitsDROIDIdentificationPUID (pk, FileIDs, id) VALUES ('%s', '%s', '%s');""" % (newIDUUID, FileID, anID)

@@ -112,7 +112,7 @@ def createNewID(newIDUUID, FileID, anID, fileUUID):
     
     description = anID
     fileIDType = '8e39a076-d359-4c60-b6f4-38f7ae6adcdf'
-    sql = """INSERT INTO FileIDs (pk, description, fileIDType, validPreservationFormat, validAccessFormat) VALUES ('%s', '%s', '%s', '%s', '%s');""" % (FileID, anID, fileIDType, validPreservationFormat, validAccessFormat)
+    sql = """INSERT INTO FileIDs (pk, description, fileIDType, validPreservationFormat, validAccessFormat) VALUES ('%s', '%s', '%s', %s, %s);""" % (FileID, anID, fileIDType, validPreservationFormat, validAccessFormat)
     databaseInterface.runSQL(sql)
     
     sql = """INSERT INTO FileIDsByFitsFfidentMimetype (pk, FileIDs, id) VALUES ('%s', '%s', '%s');""" % (newIDUUID, FileID, anID)
