@@ -1,6 +1,7 @@
 Git cheat sheet
 #updates regardless of branch
 git add
+git add -u #add modified files to be committed.
 git commit
 git pull origin master
 git push origin joseph

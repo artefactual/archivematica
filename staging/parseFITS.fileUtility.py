@@ -49,8 +49,9 @@ def identifyFromXMLObjects(FITS_XML, fileUUID, callWithIDs):
     for element in FITS_XML.getiterator("{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}tool"):
         if element.get("name") == "file utility":
             for element2 in element.getiterator("format"):
-                callWithIDs(element2.text, fileUUID)
-                #print "\t", element2.text
+                if element2.text != None:
+                    callWithIDs(element2.text, fileUUID)
+
     
 
 def callWithIDs(anID, fileUUID):

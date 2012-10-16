@@ -50,8 +50,8 @@ def identifyFromXMLObjects(FITS_XML, fileUUID, callWithIDs):
     for element in FITS_XML.getiterator("{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}tool"):
         if element.get("name") == "Droid":
             for element2 in element.getiterator("{http://www.nationalarchives.gov.uk/pronom/FileCollection}PUID"):
-                callWithIDs(element2.text, fileUUID)
-                #print "\t", element2.text
+                if element2.text != None:
+                    callWithIDs(element2.text, fileUUID)
     
 
 def callWithIDs(anID, fileUUID):
@@ -85,7 +85,7 @@ def createNewReleationshipBasedOn(relationship, existingID):
 #
 def alreadyExistsCheck(anID):
     #check db for instances of this id
-    sql = """SELECT FileIDs FROM FileIDsByFitsDROIDIdentificationFile where id = '%s'""" % (anID)
+    sql = """SELECT FileIDs FROM FileIDsByFitsDROIDIdentificationPUID where id = '%s'""" % (anID)
     rows = databaseInterface.queryAllSQL(sql)
     if len(rows) > 1:
         print >>sys.stderr, "Warning. More than one id for %s: %s" % (anID, rows.__str__())
@@ -114,7 +114,7 @@ def createNewID(newIDUUID, FileID, anID, fileUUID):
     sql = """INSERT INTO FileIDs (pk, description, fileIDType, validPreservationFormat, validAccessFormat) VALUES ('%s', '%s', '%s', '%s', '%s');""" % (FileID, anID, fileIDType, validPreservationFormat, validAccessFormat)
     databaseInterface.runSQL(sql)
     
-    sql = """INSERT INTO FileIDsByFitsDROIDIdentificationFile (pk, FileIDs, id) VALUES ('%s', '%s', '%s');""" % (newIDUUID, FileID, anID)
+    sql = """INSERT INTO FileIDsByFitsDROIDIdentificationPUID (pk, FileIDs, id) VALUES ('%s', '%s', '%s');""" % (newIDUUID, FileID, anID)
     databaseInterface.runSQL(sql)
     
     
@@ -133,7 +133,7 @@ def findRelationshipsForExtensionIDsForfileUUID(fileUUID):
 def printResetCommands():
     print """#DELETE CommandRelationships FROM CommandRelationships JOIN FileIDs ON CommandRelationships.FileID = FileIDs.pk WHERE FileIDs.fileIDType = 'ac5d97dc-df9e-48b2-81c5-4a8b044355fa';
 
-#DELETE FileIDsByFitsDROIDIdentificationFile FROM FileIDsByFitsDROIDIdentificationFile;
+#DELETE FileIDsByFitsDROIDIdentificationPUID FROM FileIDsByFitsDROIDIdentificationPUID;
 
 #DELETE FileIDs FROM FileIDs  WHERE FileIDs.fileIDType = 'ac5d97dc-df9e-48b2-81c5-4a8b044355fa';"""
 
