@@ -209,7 +209,7 @@ def watchDirectories():
         if not os.path.isdir(directory):
             os.makedirs(directory)
         for item in os.listdir(directory):
-            if item == ".svn":
+            if item == ".gitignore":
                 continue
             item = item.decode("utf-8")
             path = os.path.join(unicode(directory), item)

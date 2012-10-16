@@ -43,7 +43,7 @@ def archival_storage_search(request):
         query = '*'
 
     # set pagination-related variables
-    items_per_page = 20
+    items_per_page = 10
 
     page = request.GET.get('page', 0)
     if page == '':
