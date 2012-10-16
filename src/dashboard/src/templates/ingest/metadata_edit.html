@@ -21,7 +21,7 @@
       {% if id %}
         <form class="form-stacked" method="post" action="{% url components.ingest.views.ingest_metadata_edit uuid id %}">
       {% else %}
-        <form class="form-stacked" method="post" action="{% url componetns.ingest.views.ingest_metadata_edit uuid %}">
+        <form class="form-stacked" method="post" action="{% url components.ingest.views.ingest_metadata_edit uuid %}">
       {% endif %}
 
         <div class="clearfix">
