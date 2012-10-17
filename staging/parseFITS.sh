@@ -18,5 +18,7 @@ cd "`dirname $0`"
 ./parseFITS.Jhove.MimeType.py
 
 #in FITS output: <identify format>
+./parseFITS.FITS.MimeType.py
+./parseFITS.FITS.format.py
 
 cd "$tmpDir"
