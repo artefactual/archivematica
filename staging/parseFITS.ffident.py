@@ -47,7 +47,7 @@ def identifyFromXMLObjects(FITS_XML, fileUUID, callWithIDs):
     #parse out the actual file IDs
     #print type(FITS_XML)
     #print etree.tostring(FITS_XML, pretty_print = True)
-    for element in FITS_XML.getiterator("{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}tool"):
+    for element in FITS_XML.iter("{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}tool"):
         if element.get("name") == "ffident":
             for element2 in element.getiterator("mimetype"):
                 if element2.text != None:

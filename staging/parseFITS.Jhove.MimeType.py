@@ -49,7 +49,7 @@ def identifyFromXMLObjects(FITS_XML, fileUUID, callWithIDs):
     #print etree.tostring(FITS_XML, pretty_print = True)
     for element in FITS_XML.iter("{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}tool"):
         if element.get("name") == "Jhove":
-            for element2 in element.getiterator("{}format"):
+            for element2 in element.getiterator("{}mimeType"):
                 if element2.text != None:
                     callWithIDs(element2.text, fileUUID)
     
@@ -85,7 +85,7 @@ def createNewReleationshipBasedOn(relationship, existingID):
 #
 def alreadyExistsCheck(anID):
     #check db for instances of this id
-    sql = """SELECT FileIDs FROM FileIDsByFitsJhoveFormat where id = '%s'""" % (anID)
+    sql = """SELECT FileIDs FROM FileIDsByFitsJhoveMimeType where id = '%s'""" % (anID)
     rows = databaseInterface.queryAllSQL(sql)
     if len(rows) > 1:
         print >>sys.stderr, "Warning. More than one id for %s: %s" % (anID, rows.__str__())
@@ -110,11 +110,11 @@ def createNewID(newIDUUID, FileID, anID, fileUUID):
         
     
     description = anID
-    fileIDType = 'b0bcccfb-04bc-4daa-a13c-77c23c2bda85'
+    fileIDType = 'dc551ed2-9d2f-4c8a-acce-760fb740af48'
     sql = """INSERT INTO FileIDs (pk, description, fileIDType, validPreservationFormat, validAccessFormat) VALUES ('%s', '%s', '%s', %s, %s);""" % (FileID, anID, fileIDType, validPreservationFormat, validAccessFormat)
     databaseInterface.runSQL(sql)
     
-    sql = """INSERT INTO FileIDsByFitsJhoveFormat (pk, FileIDs, id) VALUES ('%s', '%s', '%s');""" % (newIDUUID, FileID, anID)
+    sql = """INSERT INTO FileIDsByFitsJhoveMimeType (pk, FileIDs, id) VALUES ('%s', '%s', '%s');""" % (newIDUUID, FileID, anID)
     databaseInterface.runSQL(sql)
     
     
@@ -131,11 +131,11 @@ def findRelationshipsForExtensionIDsForfileUUID(fileUUID):
 
 #
 def printResetCommands():
-    print """#DELETE CommandRelationships FROM CommandRelationships JOIN FileIDs ON CommandRelationships.FileID = FileIDs.pk WHERE FileIDs.fileIDType = 'b0bcccfb-04bc-4daa-a13c-77c23c2bda85';
+    print """#DELETE CommandRelationships FROM CommandRelationships JOIN FileIDs ON CommandRelationships.FileID = FileIDs.pk WHERE FileIDs.fileIDType = 'dc551ed2-9d2f-4c8a-acce-760fb740af48';
 
-#DELETE FileIDsByFitsJhoveFormat FROM FileIDsByFitsJhoveFormat;
+#DELETE FileIDsByFitsJhoveMimeType FROM FileIDsByFitsJhoveMimeType;
 
-#DELETE FileIDs FROM FileIDs  WHERE FileIDs.fileIDType = 'b0bcccfb-04bc-4daa-a13c-77c23c2bda85';"""
+#DELETE FileIDs FROM FileIDs  WHERE FileIDs.fileIDType = 'dc551ed2-9d2f-4c8a-acce-760fb740af48';"""
 
 if __name__ == '__main__':
     #printResetCommands()
