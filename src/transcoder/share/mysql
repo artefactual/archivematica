@@ -2784,8 +2784,6 @@ inputFile="%fileFullName%"
 outputFile="%outputDirectory%%prefix%%fileName%%postfix%.mkv"
 audioCodec="pcm_s16le"
 videoCodec="ffv1"
-###audioStreamCount=`ffprobe "${inputFile}" -show_streams 2>&1 | grep "codec_type=audio" -c`
-###videoStreamCount=`ffprobe "${inputFile}" -show_streams 2>&1 | grep "codec_type=video" -c`
 
 command="ffmpeg -i \"${inputFile}\" -map 0:v -map 0:a "
 command="${command} -vcodec ${videoCodec} "
