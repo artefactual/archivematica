@@ -2784,33 +2784,13 @@ inputFile="%fileFullName%"
 outputFile="%outputDirectory%%prefix%%fileName%%postfix%.mkv"
 audioCodec="pcm_s16le"
 videoCodec="ffv1"
-audioStreamCount=`ffprobe "${inputFile}" -show_streams 2>&1 | grep "codec_type=audio" -c`
-videoStreamCount=`ffprobe "${inputFile}" -show_streams 2>&1 | grep "codec_type=video" -c`
+###audioStreamCount=`ffprobe "${inputFile}" -show_streams 2>&1 | grep "codec_type=audio" -c`
+###videoStreamCount=`ffprobe "${inputFile}" -show_streams 2>&1 | grep "codec_type=video" -c`
 
-command="ffmpeg -i \"${inputFile}\" "
-if [ ${audioStreamCount} -ge 1 ] ; then
+command="ffmpeg -i \"${inputFile}\" -map 0:v -map 0:a "
 command="${command} -vcodec ${videoCodec} "
-fi
-
-if [ ${videoStreamCount} -ge 1 ] ; then
 command="${command} -acodec ${audioCodec}"
-fi
-
 command="${command} ${outputFile}"
-
-addAudioStream=" -acodec ${audioCodec}  -newaudio"
-addVideoStream=" -vcodec ${videoCodec}  -newvideo"
-
-#add additional audio channels
-for (( c=1; c<${audioStreamCount}; c++ )); do 
-command="${command} ${addAudioStream}"
-#echo $command
-done
-
-for (( c=1; c<${videoStreamCount}; c++ )); do 
-command="${command} ${addVideoStream}"
-#echo $command
-done
 
 echo $command
 eval $command
