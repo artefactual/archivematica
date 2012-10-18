@@ -22,6 +22,7 @@ from django.utils import simplejson
 from components.archival_storage import forms
 from main import models
 from components.filesystem_ajax.views import send_file
+from components import helpers
 import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
@@ -43,7 +44,7 @@ def archival_storage_search(request):
         query = '*'
 
     # set pagination-related variables
-    items_per_page = 10
+    items_per_page = 20
 
     page = request.GET.get('page', 0)
     if page == '':
@@ -139,17 +140,10 @@ def archival_storage_sip_display(request, current_page_number=None):
     aips = models.AIP.objects.all()
 
     # handle pagination
-    p                   = Paginator(aips, 20)
-    current_page_number = 1 if current_page_number == None else int(current_page_number)
-    page                = p.page(current_page_number)
-    has_next            = page.has_next()
-    next_page           = current_page_number + 1
-    has_previous        = page.has_previous()
-    previous_page       = current_page_number - 1
-    has_other_pages     = page.has_other_pages()
+    page = helpers.pager(aips, 10, current_page_number)
 
     sips = []
-    for aip in page.object_list:
+    for aip in page['objects']:
         sip = {}
         sip['href'] = aip.filepath.replace(AIPSTOREPATH + '/', "AIPsStore/")
         sip['name'] = aip.sipname
