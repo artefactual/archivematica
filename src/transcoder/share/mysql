@@ -2745,7 +2745,7 @@ INSERT INTO Commands
     (commandType, command, outputLocation, eventDetailCommand, verificationCommand, description) 
     VALUES (
     (SELECT pk FROM CommandTypes WHERE type = 'bashScript'),
-    ('ffmpeg -i "%fileFullName%" -vcodec libx264 -preset medium -crf 18 "%outputDirectory%%prefix%%fileName%%postfix%.mp4"'),
+    ('ffmpeg -i "%fileFullName%" -vcodec libx264 -pix_fmt yuv420p -preset medium -crf 18 "%outputDirectory%%prefix%%fileName%%postfix%.mp4"'),
     '%outputDirectory%%prefix%%fileName%%postfix%.mp4',
     @ffmpegEventDetailCommandID,
     @standardVerificationCommand,
