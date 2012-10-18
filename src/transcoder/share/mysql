@@ -3408,7 +3408,7 @@ INSERT INTO Commands
     (commandType, command, outputLocation, eventDetailCommand, verificationCommand, description) 
     VALUES (
     (SELECT pk FROM CommandTypes WHERE type = 'bashScript'),
-    ('ffmpeg -i "%fileFullName%"  -ac `ffprobe "%fileFullName%" -show_streams 2>&1 | grep "codec_type=audio" -c` -ac 2 -ab 192000 "%outputDirectory%%prefix%%fileName%%postfix%.mp3"'),
+    ('ffmpeg -i "%fileFullName%" -ac 2 -ab 192000 "%outputDirectory%%prefix%%fileName%%postfix%.mp3"'),
     '%outputDirectory%%prefix%%fileName%%postfix%.mp3',
     @ffmpegEventDetailCommandID,
     @standardVerificationCommand,
