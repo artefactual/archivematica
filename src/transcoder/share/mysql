@@ -2735,7 +2735,7 @@ INSERT INTO Commands
     -- VALUES SELECT pk FROM FileIDS WHERE description = 'Normalize Defaults'
     VALUES (
     (SELECT pk FROM CommandTypes WHERE type = 'bashScript'),
-    ('echo program=\\"ffmpeg\\"\\; version=\\"`ffmpeg 2>&1 | grep \"FFmpeg version\"`\\"'),
+    ('echo program=\\"ffmpeg\\"\\; version=\\"`ffmpeg 2>&1 | grep --ignore-case \"FFmpeg version\"`\\"'),
     ('Get event detail text for ffmpeg extraction')
 );
 
@@ -3398,7 +3398,7 @@ INSERT INTO Commands
     (commandType, command, description) 
     VALUES (
     (SELECT pk FROM CommandTypes WHERE type = 'bashScript'),
-    ('echo program=\\"ffmpeg\\"\\; version=\\"`ffmpeg 2>&1 | grep \"FFmpeg version\"`\\"'),
+    ('echo program=\\"ffmpeg\\"\\; version=\\"`ffmpeg 2>&1 | grep --ignore-case \"FFmpeg version\"`\\"'),
     ('Get event detail text for ffmpeg extraction')
 );
 
