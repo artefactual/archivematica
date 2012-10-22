@@ -34,6 +34,8 @@ from linkTaskManagerSplitOnFileIdAndruleset import linkTaskManagerSplitOnFileIdA
 from linkTaskManagerTranscoderCommand import linkTaskManagerTranscoderCommand
 from linkTaskManagerGetMicroserviceGeneratedListInStdOut import linkTaskManagerGetMicroserviceGeneratedListInStdOut
 from linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList import linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList
+from linkTaskManagerSetUnitVariable import linkTaskManagerSetUnitVariable
+from linkTaskManagerUnitVariableLinkPull import linkTaskManagerUnitVariableLinkPull
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from databaseFunctions import logJobCreatedSQL
@@ -52,6 +54,8 @@ constlinkTaskManagerSplitOnFileIdAndruleset = databaseInterface.queryAllSQL("SEL
 constTranscoderTaskLink = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Transcoder task type"))[0][0]
 constlinkTaskManagerGetMicroserviceGeneratedListInStdOut = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Get microservice generated list in stdOut"))[0][0]
 constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Get user choice from microservice generated list"))[0][0]
+constlinkTaskManagerSetUnitVariable = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("linkTaskManagerSetUnitVariable"))[0][0]
+constlinkTaskManagerUnitVariableLinkPull = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("linkTaskManagerUnitVariableLinkPull"))[0][0]
 
 class jobChainLink:
     def __init__(self, jobChain, jobChainLinkPK, unit, passVar=None, subJobOf=""):
@@ -128,6 +132,10 @@ class jobChainLink:
             linkTaskManagerGetMicroserviceGeneratedListInStdOut(self, taskTypePKReference, self.unit)
         elif taskType == constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
             linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(self, taskTypePKReference, self.unit)
+        elif taskType == constlinkTaskManagerUnitVariableLinkPull:
+            linkTaskManagerUnitVariableLinkPull(self, taskTypePKReference, self.unit)
+        elif taskType == constlinkTaskManagerSetUnitVariable:
+            constlinkTaskManagerSetUnitVariable(self, taskTypePKReference, self.unit)
         else:
             print sys.stderr, "unsupported task type: ", taskType
 
