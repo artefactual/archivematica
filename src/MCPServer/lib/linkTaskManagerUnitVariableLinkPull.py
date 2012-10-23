@@ -33,7 +33,6 @@ from linkTaskManager import linkTaskManager
 from taskStandard import taskStandard
 import jobChain
 import databaseInterface
-import lxml.etree as etree
 import os
 import archivematicaMCP
 global choicesAvailableForUnits
@@ -46,10 +45,18 @@ class linkTaskManagerUnitVariableLinkPull:
         self.jobChainLink = jobChainLink
         self.UUID = uuid.uuid4().__str__()
         self.unit = unit
-
+        
+        sql = """SELECT variable, variableValue FROM TasksConfigsUnitVariableLinkPull where pk = '%s'""" % (pk)
+        c, sqlLock = databaseInterface.querySQL(sql)
+        row = c.fetchone()
+        while row != None:
+            print row
+            variable, variableValue = row
+            row = c.fetchone()
+        sqlLock.release()
+        link = self.unit.getmicroServiceChainLink(variable, variableValue)
+        
         ###Update the unit
-        magicLink = self.unit.getMagicLink()
-        if magicLink != None:
-            link, exitStatus = magicLink
+        if link != None:
             self.jobChainLink.setExitMessage("Completed successfully")
             self.jobChainLink.jobChain.nextChainLink(link)
