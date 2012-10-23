@@ -135,7 +135,7 @@ class jobChainLink:
         elif taskType == constlinkTaskManagerUnitVariableLinkPull:
             linkTaskManagerUnitVariableLinkPull(self, taskTypePKReference, self.unit)
         elif taskType == constlinkTaskManagerSetUnitVariable:
-            constlinkTaskManagerSetUnitVariable(self, taskTypePKReference, self.unit)
+            linkTaskManagerSetUnitVariable(self, taskTypePKReference, self.unit)
         else:
             print sys.stderr, "unsupported task type: ", taskType
 

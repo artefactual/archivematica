@@ -1318,7 +1318,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `FileIDTypes` WRITE;
 /*!40000 ALTER TABLE `FileIDTypes` DISABLE KEYS */;
-INSERT INTO `FileIDTypes` VALUES ('076cce1b-9b46-4343-a193-11c2662c9e02','FileIDsByFitsFileUtilityFormat'),('16ae42ff-1018-4815-aac8-cceacd8d88a8','Identified by file extension.'),('237d393f-aba2-44ae-b61c-76232d383883','FileIDsByFitsFileUtilityMimetype'),('8e39a076-d359-4c60-b6f4-38f7ae6adcdf','FileIDsByFitsFfidentMimetype'),('ac5d97dc-df9e-48b2-81c5-4a8b044355fa','FileIDsByFitsDROIDIdentificationPUID'),('b0bcccfb-04bc-4daa-a13c-77c23c2bda85','FileIDsByFitsJhoveFormat'),('c26227f7-fca8-4d98-9d8e-cfab86a2dd0a','FileIDsByFitsFitsMimetype'),('cff7437f-20c6-440a-b801-37c647da2cf1','FileIDsByFitsFitsFormat'),('dc551ed2-9d2f-4c8a-acce-760fb740af48','FileIDsByFitsJhoveMimeType'),('f794555f-50ad-4fd4-9eab-67bc47c431ab','FileIDsByFitsDROIDMimeType');
+INSERT INTO `FileIDTypes` VALUES ('076cce1b-9b46-4343-a193-11c2662c9e02','FileIDsByFitsFileUtilityFormat'),('16ae42ff-1018-4815-aac8-cceacd8d88a8','Identified by file extension.'),('1d8f3bb3-da8a-4ef6-bac7-b65942df83fc','FileIDsByTika'),('237d393f-aba2-44ae-b61c-76232d383883','FileIDsByFitsFileUtilityMimetype'),('8e39a076-d359-4c60-b6f4-38f7ae6adcdf','FileIDsByFitsFfidentMimetype'),('9ffdc6e8-f25a-4e5b-aaca-02769c4e7b7f','FileIDsByMediaInfo'),('ac5d97dc-df9e-48b2-81c5-4a8b044355fa','FileIDsByFitsDROIDIdentificationPUID'),('afdbee13-eec5-4182-8c6c-f5638ee290f3','FileIDsByFIDO'),('b0bcccfb-04bc-4daa-a13c-77c23c2bda85','FileIDsByFitsJhoveFormat'),('c26227f7-fca8-4d98-9d8e-cfab86a2dd0a','FileIDsByFitsFitsMimetype'),('cff7437f-20c6-440a-b801-37c647da2cf1','FileIDsByFitsFitsFormat'),('dc551ed2-9d2f-4c8a-acce-760fb740af48','FileIDsByFitsJhoveMimeType'),('f794555f-50ad-4fd4-9eab-67bc47c431ab','FileIDsByFitsDROIDMimeType');
 /*!40000 ALTER TABLE `FileIDTypes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1483,7 +1483,7 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-10-22 11:55:15
+-- Dump completed on 2012-10-22 15:26:34
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
