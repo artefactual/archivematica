@@ -68,7 +68,15 @@ class linkTaskManagerSplitOnFileIdAndruleset:
             outputLock = None
 
         SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
-
+        
+        SIPUUID = unit.owningUnit.UUID
+        sql = """SELECT variableValue FROM UnitVariables WHERE unitType = 'SIP' AND variable = 'normalizationFileIdentificationToolIdentifierTypes' AND unitUUID = '%s';""" % (SIPUUID)
+        rows = databaseInterface.queryAllSQL(sql)
+        if len(rows):
+            fileIdentificationRestriction = rows[0][0]
+        else:
+            fileIdentificationRestriction = None
+        
         self.tasksLock.acquire()
         for file, fileUnit in unit.fileList.items():
             #print "file:", file, fileUnit
@@ -105,7 +113,10 @@ class linkTaskManagerSplitOnFileIdAndruleset:
             print "debug", toPassVar
             passVar=replacementDic(toPassVar)
             taskType = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Transcoder task type"))[0][0]
-            sql = """SELECT MicroServiceChainLinks.pk FROM FilesIdentifiedIDs JOIN CommandRelationships ON FilesIdentifiedIDs.fileID = CommandRelationships.fileID JOIN CommandClassifications ON CommandClassifications.pk = CommandRelationships.commandClassification JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = CommandRelationships.pk JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE TasksConfigs.taskType = '%s' AND FilesIdentifiedIDs.fileUUID = '%s' AND CommandClassifications.classification = '%s';""" % (taskType, fileUUID, ComandClassification)
+            if fileIdentificationRestriction:
+                sql = """SELECT MicroServiceChainLinks.pk FROM FilesIdentifiedIDs JOIN FileIDs ON FilesIdentifiedIDs.fileID = FileIDs.pk JOIN FileIDTypes ON FileIDs.fileIDType = FileIDTypes.pk JOIN CommandRelationships ON FilesIdentifiedIDs.fileID = CommandRelationships.fileID JOIN CommandClassifications ON CommandClassifications.pk = CommandRelationships.commandClassification JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = CommandRelationships.pk JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE TasksConfigs.taskType = '%s' AND FilesIdentifiedIDs.fileUUID = '%s' AND CommandClassifications.classification = '%s' AND (%s);""" % (taskType, fileUUID, ComandClassification, fileIdentificationRestriction)
+            else:
+                sql = """SELECT MicroServiceChainLinks.pk FROM FilesIdentifiedIDs JOIN CommandRelationships ON FilesIdentifiedIDs.fileID = CommandRelationships.fileID JOIN CommandClassifications ON CommandClassifications.pk = CommandRelationships.commandClassification JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = CommandRelationships.pk JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE TasksConfigs.taskType = '%s' AND FilesIdentifiedIDs.fileUUID = '%s' AND CommandClassifications.classification = '%s';""" % (taskType, fileUUID, ComandClassification)
             rows = databaseInterface.queryAllSQL(sql)
             if rows and len(rows):
                 for row in rows:
