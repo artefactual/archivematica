@@ -160,7 +160,9 @@ function update-qubit() {
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
           sudo chmod -R 777 qubit-svn
-          colour svn update qubit-svn
+          cd qubit-svn
+          git pull
+          cd -
           sudo chmod -R 777 qubit-svn
           colour sudo stop qubit-sword
           colour sudo start qubit-sword
