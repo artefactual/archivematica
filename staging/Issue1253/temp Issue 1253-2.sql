@@ -63,7 +63,7 @@ SET @MicroServiceChainLink = '8de9fe10-932f-4151-88b0-b50cf271e156';
 SET @MicroServiceChainLinksExitCodes = '8a526305-0805-4680-8dd8-3f7dd3da7854';
 SET @defaultNextChainLink = 'e219ed78-2eda-4263-8c0f-0c7f6a86c33e';
 INSERT INTO StandardTasksConfigs (pk, filterFileEnd, filterFileStart, filterSubDir, requiresOutputLock, standardOutputFile, standardErrorFile, execute, arguments)
-    VALUES (@TasksConfigPKReference, NULL, NULL, NULL, FALSE, NULL, NULL, 'retryNormalizeRemoveNormalized_v0.0', '--SIPDirectory "%SIPDirectory%" --SIPUUID "%SIPUUID%" --preservation --access');
+    VALUES (@TasksConfigPKReference, NULL, NULL, NULL, FALSE, NULL, NULL, 'retryNormalizeRemoveNormalized_v0.0', '--SIPDirectory "%SIPDirectory%" --SIPUUID "%SIPUUID%" --preservation');
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description)
     VALUES
     (@TasksConfig, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @TasksConfigPKReference, 'Remove preservation normalized files to renormalize.');
