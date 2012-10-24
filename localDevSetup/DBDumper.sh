@@ -37,7 +37,7 @@ fi
 
 mysqldump="mysqldump -u root ${dbpassword} ${databaseName}"
 dumpTables="--skip-triggers --skip-comments -d"
-dumpData="--skip-triggers --skip-comments --no-create-info"
+dumpData="--skip-triggers --skip-comments --no-create-info --extended-insert=FALSE --complete-insert=TRUE"
 MCPDumpSQLLocation="../src/MCPServer/share/mysql2"
 
 #echo 'START TRANSACTION;' > $MCPDumpSQLLocation
