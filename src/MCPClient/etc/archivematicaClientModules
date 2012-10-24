@@ -94,4 +94,5 @@ identifyFilesByExtension_v0.0 = %clientScriptsDirectory%identifyFilesByExtension
 extractMaildirAttachments_v0.0 = %clientScriptsDirectory%extractMaildirAttachments.py
 archivematicaVerifyMets_v0.0 = %clientScriptsDirectory%archivematicaVerifyMets.sh
 getContentdmCollectionList_v0.0 = %clientScriptsDirectory%getContentdmCollectionList.py
+retryNormalizeRemoveNormalized_v0.0 = %clientScriptsDirectory%retryNormalizeRemoveNormalized.py
 
