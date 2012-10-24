@@ -515,7 +515,7 @@ CREATE TABLE `FilesIDs` (
   PRIMARY KEY (`pk`),
   KEY `fileUUID` (`fileUUID`),
   CONSTRAINT `FilesIDs_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`)
-) ENGINE=InnoDB AUTO_INCREMENT=548 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=561 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -533,7 +533,7 @@ CREATE TABLE `Events` (
   PRIMARY KEY (`pk`),
   KEY `fileUUID` (`fileUUID`),
   CONSTRAINT `Events_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2638 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2693 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Derivations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2780,7 +2780,7 @@ CREATE TABLE `FilesIdentifiedIDs` (
   KEY `fileID` (`fileID`),
   CONSTRAINT `FilesIdentifiedIDs_ibfk_2` FOREIGN KEY (`fileID`) REFERENCES `FileIDs` (`pk`),
   CONSTRAINT `FilesIdentifiedIDs_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2045 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2152 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -4458,7 +4458,7 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-10-24 14:17:29
+-- Dump completed on 2012-10-24 15:11:23
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -4499,7 +4499,7 @@ CREATE TABLE `auth_user` (
   `date_joined` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `auth_user_groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -4663,8 +4663,8 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('7a0908065e0a5321aa7eaea8550251ea','NDA3YmNjMGQ1OThlMTFmYzg4ZTM5YmU3NWI0MDE4NWQ4OWVhNTQ2NDqAAn1xAVUKdGVzdGNvb2tp\nZXECVQZ3b3JrZWRxA3Mu\n','2012-11-06 14:40:53');
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('7a7786882a0ac4342a4bf717fe847635','YWNmYzliN2IyNTBkMWMwNTQzYjEyN2Y1NDZhOWUzY2YwNDE4Y2RhNjqAAn1xAShVEl9hdXRoX3Vz\nZXJfYmFja2VuZHECVSlkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZHED\nVQ1fYXV0aF91c2VyX2lkcQSKAQh1Lg==\n','2012-11-06 14:42:09');
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('7c8d3750c871fa5cb0928626b467e838','Yjg3MzM0MmY5ZDZjYjk0YzZjM2IwYmJkNWMxZTM4ZTFjZmM1MWRkNjqAAn1xAShVEl9hdXRoX3Vz\nZXJfYmFja2VuZHECVSlkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZHED\nVQ1fYXV0aF91c2VyX2lkcQSKAQR1Lg==\n','2012-10-25 16:36:23');
-INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('80bd5400983412cdf3b701de5e974666','NGI2YjRmYTcyYjQzOWVkMDgyZDIxN2ZlYTNhOTkwMWFjNjY5YmU2NDqAAn1xAShVEl9hdXRoX3Vz\nZXJfYmFja2VuZHECVSlkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZHED\nVQ1fYXV0aF91c2VyX2lkcQSKAQ11Lg==\n','2012-11-07 14:58:11');
-INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('add360fc292745bf29ba20e146258687','NGI2YjRmYTcyYjQzOWVkMDgyZDIxN2ZlYTNhOTkwMWFjNjY5YmU2NDqAAn1xAShVEl9hdXRoX3Vz\nZXJfYmFja2VuZHECVSlkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZHED\nVQ1fYXV0aF91c2VyX2lkcQSKAQ11Lg==\n','2012-11-07 12:04:58');
+INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('80bd5400983412cdf3b701de5e974666','YTBhNGY4MTM4YTRiNDM1ZmUxZTM3NDJjNWE0Yjg2Njk2ODEzNzRjMjqAAn1xAShVCnRlc3Rjb29r\naWVVBndvcmtlZHECVQ1fYXV0aF91c2VyX2lkigENVRJfYXV0aF91c2VyX2JhY2tlbmRVKWRqYW5n\nby5jb250cmliLmF1dGguYmFja2VuZHMuTW9kZWxCYWNrZW5kdS4=\n','2012-11-07 17:11:22');
+INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('8f0e9a5e52dbcdeb27900b5c476bddd7','MzQ0NzdlYTcxZTk1YmY4YjFjNzhhNTQwYWNjODc2YzkzNTFmZDJhZTqAAn1xAShVEl9hdXRoX3Vz\nZXJfYmFja2VuZHECVSlkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZHED\nVQ1fYXV0aF91c2VyX2lkcQSKAQ51Lg==\n','2012-11-07 16:30:30');
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('c0545613793ed147f3df878ddc28d6cb','ODgzMGQ2ZGQ0OTAzNWJkMjM2ZDhkNzRhZjc4OTViYmUwZjdhODM3NzqAAn1xAShVEl9hdXRoX3Vz\nZXJfYmFja2VuZHECVSlkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZHED\nVQ1fYXV0aF91c2VyX2lkcQSKAQV1Lg==\n','2012-10-29 16:29:06');
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('c3f6b4974aa05bb21c848d571d0e40fd','NDA3YmNjMGQ1OThlMTFmYzg4ZTM5YmU3NWI0MDE4NWQ4OWVhNTQ2NDqAAn1xAVUKdGVzdGNvb2tp\nZXECVQZ3b3JrZWRxA3Mu\n','2012-11-07 14:58:06');
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('c56f02bcd4d5e94d664e4b36c4030f57','NDA3YmNjMGQ1OThlMTFmYzg4ZTM5YmU3NWI0MDE4NWQ4OWVhNTQ2NDqAAn1xAVUKdGVzdGNvb2tp\nZXECVQZ3b3JrZWRxA3Mu\n','2012-10-23 16:24:12');
