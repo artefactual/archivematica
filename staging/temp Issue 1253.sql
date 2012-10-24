@@ -118,7 +118,7 @@ INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, currentTask, defaultN
     VALUES ('5bddbb67-76b4-4bcb-9b85-a0d9337e7042', @microserviceGroup, '008e5b38-b19c-48af-896f-349aaf5eba9f', @NextMicroServiceChainLink);
 SET @MicroServiceChainLink = '5bddbb67-76b4-4bcb-9b85-a0d9337e7042';
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink)
-    VALUES ('46a6cc67-e0cb-4390-bb6c-d52ca48849f7', @MicroServiceChainLink, 0, '83484326-7be7-4f9f-b252-94553cd42370');
+    VALUES ('46a6cc67-e0cb-4390-bb6c-d52ca48849f7', '5bddbb67-76b4-4bcb-9b85-a0d9337e7042', 0, '83484326-7be7-4f9f-b252-94553cd42370');
 INSERT INTO MicroServiceChains (pk, startingLink, description) 
     VALUES ('09949bda-5332-482a-ae47-5373bd372174', @MicroServiceChainLink,  'mediainfo');
 SET @ToolMicroServiceChain7 = '09949bda-5332-482a-ae47-5373bd372174';
@@ -133,7 +133,7 @@ INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, currentTask, defaultN
     VALUES ('5fbecef2-49e9-4585-81a2-267b8bbcd568', @microserviceGroup, '582883b9-9338-4e73-8873-371b666038fe', @NextMicroServiceChainLink);
 SET @MicroServiceChainLink = '5fbecef2-49e9-4585-81a2-267b8bbcd568';
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink)
-    VALUES ('4e8ea9d2-243e-4a31-9b42-f9f8522b3ffb', @MicroServiceChainLink, 0, '83484326-7be7-4f9f-b252-94553cd42370');
+    VALUES ('4e8ea9d2-243e-4a31-9b42-f9f8522b3ffb', '5fbecef2-49e9-4585-81a2-267b8bbcd568', 0, '83484326-7be7-4f9f-b252-94553cd42370');
 INSERT INTO MicroServiceChains (pk, startingLink, description) 
     VALUES ('46824987-bd47-4139-9871-6566f5abdf1a', @MicroServiceChainLink,  'Tika');
 SET @ToolMicroServiceChain8 = '46824987-bd47-4139-9871-6566f5abdf1a';
@@ -148,7 +148,7 @@ INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, currentTask, defaultN
     VALUES ('d7a0e33d-aa3c-435f-a6ef-8e39f2e7e3a0', @microserviceGroup, 'c87ec738-b679-4d8e-8324-73038ccf0dfd', @NextMicroServiceChainLink);
 SET @MicroServiceChainLink = 'd7a0e33d-aa3c-435f-a6ef-8e39f2e7e3a0';
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink)
-    VALUES ('8d16a0ee-e781-4f8d-953f-e5876c723796', @MicroServiceChainLink, 0, '83484326-7be7-4f9f-b252-94553cd42370');
+    VALUES ('8d16a0ee-e781-4f8d-953f-e5876c723796', 'd7a0e33d-aa3c-435f-a6ef-8e39f2e7e3a0', 0, '83484326-7be7-4f9f-b252-94553cd42370');
 INSERT INTO MicroServiceChains (pk, startingLink, description) 
     VALUES ('586006d1-f3af-4b5f-9f1a-c893244fa7a9', @MicroServiceChainLink,  'FITS');
 SET @ToolMicroServiceChain9 = '586006d1-f3af-4b5f-9f1a-c893244fa7a9';
