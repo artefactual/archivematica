@@ -23,10 +23,10 @@
 # @version svn: $Id$
 
 #download and export
-svn checkout -r6907 http://qubit-toolkit.googlecode.com/svn/trunk  /tmp/qubit-svn
-svn export /tmp/qubit-svn /var/www/qubit
+svn checkout -r6907 http://qubit-toolkit.googlecode.com/svn/trunk  /tmp/qubit-git
+svn export /tmp/qubit-git /var/www/qubit
 
 #fix ownership
 chown -R www-data:www-data /var/www/qubit
 
-rm -rf /tmp/qubit-svn/
+rm -rf /tmp/qubit-git/

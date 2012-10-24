@@ -159,11 +159,11 @@ function update-qubit() {
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
-          sudo chmod -R 777 qubit-svn
-          cd qubit-svn
+          sudo chmod -R 777 qubit-git
+          cd qubit-git
           git pull
           cd -
-          sudo chmod -R 777 qubit-svn
+          sudo chmod -R 777 qubit-git
           colour sudo stop qubit-sword
           colour sudo start qubit-sword
           echo "Remember to activate sfSwordPlugin and restart Qubit database if necessary!"

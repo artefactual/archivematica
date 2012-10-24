@@ -120,7 +120,7 @@ if [[ $a == "Y" || $a == "y" ]]; then
 	sudo rm -rf /var/www/ica-atom
 	sudo rm -rf ${WDIR}/qubit-git # Old name
 	sudo rm -rf ${WDIR}/ica-atom-svn # Old name
-        sudo rm -rf ${WDIR}/qubit-svn
+        sudo rm -rf ${WDIR}/qubit-git
 
         # { GIT }
 	# Clone git repository, create bran experimental from original/experimental
@@ -130,23 +130,23 @@ if [[ $a == "Y" || $a == "y" ]]; then
         # cd ${WDIR}
         # { SVN }
         # Checkout SVN repo
-        git clone git://github.com/artefactual/atom.git -b 1.x ${WDIR}/qubit-svn
+        git clone git://github.com/artefactual/atom.git -b 1.x ${WDIR}/qubit-git
 
 	# Link
         # /var/www is created by the Apache package
         # so it needs to be installer at this point
-	sudo ln -sf ${WDIR}/qubit-svn /var/www/ica-atom
+	sudo ln -sf ${WDIR}/qubit-git /var/www/ica-atom
 
 	# Permissions
-	sudo chown -R www-data:www-data ${WDIR}/qubit-svn
+	sudo chown -R www-data:www-data ${WDIR}/qubit-git
 
 	# Restart database
 	echo "Enter mysql root password (hit enter if blank)"
 	mysql -u root --execute="DROP DATABASE IF EXISTS qubit; CREATE DATABASE qubit CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
 
         # Workaround for issue 1188
-        sudo rm -rf ${WDIR}/qubit-svn/cache/*
-	sudo -u www-data php ${WDIR}/qubit-svn/symfony cc
+        sudo rm -rf ${WDIR}/qubit-git/cache/*
+	sudo -u www-data php ${WDIR}/qubit-git/symfony cc
 
 	# Restart Apache (not really needed)
 	sudo apache2ctl restart
@@ -173,7 +173,7 @@ if [[ $a == "Y" || $a == "y" ]]; then
         sudo ln src/MCPServer/init/archivematica-mcp-server.conf /etc/init/
         sudo ln src/MCPClient/init/archivematica-mcp-client.conf /etc/init/
         #sudo ln src/MCPClient/init/openoffice-service.conf /etc/init/
-        sudo ln qubit-svn/init/qubit-sword.conf /etc/init/
+        sudo ln qubit-git/init/qubit-sword.conf /etc/init/
 else
         echo "Not going to ${part}."
 fi
