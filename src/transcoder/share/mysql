@@ -1587,7 +1587,7 @@ INSERT INTO MicroServiceChainLinksExitCodes (microServiceChainLink, exitCode, ne
 INSERT INTO FileIDs 
     (description, validPreservationFormat, validAccessFormat)
     VALUES (
-    'A .jp2 file', TRUE, FALSE
+    'A .jp2 file', TRUE, TRUE
 );
 set @fileID = LAST_INSERT_ID();
 
@@ -1601,7 +1601,7 @@ INSERT INTO FileIDsByExtension
 INSERT INTO FileIDGroupMembers 
     (fileID, groupID) 
     VALUES (@fileID, @rasterImageGroup);
-
+/*
 INSERT INTO CommandRelationships 
     (GroupMember, commandClassification, command, fileID)
     VALUES (
@@ -1638,7 +1638,7 @@ INSERT INTO MicroServiceChainLinks (microserviceGroup, currentTask, defaultNextC
 set @MicroServiceChainLink = LAST_INSERT_ID();
 INSERT INTO MicroServiceChainLinksExitCodes (microServiceChainLink, exitCode, nextMicroServiceChainLink) 
     VALUES (@MicroServiceChainLink, 0, @defaultThumbnailNormalizationSucceededLink);
-
+*/
 -- End Of ADD Normalization Path for .JP2 --
 
 -- ADD Normalization Path for .PNG --
