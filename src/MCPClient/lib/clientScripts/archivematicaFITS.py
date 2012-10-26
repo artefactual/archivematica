@@ -65,7 +65,7 @@ def parseIdsSimple(FITS_XML, fileUUID):
             if element.get("name") == tool:
                 for element2 in element.getiterator(iterOn):
                     if element2.text != None:
-                        sql = """SELECT FileIDs FROM %s WHERE id = '%s';""" % (table, element2.text)
+                        sql = """SELECT fileID FROM FileIDsBySingleID WHERE tool = '%s' AND id = '%s';""" % (table, element2.text)
                         fileIDS = databaseInterface.queryAllSQL(sql)
                         for fileID in fileIDS:
                             sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (fileUUID, fileID[0])
