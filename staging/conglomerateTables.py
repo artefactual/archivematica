@@ -37,8 +37,8 @@ tables = ['FileIDsByFitsDROIDIdentificationPUID', 'FileIDsByFitsDROIDMimeType', 
 newTable= """
 CREATE TABLE `FileIDsBySingleID` (
   `pk` varchar(50) PRIMARY KEY,
-  `FileIDs` varchar(50) DEFAULT NULL,
-  FOREIGN KEY (`FileIDs`) REFERENCES `FileIDs` (`pk`),
+  `fileID` varchar(50) DEFAULT NULL,
+  FOREIGN KEY (`fileID`) REFERENCES `FileIDs` (`pk`),
   `id` TEXT,
   `replaces` varchar(50) DEFAULT NULL,
   tool  TEXT,
@@ -56,5 +56,5 @@ if __name__ == '__main__':
         rows = databaseInterface.queryAllSQL(sql)
         for row in rows:
             pk, FileIDs, id = row
-            databaseInterface.runSQL("""INSERT INTO FileIDsBySingleID (pk, FileIDs, id, tool) VALUES ('%s', '%s', '%s', '%s')""" % (pk, FileIDs, id, table))
+            databaseInterface.runSQL("""INSERT INTO FileIDsBySingleID (pk, fileID, id, tool) VALUES ('%s', '%s', '%s', '%s')""" % (pk, FileIDs, id, table))
             
