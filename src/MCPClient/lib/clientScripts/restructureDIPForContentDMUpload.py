@@ -719,20 +719,58 @@ if __name__ == '__main__':
     for infile in glob.glob(os.path.join(inputDipDir, "METS*.xml")):
         metsFile = infile
     metsDom = parse(metsFile)
+    structMaps = metsDom.getElementsByTagName('structMap')
+    
+	# Dev note: If we refactor the existing DIP-generation functions to take (for simple
+	# items) dmdDec DC, dmdSec OTHER, and structMaps and (for compound items) dmdSec DC, dmdSec OTHER, 
+	# and the structMaps (we need to add support for the user supplied one), then we
+	# can pick these things out here for batch transfers, loop through them in a for/in,
+	# and pass them into the existing functions.
+    
+    # Check to see if the DIP contains multiple items (i.e., multiple dmdSecs) or a
+    # single item (i.e., one dmdSec).
+    dmdSecs = metsDom.getElementsByTagName('dmdSec')
+    if dmdSecs.length > 1:
+        # If we are dealing with multiple items, check to see if we are dealing with
+        # simple or compound items by checking whether the structMap that has 
+        # LABEL="Archivematica default" contains divs with DMDID 
+        # attributes, and that those divs have TYPE attribute values of "file" 
+        # (i.e., we have simple items) or "directory" (i.e., we have compound items).
+        
+        # @todo: Add function to perform this test, returning 'simple' or 'compound'.
+        # @todo: Create a per-item list that contains the dmdSec DC, dmdSec OTHER, 
+        # so we can loop through each item.
+        
+        # For simple items.
+        # for dmdSec in dmdSecs:
+			# if args.ingestFormat == 'directupload':
+				# generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
+			# if args.ingestFormat == 'projectclient':
+				# generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
-    # Check to see if we're dealing with a simple or compound item, and fire the
-    # appropriate DIP-generation function.
-    filesInObjectDirectory = getObjectDirectoryFiles(os.path.join(inputDipDir, 'objects'))
-    if os.path.exists(os.path.join(inputDipDir, 'thumbnails')):
-        filesInThumbnailDirectory = glob.glob(os.path.join(inputDipDir, 'thumbnails', "*.jpg"))
+		# For compound items.
+		# for dmdSec in dmdSecs:
+			# if args.ingestFormat == 'directupload':
+				# generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps,  args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
+			# if args.ingestFormat == 'projectclient':
+				# generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
+        
+        pass
 
-    if len(filesInObjectDirectory) == 1 and args.ingestFormat == 'directupload':
-        generateSimpleContentDMDirectUploadPackage(metsDom, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
-    if len(filesInObjectDirectory) == 1 and args.ingestFormat == 'projectclient':
-        generateSimpleContentDMProjectClientPackage(metsDom, args.uuid, outputDipDir, filesInObjectDirectory)
+    if dmdSecs.length == 1:
+        # Check to see if we're dealing with a simple or compound item, and fire the
+        # appropriate DIP-generation function.
+        filesInObjectDirectory = getObjectDirectoryFiles(os.path.join(inputDipDir, 'objects'))
+        if os.path.exists(os.path.join(inputDipDir, 'thumbnails')):
+            filesInThumbnailDirectory = glob.glob(os.path.join(inputDipDir, 'thumbnails', "*.jpg"))
 
-    if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'directupload':
-        generateCompoundContentDMDirectUploadPackage(metsDom, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
-    if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'projectclient':
-        generateCompoundContentDMProjectClientPackage(metsDom, args.uuid, outputDipDir, filesInObjectDirectory)
+        if len(filesInObjectDirectory) == 1 and args.ingestFormat == 'directupload':
+            generateSimpleContentDMDirectUploadPackage(metsDom, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
+        if len(filesInObjectDirectory) == 1 and args.ingestFormat == 'projectclient':
+            generateSimpleContentDMProjectClientPackage(metsDom, args.uuid, outputDipDir, filesInObjectDirectory)
+
+        if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'directupload':
+            generateCompoundContentDMDirectUploadPackage(metsDom, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
+        if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'projectclient':
+            generateCompoundContentDMProjectClientPackage(metsDom, args.uuid, outputDipDir, filesInObjectDirectory)
 
