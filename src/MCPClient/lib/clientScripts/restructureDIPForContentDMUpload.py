@@ -396,6 +396,7 @@ def generateFullFileEntry(title, filename, extension):
 # and a .full (manifest) file.
 def generateSimpleContentDMDirectUploadPackage(metsDom, dipUuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory):
     outputDipDir = prepareOutputDir(outputDipDir, 'directupload', dipUuid)
+    print outputDipDir
     dmdSec = getDmdSec(metsDom)
     dcMetadata = parseDcXml(dmdSec)
     descFileContents = generateDescFile(dcMetadata)
@@ -699,8 +700,9 @@ if __name__ == '__main__':
 
     # Define the directory where DIPs are waiting to be processed.
     inputDipDir = args.dipDir
-    # Use %watchDirectoryPath%uploadedDIPs as the output directory for the directupload and projectclient output.
-    # We also create a 'CONTENTdm' subdirectory for DIPs created by this microservice.
+    
+    # Use %watchDirectoryPath%uploadedDIPs as the output directory for the directupload and 
+    # projectclient output. Also create a 'CONTENTdm' subdirectory for DIPs created by this microservice.
     outputDipDir = os.path.join(args.outputDir, 'CONTENTdm')
     if not os.path.exists(outputDipDir):
         os.makedirs(outputDipDir)
@@ -719,17 +721,21 @@ if __name__ == '__main__':
     for infile in glob.glob(os.path.join(inputDipDir, "METS*.xml")):
         metsFile = infile
     metsDom = parse(metsFile)
+    
+    # Get the structMaps so we can pass them into the DIP creation functions.
     structMaps = metsDom.getElementsByTagName('structMap')
     
-	# Dev note: If we refactor the existing DIP-generation functions to take (for simple
-	# items) dmdDec DC, dmdSec OTHER, and structMaps and (for compound items) dmdSec DC, dmdSec OTHER, 
-	# and the structMaps (we need to add support for the user supplied one), then we
-	# can pick these things out here for batch transfers, loop through them in a for/in,
-	# and pass them into the existing functions.
+	# @todo: Refactor the existing DIP-generation functions to take dmdDec DC, dmdSec OTHER, 
+    # and structMaps, so we can pick these parameters out here for batch transfers, loop through
+    # them in a for/in, and pass them into the existing functions.
     
     # Check to see if the DIP contains multiple items (i.e., multiple dmdSecs) or a
     # single item (i.e., one dmdSec).
     dmdSecs = metsDom.getElementsByTagName('dmdSec')
+    
+    print "Number of items in dmdSecs"
+    print dmdSecs.length
+    
     if dmdSecs.length > 1:
         # If we are dealing with multiple items, check to see if we are dealing with
         # simple or compound items by checking whether the structMap that has 
@@ -754,10 +760,10 @@ if __name__ == '__main__':
 				# generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps,  args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
 			# if args.ingestFormat == 'projectclient':
 				# generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
-        
         pass
 
-    if dmdSecs.length == 1:
+    # 0 or 1 dmdSec.
+    else:
         # Check to see if we're dealing with a simple or compound item, and fire the
         # appropriate DIP-generation function.
         filesInObjectDirectory = getObjectDirectoryFiles(os.path.join(inputDipDir, 'objects'))
@@ -765,6 +771,7 @@ if __name__ == '__main__':
             filesInThumbnailDirectory = glob.glob(os.path.join(inputDipDir, 'thumbnails', "*.jpg"))
 
         if len(filesInObjectDirectory) == 1 and args.ingestFormat == 'directupload':
+            print "OK, I have hit it"
             generateSimpleContentDMDirectUploadPackage(metsDom, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
         if len(filesInObjectDirectory) == 1 and args.ingestFormat == 'projectclient':
             generateSimpleContentDMProjectClientPackage(metsDom, args.uuid, outputDipDir, filesInObjectDirectory)
