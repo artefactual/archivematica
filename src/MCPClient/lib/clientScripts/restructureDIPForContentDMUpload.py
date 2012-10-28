@@ -394,10 +394,15 @@ def generateFullFileEntry(title, filename, extension):
 # Generate a 'direct upload' package for a simple item from the Archivematica DIP.
 # This package will contain the object file, its thumbnail, a .desc (DC metadata) file,
 # and a .full (manifest) file.
-def generateSimpleContentDMDirectUploadPackage(metsDom, dipUuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory):
+def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory):
     outputDipDir = prepareOutputDir(outputDipDir, 'directupload', dipUuid)
     print outputDipDir
-    dmdSec = getDmdSec(metsDom)
+    # Pick out the first dmdSec in dmdSecs.
+    if dmdSecs.length:
+        dmdSec = dmdSecs[0]
+    # If dmdSecs is empty, let parseDcXML() handle the situation.
+    else:
+        dmdSec = dmdSecs
     dcMetadata = parseDcXml(dmdSec)
     descFileContents = generateDescFile(dcMetadata)
     # Write the .desc file into the output directory.
@@ -733,9 +738,6 @@ if __name__ == '__main__':
     # single item (i.e., one dmdSec).
     dmdSecs = metsDom.getElementsByTagName('dmdSec')
     
-    print "Number of items in dmdSecs"
-    print dmdSecs.length
-    
     if dmdSecs.length > 1:
         # If we are dealing with multiple items, check to see if we are dealing with
         # simple or compound items by checking whether the structMap that has 
@@ -770,14 +772,13 @@ if __name__ == '__main__':
         if os.path.exists(os.path.join(inputDipDir, 'thumbnails')):
             filesInThumbnailDirectory = glob.glob(os.path.join(inputDipDir, 'thumbnails', "*.jpg"))
 
-        if len(filesInObjectDirectory) == 1 and args.ingestFormat == 'directupload':
-            print "OK, I have hit it"
-            generateSimpleContentDMDirectUploadPackage(metsDom, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
-        if len(filesInObjectDirectory) == 1 and args.ingestFormat == 'projectclient':
-            generateSimpleContentDMProjectClientPackage(metsDom, args.uuid, outputDipDir, filesInObjectDirectory)
+        if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'directupload': 
+            generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
+        if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'projectclient':
+            generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
         if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'directupload':
-            generateCompoundContentDMDirectUploadPackage(metsDom, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
+            generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
         if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'projectclient':
-            generateCompoundContentDMProjectClientPackage(metsDom, args.uuid, outputDipDir, filesInObjectDirectory)
+            generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
