@@ -137,7 +137,7 @@ def parseStructMap(structMap, filesInObjectDirectory):
     return structMapDict
 
 
-# Given a ftpr value (which looks like this:
+# Given a ftpr FILEID value (which looks like this:
 # P1050154.JPG-09869659-fc89-46ce-ad1c-fe166becccca), return the
 # name of the corresponding file from the DIP objects directory.
 def getFptrObjectFilename(fptrValue, filesInObjectDir):
@@ -390,6 +390,35 @@ def generateFullFileEntry(title, filename, extension):
     fullFileContent += "</item>\n"
     return fullFileContent
 
+
+# Takes in a DOM object 'structMap' and determines if it describes simple or compound 
+# items by finding the div in structMaps[0] that has the DMDID value of "dmdSec_1 dmdSec_2",
+# and then getting the value of that div's TYPE attribute; if it's 'file', the item is simple,
+# if it's 'directory', the item is compound.
+def getItemCountType(structMap):
+    for node in structMap.getElementsByTagName('div'):
+        for k, v in node.attributes.items():
+            # @todo: Change this test to a regex on dmdSec_1 since not all instances
+            # are going to have ' dmdSec_2'.
+            if k == 'DMDID' and v == "dmdSec_1 dmdSec_2":
+                # Get the value of the TYPE attribute.
+                type = node.attributes["TYPE"]
+                if type == 'file':
+                    return 'simple'
+                if type == 'directory':
+                    return 'compound'
+                        
+def getFileIdsForDmdSec(structMaps, dmdSecId):
+    fileIds = []
+    structMap = structMaps[0]
+    for div in structMap.getElementsByTagName('div'):
+        for k, v in div.attributes.items():
+            if k == 'DMDID' and v == dmdSecId:
+                for fptr in div:
+                    for k, v in fprt.attributes.items():
+                        if k == 'FILEID':
+                            fileIds.append(v)
+                
 
 # Generate a 'direct upload' package for a simple item from the Archivematica DIP.
 # This package will contain the object file, its thumbnail, a .desc (DC metadata) file,
@@ -737,48 +766,54 @@ if __name__ == '__main__':
     # Check to see if the DIP contains multiple items (i.e., multiple dmdSecs) or a
     # single item (i.e., one dmdSec).
     dmdSecs = metsDom.getElementsByTagName('dmdSec')
-    
+        
     if dmdSecs.length > 1:
-        # If we are dealing with multiple items, check to see if we are dealing with
-        # simple or compound items by checking whether the structMap that has 
-        # LABEL="Archivematica default" contains divs with DMDID 
-        # attributes, and that those divs have TYPE attribute values of "file" 
-        # (i.e., we have simple items) or "directory" (i.e., we have compound items).
-        
-        # @todo: Add function to perform this test, returning 'simple' or 'compound'.
-        # @todo: Create a per-item list that contains the dmdSec DC, dmdSec OTHER, 
-        # so we can loop through each item.
-        
-        # For simple items.
-        # for dmdSec in dmdSecs:
-			# if args.ingestFormat == 'directupload':
-				# generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
-			# if args.ingestFormat == 'projectclient':
-				# generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
+        filesInObjectDirectory = getObjectDirectoryFiles(os.path.join(inputDipDir, 'objects'))
+        filesInThumbnailDirectory = glob.glob(os.path.join(inputDipDir, 'thumbnails', "*.jpg"))
 
-		# For compound items.
-		# for dmdSec in dmdSecs:
-			# if args.ingestFormat == 'directupload':
-				# generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps,  args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
-			# if args.ingestFormat == 'projectclient':
-				# generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
-        pass
+        # itemCountType = getItemCountType(structMaps[0])
+        # Temporary workaround for missing TYPE attributes, see email to archivematica group 2012-10-28.
+        itemCountType = 'simple'
+
+        # For simple items.        
+        if itemCountType == 'simple':
+            for dmdSec in dmdSecs:
+                # Get the corresponding structMap div, and from it, get all fptr FILEID values; then apply
+                # getFptrObjectFilename(fptrValue, filesInObjectDir) to each and put these in filesInObjectDirectoryForThisDmdSec.
+                dmdSecId = dmdSec.attributes["ID"]
+                fileIds = getFileIdsForDmdSec(structMaps, dmdSecId.value)
+                filesInObjectDirectoryForThisDmdSec = []
+                for fileId in fileIds:
+                    filename = getFptrObjectFilename(fptrValue, filesInObjectDir)
+                    filesInObjectDirectoryForThisDmdSec.append(filename)
+                if args.ingestFormat == 'directupload':
+                    generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
+                if args.ingestFormat == 'projectclient':
+                    generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
+
+        # For compound items.
+        if itemCountType == 'compound':
+            for dmdSec in dmdSecs:                    
+                if args.ingestFormat == 'directupload':
+                    generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps,  args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, filesInThumbnailDirectory)
+                if args.ingestFormat == 'projectclient':
+                    generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSec)
 
     # 0 or 1 dmdSec.
     else:
+        pass
+        # filesInObjectDirectory = getObjectDirectoryFiles(os.path.join(inputDipDir, 'objects'))
+        # filesInThumbnailDirectory = glob.glob(os.path.join(inputDipDir, 'thumbnails', "*.jpg")
+        
         # Check to see if we're dealing with a simple or compound item, and fire the
         # appropriate DIP-generation function.
-        filesInObjectDirectory = getObjectDirectoryFiles(os.path.join(inputDipDir, 'objects'))
-        if os.path.exists(os.path.join(inputDipDir, 'thumbnails')):
-            filesInThumbnailDirectory = glob.glob(os.path.join(inputDipDir, 'thumbnails', "*.jpg"))
+        # if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'directupload': 
+            # generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
+        # if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'projectclient':
+            # generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
-        if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'directupload': 
-            generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
-        if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'projectclient':
-            generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
-
-        if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'directupload':
-            generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
-        if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'projectclient':
-            generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
+        # if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'directupload':
+            # generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
+        # if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'projectclient':
+            # generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
