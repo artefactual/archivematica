@@ -70,7 +70,7 @@ class RightsCopyrightForm(ModelForm):
         widgets = {
             'copyrightstatus': TextInput(attrs={'class': 'span11', 'title': "a coded designation of the copyright status of the object at the time the rights statement is recorded; eg copyrighted, publicdomain, unknown"}),
             'copyrightjurisdiction': TextInput(attrs={'class': 'span11', 'title': "the country whose copyright laws apply [ISO 3166]"}),
-            'copyrightstatusdeterminationdate': TextInput(attrs={'class': 'span11', 'title': "the date that the copyright status is recorded in copyrightStatus was determined"}),
+            'copyrightstatusdeterminationdate': TextInput(attrs={'class': 'span11', 'title': "the date that the copyright status recorded in copyrightStatus was determined"}),
             'copyrightapplicablestartdate': TextInput(attrs={'class': 'span11', 'title': "date when the particular copyright applies or is applied to the content"}),
             'copyrightapplicableenddate': TextInput(attrs={'class': 'span11', 'title': "date when the particular copyright no longer applies or is applied to the content"}), }
 
