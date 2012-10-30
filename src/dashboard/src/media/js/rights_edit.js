@@ -30,9 +30,16 @@ function setUpRepeatingCopyrightNotesRecords(parentId) {
   setUpRepeatingField('copyrightnotes_', parentId, 'Copyright Note', schema, '/formdata/copyrightnote/' + parentId + '/', true);
 }
 
+function setUpCopyrightDocumentationIdentifierAttributes() {
+    $('[name=copyrightdocumentationidentifiertype],[name=copyright_documentation_identifier_type]').attr('title', "a designation of the domain within which the copyright documentation identifier is unique");
+    $('[name=copyrightdocumentationidentifiervalue],[name=copyright_documentation_identifier_value]').attr('title', "the value of the copyrightDocumentatinIdentifier");
+    $('[name=copyrightdocumentationidentifierrole],[name=copyright_documentation_identifier_role]').attr('title', "A value indicating the purpose or expected use of the documentation being identified");
+}
+
 function setUpRepeatingCopyrightDocumentationIdentifierRecords(parentId) {
   var schema = repeatingDocumentationIdentifierRecordsSchema('copyright');
-  setUpRepeatingField('copyrightdocidfields_', parentId, 'Copyright Documentation Identifier', schema, '/formdata/copyrightdocumentationidentifier/' + parentId + '/', true);
+  setUpRepeatingField('copyrightdocidfields_', parentId, 'Copyright Documentation Identifier', schema, '/formdata/copyrightdocumentationidentifier/' + parentId + '/', true, setUpCopyrightDocumentationIdentifierAttributes);
+  setUpCopyrightDocumentationIdentifierAttributes();
 }
 
 function setUpRepeatingStatuteDocumentationIdentifierRecords(parentId) {
@@ -92,7 +99,7 @@ function setUpRepeatingRightsGrantedNotesRecords(parentId) {
 }
 
 // repeating child field to a formset bound to existing data
-function setUpRepeatingField(idPrefix, parentId, description, schema, url, noCreation) {
+function setUpRepeatingField(idPrefix, parentId, description, schema, url, noCreation, cb) {
   var rights = new RepeatingDataView({
     el: $('#' + idPrefix + parentId),
     description: description,
@@ -101,7 +108,7 @@ function setUpRepeatingField(idPrefix, parentId, description, schema, url, noCre
     url: url,
     noCreation: noCreation
   });
-  rights.render();
+  rights.render(cb);
 
   if (parentId == '' || parentId == 'None') {
     var instructionDescription = description.toLowerCase()
