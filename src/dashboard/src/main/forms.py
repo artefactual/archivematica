@@ -35,7 +35,7 @@ class RightsForm(ModelForm):
         ('Donor', 'Donor'),
         ('Policy', 'Policy'),
         ('Other', 'Other')
-    ))
+    ), widget=forms.Select(attrs={'title': "designation of the basis for the right or permission described in the rightsStatementIdentifier"}))
 
     class Meta:
         model = models.RightsStatement
