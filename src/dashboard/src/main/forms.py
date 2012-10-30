@@ -53,10 +53,10 @@ class RightsGrantedForm(ModelForm):
     class Meta:
         model = models.RightsStatementRightsGranted
         widgets = {
-            'act': TextInput(attrs={'class': 'span11', 'title': "Act tooltip"}),
+            'act': TextInput(attrs={'class': 'span11', 'title': "the action the preservation repository is allowed to take; eg replicate, migrate, modify, use, disseminate, delete"}),
             'restriction': TextInput(attrs=INPUT_ATTRS),
-            'startdate': TextInput(attrs={'class': 'span11', 'title': "Act start date tooltip"}),
-            'enddate': TextInput(attrs={'class': 'span11', 'title': "Statute end date tooltip"}), }
+            'startdate': TextInput(attrs={'class': 'span11', 'title': "beginning date of the rights or restrictions granted"}),
+            'enddate': TextInput(attrs={'class': 'span11', 'title': "ending date of the rights or restrictions granted"}), }
 
 class RightsGrantedNotesForm(ModelForm):
     class Meta:
@@ -68,11 +68,11 @@ class RightsCopyrightForm(ModelForm):
     class Meta:
         model = models.RightsStatementCopyright
         widgets = {
-            'copyrightstatus': TextInput(attrs={'class': 'span11', 'title': "Copyright status tooltip"}),
-            'copyrightjurisdiction': TextInput(attrs={'class': 'span11', 'title': "Copyright jurisdiction tooltip"}),
-            'copyrightstatusdeterminationdate': TextInput(attrs={'class': 'span11', 'title': "Copyright determination date tooltip"}),
-            'copyrightapplicablestartdate': TextInput(attrs={'class': 'span11', 'title': "Copyright start date tooltip"}),
-            'copyrightapplicableenddate': TextInput(attrs={'class': 'span11', 'title': "Copyright end date tooltip"}), }
+            'copyrightstatus': TextInput(attrs={'class': 'span11', 'title': "a coded designation of the copyright status of the object at the time the rights statement is recorded; eg copyrighted, publicdomain, unknown"}),
+            'copyrightjurisdiction': TextInput(attrs={'class': 'span11', 'title': "the country whose copyright laws apply [ISO 3166]"}),
+            'copyrightstatusdeterminationdate': TextInput(attrs={'class': 'span11', 'title': "the date that the copyright status is recorded in copyrightStatus was determined"}),
+            'copyrightapplicablestartdate': TextInput(attrs={'class': 'span11', 'title': "date when the particular copyright applies or is applied to the content"}),
+            'copyrightapplicableenddate': TextInput(attrs={'class': 'span11', 'title': "date when the particular copyright no longer applies or is applied to the content"}), }
 
 class RightsStatementCopyrightDocumentationIdentifierForm(ModelForm):
     class Meta:
@@ -92,11 +92,11 @@ class RightsStatuteForm(ModelForm):
     class Meta:
         model = models.RightsStatementStatuteInformation
         widgets = {
-            'statutejurisdiction': TextInput(attrs={'class': 'span11', 'title': "Statute jurisdiction tooltip"}),
-            'statutecitation': TextInput(attrs={'class': 'span11', 'title': "Statute action tooltip"}),
-            'statutedeterminationdate': TextInput(attrs={'class': 'span11', 'title': "Statute determination date tooltip"}),
-            'statuteapplicablestartdate': TextInput(attrs={'class': 'span11', 'title': "Statute start date tooltip"}),
-            'statuteapplicableenddate': TextInput(attrs={'class': 'span11', 'title': "Statute end date tooltip"}), }
+            'statutejurisdiction': TextInput(attrs={'class': 'span11', 'title': "the country or other political body enacting the statute"}),
+            'statutecitation': TextInput(attrs={'class': 'span11', 'title': "an identifying designation for the statute"}),
+            'statutedeterminationdate': TextInput(attrs={'class': 'span11', 'title': "date that the determination was made that the statue authorized the permission(s) noted"}),
+            'statuteapplicablestartdate': TextInput(attrs={'class': 'span11', 'title': "the date when the statute begins to apply or is applied to the content"}),
+            'statuteapplicableenddate': TextInput(attrs={'class': 'span11', 'title': "the date when the statute ceasees to apply or be applied to the content"}), }
 
 class RightsStatuteNoteForm(ModelForm):
     class Meta:
@@ -108,17 +108,17 @@ class RightsOtherRightsForm(ModelForm):
     class Meta:
         model = models.RightsStatementOtherRightsInformation
         widgets = {
-            'otherrightsbasis': TextInput(attrs={'class': 'span11', 'title': "Other rights basis"}),
-            'otherrightsapplicablestartdate': TextInput(attrs={'class': 'span11', 'title': "Other rights start date tooltip"}),
-            'otherrightsapplicableenddate': TextInput(attrs={'class': 'span11', 'title': "Other rights end date tooltip"}), }
+            'otherrightsbasis': TextInput(attrs={'class': 'span11', 'title': "designation of the basis for the other right or permission described in the rightsStatementIdentifier"}),
+            'otherrightsapplicablestartdate': TextInput(attrs={'class': 'span11', 'title': "date when the other right applies or is applied to the content"}),
+            'otherrightsapplicableenddate': TextInput(attrs={'class': 'span11', 'title': "date when the other right no longer applies or is applied to the content"}), }
 
 class RightsLicenseForm(ModelForm):
     class Meta:
         model = models.RightsStatementLicense
         widgets = {
-            'licenseterms': TextInput(attrs={'class': 'span11', 'title': "License terms tooltip"}),
-            'licenseapplicablestartdate': TextInput(attrs={'class': 'span11', 'title': "License start date tooltip"}),
-            'licenseapplicableenddate': TextInput(attrs={'class': 'span11', 'title': "License end date tooltip"}), }
+            'licenseterms': TextInput(attrs={'class': 'span11', 'title': "Text describing the license or agreement by which permission as granted"}),
+            'licenseapplicablestartdate': TextInput(attrs={'class': 'span11', 'title': "the date at which the license first applies or is applied to the content"}),
+            'licenseapplicableenddate': TextInput(attrs={'class': 'span11', 'title': "the end date at which the license no longer applies or is applied to the content"}), }
 
 class RightsLicenseNoteForm(ModelForm):
     class Meta:
