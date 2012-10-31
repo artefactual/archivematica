@@ -42,7 +42,10 @@ def pager(objects, items_per_page, current_page_number):
     page['previous']     = page['current'] - 1
     page['has_other']    = pager.has_other_pages()
 
+    page['end_index']    = pager.end_index()
+    page['start_index']  = pager.start_index()
     page['objects']      = pager.object_list
+    page['num_pages']    = p.num_pages
 
     return page
 
