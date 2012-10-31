@@ -32,7 +32,8 @@ from optparse import OptionParser
 databaseInterface.printSQL = True
 
 
-tables = ['FileIDsByFitsDROIDIdentificationPUID', 'FileIDsByFitsDROIDMimeType', 'FileIDsByFitsFfidentMimetype', 'FileIDsByFitsFileUtilityFormat', 'FileIDsByFitsFileUtilityMimetype', 'FileIDsByFitsFitsFormat', 'FileIDsByFitsFitsMimetype', 'FileIDsByFitsJhoveFormat', 'FileIDsByFitsJhoveMimeType']
+#tables = ['FileIDsByFitsDROIDIdentificationPUID', 'FileIDsByFitsDROIDMimeType', 'FileIDsByFitsFfidentMimetype', 'FileIDsByFitsFileUtilityFormat', 'FileIDsByFitsFileUtilityMimetype', 'FileIDsByFitsFitsFormat', 'FileIDsByFitsFitsMimetype', 'FileIDsByFitsJhoveFormat', 'FileIDsByFitsJhoveMimeType']
+tables = ['FileIDsByExtension']
 
 newTable= """
 CREATE TABLE `FileIDsBySingleID` (
@@ -52,7 +53,7 @@ CREATE TABLE `FileIDsBySingleID` (
 
 if __name__ == '__main__':
     for table in tables:
-        sql = """SELECT pk, FileIDs, id FROM %s;""" % (table)
+        sql = """SELECT pk, FileIDs, Extension FROM %s;""" % (table)
         rows = databaseInterface.queryAllSQL(sql)
         for row in rows:
             pk, FileIDs, id = row
