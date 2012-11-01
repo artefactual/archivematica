@@ -35,7 +35,7 @@ class RightsForm(ModelForm):
         ('Donor', 'Donor'),
         ('Policy', 'Policy'),
         ('Other', 'Other')
-    ))
+    ), widget=forms.Select(attrs={'title': "designation of the basis for the right or permission described in the rightsStatementIdentifier"}))
 
     class Meta:
         model = models.RightsStatement
@@ -47,17 +47,16 @@ class RightsForm(ModelForm):
             'rightsstatementidentifiervalue',
             'rightsholder',)
         widgets = {
-            'rightsnotes': Textarea(attrs=TEXTAREA_ATTRS),
             'rightsholder': TextInput(attrs=INPUT_ATTRS), }
 
 class RightsGrantedForm(ModelForm):
     class Meta:
         model = models.RightsStatementRightsGranted
         widgets = {
-            'act': TextInput(attrs=INPUT_ATTRS),
+            'act': TextInput(attrs={'class': 'span11', 'title': "the action the preservation repository is allowed to take; eg replicate, migrate, modify, use, disseminate, delete"}),
             'restriction': TextInput(attrs=INPUT_ATTRS),
-            'startdate': TextInput(attrs=INPUT_ATTRS),
-            'enddate': TextInput(attrs=INPUT_ATTRS), }
+            'startdate': TextInput(attrs={'class': 'span11', 'title': "beginning date of the rights or restrictions granted"}),
+            'enddate': TextInput(attrs={'class': 'span11', 'title': "ending date of the rights or restrictions granted"}), }
 
 class RightsGrantedNotesForm(ModelForm):
     class Meta:
@@ -69,11 +68,11 @@ class RightsCopyrightForm(ModelForm):
     class Meta:
         model = models.RightsStatementCopyright
         widgets = {
-            'copyrightstatus': TextInput(attrs=INPUT_ATTRS),
-            'copyrightjurisdiction': TextInput(attrs=INPUT_ATTRS),
-            'copyrightstatusdeterminationdate': TextInput(attrs=INPUT_ATTRS),
-            'copyrightapplicablestartdate': TextInput(attrs=INPUT_ATTRS),
-            'copyrightapplicableenddate': TextInput(attrs=INPUT_ATTRS), }
+            'copyrightstatus': TextInput(attrs={'class': 'span11', 'title': "a coded designation of the copyright status of the object at the time the rights statement is recorded; eg copyrighted, publicdomain, unknown"}),
+            'copyrightjurisdiction': TextInput(attrs={'class': 'span11', 'title': "the country whose copyright laws apply [ISO 3166]"}),
+            'copyrightstatusdeterminationdate': TextInput(attrs={'class': 'span11', 'title': "the date that the copyright status recorded in copyrightStatus was determined"}),
+            'copyrightapplicablestartdate': TextInput(attrs={'class': 'span11', 'title': "date when the particular copyright applies or is applied to the content"}),
+            'copyrightapplicableenddate': TextInput(attrs={'class': 'span11', 'title': "date when the particular copyright no longer applies or is applied to the content"}), }
 
 class RightsStatementCopyrightDocumentationIdentifierForm(ModelForm):
     class Meta:
@@ -93,11 +92,11 @@ class RightsStatuteForm(ModelForm):
     class Meta:
         model = models.RightsStatementStatuteInformation
         widgets = {
-            'statutejurisdiction': TextInput(attrs=INPUT_ATTRS),
-            'statutecitation': TextInput(attrs=INPUT_ATTRS),
-            'statutedeterminationdate': TextInput(attrs=INPUT_ATTRS),
-            'statuteapplicablestartdate': TextInput(attrs=INPUT_ATTRS),
-            'statuteapplicableenddate': TextInput(attrs=INPUT_ATTRS), }
+            'statutejurisdiction': TextInput(attrs={'class': 'span11', 'title': "the country or other political body enacting the statute"}),
+            'statutecitation': TextInput(attrs={'class': 'span11', 'title': "an identifying designation for the statute"}),
+            'statutedeterminationdate': TextInput(attrs={'class': 'span11', 'title': "date that the determination was made that the statue authorized the permission(s) noted"}),
+            'statuteapplicablestartdate': TextInput(attrs={'class': 'span11', 'title': "the date when the statute begins to apply or is applied to the content"}),
+            'statuteapplicableenddate': TextInput(attrs={'class': 'span11', 'title': "the date when the statute ceasees to apply or be applied to the content"}), }
 
 class RightsStatuteNoteForm(ModelForm):
     class Meta:
@@ -109,19 +108,17 @@ class RightsOtherRightsForm(ModelForm):
     class Meta:
         model = models.RightsStatementOtherRightsInformation
         widgets = {
-            'otherrightsbasis': TextInput(attrs=INPUT_ATTRS),
-            'otherrightsapplicablestartdate': TextInput(attrs=INPUT_ATTRS),
-            'otherrightsapplicableenddate': TextInput(attrs=INPUT_ATTRS), }
+            'otherrightsbasis': TextInput(attrs={'class': 'span11', 'title': "designation of the basis for the other right or permission described in the rightsStatementIdentifier"}),
+            'otherrightsapplicablestartdate': TextInput(attrs={'class': 'span11', 'title': "date when the other right applies or is applied to the content"}),
+            'otherrightsapplicableenddate': TextInput(attrs={'class': 'span11', 'title': "date when the other right no longer applies or is applied to the content"}), }
 
 class RightsLicenseForm(ModelForm):
     class Meta:
         model = models.RightsStatementLicense
         widgets = {
-            'licensetype': TextInput(attrs=INPUT_ATTRS),
-            'licensevalue': TextInput(attrs=INPUT_ATTRS),
-            'licenseterms': TextInput(attrs=INPUT_ATTRS),
-            'licenseapplicablestartdate': TextInput(attrs=INPUT_ATTRS),
-            'licenseapplicableenddate': TextInput(attrs=INPUT_ATTRS), }
+            'licenseterms': TextInput(attrs={'class': 'span11', 'title': "Text describing the license or agreement by which permission as granted"}),
+            'licenseapplicablestartdate': TextInput(attrs={'class': 'span11', 'title': "the date at which the license first applies or is applied to the content"}),
+            'licenseapplicableenddate': TextInput(attrs={'class': 'span11', 'title': "the end date at which the license no longer applies or is applied to the content"}), }
 
 class RightsLicenseNoteForm(ModelForm):
     class Meta:
