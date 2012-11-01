@@ -31,6 +31,7 @@ function setUpRepeatingCopyrightNotesRecords(parentId) {
 }
 
 function setUpCopyrightDocumentationIdentifierAttributes() {
+    $("label:contains('Copyright documentation identifier:')").attr('title', 'designation used to uniquely identify documentation supporting the specified rights granted according to copyright within the repository system');
     $('[name=copyrightdocumentationidentifiertype],[name=copyright_documentation_identifier_type]').attr('title', "a designation of the domain within which the copyright documentation identifier is unique");
     $('[name=copyrightdocumentationidentifiervalue],[name=copyright_documentation_identifier_value]').attr('title', "the value of the copyrightDocumentatinIdentifier");
     $('[name=copyrightdocumentationidentifierrole],[name=copyright_documentation_identifier_role]').attr('title', "A value indicating the purpose or expected use of the documentation being identified");
