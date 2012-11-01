@@ -34,7 +34,7 @@ elif [ -f "$target" -a ! -d "$(dirname $target)/$(basename ${target%.*})" ]; the
 	mkdir -p "$(dirname $target)/$(basename ${target%.*})/logs/fileMeta"
 	mkdir -p "$(dirname $target)/$(basename ${target%.*})/metadata/submissionDocumentation"
 else
-	echo Error: Needs SIP directory as argument 1>&2
+	echo Error: Needs SIP directory or file as argument 1>&2
 	exit 1
 fi 
 
