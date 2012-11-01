@@ -429,7 +429,50 @@ def getFileIdsForDmdSec(structMaps, dmdSecIdValue):
                             
     # @todo: Dedupe fileIds before returning it.
     return fileIds
-                
+
+
+# Given all the dmdSecs (which are DOM objects) from a METS files, group the dmdSecs
+# into item-specific pairs (for DC and OTHER) or if OTHER is not present, DC. Returns
+# a list of lists, with each list containing one or two dmdSec DOM nodes.
+def groupDmdSecs(dmdSecs):
+    groupedDmdSecs = list()
+    dmdSecsLen = len(dmdSecs)
+    # First, test whether the second dmdSec has MDTYPE="OTHER"; if this is the case,
+    # we can assume that the dmdSecs need to be grouped into groups of 2; if this
+    # is not the case, we can assume that the dmdSecs need to be grouped into 
+    # groups of 1. Before we do that, check to see if we only have one dmdSec.
+    if dmdSecsLen == 1:
+        tmpList = list()
+        tmpList.append(dmdSecs[0])
+        groupedDmdSecs.append(tmpList)
+        return groupedDmdSecs
+    
+    # Perform the test on the second dmdSec.
+    mdWrap = dmdSecs[1].getElementsByTagName('mdWrap')[0]
+    secondDmdSecType = mdWrap.attributes['MDTYPE'].value
+    if secondDmdSecType == 'DC':
+        groupSize = 1
+    if secondDmdSecType == 'OTHER':
+        groupSize = 2
+        
+    count = 0
+    while (count < dmdSecsLen):
+        count = count + 1
+        if groupSize == 1:
+            tmpList = list()
+            firstDmdSec = dmdSecs.pop(0)
+            tmpList = append(firstDmdSec)
+            groupedDmdSecs.append(tmpList)
+        if groupSize == 2 and len(dmdSecs) >= dmdSecsLen / 2:
+            tmpList = list()
+            firstDmdSec = dmdSecs.pop(0)
+            tmpList.append(firstDmdSec)
+            secondDmdSec = dmdSecs.pop(0)
+            tmpList.append(secondDmdSec)
+            groupedDmdSecs.append(tmpList)
+     
+    return groupedDmdSecs
+    
 
 # Generate a 'direct upload' package for a simple item from the Archivematica DIP.
 # This package will contain the object file, its thumbnail, a .desc (DC metadata) file,
@@ -787,16 +830,15 @@ if __name__ == '__main__':
         itemCountType = 'simple'
         
         # @todo: Group the dmdSecs into item-specific pairs (for DC and OTHER) or if
-        # OTHER is not present, DC. These can then be passed to the generate....Package
-        # functions along with the file list, etc. groupedDmdSecs is a dictionary with 
-        # the combined dmdSec_x values as keys (as they appear in the structMap) with a
-        # list of the dmdSec DOM nodes as values.
+        # OTHER is not present, DC. These can then be passed to the generateXXXPackage
+        # functions along with the file list, etc. groupedDmdSecs is a list of lists,
+        # each list being composed of one or two dmdSec DOM nodes.
         groupedDmdSecs = groupDmdSecs(dmdSecs)
 
         # For simple items.        
         if itemCountType == 'simple':
             # for groupedDmdSec in groupedDmdSecs:
-            for (dmdSecID, dmdSecs) in groupedDmdSecs:                
+            for dmdSecGroup in groupedDmdSecs:                
                 # We only need to get the 
                 # dmdSecId = groupedDmdSec.attributes["ID"]
                 # fileIds = getFileIdsForDmdSec(structMaps, dmdSecId.value)
