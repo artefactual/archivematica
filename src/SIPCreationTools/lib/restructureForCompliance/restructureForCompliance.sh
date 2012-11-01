@@ -31,8 +31,6 @@ if [ -d "$target" ]; then
 	mkdir "${target}/logs/fileMeta"
 	mkdir "${target}/metadata"
 	mkdir "${target}/metadata/submissionDocumentation"
-	mkdir "${target}/objects"
-	mv "$temp"/* "${target}objects/." 
 elif [ -f "$target" -a ! -d "$(dirname $target)/$(basename ${target%.*})" ]; then
 	mkdir -p "$(dirname $target)/$(basename ${target%.*})/objects"
 	mv "$target" "$(dirname $target)/$(basename ${target%.*})/objects/"
