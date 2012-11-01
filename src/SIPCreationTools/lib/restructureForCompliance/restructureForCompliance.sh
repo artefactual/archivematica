@@ -33,6 +33,14 @@ if [ -d "$target" ]; then
 	mkdir "${target}/metadata/submissionDocumentation"
 	mkdir "${target}/objects"
 	mv "$temp"/* "${target}objects/." 
+elif [ -f "$target" -a ! -d "$(dirname $target)/$(basename ${target%.*})" ]; then
+	mkdir -p "$(dirname $target)/$(basename ${target%.*})/objects"
+	mv "$target" "$(dirname $target)/$(basename ${target%.*})/objects/"
+
+	mkdir "$(dirname $target)/$(basename ${target%.*})/logs"
+	mkdir "$(dirname $target)/$(basename ${target%.*})/logs/fileMeta"
+	mkdir "$(dirname $target)/$(basename ${target%.*})/metadata"
+	mkdir "$(dirname $target)/$(basename ${target%.*})/metadata/submissionDocumentation"
 else
 	echo Error: Needs SIP directory as argument 1>&2
 	exit 1
