@@ -143,19 +143,25 @@ def preservation_planning_fpr_search(request, current_page_number = None):
     request.session['fpr_query'] = query # Save this for pagination...
     conn = pyes.ES('127.0.0.1:9200')
 
-    # Grab relevant FPR data from the DB
-    results = get_fpr_table()
+    indexes = conn.get_indices()
 
-    # Setup indexing for some Elastic Search action.
-    for row in results:
-        conn.index(row, 'fpr_file', 'fpr_files')
+    if 'fpr_file' not in indexes:
+        # Grab relevant FPR data from the DB
+        results = get_fpr_table()
+        request.session['fpr_results'] = results
+
+        # Setup indexing for some Elastic Search action.
+        for row in results:
+            conn.index(row, 'fpr_file', 'fpr_files')
+    else:
+        results = request.session['fpr_results']
     
     # do fulltext search
     q = pyes.StringQuery(query)
     s = pyes.Search(q)
 
     try:
-        results = conn.search_raw(s, size=1500)
+        results = conn.search_raw(s, size=len(results), indices='fpr_file')
     except:
         return HttpResponse('Error accessing index.')
     
@@ -164,8 +170,7 @@ def preservation_planning_fpr_search(request, current_page_number = None):
     search_hits = []
 
     for row in results.hits.hits:
-        search_hits.append(row['_source'])
-    return HttpResponse(len(search_hits))
+        search_hits.append(row['_source'].copy())
 
     page = helpers.pager(search_hits, results_per_page, current_page_number)
     hit_count = len(search_hits) 
@@ -176,12 +181,13 @@ def preservation_planning_fpr_search(request, current_page_number = None):
 def preservation_planning_fpr_data(request, current_page_number = None):
 
     results = get_fpr_table()
-    #return HttpResponse(str(results))
+    request.session['fpr_results'] = results
 
     if current_page_number == None:
         current_page_number = 1
 
     form = forms.FPRSearchForm()
+
     page = helpers.pager(results, results_per_page, current_page_number)
     request.session['fpr_query'] = ''
 
