@@ -35,6 +35,7 @@ function setUpCopyrightDocumentationIdentifierAttributes() {
     $('[name=copyrightdocumentationidentifiertype],[name=copyright_documentation_identifier_type]').attr('title', "a designation of the domain within which the copyright documentation identifier is unique");
     $('[name=copyrightdocumentationidentifiervalue],[name=copyright_documentation_identifier_value]').attr('title', "the value of the copyrightDocumentatinIdentifier");
     $('[name=copyrightdocumentationidentifierrole],[name=copyright_documentation_identifier_role]').attr('title', "A value indicating the purpose or expected use of the documentation being identified");
+    $('[name=copyright_note],[name=copyrightnote]').attr('title', "Additional information about the copyright status of the object");
 }
 
 function setUpRepeatingCopyrightDocumentationIdentifierRecords(parentId) {
@@ -43,9 +44,20 @@ function setUpRepeatingCopyrightDocumentationIdentifierRecords(parentId) {
   setUpCopyrightDocumentationIdentifierAttributes();
 }
 
+function setUpStatuteDocumentationIdentifierAttributes() {
+    $('[name=statutedocumentationidentifiertype],[name=statute_documentation_identifier_type_None]').attr('title', "a designation of the domain within which the statute documenation identifier is unique");
+    $('[name=statutedocumentationidentifiervalue],[name=statute_documentation_identifier_value]').attr('title', "the value of the statuteDocumentatinIdentifier");
+    $('[name=statutedocumentationidentifierrole],[name=statute_documentation_identifier_role_None]').attr('title', "A value indicating the purpose or expected use of the documentation being identified");
+    $('[name=statutenote],[name=new_statute_note_1],[new_statute_note_None]').each(function(index) {
+console.log(this);
+      $(this).attr('title', "additional information about the statute");
+    });
+}
+
 function setUpRepeatingStatuteDocumentationIdentifierRecords(parentId) {
   var schema = repeatingDocumentationIdentifierRecordsSchema('statute');
-  setUpRepeatingField('statutedocidfields_', parentId, 'Statute Documentation Identifier', schema, '/formdata/statutedocumentationidentifier/' + parentId + '/', true);
+  setUpRepeatingField('statutedocidfields_', parentId, 'Statute Documentation Identifier', schema, '/formdata/statutedocumentationidentifier/' + parentId + '/', true, setUpStatuteDocumentationIdentifierAttributes);
+  setUpStatuteDocumentationIdentifierAttributes();
 }
 
 function setUpRepeatingStatuteNotesRecords(parentId) {
