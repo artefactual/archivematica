@@ -24,11 +24,9 @@
 target=$1
 
 if [ -d "$target" ]; then
-	temp="/tmp/`uuid`"
-	mkdir "$temp"
+	mkdir "${target}objects"
+	mv $(find "$target" -mindepth 1 -maxdepth 1 ! -name "objects") "${target}objects/"
 
-	mv "$target"/* "$temp/."
-	
 	mkdir "${target}logs"
 	mkdir "${target}logs/fileMeta"
 	mkdir "${target}metadata"
