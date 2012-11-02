@@ -1,0 +1,95 @@
+{% extends "layout_fluid.html" %}
+
+{% load math %}
+{% load percentage %}
+
+{% block title %}Preservation planning{% endblock %}
+{% block h1 %}Preservation planning{% endblock %}
+{% block page_id %}preservation-planning{% endblock %}
+
+{% block content %}
+  
+<form action='{% url components.preservation_planning.views.preservation_planning_fpr_search %}' method='GET'>
+  {{ form }}
+  <input type='submit' value='Search files'/>
+</form>
+
+<!-- Testing if we're in a search query between paginations or not.... -->
+{% if request.session.fpr_query != '' %}
+  <h2>Search results for &quot;{{ request.session.fpr_query }}&quot; ({{ hit_count }} results):</h2><br>
+{% else %} 
+  <h2>File policies list ({{ item_count }} items):</h2><br>
+{% endif %}
+
+<table style="width:100%;table-layout:auto;word-wrap:break-word" class="FileIDsTable">
+
+<thead style="color:black;">
+<tr class="row-header">
+  <th> UUID </th>
+  <th> MIME Type </th>
+  <th> Tool </th>
+  <th> Tool version </th>
+  <th> Description </th>
+  <th> Classification </th>
+  <th> Output Location </th>
+  <th> Command </th>
+  <th> Command Description </th>
+</tr>
+</thead>
+<tbody>
+
+{% for row in page.objects %}
+
+<tr>
+  <td><div style="width:120px;">{{ row.pk }}</div></td>
+  <td><div style="width:70px;">{{ row.id }}</div></td>
+  <td>{{ row.tool }}</td>
+  <td>{{ row.toolVersion }}</td>
+  <td><div style="width:70px;">{{ row.FileIDs_description }}</div></td>
+  <td>{{ row.classification }}</td>
+  <td>{{ row.outputLocation }}</td>
+  <td><pre>{{ row.Commands_command }}</pre></td>
+  <td>{{ row.Commands_description }}</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+</table>
+
+  {% if page.has_other %}
+    <center>
+    <div align=center style='float:center'>
+    {% if page.has_previous %}
+
+      {% if request.session.fpr_query == '' %}
+        <a href="{% url components.preservation_planning.views.preservation_planning_fpr_data page.previous %}" class="btn">Previous</a>
+      {% else %}
+        <a href="{% url components.preservation_planning.views.preservation_planning_fpr_search page.previous %}" class="btn">Previous</a>
+      {% endif %}
+
+      {% if page.has_next %}
+        &nbsp;
+      {% endif %}
+ 
+   {% endif %}
+   
+   {% if page.has_next %}
+      {% if request.session.fpr_query == '' %}  
+        <a href="{% url components.preservation_planning.views.preservation_planning_fpr_data page.next %}" class="btn">Next</a>
+      {% else %}
+        <a href="{% url components.preservation_planning.views.preservation_planning_fpr_search page.next %}" class="btn">Next</a>
+      {% endif %}
+   {% endif %}
+
+    </div><br>
+  {% endif %}
+  Page {{ current_page_number }} of {{ page.num_pages }}
+
+  {% if request.session.fpr_query != '' %}
+    | <a href="{% url components.preservation_planning.views.preservation_planning_fpr_data 1 %}">Exit Search</a>
+  {% endif %}
+
+
+{% endblock %}
+
