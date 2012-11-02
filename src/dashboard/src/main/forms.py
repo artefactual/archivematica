@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.forms.models import modelformset_factory
-from django.forms.widgets import TextInput, Textarea
+from django.forms.widgets import TextInput, Textarea, CheckboxInput
 from main import models
 
 TEXTAREA_ATTRS = {'rows': '4', 'class': 'span11'}
@@ -56,7 +56,8 @@ class RightsGrantedForm(ModelForm):
             'act': TextInput(attrs={'class': 'span11', 'title': "the action the preservation repository is allowed to take; eg replicate, migrate, modify, use, disseminate, delete"}),
             'restriction': TextInput(attrs=INPUT_ATTRS),
             'startdate': TextInput(attrs={'class': 'span11', 'title': "beginning date of the rights or restrictions granted"}),
-            'enddate': TextInput(attrs={'class': 'span11', 'title': "ending date of the rights or restrictions granted"}), }
+            'enddate': TextInput(attrs={'class': 'span11', 'title': "ending date of the rights or restrictions granted"}),
+            'enddateopen': CheckboxInput(attrs={'title': 'use "OPEN" for an open ended term of restriction. Omit endDate if the ending date is unknown or the permission statement applies to many objects with different end dates.'}), }
 
 class RightsGrantedNotesForm(ModelForm):
     class Meta:

@@ -104,6 +104,12 @@ function setUpRepeatingLicenseNotesRecords(parentId) {
   setUpLicenseNoteAttributes();
 }
 
+function setUpRepeatingRightsGrantedRestrictionAttributes() {
+  $('select').attr('title', 'a condition or limitation on the act');
+  $('textarea').attr('title', 'additional information about the rights granted');
+  $("span:contains('Open End Date')").attr('title', 'use "OPEN" for an open ended term of restriction. Omit endDate if the ending date is unknown or the permission statement applies to many objects with different end dates.');
+}
+
 function setUpRepeatingRightsGrantedRestrictionRecords(parentId) {
   var schema = {
     'restriction': {
@@ -116,7 +122,8 @@ function setUpRepeatingRightsGrantedRestrictionRecords(parentId) {
       }
     }
   };
-  setUpRepeatingField('rightsrestrictions_', parentId, 'Restriction', schema, '/formdata/rightsrestriction/' + parentId + '/', true);
+  setUpRepeatingField('rightsrestrictions_', parentId, 'Restriction', schema, '/formdata/rightsrestriction/' + parentId + '/', true, setUpRepeatingRightsGrantedRestrictionAttributes);
+  setUpRepeatingRightsGrantedRestrictionAttributes();
 }
 
 function setUpRepeatingRightsGrantedNotesRecords(parentId) {
