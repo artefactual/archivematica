@@ -31,6 +31,7 @@ import urllib
 import csv
 import collections
 import zipfile
+import re
 import pprint # remove for production
 from xml.dom.minidom import parse, parseString
 
@@ -94,10 +95,10 @@ def parseDcXml(dublincore, label = '[Placeholder title]'):
 # each file ends in the UUID. Also, we are only interested in divs that are direct
 # children of a div with TYPE=directory and LABEL=objects:
 #  <div TYPE="directory" LABEL="DigitizationOutput-50a3c71f-92d6-46d1-98ce-8227caa79f85-50a3c71f-92d6-46d1-98ce-8227caa79f85">
-#      <div TYPE="directory" LABEL="objects" DMDID="dmdSec_1">
-#        <div LABEL="Page 1">
-#          <fptr FILEID="P1050152.JPG-e2d0cd78-f1b9-446b-81ae-ea0e282332bb"/>
-#        </div>
+#     <div TYPE="directory" LABEL="objects" DMDID="dmdSec_1">
+#       <div LABEL="Page 1">
+#         <fptr FILEID="P1050152.JPG-e2d0cd78-f1b9-446b-81ae-ea0e282332bb"/>
+#       </div>
 def parseStructMap(structMap, filesInObjectDirectory):
     structMapDict = {}
     # Get filenames of all the files in the objects directory (recursively);
@@ -140,9 +141,9 @@ def parseStructMap(structMap, filesInObjectDirectory):
 # Given a ftpr FILEID value (which looks like this:
 # P1050154.JPG-09869659-fc89-46ce-ad1c-fe166becccca), return the
 # name of the corresponding file from the DIP objects directory.
-def getFptrObjectFilename(fptrValue, filesInObjectDir):
+def getFptrObjectFilename(fileId, filesInObjectDir):
     # Assumes UUID is the last 36 characters of the fptr value.
-    uuid = fptrValue[-36:]
+    uuid = fileId[-36:]
     for filename in filesInObjectDir:
         if uuid in filename:
             return filename
@@ -336,7 +337,7 @@ def generateDescFile(dcMetadata):
         else:
             output += '<' + dcElement + '></' + dcElement + ">\n"
     
-    # These fields are boilerplate in new .desc files.            
+    # These fields are boilerplate in new .desc files.          
     output += "<is></is>\n"
     output += "<transc></transc>\n"
     output += "<fullrs />\n"
@@ -409,25 +410,28 @@ def getItemCountType(structMap):
                     return 'compound'
 
 
-# Given a list of structMaps and a DMDID, return a list of all the <fptr> values
-# for the files named in the structMap corresponding to the DMDID.
+# Given a list of structMaps and a list of DMDID values, return a list of
+# all the <fptr> values for the files named in the structMap corresponding 
+# to the DMDID.
 def getFileIdsForDmdSec(structMaps, dmdSecIdValue):
-    print 'dmdSecIdValue at top of function is "', dmdSecIdValue, '"'
+    dmdSecIdValue = dmdSecIdValue.strip()
+    print 'dmdSecIdValue at top of function is "%s"' % (dmdSecIdValue)
     fileIds = []
     structMap = structMaps[0]
     for div in structMap.getElementsByTagName('div'):
         print 'We are processing each div'
         for k, v in div.attributes.items():
-            print "we are processing each div's attributes:", k, " value ", v
-            # if k == 'DMDID' and v == dmdSecIdValue:
-            if k == 'DMDID' and v == " dmdSec_3 ":
+            print "We are processing each div's attributes: '%s' => '%s'" % (k, v)
+            # We match on the first on, assuming a space between the first
+            # and second dmdSec ID.
+            match = re.search(r'%s\s' % dmdSecIdValue, v)
+            if k == 'DMDID' and match:
                 print 'We have a matching DMDID'
                 for fptr in div.getElementsByTagName('fptr'):
-                    for k, v in fprt.attributes.items():
+                    for k, v in fptr.attributes.items():
                         if k == 'FILEID':
                             fileIds.append(v)
-                            
-    # @todo: Dedupe fileIds before returning it.
+
     return fileIds
 
 
@@ -454,7 +458,9 @@ def groupDmdSecs(dmdSecs):
         groupSize = 1
     if secondDmdSecType == 'OTHER':
         groupSize = 2
-        
+             
+    # Loop through all the dmdSecs and pop them off in chuncks so we can
+    # group them. 
     count = 0
     while (count < dmdSecsLen):
         count = count + 1
@@ -463,6 +469,8 @@ def groupDmdSecs(dmdSecs):
             firstDmdSec = dmdSecs.pop(0)
             tmpList = append(firstDmdSec)
             groupedDmdSecs.append(tmpList)
+        # We need to check to make sure we don't reduce the number of
+        # dmdSecs down to 0.
         if groupSize == 2 and len(dmdSecs) >= dmdSecsLen / 2:
             tmpList = list()
             firstDmdSec = dmdSecs.pop(0)
@@ -480,7 +488,8 @@ def groupDmdSecs(dmdSecs):
 def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory):
     outputDipDir = prepareOutputDir(outputDipDir, 'directupload', dipUuid)
     # Pick out the first dmdSec in dmdSecs.
-    if dmdSecs.length:
+    if len(dmdSecs):
+        # This is the DC dmdSec. @todo: Account for OTHER as well.
         dmdSec = dmdSecs[0]
     # If dmdSecs is empty, let parseDcXML() handle the situation.
     else:
@@ -812,7 +821,7 @@ if __name__ == '__main__':
     # Get the structMaps so we can pass them into the DIP creation functions.
     structMaps = metsDom.getElementsByTagName('structMap')
     
-	# @todo: Refactor the existing DIP-generation functions to take dmdDec DC, dmdSec OTHER, 
+    # @todo: Refactor the existing DIP-generation functions to take dmdDec DC, dmdSec OTHER, 
     # and structMaps, so we can pick these parameters out here for batch transfers, loop through
     # them in a for/in, and pass them into the existing functions.
     
@@ -835,31 +844,30 @@ if __name__ == '__main__':
         # each list being composed of one or two dmdSec DOM nodes.
         groupedDmdSecs = groupDmdSecs(dmdSecs)
 
-        # For simple items.        
+        # For simple items.     
         if itemCountType == 'simple':
-            # for groupedDmdSec in groupedDmdSecs:
-            for dmdSecGroup in groupedDmdSecs:                
-                # We only need to get the 
-                # dmdSecId = groupedDmdSec.attributes["ID"]
-                # fileIds = getFileIdsForDmdSec(structMaps, dmdSecId.value)
-                fileIds = getFileIdsForDmdSec(structMaps, dmdSecId)
-                filesInObjectDirectoryForThisDmdSec = []
-                for fileId in fileIds:
-                    filename = getFptrObjectFilename(fptrValue, filesInObjectDir)
-                    filesInObjectDirectoryForThisDmdSec.append(filename)
+            for dmdSecGroup in groupedDmdSecs:              
+                # Get the value of ID for each <dmdSec> and put them in a list,
+                # then pass the list into getFileIdsForDmdSec()
+                dmdSecIdValues = list()
+                for dmdSec in dmdSecGroup:
+                    Id = dmdSec.attributes['ID']
+                    # dmdSecIdValues.append(Id.value)
+                    # fileIds = getFileIdsForDmdSec(structMaps, dmdSecIdValues)
+                    fileIds = getFileIdsForDmdSec(structMaps, Id.value)
+                    filesInObjectDirectoryForThisDmdSec = []
+                    for fileId in fileIds:
+                        filename = getFptrObjectFilename(fileId, filesInObjectDirectory)
+                        filesInObjectDirectoryForThisDmdSec.append(filename)
                     
-                # print "dmdSecId is: ", dmdSecId.value
-                print "dmdSecId is: ", dmdSecId
-                print "files are: ", filesInObjectDirectoryForThisDmdSec
-                    
-                if args.ingestFormat == 'directupload':
-                    generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
-                if args.ingestFormat == 'projectclient':
-                    generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
+            if args.ingestFormat == 'directupload':
+                generateSimpleContentDMDirectUploadPackage(groupedDmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
+            if args.ingestFormat == 'projectclient':
+                generateSimpleContentDMProjectClientPackage(groupedDmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
         # For compound items.
         if itemCountType == 'compound':
-            for dmdSec in dmdSecs:                    
+            for dmdSec in dmdSecs:                  
                 if args.ingestFormat == 'directupload':
                     generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps,  args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, filesInThumbnailDirectory)
                 if args.ingestFormat == 'projectclient':
