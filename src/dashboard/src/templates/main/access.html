@@ -32,7 +32,7 @@
     <tbody>
       {% for item in access %}
         <tr>
-          <td><a href="{% url main.views.ingest_detail item.sipuuid %}">{{ item.get_title }}</a></th>
+          <td><a href="{% url components.ingest.views.ingest_detail item.sipuuid %}">{{ item.get_title }}</a></th>
           <td><a href="{{ item.resource }}">{{ item.resource }}</a></th>
           <td>{{ item.createdtime }}</th>
           <td>{{ item.status }}</th>
