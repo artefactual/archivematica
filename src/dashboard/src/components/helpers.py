@@ -44,6 +44,7 @@ def pager(objects, items_per_page, current_page_number):
 
     page['end_index']    = pager.end_index()
     page['start_index']  = pager.start_index()
+    page['total_items']  = len(objects)
     page['objects']      = pager.object_list
     page['num_pages']    = p.num_pages
 
