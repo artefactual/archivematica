@@ -56,7 +56,11 @@ def archival_storage_search(request):
     conn = pyes.ES('127.0.0.1:9200')
 
     # do fulltext search
-    q = pyes.StringQuery(query)
+    queries = []
+    queries.append(pyes.StringQuery(query))
+    #queries.append(pyes.TermQuery('fileExtension', 'wma'))
+    q = pyes.BoolQuery(must=queries).search()
+    q.facet.add_term_facet('fileExtension')
 
     try:
         results = conn.search_raw(query=q, indices='aips', type='aip', start=start - 1, size=items_per_page)
@@ -84,6 +88,7 @@ def archival_storage_search(request):
 
         modifiedResults.append(clone)
 
+    file_extension_usage = results['facets']['fileExtension']['terms']
     number_of_results = results.hits.total
 
     # use augmented result data
