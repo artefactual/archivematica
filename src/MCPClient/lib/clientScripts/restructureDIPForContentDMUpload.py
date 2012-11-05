@@ -35,12 +35,12 @@ import re
 import pprint # remove for production
 from xml.dom.minidom import parse, parseString
 
-# pp = pprint.PrettyPrinter(indent=4) # Remove after development.
+pp = pprint.PrettyPrinter(indent=4) # Remove after development.
 
 # Create the output dir for the CONTENTdm DIP. importMethod is either 'projectclient'
 # or 'directupload'. Also return the path. 
 def prepareOutputDir(outputDipDir, importMethod, dipUuid):
-    outputDipDir = os.path.join(outputDipDir, importMethod, dipUuid)
+    outputDipDir = os.path.join(outputDipDir, 'CONTENTdm', importMethod, dipUuid)
     # Check for and then delete a subdirectory named after the current package. We always want
     # a clean output directory for the import package.
     if os.path.exists(outputDipDir):
@@ -415,23 +415,27 @@ def getItemCountType(structMap):
 # to the DMDID.
 def getFileIdsForDmdSec(structMaps, dmdSecIdValue):
     dmdSecIdValue = dmdSecIdValue.strip()
-    print 'dmdSecIdValue at top of function is "%s"' % (dmdSecIdValue)
+    print 'dmdSecIdValue at top of getFileIdsForDmdSec is "%s"' % (dmdSecIdValue)
     fileIds = []
+    # We use the Archivematica default structMap, which is always the first.
     structMap = structMaps[0]
     for div in structMap.getElementsByTagName('div'):
-        print 'We are processing each div'
+        # print 'We are processing each div'
         for k, v in div.attributes.items():
-            print "We are processing each div's attributes: '%s' => '%s'" % (k, v)
-            # We match on the first on, assuming a space between the first
+            # print "We are processing each div's attributes: '%s' => '%s'" % (k, v)
+            # We match on the first dmdSec ID, assuming a space between the first
             # and second dmdSec ID.
+            # @todo: Will this pattern match if there is just one dmdSec ID?
             match = re.search(r'%s\s' % dmdSecIdValue, v)
             if k == 'DMDID' and match:
-                print 'We have a matching DMDID'
+                # print 'We have a matching DMDID'
                 for fptr in div.getElementsByTagName('fptr'):
                     for k, v in fptr.attributes.items():
                         if k == 'FILEID':
                             fileIds.append(v)
-
+                            
+    print 'fileIds at bottom of getFileIdsForDmdSec'
+    pp.pprint(fileIds)
     return fileIds
 
 
@@ -485,8 +489,12 @@ def groupDmdSecs(dmdSecs):
 # Generate a 'direct upload' package for a simple item from the Archivematica DIP.
 # This package will contain the object file, its thumbnail, a .desc (DC metadata) file,
 # and a .full (manifest) file.
-def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory):
-    outputDipDir = prepareOutputDir(outputDipDir, 'directupload', dipUuid)
+def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, filesInThumbnailDirectory, bulkDip):
+    # Get the object base filename and extension. Since we are dealing with simple items,
+    # there should only be one file in filesInObjectDirectoryForThisDmdSec.
+    objectFilePath, objectFileFilename = os.path.split(filesInObjectDirectoryForThisDmdSec[0])
+    objectFileBaseFilename, objectFileExtension = os.path.splitext(objectFileFilename)
+
     # Pick out the first dmdSec in dmdSecs.
     if len(dmdSecs):
         # This is the DC dmdSec. @todo: Account for OTHER as well.
@@ -497,21 +505,25 @@ def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, out
     dcMetadata = parseDcXml(dmdSec)
     descFileContents = generateDescFile(dcMetadata)
     # Write the .desc file into the output directory.
-    descFile = open(os.path.join(outputDipDir, dipUuid + '.desc'), "wb")
+    descFile = open(os.path.join(outputDipDir, objectFileBaseFilename + '.desc'), "wb")
     descFile.write(descFileContents)
     descFile.close()
     
-    # Copy the thumbnail into the output directory. There will only be one.
-    # The file must end in .icon.
-    shutil.copy(filesInThumbnailDirectory[0], os.path.join(outputDipDir, dipUuid + '.icon'))
+    # Copy the object file into the output directory.
+    objectFileDest = os.path.join(outputDipDir, objectFileBaseFilename + objectFileExtension)
+    shutil.copy(filesInObjectDirectoryForThisDmdSec[0], objectFileDest)
 
-    # Copy the object file (there will only be one) into the output directory, giving it the
-    # same name as the other files in the package and the extension of its source file.
-    objectFileFilename, objectFileFileExtension = os.path.splitext(filesInObjectDirectory[0])
-    shutil.copy(filesInObjectDirectory[0], os.path.join(outputDipDir, dipUuid + objectFileFileExtension))
+    # Copy the thumbnail into the output directory. The file must end in .icon.
+    # The thumbnail filenames in the DIP use the corresponding file's UUID (i.e.,
+    # the first 36 characters of the object file's base name).
+    thumbnailFilename = objectFileBaseFilename[:36] + '.jpg'
+    for thumbnailPath in filesInThumbnailDirectory:
+        match = re.search(r'%s$' % thumbnailFilename, thumbnailPath)
+        if match:
+            shutil.copy(thumbnailPath, os.path.join(outputDipDir, objectFileBaseFilename + '.icon'))
 
-    fullFileContents = generateFullFileEntry(dipUuid + objectFileFileExtension, dipUuid, objectFileFileExtension)
-    fullFile = open(os.path.join(outputDipDir, dipUuid + '.full'), "wb")
+    fullFileContents = generateFullFileEntry(objectFileBaseFilename + objectFileExtension, objectFileBaseFilename, objectFileExtension)
+    fullFile = open(os.path.join(outputDipDir, objectFileBaseFilename + '.full'), "wb")
     fullFile.write(fullFileContents)
     fullFile.close()
 
@@ -522,7 +534,6 @@ def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, out
 def generateSimpleContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, filesInObjectDirectory):
     dmdSec = getDmdSec(metsDom)
     dcMetadata = parseDcXml(dmdSec)
-    outputDipDir = prepareOutputDir(outputDipDir, 'projectclient', dipUuid)
 
     for file in filesInObjectDirectory:
       # First, copy the file into the output directory.
@@ -577,7 +588,6 @@ def generateSimpleContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, 
 # index.desc, index.cpd, index.full, and ready.txt. @todo: If a user-submitted
 # structMap is present, use it to order the files.
 def generateCompoundContentDMDirectUploadPackage(metsDom, dipUuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory):
-    outputDipDir = prepareOutputDir(outputDipDir, 'directupload', dipUuid)
     dmdSec = getDmdSec(metsDom)
     dcMetadata = parseDcXml(dmdSec)
     descFileContents = generateDescFile(dcMetadata)
@@ -700,8 +710,6 @@ def generateCompoundContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir
     structMapDom =  metsDom.getElementsByTagName('structMap')[0]
     structMapDict = parseStructMap(structMapDom, filesInObjectDirectory)
 
-    outputDipDir = prepareOutputDir(outputDipDir, 'projectclient', dipUuid)
-
     # Create a 'scans' subdirectory in the output directory.
     scansDir = os.path.join(outputDipDir, 'scans')
     os.makedirs(scansDir)
@@ -799,9 +807,7 @@ if __name__ == '__main__':
     
     # Use %watchDirectoryPath%uploadedDIPs as the output directory for the directupload and 
     # projectclient output. Also create a 'CONTENTdm' subdirectory for DIPs created by this microservice.
-    outputDipDir = os.path.join(args.outputDir, 'CONTENTdm')
-    if not os.path.exists(outputDipDir):
-        os.makedirs(outputDipDir)
+    outputDipDir = prepareOutputDir(args.outputDir, args.ingestFormat, args.uuid)
 
     # Perform some preliminary validation on the argument values.
     if not os.path.exists(inputDipDir):
@@ -821,10 +827,6 @@ if __name__ == '__main__':
     # Get the structMaps so we can pass them into the DIP creation functions.
     structMaps = metsDom.getElementsByTagName('structMap')
     
-    # @todo: Refactor the existing DIP-generation functions to take dmdDec DC, dmdSec OTHER, 
-    # and structMaps, so we can pick these parameters out here for batch transfers, loop through
-    # them in a for/in, and pass them into the existing functions.
-    
     # Check to see if the DIP contains multiple items (i.e., multiple dmdSecs) or a
     # single item (i.e., one dmdSec).
     dmdSecs = metsDom.getElementsByTagName('dmdSec')
@@ -838,32 +840,28 @@ if __name__ == '__main__':
         # Filed as bug http://code.google.com/p/archivematica/issues/detail?id=1270 .
         itemCountType = 'simple'
         
-        # @todo: Group the dmdSecs into item-specific pairs (for DC and OTHER) or if
-        # OTHER is not present, DC. These can then be passed to the generateXXXPackage
-        # functions along with the file list, etc. groupedDmdSecs is a list of lists,
-        # each list being composed of one or two dmdSec DOM nodes.
+        # Group the dmdSecs into item-specific pairs (for DC and OTHER) or if
+        # OTHER is not present, just the DC.
         groupedDmdSecs = groupDmdSecs(dmdSecs)
 
         # For simple items.     
         if itemCountType == 'simple':
-            for dmdSecGroup in groupedDmdSecs:              
+            for dmdSecGroup in groupedDmdSecs:
+                dmdSecIdValues = list()
+                filesInObjectDirectoryForThisDmdSecGroup = list()
                 # Get the value of ID for each <dmdSec> and put them in a list,
                 # then pass the list into getFileIdsForDmdSec()
-                dmdSecIdValues = list()
                 for dmdSec in dmdSecGroup:
                     Id = dmdSec.attributes['ID']
-                    # dmdSecIdValues.append(Id.value)
-                    # fileIds = getFileIdsForDmdSec(structMaps, dmdSecIdValues)
                     fileIds = getFileIdsForDmdSec(structMaps, Id.value)
-                    filesInObjectDirectoryForThisDmdSec = []
                     for fileId in fileIds:
                         filename = getFptrObjectFilename(fileId, filesInObjectDirectory)
-                        filesInObjectDirectoryForThisDmdSec.append(filename)
+                        filesInObjectDirectoryForThisDmdSecGroup.append(filename)
                     
-            if args.ingestFormat == 'directupload':
-                generateSimpleContentDMDirectUploadPackage(groupedDmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
-            if args.ingestFormat == 'projectclient':
-                generateSimpleContentDMProjectClientPackage(groupedDmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
+                if args.ingestFormat == 'directupload':
+                    generateSimpleContentDMDirectUploadPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory, True)
+                if args.ingestFormat == 'projectclient':
+                    generateSimpleContentDMProjectClientPackage(groupedDmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
         # For compound items.
         if itemCountType == 'compound':
@@ -882,7 +880,7 @@ if __name__ == '__main__':
         # Check to see if we're dealing with a simple or compound item, and fire the
         # appropriate DIP-generation function.
         # if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'directupload': 
-            # generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
+            # generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory, False)
         # if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'projectclient':
             # generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
