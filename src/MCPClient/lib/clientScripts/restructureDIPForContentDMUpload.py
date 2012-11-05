@@ -826,15 +826,16 @@ if __name__ == '__main__':
     
     # Get the structMaps so we can pass them into the DIP creation functions.
     structMaps = metsDom.getElementsByTagName('structMap')
+
+    # Populate lists of files in the DIP objects and thumbnails directories.
+    filesInObjectDirectory = getObjectDirectoryFiles(os.path.join(inputDipDir, 'objects'))
+    filesInThumbnailDirectory = glob.glob(os.path.join(inputDipDir, 'thumbnails', "*.jpg"))
     
     # Check to see if the DIP contains multiple items (i.e., multiple dmdSecs) or a
     # single item (i.e., one dmdSec).
     dmdSecs = metsDom.getElementsByTagName('dmdSec')
         
     if dmdSecs.length > 1:
-        filesInObjectDirectory = getObjectDirectoryFiles(os.path.join(inputDipDir, 'objects'))
-        filesInThumbnailDirectory = glob.glob(os.path.join(inputDipDir, 'thumbnails', "*.jpg"))
-
         # itemCountType = getItemCountType(structMaps[0])
         # Temporary workaround for missing TYPE attributes, see email to archivematica group 2012-10-28.
         # Filed as bug http://code.google.com/p/archivematica/issues/detail?id=1270 .
@@ -873,14 +874,13 @@ if __name__ == '__main__':
 
     # 0 or 1 dmdSec.
     else:
-        pass
         # filesInObjectDirectory = getObjectDirectoryFiles(os.path.join(inputDipDir, 'objects'))
         # filesInThumbnailDirectory = glob.glob(os.path.join(inputDipDir, 'thumbnails', "*.jpg")
         
         # Check to see if we're dealing with a simple or compound item, and fire the
         # appropriate DIP-generation function.
-        # if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'directupload': 
-            # generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory, False)
+        if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'directupload': 
+            generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory, False)
         # if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'projectclient':
             # generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
