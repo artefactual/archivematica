@@ -515,7 +515,7 @@ CREATE TABLE `FilesIDs` (
   PRIMARY KEY (`pk`),
   KEY `fileUUID` (`fileUUID`),
   CONSTRAINT `FilesIDs_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`)
-) ENGINE=InnoDB AUTO_INCREMENT=561 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=586 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -533,7 +533,7 @@ CREATE TABLE `Events` (
   PRIMARY KEY (`pk`),
   KEY `fileUUID` (`fileUUID`),
   CONSTRAINT `Events_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2693 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2883 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Derivations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1273,7 +1273,7 @@ INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('230d5617-d43b-4393-8bfc-46b50214d708','15df0319-bdf8-4ba9-b69e-c719cf887ad1','e8b0a95e-2ac6-49a7-bb9e-308ea0567651',NULL,'Normalize',1,'Failed',NULL,'2012-10-02 00:25:06');
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('2584b25c-8d98-44b7-beca-2b3ea2ea2505','9dd95035-e11b-4438-a6c6-a03df302933c','61c316a6-0a50-4f65-8767-1f44b1eeb6dd',NULL,'Clean up names',1,'Failed',NULL,'2012-10-02 00:25:06');
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('25b8ddff-4074-4803-a0dc-bbb3acd48a97','ad38cdea-d1da-4d06-a7e5-6f75da85a718','61c316a6-0a50-4f65-8767-1f44b1eeb6dd',NULL,'Assign file UUIDs and checksums',1,'Failed',NULL,'2012-10-02 00:25:06');
-INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('26bf24c9-9139-4923-bf99-aa8648b1692b','80ebef4c-0dd1-45eb-b993-1db56a077db8','45063ad6-f374-4215-a2c4-ac47be4ce2cd',NULL,'Verify transfer compliance',1,'Failed',NULL,'2012-10-02 00:25:06');
+INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('26bf24c9-9139-4923-bf99-aa8648b1692b','80ebef4c-0dd1-45eb-b993-1db56a077db8','aa9ba088-0b1e-4962-a9d7-79d7a0cbea2d',NULL,'Verify transfer compliance',1,'Failed',NULL,'2012-11-06 01:03:43');
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('2714cd07-b99f-40e3-9ae8-c97281d0d429','bf5a1f0c-1b3e-4196-b51f-f6d509091346','61c316a6-0a50-4f65-8767-1f44b1eeb6dd',NULL,'Assign file UUIDs and checksums',1,'Failed',NULL,'2012-10-02 00:25:06');
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('2872d007-6146-4359-b554-6e9fe7a8eca6','dde51fc1-af7d-4923-ad6a-06e670447a2a','61c316a6-0a50-4f65-8767-1f44b1eeb6dd',NULL,'Quarantine',1,'Failed',NULL,'2012-10-02 00:25:06');
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('288b739d-40a1-4454-971b-812127a5e03d','7c02a87b-7113-4851-97cd-2cf9d3fc0010','61c316a6-0a50-4f65-8767-1f44b1eeb6dd',NULL,'Approve transfer',1,'Failed',NULL,'2012-10-02 00:25:06');
@@ -1485,6 +1485,7 @@ INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('a72afc44-fa28-4de7-b35f-c79b9f01aa5c','7c02a87b-7113-4851-97cd-2cf9d3fc0010','61c316a6-0a50-4f65-8767-1f44b1eeb6dd',NULL,'Assign file UUIDs and checksums',1,'Failed',NULL,'2012-10-02 00:25:06');
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('a7fe8db6-387c-4295-b488-56e1b55c57d9','a7d920e4-bbe0-42b0-901e-fde29ac3cea6',NULL,NULL,'Normalize',1,'Failed',NULL,'2012-10-02 00:25:06');
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('a98ba456-3dcd-4f45-804c-a40220ddc6cb','8fa944df-1baf-4f89-8106-af013b5078f4','61c316a6-0a50-4f65-8767-1f44b1eeb6dd',NULL,'Failed transfer compliance',1,'Failed',NULL,'2012-10-02 00:25:06');
+INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('aa9ba088-0b1e-4962-a9d7-79d7a0cbea2d','dde8c13d-330e-458b-9d53-0937370695fa','45063ad6-f374-4215-a2c4-ac47be4ce2cd',NULL,'Verify transfer compliance',1,'Failed',NULL,'2012-11-06 00:59:43');
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('aac0bd5a-3c34-47a9-b4fe-8ed383714fca','2e88410d-5449-4537-9f65-80a1d07c5545','e8b0a95e-2ac6-49a7-bb9e-308ea0567651',NULL,'Normalize',1,'Failed',NULL,'2012-10-02 00:25:06');
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('ab69c494-23b7-4f50-acff-2e00cf7bffda','c409f2b0-bcb7-49ad-a048-a217811ca9b6',NULL,NULL,'Approve SIP creation',1,'Failed',NULL,'2012-10-02 00:25:06');
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('ab6c61be-3950-4051-9aa9-a1efa51af5c4','673e621e-2d4a-4789-b2fc-d107d6fdac5a','197e9671-0b98-4a4a-81de-46c835a3accd',NULL,'Normalize',1,'Failed',NULL,'2012-10-02 00:25:06');
@@ -1749,7 +1750,7 @@ INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `e
 INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('5a9bdbce-2887-4817-90b6-144c16f50a26','56da7758-913a-4cd2-a815-be140ed09357',0,'ef8bd3f3-22f5-4283-bfd6-d458a2d18f22',NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
 INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('5b9d4999-08d8-4f97-8d77-559d1fa1c938','197e9671-0b98-4a4a-81de-46c835a3accd',0,NULL,NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
 INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('5bb7a0a6-44f8-4042-be96-a33200eeaa49','ac85a1dc-272b-46ac-bb3e-5bf3f8e56348',0,'0e06d968-4b5b-4084-aab4-053a2a8d1679',NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
-INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('5c0f905e-40c8-4cdb-af87-d8635ada9f07','26bf24c9-9139-4923-bf99-aa8648b1692b',0,'45063ad6-f374-4215-a2c4-ac47be4ce2cd',NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
+INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('5c0f905e-40c8-4cdb-af87-d8635ada9f07','26bf24c9-9139-4923-bf99-aa8648b1692b',0,'aa9ba088-0b1e-4962-a9d7-79d7a0cbea2d',NULL,'Completed successfully',NULL,'2012-11-06 01:07:49');
 INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('5d1e6692-a0fc-438d-8448-82490a874da4','f052432c-d4e7-4379-8d86-f2a08f0ae509',0,'3229e01f-adf3-4294-85f7-4acb01b3fbcf',NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
 INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('5e481248-543b-463d-b0a4-eee87c79e71f','dc144ff4-ad74-4a6e-ac15-b0beedcaf662',0,'370aca94-65ab-4f2a-9d7d-294a62c8b7ba',NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
 INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('5ec10388-20a3-4e54-9e0a-45186242317b','50b67418-cb8d-434d-acc9-4a8324e7fdd2',0,'ea0e8838-ad3a-4bdd-be14-e5dba5a4ae0c',NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
@@ -1767,6 +1768,7 @@ INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `e
 INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('63648444-106d-4f14-81f4-d89b9fe7284e','0ba9bbd9-6c21-4127-b971-12dbc43c8119',0,'3e7cc9e1-29ec-436f-92d7-0493a5b33c61',NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
 INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('63712b34-2638-4cd2-8db0-81c1ef9a1e73','0e1716fb-c1ed-49f0-8efc-5c3424e2a9af',0,NULL,NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
 INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('64426665-4e8b-4814-823a-db8c9a88c8ab','7b146689-1a04-4f58-ba86-3caf2b76ddbc',0,'f3a39155-d655-4336-8227-f8c88e4b7669',NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
+INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('65409432-a449-4455-8eb2-5cc28af16958','aa9ba088-0b1e-4962-a9d7-79d7a0cbea2d',0,'45063ad6-f374-4215-a2c4-ac47be4ce2cd',NULL,'Completed successfully',NULL,'2012-11-06 01:14:17');
 INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('65b796dd-78c7-4b12-990d-83a711c0926d','14e5f29b-f7a1-4368-86a7-32200aa11356',0,NULL,NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
 INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('6618b464-6c18-4db4-b4f3-5e00c23081bf','14a0678f-9c2a-4995-a6bd-5acd141eeef1',0,'055de204-6229-4200-87f7-e3c29f095017',NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
 INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('662164ca-9872-49f7-8a4b-bd306b01fca2','424ee8f1-6cdd-4960-8641-ed82361d3ad7',0,'47c83e01-7556-4c13-881f-282c6d9c7d6a',NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
@@ -2780,7 +2782,7 @@ CREATE TABLE `FilesIdentifiedIDs` (
   KEY `fileID` (`fileID`),
   CONSTRAINT `FilesIdentifiedIDs_ibfk_2` FOREIGN KEY (`fileID`) REFERENCES `FileIDs` (`pk`),
   CONSTRAINT `FilesIdentifiedIDs_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2152 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2365 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `FileIDsBySingleID`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3578,7 +3580,7 @@ INSERT INTO `CommandRelationships` (`pk`, `commandClassification`, `command`, `f
 INSERT INTO `CommandRelationships` (`pk`, `commandClassification`, `command`, `fileID`, `GroupMember`, `countAttempts`, `countOK`, `countNotOK`, `replaces`, `lastModified`) VALUES ('7c59dc04-a096-47ea-975f-8ddf97bd4106','27c2969b-b6a0-441d-888d-85292b692064','1628571b-c2cd-4822-afdb-53561400c7c4','99818e34-6fe4-455c-81df-cca3b0e70932',0,0,0,0,NULL,'2012-10-17 23:13:47');
 INSERT INTO `CommandRelationships` (`pk`, `commandClassification`, `command`, `fileID`, `GroupMember`, `countAttempts`, `countOK`, `countNotOK`, `replaces`, `lastModified`) VALUES ('7c6158a7-fc1d-4820-9fbe-e8c40ac6bac2','3d1b570f-f500-4b3c-bbbc-4c58aad05c27','76fd899e-cd5a-4da3-8752-45c43fc18656','53b462db-42b5-41e6-94fa-a98974bcfd5b',0,0,0,0,NULL,'2012-10-17 23:13:39');
 INSERT INTO `CommandRelationships` (`pk`, `commandClassification`, `command`, `fileID`, `GroupMember`, `countAttempts`, `countOK`, `countNotOK`, `replaces`, `lastModified`) VALUES ('7cfd956a-85ac-45c5-b8e2-f8a6fdff2648','3141bc6f-7f77-4809-9244-116b235e7330','520f976f-476d-4ec6-be1c-7c448c5c074d','23e376ee-554b-4ac0-b34a-86031f77e526',0,0,0,0,NULL,'2012-10-15 21:30:50');
-INSERT INTO `CommandRelationships` (`pk`, `commandClassification`, `command`, `fileID`, `GroupMember`, `countAttempts`, `countOK`, `countNotOK`, `replaces`, `lastModified`) VALUES ('7d34971a-ac4d-422c-b80d-f75faba289c2','5934dd0b-9f7c-4091-8607-47f519f5c095','299390fd-24f2-4ed5-9bb6-e270b9e2f64f','e45b3f8d-6116-48a5-b671-031cc0f9ab6b',0,43,43,0,NULL,'2012-10-24 00:40:40');
+INSERT INTO `CommandRelationships` (`pk`, `commandClassification`, `command`, `fileID`, `GroupMember`, `countAttempts`, `countOK`, `countNotOK`, `replaces`, `lastModified`) VALUES ('7d34971a-ac4d-422c-b80d-f75faba289c2','5934dd0b-9f7c-4091-8607-47f519f5c095','299390fd-24f2-4ed5-9bb6-e270b9e2f64f','e45b3f8d-6116-48a5-b671-031cc0f9ab6b',0,47,47,0,NULL,'2012-11-06 01:15:48');
 INSERT INTO `CommandRelationships` (`pk`, `commandClassification`, `command`, `fileID`, `GroupMember`, `countAttempts`, `countOK`, `countNotOK`, `replaces`, `lastModified`) VALUES ('7d55b95f-d506-4f56-b1be-31a7942ad2b6','27c2969b-b6a0-441d-888d-85292b692064','1628571b-c2cd-4822-afdb-53561400c7c4','62be2403-d1ee-4d70-bab4-28bfd161f8e0',0,0,0,0,NULL,'2012-10-16 18:18:02');
 INSERT INTO `CommandRelationships` (`pk`, `commandClassification`, `command`, `fileID`, `GroupMember`, `countAttempts`, `countOK`, `countNotOK`, `replaces`, `lastModified`) VALUES ('7d5a141f-7ea2-433f-9a6e-d51df5a48803','3141bc6f-7f77-4809-9244-116b235e7330','520f976f-476d-4ec6-be1c-7c448c5c074d','badbed99-3113-45e7-bf87-40bf5354f88d',0,0,0,0,NULL,'2012-10-02 00:24:59');
 INSERT INTO `CommandRelationships` (`pk`, `commandClassification`, `command`, `fileID`, `GroupMember`, `countAttempts`, `countOK`, `countNotOK`, `replaces`, `lastModified`) VALUES ('7db3c2ca-bb41-4bdb-9631-a9f8eb38498d','3141bc6f-7f77-4809-9244-116b235e7330','d91f0637-b2f6-4492-ac1b-23c155102a3e','065a6379-da8d-4d90-8a6e-8286b31e850f',0,0,0,0,NULL,'2012-10-17 23:15:38');
@@ -4804,7 +4806,7 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-10-26 14:29:51
+-- Dump completed on 2012-11-05 17:16:08
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -4845,7 +4847,7 @@ CREATE TABLE `auth_user` (
   `date_joined` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `auth_user_groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -4996,6 +4998,7 @@ UNLOCK TABLES;
 LOCK TABLES `django_session` WRITE;
 /*!40000 ALTER TABLE `django_session` DISABLE KEYS */;
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('0581fe5312816809c491caccde8e0b3f','NDc0OTVmNmNjZGFjMGFjODM3MWQzZjM2ZDdjNjExMDdjZDEwYmFlNTqAAn1xAShVEl9hdXRoX3Vz\nZXJfYmFja2VuZHECVSlkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZHED\nVQ1fYXV0aF91c2VyX2lkcQSKAQd1Lg==\n','2012-11-02 16:08:37');
+INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('0fd3bc3f3e80d39933fde3ad7253e6e1','MWIwMjAyYTJhNjg5OTVjMTU4YTA4MTZiNDBkYmEyNTI2YTA0ODFjZTqAAn1xAShVEl9hdXRoX3Vz\nZXJfYmFja2VuZHECVSlkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZHED\nVQ1fYXV0aF91c2VyX2lkcQSKARB1Lg==\n','2012-11-19 18:42:09');
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('17b5fb7d2e26d17ca817ea2ef12bceac','NDA3YmNjMGQ1OThlMTFmYzg4ZTM5YmU3NWI0MDE4NWQ4OWVhNTQ2NDqAAn1xAVUKdGVzdGNvb2tp\nZXECVQZ3b3JrZWRxA3Mu\n','2012-11-06 14:40:52');
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('23b21a21befd36c6a19013f942ced491','NDA3YmNjMGQ1OThlMTFmYzg4ZTM5YmU3NWI0MDE4NWQ4OWVhNTQ2NDqAAn1xAVUKdGVzdGNvb2tp\nZXECVQZ3b3JrZWRxA3Mu\n','2012-11-06 19:39:56');
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES ('2722804f86378dae8f3a1830f0cbc05c','ZWViMmEwYTE4ZGQ2Zjk4MDIxYjkzZTRjZWQ2ZmYyMDFlOGQ1OWI4ODqAAn1xAVUKdGVzdGNvb2tp\nZVUGd29ya2VkcQJzLg==\n','2012-11-06 14:50:40');
