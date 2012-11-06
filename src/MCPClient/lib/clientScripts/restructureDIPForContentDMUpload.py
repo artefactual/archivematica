@@ -420,22 +420,18 @@ def getFileIdsForDmdSec(structMaps, dmdSecIdValue):
     # We use the Archivematica default structMap, which is always the first.
     structMap = structMaps[0]
     for div in structMap.getElementsByTagName('div'):
-        # print 'We are processing each div'
         for k, v in div.attributes.items():
-            # print "We are processing each div's attributes: '%s' => '%s'" % (k, v)
             # We match on the first dmdSec ID, assuming a space between the first
             # and second dmdSec ID.
-            # @todo: Will this pattern match if there is just one dmdSec ID?
+            # @todo: Will this pattern match if there is just one dmdSec ID? Probably not,
+            # maybe we could or this pattern match with an ==?
             match = re.search(r'%s\s' % dmdSecIdValue, v)
             if k == 'DMDID' and match:
-                # print 'We have a matching DMDID'
                 for fptr in div.getElementsByTagName('fptr'):
                     for k, v in fptr.attributes.items():
                         if k == 'FILEID':
                             fileIds.append(v)
                             
-    print 'fileIds at bottom of getFileIdsForDmdSec'
-    pp.pprint(fileIds)
     return fileIds
 
 
@@ -582,17 +578,36 @@ def generateSimpleContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, 
     # Delete the unzipped version of the DIP since we don't use it anyway.
     shutil.rmtree(outputDipDir)
 
+
 # Generate a 'direct upload' package for a compound item from the Archivematica DIP.
 # Consults the structMap and write out a corresponding structure (.cpd) file. Also,
 # for every file, copy the file, create an .icon, create a .desc file, plus create
 # index.desc, index.cpd, index.full, and ready.txt. @todo: If a user-submitted
 # structMap is present, use it to order the files.
-def generateCompoundContentDMDirectUploadPackage(metsDom, dipUuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory):
-    dmdSec = getDmdSec(metsDom)
+# def generateCompoundContentDMDirectUploadPackage(metsDom, dipUuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory):
+def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory, bulkDip):
+    # dmdSec = getDmdSec(metsDom)
+    # Pick out the first dmdSec in dmdSecs.
+    if len(dmdSecs):
+        # This is the DC dmdSec. @todo: Account for OTHER as well.
+        dmdSec = dmdSecs[0]
+    # If dmdSecs is empty, let parseDcXML() handle the situation.
+    else:
+        dmdSec = dmdSecs
+        
+    # Each item needs to have its own directory under outputDipDir. Since these item-level directories
+    # will end up in CONTENTdm's import/cdoc directory, they need to be unique; therefore, we can't use the
+    # dmdSec IDs, which are not unique across DIPs. To supply a unique UUID for each compound item, we use
+    # the UUID of the first file in each compound item.
+    firstFilePath, firstFileFilename = os.path.split(filesInObjectDirectoryForThisDmdSec[0])
+    itemDirUuid = firstFileFilename[:36]
+    outputItemDir = os.path.join(outputDipDir, itemDirUuid)
+    os.makedirs(outputItemDir)
+    
     dcMetadata = parseDcXml(dmdSec)
     descFileContents = generateDescFile(dcMetadata)
     # Output a .desc file for the parent item (index.desc).
-    descFile = open(os.path.join(outputDipDir, 'index.desc'), "wb")
+    descFile = open(os.path.join(outputItemDir, 'index.desc'), "wb")
     descFile.write(descFileContents)
     descFile.close()
 
@@ -613,7 +628,7 @@ def generateCompoundContentDMDirectUploadPackage(metsDom, dipUuid, outputDipDir,
     # is always the second one. @todo: If the user-submitted structMap is present,
     # parse it for the SIP structure so we can use that structure in the CONTENTdm packages.
     structMapDom =  metsDom.getElementsByTagName('structMap')[0]
-    structMapDict = parseStructMap(structMapDom, filesInObjectDirectory)
+    structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSec)
 
     # Determine the order in which we will add the child-level rows to the .cpd and .full files.
     Orders = []
@@ -635,11 +650,11 @@ def generateCompoundContentDMDirectUploadPackage(metsDom, dipUuid, outputDipDir,
 
             if order == v['order']:
                # Process each object file.
-               for fullPath in filesInObjectDirectory:
+               for fullPath in filesInObjectDirectoryForThisDmdSec:
                    # For each object file, output the object file. We need to find the full path
                    # of the file identified in v['filename'].
                    if (v['filename'] in fullPath):
-                       shutil.copy(fullPath, outputDipDir)
+                       shutil.copy(fullPath, outputItemDir)
 
                    # For each object file, copy the thumbnail in the DIP to the import package.
                    # The file must have the same name as the object file but it must end in .icon.
@@ -649,7 +664,7 @@ def generateCompoundContentDMDirectUploadPackage(metsDom, dipUuid, outputDipDir,
                        thumbnailBasenameName, thumbnailBasenameext = os.path.splitext(thumbnailBasename)
                        if (thumbnailBasenameName in v['filename']):
                            thumbnailFilename = accessFileBasenameName + '.icon'
-                           shutil.copy(thumbnailFilePath, os.path.join(outputDipDir, thumbnailFilename))
+                           shutil.copy(thumbnailFilePath, os.path.join(outputItemDir, thumbnailFilename))
 
                # For each object file, output a .desc file. For object files that do not
                # have their own child-level descriptions (i.e., all object files currently),
@@ -659,7 +674,7 @@ def generateCompoundContentDMDirectUploadPackage(metsDom, dipUuid, outputDipDir,
                dcMetadata = parseDcXml(None, v['label'])
                descFileContents = generateDescFile(dcMetadata)
                descFilename = accessFileBasenameName + '.desc'
-               descFile = open(os.path.join(outputDipDir, descFilename), "wb")
+               descFile = open(os.path.join(outputItemDir, descFilename), "wb")
                descFile.write(descFileContents)
                descFile.close()
 
@@ -675,7 +690,7 @@ def generateCompoundContentDMDirectUploadPackage(metsDom, dipUuid, outputDipDir,
                cpdFileContent += "  </page>\n"
 
     # Write out the index.full file. 
-    fullFile = open(os.path.join(outputDipDir, 'index.full'), "wb")
+    fullFile = open(os.path.join(outputItemDir, 'index.full'), "wb")
     fullFile.write(fullFileContents)
     fullFile.close()
 
@@ -683,16 +698,16 @@ def generateCompoundContentDMDirectUploadPackage(metsDom, dipUuid, outputDipDir,
     # from the user-submitted structMap (if it is present) or the Archivematica
     # structMap (if no user-submitted structMap is present).
     cpdFileContent += '</cpd>'
-    indexCpdFile = open(os.path.join(outputDipDir, 'index.cpd'), "wb")
+    indexCpdFile = open(os.path.join(outputItemDir, 'index.cpd'), "wb")
     indexCpdFile.write(cpdFileContent)
     indexCpdFile.close()
 
     # Create a thumbnail for the parent item (index.icon), using the icon from the first item
     # in the METS file. parentThumbnailFilename
-    shutil.copy(os.path.join(outputDipDir, parentThumbnailFilename), os.path.join(outputDipDir, 'index.icon'))
+    shutil.copy(os.path.join(outputItemDir, parentThumbnailFilename), os.path.join(outputItemDir, 'index.icon'))
 
     # Write out the ready.txt file which contains the string '1'.
-    readyFile = open(os.path.join(outputDipDir, 'ready.txt'), "wb")
+    readyFile = open(os.path.join(outputItemDir, 'ready.txt'), "wb")
     readyFile.write('1')
     readyFile.close()
 
@@ -868,7 +883,7 @@ if __name__ == '__main__':
         if itemCountType == 'compound':
             for dmdSec in dmdSecs:                  
                 if args.ingestFormat == 'directupload':
-                    generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps,  args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, filesInThumbnailDirectory)
+                    generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps,  args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, filesInThumbnailDirectory, True)
                 if args.ingestFormat == 'projectclient':
                     generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSec)
 
@@ -885,7 +900,7 @@ if __name__ == '__main__':
             # generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
         # if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'directupload':
-            # generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
+            # generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory, False)
         # if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'projectclient':
             # generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
