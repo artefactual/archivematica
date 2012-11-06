@@ -29,13 +29,6 @@ import databaseInterface
 
 def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, transferUUID, relativeDirectory="./"):
     print metsFile
-    DspaceLicenses = "metadata/submissionDocumentation/DspaceLicenses"
-    try:
-        path = os.path.join(transferDirectory, DspaceLicenses)
-        if not os.path.isdir(path):
-            os.mkdir(path)
-    except:
-        print "error creating DspaceLicenses directory."
     exitCode = 0
     tree = etree.parse(metsFile)
     root = tree.getroot()
@@ -51,16 +44,10 @@ def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, tran
                         if item3.tag == "{http://www.loc.gov/METS/}FLocat":
                             fileLocation = item3.get("{http://www.w3.org/1999/xlink}href")
                             fileFullPath = os.path.join(relativeDirectory, fileLocation)
-                            #dest = os.path.join(transferDirectory, DspaceLicenses, os.path.basename(fileLocation))
-                            #renameAsSudo(fileFullPath, dest)
 
                             dbLocation = fileFullPath.replace(transferDirectory, "%transferDirectory%")
                             sql = """UPDATE Files SET fileGrpUse = 'license' WHERE currentLocation = '%s' AND transferUUID = '%s';""" % (MySQLdb.escape_string(dbLocation), transferUUID)
                             databaseInterface.runSQL(sql)
-                            #dst = dest.replace(transferDirectory, "%transferDirectory%")
-                            #eventDetail = ""
-                            #eventOutcomeDetailNote = "moved from=\"" + src + "\"; moved to=\"" + dst + "\""
-                            #updateFileLocation(src, dst, "movement", date, eventDetail, transferUUID=transferUUID, eventOutcomeDetailNote = eventOutcomeDetailNote)
     return exitCode
 
 
