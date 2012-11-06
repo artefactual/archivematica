@@ -38,10 +38,10 @@ def archival_storage_page(request, page=None):
     return archival_storage_sip_display(request, page)
 
 def archival_storage_search(request):
-    query = request.GET.get('query', '')
+    queries = request.GET.getlist('query')
 
-    if query == '':
-        query = '*'
+    if queries[0] == '':
+        queries[0] = '*'
 
     # set pagination-related variables
     items_per_page = 20
@@ -56,10 +56,13 @@ def archival_storage_search(request):
     conn = pyes.ES('127.0.0.1:9200')
 
     # do fulltext search
-    queries = []
-    queries.append(pyes.StringQuery(query))
+    query_components = []
+
+    for query in queries:
+        query_components.append(pyes.StringQuery(query))
+
     #queries.append(pyes.TermQuery('fileExtension', 'wma'))
-    q = pyes.BoolQuery(must=queries).search()
+    q = pyes.BoolQuery(must=query_components).search()
     q.facet.add_term_facet('fileExtension')
 
     try:
@@ -116,7 +119,7 @@ def archival_storage_search(request):
     except:
         results = False
 
-    form = forms.StorageSearchForm(initial={'query': query})
+    form = forms.StorageSearchForm(initial={'query': queries[0]})
     return render(request, 'archival_storage/archival_storage_search.html', locals())
 
 def archival_storage_indexed_count(index):
