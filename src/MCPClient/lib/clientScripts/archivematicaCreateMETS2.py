@@ -609,6 +609,7 @@ def createFileSec(directoryPath, structMapDiv):
         fileDiv = etree.SubElement(structMapDiv, "div")
         if label != None:
             fileDiv.set("LABEL", label)
+        fileDiv.set("TYPE", "item") 
         newChild(fileDiv, "fptr", sets=[("FILEID",FILEID)])
         fileNameToFileID[item] = FILEID
 
