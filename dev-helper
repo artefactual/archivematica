@@ -22,7 +22,6 @@
 # @version svn: $Id$
 
 cd `dirname $0`
-
 fn_exists()
 {
   type $1 2>/dev/null | grep -q 'is a function'
@@ -40,7 +39,8 @@ function svn-update() {
       cd localDevSetup/
       colour ./cleanup.sh
       cd ..
-      git pull --rebase || colour git pull origin master
+      currentBranch=`git status | grep '# On branch ' | awk '{print $4}'`
+      colour git pull origin ${currentBranch}
 
       echo "Integrating into environment..."
       cd localDevSetup/
