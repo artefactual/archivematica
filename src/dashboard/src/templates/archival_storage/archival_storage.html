@@ -5,13 +5,22 @@
 {% block h1 %}Archival storage{% endblock %}
 {% block page_id %}archival-storage{% endblock %}
 
+{% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/archival_storage/advanced-search-query-creator.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/archival_storage/archival_storage_search.js"></script>
+{% endblock %}
+
 {% block css %}
   <link href="{{ STATIC_URL }}css/archival_storage.css" rel="stylesheet" type="text/css" />
 {% endblock %}
 
 {% block content %}
 
-  {% include "archival_storage/_archival_storage_search_form.html" %}
+  <div id='search_form' style='float:left'></div>
+  <div style='float:left; margin-left: 5px;'>
+    <input type='button' id='search_submit' value='Search archival storage'>
+  </div>
+  <div style='clear:both'></div>
 
   {% if sips %}
     <h1>
