@@ -22,7 +22,6 @@
 # @version svn: $Id$
 
 cd `dirname $0`
-
 fn_exists()
 {
   type $1 2>/dev/null | grep -q 'is a function'
@@ -40,7 +39,9 @@ function svn-update() {
       cd localDevSetup/
       colour ./cleanup.sh
       cd ..
-      colour git pull origin joseph
+      currentBranch=`git status | grep '# On branch ' | awk '{print $4}'`
+      colour git pull origin ${currentBranch}
+
       echo "Integrating into environment..."
       cd localDevSetup/
       colour ./createLocalDevDirectories.sh
@@ -89,7 +90,7 @@ function recreate-db() {
           sudo stop archivematica-mcp-server
           sudo stop archivematica-mcp-client
           sudo apache2ctl stop
-          colour ./recreateDB2.sh
+          colour ./recreateDB.sh
           cd ..
           sudo start archivematica-mcp-server
           sudo start archivematica-mcp-client
@@ -158,9 +159,11 @@ function update-qubit() {
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
-          sudo chmod -R 777 qubit-svn
-          colour svn update qubit-svn
-          sudo chmod -R 777 qubit-svn
+          sudo chmod -R 777 qubit-git
+          cd qubit-git
+          git pull
+          cd -
+          sudo chmod -R 777 qubit-git
           colour sudo stop qubit-sword
           colour sudo start qubit-sword
           echo "Remember to activate sfSwordPlugin and restart Qubit database if necessary!"
