@@ -11,10 +11,7 @@
 
 {% block content %}
 
-  <form action='{% url components.archival_storage.views.archival_storage_search %}' method='GET'>
-  {{ form }}
-  <input type='submit' value='Search archival storage'/>
-  </form>
+  {% include "archival_storage/_archival_storage_search_form.html" %}
 
   {% if sips %}
     <h1>
