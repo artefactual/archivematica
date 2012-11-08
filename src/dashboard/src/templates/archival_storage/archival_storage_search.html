@@ -5,6 +5,11 @@
 {% block h1 %}Archival storage{% endblock %}
 {% block page_id %}archival-storage{% endblock %}
 
+{% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/archival_storage/advanced-search-query-creator.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/archival_storage/archival_storage_search.js"></script>
+{% endblock %}
+
 {% block css %}
   <link href="{{ STATIC_URL }}css/archival_storage.css" rel="stylesheet" type="text/css" />
 {% endblock %}

@@ -16,14 +16,7 @@
 
 {% block content %}
 
-  <form id='search_form'>
-  <div id='search_form_container' style='float:left'></div>
-  <div style='float:left; margin-left: 5px;'>
-    <input type='button' id='search_submit' value='Search archival storage'>
-  </div>
-  </form>
-
-  <div style='clear:both'></div>
+  {% include "archival_storage/_archival_storage_search_form.html" %}
 
   {% if sips %}
     <h1>
