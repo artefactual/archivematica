@@ -38,10 +38,17 @@ def archival_storage_page(request, page=None):
     return archival_storage_sip_display(request, page)
 
 def archival_storage_search(request):
-    query = request.GET.get('query', '')
+    queries = request.GET.getlist('query')
+    ops     = request.GET.getlist('op')
 
-    if query == '':
-        query = '*'
+    # if no op arg provided, add default
+    try:
+        ops[0]
+    except:
+        ops = ['']
+
+    if queries[0] == '':
+        queries[0] = '*'
 
     # set pagination-related variables
     items_per_page = 20
@@ -56,10 +63,26 @@ def archival_storage_search(request):
     conn = pyes.ES('127.0.0.1:9200')
 
     # do fulltext search
-    queries = []
-    queries.append(pyes.StringQuery(query))
+    must_haves     = []
+    should_haves   = []
+    must_not_haves = []
+
+    index = 0
+    for query in queries:
+        try:
+            if ops[index] == '' or ops[index] == 'and':
+                must_haves.append(pyes.StringQuery(query))
+            elif ops[index] == 'or':
+                should_haves.append(pyes.StringQuery(query))
+            else:
+                must_not_haves.append(pyes.StringQuery(query))
+
+            index = index + 1
+        except:
+            return HttpResponse(index)
+
     #queries.append(pyes.TermQuery('fileExtension', 'wma'))
-    q = pyes.BoolQuery(must=queries).search()
+    q = pyes.BoolQuery(must=must_haves, should=should_haves, must_not=must_not_haves).search()
     q.facet.add_term_facet('fileExtension')
 
     try:
@@ -116,7 +139,7 @@ def archival_storage_search(request):
     except:
         results = False
 
-    form = forms.StorageSearchForm(initial={'query': query})
+    form = forms.StorageSearchForm(initial={'query': queries[0]})
     return render(request, 'archival_storage/archival_storage_search.html', locals())
 
 def archival_storage_indexed_count(index):

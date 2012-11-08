@@ -3538,9 +3538,10 @@ INSERT INTO StandardTasksConfigs (filterFileEnd, filterFileStart, filterSubDir, 
     (NULL, NULL, NULL, FALSE, NULL, NULL, 'restructureForCompliance_v0.0', '"%SIPDirectory%"');
 INSERT INTO TasksConfigs (taskType, taskTypePKReference, description)
     VALUES
-    (0,      LAST_INSERT_ID(), 'Attempt restructure for compliance');
+    (0,     LAST_INSERT_ID(), 'Attempt restructure for compliance');
+SET @AttemptRestructureForComplianceTaskConfig = LAST_INSERT_ID();
 INSERT INTO MicroServiceChainLinks (microserviceGroup, currentTask, defaultNextChainLink)
-    VALUES (@microserviceGroup, LAST_INSERT_ID(), @NextMicroServiceChainLink);
+    VALUES (@microserviceGroup, @AttemptRestructureForComplianceTaskConfig, @NextMicroServiceChainLink);
 SET @MicroServiceChainLink = LAST_INSERT_ID();
 INSERT INTO MicroServiceChainLinksExitCodes (microServiceChainLink, exitCode, nextMicroServiceChainLink)
     VALUES (@MicroServiceChainLink, 0, @NextMicroServiceChainLink);
@@ -4234,6 +4235,15 @@ SET @MicroServiceChainLink = LAST_INSERT_ID();
 INSERT INTO MicroServiceChainLinksExitCodes (microServiceChainLink, exitCode, nextMicroServiceChainLink)
     VALUES (@MicroServiceChainLink, 0, @NextMicroServiceChainLink);
 SET @NextMicroServiceChainLink = @MicroServiceChainLink;
+
+
+INSERT INTO MicroServiceChainLinks (microserviceGroup, currentTask, defaultNextChainLink)
+    VALUES (@microserviceGroup, @AttemptRestructureForComplianceTaskConfig, @NextMicroServiceChainLink);
+SET @MicroServiceChainLink = LAST_INSERT_ID();
+INSERT INTO MicroServiceChainLinksExitCodes (microServiceChainLink, exitCode, nextMicroServiceChainLink)
+    VALUES (@MicroServiceChainLink, 0, @NextMicroServiceChainLink);
+SET @NextMicroServiceChainLink = @MicroServiceChainLink;
+
 
 
 INSERT INTO StandardTasksConfigs (filterFileEnd, filterFileStart, filterSubDir, requiresOutputLock, standardOutputFile, standardErrorFile, execute, arguments)

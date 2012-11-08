@@ -29,20 +29,10 @@ import databaseInterface
 
 def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, transferUUID, relativeDirectory="./"):
     print metsFile
-    DspaceLicenses = "metadata/submissionDocumentation/DspaceLicenses"
-    try:
-        path = os.path.join(transferDirectory, DspaceLicenses)
-        if not os.path.isdir(path):
-            os.mkdir(path)
-    except:
-        print "error creating DspaceLicenses directory."
     exitCode = 0
     tree = etree.parse(metsFile)
     root = tree.getroot()
     for item in root.findall("{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp"):
-        #print etree.tostring(item)
-        #print item
-
         USE = item.get("USE")
         if USE == "TEXT":
             for item2 in item:
