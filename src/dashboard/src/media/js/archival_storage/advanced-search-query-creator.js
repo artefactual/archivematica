@@ -3,7 +3,7 @@
   exports.AdvancedSearchView = Backbone.View.extend({
 
     initialize: function() {
-      this.rows = this.options.data || [];
+      this.rows = this.options.rows || [];
       this.fields = [];
       this.optionElements = {};
       this.allowAdd = (this.options.allowAdd != undefined)
@@ -87,6 +87,80 @@
       return urlParams;
     },
 
+    getArrayOfUrlParams: function() {
+      // return false if URL doesn't contain params
+      if (window.location.href.indexOf('?') == -1) {
+        return false;
+      }
+
+      var params = []
+        , pairStrings = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+
+      for(var index in pairStrings) {
+        pairRaw = pairStrings[index].split('=');
+        var pair = {};
+        pair[(pairRaw[0])] = pairRaw[1];
+        params.push(pair);
+      }
+
+      return params;
+    },
+
+    firstKeyInObject: function(object) {
+      for(key in object) {
+        return key;
+      }
+    },
+
+    blankUndefinedFieldsInRow: function(row) {
+      for(var index in this.fields) {
+        var fieldName = this.fields[index];
+        if (row[fieldName] == undefined) {
+          row[fieldName] = '';
+        }
+      }
+    },
+
+    urlParamsToData: function() {
+      var arrayOfUrlParams = this.getArrayOfUrlParams();
+
+      if (!arrayOfUrlParams) {
+        return false;
+      }
+
+      var setParams = {}
+        , rows = []
+        , row
+        , pair
+        , firstKey;
+
+      // cycle through URL params and covert to an array of row objects
+      for(var index in arrayOfUrlParams) {
+        // see row field in current row
+        pair = arrayOfUrlParams[index];
+        firstKey = this.firstKeyInObject(pair);
+
+        // if this is the first row or a fieldname's been set, start a new row
+        if (row == undefined || setParams[firstKey] != undefined) {
+          // if a row has been set, blank any undefined field values
+          if (row != undefined) {
+            this.blankUndefinedFieldsInRow(row);
+          }
+          setParams = {};
+          row = {};
+          rows.push(row);
+        }
+
+        row[firstKey] = pair[firstKey];
+        setParams[firstKey] = true;
+      }
+
+      // blank any undefined field values
+      this.blankUndefinedFieldsInRow(row);
+
+      return rows;
+    },
+
     render: function() {
       var self = this;
 
@@ -143,8 +217,8 @@
         $el.append($row);
       }
 
-      // add button to adding blank rows
       if (this.allowAdd) {
+        // add button to add blank rows
         var $addBlankEl = $('<div style="clear:both">Add New</div>');
         $addBlankEl.click(function() {
           self.addBlankRow();
