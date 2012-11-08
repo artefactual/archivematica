@@ -76,12 +76,13 @@ def archival_storage_search(request):
 
     index = 0
     for query in queries:
-        if ops[index] == 'not':
-            must_not_haves.append(pyes.StringQuery(query))
-        elif ops[index] == 'or':
-            should_haves.append(pyes.StringQuery(query))
-        else:
-            must_haves.append(pyes.StringQuery(query))
+        if queries[index] != '':
+            if ops[index] == 'not':
+                must_not_haves.append(pyes.StringQuery(query))
+            elif ops[index] == 'or':
+                should_haves.append(pyes.StringQuery(query))
+            else:
+                must_haves.append(pyes.StringQuery(query))
 
         index = index + 1
 
