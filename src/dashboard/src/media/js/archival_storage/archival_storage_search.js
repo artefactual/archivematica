@@ -2,7 +2,7 @@ $(document).ready(function() {
 
   // create new form instance, providing a single row of default data
   var search = new advancedSearch.AdvancedSearchView({
-    el: $('#search_form'),
+    el: $('#search_form_container'),
     allowAdd: false,
     rows: [{
       'op': '',
@@ -45,5 +45,10 @@ $(document).ready(function() {
   // submit logic
   $('#search_submit').click(function() {
     window.location = '/archival-storage/search/' + '?' + search.toUrlParams();
+  });
+
+  $('#search_form').submit(function() {
+    window.location = '/archival-storage/search/' + '?' + search.toUrlParams();
+    return false;
   });
 });
