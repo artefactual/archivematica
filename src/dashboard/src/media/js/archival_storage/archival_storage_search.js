@@ -4,7 +4,7 @@ $(document).ready(function() {
   var search = new advancedSearch.AdvancedSearchView({
     el: $('#search_form'),
     allowAdd: false,
-    data: [{
+    rows: [{
       'op': '',
       'query': ''
     }]
