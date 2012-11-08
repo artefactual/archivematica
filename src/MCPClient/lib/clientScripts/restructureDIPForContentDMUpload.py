@@ -587,7 +587,6 @@ def generateSimpleContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, 
 # for every file, copy the file, create an .icon, create a .desc file, plus create
 # index.desc, index.cpd, index.full, and ready.txt. @todo: If a user-submitted
 # structMap is present, use it to order the files.
-# def generateCompoundContentDMDirectUploadPackage(metsDom, dipUuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory):
 def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory, bulkDip):
     # dmdSec = getDmdSec(metsDom)
     # Pick out the first dmdSec in dmdSecs.
@@ -604,11 +603,11 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     # will end up in CONTENTdm's import/cdoc directory, they need to be unique; therefore, we can't use the
     # dmdSec IDs, which are not unique across DIPs. To supply a unique UUID for each compound item, we use
     # the UUID of the first file in each compound item.
-    firstFilePath, firstFileFilename = os.path.split(filesInObjectDirectoryForThisDmdSec[0])
+    firstFilePath, firstFileFilename = os.path.split(filesInObjectDirectoryForThisDmdSecGroup[0])
     itemDirUuid = firstFileFilename[:36]
     outputItemDir = os.path.join(outputDipDir, itemDirUuid)
     print "outputItemDir: ", outputItemDir
-    os.makedir(outputItemDir)
+    os.mkdir(outputItemDir)
     
     dcMetadata = parseDcXml(dmdSec)
     descFileContents = generateDescFile(dcMetadata)
@@ -634,7 +633,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     # is always the second one. @todo: If the user-submitted structMap is present,
     # parse it for the SIP structure so we can use that structure in the CONTENTdm packages.
     structMapDom =  metsDom.getElementsByTagName('structMap')[0]
-    structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSec)
+    structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSecGroup)
 
     # Determine the order in which we will add the child-level rows to the .cpd and .full files.
     Orders = []
@@ -656,7 +655,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
 
             if order == v['order']:
                # Process each object file.
-               for fullPath in filesInObjectDirectoryForThisDmdSec:
+               for fullPath in filesInObjectDirectoryForThisDmdSecGroup:
                    # For each object file, output the object file. We need to find the full path
                    # of the file identified in v['filename'].
                    if (v['filename'] in fullPath):
@@ -851,8 +850,8 @@ if __name__ == '__main__':
     # itemCountType = getItemCountType(structMaps[0])
     # Temporary hard-coded value for missing TYPE attributes, see email to archivematica group 2012-10-28.
     # Filed as bug http://code.google.com/p/archivematica/issues/detail?id=1270 .
-    itemCountType = 'simple'
-    # itemCountType = 'compound'
+    # itemCountType = 'simple'
+    itemCountType = 'compound'
 
     # Populate lists of files in the DIP objects and thumbnails directories.
     filesInObjectDirectory = getObjectDirectoryFiles(os.path.join(inputDipDir, 'objects'))
@@ -860,26 +859,38 @@ if __name__ == '__main__':
     
     # Get the dmdSec nodes from the METS file.
     dmdSecs = metsDom.getElementsByTagName('dmdSec')
+    print "dmdSecs:"
+    pp.pprint(dmdSecs)
     # Group the dmdSecs into item-specific pairs (for DC and OTHER) or if
     # OTHER is not present, just the DC.
     groupedDmdSecs = groupDmdSecs(dmdSecs)
+    print "groupedDmdSecs:"
+    pp.pprint(groupedDmdSecs)
     
-    print "Number of dmdSecs:", dmdSecs.length
+    print "Number of dmdSecs:", len(dmdSecs)
     print "Number of groupedDmdSecs:", len(groupedDmdSecs)
     print "itemCountType:", itemCountType
             
     # Assumes that a single item (i.e. no bulk) will only have one dmdSec (i.e., not dmdSec_1 dmdSec_2).
-    if dmdSecs.length > 1:
+    # if len(dmdSecs) > 1:
+    if True:
+        print "OK, we have more than one dmdSec"
         # For simple items.     
         if itemCountType == 'simple':
+            print "OK, we have a simple situtation..."
             for dmdSecGroup in groupedDmdSecs:
+                print "dmdSecGroup within loop:"
+                pp.pprint(dmdSecGroup)
                 filesInObjectDirectoryForThisDmdSecGroup = list()
                 # Get the value of ID for each <dmdSec> and put them in a list,
                 # then pass the list into getFileIdsForDmdSec()
                 for dmdSec in dmdSecGroup:
+                    print "dmdSec withing group:"
+                    pp.pprint(dmdSec)
                     Id = dmdSec.attributes['ID']
                     fileIds = getFileIdsForDmdSec(structMaps, Id.value)
                     for fileId in fileIds:
+                        print "fileId:", fileId
                         filename = getFptrObjectFilename(fileId, filesInObjectDirectory)
                         filesInObjectDirectoryForThisDmdSecGroup.append(filename)
                     
@@ -907,7 +918,7 @@ if __name__ == '__main__':
             
                 if args.ingestFormat == 'directupload':
                     print "Calling generateCompoundContentDMDirectUploadPackage, dmdSecs > 1, directupload"
-                    generateCompoundContentDMDirectUploadPackage(dmdSecGroup, structMaps,  args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, filesInThumbnailDirectory, True)
+                    generateCompoundContentDMDirectUploadPackage(dmdSecGroup, structMaps,  args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory, True)
                 if args.ingestFormat == 'projectclient':
                     generateCompoundContentDMProjectClientPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSec)
 
