@@ -51,6 +51,13 @@ def archival_storage_search(request):
         queries[0] = '*'
 
     # set pagination-related variables
+    search_params = request.get_full_path().split('?')[1]
+    try:
+        end_of_search_params = search_params.index('&page')
+        search_params = search_params[:end_of_search_params]
+    except:
+        pass
+
     items_per_page = 20
 
     page = request.GET.get('page', 0)
