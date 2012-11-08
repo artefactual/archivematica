@@ -3,7 +3,7 @@ $(document).ready(function() {
   // create new form instance, providing a single row of default data
   var search = new advancedSearch.AdvancedSearchView({
     el: $('#search_form_container'),
-    allowAdd: false,
+//    allowAdd: false,
     rows: [{
       'op': '',
       'query': ''
@@ -44,8 +44,6 @@ $(document).ready(function() {
   };
 
   search.render();
-  $('.search_op_selector').css('width', '50px');
-  $('.search_op_selector').css('margin-right', '5px');
 
   // submit logic
   $('#search_submit').click(function() {
