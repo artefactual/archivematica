@@ -10,6 +10,11 @@ $(document).ready(function() {
     }]
   });
 
+  // override default search state if URL parameters set
+  if (search.urlParamsToData()) {
+    search.rows = search.urlParamsToData();
+  }
+
   // define op field
   var opAttributes = {
     title: 'boolean operator',
