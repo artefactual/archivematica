@@ -393,24 +393,21 @@ def generateFullFileEntry(title, filename, extension):
 
 
 # Takes in a DOM object 'structMap' and determines if it describes simple or compound 
-# items by finding the div in structMaps[0] that has the DMDID value of "dmdSec_1 dmdSec_2",
-# and then getting the value of that div's TYPE attribute; if it's 'file', the item is simple,
-# if it's 'directory', the item is compound.
+# items by finding the div in structMaps[0] that contains the DMDID value "dmdSec_1",
+# and then getting the value of that div's TYPE attribute; if it's 'item', the item
+# is simple, if it's 'directory', the item is compound.
+# @todo: Account for no DMDID.
 def getItemCountType(structMap):
     for node in structMap.getElementsByTagName('div'):
         for k, v in node.attributes.items():
-            print "v: ", v
-            # @todo: Change this test to a regex on dmdSec_1 since not all instances
-            # are going to have ' dmdSec_2'.
+            # We use a regex to cover 'dmdSec_1' or 'dmdSec_1 dmdSec_2'.
             match = re.search(r'dmdSec_1', v)
-            # if k == 'DMDID' and v == "dmdSec_1 dmdSec_2":
             if k == 'DMDID' and match:
                 # Get the value of the TYPE attribute.
                 type = node.attributes["TYPE"]
-                # See bug http://code.google.com/p/archivematica/issues/detail?id=1270 .
-                if type == 'Item':
+                if type.value == 'item':
                     return 'simple'
-                if type == 'directory':
+                if type.value == 'directory':
                     return 'compound'
 
 
@@ -847,11 +844,8 @@ if __name__ == '__main__':
     # Get the structMaps so we can pass them into the DIP creation functions.
     structMaps = metsDom.getElementsByTagName('structMap')
     
-    # itemCountType = getItemCountType(structMaps[0])
-    # Temporary hard-coded value for missing TYPE attributes, see email to archivematica group 2012-10-28.
-    # Filed as bug http://code.google.com/p/archivematica/issues/detail?id=1270 .
-    # itemCountType = 'simple'
-    itemCountType = 'compound'
+    # @todo: Account for no dmdSec
+    itemCountType = getItemCountType(structMaps[0])
 
     # Populate lists of files in the DIP objects and thumbnails directories.
     filesInObjectDirectory = getObjectDirectoryFiles(os.path.join(inputDipDir, 'objects'))
