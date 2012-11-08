@@ -5,18 +5,21 @@ $(document).ready(function() {
     el: $('#search_form'),
     allowAdd: false,
     data: [{
+      'op': '',
       'query': ''
     }]
   });
 
-  /*
   // define op field
-  search.addSelect('op[]', 'boolean operator', {title: 'boolean operator'}, {
+  var opAttributes = {
+    title: 'boolean operator',
+    class: 'search_op_selector'
+  }
+  search.addSelect('op', 'boolean operator', opAttributes, {
     'and': 'and',
-    'or': 'or',
+    'or':  'or',
     'not': 'not'
   });
-  */
 
   // define query field
   search.addInput('query', 'search query', {title: 'search query', 'class': 'span11'});
@@ -32,10 +35,12 @@ $(document).ready(function() {
 
   // don't show first op field
   search.fieldVisibilityCheck = function(rowIndex, fieldName) {
-    return rowIndex > 0 || fieldName != 'op[]';
+    return search.rows.length > 1 || fieldName != 'op';
   };
 
   search.render();
+  $('.search_op_selector').css('width', '50px');
+  $('.search_op_selector').css('margin-right', '5px');
 
   // submit logic
   $('#search_submit').click(function() {

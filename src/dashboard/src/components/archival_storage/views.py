@@ -39,6 +39,13 @@ def archival_storage_page(request, page=None):
 
 def archival_storage_search(request):
     queries = request.GET.getlist('query')
+    ops     = request.GET.getlist('op')
+
+    # if no op arg provided, add default
+    try:
+        ops[index]
+    except:
+        ops = ['']
 
     if queries[0] == '':
         queries[0] = '*'
@@ -56,13 +63,23 @@ def archival_storage_search(request):
     conn = pyes.ES('127.0.0.1:9200')
 
     # do fulltext search
-    query_components = []
+    must_haves     = []
+    should_haves   = []
+    must_not_haves = []
 
+    index = 0
     for query in queries:
-        query_components.append(pyes.StringQuery(query))
+        if ops[index] == '' or ops[index] == 'and':
+            must_haves.append(pyes.StringQuery(query))
+        elif ops[index] == 'or':
+            should_haves.append(pyes.StringQuery(query))
+        else:
+            must_not_haves.append(pyes.StringQuery(query))
+
+        index = index + 1
 
     #queries.append(pyes.TermQuery('fileExtension', 'wma'))
-    q = pyes.BoolQuery(must=query_components).search()
+    q = pyes.BoolQuery(must=must_haves, should=should_haves, must_not=must_not_haves).search()
     q.facet.add_term_facet('fileExtension')
 
     try:
