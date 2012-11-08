@@ -43,7 +43,7 @@ def archival_storage_search(request):
 
     # if no op arg provided, add default
     try:
-        ops[index]
+        ops[0]
     except:
         ops = ['']
 
@@ -69,14 +69,17 @@ def archival_storage_search(request):
 
     index = 0
     for query in queries:
-        if ops[index] == '' or ops[index] == 'and':
-            must_haves.append(pyes.StringQuery(query))
-        elif ops[index] == 'or':
-            should_haves.append(pyes.StringQuery(query))
-        else:
-            must_not_haves.append(pyes.StringQuery(query))
+        try:
+            if ops[index] == '' or ops[index] == 'and':
+                must_haves.append(pyes.StringQuery(query))
+            elif ops[index] == 'or':
+                should_haves.append(pyes.StringQuery(query))
+            else:
+                must_not_haves.append(pyes.StringQuery(query))
 
-        index = index + 1
+            index = index + 1
+        except:
+            return HttpResponse(index)
 
     #queries.append(pyes.TermQuery('fileExtension', 'wma'))
     q = pyes.BoolQuery(must=must_haves, should=should_haves, must_not=must_not_haves).search()
