@@ -98,9 +98,14 @@
 
       for(var index in pairStrings) {
         pairRaw = pairStrings[index].split('=');
-        var pair = {};
-        pair[(pairRaw[0])] = pairRaw[1];
-        params.push(pair);
+
+        var pair = {},
+            fieldName = pairRaw[0];
+
+        if (this.fields.indexOf(fieldName) != -1) {
+          pair[fieldName] = pairRaw[1];
+          params.push(pair);
+        }
       }
 
       return params;
