@@ -10,19 +10,14 @@ $(document).ready(function() {
     }]
   });
 
-  // override default search state if URL parameters set
-  if (search.urlParamsToData()) {
-    search.rows = search.urlParamsToData();
-  }
-
   // define op field
   var opAttributes = {
     title: 'boolean operator',
     class: 'search_op_selector'
   }
   search.addSelect('op', 'boolean operator', opAttributes, {
+    'or': 'or',
     'and': 'and',
-    'or':  'or',
     'not': 'not'
   });
 
@@ -40,8 +35,13 @@ $(document).ready(function() {
 
   // don't show first op field
   search.fieldVisibilityCheck = function(rowIndex, fieldName) {
-    return search.rows.length > 1 || fieldName != 'op';
+    return rowIndex > 0 || fieldName != 'op';
   };
+
+  // override default search state if URL parameters set
+  if (search.urlParamsToData()) {
+    search.rows = search.urlParamsToData();
+  }
 
   search.render();
 

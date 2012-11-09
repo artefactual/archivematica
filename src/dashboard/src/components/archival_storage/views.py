@@ -41,11 +41,16 @@ def archival_storage_search(request):
     queries = request.GET.getlist('query')
     ops     = request.GET.getlist('op')
 
+    # prepend default op arg
+    ops.insert(0, 'or')
+
+    """
     # if no op arg provided, add default
     try:
         ops[0]
     except:
         ops = ['']
+    """
 
     if queries[0] == '':
         queries[0] = '*'
@@ -79,10 +84,10 @@ def archival_storage_search(request):
         if queries[index] != '':
             if ops[index] == 'not':
                 must_not_haves.append(pyes.StringQuery(query))
-            elif ops[index] == 'or':
-                should_haves.append(pyes.StringQuery(query))
-            else:
+            elif ops[index] == 'and':
                 must_haves.append(pyes.StringQuery(query))
+            else:
+                should_haves.append(pyes.StringQuery(query))
 
         index = index + 1
 

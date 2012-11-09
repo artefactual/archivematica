@@ -83,6 +83,10 @@ td.size {
   margin-right: 1em;
 }
 
+#search_form_container > div > div > div {
+  margin-bottom: 5px;
+}
+
 .search_op_selector {
   width: 70px;
   margin-right: 5px;
