@@ -149,14 +149,14 @@ def getFptrObjectFilename(fileId, filesInObjectDir):
             return filename
 
 
-# Generate a directory containing 1) 'mappings', a nested dictionary with DCTERMS
+# Generate a dictionary containing 1) 'mappings', a nested dictionary with DCTERMS
 # elememts as keys, each of which has as its values the CONTENTdm nick and name for
 # the corresponding field in the current collection and 2), 'order', a list of the 
 # collection's field nicks, which is needed to write out the metadata in the correct
 # field order. The Archivematica metadata CRUD form only uses the legacy unqualified
 # DC elements but we include the entire CONTENTdm DCTERMS mappings because the entire
 # set of DCTERMS are supported in dublincore.xml files included in the transfer
-# packages' metadata directory.
+# package's metadata directory.
 def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
     collectionFieldInfo = {}
     # First, define the CONTENTdm DC nicknames -> DCTERMs mapping. 
@@ -316,6 +316,7 @@ def zipProjectClientOutput(outputDipDir, dipUuid, type):
 # </xml>
 def generateDescFile(dcMetadata):
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
+    pp.pprint(collectionFieldInfo)
     output = '<?xml version="1.0" encoding="utf-8"?>' + "\n"
     output += "<itemmetadata>\n"
 
@@ -323,19 +324,19 @@ def generateDescFile(dcMetadata):
     # for all its fields. 
     for dcElement in collectionFieldInfo['mappings'].keys():
         # If a field is in the incoming item dcMetadata, populate the corresponding tag
-        # with its value.
+        # with its 'nick' value.
         if dcElement in dcMetadata.keys():
             values = ''
-            output += '<' + dcElement + '>'
+            output += '<' + collectionFieldInfo['mappings'][dcElement]['nick'] + '>'
             # Repeated values in CONTENTdm metadata need to be separated with semicolons.
             for value in dcMetadata[dcElement]:
                 values += value + '; '
                 output += values.rstrip('; ')
-            output += '</' + dcElement + ">\n"
+            output += '</' + collectionFieldInfo['mappings'][dcElement]['nick'] + ">\n"
         # We need to include elements that are in the collection field config but
         # that do not have any values for the current item.
         else:
-            output += '<' + dcElement + '></' + dcElement + ">\n"
+            output += '<' + collectionFieldInfo['mappings'][dcElement]['nick'] + '></' + collectionFieldInfo['mappings'][dcElement]['nick'] + ">\n"
     
     # These fields are boilerplate in new .desc files.          
     output += "<is></is>\n"
@@ -878,7 +879,7 @@ if __name__ == '__main__':
         if itemCountType == 'simple':
             for dmdSecGroup in groupedDmdSecs:                
                 filesInObjectDirectoryForThisDmdSecGroup = getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps)
-                    if args.ingestFormat == 'directupload':
+                if args.ingestFormat == 'directupload':
                     generateSimpleContentDMDirectUploadPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory, True)
                 if args.ingestFormat == 'projectclient':
                     generateSimpleContentDMProjectClientPackage(groupedDmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
