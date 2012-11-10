@@ -132,7 +132,7 @@ def ingest_metadata_edit(request, uuid, id=None):
         for item in fields:
             initial[item] = getattr(dc, item)
         form = forms.DublinCoreMetadataForm(initial=initial)
-        jobs = models.Job.objects.filter(sipuuid=uuid)
+        jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
         name = utils.get_directory_name(jobs[0])
 
     return render(request, 'ingest/metadata_edit.html', locals())
@@ -145,13 +145,13 @@ def ingest_metadata_delete(request, uuid, id):
         raise Http404
 
 def ingest_detail(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid)
+    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
     name = utils.get_directory_name(jobs[0])
     return render(request, 'ingest/detail.html', locals())
 
 def ingest_microservices(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid)
+    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     name = utils.get_directory_name(jobs[0])
     return render(request, 'ingest/microservices.html', locals())
 
@@ -213,7 +213,7 @@ def ingest_normalization_report(request, uuid):
     return render(request, 'ingest/normalization_report.html', locals())
 
 def ingest_browse_normalization(request, jobuuid):
-    jobs = models.Job.objects.filter(jobuuid=jobuuid)
+    jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof='')
     job = jobs[0]
     title = 'Review normalization'
     name = utils.get_directory_name(job)
@@ -239,7 +239,7 @@ def ingest_browse_aip(request, jobuuid):
       '/var/archivematica/sharedDirectory/'
     )
     """
-    jobs = models.Job.objects.filter(jobuuid=jobuuid)
+    jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof='')
     job = jobs[0]
     title = 'Review AIP'
     name = utils.get_directory_name(job)

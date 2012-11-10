@@ -98,9 +98,14 @@
 
       for(var index in pairStrings) {
         pairRaw = pairStrings[index].split('=');
-        var pair = {};
-        pair[(pairRaw[0])] = pairRaw[1];
-        params.push(pair);
+
+        var pair = {},
+            fieldName = pairRaw[0];
+
+        if (this.fields.indexOf(fieldName) != -1) {
+          pair[fieldName] = pairRaw[1];
+          params.push(pair);
+        }
       }
 
       return params;
@@ -131,32 +136,31 @@
       var setParams = {}
         , rows = []
         , row
-        , pair
-        , firstKey;
+        , firstKey
+        , rowIndex = 0
+        , done = false
+        , pair = arrayOfUrlParams.shift();
 
-      // cycle through URL params and covert to an array of row objects
-      for(var index in arrayOfUrlParams) {
-        // see row field in current row
-        pair = arrayOfUrlParams[index];
-        firstKey = this.firstKeyInObject(pair);
+      while (pair != undefined) {
+        row = {};
+        for(var fieldIndex in this.fields) {
+          var fieldName = this.fields[fieldIndex];
+          // allow for field visibility logic
+          if (
+            this.fieldVisibilityCheck == undefined
+            || this.fieldVisibilityCheck(rowIndex, fieldName)
+          ) {
+            if (pair != undefined) {
+              firstKey = this.firstKeyInObject(pair);
+              row[firstKey] = pair[firstKey];
+            }
 
-        // if this is the first row or a fieldname's been set, start a new row
-        if (row == undefined || setParams[firstKey] != undefined) {
-          // if a row has been set, blank any undefined field values
-          if (row != undefined) {
-            this.blankUndefinedFieldsInRow(row);
+            pair = arrayOfUrlParams.shift();
           }
-          setParams = {};
-          row = {};
-          rows.push(row);
         }
-
-        row[firstKey] = pair[firstKey];
-        setParams[firstKey] = true;
+        rows.push(row);
+        rowIndex++;
       }
-
-      // blank any undefined field values
-      this.blankUndefinedFieldsInRow(row);
 
       return rows;
     },

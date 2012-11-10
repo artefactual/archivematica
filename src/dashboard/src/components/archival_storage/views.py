@@ -41,16 +41,28 @@ def archival_storage_search(request):
     queries = request.GET.getlist('query')
     ops     = request.GET.getlist('op')
 
+    # prepend default op arg
+    ops.insert(0, 'or')
+
+    """
     # if no op arg provided, add default
     try:
         ops[0]
     except:
         ops = ['']
+    """
 
     if queries[0] == '':
         queries[0] = '*'
 
     # set pagination-related variables
+    search_params = request.get_full_path().split('?')[1]
+    try:
+        end_of_search_params = search_params.index('&page')
+        search_params = search_params[:end_of_search_params]
+    except:
+        pass
+
     items_per_page = 20
 
     page = request.GET.get('page', 0)
@@ -69,17 +81,15 @@ def archival_storage_search(request):
 
     index = 0
     for query in queries:
-        try:
-            if ops[index] == '' or ops[index] == 'and':
-                must_haves.append(pyes.StringQuery(query))
-            elif ops[index] == 'or':
-                should_haves.append(pyes.StringQuery(query))
-            else:
+        if queries[index] != '':
+            if ops[index] == 'not':
                 must_not_haves.append(pyes.StringQuery(query))
+            elif ops[index] == 'and':
+                must_haves.append(pyes.StringQuery(query))
+            else:
+                should_haves.append(pyes.StringQuery(query))
 
-            index = index + 1
-        except:
-            return HttpResponse(index)
+        index = index + 1
 
     #queries.append(pyes.TermQuery('fileExtension', 'wma'))
     q = pyes.BoolQuery(must=must_haves, should=should_haves, must_not=must_not_haves).search()

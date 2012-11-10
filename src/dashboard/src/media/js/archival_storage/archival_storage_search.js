@@ -3,17 +3,12 @@ $(document).ready(function() {
   // create new form instance, providing a single row of default data
   var search = new advancedSearch.AdvancedSearchView({
     el: $('#search_form_container'),
-    allowAdd: false,
+//    allowAdd: false,
     rows: [{
       'op': '',
       'query': ''
     }]
   });
-
-  // override default search state if URL parameters set
-  if (search.urlParamsToData()) {
-    search.rows = search.urlParamsToData();
-  }
 
   // define op field
   var opAttributes = {
@@ -21,8 +16,8 @@ $(document).ready(function() {
     class: 'search_op_selector'
   }
   search.addSelect('op', 'boolean operator', opAttributes, {
+    'or': 'or',
     'and': 'and',
-    'or':  'or',
     'not': 'not'
   });
 
@@ -40,12 +35,15 @@ $(document).ready(function() {
 
   // don't show first op field
   search.fieldVisibilityCheck = function(rowIndex, fieldName) {
-    return search.rows.length > 1 || fieldName != 'op';
+    return rowIndex > 0 || fieldName != 'op';
   };
 
+  // override default search state if URL parameters set
+  if (search.urlParamsToData()) {
+    search.rows = search.urlParamsToData();
+  }
+
   search.render();
-  $('.search_op_selector').css('width', '50px');
-  $('.search_op_selector').css('margin-right', '5px');
 
   // submit logic
   $('#search_submit').click(function() {
