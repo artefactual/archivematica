@@ -149,10 +149,13 @@ def getFptrObjectFilename(fileId, filesInObjectDir):
             return filename
 
 
-# Generate a dictionary containing 1) 'mappings', a nested dictionary with DCTERMS
+# Generate a dictionary containing 1) 'dcMappings', a nested dictionary with DCTERMS
 # elememts as keys, each of which has as its values the CONTENTdm nick and name for
-# the corresponding field in the current collection and 2), 'order', a list of the 
-# collection's field nicks, which is needed to write out the metadata in the correct
+# the corresponding field in the current collection and 2), 'nonDcMappings', a nested
+# disctionary with field names (i.e., labels) as keys, each of which has as its values
+# the CONTENTdm nick and name for the corresponding field in the collection, and 3), 
+# 'order', a list of the collection's field nicks in the order they exist in the
+# collection's configuration, which is needed to write out the metadata in the correct
 # field order. The Archivematica metadata CRUD form only uses the legacy unqualified
 # DC elements but we include the entire CONTENTdm DCTERMS mappings because the entire
 # set of DCTERMS are supported in dublincore.xml files included in the transfer
@@ -227,23 +230,33 @@ def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
         print "Cannot retrieve CONTENTdm collection field configuration from " + CollectionFieldConfigUrl
         sys.exit(1)
 
-    # We want a dict containing items that looks like
+    # For the DC mappings, we want a dict containing items that looks like
     # { 'contributor': { 'name': u'Contributors', 'nick': u'contri'},
     # 'creator': { 'name': u'Creator', 'nick': u'creato'},
     # 'date': { 'name': u'Date', 'nick': u'dateso'}, [...] }
     # We need these field-specific mappings when writing out metadata files for loading
     # into CONTENTdm. It is possible that more than one CONTENTdm field is mapped to
     # the same DC element; in this case, just take the last mapping and ignore the rest,
-    # since there is no way to tell which should take precedence.
-    collectionFieldMappings = {}
-    # We also want a simple list of all the fields in the current collection.
-    collectionFieldOrder = [] 
+    # since there is no way to tell which should take precedence. The non-DC mappings have
+    # the field name as their key, like "u'CONTENTdm number': { 'name': u'CONTENTdm number',
+    # 'nick': u'dmrecord'}.
+    collectionFieldDcMappings = {}
+    collectionFieldNonDcMappings = {}
+    # We also want a simple list of all the fields in the current collection, in the order
+    # they exist in the collection's CONTENTdm configuration.
+    collectionFieldOrder = []    
     for fieldConfig in collectionFieldConfig:
         for k, v in fieldConfig.iteritems():
+            fieldName = fieldConfig['name']
+            # For fields that have a DC mapping.
             if fieldConfig['dc'] != 'BLANK' and fieldConfig['dc'] != '':
-               collectionFieldMappings[contentdmDctermsMap[fieldConfig['dc']]] = {'nick' : fieldConfig['nick'] , 'name' : fieldConfig['name']}
+               collectionFieldDcMappings[contentdmDctermsMap[fieldConfig['dc']]] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
+            # For fields that do not have a DC mapping.   
+            if fieldConfig['dc'] == 'BLANK':
+               collectionFieldNonDcMappings[fieldName] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
         collectionFieldOrder.append(fieldConfig['nick'])
-    collectionFieldInfo['mappings'] = collectionFieldMappings
+    collectionFieldInfo['dcMappings'] = collectionFieldDcMappings
+    collectionFieldInfo['nonDcMappings'] = collectionFieldNonDcMappings
     collectionFieldInfo['order'] = collectionFieldOrder
     return collectionFieldInfo
 
@@ -322,21 +335,21 @@ def generateDescFile(dcMetadata):
 
     # Loop through the collection's field configuration and generate XML elements
     # for all its fields. 
-    for dcElement in collectionFieldInfo['mappings'].keys():
+    for dcElement in collectionFieldInfo['dcMappings'].keys():
         # If a field is in the incoming item dcMetadata, populate the corresponding tag
         # with its 'nick' value.
         if dcElement in dcMetadata.keys():
             values = ''
-            output += '<' + collectionFieldInfo['mappings'][dcElement]['nick'] + '>'
+            output += '<' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + '>'
             # Repeated values in CONTENTdm metadata need to be separated with semicolons.
             for value in dcMetadata[dcElement]:
                 values += value + '; '
                 output += values.rstrip('; ')
-            output += '</' + collectionFieldInfo['mappings'][dcElement]['nick'] + ">\n"
+            output += '</' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + ">\n"
         # We need to include elements that are in the collection field config but
         # that do not have any values for the current item.
         else:
-            output += '<' + collectionFieldInfo['mappings'][dcElement]['nick'] + '></' + collectionFieldInfo['mappings'][dcElement]['nick'] + ">\n"
+            output += '<' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + '></' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + ">\n"
     
     # These fields are boilerplate in new .desc files.          
     output += "<is></is>\n"
