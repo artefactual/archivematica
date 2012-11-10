@@ -72,7 +72,7 @@ def rights_parse_agent_id(input):
     return agentId
 
 def rights_edit(request, uuid, id=None, section='ingest'):
-    jobs = models.Job.objects.filter(sipuuid=uuid)
+    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     name = utils.get_directory_name(jobs[0])
 
     # flag indicating what kind of new content, if any, has been created
@@ -390,7 +390,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
     return render(request, 'rights/rights_edit.html', locals())
 
 def rights_grants_edit(request, uuid, id, section='ingest'):
-    jobs = models.Job.objects.filter(sipuuid=uuid)
+    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     name = utils.get_directory_name(jobs[0])
 
     viewRights = models.RightsStatement.objects.get(pk=id)
@@ -504,7 +504,7 @@ def rights_holders_autocomplete(request):
     return HttpResponse(simplejson.dumps(response_data), mimetype='application/json')
 
 def rights_list(request, uuid, section):
-    jobs = models.Job.objects.filter(sipuuid=uuid)
+    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     name = utils.get_directory_name(jobs[0])
 
     # See MetadataAppliesToTypes table
