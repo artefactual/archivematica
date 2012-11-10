@@ -145,7 +145,7 @@ def ingest_metadata_delete(request, uuid, id):
         raise Http404
 
 def ingest_detail(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid)
+    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
     name = utils.get_directory_name(jobs[0])
     return render(request, 'ingest/detail.html', locals())
