@@ -49,43 +49,46 @@ def prepareOutputDir(outputDipDir, importMethod, dipUuid):
     return outputDipDir
 
 
-# Takes in a DOM object containing the Dublin Core XML, returns a dictionary with 
+# Takes in a DOM object containing the DC or OTHER dmdSec, returns a dictionary with 
 # tag : [ value1, value2] members. Also, since minidom only handles byte strings
 # so we need to encode strings before passing them to minidom functions. label is
 # an optional arguement for use with compound item children, which may not have a
 # dublincore object.
-def parseDcXml(dublincore, label = '[Placeholder title]'):
-    if dublincore is None:
-       return {'title' : [label]} 
-    # If the dublincore object is empty (i.e, there is no DC metadata), return
+def parseDmdSec(dmdSec, label = '[Placeholder title]'):
+    mdWraps = dmdSec.getElementsByTagName('mdWrap')
+    mdType = mdWraps[0].attributes["MDTYPE"]
+    
+    # If the dmdSec object is empty (i.e, there is no DC metadata), return
     # a placeholder title.
-    if not hasattr(dublincore, 'getElementsByTagName'):
-       return {'title' : [label]} 
+    if dmdSec is None:
+        return {'title' : [label]}
+    if not hasattr(dmdSec, 'getElementsByTagName'):
+        return {'title' : [label]} 
       
     # If we are dealing with a DOM object representing the Dublin Core metadata,
     # check to see if there is a title (required by CONTENTdm). If not, assign a 
-    # placeholder title.
-    if hasattr(dublincore, 'getElementsByTagName'):
-        dcTitlesDom = dublincore.getElementsByTagName('title')
+    # placeholder title and return.
+    if mdType == 'DC' and hasattr(dmdSec, 'getElementsByTagName'):
+        dcTitlesDom = dmdSec.getElementsByTagName('title')
         if not dcTitlesDom:
             return {'title' : '[Placeholder title]'} 
 
-    # Get the elements found in the incoming DC XML DOM object.
-    dcElementsDom = dublincore.getElementsByTagName('*')
-    dcElementsDict = {}
-    for dcElement in dcElementsDom:
+    # Get the elements found in the incoming XML DOM object.
+    elementsDom = dmdSec.getElementsByTagName('*')
+    elementsDict = {}
+    for element in elementsDom:
         # We only want elements that are not empty.
-        if dcElement.firstChild: 
-            # To get the values of repeated DC elements, we need to create a list to correspond
-            # to each element name. If the element name is not yet a key in dcElementsDict,
+        if element.firstChild: 
+            # To get the values of repeated elements, we need to create a list to correspond
+            # to each element name. If the element name is not yet a key in elementsDict,
             # create the element's value list.
-            if dcElement.tagName not in dcElementsDict:
-                dcElementsDict[dcElement.tagName.encode("utf-8")] = [dcElement.firstChild.nodeValue.encode("utf-8")]
-            # If the element name is present in dcElementsDict, append the element's value to
+            if element.tagName not in elementsDict:
+                elementsDict[element.tagName.encode("utf-8")] = [element.firstChild.nodeValue.encode("utf-8")]
+            # If the element name is present in elementsDict, append the element's value to
             # its value list.
             else:
-                dcElementsDict[dcElement.tagName.encode("utf-8")].append(dcElement.firstChild.nodeValue.encode("utf-8"))
-    return dcElementsDict
+                elementsDict[element.tagName.encode("utf-8")].append(element.firstChild.nodeValue.encode("utf-8"))
+    return elementsDict
 
 
 # Takes in a DOM object containing the METS structMap, returns a dictionary with 
@@ -528,7 +531,7 @@ def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, out
     # If dmdSecs is empty, let parseDcXML() handle the situation.
     else:
         dmdSec = dmdSecs
-    dcMetadata = parseDcXml(dmdSec)
+    dcMetadata = parseDmdSec(dmdSec)
     descFileContents = generateDescFile(dcMetadata)
     # Write the .desc file into the output directory.
     descFile = open(os.path.join(outputDipDir, objectFileBaseFilename + '.desc'), "wb")
@@ -559,7 +562,7 @@ def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, out
 # suitable for importing into CONTENTdm using its Project Client.
 def generateSimpleContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, filesInObjectDirectory):
     dmdSec = getDmdSec(metsDom)
-    dcMetadata = parseDcXml(dmdSec)
+    dcMetadata = parseDmdSec(dmdSec)
 
     for file in filesInObjectDirectory:
       # First, copy the file into the output directory.
@@ -633,7 +636,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     outputItemDir = os.path.join(outputDipDir, itemDirUuid)
     os.mkdir(outputItemDir)
     
-    dcMetadata = parseDcXml(dmdSec)
+    dcMetadata = parseDmdSec(dmdSec)
     descFileContents = generateDescFile(dcMetadata)
     # Output a .desc file for the parent item (index.desc).
     descFile = open(os.path.join(outputItemDir, 'index.desc'), "wb")
@@ -700,7 +703,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                # we need to use the filename as the title if there isn't a user-supplied
                # csv or structMap to provide labels as per
                # https://www.archivematica.org/wiki/CONTENTdm_integration.
-               dcMetadata = parseDcXml(None, v['label'])
+               dcMetadata = parseDmdSec(None, v['label'])
                descFileContents = generateDescFile(dcMetadata)
                descFilename = accessFileBasenameName + '.desc'
                descFile = open(os.path.join(outputItemDir, descFilename), "wb")
@@ -746,7 +749,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
 # for importing into CONTENTdm using its Project Client.
 def generateCompoundContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, filesInObjectDirectory):
     dmdSec = getDmdSec(metsDom)
-    dcMetadata = parseDcXml(dmdSec)
+    dcMetadata = parseDmdSec(dmdSec)
 
     # Archivematica's stuctMap is always the first one; the user-submitted structMap
     # is always the second one. @todo: If the user-submitted structMap is present,
