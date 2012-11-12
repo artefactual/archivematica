@@ -453,17 +453,21 @@ def getItemCountType(structMap):
 def groupDmdSecs(dmdSecs):
     groupedDmdSecs = list()
     dmdSecsLen = len(dmdSecs)
-    # First, test whether the second dmdSec has MDTYPE="OTHER"; if this is the case,
-    # we can assume that the dmdSecs need to be grouped into groups of 2; if this
-    # is not the case, we can assume that the dmdSecs need to be grouped into 
-    # groups of 1. Before we do that, check to see if we only have one dmdSec.
+    # If dmdSecs is empty, return.
+    if dmdSecsLen == 0:
+        return groupedDmdSecs
+        
+    # If dmdSecs is not empty, test whether the second dmdSec has MDTYPE="OTHER"; if
+    # this is the case, we can assume that the dmdSecs need to be grouped into groups
+    # of 2; if this is not the case, we can assume that the dmdSecs need to be grouped
+    # into groups of 1. Before we do that, check to see if we only have one dmdSec.
     if dmdSecsLen == 1:
         tmpList = list()
         tmpList.append(dmdSecs[0])
         groupedDmdSecs.append(tmpList)
         return groupedDmdSecs
     
-    # Perform the test on the second dmdSec.
+    # If we've made it this far, perform the test on the second dmdSec.
     mdWrap = dmdSecs[1].getElementsByTagName('mdWrap')[0]
     secondDmdSecType = mdWrap.attributes['MDTYPE'].value
     if secondDmdSecType == 'DC':
@@ -497,21 +501,23 @@ def groupDmdSecs(dmdSecs):
 # Given a group of two dmdSecs, split them out so they can be passed to
 # generateDescFile() with the expected values.
 def splitDmdSecs(dmdSecs):
-    # If dmdSecs is empty, let parseDcXML() assign a placeholder title.
-    if len(dmdSecs) == 0:
-        dmdSec = dmdSecs
-        dcMetadata = parseDmdSec(dmdSec)
-        nonDcMetadata = None
+    lenDmdSecs = len(dmdSecs)
+    print "lenDmdSecs from within splitDmdSecs:", lenDmdSecs
     # If we have two dmdSecs, the first one is DC and the second OTHER.
-    if len(dmdSecs) == 2:
+    if lenDmdSecs == 2:
         dcMetadata = parseDmdSec(dmdSecs[0])
         nonDcMetadata = parseDmdSec(dmdSecs[1])        
     # If we have one dmdSec, it's DC.
-    if len(dmdSecs) == 1:
+    if lenDmdSecs == 1:
         # This is the DC dmdSec.
         dcMetadata = parseDmdSec(dmdSecs[0])
         nonDcMetadata = None
-        
+    # If dmdSecs is empty, let parseDcXML() assign a placeholder title in dcMetadata.
+    if lenDmdSecs == 0:
+        dmdSec = dmdSecs
+        dcMetadata = parseDmdSec(dmdSec)
+        nonDcMetadata = None
+    
     return (dcMetadata, nonDcMetadata)
 
 
@@ -652,8 +658,10 @@ def generateSimpleContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, 
 # index.desc, index.cpd, index.full, and ready.txt. @todo: If a user-submitted
 # structMap is present, use it to order the files.
 def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory, bulkDip):
-    (dcMetadata, nonDcMetadata) = splitDmdSecs(dmdSecs)    
+    (dcMetadata, nonDcMetadata) = splitDmdSecs(dmdSecs)
     descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
+    # Make a copy of nonDcMetadata that we use for compound item children (see comment below).
+    nonDcMetadataForChildren = nonDcMetadata
 
     # Each item needs to have its own directory under outputDipDir. Since these item-level directories
     # will end up in CONTENTdm's import/cdoc directory, they need to be unique; therefore, we can't use the
@@ -730,7 +738,15 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                # https://www.archivematica.org/wiki/CONTENTdm_integration. Also note that we do
                # not add the non-DC metadata fields to child .desc files.
                dcMetadata = parseDmdSec(None, v['label'])
-               descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
+               print "nonDcMetadataForChildren:"
+               pp.pprint(nonDcMetadataForChildren)
+               # We don't want to include any values that are in nonDcMetadataForChildren,
+               # (we just want the empty elements), so iterate through the copy we made at
+               # the top of this function and zero all values in tis dictionary out.
+               if nonDcMetadataForChildren != None:
+                   for nonDcField, nonDcValue in nonDcMetadataForChildren.iteritems():
+                       nonDcMetadataForChildren[nonDcField] = list()
+               descFileContents = generateDescFile(dcMetadata, nonDcMetadataForChildren)
                descFilename = accessFileBasenameName + '.desc'
                descFile = open(os.path.join(outputItemDir, descFilename), "wb")
                descFile.write(descFileContents)
@@ -909,6 +925,7 @@ if __name__ == '__main__':
     # Get the dmdSec nodes from the METS file.
     dmdSecs = metsDom.getElementsByTagName('dmdSec')
     numDmdSecs = len(dmdSecs)
+    print "numDmdSecs from bottom of script:", numDmdSecs
     # Group the dmdSecs into item-specific pairs (for DC and OTHER) or if
     # OTHER is not present, just the DC.
     groupedDmdSecs = groupDmdSecs(dmdSecs)
@@ -916,7 +933,7 @@ if __name__ == '__main__':
     # Assumes that a single item (i.e. no bulk) will only have one dmdSec
     # (i.e., not "dmdSec_1 dmdSec_2").
     if numDmdSecs > 1:
-        # For simple items.     
+        # For simple items.  
         if itemCountType == 'simple':
             for dmdSecGroup in groupedDmdSecs:                
                 filesInObjectDirectoryForThisDmdSecGroup = getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps)
@@ -936,14 +953,14 @@ if __name__ == '__main__':
 
     # 0 or 1 dmdSec.
     else:
-        # Check to see if we're dealing with a simple or compound item, and fire the
-        # appropriate DIP-generation function.
+        # For simple items.
         if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'directupload':
             generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory, False)
         # if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'projectclient':
-            # generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
+            # generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, False)
 
-        # if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'directupload':
-            # generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory, False)
+        # For compound items.
+        if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'directupload':
+            generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory, False)
         # if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'projectclient':
-            # generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
+            # generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, False)
