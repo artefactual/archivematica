@@ -665,9 +665,9 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     # Each item needs to have its own directory under outputDipDir. Since these item-level directories
     # will end up in CONTENTdm's import/cdoc directory, they need to be unique; therefore, we can't use the
     # dmdSec IDs, which are not unique across DIPs. To supply a unique UUID for each compound item, we use
-    # the UUID of the first file in each compound item.
+    # the the first eight characters of the UUID of the first file in each compound item.
     firstFilePath, firstFileFilename = os.path.split(filesInObjectDirectoryForThisDmdSecGroup[0])
-    itemDirUuid = firstFileFilename[:36]
+    itemDirUuid = firstFileFilename[:8]
     outputItemDir = os.path.join(outputDipDir, itemDirUuid)
     os.mkdir(outputItemDir)
     
