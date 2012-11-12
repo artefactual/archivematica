@@ -564,7 +564,7 @@ def getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps):
 # Generate a 'direct upload' package for a simple item from the Archivematica DIP.
 # This package will contain the object file, its thumbnail, a .desc (DC metadata) file,
 # and a .full (manifest) file.
-def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, filesInThumbnailDirectory, bulkDip):
+def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, filesInThumbnailDirectory):
     (dcMetadata, nonDcMetadata) = splitDmdSecs(dmdSecs)
     descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
     
@@ -657,7 +657,7 @@ def generateSimpleContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, 
 # for every file, copy the file, create an .icon, create a .desc file, plus create
 # index.desc, index.cpd, index.full, and ready.txt. @todo: If a user-submitted
 # structMap is present, use it to order the files.
-def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory, bulkDip):
+def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory):
     (dcMetadata, nonDcMetadata) = splitDmdSecs(dmdSecs)
     descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
     # Make a copy of nonDcMetadata that we use for compound item children (see comment below).
@@ -938,7 +938,7 @@ if __name__ == '__main__':
             for dmdSecGroup in groupedDmdSecs:                
                 filesInObjectDirectoryForThisDmdSecGroup = getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps)
                 if args.ingestFormat == 'directupload':
-                    generateSimpleContentDMDirectUploadPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory, True)
+                    generateSimpleContentDMDirectUploadPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory)
                 if args.ingestFormat == 'projectclient':
                     generateSimpleContentDMProjectClientPackage(groupedDmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
@@ -947,7 +947,7 @@ if __name__ == '__main__':
             for dmdSecGroup in groupedDmdSecs:
                 filesInObjectDirectoryForThisDmdSecGroup = getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps)
                 if args.ingestFormat == 'directupload':
-                    generateCompoundContentDMDirectUploadPackage(dmdSecGroup, structMaps,  args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory, True)
+                    generateCompoundContentDMDirectUploadPackage(dmdSecGroup, structMaps,  args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory)
                 if args.ingestFormat == 'projectclient':
                     generateCompoundContentDMProjectClientPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSec)
 
@@ -955,12 +955,12 @@ if __name__ == '__main__':
     else:
         # For simple items.
         if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'directupload':
-            generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory, False)
+            generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
         # if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'projectclient':
-            # generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, False)
+            # generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
         # For compound items.
         if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'directupload':
-            generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory, False)
+            generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
         # if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'projectclient':
-            # generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, False)
+            # generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
