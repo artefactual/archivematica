@@ -566,21 +566,28 @@ def getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps):
 # This package will contain the object file, its thumbnail, a .desc (DC metadata) file,
 # and a .full (manifest) file.
 def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, filesInThumbnailDirectory, bulkDip):
+    # If dmdSecs is empty, let parseDcXML() assign a placeholder title.
+    if len(dmdSecs) == 0:
+        dmdSec = dmdSecs
+        dcMetadata = parseDmdSec(dmdSec)
+        nonDcMetadata = None
+    # If we have two dmdSecs, the first one is DC and the second OTHER.
+    if len(dmdSecs) == 2:
+        dcMetadata = parseDmdSec(dmdSecs[0])
+        nonDcMetadata = parseDmdSec(dmdSecs[1])        
+    # If we have one dmdSec, it's DC.
+    if len(dmdSecs) == 1:
+        # This is the DC dmdSec.
+        dcMetadata = parseDmdSec(dmdSecs[0])
+        nonDcMetadata = None
+
+    descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
+    
     # Get the object base filename and extension. Since we are dealing with simple items,
     # there should only be one file in filesInObjectDirectoryForThisDmdSec.
     objectFilePath, objectFileFilename = os.path.split(filesInObjectDirectoryForThisDmdSec[0])
-    objectFileBaseFilename, objectFileExtension = os.path.splitext(objectFileFilename)
-
-    # Pick out the first dmdSec in dmdSecs.
-    if len(dmdSecs) == 1 or len(dmdSecs) == 2:
-        # This is the DC dmdSec.
-        dcMetadata = parseDmdSec(dmdSecs[0])
-    if len(dmdSecs) == 2:
-        nonDcMetadata = parseDmdSec(dmdSecs[1])
-    # If dmdSecs is empty, let parseDcXML() handle the situation.
-    if len(dmdSecs) == 0:
-        dmdSec = dmdSecs
-    descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
+    objectFileBaseFilename, objectFileExtension = os.path.splitext(objectFileFilename)    
+    
     # Write the .desc file into the output directory.
     descFile = open(os.path.join(outputDipDir, objectFileBaseFilename + '.desc'), "wb")
     descFile.write(descFileContents)
@@ -666,27 +673,21 @@ def generateSimpleContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, 
 # index.desc, index.cpd, index.full, and ready.txt. @todo: If a user-submitted
 # structMap is present, use it to order the files.
 def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory, bulkDip):
-    # dmdSec = getDmdSec(metsDom)
-    # Pick out the first dmdSec in dmdSecs.
-    # if len(dmdSecs):
-        # This is the DC dmdSec. @todo: Account for OTHER as well.
-        # dmdSec = dmdSecs[0]
-    # If dmdSecs is empty, let parseDcXML() handle the situation.
-    # else:
-        # dmdSec = dmdSecs
-        
-    # Pick out the first dmdSec in dmdSecs.
-    if len(dmdSecs) == 1 or len(dmdSecs) == 2:
-        # This is the DC dmdSec. @todo: Account for OTHER as well.
-        # dmdSec = dmdSecs[0]
-        dcMetadata = parseDmdSec(dmdSecs[0])
-    if len(dmdSecs) == 2:
-        nonDcMetadata = parseDmdSec(dmdSecs[1])
-    # If dmdSecs is empty, let parseDcXML() handle the situation.
+    # If dmdSecs is empty, let parseDcXML() assign a placeholder title.
     if len(dmdSecs) == 0:
         dmdSec = dmdSecs
-    # dcMetadata = parseDmdSec(dmdSec)
-    # nonDcMetadata = parseDmdSec(dmdSec)
+        dcMetadata = parseDmdSec(dmdSec)
+        nonDcMetadata = None
+    # If we have two dmdSecs, the first one is DC and the second OTHER.
+    if len(dmdSecs) == 2:
+        dcMetadata = parseDmdSec(dmdSecs[0])
+        nonDcMetadata = parseDmdSec(dmdSecs[1])        
+    # If we have one dmdSec, it's DC.
+    if len(dmdSecs) == 1:
+        # This is the DC dmdSec.
+        dcMetadata = parseDmdSec(dmdSecs[0])
+        nonDcMetadata = None   
+    
     descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
 
     # Each item needs to have its own directory under outputDipDir. Since these item-level directories
