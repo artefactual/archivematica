@@ -914,8 +914,7 @@ if __name__ == '__main__':
     
     # Get the structMaps so we can pass them into the DIP creation functions.
     structMaps = metsDom.getElementsByTagName('structMap')
-    
-    # @todo: Account for no dmdSec
+
     itemCountType = getItemCountType(structMaps[0])
 
     # Populate lists of files in the DIP objects and thumbnails directories.
@@ -925,7 +924,6 @@ if __name__ == '__main__':
     # Get the dmdSec nodes from the METS file.
     dmdSecs = metsDom.getElementsByTagName('dmdSec')
     numDmdSecs = len(dmdSecs)
-    print "numDmdSecs from bottom of script:", numDmdSecs
     # Group the dmdSecs into item-specific pairs (for DC and OTHER) or if
     # OTHER is not present, just the DC.
     groupedDmdSecs = groupDmdSecs(dmdSecs)
@@ -940,7 +938,7 @@ if __name__ == '__main__':
                 if args.ingestFormat == 'directupload':
                     generateSimpleContentDMDirectUploadPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory)
                 if args.ingestFormat == 'projectclient':
-                    generateSimpleContentDMProjectClientPackage(groupedDmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
+                    generateSimpleContentDMProjectClientPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
         # For compound items.
         if itemCountType == 'compound': 
@@ -956,11 +954,11 @@ if __name__ == '__main__':
         # For simple items.
         if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'directupload':
             generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
-        # if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'projectclient':
-            # generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
+        if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'projectclient':
+            generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
         # For compound items.
         if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'directupload':
             generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
-        # if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'projectclient':
-            # generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
+        if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'projectclient':
+            generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
