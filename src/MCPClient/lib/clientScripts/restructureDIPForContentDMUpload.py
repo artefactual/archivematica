@@ -37,8 +37,8 @@ from xml.dom.minidom import parse, parseString
 
 pp = pprint.PrettyPrinter(indent=4) # Remove after development.
 
-# Create the output dir for the CONTENTdm DIP. importMethod is either 'projectclient'
-# or 'directupload'. Also return the path. 
+# Create the output dir for the CONTENTdm DIP and return the resulting path.
+# importMethod is either 'projectclient' or 'directupload'.
 def prepareOutputDir(outputDipDir, importMethod, dipUuid):
     outputDipDir = os.path.join(outputDipDir, 'CONTENTdm', importMethod, dipUuid)
     # Check for and then delete a subdirectory named after the current package. We always want
@@ -145,9 +145,8 @@ def parseStructMap(structMap, filesInObjectDirectory):
     return structMapDict
 
 
-# Given a ftpr FILEID value (which looks like this:
-# P1050154.JPG-09869659-fc89-46ce-ad1c-fe166becccca), return the
-# name of the corresponding file from the DIP objects directory.
+# Given a ftpr FILEID value (which looks like this: P1050154.JPG-09869659-fc89-46ce-ad1c-fe166becccca),
+# return the name of the corresponding file from the DIP objects directory.
 def getFptrObjectFilename(fileId, filesInObjectDir):
     # Assumes UUID is the last 36 characters of the fptr value.
     uuid = fileId[-36:]
@@ -258,7 +257,7 @@ def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
     # the same DC element; in this case, just take the last mapping and ignore the rest,
     # since there is no way to tell which should take precedence. The non-DC mappings have
     # the field name as their key, like "u'CONTENTdm number': { 'name': u'CONTENTdm number',
-    # 'nick': u'dmrecord'}.
+    # 'nick': u'dmrecord'} (i.e., key and 'name' are the same).
     collectionFieldDcMappings = {}
     collectionFieldNonDcMappings = {}
     # We also want a simple list of all the fields in the current collection, in the order
@@ -373,11 +372,10 @@ def generateDescFile(dcMetadata, nonDcMetadata):
             output += '<' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + '></' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + ">\n"
 
     # Process the non-DC metadata, if there is any.
-    # if len(nonDcMetadata) and nonDcMetadata != None:
     if nonDcMetadata != None:
         # Define a list of elements we don't want to add based on their presence in the collection's
         # field config, since we add them in the template at the end of this function.
-        doNotAdd = ['is', 'transc', 'fullrs', 'dmoclcno', 'dmcreated', 'dmmodified', 'dmrecord',
+        doNotAdd = ['transc', 'fullrs', 'dmoclcno', 'dmcreated', 'dmmodified', 'dmrecord',
             'find', 'dmimage', 'dmad1', 'dmad2', 'dmaccess']
         for element in collectionFieldInfo['nonDcMappings'].keys():
             # If a field is in the incoming item dcMetadata, populate the corresponding tag
@@ -416,32 +414,6 @@ def generateDescFile(dcMetadata, nonDcMetadata):
     output += "<dmaccess></dmaccess>\n"
     output += "</xml>\n"
     return output
-
-
-# Return a DOM object containing a skeletal Dublin Core XML structure
-# comprised of a <title> element. Used for generating .desc files for
-# compound item children.
-def generateCompoundItemChildDmdSec(label):
-    dublinCore = '<dublincore>'
-    dublinCore += '<title>' + label + '</title>'
-    dublinCore += """
-<creator/>
-<subject/>
-<description/>
-<publisher/>
-<contributor/>
-<date/>
-<type/>
-<format/>
-<identifier/>
-<source/>
-<language/>
-<coverage/>
-<rights/>
-</dublincore>
-"""
-    dublinCoreDom = parseString(dublinCore.encode('utf-8'))
-    return dublinCoreDom
 
 
 # Generate an object file's entry in the .full file.
@@ -699,8 +671,6 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     outputItemDir = os.path.join(outputDipDir, itemDirUuid)
     os.mkdir(outputItemDir)
     
-    # dcMetadata = parseDmdSec(dmdSec)
-    # descFileContents = generateDescFile(dcMetadata)
     # Output a .desc file for the parent item (index.desc).
     descFile = open(os.path.join(outputItemDir, 'index.desc'), "wb")
     descFile.write(descFileContents)
@@ -761,13 +731,13 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                            thumbnailFilename = accessFileBasenameName + '.icon'
                            shutil.copy(thumbnailFilePath, os.path.join(outputItemDir, thumbnailFilename))
 
-               # For each object file, output a .desc file. For object files that do not
-               # have their own child-level descriptions (i.e., all object files currently),
-               # we need to use the filename as the title if there isn't a user-supplied
-               # csv or structMap to provide labels as per
-               # https://www.archivematica.org/wiki/CONTENTdm_integration.
+               # For each object file, output a .desc file. Currently, Archivematica does not
+               # support child-level descriptions, so we can use the filename as the title if
+               # there isn't a user-supplied csv or structMap to provide labels as per
+               # https://www.archivematica.org/wiki/CONTENTdm_integration. Also note that we do
+               # not add the non-DC metadata fields to child .desc files.
                dcMetadata = parseDmdSec(None, v['label'])
-               descFileContents = generateDescFile(dcMetadata, None)
+               descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
                descFilename = accessFileBasenameName + '.desc'
                descFile = open(os.path.join(outputItemDir, descFilename), "wb")
                descFile.write(descFileContents)
@@ -923,7 +893,6 @@ if __name__ == '__main__':
     if not os.path.exists(inputDipDir):
         print "Can't find " + inputDipDir
         sys.exit(1)
-
     if args.ingestFormat not in ['directupload', 'projectclient']:
         print "IngestFormat must be either 'directupload' or 'projectclient'"
         sys.exit(1)
@@ -977,7 +946,6 @@ if __name__ == '__main__':
         # Check to see if we're dealing with a simple or compound item, and fire the
         # appropriate DIP-generation function.
         if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'directupload':
-            print "Calling generateSimpleContentDMDirectUploadPackage, dmdSecs <= 1, directupload"
             generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory, False)
         # if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'projectclient':
             # generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
