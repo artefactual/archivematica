@@ -55,16 +55,16 @@ def prepareOutputDir(outputDipDir, importMethod, dipUuid):
 # an optional arguement for use with compound item children, which may not have a
 # dublincore object.
 def parseDmdSec(dmdSec, label = '[Placeholder title]'):
-    mdWraps = dmdSec.getElementsByTagName('mdWrap')
-    mdType = mdWraps[0].attributes["MDTYPE"]
-    
     # If the dmdSec object is empty (i.e, there is no DC metadata), return
     # a placeholder title.
     if dmdSec is None:
         return {'title' : [label]}
     if not hasattr(dmdSec, 'getElementsByTagName'):
-        return {'title' : [label]} 
-      
+        return {'title' : [label]}    
+
+    mdWraps = dmdSec.getElementsByTagName('mdWrap')
+    mdType = mdWraps[0].attributes["MDTYPE"]
+    
     # If we are dealing with a DOM object representing the Dublin Core metadata,
     # check to see if there is a title (required by CONTENTdm). If not, assign a 
     # placeholder title and return.
@@ -88,6 +88,10 @@ def parseDmdSec(dmdSec, label = '[Placeholder title]'):
             # its value list.
             else:
                 elementsDict[element.tagName.encode("utf-8")].append(element.firstChild.nodeValue.encode("utf-8"))
+    
+    # Before we return elementsDict, remove the items that are simple METS wrappers and are not metadata elements.
+    del elementsDict['mdWrap']
+    del elementsDict['xmlData']
     return elementsDict
 
 
@@ -150,6 +154,18 @@ def getFptrObjectFilename(fileId, filesInObjectDir):
     for filename in filesInObjectDir:
         if uuid in filename:
             return filename
+
+
+# Normalize non-DC CONTENTdm metadata element names to match those used
+# in transfer's metadata.csv files.
+def normalizeNonDcElementName(string):
+    # Convert non-alphanumerics to _, remove extra _ from ends of string.
+    normalizedString = re.sub(r"\W+", '_', string)
+    normalizedString = normalizedString.strip('_')
+    # Lower case string.
+    normalizedString = normalizedString.lower()
+    return normalizedString
+    return normalizedString
 
 
 # Generate a dictionary containing 1) 'dcMappings', a nested dictionary with DCTERMS
@@ -330,14 +346,16 @@ def zipProjectClientOutput(outputDipDir, dipUuid, type):
 # <dmad2></dmad2>
 # <dmaccess></dmaccess>
 # </xml>
-def generateDescFile(dcMetadata):
+def generateDescFile(dcMetadata, nonDcMetadata):
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
     pp.pprint(collectionFieldInfo)
+    print "Non DC metadata:"
+    pp.pprint(nonDcMetadata)
     output = '<?xml version="1.0" encoding="utf-8"?>' + "\n"
     output += "<itemmetadata>\n"
-
-    # Loop through the collection's field configuration and generate XML elements
-    # for all its fields. 
+    
+    # Process DC metadata first. Loop through the collection's field configuration and generate
+    # XML elements for all its fields. 
     for dcElement in collectionFieldInfo['dcMappings'].keys():
         # If a field is in the incoming item dcMetadata, populate the corresponding tag
         # with its 'nick' value.
@@ -353,9 +371,38 @@ def generateDescFile(dcMetadata):
         # that do not have any values for the current item.
         else:
             output += '<' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + '></' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + ">\n"
-    
+
+    # Process the non-DC metadata, if there is any.
+    # if len(nonDcMetadata) and nonDcMetadata != None:
+    if nonDcMetadata != None:
+        # Define a list of elements we don't want to add based on their presence in the collection's
+        # field config, since we add them in the template at the end of this function.
+        doNotAdd = ['is', 'transc', 'fullrs', 'dmoclcno', 'dmcreated', 'dmmodified', 'dmrecord',
+            'find', 'dmimage', 'dmad1', 'dmad2', 'dmaccess']
+        for element in collectionFieldInfo['nonDcMappings'].keys():
+            # If a field is in the incoming item dcMetadata, populate the corresponding tag
+            # with its 'nick' value.
+            # First, normalize CONTENTdm field names so they can match element names in the
+            # metadata. We need to do this because the raw (i.e., human readable field names)
+            # are used as keys in collectionFieldInfo for fields that are not mapped to DC.
+            normalizedElement = normalizeNonDcElementName(element)
+            if normalizedElement in nonDcMetadata.keys():
+                print "Non DC element key in nonDcMetadata.keys", normalizedElement
+                values = ''
+                output += '<' + collectionFieldInfo['nonDcMappings'][element]['nick'] + '>'
+                # Repeated values in CONTENTdm metadata need to be separated with semicolons.
+                for value in nonDcMetadata[normalizedElement]:
+                    values += value + '; '
+                    output += values.rstrip('; ')
+                output += '</' + collectionFieldInfo['nonDcMappings'][element]['nick'] + ">\n"
+            # We need to include elements that are in the collection field config but
+            # that do not have any values for the current item.
+            else:
+                print "Non DC element key NOT in nonDcMetadata.keys", normalizedElement
+                if collectionFieldInfo['nonDcMappings'][element]['nick'] not in doNotAdd:
+                    output += '<' + collectionFieldInfo['nonDcMappings'][element]['nick'] + '></' + collectionFieldInfo['nonDcMappings'][element]['nick'] + ">\n"
+
     # These fields are boilerplate in new .desc files.          
-    output += "<is></is>\n"
     output += "<transc></transc>\n"
     output += "<fullrs />\n"
     output += "<dmoclcno></dmoclcno>\n"
@@ -525,14 +572,15 @@ def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, out
     objectFileBaseFilename, objectFileExtension = os.path.splitext(objectFileFilename)
 
     # Pick out the first dmdSec in dmdSecs.
-    if len(dmdSecs):
-        # This is the DC dmdSec. @todo: Account for OTHER as well.
-        dmdSec = dmdSecs[0]
+    if len(dmdSecs) == 1 or len(dmdSecs) == 2:
+        # This is the DC dmdSec.
+        dcMetadata = parseDmdSec(dmdSecs[0])
+    if len(dmdSecs) == 2:
+        nonDcMetadata = parseDmdSec(dmdSecs[1])
     # If dmdSecs is empty, let parseDcXML() handle the situation.
-    else:
+    if len(dmdSecs) == 0:
         dmdSec = dmdSecs
-    dcMetadata = parseDmdSec(dmdSec)
-    descFileContents = generateDescFile(dcMetadata)
+    descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
     # Write the .desc file into the output directory.
     descFile = open(os.path.join(outputDipDir, objectFileBaseFilename + '.desc'), "wb")
     descFile.write(descFileContents)
@@ -620,12 +668,26 @@ def generateSimpleContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, 
 def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory, bulkDip):
     # dmdSec = getDmdSec(metsDom)
     # Pick out the first dmdSec in dmdSecs.
-    if len(dmdSecs):
+    # if len(dmdSecs):
         # This is the DC dmdSec. @todo: Account for OTHER as well.
-        dmdSec = dmdSecs[0]
+        # dmdSec = dmdSecs[0]
     # If dmdSecs is empty, let parseDcXML() handle the situation.
-    else:
+    # else:
+        # dmdSec = dmdSecs
+        
+    # Pick out the first dmdSec in dmdSecs.
+    if len(dmdSecs) == 1 or len(dmdSecs) == 2:
+        # This is the DC dmdSec. @todo: Account for OTHER as well.
+        # dmdSec = dmdSecs[0]
+        dcMetadata = parseDmdSec(dmdSecs[0])
+    if len(dmdSecs) == 2:
+        nonDcMetadata = parseDmdSec(dmdSecs[1])
+    # If dmdSecs is empty, let parseDcXML() handle the situation.
+    if len(dmdSecs) == 0:
         dmdSec = dmdSecs
+    # dcMetadata = parseDmdSec(dmdSec)
+    # nonDcMetadata = parseDmdSec(dmdSec)
+    descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
 
     # Each item needs to have its own directory under outputDipDir. Since these item-level directories
     # will end up in CONTENTdm's import/cdoc directory, they need to be unique; therefore, we can't use the
@@ -636,8 +698,8 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     outputItemDir = os.path.join(outputDipDir, itemDirUuid)
     os.mkdir(outputItemDir)
     
-    dcMetadata = parseDmdSec(dmdSec)
-    descFileContents = generateDescFile(dcMetadata)
+    # dcMetadata = parseDmdSec(dmdSec)
+    # descFileContents = generateDescFile(dcMetadata)
     # Output a .desc file for the parent item (index.desc).
     descFile = open(os.path.join(outputItemDir, 'index.desc'), "wb")
     descFile.write(descFileContents)
@@ -704,7 +766,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                # csv or structMap to provide labels as per
                # https://www.archivematica.org/wiki/CONTENTdm_integration.
                dcMetadata = parseDmdSec(None, v['label'])
-               descFileContents = generateDescFile(dcMetadata)
+               descFileContents = generateDescFile(dcMetadata, None)
                descFilename = accessFileBasenameName + '.desc'
                descFile = open(os.path.join(outputItemDir, descFilename), "wb")
                descFile.write(descFileContents)
