@@ -122,7 +122,7 @@ class linkTaskManagerChoice:
                                 #print "that will be: ", (nowTime + timeToGo)
                                 self.jobChainLink.setExitMessage("Waiting till: " + datetime.datetime.fromtimestamp((nowTime + timeToGo)).ctime())
 
-                                t = threading.Timer(timeToGo, self.proceedWithChoice, args=[ret], kwargs={"delayTimerStart":True})
+                                t = threading.Timer(timeToGo, self.proceedWithChoice, args=[ret, None], kwargs={"delayTimerStart":True})
                                 t.daemon = True
                                 self.delayTimer = t
                                 t.start()
@@ -152,7 +152,9 @@ class linkTaskManagerChoice:
 
 
 
-    def proceedWithChoice(self, chain, delayTimerStart=False):
+    def proceedWithChoice(self, chain, agent, delayTimerStart=False):
+        if agent:
+            self.unit.setVariable("activeAgent", agent, None)
         choicesAvailableForUnitsLock.acquire()
         del choicesAvailableForUnits[self.jobChainLink.UUID]
         self.delayTimerLock.acquire()
@@ -162,5 +164,4 @@ class linkTaskManagerChoice:
         self.delayTimerLock.release()
         choicesAvailableForUnitsLock.release()
         self.jobChainLink.setExitMessage("Completed successfully")
-        print "find me 5.5.5", chain, "selected for unit", self.unit.UUID
         jobChain.jobChain(self.unit, chain)
