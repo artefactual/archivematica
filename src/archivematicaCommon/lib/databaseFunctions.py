@@ -56,16 +56,31 @@ def insertIntoFiles(fileUUID, filePath, enteredSystem=databaseInterface.getUTCDa
         raise Exception("not supported yet - both SIP and transfer UUID's defined (or neither defined)", sipUUID + "-" + transferUUID)
 
 def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=databaseInterface.getUTCDate(), eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
+    rows = databaseInterface.queryAllSQL("""SELECT sipUUID, transferUUID FROM Files WHERE fileUUID = '%s';""" % (fileUUID))
+    sipUUID, transferUUID = rows[0]
+    agent = None
+    if sipUUID:
+        rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ('SIP', sipUUID, "activeAgent"))
+        if len(rows):
+            agent = "'%s'" % (rows[0])
+    if transferUUID and not agent: #agent hasn't been found yet
+        rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ("Transfer", transferUUID, "activeAgent"))
+        if len(rows):
+            agent = "'%s'" % (rows[0])
+    
+    if not agent:
+        agent = 'NULL'
+    print "agent: ", agent
     if eventIdentifierUUID == "":
         eventIdentifierUUID = uuid.uuid4().__str__()
-    databaseInterface.runSQL("""INSERT INTO Events (fileUUID, eventIdentifierUUID, eventType, eventDateTime, eventDetail, eventOutcome, eventOutcomeDetailNote)
+    databaseInterface.runSQL("""INSERT INTO Events (fileUUID, eventIdentifierUUID, eventType, eventDateTime, eventDetail, eventOutcome, eventOutcomeDetailNote, linkingAgentIdentifier)
             VALUES ( '"""   + escapeForDB(fileUUID) + databaseInterface.separator \
                             + escapeForDB(eventIdentifierUUID) + databaseInterface.separator \
                             + escapeForDB(eventType) + databaseInterface.separator \
                             + escapeForDB(eventDateTime) + databaseInterface.separator \
                             + escapeForDB(eventDetail) + databaseInterface.separator \
                             + escapeForDB(eventOutcome) + databaseInterface.separator \
-                            + escapeForDB(eventOutcomeDetailNote) + "' )" )
+                            + escapeForDB(eventOutcomeDetailNote) + "', " + agent + " )" )
 
 def insertIntoDerivations(sourceFileUUID="", derivedFileUUID="", relatedEventUUID=""):
     databaseInterface.runSQL("""INSERT INTO Derivations
