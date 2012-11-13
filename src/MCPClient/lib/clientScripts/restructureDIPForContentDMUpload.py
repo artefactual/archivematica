@@ -600,19 +600,18 @@ def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, out
 # Generate a 'project client' package for a simple item from the Archivematica DIP.
 # This package will contain the object file and a delimited metadata file in a format
 # suitable for importing into CONTENTdm using its Project Client.
-def generateSimpleContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, filesInObjectDirectory):
-    dmdSec = getDmdSec(metsDom)
-    dcMetadata = parseDmdSec(dmdSec)
-
-    for file in filesInObjectDirectory:
-      # First, copy the file into the output directory.
-      shutil.copy(file, outputDipDir)
-
-    # Then, write out a tab-delimited file containing the DC-mapped metadata,
-    # with 'Filename' as the last field.
+def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec):
+    (dcMetadata, nonDcMetadata) = splitDmdSecs(dmdSecs)
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
-    # Write out the metadata file, with the first row containing the field
-    # labels and the second row containing the values. Both rows needs to be
+
+    # Since we are dealing with simple objects, there should only be one file
+    # in filesInObjectDirectoryForThisDmdSec. Copy it into the output directory.
+    shutil.copy(filesInObjectDirectoryForThisDmdSec[0], outputDipDir)
+    # Get the object filename, which we will add to the delimited file below.
+    path, filename = os.path.split(filesInObjectDirectoryForThisDmdSec[0])
+      
+    # Populate a row to write to the metadata file, with the first row containing the
+    # field labels and the second row containing the values. Both rows needs to be
     # in the order expressed in collectionFieldInfo['order']. For each item in
     # collectionFieldInfo['order'], query each mapping in collectionFieldInfo['mappings']
     # to find a matching 'nick'; if the nick is found, write the value in the dmdSec's
@@ -622,7 +621,7 @@ def generateSimpleContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, 
     delimHeaderRow = []
     delimValuesRow = []
     for field in collectionFieldInfo['order']:
-        for k, v in collectionFieldInfo['mappings'].iteritems():
+        for k, v in collectionFieldInfo['dcMappings'].iteritems():
             if field == v['nick']:
                # Append the field name to the header row.
                delimHeaderRow.append(v['name'])
@@ -638,18 +637,24 @@ def generateSimpleContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, 
                else:
                    delimValuesRow.append('')
     
-    delimitedFile = open(os.path.join(outputDipDir, 'simple.txt'), "wb")
-    writer = csv.writer(delimitedFile, delimiter='\t')
-    delimHeaderRow.append('Filename') # Must contain 'Filename' in last position
-    writer.writerow(delimHeaderRow) 
-    head, tail = os.path.split(file)
-    delimValuesRow.append(tail) # Must contain filename in last position
+    # Wite out a tab-delimited file containing the DC-mapped metadata,
+    # with 'Filename' as the last field.
+    simpleTxtFilePath = os.path.join(outputDipDir, 'simple.txt')   
+    # Check to see if simple.txt already exists, and if it does, append delimValuesRow
+    # to it.
+    if os.path.exists(simpleTxtFilePath):
+        delimitedFile = open(simpleTxtFilePath, "ab")
+        writer = csv.writer(delimitedFile, delimiter='\t')
+    else:
+        delimitedFile = open(simpleTxtFilePath, "wb")
+        writer = csv.writer(delimitedFile, delimiter='\t')
+        delimHeaderRow.append('Filename') # Must contain 'Filename' in last position
+        writer.writerow(delimHeaderRow) 
+        
+    # Write out the object filename. The filename must be in the last field in the row.
+    delimValuesRow.append(filename)
     writer.writerow(delimValuesRow)
     delimitedFile.close()
-
-    zipProjectClientOutput(outputDipDir, dipUuid, 'simple')
-    # Delete the unzipped version of the DIP since we don't use it anyway.
-    shutil.rmtree(outputDipDir)
 
 
 # Generate a 'direct upload' package for a compound item from the Archivematica DIP.
@@ -872,9 +877,9 @@ def generateCompoundContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir
 
     delimitedFile.close()
 
-    zipProjectClientOutput(outputDipDir, dipUuid, 'compound')
+    # zipProjectClientOutput(outputDipDir, dipUuid, 'compound')
     # Delete the unzipped version of the DIP since we don't use it anyway.
-    shutil.rmtree(outputDipDir)
+    # shutil.rmtree(outputDipDir)
 
 
 if __name__ == '__main__':
@@ -938,7 +943,7 @@ if __name__ == '__main__':
                 if args.ingestFormat == 'directupload':
                     generateSimpleContentDMDirectUploadPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory)
                 if args.ingestFormat == 'projectclient':
-                    generateSimpleContentDMProjectClientPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
+                    generateSimpleContentDMProjectClientPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup)
 
         # For compound items.
         if itemCountType == 'compound': 
@@ -962,3 +967,8 @@ if __name__ == '__main__':
             generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
         if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'projectclient':
             generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
+    
+    if args.ingestFormat == 'projectclient':
+        zipProjectClientOutput(outputDipDir, args.uuid, itemCountType)
+        # Delete the unzipped version of the DIP since we don't use it anyway.
+        shutil.rmtree(outputDipDir)
