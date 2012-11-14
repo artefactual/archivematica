@@ -392,8 +392,7 @@ def createDigiprovMD(fileUUID):
     ret = []
     #EVENTS
 
-    #| pk  | fileUUID | eventIdentifierUUID | eventType | eventDateTime | eventDetail | eventOutcome | eventOutcomeDetailNote | linkingAgentIdentifier |
-    sql = "SELECT * FROM Events WHERE fileUUID = '" + fileUUID + "';"
+    sql = "SELECT pk, fileUUID, eventIdentifierUUID, eventType, eventDateTime, eventDetail, eventOutcome, eventOutcomeDetailNote, linkingAgentIdentifier FROM Events WHERE fileUUID = '" + fileUUID + "';"
     rows = databaseInterface.queryAllSQL(sql)
     for row in rows:
         digiprovMD = etree.Element("digiprovMD")
@@ -422,7 +421,12 @@ def createDigiprovMD(fileUUID):
         etree.SubElement(eventOutcomeInformation, "eventOutcome").text = row[6]
         eventOutcomeDetail = etree.SubElement(eventOutcomeInformation, "eventOutcomeDetail")
         etree.SubElement(eventOutcomeDetail, "eventOutcomeDetailNote").text = escape(row[7])
-
+        
+        if row[8]:
+            linkingAgentIdentifier = etree.SubElement(event, "linkingAgentIdentifier")
+            etree.SubElement(linkingAgentIdentifier, "linkingAgentIdentifierType").text = "Archivematica user pk"
+            etree.SubElement(linkingAgentIdentifier, "linkingAgentIdentifierValue").text = row[8].__str__()
+        
         #linkingAgentIdentifier
         sql = """SELECT agentIdentifierType, agentIdentifierValue, agentName, agentType FROM Agents;"""
         c, sqlLock = databaseInterface.querySQL(sql)
@@ -437,12 +441,12 @@ def createDigiprovMD(fileUUID):
 
 def createDigiprovMDAgents():
     ret = []
+    global globalDigiprovMDCounter
     #AGENTS
     sql = """SELECT agentIdentifierType, agentIdentifierValue, agentName, agentType FROM Agents;"""
     c, sqlLock = databaseInterface.querySQL(sql)
     row = c.fetchone()
     while row != None:
-        global globalDigiprovMDCounter
         globalDigiprovMDCounter += 1
         digiprovMD = etree.Element("digiprovMD")
         digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
@@ -454,6 +458,36 @@ def createDigiprovMDAgents():
         xmlData.append(createAgent(row[0], row[1], row[2], row[3]))
         row = c.fetchone()
     sqlLock.release()
+    
+    sql = """SELECT auth_user.id, auth_user.username, auth_user.first_name, auth_user.last_name FROM SIPs JOIN Files ON SIPs.sipUUID = Files.sipUUID JOIN Events ON Files.fileUUID = Events.fileUUID JOIN auth_user ON Events.linkingAgentIdentifier = auth_user.id WHERE SIPs.sipUUID = '%s' GROUP BY auth_user.id;""" % (fileGroupIdentifier)
+    c, sqlLock = databaseInterface.querySQL(sql)
+    row = c.fetchone()
+    while row != None:
+        globalDigiprovMDCounter += 1
+        digiprovMD = etree.Element("digiprovMD")
+        digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
+        ret.append(digiprovMD) #newChild(amdSec, "digiprovMD")
+        mdWrap = newChild(digiprovMD,"mdWrap")
+        mdWrap.set("MDTYPE", "PREMIS:AGENT")
+        xmlData = newChild(mdWrap,"xmlData")
+        #agents = etree.SubElement(xmlData, "agents")
+        
+        id, username, first_name, last_name = row
+        id = id.__str__()
+        if not username:
+            username = ""
+        if not first_name:
+            first_name = ""
+        if not last_name:
+            last_name = ""
+        agentIdentifierType = "Archivematica user pk"
+        agentIdentifierValue = id
+        agentName = 'username="%s", first_name="%s", last_name="%s"' % (username, first_name, last_name)       
+        agentType = "Archivematica user"
+        xmlData.append(createAgent(agentIdentifierType, agentIdentifierValue, agentName, agentType))
+        row = c.fetchone()
+    sqlLock.release()
+    
     return ret
 
 

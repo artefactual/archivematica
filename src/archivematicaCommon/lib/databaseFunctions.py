@@ -55,10 +55,10 @@ def insertIntoFiles(fileUUID, filePath, enteredSystem=databaseInterface.getUTCDa
         print >>sys.stderr, "transferUUID:", transferUUID
         raise Exception("not supported yet - both SIP and transfer UUID's defined (or neither defined)", sipUUID + "-" + transferUUID)
 
-def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=databaseInterface.getUTCDate(), eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
+def getAgentForFileUUID(fileUUID):
+    agent = None
     rows = databaseInterface.queryAllSQL("""SELECT sipUUID, transferUUID FROM Files WHERE fileUUID = '%s';""" % (fileUUID))
     sipUUID, transferUUID = rows[0]
-    agent = None
     if sipUUID:
         rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ('SIP', sipUUID, "activeAgent"))
         if len(rows):
@@ -68,6 +68,16 @@ def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDat
         if len(rows):
             agent = "'%s'" % (rows[0])
     
+    #ensure agent is in the dashboard user list.
+    print "todo: remove this from databaseFunctions getAgentForFileUUID"
+    print >>sys.stderr, "todo: remove this from databaseFunctions getAgentForFileUUID"
+    rows = databaseInterface.queryAllSQL("""SELECT id FROM auth_user;""")
+    if len(rows):
+        agent = rows[0][0].__str__()
+    return agent
+
+def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=databaseInterface.getUTCDate(), eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
+    agent = getAgentForFileUUID(fileUUID)
     if not agent:
         agent = 'NULL'
     print "agent: ", agent
