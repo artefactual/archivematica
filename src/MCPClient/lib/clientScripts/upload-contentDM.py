@@ -63,57 +63,47 @@ if __name__ == '__main__':
 
     # Determine if the package is for a simple item or a compound item by counting the
     # number of .desc files in the DIP directory. If it's simple, append 'import' to the
-    # end of destinationImportDirectory; if it's compound, append 'import/cdoc' to the end. 
+    # end of destinationImportDirectory; if it's compound, append 'import/cdoc' to the end.
     sourceDescFiles =  glob.glob(os.path.join(args.outputDir, 'CONTENTdm', 'directupload', args.uuid, "*.desc"))
-    if len(sourceDescFiles) > 1:
-        packageType = 'compound'
-    else:
+    # if len(sourceDescFiles) > 1:
+    if len(sourceDescFiles) > 0:
         packageType = 'simple'
-
-    if packageType is 'compound':
-        destinationImportDirectory = os.path.join(contentdmCollectionDirectory, 'import', 'cdoc', args.uuid)
-    else:
         destinationImportDirectory = os.path.join(contentdmCollectionDirectory, 'import')
+    else:
+        packageType = 'compound'
+        destinationImportDirectory = os.path.join(contentdmCollectionDirectory, 'import', 'cdoc')
 
     # We need to remove the port, if any, from server, since we don't use it while scping or sshing.
     server, sep, port = args.contentdmServer.partition(':')
-    destPath = args.contentdmUser + '@' + server + ':' + destinationImportDirectory
-
-    # If we're uploading a compound item package, we need to create a directory for it in cdoc
-    # and make it group writable.
-    if packageType is 'compound':
-        sshLogin = args.contentdmUser + "@" + server
-        sshMkdirCmd = 'mkdir'
-        sshChmodCmd = 'chmod g+rw'
-        sshChgrpCmd = 'chgrp'
-        sshCmd = 'ssh %s "%s %s && %s %s && %s %s %s"' % (sshLogin, sshMkdirCmd, destinationImportDirectory, sshChmodCmd, destinationImportDirectory, sshChgrpCmd, args.contentdmGroup, destinationImportDirectory)
-        sshExitCode = os.system(sshCmd)
-        if sshExitCode != 0:
-            print "Error setting attributes of file " + destPath
-            quit(1)
-        print "sshCmd : " + sshCmd
+    rsyncDestPath = args.contentdmUser + '@' + server + ':' + destinationImportDirectory
 
     sourceDir = os.path.join(args.outputDir, 'CONTENTdm', 'directupload', args.uuid)
-    # For each file in the source DIP directory, rsync it up to the CONTENTdm server.
-    for sourceFile in glob.glob(os.path.join(sourceDir, "*.*")):
-        sourcePath, sourceFilename = os.path.split(sourceFile)
-        rsyncDestPath = args.contentdmUser + "@" + server + ":" + os.path.join(destinationImportDirectory, sourceFilename)   
-        rsyncCmd = "rsync %s %s" % (sourceFile, rsyncDestPath)
-        rsyncExitCode = os.system(rsyncCmd)
-        if rsyncExitCode != 0:
-            print "Error copying direct upload package to " + destPath
-            quit(1)
-        print "rsyncCmd: " + rsyncCmd
+    sourceFiles = os.listdir(sourceDir)
+    # for sourceFile in sourceFiles:
+        # print "Source file:", sourceFile
+        
+    rsyncCmd = "rsync -rv %s %s " % (sourceDir + '/', rsyncDestPath)
+    rsyncExitCode = os.system(rsyncCmd)
+    if rsyncExitCode != 0:
+        print "Error copying direct upload files to " + rsyncDestPath
+        print "Error code: ", rsyncExitCode
+        quit(1)
+    print "rsyncCmd: " + rsyncCmd
 
+    # Loop through all the files or directories and change their group and permisions.
+    for sourceFilename in sourceFiles:
+        # print "sourceFilename:", sourceFilename
         # Change the permissions and group of the DIP files so they are correct on the CONTENTdm
         sshLogin = args.contentdmUser + "@" + server
-        remoteDestPath = os.path.join(destinationImportDirectory, sourceFilename)
-        sshChgrpCmd = 'chgrp ' + args.contentdmGroup 
-        sshChmodCmd = 'chmod g+rw'
-        sshCmd = 'ssh %s "%s %s && %s %s"' % (sshLogin, sshChgrpCmd, remoteDestPath, sshChmodCmd, remoteDestPath)
+        sshChgrpCmd = 'chgrp -R ' + args.contentdmGroup 
+        sshChmodCmd = 'chmod -R g+rw'
+        destPath = os.path.join(destinationImportDirectory, sourceFilename)
+        # sshCmd = 'ssh %s "%s %s && %s %s"' % (sshLogin, sshChgrpCmd, remoteDestPath, sshChmodCmd, remoteDestPath)
+        sshCmd = 'ssh %s "%s %s && %s %s"' % (sshLogin, sshChgrpCmd, destPath, sshChmodCmd, destPath)
         sshExitCode = os.system(sshCmd)
         if sshExitCode != 0:
             print "Error setting attributes of file " + destPath
+            print "Error code: ", sshExitCode
             quit(1)
         print "sshCmd : " + sshCmd
 
