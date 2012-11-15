@@ -83,11 +83,11 @@ def archival_storage_search(request):
     for query in queries:
         if queries[index] != '':
             if ops[index] == 'not':
-                must_not_haves.append(pyes.StringQuery(query))
+                must_not_haves.append(pyes.StringQuery(query, search_fields=[]))
             elif ops[index] == 'and':
-                must_haves.append(pyes.StringQuery(query))
+                must_haves.append(pyes.StringQuery(query, search_fields=[]))
             else:
-                should_haves.append(pyes.StringQuery(query))
+                should_haves.append(pyes.StringQuery(query, search_fields=[]))
 
         index = index + 1
 
