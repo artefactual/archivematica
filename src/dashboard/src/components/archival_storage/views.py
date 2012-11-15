@@ -42,9 +42,6 @@ def archival_storage_search(request):
     ops     = request.GET.getlist('op')
     fields  = request.GET.getlist('field')
 
-    # prepend default op arg
-    ops.insert(0, 'or')
-
     """
     # if no op arg provided, add default
     try:
@@ -53,12 +50,21 @@ def archival_storage_search(request):
         ops = ['']
     """
 
-    if queries[0] == '':
-        queries[0] = '*'
+    # set up default query
+    try:
+        if queries[0] == '':
+            queries[0] = '*'
+    except IndexError:
+        queries.insert(0, '*')
+        fields.insert(0, '')
+
+    # prepend default op arg as first op can't be set manually
+    ops.insert(0, 'or')
 
     # set pagination-related variables
-    search_params = request.get_full_path().split('?')[1]
+    search_params = ''
     try:
+        search_params = request.get_full_path().split('?')[1]
         end_of_search_params = search_params.index('&page')
         search_params = search_params[:end_of_search_params]
     except:
@@ -83,9 +89,9 @@ def archival_storage_search(request):
     index = 0
     for query in queries:
         if fields[index] == '':
-          search_fields = []
+            search_fields = []
         else:
-          search_fields = [fields[index]]
+            search_fields = [fields[index]]
 
         if queries[index] != '':
             if ops[index] == 'not':
