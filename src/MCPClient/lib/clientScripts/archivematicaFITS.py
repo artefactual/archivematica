@@ -60,11 +60,15 @@ def parseIdsSimple(FITS_XML, fileUUID):
     ]
     
     for table, tool, iterOn in simpleIdPlaces:
+        identified = []
         fileIDs = []
         for element in FITS_XML.iter("{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}tool"):
             if element.get("name") == tool:
                 for element2 in element.getiterator(iterOn):
                     if element2.text != None:
+                        if element2.text in identified:
+                            continue
+                        identified.append(element2.text)
                         sql = """SELECT fileID FROM FileIDsBySingleID WHERE tool = '%s' AND id = '%s';""" % (table, element2.text)
                         fileIDS = databaseInterface.queryAllSQL(sql)
                         for fileID in fileIDS:
