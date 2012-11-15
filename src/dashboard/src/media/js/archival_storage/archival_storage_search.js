@@ -6,7 +6,8 @@ $(document).ready(function() {
 //    allowAdd: false,
     rows: [{
       'op': '',
-      'query': ''
+      'query': '',
+      'field': ''
     }]
   });
 
@@ -24,14 +25,13 @@ $(document).ready(function() {
   // define query field
   search.addInput('query', 'search query', {title: 'search query', 'class': 'span11'});
 
-  /*
   // default field name field
-  search.addSelect('field[]', 'field name', {title: 'field name'}, {
-    'aipname': 'AIP name',
-    'filename': 'File name',
-    'uuid': 'UUID'
+  search.addSelect('field', 'field name', {title: 'field name'}, {
+    '': 'Any',
+    'AIPUUID': 'UUID',
+    'filePath': 'File path',
+    'fileExtension': 'File extension'
   });
-  */
 
   // don't show first op field
   search.fieldVisibilityCheck = function(rowIndex, fieldName) {

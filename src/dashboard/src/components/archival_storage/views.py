@@ -40,6 +40,7 @@ def archival_storage_page(request, page=None):
 def archival_storage_search(request):
     queries = request.GET.getlist('query')
     ops     = request.GET.getlist('op')
+    fields  = request.GET.getlist('field')
 
     # prepend default op arg
     ops.insert(0, 'or')
@@ -81,13 +82,18 @@ def archival_storage_search(request):
 
     index = 0
     for query in queries:
+        if fields[index] == '':
+          search_fields = []
+        else:
+          search_fields = [fields[index]]
+
         if queries[index] != '':
             if ops[index] == 'not':
-                must_not_haves.append(pyes.StringQuery(query, search_fields=[]))
+                must_not_haves.append(pyes.StringQuery(query, search_fields=search_fields))
             elif ops[index] == 'and':
-                must_haves.append(pyes.StringQuery(query, search_fields=[]))
+                must_haves.append(pyes.StringQuery(query, search_fields=search_fields))
             else:
-                should_haves.append(pyes.StringQuery(query, search_fields=[]))
+                should_haves.append(pyes.StringQuery(query, search_fields=search_fields))
 
         index = index + 1
 
