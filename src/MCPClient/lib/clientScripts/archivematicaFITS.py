@@ -77,7 +77,7 @@ def parseIdsSimple(FITS_XML, fileUUID):
     for element in FITS_XML.findall(".//{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}identity[@mimetype]"):
         format = element.get("mimetype")
         if format:
-            sql = """SELECT FileIDs FROM %s WHERE id = '%s';""" % ("FileIDsByFitsFitsMimetype", format)
+            sql = """SELECT FileIDsBySingleID.fileID, FileIDs.fileIDType, FileIDsBySingleID.id FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = 'c26227f7-fca8-4d98-9d8e-cfab86a2dd0a' AND FileIDsBySingleID.id = '%s';""" % (format)
             fileIDS = databaseInterface.queryAllSQL(sql)
             for fileID in fileIDS:
                 sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (fileUUID, fileID[0])
@@ -85,7 +85,7 @@ def parseIdsSimple(FITS_XML, fileUUID):
     for element in FITS_XML.findall(".//{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}identity[@format]"):
         format = element.get("format")
         if format:
-            sql = """SELECT FileIDs FROM %s WHERE id = '%s';""" % ("FileIDsByFitsFitsFormat", format)
+            sql = """SELECT FileIDsBySingleID.fileID, FileIDs.fileIDType, FileIDsBySingleID.id FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = 'b0bcccfb-04bc-4daa-a13c-77c23c2bda85' AND FileIDsBySingleID.id = '%s';""" % (format)
             fileIDS = databaseInterface.queryAllSQL(sql)
             for fileID in fileIDS:
                 sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (fileUUID, fileID[0])
