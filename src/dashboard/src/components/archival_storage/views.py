@@ -38,28 +38,7 @@ def archival_storage_page(request, page=None):
     return archival_storage_sip_display(request, page)
 
 def archival_storage_search(request):
-    queries = request.GET.getlist('query')
-    ops     = request.GET.getlist('op')
-    fields  = request.GET.getlist('field')
-
-    """
-    # if no op arg provided, add default
-    try:
-        ops[0]
-    except:
-        ops = ['']
-    """
-
-    # set up default query
-    try:
-        if queries[0] == '':
-            queries[0] = '*'
-    except IndexError:
-        queries.insert(0, '*')
-        fields.insert(0, '')
-
-    # prepend default op arg as first op can't be set manually
-    ops.insert(0, 'or')
+    queries, ops, fields = archival_storage_search_parameter_prep(request)
 
     # set pagination-related variables
     search_params = ''
@@ -163,6 +142,36 @@ def archival_storage_search(request):
 
     form = forms.StorageSearchForm(initial={'query': queries[0]})
     return render(request, 'archival_storage/archival_storage_search.html', locals())
+
+def archival_storage_search_parameter_prep(request):
+    queries = request.GET.getlist('query')
+    ops     = request.GET.getlist('op')
+    fields  = request.GET.getlist('field')
+
+    # prepend default op arg as first op can't be set manually
+    ops.insert(0, 'or')
+
+    if len(queries) == 0:
+        queries = ['*']
+        fields  = ['']
+    else:
+        # make sure field params are set
+        index = 0
+        for query in queries:
+            try:
+                fields[index]
+            except:
+                fields.insert(index, '')
+                #fields[index] = ''
+            try:
+                ops[index]
+            except:
+                ops.insert(index, 'or')
+                #ops[index] = ''
+
+            index = index + 1
+
+    return queries, ops, fields
 
 def archival_storage_indexed_count(index):
     aip_indexed_file_count = 0
