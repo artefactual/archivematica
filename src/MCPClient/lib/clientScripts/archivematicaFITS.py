@@ -318,7 +318,7 @@ if __name__ == '__main__':
 
     tempFile="/tmp/" + uuid.uuid4().__str__()
 
-    command = "fits.sh -i \"" + escapeForCommand(target) + "\" -o \"" + tempFile + "\""
+    command = "openfits -i \"" + escapeForCommand(target) + "\" -o \"" + tempFile + "\""
     #print >>sys.stderr, command
     #print >>sys.stderr,  shlex.split(command)
     try:
