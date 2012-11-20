@@ -33,8 +33,6 @@ else
 fi
 
 
-
-
 mysqldump="mysqldump -u root ${dbpassword} ${databaseName}"
 dumpTables="--skip-triggers --skip-comments -d"
 dumpData="--skip-triggers --skip-comments --no-create-info --extended-insert=FALSE --complete-insert=TRUE --order-by-primary"
@@ -56,6 +54,8 @@ $mysqldump Accesses Agents MetadataAppliesToTypes Sounds TaskTypes TasksConfigs 
 
 
 #Transcoder
+#Reset counters for commit
+mysql -u root ${dbpassword} ${databaseName} --execute "UPDATE CommandRelationships SET countAttempts=0, countOK=0, countNotOK=0;"
 $mysqldump CommandTypes CommandClassifications CommandsSupportedBy Commands FileIDTypes FileIDs CommandRelationships  Groups FileIDGroupMembers SubGroups DefaultCommandsForClassifications FileIDsBySingleID FilesIdentifiedIDs $dumpTables >> $MCPDumpSQLLocation
 $mysqldump CommandTypes CommandClassifications CommandsSupportedBy Commands FileIDTypes FileIDs CommandRelationships  Groups FileIDGroupMembers SubGroups DefaultCommandsForClassifications FileIDsBySingleID $dumpData >> $MCPDumpSQLLocation #Source of FPR DATA
 
