@@ -38,6 +38,7 @@ import databaseInterface
 from archivematicaFunctions import escape
 from archivematicaFunctions import unicodeToStr
 from archivematicaFunctions import strToUnicode
+from archivematicaFunctions import normalizeNonDcElementName
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 sharedVariablesAcrossModules.globalErrorCount = 0
 
@@ -172,7 +173,7 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
     for i in range(1, len(keys)):
         key = keys[i]
         value = values[i]
-        if key.startswith("dc."):
+        if key.startswith("dc.") or key.startswith("dcterms."):
             #print "dc item: ", key, value
             if dc == None:
                 globalDmdSecCounter += 1
@@ -184,10 +185,14 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
                 mdWrap = newChild(dmdSec, "mdWrap")
                 mdWrap.set("MDTYPE", "DC")
                 xmlData = newChild(mdWrap, "xmlData")
-                dc = etree.Element( "dublincore", nsmap = {None: dcNS, "dcterms": dctermsNS} )
-                dc.set(xsiBNS+"schemaLocation", dcNS + " http://dublincore.org/schemas/xmls/qdc/dc.xsd " + dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+                dc = etree.Element( "dublincore", nsmap = {None: dctermsNS} )
+                dc.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
                 xmlData.append(dc)
-            etree.SubElement(dc, key.replace("dc.", "", 1)).text = value
+            if key.startswith("dc."):
+                key2 = key.replace("dc.", "", 1)
+            elif  key.startswith("dcterms."):
+                key2 = key.replace("dcterms.", "", 1)
+            etree.SubElement(dc, key2).text = value
         else: #not a dublin core item
             #print "non dc: ", key, value
             if other == None:
@@ -201,7 +206,7 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
                 mdWrap.set("MDTYPE", "OTHER")
                 mdWrap.set("OTHERMDTYPE", "CUSTOM")
                 other = newChild(mdWrap, "xmlData")
-            etree.SubElement(other, key).text = value
+            etree.SubElement(other, normalizeNonDcElementName(key)).text = value
     return  " ".join(ret)
             
     

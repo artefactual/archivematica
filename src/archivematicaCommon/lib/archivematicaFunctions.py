@@ -24,6 +24,7 @@
 import lxml.etree as etree
 import os
 import sys
+import re
 
 def unicodeToStr(string):
     if isinstance(string, unicode):
@@ -111,3 +112,14 @@ def escapeForCommand(string):
 def escape(string):
     #string = string.decode('utf-8')
     return string
+
+
+# Normalize non-DC CONTENTdm metadata element names to match those used
+# in transfer's metadata.csv files.
+def normalizeNonDcElementName(string):
+     # Convert non-alphanumerics to _, remove extra _ from ends of string.
+     normalizedString = re.sub(r"\W+", '_', string)
+     normalizedString = normalizedString.strip('_')
+     # Lower case string.
+     normalizedString = normalizedString.lower()
+     return normalizedString
