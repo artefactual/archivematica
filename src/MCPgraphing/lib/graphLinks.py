@@ -30,34 +30,36 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 
-allLinks = {}
+G=pgv.AGraph(strict=True,directed=True)
+linkUUIDtoNodeName = {}
 
-class Links:
-    """A simple example class"""
-    def __init__(self, pk, linksNext={}):
-        global allLinks
-        self.pk = pk
-        self.linksNext = linksNext
-        allLinks[pk] = self
+excludedNodes={'61c316a6-0a50-4f65-8767-1f44b1eeb6dd':"default fail procedure for transfers. Too many lines",
+               '7d728c39-395f-4892-8193-92f086c0546f':"default fail procedure for SIPs. Too many lines",
+               '333532b9-b7c2-4478-9415-28a3056d58df':"reject transfer option."}
+
+def addArrow(sourceUUID, destUUID, color="black"):
+    if sourceUUID in excludedNodes or destUUID in excludedNodes:
         return
-    
-    def addLinksNext(self, linksNext):
-        "Send a pk string as linksNextArg"
-        self.linksNext[linksNext] = None
-        return 'hello world'
+    G.add_edge(linkUUIDtoNodeName[sourceUUID], linkUUIDtoNodeName[destUUID], color=color)
 
 def loadAllLinks():
     ""
     sql = """SELECT MicroServiceChainLinks.pk, MicroServiceChainLinks.defaultNextChainLink, TasksConfigs.description 
         FROM MicroServiceChainLinks 
-        JOIN TasksConfigs ON currentTask = TasksConfigs.pk;"""
+        JOIN TasksConfigs ON currentTask = TasksConfigs.pk
+        WHERE TasksConfigs.taskType != '5e70152a-9c5b-4c17-b823-c9298c546eeb';"""
     links = databaseInterface.queryAllSQL(sql)
     for link in links:
         pk, defaultNextChainLink, description = link
-        linksNext = {}
+        if pk in excludedNodes:
+            continue
+        nodeName = "{%s}%s" % (pk, description)
+        G.add_node(nodeName)
+        linkUUIDtoNodeName[pk] = nodeName
+    for link in links:
+        pk, defaultNextChainLink, description = link
         if defaultNextChainLink != None:
-            linksNext[defaultNextChainLink] = None
-        Links(pk, linksNext)
+            addArrow(pk, defaultNextChainLink)
     return
 
 def bridgeExitCodes():
@@ -68,8 +70,17 @@ def bridgeExitCodes():
     for link in links:
         microServiceChainLink, nextMicroServiceChainLink = link
         if nextMicroServiceChainLink:
-            allLinks[microServiceChainLink].addLinksNext(nextMicroServiceChainLink)
+            addArrow(microServiceChainLink, nextMicroServiceChainLink)
     return
+
+def bridgeUserSelections():
+    ""
+    sql="SELECT MicroServiceChainChoice.choiceAvailableAtLink, MicroServiceChains.startingLink FROM MicroServiceChainChoice JOIN MicroServiceChains ON MicroServiceChainChoice.chainAvailable = MicroServiceChains.pk;"
+    rows = databaseInterface.queryAllSQL(sql)
+    for row in rows:
+        choiceAvailableAtLink, startingLink = row
+        if choiceAvailableAtLink and startingLink:
+            addArrow(choiceAvailableAtLink, startingLink, color='green')
 
 
 def bridgeWatchedDirectories():
@@ -81,67 +92,70 @@ def bridgeWatchedDirectories():
         watchedDirectoryPath, startingLink = row
         sql = "SELECT MicroServiceChainLinks.pk FROM StandardTasksConfigs JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = StandardTasksConfigs.pk JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE ( execute LIKE 'moveSIP%%' OR execute LIKE 'moveTransfer%%') AND taskType = '36b2e239-4a57-4aa5-8ebc-7a29139baca6' AND arguments like '%%%s%%';" % (watchedDirectoryPath)
         rows2 = databaseInterface.queryAllSQL(sql)
-        for row in rows2:
-            microServiceChainLink = row[0]
-            allLinks[microServiceChainLink].addLinksNext(startingLink)
-
-
+        for row2 in rows2:
+            microServiceChainLink = row2[0]
+            addArrow(microServiceChainLink, startingLink, color="yellow")
     return
+
 
 def bridgeMagicChainLinks():
     ""
+    #find the assignments
+    sql = "SELECT MicroServiceChainLinks.pk, TasksConfigsAssignMagicLink.execute FROM MicroServiceChainLinks JOIN TasksConfigs ON MicroServiceChainLinks.currentTask = TasksConfigs.pk JOIN TasksConfigsAssignMagicLink ON TasksConfigsAssignMagicLink.pk = TasksConfigs.taskTypePKReference WHERE TasksConfigs.taskType = '3590f73d-5eb0-44a0-91a6-5b2db6655889';"
+    rows = databaseInterface.queryAllSQL(sql)
+    
+    for row in rows:
+        microServiceChainLink, magicLink = row
+        node = G.get_node(linkUUIDtoNodeName[microServiceChainLink])
+    
+        visitedNodes = {node:None} #prevents looping    
+        bridgeMagicChainLinksRecursiveAssist(node, magicLink, visitedNodes)
+    
     return
+
+def bridgeMagicChainLinksRecursiveAssist(node, magicLink, visitedNodes):
+    ""
+    link = node[1:node.find('}')]
+    sql = "SELECT MicroServiceChainLinks.pk FROM MicroServiceChainLinks JOIN TasksConfigs ON MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE TasksConfigs.taskType = '6fe259c2-459d-4d4b-81a4-1b9daf7ee2e9' AND MicroServiceChainLinks.pk = '%s';" % (link)
+    #if it's loading it, set the load and return
+    rows = databaseInterface.queryAllSQL(sql)
+    if len(rows):
+        addArrow(link, magicLink, color="brown")
+        return
+    else:
+        for neigh in G.neighbors_iter(node):
+            if neigh in visitedNodes:
+                continue
+            visitedNodes[neigh] = None
+            bridgeMagicChainLinksRecursiveAssist(neigh, magicLink, visitedNodes)
     
 def bridgeLoadVariable():
     ""
     return
 
-def draw(allLinks={'1': {'2': None}, '2': {'3': None}, '3': {'2': None}}):
-    G=pgv.AGraph(allLinks, strict=True,directed=True)
-    small = ['neato','dot','twopi','circo','fdp']
-    big = [ 'neato','twopi', 'sfdp']
-    for layout in big: #['neato','dot','twopi','circo','fdp']:
-        try:
-            continue
-            print layout
-            G.layout(prog=layout)
-            #G.layout(prog=layout, args="-Ksfdp")
-            #G.draw('%s.png' % (layout), args="-Ksfdp")
-            G.draw('%s.png' % (layout))
-        except Exception as inst:
-            traceback.print_exc(file=sys.stdout)
-            print type(inst)     # the exception instance
-            print inst.args
-    #G.layout(prog='twopi',args='-Gepsilon=10 -mindist=3')
-    #G.write("file.dot")
-    print "Creating svg"
-    
+def draw():
+    print "Creating svg"   
     G.layout(prog='dot')
     G.draw('test.svg', args="-Goverlap=prism -v ")
     
 
-    
-    print "Creating png"
-    G.layout(prog="dot")
-    G.draw('test.png', args="-Goverlap=prism -v ")
-    
-    print "done printing"
-    
-    
+
+def test():
+    G.add_node("a")
+    G.add_node("b")
+    G.add_edge("a", "b")
+    draw()
+    exit(0)
     
 if __name__ == '__main__':
+    #test()
     loadAllLinks()
     bridgeExitCodes()
+    bridgeUserSelections()
     bridgeWatchedDirectories()
     bridgeMagicChainLinks()
     bridgeLoadVariable()
+    draw()
+    #print G.string()
+    #print linkUUIDtoNodeName
     
-    #global allLinks
-    drawable = {}
-    for pk, link in allLinks.iteritems():
-        if link.linksNext == {}:
-            continue
-        drawable[pk] = link.linksNext
-    print drawable
-    #draw()
-    draw(drawable)
