@@ -158,6 +158,9 @@ def archival_storage_search_parameter_prep(request):
         # make sure field params are set
         index = 0
         for query in queries:
+            # a blank query makes ES error
+            if queries[index] == '':
+                queries[index] = '*'
             try:
                 fields[index]
             except:
