@@ -71,32 +71,9 @@ def archival_storage_search(request):
     except:
         return HttpResponse('Error accessing index.')
 
-    # augment result data
-    modifiedResults = []
-
-    for item in results.hits.hits:
-        clone = item._source.copy()
-
-        # try to find AIP details in database
-        try:
-            aip = models.AIP.objects.get(sipuuid=clone['AIPUUID'])
-            clone['sipname'] = aip.sipname
-            clone['href']    = aip.filepath.replace(AIPSTOREPATH + '/', "AIPsStore/")
-        except:
-            aip = None
-            clone['sipname'] = False
-
-        clone['filename'] = os.path.basename(clone['filePath'])
-        clone['document_id'] = item['_id']
-        clone['document_id_no_hyphens'] = item['_id'].replace('-', '____')
-
-        modifiedResults.append(clone)
-
     file_extension_usage = results['facets']['fileExtension']['terms']
     number_of_results = results.hits.total
-
-    # use augmented result data
-    results = modifiedResults
+    results = archival_storage_search_augment_results(results)
 
     # limit end by total hits
     end = start + items_per_page - 1
@@ -183,6 +160,29 @@ def archival_storage_search_assemble_query(queries, ops, fields):
     q.facet.add_term_facet('fileExtension')
 
     return q
+
+def archival_storage_search_augment_results(raw_results):
+    modifiedResults = []
+
+    for item in raw_results.hits.hits:
+        clone = item._source.copy()
+
+        # try to find AIP details in database
+        try:
+            aip = models.AIP.objects.get(sipuuid=clone['AIPUUID'])
+            clone['sipname'] = aip.sipname
+            clone['href']    = aip.filepath.replace(AIPSTOREPATH + '/', "AIPsStore/")
+        except:
+            aip = None
+            clone['sipname'] = False
+
+        clone['filename'] = os.path.basename(clone['filePath'])
+        clone['document_id'] = item['_id']
+        clone['document_id_no_hyphens'] = item['_id'].replace('-', '____')
+
+        modifiedResults.append(clone)
+
+    return modifiedResults
 
 def archival_storage_indexed_count(index):
     aip_indexed_file_count = 0
