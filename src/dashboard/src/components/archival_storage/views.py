@@ -60,34 +60,14 @@ def archival_storage_search(request):
 
     conn = pyes.ES('127.0.0.1:9200')
 
-    # do fulltext search
-    must_haves     = []
-    should_haves   = []
-    must_not_haves = []
-
-    index = 0
-    for query in queries:
-        if fields[index] == '':
-            search_fields = []
-        else:
-            search_fields = [fields[index]]
-
-        if queries[index] != '':
-            if ops[index] == 'not':
-                must_not_haves.append(pyes.StringQuery(query, search_fields=search_fields))
-            elif ops[index] == 'and':
-                must_haves.append(pyes.StringQuery(query, search_fields=search_fields))
-            else:
-                should_haves.append(pyes.StringQuery(query, search_fields=search_fields))
-
-        index = index + 1
-
-    #queries.append(pyes.TermQuery('fileExtension', 'wma'))
-    q = pyes.BoolQuery(must=must_haves, should=should_haves, must_not=must_not_haves).search()
-    q.facet.add_term_facet('fileExtension')
-
     try:
-        results = conn.search_raw(query=q, indices='aips', type='aip', start=start - 1, size=items_per_page)
+        results = conn.search_raw(
+            query=archival_storage_search_assemble_query(queries, ops, fields),
+            indices='aips',
+            type='aip',
+            start=start - 1,
+            size=items_per_page
+        )
     except:
         return HttpResponse('Error accessing index.')
 
@@ -175,6 +155,34 @@ def archival_storage_search_parameter_prep(request):
             index = index + 1
 
     return queries, ops, fields
+
+def archival_storage_search_assemble_query(queries, ops, fields):
+    must_haves     = []
+    should_haves   = []
+    must_not_haves = []
+    index          = 0
+
+    for query in queries:
+        if fields[index] == '':
+            search_fields = []
+        else:
+            search_fields = [fields[index]]
+
+        if queries[index] != '':
+            if ops[index] == 'not':
+                must_not_haves.append(pyes.StringQuery(query, search_fields=search_fields))
+            elif ops[index] == 'and':
+                must_haves.append(pyes.StringQuery(query, search_fields=search_fields))
+            else:
+                should_haves.append(pyes.StringQuery(query, search_fields=search_fields))
+
+        index = index + 1
+
+    #queries.append(pyes.TermQuery('fileExtension', 'wma'))
+    q = pyes.BoolQuery(must=must_haves, should=should_haves, must_not=must_not_haves).search()
+    q.facet.add_term_facet('fileExtension')
+
+    return q
 
 def archival_storage_indexed_count(index):
     aip_indexed_file_count = 0
