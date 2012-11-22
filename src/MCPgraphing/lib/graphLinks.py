@@ -59,7 +59,7 @@ def loadAllLinks():
         if pk in excludedNodes:
             continue
         nodeName = "{%s}%s" % (pk, description)
-        G.add_node(nodeName)
+        G.add_node(nodeName, URL="MicroServiceChainLinks/%s" % pk)
         linkUUIDtoNodeName[pk] = nodeName
     for link in links:
         pk, defaultNextChainLink, description = link
@@ -170,8 +170,9 @@ def bridgeLoadVariable():
 def draw():
     print "Creating"   
     G.layout(prog='dot')
-    G.draw('test.png', args="-Goverlap=prism -v ") #firefox
-    G.draw('test.svg', args="-Goverlap=prism -v ") #inkscape
+    args= "-Goverlap=prism -v "
+    G.draw('test.png', args=args) #firefox
+    G.draw('test.svg', args=args) #inkscape
     
 
 
