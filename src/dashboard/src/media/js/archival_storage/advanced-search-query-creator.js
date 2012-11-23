@@ -152,7 +152,7 @@
           ) {
             if (pair != undefined) {
               firstKey = this.firstKeyInObject(pair);
-              row[firstKey] = pair[firstKey];
+              row[firstKey] = decodeURIComponent(pair[firstKey]);
             }
 
             pair = arrayOfUrlParams.shift();
