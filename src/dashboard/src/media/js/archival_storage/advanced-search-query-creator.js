@@ -11,17 +11,17 @@
         : true;
     },
 
-    addInput: function(name, label, attributes) {
+    addInput: function(name, attributes) {
       this.fields.push(name);
-      this.optionElements[name] = this.createElement('input', label, attributes);
+      this.optionElements[name] = this.createElement('input', attributes);
     },
 
-    addSelect: function(name, label, attributes, options) {
+    addSelect: function(name, attributes, options) {
       this.fields.push(name);
-      this.optionElements[name] = this.createElement('select', label, attributes, options);
+      this.optionElements[name] = this.createElement('select', attributes, options);
     },
 
-    createElement: function(type, label, attributes, options) {
+    createElement: function(type, attributes, options) {
       var $el = $('<' + type + '>');
 
       for(var key in attributes) {
