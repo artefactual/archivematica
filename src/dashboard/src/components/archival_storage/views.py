@@ -38,7 +38,7 @@ def archival_storage_page(request, page=None):
     return archival_storage_sip_display(request, page)
 
 def archival_storage_search(request):
-    queries, ops, fields = archival_storage_search_parameter_prep(request)
+    queries, ops, fields, types = archival_storage_search_parameter_prep(request)
 
     # set pagination-related variables
     search_params = ''
@@ -62,7 +62,7 @@ def archival_storage_search(request):
 
     try:
         results = conn.search_raw(
-            query=archival_storage_search_assemble_query(queries, ops, fields),
+            query=archival_storage_search_assemble_query(queries, ops, fields, types),
             indices='aips',
             type='aip',
             start=start - 1,
@@ -104,6 +104,7 @@ def archival_storage_search_parameter_prep(request):
     queries = request.GET.getlist('query')
     ops     = request.GET.getlist('op')
     fields  = request.GET.getlist('field')
+    types   = request.GET.getlist('types')
 
     # prepend default op arg as first op can't be set manually
     ops.insert(0, 'or')
@@ -112,50 +113,64 @@ def archival_storage_search_parameter_prep(request):
         queries = ['*']
         fields  = ['']
     else:
-        # make sure field params are set
         index = 0
+
+        # make sure each query has field/ops set
         for query in queries:
             # a blank query makes ES error
             if queries[index] == '':
                 queries[index] = '*'
+
             try:
                 fields[index]
             except:
                 fields.insert(index, '')
                 #fields[index] = ''
+
             try:
                 ops[index]
             except:
                 ops.insert(index, 'or')
                 #ops[index] = ''
 
+            try:
+                types[index]
+            except:
+                types.insert(index, '')
+
             index = index + 1
 
-    return queries, ops, fields
+    return queries, ops, fields, types
 
-def archival_storage_search_assemble_query(queries, ops, fields):
+def archival_storage_search_query_clause(index, queries, ops, fields, types):
+    if fields[index] == '':
+        search_fields = []
+    else:
+        search_fields = [fields[index]]
+
+    if (types[index] == 'term'):
+        return pyes.TermQuery(fields[index], queries[index])
+    else:
+        return pyes.StringQuery(queries[index], search_fields=search_fields)
+
+def archival_storage_search_assemble_query(queries, ops, fields, types):
     must_haves     = []
     should_haves   = []
     must_not_haves = []
     index          = 0
 
     for query in queries:
-        if fields[index] == '':
-            search_fields = []
-        else:
-            search_fields = [fields[index]]
-
         if queries[index] != '':
+            clause = archival_storage_search_query_clause(index, queries, ops, fields, types)
             if ops[index] == 'not':
-                must_not_haves.append(pyes.StringQuery(query, search_fields=search_fields))
+                must_not_haves.append(clause)
             elif ops[index] == 'and':
-                must_haves.append(pyes.StringQuery(query, search_fields=search_fields))
+                must_haves.append(clause)
             else:
-                should_haves.append(pyes.StringQuery(query, search_fields=search_fields))
+                should_haves.append(clause)
 
         index = index + 1
 
-    #queries.append(pyes.TermQuery('fileExtension', 'wma'))
     q = pyes.BoolQuery(must=must_haves, should=should_haves, must_not=must_not_haves).search()
     q.facet.add_term_facet('fileExtension')
 
