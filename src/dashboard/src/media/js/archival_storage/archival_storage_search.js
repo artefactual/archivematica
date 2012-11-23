@@ -7,7 +7,8 @@ $(document).ready(function() {
     rows: [{
       'op': '',
       'query': '',
-      'field': ''
+      'field': '',
+      'type': ''
     }]
   });
 
@@ -32,6 +33,14 @@ $(document).ready(function() {
     'filePath': 'File path',
     'fileExtension': 'File extension'
   });
+
+/*
+  // default field name field
+  search.addSelect('type', 'query type', {title: 'query type'}, {
+    'term': 'Keyword',
+    'string': 'Phrase'
+  });
+*/
 
   // don't show first op field
   search.fieldVisibilityCheck = function(rowIndex, fieldName) {

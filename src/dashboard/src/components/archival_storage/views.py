@@ -104,7 +104,7 @@ def archival_storage_search_parameter_prep(request):
     queries = request.GET.getlist('query')
     ops     = request.GET.getlist('op')
     fields  = request.GET.getlist('field')
-    types   = request.GET.getlist('types')
+    types   = request.GET.getlist('type')
 
     # prepend default op arg as first op can't be set manually
     ops.insert(0, 'or')
@@ -142,17 +142,6 @@ def archival_storage_search_parameter_prep(request):
 
     return queries, ops, fields, types
 
-def archival_storage_search_query_clause(index, queries, ops, fields, types):
-    if fields[index] == '':
-        search_fields = []
-    else:
-        search_fields = [fields[index]]
-
-    if (types[index] == 'term'):
-        return pyes.TermQuery(fields[index], queries[index])
-    else:
-        return pyes.StringQuery(queries[index], search_fields=search_fields)
-
 def archival_storage_search_assemble_query(queries, ops, fields, types):
     must_haves     = []
     should_haves   = []
@@ -175,6 +164,17 @@ def archival_storage_search_assemble_query(queries, ops, fields, types):
     q.facet.add_term_facet('fileExtension')
 
     return q
+
+def archival_storage_search_query_clause(index, queries, ops, fields, types):
+    if fields[index] == '':
+        search_fields = []
+    else:
+        search_fields = [fields[index]]
+
+    if (types[index] == 'term'):
+        return pyes.TermQuery(fields[index], queries[index])
+    else:
+        return pyes.StringQuery(queries[index], search_fields=search_fields)
 
 def archival_storage_search_augment_results(raw_results):
     modifiedResults = []
