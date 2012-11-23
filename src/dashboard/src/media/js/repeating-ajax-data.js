@@ -205,7 +205,7 @@ var RepeatingDataView = Backbone.View.extend({
     });
   },
 
-  render: function() {
+  render: function(cb) {
     var self = this;
     if (this.parentId != '' && this.parentId != 'None') {
       $.ajax({
@@ -250,6 +250,10 @@ var RepeatingDataView = Backbone.View.extend({
             }
 
             $(self.el).append(fieldEl);
+
+            if (cb != undefined) {
+              cb();
+            }
           }
         }
       });

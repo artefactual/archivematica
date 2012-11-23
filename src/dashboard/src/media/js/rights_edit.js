@@ -30,24 +30,52 @@ function setUpRepeatingCopyrightNotesRecords(parentId) {
   setUpRepeatingField('copyrightnotes_', parentId, 'Copyright Note', schema, '/formdata/copyrightnote/' + parentId + '/', true);
 }
 
+function setUpCopyrightDocumentationIdentifierAttributes() {
+    $("label:contains('Copyright documentation identifier:')").attr('title', 'designation used to uniquely identify documentation supporting the specified rights granted according to copyright within the repository system');
+    $('[name=copyrightdocumentationidentifiertype],[name=copyright_documentation_identifier_type]').attr('title', "a designation of the domain within which the copyright documentation identifier is unique");
+    $('[name=copyrightdocumentationidentifiervalue],[name=copyright_documentation_identifier_value]').attr('title', "the value of the copyrightDocumentatinIdentifier");
+    $('[name=copyrightdocumentationidentifierrole],[name=copyright_documentation_identifier_role]').attr('title', "A value indicating the purpose or expected use of the documentation being identified");
+    $('[name=copyright_note],[name=copyrightnote]').attr('title', "Additional information about the copyright status of the object");
+}
+
 function setUpRepeatingCopyrightDocumentationIdentifierRecords(parentId) {
   var schema = repeatingDocumentationIdentifierRecordsSchema('copyright');
-  setUpRepeatingField('copyrightdocidfields_', parentId, 'Copyright Documentation Identifier', schema, '/formdata/copyrightdocumentationidentifier/' + parentId + '/', true);
+  setUpRepeatingField('copyrightdocidfields_', parentId, 'Copyright Documentation Identifier', schema, '/formdata/copyrightdocumentationidentifier/' + parentId + '/', true, setUpCopyrightDocumentationIdentifierAttributes);
+  setUpCopyrightDocumentationIdentifierAttributes();
+}
+
+function setUpStatuteDocumentationIdentifierAttributes() {
+    $('[name=statutedocumentationidentifiertype],[name=statute_documentation_identifier_type_None]').attr('title', "a designation of the domain within which the statute documenation identifier is unique");
+    $('[name=statutedocumentationidentifiervalue],[name=statute_documentation_identifier_value]').attr('title', "the value of the statuteDocumentatinIdentifier");
+    $('[name=statutedocumentationidentifierrole],[name=statute_documentation_identifier_role_None]').attr('title', "A value indicating the purpose or expected use of the documentation being identified");
 }
 
 function setUpRepeatingStatuteDocumentationIdentifierRecords(parentId) {
   var schema = repeatingDocumentationIdentifierRecordsSchema('statute');
-  setUpRepeatingField('statutedocidfields_', parentId, 'Statute Documentation Identifier', schema, '/formdata/statutedocumentationidentifier/' + parentId + '/', true);
+  setUpRepeatingField('statutedocidfields_', parentId, 'Statute Documentation Identifier', schema, '/formdata/statutedocumentationidentifier/' + parentId + '/', true, setUpStatuteDocumentationIdentifierAttributes);
+  setUpStatuteDocumentationIdentifierAttributes();
+}
+
+function setUpStatuteNoteAttributes() {
+  $('[name=statutenote],[name=new_statute_note_1],[name=new_statute_note_None]').each(function(index) {
+    $(this).attr('title', "additional information about the statute");
+  });
 }
 
 function setUpRepeatingStatuteNotesRecords(parentId) {
   var schema = repeatingNotesRecordsSchema('statute');
-  setUpRepeatingField('statutenotes_', parentId, 'Statute Note', schema, '/formdata/statutenote/' + parentId + '/', true);
+  setUpRepeatingField('statutenotes_', parentId, 'Statute Note', schema, '/formdata/statutenote/' + parentId + '/', true, setUpStatuteNoteAttributes);
+  setUpStatuteNoteAttributes();
+}
+
+function setUpLicenseDocumentationIdentifierAttributes() {
+  $("label:contains('License documentation identifier:')").attr('title', 'a value indicating the purpose or expected use of the documentation being identified');
 }
 
 function setUpRepeatingLicenseDocumentationIdentifierRecords(parentId) {
   var schema = repeatingDocumentationIdentifierRecordsSchema('license');
-  setUpRepeatingField('licensedocidfields_', parentId, 'License Documentation Identifier', schema, '/formdata/licensedocumentationidentifier/' + parentId + '/', true);
+  setUpRepeatingField('licensedocidfields_', parentId, 'License Documentation Identifier', schema, '/formdata/licensedocumentationidentifier/' + parentId + '/', true, setUpLicenseDocumentationIdentifierAttributes);
+  setUpLicenseDocumentationIdentifierAttributes();
 }
 
 function setUpRepeatingOtherRightsDocumentationIdentifierRecords(parentId) {
@@ -62,11 +90,24 @@ function setUpRepeatingOtherRightsNotesRecords(parentId) {
   setUpRepeatingField('otherrightsnotes_', parentId, 'Other Rights Note', schema, '/formdata/otherrightsnote/' + parentId + '/', true);
 }
 
+function setUpLicenseNoteAttributes() {
+  $('[name=license_note],[name=licensenote]').each(function(index) {
+    $(this).attr('title', "additional information about the license");
+  });
+}
+
 function setUpRepeatingLicenseNotesRecords(parentId) {
   var schema = {
     'licensenote': {},
   };
-  setUpRepeatingField('licensenotes_', parentId, 'License Note', schema, '/formdata/licensenote/' + parentId + '/', true);
+  setUpRepeatingField('licensenotes_', parentId, 'License Note', schema, '/formdata/licensenote/' + parentId + '/', true, setUpLicenseNoteAttributes);
+  setUpLicenseNoteAttributes();
+}
+
+function setUpRepeatingRightsGrantedRestrictionAttributes() {
+  $('select').attr('title', 'a condition or limitation on the act');
+  $('textarea').attr('title', 'additional information about the rights granted');
+  $("span:contains('Open End Date')").attr('title', 'use "OPEN" for an open ended term of restriction. Omit endDate if the ending date is unknown or the permission statement applies to many objects with different end dates.');
 }
 
 function setUpRepeatingRightsGrantedRestrictionRecords(parentId) {
@@ -81,7 +122,8 @@ function setUpRepeatingRightsGrantedRestrictionRecords(parentId) {
       }
     }
   };
-  setUpRepeatingField('rightsrestrictions_', parentId, 'Restriction', schema, '/formdata/rightsrestriction/' + parentId + '/', true);
+  setUpRepeatingField('rightsrestrictions_', parentId, 'Restriction', schema, '/formdata/rightsrestriction/' + parentId + '/', true, setUpRepeatingRightsGrantedRestrictionAttributes);
+  setUpRepeatingRightsGrantedRestrictionAttributes();
 }
 
 function setUpRepeatingRightsGrantedNotesRecords(parentId) {
@@ -92,7 +134,7 @@ function setUpRepeatingRightsGrantedNotesRecords(parentId) {
 }
 
 // repeating child field to a formset bound to existing data
-function setUpRepeatingField(idPrefix, parentId, description, schema, url, noCreation) {
+function setUpRepeatingField(idPrefix, parentId, description, schema, url, noCreation, cb) {
   var rights = new RepeatingDataView({
     el: $('#' + idPrefix + parentId),
     description: description,
@@ -101,7 +143,7 @@ function setUpRepeatingField(idPrefix, parentId, description, schema, url, noCre
     url: url,
     noCreation: noCreation
   });
-  rights.render();
+  rights.render(cb);
 
   if (parentId == '' || parentId == 'None') {
     var instructionDescription = description.toLowerCase()

@@ -33,7 +33,7 @@ import components.decorators as decorators
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 def administration(request):
-    return HttpResponseRedirect(reverse('components.administration.views.administration_dip'))
+    return HttpResponseRedirect(reverse('components.administration.views.administration_sources'))
 
 def administration_search(request):
     message = request.GET.get('message', '')

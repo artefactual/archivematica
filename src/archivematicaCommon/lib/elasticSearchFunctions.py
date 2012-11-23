@@ -95,6 +95,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type):
       'AIPUUID':   uuid,
       'indexedAt': time.time(),
       'filePath':  '',
+      'fileExtension': '',
       'METS':      {
         'dmdSec': {},
         'amdSec': {}
@@ -128,7 +129,13 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type):
 
                 # set up data for indexing
                 indexData = fileData
-                indexData['filePath'] = filePath
+
+                indexData['filePath']   = filePath
+
+                fileName, fileExtension = os.path.splitext(filePath)
+                if fileExtension != '':
+                    indexData['fileExtension']  = fileExtension[1:].lower()
+
                 indexData['METS']['dmdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(dmdSecData))
                 indexData['METS']['amdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 

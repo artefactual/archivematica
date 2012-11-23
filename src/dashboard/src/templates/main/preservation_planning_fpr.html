@@ -89,10 +89,10 @@
     </div><br>
   {% endif %}
   Page {{ current_page_number }} of {{ page.num_pages }}
+
   {% if request.session.fpr_query != '' %}
     | <a href="{% url components.preservation_planning.views.preservation_planning_fpr_data 1 %}">Exit Search</a>
   {% endif %}
 
 
 {% endblock %}
-
