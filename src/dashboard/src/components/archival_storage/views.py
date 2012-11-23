@@ -151,12 +151,13 @@ def archival_storage_search_assemble_query(queries, ops, fields, types):
     for query in queries:
         if queries[index] != '':
             clause = archival_storage_search_query_clause(index, queries, ops, fields, types)
-            if ops[index] == 'not':
-                must_not_haves.append(clause)
-            elif ops[index] == 'and':
-                must_haves.append(clause)
-            else:
-                should_haves.append(clause)
+            if clause:
+                if ops[index] == 'not':
+                    must_not_haves.append(clause)
+                elif ops[index] == 'and':
+                    must_haves.append(clause)
+                else:
+                    should_haves.append(clause)
 
         index = index + 1
 
@@ -172,7 +173,19 @@ def archival_storage_search_query_clause(index, queries, ops, fields, types):
         search_fields = [fields[index]]
 
     if (types[index] == 'term'):
-        return pyes.TermQuery(fields[index], queries[index])
+        # a blank term should be ignored because it prevents any results: you
+        # can never find a blank term
+        #
+        # TODO: add condition to deal with a query with no clauses because all have
+        #       been ignored
+        if (queries[index] == ''):
+            return
+        else:
+            if (fields[index] != ''):
+                 term_field = fields[index]
+            else:
+                term_field = '_all'
+            return pyes.TermQuery(term_field, queries[index])
     else:
         return pyes.StringQuery(queries[index], search_fields=search_fields)
 
