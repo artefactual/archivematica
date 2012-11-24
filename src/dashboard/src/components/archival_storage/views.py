@@ -67,7 +67,7 @@ def archival_storage_search(request):
             type='aip',
             start=start - 1,
             size=items_per_page
-        )
+    )
     except:
         return HttpResponse('Error accessing index.')
 
@@ -151,14 +151,19 @@ def archival_storage_search_assemble_query(queries, ops, fields, types):
     for query in queries:
         if queries[index] != '':
             clause = archival_storage_search_query_clause(index, queries, ops, fields, types)
-            if ops[index] == 'not':
-                must_not_haves.append(clause)
-            elif ops[index] == 'and':
-                must_haves.append(clause)
-            else:
-                should_haves.append(clause)
+
+            if clause != False:
+                if ops[index] == 'not':
+                    must_not_haves.append(clause)
+                elif ops[index] == 'and':
+                    must_haves.append(clause)
+                else:
+                    should_haves.append(clause)
 
         index = index + 1
+
+    if must_haves == [] and should_haves == [] and must_not_haves == []:
+        should_haves.append(pyes.StringQuery('*'))
 
     q = pyes.BoolQuery(must=must_haves, should=should_haves, must_not=must_not_haves).search()
     q.facet.add_term_facet('fileExtension')
@@ -172,7 +177,11 @@ def archival_storage_search_query_clause(index, queries, ops, fields, types):
         search_fields = [fields[index]]
 
     if (types[index] == 'term'):
-        return pyes.TermQuery(fields[index], queries[index])
+        # a term query for a blank value will never return results, so ignore
+        if (queries[index] == '' or queries[index] == '*'):
+            return False
+        else:
+            return pyes.TermQuery(fields[index], queries[index])
     else:
         return pyes.StringQuery(queries[index], search_fields=search_fields)
 
