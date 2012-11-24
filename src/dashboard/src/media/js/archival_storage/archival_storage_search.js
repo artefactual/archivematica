@@ -17,30 +17,28 @@ $(document).ready(function() {
     title: 'boolean operator',
     class: 'search_op_selector'
   }
-  search.addSelect('op', 'boolean operator', opAttributes, {
+  search.addSelect('op', opAttributes, {
     'or': 'or',
     'and': 'and',
     'not': 'not'
   });
 
   // define query field
-  search.addInput('query', 'search query', {title: 'search query', 'class': 'span11'});
+  search.addInput('query', {title: 'search query', 'class': 'span11'});
 
   // default field name field
-  search.addSelect('field', 'field name', {title: 'field name'}, {
+  search.addSelect('field', {title: 'field name'}, {
     '': 'Any',
     'AIPUUID': 'UUID',
     'filePath': 'File path',
     'fileExtension': 'File extension'
   });
 
-/*
   // default field name field
-  search.addSelect('type', 'query type', {title: 'query type'}, {
+  search.addSelect('type', {title: 'query type'}, {
     'term': 'Keyword',
     'string': 'Phrase'
   });
-*/
 
   // don't show first op field
   search.fieldVisibilityCheck = function(rowIndex, fieldName) {
