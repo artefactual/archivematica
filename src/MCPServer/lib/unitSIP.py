@@ -96,6 +96,32 @@ class unitSIP(unit):
         sqlLock.release()
         return ret
 
+    def setVariable(self, variable, variableValue, microServiceChainLink):
+        if not variableValue:
+            variableValue = ""
+        if not microServiceChainLink:
+            microServiceChainLink = "NULL"
+        else:
+            microServiceChainLink = "'%s'" % (microServiceChainLink)
+        variableValue = databaseInterface.MySQLdb.escape_string(variableValue)
+        sql = """SELECT pk FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ("SIP", self.UUID, variable)  
+        rows = databaseInterface.queryAllSQL(sql)
+        if rows:
+            for row in rows:
+                sql = """UPDATE UnitVariables SET variable='%s', variableValue='%s', microServiceChainLink=%s WHERE pk = '%s'; """ % (variable, variableValue, microServiceChainLink,row[0])
+                databaseInterface.runSQL(sql)
+        else:
+            sql = """INSERT INTO UnitVariables (pk, unitType, unitUUID, variable, variableValue, microserviceChainLink) VALUES ('%s', '%s', '%s', '%s', '%s', %s);""" % (uuid.uuid4().__str__(), "SIP", self.UUID, variable,  variableValue, microServiceChainLink)
+            databaseInterface.runSQL(sql) 
+    
+    def getmicroServiceChainLink(self, variable, variableValue):
+        sql = """SELECT pk, microServiceChainLink  FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ("SIP", self.UUID, variable)  
+        rows = databaseInterface.queryAllSQL(sql)
+        if len(rows):
+            return rows[0][1]
+        else:
+            return None
+            
 
     def reload(self):
         sql = """SELECT * FROM SIPs WHERE sipUUID =  '""" + self.UUID + "'"

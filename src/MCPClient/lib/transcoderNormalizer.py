@@ -134,7 +134,7 @@ def getReplacementDic(opts):
     if fileExtension == "":
         fileExtensionWithDot = ""
 
-    sql = """SELECT CommandClassifications.classification FROM CommandRelationships JOIN CommandClassifications ON CommandRelationships.commandClassification = CommandClassifications.pk WHERE CommandRelationships.pk = %s;""" % (opts["CommandRelationship"])
+    sql = """SELECT CommandClassifications.classification FROM CommandRelationships JOIN CommandClassifications ON CommandRelationships.commandClassification = CommandClassifications.pk WHERE CommandRelationships.pk = '%s';""" % (opts["CommandRelationship"])
     rows = databaseInterface.queryAllSQL(sql)
     if rows:
         for row in rows:

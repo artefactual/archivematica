@@ -123,11 +123,11 @@ class unitTransfer(unit):
         sql =  """UPDATE Transfers SET currentPath='""" + newLocation + """' WHERE transferUUID='""" + self.UUID + """';"""
         databaseInterface.runSQL(sql)
 
-    def setMagicLink(self,link, exitStatus=""):
+    def setMagicLink(self, link, exitStatus=""):
         if exitStatus != "":
-            sql =  """UPDATE Transfers SET magicLink='""" + link + """', magicLinkExitMessage='""" + exitStatus + """' WHERE transferUUID='""" + self.UUID + """';"""
+            sql =  """UPDATE Transfers SET magicLink='""" + link.__str__() + """', magicLinkExitMessage='""" + exitStatus + """' WHERE transferUUID='""" + self.UUID.__str__() + """';"""
         else:
-            sql =  """UPDATE Transfers SET magicLink='""" + link + """' WHERE transferUUID='""" + self.UUID + """';"""
+            sql =  """UPDATE Transfers SET magicLink='""" + link.__str__() + """' WHERE transferUUID='""" + self.UUID.__str__() + """';"""
         databaseInterface.runSQL(sql)
 
     def getMagicLink(self):

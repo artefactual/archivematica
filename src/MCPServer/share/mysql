@@ -426,7 +426,7 @@ DROP TABLE IF EXISTS Transfers;
 CREATE TABLE Transfers (
     transferUUID        VARCHAR(50) PRIMARY KEY,
     currentLocation     LONGTEXT,
-    magicLink           BIGINT,
+    magicLink           INT UNSIGNED,
     magicLinkExitMessage VARCHAR(50) DEFAULT 'Completed successfully',
     type                VARCHAR(50),
     accessionID         LONGTEXT,
@@ -471,7 +471,7 @@ CREATE TABLE SIPs (
     sipUUID         VARCHAR(50) PRIMARY KEY,
     createdTime     TIMESTAMP DEFAULT NOW(),
     currentPath     LONGTEXT,
-    magicLink       BIGINT,
+    magicLink       INT UNSIGNED,
     magicLinkExitMessage VARCHAR(50) DEFAULT 'Completed successfully',
     hidden          BOOLEAN NOT NULL DEFAULT 0
 ) DEFAULT CHARSET=utf8;

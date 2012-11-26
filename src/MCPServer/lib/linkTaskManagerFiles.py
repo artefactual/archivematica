@@ -47,7 +47,7 @@ class linkTaskManagerFiles:
         self.jobChainLink = jobChainLink
         self.exitCode = 0
         self.clearToNextLink = False
-        sql = """SELECT * FROM StandardTasksConfigs where pk = """ + pk.__str__()
+        sql = """SELECT * FROM StandardTasksConfigs where pk = '%s'""" % (pk.__str__())
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         while row != None:

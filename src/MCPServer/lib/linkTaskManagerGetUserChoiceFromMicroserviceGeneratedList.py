@@ -48,7 +48,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
         self.jobChainLink = jobChainLink
         self.UUID = uuid.uuid4().__str__()
         self.unit = unit
-        sql = """SELECT execute FROM StandardTasksConfigs where pk = """ + pk.__str__()
+        sql = sql = """SELECT execute FROM StandardTasksConfigs where pk = '%s'""" % (pk)
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         choiceIndex = 0
@@ -131,7 +131,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
                     #if int(preconfiguredChoice.find("appliesTo").text) == self.jobChainLink.pk:
                     if preconfiguredChoice.find("appliesTo").text == self.jobChainLink.description:
                         desiredChoice = preconfiguredChoice.find("goToChain").text
-                        sql = """SELECT MicroServiceChoiceReplacementDic.replacementDic FROM MicroServiceChoiceReplacementDic  WHERE MicroServiceChoiceReplacementDic.description = '%s' AND MicroServiceChoiceReplacementDic.choiceAvailableAtLink = %s;""" % (desiredChoice, self.jobChainLink.pk.__str__())
+                        sql = """SELECT MicroServiceChoiceReplacementDic.replacementDic FROM MicroServiceChoiceReplacementDic  WHERE MicroServiceChoiceReplacementDic.description = '%s' AND MicroServiceChoiceReplacementDic.choiceAvailableAtLink = '%s';""" % (desiredChoice, self.jobChainLink.pk.__str__())
                         c, sqlLock = databaseInterface.querySQL(sql)
                         row = c.fetchone()
                         while row != None:

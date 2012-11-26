@@ -69,7 +69,7 @@ class linkTaskManagerTranscoderCommand:
 
         self.tasksLock.acquire()
         commandReplacementDic = unit.getReplacementDic()
-        sql = """SELECT CommandRelationships.pk FROM CommandRelationships JOIN Commands ON CommandRelationships.command = Commands.pk WHERE CommandRelationships.pk = %s;""" % (pk.__str__())
+        sql = """SELECT CommandRelationships.pk FROM CommandRelationships JOIN Commands ON CommandRelationships.command = Commands.pk WHERE CommandRelationships.pk = '%s';""" % (pk.__str__())
         rows = databaseInterface.queryAllSQL(sql)
         taskCount = 0
         if rows:
@@ -77,7 +77,7 @@ class linkTaskManagerTranscoderCommand:
                 UUID = uuid.uuid4().__str__()
                 opts["taskUUID"] = UUID
                 opts["CommandRelationship"] = pk.__str__()
-                execute = "transcoder_cr%d" % (pk)  
+                execute = "transcoder_cr%s" % (pk)  
                 deUnicode(execute)
                 arguments = row.__str__()
                 standardOutputFile = opts["standardOutputFile"] 

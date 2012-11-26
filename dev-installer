@@ -41,9 +41,24 @@ read a
 if [[ $a == "Y" || $a == "y" ]]; then
         echo "Going to ${part} ..."
         sudo apt-get install gearman 
-	sudo apt-get install python-setuptools 
-	sudo apt-get install python-gearman
+        sudo apt-get install python-setuptools 
+        sudo apt-get install python-gearman
         #sudo easy_install gearman
+else
+        echo "Not going to ${part}"
+fi
+
+
+
+part="install postfix"
+echo -n "\"Would you like to ${part}?\" (y/N) "
+read a
+if [[ $a == "Y" || $a == "y" ]]; then
+        echo "Going to ${part} ..."
+        clear
+        echo select internet and defaults
+        read -n1 -r -p "Press any key to continue..." key
+        sudo apt-get install postfix 
 else
         echo "Not going to ${part}"
 fi

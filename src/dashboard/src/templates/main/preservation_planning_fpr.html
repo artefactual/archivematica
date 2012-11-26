@@ -18,7 +18,7 @@
 {% if request.session.fpr_query != '' %}
   <h2>Search results for &quot;{{ request.session.fpr_query }}&quot; ({{ hit_count }} results):</h2><br>
 {% else %} 
-  <h2>File policies list ({{ item_count }} items):</h2><br>
+  <h2>Format policies ({{ item_count }} items):</h2><br>
 {% endif %}
 
 <table style="width:100%;table-layout:auto;word-wrap:break-word" class="FileIDsTable">
@@ -26,12 +26,14 @@
 <thead style="color:black;">
 <tr class="row-header">
   <th> UUID </th>
-  <th> MIME Type </th>
+  <th> Format </th>
   <th> Tool </th>
   <th> Tool version </th>
   <th> Description </th>
+  <th> Valid preservation format</th>
+  <th> Valid access format</th>
   <th> Classification </th>
-  <th> Output Location </th>
+  <th> Output </th>
   <th> Command </th>
   <th> Command Description </th>
 </tr>
@@ -43,9 +45,11 @@
 <tr>
   <td><div style="width:120px;">{{ row.pk }}</div></td>
   <td><div style="width:70px;">{{ row.id }}</div></td>
-  <td>{{ row.tool }}</td>
+  <td><div style="width:120px;">{{ row.tool }}</div></td>
   <td>{{ row.toolVersion }}</td>
-  <td><div style="width:70px;">{{ row.FileIDs_description }}</div></td>
+  <td><div style="width:400px;">{{ row.FileIDs_description }}</div></td>
+  <td>{{ row.FileIDs_validPreservationFormat }}</td>
+  <td>{{ row.FileIDs_validAccessFormat }}</td>
   <td>{{ row.classification }}</td>
   <td>{{ row.outputLocation }}</td>
   <td><pre>{{ row.Commands_command }}</pre></td>
@@ -92,4 +96,3 @@
 
 
 {% endblock %}
-

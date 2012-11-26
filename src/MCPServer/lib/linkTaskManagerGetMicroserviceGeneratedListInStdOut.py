@@ -39,7 +39,7 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut:
         self.tasks = []
         self.pk = pk
         self.jobChainLink = jobChainLink
-        sql = """SELECT * FROM StandardTasksConfigs where pk = """ + pk.__str__()
+        sql = """SELECT * FROM StandardTasksConfigs where pk = '%s'""" % (pk.__str__())
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         while row != None:

@@ -68,6 +68,8 @@ import traceback
 from externals.singleInstance import singleinstance
 from archivematicaFunctions import unicodeToStr
 
+databaseInterface.printSQL = True
+
 global countOfCreateUnitAndJobChainThreaded
 countOfCreateUnitAndJobChainThreaded = 0
 

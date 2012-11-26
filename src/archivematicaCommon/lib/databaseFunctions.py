@@ -141,7 +141,7 @@ def logJobCreatedSQL(job):
     databaseInterface.runSQL("""INSERT INTO Jobs (jobUUID, jobType, directory, SIPUUID, currentStep, unitType, microserviceGroup, createdTime, createdTimeDec, MicroServiceChainLinksPK, subJobOf)
         VALUES ( '""" + job.UUID.__str__() + separator + escapeForDB(job.description) + separator \
         + escapeForDB(job.unit.currentPath) + separator + escapeForDB(unitUUID) + \
-        separator + "Executing command(s)" + separator + job.unit.__class__.__name__  + separator + job.microserviceGroup.__str__() + separator + job.createdDate + separator + databaseInterface.getDeciDate("." + job.createdDate.split(".")[-1]) + "', " + job.pk.__str__()  + ", '" + job.subJobOf.__str__() + "' )" )
+        separator + "Executing command(s)" + separator + job.unit.__class__.__name__  + separator + job.microserviceGroup.__str__() + separator + job.createdDate + separator + databaseInterface.getDeciDate("." + job.createdDate.split(".")[-1]) + separator + job.pk.__str__()  + separator + job.subJobOf.__str__() + "' )" )
     #TODO -un hardcode executing exeCommand
 
 
