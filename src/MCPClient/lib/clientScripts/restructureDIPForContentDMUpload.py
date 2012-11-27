@@ -164,7 +164,6 @@ def normalizeNonDcElementName(string):
     # Lower case string.
     normalizedString = normalizedString.lower()
     return normalizedString
-    return normalizedString
 
 
 # Generate a dictionary containing 1) 'dcMappings', a nested dictionary with DCTERMS
@@ -619,6 +618,7 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
     # the last column.
     delimHeaderRow = []
     delimValuesRow = []
+    # @todo: Merge dcMetadata and nonDcMetadata, then iterate through them as below.
     for field in collectionFieldInfo['order']:
         for k, v in collectionFieldInfo['dcMappings'].iteritems():
             if field == v['nick']:
@@ -793,19 +793,29 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
 # Generate a 'project client' package for a compound CONTENTdm item from the Archivematica DIP.
 # This package will contain the object file and a delimited metadata file in a format suitable
 # for importing into CONTENTdm using its Project Client.
-def generateCompoundContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, filesInObjectDirectory):
-    dmdSec = getDmdSec(metsDom)
-    dcMetadata = parseDmdSec(dmdSec)
+# def generateCompoundContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, filesInObjectDirectory):
+def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec):
+    (dcMetadata, nonDcMetadata) = splitDmdSecs(dmdSecs)
+    collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection) 
 
     # Archivematica's stuctMap is always the first one; the user-submitted structMap
     # is always the second one. @todo: If the user-submitted structMap is present,
     # parse it for the SIP structure so we can use that structure in the CONTENTdm packages.
-    structMapDom =  metsDom.getElementsByTagName('structMap')[0]
-    structMapDict = parseStructMap(structMapDom, filesInObjectDirectory)
+    # structMapDom =  metsDom.getElementsByTagName('structMap')[0]
+    structMapDom = structMaps[0]
+    structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSec)
 
-    # Create a 'scans' subdirectory in the output directory.
+    # @todo: Test whether DIP is single or bulk... how? Maybe check to see how many
+    # divs with a DMDID attribute there are in the structMap, 1 = single, > 1 = bulk?
+    # If we are dealing with a single (not bulk) DIP, create a 'scans' subdirectory
+    # in the output directory.
     scansDir = os.path.join(outputDipDir, 'scans')
     os.makedirs(scansDir)
+    # If we are dealing with bulk, we need to create a folder in outputDipDir for each item.
+    # What value do we use? http://www.contentdm.org/help6/objects/multiple4.asp recommends
+    # title but we probably don't want that. We might need to however, since in the direct
+    # upload compound function we created a subdirectory for each item out of the UUID of the
+    # first file in the item....
 
     # Write out the metadata file, with the first row containing the field labels and the
     # second row containing the values. Both rows needs to be in the order expressed in
@@ -813,12 +823,15 @@ def generateCompoundContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir
     # query each mapping in collectionFieldInfo['mappings'] to find a matching 'nick';
     # if the nick is found, write the value in the dmdSec's element that matches the mapping's
     # key; if no matching mapping is found, write ''. The DIP filename (in this case, the file
-    # variable defined above) needs to go in the last column.
+    # variable defined above) needs to go in the last column. @todo 1.0: Clarify this last sentence.
+    # @todo for bulk: Delimted file for single will have two rows; delimited file for bulk will
+    # have headings plus one row for each item, with object files directory as first field.
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
     delimHeaderRow = []
     delimItemValuesRow = []
+    # @todo 1.0: Merge dcMetadata and nonDcMetadata, then iterate through them as below.
     for field in collectionFieldInfo['order']:
-        for k, v in collectionFieldInfo['mappings'].iteritems():
+        for k, v in collectionFieldInfo['dcMappings'].iteritems():
             if field == v['nick']:
                # Append the field name to the header row.
                delimHeaderRow.append(v['name'])
@@ -858,12 +871,21 @@ def generateCompoundContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir
                    if (v['filename'] in fullPath):
                        shutil.copy(fullPath, scansDir)
 
-               # Write the child-level metadata row. @todo: For flat items with no
-               # child-level metadata, we are using the label for the child as defined
-               # in structMapDict and the filename only. This means that we put the
-               # label in the position allocated for the dc.title element, and the 
-               # filename in the last position. Everthing in between is ''. This will
-               # need to be made more functional for flat with child-level metadata,
+               # Write the child-level metadata row. For single (non-bulk) DIPs, we use
+               # the delimited file format described at
+               # http://www.contentdm.org/help6/objects/adding3a.asp; for bulk DIPs, we
+               # use the 'object list' method described at
+               # http://www.contentdm.org/help6/objects/multiple4.asp. In this method, we
+               # should make sure the directory where the item's children are stored (identified
+               # in the input metadata.csv's 'parts' column) is used for the output delimited
+               # file's 'Directory Name' value; we can't use the item's title since it may
+               # contain characters that are illegal in directory names. This also means that
+               # we can just copy the child directory names into this field.
+               # @todo (applies to single, not bulk): For flat items with no child-level metadata, we are using the 
+               # label for the child as defined in structMapDict and the filename only.
+               # This means that we put the label in the position allocated for the dc.title element,
+               # and the wwfilename in the last position. Everthing in between is ''. This will
+               # need to be made more functional for flat items with child-level metadata,
                # and for hierarchical.
                titlePosition = collectionFieldInfo['order'].index('title')
                if titlePosition == 0:
