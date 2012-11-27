@@ -7,6 +7,22 @@ from contrib import utils
 from django import forms
 import ast
 import main
+import uuid
+
+class UUIDPkField(models.CharField):
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = kwargs.get('max_length', 64)
+        kwargs['blank'] = False
+        kwargs['primary_key'] = True
+        kwargs['editable'] = False
+        kwargs['db_column'] = 'pk'
+        kwargs['default'] = True # provide a placeholder pk value or else it won't save
+        models.CharField.__init__(self, *args, **kwargs)
+
+    def pre_save(self, model_instance, add):
+        # set uuid during save
+        setattr(model_instance, self.attname, uuid.uuid4().__str__())
+        return super(models.CharField, self).pre_save(model_instance, add)
 
 class Access(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -404,7 +420,7 @@ class MicroServiceChainChoice(models.Model):
         db_table = u'MicroServiceChainChoice'
 
 class MicroServiceChoiceReplacementDic(models.Model):
-    id = models.CharField(primary_key=True, db_column='pk')
+    id = UUIDPkField()
     choiceavailableatlink = models.CharField(max_length=50, db_column='choiceAvailableAtLink')
     description = models.TextField(db_column='description', verbose_name='Description')
     replacementdic = models.TextField(db_column='replacementDic', verbose_name='Configuration')
