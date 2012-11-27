@@ -37,13 +37,64 @@ from archivematicaFunctions import escapeForCommand
 from databaseFunctions import insertIntoFilesFits
 from databaseFunctions import insertIntoEvents
 from databaseFunctions import insertIntoFilesIDs
+import databaseInterface
 
-
+databaseInterface.printSQL = False
 excludeJhoveProperties = True
 formats = []
 FITSNS = "{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}"
 
 
+
+def parseIdsSimple(FITS_XML, fileUUID):
+    #simpleIdPlaces = [(table, tool, iter)]
+    simpleIdPlaces = [
+        ("FileIDsByFitsDROIDMimeType", "Droid", "{http://www.nationalarchives.gov.uk/pronom/FileCollection}MimeType"),
+        ("FileIDsByFitsDROIDIdentificationPUID", "Droid", "{http://www.nationalarchives.gov.uk/pronom/FileCollection}PUID"),
+        ("FileIDsByFitsFfidentMimetype", "ffident", "mimetype"),
+        ("FileIDsByFitsFileUtilityMimetype", "file utility", "mimetype"),
+        ("FileIDsByFitsFileUtilityFormat", "file utility", "format"),
+        ("FileIDsByFitsJhoveMimeType", "Jhove", "{}mimeType"),
+        ("FileIDsByFitsJhoveFormat", "Jhove", "{}format")
+        
+    ]
+    
+    for table, tool, iterOn in simpleIdPlaces:
+        identified = []
+        fileIDs = []
+        for element in FITS_XML.iter("{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}tool"):
+            if element.get("name") == tool:
+                for element2 in element.getiterator(iterOn):
+                    if element2.text != None:
+                        if element2.text in identified:
+                            continue
+                        identified.append(element2.text)
+                        sql = """SELECT fileID FROM FileIDsBySingleID WHERE tool = '%s' AND id = '%s';""" % (table, element2.text)
+                        fileIDS = databaseInterface.queryAllSQL(sql)
+                        for fileID in fileIDS:
+                            sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (fileUUID, fileID[0])
+                            databaseInterface.runSQL(sql)
+        if fileIDs == [] and False:
+            print >>sys.stderr, "No archivematica id for: ", tool, iterOn, element2.text
+                
+                
+    for element in FITS_XML.findall(".//{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}identity[@mimetype]"):
+        format = element.get("mimetype")
+        if format:
+            sql = """SELECT FileIDsBySingleID.fileID, FileIDs.fileIDType, FileIDsBySingleID.id FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = 'c26227f7-fca8-4d98-9d8e-cfab86a2dd0a' AND FileIDsBySingleID.id = '%s';""" % (format)
+            fileIDS = databaseInterface.queryAllSQL(sql)
+            for fileID in fileIDS:
+                sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (fileUUID, fileID[0])
+                databaseInterface.runSQL(sql)
+    for element in FITS_XML.findall(".//{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}identity[@format]"):
+        format = element.get("format")
+        if format:
+            sql = """SELECT FileIDsBySingleID.fileID, FileIDs.fileIDType, FileIDsBySingleID.id FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = 'b0bcccfb-04bc-4daa-a13c-77c23c2bda85' AND FileIDsBySingleID.id = '%s';""" % (format)
+            fileIDS = databaseInterface.queryAllSQL(sql)
+            for fileID in fileIDS:
+                sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (fileUUID, fileID[0])
+                databaseInterface.runSQL(sql)
+            
 def excludeJhoveProperties(fits):
     """Exclude <properties> from <fits><toolOutput><tool name="Jhove" version="1.5"><repInfo> because that field contains unnecessary excess data and the key data are covered by output from other FITS tools."""
     prefix = ""
@@ -267,7 +318,7 @@ if __name__ == '__main__':
 
     tempFile="/tmp/" + uuid.uuid4().__str__()
 
-    command = "fits.sh -i \"" + escapeForCommand(target) + "\" -o \"" + tempFile + "\""
+    command = "openfits -i \"" + escapeForCommand(target) + "\" -o \"" + tempFile + "\""
     #print >>sys.stderr, command
     #print >>sys.stderr,  shlex.split(command)
     try:
@@ -301,6 +352,7 @@ if __name__ == '__main__':
             fits = excludeJhoveProperties(fits)
         insertIntoFilesFits(fileUUID, etree.tostring(fits, pretty_print=False))
         includeFits(fits, XMLfile, date, eventUUID, fileUUID)
+        parseIdsSimple(fits, fileUUID)
 
     except OSError, ose:
         print >>sys.stderr, "Execution failed:", ose

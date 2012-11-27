@@ -24,19 +24,17 @@
 target=$1
 
 if [ -d "$target" ]; then
-	temp="/tmp/`uuid`"
-	mkdir "$temp"
-
-	mv "$target"/* "$temp/."
-	
-	mkdir "${target}logs"
-	mkdir "${target}logs/fileMeta"
-	mkdir "${target}metadata"
-	mkdir "${target}metadata/submissionDocumentation"
-	mkdir "${target}objects"
-	mv "$temp"/* "${target}objects/." 
+	mkdir "${target}/objects"
+	mv $(find "$target" -mindepth 1 -maxdepth 1 ! -name "objects") "${target}objects/"
+	mkdir -p "${target}/logs/fileMeta"
+	mkdir -p "${target}/metadata/submissionDocumentation"
+elif [ -f "$target" -a ! -d "$(dirname $target)/$(basename ${target%.*})" ]; then
+	mkdir -p "$(dirname $target)/$(basename ${target%.*})/objects"
+	mv "$target" "$(dirname $target)/$(basename ${target%.*})/objects/"
+	mkdir -p "$(dirname $target)/$(basename ${target%.*})/logs/fileMeta"
+	mkdir -p "$(dirname $target)/$(basename ${target%.*})/metadata/submissionDocumentation"
 else
-	echo Error: Needs SIP directory as argument 1>&2
+	echo Error: Needs SIP directory or file as argument 1>&2
 	exit 1
 fi 
 

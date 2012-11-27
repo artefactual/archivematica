@@ -51,11 +51,13 @@ set -e
 echo "Creating MCP database"
 mysql -u root "${dbpassword}" --execute="CREATE DATABASE ${databaseName} CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
 
-echo "Creating and populating MCP Tables"
-mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql;"
+echo "Creating and populating MCP tables"
+mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql2;"
+echo "Creating MCP Views"
+mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql2Views;"
 
-echo "Creating and populating Transcoder Tables"
-mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/transcoder/share/mysql;"
+#echo "Creating and populating Transcoder Tables"
+#mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/transcoder/share/mysql;"
 
 echo "Creating ${username} user"
 mysql -u root "${dbpassword}" --execute="CREATE USER '${username}'@'localhost' IDENTIFIED BY '${password}';"

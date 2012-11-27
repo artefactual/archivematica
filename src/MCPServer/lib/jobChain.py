@@ -44,7 +44,7 @@ class jobChain:
         self.UUID = UUID
         self.linkSplitCount = 1
         self.subJobOf = subJobOf
-        sql = """SELECT * FROM MicroServiceChains WHERE pk =  """ + chainPK.__str__()
+        sql = """SELECT * FROM MicroServiceChains WHERE pk =  '%s'""" % (chainPK.__str__())
         print sql
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()

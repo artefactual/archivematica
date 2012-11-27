@@ -34,6 +34,8 @@ from linkTaskManagerSplitOnFileIdAndruleset import linkTaskManagerSplitOnFileIdA
 from linkTaskManagerTranscoderCommand import linkTaskManagerTranscoderCommand
 from linkTaskManagerGetMicroserviceGeneratedListInStdOut import linkTaskManagerGetMicroserviceGeneratedListInStdOut
 from linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList import linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList
+from linkTaskManagerSetUnitVariable import linkTaskManagerSetUnitVariable
+from linkTaskManagerUnitVariableLinkPull import linkTaskManagerUnitVariableLinkPull
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from databaseFunctions import logJobCreatedSQL
@@ -41,17 +43,19 @@ from playAudioFileInCVLC import playAudioFileInThread
 
 #Constants
 # SELECT * FROM TaskTypes;
-constOneTask = 0
-constTaskForEachFile = 1
-constSelectPathTask = 2
-constSetMagicLink = 3
-constLoadMagicLink = 4
-constGetReplacementDic = 5
-constSplitByFile = 6
-constlinkTaskManagerSplitOnFileIdAndruleset = 7
-constTranscoderTaskLink = 8
-constlinkTaskManagerGetMicroserviceGeneratedListInStdOut = 9
-constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList = 10
+constOneTask = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("one instance"))[0][0]
+constTaskForEachFile = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("for each file"))[0][0]
+constSelectPathTask = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("get user choice to proceed with"))[0][0]
+constSetMagicLink = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("assign magic link"))[0][0]
+constLoadMagicLink = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("goto magic link"))[0][0]
+constGetReplacementDic = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("get replacement dic from user choice"))[0][0]
+constSplitByFile = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Split creating Jobs for each file"))[0][0]
+constlinkTaskManagerSplitOnFileIdAndruleset = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Split Job into many links based on file ID"))[0][0]
+constTranscoderTaskLink = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Transcoder task type"))[0][0]
+constlinkTaskManagerGetMicroserviceGeneratedListInStdOut = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Get microservice generated list in stdOut"))[0][0]
+constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Get user choice from microservice generated list"))[0][0]
+constlinkTaskManagerSetUnitVariable = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("linkTaskManagerSetUnitVariable"))[0][0]
+constlinkTaskManagerUnitVariableLinkPull = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("linkTaskManagerUnitVariableLinkPull"))[0][0]
 
 class jobChainLink:
     def __init__(self, jobChain, jobChainLinkPK, unit, passVar=None, subJobOf=""):
@@ -64,7 +68,7 @@ class jobChainLink:
         self.passVar=passVar
         self.createdDate = databaseInterface.getUTCDate()
         self.subJobOf = subJobOf
-        sql = """SELECT MicroServiceChainLinks.currentTask, MicroServiceChainLinks.defaultNextChainLink, TasksConfigs.taskType, TasksConfigs.taskTypePKReference, TasksConfigs.description, MicroServiceChainLinks.reloadFileList, Sounds.fileLocation, MicroServiceChainLinks.defaultExitMessage, MicroServiceChainLinks.microserviceGroup FROM MicroServiceChainLinks LEFT OUTER JOIN Sounds ON MicroServiceChainLinks.defaultPlaySound = Sounds.pk JOIN TasksConfigs on MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE MicroServiceChainLinks.pk = """ + jobChainLinkPK.__str__()
+        sql = """SELECT MicroServiceChainLinks.currentTask, MicroServiceChainLinks.defaultNextChainLink, TasksConfigs.taskType, TasksConfigs.taskTypePKReference, TasksConfigs.description, MicroServiceChainLinks.reloadFileList, Sounds.fileLocation, MicroServiceChainLinks.defaultExitMessage, MicroServiceChainLinks.microserviceGroup FROM MicroServiceChainLinks LEFT OUTER JOIN Sounds ON MicroServiceChainLinks.defaultPlaySound = Sounds.pk JOIN TasksConfigs on MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE MicroServiceChainLinks.pk = '%s'""" % (jobChainLinkPK.__str__())
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         if row == None:
@@ -87,6 +91,7 @@ class jobChainLink:
 
 
         print "<<<<<<<<< ", self.description, " >>>>>>>>>"
+        print "find me2(", taskType, " ", taskTypePKReference, ")"
         self.unit.reload()
 
         logJobCreatedSQL(self)
@@ -127,13 +132,17 @@ class jobChainLink:
             linkTaskManagerGetMicroserviceGeneratedListInStdOut(self, taskTypePKReference, self.unit)
         elif taskType == constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
             linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(self, taskTypePKReference, self.unit)
+        elif taskType == constlinkTaskManagerUnitVariableLinkPull:
+            linkTaskManagerUnitVariableLinkPull(self, taskTypePKReference, self.unit)
+        elif taskType == constlinkTaskManagerSetUnitVariable:
+            linkTaskManagerSetUnitVariable(self, taskTypePKReference, self.unit)
         else:
             print sys.stderr, "unsupported task type: ", taskType
 
     def getSoundFileToPlay(self, exitCode):
         if exitCode != None:
             ret = self.defaultSoundFile
-            sql = "SELECT Sounds.fileLocation FROM MicroServiceChainLinksExitCodes LEFT OUTER JOIN Sounds ON MicroServiceChainLinksExitCodes.playSound = Sounds.pk WHERE microServiceChainLink = %s AND exitCode = %s" % (self.pk.__str__(), exitCode.__str__())
+            sql = "SELECT Sounds.fileLocation FROM MicroServiceChainLinksExitCodes LEFT OUTER JOIN Sounds ON MicroServiceChainLinksExitCodes.playSound = Sounds.pk WHERE microServiceChainLink = '%s' AND exitCode = %s" % (self.pk.__str__(), exitCode.__str__())
             c, sqlLock = databaseInterface.querySQL(sql)
             row = c.fetchone()
             if row != None:
@@ -144,7 +153,7 @@ class jobChainLink:
     def getNextChainLinkPK(self, exitCode):
         if exitCode != None:
             ret = self.defaultNextChainLink
-            sql = "SELECT nextMicroServiceChainLink FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink = %s AND exitCode = %s" % (self.pk.__str__(), exitCode.__str__())
+            sql = "SELECT nextMicroServiceChainLink FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink = '%s' AND exitCode = %s" % (self.pk.__str__(), exitCode.__str__())
             c, sqlLock = databaseInterface.querySQL(sql)
             row = c.fetchone()
             if row != None:
@@ -160,7 +169,7 @@ class jobChainLink:
     def updateExitMessage(self, exitCode):
         ret = self.defaultExitMessage
         if exitCode != None:
-            sql = "SELECT exitMessage FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink = %s AND exitCode = %s" % (self.pk.__str__(), exitCode.__str__())
+            sql = "SELECT exitMessage FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink = '%s' AND exitCode = %s" % (self.pk.__str__(), exitCode.__str__())
             c, sqlLock = databaseInterface.querySQL(sql)
             row = c.fetchone()
             if row != None:

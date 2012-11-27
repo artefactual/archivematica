@@ -24,8 +24,10 @@
 import gearman
 import cPickle
 import lxml.etree as etree
+import traceback
 import os
 import time
+import sys
 
 class Settings:
     MCP_SERVER = ('localhost', 4730)
@@ -90,9 +92,11 @@ def approveJob(jobsAwaitingApproval, choice, choice2):
         chain = getTagged(getTagged(jobsAwaitingApproval[index], "choices")[0][int(choice2)], \
                                    "chainAvailable")[0].text
         print "Approving: " + uuid, chain, sipUUID
-        mcpClient.execute(uuid, int(chain))
+        mcpClient.execute(uuid, chain)
         del jobsAwaitingApproval[index]
     except ValueError:
+        print "Value error"
+        traceback.print_exc(file=sys.stdout)
         return
 
 

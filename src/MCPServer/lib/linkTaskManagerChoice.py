@@ -55,7 +55,7 @@ class linkTaskManagerChoice:
         self.unit = unit
         self.delayTimerLock = threading.Lock()
         self.delayTimer = None
-        sql = """SELECT chainAvailable, description FROM MicroServiceChainChoice JOIN MicroServiceChains on chainAvailable = MicroServiceChains.pk WHERE choiceAvailableAtLink = %s ORDER BY MicroServiceChainChoice.pk;""" % (jobChainLink.pk.__str__())
+        sql = """SELECT chainAvailable, description FROM MicroServiceChainChoice JOIN MicroServiceChains on chainAvailable = MicroServiceChains.pk WHERE choiceAvailableAtLink = '%s' ORDER BY MicroServiceChainChoice.pk;""" % (jobChainLink.pk.__str__())
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         while row != None:
@@ -100,7 +100,7 @@ class linkTaskManagerChoice:
                     #if int(preconfiguredChoice.find("appliesTo").text) == self.jobChainLink.pk:
                     if preconfiguredChoice.find("appliesTo").text == self.jobChainLink.description:
                         desiredChoice = preconfiguredChoice.find("goToChain").text
-                        sql = """SELECT MicroServiceChains.pk FROM MicroServiceChainChoice Join MicroServiceChains on MicroServiceChainChoice.chainAvailable = MicroServiceChains.pk WHERE MicroServiceChains.description = '%s' AND MicroServiceChainChoice.choiceAvailableAtLink = %s;""" % (desiredChoice, self.jobChainLink.pk.__str__())
+                        sql = """SELECT MicroServiceChains.pk FROM MicroServiceChainChoice Join MicroServiceChains on MicroServiceChainChoice.chainAvailable = MicroServiceChains.pk WHERE MicroServiceChains.description = '%s' AND MicroServiceChainChoice.choiceAvailableAtLink = '%s';""" % (desiredChoice, self.jobChainLink.pk.__str__())
                         c, sqlLock = databaseInterface.querySQL(sql)
                         row = c.fetchone()
                         while row != None:
@@ -162,4 +162,5 @@ class linkTaskManagerChoice:
         self.delayTimerLock.release()
         choicesAvailableForUnitsLock.release()
         self.jobChainLink.setExitMessage("Completed successfully")
+        print "find me 5.5.5", chain, "selected for unit", self.unit.UUID
         jobChain.jobChain(self.unit, chain)

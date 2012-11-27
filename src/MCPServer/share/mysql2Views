@@ -1,0 +1,177 @@
+-- VIEWS --
+CREATE OR REPLACE VIEW taskDurationsView AS
+    SELECT
+        taskUUID,
+        UNIX_TIMESTAMP(endTime) - UNIX_TIMESTAMP(startTime) AS 'Time_spent_processing_in_seconds',
+        SEC_TO_TIME(UNIX_TIMESTAMP(endTime) - UNIX_TIMESTAMP(startTime)) AS 'Time_spent_processing'
+    FROM
+        Tasks
+    ORDER BY
+        UNIX_TIMESTAMP(endTime) - UNIX_TIMESTAMP(startTime) DESC
+;
+
+CREATE OR REPLACE VIEW jobDurationsView AS
+    SELECT
+        Jobs.jobUUID,
+        sum(taskDurationsView.Time_spent_processing_in_seconds) AS 'Time_spent_processing_in_seconds',
+        SEC_TO_TIME(sum(taskDurationsView.Time_spent_processing_in_seconds)) AS 'Time_spent_processing',
+        Jobs.createdTime,
+        Jobs.createdTimeDec,
+        min(Tasks.startTime) AS 'startTime',
+        max(Tasks.endTime) AS 'endTime',
+        UNIX_TIMESTAMP(max(Tasks.endTime)) - UNIX_TIMESTAMP(min(Tasks.startTime)) AS 'time_from_start_of_processing_till_end_of_processing_in_seconds',
+        UNIX_TIMESTAMP(min(Tasks.startTime)) - UNIX_TIMESTAMP(Jobs.createdTime) AS 'time_from_job_created_till_start_of_processing_in_seconds',
+        UNIX_TIMESTAMP(max(Tasks.endTime)) - UNIX_TIMESTAMP(Jobs.createdTime) AS 'time_from_job_created_till_end_of_processing_in_seconds',
+        Jobs.jobType,
+        Jobs.directory,
+        Jobs.SIPUUID,
+        Jobs.unitType,
+        Jobs.currentStep,
+        Jobs.microserviceGroup,
+        Jobs.MicroServiceChainLinksPK
+    FROM
+        Jobs
+        Join Tasks ON Tasks.jobUUID = Jobs.jobUUID
+        Join taskDurationsView ON Tasks.taskUUID = taskDurationsView.taskUUID
+    GROUP BY
+        Jobs.jobUUID
+    ORDER BY
+        sum(taskDurationsView.Time_spent_processing_in_seconds) DESC
+;
+
+-- SELECT count(taskUUID) from lastJobsTasks;
+CREATE OR REPLACE VIEW transfersAndSIPs AS
+    SELECT
+            sipUUID AS 'unitUUID',
+            'SIP' AS 'unitType',
+            currentPath AS 'currentLocation'
+        FROM SIPs
+        UNION ALL
+        SELECT
+            transferUUID as 'unitUUID',
+            'Transfer' AS 'unitType',
+            currentLocation AS 'currentLocation'
+        FROM Transfers
+;
+
+
+CREATE OR REPLACE VIEW FilesByUnit AS
+    SELECT fileUUID , originalLocation , currentLocation , sipUUID AS 'unitUUID', 'SIP' AS 'unitType', removedTime , enteredSystem , fileSize, checksum , fileGrpUse, fileGrpUUID, label FROM Files
+    UNION ALL
+    SELECT fileUUID , originalLocation , currentLocation , transferUUID AS 'unitUUID', 'Transfer' AS 'unitType', removedTime , enteredSystem , fileSize, checksum , fileGrpUse, fileGrpUUID, label FROM Files
+;
+
+CREATE OR REPLACE VIEW lastJobsTasks AS SELECT * FROM Tasks WHERE jobUUID = (SELECT jobUUID FROM Jobs ORDER BY createdTime DESC, createdTimeDec DESC LIMIT 1);
+
+CREATE OR REPLACE VIEW lastJobsInfo AS SELECT count(taskUUID) AS 'Completed Tasks', min(startTime), max(endTime), TIMEDIFF(UTC_TIMESTAMP(), min(startTime)) AS 'Job duration', TIMEDIFF(UTC_TIMESTAMP(), max(endTime)) AS 'Time Since last return', TIME(TIMEDIFF(UTC_TIMESTAMP(), min(startTime))/count(taskUUID)) AS 'AVG proc time'  FROM lastJobsTasks where startTime != 0;
+
+CREATE OR REPLACE VIEW processingDurationInformation2 AS
+    SELECT
+        Jobs.sipUUID AS 'sipUUID',
+        SEC_TO_TIME(max(UNIX_TIMESTAMP(d.endTime)) - min(UNIX_TIMESTAMP(d.startTime))) AS 'Time_spent_in_system',
+        min(UNIX_TIMESTAMP(d.startTime)) AS 'startedTime'
+    FROM
+        Tasks AS d
+        JOIN Jobs on d.jobUUID = Jobs.jobUUID
+    WHERE
+        endtime != 0
+        AND startTime != 0
+    GROUP BY
+        Jobs.sipUUID
+;
+
+CREATE OR REPLACE VIEW processingDurationInformationByClient AS
+SELECT
+    Jobs.sipUUID AS 'SIP_OR_TRANSFER_UUID',
+    client,
+    Durations.Time_spent_in_system,
+    SEC_TO_TIME(sum((UNIX_TIMESTAMP(endTime) - UNIX_TIMESTAMP(startTime)))) AS 'Time_spent_processing',
+    count(Tasks.taskUUID) AS 'Number_of_tasks',
+    Transfers.currentLocation,
+    SIPs.currentPath
+From
+    Tasks
+    JOIN Jobs on Tasks.jobUUID = Jobs.jobUUID
+    LEFT OUTER JOIN processingDurationInformation2 AS Durations ON Jobs.sipUUID = Durations.sipUUID
+    LEFT OUTER JOIN Transfers ON Jobs.sipUUID = Transfers.transferUUID
+    LEFT OUTER JOIN SIPs ON Jobs.sipUUID = SIPs.sipUUID
+WHERE
+    endtime != 0
+    AND startTime != 0
+GROUP BY
+    client,
+    Jobs.sipUUID
+ORDER BY
+    Durations.startedTime,
+    Jobs.sipUUID
+;
+
+CREATE OR REPLACE VIEW processingDurationInformation AS
+SELECT
+    Jobs.sipUUID AS 'SIP_OR_TRANSFER_UUID',
+    client,
+    Durations.Time_spent_in_system,
+    SEC_TO_TIME(sum((UNIX_TIMESTAMP(endTime) - UNIX_TIMESTAMP(startTime)))) AS 'Time_spent_processing',
+    count(Tasks.taskUUID) AS 'Number_of_tasks',
+    Transfers.currentLocation,
+    SIPs.currentPath
+From
+    Tasks
+    JOIN Jobs on Tasks.jobUUID = Jobs.jobUUID
+    LEFT OUTER JOIN processingDurationInformation2 AS Durations ON Jobs.sipUUID = Durations.sipUUID
+    LEFT OUTER JOIN Transfers ON Jobs.sipUUID = Transfers.transferUUID
+    LEFT OUTER JOIN SIPs ON Jobs.sipUUID = SIPs.sipUUID
+WHERE
+    endtime != 0
+    AND startTime != 0
+GROUP BY
+    Jobs.sipUUID
+ORDER BY
+    Durations.startedTime,
+    Jobs.sipUUID
+;
+
+
+
+CREATE OR REPLACE VIEW PDI_by_unit AS
+    SELECT
+        SIP_OR_TRANSFER_UUID,
+        FilesByUnit.unitType,
+        SEC_TO_TIME(sum(TIME_TO_SEC(Time_spent_processing))) AS 'Total time processing',
+        Number_of_tasks,
+        SEC_TO_TIME(sum(TIME_TO_SEC(Time_spent_processing))/Number_of_tasks) AS 'Average time per task',
+        sum( FilesByUnit.fileSize) AS 'total file size',
+        count( FilesByUnit.fileUUID) AS 'number of files',
+        count( DISTINCT  FilesByUnit.fileUUID),
+        sum( FilesByUnit.fileSize)/count( FilesByUnit.fileUUID)/1000 AS 'average file size KB',
+        sum( FilesByUnit.fileSize)/count( FilesByUnit.fileUUID)/1000000 AS 'average file size MB',
+        SEC_TO_TIME(TIME_TO_SEC(SEC_TO_TIME(sum(TIME_TO_SEC(Time_spent_processing))/Number_of_tasks))/ (sum( FilesByUnit.fileSize)/count( FilesByUnit.fileUUID)/1000000)) AS 'time per task per MB',
+        processingDurationInformation.currentLocation,
+        processingDurationInformation.currentPath
+    FROM
+        processingDurationInformation
+        JOIN FilesByUnit ON
+            processingDurationInformation.SIP_OR_TRANSFER_UUID =  FilesByUnit.unitUUID
+    GROUP BY
+        SIP_OR_TRANSFER_UUID
+;
+
+CREATE OR REPLACE VIEW FileExtensions AS
+    SELECT FileUUID, SUBSTRING_INDEX(SUBSTRING_INDEX(currentLocation,'/',-1),'.',-1) AS extension FROM Files WHERE removedTime = 0
+;
+
+
+CREATE OR REPLACE VIEW developmentAide_choicesDisplayed AS
+    SELECT MicroServiceChainChoice.*,  TasksConfigs.description AS 'Text', MicroServiceChains.description AS 'Choice'
+	    FROM MicroServiceChainChoice
+	    JOIN MicroServiceChainLinks ON MicroServiceChainChoice.choiceAvailableAtLink = MicroServiceChainLinks.pk
+	    JOIN TasksConfigs ON MicroServiceChainLinks.currentTask = TasksConfigs.pk
+	    JOIN MicroServiceChains ON MicroServiceChainChoice.chainAvailable = MicroServiceChains.pk
+;
+
+
+CREATE OR REPLACE VIEW filesPreservationAccessFormatStatus AS
+    SELECT Files.fileUUID, max(FileIDs.validPreservationFormat) AS 'inPreservationFormat', max(FileIDs.validAccessFormat) AS 'inAccessFormat' FROM Files LEFT OUTER JOIN FilesIdentifiedIDs ON Files.fileUUID = FilesIdentifiedIDs.fileUUID LEFT OUTER JOIN FileIDs ON FilesIdentifiedIDs.fileID = FileIDs.pk WHERE Files.fileGrpUse != 'preservation' GROUP BY Files.FileUUID;
+
+-- /VIEWS --
+

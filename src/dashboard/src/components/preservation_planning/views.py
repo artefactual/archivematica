@@ -92,14 +92,24 @@ def preservation_planning(request):
     return render(request, 'main/preservation_planning.html', locals())
 
 def get_fpr_table():
-    query = """SELECT FileIDs.pk, FileIDsBySingleID.id, tool, toolVersion, FileIDs.description, classification, Commands.command, outputLocation, Commands.description FROM 
-            FileIDsBySingleID 
-            LEFT OUTER JOIN FileIDs ON FileIDs.pk = FileIDsBySingleID.fileID
-            LEFT OUTER JOIN FileIDTypes ON FileIDTypes.pk = FileIDs.fileIDType
-            LEFT OUTER JOIN CommandRelationships ON CommandRelationships.fileID = FileIDs.pk
-            LEFT OUTER JOIN CommandClassifications on CommandClassifications.pk = CommandRelationships.commandClassification
-            LEFT OUTER JOIN Commands ON CommandRelationships.command = Commands.pk
-            ORDER BY FileIDTypes.description, FileIDs.description, CommandClassifications.classification"""
+#    query = """SELECT FileIDs.pk, FileIDsBySingleID.id, tool, toolVersion, FileIDs.description, classification, Commands.command, outputLocation, Commands.description FROM 
+#            FileIDsBySingleID 
+#            LEFT OUTER JOIN FileIDs ON FileIDs.pk = FileIDsBySingleID.fileID
+#            LEFT OUTER JOIN FileIDTypes ON FileIDTypes.pk = FileIDs.fileIDType
+#            LEFT OUTER JOIN CommandRelationships ON CommandRelationships.fileID = FileIDs.pk
+#            LEFT OUTER JOIN CommandClassifications on CommandClassifications.pk = CommandRelationships.commandClassification
+#            LEFT OUTER JOIN Commands ON CommandRelationships.command = Commands.pk
+#            ORDER BY FileIDTypes.description, FileIDs.description, CommandClassifications.classification"""
+   
+    query = """SELECT FileIDs.pk, FileIDsBySingleID.id, tool, toolVersion, FileIDs.description, classification, Commands.command, 
+                    outputLocation, Commands.description, FileIDs.validPreservationFormat, FileIDs.validAccessFormat
+                FROM FileIDsBySingleID              
+                LEFT OUTER JOIN FileIDs ON FileIDs.pk = FileIDsBySingleID.fileID             
+                LEFT OUTER JOIN FileIDTypes ON FileIDTypes.pk = FileIDs.fileIDType             
+                LEFT OUTER JOIN CommandRelationships ON CommandRelationships.fileID = FileIDs.pk             
+                LEFT OUTER JOIN CommandClassifications on CommandClassifications.pk = CommandRelationships.commandClassification             
+                LEFT OUTER JOIN Commands ON CommandRelationships.command = Commands.pk
+                ORDER BY FileIDTypes.description, FileIDs.description, CommandClassifications.classification"""
 
     # Get FPR data
 
@@ -117,7 +127,9 @@ def get_fpr_table():
                'classification': item[5],
                'Commands_command': item[6],
                'outputLocation': item[7],
-               'Commands_description': item[8]
+               'Commands_description': item[8],
+               'FileIDs_validPreservationFormat': 'True' if item[9] == 1 else "False",
+               'FileIDs_validAccessFormat': 'True' if item[10] == 1 else "False"
              }
 
        results.append(row)
@@ -194,4 +206,3 @@ def preservation_planning_fpr_data(request, current_page_number = None):
     item_count = len(results)
 
     return render(request, 'main/preservation_planning_fpr.html', locals())
- 

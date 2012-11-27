@@ -1,4 +1,11 @@
 *.py[co]
 src/dashboard/src/settings_local.py
 qubit-git
+*.pyo
+*~
 localDevSetup/ETCsudoersBackup
+
+#eclipse IDE files
+.project
+.pydevproject
+.settings/

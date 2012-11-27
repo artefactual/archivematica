@@ -28,6 +28,7 @@ import os
 import uuid
 import sys
 import threading
+import traceback
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 import databaseFunctions
@@ -39,9 +40,13 @@ class linkTaskManagerDirectories:
         self.tasks = []
         self.pk = pk
         self.jobChainLink = jobChainLink
-        sql = """SELECT * FROM StandardTasksConfigs where pk = """ + pk.__str__()
+        sql = """SELECT * FROM StandardTasksConfigs where pk = '%s'""" % (pk.__str__())
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
+        if row == None:
+            print >>sys.stderr, "\nfind me\n"
+            traceback.print_exc(file=sys.stderr)
+            return None
         while row != None:
             print row
             #pk = row[0]
