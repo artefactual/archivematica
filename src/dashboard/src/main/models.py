@@ -366,7 +366,7 @@ class SourceDirectory(models.Model):
 
 class MicroServiceChain(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    startinglink = models.IntegerField(db_column='startingLink')
+    startinglink = models.CharField(max_length=50, db_column='startingLink')
     description = models.TextField(db_column='description')
 
     class Meta:
@@ -374,8 +374,8 @@ class MicroServiceChain(models.Model):
 
 class MicroServiceChainLink(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    currenttask =  models.IntegerField(db_column='currentTask')
-    defaultnextchainlink = models.IntegerField(null=True, default=1, db_column='defaultNextChainLink')
+    currenttask =  models.CharField(max_length=50, db_column='currentTask')
+    defaultnextchainlink = models.CharField(max_length=50, null=True, default=1, db_column='defaultNextChainLink')
     defaultplaysound = models.IntegerField(null=True, db_column='defaultPlaySound')
     microservicegroup = models.TextField(db_column='microserviceGroup')
     reloadfilelist = models.IntegerField(default=1, db_column='reloadFileList')
@@ -386,9 +386,9 @@ class MicroServiceChainLink(models.Model):
 
 class MicroServiceChainLinkExitCode(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    microservicechainlink = models.IntegerField(db_column='microServiceChainLink')
+    microservicechainlink = models.CharField(max_length=50, db_column='microServiceChainLink')
     exitcode = models.IntegerField(db_column='exitCode')
-    nextmicroservicechainlink = models.IntegerField(db_column='nextMicroServiceChainLink')
+    nextmicroservicechainlink = models.CharField(max_length=50, db_column='nextMicroServiceChainLink')
     playsound = models.IntegerField(null=True, db_column='playSound')
     exitmessage = models.TextField(db_column='exitMessage')
 
@@ -397,15 +397,15 @@ class MicroServiceChainLinkExitCode(models.Model):
 
 class MicroServiceChainChoice(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    choiceavailableatlink = models.IntegerField(db_column='choiceAvailableAtLink')
-    chainavailable = models.IntegerField(db_column='chainAvailable')
+    choiceavailableatlink = models.CharField(max_length=150, db_column='choiceAvailableAtLink')
+    chainavailable = models.CharField(max_length=50, db_column='chainAvailable')
 
     class Meta:
         db_table = u'MicroServiceChainChoice'
 
 class MicroServiceChoiceReplacementDic(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
-    choiceavailableatlink = models.IntegerField(db_column='choiceAvailableAtLink')
+    id = models.CharField(primary_key=True, db_column='pk')
+    choiceavailableatlink = models.CharField(max_length=50, db_column='choiceAvailableAtLink')
     description = models.TextField(db_column='description', verbose_name='Description')
     replacementdic = models.TextField(db_column='replacementDic', verbose_name='Configuration')
 
