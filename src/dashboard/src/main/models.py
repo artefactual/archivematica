@@ -366,7 +366,7 @@ class SourceDirectory(models.Model):
 
 class MicroServiceChain(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    startinglink = models.IntegerField(db_column='startingLink')
+    startinglink = models.CharField(max_length=50, db_column='startingLink')
     description = models.TextField(db_column='description')
 
     class Meta:
@@ -386,9 +386,9 @@ class MicroServiceChainLink(models.Model):
 
 class MicroServiceChainLinkExitCode(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    microservicechainlink = models.IntegerField(db_column='microServiceChainLink')
+    microservicechainlink = models.CharField(max_length=50, db_column='microServiceChainLink')
     exitcode = models.IntegerField(db_column='exitCode')
-    nextmicroservicechainlink = models.IntegerField(db_column='nextMicroServiceChainLink')
+    nextmicroservicechainlink = models.CharField(max_length=50, db_column='nextMicroServiceChainLink')
     playsound = models.IntegerField(null=True, db_column='playSound')
     exitmessage = models.TextField(db_column='exitMessage')
 
@@ -398,13 +398,13 @@ class MicroServiceChainLinkExitCode(models.Model):
 class MicroServiceChainChoice(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     choiceavailableatlink = models.CharField(max_length=150, db_column='choiceAvailableAtLink')
-    chainavailable = models.IntegerField(db_column='chainAvailable')
+    chainavailable = models.CharField(max_length=50, db_column='chainAvailable')
 
     class Meta:
         db_table = u'MicroServiceChainChoice'
 
 class MicroServiceChoiceReplacementDic(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
+    id = models.CharField(primary_key=True, db_column='pk')
     choiceavailableatlink = models.CharField(max_length=50, db_column='choiceAvailableAtLink')
     description = models.TextField(db_column='description', verbose_name='Description')
     replacementdic = models.TextField(db_column='replacementDic', verbose_name='Configuration')
