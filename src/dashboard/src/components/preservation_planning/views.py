@@ -27,6 +27,7 @@ import pyes
 
 results_per_page = 6
 
+# TODO: remove this after FPR work finalized
 def preservation_planning(request):
     query="""SELECT
         Groups.description,
