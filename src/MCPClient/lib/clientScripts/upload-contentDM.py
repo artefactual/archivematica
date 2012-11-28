@@ -58,7 +58,15 @@ if __name__ == '__main__':
          help='The location of the restructured DIPs')
 
     args = parser.parse_args()
+    
+    # Before proceeding, check to see if there is a zip file for this DIP; if there is,
+    # the user has selected the 'Project Client' option and we just exit from this script.
+    projectClientZipPath = outputDipDir = os.path.join(args.outputDir, 'CONTENTdm', 'projectclient', args.uuid + '.zip')
+    print 'project client zip path:', projectClientZipPath
+    if os.path.exists(projectClientZipPath):
+		quit(0)
 
+    # If we haven't quit, continue to process the 'directupload' files.
     contentdmCollectionDirectory = getDestinationImportDirectory(args.targetCollection, args.contentdmServer)
 
     # Determine if the package is for a simple item or a compound item by counting the
@@ -79,8 +87,6 @@ if __name__ == '__main__':
 
     sourceDir = os.path.join(args.outputDir, 'CONTENTdm', 'directupload', args.uuid)
     sourceFiles = os.listdir(sourceDir)
-    # for sourceFile in sourceFiles:
-        # print "Source file:", sourceFile
         
     rsyncCmd = "rsync -rv %s %s " % (sourceDir + '/', rsyncDestPath)
     rsyncExitCode = os.system(rsyncCmd)
@@ -92,7 +98,6 @@ if __name__ == '__main__':
 
     # Loop through all the files or directories and change their group and permisions.
     for sourceFilename in sourceFiles:
-        # print "sourceFilename:", sourceFilename
         # Change the permissions and group of the DIP files so they are correct on the CONTENTdm
         sshLogin = args.contentdmUser + "@" + server
         sshChgrpCmd = 'chgrp -R ' + args.contentdmGroup 
