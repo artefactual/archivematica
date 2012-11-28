@@ -271,7 +271,6 @@ def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
     collectionFieldInfo['dcMappings'] = collectionFieldDcMappings
     collectionFieldInfo['nonDcMappings'] = collectionFieldNonDcMappings
     collectionFieldInfo['order'] = collectionFieldOrder
-    pp.pprint(collectionFieldInfo)
     return collectionFieldInfo
 
 
@@ -604,8 +603,6 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
     shutil.copy(filesInObjectDirectoryForThisDmdSec[0], outputDipDir)
     # Get the object filename, which we will add to the delimited file below.
     path, filename = os.path.split(filesInObjectDirectoryForThisDmdSec[0])
-    
-    pp.pprint(nonDcMetadata)
       
     # Populate a row to write to the metadata file, with the first row containing the
     # field labels and the second row containing the values. Both rows needs to be
