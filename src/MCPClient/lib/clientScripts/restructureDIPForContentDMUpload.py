@@ -302,27 +302,22 @@ def getObjectDirectoryFiles(objectDir):
 
 # Create a .zip from the DIP files produced by generateXXProjectClientPackage functions.
 # Resulting zip file is written to the uploadedDIPs directory.
-def zipProjectClientOutput(outputDipDir, dipUuid, type):
-    outputFile = zipfile.ZipFile(outputDipDir + ".zip", "w")
-    sourceFilesRoot = glob.glob(os.path.join(outputDipDir, '*'))
-    # For each of the files in the root DIP directory, prepend the DIP UUID
-    # to the filename so the zip file will unzip into the corresponding directory.
-    for rootSourceFilename in sourceFilesRoot:
-        destFilename = os.path.join(dipUuid, os.path.basename(rootSourceFilename))
-        outputFile.write(rootSourceFilename, destFilename, zipfile.ZIP_DEFLATED)
-
-    if type is 'compound':
-        sourceFilesScans = glob.glob(os.path.join(outputDipDir, 'scans', '*'))
-        if not len(sourceFilesScans):
-            print "No DIP files found."
-            sys.exit(1)
-        # For each of the files in the 'scans' subdirectory, prepend the DIP UUID to the
-        # filename so the zip file will unzip into the corresponding directory.
-        for scansSourceFilename in sourceFilesScans:
-            destFilename = os.path.join(dipUuid, 'scans', os.path.basename(scansSourceFilename))
-            outputFile.write(scansSourceFilename, destFilename, zipfile.ZIP_DEFLATED)
-
+def zipProjectClientOutput(outputDipDir, zipOutputDir, dipUuid):
+    currentDir = os.getcwd()
+    # We want to chdir to this directory so we can only include the DIP-specific
+    # structure in our zip file.
+    zipOutputPath = os.path.join(zipOutputDir, 'CONTENTdm', 'projectclient')
+    os.chdir(zipOutputPath)
+    zipOutputFile = dipUuid + '.zip'
+    # zipOutputFile is now relative to zipOutputPath since we have chdir'ed here.
+    outputFile = zipfile.ZipFile(zipOutputFile, "w")
+    # Because we have chdir'ed, we use the relative dipUuid as the source directory
+    # for our zip file.
+    for dirpath, dirnames, filenames in os.walk(dipUuid):
+        for filename in filenames:
+            outputFile.write(os.path.join(dirpath, filename), os.path.join(dirpath, filename))
     outputFile.close()
+    os.chdir(currentDir)
 
 
 # Generate a .desc file used in CONTENTdm 'direct import' packages.
@@ -1035,6 +1030,6 @@ if __name__ == '__main__':
             generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, False)
     
     if args.ingestFormat == 'projectclient':
-        zipProjectClientOutput(outputDipDir, args.uuid, itemCountType)
-        # Delete the unzipped version of the DIP since we don't use it anyway.
+        zipProjectClientOutput(outputDipDir, args.outputDir, args.uuid)
+        # Delete the unzipped version of the DIP since we don't use it.
         shutil.rmtree(outputDipDir)
