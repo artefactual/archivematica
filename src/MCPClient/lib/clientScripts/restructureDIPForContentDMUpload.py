@@ -301,11 +301,11 @@ def getObjectDirectoryFiles(objectDir):
 
 
 # Create a .zip from the DIP files produced by generateXXProjectClientPackage functions.
-# Zip files are written in the uploadedDIPs directory.
+# Resulting zip file is written to the uploadedDIPs directory.
 def zipProjectClientOutput(outputDipDir, dipUuid, type):
     outputFile = zipfile.ZipFile(outputDipDir + ".zip", "w")
     sourceFilesRoot = glob.glob(os.path.join(outputDipDir, '*'))
-    # For each of the files in the DIP directionn root directory, prepend the DIP UUID
+    # For each of the files in the root DIP directory, prepend the DIP UUID
     # to the filename so the zip file will unzip into the corresponding directory.
     for rootSourceFilename in sourceFilesRoot:
         destFilename = os.path.join(dipUuid, os.path.basename(rootSourceFilename))
@@ -644,14 +644,17 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
     if os.path.exists(simpleTxtFilePath):
         delimitedFile = open(simpleTxtFilePath, "ab")
         writer = csv.writer(delimitedFile, delimiter='\t')
+    # If it doesn't exist yet, write out the header row.
     else:
         delimitedFile = open(simpleTxtFilePath, "wb")
         writer = csv.writer(delimitedFile, delimiter='\t')
         delimHeaderRow.append('Filename') # Must contain 'Filename' in last position
-        writer.writerow(delimHeaderRow) 
+        writer.writerow(delimHeaderRow)
         
     # Write out the object filename. The filename must be in the last field in the row.
     delimValuesRow.append(filename)
+    
+    # Write the values row and close the file.
     writer.writerow(delimValuesRow)
     delimitedFile.close()
 
@@ -793,8 +796,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
 # Generate a 'project client' package for a compound CONTENTdm item from the Archivematica DIP.
 # This package will contain the object file and a delimited metadata file in a format suitable
 # for importing into CONTENTdm using its Project Client.
-# def generateCompoundContentDMProjectClientPackage(metsDom, dipUuid, outputDipDir, filesInObjectDirectory):
-def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec):
+def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, bulk):
     (dcMetadata, nonDcMetadata) = splitDmdSecs(dmdSecs)
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection) 
 
@@ -804,18 +806,40 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     # structMapDom =  metsDom.getElementsByTagName('structMap')[0]
     structMapDom = structMaps[0]
     structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSec)
+    
+    # Each item needs to have its own directory under outputDipDir. To supply a unique UUID
+    # for each compound item, we use the the first eight characters of the UUID of the first 
+    # file in each compound item.
+    if bulk:
+        firstFilePath, firstFileFilename = os.path.split(filesInObjectDirectoryForThisDmdSecGroup[0])
+        itemDirUuid = firstFileFilename[:8]
+        outputItemDir = os.path.join(outputDipDir, itemDirUuid)
+        os.mkdir(outputItemDir)
+        # Copy the files into the outputItemDir, giving them names that reflect
+        # the sort order expressed in their structMap.
+        Orders = []
+        for fptr, details in structMapDict.iteritems():
+            Orders.append(details['order'])
 
-    # @todo: Test whether DIP is single or bulk... how? Maybe check to see how many
-    # divs with a DMDID attribute there are in the structMap, 1 = single, > 1 = bulk?
-    # If we are dealing with a single (not bulk) DIP, create a 'scans' subdirectory
-    # in the output directory.
-    scansDir = os.path.join(outputDipDir, 'scans')
-    os.makedirs(scansDir)
-    # If we are dealing with bulk, we need to create a folder in outputDipDir for each item.
-    # What value do we use? http://www.contentdm.org/help6/objects/multiple4.asp recommends
-    # title but we probably don't want that. We might need to however, since in the direct
-    # upload compound function we created a subdirectory for each item out of the UUID of the
-    # first file in the item....
+        # Iterate through the list of order values and add the matching structMapDict entry
+        # to the delimited file and copy the file into the scans directory.
+        for order in sorted(Orders):
+            for k, v in structMapDict.iteritems():
+                if order == v['order']:
+                    # Find the full path of the file identified in v['filename'].
+                    for fullPath in filesInObjectDirectoryForThisDmdSecGroup:
+                        if (v['filename'] in fullPath):
+                            objectFilePath, objectFileFilename = os.path.split(v['filename'])
+                            objectFileBaseFilename, objectFileExtension = os.path.splitext(objectFileFilename)
+                            # We give the destination files a sortable numeric name (using their 'order'
+                            # attribute from parseStructMap() so they sort properly in the Project Client.
+                            shutil.copy(fullPath, os.path.join(outputItemDir, v['order'] + objectFileExtension))
+  
+    # I.e., single item in DIP. We take care of copying the files and assembling the
+    # child-level metadata rows further down.
+    else:
+        scansDir = os.path.join(outputDipDir, 'scans')
+        os.makedirs(scansDir)
 
     # Write out the metadata file, with the first row containing the field labels and the
     # second row containing the values. Both rows needs to be in the order expressed in
@@ -847,60 +871,77 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
                else:
                    delimItemValuesRow.append('')
 
-    delimitedFile = open(os.path.join(outputDipDir, 'compound.txt'), "wb")
-    writer = csv.writer(delimitedFile, delimiter='\t')
-    # Write the header row.
-    delimHeaderRow.append('Filename') # Must contain 'Filename' in last position
-    writer.writerow(delimHeaderRow) 
+    compoundTxtFilePath = os.path.join(outputDipDir, 'compound.txt')
+    # Check to see if compound.txt already exists, and if it does, append delimValuesRow
+    # to it.
+    if os.path.exists(compoundTxtFilePath):
+        delimitedFile = open(compoundTxtFilePath, "ab")
+        writer = csv.writer(delimitedFile, delimiter='\t')
+    # If it doesn't exist, write out the header row.
+    else:
+        delimitedFile = open(compoundTxtFilePath, "wb")
+        writer = csv.writer(delimitedFile, delimiter='\t')
+        # Write the header row. Headers for compound item Project Client packages have
+        # the Directory name field in the first position.
+        delimHeaderRow.insert(0, 'Directory name')
+        writer.writerow(delimHeaderRow)
+
+    # Prepend the item directory name to the row.
+    delimItemValuesRow.insert(0, itemDirUuid)
     # Write the item-level metadata row.
     writer.writerow(delimItemValuesRow) 
 
-    # Determine the order in which we will add the child-level rows to the delimited file.
-    Orders = []
-    for fptr, details in structMapDict.iteritems():
-        Orders.append(details['order'])
+    # Child-level metadata for compound items only applies to single-DIP items,
+    # not bulk DIPs, since we're using the CONTENTdm 'object list' Project Client
+    # method of importing (see http://www.contentdm.org/help6/objects/multiple4.asp).
+    # Page labels need to be applied within the project client.
+    if not bulk:
+        # Determine the order in which we will add the child-level rows to the delimited file.
+        Orders = []
+        for fptr, details in structMapDict.iteritems():
+            Orders.append(details['order'])
 
-    # Iterate through the list of order values and add the matching structMapDict entry
-    # to the delimited file (and copy the file into the scans directory).
-    for order in sorted(Orders):
-        for k, v in structMapDict.iteritems():
-            if order == v['order']:
-               delimChildValuesRow = []
-               # Find the full path of the file identified in v['filename'].
-               for fullPath in filesInObjectDirectory:
-                   if (v['filename'] in fullPath):
-                       shutil.copy(fullPath, scansDir)
-
-               # Write the child-level metadata row. For single (non-bulk) DIPs, we use
-               # the delimited file format described at
-               # http://www.contentdm.org/help6/objects/adding3a.asp; for bulk DIPs, we
-               # use the 'object list' method described at
-               # http://www.contentdm.org/help6/objects/multiple4.asp. In this method, we
-               # should make sure the directory where the item's children are stored (identified
-               # in the input metadata.csv's 'parts' column) is used for the output delimited
-               # file's 'Directory Name' value; we can't use the item's title since it may
-               # contain characters that are illegal in directory names. This also means that
-               # we can just copy the child directory names into this field.
-               # @todo (applies to single, not bulk): For flat items with no child-level metadata, we are using the 
-               # label for the child as defined in structMapDict and the filename only.
-               # This means that we put the label in the position allocated for the dc.title element,
-               # and the wwfilename in the last position. Everthing in between is ''. This will
-               # need to be made more functional for flat items with child-level metadata,
-               # and for hierarchical.
-               titlePosition = collectionFieldInfo['order'].index('title')
-               if titlePosition == 0:
-                   delimChildValuesRow.append(v['label'])
-                   for i in range(1, len(delimHeaderRow) - 1):
-                       delimChildValuesRow.append('')
-               # Rows must contain filename in last position.
-               delimChildValuesRow.append(v['filename']) 
-               writer.writerow(delimChildValuesRow)
-
+        # Iterate through the list of order values and add the matching structMapDict entry
+        # to the delimited file (and copy the file into the scans directory).
+        for order in sorted(Orders):
+            for k, v in structMapDict.iteritems():
+                if order == v['order']:
+                    delimChildValuesRow = []
+                    # Find the full path of the file identified in v['filename'].
+                    for fullPath in filesInObjectDirectory:
+                        if (v['filename'] in fullPath):
+                            objectFilePath, objectFileFilename = os.path.split(v['filename'])
+                            objectFileBaseFilename, objectFileExtension = os.path.splitext(objectFileFilename)
+                            # We give the destination files a sortable numeric name (using their 'order'
+                            # attribute from parseStructMap() so they sort properly in the Project Client.
+                            shutil.copy(fullPath, os.path.join(outputItemDir, v['order'] + objectFileExtension))                            
+                            
+                    # Write the child-level metadata row. For single (non-bulk) DIPs, we use
+                    # the delimited file format described at
+                    # http://www.contentdm.org/help6/objects/adding3a.asp; for bulk DIPs, we
+                    # use the 'object list' method described at
+                    # http://www.contentdm.org/help6/objects/multiple4.asp. In this method, we
+                    # should make sure the directory where the item's children are stored (identified
+                    # in the input metadata.csv's 'parts' column) is used for the output delimited
+                    # file's 'Directory Name' value; we can't use the item's title since it may
+                    # contain characters that are illegal in directory names. This also means that
+                    # we can just copy the child directory names into this field.
+                    # @todo (applies to single, not bulk): For flat items with no child-level metadata, we are using the 
+                    # label for the child as defined in structMapDict and the filename only.
+                    # This means that we put the label in the position allocated for the dc.title element,
+                    # and the wwfilename in the last position. Everthing in between is ''. This will
+                    # need to be made more functional for flat items with child-level metadata,
+                    # and for hierarchical.
+                    titlePosition = collectionFieldInfo['order'].index('title')
+                    if titlePosition == 0:
+                        delimChildValuesRow.append(v['label'])
+                        for i in range(1, len(delimHeaderRow) - 1):
+                            delimChildValuesRow.append('')
+                    # Rows for compound itms must contain directory name in first position.
+                    delimChildValuesRow.prepend(itemDirUuid)
+                    writer.writerow(delimChildValuesRow)
+               
     delimitedFile.close()
-
-    # zipProjectClientOutput(outputDipDir, dipUuid, 'compound')
-    # Delete the unzipped version of the DIP since we don't use it anyway.
-    # shutil.rmtree(outputDipDir)
 
 
 if __name__ == '__main__':
@@ -954,8 +995,12 @@ if __name__ == '__main__':
     # OTHER is not present, just the DC.
     groupedDmdSecs = groupDmdSecs(dmdSecs)
     
-    # Assumes that a single item (i.e. no bulk) will only have one dmdSec
-    # (i.e., not "dmdSec_1 dmdSec_2").
+    # Bulk DIP. Assumes that a single item (i.e. no bulk) will only have one
+    # dmdSec, (i.e., not "dmdSec_1 dmdSec_2"). This is probably a safe assumption
+    # because a single item's metadata would either come from a dublincore.xml
+    # file or from the metadata entry form in the Dashboard. Only edge case
+    # would be if the metadata was from a single-row metadata.csv file that had 
+    # a combination of dcterms and custom metadata.
     if numDmdSecs > 1:
         # For simple items.  
         if itemCountType == 'simple':
@@ -973,9 +1018,9 @@ if __name__ == '__main__':
                 if args.ingestFormat == 'directupload':
                     generateCompoundContentDMDirectUploadPackage(dmdSecGroup, structMaps,  args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory)
                 if args.ingestFormat == 'projectclient':
-                    generateCompoundContentDMProjectClientPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSec)
+                    generateCompoundContentDMProjectClientPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, True)
 
-    # 0 or 1 dmdSec.
+    # 0 or 1 dmdSec (single-item DIP).
     else:
         # For simple items.
         if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'directupload':
@@ -987,7 +1032,7 @@ if __name__ == '__main__':
         if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'directupload':
             generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
         if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'projectclient':
-            generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
+            generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, False)
     
     if args.ingestFormat == 'projectclient':
         zipProjectClientOutput(outputDipDir, args.uuid, itemCountType)
