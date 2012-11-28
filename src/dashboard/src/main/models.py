@@ -7,6 +7,22 @@ from contrib import utils
 from django import forms
 import ast
 import main
+import uuid
+
+class UUIDPkField(models.CharField):
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = kwargs.get('max_length', 64)
+        kwargs['blank'] = False
+        kwargs['primary_key'] = True
+        kwargs['editable'] = False
+        kwargs['db_column'] = 'pk'
+        kwargs['default'] = True # provide a placeholder pk value or else it won't save
+        models.CharField.__init__(self, *args, **kwargs)
+
+    def pre_save(self, model_instance, add):
+        # set uuid during save
+        setattr(model_instance, self.attname, uuid.uuid4().__str__())
+        return super(models.CharField, self).pre_save(model_instance, add)
 
 class Access(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -49,7 +65,6 @@ class Access(models.Model):
             return 'N/A'
 
 class DublinCoreManager(models.Manager):
-
     def get_sip_metadata(self, uuid):
         return DublinCore.objects.get(metadataappliestotype__exact=1, metadataappliestoidentifier__exact=uuid)
 
@@ -101,7 +116,6 @@ class Job(models.Model):
         db_table = u'Jobs'
 
 class SIPManager(models.Manager):
-
     def is_hidden(self, uuid):
         try:
             return SIP.objects.get(uuid__exact=uuid).hidden is True
@@ -131,7 +145,6 @@ class AIP(models.Model):
         db_table = u'AIPs'
 
 class TransferManager(models.Manager):
-
     def is_hidden(self, uuid):
         try:
             return Transfer.objects.get(uuid__exact=uuid).hidden is True
@@ -173,16 +186,6 @@ class Task(models.Model):
 
     class Meta:
         db_table = u'Tasks'
-
-class JobStepCompleted(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
-    # jobuuid = models.CharField(max_length=50, db_column='jobUUID', blank=True)
-    job = models.ForeignKey(Job, db_column='jobuuid', to_field = 'jobuuid')
-    completedtime = models.DateTimeField(db_column='completedTime')
-    step = models.CharField(max_length=50, blank=True)
-
-    class Meta:
-        db_table = u'jobStepCompleted'
 
 class RightsStatement(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -365,7 +368,7 @@ class SourceDirectory(models.Model):
 """ MCP data interoperability """
 
 class MicroServiceChain(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
+    id = UUIDPkField()
     startinglink = models.CharField(max_length=50, db_column='startingLink')
     description = models.TextField(db_column='description')
 
@@ -373,7 +376,7 @@ class MicroServiceChain(models.Model):
         db_table = u'MicroServiceChains'
 
 class MicroServiceChainLink(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
+    id = UUIDPkField()
     currenttask =  models.CharField(max_length=50, db_column='currentTask')
     defaultnextchainlink = models.CharField(max_length=50, null=True, default=1, db_column='defaultNextChainLink')
     defaultplaysound = models.IntegerField(null=True, db_column='defaultPlaySound')
@@ -385,7 +388,7 @@ class MicroServiceChainLink(models.Model):
         db_table = u'MicroServiceChainLinks'
 
 class MicroServiceChainLinkExitCode(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
+    id = UUIDPkField()
     microservicechainlink = models.CharField(max_length=50, db_column='microServiceChainLink')
     exitcode = models.IntegerField(db_column='exitCode')
     nextmicroservicechainlink = models.CharField(max_length=50, db_column='nextMicroServiceChainLink')
@@ -396,7 +399,7 @@ class MicroServiceChainLinkExitCode(models.Model):
         db_table = u'MicroServiceChainLinksExitCodes'
 
 class MicroServiceChainChoice(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
+    id = UUIDPkField()
     choiceavailableatlink = models.CharField(max_length=150, db_column='choiceAvailableAtLink')
     chainavailable = models.CharField(max_length=50, db_column='chainAvailable')
 
@@ -404,7 +407,7 @@ class MicroServiceChainChoice(models.Model):
         db_table = u'MicroServiceChainChoice'
 
 class MicroServiceChoiceReplacementDic(models.Model):
-    id = models.CharField(primary_key=True, db_column='pk')
+    id = UUIDPkField()
     choiceavailableatlink = models.CharField(max_length=50, db_column='choiceAvailableAtLink')
     description = models.TextField(db_column='description', verbose_name='Description')
     replacementdic = models.TextField(db_column='replacementDic', verbose_name='Configuration')
@@ -426,7 +429,7 @@ class MicroServiceChoiceReplacementDic(models.Model):
         db_table = u'MicroServiceChoiceReplacementDic'
 
 class StandardTaskConfig(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
+    id = UUIDPkField()
     execute = models.TextField(db_column='execute', blank=True)
     arguments = models.TextField(db_column='arguments', blank=True)
 
@@ -434,7 +437,7 @@ class StandardTaskConfig(models.Model):
         db_table = u'StandardTasksConfigs'
 
 class TaskConfig(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
+    id = UUIDPkField()
     tasktype = models.IntegerField(db_column='taskType')
     tasktypepkreference = models.IntegerField(db_column='taskTypePKReference')
     description = models.TextField(db_column='description')
