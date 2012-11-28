@@ -29,8 +29,8 @@ fn_exists()
 
 colour () { "$@" 2>&1>&3|sed 's,.*,\x1B[31m&\x1B[0m,'>&2;} 3>&1
 
-function svn-update() {
-  part="svn up"
+function git-pull() {
+  part="git pull"
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
@@ -189,7 +189,7 @@ if [ ! -z ${1} ]; then
   exit
 fi
 
-svn-update
+git-pull
 package-update
 recreate-db
 restart
