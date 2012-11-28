@@ -131,9 +131,15 @@ function export-sampledata() {
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
-          rev="`svn info | grep \"Revision: \" | awk -F " " '{print $2}'`"
-          echo Going to export to '~/'sampledata-$rev ...
-          colour svn export sampledata ~/sampledata-${rev}
+    CURRENT_REPO=`git remote -v | head -n 1 | sed "s/\t/ /" | cut -f2 -d" "`
+    if [ "$CURRENT_REPO" = "git@git.artefactual.com:archivematica.git" ]; then
+      SAMPLEDATA_REPO="git@git.artefactual.com:archivematica-sampledata.git"
+    else
+      SAMPLEDATA_REPO="https://github.com/artefactual/archivematica-sampledata.git"
+    fi
+
+    print "Exporting archivematica-sampledata to $HOME..."
+    colour git clone $SAMPLEDATA_REPO ~/archivematica-sampledata
   else
           echo "Not going to ${part}."
   fi
