@@ -27,7 +27,7 @@ urlpatterns = patterns('components.administration.views',
     (r'dips/atom/$', 'administration_atom_dips'),
     (r'dips/contentdm/$', 'administration_contentdm_dips'),
     (r'sources/$', 'administration_sources'),
-    (r'sources/delete/json/(?P<id>\d+)/$', 'administration_sources_delete_json'),
+    (r'sources/delete/json/(?P<id>' + UUID_REGEX + ')/$', 'administration_sources_delete_json'),
     (r'processing/$', 'administration_processing'),
     (r'sources/json/$', 'administration_sources_json'),
 
