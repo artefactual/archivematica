@@ -356,7 +356,7 @@ class RightsStatementLinkingAgentIdentifier(models.Model):
         db_table = u'RightsStatementLinkingAgentIdentifier'
 
 class SourceDirectory(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
+    id = UUIDPkField()
     path = models.TextField(db_column='path')
 
     def __unicode__(self):
