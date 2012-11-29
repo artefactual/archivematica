@@ -495,22 +495,29 @@ def groupDmdSecs(dmdSecs):
 # generateDescFile() with the expected values.
 def splitDmdSecs(dmdSecs):
     lenDmdSecs = len(dmdSecs)
-    # If we have two dmdSecs, the first one is DC and the second OTHER.
+    dmdSecPair = dict()
     if lenDmdSecs == 2:
-        dcMetadata = parseDmdSec(dmdSecs[0])
-        nonDcMetadata = parseDmdSec(dmdSecs[1])        
-    # If we have one dmdSec, it's DC.
+        for dmdSec in dmdSecs:
+            mdWrap = dmdSec.getElementsByTagName('mdWrap')[0]
+            if mdWrap.attributes['MDTYPE'].value == 'OTHER':
+                dmdSecPair['nonDc'] = parseDmdSec(dmdSec)
+            if mdWrap.attributes['MDTYPE'].value == 'DC':
+                dmdSecPair['dc'] = parseDmdSec(dmdSec)
     if lenDmdSecs == 1:
-        # This is the DC dmdSec.
-        dcMetadata = parseDmdSec(dmdSecs[0])
-        nonDcMetadata = None
-    # If dmdSecs is empty, let parseDcXML() assign a placeholder title in dcMetadata.
+        mdWrap = dmdSecs[0].getElementsByTagName('mdWrap')[0]
+        if mdWrap.attributes['MDTYPE'].value == 'OTHER':
+            dmdSecPair['nonDc'] = parseDmdSec(dmdSec)
+            dmdSecPair['dc'] = None
+        if mdWrap.attributes['MDTYPE'].value == 'DC':
+            dmdSecPair['dc'] = parseDmdSec(dmdSec)
+            dmdSecPair['nonDc'] = None
     if lenDmdSecs == 0:
+        # If dmdSecs is empty, let parseDcXML() assign a placeholder title in dcMetadata.
         dmdSec = dmdSecs
-        dcMetadata = parseDmdSec(dmdSec)
-        nonDcMetadata = None
-    
-    return (dcMetadata, nonDcMetadata)
+        dmdSecPair['dc'] = parseDmdSec(dmdSec)
+        dmdSecPair['nonDc'] = None
+
+    return dmdSecPair
 
 
 # Given a list of structMaps and a list of DMDID values, return a list of
@@ -557,9 +564,9 @@ def getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps):
 # This package will contain the object file, its thumbnail, a .desc (DC metadata) file,
 # and a .full (manifest) file.
 def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, filesInThumbnailDirectory):
-    # (dcMetadata, nonDcMetadata) = splitDmdSecs(dmdSecs)
-    (nonDcMetadata, dcMetadata) = splitDmdSecs(dmdSecs)
-    descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
+    dmdSecPair = splitDmdSecs(dmdSecs)
+    # (nonDcMetadata, dcMetadata) = splitDmdSecs(dmdSecs)
+    descFileContents = generateDescFile(dmdSecPair['dc'], dmdSecPair['nonDc'])
     
     # Get the object base filename and extension. Since we are dealing with simple items,
     # there should only be one file in filesInObjectDirectoryForThisDmdSec.
@@ -594,8 +601,9 @@ def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, out
 # This package will contain the object file and a delimited metadata file in a format
 # suitable for importing into CONTENTdm using its Project Client.
 def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec):
-    # (dcMetadata, nonDcMetadata) = splitDmdSecs(dmdSecs)
-    (nonDcMetadata, dcMetadata) = splitDmdSecs(dmdSecs)
+    dmdSecPair = splitDmdSecs(dmdSecs)
+    nonDcMetadata = dmdSecPair['nonDc']
+    dcMetadata = dmdSecPair['dc']
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
 
     # Since we are dealing with simple objects, there should only be one file
@@ -664,9 +672,8 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
 # index.desc, index.cpd, index.full, and ready.txt. @todo: If a user-submitted
 # structMap is present, use it to order the files.
 def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory):
-    # (dcMetadata, nonDcMetadata) = splitDmdSecs(dmdSecs)
-    (nonDcMetadata, dcMetadata) = splitDmdSecs(dmdSecs)
-    descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
+    dmdSecPair = splitDmdSecs(dmdSecs)
+    descFileContents = generateDescFile(dmdSecPair['dc'], dmdSecPair['nonDc'])
     # Make a copy of nonDcMetadata that we use for compound item children (see comment below).
     nonDcMetadataForChildren = nonDcMetadata
 
@@ -797,8 +804,9 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
 # This package will contain the object file and a delimited metadata file in a format suitable
 # for importing into CONTENTdm using its Project Client.
 def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, bulk):
-    # (dcMetadata, nonDcMetadata) = splitDmdSecs(dmdSecs)
-    (nonDcMetadata, dcMetadata) = splitDmdSecs(dmdSecs)
+    dmdSecPair = splitDmdSecs(dmdSecs)
+    nonDcMetadata = dmdSecPair['nonDc']
+    dcMetadata = dmdSecPair['dc']    
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
 
     # Archivematica's stuctMap is always the first one; the user-submitted structMap
