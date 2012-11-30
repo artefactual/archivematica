@@ -97,11 +97,14 @@ def ingest_status(request, uuid=None):
     response['mcp'] = mcp_available
     return HttpResponse(simplejson.JSONEncoder(default=encoder).encode(response), mimetype='application/json')
 
+def ingest_sip_metadata_type_id():
+    types = models.MetadataAppliesToType.objects.filter(description='SIP')
+    return types[0].id
+
 @decorators.load_jobs # Adds jobs, name
 def ingest_metadata_list(request, uuid, jobs, name):
     # See MetadataAppliesToTypes table
-    # types = { 'ingest': 1, 'transfer': 2, 'file': 3 }
-    metadata = models.DublinCore.objects.filter(metadataappliestotype__exact=1, metadataappliestoidentifier__exact=uuid)
+    metadata = models.DublinCore.objects.filter(metadataappliestotype__exact=ingest_sip_metadata_type_id(), metadataappliestoidentifier__exact=uuid)
 
     return render(request, 'ingest/metadata_list.html', locals())
 
@@ -114,7 +117,7 @@ def ingest_metadata_edit(request, uuid, id=None):
             dc = models.DublinCore.objects.get_sip_metadata(uuid)
             return HttpResponseRedirect(reverse('components.ingest.views.ingest_metadata_edit', args=[uuid, dc.id]))
         except ObjectDoesNotExist:
-            dc = models.DublinCore(metadataappliestotype=1, metadataappliestoidentifier=uuid)
+            dc = models.DublinCore(metadataappliestotype=ingest_sip_metadata_type_id(), metadataappliestoidentifier=uuid)
 
     fields = ['title', 'creator', 'subject', 'description', 'publisher',
               'contributor', 'date', 'type', 'format', 'identifier',

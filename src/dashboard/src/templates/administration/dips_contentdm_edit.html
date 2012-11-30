@@ -65,7 +65,8 @@
     {% endif %}
 
     {% include "_formset.html" with formset=formset %}
-    {% include "_form.html" %}
+
+    {{ add_form }}
 
     <div class="actions">
       <button type="submit" class="btn primary">Save</button>

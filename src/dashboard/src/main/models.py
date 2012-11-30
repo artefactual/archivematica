@@ -70,7 +70,7 @@ class DublinCoreManager(models.Manager):
 
 class DublinCore(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    metadataappliestotype = models.IntegerField(db_column='metadataAppliesToType')
+    metadataappliestotype = models.CharField(max_length=50, db_column='metadataAppliesToType')
     metadataappliestoidentifier = models.CharField(max_length=50, blank=True, db_column='metadataAppliesToidentifier')
     title = models.TextField(db_column='title', blank=True)
     creator = models.TextField(db_column='creator', blank=True)
@@ -98,6 +98,15 @@ class DublinCore(models.Model):
             return u'%s' % self.title
         else:
             return u'Untitled'
+
+class MetadataAppliesToType(models.Model):
+    id = UUIDPkField()
+    description = models.CharField(max_length=50, db_column='description')
+    replaces = models.CharField(max_length=50, db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
+
+    class Meta:
+        db_table = u'MetadataAppliesToTypes'
 
 class Job(models.Model):
     jobuuid = models.CharField(max_length=150, primary_key=True, db_column='jobUUID')
@@ -356,7 +365,7 @@ class RightsStatementLinkingAgentIdentifier(models.Model):
         db_table = u'RightsStatementLinkingAgentIdentifier'
 
 class SourceDirectory(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
+    id = UUIDPkField()
     path = models.TextField(db_column='path')
 
     def __unicode__(self):

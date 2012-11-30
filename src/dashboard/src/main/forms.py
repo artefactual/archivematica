@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.forms.models import modelformset_factory
-from django.forms.widgets import TextInput, Textarea, CheckboxInput
+from django.forms.widgets import TextInput, Textarea, CheckboxInput, HiddenInput
 from main import models
 
 TEXTAREA_ATTRS = {'rows': '4', 'class': 'span11'}
@@ -131,8 +131,9 @@ class MicroServiceChoiceReplacementDicForm(ModelForm):
     class Meta:
         model = models.MicroServiceChoiceReplacementDic
         exclude = (
-            'id',
-            'choiceavailableatlink',)
+            'id', )
         widgets = {
             'description': TextInput(attrs=INPUT_ATTRS),
-            'replacementdic': Textarea(attrs=TEXTAREA_ATTRS), }
+            'replacementdic': Textarea(attrs=TEXTAREA_ATTRS),
+            'choiceavailableatlink': HiddenInput
+        }
