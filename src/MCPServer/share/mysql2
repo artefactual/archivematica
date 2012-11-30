@@ -36,7 +36,7 @@ CREATE TABLE `Agents` (
   `agentName` longtext,
   `agentType` longtext,
   PRIMARY KEY (`pk`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `MetadataAppliesToTypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -515,7 +515,7 @@ CREATE TABLE `FilesIDs` (
   PRIMARY KEY (`pk`),
   KEY `fileUUID` (`fileUUID`),
   CONSTRAINT `FilesIDs_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`)
-) ENGINE=InnoDB AUTO_INCREMENT=813 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -533,7 +533,7 @@ CREATE TABLE `Events` (
   PRIMARY KEY (`pk`),
   KEY `fileUUID` (`fileUUID`),
   CONSTRAINT `Events_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`)
-) ENGINE=InnoDB AUTO_INCREMENT=5221 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Derivations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -548,7 +548,7 @@ CREATE TABLE `Derivations` (
   KEY `derivedFileUUID` (`derivedFileUUID`),
   CONSTRAINT `Derivations_ibfk_1` FOREIGN KEY (`sourceFileUUID`) REFERENCES `Files` (`fileUUID`),
   CONSTRAINT `Derivations_ibfk_2` FOREIGN KEY (`derivedFileUUID`) REFERENCES `Files` (`fileUUID`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `MicroServiceChainLinksExitCodes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -4748,7 +4748,7 @@ CREATE TABLE `FilesIdentifiedIDs` (
   KEY `fileID` (`fileID`),
   CONSTRAINT `FilesIdentifiedIDs_ibfk_2` FOREIGN KEY (`fileID`) REFERENCES `FileIDs` (`pk`),
   CONSTRAINT `FilesIdentifiedIDs_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`)
-) ENGINE=InnoDB AUTO_INCREMENT=4383 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -6693,7 +6693,7 @@ CREATE TABLE `ElasticsearchIndexBackup` (
   `typeName` varchar(255) DEFAULT NULL,
   `data` longtext NOT NULL,
   PRIMARY KEY (`pk`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -6745,7 +6745,7 @@ CREATE TABLE `auth_user` (
   `date_joined` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `auth_user_groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

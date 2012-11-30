@@ -75,6 +75,7 @@ $mysqldump auth_message auth_user_groups auth_user_user_permissions auth_group a
 echo 'SET foreign_key_checks = 1;' >> $MCPDumpSQLLocation
 #echo 'COMMIT;' >> $MCPDumpSQLLocation
 
+sed -i -e 's/ AUTO_INCREMENT=[0-9]\+//' $MCPDumpSQLLocation
 
 #VIEWS
 #-- MCP-views --
