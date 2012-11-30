@@ -520,8 +520,8 @@ def splitDmdSecs(dmdSecs):
     return dmdSecPair
 
 
-# Given a list of structMaps and a list of DMDID values, return a list of
-# all the <fptr> values for the files named in the structMap corresponding 
+# Given a list of structMaps and a DMDID value, return a list of all the
+# <fptr> values for the files named in the structMap corresponding to
 # to the DMDID.
 def getFileIdsForDmdSec(structMaps, dmdSecIdValue):
     dmdSecIdValue = dmdSecIdValue.strip()
@@ -530,11 +530,9 @@ def getFileIdsForDmdSec(structMaps, dmdSecIdValue):
     structMap = structMaps[0]
     for div in structMap.getElementsByTagName('div'):
         for k, v in div.attributes.items():
-            # We match on the first dmdSec ID, assuming a space between the first
-            # and second dmdSec ID.
-            # @todo: Will this pattern match if there is just one dmdSec ID? Probably not,
-            # maybe we could or this pattern match with an ==?
-            match = re.search(r'%s\s' % dmdSecIdValue, v)
+            # We match on the first dmdSec ID. Space is optional because 
+            # there could be two dmdSec IDs in the value.
+            match = re.search(r'%s\s?$' % dmdSecIdValue, v)
             if k == 'DMDID' and match:
                 for fptr in div.getElementsByTagName('fptr'):
                     for k, v in fptr.attributes.items():
