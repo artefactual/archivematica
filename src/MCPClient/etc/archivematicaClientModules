@@ -95,4 +95,8 @@ extractMaildirAttachments_v0.0 = %clientScriptsDirectory%extractMaildirAttachmen
 archivematicaVerifyMets_v0.0 = %clientScriptsDirectory%archivematicaVerifyMets.sh
 getContentdmCollectionList_v0.0 = %clientScriptsDirectory%getContentdmCollectionList.py
 retryNormalizeRemoveNormalized_v0.0 = %clientScriptsDirectory%retryNormalizeRemoveNormalized.py
+trimRestructureForCompliance_v0.0 = /bin/echo
+trimVerifyChecksums_v0.0 = /bin/echo
+trimVerifyManifest_v0.0 = /bin/echo
+
 
