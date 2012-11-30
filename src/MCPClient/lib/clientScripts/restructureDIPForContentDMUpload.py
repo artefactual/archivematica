@@ -337,9 +337,6 @@ def zipProjectClientOutput(outputDipDir, zipOutputDir, dipUuid):
 # </xml>
 def generateDescFile(dcMetadata, nonDcMetadata):
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
-    # pp.pprint(collectionFieldInfo)
-    # print "Non DC metadata:"
-    # pp.pprint(nonDcMetadata)
     output = '<?xml version="1.0" encoding="utf-8"?>' + "\n"
     output += "<itemmetadata>\n"
     
@@ -375,7 +372,6 @@ def generateDescFile(dcMetadata, nonDcMetadata):
             # are used as keys in collectionFieldInfo for fields that are not mapped to DC.
             normalizedElement = normalizeNonDcElementName(element)
             if normalizedElement in nonDcMetadata.keys():
-                # print "Non DC element key in nonDcMetadata.keys", normalizedElement
                 values = ''
                 output += '<' + collectionFieldInfo['nonDcMappings'][element]['nick'] + '>'
                 # Repeated values in CONTENTdm metadata need to be separated with semicolons.
@@ -386,7 +382,6 @@ def generateDescFile(dcMetadata, nonDcMetadata):
             # We need to include elements that are in the collection field config but
             # that do not have any values for the current item.
             else:
-                # print "Non DC element key NOT in nonDcMetadata.keys", normalizedElement
                 if collectionFieldInfo['nonDcMappings'][element]['nick'] not in doNotAdd:
                     output += '<' + collectionFieldInfo['nonDcMappings'][element]['nick'] + '></' + collectionFieldInfo['nonDcMappings'][element]['nick'] + ">\n"
 
@@ -750,8 +745,6 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                # https://www.archivematica.org/wiki/CONTENTdm_integration. Also note that we do
                # not add the non-DC metadata fields to child .desc files.
                dcMetadata = parseDmdSec(None, v['label'])
-               # print "nonDcMetadataForChildren:"
-               # pp.pprint(nonDcMetadataForChildren)
                # We don't want to include any values that are in nonDcMetadataForChildren,
                # (we just want the empty elements), so iterate through the copy we made at
                # the top of this function and zero all values in tis dictionary out.
