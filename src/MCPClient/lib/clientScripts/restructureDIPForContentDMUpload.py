@@ -847,9 +847,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     # query each mapping in collectionFieldInfo['mappings'] to find a matching 'nick';
     # if the nick is found, write the value in the dmdSec's element that matches the mapping's
     # key; if no matching mapping is found, write ''. The DIP filename (in this case, the file
-    # variable defined above) needs to go in the last column. @todo 1.0: Clarify this last sentence.
-    # @todo for bulk: Delimted file for single will have two rows; delimited file for bulk will
-    # have headings plus one row for each item, with object files directory as first field.
+    # variable defined above) needs to go in the last column.
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
     delimHeaderRow = []
     delimItemValuesRow = []
@@ -932,7 +930,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
                     # @todo (applies to single, not bulk): For flat items with no child-level metadata, we are using the 
                     # label for the child as defined in structMapDict and the filename only.
                     # This means that we put the label in the position allocated for the dc.title element,
-                    # and the wwfilename in the last position. Everthing in between is ''. This will
+                    # and the filename in the last position. Everthing in between is ''. This will
                     # need to be made more functional for flat items with child-level metadata,
                     # and for hierarchical.
                     titlePosition = collectionFieldInfo['order'].index('title')
