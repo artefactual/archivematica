@@ -26,19 +26,26 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 
-transferName=""
+while False:
+    import time
+    time.sleep(10)
+
+transferUUID = sys.argv[1]
+transferName = sys.argv[2]
+transferPath = sys.argv[3]
 printSubProcessOutput=True
 
 currentDirectory = ""
 fileCount = 0
 exitCode = 0
 
-for line in open('myfile','r'):
+for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
+
     if line.startswith(" Directory of "):
-        i = line.find("/%s/" % transferName)
+        i = line.find("\\%s\\" % transferName)
         if i != -1:
-            currentDirectory = line[:i+len(transferName)]
-    
+            currentDirectory = line[i+len(transferName) + 2:].strip()
+   
     
     #check that it starts with a date
     if re.match('^[0-1][0-9]/[0-3][0-9]/[0-3][0-9][0-9][0-9]', line):
@@ -47,25 +54,31 @@ for line in open('myfile','r'):
         if line.find('<DIR>') != -1:
             isDir = True
         #split by whitespace
-        sections = len(re.split('\s+', line))
-        if len(sections) < 5:
+        sections = re.split('\s+', line)
+        if len(sections) < 4:
             continue
         
-        path = os.path.join(TransferDirectory, currentDirectory, sections[5]) #assumes no spaces in file name 
+        path = os.path.join(transferPath, currentDirectory, sections[4]) #assumes no spaces in file name 
         
         if isDir:
             if os.path.isdir(path):
-                print "Verified directory exists: ", path.replace(TransferDirectory, "%TransferDirectory%")
+                print "Verified directory exists: ", path.replace(transferPath, "%TransferDirectory%")
             else:
-                print >>sys.stderr, "Directory does not exists: ", path.replace(TransferDirectory, "%TransferDirectory%")
+                print >>sys.stderr, "Directory does not exists: ", path.replace(transferPath, "%TransferDirectory%")
                 exitCode += 1
         else:
             if os.path.isfile(path):
-                print "Verified file exists: ", path.replace(TransferDirectory, "%TransferDirectory%")
+                print "Verified file exists: ", path.replace(transferPath, "%TransferDirectory%")
                 fileCount += 1
             else:
-                print >>sys.stderr, "File does not exists: ", path.replace(TransferDirectory, "%TransferDirectory%")
-                exitCode += 1
+                i = path.rfind(".")
+                path2 = path[:i] + path[i:].lower() 
+                if i != -1 and os.path.isfile(path2):
+                    print >>sys.stderr, "Verified file exists with implicit extension case: ", path.replace(transferPath, "%TransferDirectory%")
+                    fileCount += 1
+                else:
+                    print >>sys.stderr, "File does not exists: ", path.replace(transferPath, "%TransferDirectory%")
+                    exitCode += 1
 if fileCount:
     quit(exitCode)
 else:
