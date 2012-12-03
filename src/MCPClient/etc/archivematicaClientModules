@@ -96,8 +96,9 @@ archivematicaVerifyMets_v0.0 = %clientScriptsDirectory%archivematicaVerifyMets.s
 getContentdmCollectionList_v0.0 = %clientScriptsDirectory%getContentdmCollectionList.py
 retryNormalizeRemoveNormalized_v0.0 = %clientScriptsDirectory%retryNormalizeRemoveNormalized.py
 trimVerifyManifest_v0.0 = %clientScriptsDirectory%trimVerifyManifest.py
+trimVerifyChecksums_v0.0 = %clientScriptsDirectory%trimVerifyChecksums.py
 trimRestructureForCompliance_v0.0 = /bin/echo
-trimVerifyChecksums_v0.0 = /bin/echo
+
 
 
 

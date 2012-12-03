@@ -23,8 +23,6 @@
 import re
 import os
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from executeOrRunSubProcess import executeOrRun
 
 while False:
     import time
@@ -33,7 +31,6 @@ while False:
 transferUUID = sys.argv[1]
 transferName = sys.argv[2]
 transferPath = sys.argv[3]
-printSubProcessOutput=True
 
 currentDirectory = ""
 fileCount = 0
