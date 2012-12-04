@@ -61,8 +61,8 @@ for dir in os.listdir(transferPath):
         extension = root.find("Document/Extension").text
         xmlMD5 = root.find("Document/MD5").text
         
-        if extension.lower() != file[i+1:].lower():
-            print >>sys.stderr, "Warning, extension mismatch(file/xml): ", file[:i], extension , file[i+1:] 
+        #if extension.lower() != file[i+1:].lower():
+        #    print >>sys.stderr, "Warning, extension mismatch(file/xml): ", file[:i], extension , file[i+1:] 
         
         objectMD5 = md5_for_file(filePath)
         eventDetail = "program=\"python\"; module=\"hashlib.sha256()\""

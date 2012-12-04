@@ -80,7 +80,7 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
                 i = path.rfind(".")
                 path2 = path[:i] + path[i:].lower() 
                 if i != -1 and os.path.isfile(path2):
-                    print >>sys.stderr, "Verified file exists with implicit extension case: ", path.replace(transferPath, "%TransferDirectory%")
+                    print >>sys.stderr, "Warning, verified file exists, but with implicit extension case: ", path.replace(transferPath, "%TransferDirectory%")
                     fileCount += 1
                 else:
                     print >>sys.stderr, "File does not exists: ", path.replace(transferPath, "%TransferDirectory%")
