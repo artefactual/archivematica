@@ -33,7 +33,6 @@ if __name__ == '__main__':
         if files != None and files != []:
             ret = exitInidcatingThereAreObjects
             if os.path.isdir(os.path.join(os.path.dirname(objectsDir[:-1]), "TRIM")):
-                
                 ret = exitInidcatingThereAreTRIMObjects
             break
     exit(ret)
