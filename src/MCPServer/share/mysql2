@@ -691,18 +691,6 @@ CREATE TABLE `StandardTasksConfigs` (
   KEY `StandardTasksConfigs` (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `SourceDirectories`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `SourceDirectories` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
-  `path` longtext,
-  `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`pk`),
-  KEY `SourceDirectories` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `TasksConfigsAssignMagicLink`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -4472,12 +4460,6 @@ INSERT INTO `StandardTasksConfigs` (`pk`, `filterFileEnd`, `filterFileStart`, `f
 /*!40000 ALTER TABLE `StandardTasksConfigs` ENABLE KEYS */;
 UNLOCK TABLES;
 
-LOCK TABLES `SourceDirectories` WRITE;
-/*!40000 ALTER TABLE `SourceDirectories` DISABLE KEYS */;
-INSERT INTO `SourceDirectories` (`pk`, `path`, `replaces`, `lastModified`) VALUES ('','/home/joseph/sampledata-3257',NULL,'2012-11-27 19:13:44');
-/*!40000 ALTER TABLE `SourceDirectories` ENABLE KEYS */;
-UNLOCK TABLES;
-
 LOCK TABLES `TasksConfigsAssignMagicLink` WRITE;
 /*!40000 ALTER TABLE `TasksConfigsAssignMagicLink` DISABLE KEYS */;
 INSERT INTO `TasksConfigsAssignMagicLink` (`pk`, `execute`, `replaces`, `lastModified`) VALUES ('1c460578-e696-4378-a5d1-63ee77dd18bc','f3a58cbb-20a8-4c6d-9ae4-1a5f02c1a28e',NULL,'2012-10-02 00:25:03');
@@ -6839,6 +6821,18 @@ CREATE TABLE `django_session` (
   PRIMARY KEY (`session_key`),
   KEY `django_session_c25c2c28` (`expire_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `SourceDirectories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `SourceDirectories` (
+  `pk` varchar(50) NOT NULL DEFAULT '',
+  `path` longtext,
+  `replaces` varchar(50) DEFAULT NULL,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`pk`),
+  KEY `SourceDirectories` (`pk`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
