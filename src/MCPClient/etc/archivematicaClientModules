@@ -97,7 +97,7 @@ getContentdmCollectionList_v0.0 = %clientScriptsDirectory%getContentdmCollection
 retryNormalizeRemoveNormalized_v0.0 = %clientScriptsDirectory%retryNormalizeRemoveNormalized.py
 trimVerifyManifest_v0.0 = %clientScriptsDirectory%trimVerifyManifest.py
 trimVerifyChecksums_v0.0 = %clientScriptsDirectory%trimVerifyChecksums.py
-trimRestructureForCompliance_v0.0 = /bin/echo
+trimRestructureForCompliance_v0.0 = %clientScriptsDirectory%trimRestructureForCompliance.py
 
 
 

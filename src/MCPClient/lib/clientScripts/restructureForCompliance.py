@@ -31,6 +31,33 @@ from fileOperations import updateFileLocation2
 requiredDirectories = ["logs", "logs/fileMeta", "metadata", "metadata/submissionDocumentation", "objects"]
 optionalFiles = "processingMCP.xml"
 
+def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith = "%transferDirectory%"):
+    for dir in requiredDirectories:
+        reqDirPath = os.path.join(unitPath, dir)
+        if not os.path.isdir(reqDirPath):
+            os.mkdir(reqDirPath)
+    
+    for item in os.listdir(unitPath):
+        if item in requiredDirectories:
+            continue
+        src = os.path.join(unitPath, item)
+        if os.path.isdir(src):
+            metadataDir = os.path.join(unitPath, "TRIM", item)
+            os.makedirs(metadataDir)
+            objectsDir = os.path.join(unitPath, "objects", item)
+            os.mkdir(objectsDir)
+            for item2 in os.listdir(src):
+                itemPath = os.path.join(src, item2)
+                if item2.endswith("Metadata.xml"):
+                    dst = os.path.join(metadataDir, item2)
+                else:
+                    dst = os.path.join(objectsDir, item2)
+                updateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+            os.removedirs(src)
+        else:
+            dst = os.path.join(unitPath, "metadata")
+            updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+
 def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith = "%transferDirectory%"):
 	bagFileDefaultDest = os.path.join(unitPath, "logs", "BagIt")
 	requiredDirectories.append(bagFileDefaultDest)
