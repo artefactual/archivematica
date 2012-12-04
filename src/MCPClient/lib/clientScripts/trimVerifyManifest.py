@@ -32,16 +32,25 @@ transferUUID = sys.argv[1]
 transferName = sys.argv[2]
 transferPath = sys.argv[3]
 
+topDirectory = None
 currentDirectory = ""
 fileCount = 0
 exitCode = 0
 
 for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
-
     if line.startswith(" Directory of "):
-        i = line.find("\\%s\\" % transferName)
-        if i != -1:
-            currentDirectory = line[i+len(transferName) + 2:].strip()
+        if topDirectory == None:
+            topDirectory = line.strip()
+            currentDirectory = transferPath
+            originalTransferName = topDirectory.split('\\')[-1]
+            if originalTransferName != transferName:
+                print >>sys.stderr, "Warning, transfer was renamed from: ", originalTransferName  
+                 
+        else:
+            currentDirectory = line.strip().replace(topDirectory, transferPath, 1).replace('\\','/')
+            print "currentDirectory", currentDirectory
+            print "topDirectory", topDirectory
+            print "transferPath", transferPath
    
     
     #check that it starts with a date
