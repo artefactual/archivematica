@@ -31,3 +31,9 @@ class unit:
 
     def setMagicLink(self,link, exitStatus=""):
         return
+
+    def setVariable(self, variable, variableValue, microServiceChainLink):
+        return
+    
+    def getmicroServiceChainLink(self, variable, variableValue, defaultMicroServiceChainLink):
+        return
