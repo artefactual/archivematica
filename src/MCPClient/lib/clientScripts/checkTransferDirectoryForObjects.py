@@ -23,7 +23,6 @@
 import os
 import sys
 exitInidcatingThereAreObjects = 179
-exitInidcatingThereAreTRIMObjects = 180
 
 if __name__ == '__main__':
     objectsDir = sys.argv[1]
@@ -32,7 +31,5 @@ if __name__ == '__main__':
     for dirs, subDirs, files in os.walk(objectsDir):
         if files != None and files != []:
             ret = exitInidcatingThereAreObjects
-            if os.path.isdir(os.path.join(os.path.dirname(objectsDir[:-1]), "TRIM")):
-                ret = exitInidcatingThereAreTRIMObjects
             break
     exit(ret)

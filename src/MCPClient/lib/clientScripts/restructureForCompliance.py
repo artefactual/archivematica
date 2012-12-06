@@ -46,8 +46,6 @@ def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unit
             continue
         src = os.path.join(unitPath, item)
         if os.path.isdir(src):
-            metadataDir = os.path.join(unitPath, "TRIM", item)
-            os.makedirs(metadataDir)
             objectsDir = os.path.join(unitPath, "objects", item)
             os.mkdir(objectsDir)
             for item2 in os.listdir(src):

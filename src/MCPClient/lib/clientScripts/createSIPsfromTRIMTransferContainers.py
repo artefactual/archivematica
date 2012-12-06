@@ -79,10 +79,7 @@ if __name__ == '__main__':
                 databaseInterface.runSQL(sql)
             else:
                 print >>sys.stderr, "file not found: ", currentSIPFilePath
-        
-        sipDirectory = os.path.dirname(objectsDirectory[:-1])
-        shutil.move(os.path.join(sipDirectory, "TRIM", container), os.path.join(tmpSIPDir, "metadata", container))
-    
+
         #moveSIPTo autoProcessSIPDirectory
         shutil.move(tmpSIPDir, destSIPDir)
     
