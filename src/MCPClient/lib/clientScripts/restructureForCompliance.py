@@ -70,7 +70,6 @@ def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unit
                         updateFileGrpUsefileGrpUUID(fileUUID, fileGrpUse, fileGrpUUID)
                     elif fileUUID and not fileGrpUUID:
                         updateFileGrpUse(fileUUID, "TRIM container metadata")
-                        
             os.removedirs(src)
         else:
             destDir = "metadata"
