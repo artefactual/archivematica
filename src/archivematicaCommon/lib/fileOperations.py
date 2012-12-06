@@ -240,3 +240,22 @@ def updateFileLocation(src, dst, eventType, eventDateTime, eventDetail, eventIde
     #UPDATE THE CURRENT FILE PATH
     sql =  """UPDATE Files SET currentLocation='%s' WHERE fileUUID='%s';""" % (MySQLdb.escape_string(dst), fileUUID)
     databaseInterface.runSQL(sql)
+
+def getFileUUIDLike(filePath, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith):
+    """Dest needs to be the actual full destination path with filename."""
+    ret = {}
+    srcDB = filePath.replace(unitPath, unitPathReplaceWith)
+    sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND Files.currentLocation LIKE '" + MySQLdb.escape_string(srcDB) + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
+    rows = databaseInterface.queryAllSQL(sql)
+    for row in rows:
+        ret[row[1]] = row[0]
+    return ret
+    
+def updateFileGrpUsefileGrpUUID(fileUUID, fileGrpUse, fileGrpUUID):
+    sql = "UPDATE Files SET fileGrpUse= '%s', fileGrpUUID= '%s' WHERE fileUUID = '%s';" % (fileGrpUse, fileGrpUUID, fileUUID)
+    rows = databaseInterface.runSQL(sql)
+
+def updateFileGrpUse(fileUUID, fileGrpUse):
+    sql = "UPDATE Files SET fileGrpUse= '%s' WHERE fileUUID = '%s';" % (fileGrpUse, fileUUID)
+    rows = databaseInterface.runSQL(sql)
+    

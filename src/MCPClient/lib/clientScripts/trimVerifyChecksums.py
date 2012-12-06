@@ -25,8 +25,11 @@ import os
 from lxml import etree as etree
 import sys
 import traceback
+import uuid
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from externals.checksummingTools import md5_for_file
+from fileOperations import getFileUUIDLike
+import databaseFunctions
 
 while False:
     import time
@@ -35,6 +38,7 @@ while False:
 transferUUID = sys.argv[1]
 transferName = sys.argv[2]
 transferPath = sys.argv[3]
+date = sys.argv[4]
 
 currentDirectory = ""
 exitCode = 0
@@ -65,10 +69,23 @@ for dir in os.listdir(transferPath):
         #    print >>sys.stderr, "Warning, extension mismatch(file/xml): ", file[:i], extension , file[i+1:] 
         
         objectMD5 = md5_for_file(filePath)
-        eventDetail = "program=\"python\"; module=\"hashlib.sha256()\""
         
         if objectMD5 == xmlMD5:
             print "File OK: ", xmlMD5, filePath.replace(transferPath, "%TransferDirectory%")
+            
+            fileID = getFileUUIDLike(filePath, transferPath, transferUUID, "transferUUID", "%transferDirectory%")
+            for path, fileUUID in fileID.iteritems():
+                eventDetail = "program=\"python\"; module=\"hashlib.md5()\""
+                eventOutcome="Pass"
+                eventOutcomeDetailNote = xmlFile.__str__() + "-verified"
+                eventIdentifierUUID=uuid.uuid4().__str__()
+                databaseFunctions.insertIntoEvents(fileUUID=fileUUID, \
+                     eventIdentifierUUID=eventIdentifierUUID, \
+                     eventType="fixity check", \
+                     eventDateTime=date, \
+                     eventOutcome=eventOutcome, \
+                     eventOutcomeDetailNote=eventOutcomeDetailNote, \
+                     eventDetail=eventDetail)
         else:
             print >>sys.stderr, "Checksum mismatch: ", filePath.replace(transferPath, "%TransferDirectory%")
             exitCode += 1
