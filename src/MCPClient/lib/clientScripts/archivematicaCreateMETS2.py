@@ -89,8 +89,10 @@ globalDigiprovMDCounter = 0
 global fileNameToFileID #Used for mapping structMaps included with transfer
 fileNameToFileID = {} 
 
-
-
+global trimStructMap
+trimStructMap = None
+global trimStructMapObjects
+trimStructMapObjects = None
 #GROUPID="G1" -> GROUPID="Group-%object's UUID%"
 ##group of the object and it's related access, license
 
@@ -506,6 +508,9 @@ def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath
 
 def getIncludedStructMap():
     global fileNameToFileID
+    global trimStructMap
+    global trimStructMapObjects
+
     ret = []
     transferMetadata = os.path.join(baseDirectoryPath, "metadata/transfers")
     baseLocations = os.listdir(transferMetadata)
@@ -533,12 +538,16 @@ def getIncludedStructMap():
         #locate file based on key
         continue
         print fileName 
+    if trimStructMap != None:
+        ret.append(trimStructMap)
     return ret
 
 #DMDID="dmdSec_01" for an object goes in here
 #<file ID="file1-UUID" GROUPID="G1" DMDID="dmdSec_02" ADMID="amdSec_01">
 def createFileSec(directoryPath, structMapDiv):
     global fileNameToFileID
+    global trimStructMap
+    global trimStructMapObjects
     delayed = []
     filesInThisDirectory = []
     dspaceMetsDMDID = None
@@ -552,7 +561,13 @@ def createFileSec(directoryPath, structMapDiv):
         elif os.path.isfile(itemdirectoryPath):
             #find original file name
             directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, baseDirectoryPathString, 1)
-            sql = """SELECT Related.originalLocation AS 'derivedFromOriginalLocation', Current.originalLocation FROM Files AS Current LEFT OUTER JOIN Derivations ON Current.fileUUID = Derivations.derivedFileUUID LEFT OUTER JOIN Files AS Related ON Derivations.sourceFileUUID = Related.fileUUID WHERE Current.removedTime = 0 AND Current.%s = '%s' AND Current.currentLocation = '%s';""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(directoryPathSTR))
+            sql = """SELECT Related.originalLocation AS 'derivedFromOriginalLocation', 
+                            Current.originalLocation
+                        FROM Files AS Current 
+                        LEFT OUTER JOIN Derivations ON Current.fileUUID = Derivations.derivedFileUUID 
+                        LEFT OUTER JOIN Files AS Related ON Derivations.sourceFileUUID = Related.fileUUID
+                        WHERE Current.removedTime = 0 AND Current.%s = '%s' 
+                            AND Current.currentLocation = '%s';""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(directoryPathSTR))
             c, sqlLock = databaseInterface.querySQL(sql)
             row = c.fetchone()
             if row == None:
@@ -582,7 +597,10 @@ def createFileSec(directoryPath, structMapDiv):
         #directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath + "objects", "objects", 1)
         directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, baseDirectoryPathString, 1)
 
-        sql = """SELECT fileUUID, fileGrpUse, fileGrpUUID, transferUUID, label, originalLocation FROM Files WHERE removedTime = 0 AND %s = '%s' AND Files.currentLocation = '%s';""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(directoryPathSTR))
+        sql = """SELECT fileUUID, fileGrpUse, fileGrpUUID, Files.transferUUID, label, originalLocation, Transfers.type 
+                FROM Files
+                LEFT OUTER JOIN Transfers ON Files.transferUUID = Transfers.transferUUID
+                WHERE removedTime = 0 AND %s = '%s' AND Files.currentLocation = '%s';""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(directoryPathSTR))
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         if row == None:
@@ -597,6 +615,7 @@ def createFileSec(directoryPath, structMapDiv):
             transferUUID = row[3]
             label = row[4]
             originalLocation = row[5]
+            typeOfTransfer = row[6]
             row = c.fetchone()
         sqlLock.release()
         
@@ -604,6 +623,13 @@ def createFileSec(directoryPath, structMapDiv):
         directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, "", 1)
         #print filename, directoryPathSTR
 
+        if typeOfTransfer == "TRIM" and trimStructMap == None:
+            trimStructMap = etree.Element("structMap", attrib={"type":"logical", "Label":"Hierarchical arrangement"})
+            trimStructMapObjects = etree.SubElement(trimStructMap, "div", attrib={"type":"file", "Label":"objects"})
+            print "todo - trim container amd"
+            print "todo - trim container dmd"
+            
+            
 
         FILEID="%s-%s" % (item, myuuid)
         if FILEID[0].isdigit():
@@ -628,6 +654,10 @@ def createFileSec(directoryPath, structMapDiv):
                 DMDIDS = createDMDIDSFromCSVParsedMetadataFiles(originalLocation.replace('%transferDirectory%', "", 1))
                 if DMDIDS:
                     fileDiv.set("DMDID", DMDIDS)
+                if typeOfTransfer == "TRIM":
+                    trimFileDiv = etree.SubElement(trimStructMapObjects, "div", attrib={"type":"item"})
+                    print "todo - get trim file dmdsec"
+                    etree.SubElement(trimFileDiv, "fptr", attrib={"FILEID":FILEID})
 
         elif use == "preservation":
             sql = "SELECT * FROM Derivations WHERE derivedFileUUID = '" + myuuid + "';"

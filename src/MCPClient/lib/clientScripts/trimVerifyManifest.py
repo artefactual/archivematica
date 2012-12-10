@@ -57,10 +57,7 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
                  
         else:
             currentDirectory = line.strip().replace(topDirectory, transferPath, 1).replace('\\','/')
-            print "currentDirectory", currentDirectory
-            print "topDirectory", topDirectory
-            print "transferPath", transferPath
-   
+  
     
     #check that it starts with a date
     if re.match('^[0-1][0-9]/[0-3][0-9]/[0-3][0-9][0-9][0-9]', line):

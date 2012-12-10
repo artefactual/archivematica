@@ -57,14 +57,17 @@ for dir in os.listdir(transferPath):
         
         i = file.rfind(".")
         xmlFile = file[:i] + "_Metadata.xml"
-        xmlFilePath = os.path.join(dirPath, xmlFile) 
-        
-        tree = etree.parse(xmlFilePath)
-        root = tree.getroot()
-
-        extension = root.find("Document/Extension").text
-        xmlMD5 = root.find("Document/MD5").text
-        
+        xmlFilePath = os.path.join(dirPath, xmlFile)
+        try:
+            tree = etree.parse(xmlFilePath)
+            root = tree.getroot()
+    
+            #extension = root.find("Document/Extension").text
+            xmlMD5 = root.find("Document/MD5").text
+        except:
+            print >>sys.stderr, "Error parsing: ", xmlFilePath 
+            exitCode += 1
+            continue
         #if extension.lower() != file[i+1:].lower():
         #    print >>sys.stderr, "Warning, extension mismatch(file/xml): ", file[:i], extension , file[i+1:] 
         
