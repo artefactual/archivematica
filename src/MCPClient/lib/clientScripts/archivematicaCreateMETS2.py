@@ -33,6 +33,7 @@ from archivematicaCreateMETSMetadataCSV import parseMetadata
 from archivematicaCreateMETSMetadataCSV import CSVMetadata
 from archivematicaCreateMETSRights import archivematicaGetRights
 from archivematicaCreateMETSRightsDspaceMDRef import archivematicaCreateMETSRightsDspaceMDRef
+from archivematicaCreateMETSTrim import getTrimDmdSec
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from archivematicaFunctions import escape
@@ -548,6 +549,9 @@ def createFileSec(directoryPath, structMapDiv):
     global fileNameToFileID
     global trimStructMap
     global trimStructMapObjects
+    global globalDmdSecCounter
+    global dmdSecs
+    
     delayed = []
     filesInThisDirectory = []
     dspaceMetsDMDID = None
@@ -624,11 +628,16 @@ def createFileSec(directoryPath, structMapDiv):
         #print filename, directoryPathSTR
 
         if typeOfTransfer == "TRIM" and trimStructMap == None:
-            trimStructMap = etree.Element("structMap", attrib={"type":"logical", "Label":"Hierarchical arrangement"})
-            trimStructMapObjects = etree.SubElement(trimStructMap, "div", attrib={"type":"file", "Label":"objects"})
-            print "todo - trim container amd"
-            print "todo - trim container dmd"
+            trimStructMap = etree.Element("structMap", attrib={"TYPE":"logical", "LABEL":"Hierarchical arrangement"})
+            trimStructMapObjects = etree.SubElement(trimStructMap, "div", attrib={"TYPE":"file", "LABEL":"objects"})
             
+            trimDmdSec = getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier)
+            globalDmdSecCounter += 1
+            dmdSecs.append(trimDmdSec)
+            ID = "dmdSec_" + globalDmdSecCounter.__str__()
+            trimDmdSec.set("ID", ID)
+            
+            print "todo - trim container amd"
             
 
         FILEID="%s-%s" % (item, myuuid)
@@ -655,7 +664,7 @@ def createFileSec(directoryPath, structMapDiv):
                 if DMDIDS:
                     fileDiv.set("DMDID", DMDIDS)
                 if typeOfTransfer == "TRIM":
-                    trimFileDiv = etree.SubElement(trimStructMapObjects, "div", attrib={"type":"item"})
+                    trimFileDiv = etree.SubElement(trimStructMapObjects, "div", attrib={"TYPE":"item"})
                     print "todo - get trim file dmdsec"
                     etree.SubElement(trimFileDiv, "fptr", attrib={"FILEID":FILEID})
 
