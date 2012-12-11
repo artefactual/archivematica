@@ -34,6 +34,7 @@ from archivematicaCreateMETSMetadataCSV import CSVMetadata
 from archivematicaCreateMETSRights import archivematicaGetRights
 from archivematicaCreateMETSRightsDspaceMDRef import archivematicaCreateMETSRightsDspaceMDRef
 from archivematicaCreateMETSTrim import getTrimDmdSec
+from archivematicaCreateMETSTrim import getTrimFileDmdSec
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from archivematicaFunctions import escape
@@ -665,7 +666,15 @@ def createFileSec(directoryPath, structMapDiv):
                     fileDiv.set("DMDID", DMDIDS)
                 if typeOfTransfer == "TRIM":
                     trimFileDiv = etree.SubElement(trimStructMapObjects, "div", attrib={"TYPE":"item"})
-                    print "todo - get trim file dmdsec"
+                    
+                    trimFileDmdSec = getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, myuuid)
+                    globalDmdSecCounter += 1
+                    dmdSecs.append(trimFileDmdSec)
+                    ID = "dmdSec_" + globalDmdSecCounter.__str__()
+                    trimFileDmdSec.set("ID", ID)
+                    
+                    trimFileDiv.set("DMDID", ID)                    
+                    
                     etree.SubElement(trimFileDiv, "fptr", attrib={"FILEID":FILEID})
 
         elif use == "preservation":
