@@ -57,8 +57,9 @@ def prepareOutputDir(outputDipDir, importMethod, dipUuid):
 # an optional arguement for use with compound item children, which may not have a
 # dublincore object.
 def parseDmdSec(dmdSec, label = '[Placeholder title]'):
-    # If the dmdSec object is empty (i.e, there is no DC metadata), return
-    # a placeholder title.
+    # If the dmdSec object is empty (i.e, no DC metadata has been assigned
+    # in the dashboard, and there was no metadata.csv or other metadata file
+    # in the transfer), return a placeholder title.
     if dmdSec is None:
         return {'title' : [label]}
     if not hasattr(dmdSec, 'getElementsByTagName'):
@@ -167,7 +168,7 @@ def getFptrObjectFilename(fileId, filesInObjectDir):
 # field order. The Archivematica metadata CRUD form only uses the legacy unqualified
 # DC elements but we include the entire CONTENTdm DCTERMS mappings because the entire
 # set of DCTERMS are supported in dublincore.xml files included in the transfer
-# package's metadata directory.
+# package's metadata directory and in bulk transfer metadata.csv files.
 def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
     collectionFieldInfo = {}
     # First, define the CONTENTdm DC nicknames -> DCTERMs mapping. 
@@ -259,13 +260,13 @@ def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
         for k, v in fieldConfig.iteritems():
             fieldName = fieldConfig['name']
             # For fields that have a DC mapping.
-            # if fieldConfig['dc'] != 'BLANK' and fieldConfig['dc'] != '':
-               # collectionFieldDcMappings[contentdmDctermsMap[fieldConfig['dc']]] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
+            if fieldConfig['dc'] != 'BLANK' and fieldConfig['dc'] != '':
+                collectionFieldDcMappings[contentdmDctermsMap[fieldConfig['dc']]] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
             # For fields that do not have a DC mapping.   
-            # if fieldConfig['dc'] == 'BLANK':
-               # collectionFieldNonDcMappings[fieldName] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
-            # Testing: we want all the fields to be considered non-DC.
-            collectionFieldNonDcMappings[fieldName] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
+            if fieldConfig['dc'] == 'BLANK':
+                collectionFieldNonDcMappings[fieldName] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
+            # Testing: make all the fields to be considered non-DC.
+            # collectionFieldNonDcMappings[fieldName] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
         if fieldConfig['nick'] not in systemFields:
             collectionFieldOrder.append(fieldConfig['nick'])
     collectionFieldInfo['dcMappings'] = collectionFieldDcMappings
@@ -316,7 +317,8 @@ def zipProjectClientOutput(outputDipDir, zipOutputDir, dipUuid):
     os.chdir(currentDir)
 
 
-# Generate a .desc file used in CONTENTdm 'direct import' packages.
+# Generate a .desc file used in CONTENTdm 'direct import' packages. Use dcMetadata only
+# if nonDcMetadata is empty.
 # .desc file looks like this:
 # <?xml version="1.0" encoding="utf-8"?>
 # <itemmetadata>
@@ -339,24 +341,6 @@ def generateDescFile(dcMetadata, nonDcMetadata):
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
     output = '<?xml version="1.0" encoding="utf-8"?>' + "\n"
     output += "<itemmetadata>\n"
-    
-    # Process DC metadata first. Loop through the collection's field configuration and generate
-    # XML elements for all its fields. 
-    for dcElement in collectionFieldInfo['dcMappings'].keys():
-        # If a field is in the incoming item dcMetadata, populate the corresponding tag
-        # with its 'nick' value.
-        if dcElement in dcMetadata.keys():
-            values = ''
-            output += '<' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + '>'
-            # Repeated values in CONTENTdm metadata need to be separated with semicolons.
-            for value in dcMetadata[dcElement]:
-                values += value + '; '
-                output += values.rstrip('; ')
-            output += '</' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + ">\n"
-        # We need to include elements that are in the collection field config but
-        # that do not have any values for the current item.
-        else:
-            output += '<' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + '></' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + ">\n"
 
     # Process the non-DC metadata, if there is any.
     if nonDcMetadata != None:
@@ -384,6 +368,26 @@ def generateDescFile(dcMetadata, nonDcMetadata):
             else:
                 if collectionFieldInfo['nonDcMappings'][element]['nick'] not in doNotAdd:
                     output += '<' + collectionFieldInfo['nonDcMappings'][element]['nick'] + '></' + collectionFieldInfo['nonDcMappings'][element]['nick'] + ">\n"
+
+    # I.e., there is no nonDcMetadata.
+    else:
+        # Process DC metadata first. Loop through the collection's field configuration and generate
+        # XML elements for all its fields. 
+        for dcElement in collectionFieldInfo['dcMappings'].keys():
+            # If a field is in the incoming item dcMetadata, populate the corresponding tag
+            # with its 'nick' value.
+            if dcElement in dcMetadata.keys():
+                values = ''
+                output += '<' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + '>'
+                # Repeated values in CONTENTdm metadata need to be separated with semicolons.
+                for value in dcMetadata[dcElement]:
+                    values += value + '; '
+                    output += values.rstrip('; ')
+                output += '</' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + ">\n"
+            # We need to include elements that are in the collection field config but
+            # that do not have any values for the current item.
+            else:
+                output += '<' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + '></' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + ">\n"
 
     # These fields are boilerplate in new .desc files.          
     output += "<transc></transc>\n"
@@ -615,27 +619,47 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
     # the last column.
     delimHeaderRow = []
     delimValuesRow = []
-    # @todo: Merge dcMetadata and nonDcMetadata, then iterate through them as below.
+
+    # @todo: Use dcMetadata only if nonDcMetadata is None.
+
     for field in collectionFieldInfo['order']:
-        # for k, v in collectionFieldInfo['dcMappings'].iteritems():
-        for k, v in collectionFieldInfo['nonDcMappings'].iteritems():
-            if field == v['nick']:
-               # Append the field name to the header row.
-               delimHeaderRow.append(v['name'])
-               # Append the element value to the values row.
-               if normalizeNonDcElementName(k) in nonDcMetadata:
-                   # In CONTENTdm, repeated values are joined with a semicolon.
-                   normalized_name = normalizeNonDcElementName(k)
-                   joinedNonDcMetadataValues = '; '.join(nonDcMetadata[normalized_name])                   
-                   # joinedNonDcMetadataValues = '; '.join(nonDcMetadata[k])
-                   # Rows can't contain new lines.
-                   joinedNonDcMetadataValues = joinedNonDcMetadataValues.replace("\r","")
-                   joinedNonDcMetadataValues = joinedNonDcMetadataValues.replace("\n","")
-                   delimValuesRow.append(joinedNonDcMetadataValues)
-               # Append a placeholder to keep the row intact.
-               else:
-                   delimValuesRow.append('')
-    
+        # Process the non-DC metadata, if there is any.
+        if nonDcMetadata != None:
+            # for k, v in collectionFieldInfo['dcMappings'].iteritems():
+            for k, v in collectionFieldInfo['nonDcMappings'].iteritems():
+                if field == v['nick']:
+                    # Append the field name to the header row.
+                    delimHeaderRow.append(v['name'])
+                    # Append the element value to the values row.
+                    if normalizeNondcElementName(k) in nonDcMetadata:
+                        # In CONTENTdm, repeated values are joined with a semicolon.
+                        normalized_name = normalizeNonDcElementName(k)
+                        joinedNonDcMetadataValues = '; '.join(nonDcMetadata[normalized_name])                   
+                        # Rows can't contain new lines.
+                        joinedNonDcMetadataValues = joinedNonDcMetadataValues.replace("\r","")
+                        joinedNonDcMetadataValues = joinedNonDcMetadataValues.replace("\n","")
+                        delimValuesRow.append(joinedNonDcMetadataValues)
+                    # Append a placeholder to keep the row intact.
+                    else:
+                        delimValuesRow.append('')
+        # I.e., there is no nonDcMetadata.
+        else:
+            for k, v in collectionFieldInfo['dcMappings'].iteritems():
+                if field == v['nick']:
+                    # Append the field name to the header row.
+                    delimHeaderRow.append(v['name'])
+                    # Append the element value to the values row.
+                    if k in dcMetadata:
+                        # In CONTENTdm, repeated values are joined with a semicolon.
+                        joinedDcMetadataValues = '; '.join(dcMetadata[k])                   
+                        # Rows can't contain new lines.
+                        joinedDcMetadataValues = joinedDcMetadataValues.replace("\r","")
+                        joinedDcMetadataValues = joinedDcMetadataValues.replace("\n","")
+                        delimValuesRow.append(joinedDcMetadataValues)
+                    # Append a placeholder to keep the row intact.
+                    else:
+                        delimValuesRow.append('')
+
     # Wite out a tab-delimited file containing the DC-mapped metadata,
     # with 'Filename' as the last field.
     simpleTxtFilePath = os.path.join(outputDipDir, 'simple.txt')   
@@ -853,24 +877,41 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     delimItemValuesRow = []
     # @todo 1.0: Merge dcMetadata and nonDcMetadata, then iterate through them as below.
     for field in collectionFieldInfo['order']:
-        # for k, v in collectionFieldInfo['dcMappings'].iteritems():
-        for k, v in collectionFieldInfo['nonDcMappings'].iteritems():
-            if field == v['nick']:
-               # Append the field name to the header row.
-               delimHeaderRow.append(v['name'])
-               # Append the element value to the values row.
-               if normalizeNonDcElementName(k) in nonDcMetadata:
-                   # In CONTENTdm, repeated values are joined with a semicolon.
-                   # joinedNonDcMetadataValues = '; '.join(nonDcMetadata[k])
-                   normalized_name = normalizeNonDcElementName(k)
-                   joinedNonDcMetadataValues = '; '.join(nonDcMetadata[normalized_name])
-                   # Rows can't contain new lines.
-                   joinedNonDcMetadataValues = joinedNonDcMetadataValues.replace("\r","")
-                   joinedNonDcMetadataValues = joinedNonDcMetadataValues.replace("\n","")
-                   delimItemValuesRow.append(joinedNonDcMetadataValues)
-               # Append a placeholder to keep the row intact.
-               else:
-                   delimItemValuesRow.append('')
+        # Process the non-DC metadata, if there is any.
+        if nonDcMetadata != None:
+            for k, v in collectionFieldInfo['nonDcMappings'].iteritems():
+                if field == v['nick']:
+                   # Append the field name to the header row.
+                   delimHeaderRow.append(v['name'])
+                   # Append the element value to the values row.
+                   if normalizeNonDcElementName(k) in nonDcMetadata:
+                       # In CONTENTdm, repeated values are joined with a semicolon.
+                       normalized_name = normalizeNonDcElementName(k)
+                       joinedNonDcMetadataValues = '; '.join(nonDcMetadata[normalized_name])
+                       # Rows can't contain new lines.
+                       joinedNonDcMetadataValues = joinedNonDcMetadataValues.replace("\r","")
+                       joinedNonDcMetadataValues = joinedNonDcMetadataValues.replace("\n","")
+                       delimItemValuesRow.append(joinedNonDcMetadataValues)
+                   # Append a placeholder to keep the row intact.
+                   else:
+                       delimItemValuesRow.append('')
+        # I.e., there is no nonDcMetadata.
+        else:
+            for k, v in collectionFieldInfo['dcMappings'].iteritems():
+                if field == v['nick']:
+                    # Append the field name to the header row.
+                    delimHeaderRow.append(v['name'])
+                    # Append the element value to the values row.
+                    if k in dcMetadata:
+                        # In CONTENTdm, repeated values are joined with a semicolon.
+                        joinedDcMetadataValues = '; '.join(dcMetadata[k])                   
+                        # Rows can't contain new lines.
+                        joinedDcMetadataValues = joinedDcMetadataValues.replace("\r","")
+                        joinedDcMetadataValues = joinedDcMetadataValues.replace("\n","")
+                        delimValuesRow.append(joinedDcMetadataValues)
+                    # Append a placeholder to keep the row intact.
+                    else:
+                        delimValuesRow.append('')
 
     compoundTxtFilePath = os.path.join(outputDipDir, 'compound.txt')
     # Check to see if compound.txt already exists, and if it does, append delimValuesRow
