@@ -619,8 +619,6 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
     delimHeaderRow = []
     delimValuesRow = []
 
-    # @todo: Use dcMetadata only if nonDcMetadata is None.
-
     for field in collectionFieldInfo['order']:
         # Process the non-DC metadata, if there is any.
         if nonDcMetadata != None:
