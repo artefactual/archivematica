@@ -116,8 +116,9 @@ def parseStructMap(structMap, filesInObjectDirectory):
     # for the structMap checking. Add each filename to structMapDict.
     filesInObjectDir = []
     for file in filesInObjectDirectory:
-        head, tail = os.path.split(file)
-        filesInObjectDir.append(tail)
+        if file is not None:
+            head, tail = os.path.split(file)
+            filesInObjectDir.append(tail)
         
     # Get all the fptr elements.
     fptrOrder = 0
@@ -129,7 +130,7 @@ def parseStructMap(structMap, filesInObjectDirectory):
                 parentDivDmdId = node.parentNode.getAttribute('DMDID')
                 filename = getFptrObjectFilename(v, filesInObjectDir)
                 # We only want entries for files that are in the objects directory.
-                if filename != None:
+                if filename is not None:
                     parentDivLabel = node.parentNode.getAttribute('LABEL')
                     # If the parent div doesn't have a LABEL, use the filesname as the label.
                     if not len(parentDivLabel):
@@ -552,7 +553,8 @@ def getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps):
         fileIds = getFileIdsForDmdSec(structMaps, Id.value)
         for fileId in fileIds:
             filename = getFptrObjectFilename(fileId, filesInObjectDirectory)
-            filesInObjectDirectoryForThisDmdSecGroup.append(filename)
+            if filename is not None:
+                filesInObjectDirectoryForThisDmdSecGroup.append(filename)
             
     return filesInObjectDirectoryForThisDmdSecGroup
     
@@ -597,7 +599,7 @@ def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, out
 # Generate a 'project client' package for a simple item from the Archivematica DIP.
 # This package will contain the object file and a delimited metadata file in a format
 # suitable for importing into CONTENTdm using its Project Client.
-def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec):
+def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup):
     dmdSecPair = splitDmdSecs(dmdSecs)
     nonDcMetadata = dmdSecPair['nonDc']
     dcMetadata = dmdSecPair['dc']
@@ -607,7 +609,7 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
     # in filesInObjectDirectoryForThisDmdSec. Copy it into the output directory.
     shutil.copy(filesInObjectDirectoryForThisDmdSec[0], outputDipDir)
     # Get the object filename, which we will add to the delimited file below.
-    path, filename = os.path.split(filesInObjectDirectoryForThisDmdSec[0])
+    path, filename = os.path.split(filesInObjectDirectoryForThisDmdSecGroup[0])
       
     # Populate a row to write to the metadata file, with the first row containing the
     # field labels and the second row containing the values. Both rows needs to be
@@ -631,7 +633,7 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
                     # Append the field name to the header row.
                     delimHeaderRow.append(v['name'])
                     # Append the element value to the values row.
-                    if normalizeNondcElementName(k) in nonDcMetadata:
+                    if normalizeNonDcElementName(k) in nonDcMetadata:
                         # In CONTENTdm, repeated values are joined with a semicolon.
                         normalized_name = normalizeNonDcElementName(k)
                         joinedNonDcMetadataValues = '; '.join(nonDcMetadata[normalized_name])                   
@@ -818,7 +820,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
 # Generate a 'project client' package for a compound CONTENTdm item from the Archivematica DIP.
 # This package will contain the object file and a delimited metadata file in a format suitable
 # for importing into CONTENTdm using its Project Client.
-def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, bulk):
+def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, bulk):
     dmdSecPair = splitDmdSecs(dmdSecs)
     nonDcMetadata = dmdSecPair['nonDc']
     dcMetadata = dmdSecPair['dc']    
@@ -829,7 +831,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     # parse it for the SIP structure so we can use that structure in the CONTENTdm packages.
     # structMapDom =  metsDom.getElementsByTagName('structMap')[0]
     structMapDom = structMaps[0]
-    structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSec)
+    structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSecGroup)
     
     # Each item needs to have its own directory under outputDipDir. To supply a unique UUID
     # for each compound item, we use the the first eight characters of the UUID of the first 
@@ -875,7 +877,6 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
     delimHeaderRow = []
     delimItemValuesRow = []
-    # @todo 1.0: Merge dcMetadata and nonDcMetadata, then iterate through them as below.
     for field in collectionFieldInfo['order']:
         # Process the non-DC metadata, if there is any.
         if nonDcMetadata != None:
