@@ -604,7 +604,7 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
 
     # Since we are dealing with simple objects, there should only be one file
     # in filesInObjectDirectoryForThisDmdSec. Copy it into the output directory.
-    shutil.copy(filesInObjectDirectoryForThisDmdSec[0], outputDipDir)
+    shutil.copy(filesInObjectDirectoryForThisDmdSecGroup[0], outputDipDir)
     # Get the object filename, which we will add to the delimited file below.
     path, filename = os.path.split(filesInObjectDirectoryForThisDmdSecGroup[0])
       
