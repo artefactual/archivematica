@@ -1123,7 +1123,7 @@ SET @MicroServiceChainLink = LAST_INSERT_ID();
 INSERT INTO MicroServiceChoiceReplacementDic (choiceAvailableAtLink, description, replacementDic)
     VALUES (@MicroServiceChainLink, 'localhost', '{"%ContentdmServer%":"localhost", "%ContentdmUser%":"usernamefoo", "%ContentdmGroup%":"123"}');
 INSERT INTO MicroServiceChoiceReplacementDic (choiceAvailableAtLink, description, replacementDic)
-    VALUES (@MicroServiceChainLink, 'contentdm.example.com', '{"%ContentdmServer%":"111.222.333.444:81", "%ContentdmUser%":"usernamebar", "%ContentdmGroup%":"456"}');
+    VALUES (@MicroServiceChainLink, 'contentdm.example.com', '{"%ContentdmServer%":"http://111.222.333.444:81/dmwebservices/index.php", "%ContentdmUser%":"usernamebar", "%ContentdmGroup%":"456"}');
 INSERT INTO MicroServiceChainLinksExitCodes (microServiceChainLink, exitCode, nextMicroServiceChainLink)
     VALUES (@MicroServiceChainLink, 0, @NextMicroServiceChainLink);
 SET @NextMicroServiceChainLink = @MicroServiceChainLink;
