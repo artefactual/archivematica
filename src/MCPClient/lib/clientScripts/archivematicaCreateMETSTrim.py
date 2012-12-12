@@ -52,7 +52,6 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
     #get objects count
     sql = "SELECT fileUUID FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse='original';" % ('sipUUID', fileGroupIdentifier)
     rows = databaseInterface.queryAllSQL(sql)
-    print '%d digital objects' % (len(rows))
     
     sql = "SELECT currentLocation FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse='TRIM file metadata';" % ('sipUUID', fileGroupIdentifier)
     rows = databaseInterface.queryAllSQL(sql)
@@ -102,3 +101,14 @@ def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
         
     return ret
 
+def getTrimAmdSec(baseDirectoryPath, fileGroupIdentifier):
+    ret = etree.Element("digiprovMD")
+    
+    sql = "SELECT currentLocation FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse='TRIM container metadata';" % ('sipUUID', fileGroupIdentifier)
+    rows = databaseInterface.queryAllSQL(sql)
+    for row in rows:
+        attrib = {"LABEL":"ContainerMetadata.xml", xlinkBNS + "href":row[0].replace("%SIPDirectory%", "", 1), "MDTYPE":"OTHER", "OTHERMDTYPE":"CUSTOM", 'LOCTYPE':"OTHER", 'OTHERLOCTYPE':"SYSTEM"}
+        etree.SubElement(ret, "mdRef", attrib=attrib)
+    return ret
+        
+    

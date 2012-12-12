@@ -35,6 +35,7 @@ from archivematicaCreateMETSRights import archivematicaGetRights
 from archivematicaCreateMETSRightsDspaceMDRef import archivematicaCreateMETSRightsDspaceMDRef
 from archivematicaCreateMETSTrim import getTrimDmdSec
 from archivematicaCreateMETSTrim import getTrimFileDmdSec
+from archivematicaCreateMETSTrim import getTrimAmdSec
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from archivematicaFunctions import escape
@@ -551,7 +552,11 @@ def createFileSec(directoryPath, structMapDiv):
     global trimStructMap
     global trimStructMapObjects
     global globalDmdSecCounter
+    global globalAmdSecCounter
+    global globalDigiprovMDCounter
     global dmdSecs
+    global amdSecs
+    
     
     delayed = []
     filesInThisDirectory = []
@@ -637,10 +642,22 @@ def createFileSec(directoryPath, structMapDiv):
             dmdSecs.append(trimDmdSec)
             ID = "dmdSec_" + globalDmdSecCounter.__str__()
             trimDmdSec.set("ID", ID)
+            trimStructMapObjects.set("DMDID", ID)
             
-            print "todo - trim container amd"
+            trimAmdSec = etree.Element("amdSec")
+            globalAmdSecCounter += 1
+            amdSecs.append(trimAmdSec)
+            ID = "amdSec_" + globalDmdSecCounter.__str__()
+            trimAmdSec.set("ID", ID)
+                        
+            digiprovMD = getTrimAmdSec(baseDirectoryPath, fileGroupIdentifier)
+            globalDigiprovMDCounter += 1
+            digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
             
-
+            trimAmdSec.append(digiprovMD)
+            
+            trimStructMapObjects.set("AMDID", ID)
+            
         FILEID="%s-%s" % (item, myuuid)
         if FILEID[0].isdigit():
             FILEID = "_" + FILEID
@@ -706,6 +723,12 @@ def createFileSec(directoryPath, structMapDiv):
                 GROUPID = "Group-%s" % (row[0])
                 row = c.fetchone()
             sqlLock.release()
+        
+        elif use == "TRIM container metadata":
+            GROUPID = "Group-%s" % (myuuid)
+            use = "submissionDocumentation"
+            
+            
 
         if transferUUID:
             sql = "SELECT type FROM Transfers WHERE transferUUID = '%s';" % (transferUUID)
@@ -732,7 +755,7 @@ def createFileSec(directoryPath, structMapDiv):
             print >>sys.stderr, "No groupID for file: \"", directoryPathSTR, "\""
 
         if use not in globalFileGrps:
-            print >>sys.stderr, "Invalid use: \"", use, "\""
+            print >>sys.stderr, "Invalid use: \"%s\"" % (use)
             sharedVariablesAcrossModules.globalErrorCount += 1
         else:
             file = newChild(globalFileGrps[use], "file", sets=[("ID",FILEID), ("GROUPID",GROUPID)])
@@ -742,7 +765,6 @@ def createFileSec(directoryPath, structMapDiv):
             Flocat = newChild(file, "FLocat", sets=[(xlinkBNS +"href",directoryPathSTR), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM")])
             if includeAmdSec:
                 AMD, ADMID = getAMDSec(myuuid, directoryPathSTR, use, fileGroupType, fileGroupIdentifier, transferUUID, itemdirectoryPath)
-                global amdSecs
                 amdSecs.append(AMD)
                 file.set("ADMID", ADMID)
 
