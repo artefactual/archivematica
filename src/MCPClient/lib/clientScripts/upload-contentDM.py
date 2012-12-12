@@ -27,12 +27,14 @@ import glob
 import argparse
 import json
 import urllib
+from urlparse import urlparse
+import re
 
 # This function queries the CONTENTdm collection configuration to determine
 # where the collection's import directory is on the server.
 def getDestinationImportDirectory(targetCollection, contentdmServer):
   try:
-    CollectionParametersUrl = 'http://' + contentdmServer + '/dmwebservices/index.php?q=dmGetCollectionParameters' + targetCollection + '/json'
+    CollectionParametersUrl = contentdmServer + '?q=dmGetCollectionParameters' + targetCollection + '/json'
     f = urllib.urlopen(CollectionParametersUrl)
     collectionParametersString = f.read()
     collectionParameters = json.loads(collectionParametersString)
@@ -62,7 +64,6 @@ if __name__ == '__main__':
     # Before proceeding, check to see if there is a zip file for this DIP; if there is,
     # the user has selected the 'Project Client' option and we just exit from this script.
     projectClientZipPath = outputDipDir = os.path.join(args.outputDir, 'CONTENTdm', 'projectclient', args.uuid + '.zip')
-    print 'project client zip path:', projectClientZipPath
     if os.path.exists(projectClientZipPath):
 		quit(0)
 
@@ -73,7 +74,6 @@ if __name__ == '__main__':
     # number of .desc files in the DIP directory. If it's simple, append 'import' to the
     # end of destinationImportDirectory; if it's compound, append 'import/cdoc' to the end.
     sourceDescFiles =  glob.glob(os.path.join(args.outputDir, 'CONTENTdm', 'directupload', args.uuid, "*.desc"))
-    # if len(sourceDescFiles) > 1:
     if len(sourceDescFiles) > 0:
         packageType = 'simple'
         destinationImportDirectory = os.path.join(contentdmCollectionDirectory, 'import')
@@ -82,13 +82,20 @@ if __name__ == '__main__':
         destinationImportDirectory = os.path.join(contentdmCollectionDirectory, 'import', 'cdoc')
 
     # We need to remove the port, if any, from server, since we don't use it while scping or sshing.
-    server, sep, port = args.contentdmServer.partition(':')
-    rsyncDestPath = args.contentdmUser + '@' + server + ':' + destinationImportDirectory
+    contentdmServerParts = urlparse(args.contentdmServer)
+    match = re.search(r':.+$', contentdmServerParts.netloc)
+    if match:
+        contentdmServerHostname = re.sub(r':.+$', '', contentdmServerParts.netloc)
+    else:
+        contentdmServerHostname = contentdmServerParts.netloc
+    
+    rsyncDestPath = args.contentdmUser + '@' + contentdmServerHostname + ':' + destinationImportDirectory
 
     sourceDir = os.path.join(args.outputDir, 'CONTENTdm', 'directupload', args.uuid)
     sourceFiles = os.listdir(sourceDir)
         
     rsyncCmd = "rsync -rv %s %s " % (sourceDir + '/', rsyncDestPath)
+    print "rsyc command: ", rsyncCmd
     rsyncExitCode = os.system(rsyncCmd)
     if rsyncExitCode != 0:
         print "Error copying direct upload files to " + rsyncDestPath
@@ -99,11 +106,10 @@ if __name__ == '__main__':
     # Loop through all the files or directories and change their group and permisions.
     for sourceFilename in sourceFiles:
         # Change the permissions and group of the DIP files so they are correct on the CONTENTdm
-        sshLogin = args.contentdmUser + "@" + server
+        sshLogin = args.contentdmUser + "@" + contentdmServerHostname
         sshChgrpCmd = 'chgrp -R ' + args.contentdmGroup 
         sshChmodCmd = 'chmod -R g+rw'
         destPath = os.path.join(destinationImportDirectory, sourceFilename)
-        # sshCmd = 'ssh %s "%s %s && %s %s"' % (sshLogin, sshChgrpCmd, remoteDestPath, sshChmodCmd, remoteDestPath)
         sshCmd = 'ssh %s "%s %s && %s %s"' % (sshLogin, sshChgrpCmd, destPath, sshChmodCmd, destPath)
         sshExitCode = os.system(sshCmd)
         if sshExitCode != 0:

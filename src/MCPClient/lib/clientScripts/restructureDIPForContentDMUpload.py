@@ -228,7 +228,7 @@ def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
          'dateb' : 'valid',
     }
     # Query CONTENTdm to get the target collection's field configurations.
-    CollectionFieldConfigUrl = 'http://' + contentdmServer + '/dmwebservices/index.php?q=dmGetCollectionFieldInfo' + targetCollection + '/json'
+    CollectionFieldConfigUrl = contentdmServer + '?q=dmGetCollectionFieldInfo' + targetCollection + '/json'
     try:
         f = urllib.urlopen(CollectionFieldConfigUrl)
         collectionFieldConfigString = f.read()
