@@ -469,9 +469,10 @@ def createDigiprovMDAgents():
 
 
 
-def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath):
+def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath, typeOfTransfer):
     global globalAmdSecCounter
     global globalRightsMDCounter
+    global globalDigiprovMDCounter
     globalAmdSecCounter += 1
     AMDID = "amdSec_%s" % (globalAmdSecCounter.__str__())
     AMD = etree.Element("amdSec")
@@ -492,16 +493,18 @@ def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath
             xmlData = newChild(mdWrap, "xmlData")
             xmlData.append(a)
 
-        if transferUUID:
-            sql = "SELECT type FROM Transfers WHERE transferUUID = '%s';" % (transferUUID)
-            rows = databaseInterface.queryAllSQL(sql)
-            if rows[0][0] == "Dspace":
-                for a in archivematicaCreateMETSRightsDspaceMDRef(fileUUID, filePath, transferUUID, itemdirectoryPath):
-                    globalRightsMDCounter +=1
-                    rightsMD = etree.SubElement(AMD, "rightsMD")
-                    rightsMD.set("ID", "rightsMD_" + globalRightsMDCounter.__str__())
-                    rightsMD.append(a)
+        if typeOfTransfer == "Dspace":
+            for a in archivematicaCreateMETSRightsDspaceMDRef(fileUUID, filePath, transferUUID, itemdirectoryPath):
+                globalRightsMDCounter +=1
+                rightsMD = etree.SubElement(AMD, "rightsMD")
+                rightsMD.set("ID", "rightsMD_" + globalRightsMDCounter.__str__())
+                rightsMD.append(a)
 
+        elif typeOfTransfer == "TRIM":
+            digiprovMD = getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID)
+            globalDigiprovMDCounter += 1
+            digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
+            AMD.append(digiprovMD)
 
     for a in createDigiprovMD(fileUUID):
         AMD.append(a)
@@ -696,25 +699,6 @@ def createFileSec(directoryPath, structMapDiv):
                     trimFileDmdSec.set("ID", ID)
                     
                     trimFileDiv.set("DMDID", ID)                    
-                    
-                    #==
-                    trimAmdSec = etree.Element("amdSec")
-                    globalAmdSecCounter += 1
-                    amdSecs.append(trimAmdSec)
-                    ID = "amdSec_" + globalAmdSecCounter.__str__()
-                    trimAmdSec.set("ID", ID)
-                    
-                    digiprovMD = getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, myuuid)
-                    globalDigiprovMDCounter += 1
-                    digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
-                    
-                    trimAmdSec.append(digiprovMD)
-                    
-                    trimFileDiv.set("AMDID", ID)     
-                    
-                    etree.SubElement(trimFileDiv, "fptr", attrib={"FILEID":FILEID})
-                    
-                    
 
         elif use == "preservation":
             sql = "SELECT * FROM Derivations WHERE derivedFileUUID = '" + myuuid + "';"
@@ -786,7 +770,7 @@ def createFileSec(directoryPath, structMapDiv):
             #<Flocat xlink:href="objects/file1-UUID" locType="other" otherLocType="system"/>
             Flocat = newChild(file, "FLocat", sets=[(xlinkBNS +"href",directoryPathSTR), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM")])
             if includeAmdSec:
-                AMD, ADMID = getAMDSec(myuuid, directoryPathSTR, use, fileGroupType, fileGroupIdentifier, transferUUID, itemdirectoryPath)
+                AMD, ADMID = getAMDSec(myuuid, directoryPathSTR, use, fileGroupType, fileGroupIdentifier, transferUUID, itemdirectoryPath, typeOfTransfer)
                 amdSecs.append(AMD)
                 file.set("ADMID", ADMID)
 

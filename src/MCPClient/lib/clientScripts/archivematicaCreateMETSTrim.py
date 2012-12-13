@@ -103,7 +103,6 @@ def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
 
 def getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
     ret = etree.Element("digiprovMD") 
-    
     sql = "SELECT currentLocation FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse='TRIM file metadata' AND fileGrpUUID = '%s';" % ('sipUUID', fileGroupIdentifier, fileUUID)
     rows = databaseInterface.queryAllSQL(sql)
     if (len(rows) != 1):
