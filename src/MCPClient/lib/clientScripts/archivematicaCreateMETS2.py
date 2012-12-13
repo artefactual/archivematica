@@ -674,6 +674,8 @@ def createFileSec(directoryPath, structMapDiv):
         GROUPID = ""
         if fileGrpUUID:
             GROUPID = "Group-%s" % (fileGrpUUID)
+            if use == "TRIM file metadata":
+                use = "submissionDocumentation"
             
         elif  use == "original" or use == "submissionDocumentation":
             GROUPID = "Group-%s" % (myuuid)
@@ -724,11 +726,11 @@ def createFileSec(directoryPath, structMapDiv):
                 row = c.fetchone()
             sqlLock.release()
         
+        
         elif use == "TRIM container metadata":
             GROUPID = "Group-%s" % (myuuid)
             use = "submissionDocumentation"
-            
-            
+        
 
         if transferUUID:
             sql = "SELECT type FROM Transfers WHERE transferUUID = '%s';" % (transferUUID)

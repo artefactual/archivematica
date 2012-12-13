@@ -52,7 +52,7 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
     #get objects count
     sql = "SELECT fileUUID FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse='original';" % ('sipUUID', fileGroupIdentifier)
     rows = databaseInterface.queryAllSQL(sql)
-    etree.SubElement(dublincore, dctermsBNS + "extent").text = len(rows).text
+    etree.SubElement(dublincore, dctermsBNS + "extent").text = "%d digital objects" % (len(rows))
     
     sql = "SELECT currentLocation FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse='TRIM file metadata';" % ('sipUUID', fileGroupIdentifier)
     rows = databaseInterface.queryAllSQL(sql)
