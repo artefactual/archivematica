@@ -36,6 +36,7 @@ from archivematicaCreateMETSRightsDspaceMDRef import archivematicaCreateMETSRigh
 from archivematicaCreateMETSTrim import getTrimDmdSec
 from archivematicaCreateMETSTrim import getTrimFileDmdSec
 from archivematicaCreateMETSTrim import getTrimAmdSec
+from archivematicaCreateMETSTrim import getTrimFileAmdSec
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from archivematicaFunctions import escape
@@ -644,10 +645,12 @@ def createFileSec(directoryPath, structMapDiv):
             trimDmdSec.set("ID", ID)
             trimStructMapObjects.set("DMDID", ID)
             
+            # ==
+            
             trimAmdSec = etree.Element("amdSec")
             globalAmdSecCounter += 1
             amdSecs.append(trimAmdSec)
-            ID = "amdSec_" + globalDmdSecCounter.__str__()
+            ID = "amdSec_" + globalAmdSecCounter.__str__()
             trimAmdSec.set("ID", ID)
                         
             digiprovMD = getTrimAmdSec(baseDirectoryPath, fileGroupIdentifier)
@@ -694,7 +697,24 @@ def createFileSec(directoryPath, structMapDiv):
                     
                     trimFileDiv.set("DMDID", ID)                    
                     
+                    #==
+                    trimAmdSec = etree.Element("amdSec")
+                    globalAmdSecCounter += 1
+                    amdSecs.append(trimAmdSec)
+                    ID = "amdSec_" + globalAmdSecCounter.__str__()
+                    trimAmdSec.set("ID", ID)
+                    
+                    digiprovMD = getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, myuuid)
+                    globalDigiprovMDCounter += 1
+                    digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
+                    
+                    trimAmdSec.append(digiprovMD)
+                    
+                    trimFileDiv.set("AMDID", ID)     
+                    
                     etree.SubElement(trimFileDiv, "fptr", attrib={"FILEID":FILEID})
+                    
+                    
 
         elif use == "preservation":
             sql = "SELECT * FROM Derivations WHERE derivedFileUUID = '" + myuuid + "';"

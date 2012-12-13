@@ -77,7 +77,6 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
 
 
 def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
-    #containerMetadata
     ret = etree.Element("dmdSec") 
     mdWrap = etree.SubElement(ret, "mdWrap")
     mdWrap.set("MDTYPE", "DC")
@@ -101,6 +100,20 @@ def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
         etree.SubElement(dublincore, dctermsBNS + "identifier").text = root.find("Document/RecordNumber").text
         
     return ret
+
+def getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
+    ret = etree.Element("digiprovMD") 
+    
+    sql = "SELECT currentLocation FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse='TRIM file metadata' AND fileGrpUUID = '%s';" % ('sipUUID', fileGroupIdentifier, fileUUID)
+    rows = databaseInterface.queryAllSQL(sql)
+    if (len(rows) != 1):
+        print >>sys.stderr, "no metadata for original file: ", fileUUID
+        return None
+    for row in rows:
+        label = os.path.basename(row[0])
+        attrib = {"LABEL":label, xlinkBNS + "href":row[0].replace("%SIPDirectory%", "", 1), "MDTYPE":"OTHER", "OTHERMDTYPE":"CUSTOM", 'LOCTYPE':"OTHER", 'OTHERLOCTYPE':"SYSTEM"}
+        etree.SubElement(ret, "mdRef", attrib=attrib)
+    return ret    
 
 def getTrimAmdSec(baseDirectoryPath, fileGroupIdentifier):
     ret = etree.Element("digiprovMD")
