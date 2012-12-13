@@ -698,7 +698,9 @@ def createFileSec(directoryPath, structMapDiv):
                     ID = "dmdSec_" + globalDmdSecCounter.__str__()
                     trimFileDmdSec.set("ID", ID)
                     
-                    trimFileDiv.set("DMDID", ID)                    
+                    trimFileDiv.set("DMDID", ID)       
+                    
+                    etree.SubElement(trimFileDiv, "fptr", attrib={"FILEID":FILEID})             
 
         elif use == "preservation":
             sql = "SELECT * FROM Derivations WHERE derivedFileUUID = '" + myuuid + "';"
@@ -847,6 +849,14 @@ if __name__ == '__main__':
     #tree.write(XMLFile)
     tree.write(XMLFile, pretty_print=True, xml_declaration=True)
 
+    printSectionCounters = True
+    if printSectionCounters:
+        print "DmdSecs:", globalDmdSecCounter
+        print "AmdSecs:", globalAmdSecCounter
+        print "TechMDs:", globalTechMDCounter
+        print "RightsMDs:", globalRightsMDCounter
+        print "DigiprovMDs:", globalDigiprovMDCounter
+         
     writeTestXMLFile = True
     if writeTestXMLFile:
         import cgi
