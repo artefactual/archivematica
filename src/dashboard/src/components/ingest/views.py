@@ -29,6 +29,7 @@ from main import forms
 from main import models
 from lxml import etree
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
+from components import helpers
 import calendar
 import cPickle
 import components.decorators as decorators
@@ -98,8 +99,7 @@ def ingest_status(request, uuid=None):
     return HttpResponse(simplejson.JSONEncoder(default=encoder).encode(response), mimetype='application/json')
 
 def ingest_sip_metadata_type_id():
-    types = models.MetadataAppliesToType.objects.filter(description='SIP')
-    return types[0].id
+    return helpers.get_metadata_type_id_by_description('SIP')
 
 @decorators.load_jobs # Adds jobs, name
 def ingest_metadata_list(request, uuid, jobs, name):
