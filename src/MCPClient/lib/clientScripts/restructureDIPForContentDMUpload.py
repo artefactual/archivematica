@@ -295,23 +295,24 @@ def getObjectDirectoryFiles(objectDir):
     return fileList
 
 
-# Create a .zip from the DIP files produced by generateXXProjectClientPackage functions.
-# Resulting zip file is written to the uploadedDIPs directory.
+# Create a .7z file from the DIP files produced by generateXXProjectClientPackage
+# functions. Resulting file is written to the uploadedDIPs directory.
 def zipProjectClientOutput(outputDipDir, zipOutputDir, dipUuid):
     currentDir = os.getcwd()
     # We want to chdir to this directory so we can only include the DIP-specific
     # structure in our zip file.
     zipOutputPath = os.path.join(zipOutputDir, 'CONTENTdm', 'projectclient')
     os.chdir(zipOutputPath)
-    zipOutputFile = dipUuid + '.zip'
-    # zipOutputFile is now relative to zipOutputPath since we have chdir'ed here.
-    outputFile = zipfile.ZipFile(zipOutputFile, "w")
-    # Because we have chdir'ed, we use the relative dipUuid as the source directory
-    # for our zip file.
-    for dirpath, dirnames, filenames in os.walk(dipUuid):
-        for filename in filenames:
-            outputFile.write(os.path.join(dirpath, filename), os.path.join(dirpath, filename))
-    outputFile.close()
+    # zipOutputFile will relative to zipOutputPath since we have chdir'ed.
+    zipOutputFile = dipUuid + '.7z'
+    # Also because we have chdir'ed, we use the relative dipUuid as the source
+    # directory for our zip file.
+    command = """/usr/bin/7z a -bd -t7z -y -m0=lzma -mx=3 %s %s """ % (zipOutputFile, dipUuid)
+    exitC, stdOut, stdErr = executeOrRun("command", command, printing=False)
+    if exitC != 0:
+        print stdOut
+        print >>sys.stderr, "Failed to create CONTENTdm DIP: ", command, "\r\n", stdErr
+        exit(exitC)
     os.chdir(currentDir)
 
 
