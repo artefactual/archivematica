@@ -35,6 +35,7 @@ import re
 from xml.dom.minidom import parse, parseString
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivematicaFunctions import normalizeNonDcElementName
+from executeOrRunSubProcess import executeOrRun
 
 # Create the output dir for the CONTENTdm DIP and return the resulting path.
 # importMethod is either 'projectclient' or 'directupload'.
