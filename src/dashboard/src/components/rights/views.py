@@ -23,6 +23,7 @@ from django.utils import simplejson
 from contrib import utils
 from main import forms
 from main import models
+from components import helpers
 import re
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -162,11 +163,11 @@ def rights_edit(request, uuid, id=None, section='ingest'):
         if id:
             createdRights = viewRights
         else:
+            sectionTypeID = {'transfer': 'Transfer', 'ingest': 'SIP'}
+            type_id = helpers.get_metadata_type_id_by_description(sectionTypeID[section])
+            newRights = models.RightsStatement(metadataappliestotype=type_id, metadataappliestoidentifier=uuid)
+            form = forms.RightsForm(request.POST, instance=newRights)
             createdRights = form.save()
-            sectionTypeID = {'transfer': 2, 'ingest': 1}
-            createdRights.metadataappliestotype = sectionTypeID[section]
-            createdRights.metadataappliestoidentifier = uuid
-            createdRights.save()
 
         copyrightFormset = CopyrightFormSet(request.POST, instance=createdRights)
         createdCopyrightSet = copyrightFormset.save()
@@ -508,10 +509,11 @@ def rights_list(request, uuid, section):
     name = utils.get_directory_name(jobs[0])
 
     # See MetadataAppliesToTypes table
-    types = { 'ingest': 1, 'transfer': 2, 'file': 3 }
+    types = {'transfer': 'Transfer', 'ingest': 'SIP', 'file': 'File'}
+    type_id = helpers.get_metadata_type_id_by_description(types[section])
 
     grants = models.RightsStatementRightsGranted.objects.filter(
-        rightsstatement__metadataappliestotype__exact=types[section],
+        rightsstatement__metadataappliestotype__exact=type_id,
         rightsstatement__metadataappliestoidentifier__exact=uuid
     )
 

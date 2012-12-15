@@ -70,3 +70,7 @@ def get_jobs_by_sipuuid(uuid):
         try: return priorities[job.currentstep]
         except Exception: return 0
     return sorted(jobs, key = get_priority) # key = lambda job: priorities[job.currentstep]
+
+def get_metadata_type_id_by_description(description):
+    types = models.MetadataAppliesToType.objects.filter(description=description)
+    return types[0].id
