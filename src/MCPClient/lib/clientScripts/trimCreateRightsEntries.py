@@ -123,8 +123,25 @@ for dir in os.listdir(transferPath):
         print "DateClosed:", DateClosed
         
         
+        a = """
+        FileMetadataAppliesToType = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
+        
+        RightsStatement
+        "rightsBasis" == "policy"
+        
+        RightsStatementOtherRightsInformation
+        
+        RightsStatementOtherRightsDocumentationIdentifier
+        
+        RightsStatementRightsGranted
         print "start", startTime
         print "end", endTime
+        RightsStatementRightsGrantedNote
+        "Closed until", endTime
+        
+        RightsStatementRightsGrantedRestriction = empty
+        """
+
         
                  
 quit(exitCode)

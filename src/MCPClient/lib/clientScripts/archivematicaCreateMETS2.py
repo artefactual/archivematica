@@ -122,12 +122,12 @@ def createAgent(agentIdentifierType, agentIdentifierValue, agentName, agentType)
     return ret
 
 
-SIPMetadataAppliesToType = 1
-TransferMetadataAppliesToType = 2
-FileMetadataAppliesToType = 3
+SIPMetadataAppliesToType = '7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17'
+TransferMetadataAppliesToType = '45696327-44c5-4e78-849b-e027a189bf4d'
+FileMetadataAppliesToType = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
 def getDublinCore(type_, id):
     sql = """SELECT     title, creator, subject, description, publisher, contributor, date, type, format, identifier, source, relation, language, coverage, rights
-    FROM Dublincore WHERE metadataAppliesToType = %s AND metadataAppliesToidentifier = '%s';""" % \
+    FROM Dublincore WHERE metadataAppliesToType = '%s' AND metadataAppliesToidentifier = '%s';""" % \
     (type_.__str__(), id.__str__())
     c, sqlLock = databaseInterface.querySQL(sql)
     row = c.fetchone()
@@ -662,7 +662,7 @@ def createFileSec(directoryPath, structMapDiv):
             
             trimAmdSec.append(digiprovMD)
             
-            trimStructMapObjects.set("AMDID", ID)
+            trimStructMapObjects.set("ADMID", ID)
             
         FILEID="%s-%s" % (item, myuuid)
         if FILEID[0].isdigit():
