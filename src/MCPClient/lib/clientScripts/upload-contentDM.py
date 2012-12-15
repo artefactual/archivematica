@@ -63,7 +63,7 @@ if __name__ == '__main__':
     
     # Before proceeding, check to see if there is a zip file for this DIP; if there is,
     # the user has selected the 'Project Client' option and we just exit from this script.
-    projectClientZipPath = outputDipDir = os.path.join(args.outputDir, 'CONTENTdm', 'projectclient', args.uuid + '.zip')
+    projectClientZipPath = outputDipDir = os.path.join(args.outputDir, 'CONTENTdm', 'projectclient', args.uuid + '.7z')
     if os.path.exists(projectClientZipPath):
 		quit(0)
 
