@@ -660,8 +660,8 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
     # Wite out a tab-delimited file containing the DC-mapped metadata,
     # with 'Filename' as the last field.
     simpleTxtFilePath = os.path.join(outputDipDir, 'simple.txt')   
-    # Check to see if simple.txt already exists, and if it does, append delimValuesRow
-    # to it.
+    # Check to see if simple.txt already exists, and if it does, append 
+    # delimValuesRow to it.
     if os.path.exists(simpleTxtFilePath):
         delimitedFile = open(simpleTxtFilePath, "ab")
         writer = csv.writer(delimitedFile, delimiter='\t')
@@ -904,28 +904,34 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
                         # Rows can't contain new lines.
                         joinedDcMetadataValues = joinedDcMetadataValues.replace("\r","")
                         joinedDcMetadataValues = joinedDcMetadataValues.replace("\n","")
-                        delimValuesRow.append(joinedDcMetadataValues)
+                        delimItemValuesRow.append(joinedDcMetadataValues)
                     # Append a placeholder to keep the row intact.
                     else:
-                        delimValuesRow.append('')
+                        delimItemValuesRow.append('')
 
     compoundTxtFilePath = os.path.join(outputDipDir, 'compound.txt')
-    # Check to see if compound.txt already exists, and if it does, append delimValuesRow
-    # to it.
+    # Check to see if compound.txt already exists, and if it does, open it
+    # for appending the current item row to it.
     if os.path.exists(compoundTxtFilePath):
         delimitedFile = open(compoundTxtFilePath, "ab")
         writer = csv.writer(delimitedFile, delimiter='\t')
-    # If it doesn't exist, write out the header row.
+    # If compound.txt doesn't exist, open it for writing and add the header row.
     else:
         delimitedFile = open(compoundTxtFilePath, "wb")
         writer = csv.writer(delimitedFile, delimiter='\t')
-        # Write the header row. Headers for compound item Project Client packages have
-        # the Directory name field in the first position.
+        # Write the header row. Headers for compound item Project Client
+        # packages have the Directory name field in the first position.
         delimHeaderRow.insert(0, 'Directory name')
         writer.writerow(delimHeaderRow)
 
     # Prepend the item directory name to the row.
-    delimItemValuesRow.insert(0, itemDirUuid)
+    if bulk:
+        delimItemValuesRow.insert(0, itemDirUuid)
+    else:
+        # Insert a blank space, since the partent item's row for non-bulk
+        # items in the Project Client format doesn't have anything in the
+        # 'Directory name' field.
+        delimItemValuesRow.insert(0, '')
     # Write the item-level metadata row.
     writer.writerow(delimItemValuesRow) 
 
@@ -952,7 +958,8 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
                             objectFileBaseFilename, objectFileExtension = os.path.splitext(objectFileFilename)
                             # We give the destination files a sortable numeric name (using their 'order'
                             # attribute from parseStructMap() so they sort properly in the Project Client.
-                            shutil.copy(fullPath, os.path.join(outputItemDir, v['order'] + objectFileExtension))                            
+                            childFilename = v['order'] + objectFileExtension
+                            shutil.copy(fullPath, os.path.join(scansDir, childFilename))                            
                             
                     # Write the child-level metadata row. For single (non-bulk) DIPs, we use
                     # the delimited file format described at
@@ -976,7 +983,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
                         for i in range(1, len(delimHeaderRow) - 1):
                             delimChildValuesRow.append('')
                     # Rows for compound itms must contain directory name in first position.
-                    delimChildValuesRow.prepend(itemDirUuid)
+                    delimChildValuesRow.insert(0, childFilename)
                     writer.writerow(delimChildValuesRow)
                
     delimitedFile.close()
