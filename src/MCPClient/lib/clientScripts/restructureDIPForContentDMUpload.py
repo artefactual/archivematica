@@ -238,16 +238,19 @@ def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
         print "Cannot retrieve CONTENTdm collection field configuration from " + CollectionFieldConfigUrl
         sys.exit(1)
 
+    # We separate out the fields that are mapped to a DC field in the CONTENTdm
+    # collection's configuration, so we can fall back on these fields if there
+    # is no CONTENTdm collection specific metadata, e.g. when the SIP had no
+    # metadata.csv file and DC metadata was added manually in the dashboard.
     # For the DC mappings, we want a dict containing items that looks like
     # { 'contributor': { 'name': u'Contributors', 'nick': u'contri'},
     # 'creator': { 'name': u'Creator', 'nick': u'creato'},
     # 'date': { 'name': u'Date', 'nick': u'dateso'}, [...] }
-    # We need these field-specific mappings when writing out metadata files for loading
-    # into CONTENTdm. It is possible that more than one CONTENTdm field is mapped to
-    # the same DC element; in this case, just take the last mapping and ignore the rest,
-    # since there is no way to tell which should take precedence. The non-DC mappings have
-    # the field name as their key, like "u'CONTENTdm number': { 'name': u'CONTENTdm number',
-    # 'nick': u'dmrecord'} (i.e., key and 'name' are the same).
+    # It is possible that more than one CONTENTdm field is mapped to the same DC
+    # in this case, just take the last mapping and ignore the rest, since thre is
+    # no way to tell which should take precedence. The non-DC (i.e., general) mappings
+    # have the field name as their key, like "u'CONTENTdm number': { 'name': 
+    # u'CONTENTdm number', 'nick': u'dmrecord'} (i.e., key and 'name' are the same).
     collectionFieldDcMappings = {}
     collectionFieldNonDcMappings = {}
     # We also want a simple list of all the fields in the current collection, in the order
@@ -261,11 +264,9 @@ def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
             # For fields that have a DC mapping.
             if fieldConfig['dc'] != 'BLANK' and fieldConfig['dc'] != '':
                 collectionFieldDcMappings[contentdmDctermsMap[fieldConfig['dc']]] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
-            # For fields that do not have a DC mapping.   
-            if fieldConfig['dc'] == 'BLANK':
-                collectionFieldNonDcMappings[fieldName] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
-            # Testing: make all the fields to be considered non-DC.
-            # collectionFieldNonDcMappings[fieldName] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
+            # For all fields. 'NonDc' is used here to mean 'general', not to signify
+            # that the field doesn't have a DC mapping.
+            collectionFieldNonDcMappings[fieldName] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
         if fieldConfig['nick'] not in systemFields:
             collectionFieldOrder.append(fieldConfig['nick'])
     collectionFieldInfo['dcMappings'] = collectionFieldDcMappings
