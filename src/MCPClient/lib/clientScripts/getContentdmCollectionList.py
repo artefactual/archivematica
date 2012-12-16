@@ -27,6 +27,8 @@ import urllib
 # The base URL will be specific to each CONTENTdm server; everything including and
 # following 'dmwebservices' is the same.
 try:
+    # Adding 1 to the dmGetCollectionList call shows hidden collections.
+    # This is not documented at http://www.contentdm.org/help6/custom/customize2b.asp.
     CollectionListUrl = sys.argv[1] + '?q=dmGetCollectionList/1/json'
     f = urllib.urlopen(CollectionListUrl)
     collectionListString = f.read()
