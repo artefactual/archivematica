@@ -27,7 +27,7 @@ import urllib
 # The base URL will be specific to each CONTENTdm server; everything including and
 # following 'dmwebservices' is the same.
 try:
-    CollectionListUrl = sys.argv[1] + '?q=dmGetCollectionList/json'
+    CollectionListUrl = sys.argv[1] + '?q=dmGetCollectionList/1/json'
     f = urllib.urlopen(CollectionListUrl)
     collectionListString = f.read()
     collectionList = json.loads(collectionListString)
