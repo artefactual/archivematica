@@ -831,8 +831,9 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     structMapDom = structMaps[0]
     structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSecGroup)
     
-    # Each item needs to have its own directory under outputDipDir. To supply a unique UUID
-    # for each compound item, we use the the first eight characters of the UUID of the first 
+    # Each item needs to have its own directory under outputDipDir. For a single item, we use
+    # 'scans'; for bulk items, we need to make up a unique directory name. To generate a unique
+    # name for each compound item, we use the the first eight characters of the UUID of the first 
     # file in each compound item.
     if bulk:
         firstFilePath, firstFileFilename = os.path.split(filesInObjectDirectoryForThisDmdSecGroup[0])
@@ -868,10 +869,11 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     # Write out the metadata file, with the first row containing the field labels and the
     # second row containing the values. Both rows needs to be in the order expressed in
     # collectionFieldInfo['order']. For each item in collectionFieldInfo['order'],
-    # query each mapping in collectionFieldInfo['mappings'] to find a matching 'nick';
+    # query each mapping in collectionFieldInfo['nonDcMappings'] to find a matching 'nick';
     # if the nick is found, write the value in the dmdSec's element that matches the mapping's
-    # key; if no matching mapping is found, write ''. The DIP filename (in this case, the file
-    # variable defined above) needs to go in the last column.
+    # key; if no matching mapping is found, write ''. For single items, the child filename 
+    # needs to go in the last column; for bulk items, the item-level directory needs to go
+    # in the first column.
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
     delimHeaderRow = []
     delimItemValuesRow = []
@@ -922,25 +924,24 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     else:
         delimitedFile = open(compoundTxtFilePath, "wb")
         writer = csv.writer(delimitedFile, delimiter='\t')
-        # Write the header row. Headers for compound item Project Client
-        # packages have the Directory name field in the first position.
-        delimHeaderRow.insert(0, 'Directory name')
+        # Write the header row. For bulk Project Client packages, the header
+        # row contains 'Directory name' in the first position; for single-item
+        # packages, it contains 'Filename' in the last position.
+        if bulk:
+            delimHeaderRow.insert(0, 'Directory name')
+        else:
+            delimHeaderRow.append('Filename')
         writer.writerow(delimHeaderRow)
 
-    # Prepend the item directory name to the row.
+    # If we're dealing with a bulk DIP, prepend the item directory name to the row.
     if bulk:
         delimItemValuesRow.insert(0, itemDirUuid)
-    else:
-        # Insert a blank space, since the partent item's row for non-bulk
-        # items in the Project Client format doesn't have anything in the
-        # 'Directory name' field.
-        delimItemValuesRow.insert(0, '')
-    # Write the item-level metadata row.
-    writer.writerow(delimItemValuesRow) 
+        # Write the item-level metadata row.
+        writer.writerow(delimItemValuesRow) 
 
-    # Child-level metadata for compound items only applies to single-DIP items,
-    # not bulk DIPs, since we're using the CONTENTdm 'object list' Project Client
-    # method of importing (see http://www.contentdm.org/help6/objects/multiple4.asp).
+    # Process a non-bulk DIP. Child-level metadata for compound items only applies to single
+    # (non-bulk) DIP items, not bulk DIPs, since we're using the CONTENTdm 'object list' Project
+    # Client method of importing (see http://www.contentdm.org/help6/objects/multiple4.asp).
     # Page labels need to be applied within the project client.
     if not bulk:
         # Determine the order in which we will add the child-level rows to the delimited file.
@@ -982,11 +983,11 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
                     # and for hierarchical.
                     titlePosition = collectionFieldInfo['order'].index('title')
                     if titlePosition == 0:
-                        delimChildValuesRow.append(v['label'])
+                        delimChildValuesRow.insert(0, v['label'])
                         for i in range(1, len(delimHeaderRow) - 1):
                             delimChildValuesRow.append('')
-                    # Rows for compound itms must contain directory name in first position.
-                    delimChildValuesRow.insert(0, childFilename)
+                    # Rows for single compound itms must contain filenamein the last position.
+                    delimChildValuesRow.append(childFilename)
                     writer.writerow(delimChildValuesRow)
                
     delimitedFile.close()
