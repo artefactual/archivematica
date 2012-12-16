@@ -339,6 +339,10 @@ def zipProjectClientOutput(outputDipDir, zipOutputDir, dipUuid):
 # <dmaccess></dmaccess>
 # </xml>
 def generateDescFile(dcMetadata, nonDcMetadata):
+    print "dcMetadata at top of generateDescFile:"
+    print dcMetadata
+    print "nonDcMetadata at top of generateDescFile:"
+    print nonDcMetadata
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
     output = '<?xml version="1.0" encoding="utf-8"?>' + "\n"
     output += "<itemmetadata>\n"
@@ -350,11 +354,11 @@ def generateDescFile(dcMetadata, nonDcMetadata):
         doNotAdd = ['transc', 'fullrs', 'dmoclcno', 'dmcreated', 'dmmodified', 'dmrecord',
             'find', 'dmimage', 'dmad1', 'dmad2', 'dmaccess']
         for element in collectionFieldInfo['nonDcMappings'].keys():
-            # If a field is in the incoming item non-DC metadata, populate the corresponding tag
-            # with its 'nick' value.
+            # If a field is in the incoming item non-DC metadata, populate the corresponding
+            # tag with its 'nick' value.
             # First, normalize CONTENTdm field names so they can match element names in the
             # metadata. We need to do this because the raw (i.e., human readable field names)
-            # are used as keys in collectionFieldInfo for fields that are not mapped to DC.
+            # are used as field keys in collectionFieldInfo['nonDcMappings'].
             normalizedElement = normalizeNonDcElementName(element)
             if normalizedElement in nonDcMetadata.keys():
                 values = ''
@@ -564,7 +568,6 @@ def getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps):
 # and a .full (manifest) file.
 def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, filesInThumbnailDirectory):
     dmdSecPair = splitDmdSecs(dmdSecs)
-    # (nonDcMetadata, dcMetadata) = splitDmdSecs(dmdSecs)
     descFileContents = generateDescFile(dmdSecPair['dc'], dmdSecPair['nonDc'])
     
     # Get the object base filename and extension. Since we are dealing with simple items,
@@ -690,7 +693,9 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
 # structMap is present, use it to order the files.
 def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory):
     dmdSecPair = splitDmdSecs(dmdSecs)
-    descFileContents = generateDescFile(dmdSecPair['dc'], dmdSecPair['nonDc'])
+    nonDcMetadata = dmdSecPair['nonDc']
+    dcMetadata = dmdSecPair['dc']
+    descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
     # Make a copy of nonDcMetadata that we use for compound item children (see comment below).
     nonDcMetadataForChildren = nonDcMetadata
 
@@ -733,7 +738,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
         Orders.append(details['order'])
 
     # Iterate through the list of order values and add the matching structMapDict entry
-    # to the delimited file (and copy the file into the scans directory).
+    # to the .cpd file (and copy the file into the scans directory).
     for order in sorted(Orders):
         for k, v in structMapDict.iteritems():
             # Get each access file's base filesname without extension, since we'll use it
@@ -746,51 +751,46 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                 parentThumbnailFilename = accessFileBasenameName + '.icon' 
 
             if order == v['order']:
-               # Process each object file.
-               for fullPath in filesInObjectDirectoryForThisDmdSecGroup:
-                   # For each object file, output the object file. We need to find the full path
-                   # of the file identified in v['filename'].
-                   if (v['filename'] in fullPath):
-                       shutil.copy(fullPath, outputItemDir)
+                # Process each object file.
+                for fullPath in filesInObjectDirectoryForThisDmdSecGroup:
+                    # For each object file, output the object file. We need to find the full path
+                    # of the file identified in v['filename'].
+                    if (v['filename'] in fullPath):
+                        shutil.copy(fullPath, outputItemDir)
 
-                   # For each object file, copy the thumbnail in the DIP to the import package.
-                   # The file must have the same name as the object file but it must end in .icon.
-                   for thumbnailFilePath in filesInThumbnailDirectory:
-                       thumbnailBasename = os.path.basename(thumbnailFilePath)
-                       # Strip off thumbnail extension so we can match on the name.
-                       thumbnailBasenameName, thumbnailBasenameext = os.path.splitext(thumbnailBasename)
-                       if (thumbnailBasenameName in v['filename']):
-                           thumbnailFilename = accessFileBasenameName + '.icon'
-                           shutil.copy(thumbnailFilePath, os.path.join(outputItemDir, thumbnailFilename))
+                    # For each object file, copy the thumbnail in the DIP to the import package.
+                    # The file must have the same name as the object file but it must end in .icon.
+                    for thumbnailFilePath in filesInThumbnailDirectory:
+                        thumbnailBasename = os.path.basename(thumbnailFilePath)
+                        # Strip off thumbnail extension so we can match on the name.
+                        thumbnailBasenameName, thumbnailBasenameext = os.path.splitext(thumbnailBasename)
+                        if (thumbnailBasenameName in v['filename']):
+                            thumbnailFilename = accessFileBasenameName + '.icon'
+                            shutil.copy(thumbnailFilePath, os.path.join(outputItemDir, thumbnailFilename))
 
-               # For each object file, output a .desc file. Currently, Archivematica does not
-               # support child-level descriptions, so we can use the filename as the title if
-               # there isn't a user-supplied csv or structMap to provide labels as per
-               # https://www.archivematica.org/wiki/CONTENTdm_integration. Also note that we do
-               # not add the non-DC metadata fields to child .desc files.
-               dcMetadata = parseDmdSec(None, v['label'])
-               # We don't want to include any values that are in nonDcMetadataForChildren,
-               # (we just want the empty elements), so iterate through the copy we made at
-               # the top of this function and zero all values in tis dictionary out.
-               if nonDcMetadataForChildren != None:
-                   for nonDcField, nonDcValue in nonDcMetadataForChildren.iteritems():
-                       nonDcMetadataForChildren[nonDcField] = list()
-               descFileContents = generateDescFile(dcMetadata, nonDcMetadataForChildren)
-               descFilename = accessFileBasenameName + '.desc'
-               descFile = open(os.path.join(outputItemDir, descFilename), "wb")
-               descFile.write(descFileContents)
-               descFile.close()
+                # For each object file, output a .desc file. Currently, Archivematica does not
+                # support child-level descriptions, so we use the filename as the title if
+                # there isn't a user-supplied csv or structMap to provide labels as per
+                # https://www.archivematica.org/wiki/CONTENTdm_integration.
+                dcMetadata = parseDmdSec(None, v['label'])
+                nonDcMetadataForChildren['title'] = [v['label']]
+                       
+                descFileContents = generateDescFile(dcMetadata, nonDcMetadataForChildren)
+                descFilename = accessFileBasenameName + '.desc'
+                descFile = open(os.path.join(outputItemDir, descFilename), "wb")
+                descFile.write(descFileContents)
+                descFile.close()
 
-               # For each object file, add its .full file values. These entries do not
-               # have anything in their <title> elements.
-               fullFileContents += generateFullFileEntry('', accessFileBasenameName, accessFileBasenameExt)
-               # For each object file, add its .cpd file values. 
-               # @todo: We will need to account for hierarchical items here.
-               cpdFileContent += "  <page>\n"
-               cpdFileContent += "    <pagetitle>" + v['label'] + "</pagetitle>\n"
-               cpdFileContent += "    <pagefile>" + v['filename'] + "</pagefile>\n"
-               cpdFileContent += "    <pageptr>+</pageptr>\n"
-               cpdFileContent += "  </page>\n"
+                # For each object file, add its .full file values. These entries do not
+                # have anything in their <title> elements.
+                fullFileContents += generateFullFileEntry('', accessFileBasenameName, accessFileBasenameExt)
+                # For each object file, add its .cpd file values. 
+                # @todo: We will need to account for hierarchical items here.
+                cpdFileContent += "  <page>\n"
+                cpdFileContent += "    <pagetitle>" + v['label'] + "</pagetitle>\n"
+                cpdFileContent += "    <pagefile>" + v['filename'] + "</pagefile>\n"
+                cpdFileContent += "    <pageptr>+</pageptr>\n"
+                cpdFileContent += "  </page>\n"
 
     # Write out the index.full file. 
     fullFile = open(os.path.join(outputItemDir, 'index.full'), "wb")
