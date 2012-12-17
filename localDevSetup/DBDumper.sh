@@ -21,6 +21,8 @@
 # @author Joseph Perry <joseph@artefactual.com>>
 # @version svn: $Id$
 
+origDir="`pwd`"
+cd "`dirname $0`"
 databaseName="MCP"
 set -e
 echo -n "Enter the DATABASE root password (Hit enter if blank):"
@@ -38,7 +40,7 @@ dumpTables="--skip-triggers --skip-comments -d"
 dumpData="--skip-triggers --skip-comments --no-create-info --extended-insert=FALSE --complete-insert=TRUE --order-by-primary"
 # Quick load dump for testing
 #dumpData="--skip-triggers --skip-comments --no-create-info --extended-insert=TRUE"
-MCPDumpSQLLocation="../src/MCPServer/share/mysql2"
+MCPDumpSQLLocation="../src/MCPServer/share/mysql"
 
 #echo 'START TRANSACTION;' > $MCPDumpSQLLocation
 echo 'SET foreign_key_checks = 0;' > $MCPDumpSQLLocation
@@ -87,3 +89,4 @@ sed -i -e 's/ AUTO_INCREMENT=[0-9]\+//' $MCPDumpSQLLocation
 #-- Dashboard dump Dashboard-views --
 ##$mysqldump developmentAide_choicesDisplayed $dumpTables >> $MCPDumpSQLLocation
 
+cd "$origDir"
