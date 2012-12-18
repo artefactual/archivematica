@@ -122,7 +122,7 @@ for dir in os.listdir(transferPath):
             continue
         
         fileUUID = getFileUUIDLike(filePath, transferPath, transferUUID, "transferUUID", "%transferDirectory%")[filePath.replace(transferPath, "%transferDirectory%", 1)]
-        FileMetadataAppliesToType = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
+        FileMetadataAppliesToType = '7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17'
         
         #RightsStatement
         sql = """INSERT INTO RightsStatement SET 
