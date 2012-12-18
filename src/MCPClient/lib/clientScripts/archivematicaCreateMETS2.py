@@ -129,7 +129,7 @@ def getDublinCore(type_, id):
     sql = """SELECT     title, creator, subject, description, publisher, contributor, date, type, format, identifier, source, relation, language, coverage, rights
     FROM Dublincore WHERE metadataAppliesToType = '%s' AND metadataAppliesToidentifier = '%s';""" % \
     (type_.__str__(), id.__str__())
-    print sql
+    
     c, sqlLock = databaseInterface.querySQL(sql)
     row = c.fetchone()
     if row == None:
