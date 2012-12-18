@@ -140,6 +140,10 @@ function export-sampledata() {
 
     print "Exporting archivematica-sampledata to $HOME..."
     colour git clone $SAMPLEDATA_REPO ~/archivematica-sampledata
+    print "Updating OPF..."
+    cd ~/archivematica-sampledata
+    colour git submodule init
+    colour git submodule update
   else
           echo "Not going to ${part}."
   fi
