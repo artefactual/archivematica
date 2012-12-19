@@ -152,19 +152,21 @@ def bridgeMagicChainLinksRecursiveAssist(node, magicLink, visitedNodes):
     
 def bridgeLoadVariable():
     ""
-    sql = "SELECT MicroServiceChainLinks.pk, TasksConfigsUnitVariableLinkPull.variable FROM MicroServiceChainLinks JOIN TasksConfigs ON MicroServiceChainLinks.currentTask = TasksConfigs.pk JOIN TasksConfigsUnitVariableLinkPull ON TasksConfigsUnitVariableLinkPull.pk = TasksConfigs.taskTypePKReference WHERE TasksConfigs.taskType = 'c42184a3-1a7f-4c4d-b380-15d8d97fdd11';"
+    sql = "SELECT MicroServiceChainLinks.pk, TasksConfigsUnitVariableLinkPull.variable, TasksConfigsUnitVariableLinkPull.defaultMicroServiceChainLink FROM MicroServiceChainLinks JOIN TasksConfigs ON MicroServiceChainLinks.currentTask = TasksConfigs.pk JOIN TasksConfigsUnitVariableLinkPull ON TasksConfigsUnitVariableLinkPull.pk = TasksConfigs.taskTypePKReference WHERE TasksConfigs.taskType = 'c42184a3-1a7f-4c4d-b380-15d8d97fdd11';"
     rows = databaseInterface.queryAllSQL(sql)
     for row in rows:
         count = 0
-        microServiceChainLink, variable = row
+        microServiceChainLink, variable, defaultMicroServiceChainLink = row
         sql = "SELECT MicroServiceChainLinks.pk, TasksConfigsSetUnitVariable.variable, TasksConfigsSetUnitVariable.microServiceChainLink  FROM MicroServiceChainLinks JOIN TasksConfigs ON MicroServiceChainLinks.currentTask = TasksConfigs.pk JOIN TasksConfigsSetUnitVariable ON TasksConfigsSetUnitVariable.pk = TasksConfigs.taskTypePKReference WHERE TasksConfigs.taskType = '6f0b612c-867f-4dfd-8e43-5b35b7f882d7' AND TasksConfigsSetUnitVariable.variable = '%s';" % (variable)
         rows2 = databaseInterface.queryAllSQL(sql)
         for row2 in rows2:
             microServiceChainLink2, variable,  microServiceChainLinkDest = row2
             addArrow(microServiceChainLink, microServiceChainLinkDest, color="brown")
             count +=1
+        if defaultMicroServiceChainLink:
+            addArrow(microServiceChainLink, defaultMicroServiceChainLink, color="brown")
         if count == 0:
-            print "no bridge variable set for: ", linkUUIDtoNodeName[microServiceChainLink]    
+            print "no bridge variable set for: ", linkUUIDtoNodeName[microServiceChainLink]           
     return
 
 def draw():
