@@ -59,7 +59,7 @@ def loadAllLinks():
         if pk in excludedNodes:
             continue
         nodeName = "{%s}%s" % (pk, description)
-        G.add_node(nodeName, URL="MicroServiceChainLinks/%s" % pk)
+        G.add_node(nodeName, URL="MicroServiceChainLinks/%s" % pk, label=nodeName, id=nodeName)
         linkUUIDtoNodeName[pk] = nodeName
     for link in links:
         pk, defaultNextChainLink, description = link
@@ -198,7 +198,7 @@ if __name__ == '__main__':
     bridgeWatchedDirectories()
     bridgeLoadVariable()
     bridgeMagicChainLinks()
-    bridgeSpecial
+    bridgeSpecial()
     draw()
     #print G.string()
     #print linkUUIDtoNodeName
