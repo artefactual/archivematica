@@ -374,6 +374,16 @@ class SourceDirectory(models.Model):
     class Meta:
         db_table = u'SourceDirectories'
 
+class StorageDirectory(models.Model):
+    id = UUIDPkField()
+    path = models.TextField(db_column='path')
+
+    def __unicode__(self):
+        return self.path
+
+    class Meta:
+        db_table = u'StorageDirectories'
+
 """ MCP data interoperability """
 
 class MicroServiceChain(models.Model):

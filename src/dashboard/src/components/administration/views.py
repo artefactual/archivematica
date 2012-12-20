@@ -169,19 +169,38 @@ def administration_dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet
                 instance.save()
     return valid_submission, formset, add_form
 
+def administration_storage(request):
+    picker_js_file = 'storage_directory_picker.js'
+    system_directory_description = 'AIP storage'
+    return render(request, 'administration/sources.html', locals())
+
+def administration_storage_json(request):
+    return administration_system_directory_data_request_handler(
+      request,
+      models.StorageDirectory
+    )
+
 def administration_sources(request):
+    picker_js_file = 'source_directory_picker.js'
+    system_directory_description = 'Transfer source'
     return render(request, 'administration/sources.html', locals())
 
 def administration_sources_json(request):
+    return administration_system_directory_data_request_handler(
+      request,
+      models.SourceDirectory
+    )
+
+def administration_system_directory_data_request_handler(request, model):
     message = ''
     if request.method == 'POST':
          path = request.POST.get('path', '')
          if path != '':
               try:
-                  models.SourceDirectory.objects.get(path=path)
-              except models.SourceDirectory.DoesNotExist:
+                  model.objects.get(path=path)
+              except model.DoesNotExist:
                   # save dir
-                  source_dir = models.SourceDirectory()
+                  source_dir = model()
                   source_dir.path = path
                   source_dir.save()
                   message = 'Directory added.'
@@ -194,19 +213,36 @@ def administration_sources_json(request):
     response['message'] = message
     response['directories'] = []
 
-    for directory in models.SourceDirectory.objects.all():
+    for directory in model.objects.all():
       response['directories'].append({
         'id':   directory.id,
         'path': directory.path
       })
-    return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
+
+    return HttpResponse(
+      simplejson.JSONEncoder().encode(response),
+      mimetype='application/json'
+    )
+
+def administration_storage_delete_json(request, id):
+    return administration_system_directory_delete_request_handler(
+      request,
+      models.StorageDirectory,
+      id
+    )
 
 def administration_sources_delete_json(request, id):
-    models.SourceDirectory.objects.get(pk=id).delete()
+    return administration_system_directory_delete_request_handler(
+      request, 
+      models.SourceDirectory,
+      id
+    )
+
+def administration_system_directory_delete_request_handler(request, model, id):
+    model.objects.get(pk=id).delete()
     response = {}
     response['message'] = 'Deleted.'
     return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
-    #return HttpResponseRedirect(reverse('components.administration.views.administration_sources'))
 
 def administration_processing(request):
     file_path = '/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'

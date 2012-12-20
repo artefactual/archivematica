@@ -13,6 +13,9 @@ var DirectoryPickerView = fileBrowser.FileExplorer.extend({
     };
 
     this.ajaxChildDataUrl = this.options.ajaxChildDataUrl;
+    this.ajaxSelectedDirectoryUrl = this.options.ajaxSelectedDirectoryUrl;
+    this.ajaxAddDirectoryUrl = this.options.ajaxAddDirectoryUrl;
+    this.ajaxDeleteDirectoryUrl = this.options.ajaxDeleteDirectoryUrl;
 
     this.render();
 
@@ -23,19 +26,19 @@ var DirectoryPickerView = fileBrowser.FileExplorer.extend({
         description: 'Select directory', 
         iconHtml: 'Add', 
         logic: function(result) { 
-          self.addSource(self, result.path); 
+          self.addDirectory(self, result.path); 
         } 
       } 
     ]; 
   },
 
-  addSource: function(fileExplorer, path) {
+  addDirectory: function(fileExplorer, path) {
     var self = this;
     $.post(
-      '/administration/sources/json/',
+      this.ajaxAddDirectoryUrl,
       {path: path},
       function(response) {
-        self.updateSources();
+        self.updateSelectedDirectories();
       }
     );
   },
@@ -43,23 +46,23 @@ var DirectoryPickerView = fileBrowser.FileExplorer.extend({
   deleteSource: function(id) {
     var self = this;
     this.confirm(
-      'Delete source directory',
-      'Are you sure you want to delete this?',
+      'De-select directory',
+      'Are you sure you want to de-select this?',
       function() {
         $.post(
-          '/administration/sources/delete/json/' + id + '/',
+          self.ajaxDeleteDirectoryUrl + id + '/',
           {},
           function(response) {
-            self.updateSources();
+            self.updateSelectedDirectories();
           }
         );
       }
     );
   },
 
-  updateSources: function(cb) {
+  updateSelectedDirectories: function(cb) {
     var self = this;
-    $.get('/administration/sources/json/'  + '?' + new Date().getTime(), function(results) {
+    $.get(this.ajaxSelectedDirectoryUrl + '?' + new Date().getTime(), function(results) {
       tableTemplate = _.template($('#template-source-directory-table').html());
       rowTemplate   = _.template($('#template-source-directory-table-row').html());
 
