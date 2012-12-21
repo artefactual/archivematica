@@ -196,18 +196,20 @@ def administration_system_directory_data_request_handler(request, model):
     if request.method == 'POST':
          path = request.POST.get('path', '')
          if path != '':
-              try:
-                  model.objects.get(path=path)
-              except model.DoesNotExist:
-                  # save dir
-                  source_dir = model()
-                  source_dir.path = path
-                  source_dir.save()
-                  message = 'Directory added.'
-              else:
-                  message = 'Directory already added.'
+             try:
+                 model.objects.get(path=path)
+             except model.DoesNotExist:
+                 # save dir
+                 source_dir = model()
+                 source_dir.path = path
+                 source_dir.save()
+                 message = 'Directory added.'
+             else:
+                 message = 'Directory already added.'
          else:
-              message = 'Path is empty.'
+             message = 'Path is empty.'
+         if model == models.StorageDirectory:
+             administration_render_storage_directories_to_dicts()
 
     response = {}
     response['message'] = message
@@ -225,11 +227,13 @@ def administration_system_directory_data_request_handler(request, model):
     )
 
 def administration_storage_delete_json(request, id):
-    return administration_system_directory_delete_request_handler(
+    response = administration_system_directory_delete_request_handler(
       request,
       models.StorageDirectory,
       id
     )
+    administration_render_storage_directories_to_dicts()
+    return response
 
 def administration_sources_delete_json(request, id):
     return administration_system_directory_delete_request_handler(
@@ -240,6 +244,8 @@ def administration_sources_delete_json(request, id):
 
 def administration_system_directory_delete_request_handler(request, model, id):
     model.objects.get(pk=id).delete()
+    if model == models.StorageDirectory:
+        administration_render_storage_directories_to_dicts()
     response = {}
     response['message'] = 'Deleted.'
     return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
@@ -256,3 +262,28 @@ def administration_processing(request):
         xml = file.read()
 
     return render(request, 'administration/processing.html', locals())
+
+def administration_render_storage_directories_to_dicts():
+    administration_flush_aip_storage_dicts()
+    storage_directories = models.StorageDirectory.objects.all()
+    link_pk = administration_get_aip_storage_link_pk()
+    for dir in storage_directories:
+        dict = models.MicroServiceChoiceReplacementDic()
+        dict.choiceavailableatlink = link_pk
+        dict.description = dir.path
+        dict.replacementdic = '{"%AIPsStore%":"' + dir.path + '"}'
+        dict.save()
+
+def administration_flush_aip_storage_dicts():
+    link_pk = administration_get_aip_storage_link_pk()
+    entries = models.MicroServiceChoiceReplacementDic.objects.filter(
+      choiceavailableatlink=link_pk
+    )
+    for entry in entries:
+        if (entry.replacementdic != '{"%AIPsStore%":"%sharedPath%www/AIPsStore/"}'):
+            entry.delete()
+
+def administration_get_aip_storage_link_pk():
+    tasks = models.TaskConfig.objects.filter(description='Store AIP location')
+    links = models.MicroServiceChainLink.objects.filter(currenttask=tasks[0].pk)
+    return links[0].pk
