@@ -244,7 +244,9 @@ def find_all_paths3(G, start, end):
     for path, add in additionalCompletedPaths_find_all_paths:
         for path2 in pathToEndForNode_find_all_paths[add]:
             for node in (path + path2):
+                print node
                 ret.append(node)
+
     return ret  
 
 
@@ -269,8 +271,8 @@ if __name__ == '__main__':
     start = "{67b44f8f-bc97-4cb3-b6dd-09dba3c99d30}Check for Access directory"
     end = "{3ba518ab-fc47-4cba-9b5c-79629adac10b}Index AIP contents"
     allPaths = find_all_paths2(G, start, end)
-    for path in allPaths.iterkeys():
-        print path
+    #for path in allPaths.iterkeys():
+    #    print path
     print len(allPaths) 
     
     getSubGraph(G, start, end)
