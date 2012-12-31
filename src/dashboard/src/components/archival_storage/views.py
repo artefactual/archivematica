@@ -222,9 +222,9 @@ def archival_storage_indexed_count(index):
         pass
     return aip_indexed_file_count
 
-def archival_storage_sip_download(request, path):
-    full_path = os.path.join(os.path.dirname(AIPSTOREPATH), path)
-    return send_file(request, full_path)
+def archival_storage_sip_download(request, uuid):
+    aip = models.AIP.objects.get(sipuuid=uuid)
+    return send_file(request, aip.filepath)
 
 def archival_storage_sip_display(request, current_page_number=None):
     form = forms.StorageSearchForm()
