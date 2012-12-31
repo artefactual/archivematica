@@ -271,7 +271,7 @@ def administration_render_storage_directories_to_dicts():
         dict = models.MicroServiceChoiceReplacementDic()
         dict.choiceavailableatlink = link_pk
         dict.description = dir.path
-        dict.replacementdic = '{"%AIPsStore%":"' + dir.path + '"}'
+        dict.replacementdic = '{"%AIPsStore%":"' + dir.path + '/"}'
         dict.save()
 
 def administration_flush_aip_storage_dicts():
