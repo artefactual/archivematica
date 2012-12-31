@@ -6864,6 +6864,9 @@ CREATE TABLE `StorageDirectories` (
   PRIMARY KEY (`pk`),
   KEY `StorageDirectories` (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/* default storage location */
+INSERT INTO `StorageDirectories` (pk, path)
+  VALUES ('e9509ecf-be06-4572-b217-8ec3acb24ad2', '%sharedPath%www/AIPsStore/');
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

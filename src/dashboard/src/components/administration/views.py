@@ -270,7 +270,11 @@ def administration_render_storage_directories_to_dicts():
     for dir in storage_directories:
         dict = models.MicroServiceChoiceReplacementDic()
         dict.choiceavailableatlink = link_pk
-        dict.description = dir.path
+        if dir.path == '%sharedPath%www/AIPsStore/':
+            description = 'Store AIP in standard Archivematica Directory'
+        else:
+            description = dir.path
+        dict.description = description
         dict.replacementdic = '{"%AIPsStore%":"' + dir.path + '/"}'
         dict.save()
 
@@ -280,8 +284,7 @@ def administration_flush_aip_storage_dicts():
       choiceavailableatlink=link_pk
     )
     for entry in entries:
-        if (entry.replacementdic != '{"%AIPsStore%":"%sharedPath%www/AIPsStore/"}'):
-            entry.delete()
+        entry.delete()
 
 def administration_get_aip_storage_link_pk():
     tasks = models.TaskConfig.objects.filter(description='Store AIP location')
