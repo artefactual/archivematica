@@ -40,7 +40,7 @@
       <div class='aip-search-item-details'>
         <div>
           {% if item.sipname %}
-            <span class='aip-search-item-detail-field'>AIP: {{ item.sipname }} <a class='uuid' href="{% url components.archival_storage.views.archival_storage_sip_download item.href %}">{{item.AIPUUID}}</a></span>
+            <span class='aip-search-item-detail-field'>AIP: {{ item.sipname }} <a class='uuid' href="{% url components.archival_storage.views.archival_storage_sip_download item.AIPUUID %}">{{item.AIPUUID}}</a></span>
             <span class='aip-search-item-detail-field'>Indexed at: <script>document.write(timestampToLocal({{item.indexedAt}}))</script></span>
             <a href='/archival-storage/search/json/file/{{ item.document_id_no_hyphens }}/' target='_blank'>(view raw)</a>
           {% else %}
