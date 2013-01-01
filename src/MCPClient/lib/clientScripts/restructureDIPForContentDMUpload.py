@@ -33,6 +33,7 @@ import collections
 import zipfile
 import re
 from xml.dom.minidom import parse, parseString
+from lxml import etree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivematicaFunctions import normalizeNonDcElementName
 from executeOrRunSubProcess import executeOrRun
@@ -339,10 +340,6 @@ def zipProjectClientOutput(outputDipDir, zipOutputDir, dipUuid):
 # <dmaccess></dmaccess>
 # </xml>
 def generateDescFile(dcMetadata, nonDcMetadata):
-    print "dcMetadata at top of generateDescFile:"
-    print dcMetadata
-    print "nonDcMetadata at top of generateDescFile:"
-    print nonDcMetadata
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
     output = '<?xml version="1.0" encoding="utf-8"?>' + "\n"
     output += "<itemmetadata>\n"
@@ -409,6 +406,64 @@ def generateDescFile(dcMetadata, nonDcMetadata):
     output += "</xml>\n"
     return output
 
+# Performs an XSL transformation on the user-supplied structMap, outputting
+# the contents of an index.cpd file for use in the Direct Upload DIP.
+def transformUserSuppliedStructMap(structMap):
+    print structMap
+    mets_tree = etree.XML(structMap)
+    xsl_tree = etree.XML('''\
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+<!--
+XSL stylesheet to convert a METS structMap into a CONTENTdm 'monograph' hierarchical
+.cpd file. Assumes that child items use METS div LABEL attributes with value 'page'.
+-->
+
+<xsl:output method = "xml" encoding = "utf-8" indent = "yes" omit-xml-declaration="yes" />
+<xsl:template match = "structMap">
+    <cpd>
+    <!-- Insert a newline after cpd. -->
+    <xsl:text>
+    </xsl:text>
+    <type>Monograph</type>
+    <xsl:apply-templates/>
+    </cpd>
+</xsl:template>
+
+<!-- Assumes that child items use METS div LABEL attributes with value 'page'. -->
+<xsl:template match = "div[@TYPE = 'page']">
+  <page>
+    <!-- Insert a newline after page. -->
+    <xsl:text>
+    </xsl:text>  
+    <pagetitle><xsl:value-of select = "@LABEL"/></pagetitle>
+    <xsl:apply-templates/>
+  </page>
+</xsl:template>
+
+<xsl:template match = "div[@TYPE != 'page']">
+  <node>
+    <!-- Insert a newline after node. -->
+    <xsl:text>
+    </xsl:text>  
+    <nodetitle><xsl:value-of select = "@LABEL"/></nodetitle>
+    <xsl:apply-templates/>
+  </node>
+</xsl:template>
+
+<xsl:template match = "fptr">
+    <pagefile><xsl:value-of select="@FILEID" /></pagefile>
+    <!-- Insert a newline between pagefile and pageptr. -->
+    <xsl:text>
+    </xsl:text>
+    <pageptr>+</pageptr>
+</xsl:template>
+
+</xsl:stylesheet>''')
+    transform = etree.XSLT(xsl_tree)
+    result = transform(mets_tree)
+    return result
+
 
 # Generate an object file's entry in the .full file.
 def generateFullFileEntry(title, filename, extension):
@@ -426,7 +481,6 @@ def generateFullFileEntry(title, filename, extension):
 # items by finding the div in structMaps[0] that contains the DMDID value "dmdSec_1",
 # and then getting the value of that div's TYPE attribute; if it's 'item', the item
 # is simple, if it's 'directory', the item is compound.
-# @todo: Account for no DMDID.
 def getItemCountType(structMap):
     for node in structMap.getElementsByTagName('div'):
         for k, v in node.attributes.items():
@@ -689,8 +743,7 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
 # Generate a 'direct upload' package for a compound item from the Archivematica DIP.
 # Consults the structMap and write out a corresponding structure (.cpd) file. Also,
 # for every file, copy the file, create an .icon, create a .desc file, plus create
-# index.desc, index.cpd, index.full, and ready.txt. @todo: If a user-submitted
-# structMap is present, use it to order the files.
+# index.desc, index.cpd, index.full, and ready.txt.
 def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory):
     dmdSecPair = splitDmdSecs(dmdSecs)
     nonDcMetadata = dmdSecPair['nonDc']
@@ -716,9 +769,15 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     descFile.write(descFileContents)
     descFile.close()
 
-    # Start to build the index.cpd file.
-    # @todo: <type> will be 'Monograph' for hierarchical items.
-    cpdFileContent = "<cpd>\n  <type>Document</type>\n"
+    # Start to build the index.cpd file if there is only one structMap;
+    # if there are 2, 
+    if (len(structMaps)) == 1:
+        cpdFileContent = "<cpd>\n  <type>Document</type>\n"
+    if (len(structMaps)) == 2:
+        # Perform XSLT transform. Serialize the DOM object before passing
+        # it to transformUserSuppliedStructMap().
+        serializedStructMap = structMaps[1].toxml()
+        cpdFileContent = transformUserSuppliedStructMap(serializedStructMap)
 
     # Start to build the index.full file.
     fullFileContent = ''
@@ -745,12 +804,6 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     Orders = []
     for fptr, details in structMapDict.iteritems():
         Orders.append(details['order'])
-        
-    print "Orders is"
-    print Orders
-    
-    print "structMapDict is"
-    print structMapDict
 
     # Iterate through the list of order values and add the matching structMapDict entry
     # to the .cpd file (and copy the file into the output directory).
@@ -799,23 +852,26 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                 # For each object file, add its .full file values. These entries do not
                 # have anything in their <title> elements.
                 fullFileContents += generateFullFileEntry('', accessFileBasenameName, accessFileBasenameExt)
-                # For each object file, add its .cpd file values. 
-                # @todo: We will need to account for hierarchical items here.
-                cpdFileContent += "  <page>\n"
-                cpdFileContent += "    <pagetitle>" + v['label'] + "</pagetitle>\n"
-                cpdFileContent += "    <pagefile>" + v['filename'] + "</pagefile>\n"
-                cpdFileContent += "    <pageptr>+</pageptr>\n"
-                cpdFileContent += "  </page>\n"
+                
+                if (len(structMaps)) == 1:
+                    # For each object file, add its .cpd file values. 
+                    cpdFileContent += "  <page>\n"
+                    cpdFileContent += "    <pagetitle>" + v['label'] + "</pagetitle>\n"
+                    cpdFileContent += "    <pagefile>" + v['filename'] + "</pagefile>\n"
+                    cpdFileContent += "    <pageptr>+</pageptr>\n"
+                    cpdFileContent += "  </page>\n"
 
     # Write out the index.full file. 
     fullFile = open(os.path.join(outputItemDir, 'index.full'), "wb")
     fullFile.write(fullFileContents)
     fullFile.close()
 
-    # Write out the index.cpd file. We get the order of the items in the .cpd file
-    # from the user-submitted structMap (if it is present) or the Archivematica
-    # structMap (if no user-submitted structMap is present).
-    cpdFileContent += '</cpd>'
+    # If we're generating an index.cpd file (as opposed to using XSL on a
+    # user-submitted one), finish adding the content.
+    if (len(structMaps)) == 1:
+        cpdFileContent += '</cpd>'
+        
+    # Write out the index.cpd file.        
     indexCpdFile = open(os.path.join(outputItemDir, 'index.cpd'), "wb")
     indexCpdFile.write(cpdFileContent)
     indexCpdFile.close()
@@ -840,9 +896,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
 
     # Archivematica's stuctMap is always the first one; the user-submitted structMap
-    # is always the second one. @todo: If the user-submitted structMap is present,
-    # parse it for the SIP structure so we can use that structure in the CONTENTdm packages.
-    # structMapDom =  metsDom.getElementsByTagName('structMap')[0]
+    # is always the second one.
     structMapDom = structMaps[0]
     structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSecGroup)
     
@@ -984,18 +1038,8 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
                     # the delimited file format described at
                     # http://www.contentdm.org/help6/objects/adding3a.asp; for bulk DIPs, we
                     # use the 'object list' method described at
-                    # http://www.contentdm.org/help6/objects/multiple4.asp. In this method, we
-                    # should make sure the directory where the item's children are stored (identified
-                    # in the input metadata.csv's 'parts' column) is used for the output delimited
-                    # file's 'Directory Name' value; we can't use the item's title since it may
-                    # contain characters that are illegal in directory names. This also means that
-                    # we can just copy the child directory names into this field.
-                    # @todo (applies to single, not bulk): For flat items with no child-level metadata, we are using the 
-                    # label for the child as defined in structMapDict and the filename only.
-                    # This means that we put the label in the position allocated for the dc.title element,
-                    # and the filename in the last position. Everthing in between is ''. This will
-                    # need to be made more functional for flat items with child-level metadata,
-                    # and for hierarchical.
+                    # http://www.contentdm.org/help6/objects/multiple4.asp.
+                    # http://www.contentdm.org/help6/objects/multiple4.asp.
                     titlePosition = collectionFieldInfo['order'].index('title')
                     if titlePosition == 0:
                         delimChildValuesRow.insert(0, v['label'])
