@@ -290,3 +290,17 @@ def administration_get_aip_storage_link_pk():
     tasks = models.TaskConfig.objects.filter(description='Store AIP location')
     links = models.MicroServiceChainLink.objects.filter(currenttask=tasks[0].pk)
     return links[0].pk
+
+def administration_premis_agent(request):
+    agent = models.Agent.objects.get(pk=2)
+    if request.POST:
+        submitted_name = request.POST.get('name', '')
+        if submitted_name != '':
+            agent.name = submitted_name
+            agent.save()
+            message = 'Saved.'
+            message_type = 'success'
+        else:
+            message = "PREMIS agent can't be blank."
+            message_type = 'error'
+    return render(request, 'administration/premis_agent.html', locals())

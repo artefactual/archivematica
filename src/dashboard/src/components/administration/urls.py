@@ -33,6 +33,7 @@ urlpatterns = patterns('components.administration.views',
     (r'processing/$', 'administration_processing'),
     (r'sources/json/$', 'administration_sources_json'),
     (r'storage/json/$', 'administration_storage_json'),
+    (r'premis/agent/$', 'administration_premis_agent'),
 
     # Disabled until further development can be done
     #(r'search/$', 'administration_search'),
