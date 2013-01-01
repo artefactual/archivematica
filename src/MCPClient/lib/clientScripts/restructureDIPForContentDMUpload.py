@@ -348,7 +348,7 @@ def generateDescFile(dcMetadata, nonDcMetadata):
     output += "<itemmetadata>\n"
 
     # Process the non-DC metadata, if there is any.
-    if nonDcMetadata != None:
+    if nonDcMetadata is not None:
         # Define a list of elements we don't want to add based on their presence in the collection's
         # field config, since we add them in the template at the end of this function.
         doNotAdd = ['transc', 'fullrs', 'dmoclcno', 'dmcreated', 'dmmodified', 'dmrecord',
@@ -511,15 +511,15 @@ def splitDmdSecs(dmdSecs):
         mdWrap = dmdSecs[0].getElementsByTagName('mdWrap')[0]
         if mdWrap.attributes['MDTYPE'].value == 'OTHER':
             dmdSecPair['nonDc'] = parseDmdSec(dmdSec)
-            dmdSecPair['dc'] = None
+            dmdSecPair['dc'] is None
         if mdWrap.attributes['MDTYPE'].value == 'DC':
             dmdSecPair['dc'] = parseDmdSec(dmdSec)
-            dmdSecPair['nonDc'] = None
+            dmdSecPair['nonDc'] is None
     if lenDmdSecs == 0:
         # If dmdSecs is empty, let parseDcXML() assign a placeholder title in dcMetadata.
         dmdSec = dmdSecs
         dmdSecPair['dc'] = parseDmdSec(dmdSec)
-        dmdSecPair['nonDc'] = None
+        dmdSecPair['nonDc'] is None
 
     return dmdSecPair
 
@@ -627,7 +627,7 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
 
     for field in collectionFieldInfo['order']:
         # Process the non-DC metadata, if there is any.
-        if nonDcMetadata != None:
+        if nonDcMetadata is not None:
             # for k, v in collectionFieldInfo['dcMappings'].iteritems():
             for k, v in collectionFieldInfo['nonDcMappings'].iteritems():
                 if field == v['nick']:
@@ -889,7 +889,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     delimItemValuesRow = []
     for field in collectionFieldInfo['order']:
         # Process the non-DC metadata, if there is any.
-        if nonDcMetadata != None:
+        if nonDcMetadata is not None:
             for k, v in collectionFieldInfo['nonDcMappings'].iteritems():
                 if field == v['nick']:
                    # Append the field name to the header row.
