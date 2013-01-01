@@ -511,15 +511,15 @@ def splitDmdSecs(dmdSecs):
         mdWrap = dmdSecs[0].getElementsByTagName('mdWrap')[0]
         if mdWrap.attributes['MDTYPE'].value == 'OTHER':
             dmdSecPair['nonDc'] = parseDmdSec(dmdSec)
-            dmdSecPair['dc'] is None
+            dmdSecPair['dc'] = None
         if mdWrap.attributes['MDTYPE'].value == 'DC':
             dmdSecPair['dc'] = parseDmdSec(dmdSec)
-            dmdSecPair['nonDc'] is None
+            dmdSecPair['nonDc'] = None
     if lenDmdSecs == 0:
         # If dmdSecs is empty, let parseDcXML() assign a placeholder title in dcMetadata.
         dmdSec = dmdSecs
         dmdSecPair['dc'] = parseDmdSec(dmdSec)
-        dmdSecPair['nonDc'] is None
+        dmdSecPair['nonDc'] = None
 
     return dmdSecPair
 
@@ -735,7 +735,6 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     # structure in the CONTENTdm packages.
     if (len(structMaps)) == 2:
         print "We have a user-submitted structMap"
-        # structMapDom =  metsDom.getElementsByTagName('structMap')[0]
         structMapDom = structMaps[1]
     else:
         print "We do not have a user-submitted structMap"
@@ -746,9 +745,15 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     Orders = []
     for fptr, details in structMapDict.iteritems():
         Orders.append(details['order'])
+        
+    print "Orders is"
+    print Orders
+    
+    print "structMapDict is"
+    print structMapDict
 
     # Iterate through the list of order values and add the matching structMapDict entry
-    # to the .cpd file (and copy the file into the scans directory).
+    # to the .cpd file (and copy the file into the output directory).
     for order in sorted(Orders):
         for k, v in structMapDict.iteritems():
             # Get each access file's base filesname without extension, since we'll use it
