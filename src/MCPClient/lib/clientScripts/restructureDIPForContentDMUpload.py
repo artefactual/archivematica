@@ -697,7 +697,10 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     dcMetadata = dmdSecPair['dc']
     descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
     # Make a copy of nonDcMetadata that we use for compound item children (see comment below).
-    nonDcMetadataForChildren = nonDcMetadata
+    if nonDcMetadata is not None:
+        nonDcMetadataForChildren = nonDcMetadata
+    else:
+        nonDcMetadataForChildren = {}
 
     # Each item needs to have its own directory under outputDipDir. Since these item-level directories
     # will end up in CONTENTdm's import/cdoc directory, they need to be unique; therefore, we can't use the
@@ -726,10 +729,17 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     titleValues = titleValues.rstrip('; ')
     fullFileContents = generateFullFileEntry(titleValues, 'index', '.cpd')
 
-    # Archivematica's stuctMap is always the first one; the user-submitted structMap
-    # is always the second one. @todo: If the user-submitted structMap is present,
-    # parse it for the SIP structure so we can use that structure in the CONTENTdm packages.
-    structMapDom =  metsDom.getElementsByTagName('structMap')[0]
+    # Archivematica's structMap is always the first one; the user-submitted
+    # structMap (if it exists) is always the second one. If the user-submitted
+    # structMap is present, parse it for the SIP structure so we can use that
+    # structure in the CONTENTdm packages.
+    if (len(structMaps)) == 2:
+        print "We have a user-submitted structMap"
+        # structMapDom =  metsDom.getElementsByTagName('structMap')[0]
+        structMapDom = structMaps[1]
+    else:
+        print "We do not have a user-submitted structMap"
+        structMapDom = structMaps[0]
     structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSecGroup)
 
     # Determine the order in which we will add the child-level rows to the .cpd and .full files.
@@ -1031,7 +1041,12 @@ if __name__ == '__main__':
     # Get the structMaps so we can pass them into the DIP creation functions.
     structMaps = metsDom.getElementsByTagName('structMap')
 
-    itemCountType = getItemCountType(structMaps[0])
+    # If there is a user-submitted structMap (i.e., len(structMapts) is 2,
+    # use that one.
+    if len(structMaps) == 2:
+        itemCountType = getItemCountType(structMaps[1])
+    else:
+        itemCountType = getItemCountType(structMaps[0])
 
     # Populate lists of files in the DIP objects and thumbnails directories.
     filesInObjectDirectory = getObjectDirectoryFiles(os.path.join(inputDipDir, 'objects'))
