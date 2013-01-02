@@ -21,7 +21,7 @@
 
     <li class="{% active request url_processing %}"><a href="{{ url_processing }}">Processing configuration</a></li>
 
-    <li class="{% active request url_premis %}"><a href="{{ url_premis }}">PREMIS</a></li>
+    <li class="{% active request url_premis %}"><a href="{{ url_premis }}">PREMIS agent</a></li>
 
     {% if user.is_superuser %}
       <li class="{% active request url_user_list %}"><a href="{{ url_user_list }}">Users</a></li>
