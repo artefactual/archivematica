@@ -52,7 +52,7 @@ def prepareOutputDir(outputDipDir, importMethod, dipUuid):
 
 # Takes in a DOM object containing the DC or OTHER dmdSec, returns a dictionary with 
 # tag : [ value1, value2] members. Also, since minidom only handles byte strings
-# so we need to encode strings before passing them to minidom functions. label is
+# so we need to encode strings before passing them to minidom functions. 'label' is
 # an optional arguement for use with compound item children, which may not have a
 # dublincore object.
 def parseDmdSec(dmdSec, label = '[Placeholder title]'):
@@ -75,7 +75,7 @@ def parseDmdSec(dmdSec, label = '[Placeholder title]'):
         if not dcTitlesDom:
             return {'title' : '[Placeholder title]'} 
 
-    # Get the elements found in the incoming XML DOM object.
+    # Get all the elements found in the incoming XML DOM object.
     elementsDom = dmdSec.getElementsByTagName('*')
     elementsDict = {}
     for element in elementsDom:
@@ -98,7 +98,7 @@ def parseDmdSec(dmdSec, label = '[Placeholder title]'):
 
 
 # Takes in a DOM object containing the METS structMap, returns a dictionary with 
-# fptrValue : [ order, parent, dmdSec, label, filename ] members.
+# fptrValue : [ order, dmdSec, label, filename ] members.
 # Files in the DIP objects directory start with the UUID (i.e., first 36 characters 
 # of the filename) # of the of the file named in the fptr FILEID in the structMap; 
 # each file ends in the UUID. Also, we are only interested in divs that are direct
@@ -124,8 +124,7 @@ def parseStructMap(structMap, filesInObjectDirectory):
     for node in structMap.getElementsByTagName('fptr'):
         for k, v in node.attributes.items():
             if k == 'FILEID':
-                # parentDivDmdId is a placeholder for when we support compound
-                # items with their own descriptive metadata.
+                # DMDID is an attribute of the file's parent div.
                 parentDivDmdId = node.parentNode.getAttribute('DMDID')
                 filename = getFptrObjectFilename(v, filesInObjectDir)
                 # We only want entries for files that are in the objects directory.
@@ -139,7 +138,6 @@ def parseStructMap(structMap, filesInObjectDirectory):
                         # Python has no natsort, so we padd fptOrder with up to
                         # 4 zeros to make it more easily sortable.
                         'order' : str(fptrOrder).zfill(5),
-                        'parent' : '', # Placeholder for when we support hierarchical items.
                         'filename' : filename,
                         'label' : parentDivLabel,
                         'dmdSec' : parentDivDmdId
@@ -371,10 +369,10 @@ def generateDescFile(dcMetadata, nonDcMetadata):
                 if collectionFieldInfo['nonDcMappings'][element]['nick'] not in doNotAdd:
                     output += '<' + collectionFieldInfo['nonDcMappings'][element]['nick'] + '></' + collectionFieldInfo['nonDcMappings'][element]['nick'] + ">\n"
 
-    # I.e., there is no nonDcMetadata.
+    # I.e., there is no non-DC metadata.
     else:
-        # Process DC metadata first. Loop through the collection's field configuration and generate
-        # XML elements for all its fields. 
+        # If there is no non-DC metadata, process DC metadata. Loop through the collection's 
+        # field configuration and generate XML elements for all its fields. 
         for dcElement in collectionFieldInfo['dcMappings'].keys():
             # If a field is in the incoming item dcMetadata, populate the corresponding tag
             # with its 'nick' value.
@@ -836,10 +834,10 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                             thumbnailFilename = accessFileBasenameName + '.icon'
                             shutil.copy(thumbnailFilePath, os.path.join(outputItemDir, thumbnailFilename))
 
-                # For each object file, output a .desc file. Currently, Archivematica does not
-                # support child-level descriptions, so we use the filename as the title if
-                # there isn't a user-supplied csv or structMap to provide labels as per
-                # https://www.archivematica.org/wiki/CONTENTdm_integration.
+                # For each child object file, output a .desc file. Currently, we do not
+                # support child-level descriptions other than title, so we use the filename
+                # as the title if there isn't a user-supplied csv or structMap to provide 
+                # labels as per https://www.archivematica.org/wiki/CONTENTdm_integration.
                 dcMetadata = parseDmdSec(None, v['label'])
                 nonDcMetadataForChildren['title'] = [v['label']]
                        
