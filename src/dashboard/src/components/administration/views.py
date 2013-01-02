@@ -294,13 +294,22 @@ def administration_get_aip_storage_link_pk():
 def administration_premis_agent(request):
     agent = models.Agent.objects.get(pk=2)
     if request.POST:
-        submitted_name = request.POST.get('name', '')
-        if submitted_name != '':
+        submitted_organization = request.POST.get('organization', '')
+        submitted_name         = request.POST.get('name', '')
+
+        error = False
+        if submitted_name == '':
+            error = "PREMIS agent name can't be blank."
+        if submitted_organization == '':
+            error = "PREMIS agent organization can't be blank."
+
+        if not error:
+            agent.identifiervalue = submitted_organization
             agent.name = submitted_name
             agent.save()
             message = 'Saved.'
             message_type = 'success'
         else:
-            message = "PREMIS agent can't be blank."
+            message = error
             message_type = 'error'
     return render(request, 'administration/premis_agent.html', locals())

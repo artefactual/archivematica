@@ -27,7 +27,8 @@
 
       <div style='width: 500px; height: 300px;'>
       <form method='POST'>
-        <input name='name' style='width:400px' value='{{ agent.name }}' />
+        Name: <input name='name' style='width:400px' value='{{ agent.name }}' />
+        Organization: <input name='organization' style='width:400px' value='{{ agent.identifiervalue }}' />
         <div style='float:right;'>
           <input type='submit' value='Save' class='btn' />
         </div>
