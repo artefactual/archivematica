@@ -84,16 +84,19 @@ def parseDmdSec(dmdSec, label = '[Placeholder title]'):
             # To get the values of repeated elements, we need to create a list to correspond
             # to each element name. If the element name is not yet a key in elementsDict,
             # create the element's value list.
-            if element.tagName not in elementsDict:
+            if element.tagName not in elementsDict and element.tagName is not None and element.firstChild.nodeValue is not None:
                 elementsDict[element.tagName.encode("utf-8")] = [element.firstChild.nodeValue.encode("utf-8")]
             # If the element name is present in elementsDict, append the element's value to
             # its value list.
             else:
-                elementsDict[element.tagName.encode("utf-8")].append(element.firstChild.nodeValue.encode("utf-8"))
+                # Skip tags that are METS wrapper tags and are not metadata elements.
+                wrapperTags = ['dublincore', 'mdWrap', 'xmlData']                
+                if element.tagName not in wrapperTags:
+                    elementsDict[element.tagName.encode("utf-8")].append(element.firstChild.nodeValue.encode("utf-8"))
     
     # Before we return elementsDict, remove the items that are simple METS wrappers and are not metadata elements.
-    del elementsDict['mdWrap']
-    del elementsDict['xmlData']
+    # del elementsDict['mdWrap']
+    # del elementsDict['xmlData']
     return elementsDict
 
 
