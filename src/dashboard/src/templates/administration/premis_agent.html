@@ -19,21 +19,14 @@
 
     <div class="span12">
 
-      {% if message %}
-        <div class="alert-message {{ message_type }}">{{ message }}</div>
-      {% endif %}
-
       <h3>PREMIS agent</h3>
 
-      <div style='width: 500px; height: 300px;'>
       <form method='POST'>
-        Name: <input name='name' style='width:400px' value='{{ agent.name }}' />
-        Organization: <input name='organization' style='width:400px' value='{{ agent.identifiervalue }}' />
+      {% include "_form.html" %}
         <div style='float:right;'>
           <input type='submit' value='Save' class='btn' />
         </div>
       </form>
-      </div>
 
     </div>
 
