@@ -93,6 +93,19 @@ for command in verificationCommands:
     else:
         print >>sys.stderr, "Passed test: ", command
 
+#copy thumbnails to an AIP-specific directory for easy admin access
+thumbnailSourceDir = os.path.join(bag, 'data/thumbnails')
+thumbnailDestDir   = os.path.join(AIPsStore, 'thumbnails', SIPUUID)
+
+#create thumbnail dest dir
+if not os.path.exists(thumbnailDestDir):
+    os.makedirs(thumbnailDestDir)
+
+#copy thumbnails to destination directory
+thumbnails = os.listdir(thumbnailSourceDir)
+for filename in thumbnails:
+    shutil.copy(os.path.join(thumbnailSourceDir, filename), thumbnailDestDir)
+
 #cleanup
 shutil.rmtree(extractDirectory)
 

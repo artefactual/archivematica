@@ -27,6 +27,14 @@ class DublinCoreMetadataForm(forms.Form):
 class AdministrationForm(forms.Form):
     arguments = forms.CharField(required=False, widget=Textarea(attrs=TEXTAREA_ATTRS))
 
+class AgentForm(ModelForm):
+    identifiervalue = forms.CharField(required=True, widget=TextInput(attrs=INPUT_ATTRS))
+    name = forms.CharField(required=True, widget=TextInput(attrs=INPUT_ATTRS))
+
+    class Meta:
+        model = models.Agent
+        exclude = ('identifiertype')
+
 class RightsForm(ModelForm):
     rightsbasis = forms.ChoiceField(label="Basis", choices=(
         ('Copyright', 'Copyright'),

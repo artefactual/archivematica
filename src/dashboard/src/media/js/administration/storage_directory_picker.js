@@ -1,8 +1,8 @@
 $(document).ready(function() {
   var ajaxChildDataUrl = '/filesystem/children/'
-    , ajaxSelectedDirectoryUrl = '/administration/sources/json/'
-    , ajaxAddDirectoryUrl = '/administration/sources/json/'
-    , ajaxDeleteDirectoryUrl = '/administration/sources/delete/json/'
+    , ajaxSelectedDirectoryUrl = '/administration/storage/json/'
+    , ajaxAddDirectoryUrl = '/administration/storage/json/'
+    , ajaxDeleteDirectoryUrl = '/administration/storage/delete/json/'
     , picker = new DirectoryPickerView({
       el:               $('#explorer'),
       levelTemplate:    $('#template-dir-level').html(),
@@ -14,7 +14,7 @@ $(document).ready(function() {
   });
 
   picker.structure = {
-    'name': 'home',
+    'name': 'var',
     'parent': '',
     'children': []
   };

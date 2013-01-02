@@ -6853,6 +6853,20 @@ CREATE TABLE `SourceDirectories` (
   PRIMARY KEY (`pk`),
   KEY `SourceDirectories` (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `StorageDirectories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `StorageDirectories` (
+  `pk` varchar(50) NOT NULL DEFAULT '',
+  `path` longtext,
+  `replaces` varchar(50) DEFAULT NULL,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`pk`),
+  KEY `StorageDirectories` (`pk`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/* default storage location */
+INSERT INTO `StorageDirectories` (pk, path)
+  VALUES ('e9509ecf-be06-4572-b217-8ec3acb24ad2', '%sharedPath%www/AIPsStore/');
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
