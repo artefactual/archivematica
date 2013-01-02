@@ -94,9 +94,6 @@ def parseDmdSec(dmdSec, label = '[Placeholder title]'):
                 if element.tagName not in wrapperTags:
                     elementsDict[element.tagName.encode("utf-8")].append(element.firstChild.nodeValue.encode("utf-8"))
     
-    # Before we return elementsDict, remove the items that are simple METS wrappers and are not metadata elements.
-    # del elementsDict['mdWrap']
-    # del elementsDict['xmlData']
     return elementsDict
 
 
