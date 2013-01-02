@@ -562,10 +562,10 @@ def splitDmdSecs(dmdSecs):
     if lenDmdSecs == 1:
         mdWrap = dmdSecs[0].getElementsByTagName('mdWrap')[0]
         if mdWrap.attributes['MDTYPE'].value == 'OTHER':
-            dmdSecPair['nonDc'] = parseDmdSec(dmdSec)
+            dmdSecPair['nonDc'] = parseDmdSec(dmdSecs[0])
             dmdSecPair['dc'] = None
         if mdWrap.attributes['MDTYPE'].value == 'DC':
-            dmdSecPair['dc'] = parseDmdSec(dmdSec)
+            dmdSecPair['dc'] = parseDmdSec(dmdSecs[0])
             dmdSecPair['nonDc'] = None
     if lenDmdSecs == 0:
         # If dmdSecs is empty, let parseDcXML() assign a placeholder title in dcMetadata.
