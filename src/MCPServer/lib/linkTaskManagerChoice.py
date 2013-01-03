@@ -162,5 +162,4 @@ class linkTaskManagerChoice:
         self.delayTimerLock.release()
         choicesAvailableForUnitsLock.release()
         self.jobChainLink.setExitMessage("Completed successfully")
-        print "find me 5.5.5", chain, "selected for unit", self.unit.UUID
         jobChain.jobChain(self.unit, chain)
