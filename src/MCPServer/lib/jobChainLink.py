@@ -91,7 +91,6 @@ class jobChainLink:
 
 
         print "<<<<<<<<< ", self.description, " >>>>>>>>>"
-        print "find me2(", taskType, " ", taskTypePKReference, ")"
         self.unit.reload()
 
         logJobCreatedSQL(self)

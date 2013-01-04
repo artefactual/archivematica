@@ -104,7 +104,6 @@ class linkTaskManagerDirectories:
 
 
     def taskCompletedCallBackFunction(self, task):
-        print task
         databaseFunctions.logTaskCompletedSQL(task)
         if True:
             self.jobChainLink.linkProcessingComplete(task.results["exitCode"], self.jobChainLink.passVar)

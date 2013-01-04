@@ -100,7 +100,6 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut:
 
 
     def taskCompletedCallBackFunction(self, task):
-        print task
         databaseFunctions.logTaskCompletedSQL(task)
         try:
             choices = choicesDic(eval(task.results["stdOut"]))
