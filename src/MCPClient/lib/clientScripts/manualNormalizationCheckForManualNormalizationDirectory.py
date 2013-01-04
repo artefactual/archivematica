@@ -21,7 +21,21 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 import sys
-print sys.argv
+import os
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import databaseInterface
 
-exit(179)
+SIPUUID = sys.argv[1]
+SIPName = sys.argv[2]
+SIPDirectory = sys.argv[3]
+
+manualNormalizationPath = os.path.join(SIPDirectory, "objects", "manualNormalization")
+print manualNormalizationPath 
+if os.path.isdir(manualNormalizationPath):
+    manualNormalizationAccessPath = os.path.join(manualNormalizationPath, "access")
+    if os.path.isdir(manualNormalizationAccessPath):
+        if len(os.listdir(manualNormalizationAccessPath)):
+            #77a7fa46-92b9-418e-aa88-fbedd4114c9f or 055de204-6229-4200-87f7-e3c29f095017 (indicate there is an access directory
+            databaseInterface.runSQL("""UPDATE UnitVariables SET microServiceChainLink = '77a7fa46-92b9-418e-aa88-fbedd4114c9f' WHERE unitType='SIP' AND unitUUID = '%s' AND variable = 'returnFromManualNormalized' """ % (SIPUUID) )
+    exit(179)
 exit(0)
