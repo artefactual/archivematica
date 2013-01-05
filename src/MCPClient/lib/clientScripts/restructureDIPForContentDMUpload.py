@@ -791,10 +791,8 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     # structMap is present, parse it for the SIP structure so we can use that
     # structure in the CONTENTdm packages.
     if (len(structMaps)) == 2:
-        print "We have a user-submitted structMap"
         structMapDom = structMaps[1]
     else:
-        print "We do not have a user-submitted structMap"
         structMapDom = structMaps[0]
     structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSecGroup)
 
