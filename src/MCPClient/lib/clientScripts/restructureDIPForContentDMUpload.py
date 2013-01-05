@@ -53,8 +53,7 @@ def prepareOutputDir(outputDipDir, importMethod, dipUuid):
 # Takes in a DOM object containing the DC or OTHER dmdSec, returns a dictionary with 
 # tag : [ value1, value2] members. Also, since minidom only handles byte strings
 # so we need to encode strings before passing them to minidom functions. 'label' is
-# an optional arguement for use with compound item children, which may not have a
-# dublincore object.
+# an optional arguement for use with compound item children.
 def parseDmdSec(dmdSec, label = '[Placeholder title]'):
     # If the dmdSec object is empty (i.e, no DC metadata has been assigned
     # in the dashboard, and there was no metadata.csv or other metadata file
@@ -111,7 +110,7 @@ def parseDmdSec(dmdSec, label = '[Placeholder title]'):
 def parseStructMap(structMap, filesInObjectDirectory):
     structMapDict = {}
     # Get filenames of all the files in the objects directory (recursively);
-    # filesInObjectDirectory contains paths, we need to get the filename only
+    # filesInObjectDirectory contains paths, but we need to get the filename only
     # for the structMap checking. Add each filename to structMapDict.
     filesInObjectDir = []
     for file in filesInObjectDirectory:
@@ -239,7 +238,7 @@ def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
 
     # We separate out the fields that are mapped to a DC field in the CONTENTdm
     # collection's configuration, so we can fall back on these fields if there
-    # is no CONTENTdm collection specific metadata, e.g. when the SIP had no
+    # is no CONTENTdm collection specific metadata, e.g. when the transfer had no
     # metadata.csv file and DC metadata was added manually in the dashboard.
     # For the DC mappings, we want a dict containing items that looks like
     # { 'contributor': { 'name': u'Contributors', 'nick': u'contri'},
@@ -247,8 +246,8 @@ def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
     # 'date': { 'name': u'Date', 'nick': u'dateso'}, [...] }
     # It is possible that more than one CONTENTdm field is mapped to the same DC
     # in this case, just take the last mapping and ignore the rest, since thre is
-    # no way to tell which should take precedence. The non-DC (i.e., general) mappings
-    # have the field name as their key, like "u'CONTENTdm number': { 'name': 
+    # no way to tell which should take precedence. The non-DC mappings have
+    # the field name as their key, like "u'CONTENTdm number': { 'name': 
     # u'CONTENTdm number', 'nick': u'dmrecord'} (i.e., key and 'name' are the same).
     collectionFieldDcMappings = {}
     collectionFieldNonDcMappings = {}
@@ -286,8 +285,9 @@ def getDmdSec(metsDom, dmdSecId = 'dmdSec_1', dublinCore = True):
                 return node
 
 
-# Get a list of all the files (recursive) in the DIP object directory. Even though there
-# can be subdirectories in the objects directory, assumes each file should have a unique name.
+# Get a list of all the files (recursive) in the DIP object directory. 
+# Even though there can be subdirectories in the objects directory, 
+# assumes each file should have a unique name.
 def getObjectDirectoryFiles(objectDir):
     fileList = []
     for root, subFolders, files in os.walk(objectDir):
@@ -494,8 +494,9 @@ def getItemCountType(structMap):
 
 
 # Given all the dmdSecs (which are DOM objects) from a METS files, group the dmdSecs
-# into item-specific pairs (for DC and OTHER) or if OTHER is not present, DC. Returns
-# a list of lists, with each list containing one or two dmdSec DOM nodes.
+# into item-specific pairs of DC and OTHER or if OTHER is not present, only DC. 
+# Returns a list of lists, with each list containing two (DC and OTHER) or one (DC)
+# dmdSec DOM nodes.
 def groupDmdSecs(dmdSecs):
     groupedDmdSecs = list()
     dmdSecsLen = len(dmdSecs)
@@ -739,9 +740,11 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
 
 
 # Generate a 'direct upload' package for a compound item from the Archivematica DIP.
-# Consults the structMap and write out a corresponding structure (.cpd) file. Also,
-# for every file, copy the file, create an .icon, create a .desc file, plus create
-# index.desc, index.cpd, index.full, and ready.txt.
+# Consults the structMap (the Archivematica-generated structMap by default but if there
+# is a user-submitted one, that one is transformed to index.cpd via XSL) and write out
+# a corresponding structure (index.cpd) file. Also, for every object file, copy the file, 
+# create an .icon, create a .desc file, plus create index.desc, index.cpd, index.full,
+# and ready.txt.
 def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory):
     dmdSecPair = splitDmdSecs(dmdSecs)
     nonDcMetadata = dmdSecPair['nonDc']
@@ -883,7 +886,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
 
 
 # Generate a 'project client' package for a compound CONTENTdm item from the Archivematica DIP.
-# This package will contain the object file and a delimited metadata file in a format suitable
+# This package will contain the object files and a delimited metadata file in a format suitable
 # for importing into CONTENTdm using its Project Client.
 def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, bulk):
     dmdSecPair = splitDmdSecs(dmdSecs)
@@ -892,7 +895,8 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
 
     # Archivematica's stuctMap is always the first one; the user-submitted structMap
-    # is always the second one.
+    # is always the second one. User-submitted structMaps are only supported in the
+    # 'direct upload' DIP.
     structMapDom = structMaps[0]
     structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSecGroup)
     
@@ -932,8 +936,8 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
         os.makedirs(scansDir)
 
     # Write out the metadata file, with the first row containing the field labels and the
-    # second row containing the values. Both rows needs to be in the order expressed in
-    # collectionFieldInfo['order']. For each item in collectionFieldInfo['order'],
+    # second row containing the field values. Both rows needs to be in the order expressed
+    # in collectionFieldInfo['order']. For each item in collectionFieldInfo['order'],
     # query each mapping in collectionFieldInfo['nonDcMappings'] to find a matching 'nick';
     # if the nick is found, write the value in the dmdSec's element that matches the mapping's
     # key; if no matching mapping is found, write ''. For single items, the child filename 
@@ -1004,7 +1008,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
         # Write the item-level metadata row.
         writer.writerow(delimItemValuesRow) 
 
-    # Process a non-bulk DIP. Child-level metadata for compound items only applies to single
+    # Process a non-bulk DIP. Child-level titles for compound items only applies to single
     # (non-bulk) DIP items, not bulk DIPs, since we're using the CONTENTdm 'object list' Project
     # Client method of importing (see http://www.contentdm.org/help6/objects/multiple4.asp).
     # Page labels need to be applied within the project client.
