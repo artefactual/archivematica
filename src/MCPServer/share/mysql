@@ -45,7 +45,7 @@ CREATE TABLE `MetadataAppliesToTypes` (
   `pk` varchar(50) NOT NULL DEFAULT '',
   `description` varchar(50) DEFAULT NULL,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `MetadataAppliesToTypes` (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -377,7 +377,7 @@ CREATE TABLE `Sounds` (
   `description` longtext,
   `fileLocation` longtext,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `Sounds` (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -389,7 +389,7 @@ CREATE TABLE `TaskTypes` (
   `pk` varchar(50) NOT NULL DEFAULT '',
   `description` longtext,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `TaskTypes` (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -403,7 +403,7 @@ CREATE TABLE `TasksConfigs` (
   `taskTypePKReference` varchar(50) DEFAULT NULL,
   `description` longtext,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `TasksConfigs` (`pk`),
   KEY `taskType` (`taskType`),
@@ -422,7 +422,7 @@ CREATE TABLE `MicroServiceChainLinks` (
   `reloadFileList` tinyint(1) DEFAULT '1',
   `defaultExitMessage` varchar(50) DEFAULT 'Failed',
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `MicroServiceChainLinks` (`pk`),
   KEY `currentTask` (`currentTask`),
@@ -561,7 +561,7 @@ CREATE TABLE `MicroServiceChainLinksExitCodes` (
   `playSound` varchar(50) DEFAULT NULL,
   `exitMessage` varchar(50) DEFAULT 'Completed successfully',
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `MicroServiceChainLinksExitCodes` (`pk`),
   KEY `microServiceChainLink` (`microServiceChainLink`),
@@ -601,7 +601,7 @@ CREATE TABLE `MicroServiceChains` (
   `startingLink` varchar(50) DEFAULT NULL,
   `description` longtext,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `MicroServiceChains` (`pk`),
   KEY `startingLink` (`startingLink`),
@@ -616,7 +616,7 @@ CREATE TABLE `MicroServiceChainChoice` (
   `choiceAvailableAtLink` varchar(50) DEFAULT NULL,
   `chainAvailable` varchar(50) DEFAULT NULL,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `MicroServiceChainChoice` (`pk`),
   KEY `chainAvailable` (`chainAvailable`),
@@ -634,7 +634,7 @@ CREATE TABLE `MicroServiceChoiceReplacementDic` (
   `description` longtext,
   `replacementDic` longtext,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `MicroServiceChoiceReplacementDic` (`pk`),
   KEY `choiceAvailableAtLink` (`choiceAvailableAtLink`),
@@ -648,7 +648,7 @@ CREATE TABLE `WatchedDirectoriesExpectedTypes` (
   `pk` varchar(50) NOT NULL DEFAULT '',
   `description` longtext,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `WatchedDirectoriesExpectedTypes` (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -663,7 +663,7 @@ CREATE TABLE `WatchedDirectories` (
   `onlyActOnDirectories` tinyint(1) DEFAULT '1',
   `expectedType` varchar(50) DEFAULT NULL,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `WatchedDirectories` (`pk`),
   KEY `chain` (`chain`),
@@ -686,7 +686,7 @@ CREATE TABLE `StandardTasksConfigs` (
   `execute` varchar(250) DEFAULT NULL,
   `arguments` longtext,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `StandardTasksConfigs` (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -698,7 +698,7 @@ CREATE TABLE `TasksConfigsAssignMagicLink` (
   `pk` varchar(50) NOT NULL DEFAULT '',
   `execute` varchar(250) DEFAULT NULL,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `TasksConfigsAssignMagicLink` (`pk`),
   KEY `execute` (`execute`),
@@ -713,7 +713,7 @@ CREATE TABLE `TasksConfigsStartLinkForEachFile` (
   `filterSubDir` varchar(50) DEFAULT NULL,
   `execute` varchar(250) DEFAULT NULL,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `TasksConfigsStartLinkForEachFile` (`pk`),
   KEY `execute` (`execute`),
@@ -4599,7 +4599,7 @@ CREATE TABLE `CommandTypes` (
   `pk` varchar(50) NOT NULL DEFAULT '',
   `type` text,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `CommandTypes` (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -4611,7 +4611,7 @@ CREATE TABLE `CommandClassifications` (
   `pk` varchar(50) NOT NULL DEFAULT '',
   `classification` text,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `CommandClassifications` (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -4623,7 +4623,7 @@ CREATE TABLE `CommandsSupportedBy` (
   `pk` varchar(50) NOT NULL DEFAULT '',
   `description` text,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `CommandsSupportedBy` (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -4642,7 +4642,7 @@ CREATE TABLE `Commands` (
   `supportedBy` varchar(50) DEFAULT NULL,
   `outputFileFormat` text,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `Commands` (`pk`),
   KEY `commandType` (`commandType`),
@@ -4674,7 +4674,7 @@ CREATE TABLE `FileIDs` (
   `validAccessFormat` tinyint(1) DEFAULT '0',
   `fileIDType` varchar(50) DEFAULT NULL,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `FileIDs` (`pk`),
   KEY `fileIDType` (`fileIDType`),
@@ -4694,7 +4694,7 @@ CREATE TABLE `CommandRelationships` (
   `countOK` int(10) unsigned DEFAULT '0',
   `countNotOK` int(10) unsigned DEFAULT '0',
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `CommandRelationships` (`pk`),
   KEY `command` (`command`),
@@ -4712,7 +4712,7 @@ CREATE TABLE `Groups` (
   `pk` varchar(50) NOT NULL DEFAULT '',
   `description` text,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `Groups` (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -4725,7 +4725,7 @@ CREATE TABLE `FileIDGroupMembers` (
   `fileID` varchar(50) DEFAULT NULL,
   `groupID` varchar(50) DEFAULT NULL,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `FileIDGroupMembers` (`pk`),
   KEY `fileID` (`fileID`),
@@ -4756,7 +4756,7 @@ CREATE TABLE `DefaultCommandsForClassifications` (
   `MicroserviceChainLink` varchar(50) DEFAULT NULL,
   `forClassification` varchar(50) DEFAULT NULL,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `DefaultCommandsForClassifications` (`pk`),
   KEY `forClassification` (`forClassification`),
@@ -6890,7 +6890,7 @@ CREATE TABLE `SourceDirectories` (
   `pk` varchar(50) NOT NULL DEFAULT '',
   `path` longtext,
   `replaces` varchar(50) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `SourceDirectories` (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
