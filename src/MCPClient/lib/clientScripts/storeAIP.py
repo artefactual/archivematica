@@ -43,7 +43,7 @@ SIPDATE = sys.argv[6]
 uuidQuads = []
 SIPUUIDStripped = SIPUUID.replace("-","")
 uuidQuads.append(SIPUUIDStripped[:4])
-uuidQuads.append(SIPUUIDStripped[4:7])
+uuidQuads.append(SIPUUIDStripped[4:8])
 uuidQuads.append(SIPUUIDStripped[8:12])
 uuidQuads.append(SIPUUIDStripped[12:16])
 uuidQuads.append(SIPUUIDStripped[16:20])
