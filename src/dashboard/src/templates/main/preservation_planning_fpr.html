@@ -10,13 +10,15 @@
 {% block css %}
 <style type="text/css">
     table {
-        border: 1px solid #000000;/*#eee;*/
-
+        border: 2px solid #000000;/*#eee;*/
+        border-collapse: separate !important;
+        border-radius: 5px !important;
+        -moz-border-radius: 5px !important;
+        box-shadow: 5px 5px 3px #888888 !important;
     }
 
     td, th {
-        border-radius:5px 5px 0px 0px;
-        border: 1px solid #000000;/*#eee;*/
+        border: 1px solid #000000;
         text-align: left;
     }
 
@@ -55,23 +57,23 @@
         background-color: #ffedb7;
     }
 
-    td.per {
-        width: 40px;
-        text-align: right;
-    }
-
-    th.per {
-        text-align: center;
-        width: 40px;
-    }
 
     div.cmd {
         display: inline-block;
+        float: right;
+        padding: 15px !important;
+
+        border-radius: 5px !important;
+        -moz-border-radius: 5px !important;
+        box-shadow: 5px 5px 3px #888888 !important;
     }
 
-    div.shownCmd {
-        float: right;
-        text-align: right;
+    th {
+        border-top: none;
+    }
+
+    td:first-child {
+        border-left: none;
     }
 
 </style>
@@ -95,6 +97,7 @@
 
         $('td.cmd > div')
             .hide()
+            .before('<img src="../../media/images/table_edit.png" style="margin-top=10px">&nbsp;&nbsp;')
             .after(link).next().click(function(event)
             {
                 event.preventDefault();
@@ -106,7 +109,7 @@
 
                     $(this)
                         .text('Hide')
-                        .closest('tr').after('<tr><td colspan="10" style="border:5px solid black"></td></tr>').next()
+                        .closest('tr').after('<tr><td colspan="10"></td></tr>').next()
                         .children().append(content).find('div')
                         .css({'overflow': 'auto', 'padding': '3px', 'white-space': 'pre',
                                 'font-family': 'courier', 'background-color': '#ddd'})
@@ -147,16 +150,14 @@
 
 <thead style="color:black;">
 <tr class="row-header">
-  <th> Format </th>
+  <th>Archivematica format ID</th>
   <th> Tool </th>
-  <th> Tool version </th>
-  <th> Description </th>
-  <th> Valid preservation format</th>
-  <th> Valid access format</th>
-  <th> Classification </th>
+  <th> <div style="width:80px;">Tool version </div></th>
+  <th> Format </th>
+  <th> Purpose </th>
   <th> Output </th>
   <th> Command </th>
-  <th> Command Description </th>
+  <th> Command description </th>
 </tr>
 </thead>
 <tbody>
@@ -164,15 +165,21 @@
 {% for row in page.objects %}
 
 <tr>
-  <td><div style="width:70px;">{{ row.id }}</div></td>
-  <td><div style="width:120px;">{{ row.tool }}</div></td>
+  <td><div style="width:130px;">
+      <img src="../../media/images/table_edit.png" padding=4>
+      {{ row.FileIDs_description }}
+  </div></td>
+
+  <td><div style="width:230px;">{{ row.tool }}</div></td>
   <td>{{ row.toolVersion }}</td>
-  <td><div style="width:400px;">{{ row.FileIDs_description }}</div></td>
-  <td>{{ row.FileIDs_validPreservationFormat }}</td>
-  <td>{{ row.FileIDs_validAccessFormat }}</td>
+  <td><div style="width:70px;">{{ row.id }}</div></td>
   <td>{{ row.classification }}</td>
   <td>{{ row.outputLocation }}</td>
-  <td class="cmd"><div class="cmd">{{ row.Commands_command }}</div></td>
+
+  <td class="cmd">
+      <div class="cmd">{{ row.Commands_command }}</div>
+  </td>
+
   <td>{{ row.Commands_description }}</td>
 </tr>
 
