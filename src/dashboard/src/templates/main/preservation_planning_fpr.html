@@ -7,6 +7,60 @@
 {% block h1 %}Preservation planning{% endblock %}
 {% block page_id %}preservation-planning{% endblock %}
 
+{% block css %}
+<style type="text/css">
+
+    td, th {
+        border: 1px solid #eee;
+        text-align: left;
+    }
+
+    thead > tr > th {
+        background-color: #ddd;
+    }
+
+    td.file-type {
+        font-size: 14px;
+        vertical-align: top;
+        background-color: #ddd;
+        background: -moz-linear-gradient(100% 100% 90deg, #eee, #fff);
+        background: -webkit-linear-gradient(#eee, #fff);
+    }
+
+    tr.row-header > th {
+        background-color: #eee;
+    }
+
+    th.advanced {
+        background-color: #ffedb7 !important;
+    }
+
+    td.advanced:first-child {
+        border: 0;
+    }
+
+    #btn_advanced_details {
+        font-weight: normal;
+        float: right;
+    }
+
+    tr.hover > td {
+        background-color: #ffedb7;
+    }
+
+    td.per {
+        width: 40px;
+        text-align: right;
+    }
+
+    th.per {
+        text-align: center;
+        width: 40px;
+    }
+
+</style>
+{% endblock %}
+
 {% block content %}
   
 <form action='{% url components.preservation_planning.views.preservation_planning_fpr_search %}' method='GET'>
