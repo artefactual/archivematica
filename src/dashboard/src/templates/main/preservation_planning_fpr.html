@@ -9,26 +9,33 @@
 
 {% block css %}
 <style type="text/css">
+    table {
+        border: 1px solid #000000;/*#eee;*/
+
+    }
 
     td, th {
-        border: 1px solid #eee;
+        border-radius:5px 5px 0px 0px;
+        border: 1px solid #000000;/*#eee;*/
         text-align: left;
     }
 
     thead > tr > th {
         background-color: #ddd;
+        background: -moz-linear-gradient(100% 100% 90deg, #bbbbbb, #ddd);
+        background: -webkit-linear-gradient(#bbbbbb, #ddd);
     }
 
     td.file-type {
         font-size: 14px;
         vertical-align: top;
         background-color: #ddd;
-        background: -moz-linear-gradient(100% 100% 90deg, #eee, #fff);
+        background: -moz-linear-gradient(100% 100% 90deg, #eee, #ddd);
         background: -webkit-linear-gradient(#eee, #fff);
     }
 
     tr.row-header > th {
-        background-color: #eee;
+        background-color: #ffedb7 !important;
     }
 
     th.advanced {
@@ -58,7 +65,68 @@
         width: 40px;
     }
 
+    div.cmd {
+        display: inline-block;
+    }
+
+    div.shownCmd {
+        float: right;
+        text-align: right;
+    }
+
 </style>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+    $(document).ready(function()
+    {
+        $th = $('thead > tr > th:last');
+
+        $('tbody tr').hover(function()
+        {
+            $(this).addClass('hover');
+        }, function()
+        {
+            $(this).removeClass('hover');
+        });
+
+        var link = '<a href="">Show</a>';
+
+        $('td.cmd > div')
+            .hide()
+            .after(link).next().click(function(event)
+            {
+                event.preventDefault();
+
+                if ('Show' == $(this).text())
+                {
+                    var content = $(this).prev().clone();
+                    var width = $(this).closest('table').find('th:eq(1)').width();
+
+                    $(this)
+                        .text('Hide')
+                        .closest('tr').after('<tr><td colspan="10" style="border:5px solid black"></td></tr>').next()
+                        .children().append(content).find('div')
+                        .css({'overflow': 'auto', 'padding': '3px', 'white-space': 'pre',
+                                'font-family': 'courier', 'background-color': '#ddd'})
+                        .slideDown(1000);
+
+                    var $header = $(this).closest('tr').prevAll('tr.row-header:first').find('td:first');
+                    $header.attr('rowspan', parseInt($header.attr('rowspan')) + 1);
+                }
+                else
+                {
+                    $(this).closest('tr').next().remove();
+                    $(this).text('Show');
+
+                    var $header = $(this).closest('tr').prevAll('tr.row-header:first').find('td:first');
+                    $header.attr('rowspan', parseInt($header.attr('rowspan')) - 1);
+                }
+            });
+
+    });
+</script>
 {% endblock %}
 
 {% block content %}
@@ -79,7 +147,6 @@
 
 <thead style="color:black;">
 <tr class="row-header">
-  <th> UUID </th>
   <th> Format </th>
   <th> Tool </th>
   <th> Tool version </th>
@@ -97,7 +164,6 @@
 {% for row in page.objects %}
 
 <tr>
-  <td><div style="width:120px;">{{ row.pk }}</div></td>
   <td><div style="width:70px;">{{ row.id }}</div></td>
   <td><div style="width:120px;">{{ row.tool }}</div></td>
   <td>{{ row.toolVersion }}</td>
@@ -106,7 +172,7 @@
   <td>{{ row.FileIDs_validAccessFormat }}</td>
   <td>{{ row.classification }}</td>
   <td>{{ row.outputLocation }}</td>
-  <td><pre>{{ row.Commands_command }}</pre></td>
+  <td class="cmd"><div class="cmd">{{ row.Commands_command }}</div></td>
   <td>{{ row.Commands_description }}</td>
 </tr>
 
