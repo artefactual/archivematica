@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "layout_fluid.html" %}
 
 {% block js %}
 <script type="text/javascript" src="{{ STATIC_URL }}js/jobs.js"></script>
@@ -83,18 +83,25 @@
 
 <script>
 $(function() {
+  // add job viewer to generate dialogs with
+  var job = new Job();
+  job.set({'type': 'Approve Normalization'});
+  job.sip = new Sip();
+  job.sip.set({'directory': '{{ sipname }}'});
+  var jobView = new BaseJobView({model: job});
 
-/*
-                  $.find('a.file-location')
-                    .popover(
-                      {
-                        trigger: 'hover',
-                        content: function()
-                          {
-                            return $(this).attr('data-location').replace(/%.*%/gi, '');
-                          }
-                      }).click(function(event) { event.preventDefault(); });
-*/
+  // add popovers
+  $($.find('a.file-location'))
+    .popover({
+      trigger: 'hover',
+      content: function()
+        {
+            return $(this).attr('data-location').replace(/%.*%/gi, '');
+        }
+    })
+    .click(function(event) {
+      event.preventDefault();
+    });
 
   // make it so clicking on job shows details
   $('.normalization-report-task').each(function() {
@@ -106,13 +113,7 @@ $(function() {
         dataType: 'html',
         success: function(jobData)
         {
-          var job = new Job();
-          job.set({'type': 'Normalization'});
-          job.sip = new Sip();
-          job.sip.set({'directory': '{{ sipname }}'});
-          var jobView = new BaseJobView({model: job});
-
-          jobView.taskDialog(jobData);
+          jobView.taskDialog(jobData, { width: 950 });
 
           // localize UTC dates
           $('.utcDate').each(function() {
