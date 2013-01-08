@@ -31,6 +31,8 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from externals.HTML import HTML 
 
+databaseInterface.printErrors = False
+
 
 def getEmailsFromList():
     return ["joseph@artefactual.com"]
@@ -87,12 +89,33 @@ def getContentFor(unitType, unitName, unitIdentifier):
     
     etree.SubElement(body, "p")
     
-    sql = """SELECT Jobs.jobType, Jobs.currentStep, Jobs.createdTime, SEC_TO_TIME(jobDurationsView.time_from_job_created_till_end_of_processing_in_seconds)
+    sql = """SELECT Jobs.jobType, Jobs.currentStep, Jobs.createdTime, jobUUID
     FROM Jobs 
-    LEFT OUTER JOIN jobDurationsView ON Jobs.jobUUID = jobDurationsView.jobUUID 
     WHERE Jobs.SIPUUID = '%s' 
+    AND Jobs.jobType != 'Email fail report'
     ORDER BY Jobs.createdTime DESC, Jobs.createdTimeDec DESC;""" % (unitIdentifier)
-    rows2 = databaseInterface.queryAllSQL(sql)
+    
+    rows2Temp = databaseInterface.queryAllSQL(sql)
+
+    rows2=[]
+    for row in rows2Temp:
+        newRow = []
+        newRow.append(row[0])
+        newRow.append(row[1])
+        newRow.append(row[2])
+        try:
+            sql = """SELECT SEC_TO_TIME(jobDurationsView.time_from_job_created_till_end_of_processing_in_seconds) FROM  jobDurationsView WHERE jobUUID = '%s';""" % (row[3])
+            duration = databaseInterface.queryAllSQL(sql)
+            if duration and duration[0] and duration[0][0]:
+                newRow.append(duration[0][0])
+            else:
+                newRow.append("")
+        except:
+            duration = 0
+            newRow.append(0)
+        
+        
+        rows2.append(newRow)
     htmlcode2 = HTML.table(rows2, header_row=["Type", "Status", "Started", "Duration"])
     t2 = etree.fromstring(htmlcode2, parser).find("body/table")
     i = 0  
@@ -122,7 +145,7 @@ if __name__ == '__main__':
     parser.add_option("-t",  "--unitType",          action="store", dest="unitType", default="")
     parser.add_option("-i",  "--unitIdentifier",    action="store", dest="unitIdentifier", default="")
     parser.add_option("-n",  "--unitName",    action="store", dest="unitName", default="")
-    parser.add_option("-d",  "--eventDateTime",     action="store", dest="eventDateTime", default="")
+    parser.add_option("-d",  "--date",     action="store", dest="eventDateTime", default="")
     parser.add_option("-s",  "--server",     action="store", dest="server", default="")
 
     (opts, args) = parser.parse_args()
