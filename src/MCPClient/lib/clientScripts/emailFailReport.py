@@ -31,7 +31,6 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from externals.HTML import HTML 
 
-databaseInterface.printErrors = False
 
 
 def getEmailsFromList():
@@ -104,13 +103,16 @@ def getContentFor(unitType, unitName, unitIdentifier):
         newRow.append(row[1])
         newRow.append(row[2])
         try:
+            databaseInterface.printErrors = False
             sql = """SELECT SEC_TO_TIME(jobDurationsView.time_from_job_created_till_end_of_processing_in_seconds) FROM  jobDurationsView WHERE jobUUID = '%s';""" % (row[3])
             duration = databaseInterface.queryAllSQL(sql)
             if duration and duration[0] and duration[0][0]:
                 newRow.append(duration[0][0])
             else:
-                newRow.append("")
+                newRow.append("-")
+            databaseInterface.printErrors = True
         except:
+            databaseInterface.printErrors = True
             duration = 0
             newRow.append(0)
         
@@ -151,6 +153,9 @@ if __name__ == '__main__':
     (opts, args) = parser.parse_args()
     
     to = getEmailsFromDashboardUsers()
+    if not to:
+        print "Nobody to send it to. Please add users with valid email addresses in the dashboard."
+        exit(1)
     subject = "Archivematica Fail Report for %s: %s-%s" % (opts.unitType, opts.unitName, opts.unitIdentifier)
     from_ = "ArchivematicaSystem@archivematica.org"
     content = getContentFor(opts.unitType, opts.unitName, opts.unitIdentifier)

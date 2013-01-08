@@ -228,13 +228,11 @@ def queryAllSQL(sql):
         else:
             print printErrors
             if printErrors:
-                print huh
                 print >>sys.stderr, "Error with query: ", sql
                 print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
             sqlLock.release()
             exit(-100)
     except Exception as inst:
-        print printErrors
         if printErrors:
             print >>sys.stderr, "Error query: ", sql
             print >>sys.stderr, type(inst)     # the exception instance
