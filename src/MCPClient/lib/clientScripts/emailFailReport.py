@@ -21,6 +21,8 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import string
 from optparse import OptionParser
 import sys
@@ -42,16 +44,19 @@ def getEmailsFromUnitApprovingUser():
 
 def sendEmail(subject, to, from_, content, server):
     to2 = ", ".join(to) 
-    email = string.join((
-            "From: %s" % from_,
-            "To: %s" % to2,
-            "Subject: %s" % subject ,
-            "",
-            content
-            ), "\r\n")
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = subject
+    msg['From'] = from_
+    msg['To'] = to2
+    
+    part1 = MIMEText(content, 'html')
+    part2 = MIMEText("This email requires rendering of html to view", 'plain')
+    
+    msg.attach(part1)
+    #msg.attach(part2)
     
     server = smtplib.SMTP(server)
-    server.sendmail(from_, to, email)
+    server.sendmail(from_, to, msg.as_string())
     server.quit()
 
 
@@ -68,17 +73,18 @@ def getContentFor(unitType, unitName, unitIdentifier):
     rows = databaseInterface.queryAllSQL(sql)
     htmlcode1 = HTML.table(rows, header_row=fields)
     t1 = etree.fromstring(htmlcode1, parser).find("body/table")  
-    print etree.tostring(t1)
     body.append(t1)
+    
+    etree.SubElement(body, "p")
     
     sql = """SELECT Jobs.jobType, Jobs.currentStep, Jobs.createdTime, SEC_TO_TIME(jobDurationsView.time_from_job_created_till_end_of_processing_in_seconds)
     FROM Jobs 
-    JOIN jobDurationsView ON Jobs.jobUUID = jobDurationsView.jobUUID 
-    WHERE Jobs.SIPUUID = '%s' ;""" % (unitIdentifier)
+    LEFT OUTER JOIN jobDurationsView ON Jobs.jobUUID = jobDurationsView.jobUUID 
+    WHERE Jobs.SIPUUID = '%s' 
+    ORDER BY Jobs.createdTime DESC, Jobs.createdTimeDec DESC;""" % (unitIdentifier)
     rows2 = databaseInterface.queryAllSQL(sql)
-    htmlcode2 = HTML.table(rows2, header_row=["Jobs.jobType", "Jobs.currentStep", "Jobs.createdTime", "SEC_TO_TIME"])
+    htmlcode2 = HTML.table(rows2, header_row=["Type", "Status", "Started", "Duration"])
     t2 = etree.fromstring(htmlcode2, parser).find("body/table")  
-    print etree.tostring(t2)
     body.append(t2)
     
     return etree.tostring(root, pretty_print=True)
@@ -99,5 +105,4 @@ if __name__ == '__main__':
     content = getContentFor(opts.unitType, opts.unitName, opts.unitIdentifier)
     server = "localhost"
     
-    print content
     sendEmail(subject, to, from_, content, server)
