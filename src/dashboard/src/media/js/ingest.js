@@ -399,6 +399,11 @@ $(function()
 
           event.preventDefault();
 
+          var url = '/ingest/normalization-report/' + this.model.sip.get('uuid') + '/';
+          window.open(url, '_blank');
+          window.focus();
+
+          /*
           $.ajax({
             context: this,
             type: 'GET',
@@ -442,6 +447,7 @@ $(function()
               },
             url: '/ingest/normalization-report/' + this.model.sip.get('uuid') + '/'
           });
+          */
         }
 
     });

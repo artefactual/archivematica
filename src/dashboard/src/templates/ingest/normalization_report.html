@@ -1,4 +1,8 @@
-{% extends "layout_ajax.html" %}
+{% extends "layout.html" %}
+
+{% block js %}
+<script type="text/javascript" src="{{ STATIC_URL }}js/jobs.js"></script>
+{% endblock %}
 
 {% block content %}
   <table>
@@ -76,4 +80,50 @@
       {% endfor %}
     </tbody>
   </table>
+
+<script>
+$(function() {
+
+/*
+                  $.find('a.file-location')
+                    .popover(
+                      {
+                        trigger: 'hover',
+                        content: function()
+                          {
+                            return $(this).attr('data-location').replace(/%.*%/gi, '');
+                          }
+                      }).click(function(event) { event.preventDefault(); });
+*/
+
+  // make it so clicking on job shows details
+  $('.normalization-report-task').each(function() {
+    var taskUUID = $(this).attr('id').replace('normalization-report-task-', '');
+    $(this).click(function() {
+      $.ajax({
+        context: this,
+        type: 'GET',
+        dataType: 'html',
+        success: function(jobData)
+        {
+          var job = new Job();
+          job.set({'type': 'Normalization'});
+          job.sip = new Sip();
+          job.sip.set({'directory': '{{ sipname }}'});
+          var jobView = new BaseJobView({model: job});
+
+          jobView.taskDialog(jobData);
+
+          // localize UTC dates
+          $('.utcDate').each(function() {
+            $(this).text(utcDateToLocal($(this).text()));
+          });
+        },
+        url: '/task/' + taskUUID + '/'
+      });
+    });
+  });
+});
+</script>
+
 {% endblock %}
