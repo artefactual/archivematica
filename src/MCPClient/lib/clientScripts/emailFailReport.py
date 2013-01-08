@@ -36,7 +36,17 @@ def getEmailsFromList():
     return ["joseph@artefactual.com"]
 
 def getEmailsFromDashboardUsers():
-    return []
+    ret = []
+    sql = "SELECT email FROM auth_user where is_active = 1;"
+    rows = databaseInterface.queryAllSQL(sql)
+    for row in rows:
+        email = row[0]
+        if email == "demo@example.com":
+            continue
+        if not email:
+            continue
+        ret.append(email)
+    return ret
 
 def getEmailsFromUnitApprovingUser():
     return []
@@ -84,7 +94,25 @@ def getContentFor(unitType, unitName, unitIdentifier):
     ORDER BY Jobs.createdTime DESC, Jobs.createdTimeDec DESC;""" % (unitIdentifier)
     rows2 = databaseInterface.queryAllSQL(sql)
     htmlcode2 = HTML.table(rows2, header_row=["Type", "Status", "Started", "Duration"])
-    t2 = etree.fromstring(htmlcode2, parser).find("body/table")  
+    t2 = etree.fromstring(htmlcode2, parser).find("body/table")
+    i = 0  
+    for tr in t2.findall("tr"):
+        #header row
+        if i == 0:
+            i+=1
+            #tr.set("bgcolor", "#00FF00")
+            continue
+        
+        #job row
+        status = rows2[i-1][1]
+        if status == "Completed successfully":
+            tr.set("bgcolor", "#00FF00")
+        elif status == "Failed":
+            tr.set("bgcolor", "RED")
+        else:
+            tr.set("bgcolor", "yellow")
+        i+=1
+        
     body.append(t2)
     
     return etree.tostring(root, pretty_print=True)
@@ -99,7 +127,7 @@ if __name__ == '__main__':
 
     (opts, args) = parser.parse_args()
     
-    to = getEmailsFromList()
+    to = getEmailsFromDashboardUsers()
     subject = "Archivematica Fail Report for %s: %s-%s" % (opts.unitType, opts.unitName, opts.unitIdentifier)
     from_ = "ArchivematicaSystem@archivematica.org"
     content = getContentFor(opts.unitType, opts.unitName, opts.unitIdentifier)
