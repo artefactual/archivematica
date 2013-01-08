@@ -53,6 +53,7 @@ createMETS_v2.0 = %clientScriptsDirectory%archivematicaCreateMETS2.py
 createSIPfromTransferObjects_v0.0 = %clientScriptsDirectory%createSIPfromTransferObjects.py
 createSIPsfromTRIMTransferContainers_v0.0 = %clientScriptsDirectory%createSIPsfromTRIMTransferContainers.py
 echo_v0.0 = /bin/echo
+emailFailReport_v0.0 = %clientScriptsDirectory%emailFailReport.py
 extractBAG_v0.0 = %clientScriptsDirectory%extractBAG.sh
 extractBagTransfer_v0.0 = %clientScriptsDirectory%extractBagTransfer.py
 extractMaildirAttachments_v0.0 = %clientScriptsDirectory%extractMaildirAttachments.py
