@@ -78,16 +78,19 @@ def getContentFor(unitType, unitName, unitIdentifier):
     body = etree.SubElement(root, "body")
     parser = etree.HTMLParser(remove_blank_text=True)
     
-    
-    fields = ["unitType", "Total time processing", "total file size", "number of files", "average file size KB", "average file size MB"]
-    sql = """SELECT `%s` FROM PDI_by_unit WHERE SIP_OR_TRANSFER_UUID = '%s';""" % ("`, `".join(fields), unitIdentifier)
-    rows = databaseInterface.queryAllSQL(sql)
-    htmlcode1 = HTML.table(rows, header_row=fields)
-    t1 = etree.fromstring(htmlcode1, parser).find("body/table")  
-    body.append(t1)
-    
-    etree.SubElement(body, "p")
-    
+    try:
+        fields = ["unitType", "Total time processing", "total file size", "number of files", "average file size KB", "average file size MB"]
+        sql = """SELECT `%s` FROM PDI_by_unit WHERE SIP_OR_TRANSFER_UUID = '%s';""" % ("`, `".join(fields), unitIdentifier)
+        rows = databaseInterface.queryAllSQL(sql)
+        htmlcode1 = HTML.table(rows, header_row=fields)
+        t1 = etree.fromstring(htmlcode1, parser).find("body/table")  
+        body.append(t1)
+        
+        etree.SubElement(body, "p")
+    except:
+        pass
+
+        
     sql = """SELECT Jobs.jobType, Jobs.currentStep, Jobs.createdTime, jobUUID
     FROM Jobs 
     WHERE Jobs.SIPUUID = '%s' 
