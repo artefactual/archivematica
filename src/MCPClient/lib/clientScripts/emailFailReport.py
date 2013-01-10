@@ -32,7 +32,6 @@ import databaseInterface
 from externals.HTML import HTML 
 
 
-
 def getEmailsFromList():
     return ["joseph@artefactual.com"]
 
