@@ -199,7 +199,18 @@ def archival_storage_search_augment_results(raw_results):
         try:
             aip = models.AIP.objects.get(sipuuid=clone['AIPUUID'])
             clone['sipname'] = aip.sipname
-            clone['href']    = aip.filepath.replace(AIPSTOREPATH + '/', "AIPsStore/")
+            #clone['sipname'] = clone['ns1:objectIdentifierValue']
+            clone['href'] = aip.filepath.replace(AIPSTOREPATH + '/', "AIPsStore/")
+            clone['uuid'] = 'PLACEHOLDER' # cone['uuid'] is incorrect, a placeholder
+            # file UUID exists in ES/PREMIS at ns1:objectIdentifierValue
+            # we should index this
+            thumbnailfilepath = os.path.join(
+              aip.filepath,
+              'thumbnails',
+              clone['AIPUUID'],
+              clone['uuid'] + '.jpg'
+            )
+            clone['thumbnail'] = thumbnailfilepath
         except:
             aip = None
             clone['sipname'] = False
