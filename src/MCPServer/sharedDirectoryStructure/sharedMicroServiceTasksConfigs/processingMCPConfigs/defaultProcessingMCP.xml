@@ -21,5 +21,9 @@
             <appliesTo>Select compression level</appliesTo>
             <goToChain>5 - normal compression mode</goToChain>
         </preconfiguredChoice>
+        <preconfiguredChoice>
+            <appliesTo>Select format identification tool</appliesTo>
+            <goToChain>extension (default)</goToChain>
+        </preconfiguredChoice>
     </preconfiguredChoices>
 </processingMCP>
