@@ -162,7 +162,7 @@ class unitSIP(unit):
         "%rejectedDirectory%":archivematicaMCP.config.get('MCPServer', "rejectedDirectory"), \
         "%SIPUUID%":SIPUUID, \
         "%SIPName%":SIPName, \
-        "%unitType%":"SIP" \
+        "%unitType%":self.unitType \
         }
         return ret
 

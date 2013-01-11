@@ -209,7 +209,7 @@ class unitTransfer(unit):
         "%rejectedDirectory%":archivematicaMCP.config.get('MCPServer', "rejectedDirectory"), \
         "%SIPUUID%":SIPUUID, \
         "%SIPName%":SIPName, \
-        "%unitType%":"Transfer" \
+        "%unitType%":self.unitType \
         }
         return ret
 

@@ -29,6 +29,7 @@ import databaseInterface
 sys.path.append("/usr/lib/sanitizeNames")
 from sanitizeNames import sanitizePath
 
+databaseInterface.printSQL = True
 
 DetoxDic={}
 
@@ -37,11 +38,28 @@ if __name__ == '__main__':
     sipUUID =  sys.argv[2]
     date = sys.argv[3]
     sharedDirectoryPath = sys.argv[4]
+    unitType = sys.argv[5]
     #os.path.abspath(SIPDirectory)
 
+    #remove trailing slash
+    if SIPDirectory[-1] == "/":
+        SIPDirectory = SIPDirectory[:-1]
+    
+    
+    if unitType == "SIP": 
+        table = "SIPs"
+        locationColumn = 'currentPath'
+        idColumn = 'sipUUID'
+    elif unitType == "Transfer":
+        table = "Transfers"
+        locationColumn = 'currentLocation'
+        idColumn = 'transferUUID'
+    else:
+        print >>sys.stderr, "invalid unit type: ", unitType
+        exit(1)
     dst = sanitizePath(SIPDirectory)
     if SIPDirectory != dst:
-        dst = dst.replace(sharedDirectoryPath, "%sharedPath%", 1)
+        dst = dst.replace(sharedDirectoryPath, "%sharedPath%", 1) + "/"
         print SIPDirectory.replace(sharedDirectoryPath, "%sharedPath%", 1) + " -> " + dst
-        sql =  """UPDATE SIPs SET currentPath='""" + dst + """' WHERE sipUUID='""" + sipUUID + """';"""
+        sql =  """UPDATE %s SET %s='%s' WHERE %s='%s'; """ % (table, locationColumn, dst, idColumn, sipUUID)
         databaseInterface.runSQL(sql)
