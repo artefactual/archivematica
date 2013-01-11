@@ -27,11 +27,18 @@ requiredDirectories = ["objects", \
                        "metadata",\
                        "metadata/submissionDocumentation"]
 
-def createStructuredDirectory(SIPDir):
+createManualNormalizedDirectoriesList = ["objects/manualNormalization/access", "objects/manualNormalization/preservation"]
+
+def createStructuredDirectory(SIPDir, createManualNormalizedDirectories=False):
     for directory in requiredDirectories:
         path = os.path.join(SIPDir, directory)
         if not os.path.isdir(path):
             os.makedirs(path)
+    if createManualNormalizedDirectories:
+        for directory in createManualNormalizedDirectoriesList:
+            path = os.path.join(SIPDir, directory)
+            if not os.path.isdir(path):
+                os.makedirs(path)
 
 if __name__ == '__main__':
     SIPDir = sys.argv[1]

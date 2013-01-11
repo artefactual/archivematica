@@ -37,5 +37,9 @@ if os.path.isdir(manualNormalizationPath):
         if len(os.listdir(manualNormalizationAccessPath)):
             #77a7fa46-92b9-418e-aa88-fbedd4114c9f or 055de204-6229-4200-87f7-e3c29f095017 (indicate there is an access directory
             databaseInterface.runSQL("""UPDATE UnitVariables SET microServiceChainLink = '055de204-6229-4200-87f7-e3c29f095017' WHERE unitType='SIP' AND unitUUID = '%s' AND variable = 'returnFromManualNormalized' """ % (SIPUUID) )
-    exit(179)
+            exit(179)
+    manualNormalizationPreservationPath = os.path.join(manualNormalizationPath, "preservation")
+    if os.path.isdir(manualNormalizationPreservationPath):
+        if len(os.listdir(manualNormalizationPreservationPath)):
+            exit(179)
 exit(0)
