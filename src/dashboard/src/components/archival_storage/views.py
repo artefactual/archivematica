@@ -236,6 +236,31 @@ def archival_storage_sip_download(request, uuid):
     aip = models.AIP.objects.get(sipuuid=uuid)
     return send_file(request, aip.filepath)
 
+def archival_storage_send_thumbnail(request, fileuuid):
+    # get file by uuid
+    file = models.File.objects.get(uuid=fileuuid)
+
+    # get SIP/AIP UUID from SIP
+    sipuuid = file.sip.uuid
+
+    # get AIP location to use to find root of AIP storage
+    aip = models.AIP.objects.get(sipuuid=sipuuid)
+    aip_filepath = aip.filepath
+
+    # strip path to AIP from root of AIP storage
+    for index in range(1, 10):
+        aip_filepath = os.path.dirname(aip_filepath)
+
+    # derive thumbnail path
+    thumbnail_path = os.path.join(
+        aip_filepath,
+        'thumbnails',
+        sipuuid,
+        fileuuid + '.jpg'
+    )
+
+    return send_file(request, thumbnail_path)
+
 def archival_storage_sip_display(request, current_page_number=None):
     form = forms.StorageSearchForm()
 
