@@ -9,5 +9,6 @@ urlpatterns = patterns('components.archival_storage.views',
     (r'search/json/file/(?P<document_id_modified>\w+)/$', 'archival_storage_file_json'),
     (r'search/$', 'archival_storage_search'),
     (r'download/(?P<uuid>' + UUID_REGEX + ')/$', 'archival_storage_sip_download'),
-    (r'$', 'archival_storage')
+    (r'thumbnail/(?P<fileuuid>' + UUID_REGEX + ')/$', 'archival_storage_send_thumbnail'),
+    (r'^$', 'archival_storage')
 )
