@@ -112,6 +112,11 @@ for dir in os.listdir(transferPath):
     startTime = getDateTimeFromDateClosed(DateClosed)
     endTime = startTime + retentionPeriod
     
+    #make end time end of year
+    endTimeEndOfYearDiff = datetime(endTime.year, 12, 31) - endTime
+    endTime = endTime + endTimeEndOfYearDiff 
+     
+    
     indexForOnlyDate = 10
     startTime = startTime.__str__()[:indexForOnlyDate]
     endTime = endTime.__str__()[:indexForOnlyDate]
