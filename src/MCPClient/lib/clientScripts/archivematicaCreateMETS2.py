@@ -135,8 +135,8 @@ def getDublinCore(type_, id):
     if row == None:
         sqlLock.release()
         return None
-    ret = etree.Element( "dublincore", nsmap = {None: dcNS, "dcterms": dctermsNS} )
-    ret.set(xsiBNS+"schemaLocation", dcNS + " http://dublincore.org/schemas/xmls/qdc/dc.xsd " + dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+    ret = etree.Element( "dublincore", nsmap = {None:dctermsNS} )
+    ret.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
     dctermsElements= ["isPartOf"]
     while row != None:
         key = ["title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "relation", "language", "coverage", "rights"]
@@ -148,10 +148,7 @@ def getDublinCore(type_, id):
                 txt = row[i]
             else:
                 txt = ""
-            if term in dctermsElements:
-                etree.SubElement(ret, dctermsBNS + term).text = txt
-            else:
-                newChild(ret, term, text=txt)
+            newChild(ret, term, text=txt)
             i+=1
 
         row = c.fetchone()

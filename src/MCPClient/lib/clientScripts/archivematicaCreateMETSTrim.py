@@ -40,6 +40,7 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
     xmlData = etree.SubElement(mdWrap, "xmlData")
     
     dublincore = etree.SubElement(xmlData, "dublincore", attrib=None, nsmap={None:dctermsNS})
+    dublincore.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
     tree = etree.parse(os.path.join(baseDirectoryPath, "objects", "ContainerMetadata.xml"))
     root = tree.getroot()
     
