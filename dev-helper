@@ -126,8 +126,8 @@ function restart() {
   fi
 }
 
-function export-sampledata() {
-  part="export sample data to ~/sampledata"
+function clone-sampledata() {
+  part="clone sample data into $HOME"
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
@@ -138,12 +138,12 @@ function export-sampledata() {
       SAMPLEDATA_REPO="https://github.com/artefactual/archivematica-sampledata.git"
     fi
 
-    print "Exporting archivematica-sampledata to $HOME..."
-    colour git clone $SAMPLEDATA_REPO ~/archivematica-sampledata
-    print "Updating OPF..."
-    cd ~/archivematica-sampledata
-    colour git submodule init
-    colour git submodule update
+    DATE=`date +%Y-%m-%d-%M-%S`
+    git clone $SAMPLEDATA_REPO ~/archivematica-sampledata-$DATE
+    echo "Updating OPF..."
+    cd ~/archivematica-sampledata-$DATE
+    git submodule init
+    git submodule update
   else
           echo "Not going to ${part}."
   fi
@@ -203,6 +203,6 @@ git-pull
 package-update
 recreate-db
 restart
-export-sampledata
+clone-sampledata
 install-gui
 update-qubit

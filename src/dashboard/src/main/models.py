@@ -196,6 +196,15 @@ class Task(models.Model):
     class Meta:
         db_table = u'Tasks'
 
+class Agent(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', editable=False)
+    identifiertype = models.TextField(db_column='agentIdentifierType')
+    identifiervalue = models.TextField(db_column='agentIdentifierValue')
+    name = models.TextField(db_column='agentName')
+
+    class Meta:
+        db_table = u'Agents'
+
 class RightsStatement(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     metadataappliestotype = models.CharField(max_length=50, db_column='metadataAppliesToType')
@@ -373,6 +382,16 @@ class SourceDirectory(models.Model):
 
     class Meta:
         db_table = u'SourceDirectories'
+
+class StorageDirectory(models.Model):
+    id = UUIDPkField()
+    path = models.TextField(db_column='path')
+
+    def __unicode__(self):
+        return self.path
+
+    class Meta:
+        db_table = u'StorageDirectories'
 
 """ MCP data interoperability """
 

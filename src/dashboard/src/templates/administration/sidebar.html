@@ -4,18 +4,24 @@
   {% url components.administration.views.administration_dip as url_dip %}
   {% url components.administration.views.administration_contentdm_dips as url_contentdm_dips %}
   {% url components.administration.views.administration_sources as url_sources %}
+  {% url components.administration.views.administration_storage as url_storage %}
   {% url components.administration.views.administration_processing as url_processing %}
+  {% url components.administration.views.administration_premis_agent as url_premis %}
   {% url components.accounts.views.list as url_user_list %}
 
   <ul>
 
     <li class="{% active request url_sources %}"><a href="{{ url_sources }}">Transfer source directories</a></li>
 
+    <li class="{% active request url_storage %}"><a href="{{ url_storage }}">AIP storage directories</a></li>
+
     <li class="{% active request url_dip %}"><a href="{{ url_dip }}">AtoM DIP upload</a></li>
 
     <li class="{% active request url_contentdm_dips %}"><a href="{{ url_contentdm_dips }}">ContentDM DIP upload</a></li>
 
     <li class="{% active request url_processing %}"><a href="{{ url_processing }}">Processing configuration</a></li>
+
+    <li class="{% active request url_premis %}"><a href="{{ url_premis }}">PREMIS agent</a></li>
 
     {% if user.is_superuser %}
       <li class="{% active request url_user_list %}"><a href="{{ url_user_list }}">Users</a></li>

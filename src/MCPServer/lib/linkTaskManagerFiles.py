@@ -156,7 +156,6 @@ class linkTaskManagerFiles:
 
 
     def taskCompletedCallBackFunction(self, task):
-        print task
         #logTaskCompleted()
         self.exitCode += math.fabs(task.results["exitCode"])
         databaseFunctions.logTaskCompletedSQL(task)

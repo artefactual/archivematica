@@ -8,7 +8,7 @@
 {% block js %}
   <script type="text/javascript" src="{{ STATIC_URL }}js/file-explorer.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/directory_picker.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/administration/source_directory_picker.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/administration/{{ picker_js_file }}"></script>
 {% endblock %}
 
 {% block css %}
@@ -24,7 +24,7 @@
 
     <div class="span12">
 
-      <h3>Transfer source directories</h3>
+      <h3>{{ system_directory_description }} directories</h3>
 
       <div id="directories"></div>
 

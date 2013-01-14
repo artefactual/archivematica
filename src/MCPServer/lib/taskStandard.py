@@ -53,8 +53,6 @@ class taskStandard():
         self.outputLock = outputLock
 
 
-        print "init done"
-
     def performTask(self):
         from archivematicaMCP import limitGearmanConnectionsSemaphore
         limitGearmanConnectionsSemaphore.acquire()

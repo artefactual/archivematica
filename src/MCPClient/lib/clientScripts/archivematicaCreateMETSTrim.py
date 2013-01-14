@@ -40,6 +40,7 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
     xmlData = etree.SubElement(mdWrap, "xmlData")
     
     dublincore = etree.SubElement(xmlData, "dublincore", attrib=None, nsmap={None:dctermsNS})
+    dublincore.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
     tree = etree.parse(os.path.join(baseDirectoryPath, "objects", "ContainerMetadata.xml"))
     root = tree.getroot()
     
@@ -47,6 +48,7 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
     etree.SubElement(dublincore, dctermsBNS + "title").text = root.find("Container/TitleFreeTextPart").text
     etree.SubElement(dublincore, dctermsBNS + "creator").text = root.find("Container/Department").text
     etree.SubElement(dublincore, dctermsBNS + "provenance").text = root.find("Container/OPR").text
+    etree.SubElement(dublincore, dctermsBNS + "isPartOf").text = root.find("Container/FullClassificationNumber").text
     etree.SubElement(dublincore, dctermsBNS + "identifier").text = root.find("Container/RecordNumber").text.split('/')[-1]
     
     #get objects count

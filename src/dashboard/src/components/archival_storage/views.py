@@ -199,7 +199,17 @@ def archival_storage_search_augment_results(raw_results):
         try:
             aip = models.AIP.objects.get(sipuuid=clone['AIPUUID'])
             clone['sipname'] = aip.sipname
-            clone['href']    = aip.filepath.replace(AIPSTOREPATH + '/', "AIPsStore/")
+            clone['fileuuid'] = clone['FILEUUID']
+            clone['href'] = aip.filepath.replace(AIPSTOREPATH + '/', "AIPsStore/")
+            # file UUID exists in ES/PREMIS at ns1:objectIdentifierValue
+            # we should index this
+            thumbnailfilepath = os.path.join(
+              aip.filepath,
+              'thumbnails',
+              clone['AIPUUID'],
+              clone['fileuuid'] + '.jpg'
+            )
+            clone['thumbnail'] = thumbnailfilepath
         except:
             aip = None
             clone['sipname'] = False
@@ -222,9 +232,34 @@ def archival_storage_indexed_count(index):
         pass
     return aip_indexed_file_count
 
-def archival_storage_sip_download(request, path):
-    full_path = os.path.join(os.path.dirname(AIPSTOREPATH), path)
-    return send_file(request, full_path)
+def archival_storage_sip_download(request, uuid):
+    aip = models.AIP.objects.get(sipuuid=uuid)
+    return send_file(request, aip.filepath)
+
+def archival_storage_send_thumbnail(request, fileuuid):
+    # get file by uuid
+    file = models.File.objects.get(uuid=fileuuid)
+
+    # get SIP/AIP UUID from SIP
+    sipuuid = file.sip.uuid
+
+    # get AIP location to use to find root of AIP storage
+    aip = models.AIP.objects.get(sipuuid=sipuuid)
+    aip_filepath = aip.filepath
+
+    # strip path to AIP from root of AIP storage
+    for index in range(1, 10):
+        aip_filepath = os.path.dirname(aip_filepath)
+
+    # derive thumbnail path
+    thumbnail_path = os.path.join(
+        aip_filepath,
+        'thumbnails',
+        sipuuid,
+        fileuuid + '.jpg'
+    )
+
+    return send_file(request, thumbnail_path)
 
 def archival_storage_sip_display(request, current_page_number=None):
     form = forms.StorageSearchForm()

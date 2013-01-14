@@ -161,7 +161,8 @@ class unitSIP(unit):
         "%watchDirectoryPath%":archivematicaMCP.config.get('MCPServer', "watchDirectoryPath"), \
         "%rejectedDirectory%":archivematicaMCP.config.get('MCPServer', "rejectedDirectory"), \
         "%SIPUUID%":SIPUUID, \
-        "%SIPName%":SIPName \
+        "%SIPName%":SIPName, \
+        "%unitType%":self.unitType \
         }
         return ret
 

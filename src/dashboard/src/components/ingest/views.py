@@ -208,6 +208,10 @@ def ingest_upload(request, uuid):
     return HttpResponseBadRequest()
 
 def ingest_normalization_report(request, uuid):
+    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
+    job = jobs[0]
+    sipname = utils.get_directory_name(job)
+
     query = getNormalizationReportQuery()
     cursor = connection.cursor()
     cursor.execute(query, ( uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid ))

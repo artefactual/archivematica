@@ -28,8 +28,12 @@ urlpatterns = patterns('components.administration.views',
     (r'dips/contentdm/$', 'administration_contentdm_dips'),
     (r'sources/$', 'administration_sources'),
     (r'sources/delete/json/(?P<id>' + UUID_REGEX + ')/$', 'administration_sources_delete_json'),
+    (r'storage/delete/json/(?P<id>' + UUID_REGEX + ')/$', 'administration_storage_delete_json'),
+    (r'storage/$', 'administration_storage'),
     (r'processing/$', 'administration_processing'),
     (r'sources/json/$', 'administration_sources_json'),
+    (r'storage/json/$', 'administration_storage_json'),
+    (r'premis/agent/$', 'administration_premis_agent'),
 
     # Disabled until further development can be done
     #(r'search/$', 'administration_search'),

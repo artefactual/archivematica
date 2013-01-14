@@ -31,7 +31,7 @@ results_per_page = 6
 def preservation_planning(request):
     query="""SELECT
         Groups.description,
-        FIBE.Extension,
+        FIBE.id AS Extension,
         CC.classification,
         CT.TYPE,
         CR.countAttempts,
@@ -41,8 +41,8 @@ def preservation_planning(request):
         Commands.PK AS CommandPK,
         Commands.description,
         Commands.command
-      FROM FileIDsByExtension AS FIBE
-      RIGHT OUTER JOIN FileIDs ON FIBE.FileIDs = FileIDs.pk
+      FROM FileIDsBySingleID AS FIBE
+      RIGHT OUTER JOIN FileIDs ON FIBE.FileID = FileIDs.pk
       LEFT OUTER JOIN FileIDGroupMembers AS FIGM ON FIGM.fileID = FileIDs.pk
       LEFT OUTER JOIN Groups on Groups.pk = FIGM.groupID
       JOIN CommandRelationships AS CR ON FileIDs.pk = CR.FileID
@@ -50,10 +50,8 @@ def preservation_planning(request):
       JOIN CommandClassifications AS CC on CR.commandClassification = CC.pk
       JOIN CommandTypes AS CT ON Commands.commandType = CT.pk
       WHERE
-        FIBE.Extension IS NOT NULL
-        AND FIBE.Extension NOT IN ('mboxi', 'pst')
-        AND CC.classification IN ('access', 'preservation')
-      ORDER BY Groups.description, FIBE.Extension, CC.classification"""
+        CC.classification IN ('access', 'preservation')
+      ORDER BY Groups.description, FIBE.id, CC.classification"""
 
     cursor = connection.cursor()
     cursor.execute(query)

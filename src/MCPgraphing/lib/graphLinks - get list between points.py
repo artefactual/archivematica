@@ -169,7 +169,7 @@ def bridgeLoadVariable():
             print "no bridge variable set for: ", linkUUIDtoNodeName[microServiceChainLink]           
     return
 
-def draw():
+def draw(G=G):
     print "Creating"   
     G.layout(prog='dot')
     args= "-Goverlap=prism -v "
@@ -190,6 +190,72 @@ def bridgeSpecial():
     addArrow('39a128e3-c35d-40b7-9363-87f75091e1ff', 'db6d3830-9eb4-4996-8f3a-18f4f998e07f') 
     addArrow('5f99ca60-67b8-4d70-8173-fc22ebda9202', 'db6d3830-9eb4-4996-8f3a-18f4f998e07f')
     
+    
+#http://www.python.org/doc/essays/graphs/
+pathToEndForNode_find_all_paths = {}
+completePaths_find_all_paths = []
+additionalCompletedPaths_find_all_paths = []
+def find_all_paths(graph, start, end, visitedNodes={}, path=[]):
+    path = path + [start]
+    if start == end:
+        return ([path], [],)
+    if not start in graph:
+        return ([], [])
+    if start in visitedNodes:
+        if start in pathToEndForNode_find_all_paths:
+            return ([], start)
+        else:
+            return ([],[],)
+    visitedNodes[start] = None
+    paths = []
+    for node in graph[start]:
+        newpaths = []
+        pathToEndForNode_find_all_paths[node] = newpaths
+        pathsFromNodes, completePathsRequired = find_all_paths(graph, node, end, visitedNodes, path)
+        for newpath in pathsFromNodes:
+            newpaths.append(newpath)
+            pathToEndForNode_find_all_paths[node] = newpaths
+            paths.append(newpath)
+        if completePathsRequired != []:
+            additionalCompletedPaths_find_all_paths.append((path , completePathsRequired,))  
+    return (paths, [],)
+
+def find_all_paths2(G, start, end):
+    ret = {}
+    for path in find_all_paths(G, start, end):
+        for path2 in path:
+            path3 = path2.__str__()
+            ret[path3] = None
+            print
+    for path, add in additionalCompletedPaths_find_all_paths:
+        for path2 in pathToEndForNode_find_all_paths[add]:
+            path3 = (path + path2).__str__()
+            ret[path3] = None
+    
+    return ret  
+
+def find_all_paths3(G, start, end):
+    ret = []
+    for path in find_all_paths(G, start, end):
+        for path2 in path:
+            for node in path2:
+                ret.append(node)
+            
+    for path, add in additionalCompletedPaths_find_all_paths:
+        for path2 in pathToEndForNode_find_all_paths[add]:
+            for node in (path + path2):
+                print node
+                ret.append(node)
+
+    return ret  
+
+
+
+def getSubGraph(G, start, end):
+    nodes = find_all_paths3(G, start, end)
+    S = G.add_subgraph(nbunch=nodes, name='subGraph')
+    draw(S)
+
 if __name__ == '__main__':
     #test()
     loadAllLinks()
@@ -199,7 +265,19 @@ if __name__ == '__main__':
     bridgeLoadVariable()
     bridgeMagicChainLinks()
     bridgeSpecial()
-    draw()
+    #draw()
     #print G.string()
     #print linkUUIDtoNodeName
+    start = "{67b44f8f-bc97-4cb3-b6dd-09dba3c99d30}Check for Access directory"
+    end = "{3ba518ab-fc47-4cba-9b5c-79629adac10b}Index AIP contents"
+    allPaths = find_all_paths2(G, start, end)
+    #for path in allPaths.iterkeys():
+    #    print path
+    print len(allPaths) 
+    
+    getSubGraph(G, start, end)
+    
+
+    
+
     

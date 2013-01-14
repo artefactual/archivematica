@@ -34,6 +34,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from externals.checksummingTools import md5_for_file
 from fileOperations import getFileUUIDLike
 import databaseFunctions
+import databaseInterface
 
 while False:
     import time
@@ -76,6 +77,7 @@ def getDateTimeFromDateClosed(dateClosed):
     print dateClosedDT     
     offSet = dateClosed[i+1:].split(":")
     offSetTD = timedelta(hours=int(offSet[0]), minutes=int(offSet[1]))
+
     if dateClosed[i] == "-":
         dateClosedDT = dateClosedDT - offSetTD
     elif  dateClosed[i] == "+":
@@ -110,38 +112,68 @@ for dir in os.listdir(transferPath):
     startTime = getDateTimeFromDateClosed(DateClosed)
     endTime = startTime + retentionPeriod
     
+    #make end time end of year
+    endTimeEndOfYearDiff = datetime(endTime.year, 12, 31) - endTime
+    endTime = endTime + endTimeEndOfYearDiff 
+     
+    
+    indexForOnlyDate = 10
+    startTime = startTime.__str__()[:indexForOnlyDate]
+    endTime = endTime.__str__()[:indexForOnlyDate]
+    
     for file in os.listdir(dirPath):
         filePath = os.path.join(dirPath, file)
         if  file == "ContainerMetadata.xml" or file.endswith("Metadata.xml") or not os.path.isfile(filePath):
             continue
         
         fileUUID = getFileUUIDLike(filePath, transferPath, transferUUID, "transferUUID", "%transferDirectory%")[filePath.replace(transferPath, "%transferDirectory%", 1)]
+        FileMetadataAppliesToType = '7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17'
         
-        print
-        print "fileUUID:", fileUUID
-        print "RetentionSchedule:", RetentionSchedule
-        print "DateClosed:", DateClosed
+        #RightsStatement
+        sql = """INSERT INTO RightsStatement SET 
+            metadataAppliesToType='%s', 
+            metadataAppliesToidentifier='%s',
+            rightsStatementIdentifierType='UUID',
+            rightsStatementIdentifierValue='%s',  
+            fkAgent=1,
+            rightsBasis='Other';""" % (FileMetadataAppliesToType, fileUUID, uuid.uuid4().__str__())
+        RightsStatement = databaseInterface.insertAndReturnID(sql)
         
+        #RightsStatementOtherRightsInformation
+        sql = """INSERT INTO RightsStatementOtherRightsInformation SET 
+            fkRightsStatement=%d,
+            otherRightsBasis='Policy',
+            otherRightsApplicableStartDate='',
+            otherRightsApplicableEndDate='';""" % (RightsStatement)
+        RightsStatementOtherRightsInformation = databaseInterface.insertAndReturnID(sql)
         
-        a = """
-        FileMetadataAppliesToType = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
+        #RightsStatementOtherRightsDocumentationIdentifier
+        sql = """INSERT INTO RightsStatementOtherRightsDocumentationIdentifier SET
+              fkRightsStatementOtherRightsInformation=%d,
+              otherRightsDocumentationIdentifierType='',
+              otherRightsDocumentationIdentifierValue='',
+              otherRightsDocumentationIdentifierRole='';""" % (RightsStatementOtherRightsInformation)
+        RightsStatementOtherRightsDocumentationIdentifier = databaseInterface.insertAndReturnID(sql)
         
-        RightsStatement
-        "rightsBasis" == "policy"
+        #RightsStatementRightsGranted
+        sql = """INSERT INTO RightsStatementRightsGranted SET
+            fkRightsStatement=%d,
+            act='Disseminate',
+            startDate='%s',
+            endDate='%s';""" % (RightsStatement, startTime, endTime)
+        RightsStatementRightsGranted = databaseInterface.insertAndReturnID(sql)
         
-        RightsStatementOtherRightsInformation
+        #RightsStatementRightsGrantedNote
+        sql = """INSERT INTO RightsStatementRightsGrantedNote SET
+            fkRightsStatementRightsGranted=%d,
+            rightsGrantedNote='%s';""" % (RightsStatementRightsGranted,"Closed until %s" % (endTime))
+        RightsStatementRightsGrantedNote = databaseInterface.insertAndReturnID(sql)
         
-        RightsStatementOtherRightsDocumentationIdentifier
-        
-        RightsStatementRightsGranted
-        print "start", startTime
-        print "end", endTime
-        RightsStatementRightsGrantedNote
-        "Closed until", endTime
-        
-        RightsStatementRightsGrantedRestriction = empty
-        """
-
+        #RightsStatementRightsGrantedRestriction
+        sql = """INSERT INTO RightsStatementRightsGrantedRestriction SET
+        fkRightsStatementRightsGranted=%d,
+        restriction='Disallow';""" % (RightsStatementRightsGranted)
+        RightsStatementRightsGrantedRestriction = databaseInterface.insertAndReturnID(sql)
         
                  
 quit(exitCode)

@@ -60,7 +60,7 @@ if __name__ == '__main__':
         
         tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
         destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
-        createStructuredDirectory(tmpSIPDir)
+        createStructuredDirectory(tmpSIPDir, createManualNormalizedDirectories=True)
         databaseFunctions.createSIP(destSIPDir.replace(sharedPath, '%sharedPath%'), sipUUID)
     
         #move the objects to the SIPDir

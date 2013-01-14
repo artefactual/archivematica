@@ -93,6 +93,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type):
     fileData = {
       'archivematicaVersion': '0.9',
       'AIPUUID':   uuid,
+      'FILEUUID':  '',
       'indexedAt': time.time(),
       'filePath':  '',
       'fileExtension': '',
@@ -129,6 +130,8 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type):
 
                 # set up data for indexing
                 indexData = fileData
+
+                indexData['FILEUUID'] = item.find('{http://www.loc.gov/METS/}techMD/{http://www.loc.gov/METS/}mdWrap/{http://www.loc.gov/METS/}xmlData/{info:lc/xmlns/premis-v2}object/{info:lc/xmlns/premis-v2}objectIdentifier/{info:lc/xmlns/premis-v2}objectIdentifierValue').text
 
                 indexData['filePath']   = filePath
 

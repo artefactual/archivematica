@@ -49,7 +49,7 @@ def sanitizePath(path):
     basename = os.path.basename(path)
     dirname = os.path.dirname(path)
     sanitizedName = sanitizeName(basename)
-    if 0:
+    if False:
         print "path: " + path
         print "dirname: " + dirname
         print "basename: " + basename

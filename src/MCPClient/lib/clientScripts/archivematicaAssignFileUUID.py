@@ -48,6 +48,9 @@ if __name__ == '__main__':
     fileUUID = opts.fileUUID
     if not fileUUID or fileUUID == "None":
         fileUUID = uuid.uuid4().__str__()
+    else:
+        print >>sys.stderr, "File already has UUID:", fileUUID
+        exit(0) 
 
 
     if opts.sipUUID == "" and opts.transferUUID != "":

@@ -33,6 +33,7 @@ from datetime import datetime
 global separator
 separator = "', '"
 printSQL = False
+printErrors = True
 
 #DB_CONNECTION_OPTS = dict(db="MCP", read_default_file="/etc/archivematica/archivematicaCommon/dbsettings")
 DB_CONNECTION_OPTS = dict(db="MCP", read_default_file="/etc/archivematica/archivematicaCommon/dbsettings", charset="utf8", use_unicode = True)
@@ -105,16 +106,18 @@ def runSQL(sql):
             runSQL(sql)
             return
         else:
-            print >>sys.stderr, "Error with query: ", sql
-            print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
+            if printErrors:
+                print >>sys.stderr, "Error with query: ", sql
+                print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
             sqlLock.release()
             exit(-100)
     except Exception as inst:
+        if printErrors:
             print >>sys.stderr, "Error query: ", sql
             print >>sys.stderr, type(inst)     # the exception instance
             print >>sys.stderr, inst.args
-            sqlLock.release()
-            raise Exception(inst)
+        sqlLock.release()
+        raise Exception(inst)
     db.commit()
     sqlLock.release()
     return
@@ -143,8 +146,9 @@ def insertAndReturnID(sql):
             sqlLock.release()
             return insertAndReturnID(sql)
         else:
-            print >>sys.stderr, "Error with query: ", sql
-            print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
+            if printErrors:
+                print >>sys.stderr, "Error with query: ", sql
+                print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
             sqlLock.release()
             exit(-100)
     except Exception as inst:
@@ -178,12 +182,14 @@ def querySQL(sql):
             c=database.cursor()
             c.execute(sql)
         else:
-            print >>sys.stderr, "Error with query: ", sql
-            print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
+            if printErrors:
+                print >>sys.stderr, "Error with query: ", sql
+                print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
     except Exception as inst:
-        print >>sys.stderr, "Error query: ", sql
-        print >>sys.stderr, type(inst)     # the exception instance
-        print >>sys.stderr, inst.args
+        if printErrors:
+            print >>sys.stderr, "Error query: ", sql
+            print >>sys.stderr, type(inst)     # the exception instance
+            print >>sys.stderr, inst.args
         sqlLock.release()
         raise Exception(inst)
     return c, sqlLock
@@ -220,14 +226,17 @@ def queryAllSQL(sql):
             rows = c.fetchall()
             sqlLock.release()
         else:
-            print >>sys.stderr, "Error with query: ", sql
-            print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
+            print printErrors
+            if printErrors:
+                print >>sys.stderr, "Error with query: ", sql
+                print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
             sqlLock.release()
             exit(-100)
     except Exception as inst:
-        print >>sys.stderr, "Error query: ", sql
-        print >>sys.stderr, type(inst)     # the exception instance
-        print >>sys.stderr, inst.args
+        if printErrors:
+            print >>sys.stderr, "Error query: ", sql
+            print >>sys.stderr, type(inst)     # the exception instance
+            print >>sys.stderr, inst.args
         sqlLock.release()
         raise Exception(inst)
     return rows

@@ -43,7 +43,7 @@ SIPDATE = sys.argv[6]
 uuidQuads = []
 SIPUUIDStripped = SIPUUID.replace("-","")
 uuidQuads.append(SIPUUIDStripped[:4])
-uuidQuads.append(SIPUUIDStripped[4:7])
+uuidQuads.append(SIPUUIDStripped[4:8])
 uuidQuads.append(SIPUUIDStripped[8:12])
 uuidQuads.append(SIPUUIDStripped[12:16])
 uuidQuads.append(SIPUUIDStripped[16:20])
@@ -92,6 +92,19 @@ for command in verificationCommands:
         exitCode=1
     else:
         print >>sys.stderr, "Passed test: ", command
+
+#copy thumbnails to an AIP-specific directory for easy admin access
+thumbnailSourceDir = os.path.join(bag, 'data/thumbnails')
+thumbnailDestDir   = os.path.join(AIPsStore, 'thumbnails', SIPUUID)
+
+#create thumbnail dest dir
+if not os.path.exists(thumbnailDestDir):
+    os.makedirs(thumbnailDestDir)
+
+#copy thumbnails to destination directory
+thumbnails = os.listdir(thumbnailSourceDir)
+for filename in thumbnails:
+    shutil.copy(os.path.join(thumbnailSourceDir, filename), thumbnailDestDir)
 
 #cleanup
 shutil.rmtree(extractDirectory)
