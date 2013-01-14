@@ -50,7 +50,7 @@ def archivematicaGetRights(metadataAppliesToList, fileUUID):
     for metadataAppliesToidentifier, metadataAppliesToType in metadataAppliesToList:
         list = "RightsStatement.pk, rightsStatementIdentifierType, rightsStatementIdentifierType, rightsStatementIdentifierValue, rightsBasis, copyrightStatus, copyrightJurisdiction, copyrightStatusDeterminationDate, licenseTerms, copyrightApplicableStartDate, copyrightApplicableEndDate, licenseApplicableStartDate, licenseApplicableEndDate"
         key = list.split(", ")
-        sql = """SELECT %s FROM RightsStatement LEFT JOIN RightsStatementCopyright ON RightsStatementCopyright.fkRightsStatement = RightsStatement.pk LEFT JOIN RightsStatementLicense ON RightsStatementLicense.fkRightsStatement = RightsStatement.pk WHERE metadataAppliesToidentifier = '%s' AND metadataAppliesToType = %s;""" % (list, metadataAppliesToidentifier, metadataAppliesToType)
+        sql = """SELECT %s FROM RightsStatement LEFT JOIN RightsStatementCopyright ON RightsStatementCopyright.fkRightsStatement = RightsStatement.pk LEFT JOIN RightsStatementLicense ON RightsStatementLicense.fkRightsStatement = RightsStatement.pk WHERE metadataAppliesToidentifier = '%s' AND metadataAppliesToType = '%s';""" % (list, metadataAppliesToidentifier, metadataAppliesToType)
         rows = databaseInterface.queryAllSQL(sql)
         if not rows:
             continue
@@ -183,20 +183,6 @@ def archivematicaGetRights(metadataAppliesToList, fileUUID):
                 linkingObjectIdentifier = etree.SubElement(rightsStatement, "linkingObjectIdentifier")
                 etree.SubElement(linkingObjectIdentifier, "linkingObjectIdentifierType").text = "UUID"
                 etree.SubElement(linkingObjectIdentifier, "linkingObjectIdentifierValue").text = fileUUID
-
-
-                #4.1.8 linkingAgentIdentifier (O, R)
-                #sql = """SELECT agentIdentifierType, agentIdentifierValue, agentName, agentType FROM Agents;"""
-                #c, sqlLock = databaseInterface.querySQL(sql)
-                #row = c.fetchone()
-                #while row != None:
-                #    linkingAgentIdentifier = etree.SubElement(rightsStatement, "linkingAgentIdentifier")
-                #    etree.SubElement(linkingAgentIdentifier, "linkingAgentIdentifierType").text = row[0]
-                #    etree.SubElement(linkingAgentIdentifier, "linkingAgentIdentifierValue").text = row[1]
-                #    row = c.fetchone()
-                #sqlLock.release()
-            if False: # Issue 873:
-                break
     return ret
 
 def getDocumentationIdentifier(pk, parent):

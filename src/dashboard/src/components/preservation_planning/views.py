@@ -27,6 +27,7 @@ import pyes
 
 results_per_page = 6
 
+# TODO: remove this after FPR work finalized
 def preservation_planning(request):
     query="""SELECT
         Groups.description,
@@ -92,14 +93,24 @@ def preservation_planning(request):
     return render(request, 'main/preservation_planning.html', locals())
 
 def get_fpr_table():
-    query = """SELECT FileIDs.pk, FileIDsBySingleID.id, tool, toolVersion, FileIDs.description, classification, Commands.command, outputLocation, Commands.description FROM 
-            FileIDsBySingleID 
-            LEFT OUTER JOIN FileIDs ON FileIDs.pk = FileIDsBySingleID.fileID
-            LEFT OUTER JOIN FileIDTypes ON FileIDTypes.pk = FileIDs.fileIDType
-            LEFT OUTER JOIN CommandRelationships ON CommandRelationships.fileID = FileIDs.pk
-            LEFT OUTER JOIN CommandClassifications on CommandClassifications.pk = CommandRelationships.commandClassification
-            LEFT OUTER JOIN Commands ON CommandRelationships.command = Commands.pk
-            ORDER BY FileIDTypes.description, FileIDs.description, CommandClassifications.classification"""
+#    query = """SELECT FileIDs.pk, FileIDsBySingleID.id, tool, toolVersion, FileIDs.description, classification, Commands.command, outputLocation, Commands.description FROM 
+#            FileIDsBySingleID 
+#            LEFT OUTER JOIN FileIDs ON FileIDs.pk = FileIDsBySingleID.fileID
+#            LEFT OUTER JOIN FileIDTypes ON FileIDTypes.pk = FileIDs.fileIDType
+#            LEFT OUTER JOIN CommandRelationships ON CommandRelationships.fileID = FileIDs.pk
+#            LEFT OUTER JOIN CommandClassifications on CommandClassifications.pk = CommandRelationships.commandClassification
+#            LEFT OUTER JOIN Commands ON CommandRelationships.command = Commands.pk
+#            ORDER BY FileIDTypes.description, FileIDs.description, CommandClassifications.classification"""
+   
+    query = """SELECT FileIDs.pk, FileIDsBySingleID.id, tool, toolVersion, FileIDs.description, classification, Commands.command, 
+                    outputLocation, Commands.description, FileIDs.validPreservationFormat, FileIDs.validAccessFormat
+                FROM FileIDsBySingleID              
+                LEFT OUTER JOIN FileIDs ON FileIDs.pk = FileIDsBySingleID.fileID             
+                LEFT OUTER JOIN FileIDTypes ON FileIDTypes.pk = FileIDs.fileIDType             
+                LEFT OUTER JOIN CommandRelationships ON CommandRelationships.fileID = FileIDs.pk             
+                LEFT OUTER JOIN CommandClassifications on CommandClassifications.pk = CommandRelationships.commandClassification             
+                LEFT OUTER JOIN Commands ON CommandRelationships.command = Commands.pk
+                ORDER BY FileIDTypes.description, FileIDs.description, CommandClassifications.classification"""
 
     # Get FPR data
 
@@ -117,7 +128,9 @@ def get_fpr_table():
                'classification': item[5],
                'Commands_command': item[6],
                'outputLocation': item[7],
-               'Commands_description': item[8]
+               'Commands_description': item[8],
+               'FileIDs_validPreservationFormat': 'True' if item[9] == 1 else "False",
+               'FileIDs_validAccessFormat': 'True' if item[10] == 1 else "False"
              }
 
        results.append(row)
@@ -143,19 +156,25 @@ def preservation_planning_fpr_search(request, current_page_number = None):
     request.session['fpr_query'] = query # Save this for pagination...
     conn = pyes.ES('127.0.0.1:9200')
 
-    # Grab relevant FPR data from the DB
-    results = get_fpr_table()
+    indexes = conn.get_indices()
 
-    # Setup indexing for some Elastic Search action.
-    for row in results:
-        conn.index(row, 'fpr_file', 'fpr_files')
+    if 'fpr_file' not in indexes:
+        # Grab relevant FPR data from the DB
+        results = get_fpr_table()
+        request.session['fpr_results'] = results
+
+        # Setup indexing for some Elastic Search action.
+        for row in results:
+            conn.index(row, 'fpr_file', 'fpr_files')
+    else:
+        results = request.session['fpr_results']
     
     # do fulltext search
     q = pyes.StringQuery(query)
     s = pyes.Search(q)
 
     try:
-        results = conn.search_raw(s, size=1500)
+        results = conn.search_raw(s, size=len(results), indices='fpr_file')
     except:
         return HttpResponse('Error accessing index.')
     
@@ -164,8 +183,7 @@ def preservation_planning_fpr_search(request, current_page_number = None):
     search_hits = []
 
     for row in results.hits.hits:
-        search_hits.append(row['_source'])
-    return HttpResponse(len(search_hits))
+        search_hits.append(row['_source'].copy())
 
     page = helpers.pager(search_hits, results_per_page, current_page_number)
     hit_count = len(search_hits) 
@@ -176,16 +194,16 @@ def preservation_planning_fpr_search(request, current_page_number = None):
 def preservation_planning_fpr_data(request, current_page_number = None):
 
     results = get_fpr_table()
-    #return HttpResponse(str(results))
+    request.session['fpr_results'] = results
 
     if current_page_number == None:
         current_page_number = 1
 
     form = forms.FPRSearchForm()
+
     page = helpers.pager(results, results_per_page, current_page_number)
     request.session['fpr_query'] = ''
 
     item_count = len(results)
 
     return render(request, 'main/preservation_planning_fpr.html', locals())
- 

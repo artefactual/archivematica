@@ -29,6 +29,7 @@ from main import forms
 from main import models
 from lxml import etree
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
+from components import helpers
 import calendar
 import cPickle
 import components.decorators as decorators
@@ -97,11 +98,13 @@ def ingest_status(request, uuid=None):
     response['mcp'] = mcp_available
     return HttpResponse(simplejson.JSONEncoder(default=encoder).encode(response), mimetype='application/json')
 
+def ingest_sip_metadata_type_id():
+    return helpers.get_metadata_type_id_by_description('SIP')
+
 @decorators.load_jobs # Adds jobs, name
 def ingest_metadata_list(request, uuid, jobs, name):
     # See MetadataAppliesToTypes table
-    # types = { 'ingest': 1, 'transfer': 2, 'file': 3 }
-    metadata = models.DublinCore.objects.filter(metadataappliestotype__exact=1, metadataappliestoidentifier__exact=uuid)
+    metadata = models.DublinCore.objects.filter(metadataappliestotype__exact=ingest_sip_metadata_type_id(), metadataappliestoidentifier__exact=uuid)
 
     return render(request, 'ingest/metadata_list.html', locals())
 
@@ -114,7 +117,7 @@ def ingest_metadata_edit(request, uuid, id=None):
             dc = models.DublinCore.objects.get_sip_metadata(uuid)
             return HttpResponseRedirect(reverse('components.ingest.views.ingest_metadata_edit', args=[uuid, dc.id]))
         except ObjectDoesNotExist:
-            dc = models.DublinCore(metadataappliestotype=1, metadataappliestoidentifier=uuid)
+            dc = models.DublinCore(metadataappliestotype=ingest_sip_metadata_type_id(), metadataappliestoidentifier=uuid)
 
     fields = ['title', 'creator', 'subject', 'description', 'publisher',
               'contributor', 'date', 'type', 'format', 'identifier',
@@ -132,7 +135,7 @@ def ingest_metadata_edit(request, uuid, id=None):
         for item in fields:
             initial[item] = getattr(dc, item)
         form = forms.DublinCoreMetadataForm(initial=initial)
-        jobs = models.Job.objects.filter(sipuuid=uuid)
+        jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
         name = utils.get_directory_name(jobs[0])
 
     return render(request, 'ingest/metadata_edit.html', locals())
@@ -145,13 +148,13 @@ def ingest_metadata_delete(request, uuid, id):
         raise Http404
 
 def ingest_detail(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid)
+    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
     name = utils.get_directory_name(jobs[0])
     return render(request, 'ingest/detail.html', locals())
 
 def ingest_microservices(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid)
+    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     name = utils.get_directory_name(jobs[0])
     return render(request, 'ingest/microservices.html', locals())
 
@@ -213,7 +216,7 @@ def ingest_normalization_report(request, uuid):
     return render(request, 'ingest/normalization_report.html', locals())
 
 def ingest_browse_normalization(request, jobuuid):
-    jobs = models.Job.objects.filter(jobuuid=jobuuid)
+    jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof='')
     job = jobs[0]
     title = 'Review normalization'
     name = utils.get_directory_name(job)
@@ -239,7 +242,7 @@ def ingest_browse_aip(request, jobuuid):
       '/var/archivematica/sharedDirectory/'
     )
     """
-    jobs = models.Job.objects.filter(jobuuid=jobuuid)
+    jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof='')
     job = jobs[0]
     title = 'Review AIP'
     name = utils.get_directory_name(job)

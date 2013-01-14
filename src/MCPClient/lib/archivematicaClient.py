@@ -124,7 +124,7 @@ def executeCommand(gearman_worker, gearman_job):
 
         command += " " + arguments
         printOutputLock.acquire()
-        print >>sys.stderr, "<processingCommand>{" + gearman_job.unique + "}" + command.__str__() + "</processingCommand>"
+        print "<processingCommand>{" + gearman_job.unique + "}" + command.__str__() + "</processingCommand>"
         printOutputLock.release()
         exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=False)
         return cPickle.dumps({"exitCode" : exitCode, "stdOut": stdOut, "stdError": stdError})
@@ -134,7 +134,7 @@ def executeCommand(gearman_worker, gearman_job):
         printOutputLock.acquire()
         print >>sys.stderr, "Execution failed:", ose
         printOutputLock.release()
-        output = ["Config Error!", ose.__str__() ]
+        output = ["Archivematica Client Error!", ose.__str__() ]
         exitCode = 1
         return cPickle.dumps({"exitCode" : exitCode, "stdOut": output[0], "stdError": output[1]})
     except:

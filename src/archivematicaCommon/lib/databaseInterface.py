@@ -120,6 +120,43 @@ def runSQL(sql):
     return
 
 
+def insertAndReturnID(sql):
+    global database
+    ret = None
+    if printSQL:
+        print sql
+    if isinstance(sql, unicode):
+        sql = sql.encode('utf-8')
+    #print type(sql), sql
+    #found that even though it says it's compiled thread safe, running it multi-threaded crashes it.
+    sqlLock.acquire()
+    db = database
+    try:
+        #db.query(sql)
+        c=database.cursor()
+        c.execute(sql)
+        ret = c.lastrowid
+    except MySQLdb.OperationalError, message:
+        #errorMessage = "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
+        if message[0] == 2006 and message[1] == 'MySQL server has gone away':
+            reconnect()
+            sqlLock.release()
+            return insertAndReturnID(sql)
+        else:
+            print >>sys.stderr, "Error with query: ", sql
+            print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
+            sqlLock.release()
+            exit(-100)
+    except Exception as inst:
+            print >>sys.stderr, "Error query: ", sql
+            print >>sys.stderr, type(inst)     # the exception instance
+            print >>sys.stderr, inst.args
+            sqlLock.release()
+            raise Exception(inst)
+    db.commit()
+    sqlLock.release()
+    return ret
+
 
 
 def querySQL(sql):

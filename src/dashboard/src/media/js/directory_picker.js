@@ -50,9 +50,6 @@ var DirectoryPickerView = fileBrowser.FileExplorer.extend({
           '/administration/sources/delete/json/' + id + '/',
           {},
           function(response) {
-            archivematicaNotifications.add({
-              message: response.message
-            });
             self.updateSources();
           }
         );

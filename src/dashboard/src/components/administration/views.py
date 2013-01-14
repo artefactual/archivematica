@@ -33,7 +33,7 @@ import components.decorators as decorators
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 def administration(request):
-    return HttpResponseRedirect(reverse('components.administration.views.administration_dip'))
+    return HttpResponseRedirect(reverse('components.administration.views.administration_sources'))
 
 def administration_search(request):
     message = request.GET.get('message', '')
@@ -99,7 +99,7 @@ def administration_contentdm_dips(request):
 
     ReplaceDirChoiceFormSet = administration_dips_formset()
 
-    valid_submission, formset = administration_dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet)
+    valid_submission, formset, add_form = administration_dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet)
 
     if request.method != 'POST' or valid_submission:
         formset = ReplaceDirChoiceFormSet(queryset=ReplaceDirChoices)
@@ -124,7 +124,7 @@ def administration_dips_formset():
     return modelformset_factory(
         models.MicroServiceChoiceReplacementDic,
         form=forms.MicroServiceChoiceReplacementDicForm,
-        extra=1,
+        extra=0,
         can_delete=True
     )
 
@@ -132,7 +132,26 @@ def administration_dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet
     valid_submission = True
     formset = None
 
+    add_form = forms.MicroServiceChoiceReplacementDicForm()
+
     if request.method == 'POST':
+        # if any new configuration data has been submitted, attempt to add it
+        if request.POST.get('description', '') != '' or request.POST.get('replacementdic', '') != '':
+            postData = request.POST.copy()
+            postData['choiceavailableatlink'] = link_id
+
+            add_form = forms.MicroServiceChoiceReplacementDicForm(postData)
+
+            if add_form.is_valid():
+                choice = models.MicroServiceChoiceReplacementDic()
+                choice.choiceavailableatlink = link_id
+                choice.description           = request.POST.get('description', '')
+                choice.replacementdic        = request.POST.get('replacementdic', '')
+                choice.save()
+
+                # create new blank field
+                add_form = forms.MicroServiceChoiceReplacementDicForm()
+
         formset = ReplaceDirChoiceFormSet(request.POST)
 
         # take note of formset validity because if submission was successful
@@ -148,7 +167,7 @@ def administration_dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet
             for instance in instances:
                 instance.choiceavailableatlink = link_id
                 instance.save()
-    return valid_submission, formset
+    return valid_submission, formset, add_form
 
 def administration_sources(request):
     return render(request, 'administration/sources.html', locals())

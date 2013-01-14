@@ -26,10 +26,59 @@ import shutil
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from fileOperations import updateDirectoryLocation
 from fileOperations import updateFileLocation2
+from fileOperations import updateFileGrpUsefileGrpUUID
+from fileOperations import updateFileGrpUse
+from fileOperations import getFileUUIDLike
+import MySQLdb
 
 
 requiredDirectories = ["logs", "logs/fileMeta", "metadata", "metadata/submissionDocumentation", "objects"]
 optionalFiles = "processingMCP.xml"
+
+def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith = "%transferDirectory%"):
+    for dir in requiredDirectories:
+        reqDirPath = os.path.join(unitPath, dir)
+        if not os.path.isdir(reqDirPath):
+            os.mkdir(reqDirPath)
+    
+    for item in os.listdir(unitPath):
+        if item in requiredDirectories:
+            continue
+        src = os.path.join(unitPath, item)
+        if os.path.isdir(src):
+            objectsDir = os.path.join(unitPath, "objects", item)
+            os.mkdir(objectsDir)
+            for item2 in os.listdir(src):
+                itemPath = os.path.join(src, item2)
+                dst = os.path.join(objectsDir, item2)
+                updateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+                
+                if item2.endswith("Metadata.xml"):
+                    TRIMfileID = os.path.join(item, item2[:-1 - len("Metadata.xml")])
+                    files = getFileUUIDLike('%' + TRIMfileID + '%', unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+                    fileUUID = None
+                    fileGrpUUID = None
+                    for key, value in files.iteritems():
+                        if key.endswith("Metadata.xml"):
+                            fileUUID = value
+                        else:
+                            fileGrpUUID = value
+                    if fileUUID and fileGrpUUID:
+                        fileGrpUse = "TRIM file metadata"
+                        updateFileGrpUsefileGrpUUID(fileUUID, fileGrpUse, fileGrpUUID)
+                    elif fileUUID and not fileGrpUUID:
+                        updateFileGrpUse(fileUUID, "TRIM container metadata")
+            os.removedirs(src)
+        else:
+            destDir = "metadata"
+            if item == "manifest.txt":
+                destDir = "metadata/submissionDocumentation"
+            dst = os.path.join(unitPath, destDir, item)
+            updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+            files = getFileUUIDLike(dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+            for key, value in files.iteritems():
+                fileUUID = value
+                updateFileGrpUse(fileUUID, "TRIM metadata")
 
 def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith = "%transferDirectory%"):
 	bagFileDefaultDest = os.path.join(unitPath, "logs", "BagIt")

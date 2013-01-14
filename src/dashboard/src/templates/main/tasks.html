@@ -35,16 +35,14 @@
             </td>
           </tr>
         {% endif %}
-        {% ifnotequal item.exitcode 0 %}
-          {% if item.stderror %}
-            <tr>
-              <td colspan="3" class="stderror">
-                <p>STDERR</p>
-                <pre>{{ item.stderror }}</pre>
-              </td>
-            </tr>
-          {% endif %}
-        {% endifnotequal %}
+        {% if item.stderror %}
+          <tr>
+            <td colspan="3" class="stderror">
+              <p>STDERR</p>
+              <pre>{{ item.stderror }}</pre>
+            </td>
+          </tr>
+        {% endif %}
       {% endfor %}
     </tbody>
   </table>

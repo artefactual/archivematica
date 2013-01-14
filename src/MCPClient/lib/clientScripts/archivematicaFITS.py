@@ -60,11 +60,15 @@ def parseIdsSimple(FITS_XML, fileUUID):
     ]
     
     for table, tool, iterOn in simpleIdPlaces:
+        identified = []
         fileIDs = []
         for element in FITS_XML.iter("{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}tool"):
             if element.get("name") == tool:
                 for element2 in element.getiterator(iterOn):
                     if element2.text != None:
+                        if element2.text in identified:
+                            continue
+                        identified.append(element2.text)
                         sql = """SELECT fileID FROM FileIDsBySingleID WHERE tool = '%s' AND id = '%s';""" % (table, element2.text)
                         fileIDS = databaseInterface.queryAllSQL(sql)
                         for fileID in fileIDS:
@@ -77,7 +81,7 @@ def parseIdsSimple(FITS_XML, fileUUID):
     for element in FITS_XML.findall(".//{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}identity[@mimetype]"):
         format = element.get("mimetype")
         if format:
-            sql = """SELECT FileIDs FROM %s WHERE id = '%s';""" % ("FileIDsByFitsFitsMimetype", format)
+            sql = """SELECT FileIDsBySingleID.fileID, FileIDs.fileIDType, FileIDsBySingleID.id FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = 'c26227f7-fca8-4d98-9d8e-cfab86a2dd0a' AND FileIDsBySingleID.id = '%s';""" % (format)
             fileIDS = databaseInterface.queryAllSQL(sql)
             for fileID in fileIDS:
                 sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (fileUUID, fileID[0])
@@ -85,7 +89,7 @@ def parseIdsSimple(FITS_XML, fileUUID):
     for element in FITS_XML.findall(".//{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}identity[@format]"):
         format = element.get("format")
         if format:
-            sql = """SELECT FileIDs FROM %s WHERE id = '%s';""" % ("FileIDsByFitsFitsFormat", format)
+            sql = """SELECT FileIDsBySingleID.fileID, FileIDs.fileIDType, FileIDsBySingleID.id FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = 'b0bcccfb-04bc-4daa-a13c-77c23c2bda85' AND FileIDsBySingleID.id = '%s';""" % (format)
             fileIDS = databaseInterface.queryAllSQL(sql)
             for fileID in fileIDS:
                 sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (fileUUID, fileID[0])
@@ -314,7 +318,7 @@ if __name__ == '__main__':
 
     tempFile="/tmp/" + uuid.uuid4().__str__()
 
-    command = "fits.sh -i \"" + escapeForCommand(target) + "\" -o \"" + tempFile + "\""
+    command = "openfits -i \"" + escapeForCommand(target) + "\" -o \"" + tempFile + "\""
     #print >>sys.stderr, command
     #print >>sys.stderr,  shlex.split(command)
     try:

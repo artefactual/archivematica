@@ -43,6 +43,7 @@ from databaseFunctions import deUnicode
 class unitTransfer(unit):
     def __init__(self, currentPath, UUID=""):
         self.owningUnit = None
+        self.unitType = "Transfer"
         #Just Use the end of the directory name
         self.pathString = "%transferDirectory%"
         currentPath2 = currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), \
@@ -149,24 +150,26 @@ class unitTransfer(unit):
             microServiceChainLink = "NULL"
         else:
             microServiceChainLink = "'%s'" % (microServiceChainLink)
-        variableValue = databaseInterface.MySQLdb.escape_string(variableValue)
-        sql = """SELECT pk FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ("Transfer", self.UUID, variable)  
+        variableValue = databaseInterface.MySQLdb.escape_string(variableValue) 
+        sql = """SELECT pk FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % (self.unitType, self.UUID, variable)  
         rows = databaseInterface.queryAllSQL(sql)
         if rows:
             for row in rows:
                 sql = """UPDATE UnitVariables SET variable='%s', variableValue='%s', microServiceChainLink=%s WHERE pk = '%s'; """ % (variable, variableValue, microServiceChainLink,row[0])
                 databaseInterface.runSQL(sql)
         else:
-            sql = """INSERT INTO UnitVariables (pk, unitType, unitUUID, variable, variableValue, microserviceChainLink) VALUES ('%s', '%s', '%s', '%s', '%s', %s);""" % (uuid.uuid4().__str__(), "Transfer", self.UUID, variable,  variableValue, microServiceChainLink)
+            sql = """INSERT INTO UnitVariables (pk, unitType, unitUUID, variable, variableValue, microserviceChainLink) VALUES ('%s', '%s', '%s', '%s', '%s', %s);""" % (uuid.uuid4().__str__(), self.unitType, self.UUID, variable,  variableValue, microServiceChainLink)
             databaseInterface.runSQL(sql) 
     
-    def getmicroServiceChainLink(self, variable, variableValue):
-        sql = """SELECT pk, microServiceChainLink  FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ("Transfer", self.UUID, variable)  
+    def getmicroServiceChainLink(self, variable, variableValue, defaultMicroServiceChainLink):
+        sql = """SELECT pk, microServiceChainLink  FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % (self.unitType, self.UUID, variable)  
         rows = databaseInterface.queryAllSQL(sql)
         if len(rows):
             return rows[0][1]
         else:
-            return None
+            return defaultMicroServiceChainLink
+
+
     def reload(self):
         sql = """SELECT transferUUID, currentLocation FROM Transfers WHERE transferUUID =  '""" + self.UUID + "'"
         c, sqlLock = databaseInterface.querySQL(sql)

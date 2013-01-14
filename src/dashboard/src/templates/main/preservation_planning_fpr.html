@@ -30,6 +30,8 @@
   <th> Tool </th>
   <th> Tool version </th>
   <th> Description </th>
+  <th> Valid preservation format</th>
+  <th> Valid access format</th>
   <th> Classification </th>
   <th> Output </th>
   <th> Command </th>
@@ -43,9 +45,11 @@
 <tr>
   <td><div style="width:120px;">{{ row.pk }}</div></td>
   <td><div style="width:70px;">{{ row.id }}</div></td>
-  <td>{{ row.tool }}</td>
+  <td><div style="width:120px;">{{ row.tool }}</div></td>
   <td>{{ row.toolVersion }}</td>
-  <td><div style="width:70px;">{{ row.FileIDs_description }}</div></td>
+  <td><div style="width:400px;">{{ row.FileIDs_description }}</div></td>
+  <td>{{ row.FileIDs_validPreservationFormat }}</td>
+  <td>{{ row.FileIDs_validAccessFormat }}</td>
   <td>{{ row.classification }}</td>
   <td>{{ row.outputLocation }}</td>
   <td><pre>{{ row.Commands_command }}</pre></td>
@@ -85,10 +89,10 @@
     </div><br>
   {% endif %}
   Page {{ current_page_number }} of {{ page.num_pages }}
+
   {% if request.session.fpr_query != '' %}
     | <a href="{% url components.preservation_planning.views.preservation_planning_fpr_data 1 %}">Exit Search</a>
   {% endif %}
 
 
 {% endblock %}
-

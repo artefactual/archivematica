@@ -1587,7 +1587,7 @@ INSERT INTO MicroServiceChainLinksExitCodes (microServiceChainLink, exitCode, ne
 INSERT INTO FileIDs 
     (description, validPreservationFormat, validAccessFormat)
     VALUES (
-    'A .jp2 file', TRUE, FALSE
+    'A .jp2 file', TRUE, TRUE
 );
 set @fileID = LAST_INSERT_ID();
 
@@ -1601,7 +1601,7 @@ INSERT INTO FileIDsByExtension
 INSERT INTO FileIDGroupMembers 
     (fileID, groupID) 
     VALUES (@fileID, @rasterImageGroup);
-
+/*
 INSERT INTO CommandRelationships 
     (GroupMember, commandClassification, command, fileID)
     VALUES (
@@ -1638,7 +1638,7 @@ INSERT INTO MicroServiceChainLinks (microserviceGroup, currentTask, defaultNextC
 set @MicroServiceChainLink = LAST_INSERT_ID();
 INSERT INTO MicroServiceChainLinksExitCodes (microServiceChainLink, exitCode, nextMicroServiceChainLink) 
     VALUES (@MicroServiceChainLink, 0, @defaultThumbnailNormalizationSucceededLink);
-
+*/
 -- End Of ADD Normalization Path for .JP2 --
 
 -- ADD Normalization Path for .PNG --
@@ -2735,7 +2735,7 @@ INSERT INTO Commands
     -- VALUES SELECT pk FROM FileIDS WHERE description = 'Normalize Defaults'
     VALUES (
     (SELECT pk FROM CommandTypes WHERE type = 'bashScript'),
-    ('echo program=\\"ffmpeg\\"\\; version=\\"`ffmpeg 2>&1 | grep \"FFmpeg version\"`\\"'),
+    ('echo program=\\"ffmpeg\\"\\; version=\\"`ffmpeg 2>&1 | grep --ignore-case \"FFmpeg version\"`\\"'),
     ('Get event detail text for ffmpeg extraction')
 );
 
@@ -2745,7 +2745,7 @@ INSERT INTO Commands
     (commandType, command, outputLocation, eventDetailCommand, verificationCommand, description) 
     VALUES (
     (SELECT pk FROM CommandTypes WHERE type = 'bashScript'),
-    ('ffmpeg -i "%fileFullName%" -vcodec libx264 -preset medium -crf 18 "%outputDirectory%%prefix%%fileName%%postfix%.mp4"'),
+    ('ffmpeg -i "%fileFullName%" -vcodec libx264 -pix_fmt yuv420p -preset medium -crf 18 "%outputDirectory%%prefix%%fileName%%postfix%.mp4"'),
     '%outputDirectory%%prefix%%fileName%%postfix%.mp4',
     @ffmpegEventDetailCommandID,
     @standardVerificationCommand,
@@ -2784,33 +2784,11 @@ inputFile="%fileFullName%"
 outputFile="%outputDirectory%%prefix%%fileName%%postfix%.mkv"
 audioCodec="pcm_s16le"
 videoCodec="ffv1"
-audioStreamCount=`ffprobe "${inputFile}" -show_streams 2>&1 | grep "codec_type=audio" -c`
-videoStreamCount=`ffprobe "${inputFile}" -show_streams 2>&1 | grep "codec_type=video" -c`
 
-command="ffmpeg -i \"${inputFile}\" "
-if [ ${audioStreamCount} -ge 1 ] ; then
-command="${command} -vcodec ${videoCodec} "
-fi
-
-if [ ${videoStreamCount} -ge 1 ] ; then
+command="ffmpeg -vsync passthrough -i \"${inputFile}\" -map 0:v -map 0:a "
+command="${command} -vcodec ${videoCodec} -g 1 "
 command="${command} -acodec ${audioCodec}"
-fi
-
 command="${command} ${outputFile}"
-
-addAudioStream=" -acodec ${audioCodec}  -newaudio"
-addVideoStream=" -vcodec ${videoCodec}  -newvideo"
-
-#add additional audio channels
-for (( c=1; c<${audioStreamCount}; c++ )); do 
-command="${command} ${addAudioStream}"
-#echo $command
-done
-
-for (( c=1; c<${videoStreamCount}; c++ )); do 
-command="${command} ${addVideoStream}"
-#echo $command
-done
 
 echo $command
 eval $command
@@ -3420,7 +3398,7 @@ INSERT INTO Commands
     (commandType, command, description) 
     VALUES (
     (SELECT pk FROM CommandTypes WHERE type = 'bashScript'),
-    ('echo program=\\"ffmpeg\\"\\; version=\\"`ffmpeg 2>&1 | grep \"FFmpeg version\"`\\"'),
+    ('echo program=\\"ffmpeg\\"\\; version=\\"`ffmpeg 2>&1 | grep --ignore-case \"FFmpeg version\"`\\"'),
     ('Get event detail text for ffmpeg extraction')
 );
 
@@ -3430,7 +3408,7 @@ INSERT INTO Commands
     (commandType, command, outputLocation, eventDetailCommand, verificationCommand, description) 
     VALUES (
     (SELECT pk FROM CommandTypes WHERE type = 'bashScript'),
-    ('ffmpeg -i "%fileFullName%"  -ac `ffprobe "%fileFullName%" -show_streams 2>&1 | grep "codec_type=audio" -c` -ac 2 -ab 192000 "%outputDirectory%%prefix%%fileName%%postfix%.mp3"'),
+    ('ffmpeg -i "%fileFullName%" -ac 2 -ab 192000 "%outputDirectory%%prefix%%fileName%%postfix%.mp3"'),
     '%outputDirectory%%prefix%%fileName%%postfix%.mp3',
     @ffmpegEventDetailCommandID,
     @standardVerificationCommand,
@@ -3442,7 +3420,7 @@ INSERT INTO Commands
     (commandType, command, outputLocation, eventDetailCommand, verificationCommand, description) 
     VALUES (
     (SELECT pk FROM CommandTypes WHERE type = 'bashScript'),
-    ('ffmpeg -i "%fileFullName%" -ac `ffprobe "%fileFullName%" -show_streams 2>&1 | grep "codec_type=audio" -c` "%outputDirectory%%prefix%%fileName%%postfix%.wav"'),
+    ('ffmpeg -i "%fileFullName%" "%outputDirectory%%prefix%%fileName%%postfix%.wav"'),
     '%outputDirectory%%prefix%%fileName%%postfix%.wav',
     @ffmpegEventDetailCommandID,
     @standardVerificationCommand,

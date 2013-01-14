@@ -62,7 +62,7 @@ if [ -e  /etc/init/openoffice-service.conf ] ; then
 	sudo rm "/etc/init/openoffice-service.conf"
 fi
 if [ ! -e  /etc/init/qubit-sword.conf ] ; then
-        sudo ln "${svnDir}qubit-svn/init/qubit-sword.conf" "/etc/init/"
+        sudo ln "${svnDir}qubit-git/init/qubit-sword.conf" "/etc/init/"
 fi
 
 sudo ln "${svnDir}src/upload-qubit/upload-qubit" "/usr/bin/" 
@@ -73,14 +73,14 @@ sudo ln "${svnDir}src/vm-includes/share/apache.default" "/etc/apache2/sites-enab
 sudo ln "${svnDir}src/vm-includes/share/apache.default" "/etc/apache2/sites-available/default" -f
 sudo ln -sf "${svnDir}src/vm-includes/share/httpd.conf" "/etc/apache2/httpd.conf"
 
-sudo ln -sf "${svnDir}qubit-svn" /var/www/ica-atom
-sudo chown -R www-data:www-data "${svnDir}qubit-svn"
+sudo ln -sf "${svnDir}qubit-git" /var/www/ica-atom
+sudo chown -R www-data:www-data "${svnDir}qubit-git"
 
 if [ ! -e /usr/share/fits/xml/fits.xmlbackup ]; then
 sudo cp /usr/share/fits/xml/fits.xml /usr/share/fits/xml/fits.xmlbackup
 fi
 sudo ln -f "${svnDir}externals/fits/archivematicaConfigs/fits.xml" /usr/share/fits/xml/
-sudo chmod 775 /usr/share/fits/xml/fits.xml
+sudo chmod 644 /usr/share/fits/xml/fits.xml
 
 sudo mkdir /var/archivematica/
 sudo ln -s "${svnDir}src/MCPServer/sharedDirectoryStructure" "/var/archivematica/sharedDirectory"

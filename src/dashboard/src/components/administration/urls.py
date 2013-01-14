@@ -17,15 +17,17 @@
 
 from django.conf.urls.defaults import patterns
 
+UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
+
 urlpatterns = patterns('components.administration.views',
     (r'^$', 'administration'),
     #(r'edit/(?P<id>\d+)/$', 'administration_edit'),
     (r'dip/$', 'administration_dip'),
-    (r'dip/edit/(?P<id>\d+)/$', 'administration_dip_edit'),
+    (r'dip/edit/(?P<id>' + UUID_REGEX + ')/$', 'administration_dip_edit'),
     (r'dips/atom/$', 'administration_atom_dips'),
     (r'dips/contentdm/$', 'administration_contentdm_dips'),
     (r'sources/$', 'administration_sources'),
-    (r'sources/delete/json/(?P<id>\d+)/$', 'administration_sources_delete_json'),
+    (r'sources/delete/json/(?P<id>' + UUID_REGEX + ')/$', 'administration_sources_delete_json'),
     (r'processing/$', 'administration_processing'),
     (r'sources/json/$', 'administration_sources_json'),
 

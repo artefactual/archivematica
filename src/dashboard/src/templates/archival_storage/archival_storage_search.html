@@ -5,6 +5,11 @@
 {% block h1 %}Archival storage{% endblock %}
 {% block page_id %}archival-storage{% endblock %}
 
+{% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/archival_storage/advanced-search-query-creator.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/archival_storage/archival_storage_search.js"></script>
+{% endblock %}
+
 {% block css %}
   <link href="{{ STATIC_URL }}css/archival_storage.css" rel="stylesheet" type="text/css" />
 {% endblock %}
@@ -16,14 +21,20 @@
     {% breadcrumb 'Search' %}
   </ul>
 
-  <form action='{% url components.archival_storage.views.archival_storage_search %}' method='GET'>
-  {{ form }}
-  <input type='submit' value='Search archival storage'/>
-  </form>
+  {% include "archival_storage/_archival_storage_search_form.html" %}
 
   {% if results %}
     {% include "archival_storage/_archival_storage_search_summary.html" %}
 
+    <!--
+    <div style='width: 80px; float: left; padding: 10px; margin-right: 10px; background-color: #eee;'>
+    {% for term_usage in file_extension_usage %}
+      {{ term_usage.term }} ({{ term_usage.count }})<br/>
+    {% endfor %}
+    </div>
+    -->
+
+    <div style='float: left'>
     {% for item in results %}
       <div>{{item.filename}}</div>
       <div class='aip-search-item-details'>
@@ -38,8 +49,11 @@
         </div>
       </div>
     {% endfor %}
+    </div>
 
+    <div style='clear: both'>
     {% include "archival_storage/_archival_storage_search_summary.html" %}
+    </div>
 
   {% else %}
     <div id='aip-search-summary'>No results, please try another search.</div>

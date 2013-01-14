@@ -33,11 +33,16 @@ from archivematicaCreateMETSMetadataCSV import parseMetadata
 from archivematicaCreateMETSMetadataCSV import CSVMetadata
 from archivematicaCreateMETSRights import archivematicaGetRights
 from archivematicaCreateMETSRightsDspaceMDRef import archivematicaCreateMETSRightsDspaceMDRef
+from archivematicaCreateMETSTrim import getTrimDmdSec
+from archivematicaCreateMETSTrim import getTrimFileDmdSec
+from archivematicaCreateMETSTrim import getTrimAmdSec
+from archivematicaCreateMETSTrim import getTrimFileAmdSec
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from archivematicaFunctions import escape
 from archivematicaFunctions import unicodeToStr
 from archivematicaFunctions import strToUnicode
+from archivematicaFunctions import normalizeNonDcElementName
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 sharedVariablesAcrossModules.globalErrorCount = 0
 
@@ -88,8 +93,10 @@ globalDigiprovMDCounter = 0
 global fileNameToFileID #Used for mapping structMaps included with transfer
 fileNameToFileID = {} 
 
-
-
+global trimStructMap
+trimStructMap = None
+global trimStructMapObjects
+trimStructMapObjects = None
 #GROUPID="G1" -> GROUPID="Group-%object's UUID%"
 ##group of the object and it's related access, license
 
@@ -115,12 +122,12 @@ def createAgent(agentIdentifierType, agentIdentifierValue, agentName, agentType)
     return ret
 
 
-SIPMetadataAppliesToType = 1
-TransferMetadataAppliesToType = 2
-FileMetadataAppliesToType = 3
+SIPMetadataAppliesToType = '7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17'
+TransferMetadataAppliesToType = '45696327-44c5-4e78-849b-e027a189bf4d'
+FileMetadataAppliesToType = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
 def getDublinCore(type_, id):
     sql = """SELECT     title, creator, subject, description, publisher, contributor, date, type, format, identifier, source, relation, language, coverage, rights
-    FROM Dublincore WHERE metadataAppliesToType = %s AND metadataAppliesToidentifier = '%s';""" % \
+    FROM Dublincore WHERE metadataAppliesToType = '%s' AND metadataAppliesToidentifier = '%s';""" % \
     (type_.__str__(), id.__str__())
     c, sqlLock = databaseInterface.querySQL(sql)
     row = c.fetchone()
@@ -172,7 +179,7 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
     for i in range(1, len(keys)):
         key = keys[i]
         value = values[i]
-        if key.startswith("dc."):
+        if key.startswith("dc.") or key.startswith("dcterms."):
             #print "dc item: ", key, value
             if dc == None:
                 globalDmdSecCounter += 1
@@ -184,10 +191,14 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
                 mdWrap = newChild(dmdSec, "mdWrap")
                 mdWrap.set("MDTYPE", "DC")
                 xmlData = newChild(mdWrap, "xmlData")
-                dc = etree.Element( "dublincore", nsmap = {None: dcNS, "dcterms": dctermsNS} )
-                dc.set(xsiBNS+"schemaLocation", dcNS + " http://dublincore.org/schemas/xmls/qdc/dc.xsd " + dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+                dc = etree.Element( "dublincore", nsmap = {None: dctermsNS} )
+                dc.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
                 xmlData.append(dc)
-            etree.SubElement(dc, key.replace("dc.", "", 1)).text = value
+            if key.startswith("dc."):
+                key2 = key.replace("dc.", "", 1)
+            elif  key.startswith("dcterms."):
+                key2 = key.replace("dcterms.", "", 1)
+            etree.SubElement(dc, key2).text = value
         else: #not a dublin core item
             #print "non dc: ", key, value
             if other == None:
@@ -201,7 +212,7 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
                 mdWrap.set("MDTYPE", "OTHER")
                 mdWrap.set("OTHERMDTYPE", "CUSTOM")
                 other = newChild(mdWrap, "xmlData")
-            etree.SubElement(other, key).text = value
+            etree.SubElement(other, normalizeNonDcElementName(key)).text = value
     return  " ".join(ret)
             
     
@@ -492,9 +503,10 @@ def createDigiprovMDAgents():
 
 
 
-def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath):
+def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath, typeOfTransfer):
     global globalAmdSecCounter
     global globalRightsMDCounter
+    global globalDigiprovMDCounter
     globalAmdSecCounter += 1
     AMDID = "amdSec_%s" % (globalAmdSecCounter.__str__())
     AMD = etree.Element("amdSec")
@@ -515,16 +527,18 @@ def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath
             xmlData = newChild(mdWrap, "xmlData")
             xmlData.append(a)
 
-        if transferUUID:
-            sql = "SELECT type FROM Transfers WHERE transferUUID = '%s';" % (transferUUID)
-            rows = databaseInterface.queryAllSQL(sql)
-            if rows[0][0] == "Dspace":
-                for a in archivematicaCreateMETSRightsDspaceMDRef(fileUUID, filePath, transferUUID, itemdirectoryPath):
-                    globalRightsMDCounter +=1
-                    rightsMD = etree.SubElement(AMD, "rightsMD")
-                    rightsMD.set("ID", "rightsMD_" + globalRightsMDCounter.__str__())
-                    rightsMD.append(a)
+        if typeOfTransfer == "Dspace":
+            for a in archivematicaCreateMETSRightsDspaceMDRef(fileUUID, filePath, transferUUID, itemdirectoryPath):
+                globalRightsMDCounter +=1
+                rightsMD = etree.SubElement(AMD, "rightsMD")
+                rightsMD.set("ID", "rightsMD_" + globalRightsMDCounter.__str__())
+                rightsMD.append(a)
 
+        elif typeOfTransfer == "TRIM":
+            digiprovMD = getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID)
+            globalDigiprovMDCounter += 1
+            digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
+            AMD.append(digiprovMD)
 
     for a in createDigiprovMD(fileUUID):
         AMD.append(a)
@@ -535,6 +549,9 @@ def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath
 
 def getIncludedStructMap():
     global fileNameToFileID
+    global trimStructMap
+    global trimStructMapObjects
+
     ret = []
     transferMetadata = os.path.join(baseDirectoryPath, "metadata/transfers")
     baseLocations = os.listdir(transferMetadata)
@@ -562,12 +579,23 @@ def getIncludedStructMap():
         #locate file based on key
         continue
         print fileName 
+    if trimStructMap != None:
+        ret.append(trimStructMap)
     return ret
 
 #DMDID="dmdSec_01" for an object goes in here
 #<file ID="file1-UUID" GROUPID="G1" DMDID="dmdSec_02" ADMID="amdSec_01">
 def createFileSec(directoryPath, structMapDiv):
     global fileNameToFileID
+    global trimStructMap
+    global trimStructMapObjects
+    global globalDmdSecCounter
+    global globalAmdSecCounter
+    global globalDigiprovMDCounter
+    global dmdSecs
+    global amdSecs
+    
+    
     delayed = []
     filesInThisDirectory = []
     dspaceMetsDMDID = None
@@ -581,7 +609,13 @@ def createFileSec(directoryPath, structMapDiv):
         elif os.path.isfile(itemdirectoryPath):
             #find original file name
             directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, baseDirectoryPathString, 1)
-            sql = """SELECT Related.originalLocation AS 'derivedFromOriginalLocation', Current.originalLocation FROM Files AS Current LEFT OUTER JOIN Derivations ON Current.fileUUID = Derivations.derivedFileUUID LEFT OUTER JOIN Files AS Related ON Derivations.sourceFileUUID = Related.fileUUID WHERE Current.removedTime = 0 AND Current.%s = '%s' AND Current.currentLocation = '%s';""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(directoryPathSTR))
+            sql = """SELECT Related.originalLocation AS 'derivedFromOriginalLocation', 
+                            Current.originalLocation
+                        FROM Files AS Current 
+                        LEFT OUTER JOIN Derivations ON Current.fileUUID = Derivations.derivedFileUUID 
+                        LEFT OUTER JOIN Files AS Related ON Derivations.sourceFileUUID = Related.fileUUID
+                        WHERE Current.removedTime = 0 AND Current.%s = '%s' 
+                            AND Current.currentLocation = '%s';""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(directoryPathSTR))
             c, sqlLock = databaseInterface.querySQL(sql)
             row = c.fetchone()
             if row == None:
@@ -611,7 +645,10 @@ def createFileSec(directoryPath, structMapDiv):
         #directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath + "objects", "objects", 1)
         directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, baseDirectoryPathString, 1)
 
-        sql = """SELECT fileUUID, fileGrpUse, fileGrpUUID, transferUUID, label, originalLocation FROM Files WHERE removedTime = 0 AND %s = '%s' AND Files.currentLocation = '%s';""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(directoryPathSTR))
+        sql = """SELECT fileUUID, fileGrpUse, fileGrpUUID, Files.transferUUID, label, originalLocation, Transfers.type 
+                FROM Files
+                LEFT OUTER JOIN Transfers ON Files.transferUUID = Transfers.transferUUID
+                WHERE removedTime = 0 AND %s = '%s' AND Files.currentLocation = '%s';""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(directoryPathSTR))
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         if row == None:
@@ -626,6 +663,7 @@ def createFileSec(directoryPath, structMapDiv):
             transferUUID = row[3]
             label = row[4]
             originalLocation = row[5]
+            typeOfTransfer = row[6]
             row = c.fetchone()
         sqlLock.release()
         
@@ -633,7 +671,33 @@ def createFileSec(directoryPath, structMapDiv):
         directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, "", 1)
         #print filename, directoryPathSTR
 
-
+        if typeOfTransfer == "TRIM" and trimStructMap == None:
+            trimStructMap = etree.Element("structMap", attrib={"TYPE":"logical", "LABEL":"Hierarchical arrangement"})
+            trimStructMapObjects = etree.SubElement(trimStructMap, "div", attrib={"TYPE":"file", "LABEL":"objects"})
+            
+            trimDmdSec = getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier)
+            globalDmdSecCounter += 1
+            dmdSecs.append(trimDmdSec)
+            ID = "dmdSec_" + globalDmdSecCounter.__str__()
+            trimDmdSec.set("ID", ID)
+            trimStructMapObjects.set("DMDID", ID)
+            
+            # ==
+            
+            trimAmdSec = etree.Element("amdSec")
+            globalAmdSecCounter += 1
+            amdSecs.append(trimAmdSec)
+            ID = "amdSec_" + globalAmdSecCounter.__str__()
+            trimAmdSec.set("ID", ID)
+                        
+            digiprovMD = getTrimAmdSec(baseDirectoryPath, fileGroupIdentifier)
+            globalDigiprovMDCounter += 1
+            digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
+            
+            trimAmdSec.append(digiprovMD)
+            
+            trimStructMapObjects.set("ADMID", ID)
+            
         FILEID="%s-%s" % (item, myuuid)
         if FILEID[0].isdigit():
             FILEID = "_" + FILEID
@@ -650,6 +714,8 @@ def createFileSec(directoryPath, structMapDiv):
         GROUPID = ""
         if fileGrpUUID:
             GROUPID = "Group-%s" % (fileGrpUUID)
+            if use == "TRIM file metadata":
+                use = "submissionDocumentation"
             
         elif  use == "original" or use == "submissionDocumentation":
             GROUPID = "Group-%s" % (myuuid)
@@ -657,6 +723,18 @@ def createFileSec(directoryPath, structMapDiv):
                 DMDIDS = createDMDIDSFromCSVParsedMetadataFiles(originalLocation.replace('%transferDirectory%', "", 1))
                 if DMDIDS:
                     fileDiv.set("DMDID", DMDIDS)
+                if typeOfTransfer == "TRIM":
+                    trimFileDiv = etree.SubElement(trimStructMapObjects, "div", attrib={"TYPE":"item"})
+                    
+                    trimFileDmdSec = getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, myuuid)
+                    globalDmdSecCounter += 1
+                    dmdSecs.append(trimFileDmdSec)
+                    ID = "dmdSec_" + globalDmdSecCounter.__str__()
+                    trimFileDmdSec.set("ID", ID)
+                    
+                    trimFileDiv.set("DMDID", ID)       
+                    
+                    etree.SubElement(trimFileDiv, "fptr", attrib={"FILEID":FILEID})             
 
         elif use == "preservation":
             sql = "SELECT * FROM Derivations WHERE derivedFileUUID = '" + myuuid + "';"
@@ -687,6 +765,12 @@ def createFileSec(directoryPath, structMapDiv):
                 GROUPID = "Group-%s" % (row[0])
                 row = c.fetchone()
             sqlLock.release()
+        
+        
+        elif use == "TRIM container metadata":
+            GROUPID = "Group-%s" % (myuuid)
+            use = "submissionDocumentation"
+        
 
         if transferUUID:
             sql = "SELECT type FROM Transfers WHERE transferUUID = '%s';" % (transferUUID)
@@ -713,7 +797,7 @@ def createFileSec(directoryPath, structMapDiv):
             print >>sys.stderr, "No groupID for file: \"", directoryPathSTR, "\""
 
         if use not in globalFileGrps:
-            print >>sys.stderr, "Invalid use: \"", use, "\""
+            print >>sys.stderr, "Invalid use: \"%s\"" % (use)
             sharedVariablesAcrossModules.globalErrorCount += 1
         else:
             file = newChild(globalFileGrps[use], "file", sets=[("ID",FILEID), ("GROUPID",GROUPID)])
@@ -722,8 +806,7 @@ def createFileSec(directoryPath, structMapDiv):
             #<Flocat xlink:href="objects/file1-UUID" locType="other" otherLocType="system"/>
             Flocat = newChild(file, "FLocat", sets=[(xlinkBNS +"href",directoryPathSTR), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM")])
             if includeAmdSec:
-                AMD, ADMID = getAMDSec(myuuid, directoryPathSTR, use, fileGroupType, fileGroupIdentifier, transferUUID, itemdirectoryPath)
-                global amdSecs
+                AMD, ADMID = getAMDSec(myuuid, directoryPathSTR, use, fileGroupType, fileGroupIdentifier, transferUUID, itemdirectoryPath, typeOfTransfer)
                 amdSecs.append(AMD)
                 file.set("ADMID", ADMID)
 
@@ -800,6 +883,14 @@ if __name__ == '__main__':
     #tree.write(XMLFile)
     tree.write(XMLFile, pretty_print=True, xml_declaration=True)
 
+    printSectionCounters = True
+    if printSectionCounters:
+        print "DmdSecs:", globalDmdSecCounter
+        print "AmdSecs:", globalAmdSecCounter
+        print "TechMDs:", globalTechMDCounter
+        print "RightsMDs:", globalRightsMDCounter
+        print "DigiprovMDs:", globalDigiprovMDCounter
+         
     writeTestXMLFile = True
     if writeTestXMLFile:
         import cgi

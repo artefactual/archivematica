@@ -38,12 +38,17 @@ def archival_storage_page(request, page=None):
     return archival_storage_sip_display(request, page)
 
 def archival_storage_search(request):
-    query = request.GET.get('query', '')
-
-    if query == '':
-        query = '*'
+    queries, ops, fields, types = archival_storage_search_parameter_prep(request)
 
     # set pagination-related variables
+    search_params = ''
+    try:
+        search_params = request.get_full_path().split('?')[1]
+        end_of_search_params = search_params.index('&page')
+        search_params = search_params[:end_of_search_params]
+    except:
+        pass
+
     items_per_page = 20
 
     page = request.GET.get('page', 0)
@@ -55,39 +60,20 @@ def archival_storage_search(request):
 
     conn = pyes.ES('127.0.0.1:9200')
 
-    # do fulltext search
-    q = pyes.StringQuery(query)
-
     try:
-        results = conn.search_raw(query=q, indices='aips', type='aip', start=start - 1, size=items_per_page)
+        results = conn.search_raw(
+            query=archival_storage_search_assemble_query(queries, ops, fields, types),
+            indices='aips',
+            type='aip',
+            start=start - 1,
+            size=items_per_page
+        )
     except:
         return HttpResponse('Error accessing index.')
 
-    # augment result data
-    modifiedResults = []
-
-    for item in results.hits.hits:
-        clone = item._source.copy()
-
-        # try to find AIP details in database
-        try:
-            aip = models.AIP.objects.get(sipuuid=clone['AIPUUID'])
-            clone['sipname'] = aip.sipname
-            clone['href']    = aip.filepath.replace(AIPSTOREPATH + '/', "AIPsStore/")
-        except:
-            aip = None
-            clone['sipname'] = False
-
-        clone['filename'] = os.path.basename(clone['filePath'])
-        clone['document_id'] = item['_id']
-        clone['document_id_no_hyphens'] = item['_id'].replace('-', '____')
-
-        modifiedResults.append(clone)
-
+    file_extension_usage = results['facets']['fileExtension']['terms']
     number_of_results = results.hits.total
-
-    # use augmented result data
-    results = modifiedResults
+    results = archival_storage_search_augment_results(results)
 
     # limit end by total hits
     end = start + items_per_page - 1
@@ -111,8 +97,120 @@ def archival_storage_search(request):
     except:
         results = False
 
-    form = forms.StorageSearchForm(initial={'query': query})
+    form = forms.StorageSearchForm(initial={'query': queries[0]})
     return render(request, 'archival_storage/archival_storage_search.html', locals())
+
+def archival_storage_search_parameter_prep(request):
+    queries = request.GET.getlist('query')
+    ops     = request.GET.getlist('op')
+    fields  = request.GET.getlist('field')
+    types   = request.GET.getlist('type')
+
+    # prepend default op arg as first op can't be set manually
+    ops.insert(0, 'or')
+
+    if len(queries) == 0:
+        queries = ['*']
+        fields  = ['']
+    else:
+        index = 0
+
+        # make sure each query has field/ops set
+        for query in queries:
+            # a blank query makes ES error
+            if queries[index] == '':
+                queries[index] = '*'
+
+            try:
+                fields[index]
+            except:
+                fields.insert(index, '')
+                #fields[index] = ''
+
+            try:
+                ops[index]
+            except:
+                ops.insert(index, 'or')
+                #ops[index] = ''
+
+            try:
+                types[index]
+            except:
+                types.insert(index, '')
+
+            index = index + 1
+
+    return queries, ops, fields, types
+
+def archival_storage_search_assemble_query(queries, ops, fields, types):
+    must_haves     = []
+    should_haves   = []
+    must_not_haves = []
+    index          = 0
+
+    for query in queries:
+        if queries[index] != '':
+            clause = archival_storage_search_query_clause(index, queries, ops, fields, types)
+            if clause:
+                if ops[index] == 'not':
+                    must_not_haves.append(clause)
+                elif ops[index] == 'and':
+                    must_haves.append(clause)
+                else:
+                    should_haves.append(clause)
+
+        index = index + 1
+
+    q = pyes.BoolQuery(must=must_haves, should=should_haves, must_not=must_not_haves).search()
+    q.facet.add_term_facet('fileExtension')
+
+    return q
+
+def archival_storage_search_query_clause(index, queries, ops, fields, types):
+    if fields[index] == '':
+        search_fields = []
+    else:
+        search_fields = [fields[index]]
+
+    if (types[index] == 'term'):
+        # a blank term should be ignored because it prevents any results: you
+        # can never find a blank term
+        #
+        # TODO: add condition to deal with a query with no clauses because all have
+        #       been ignored
+        if (queries[index] == ''):
+            return
+        else:
+            if (fields[index] != ''):
+                 term_field = fields[index]
+            else:
+                term_field = '_all'
+            return pyes.TermQuery(term_field, queries[index])
+    else:
+        return pyes.StringQuery(queries[index], search_fields=search_fields)
+
+def archival_storage_search_augment_results(raw_results):
+    modifiedResults = []
+
+    for item in raw_results.hits.hits:
+        clone = item._source.copy()
+
+        # try to find AIP details in database
+        try:
+            aip = models.AIP.objects.get(sipuuid=clone['AIPUUID'])
+            clone['sipname'] = aip.sipname
+            clone['href']    = aip.filepath.replace(AIPSTOREPATH + '/', "AIPsStore/")
+        except:
+            aip = None
+            clone['sipname'] = False
+
+        clone['filename'] = os.path.basename(clone['filePath'])
+        clone['document_id'] = item['_id']
+        clone['document_id_no_hyphens'] = item['_id'].replace('-', '____')
+
+        modifiedResults.append(clone)
+
+    return modifiedResults
 
 def archival_storage_indexed_count(index):
     aip_indexed_file_count = 0

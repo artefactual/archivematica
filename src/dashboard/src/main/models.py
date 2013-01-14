@@ -7,6 +7,22 @@ from contrib import utils
 from django import forms
 import ast
 import main
+import uuid
+
+class UUIDPkField(models.CharField):
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = kwargs.get('max_length', 64)
+        kwargs['blank'] = False
+        kwargs['primary_key'] = True
+        kwargs['editable'] = False
+        kwargs['db_column'] = 'pk'
+        kwargs['default'] = True # provide a placeholder pk value or else it won't save
+        models.CharField.__init__(self, *args, **kwargs)
+
+    def pre_save(self, model_instance, add):
+        # set uuid during save
+        setattr(model_instance, self.attname, uuid.uuid4().__str__())
+        return super(models.CharField, self).pre_save(model_instance, add)
 
 class Access(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -43,19 +59,18 @@ class Access(models.Model):
 
     def get_title(self):
         try:
-            jobs = main.models.Job.objects.filter(sipuuid=self.sipuuid)
+            jobs = main.models.Job.objects.filter(sipuuid=self.sipuuid, subjobof='')
             return utils.get_directory_name(jobs[0])
         except:
             return 'N/A'
 
 class DublinCoreManager(models.Manager):
-
     def get_sip_metadata(self, uuid):
         return DublinCore.objects.get(metadataappliestotype__exact=1, metadataappliestoidentifier__exact=uuid)
 
 class DublinCore(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    metadataappliestotype = models.IntegerField(db_column='metadataAppliesToType')
+    metadataappliestotype = models.CharField(max_length=50, db_column='metadataAppliesToType')
     metadataappliestoidentifier = models.CharField(max_length=50, blank=True, db_column='metadataAppliesToidentifier')
     title = models.TextField(db_column='title', blank=True)
     creator = models.TextField(db_column='creator', blank=True)
@@ -84,6 +99,15 @@ class DublinCore(models.Model):
         else:
             return u'Untitled'
 
+class MetadataAppliesToType(models.Model):
+    id = UUIDPkField()
+    description = models.CharField(max_length=50, db_column='description')
+    replaces = models.CharField(max_length=50, db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
+
+    class Meta:
+        db_table = u'MetadataAppliesToTypes'
+
 class Job(models.Model):
     jobuuid = models.CharField(max_length=150, primary_key=True, db_column='jobUUID')
     jobtype = models.CharField(max_length=750, db_column='jobType', blank=True)
@@ -101,7 +125,6 @@ class Job(models.Model):
         db_table = u'Jobs'
 
 class SIPManager(models.Manager):
-
     def is_hidden(self, uuid):
         try:
             return SIP.objects.get(uuid__exact=uuid).hidden is True
@@ -131,7 +154,6 @@ class AIP(models.Model):
         db_table = u'AIPs'
 
 class TransferManager(models.Manager):
-
     def is_hidden(self, uuid):
         try:
             return Transfer.objects.get(uuid__exact=uuid).hidden is True
@@ -174,19 +196,9 @@ class Task(models.Model):
     class Meta:
         db_table = u'Tasks'
 
-class JobStepCompleted(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
-    # jobuuid = models.CharField(max_length=50, db_column='jobUUID', blank=True)
-    job = models.ForeignKey(Job, db_column='jobuuid', to_field = 'jobuuid')
-    completedtime = models.DateTimeField(db_column='completedTime')
-    step = models.CharField(max_length=50, blank=True)
-
-    class Meta:
-        db_table = u'jobStepCompleted'
-
 class RightsStatement(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    metadataappliestotype = models.IntegerField(Job, db_column='metadataAppliesToType')
+    metadataappliestotype = models.CharField(max_length=50, db_column='metadataAppliesToType')
     metadataappliestoidentifier = models.CharField(max_length=50, blank=True, db_column='metadataAppliesToidentifier')
     rightsstatementidentifiertype = models.TextField(db_column='rightsStatementIdentifierType', blank=True, verbose_name='Type')
     rightsstatementidentifiervalue = models.TextField(db_column='rightsStatementIdentifierValue', blank=True, verbose_name='Value')
@@ -353,7 +365,7 @@ class RightsStatementLinkingAgentIdentifier(models.Model):
         db_table = u'RightsStatementLinkingAgentIdentifier'
 
 class SourceDirectory(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
+    id = UUIDPkField()
     path = models.TextField(db_column='path')
 
     def __unicode__(self):
@@ -365,17 +377,17 @@ class SourceDirectory(models.Model):
 """ MCP data interoperability """
 
 class MicroServiceChain(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
-    startinglink = models.IntegerField(db_column='startingLink')
+    id = UUIDPkField()
+    startinglink = models.CharField(max_length=50, db_column='startingLink')
     description = models.TextField(db_column='description')
 
     class Meta:
         db_table = u'MicroServiceChains'
 
 class MicroServiceChainLink(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
-    currenttask =  models.IntegerField(db_column='currentTask')
-    defaultnextchainlink = models.IntegerField(null=True, default=1, db_column='defaultNextChainLink')
+    id = UUIDPkField()
+    currenttask =  models.CharField(max_length=50, db_column='currentTask')
+    defaultnextchainlink = models.CharField(max_length=50, null=True, default=1, db_column='defaultNextChainLink')
     defaultplaysound = models.IntegerField(null=True, db_column='defaultPlaySound')
     microservicegroup = models.TextField(db_column='microserviceGroup')
     reloadfilelist = models.IntegerField(default=1, db_column='reloadFileList')
@@ -385,10 +397,10 @@ class MicroServiceChainLink(models.Model):
         db_table = u'MicroServiceChainLinks'
 
 class MicroServiceChainLinkExitCode(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
-    microservicechainlink = models.IntegerField(db_column='microServiceChainLink')
+    id = UUIDPkField()
+    microservicechainlink = models.CharField(max_length=50, db_column='microServiceChainLink')
     exitcode = models.IntegerField(db_column='exitCode')
-    nextmicroservicechainlink = models.IntegerField(db_column='nextMicroServiceChainLink')
+    nextmicroservicechainlink = models.CharField(max_length=50, db_column='nextMicroServiceChainLink')
     playsound = models.IntegerField(null=True, db_column='playSound')
     exitmessage = models.TextField(db_column='exitMessage')
 
@@ -396,16 +408,16 @@ class MicroServiceChainLinkExitCode(models.Model):
         db_table = u'MicroServiceChainLinksExitCodes'
 
 class MicroServiceChainChoice(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
-    choiceavailableatlink = models.IntegerField(db_column='choiceAvailableAtLink')
-    chainavailable = models.IntegerField(db_column='chainAvailable')
+    id = UUIDPkField()
+    choiceavailableatlink = models.CharField(max_length=150, db_column='choiceAvailableAtLink')
+    chainavailable = models.CharField(max_length=50, db_column='chainAvailable')
 
     class Meta:
         db_table = u'MicroServiceChainChoice'
 
 class MicroServiceChoiceReplacementDic(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
-    choiceavailableatlink = models.IntegerField(db_column='choiceAvailableAtLink')
+    id = UUIDPkField()
+    choiceavailableatlink = models.CharField(max_length=50, db_column='choiceAvailableAtLink')
     description = models.TextField(db_column='description', verbose_name='Description')
     replacementdic = models.TextField(db_column='replacementDic', verbose_name='Configuration')
 
@@ -426,7 +438,7 @@ class MicroServiceChoiceReplacementDic(models.Model):
         db_table = u'MicroServiceChoiceReplacementDic'
 
 class StandardTaskConfig(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
+    id = UUIDPkField()
     execute = models.TextField(db_column='execute', blank=True)
     arguments = models.TextField(db_column='arguments', blank=True)
 
@@ -434,7 +446,7 @@ class StandardTaskConfig(models.Model):
         db_table = u'StandardTasksConfigs'
 
 class TaskConfig(models.Model):
-    id = models.AutoField(primary_key=True, db_column='pk')
+    id = UUIDPkField()
     tasktype = models.IntegerField(db_column='taskType')
     tasktypepkreference = models.IntegerField(db_column='taskTypePKReference')
     description = models.TextField(db_column='description')
