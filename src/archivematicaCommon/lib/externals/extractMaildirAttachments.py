@@ -71,38 +71,42 @@ def parse_attachment(message_part, attachments=None):
                         print >>sys.stderr, "Failed"
                         return None
             if cd.disposition.lower() == "attachment":
-                if not cd.assocs.has_key("filename"):
-                    print >>sys.stderr, """Warning, found no filename in: [{%s}%s]%s""" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath, content_disposition)
-                    print >>sys.stderr, "not extracting"
-                    #print error or warning?
-                    return None
+                filename = ""
+                if cd.assocs.has_key("filename"):
+                    filename = cd.assocs["filename"]
+                elif cd.assocs.has_key("filename*"):
+                    filename = cd.assocs["filename*"]
                 else:
-                    file_data = message_part.get_payload(decode=True)
-                    if not file_data:
-                        payload = message_part.get_payload()
-                        if isinstance(payload, list):
-                            for msgobj in payload:
-                                parse2(msgobj, attachments)
-                            return None
-                        print >>sys.stderr, message_part.get_payload()
-                        print >>sys.stderr, message_part.get_content_charset()
-                    attachment = StringIO(file_data)
-                    attachment.content_type = message_part.get_content_type()
-                    attachment.size = len(file_data)
-                    attachment.name = cd.assocs['filename']
-                    attachment.create_date = None
-                    attachment.mod_date = None
-                    attachment.read_date = None 
-                    
-                    for name, value in cd.assocs.iteritems():
-                        if name == "create-date":
-                            attachment.create_date = value  #TODO: datetime
-                        elif name == "modification-date":
-                            attachment.mod_date = value #TODO: datetime
-                        elif name == "read-date":
-                            attachment.read_date = value #TODO: datetime
-                    
-                    return attachment
+                    print >>sys.stderr, """Warning, found no filename in: [{%s}%s]%s""" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath, content_disposition)
+                    print >>sys.stderr, "Attempting extraction with random filename."
+                    filename = uuid.uuid4.__str__()
+            
+                file_data = message_part.get_payload(decode=True)
+                if not file_data:
+                    payload = message_part.get_payload()
+                    if isinstance(payload, list):
+                        for msgobj in payload:
+                            parse2(msgobj, attachments)
+                        return None
+                    print >>sys.stderr, message_part.get_payload()
+                    print >>sys.stderr, message_part.get_content_charset()
+                attachment = StringIO(file_data)
+                attachment.content_type = message_part.get_content_type()
+                attachment.size = len(file_data)
+                attachment.name = filename
+                attachment.create_date = None
+                attachment.mod_date = None
+                attachment.read_date = None 
+                
+                for name, value in cd.assocs.iteritems():
+                    if name == "create-date":
+                        attachment.create_date = value  #TODO: datetime
+                    elif name == "modification-date":
+                        attachment.mod_date = value #TODO: datetime
+                    elif name == "read-date":
+                        attachment.read_date = value #TODO: datetime
+                
+                return attachment
                             
         except:
             print >>sys.stderr, "Error parsing file: {%s}%s" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath)
