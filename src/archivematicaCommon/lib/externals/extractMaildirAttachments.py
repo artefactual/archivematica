@@ -18,7 +18,11 @@ from email.Parser import Parser as EmailParser
 from email.utils import parseaddr
 # cStringIOはダメ
 from StringIO import StringIO
+import uuid
 from rfc6266 import parse_headers #TODO: add notes
+#http://tools.ietf.org/html/rfc2183
+#http://tools.ietf.org/html/rfc6266
+#http://en.wikipedia.org/wiki/MIME#Content-Disposition
 
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
@@ -28,17 +32,45 @@ sharedVariablesAcrossModules.errorCounter = 0
 class NotSupportedMailFormat(Exception):
     pass
 
+def tweakContentDisposition(content_disposition):
+    #filename*=utf-8''=Name -> filename*=utf-8''Name
+    #content_disposition = content_disposition.replace("filename*=utf-8''=", "filename*=utf-8''Name")
+    
+    content_disposition = content_disposition.replace("\r", "")
+    content_disposition = content_disposition.replace("\n", "")
+    return content_disposition 
+
+#
+#>>> c = "attachment; filename*=utf-8''%20Southern%20Roots%20of%20of%20Modern%20Philanthropy.pptx"
+#>>> parse_headers(c)
+#ContentDisposition(u'attachment', {u'filename*': LangTagged(string=u' Southern Roots of of Modern Philanthropy.pptx', langtag=None)}, None)
+
+
 def parse_attachment(message_part, attachments=None):
     content_disposition = message_part.get("Content-Disposition", None)
     if content_disposition:
         try:
             try:
+                content_disposition = tweakContentDisposition(content_disposition)
                 cd = parse_headers(content_disposition, relaxed=True)
-            except:
+            except Exception as inst:
+                print type(inst)
+                print inst.args
+                print >>sys.stderr, "Error parsing file: {%s}%s" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath)
                 print >>sys.stderr, "Error parsing the content_disposition."
-                raise
+                
+                if content_disposition.lower().contains("attachment") and content_disposition.lower().contains("filename"):  
+                    try:
+                        print >>sys.stderr, "Attempting extraction with random filename."
+                        content_disposition = "Content-Disposition: attachment; filename=%s;" % (uuid.uuid4.__str__())
+                        cd = parse_headers(content_disposition, relaxed=True)
+                    except:
+                        print >>sys.stderr, "Failed"
+                        return None
             if cd.disposition.lower() == "attachment":
                 if not cd.assocs.has_key("filename"):
+                    print >>sys.stderr, """Warning, found no filename in: [{%s}%s]%s""" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath, content_disposition)
+                    print >>sys.stderr, "not extracting"
                     #print error or warning?
                     return None
                 else:
@@ -72,6 +104,7 @@ def parse_attachment(message_part, attachments=None):
         except:
             print >>sys.stderr, "Error parsing file: {%s}%s" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath)
             print >>sys.stderr, "Error parsing:", content_disposition
+            print >>sys.stderr
             sharedVariablesAcrossModules.errorCounter += 1
     return None
 
