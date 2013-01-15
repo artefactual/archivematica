@@ -19,6 +19,7 @@ from email.utils import parseaddr
 # cStringIOはダメ
 from StringIO import StringIO
 import uuid
+import re
 from rfc6266 import parse_headers #TODO: add notes
 #http://tools.ietf.org/html/rfc2183
 #http://tools.ietf.org/html/rfc6266
@@ -38,6 +39,8 @@ def tweakContentDisposition(content_disposition):
     
     content_disposition = content_disposition.replace("\r", "")
     content_disposition = content_disposition.replace("\n", "")
+    p = re.compile('attachment;\s*filename')
+    content_disposition = p.sub('attachment; filename', content_disposition, count=1)
     return content_disposition 
 
 #
@@ -62,7 +65,7 @@ def parse_attachment(message_part, attachments=None):
                 if content_disposition.lower().contains("attachment") and content_disposition.lower().contains("filename"):  
                     try:
                         print >>sys.stderr, "Attempting extraction with random filename."
-                        content_disposition = "Content-Disposition: attachment; filename=%s;" % (uuid.uuid4.__str__())
+                        content_disposition = "attachment; filename=%s;" % (uuid.uuid4.__str__())
                         cd = parse_headers(content_disposition, relaxed=True)
                     except:
                         print >>sys.stderr, "Failed"
