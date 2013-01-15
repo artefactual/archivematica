@@ -30,7 +30,9 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from externals.extractMaildirAttachments import parse
 from fileOperations import addFileToTransfer
 from fileOperations import updateSizeAndChecksum
+from sharedVariablesAcrossModules import sharedVariablesAcrossModules 
 import databaseInterface
+
 
 def writeFile(filePath, fileContents):   
     try:
@@ -79,8 +81,7 @@ if __name__ == '__main__':
     while False: #used to stall the mcp and stop the client for testing this module
         import time
         time.sleep(10)
-    global errorCounter
-    errorCounter = 0
+    sharedVariablesAcrossModules.errorCounter = 0
     transferDir = sys.argv[1]
     transferUUID =  sys.argv[2]
     date =  sys.argv[3]
@@ -107,9 +108,11 @@ if __name__ == '__main__':
                     subDir = md.get_message(item).get_subdir()
                     sourceFilePath2 = os.path.join(maildir, maildirsub2, subDir, item)
                     sourceFilePath = sourceFilePath2.replace(transferDir, "%transferDirectory%", 1)
+                    sourceFileUUID = getFileUUIDofSourceFile(transferUUID, sourceFilePath)
+                    sharedVariablesAcrossModules.sourceFileUUID = sourceFileUUID
+                    sharedVariablesAcrossModules.sourceFilePath = sourceFilePath
                     fil = md.get_file(item)
                     out = parse(fil)
-                    sourceFileUUID = getFileUUIDofSourceFile(transferUUID, sourceFilePath)
                     setSourceFileToBeExcludedFromDIP(sourceFileUUID)
                     if len(out['attachments']):
                         msg = etree.SubElement(directory, "msg")
@@ -148,14 +151,14 @@ if __name__ == '__main__':
                                 print >>sys.stderr, inst.args
                                 print >>sys.stderr, etree.tostring(msg) 
                                 print >>sys.stderr
-                                errorCounter += 1
+                                sharedVariablesAcrossModules.errorCounter += 1
                 except Exception as inst:
                     print >>sys.stderr, sourceFilePath
                     traceback.print_exc(file=sys.stderr)
                     print >>sys.stderr, type(inst)     # the exception instance
                     print >>sys.stderr, inst.args
                     print >>sys.stderr
-                    errorCounter += 1
+                    sharedVariablesAcrossModules.errorCounter += 1
         except Exception as inst:
             print >>sys.stderr, "INVALID MAILDIR FORMAT"
             print >>sys.stderr, type(inst)
@@ -171,6 +174,6 @@ if __name__ == '__main__':
         addKeyFileToNormalizeMaildirOffOf(os.path.join(maildir, maildirsub2).replace(transferDir, "%transferDirectory%", 1), mirrorDir, transferDir, transferUUID, date, eventDetail=eventDetail, fileUUID=fileUUID)
     tree = etree.ElementTree(root)
     tree.write(outXML, pretty_print=True, xml_declaration=True)
-    exit(errorCounter)
+    exit(sharedVariablesAcrossModules.errorCounter)
 
                     

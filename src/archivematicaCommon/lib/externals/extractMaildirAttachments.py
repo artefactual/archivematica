@@ -20,6 +20,11 @@ from email.utils import parseaddr
 from StringIO import StringIO
 from rfc6266 import parse_headers #TODO: add notes
 
+import sys
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from sharedVariablesAcrossModules import sharedVariablesAcrossModules
+sharedVariablesAcrossModules.errorCounter = 0
+
 class NotSupportedMailFormat(Exception):
     pass
 
@@ -27,7 +32,11 @@ def parse_attachment(message_part, attachments=None):
     content_disposition = message_part.get("Content-Disposition", None)
     if content_disposition:
         try:
-            cd = parse_headers(content_disposition, relaxed=True)
+            try:
+                cd = parse_headers(content_disposition, relaxed=True)
+            except:
+                print >>sys.stderr, "Error parsing the content_disposition."
+                raise
             if cd.disposition.lower() == "attachment":
                 if not cd.assocs.has_key("filename"):
                     #print error or warning?
@@ -61,8 +70,9 @@ def parse_attachment(message_part, attachments=None):
                     return attachment
                             
         except:
-            print >>sys.stderr, "content_disposition:", content_disposition
-            raise
+            print >>sys.stderr, "Error parsing file: {%s}%s" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath)
+            print >>sys.stderr, "Error parsing:", content_disposition
+            sharedVariablesAcrossModules.errorCounter += 1
     return None
 
 def parse(content):
@@ -94,6 +104,7 @@ def parse2(msgobj, attachments=None):
         attachment = parse_attachment(part, attachments=attachments)
         if attachment:
             attachments.append(attachment)
+        disabledBodyAndHTMLParsingCode = """
         elif part.get_content_type() == "text/plain":
             if body is None:
                 body = ""
@@ -112,6 +123,7 @@ def parse2(msgobj, attachments=None):
                 encoding = encoding.replace("windows-874", "cp874")
                 payload = payload.decode(encoding, 'replace')
             html += payload
+        """
     return {
         'subject' : subject,
         'body' : body,
