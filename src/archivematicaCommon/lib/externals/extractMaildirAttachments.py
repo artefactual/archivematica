@@ -62,16 +62,19 @@ def parse_attachment(message_part, attachments=None):
                 print inst.args
                 print >>sys.stderr, "Error parsing file: {%s}%s" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath)
                 print >>sys.stderr, "Error parsing the content_disposition:", content_disposition
-
                 if "attachment" in content_disposition.lower() and "filename" in content_disposition.lower():  
                     try:
+                        filename = uuid.uuid4.__str__()
                         print >>sys.stderr, "Attempting extraction with random filename."
-                        content_disposition = "attachment; filename=%s;" % (uuid.uuid4.__str__())
+                        print >>sys.stderr
+                        content_disposition = "attachment; filename=%s;" % (filename)
                         cd = parse_headers(content_disposition, relaxed=True)
                     except:
                         print >>sys.stderr, "Failed"
+                        print >>sys.stderr
                         return None
                 else:
+                    print >>sys.stderr
                     return None
             if cd.disposition.lower() == "attachment":
                 filename = ""
@@ -80,9 +83,10 @@ def parse_attachment(message_part, attachments=None):
                 elif cd.assocs.has_key("filename*"):
                     filename = cd.assocs["filename*"]
                 else:
-                    print >>sys.stderr, """Warning, found no filename in: [{%s}%s]%s""" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath, content_disposition)
-                    print >>sys.stderr, "Attempting extraction with random filename."
+                    print >>sys.stderr, """Warning, no filename found in: [{%s}%s]%s""" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath, content_disposition)
                     filename = uuid.uuid4.__str__()
+                    print >>sys.stderr, "Attempting extraction with random filename: %s" % (filename)
+                    print >>sys.stderr
                 if isinstance(filename, rfc6266.LangTagged):
                     filename = filename.string
                 else:
