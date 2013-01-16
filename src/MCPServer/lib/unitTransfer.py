@@ -98,7 +98,7 @@ class unitTransfer(unit):
             #print sql
             c, sqlLock = databaseInterface.querySQL(sql)
             row = c.fetchone()
-            print self.fileList
+            #print self.fileList
             while row != None:
                 #print row
                 UUID = row[0]

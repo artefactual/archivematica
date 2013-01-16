@@ -20,7 +20,8 @@ from email.utils import parseaddr
 from StringIO import StringIO
 import uuid
 import re
-from rfc6266 import parse_headers #TODO: add notes
+import rfc6266 #TODO: add notes
+
 #http://tools.ietf.org/html/rfc2183
 #http://tools.ietf.org/html/rfc6266
 #http://en.wikipedia.org/wiki/MIME#Content-Disposition
@@ -55,7 +56,7 @@ def parse_attachment(message_part, attachments=None):
         try:
             try:
                 content_disposition = tweakContentDisposition(content_disposition)
-                cd = parse_headers(content_disposition, relaxed=True)
+                cd = rfc6266.parse_headers(content_disposition, relaxed=True)
             except Exception as inst:
                 print type(inst)
                 print inst.args
@@ -75,14 +76,17 @@ def parse_attachment(message_part, attachments=None):
             if cd.disposition.lower() == "attachment":
                 filename = ""
                 if cd.assocs.has_key("filename"):
-                    filename = unicode(cd.assocs["filename"])
+                    filename = cd.assocs["filename"]
                 elif cd.assocs.has_key("filename*"):
-                    filename = unicode(cd.assocs["filename*"])
+                    filename = cd.assocs["filename*"]
                 else:
                     print >>sys.stderr, """Warning, found no filename in: [{%s}%s]%s""" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath, content_disposition)
                     print >>sys.stderr, "Attempting extraction with random filename."
                     filename = uuid.uuid4.__str__()
-            
+                if isinstance(filename, rfc6266.LangTagged):
+                    filename = filename.string
+                else:
+                    print >>sys.stderr, type(fileName)
                 file_data = message_part.get_payload(decode=True)
                 if not file_data:
                     payload = message_part.get_payload()
