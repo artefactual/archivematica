@@ -73,9 +73,9 @@ def parse_attachment(message_part, attachments=None):
             if cd.disposition.lower() == "attachment":
                 filename = ""
                 if cd.assocs.has_key("filename"):
-                    filename = cd.assocs["filename"]
+                    filename = unicode(cd.assocs["filename"])
                 elif cd.assocs.has_key("filename*"):
-                    filename = cd.assocs["filename*"]
+                    filename = unicode(cd.assocs["filename*"])
                 else:
                     print >>sys.stderr, """Warning, found no filename in: [{%s}%s]%s""" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath, content_disposition)
                     print >>sys.stderr, "Attempting extraction with random filename."
