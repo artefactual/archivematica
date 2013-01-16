@@ -60,9 +60,9 @@ def parse_attachment(message_part, attachments=None):
                 print type(inst)
                 print inst.args
                 print >>sys.stderr, "Error parsing file: {%s}%s" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath)
-                print >>sys.stderr, "Error parsing the content_disposition."
-                
-                if content_disposition.lower().contains("attachment") and content_disposition.lower().contains("filename"):  
+                print >>sys.stderr, "Error parsing the content_disposition:", content_disposition
+
+                if "attachment" in content_disposition.lower() and "filename" in content_disposition.lower():  
                     try:
                         print >>sys.stderr, "Attempting extraction with random filename."
                         content_disposition = "attachment; filename=%s;" % (uuid.uuid4.__str__())
@@ -70,6 +70,8 @@ def parse_attachment(message_part, attachments=None):
                     except:
                         print >>sys.stderr, "Failed"
                         return None
+                else:
+                    return None
             if cd.disposition.lower() == "attachment":
                 filename = ""
                 if cd.assocs.has_key("filename"):
@@ -110,7 +112,7 @@ def parse_attachment(message_part, attachments=None):
                             
         except:
             print >>sys.stderr, "Error parsing file: {%s}%s" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath)
-            print >>sys.stderr, "Error parsing:", content_disposition
+            print >>sys.stderr, "Error parsing:", filename
             print >>sys.stderr
             sharedVariablesAcrossModules.errorCounter += 1
     return None
