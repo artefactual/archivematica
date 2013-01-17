@@ -18,29 +18,21 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 # @package Archivematica
-# @subpackage archivematicaClient
+# @subpackage testing
 # @author Joseph Perry <joseph@artefactual.com>
 
-#~DOC~
-#
-# --- This is the MCP Client---
-#It connects to the MCP server, and informs the server of the tasks it can perform.
-#The server can send a command (matching one of the tasks) for the client to perform.
-#The client will perform that task, and return the exit code and output to the server.
-#
-#For archivematica 0.9 release. Added integration with the transcoder.
-#The server will send the transcoder association pk, and file uuid to run.
-#The client is responsible for running the correct command on the file. 
 
 import sys
 import os
 import shlex
 import subprocess
 
+fix = True
+
 if __name__ == '__main__':
-    print sys.executable
-    print os.__file__
+    print sys.stdout.encoding
     print __file__
+    print u'\u2019'.encode('utf-8'),
     print u'\u2019'
     i = 0
     if len(sys.argv) != 2:
@@ -49,9 +41,14 @@ if __name__ == '__main__':
         i = int(sys.argv[1]) + 1
     command = "%s %d" % (__file__, i)
     print i
-    if i < 10: 
+    if i < 10:
+        my_env = os.environ
+        if fix:
+            my_env['PYTHONIOENCODING'] = 'utf-8'
+        #for key, value in my_env.iteritems():
+        #    print key, ":\t", value
         stdIn = None
-        p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+        p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, env=my_env)
         stdOut, stdError = p.communicate(input=stdIn)
         print stdOut
         print >>sys.stderr, stdError 
