@@ -68,20 +68,30 @@ td.size {
 
 /* AIP search */
 #aip-search-summary {
-  margin-bottom: 1em;
+  margin-top: 20px;
+  margin-bottom: 20px;
   padding: .5em;
   background-color: whitesmoke;
 }
 
-.aip-search-item-details {
-  margin-top: 1em;
-  margin-bottom: 1em;
+.aip-search-item {
+  margin-bottom: 50px;
   margin-left: 2em;
-  clear: both;
 }
 
-.aip-search-item-detail-field {
-  margin-right: 1em;
+.aip-search-item-thumbnail-column {
+  float: left;
+  width: 80px;
+}
+
+.aip-search-item-file-column {
+  float: left;
+  width: 330px;
+}
+
+.aip-search-item-aip-column {
+  float: left;
+  width: 380px;
 }
 
 #search_form_container > div > div > div {
