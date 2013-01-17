@@ -26,11 +26,12 @@ import sys
 import os
 import uuid
 import traceback
-from xml.sax.saxutils import escape
+#from xml.sax.saxutils import escape
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from externals.extractMaildirAttachments import parse
 from fileOperations import addFileToTransfer
 from fileOperations import updateSizeAndChecksum
+from archivematicaFunctions import unicodeToStr
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules 
 import databaseInterface
 
@@ -123,9 +124,9 @@ if __name__ == '__main__':
                             etree.SubElement(msg, "Subject").text = out["subject"].decode('utf-8')
                         else: 
                             etree.SubElement(msg, "Subject").text = out["subject"]
-                        etree.SubElement(msg, "Date").text = escape(out['msgobj']['date'])
-                        etree.SubElement(msg, "To").text = escape(out["to"])
-                        etree.SubElement(msg, "From").text = escape(out["from"])
+                        etree.SubElement(msg, "Date").text = out['msgobj']['date']
+                        etree.SubElement(msg, "To").text = out["to"]
+                        etree.SubElement(msg, "From").text = out["from"]
                         for i in range(len(out['attachments'])):
                             try:
                                 attachment = out['attachments'][i]
@@ -139,7 +140,7 @@ if __name__ == '__main__':
                                 attch = etree.SubElement(msg, "attachment")
                                 #attachment.name = attachment.name[1:-1]
                                 etree.SubElement(attch, "name").text = attachment.name
-                                etree.SubElement(attch, "content_type").text = escape(attachment.content_type)
+                                etree.SubElement(attch, "content_type").text = attachment.content_type
                                 etree.SubElement(attch, "size").text = str(attachment.size)
                                 #print attachment.create_date
                                 # Dates don't appear to be working. Disabling for the moment - Todo
@@ -148,8 +149,9 @@ if __name__ == '__main__':
                                 #etree.SubElement(attch, "read_date").text = attachment.read_date
                                 
                                 filePath = os.path.join(transferDir, "objects/attachments", maildirsub2, subDir, "%s_%s" % (attachedFileUUID, attachment.name))
+                                filePath = unicodeToStr(filePath)
                                 writeFile(filePath, attachment)
-                                eventDetail="Unpacked from: {%s}%s" % (sourceFileUUID, escape(sourceFilePath)) 
+                                eventDetail="Unpacked from: {%s}%s" % (sourceFileUUID, sourceFilePath) 
                                 addFile(filePath, transferDir, transferUUID, date, eventDetail=eventDetail, fileUUID=attachedFileUUID)
                             except Exception as inst:
                                 print >>sys.stderr, sourceFilePath
