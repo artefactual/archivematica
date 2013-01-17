@@ -119,8 +119,10 @@ if __name__ == '__main__':
                         msg = etree.SubElement(directory, "msg")
                         etree.SubElement(msg, "Message-ID").text = out['msgobj']['Message-ID'][1:-1]
                         etree.SubElement(msg, "Extracted-from").text = item
-                        
-                        etree.SubElement(msg, "Subject").text = out["subject"].decode('utf-8') 
+                        if isinstance(out["subject"], str):
+                            etree.SubElement(msg, "Subject").text = out["subject"].decode('utf-8')
+                        else: 
+                            etree.SubElement(msg, "Subject").text = out["subject"]
                         etree.SubElement(msg, "Date").text = escape(out['msgobj']['date'])
                         etree.SubElement(msg, "To").text = escape(out["to"])
                         etree.SubElement(msg, "From").text = escape(out["from"])
