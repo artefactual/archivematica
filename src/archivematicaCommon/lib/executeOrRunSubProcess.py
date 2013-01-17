@@ -31,7 +31,9 @@ def launchSubProcess(command, stdIn="", printing=True):
     stdOut = ""
     #print  >>sys.stderr, command
     try:
-        p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+        my_env = os.environ
+        my_env['PYTHONIOENCODING'] = 'utf-8'
+        p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, env=my_env)
         stdOut, stdError = p.communicate(input=stdIn)
         #append the output to stderror and stdout
         if printing:
