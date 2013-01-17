@@ -148,6 +148,7 @@ if __name__ == '__main__':
                                 #etree.SubElement(attch, "read_date").text = attachment.read_date
                                 
                                 filePath = os.path.join(transferDir, "objects/attachments", maildirsub2, subDir, "%s_%s" % (attachedFileUUID, attachment.name))
+                                print >>sys.stderr, "debug", '"%s"' % (filePath) 
                                 writeFile(filePath, attachment)
                                 eventDetail="Unpacked from: {%s}%s" % (sourceFileUUID, escape(sourceFilePath)) 
                                 addFile(filePath, transferDir, transferUUID, date, eventDetail=eventDetail, fileUUID=attachedFileUUID)

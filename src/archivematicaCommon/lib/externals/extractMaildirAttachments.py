@@ -20,6 +20,7 @@ from email.utils import parseaddr
 from StringIO import StringIO
 import uuid
 import re
+import urllib2
 
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
@@ -97,9 +98,16 @@ def parse_attachment(message_part, attachments=None):
                     name = name.lower().strip()
                     
                     if name == "filename":
-                        attachment.name = value
+                        attachment.name = urllib2.unquote(value.strip()).strip('"')
                     if name == "filename*":
-                        attachment.name = value
+                        attachment.name = urllib2.unquote(value.strip())
+                        try:
+                            enc, name = attachment.name.split("''", 1)
+                            attachment.name = name.decode(enc)
+                        except Exception as inst:
+                            print >>sys.stderr, type(inst)
+                            print >>sys.stderr, inst.args
+                            pass
                     elif name == "create-date":
                         attachment.create_date = value  #TODO: datetime
                     elif name == "modification-date":
@@ -112,6 +120,7 @@ def parse_attachment(message_part, attachments=None):
                     filename = uuid.uuid4().__str__()
                     print >>sys.stderr, "Attempting extraction with random filename: %s" % (filename)
                     print >>sys.stderr
+
                 return attachment
                             
         except Exception as inst:
