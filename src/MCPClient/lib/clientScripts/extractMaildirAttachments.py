@@ -128,6 +128,9 @@ if __name__ == '__main__':
                                 attachment = out['attachments'][i]
                                 if attachment.name == None:
                                     continue
+                                #these are versions of the body of the email - I think
+                                if attachment.name == 'rtf-body.rtf':
+                                    continue
                                 attachedFileUUID = uuid.uuid4().__str__()
                                 #attachment = StringIO(file_data) TODO LOG TO FILE
                                 attch = etree.SubElement(msg, "attachment")
