@@ -335,7 +335,7 @@ CREATE TABLE `Tasks` (
   `jobUUID` varchar(50) DEFAULT NULL,
   `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fileUUID` varchar(50) DEFAULT NULL,
-  `fileName` varchar(100) DEFAULT NULL,
+  `fileName` longtext DEFAULT NULL,
   `exec` varchar(250) DEFAULT NULL,
   `arguments` varchar(1000) DEFAULT NULL,
   `startTime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
