@@ -52,7 +52,7 @@ def parse_attachment(message_part, attachments=None):
         try:
             try:
                 content_disposition = tweakContentDisposition(content_disposition)
-                dispositions = content_disposition.strip().split(";")
+                dispositions = content_disposition.strip().split(";", 1)
             except Exception as inst:
                 print type(inst)
                 print inst.args
@@ -127,7 +127,7 @@ def parse_attachment(message_part, attachments=None):
             print >>sys.stderr, type(inst)
             print >>sys.stderr, inst.args
             print >>sys.stderr, "Error parsing file: {%s}%s" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath)
-            print >>sys.stderr, "Error parsing:", filename
+            print >>sys.stderr, "Error parsing:", dispositions
             print >>sys.stderr
             sharedVariablesAcrossModules.errorCounter += 1
     return None
