@@ -90,6 +90,7 @@ td.size {
   float: left;
   width: 380px;
   text-align: center;
+  margin-left: 20px;
 }
 
 .aip-search-item-thumbnail-column {
@@ -105,6 +106,7 @@ td.size {
 .aip-search-item-aip-column {
   float: left;
   width: 380px;
+  margin-left: 20px;
 }
 
 #search_form_container > div > div > div {
