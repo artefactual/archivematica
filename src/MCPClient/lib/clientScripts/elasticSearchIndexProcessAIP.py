@@ -45,7 +45,8 @@ if __name__ == '__main__':
     else:
         pathToAIP = sys.argv[1]
         uuid = sys.argv[2]
+        sipName = sys.argv[3]
 
-        exitCode = elasticSearchFunctions.connect_and_index('aips', 'aip', uuid, pathToAIP)
+        exitCode = elasticSearchFunctions.connect_and_index('aips', 'aip', uuid, pathToAIP, sipName)
 
 quit(exitCode)

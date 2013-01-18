@@ -32,7 +32,8 @@ $(document).ready(function() {
     'FILEUUID'     : 'File UUID',
     'filePath'     : 'File path',
     'fileExtension': 'File extension',
-    'AIPUUID'      : 'AIP UUID'
+    'AIPUUID'      : 'AIP UUID',
+    'sipName'      : 'AIP name'
   });
 
   // default field name field
