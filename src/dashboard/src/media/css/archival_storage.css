@@ -67,6 +67,10 @@ td.size {
 }
 
 /* AIP search */
+.aip-search-query-input {
+  width: 200px;
+}
+
 #aip-search-summary {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -109,8 +113,21 @@ td.size {
   margin-left: 20px;
 }
 
+#search_form_container {
+  float: left;
+}
+
 #search_form_container > div > div > div {
   margin-bottom: 5px;
+}
+
+#search_form_container > div > div > div > select {
+  margin-left: 5px;
+}
+
+#search_form_submit_container {
+  float: left;
+  margin-left: 15px;
 }
 
 .search_op_selector {
