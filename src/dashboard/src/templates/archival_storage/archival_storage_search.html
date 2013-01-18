@@ -52,7 +52,7 @@
         </div>
 
         <div class='aip-search-item-aip-column'>
-          <div><a class='uuid' href="{% url components.archival_storage.views.archival_storage_sip_download item.AIPUUID %}">{{ item.sipname }} {{item.AIPUUID}}</a></div>
+          <div><a class='uuid' href="{% url components.archival_storage.views.archival_storage_aip_download item.AIPUUID %}">{{ item.sipname }} {{item.AIPUUID}}</a></div>
           <div><a href='/archival-storage/search/json/file/{{ item.document_id_no_hyphens }}/' target='_blank'>(view raw)</a></div>
         </div>
       {% else %}
