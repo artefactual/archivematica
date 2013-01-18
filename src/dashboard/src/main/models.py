@@ -174,7 +174,7 @@ class File(models.Model):
     uuid = models.CharField(max_length=150, primary_key=True, db_column='fileUUID')
     sip = models.ForeignKey(SIP, db_column='sipUUID', to_field = 'uuid')
     transfer = models.ForeignKey(Transfer, db_column='transferUUID', to_field = 'uuid')
-    originallocation = models.TextField(db_column='currentLocation')
+    originallocation = models.TextField(db_column='originalLocation')
 
     class Meta:
         db_table = u'Files'
