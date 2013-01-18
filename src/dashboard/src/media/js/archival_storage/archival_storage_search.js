@@ -28,10 +28,11 @@ $(document).ready(function() {
 
   // default field name field
   search.addSelect('field', {title: 'field name'}, {
-    '': 'Any',
-    'AIPUUID': 'UUID',
-    'filePath': 'File path',
-    'fileExtension': 'File extension'
+    ''             : 'Any',
+    'FILEUUID'     : 'File UUID',
+    'filePath'     : 'File path',
+    'fileExtension': 'File extension',
+    'AIPUUID'      : 'AIP UUID'
   });
 
   // default field name field
