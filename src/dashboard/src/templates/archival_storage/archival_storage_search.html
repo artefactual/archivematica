@@ -47,8 +47,8 @@
         </div>
 
         <div class='aip-search-item-file-column'>
-          <div>{{ item.filename }}</div>
-          <div>{{ item.fileuuid }}</div>
+          <div><a class='uuid' href="{% url components.archival_storage.views.archival_storage_aip_file_download item.fileuuid %}">{{ item.filename }}</a></div>
+          <div><a class='uuid' href="{% url components.archival_storage.views.archival_storage_aip_file_download item.fileuuid %}">{{ item.fileuuid }}</a></div>
         </div>
 
         <div class='aip-search-item-aip-column'>
