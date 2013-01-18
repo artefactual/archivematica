@@ -72,7 +72,6 @@ td.size {
 }
 
 #aip-search-summary {
-  margin-top: 20px;
   margin-bottom: 20px;
   padding: .5em;
   background-color: whitesmoke;
@@ -115,6 +114,7 @@ td.size {
 
 #search_form_container {
   float: left;
+  margin-bottom: 20px;
 }
 
 #search_form_container > div > div > div {
