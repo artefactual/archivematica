@@ -125,13 +125,11 @@ def archival_storage_search_parameter_prep(request):
                 fields[index]
             except:
                 fields.insert(index, '')
-                #fields[index] = ''
 
             try:
                 ops[index]
             except:
                 ops.insert(index, 'or')
-                #ops[index] = ''
 
             try:
                 types[index]
