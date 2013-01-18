@@ -236,7 +236,7 @@ def archival_storage_aip_download(request, uuid):
     aip = models.AIP.objects.get(sipuuid=uuid)
     return send_file(request, aip.filepath)
 
-def archival_storage_file_download(request, uuid):
+def archival_storage_aip_file_download(request, uuid):
     # get file basename
     file          = models.File.objects.get(uuid=uuid)
     file_basename = os.path.basename(file.originallocation)
