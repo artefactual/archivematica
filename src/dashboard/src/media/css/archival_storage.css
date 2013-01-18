@@ -84,7 +84,7 @@ td.size {
 
 .aip-search-item-file-column-header {
   float: left;
-  margin-left:75px;
+  margin-left:145px;
   width:330px;
   text-align: center;
 }
@@ -98,7 +98,8 @@ td.size {
 
 .aip-search-item-thumbnail-column {
   float: left;
-  width: 80px;
+  margin-bottom: 40px;
+  width: 150px;
 }
 
 .aip-search-item-file-column {
