@@ -19,7 +19,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for item in objects %}
+      {% for item in page.objects %}
         <tr>
           <!-- File name -->
           <td><a class="file-location" href="#" title="Location" data-location="{{ item.location }}">{{ item.fileName }}</a></td>
@@ -81,4 +81,20 @@
       {% endfor %}
     </tbody>
   </table>
+
+  {% if page.has_other %}
+    Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.total_items }}
+    <div style='float:right'>
+    {% if page.has_previous %}
+      <a href="{% url components.ingest.views.ingest_normalization_report uuid page.previous %}" class="btn">Previous</a>
+      {% if page.has_next %}
+        &nbsp;
+      {% endif %}
+    {% endif %}
+    {% if page.has_next %}
+      <a href="{% url components.ingest.views.ingest_normalization_report uuid page.next %}" class="btn">Next</a>
+    {% endif %}
+    </div>
+  {% endif %}
+
 {% endblock %}

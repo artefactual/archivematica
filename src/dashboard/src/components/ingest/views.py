@@ -207,7 +207,7 @@ def ingest_upload(request, uuid):
 
     return HttpResponseBadRequest()
 
-def ingest_normalization_report(request, uuid):
+def ingest_normalization_report(request, uuid, current_page=None):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     job = jobs[0]
     sipname = utils.get_directory_name(job)
@@ -216,6 +216,14 @@ def ingest_normalization_report(request, uuid):
     cursor = connection.cursor()
     cursor.execute(query, ( uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid ))
     objects = helpers.dictfetchall(cursor)
+
+    results_per_page = 10
+
+    if current_page == None:
+        current_page = 1
+
+    page = helpers.pager(objects, results_per_page, current_page)
+    hit_count = len(objects)
 
     return render(request, 'ingest/normalization_report.html', locals())
 
