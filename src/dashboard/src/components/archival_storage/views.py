@@ -239,7 +239,7 @@ def archival_storage_aip_download(request, uuid):
 def archival_storage_aip_file_download(request, uuid):
     # get file basename
     file          = models.File.objects.get(uuid=uuid)
-    file_basename = os.path.basename(file.originallocation)
+    file_basename = os.path.basename(file.currentlocation)
 
     # get file's AIP's properties
     sipuuid      = helpers.get_file_sip_uuid(uuid)
@@ -252,7 +252,17 @@ def archival_storage_aip_file_download(request, uuid):
     # work out path components
     aip_archive_filename = os.path.basename(aip_filepath)
     subdir = os.path.splitext(aip_archive_filename)[0]
-    file_relative_path = os.path.join(subdir, 'data/objects', file_basename)
+    path_to_file_within_aip_data_dir \
+      = os.path.dirname(file.originallocation.replace('%transferDirectory%', ''))
+
+    file_relative_path = os.path.join(
+      subdir,
+      'data',
+      path_to_file_within_aip_data_dir,
+      file_basename
+    )
+
+    #return HttpResponse('7za e -o' + temp_dir + ' ' + aip_filepath + ' ' + file_relative_path)
 
     # extract file from AIP
     command_data = [
