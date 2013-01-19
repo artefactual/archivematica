@@ -108,7 +108,7 @@
         }
       }
 
-      return params;
+      return (params.length > 0) ? params : false;
     },
 
     firstKeyInObject: function(object) {
