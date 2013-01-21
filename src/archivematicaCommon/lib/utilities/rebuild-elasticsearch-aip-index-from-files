@@ -15,13 +15,20 @@ try:
     sharedDirectory = config.get('MCPClient', "sharedDirectoryMounted")
 except:
     print "Configuration item 'sharedDirectoryMounted' not available at /etc/archivematica/MCPClient/clientConfig.conf."
-    quit(1)
+    os._exit(1)
 
 # Clear database backups of indexed AIPs
 sql = "DELETE FROM ElasticsearchIndexBackup WHERE indexName='aips' AND typeName='aip'"
 databaseInterface.runSQL(sql)
 
-rootdir = os.path.join(sharedDirectory, 'www/AIPsStore')
+# Set root directory
+try:
+    rootdir = sys.argv[1]
+    if not os.path.exists(rootdir):
+        print "AIP store location doesn't exist."
+        os._exit(1)
+except:
+    rootdir = os.path.join(sharedDirectory, 'www/AIPsStore')
 
 print "Rebuilding AIPS index from AIPS in " + rootdir + "..."
 
@@ -50,7 +57,7 @@ try:
     conn._send_request('GET', '')
 except pyes.exceptions.NoServerAvailable:
     print "Connection error: Is Elasticsearch running?"
-    quit(1)
+    os._exit(1)
 
 try:
     conn.delete_index('aips')
