@@ -36,7 +36,7 @@ import xml.etree.ElementTree as ElementTree
 
 pathToElasticSearchServerFile='/etc/elasticsearch/elasticsearch.yml'
 
-def connect_and_index(index, type, uuid, pathToArchive):
+def connect_and_index(index, type, uuid, pathToArchive, sipName=None):
 
     exitCode = 0
 
@@ -60,7 +60,8 @@ def connect_and_index(index, type, uuid, pathToArchive):
                     uuid,
                     metsFilePath,
                     index,
-                    type
+                    type,
+                    sipName
                 )
 
             else:
@@ -84,7 +85,7 @@ def connect_and_index(index, type, uuid, pathToArchive):
 
     return exitCode
 
-def index_mets_file_metadata(conn, uuid, metsFilePath, index, type):
+def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName):
     filesIndexed     = 0
     filePathAmdIDs   = {}
     filePathMetsData = {}
@@ -93,6 +94,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type):
     fileData = {
       'archivematicaVersion': '0.9',
       'AIPUUID':   uuid,
+      'sipName':   sipName,
       'FILEUUID':  '',
       'indexedAt': time.time(),
       'filePath':  '',

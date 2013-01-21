@@ -28,6 +28,8 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 import httplib
+import tempfile
+import subprocess
 
 AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'
 
@@ -125,13 +127,11 @@ def archival_storage_search_parameter_prep(request):
                 fields[index]
             except:
                 fields.insert(index, '')
-                #fields[index] = ''
 
             try:
                 ops[index]
             except:
                 ops.insert(index, 'or')
-                #ops[index] = ''
 
             try:
                 types[index]
@@ -232,18 +232,56 @@ def archival_storage_indexed_count(index):
         pass
     return aip_indexed_file_count
 
-def archival_storage_sip_download(request, uuid):
+def archival_storage_aip_download(request, uuid):
     aip = models.AIP.objects.get(sipuuid=uuid)
     return send_file(request, aip.filepath)
 
+def archival_storage_aip_file_download(request, uuid):
+    # get file basename
+    file          = models.File.objects.get(uuid=uuid)
+    file_basename = os.path.basename(file.currentlocation)
+
+    # get file's AIP's properties
+    sipuuid      = helpers.get_file_sip_uuid(uuid)
+    aip          = models.AIP.objects.get(sipuuid=sipuuid)
+    aip_filepath = aip.filepath
+
+    # create temp dir to extract to
+    temp_dir = tempfile.mkdtemp()
+
+    # work out path components
+    aip_archive_filename = os.path.basename(aip_filepath)
+    subdir = os.path.splitext(aip_archive_filename)[0]
+    path_to_file_within_aip_data_dir \
+      = os.path.dirname(file.originallocation.replace('%transferDirectory%', ''))
+
+    file_relative_path = os.path.join(
+      subdir,
+      'data',
+      path_to_file_within_aip_data_dir,
+      file_basename
+    )
+
+    #return HttpResponse('7za e -o' + temp_dir + ' ' + aip_filepath + ' ' + file_relative_path)
+
+    # extract file from AIP
+    command_data = [
+        '7za',
+        'e',
+        '-o' + temp_dir,
+        aip_filepath,
+        file_relative_path
+    ]
+
+    subprocess.call(command_data)
+
+    # send extracted file
+    extracted_file_path = os.path.join(temp_dir, file_basename)
+    return send_file(request, extracted_file_path)
+
 def archival_storage_send_thumbnail(request, fileuuid):
-    # get file by uuid
-    file = models.File.objects.get(uuid=fileuuid)
-
-    # get SIP/AIP UUID from SIP
-    sipuuid = file.sip.uuid
-
     # get AIP location to use to find root of AIP storage
+    sipuuid = helpers.get_file_sip_uuid(fileuuid)
     aip = models.AIP.objects.get(sipuuid=sipuuid)
     aip_filepath = aip.filepath
 

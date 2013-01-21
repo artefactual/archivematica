@@ -108,7 +108,7 @@
         }
       }
 
-      return params;
+      return (params.length > 0) ? params : false;
     },
 
     firstKeyInObject: function(object) {
@@ -208,7 +208,7 @@
 
         if (this.rows.length > 1) {
           // add button to delete row
-          var $rowDelEl = $('<div style="float:left">x</div>');
+          var $rowDelEl = $('<div style="float:left"><img src="/media/images/delete.png" style="margin-left: 5px"/></div>');
           (function(self, rowIndex) {
             $rowDelEl.click(function() {
               self.deleteRow(rowIndex);
@@ -223,7 +223,7 @@
 
       if (this.allowAdd) {
         // add button to add blank rows
-        var $addBlankEl = $('<div style="clear:both">Add New</div>');
+        var $addBlankEl = $('<div style="clear:both"><a>Add New</a></div>');
         $addBlankEl.click(function() {
           self.addBlankRow();
           self.render();

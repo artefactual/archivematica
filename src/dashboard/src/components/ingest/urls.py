@@ -31,6 +31,7 @@ urlpatterns = patterns('components.ingest.views',
     (r'(?P<uuid>' + UUID_REGEX + ')/upload/$', 'ingest_upload'),
     (r'status/$', 'ingest_status'),
     (r'status/(?P<uuid>' + UUID_REGEX + ')/$', 'ingest_status'),
+    (r'normalization-report/(?P<uuid>' + UUID_REGEX + ')/(?P<current_page>\d+)/$', 'ingest_normalization_report'),
     (r'normalization-report/(?P<uuid>' + UUID_REGEX + ')/$', 'ingest_normalization_report'),
     (r'preview/aip/(?P<jobuuid>' + UUID_REGEX + ')/$', 'ingest_browse_aip'),
     (r'preview/normalization/(?P<jobuuid>' + UUID_REGEX + ')/$', 'ingest_browse_normalization')
