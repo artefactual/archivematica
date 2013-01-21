@@ -42,6 +42,11 @@ else:
         type = indexTypes[index]
 
 conn = pyes.ES('127.0.0.1:9200')
+try:
+    conn._send_request('GET', '')
+except pyes.exceptions.NoServerAvailable:
+    print "Connection error: Is Elasticsearch running?"
+    quit(1)
 
 # delete index if it exists
 try:
