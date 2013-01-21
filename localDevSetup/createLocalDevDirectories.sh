@@ -87,23 +87,9 @@ sudo ln -s "${svnDir}src/MCPServer/sharedDirectoryStructure" "/var/archivematica
 sudo chown -R archivematica:archivematica "/var/archivematica/sharedDirectory"
 sudo chmod -R g+s "/var/archivematica/sharedDirectory"
 
+${svnDir}src/MCPServer/debian/postinstSharedWithDev
 
-echo setting permission on share directories
-sudo chmod -R 777 /var/archivematica/sharedDirectory/
 echo restarting apache
 sudo apache2ctl restart
-
-#Configure sudoers for mcp and client
-echo about to edit sudoers file
-set -e
-cd "$origDir"
-tmp="./sudoers-`uuid`"
-sudo cat /etc/sudoers > "./ETCsudoersBackup"
-sudo grep -v archivematica  "/etc/sudoers" > "${tmp}"
-sudo echo "archivematica ALL=NOPASSWD:/bin/mv,/bin/chown,/bin/chmod,/usr/bin/unoconv,/usr/bin/gs,/usr/lib/transcoder/transcoderScripts/DocumentConverter.py,/usr/bin/inkscape,/usr/lib/archivematica/transcoder/transcoderScripts/restartOpenOffice.sh" >> "${tmp}"
-sudo chown 0:0 "${tmp}"
-sudo chmod 440 "${tmp}"
-sudo mv -f "${tmp}" /etc/sudoers
-echo sudoers file was edited
 
 
