@@ -94,6 +94,7 @@ def getContentFor(unitType, unitName, unitIdentifier):
     FROM Jobs 
     WHERE Jobs.SIPUUID = '%s' 
     AND Jobs.jobType != 'Email fail report'
+    AND subJobOf = ''
     ORDER BY Jobs.createdTime DESC, Jobs.createdTimeDec DESC;""" % (unitIdentifier)
     
     rows2Temp = databaseInterface.queryAllSQL(sql)
