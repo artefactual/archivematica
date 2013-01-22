@@ -1,0 +1,28 @@
+clamdscan  - <"/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74/logs/METS.xml"
+
+clamdscan  - <"/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74/objects/799px-Euroleague-LE Roma vs Toulouse IC-27.bmp"
+
+clamdscan  - <"/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74/objects/pictures/Landing zone.jpg"
+
+clamdscan  - <"/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74/objects/G31DS.TIF"
+
+clamdscan  - <"/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74/objects/WFPC01.GIF"
+
+clamdscan  - <"/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74/objects/lion.svg"
+
+clamdscan  - <"/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74/objects/Nemastylis_geminiflora_Flower.PNG"
+
+clamdscan  - <"/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74/objects/BBhelmet.ai"
+
+clamdscan  - <"/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74/objects/oakland03.jp2"
+
+clamdscan  - <"/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74/processingMCP.xml"
+
+clamdscan  - <"/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74/objects/Vector.NET-Free-Vector-Art-Pack-28-Freedom-Flight.eps"
+
+clamdscan  - <"/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74/logs/FileUUIDs.log"
+
+clamdscan  - <"/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74/objects/pictures/MARBLES.TGA"
+
+clamdscan  - <"/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74/logs/extraction.log"
+

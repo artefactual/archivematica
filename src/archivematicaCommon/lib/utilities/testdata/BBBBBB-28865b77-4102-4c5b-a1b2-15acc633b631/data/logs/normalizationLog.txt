@@ -1,0 +1,200 @@
+Operating on file: {98e27f95-6e1d-451e-9692-62f8375dd1c1}Landing_zone 
+Using  access  command classifications
+Running: 
+[COMMAND]
+PK: dc949cb7-ad68-44ba-a795-d2a43a18164f
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/objects/pictures/Landing_zone.jpg" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/98e27f95-6e1d-451e-9692-62f8375dd1c1-Landing_zone.jpg"
+description: Copying file to access directory.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/98e27f95-6e1d-451e-9692-62f8375dd1c1-Landing_zone.jpg
+verificationCommand: None 
+Operating on file: {821a2c29-05db-4279-973f-4c6550e48ed0}799px-Euroleague-LE_Roma_vs_Toulouse_IC-27 
+Using  access  command classifications
+Running: 
+[COMMAND]
+PK: dc949cb7-ad68-44ba-a795-d2a43a18164f
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/objects/799px-Euroleague-LE_Roma_vs_Toulouse_IC-27.bmp" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/821a2c29-05db-4279-973f-4c6550e48ed0-799px-Euroleague-LE_Roma_vs_Toulouse_IC-27.bmp"
+description: Copying file to access directory.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/821a2c29-05db-4279-973f-4c6550e48ed0-799px-Euroleague-LE_Roma_vs_Toulouse_IC-27.bmp
+verificationCommand: None 
+Operating on file: {69481df3-815a-4824-8834-97c813232908}Vector.NET-Free-Vector-Art-Pack-28-Freedom-Flight 
+Using  access  command classifications
+Running: 
+[COMMAND]
+PK: dc949cb7-ad68-44ba-a795-d2a43a18164f
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/objects/Vector.NET-Free-Vector-Art-Pack-28-Freedom-Flight.eps" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/69481df3-815a-4824-8834-97c813232908-Vector.NET-Free-Vector-Art-Pack-28-Freedom-Flight.eps"
+description: Copying file to access directory.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/69481df3-815a-4824-8834-97c813232908-Vector.NET-Free-Vector-Art-Pack-28-Freedom-Flight.eps
+verificationCommand: None 
+Operating on file: {11bc40a8-2860-4228-b752-43dbcd398593}WFPC01 
+Using  access  command classifications
+Running: 
+[COMMAND]
+PK: dc949cb7-ad68-44ba-a795-d2a43a18164f
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/objects/WFPC01.GIF" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/11bc40a8-2860-4228-b752-43dbcd398593-WFPC01.GIF"
+description: Copying file to access directory.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/11bc40a8-2860-4228-b752-43dbcd398593-WFPC01.GIF
+verificationCommand: None 
+Operating on file: {3262cee5-3d9c-4621-89cc-1e13c5ddfe0e}oakland03 
+Using  access  command classifications
+Running: 
+[COMMAND]
+PK: dc949cb7-ad68-44ba-a795-d2a43a18164f
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/objects/oakland03.jp2" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/3262cee5-3d9c-4621-89cc-1e13c5ddfe0e-oakland03.jp2"
+description: Copying file to access directory.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/3262cee5-3d9c-4621-89cc-1e13c5ddfe0e-oakland03.jp2
+verificationCommand: None 
+Operating on file: {98e27f95-6e1d-451e-9692-62f8375dd1c1}Landing_zone 
+Using  thumbnail  command classifications
+Running: 
+[COMMAND]
+PK: 814febd9-945b-4580-8381-9b146fd042d9
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/transcoder/defaultIcons/default.jpg" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/98e27f95-6e1d-451e-9692-62f8375dd1c1.jpg"
+description: Using default thumbnail.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/98e27f95-6e1d-451e-9692-62f8375dd1c1.jpg
+verificationCommand: None 
+Operating on file: {c95b4a61-58c1-4084-b02f-64a1e793edf5}Nemastylis_geminiflora_Flower 
+Using  access  command classifications
+Running: 
+[COMMAND]
+PK: dc949cb7-ad68-44ba-a795-d2a43a18164f
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/objects/Nemastylis_geminiflora_Flower.PNG" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/c95b4a61-58c1-4084-b02f-64a1e793edf5-Nemastylis_geminiflora_Flower.PNG"
+description: Copying file to access directory.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/c95b4a61-58c1-4084-b02f-64a1e793edf5-Nemastylis_geminiflora_Flower.PNG
+verificationCommand: None 
+Operating on file: {d5f47840-9f16-498e-920b-0cccb9032a1d}MARBLES 
+Using  access  command classifications
+Running: 
+[COMMAND]
+PK: dc949cb7-ad68-44ba-a795-d2a43a18164f
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/objects/pictures/MARBLES.TGA" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/d5f47840-9f16-498e-920b-0cccb9032a1d-MARBLES.TGA"
+description: Copying file to access directory.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/d5f47840-9f16-498e-920b-0cccb9032a1d-MARBLES.TGA
+verificationCommand: None 
+Operating on file: {53010fde-5181-4771-bb7a-7e4b274aeeb6}lion 
+Using  access  command classifications
+Running: 
+[COMMAND]
+PK: dc949cb7-ad68-44ba-a795-d2a43a18164f
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/objects/lion.svg" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/53010fde-5181-4771-bb7a-7e4b274aeeb6-lion.svg"
+description: Copying file to access directory.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/53010fde-5181-4771-bb7a-7e4b274aeeb6-lion.svg
+verificationCommand: None 
+Operating on file: {821a2c29-05db-4279-973f-4c6550e48ed0}799px-Euroleague-LE_Roma_vs_Toulouse_IC-27 
+Using  thumbnail  command classifications
+Running: 
+[COMMAND]
+PK: 814febd9-945b-4580-8381-9b146fd042d9
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/transcoder/defaultIcons/default.jpg" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/821a2c29-05db-4279-973f-4c6550e48ed0.jpg"
+description: Using default thumbnail.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/821a2c29-05db-4279-973f-4c6550e48ed0.jpg
+verificationCommand: None 
+Operating on file: {3262cee5-3d9c-4621-89cc-1e13c5ddfe0e}oakland03 
+Using  thumbnail  command classifications
+Running: 
+[COMMAND]
+PK: 814febd9-945b-4580-8381-9b146fd042d9
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/transcoder/defaultIcons/default.jpg" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/3262cee5-3d9c-4621-89cc-1e13c5ddfe0e.jpg"
+description: Using default thumbnail.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/3262cee5-3d9c-4621-89cc-1e13c5ddfe0e.jpg
+verificationCommand: None 
+Operating on file: {11bc40a8-2860-4228-b752-43dbcd398593}WFPC01 
+Using  thumbnail  command classifications
+Running: 
+[COMMAND]
+PK: 814febd9-945b-4580-8381-9b146fd042d9
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/transcoder/defaultIcons/default.jpg" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/11bc40a8-2860-4228-b752-43dbcd398593.jpg"
+description: Using default thumbnail.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/11bc40a8-2860-4228-b752-43dbcd398593.jpg
+verificationCommand: None 
+Operating on file: {53010fde-5181-4771-bb7a-7e4b274aeeb6}lion 
+Using  thumbnail  command classifications
+Running: 
+[COMMAND]
+PK: 814febd9-945b-4580-8381-9b146fd042d9
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/transcoder/defaultIcons/default.jpg" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/53010fde-5181-4771-bb7a-7e4b274aeeb6.jpg"
+description: Using default thumbnail.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/53010fde-5181-4771-bb7a-7e4b274aeeb6.jpg
+verificationCommand: None 
+Operating on file: {d5f47840-9f16-498e-920b-0cccb9032a1d}MARBLES 
+Using  thumbnail  command classifications
+Running: 
+[COMMAND]
+PK: 814febd9-945b-4580-8381-9b146fd042d9
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/transcoder/defaultIcons/default.jpg" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/d5f47840-9f16-498e-920b-0cccb9032a1d.jpg"
+description: Using default thumbnail.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/d5f47840-9f16-498e-920b-0cccb9032a1d.jpg
+verificationCommand: None 
+Operating on file: {69481df3-815a-4824-8834-97c813232908}Vector.NET-Free-Vector-Art-Pack-28-Freedom-Flight 
+Using  thumbnail  command classifications
+Running: 
+[COMMAND]
+PK: 814febd9-945b-4580-8381-9b146fd042d9
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/transcoder/defaultIcons/default.jpg" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/69481df3-815a-4824-8834-97c813232908.jpg"
+description: Using default thumbnail.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/69481df3-815a-4824-8834-97c813232908.jpg
+verificationCommand: None 
+Operating on file: {7dd5379f-9809-49b9-999a-1768f7937078}G31DS 
+Using  access  command classifications
+Running: 
+[COMMAND]
+PK: dc949cb7-ad68-44ba-a795-d2a43a18164f
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/objects/G31DS.TIF" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/7dd5379f-9809-49b9-999a-1768f7937078-G31DS.TIF"
+description: Copying file to access directory.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/7dd5379f-9809-49b9-999a-1768f7937078-G31DS.TIF
+verificationCommand: None 
+Operating on file: {232c1a29-9a80-401b-955b-d6f925bcfb04}BBhelmet 
+Using  access  command classifications
+Running: 
+[COMMAND]
+PK: dc949cb7-ad68-44ba-a795-d2a43a18164f
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/objects/BBhelmet.ai" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/232c1a29-9a80-401b-955b-d6f925bcfb04-BBhelmet.ai"
+description: Copying file to access directory.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/DIP/objects/232c1a29-9a80-401b-955b-d6f925bcfb04-BBhelmet.ai
+verificationCommand: None 
+Operating on file: {7dd5379f-9809-49b9-999a-1768f7937078}G31DS 
+Using  thumbnail  command classifications
+Running: 
+[COMMAND]
+PK: 814febd9-945b-4580-8381-9b146fd042d9
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/transcoder/defaultIcons/default.jpg" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/7dd5379f-9809-49b9-999a-1768f7937078.jpg"
+description: Using default thumbnail.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/7dd5379f-9809-49b9-999a-1768f7937078.jpg
+verificationCommand: None 
+Operating on file: {232c1a29-9a80-401b-955b-d6f925bcfb04}BBhelmet 
+Using  thumbnail  command classifications
+Running: 
+[COMMAND]
+PK: 814febd9-945b-4580-8381-9b146fd042d9
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/transcoder/defaultIcons/default.jpg" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/232c1a29-9a80-401b-955b-d6f925bcfb04.jpg"
+description: Using default thumbnail.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/232c1a29-9a80-401b-955b-d6f925bcfb04.jpg
+verificationCommand: None 
+Operating on file: {c95b4a61-58c1-4084-b02f-64a1e793edf5}Nemastylis_geminiflora_Flower 
+Using  thumbnail  command classifications
+Running: 
+[COMMAND]
+PK: 814febd9-945b-4580-8381-9b146fd042d9
+Type: command
+command: cp -R "/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/transcoder/defaultIcons/default.jpg" "/var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/c95b4a61-58c1-4084-b02f-64a1e793edf5.jpg"
+description: Using default thumbnail.
+outputLocation: /var/archivematica/sharedDirectory/currentlyProcessing/BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631/thumbnails/c95b4a61-58c1-4084-b02f-64a1e793edf5.jpg
+verificationCommand: None 

@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='ASCII'?>
+<mets xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd">
+  <fileSec>
+    <fileGrp USE="original">
+      <file ID="file-821a2c29-05db-4279-973f-4c6550e48ed0">
+        <FLocat xlink:href="objects/799px-Euroleague-LE Roma vs Toulouse IC-27.bmp" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </file>
+      <file ID="file-232c1a29-9a80-401b-955b-d6f925bcfb04">
+        <FLocat xlink:href="objects/BBhelmet.ai" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </file>
+      <file ID="file-7dd5379f-9809-49b9-999a-1768f7937078">
+        <FLocat xlink:href="objects/G31DS.TIF" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </file>
+      <file ID="file-c95b4a61-58c1-4084-b02f-64a1e793edf5">
+        <FLocat xlink:href="objects/Nemastylis_geminiflora_Flower.PNG" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </file>
+      <file ID="file-69481df3-815a-4824-8834-97c813232908">
+        <FLocat xlink:href="objects/Vector.NET-Free-Vector-Art-Pack-28-Freedom-Flight.eps" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </file>
+      <file ID="file-11bc40a8-2860-4228-b752-43dbcd398593">
+        <FLocat xlink:href="objects/WFPC01.GIF" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </file>
+      <file ID="file-53010fde-5181-4771-bb7a-7e4b274aeeb6">
+        <FLocat xlink:href="objects/lion.svg" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </file>
+      <file ID="file-3262cee5-3d9c-4621-89cc-1e13c5ddfe0e">
+        <FLocat xlink:href="objects/oakland03.jp2" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </file>
+      <file ID="file-98e27f95-6e1d-451e-9692-62f8375dd1c1">
+        <FLocat xlink:href="objects/pictures/Landing zone.jpg" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </file>
+      <file ID="file-d5f47840-9f16-498e-920b-0cccb9032a1d">
+        <FLocat xlink:href="objects/pictures/MARBLES.TGA" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </file>
+    </fileGrp>
+  </fileSec>
+  <structMap TYPE="physical">
+    <div TYPE="directory" LABEL="BBBBBB-80cad4f7-8cc1-4d5a-96be-b5dc23c4cf74">
+      <div TYPE="directory" LABEL="objects">
+        <fptr FILEID="file-821a2c29-05db-4279-973f-4c6550e48ed0"/>
+        <fptr FILEID="file-232c1a29-9a80-401b-955b-d6f925bcfb04"/>
+        <fptr FILEID="file-7dd5379f-9809-49b9-999a-1768f7937078"/>
+        <fptr FILEID="file-c95b4a61-58c1-4084-b02f-64a1e793edf5"/>
+        <fptr FILEID="file-69481df3-815a-4824-8834-97c813232908"/>
+        <fptr FILEID="file-11bc40a8-2860-4228-b752-43dbcd398593"/>
+        <fptr FILEID="file-53010fde-5181-4771-bb7a-7e4b274aeeb6"/>
+        <fptr FILEID="file-3262cee5-3d9c-4621-89cc-1e13c5ddfe0e"/>
+        <div TYPE="directory" LABEL="pictures">
+          <fptr FILEID="file-98e27f95-6e1d-451e-9692-62f8375dd1c1"/>
+          <fptr FILEID="file-d5f47840-9f16-498e-920b-0cccb9032a1d"/>
+        </div>
+      </div>
+    </div>
+  </structMap>
+</mets>
