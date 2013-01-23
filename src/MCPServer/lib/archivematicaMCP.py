@@ -323,12 +323,15 @@ if __name__ == '__main__':
         t = threading.Thread(target=flushOutputs)
         t.daemon = True
         t.start()
-
     cleanupOldDbEntriesOnNewRun()
     watchDirectories()
     #t = threading.Thread(target=startTransferD)
     #t.daemon = True
     #t.start()
 
+    # debug 4545 https://projects.artefactual.com/issues/4545
+    #print sys.stdout.encoding
+    #print u'\u2019'
+    
     # This is blocking the main thread with the worker loop
     RPCServer.startRPCServer()
