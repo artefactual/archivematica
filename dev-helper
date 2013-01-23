@@ -132,7 +132,7 @@ function clone-sampledata() {
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
     CURRENT_REPO=`git remote -v | head -n 1 | sed "s/\t/ /" | cut -f2 -d" "`
-    if [ "$CURRENT_REPO" = "git@git.artefactual.com:archivematica.git" ]; then
+    if [ "$CURRENT_REPO" = "git@git.artefactual.com:archivematica" ]; then
       SAMPLEDATA_REPO="git@git.artefactual.com:archivematica-sampledata.git"
     else
       SAMPLEDATA_REPO="https://github.com/artefactual/archivematica-sampledata.git"
