@@ -9,7 +9,8 @@ import pyes
 def dispay_usage_and_exit():
     print 'WARNING: This will erase the Elasticsearch AIP index.'
     print
-    print 'Usage: ' + sys.argv[0] + ' run'
+    print 'AIP Elasticsearch indexing stress tester:'
+    print '  Usage: ' + sys.argv[0] + ' <location of AIP directory>'
     os._exit(1)
 
 try:
@@ -17,8 +18,9 @@ try:
 except:
     dispay_usage_and_exit()
 
-if sys.argv[1] != 'run':
-    dispay_usage_and_exit()
+if not os.path.exists(sys.argv[1]):
+    print 'AIP directory doe not exist.'
+    os._exit(1)
 
 print "Stress testing AIP indexing using test data..."
 
@@ -34,8 +36,8 @@ try:
 except:
     print "Error deleting index or index already deleted."
 
-script_directory = os.path.dirname(os.path.realpath(__file__))
-test_directory = os.path.join(script_directory, 'testdata', 'BBBBBB-28865b77-4102-4c5b-a1b2-15acc633b631', 'data')
+aip_data_directory = os.path.join(sys.argv[1], 'data')
+uuid = os.path.basename(sys.argv[1][-36:])
 cycle = 1
 
 while(1):
@@ -43,8 +45,8 @@ while(1):
     elasticSearchFunctions.connect_and_index(
         'aips',
         'aip',
-        '28865b77-4102-4c5b-a1b2-15acc633b631',
-        test_directory
+        uuid,
+        aip_data_directory
     )
     time.sleep(1)
     cycle = cycle + 1
