@@ -58,35 +58,58 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
         else:
             currentDirectory = line.strip().replace(topDirectory, transferPath, 1).replace('\\','/')
   
+    #file/dir lines aren't and don't start with whitespace.
+    if not line.strip():
+        continue
+    if line.startswith(" ") or line.startswith("\t"):
+        continue
+   
+    isDir = False
+    if line.find('<DIR>') != -1:
+        isDir = True
     
-    #check that it starts with a date
-    if re.match('^[0-1][0-9]/[0-3][0-9]/[0-3][0-9][0-9][0-9]', line):
-        #check that it's not a <DIR>
-        isDir = False
-        if line.find('<DIR>') != -1:
-            isDir = True
-        #split by whitespace
-        sections = re.split('\s+', line)
-        if len(sections) < 4:
+    sections = re.split('\s+', line.strip())
+    baseName = sections[-1] #assumes no spaces in file name
+    path = os.path.join(transferPath, currentDirectory, baseName)  
+    
+    if isDir:
+        #don't check if parent directory exists
+        if baseName == "..":
             continue
-        
-        path = os.path.join(transferPath, currentDirectory, sections[4]) #assumes no spaces in file name 
-        
-        if isDir:
-            if os.path.isdir(path):
-                print "Verified directory exists: ", path.replace(transferPath, "%TransferDirectory%")
-            else:
-                print >>sys.stderr, "Directory does not exists: ", path.replace(transferPath, "%TransferDirectory%")
-                exitCode += 1
+        #check if directory exists
+        if os.path.isdir(path):
+            print "Verified directory exists: ", path.replace(transferPath, "%TransferDirectory%")
         else:
-            if os.path.isfile(path):
-                print "Verified file exists: ", path.replace(transferPath, "%TransferDirectory%")
+            print >>sys.stderr, "Directory does not exists: ", path.replace(transferPath, "%TransferDirectory%")
+            exitCode += 1
+    else:
+        if os.path.isfile(path):
+            print "Verified file exists: ", path.replace(transferPath, "%TransferDirectory%")
+            fileCount += 1
+            fileID = getFileUUIDLike(path, transferPath, transferUUID, "transferUUID", "%transferDirectory%")
+            for paths, fileUUID in fileID.iteritems():
+                eventDetail = "program=\"archivematica\"; module=\"trimVerifyManifest\""
+                eventOutcome="Pass"
+                eventOutcomeDetailNote = "Verified file exists"
+                eventIdentifierUUID=uuid.uuid4().__str__()
+                databaseFunctions.insertIntoEvents(fileUUID=fileUUID, \
+                     eventIdentifierUUID=eventIdentifierUUID, \
+                     eventType="manifest check", \
+                     eventDateTime=date, \
+                     eventOutcome=eventOutcome, \
+                     eventOutcomeDetailNote=eventOutcomeDetailNote, \
+                     eventDetail=eventDetail)
+        else:
+            i = path.rfind(".")
+            path2 = path[:i] + path[i:].lower() 
+            if i != -1 and os.path.isfile(path2):
+                print >>sys.stderr, "Warning, verified file exists, but with implicit extension case: ", path.replace(transferPath, "%TransferDirectory%")
                 fileCount += 1
-                fileID = getFileUUIDLike(path, transferPath, transferUUID, "transferUUID", "%transferDirectory%")
+                fileID = getFileUUIDLike(path2, transferPath, transferUUID, "transferUUID", "%transferDirectory%")
                 for paths, fileUUID in fileID.iteritems():
                     eventDetail = "program=\"archivematica\"; module=\"trimVerifyManifest\""
                     eventOutcome="Pass"
-                    eventOutcomeDetailNote = "Verified file exists"
+                    eventOutcomeDetailNote = "Verified file exists, but with implicit extension case"
                     eventIdentifierUUID=uuid.uuid4().__str__()
                     databaseFunctions.insertIntoEvents(fileUUID=fileUUID, \
                          eventIdentifierUUID=eventIdentifierUUID, \
@@ -96,27 +119,8 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
                          eventOutcomeDetailNote=eventOutcomeDetailNote, \
                          eventDetail=eventDetail)
             else:
-                i = path.rfind(".")
-                path2 = path[:i] + path[i:].lower() 
-                if i != -1 and os.path.isfile(path2):
-                    print >>sys.stderr, "Warning, verified file exists, but with implicit extension case: ", path.replace(transferPath, "%TransferDirectory%")
-                    fileCount += 1
-                    fileID = getFileUUIDLike(path2, transferPath, transferUUID, "transferUUID", "%transferDirectory%")
-                    for paths, fileUUID in fileID.iteritems():
-                        eventDetail = "program=\"archivematica\"; module=\"trimVerifyManifest\""
-                        eventOutcome="Pass"
-                        eventOutcomeDetailNote = "Verified file exists, but with implicit extension case"
-                        eventIdentifierUUID=uuid.uuid4().__str__()
-                        databaseFunctions.insertIntoEvents(fileUUID=fileUUID, \
-                             eventIdentifierUUID=eventIdentifierUUID, \
-                             eventType="manifest check", \
-                             eventDateTime=date, \
-                             eventOutcome=eventOutcome, \
-                             eventOutcomeDetailNote=eventOutcomeDetailNote, \
-                             eventDetail=eventDetail)
-                else:
-                    print >>sys.stderr, "File does not exists: ", path.replace(transferPath, "%TransferDirectory%")
-                    exitCode += 1
+                print >>sys.stderr, "File does not exists: ", path.replace(transferPath, "%TransferDirectory%")
+                exitCode += 1
 if fileCount:
     quit(exitCode)
 else:
