@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import uuid
+import time
 import gearman
 import cPickle
 import datetime
@@ -60,7 +61,24 @@ class taskStandard():
         data = {"createdDate" : datetime.datetime.now().__str__()}
         data["arguments"] = self.arguments
         print '"'+self.execute+'"', data
-        completed_job_request = gm_client.submit_job(self.execute.lower(), cPickle.dumps(data), self.UUID)
+        completed_job_request = None
+        failMaxSleep = 60
+        failSleepInitial = 1
+        failSleep = failSleepInitial
+        failSleepIncrementor = 2
+        while completed_job_request == None:
+            try:
+                completed_job_request = gm_client.submit_job(self.execute.lower(), cPickle.dumps(data), self.UUID)
+            #raise ServerUnavailable('Found no valid connections: %r' % self.connection_list)
+            #ServerUnavailable: Found no valid connections: [<GearmanConnection localhost:4730 connected=False>]
+            except gearman.errors.ServerUnavailable as inst:
+                completed_job_request = None
+                time.sleep(failSleep)
+                if failSleep == failSleepInitial:
+                    print >>sys.stderr, inst.args
+                    print >>sys.stderr, "Retrying issueing gearman command."
+                if failSleep < failMaxSleep:
+                    failSleep += failSleepIncrementor
         limitGearmanConnectionsSemaphore.release()
         self.check_request_status(completed_job_request)
         print "DEBUG: FINISHED PERFORMING TASK: ", self.UUID

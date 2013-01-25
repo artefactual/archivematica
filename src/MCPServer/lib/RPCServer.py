@@ -109,4 +109,15 @@ def startRPCServer():
     gm_worker.set_client_id(hostID)
     gm_worker.register_task("approveJob", gearmanApproveJob)
     gm_worker.register_task("getJobsAwaitingApproval", gearmanGetJobsAwaitingApproval)
-    gm_worker.work()
+    failMaxSleep = 30
+    failSleep = 1
+    failSleepIncrementor = 2
+    while True:
+        try:
+            gm_worker.work()
+        except gearman.errors.ServerUnavailable as inst:
+            #print >>sys.stderr, inst.args
+            #print >>sys.stderr, "Retrying in %d seconds." % (failSleep)
+            time.sleep(failSleep)
+            if failSleep < failMaxSleep:
+                failSleep += failSleepIncrementor

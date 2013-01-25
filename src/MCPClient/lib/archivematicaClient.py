@@ -98,6 +98,16 @@ def executeCommand(gearman_worker, gearman_job):
         sInput = ""
         clientID = gearman_worker.worker_client_id
 
+
+        sql = """SELECT Tasks.taskUUID FROM Tasks WHERE taskUUID='%s' AND startTime != 0;""" % (gearman_job.unique.__str__())
+        rows = databaseInterface.queryAllSQL(sql)
+        if len(rows):
+            exitCode = -1
+            stdOut = ""
+            stdError = """Detected this task has already started!
+Unable to determine if it completed successfully."""
+            return cPickle.dumps({"exitCode" : exitCode, "stdOut": stdOut, "stdError": stdError})
+        
         #if True:
         #    print clientID, execute, data
         logTaskAssignedSQL(gearman_job.unique.__str__(), clientID, utcDate)
@@ -172,7 +182,19 @@ def startThread(threadNumber):
             print "registering:", '"' + key + '"'
             printOutputLock.release()
             gm_worker.register_task(key, transcoderNormalizer.executeCommandReleationship)
-    gm_worker.work()
+            
+    failMaxSleep = 30
+    failSleep = 1
+    failSleepIncrementor = 2
+    while True:
+        try:
+            gm_worker.work()
+        except gearman.errors.ServerUnavailable as inst:
+            print >>sys.stderr, inst.args
+            print >>sys.stderr, "Retrying in %d seconds." % (failSleep)
+            time.sleep(failSleep)
+            if failSleep < failMaxSleep:
+                failSleep += failSleepIncrementor
 
 
 def flushOutputs():
