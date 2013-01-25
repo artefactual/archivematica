@@ -152,7 +152,7 @@ INSTALLED_APPS = (
     'mcp',
 
     # For REST API
-    'tastypie',
+    #'tastypie',
 )
 
 # A sample logging configuration. The only tangible logging
