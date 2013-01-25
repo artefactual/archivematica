@@ -2,6 +2,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpRespo
 from django.db import connection
 from django.utils import simplejson
 import os
+from subprocess import call
 import shutil
 import MySQLdb
 import tempfile
@@ -298,10 +299,19 @@ def copy_to_start_transfer(request):
             destination = pad_destination_filepath_if_it_already_exists(destination)
 
             try:
+                call([
+                    'rsync',
+                    '-r',
+                    '-t',
+                    filepath,
+                    destination
+                ])
+                """
                 shutil.copytree(
                     filepath,
                     destination
                 )
+                """
             except:
                 error = 'Error copying from ' + filepath + ' to ' + destination + '. (' + str(sys.exc_info()[0]) + ')'
 
