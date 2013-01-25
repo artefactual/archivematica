@@ -18,10 +18,10 @@ from archivematicaCreateStructuredDirectory import createStructuredDirectory
 import locale
 locale.setlocale(locale.LC_ALL, '')
 
-SHARED_DIRECTORY_ROOT = '/var/archivematica/sharedDirectory'
-ORIGINALS_DIR         = SHARED_DIRECTORY_ROOT + '/transferBackups/originals'
-ACTIVE_TRANSFER_DIR   = SHARED_DIRECTORY_ROOT + '/watchedDirectories/activeTransfers'
-STANDARD_TRANSFER_DIR = ACTIVE_TRANSFER_DIR + '/standardTransfer'
+SHARED_DIRECTORY_ROOT   = '/var/archivematica/sharedDirectory'
+ORIGINALS_DIR           = SHARED_DIRECTORY_ROOT + '/transferBackups/originals'
+ACTIVE_TRANSFER_DIR     = SHARED_DIRECTORY_ROOT + '/watchedDirectories/activeTransfers'
+STANDARD_TRANSFER_DIR   = ACTIVE_TRANSFER_DIR + '/standardTransfer'
 COMPLETED_TRANSFERS_DIR = SHARED_DIRECTORY_ROOT + '/watchedDirectories/SIPCreation/completedTransfers'
 
 def sorted_directory_list(path):
