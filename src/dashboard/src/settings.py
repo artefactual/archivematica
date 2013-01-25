@@ -1,4 +1,6 @@
 import os
+import sys
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 
 BASE_PATH = os.path.dirname(__file__)
 
@@ -148,6 +150,9 @@ INSTALLED_APPS = (
     'components.accounts',
     'main',
     'mcp',
+
+    # For REST API
+    'tastypie',
 )
 
 # A sample logging configuration. The only tangible logging
