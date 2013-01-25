@@ -25,6 +25,15 @@ ACTIVE_TRANSFER_DIR     = SHARED_DIRECTORY_ROOT + '/watchedDirectories/activeTra
 STANDARD_TRANSFER_DIR   = ACTIVE_TRANSFER_DIR + '/standardTransfer'
 COMPLETED_TRANSFERS_DIR = SHARED_DIRECTORY_ROOT + '/watchedDirectories/SIPCreation/completedTransfers'
 
+def rsync_copy(source, destination):
+    call([
+        'rsync',
+        '-r',
+        '-t',
+        source,
+        destination
+    ])
+
 def sorted_directory_list(path):
     cleaned = []
     entries = os.listdir(archivematicaFunctions.unicodeToStr(path))
@@ -291,27 +300,14 @@ def copy_to_start_transfer(request):
         # bag
         try:
             filepath.lower().index('.zip')
-
-            shutil.copy(filepath, destination)
+            rsync_copy(filepath, destination)
         except:
             destination = os.path.join(destination, basename)
 
             destination = pad_destination_filepath_if_it_already_exists(destination)
 
             try:
-                call([
-                    'rsync',
-                    '-r',
-                    '-t',
-                    filepath,
-                    destination
-                ])
-                """
-                shutil.copytree(
-                    filepath,
-                    destination
-                )
-                """
+                rsync_copy(filepath, destination)
             except:
                 error = 'Error copying from ' + filepath + ' to ' + destination + '. (' + str(sys.exc_info()[0]) + ')'
 
