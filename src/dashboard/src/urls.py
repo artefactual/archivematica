@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
-from components.api.models import AIPResource
+#from components.api.models import AIPResource
 
-aip_resource = AIPResource()
+#aip_resource = AIPResource()
 
 UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
 
@@ -17,6 +17,6 @@ urlpatterns = patterns('',
     (r'ingest/', include('components.ingest.urls')),
     (r'^administration/', include('components.administration.urls')),
     (r'^filesystem/', include('components.filesystem_ajax.urls')),
-    (r'^api/', include(aip_resource.urls)),
+    #(r'^api/', include(aip_resource.urls)),
     (r'', include('main.urls'))
 )
