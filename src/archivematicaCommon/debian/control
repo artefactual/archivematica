@@ -8,6 +8,6 @@ Homepage: http://archivematica.org
 
 Package: archivematica-common
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, python, python2.7-elementtree
+Depends: ${shlibs:Depends}, ${misc:Depends}, python, python2.7-elementtree, python-mimeparse
 Description: Common libraries for archivematica
   This package is a support package for archivematica. It contains a library of functions used in the archivematica system.  
