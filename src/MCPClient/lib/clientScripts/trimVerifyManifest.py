@@ -56,21 +56,21 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
                 print >>sys.stderr, "Warning, transfer was renamed from: ", originalTransferName  
                  
         else:
-            currentDirectory = line.strip().replace(topDirectory, transferPath, 1).replace('\\','/')
+            currentDirectory = line.strip().replace(topDirectory + '\\', transferPath, 1).replace('\\','/')
   
     #file/dir lines aren't and don't start with whitespace.
     if not line.strip():
         continue
     if line.startswith(" ") or line.startswith("\t"):
         continue
-   
+    
     isDir = False
     if line.find('<DIR>') != -1:
         isDir = True
     
     sections = re.split('\s+', line.strip())
     baseName = sections[-1] #assumes no spaces in file name
-    path = os.path.join(transferPath, currentDirectory, baseName)  
+    path = os.path.join(transferPath, currentDirectory, baseName)
     
     if isDir:
         #don't check if parent directory exists
