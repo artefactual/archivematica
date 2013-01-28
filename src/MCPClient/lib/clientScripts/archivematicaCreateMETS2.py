@@ -69,7 +69,7 @@ includeAmdSec = opts.amdSec
 #Global Variables
 
 globalFileGrps = {}
-globalFileGrpsUses = ["original", "submissionDocumentation", "preservation", "service", "access", "license", "text/ocr"]
+globalFileGrpsUses = ["original", "submissionDocumentation", "preservation", "service", "access", "license", "text/ocr", "metadata"]
 for use in globalFileGrpsUses:
     grp = etree.Element("fileGrp")
     grp.set("USE", use)
@@ -679,7 +679,7 @@ def createFileSec(directoryPath, structMapDiv):
         if fileGrpUUID:
             GROUPID = "Group-%s" % (fileGrpUUID)
             if use == "TRIM file metadata":
-                use = "submissionDocumentation"
+                use = "metadata"
             
         elif  use == "original" or use == "submissionDocumentation":
             GROUPID = "Group-%s" % (myuuid)
@@ -733,7 +733,7 @@ def createFileSec(directoryPath, structMapDiv):
         
         elif use == "TRIM container metadata":
             GROUPID = "Group-%s" % (myuuid)
-            use = "submissionDocumentation"
+            use = "metadata"
         
 
         if transferUUID:
