@@ -38,7 +38,8 @@ date = sys.argv[4]
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from fileOperations import getFileUUIDLike
 import databaseFunctions
-
+#import databaseInterface
+#databaseInterface.printSQL = True
 topDirectory = None
 currentDirectory = ""
 fileCount = 0
@@ -87,6 +88,9 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
             print "Verified file exists: ", path.replace(transferPath, "%TransferDirectory%")
             fileCount += 1
             fileID = getFileUUIDLike(path, transferPath, transferUUID, "transferUUID", "%transferDirectory%")
+            if not len(fileID):
+                print >>sys.stderr, "Could not find fileUUID for: ", path.replace(transferPath, "%TransferDirectory%")
+                exitCode += 1
             for paths, fileUUID in fileID.iteritems():
                 eventDetail = "program=\"archivematica\"; module=\"trimVerifyManifest\""
                 eventOutcome="Pass"
@@ -106,6 +110,9 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
                 print >>sys.stderr, "Warning, verified file exists, but with implicit extension case: ", path.replace(transferPath, "%TransferDirectory%")
                 fileCount += 1
                 fileID = getFileUUIDLike(path2, transferPath, transferUUID, "transferUUID", "%transferDirectory%")
+                if not len(fileID):
+                    print >>sys.stderr, "Could not find fileUUID for: ", path.replace(transferPath, "%TransferDirectory%")
+                    exitCode += 1
                 for paths, fileUUID in fileID.iteritems():
                     eventDetail = "program=\"archivematica\"; module=\"trimVerifyManifest\""
                     eventOutcome="Pass"
