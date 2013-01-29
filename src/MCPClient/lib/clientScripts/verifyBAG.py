@@ -28,11 +28,11 @@ printSubProcessOutput=True
 
 bag = sys.argv[1]
 verificationCommands = []
-verificationCommands.append("/usr/share/bagit/bin/bag verifyvalid " + bag)
-verificationCommands.append("/usr/share/bagit/bin/bag checkpayloadoxum " + bag)
-verificationCommands.append("/usr/share/bagit/bin/bag verifycomplete " + bag)
-verificationCommands.append("/usr/share/bagit/bin/bag verifypayloadmanifests " + bag)
-verificationCommands.append("/usr/share/bagit/bin/bag verifytagmanifests " + bag)
+verificationCommands.append("/usr/share/bagit/bin/bag verifyvalid " + bag) #Verifies the validity of a bag.
+verificationCommands.append("/usr/share/bagit/bin/bag verifycomplete " + bag) #Verifies the completeness of a bag.
+verificationCommands.append("/usr/share/bagit/bin/bag verifypayloadmanifests " + bag) #Verifies the checksums in all payload manifests.
+#verificationCommands.append("/usr/share/bagit/bin/bag checkpayloadoxum " + bag) #Generates Payload-Oxum and checks against Payload-Oxum in bag-info.txt.
+#verificationCommands.append("/usr/share/bagit/bin/bag verifytagmanifests " + bag) #Verifies the checksums in all tag manifests.
 exitCode = 0
 for command in verificationCommands:
     ret = executeOrRun("command", command, printing=printSubProcessOutput)
