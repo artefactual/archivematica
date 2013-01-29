@@ -302,9 +302,9 @@ def copy_to_start_transfer(request):
             filepath.lower().index('.zip')
             rsync_copy(filepath, destination)
         except:
-            destination = os.path.join(destination, basename)
-
-            destination = pad_destination_filepath_if_it_already_exists(destination)
+            # Need to work out way to deal with name collisions with new rsync copy
+            #destination = os.path.join(destination, basename)
+            #destination = pad_destination_filepath_if_it_already_exists(destination)
 
             try:
                 rsync_copy(filepath, destination)
