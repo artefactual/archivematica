@@ -65,7 +65,7 @@ if __name__ == '__main__':
     # the user has selected the 'Project Client' option and we just exit from this script.
     projectClientZipPath = outputDipDir = os.path.join(args.outputDir, 'CONTENTdm', 'projectclient', args.uuid + '.7z')
     if os.path.exists(projectClientZipPath):
-		quit(0)
+        quit(0)
 
     # If we haven't quit, continue to process the 'directupload' files.
     contentdmCollectionDirectory = getDestinationImportDirectory(args.targetCollection, args.contentdmServer)
