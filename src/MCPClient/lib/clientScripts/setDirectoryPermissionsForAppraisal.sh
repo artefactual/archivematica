@@ -28,16 +28,16 @@ target="$1"
 if [ -e "${target}" ]; then
 	sudo chown -R archivematica:archivematica "${target}"  
 	echo `basename "${target}"` owned by "archivematica:archivematica" now 
-	chmod -R 660 "${target}"
-	chmod 640 "${target}"
-    find "${target}" -type d | xargs -IF chmod u+rwx,g-w+rxt,o-rwx F
+	sudo chmod -R 660 "${target}"
+	sudo chmod 640 "${target}"
+    sudo find "${target}" -type d | xargs -IF chmod u+rwx,g-w+rxt,o-rwx F
 	if [ -d "${target}objects" ]; then	
-		chmod -R 660 "${target}objects"
-        find "${target}objects" -type d | xargs -IF chmod u+rwx,g+rwxt,o-rwx F
+		sudo chmod -R 660 "${target}objects"
+        sudo find "${target}objects" -type d | xargs -IF chmod u+rwx,g+rwxt,o-rwx F
 	fi
 	if [ -d "${target}metadata" ]; then	
-		chmod -R 660 "${target}metadata"
-        find "${target}metadata" -type d | xargs -IF chmod u+rwx,g+rwxt,o-rwx F
+		sudo chmod -R 660 "${target}metadata"
+        sudo find "${target}metadata" -type d | xargs -IF chmod u+rwx,g+rwxt,o-rwx F
 	fi
 else
   	echo $target does not exist\ 1>&2
