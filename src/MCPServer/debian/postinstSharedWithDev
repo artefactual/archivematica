@@ -22,7 +22,7 @@ cd "$origDir"
 tmp="./sudoers-`uuid`"
 sudo cat /etc/sudoers > "./ETCsudoersBackup"
 sudo grep -v archivematica  "/etc/sudoers" > "${tmp}"
-sudo echo "archivematica ALL=NOPASSWD:/bin/mv,/bin/chown,/bin/chmod,/usr/bin/find,/usr/bin/gs" >> "${tmp}"
+sudo echo "archivematica ALL=NOPASSWD:/bin/mv,/bin/chown,/bin/chmod,/usr/bin/find,/usr/bin/gs,/usr/bin/inkscape" >> "${tmp}"
 sudo chown 0:0 "${tmp}"
 sudo chmod 440 "${tmp}"
 sudo mv -f "${tmp}" /etc/sudoers
