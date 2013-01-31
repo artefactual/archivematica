@@ -5,6 +5,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 from tastypie.resources import ModelResource
 from tastypie.resources import Resource
 from tastypie import fields
+from tastypie.bundle import Bundle
 from main import models
 #useful references: 
 # https://docs.djangoproject.com/en/dev/topics/db/models/
@@ -12,7 +13,11 @@ from main import models
 # http://django-tastypie.readthedocs.org/en/latest/non_orm_data_sources.html
 # http://stackoverflow.com/questions/13094835/how-to-use-tastypie-to-wrap-internal-functions
 # http://django-tastypie.readthedocs.org/en/v0.9.11/cookbook.html#adding-search-functionality
-# http://localhost/api/riak/?format=json
+# http://django-tastypie.readthedocs.org/en/latest/resources.html
+
+
+#http://localhost/api/SelectionAvailable/?format=json
+#http://localhost/api/SelectionAPI/?format=json
 
 
 mcpClient = MCPClient()
@@ -42,7 +47,7 @@ class SelectionAPIResource(Resource):
     unitType = fields.CharField(attribute='unitType')
     unitUUID = fields.CharField(attribute='unitUUID')
     currentPath = fields.CharField(attribute='currentPath') 
-    selectionMade = fields.CharField(attribute='currentPath') 
+    selectionMade = fields.CharField(attribute='selectionMade') 
 
     class Meta:
         resource_name = 'SelectionAPI'
@@ -62,25 +67,27 @@ class SelectionAPIResource(Resource):
     # The following methods will need overriding regardless of your
     # data source.
     def detail_uri_kwargs(self, bundle_or_obj):
-        kwargs = {}
-
-        if isinstance(bundle_or_obj, Bundle):
-            kwargs['pk'] = bundle_or_obj.obj.uuid
-        else:
-            kwargs['pk'] = bundle_or_obj.uuid
+        kwargs = {"pk":bundle_or_obj}
+        #if isinstance(bundle_or_obj, Bundle):
+        #    kwargs['pk'] = bundle_or_obj.obj.uuid
+        #else:
+        #    kwargs['pk'] = bundle_or_obj.uuid
 
         return kwargs
 
     def get_object_list(self, request):
-        query = self._client().add('messages')
-        query.map("function(v) { var data = JSON.parse(v.values[0].data); return [[v.key, data]]; }")
         results = []
-
-        for result in query.run():
-            new_obj = RiakObject(initial=result[1])
-            new_obj.uuid = result[0]
-            results.append(new_obj)
-
+        XML = mcpClient.list()
+        root = etree.fromstring(XML)
+        #<choicesAvailableForUnits>\n  <choicesAvailableForUnit>\n    <UUID>b2da33eb-d388-4c5c-ae43-b7af33dc1b48</UUID>\n    <unit>\n      <type>Transfer</type>\n      <unitXML>\n        <UUID>52471b20-7fd1-46bc-9db2-7d81cea83fbb</UUID>
+        print XML
+        for unit in root.findall("choicesAvailableForUnit"):
+            uuid = unit.find("UUID").text
+            unitType = unit.find("unit/type").text
+            unitUUID = unit.find("unit/unitXML/UUID").text
+            unitCurrentPath = unit.find("unit/unitXML/currentPath").text
+            entry = SelectionAPIObject({"uuid":uuid, "currentPath":unitCurrentPath, "unitType": unitType, "unitUUID":unitUUID, "selectionMade":"None"})
+            results.append(entry)
         return results
 
     def obj_get_list(self, request=None, **kwargs):
@@ -88,11 +95,13 @@ class SelectionAPIResource(Resource):
         return self.get_object_list(request)
 
     def obj_get(self, request=None, **kwargs):
+        return
         bucket = self._bucket()
         message = bucket.get(kwargs['pk'])
         return RiakObject(initial=message.get_data())
 
     def obj_create(self, bundle, request=None, **kwargs):
+        return
         bundle.obj = RiakObject(initial=kwargs)
         bundle = self.full_hydrate(bundle)
         bucket = self._bucket()
@@ -101,9 +110,11 @@ class SelectionAPIResource(Resource):
         return bundle
 
     def obj_update(self, bundle, request=None, **kwargs):
+        return
         return self.obj_create(bundle, request, **kwargs)
 
     def obj_delete_list(self, request=None, **kwargs):
+        return
         bucket = self._bucket()
 
         for key in bucket.get_keys():
@@ -111,13 +122,14 @@ class SelectionAPIResource(Resource):
             obj.delete()
 
     def obj_delete(self, request=None, **kwargs):
+        return
         bucket = self._bucket()
         obj = bucket.get(kwargs['pk'])
         obj.delete()
 
     def rollback(self, bundles):
         pass
-    
+
 
 
 
@@ -152,7 +164,7 @@ class SelectionAvailableResource(Resource):
     # fields we're going to handle with the API here.
     chainAvailable = fields.CharField(attribute='chainAvailable')
     description = fields.CharField(attribute='description')
-    #selectionAvailable = fields.ForeignKey(SelectionAPIResource, 'unitSelectionAPIAvailable')
+    unitSelectionAvailable = fields.ForeignKey(SelectionAPIResource, 'unitSelectionAPIAvailable')
     
     class Meta:
         resource_name = 'SelectionAvailable'
@@ -191,11 +203,11 @@ class SelectionAvailableResource(Resource):
             uuid = unit.find("UUID").text
             unitType = unit.find("unit/type").text
             unitUUID = unit.find("unit/unitXML/UUID").text
-            unitCurrentPath = unit.find("unit/unitXML/UUID").text
+            unitCurrentPath = unit.find("unit/unitXML/currentPath").text
             for choice in unit.find("choices").findall("choice"):
                 chainAvailable = choice.find("chainAvailable").text
                 description = choice.find("description").text
-                entry = SelectionAvailableObject({"unitSelectionAPIAvailable":uuid, "unitType": unitType, "unitUUID":unitUUID, "chainAvailable": chainAvailable, "description": description})
+                entry = SelectionAvailableObject({"unitSelectionAPIAvailable":unitUUID, "unitType": unitType, "unitUUID":unitUUID, "chainAvailable": chainAvailable, "description": description})
                 results.append(entry)
         return results
 
