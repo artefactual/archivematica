@@ -969,6 +969,67 @@ BaseAppView = Backbone.View.extend({
       localStorage.setItem('archivematicaNotifications', JSON.stringify(localNotificationData))
     },
 
+  updateSips: function(objects, page)
+    {
+      var itemsPerPage = 5;
+      page = (page == undefined) ? 1 : page;
+      var itemsToSkip = (page - 1) * itemsPerPage;
+
+      for (i in objects)
+        {
+          if (i >= itemsToSkip && i < (itemsToSkip + itemsPerPage))
+            {
+              var sip = objects[i];
+              var item = Sips.find(function(item)
+                {
+                  return item.get('uuid') == sip.uuid;
+                });
+
+              if (undefined === item)
+                {
+                  // Add new sips
+                  Sips.add(sip);
+                }
+              else
+                {
+                  // Update sips
+                  item.set(sip);
+
+$('#sip_' + sip.uuid).show();
+                }
+            }
+        }
+
+      // set up previous/next paging links
+      var self = this;
+
+      if (!$('#page_previous').length)
+        {
+          var $next = $('<a id="page_previous" href="#">Previous</a>');
+          $('body').append($next);
+        } else {
+          var $next = $('#page_previous');
+        }
+
+      $next.click(function() {
+        $('.sip').hide();
+        self.updateSips(objects, page - 1);
+      });
+
+      if (!$('#page_next').length)
+        {
+          var $next = $('<a id="page_next" href="#">Next</a>');
+          $('body').append($next);
+        } else {
+          var $next = $('#page_next');
+        }
+
+      $next.click(function() {
+        $('.sip').hide();
+        self.updateSips(objects, page + 1);
+      });
+    },
+
   poll: function(start)
     {
       this.firstPoll = undefined !== start;
@@ -989,8 +1050,8 @@ BaseAppView = Backbone.View.extend({
         success: function(response)
           {
             var objects = response.objects;
-
-            for (i in objects)
+            //this.updateSips(objects);
+          for (i in objects)
             {
               var sip = objects[i];
               var item = Sips.find(function(item)
