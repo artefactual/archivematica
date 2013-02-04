@@ -28,6 +28,7 @@ import sys
 from unidecode import unidecode
 
 VERSION = "1.1." + "$Id$".split(":")[1][:-1]
+
 valid = "-_.()" + string.ascii_letters + string.digits
 replacementChar = "_"
 
