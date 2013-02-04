@@ -32,31 +32,30 @@ accessDir = os.path.join(SIPDirectory, "objects/manualNormalization/access")
 preservationDir = os.path.join(SIPDirectory, "objects/manualNormalization/preservation")
 manualNormalizationDir = os.path.join(SIPDirectory, "objects/manualNormalization")
 
+global errorCount
 errorCount = 0
 
 
-if os.path.isdir(accessDir):
-    try:
-        os.rmdir(accessDir)
-    except Exception as inst:
-        print type(inst)     # the exception instance
-        print inst.args
-        errorCount+= 1
+def recursivelyRemoveEmptyDirectories(dir):
+    global errorCount
+    for root, dirs, files in os.walk(dir,topdown=False):
+        for directory in dirs:
+            try:
+                os.rmdir(os.path.join(root, directory))
+            except Exception as inst:
+                print directory
+                print >>sys.stderr, type(inst), inst.args      # the exception instance
+                errorCount+= 1
 
-if os.path.isdir(preservationDir):
-    try:
-        os.rmdir(preservationDir)
-    except Exception as inst:
-        print type(inst)     # the exception instance
-        print inst.args
-        errorCount+= 1
 
 if os.path.isdir(manualNormalizationDir) and not errorCount:
+    global errorCount
     try:
+        recursivelyRemoveEmptyDirectories(manualNormalizationDir)
         os.rmdir(manualNormalizationDir)
     except Exception as inst:
-        print type(inst)     # the exception instance
-        print inst.args
+        print >>sys.stderr, type(inst)     # the exception instance
+        print >>sys.stderr, inst.args
         errorCount+= 1
 
 exit(errorCount)
