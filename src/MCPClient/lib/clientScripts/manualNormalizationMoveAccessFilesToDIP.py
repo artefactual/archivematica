@@ -27,6 +27,10 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 #databaseInterface.printSQL = True
 
+while False:
+    import time
+    time.sleep(10)
+
 #--sipUUID "%SIPUUID%" --sipDirectory "%SIPDirectory%" --filePath "%relativeLocation%"
 from optparse import OptionParser
 parser = OptionParser()
@@ -40,11 +44,16 @@ filePathLike = opts.filePath.replace(os.path.join(opts.sipDirectory, "objects", 
 i = filePathLike.rfind(".")
 if i != -1:
      filePathLike = filePathLike[:i+1]
- 
-filePathLike = databaseInterface.MySQLdb.escape_string(filePathLike).replace("%", "\%") + "%"
+     filePathLike1 = databaseInterface.MySQLdb.escape_string(filePathLike).replace("%", "\%") + "%"
+     filePathLike2 = databaseInterface.MySQLdb.escape_string(filePathLike)[:-1]
+     
 unitIdentifierType = "sipUUID"
 unitIdentifier = opts.sipUUID
-sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '" + filePathLike + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
+sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '" + filePathLike1 + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
+rows = databaseInterface.queryAllSQL(sql)
+if not len(rows):
+    #If not found try without extension
+    sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation = '" + filePathLike2 + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
 rows = databaseInterface.queryAllSQL(sql)
 if len(rows) > 1:
     print >>sys.stderr, "Too many possible files for: ", opts.filePath.replace(opts.sipDirectory, "%SIPDirectory%", 1) 

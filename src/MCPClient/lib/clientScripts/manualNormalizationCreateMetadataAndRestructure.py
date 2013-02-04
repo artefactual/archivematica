@@ -28,7 +28,10 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from databaseFunctions import insertIntoEvents
 from databaseFunctions import insertIntoDerivations
-
+#databaseInterface.printSQL = True
+while False:
+    import time
+    time.sleep(10)
 
 #"%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%fileUUID%" "%filePath%"
 SIPUUID = sys.argv[1]
@@ -43,12 +46,15 @@ i = filePathLike.rfind(".")
 k = os.path.basename(filePath).rfind(".")
 if i != -1 and k != -1:
      filePathLike = filePathLike[:i+1]
- 
-filePathLike = databaseInterface.MySQLdb.escape_string(filePathLike).replace("%", "\%") + "%"
+     filePathLike1 = databaseInterface.MySQLdb.escape_string(filePathLike).replace("%", "\%") + "%"
+     filePathLike2 = databaseInterface.MySQLdb.escape_string(filePathLike)[:-1]
 unitIdentifierType = "sipUUID"
 unitIdentifier = SIPUUID
-sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '" + filePathLike + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
+sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '" + filePathLike1 + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
 rows = databaseInterface.queryAllSQL(sql)
+if not len(rows):
+    sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '" + filePathLike2 + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
+    rows = databaseInterface.queryAllSQL(sql)
 if len(rows) > 1:
     print >>sys.stderr, "Too many possible files for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1) 
     exit(2)
