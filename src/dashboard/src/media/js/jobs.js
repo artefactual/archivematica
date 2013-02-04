@@ -975,11 +975,14 @@ BaseAppView = Backbone.View.extend({
       page = (page == undefined) ? 1 : page;
       var itemsToSkip = (page - 1) * itemsPerPage;
 
+console.log('page ' + page);
+
       for (i in objects)
         {
           if (i >= itemsToSkip && i < (itemsToSkip + itemsPerPage))
             {
               var sip = objects[i];
+console.log('Showing ' + sip.uuid);
               var item = Sips.find(function(item)
                 {
                   return item.get('uuid') == sip.uuid;
@@ -995,23 +998,26 @@ BaseAppView = Backbone.View.extend({
                   // Update sips
                   item.set(sip);
 
-$('#sip_' + sip.uuid).show();
+console.log($('#sip_' + sip.uuid).parent());
+$('#sip_' + sip.uuid).parent().show();
                 }
             }
         }
+console.log('done'); console.log('');
 
       // set up previous/next paging links
       var self = this;
 
       if (!$('#page_previous').length)
         {
-          var $next = $('<a id="page_previous" href="#">Previous</a>');
-          $('body').append($next);
+          var $prev = $('<a id="page_previous" href="#">Previous</a>');
+          $('body').append($prev);
         } else {
-          var $next = $('#page_previous');
+          var $prev = $('#page_previous');
         }
 
-      $next.click(function() {
+      $prev.click(function() {
+console.log('prev clicked');
         $('.sip').hide();
         self.updateSips(objects, page - 1);
       });
@@ -1025,6 +1031,7 @@ $('#sip_' + sip.uuid).show();
         }
 
       $next.click(function() {
+console.log('next clicked');
         $('.sip').hide();
         self.updateSips(objects, page + 1);
       });
