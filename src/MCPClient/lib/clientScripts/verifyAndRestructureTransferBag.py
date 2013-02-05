@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
@@ -34,12 +35,23 @@ verificationCommandsOutputs = []
 
 def verifyBag(bag):
     global exitCode
-    verificationCommands = [
-        "/usr/share/bagit/bin/bag verifyvalid \"" + bag + "\"", 
-        "/usr/share/bagit/bin/bag checkpayloadoxum \"" + bag + "\"", 
-        "/usr/share/bagit/bin/bag verifycomplete \"" + bag + "\"", 
-        "/usr/share/bagit/bin/bag verifypayloadmanifests \"" + bag + "\"", 
-        "/usr/share/bagit/bin/bag verifytagmanifests \"" + bag + "\"" ]
+    verificationCommands = []
+    verificationCommands.append("/usr/share/bagit/bin/bag verifyvalid \"%s\"" % (bag)) #Verifies the validity of a bag.
+    verificationCommands.append("/usr/share/bagit/bin/bag verifycomplete \"%s\"" % (bag)) #Verifies the completeness of a bag.
+    verificationCommands.append("/usr/share/bagit/bin/bag verifypayloadmanifests \"%s\"" % (bag)) #Verifies the checksums in all payload manifests.
+    
+    bagInfoPath = os.path.join(bag, "bag-info.txt")
+    if os.path.isfile(bagInfoPath):
+        for line in open(bagInfoPath,'r'):
+            if line.startswith("Payload-Oxum"):
+                verificationCommands.append("/usr/share/bagit/bin/bag checkpayloadoxum \"%s\"" % (bag)) #Generates Payload-Oxum and checks against Payload-Oxum in bag-info.txt.
+                break
+    
+    for item in os.listdir(bag):
+        if item.startswith("tagmanifest-") and item.endswith(".txt"):        
+            verificationCommands.append("/usr/share/bagit/bin/bag verifytagmanifests \"%s\"" % (bag)) #Verifies the checksums in all tag manifests.
+            break
+
     for command in verificationCommands:
         ret = executeOrRun("command", command, printing=printSubProcessOutput)
         verificationCommandsOutputs.append(ret)
