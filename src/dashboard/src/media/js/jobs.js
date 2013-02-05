@@ -972,7 +972,10 @@ BaseAppView = Backbone.View.extend({
   updateSips: function(objects, page)
     {
       var itemsPerPage = 5;
-      page = (page == undefined) ? 1 : page;
+      page = parseInt(getCookie('archivematicaTransferPage'));
+      page = (isNaN(page) || page == undefined) ? 1 : page;
+      setCookie('archivematicaTransferPage', page, 1);
+
       var itemsToSkip = (page - 1) * itemsPerPage;
 
       for (i in objects)
@@ -1007,27 +1010,33 @@ BaseAppView = Backbone.View.extend({
         {
           var $prev = $('<a id="page_previous" href="#">Previous</a>');
           $('body').append($prev);
+
+          $prev.click(function() {
+            $('.sip').hide();
+            var page = parseInt(getCookie('archivematicaTransferPage'));
+            setCookie('archivematicaTransferPage', page - 1, 1);
+            self.updateSips(objects, page - 1);
+          });
+
         } else {
           var $prev = $('#page_previous');
         }
-
-      $prev.click(function() {
-        $('.sip').hide();
-        self.updateSips(objects, page - 1);
-      });
 
       if (!$('#page_next').length)
         {
           var $next = $('<a id="page_next" href="#">Next</a>');
           $('body').append($next);
+
+          $next.click(function() {
+            $('.sip').hide();
+            var page = parseInt(getCookie('archivematicaTransferPage'));
+            setCookie('archivematicaTransferPage', page + 1, 1);
+            self.updateSips(objects, page + 1);
+          });
+
         } else {
           var $next = $('#page_next');
         }
-
-      $next.click(function() {
-        $('.sip').hide();
-        self.updateSips(objects, page + 1);
-      });
     },
 
   poll: function(start)
