@@ -975,14 +975,12 @@ BaseAppView = Backbone.View.extend({
       page = (page == undefined) ? 1 : page;
       var itemsToSkip = (page - 1) * itemsPerPage;
 
-console.log('page ' + page);
-
       for (i in objects)
         {
           if (i >= itemsToSkip && i < (itemsToSkip + itemsPerPage))
             {
               var sip = objects[i];
-console.log('Showing ' + sip.uuid);
+
               var item = Sips.find(function(item)
                 {
                   return item.get('uuid') == sip.uuid;
@@ -997,13 +995,10 @@ console.log('Showing ' + sip.uuid);
                 {
                   // Update sips
                   item.set(sip);
-
-console.log($('#sip_' + sip.uuid).parent());
-$('#sip_' + sip.uuid).parent().show();
+                  $('#sip-row-' + sip.uuid).parent().show();
                 }
             }
         }
-console.log('done'); console.log('');
 
       // set up previous/next paging links
       var self = this;
@@ -1017,7 +1012,6 @@ console.log('done'); console.log('');
         }
 
       $prev.click(function() {
-console.log('prev clicked');
         $('.sip').hide();
         self.updateSips(objects, page - 1);
       });
@@ -1031,7 +1025,6 @@ console.log('prev clicked');
         }
 
       $next.click(function() {
-console.log('next clicked');
         $('.sip').hide();
         self.updateSips(objects, page + 1);
       });
