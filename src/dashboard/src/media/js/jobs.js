@@ -976,6 +976,7 @@ BaseAppView = Backbone.View.extend({
       page = (isNaN(page) || page == undefined) ? 1 : page;
       setCookie('archivematicaTransferPage', page, 1);
 
+console.log('P:' + page)
       var itemsToSkip = (page - 1) * itemsPerPage;
 
       for (i in objects)
@@ -983,6 +984,7 @@ BaseAppView = Backbone.View.extend({
           if (i >= itemsToSkip && i < (itemsToSkip + itemsPerPage))
             {
               var sip = objects[i];
+console.log('SIP ' + sip.uuid + ' (IS:' + itemsToSkip + '/END:' + (itemsToSkip + itemsPerPage) + ')');
 
               var item = Sips.find(function(item)
                 {
@@ -1002,6 +1004,8 @@ BaseAppView = Backbone.View.extend({
                 }
             }
         }
+console.log('done')
+console.log('');
 
       // set up previous/next paging links
       var self = this;
