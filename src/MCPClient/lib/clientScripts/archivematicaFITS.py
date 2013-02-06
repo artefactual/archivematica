@@ -50,7 +50,7 @@ def parseIdsSimple(FITS_XML, fileUUID):
     #simpleIdPlaces = [(table, tool, iter)]
     simpleIdPlaces = [
         ("FileIDsByFitsDROIDMimeType", "Droid", "{http://www.nationalarchives.gov.uk/pronom/FileCollection}MimeType"),
-        ("FileIDsByFitsDROIDIdentificationPUID", "Droid", "{http://www.nationalarchives.gov.uk/pronom/FileCollection}PUID"),
+        ("FITS DROID PUID", "Droid", "{http://www.nationalarchives.gov.uk/pronom/FileCollection}PUID"),
         ("FileIDsByFitsFfidentMimetype", "ffident", "mimetype"),
         ("FileIDsByFitsFileUtilityMimetype", "file utility", "mimetype"),
         ("FileIDsByFitsFileUtilityFormat", "file utility", "format"),
@@ -59,18 +59,21 @@ def parseIdsSimple(FITS_XML, fileUUID):
         
     ]
     
-    for table, tool, iterOn in simpleIdPlaces:
+    for toolKey, tool, iterOn in simpleIdPlaces:
         identified = []
         fileIDs = []
         for element in FITS_XML.iter("{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}tool"):
             if element.get("name") == tool:
+                toolVersion = element.get("version")
                 for element2 in element.getiterator(iterOn):
                     if element2.text != None:
                         if element2.text in identified:
                             continue
                         identified.append(element2.text)
-                        sql = """SELECT fileID FROM FileIDsBySingleID WHERE tool = '%s' AND id = '%s';""" % (table, element2.text)
+                        sql = """SELECT fileID FROM FileIDsBySingleID WHERE tool = '%s' AND toolVersion='%s' AND id = '%s';""" % (toolKey, toolVersion, element2.text)
                         fileIDS = databaseInterface.queryAllSQL(sql)
+                        if not fileIDS:
+                            print "No Archivematica entry found for:", toolKey, toolVersion, element2.text
                         for fileID in fileIDS:
                             sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (fileUUID, fileID[0])
                             databaseInterface.runSQL(sql)
