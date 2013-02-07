@@ -972,11 +972,11 @@ BaseAppView = Backbone.View.extend({
   updateSips: function(objects, page)
     {
       var itemsPerPage = 5;
-      page = parseInt(getCookie('archivematicaTransferPage'));
+      page = parseInt(getCookie(this.pagingCookie));
       page = (isNaN(page) || page == undefined) ? 1 : page;
-      setCookie('archivematicaTransferPage', page, 1);
+      setCookie(this.pagingCookie, page, 1);
 
-console.log('P:' + page)
+      console.log('Page:' + page)
       var itemsToSkip = (page - 1) * itemsPerPage;
 
       for (i in objects)
@@ -984,7 +984,7 @@ console.log('P:' + page)
           if (i >= itemsToSkip && i < (itemsToSkip + itemsPerPage))
             {
               var sip = objects[i];
-console.log('SIP ' + sip.uuid + ' (IS:' + itemsToSkip + '/END:' + (itemsToSkip + itemsPerPage) + ')');
+              console.log('SIP ' + sip.uuid + ' (IS:' + itemsToSkip + '/END:' + (itemsToSkip + itemsPerPage) + ')');
 
               var item = Sips.find(function(item)
                 {
@@ -1004,8 +1004,8 @@ console.log('SIP ' + sip.uuid + ' (IS:' + itemsToSkip + '/END:' + (itemsToSkip +
                 }
             }
         }
-console.log('done')
-console.log('');
+      console.log('done')
+      console.log('');
 
       // set up previous/next paging links
       var self = this;
@@ -1017,8 +1017,8 @@ console.log('');
 
           $prev.click(function() {
             $('.sip').hide();
-            var page = parseInt(getCookie('archivematicaTransferPage'));
-            setCookie('archivematicaTransferPage', page - 1, 1);
+            var page = parseInt(getCookie(self.pagingCookie));
+            setCookie(self.pagingCookie, page - 1, 1);
             self.updateSips(objects, page - 1);
           });
 
@@ -1033,8 +1033,8 @@ console.log('');
 
           $next.click(function() {
             $('.sip').hide();
-            var page = parseInt(getCookie('archivematicaTransferPage'));
-            setCookie('archivematicaTransferPage', page + 1, 1);
+            var page = parseInt(getCookie(self.pagingCookie));
+            setCookie(self.pagingCookie, page + 1, 1);
             self.updateSips(objects, page + 1);
           });
 
@@ -1064,25 +1064,26 @@ console.log('');
           {
             var objects = response.objects;
             //this.updateSips(objects);
-          for (i in objects)
-            {
-              var sip = objects[i];
-              var item = Sips.find(function(item)
-                {
-                  return item.get('uuid') == sip.uuid;
-                });
 
-              if (undefined === item)
+            for (i in objects)
               {
-                // Add new sips
-                Sips.add(sip);
+                var sip = objects[i];
+                var item = Sips.find(function(item)
+                  {
+                    return item.get('uuid') == sip.uuid;
+                  });
+
+                if (undefined === item)
+                  {
+                    // Add new sips
+                    Sips.add(sip);
+                  }
+                else
+                  {
+                    // Update sips
+                    item.set(sip);
+                  }
               }
-              else
-              {
-                // Update sips
-                item.set(sip);
-              }
-            }
 
             // Delete sips
             if (Sips.length > objects.length)
