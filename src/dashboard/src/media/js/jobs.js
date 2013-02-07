@@ -1013,7 +1013,6 @@ BaseAppView = Backbone.View.extend({
       if (!$('#page_previous').length)
         {
           var $prev = $('<a id="page_previous" href="#">Previous</a>');
-          $('body').append($prev);
 
           $prev.click(function() {
             $('.sip').hide();
@@ -1022,6 +1021,9 @@ BaseAppView = Backbone.View.extend({
             self.updateSips(objects, page - 1);
           });
 
+          $('.grid-pager-previous-area').empty();
+          $('.grid-pager-previous-area').append($prev);
+
         } else {
           var $prev = $('#page_previous');
         }
@@ -1029,7 +1031,6 @@ BaseAppView = Backbone.View.extend({
       if (!$('#page_next').length)
         {
           var $next = $('<a id="page_next" href="#">Next</a>');
-          $('body').append($next);
 
           $next.click(function() {
             $('.sip').hide();
@@ -1037,6 +1038,9 @@ BaseAppView = Backbone.View.extend({
             setCookie(self.pagingCookie, page + 1, 1);
             self.updateSips(objects, page + 1);
           });
+
+          $('.grid-pager-next-area').empty();
+          $('.grid-pager-next-area').append($next);
 
         } else {
           var $next = $('#page_next');
@@ -1063,6 +1067,7 @@ BaseAppView = Backbone.View.extend({
         success: function(response)
           {
             var objects = response.objects;
+
             //this.updateSips(objects);
 
             for (i in objects)
