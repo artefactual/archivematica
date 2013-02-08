@@ -49,7 +49,6 @@ def recursivelyRemoveEmptyDirectories(dir):
 
 
 if os.path.isdir(manualNormalizationDir) and not errorCount:
-    global errorCount
     try:
         recursivelyRemoveEmptyDirectories(manualNormalizationDir)
         os.rmdir(manualNormalizationDir)
