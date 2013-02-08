@@ -975,7 +975,7 @@ BaseAppView = Backbone.View.extend({
         , page = parseInt(getCookie(this.pagingCookie))
         , page = (isNaN(page) || page == undefined) ? 1 : page
         , itemsToSkip = (page - 1) * itemsPerPage
-        , totalPages = Math.floor(objects.length / itemsPerPage)
+        , totalPages = Math.ceil(objects.length / itemsPerPage)
         , hasNextPage = page < totalPages;
 
       setCookie(this.pagingCookie, page, 1);
