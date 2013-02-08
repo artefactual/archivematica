@@ -1071,25 +1071,29 @@ BaseAppView = Backbone.View.extend({
           {
             var objects = response.objects;
 
-            //this.updateSips(objects);
-
-            for (i in objects)
+            if (getURLParameter('paged'))
               {
-                var sip = objects[i];
-                var item = Sips.find(function(item)
-                  {
-                    return item.get('uuid') == sip.uuid;
-                  });
+                this.updateSips(objects);
+              } else {
 
-                if (undefined === item)
+                for (i in objects)
                   {
-                    // Add new sips
-                    Sips.add(sip);
-                  }
-                else
-                  {
-                    // Update sips
-                    item.set(sip);
+                    var sip = objects[i];
+                    var item = Sips.find(function(item)
+                      {
+                        return item.get('uuid') == sip.uuid;
+                      });
+
+                    if (undefined === item)
+                      {
+                        // Add new sips
+                        Sips.add(sip);
+                      }
+                    else
+                      {
+                        // Update sips
+                        item.set(sip);
+                      }
                   }
               }
 
