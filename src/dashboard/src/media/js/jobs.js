@@ -837,7 +837,7 @@ BaseDirectoryBrowserView = Backbone.View.extend({
 
 BaseAppView = Backbone.View.extend({
 
-  interval: window.pollingInterval ? window.pollingInterval * 1000: 1115000,
+  interval: window.pollingInterval ? window.pollingInterval * 1000: 5000,
 
   idle: false,
 
