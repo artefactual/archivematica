@@ -837,7 +837,7 @@ BaseDirectoryBrowserView = Backbone.View.extend({
 
 BaseAppView = Backbone.View.extend({
 
-  interval: window.pollingInterval ? window.pollingInterval * 1000: 5000,
+  interval: window.pollingInterval ? window.pollingInterval * 1000: 1115000,
 
   idle: false,
 
@@ -916,7 +916,7 @@ BaseAppView = Backbone.View.extend({
         }
       }
 
-      if (!this.firstPoll)
+      if (0 && !this.firstPoll)
       {
         // Animation
         $new.addClass('sip-new').show('blind', {}, 500, function()
@@ -969,22 +969,22 @@ BaseAppView = Backbone.View.extend({
       localStorage.setItem('archivematicaNotifications', JSON.stringify(localNotificationData))
     },
 
-  updateSips: function(objects, page)
+  updateSips: function(objects)
     {
-      var itemsPerPage = 5;
-      page = parseInt(getCookie(this.pagingCookie));
-      page = (isNaN(page) || page == undefined) ? 1 : page;
-      setCookie(this.pagingCookie, page, 1);
+      var itemsPerPage = 5
+        , page = parseInt(getCookie(this.pagingCookie))
+        , page = (isNaN(page) || page == undefined) ? 1 : page
+        , itemsToSkip = (page - 1) * itemsPerPage
+        , totalPages = Math.floor(objects.length / itemsPerPage)
+        , hasNextPage = page < totalPages;
 
-      console.log('Page:' + page)
-      var itemsToSkip = (page - 1) * itemsPerPage;
+      setCookie(this.pagingCookie, page, 1);
 
       for (i in objects)
         {
           if (i >= itemsToSkip && i < (itemsToSkip + itemsPerPage))
             {
               var sip = objects[i];
-              console.log('SIP ' + sip.uuid + ' (IS:' + itemsToSkip + '/END:' + (itemsToSkip + itemsPerPage) + ')');
 
               var item = Sips.find(function(item)
                 {
@@ -1000,50 +1000,53 @@ BaseAppView = Backbone.View.extend({
                 {
                   // Update sips
                   item.set(sip);
+                  //if ($('#sip-row-' + sip.uuid).length) {
                   $('#sip-row-' + sip.uuid).parent().show();
+                  //} else {
+                  //  Sips.add(sip);
+                  //}
                 }
             }
         }
-      console.log('done')
-      console.log('');
 
       // set up previous/next paging links
       var self = this;
 
-      if (!$('#page_previous').length)
+      var $prev = $('<a href="#">Previous</a>');
+
+      $prev.click(function() {
+        $('.sip').hide();
+        var page = parseInt(getCookie(self.pagingCookie));
+        setCookie(self.pagingCookie, page - 1, 1);
+        self.updateSips(objects);
+      });
+
+      $('.grid-pager-previous-area').empty();
+      if (page > 1)
         {
-          var $prev = $('<a id="page_previous" href="#">Previous</a>');
-
-          $prev.click(function() {
-            $('.sip').hide();
-            var page = parseInt(getCookie(self.pagingCookie));
-            setCookie(self.pagingCookie, page - 1, 1);
-            self.updateSips(objects, page - 1);
-          });
-
-          $('.grid-pager-previous-area').empty();
           $('.grid-pager-previous-area').append($prev);
-
-        } else {
-          var $prev = $('#page_previous');
         }
 
-      if (!$('#page_next').length)
+      var $next = $('<a href="#">Next</a>');
+
+      $next.click(function() {
+        $('.sip').hide();
+        var page = parseInt(getCookie(self.pagingCookie));
+        setCookie(self.pagingCookie, page + 1, 1);
+        self.updateSips(objects);
+      });
+
+      $('.grid-pager-next-area').empty();
+      if (hasNextPage)
         {
-          var $next = $('<a id="page_next" href="#">Next</a>');
-
-          $next.click(function() {
-            $('.sip').hide();
-            var page = parseInt(getCookie(self.pagingCookie));
-            setCookie(self.pagingCookie, page + 1, 1);
-            self.updateSips(objects, page + 1);
-          });
-
-          $('.grid-pager-next-area').empty();
           $('.grid-pager-next-area').append($next);
+        }
 
-        } else {
-          var $next = $('#page_next');
+      $('.grid-pager-summary-area').empty();
+      if (totalPages > 1)
+        {
+          var pageDescription = '(page ' + page + ' of ' + totalPages + ')';
+          $('.grid-pager-summary-area').text(pageDescription);
         }
     },
 
