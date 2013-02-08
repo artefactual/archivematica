@@ -157,9 +157,10 @@ function getCookie(c_name) {
 }
 
 function getURLParameter(name) {
-  return decodeURI(
+  var value = decodeURI(
     (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]
   );
+  return (value == 'null') ? false : value;
 }
 
 function reloadPageableElement(destinationDomElement, url, page) {
