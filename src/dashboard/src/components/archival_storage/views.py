@@ -26,6 +26,8 @@ from components import helpers
 import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
+import elasticSearchFunctions
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 import httplib
 import tempfile
@@ -60,7 +62,7 @@ def archival_storage_search(request):
 
     start = page * items_per_page + 1
 
-    conn = pyes.ES('127.0.0.1:9200')
+    conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
 
     try:
         results = conn.search_raw(
@@ -225,7 +227,7 @@ def archival_storage_search_augment_results(raw_results):
 def archival_storage_indexed_count(index):
     aip_indexed_file_count = 0
     try:
-        conn = pyes.ES('127.0.0.1:9200')
+        conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
         count_data = conn.count(indices=index)
         aip_indexed_file_count = count_data.count
     except:
@@ -352,7 +354,7 @@ def archival_storage_sip_display(request, current_page_number=None):
 
 def archival_storage_file_json(request, document_id_modified):
     document_id = document_id_modified.replace('____', '-')
-    conn = httplib.HTTPConnection("127.0.0.1:9200")
+    conn = httplib.HTTPConnection(elasticSearchFunctions.getElasticsearchServerHostAndPort())
     conn.request("GET", "/aips/aip/" + document_id)
     response = conn.getresponse()
     data = response.read()
