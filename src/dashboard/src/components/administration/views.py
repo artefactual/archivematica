@@ -22,6 +22,8 @@ from django.template import RequestContext
 from main import forms
 from main import models
 import sys
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import elasticSearchFunctions
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 from django.contrib.auth.decorators import user_passes_test
@@ -48,7 +50,7 @@ def administration_search_flush_aips_context(request):
 @decorators.confirm_required('simple_confirm.html', administration_search_flush_aips_context)
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
 def administration_search_flush_aips(request):
-    conn = pyes.ES('127.0.0.1:9200')
+    conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
     index = 'aips'
 
     try:
