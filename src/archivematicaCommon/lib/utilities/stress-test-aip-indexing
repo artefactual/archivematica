@@ -24,7 +24,7 @@ if not os.path.exists(sys.argv[1]):
 
 print "Stress testing AIP indexing using test data..."
 
-conn = pyes.ES('127.0.0.1:9200')
+conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
 try:
     conn._send_request('GET', '')
 except pyes.exceptions.NoServerAvailable:

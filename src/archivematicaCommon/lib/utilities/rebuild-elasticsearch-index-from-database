@@ -2,7 +2,7 @@
 
 import sys, cPickle, base64
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
+import elasticSearchFunctions, databaseInterface
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 
@@ -41,7 +41,7 @@ else:
     else:
         type = indexTypes[index]
 
-conn = pyes.ES('127.0.0.1:9200')
+conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
 try:
     conn._send_request('GET', '')
 except pyes.exceptions.NoServerAvailable:
