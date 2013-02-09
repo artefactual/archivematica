@@ -21,20 +21,24 @@
 # @subpackage archivematicaCommon
 # @author Mike Cantelon <mike@artefactual.com>
 
-import time
-import os
-import sys
-import MySQLdb
-import cPickle
-import base64
+import time, os, sys, MySQLdb, cPickle, base64, ConfigParser
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes
-import xmltodict
+import pyes, xmltodict
 import xml.etree.ElementTree as ElementTree
 
 pathToElasticSearchServerFile='/etc/elasticsearch/elasticsearch.yml'
+
+def getElasticsearchServerHostAndPort():
+    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
+    config = ConfigParser.SafeConfigParser()
+    config.read(clientConfigFilePath)
+
+    try:
+        return config.get('MCPClient', "elasticsearchServer")
+    except:
+        return '127.0.0.1:9200'
 
 def connect_and_index(index, type, uuid, pathToArchive, sipName=None):
 
@@ -45,7 +49,7 @@ def connect_and_index(index, type, uuid, pathToArchive, sipName=None):
 
         # make sure transfer files exist
         if (os.path.exists(pathToArchive)):
-            conn = pyes.ES('127.0.0.1:9200')
+            conn = pyes.ES(getElasticsearchServerHostAndPort())
             try:
                 conn.create_index(index)
             except pyes.exceptions.IndexAlreadyExistsException:
