@@ -1,12 +1,14 @@
 from django.conf.urls.defaults import *
 from components.api.models import AIPResource
 from components.api.models import SIPResource
+from tastypie.api import Api
 
-aip_resource = AIPResource()
-sip_resource = SIPResource()
+# add version to non-FPR resources
+api = Api(api_name='v1')
+api.register(AIPResource())
+api.register(SIPResource())
 
 urlpatterns = patterns('components.archival_storage.views',
-    (r'', include(aip_resource.urls)),
-    (r'', include(sip_resource.urls)),
+    (r'', include(api.urls)),
     (r'fpr/', include('components.api.fpr.urls'))
 )
