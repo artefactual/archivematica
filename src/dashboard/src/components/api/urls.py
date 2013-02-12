@@ -8,4 +8,5 @@ sip_resource = SIPResource()
 urlpatterns = patterns('components.archival_storage.views',
     (r'', include(aip_resource.urls)),
     (r'', include(sip_resource.urls)),
+    (r'fpr/', include('components.api.fpr.urls'))
 )
