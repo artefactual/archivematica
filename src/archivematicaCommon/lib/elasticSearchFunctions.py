@@ -21,14 +21,14 @@
 # @subpackage archivematicaCommon
 # @author Mike Cantelon <mike@artefactual.com>
 
-import time, os, sys, MySQLdb, cPickle, base64, ConfigParser
+import time, os, sys, MySQLdb, cPickle, base64, ConfigParser, datetime
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes, xmltodict
 import xml.etree.ElementTree as ElementTree
 
-pathToElasticSearchServerFile='/etc/elasticsearch/elasticsearch.yml'
+pathToElasticSearchServerConfigFile='/etc/elasticsearch/elasticsearch.yml'
 
 def getElasticsearchServerHostAndPort():
     clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
@@ -49,12 +49,23 @@ def connect_and_create_index(index):
 
     return conn
 
+def connect_and_index_aip(uuid, name, date, filePath):
+    conn = connect_and_create_index('aips')
+    aipData = {
+        'uuid':     uuid,
+        'name':     name,
+        'date':     date,
+        'filePath': filePath,
+        'created':  datetime.datetime.now()
+    }
+    conn.index(aipData, 'aips', 'aip')
+
 def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
 
     exitCode = 0
 
     # make sure elasticsearch is installed
-    if (os.path.exists(pathToElasticSearchServerFile)):
+    if (os.path.exists(pathToElasticSearchServerConfigFile)):
 
         # make sure transfer files exist
         if (os.path.exists(pathToArchive)):
@@ -89,7 +100,7 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
             print >>sys.stderr, "Directory does not exist: ", pathToArchive
             exitCode = 1
     else:
-        print >>sys.stderr, "Elasticsearch not found, normally installed at ", pathToElasticSearchServerFile
+        print >>sys.stderr, "Elasticsearch not found, normally installed at ", pathToElasticSearchServerConfigFile
         exitCode = 1
 
     return exitCode
