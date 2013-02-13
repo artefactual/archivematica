@@ -1,7 +1,7 @@
 /*
 this file is part of archivematica.
 
-Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 
 archivematica is free software: you can redistribute it and/or modify
 it under the terms of the gnu general public license as published by
