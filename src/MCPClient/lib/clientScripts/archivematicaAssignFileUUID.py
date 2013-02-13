@@ -26,6 +26,7 @@ from optparse import OptionParser
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from fileOperations import addFileToTransfer
 from fileOperations import addFileToSIP
+import databaseInterface
 
 
 if __name__ == '__main__':
@@ -50,6 +51,8 @@ if __name__ == '__main__':
         fileUUID = uuid.uuid4().__str__()
     else:
         print >>sys.stderr, "File already has UUID:", fileUUID
+        sql = """UPDATE Files SET fileGrpUse='%s' WHERE fileUUID = '%s';""" % (opts.use, fileUUID)
+        databaseInterface.runSQL(sql)
         exit(0) 
 
 

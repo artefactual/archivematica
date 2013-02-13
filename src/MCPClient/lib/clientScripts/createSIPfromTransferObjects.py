@@ -29,7 +29,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 import databaseFunctions
 from archivematicaCreateStructuredDirectory import createStructuredDirectory
-
+from archivematicaCreateStructuredDirectory import createManualNormalizedDirectoriesList
 #def updateDB(dst, transferUUID):
 #    sql =  """UPDATE Transfers SET currentLocation='""" + dst + """' WHERE transferUUID='""" + transferUUID + """';"""
 #    databaseInterface.runSQL(sql)
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
     destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
-    createStructuredDirectory(tmpSIPDir, createManualNormalizedDirectories=True)
+    createStructuredDirectory(tmpSIPDir, createManualNormalizedDirectories=False)
     databaseFunctions.createSIP(destSIPDir.replace(sharedPath, '%sharedPath%'), sipUUID)
 
     #move the objects to the SIPDir
@@ -69,6 +69,10 @@ if __name__ == '__main__':
         else:
             print >>sys.stderr, "file not found: ", currentSIPFilePath
 
+    for directory in createManualNormalizedDirectoriesList:
+        path = os.path.join(tmpSIPDir, directory)
+        if not os.path.isdir(path):
+            os.makedirs(path)
 
     #moveSIPTo autoProcessSIPDirectory
     shutil.move(tmpSIPDir, destSIPDir)
