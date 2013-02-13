@@ -218,7 +218,7 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
 def createDublincoreDMDSecFromDBData(type, id):
     dc = getDublinCore(type, id)
     if dc == None:
-        transfers = os.path.join(baseDirectoryPath, "metadata/transfers/")
+        transfers = os.path.join(baseDirectoryPath, "objects/metadata/transfers/")
         for transfer in os.listdir(transfers):
             dcXMLFile = os.path.join(transfers, transfer, "metadata/dublincore.xml")
             if os.path.isfile(dcXMLFile):
@@ -517,7 +517,7 @@ def getIncludedStructMap():
     global trimStructMapObjects
 
     ret = []
-    transferMetadata = os.path.join(baseDirectoryPath, "metadata/transfers")
+    transferMetadata = os.path.join(baseDirectoryPath, "objects/metadata/transfers")
     baseLocations = os.listdir(transferMetadata)
     baseLocations.append(baseDirectoryPath)
     for dir in baseLocations:
@@ -681,7 +681,7 @@ def createFileSec(directoryPath, structMapDiv):
             if use == "TRIM file metadata":
                 use = "metadata"
             
-        elif  use == "original" or use == "submissionDocumentation":
+        elif  use == "original" or use == "submissionDocumentation" or use == "metadata":
             GROUPID = "Group-%s" % (myuuid)
             if use == "original":
                 DMDIDS = createDMDIDSFromCSVParsedMetadataFiles(originalLocation.replace('%transferDirectory%', "", 1))
