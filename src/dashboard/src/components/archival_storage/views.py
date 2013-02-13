@@ -68,7 +68,7 @@ def archival_storage_search(request):
         results = conn.search_raw(
             query=archival_storage_search_assemble_query(queries, ops, fields, types),
             indices='aips',
-            type='aip',
+            type='aipfile',
             start=start - 1,
             size=items_per_page
         )

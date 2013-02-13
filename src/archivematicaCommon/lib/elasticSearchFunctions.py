@@ -40,7 +40,16 @@ def getElasticsearchServerHostAndPort():
     except:
         return '127.0.0.1:9200'
 
-def connect_and_index(index, type, uuid, pathToArchive, sipName=None):
+def connect_and_create_index(index):
+    conn = pyes.ES(getElasticsearchServerHostAndPort())
+    try:
+        conn.create_index(index)
+    except pyes.exceptions.IndexAlreadyExistsException:
+        pass
+
+    return conn
+
+def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
 
     exitCode = 0
 
@@ -49,11 +58,7 @@ def connect_and_index(index, type, uuid, pathToArchive, sipName=None):
 
         # make sure transfer files exist
         if (os.path.exists(pathToArchive)):
-            conn = pyes.ES(getElasticsearchServerHostAndPort())
-            try:
-                conn.create_index(index)
-            except pyes.exceptions.IndexAlreadyExistsException:
-                pass
+            conn = connect_and_create_index(index)
 
             # use METS file if indexing an AIP
             metsFilePath = os.path.join(pathToArchive, 'METS.' + uuid + '.xml')

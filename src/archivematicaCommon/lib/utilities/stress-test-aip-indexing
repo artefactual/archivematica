@@ -42,9 +42,9 @@ cycle = 1
 
 while(1):
     print 'Test cycle ' + str(cycle)
-    elasticSearchFunctions.connect_and_index(
+    elasticSearchFunctions.connect_and_index_files(
         'aips',
-        'aip',
+        'aipfile',
         uuid,
         aip_data_directory
     )

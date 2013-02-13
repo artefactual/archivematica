@@ -18,7 +18,7 @@ except:
     os._exit(1)
 
 # Clear database backups of indexed AIPs
-sql = "DELETE FROM ElasticsearchIndexBackup WHERE indexName='aips' AND typeName='aip'"
+sql = "DELETE FROM ElasticsearchIndexBackup WHERE indexName='aips' AND typeName='aipfile'"
 databaseInterface.runSQL(sql)
 
 # Set root directory
@@ -50,7 +50,7 @@ def processAIP(path, temp_dir):
 
     subprocess.call(command_data)
 
-    elasticSearchFunctions.connect_and_index('aips', 'aip', uuid, temp_dir)
+    elasticSearchFunctions.connect_and_index_files('aips', 'aipfile', uuid, temp_dir)
 
 conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
 try:

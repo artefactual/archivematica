@@ -46,6 +46,11 @@ if __name__ == '__main__':
         pathToTransfer = sys.argv[1] + 'objects'
         transferUUID = sys.argv[2]
 
-        exitCode = elasticSearchFunctions.connect_and_index('transfers', 'transfer', transferUUID, pathToTransfer)
+        exitCode = elasticSearchFunctions.connect_and_index_files(
+            'transfers',
+            'transfer',
+            transferUUID,
+            pathToTransfer
+        )
 
 quit(exitCode)
