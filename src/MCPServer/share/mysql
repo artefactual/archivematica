@@ -347,18 +347,6 @@ CREATE TABLE `Tasks` (
   PRIMARY KEY (`taskUUID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `AIPs`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `AIPs` (
-  `sipUUID` varchar(50) NOT NULL,
-  `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `sipName` longtext,
-  `sipDate` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `filePath` longtext,
-  PRIMARY KEY (`sipUUID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Notifications`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
