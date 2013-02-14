@@ -12,3 +12,4 @@ class SIPResource(ModelResource):
     class Meta:
         queryset = models.SIP.objects.all()
         resource_name = 'sip'
+

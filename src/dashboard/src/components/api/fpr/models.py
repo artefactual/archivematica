@@ -8,7 +8,7 @@ class FPRFileIDResource(ModelResource):
     class Meta:
         queryset = models.FPRFileID.objects.all()
         resource_name = 'file_id'
-
+        ordering = ['lastmodified']
         filtering = {
             "uuid": ALL,
             "lastmodified": ALL
