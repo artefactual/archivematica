@@ -56,9 +56,15 @@ def connect_and_index_aip(uuid, name, date, filePath):
         'name':     name,
         'date':     date,
         'filePath': filePath,
+        'size':     os.path.getsize(filePath) / float(1024) / float(1024),
         'created':  datetime.datetime.now()
     }
     conn.index(aipData, 'aips', 'aip')
+
+def connect_and_get_aip_data(uuid):
+    conn = connect_and_create_index('aips')
+    aips = conn.search(query=pyes.FieldQuery(pyes.FieldParameter('uuid', uuid)))
+    return aips[0]
 
 def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
 
