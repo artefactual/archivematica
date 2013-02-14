@@ -143,16 +143,6 @@ class SIP(models.Model):
     class Meta:
         db_table = u'SIPs'
 
-class AIP(models.Model):
-    sipuuid = models.CharField(max_length=150, primary_key=True, db_column='sipUUID')
-    sipname = models.CharField(max_length=150, primary_key=True, db_column='sipName')
-    sipdate = models.DateTimeField(db_column='sipDate')
-    createdtime = models.DateTimeField(db_column='createdTime')
-    filepath = models.TextField(db_column='filePath', blank=True)
-
-    class Meta:
-        db_table = u'AIPs'
-
 class TransferManager(models.Manager):
     def is_hidden(self, uuid):
         try:
