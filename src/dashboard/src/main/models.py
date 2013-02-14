@@ -41,6 +41,16 @@ class UUIDPkField(models.CharField):
         setattr(model_instance, self.attname, uuid.uuid4().__str__())
         return super(models.CharField, self).pre_save(model_instance, add)
 
+class AIP(models.Model):
+    sipuuid = models.CharField(max_length=150, primary_key=True, db_column='sipUUID')
+    sipname = models.CharField(max_length=150, primary_key=True, db_column='sipName')
+    sipdate = models.DateTimeField(db_column='sipDate')
+    createdtime = models.DateTimeField(db_column='createdTime')
+    filepath = models.TextField(db_column='filePath', blank=True)
+
+    class Meta:
+        db_table = u'AIPs'
+
 class Access(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     sipuuid = models.CharField(max_length=150, db_column='SIPUUID', blank=True)
