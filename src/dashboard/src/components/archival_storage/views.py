@@ -249,8 +249,8 @@ def archival_storage_aip_file_download(request, uuid):
 
     # get file's AIP's properties
     sipuuid      = helpers.get_file_sip_uuid(uuid)
-    aip          = models.AIP.objects.get(sipuuid=sipuuid)
-    aip_filepath = aip.filepath
+    aip          = elasticSearchFunctions.connect_and_get_aip_data(sipuuid)
+    aip_filepath = aip.filePath
 
     # create temp dir to extract to
     temp_dir = tempfile.mkdtemp()
