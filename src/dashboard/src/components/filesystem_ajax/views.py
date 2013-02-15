@@ -190,7 +190,7 @@ def copy_transfer_component(request):
             # bag
             try:
                 path.lower().index('.zip')
-                shutil.copy(path, destination)
+                rsync_copy(path, destination)
                 paths_copied = 1
             except:
                 transfer_dir = os.path.join(destination, transfer_name)
@@ -206,6 +206,8 @@ def copy_transfer_component(request):
                 for entry in sorted_directory_list(path):
                     entry_path = os.path.join(path, entry)
                     if os.path.isdir(entry_path):
+                        rsync_copy(entry_path, transfer_dir)
+                        """
                         destination_dir = os.path.join(transfer_dir, entry)
                         try:
                             shutil.copytree(
@@ -214,8 +216,10 @@ def copy_transfer_component(request):
                             )
                         except:
                             error = 'Error copying from ' + entry_path + ' to ' + destination_dir + '. (' + str(sys.exc_info()[0]) + ')'
+                        """
                     else:
-                        shutil.copy(entry_path, transfer_dir)
+                        rsync_copy(entry_path, transfer_dir)
+                        #shutil.copy(entry_path, transfer_dir)
 
                     paths_copied = paths_copied + 1
 
@@ -320,6 +324,7 @@ def copy_to_start_transfer(request):
             rsync_copy(filepath, destination)
         except:
             # Need to work out way to deal with name collisions with new rsync copy
+            # ...actually could just send back an error if there's a name collision
             #destination = os.path.join(destination, basename)
             #destination = pad_destination_filepath_if_it_already_exists(destination)
 
