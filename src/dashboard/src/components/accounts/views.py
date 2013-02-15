@@ -21,6 +21,8 @@ from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
+import components.decorators as decorators
+from django.template import RequestContext
 
 from components.accounts.forms import UserCreationForm
 from components.accounts.forms import UserChangeForm
@@ -72,6 +74,14 @@ def edit(request, id=None):
         form = UserChangeForm(instance=user)
     return render(request, 'accounts/edit.html', {'form': form, 'user': user, 'title': title })
 
+def delete_context(request, id):
+    user = User.objects.get(pk=id)
+    prompt = 'Delete user ' + user.username + '?'
+    cancel_url = reverse("components.accounts.views.list")
+    return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
+
+@user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
+@decorators.confirm_required('simple_confirm.html', delete_context)
 def delete(request, id):
     # Security check
     if request.user.id != id:
