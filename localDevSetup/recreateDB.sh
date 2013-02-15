@@ -64,7 +64,7 @@ mysql -u root "${dbpassword}" --execute="CREATE USER '${username}'@'localhost' I
 mysql -u root "${dbpassword}" --execute="GRANT SELECT, UPDATE, INSERT, DELETE ON ${databaseName}.* TO '${username}'@'localhost';"
 
 echo "Creating dashboard user"
-mysql -u root "${dbpassword}" --execute="USE ${databaseName}; INSERT INTO auth_user (username, email, password, is_staff, is_active, is_superuser, date_joined) VALUES ('demo', 'demo@example.com', 'sha1\$e7fc2\$6123f456bba92c67a409baf2c282398fc5f70fc9', TRUE, TRUE, TRUE, NOW() );"
+mysql -u root "${dbpassword}" --execute="USE ${databaseName}; INSERT INTO auth_user (username, email, password, is_staff, is_active, is_superuser, date_joined, last_login) VALUES ('demo', 'demo@example.com', 'sha1\$e7fc2\$6123f456bba92c67a409baf2c282398fc5f70fc9', TRUE, TRUE, TRUE, NOW(), '1970-01-01 00:00:00' );"
 
 dbpassword=""
 
