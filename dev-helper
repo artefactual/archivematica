@@ -74,6 +74,8 @@ function package-update() {
           colour sudo ./installDependsFromDebianFile.py ./../src/upload-qubit/debian/control
           colour #./installDependsFromDebianFile.py ./../src/vm-includes/debian/control
           colour sudo ./installDependsFromDebianFile.py ./../src/xubuntuGuiScriptsEditor/debian/control
+          sudo apt-get install python-pip -y
+          sudo pip install django==1.4.3
           cd ..
   else
           echo "Not going to ${part}."
