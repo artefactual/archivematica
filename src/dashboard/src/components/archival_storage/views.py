@@ -239,7 +239,7 @@ def archival_storage_indexed_count(index):
     return aip_indexed_file_count
 
 def archival_storage_aip_download(request, uuid):
-    aip = models.AIP.objects.get(sipuuid=uuid)
+    aip = elasticSearchFunctions.connect_and_get_aip_data(uuid)
     return send_file(request, aip.filePath)
 
 def archival_storage_aip_file_download(request, uuid):
