@@ -364,7 +364,7 @@ def archival_storage_sip_display(request, current_page_number=None):
 def archival_storage_file_json(request, document_id_modified):
     document_id = document_id_modified.replace('____', '-')
     conn = httplib.HTTPConnection(elasticSearchFunctions.getElasticsearchServerHostAndPort())
-    conn.request("GET", "/aips/aip/" + document_id)
+    conn.request("GET", "/aips/aipfile/" + document_id)
     response = conn.getresponse()
     data = response.read()
     pretty_json = simplejson.dumps(simplejson.loads(data), sort_keys=True, indent=2)
