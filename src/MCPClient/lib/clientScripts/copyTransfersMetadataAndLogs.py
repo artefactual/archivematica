@@ -28,9 +28,11 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 
 
-def main(sipUUID, transfersDirectory, sharedPath=""):
-    if not os.path.exists(transfersDirectory):
-        os.makedirs(transfersDirectory)
+def main(sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath=""):
+    if not os.path.exists(transfersMetadataDirectory):
+        os.makedirs(transfersMetadataDirectory)
+    if not os.path.exists(transfersLogsDirectory):
+        os.makedirs(transfersLogsDirectory)
 
     exitCode = 0
     sql = """SELECT Files.transferUUID, Transfers.currentLocation FROM Files
@@ -47,13 +49,17 @@ def main(sipUUID, transfersDirectory, sharedPath=""):
             if sharedPath != "":
                 transferPath = transferPath.replace("%sharedPath%", sharedPath, 1)
             transferBasename = os.path.basename(os.path.abspath(transferPath))
-            transferMetaDestDir = os.path.join(transfersDirectory, transferBasename)
+            transferMetaDestDir = os.path.join(transfersMetadataDirectory, transferBasename)
+            transfersLogsDestDir = os.path.join(transfersLogsDirectory, transferBasename)
             if not os.path.exists(transferMetaDestDir):
                 os.makedirs(transferMetaDestDir)
-                shutil.copytree(transferPath + "logs", os.path.join(transferMetaDestDir, "logs"))
-                print "copied: ", transferPath + "logs", " -> ", os.path.join(transferMetaDestDir, "logs")
                 shutil.copytree(transferPath + "metadata", os.path.join(transferMetaDestDir, "metadata"))
                 print "copied: ", transferPath + "metadata", " -> ", os.path.join(transferMetaDestDir, "metadata")
+            if not os.path.exists(transfersLogsDestDir):
+                os.makedirs(transfersLogsDestDir)
+                shutil.copytree(transferPath + "logs", os.path.join(transfersLogsDestDir, "logs"))
+                print "copied: ", transferPath + "logs", " -> ", os.path.join(transfersLogsDestDir, "logs")
+                
 
         except Exception as inst:
             print >>sys.stderr, type(inst)
@@ -76,4 +82,4 @@ if __name__ == '__main__':
     (opts, args) = parser.parse_args()
 
 
-    main(opts.sipUUID, opts.sipDirectory+"metadata/transfers/", sharedPath=opts.sharedPath)
+    main(opts.sipUUID, opts.sipDirectory+"metadata/transfers/", opts.sipDirectory+"logs/transfers/", sharedPath=opts.sharedPath)
