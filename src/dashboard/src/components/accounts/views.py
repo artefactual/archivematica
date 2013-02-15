@@ -67,7 +67,8 @@ def edit(request, id=None):
         if form.is_valid():
             user = form.save(commit=False)
             password = request.POST.get('password', '')
-            user.set_password(password)
+            if password != '':
+                user.set_password(password)
             user.save()
             return HttpResponseRedirect(reverse('components.accounts.views.list'))
     else:
