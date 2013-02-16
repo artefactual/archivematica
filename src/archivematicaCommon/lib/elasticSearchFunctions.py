@@ -44,6 +44,7 @@ def connect_and_create_index(index):
     conn = pyes.ES(getElasticsearchServerHostAndPort())
     try:
         conn.create_index(index)
+        conn = connect_and_create_index(index)
     except pyes.exceptions.IndexAlreadyExistsException:
         pass
 
