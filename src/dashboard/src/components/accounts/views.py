@@ -23,9 +23,18 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
 import components.decorators as decorators
 from django.template import RequestContext
+from django.contrib.auth.views import login as django_login
 
 from components.accounts.forms import UserCreationForm
 from components.accounts.forms import UserChangeForm
+
+def login(request, *args, **kwargs):
+    from django.contrib.auth.models import User
+    user = User.objects.get(pk=1)
+    if str(user.last_login) == '1970-01-01 00:00:00':
+        request.session['first_login'] = True
+    response = django_login(request, *args, **kwargs)
+    return response
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
 def list(request):

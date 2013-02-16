@@ -27,6 +27,6 @@ urlpatterns = patterns('components.accounts.views',
 )
 
 urlpatterns += patterns('',
-    (r'login/$', 'django.contrib.auth.views.login', { 'template_name': 'accounts/login.html' }),
+    (r'login/$', 'components.accounts.views.login', { 'template_name': 'accounts/login.html' }),
     (r'logout/$', 'django.contrib.auth.views.logout_then_login')
 )
