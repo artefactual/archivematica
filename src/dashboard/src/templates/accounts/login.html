@@ -8,7 +8,7 @@
 
     <h1><a href="http://www.archivematica.org">Archivematica</a></h1>
 
-    <form class="form-stacked" method="post" action="{% url components.accounts.views.login %}">
+    <form class="form-stacked" method="post" action="{% url django.contrib.auth.views.login %}">
 
       {% csrf_token %}
 
@@ -17,7 +17,7 @@
       </div>
 
       <div class="actions">
-        <a id="forgot-password" style="display: none;" href="{% url components.accounts.views.login %}">Forgot your password?</a>
+        <a id="forgot-password" style="display: none;" href="{% url django.contrib.auth.views.login %}">Forgot your password?</a>
         <button class="btn primary" type="submit">Log in</button>
       </div>
 
