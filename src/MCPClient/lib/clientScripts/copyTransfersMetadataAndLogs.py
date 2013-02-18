@@ -24,6 +24,7 @@ import os
 import sys
 import shutil
 from optparse import OptionParser
+import traceback
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 
@@ -53,7 +54,15 @@ def main(sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath
             transfersLogsDestDir = os.path.join(transfersLogsDirectory, transferBasename)
             if not os.path.exists(transferMetaDestDir):
                 os.makedirs(transferMetaDestDir)
-                shutil.copytree(transferPath + "metadata", os.path.join(transferMetaDestDir, "metadata"))
+                transferMetadataDirectory = os.path.join(transferPath, "metadata")
+                for met in os.listdir(transferMetadataDirectory):
+                    if met == "submissionDocumentation":
+                        continue
+                    item = os.path.join(transferMetadataDirectory, met)
+                    if os.path.isdir(item):
+                        shutil.copytree(item, os.path.join(transferMetaDestDir, met))
+                    else:
+                        shutil.copy(item, os.path.join(transferMetaDestDir, met))
                 print "copied: ", transferPath + "metadata", " -> ", os.path.join(transferMetaDestDir, "metadata")
             if not os.path.exists(transfersLogsDestDir):
                 os.makedirs(transfersLogsDestDir)
@@ -64,6 +73,7 @@ def main(sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath
         except Exception as inst:
             print >>sys.stderr, type(inst)
             print >>sys.stderr, inst.args
+            traceback.print_exc(file=sys.stderr)
             print >>sys.stderr, "Error with transfer: ", row
             exitCode += 1
         row = c.fetchone()
