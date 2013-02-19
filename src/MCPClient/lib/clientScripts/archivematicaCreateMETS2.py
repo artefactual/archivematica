@@ -637,7 +637,7 @@ def createFileSec(directoryPath, structMapDiv):
 
         if typeOfTransfer == "TRIM" and trimStructMap == None:
             trimStructMap = etree.Element("structMap", attrib={"TYPE":"logical", "LABEL":"Hierarchical arrangement"})
-            trimStructMapObjects = etree.SubElement(trimStructMap, "div", attrib={"TYPE":"file", "LABEL":"objects"})
+            trimStructMapObjects = etree.SubElement(trimStructMap, "div", attrib={"TYPE":"File", "LABEL":"objects"})
             
             trimDmdSec = getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier)
             globalDmdSecCounter += 1
@@ -671,7 +671,7 @@ def createFileSec(directoryPath, structMapDiv):
         fileDiv = etree.SubElement(structMapDiv, "div")
         if label != None:
             fileDiv.set("LABEL", label)
-        fileDiv.set("TYPE", "item") 
+        fileDiv.set("TYPE", "Item") 
         newChild(fileDiv, "fptr", sets=[("FILEID",FILEID)])
         fileNameToFileID[item] = FILEID
 
@@ -688,7 +688,7 @@ def createFileSec(directoryPath, structMapDiv):
                 if DMDIDS:
                     fileDiv.set("DMDID", DMDIDS)
                 if typeOfTransfer == "TRIM":
-                    trimFileDiv = etree.SubElement(trimStructMapObjects, "div", attrib={"TYPE":"item"})
+                    trimFileDiv = etree.SubElement(trimStructMapObjects, "div", attrib={"TYPE":"Item"})
                     
                     trimFileDmdSec = getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, myuuid)
                     globalDmdSecCounter += 1
@@ -781,7 +781,7 @@ def createFileSec(directoryPath, structMapDiv):
     
     for item in sorted(delayed, cmp=sharedVariablesAcrossModules.collator.compare):
         itemdirectoryPath = os.path.join(directoryPath, item)
-        directoryDiv = newChild(structMapDiv, "div", sets=[("TYPE","directory"), ("LABEL",item)])
+        directoryDiv = newChild(structMapDiv, "div", sets=[("TYPE","Directory"), ("LABEL",item)])
         DMDIDS = createDMDIDSFromCSVParsedMetadataDirectories(itemdirectoryPath.replace(baseDirectoryPath, "", 1))
         if DMDIDS:
             directoryDiv.set("DMDID", DMDIDS)
@@ -802,8 +802,8 @@ if __name__ == '__main__':
     structMap = etree.Element("structMap")
     structMap.set("TYPE", "physical")
     structMap.set("LABEL", "Archivematica default")
-    structMapDiv = newChild(structMap, "div", sets=[("TYPE","directory"), ("LABEL","%s-%s" % (os.path.basename(baseDirectoryPath[:-1]), fileGroupIdentifier))])
-    structMapDiv = newChild(structMapDiv, "div", sets=[("TYPE","directory"), ("LABEL","objects") ])
+    structMapDiv = newChild(structMap, "div", sets=[("TYPE","Directory"), ("LABEL","%s-%s" % (os.path.basename(baseDirectoryPath[:-1]), fileGroupIdentifier))])
+    structMapDiv = newChild(structMapDiv, "div", sets=[("TYPE","Directory"), ("LABEL","objects") ])
     createFileSec(os.path.join(baseDirectoryPath, "objects"), structMapDiv)
 
 
