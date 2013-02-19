@@ -65,7 +65,7 @@ for row in rows:
     originalFileUUID, originalFilePath = row
 
 print "matched: {%s}%s" % (originalFileUUID, originalFilePath)
-dstDir = os.path.join(opts.sipDirectory, "DIP")
+dstDir = os.path.join(opts.sipDirectory, "DIP", "objects")
 dstFile = originalFileUUID + "-" + os.path.basename(opts.filePath)
 
 #ensure unique output file name
