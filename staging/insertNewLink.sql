@@ -27,26 +27,26 @@ mysql> select * from TaskTypes;
 +--------------------------------------+--------------------------------------------------+----------+---------------------+
 */
 
-SET @microserviceGroup = 'Prepare AIP';
+SET @microserviceGroup = 'Normalize';
 SET @MoveSIPToFailedLink = '7d728c39-395f-4892-8193-92f086c0546f';
 SET @MoveTransferToFailedLink = '61c316a6-0a50-4f65-8767-1f44b1eeb6dd';
 
 
-SET @XLink = '3ba518ab-fc47-4cba-9b5c-79629adac10b';
-SET @YLink = '3e25bda6-5314-4bb4-aa1e-90900dce887d';
+SET @XLink = 'a46e95fe-4a11-4d3c-9b76-c5d8ea0b094d';
+SET @YLink = '1cd3b36a-5252-4a69-9b1c-3b36829288ab';
 
 SET @TasksConfigPKReference = '';
 SET @TasksConfig = '';
 SET @MicroServiceChainLink = '';
 SET @MicroServiceChainLinksExitCodes = '';
-SET @defaultNextChainLink = @YLink;
+SET @defaultNextChainLink = @MoveSIPToFailedLink;
 SET @NextMicroServiceChainLink = @YLink;
 
 INSERT INTO StandardTasksConfigs (pk, filterFileEnd, filterFileStart, filterSubDir, requiresOutputLock, standardOutputFile, standardErrorFile, execute, arguments)
-    VALUES (@TasksConfigPKReference, NULL, NULL, NULL, FALSE, NULL, NULL, 'manualNormalizationRemoveMNDirectories_v0.0', '"%SIPDirectory%"');
+    VALUES (@TasksConfigPKReference, NULL, NULL, 'objects/manualNormalization/', FALSE, NULL, NULL, 'manualNormalizationIdentifyFilesIncluded_v0.0', '"%fileUUID%"');
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description)
     VALUES
-    (@TasksConfig, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @TasksConfigPKReference, 'Remove empty manual normalization directories');
+    (@TasksConfig, 'a6b1c323-7d36-428e-846a-e7e819423577', @TasksConfigPKReference, 'Identify manually normalized files');
 INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, currentTask, defaultNextChainLink)
     VALUES (@MicroServiceChainLink, @microserviceGroup, @TasksConfig, @defaultNextChainLink);
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink)
@@ -54,7 +54,7 @@ INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode
 SET @NextMicroServiceChainLink = @MicroServiceChainLink;
 
 -- set non zero exit code --
-UPDATE MicroServiceChainLinks SET defaultNextChainLink = @NextMicroServiceChainLink WHERE pk = @XLink;
+-- UPDATE MicroServiceChainLinks SET defaultNextChainLink = @NextMicroServiceChainLink WHERE pk = @XLink;
 
 -- set zero exit code --
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = @NextMicroServiceChainLink where microServiceChainLink = @XLink;

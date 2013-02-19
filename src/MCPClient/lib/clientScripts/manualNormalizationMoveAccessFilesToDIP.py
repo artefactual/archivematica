@@ -65,9 +65,15 @@ for row in rows:
     originalFileUUID, originalFilePath = row
 
 print "matched: {%s}%s" % (originalFileUUID, originalFilePath)
-dstFile = originalFileUUID + "-" + os.path.basename(opts.filePath)
 dstDir = os.path.join(opts.sipDirectory, "DIP")
+dstFile = originalFileUUID + "-" + os.path.basename(opts.filePath)
 
+#ensure unique output file name
+i = 0
+while os.path.exists(os.path.join(dstDir, dstFile)):
+    i+=1
+    dstFile = originalFileUUID + "-" + i.__str__() + "-" + os.path.basename(opts.filePath)
+    
 try:
     if not os.path.isdir(dstDir):
         os.makedirs(dstDir)
