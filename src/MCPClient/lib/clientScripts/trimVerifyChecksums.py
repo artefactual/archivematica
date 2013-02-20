@@ -80,7 +80,7 @@ for dir in os.listdir(transferPath):
             for path, fileUUID in fileID.iteritems():
                 eventDetail = "program=\"python\"; module=\"hashlib.md5()\""
                 eventOutcome="Pass"
-                eventOutcomeDetailNote = xmlFile.__str__() + "-verified"
+                eventOutcomeDetailNote = "%s %s" % (xmlFile.__str__(), "verified")
                 eventIdentifierUUID=uuid.uuid4().__str__()
                 databaseFunctions.insertIntoEvents(fileUUID=fileUUID, \
                      eventIdentifierUUID=eventIdentifierUUID, \

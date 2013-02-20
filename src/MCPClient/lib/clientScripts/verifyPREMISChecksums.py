@@ -52,7 +52,7 @@ def verifyChecksum(fileUUID, filePath, date, eventIdentifierUUID):
         print >>sys.stderr, "Checksums do not match:", fileUUID, filePath
         print >>sys.stderr, eventOutcomeDetailNote
     else:
-        eventOutcomeDetailNote = checksumFile.__str__() + "verified"
+        eventOutcomeDetailNote = "%s %s" % (checksumFile.__str__(), "verified")
         eventOutcome="Pass"
         exitCode = 0
 
