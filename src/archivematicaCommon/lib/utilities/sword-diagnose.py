@@ -21,6 +21,8 @@
 # @subpackage DevCleanup
 # @author Mike Cantelon <mike@artefactual.com>
 
+import subprocess
+
 def check_for_string_presence_in_file(string, file):
     fileContents = open(file, 'r').read()
     return string in fileContents
@@ -29,6 +31,11 @@ atomProjectConfigFile = '/var/www/ica-atom/config/ProjectConfiguration.class.php
 if not check_for_string_presence_in_file('qtSwordPlugin', atomProjectConfigFile):
     print "The qtSwordPlugin plugin hasn't been enabled in " \
       + atomProjectConfigFile + '.'
+    exit(1)
+
+processData = subprocess.check_output(['ps', 'aux'])
+if not 'gearman:worker' in processData:
+    print "The sword service doesn't seem to be running."
     exit(1)
 
 print 'No issues detected in your AtoM/SWORD configuration!'
