@@ -113,6 +113,7 @@ class linkTaskManagerSplitOnFileIdAndruleset:
             #print "debug", toPassVar, toPassVar['%normalizeFileGrpUse%'], unit.fileGrpUse
             passVar=replacementDic(toPassVar)
             if toPassVar['%normalizeFileGrpUse%'] != unit.fileGrpUse:
+                print "debug: ", unit.currentPath, unit.fileGrpUse
                 self.jobChainLink.linkProcessingComplete(self.exitCode, passVar=self.jobChainLink.passVar)
             else:
                 taskType = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Transcoder task type"))[0][0]
