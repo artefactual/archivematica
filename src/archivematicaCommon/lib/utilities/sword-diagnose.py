@@ -33,9 +33,21 @@ if not check_for_string_presence_in_file('qtSwordPlugin', atomProjectConfigFile)
       + atomProjectConfigFile + '.'
     exit(1)
 
+installCheckData = subprocess.check_output([
+ '/usr/bin/curl',
+ '-s',
+ 'http://192.168.1.73/ica-atom/index.php/;sfInstallPlugin/checkSystem'
+])
+if '<h1>Installation</h1>' in installCheckData:
+    print "Please visit http://127.0.0.1/ica-atom to complete installation."
+    exit(1)
+
 processData = subprocess.check_output(['ps', 'aux'])
 if not 'gearman:worker' in processData:
     print "The sword service doesn't seem to be running."
+    print
+    print "Enter 'sudo service qubit-sword start' to start the service."
+    print "If this results in 'no job found', try restarting."
     exit(1)
 
 print 'No issues detected in your AtoM/SWORD configuration!'
