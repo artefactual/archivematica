@@ -44,7 +44,7 @@ if not check_for_string_presence_in_file('qtSwordPlugin', atomProjectConfigFile)
 # Make sure AtoM installation has been done
 if check_for_string_in_web_request(
   '<h1>Installation</h1>',
-  'http://192.168.1.73/ica-atom/index.php/;sfInstallPlugin/checkSystem'
+  'http://127.0.0.1/ica-atom/index.php/;sfInstallPlugin/checkSystem'
 ):
     print "Please visit http://127.0.0.1/ica-atom to complete installation."
     exit(1)
