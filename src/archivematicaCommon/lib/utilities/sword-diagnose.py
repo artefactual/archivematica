@@ -27,21 +27,29 @@ def check_for_string_presence_in_file(string, file):
     fileContents = open(file, 'r').read()
     return string in fileContents
 
+def check_for_string_in_web_request(string, url):
+    installCheckData = subprocess.check_output([
+     '/usr/bin/curl',
+     '-s',
+     url
+    ])
+
+# Make sure qtSwordPlugin has been enabled
 atomProjectConfigFile = '/var/www/ica-atom/config/ProjectConfiguration.class.php'
 if not check_for_string_presence_in_file('qtSwordPlugin', atomProjectConfigFile):
     print "The qtSwordPlugin plugin hasn't been enabled in " \
       + atomProjectConfigFile + '.'
     exit(1)
 
-installCheckData = subprocess.check_output([
- '/usr/bin/curl',
- '-s',
- 'http://192.168.1.73/ica-atom/index.php/;sfInstallPlugin/checkSystem'
-])
-if '<h1>Installation</h1>' in installCheckData:
+# Make sure AtoM installation has been done
+if check_for_string_in_web_request(
+  '<h1>Installation</h1>',
+  'http://192.168.1.73/ica-atom/index.php/;sfInstallPlugin/checkSystem'
+):
     print "Please visit http://127.0.0.1/ica-atom to complete installation."
     exit(1)
 
+# Make sure qubit-sword process is running
 processData = subprocess.check_output(['ps', 'aux'])
 if not 'gearman:worker' in processData:
     print "The sword service doesn't seem to be running."
@@ -50,4 +58,5 @@ if not 'gearman:worker' in processData:
     print "If this results in 'no job found', try restarting."
     exit(1)
 
+# All tests passed!
 print 'No issues detected in your AtoM/SWORD configuration!'
