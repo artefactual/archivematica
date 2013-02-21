@@ -33,6 +33,7 @@ def check_for_string_in_web_request(string, url):
      '-s',
      url
     ])
+    return string in installCheckData
 
 # Make sure qtSwordPlugin has been enabled
 atomProjectConfigFile = '/var/www/ica-atom/config/ProjectConfiguration.class.php'
