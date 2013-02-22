@@ -30,7 +30,7 @@ class SuperUserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ("username", "email", "password1", "password2")
+        fields = ['org_name', 'org_identifier', 'username', 'email', 'password1', 'password2']
 
     def save(self, commit=True):
         user = super(UserCreationForm, self).save(commit=False)
