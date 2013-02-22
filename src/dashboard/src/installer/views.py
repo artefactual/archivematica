@@ -20,7 +20,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-
+from main.models import Agent
 from installer.forms import SuperUserCreationForm
 
 def welcome(request):
@@ -29,6 +29,17 @@ def welcome(request):
       return HttpResponseRedirect(reverse('main.views.home'))
     # Form
     if request.method == 'POST':
+        # save organization PREMIS agent if supplied
+        org_name       = request.POST.get('org_name', '')
+        org_identifier = request.POST.get('org_identifier', '')
+
+        if org_name != '' or org_identifier != '':
+            agent = Agent.objects.get(pk=2)
+            agent.name            = org_name
+            agent.identifiertype  = 'organization'
+            agent.identifiervalue = org_identifier
+            agent.save()
+
         form = SuperUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
