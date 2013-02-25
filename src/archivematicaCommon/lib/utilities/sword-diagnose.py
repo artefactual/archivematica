@@ -21,19 +21,15 @@
 # @subpackage DevCleanup
 # @author Mike Cantelon <mike@artefactual.com>
 
-import subprocess
+import subprocess, urllib
 
 def check_for_string_presence_in_file(string, file):
     fileContents = open(file, 'r').read()
     return string in fileContents
 
 def check_for_string_in_web_request(string, url):
-    installCheckData = subprocess.check_output([
-     '/usr/bin/curl',
-     '-s',
-     url
-    ])
-    return string in installCheckData
+    request = urllib.urlopen(url)
+    return string in request.read()
 
 # Make sure qtSwordPlugin has been enabled
 atomProjectConfigFile = '/var/www/ica-atom/config/ProjectConfiguration.class.php'
