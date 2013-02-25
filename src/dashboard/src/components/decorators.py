@@ -46,7 +46,6 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 from django.contrib.auth.decorators import user_passes_test
-import urllib
 
 # Try to update context instead of sending new params
 def load_jobs(view):
