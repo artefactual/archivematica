@@ -84,6 +84,18 @@
       form.render();
     });
     </script>
+
+  {% else %}
+
+    {% url components.administration.views.administration_sources as source_admin %}
+
+    <div class="alert-message">
+      <p>
+        Please choose at least one transfer source directory in
+        <a href="{{ source_admin }}">the administration tab</a> to begin.
+      </p>
+    </div>
+
   {% endif %}
 
   <div class="span12" id="sip-container">
