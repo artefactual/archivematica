@@ -32,7 +32,12 @@ from components import helpers
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 def home(request):
-    return HttpResponseRedirect(reverse('components.transfer.views.transfer_grid'))
+    if 'first_login' in request.session and request.session['first_login']:
+        request.session.first_login = False
+        redirectUrl = reverse('components.administration.views.administration')
+    else:
+        redirectUrl = reverse('components.transfer.views.transfer_grid')
+    return HttpResponseRedirect(redirectUrl)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Status

@@ -40,12 +40,14 @@ def welcome(request):
             agent.identifiervalue = org_identifier
             agent.save()
 
+        # Save user and set cookie to indicate this is the first login
         form = SuperUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             user = authenticate(username=user.username, password=form.cleaned_data['password1'])
             if user is not None:
               login(request, user)
+              request.session['first_login'] = True
               return HttpResponseRedirect(reverse('main.views.home'))
     else:
         form = SuperUserCreationForm()
