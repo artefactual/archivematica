@@ -26,7 +26,6 @@ from StringIO import StringIO
 import json
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from databaseFunctions import insertIntoEvents
 from externals import requests
 
 def getFromRestAPI(url, params, verbose=False, auth=None):
@@ -36,21 +35,23 @@ def getFromRestAPI(url, params, verbose=False, auth=None):
     r = requests.get(url, params=params, auth=auth)
 
     if r.status_code != 200:
-        throw()
+        raise
     if verbose:
         print r.headers['content-type']
         print r.encoding
     
     print r
     ret = json.loads(r.content) 
-    for x in ret["objects"]:
-        print type(x), x
+    if verbose:
+        for x in ret["objects"]:
+            print type(x), x
+    return ret['objects']
 
 if __name__ == '__main__':
     parser = OptionParser()
-    parser.add_option("-u",  "--url",          action="store", dest="url", default="http://fprserver/api/fpr/v1/file_id/")
-    parser.add_option("-p",  "--postFields",        action="store", dest="postFields", default='{"format":"json", "order_by":"lastmodified", "lastmodified__gte":"2012-10-10T10:00:00"}')
-    parser.add_option("-v",  "--verbose",        action="store_true", dest="verbose", default=False)
+    parser.add_option("-u",  "--url", action="store", dest="url", default="http://fprserver/api/fpr/v1/file_id/")
+    parser.add_option("-p",  "--postFields", action="store", dest="postFields", default='{"format":"json", "order_by":"lastmodified", "lastmodified__gte":"2012-10-10T10:00:00"}')
+    parser.add_option("-v",  "--verbose", action="store_true", dest="verbose", default=False)
 
     
     (opts, args) = parser.parse_args()

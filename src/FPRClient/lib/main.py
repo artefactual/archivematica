@@ -21,30 +21,59 @@
 # @subpackage FPRClient
 # @author Joseph Perry <joseph@artefactual.com>
 from optparse import OptionParser
+from getFromRestAPI import getFromRestAPI
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from databaseFunctions import insertIntoEvents
+import databaseInterface
 
+def create(table, entry):
+    sets = []
+    for key, value in entry.iteritems():
+        if key == "resource_uri":
+            continue
+        print type(value)
+        if isinstance(key, str):
+            sets.append("%s='%s'" % (key, value))
+        elif isinstance(key, unicode):
+            sets.append("%s='%s'" % (key, value))
+        elif isinstance(key, int):
+            sets.append("%s=%s" % (key, value))
+        elif value == None:
+            sets.append("%s=NULL" % (key))
+    sets = ", ".join(sets)
+    sql = """INSERT INTO %s SET %s;""" % (table, sets)
+    
+    databaseInterface.runSQL(sql)
+             
 
 for x in [
-    table, url
+    ("FileIDs", "http://fprserver/api/fpr/v1/file_id/")#,
+    #("CommandRelationships", "http://fprserver/api/fpr/v1/file_id/"),
+    #("FileIDsBySingleID", "http://fprserver/api/fpr/v1/file_id/"),
+    #("FileIDs", "http://fprserver/api/fpr/v1/file_id/"),
+    #("Commands", "http://fprserver/api/fpr/v1/file_id/")
 ]:
-    get
-    if not exists:
-        create
-    if replaces:
-        updatefk()
-    
-    if removeReplacement:
-        todo()
+    table, url = x
+    params = {"format":"json", "order_by":"lastmodified", "lastmodified__gte":"2012-10-10T10:00:00"}
+    entries = getFromRestAPI(url, params, verbose=False, auth=None)
+    for entry in entries:
+        print table, entry
         
+        #check if it already exists
+        sql = """SELECT pk FROM %s WHERE pk = '%s'""" % (table, entry['uuid'])
+        if databaseInterface.queryAllSQL(sql):
+            continue
+        create(table, entry) 
         
-createLinks()
-update last modified time
-
-
-
-
+        if replaces:
+            updatefk()
+        
+        if removeReplacement:
+            todo()
+            
+        
+#createLinks()
+#update last modified time
 
 
 
