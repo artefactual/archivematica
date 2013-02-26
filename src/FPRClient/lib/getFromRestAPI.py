@@ -22,51 +22,36 @@
 # @author Joseph Perry <joseph@artefactual.com>
 from optparse import OptionParser
 from StringIO import StringIO    
-import pycurl
+
 import json
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from databaseFunctions import insertIntoEvents
+from externals import requests
 
-def getFromRestAPI(url, postFields, verbose=False):
-    USER = "demo"
-    PASS = "demo"
-    storage = StringIO()
-    c = pycurl.Curl()
-    c.setopt(c.URL, url)
-    #c.setopt(c.POSTFIELDS, postFields)
-    if verbose:
-        c.setopt(c.VERBOSE, True)
-    #c.setopt(pycurl.USERPWD, "%s:%s" % (USER,PASS))
-    #c.setopt(pycurl.HTTPAUTH, pycurl.HTTPAUTH_BASIC)
-    
-    #c.setopt(pycurl.COOKIEJAR, 'cookies.txt')
-    #c.setopt(pycurl.COOKIEFILE, 'cookies.txt')
-    #c.setopt(pycurl.CAPATH,'FILE.pem')
-    #c.setopt(pycurl.SSLCERTPASSWD,'foobar')
-    #c.setopt(pycurl.SSLCERTTYPE, 'PEM')
-    #c.setopt(pycurl.SSLCERT,'FILE1.pem')
-    #c.setopt(pycurl.SSL_VERIFYPEER,0)#--insecure
-    
-    c.setopt(c.WRITEFUNCTION, storage.write)
-    c.perform()
-    c.close()
-    
-    #todo
-    if not 200:
+def getFromRestAPI(url, params, verbose=False, auth=None):
+    #url http://loacalhost
+    #args {}
+    #auth ('demo', 'demo')
+    r = requests.get(url, params=params, auth=auth)
+
+    if r.status_code != 200:
         throw()
+    if verbose:
+        print r.headers['content-type']
+        print r.encoding
     
-    content = storage.getvalue()
-    ret = json.loads(content)
+    print r
+    ret = json.loads(r.content) 
     for x in ret["objects"]:
         print type(x), x
 
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-u",  "--url",          action="store", dest="url", default="http://fprserver/api/fpr/v1/file_id/")
-    parser.add_option("-p",  "--postFields",        action="store", dest="postFields", default="format=json&order_by=lastmodified&lastmodified__gte=2012-10-10T10:00:00")
+    parser.add_option("-p",  "--postFields",        action="store", dest="postFields", default='{"format":"json", "order_by":"lastmodified", "lastmodified__gte":"2012-10-10T10:00:00"}')
     parser.add_option("-v",  "--verbose",        action="store_true", dest="verbose", default=False)
 
-
+    
     (opts, args) = parser.parse_args()
-    getFromRestAPI(opts.url, opts.postFields, verbose=opts.verbose)
+    getFromRestAPI(opts.url, eval(opts.postFields), verbose=opts.verbose)

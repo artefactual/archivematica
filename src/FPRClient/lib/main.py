@@ -26,6 +26,29 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from databaseFunctions import insertIntoEvents
 
 
+for x in [
+    table, url
+]:
+    get
+    if not exists:
+        create
+    if replaces:
+        updatefk()
+    
+    if removeReplacement:
+        todo()
+        
+        
+createLinks()
+update last modified time
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-i",  "--fileUUID",          action="store", dest="fileUUID", default="")
