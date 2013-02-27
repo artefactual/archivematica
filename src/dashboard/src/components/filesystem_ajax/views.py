@@ -321,7 +321,8 @@ def copy_to_start_transfer(request):
         # bag
         try:
             filepath.lower().index('.zip')
-            rsync_copy(filepath, destination)
+            shutil.move(filepath, destination)
+            #rsync_copy(filepath, destination)
         except:
             # Need to work out way to deal with name collisions with new rsync copy
             # ...actually could just send back an error if there's a name collision
