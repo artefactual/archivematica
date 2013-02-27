@@ -31,7 +31,9 @@ def create(table, entry):
     for key, value in entry.iteritems():
         if key == "resource_uri":
             continue
-        print type(value)
+        if key == "uuid":
+            key = "pk"
+        #print type(value)
         if isinstance(key, str):
             sets.append("%s='%s'" % (key, value))
         elif isinstance(key, unicode):
@@ -42,59 +44,41 @@ def create(table, entry):
             sets.append("%s=NULL" % (key))
     sets = ", ".join(sets)
     sql = """INSERT INTO %s SET %s;""" % (table, sets)
-    
-    databaseInterface.runSQL(sql)
+    print sql
+    #databaseInterface.runSQL(sql)
              
-
-for x in [
-    ("FileIDs", "http://fprserver/api/fpr/v1/file_id/")#,
-    #("CommandRelationships", "http://fprserver/api/fpr/v1/file_id/"),
-    #("FileIDsBySingleID", "http://fprserver/api/fpr/v1/file_id/"),
-    #("FileIDs", "http://fprserver/api/fpr/v1/file_id/"),
-    #("Commands", "http://fprserver/api/fpr/v1/file_id/")
-]:
-    table, url = x
-    params = {"format":"json", "order_by":"lastmodified", "lastmodified__gte":"2012-10-10T10:00:00"}
-    entries = getFromRestAPI(url, params, verbose=False, auth=None)
-    for entry in entries:
-        print table, entry
-        
-        #check if it already exists
-        sql = """SELECT pk FROM %s WHERE pk = '%s'""" % (table, entry['uuid'])
-        if databaseInterface.queryAllSQL(sql):
-            continue
-        create(table, entry) 
-        
-        if replaces:
-            updatefk()
-        
-        if removeReplacement:
-            todo()
-            
-        
-#createLinks()
-#update last modified time
 
 
 
 
 if __name__ == '__main__':
-    parser = OptionParser()
-    parser.add_option("-i",  "--fileUUID",          action="store", dest="fileUUID", default="")
-    parser.add_option("-t",  "--eventType",        action="store", dest="eventType", default="")
-    parser.add_option("-d",  "--eventDateTime",     action="store", dest="eventDateTime", default="")
-    parser.add_option("-e",  "--eventDetail",       action="store", dest="eventDetail", default="")
-    parser.add_option("-o",  "--eventOutcome",      action="store", dest="eventOutcome", default="")
-    parser.add_option("-n",  "--eventOutcomeDetailNote",   action="store", dest="eventOutcomeDetailNote", default="")
-    parser.add_option("-u",  "--eventIdentifierUUID",      action="store", dest="eventIdentifierUUID", default="")
-
-
-    (opts, args) = parser.parse_args()
-
-    insertIntoEvents(fileUUID=opts.fileUUID, \
-                     eventIdentifierUUID=opts.eventIdentifierUUID, \
-                     eventType=opts.eventType, \
-                     eventDateTime=opts.eventDateTime, \
-                     eventDetail=opts.eventDetail, \
-                     eventOutcome=opts.eventOutcome, \
-                     eventOutcomeDetailNote=opts.eventOutcomeDetailNote)
+    for x in [
+        ("CommandRelationships", "http://fprserver/api/fpr/v1/FPRFileIDs/"),
+        ("FileIDsBySingleID", "http://fprserver/api/fpr/v1/FPRFileIDsBySingleID/"),
+        ("FileIDs", "http://fprserver/api/fpr/v1/FPRFileIDs/"),
+        ("Commands", "http://fprserver/api/fpr/v1/FPRCommands/")
+    ]:
+        table, url = x
+        params = {"format":"json", "order_by":"lastmodified", "lastmodified__gte":"2012-10-10T10:00:00", "limit":"0"}
+        entries = getFromRestAPI(url, params, verbose=False, auth=None)
+        #print "test", entries
+        for entry in entries:
+            #print table, entry
+            
+            #check if it already exists
+            sql = """SELECT pk FROM %s WHERE pk = '%s'""" % (table, entry['uuid'])
+            if databaseInterface.queryAllSQL(sql):
+                continue
+            create(table, entry) 
+            
+            #if replaces:
+            #    updatefk()
+            
+            #if removeReplacement:
+            #    todo()
+                
+            
+    #createLinks()
+    #update last modified time
+    
+    
