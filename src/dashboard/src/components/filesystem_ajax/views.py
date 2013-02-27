@@ -325,11 +325,12 @@ def copy_to_start_transfer(request):
         except:
             # Need to work out way to deal with name collisions with new rsync copy
             # ...actually could just send back an error if there's a name collision
-            #destination = os.path.join(destination, basename)
-            #destination = pad_destination_filepath_if_it_already_exists(destination)
+            destination = os.path.join(destination, basename)
+            destination = pad_destination_filepath_if_it_already_exists(destination)
 
             try:
-                rsync_copy(filepath, destination)
+                shutil.move(filepath, destination)
+                #rsync_copy(filepath, destination)
             except:
                 error = 'Error copying from ' + filepath + ' to ' + destination + '. (' + str(sys.exc_info()[0]) + ')'
 
