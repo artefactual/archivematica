@@ -56,7 +56,10 @@ for dir in os.listdir(transferPath):
             continue
         
         i = file.rfind(".")
-        xmlFile = file[:i] + "_Metadata.xml"
+        if i != -1:
+            xmlFile = file[:i] + "_Metadata.xml"
+        else:
+            xmlFile = file + "_Metadata.xml"
         xmlFilePath = os.path.join(dirPath, xmlFile)
         try:
             tree = etree.parse(xmlFilePath)
