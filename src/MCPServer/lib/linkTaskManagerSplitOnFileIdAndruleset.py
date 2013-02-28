@@ -26,19 +26,23 @@ from taskStandard import taskStandard
 from unitFile import unitFile
 from passClasses import *
 import jobChain
-import databaseInterface
 import threading
 import math
 import uuid
 import time
 import sys
 import archivematicaMCP
+import traceback
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import databaseInterface
 import databaseFunctions
 from databaseFunctions import deUnicode
 
 import os
 
+
+    
+    
 
 class linkTaskManagerSplitOnFileIdAndruleset:
     def __init__(self, jobChainLink, pk, unit):
@@ -112,8 +116,8 @@ class linkTaskManagerSplitOnFileIdAndruleset:
             toPassVar.update({"%standardErrorFile%":standardErrorFile, "%standardOutputFile%":standardOutputFile, '%commandClassifications%':ComandClassification})
             #print "debug", toPassVar, toPassVar['%normalizeFileGrpUse%'], unit.fileGrpUse
             passVar=replacementDic(toPassVar)
-            if toPassVar['%normalizeFileGrpUse%'] != unit.fileGrpUse:
-                print "debug: ", unit.currentPath, unit.fileGrpUse
+            if toPassVar['%normalizeFileGrpUse%'] != unit.fileGrpUse or self.alreadyNormalizedManually(unit, ComandClassification):
+                #print "debug: ", unit.currentPath, unit.fileGrpUse
                 self.jobChainLink.linkProcessingComplete(self.exitCode, passVar=self.jobChainLink.passVar)
             else:
                 taskType = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Transcoder task type"))[0][0]
@@ -132,3 +136,30 @@ class linkTaskManagerSplitOnFileIdAndruleset:
                          jobChainLink.jobChain.nextChainLink(row[0], passVar=passVar, incrementLinkSplit=True, subJobOf=self.jobChainLink.UUID)
                     
                 self.jobChainLink.linkProcessingComplete(self.exitCode, passVar=self.jobChainLink.passVar)
+    
+    def alreadyNormalizedManually(self, unit, ComandClassification):
+        try:
+            SIPUUID = unit.owningUnit.UUID
+            fileUUID = unit.UUID
+            SIPPath = unit.owningUnit.currentPath
+            filePath = unit.currentPath
+            bname = os.path.basename(filePath)
+            dirName = os.path.dirname(filePath)
+            i = bname.rfind(".")
+            if i != -1:
+                bname = bname[:i]
+            path = os.path.join(dirName, bname)
+            if ComandClassification == "preservation":
+                path = path.replace("%SIPDirectory%objects/", "%SIPDirectory%objects/manualNormalization/preservation/")
+            elif ComandClassification == "access":
+                path = path.replace("%SIPDirectory%objects/", "%SIPDirectory%objects/manualNormalization/access")
+            else:
+                return False
+            sql = """SELECT fileUUID FROM Files WHERE sipUUID = '%s' AND currentLocation LIKE '%s%%' AND removedTime = 0;""" % (SIPUUID, path.replace("%", "\%"))
+            ret = bool(databaseInterface.queryAllSQL(sql))
+            return ret 
+        except Exception as inst:
+            print "DEBUG EXCEPTION!"
+            traceback.print_exc(file=sys.stdout)
+            print type(inst)     # the exception instance
+            print inst.args
