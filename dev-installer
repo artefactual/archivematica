@@ -152,6 +152,9 @@ if [[ $a == "Y" || $a == "y" ]]; then
         # so it needs to be installer at this point
 	sudo ln -sf ${WDIR}/qubit-git /var/www/ica-atom
 
+        # Enable SWORD plugin
+        sed -i "s/'qbAclPlugin',/      'qbAclPlugin',\n'qtSwordPlugin',/g" /var/www/ica-atom/config/ProjectConfiguration.class.php
+
 	# Permissions
 	sudo chown -R www-data:www-data ${WDIR}/qubit-git
 
