@@ -26,13 +26,19 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 
+databaseInterface.printSQL = True
+
+
 def create(table, entry):
+    global maxLastUpdate
     sets = []
     for key, value in entry.iteritems():
         if key == "resource_uri":
             continue
         if key == "uuid":
             key = "pk"
+        if key == "lastmodified" and value > maxLastUpdate:
+            maxLastUpdate = value
         #print type(value)
         if isinstance(key, str):
             sets.append("%s='%s'" % (key, value))
@@ -46,20 +52,25 @@ def create(table, entry):
     sql = """INSERT INTO %s SET %s;""" % (table, sets)
     print sql
     #databaseInterface.runSQL(sql)
+    
              
 
 
 
 
 if __name__ == '__main__':
+    global maxLastUpdate
+    maxLastUpdate = "2000-01-01T00:00:00"
+    maxLastUpdateAtStart = maxLastUpdate
+    databaseInterface.runSQL("SET foreign_key_checks = 0;")
     for x in [
-        ("CommandRelationships", "http://fprserver/api/fpr/v1/FPRFileIDs/"),
+        ("CommandRelationships", "http://fprserver/api/fpr/v1/FPRCommandRelationships/"),
         ("FileIDsBySingleID", "http://fprserver/api/fpr/v1/FPRFileIDsBySingleID/"),
         ("FileIDs", "http://fprserver/api/fpr/v1/FPRFileIDs/"),
         ("Commands", "http://fprserver/api/fpr/v1/FPRCommands/")
     ]:
         table, url = x
-        params = {"format":"json", "order_by":"lastmodified", "lastmodified__gte":"2012-10-10T10:00:00", "limit":"0"}
+        params = {"format":"json", "order_by":"lastmodified", "lastmodified__gte":maxLastUpdateAtStart, "limit":"0"}
         entries = getFromRestAPI(url, params, verbose=False, auth=None)
         #print "test", entries
         for entry in entries:
@@ -68,6 +79,7 @@ if __name__ == '__main__':
             #check if it already exists
             sql = """SELECT pk FROM %s WHERE pk = '%s'""" % (table, entry['uuid'])
             if databaseInterface.queryAllSQL(sql):
+                #pass
                 continue
             create(table, entry) 
             
@@ -80,5 +92,5 @@ if __name__ == '__main__':
             
     #createLinks()
     #update last modified time
-    
-    
+    databaseInterface.runSQL("SET foreign_key_checks = 1;")
+    print maxLastUpdate
