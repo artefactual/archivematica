@@ -314,7 +314,7 @@ if __name__ == '__main__':
     fileUUID  = sys.argv[5]
     fileGrpUse = sys.argv[6]
 
-    if fileGrpUse in ["DSPACEMETS"]:
+    if fileGrpUse in ["DSPACEMETS", "maildirFile"]:
         print "file's fileGrpUse in exclusion list, skipping"
         exit(0)
 

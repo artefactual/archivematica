@@ -681,8 +681,10 @@ def createFileSec(directoryPath, structMapDiv):
             if use == "TRIM file metadata":
                 use = "metadata"
             
-        elif  use == "original" or use == "submissionDocumentation" or use == "metadata":
+        elif  use == "original" or use == "submissionDocumentation" or use == "metadata" or use == "maildirFile":
             GROUPID = "Group-%s" % (myuuid)
+            if use == "maildirFile":
+                use = "original"
             if use == "original":
                 DMDIDS = createDMDIDSFromCSVParsedMetadataFiles(originalLocation.replace('%transferDirectory%', "", 1))
                 if DMDIDS:
