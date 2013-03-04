@@ -30,11 +30,13 @@ class MCPClient:
     def __init__(self, host=settings.MCP_SERVER[0], port=settings.MCP_SERVER[1]):
         self.server = "%s:%d" % (host, port)
 
-    def execute(self, uuid, choice):
+    def execute(self, uuid, choice, uid=None):
         gm_client = gearman.GearmanClient([self.server])
         data = {}
         data["jobUUID"] = uuid
         data["chain"] = choice
+        if uid != None:
+            data["uid"] = uid
         completed_job_request = gm_client.submit_job("approveJob", cPickle.dumps(data), None)
         #self.check_request_status(completed_job_request)
         return

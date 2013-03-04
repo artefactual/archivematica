@@ -49,6 +49,7 @@ $(function()
 
       initialize: function()
         {
+          this.uid = this.options.uid;
           _.bindAll(this, 'render', 'update', 'updateIcon');
           this.model.view = this;
           this.model.bind('change:timestamp', this.update);
@@ -289,8 +290,8 @@ $(function()
           var executeCommand = function(context)
             {
               $.ajax({
-                context: this,
-                data: { uuid: context.model.get('uuid'), choice: value },
+                context: self,
+                data: { uuid: self.model.get('uuid'), choice: value, uid: self.uid},
                 type: 'POST',
                 success: function(data)
                   {

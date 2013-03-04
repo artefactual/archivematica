@@ -32,7 +32,8 @@
 
         window.Sips = new SipCollection;
         window.App = new AppView({
-          statusUrl: '/transfer/status/'
+          statusUrl: '/transfer/status/',
+          uid: {{ uid }}
         });
 
         // add hint to add transfer form
@@ -119,13 +120,6 @@
       <span class='grid-pager-summary-area'></span>
     </div>
   </div>
-
-  <!--
-  {% if not form %}
-     <footer>If you wish to add transfers using the web interface,
-     configure your source directories <a href='/administration/sources/'>here</a>.</footer>
-  {% endif %}
-  -->
 
   <!-- Templates -->
 

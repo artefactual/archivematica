@@ -42,6 +42,7 @@ from components import helpers
 def ingest_grid(request):
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
+    uid = request.user.id
     return render(request, 'ingest/grid.html', locals())
 
 def ingest_status(request, uuid=None):

@@ -35,7 +35,8 @@
 
         window.Sips = new SipCollection;
         window.App = new AppView({
-          statusUrl: '/ingest/status/'
+          statusUrl: '/ingest/status/',
+          uid: {{ uid }}
         });
       });
 
