@@ -30,6 +30,8 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 from django.contrib.auth.decorators import user_passes_test
 import urllib
+from components.administration.forms import AdministrationForm
+from components.administration.forms import AgentForm
 import components.decorators as decorators
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -46,7 +48,7 @@ def administration_dip(request):
 def administration_dip_edit(request, id):
     if request.method == 'POST':
         upload_setting = models.StandardTaskConfig.objects.get(pk=id)
-        form = forms.AdministrationForm(request.POST)
+        form = AdministrationForm(request.POST)
         if form.is_valid():
             upload_setting.arguments = form.cleaned_data['arguments']
             upload_setting.save()
@@ -267,10 +269,10 @@ def administration_get_aip_storage_link_pk():
 def administration_premis_agent(request):
     agent = models.Agent.objects.get(pk=2)
     if request.POST:
-        form = forms.AgentForm(request.POST, instance=agent)
+        form = AgentForm(request.POST, instance=agent)
         if form.is_valid():
             form.save()
     else:
-        form = forms.AgentForm(instance=agent)
+        form = AgentForm(instance=agent)
 
     return render(request, 'administration/premis_agent.html', locals())

@@ -26,13 +26,13 @@ TEXTAREA_WITH_HELP_ATTRS = {'rows': '4', 'class': 'span11 has_contextual_help'}
 INPUT_ATTRS = {'class': 'span11'}
 INPUT_WITH_HELP_ATTRS = {'class': 'span11 has_contextual_help'}
 
-class MicroServiceChoiceReplacementDicForm(ModelForm):
+class AdministrationForm(forms.Form):
+    arguments = forms.CharField(required=False, widget=Textarea(attrs=TEXTAREA_ATTRS))
+
+class AgentForm(ModelForm):
+    identifiervalue = forms.CharField(required=True, widget=TextInput(attrs=INPUT_ATTRS))
+    name = forms.CharField(required=True, widget=TextInput(attrs=INPUT_ATTRS))
+
     class Meta:
-        model = models.MicroServiceChoiceReplacementDic
-        exclude = (
-            'id', )
-        widgets = {
-            'description': TextInput(attrs=INPUT_ATTRS),
-            'replacementdic': Textarea(attrs=TEXTAREA_ATTRS),
-            'choiceavailableatlink': HiddenInput
-        }
+        model = models.Agent
+        exclude = ('identifiertype')
