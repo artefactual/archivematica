@@ -16,15 +16,14 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls.defaults import patterns
-
-UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
+import settings
 
 urlpatterns = patterns('components.transfer.views',
     (r'^$', 'transfer_grid'),
-    (r'(?P<uuid>' + UUID_REGEX + ')/$', 'transfer_detail'),
-    (r'(?P<uuid>' + UUID_REGEX + ')/delete/$', 'transfer_delete'),
-    (r'(?P<uuid>' + UUID_REGEX + ')/microservices/$', 'transfer_microservices'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/$', 'transfer_detail'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/delete/$', 'transfer_delete'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/microservices/$', 'transfer_microservices'),
     (r'status/$', 'transfer_status'),
-    (r'status/(?P<uuid>' + UUID_REGEX + ')/$', 'transfer_status'),
+    (r'status/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'transfer_status'),
     (r'browser/$', 'transfer_browser')
 )
