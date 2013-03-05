@@ -28,6 +28,7 @@ from contrib import utils
 from main import forms
 from main import models
 from lxml import etree
+from components.ingest.forms import DublinCoreMetadataForm
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
 from components import helpers
 import calendar
@@ -125,7 +126,7 @@ def ingest_metadata_edit(request, uuid, id=None):
               'source', 'relation', 'language', 'coverage', 'rights']
 
     if request.method == 'POST':
-        form = forms.DublinCoreMetadataForm(request.POST)
+        form = DublinCoreMetadataForm(request.POST)
         if form.is_valid():
             for item in fields:
                 setattr(dc, item, form.cleaned_data[item])
@@ -135,7 +136,7 @@ def ingest_metadata_edit(request, uuid, id=None):
         initial = {}
         for item in fields:
             initial[item] = getattr(dc, item)
-        form = forms.DublinCoreMetadataForm(initial=initial)
+        form = DublinCoreMetadataForm(initial=initial)
         jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
         name = utils.get_directory_name(jobs[0])
 

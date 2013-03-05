@@ -26,23 +26,6 @@ TEXTAREA_WITH_HELP_ATTRS = {'rows': '4', 'class': 'span11 has_contextual_help'}
 INPUT_ATTRS = {'class': 'span11'}
 INPUT_WITH_HELP_ATTRS = {'class': 'span11 has_contextual_help'}
 
-class DublinCoreMetadataForm(forms.Form):
-    title = forms.CharField(required=False, widget=TextInput(attrs=INPUT_WITH_HELP_ATTRS))
-    creator = forms.CharField(required=False, widget=TextInput(attrs=INPUT_WITH_HELP_ATTRS))
-    subject = forms.CharField(required=False, widget=TextInput(attrs=INPUT_WITH_HELP_ATTRS))
-    description = forms.CharField(required=False, widget=Textarea(attrs=TEXTAREA_WITH_HELP_ATTRS))
-    publisher = forms.CharField(required=False, widget=TextInput(attrs=INPUT_WITH_HELP_ATTRS))
-    contributor = forms.CharField(required=False, widget=TextInput(attrs=INPUT_WITH_HELP_ATTRS))
-    date = forms.CharField(required=False, help_text='Use ISO 8061 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)', widget=TextInput(attrs=INPUT_WITH_HELP_ATTRS))
-    type = forms.CharField(required=False, widget=TextInput(attrs=INPUT_ATTRS))
-    format = forms.CharField(required=False, widget=TextInput(attrs=INPUT_WITH_HELP_ATTRS))
-    identifier = forms.CharField(required=False, widget=TextInput(attrs=INPUT_WITH_HELP_ATTRS))
-    source = forms.CharField(required=False, widget=TextInput(attrs=INPUT_WITH_HELP_ATTRS))
-    relation = forms.CharField(required=False, label='Relation', widget=TextInput(attrs=INPUT_WITH_HELP_ATTRS))
-    language = forms.CharField(required=False, help_text='Use ISO 3166', widget=TextInput(attrs=INPUT_WITH_HELP_ATTRS))
-    coverage = forms.CharField(required=False, widget=TextInput(attrs=INPUT_WITH_HELP_ATTRS))
-    rights = forms.CharField(required=False, widget=Textarea(attrs=TEXTAREA_WITH_HELP_ATTRS))
-
 class AdministrationForm(forms.Form):
     arguments = forms.CharField(required=False, widget=Textarea(attrs=TEXTAREA_ATTRS))
 
