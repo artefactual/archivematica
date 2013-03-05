@@ -77,7 +77,8 @@ class linkTaskManagerTranscoderCommand:
                 UUID = uuid.uuid4().__str__()
                 opts["taskUUID"] = UUID
                 opts["CommandRelationship"] = pk.__str__()
-                execute = "transcoder_cr%s" % (pk)  
+                execute = "transcoder_cr%s" % (pk)
+                execute = pk[:18]
                 deUnicode(execute)
                 arguments = row.__str__()
                 standardOutputFile = opts["standardOutputFile"] 

@@ -178,6 +178,7 @@ def startThread(threadNumber):
         for row in rows:
             CommandRelationshipsPK = row[0]
             key = "transcoder_cr%s" % (CommandRelationshipsPK.__str__())
+            key = CommandRelationshipsPK.__str__()[:18]
             printOutputLock.acquire()
             print "registering:", '"' + key + '"'
             printOutputLock.release()
