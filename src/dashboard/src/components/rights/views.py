@@ -21,7 +21,7 @@ from django.shortcuts import redirect, render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
 from contrib import utils
-from main import forms
+from components.rights import forms
 from main import models
 from components import helpers
 import re
