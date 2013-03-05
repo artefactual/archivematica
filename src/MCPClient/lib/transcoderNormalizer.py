@@ -36,6 +36,7 @@ from databaseFunctions import insertIntoDerivations
 
 
 def executeCommandReleationship(gearman_worker, gearman_job):
+    """some text"""
     try:
         execute = gearman_job.task
         print "executing:", execute, "{", gearman_job.unique, "}"
