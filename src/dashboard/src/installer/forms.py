@@ -18,15 +18,13 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-
 from django.forms.widgets import TextInput, Textarea
-
-INPUT_ATTRS = {'class': 'span11'}
+import settings
 
 class SuperUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
-    org_name = forms.CharField(label='Organization name', help_text='PREMIS agent name', required=False, widget=TextInput(attrs=INPUT_ATTRS))
-    org_identifier = forms.CharField(label='Organization identifier', help_text='PREMIS agent identifier', required=False, widget=TextInput(attrs=INPUT_ATTRS))
+    org_name = forms.CharField(label='Organization name', help_text='PREMIS agent name', required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_identifier = forms.CharField(label='Organization identifier', help_text='PREMIS agent identifier', required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
 
     class Meta:
         model = User

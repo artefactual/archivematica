@@ -230,6 +230,12 @@ MICROSERVICES_HELP = {
     'UploadDIP': 'If desired, select "Upload DIP" to upload the DIP to the access system.',
 }
 
+# Form styling
+TEXTAREA_ATTRS           = {'rows': '4', 'class': 'span11'}
+TEXTAREA_WITH_HELP_ATTRS = {'rows': '4', 'class': 'span11 has_contextual_help'}
+INPUT_ATTRS              = {'class': 'span11'}
+INPUT_WITH_HELP_ATTRS    = {'class': 'span11 has_contextual_help'}
+
 try:
     LOCAL_SETTINGS
 except NameError:

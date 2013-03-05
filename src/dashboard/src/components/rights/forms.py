@@ -20,11 +20,7 @@ from django.forms import ModelForm
 from django.forms.models import modelformset_factory
 from django.forms.widgets import TextInput, Textarea, CheckboxInput, HiddenInput
 from main import models
-
-TEXTAREA_ATTRS = {'rows': '4', 'class': 'span11'}
-TEXTAREA_WITH_HELP_ATTRS = {'rows': '4', 'class': 'span11 has_contextual_help'}
-INPUT_ATTRS = {'class': 'span11'}
-INPUT_WITH_HELP_ATTRS = {'class': 'span11 has_contextual_help'}
+import settings
 
 class RightsForm(ModelForm):
     rightsbasis = forms.ChoiceField(label="Basis", choices=(
@@ -46,14 +42,14 @@ class RightsForm(ModelForm):
             'rightsstatementidentifiervalue',
             'rightsholder',)
         widgets = {
-            'rightsholder': TextInput(attrs=INPUT_ATTRS), }
+            'rightsholder': TextInput(attrs=settings.INPUT_ATTRS), }
 
 class RightsGrantedForm(ModelForm):
     class Meta:
         model = models.RightsStatementRightsGranted
         widgets = {
             'act': TextInput(attrs={'class': 'span11', 'title': "the action the preservation repository is allowed to take; eg replicate, migrate, modify, use, disseminate, delete"}),
-            'restriction': TextInput(attrs=INPUT_ATTRS),
+            'restriction': TextInput(attrs=settings.INPUT_ATTRS),
             'startdate': TextInput(attrs={'class': 'span11', 'title': "beginning date of the rights or restrictions granted"}),
             'enddate': TextInput(attrs={'class': 'span11', 'title': "ending date of the rights or restrictions granted"}),
             'enddateopen': CheckboxInput(attrs={'title': 'use "OPEN" for an open ended term of restriction. Omit endDate if the ending date is unknown or the permission statement applies to many objects with different end dates.'}), }
@@ -62,7 +58,7 @@ class RightsGrantedNotesForm(ModelForm):
     class Meta:
         model = models.RightsStatementRightsGrantedNote
         widgets = {
-            'rightsgranted': TextInput(attrs=TEXTAREA_ATTRS), }
+            'rightsgranted': TextInput(attrs=settings.TEXTAREA_ATTRS), }
 
 class RightsCopyrightForm(ModelForm):
     class Meta:
@@ -78,15 +74,15 @@ class RightsStatementCopyrightDocumentationIdentifierForm(ModelForm):
     class Meta:
         model = models.RightsStatementCopyrightDocumentationIdentifier
         widgets = {
-          'copyrightdocumentationidentifiertype': TextInput(attrs=INPUT_ATTRS),
-          'copyrightdocumentationidentifiervalue': TextInput(attrs=INPUT_ATTRS),
-          'copyrightdocumentationidentifierrole': TextInput(attrs=INPUT_ATTRS), }
+          'copyrightdocumentationidentifiertype': TextInput(attrs=settings.INPUT_ATTRS),
+          'copyrightdocumentationidentifiervalue': TextInput(attrs=settings.INPUT_ATTRS),
+          'copyrightdocumentationidentifierrole': TextInput(attrs=settings.INPUT_ATTRS), }
 
 class RightsCopyrightNoteForm(ModelForm):
     class Meta:
         model = models.RightsStatementCopyrightNote
         widgets = {
-            'copyrightnote': Textarea(attrs=TEXTAREA_ATTRS), }
+            'copyrightnote': Textarea(attrs=settings.TEXTAREA_ATTRS), }
 
 class RightsStatuteForm(ModelForm):
     class Meta:
@@ -102,7 +98,7 @@ class RightsStatuteNoteForm(ModelForm):
     class Meta:
         model = models.RightsStatementStatuteInformationNote
         widgets = {
-            'statutenote': Textarea(attrs=TEXTAREA_ATTRS), }
+            'statutenote': Textarea(attrs=settings.TEXTAREA_ATTRS), }
 
 class RightsOtherRightsForm(ModelForm):
     class Meta:
@@ -124,4 +120,4 @@ class RightsLicenseNoteForm(ModelForm):
     class Meta:
         model = models.RightsStatementLicenseNote
         widgets = {
-            'licensenote': Textarea(attrs=TEXTAREA_ATTRS), }
+            'licensenote': Textarea(attrs=settings.TEXTAREA_ATTRS), }

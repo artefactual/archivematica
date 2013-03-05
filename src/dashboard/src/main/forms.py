@@ -20,11 +20,7 @@ from django.forms import ModelForm
 from django.forms.models import modelformset_factory
 from django.forms.widgets import TextInput, Textarea, CheckboxInput, HiddenInput
 from main import models
-
-TEXTAREA_ATTRS = {'rows': '4', 'class': 'span11'}
-TEXTAREA_WITH_HELP_ATTRS = {'rows': '4', 'class': 'span11 has_contextual_help'}
-INPUT_ATTRS = {'class': 'span11'}
-INPUT_WITH_HELP_ATTRS = {'class': 'span11 has_contextual_help'}
+import settings
 
 class MicroServiceChoiceReplacementDicForm(ModelForm):
     class Meta:
@@ -32,7 +28,7 @@ class MicroServiceChoiceReplacementDicForm(ModelForm):
         exclude = (
             'id', )
         widgets = {
-            'description': TextInput(attrs=INPUT_ATTRS),
-            'replacementdic': Textarea(attrs=TEXTAREA_ATTRS),
+            'description': TextInput(attrs=settings.INPUT_ATTRS),
+            'replacementdic': Textarea(attrs=settings.TEXTAREA_ATTRS),
             'choiceavailableatlink': HiddenInput
         }
