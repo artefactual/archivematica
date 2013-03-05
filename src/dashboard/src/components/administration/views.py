@@ -39,37 +39,6 @@ import components.decorators as decorators
 def administration(request):
     return HttpResponseRedirect(reverse('components.administration.views.administration_sources'))
 
-def administration_search(request):
-    message = request.GET.get('message', '')
-    aip_files_indexed = archival_storage_indexed_count('aips')
-    return render(request, 'administration/search.html', locals())
-
-def administration_search_flush_aips_context(request):
-    prompt = 'Flush AIP search index?'
-    cancel_url = reverse("components.administration.views.administration_search")
-    return RequestContext(request, {'action': 'Flush', 'prompt': prompt, 'cancel_url': cancel_url})
-
-@decorators.confirm_required('simple_confirm.html', administration_search_flush_aips_context)
-@user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
-def administration_search_flush_aips(request):
-    conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
-    index = 'aips'
-
-    try:
-        conn.delete_index(index)
-        message = 'AIP search index flushed.'
-        try:
-            conn.create_index(index)
-        except pyes.exceptions.IndexAlreadyExistsException:
-            message = 'Error recreating AIP search index.'
-
-    except:
-        message = 'Error flushing AIP search index.'
-        pass
-
-    params = urllib.urlencode({'message': message})
-    return HttpResponseRedirect(reverse("components.administration.views.administration_search") + "?%s" % params)
-
 def administration_dip(request):
     upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
     return render(request, 'administration/dip.html', locals())
