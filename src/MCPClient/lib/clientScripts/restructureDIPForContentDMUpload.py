@@ -101,9 +101,9 @@ def parseDmdSec(dmdSec, label = '[Placeholder title]'):
 # Files in the DIP objects directory start with the UUID (i.e., first 36 characters 
 # of the filename) # of the of the file named in the fptr FILEID in the structMap; 
 # each file ends in the UUID. Also, we are only interested in divs that are direct
-# children of a div with TYPE=directory and LABEL=objects:
-#  <div TYPE="directory" LABEL="DigitizationOutput-50a3c71f-92d6-46d1-98ce-8227caa79f85-50a3c71f-92d6-46d1-98ce-8227caa79f85">
-#     <div TYPE="directory" LABEL="objects" DMDID="dmdSec_1">
+# children of a div with TYPE=Directory and LABEL=objects:
+#  <div TYPE="Directory" LABEL="DigitizationOutput-50a3c71f-92d6-46d1-98ce-8227caa79f85-50a3c71f-92d6-46d1-98ce-8227caa79f85">
+#     <div TYPE="Directory" LABEL="objects" DMDID="dmdSec_1">
 #       <div LABEL="Page 1">
 #         <fptr FILEID="P1050152.JPG-e2d0cd78-f1b9-446b-81ae-ea0e282332bb"/>
 #       </div>
@@ -487,9 +487,9 @@ def getItemCountType(structMap):
             if k == 'DMDID' and match:
                 # Get the value of the TYPE attribute.
                 type = node.attributes["TYPE"]
-                if type.value == 'item':
+                if type.value == 'Item':
                     return 'simple'
-                if type.value == 'directory':
+                if type.value == 'Directory':
                     return 'compound'
 
 
