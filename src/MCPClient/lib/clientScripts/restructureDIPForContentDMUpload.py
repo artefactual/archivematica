@@ -901,13 +901,16 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSecGroup)
     
     # Each item needs to have its own directory under outputDipDir. For a single item, we use
-    # 'scans'; for bulk items, we need to make up a unique directory name. To generate a unique
-    # name for each compound item, we use the the first eight characters of the UUID of the first 
-    # file in each compound item.
+    # 'scans'; for bulk items, we also use a 'scans' directory, but within that, we need to make 
+    # up a unique directory name. To generate a unique name for each compound item, we use the 
+    # the first eight characters of the UUID of the first file in each compound item.
     if bulk:
+        scansDir = os.path.join(outputDipDir, 'scans')
+        os.mkdir(scansDir)
         firstFilePath, firstFileFilename = os.path.split(filesInObjectDirectoryForThisDmdSecGroup[0])
         itemDirUuid = firstFileFilename[:8]
-        outputItemDir = os.path.join(outputDipDir, itemDirUuid)
+        # outputItemDir = os.path.join(outputDipDir, itemDirUuid)
+        outputItemDir = os.path.join(scansDir, itemDirUuid)
         os.mkdir(outputItemDir)
         # Copy the files into the outputItemDir, giving them names that reflect
         # the sort order expressed in their structMap.
@@ -933,7 +936,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     # child-level metadata rows further down.
     else:
         scansDir = os.path.join(outputDipDir, 'scans')
-        os.makedirs(scansDir)
+        os.mkdir(scansDir)
 
     # Write out the metadata file, with the first row containing the field labels and the
     # second row containing the field values. Both rows needs to be in the order expressed
