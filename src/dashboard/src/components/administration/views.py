@@ -30,6 +30,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 from django.contrib.auth.decorators import user_passes_test
 import urllib
+from lxml import etree
 from components.administration.forms import AdministrationForm
 from components.administration.forms import AgentForm
 import components.decorators as decorators
@@ -229,11 +230,54 @@ def administration_system_directory_delete_request_handler(request, model, id):
 def administration_processing(request):
     file_path = '/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'
 
+    optional_radios = [
+        {
+            "name": "backup_transfer",
+            "label":     "Create transfer backup"
+        },
+        {
+            "name": "quarantine_transfer",
+            "label": "Send transfer to quarantine"
+        }
+    ]
+
+    optional_radio_defaults = {}
+
     if request.method == 'POST':
+        # render XML using request
+        xml = etree.Element('processingMCP')
+        choices = etree.Element('preconfiguredChoices')
+        xml.append(choices)
+
+        appliesTo = 'Workflow decision - create transfer backup'
+        backup_transfer = request.POST.get('backup_transfer', '')
+        if backup_transfer == 'yes':
+            gotoChain = 'Do not backup transfer'
+        else:
+            gotoChain = 'Backup transfer' # ???
+        # addChoice
+
         xml = request.POST.get('xml', '')
         file = open(file_path, 'w')
         file.write(xml)
     else:
+        file = open(file_path, 'r')
+        xml = file.read()
+
+        tree = etree.fromstring(xml)
+        root = tree.getroot()
+        choices = root.find('preconfiguredChoices')
+
+        #bts = root
+
+        #extension = root.find("Document/Extension").text
+        xmlMD5 = root.find("Document/MD5").text
+
+
+        # parse XML to work out locals()
+        optional_radio_defaults['backup_transfer'] = 'checked'
+        optional_radio_defaults['quarantine_transfer'] = ''
+
         file = open(file_path, 'r')
         xml = file.read()
 

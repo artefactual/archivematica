@@ -1,5 +1,6 @@
 {% extends "layout_fluid.html" %}
 {% load breadcumbs %}
+{% load keyvalue %}
 
 {% block title %}Administration{% endblock %}
 {% block h1 %}Administration{% endblock %}
@@ -20,6 +21,24 @@
     <div class="span12">
 
       <h3>Processing configuration</h3>
+
+      <form method='POST'>
+      <table>
+        {% for item in optional_radios %}
+        <tr>
+          <td>
+            <input type='checkbox' name='{{ item.name }}' value='yes' {{ optional_radio_defaults|keyvalue:item.name }}> {{ item.label }}
+            </form>
+          </td>
+          <td>
+            <input type='radio' value='yes'> Yes
+            <input type='radio' value='no'> No
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      <input type='submit'>
+      </form>
 
       <div style='width: 500px; height: 300px;'>
       <form method='POST'>
