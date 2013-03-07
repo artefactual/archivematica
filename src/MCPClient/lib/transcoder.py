@@ -56,7 +56,7 @@ class Command:
         sql = """SELECT CT.type, C.verificationCommand, C.eventDetailCommand, C.command, C.outputLocation, C.description, C.outputFileFormat
         FROM Commands AS C
         JOIN CommandTypes AS CT ON C.commandType = CT.pk
-        WHERE C.pk Like '""" + commandID.__str__() + """%'
+        WHERE C.pk = '""" + commandID.__str__() + """'
         ;"""
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
