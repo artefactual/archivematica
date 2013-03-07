@@ -15,15 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls.defaults import patterns
+from django import forms
+from django.forms import ModelForm
+from django.forms.models import modelformset_factory
+from django.forms.widgets import TextInput, Textarea, CheckboxInput, HiddenInput
+from main import models
 import settings
 
-urlpatterns = patterns('components.archival_storage.views',
-    (r'page/(?P<page>\d+)/$', 'archival_storage_page'),
-    (r'search/json/file/(?P<document_id_modified>\w+)/$', 'archival_storage_file_json'),
-    (r'search/$', 'archival_storage_search'),
-    (r'download/aip/file/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'archival_storage_aip_file_download'),
-    (r'download/aip/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'archival_storage_aip_download'),
-    (r'thumbnail/(?P<fileuuid>' + settings.UUID_REGEX + ')/$', 'archival_storage_send_thumbnail'),
-    (r'^$', 'archival_storage')
-)
+class AdministrationForm(forms.Form):
+    arguments = forms.CharField(required=False, widget=Textarea(attrs=settings.TEXTAREA_ATTRS))
+
+class AgentForm(ModelForm):
+    identifiervalue = forms.CharField(required=True, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    name = forms.CharField(required=True, widget=TextInput(attrs=settings.INPUT_ATTRS))
+
+    class Meta:
+        model = models.Agent
+        exclude = ('identifiertype')

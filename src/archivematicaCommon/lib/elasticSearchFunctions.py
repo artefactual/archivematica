@@ -45,7 +45,9 @@ def connect_and_create_index(index):
     try:
         conn.create_index(index)
         conn = connect_and_create_index(index)
-    except pyes.exceptions.IndexAlreadyExistsException:
+    except:
+        # above exception was pyes.exceptions.IndexAlreadyExistsException
+        # but didn't work with ES 0.19.0
         pass
 
     return conn

@@ -23,9 +23,10 @@ def execute(request):
     result = ''
     if 'uuid' in request.REQUEST:
         client = MCPClient()
-        uuid = request.REQUEST.get('uuid', '')
+        uuid   = request.REQUEST.get('uuid', '')
         choice = request.REQUEST.get('choice', '')
-        result = client.execute(uuid, choice)
+        uid    = request.REQUEST.get('uid', '')
+        result = client.execute(uuid, choice, 3)
     return HttpResponse(result, mimetype = 'text/plain')
 
 def list(request):

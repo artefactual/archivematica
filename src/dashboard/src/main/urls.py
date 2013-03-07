@@ -18,8 +18,7 @@
 from django.conf.urls.defaults import *
 from django.conf import settings
 from django.views.generic.simple import direct_to_template, redirect_to
-
-UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
+import settings
 
 urlpatterns = patterns('main.views',
 
@@ -30,10 +29,10 @@ urlpatterns = patterns('main.views',
     (r'forbidden/$', 'forbidden'),
 
     # Jobs and tasks (is part of ingest)
-    (r'jobs/(?P<uuid>' + UUID_REGEX + ')/explore/$', 'jobs_explore'),
-    (r'jobs/(?P<uuid>' + UUID_REGEX + ')/list-objects/$', 'jobs_list_objects'),
-    (r'tasks/(?P<uuid>' + UUID_REGEX + ')/$', 'tasks'),
-    (r'task/(?P<uuid>' + UUID_REGEX + ')/$', 'task'),
+    (r'jobs/(?P<uuid>' + settings.UUID_REGEX + ')/explore/$', 'jobs_explore'),
+    (r'jobs/(?P<uuid>' + settings.UUID_REGEX + ')/list-objects/$', 'jobs_list_objects'),
+    (r'tasks/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'tasks'),
+    (r'task/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'task'),
 
     # Access
     (r'access/$', 'access_list'),

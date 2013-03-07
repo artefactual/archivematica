@@ -323,7 +323,8 @@ var BaseSipView = Backbone.View.extend({
       for(group in groups) {
         var group = new MicroserviceGroupView({
           name: group,
-          jobs: groups[group]
+          jobs: groups[group],
+          uid: this.uid
         });
         group.template = _.template(
           $('#microservice-group-template').html()
@@ -431,6 +432,7 @@ var MicroserviceGroupView = Backbone.View.extend({
     {
       this.name = this.options.name || '';
       this.jobs = this.options.jobs || new JobCollection();
+      this.uid  = this.options.uid;
     },
 
   amalgamateSubjobs: function()
@@ -471,7 +473,10 @@ var MicroserviceGroupView = Backbone.View.extend({
       this.jobs.each(function(job) {
         // render top-level jobs
         if (job.attributes.subjobof == '') {
-          var jobView = new JobView({model: job});
+          var jobView = new JobView({
+            model: job,
+            uid: self.uid
+          });
           if (jobView.model.get('currentstep') == 'Failed') {
             failedJobExists = true;
           }
@@ -567,6 +572,7 @@ var BaseJobView = Backbone.View.extend({
       _.bindAll(this, 'render', 'approveJob', 'rejectJob');
       this.model.bind('change', this.render);
       this.model.view = this;
+      this.uid = this.options.uid;
     },
 
   taskDialog: function(data, options)
@@ -844,6 +850,7 @@ BaseAppView = Backbone.View.extend({
   initialize: function(options)
     {
       this.statusUrl = options.statusUrl;
+      this.uid       = options.uid;
 
       _.bindAll(this, 'add', 'remove');
       Sips.bind('add', this.add);
@@ -892,7 +899,10 @@ BaseAppView = Backbone.View.extend({
 
   add: function(sip)
     {
-      var view = new SipView({model: sip});
+      var view = new SipView({
+        model: sip,
+        uid: this.uid
+      });
       var $new = $(view.render().el).hide();
 
       // Get the current position in the collection
