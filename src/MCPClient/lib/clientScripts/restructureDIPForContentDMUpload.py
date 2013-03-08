@@ -892,9 +892,6 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     nonDcMetadata = dmdSecPair['nonDc']
     dcMetadata = dmdSecPair['dc']    
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
-    
-    print 'filesInObjectDirectoryForThisDmdSecGroup'
-    print filesInObjectDirectoryForThisDmdSecGroup
 
     # Archivematica's stuctMap is always the first one; the user-submitted structMap
     # is always the second one. User-submitted structMaps are only supported in the
@@ -912,7 +909,6 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
             os.mkdir(scansDir)
         firstFilePath, firstFileFilename = os.path.split(filesInObjectDirectoryForThisDmdSecGroup[0])
         itemDirUuid = firstFileFilename[:8]
-        # outputItemDir = os.path.join(outputDipDir, itemDirUuid)
         outputItemDir = os.path.join(scansDir, itemDirUuid)
         if not os.path.exists(outputItemDir):
             os.mkdir(outputItemDir)
