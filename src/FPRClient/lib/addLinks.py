@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/python -OO
 
 # This file is part of Archivematica.
 #
@@ -18,26 +18,24 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 # @package Archivematica
+# @subpackage FPRClient
 # @author Joseph Perry <joseph@artefactual.com>
-# @version svn: $Id$
 
-if [ -e /usr/share/fits/xml/fits.xmlbackup ]; then
-    sudo rm /usr/share/fits/xml/fits.xml
-fi
+import sys
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import databaseInterface
 
-sudo rm -r /usr/lib/archivematica
-sudo rm -r /etc/archivematica
-sudo rm -r /usr/share/archivematica
+def addLinks():
+    #Find all command relationships without links.
+    sql = ""
+    
+    for cr in rows:
+        #create new link
+        print
 
-sudo rm /usr/bin/upload-qubit 
-sudo rm /usr/bin/transcoder
-sudo rm /usr/bin/archivematicaCreateMD5
-sudo rm /usr/bin/archivematicaRestructureForCompliance
-sudo rm /usr/bin/sanitizeNames
-sudo rm /usr/bin/FPRClient
 
-sudo rm -r /usr/lib/sanitizeNames
 
-sudo rm -r /var/archivematica/
 
-sudo rm /etc/apache2/sites-enabled/000-default
+
+if __name__ == '__main__':
+    addLinks()
