@@ -588,20 +588,19 @@ def getFileIdsForDmdSec(structMaps, dmdSecIdValue):
     for div in structMap.getElementsByTagName('div'):
         for k, v in div.attributes.items():
             # We match on the first dmdSec ID. Space is optional because 
-            # there could be two dmdSec IDs in the value.
-            match = re.search(r'%s\s?$' % dmdSecIdValue, v)
+            # there could be two dmdSec IDs in the value, separated by a space.
+            match = re.search(r'%s\s?' % dmdSecIdValue, v)
             if k == 'DMDID' and match:
                 for fptr in div.getElementsByTagName('fptr'):
                     for k, v in fptr.attributes.items():
                         if k == 'FILEID':
-                            fileIds.append(v)
-                            
+                            fileIds.append(v)               
     return fileIds
 
 
 # Given a group of dmdSecs and the METS structMaps, return a list of files
 # that are described by the dmdSecs.
-def getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps):
+def getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps):    
     filesInObjectDirectoryForThisDmdSecGroup = list()
     # Get the value of ID for each <dmdSec> and put them in a list,
     # then pass the list into getFileIdsForDmdSec()
@@ -893,6 +892,9 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     nonDcMetadata = dmdSecPair['nonDc']
     dcMetadata = dmdSecPair['dc']    
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
+    
+    print 'filesInObjectDirectoryForThisDmdSecGroup'
+    print filesInObjectDirectoryForThisDmdSecGroup
 
     # Archivematica's stuctMap is always the first one; the user-submitted structMap
     # is always the second one. User-submitted structMaps are only supported in the
@@ -906,12 +908,14 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     # the first eight characters of the UUID of the first file in each compound item.
     if bulk:
         scansDir = os.path.join(outputDipDir, 'scans')
-        os.mkdir(scansDir)
+        if not os.path.exists(scansDir):
+            os.mkdir(scansDir)
         firstFilePath, firstFileFilename = os.path.split(filesInObjectDirectoryForThisDmdSecGroup[0])
         itemDirUuid = firstFileFilename[:8]
         # outputItemDir = os.path.join(outputDipDir, itemDirUuid)
         outputItemDir = os.path.join(scansDir, itemDirUuid)
-        os.mkdir(outputItemDir)
+        if not os.path.exists(outputItemDir):
+            os.mkdir(outputItemDir)
         # Copy the files into the outputItemDir, giving them names that reflect
         # the sort order expressed in their structMap.
         Orders = []
