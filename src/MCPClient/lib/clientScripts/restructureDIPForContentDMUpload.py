@@ -101,9 +101,9 @@ def parseDmdSec(dmdSec, label = '[Placeholder title]'):
 # Files in the DIP objects directory start with the UUID (i.e., first 36 characters 
 # of the filename) # of the of the file named in the fptr FILEID in the structMap; 
 # each file ends in the UUID. Also, we are only interested in divs that are direct
-# children of a div with TYPE=directory and LABEL=objects:
-#  <div TYPE="directory" LABEL="DigitizationOutput-50a3c71f-92d6-46d1-98ce-8227caa79f85-50a3c71f-92d6-46d1-98ce-8227caa79f85">
-#     <div TYPE="directory" LABEL="objects" DMDID="dmdSec_1">
+# children of a div with TYPE=Directory and LABEL=objects:
+#  <div TYPE="Directory" LABEL="DigitizationOutput-50a3c71f-92d6-46d1-98ce-8227caa79f85-50a3c71f-92d6-46d1-98ce-8227caa79f85">
+#     <div TYPE="Directory" LABEL="objects" DMDID="dmdSec_1">
 #       <div LABEL="Page 1">
 #         <fptr FILEID="P1050152.JPG-e2d0cd78-f1b9-446b-81ae-ea0e282332bb"/>
 #       </div>
@@ -487,9 +487,9 @@ def getItemCountType(structMap):
             if k == 'DMDID' and match:
                 # Get the value of the TYPE attribute.
                 type = node.attributes["TYPE"]
-                if type.value == 'item':
+                if type.value == 'Item':
                     return 'simple'
-                if type.value == 'directory':
+                if type.value == 'Directory':
                     return 'compound'
 
 
@@ -588,20 +588,19 @@ def getFileIdsForDmdSec(structMaps, dmdSecIdValue):
     for div in structMap.getElementsByTagName('div'):
         for k, v in div.attributes.items():
             # We match on the first dmdSec ID. Space is optional because 
-            # there could be two dmdSec IDs in the value.
-            match = re.search(r'%s\s?$' % dmdSecIdValue, v)
+            # there could be two dmdSec IDs in the value, separated by a space.
+            match = re.search(r'%s\s?' % dmdSecIdValue, v)
             if k == 'DMDID' and match:
                 for fptr in div.getElementsByTagName('fptr'):
                     for k, v in fptr.attributes.items():
                         if k == 'FILEID':
-                            fileIds.append(v)
-                            
+                            fileIds.append(v)               
     return fileIds
 
 
 # Given a group of dmdSecs and the METS structMaps, return a list of files
 # that are described by the dmdSecs.
-def getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps):
+def getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps):    
     filesInObjectDirectoryForThisDmdSecGroup = list()
     # Get the value of ID for each <dmdSec> and put them in a list,
     # then pass the list into getFileIdsForDmdSec()
@@ -901,14 +900,18 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSecGroup)
     
     # Each item needs to have its own directory under outputDipDir. For a single item, we use
-    # 'scans'; for bulk items, we need to make up a unique directory name. To generate a unique
-    # name for each compound item, we use the the first eight characters of the UUID of the first 
-    # file in each compound item.
+    # 'scans'; for bulk items, we also use a 'scans' directory, but within that, we need to make 
+    # up a unique directory name. To generate a unique name for each compound item, we use the 
+    # the first eight characters of the UUID of the first file in each compound item.
     if bulk:
+        scansDir = os.path.join(outputDipDir, 'scans')
+        if not os.path.exists(scansDir):
+            os.mkdir(scansDir)
         firstFilePath, firstFileFilename = os.path.split(filesInObjectDirectoryForThisDmdSecGroup[0])
         itemDirUuid = firstFileFilename[:8]
-        outputItemDir = os.path.join(outputDipDir, itemDirUuid)
-        os.mkdir(outputItemDir)
+        outputItemDir = os.path.join(scansDir, itemDirUuid)
+        if not os.path.exists(outputItemDir):
+            os.mkdir(outputItemDir)
         # Copy the files into the outputItemDir, giving them names that reflect
         # the sort order expressed in their structMap.
         Orders = []
@@ -933,7 +936,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     # child-level metadata rows further down.
     else:
         scansDir = os.path.join(outputDipDir, 'scans')
-        os.makedirs(scansDir)
+        os.mkdir(scansDir)
 
     # Write out the metadata file, with the first row containing the field labels and the
     # second row containing the field values. Both rows needs to be in the order expressed
