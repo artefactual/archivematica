@@ -232,8 +232,8 @@ def administration_processing(request):
 
     optional_radios = [
         {
-            "name": "backup_transfer",
-            "label":     "Create transfer backup"
+            "name":  "backup_transfer",
+            "label": "Create transfer backup"
         },
         {
             "name": "quarantine_transfer",
@@ -249,37 +249,76 @@ def administration_processing(request):
         choices = etree.Element('preconfiguredChoices')
         xml.append(choices)
 
-        appliesTo = 'Workflow decision - create transfer backup'
+        # handle transfer backups
         backup_transfer = request.POST.get('backup_transfer', '')
         if backup_transfer == 'yes':
-            gotoChain = 'Do not backup transfer'
+            go_to_chain_text = 'Backup transfer' # ???
         else:
-            gotoChain = 'Backup transfer' # ???
-        # addChoice
+            go_to_chain_text = 'Do not backup transfer'
 
-        xml = request.POST.get('xml', '')
+        choice = etree.Element('preconfiguredChoice')
+
+        applies_to = etree.Element('appliesTo')
+        applies_to.text = 'Workflow decision - create transfer backup'
+        choice.append(applies_to)
+
+        go_to_chain = etree.Element('goToChain')
+        go_to_chain.text = go_to_chain_text
+        choice.append(go_to_chain)
+
+        choices.append(choice)
+
+        # handle transfer quarantine
+        quarantine_transfer = request.POST.get('quarantine_transfer', '')
+        if quarantine_transfer == 'yes':
+            go_to_chain_text = 'Quarantine transfer' # ???
+        else:
+            go_to_chain_text = 'Skip quarantine'
+
+        choice = etree.Element('preconfiguredChoice')
+
+        applies_to = etree.Element('appliesTo')
+        applies_to.text = 'Workflow decision - send transfer to quarantine'
+        choice.append(applies_to)
+
+        go_to_chain = etree.Element('goToChain')
+        go_to_chain.text = go_to_chain_text
+        choice.append(go_to_chain)
+
+        choices.append(choice)
+
+        xml.append(choices)
+        #return HttpResponse(etree.tostring(xml))
+
         file = open(file_path, 'w')
-        file.write(xml)
+        file.write(etree.tostring(xml))
+
+        return HttpResponseRedirect(reverse('components.administration.views.administration_processing'))
     else:
         file = open(file_path, 'r')
         xml = file.read()
 
-        tree = etree.fromstring(xml)
-        root = tree.getroot()
+        # parse XML to work out locals()
+        root = etree.fromstring(xml)
         choices = root.find('preconfiguredChoices')
 
-        #bts = root
+        for choice in choices:
+            applies_to = choice.find('appliesTo').text
+            go_to_chain = choice.find('goToChain').text
 
-        #extension = root.find("Document/Extension").text
-        xmlMD5 = root.find("Document/MD5").text
+            # handle transfer backups
+            if applies_to == 'Workflow decision - create transfer backup':
+                if go_to_chain == 'Do not backup transfer':
+                    optional_radio_defaults['backup_transfer'] = ''
+                else:
+                    optional_radio_defaults['backup_transfer'] = 'checked'
 
-
-        # parse XML to work out locals()
-        optional_radio_defaults['backup_transfer'] = 'checked'
-        optional_radio_defaults['quarantine_transfer'] = ''
-
-        file = open(file_path, 'r')
-        xml = file.read()
+            # handle transfer quarantine
+            if applies_to == 'Workflow decision - send transfer to quarantine':
+                if go_to_chain == 'Skip quarantine':
+                    optional_radio_defaults['quarantine_transfer'] = ''
+                else:
+                    optional_radio_defaults['quarantine_transfer'] = 'checked'
 
     return render(request, 'administration/processing.html', locals())
 
