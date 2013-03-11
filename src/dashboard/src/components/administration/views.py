@@ -219,6 +219,19 @@ def administration_sources_delete_json(request, id):
       id
     )
 
+def add_choice_to_choices(choices, applies_to_text, go_to_chain_text):
+    choice = etree.Element('preconfiguredChoice')
+
+    applies_to = etree.Element('appliesTo')
+    applies_to.text = applies_to_text
+    choice.append(applies_to)
+
+    go_to_chain = etree.Element('goToChain')
+    go_to_chain.text = go_to_chain_text
+    choice.append(go_to_chain)
+
+    choices.append(choice)
+
 def administration_system_directory_delete_request_handler(request, model, id):
     model.objects.get(pk=id).delete()
     if model == models.StorageDirectory:
@@ -256,17 +269,11 @@ def administration_processing(request):
         else:
             go_to_chain_text = 'Do not backup transfer'
 
-        choice = etree.Element('preconfiguredChoice')
-
-        applies_to = etree.Element('appliesTo')
-        applies_to.text = 'Workflow decision - create transfer backup'
-        choice.append(applies_to)
-
-        go_to_chain = etree.Element('goToChain')
-        go_to_chain.text = go_to_chain_text
-        choice.append(go_to_chain)
-
-        choices.append(choice)
+        add_choice_to_choices(
+            choices,
+            'Workflow decision - create transfer backup',
+            go_to_chain_text
+        )
 
         # handle transfer quarantine
         quarantine_transfer = request.POST.get('quarantine_transfer', '')
@@ -275,20 +282,13 @@ def administration_processing(request):
         else:
             go_to_chain_text = 'Skip quarantine'
 
-        choice = etree.Element('preconfiguredChoice')
-
-        applies_to = etree.Element('appliesTo')
-        applies_to.text = 'Workflow decision - send transfer to quarantine'
-        choice.append(applies_to)
-
-        go_to_chain = etree.Element('goToChain')
-        go_to_chain.text = go_to_chain_text
-        choice.append(go_to_chain)
-
-        choices.append(choice)
+        add_choice_to_choices(
+            choices, 
+            'Workflow decision - send transfer to quarantine',
+            go_to_chain_text
+        )
 
         xml.append(choices)
-        #return HttpResponse(etree.tostring(xml))
 
         file = open(file_path, 'w')
         file.write(etree.tostring(xml))
