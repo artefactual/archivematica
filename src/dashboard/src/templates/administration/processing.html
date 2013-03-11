@@ -31,8 +31,12 @@
             </form>
           </td>
           <td>
-            <input type='radio' value='yes'> Yes
-            <input type='radio' value='no'> No
+            {% if item.name != 'normalize_transfer' %}
+              <input type='radio' name='{{ item.name }}_toggle' value='yes' {{ optional_radio_yes_checked|keyvalue:item.name }}> Yes
+              <input type='radio' name='{{ item.name }}_toggle' value='no' {{ optional_radio_no_checked|keyvalue:item.name }}> No
+            {% else %}
+              <input type='radio' value='yes' checked> Yes
+            {% endif %}
           </td>
         </tr>
         {% endfor %}
@@ -43,9 +47,6 @@
       <div style='width: 500px; height: 300px;'>
       <form method='POST'>
         <textarea name='xml' style='width: 500px; height: 300px;'>{{ xml }}</textarea>
-        <div style='float:right;'>
-          <input type='submit' value='Save' class='btn' />
-        </div>
       </form>
       </div>
 

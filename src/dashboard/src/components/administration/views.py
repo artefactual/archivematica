@@ -246,15 +246,17 @@ def administration_processing(request):
     optional_radios = [
         {
             "name":  "backup_transfer",
-            "label": "Create transfer backup"
+            "label": "Create transfer backup",
         },
         {
             "name": "quarantine_transfer",
             "label": "Send transfer to quarantine"
+        },
+        {
+            "name": "normalize_transfer",
+            "label": "Approve normalization"
         }
     ]
-
-    optional_radio_defaults = {}
 
     if request.method == 'POST':
         # render XML using request
@@ -265,28 +267,41 @@ def administration_processing(request):
         # handle transfer backups
         backup_transfer = request.POST.get('backup_transfer', '')
         if backup_transfer == 'yes':
-            go_to_chain_text = 'Backup transfer' # ???
-        else:
-            go_to_chain_text = 'Do not backup transfer'
+            backup_transfer_toggle = request.POST.get('backup_transfer_toggle', '')
+            if backup_transfer_toggle == 'yes':
+                go_to_chain_text = 'Backup transfer' # ???
+            else:
+                go_to_chain_text = 'Do not backup transfer'
 
-        add_choice_to_choices(
-            choices,
-            'Workflow decision - create transfer backup',
-            go_to_chain_text
-        )
+            add_choice_to_choices(
+                choices,
+                'Workflow decision - create transfer backup',
+                go_to_chain_text
+            )
 
         # handle transfer quarantine
         quarantine_transfer = request.POST.get('quarantine_transfer', '')
         if quarantine_transfer == 'yes':
-            go_to_chain_text = 'Quarantine transfer' # ???
-        else:
-            go_to_chain_text = 'Skip quarantine'
+            quarantine_transfer_toggle = request.POST.get('quarantine_transfer_toggle', '')
+            if quarantine_transfer_toggle == 'yes':
+                go_to_chain_text = 'Quarantine transfer' # ???
+            else:
+                go_to_chain_text = 'Skip quarantine'
 
-        add_choice_to_choices(
-            choices, 
-            'Workflow decision - send transfer to quarantine',
-            go_to_chain_text
-        )
+            add_choice_to_choices(
+                choices, 
+                'Workflow decision - send transfer to quarantine',
+                go_to_chain_text
+            )
+
+        # handle normalize
+        normalize_transfer = request.POST.get('normalize_transfer', '')
+        if normalize_transfer == 'yes':
+            add_choice_to_choices(
+                choices,
+                'Approve normalization',
+                'Approve normalization'
+            )
 
         xml.append(choices)
 
@@ -295,6 +310,10 @@ def administration_processing(request):
 
         return HttpResponseRedirect(reverse('components.administration.views.administration_processing'))
     else:
+        optional_radio_defaults    = {}
+        optional_radio_yes_checked = {}
+        optional_radio_no_checked  = {}
+
         file = open(file_path, 'r')
         xml = file.read()
 
@@ -302,23 +321,41 @@ def administration_processing(request):
         root = etree.fromstring(xml)
         choices = root.find('preconfiguredChoices')
 
+        for item in optional_radios:
+            name = item['name']
+            optional_radio_defaults[name]     = ''
+            optional_radio_yes_checked[name]  = ''
+            optional_radio_no_checked[name]   = ''
+
         for choice in choices:
             applies_to = choice.find('appliesTo').text
             go_to_chain = choice.find('goToChain').text
 
-            # handle transfer backups
+            # a transfer backup choice was found
             if applies_to == 'Workflow decision - create transfer backup':
+                optional_radio_defaults['backup_transfer'] = 'checked'
+                # set radio button
                 if go_to_chain == 'Do not backup transfer':
-                    optional_radio_defaults['backup_transfer'] = ''
+                    optional_radio_yes_checked['backup_transfer'] = ''
+                    optional_radio_no_checked['backup_transfer']  = 'checked'
                 else:
-                    optional_radio_defaults['backup_transfer'] = 'checked'
+                    optional_radio_yes_checked['backup_transfer'] = 'checked'
+                    optional_radio_no_checked['backup_transfer']  = ''
 
-            # handle transfer quarantine
+            # a transfer quarantine choice was found
             if applies_to == 'Workflow decision - send transfer to quarantine':
+                optional_radio_defaults['quarantine_transfer'] = 'checked'
+                # set radio button
                 if go_to_chain == 'Skip quarantine':
-                    optional_radio_defaults['quarantine_transfer'] = ''
+                    optional_radio_yes_checked['quarantine_transfer'] = ''
+                    optional_radio_no_checked['quarantine_transfer']  = 'checked'
                 else:
-                    optional_radio_defaults['quarantine_transfer'] = 'checked'
+                    optional_radio_yes_checked['quarantine_transfer'] = 'checked'
+                    optional_radio_no_checked['quarantine_transfer']  = ''
+
+            # an approve normalization choice was found
+            if applies_to == 'Approve normalization':
+                optional_radio_defaults['normalize_transfer'] = 'checked'
 
     return render(request, 'administration/processing.html', locals())
 
