@@ -255,6 +255,10 @@ def administration_processing(request):
         {
             "name": "normalize_transfer",
             "label": "Approve normalization"
+        },
+        {
+            "name": "store_aip",
+            "label": "Store AIP"
         }
     ]
 
@@ -301,6 +305,15 @@ def administration_processing(request):
                 choices,
                 'Approve normalization',
                 'Approve normalization'
+            )
+
+        # store aip
+        store_aip = request.POST.get('store_aip', '')
+        if store_aip == 'yes':
+            add_choice_to_choices(
+                choices,
+                'Store AIP',
+                'Store AIP'
             )
 
         xml.append(choices)
@@ -356,6 +369,10 @@ def administration_processing(request):
             # an approve normalization choice was found
             if applies_to == 'Approve normalization':
                 optional_radio_defaults['normalize_transfer'] = 'checked'
+
+            # a store AIP choice was found
+            if applies_to == 'Store AIP':
+                optional_radio_defaults['store_aip'] = 'checked'
 
     return render(request, 'administration/processing.html', locals())
 

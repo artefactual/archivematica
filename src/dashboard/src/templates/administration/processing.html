@@ -31,7 +31,7 @@
             </form>
           </td>
           <td>
-            {% if item.name != 'normalize_transfer' %}
+            {% if item.name != 'normalize_transfer' and item.name != 'store_aip' %}
               <input type='radio' name='{{ item.name }}_toggle' value='yes' {{ optional_radio_yes_checked|keyvalue:item.name }}> Yes
               <input type='radio' name='{{ item.name }}_toggle' value='no' {{ optional_radio_no_checked|keyvalue:item.name }}> No
             {% else %}
