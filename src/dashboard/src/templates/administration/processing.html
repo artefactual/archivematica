@@ -40,6 +40,27 @@
           </td>
         </tr>
         {% endfor %}
+
+        <tr>
+          <td colspan='2'>
+            Remove from quarantine after
+            <input name='quarantine_expiry' value='{{ quarantine_expiry }}' class='span1' />
+            days
+          </td>
+        </tr>
+
+        {% for item in select_fields %}
+        <tr>
+          <td>{{ item.label }}</td>
+          <td>
+            <select name="{{ item.name }}">
+              {% for option in item.options %}
+              <option value='{{ option.value }}'>{{ option.label }}</option>
+              {% endfor %}
+            </select>
+          </td>
+        </tr>
+        {% endfor %}
       </table>
       <input type='submit'>
       </form>

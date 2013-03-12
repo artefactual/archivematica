@@ -262,6 +262,17 @@ def administration_processing(request):
         }
     ]
 
+    select_fields = [
+        {
+            "name": "create_sip",
+            "label": "Create SIP(s)",
+            "options": [
+              {"value": "1", "label": "One"},
+              {"value": "2", "label": "Two"}
+            ]
+        }
+    ]
+
     if request.method == 'POST':
         # render XML using request
         xml = etree.Element('processingMCP')
@@ -326,6 +337,7 @@ def administration_processing(request):
         optional_radio_defaults    = {}
         optional_radio_yes_checked = {}
         optional_radio_no_checked  = {}
+        quarantine_expiry          = ''
 
         file = open(file_path, 'r')
         xml = file.read()
@@ -373,6 +385,10 @@ def administration_processing(request):
             # a store AIP choice was found
             if applies_to == 'Store AIP':
                 optional_radio_defaults['store_aip'] = 'checked'
+
+            # a quarantine expiry was found
+            if applies_to == 'Remove from quarantine':
+                quarantine_expiry = '2'
 
     return render(request, 'administration/processing.html', locals())
 
