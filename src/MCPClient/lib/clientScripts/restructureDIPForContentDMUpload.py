@@ -917,8 +917,6 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
         Orders = []
         for fptr, details in structMapDict.iteritems():
             Orders.append(details['order'])
-            print 'Debug: file details'
-            print details
 
         # Iterate through the list of order values and add the matching structMapDict entry
         # to the delimited file and copy the file into the scans directory.
