@@ -240,6 +240,22 @@ def administration_system_directory_delete_request_handler(request, model, id):
     response['message'] = 'Deleted.'
     return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
 
+def populate_select_field_options(field):
+    try:
+        lookup_description = field['lookup_description']
+    except:
+        lookup_description = field['label']
+
+    task = models.TaskConfig.objects.filter(description=lookup_description)[0]
+    link = models.MicroServiceChainLink.objects.get(currenttask=task.pk)
+    choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink=link.pk)
+
+    field['options'] = [{'value': '', 'label': '--Actions--'}]
+    for choice in choices:
+        chain = models.MicroServiceChain.objects.get(pk=choice.chainavailable)
+        option = {'value': chain.description, 'label': chain.description}
+        field['options'].append(option)
+
 def administration_processing(request):
     file_path = '/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'
 
@@ -265,13 +281,22 @@ def administration_processing(request):
     select_fields = [
         {
             "name": "create_sip",
-            "label": "Create SIP(s)",
-            "options": [
-              {"value": "1", "label": "One"},
-              {"value": "2", "label": "Two"}
-            ]
+            "label": "Create SIP(s)"
+        },
+        {
+            "name": "select_format_id_tool",
+            "label": "Select format identification tool"
+        },
+        {
+            "name": "normalize",
+            "label": "Normalize"
         }
     ]
+
+    for field in select_fields:
+        populate_select_field_options(field)
+
+    # next ones might be dict choices rather than chain choices
 
     if request.method == 'POST':
         # render XML using request
