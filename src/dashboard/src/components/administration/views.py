@@ -262,6 +262,12 @@ def populate_select_field_options_with_chain_choices(field):
         option = {'value': chain.description, 'label': chain.description}
         field['options'].append(option)
 
+# use this somewhere
+def set_field_property_by_name(fields, name, property, value):
+    for field in fields:
+        if field['name'] == name:
+            field[property] = value
+
 def populate_select_field_options_with_replace_dict_values(field):
     link = lookup_chain_link_by_description(field)
 
@@ -387,6 +393,16 @@ def administration_processing(request):
                 'Store AIP',
                 'Store AIP'
             )
+        # select fields
+        for field in chain_choice_fields:
+            field_value = request.POST.get(field['name'], '')
+            add_choice_to_choices(
+                choices,
+                field['label'],
+                field_value
+            )
+
+        # TODO: dict fields
 
         xml.append(choices)
 
@@ -416,6 +432,11 @@ def administration_processing(request):
         for choice in choices:
             applies_to = choice.find('appliesTo').text
             go_to_chain = choice.find('goToChain').text
+
+            # check select fields for defaults
+            for field in select_fields:
+                if applies_to == field['label']:
+                    field['selected'] = go_to_chain
 
             # a transfer backup choice was found
             if applies_to == 'Workflow decision - create transfer backup':

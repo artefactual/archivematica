@@ -55,7 +55,11 @@
           <td>
             <select name="{{ item.name }}">
               {% for option in item.options %}
-              <option value='{{ option.value }}'>{{ option.label }}</option>
+              <option value='{{ option.value }}'
+              {% if item.selected == option.value %}
+                selected
+              {% endif %}
+              >{{ option.label }}</option>
               {% endfor %}
             </select>
           </td>
