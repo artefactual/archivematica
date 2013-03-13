@@ -23,7 +23,7 @@ from django.utils import simplejson
 from django.template import RequestContext
 from main import forms
 from main import models
-import sys
+import sys, os, ConfigParser
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
@@ -287,7 +287,11 @@ def populate_select_fields_with_replace_dict_options(fields):
         populate_select_field_options_with_replace_dict_values(field)
 
 def administration_processing(request):
-    file_path = '/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'
+    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
+    config = ConfigParser.SafeConfigParser()
+    config.read(clientConfigFilePath)
+    shared_directory = config.get('MCPClient', "sharedDirectoryMounted")
+    file_path = os.path.join(shared_directory, 'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml')
 
     optional_radio_fields = [
         {
