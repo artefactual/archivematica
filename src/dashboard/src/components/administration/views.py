@@ -394,20 +394,21 @@ def administration_processing(request):
                 'Store AIP'
             )
         # select fields
-        for field in chain_choice_fields:
+        for field in select_fields:
             field_value = request.POST.get(field['name'], '')
-            add_choice_to_choices(
-                choices,
-                field['label'],
-                field_value
-            )
+            if field_value != '':
+                add_choice_to_choices(
+                    choices,
+                    field['label'],
+                    field_value
+                )
 
         # TODO: dict fields
 
         xml.append(choices)
 
         file = open(file_path, 'w')
-        file.write(etree.tostring(xml))
+        file.write(etree.tostring(xml, pretty_print=True))
 
         return HttpResponseRedirect(reverse('components.administration.views.administration_processing'))
     else:
