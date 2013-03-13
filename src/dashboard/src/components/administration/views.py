@@ -240,7 +240,7 @@ def administration_system_directory_delete_request_handler(request, model, id):
     response['message'] = 'Deleted.'
     return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
 
-def populate_select_field_options(field):
+def lookup_chain_link_by_description(field):
     try:
         lookup_description = field['lookup_description']
     except:
@@ -248,12 +248,28 @@ def populate_select_field_options(field):
 
     task = models.TaskConfig.objects.filter(description=lookup_description)[0]
     link = models.MicroServiceChainLink.objects.get(currenttask=task.pk)
+
+    return link
+
+def populate_select_field_options_with_chain_choices(field):
+    link = lookup_chain_link_by_description(field)
+
     choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink=link.pk)
 
     field['options'] = [{'value': '', 'label': '--Actions--'}]
     for choice in choices:
         chain = models.MicroServiceChain.objects.get(pk=choice.chainavailable)
         option = {'value': chain.description, 'label': chain.description}
+        field['options'].append(option)
+
+def populate_select_field_options_with_replace_dict_values(field):
+    link = lookup_chain_link_by_description(field)
+
+    replace_dicts = models.MicroServiceChoiceReplacementDic.objects.filter(choiceavailableatlink=link.pk)
+
+    field['options'] = [{'value': '', 'label': '--Actions--'}]
+    for dict in replace_dicts:
+        option = {'value': dict.description, 'label': dict.description}
         field['options'].append(option)
 
 def administration_processing(request):
@@ -278,7 +294,7 @@ def administration_processing(request):
         }
     ]
 
-    select_fields = [
+    chain_choice_fields = [
         {
             "name": "create_sip",
             "label": "Create SIP(s)"
@@ -293,8 +309,28 @@ def administration_processing(request):
         }
     ]
 
-    for field in select_fields:
-        populate_select_field_options(field)
+    for field in chain_choice_fields:
+        populate_select_field_options_with_chain_choices(field)
+
+    replace_dict_fields = [
+        {
+            "name": "compression_algo",
+            "label": "Select compression algorithm"
+        },
+        {
+            "name": "compression_level",
+            "label": "Select compression level"
+        },
+        {
+            "name": "store_aip_location",
+            "label": "Store AIP location"
+        }
+    ]
+
+    for field in replace_dict_fields:
+        populate_select_field_options_with_replace_dict_values(field)
+
+    select_fields = chain_choice_fields + replace_dict_fields
 
     # next ones might be dict choices rather than chain choices
 
