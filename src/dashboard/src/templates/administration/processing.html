@@ -1,6 +1,5 @@
 {% extends "layout_fluid.html" %}
 {% load breadcumbs %}
-{% load keyvalue %}
 
 {% block title %}Administration{% endblock %}
 {% block h1 %}Administration{% endblock %}
@@ -24,16 +23,16 @@
 
       <form method='POST'>
       <table>
-        {% for item in optional_radios %}
+        {% for item in optional_radio_fields %}
         <tr>
           <td>
-            <input type='checkbox' name='{{ item.name }}' value='yes' {{ optional_radio_defaults|keyvalue:item.name }}> {{ item.label }}
+            <input type='checkbox' name='{{ item.name }}' value='yes' {{ item.checked }}> {{ item.label }}
             </form>
           </td>
           <td>
             {% if item.name != 'normalize_transfer' and item.name != 'store_aip' %}
-              <input type='radio' name='{{ item.name }}_toggle' value='yes' {{ optional_radio_yes_checked|keyvalue:item.name }}> Yes
-              <input type='radio' name='{{ item.name }}_toggle' value='no' {{ optional_radio_no_checked|keyvalue:item.name }}> No
+              <input type='radio' name='{{ item.name }}_toggle' value='yes' {{ item.yes_checked }}> Yes
+              <input type='radio' name='{{ item.name }}_toggle' value='no' {{ item.no_checked }}> No
             {% else %}
               <input type='radio' value='yes' checked> Yes
             {% endif %}

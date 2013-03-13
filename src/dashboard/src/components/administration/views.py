@@ -278,122 +278,111 @@ def populate_select_field_options_with_replace_dict_values(field):
         option = {'value': dict.description, 'label': dict.description}
         field['options'].append(option)
 
+def populate_select_fields_with_chain_choice_options(fields):
+    for field in fields:
+        populate_select_field_options_with_chain_choices(field)
+
+def populate_select_fields_with_replace_dict_options(fields):
+    for field in fields:
+        populate_select_field_options_with_replace_dict_values(field)
+
 def administration_processing(request):
     file_path = '/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'
 
-    optional_radios = [
+    optional_radio_fields = [
         {
-            "name":  "backup_transfer",
-            "label": "Create transfer backup",
+            "name":         "backup_transfer",
+            "label":        "Create transfer backup",
+            "yes_option":   "Backup transfer",
+            "no_option":    "Do not backup transfer",
+            "applies_to": "Workflow decision - create transfer backup"
         },
         {
-            "name": "quarantine_transfer",
-            "label": "Send transfer to quarantine"
+            "name":         "quarantine_transfer",
+            "label":        "Send transfer to quarantine",
+            "yes_option":   "Quarantine transfer",
+            "no_option":    "Skip quarantine",
+            "applies_to": "Workflow decision - send transfer to quarantine"
         },
         {
-            "name": "normalize_transfer",
-            "label": "Approve normalization"
+            "name":  "normalize_transfer",
+            "label": "Approve normalization",
+            "applies_to": "Approve normalization"
         },
         {
-            "name": "store_aip",
-            "label": "Store AIP"
+            "name":  "store_aip",
+            "label": "Store AIP",
+            "applies_to": "Store AIP"
         }
     ]
 
     chain_choice_fields = [
         {
-            "name": "create_sip",
+            "name":  "create_sip",
             "label": "Create SIP(s)"
         },
         {
-            "name": "select_format_id_tool",
+            "name":  "select_format_id_tool",
             "label": "Select format identification tool"
         },
         {
-            "name": "normalize",
+            "name":  "normalize",
             "label": "Normalize"
         }
     ]
 
-    for field in chain_choice_fields:
-        populate_select_field_options_with_chain_choices(field)
+    populate_select_fields_with_chain_choice_options(chain_choice_fields)
 
     replace_dict_fields = [
         {
-            "name": "compression_algo",
+            "name":  "compression_algo",
             "label": "Select compression algorithm"
         },
         {
-            "name": "compression_level",
+            "name":  "compression_level",
             "label": "Select compression level"
         },
         {
-            "name": "store_aip_location",
+            "name":  "store_aip_location",
             "label": "Store AIP location"
         }
     ]
 
-    for field in replace_dict_fields:
-        populate_select_field_options_with_replace_dict_values(field)
+    populate_select_fields_with_replace_dict_options(replace_dict_fields)
 
     select_fields = chain_choice_fields + replace_dict_fields
 
-    # next ones might be dict choices rather than chain choices
-
     if request.method == 'POST':
-        # render XML using request
+        # render XML using request data
         xml = etree.Element('processingMCP')
         choices = etree.Element('preconfiguredChoices')
         xml.append(choices)
 
-        # handle transfer backups
-        backup_transfer = request.POST.get('backup_transfer', '')
-        if backup_transfer == 'yes':
-            backup_transfer_toggle = request.POST.get('backup_transfer_toggle', '')
-            if backup_transfer_toggle == 'yes':
-                go_to_chain_text = 'Backup transfer' # ???
-            else:
-                go_to_chain_text = 'Do not backup transfer'
+        # use toggle field submissions to add to XML
+        for field in optional_radio_fields:
+            enabled = request.POST.get(field['name'])
+            if enabled == 'yes':
+                if 'yes_option' in field:
+                    # can be set to either yes or no
+                    toggle = request.POST.get(field['name'] + '_toggle', '')
+                    if toggle == 'yes':
+                        go_to_chain_text = field['yes_option']
+                    else:
+                        go_to_chain_text = field['no_option']
 
-            add_choice_to_choices(
-                choices,
-                'Workflow decision - create transfer backup',
-                go_to_chain_text
-            )
+                    add_choice_to_choices(
+                        choices,
+                        field['applies_to'],
+                        go_to_chain_text
+                    )
+                else:
+                    add_choice_to_choices(
+                        choices,
+                        field['label'],
+                        field['label']
+                    )
 
-        # handle transfer quarantine
-        quarantine_transfer = request.POST.get('quarantine_transfer', '')
-        if quarantine_transfer == 'yes':
-            quarantine_transfer_toggle = request.POST.get('quarantine_transfer_toggle', '')
-            if quarantine_transfer_toggle == 'yes':
-                go_to_chain_text = 'Quarantine transfer' # ???
-            else:
-                go_to_chain_text = 'Skip quarantine'
-
-            add_choice_to_choices(
-                choices, 
-                'Workflow decision - send transfer to quarantine',
-                go_to_chain_text
-            )
-
-        # handle normalize
-        normalize_transfer = request.POST.get('normalize_transfer', '')
-        if normalize_transfer == 'yes':
-            add_choice_to_choices(
-                choices,
-                'Approve normalization',
-                'Approve normalization'
-            )
-
-        # store aip
-        store_aip = request.POST.get('store_aip', '')
-        if store_aip == 'yes':
-            add_choice_to_choices(
-                choices,
-                'Store AIP',
-                'Store AIP'
-            )
-        # select fields
+        # use select field submissions to add to XML
         for field in select_fields:
             field_value = request.POST.get(field['name'], '')
             if field_value != '':
@@ -403,8 +392,6 @@ def administration_processing(request):
                     field_value
                 )
 
-        # TODO: dict fields
-
         xml.append(choices)
 
         file = open(file_path, 'w')
@@ -412,10 +399,7 @@ def administration_processing(request):
 
         return HttpResponseRedirect(reverse('components.administration.views.administration_processing'))
     else:
-        optional_radio_defaults    = {}
-        optional_radio_yes_checked = {}
-        optional_radio_no_checked  = {}
-        quarantine_expiry          = ''
+        quarantine_expiry = ''
 
         file = open(file_path, 'r')
         xml = file.read()
@@ -424,54 +408,34 @@ def administration_processing(request):
         root = etree.fromstring(xml)
         choices = root.find('preconfiguredChoices')
 
-        for item in optional_radios:
-            name = item['name']
-            optional_radio_defaults[name]     = ''
-            optional_radio_yes_checked[name]  = ''
-            optional_radio_no_checked[name]   = ''
+        for item in optional_radio_fields:
+            item['checked']     = ''
+            item['yes_checked'] = ''
+            item['no_checked']  = ''
 
         for choice in choices:
             applies_to = choice.find('appliesTo').text
             go_to_chain = choice.find('goToChain').text
 
-            # check select fields for defaults
-            for field in select_fields:
-                if applies_to == field['label']:
-                    field['selected'] = go_to_chain
+            # use toggle field submissions to add to XML
+            for field in optional_radio_fields:
+                if applies_to == field['applies_to']:
+                    set_field_property_by_name(optional_radio_fields, field['name'], 'checked', 'checked')
 
-            # a transfer backup choice was found
-            if applies_to == 'Workflow decision - create transfer backup':
-                optional_radio_defaults['backup_transfer'] = 'checked'
-                # set radio button
-                if go_to_chain == 'Do not backup transfer':
-                    optional_radio_yes_checked['backup_transfer'] = ''
-                    optional_radio_no_checked['backup_transfer']  = 'checked'
-                else:
-                    optional_radio_yes_checked['backup_transfer'] = 'checked'
-                    optional_radio_no_checked['backup_transfer']  = ''
-
-            # a transfer quarantine choice was found
-            if applies_to == 'Workflow decision - send transfer to quarantine':
-                optional_radio_defaults['quarantine_transfer'] = 'checked'
-                # set radio button
-                if go_to_chain == 'Skip quarantine':
-                    optional_radio_yes_checked['quarantine_transfer'] = ''
-                    optional_radio_no_checked['quarantine_transfer']  = 'checked'
-                else:
-                    optional_radio_yes_checked['quarantine_transfer'] = 'checked'
-                    optional_radio_no_checked['quarantine_transfer']  = ''
-
-            # an approve normalization choice was found
-            if applies_to == 'Approve normalization':
-                optional_radio_defaults['normalize_transfer'] = 'checked'
-
-            # a store AIP choice was found
-            if applies_to == 'Store AIP':
-                optional_radio_defaults['store_aip'] = 'checked'
+                    if 'yes_option' in field:
+                        if go_to_chain == field['yes_option']:
+                            set_field_property_by_name(optional_radio_fields, field['name'], 'yes_checked', 'checked')
+                        else:
+                            set_field_property_by_name(optional_radio_fields, field['name'], 'no_checked', 'checked')
 
             # a quarantine expiry was found
             if applies_to == 'Remove from quarantine':
                 quarantine_expiry = '2'
+
+            # check select fields for defaults
+            for field in select_fields:
+                if applies_to == field['label']:
+                    field['selected'] = go_to_chain
 
     return render(request, 'administration/processing.html', locals())
 
