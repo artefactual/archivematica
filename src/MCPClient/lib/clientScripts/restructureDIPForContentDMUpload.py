@@ -613,7 +613,7 @@ def getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps):
                 filesInObjectDirectoryForThisDmdSecGroup.append(filename)
             
     return filesInObjectDirectoryForThisDmdSecGroup
-    
+
 
 # Generate a 'direct upload' package for a simple item from the Archivematica DIP.
 # This package will contain the object file, its thumbnail, a .desc (DC metadata) file,
@@ -838,8 +838,17 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                 # support child-level descriptions other than title, so we use the filename
                 # as the title if there isn't a user-supplied csv or structMap to provide 
                 # labels as per https://www.archivematica.org/wiki/CONTENTdm_integration.
-                dcMetadata = parseDmdSec(None, v['label'])
-                nonDcMetadataForChildren['title'] = [v['label']]
+                
+                # First, prepare the child file label: remove the file extension, remove the
+                # UUID from the beginning of the file basename, and append it to the end.
+                
+                childFileBasename, childFileExt = os.path.splitext(v['label'])
+                # We want everything after the 36-character UUID and the '-'.
+                childFileLabel = childFileBasename[37:]
+                # Then tack on the 36-character UUID, which is at the beginnng of childFileBasename.
+                childFileLabel = childFileLabel + '-' + childFileBasename[:36]
+                dcMetadata = parseDmdSec(None, childFileLabel)
+                nonDcMetadataForChildren['title'] = [childFileLabel]
                        
                 descFileContents = generateDescFile(dcMetadata, nonDcMetadataForChildren)
                 descFilename = accessFileBasenameName + '.desc'
@@ -854,7 +863,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                 if (len(structMaps)) == 1:
                     # For each object file, add its .cpd file values. 
                     cpdFileContent += "  <page>\n"
-                    cpdFileContent += "    <pagetitle>" + v['label'] + "</pagetitle>\n"
+                    cpdFileContent += "    <pagetitle>" + childFileLabel + "</pagetitle>\n"
                     cpdFileContent += "    <pagefile>" + v['filename'] + "</pagefile>\n"
                     cpdFileContent += "    <pageptr>+</pageptr>\n"
                     cpdFileContent += "  </page>\n"
@@ -922,15 +931,17 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
         # to the delimited file and copy the file into the scans directory.
         for order in sorted(Orders):
             for k, v in structMapDict.iteritems():
+                # Original filenames should have expressed their order but we process them
+                # in structMap order anyway.
                 if order == v['order']:
                     # Find the full path of the file identified in v['filename'].
                     for fullPath in filesInObjectDirectoryForThisDmdSecGroup:
                         if (v['filename'] in fullPath):
-                            objectFilePath, objectFileFilename = os.path.split(v['filename'])
-                            objectFileBaseFilename, objectFileExtension = os.path.splitext(objectFileFilename)
-                            # We give the destination files a sortable numeric name (using their 'order'
-                            # attribute from parseStructMap() so they sort properly in the Project Client.
-                            shutil.copy(fullPath, os.path.join(outputItemDir, v['order'] + objectFileExtension))
+                            objectFileBaseFilename, objectFileExtension = os.path.splitext(v['filename'])
+                            # Remove the UUID and '-' from the begging of objectFileBaseFilename
+                            objectFileBaseFilenameWithoutUUID = objectFileBaseFilename[37:]                            
+                            # Tack on the file's UUID so it can be associated with its original in Archivematica.
+                            shutil.copy(fullPath, os.path.join(outputItemDir, objectFileBaseFilenameWithoutUUID + '-' + v['filename'][:36] + objectFileExtension))
   
     # I.e., single item in DIP. We take care of copying the files and assembling the
     # child-level metadata rows further down.
@@ -1025,16 +1036,18 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
         # to the delimited file (and copy the file into the scans directory).
         for order in sorted(Orders):
             for k, v in structMapDict.iteritems():
+                # Original filenames should have expressed their order but we process them
+                # in structMap order anyway.
                 if order == v['order']:
                     delimChildValuesRow = []
                     # Find the full path of the file identified in v['filename'].
                     for fullPath in filesInObjectDirectory:
                         if (v['filename'] in fullPath):
-                            objectFilePath, objectFileFilename = os.path.split(v['filename'])
-                            objectFileBaseFilename, objectFileExtension = os.path.splitext(objectFileFilename)
-                            # We give the destination files a sortable numeric name (using their 'order'
-                            # attribute from parseStructMap() so they sort properly in the Project Client.
-                            childFilename = v['order'] + objectFileExtension
+                            objectFileBaseFilename, objectFileExtension = os.path.splitext(v['filename'])
+                            # Remove the UUID and '-' from the begging of objectFileBaseFilename
+                            objectFileBaseFilenameWithoutUUID = objectFileBaseFilename[37:]
+                            # Tack on the file's UUID so it can be associated with its original in Archivematica.
+                            childFilename = objectFileBaseFilenameWithoutUUID + '-' + v['filename'][:36] + objectFileExtension
                             shutil.copy(fullPath, os.path.join(scansDir, childFilename))                            
                             
                     # Write the child-level metadata row. For single (non-bulk) DIPs, we use
