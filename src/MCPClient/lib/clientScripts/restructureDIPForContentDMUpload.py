@@ -838,8 +838,17 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                 # support child-level descriptions other than title, so we use the filename
                 # as the title if there isn't a user-supplied csv or structMap to provide 
                 # labels as per https://www.archivematica.org/wiki/CONTENTdm_integration.
-                dcMetadata = parseDmdSec(None, v['label'])
-                nonDcMetadataForChildren['title'] = [v['label']]
+                
+                # First, prepare the child file label: remove the file extension, remove the
+                # UUID from the beginning of the file basename, and append it to the end.
+                
+                childFileBasename, childFileExt = os.path.splitext(v['label'])
+                # We want everything after the 36-character UUID and the '-'.
+                childFileLabel = childFileBasename[37:]
+                # Then tack on the 36-character UUID, which is at the beginnng of childFileBasename.
+                childFileLabel = childFileLabel + '-' + childFileBasename[:36]
+                dcMetadata = parseDmdSec(None, childFileLabel)
+                nonDcMetadataForChildren['title'] = [childFileLabel]
                        
                 descFileContents = generateDescFile(dcMetadata, nonDcMetadataForChildren)
                 descFilename = accessFileBasenameName + '.desc'
@@ -854,7 +863,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                 if (len(structMaps)) == 1:
                     # For each object file, add its .cpd file values. 
                     cpdFileContent += "  <page>\n"
-                    cpdFileContent += "    <pagetitle>" + v['label'] + "</pagetitle>\n"
+                    cpdFileContent += "    <pagetitle>" + childFileLabel + "</pagetitle>\n"
                     cpdFileContent += "    <pagefile>" + v['filename'] + "</pagefile>\n"
                     cpdFileContent += "    <pageptr>+</pageptr>\n"
                     cpdFileContent += "  </page>\n"
