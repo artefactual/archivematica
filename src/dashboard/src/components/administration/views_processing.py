@@ -66,19 +66,21 @@ def administration_processing(request):
         {
             "name":         "quarantine_transfer",
             "label":        "Send transfer to quarantine",
-            "yes_option":   "Quarantine transfer",
+            "yes_option":   "Quarantine",
             "no_option":    "Skip quarantine",
             "applies_to": "Workflow decision - send transfer to quarantine"
         },
         {
             "name":  "normalize_transfer",
             "label": "Approve normalization",
-            "applies_to": "Approve normalization"
+            "applies_to": "Approve normalization",
+            "action": "Approve"
         },
         {
             "name":  "store_aip",
             "label": "Store AIP",
-            "applies_to": "Store AIP"
+            "applies_to": "Store AIP",
+            "action": "Store AIP"
         }
     ]
 
@@ -141,7 +143,7 @@ def administration_processing(request):
                 else:
                     xmlChoices.add_choice(
                         field['label'],
-                        field['label']
+                        field['action']
                     )
 
         # use select field submissions to add to XML
