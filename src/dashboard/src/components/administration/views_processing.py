@@ -236,7 +236,8 @@ def populate_select_field_options_with_chain_choices(field):
         option = {'value': chain.description, 'label': chain.description}
         options.append(option)
 
-    field['options'].append(options.sort())
+    options.sort()
+    field['options'] += options
 
 def populate_select_field_options_with_replace_dict_values(field):
     link = lookup_chain_link_by_description(field)
@@ -246,9 +247,13 @@ def populate_select_field_options_with_replace_dict_values(field):
     )
 
     field['options'] = [{'value': '', 'label': '--Actions--'}]
+    options = []
     for dict in replace_dicts:
         option = {'value': dict.description, 'label': dict.description}
-        field['options'].append(option)
+        options.append(option)
+
+    options.sort()
+    field['options'] += options
 
 def populate_select_fields_with_chain_choice_options(fields):
     for field in fields:
