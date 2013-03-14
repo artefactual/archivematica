@@ -30,7 +30,7 @@ class PreconfiguredChoices:
         self.xml = etree.Element('processingMCP')
         self.choices = etree.Element('preconfiguredChoices')
 
-    def add_choice(self, applies_to_text, go_to_chain_text):
+    def add_choice(self, applies_to_text, go_to_chain_text, delay_duration=None):
         choice = etree.Element('preconfiguredChoice')
 
         applies_to = etree.Element('appliesTo')
@@ -40,6 +40,11 @@ class PreconfiguredChoices:
         go_to_chain = etree.Element('goToChain')
         go_to_chain.text = go_to_chain_text
         choice.append(go_to_chain)
+
+        if delay_duration != None:
+            delay = etree.Element('delay', unitCtime='yes')
+            delay.text = delay_duration
+            choice.append(delay)
 
         self.choices.append(choice)
 
@@ -146,6 +151,15 @@ def administration_processing(request):
                         field['action']
                     )
 
+        # set quarantine duration if applicable
+        quarantine_expiry = request.POST.get('quarantine_expiry', '')
+        if quarantine_expiry != '':
+            xmlChoices.add_choice(
+                'Remove from quarantine',
+                'Unquarantine',
+                quarantine_expiry
+            )
+
         # use select field submissions to add to XML
         for field in select_fields:
             field_value = request.POST.get(field['name'], '')
@@ -190,7 +204,7 @@ def administration_processing(request):
 
             # a quarantine expiry was found
             if applies_to == 'Remove from quarantine':
-                quarantine_expiry = '2'
+                quarantine_expiry = choice.find('delay').text
 
             # check select fields for defaults
             for field in select_fields:
@@ -216,10 +230,13 @@ def populate_select_field_options_with_chain_choices(field):
     choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink=link.pk)
 
     field['options'] = [{'value': '', 'label': '--Actions--'}]
+    options = []
     for choice in choices:
         chain = models.MicroServiceChain.objects.get(pk=choice.chainavailable)
         option = {'value': chain.description, 'label': chain.description}
-        field['options'].append(option)
+        options.append(option)
+
+    field['options'].append(options.sort())
 
 def populate_select_field_options_with_replace_dict_values(field):
     link = lookup_chain_link_by_description(field)
