@@ -173,6 +173,7 @@ def administration_processing(request):
 
         return HttpResponseRedirect(reverse('components.administration.views.administration_processing'))
     else:
+        debug = request.GET.get('debug', '')
         quarantine_expiry = ''
 
         file = open(file_path, 'r')

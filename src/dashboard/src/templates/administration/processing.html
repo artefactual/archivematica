@@ -64,15 +64,21 @@
           </td>
         </tr>
         {% endfor %}
+        <tr>
+          <td colspan="2">
+            <div style="float:right"><input type='submit' class='btn' value='Save'></div>
+          </td>
+        </tr>
       </table>
-      <input type='submit'>
       </form>
 
-      <div style='width: 500px; height: 300px;'>
+      {% if debug %}
+      <div style='width: 700px; height: 600px;'>
       <form method='POST'>
         <textarea name='xml' style='width: 500px; height: 300px;'>{{ xml }}</textarea>
       </form>
       </div>
+      {% endif %}
 
     </div>
 
