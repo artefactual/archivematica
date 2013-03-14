@@ -22,63 +22,31 @@ from main import models
 import sys, os, ConfigParser
 from lxml import etree
 
-def add_choice_to_choices(choices, applies_to_text, go_to_chain_text):
-    choice = etree.Element('preconfiguredChoice')
+class PreconfiguredChoices:
+    xml     = None
+    choices = None
 
-    applies_to = etree.Element('appliesTo')
-    applies_to.text = applies_to_text
-    choice.append(applies_to)
+    def __init__(self):
+        self.xml = etree.Element('processingMCP')
+        self.choices = etree.Element('preconfiguredChoices')
 
-    go_to_chain = etree.Element('goToChain')
-    go_to_chain.text = go_to_chain_text
-    choice.append(go_to_chain)
+    def add_choice(self, applies_to_text, go_to_chain_text):
+        choice = etree.Element('preconfiguredChoice')
 
-    choices.append(choice)
+        applies_to = etree.Element('appliesTo')
+        applies_to.text = applies_to_text
+        choice.append(applies_to)
 
-def lookup_chain_link_by_description(field):
-    try:
-        lookup_description = field['lookup_description']
-    except:
-        lookup_description = field['label']
+        go_to_chain = etree.Element('goToChain')
+        go_to_chain.text = go_to_chain_text
+        choice.append(go_to_chain)
 
-    task = models.TaskConfig.objects.filter(description=lookup_description)[0]
-    link = models.MicroServiceChainLink.objects.get(currenttask=task.pk)
+        self.choices.append(choice)
 
-    return link
-
-def populate_select_field_options_with_chain_choices(field):
-    link = lookup_chain_link_by_description(field)
-
-    choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink=link.pk)
-
-    field['options'] = [{'value': '', 'label': '--Actions--'}]
-    for choice in choices:
-        chain = models.MicroServiceChain.objects.get(pk=choice.chainavailable)
-        option = {'value': chain.description, 'label': chain.description}
-        field['options'].append(option)
-
-def set_field_property_by_name(fields, name, property, value):
-    for field in fields:
-        if field['name'] == name:
-            field[property] = value
-
-def populate_select_field_options_with_replace_dict_values(field):
-    link = lookup_chain_link_by_description(field)
-
-    replace_dicts = models.MicroServiceChoiceReplacementDic.objects.filter(choiceavailableatlink=link.pk)
-
-    field['options'] = [{'value': '', 'label': '--Actions--'}]
-    for dict in replace_dicts:
-        option = {'value': dict.description, 'label': dict.description}
-        field['options'].append(option)
-
-def populate_select_fields_with_chain_choice_options(fields):
-    for field in fields:
-        populate_select_field_options_with_chain_choices(field)
-
-def populate_select_fields_with_replace_dict_options(fields):
-    for field in fields:
-        populate_select_field_options_with_replace_dict_values(field)
+    def write_to_file(self, file_path):
+        self.xml.append(self.choices)
+        file = open(file_path, 'w')
+        file.write(etree.tostring(self.xml, pretty_print=True))
 
 def administration_processing(request):
     clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
@@ -152,9 +120,7 @@ def administration_processing(request):
 
     if request.method == 'POST':
         # render XML using request data
-        xml = etree.Element('processingMCP')
-        choices = etree.Element('preconfiguredChoices')
-        xml.append(choices)
+        xmlChoices = PreconfiguredChoices()
 
         # use toggle field submissions to add to XML
         for field in optional_radio_fields:
@@ -168,14 +134,12 @@ def administration_processing(request):
                     else:
                         go_to_chain_text = field['no_option']
 
-                    add_choice_to_choices(
-                        choices,
+                    xmlChoices.add_choice(
                         field['applies_to'],
                         go_to_chain_text
                     )
                 else:
-                    add_choice_to_choices(
-                        choices,
+                    xmlChoices.add_choice(
                         field['label'],
                         field['label']
                     )
@@ -184,16 +148,12 @@ def administration_processing(request):
         for field in select_fields:
             field_value = request.POST.get(field['name'], '')
             if field_value != '':
-                add_choice_to_choices(
-                    choices,
+                xmlChoices.add_choice(
                     field['label'],
                     field_value
                 )
 
-        xml.append(choices)
-
-        file = open(file_path, 'w')
-        file.write(etree.tostring(xml, pretty_print=True))
+        xmlChoices.write_to_file(file_path)
 
         return HttpResponseRedirect(reverse('components.administration.views.administration_processing'))
     else:
@@ -236,3 +196,50 @@ def administration_processing(request):
                     field['selected'] = go_to_chain
 
     return render(request, 'administration/processing.html', locals())
+
+def lookup_chain_link_by_description(field):
+    try:
+        lookup_description = field['lookup_description']
+    except:
+        lookup_description = field['label']
+
+    task = models.TaskConfig.objects.filter(description=lookup_description)[0]
+    link = models.MicroServiceChainLink.objects.get(currenttask=task.pk)
+
+    return link
+
+def populate_select_field_options_with_chain_choices(field):
+    link = lookup_chain_link_by_description(field)
+
+    choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink=link.pk)
+
+    field['options'] = [{'value': '', 'label': '--Actions--'}]
+    for choice in choices:
+        chain = models.MicroServiceChain.objects.get(pk=choice.chainavailable)
+        option = {'value': chain.description, 'label': chain.description}
+        field['options'].append(option)
+
+def populate_select_field_options_with_replace_dict_values(field):
+    link = lookup_chain_link_by_description(field)
+
+    replace_dicts = models.MicroServiceChoiceReplacementDic.objects.filter(
+        choiceavailableatlink=link.pk
+    )
+
+    field['options'] = [{'value': '', 'label': '--Actions--'}]
+    for dict in replace_dicts:
+        option = {'value': dict.description, 'label': dict.description}
+        field['options'].append(option)
+
+def populate_select_fields_with_chain_choice_options(fields):
+    for field in fields:
+        populate_select_field_options_with_chain_choices(field)
+
+def populate_select_fields_with_replace_dict_options(fields):
+    for field in fields:
+        populate_select_field_options_with_replace_dict_values(field)
+
+def set_field_property_by_name(fields, name, property, value):
+    for field in fields:
+        if field['name'] == name:
+            field[property] = value
