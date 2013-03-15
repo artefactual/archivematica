@@ -81,6 +81,7 @@ class taskStandard():
                     failSleep += failSleepIncrementor
         limitGearmanConnectionsSemaphore.release()
         self.check_request_status(completed_job_request)
+        gm_client.shutdown()
         print "DEBUG: FINISHED PERFORMING TASK: ", self.UUID
         exit(0)
 
