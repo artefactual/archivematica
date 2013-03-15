@@ -166,7 +166,7 @@ INSTALLED_APPS = (
     'installer',
     'components.accounts',
     'main',
-    'mcp',
+    'components.mcp',
 
     # For REST API
     'tastypie',
