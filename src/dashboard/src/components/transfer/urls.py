@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls.defaults import patterns
-import settings
+from django.conf import settings
 
 urlpatterns = patterns('components.transfer.views',
     (r'^$', 'transfer_grid'),

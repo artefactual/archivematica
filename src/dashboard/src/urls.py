@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls.defaults import *
-import settings
+from django.conf import settings
 
 urlpatterns = patterns('',
     (r'^mcp/', include('components.mcp.urls')),

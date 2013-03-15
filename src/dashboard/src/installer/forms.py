@@ -19,7 +19,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.forms.widgets import TextInput, Textarea
-import settings
+from django.conf import settings
 
 class SuperUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)

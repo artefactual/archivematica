@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls.defaults import patterns
-import settings
+from django.conf import settings
 
 urlpatterns = patterns('components.archival_storage.views',
     (r'page/(?P<page>\d+)/$', 'archival_storage_page'),

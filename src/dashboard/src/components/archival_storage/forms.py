@@ -17,7 +17,7 @@
 
 from django import forms
 from django.forms.widgets import TextInput, Textarea
-import settings
+from django.conf import settings
 
 class StorageSearchForm(forms.Form):
     query = forms.CharField(label='', required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))

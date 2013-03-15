@@ -19,11 +19,12 @@ import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 
-BASE_PATH = os.path.dirname(__file__)
+BASE_PATH = '/home/demo/archivematica/src/dashboard/src'
+#BASE_PATH = os.path.join('..', os.path.dirname(__file__))
 
 # Django settings for app project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -236,11 +237,3 @@ TEXTAREA_ATTRS           = {'rows': '4', 'class': 'span11'}
 TEXTAREA_WITH_HELP_ATTRS = {'rows': '4', 'class': 'span11 has_contextual_help'}
 INPUT_ATTRS              = {'class': 'span11'}
 INPUT_WITH_HELP_ATTRS    = {'class': 'span11 has_contextual_help'}
-
-try:
-    LOCAL_SETTINGS
-except NameError:
-    try:
-        from settings_local import *
-    except ImportError:
-        pass

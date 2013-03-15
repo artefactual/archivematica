@@ -20,7 +20,7 @@ from django.forms import ModelForm
 from django.forms.models import modelformset_factory
 from django.forms.widgets import TextInput, Textarea, CheckboxInput, HiddenInput
 from main import models
-import settings
+from django.conf import settings
 
 class RightsForm(ModelForm):
     rightsbasis = forms.ChoiceField(label="Basis", choices=(

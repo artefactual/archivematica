@@ -23,7 +23,7 @@ path = '/usr/share/archivematica/dashboard'
 if path not in sys.path:
     sys.path.append(path)
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.base'
 
 application = django.core.handlers.wsgi.WSGIHandler()
 
