@@ -19,8 +19,9 @@ import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 
-BASE_PATH = '/home/demo/archivematica/src/dashboard/src'
-#BASE_PATH = os.path.join('..', os.path.dirname(__file__))
+path_of_this_file = os.path.abspath(os.path.dirname(__file__))
+
+BASE_PATH = os.path.abspath(os.path.join(path_of_this_file, os.pardir))
 
 # Django settings for app project.
 
