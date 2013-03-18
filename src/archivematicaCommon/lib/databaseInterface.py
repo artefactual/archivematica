@@ -73,7 +73,7 @@ def getDeciDate(date):
             ret += c
         #else:
             #ret += replacementChar
-    return ret
+    return str("{:10.10f}".format(float(ret)))
 
 
 #sudo apt-get install python-mysqldb
