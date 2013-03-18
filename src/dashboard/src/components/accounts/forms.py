@@ -31,6 +31,7 @@ class UserChangeForm(UserChangeForm):
     email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput, required=False)
     password_confirmation = forms.CharField(widget=forms.PasswordInput, required=False)
+    regenerate_api_key = forms.CharField(widget=forms.CheckboxInput, label='Regenerate API key (shown below)?')
 
     class Meta:
         model = User

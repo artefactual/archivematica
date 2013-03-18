@@ -15,14 +15,10 @@ from main import models
 # http://django-tastypie.readthedocs.org/en/v0.9.11/cookbook.html#adding-search-functionality
 # http://django-tastypie.readthedocs.org/en/latest/resources.html
 
-
 #http://localhost/api/SelectionAvailable/?format=json
 #http://localhost/api/SelectionAPI/?format=json
 
-
 mcpClient = MCPClient()
-
-
 
 class SelectionAPIObject(object):
     def __init__(self, initial=None):
@@ -39,7 +35,6 @@ class SelectionAPIObject(object):
 
     def to_dict(self):
         return self._data
-
 
 class SelectionAPIResource(Resource):
     # Just like a Django ``Form`` or ``Model``, we're defining all the
@@ -130,16 +125,6 @@ class SelectionAPIResource(Resource):
     def rollback(self, bundles):
         pass
 
-
-
-
-
-
-
-
-
-
-
 #---------------------------------------------------------------------------
 
 class SelectionAvailableObject(object):
@@ -157,7 +142,6 @@ class SelectionAvailableObject(object):
 
     def to_dict(self):
         return self._data
-
 
 class SelectionAvailableResource(Resource):
     # Just like a Django ``Form`` or ``Model``, we're defining all the
