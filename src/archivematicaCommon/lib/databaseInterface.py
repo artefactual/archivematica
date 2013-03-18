@@ -110,7 +110,7 @@ def runSQL(sql):
                 print >>sys.stderr, "Error with query: ", sql
                 print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
             sqlLock.release()
-            raise Exception(inst)
+            raise 
     except Exception as inst:
         if printErrors:
             print >>sys.stderr, "Error query: ", sql
@@ -150,7 +150,7 @@ def insertAndReturnID(sql):
                 print >>sys.stderr, "Error with query: ", sql
                 print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
             sqlLock.release()
-            raise Exception(inst)
+            raise 
     except Exception as inst:
             print >>sys.stderr, "Error query: ", sql
             print >>sys.stderr, type(inst)     # the exception instance
@@ -185,7 +185,7 @@ def querySQL(sql):
             if printErrors:
                 print >>sys.stderr, "Error with query: ", sql
                 print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
-            raise Exception(inst)
+            raise 
     except Exception as inst:
         if printErrors:
             print >>sys.stderr, "Error query: ", sql
@@ -232,7 +232,7 @@ def queryAllSQL(sql):
                 print >>sys.stderr, "Error with query: ", sql
                 print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
             sqlLock.release()
-            raise Exception(inst)
+            raise 
     except Exception as inst:
         if printErrors:
             print >>sys.stderr, "Error query: ", sql
