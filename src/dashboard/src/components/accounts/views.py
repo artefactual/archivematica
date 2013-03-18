@@ -23,6 +23,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
 import components.decorators as decorators
 from django.template import RequestContext
+from tastypie.models import ApiKey
 
 from components.accounts.forms import UserCreationForm
 from components.accounts.forms import UserChangeForm
@@ -40,6 +41,9 @@ def add(request):
             user = form.save(commit=False)
             user.is_staff = True
             user.save()
+            api_key = ApiKey.objects.create(user=user)
+            api_key.key = api_key.generate_key()
+            api_key.save()
             return HttpResponseRedirect(reverse('components.accounts.views.list'))
     else:
         form = UserCreationForm()
