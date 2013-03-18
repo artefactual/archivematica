@@ -151,6 +151,7 @@ class linkTaskManagerSplit:
 
 
     def taskCompletedCallBackFunction(self, jobChain):
+        self.tasksLock.acquire()
         if jobChain.UUID in self.tasks:
             del self.tasks[jobChain.UUID]
         else:
@@ -158,7 +159,7 @@ class linkTaskManagerSplit:
             print >>sys.stderr, "Key Value Error:", self.tasks
             exit(1)
 
-        self.tasksLock.acquire()
+        
         if self.clearToNextLink == True and self.tasks == {} :
             print "DEBUG proceeding to next link", self.jobChainLink.UUID
             self.jobChainLink.linkProcessingComplete(self.exitCode, self.jobChainLink.passVar)
