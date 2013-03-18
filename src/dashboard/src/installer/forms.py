@@ -1,6 +1,6 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -18,13 +18,17 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from django.forms.widgets import TextInput, Textarea
+from django.conf import settings
 
 class SuperUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
+    org_name = forms.CharField(label='Organization name', help_text='PREMIS agent name', required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    org_identifier = forms.CharField(label='Organization identifier', help_text='PREMIS agent identifier', required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
 
     class Meta:
         model = User
-        fields = ("username", "email", "password1", "password2")
+        fields = ['org_name', 'org_identifier', 'username', 'email', 'password1', 'password2']
 
     def save(self, commit=True):
         user = super(UserCreationForm, self).save(commit=False)

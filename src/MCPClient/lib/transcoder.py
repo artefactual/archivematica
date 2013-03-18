@@ -1,7 +1,7 @@
 #!/usr/bin/python -OO
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -53,7 +53,7 @@ class Command:
         self.exitCode=None
         self.failedCount=0
         self.opts = opts
-        sql = """SELECT CT.type, C.verificationCommand, C.eventDetailCommand, C.command, C.outputLocation, C.description
+        sql = """SELECT CT.type, C.verificationCommand, C.eventDetailCommand, C.command, C.outputLocation, C.description, C.outputFileFormat
         FROM Commands AS C
         JOIN CommandTypes AS CT ON C.commandType = CT.pk
         WHERE C.pk = '""" + commandID.__str__() + """'
@@ -69,7 +69,8 @@ class Command:
             self.eventDetailCommand, \
             self.command, \
             self.outputLocation, \
-            self.description = \
+            self.description, \
+            self.outputFormat = \
             rowSTR
             if isinstance(self.command, unicode):
                 self.command = self.command.encode('utf-8')

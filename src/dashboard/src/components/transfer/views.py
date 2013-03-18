@@ -1,5 +1,6 @@
+# This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -37,6 +38,7 @@ def transfer_grid(request):
 
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
+    uid = request.user.id
     return render(request, 'transfer/grid.html', locals())
 
 def transfer_browser(request):
@@ -50,7 +52,7 @@ def transfer_browser(request):
 
 def transfer_status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs GROUP BY SIPUUID
-    objects = models.Job.objects.filter(hidden=False, subjobof='', unittype__exact='unitTransfer').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains = 'None')
+    objects = models.Job.objects.filter(hidden=False, subjobof='', unittype__exact='unitTransfer').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains = 'None').order_by('-timestamp')
     mcp_available = False
     try:
         client = MCPClient()

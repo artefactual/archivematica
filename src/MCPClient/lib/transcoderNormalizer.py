@@ -1,7 +1,7 @@
 #!/usr/bin/python -OO
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -36,6 +36,7 @@ from databaseFunctions import insertIntoDerivations
 
 
 def executeCommandReleationship(gearman_worker, gearman_job):
+    """some text"""
     try:
         execute = gearman_job.task
         print "executing:", execute, "{", gearman_job.unique, "}"
@@ -192,9 +193,9 @@ def onceNormalized(command, opts, replacementDic):
         command.exitCode = -2
 
     derivationEventUUID = uuid.uuid4().__str__()
-    eventDetail = ""
+    eventDetail = "ArchivematicaFPRCommandID=\"%s\"" % (command.pk)
     if command.eventDetailCommand != None:
-        eventDetail = eventDetail=command.eventDetailCommand.stdOut
+        eventDetail = '%s; %s' % (eventDetail, command.eventDetailCommand.stdOut)
     for ef in transcodedFiles:
         if opts["commandClassifications"] == "preservation":
             #Add the new file to the sip
@@ -216,6 +217,9 @@ def onceNormalized(command, opts, replacementDic):
             #Add linking information between files
             insertIntoDerivations(sourceFileUUID=opts["fileUUID"], derivedFileUUID=replacementDic["%outputFileUUID%"], relatedEventUUID=derivationEventUUID)
 
+            sql = "INSERT INTO FilesIDs (fileUUID, formatName, formatVersion, formatRegistryName, formatRegistryKey) VALUES ('%s', '%s', NULL, NULL, NULL);" % (replacementDic["%outputFileUUID%"], command.outputFormat)
+            databaseInterface.runSQL(sql)
+            
             replacementDic["%outputFileUUID%"] = uuid.uuid4().__str__()
             replacementDic["%postfix%"] = "-" + replacementDic["%outputFileUUID%"]
 

@@ -1,6 +1,6 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,6 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 from django.contrib.auth.decorators import user_passes_test
-import urllib
 
 # Try to update context instead of sending new params
 def load_jobs(view):

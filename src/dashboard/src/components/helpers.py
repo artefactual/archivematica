@@ -1,6 +1,6 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -60,7 +60,7 @@ def task_duration_in_seconds(task):
     return duration
 
 def get_jobs_by_sipuuid(uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid).order_by('-createdtime', 'subjobof')
+    jobs = models.Job.objects.filter(sipuuid=uuid,subjobof='').order_by('-createdtime', 'subjobof')
     priorities = {
         'completedUnsuccessfully': 0,
         'requiresAprroval': 1,

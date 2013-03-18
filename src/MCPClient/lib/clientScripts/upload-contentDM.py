@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     # the user has selected the 'Project Client' option and we just exit from this script.
     projectClientZipPath = outputDipDir = os.path.join(args.outputDir, 'CONTENTdm', 'projectclient', args.uuid + '.7z')
     if os.path.exists(projectClientZipPath):
-		quit(0)
+        quit(0)
 
     # If we haven't quit, continue to process the 'directupload' files.
     contentdmCollectionDirectory = getDestinationImportDirectory(args.targetCollection, args.contentdmServer)

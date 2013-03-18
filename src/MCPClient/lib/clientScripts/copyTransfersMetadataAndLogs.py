@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -24,13 +24,16 @@ import os
 import sys
 import shutil
 from optparse import OptionParser
+import traceback
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 
 
-def main(sipUUID, transfersDirectory, sharedPath=""):
-    if not os.path.exists(transfersDirectory):
-        os.makedirs(transfersDirectory)
+def main(sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath=""):
+    if not os.path.exists(transfersMetadataDirectory):
+        os.makedirs(transfersMetadataDirectory)
+    if not os.path.exists(transfersLogsDirectory):
+        os.makedirs(transfersLogsDirectory)
 
     exitCode = 0
     sql = """SELECT Files.transferUUID, Transfers.currentLocation FROM Files
@@ -47,17 +50,30 @@ def main(sipUUID, transfersDirectory, sharedPath=""):
             if sharedPath != "":
                 transferPath = transferPath.replace("%sharedPath%", sharedPath, 1)
             transferBasename = os.path.basename(os.path.abspath(transferPath))
-            transferMetaDestDir = os.path.join(transfersDirectory, transferBasename)
+            transferMetaDestDir = os.path.join(transfersMetadataDirectory, transferBasename)
+            transfersLogsDestDir = os.path.join(transfersLogsDirectory, transferBasename)
             if not os.path.exists(transferMetaDestDir):
                 os.makedirs(transferMetaDestDir)
-                shutil.copytree(transferPath + "logs", os.path.join(transferMetaDestDir, "logs"))
-                print "copied: ", transferPath + "logs", " -> ", os.path.join(transferMetaDestDir, "logs")
-                shutil.copytree(transferPath + "metadata", os.path.join(transferMetaDestDir, "metadata"))
+                transferMetadataDirectory = os.path.join(transferPath, "metadata")
+                for met in os.listdir(transferMetadataDirectory):
+                    if met == "submissionDocumentation":
+                        continue
+                    item = os.path.join(transferMetadataDirectory, met)
+                    if os.path.isdir(item):
+                        shutil.copytree(item, os.path.join(transferMetaDestDir, met))
+                    else:
+                        shutil.copy(item, os.path.join(transferMetaDestDir, met))
                 print "copied: ", transferPath + "metadata", " -> ", os.path.join(transferMetaDestDir, "metadata")
+            if not os.path.exists(transfersLogsDestDir):
+                os.makedirs(transfersLogsDestDir)
+                shutil.copytree(transferPath + "logs", os.path.join(transfersLogsDestDir, "logs"))
+                print "copied: ", transferPath + "logs", " -> ", os.path.join(transfersLogsDestDir, "logs")
+                
 
         except Exception as inst:
             print >>sys.stderr, type(inst)
             print >>sys.stderr, inst.args
+            traceback.print_exc(file=sys.stderr)
             print >>sys.stderr, "Error with transfer: ", row
             exitCode += 1
         row = c.fetchone()
@@ -76,4 +92,4 @@ if __name__ == '__main__':
     (opts, args) = parser.parse_args()
 
 
-    main(opts.sipUUID, opts.sipDirectory+"metadata/transfers/", sharedPath=opts.sharedPath)
+    main(opts.sipUUID, opts.sipDirectory+"metadata/transfers/", opts.sipDirectory+"logs/transfers/", sharedPath=opts.sharedPath)

@@ -1,6 +1,6 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -23,9 +23,10 @@ def execute(request):
     result = ''
     if 'uuid' in request.REQUEST:
         client = MCPClient()
-        uuid = request.REQUEST.get('uuid', '')
+        uuid   = request.REQUEST.get('uuid', '')
         choice = request.REQUEST.get('choice', '')
-        result = client.execute(uuid, choice)
+        uid    = request.REQUEST.get('uid', '')
+        result = client.execute(uuid, choice, 3)
     return HttpResponse(result, mimetype = 'text/plain')
 
 def list(request):

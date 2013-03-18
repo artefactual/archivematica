@@ -27,7 +27,7 @@ import shutil
 import MySQLdb
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
-import databaseInterface
+import elasticSearchFunctions
 
 
 printSubProcessOutput=True
@@ -109,8 +109,7 @@ for filename in thumbnails:
 #cleanup
 shutil.rmtree(extractDirectory)
 
-#write to database
-sql = """INSERT INTO AIPs (sipUUID, sipName, sipDate, filePath) VALUES ('%s', '%s', '%s', '%s')""" % (MySQLdb.escape_string(SIPUUID), MySQLdb.escape_string(SIPNAME), MySQLdb.escape_string(SIPDATE), MySQLdb.escape_string(storeLocation))
-databaseInterface.runSQL(sql)
+#write to ElasticSearch
+elasticSearchFunctions.connect_and_index_aip(SIPUUID, SIPNAME, SIPDATE, storeLocation)
 
 quit(exitCode)

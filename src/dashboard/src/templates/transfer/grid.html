@@ -12,6 +12,7 @@
 {% endblock %}
 
 {% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/misc.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/jobs.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/online.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/transfer.js"></script>
@@ -31,7 +32,8 @@
 
         window.Sips = new SipCollection;
         window.App = new AppView({
-          statusUrl: '/transfer/status/'
+          statusUrl: '/transfer/status/',
+          uid: {{ uid }}
         });
 
         // add hint to add transfer form
@@ -83,9 +85,27 @@
       form.render();
     });
     </script>
+
+  {% else %}
+
+    {% url components.administration.views.administration_sources as source_admin %}
+
+    <div class="alert-message">
+      <p>
+        Please choose at least one transfer source directory in
+        <a href="{{ source_admin }}">the administration tab</a> to begin.
+      </p>
+    </div>
+
   {% endif %}
 
   <div class="span12" id="sip-container">
+    <div style='float:right'>
+      <span class='grid-pager-previous-area'></span>
+      <span class='grid-pager-next-area'></span>
+      <span class='grid-pager-summary-area'></span>
+    </span>
+    </div>
     <div id="sip-header">
       <div id="sip-header-directory">Transfer</div>
       <div id="sip-header-uuid">UUID</div>
@@ -94,19 +114,17 @@
     </div>
     <div id="sip-body">
     </div>
+    <div style='float:right'>
+      <span class='grid-pager-previous-area'></span>
+      <span class='grid-pager-next-area'></span>
+      <span class='grid-pager-summary-area'></span>
+    </div>
   </div>
-
-  <!--
-  {% if not form %}
-     <footer>If you wish to add transfers using the web interface,
-     configure your source directories <a href='/administration/sources/'>here</a>.</footer>
-  {% endif %}
-  -->
 
   <!-- Templates -->
 
   <script type="text/template" id="sip-template">
-    <div class="sip-row">
+    <div class="sip-row" id="sip-row-<%= uuid %>">
       <div class="sip-detail-icon-status"><%= this.model.jobs.getIcon() %></div>
       <div class="sip-detail-directory">
         <%= directory %>

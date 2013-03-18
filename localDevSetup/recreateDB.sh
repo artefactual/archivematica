@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -62,9 +62,6 @@ mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir
 echo "Creating ${username} user"
 mysql -u root "${dbpassword}" --execute="CREATE USER '${username}'@'localhost' IDENTIFIED BY '${password}';"
 mysql -u root "${dbpassword}" --execute="GRANT SELECT, UPDATE, INSERT, DELETE ON ${databaseName}.* TO '${username}'@'localhost';"
-
-echo "Creating dashboard user"
-mysql -u root "${dbpassword}" --execute="USE ${databaseName}; INSERT INTO auth_user (username, email, password, is_staff, is_active, is_superuser, date_joined) VALUES ('demo', 'demo@example.com', 'sha1\$e7fc2\$6123f456bba92c67a409baf2c282398fc5f70fc9', TRUE, TRUE, TRUE, NOW() );"
 
 dbpassword=""
 

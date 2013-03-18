@@ -25,6 +25,8 @@ from components.filesystem_ajax.views import send_file
 from components import helpers
 import os
 import sys
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import elasticSearchFunctions
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 import httplib
@@ -60,13 +62,13 @@ def archival_storage_search(request):
 
     start = page * items_per_page + 1
 
-    conn = pyes.ES('127.0.0.1:9200')
+    conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
 
     try:
         results = conn.search_raw(
             query=archival_storage_search_assemble_query(queries, ops, fields, types),
             indices='aips',
-            type='aip',
+            type='aipfile',
             start=start - 1,
             size=items_per_page
         )
@@ -197,14 +199,18 @@ def archival_storage_search_augment_results(raw_results):
 
         # try to find AIP details in database
         try:
-            aip = models.AIP.objects.get(sipuuid=clone['AIPUUID'])
-            clone['sipname'] = aip.sipname
+            # get AIP data from ElasticSearch
+            aip = elasticSearchFunctions.connect_and_get_aip_data(clone['AIPUUID'])
+
+            # augment result data
+            clone['sipname'] = aip.name
             clone['fileuuid'] = clone['FILEUUID']
-            clone['href'] = aip.filepath.replace(AIPSTOREPATH + '/', "AIPsStore/")
+            clone['href'] = aip.filePath.replace(AIPSTOREPATH + '/', "AIPsStore/")
+
             # file UUID exists in ES/PREMIS at ns1:objectIdentifierValue
             # we should index this
             thumbnailfilepath = os.path.join(
-              aip.filepath,
+              aip.filePath,
               'thumbnails',
               clone['AIPUUID'],
               clone['fileuuid'] + '.jpg'
@@ -225,7 +231,7 @@ def archival_storage_search_augment_results(raw_results):
 def archival_storage_indexed_count(index):
     aip_indexed_file_count = 0
     try:
-        conn = pyes.ES('127.0.0.1:9200')
+        conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
         count_data = conn.count(indices=index)
         aip_indexed_file_count = count_data.count
     except:
@@ -233,8 +239,8 @@ def archival_storage_indexed_count(index):
     return aip_indexed_file_count
 
 def archival_storage_aip_download(request, uuid):
-    aip = models.AIP.objects.get(sipuuid=uuid)
-    return send_file(request, aip.filepath)
+    aip = elasticSearchFunctions.connect_and_get_aip_data(uuid)
+    return send_file(request, aip.filePath)
 
 def archival_storage_aip_file_download(request, uuid):
     # get file basename
@@ -243,8 +249,8 @@ def archival_storage_aip_file_download(request, uuid):
 
     # get file's AIP's properties
     sipuuid      = helpers.get_file_sip_uuid(uuid)
-    aip          = models.AIP.objects.get(sipuuid=sipuuid)
-    aip_filepath = aip.filepath
+    aip          = elasticSearchFunctions.connect_and_get_aip_data(sipuuid)
+    aip_filepath = aip.filePath
 
     # create temp dir to extract to
     temp_dir = tempfile.mkdtemp()
@@ -282,8 +288,8 @@ def archival_storage_aip_file_download(request, uuid):
 def archival_storage_send_thumbnail(request, fileuuid):
     # get AIP location to use to find root of AIP storage
     sipuuid = helpers.get_file_sip_uuid(fileuuid)
-    aip = models.AIP.objects.get(sipuuid=sipuuid)
-    aip_filepath = aip.filepath
+    aip = elasticSearchFunctions.connect_and_get_aip_data(sipuuid)
+    aip_filepath = aip.filePath
 
     # strip path to AIP from root of AIP storage
     for index in range(1, 10):
@@ -308,7 +314,12 @@ def archival_storage_sip_display(request, current_page_number=None):
     aip_indexed_file_count = archival_storage_indexed_count('aips')
 
     # get AIPs from DB
-    aips = models.AIP.objects.all()
+    #aips = models.AIP.objects.all()
+    conn = elasticSearchFunctions.connect_and_create_index('aips')
+    aipResults = conn.search(pyes.StringQuery('*'), doc_types=['aip'])
+    aips = []
+    for aip in aipResults:
+        aips.append(aip)
 
     # handle pagination
     page = helpers.pager(aips, 10, current_page_number)
@@ -316,14 +327,14 @@ def archival_storage_sip_display(request, current_page_number=None):
     sips = []
     for aip in page['objects']:
         sip = {}
-        sip['href'] = aip.filepath.replace(AIPSTOREPATH + '/', "AIPsStore/")
-        sip['name'] = aip.sipname
-        sip['uuid'] = aip.sipuuid
+        sip['href'] = aip.filePath.replace(AIPSTOREPATH + '/', "AIPsStore/")
+        sip['name'] = aip.name
+        sip['uuid'] = aip.uuid
 
-        sip['date'] = aip.sipdate
+        sip['date'] = str(aip.date)[0:19].replace('T', ' ')
 
         try:
-            size = os.path.getsize(aip.filepath) / float(1024) / float(1024)
+            size = float(aip.size)
             total_size = total_size + size
             sip['size'] = '{0:.2f} MB'.format(size)
         except:
@@ -352,8 +363,8 @@ def archival_storage_sip_display(request, current_page_number=None):
 
 def archival_storage_file_json(request, document_id_modified):
     document_id = document_id_modified.replace('____', '-')
-    conn = httplib.HTTPConnection("127.0.0.1:9200")
-    conn.request("GET", "/aips/aip/" + document_id)
+    conn = httplib.HTTPConnection(elasticSearchFunctions.getElasticsearchServerHostAndPort())
+    conn.request("GET", "/aips/aipfile/" + document_id)
     response = conn.getresponse()
     data = response.read()
     pretty_json = simplejson.dumps(simplejson.loads(data), sort_keys=True, indent=2)

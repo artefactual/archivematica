@@ -1,6 +1,6 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,12 @@ from components import helpers
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 def home(request):
-    return HttpResponseRedirect(reverse('components.transfer.views.transfer_grid'))
+    if 'first_login' in request.session and request.session['first_login']:
+        request.session.first_login = False
+        redirectUrl = reverse('components.administration.views.administration')
+    else:
+        redirectUrl = reverse('components.transfer.views.transfer_grid')
+    return HttpResponseRedirect(redirectUrl)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Status

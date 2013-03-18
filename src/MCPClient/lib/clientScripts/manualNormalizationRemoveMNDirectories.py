@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -32,31 +32,29 @@ accessDir = os.path.join(SIPDirectory, "objects/manualNormalization/access")
 preservationDir = os.path.join(SIPDirectory, "objects/manualNormalization/preservation")
 manualNormalizationDir = os.path.join(SIPDirectory, "objects/manualNormalization")
 
+global errorCount
 errorCount = 0
 
 
-if os.path.isdir(accessDir):
-    try:
-        os.rmdir(accessDir)
-    except Exception as inst:
-        print type(inst)     # the exception instance
-        print inst.args
-        errorCount+= 1
+def recursivelyRemoveEmptyDirectories(dir):
+    global errorCount
+    for root, dirs, files in os.walk(dir,topdown=False):
+        for directory in dirs:
+            try:
+                os.rmdir(os.path.join(root, directory))
+            except Exception as inst:
+                print directory
+                print >>sys.stderr, type(inst), inst.args      # the exception instance
+                errorCount+= 1
 
-if os.path.isdir(preservationDir):
-    try:
-        os.rmdir(preservationDir)
-    except Exception as inst:
-        print type(inst)     # the exception instance
-        print inst.args
-        errorCount+= 1
 
 if os.path.isdir(manualNormalizationDir) and not errorCount:
     try:
+        recursivelyRemoveEmptyDirectories(manualNormalizationDir)
         os.rmdir(manualNormalizationDir)
     except Exception as inst:
-        print type(inst)     # the exception instance
-        print inst.args
+        print >>sys.stderr, type(inst)     # the exception instance
+        print >>sys.stderr, inst.args
         errorCount+= 1
 
 exit(errorCount)

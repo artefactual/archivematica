@@ -1,6 +1,6 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 # 
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -66,6 +66,7 @@ identifyFilesByExtension_v0.0 = %clientScriptsDirectory%identifyFilesByExtension
 loadLabelsFromCSV_v0.0 = %clientScriptsDirectory%loadLabelsFromCSV.py
 manualNormalizationCheckForManualNormalizationDirectory_v0.0 = %clientScriptsDirectory%manualNormalizationCheckForManualNormalizationDirectory.py
 manualNormalizationCreateMetadataAndRestructure_v0.0 = %clientScriptsDirectory%manualNormalizationCreateMetadataAndRestructure.py
+manualNormalizationIdentifyFilesIncluded_v0.0 = %clientScriptsDirectory%manualNormalizationIdentifyFilesIncluded.py
 manualNormalizationMoveAccessFilesToDIP_v0.0 = %clientScriptsDirectory%manualNormalizationMoveAccessFilesToDIP.py
 manualNormalizationRemoveMNDirectories_v0.0 = %clientScriptsDirectory%manualNormalizationRemoveMNDirectories.py
 move_v0.0 = sudo mv

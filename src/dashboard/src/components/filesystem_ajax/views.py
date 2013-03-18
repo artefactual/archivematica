@@ -1,3 +1,20 @@
+# This file is part of Archivematica.
+#
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
+#
+# Archivematica is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Archivematica is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.db import connection
 from django.utils import simplejson
@@ -173,7 +190,7 @@ def copy_transfer_component(request):
             # bag
             try:
                 path.lower().index('.zip')
-                shutil.copy(path, destination)
+                rsync_copy(path, destination)
                 paths_copied = 1
             except:
                 transfer_dir = os.path.join(destination, transfer_name)
@@ -189,6 +206,8 @@ def copy_transfer_component(request):
                 for entry in sorted_directory_list(path):
                     entry_path = os.path.join(path, entry)
                     if os.path.isdir(entry_path):
+                        rsync_copy(entry_path, transfer_dir)
+                        """
                         destination_dir = os.path.join(transfer_dir, entry)
                         try:
                             shutil.copytree(
@@ -197,8 +216,10 @@ def copy_transfer_component(request):
                             )
                         except:
                             error = 'Error copying from ' + entry_path + ' to ' + destination_dir + '. (' + str(sys.exc_info()[0]) + ')'
+                        """
                     else:
-                        shutil.copy(entry_path, transfer_dir)
+                        rsync_copy(entry_path, transfer_dir)
+                        #shutil.copy(entry_path, transfer_dir)
 
                     paths_copied = paths_copied + 1
 
@@ -300,14 +321,13 @@ def copy_to_start_transfer(request):
         # bag
         try:
             filepath.lower().index('.zip')
-            rsync_copy(filepath, destination)
+            shutil.move(filepath, destination)
         except:
             destination = os.path.join(destination, basename)
-
             destination = pad_destination_filepath_if_it_already_exists(destination)
 
             try:
-                rsync_copy(filepath, destination)
+                shutil.move(filepath, destination)
             except:
                 error = 'Error copying from ' + filepath + ' to ' + destination + '. (' + str(sys.exc_info()[0]) + ')'
 

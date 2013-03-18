@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -110,7 +110,7 @@ def runSQL(sql):
                 print >>sys.stderr, "Error with query: ", sql
                 print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
             sqlLock.release()
-            exit(-100)
+            raise Exception(inst)
     except Exception as inst:
         if printErrors:
             print >>sys.stderr, "Error query: ", sql
@@ -150,7 +150,7 @@ def insertAndReturnID(sql):
                 print >>sys.stderr, "Error with query: ", sql
                 print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
             sqlLock.release()
-            exit(-100)
+            raise Exception(inst)
     except Exception as inst:
             print >>sys.stderr, "Error query: ", sql
             print >>sys.stderr, type(inst)     # the exception instance
@@ -185,6 +185,7 @@ def querySQL(sql):
             if printErrors:
                 print >>sys.stderr, "Error with query: ", sql
                 print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
+            raise Exception(inst)
     except Exception as inst:
         if printErrors:
             print >>sys.stderr, "Error query: ", sql
@@ -231,7 +232,7 @@ def queryAllSQL(sql):
                 print >>sys.stderr, "Error with query: ", sql
                 print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
             sqlLock.release()
-            exit(-100)
+            raise Exception(inst)
     except Exception as inst:
         if printErrors:
             print >>sys.stderr, "Error query: ", sql

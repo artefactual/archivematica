@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -315,7 +315,7 @@ if __name__ == '__main__':
         import getpass
         print "user: ", getpass.getuser()
         os.setuid(333)
-    if False:
+    if True:
         t = threading.Thread(target=debugMonitor)
         t.daemon = True
         t.start()
