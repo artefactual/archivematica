@@ -22,6 +22,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from main.models import Agent
 from installer.forms import SuperUserCreationForm
+from tastypie.models import ApiKey
 
 def welcome(request):
     # This form will be only accessible when the database has no users
@@ -44,6 +45,9 @@ def welcome(request):
         form = SuperUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            api_key = ApiKey.objects.create(user=user)
+            api_key.key = api_key.generate_key()
+            api_key.save()
             user = authenticate(username=user.username, password=form.cleaned_data['password1'])
             if user is not None:
               login(request, user)

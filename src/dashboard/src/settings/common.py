@@ -197,8 +197,10 @@ LOGGING = {
     }
 }
 
+# login-related settings
 LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/administration/accounts/login'
+LOGIN_URL          = '/administration/accounts/login'
+LOGIN_EXEMPT_URLS  = [r'^api']
 
 # Django debug toolbar
 try:

@@ -23,6 +23,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
 import components.decorators as decorators
 from django.template import RequestContext
+from tastypie.models import ApiKey
 
 from components.accounts.forms import UserCreationForm
 from components.accounts.forms import UserChangeForm
@@ -40,6 +41,9 @@ def add(request):
             user = form.save(commit=False)
             user.is_staff = True
             user.save()
+            api_key = ApiKey.objects.create(user=user)
+            api_key.key = api_key.generate_key()
+            api_key.save()
             return HttpResponseRedirect(reverse('components.accounts.views.list'))
     else:
         form = UserCreationForm()
@@ -66,14 +70,31 @@ def edit(request, id=None):
         form = UserChangeForm(request.POST, instance=user)
         if form.is_valid():
             user = form.save(commit=False)
+
+            # change password if requested
             password = request.POST.get('password', '')
             if password != '':
                 user.set_password(password)
             user.save()
+
+            # regenerate API key if requested
+            regenerate_api_key = request.POST.get('regenerate_api_key', '')
+            if regenerate_api_key != '':
+                api_key = ApiKey.objects.get(user_id=user.pk)
+                api_key.key = api_key.generate_key()
+                api_key.save()
             return HttpResponseRedirect(reverse('components.accounts.views.list'))
     else:
+        api_key_data = ApiKey.objects.get(user_id=user.pk)
+        api_key = api_key_data.key
         form = UserChangeForm(instance=user)
-    return render(request, 'accounts/edit.html', {'form': form, 'user': user, 'title': title })
+
+    return render(request, 'accounts/edit.html', {
+      'form': form,
+      'user': user,
+      'api_key': api_key,
+      'title': title
+    })
 
 def delete_context(request, id):
     user = User.objects.get(pk=id)

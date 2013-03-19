@@ -16,14 +16,15 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls.defaults import *
-from components.api.models import SIPResource
-from tastypie.api import Api
+from components.api.models import SelectionAvailableResource
+from components.api.models import SelectionAPIResource
 
-# add version to non-FPR resources
-api = Api(api_name='v1')
-api.register(SIPResource())
+selectionAvailable = SelectionAvailableResource()
+selectionAPI = SelectionAPIResource()
 
-urlpatterns = patterns('components.archival_storage.views',
-    (r'', include(api.urls)),
-    (r'fpr/', include('components.api.fpr.urls'))
+urlpatterns = patterns('components.api.views',
+    #(r'', include(selectionAvailable.urls)),
+    #(r'', include(selectionAPI.urls)),
+    (r'transfer/approve', 'approve_transfer'), 
+    (r'transfer/unapproved', 'unapproved_transfers')
 )
