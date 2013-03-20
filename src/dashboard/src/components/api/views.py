@@ -17,9 +17,11 @@
 
 import os, ConfigParser, simplejson
 from django.http import Http404, HttpResponse, HttpResponseForbidden
+from django.db.models import Q
 from tastypie.authentication import ApiKeyAuthentication
 from contrib.mcp.client import MCPClient
 from main import models
+from components import helpers
 
 #
 # Example: http://127.0.0.1/api/transfer/unapproved?username=mike&api_key=<API key>
@@ -33,17 +35,29 @@ def unapproved_transfers(request):
             error      = None
             unapproved = []
 
-            jobs = models.Job.objects.filter(jobtype='Approve transfer', currentstep='Awaiting decision')
+            jobs = models.Job.objects.filter(
+                 (
+                     Q(jobtype="Approve transfer")
+                     | Q(jobtype="Approve DSpace transfer")
+                     | Q(jobtype="Approve bagit transfer")
+                 ) & Q(currentstep='Awaiting decision')
+            )
+            #jobs = models.Job.objects.filter(jobtype='Approve transfer', currentstep='Awaiting decision')
 
             for job in jobs:
                 # remove standard transfer path from directory (and last character)
-                job_directory = job.directory.replace(
+                type_and_directory = job.directory.replace(
                     get_modified_standard_transfer_path() + '/',
                     '',
                     1
                 )[:-1]
 
+                transfer_watch_directory = type_and_directory.split('/')[0]
+                transfer_type = helpers.transfer_type_by_directory(transfer_watch_directory)
+                job_directory = type_and_directory.replace(transfer_watch_directory + '/', '', 1)
+
                 unapproved.append({
+                    'type':      transfer_type,
                     'directory': job_directory
                 })
 
@@ -82,7 +96,8 @@ def approve_transfer(request):
             error   = None
 
             directory = request.POST.get('directory', '')
-            error     = approve_transfer_via_mcp(directory)
+            type      = request.POST.get('type', 'standard')
+            error     = approve_transfer_via_mcp(directory, type)
 
             response = {}
 
@@ -111,20 +126,24 @@ def get_server_config_value(field):
     except:
         return ''
 
-def get_modified_standard_transfer_path():
+def get_modified_standard_transfer_path(type=None):
     path = os.path.join(
         get_server_config_value('watchDirectoryPath'),
-        'activeTransfers/standardTransfer'
+        'activeTransfers'
     )
+
+    if type != None:
+        path = os.path.join(path, helpers.transfer_directory_by_type(type))
+
     shared_directory_path = get_server_config_value('sharedDirectory')
     return path.replace(shared_directory_path, '%sharedPath%', 1)
 
-def approve_transfer_via_mcp(directory):
+def approve_transfer_via_mcp(directory, type):
     error = None
 
     if (directory != ''):
         # assemble transfer path
-        transfer_path = os.path.join(get_modified_standard_transfer_path(), directory) + '/'
+        transfer_path = os.path.join(get_modified_standard_transfer_path(type), directory) + '/'
 
         # look up job UUID using transfer path
         try:
