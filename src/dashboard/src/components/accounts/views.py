@@ -80,13 +80,20 @@ def edit(request, id=None):
             # regenerate API key if requested
             regenerate_api_key = request.POST.get('regenerate_api_key', '')
             if regenerate_api_key != '':
-                api_key = ApiKey.objects.get(user_id=user.pk)
+                try:
+                    api_key = ApiKey.objects.get(user_id=user.pk)
+                except ApiKey.DoesNotExist:
+                    api_key = ApiKey.objects.create(user=user)
                 api_key.key = api_key.generate_key()
                 api_key.save()
+
             return HttpResponseRedirect(reverse('components.accounts.views.list'))
     else:
-        api_key_data = ApiKey.objects.get(user_id=user.pk)
-        api_key = api_key_data.key
+        try:
+            api_key_data = ApiKey.objects.get(user_id=user.pk)
+            api_key = api_key_data.key
+        except:
+            api_key = '<no API key generated>'
         form = UserChangeForm(instance=user)
 
     return render(request, 'accounts/edit.html', {
