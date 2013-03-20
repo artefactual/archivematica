@@ -78,3 +78,15 @@ def get_jobs_by_sipuuid(uuid):
 def get_metadata_type_id_by_description(description):
     types = models.MetadataAppliesToType.objects.filter(description=description)
     return types[0].id
+
+def transfer_destination_directory_by_type(type):
+    type_paths = {
+      'standard':     'standardTransfer',
+      'unzipped bag': 'baggitDirectory',
+      'zipped bag':   'baggitZippedDirectory',
+      'dspace':       'Dspace',
+      'maildir':      'maildir',
+      'TRIM':         'TRIM'
+    }
+
+    return type_paths[type]
