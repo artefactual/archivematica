@@ -40,15 +40,19 @@ def getElasticsearchServerHostAndPort():
     except:
         return '127.0.0.1:9200'
 
-def connect_and_create_index(index):
-    conn = pyes.ES(getElasticsearchServerHostAndPort())
-    try:
-        conn.create_index(index)
-        conn = connect_and_create_index(index)
-    except:
-        # above exception was pyes.exceptions.IndexAlreadyExistsException
-        # but didn't work with ES 0.19.0
-        pass
+# try up to three times to get a connection
+def connect_and_create_index(index, attempt=1):
+    if attempt <= 3:
+        conn = pyes.ES(getElasticsearchServerHostAndPort())
+        try:
+            conn.create_index(index)
+            conn = connect_and_create_index(index, attempt + 1)
+        except:
+            # above exception was pyes.exceptions.IndexAlreadyExistsException
+            # but didn't work with ES 0.19.0
+            pass
+    else:
+        conn = False
 
     return conn
 
