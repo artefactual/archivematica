@@ -32,7 +32,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import requests
 
 sys.path.append("/usr/share/archivematica/dashboard")
-os.environ['DJANGO_SETTINGS_MODULE'] = "settings"
+os.environ['DJANGO_SETTINGS_MODULE'] = "settings.common"
 import main.models as models
 
 PREFIX = "[uploadDIP]"
