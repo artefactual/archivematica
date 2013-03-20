@@ -318,8 +318,10 @@ def archival_storage_sip_display(request, current_page_number=None):
     conn = elasticSearchFunctions.connect_and_create_index('aips')
     aipResults = conn.search(pyes.StringQuery('*'), doc_types=['aip'])
     aips = []
-    for aip in aipResults:
-        aips.append(aip)
+
+    if aipResults._total != None:
+        for aip in aipResults:
+            aips.append(aip)
 
     # handle pagination
     page = helpers.pager(aips, 10, current_page_number)
