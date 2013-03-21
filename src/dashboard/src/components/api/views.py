@@ -23,13 +23,28 @@ from contrib.mcp.client import MCPClient
 from main import models
 from components import helpers
 
+def authenticate_request(request):
+    api_auth = ApiKeyAuthentication()
+    authorized = api_auth.is_authenticated(request)
+
+    if authorized == True:
+        client_ip = request.META['REMOTE_ADDR']
+        whitelist = helpers.get_setting('api_whitelist', '127.0.0.1').split("\r\n")
+        try:
+            whitelist.index(client_ip)
+            return True
+        except:
+            pass
+
+    return False
+
 #
 # Example: http://127.0.0.1/api/transfer/unapproved?username=mike&api_key=<API key>
 #
 def unapproved_transfers(request):
     if request.method == 'GET':
-        api_auth = ApiKeyAuthentication()
-        authorized = api_auth.is_authenticated(request)
+        authorized = authenticate_request(request)
+
         if authorized == True:
             message    = ''
             error      = None
@@ -89,8 +104,8 @@ def unapproved_transfers(request):
 #
 def approve_transfer(request):
     if request.method == 'POST':
-        api_auth = ApiKeyAuthentication()
-        authorized = api_auth.is_authenticated(request)
+        authorized = authenticate_request(request)
+
         if authorized == True:
             message = ''
             error   = None
