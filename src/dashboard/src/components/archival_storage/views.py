@@ -20,6 +20,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.utils import simplejson
 from components.archival_storage import forms
+from django.conf import settings
 from main import models
 from components.filesystem_ajax.views import send_file
 from components import helpers
@@ -293,6 +294,14 @@ def archival_storage_send_thumbnail(request, fileuuid):
         sipuuid,
         fileuuid + '.jpg'
     )
+
+    # send "blank" thumbnail if one exists:
+    # Because thumbnails aren't kept in ElasticSearch they can be queried for,
+    # during searches, from multiple dashboard servers.
+    # Because ElasticSearch don't know if a thumbnail exists or not, this is
+    # a way of not causing visual disruption if a thumbnail doesn't exist.
+    if not os.path.exists(thumbnail_path):
+        thumbnail_path = os.path.join(settings.BASE_PATH, 'media/images/1x1-pixel.png')
 
     return send_file(request, thumbnail_path)
 
