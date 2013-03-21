@@ -4994,6 +4994,7 @@ CREATE TABLE `django_session` (
   PRIMARY KEY (`session_key`),
   KEY `django_session_c25c2c28` (`expire_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `SourceDirectories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -5006,6 +5007,17 @@ CREATE TABLE `SourceDirectories` (
   PRIMARY KEY (`pk`),
   KEY `SourceDirectories` (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `DashboardSettings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `DashboardSettings` (
+  `pk` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `value` longtext COLLATE utf8_unicode_ci,
+  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`pk`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `StorageDirectories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
