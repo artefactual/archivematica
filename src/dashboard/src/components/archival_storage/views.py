@@ -207,15 +207,6 @@ def archival_storage_search_augment_results(raw_results):
             clone['fileuuid'] = clone['FILEUUID']
             clone['href'] = aip.filePath.replace(AIPSTOREPATH + '/', "AIPsStore/")
 
-            # file UUID exists in ES/PREMIS at ns1:objectIdentifierValue
-            # we should index this
-            thumbnailfilepath = os.path.join(
-              aip.filePath,
-              'thumbnails',
-              clone['AIPUUID'],
-              clone['fileuuid'] + '.jpg'
-            )
-            clone['thumbnail'] = thumbnailfilepath
         except:
             aip = None
             clone['sipname'] = False
