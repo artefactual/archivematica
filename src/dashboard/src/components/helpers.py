@@ -18,6 +18,7 @@
 from django.utils.dateformat import format
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from main import models
+import cPickle
 
 # Used for raw SQL queries to return data in dictionaries instead of lists
 def dictfetchall(cursor):
@@ -108,3 +109,20 @@ def transfer_type_by_directory(directory):
     directory_types = dict((value, key) for key, value in type_directories.iteritems())
 
     return directory_types[directory]
+
+def get_setting(setting, default=''):
+    try:
+        setting = models.DashboardSetting.objects.get(name=setting)
+        return setting.value
+    except:
+        return default
+
+def set_setting(setting, value=''):
+    try:
+        setting_data = models.DashboardSetting.objects.get(name=setting)
+    except:
+        setting_data = models.DashboardSetting.objects.create()
+        setting_data.name = setting
+
+    setting_data.value = value
+    setting_data.save()
