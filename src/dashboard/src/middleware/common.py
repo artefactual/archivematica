@@ -17,6 +17,7 @@
 
 from django.conf import settings
 from django.http import HttpResponseServerError, HttpResponseRedirect
+from django.template.base import TemplateDoesNotExist
 
 class AJAXSimpleExceptionResponseMiddleware:
     def process_exception(self, request, exception):
@@ -30,3 +31,8 @@ class AJAXSimpleExceptionResponseMiddleware:
                 for tb in traceback.format_tb(tb):
                     response += "%s\n" % tb
                 return HttpResponseServerError(response)
+
+class SpecificExceptionErrorPageResponseMiddleware:
+    def process_exception(self, request, exception):
+        if settings.DEBUG and type(exception) == TemplateDoesNotExist:
+            return HttpResponseServerError('Missing template: ' + str(exception))
