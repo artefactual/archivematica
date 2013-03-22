@@ -205,7 +205,8 @@ def archival_storage_sip_display(request, current_page_number=None):
     aipResults = conn.search(pyes.StringQuery('*'), doc_types=['aip'])
     aips = []
 
-    if aipResults._total != None:
+    #if aipResults._total != None:
+    if len(aipResults) > 0:
         for aip in aipResults:
             aips.append(aip)
 
