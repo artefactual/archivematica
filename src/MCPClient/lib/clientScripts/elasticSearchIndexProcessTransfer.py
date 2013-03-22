@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
         exitCode = elasticSearchFunctions.connect_and_index_files(
             'transfers',
-            'transfer',
+            'transferfile',
             transferUUID,
             pathToTransfer
         )

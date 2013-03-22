@@ -31,10 +31,18 @@ from lxml import etree
 from components.ingest.forms import DublinCoreMetadataForm
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
 from components import helpers
-import calendar
+import calendar, ConfigParser
 import cPickle
 import components.decorators as decorators
 from components import helpers
+from components import advanced_search
+import os, sys
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import elasticSearchFunctions
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
+import pyes
+from components.archival_storage.forms import StorageSearchForm
+from components.filesystem_ajax.views import send_file
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Ingest
@@ -263,3 +271,131 @@ def ingest_browse_aip(request, jobuuid):
     directory = '/var/archivematica/sharedDirectory/watchedDirectories/storeAIP'
 
     return render(request, 'ingest/aip_browse.html', locals())
+
+def transfer_backlog(request):
+    queries, ops, fields, types = advanced_search.search_parameter_prep(request)
+ 
+    if not 'query' in request.GET:
+        return helpers.redirect_with_get_params('components.ingest.views.transfer_backlog', query='', field='', type='')
+
+    # set pagination-related variables to use in template
+    search_params = advanced_search.extract_url_search_params_from_request(request)
+
+    items_per_page = 20
+
+    page = advanced_search.extract_page_number_from_url(request)
+
+    start = page * items_per_page + 1
+
+    conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
+
+    try:
+        results = conn.search_raw(
+            query=advanced_search.assemble_query(queries, ops, fields, types),
+            indices='transfers',
+            type='transferfile',
+            start=start - 1,
+            size=items_per_page
+        )
+    except:
+        return HttpResponse('Error accessing index.')
+
+    file_extension_usage = results['facets']['fileExtension']['terms']
+    number_of_results = results.hits.total
+    results = transfer_backlog_augment_search_results(results)
+
+    end, previous_page, next_page = advanced_search.paging_related_values_for_template_use(
+       items_per_page,
+       page,
+       start,
+       number_of_results
+    )
+
+    # make sure results is set
+    try:
+        if results:
+            pass
+    except:
+        results = False
+
+    form = StorageSearchForm(initial={'query': queries[0]})
+    return render(request, 'ingest/backlog/search.html', locals())
+
+def transfer_backlog_augment_search_results(raw_results):
+    modifiedResults = []
+
+    for item in raw_results.hits.hits:
+        clone = item._source.copy()
+
+        clone['awaiting_creation'] = transfer_awaiting_sip_creation(clone['sipuuid'])
+
+        clone['document_id'] = item['_id']
+        clone['document_id_no_hyphens'] = item['_id'].replace('-', '____')
+
+        modifiedResults.append(clone)
+
+    return modifiedResults
+
+def transfer_awaiting_sip_creation(uuid):
+    try:
+        job = models.Job.objects.filter(
+            sipuuid=uuid,
+            microservicegroup='Create SIP from Transfer',
+            currentstep='Awaiting decision'
+        )[0]
+        return True
+    except:
+        return False
+
+def process_transfer(request, uuid):
+    response = {}
+
+    if request.user.id:
+        client = MCPClient()
+        try:
+            job = models.Job.objects.filter(
+                sipuuid=uuid,
+                microservicegroup='Create SIP from Transfer',
+                currentstep='Awaiting decision'
+            )[0]
+            chain = models.MicroServiceChain.objects.get(
+                description='Create single SIP and continue processing'
+            )
+            result = client.execute(job.pk, chain.pk, request.user.id)
+
+            response['message'] = 'SIP created.'
+        except:
+            response['error']   = True
+            response['message'] = 'Error attempting to create SIP.'
+    else:
+        response['error']   = True
+        response['message'] = 'Must be logged in.'
+
+    return HttpResponse(
+        simplejson.JSONEncoder(encoding='utf-8').encode(response),
+        mimetype='application/json'
+    )
+
+def transfer_file_download(request, uuid):
+    # get file basename
+    try:
+        file = models.File.objects.get(uuid=uuid)
+    except:
+        raise Http404
+
+    file_basename = os.path.basename(file.currentlocation)
+
+    # replace this with a helper function
+    clientConfigFilePath = '/etc/archivematica/MCPServer/serverConfig.conf'
+    config = ConfigParser.SafeConfigParser()
+    config.read(clientConfigFilePath)
+
+    try:
+        shared_directory_path = config.get('MCPServer', 'sharedDirectory')
+    except:
+        shared_directory_path = ''
+
+    transfer = models.Transfer.objects.get(uuid=file.transfer.uuid)
+    path_to_transfer = transfer.currentlocation.replace('%sharedPath%', shared_directory_path)
+    path_to_file = file.currentlocation.replace('%transferDirectory%', path_to_transfer)
+    return send_file(request, path_to_file)

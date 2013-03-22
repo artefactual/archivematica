@@ -450,6 +450,7 @@ CREATE TABLE `SIPs` (
   `currentPath` longtext,
   `magicLink` varchar(50) DEFAULT NULL,
   `magicLinkExitMessage` varchar(50) DEFAULT 'Completed successfully',
+  `accessionId` varchar(255) DEFAULT NULL,
   `hidden` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`sipUUID`),
   KEY `magicLink` (`magicLink`),

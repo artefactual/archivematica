@@ -105,8 +105,9 @@ var TransferComponentFormView = Backbone.View.extend({
           async: false,
           cache: false,
           data: {
-            filepath: filepath,
-            type:     transfer.type
+            filepath:  filepath,
+            type:      transfer.type,
+            accession: transfer.accessionNumber
           },
           success: function(results) {
             if (results['error']) {

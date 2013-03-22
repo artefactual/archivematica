@@ -17,7 +17,13 @@
 
 from django.utils.dateformat import format
 from django.core.paginator import Paginator
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from main import models
+import cPickle, pprint, ConfigParser, urllib
+
+def pr(object):
+    return pprint.pformat(object)
 
 # Used for raw SQL queries to return data in dictionaries instead of lists
 def dictfetchall(cursor):
@@ -125,3 +131,18 @@ def set_setting(setting, value=''):
 
     setting_data.value = value
     setting_data.save()
+
+def get_server_config_value(field):
+    clientConfigFilePath = '/etc/archivematica/MCPServer/serverConfig.conf'
+    config = ConfigParser.SafeConfigParser()
+    config.read(clientConfigFilePath)
+
+    try:
+        return config.get('MCPServer', field) # "watchDirectoryPath")
+    except:
+        return ''
+
+def redirect_with_get_params(url_name, *args, **kwargs):
+    url = reverse(url_name, args = args)
+    params = urllib.urlencode(kwargs)
+    return HttpResponseRedirect(url + "?%s" % params)

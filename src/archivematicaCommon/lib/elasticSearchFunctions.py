@@ -97,6 +97,7 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
             # use METS file if indexing an AIP
             metsFilePath = os.path.join(pathToArchive, 'METS.' + uuid + '.xml')
 
+            # index AIP
             if os.path.isfile(metsFilePath):
                 filesIndexed = index_mets_file_metadata(
                     conn,
@@ -107,8 +108,9 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
                     sipName
                 )
 
+            # index transfer
             else:
-                filesIndexed = index_directory_files(
+                filesIndexed = index_transfer_files(
                     conn,
                     uuid,
                     pathToArchive,
@@ -243,29 +245,64 @@ def normalize_list_dict_elements(list):
             list[index] =  normalize_dict_values(value)
     return list
 
-def index_directory_files(conn, uuid, pathToTransfer, index, type):
+def index_transfer_files(conn, uuid, pathToTransfer, index, type):
     filesIndexed = 0
+    ingest_date  = str(datetime.datetime.today())[0:10]
+    create_time  = time.time()
 
-    # document structure
-    transferData = {
-      'uuid': uuid,
-      'origin': getDashboardUUID(),
-      'created': time.time()
-    }
+    # extract transfer name from path
+    path_without_uuid = pathToTransfer[:-45]
+    last_slash_position = path_without_uuid.rfind('/')
+    transfer_name = path_without_uuid[last_slash_position + 1:]
 
-    # compile file data (relative filepath, extension, size)
-    fileData = {}
+    # get accessionId from SIPs table using transfer name
+    accession_id = ''
+    current_path = '%sharedPath%watchedDirectories/system/autoProcessSIP/' + transfer_name + '/'
+    sql = "SELECT accessionId from SIPs WHERE currentPath = '" + current_path + "'"
+
+    rows = databaseInterface.queryAllSQL(sql)
+    if len(rows) > 0:
+        accession_id = rows[0][0]
+
+    # get file UUID information
+    fileUUIDs = {}
+    sql = "SELECT currentLocation, fileUUID FROM Files WHERE transferUUID='" + uuid + "'"
+
+    rows = databaseInterface.queryAllSQL(sql)
+    for row in rows:
+        file_path = row[0]
+        fileUUIDs[file_path] = row[1]
+
     for filepath in list_files_in_dir(pathToTransfer):
         if os.path.isfile(filepath):
-            fileData[filepath] = {
-              'basename': os.path.basename(filepath)
+
+            relative_path = '%transferDirectory%objects' + filepath.replace(pathToTransfer, '')
+
+            sql = "SELECT fileUUID FROM Files WHERE currentLocation='" + relative_path + "' AND transferUUID='" + uuid + "'"
+            rows = databaseInterface.queryAllSQL(sql)
+            if len(rows) > 0:
+                file_uuid = rows[0][0]
+            else:
+                file_uuid = ''
+
+            indexData = {
+              'filepath'     : filepath,
+              'filename'     : os.path.basename(filepath),
+              'fileuuid'     : file_uuid,
+              'sipuuid'      : uuid,
+              'accessionid'  : accession_id,
+              'origin'       : getDashboardUUID(),
+              'ingestdate'   : ingest_date,
+              'created'      : create_time
             }
+
+            fileName, fileExtension = os.path.splitext(filepath)
+            if fileExtension != '':
+                indexData['fileExtension']  = fileExtension[1:].lower()
+
+            conn.index(indexData, index, type)
+
             filesIndexed = filesIndexed + 1
-
-    transferData['filepaths'] = fileData
-
-    # add document to index
-    conn.index(transferData, index, type)
 
     return filesIndexed
 

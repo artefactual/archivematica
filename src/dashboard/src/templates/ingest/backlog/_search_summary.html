@@ -1,0 +1,17 @@
+<div id='aip-search-summary'>
+  <div style='float:right;'>
+    {% if page %}
+      <a href='{% url components.archival_storage.views.archival_storage_search %}?{{ search_params }}&page={{ previous_page }}'>Previous</a>
+    {% endif %}
+
+    {% if page and next_page %}
+      |
+    {% endif %}
+
+    {% if next_page %}
+      <a href='{% url components.archival_storage.views.archival_storage_search %}?{{ search_params }}&page={{ next_page }}'>Next</a>
+    {% endif %}
+  </div>
+
+  <strong>Found {{ number_of_results }} results. Showing {{start}} to {{end}}.</strong>
+</div>

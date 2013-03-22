@@ -162,6 +162,7 @@ class SIP(models.Model):
     currentpath = models.TextField(db_column='currentPath', blank=True)
     # ...
     hidden = models.BooleanField(default=False, blank=False)
+    accessionid = models.CharField(max_length=255, db_column='accessionId')
 
     objects = SIPManager()
 
@@ -177,6 +178,7 @@ class TransferManager(models.Manager):
 
 class Transfer(models.Model):
     uuid = models.CharField(max_length=150, primary_key=True, db_column='transferUUID')
+    currentlocation = models.TextField(db_column='currentLocation')
     # ...
     hidden = models.BooleanField(default=False, blank=False)
 
