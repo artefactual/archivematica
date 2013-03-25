@@ -59,6 +59,7 @@ def verifyBag(bag):
         if exit != 0:
             print >>sys.stderr, "Failed test: ", command
             print >>sys.stderr, stdErr
+            print >>sys.stderr, stdOut
             print >>sys.stderr
             exitCode += 1
         else:
