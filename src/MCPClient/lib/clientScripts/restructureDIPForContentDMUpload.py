@@ -337,13 +337,18 @@ def zipProjectClientOutput(outputDipDir, zipOutputDir, dipUuid):
 # <dmad2></dmad2>
 # <dmaccess></dmaccess>
 # </xml>
-def generateDescFile(dcMetadata, nonDcMetadata):
+def generateDescFile(dcMetadata, nonDcMetadata, dipUuid = None):
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
     output = '<?xml version="1.0" encoding="utf-8"?>' + "\n"
     output += "<itemmetadata>\n"
 
     # Process the non-DC metadata, if there is any.
     if nonDcMetadata is not None:
+        # Populate the AIP UUID field in the non-DC metadata with the last 36 characters of the SIP name.
+        if dipUuid is not None:
+            aipUuidValues = []
+            aipUuidValues.append(dipUuid[-36:])
+            nonDcMetadata['aip_uuid'] = aipUuidValues
         # Define a list of elements we don't want to add based on their presence in the collection's
         # field config, since we add them in the template at the end of this function.
         doNotAdd = ['transc', 'fullrs', 'dmoclcno', 'dmcreated', 'dmmodified', 'dmrecord',
@@ -752,7 +757,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     aipUuidValues.append(dipUuid[-36:])
     nonDcMetadata['aip_uuid'] = aipUuidValues
     dcMetadata = dmdSecPair['dc']
-    descFileContents = generateDescFile(dcMetadata, nonDcMetadata)
+    descFileContents = generateDescFile(dcMetadata, nonDcMetadata, dipUuid)
     # Make a copy of nonDcMetadata that we use for compound item children (see comment below).
     if nonDcMetadata is not None:
         nonDcMetadataForChildren = nonDcMetadata
@@ -903,10 +908,6 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
 def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, bulk):
     dmdSecPair = splitDmdSecs(dmdSecs)
     nonDcMetadata = dmdSecPair['nonDc']
-    # We want to populate the AIP UUID field in the non-DC metadata with the last 36 characters of the SIP name.
-    aipUuidValues = []
-    aipUuidValues.append(dipUuid[-36:])
-    nonDcMetadata['aip_uuid'] = aipUuidValues
     dcMetadata = dmdSecPair['dc']    
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
 
@@ -971,6 +972,10 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     for field in collectionFieldInfo['order']:
         # Process the non-DC metadata, if there is any.
         if nonDcMetadata is not None:
+            # We want to populate the AIP UUID field in the non-DC metadata with the last 36 characters of the SIP name.
+            aipUuidValues = []
+            aipUuidValues.append(dipUuid[-36:])
+            nonDcMetadata['aip_uuid'] = aipUuidValues
             for k, v in collectionFieldInfo['nonDcMappings'].iteritems():
                 if field == v['nick']:
                    # Append the field name to the header row.
