@@ -243,9 +243,9 @@ def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
     # For the DC mappings, we want a dict containing items that looks like
     # { 'contributor': { 'name': u'Contributors', 'nick': u'contri'},
     # 'creator': { 'name': u'Creator', 'nick': u'creato'},
-    # 'date': { 'name': u'Date', 'nick': u'dateso'}, [...] }
-    # It is possible that more than one CONTENTdm field is mapped to the same DC
-    # in this case, just take the last mapping and ignore the rest, since thre is
+    # 'date': { 'name': u'Date', 'nick': u'dateso'}, [...] }. Is is possible
+    # that more than one CONTENTdm field is mapped to the same DC element;
+    # in this case, we take the last mapping and ignore the rest, since there is
     # no way to tell which should take precedence. The non-DC mappings have
     # the field name as their key, like "u'CONTENTdm number': { 'name': 
     # u'CONTENTdm number', 'nick': u'dmrecord'} (i.e., key and 'name' are the same).
@@ -377,14 +377,24 @@ def generateDescFile(dcMetadata, nonDcMetadata, dipUuid = None):
     # I.e., there is no non-DC metadata.
     else:
         # If there is no non-DC metadata, process DC metadata. Loop through the collection's 
-        # field configuration and generate XML elements for all its fields. 
+        # field configuration and generate XML elements for all its fields.
+        # We treat 'identifier' separately because we populate it with the AIP UUID.
+        if dipUuid is not None:
+            if 'identifier' not in dcMetadata:
+                dcMetadata['identifier'] = dipUuid[-36:]
+            else:
+                if len(dcMetadata['identifier']):
+                    uuid = '; ' + dipUuid[-36:]
+                    dcMetadata['identifier'] += uuid
+                else:
+                    dcMetadata['identifier'] = dipUuid[-36:]
         for dcElement in collectionFieldInfo['dcMappings'].keys():
             # If a field is in the incoming item dcMetadata, populate the corresponding tag
             # with its 'nick' value.
             if dcElement in dcMetadata.keys():
-                values = ''
                 output += '<' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + '>'
                 # Repeated values in CONTENTdm metadata need to be separated with semicolons.
+                values = ''
                 for value in dcMetadata[dcElement]:
                     values += value + '; '
                     output += values.rstrip('; ')
@@ -752,10 +762,6 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
 def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory):
     dmdSecPair = splitDmdSecs(dmdSecs)
     nonDcMetadata = dmdSecPair['nonDc']
-    # We want to populate the AIP UUID field in the non-DC metadata with the last 36 characters of the SIP name.
-    aipUuidValues = []
-    aipUuidValues.append(dipUuid[-36:])
-    nonDcMetadata['aip_uuid'] = aipUuidValues
     dcMetadata = dmdSecPair['dc']
     descFileContents = generateDescFile(dcMetadata, nonDcMetadata, dipUuid)
     # Make a copy of nonDcMetadata that we use for compound item children (see comment below).
