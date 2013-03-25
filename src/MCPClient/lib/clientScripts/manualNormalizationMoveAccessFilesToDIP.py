@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,10 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 #databaseInterface.printSQL = True
 
+while False:
+    import time
+    time.sleep(10)
+
 #--sipUUID "%SIPUUID%" --sipDirectory "%SIPDirectory%" --filePath "%relativeLocation%"
 from optparse import OptionParser
 parser = OptionParser()
@@ -40,11 +44,16 @@ filePathLike = opts.filePath.replace(os.path.join(opts.sipDirectory, "objects", 
 i = filePathLike.rfind(".")
 if i != -1:
      filePathLike = filePathLike[:i+1]
- 
-filePathLike = databaseInterface.MySQLdb.escape_string(filePathLike).replace("%", "\%") + "%"
+     filePathLike1 = databaseInterface.MySQLdb.escape_string(filePathLike).replace("%", "\%") + "%"
+     filePathLike2 = databaseInterface.MySQLdb.escape_string(filePathLike)[:-1]
+     
 unitIdentifierType = "sipUUID"
 unitIdentifier = opts.sipUUID
-sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '" + filePathLike + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
+sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '" + filePathLike1 + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
+rows = databaseInterface.queryAllSQL(sql)
+if not len(rows):
+    #If not found try without extension
+    sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation = '" + filePathLike2 + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
 rows = databaseInterface.queryAllSQL(sql)
 if len(rows) > 1:
     print >>sys.stderr, "Too many possible files for: ", opts.filePath.replace(opts.sipDirectory, "%SIPDirectory%", 1) 
@@ -56,9 +65,15 @@ for row in rows:
     originalFileUUID, originalFilePath = row
 
 print "matched: {%s}%s" % (originalFileUUID, originalFilePath)
+dstDir = os.path.join(opts.sipDirectory, "DIP", "objects")
 dstFile = originalFileUUID + "-" + os.path.basename(opts.filePath)
-dstDir = os.path.join(opts.sipDirectory, "DIP")
 
+#ensure unique output file name
+i = 0
+while os.path.exists(os.path.join(dstDir, dstFile)):
+    i+=1
+    dstFile = originalFileUUID + "-" + i.__str__() + "-" + os.path.basename(opts.filePath)
+    
 try:
     if not os.path.isdir(dstDir):
         os.makedirs(dstDir)

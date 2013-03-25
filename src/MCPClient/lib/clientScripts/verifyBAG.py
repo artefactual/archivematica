@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
@@ -28,11 +29,22 @@ printSubProcessOutput=True
 
 bag = sys.argv[1]
 verificationCommands = []
-verificationCommands.append("/usr/share/bagit/bin/bag verifyvalid " + bag)
-verificationCommands.append("/usr/share/bagit/bin/bag checkpayloadoxum " + bag)
-verificationCommands.append("/usr/share/bagit/bin/bag verifycomplete " + bag)
-verificationCommands.append("/usr/share/bagit/bin/bag verifypayloadmanifests " + bag)
-verificationCommands.append("/usr/share/bagit/bin/bag verifytagmanifests " + bag)
+verificationCommands.append("/usr/share/bagit/bin/bag verifyvalid \"%s\"" % (bag)) #Verifies the validity of a bag.
+verificationCommands.append("/usr/share/bagit/bin/bag verifycomplete \"%s\"" % (bag)) #Verifies the completeness of a bag.
+verificationCommands.append("/usr/share/bagit/bin/bag verifypayloadmanifests \"%s\"" % (bag)) #Verifies the checksums in all payload manifests.
+
+bagInfoPath = os.path.join(bag, "bag-info.txt")
+if os.path.isfile(bagInfoPath):
+    for line in open(bagInfoPath,'r'):
+        if line.startswith("Payload-Oxum"):
+            verificationCommands.append("/usr/share/bagit/bin/bag checkpayloadoxum \"%s\"" % (bag)) #Generates Payload-Oxum and checks against Payload-Oxum in bag-info.txt.
+            break
+
+for item in os.listdir(bag):
+    if item.startswith("tagmanifest-") and item.endswith(".txt"):        
+        verificationCommands.append("/usr/share/bagit/bin/bag verifytagmanifests \"%s\"" % (bag)) #Verifies the checksums in all tag manifests.
+        break
+        
 exitCode = 0
 for command in verificationCommands:
     ret = executeOrRun("command", command, printing=printSubProcessOutput)
@@ -43,3 +55,4 @@ for command in verificationCommands:
     else:
         print >>sys.stderr, "Passed test: ", command
 quit(exitCode)
+

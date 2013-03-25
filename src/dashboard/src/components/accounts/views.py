@@ -1,6 +1,6 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,9 @@ from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
+import components.decorators as decorators
+from django.template import RequestContext
+from tastypie.models import ApiKey
 
 from components.accounts.forms import UserCreationForm
 from components.accounts.forms import UserChangeForm
@@ -38,6 +41,9 @@ def add(request):
             user = form.save(commit=False)
             user.is_staff = True
             user.save()
+            api_key = ApiKey.objects.create(user=user)
+            api_key.key = api_key.generate_key()
+            api_key.save()
             return HttpResponseRedirect(reverse('components.accounts.views.list'))
     else:
         form = UserCreationForm()
@@ -64,14 +70,47 @@ def edit(request, id=None):
         form = UserChangeForm(request.POST, instance=user)
         if form.is_valid():
             user = form.save(commit=False)
+
+            # change password if requested
             password = request.POST.get('password', '')
-            user.set_password(password)
+            if password != '':
+                user.set_password(password)
             user.save()
+
+            # regenerate API key if requested
+            regenerate_api_key = request.POST.get('regenerate_api_key', '')
+            if regenerate_api_key != '':
+                try:
+                    api_key = ApiKey.objects.get(user_id=user.pk)
+                except ApiKey.DoesNotExist:
+                    api_key = ApiKey.objects.create(user=user)
+                api_key.key = api_key.generate_key()
+                api_key.save()
+
             return HttpResponseRedirect(reverse('components.accounts.views.list'))
     else:
+        try:
+            api_key_data = ApiKey.objects.get(user_id=user.pk)
+            api_key = api_key_data.key
+        except:
+            api_key = '<no API key generated>'
         form = UserChangeForm(instance=user)
-    return render(request, 'accounts/edit.html', {'form': form, 'user': user, 'title': title })
 
+    return render(request, 'accounts/edit.html', {
+      'form': form,
+      'user': user,
+      'api_key': api_key,
+      'title': title
+    })
+
+def delete_context(request, id):
+    user = User.objects.get(pk=id)
+    prompt = 'Delete user ' + user.username + '?'
+    cancel_url = reverse("components.accounts.views.list")
+    return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
+
+@user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
+@decorators.confirm_required('simple_confirm.html', delete_context)
 def delete(request, id):
     # Security check
     if request.user.id != id:

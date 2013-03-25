@@ -1,6 +1,6 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -24,10 +24,21 @@ databaseName="MCP"
 username="demo"
 password="demo"
 
-mysql -hlocalhost -uroot --execute="DROP DATABASE IF EXISTS ${databaseName}"
-mysql -hlocalhost -uroot --execute="CREATE DATABASE ${databaseName} CHARACTER SET utf8 COLLATE utf8_unicode_ci"
-mysql -hlocalhost -uroot --execute="source ./mysql" "$databaseName"
-mysql -hlocalhost -uroot --execute="source ./mysql2Views" "$databaseName"
-mysql -hlocalhost -uroot --execute="DROP USER '${username}'@'localhost'"
-mysql -hlocalhost -uroot --execute="CREATE USER '${username}'@'localhost' IDENTIFIED BY '${password}'"
-mysql -hlocalhost -uroot --execute="GRANT SELECT, UPDATE, INSERT, DELETE ON ${databaseName}.* TO '${username}'@'localhost'"
+stty -echo
+echo -n "Enter the DATABASE root password (Hit enter if blank):"
+read dbpassword
+stty echo
+
+if [ ! -z "$dbpassword" ] ; then
+    dbpassword="-p${dbpassword}"
+else
+    dbpassword=""
+fi
+mysql -hlocalhost -uroot "${dbpassword}" --execute="DROP DATABASE IF EXISTS ${databaseName}"
+mysql -hlocalhost -uroot "${dbpassword}" --execute="CREATE DATABASE ${databaseName} CHARACTER SET utf8 COLLATE utf8_unicode_ci"
+mysql -hlocalhost -uroot "${dbpassword}" --execute="source ./mysql" "$databaseName"
+mysql -hlocalhost -uroot "${dbpassword}" --execute="source ./mysql2Views" "$databaseName"
+mysql -hlocalhost -uroot "${dbpassword}" --execute="DROP USER '${username}'@'localhost'"
+mysql -hlocalhost -uroot "${dbpassword}" --execute="CREATE USER '${username}'@'localhost' IDENTIFIED BY '${password}'"
+mysql -hlocalhost -uroot "${dbpassword}" --execute="GRANT SELECT, UPDATE, INSERT, DELETE ON ${databaseName}.* TO '${username}'@'localhost'"
+dbpassword=""

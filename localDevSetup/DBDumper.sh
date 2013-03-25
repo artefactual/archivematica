@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -45,8 +45,10 @@ MCPDumpSQLLocation="../src/MCPServer/share/mysql"
 #echo 'START TRANSACTION;' > $MCPDumpSQLLocation
 echo 'SET foreign_key_checks = 0;' > $MCPDumpSQLLocation
 #MCP
+#--todo: remove transcoder links
+
 #-- MCP dump tables --
-$mysqldump Accesses Agents MetadataAppliesToTypes Dublincore RightsStatement RightsStatementCopyright RightsStatementCopyrightNote RightsStatementCopyrightDocumentationIdentifier RightsStatementLicense RightsStatementLicenseDocumentationIdentifier RightsStatementLicenseNote ArchivematicaRightsStatement RightsStatementStatuteInformation RightsStatementStatuteInformationNote RightsStatementStatuteDocumentationIdentifier RightsStatementOtherRightsInformation RightsStatementOtherRightsDocumentationIdentifier RightsStatementOtherRightsNote RightsStatementRightsGranted RightsStatementRightsGrantedRestriction RightsStatementRightsGrantedNote RightsStatementLinkingAgentIdentifier Tasks AIPs Notifications Sounds TaskTypes TasksConfigs MicroServiceChainLinks Transfers SIPs Files FilesFits FilesIDs Events Derivations MicroServiceChainLinksExitCodes Jobs MicroServiceChains MicroServiceChainChoice MicroServiceChoiceReplacementDic WatchedDirectoriesExpectedTypes WatchedDirectories StandardTasksConfigs TasksConfigsAssignMagicLink TasksConfigsStartLinkForEachFile UnitVariables TasksConfigsSetUnitVariable TasksConfigsUnitVariableLinkPull  $dumpTables >> $MCPDumpSQLLocation
+$mysqldump Accesses Agents MetadataAppliesToTypes Dublincore RightsStatement RightsStatementCopyright RightsStatementCopyrightNote RightsStatementCopyrightDocumentationIdentifier RightsStatementLicense RightsStatementLicenseDocumentationIdentifier RightsStatementLicenseNote ArchivematicaRightsStatement RightsStatementStatuteInformation RightsStatementStatuteInformationNote RightsStatementStatuteDocumentationIdentifier RightsStatementOtherRightsInformation RightsStatementOtherRightsDocumentationIdentifier RightsStatementOtherRightsNote RightsStatementRightsGranted RightsStatementRightsGrantedRestriction RightsStatementRightsGrantedNote RightsStatementLinkingAgentIdentifier Tasks Notifications Sounds TaskTypes TasksConfigs MicroServiceChainLinks Transfers SIPs Files FilesFits FilesIDs Events Derivations MicroServiceChainLinksExitCodes Jobs MicroServiceChains MicroServiceChainChoice MicroServiceChoiceReplacementDic WatchedDirectoriesExpectedTypes WatchedDirectories StandardTasksConfigs TasksConfigsAssignMagicLink TasksConfigsStartLinkForEachFile UnitVariables TasksConfigsSetUnitVariable TasksConfigsUnitVariableLinkPull  $dumpTables >> $MCPDumpSQLLocation
 
 #-- MCP dump data --
 $mysqldump Accesses Agents MetadataAppliesToTypes Sounds TaskTypes TasksConfigs MicroServiceChainLinks MicroServiceChainLinksExitCodes MicroServiceChains MicroServiceChainChoice MicroServiceChoiceReplacementDic WatchedDirectoriesExpectedTypes WatchedDirectories StandardTasksConfigs TasksConfigsAssignMagicLink TasksConfigsStartLinkForEachFile  TasksConfigsSetUnitVariable TasksConfigsUnitVariableLinkPull $dumpData >> $MCPDumpSQLLocation
@@ -59,7 +61,6 @@ $mysqldump Accesses Agents MetadataAppliesToTypes Sounds TaskTypes TasksConfigs 
 #Reset counters for commit
 mysql -u root ${dbpassword} ${databaseName} --execute "UPDATE CommandRelationships SET countAttempts=0, countOK=0, countNotOK=0;"
 $mysqldump CommandTypes CommandClassifications CommandsSupportedBy Commands FileIDTypes FileIDs CommandRelationships  Groups FileIDGroupMembers SubGroups DefaultCommandsForClassifications FileIDsBySingleID FilesIdentifiedIDs $dumpTables >> $MCPDumpSQLLocation
-$mysqldump CommandTypes CommandClassifications CommandsSupportedBy Commands FileIDTypes FileIDs CommandRelationships  Groups FileIDGroupMembers SubGroups DefaultCommandsForClassifications FileIDsBySingleID $dumpData >> $MCPDumpSQLLocation #Source of FPR DATA
 
 
 #ElasticsearchIndexBackup
@@ -69,7 +70,7 @@ $mysqldump ElasticsearchIndexBackup  $dumpTables >> $MCPDumpSQLLocation
 
 #Dashboard
 #-- Dashboard dump tables --
-$mysqldump auth_message auth_user auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type django_session SourceDirectories $dumpTables >> $MCPDumpSQLLocation
+$mysqldump auth_message auth_user auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type django_session SourceDirectories DashboardSettings StorageDirectories tastypie_apiaccess tastypie_apikey $dumpTables >> $MCPDumpSQLLocation
 $mysqldump auth_message auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type $dumpData >> $MCPDumpSQLLocation
 
 
@@ -89,4 +90,7 @@ sed -i -e 's/ AUTO_INCREMENT=[0-9]\+//' $MCPDumpSQLLocation
 #-- Dashboard dump Dashboard-views --
 ##$mysqldump developmentAide_choicesDisplayed $dumpTables >> $MCPDumpSQLLocation
 
+#--todo: add transcoder links
+
 cd "$origDir"
+

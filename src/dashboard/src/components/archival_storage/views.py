@@ -15,19 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.utils import simplejson
 from components.archival_storage import forms
+from django.conf import settings
 from main import models
 from components.filesystem_ajax.views import send_file
+from components import advanced_search
 from components import helpers
 import os
 import sys
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import elasticSearchFunctions
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 import httplib
+import tempfile
+import subprocess
 
 AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'
 
@@ -38,33 +43,24 @@ def archival_storage_page(request, page=None):
     return archival_storage_sip_display(request, page)
 
 def archival_storage_search(request):
-    queries, ops, fields, types = archival_storage_search_parameter_prep(request)
+    queries, ops, fields, types = advanced_search.search_parameter_prep(request)
 
-    # set pagination-related variables
-    search_params = ''
-    try:
-        search_params = request.get_full_path().split('?')[1]
-        end_of_search_params = search_params.index('&page')
-        search_params = search_params[:end_of_search_params]
-    except:
-        pass
+    # set pagination-related variables to use in template
+    search_params = advanced_search.extract_url_search_params_from_request(request)
 
     items_per_page = 20
 
-    page = request.GET.get('page', 0)
-    if page == '':
-        page = 0
-    page = int(page)
+    page = advanced_search.extract_page_number_from_url(request)
 
     start = page * items_per_page + 1
 
-    conn = pyes.ES('127.0.0.1:9200')
+    conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
 
     try:
         results = conn.search_raw(
-            query=archival_storage_search_assemble_query(queries, ops, fields, types),
+            query=advanced_search.assemble_query(queries, ops, fields, types),
             indices='aips',
-            type='aip',
+            type='aipfile',
             start=start - 1,
             size=items_per_page
         )
@@ -75,20 +71,12 @@ def archival_storage_search(request):
     number_of_results = results.hits.total
     results = archival_storage_search_augment_results(results)
 
-    # limit end by total hits
-    end = start + items_per_page - 1
-    if end > number_of_results:
-        end = number_of_results
-
-    # determine the previous page, if any
-    previous_page = False
-    if page > 0:
-        previous_page = page - 1
-
-    # determine the next page, if any
-    next_page = False
-    if (items_per_page * (page + 1)) < number_of_results:
-        next_page = page + 1
+    end, previous_page, next_page = advanced_search.paging_related_values_for_template_use(
+       items_per_page,
+       page,
+       start,
+       number_of_results
+    )
 
     # make sure results is set
     try:
@@ -100,95 +88,6 @@ def archival_storage_search(request):
     form = forms.StorageSearchForm(initial={'query': queries[0]})
     return render(request, 'archival_storage/archival_storage_search.html', locals())
 
-def archival_storage_search_parameter_prep(request):
-    queries = request.GET.getlist('query')
-    ops     = request.GET.getlist('op')
-    fields  = request.GET.getlist('field')
-    types   = request.GET.getlist('type')
-
-    # prepend default op arg as first op can't be set manually
-    ops.insert(0, 'or')
-
-    if len(queries) == 0:
-        queries = ['*']
-        fields  = ['']
-    else:
-        index = 0
-
-        # make sure each query has field/ops set
-        for query in queries:
-            # a blank query makes ES error
-            if queries[index] == '':
-                queries[index] = '*'
-
-            try:
-                fields[index]
-            except:
-                fields.insert(index, '')
-                #fields[index] = ''
-
-            try:
-                ops[index]
-            except:
-                ops.insert(index, 'or')
-                #ops[index] = ''
-
-            try:
-                types[index]
-            except:
-                types.insert(index, '')
-
-            index = index + 1
-
-    return queries, ops, fields, types
-
-def archival_storage_search_assemble_query(queries, ops, fields, types):
-    must_haves     = []
-    should_haves   = []
-    must_not_haves = []
-    index          = 0
-
-    for query in queries:
-        if queries[index] != '':
-            clause = archival_storage_search_query_clause(index, queries, ops, fields, types)
-            if clause:
-                if ops[index] == 'not':
-                    must_not_haves.append(clause)
-                elif ops[index] == 'and':
-                    must_haves.append(clause)
-                else:
-                    should_haves.append(clause)
-
-        index = index + 1
-
-    q = pyes.BoolQuery(must=must_haves, should=should_haves, must_not=must_not_haves).search()
-    q.facet.add_term_facet('fileExtension')
-
-    return q
-
-def archival_storage_search_query_clause(index, queries, ops, fields, types):
-    if fields[index] == '':
-        search_fields = []
-    else:
-        search_fields = [fields[index]]
-
-    if (types[index] == 'term'):
-        # a blank term should be ignored because it prevents any results: you
-        # can never find a blank term
-        #
-        # TODO: add condition to deal with a query with no clauses because all have
-        #       been ignored
-        if (queries[index] == ''):
-            return
-        else:
-            if (fields[index] != ''):
-                 term_field = fields[index]
-            else:
-                term_field = '_all'
-            return pyes.TermQuery(term_field, queries[index])
-    else:
-        return pyes.StringQuery(queries[index], search_fields=search_fields)
-
 def archival_storage_search_augment_results(raw_results):
     modifiedResults = []
 
@@ -197,19 +96,14 @@ def archival_storage_search_augment_results(raw_results):
 
         # try to find AIP details in database
         try:
-            aip = models.AIP.objects.get(sipuuid=clone['AIPUUID'])
-            clone['sipname'] = aip.sipname
+            # get AIP data from ElasticSearch
+            aip = elasticSearchFunctions.connect_and_get_aip_data(clone['AIPUUID'])
+
+            # augment result data
+            clone['sipname'] = aip.name
             clone['fileuuid'] = clone['FILEUUID']
-            clone['href'] = aip.filepath.replace(AIPSTOREPATH + '/', "AIPsStore/")
-            # file UUID exists in ES/PREMIS at ns1:objectIdentifierValue
-            # we should index this
-            thumbnailfilepath = os.path.join(
-              aip.filepath,
-              'thumbnails',
-              clone['AIPUUID'],
-              clone['fileuuid'] + '.jpg'
-            )
-            clone['thumbnail'] = thumbnailfilepath
+            clone['href'] = aip.filePath.replace(AIPSTOREPATH + '/', "AIPsStore/")
+
         except:
             aip = None
             clone['sipname'] = False
@@ -222,30 +116,58 @@ def archival_storage_search_augment_results(raw_results):
 
     return modifiedResults
 
-def archival_storage_indexed_count(index):
-    aip_indexed_file_count = 0
-    try:
-        conn = pyes.ES('127.0.0.1:9200')
-        count_data = conn.count(indices=index)
-        aip_indexed_file_count = count_data.count
-    except:
-        pass
-    return aip_indexed_file_count
+def archival_storage_aip_download(request, uuid):
+    aip = elasticSearchFunctions.connect_and_get_aip_data(uuid)
+    return send_file(request, aip.filePath)
 
-def archival_storage_sip_download(request, uuid):
-    aip = models.AIP.objects.get(sipuuid=uuid)
-    return send_file(request, aip.filepath)
+def archival_storage_aip_file_download(request, uuid):
+    # get file basename
+    file          = models.File.objects.get(uuid=uuid)
+    file_basename = os.path.basename(file.currentlocation)
+
+    # get file's AIP's properties
+    sipuuid      = helpers.get_file_sip_uuid(uuid)
+    aip          = elasticSearchFunctions.connect_and_get_aip_data(sipuuid)
+    aip_filepath = aip.filePath
+
+    # create temp dir to extract to
+    temp_dir = tempfile.mkdtemp()
+
+    # work out path components
+    aip_archive_filename = os.path.basename(aip_filepath)
+    subdir = os.path.splitext(aip_archive_filename)[0]
+    path_to_file_within_aip_data_dir \
+      = os.path.dirname(file.originallocation.replace('%transferDirectory%', ''))
+
+    file_relative_path = os.path.join(
+      subdir,
+      'data',
+      path_to_file_within_aip_data_dir,
+      file_basename
+    )
+
+    #return HttpResponse('7za e -o' + temp_dir + ' ' + aip_filepath + ' ' + file_relative_path)
+
+    # extract file from AIP
+    command_data = [
+        '7za',
+        'e',
+        '-o' + temp_dir,
+        aip_filepath,
+        file_relative_path
+    ]
+
+    subprocess.call(command_data)
+
+    # send extracted file
+    extracted_file_path = os.path.join(temp_dir, file_basename)
+    return send_file(request, extracted_file_path)
 
 def archival_storage_send_thumbnail(request, fileuuid):
-    # get file by uuid
-    file = models.File.objects.get(uuid=fileuuid)
-
-    # get SIP/AIP UUID from SIP
-    sipuuid = file.sip.uuid
-
     # get AIP location to use to find root of AIP storage
-    aip = models.AIP.objects.get(sipuuid=sipuuid)
-    aip_filepath = aip.filepath
+    sipuuid = helpers.get_file_sip_uuid(fileuuid)
+    aip = elasticSearchFunctions.connect_and_get_aip_data(sipuuid)
+    aip_filepath = aip.filePath
 
     # strip path to AIP from root of AIP storage
     for index in range(1, 10):
@@ -259,6 +181,14 @@ def archival_storage_send_thumbnail(request, fileuuid):
         fileuuid + '.jpg'
     )
 
+    # send "blank" thumbnail if one exists:
+    # Because thumbnails aren't kept in ElasticSearch they can be queried for,
+    # during searches, from multiple dashboard servers.
+    # Because ElasticSearch don't know if a thumbnail exists or not, this is
+    # a way of not causing visual disruption if a thumbnail doesn't exist.
+    if not os.path.exists(thumbnail_path):
+        thumbnail_path = os.path.join(settings.BASE_PATH, 'media/images/1x1-pixel.png')
+
     return send_file(request, thumbnail_path)
 
 def archival_storage_sip_display(request, current_page_number=None):
@@ -267,10 +197,18 @@ def archival_storage_sip_display(request, current_page_number=None):
     total_size = 0
 
     # get ElasticSearch stats
-    aip_indexed_file_count = archival_storage_indexed_count('aips')
+    aip_indexed_file_count = advanced_search.indexed_count('aips')
 
     # get AIPs from DB
-    aips = models.AIP.objects.all()
+    #aips = models.AIP.objects.all()
+    conn = elasticSearchFunctions.connect_and_create_index('aips')
+    aipResults = conn.search(pyes.StringQuery('*'), doc_types=['aip'])
+    aips = []
+
+    #if aipResults._total != None:
+    if len(aipResults) > 0:
+        for aip in aipResults:
+            aips.append(aip)
 
     # handle pagination
     page = helpers.pager(aips, 10, current_page_number)
@@ -278,14 +216,14 @@ def archival_storage_sip_display(request, current_page_number=None):
     sips = []
     for aip in page['objects']:
         sip = {}
-        sip['href'] = aip.filepath.replace(AIPSTOREPATH + '/', "AIPsStore/")
-        sip['name'] = aip.sipname
-        sip['uuid'] = aip.sipuuid
+        sip['href'] = aip.filePath.replace(AIPSTOREPATH + '/', "AIPsStore/")
+        sip['name'] = aip.name
+        sip['uuid'] = aip.uuid
 
-        sip['date'] = aip.sipdate
+        sip['date'] = str(aip.date)[0:19].replace('T', ' ')
 
         try:
-            size = os.path.getsize(aip.filepath) / float(1024) / float(1024)
+            size = float(aip.size)
             total_size = total_size + size
             sip['size'] = '{0:.2f} MB'.format(size)
         except:
@@ -314,8 +252,8 @@ def archival_storage_sip_display(request, current_page_number=None):
 
 def archival_storage_file_json(request, document_id_modified):
     document_id = document_id_modified.replace('____', '-')
-    conn = httplib.HTTPConnection("127.0.0.1:9200")
-    conn.request("GET", "/aips/aip/" + document_id)
+    conn = httplib.HTTPConnection(elasticSearchFunctions.getElasticsearchServerHostAndPort())
+    conn.request("GET", "/aips/aipfile/" + document_id)
     response = conn.getresponse()
     data = response.read()
     pretty_json = simplejson.dumps(simplejson.loads(data), sort_keys=True, indent=2)

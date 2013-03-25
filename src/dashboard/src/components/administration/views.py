@@ -1,6 +1,8 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactua# Archivematica is free software: you can redistribute it and/or modify
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
+#
+# Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
@@ -22,11 +24,16 @@ from django.template import RequestContext
 from main import forms
 from main import models
 import sys
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import elasticSearchFunctions
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 from django.contrib.auth.decorators import user_passes_test
 import urllib
+from components.administration.forms import AdministrationForm
+from components.administration.forms import AgentForm
 import components.decorators as decorators
+import components.helpers as helpers
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Administration
@@ -35,37 +42,6 @@ import components.decorators as decorators
 def administration(request):
     return HttpResponseRedirect(reverse('components.administration.views.administration_sources'))
 
-def administration_search(request):
-    message = request.GET.get('message', '')
-    aip_files_indexed = archival_storage_indexed_count('aips')
-    return render(request, 'administration/search.html', locals())
-
-def administration_search_flush_aips_context(request):
-    prompt = 'Flush AIP search index?'
-    cancel_url = reverse("components.administration.views.administration_search")
-    return RequestContext(request, {'action': 'Flush', 'prompt': prompt, 'cancel_url': cancel_url})
-
-@decorators.confirm_required('simple_confirm.html', administration_search_flush_aips_context)
-@user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
-def administration_search_flush_aips(request):
-    conn = pyes.ES('127.0.0.1:9200')
-    index = 'aips'
-
-    try:
-        conn.delete_index(index)
-        message = 'AIP search index flushed.'
-        try:
-            conn.create_index(index)
-        except pyes.exceptions.IndexAlreadyExistsException:
-            message = 'Error recreating AIP search index.'
-
-    except:
-        message = 'Error flushing AIP search index.'
-        pass
-
-    params = urllib.urlencode({'message': message})
-    return HttpResponseRedirect(reverse("components.administration.views.administration_search") + "?%s" % params)
-
 def administration_dip(request):
     upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
     return render(request, 'administration/dip.html', locals())
@@ -73,7 +49,7 @@ def administration_dip(request):
 def administration_dip_edit(request, id):
     if request.method == 'POST':
         upload_setting = models.StandardTaskConfig.objects.get(pk=id)
-        form = forms.AdministrationForm(request.POST)
+        form = AdministrationForm(request.POST)
         if form.is_valid():
             upload_setting.arguments = form.cleaned_data['arguments']
             upload_setting.save()
@@ -294,10 +270,19 @@ def administration_get_aip_storage_link_pk():
 def administration_premis_agent(request):
     agent = models.Agent.objects.get(pk=2)
     if request.POST:
-        form = forms.AgentForm(request.POST, instance=agent)
+        form = AgentForm(request.POST, instance=agent)
         if form.is_valid():
             form.save()
     else:
-        form = forms.AgentForm(instance=agent)
+        form = AgentForm(instance=agent)
 
     return render(request, 'administration/premis_agent.html', locals())
+
+def administration_api(request):
+    if request.method == 'POST':
+        whitelist = request.POST.get('whitelist', '')
+        helpers.set_setting('api_whitelist', whitelist)
+    else:
+        whitelist = helpers.get_setting('api_whitelist', '127.0.0.1')
+
+    return render(request, 'administration/api.html', locals())

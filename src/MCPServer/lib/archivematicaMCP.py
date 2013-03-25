@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -315,7 +315,7 @@ if __name__ == '__main__':
         import getpass
         print "user: ", getpass.getuser()
         os.setuid(333)
-    if False:
+    if True:
         t = threading.Thread(target=debugMonitor)
         t.daemon = True
         t.start()
@@ -323,12 +323,15 @@ if __name__ == '__main__':
         t = threading.Thread(target=flushOutputs)
         t.daemon = True
         t.start()
-
     cleanupOldDbEntriesOnNewRun()
     watchDirectories()
     #t = threading.Thread(target=startTransferD)
     #t.daemon = True
     #t.start()
 
+    # debug 4545 https://projects.artefactual.com/issues/4545
+    #print sys.stdout.encoding
+    #print u'\u2019'
+    
     # This is blocking the main thread with the worker loop
     RPCServer.startRPCServer()

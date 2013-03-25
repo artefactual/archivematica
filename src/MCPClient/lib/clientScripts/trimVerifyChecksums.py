@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -56,7 +56,10 @@ for dir in os.listdir(transferPath):
             continue
         
         i = file.rfind(".")
-        xmlFile = file[:i] + "_Metadata.xml"
+        if i != -1:
+            xmlFile = file[:i] + "_Metadata.xml"
+        else:
+            xmlFile = file + "_Metadata.xml"
         xmlFilePath = os.path.join(dirPath, xmlFile)
         try:
             tree = etree.parse(xmlFilePath)
@@ -80,7 +83,7 @@ for dir in os.listdir(transferPath):
             for path, fileUUID in fileID.iteritems():
                 eventDetail = "program=\"python\"; module=\"hashlib.md5()\""
                 eventOutcome="Pass"
-                eventOutcomeDetailNote = xmlFile.__str__() + "-verified"
+                eventOutcomeDetailNote = "%s %s" % (xmlFile.__str__(), "verified")
                 eventIdentifierUUID=uuid.uuid4().__str__()
                 databaseFunctions.insertIntoEvents(fileUUID=fileUUID, \
                      eventIdentifierUUID=eventIdentifierUUID, \

@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -38,6 +38,8 @@ sudo ln -s "${svnDir}src/MCPClient/etc" "${etc}/MCPClient"
 sudo ln -s "${svnDir}src/archivematicaCommon/etc" "${etc}/archivematicaCommon"
 sudo ln -s "${svnDir}src/SIPCreationTools/etc/" "${etc}/SIPCreationTools"
 sudo ln -s "${svnDir}src/transcoder/etc" "${etc}/transcoder"
+sudo ln -s "${svnDir}src/FPRClient/etc" "${etc}/FPRClient"
+
 
 
 sudo ln -s "${svnDir}src/MCPServer/lib/" "${lib}/MCPServer"
@@ -46,6 +48,7 @@ sudo ln -s "${svnDir}src/archivematicaCommon/lib/" "${lib}/archivematicaCommon"
 sudo ln -s "${svnDir}src/SIPCreationTools/lib/" "${lib}/SIPCreationTools"
 sudo ln -s "${svnDir}src/upload-qubit/lib/" "${lib}/upload-qubit"
 sudo ln -s "${svnDir}src/transcoder/lib/" "${lib}/transcoder"
+sudo ln -s "${svnDir}src/FPRClient/lib/" "${lib}/FPRClient"
 sudo ln -s "${svnDir}src/sanitizeNames/lib/" "/usr/lib/sanitizeNames"
 sudo ln -s "${svnDir}src/dashboard/src/" "${share}/dashboard"
 sudo ln "${svnDir}src/SIPCreationTools/bin/archivematicaCreateMD5" "/usr/bin/"
@@ -68,6 +71,7 @@ fi
 sudo ln "${svnDir}src/upload-qubit/upload-qubit" "/usr/bin/" 
 sudo ln "${svnDir}src/transcoder/bin/transcoder" "/usr/bin/"
 sudo ln "${svnDir}src/sanitizeNames/bin/sanitizeNames" "/usr/bin/"
+sudo ln "${svnDir}src/FPRClient/bin/FPRClient" "/usr/bin/"
 
 sudo ln "${svnDir}src/vm-includes/share/apache.default" "/etc/apache2/sites-enabled/000-default" -f
 sudo ln "${svnDir}src/vm-includes/share/apache.default" "/etc/apache2/sites-available/default" -f
@@ -87,23 +91,9 @@ sudo ln -s "${svnDir}src/MCPServer/sharedDirectoryStructure" "/var/archivematica
 sudo chown -R archivematica:archivematica "/var/archivematica/sharedDirectory"
 sudo chmod -R g+s "/var/archivematica/sharedDirectory"
 
+${svnDir}src/MCPServer/debian/postinstSharedWithDev
 
-echo setting permission on share directories
-sudo chmod -R 777 /var/archivematica/sharedDirectory/
 echo restarting apache
 sudo apache2ctl restart
-
-#Configure sudoers for mcp and client
-echo about to edit sudoers file
-set -e
-cd "$origDir"
-tmp="./sudoers-`uuid`"
-sudo cat /etc/sudoers > "./ETCsudoersBackup"
-sudo grep -v archivematica  "/etc/sudoers" > "${tmp}"
-sudo echo "archivematica ALL=NOPASSWD:/bin/mv,/bin/chown,/bin/chmod,/usr/bin/unoconv,/usr/bin/gs,/usr/lib/transcoder/transcoderScripts/DocumentConverter.py,/usr/bin/inkscape,/usr/lib/archivematica/transcoder/transcoderScripts/restartOpenOffice.sh" >> "${tmp}"
-sudo chown 0:0 "${tmp}"
-sudo chmod 440 "${tmp}"
-sudo mv -f "${tmp}" /etc/sudoers
-echo sudoers file was edited
 
 

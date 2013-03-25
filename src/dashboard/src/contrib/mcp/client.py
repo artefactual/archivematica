@@ -1,6 +1,6 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -30,11 +30,13 @@ class MCPClient:
     def __init__(self, host=settings.MCP_SERVER[0], port=settings.MCP_SERVER[1]):
         self.server = "%s:%d" % (host, port)
 
-    def execute(self, uuid, choice):
+    def execute(self, uuid, choice, uid=None):
         gm_client = gearman.GearmanClient([self.server])
         data = {}
         data["jobUUID"] = uuid
         data["chain"] = choice
+        if uid != None:
+            data["uid"] = uid
         completed_job_request = gm_client.submit_job("approveJob", cPickle.dumps(data), None)
         #self.check_request_status(completed_job_request)
         return

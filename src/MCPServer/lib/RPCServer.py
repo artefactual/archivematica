@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -110,4 +110,15 @@ def startRPCServer():
     gm_worker.set_client_id(hostID)
     gm_worker.register_task("approveJob", gearmanApproveJob)
     gm_worker.register_task("getJobsAwaitingApproval", gearmanGetJobsAwaitingApproval)
-    gm_worker.work()
+    failMaxSleep = 30
+    failSleep = 1
+    failSleepIncrementor = 2
+    while True:
+        try:
+            gm_worker.work()
+        except gearman.errors.ServerUnavailable as inst:
+            #print >>sys.stderr, inst.args
+            #print >>sys.stderr, "Retrying in %d seconds." % (failSleep)
+            time.sleep(failSleep)
+            if failSleep < failMaxSleep:
+                failSleep += failSleepIncrementor

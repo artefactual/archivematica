@@ -1,6 +1,6 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from main import models
 from components import helpers
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import elasticSearchFunctions
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 
@@ -152,7 +154,7 @@ def preservation_planning_fpr_search(request, current_page_number = None):
 
 
     request.session['fpr_query'] = query # Save this for pagination...
-    conn = pyes.ES('127.0.0.1:9200')
+    conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
 
     indexes = conn.get_indices()
 

@@ -67,25 +67,68 @@ td.size {
 }
 
 /* AIP search */
+.aip-search-query-input {
+  width: 200px;
+}
+
 #aip-search-summary {
-  margin-bottom: 1em;
+  margin-bottom: 20px;
   padding: .5em;
   background-color: whitesmoke;
 }
 
-.aip-search-item-details {
-  margin-top: 1em;
-  margin-bottom: 1em;
+.aip-search-item {
+  margin-bottom: 50px;
   margin-left: 2em;
-  clear: both;
 }
 
-.aip-search-item-detail-field {
-  margin-right: 1em;
+.aip-search-item-file-column-header {
+  float: left;
+  margin-left:145px;
+  width:330px;
+  text-align: center;
+}
+
+.aip-search-item-aip-column-header {
+  float: left;
+  width: 380px;
+  text-align: center;
+  margin-left: 20px;
+}
+
+.aip-search-item-thumbnail-column {
+  float: left;
+  margin-bottom: 40px;
+  width: 150px;
+}
+
+.aip-search-item-file-column {
+  float: left;
+  width: 330px;
+}
+
+.aip-search-item-aip-column {
+  float: left;
+  width: 380px;
+  margin-left: 20px;
+}
+
+#search_form_container {
+  float: left;
+  margin-bottom: 20px;
 }
 
 #search_form_container > div > div > div {
   margin-bottom: 5px;
+}
+
+#search_form_container > div > div > div > select {
+  margin-left: 5px;
+}
+
+#search_form_submit_container {
+  float: left;
+  margin-left: 15px;
 }
 
 .search_op_selector {

@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -145,12 +145,15 @@ if [[ $a == "Y" || $a == "y" ]]; then
         # cd ${WDIR}
         # { SVN }
         # Checkout SVN repo
-        git clone git://github.com/artefactual/atom.git -b 1.x ${WDIR}/qubit-git
+        git clone http://github.com/artefactual/atom.git -b 1.x ${WDIR}/qubit-git
 
 	# Link
         # /var/www is created by the Apache package
         # so it needs to be installer at this point
 	sudo ln -sf ${WDIR}/qubit-git /var/www/ica-atom
+
+        # Enable SWORD plugin
+        sed -i "s/'qbAclPlugin',/      'qbAclPlugin',\n'qtSwordPlugin',/g" /var/www/ica-atom/config/ProjectConfiguration.class.php
 
 	# Permissions
 	sudo chown -R www-data:www-data ${WDIR}/qubit-git

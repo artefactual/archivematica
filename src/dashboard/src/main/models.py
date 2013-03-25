@@ -1,3 +1,20 @@
+# This file is part of Archivematica.
+#
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
+#
+# Archivematica is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Archivematica is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+
 # This Django model module was auto-generated and then updated manually
 # Needs some cleanups, make sure each model has its primary_key=True
 # Feel free to rename the models, but don't rename db_table values or field names.
@@ -23,6 +40,14 @@ class UUIDPkField(models.CharField):
         # set uuid during save
         setattr(model_instance, self.attname, uuid.uuid4().__str__())
         return super(models.CharField, self).pre_save(model_instance, add)
+
+class DashboardSetting(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk')
+    name = models.CharField(max_length=255, db_column='name')
+    value = models.TextField(db_column='value', blank=True)
+
+    class Meta:
+        db_table = u'DashboardSettings'
 
 class Access(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -143,16 +168,6 @@ class SIP(models.Model):
     class Meta:
         db_table = u'SIPs'
 
-class AIP(models.Model):
-    sipuuid = models.CharField(max_length=150, primary_key=True, db_column='sipUUID')
-    sipname = models.CharField(max_length=150, primary_key=True, db_column='sipName')
-    sipdate = models.DateTimeField(db_column='sipDate')
-    createdtime = models.DateTimeField(db_column='createdTime')
-    filepath = models.TextField(db_column='filePath', blank=True)
-
-    class Meta:
-        db_table = u'AIPs'
-
 class TransferManager(models.Manager):
     def is_hidden(self, uuid):
         try:
@@ -174,9 +189,23 @@ class File(models.Model):
     uuid = models.CharField(max_length=150, primary_key=True, db_column='fileUUID')
     sip = models.ForeignKey(SIP, db_column='sipUUID', to_field = 'uuid')
     transfer = models.ForeignKey(Transfer, db_column='transferUUID', to_field = 'uuid')
+    originallocation = models.TextField(db_column='originalLocation')
+    currentlocation = models.TextField(db_column='currentLocation')
 
     class Meta:
         db_table = u'Files'
+
+class FPRFileID(models.Model):
+    uuid = models.CharField(max_length=150, primary_key=True, db_column='pk')
+    description = models.TextField(db_column='description')
+    validpreservationformat = models.IntegerField(null=True, db_column='validPreservationFormat', default=0)
+    validaccessformat = models.IntegerField(null=True, db_column='validAccessFormat', default=0)
+    fileidtype = models.CharField(null=True, max_length=50, db_column='fileIDType')
+    replaces = models.CharField(null=True, max_length=50, db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
+
+    class Meta:
+        db_table = u'FileIDs'
 
 class Task(models.Model):
     taskuuid = models.CharField(max_length=50, primary_key=True, db_column='taskUUID')

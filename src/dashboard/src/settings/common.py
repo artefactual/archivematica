@@ -1,10 +1,31 @@
-import os
+# This file is part of Archivematica.
+#
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
+#
+# Archivematica is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Archivematica is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-BASE_PATH = os.path.dirname(__file__)
+import os
+import sys
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
+
+path_of_this_file = os.path.abspath(os.path.dirname(__file__))
+
+BASE_PATH = os.path.abspath(os.path.join(path_of_this_file, os.pardir))
 
 # Django settings for app project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -119,6 +140,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'middleware.common.AJAXSimpleExceptionResponseMiddleware',
     'installer.middleware.ConfigurationCheckMiddleware',
+    'middleware.common.SpecificExceptionErrorPageResponseMiddleware'
 )
 
 ROOT_URLCONF = 'urls'
@@ -147,7 +169,10 @@ INSTALLED_APPS = (
     'installer',
     'components.accounts',
     'main',
-    'mcp',
+    'components.mcp',
+
+    # For REST API
+    'tastypie',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -173,8 +198,10 @@ LOGGING = {
     }
 }
 
+# login-related settings
 LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/administration/accounts/login'
+LOGIN_URL          = '/administration/accounts/login'
+LOGIN_EXEMPT_URLS  = [r'^api']
 
 # Django debug toolbar
 try:
@@ -194,6 +221,7 @@ MCP_SERVER = ('127.0.0.1', 4730) # localhost:4730
 POLLING_INTERVAL = 5 # Seconds
 STATUS_POLLING_INTERVAL = 5 # Seconds
 TASKS_PER_PAGE = 10 # for paging in tasks dialog
+UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
 
 MICROSERVICES_HELP = {
     'Approve transfer': 'Select "Approve transfer" to begin processing or "Reject transfer" to start over again.',
@@ -208,10 +236,8 @@ MICROSERVICES_HELP = {
     'UploadDIP': 'If desired, select "Upload DIP" to upload the DIP to the access system.',
 }
 
-try:
-    LOCAL_SETTINGS
-except NameError:
-    try:
-        from settings_local import *
-    except ImportError:
-        pass
+# Form styling
+TEXTAREA_ATTRS           = {'rows': '4', 'class': 'span11'}
+TEXTAREA_WITH_HELP_ATTRS = {'rows': '4', 'class': 'span11 has_contextual_help'}
+INPUT_ATTRS              = {'class': 'span11'}
+INPUT_WITH_HELP_ATTRS    = {'class': 'span11 has_contextual_help'}

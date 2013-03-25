@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+
+import os, sys, time
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import elasticSearchFunctions
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
+import pyes
+
+def dispay_usage_and_exit():
+    print 'WARNING: This will erase the Elasticsearch AIP index.'
+    print
+    print 'AIP Elasticsearch indexing stress tester:'
+    print '  Usage: ' + sys.argv[0] + ' <location of AIP directory>'
+    os._exit(1)
+
+try:
+    sys.argv[1]
+except:
+    dispay_usage_and_exit()
+
+if not os.path.exists(sys.argv[1]):
+    print 'AIP directory doe not exist.'
+    os._exit(1)
+
+print "Stress testing AIP indexing using test data..."
+
+conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
+try:
+    conn._send_request('GET', '')
+except pyes.exceptions.NoServerAvailable:
+    print "Connection error: Is Elasticsearch running?"
+    os._exit(1)
+
+try:
+    conn.delete_index('aips')
+except:
+    print "Error deleting index or index already deleted."
+
+aip_data_directory = os.path.join(sys.argv[1], 'data')
+uuid = os.path.basename(sys.argv[1][-36:])
+cycle = 1
+
+while(1):
+    print 'Test cycle ' + str(cycle)
+    elasticSearchFunctions.connect_and_index_files(
+        'aips',
+        'aipfile',
+        uuid,
+        aip_data_directory
+    )
+    time.sleep(1)
+    cycle = cycle + 1
+
+print "Test indexing complete."

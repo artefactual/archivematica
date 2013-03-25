@@ -323,7 +323,8 @@ var BaseSipView = Backbone.View.extend({
       for(group in groups) {
         var group = new MicroserviceGroupView({
           name: group,
-          jobs: groups[group]
+          jobs: groups[group],
+          uid: this.uid
         });
         group.template = _.template(
           $('#microservice-group-template').html()
@@ -431,6 +432,7 @@ var MicroserviceGroupView = Backbone.View.extend({
     {
       this.name = this.options.name || '';
       this.jobs = this.options.jobs || new JobCollection();
+      this.uid  = this.options.uid;
     },
 
   amalgamateSubjobs: function()
@@ -471,7 +473,10 @@ var MicroserviceGroupView = Backbone.View.extend({
       this.jobs.each(function(job) {
         // render top-level jobs
         if (job.attributes.subjobof == '') {
-          var jobView = new JobView({model: job});
+          var jobView = new JobView({
+            model: job,
+            uid: self.uid
+          });
           if (jobView.model.get('currentstep') == 'Failed') {
             failedJobExists = true;
           }
@@ -567,6 +572,7 @@ var BaseJobView = Backbone.View.extend({
       _.bindAll(this, 'render', 'approveJob', 'rejectJob');
       this.model.bind('change', this.render);
       this.model.view = this;
+      this.uid = this.options.uid;
     },
 
   taskDialog: function(data, options)
@@ -844,6 +850,7 @@ BaseAppView = Backbone.View.extend({
   initialize: function(options)
     {
       this.statusUrl = options.statusUrl;
+      this.uid       = options.uid;
 
       _.bindAll(this, 'add', 'remove');
       Sips.bind('add', this.add);
@@ -892,7 +899,10 @@ BaseAppView = Backbone.View.extend({
 
   add: function(sip)
     {
-      var view = new SipView({model: sip});
+      var view = new SipView({
+        model: sip,
+        uid: this.uid
+      });
       var $new = $(view.render().el).hide();
 
       // Get the current position in the collection
@@ -916,7 +926,7 @@ BaseAppView = Backbone.View.extend({
         }
       }
 
-      if (!this.firstPoll)
+      if (0 && !this.firstPoll)
       {
         // Animation
         $new.addClass('sip-new').show('blind', {}, 500, function()
@@ -969,6 +979,87 @@ BaseAppView = Backbone.View.extend({
       localStorage.setItem('archivematicaNotifications', JSON.stringify(localNotificationData))
     },
 
+  updateSips: function(objects)
+    {
+      var itemsPerPage = 5
+        , page = parseInt(getCookie(this.pagingCookie))
+        , page = (isNaN(page) || page == undefined) ? 1 : page
+        , itemsToSkip = (page - 1) * itemsPerPage
+        , totalPages = Math.ceil(objects.length / itemsPerPage)
+        , hasNextPage = page < totalPages;
+
+      setCookie(this.pagingCookie, page, 1);
+
+      for (i in objects)
+        {
+          if (i >= itemsToSkip && i < (itemsToSkip + itemsPerPage))
+            {
+              var sip = objects[i];
+
+              var item = Sips.find(function(item)
+                {
+                  return item.get('uuid') == sip.uuid;
+                });
+
+              if (undefined === item)
+                {
+                  // Add new sips
+                  Sips.add(sip);
+                }
+              else
+                {
+                  // Update sips
+                  item.set(sip);
+                  //if ($('#sip-row-' + sip.uuid).length) {
+                  $('#sip-row-' + sip.uuid).parent().show();
+                  //} else {
+                  //  Sips.add(sip);
+                  //}
+                }
+            }
+        }
+
+      // set up previous/next paging links
+      var self = this;
+
+      var $prev = $('<a href="#">Previous</a>');
+
+      $prev.click(function() {
+        $('.sip').hide();
+        var page = parseInt(getCookie(self.pagingCookie));
+        setCookie(self.pagingCookie, page - 1, 1);
+        self.updateSips(objects);
+      });
+
+      $('.grid-pager-previous-area').empty();
+      if (page > 1)
+        {
+          $('.grid-pager-previous-area').append($prev);
+        }
+
+      var $next = $('<a href="#">Next</a>');
+
+      $next.click(function() {
+        $('.sip').hide();
+        var page = parseInt(getCookie(self.pagingCookie));
+        setCookie(self.pagingCookie, page + 1, 1);
+        self.updateSips(objects);
+      });
+
+      $('.grid-pager-next-area').empty();
+      if (hasNextPage)
+        {
+          $('.grid-pager-next-area').append($next);
+        }
+
+      $('.grid-pager-summary-area').empty();
+      if (totalPages > 1)
+        {
+          var pageDescription = '(page ' + page + ' of ' + totalPages + ')';
+          $('.grid-pager-summary-area').text(pageDescription);
+        }
+    },
+
   poll: function(start)
     {
       this.firstPoll = undefined !== start;
@@ -990,25 +1081,31 @@ BaseAppView = Backbone.View.extend({
           {
             var objects = response.objects;
 
-            for (i in objects)
-            {
-              var sip = objects[i];
-              var item = Sips.find(function(item)
-                {
-                  return item.get('uuid') == sip.uuid;
-                });
+            if (getURLParameter('paged'))
+              {
+                this.updateSips(objects);
+              } else {
 
-              if (undefined === item)
-              {
-                // Add new sips
-                Sips.add(sip);
+                for (i in objects)
+                  {
+                    var sip = objects[i];
+                    var item = Sips.find(function(item)
+                      {
+                        return item.get('uuid') == sip.uuid;
+                      });
+
+                    if (undefined === item)
+                      {
+                        // Add new sips
+                        Sips.add(sip);
+                      }
+                    else
+                      {
+                        // Update sips
+                        item.set(sip);
+                      }
+                  }
               }
-              else
-              {
-                // Update sips
-                item.set(sip);
-              }
-            }
 
             // Delete sips
             if (Sips.length > objects.length)

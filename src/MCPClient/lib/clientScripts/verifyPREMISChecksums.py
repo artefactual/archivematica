@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -52,7 +52,7 @@ def verifyChecksum(fileUUID, filePath, date, eventIdentifierUUID):
         print >>sys.stderr, "Checksums do not match:", fileUUID, filePath
         print >>sys.stderr, eventOutcomeDetailNote
     else:
-        eventOutcomeDetailNote = checksumFile.__str__() + "verified"
+        eventOutcomeDetailNote = "%s %s" % (checksumFile.__str__(), "verified")
         eventOutcome="Pass"
         exitCode = 0
 

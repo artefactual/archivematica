@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -26,11 +26,15 @@ import sys
 import os
 import uuid
 import traceback
+#from xml.sax.saxutils import escape
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from externals.extractMaildirAttachments import parse
 from fileOperations import addFileToTransfer
 from fileOperations import updateSizeAndChecksum
+from archivematicaFunctions import unicodeToStr
+from sharedVariablesAcrossModules import sharedVariablesAcrossModules 
 import databaseInterface
+
 
 def writeFile(filePath, fileContents):   
     try:
@@ -79,8 +83,7 @@ if __name__ == '__main__':
     while False: #used to stall the mcp and stop the client for testing this module
         import time
         time.sleep(10)
-    global errorCounter
-    errorCounter = 0
+    sharedVariablesAcrossModules.errorCounter = 0
     transferDir = sys.argv[1]
     transferUUID =  sys.argv[2]
     date =  sys.argv[3]
@@ -107,15 +110,20 @@ if __name__ == '__main__':
                     subDir = md.get_message(item).get_subdir()
                     sourceFilePath2 = os.path.join(maildir, maildirsub2, subDir, item)
                     sourceFilePath = sourceFilePath2.replace(transferDir, "%transferDirectory%", 1)
+                    sourceFileUUID = getFileUUIDofSourceFile(transferUUID, sourceFilePath)
+                    sharedVariablesAcrossModules.sourceFileUUID = sourceFileUUID
+                    sharedVariablesAcrossModules.sourceFilePath = sourceFilePath
                     fil = md.get_file(item)
                     out = parse(fil)
-                    sourceFileUUID = getFileUUIDofSourceFile(transferUUID, sourceFilePath)
                     setSourceFileToBeExcludedFromDIP(sourceFileUUID)
                     if len(out['attachments']):
                         msg = etree.SubElement(directory, "msg")
                         etree.SubElement(msg, "Message-ID").text = out['msgobj']['Message-ID'][1:-1]
                         etree.SubElement(msg, "Extracted-from").text = item
-                        etree.SubElement(msg, "Subject").text = out["subject"] 
+                        if isinstance(out["subject"], str):
+                            etree.SubElement(msg, "Subject").text = out["subject"].decode('utf-8')
+                        else: 
+                            etree.SubElement(msg, "Subject").text = out["subject"]
                         etree.SubElement(msg, "Date").text = out['msgobj']['date']
                         etree.SubElement(msg, "To").text = out["to"]
                         etree.SubElement(msg, "From").text = out["from"]
@@ -123,6 +131,9 @@ if __name__ == '__main__':
                             try:
                                 attachment = out['attachments'][i]
                                 if attachment.name == None:
+                                    continue
+                                #these are versions of the body of the email - I think
+                                if attachment.name == 'rtf-body.rtf':
                                     continue
                                 attachedFileUUID = uuid.uuid4().__str__()
                                 #attachment = StringIO(file_data) TODO LOG TO FILE
@@ -138,6 +149,7 @@ if __name__ == '__main__':
                                 #etree.SubElement(attch, "read_date").text = attachment.read_date
                                 
                                 filePath = os.path.join(transferDir, "objects/attachments", maildirsub2, subDir, "%s_%s" % (attachedFileUUID, attachment.name))
+                                filePath = unicodeToStr(filePath)
                                 writeFile(filePath, attachment)
                                 eventDetail="Unpacked from: {%s}%s" % (sourceFileUUID, sourceFilePath) 
                                 addFile(filePath, transferDir, transferUUID, date, eventDetail=eventDetail, fileUUID=attachedFileUUID)
@@ -148,14 +160,14 @@ if __name__ == '__main__':
                                 print >>sys.stderr, inst.args
                                 print >>sys.stderr, etree.tostring(msg) 
                                 print >>sys.stderr
-                                errorCounter += 1
+                                sharedVariablesAcrossModules.errorCounter += 1
                 except Exception as inst:
                     print >>sys.stderr, sourceFilePath
                     traceback.print_exc(file=sys.stderr)
                     print >>sys.stderr, type(inst)     # the exception instance
                     print >>sys.stderr, inst.args
                     print >>sys.stderr
-                    errorCounter += 1
+                    sharedVariablesAcrossModules.errorCounter += 1
         except Exception as inst:
             print >>sys.stderr, "INVALID MAILDIR FORMAT"
             print >>sys.stderr, type(inst)
@@ -171,6 +183,6 @@ if __name__ == '__main__':
         addKeyFileToNormalizeMaildirOffOf(os.path.join(maildir, maildirsub2).replace(transferDir, "%transferDirectory%", 1), mirrorDir, transferDir, transferUUID, date, eventDetail=eventDetail, fileUUID=fileUUID)
     tree = etree.ElementTree(root)
     tree.write(outXML, pretty_print=True, xml_declaration=True)
-    exit(errorCounter)
+    exit(sharedVariablesAcrossModules.errorCounter)
 
                     

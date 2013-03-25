@@ -1,7 +1,7 @@
 #!/usr/bin/python -OO
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -30,22 +30,22 @@ requiredDirectories = ["logs", "logs/fileMeta", "metadata", "metadata/submission
 optionalFiles = "processingMCP.xml"
 
 def restructureMaildirDirectory(unitPath):
-	for dir in requiredDirectories:
-		dirPath = os.path.join(unitPath, dir)
-		if not os.path.isdir(dirPath):
-			os.mkdir(dirPath)
-			print "creating: ", dir
-	for item in os.listdir(unitPath):
-		dst = os.path.join(unitPath, "objects", "Maildir") + "/."
-		itemPath =  os.path.join(unitPath, item)
-		if os.path.isdir(itemPath) and item not in requiredDirectories:
-			shutil.move(itemPath, dst)
-			print "moving directory to objects/Maildir: ", item
-		elif os.path.isfile(itemPath) and item not in optionalFiles:
-			shutil.move(itemPath, dst)
-			print "moving file to objects/Maildir: ", item
+    for dir in requiredDirectories:
+        dirPath = os.path.join(unitPath, dir)
+        if not os.path.isdir(dirPath):
+            os.mkdir(dirPath)
+            print "creating: ", dir
+    for item in os.listdir(unitPath):
+        dst = os.path.join(unitPath, "objects", "Maildir") + "/."
+        itemPath =  os.path.join(unitPath, item)
+        if os.path.isdir(itemPath) and item not in requiredDirectories:
+            shutil.move(itemPath, dst)
+            print "moving directory to objects/Maildir: ", item
+        elif os.path.isfile(itemPath) and item not in optionalFiles:
+            shutil.move(itemPath, dst)
+            print "moving file to objects/Maildir: ", item
 
 if __name__ == '__main__':
-	target = sys.argv[1]
-	restructureMaildirDirectory(target)
-	
+    target = sys.argv[1]
+    restructureMaildirDirectory(target)
+    

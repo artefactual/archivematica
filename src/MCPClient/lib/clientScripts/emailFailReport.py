@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -94,6 +94,7 @@ def getContentFor(unitType, unitName, unitIdentifier):
     FROM Jobs 
     WHERE Jobs.SIPUUID = '%s' 
     AND Jobs.jobType != 'Email fail report'
+    AND subJobOf = ''
     ORDER BY Jobs.createdTime DESC, Jobs.createdTimeDec DESC;""" % (unitIdentifier)
     
     rows2Temp = databaseInterface.queryAllSQL(sql)

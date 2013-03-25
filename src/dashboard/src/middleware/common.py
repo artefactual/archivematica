@@ -1,6 +1,6 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 
 from django.conf import settings
 from django.http import HttpResponseServerError, HttpResponseRedirect
+from django.template.base import TemplateDoesNotExist
 
 class AJAXSimpleExceptionResponseMiddleware:
     def process_exception(self, request, exception):
@@ -30,3 +31,8 @@ class AJAXSimpleExceptionResponseMiddleware:
                 for tb in traceback.format_tb(tb):
                     response += "%s\n" % tb
                 return HttpResponseServerError(response)
+
+class SpecificExceptionErrorPageResponseMiddleware:
+    def process_exception(self, request, exception):
+        if settings.DEBUG and type(exception) == TemplateDoesNotExist:
+            return HttpResponseServerError('Missing template: ' + str(exception))

@@ -3,7 +3,7 @@
 #
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -69,7 +69,7 @@ includeAmdSec = opts.amdSec
 #Global Variables
 
 globalFileGrps = {}
-globalFileGrpsUses = ["original", "submissionDocumentation", "preservation", "service", "access", "license", "text/ocr"]
+globalFileGrpsUses = ["original", "submissionDocumentation", "preservation", "service", "access", "license", "text/ocr", "metadata"]
 for use in globalFileGrpsUses:
     grp = etree.Element("fileGrp")
     grp.set("USE", use)
@@ -218,9 +218,9 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
 def createDublincoreDMDSecFromDBData(type, id):
     dc = getDublinCore(type, id)
     if dc == None:
-        transfers = os.path.join(baseDirectoryPath, "metadata/transfers/")
+        transfers = os.path.join(baseDirectoryPath, "objects/metadata/transfers/")
         for transfer in os.listdir(transfers):
-            dcXMLFile = os.path.join(transfers, transfer, "metadata/dublincore.xml")
+            dcXMLFile = os.path.join(transfers, transfer, "dublincore.xml")
             if os.path.isfile(dcXMLFile):
                 try:
                     parser = etree.XMLParser(remove_blank_text=True)
@@ -551,12 +551,12 @@ def getIncludedStructMap():
     global trimStructMapObjects
 
     ret = []
-    transferMetadata = os.path.join(baseDirectoryPath, "metadata/transfers")
+    transferMetadata = os.path.join(baseDirectoryPath, "objects/metadata/transfers")
     baseLocations = os.listdir(transferMetadata)
     baseLocations.append(baseDirectoryPath)
     for dir in baseLocations:
         dirPath = os.path.join(transferMetadata, dir)
-        structMapXmlPath = os.path.join(dirPath, "metadata/mets_structmap.xml")
+        structMapXmlPath = os.path.join(dirPath, "mets_structmap.xml")
         if not os.path.isdir(dirPath):
             continue
         if os.path.isfile(structMapXmlPath):
@@ -671,7 +671,7 @@ def createFileSec(directoryPath, structMapDiv):
 
         if typeOfTransfer == "TRIM" and trimStructMap == None:
             trimStructMap = etree.Element("structMap", attrib={"TYPE":"logical", "LABEL":"Hierarchical arrangement"})
-            trimStructMapObjects = etree.SubElement(trimStructMap, "div", attrib={"TYPE":"file", "LABEL":"objects"})
+            trimStructMapObjects = etree.SubElement(trimStructMap, "div", attrib={"TYPE":"File", "LABEL":"objects"})
             
             trimDmdSec = getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier)
             globalDmdSecCounter += 1
@@ -705,7 +705,7 @@ def createFileSec(directoryPath, structMapDiv):
         fileDiv = etree.SubElement(structMapDiv, "div")
         if label != None:
             fileDiv.set("LABEL", label)
-        fileDiv.set("TYPE", "item") 
+        fileDiv.set("TYPE", "Item") 
         newChild(fileDiv, "fptr", sets=[("FILEID",FILEID)])
         fileNameToFileID[item] = FILEID
 
@@ -713,16 +713,18 @@ def createFileSec(directoryPath, structMapDiv):
         if fileGrpUUID:
             GROUPID = "Group-%s" % (fileGrpUUID)
             if use == "TRIM file metadata":
-                use = "submissionDocumentation"
+                use = "metadata"
             
-        elif  use == "original" or use == "submissionDocumentation":
+        elif  use == "original" or use == "submissionDocumentation" or use == "metadata" or use == "maildirFile":
             GROUPID = "Group-%s" % (myuuid)
+            if use == "maildirFile":
+                use = "original"
             if use == "original":
                 DMDIDS = createDMDIDSFromCSVParsedMetadataFiles(originalLocation.replace('%transferDirectory%', "", 1))
                 if DMDIDS:
                     fileDiv.set("DMDID", DMDIDS)
                 if typeOfTransfer == "TRIM":
-                    trimFileDiv = etree.SubElement(trimStructMapObjects, "div", attrib={"TYPE":"item"})
+                    trimFileDiv = etree.SubElement(trimStructMapObjects, "div", attrib={"TYPE":"Item"})
                     
                     trimFileDmdSec = getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, myuuid)
                     globalDmdSecCounter += 1
@@ -767,7 +769,7 @@ def createFileSec(directoryPath, structMapDiv):
         
         elif use == "TRIM container metadata":
             GROUPID = "Group-%s" % (myuuid)
-            use = "submissionDocumentation"
+            use = "metadata"
         
 
         if transferUUID:
@@ -815,7 +817,7 @@ def createFileSec(directoryPath, structMapDiv):
     
     for item in sorted(delayed, cmp=sharedVariablesAcrossModules.collator.compare):
         itemdirectoryPath = os.path.join(directoryPath, item)
-        directoryDiv = newChild(structMapDiv, "div", sets=[("TYPE","directory"), ("LABEL",item)])
+        directoryDiv = newChild(structMapDiv, "div", sets=[("TYPE","Directory"), ("LABEL",item)])
         DMDIDS = createDMDIDSFromCSVParsedMetadataDirectories(itemdirectoryPath.replace(baseDirectoryPath, "", 1))
         if DMDIDS:
             directoryDiv.set("DMDID", DMDIDS)
@@ -836,8 +838,8 @@ if __name__ == '__main__':
     structMap = etree.Element("structMap")
     structMap.set("TYPE", "physical")
     structMap.set("LABEL", "Archivematica default")
-    structMapDiv = newChild(structMap, "div", sets=[("TYPE","directory"), ("LABEL","%s-%s" % (os.path.basename(baseDirectoryPath[:-1]), fileGroupIdentifier))])
-    structMapDiv = newChild(structMapDiv, "div", sets=[("TYPE","directory"), ("LABEL","objects") ])
+    structMapDiv = newChild(structMap, "div", sets=[("TYPE","Directory"), ("LABEL","%s-%s" % (os.path.basename(baseDirectoryPath[:-1]), fileGroupIdentifier))])
+    structMapDiv = newChild(structMapDiv, "div", sets=[("TYPE","Directory"), ("LABEL","objects") ])
     createFileSec(os.path.join(baseDirectoryPath, "objects"), structMapDiv)
 
 
@@ -852,6 +854,7 @@ if __name__ == '__main__':
     root = etree.Element( "mets", \
     nsmap = rootNSMap, \
     attrib = { "{" + xsiNS + "}schemaLocation" : "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd" } )
+    etree.SubElement(root,"metsHdr").set("CREATEDDATE", databaseInterface.getUTCDate().split(".")[0])
 
 
 

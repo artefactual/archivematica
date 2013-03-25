@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -160,6 +160,7 @@ class linkTaskManagerFiles:
         self.exitCode += math.fabs(task.results["exitCode"])
         databaseFunctions.logTaskCompletedSQL(task)
 
+        self.tasksLock.acquire()
         if task.UUID in self.tasks:
             del self.tasks[task.UUID]
         else:
@@ -167,7 +168,7 @@ class linkTaskManagerFiles:
             print >>sys.stderr, "Key Value Error:", self.tasks
             exit(1)
 
-        self.tasksLock.acquire()
+        
         if self.clearToNextLink == True and self.tasks == {} :
             print "DEBUG proceeding to next link", self.jobChainLink.UUID
             self.jobChainLink.linkProcessingComplete(self.exitCode, self.jobChainLink.passVar)

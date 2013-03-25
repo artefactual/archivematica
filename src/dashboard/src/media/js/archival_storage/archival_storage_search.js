@@ -24,14 +24,16 @@ $(document).ready(function() {
   });
 
   // define query field
-  search.addInput('query', {title: 'search query', 'class': 'span11'});
+  search.addInput('query', {title: 'search query', 'class': 'aip-search-query-input'});
 
   // default field name field
   search.addSelect('field', {title: 'field name'}, {
-    '': 'Any',
-    'AIPUUID': 'UUID',
-    'filePath': 'File path',
-    'fileExtension': 'File extension'
+    ''             : 'Any',
+    'FILEUUID'     : 'File UUID',
+    'filePath'     : 'File path',
+    'fileExtension': 'File extension',
+    'AIPUUID'      : 'AIP UUID',
+    'sipName'      : 'AIP name'
   });
 
   // default field name field

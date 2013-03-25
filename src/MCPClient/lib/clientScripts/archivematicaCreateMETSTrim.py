@@ -2,7 +2,7 @@
 #
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,7 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
     
     
     etree.SubElement(dublincore, dctermsBNS + "title").text = root.find("Container/TitleFreeTextPart").text
-    etree.SubElement(dublincore, dctermsBNS + "creator").text = root.find("Container/Department").text
+    etree.SubElement(dublincore, dctermsBNS + "provenance").text = root.find("Container/Department").text
     etree.SubElement(dublincore, dctermsBNS + "provenance").text = root.find("Container/OPR").text
     etree.SubElement(dublincore, dctermsBNS + "isPartOf").text = root.find("Container/FullClassificationNumber").text
     etree.SubElement(dublincore, dctermsBNS + "identifier").text = root.find("Container/RecordNumber").text.split('/')[-1]

@@ -21,35 +21,68 @@
 # @subpackage archivematicaCommon
 # @author Mike Cantelon <mike@artefactual.com>
 
-import time
-import os
-import sys
-import MySQLdb
-import cPickle
-import base64
+import time, os, sys, MySQLdb, cPickle, base64, ConfigParser, datetime
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes
-import xmltodict
+import pyes, xmltodict
 import xml.etree.ElementTree as ElementTree
 
-pathToElasticSearchServerFile='/etc/elasticsearch/elasticsearch.yml'
+pathToElasticSearchServerConfigFile='/etc/elasticsearch/elasticsearch.yml'
 
-def connect_and_index(index, type, uuid, pathToArchive):
+def getElasticsearchServerHostAndPort():
+    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
+    config = ConfigParser.SafeConfigParser()
+    config.read(clientConfigFilePath)
+
+    try:
+        return config.get('MCPClient', "elasticsearchServer")
+    except:
+        return '127.0.0.1:9200'
+
+# try up to three times to get a connection
+def connect_and_create_index(index, attempt=1):
+    if attempt <= 3:
+        conn = pyes.ES(getElasticsearchServerHostAndPort())
+        try:
+            conn.create_index(index)
+            conn = connect_and_create_index(index, attempt + 1)
+        except:
+            # above exception was pyes.exceptions.IndexAlreadyExistsException
+            # but didn't work with ES 0.19.0
+            pass
+    else:
+        conn = False
+
+    return conn
+
+def connect_and_index_aip(uuid, name, date, filePath):
+    conn = connect_and_create_index('aips')
+    aipData = {
+        'uuid':     uuid,
+        'name':     name,
+        'date':     date,
+        'filePath': filePath,
+        'size':     os.path.getsize(filePath) / float(1024) / float(1024),
+        'created':  datetime.datetime.now()
+    }
+    conn.index(aipData, 'aips', 'aip')
+
+def connect_and_get_aip_data(uuid):
+    conn = connect_and_create_index('aips')
+    aips = conn.search(query=pyes.FieldQuery(pyes.FieldParameter('uuid', uuid)))
+    return aips[0]
+
+def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
 
     exitCode = 0
 
     # make sure elasticsearch is installed
-    if (os.path.exists(pathToElasticSearchServerFile)):
+    if (os.path.exists(pathToElasticSearchServerConfigFile)):
 
         # make sure transfer files exist
         if (os.path.exists(pathToArchive)):
-            conn = pyes.ES('127.0.0.1:9200')
-            try:
-                conn.create_index(index)
-            except pyes.exceptions.IndexAlreadyExistsException:
-                pass
+            conn = connect_and_create_index(index)
 
             # use METS file if indexing an AIP
             metsFilePath = os.path.join(pathToArchive, 'METS.' + uuid + '.xml')
@@ -60,7 +93,8 @@ def connect_and_index(index, type, uuid, pathToArchive):
                     uuid,
                     metsFilePath,
                     index,
-                    type
+                    type,
+                    sipName
                 )
 
             else:
@@ -79,12 +113,12 @@ def connect_and_index(index, type, uuid, pathToArchive):
             print >>sys.stderr, "Directory does not exist: ", pathToArchive
             exitCode = 1
     else:
-        print >>sys.stderr, "Elasticsearch not found, normally installed at ", pathToElasticSearchServerFile
+        print >>sys.stderr, "Elasticsearch not found, normally installed at ", pathToElasticSearchServerConfigFile
         exitCode = 1
 
     return exitCode
 
-def index_mets_file_metadata(conn, uuid, metsFilePath, index, type):
+def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName):
     filesIndexed     = 0
     filePathAmdIDs   = {}
     filePathMetsData = {}
@@ -93,6 +127,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type):
     fileData = {
       'archivematicaVersion': '0.9',
       'AIPUUID':   uuid,
+      'sipName':   sipName,
       'FILEUUID':  '',
       'indexedAt': time.time(),
       'filePath':  '',

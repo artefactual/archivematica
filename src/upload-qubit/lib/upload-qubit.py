@@ -3,7 +3,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import requests
 
 sys.path.append("/usr/share/archivematica/dashboard")
-os.environ['DJANGO_SETTINGS_MODULE'] = "settings"
+os.environ['DJANGO_SETTINGS_MODULE'] = "settings.common"
 import main.models as models
 
 PREFIX = "[uploadDIP]"

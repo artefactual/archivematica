@@ -2,7 +2,7 @@
 
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -26,19 +26,23 @@ from taskStandard import taskStandard
 from unitFile import unitFile
 from passClasses import *
 import jobChain
-import databaseInterface
 import threading
 import math
 import uuid
 import time
 import sys
 import archivematicaMCP
+import traceback
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import databaseInterface
 import databaseFunctions
 from databaseFunctions import deUnicode
 
 import os
 
+
+    
+    
 
 class linkTaskManagerSplitOnFileIdAndruleset:
     def __init__(self, jobChainLink, pk, unit):
@@ -110,21 +114,52 @@ class linkTaskManagerSplitOnFileIdAndruleset:
             #passVar=self.jobChainLink.passVar
             toPassVar = eval(arguments)
             toPassVar.update({"%standardErrorFile%":standardErrorFile, "%standardOutputFile%":standardOutputFile, '%commandClassifications%':ComandClassification})
-            print "debug", toPassVar
+            #print "debug", toPassVar, toPassVar['%normalizeFileGrpUse%'], unit.fileGrpUse
             passVar=replacementDic(toPassVar)
-            taskType = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Transcoder task type"))[0][0]
-            if fileIdentificationRestriction:
-                sql = """SELECT MicroServiceChainLinks.pk FROM FilesIdentifiedIDs JOIN FileIDs ON FilesIdentifiedIDs.fileID = FileIDs.pk JOIN FileIDTypes ON FileIDs.fileIDType = FileIDTypes.pk JOIN CommandRelationships ON FilesIdentifiedIDs.fileID = CommandRelationships.fileID JOIN CommandClassifications ON CommandClassifications.pk = CommandRelationships.commandClassification JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = CommandRelationships.pk JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE TasksConfigs.taskType = '%s' AND FilesIdentifiedIDs.fileUUID = '%s' AND CommandClassifications.classification = '%s' AND (%s) GROUP BY MicroServiceChainLinks.pk;""" % (taskType, fileUUID, ComandClassification, fileIdentificationRestriction)
+            if toPassVar['%normalizeFileGrpUse%'] != unit.fileGrpUse or self.alreadyNormalizedManually(unit, ComandClassification):
+                #print "debug: ", unit.currentPath, unit.fileGrpUse
+                self.jobChainLink.linkProcessingComplete(self.exitCode, passVar=self.jobChainLink.passVar)
             else:
-                sql = """SELECT MicroServiceChainLinks.pk FROM FilesIdentifiedIDs JOIN CommandRelationships ON FilesIdentifiedIDs.fileID = CommandRelationships.fileID JOIN CommandClassifications ON CommandClassifications.pk = CommandRelationships.commandClassification JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = CommandRelationships.pk JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE TasksConfigs.taskType = '%s' AND FilesIdentifiedIDs.fileUUID = '%s' AND CommandClassifications.classification = '%s' GROUP BY MicroServiceChainLinks.pk;""" % (taskType, fileUUID, ComandClassification)
-            rows = databaseInterface.queryAllSQL(sql)
-            if rows and len(rows):
-                for row in rows:
-                     jobChainLink.jobChain.nextChainLink(row[0], passVar=passVar, incrementLinkSplit=True, subJobOf=self.jobChainLink.UUID)
-            else:
-                sql = """SELECT MicroserviceChainLink FROM DefaultCommandsForClassifications JOIN CommandClassifications ON CommandClassifications.pk = DefaultCommandsForClassifications.forClassification WHERE CommandClassifications.classification = '%s'""" % (ComandClassification)
+                taskType = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Transcoder task type"))[0][0]
+                if fileIdentificationRestriction:
+                    sql = """SELECT MicroServiceChainLinks.pk FROM FilesIdentifiedIDs JOIN FileIDs ON FilesIdentifiedIDs.fileID = FileIDs.pk JOIN FileIDTypes ON FileIDs.fileIDType = FileIDTypes.pk JOIN CommandRelationships ON FilesIdentifiedIDs.fileID = CommandRelationships.fileID JOIN CommandClassifications ON CommandClassifications.pk = CommandRelationships.commandClassification JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = CommandRelationships.pk JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE TasksConfigs.taskType = '%s' AND FilesIdentifiedIDs.fileUUID = '%s' AND CommandClassifications.classification = '%s' AND (%s) GROUP BY MicroServiceChainLinks.pk;""" % (taskType, fileUUID, ComandClassification, fileIdentificationRestriction)
+                else:
+                    sql = """SELECT MicroServiceChainLinks.pk FROM FilesIdentifiedIDs JOIN CommandRelationships ON FilesIdentifiedIDs.fileID = CommandRelationships.fileID JOIN CommandClassifications ON CommandClassifications.pk = CommandRelationships.commandClassification JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = CommandRelationships.pk JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE TasksConfigs.taskType = '%s' AND FilesIdentifiedIDs.fileUUID = '%s' AND CommandClassifications.classification = '%s' GROUP BY MicroServiceChainLinks.pk;""" % (taskType, fileUUID, ComandClassification)
                 rows = databaseInterface.queryAllSQL(sql)
-                for row in rows:
-                     jobChainLink.jobChain.nextChainLink(row[0], passVar=passVar, incrementLinkSplit=True, subJobOf=self.jobChainLink.UUID)
-                
-            self.jobChainLink.linkProcessingComplete(self.exitCode, passVar=self.jobChainLink.passVar)
+                if rows and len(rows):
+                    for row in rows:
+                         jobChainLink.jobChain.nextChainLink(row[0], passVar=passVar, incrementLinkSplit=True, subJobOf=self.jobChainLink.UUID)
+                else:
+                    sql = """SELECT MicroserviceChainLink FROM DefaultCommandsForClassifications JOIN CommandClassifications ON CommandClassifications.pk = DefaultCommandsForClassifications.forClassification WHERE CommandClassifications.classification = '%s'""" % (ComandClassification)
+                    rows = databaseInterface.queryAllSQL(sql)
+                    for row in rows:
+                         jobChainLink.jobChain.nextChainLink(row[0], passVar=passVar, incrementLinkSplit=True, subJobOf=self.jobChainLink.UUID)
+                    
+                self.jobChainLink.linkProcessingComplete(self.exitCode, passVar=self.jobChainLink.passVar)
+    
+    def alreadyNormalizedManually(self, unit, ComandClassification):
+        try:
+            SIPUUID = unit.owningUnit.UUID
+            fileUUID = unit.UUID
+            SIPPath = unit.owningUnit.currentPath
+            filePath = unit.currentPath
+            bname = os.path.basename(filePath)
+            dirName = os.path.dirname(filePath)
+            i = bname.rfind(".")
+            if i != -1:
+                bname = bname[:i]
+            path = os.path.join(dirName, bname)
+            if ComandClassification == "preservation":
+                path = path.replace("%SIPDirectory%objects/", "%SIPDirectory%objects/manualNormalization/preservation/")
+            elif ComandClassification == "access":
+                path = path.replace("%SIPDirectory%objects/", "%SIPDirectory%objects/manualNormalization/access/")
+            else:
+                return False
+            sql = """SELECT fileUUID FROM Files WHERE sipUUID = '%s' AND currentLocation LIKE '%s%%' AND removedTime = 0;""" % (SIPUUID, path.replace("%", "\%"))
+            ret = bool(databaseInterface.queryAllSQL(sql))
+            return ret 
+        except Exception as inst:
+            print "DEBUG EXCEPTION!"
+            traceback.print_exc(file=sys.stdout)
+            print type(inst)     # the exception instance
+            print inst.args
