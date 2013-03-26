@@ -838,7 +838,7 @@ if __name__ == '__main__':
     structMap = etree.Element("structMap")
     structMap.set("TYPE", "physical")
     structMap.set("LABEL", "Archivematica default")
-    structMapDiv = newChild(structMap, "div", sets=[("TYPE","Directory"), ("LABEL","%s-%s" % (os.path.basename(baseDirectoryPath[:-1]), fileGroupIdentifier))])
+    structMapDiv = newChild(structMap, "div", sets=[("TYPE","Directory"), ("LABEL",os.path.basename(baseDirectoryPath[:-1]))])
     structMapDiv = newChild(structMapDiv, "div", sets=[("TYPE","Directory"), ("LABEL","objects") ])
     createFileSec(os.path.join(baseDirectoryPath, "objects"), structMapDiv)
 
