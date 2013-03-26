@@ -73,7 +73,7 @@ def gearmanApproveJob(gearman_worker, gearman_job):
         data = cPickle.loads(gearman_job.data)
         jobUUID = data["jobUUID"]
         chain = data["chain"]
-        agent = data["agent"]
+        agent = str(data["uid"])
         ret = cPickle.dumps(approveJob(jobUUID, chain, agent))
         if not ret:
             ret = ""
