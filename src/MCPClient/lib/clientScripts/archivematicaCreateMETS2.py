@@ -855,7 +855,7 @@ if __name__ == '__main__':
     root = etree.Element( "mets", \
     nsmap = rootNSMap, \
     attrib = { "{" + xsiNS + "}schemaLocation" : "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd" } )
-    etree.SubElement(root,"metsHdr").set("CREATEDDATE", databaseInterface.getUTCDate().split(".")[0])
+    etree.SubElement(root,"metsHdr").set("CREATEDATE", databaseInterface.getUTCDate().split(".")[0])
 
 
 
