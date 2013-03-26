@@ -612,17 +612,7 @@ var BaseJobView = Backbone.View.extend({
     {
       event.preventDefault();
 
-      $.ajax({
-        context: this,
-        type: 'GET',
-        dataType: 'html',
-        success: function(data)
-          {
-            this.taskDialog(data);
-            localizeUtcDateElements();
-          },
-        url: '/tasks/' + this.model.get('uuid') + '/'
-      });
+      window.open('/tasks/' + this.model.get('uuid') + '/', '_blank');
     },
 
   browseJob: function(event)
