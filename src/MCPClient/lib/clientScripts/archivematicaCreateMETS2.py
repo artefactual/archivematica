@@ -670,7 +670,7 @@ def createFileSec(directoryPath, structMapDiv):
         #print filename, directoryPathSTR
 
         if typeOfTransfer == "TRIM" and trimStructMap == None:
-            trimStructMap = etree.Element("structMap", attrib={"TYPE":"logical", "LABEL":"Hierarchical arrangement"})
+            trimStructMap = etree.Element("structMap", attrib={"TYPE":"logical", "ID":"structMap_2", "LABEL":"Hierarchical arrangement"})
             trimStructMapObjects = etree.SubElement(trimStructMap, "div", attrib={"TYPE":"File", "LABEL":"objects"})
             
             trimDmdSec = getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier)
@@ -837,6 +837,7 @@ if __name__ == '__main__':
         baseDirectoryPath += '/'
     structMap = etree.Element("structMap")
     structMap.set("TYPE", "physical")
+    structMap.set("ID", "structMap_1")
     structMap.set("LABEL", "Archivematica default")
     structMapDiv = newChild(structMap, "div", sets=[("TYPE","Directory"), ("LABEL",os.path.basename(baseDirectoryPath[:-1]))])
     structMapDiv = newChild(structMapDiv, "div", sets=[("TYPE","Directory"), ("LABEL","objects") ])
