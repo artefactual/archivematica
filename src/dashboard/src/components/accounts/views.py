@@ -89,12 +89,14 @@ def edit(request, id=None):
 
             return HttpResponseRedirect(reverse('components.accounts.views.list'))
     else:
-        try:
-            api_key_data = ApiKey.objects.get(user_id=user.pk)
-            api_key = api_key_data.key
-        except:
-            api_key = '<no API key generated>'
         form = UserChangeForm(instance=user)
+
+    # load API key for display
+    try:
+        api_key_data = ApiKey.objects.get(user_id=user.pk)
+        api_key = api_key_data.key
+    except:
+        api_key = '<no API key generated>'
 
     return render(request, 'accounts/edit.html', {
       'form': form,

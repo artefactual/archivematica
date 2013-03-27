@@ -61,10 +61,10 @@ def getJobsAwaitingApproval():
     return etree.tostring(ret, pretty_print=True)
 
 
-def approveJob(jobUUID, chain):
-    print "approving: ", jobUUID, chain
+def approveJob(jobUUID, chain, agent):
+    print "approving: ", jobUUID, chain, agent
     if jobUUID in choicesAvailableForUnits:
-        choicesAvailableForUnits[jobUUID].proceedWithChoice(chain)
+        choicesAvailableForUnits[jobUUID].proceedWithChoice(chain, agent)
     return "approving: ", jobUUID, chain
 
 def gearmanApproveJob(gearman_worker, gearman_job):
@@ -73,7 +73,8 @@ def gearmanApproveJob(gearman_worker, gearman_job):
         data = cPickle.loads(gearman_job.data)
         jobUUID = data["jobUUID"]
         chain = data["chain"]
-        ret = cPickle.dumps(approveJob(jobUUID, chain))
+        agent = str(data["uid"])
+        ret = cPickle.dumps(approveJob(jobUUID, chain, agent))
         if not ret:
             ret = ""
         return ""

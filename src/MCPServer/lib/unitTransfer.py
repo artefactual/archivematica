@@ -150,7 +150,7 @@ class unitTransfer(unit):
             microServiceChainLink = "NULL"
         else:
             microServiceChainLink = "'%s'" % (microServiceChainLink)
-        variableValue = databaseInterface.MySQLdb.escape_string(variableValue)
+        variableValue = databaseInterface.MySQLdb.escape_string(variableValue) 
         sql = """SELECT pk FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % (self.unitType, self.UUID, variable)  
         rows = databaseInterface.queryAllSQL(sql)
         if rows:

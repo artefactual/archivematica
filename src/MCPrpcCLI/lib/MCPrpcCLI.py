@@ -50,6 +50,7 @@ class MCPClient:
         data = {}
         data["jobUUID"] = uuid
         data["chain"] = choice
+        data["agent"] = "338daf08-b1f8-4a3b-bcc7-6b005d976438"
         completed_job_request = gm_client.submit_job("approveJob", cPickle.dumps(data), None)
         #self.check_request_status(completed_job_request)
         return

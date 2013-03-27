@@ -23,21 +23,7 @@ $(function() {
   $('.normalization-report-task').each(function() {
     var taskUUID = $(this).attr('id').replace('normalization-report-task-', '');
     $(this).click(function() {
-      $.ajax({
-        context: this,
-        type: 'GET',
-        dataType: 'html',
-        success: function(jobData)
-        {
-          jobView.taskDialog(jobData, { width: 950 });
-
-          // localize UTC dates
-          $('.utcDate').each(function() {
-            $(this).text(utcDateToLocal($(this).text()));
-          });
-        },
-        url: '/task/' + taskUUID + '/'
-      });
+      window.open('/task/' + taskUUID + '/', '_blank');
     });
   });
 });

@@ -152,7 +152,7 @@ class linkTaskManagerSplitOnFileIdAndruleset:
             if ComandClassification == "preservation":
                 path = path.replace("%SIPDirectory%objects/", "%SIPDirectory%objects/manualNormalization/preservation/")
             elif ComandClassification == "access":
-                path = path.replace("%SIPDirectory%objects/", "%SIPDirectory%objects/manualNormalization/access")
+                path = path.replace("%SIPDirectory%objects/", "%SIPDirectory%objects/manualNormalization/access/")
             else:
                 return False
             sql = """SELECT fileUUID FROM Files WHERE sipUUID = '%s' AND currentLocation LIKE '%s%%' AND removedTime = 0;""" % (SIPUUID, path.replace("%", "\%"))

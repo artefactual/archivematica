@@ -175,7 +175,9 @@ class linkTaskManagerReplacementDicFromChoice:
 
 
 
-    def proceedWithChoice(self, index):
+    def proceedWithChoice(self, index, agent):
+        if agent:
+            self.unit.setVariable("activeAgent", agent, None)
         choicesAvailableForUnitsLock.acquire()
         del choicesAvailableForUnits[self.jobChainLink.UUID]
         choicesAvailableForUnitsLock.release()
