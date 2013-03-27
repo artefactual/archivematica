@@ -112,7 +112,7 @@ def approve_transfer(request):
 
             directory = request.POST.get('directory', '')
             type      = request.POST.get('type', 'standard')
-            error     = approve_transfer_via_mcp(directory, type)
+            error     = approve_transfer_via_mcp(directory, type, request.user.id)
 
             response = {}
 
@@ -153,7 +153,7 @@ def get_modified_standard_transfer_path(type=None):
     shared_directory_path = get_server_config_value('sharedDirectory')
     return path.replace(shared_directory_path, '%sharedPath%', 1)
 
-def approve_transfer_via_mcp(directory, type):
+def approve_transfer_via_mcp(directory, type, user_id):
     error = None
 
     if (directory != ''):
@@ -168,7 +168,7 @@ def approve_transfer_via_mcp(directory, type):
             client = MCPClient()
 
             # 3rd arg should be uid?
-            result = client.execute(job.pk, 'Approve', 3)
+            result = client.execute(job.pk, 'Approve', user_id)
 
         except:
             error = 'Unable to find unapproved transfer directory.'
