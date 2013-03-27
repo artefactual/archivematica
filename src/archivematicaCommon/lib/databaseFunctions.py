@@ -68,19 +68,12 @@ def getAgentForFileUUID(fileUUID):
         if len(rows):
             agent = "'%s'" % (rows[0])
     
-    #ensure agent is in the dashboard user list.
-    print "todo: remove this from databaseFunctions getAgentForFileUUID"
-    print >>sys.stderr, "todo: remove this from databaseFunctions getAgentForFileUUID"
-    rows = databaseInterface.queryAllSQL("""SELECT id FROM auth_user;""")
-    if len(rows):
-        agent = rows[0][0].__str__()
     return agent
 
 def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=databaseInterface.getUTCDate(), eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
     agent = getAgentForFileUUID(fileUUID)
     if not agent:
         agent = 'NULL'
-    print "agent: ", agent
     if eventIdentifierUUID == "":
         eventIdentifierUUID = uuid.uuid4().__str__()
     databaseInterface.runSQL("""INSERT INTO Events (fileUUID, eventIdentifierUUID, eventType, eventDateTime, eventDetail, eventOutcome, eventOutcomeDetailNote, linkingAgentIdentifier)
