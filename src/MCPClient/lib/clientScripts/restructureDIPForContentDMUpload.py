@@ -243,9 +243,9 @@ def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
     # For the DC mappings, we want a dict containing items that looks like
     # { 'contributor': { 'name': u'Contributors', 'nick': u'contri'},
     # 'creator': { 'name': u'Creator', 'nick': u'creato'},
-    # 'date': { 'name': u'Date', 'nick': u'dateso'}, [...] }
-    # It is possible that more than one CONTENTdm field is mapped to the same DC
-    # in this case, just take the last mapping and ignore the rest, since thre is
+    # 'date': { 'name': u'Date', 'nick': u'dateso'}, [...] }. Is is possible
+    # that more than one CONTENTdm field is mapped to the same DC element;
+    # in this case, we take the last mapping and ignore the rest, since there is
     # no way to tell which should take precedence. The non-DC mappings have
     # the field name as their key, like "u'CONTENTdm number': { 'name': 
     # u'CONTENTdm number', 'nick': u'dmrecord'} (i.e., key and 'name' are the same).
@@ -364,9 +364,10 @@ def generateDescFile(dcMetadata, nonDcMetadata, dipUuid = None):
                 values = ''
                 output += '<' + collectionFieldInfo['nonDcMappings'][element]['nick'] + '>'
                 # Repeated values in CONTENTdm metadata need to be separated with semicolons.
-                for value in nonDcMetadata[normalizedElement]:
-                    values += value + '; '
-                    output += values.rstrip('; ')
+                if len(nonDcMetadata[normalizedElement]) == 1:
+                    output += nonDcMetadata[normalizedElement][0]
+                if len(nonDcMetadata[normalizedElement]) > 1:
+                    output += ';'.join(nonDcMetadata[normalizedElement])
                 output += '</' + collectionFieldInfo['nonDcMappings'][element]['nick'] + ">\n"
             # We need to include elements that are in the collection field config but
             # that do not have any values for the current item.
@@ -376,18 +377,27 @@ def generateDescFile(dcMetadata, nonDcMetadata, dipUuid = None):
 
     # I.e., there is no non-DC metadata.
     else:
-        # If there is no non-DC metadata, process DC metadata. Loop through the collection's 
-        # field configuration and generate XML elements for all its fields. 
+        # If there is no non-DC metadata, process the DC metadata. Loop through the collection's 
+        # field configuration and generate XML elements for all its fields.
+        # We treat 'identifier' separately because we populate it with the AIP UUID.
+        if dipUuid is not None:
+            if 'identifier' not in dcMetadata:
+                dcMetadata['identifier'] = [dipUuid[-36:]]
+            else:
+                if len(dcMetadata['identifier']):
+                    dcMetadata['identifier'].append(dipUuid[-36:])
+                else:
+                    dcMetadata['identifier'] = dipUuid[-36:]
         for dcElement in collectionFieldInfo['dcMappings'].keys():
             # If a field is in the incoming item dcMetadata, populate the corresponding tag
             # with its 'nick' value.
             if dcElement in dcMetadata.keys():
-                values = ''
                 output += '<' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + '>'
                 # Repeated values in CONTENTdm metadata need to be separated with semicolons.
-                for value in dcMetadata[dcElement]:
-                    values += value + '; '
-                    output += values.rstrip('; ')
+                if len(dcMetadata[dcElement]) == 1:
+                    output += dcMetadata[dcElement][0]
+                if len(dcMetadata[dcElement]) > 1:
+                    output += ';'.join(dcMetadata[dcElement])
                 output += '</' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + ">\n"
             # We need to include elements that are in the collection field config but
             # that do not have any values for the current item.
@@ -499,9 +509,8 @@ def getItemCountType(structMap):
 
 
 # Given all the dmdSecs (which are DOM objects) from a METS files, group the dmdSecs
-# into item-specific pairs of DC and OTHER or if OTHER is not present, only DC. 
-# Returns a list of lists, with each list containing two (DC and OTHER) or one (DC)
-# dmdSec DOM nodes.
+# into item-specific pairs of DC and OTHER, or single-item groups of either if the
+# other type is absent.
 def groupDmdSecs(dmdSecs):
     groupedDmdSecs = list()
     dmdSecsLen = len(dmdSecs)
@@ -509,26 +518,23 @@ def groupDmdSecs(dmdSecs):
     if dmdSecsLen == 0:
         return groupedDmdSecs
         
-    # If dmdSecs is not empty, test whether the first dmdSec has MDTYPE="OTHER"; if
-    # this is the case, we can assume that the dmdSecs need to be grouped into groups
-    # of 2; if this is not the case, we can assume that the dmdSecs need to be grouped
-    # into groups of 1. We also check to see whether the second dmdSec has MDTYPE="DC";
-    # this assumes there will be some DC elements for every item in the DIP.
-    
-    # Before we do that, check to see if we only have one dmdSec.
+    # If dmdSecs has only one dmdSec, return it.
     if dmdSecsLen == 1:
         tmpList = list()
         tmpList.append(dmdSecs[0])
         groupedDmdSecs.append(tmpList)
         return groupedDmdSecs
     
-    # If we've made it this far, perform the test on the second dmdSec.
-    mdWrap = dmdSecs[1].getElementsByTagName('mdWrap')[0]
-    secondDmdSecType = mdWrap.attributes['MDTYPE'].value
-    if secondDmdSecType == 'OTHER':
-        groupSize = 1
-    if secondDmdSecType == 'DC':
-        groupSize = 2
+    # Compare the MDTYPE values of the first two mdWrap elements. If they are
+    # the same, we are dealing with dmdSec groups of 1 dmdSec; if they are
+    # different, we are dealing with dmdSec groups of 2 dmdSecs.
+    if dmdSecsLen > 1:
+        mdWrap1 = dmdSecs[0].getElementsByTagName('mdWrap')[0]
+        mdWrap2 = dmdSecs[1].getElementsByTagName('mdWrap')[0]
+        if mdWrap1.attributes['MDTYPE'].value == mdWrap2.attributes['MDTYPE'].value:
+            groupSize = 1
+        else:
+            groupSize = 2
              
     # Loop through all the dmdSecs and pop them off in chuncks so we can
     # group them. 
@@ -752,17 +758,12 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
 def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory):
     dmdSecPair = splitDmdSecs(dmdSecs)
     nonDcMetadata = dmdSecPair['nonDc']
-    # We want to populate the AIP UUID field in the non-DC metadata with the last 36 characters of the SIP name.
-    aipUuidValues = []
-    aipUuidValues.append(dipUuid[-36:])
-    nonDcMetadata['aip_uuid'] = aipUuidValues
     dcMetadata = dmdSecPair['dc']
     descFileContents = generateDescFile(dcMetadata, nonDcMetadata, dipUuid)
-    # Make a copy of nonDcMetadata that we use for compound item children (see comment below).
-    if nonDcMetadata is not None:
-        nonDcMetadataForChildren = nonDcMetadata
-    else:
-        nonDcMetadataForChildren = {}
+    # Null out nonDcMetadataForChildren, since we don't want child-level descriptions.
+    # We handle dcMetadata for children below.
+    nonDcMetadataForChildren = {}
+    nonDcMetadataForChildren['aip_uuid'] = [dipUuid[-36:]]
 
     # Each item needs to have its own directory under outputDipDir. Since these item-level directories
     # will end up in CONTENTdm's import/cdoc directory, they need to be unique; therefore, we can't use the
@@ -771,7 +772,8 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     firstFilePath, firstFileFilename = os.path.split(filesInObjectDirectoryForThisDmdSecGroup[0])
     itemDirUuid = firstFileFilename[:8]
     outputItemDir = os.path.join(outputDipDir, itemDirUuid)
-    os.mkdir(outputItemDir)
+    if not os.path.exists(outputItemDir):
+        os.mkdir(outputItemDir)
     
     # Output a .desc file for the parent item (index.desc).
     descFile = open(os.path.join(outputItemDir, 'index.desc'), "wb")
@@ -779,7 +781,8 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     descFile.close()
 
     # Start to build the index.cpd file if there is only one structMap;
-    # if there are 2, 
+    # if there are 2 (i.e., there is a user-supplied one), convert it to
+    # a .cpd file via XSLT.
     if (len(structMaps)) == 1:
         cpdFileContent = "<cpd>\n  <type>Document</type>\n"
     if (len(structMaps)) == 2:
@@ -788,13 +791,14 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
         serializedStructMap = structMaps[1].toxml()
         cpdFileContent = transformUserSuppliedStructMap(serializedStructMap)
 
-    # Start to build the index.full file.
-    fullFileContent = ''
-    # Populate the 'full' elements for the parent item.
+    # Start to build the index.full file. This entry is for the index.cpd file.
     titleValues = ''
-    for titleValue in dcMetadata['title']:
-        titleValues += titleValue + '; '
-    titleValues = titleValues.rstrip('; ')
+    if dcMetadata is not None:
+        if len(dcMetadata['title']) == 1:
+            titleValues += dcMetadata['title'][0]
+        # Repeated values in CONTENTdm metadata need to be separated with semicolons.
+        if len(dcMetadata['title']) > 1:
+            titleValues += ';'.join(dcMetadata['title'])
     fullFileContents = generateFullFileEntry(titleValues, 'index', '.cpd')
 
     # Archivematica's structMap is always the first one; the user-submitted
@@ -819,6 +823,12 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
             # Get each access file's base filesname without extension, since we'll use it
             # for the .icon and .desc files.
             accessFileBasenameName, accessFileBasenameExt = os.path.splitext(v['filename'])
+            # The UUID is the first 36-characters of the filename.
+            accessFileUuid = accessFileBasenameName[:36]
+            # Remove the UUID from the basename.
+            accessFileBasenameName = accessFileBasenameName[37:]
+            # Reassemble the basename.
+            accessFileBasenameName = accessFileBasenameName + '-' + accessFileUuid
 
             # Get the name of the first file in the sorted order; we use this later to create
             # a thumbnail for current parent item.
@@ -831,7 +841,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                     # For each object file, output the object file. We need to find the full path
                     # of the file identified in v['filename'].
                     if (v['filename'] in fullPath):
-                        shutil.copy(fullPath, outputItemDir)
+                        shutil.copy(fullPath, os.path.join(outputItemDir, accessFileBasenameName + accessFileBasenameExt))
 
                     # For each object file, copy the thumbnail in the DIP to the import package.
                     # The file must have the same name as the object file but it must end in .icon.
@@ -847,18 +857,9 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                 # support child-level descriptions other than title, so we use the filename
                 # as the title if there isn't a user-supplied csv or structMap to provide 
                 # labels as per https://www.archivematica.org/wiki/CONTENTdm_integration.
-                
-                # First, prepare the child file label: remove the file extension, remove the
-                # UUID from the beginning of the file basename, and append it to the end.
-                
-                childFileBasename, childFileExt = os.path.splitext(v['label'])
-                # We want everything after the 36-character UUID and the '-'.
-                childFileLabel = childFileBasename[37:]
-                # Then tack on the 36-character UUID, which is at the beginnng of childFileBasename.
-                childFileLabel = childFileLabel + '-' + childFileBasename[:36]
+                childFileLabel = accessFileBasenameName
                 dcMetadata = parseDmdSec(None, childFileLabel)
                 nonDcMetadataForChildren['title'] = [childFileLabel]
-                       
                 descFileContents = generateDescFile(dcMetadata, nonDcMetadataForChildren)
                 descFilename = accessFileBasenameName + '.desc'
                 descFile = open(os.path.join(outputItemDir, descFilename), "wb")
@@ -873,7 +874,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
                     # For each object file, add its .cpd file values. 
                     cpdFileContent += "  <page>\n"
                     cpdFileContent += "    <pagetitle>" + childFileLabel + "</pagetitle>\n"
-                    cpdFileContent += "    <pagefile>" + v['filename'] + "</pagefile>\n"
+                    cpdFileContent += "    <pagefile>" + accessFileBasenameName + accessFileBasenameExt + "</pagefile>\n"
                     cpdFileContent += "    <pageptr>+</pageptr>\n"
                     cpdFileContent += "  </page>\n"
 
@@ -910,6 +911,15 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     nonDcMetadata = dmdSecPair['nonDc']
     dcMetadata = dmdSecPair['dc']    
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
+    
+    if dipUuid is not None and dcMetadata is not None:
+        if 'identifier' not in dcMetadata:
+            dcMetadata['identifier'] = [dipUuid[-36:]]
+        else:
+            if len(dcMetadata['identifier']):
+                dcMetadata['identifier'].append(dipUuid[-36:])
+            else:
+                dcMetadata['identifier'] = dipUuid[-36:]
 
     # Archivematica's stuctMap is always the first one; the user-submitted structMap
     # is always the second one. User-submitted structMaps are only supported in the
@@ -973,8 +983,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
         # Process the non-DC metadata, if there is any.
         if nonDcMetadata is not None:
             # We want to populate the AIP UUID field in the non-DC metadata with the last 36 characters of the SIP name.
-            aipUuidValues = []
-            aipUuidValues.append(dipUuid[-36:])
+            aipUuidValues = [dipUuid[-36:]]
             nonDcMetadata['aip_uuid'] = aipUuidValues
             for k, v in collectionFieldInfo['nonDcMappings'].iteritems():
                 if field == v['nick']:
@@ -993,7 +1002,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
                    else:
                        delimItemValuesRow.append('')
         # I.e., there is no nonDcMetadata.
-        else:
+        else:          
             for k, v in collectionFieldInfo['dcMappings'].iteritems():
                 if field == v['nick']:
                     # Append the field name to the header row.
@@ -1133,8 +1142,7 @@ if __name__ == '__main__':
     # Get the dmdSec nodes from the METS file.
     dmdSecs = metsDom.getElementsByTagName('dmdSec')
     numDmdSecs = len(dmdSecs)
-    # Group the dmdSecs into item-specific pairs (for DC and OTHER) or if
-    # OTHER is not present, just the DC.
+    # Group the dmdSecs into item-specific pairs (for DC and OTHER; both types are optional).
     groupedDmdSecs = groupDmdSecs(dmdSecs)
     
     # Bulk DIP. Assumes that a single item (i.e. no bulk) will only have one
