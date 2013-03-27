@@ -26,7 +26,7 @@ def execute(request):
         uuid   = request.REQUEST.get('uuid', '')
         choice = request.REQUEST.get('choice', '')
         uid    = request.REQUEST.get('uid', '')
-        result = client.execute(uuid, choice, 3)
+        result = client.execute(uuid, choice, uid)
     return HttpResponse(result, mimetype = 'text/plain')
 
 def list(request):
