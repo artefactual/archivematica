@@ -367,7 +367,7 @@ def generateDescFile(dcMetadata, nonDcMetadata, dipUuid = None):
                 if len(nonDcMetadata[normalizedElement]) == 1:
                     output += nonDcMetadata[normalizedElement][0]
                 if len(nonDcMetadata[normalizedElement]) > 1:
-                    output += ';'.join(nonDcMetadata[normalizedElement])
+                    output += '; '.join(nonDcMetadata[normalizedElement])
                 output += '</' + collectionFieldInfo['nonDcMappings'][element]['nick'] + ">\n"
             # We need to include elements that are in the collection field config but
             # that do not have any values for the current item.
@@ -397,7 +397,7 @@ def generateDescFile(dcMetadata, nonDcMetadata, dipUuid = None):
                 if len(dcMetadata[dcElement]) == 1:
                     output += dcMetadata[dcElement][0]
                 if len(dcMetadata[dcElement]) > 1:
-                    output += ';'.join(dcMetadata[dcElement])
+                    output += '; '.join(dcMetadata[dcElement])
                 output += '</' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + ">\n"
             # We need to include elements that are in the collection field config but
             # that do not have any values for the current item.
@@ -819,7 +819,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
             titleValues += dcMetadata['title'][0]
         # Repeated values in CONTENTdm metadata need to be separated with semicolons.
         if len(dcMetadata['title']) > 1:
-            titleValues += ';'.join(dcMetadata['title'])
+            titleValues += '; '.join(dcMetadata['title'])
     fullFileContents = generateFullFileEntry(titleValues, 'index', '.cpd')
 
     # Archivematica's structMap is always the first one; the user-submitted
@@ -979,7 +979,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
                             shutil.copy(fullPath, os.path.join(outputItemDir, objectFileBaseFilenameWithoutUUID + '-' + v['filename'][:36] + objectFileExtension))
   
     # I.e., single item in DIP. We take care of copying the files and assembling the
-    # child-level metadata rows further down.
+    # child-level metadata rows (applies to single, not bulk transfers, only) further down.
     else:
         scansDir = os.path.join(outputDipDir, 'scans')
         os.mkdir(scansDir)
@@ -1027,7 +1027,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
                     # Append the element value to the values row.
                     if k in dcMetadata:
                         # In CONTENTdm, repeated values are joined with a semicolon.
-                        joinedDcMetadataValues = '; '.join(dcMetadata[k])                   
+                        joinedDcMetadataValues = '; '.join(dcMetadata[k])    
                         # Rows can't contain new lines.
                         joinedDcMetadataValues = joinedDcMetadataValues.replace("\r","")
                         joinedDcMetadataValues = joinedDcMetadataValues.replace("\n","")
@@ -1058,13 +1058,14 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     # If we're dealing with a bulk DIP, prepend the item directory name to the row.
     if bulk:
         delimItemValuesRow.insert(0, itemDirUuid)
-        # Write the item-level metadata row.
-        writer.writerow(delimItemValuesRow) 
+        
+    # Write the item-level metadata row.
+    writer.writerow(delimItemValuesRow) 
 
     # Process a non-bulk DIP. Child-level titles for compound items only applies to single
     # (non-bulk) DIP items, not bulk DIPs, since we're using the CONTENTdm 'object list' Project
     # Client method of importing (see http://www.contentdm.org/help6/objects/multiple4.asp).
-    # Page labels need to be applied within the project client.
+    # Page labels for bulk items need to be applied within the project client.
     if not bulk:
         # Determine the order in which we will add the child-level rows to the delimited file.
         Orders = []
