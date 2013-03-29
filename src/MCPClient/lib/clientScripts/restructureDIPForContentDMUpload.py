@@ -367,7 +367,7 @@ def generateDescFile(dcMetadata, nonDcMetadata, dipUuid = None):
                 if len(nonDcMetadata[normalizedElement]) == 1:
                     output += nonDcMetadata[normalizedElement][0]
                 if len(nonDcMetadata[normalizedElement]) > 1:
-                    output += ';'.join(nonDcMetadata[normalizedElement])
+                    output += '; '.join(nonDcMetadata[normalizedElement])
                 output += '</' + collectionFieldInfo['nonDcMappings'][element]['nick'] + ">\n"
             # We need to include elements that are in the collection field config but
             # that do not have any values for the current item.
@@ -397,7 +397,7 @@ def generateDescFile(dcMetadata, nonDcMetadata, dipUuid = None):
                 if len(dcMetadata[dcElement]) == 1:
                     output += dcMetadata[dcElement][0]
                 if len(dcMetadata[dcElement]) > 1:
-                    output += ';'.join(dcMetadata[dcElement])
+                    output += '; '.join(dcMetadata[dcElement])
                 output += '</' + collectionFieldInfo['dcMappings'][dcElement]['nick'] + ">\n"
             # We need to include elements that are in the collection field config but
             # that do not have any values for the current item.
@@ -626,12 +626,26 @@ def getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps):
     return filesInObjectDirectoryForThisDmdSecGroup
 
 
+# Add the AIP UUID to the DC metadata. We handle non-DC metadata within 
+# each generateXXXProjectClientPackage function. Direct upload packages
+# have their DC metadata supplemented with the AIP UUID in generateDescFile().
+def addAipUuidToDcMetadata(dipUuid, dcMetadata):
+    if 'identifier' not in dcMetadata:
+        dcMetadata['identifier'] = [dipUuid[-36:]]
+    else:
+        if len(dcMetadata['identifier']):
+            dcMetadata['identifier'].append(dipUuid[-36:])
+        else:
+            dcMetadata['identifier'] = dipUuid[-36:]
+    return dcMetadata
+
+
 # Generate a 'direct upload' package for a simple item from the Archivematica DIP.
 # This package will contain the object file, its thumbnail, a .desc (DC metadata) file,
 # and a .full (manifest) file.
 def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, filesInThumbnailDirectory):
     dmdSecPair = splitDmdSecs(dmdSecs)
-    descFileContents = generateDescFile(dmdSecPair['dc'], dmdSecPair['nonDc'])
+    descFileContents = generateDescFile(dmdSecPair['dc'], dmdSecPair['nonDc'], dipUuid)
     
     # Get the object base filename and extension. Since we are dealing with simple items,
     # there should only be one file in filesInObjectDirectoryForThisDmdSec.
@@ -670,6 +684,10 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
     nonDcMetadata = dmdSecPair['nonDc']
     dcMetadata = dmdSecPair['dc']
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
+    
+    # Add the AIP UUID to the DC metadata. We handle non-DC metadata below.
+    if dipUuid is not None and dcMetadata is not None:
+        dcMetadata = addAipUuidToDcMetadata(dipUuid, dcMetadata)   
 
     # Since we are dealing with simple objects, there should only be one file
     # in filesInObjectDirectoryForThisDmdSec. Copy it into the output directory.
@@ -691,7 +709,10 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
     for field in collectionFieldInfo['order']:
         # Process the non-DC metadata, if there is any.
         if nonDcMetadata is not None:
-            # for k, v in collectionFieldInfo['dcMappings'].iteritems():
+            # We want to populate the AIP UUID field in the non-DC metadata with the last
+            # 36 characters of the SIP name.
+            aipUuidValues = [dipUuid[-36:]]
+            nonDcMetadata['aip_uuid'] = aipUuidValues
             for k, v in collectionFieldInfo['nonDcMappings'].iteritems():
                 if field == v['nick']:
                     # Append the field name to the header row.
@@ -798,7 +819,7 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
             titleValues += dcMetadata['title'][0]
         # Repeated values in CONTENTdm metadata need to be separated with semicolons.
         if len(dcMetadata['title']) > 1:
-            titleValues += ';'.join(dcMetadata['title'])
+            titleValues += '; '.join(dcMetadata['title'])
     fullFileContents = generateFullFileEntry(titleValues, 'index', '.cpd')
 
     # Archivematica's structMap is always the first one; the user-submitted
@@ -912,14 +933,9 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     dcMetadata = dmdSecPair['dc']    
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
     
+    # Add the AIP UUID to the DC metadata. We handle non-DC metadata below.
     if dipUuid is not None and dcMetadata is not None:
-        if 'identifier' not in dcMetadata:
-            dcMetadata['identifier'] = [dipUuid[-36:]]
-        else:
-            if len(dcMetadata['identifier']):
-                dcMetadata['identifier'].append(dipUuid[-36:])
-            else:
-                dcMetadata['identifier'] = dipUuid[-36:]
+        dcMetadata = addAipUuidToDcMetadata(dipUuid, dcMetadata)
 
     # Archivematica's stuctMap is always the first one; the user-submitted structMap
     # is always the second one. User-submitted structMaps are only supported in the
@@ -963,7 +979,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
                             shutil.copy(fullPath, os.path.join(outputItemDir, objectFileBaseFilenameWithoutUUID + '-' + v['filename'][:36] + objectFileExtension))
   
     # I.e., single item in DIP. We take care of copying the files and assembling the
-    # child-level metadata rows further down.
+    # child-level metadata rows (applies to single, not bulk transfers, only) further down.
     else:
         scansDir = os.path.join(outputDipDir, 'scans')
         os.mkdir(scansDir)
@@ -982,7 +998,8 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     for field in collectionFieldInfo['order']:
         # Process the non-DC metadata, if there is any.
         if nonDcMetadata is not None:
-            # We want to populate the AIP UUID field in the non-DC metadata with the last 36 characters of the SIP name.
+            # We want to populate the AIP UUID field in the non-DC metadata with the last
+            # 36 characters of the SIP name.
             aipUuidValues = [dipUuid[-36:]]
             nonDcMetadata['aip_uuid'] = aipUuidValues
             for k, v in collectionFieldInfo['nonDcMappings'].iteritems():
@@ -1010,7 +1027,7 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
                     # Append the element value to the values row.
                     if k in dcMetadata:
                         # In CONTENTdm, repeated values are joined with a semicolon.
-                        joinedDcMetadataValues = '; '.join(dcMetadata[k])                   
+                        joinedDcMetadataValues = '; '.join(dcMetadata[k])    
                         # Rows can't contain new lines.
                         joinedDcMetadataValues = joinedDcMetadataValues.replace("\r","")
                         joinedDcMetadataValues = joinedDcMetadataValues.replace("\n","")
@@ -1041,13 +1058,14 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     # If we're dealing with a bulk DIP, prepend the item directory name to the row.
     if bulk:
         delimItemValuesRow.insert(0, itemDirUuid)
-        # Write the item-level metadata row.
-        writer.writerow(delimItemValuesRow) 
+        
+    # Write the item-level metadata row.
+    writer.writerow(delimItemValuesRow) 
 
     # Process a non-bulk DIP. Child-level titles for compound items only applies to single
     # (non-bulk) DIP items, not bulk DIPs, since we're using the CONTENTdm 'object list' Project
     # Client method of importing (see http://www.contentdm.org/help6/objects/multiple4.asp).
-    # Page labels need to be applied within the project client.
+    # Page labels for bulk items need to be applied within the project client.
     if not bulk:
         # Determine the order in which we will add the child-level rows to the delimited file.
         Orders = []
