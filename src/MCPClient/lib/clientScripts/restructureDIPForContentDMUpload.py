@@ -626,12 +626,26 @@ def getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps):
     return filesInObjectDirectoryForThisDmdSecGroup
 
 
+# Add the AIP UUID to the DC metadata. We handle non-DC metadata within 
+# each generateXXXProjectClientPackage function. Direct upload packages
+# have their DC metadata supplemented with the AIP UUID in generateDescFile().
+def addAipUuidToDcMetadata(dipUuid, dcMetadata):
+    if 'identifier' not in dcMetadata:
+        dcMetadata['identifier'] = [dipUuid[-36:]]
+    else:
+        if len(dcMetadata['identifier']):
+            dcMetadata['identifier'].append(dipUuid[-36:])
+        else:
+            dcMetadata['identifier'] = dipUuid[-36:]
+    return dcMetadata
+
+
 # Generate a 'direct upload' package for a simple item from the Archivematica DIP.
 # This package will contain the object file, its thumbnail, a .desc (DC metadata) file,
 # and a .full (manifest) file.
 def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSec, filesInThumbnailDirectory):
     dmdSecPair = splitDmdSecs(dmdSecs)
-    descFileContents = generateDescFile(dmdSecPair['dc'], dmdSecPair['nonDc'])
+    descFileContents = generateDescFile(dmdSecPair['dc'], dmdSecPair['nonDc'], dipUuid)
     
     # Get the object base filename and extension. Since we are dealing with simple items,
     # there should only be one file in filesInObjectDirectoryForThisDmdSec.
@@ -670,6 +684,10 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
     nonDcMetadata = dmdSecPair['nonDc']
     dcMetadata = dmdSecPair['dc']
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
+    
+    # Add the AIP UUID to the DC metadata. We handle non-DC metadata below.
+    if dipUuid is not None and dcMetadata is not None:
+        dcMetadata = addAipUuidToDcMetadata(dipUuid, dcMetadata)   
 
     # Since we are dealing with simple objects, there should only be one file
     # in filesInObjectDirectoryForThisDmdSec. Copy it into the output directory.
@@ -691,7 +709,10 @@ def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, ou
     for field in collectionFieldInfo['order']:
         # Process the non-DC metadata, if there is any.
         if nonDcMetadata is not None:
-            # for k, v in collectionFieldInfo['dcMappings'].iteritems():
+            # We want to populate the AIP UUID field in the non-DC metadata with the last
+            # 36 characters of the SIP name.
+            aipUuidValues = [dipUuid[-36:]]
+            nonDcMetadata['aip_uuid'] = aipUuidValues
             for k, v in collectionFieldInfo['nonDcMappings'].iteritems():
                 if field == v['nick']:
                     # Append the field name to the header row.
@@ -912,14 +933,9 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     dcMetadata = dmdSecPair['dc']    
     collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
     
+    # Add the AIP UUID to the DC metadata. We handle non-DC metadata below.
     if dipUuid is not None and dcMetadata is not None:
-        if 'identifier' not in dcMetadata:
-            dcMetadata['identifier'] = [dipUuid[-36:]]
-        else:
-            if len(dcMetadata['identifier']):
-                dcMetadata['identifier'].append(dipUuid[-36:])
-            else:
-                dcMetadata['identifier'] = dipUuid[-36:]
+        dcMetadata = addAipUuidToDcMetadata(dipUuid, dcMetadata)
 
     # Archivematica's stuctMap is always the first one; the user-submitted structMap
     # is always the second one. User-submitted structMaps are only supported in the
@@ -982,7 +998,8 @@ def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, 
     for field in collectionFieldInfo['order']:
         # Process the non-DC metadata, if there is any.
         if nonDcMetadata is not None:
-            # We want to populate the AIP UUID field in the non-DC metadata with the last 36 characters of the SIP name.
+            # We want to populate the AIP UUID field in the non-DC metadata with the last
+            # 36 characters of the SIP name.
             aipUuidValues = [dipUuid[-36:]]
             nonDcMetadata['aip_uuid'] = aipUuidValues
             for k, v in collectionFieldInfo['nonDcMappings'].iteritems():
