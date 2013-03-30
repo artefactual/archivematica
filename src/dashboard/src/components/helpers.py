@@ -16,9 +16,8 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.utils.dateformat import format
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.core.paginator import Paginator
 from main import models
-import cPickle
 
 # Used for raw SQL queries to return data in dictionaries instead of lists
 def dictfetchall(cursor):
