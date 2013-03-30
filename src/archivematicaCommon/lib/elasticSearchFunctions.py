@@ -73,6 +73,7 @@ def connect_and_index_aip(uuid, name, date, filePath):
         'date':     date,
         'filePath': filePath,
         'size':     os.path.getsize(filePath) / float(1024) / float(1024),
+        'origin':   getDashboardUUID(),
         'created':  datetime.datetime.now()
     }
     conn.index(aipData, 'aips', 'aip')
@@ -144,7 +145,8 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName):
       'METS':      {
         'dmdSec': {},
         'amdSec': {}
-      }
+      },
+      'origin': getDashboardUUID()
     }
     dmdSecData = {}
 
@@ -247,6 +249,7 @@ def index_directory_files(conn, uuid, pathToTransfer, index, type):
     # document structure
     transferData = {
       'uuid': uuid,
+      'origin': getDashboardUUID(),
       'created': time.time()
     }
 
