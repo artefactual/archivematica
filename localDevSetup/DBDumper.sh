@@ -34,6 +34,8 @@ else
   dbpassword=""
 fi
 
+#remove FPR links for local processing
+../src/FPRClient/lib/removeLinks.py
 
 mysqldump="mysqldump -u root ${dbpassword} ${databaseName}"
 dumpTables="--skip-triggers --skip-comments -d"
@@ -41,6 +43,7 @@ dumpData="--skip-triggers --skip-comments --no-create-info --extended-insert=FAL
 # Quick load dump for testing
 #dumpData="--skip-triggers --skip-comments --no-create-info --extended-insert=TRUE"
 MCPDumpSQLLocation="../src/MCPServer/share/mysql"
+InitialFPRData="../src/FPRClient/share/mysql"
 
 #echo 'START TRANSACTION;' > $MCPDumpSQLLocation
 echo 'SET foreign_key_checks = 0;' > $MCPDumpSQLLocation
@@ -73,12 +76,16 @@ $mysqldump ElasticsearchIndexBackup  $dumpTables >> $MCPDumpSQLLocation
 $mysqldump auth_message auth_user auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type django_session SourceDirectories DashboardSettings StorageDirectories tastypie_apiaccess tastypie_apikey $dumpTables >> $MCPDumpSQLLocation
 $mysqldump auth_message auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type $dumpData >> $MCPDumpSQLLocation
 
-
+#initial FPR dump
+$mysqldump Commands  CommandClassifications  CommandRelationships  CommandTypes  CommandsSupportedBy  DefaultCommandsForClassifications  FileIDs  FileIDGroupMembers  FileIDTypes  FileIDsBySingleID  Groups  SubGroups $dumpData >> $InitialFPRData
 
 echo 'SET foreign_key_checks = 1;' >> $MCPDumpSQLLocation
 #echo 'COMMIT;' >> $MCPDumpSQLLocation
 
 sed -i -e 's/ AUTO_INCREMENT=[0-9]\+//' $MCPDumpSQLLocation
+
+#re-add FPR links for local processing
+../src/FPRClient/lib/addLinks.py
 
 #VIEWS
 #-- MCP-views --

@@ -102,21 +102,12 @@ function recreate-db() {
   fi
 }
 
-function mockFPR() {
-  part="Include mock FPR data"
+function FPRClient() {
+  part="Include FPRClient pull"
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
-          echo "Going to ${part} ..."
-          cd localDevSetup/mockFPR
-          sudo stop archivematica-mcp-server
-          sudo stop archivematica-mcp-client
-          sudo apache2ctl stop
-          colour ./addFPRData.sh
-          cd ..
-          sudo start archivematica-mcp-server
-          sudo start archivematica-mcp-client
-          sudo apachectl start
+    ./src/FPRClient/lib/main.py
   else
           echo "Not going to ${part}."
   fi
@@ -224,7 +215,7 @@ fi
 git-pull
 package-update
 recreate-db
-mockFPR
+FPRClient
 restart
 clone-sampledata
 install-gui

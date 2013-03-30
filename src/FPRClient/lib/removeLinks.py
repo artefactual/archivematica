@@ -20,29 +20,23 @@
 # @package Archivematica
 # @subpackage FPRClient
 # @author Joseph Perry <joseph@artefactual.com>
-from optparse import OptionParser
+
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from databaseFunctions import insertIntoEvents
+import databaseInterface
 
+def removeLinks():
+    sql = "SET foreign_key_checks = 0;"
+    databaseInterface.runSQL(sql)
+    sql = """DELETE MicroServiceChainLinks, TasksConfigs, MicroServiceChainLinksExitCodes
+FROM TasksConfigs
+INNER JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk
+INNER JOIN MicroServiceChainLinksExitCodes ON MicroServiceChainLinks.pk = MicroServiceChainLinksExitCodes.microServiceChainLink
+WHERE TasksConfigs.taskType = '5e70152a-9c5b-4c17-b823-c9298c546eeb' 
+AND MicroServiceChainLinks.pk NOT IN (SELECT MicroserviceChainLink FROM DefaultCommandsForClassifications); """
+    databaseInterface.runSQL(sql)
+    sql = "SET foreign_key_checks = 1;"
+    databaseInterface.runSQL(sql)
 
 if __name__ == '__main__':
-    parser = OptionParser()
-    parser.add_option("-i",  "--fileUUID",          action="store", dest="fileUUID", default="")
-    parser.add_option("-t",  "--eventType",        action="store", dest="eventType", default="")
-    parser.add_option("-d",  "--eventDateTime",     action="store", dest="eventDateTime", default="")
-    parser.add_option("-e",  "--eventDetail",       action="store", dest="eventDetail", default="")
-    parser.add_option("-o",  "--eventOutcome",      action="store", dest="eventOutcome", default="")
-    parser.add_option("-n",  "--eventOutcomeDetailNote",   action="store", dest="eventOutcomeDetailNote", default="")
-    parser.add_option("-u",  "--eventIdentifierUUID",      action="store", dest="eventIdentifierUUID", default="")
-
-
-    (opts, args) = parser.parse_args()
-
-    insertIntoEvents(fileUUID=opts.fileUUID, \
-                     eventIdentifierUUID=opts.eventIdentifierUUID, \
-                     eventType=opts.eventType, \
-                     eventDateTime=opts.eventDateTime, \
-                     eventDetail=opts.eventDetail, \
-                     eventOutcome=opts.eventOutcome, \
-                     eventOutcomeDetailNote=opts.eventOutcomeDetailNote)
+    removeLinks()

@@ -70,7 +70,7 @@ def parseIdsSimple(FITS_XML, fileUUID):
                         if element2.text in identified:
                             continue
                         identified.append(element2.text)
-                        sql = """SELECT fileID FROM FileIDsBySingleID WHERE tool = '%s' AND toolVersion='%s' AND id = '%s';""" % (toolKey, toolVersion, element2.text)
+                        sql = """SELECT fileID FROM FileIDsBySingleID WHERE tool = '%s' AND toolVersion='%s' AND id = '%s' AND FileIDsBySingleID.enabled = TRUE;""" % (toolKey, toolVersion, element2.text)
                         fileIDS = databaseInterface.queryAllSQL(sql)
                         if not fileIDS:
                             print "No Archivematica entry found for:", toolKey, toolVersion, element2.text
@@ -84,7 +84,7 @@ def parseIdsSimple(FITS_XML, fileUUID):
     for element in FITS_XML.findall(".//{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}identity[@mimetype]"):
         format = element.get("mimetype")
         if format:
-            sql = """SELECT FileIDsBySingleID.fileID, FileIDs.fileIDType, FileIDsBySingleID.id FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = 'c26227f7-fca8-4d98-9d8e-cfab86a2dd0a' AND FileIDsBySingleID.id = '%s';""" % (format)
+            sql = """SELECT FileIDsBySingleID.fileID, FileIDs.fileIDType, FileIDsBySingleID.id FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = 'c26227f7-fca8-4d98-9d8e-cfab86a2dd0a' AND FileIDsBySingleID.id = '%s' AND FileIDsBySingleID.enabled = TRUE AND FileIDs.enabled = TRUE;""" % (format)
             fileIDS = databaseInterface.queryAllSQL(sql)
             for fileID in fileIDS:
                 sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (fileUUID, fileID[0])
@@ -92,7 +92,7 @@ def parseIdsSimple(FITS_XML, fileUUID):
     for element in FITS_XML.findall(".//{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}identity[@format]"):
         format = element.get("format")
         if format:
-            sql = """SELECT FileIDsBySingleID.fileID, FileIDs.fileIDType, FileIDsBySingleID.id FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = 'b0bcccfb-04bc-4daa-a13c-77c23c2bda85' AND FileIDsBySingleID.id = '%s';""" % (format)
+            sql = """SELECT FileIDsBySingleID.fileID, FileIDs.fileIDType, FileIDsBySingleID.id FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = 'b0bcccfb-04bc-4daa-a13c-77c23c2bda85' AND FileIDsBySingleID.id = '%s' AND FileIDsBySingleID.enabled = TRUE AND FileIDs.enabled = TRUE;""" % (format)
             fileIDS = databaseInterface.queryAllSQL(sql)
             for fileID in fileIDS:
                 sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (fileUUID, fileID[0])

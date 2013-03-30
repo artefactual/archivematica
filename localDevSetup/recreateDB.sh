@@ -68,3 +68,7 @@ dbpassword=""
 #set +o verbose #echo off
 printGreen="${databaseName} database created successfully."
 echo -e "\e[6;32m${printGreen}\e[0m"
+
+#do initial FPR setup:
+echo "Insert FPR data dump"
+"${currentDir}/../src/FPRClient/share/putInitialFPR.sh"

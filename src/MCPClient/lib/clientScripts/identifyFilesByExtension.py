@@ -25,7 +25,7 @@ import os
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from databaseFunctions import escapeForDB
-
+databaseInterface.printSQL = True
 
 a = """SELECT FileIDsBySingleID.fileID, FileIDs.fileIDType, FileIDsBySingleID.id FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = '16ae42ff-1018-4815-aac8-cceacd8d88a8' AND FileIDsBySingleID.id = 'raw';"""
 
@@ -35,8 +35,11 @@ def run(target, fileUUID):
     if extensionIndex != -1:
         extension = basename[extensionIndex+1:] 
         print "extension:", extension
-        sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', (SELECT FileIDsBySingleID.fileID FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = '16ae42ff-1018-4815-aac8-cceacd8d88a8' AND FileIDsBySingleID.id = '%s'))""" % (escapeForDB(fileUUID), escapeForDB(extension.lower()))
-        databaseInterface.runSQL(sql)
+        sql1= """SELECT FileIDsBySingleID.fileID FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = '16ae42ff-1018-4815-aac8-cceacd8d88a8' AND FileIDsBySingleID.id = '%s' AND FileIDs.enabled = TRUE AND FileIDsBySingleID.enabled = TRUE;""" % (escapeForDB(extension.lower())) 
+        rows = databaseInterface.queryAllSQL(sql1)  
+        for row in rows:
+            sql2 = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (escapeForDB(fileUUID), row[0])
+            databaseInterface.runSQL(sql2)
         
 if __name__ == '__main__':
     target = sys.argv[1]

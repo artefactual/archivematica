@@ -22,7 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 from optparse import OptionParser
 from StringIO import StringIO    
-
+from httplib import responses
 import json
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
@@ -35,7 +35,9 @@ def getFromRestAPI(url, params, verbose=False, auth=None):
     r = requests.get(url, params=params, auth=auth)
 
     if r.status_code != 200:
-        raise
+        print >>sys.stderr, "got error status code:", r.status_code, responses[r.status_code]
+        print >>sys.stderr, "url:", url, "params:", params 
+        raise Exception(r.status_code, responses[r.status_code])
     if verbose:
         print r.headers['content-type']
         print r.encoding
