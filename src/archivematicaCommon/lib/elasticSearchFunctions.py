@@ -30,6 +30,15 @@ import xml.etree.ElementTree as ElementTree
 
 pathToElasticSearchServerConfigFile='/etc/elasticsearch/elasticsearch.yml'
 
+def getDashboardUUID():
+    sql = "SELECT value FROM DashboardSettings WHERE name='%s'"
+    sql = sql % (MySQLdb.escape_string('dashboard_uuid'))
+
+    rows = databaseInterface.queryAllSQL(sql)
+
+    if len(rows) == 1:
+        return rows[0][0]
+
 def getElasticsearchServerHostAndPort():
     clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
     config = ConfigParser.SafeConfigParser()
