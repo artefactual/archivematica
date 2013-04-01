@@ -163,8 +163,9 @@ def administration_processing(request):
                     )
 
         # set quarantine duration if applicable
-        quarantine_expiry = request.POST.get('quarantine_expiry', '')
-        if quarantine_expiry != '':
+        quarantine_expiry_enabled = request.POST.get('quarantine_expiry_enabled', '')
+        quarantine_expiry         = request.POST.get('quarantine_expiry', '')
+        if quarantine_expiry_enabled == 'yes' and quarantine_expiry != '':
             xmlChoices.add_choice(
                 'Remove from quarantine',
                 'Unquarantine',
@@ -218,6 +219,7 @@ def administration_processing(request):
 
             # a quarantine expiry was found
             if applies_to == 'Remove from quarantine':
+                quarantine_expiry_enabled_checked = 'checked'
                 quarantine_expiry = choice.find('delay').text
 
             # check select fields for defaults

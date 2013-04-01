@@ -39,8 +39,11 @@
         {% endfor %}
 
         <tr>
-          <td colspan='2'>
+          <td>
+            <input type='checkbox' name='quarantine_expiry_enabled' value='yes' {{ quarantine_expiry_enabled_checked }}>
             Remove from quarantine after
+          </td>
+          <td colspan>
             <input name='quarantine_expiry' value='{{ quarantine_expiry }}' class='span1' />
             days
           </td>
