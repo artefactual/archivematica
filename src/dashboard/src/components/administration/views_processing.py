@@ -55,37 +55,41 @@ class PreconfiguredChoices:
 
 def administration_processing(request):
     clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-    config = ConfigParser.SafeConfigParser()
-    config.read(clientConfigFilePath)
-    shared_directory = config.get('MCPClient', "sharedDirectoryMounted")
-    file_path = os.path.join(shared_directory, 'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml')
+    config               = ConfigParser.SafeConfigParser()
 
-    optional_radio_fields = [
+    config.read(clientConfigFilePath)
+
+    shared_directory     = config.get('MCPClient', "sharedDirectoryMounted")
+    file_path            = os.path.join(shared_directory, 'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml')
+
+    boolean_select_fields = [
         {
-            "name":         "backup_transfer",
-            "label":        "Create transfer backup",
-            "yes_option":   "Backup transfer",
-            "no_option":    "Do not backup transfer",
+            "name":       "backup_transfer",
+            "label":      "Create transfer backup",
+            "yes_option": "Backup transfer",
+            "no_option":  "Do not backup transfer",
             "applies_to": "Workflow decision - create transfer backup"
         },
         {
-            "name":         "quarantine_transfer",
-            "label":        "Send transfer to quarantine",
-            "yes_option":   "Quarantine",
-            "no_option":    "Skip quarantine",
+            "name":       "quarantine_transfer",
+            "label":      "Send transfer to quarantine",
+            "yes_option": "Quarantine",
+            "no_option":  "Skip quarantine",
             "applies_to": "Workflow decision - send transfer to quarantine"
         },
         {
-            "name":  "normalize_transfer",
-            "label": "Approve normalization",
+            "name":       "normalize_transfer",
+            "label":      "Approve normalization",
             "applies_to": "Approve normalization",
-            "action": "Approve"
+            "yes_option": "Approve normalization",
+            "action":     "Approve"
         },
         {
-            "name":  "store_aip",
-            "label": "Store AIP",
+            "name":       "store_aip",
+            "label":      "Store AIP",
+            "yes_option": "Store AIP",
             "applies_to": "Store AIP",
-            "action": "Store AIP"
+            "action":     "Store AIP"
         }
     ]
 
@@ -130,7 +134,7 @@ def administration_processing(request):
         xmlChoices = PreconfiguredChoices()
 
         # use toggle field submissions to add to XML
-        for field in optional_radio_fields:
+        for field in boolean_select_fields:
             enabled = request.POST.get(field['name'])
             if enabled == 'yes':
                 if 'yes_option' in field:
@@ -138,13 +142,20 @@ def administration_processing(request):
                     toggle = request.POST.get(field['name'] + '_toggle', '')
                     if toggle == 'yes':
                         go_to_chain_text = field['yes_option']
-                    else:
+                    elif 'no_option' in field:
                         go_to_chain_text = field['no_option']
 
-                    xmlChoices.add_choice(
-                        field['applies_to'],
-                        go_to_chain_text
-                    )
+                    if 'no_option' in field:
+                        xmlChoices.add_choice(
+                            field['applies_to'],
+                            go_to_chain_text
+                        )
+                    else:
+                        if toggle == 'yes':
+                            xmlChoices.add_choice(
+                                field['applies_to'],
+                                go_to_chain_text
+                            )
                 else:
                     xmlChoices.add_choice(
                         field['label'],
@@ -183,7 +194,7 @@ def administration_processing(request):
         root = etree.fromstring(xml)
         choices = root.find('preconfiguredChoices')
 
-        for item in optional_radio_fields:
+        for item in boolean_select_fields:
             item['checked']     = ''
             item['yes_checked'] = ''
             item['no_checked']  = ''
@@ -193,15 +204,15 @@ def administration_processing(request):
             go_to_chain = choice.find('goToChain').text
 
             # use toggle field submissions to add to XML
-            for field in optional_radio_fields:
+            for field in boolean_select_fields:
                 if applies_to == field['applies_to']:
-                    set_field_property_by_name(optional_radio_fields, field['name'], 'checked', 'checked')
+                    set_field_property_by_name(boolean_select_fields, field['name'], 'checked', 'checked')
 
                     if 'yes_option' in field:
                         if go_to_chain == field['yes_option']:
-                            set_field_property_by_name(optional_radio_fields, field['name'], 'yes_checked', 'checked')
+                            set_field_property_by_name(boolean_select_fields, field['name'], 'yes_checked', 'selected')
                         else:
-                            set_field_property_by_name(optional_radio_fields, field['name'], 'no_checked', 'checked')
+                            set_field_property_by_name(boolean_select_fields, field['name'], 'no_checked', 'selected')
 
             # a quarantine expiry was found
             if applies_to == 'Remove from quarantine':

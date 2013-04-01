@@ -24,19 +24,17 @@
 
       <form method='POST'>
       <table>
-        {% for item in optional_radio_fields %}
+        {% for item in boolean_select_fields %}
         <tr>
           <td>
             <input type='checkbox' name='{{ item.name }}' value='yes' {{ item.checked }}> {{ item.label }}
             </form>
           </td>
           <td>
-            {% if item.name != 'normalize_transfer' and item.name != 'store_aip' %}
-              <input type='radio' name='{{ item.name }}_toggle' value='yes' {{ item.yes_checked }}> Yes
-              <input type='radio' name='{{ item.name }}_toggle' value='no' {{ item.no_checked }}> No
-            {% else %}
-              <input type='radio' name='{{ item.name }}_toggle' value='yes' checked> Yes
-            {% endif %}
+            <select name='{{ item.name }}_toggle'>
+              <option value='yes' {{ item.yes_checked }}>Yes</option>
+              <option value='no' {{ item.no_checked }}>No</option>
+            </select>
           </td>
         </tr>
         {% endfor %}
