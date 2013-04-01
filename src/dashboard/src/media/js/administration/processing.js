@@ -51,6 +51,7 @@ $(document).ready(function() {
        $('[name="' + relatedSelectName + '"]').each(function() {
          if (disabled) {
            $(this).attr('disabled', 'true');
+           $(this).val('');
          } else {
            $(this).removeAttr('disabled');
          }
@@ -62,9 +63,26 @@ $(document).ready(function() {
   // disable applicable selects on initial page load
   disableApplicableSelects();
 
+  function disableQuarantineInput() {
+    $('[name="quarantine_expiry_enabled"]').each(function() {
+      disabled = ($(this).attr('checked') != 'checked');
+      $('[name="quarantine_expiry"]').each(function() {
+        if (disabled) {
+          $(this).attr('disabled', 'true');
+          $(this).attr('value', '');
+        } else {
+          $(this).removeAttr('disabled');
+        }
+      });
+    });
+  }
+
+  disableQuarantineInput();
+ 
   // update disabling when checkboxes are toggled
   $('[type="checkbox"]').change(function() {
     disableApplicableBooleanSelects();
     disableApplicableSelects();
+    disableQuarantineInput();
   });
 });
