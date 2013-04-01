@@ -173,12 +173,14 @@ def administration_processing(request):
 
         # use select field submissions to add to XML
         for field in select_fields:
-            field_value = request.POST.get(field['name'], '')
-            if field_value != '':
-                xmlChoices.add_choice(
-                    field['label'],
-                    field_value
-                )
+            enabled = request.POST.get(field['name'] + '_enabled')
+            if enabled == 'yes':
+                field_value = request.POST.get(field['name'], '')
+                if field_value != '':
+                    xmlChoices.add_choice(
+                        field['label'],
+                        field_value
+                    )
 
         xmlChoices.write_to_file(file_path)
 
@@ -222,6 +224,7 @@ def administration_processing(request):
             for field in select_fields:
                 if applies_to == field['label']:
                     field['selected'] = go_to_chain
+                    field['checked'] = 'checked'
 
     return render(request, 'administration/processing.html', locals())
 

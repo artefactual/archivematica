@@ -28,7 +28,6 @@
         <tr>
           <td>
             <input type='checkbox' name='{{ item.name }}' value='yes' {{ item.checked }}> {{ item.label }}
-            </form>
           </td>
           <td>
             <select name='{{ item.name }}_toggle'>
@@ -49,7 +48,9 @@
 
         {% for item in select_fields %}
         <tr>
-          <td>{{ item.label }}</td>
+          <td>
+            <input type='checkbox' name='{{ item.name }}_enabled' value='yes' {{ item.checked }}> {{ item.label }}
+          </td>
           <td>
             <select name="{{ item.name }}">
               {% for option in item.options %}
