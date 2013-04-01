@@ -6,6 +6,7 @@
 {% block page_id %}Administration{% endblock %}
 
 {% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/administration/processing.js"></script>
 {% endblock %}
 
 {% block css %}
@@ -34,7 +35,7 @@
               <input type='radio' name='{{ item.name }}_toggle' value='yes' {{ item.yes_checked }}> Yes
               <input type='radio' name='{{ item.name }}_toggle' value='no' {{ item.no_checked }}> No
             {% else %}
-              <input type='radio' value='yes' checked> Yes
+              <input type='radio' name='{{ item.name }}_toggle' value='yes' checked> Yes
             {% endif %}
           </td>
         </tr>
