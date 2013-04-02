@@ -73,6 +73,11 @@ if __name__ == '__main__':
         path = os.path.join(tmpSIPDir, directory)
         if not os.path.isdir(path):
             os.makedirs(path)
-
+    
+    #copy processingMCP.xml file
+    src = os.path.join(os.path.dirname(objectsDirectory[:-1]), "processingMCP.xml") 
+    dst = os.path.join(tmpSIPDir, "processingMCP.xml")
+    shutil.copy(src, dst)
+    
     #moveSIPTo autoProcessSIPDirectory
     shutil.move(tmpSIPDir, destSIPDir)

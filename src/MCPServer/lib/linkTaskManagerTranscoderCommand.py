@@ -67,12 +67,13 @@ class linkTaskManagerTranscoderCommand:
             for key, value in SIPReplacementDic.iteritems():
                 opts[optsKey] = opts[optsKey].replace(key, value)
 
-        self.tasksLock.acquire()
         commandReplacementDic = unit.getReplacementDic()
         sql = """SELECT CommandRelationships.pk FROM CommandRelationships JOIN Commands ON CommandRelationships.command = Commands.pk WHERE CommandRelationships.pk = '%s';""" % (pk.__str__())
         rows = databaseInterface.queryAllSQL(sql)
         taskCount = 0
+        tasksList = []
         if rows:
+            self.tasksLock.acquire()
             for row in rows:
                 UUID = uuid.uuid4().__str__()
                 opts["taskUUID"] = UUID
@@ -89,27 +90,26 @@ class linkTaskManagerTranscoderCommand:
                 task = taskStandard(self, execute, opts, standardOutputFile, standardErrorFile, outputLock=outputLock, UUID=UUID)
                 self.tasks[UUID] = task
                 databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, UUID, arguments)
-                t = threading.Thread(target=task.performTask)
-                t.daemon = True
-                while(archivematicaMCP.limitTaskThreads <= threading.activeCount()):
-                    #print "Waiting for active threads", threading.activeCount()
-                    self.tasksLock.release()
-                    time.sleep(archivematicaMCP.limitTaskThreadsSleep)
-                    self.tasksLock.acquire()
-                print "Active threads:", threading.activeCount()
                 taskCount += 1
-                t.start()
-
-
-        self.clearToNextLink = True
-        self.tasksLock.release()
-        if taskCount == 0:
+                tasksList.append(task)
+            self.tasksLock.release()
+            
+            for task in tasksList:
+                task.performTask()
+        
+        else:
             self.jobChainLink.linkProcessingComplete(self.exitCode)
+        
+        
+        
+            
 
 
     def taskCompletedCallBackFunction(self, task):
         #logTaskCompleted()
         self.exitCode += math.fabs(task.results["exitCode"])
+        print >>sys.stderr, "DEBUG 4872-2", task.UUID, task.results["stdOut"]
+        print >>sys.stderr, "DEBUG 4872-3", task.UUID, task.results["stdError"]
         databaseFunctions.logTaskCompletedSQL(task)
         self.tasksLock.acquire()
         
@@ -121,7 +121,7 @@ class linkTaskManagerTranscoderCommand:
             exit(1)
 
         
-        if self.clearToNextLink == True and self.tasks == {} :
+        if self.tasks == {} :
             print "DEBUG proceeding to next link", self.jobChainLink.UUID
             self.jobChainLink.linkProcessingComplete(self.exitCode, self.jobChainLink.passVar)
         self.tasksLock.release()

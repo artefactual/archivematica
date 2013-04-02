@@ -54,7 +54,7 @@ def reconnect():
             print >>sys.stderr, inst.args
             time.sleep(secondsBetweenRetry)
             if a+1 == retryAttempts:
-                raise Exception(inst)
+                raise 
 
 def getSeparator():
     global separator
@@ -117,7 +117,7 @@ def runSQL(sql):
             print >>sys.stderr, type(inst)     # the exception instance
             print >>sys.stderr, inst.args
         sqlLock.release()
-        raise Exception(inst)
+        raise 
     db.commit()
     sqlLock.release()
     return
@@ -151,12 +151,19 @@ def insertAndReturnID(sql):
                 print >>sys.stderr, "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
             sqlLock.release()
             raise 
+    except MySQLdb.Warning, e:
+            print >>sys.stderr, "Error query: ", sql
+            print >>sys.stderr, type(e)     # the exception instance
+            print >>sys.stderr, e
+            print >>sys.stderr, e.args
+            sqlLock.release()
+            raise
     except Exception as inst:
             print >>sys.stderr, "Error query: ", sql
             print >>sys.stderr, type(inst)     # the exception instance
             print >>sys.stderr, inst.args
             sqlLock.release()
-            raise Exception(inst)
+            raise 
     db.commit()
     sqlLock.release()
     return ret
