@@ -62,12 +62,11 @@ def getAgentForFileUUID(fileUUID):
     if sipUUID:
         rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ('SIP', sipUUID, "activeAgent"))
         if len(rows):
-            agent = "'%s'" % (rows[0])
+            agent = "%s" % (rows[0])
     if transferUUID and not agent: #agent hasn't been found yet
         rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ("Transfer", transferUUID, "activeAgent"))
         if len(rows):
-            agent = "'%s'" % (rows[0])
-    
+            agent = "%s" % (rows[0])
     return agent
 
 def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=databaseInterface.getUTCDate(), eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
@@ -83,7 +82,8 @@ def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDat
                             + escapeForDB(eventDateTime) + databaseInterface.separator \
                             + escapeForDB(eventDetail) + databaseInterface.separator \
                             + escapeForDB(eventOutcome) + databaseInterface.separator \
-                            + escapeForDB(eventOutcomeDetailNote) + "', " + agent + " )" )
+                            + escapeForDB(eventOutcomeDetailNote) + "', " + escapeForDB(agent) + " )" )
+
 
 def insertIntoDerivations(sourceFileUUID="", derivedFileUUID="", relatedEventUUID=""):
     databaseInterface.runSQL("""INSERT INTO Derivations
