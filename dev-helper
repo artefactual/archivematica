@@ -179,19 +179,18 @@ function install-gui() {
   fi
 }
 
-function update-qubit() {
-  part="update Qubit (trunk) and restart its qubit-sword service"
+function update-atom() {
+  part="update AtoM (branch 1.x) and restart its atom-worker service"
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
-          sudo chmod -R 777 qubit-git
-          cd qubit-git
+          sudo chmod -R 777 atom-git
+          cd atom-git
           git pull
           cd -
-          sudo chmod -R 777 qubit-git
-          colour sudo stop qubit-sword
-          colour sudo start qubit-sword
-          echo "Remember to activate sfSwordPlugin and restart Qubit database if necessary!"
+          sudo chmod -R 777 atom-git
+          colour sudo stop atom-worker
+          colour sudo start atom-worker
   else
           echo "Not going to ${part}."
   fi
@@ -221,4 +220,4 @@ FPRClient
 restart
 clone-sampledata
 install-gui
-update-qubit
+update-atom
