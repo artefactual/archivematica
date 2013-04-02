@@ -221,5 +221,4 @@ def preservation_planning_fpr_data(request, current_page_number = None):
 
 def fpr_edit_format(request):
     formatIDForm = FPREditFormatID()
-
     return render(request, 'main/edit_format_id_fpr.html', locals())
