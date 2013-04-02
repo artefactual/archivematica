@@ -110,8 +110,6 @@ class linkTaskManagerTranscoderCommand:
     def taskCompletedCallBackFunction(self, task):
         #logTaskCompleted()
         self.exitCode += math.fabs(task.results["exitCode"])
-        print >>sys.stderr, "DEBUG 4872-2", task.UUID, task.results["stdOut"]
-        print >>sys.stderr, "DEBUG 4872-3", task.UUID, task.results["stdError"]
         try:
             databaseFunctions.logTaskCompletedSQL(task)
         except MySQLdb.Warning, e:
