@@ -36,6 +36,10 @@
         background: -webkit-linear-gradient(#eee, #fff);
     }
 
+    tr.row-header > th {
+        background-color: #ffedb7 !important;
+    }
+
     th.advanced {
         background-color: #ffedb7 !important;
     }
@@ -87,21 +91,17 @@
 //                $(this).marg
 //            });
 
-        $advanced = $('.advanced').hide();
         $('#perf').click(function() {
-            if ($(this).is(':checked')) {
-              var $sender = $(this);
-              $advanced.show();
-              $th.attr('colspan', 10);
+            if (!$(this).is(':checked')) {
+
             }
             else {
-              $advanced.hide();
-              $th.attr('colspan', 5);
+
             }
         });
 
-        <!-- Give the rows a different bg colour if mouse over -->
         $th = $('thead > tr > th:last');
+
         $('tbody tr').hover(function()
         {
             $(this).addClass('hover');
@@ -112,10 +112,9 @@
 
         var link = '<a href="">Show</a>';
 
-        <!-- Hide / Show the format's command -->
         $('td.cmd > div')
             .hide()
-            .before('<img src="{{ STATIC_URL }}images/table_edit.png" style="margin-top=10px">&nbsp;&nbsp;')
+            .before('<img src="../../media/images/table_edit.png" style="margin-top=10px">&nbsp;&nbsp;')
             .after(link).next().click(function(event)
             {
                 event.preventDefault();
@@ -168,75 +167,38 @@
 <table style="width:100%;table-layout:auto;word-wrap:break-word" class="FileIDsTable">
 
 <thead style="color:black;">
-  <tr>
-    <th>Archivematica format ID</th>
-    <th> Tool </th>
-    <th> <div style="width:80px;">Tool version </div></th>
-    <th> Format </th>
-    <th> Purpose </th>
-    <th> Output </th>
-    <th> Command </th>
-    <th class="advanced">Command type</th>
-    <th class="advanced"><img src="{{ STATIC_URL }}images/accept.png" title="Successful"  /></th>
-    <th class="advanced"><img src="{{ STATIC_URL }}images/delete.png" title="Unsuccessful" /></th>
-    <th class="advanced"><img src="{{ STATIC_URL }}images/error.png" title="Frozen/processing" /></th>
-    <th> Command description </th>
-  </tr>
+<tr class="row-header">
+  <th>Archivematica format ID</th>
+  <th> Tool </th>
+  <th> <div style="width:80px;">Tool version </div></th>
+  <th> Format </th>
+  <th> Purpose </th>
+  <th> Output </th>
+  <th> Command </th>
+  <th> Command description </th>
+</tr>
 </thead>
 <tbody>
 
 {% for row in page.objects %}
 
-<!-- Output the formats in the tables -->
 <tr>
-  <!-- Format ID -->
-  <td>
-    <div style="width:160px;">
-      <img src="{{ STATIC_URL }}images/table_edit.png" padding = 4> {{ row.FileIDs_description }}
-    </div>
+  <td><div style="width:130px;">
+      <img src="../../media/images/table_edit.png" padding=4>
+      {{ row.FileIDs_description }}
+  </div></td>
+
+  <td><div style="width:230px;">{{ row.tool }}</div></td>
+  <td>{{ row.toolVersion }}</td>
+  <td><div style="width:70px;">{{ row.id }}</div></td>
+  <td>{{ row.classification }}</td>
+  <td>{{ row.outputLocation }}</td>
+
+  <td class="cmd">
+      <div class="cmd">{{ row.Commands_command }}</div>
   </td>
 
-  <!-- Tool -->
-  <td>
-    <div style="width:230px;">
-      {{ row.tool }}
-    </div>
-  </td>
-
-  <!-- Tool Version -->
-  <td>
-    {{ row.toolVersion }}
-  </td>
-
-  <!-- Format -->
-  <td>
-    <div style="width:70px;">
-      {{ row.id }}
-    </div>
-  </td>
-
-  <!-- Purpose -->
-  <td>
-    {{ row.classification }}
-  </td>
-
-  <!-- Output -->
-  <td>
-    {{ row.outputLocation }}
-  </td>
-
-  <!-- Command -->
-  <td class="cmd"><div class="cmd">{{ row.Commands_command }}</div></td>
-
-  <td class="advanced">{{ row.commandType }} </td>
-  <td class="advanced">{{ row.countOK|percentage:row.countAttempts|safe }}</td>
-  <td class="advanced">{{ row.countNotOK|percentage:row.countAttempts|safe }}</td>
-  <td class="advanced">{{ row.countIncomplete|percentage:row.countAttempts|safe }}</td>
-
-  <!-- Command Description -->
-  <td>
-    {{ row.Commands_description }}
-  </td>
+  <td>{{ row.Commands_description }}</td>
 </tr>
 
 {% endfor %}
