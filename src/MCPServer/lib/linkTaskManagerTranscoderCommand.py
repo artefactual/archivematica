@@ -21,6 +21,7 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+
 from linkTaskManager import linkTaskManager
 from taskStandard import taskStandard
 from unitFile import unitFile
@@ -37,6 +38,7 @@ import databaseFunctions
 from databaseFunctions import deUnicode
 
 import os
+import MySQLdb
 
 global outputLock
 outputLock = threading.Lock()
@@ -110,7 +112,10 @@ class linkTaskManagerTranscoderCommand:
         self.exitCode += math.fabs(task.results["exitCode"])
         print >>sys.stderr, "DEBUG 4872-2", task.UUID, task.results["stdOut"]
         print >>sys.stderr, "DEBUG 4872-3", task.UUID, task.results["stdError"]
-        databaseFunctions.logTaskCompletedSQL(task)
+        try:
+            databaseFunctions.logTaskCompletedSQL(task)
+        except MySQLdb.Warning, e:
+            print >>sys.stderr, "linkTaskManagerTranscoderCommand.py task %s Suppressing mysqldb.warning: " % (task.UUID), e
         self.tasksLock.acquire()
         
         if task.UUID in self.tasks:
