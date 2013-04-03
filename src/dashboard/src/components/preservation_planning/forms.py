@@ -55,6 +55,18 @@ def getCommandTypes():
 
     return ret
 
+def getVerificationCommands():
+    query = 'Select pk, description from Commands where commandUsage = "verification"'
+    
+    cursor = connection.cursor()
+    cursor.execute(query)
+    
+    ret = []
+    for vCommand in cursor.fetchall():
+        ret.append( (vCommand[0], vCommand[1]) )
+    
+    return ret
+        
 def getPurposes():
     query = 'SELECT classification FROM CommandClassifications'
 
@@ -74,7 +86,7 @@ class FPREditFormatID(forms.Form):
     formatID = forms.CharField(label = 'Format ID', required = True)
     purpose = forms.ChoiceField(choices = getPurposes())
 
-    tool = forms.ChoiceField(choices = getTools())
+    tool = forms.ChoiceField(choices = getTools(), label= "File Identification Tool")
     toolVersion = forms.CharField(label = 'Tool Version', required = False)
 
     formatDescription = forms.CharField(label = 'Description', required = False, max_length = 100,
@@ -95,8 +107,7 @@ class FPREditCommand(forms.Form):
     commandDescription = forms.CharField(label = 'Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
     
-    verificationCommand = forms.CharField(label = 'Verification command', required = False, max_length = 100,
-        widget = TextInput(attrs = {'class':'Description'}))
+    verificationCommand = forms.ChoiceField(choices = getVerificationCommands(), label = 'Verification command', required = False)
     
     eventDetailCommand = forms.CharField(label = 'Event detail command', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
