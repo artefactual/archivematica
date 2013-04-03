@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block title %}Welcome{% endblock %}
+{% block h1 %}Welcome{% endblock %}
+{% block page_id %}welcome{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block css %}
+  <style type="text/css">
+
+    .form-stacked {
+      padding-left: 0;
+    }
+
+    .well {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+
+    #id_org_identifier + span {
+      margin-bottom: 2em;
+    }
+
+  </style>
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    <div class="span9 offset2">
+
+      <img src="{{ STATIC_URL }}images/logo_welcome.gif" style="margin-bottom: 20px;" />
+
+      <div class="well">
+        <h2>Format Policy Registry</h2>
+        <p>Please click to connect to the FPR Server (at fpr.archivematica.org) and check for any updates to the Format Policy Registry.</p>
+      </div>
+
+      <form class="form-stacked" method="post" action="{% url installer.views.fpr_connect %}">
+
+        {% include "_form.html" %}
+
+        <div class="well span9">
+          <button class="btn primary" type="submit">Connect to FPR Server</button>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+{% endblock %}

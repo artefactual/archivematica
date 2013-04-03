@@ -21,10 +21,25 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from main.models import Agent
-from installer.forms import SuperUserCreationForm
+from installer.forms import SuperUserCreationForm, FPRConnectForm
 from tastypie.models import ApiKey
 
+def fpr_connect(request):
+    #second page seen after a fresh installation
+    #attempts to connect to the fpr server
+    if request.method == 'POST':
+        #try connecting to the fpr server
+        agent = Agent.objects.get(pk=2)
+        #upload the agent info
+        #download the fpr data
+    else:
+        form = FPRConnectForm()
+
+    return render(request, 'installer/fpr_connect.html', {
+        'form': form,
+      })   
 def welcome(request):
+    #first page seen after a fresh installation
     # This form will be only accessible when the database has no users
     if 0 < User.objects.count():
       return HttpResponseRedirect(reverse('main.views.home'))
@@ -52,7 +67,7 @@ def welcome(request):
             if user is not None:
               login(request, user)
               request.session['first_login'] = True
-              return HttpResponseRedirect(reverse('main.views.home'))
+              return HttpResponseRedirect(reverse('installer.views.fpr_connect'))
     else:
         form = SuperUserCreationForm()
 
