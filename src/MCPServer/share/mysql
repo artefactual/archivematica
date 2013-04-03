@@ -785,7 +785,7 @@ UNLOCK TABLES;
 LOCK TABLES `Agents` WRITE;
 /*!40000 ALTER TABLE `Agents` DISABLE KEYS */;
 INSERT INTO `Agents` (`pk`, `agentIdentifierType`, `agentIdentifierValue`, `agentName`, `agentType`) VALUES (1,'preservation system','Archivematica-0.10-DEV','Archivematica','software');
-INSERT INTO `Agents` (`pk`, `agentIdentifierType`, `agentIdentifierValue`, `agentName`, `agentType`) VALUES (2,'repository code','ORG','Your Organization Name Here','repository code');
+INSERT INTO `Agents` (`pk`, `agentIdentifierType`, `agentIdentifierValue`, `agentName`, `agentType`) VALUES (2,'organization','fprtestcorp','FPR Test Corp.','repository code');
 /*!40000 ALTER TABLE `Agents` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2253,6 +2253,7 @@ DROP TABLE IF EXISTS `Commands`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Commands` (
   `pk` varchar(50) NOT NULL DEFAULT '',
+  `commandUsage` enum('command','verification','eventDetail') DEFAULT NULL,
   `commandType` varchar(50) DEFAULT NULL,
   `verificationCommand` varchar(50) DEFAULT NULL,
   `command` longtext,
