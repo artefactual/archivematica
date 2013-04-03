@@ -137,7 +137,7 @@ if [[ $a == "Y" || $a == "y" ]]; then
         git clone -b stable/1.3.x http://github.com/artefactual/atom.git ${WDIR}/atom-git
 
         # Link
-        sudo ln -sf ${WDIR}/atom-git /var/www/atom
+        sudo ln -sfh ${WDIR}/atom-git /var/www/ica-atom
 
         # Enable SWORD plugin
         sed -i "s/'qbAclPlugin',/      'qbAclPlugin',\n'qtSwordPlugin',/g" /var/www/atom/config/ProjectConfiguration.class.php
