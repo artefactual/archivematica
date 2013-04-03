@@ -217,6 +217,37 @@ $(function()
         {
           var jobData = this.model.toJSON();
 
+//console.log(jobData.microservicegroup); Normalize
+// console.log(jobData.currentstep); Awaiting decision
+
+          if (
+            jobData.microservicegroup == 'Normalize'
+            && jobData.type == 'Normalize'
+            && jobData.currentstep == 'Awaiting decision'
+          ) {
+            // use global variable to note whether dialog has been displayed
+            if (typeof normalizationWarningShown === 'undefined') {
+ 
+              var dialog = $('<div>Any metadata added after normalization will not be included in your packages</div>');
+ 
+              setTimeout(function() {
+                $(dialog).dialog('close');
+              }, 5000);
+ 
+              dialog.dialog({
+                title: 'Warning',
+                width: 640,
+                height: 200,
+                buttons: [{
+                  text: 'Dismiss',
+                  click: function() { $(this).dialog('close'); }
+                }]
+              });
+
+              normalizationWarningShown = true;
+            }
+          }
+
           if (
             jobData.type == 'Access normalization failed - copying'
             || jobData.type == 'Preservation normalization failed - copying'
