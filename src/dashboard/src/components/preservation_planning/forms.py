@@ -57,20 +57,7 @@ def getPurposes():
 
 class FPRSearchForm(forms.Form):
     query = forms.CharField(label='', required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
-
-class FPREditFormatID(forms.Form):
-    formatID = forms.CharField(label = 'Format ID', required = True)
-    purpose = forms.ChoiceField(choices = getPurposes())
-
-    tool = forms.ChoiceField(choices = getTools())
-    toolVersion = forms.CharField(label = 'Tool Version', required = False)
-
-    formatDescription = forms.CharField(label = 'Description', required = False, max_length = 100,
-        widget = TextInput(attrs = {'class':'Description'}))
-
-    command = forms.CharField(label = 'Command', required = False, max_length = 100,
-        widget = TextInput(attrs = {'class':'Description'}))
-
+      
 class FPREditFormatID(forms.Form):
     formatID = forms.CharField(label = 'Format ID', required = True)
     purpose = forms.ChoiceField(choices = getPurposes())
