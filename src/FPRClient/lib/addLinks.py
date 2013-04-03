@@ -27,6 +27,8 @@ import databaseInterface
 #databaseInterface.printSQL = True
 
 def addLinks():
+    # rebuilds the micro-service chains used by the Transcoder based on the FPR.
+    
     #Find all command relationships without links.
     CommandClassifications = {"3141bc6f-7f77-4809-9244-116b235e7330":"Normalize access",
      "3d1b570f-f500-4b3c-bbbc-4c58aad05c27":"Normalize preservation",

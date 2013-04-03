@@ -26,6 +26,9 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 
 def removeLinks():
+    # removes micro-services used by the transcoder that are not listed as a Default 
+    # addLinks() can then be used to rebuild the micro service chains.
+    
     sql = "SET foreign_key_checks = 0;"
     databaseInterface.runSQL(sql)
     sql = """DELETE MicroServiceChainLinks, TasksConfigs, MicroServiceChainLinksExitCodes
