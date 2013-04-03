@@ -118,7 +118,7 @@ else
         echo "Not going to ${part}"
 fi
 
-part="install AtoM (branch 1.x)"
+part="install AtoM (branch stable/1.3.x)"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
 if [[ $a == "Y" || $a == "y" ]]; then
@@ -134,7 +134,7 @@ if [[ $a == "Y" || $a == "y" ]]; then
         # mysql -u root --execute="DROP DATABASE IF EXISTS qubit;"
 
         # Clone git repository, create bran experimental from original/experimental
-        git clone -b 1.x http://github.com/artefactual/atom.git ${WDIR}/atom-git
+        git clone -b stable/1.3.x http://github.com/artefactual/atom.git ${WDIR}/atom-git
 
         # Link
         sudo ln -sf ${WDIR}/atom-git /var/www/atom
