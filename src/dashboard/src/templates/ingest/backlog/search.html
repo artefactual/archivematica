@@ -24,7 +24,7 @@
   {% include "ingest/backlog/_search_form.html" %}
 
   {% if results %}
-    {% include "ingest/backlog/_search_summary" %}
+    {% include "ingest/backlog/_search_summary.html" %}
 
     <div style='width: 80px; float: left; padding: 10px; margin-right: 10px; background-color: #eee;'>
     {% for term_usage in file_extension_usage %}
@@ -63,7 +63,7 @@
     </div>
 
     <div style='clear: both'>
-    {% include "ingest/backlog/_search_summary" %}
+    {% include "ingest/backlog/_search_summary.html" %}
     </div>
 
   {% else %}
