@@ -39,6 +39,7 @@ class MCPClient:
             data["uid"] = uid
         completed_job_request = gm_client.submit_job("approveJob", cPickle.dumps(data), None)
         #self.check_request_status(completed_job_request)
+        gm_client.shutdown()
         return
 
     def list(self):
@@ -51,6 +52,7 @@ class MCPClient:
         gm_client = gearman.GearmanClient([self.server])
         completed_job_request = gm_client.submit_job("getNotifications", "", None)
         #self.check_request_status(completed_job_request)
+        gm_client.shutdown()
         return cPickle.loads(completed_job_request.result)
 
     def check_request_status(self, job_request):
