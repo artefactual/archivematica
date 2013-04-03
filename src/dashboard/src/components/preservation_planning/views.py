@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from components.preservation_planning.forms import FPREditFormatID
+from components.preservation_planning.forms import FPREditFormatID, FPREditCommand
 from components.preservation_planning.forms import FPRSearchForm
 
 from django.db import connection, transaction
