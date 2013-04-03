@@ -25,6 +25,7 @@ urlpatterns = patterns('components.preservation_planning.views',
     #(r'$', 'preservation_planning')
     (r'old/$', 'preservation_planning'),
     (r'format/$', 'fpr_edit_format'),
+    (r'command/$', 'fpr_edit_command'),
     (r'(?P<current_page_number>\d+)/$', 'preservation_planning_fpr_data'),
     (r'$', 'preservation_planning_fpr_data'),
     (r'search/$', 'preservation_planning_fpr_search'),

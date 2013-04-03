@@ -43,6 +43,18 @@ def getTools():
 
     return ret
 
+def getCommandTypes():
+    query = 'SELECT type from CommandTypes'
+    
+    cursor = connection.cursor()
+    cursor.execute(query)
+    
+    ret = []
+    for commandType in cursor.fetchall():
+        ret.append( (commandType[0], commandType[0]) )
+
+    return ret
+
 def getPurposes():
     query = 'SELECT classification FROM CommandClassifications'
 
@@ -71,3 +83,23 @@ class FPREditFormatID(forms.Form):
     command = forms.CharField(label = 'Command', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
 
+class FPREditCommand(forms.Form):
+    commandType = forms.ChoiceField(choices = getCommandTypes())
+    
+    command = forms.CharField(label = 'Command', required = False, max_length = 100,
+        widget = TextInput(attrs = {'class':'Description'}))
+    
+    outputLocation = forms.CharField(label= 'Output location', required= False, max_length = 255,
+        widget =  TextInput(attrs = {'class':'Description'}))
+    
+    commandDescription = forms.CharField(label = 'Description', required = False, max_length = 100,
+        widget = TextInput(attrs = {'class':'Description'}))
+    
+    verificationCommand = forms.CharField(label = 'Verification command', required = False, max_length = 100,
+        widget = TextInput(attrs = {'class':'Description'}))
+    
+    eventDetailCommand = forms.CharField(label = 'Event detail command', required = False, max_length = 100,
+        widget = TextInput(attrs = {'class':'Description'}))
+    
+    
+    

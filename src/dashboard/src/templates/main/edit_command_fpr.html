@@ -1,0 +1,71 @@
+{% extends "layout_fluid.html" %}
+
+{% block css %}
+<style type="text/css">
+  table {
+    border: 2px solid black;
+    border-collapse: separate !important;
+    border-radius: 5px !important;
+    -moz-border-radius: 5px !important;
+    box-shadow: 5px 5px 3px #888888 !important;
+    text-align: left;
+  }
+
+  td {
+    border: 1px solid black;
+    text-align: left;
+
+  }
+
+  label {
+    font-weight: bold;
+    text-align: right;
+    width: 90px;
+  }
+
+  .tableTitle {
+    background: -moz-linear-gradient(100% 100% 90deg, #eee, #ddd) !important;
+    background: -webkit-linear-gradient(#eee, #fff) !important;
+    width: 200px !important;
+  }
+
+  th.title {
+    width: auto !important;
+  }
+
+  th {
+    width: 80px;
+  }
+
+  .Description {
+    width: 800px;
+  }
+
+  .formatForm {
+    width: 1000px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<html>
+  <title>
+    Command Editor
+  </title>
+<h2>Format policy - Archivematica Command</h2>
+  The format policy Archivematica Command is composed of 3 commands; 
+  the command itself, a verification command which checks after the command has run to ensure all has gone well 
+  and an event detail command that gets the information required to insert metadata into the PREMIS event.
+<br><br>
+
+<h3>Archivematica Command</h3>
+<form action="" method="post">
+    <table class = "formatForm">
+      {{ CommandForm.as_table }}
+    </table>
+  <input type="submit" value="Save">
+</form>
+
+
+</html>
+{% endblock %}
