@@ -97,6 +97,10 @@ class FPREditFormatID(forms.Form):
         widget = TextInput(attrs = {'class':'Description'}))
 
 class FPREditCommand(forms.Form):
+    COMMAND_USAGE_CHOICES = (('command','command'), ('verification','verification'), ('eventDetail','eventDetail'))
+    
+    commandUsage = forms.ChoiceField(choices = COMMAND_USAGE_CHOICES, label='Usage')
+    
     commandType = forms.ChoiceField(choices = getCommandTypes())
     
     command = forms.CharField(label = 'Command', required = False, max_length = 100,
@@ -105,6 +109,9 @@ class FPREditCommand(forms.Form):
     outputLocation = forms.CharField(label= 'Output location', required= False, max_length = 255,
         widget =  TextInput(attrs = {'class':'Description'}))
     
+    outputFileFormat = forms.CharField(label= 'Output File Format', required= False, max_length = 15,
+        widget =  TextInput(attrs = {'class':'Description'}))
+        
     commandDescription = forms.CharField(label = 'Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
     
