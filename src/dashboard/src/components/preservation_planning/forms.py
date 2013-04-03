@@ -55,8 +55,9 @@ def getCommandTypes():
 
     return ret
 
-def getVerificationCommands():
-    query = 'Select pk, description from Commands where commandUsage = "verification"'
+def getCommands(usage = 'command'):
+    
+    query = 'Select pk, description from Commands where commandUsage = "{}"'.format(usage)
     
     cursor = connection.cursor()
     cursor.execute(query)
@@ -107,10 +108,9 @@ class FPREditCommand(forms.Form):
     commandDescription = forms.CharField(label = 'Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
     
-    verificationCommand = forms.ChoiceField(choices = getVerificationCommands(), label = 'Verification command', required = False)
+    verificationCommand = forms.ChoiceField(choices = getCommands('verification'), label = 'Verification command', required = False)
     
-    eventDetailCommand = forms.CharField(label = 'Event detail command', required = False, max_length = 100,
-        widget = TextInput(attrs = {'class':'Description'}))
+    eventDetailCommand = forms.ChoiceField(choices = getCommands('eventDetail'), label = 'Event detail command', required = False)
     
     
     
