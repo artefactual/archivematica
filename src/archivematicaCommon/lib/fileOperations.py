@@ -50,7 +50,7 @@ def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID):
 
 
 def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType="ingestion", eventDetail="", use="original"):
-    print filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType, eventDetail, use
+    #print filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType, eventDetail, use
     insertIntoFiles(fileUUID, filePathRelativeToSIP, date, transferUUID=transferUUID, use=use)
     insertIntoEvents(fileUUID=fileUUID, \
                    eventIdentifierUUID=taskUUID, \
@@ -59,7 +59,23 @@ def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, d
                    eventDetail=eventDetail, \
                    eventOutcome="", \
                    eventOutcomeDetailNote="")
+    addAccessionEvent(fileUUID, transferUUID, date)
 
+def addAccessionEvent(fileUUID, transferUUID, date):
+    
+    sql = """SELECT accessionID FROM Transfers WHERE transferUUID = '%s';""" % (transferUUID)
+    accessionID=databaseInterface.queryAllSQL(sql)[0][0]
+    if accessionID:
+        eventIdentifierUUID = uuid.uuid4().__str__()
+        eventOutcomeDetailNote =  "accession#" + MySQLdb.escape_string(accessionID) 
+        insertIntoEvents(fileUUID=fileUUID, \
+               eventIdentifierUUID=eventIdentifierUUID, \
+               eventType="registration", \
+               eventDateTime=date, \
+               eventDetail="", \
+               eventOutcome="", \
+               eventOutcomeDetailNote=eventOutcomeDetailNote)
+    
 def addFileToSIP(filePathRelativeToSIP, fileUUID, sipUUID, taskUUID, date, sourceType="ingestion", use="original"):
     insertIntoFiles(fileUUID, filePathRelativeToSIP, date, sipUUID=sipUUID, use=use)
     insertIntoEvents(fileUUID=fileUUID, \
