@@ -115,6 +115,7 @@ var TransferComponentFormView = Backbone.View.extend({
             }
 
             $('#transfer-name').val('');
+            $('#transfer-accession-number').val('');
             $('#transfer-name-container').show();
             $('#transfer-type').val('standard');
             $('#path_container').html('');
