@@ -111,5 +111,6 @@ shutil.rmtree(extractDirectory)
 
 #write to ElasticSearch
 elasticSearchFunctions.connect_and_index_aip(SIPUUID, SIPNAME, SIPDATE, storeLocation)
+elasticSearchFunctions.connect_and_remove_sip_transfer_files(SIPUUID)
 
 quit(exitCode)
