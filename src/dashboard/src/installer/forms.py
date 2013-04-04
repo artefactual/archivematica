@@ -21,10 +21,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.forms.widgets import TextInput, Textarea
 from django.conf import settings
 
-class FPRConnectForm(forms.Form):
-    org_name = forms.HiddenInput('hello')
-        
-    
 class SuperUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     org_name = forms.CharField(label='Organization name', help_text='PREMIS agent name', required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
@@ -44,3 +40,7 @@ class SuperUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class FPRConnectForm(forms.Form):
+    comments = forms.CharField(required=False, widget=TextInput(attrs=settings.INPUT_ATTRS)) 
+
