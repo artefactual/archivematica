@@ -384,17 +384,7 @@ def transfer_file_download(request, uuid):
         raise Http404
 
     file_basename = os.path.basename(file.currentlocation)
-
-    # replace this with a helper function
-    clientConfigFilePath = '/etc/archivematica/MCPServer/serverConfig.conf'
-    config = ConfigParser.SafeConfigParser()
-    config.read(clientConfigFilePath)
-
-    try:
-        shared_directory_path = config.get('MCPServer', 'sharedDirectory')
-    except:
-        shared_directory_path = ''
-
+    shared_directory_path = helpers.get_server_config_value('sharedDirectory')
     transfer = models.Transfer.objects.get(uuid=file.transfer.uuid)
     path_to_transfer = transfer.currentlocation.replace('%sharedPath%', shared_directory_path)
     path_to_file = file.currentlocation.replace('%transferDirectory%', path_to_transfer)

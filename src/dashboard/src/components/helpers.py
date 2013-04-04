@@ -138,7 +138,7 @@ def get_server_config_value(field):
     config.read(clientConfigFilePath)
 
     try:
-        return config.get('MCPServer', field) # "watchDirectoryPath")
+        return config.get('MCPServer', field)
     except:
         return ''
 

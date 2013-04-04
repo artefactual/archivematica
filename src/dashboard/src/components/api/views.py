@@ -57,7 +57,6 @@ def unapproved_transfers(request):
                      | Q(jobtype="Approve bagit transfer")
                  ) & Q(currentstep='Awaiting decision')
             )
-            #jobs = models.Job.objects.filter(jobtype='Approve transfer', currentstep='Awaiting decision')
 
             for job in jobs:
                 # remove standard transfer path from directory (and last character)
@@ -131,26 +130,16 @@ def approve_transfer(request):
     else:
         raise Http404
 
-def get_server_config_value(field):
-    clientConfigFilePath = '/etc/archivematica/MCPServer/serverConfig.conf'
-    config = ConfigParser.SafeConfigParser()
-    config.read(clientConfigFilePath)
-
-    try:
-        return config.get('MCPServer', field) # "watchDirectoryPath")
-    except:
-        return ''
-
 def get_modified_standard_transfer_path(type=None):
     path = os.path.join(
-        get_server_config_value('watchDirectoryPath'),
+        helpers.get_server_config_value('watchDirectoryPath'),
         'activeTransfers'
     )
 
     if type != None:
         path = os.path.join(path, helpers.transfer_directory_by_type(type))
 
-    shared_directory_path = get_server_config_value('sharedDirectory')
+    shared_directory_path = helpers.get_server_config_value('sharedDirectory')
     return path.replace(shared_directory_path, '%sharedPath%', 1)
 
 def approve_transfer_via_mcp(directory, type, user_id):
