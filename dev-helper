@@ -184,11 +184,12 @@ function update-atom() {
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
-          sudo chmod -R 777 atom-git
           cd atom-git
-          git pull
+          sudo -u www-data git fetch origin
+          sudo -u www-data git reset --hard origin/stable/1.3.x
+          sudo -u www-data rm -rf cache/*
+          sudo -u www-data php symfony cc
           cd -
-          sudo chmod -R 777 atom-git
           colour sudo stop atom-worker
           colour sudo start atom-worker
   else
