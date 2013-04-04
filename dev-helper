@@ -187,6 +187,7 @@ function update-atom() {
           cd atom-git
           sudo -u www-data git fetch origin
           sudo -u www-data git reset --hard origin/stable/1.3.x
+          sudo -u www-data sed -i "s/'qbAclPlugin',/      'qbAclPlugin',\n'qtSwordPlugin',/g" config/ProjectConfiguration.class.php
           sudo -u www-data rm -rf cache/*
           sudo -u www-data php symfony cc
           cd -
