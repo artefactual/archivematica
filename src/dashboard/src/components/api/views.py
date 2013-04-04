@@ -137,7 +137,10 @@ def get_modified_standard_transfer_path(type=None):
     )
 
     if type != None:
-        path = os.path.join(path, helpers.transfer_directory_by_type(type))
+        try:
+            path = os.path.join(path, helpers.transfer_directory_by_type(type))
+        except:
+            return None
 
     shared_directory_path = helpers.get_server_config_value('sharedDirectory')
     return path.replace(shared_directory_path, '%sharedPath%', 1)
@@ -147,20 +150,25 @@ def approve_transfer_via_mcp(directory, type, user_id):
 
     if (directory != ''):
         # assemble transfer path
-        transfer_path = os.path.join(get_modified_standard_transfer_path(type), directory) + '/'
+        modified_transfer_path = get_modified_standard_transfer_path(type)
 
-        # look up job UUID using transfer path
-        try:
-            job = models.Job.objects.filter(directory=transfer_path, currentstep='Awaiting decision')[0]
+        if modified_transfer_path == None:
+            error = 'Invalid transfer type.'
+        else:
+            transfer_path = os.path.join(modified_transfer_path, directory) + '/'
 
-            # approve transfer
-            client = MCPClient()
+            # look up job UUID using transfer path
+            try:
+                job = models.Job.objects.filter(directory=transfer_path, currentstep='Awaiting decision')[0]
 
-            # 3rd arg should be uid?
-            result = client.execute(job.pk, 'Approve', user_id)
+                # approve transfer
+                client = MCPClient()
 
-        except:
-            error = 'Unable to find unapproved transfer directory.'
+                # 3rd arg should be uid?
+                result = client.execute(job.pk, 'Approve', user_id)
+
+            except:
+                error = 'Unable to find unapproved transfer directory.'
 
     else:
         error = 'Please specify a transfer directory.'
