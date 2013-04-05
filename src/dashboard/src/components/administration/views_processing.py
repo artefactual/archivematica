@@ -236,8 +236,19 @@ def lookup_chain_link_by_description(field):
     except:
         lookup_description = field['label']
 
-    task = models.TaskConfig.objects.filter(description=lookup_description)[0]
-    link = models.MicroServiceChainLink.objects.get(currenttask=task.pk)
+    if lookup_description == 'Normalize':
+        # there are two task configs with the same description so we need to do more work
+        tasks = models.TaskConfig.objects.filter(description=lookup_description)
+        for task in tasks:
+            link = models.MicroServiceChainLink.objects.get(currenttask=task.pk)
+            choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink=link.pk)
+
+            # look for the correct version
+            if len(choices) > 3:
+                return link
+    else:
+        task = models.TaskConfig.objects.filter(description=lookup_description)[0]
+        link = models.MicroServiceChainLink.objects.get(currenttask=task.pk)
 
     return link
 
