@@ -241,6 +241,11 @@ def lookup_chain_link_by_description(field):
 
     return link
 
+def remove_option_by_value(options, value):
+    for option in options:
+        if option['value'] == value:
+            options.remove(option)
+
 def populate_select_field_options_with_chain_choices(field):
     link = lookup_chain_link_by_description(field)
 
@@ -252,6 +257,12 @@ def populate_select_field_options_with_chain_choices(field):
         chain = models.MicroServiceChain.objects.get(pk=choice.chainavailable)
         option = {'value': chain.description, 'label': chain.description}
         options.append(option)
+
+    if field['label'] == 'Create SIP(s)':
+        remove_option_by_value(options, 'Reject transfer')
+
+    #if field['label'] == 'Normalize':
+    #    remove_option_by_value(options, 'Reject transfer')
 
     options.sort()
     field['options'] += options
