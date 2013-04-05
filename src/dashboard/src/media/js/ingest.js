@@ -228,7 +228,7 @@ $(function()
             // use global variable to note whether dialog has been displayed
             if (typeof normalizationWarningShown === 'undefined') {
  
-              var dialog = $('<div>Any metadata added after normalization will not be included in your packages</div>');
+              var dialog = $('<div>Reminder: Add descriptive and/or rights metadata prior to normalization if desired</div>');
  
               setTimeout(function() {
                 $(dialog).dialog('close');
