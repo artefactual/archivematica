@@ -32,7 +32,9 @@
           <td>
             <select name='{{ item.name }}_toggle'>
               <option value='yes' {{ item.yes_checked }}>Yes</option>
+              {% if item.label != 'Approve normalization' %}
               <option value='no' {{ item.no_checked }}>No</option>
+              {% endif %}
             </select>
           </td>
         </tr>
