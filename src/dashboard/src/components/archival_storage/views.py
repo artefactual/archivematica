@@ -37,10 +37,10 @@ import subprocess
 AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'
 
 def archival_storage(request):
-    return archival_storage_sip_display(request)
+    return archival_storage_list_display(request)
 
 def archival_storage_page(request, page=None):
-    return archival_storage_sip_display(request, page)
+    return archival_storage_list_display(request, page)
 
 def archival_storage_search(request):
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
@@ -191,7 +191,7 @@ def archival_storage_send_thumbnail(request, fileuuid):
 
     return send_file(request, thumbnail_path)
 
-def archival_storage_sip_display(request, current_page_number=None):
+def archival_storage_list_display(request, current_page_number=None):
     form = forms.StorageSearchForm()
 
     total_size = 0
@@ -220,7 +220,8 @@ def archival_storage_sip_display(request, current_page_number=None):
         sip['name'] = aip.name
         sip['uuid'] = aip.uuid
 
-        sip['date'] = str(aip.date)[0:19].replace('T', ' ')
+        #sip['date'] = str(aip.date)[0:19].replace('T', ' ')
+        sip['date'] = aip.created
 
         try:
             size = float(aip.size)

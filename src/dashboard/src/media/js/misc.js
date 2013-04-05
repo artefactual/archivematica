@@ -137,16 +137,10 @@ Date.prototype.getArchivematicaDateString = function()
     return dateText;
   };
 
-function localizeUtcDateElements() {
-  $('.utcDate').each(function() {
-    $(this).text(utcDateToLocal($(this).text()));
+function localizeTimestampElements() {
+  $('.timestamp').each(function() {
+    $(this).text(timestampToLocal($(this).text()));
   });
-}
-
-function utcDateToLocal(dateText) {
-  dateText = dateText.replace('a.m.', 'AM').replace('p.m.', 'PM');
-  var date = new Date(dateText + ' UTC');
-  return date.getArchivematicaDateString();
 }
 
 function timestampToLocal(timestamp) {
@@ -192,7 +186,7 @@ function reloadPageableElement(destinationDomElement, url, page) {
     success: function(data)
       {
         $(destinationDomElement).html(data);
-        localizeUtcDateElements();
+        localizeTimestampElements();
       },
     url: url
   });

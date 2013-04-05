@@ -65,16 +65,15 @@ def connect_and_create_index(index, attempt=1):
 
     return conn
 
-def connect_and_index_aip(uuid, name, date, filePath):
+def connect_and_index_aip(uuid, name, filePath):
     conn = connect_and_create_index('aips')
     aipData = {
         'uuid':     uuid,
         'name':     name,
-        'date':     date,
         'filePath': filePath,
         'size':     os.path.getsize(filePath) / float(1024) / float(1024),
         'origin':   getDashboardUUID(),
-        'created':  datetime.datetime.now()
+        'created':  time.time()
     }
     conn.index(aipData, 'aips', 'aip')
 
