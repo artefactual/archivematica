@@ -183,6 +183,29 @@ else
         echo "Not going to ${part}."
 fi
 
+
+part="clone sample data into $HOME"
+echo -n "\"Would you like to ${part}?\" (y/N) "
+read a
+if [[ $a == "Y" || $a == "y" ]]; then
+  CURRENT_REPO=`git remote -v | head -n 1 | sed "s/\t/ /" | cut -f2 -d" "`
+  if [ "$CURRENT_REPO" = "git@git.artefactual.com:archivematica" ]; then
+    SAMPLEDATA_REPO="git@git.artefactual.com:archivematica-sampledata.git"
+  else
+    SAMPLEDATA_REPO="https://github.com/artefactual/archivematica-sampledata.git"
+  fi
+  DATE=`date +%Y-%m-%d-%M-%S`
+  git clone $SAMPLEDATA_REPO ~/archivematica-sampledata
+  echo "Updating OPF..."
+  cd ~/archivematica-sampledata
+  git submodule init
+  git submodule update
+else
+        echo "Not going to ${part}."
+fi
+
+
+
 exit
 
 part="example"
