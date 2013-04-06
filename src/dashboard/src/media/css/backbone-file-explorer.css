@@ -26,6 +26,10 @@
   background-color: #f5f5f5;
 }
 
+.backbone-file-exporer-entry-highlighted {
+  background-color: #ffcc00;
+}
+
 .backbone-file-explorer-directory {
   background-image: url('../img/folder.png');
   background-repeat: no-repeat;
