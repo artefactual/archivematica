@@ -4,8 +4,6 @@
 {% block h1 %}Welcome{% endblock %}
 {% block page_id %}welcome{% endblock %}
 
-{% block header %}{% endblock %}
-
 {% block css %}
   <style type="text/css">
 
@@ -28,27 +26,57 @@
 
 {% block content %}
 
+
+<script type="text/javascript">
+     function AddElement(){  
+        var theNewElem = document.createElement('input');  
+        theNewElem.setAttribute('type','submit');  
+        theNewElem.setAttribute('value','continue');  
+        document.getElementById('FormHere').appendChild(theNewElem);   
+      }  
+
+    $(document).ready(function () {
+        $("div#fpr").append("<p>Registering new Archivematica installation ...</p> ");
+        $.get("installer/fprupload/", function(data, textStatus)
+        {
+          if (data['result'] == 'success') {
+              $("div#fpr").append("<p>Successfully connected to FPR Server.</p>");
+              moreStuff();
+          } else {
+              $("div#fpr").append("<br>Unable to connect to FPR Server. You will not be able to get updated format policy rules until your internet connection is fixed.");
+              moveOn(); 
+           }
+        }, "json");
+});
+
+function moreStuff() {
+    $("div#fpr").append("<p>Updating format policy rules . . .</p>");
+    $.get("installer/fprdownload/", function(data, textStatus)
+    {
+        if (data['result'] == 'success') {
+            $("div#fpr").append("<p>FPR updated.</p>");
+            AddElement();
+        } else {
+            $("div#fpr").append("<p>Unable to update FPR.</p>");
+            AddElement(); 
+        }
+    }, "json");
+}
+
+</script>
   <div class="row">
 
     <div class="span9 offset2">
 
       <img src="{{ STATIC_URL }}images/logo_welcome.gif" style="margin-bottom: 20px;" />
 
-      <div class="well">
-        <h2>Format Policy Registry</h2>
-        <p>Please click to connect to the FPR Server (at fpr.archivematica.org) and check for any updates to the Format Policy Registry.</p>
+      <div id="fpr" class="well">
+          <p>Now connecting to the FPR Server.</p>
       </div>
 
-      <form class="form-stacked" method="post" action="{% url installer.views.fprconnect %}">
-
-        {% include "_form.html" %}
-
-        <div class="well span9">
-          <button class="btn primary" type="submit">Connect to FPR Server</button>
-        </div>
-
-      </form>
-
+<form name="test" method="POST">  
+      <div id="FormHere"></div>  
+    </form>  
     </div>
 
   </div>

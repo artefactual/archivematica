@@ -24,6 +24,8 @@ from main.models import Agent
 from installer.forms import SuperUserCreationForm
 from installer.forms import FPRConnectForm
 from tastypie.models import ApiKey
+import json
+import requests
 
 def welcome(request):
     # This form will be only accessible when the database has no users
@@ -63,12 +65,31 @@ def welcome(request):
 
 def fprconnect(request):
     if request.method == 'POST':
-        #upload agent to fpr server
-        #download data from fpr server
-        agent = Agent.objects.get(pk=2)
-         
+        return HttpResponseRedirect(reverse('main.views.home'))
     else:
-        form = FPRConnectForm()
+        return render(request, 'installer/fprconnect.html')
 
-    return render(request, 'installer/fprconnect.html', {'form': form, })
+def fprupload(request):
+    response_data = {} 
+    agent = Agent.objects.get(pk=2)
+    url = 'http://fpr.archivematica.org:8000/fpr/api/v1/Agent/'
+    payload = {'uuid': '3b66a42d-7109-495b-8234-89aa8bc533c5', 
+               'agentType': 'new install', 
+               'agentName': agent.name, 
+               'clientIP': '1.1.1.1', 
+               'agentIdentifierType': agent.identifiertype, 
+               'agentIdentifierValue': agent.identifiervalue
+              }
+    headers = {'Content-Type': 'application/json'}
+    r = requests.post(url, data=json.dumps(payload), headers=headers)
+    if r.status_code == 201:
+        response_data['result'] = 'success'
+    else:
+        response_data['result'] = 'failed'
+    
+    return HttpResponse(json.dumps(response_data), content_type="application/json")            
 
+def fprdownload(request):
+    response_data = {}
+    response_data['result'] = 'success'
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
