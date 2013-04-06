@@ -103,10 +103,15 @@ def ingest_status(request, uuid=None):
                         newJob['choices'] = choices
             items.append(item)
         return items
+
     response = {}
     response['objects'] = objects
     response['mcp'] = mcp_available
-    return HttpResponse(simplejson.JSONEncoder(default=encoder).encode(response), mimetype='application/json')
+
+    return HttpResponse(
+        simplejson.JSONEncoder(default=encoder).encode(response),
+        mimetype='application/json'
+    )
 
 def ingest_sip_metadata_type_id():
     return helpers.get_metadata_type_id_by_description('SIP')
@@ -114,7 +119,10 @@ def ingest_sip_metadata_type_id():
 @decorators.load_jobs # Adds jobs, name
 def ingest_metadata_list(request, uuid, jobs, name):
     # See MetadataAppliesToTypes table
-    metadata = models.DublinCore.objects.filter(metadataappliestotype__exact=ingest_sip_metadata_type_id(), metadataappliestoidentifier__exact=uuid)
+    metadata = models.DublinCore.objects.filter(
+        metadataappliestotype__exact=ingest_sip_metadata_type_id(),
+        metadataappliestoidentifier__exact=uuid
+    )
 
     return render(request, 'ingest/metadata_list.html', locals())
 
@@ -125,9 +133,14 @@ def ingest_metadata_edit(request, uuid, id=None):
         # Right now we only support linking metadata to the Ingest
         try:
             dc = models.DublinCore.objects.get_sip_metadata(uuid)
-            return HttpResponseRedirect(reverse('components.ingest.views.ingest_metadata_edit', args=[uuid, dc.id]))
+            return HttpResponseRedirect(
+                reverse('components.ingest.views.ingest_metadata_edit', args=[uuid, dc.id])
+            )
         except ObjectDoesNotExist:
-            dc = models.DublinCore(metadataappliestotype=ingest_sip_metadata_type_id(), metadataappliestoidentifier=uuid)
+            dc = models.DublinCore(
+                metadataappliestotype=ingest_sip_metadata_type_id(),
+                metadataappliestoidentifier=uuid
+            )
 
     fields = ['title', 'creator', 'subject', 'description', 'publisher',
               'contributor', 'date', 'type', 'format', 'identifier',
@@ -139,7 +152,9 @@ def ingest_metadata_edit(request, uuid, id=None):
             for item in fields:
                 setattr(dc, item, form.cleaned_data[item])
             dc.save()
-            return HttpResponseRedirect(reverse('components.ingest.views.ingest_metadata_list', args=[uuid]))
+            return HttpResponseRedirect(
+                reverse('components.ingest.views.ingest_metadata_list', args=[uuid])
+            )
     else:
         initial = {}
         for item in fields:
@@ -259,7 +274,12 @@ def transfer_backlog(request):
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
  
     if not 'query' in request.GET:
-        return helpers.redirect_with_get_params('components.ingest.views.transfer_backlog', query='', field='', type='')
+        return helpers.redirect_with_get_params(
+            'components.ingest.views.transfer_backlog',
+            query='',
+            field='',
+            type=''
+        )
 
     # set pagination-related variables to use in template
     search_params = advanced_search.extract_url_search_params_from_request(request)
