@@ -247,23 +247,6 @@ def ingest_browse_normalization(request, jobuuid):
     return render(request, 'ingest/aip_browse.html', locals())
 
 def ingest_browse_aip(request, jobuuid):
-    """
-    jobs = models.Job.objects.filter(jobuuid=jobuuid)
-
-    if jobs.count() == 0:
-      raise Http404
-
-    job = jobs[0]
-    sipuuid = job.sipuuid
-
-    sips = models.SIP.objects.filter(uuid=sipuuid)
-    sip = sips[0]
-
-    aipdirectory = sip.currentpath.replace(
-      '%sharedPath%',
-      '/var/archivematica/sharedDirectory/'
-    )
-    """
     jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof='')
     job = jobs[0]
     title = 'Review AIP'
