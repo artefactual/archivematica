@@ -319,8 +319,16 @@ def transfer_backlog(request):
     conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
 
     try:
+        query = advanced_search.assemble_query(
+            queries,
+            ops,
+            fields,
+            types,
+            must_haves=pyes.TermQuery('status', 'backlog')
+        )
+
         results = conn.search_raw(
-            query=advanced_search.assemble_query(queries, ops, fields, types),
+            query,
             indices='transfers',
             type='transferfile',
             start=start - 1,

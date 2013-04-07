@@ -98,8 +98,8 @@ def paging_related_values_for_template_use(items_per_page, page, start, number_o
 
     return end, previous_page, next_page
 
-def assemble_query(queries, ops, fields, types):
-    must_haves     = []
+def assemble_query(queries, ops, fields, types, **kwargs):
+    must_haves     = kwargs.get('must_haves', [])
     should_haves   = []
     must_not_haves = []
     index          = 0
