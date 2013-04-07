@@ -19,8 +19,9 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from main import models
-import sys, os, ConfigParser
+import sys, os
 from lxml import etree
+from components import helpers
 
 class PreconfiguredChoices:
     xml     = None
@@ -54,13 +55,10 @@ class PreconfiguredChoices:
         file.write(etree.tostring(self.xml, pretty_print=True))
 
 def administration_processing(request):
-    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-    config               = ConfigParser.SafeConfigParser()
-
-    config.read(clientConfigFilePath)
-
-    shared_directory     = config.get('MCPClient', "sharedDirectoryMounted")
-    file_path            = os.path.join(shared_directory, 'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml')
+    file_path = os.path.join(
+        helpers.get_server_config_value('sharedDirectory'),
+        'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'
+    )
 
     boolean_select_fields = [
         {
