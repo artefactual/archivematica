@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, ConfigParser, simplejson
+import os, simplejson
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.db.models import Q
 from tastypie.authentication import ApiKeyAuthentication
