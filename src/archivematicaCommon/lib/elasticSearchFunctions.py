@@ -290,6 +290,7 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
               'fileuuid'     : file_uuid,
               'sipuuid'      : uuid,
               'accessionid'  : accession_id,
+              'status'       : '',
               'origin'       : getDashboardUUID(),
               'ingestdate'   : ingest_date,
               'created'      : create_time
@@ -324,6 +325,23 @@ def backup_indexed_document(result, indexData, index, type):
     sql = sql % (MySQLdb.escape_string(result['_id']), unicode(base64.encodestring(cPickle.dumps(indexData))), MySQLdb.escape_string(index), MySQLdb.escape_string(type))
 
     databaseInterface.runSQL(sql)
+
+def connect_and_change_transfer_file_status(uuid, status):
+    # get file UUIDs for each file in the SIP
+    sql = "SELECT fileUUID from Files WHERE transferUUID='" + MySQLdb.escape_string(uuid) + "'"
+
+    rows = databaseInterface.queryAllSQL(sql)
+
+    if len(rows) > 0:
+        conn = connect_and_create_index('transfers')
+
+        # cycle through file UUIDs and delete files from transfer backlog
+        for row in rows:
+            documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('fileuuid', row[0])))
+            if len(documents['hits']['hits']) > 0:
+                document_id = documents['hits']['hits'][0]['_id']
+                conn.update({'status': status}, 'transfers', 'transferfile', document_id)
+    return len(rows)
 
 def connect_and_remove_sip_transfer_files(uuid):
     # get file UUIDs for each file in the SIP

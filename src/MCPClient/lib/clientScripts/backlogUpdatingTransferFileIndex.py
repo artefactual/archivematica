@@ -29,6 +29,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from executeOrRunSubProcess import executeOrRun
 from fileOperations import renameAsSudo
+import elasticSearchFunctions
 
 def updateDB(dst, transferUUID):
     sql =  """UPDATE Transfers SET currentLocation='""" + MySQLdb.escape_string(dst) + """' WHERE transferUUID='""" + transferUUID + """';"""
@@ -53,5 +54,7 @@ if __name__ == '__main__':
     transferUUID = sys.argv[1]
     transferName = sys.argv[2]
     transferDirectory = sys.argv[3]
-    print transferUUID, transferName, transferDirectory   
+    print 'Processing ' + transferUUID + '...'
+    found = elasticSearchFunctions.connect_and_change_transfer_file_status(transferUUID, 'backlog') 
+    print 'Updated ' + str(found) + ' transfer file entries.'
     #moveSIP(src, dst, transferUUID, sharedDirectoryPath)
