@@ -385,26 +385,50 @@ $(function()
 
                   if (input.filter(':text').val())
                   {
-                    var xhr = $.ajax(url, { type: 'POST', data: {
-                      'target': input.filter(':text').val(),
-                      'intermediate': input.filter(':checkbox').is(':checked') }})
+                    // get AtoM destination URL (so we can confirm it's up)
+                    $.ajax({
+                      url: '/ingest/upload/url/',
+                      type: 'GET',
+                      success: function(data)
+                        {
+                          if (data == '') {
+                            alert('Error retrieving AtoM destination URL argument.');
+                          } else {
+                            // test destination URL
+                            var destinationUrl = data + '/' + input.filter(':text').val();
+                            $.ajax({
+                              url: data + '/' + input.filter(':text').val(),
+                              type: 'GET',
+                              error: function(jqXHR, textStatus, errorThrown) {
+                                alert('Error: ' + errorThrown);
+                              },
+                              success: function(data)
+                                {
+                                  var xhr = $.ajax(url, { type: 'POST', data: {
+                                    'target': input.filter(':text').val(),
+                                    'intermediate': input.filter(':checkbox').is(':checked') }})
 
-                      .done(function(data)
-                        {
-                          if (data.ready)
-                          {
-                            executeCommand(self);
+                                    .done(function(data)
+                                      {
+                                        if (data.ready)
+                                        {
+                                          executeCommand(self);
+                                        }
+                                      })
+                                    .fail(function()
+                                      {
+                                        alert("Error.");
+                                        $select.val(0);
+                                      })
+                                    .always(function()
+                                      {
+                                        modal.modal('hide');
+                                      });
+                                }
+                            });
                           }
-                        })
-                      .fail(function()
-                        {
-                          alert("Error.");
-                          $select.val(0);
-                        })
-                      .always(function()
-                        {
-                          modal.modal('hide');
-                        });
+                        }
+                    });
                   }
                 })
               .end()

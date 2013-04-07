@@ -31,7 +31,7 @@ from lxml import etree
 from components.ingest.forms import DublinCoreMetadataForm
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
 from components import helpers
-import calendar, ConfigParser
+import calendar, ConfigParser, socket
 import cPickle
 import components.decorators as decorators
 from components import helpers
@@ -195,6 +195,7 @@ def ingest_delete(request, uuid):
 
 def ingest_upload_destination_url(request):
     url = ''
+    server_ip = socket.gethostbyname(request.META['SERVER_NAME'])
 
     upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
     upload_arguments = upload_setting.arguments
@@ -211,6 +212,10 @@ def ingest_upload_destination_url(request):
         next_chunk = chunk[value_start + 1:]
         value_end = next_chunk.find('"')
         url = next_chunk[:value_end]
+
+    # tweak URL to give non-local version
+    url = url.replace('localhost', server_ip)
+    url = url.replace('127.0.0.1', server_ip)
 
     return HttpResponse(url)
 
