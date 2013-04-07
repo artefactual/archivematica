@@ -199,8 +199,7 @@ def archival_storage_list_display(request, current_page_number=None):
     # get ElasticSearch stats
     aip_indexed_file_count = advanced_search.indexed_count('aips')
 
-    # get AIPs from DB
-    #aips = models.AIP.objects.all()
+    # get AIPs
     conn = elasticSearchFunctions.connect_and_create_index('aips')
     aipResults = conn.search(pyes.StringQuery('*'), doc_types=['aip'])
     aips = []
