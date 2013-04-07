@@ -193,6 +193,27 @@ def ingest_delete(request, uuid):
     except:
         raise Http404
 
+def ingest_upload_destination_url(request):
+    url = ''
+
+    upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
+    upload_arguments = upload_setting.arguments
+
+    # this can probably be done more elegantly with a regex
+    url_start = upload_arguments.find('--url')
+
+    if url_start == -1:
+        url_start = upload_arguments.find('--URL')
+
+    if url_start != -1:
+        chunk = upload_arguments[url_start:]
+        value_start = chunk.find('"')
+        next_chunk = chunk[value_start + 1:]
+        value_end = next_chunk.find('"')
+        url = next_chunk[:value_end]
+
+    return HttpResponse(url)
+
 def ingest_upload(request, uuid):
     """
         The upload DIP is actually not executed here, but some data is storaged
