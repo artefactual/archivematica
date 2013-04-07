@@ -257,7 +257,7 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
     # get accessionId from SIPs table using transfer name
     accession_id = ''
     current_path = '%sharedPath%watchedDirectories/system/autoProcessSIP/' + transfer_name + '/'
-    sql = "SELECT accessionId from SIPs WHERE currentPath = '" + current_path + "'"
+    sql = "SELECT accessionId from SIPs WHERE currentPath = '" + MySQLdb.escape_string(current_path) + "'"
 
     rows = databaseInterface.queryAllSQL(sql)
     if len(rows) > 0:
@@ -265,7 +265,7 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
 
     # get file UUID information
     fileUUIDs = {}
-    sql = "SELECT currentLocation, fileUUID FROM Files WHERE transferUUID='" + uuid + "'"
+    sql = "SELECT currentLocation, fileUUID FROM Files WHERE transferUUID='" + MySQLdb.escape_string(uuid) + "'"
 
     rows = databaseInterface.queryAllSQL(sql)
     for row in rows:
@@ -277,7 +277,7 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
 
             relative_path = '%transferDirectory%objects' + filepath.replace(pathToTransfer, '')
 
-            sql = "SELECT fileUUID FROM Files WHERE currentLocation='" + relative_path + "' AND transferUUID='" + uuid + "'"
+            sql = "SELECT fileUUID FROM Files WHERE currentLocation='" + MySQLdb.escape_string(relative_path) + "' AND transferUUID='" + MySQLdb.escape_string(uuid) + "'"
             rows = databaseInterface.queryAllSQL(sql)
             if len(rows) > 0:
                 file_uuid = rows[0][0]
@@ -327,7 +327,7 @@ def backup_indexed_document(result, indexData, index, type):
 
 def connect_and_remove_sip_transfer_files(uuid):
     # get file UUIDs for each file in the SIP
-    sql = "SELECT fileUUID from Files WHERE sipUUID='" + uuid + "'"
+    sql = "SELECT fileUUID from Files WHERE sipUUID='" + MySQLdb.escape_string(uuid) + "'"
 
     rows = databaseInterface.queryAllSQL(sql)
 
