@@ -165,6 +165,11 @@
   <h2>Format policies ({{ item_count }} items):</h2><br>
 {% endif %}
 
+<a href='{% url components.preservation_planning.views.fpr_edit_format %}'>Add new Format ID</a>
+<br><a href='{% url components.preservation_planning.views.fpr_edit_command %}'>Add new Command</a>
+<br><a href='{% url components.preservation_planning.views.fpr_edit_rule %}'>Add new Format Policy Rule</a>
+<br>
+
 <table style="width:100%;table-layout:auto;word-wrap:break-word" class="FileIDsTable">
 
 <thead style="color:black;">
