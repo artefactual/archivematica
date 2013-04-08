@@ -63,6 +63,20 @@ def welcome(request):
         'form': form,
       })
 
+def get_my_ip():
+    server_addr = '1.2.3.4'
+    non_open_port = 50000
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    try:
+        s.connect((server_addr, 9))
+        client = s.getsockname()[0]
+    except socket.error:
+        client = "1.1.1.1"
+    finally:
+        del s
+    return client
+    
 def fprconnect(request):
     if request.method == 'POST':
         return HttpResponseRedirect(reverse('main.views.home'))
@@ -76,7 +90,7 @@ def fprupload(request):
     payload = {'uuid': '3b66a42d-7109-495b-8234-89aa8bc533c5', 
                'agentType': 'new install', 
                'agentName': agent.name, 
-               'clientIP': '1.1.1.1', 
+               'clientIP': get_my_ip(), 
                'agentIdentifierType': agent.identifiertype, 
                'agentIdentifierValue': agent.identifiervalue
               }
