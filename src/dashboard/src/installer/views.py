@@ -26,6 +26,7 @@ from installer.forms import FPRConnectForm
 from tastypie.models import ApiKey
 import json
 import requests
+import socket
 
 def welcome(request):
     # This form will be only accessible when the database has no users
