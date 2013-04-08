@@ -1,7 +1,7 @@
 #!/bin/bash
 
 databaseName="MCP"
-username="demo"
+username="archivematica"
 password="demo"
 dpPassword="$1"
 sudo mysqladmin create "$databaseName" $dpPassword
