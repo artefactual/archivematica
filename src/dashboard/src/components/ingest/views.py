@@ -341,6 +341,8 @@ def transfer_backlog(request):
         return HttpResponse('Error accessing index.')
 
     file_extension_usage = results['facets']['fileExtension']['terms']
+    transfer_uuids = results['facets']['sipuuid']['terms']
+
     number_of_results = results.hits.total
     results = transfer_backlog_augment_search_results(results)
 
