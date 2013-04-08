@@ -5,7 +5,7 @@
 . /usr/share/debconf/confmodule
 
 dbc_dbname=MCP
-dbc_dbuser=demo
+dbc_dbuser=archivematica
 dbc_dbpass=demo
 
 # source dbconfig-common shell library, and call the hook function
