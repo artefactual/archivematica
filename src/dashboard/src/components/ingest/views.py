@@ -324,7 +324,7 @@ def transfer_backlog(request):
             ops,
             fields,
             types,
-            must_haves=pyes.TermQuery('status', 'backlog')
+            must_haves=[pyes.TermQuery('status', 'backlog')]
         )
 
         results = conn.search_raw(
