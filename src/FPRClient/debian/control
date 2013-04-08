@@ -1,4 +1,4 @@
-Source: archivematica-transcoder
+Source: archivematica-fpr-client
 Section: utils
 Priority: extra
 Maintainer: Austin Trask <austin@artefactual.com>
@@ -6,9 +6,9 @@ Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
 Homepage: http://archivematica.org
 
-Package: archivematica-transcoder
+Package: archivematica-fpr-client
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, python
-Description: Transcoder for Archivematica
-  Transcoder for Archivematica
+Depends: ${shlibs:Depends}, ${misc:Depends}, python, archivematica-mcp-server, archivematica-common
+Description: fpr-client for Archivematica
+  fpr-client for Archivematica
   
