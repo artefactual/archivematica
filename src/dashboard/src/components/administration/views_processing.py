@@ -270,6 +270,9 @@ def populate_select_field_options_with_chain_choices(field):
     if field['label'] == 'Create SIP(s)':
         remove_option_by_value(options, 'Reject transfer')
 
+    if field['label'] == 'Normalize':
+        remove_option_by_value(options, 'Reject SIP')
+
     options.sort()
     field['options'] += options
 
