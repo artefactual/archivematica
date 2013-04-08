@@ -40,7 +40,7 @@ import os, sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes
+import pyes, requests
 from components.archival_storage.forms import StorageSearchForm
 from components.filesystem_ajax.views import send_file
 
@@ -193,7 +193,7 @@ def ingest_delete(request, uuid):
     except:
         raise Http404
 
-def ingest_upload_destination_url(request):
+def ingest_upload_destination_url_check(request):
     url = ''
     server_ip = socket.gethostbyname(request.META['SERVER_NAME'])
 
@@ -213,11 +213,14 @@ def ingest_upload_destination_url(request):
         value_end = next_chunk.find('"')
         url = next_chunk[:value_end]
 
-    # tweak URL to give non-local version
-    url = url.replace('localhost', server_ip)
-    url = url.replace('127.0.0.1', server_ip)
+    # add target to URL
+    url = url + '/' + request.GET.get('target', '')
 
-    return HttpResponse(url)
+    # make request for URL
+    response = requests.request('GET', url)
+
+    # return resulting status code from request
+    return HttpResponse(response.status_code);
 
 def ingest_upload(request, uuid):
     """

@@ -385,25 +385,17 @@ $(function()
 
                   if (input.filter(':text').val())
                   {
+                    $('#upload-dip-modal-spinner').show();
                     // get AtoM destination URL (so we can confirm it's up)
                     $.ajax({
-                      url: '/ingest/upload/url/',
+                      url: '/ingest/upload/url/check/?target=' + encodeURIComponent(input.filter(':text').val()),
                       type: 'GET',
-                      success: function(data)
+                      success: function(status_code_from_url_check)
                         {
-                          if (data == '') {
-                            alert('Error retrieving AtoM destination URL argument.');
+                          if (status_code_from_url_check != '200') {
+                            $('#upload-dip-modal-spinner').hide();
+                            alert('There was a problem attempting to reach the destination URL.');
                           } else {
-                            // test destination URL
-                            var destinationUrl = data + '/' + input.filter(':text').val();
-                            $.ajax({
-                              url: data + '/' + input.filter(':text').val(),
-                              type: 'GET',
-                              error: function(jqXHR, textStatus, errorThrown) {
-                                alert('Error: ' + errorThrown);
-                              },
-                              success: function(data)
-                                {
                                   var xhr = $.ajax(url, { type: 'POST', data: {
                                     'target': input.filter(':text').val(),
                                     'intermediate': input.filter(':checkbox').is(':checked') }})
@@ -424,8 +416,6 @@ $(function()
                                       {
                                         modal.modal('hide');
                                       });
-                                }
-                            });
                           }
                         }
                     });
