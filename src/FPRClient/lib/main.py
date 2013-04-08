@@ -93,12 +93,7 @@ if __name__ == '__main__':
         ("Commands", server + "/fpr/api/v1/Command/"),
         ("CommandTypes", server + "/fpr/api/v1/CommandType/"),
         ("CommandClassifications", server + "/fpr/api/v1/CommandClassification/"),
-        ("CommandsSupportedBy", server + "/fpr/api/v1/CommandsSupportedBy/"),
-        ("FileIDTypes", server + "/fpr/api/v1/FileIDType/"),
-        ("Groups", server + "/fpr/api/v1/Group/"),
-        ("FileIDGroupMembers", server + "/fpr/api/v1/FileIDGroupMember/"),
-        ("SubGroups", server + "/fpr/api/v1/SubGroup/"),
-        ("DefaultCommandsForClassifications", server + "/fpr/api/v1/DefaultCommandsForClassification/")
+        ("FileIDTypes", server + "/fpr/api/v1/FileIDType/")
     ]:
         table, url = x
         #params = {"format":"json", "order_by":"lastmodified", "lastmodified__gte":maxLastUpdateAtStart, "limit":"0"}
