@@ -20,16 +20,11 @@ from django.forms.models import modelformset_factory
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
-from django.template import RequestContext
 from main import forms
 from main import models
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import elasticSearchFunctions
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes
-from django.contrib.auth.decorators import user_passes_test
-import urllib
+import components.administration.views_processing as processing
+from lxml import etree
 from components.administration.forms import AdministrationForm
 from components.administration.forms import AgentForm
 import components.decorators as decorators
@@ -227,17 +222,7 @@ def administration_system_directory_delete_request_handler(request, model, id):
     return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
 
 def administration_processing(request):
-    file_path = '/var/archivematica/sharedDirectory/sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'
-
-    if request.method == 'POST':
-        xml = request.POST.get('xml', '')
-        file = open(file_path, 'w')
-        file.write(xml)
-    else:
-        file = open(file_path, 'r')
-        xml = file.read()
-
-    return render(request, 'administration/processing.html', locals())
+    return processing.administration_processing(request)
 
 def administration_render_storage_directories_to_dicts():
     administration_flush_aip_storage_dicts()

@@ -1,28 +1,33 @@
-/*
-This file is part of Archivematica.
-
-Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
-
-Archivematica is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Archivematica is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 $(document).ready(function() {
+
+  // activate completion buttons
+  $('.creation').each(function() {
+    var url = $(this).attr('href');
+    $(this).removeAttr('href');
+    this.url = url;
+    $(this).click(function() {
+      console.log(this.url);
+      // remove all button with same url
+      $('.creation').each(function() {
+        if (this.url == url) {
+          $(this).remove();
+        }
+      });
+
+      // complete SIP
+      $.ajax({
+        type: "POST",
+        url: url,
+        success: function(result) {
+          console.log(result);
+        }
+      });
+    });
+  });
 
   // create new form instance, providing a single row of default data
   var search = new advancedSearch.AdvancedSearchView({
     el: $('#search_form_container'),
-//    allowAdd: false,
     rows: [{
       'op': '',
       'query': '',
@@ -48,11 +53,11 @@ $(document).ready(function() {
   // default field name field
   search.addSelect('field', {title: 'field name'}, {
     ''             : 'Any',
-    'FILEUUID'     : 'File UUID',
-    'filePath'     : 'File path',
+    'filename'     : 'File name',
     'fileExtension': 'File extension',
-    'AIPUUID'      : 'AIP UUID',
-    'sipName'      : 'AIP name'
+    'accessionid'  : 'Accession number',
+    'ingestdate'   : 'Ingest date (YYYY-MM-DD)',
+    'sipuuid'      : 'SIP UUID'
   });
 
   // default field name field
@@ -75,11 +80,11 @@ $(document).ready(function() {
 
   // submit logic
   $('#search_submit').click(function() {
-    window.location = '/archival-storage/search/' + '?' + search.toUrlParams();
+    window.location = '/ingest/backlog/' + '?' + search.toUrlParams();
   });
 
   $('#search_form').submit(function() {
-    window.location = '/archival-storage/search/' + '?' + search.toUrlParams();
+    window.location = '/ingest/backlog/' + '?' + search.toUrlParams();
     return false;
   });
 });

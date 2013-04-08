@@ -180,6 +180,18 @@
       this.actionHandlers     = this.options.actionHandlers;
     },
 
+    activateHover: function(el) {
+      console.log('activate');
+      $(el).hover(
+        function() {
+          $(this).addClass('backbone-file-exporer-entry-highlighted');
+        },
+        function() {
+          $(this).removeClass('backbone-file-exporer-entry-highlighted');
+        }
+      );
+    },
+
     renderChildren: function (self, entry, levelEl, level) {
       // if entry is a directory, render children to directory level
       if (entry.children != undefined) {
@@ -221,6 +233,9 @@
             if ((child.children != undefined && !self.closeDirsByDefault) || isOpenDir) {
               $(entryEl).addClass('backbone-file-explorer-directory_open');
             }
+
+            // set up hovering
+            self.activateHover(entryEl);
 
             // add entry to current directory livel
             $(levelEl).append(entryEl);
@@ -346,6 +361,8 @@
         $(entryEl).addClass('backbone-file-explorer-directory_open');
       }
 
+      this.activateHover(entryEl);
+
       $(this.el)
         .empty()
         .append(entryEl);
@@ -402,7 +419,6 @@
           var child = structure.children[index];
           if (child.children != undefined) {
             var parent = base.addDir({name: child.name});
-console.log(parent);
             parent = this.structureToObjects(child, parent);
           } else {
             base.addFile({name: child.name});

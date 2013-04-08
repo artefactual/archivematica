@@ -91,7 +91,7 @@ sudo ln -s "${svnDir}src/MCPServer/sharedDirectoryStructure" "/var/archivematica
 sudo chown -R archivematica:archivematica "/var/archivematica/sharedDirectory"
 sudo chmod -R g+s "/var/archivematica/sharedDirectory"
 
-${svnDir}src/MCPServer/debian/postinstSharedWithDev
+${svnDir}src/MCPServer/share/postinstSharedWithDev
 
 echo restarting apache
 sudo apache2ctl restart

@@ -44,13 +44,21 @@ if __name__ == '__main__':
     autoProcessSIPDirectory = sys.argv[5]
     sharedPath = sys.argv[6]
     sipName = transferName
-    sipUUID = uuid.uuid4().__str__()
-
 
     tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
     destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
     createStructuredDirectory(tmpSIPDir, createManualNormalizedDirectories=False)
-    databaseFunctions.createSIP(destSIPDir.replace(sharedPath, '%sharedPath%'), sipUUID)
+
+    #create row in SIPs table if one doesn't already exist
+    lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
+    sql = """SELECT sipUUID FROM SIPs WHERE currentPath = '""" + MySQLdb.escape_string(lookup_path) + "';"
+    rows = databaseInterface.queryAllSQL(sql)
+    if len(rows) > 0:
+        row = rows[0]
+        sipUUID = row[0]
+    else:
+        sipUUID = uuid.uuid4().__str__()
+        databaseFunctions.createSIP(lookup_path, sipUUID)
 
     #move the objects to the SIPDir
     for item in os.listdir(objectsDirectory):

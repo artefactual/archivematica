@@ -7,6 +7,7 @@
   {% url components.administration.views.administration_storage as url_storage %}
   {% url components.administration.views.administration_processing as url_processing %}
   {% url components.administration.views.administration_premis_agent as url_premis %}
+  {% url components.administration.views.administration_api as url_api %}
   {% url components.accounts.views.list as url_user_list %}
 
   <ul>
@@ -22,6 +23,8 @@
     <li class="{% active request url_processing %}"><a href="{{ url_processing }}">Processing configuration</a></li>
 
     <li class="{% active request url_premis %}"><a href="{{ url_premis }}">PREMIS agent</a></li>
+
+    <li class="{% active request url_api %}"><a href="{{ url_api }}">REST API</a></li>
 
     {% if user.is_superuser %}
       <li class="{% active request url_user_list %}"><a href="{{ url_user_list }}">Users</a></li>

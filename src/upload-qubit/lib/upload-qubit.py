@@ -218,7 +218,7 @@ def start(data):
     if response.headers['Location'] is None:
         error("Location is expected, if not is likely something is wrong with Qubit")
     else:
-        access.resource = response.headers.get('Location')
+        access.resource = data.url
 
     # (A)synchronously?
     if response.status_code is 200:

@@ -31,10 +31,18 @@ from lxml import etree
 from components.ingest.forms import DublinCoreMetadataForm
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
 from components import helpers
-import calendar
+import calendar, ConfigParser, socket
 import cPickle
 import components.decorators as decorators
 from components import helpers
+from components import advanced_search
+import os, sys
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import elasticSearchFunctions
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
+import pyes, requests
+from components.archival_storage.forms import StorageSearchForm
+from components.filesystem_ajax.views import send_file
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Ingest
@@ -95,10 +103,15 @@ def ingest_status(request, uuid=None):
                         newJob['choices'] = choices
             items.append(item)
         return items
+
     response = {}
     response['objects'] = objects
     response['mcp'] = mcp_available
-    return HttpResponse(simplejson.JSONEncoder(default=encoder).encode(response), mimetype='application/json')
+
+    return HttpResponse(
+        simplejson.JSONEncoder(default=encoder).encode(response),
+        mimetype='application/json'
+    )
 
 def ingest_sip_metadata_type_id():
     return helpers.get_metadata_type_id_by_description('SIP')
@@ -106,7 +119,10 @@ def ingest_sip_metadata_type_id():
 @decorators.load_jobs # Adds jobs, name
 def ingest_metadata_list(request, uuid, jobs, name):
     # See MetadataAppliesToTypes table
-    metadata = models.DublinCore.objects.filter(metadataappliestotype__exact=ingest_sip_metadata_type_id(), metadataappliestoidentifier__exact=uuid)
+    metadata = models.DublinCore.objects.filter(
+        metadataappliestotype__exact=ingest_sip_metadata_type_id(),
+        metadataappliestoidentifier__exact=uuid
+    )
 
     return render(request, 'ingest/metadata_list.html', locals())
 
@@ -117,9 +133,14 @@ def ingest_metadata_edit(request, uuid, id=None):
         # Right now we only support linking metadata to the Ingest
         try:
             dc = models.DublinCore.objects.get_sip_metadata(uuid)
-            return HttpResponseRedirect(reverse('components.ingest.views.ingest_metadata_edit', args=[uuid, dc.id]))
+            return HttpResponseRedirect(
+                reverse('components.ingest.views.ingest_metadata_edit', args=[uuid, dc.id])
+            )
         except ObjectDoesNotExist:
-            dc = models.DublinCore(metadataappliestotype=ingest_sip_metadata_type_id(), metadataappliestoidentifier=uuid)
+            dc = models.DublinCore(
+                metadataappliestotype=ingest_sip_metadata_type_id(),
+                metadataappliestoidentifier=uuid
+            )
 
     fields = ['title', 'creator', 'subject', 'description', 'publisher',
               'contributor', 'date', 'type', 'format', 'identifier',
@@ -131,7 +152,9 @@ def ingest_metadata_edit(request, uuid, id=None):
             for item in fields:
                 setattr(dc, item, form.cleaned_data[item])
             dc.save()
-            return HttpResponseRedirect(reverse('components.ingest.views.ingest_metadata_list', args=[uuid]))
+            return HttpResponseRedirect(
+                reverse('components.ingest.views.ingest_metadata_list', args=[uuid])
+            )
     else:
         initial = {}
         for item in fields:
@@ -169,6 +192,35 @@ def ingest_delete(request, uuid):
         return HttpResponse(response, mimetype='application/json')
     except:
         raise Http404
+
+def ingest_upload_destination_url_check(request):
+    url = ''
+    server_ip = socket.gethostbyname(request.META['SERVER_NAME'])
+
+    upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
+    upload_arguments = upload_setting.arguments
+
+    # this can probably be done more elegantly with a regex
+    url_start = upload_arguments.find('--url')
+
+    if url_start == -1:
+        url_start = upload_arguments.find('--URL')
+
+    if url_start != -1:
+        chunk = upload_arguments[url_start:]
+        value_start = chunk.find('"')
+        next_chunk = chunk[value_start + 1:]
+        value_end = next_chunk.find('"')
+        url = next_chunk[:value_end]
+
+    # add target to URL
+    url = url + '/' + request.GET.get('target', '')
+
+    # make request for URL
+    response = requests.request('GET', url)
+
+    # return resulting status code from request
+    return HttpResponse(response.status_code);
 
 def ingest_upload(request, uuid):
     """
@@ -239,23 +291,6 @@ def ingest_browse_normalization(request, jobuuid):
     return render(request, 'ingest/aip_browse.html', locals())
 
 def ingest_browse_aip(request, jobuuid):
-    """
-    jobs = models.Job.objects.filter(jobuuid=jobuuid)
-
-    if jobs.count() == 0:
-      raise Http404
-
-    job = jobs[0]
-    sipuuid = job.sipuuid
-
-    sips = models.SIP.objects.filter(uuid=sipuuid)
-    sip = sips[0]
-
-    aipdirectory = sip.currentpath.replace(
-      '%sharedPath%',
-      '/var/archivematica/sharedDirectory/'
-    )
-    """
     jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof='')
     job = jobs[0]
     title = 'Review AIP'
@@ -263,3 +298,134 @@ def ingest_browse_aip(request, jobuuid):
     directory = '/var/archivematica/sharedDirectory/watchedDirectories/storeAIP'
 
     return render(request, 'ingest/aip_browse.html', locals())
+
+def transfer_backlog(request):
+    queries, ops, fields, types = advanced_search.search_parameter_prep(request)
+ 
+    if not 'query' in request.GET:
+        return helpers.redirect_with_get_params(
+            'components.ingest.views.transfer_backlog',
+            query='',
+            field='',
+            type=''
+        )
+
+    # set pagination-related variables to use in template
+    search_params = advanced_search.extract_url_search_params_from_request(request)
+
+    items_per_page = 20
+
+    page = advanced_search.extract_page_number_from_url(request)
+
+    start = page * items_per_page + 1
+
+    conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
+
+    try:
+        query = advanced_search.assemble_query(
+            queries,
+            ops,
+            fields,
+            types,
+            must_haves=[pyes.TermQuery('status', 'backlog')]
+        )
+
+        results = conn.search_raw(
+            query,
+            indices='transfers',
+            type='transferfile',
+            start=start - 1,
+            size=items_per_page
+        )
+    except:
+        return HttpResponse('Error accessing index.')
+
+    file_extension_usage = results['facets']['fileExtension']['terms']
+    number_of_results = results.hits.total
+    results = transfer_backlog_augment_search_results(results)
+
+    end, previous_page, next_page = advanced_search.paging_related_values_for_template_use(
+       items_per_page,
+       page,
+       start,
+       number_of_results
+    )
+
+    # make sure results is set
+    try:
+        if results:
+            pass
+    except:
+        results = False
+
+    form = StorageSearchForm(initial={'query': queries[0]})
+    return render(request, 'ingest/backlog/search.html', locals())
+
+def transfer_backlog_augment_search_results(raw_results):
+    modifiedResults = []
+
+    for item in raw_results.hits.hits:
+        clone = item._source.copy()
+
+        clone['awaiting_creation'] = transfer_awaiting_sip_creation(clone['sipuuid'])
+
+        clone['document_id'] = item['_id']
+        clone['document_id_no_hyphens'] = item['_id'].replace('-', '____')
+
+        modifiedResults.append(clone)
+
+    return modifiedResults
+
+def transfer_awaiting_sip_creation(uuid):
+    try:
+        job = models.Job.objects.filter(
+            sipuuid=uuid,
+            microservicegroup='Create SIP from Transfer',
+            currentstep='Awaiting decision'
+        )[0]
+        return True
+    except:
+        return False
+
+def process_transfer(request, uuid):
+    response = {}
+
+    if request.user.id:
+        client = MCPClient()
+        try:
+            job = models.Job.objects.filter(
+                sipuuid=uuid,
+                microservicegroup='Create SIP from Transfer',
+                currentstep='Awaiting decision'
+            )[0]
+            chain = models.MicroServiceChain.objects.get(
+                description='Create single SIP and continue processing'
+            )
+            result = client.execute(job.pk, chain.pk, request.user.id)
+
+            response['message'] = 'SIP created.'
+        except:
+            response['error']   = True
+            response['message'] = 'Error attempting to create SIP.'
+    else:
+        response['error']   = True
+        response['message'] = 'Must be logged in.'
+
+    return HttpResponse(
+        simplejson.JSONEncoder(encoding='utf-8').encode(response),
+        mimetype='application/json'
+    )
+
+def transfer_file_download(request, uuid):
+    # get file basename
+    try:
+        file = models.File.objects.get(uuid=uuid)
+    except:
+        raise Http404
+
+    file_basename = os.path.basename(file.currentlocation)
+    shared_directory_path = helpers.get_server_config_value('sharedDirectory')
+    transfer = models.Transfer.objects.get(uuid=file.transfer.uuid)
+    path_to_transfer = transfer.currentlocation.replace('%sharedPath%', shared_directory_path)
+    path_to_file = file.currentlocation.replace('%transferDirectory%', path_to_transfer)
+    return send_file(request, path_to_file)

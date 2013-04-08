@@ -23,7 +23,7 @@
 
 databaseName="MCP"
 currentDir="$(dirname $0)"
-username="demo"
+username="archivematica"
 password="demo"
 
 echo "Removing existing units"

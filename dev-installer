@@ -118,56 +118,43 @@ else
         echo "Not going to ${part}"
 fi
 
-part="install ICA-AtoM"
+part="install AtoM (branch stable/1.3.x)"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
 if [[ $a == "Y" || $a == "y" ]]; then
 
-        # { GIT }
-        # sudo apt-get --quiet --quiet --yes install git-core
-        # { SVN }
-        sudo apt-get --quiet --quiet --yes install subversion
+        # Working directory
+        WDIR=$(pwd)
 
-	# Working directory
-	WDIR=$(pwd)
+        # Install git
+        sudo apt-get --quiet --quiet --yes install git-core
 
-	# Remove
-	sudo rm -rf /var/www/ica-atom
-	sudo rm -rf ${WDIR}/qubit-git # Old name
-	sudo rm -rf ${WDIR}/ica-atom-svn # Old name
-        sudo rm -rf ${WDIR}/qubit-git
+        # Cleanups
+        # sudo rm -rf /var/www/ica-atom  ${WDIR}/qubit-git ${WDIR}/ica-atom-svn
+        # mysql -u root --execute="DROP DATABASE IF EXISTS qubit;"
 
-        # { GIT }
-	# Clone git repository, create bran experimental from original/experimental
-	# git clone git://github.com/sevein/qubit.git ${WDIR}/qubit-git
-        # cd ${WDIR}/qubit-git
-        # git checkout --track origin/experimental
-        # cd ${WDIR}
-        # { SVN }
-        # Checkout SVN repo
-        git clone http://github.com/artefactual/atom.git -b 1.x ${WDIR}/qubit-git
+        # Clone git repository, create bran experimental from original/experimental
+        git clone -b stable/1.3.x http://github.com/artefactual/atom.git ${WDIR}/atom-git
 
-	# Link
-        # /var/www is created by the Apache package
-        # so it needs to be installer at this point
-	sudo ln -sf ${WDIR}/qubit-git /var/www/ica-atom
+        # Link
+        sudo ln --no-dereference --force --symbolic ${WDIR}/atom-git /var/www/ica-atom
 
         # Enable SWORD plugin
-        sed -i "s/'qbAclPlugin',/      'qbAclPlugin',\n'qtSwordPlugin',/g" /var/www/ica-atom/config/ProjectConfiguration.class.php
+        sed -i "s/'qbAclPlugin',/      'qbAclPlugin',\n'qtSwordPlugin',/g" /var/www/atom/config/ProjectConfiguration.class.php
 
-	# Permissions
-	sudo chown -R www-data:www-data ${WDIR}/qubit-git
+        # Permissions
+        sudo chown -R www-data:www-data ${WDIR}/atom-git
 
-	# Restart database
-	echo "Enter mysql root password (hit enter if blank)"
-	mysql -u root --execute="DROP DATABASE IF EXISTS qubit; CREATE DATABASE qubit CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+        # Restart database
+        echo "Enter mysql root password (hit enter if blank)"
+        mysql -u root --execute="DROP DATABASE IF EXISTS atom; CREATE DATABASE atom CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
 
-        # Workaround for issue 1188
-        sudo rm -rf ${WDIR}/qubit-git/cache/*
-	sudo -u www-data php ${WDIR}/qubit-git/symfony cc
+        # Workaround for #3188
+        sudo rm -rf ${WDIR}/atom-git/cache/*
+        sudo -u www-data php ${WDIR}/atom-git/symfony cc
 
-	# Restart Apache (not really needed)
-	sudo apache2ctl restart
+        # Restart Apache (not really needed)
+        sudo apache2ctl restart
 
 else
         echo "Not going to ${part}."
@@ -182,19 +169,42 @@ if [[ $a == "Y" || $a == "y" ]]; then
         sleep 1
         sudo stop archivematica-mcp-server
         sleep 3
-        sudo stop qubit-sword
+        sudo stop atom-worker
         sudo rm \
           /etc/init/archivematica-mcp-server.conf \
           /etc/init/archivematica-mcp-client.conf \
-          /etc/init/qubit-sword.conf \
+          /etc/init/atom-worker.conf \
           /etc/init/openoffice-service.conf
         sudo ln src/MCPServer/init/archivematica-mcp-server.conf /etc/init/
         sudo ln src/MCPClient/init/archivematica-mcp-client.conf /etc/init/
         #sudo ln src/MCPClient/init/openoffice-service.conf /etc/init/
-        sudo ln qubit-git/init/qubit-sword.conf /etc/init/
+        sudo ln atom-git/init/atom-worker.conf /etc/init/
 else
         echo "Not going to ${part}."
 fi
+
+
+part="clone sample data into $HOME"
+echo -n "\"Would you like to ${part}?\" (y/N) "
+read a
+if [[ $a == "Y" || $a == "y" ]]; then
+  CURRENT_REPO=`git remote -v | head -n 1 | sed "s/\t/ /" | cut -f2 -d" "`
+  if [ "$CURRENT_REPO" = "git@git.artefactual.com:archivematica" ]; then
+    SAMPLEDATA_REPO="git@git.artefactual.com:archivematica-sampledata.git"
+  else
+    SAMPLEDATA_REPO="https://github.com/artefactual/archivematica-sampledata.git"
+  fi
+  DATE=`date +%Y-%m-%d-%M-%S`
+  git clone $SAMPLEDATA_REPO ~/archivematica-sampledata
+  echo "Updating OPF..."
+  cd ~/archivematica-sampledata
+  git submodule init
+  git submodule update
+else
+        echo "Not going to ${part}."
+fi
+
+
 
 exit
 

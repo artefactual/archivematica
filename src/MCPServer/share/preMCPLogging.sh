@@ -21,7 +21,7 @@
 # @version svn: $Id$
 
 databaseName="MCP"
-username="demo"
+username="archivematica"
 password="demo"
 
 stty -echo

@@ -5,12 +5,12 @@
 . /usr/share/debconf/confmodule
 
 dbc_dbname=MCP
-dbc_dbuser=demo
+dbc_dbuser=archivematica
 dbc_dbpass=demo
 
 # source dbconfig-common shell library, and call the hook function
 if [ -f /usr/share/dbconfig-common/dpkg/config.mysql ]; then
   . /usr/share/dbconfig-common/dpkg/config.mysql
-  dbc_go archivematica-transcoder $@
+  dbc_go archivematica-fpr-client $@
 fi
 

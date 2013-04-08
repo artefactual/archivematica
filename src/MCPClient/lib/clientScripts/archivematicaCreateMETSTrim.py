@@ -46,8 +46,7 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
     
     
     etree.SubElement(dublincore, dctermsBNS + "title").text = root.find("Container/TitleFreeTextPart").text
-    etree.SubElement(dublincore, dctermsBNS + "provenance").text = root.find("Container/Department").text
-    etree.SubElement(dublincore, dctermsBNS + "provenance").text = root.find("Container/OPR").text
+    etree.SubElement(dublincore, dctermsBNS + "provenance").text = "Department: %s; OPR: %s" % (root.find("Container/Department").text, root.find("Container/OPR").text)
     etree.SubElement(dublincore, dctermsBNS + "isPartOf").text = root.find("Container/FullClassificationNumber").text
     etree.SubElement(dublincore, dctermsBNS + "identifier").text = root.find("Container/RecordNumber").text.split('/')[-1]
     

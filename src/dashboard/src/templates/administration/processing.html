@@ -6,6 +6,7 @@
 {% block page_id %}Administration{% endblock %}
 
 {% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/administration/processing.js"></script>
 {% endblock %}
 
 {% block css %}
@@ -21,14 +22,68 @@
 
       <h3>Processing configuration</h3>
 
-      <div style='width: 500px; height: 300px;'>
+      <form method='POST'>
+      <table>
+        {% for item in boolean_select_fields %}
+        <tr>
+          <td>
+            <input type='checkbox' name='{{ item.name }}' value='yes' {{ item.checked }}> {{ item.label }}
+          </td>
+          <td>
+            <select name='{{ item.name }}_toggle'>
+              <option value='yes' {{ item.yes_checked }}>Yes</option>
+              {% if item.label != 'Approve normalization' %}
+              <option value='no' {{ item.no_checked }}>No</option>
+              {% endif %}
+            </select>
+          </td>
+        </tr>
+        {% endfor %}
+
+        <tr>
+          <td>
+            <input type='checkbox' name='quarantine_expiry_enabled' value='yes' {{ quarantine_expiry_enabled_checked }}>
+            Remove from quarantine after
+          </td>
+          <td colspan>
+            <input name='quarantine_expiry' value='{{ quarantine_expiry }}' class='span1' />
+            days
+          </td>
+        </tr>
+
+        {% for item in select_fields %}
+        <tr>
+          <td>
+            <input type='checkbox' name='{{ item.name }}_enabled' value='yes' {{ item.checked }}> {{ item.label }}
+          </td>
+          <td>
+            <select name="{{ item.name }}">
+              {% for option in item.options %}
+              <option value='{{ option.value }}'
+              {% if item.selected == option.value %}
+                selected
+              {% endif %}
+              >{{ option.label }}</option>
+              {% endfor %}
+            </select>
+          </td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <td colspan="2">
+            <div style="float:right"><input type='submit' class='btn' value='Save'></div>
+          </td>
+        </tr>
+      </table>
+      </form>
+
+      {% if debug %}
+      <div style='width: 700px; height: 600px;'>
       <form method='POST'>
         <textarea name='xml' style='width: 500px; height: 300px;'>{{ xml }}</textarea>
-        <div style='float:right;'>
-          <input type='submit' value='Save' class='btn' />
-        </div>
       </form>
       </div>
+      {% endif %}
 
     </div>
 

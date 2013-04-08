@@ -126,13 +126,34 @@ class linkTaskManagerSplitOnFileIdAndruleset:
                 else:
                     sql = """SELECT MicroServiceChainLinks.pk, CommandRelationships.pk, CommandRelationships.command FROM FilesIdentifiedIDs JOIN CommandRelationships ON FilesIdentifiedIDs.fileID = CommandRelationships.fileID JOIN CommandClassifications ON CommandClassifications.pk = CommandRelationships.commandClassification JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = CommandRelationships.pk JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE TasksConfigs.taskType = '%s' AND FilesIdentifiedIDs.fileUUID = '%s' AND CommandClassifications.classification = '%s' AND CommandRelationships.enabled = TRUE AND CommandClassifications.enabled = TRUE GROUP BY MicroServiceChainLinks.pk;""" % (taskType, fileUUID, ComandClassification)
                 rows = databaseInterface.queryAllSQL(sql)
+                
+                commandsRun={}
                 if rows and len(rows):
                     for row in rows:
-                         jobChainLink.jobChain.nextChainLink(row[0], passVar=passVar, incrementLinkSplit=True, subJobOf=self.jobChainLink.UUID)
+                        microServiceChainLink, commandRelationship, command = row
+                        if command in commandsRun:
+                            link = commandsRun[command]
+                            sql = """SELECT exitCode FROM Tasks JOIN Jobs ON Jobs.jobUUID = Tasks.jobUUID WHERE Tasks.jobUUID IN (SELECT jobUUID FROM Jobs WHERE subJobOf = '%s') AND Jobs.MicroServiceChainLinksPK = '%s';""" % (self.jobChainLink.UUID, link)
+                            rows = databaseInterface.queryAllSQL(sql)
+                            if len(rows) != 1:
+                                print sys.stderr, "Bad query:", sql
+                            for row in rows:
+                                ret = row[0]
+                                sql = "UPDATE CommandRelationships SET countAttempts=countAttempts+1 WHERE pk='" + commandRelationship + "';"
+                                databaseInterface.runSQL(sql)
+                                if ret:
+                                    column = "countNotOK"
+                                else:
+                                    column = "countOK"
+                                sql = "UPDATE CommandRelationships SET " + column + "=" + column + "+1 WHERE pk='" + commandRelationship + "';"
+                                databaseInterface.runSQL(sql)
+                        else:
+                            commandsRun[command] = microServiceChainLink
+                            jobChainLink.jobChain.nextChainLink(row[0], passVar=passVar, incrementLinkSplit=True, subJobOf=self.jobChainLink.UUID)
                 else:
                     sql = """SELECT MicroserviceChainLink, CommandRelationships.pk, CommandRelationships.command FROM DefaultCommandsForClassifications JOIN MicroServiceChainLinks ON MicroServiceChainLinks.pk = DefaultCommandsForClassifications.MicroserviceChainLink  JOIN TasksConfigs ON TasksConfigs.pk = MicroServiceChainLinks.currentTask  JOIN CommandRelationships ON CommandRelationships.pk = TasksConfigs.taskTypePKReference JOIN CommandClassifications ON CommandClassifications.pk = DefaultCommandsForClassifications.forClassification WHERE TasksConfigs.taskType = '5e70152a-9c5b-4c17-b823-c9298c546eeb' AND CommandClassifications.classification = '%s' AND DefaultCommandsForClassifications.enabled = TRUE;""" % (ComandClassification)
                     rows = databaseInterface.queryAllSQL(sql)
-                    commandsRun={}
+                    
                     for row in rows:
                         microServiceChainLink, commandRelationship, command = row
                         

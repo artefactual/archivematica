@@ -697,3 +697,7 @@ textarea.command {
   padding-left: 0em;
   padding-bottom: 0em;
 }
+
+#upload-dip-modal-spinner {
+  display: none;
+}

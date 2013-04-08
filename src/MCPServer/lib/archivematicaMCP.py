@@ -39,7 +39,6 @@ from unitDIP import unitDIP
 from unitFile import unitFile
 from unitTransfer import unitTransfer
 from pyinotify import ThreadedNotifier
-import transferD
 import RPCServer
 import MySQLdb
 
@@ -277,15 +276,6 @@ def flushOutputs():
         sys.stderr.flush()
         time.sleep(5)
 
-def startTransferD():
-    p = multiprocessing.Process(target=transferD.mainWithMovedFromCounter, args=(transferDMovedFromCounter,))
-    p.start()
-    print >>sys.stderr, "transferD started - PID:", p.pid
-    while p.is_alive():
-        time.sleep(5)
-    print >>sys.stderr, "transferD crashed\n exitCode:", p.exitcode 
-
-
 def cleanupOldDbEntriesOnNewRun():
     sql = """DELETE FROM Jobs WHERE Jobs.currentStep = 'Awaiting decision';"""
     databaseInterface.runSQL(sql)
@@ -325,9 +315,7 @@ if __name__ == '__main__':
         t.start()
     cleanupOldDbEntriesOnNewRun()
     watchDirectories()
-    #t = threading.Thread(target=startTransferD)
-    #t.daemon = True
-    #t.start()
+
 
     # debug 4545 https://projects.artefactual.com/issues/4545
     #print sys.stdout.encoding

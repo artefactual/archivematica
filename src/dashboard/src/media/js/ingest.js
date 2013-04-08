@@ -1,7 +1,7 @@
 /*
 This file is part of Archivematica.
 
-Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 
 Archivematica is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -217,6 +217,37 @@ $(function()
         {
           var jobData = this.model.toJSON();
 
+//console.log(jobData.microservicegroup); Normalize
+// console.log(jobData.currentstep); Awaiting decision
+
+          if (
+            jobData.microservicegroup == 'Normalize'
+            && jobData.type == 'Normalize'
+            && jobData.currentstep == 'Awaiting decision'
+          ) {
+            // use global variable to note whether dialog has been displayed
+            if (typeof normalizationWarningShown === 'undefined') {
+ 
+              var dialog = $('<div>Reminder: Add descriptive and/or rights metadata prior to normalization if desired</div>');
+ 
+              setTimeout(function() {
+                $(dialog).dialog('close');
+              }, 5000);
+ 
+              dialog.dialog({
+                title: 'Warning',
+                width: 640,
+                height: 200,
+                buttons: [{
+                  text: 'Dismiss',
+                  click: function() { $(this).dialog('close'); }
+                }]
+              });
+
+              normalizationWarningShown = true;
+            }
+          }
+
           if (
             jobData.type == 'Access normalization failed - copying'
             || jobData.type == 'Preservation normalization failed - copying'
@@ -354,26 +385,40 @@ $(function()
 
                   if (input.filter(':text').val())
                   {
-                    var xhr = $.ajax(url, { type: 'POST', data: {
-                      'target': input.filter(':text').val(),
-                      'intermediate': input.filter(':checkbox').is(':checked') }})
+                    $('#upload-dip-modal-spinner').show();
+                    // get AtoM destination URL (so we can confirm it's up)
+                    $.ajax({
+                      url: '/ingest/upload/url/check/?target=' + encodeURIComponent(input.filter(':text').val()),
+                      type: 'GET',
+                      success: function(status_code_from_url_check)
+                        {
+                          if (status_code_from_url_check != '200') {
+                            $('#upload-dip-modal-spinner').hide();
+                            alert('There was a problem attempting to reach the destination URL.');
+                          } else {
+                                  var xhr = $.ajax(url, { type: 'POST', data: {
+                                    'target': input.filter(':text').val(),
+                                    'intermediate': input.filter(':checkbox').is(':checked') }})
 
-                      .done(function(data)
-                        {
-                          if (data.ready)
-                          {
-                            executeCommand(self);
+                                    .done(function(data)
+                                      {
+                                        if (data.ready)
+                                        {
+                                          executeCommand(self);
+                                        }
+                                      })
+                                    .fail(function()
+                                      {
+                                        alert("Error.");
+                                        $select.val(0);
+                                      })
+                                    .always(function()
+                                      {
+                                        modal.modal('hide');
+                                      });
                           }
-                        })
-                      .fail(function()
-                        {
-                          alert("Error.");
-                          $select.val(0);
-                        })
-                      .always(function()
-                        {
-                          modal.modal('hide');
-                        });
+                        }
+                    });
                   }
                 })
               .end()

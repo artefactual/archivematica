@@ -141,24 +141,31 @@ function restart() {
   fi
 }
 
-function clone-sampledata() {
-  part="clone sample data into $HOME"
+function update-sampledata() {
+  part="update sample data in $HOME"
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
-    CURRENT_REPO=`git remote -v | head -n 1 | sed "s/\t/ /" | cut -f2 -d" "`
-    if [ "$CURRENT_REPO" = "git@git.artefactual.com:archivematica" ]; then
-      SAMPLEDATA_REPO="git@git.artefactual.com:archivematica-sampledata.git"
-    else
-      SAMPLEDATA_REPO="https://github.com/artefactual/archivematica-sampledata.git"
-    fi
+    cd ~/archivematica-sampledata
+    currentBranch=`git status | grep '# On branch ' | awk '{print $4}'`
+    colour git pull origin ${currentBranch}
+    cd `dirname $0`
+  else
+          echo "Not going to ${part}."
+  fi
+}
 
-    DATE=`date +%Y-%m-%d-%M-%S`
-    git clone $SAMPLEDATA_REPO ~/archivematica-sampledata-$DATE
-    echo "Updating OPF..."
-    cd ~/archivematica-sampledata-$DATE
-    git submodule init
-    git submodule update
+function export-sampledata() {
+  part="export sample data from $HOME"
+  echo -n "\"Would you like to ${part}?\" (y/N) "
+  read a
+  if [[ $a == "Y" || $a == "y" ]]; then
+    cd ~/archivematica-sampledata
+    DATE=`date +%Y-%m-%d-%H-%M-%S`
+    echo exporting to "~/archivematica-sampledata-$DATE"
+    mkdir ~/archivematica-sampledata-$DATE
+    git archive master | tar -x -C ~/archivematica-sampledata-$DATE
+    cd `dirname $0`
   else
           echo "Not going to ${part}."
   fi
@@ -179,19 +186,20 @@ function install-gui() {
   fi
 }
 
-function update-qubit() {
-  part="update Qubit (trunk) and restart its qubit-sword service"
+function update-atom() {
+  part="update AtoM and restart its atom-worker service"
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
-          sudo chmod -R 777 qubit-git
-          cd qubit-git
-          git pull
+          cd atom-git
+          sudo -u www-data git fetch origin
+          sudo -u www-data git reset --hard origin/stable/1.3.x
+          sudo -u www-data sed -i "s/'qbAclPlugin',/      'qbAclPlugin',\n'qtSwordPlugin',/g" config/ProjectConfiguration.class.php
+          sudo -u www-data rm -rf cache/*
+          sudo -u www-data php symfony cc
           cd -
-          sudo chmod -R 777 qubit-git
-          colour sudo stop qubit-sword
-          colour sudo start qubit-sword
-          echo "Remember to activate sfSwordPlugin and restart Qubit database if necessary!"
+          colour sudo stop atom-worker
+          colour sudo start atom-worker
   else
           echo "Not going to ${part}."
   fi
@@ -219,6 +227,7 @@ package-update
 recreate-db
 FPRClient
 restart
-clone-sampledata
+update-sampledata
+export-sampledata
 install-gui
-update-qubit
+update-atom

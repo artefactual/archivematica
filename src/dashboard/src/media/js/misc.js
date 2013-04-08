@@ -1,3 +1,22 @@
+/*
+This file is part of Archivematica.
+
+Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
+
+Archivematica is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Archivematica is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 var NotificationView = Backbone.View.extend({
   initialize: function() {
     this.initializeLocalData();
@@ -118,16 +137,10 @@ Date.prototype.getArchivematicaDateString = function()
     return dateText;
   };
 
-function localizeUtcDateElements() {
-  $('.utcDate').each(function() {
-    $(this).text(utcDateToLocal($(this).text()));
+function localizeTimestampElements() {
+  $('.timestamp').each(function() {
+    $(this).text(timestampToLocal($(this).text()));
   });
-}
-
-function utcDateToLocal(dateText) {
-  dateText = dateText.replace('a.m.', 'AM').replace('p.m.', 'PM');
-  var date = new Date(dateText + ' UTC');
-  return date.getArchivematicaDateString();
 }
 
 function timestampToLocal(timestamp) {
@@ -173,7 +186,7 @@ function reloadPageableElement(destinationDomElement, url, page) {
     success: function(data)
       {
         $(destinationDomElement).html(data);
-        localizeUtcDateElements();
+        localizeTimestampElements();
       },
     url: url
   });

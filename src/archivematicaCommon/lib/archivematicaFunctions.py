@@ -106,7 +106,7 @@ def escapeForCommand(string):
         ret = ret.replace("\\", "\\\\")
         ret = ret.replace("\"", "\\\"")
         #ret = ret.replace("'", "\\'")
-        ret = ret.replace("$", "\\$")
+        #ret = ret.replace("$", "\\$")
     return ret
 
 def escape(string):

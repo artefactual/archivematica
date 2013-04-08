@@ -1,6 +1,6 @@
 # This file is part of Archivematica.
 #
-# Copyright 2010-2012 Artefactual Systems Inc. <http://artefactual.com>
+# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
 #
 # Archivematica is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -98,8 +98,8 @@ def paging_related_values_for_template_use(items_per_page, page, start, number_o
 
     return end, previous_page, next_page
 
-def assemble_query(queries, ops, fields, types):
-    must_haves     = []
+def assemble_query(queries, ops, fields, types, **kwargs):
+    must_haves     = kwargs.get('must_haves', [])
     should_haves   = []
     must_not_haves = []
     index          = 0
