@@ -23,7 +23,7 @@ from django.utils import simplejson
 from contrib.mcp.client import MCPClient
 from main import models
 from lxml import etree
-import os, subprocess, uuid
+import os, subprocess
 from components import helpers
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -32,14 +32,6 @@ from components import helpers
 
 def home(request):
     if 'first_login' in request.session and request.session['first_login']:
-        # assign UUID to dashboard
-        dashboard_uuid = uuid.uuid4().__str__()
-        setting = models.DashboardSetting.objects.create(
-            name='dashboard_uuid',
-            value=dashboard_uuid
-        )
-        setting.save()
-
         request.session.first_login = False
         redirectUrl = reverse('components.administration.views.administration')
     else:

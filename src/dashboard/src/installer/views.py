@@ -24,9 +24,12 @@ from main.models import Agent
 from installer.forms import SuperUserCreationForm
 from installer.forms import FPRConnectForm
 from tastypie.models import ApiKey
+import components.helpers as helpers
+
 import json
 import requests
 import socket
+import uuid
 
 def welcome(request):
     # This form will be only accessible when the database has no users
@@ -34,6 +37,11 @@ def welcome(request):
       return HttpResponseRedirect(reverse('main.views.home'))
     # Form
     if request.method == 'POST':
+        
+        # assign UUID to dashboard
+        dashboard_uuid = uuid.uuid4().__str__()
+        helpers.set_setting('dashboard_uuid', dashboard_uuid)
+        
         # save organization PREMIS agent if supplied
         org_name       = request.POST.get('org_name', '')
         org_identifier = request.POST.get('org_identifier', '')
@@ -88,7 +96,7 @@ def fprupload(request):
     response_data = {} 
     agent = Agent.objects.get(pk=2)
     url = 'http://fpr.archivematica.org:8000/fpr/api/v1/Agent/'
-    payload = {'uuid': '3b66a42d-7109-495b-8234-89aa8bc533c5', 
+    payload = {'uuid': helpers.get_setting('dashboard_uuid'), 
                'agentType': 'new install', 
                'agentName': agent.name, 
                'clientIP': get_my_ip(), 
