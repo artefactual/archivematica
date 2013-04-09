@@ -87,7 +87,7 @@ sudo ln -f "${svnDir}externals/fits/archivematicaConfigs/fits.xml" /usr/share/fi
 sudo chmod 644 /usr/share/fits/xml/fits.xml
 
 sudo mkdir /var/archivematica/
-sudo ln -s "${svnDir}src/MCPServer/sharedDirectoryStructure" "/var/archivematica/sharedDirectory"
+sudo ln -s "${svnDir}src/MCPServer/share/sharedDirectoryStructure" "/var/archivematica/sharedDirectory"
 sudo chown -R archivematica:archivematica "/var/archivematica/sharedDirectory"
 sudo chmod -R g+s "/var/archivematica/sharedDirectory"
 
