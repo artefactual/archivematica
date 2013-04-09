@@ -346,7 +346,10 @@ def transfer_backlog(request):
     # run through transfers to see if they've been created yet
     awaiting_creation = {}
     for transfer in transfer_uuids:
-        awaiting_creation[transfer.term] = transfer_awaiting_sip_creation_v2(transfer.term)
+        try:
+            awaiting_creation[transfer.term] = transfer_awaiting_sip_creation_v2(transfer.term)
+        except:
+            awaiting_creation[transfer.term] = False
 
     number_of_results = results.hits.total
     results = transfer_backlog_augment_search_results(results)
