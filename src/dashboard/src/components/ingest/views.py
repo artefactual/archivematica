@@ -318,7 +318,7 @@ def transfer_backlog(request):
 
     start = page * items_per_page + 1
 
-    conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
+    conn = elasticSearchFunctions.connect_and_create_index('transfers')
 
     try:
         query = advanced_search.assemble_query(
