@@ -1,5 +1,6 @@
 {% extends "layout_fluid.html" %}
 {% load breadcumbs %}
+{% load keyvalue %}
 
 {% block title %}Transfer backlog{% endblock %}
 {% block h1 %}Transfer backlog{% endblock %}
@@ -41,9 +42,19 @@
     </div>
     <br clear='all' />
     -->
+    <table>
     {% for term_usage in transfer_uuids %}
-      {{ term_usage.term }} ({{ term_usage.count }} files)<br/>
+      <tr>
+        <td>{{ term_usage.term }}</td>
+        <td>({{ term_usage.count }} files)</td>
+        <td>
+          {% if awaiting_creation|keyvalue:term_usage.term %}
+              <a href='/ingest/backlog/process/{{ term_usage.term }}/' target='_blank' class='creation btn'>Create SIP</a>
+          {% endif %}
+        </td>
+      </tr>
     {% endfor %}
+    </table>
 
     <!--
     {% for item in results %}

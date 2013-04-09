@@ -343,6 +343,11 @@ def transfer_backlog(request):
     file_extension_usage = results['facets']['fileExtension']['terms']
     transfer_uuids = results['facets']['sipuuid']['terms']
 
+    # run through transfers to see if they've been created yet
+    awaiting_creation = {}
+    for transfer in transfer_uuids:
+        awaiting_creation[transfer.term] = transfer_awaiting_sip_creation_v2(transfer.term)
+
     number_of_results = results.hits.total
     results = transfer_backlog_augment_search_results(results)
 
@@ -378,6 +383,10 @@ def transfer_backlog_augment_search_results(raw_results):
 
     return modifiedResults
 
+def transfer_awaiting_sip_creation_v2(uuid):
+    transfer = models.Transfer.objects.get(uuid=uuid)
+    return transfer.currentlocation.find('%sharedPath%transferBacklog/original/') == 0
+
 def transfer_awaiting_sip_creation(uuid):
     try:
         job = models.Job.objects.filter(
@@ -393,6 +402,27 @@ def process_transfer(request, uuid):
     response = {}
 
     if request.user.id:
+        """
+        # get transfer info
+        transfer = models.Transfer.objects.get(uuid=uuid)
+        transfer_path = transfer.currentlocation.replace(
+            '%sharedPath%',
+            helpers.get_server_config_value('sharedDirectory')
+        )
+
+        # move tranfser
+        import shutil
+        shutil.move(transfer_path, '/var/archivematica/sharedDirectory/watchedDirectories/SIPCreation/completedTransfers')
+        basename = os.path.basename(transfer_path[:-1])
+
+        # update location in DB
+        transfer.currentlocation = '%sharedPath%watchedDirectories/SIPCreation/completedTransfers/' + basename + '/'
+        transfer.save()
+        """
+
+        response['message'] = 'Not implemented'
+        """
+        # let dashboard process it
         client = MCPClient()
         try:
             job = models.Job.objects.filter(
@@ -409,6 +439,7 @@ def process_transfer(request, uuid):
         except:
             response['error']   = True
             response['message'] = 'Error attempting to create SIP.'
+        """
     else:
         response['error']   = True
         response['message'] = 'Must be logged in.'
