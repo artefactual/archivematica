@@ -8,7 +8,7 @@ Homepage: http://archivematica.org
 
 Package: archivematica-transcoder
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, dbconfig-common, ffmpeg, libavcodec-extra-53, inkscape, openjdk-6-jre, openjdk-7-jre, openoffice.org, openoffice.org-java-common, sanitize-names, uuid, clamav, imagemagick, readpst, ufraw, archivematica-common, libreoffice-common, libreoffice
+Depends: ${shlibs:Depends}, ${misc:Depends}, ffmpeg, libavcodec-extra-53, inkscape, openjdk-6-jre, openjdk-7-jre, openoffice.org, openoffice.org-java-common, sanitize-names, uuid, clamav, imagemagick, readpst, ufraw, archivematica-common, libreoffice-common, libreoffice, archivematica-fpr-client
 Description: Transcoder for Archivematica
   Transcoder for Archivematica
   

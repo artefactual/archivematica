@@ -2,6 +2,5 @@ bin/* /usr/bin/
 etc/* /etc/archivematica/transcoder/
 lib/* /usr/lib/archivematica/transcoder/
 init/* /etc/init/
-share/mysql /usr/share/dbconfig-common/data/archivematica-transcoder/install/
 share/* /usr/share/archivematica/transcoder/
 

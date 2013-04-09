@@ -1,16 +1,4 @@
 #!/bin/sh
 # config maintainer script for archivematica-mcp-server
 
-# source debconf stuff
-. /usr/share/debconf/confmodule
-
-dbc_dbname=MCP
-dbc_dbuser=archivematica
-dbc_dbpass=demo
-
-# source dbconfig-common shell library, and call the hook function
-if [ -f /usr/share/dbconfig-common/dpkg/config.mysql ]; then
-  . /usr/share/dbconfig-common/dpkg/config.mysql
-  dbc_go archivematica-transcoder $@
-fi
 

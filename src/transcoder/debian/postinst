@@ -2,12 +2,6 @@
 
 set -e
 
-#source debconf stuff
-. /usr/share/debconf/confmodule
-. /usr/share/dbconfig-common/dpkg/postinst
-
-dbc_go archivematica-transcoder $@
-
 if [ -x "/etc/init.d/openofficed" ]; then
         update-rc.d openofficed defaults >/dev/null
         invoke-rc.d openofficed start || exit $?
