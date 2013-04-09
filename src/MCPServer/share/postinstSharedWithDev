@@ -4,7 +4,7 @@ userID=`id -u archivematica`
 if [ "${userID}" = 333 ]; then
   echo "User archivematica exists"
 else
-  adduser --uid 333 --group --system --ingroup audio --home /var/lib/archivematica/ archivematica
+  adduser --uid 333 --group --system --home /var/lib/archivematica/ archivematica
 fi
 
 sudo usermod -a -G audio archivematica
