@@ -26,6 +26,10 @@ from installer.forms import FPRConnectForm
 from tastypie.models import ApiKey
 import components.helpers as helpers
 
+import sys
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from utilities.FPRClient.main import FPRClient
+
 import json
 import requests
 import socket
@@ -114,5 +118,7 @@ def fprupload(request):
 
 def fprdownload(request):
     response_data = {}
+    myresponse = FPRClient.getUpdates()
+    response_data['response'] = myresponse
     response_data['result'] = 'success'
     return HttpResponse(json.dumps(response_data), content_type="application/json")
