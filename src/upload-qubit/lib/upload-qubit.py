@@ -100,10 +100,9 @@ def start(data):
 
     # The target columns contents a serialized Python dictionary
     # - target is the permalink string
-    # - intermediate is a boolean
     try:
         target = cPickle.loads(str(access.target))
-        log("Target: %s (intermediate: %s)" % (target['target'], target['intermediate']))
+        log("Target: %s" % (target['target']))
     except:
         error("No target was selected")
 
@@ -189,7 +188,6 @@ def start(data):
     headers['X-Verbose'] = 'false'
     headers['Content-Location'] = "file:///%s" % os.path.basename(directory)
     """ headers['Content-Disposition'] """
-    headers['Create-Parent'] = str(target['intermediate']).lower()
 
     # Build URL (expected sth like http://localhost/ica-atom/index.php)
     data.url = "%s/;sword/deposit/%s" % (data.url, target['target'])

@@ -366,7 +366,6 @@ $(function()
                         if (data.target)
                         {
                           input.filter(':text').val(data.target);
-                          input.filter(':checkbox').prop('checked', data.intermediate);
                         }
                       });
                 })
@@ -397,8 +396,7 @@ $(function()
                             alert('There was a problem attempting to reach the destination URL.');
                           } else {
                                   var xhr = $.ajax(url, { type: 'POST', data: {
-                                    'target': input.filter(':text').val(),
-                                    'intermediate': input.filter(':checkbox').is(':checked') }})
+                                    'target': input.filter(':text').val() }})
 
                                     .done(function(data)
                                       {
