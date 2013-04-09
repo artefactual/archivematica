@@ -1,5 +1,5 @@
 bin/* /usr/bin/
 etc/* /etc/archivematica/FPRClient/
 lib/* /usr/lib/archivematica/FPRClient/
-
+share/mysql /usr/share/dbconfig-common/data/archivematica-fpr-client/install/
 

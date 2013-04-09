@@ -8,7 +8,7 @@ Homepage: http://archivematica.org
 
 Package: archivematica-fpr-client
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, python, archivematica-mcp-server, archivematica-common
+Depends: ${shlibs:Depends}, ${misc:Depends}, python, archivematica-mcp-server, archivematica-common, dbconfig-common
 Description: fpr-client for Archivematica
   fpr-client for Archivematica
   
