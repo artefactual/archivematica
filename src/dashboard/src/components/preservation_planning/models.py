@@ -48,7 +48,7 @@ class Command(models.Model):
         db_table = u'Command'
         
 class FormatPolicyRule(models.Model):
-    uuid = models.CharField(max_length=36, primary_key=True, db_column='pk')
+    uuid = UUIDPkField() 
     #commandClassification = models.ForeignKey(CommandClassification, db_column='commandClassification')
     purpose = models.CharField(max_length=36, db_column='commandClassification')
     #command = models.ForeignKey(Command, null=True, db_column='command')

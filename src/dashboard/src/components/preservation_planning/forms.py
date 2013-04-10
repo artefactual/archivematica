@@ -133,7 +133,7 @@ class FPREditRule(ModelForm):
     formatID = forms.ChoiceField(choices = getFormatIDs(), label = 'Format ID', required = True)
     command = forms.ChoiceField(choices = getCommands(), label = 'Command', required = True)
     replaces = forms.ChoiceField(choices = getCommands(), label = "Replaces", required = False)
-    enabled = forms.CheckboxInput()
-    exclude = (lastModified,)
+    enabled = forms.BooleanField(required=False, initial=True)
+    exclude = ('lastModified','uuid')
     class Meta:
         model = ppModels.FormatPolicyRule    
