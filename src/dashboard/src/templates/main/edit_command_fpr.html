@@ -52,6 +52,12 @@
   <title>
     Command Editor
   </title>
+  <div id=fpr_nav>
+<a href='{% url components.preservation_planning.views.fpr_edit_format %}'>Add new Format ID</a>
+<br><a href='{% url components.preservation_planning.views.fpr_edit_command %}'>Add new Command</a>
+<br><a href='{% url components.preservation_planning.views.fpr_edit_rule %}'>Add new Format Policy Rule</a>
+</div>
+
 <h2>Format policy - Archivematica Command</h2>
   The format policy Archivematica Command is composed of 3 commands; 
   the command itself, a verification command which checks after the command has run to ensure all has gone well 
@@ -59,13 +65,18 @@
 <br><br>
 
 <h3>Archivematica Command</h3>
-<form action="" method="post">
-    <table class = "formatForm">
-      {{ commandForm.as_table }}
-    </table>
-  <input type="submit" value="Save">
-</form>
+<form class="form-stacked" method="post" action="{% url components.preservation_planning.views.fpr_edit_command %}">
 
-
-</html>
+    {% include "_form.html" %}
+    
+    <div class="actions">
+          {% if id %}
+            <button type="submit" class="btn primary">Save</button>
+          {% else %}
+            <button type="submit" class="btn primary">Create</button>
+          {% endif %}
+          {% if uuid %}
+            <a href="{% url components.preservation_planning.views.fpr_edit_command uuid %}" class="btn">Cancel</a>
+          {% endif %} 
+    </div>
 {% endblock %}
