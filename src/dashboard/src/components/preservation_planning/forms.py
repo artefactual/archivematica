@@ -80,6 +80,18 @@ def getPurposes():
 
     return ret
 
+def getFormatIDs():
+    query = 'Select pk, description from FileIDs'
+    
+    cursor = connection.cursor()
+    cursor.execute(query)
+    
+    ret = []
+    for formatID in cursor.fetchall():
+        ret.append( (formatID[0], formatID[1]))
+
+    return ret
+
 class FPRSearchForm(forms.Form):
     query = forms.CharField(label='', required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
       
