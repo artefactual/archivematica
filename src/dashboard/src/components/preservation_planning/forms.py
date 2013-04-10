@@ -86,38 +86,29 @@ class FPRSearchForm(forms.Form):
 class FPREditFormatID(forms.Form):
     formatID = forms.CharField(label = 'Format ID', required = True)
     purpose = forms.ChoiceField(choices = getPurposes())
-
     tool = forms.ChoiceField(choices = getTools(), label= "File Identification Tool")
     toolVersion = forms.CharField(label = 'Tool Version', required = False)
-
     formatDescription = forms.CharField(label = 'Description', required = False, max_length = 100,
-        widget = TextInput(attrs = {'class':'Description'}))
-
-    command = forms.CharField(label = 'Command', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
 
 class FPREditCommand(forms.Form):
     COMMAND_USAGE_CHOICES = (('command','command'), ('verification','verification'), ('eventDetail','eventDetail'))
     
     commandUsage = forms.ChoiceField(choices = COMMAND_USAGE_CHOICES, label='Usage')
-    
     commandType = forms.ChoiceField(choices = getCommandTypes())
-    
     command = forms.CharField(label = 'Command', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
-    
     outputLocation = forms.CharField(label= 'Output location', required= False, max_length = 255,
         widget =  TextInput(attrs = {'class':'Description'}))
-    
     outputFileFormat = forms.CharField(label= 'Output File Format', required= False, max_length = 15,
         widget =  TextInput(attrs = {'class':'Description'}))
-        
     commandDescription = forms.CharField(label = 'Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
-    
     verificationCommand = forms.ChoiceField(choices = getCommands('verification'), label = 'Verification command', required = False)
-    
     eventDetailCommand = forms.ChoiceField(choices = getCommands('eventDetail'), label = 'Event detail command', required = False)
     
-    
+class FPREditRule(forms.Form):
+    purpose = forms.ChoiceField(choices = getPurposes())
+    formatID = forms.ChoiceField(choices = getFormatIDs(), label = 'Format ID', required = True)
+    command = forms.ChoiceField(choices = getCommands(), label = 'Command', required = True)
     
