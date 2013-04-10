@@ -221,12 +221,16 @@ def preservation_planning_fpr_data(request, current_page_number = None):
     return render(request, 'main/preservation_planning_fpr.html', locals())
 
 def fpr_edit_format(request):
-    formatIDForm = FPREditFormatID()
+    form = FPREditFormatID()
     return render(request, 'main/edit_format_id_fpr.html', locals())
 
 def fpr_edit_command(request):
-    commandForm = FPREditCommand()
+    form = FPREditCommand()
     return render(request, 'main/edit_command_fpr.html', locals())
+
+def fpr_edit_tool_output(request, uuid=None):
+    form = FPREditToolOutput()
+    return render(request, 'main/edit_tool_output_fpr.html', locals())
 
 def fpr_edit_rule(request, uuid=None):
     rule = None
