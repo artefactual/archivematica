@@ -17,6 +17,8 @@
 
 from django.conf.urls.defaults import patterns
 
+from django.conf import settings
+
 urlpatterns = patterns('components.preservation_planning.views',
     #(r'fpr/(?P<current_page_number>\d+)/$', 'preservation_planning_fpr_data'),
     #(r'fpr/$', 'preservation_planning_fpr_data'),
@@ -24,9 +26,9 @@ urlpatterns = patterns('components.preservation_planning.views',
     #(r'fpr/search/(?P<current_page_number>\d+)/$', 'preservation_planning_fpr_search'),
     #(r'$', 'preservation_planning')
     (r'old/$', 'preservation_planning'),
-    (r'format/$', 'fpr_edit_format'),
-    (r'command/$', 'fpr_edit_command'),
-    (r'rule/$', 'fpr_edit_rule'),
+    (r'^(?P<uuid>' + settings.UUID_REGEX + ')/format/$', 'fpr_edit_format'),
+    (r'^(?P<uuid>' + settings.UUID_REGEX + ')/command/$', 'fpr_edit_command'),
+    (r'^(?P<uuid>' + settings.UUID_REGEX + ')/rule/$', 'fpr_edit_rule'),
     (r'(?P<current_page_number>\d+)/$', 'preservation_planning_fpr_data'),
     (r'$', 'preservation_planning_fpr_data'),
     (r'search/$', 'preservation_planning_fpr_search'),

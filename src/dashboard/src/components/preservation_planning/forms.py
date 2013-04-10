@@ -19,15 +19,17 @@ from django.conf import settings
 
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-
+#we are getting lookup values directly from db, not using django models
 from django.db import connection, transaction
-from django.shortcuts import render
-from django.http import HttpResponse
-from main import models
-from components import helpers
 
 from django import forms
 from django.forms.widgets import *
+from django.forms import ModelForm
+from django.forms.models import modelformset_factory
+
+from main import models
+from components import helpers
+from components.administration.preservation_planning import models as ppModels 
 
 INPUT_ATTRS = {'class': 'span11'}
 
@@ -104,9 +106,9 @@ class FPREditFormatID(forms.Form):
     tool = forms.ChoiceField(choices = getTools(), label= "File Identification Tool")
     formatDescription = forms.CharField(label = 'Format ID Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
-    validPreservation = forms.CheckboxInput()
-    validAccess = forms.CheckboxInput()
-    enabled = forms.CheckboxInput(check_test=True)
+    validPreservation = forms.BooleanField(required=False, initial=False) 
+    validAccess = forms.BooleanField(required=False, initial=False) 
+    enabled = forms.BooleanField(required=False, initial=True) 
 
 class FPREditCommand(forms.Form):
     COMMAND_USAGE_CHOICES = (('command','command'), ('verification','verification'), ('eventDetail','eventDetail'))
@@ -124,8 +126,9 @@ class FPREditCommand(forms.Form):
     verificationCommand = forms.ChoiceField(choices = getCommands('verification'), label = 'Verification command', required = False)
     eventDetailCommand = forms.ChoiceField(choices = getCommands('eventDetail'), label = 'Event detail command', required = False)
     
-class FPREditRule(forms.Form):
+class FPREditRule(ModelForm):
     purpose = forms.ChoiceField(choices = getPurposes())
     formatID = forms.ChoiceField(choices = getFormatIDs(), label = 'Format ID', required = True)
     command = forms.ChoiceField(choices = getCommands(), label = 'Command', required = True)
-    
+    class Meta:
+        model = ppModels.CommandRelationships
