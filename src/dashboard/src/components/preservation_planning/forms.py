@@ -100,7 +100,7 @@ class FPRSearchForm(forms.Form):
     query = forms.CharField(label='', required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
       
 class FPREditFormatID(forms.Form):
-    formatID = forms.HiddenInput(label = 'Format ID', required = True)
+    formatID = forms.HiddenInput(label = 'Format ID')
     tool = forms.ChoiceField(choices = getTools(), label= "File Identification Tool")
     formatDescription = forms.CharField(label = 'Format ID Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
