@@ -93,6 +93,9 @@ def tasks(request, uuid):
     job = models.Job.objects.get(jobuuid=uuid)
     objects = job.task_set.all().order_by('-exitcode', '-endtime', '-starttime', '-createdtime')
 
+    if (len(objects) == 0):
+        return tasks_subjobs(request, uuid)
+
     page    = helpers.pager(objects, django_settings.TASKS_PER_PAGE, request.GET.get('page', None))
     objects = page['objects']
 
@@ -101,6 +104,21 @@ def tasks(request, uuid):
          object.duration = helpers.task_duration_in_seconds(object)
 
     return render(request, 'main/tasks.html', locals())
+
+def tasks_subjobs(request, uuid):
+    jobs = []
+    possible_jobs = models.Job.objects.filter(subjobof=uuid)
+
+    for job in possible_jobs:
+        subjobs = models.Job.objects.filter(subjobof=job.jobuuid)
+        job.total_subjobs = len(subjobs)
+        job.path_to_file = job.directory.replace('%SIPDirectory%', '', 1)
+        jobs.append(job)
+
+    if len(jobs) == 1:
+        return tasks(request, jobs[0].jobuuid)
+    else:
+        return render(request, 'main/tasks_subjobs.html', locals())
 
 def jobs_list_objects(request, uuid):
     response = []
