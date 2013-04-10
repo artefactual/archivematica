@@ -57,7 +57,7 @@ class FormatPolicyRule(models.Model):
     command = models.CharField(max_length=36, null=True)
     formatID = models.CharField(max_length=36, null=True, db_column='fileID')
     replaces = models.CharField(max_length=36, null=True)
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    lastModified = models.DateTimeField(db_column='lastModified')
     enabled = models.IntegerField(null=True, db_column='enabled', default=1)
     class Meta:
         db_table = u'CommandRelationship'
