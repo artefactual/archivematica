@@ -61,7 +61,7 @@ def executeCommandReleationship(gearman_worker, gearman_job):
         replacementDic = getReplacementDic(opts)
         #if True:
         opts["prependStdOut"] =    """Operating on file: {%s}%s \r\nUsing  %s  command classifications""" % (opts["fileUUID"], replacementDic["%fileName%"], opts["commandClassification"])
-        opts["prependStdError"] = ""
+        opts["prependStdError"] = "\r\nSTDError:"
         #    print clientID, execute, data
         archivematicaClient.logTaskAssignedSQL(gearman_job.unique.__str__(), clientID, utcDate)
         cl = transcoder.CommandLinker(opts["CommandRelationship"], replacementDic, opts, onceNormalized)
@@ -70,7 +70,10 @@ def executeCommandReleationship(gearman_worker, gearman_job):
         co = cl.commandObject
         exitCode = co.exitCode
         stdOut = "%s \r\n%s" % (opts["prependStdOut"], co.stdOut)
-        stdError = "%s \r\n%s" % (opts["prependStdError"], co.stdError)
+        if not co.stdError or co.stdError.isspace():
+            stdError = ""
+        else:
+            stdError = "%s \r\n%s" % (opts["prependStdError"], co.stdError)
         
         #TODO add date to ops
 
