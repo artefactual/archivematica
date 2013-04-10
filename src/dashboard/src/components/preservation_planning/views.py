@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from components.preservation_planning.forms import FPREditFormatID, FPREditCommand, FPREditRule, getFormats
+from components.preservation_planning.forms import FPREditFormatID, FPREditCommand, FPREditRule, getFormatIDs
 from components.preservation_planning.forms import FPRSearchForm
 from components.preservation_planning.models import FormatPolicyRule
 
@@ -228,7 +228,7 @@ def fpr_edit_command(request):
     commandForm = FPREditCommand()
     return render(request, 'main/edit_command_fpr.html', locals())
 
-def fpr_edit_rule(request, uuid):
+def fpr_edit_rule(request, uuid=None):
     rule = None
     if uuid is not None:
         rule = FormatPolicyRule.objects.get(pk=uuid)
@@ -245,8 +245,8 @@ def fpr_edit_rule(request, uuid):
     else:
         form =FPREditRule(instance=rule)
     
-    accessFormats = getFormats('access')
-    preservationFormats = getFormats('preservation')
+    accessFormats = getFormatIDs('access')
+    preservationFormats = getFormatIDs('preservation')
     
     return render(request, 'main/edit_rule_fpr.html', locals())
 

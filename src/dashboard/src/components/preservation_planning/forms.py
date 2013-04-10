@@ -131,5 +131,4 @@ class FPREditRule(ModelForm):
     formatID = forms.ChoiceField(choices = getFormatIDs(), label = 'Format ID', required = True)
     command = forms.ChoiceField(choices = getCommands(), label = 'Command', required = True)
     class Meta:
-        model = ppModels.CommandRelationships
-        
+        model = ppModels.FormatPolicyRule    

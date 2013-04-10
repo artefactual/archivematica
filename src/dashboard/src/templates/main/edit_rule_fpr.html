@@ -68,12 +68,6 @@ $(document).ready(function() {
 });
 </script>
 
-{% load json_filters %}
-
-{% block content %} &lt;script type="text/javascript"&gt;<![CDATA[ var accessFormats = {{ accessFormats|jsonify }}; ]]>&lt;/script&gt; {% endblock %}
-
-{% block content %}
-
   <title>
     Format ID Editor
   </title>
@@ -81,28 +75,7 @@ $(document).ready(function() {
   The format policy Archivematica Rule composed of a format id, a command and a command classification.
 <br><br>
 
-<script type=j"application/javascript">
 
-function getFormats(classification) {
-	$.get("preservation_planning/fprdownload/", function(data, textStatus)
-    {
-        if (data['result'] == 'success') {
-            $("div#fpr").append("<p>FPR updated.</p>");
-            AddElement();
-        } else {
-            $("div#fpr").append("<p>Unable to update FPR.</p>");
-            AddElement(); 
-        }
-    }, "json");
-}
-
-$('#id_purpose').change(function() {
-    var options = '';
-    options = getFormats($(this).val());
-    $('#id_formatID').html(options);
-});	
-	
-</script> 
 
 <h3>Archivematica Format Policy Rule</h3>
   	 <form class="form-stacked" method="post" action="{% url components.preservation_planning.views.fpr_edit_rule %}">
@@ -115,8 +88,10 @@ $('#id_purpose').change(function() {
           {% else %}
             <button type="submit" class="btn primary">Create</button>
           {% endif %}
-          <a href="{% url components.preservation_planning.views.fpr_edit_rule uuid %}" class="btn">Cancel</a>
-        </div>
+          {% if uuid %}
+            <a href="{% url components.preservation_planning.views.fpr_edit_rule uuid %}" class="btn">Cancel</a>
+          {% endif %} 
+    </div>
 
     </form>
 
