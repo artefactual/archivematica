@@ -8,3 +8,4 @@ set -e
 
 dbc_go archivematica-fpr-client $@
 
+/usr/lib/archivematica/FPRClient/addLinks.py
