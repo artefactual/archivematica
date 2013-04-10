@@ -69,6 +69,15 @@ def status(request):
 
 def access_list(request):
     access = models.Access.objects.all()
+    for item in access:
+        semicolon_position = item.resource.find(';')
+        if semicolon_position != -1:
+            target = item.resource.split('/').pop()
+            remove_length = len(item.resource) - semicolon_position
+            chunk = item.resource[:-remove_length] + target
+            item.destination = chunk
+        else:
+            item.destination = item.resource
     return render(request, 'main/access.html', locals())
 
 def access_delete(request, id):

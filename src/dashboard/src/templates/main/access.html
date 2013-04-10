@@ -21,10 +21,10 @@
     <tbody>
       {% for item in access %}
         <tr>
-          <td><a href="{% url components.ingest.views.ingest_detail item.sipuuid %}">{{ item.get_title }}</a></th>
-          <td><a href="{{ item.resource }}">{{ item.resource }}</a></th>
-          <td>{{ item.createdtime }}</th>
-          <td>{{ item.status }}</th>
+          <td><a href="{% url components.ingest.views.ingest_detail item.sipuuid %}">{{ item.get_title }}</a></td>
+          <td><a href="{{ item.destination }}">{{ item.destination }}</a></td>
+          <td>{{ item.createdtime }}</td>
+          <td>{{ item.status }}</td>
           <td><a href="{% url main.views.access_delete item.pk %}">Delete</a></td>
         </tr>
       {% endfor %}
