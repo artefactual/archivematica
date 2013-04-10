@@ -46,7 +46,8 @@
     {% for term_usage in transfer_uuids %}
       <tr>
         <td>{{ term_usage.term }}</td>
-        <td>({{ term_usage.count }} files)</td>
+        <td>{{ term_usage.type }}</td>
+        <td>{{ term_usage.count }} files</td>
         <td>
           {% if awaiting_creation|keyvalue:term_usage.term %}
               <a href='/ingest/backlog/process/{{ term_usage.term }}/' target='_blank' class='creation btn'>Create SIP</a>
