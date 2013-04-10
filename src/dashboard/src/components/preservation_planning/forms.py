@@ -65,6 +65,7 @@ def getCommands(usage = 'command'):
     cursor.execute(query)
     
     ret = []
+    ret.append(('','None'))
     for vCommand in cursor.fetchall():
         ret.append( (vCommand[0], vCommand[1]) )
     
@@ -127,8 +128,12 @@ class FPREditCommand(forms.Form):
     eventDetailCommand = forms.ChoiceField(choices = getCommands('eventDetail'), label = 'Event detail command', required = False)
     
 class FPREditRule(ModelForm):
+    uuid = forms.HiddenInput()
     purpose = forms.ChoiceField(choices = getPurposes())
     formatID = forms.ChoiceField(choices = getFormatIDs(), label = 'Format ID', required = True)
     command = forms.ChoiceField(choices = getCommands(), label = 'Command', required = True)
+    replaces = forms.ChoiceField(choices = getCommands(), label = "Replaces", required = False)
+    enabled = forms.CheckboxInput()
+    exclude = (lastModified,)
     class Meta:
         model = ppModels.FormatPolicyRule    
