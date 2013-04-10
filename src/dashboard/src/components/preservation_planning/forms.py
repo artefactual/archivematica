@@ -29,7 +29,7 @@ from django.forms.models import modelformset_factory
 
 from main import models
 from components import helpers
-from components.administration.preservation_planning import models as ppModels 
+from components.preservation_planning import models as ppModels 
 
 INPUT_ATTRS = {'class': 'span11'}
 
@@ -132,3 +132,4 @@ class FPREditRule(ModelForm):
     command = forms.ChoiceField(choices = getCommands(), label = 'Command', required = True)
     class Meta:
         model = ppModels.CommandRelationships
+        
