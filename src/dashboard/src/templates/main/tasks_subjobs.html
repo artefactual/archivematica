@@ -14,7 +14,11 @@
             <a href='/tasks/{{ item.jobuuid }}/' target='_blank'>{{ item.jobtype }}</a>
           </td>
           <td>
+            {% if item.currentstep == 'Completed successfully' %}
             {{ item.path_to_file }}
+            {% else %}
+            <span style='color: red'>{{ item.path_to_file }}</span>
+            {% endif %}
           </td>
         </tr>
         {% endif %}
