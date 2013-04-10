@@ -37,7 +37,7 @@ def welcome(request):
         if org_name != '' or org_identifier != '':
             agent = Agent.objects.get(pk=2)
             agent.name            = org_name
-            agent.identifiertype  = 'organization'
+            agent.identifiertype  = 'repository code'
             agent.identifiervalue = org_identifier
             agent.save()
 
