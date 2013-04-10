@@ -71,9 +71,17 @@ $(document).ready(function() {
   <title>
     Format ID Editor
   </title>
+  
+  <div id=fpr_nav>
+<a href='{% url components.preservation_planning.views.fpr_edit_format %}'>Add new Format ID</a>
+<br><a href='{% url components.preservation_planning.views.fpr_edit_command %}'>Add new Command</a>
+<br><a href='{% url components.preservation_planning.views.fpr_edit_rule %}'>Add new Format Policy Rule</a>
+</div>
+
 <h2>Format policy - Archivematica Format Policy Rule</h2>
   The format policy Archivematica Rule composed of a format id, a command and a command classification.
 <br><br>
+
 
 <h3>Archivematica Format Policy Rule</h3>
   	 <form class="form-stacked" method="post" action="{% url components.preservation_planning.views.fpr_edit_rule %}">
