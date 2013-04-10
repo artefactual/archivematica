@@ -80,9 +80,13 @@ def getPurposes():
 
     return ret
 
-def getFormatIDs():
-    query = 'Select pk, description from FileIDs'
-    
+def getFormatIDs(purpose = 'all'):
+    query = 'Select pk, description from FileIDs';
+    if purpose == 'access':
+        query = 'Select pk, description from FileIDs where validAccessFormat = 1'
+    elif purpose == 'preservation':
+        query = 'Select pk, description from FileIDs where validPreservationFormat = 1'
+        
     cursor = connection.cursor()
     cursor.execute(query)
     
@@ -96,12 +100,13 @@ class FPRSearchForm(forms.Form):
     query = forms.CharField(label='', required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
       
 class FPREditFormatID(forms.Form):
-    formatID = forms.CharField(label = 'Format ID', required = True)
-    purpose = forms.ChoiceField(choices = getPurposes())
+    formatID = forms.HiddenInput(label = 'Format ID', required = True)
     tool = forms.ChoiceField(choices = getTools(), label= "File Identification Tool")
-    toolVersion = forms.CharField(label = 'Tool Version', required = False)
-    formatDescription = forms.CharField(label = 'Description', required = False, max_length = 100,
+    formatDescription = forms.CharField(label = 'Format ID Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
+    validPreservation = forms.CheckboxInput(label = 'Valid for preservation')
+    validAccess = forms.CheckboxInput(label = 'Valid for access')
+    enabled = forms.CheckboxInput(label = 'Enabled', check_test=True)
 
 class FPREditCommand(forms.Form):
     COMMAND_USAGE_CHOICES = (('command','command'), ('verification','verification'), ('eventDetail','eventDetail'))
