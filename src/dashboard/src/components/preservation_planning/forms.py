@@ -104,9 +104,9 @@ class FPREditFormatID(forms.Form):
     tool = forms.ChoiceField(choices = getTools(), label= "File Identification Tool")
     formatDescription = forms.CharField(label = 'Format ID Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
-    validPreservation = forms.CheckboxInput(label = 'Valid for preservation')
-    validAccess = forms.CheckboxInput(label = 'Valid for access')
-    enabled = forms.CheckboxInput(label = 'Enabled', check_test=True)
+    validPreservation = forms.CheckboxInput()
+    validAccess = forms.CheckboxInput()
+    enabled = forms.CheckboxInput(check_test=True)
 
 class FPREditCommand(forms.Form):
     COMMAND_USAGE_CHOICES = (('command','command'), ('verification','verification'), ('eventDetail','eventDetail'))
