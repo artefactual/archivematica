@@ -1,0 +1,27 @@
+{% extends "layout_fluid.html" %}
+
+{% block content %}
+<a name='tasks_top'></a>
+
+{% include "main/_tasks_pager.html" %}
+
+  <table>
+    <tbody>
+      {% for item in jobs %}
+        {% if not item.hidden and item.total_subjobs %}
+        <tr>
+          <td>
+            <a href='/tasks/{{ item.jobuuid }}/' target='_blank'>{{ item.jobtype }}</a>
+          </td>
+          <td>
+            {{ item.path_to_file }}
+          </td>
+        </tr>
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% include "main/_tasks_pager.html" %}
+
+{% endblock %}
