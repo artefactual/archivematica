@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from components.preservation_planning.forms import FPREditFormatID, FPREditCommand
+from components.preservation_planning.forms import FPREditFormatID, FPREditCommand, FPREditRule
 from components.preservation_planning.forms import FPRSearchForm
 
 from django.db import connection, transaction
@@ -226,5 +226,9 @@ def fpr_edit_format(request):
 def fpr_edit_command(request):
     commandForm = FPREditCommand()
     return render(request, 'main/edit_command_fpr.html', locals())
+
+def fpr_edit_rule(request):
+    ruleForm = FPREditRule()
+    return render(request, 'main/edit_rule_fpr.html', locals())
 
 
