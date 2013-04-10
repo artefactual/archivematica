@@ -31,7 +31,7 @@ from lxml import etree
 from components.ingest.forms import DublinCoreMetadataForm
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
 from components import helpers
-import calendar, ConfigParser, socket
+import calendar, ConfigParser, socket, uuid
 import cPickle
 import components.decorators as decorators
 from components import helpers
@@ -400,22 +400,89 @@ def transfer_awaiting_sip_creation(uuid):
     except:
         return False
 
-def process_transfer(request, uuid):
+def process_transfer(request, transfer_uuid):
     response = {}
 
     if request.user.id:
-        """
         # get transfer info
-        transfer = models.Transfer.objects.get(uuid=uuid)
+        transfer = models.Transfer.objects.get(uuid=transfer_uuid)
         transfer_path = transfer.currentlocation.replace(
             '%sharedPath%',
             helpers.get_server_config_value('sharedDirectory')
         )
 
-        # move tranfser
+        # new
+        transfer_directory_name = os.path.basename(transfer_path[:-1])
+        transfer_name = transfer_directory_name[:-37]
+
+        sip_uuid = uuid.uuid4().__str__()
+        sip = models.SIP.objects.create(
+            uuid=sip_uuid,
+            currentpath='%sharedPath%watchedDirectories/system/autoProcessSIP/' + transfer_name + '/'
+        )
+        sip.save()
+
+        import MySQLdb
+        import databaseInterface
+        import databaseFunctions
+        from archivematicaCreateStructuredDirectory import createStructuredDirectory
+        from archivematicaCreateStructuredDirectory import createManualNormalizedDirectoriesList
+        createStructuredDirectory(transfer_path, createManualNormalizedDirectories=False)
+
+        for directory in createManualNormalizedDirectoriesList:
+            path = os.path.join(transfer_path, directory)
+            if not os.path.isdir(path):
+                os.makedirs(path)
+
+        # move transfer
+
+        #get the database list of files in the objects directory
+        #for each file, confirm it's in the SIP objects directory, and update the current location/ owning SIP'
+        sql = """SELECT  fileUUID, currentLocation FROM Files WHERE removedTime = 0 AND currentLocation LIKE '\%transferDirectory\%objects%' AND transferUUID =  '""" + transfer_uuid + "'"
+        for row in databaseInterface.queryAllSQL(sql):
+            fileUUID = row[0]
+            currentPath = databaseFunctions.deUnicode(row[1])
+            currentSIPFilePath = currentPath.replace("%transferDirectory%", transfer_path)
+            if os.path.isfile(currentSIPFilePath):
+                sql = """UPDATE Files SET currentLocation='%s', sipUUID='%s' WHERE fileUUID='%s'""" % (MySQLdb.escape_string(currentPath.replace("%transferDirectory%", "%SIPDirectory%")), sip_uuid, fileUUID)
+                databaseInterface.runSQL(sql)
+            else:
+                print >>sys.stderr, "file not found: ", currentSIPFilePath
+
         import shutil
-        shutil.move(transfer_path, '/var/archivematica/sharedDirectory/watchedDirectories/SIPCreation/completedTransfers')
-        basename = os.path.basename(transfer_path[:-1])
+        shutil.move(
+            transfer_path,
+            '/var/archivematica/sharedDirectory/watchedDirectories/system/autoProcessSIP/' + transfer_name
+        )
+        return HttpResponse('111')
+
+        """
+        # get transfer info
+        transfer = models.Transfer.objects.get(uuid=transfer_uuid)
+        transfer_path = transfer.currentlocation.replace(
+            '%sharedPath%',
+            helpers.get_server_config_value('sharedDirectory')
+        )
+
+        # delete processing XML file
+        #os.remove(os.path.join(transfer_path, 'processingMCP.xml'))
+
+        # new
+        transfer_directory_name = os.path.basename(transfer_path[:-1])
+        transfer_name = transfer_directory_name[:-37]
+
+        # move transfer
+        sip_uuid = uuid.uuid4().__str__()
+        import shutil
+        shutil.move(
+            transfer_path,
+            '/var/archivematica/sharedDirectory/watchedDirectories/SIPCreation/completedTransfers/' + transfer_name
+        )
+        return HttpResponse('111')
+        """
+
+        """
+        #basename = os.path.basename(transfer_path[:-1])
 
         # update location in DB
         transfer.currentlocation = '%sharedPath%watchedDirectories/SIPCreation/completedTransfers/' + basename + '/'
