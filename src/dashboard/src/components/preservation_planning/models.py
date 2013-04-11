@@ -14,7 +14,7 @@ class FormatID(models.Model):
         db_table = u'FileIDs'
         
 class FormatIDToolOutput(models.Model):
-    uuid = models.CharField(max_length=36, primary_key=True, db_column='pk')
+    uuid = UUIDPkField()
     formatID = models.ForeignKey(FormatID, db_column='fileID')
     toolOutput = models.TextField(db_column='id')
     tool = models.CharField(max_length=150, db_column='tool')
@@ -26,7 +26,7 @@ class FormatIDToolOutput(models.Model):
         db_table = u'FileIDsBySingleID'
         
 class Command(models.Model):
-    uuid = models.CharField(max_length=36, primary_key=True, db_column='pk')
+    uuid = UUIDPkField()
     commandUsage = models.CharField(max_length=15)
     #commandType = models.ForeignKey(CommandType, db_column='commandType')
     commandType = models.CharField(max_length=36)
