@@ -103,13 +103,14 @@ class FPRSearchForm(forms.Form):
     query = forms.CharField(label='', required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
       
 class FPREditFormatID(ModelForm):
-    formatID = forms.HiddenInput()
+    uuid = forms.HiddenInput()
     tool = forms.ChoiceField(choices = getTools(), label= "File Identification Tool")
-    formatDescription = forms.CharField(label = 'Format ID Description', required = False, max_length = 100,
+    description = forms.CharField(label = 'Format ID Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
-    validPreservation = forms.BooleanField(required=False, initial=False) 
-    validAccess = forms.BooleanField(required=False, initial=False) 
+    validpreservationformat = forms.BooleanField(required=False, initial=False) 
+    validaccessformat = forms.BooleanField(required=False, initial=False) 
     enabled = forms.BooleanField(required=False, initial=True) 
+    exclude = ('lastModified')
     class Meta:
         model = ppModels.FormatID
 
@@ -128,6 +129,7 @@ class FPREditCommand(ModelForm):
         widget = TextInput(attrs = {'class':'Description'}))
     verificationCommand = forms.ChoiceField(choices = getCommands('verification'), label = 'Verification command', required = False)
     eventDetailCommand = forms.ChoiceField(choices = getCommands('eventDetail'), label = 'Event detail command', required = False)
+    exclude = ('lastModified')
     class Meta:
         model = ppModels.Command
         

@@ -6,7 +6,7 @@ class FormatID(models.Model):
     description = models.TextField(db_column='description')
     validpreservationformat = models.BooleanField(null=True, db_column='validPreservationFormat', default=0)
     validaccessformat = models.BooleanField(null=True, db_column='validAccessFormat', default=0)
-    fileidtype = models.CharField(null=True, max_length=50, db_column='fileIDType')
+    tool = models.CharField(null=True, max_length=50, db_column='fileIDType')
     replaces = models.CharField(null=True, max_length=50, db_column='replaces')
     lastmodified = models.DateTimeField(db_column='lastModified')
     enabled = models.BooleanField(db_column='enabled', default=1)
