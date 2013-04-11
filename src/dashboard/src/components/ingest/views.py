@@ -306,8 +306,10 @@ def transfer_backlog(request):
         transfer_mode = True
         checked_if_in_transfer_mode = 'checked'
 
+    # get search parameters from request
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
- 
+
+    # redirect if no search params have been set 
     if not 'query' in request.GET:
         return helpers.redirect_with_get_params(
             'components.ingest.views.transfer_backlog',
@@ -316,9 +318,10 @@ def transfer_backlog(request):
             type=''
         )
 
-    # set pagination-related variables to use in template
+    # get string of URL parameters that should be passed along when paging
     search_params = advanced_search.extract_url_search_params_from_request(request)
 
+    # set paging variables
     if transfer_mode:
         items_per_page = 10
     else:
@@ -328,6 +331,7 @@ def transfer_backlog(request):
 
     start = page * items_per_page + 1
 
+    # perform search
     conn = elasticSearchFunctions.connect_and_create_index('transfers')
 
     try:
@@ -358,27 +362,33 @@ def transfer_backlog(request):
     except:
         return HttpResponse('Error accessing index.')
 
+    # take note of facet data
     file_extension_usage = results['facets']['fileExtension']['terms']
     transfer_uuids       = results['facets']['sipuuid']['terms']
 
-    # run through transfers to see if they've been created yet
-    awaiting_creation = {}
-    for transfer_instance in transfer_uuids:
-        try:
-            awaiting_creation[transfer_instance.term] = transfer_awaiting_sip_creation_v2(transfer_instance.term)
-            transfer = models.Transfer.objects.get(uuid=transfer_instance.term)
-            transfer_instance.type = transfer.type
-        except:
-            awaiting_creation[transfer_instance.term] = False
-
     if transfer_mode:
+        # run through transfers to see if they've been created yet
+        awaiting_creation = {}
+        for transfer_instance in transfer_uuids:
+            try:
+                awaiting_creation[transfer_instance.term] = transfer_awaiting_sip_creation_v2(transfer_instance.term)
+                transfer = models.Transfer.objects.get(uuid=transfer_instance.term)
+                transfer_basename = os.path.basename(transfer.currentlocation[:-1])
+                transfer_instance.name = transfer_basename[:-37]
+                transfer_instance.type = transfer.type
+            except:
+                awaiting_creation[transfer_instance.term] = False
+
+        # page data
         number_of_results = len(transfer_uuids)
         page_data = helpers.pager(transfer_uuids, items_per_page, page + 1)
         transfer_uuids = page_data['objects']
     else:
+        # page data
         number_of_results = results.hits.total
         results = transfer_backlog_augment_search_results(results)
 
+    # set remaining paging variables
     end, previous_page, next_page = advanced_search.paging_related_values_for_template_use(
        items_per_page,
        page,

@@ -40,6 +40,7 @@
       <table>
       {% for term_usage in transfer_uuids %}
         <tr>
+          <td>{{ term_usage.name }}</td>
           <td>{{ term_usage.term }}</td>
           <td>{{ term_usage.type }}</td>
           <td>{{ term_usage.count }} files</td>
