@@ -421,6 +421,7 @@ def process_transfer(request, transfer_uuid):
         transfer_directory_name = os.path.basename(transfer_path[:-1])
         transfer_name = transfer_directory_name[:-37]
 
+        sip_uuid = uuid.uuid4().__str__()
         sip = models.SIP.objects.create(
             uuid=sip_uuid,
             currentpath='%sharedPath%watchedDirectories/system/autoProcessSIP/' + transfer_name + '/'
