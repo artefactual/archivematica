@@ -107,8 +107,9 @@ class FPREditFormatID(ModelForm):
     tool = forms.ChoiceField(choices = getTools(), label= "File Identification Tool")
     description = forms.CharField(label = 'Format ID Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
-    validpreservationformat = forms.BooleanField(required=False, initial=False) 
-    validaccessformat = forms.BooleanField(required=False, initial=False) 
+    validpreservationformat = forms.BooleanField(required=False, initial=False, label = 'Valid for Preservation') 
+    validaccessformat = forms.BooleanField(required=False, initial=False, label='Valid for Access') 
+    replaces = forms.ChoiceField(choices = getFormatIDs())
     enabled = forms.BooleanField(required=False, initial=True) 
     exclude = ('lastModified')
     class Meta:
