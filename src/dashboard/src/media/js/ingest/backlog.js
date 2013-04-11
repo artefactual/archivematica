@@ -81,7 +81,7 @@ $(document).ready(function() {
   function backlogSearchSubmit() {
     var destination = '/ingest/backlog/' + '?' + search.toUrlParams();
     if($('#search_mode').is(':checked')) {
-      destination += '&mode=transfer';
+      destination += '&mode=file';
     }
     window.location = destination;
   }

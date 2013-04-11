@@ -300,11 +300,11 @@ def ingest_browse_aip(request, jobuuid):
 
 def transfer_backlog(request):
     # deal with transfer mode
-    transfer_mode = False
-    checked_if_in_transfer_mode = ''
+    file_mode = False
+    checked_if_in_file_mode = ''
     if request.GET.get('mode', '') != '':
-        transfer_mode = True
-        checked_if_in_transfer_mode = 'checked'
+        file_mode = True
+        checked_if_in_file_mode = 'checked'
 
     # get search parameters from request
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
@@ -322,7 +322,7 @@ def transfer_backlog(request):
     search_params = advanced_search.extract_url_search_params_from_request(request)
 
     # set paging variables
-    if transfer_mode:
+    if not file_mode:
         items_per_page = 10
     else:
         items_per_page = 20
@@ -343,8 +343,8 @@ def transfer_backlog(request):
             must_haves=[pyes.TermQuery('status', 'backlog')]
         )
 
-        # use all results to pull transfer facets if in transfer mode
-        if transfer_mode:
+        # use all results to pull transfer facets if not in file mode
+        if not file_mode:
             results = conn.search_raw(
                 query,
                 indices='transfers',
@@ -366,7 +366,7 @@ def transfer_backlog(request):
     file_extension_usage = results['facets']['fileExtension']['terms']
     transfer_uuids       = results['facets']['sipuuid']['terms']
 
-    if transfer_mode:
+    if not file_mode:
         # run through transfers to see if they've been created yet
         awaiting_creation = {}
         for transfer_instance in transfer_uuids:
