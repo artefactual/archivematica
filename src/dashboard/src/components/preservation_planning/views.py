@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from components.preservation_planning.forms import FPREditFormatID, FPREditCommand, FPREditRule, getFormatIDs, FRPEditToolOutput
+from components.preservation_planning.forms import FPREditFormatID, FPREditCommand, FPREditRule, getFormatIDs, FPREditToolOutput
 from components.preservation_planning.forms import FPRSearchForm
 from components.preservation_planning.models import FormatPolicyRule
 
