@@ -43,34 +43,76 @@ def archival_storage_page(request, page=None):
     return archival_storage_list_display(request, page)
 
 def archival_storage_search(request):
+    # deal with transfer mode
+    file_mode = False
+    checked_if_in_file_mode = ''
+    if request.GET.get('mode', '') != '':
+        file_mode = True
+        checked_if_in_file_mode = 'checked'
+
+    # get search parameters from request
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
 
-    # set pagination-related variables to use in template
+    # redirect if no search params have been set
+    if not 'query' in request.GET:
+        return helpers.redirect_with_get_params(
+            'components.archival_storage.views.archival_storage_search',
+            query='',
+            field='',
+            type=''
+        )
+
+    # get string of URL parameters that should be passed along when paging
     search_params = advanced_search.extract_url_search_params_from_request(request)
 
-    items_per_page = 20
+    # set paging variables
+    if not file_mode:
+        items_per_page = 10
+    else:
+        items_per_page = 20
 
     page = advanced_search.extract_page_number_from_url(request)
 
     start = page * items_per_page + 1
 
+    # perform search
     conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
 
     try:
-        results = conn.search_raw(
-            query=advanced_search.assemble_query(queries, ops, fields, types),
-            indices='aips',
-            type='aipfile',
-            start=start - 1,
-            size=items_per_page
-        )
+        query=advanced_search.assemble_query(queries, ops, fields, types)
+
+        # use all results to pull transfer facets if not in file mode
+        if not file_mode:
+            results = conn.search_raw(
+                query=query,
+                indices='aips',
+                type='aipfile'
+            )
+        else:
+            results = conn.search_raw(
+                query=query,
+                indices='aips',
+                type='aipfile',
+                start=start - 1,
+                size=items_per_page
+            )
     except:
         return HttpResponse('Error accessing index.')
 
+    # take note of facet data
     file_extension_usage = results['facets']['fileExtension']['terms']
-    number_of_results = results.hits.total
-    results = archival_storage_search_augment_results(results)
+    aip_uuids            = results['facets']['AIPUUID']['terms']
 
+    if not file_mode:
+        number_of_results = len(aip_uuids)
+
+        page_data = helpers.pager(aip_uuids, items_per_page, page + 1)
+        aip_uuids = page_data['objects']
+    else:
+        number_of_results = results.hits.total
+        results = archival_storage_search_augment_results(results)
+
+    # set remaining paging variables
     end, previous_page, next_page = advanced_search.paging_related_values_for_template_use(
        items_per_page,
        page,

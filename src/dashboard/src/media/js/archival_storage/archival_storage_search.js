@@ -73,13 +73,21 @@ $(document).ready(function() {
 
   search.render();
 
+  function aipSearchSubmit() {
+    var destination = '/archival-storage/search/' + '?' + search.toUrlParams();
+    if($('#search_mode').is(':checked')) {
+      destination += '&mode=file';
+    }
+    window.location = destination;
+  }
+
   // submit logic
   $('#search_submit').click(function() {
-    window.location = '/archival-storage/search/' + '?' + search.toUrlParams();
+    aipSearchSubmit();
   });
 
   $('#search_form').submit(function() {
-    window.location = '/archival-storage/search/' + '?' + search.toUrlParams();
+    aipSearchSubmit();
     return false;
   });
 });

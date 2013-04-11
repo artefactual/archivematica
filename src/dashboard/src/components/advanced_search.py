@@ -120,6 +120,7 @@ def assemble_query(queries, ops, fields, types, **kwargs):
     q = pyes.BoolQuery(must=must_haves, should=should_haves, must_not=must_not_haves).search()
     q.facet.add_term_facet('fileExtension')
     q.facet.add_term_facet('sipuuid')
+    q.facet.add_term_facet('AIPUUID')
 
     return q
 

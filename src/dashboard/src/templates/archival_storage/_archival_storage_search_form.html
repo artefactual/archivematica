@@ -1,7 +1,8 @@
 <form id='search_form'>
 <div id='search_form_container'></div>
 <div id='search_form_submit_container'>
-  <input type='button' id='search_submit' value='Search archival storage'>
+  <div><input type='button' id='search_submit' value='Search archival storage'></div>
+  <div>Show files? <input id='search_mode' type='checkbox' {{ checked_if_in_file_mode }} /></div>
 </div>
 </form>
 

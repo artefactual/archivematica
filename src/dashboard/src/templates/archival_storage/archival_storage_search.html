@@ -34,35 +34,50 @@
 
     <div style='float: left'>
 
-    <div class='aip-search-item'>
-      <div class='aip-search-item-file-column-header'>File(s)</div>
-      <div class='aip-search-item-aip-column-header'>AIP(s)</div>
-    </div>
-    <br clear='all' />
-    {% for item in results %}
+    {% if not file_mode %}
+
+      <table>
+      {% for term_usage in aip_uuids %}
+        <tr>
+          <td>{{ term_usage.term }}</td>
+          <td>{{ term_usage.count }} files</td>
+        </tr>
+      {% endfor %}
+      </table>
+
+    {% else %}
+
       <div class='aip-search-item'>
-      {% if item.sipname %}
-        <div class='aip-search-item-thumbnail-column'>
-          <a href="{% url components.archival_storage.views.archival_storage_aip_file_download item.fileuuid %}">
-            <img src="/archival-storage/thumbnail/{{ item.fileuuid }}"/>
-          </a>
-        </div>
-
-        <div class='aip-search-item-file-column'>
-          <div><a class='uuid' href="{% url components.archival_storage.views.archival_storage_aip_file_download item.fileuuid %}">{{ item.filename }}</a></div>
-          <div><a class='uuid' href="{% url components.archival_storage.views.archival_storage_aip_file_download item.fileuuid %}">{{ item.fileuuid }}</a></div>
-        </div>
-
-        <div class='aip-search-item-aip-column'>
-          <div><a class='uuid' href="{% url components.archival_storage.views.archival_storage_aip_download item.AIPUUID %}">{{ item.sipname }} {{item.AIPUUID}}</a></div>
-          <div><a href='/archival-storage/search/json/file/{{ item.document_id_no_hyphens }}/' target='_blank'>(view raw)</a></div>
-        </div>
-      {% else %}
-        (AIP {{item.AIPUUID}} details missing from database.)
-      {% endif %}
+        <div class='aip-search-item-file-column-header'>File(s)</div>
+        <div class='aip-search-item-aip-column-header'>AIP(s)</div>
       </div>
       <br clear='all' />
-    {% endfor %}
+
+      {% for item in results %}
+        <div class='aip-search-item'>
+        {% if item.sipname %}
+          <div class='aip-search-item-thumbnail-column'>
+            <a href="{% url components.archival_storage.views.archival_storage_aip_file_download item.fileuuid %}">
+              <img src="/archival-storage/thumbnail/{{ item.fileuuid }}"/>
+            </a>
+          </div>
+
+          <div class='aip-search-item-file-column'>
+            <div><a class='uuid' href="{% url components.archival_storage.views.archival_storage_aip_file_download item.fileuuid %}">{{ item.filename }}</a></div>
+            <div><a class='uuid' href="{% url components.archival_storage.views.archival_storage_aip_file_download item.fileuuid %}">{{ item.fileuuid }}</a></div>
+          </div>
+
+          <div class='aip-search-item-aip-column'>
+            <div><a class='uuid' href="{% url components.archival_storage.views.archival_storage_aip_download item.AIPUUID %}">{{ item.sipname }} {{item.AIPUUID}}</a></div>
+            <div><a href='/archival-storage/search/json/file/{{ item.document_id_no_hyphens }}/' target='_blank'>(view raw)</a></div>
+          </div>
+        {% else %}
+          (AIP {{item.AIPUUID}} details missing from database.)
+        {% endif %}
+        </div>
+        <br clear='all' />
+      {% endfor %}
+    {% endif %}
     </div>
 
     <div style='clear: both'>
