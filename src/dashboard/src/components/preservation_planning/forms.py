@@ -94,6 +94,7 @@ def getFormatIDs(purpose = 'all'):
     cursor.execute(query)
     
     ret = []
+    ret.append(('', 'None'))
     for formatID in cursor.fetchall():
         ret.append( (formatID[0], formatID[1]))
 
@@ -117,7 +118,7 @@ class FPREditFormatID(ModelForm):
 
 class FPREditCommand(ModelForm):
     COMMAND_USAGE_CHOICES = (('command','command'), ('verification','verification'), ('eventDetail','eventDetail'))
-    
+    uuid = forms.HiddenInput()
     commandUsage = forms.ChoiceField(choices = COMMAND_USAGE_CHOICES, label='Usage')
     commandType = forms.ChoiceField(choices = getCommandTypes())
     command = forms.CharField(label = 'Command', required = False, max_length = 100,
@@ -126,11 +127,11 @@ class FPREditCommand(ModelForm):
         widget =  TextInput(attrs = {'class':'Description'}))
     outputFileFormat = forms.CharField(label= 'Output File Format', required= False, max_length = 15,
         widget =  TextInput(attrs = {'class':'Description'}))
-    commandDescription = forms.CharField(label = 'Description', required = False, max_length = 100,
+    description = forms.CharField(label = 'Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
     verificationCommand = forms.ChoiceField(choices = getCommands('verification'), label = 'Verification command', required = False)
     eventDetailCommand = forms.ChoiceField(choices = getCommands('eventDetail'), label = 'Event detail command', required = False)
-    exclude = ('lastModified')
+    exclude = ('lastModified', 'supportedBy')
     class Meta:
         model = ppModels.Command
         
