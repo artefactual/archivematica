@@ -67,12 +67,12 @@ def connect_and_create_index(index, attempt=1):
     return conn
 
 def set_up_mapping(conn, index):
-    if index == 'transfers':
-        machine_readable_field_spec = {
-            'type':  'string',
-            'index': 'not_analyzed'
-        }
+    machine_readable_field_spec = {
+        'type':  'string',
+        'index': 'not_analyzed'
+    }
 
+    if index == 'transfers':
         mapping = {
             'filepath'     : {'type': 'string'},
             'filename'     : {'type': 'string'},
@@ -85,9 +85,19 @@ def set_up_mapping(conn, index):
             'created'      : {'type': 'double'}
         }
 
-        print 'Creating transfer mapping...'
+        print 'Creating transfer file mapping...'
         conn.put_mapping(doc_type='transferfile', mapping={'transferfile': {'properties': mapping}}, indices=['transfers'])
         print 'Transfer mapping created.'
+
+    if index == 'aips':
+        mapping = {
+            'AIPUUID': machine_readable_field_spec,
+            'FILEUUID': machine_readable_field_spec
+        }
+
+        print 'Creating AIP file mapping...'
+        conn.put_mapping(doc_type='aipfile', mapping={'aipfile': {'properties': mapping}}, indices=['aips'])
+        print 'AIP file mapping created.'
 
 def connect_and_index_aip(uuid, name, filePath):
     conn = connect_and_create_index('aips')
