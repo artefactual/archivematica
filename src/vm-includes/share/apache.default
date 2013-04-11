@@ -18,8 +18,8 @@
   CustomLog /var/log/apache2/access.log combined
   ServerSignature On
 
-  Alias /ica-atom "/var/www/ica-atom/"
-  <Directory "/var/www/ica-atom/">
+  Alias /ica-atom "/var/www/atom/"
+  <Directory "/var/www/atom/">
     Options Indexes FollowSymLinks MultiViews
     AllowOverride All
     Order allow,deny
