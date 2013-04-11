@@ -55,9 +55,12 @@
 {% include fpr_nav.html %}
 
 <h2>Format policy - Archivematica Command</h2>
-  The format policy Archivematica Command is composed of 3 commands; 
-  the command itself, a verification command which checks after the command has run to ensure all has gone well 
-  and an event detail command that gets the information required to insert metadata into the PREMIS event.
+  Commands are what is run to normalize a file.  There are 3 kinds of Commands: 
+    <ul>
+    <li>normalization commands</li>
+  	<li>verficiation commands, which are run after normalization to ensure all has gone well,</li>
+  	<li>event detail commands, which are run after normalization to gather metadata, recorded in the PREMIS event.</li> 
+ 
 <br><br>
 
 <h3>Archivematica Command</h3>

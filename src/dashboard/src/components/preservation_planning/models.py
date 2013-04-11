@@ -3,7 +3,7 @@ from main.models import UUIDPkField
         
 class FormatID(models.Model):
     uuid = UUIDPkField()
-    description = models.TextField(db_column='description')
+    description = models.CharField(db_column='description')
     validpreservationformat = models.BooleanField(null=True, db_column='validPreservationFormat', default=0)
     validaccessformat = models.BooleanField(null=True, db_column='validAccessFormat', default=0)
     tool = models.CharField(null=True, max_length=50, db_column='fileIDType')
