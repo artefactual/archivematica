@@ -413,20 +413,20 @@ def process_transfer(request, transfer_uuid):
             helpers.get_server_config_value('sharedDirectory')
         )
 
+        import MySQLdb
+        import databaseInterface
+        import databaseFunctions
+
         # new
         transfer_directory_name = os.path.basename(transfer_path[:-1])
         transfer_name = transfer_directory_name[:-37]
 
-        sip_uuid = uuid.uuid4().__str__()
         sip = models.SIP.objects.create(
             uuid=sip_uuid,
             currentpath='%sharedPath%watchedDirectories/system/autoProcessSIP/' + transfer_name + '/'
         )
         sip.save()
 
-        import MySQLdb
-        import databaseInterface
-        import databaseFunctions
         from archivematicaCreateStructuredDirectory import createStructuredDirectory
         from archivematicaCreateStructuredDirectory import createManualNormalizedDirectoriesList
         createStructuredDirectory(transfer_path, createManualNormalizedDirectories=False)
@@ -456,61 +456,7 @@ def process_transfer(request, transfer_uuid):
             transfer_path,
             '/var/archivematica/sharedDirectory/watchedDirectories/system/autoProcessSIP/' + transfer_name
         )
-        return HttpResponse('111')
-
-        """
-        # get transfer info
-        transfer = models.Transfer.objects.get(uuid=transfer_uuid)
-        transfer_path = transfer.currentlocation.replace(
-            '%sharedPath%',
-            helpers.get_server_config_value('sharedDirectory')
-        )
-
-        # delete processing XML file
-        #os.remove(os.path.join(transfer_path, 'processingMCP.xml'))
-
-        # new
-        transfer_directory_name = os.path.basename(transfer_path[:-1])
-        transfer_name = transfer_directory_name[:-37]
-
-        # move transfer
-        sip_uuid = uuid.uuid4().__str__()
-        import shutil
-        shutil.move(
-            transfer_path,
-            '/var/archivematica/sharedDirectory/watchedDirectories/SIPCreation/completedTransfers/' + transfer_name
-        )
-        return HttpResponse('111')
-        """
-
-        """
-        #basename = os.path.basename(transfer_path[:-1])
-
-        # update location in DB
-        transfer.currentlocation = '%sharedPath%watchedDirectories/SIPCreation/completedTransfers/' + basename + '/'
-        transfer.save()
-        """
-
-        response['message'] = 'Not implemented'
-        """
-        # let dashboard process it
-        client = MCPClient()
-        try:
-            job = models.Job.objects.filter(
-                sipuuid=uuid,
-                microservicegroup='Create SIP from Transfer',
-                currentstep='Awaiting decision'
-            )[0]
-            chain = models.MicroServiceChain.objects.get(
-                description='Create single SIP and continue processing'
-            )
-            result = client.execute(job.pk, chain.pk, request.user.id)
-
-            response['message'] = 'SIP created.'
-        except:
-            response['error']   = True
-            response['message'] = 'Error attempting to create SIP.'
-        """
+        response['message'] = 'Done'
     else:
         response['error']   = True
         response['message'] = 'Must be logged in.'
