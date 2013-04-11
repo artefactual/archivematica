@@ -299,6 +299,13 @@ def ingest_browse_aip(request, jobuuid):
     return render(request, 'ingest/aip_browse.html', locals())
 
 def transfer_backlog(request):
+    # deal with transfer mode
+    transfer_mode = False
+    checked_if_in_transfer_mode = ''
+    if request.GET.get('mode', '') != '':
+        transfer_mode = True
+        checked_if_in_transfer_mode = 'checked'
+
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
  
     if not 'query' in request.GET:
@@ -312,7 +319,10 @@ def transfer_backlog(request):
     # set pagination-related variables to use in template
     search_params = advanced_search.extract_url_search_params_from_request(request)
 
-    items_per_page = 20
+    if transfer_mode:
+        items_per_page = 10
+    else:
+        items_per_page = 20
 
     page = advanced_search.extract_page_number_from_url(request)
 
@@ -329,18 +339,27 @@ def transfer_backlog(request):
             must_haves=[pyes.TermQuery('status', 'backlog')]
         )
 
-        results = conn.search_raw(
-            query,
-            indices='transfers',
-            type='transferfile',
-            start=start - 1,
-            size=items_per_page
-        )
+        # use all results to pull transfer facets if in transfer mode
+        if transfer_mode:
+            results = conn.search_raw(
+                query,
+                indices='transfers',
+                type='transferfile',
+            )
+        else:
+        # otherwise use pages results
+            results = conn.search_raw(
+                query,
+                indices='transfers',
+                type='transferfile',
+                start=start - 1,
+                size=items_per_page
+            )
     except:
         return HttpResponse('Error accessing index.')
 
     file_extension_usage = results['facets']['fileExtension']['terms']
-    transfer_uuids = results['facets']['sipuuid']['terms']
+    transfer_uuids       = results['facets']['sipuuid']['terms']
 
     # run through transfers to see if they've been created yet
     awaiting_creation = {}
@@ -352,8 +371,13 @@ def transfer_backlog(request):
         except:
             awaiting_creation[transfer_instance.term] = False
 
-    number_of_results = results.hits.total
-    results = transfer_backlog_augment_search_results(results)
+    if transfer_mode:
+        number_of_results = len(transfer_uuids)
+        page_data = helpers.pager(transfer_uuids, items_per_page, page + 1)
+        transfer_uuids = page_data['objects']
+    else:
+        number_of_results = results.hits.total
+        results = transfer_backlog_augment_search_results(results)
 
     end, previous_page, next_page = advanced_search.paging_related_values_for_template_use(
        items_per_page,

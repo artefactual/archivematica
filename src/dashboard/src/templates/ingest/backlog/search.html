@@ -35,51 +35,56 @@
 
     <div style='float: left'>
 
-    <!--
-    <div class='aip-search-item'>
-      <div class='aip-search-item-file-column-header'>File(s)</div>
-      <div class='aip-search-item-aip-column-header'>Transfer(s)</div>
-    </div>
-    <br clear='all' />
-    -->
-    <table>
-    {% for term_usage in transfer_uuids %}
-      <tr>
-        <td>{{ term_usage.term }}</td>
-        <td>{{ term_usage.type }}</td>
-        <td>{{ term_usage.count }} files</td>
-        <td>
-          {% if awaiting_creation|keyvalue:term_usage.term %}
+    {% if transfer_mode %}
+
+      <table>
+      {% for term_usage in transfer_uuids %}
+        <tr>
+          <td>{{ term_usage.term }}</td>
+          <td>{{ term_usage.type }}</td>
+          <td>{{ term_usage.count }} files</td>
+          <td>
+            {% if awaiting_creation|keyvalue:term_usage.term %}
               <a href='/ingest/backlog/process/{{ term_usage.term }}/' target='_blank' class='creation btn'>Create SIP</a>
-          {% endif %}
-        </td>
-      </tr>
-    {% endfor %}
-    </table>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </table>
 
-    <!--
-    {% for item in results %}
-      <div class='aip-search-item'>
+    {% else %}
 
-        <div class='aip-search-item-file-column'>
-          <div><a href="{% url components.ingest.views.transfer_file_download item.fileuuid %}">{{ item.filename }}</a></div>
-        </div>
-
-        <div class='aip-search-item-aip-column'>
-          <div>{{item.sipuuid}}
-          {% if item.accessionid != '' %}
-            (Accession {{ item.accessionid }})
-          {% endif %}
-          </div>
-          {% if item.awaiting_creation %}
-              <a href='/ingest/backlog/process/{{ item.sipuuid }}/' target='_blank' class='creation btn'>Create SIP</a>
-          {% endif %}
-        </div>
-
-      </div>
       <br clear='all' />
-    {% endfor %}
-    -->
+
+      <div class='aip-search-item'>
+        <div class='aip-search-item-file-column-header'>File(s)</div>
+        <div class='aip-search-item-aip-column-header'>Transfer(s)</div>
+      </div>
+
+      {% for item in results %}
+        <div class='aip-search-item'>
+
+          <div class='aip-search-item-file-column'>
+            <div><a href="{% url components.ingest.views.transfer_file_download item.fileuuid %}">{{ item.filename }}</a></div>
+          </div>
+
+          <div class='aip-search-item-aip-column'>
+            <div>{{item.sipuuid}}
+            {% if item.accessionid != '' %}
+              (Accession {{ item.accessionid }})
+            {% endif %}
+            </div>
+            {% if item.awaiting_creation %}
+              <a href='/ingest/backlog/process/{{ item.sipuuid }}/' target='_blank' class='creation btn'>Create SIP</a>
+            {% endif %}
+          </div>
+
+        </div>
+
+        <br clear='all' />
+      {% endfor %}
+
+    {% endif %}
     </div>
 
     <div style='clear: both'>

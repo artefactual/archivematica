@@ -78,13 +78,21 @@ $(document).ready(function() {
 
   search.render();
 
+  function backlogSearchSubmit() {
+    var destination = '/ingest/backlog/' + '?' + search.toUrlParams();
+    if($('#search_mode').is(':checked')) {
+      destination += '&mode=transfer';
+    }
+    window.location = destination;
+  }
+
   // submit logic
   $('#search_submit').click(function() {
-    window.location = '/ingest/backlog/' + '?' + search.toUrlParams();
+    backlogSearchSubmit();
   });
 
   $('#search_form').submit(function() {
-    window.location = '/ingest/backlog/' + '?' + search.toUrlParams();
+    backlogSearchSubmit();
     return false;
   });
 });
