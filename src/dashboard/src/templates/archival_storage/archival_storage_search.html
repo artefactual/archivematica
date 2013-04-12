@@ -39,7 +39,9 @@
       <table>
       {% for term_usage in aip_uuids %}
         <tr>
-          <td>{{ term_usage.name }}</td>
+          <td>
+            <a href="{% url components.archival_storage.views.archival_storage_aip_download term_usage.term %}">{{ term_usage.name }}</a>
+          </td>
           <td>{{ term_usage.term }}</td>
           <td>{{ term_usage.count }} files</td>
         </tr>
