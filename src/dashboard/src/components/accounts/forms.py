@@ -32,11 +32,6 @@ class UserCreationForm(UserCreationForm):
         model = User
         fields = ('username', 'first_name','last_name','email', 'is_active','is_superuser')
 
-    def __init__(self, *args, **kwargs):
-        super(UserCreationForm, self).__init__(*args, **kwargs)
-        self.fields['email'] = ''
-        self.fields['password1'] = ''
-        
 class UserChangeForm(UserChangeForm):
     email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput, required=False)
