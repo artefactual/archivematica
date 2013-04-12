@@ -31,11 +31,7 @@ from lxml import etree
 from components.ingest.forms import DublinCoreMetadataForm
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
 from components import helpers
-<<<<<<< HEAD
 import calendar, ConfigParser, socket, uuid
-=======
-import calendar, ConfigParser, socket
->>>>>>> dev/issue-4769
 import cPickle
 import components.decorators as decorators
 from components import helpers
@@ -303,7 +299,6 @@ def ingest_browse_aip(request, jobuuid):
     return render(request, 'ingest/aip_browse.html', locals())
 
 def transfer_backlog(request):
-<<<<<<< HEAD
     # deal with transfer mode
     file_mode = False
     checked_if_in_file_mode = ''
@@ -315,10 +310,6 @@ def transfer_backlog(request):
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
 
     # redirect if no search params have been set 
-=======
-    queries, ops, fields, types = advanced_search.search_parameter_prep(request)
- 
->>>>>>> dev/issue-4769
     if not 'query' in request.GET:
         return helpers.redirect_with_get_params(
             'components.ingest.views.transfer_backlog',
@@ -327,7 +318,6 @@ def transfer_backlog(request):
             type=''
         )
 
-<<<<<<< HEAD
     # get string of URL parameters that should be passed along when paging
     search_params = advanced_search.extract_url_search_params_from_request(request)
 
@@ -336,23 +326,13 @@ def transfer_backlog(request):
         items_per_page = 10
     else:
         items_per_page = 20
-=======
-    # set pagination-related variables to use in template
-    search_params = advanced_search.extract_url_search_params_from_request(request)
-
-    items_per_page = 20
->>>>>>> dev/issue-4769
 
     page = advanced_search.extract_page_number_from_url(request)
 
     start = page * items_per_page + 1
 
-<<<<<<< HEAD
     # perform search
     conn = elasticSearchFunctions.connect_and_create_index('transfers')
-=======
-    conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
->>>>>>> dev/issue-4769
 
     try:
         query = advanced_search.assemble_query(
@@ -363,7 +343,6 @@ def transfer_backlog(request):
             must_haves=[pyes.TermQuery('status', 'backlog')]
         )
 
-<<<<<<< HEAD
         # use all results to pull transfer facets if not in file mode
         if not file_mode:
             results = conn.search_raw(
@@ -410,22 +389,6 @@ def transfer_backlog(request):
         results = transfer_backlog_augment_search_results(results)
 
     # set remaining paging variables
-=======
-        results = conn.search_raw(
-            query,
-            indices='transfers',
-            type='transferfile',
-            start=start - 1,
-            size=items_per_page
-        )
-    except:
-        return HttpResponse('Error accessing index.')
-
-    file_extension_usage = results['facets']['fileExtension']['terms']
-    number_of_results = results.hits.total
-    results = transfer_backlog_augment_search_results(results)
-
->>>>>>> dev/issue-4769
     end, previous_page, next_page = advanced_search.paging_related_values_for_template_use(
        items_per_page,
        page,
@@ -458,13 +421,10 @@ def transfer_backlog_augment_search_results(raw_results):
 
     return modifiedResults
 
-<<<<<<< HEAD
 def transfer_awaiting_sip_creation_v2(uuid):
     transfer = models.Transfer.objects.get(uuid=uuid)
     return transfer.currentlocation.find('%sharedPath%transferBacklog/original/') == 0
 
-=======
->>>>>>> dev/issue-4769
 def transfer_awaiting_sip_creation(uuid):
     try:
         job = models.Job.objects.filter(
@@ -476,7 +436,6 @@ def transfer_awaiting_sip_creation(uuid):
     except:
         return False
 
-<<<<<<< HEAD
 def process_transfer(request, transfer_uuid):
     response = {}
 
@@ -536,28 +495,6 @@ def process_transfer(request, transfer_uuid):
         elasticSearchFunctions.connect_and_change_transfer_file_status(transfer_uuid, '')
 
         response['message'] = 'SIP created.'
-=======
-def process_transfer(request, uuid):
-    response = {}
-
-    if request.user.id:
-        client = MCPClient()
-        try:
-            job = models.Job.objects.filter(
-                sipuuid=uuid,
-                microservicegroup='Create SIP from Transfer',
-                currentstep='Awaiting decision'
-            )[0]
-            chain = models.MicroServiceChain.objects.get(
-                description='Create single SIP and continue processing'
-            )
-            result = client.execute(job.pk, chain.pk, request.user.id)
-
-            response['message'] = 'SIP created.'
-        except:
-            response['error']   = True
-            response['message'] = 'Error attempting to create SIP.'
->>>>>>> dev/issue-4769
     else:
         response['error']   = True
         response['message'] = 'Must be logged in.'
