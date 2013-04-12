@@ -54,7 +54,7 @@ function moreStuff() {
     $.get("installer/fprdownload/", function(data, textStatus)
     {
         if (data['result'] == 'success') {
-            $("div#fpr").append("<p>" + data['message'] + "</p>");
+            $("div#fpr").append("<p>" + data['response'] + "</p>");
             AddElement();
         } else {
             $("div#fpr").append("<p>Unable to update FPR.</p>");

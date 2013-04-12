@@ -130,7 +130,7 @@ class FPRClient(object):
     
     def getUpdates(self):
         try:
-            autoUpdateFPR()
+            self.autoUpdateFPR()
         except:
             return "no updates at this time"
         
