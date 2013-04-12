@@ -99,7 +99,7 @@ def fprconnect(request):
 def fprupload(request):
     response_data = {} 
     agent = Agent.objects.get(pk=2)
-    url = 'http://fpr.archivematica.org:8000/fpr/api/v1/Agent/'
+    url = 'https://fpr.artefactual.com/fpr/api/v1/Agent/'
     payload = {'uuid': helpers.get_setting('dashboard_uuid'), 
                'agentType': 'new install', 
                'agentName': agent.name, 

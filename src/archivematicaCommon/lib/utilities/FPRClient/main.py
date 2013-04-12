@@ -32,6 +32,8 @@ databaseInterface.printSQL = True
 
 class FPRClient(object):
     
+    fprserver = 'https://fpr.artefactual.com'
+    
     def create(self, table, entry):
         global maxLastUpdate
         sets = []
@@ -83,15 +85,14 @@ class FPRClient(object):
         maxLastUpdate = getMaxLastUpdate()
         maxLastUpdateAtStart = maxLastUpdate
         databaseInterface.runSQL("SET foreign_key_checks = 0;")
-        server = "https://fpr.archivematica.org"
         for x in [
-            ("CommandRelationships", server + "/fpr/api/v1/CommandRelationship/"),
-            ("FileIDsBySingleID", server + "/fpr/api/v1/FileIDsBySingleID/"),
-            ("FileIDs", server + "/fpr/api/v1/FileID/"),
-            ("Commands", server + "/fpr/api/v1/Command/"),
-            ("CommandTypes", server + "/fpr/api/v1/CommandType/"),
-            ("CommandClassifications", server + "/fpr/api/v1/CommandClassification/"),
-            ("FileIDTypes", server + "/fpr/api/v1/FileIDType/")
+            ("CommandRelationships", self.fprserver + "/fpr/api/v1/CommandRelationship/"),
+            ("FileIDsBySingleID", self.fprserver + "/fpr/api/v1/FileIDsBySingleID/"),
+            ("FileIDs", self.fprserver + "/fpr/api/v1/FileID/"),
+            ("Commands", self.fprserver + "/fpr/api/v1/Command/"),
+            ("CommandTypes", self.fprserver + "/fpr/api/v1/CommandType/"),
+            ("CommandClassifications", self.fprserver + "/fpr/api/v1/CommandClassification/"),
+            ("FileIDTypes", self.fprserver + "/fpr/api/v1/FileIDType/")
         ]:
             table, url = x
             #params = {"format":"json", "order_by":"lastmodified", "lastmodified__gte":maxLastUpdateAtStart, "limit":"0"}
