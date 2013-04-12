@@ -21,6 +21,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import UserChangeForm
 
 class UserCreationForm(UserCreationForm):
+    is_superuser = forms.BooleanField(label = 'Administrator')
+    
     def clean_password1(self):
         data = self.cleaned_data['password1']
         if data != '' and len(data) < 8:
@@ -30,6 +32,11 @@ class UserCreationForm(UserCreationForm):
         model = User
         fields = ('username', 'first_name','last_name','email', 'is_active','is_superuser')
 
+    def __init__(self, *args, **kwargs):
+        super(UserCreationForm, self).__init__(*args, **kwargs)
+        self.fields['email'] = ''
+        self.fields['password1'] = ''
+        
 class UserChangeForm(UserChangeForm):
     email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput, required=False)
@@ -40,12 +47,6 @@ class UserChangeForm(UserChangeForm):
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'is_superuser')
-
-    def __init__(self, *args, **kwargs):
-        super(UserChangeForm, self).__init__(*args, **kwargs)
-        ## Hide fields when there is only one superuser
-        if 1 == User.objects.filter(is_superuser=True).count():
-            del self.fields['is_active']
             
     def clean_password(self):
         data = self.cleaned_data['password']
