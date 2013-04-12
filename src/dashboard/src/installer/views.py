@@ -28,7 +28,7 @@ import components.helpers as helpers
 
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
-import FPRClient
+import FPRClient.main as FPRClient
 
 import json
 import requests
@@ -119,7 +119,8 @@ def fprupload(request):
 def fprdownload(request):
     response_data = {}
     try:
-        myresponse = FPRClient.getUpdates()
+        fpr = FPRClient.FPRClient()
+        myresponse = fpr.getUpdates()
         response_data['response'] = myresponse
         response_data['result'] = 'success'
     except:
