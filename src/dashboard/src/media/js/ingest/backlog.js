@@ -30,6 +30,7 @@ $(document).ready(function() {
             });
           },
           success: function(result) {
+            alert(result.message);
             $('.creation').each(function() {
               if (this.url == url) {
                 $(this).parent().parent().fadeOut();

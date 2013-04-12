@@ -491,7 +491,7 @@ def process_transfer(request, transfer_uuid):
             transfer_path,
             '/var/archivematica/sharedDirectory/watchedDirectories/system/autoProcessSIP/' + transfer_name
         )
-        response['message'] = 'Done'
+        response['message'] = 'SIP created.'
     else:
         response['error']   = True
         response['message'] = 'Must be logged in.'
