@@ -31,6 +31,7 @@ class UserChangeForm(UserChangeForm):
     email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput, required=False)
     password_confirmation = forms.CharField(widget=forms.PasswordInput, required=False)
+    is_superuser = forms.BooleanField(label = 'Administrator')
     regenerate_api_key = forms.CharField(widget=forms.CheckboxInput, label='Regenerate API key (shown below)?')
 
     class Meta:
@@ -42,8 +43,7 @@ class UserChangeForm(UserChangeForm):
         ## Hide fields when there is only one superuser
         if 1 == User.objects.filter(is_superuser=True).count():
             del self.fields['is_active']
-            del self.fields['is_superuser']
-
+            
     def clean_password(self):
         data = self.cleaned_data['password']
         if self.cleaned_data['password'] != '' and len(self.cleaned_data['password']) < 8:
