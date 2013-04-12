@@ -121,7 +121,7 @@ class FPRClient(object):
                      sql = """UPDATE %s SET enabled=FALSE WHERE pk = '%s';""" % (table, entry['replaces'])
                      databaseInterface.runSQL(sql)
                      
-                create(table, entry) 
+                self.create(table, entry) 
                 
         addLinks()
         databaseInterface.runSQL("SET foreign_key_checks = 1;")
