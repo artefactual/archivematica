@@ -564,6 +564,9 @@ def getIncludedStructMap():
             root = tree.getroot() #TDOD - not root to return, but sub element structMap
             #print etree.tostring(root)
             structMap = root.find(metsBNS + "structMap")
+            id = structMap.get("ID")
+            if not id:
+                structMap.set("ID", "structMap_2")
             ret.append(structMap)
             for item in structMap.findall(".//" + metsBNS + "fptr"):
                 fileName = item.get("FILEID")
