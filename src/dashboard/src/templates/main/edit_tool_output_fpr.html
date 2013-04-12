@@ -1,0 +1,75 @@
+{% extends "layout_fluid.html" %}
+
+{% block css %}
+<style type="text/css">
+  table {
+    border: 2px solid black;
+    border-collapse: separate !important;
+    border-radius: 5px !important;
+    -moz-border-radius: 5px !important;
+    box-shadow: 5px 5px 3px #888888 !important;
+    text-align: left;
+  }
+
+  td {
+    border: 1px solid black;
+    text-align: left;
+
+  }
+
+  label {
+    font-weight: bold;
+    text-align: right;
+    width: 90px;
+  }
+
+  .tableTitle {
+    background: -moz-linear-gradient(100% 100% 90deg, #eee, #ddd) !important;
+    background: -webkit-linear-gradient(#eee, #fff) !important;
+    width: 200px !important;
+  }
+
+  th.title {
+    width: auto !important;
+  }
+
+  th {
+    width: 80px;
+  }
+
+  .Description {
+    width: 800px;
+  }
+
+  .formatForm {
+    width: 1000px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<html>
+  <title>
+    Command Editor
+  </title>
+{% include 'main/fpr_nav.html' %}
+
+<h2>Format policy - Archivematica Tool Output</h2>
+  Tool Output maps the output of a given File Identification Tool to a specific Format ID.<br><br>
+
+<h3>Archivematica Command</h3>
+<form class="form-stacked" method="post" action="{% url components.preservation_planning.views.fpr_edit_tool_output %}">
+
+    {% include "_form.html" %}
+    
+    <div class="actions">
+          {% if id %}
+            <button type="submit" class="btn primary">Save</button>
+          {% else %}
+            <button type="submit" class="btn primary">Create</button>
+          {% endif %}
+          {% if uuid %}
+            <a href="{% url components.preservation_planning.views.fpr_edit_tool_output uuid %}" class="btn">Cancel</a>
+          {% endif %} 
+    </div>
+{% endblock %}

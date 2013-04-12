@@ -22,7 +22,18 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from main.models import Agent
 from installer.forms import SuperUserCreationForm
+from installer.forms import FPRConnectForm
 from tastypie.models import ApiKey
+import components.helpers as helpers
+
+import sys
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
+import FPRClient.main as FPRClient
+
+import json
+import requests
+import socket
+import uuid
 
 def welcome(request):
     # This form will be only accessible when the database has no users
@@ -30,6 +41,11 @@ def welcome(request):
       return HttpResponseRedirect(reverse('main.views.home'))
     # Form
     if request.method == 'POST':
+        
+        # assign UUID to dashboard
+        dashboard_uuid = uuid.uuid4().__str__()
+        helpers.set_setting('dashboard_uuid', dashboard_uuid)
+        
         # save organization PREMIS agent if supplied
         org_name       = request.POST.get('org_name', '')
         org_identifier = request.POST.get('org_identifier', '')
@@ -52,10 +68,63 @@ def welcome(request):
             if user is not None:
               login(request, user)
               request.session['first_login'] = True
-              return HttpResponseRedirect(reverse('main.views.home'))
+              return HttpResponseRedirect(reverse('installer.views.fprconnect'))
     else:
         form = SuperUserCreationForm()
 
     return render(request, 'installer/welcome.html', {
         'form': form,
       })
+
+def get_my_ip():
+    server_addr = '1.2.3.4'
+    non_open_port = 50000
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    try:
+        s.connect((server_addr, 9))
+        client = s.getsockname()[0]
+    except socket.error:
+        client = "1.1.1.1"
+    finally:
+        del s
+    return client
+    
+def fprconnect(request):
+    if request.method == 'POST':
+        return HttpResponseRedirect(reverse('main.views.home'))
+    else:
+        return render(request, 'installer/fprconnect.html')
+
+def fprupload(request):
+    response_data = {} 
+    agent = Agent.objects.get(pk=2)
+    url = 'https://fpr.artefactual.com/fpr/api/v1/Agent/'
+    payload = {'uuid': helpers.get_setting('dashboard_uuid'), 
+               'agentType': 'new install', 
+               'agentName': agent.name, 
+               'clientIP': get_my_ip(), 
+               'agentIdentifierType': agent.identifiertype, 
+               'agentIdentifierValue': agent.identifiervalue
+              }
+    headers = {'Content-Type': 'application/json'}
+    r = requests.post(url, data=json.dumps(payload), headers=headers)
+    if r.status_code == 201:
+        response_data['result'] = 'success'
+    else:
+        response_data['result'] = 'failed'
+    
+    return HttpResponse(json.dumps(response_data), content_type="application/json")            
+
+def fprdownload(request):
+    response_data = {}
+    try:
+        fpr = FPRClient.FPRClient()
+        myresponse = fpr.getUpdates()
+        response_data['response'] = myresponse
+        response_data['result'] = 'success'
+    except:
+        response_data['response'] = 'unable to connect to FPR Server'
+        response_data['result'] = 'failed'
+        
+    return HttpResponse(json.dumps(response_data), content_type="application/json")

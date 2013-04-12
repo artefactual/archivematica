@@ -5,6 +5,7 @@ $(document).ready(function() {
     var url = $(this).attr('href');
     $(this).removeAttr('href');
     this.url = url;
+<<<<<<< HEAD
     this.fired = false;
     $(this).click(function() {
       if (this.fired == false) {
@@ -39,6 +40,25 @@ $(document).ready(function() {
           }
         });
       }
+=======
+    $(this).click(function() {
+      console.log(this.url);
+      // remove all button with same url
+      $('.creation').each(function() {
+        if (this.url == url) {
+          $(this).remove();
+        }
+      });
+
+      // complete SIP
+      $.ajax({
+        type: "POST",
+        url: url,
+        success: function(result) {
+          console.log(result);
+        }
+      });
+>>>>>>> dev/issue-4769
     });
   });
 
@@ -95,6 +115,7 @@ $(document).ready(function() {
 
   search.render();
 
+<<<<<<< HEAD
   function backlogSearchSubmit() {
     var destination = '/ingest/backlog/' + '?' + search.toUrlParams();
     if($('#search_mode').is(':checked')) {
@@ -110,6 +131,15 @@ $(document).ready(function() {
 
   $('#search_form').submit(function() {
     backlogSearchSubmit();
+=======
+  // submit logic
+  $('#search_submit').click(function() {
+    window.location = '/ingest/backlog/' + '?' + search.toUrlParams();
+  });
+
+  $('#search_form').submit(function() {
+    window.location = '/ingest/backlog/' + '?' + search.toUrlParams();
+>>>>>>> dev/issue-4769
     return false;
   });
 });

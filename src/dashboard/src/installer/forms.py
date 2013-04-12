@@ -40,3 +40,7 @@ class SuperUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class FPRConnectForm(forms.Form):
+    comments = forms.CharField(required=False, widget=TextInput(attrs=settings.INPUT_ATTRS)) 
+

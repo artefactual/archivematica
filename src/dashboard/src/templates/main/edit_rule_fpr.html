@@ -1,0 +1,113 @@
+{% extends "layout_fluid.html" %}
+
+{% block css %}
+<style type="text/css">
+  table {
+    border: 2px solid black;
+    border-collapse: separate !important;
+    border-radius: 5px !important;
+    -moz-border-radius: 5px !important;
+    box-shadow: 5px 5px 3px #888888 !important;
+    text-align: left;
+  }
+
+  td {
+    border: 1px solid black;
+    text-align: left;
+
+  }
+
+  label {
+    font-weight: bold;
+    text-align: right;
+    width: 90px;
+  }
+
+  .tableTitle {
+    background: -moz-linear-gradient(100% 100% 90deg, #eee, #ddd) !important;
+    background: -webkit-linear-gradient(#eee, #fff) !important;
+    width: 200px !important;
+  }
+
+  th.title {
+    width: auto !important;
+  }
+
+  th {
+    width: 80px;
+  }
+
+  .Description {
+    width: 800px;
+  }
+
+  .formatForm {
+    width: 1000px;
+  }
+</style>
+{% endblock %}
+
+{% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/contextual_help.js"></script>
+{% endblock %}
+
+{% block content %}
+<style>
+#contextual_help {
+  width: 220px;
+  background-color: #eee;
+  padding: 1em;
+  position: absolute;
+  left: 700px;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+  archivematicaEnableContextualHelp();
+});
+</script>
+
+  <title>
+    Format ID Editor
+  </title>
+
+{% include 'main/fpr_nav.html' %}
+
+<h2>Format policy - Archivematica Format Policy Rule</h2>
+ Format Policy Rules are how Archivematica decides what Command to run when normalizing a file, for a given purpose.<br><br>
+
+
+<h3>Archivematica Format Policy Rule</h3>
+  	 <form class="form-stacked" method="post" action="{% url components.preservation_planning.views.fpr_edit_rule %}">
+
+    {% include "_form.html" %}
+    
+    <div class="actions">
+          {% if id %}
+            <button type="submit" class="btn primary">Save</button>
+          {% else %}
+            <button type="submit" class="btn primary">Create</button>
+          {% endif %}
+          {% if uuid %}
+            <a href="{% url components.preservation_planning.views.fpr_edit_rule uuid %}" class="btn">Cancel</a>
+          {% endif %} 
+    </div>
+
+    </form>
+
+ <!-- define contextual help -->
+
+  <div id='id_purpose_help' style='display:none'>
+    <p>Select a purpose that describes what this rule will be used for. </p>
+  </div>
+
+  <div id='id_formatID_help' style='display:none'>
+    <p>Select an existing format id that this rule applies to. </p>
+  </div>
+
+  <div id='id_command_help' style='display:none'>
+    <p>Select an existing command that will be run when this rule is applied. </p>
+  </div>
+
+{% endblock %}

@@ -179,7 +179,10 @@ class TransferManager(models.Manager):
 class Transfer(models.Model):
     uuid = models.CharField(max_length=150, primary_key=True, db_column='transferUUID')
     currentlocation = models.TextField(db_column='currentLocation')
+<<<<<<< HEAD
     type = models.CharField(max_length=50, primary_key=True, db_column='type')
+=======
+>>>>>>> dev/issue-4769
     # ...
     hidden = models.BooleanField(default=False, blank=False)
 

@@ -2258,6 +2258,7 @@ DROP TABLE IF EXISTS `Commands`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Commands` (
   `pk` varchar(50) NOT NULL DEFAULT '',
+  `commandUsage` enum('command','verification','eventDetail') DEFAULT NULL,
   `commandType` varchar(50) DEFAULT NULL,
   `verificationCommand` varchar(50) DEFAULT NULL,
   `command` longtext,

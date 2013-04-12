@@ -16,7 +16,10 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from components.preservation_planning import forms
+from components.preservation_planning.forms import FPREditFormatID, FPREditCommand, FPREditRule, getFormatIDs, FPREditToolOutput
+from components.preservation_planning.forms import FPRSearchForm
+from components.preservation_planning.models import FormatPolicyRule
+
 from django.db import connection, transaction
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -27,7 +30,7 @@ import elasticSearchFunctions
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 
-results_per_page = 6
+results_per_page = 16
 
 # TODO: remove this after FPR work finalized
 def preservation_planning(request):
@@ -93,23 +96,20 @@ def preservation_planning(request):
     return render(request, 'main/preservation_planning.html', locals())
 
 def get_fpr_table():
-#    query = """SELECT FileIDs.pk, FileIDsBySingleID.id, tool, toolVersion, FileIDs.description, classification, Commands.command, outputLocation, Commands.description FROM 
-#            FileIDsBySingleID 
-#            LEFT OUTER JOIN FileIDs ON FileIDs.pk = FileIDsBySingleID.fileID
-#            LEFT OUTER JOIN FileIDTypes ON FileIDTypes.pk = FileIDs.fileIDType
-#            LEFT OUTER JOIN CommandRelationships ON CommandRelationships.fileID = FileIDs.pk
-#            LEFT OUTER JOIN CommandClassifications on CommandClassifications.pk = CommandRelationships.commandClassification
-#            LEFT OUTER JOIN Commands ON CommandRelationships.command = Commands.pk
-#            ORDER BY FileIDTypes.description, FileIDs.description, CommandClassifications.classification"""
-   
     query = """SELECT FileIDs.pk, FileIDsBySingleID.id, tool, toolVersion, FileIDs.description, classification, Commands.command, 
-                    outputLocation, Commands.description, FileIDs.validPreservationFormat, FileIDs.validAccessFormat
-                FROM FileIDsBySingleID              
+                    outputLocation, Commands.description, FileIDs.validPreservationFormat, FileIDs.validAccessFormat,
+                    CommandRelationships.countAttempts, CommandRelationships.countOK, CommandRelationships.countNotOK,
+                    CommandRelationships.countAttempts - (CommandRelationships.countOK + CommandRelationships.countNotOK)
+                    AS countIncomplete, CommandTypes.TYPE
+
+                FROM FileIDsBySingleID
+
                 LEFT OUTER JOIN FileIDs ON FileIDs.pk = FileIDsBySingleID.fileID             
                 LEFT OUTER JOIN FileIDTypes ON FileIDTypes.pk = FileIDs.fileIDType             
-                LEFT OUTER JOIN CommandRelationships ON CommandRelationships.fileID = FileIDs.pk             
+                LEFT OUTER JOIN CommandRelationships ON CommandRelationships.fileID = FileIDs.pk
                 LEFT OUTER JOIN CommandClassifications on CommandClassifications.pk = CommandRelationships.commandClassification             
                 LEFT OUTER JOIN Commands ON CommandRelationships.command = Commands.pk
+                LEFT OUTER JOIN CommandTypes ON Commands.commandType = CommandTypes.pk
                 ORDER BY FileIDTypes.description, FileIDs.description, CommandClassifications.classification"""
 
     # Get FPR data
@@ -120,20 +120,32 @@ def get_fpr_table():
 
     results = []
     for item in planning:
-       row = { 'pk': item[0],
-               'id': item[1],
-               'tool': item[2],
-               'toolVersion': item[3],
-               'FileIDs_description': item[4],
-               'classification': item[5],
-               'Commands_command': item[6],
-               'outputLocation': item[7],
-               'Commands_description': item[8],
-               'FileIDs_validPreservationFormat': 'True' if item[9] == 1 else "False",
-               'FileIDs_validAccessFormat': 'True' if item[10] == 1 else "False"
-             }
+        row = {
+            'pk': item[0],
+            'id': item[1],
+            'tool': item[2],
+            'toolVersion': item[3],
+            'FileIDs_description': item[4],
+            'classification': item[5],
+            'Commands_command': item[6],
+            'outputLocation': item[7],
+            'Commands_description': item[8],
+            'FileIDs_validPreservationFormat': 'True' if item[9] == 1 else "False",
+            'FileIDs_validAccessFormat': 'True' if item[10] == 1 else "False",
+            'countAttempts': item[11],
+            'countOK': item[12],
+            'countNotOK': item[13],
+            'countIncomplete': item[14],
+            'commandType': item[15]
+        }
 
-       results.append(row)
+        # It's probably an error in the db allowing these to be null...
+        if row['countAttempts'] is None: row['countAttempts'] = 1 # denominator...
+        if row['countOK'] is None: row['countOK'] = 0
+        if row['countNotOK'] is None: row['countNotOK'] = 0
+        if row['countIncomplete'] is None: row['countIncomplete'] = 0
+
+        results.append(row)
  
     return results
 
@@ -178,7 +190,7 @@ def preservation_planning_fpr_search(request, current_page_number = None):
     except:
         return HttpResponse('Error accessing index.')
     
-    form = forms.FPRSearchForm()
+    form = FPRSearchForm()
 
     search_hits = []
 
@@ -199,7 +211,7 @@ def preservation_planning_fpr_data(request, current_page_number = None):
     if current_page_number == None:
         current_page_number = 1
 
-    form = forms.FPRSearchForm()
+    form = FPRSearchForm()
 
     page = helpers.pager(results, results_per_page, current_page_number)
     request.session['fpr_query'] = ''
@@ -207,3 +219,39 @@ def preservation_planning_fpr_data(request, current_page_number = None):
     item_count = len(results)
 
     return render(request, 'main/preservation_planning_fpr.html', locals())
+
+def fpr_edit_format(request):
+    form = FPREditFormatID()
+    return render(request, 'main/edit_format_id_fpr.html', locals())
+
+def fpr_edit_command(request):
+    form = FPREditCommand()
+    return render(request, 'main/edit_command_fpr.html', locals())
+
+def fpr_edit_tool_output(request, uuid=None):
+    form = FPREditToolOutput()
+    return render(request, 'main/edit_tool_output_fpr.html', locals())
+
+def fpr_edit_rule(request, uuid=None):
+    rule = None
+    if uuid is not None:
+        rule = FormatPolicyRule.objects.get(pk=uuid)
+    else:
+        form = FPREditRule()
+    
+    if request.POST:
+        form = FPREditRule(request.POST, instance=rule)
+        if form.is_valid():
+            newrule = form.save()
+            newrule.save()
+            valid_submission = True
+            
+    else:
+        form =FPREditRule(instance=rule)
+    
+    accessFormats = getFormatIDs('access')
+    preservationFormats = getFormatIDs('preservation')
+    
+    return render(request, 'main/edit_rule_fpr.html', locals())
+
+
