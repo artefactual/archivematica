@@ -5,23 +5,39 @@ $(document).ready(function() {
     var url = $(this).attr('href');
     $(this).removeAttr('href');
     this.url = url;
+    this.fired = false;
     $(this).click(function() {
-      console.log(this.url);
-      // remove all button with same url
-      $('.creation').each(function() {
-        if (this.url == url) {
-          $(this).remove();
-        }
-      });
+      if (this.fired == false) {
+        this.fired = true;
+        // remove all button with same url
+        $('.creation').each(function() {
+          if (this.url == url) {
+            $(this).attr('disabled', 'disabled');
+          }
+        });
 
-      // complete SIP
-      $.ajax({
-        type: "POST",
-        url: url,
-        success: function(result) {
-          console.log(result);
-        }
-      });
+        // complete SIP
+        $.ajax({
+          type: "POST",
+          url: url,
+          error: function(error) {
+            $('.creation').each(function() {
+              if (this.url == url) {
+                alert(error.statusText);
+                $(this).removeAttr('disabled');
+                this.fired = false;
+              }
+            });
+          },
+          success: function(result) {
+            $('.creation').each(function() {
+              if (this.url == url) {
+                $(this).parent().parent().fadeOut();
+              }
+            });
+          }
+        });
+      }
     });
   });
 
