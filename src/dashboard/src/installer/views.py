@@ -27,8 +27,8 @@ from tastypie.models import ApiKey
 import components.helpers as helpers
 
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from utilities.FPRClient.main import FPRClient
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
+import FPRClient
 
 import json
 import requests
@@ -118,7 +118,12 @@ def fprupload(request):
 
 def fprdownload(request):
     response_data = {}
-    myresponse = FPRClient.getUpdates()
-    response_data['response'] = myresponse
-    response_data['result'] = 'success'
+    try:
+        myresponse = FPRClient.getUpdates()
+        response_data['response'] = myresponse
+        response_data['result'] = 'success'
+    except:
+        response_data['response'] = 'unable to connect to FPR Server'
+        response_data['result'] = 'failed'
+        
     return HttpResponse(json.dumps(response_data), content_type="application/json")

@@ -30,9 +30,9 @@ import databaseInterface
 
 databaseInterface.printSQL = True
 
-class FPRClient():
+class FPRClient(object):
     
-    def create(table, entry):
+    def create(self, table, entry):
         global maxLastUpdate
         sets = []
         for key, value in entry.iteritems():
@@ -57,7 +57,7 @@ class FPRClient():
         #print sql
         databaseInterface.runSQL(sql)
     
-    def getMaxLastUpdate():
+    def getMaxLastUpdate(self):
         sql = """SELECT variableValue FROM UnitVariables WHERE unitType = 'FPR' AND unitUUID = 'Client' AND variable = 'maxLastUpdate' """
         rows = databaseInterface.queryAllSQL(sql)
         if rows:
@@ -66,7 +66,7 @@ class FPRClient():
             maxLastUpdate = "2000-01-01T00:00:00"
         return maxLastUpdate
     
-    def setMaxLastUpdate(maxLastUpdate):
+    def setMaxLastUpdate(self, maxLastUpdate):
         sql = """SELECT pk FROM UnitVariables WHERE unitType = 'FPR' AND unitUUID = 'Client' AND variable = 'maxLastUpdate'; """
         rows = databaseInterface.queryAllSQL(sql)
         if rows:
@@ -78,12 +78,12 @@ class FPRClient():
             databaseInterface.runSQL(sql)
         return maxLastUpdate
     
-    def autoUpdateFPR():
+    def autoUpdateFPR(self):
         global maxLastUpdate
         maxLastUpdate = getMaxLastUpdate()
         maxLastUpdateAtStart = maxLastUpdate
         databaseInterface.runSQL("SET foreign_key_checks = 0;")
-        server = "http://fpr.archivematica.org:80"
+        server = "https://fpr.archivematica.org"
         for x in [
             ("CommandRelationships", server + "/fpr/api/v1/CommandRelationship/"),
             ("FileIDsBySingleID", server + "/fpr/api/v1/FileIDsBySingleID/"),
@@ -131,8 +131,13 @@ class FPRClient():
             setMaxLastUpdate(maxLastUpdate)
         print maxLastUpdate
     
-    def getUpdates():
-        return "no updates at this time"
+    def getUpdates(self):
+        try:
+            autoUpdateFPR()
+        except:
+            return "no updates at this time"
+        
+        return "successfully updated fpr"
         
     if __name__ == '__main__':
         autoUpdateFPR()
