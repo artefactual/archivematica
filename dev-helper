@@ -107,7 +107,8 @@ function FPRClient() {
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
-    ./src/FPRClient/lib/main.py
+    ./src/archivematicaCommon/lib/utilities/FPRClient/main.py 
+    #./src/FPRClient/lib/main.py
   else
           echo "Not going to ${part}."
   fi
