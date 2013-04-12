@@ -74,7 +74,7 @@ $mysqldump ElasticsearchIndexBackup  $dumpTables >> $MCPDumpSQLLocation
 #Dashboard
 #-- Dashboard dump tables --
 $mysqldump auth_message auth_user auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type django_session SourceDirectories DashboardSettings StorageDirectories tastypie_apiaccess tastypie_apikey $dumpTables >> $MCPDumpSQLLocation
-$mysqldump auth_message auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type $dumpData >> $MCPDumpSQLLocation
+$mysqldump auth_message auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type StorageDirectories $dumpData >> $MCPDumpSQLLocation
 
 #initial FPR dump
 $mysqldump Commands  CommandClassifications  CommandRelationships  CommandTypes  CommandsSupportedBy  DefaultCommandsForClassifications  FileIDs  FileIDGroupMembers  FileIDTypes  FileIDsBySingleID  Groups  SubGroups $dumpData >> $InitialFPRData

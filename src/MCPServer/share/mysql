@@ -2734,6 +2734,12 @@ INSERT INTO `django_content_type` (`id`, `name`, `app_label`, `model`) VALUES (8
 INSERT INTO `django_content_type` (`id`, `name`, `app_label`, `model`) VALUES (9,'api key','tastypie','apikey');
 /*!40000 ALTER TABLE `django_content_type` ENABLE KEYS */;
 UNLOCK TABLES;
+
+LOCK TABLES `StorageDirectories` WRITE;
+/*!40000 ALTER TABLE `StorageDirectories` DISABLE KEYS */;
+INSERT INTO `StorageDirectories` (`pk`, `path`, `replaces`, `lastModified`) VALUES ('e9509ecf-be06-4572-b217-8ec3acb24ad2','%sharedPath%www/AIPsStore/',NULL,'2013-04-12 07:34:29');
+/*!40000 ALTER TABLE `StorageDirectories` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
