@@ -10,7 +10,7 @@ if [ -d /var/archivematica/sharedDirectory ]; then
 else
   echo "/var/archivematica/sharedDirectory doesn't exist... creating..."
   mkdir -p /var/archivematica
-  rsync -a /usr/share/archivematica/sharedDirectoryStructure /var/archivematica/sharedDirectory
+  rsync -a /usr/share/archivematica/sharedDirectoryStructure/* /var/archivematica/sharedDirectory/.
 fi
 
 /usr/share/archivematica/postinstSharedWithDev
