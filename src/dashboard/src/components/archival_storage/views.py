@@ -108,9 +108,10 @@ def archival_storage_search(request):
 
         page_data = helpers.pager(aip_uuids, items_per_page, page + 1)
         aip_uuids = page_data['objects']
+        archival_storage_search_augment_aip_results(conn, aip_uuids)
     else:
         number_of_results = results.hits.total
-        results = archival_storage_search_augment_results(results)
+        results = archival_storage_search_augment_file_results(results)
 
     # set remaining paging variables
     end, previous_page, next_page = advanced_search.paging_related_values_for_template_use(
@@ -130,7 +131,15 @@ def archival_storage_search(request):
     form = forms.StorageSearchForm(initial={'query': queries[0]})
     return render(request, 'archival_storage/archival_storage_search.html', locals())
 
-def archival_storage_search_augment_results(raw_results):
+def archival_storage_search_augment_aip_results(conn, aips):
+    for aip_uuid in aips:
+        documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('uuid', aip_uuid.term)))
+        if len(documents['hits']['hits']) > 0:
+            aip_uuid.name = documents['hits']['hits'][0]['_source']['name']
+        else:
+            aip_uuid.name = '(data missing)' 
+
+def archival_storage_search_augment_file_results(raw_results):
     modifiedResults = []
 
     for item in raw_results.hits.hits:
