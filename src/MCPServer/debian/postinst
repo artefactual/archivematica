@@ -5,7 +5,6 @@
 
 dbc_go archivematica-mcp-server $@
 
-<<<<<<< HEAD
 if [ -d /var/archivematica/sharedDirectory ]; then
   echo "/var/archivematica/sharedDirectory exists"
 else
@@ -14,7 +13,7 @@ else
   rsync -a /usr/share/archivematica/sharedDirectoryStructure/* /var/archivematica/sharedDirectory/.
 fi
 
-=======
->>>>>>> dev/issue-4769
+chown -R archivematica:archivematica /var/archivematica/
+
 /usr/share/archivematica/postinstSharedWithDev
 
