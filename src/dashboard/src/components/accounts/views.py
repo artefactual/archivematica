@@ -46,7 +46,9 @@ def add(request):
             api_key.save()
             return HttpResponseRedirect(reverse('components.accounts.views.list'))
     else:
-        form = UserCreationForm()
+        #clearing out values that are getting inherited from currently logged in user
+        data = {'email':'','password':'' }
+        form = UserCreationForm(initial=data)
 
     return render(request, 'accounts/add.html', {'form': form })
 
