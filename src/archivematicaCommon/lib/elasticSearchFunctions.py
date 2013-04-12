@@ -66,7 +66,6 @@ def connect_and_create_index(index, attempt=1):
 
     return conn
 
-<<<<<<< HEAD
 def set_up_mapping(conn, index):
     machine_readable_field_spec = {
         'type':  'string',
@@ -100,8 +99,6 @@ def set_up_mapping(conn, index):
         conn.put_mapping(doc_type='aipfile', mapping={'aipfile': {'properties': mapping}}, indices=['aips'])
         print 'AIP file mapping created.'
 
-=======
->>>>>>> dev/issue-4769
 def connect_and_index_aip(uuid, name, filePath):
     conn = connect_and_create_index('aips')
     aipData = {

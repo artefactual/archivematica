@@ -396,12 +396,7 @@ $(function()
                             alert('There was a problem attempting to reach the destination URL.');
                           } else {
                                   var xhr = $.ajax(url, { type: 'POST', data: {
-<<<<<<< HEAD
                                     'target': input.filter(':text').val() }})
-=======
-                                    'target': input.filter(':text').val(),
-                                    'intermediate': input.filter(':checkbox').is(':checked') }})
->>>>>>> dev/issue-4769
 
                                     .done(function(data)
                                       {
