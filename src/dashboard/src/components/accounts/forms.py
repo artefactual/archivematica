@@ -26,6 +26,9 @@ class UserCreationForm(UserCreationForm):
         if data != '' and len(data) < 8:
             raise forms.ValidationError('Password should be at least 8 characters long')
         return data
+    class Meta:
+        model = User
+        fields = ('username', 'first_name','last_name','email', 'is_active','is_superuser')
 
 class UserChangeForm(UserChangeForm):
     email = forms.EmailField(required=True)
