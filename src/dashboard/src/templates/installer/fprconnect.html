@@ -41,7 +41,6 @@
         {
           if (data['result'] == 'success') {
               $("div#fpr").append("<p>Successfully connected to FPR Server.</p>");
-              $("div#fpr").append("<p>" + data['response'] + "</p>");
               moreStuff();
           } else {
               $("div#fpr").append("<br>Unable to connect to FPR Server. You will not be able to get updated format policy rules until your internet connection is fixed.");
@@ -55,7 +54,7 @@ function moreStuff() {
     $.get("installer/fprdownload/", function(data, textStatus)
     {
         if (data['result'] == 'success') {
-            $("div#fpr").append("<p>FPR updated.</p>");
+            $("div#fpr").append("<p>" + data['message'] + "</p>");
             AddElement();
         } else {
             $("div#fpr").append("<p>Unable to update FPR.</p>");
