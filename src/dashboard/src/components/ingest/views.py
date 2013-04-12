@@ -491,6 +491,9 @@ def process_transfer(request, transfer_uuid):
             transfer_path,
             '/var/archivematica/sharedDirectory/watchedDirectories/system/autoProcessSIP/' + transfer_name
         )
+
+        elasticSearchFunctions.connect_and_change_transfer_file_status(transfer_uuid, '')
+
         response['message'] = 'SIP created.'
     else:
         response['error']   = True
