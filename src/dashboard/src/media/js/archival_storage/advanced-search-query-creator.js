@@ -11,6 +11,7 @@
         : true;
       this.deleteHandleHtml = this.options.deleteHandleHtml || 'Del';
       this.addHandleHtml    = this.options.addHandleHtml || 'Add';
+      this.cssClassPrefix = this.options.cssClassPrefix || 'advanced_search_form';
     },
 
     addInput: function(name, attributes) {
@@ -176,17 +177,24 @@
         this.addBlankRow();
       }
 
-      var $el = $('<div></div>');
+      var $el = $('<div class="' + this.addCssClassPrefix('rows_container') + '"></div>');
 
       // add each row
       for(var rowIndex in this.rows) {
-        var $row = $('<div style="clear:both"></div>');
+        var $row = $('<div style="clear:both"></div>')
+            rowClasses = this.addCssClassPrefix('row');
+
+        if (this.rows.length > 1) {
+          rowClasses = rowClasses + ' ' + this.addCssClassPrefix('row_multiple');
+        }
+
+        $row.attr('class', rowClasses);
 
         // add each field 
         for(var fieldIndex in this.fields) {
           var fieldName = this.fields[fieldIndex]
             , value = this.rows[rowIndex][fieldName]
-            , $fieldContainer = $('<div style="float:left"></div>');
+            , $fieldContainer = $('<div class="' + this.addCssClassPrefix('field_' + fieldName) + '" style="float:left"></div>');
 
           // allow for field visibility logic
           if (
@@ -238,6 +246,10 @@
         .append($el);
 
       return this;
+    },
+
+    addCssClassPrefix: function(className) {
+      return this.cssClassPrefix + '_' + className;
     }
   });
 
