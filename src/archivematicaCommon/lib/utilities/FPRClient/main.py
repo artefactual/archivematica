@@ -33,17 +33,16 @@ databaseInterface.printSQL = True
 class FPRClient(object):
     
     fprserver = 'https://fpr.artefactual.com'
-    
+    maxLastUpdate = '' 
     def create(self, table, entry):
-        global maxLastUpdate
         sets = []
         for key, value in entry.iteritems():
             if key == "resource_uri":
                 continue
             if key == "uuid":
                 key = "pk"
-            if key == "lastmodified" and value > maxLastUpdate:
-                maxLastUpdate = value
+            if key == "lastmodified" and value > self.maxLastUpdate:
+                self.maxLastUpdate = value
             #print type(value)
             if value == None:
                 sets.append("%s=NULL" % (key))
@@ -72,18 +71,17 @@ class FPRClient(object):
         sql = """SELECT pk FROM UnitVariables WHERE unitType = 'FPR' AND unitUUID = 'Client' AND variable = 'maxLastUpdate'; """
         rows = databaseInterface.queryAllSQL(sql)
         if rows:
-            sql = """UPDATE UnitVariables SET variableValue='%s' WHERE unitType = 'FPR' AND unitUUID = 'Client' AND variable = 'maxLastUpdate';""" % (maxLastUpdate)
+            sql = """UPDATE UnitVariables SET variableValue='%s' WHERE unitType = 'FPR' AND unitUUID = 'Client' AND variable = 'maxLastUpdate';""" % (self.maxLastUpdate)
             databaseInterface.runSQL(sql)
         else:
             pk = uuid.uuid4().__str__()
-            sql = """INSERT INTO UnitVariables SET pk='%s', variableValue='%s', unitType='FPR', unitUUID = 'Client', variable = 'maxLastUpdate';""" % (pk, maxLastUpdate)
+            sql = """INSERT INTO UnitVariables SET pk='%s', variableValue='%s', unitType='FPR', unitUUID = 'Client', variable = 'maxLastUpdate';""" % (pk, self.maxLastUpdate)
             databaseInterface.runSQL(sql)
         return maxLastUpdate
     
     def autoUpdateFPR(self):
-        global maxLastUpdate
-        maxLastUpdate = getMaxLastUpdate()
-        maxLastUpdateAtStart = maxLastUpdate
+        self.maxLastUpdate = self.getMaxLastUpdate()
+        maxLastUpdateAtStart = self.maxLastUpdate
         databaseInterface.runSQL("SET foreign_key_checks = 0;")
         for x in [
             ("CommandRelationships", self.fprserver + "/fpr/api/v1/CommandRelationship/"),
@@ -123,14 +121,12 @@ class FPRClient(object):
                      sql = """UPDATE %s SET enabled=FALSE WHERE pk = '%s';""" % (table, entry['replaces'])
                      databaseInterface.runSQL(sql)
                      
-                create(table, entry) 
+                self.create(table, entry) 
                 
-        #createLinks()
         addLinks()
         databaseInterface.runSQL("SET foreign_key_checks = 1;")
-        if maxLastUpdate != maxLastUpdateAtStart:
-            setMaxLastUpdate(maxLastUpdate)
-        print maxLastUpdate
+        if self.maxLastUpdate != maxLastUpdateAtStart:
+            self.setMaxLastUpdate(self.maxLastUpdate)
     
     def getUpdates(self):
         try:
@@ -140,7 +136,7 @@ class FPRClient(object):
         
         return "successfully updated fpr"
         
-    if __name__ == '__main__':
-        autoUpdateFPR()
+if __name__ == '__main__':
+    FPRClient().autoUpdateFPR()
         
         
