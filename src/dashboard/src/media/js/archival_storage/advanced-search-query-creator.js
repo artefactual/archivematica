@@ -1,22 +1,3 @@
-/*
-This file is part of Archivematica.
-
-Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
-
-Archivematica is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Archivematica is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 (function(exports) {
 
   exports.AdvancedSearchView = Backbone.View.extend({
@@ -28,6 +9,9 @@ along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
       this.allowAdd = (this.options.allowAdd != undefined)
         ? this.options.allowAdd
         : true;
+      this.deleteHandleHtml = this.options.deleteHandleHtml || 'Del';
+      this.addHandleHtml    = this.options.addHandleHtml || 'Add';
+      this.cssClassPrefix = this.options.cssClassPrefix || 'advanced_search_form';
     },
 
     addInput: function(name, attributes) {
@@ -193,17 +177,24 @@ along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
         this.addBlankRow();
       }
 
-      var $el = $('<div></div>');
+      var $el = $('<div class="' + this.addCssClassPrefix('rows_container') + '"></div>');
 
       // add each row
       for(var rowIndex in this.rows) {
-        var $row = $('<div style="clear:both"></div>');
+        var $row = $('<div style="clear:both"></div>')
+            rowClasses = this.addCssClassPrefix('row');
+
+        if (this.rows.length > 1) {
+          rowClasses = rowClasses + ' ' + this.addCssClassPrefix('row_multiple');
+        }
+
+        $row.attr('class', rowClasses);
 
         // add each field 
         for(var fieldIndex in this.fields) {
           var fieldName = this.fields[fieldIndex]
             , value = this.rows[rowIndex][fieldName]
-            , $fieldContainer = $('<div style="float:left"></div>');
+            , $fieldContainer = $('<div class="' + this.addCssClassPrefix('field_' + fieldName) + '" style="float:left"></div>');
 
           // allow for field visibility logic
           if (
@@ -227,7 +218,7 @@ along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
         if (this.rows.length > 1) {
           // add button to delete row
-          var $rowDelEl = $('<div style="float:left"><img src="/media/images/delete.png" style="margin-left: 5px"/></div>');
+          var $rowDelEl = $('<div style="float:left">' + self.deleteHandleHtml + '</div>');
           (function(self, rowIndex) {
             $rowDelEl.click(function() {
               self.deleteRow(rowIndex);
@@ -242,7 +233,7 @@ along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
       if (this.allowAdd) {
         // add button to add blank rows
-        var $addBlankEl = $('<div style="clear:both"><a>Add New</a></div>');
+        var $addBlankEl = $('<div style="clear:both">' + this.addHandleHtml + '</div>');
         $addBlankEl.click(function() {
           self.addBlankRow();
           self.render();
@@ -255,6 +246,10 @@ along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
         .append($el);
 
       return this;
+    },
+
+    addCssClassPrefix: function(className) {
+      return this.cssClassPrefix + '_' + className;
     }
   });
 

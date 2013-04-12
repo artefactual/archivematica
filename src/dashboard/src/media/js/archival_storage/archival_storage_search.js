@@ -28,7 +28,9 @@ $(document).ready(function() {
       'query': '',
       'field': '',
       'type': ''
-    }]
+    }],
+    'deleteHandleHtml': '<img src="/media/images/delete.png" style="margin-left: 5px"/>',
+    'addHandleHtml': '<a>Add New</a>'
   });
 
   // define op field

@@ -13,5 +13,8 @@
     {% endif %}
   </div>
 
-  <strong>Found {{ number_of_results }} results. Showing {{start}} to {{end}}.</strong>
+  <strong>Found {{ number_of_results }} results.</strong>
+  {% if number_of_results > 0 %}
+    <strong>Showing {{start}} to {{end}}.</strong>
+  {% endif %}
 </div>

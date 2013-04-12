@@ -135,3 +135,7 @@ td.size {
   width: 70px;
   margin-right: 5px;
 }
+
+.advanced_search_form_row_multiple > .advanced_search_form_field_op {
+  width: 90px;
+}
