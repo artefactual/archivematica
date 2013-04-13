@@ -10,6 +10,7 @@
     <thead>
       <tr>
         <th>File name</th>
+        <th>File format</th>
         <th>Preservation normalization attempted</th>
         <th>Preservation normalization failed</th>
         <th>Already in preservation format</th>
@@ -23,6 +24,7 @@
         <tr>
           <!-- File name -->
           <td><a class="file-location" href="#" title="Location" data-location="{{ item.location }}">{{ item.fileName }}</a></td>
+          <td><a class="file-location" href="#" title="Format" data-location="{{ item.description }}">{{ item.description }}</a></td>
 
           <!-- Never red -->
           <td>
