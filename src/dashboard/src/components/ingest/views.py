@@ -265,9 +265,18 @@ def ingest_normalization_report(request, uuid, current_page=None):
     job = jobs[0]
     sipname = utils.get_directory_name(job)
 
-    query = getNormalizationReportQuery()
+    #get idsRestriction
+    query = """SELECT variableValue FROM UnitVariables WHERE unitType = 'SIP' AND variable = 'normalizationFileIdentificationToolIdentifierTypes' AND unitUUID = %s;"""
     cursor = connection.cursor()
-    cursor.execute(query, ( uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid ))
+    cursor.execute(query, (uuid))
+    idsRestriction = cursor.fetchone()
+    
+    
+
+    #normalization report query
+    query = getNormalizationReportQuery(idsRestriction)
+    cursor = connection.cursor()
+    cursor.execute(query, (uuid, uuid))
     objects = helpers.dictfetchall(cursor)
 
     results_per_page = 10
