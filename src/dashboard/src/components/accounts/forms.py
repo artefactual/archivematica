@@ -21,13 +21,21 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import UserChangeForm
 
 class UserCreationForm(UserCreationForm):
-    is_superuser = forms.BooleanField(label = 'Administrator')
-    
+    is_superuser = forms.BooleanField(label = 'Administrator',required=False)
+
     def clean_password1(self):
         data = self.cleaned_data['password1']
         if data != '' and len(data) < 8:
             raise forms.ValidationError('Password should be at least 8 characters long')
         return data
+    
+    def save(self, commit=True):
+        user = super(UserCreationForm, self).save(commit=False)
+        if commit:
+            user.save()
+        return user
+
+
     class Meta:
         model = User
         fields = ('username', 'first_name','last_name','email', 'is_active','is_superuser')
@@ -36,7 +44,7 @@ class UserChangeForm(UserChangeForm):
     email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput, required=False)
     password_confirmation = forms.CharField(widget=forms.PasswordInput, required=False)
-    is_superuser = forms.BooleanField(label = 'Administrator')
+    is_superuser = forms.BooleanField(label = 'Administrator', required=False)
     regenerate_api_key = forms.CharField(widget=forms.CheckboxInput, label='Regenerate API key (shown below)?')
 
     class Meta:

@@ -51,7 +51,7 @@
 
               {% if user.is_authenticated %}
                 <li class="user dropdown" data-dropdown="dropdown">
-                  <a class="dropdown-toggle">{{ user }}</a>
+                  <a class="dropdown-toggle">{{ request.user }}</a>
                   <ul class="dropdown-menu">
                     <li><a href="{% url components.accounts.views.edit %}">Your profile</a></li>
                     <li class="divider"></li>

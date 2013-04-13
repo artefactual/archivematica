@@ -38,16 +38,18 @@ def add(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.is_staff = True
-            user.save()
-            api_key = ApiKey.objects.create(user=user)
+            newuser = form.save(commit=False)
+            newuser.is_staff = True
+            newuser.save()
+            api_key = ApiKey.objects.create(user=newuser)
             api_key.key = api_key.generate_key()
             api_key.save()
             return HttpResponseRedirect(reverse('components.accounts.views.list'))
+        else:
+            print "%s" % repr(form.errors)   
     else:
         #clearing out values that are getting inherited from currently logged in user
-        data = {'email':'','password':'' }
+        data = {'email':' '} 
         form = UserCreationForm(initial=data)
 
     return render(request, 'accounts/add.html', {'form': form })
