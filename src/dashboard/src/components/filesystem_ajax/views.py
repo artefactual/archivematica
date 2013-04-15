@@ -332,13 +332,14 @@ def copy_to_start_transfer(request):
         # supplementary info from
         if accession != '':
             temp_uuid = uuid.uuid4().__str__()
-            mcp_destination = '%sharedPath%watchedDirectories/system/autoProcessSIP/' + basename
-            sip = models.SIP.objects.create(
+            mcp_destination = destination.replace(SHARED_DIRECTORY_ROOT + '/', '%sharedPath%') + '/'
+            transfer = models.Transfer.objects.create(
                 uuid=temp_uuid,
                 accessionid=accession,
-                currentpath=mcp_destination + '/'
+                currentlocation=mcp_destination
             )
-            sip.save()
+            transfer.save()
+
         try:
             shutil.move(filepath, destination)
         except:
