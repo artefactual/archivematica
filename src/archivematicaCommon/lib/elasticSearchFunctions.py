@@ -288,10 +288,9 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
     last_slash_position = path_without_uuid.rfind('/')
     transfer_name = path_without_uuid[last_slash_position + 1:]
 
-    # get accessionId from SIPs table using transfer name
+    # get accessionId from transfers table using UUID
     accession_id = ''
-    current_path = '%sharedPath%watchedDirectories/system/autoProcessSIP/' + transfer_name + '/'
-    sql = "SELECT accessionId from SIPs WHERE currentPath = '" + MySQLdb.escape_string(current_path) + "'"
+    sql = "SELECT accessionID from Transfers WHERE transferUUID='" + MySQLdb.escape_string(uuid) + "'"
 
     rows = databaseInterface.queryAllSQL(sql)
     if len(rows) > 0:
