@@ -265,18 +265,9 @@ def ingest_normalization_report(request, uuid, current_page=None):
     job = jobs[0]
     sipname = utils.get_directory_name(job)
 
-    #get idsRestriction
-    query = """SELECT variableValue FROM UnitVariables WHERE unitType = 'SIP' AND variable = 'normalizationFileIdentificationToolIdentifierTypes' AND unitUUID = %s;"""
+    query = getNormalizationReportQuery()
     cursor = connection.cursor()
-    cursor.execute(query, (uuid))
-    idsRestriction = cursor.fetchone()
-    
-    
-
-    #normalization report query
-    query = getNormalizationReportQuery(idsRestriction)
-    cursor = connection.cursor()
-    cursor.execute(query, (uuid, uuid))
+    cursor.execute(query, ( uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid ))
     objects = helpers.dictfetchall(cursor)
 
     results_per_page = 10
@@ -459,28 +450,37 @@ def process_transfer(request, transfer_uuid):
         import MySQLdb
         import databaseInterface
         import databaseFunctions
-
-        # new
-        transfer_directory_name = os.path.basename(transfer_path[:-1])
-        transfer_name = transfer_directory_name[:-37]
-
-        sip_uuid = uuid.uuid4().__str__()
-        sip = models.SIP.objects.create(
-            uuid=sip_uuid,
-            currentpath='%sharedPath%watchedDirectories/system/autoProcessSIP/' + transfer_name + '/'
-        )
-        sip.save()
+        import shutil
 
         from archivematicaCreateStructuredDirectory import createStructuredDirectory
         from archivematicaCreateStructuredDirectory import createManualNormalizedDirectoriesList
         createStructuredDirectory(transfer_path, createManualNormalizedDirectories=False)
 
-        for directory in createManualNormalizedDirectoriesList:
-            path = os.path.join(transfer_path, directory)
-            if not os.path.isdir(path):
-                os.makedirs(path)
+        processingDirectory = helpers.get_server_config_value('processingDirectory')
+        transfer_directory_name = os.path.basename(transfer_path[:-1])
+        transfer_name = transfer_directory_name[:-37]
+        sharedPath = helpers.get_server_config_value('sharedDirectory')
 
-        # move transfer
+        tmpSIPDir = os.path.join(processingDirectory, transfer_name) + "/"
+        autoProcessSIPDirectory = os.path.join(sharedPath, 'watchedDirectories/system/autoProcessSIP') + '/'
+        destSIPDir =  os.path.join(autoProcessSIPDirectory, transfer_name) + "/"
+        createStructuredDirectory(tmpSIPDir, createManualNormalizedDirectories=False)
+        objectsDirectory = os.path.join(transfer_path, 'objects') + '/'
+
+        #create row in SIPs table if one doesn't already exist
+        lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
+        sql = """SELECT sipUUID FROM SIPs WHERE currentPath = '""" + MySQLdb.escape_string(lookup_path) + "';"
+        rows = databaseInterface.queryAllSQL(sql)
+        if len(rows) > 0:
+            row = rows[0]
+            sipUUID = row[0]
+        else:
+            sipUUID = uuid.uuid4().__str__()
+            databaseFunctions.createSIP(lookup_path, sipUUID)
+
+        #move the objects to the SIPDir
+        for item in os.listdir(objectsDirectory):
+            shutil.move(os.path.join(objectsDirectory, item), os.path.join(tmpSIPDir, "objects", item))
 
         #get the database list of files in the objects directory
         #for each file, confirm it's in the SIP objects directory, and update the current location/ owning SIP'
@@ -488,18 +488,20 @@ def process_transfer(request, transfer_uuid):
         for row in databaseInterface.queryAllSQL(sql):
             fileUUID = row[0]
             currentPath = databaseFunctions.deUnicode(row[1])
-            currentSIPFilePath = currentPath.replace("%transferDirectory%", transfer_path)
+            currentSIPFilePath = currentPath.replace("%transferDirectory%", tmpSIPDir)
             if os.path.isfile(currentSIPFilePath):
-                sql = """UPDATE Files SET currentLocation='%s', sipUUID='%s' WHERE fileUUID='%s'""" % (MySQLdb.escape_string(currentPath.replace("%transferDirectory%", "%SIPDirectory%")), sip_uuid, fileUUID)
+                sql = """UPDATE Files SET currentLocation='%s', sipUUID='%s' WHERE fileUUID='%s'""" % (MySQLdb.escape_string(currentPath.replace("%transferDirectory%", "%SIPDirectory%")), sipUUID, fileUUID)
                 databaseInterface.runSQL(sql)
             else:
                 print >>sys.stderr, "file not found: ", currentSIPFilePath
 
-        import shutil
-        shutil.move(
-            transfer_path,
-            '/var/archivematica/sharedDirectory/watchedDirectories/system/autoProcessSIP/' + transfer_name
-        )
+        #copy processingMCP.xml file
+        src = os.path.join(os.path.dirname(objectsDirectory[:-1]), "processingMCP.xml")
+        dst = os.path.join(tmpSIPDir, "processingMCP.xml")
+        shutil.copy(src, dst)
+
+        #moveSIPTo autoProcessSIPDirectory
+        shutil.move(tmpSIPDir, destSIPDir)
 
         elasticSearchFunctions.connect_and_change_transfer_file_status(transfer_uuid, '')
 
