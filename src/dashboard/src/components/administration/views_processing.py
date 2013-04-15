@@ -109,6 +109,8 @@ def administration_processing(request):
     populate_select_fields_with_chain_choice_options(chain_choice_fields)
 
     replace_dict_fields = [
+        '''
+        commenting out these 2 options re: issue #4941
         {
             "name":  "compression_algo",
             "label": "Select compression algorithm"
@@ -117,6 +119,7 @@ def administration_processing(request):
             "name":  "compression_level",
             "label": "Select compression level"
         },
+        '''
         {
             "name":  "store_aip_location",
             "label": "Store AIP location"
