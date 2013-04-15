@@ -462,13 +462,16 @@ def process_transfer(request, transfer_uuid):
         sharedPath = helpers.get_server_config_value('sharedDirectory')
 
         tmpSIPDir = os.path.join(processingDirectory, transfer_name) + "/"
-        autoProcessSIPDirectory = os.path.join(sharedPath, 'watchedDirectories/system/autoProcessSIP') + '/'
-        destSIPDir =  os.path.join(autoProcessSIPDirectory, transfer_name) + "/"
+        #processSIPDirectory = os.path.join(sharedPath, 'watchedDirectories/system/autoProcessSIP') + '/'
+        processSIPDirectory = os.path.join(sharedPath, 'watchedDirectories/SIPCreation/SIPsUnderConstruction') + '/'
+        #destSIPDir =  os.path.join(processSIPDirectory, transfer_name) + "/"
+        destSIPDir = os.path.join(processSIPDirectory, transfer_name) + "/"
         createStructuredDirectory(tmpSIPDir, createManualNormalizedDirectories=False)
         objectsDirectory = os.path.join(transfer_path, 'objects') + '/'
 
         #create row in SIPs table if one doesn't already exist
         lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
+        #lookup_path = '%sharedPath%watchedDirectories/workFlowDecisions/createDip/' + transfer_name + '/'
         sql = """SELECT sipUUID FROM SIPs WHERE currentPath = '""" + MySQLdb.escape_string(lookup_path) + "';"
         rows = databaseInterface.queryAllSQL(sql)
         if len(rows) > 0:
@@ -500,12 +503,12 @@ def process_transfer(request, transfer_uuid):
         dst = os.path.join(tmpSIPDir, "processingMCP.xml")
         shutil.copy(src, dst)
 
-        #moveSIPTo autoProcessSIPDirectory
+        #moveSIPTo processSIPDirectory
         shutil.move(tmpSIPDir, destSIPDir)
 
         elasticSearchFunctions.connect_and_change_transfer_file_status(transfer_uuid, '')
 
-        response['message'] = 'SIP created.'
+        response['message'] = 'SIP ' + sipUUID + ' created.'
     else:
         response['error']   = True
         response['message'] = 'Must be logged in.'
