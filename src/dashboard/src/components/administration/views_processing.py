@@ -109,11 +109,10 @@ def administration_processing(request):
     populate_select_fields_with_chain_choice_options(chain_choice_fields)
 
     replace_dict_fields = [
-        #commenting out this  option re: #4941
-        #{
-        #    "name":  "compression_algo",
-        #    "label": "Select compression algorithm"
-        #},
+        {
+            "name":  "compression_algo",
+            "label": "Select compression algorithm"
+        },
         {
             "name":  "compression_level",
            "label": "Select compression level"
