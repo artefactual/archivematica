@@ -43,6 +43,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes, requests
 from components.archival_storage.forms import StorageSearchForm
 from components.filesystem_ajax.views import send_file
+import time
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Ingest
@@ -469,14 +470,16 @@ def process_transfer(request, transfer_uuid):
         #processSIPDirectory = os.path.join(sharedPath, 'watchedDirectories/system/autoProcessSIP') + '/'
         processSIPDirectory = os.path.join(sharedPath, 'watchedDirectories/SIPCreation/SIPsUnderConstruction') + '/'
         #destSIPDir =  os.path.join(processSIPDirectory, transfer_name) + "/"
-        destSIPDir = os.path.join(processSIPDirectory, transfer_name) + "/"
+
+        #destSIPDir = os.path.join(processSIPDirectory, transfer_name + '-' + ) + "/"
         createStructuredDirectory(tmpSIPDir, createManualNormalizedDirectories=False)
         objectsDirectory = os.path.join(transfer_path, 'objects') + '/'
 
+        """
         #create row in SIPs table if one doesn't already exist
         lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
         #lookup_path = '%sharedPath%watchedDirectories/workFlowDecisions/createDip/' + transfer_name + '/'
-        sql = """SELECT sipUUID FROM SIPs WHERE currentPath = '""" + MySQLdb.escape_string(lookup_path) + "';"
+        sql = " " "SELECT sipUUID FROM SIPs WHERE currentPath = '" " " + MySQLdb.escape_string(lookup_path) + "';"
         rows = databaseInterface.queryAllSQL(sql)
         if len(rows) > 0:
             row = rows[0]
@@ -484,6 +487,13 @@ def process_transfer(request, transfer_uuid):
         else:
             sipUUID = uuid.uuid4().__str__()
             databaseFunctions.createSIP(lookup_path, sipUUID)
+            time.sleep(15)
+        """
+
+        sipUUID = uuid.uuid4().__str__()
+        destSIPDir = os.path.join(processSIPDirectory, transfer_name + '-' + sipUUID) + "/"
+        lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
+        databaseFunctions.createSIP(lookup_path, sipUUID)
 
         #move the objects to the SIPDir
         for item in os.listdir(objectsDirectory):
