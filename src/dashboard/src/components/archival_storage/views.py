@@ -33,12 +33,15 @@ import pyes
 import httplib
 import tempfile
 import subprocess
+from components import decorators
 
 AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'
 
+@decorators.elasticsearch_required()
 def archival_storage(request):
     return archival_storage_list_display(request)
 
+@decorators.elasticsearch_required()
 def archival_storage_page(request, page=None):
     return archival_storage_list_display(request, page)
 
