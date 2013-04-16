@@ -296,6 +296,7 @@ def ingest_browse_aip(request, jobuuid):
 
     return render(request, 'ingest/aip_browse.html', locals())
 
+@decorators.elasticsearch_required()
 def transfer_backlog(request):
     # deal with transfer mode
     file_mode = False

@@ -49,6 +49,14 @@ def getElasticsearchServerHostAndPort():
     except:
         return '127.0.0.1:9200'
 
+def check_if_server_is_running():
+    try:
+        conn = pyes.ES(getElasticsearchServerHostAndPort())
+        conn._send_request('GET', '/')
+        return True
+    except:
+        return False
+
 # try up to three times to get a connection
 def connect_and_create_index(index, attempt=1):
     if attempt <= 3:

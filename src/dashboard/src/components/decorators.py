@@ -43,8 +43,8 @@ import os
 import re
 import subprocess
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import elasticSearchFunctions
 from django.contrib.auth.decorators import user_passes_test
 
 # Try to update context instead of sending new params
@@ -58,6 +58,17 @@ def load_jobs(view):
         kwargs['name'] = utils.get_directory_name(jobs[0])
         return view(request, uuid, *args, **kwargs)
     return inner
+
+# Requires ES server be running
+def elasticsearch_required():
+    def decorator(func):
+        def inner(request, *args, **kwargs):
+            if elasticSearchFunctions.check_if_server_is_running():
+                return func(request, *args, **kwargs)
+            else:
+                return HttpResponse("Error: can't connect to ElasticSearch.")
+        return wraps(func)(inner)
+    return decorator
 
 # Requires confirmation from a prompt page before executing a request
 # (see http://djangosnippets.org/snippets/1922/)
