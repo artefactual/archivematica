@@ -1,14 +1,3 @@
-
-
-INSERT INTO `TasksConfigs` (`pk`, `taskType`, `taskTypePKReference`, `description`, `replaces`, `lastModified`) VALUES ('a1f28f97-383f-49a6-812a-ae2fcd429a26','5e70152a-9c5b-4c17-b823-c9298c546eeb','34d3bf8d-d704-4ade-8ea9-91409aa80d16','Normalize access',NULL,'2012-10-02 00:25:11');
-INSERT INTO `TasksConfigs` (`pk`, `taskType`, `taskTypePKReference`, `description`, `replaces`, `lastModified`) VALUES ('a7d920e4-bbe0-42b0-901e-fde29ac3cea6','5e70152a-9c5b-4c17-b823-c9298c546eeb','45262c25-854d-4c50-a186-1b6f1967df82','Normalize thumbnail',NULL,'2012-10-02 00:25:11');
-INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('006f6fc3-5837-4333-8920-fefc977e7a76','a1f28f97-383f-49a6-812a-ae2fcd429a26',NULL,NULL,'Normalize',1,'Failed',NULL,'2012-10-02 00:25:06');
-INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('a7fe8db6-387c-4295-b488-56e1b55c57d9','a7d920e4-bbe0-42b0-901e-fde29ac3cea6',NULL,NULL,'Normalize',1,'Failed',NULL,'2012-10-02 00:25:06');
-INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('259e9a37-65ed-4593-8b6a-dd77826c5bac','006f6fc3-5837-4333-8920-fefc977e7a76',0,NULL,NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
-INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('47646c8e-b3bd-4f92-9da9-2a12a72bea27','a7fe8db6-387c-4295-b488-56e1b55c57d9',0,NULL,NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
-
-
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;

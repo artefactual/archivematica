@@ -45,7 +45,7 @@ def reconnect():
     for a in range(retryAttempts):
         try:
             database=MySQLdb.connect(**DB_CONNECTION_OPTS)
-            database.autocommit(0)
+            database.autocommit(True)
             warnings.filterwarnings('error', category=MySQLdb.Warning)
             break
         except Exception as inst:
@@ -97,6 +97,7 @@ def runSQL(sql):
         #db.query(sql)
         c=database.cursor()
         c.execute(sql)
+        database.commit()
         rows = c.fetchall()
     except MySQLdb.OperationalError, message:
         #errorMessage = "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
@@ -138,6 +139,7 @@ def insertAndReturnID(sql):
         #db.query(sql)
         c=database.cursor()
         c.execute(sql)
+        database.commit()
         ret = c.lastrowid
     except MySQLdb.OperationalError, message:
         #errorMessage = "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )

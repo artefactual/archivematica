@@ -484,11 +484,10 @@ def process_transfer(request, transfer_uuid):
         else:
             sipUUID = uuid.uuid4().__str__()
             databaseFunctions.createSIP(lookup_path, sipUUID)
-            time.sleep(15)
         """
 
         sipUUID = uuid.uuid4().__str__()
-        destSIPDir = os.path.join(processSIPDirectory, transfer_name + '-' + sipUUID) + "/"
+        destSIPDir = os.path.join(processSIPDirectory, transfer_name) + "/"
         lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
         databaseFunctions.createSIP(lookup_path, sipUUID)
 
