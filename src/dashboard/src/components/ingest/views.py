@@ -268,7 +268,7 @@ def ingest_normalization_report(request, uuid, current_page=None):
 
     query = getNormalizationReportQuery()
     cursor = connection.cursor()
-    cursor.execute(query, ( uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid ))
+    cursor.execute(query, ( uuid, uuid ))
     objects = helpers.dictfetchall(cursor)
 
     results_per_page = 10
