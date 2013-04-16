@@ -77,7 +77,7 @@ $mysqldump auth_message auth_user auth_user_groups auth_user_user_permissions au
 $mysqldump auth_message auth_user_groups auth_user_user_permissions auth_group auth_group_permissions auth_permission django_content_type StorageDirectories $dumpData >> $MCPDumpSQLLocation
 
 #initial FPR dump
-$mysqldump Commands  CommandClassifications  CommandRelationships  CommandTypes  CommandsSupportedBy  DefaultCommandsForClassifications  FileIDs  FileIDGroupMembers  FileIDTypes  FileIDsBySingleID  Groups  SubGroups $dumpData >> $InitialFPRData
+$mysqldump Commands  CommandClassifications  CommandRelationships  CommandTypes  CommandsSupportedBy  DefaultCommandsForClassifications  FileIDs  FileIDGroupMembers  FileIDTypes  FileIDsBySingleID  Groups  SubGroups $dumpData > $InitialFPRData
 
 echo 'SET foreign_key_checks = 1;' >> $MCPDumpSQLLocation
 #echo 'COMMIT;' >> $MCPDumpSQLLocation
