@@ -266,10 +266,7 @@ def ingest_normalization_report(request, uuid, current_page=None):
     job = jobs[0]
     sipname = utils.get_directory_name(job)
 
-    query = getNormalizationReportQuery()
-    cursor = connection.cursor()
-    cursor.execute(query, ( uuid, uuid ))
-    objects = helpers.dictfetchall(cursor)
+    objects = getNormalizationReportQuery(sipuuid=uuid)
 
     results_per_page = 10
 

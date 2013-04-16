@@ -23,18 +23,67 @@
 # @author Joseph Perry <joseph@artefactual.com>
 #import sys
 #sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-
+from django.db import connection
     
-def getNormalizationReportQuery(idsRestriction=""):
+def getNormalizationReportQuery(sipUUID, idsRestriction=""):
     if idsRestriction:
         idsRestriction = 'AND (%s)' % idsRestriction  
-    return """
-    SELECT CONCAT(Files.currentLocation, ' ', Files.fileUUID,' ', IFNULL(q_1.fileID, "")) AS 'pagingIndex', Files.currentLocation AS 'fileName', q_1.description , q_1.*
-    FROM
-        Files
-    LEFT OUTER JOIN
+    
+    cursor = connection.cursor()
+        
+    sql =  """
+    SELECT variableValue 
+    FROM UnitVariables 
+    WHERE unitType = 'SIP' 
+    AND variable = 'normalizationFileIdentificationToolIdentifierTypes' 
+    AND unitUUID = {0};"
+    """.format(sipUUID)
+    
+    cursor.execute(sql)
+    objects = helpers.dictfetchone(cursor)
+    fileIDTypeUsed = objects[0]
+     
+    sql = """
+    select
+        a.fileUUID, 
+        substring(a.currentLocation,23) as fileName, 
+        a.fileID, 
+        a.description, 
+        a.already_in_access_format, 
+        a.already_in_preservation_format,
+        b.access_normalization_attempted,
+        b.preservation_normalization_attempted,
+        b.access_normalization_task_uuid,
+        b.preservation_normalization_task_uuid,
+        b.access_normalization_failed,
+        b.access_task_exitCode,
+        b.preservation_task_exitCode
+    from
         (select
-            f.fileUUID, f.currentLocation , fid.pk AS 'fileID', fid.description, fid.validAccessFormat AS 'already_in_access_format', fid.validPreservationFormat AS 'already_in_preservation_format',
+            f.fileUUID,
+            f.sipUUID, 
+            f.currentLocation, 
+            fid.pk as 'fileID',
+            fid.description, 
+            fid.validAccessFormat AS 'already_in_access_format', 
+            fid.validPreservationFormat AS 'already_in_preservation_format'
+        from 
+        Files f
+        Join
+        FilesIdentifiedIDs fii on f.fileUUID = fii.fileUUID
+        Join
+        FileIDs fid on fii.fileID = fid.pk 
+        Join
+        FileIDTypes on FileIDTypes.pk = fid.fileIDType
+        where 
+            f.fileGrpUse in ('original', 'service')
+            and f.sipUUID = {0}
+            and FileIDTypes.pk = {1}
+        ) a 
+    Left Join
+        (select
+            cr.fileID,
+            j.sipUUID,
             max(if(cc.classification = 'access', t.taskUUID, null)) IS NOT NULL as access_normalization_attempted,
             max(if(cc.classification = 'preservation', t.taskUUID, null)) IS NOT NULL as preservation_normalization_attempted,
             max(if(cc.classification = 'access', t.taskUUID, null)) as access_normalization_task_uuid,
@@ -43,49 +92,41 @@ def getNormalizationReportQuery(idsRestriction=""):
             max(if(cc.classification = 'preservation', t.exitCode, null)) != 0 AS preservation_normalization_failed,
             max(if(cc.classification = 'access', t.exitCode, null)) as access_task_exitCode,
             max(if(cc.classification = 'preservation', t.exitCode, null)) as preservation_task_exitCode
-        from
-            Files f
-            Join
-            FilesIdentifiedIDs fii on f.fileUUID = fii.fileUUID
-            Join
-            FileIDs fid on fii.fileID = fid.pk 
-            Join
-            CommandRelationships cr on cr.fileID = fid.pk
+        from 
+            CommandRelationships cr
             Join
             CommandClassifications cc on cr.commandClassification  = cc.pk
-            join
+            Join 
             TasksConfigs tc on tc.taskTypePKReference = cr.pk
             join
             MicroServiceChainLinks ml on tc.pk = ml.currentTask
-            join
-            Jobs j on j.MicroServiceChainLinksPK = ml.pk and j.sipUUID = f.sipUUID
+            Join
+            Jobs j on j.MicroServiceChainLinksPK = ml.pk 
             join
             Tasks t on t.jobUUID = j.jobUUID
-            join
-            FileIDTypes on FileIDTypes.pk = fid.fileIDType 
-        where
-            f.sipUUId = %s and f.fileGrpUse in ('original', 'service')
-            and cc.classification in ('preservation', 'access')
-            AND ml.pk NOT IN (SELECT MicroserviceChainLink FROM DefaultCommandsForClassifications)
-            """ + idsRestriction + """
-        group by
-            fileUUID, fid.pk) AS q_1
-    ON Files.fileUUID = q_1.fileUUID
-    WHERE Files.sipUUId = %s
-    AND fileGrpUse IN ('original', 'service') ;"""
-
-
+        where 
+            cc.classification in ('preservation', 'access')
+        group by cr.fileID
+        ) b
+    on a.fileID = b.fileID and a.sipUUID = b.sipUUID;
+    """.format((sipUUID, fileIDTypeUsed))
+    
+    cursor.execute(sql)
+    objects = helpers.dictfetchall(cursor)
+    return objects
+    
 
 if __name__ == '__main__':
     import sys
     uuid = "'%s'" % (sys.argv[1])
     sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-    import databaseInterface
+   # import databaseInterface
     #databaseInterface.printSQL = True
     print "testing normalization report"
-    sql = getNormalizationReportQuery()
-    sql = sql % (uuid, uuid)
-    rows = databaseInterface.queryAllSQL(sql)
-    for row in rows:
-        print row
-        print
+    sql = getNormalizationReportQuery(uuid)
+    #sql = sql % (uuid, uuid)
+    print sql
+    #rows = databaseInterface.queryAllSQL(sql)
+    #for row in rows:
+    #    print row
+    #    print
