@@ -21,8 +21,13 @@
 # @package Archivematica
 # @subpackage Dashboard
 # @author Joseph Perry <joseph@artefactual.com>
+# @autho Justin Simpson <jsimpson@artefactual.com>
 #import sys
 #sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+
+#import databaseInterface
+#databaseInterface.printSQL = True
+from components import helpers
 from django.db import connection
     
 def getNormalizationReportQuery(sipUUID, idsRestriction=""):
@@ -36,16 +41,19 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
     FROM UnitVariables 
     WHERE unitType = 'SIP' 
     AND variable = 'normalizationFileIdentificationToolIdentifierTypes' 
-    AND unitUUID = {0};"
+    AND unitUUID = '{0}';
     """.format(sipUUID)
     
     cursor.execute(sql)
-    objects = helpers.dictfetchone(cursor)
-    fileIDTypeUsed = objects[0]
-     
+    
+    fileIDTypeUsed = cursor.fetchone()
+    fileIDTypeUsed = str(fileIDTypeUsed[0])
+    print "fileIDTypeUsed " + fileIDTypeUsed
     sql = """
     select
+        CONCAT(a.currentLocation, ' ', a.fileUUID,' ', IFNULL(b.fileID, "")) AS 'pagingIndex', 
         a.fileUUID, 
+        a.location,
         substring(a.currentLocation,23) as fileName, 
         a.fileID, 
         a.description, 
@@ -62,6 +70,7 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         (select
             f.fileUUID,
             f.sipUUID, 
+            f.originalLocation as location,
             f.currentLocation, 
             fid.pk as 'fileID',
             fid.description, 
@@ -77,7 +86,7 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         FileIDTypes on FileIDTypes.pk = fid.fileIDType
         where 
             f.fileGrpUse in ('original', 'service')
-            and f.sipUUID = {0}
+            and f.sipUUID = '{0}'
             and {1}
         ) a 
     Left Join
@@ -109,22 +118,22 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         group by cr.fileID
         ) b
     on a.fileID = b.fileID and a.sipUUID = b.sipUUID;
-    """.format((sipUUID, fileIDTypeUsed))
+    """.format(sipUUID, fileIDTypeUsed)
     
     cursor.execute(sql)
     objects = helpers.dictfetchall(cursor)
-    return objects
+    #objects = databaseInterface.queryAllSQL(sql)
+    return objects 
     
 
 if __name__ == '__main__':
     import sys
     uuid = "'%s'" % (sys.argv[1])
     sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-    import databaseInterface
-    databaseInterface.printSQL = True
+    #import databaseInterface
+    #databaseInterface.printSQL = True
     print "testing normalization report"
     sql = getNormalizationReportQuery(sipUUID=uuid)
-    #sql = sql % (uuid, uuid)
     print sql
     #rows = databaseInterface.queryAllSQL(sql)
     #for row in rows:
