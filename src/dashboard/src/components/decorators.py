@@ -66,7 +66,7 @@ def elasticsearch_required():
             if elasticSearchFunctions.check_if_server_is_running():
                 return func(request, *args, **kwargs)
             else:
-                return HttpResponse("Error: can't connect to ElasticSearch.")
+                return render(request, 'elasticsearch_not_found.html')
         return wraps(func)(inner)
     return decorator
 
