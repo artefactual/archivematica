@@ -266,7 +266,7 @@ def ingest_normalization_report(request, uuid, current_page=None):
     job = jobs[0]
     sipname = utils.get_directory_name(job)
 
-    objects = getNormalizationReportQuery(sipuuid=uuid)
+    objects = getNormalizationReportQuery(sipUUID=uuid)
 
     results_per_page = 10
 
