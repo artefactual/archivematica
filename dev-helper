@@ -40,8 +40,20 @@ function git-pull() {
       colour ./cleanup.sh
       cd ..
       currentBranch=`git status | grep '# On branch ' | awk '{print $4}'`
-      colour git pull origin ${currentBranch}
-
+      gitDiff=`git diff`
+      if [ -z "$gitDiff" -a "${gitDiff+xxx}" = "xxx" ]; then
+        echo "No changes to store."
+      else
+        echo "Storing changes (to be restored with 'git stash pop'), viewed with git-diff."
+        git stash
+      fi
+      colour git pull --rebase origin ${currentBranch}
+      if [ -z "$gitDiff" -a "${gitDiff+xxx}" = "xxx" ]; then
+        echo "No changes to restore"
+      else
+        echo "Restoring changes"
+        git stash pop
+      fi
       echo "Integrating into environment..."
       cd localDevSetup/
       colour ./createLocalDevDirectories.sh
