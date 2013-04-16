@@ -78,7 +78,7 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         where 
             f.fileGrpUse in ('original', 'service')
             and f.sipUUID = {0}
-            and FileIDTypes.pk = {1}
+            and {1}
         ) a 
     Left Join
         (select
@@ -120,10 +120,10 @@ if __name__ == '__main__':
     import sys
     uuid = "'%s'" % (sys.argv[1])
     sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-   # import databaseInterface
-    #databaseInterface.printSQL = True
+    import databaseInterface
+    databaseInterface.printSQL = True
     print "testing normalization report"
-    sql = getNormalizationReportQuery(uuid)
+    sql = getNormalizationReportQuery(sipUUID=uuid)
     #sql = sql % (uuid, uuid)
     print sql
     #rows = databaseInterface.queryAllSQL(sql)
