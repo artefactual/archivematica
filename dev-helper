@@ -40,8 +40,14 @@ function git-pull() {
       colour ./cleanup.sh
       cd ..
       currentBranch=`git status | grep '# On branch ' | awk '{print $4}'`
+      gitDiff=`git diff`
+      if [ -z "$gitDiff" -a "${gitDiff+xxx}" = "xxx" ]; then
+        git stash
+      fi
       colour git pull origin ${currentBranch}
-
+      if [ -z "$gitDiff" -a "${gitDiff+xxx}" = "xxx" ]; then
+        git stash pop
+      fi
       echo "Integrating into environment..."
       cd localDevSetup/
       colour ./createLocalDevDirectories.sh
