@@ -42,41 +42,44 @@
       {% if transfer_uuids|length > 0 %}
 
       <table>
-      <thead>
-        <th>
-          <div>AAAA</div>
-        </th>
-        <th>
-          <div>UUID</div>
-        </th>
-        <th>
-          <div>Type</div>
-        </th>
-        <th>
-          <div>Accession</div>
-        </th>
-        <th>
-          <div>Files</div>
-        </th>
-        <th>
-        </th>
-      </thead>
-      <tbody>
-      {% for term_usage in transfer_uuids %}
-        <tr>
-          <td>{{ term_usage.name }}</td>
-          <td>{{ term_usage.term }}</td>
-          <td>{{ term_usage.type }}</td>
-          <td>{{ term_usage.accession }}</td>
-          <td>{{ term_usage.count }} files</td>
-          <td>
-            {% if awaiting_creation|keyvalue:term_usage.term %}
-              <a href='/ingest/backlog/process/{{ term_usage.term }}/' target='_blank' class='creation btn'>Create SIP</a>
-            {% endif %}
-          </td>
-        </tr>
-      {% endfor %}
-      </tbody>
+        <thead>
+          <th>
+            <div>Name</div>
+          </th>
+          <th>
+            <div>UUID</div>
+          </th>
+          <th>
+            <div>Type</div>
+          </th>
+          <th>
+            <div>Accession</div>
+          </th>
+          <th>
+            <div>Files</div>
+          </th>
+          <th>
+            <div>Ingested?</div>
+          </th>
+        </thead>
+        <tbody>
+        {% for term_usage in transfer_uuids %}
+          <tr>
+            <td>{{ term_usage.name }}</td>
+            <td>{{ term_usage.term }}</td>
+            <td>{{ term_usage.type }}</td>
+            <td>{{ term_usage.accession }}</td>
+            <td>{{ term_usage.count }} files</td>
+            <td>
+              {% if awaiting_creation|keyvalue:term_usage.term %}
+                <a href='/ingest/backlog/process/{{ term_usage.term }}/' target='_blank' class='creation btn'>Create SIP</a>
+              {% else %}
+                Yes
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
       </table>
 
       {% else %}
@@ -87,35 +90,49 @@
 
     {% else %}
 
-      <br clear='all' />
-
-      <div class='aip-search-item'>
-        <div class='aip-search-item-file-column-header'>File(s)</div>
-        <div class='aip-search-item-aip-column-header'>Transfer(s)</div>
-      </div>
-
-      {% for item in results %}
-        <div class='aip-search-item'>
-
-          <div class='aip-search-item-file-column'>
-            <div><a href="{% url components.ingest.views.transfer_file_download item.fileuuid %}">{{ item.filename }}</a></div>
-          </div>
-
-          <div class='aip-search-item-aip-column'>
-            <div>{{item.sipuuid}}
-            {% if item.accessionid != '' %}
-              (Accession {{ item.accessionid }})
-            {% endif %}
-            </div>
-            {% if item.awaiting_creation %}
-              <a href='/ingest/backlog/process/{{ item.sipuuid }}/' target='_blank' class='creation btn'>Create SIP</a>
-            {% endif %}
-          </div>
-
-        </div>
-
-        <br clear='all' />
-      {% endfor %}
+      <table>
+        <thead>
+          <th>
+            <div>File</div>
+          </th>
+          <th>
+            <div>Transfer UUID</div>
+          </th>
+          <th>
+            <div>Accession</div>
+          </th>
+          <!--
+          <th>
+            <div>Created?</div>
+          </th>
+          -->
+        </thead>
+        <tbody>
+        {% for item in results %}
+          <tr>
+            <td>
+              <div><a href="{% url components.ingest.views.transfer_file_download item.fileuuid %}">{{ item.filename }}</a></div>
+            </td>
+            <td>
+              <div>{{item.sipuuid}}</div>
+            </td>
+            <td>
+              {% if item.accessionid != None %}
+                (Accession {{ item.accessionid }})
+              {% endif %}
+              </div>
+            </td>
+            <!--
+            <td>
+              {% if item.awaiting_creation %}
+                <a href='/ingest/backlog/process/{{ item.sipuuid }}/' target='_blank' class='creation btn'>Create SIP</a>
+              {% endif %}
+            </td>
+            -->
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
 
     {% endif %}
 
