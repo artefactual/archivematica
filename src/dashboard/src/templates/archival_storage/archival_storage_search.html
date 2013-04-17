@@ -36,20 +36,49 @@
     {% endif %}
     -->
 
-    <div style='float: left'>
-
     {% if not file_mode %}
 
       <table>
+      <thead>
+        <th>
+          <div>
+            AIP
+          </div>
+        </th>
+        <th>
+          <div>
+            Size
+          </div>
+        </th>
+        <th>
+          <div>
+            UUID
+          </div>
+        </th>
+        <th>
+          <div>
+            Files
+          </div>
+        </th>
+        <th>
+          <div>
+            Date stored
+          </div>
+        </th>
+      </thead>
+      <tbody>
       {% for term_usage in aip_uuids %}
         <tr>
           <td>
             <a href="{% url components.archival_storage.views.archival_storage_aip_download term_usage.term %}">{{ term_usage.name }}</a>
           </td>
-          <td>{{ term_usage.term }}</td>
+          <td>{{ term_usage.size }} MB</td>
+          <td class="uuid">{{ term_usage.term }}</td>
           <td>{{ term_usage.count }} files</td>
+          <td><span class='timestamp'>{{ term_usage.date }}</a></td>
         </tr>
       {% endfor %}
+      </tbody>
       </table>
 
     {% else %}
@@ -85,7 +114,6 @@
         <br clear='all' />
       {% endfor %}
     {% endif %}
-    </div>
 
     <div style='clear: both'>
     {% include "archival_storage/_archival_storage_search_summary.html" %}
@@ -94,5 +122,11 @@
   {% else %}
     <div id='aip-search-summary'>No results, please try another search.</div>
   {% endif %}
+
+  <script>
+  $(document).ready(function() {
+    localizeTimestampElements();
+  });
+  </script>
 
 {% endblock %}

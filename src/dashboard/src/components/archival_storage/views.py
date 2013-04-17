@@ -139,6 +139,8 @@ def archival_storage_search_augment_aip_results(conn, aips):
         documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('uuid', aip_uuid.term)))
         if len(documents['hits']['hits']) > 0:
             aip_uuid.name = documents['hits']['hits'][0]['_source']['name']
+            aip_uuid.size = '{0:.2f} MB'.format(documents['hits']['hits'][0]['_source']['size'])
+            aip_uuid.date = documents['hits']['hits'][0]['_source']['created']
         else:
             aip_uuid.name = '(data missing)' 
 
