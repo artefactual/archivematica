@@ -426,7 +426,7 @@ def transfer_backlog_augment_search_results(raw_results):
 
 def transfer_awaiting_sip_creation_v2(uuid):
     transfer = models.Transfer.objects.get(uuid=uuid)
-    return transfer.currentlocation.find('%sharedPath%transferBacklog/original/') == 0
+    return transfer.currentlocation.find('%sharedPath%www/AIPsStore/transferBacklog/originals/') == 0
 
 def transfer_awaiting_sip_creation(uuid):
     try:
