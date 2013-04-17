@@ -27,6 +27,7 @@
   {% if results %}
     {% include "ingest/backlog/_search_summary.html" %}
 
+    <!--
     {% if file_extension_usage|length > 0 %}
     <div style='width: 80px; float: left; padding: 10px; margin-right: 10px; background-color: #eee;'>
     {% for term_usage in file_extension_usage %}
@@ -34,8 +35,7 @@
     {% endfor %}
     </div>
     {% endif %}
-
-    <div style='float: left'>
+    -->
 
     {% if not file_mode %}
 
@@ -57,6 +57,8 @@
         </th>
         <th>
           <div>Files</div>
+        </th>
+        <th>
         </th>
       </thead>
       <tbody>
@@ -116,7 +118,6 @@
       {% endfor %}
 
     {% endif %}
-    </div>
 
     <div style='clear: both'>
     {% include "ingest/backlog/_search_summary.html" %}
