@@ -42,6 +42,24 @@
       {% if transfer_uuids|length > 0 %}
 
       <table>
+      <thead>
+        <th>
+          <div>AAAA</div>
+        </th>
+        <th>
+          <div>UUID</div>
+        </th>
+        <th>
+          <div>Type</div>
+        </th>
+        <th>
+          <div>Accession</div>
+        </th>
+        <th>
+          <div>Files</div>
+        </th>
+      </thead>
+      <tbody>
       {% for term_usage in transfer_uuids %}
         <tr>
           <td>{{ term_usage.name }}</td>
@@ -56,6 +74,7 @@
           </td>
         </tr>
       {% endfor %}
+      </tbody>
       </table>
 
       {% else %}
