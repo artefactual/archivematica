@@ -67,7 +67,7 @@ def elasticsearch_required():
             if status == 'OK':
                 return func(request, *args, **kwargs)
             else:
-                return render(request, 'elasticsearch_not_found.html', {'status': status})
+                return render(request, 'elasticsearch_error.html', {'status': status})
         return wraps(func)(inner)
     return decorator
 
