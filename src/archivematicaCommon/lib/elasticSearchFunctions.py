@@ -49,13 +49,27 @@ def getElasticsearchServerHostAndPort():
     except:
         return '127.0.0.1:9200'
 
-def check_if_server_is_running():
+def check_server_status():
     try:
+        # attempt simple connection
         conn = pyes.ES(getElasticsearchServerHostAndPort())
         conn._send_request('GET', '/')
-        return True
     except:
-        return False
+        return 'Connection error'
+
+    # make sure the mapping looks legitimate
+    if not transfer_mapping_is_correct(conn):
+        return 'The transfer index mapping is incorrect. The transfer index should be re-created.'
+
+    # no errors!
+    return 'OK'
+
+def get_type_mapping(conn, index, type):
+    return conn._send_request('GET', '/' + index + '/' + type + '/_mapping')
+
+def transfer_mapping_is_correct(conn):
+    mapping = get_type_mapping(conn, 'transfers', 'transferfile')
+    return mapping['transferfile']['properties']['accessionid']['index'] == 'not_analyzed'
 
 # try up to three times to get a connection
 def connect_and_create_index(index, attempt=1):
