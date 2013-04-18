@@ -49,6 +49,7 @@ import time
       Ingest
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
+@decorators.elasticsearch_required()
 def ingest_grid(request):
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP

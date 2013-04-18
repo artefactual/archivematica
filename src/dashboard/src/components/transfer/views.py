@@ -27,11 +27,13 @@ from lxml import etree
 import calendar
 import os
 from components import helpers
+import components.decorators as decorators
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Transfer
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
+@decorators.elasticsearch_required()
 def transfer_grid(request):
     if models.SourceDirectory.objects.count() > 0:
         source_directories = models.SourceDirectory.objects.all()
