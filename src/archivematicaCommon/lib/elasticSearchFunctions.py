@@ -57,9 +57,13 @@ def check_server_status():
     except:
         return 'Connection error'
 
-    # make sure the mapping looks legitimate
+    # make sure the mapping for the transfer index types looks OK
     if not transfer_mapping_is_correct(conn):
-        return 'The transfer index mapping is incorrect. The transfer index should be re-created.'
+        return 'The transfer index mapping is incorrect. The "transfers" index should be re-created.'
+
+    # make sure the mapping for the aip index types looks OK
+    if not aip_mapping_is_correct(conn):
+        return 'The AIP index mapping is incorrect. The "aips" index should be re-created.'
 
     # no errors!
     return 'OK'
@@ -70,6 +74,10 @@ def get_type_mapping(conn, index, type):
 def transfer_mapping_is_correct(conn):
     mapping = get_type_mapping(conn, 'transfers', 'transferfile')
     return mapping['transferfile']['properties']['accessionid']['index'] == 'not_analyzed'
+
+def aip_mapping_is_correct(conn):
+    mapping = get_type_mapping(conn, 'aips', 'aipfile')
+    return mapping['aipfile']['properties']['AIPUUID']['index'] == 'not_analyzed'
 
 # try up to three times to get a connection
 def connect_and_create_index(index, attempt=1):
