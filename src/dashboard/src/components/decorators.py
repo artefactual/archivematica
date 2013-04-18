@@ -63,10 +63,11 @@ def load_jobs(view):
 def elasticsearch_required():
     def decorator(func):
         def inner(request, *args, **kwargs):
-            if elasticSearchFunctions.check_if_server_is_running():
+            status = elasticSearchFunctions.check_server_status()
+            if status == 'OK':
                 return func(request, *args, **kwargs)
             else:
-                return render(request, 'elasticsearch_not_found.html')
+                return render(request, 'elasticsearch_not_found.html', {'status': status})
         return wraps(func)(inner)
     return decorator
 
