@@ -23,8 +23,11 @@ from django.utils import simplejson
 from contrib.mcp.client import MCPClient
 from main import models
 from lxml import etree
-import os, subprocess
+import os, subprocess, sys
 from components import helpers
+import components.decorators as decorators
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import elasticSearchFunctions
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Home
@@ -41,6 +44,13 @@ def home(request):
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Status
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
+
+def elasticsearch_login_check(request):
+    status = elasticSearchFunctions.check_server_status_and_create_indexes_if_needed()
+    if status == 'OK':
+        return HttpResponseRedirect(reverse('django.contrib.auth.views.login'))
+    else:
+        return render(request, 'elasticsearch_error.html', {'status': status})
 
 # TODO: hide removed elements
 def status(request):
