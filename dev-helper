@@ -133,9 +133,9 @@ function restart() {
   if [[ $a == "Y" || $a == "y" ]]; then
           echo "Going to ${part} ..."
           sudo stop archivematica-mcp-server
-          sudo /etc/init.d/gearman-job-server stop
-          sleep 1
           sudo stop archivematica-mcp-client
+          sudo /etc/init.d/gearman-job-server stop
+          sudo /etc/init.d/elasticsearch stop
           sleep 1
 
           if [ -e "/tmp/archivematicaMCPServerPID" ]
@@ -144,6 +144,7 @@ function restart() {
           fi
 
           sleep 3
+          sudo /etc/init.d/elasticsearch start
           sudo /etc/init.d/gearman-job-server start
           sudo rm /tmp/archivematicaMCP*
           colour sudo start archivematica-mcp-server
