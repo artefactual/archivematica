@@ -49,13 +49,15 @@ def getElasticsearchServerHostAndPort():
     except:
         return '127.0.0.1:9200'
 
-def check_server_status():
+def check_server_status_and_create_indexes_if_needed():
     try:
-        # attempt simple connection
         conn = pyes.ES(getElasticsearchServerHostAndPort())
         conn._send_request('GET', '/')
     except:
         return 'Connection error'
+
+    connect_and_create_index('aips')
+    connect_and_create_index('transfers')
 
     # make sure the mapping for the transfer index types looks OK
     if not transfer_mapping_is_correct(conn):
@@ -64,6 +66,16 @@ def check_server_status():
     # make sure the mapping for the aip index types looks OK
     if not aip_mapping_is_correct(conn):
         return 'The AIP index mapping is incorrect. The "aips" index should be re-created.'
+
+    # no error!
+    return 'OK'
+
+def check_server_status():
+    try:
+        conn = pyes.ES(getElasticsearchServerHostAndPort())
+        conn._send_request('GET', '/')
+    except:
+        return 'Connection error'
 
     # no errors!
     return 'OK'
