@@ -71,6 +71,7 @@
         <tr>
           <td>
             <a href="{% url components.archival_storage.views.archival_storage_aip_download term_usage.term %}">{{ term_usage.name }}</a>
+            <a href='/archival-storage/search/json/aip/{{ term_usage.document_id_no_hyphens }}/' target='_blank'>(view raw)</a>
           </td>
           <td>
             {% if term_usage.size != None %}

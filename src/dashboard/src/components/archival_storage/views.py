@@ -141,6 +141,7 @@ def archival_storage_search_augment_aip_results(conn, aips):
             aip_uuid.name = documents['hits']['hits'][0]['_source']['name']
             aip_uuid.size = '{0:.2f} MB'.format(documents['hits']['hits'][0]['_source']['size'])
             aip_uuid.date = documents['hits']['hits'][0]['_source']['created']
+            aip_uuid.document_id_no_hyphens = documents['hits']['hits'][0]['_id'].replace('-', '____')
         else:
             aip_uuid.name = '(data missing)' 
 
@@ -306,11 +307,17 @@ def archival_storage_list_display(request, current_page_number=None):
 
     return render(request, 'archival_storage/archival_storage.html', locals())
 
-def archival_storage_file_json(request, document_id_modified):
+def archival_storage_document_json_response(document_id_modified, type):
     document_id = document_id_modified.replace('____', '-')
     conn = httplib.HTTPConnection(elasticSearchFunctions.getElasticsearchServerHostAndPort())
-    conn.request("GET", "/aips/aipfile/" + document_id)
+    conn.request("GET", "/aips/" + type + "/" + document_id)
     response = conn.getresponse()
     data = response.read()
     pretty_json = simplejson.dumps(simplejson.loads(data), sort_keys=True, indent=2)
     return HttpResponse(pretty_json, content_type='application/json')
+
+def archival_storage_file_json(request, document_id_modified):
+    return archival_storage_document_json_response(document_id_modified, 'aipfile')
+
+def archival_storage_aip_json(request, document_id_modified):
+    return archival_storage_document_json_response(document_id_modified, 'aip')

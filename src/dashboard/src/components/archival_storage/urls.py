@@ -21,6 +21,7 @@ from django.conf import settings
 urlpatterns = patterns('components.archival_storage.views',
     (r'page/(?P<page>\d+)/$', 'archival_storage_page'),
     (r'search/json/file/(?P<document_id_modified>\w+)/$', 'archival_storage_file_json'),
+    (r'search/json/aip/(?P<document_id_modified>\w+)/$', 'archival_storage_aip_json'),
     (r'search/$', 'archival_storage_search'),
     (r'download/aip/file/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'archival_storage_aip_file_download'),
     (r'download/aip/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'archival_storage_aip_download'),
