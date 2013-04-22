@@ -375,7 +375,6 @@ def transfer_backlog(request):
                 transfer = models.Transfer.objects.get(uuid=transfer_instance.term)
                 transfer_basename = os.path.basename(transfer.currentlocation[:-1])
                 transfer_instance.name = transfer_basename[:-37]
-                transfer_instance.type = transfer.type
                 if transfer.accessionid != None:
                     transfer_instance.accession = transfer.accessionid
                 else:
