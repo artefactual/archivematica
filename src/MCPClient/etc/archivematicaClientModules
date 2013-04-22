@@ -76,6 +76,7 @@ moveDspaceMetsFilesToDSpaceMETS_v0.0 = %clientScriptsDirectory%moveDspaceMetsFil
 moveSIP_v0.0 =  %clientScriptsDirectory%archivematicaMoveSIP.py
 moveTransfer_v0.0 =  %clientScriptsDirectory%archivematicaMoveTransfer.py
 remove_v0.0 = rm
+removeAIPFilesFromIndex_v0.0 = %clientScriptsDirectory%removeAIPFilesFromIndex.py
 removeEmptyDirectories_v0.0 = %clientScriptsDirectory%removeEmptyDirectories.py
 removeFilesWithoutPresmisMetadata_v0.0 = %clientScriptsDirectory%removeFilesWithoutPresmisMetadata.py
 removeHiddenFilesAndDirectories_v0.0 = %clientScriptsDirectory%removeHiddenFilesAndDirectories.py

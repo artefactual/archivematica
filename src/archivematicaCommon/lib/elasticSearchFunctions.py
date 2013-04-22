@@ -410,7 +410,7 @@ def connect_and_change_transfer_file_status(uuid, status):
     if len(rows) > 0:
         conn = connect_and_create_index('transfers')
 
-        # cycle through file UUIDs and delete files from transfer backlog
+        # cycle through file UUIDs and update status
         for row in rows:
             documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('fileuuid', row[0])))
             if len(documents['hits']['hits']) > 0:
@@ -433,3 +433,13 @@ def connect_and_remove_sip_transfer_files(uuid):
             if len(documents['hits']['hits']) > 0:
                 document_id = documents['hits']['hits'][0]['_id']
                 conn.delete('transfers', 'transferfile', document_id)
+
+def connect_and_delete_aip_files(uuid):
+    conn = pyes.ES(getElasticsearchServerHostAndPort())
+    documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('AIPUUID', uuid)))
+    if len(documents['hits']['hits']) > 0:
+        for hit in documents['hits']['hits']:
+            document_id = hit['_id']
+            conn.delete('aips', 'aipfile', document_id)
+    else:
+        print 'No AIP files found.'
