@@ -63,13 +63,12 @@
     {% include "_form.html" %}
     
     <div class="actions">
-          {% if id %}
+          {% if uuid %}
             <button type="submit" class="btn primary">Save</button>
           {% else %}
             <button type="submit" class="btn primary">Create</button>
           {% endif %}
-          {% if uuid %}
-            <a href="{% url components.preservation_planning.views.fpr_edit_tool_output uuid %}" class="btn">Cancel</a>
-          {% endif %} 
+            <a href="{% url components.preservation_planning.views.preservation_planning_fpr_data %}" class="btn">Cancel</a>
+          
     </div>
 {% endblock %}
