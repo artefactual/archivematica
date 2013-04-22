@@ -72,7 +72,11 @@
           <td>
             <a href="{% url components.archival_storage.views.archival_storage_aip_download term_usage.term %}">{{ term_usage.name }}</a>
           </td>
-          <td>{{ term_usage.size }} MB</td>
+          <td>
+            {% if term_usage.size != None %}
+              {{ term_usage.size }} MB
+            {% endif %}
+          </td>
           <td class="uuid">{{ term_usage.term }}</td>
           <td>{{ term_usage.count }} files</td>
           <td><span class='timestamp'>{{ term_usage.date }}</a></td>
