@@ -18,7 +18,7 @@
 import sys
 from components.preservation_planning.forms import FPREditFormatID, FPREditCommand, FPREditRule, getFormatIDs, FPREditToolOutput
 from components.preservation_planning.forms import FPRSearchForm
-from components.preservation_planning.models import FormatPolicyRule
+import components.preservation_planning.models as ppModels
 
 from django.db import connection, transaction
 from django.shortcuts import render
@@ -100,7 +100,8 @@ def get_fpr_table():
                     outputLocation, Commands.description, FileIDs.validPreservationFormat, FileIDs.validAccessFormat,
                     CommandRelationships.countAttempts, CommandRelationships.countOK, CommandRelationships.countNotOK,
                     CommandRelationships.countAttempts - (CommandRelationships.countOK + CommandRelationships.countNotOK)
-                    AS countIncomplete, CommandTypes.TYPE
+                    AS countIncomplete, CommandTypes.TYPE, FileIDsBySingleID.pk as toolOutput_pk, CommandRelationships.pk as rule_pk,
+                    Commands.pk as commmand_pk
 
                 FROM FileIDsBySingleID
 
@@ -136,7 +137,10 @@ def get_fpr_table():
             'countOK': item[12],
             'countNotOK': item[13],
             'countIncomplete': item[14],
-            'commandType': item[15]
+            'commandType': item[15],
+            'toolOutput_pk' : item[16],
+            'rule_pk' : item[17],
+            'command_pk' : item[18]
         }
 
         # It's probably an error in the db allowing these to be null...
@@ -220,22 +224,65 @@ def preservation_planning_fpr_data(request, current_page_number = None):
 
     return render(request, 'main/preservation_planning_fpr.html', locals())
 
-def fpr_edit_format(request):
-    form = FPREditFormatID()
+def fpr_edit_format(request, uuid=None):
+    fprFormat = None
+    if uuid:
+        fprFormat = ppModels.FormatID.objects.get(pk = uuid)
+    else:
+        form = FPREditFormatID()
+        
+    if request.POST:
+        form = FPREditFormatID(request.POST, instance = fprFormat)
+        if form.is_valid():
+            newformat = form.save()
+            newformat.save()
+            valid_submission = True
+    else:
+        form = FPREditFormatID(instance = fprFormat)
+        
     return render(request, 'main/edit_format_id_fpr.html', locals())
 
-def fpr_edit_command(request):
-    form = FPREditCommand()
+def fpr_edit_command(request, uuid=None):
+    fprCommand = None
+    if uuid:
+        fprCommand = ppModels.Command.objects.get(pk=uuid)
+    else:
+        form = FPREditCommand()
+        
+    if request.POST:
+        form = FPREditCommand(request.POST, instance=fprCommand)
+        if form.is_valid():
+            newcommand = form.save()
+            newcommand.save()
+            valid_submission = True
+    else:
+        form = FPREditCommand(instance = fprCommand)
+            
     return render(request, 'main/edit_command_fpr.html', locals())
 
 def fpr_edit_tool_output(request, uuid=None):
-    form = FPREditToolOutput()
+    toolOutput = None
+    if uuid:
+        toolOutput = ppModels.FormatIDToolOutput.objects.get(pk=uuid)
+    else:
+        form = FPREditToolOutput()
+        
+    if request.POST:
+        form = FPREditToolOutput(request.POST, instance=toolOutput)
+        if form.is_valid():
+            #TODO create a new record and mark old as replaced and disabled
+            newtooloutput = form.save()
+            newtooloutput.save()
+            valid_submission = True
+    else:
+        form = FPREditToolOutput(instance=toolOutput)
+            
     return render(request, 'main/edit_tool_output_fpr.html', locals())
 
 def fpr_edit_rule(request, uuid=None):
     rule = None
-    if uuid is not None:
-        rule = FormatPolicyRule.objects.get(pk=uuid)
+    if uuid:
+        rule = ppModels.FormatPolicyRule.objects.get(pk=uuid)
     else:
         form = FPREditRule()
     

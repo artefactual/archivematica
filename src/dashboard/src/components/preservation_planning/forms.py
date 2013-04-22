@@ -131,6 +131,7 @@ class FPREditCommand(ModelForm):
         widget = TextInput(attrs = {'class':'Description'}))
     verificationCommand = forms.ChoiceField(choices = getCommands('verification'), label = 'Verification command', required = False)
     eventDetailCommand = forms.ChoiceField(choices = getCommands('eventDetail'), label = 'Event detail command', required = False)
+    enabled = forms.BooleanField(required=False, initial = True) 
     exclude = ('lastModified', 'supportedBy')
     class Meta:
         model = ppModels.Command

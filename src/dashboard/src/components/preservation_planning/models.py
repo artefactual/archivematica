@@ -45,7 +45,7 @@ class Command(models.Model):
     lastmodified = models.DateTimeField(db_column='lastModified', null=True)
     enabled = models.IntegerField(null=True, db_column='enabled', default=1)
     class Meta:
-        db_table = u'Command'
+        db_table = u'Commands'
         
 class FormatPolicyRule(models.Model):
     uuid = UUIDPkField() 
@@ -60,5 +60,5 @@ class FormatPolicyRule(models.Model):
     lastModified = models.DateTimeField(db_column='lastModified')
     enabled = models.IntegerField(null=True, db_column='enabled', default=1)
     class Meta:
-        db_table = u'CommandRelationship'
+        db_table = u'CommandRelationships'
 

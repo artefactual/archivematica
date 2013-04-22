@@ -183,6 +183,7 @@
     <th class="advanced"><img src="{{ STATIC_URL }}images/delete.png" title="Unsuccessful" /></th>
     <th class="advanced"><img src="{{ STATIC_URL }}images/error.png" title="Frozen/processing" /></th>
     <th> Command description </th>
+    <th> View / Change </th>
   </tr>
 </thead>
 <tbody>
@@ -239,6 +240,18 @@
   <td>
     {{ row.Commands_description }}
   </td>
+  
+  <!-- View / Change details -->
+  <td>
+        {% if row.rule_pk %}
+  	<a href="{% url components.preservation_planning.views.fpr_edit_rule row.rule_pk %}">Format Policy Rule</a><br>
+  	{% endif %}
+  	{% if row.command_pk %}
+  	<a href="{% url components.preservation_planning.views.fpr_edit_command row.command_pk %}">Command</a> |   	
+  	{% endif %}
+  	<a href="{% url components.preservation_planning.views.fpr_edit_format row.pk %}">Format ID</a> |
+  	<a href="{% url components.preservation_planning.views.fpr_edit_tool_output row.toolOutput_pk %}">Tool Output</a>
+</td>
 </tr>
 
 {% endfor %}
