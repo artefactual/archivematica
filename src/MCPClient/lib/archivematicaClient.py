@@ -158,6 +158,7 @@ Unable to determine if it completed successfully."""
 
 
 def startThread(threadNumber):
+    """Setup a gearman client, for the thread."""
     gm_worker = gearman.GearmanWorker([config.get('MCPClient', "MCPArchivematicaServer")])
     hostID = gethostname() + "_" + threadNumber.__str__()
     gm_worker.set_client_id(hostID)
@@ -204,6 +205,7 @@ def flushOutputs():
         time.sleep(5)
 
 def startThreads(t=1):
+    """Start a processing thread for each core (t=0), or a specified number of threads.""" 
     if True:
         t2 = threading.Thread(target=flushOutputs)
         t2.daemon = True
