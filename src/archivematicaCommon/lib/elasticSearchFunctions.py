@@ -155,13 +155,21 @@ def set_up_mapping(conn, index):
         conn.put_mapping(doc_type='aipfile', mapping={'aipfile': {'properties': mapping}}, indices=['aips'])
         print 'AIP file mapping created.'
 
-def connect_and_index_aip(uuid, name, filePath):
+def connect_and_index_aip(uuid, name, filePath, pathToMETS):
     conn = connect_and_create_index('aips')
+
+    # convert METS XML to dict
+    tree = ElementTree.parse(pathToMETS)
+    root = tree.getroot()
+    xml = ElementTree.tostring(root)
+    mets_data = xmltodict.parse(xml)
+
     aipData = {
         'uuid':     uuid,
         'name':     name,
         'filePath': filePath,
         'size':     os.path.getsize(filePath) / float(1024) / float(1024),
+        'mets':     mets_data,
         'origin':   getDashboardUUID(),
         'created':  time.time()
     }

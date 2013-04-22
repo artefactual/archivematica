@@ -106,11 +106,12 @@ thumbnails = os.listdir(thumbnailSourceDir)
 for filename in thumbnails:
     shutil.copy(os.path.join(thumbnailSourceDir, filename), thumbnailDestDir)
 
+#write to ElasticSearch
+pathToMETS = os.path.join(extractDirectory, SIPNAME + '-' + SIPUUID, 'data', 'METS.' + SIPUUID + '.xml')
+elasticSearchFunctions.connect_and_index_aip(SIPUUID, SIPNAME, storeLocation, pathToMETS)
+elasticSearchFunctions.connect_and_remove_sip_transfer_files(SIPUUID)
+
 #cleanup
 shutil.rmtree(extractDirectory)
-
-#write to ElasticSearch
-elasticSearchFunctions.connect_and_index_aip(SIPUUID, SIPNAME, storeLocation)
-elasticSearchFunctions.connect_and_remove_sip_transfer_files(SIPUUID)
 
 quit(exitCode)
