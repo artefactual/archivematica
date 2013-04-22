@@ -33,5 +33,6 @@ import elasticSearchFunctions
 
 if __name__ == '__main__':
     AIPUUID = sys.argv[1]
-    print 'Removing indexed files for AIP ' + AIPUUID
+    print 'Removing indexed files for AIP ' + AIPUUID + '...'
     elasticSearchFunctions.connect_and_delete_aip_files(AIPUUID)
+    print 'Done.'
