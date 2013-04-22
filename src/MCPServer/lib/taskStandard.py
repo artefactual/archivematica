@@ -39,7 +39,7 @@ from fileOperations import writeToFile
 #They use a "replacement dictionary" to define variables for this task.
 #Variables used for the task are defined in the Job's configuration/module (The xml file)
 class taskStandard():
-    """A task is an instance of a command, operating on an entire directory, or a single file."""
+    """A task to hand to gearman"""
 
     def __init__(self, linkTaskManager, execute, arguments, standardOutputFile, standardErrorFile, outputLock=None, UUID=None):
         if UUID == None:

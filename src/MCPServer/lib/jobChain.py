@@ -35,6 +35,7 @@ import databaseInterface
 #-previous chain links
 class jobChain:
     def __init__(self, unit, chainPK, notifyComplete=None, passVar=None, UUID=None, subJobOf=""):
+        """Create an instance of a chain from the MicroServiceChains table"""
         print "jobChain",  unit, chainPK
         if chainPK == None:
             return None
@@ -63,16 +64,12 @@ class jobChain:
             return None
 
     def nextChainLink(self, pk, passVar=None, incrementLinkSplit=False, subJobOf=""):
+        """Proceed to next link, as passed(pk)"""
         if self.subJobOf and not subJobOf:
             subJobOf = self.subJobOf
         if incrementLinkSplit:
             self.linkSplitCount += 1
         if pk != None:
-            # may 2012 - can't think why I'm threading this - TODO 
-            # I think it was threaded to avoid nasty stack trace problems
-            #t = threading.Thread(target=self.nextChainLinkThreaded, args=(pk,), kwargs={"passVar":passVar} )
-            #t.daemon = True
-            #t.start()
             jobChainLink(self, pk, self.unit, passVar=passVar, subJobOf=subJobOf)
         else:
             self.linkSplitCount -= 1
@@ -81,5 +78,3 @@ class jobChain:
                 if self.notifyComplete:
                     self.notifyComplete(self)
 
-    def nextChainLinkThreaded(self, pk, passVar=None):
-        self.currentLink = jobChainLink(self, pk, self.unit, passVar)

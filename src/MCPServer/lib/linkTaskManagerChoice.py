@@ -48,6 +48,7 @@ waitingOnTimer="waitingOnTimer"
 
 class linkTaskManagerChoice:
     def __init__(self, jobChainLink, pk, unit):
+        """Used to get a selection, from a list of chains, to process"""
         self.choices = []
         self.pk = pk
         self.jobChainLink = jobChainLink

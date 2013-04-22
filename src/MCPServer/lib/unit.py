@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 class unit:
+    """A class to inherit from, to over-ride methods, defininging a processing object at the Job level"""
     def __init__(self, currentPath, UUID):
         self.currentPath = currentPath.__str__()
         self.UUID = UUID
