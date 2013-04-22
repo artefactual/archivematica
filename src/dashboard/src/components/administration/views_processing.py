@@ -62,13 +62,6 @@ def administration_processing(request):
 
     boolean_select_fields = [
         {
-            "name":       "backup_transfer",
-            "label":      "Create transfer backup",
-            "yes_option": "Backup transfer",
-            "no_option":  "Do not backup transfer",
-            "applies_to": "Workflow decision - create transfer backup"
-        },
-        {
             "name":       "quarantine_transfer",
             "label":      "Send transfer to quarantine",
             "yes_option": "Quarantine",
