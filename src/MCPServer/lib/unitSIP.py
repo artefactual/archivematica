@@ -46,6 +46,7 @@ class unitSIP(unit):
         self.unitType = "SIP"
 
     def reloadFileList(self):
+        """Match files to their UUID's via their location and the File table's currentLocation"""
         self.fileList = {}
         #os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
         currentPath = self.currentPath.replace("%sharedPath%", \
@@ -79,6 +80,8 @@ class unitSIP(unit):
         sqlLock.release()
 
     def setMagicLink(self,link, exitStatus=""):
+        """Assign a link to the unit to process when loaded.
+        Deprecated! Replaced with Set/Load Unit Variable"""
         if exitStatus != "":
             sql =  """UPDATE SIPs SET magicLink='""" + link + """', magicLinkExitMessage='""" + exitStatus + """' WHERE sipUUID='""" + self.UUID + """';"""
         else:
@@ -86,6 +89,8 @@ class unitSIP(unit):
         databaseInterface.runSQL(sql)
 
     def getMagicLink(self):
+        """Load a link from the unit to process.
+        Deprecated! Replaced with Set/Load Unit Variable"""
         ret = None
         sql = """SELECT magicLink, magicLinkExitMessage FROM SIPs WHERE sipUUID =  '""" + self.UUID + "'"
         c, sqlLock = databaseInterface.querySQL(sql)

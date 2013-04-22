@@ -77,7 +77,7 @@ class unitTransfer(unit):
 
 
     def reloadFileList(self):
-        print "DEBUG reloading transfer file list: ", self.UUID
+        """Match files to their UUID's via their location and the File table's currentLocation"""
         self.fileList = {}
         #os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
         currentPath = self.currentPath.replace("%sharedPath%", \
@@ -125,6 +125,8 @@ class unitTransfer(unit):
         databaseInterface.runSQL(sql)
 
     def setMagicLink(self, link, exitStatus=""):
+        """Assign a link to the unit to process when loaded.
+        Deprecated! Replaced with Set/Load Unit Variable"""
         if exitStatus != "":
             sql =  """UPDATE Transfers SET magicLink='""" + link.__str__() + """', magicLinkExitMessage='""" + exitStatus + """' WHERE transferUUID='""" + self.UUID.__str__() + """';"""
         else:
@@ -132,6 +134,8 @@ class unitTransfer(unit):
         databaseInterface.runSQL(sql)
 
     def getMagicLink(self):
+        """Load a link from the unit to process.
+        Deprecated! Replaced with Set/Load Unit Variable"""
         ret = None
         sql = """SELECT magicLink, magicLinkExitMessage FROM Transfers WHERE transferUUID =  '""" + self.UUID + "'"
         c, sqlLock = databaseInterface.querySQL(sql)

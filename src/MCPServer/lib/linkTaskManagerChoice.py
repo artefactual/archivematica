@@ -135,6 +135,7 @@ class linkTaskManagerChoice:
         return ret
 
     def xmlify(self):
+        """Returns an etree XML representation of the choices available."""
         ret = etree.Element("choicesAvailableForUnit")
         etree.SubElement(ret, "UUID").text = self.jobChainLink.UUID
         ret.append(self.unit.xmlify())

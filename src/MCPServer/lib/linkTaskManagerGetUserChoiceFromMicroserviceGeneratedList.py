@@ -174,6 +174,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
         return ret
 
     def xmlify(self):
+        """Returns an etree XML representation of the choices available."""
         #print "xmlify"
         ret = etree.Element("choicesAvailableForUnit")
         etree.SubElement(ret, "UUID").text = self.jobChainLink.UUID
@@ -194,10 +195,6 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
         choicesAvailableForUnitsLock.acquire()
         del choicesAvailableForUnits[self.jobChainLink.UUID]
         choicesAvailableForUnitsLock.release()
-        #while archivematicaMCP.transferDMovedFromCounter.value != 0:
-        #    print "Waiting for all files to finish updating their location in the database"
-        #    print transferD.movedFrom
-        #    time.sleep(1)
         
         #get the one at index, and go with it.
         choiceIndex, description, replacementDic2 = self.choices[int(index)]

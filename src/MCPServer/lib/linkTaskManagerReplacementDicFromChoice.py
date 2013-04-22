@@ -155,13 +155,11 @@ class linkTaskManagerReplacementDicFromChoice:
                             print >>sys.stderr, inst.args
 
             except Exception as inst:
-                print >>sys.stderr, "Error parsing xml:"
-                print >>sys.stderr, type(inst)
-                print >>sys.stderr, inst.args
+                print >>sys.stderr, "Error parsing xml for pre-configured choice"
         return ret
 
     def xmlify(self):
-        print "xmlify"
+        """Returns an etree XML representation of the choices available."""
         ret = etree.Element("choicesAvailableForUnit")
         etree.SubElement(ret, "UUID").text = self.jobChainLink.UUID
         ret.append(self.unit.xmlify())
@@ -181,10 +179,6 @@ class linkTaskManagerReplacementDicFromChoice:
         choicesAvailableForUnitsLock.acquire()
         del choicesAvailableForUnits[self.jobChainLink.UUID]
         choicesAvailableForUnitsLock.release()
-        #while archivematicaMCP.transferDMovedFromCounter.value != 0:
-        #    print "Waiting for all files to finish updating their location in the database"
-        #    print transferD.movedFrom
-        #    time.sleep(1)
         
         #get the one at index, and go with it.
         choiceIndex, description, replacementDic2 = self.choices[int(index)]

@@ -41,6 +41,8 @@ choicesAvailableForUnits = {}
 choicesAvailableForUnitsLock = threading.Lock()
 
 class linkTaskManagerLoadMagicLink:
+    """Load a link from the unit to process.
+        Deprecated! Replaced with Set/Load Unit Variable"""
     def __init__(self, jobChainLink, pk, unit):
         self.pk = pk
         self.jobChainLink = jobChainLink

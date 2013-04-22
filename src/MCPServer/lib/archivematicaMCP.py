@@ -62,11 +62,11 @@ import lxml.etree as etree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 import databaseFunctions
-import multiprocessing 
 import traceback
 from externals.singleInstance import singleinstance
 from archivematicaFunctions import unicodeToStr
 
+# Print SQL sent to the database interface 
 databaseInterface.printSQL = True
 
 global countOfCreateUnitAndJobChainThreaded
@@ -79,26 +79,17 @@ config.read("/etc/archivematica/MCPServer/serverConfig.conf")
 
 #time to sleep to allow db to be updated with the new location of a SIP
 dbWaitSleep = 2
-transferDMovedFromCounter = multiprocessing.Value('i', 0) 
 
-configs = []
-jobsAwaitingApproval = []
-jobsQueue = [] #jobs shouldn't remain here long (a few seconds max) before they are turned into tasks (jobs being processed)
-jobsBeingProcessed = []
-tasksQueue = []
-tasksBeingProcessed = []
-tasksLock = threading.Lock()
-movingDirectoryLock = threading.Lock()
-jobsLock = threading.Lock()
-watchedDirectories = []
+
 limitTaskThreads = config.getint('Protocol', "limitTaskThreads")
 limitTaskThreadsSleep = config.getfloat('Protocol', "limitTaskThreadsSleep")
 limitGearmanConnectionsSemaphore = threading.Semaphore(value=config.getint('Protocol', "limitGearmanConnections"))
 reservedAsTaskProcessingThreads = config.getint('Protocol', "reservedAsTaskProcessingThreads")
-debug = False
-stopSignalReceived = False
+debug = False #Used to print additional debugging information
+stopSignalReceived = False #Tracks whether a sigkill has been received or not
 
 def isUUID(uuid):
+    """Return boolean of whether it's string representation of a UUID v4"""
     split = uuid.split("-")
     if len(split) != 5 \
     or len(split[0]) != 8 \
@@ -110,6 +101,7 @@ def isUUID(uuid):
     return True
 
 def findOrCreateSipInDB(path, waitSleep=dbWaitSleep):
+    """Matches a directory to a database sip by it's appended UUID, or path. If it doesn't find one, it will create one"""
     UUID = ""
     path = path.replace(config.get('MCPServer', "sharedDirectory"), "%sharedPath%", 1)
 
@@ -197,6 +189,7 @@ def createUnitAndJobChainThreaded(path, config, terminate=True):
         print inst.args
 
 def watchDirectories():
+    """Start watching the watched directories defined in the WatchedDirectories table in the database."""
     rows = []
     sql = """SELECT watchedDirectoryPath, chain, onlyActOnDirectories, description FROM WatchedDirectories LEFT OUTER JOIN WatchedDirectoriesExpectedTypes ON WatchedDirectories.expectedType = WatchedDirectoriesExpectedTypes.pk"""
     c, sqlLock = databaseInterface.querySQL(sql)
@@ -224,16 +217,8 @@ def watchDirectories():
             actOnFiles=False
         watchDirectory.archivematicaWatchDirectory(directory,variablesAdded=row, callBackFunctionAdded=createUnitAndJobChainThreaded, alertOnFiles=actOnFiles, interval=config.getint('MCPServer', "watchDirectoriesPollInterval"))
 
-#if __name__ == '__main__':
-#    signal.signal(signal.SIGTERM, signal_handler)
-#    signal.signal(signal.SIGINT, signal_handler)
-
-#configs = loadConfigs()
-#directoryWatchList = loadDirectoryWatchLlist(configs)
-#archivematicaMCPServerListen()
-
-
 def signal_handler(signalReceived, frame):
+    """Used to handle the stop/kill command signals (SIGKILL)"""
     print signalReceived, frame
     global stopSignalReceived
     stopSignalReceived = True
@@ -262,6 +247,7 @@ def signal_handler(signalReceived, frame):
     exit(0)
 
 def debugMonitor():
+    """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
     global countOfCreateUnitAndJobChainThreaded
     while True:
         dblockstatus = "SQL Lock: Locked"
