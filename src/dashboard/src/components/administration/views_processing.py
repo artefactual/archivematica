@@ -160,7 +160,7 @@ def administration_processing(request):
             xmlChoices.add_choice(
                 'Remove from quarantine',
                 'Unquarantine',
-                quarantine_expiry
+                str(float(quarantine_expiry) * (24 * 60 * 60))
             )
 
         # use select field submissions to add to XML
@@ -211,7 +211,7 @@ def administration_processing(request):
             # a quarantine expiry was found
             if applies_to == 'Remove from quarantine':
                 quarantine_expiry_enabled_checked = 'checked'
-                quarantine_expiry = choice.find('delay').text
+                quarantine_expiry = float(choice.find('delay').text) / (24 * 60 * 60)
 
             # check select fields for defaults
             for field in select_fields:
