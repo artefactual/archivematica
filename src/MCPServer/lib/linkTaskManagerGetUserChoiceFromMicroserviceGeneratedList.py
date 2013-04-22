@@ -168,14 +168,9 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
                                 return waitingOnTimer
 
                         except Exception as inst:
-                            print >>sys.stderr, "Error parsing xml:"
-                            print >>sys.stderr, type(inst)
-                            print >>sys.stderr, inst.args
-
+                            print >>sys.stderr, "Error parsing xml for pre-configured choice"
             except Exception as inst:
-                print >>sys.stderr, "Error parsing xml:"
-                print >>sys.stderr, type(inst)
-                print >>sys.stderr, inst.args
+                print >>sys.stderr, "Error parsing xml for pre-configured choice"
         return ret
 
     def xmlify(self):
