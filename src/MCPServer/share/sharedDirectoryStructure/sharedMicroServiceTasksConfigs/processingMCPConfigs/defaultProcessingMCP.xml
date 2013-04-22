@@ -11,7 +11,7 @@
         <preconfiguredChoice>
             <appliesTo>Remove from quarantine</appliesTo>
             <goToChain>Unquarantine</goToChain>
-            <delay unitCtime="yes">50</delay>
+            <delay unitCtime="yes">2419200</delay>
         </preconfiguredChoice>
         <preconfiguredChoice>
             <appliesTo>Select compression algorithm</appliesTo>
