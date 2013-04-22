@@ -84,11 +84,25 @@ def get_type_mapping(conn, index, type):
     return conn._send_request('GET', '/' + index + '/' + type + '/_mapping')
 
 def transfer_mapping_is_correct(conn):
-    mapping = get_type_mapping(conn, 'transfers', 'transferfile')
+    try:
+        # mapping already created
+        mapping = get_type_mapping(conn, 'transfers', 'transferfile')
+    except:
+        # create mapping
+        set_up_mapping(conn, 'transfers')
+        mapping = get_type_mapping(conn, 'transfers', 'transferfile')
+
     return mapping['transferfile']['properties']['accessionid']['index'] == 'not_analyzed'
 
 def aip_mapping_is_correct(conn):
-    mapping = get_type_mapping(conn, 'aips', 'aipfile')
+    try:
+        # mapping already created
+        mapping = get_type_mapping(conn, 'aips', 'aipfile')
+    except:
+        # create mapping
+        set_up_mapping(conn, 'aips')
+        mapping = get_type_mapping(conn, 'aips', 'aipfile')
+
     return mapping['aipfile']['properties']['AIPUUID']['index'] == 'not_analyzed'
 
 # try up to three times to get a connection
