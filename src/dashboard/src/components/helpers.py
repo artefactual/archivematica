@@ -18,9 +18,10 @@
 from django.utils.dateformat import format
 from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.core.servers.basehttp import FileWrapper
 from main import models
-import cPickle, pprint, ConfigParser, urllib
+import cPickle, pprint, ConfigParser, urllib, os
 
 def pr(object):
     return pprint.pformat(object)
@@ -146,3 +147,36 @@ def redirect_with_get_params(url_name, *args, **kwargs):
     url = reverse(url_name, args = args)
     params = urllib.urlencode(kwargs)
     return HttpResponseRedirect(url + "?%s" % params)
+
+def send_file_or_return_error_response(request, filepath):
+    if os.path.exists(filepath):
+        return send_file(request, filepath)
+    else:
+        raise Http404
+        #return HttpResponse('File not found')
+
+def send_file(request, filepath):
+    """
+    Send a file through Django without loading the whole file into
+    memory at once. The FileWrapper will turn the file object into an
+    iterator for chunks of 8KB.
+    """
+    filename = os.path.basename(filepath)
+    extension = os.path.splitext(filepath)[1].lower()
+
+    wrapper = FileWrapper(file(filepath))
+    response = HttpResponse(wrapper)
+
+    # force download for certain filetypes
+    extensions_to_download = ['.7z', '.zip']
+
+    try:
+        index = extensions_to_download.index(extension)
+        response['Content-Type'] = 'application/force-download'
+        response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+    except:
+        mimetype = mimetypes.guess_type(filename)[0]
+        response['Content-type'] = mimetype
+
+    response['Content-Length'] = os.path.getsize(filepath)
+    return response
