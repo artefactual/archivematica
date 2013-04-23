@@ -239,8 +239,46 @@ def fpr_edit_format(request, uuid=None):
     if request.POST:
         form = FPREditFormatID(request.POST, instance = fprFormat)
         if form.is_valid():
-            newformat = form.save()
-            newformat.save()
+            answers = request.POST
+            if answers['validpreservationformat']:
+                validpreserve = 1
+            else:
+                validpreserve = 0
+            if answers['validaccessformat']:
+                validaccess = 1
+            else:
+                validaccess = 0
+            
+            if answers['enabled']:
+                enabled = 1
+            else:
+                enabled = 0
+            
+            if uuid:
+                fprFormat.enabled = 0
+                fprFormat.lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+                fprFormat.save()
+                if answers['enabled']:
+                    fprFormat.enabled = 1
+                    fprFormat.pk = None
+                    fprFormat.description = answers['description']
+                    fprFormat.validpreservationformat = validpreserve
+                    fprFormat.validaccessformat = validaccess
+                    fprFormat.tool = answers['tool']
+                    fprFormat.replaces 
+            else:
+                fprFormat = ppModels.FormatID(enabled=enabled, description = answers['description'],
+                                              validpreservationformat = validpreserve,
+                                              validaccessformat = validaccess,
+                                              tool = answers['tool'],
+                                              replaces= answers['replaces'],
+                                              lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+                                              )
+                fprFormat.save()
+                valid_submission = True
+                url = reverse('components.preservation_planning.views.fpr_edit_format', kwargs={'uuid': fprCommand.pk})
+                return HttpResponseRedirect(url)
+            
             valid_submission = True
     else:
         form = FPREditFormatID(instance = fprFormat)
@@ -266,13 +304,18 @@ def fpr_edit_command(request, uuid=None):
             else: 
                 eventDetailCommand = answers['eventDetailCommand']
 
-	    if uuid:   
+            if answers['enabled']:
+                enabled = 1
+            else:
+                enabled = 0
+                    
+	        if uuid:   
                 #disable the original command, leave rest of contents alone
                 fprCommand.enabled = 0
                 fprCommand.lastModified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
                 fprCommand.save()
             
-                if answers['enabled']:
+                if enabled:
                     #make a copy of the command and save that
                     fprCommand.enabled = 1
                     fprCommand.pk = None
@@ -287,21 +330,17 @@ def fpr_edit_command(request, uuid=None):
                     fprCommand.replaces = uuid
                     fprCommand.save()
             else:
-                if answers['enabled']:
-                    enabled = 1
-                else:
-                    enabled = 0
                 fprCommand = ppModels.Command(enabled=enabled, commandUsage=answers['commandUsage'],
-                     commandType=answers['commandType'], verificationCommand=verificationCommand,
-                     eventDetailCommand=eventDetailCommand, command=answers['command'], 
-                     outputLocation=answers['outputLocation'], description=answers['description'], 
-                     outputFileFormat=answers['outputFileFormat'], replaces=answers['replaces'], 
-                     lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-                     )
+                                              commandType=answers['commandType'], verificationCommand=verificationCommand,
+                                              eventDetailCommand=eventDetailCommand, command=answers['command'], 
+                                              outputLocation=answers['outputLocation'], description=answers['description'], 
+                                              outputFileFormat=answers['outputFileFormat'], replaces=answers['replaces'], 
+                                              lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+                                              )
                 fprCommand.save()
                 valid_submission = True
                 url = reverse('components.preservation_planning.views.fpr_edit_command', kwargs={'uuid': fprCommand.pk})
-                return HttpResponseRedirect(url, locals())
+                return HttpResponseRedirect(url)
    
             valid_submission = True
     else: 
