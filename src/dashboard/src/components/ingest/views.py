@@ -36,9 +36,11 @@ import cPickle
 import components.decorators as decorators
 from components import helpers
 from components import advanced_search
-import os, sys
+import os, sys, MySQLdb, shutil
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import elasticSearchFunctions
+import elasticSearchFunctions, databaseInterface, databaseFunctions
+from archivematicaCreateStructuredDirectory import createStructuredDirectory
+from archivematicaCreateStructuredDirectory import createManualNormalizedDirectoriesList
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes, requests
 from components.archival_storage.forms import StorageSearchForm
@@ -450,13 +452,6 @@ def process_transfer(request, transfer_uuid):
             helpers.get_server_config_value('sharedDirectory')
         )
 
-        import MySQLdb
-        import databaseInterface
-        import databaseFunctions
-        import shutil
-
-        from archivematicaCreateStructuredDirectory import createStructuredDirectory
-        from archivematicaCreateStructuredDirectory import createManualNormalizedDirectoriesList
         createStructuredDirectory(transfer_path, createManualNormalizedDirectories=False)
 
         processingDirectory = helpers.get_server_config_value('processingDirectory')
@@ -465,27 +460,10 @@ def process_transfer(request, transfer_uuid):
         sharedPath = helpers.get_server_config_value('sharedDirectory')
 
         tmpSIPDir = os.path.join(processingDirectory, transfer_name) + "/"
-        #processSIPDirectory = os.path.join(sharedPath, 'watchedDirectories/system/autoProcessSIP') + '/'
         processSIPDirectory = os.path.join(sharedPath, 'watchedDirectories/SIPCreation/SIPsUnderConstruction') + '/'
-        #destSIPDir =  os.path.join(processSIPDirectory, transfer_name) + "/"
 
-        #destSIPDir = os.path.join(processSIPDirectory, transfer_name + '-' + ) + "/"
         createStructuredDirectory(tmpSIPDir, createManualNormalizedDirectories=False)
         objectsDirectory = os.path.join(transfer_path, 'objects') + '/'
-
-        """
-        #create row in SIPs table if one doesn't already exist
-        lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
-        #lookup_path = '%sharedPath%watchedDirectories/workFlowDecisions/createDip/' + transfer_name + '/'
-        sql = " " "SELECT sipUUID FROM SIPs WHERE currentPath = '" " " + MySQLdb.escape_string(lookup_path) + "';"
-        rows = databaseInterface.queryAllSQL(sql)
-        if len(rows) > 0:
-            row = rows[0]
-            sipUUID = row[0]
-        else:
-            sipUUID = uuid.uuid4().__str__()
-            databaseFunctions.createSIP(lookup_path, sipUUID)
-        """
 
         sipUUID = uuid.uuid4().__str__()
         destSIPDir = os.path.join(processSIPDirectory, transfer_name) + "/"
@@ -518,6 +496,14 @@ def process_transfer(request, transfer_uuid):
         shutil.move(tmpSIPDir, destSIPDir)
 
         elasticSearchFunctions.connect_and_change_transfer_file_status(transfer_uuid, '')
+
+        # move original files to completed transfers
+        completed_directory = os.path.join(sharedPath, 'watchedDirectories/SIPCreation/completedTransfers')
+        shutil.move(transfer_path, completed_directory)
+
+        # update DB
+        transfer.currentlocation = '%sharedPath%/watchedDirectories/SIPCreation/completedTransfers/' + transfer_name + '-' + transfer_uuid + '/'
+        transfer.save()
 
         response['message'] = 'SIP ' + sipUUID + ' created.'
     else:
