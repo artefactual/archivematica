@@ -117,6 +117,7 @@ class FPREditFormatID(ModelForm):
         model = ppModels.FormatID
 
 class FPREditCommand(ModelForm):
+            
     COMMAND_USAGE_CHOICES = (('command','command'), ('verification','verification'), ('eventDetail','eventDetail'))
     uuid = forms.HiddenInput()
     supportedBy = forms.HiddenInput()
@@ -143,7 +144,7 @@ class FPREditRule(ModelForm):
     uuid = forms.HiddenInput()
     purpose = forms.ChoiceField(choices = getPurposes())
     formatID = forms.ChoiceField(choices = getFormatIDs(), label = 'Format ID', required = True)
-    command = forms.ChoiceField(choices = getCommands(), label = 'Command', required = True)
+    command = forms.ModelChoiceField(queryset = ppModels.Command.filter(commandUsage='command'), label = 'Command')
     replaces = forms.CharField(max_length=50)
     enabled = forms.BooleanField(required=False, initial=True)
     exclude = ('lastModified')
