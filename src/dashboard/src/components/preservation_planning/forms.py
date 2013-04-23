@@ -24,7 +24,7 @@ from django.db import connection, transaction
 
 from django import forms
 from django.forms.widgets import *
-from django.forms import ModelForm
+from django.forms import ModelForm, ModelChoiceField
 from django.forms.models import modelformset_factory
 
 from main import models
@@ -32,6 +32,10 @@ from components import helpers
 from components.preservation_planning import models as ppModels 
 
 INPUT_ATTRS = {'class': 'span11'}
+
+class DescriptionModelChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.description
 
 def getTools():
     query = 'SELECT description FROM FileIDTypes'
@@ -144,7 +148,7 @@ class FPREditRule(ModelForm):
     uuid = forms.HiddenInput()
     purpose = forms.ChoiceField(choices = getPurposes())
     formatID = forms.ChoiceField(choices = getFormatIDs(), label = 'Format ID', required = True)
-    command = forms.ModelChoiceField(queryset = ppModels.Command.filter(commandUsage='command'), label = 'Command')
+    command = DescriptionModelChoiceField(queryset=ppModels.Command.objects.filter(commandUsage='command'), label = 'Command')
     replaces = forms.CharField(max_length=50)
     enabled = forms.BooleanField(required=False, initial=True)
     exclude = ('lastModified')
