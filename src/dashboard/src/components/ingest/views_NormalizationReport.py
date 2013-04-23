@@ -119,7 +119,8 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         group by cr.fileID
         ) b
     on a.fileID = b.fileID and a.sipUUID = b.sipUUID
-    where a.sipUUID = '{0}';
+    where a.sipUUID = '{0}'
+    order by fileName, fileID;
     """.format(sipUUID, fileIDTypeUsed)
     
     cursor.execute(sql)
