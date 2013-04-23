@@ -28,15 +28,20 @@ try:
         print "AIP store location doesn't exist."
         os._exit(1)
 except:
+    print 'usage: ' + sys.argv[0] + ' <path to AIP store>'
     rootdir = os.path.join(sharedDirectory, 'www/AIPsStore')
+    print 'Default path is: ' + rootdir
+    os._exit(1)
 
 print "Rebuilding AIPS index from AIPS in " + rootdir + "..."
 
 def processAIP(path, temp_dir):
     archive_file = os.path.basename(path)
     subdir = archive_file[:-3]
+    aip_name = subdir[:-37]
     uuid =  archive_file[-39:-3]
-    mets_file_relative_path = subdir + "/data/METS." + uuid + ".xml"
+    mets_file = "METS." + uuid + ".xml"
+    mets_file_relative_path = subdir + "/data/" + mets_file
 
     print 'Processing AIP ' + uuid + '...'
 
@@ -51,6 +56,8 @@ def processAIP(path, temp_dir):
     subprocess.call(command_data)
 
     elasticSearchFunctions.connect_and_index_files('aips', 'aipfile', uuid, temp_dir)
+    pathToMETS = os.path.join(temp_dir, mets_file)
+    elasticSearchFunctions.connect_and_index_aip(uuid, aip_name, path, pathToMETS)
 
 conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
 try:
@@ -59,10 +66,10 @@ except pyes.exceptions.NoServerAvailable:
     print "Connection error: Is Elasticsearch running?"
     os._exit(1)
 
-try:
-    conn.delete_index('aips')
-except:
-    print "Error deleting index or index already deleted."
+#try:
+#    conn.delete_index('aips')
+#except:
+#    print "Error deleting index or index already deleted."
 
 temp_dir = tempfile.mkdtemp()
 
