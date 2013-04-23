@@ -65,6 +65,9 @@
 
 <h3>Archivematica Command</h3>
 <form class="form-stacked" method="post" action="{% url components.preservation_planning.views.fpr_edit_command %}">
+    {% if valid_submission %}
+    <h3>Command Saved</h3>
+    {% endif %}
 
     {% include "_form.html" %}
     

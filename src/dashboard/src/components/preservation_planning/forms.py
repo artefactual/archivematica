@@ -46,14 +46,14 @@ def getTools():
     return ret
 
 def getCommandTypes():
-    query = 'SELECT type from CommandTypes'
+    query = 'SELECT pk, type from CommandTypes'
     
     cursor = connection.cursor()
     cursor.execute(query)
     
     ret = []
     for commandType in cursor.fetchall():
-        ret.append( (commandType[0], commandType[0]) )
+        ret.append( (commandType[0], commandType[1]) )
 
     return ret
 
@@ -119,22 +119,25 @@ class FPREditFormatID(ModelForm):
 class FPREditCommand(ModelForm):
     COMMAND_USAGE_CHOICES = (('command','command'), ('verification','verification'), ('eventDetail','eventDetail'))
     uuid = forms.HiddenInput()
+    supportedBy = forms.HiddenInput()
     commandUsage = forms.ChoiceField(choices = COMMAND_USAGE_CHOICES, label='Usage')
     commandType = forms.ChoiceField(choices = getCommandTypes())
     command = forms.CharField(label = 'Command', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
-    outputLocation = forms.CharField(label= 'Output location', required= False, max_length = 255,
+    outputLocation = forms.CharField(label= 'Output location', max_length = 255, required=False,
         widget =  TextInput(attrs = {'class':'Description'}))
-    outputFileFormat = forms.CharField(label= 'Output File Format', required= False, max_length = 15,
+    outputFileFormat = forms.CharField(label= 'Output File Format', required= False, max_length = 150,
         widget =  TextInput(attrs = {'class':'Description'}))
     description = forms.CharField(label = 'Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
-    verificationCommand = forms.ChoiceField(choices = getCommands('verification'), label = 'Verification command', required = False)
-    eventDetailCommand = forms.ChoiceField(choices = getCommands('eventDetail'), label = 'Event detail command', required = False)
-    enabled = forms.BooleanField(required=False, initial = True) 
-    exclude = ('lastModified', 'supportedBy')
+    verificationCommand = forms.ChoiceField(choices = getCommands('verification'), label = 'Verification command', required=False)
+    eventDetailCommand = forms.ChoiceField(choices = getCommands('eventDetail'), label = 'Event detail command', required=False)
+    replaces = forms.ChoiceField(getCommands(), label='Replaces this', required=False)
+    enabled = forms.BooleanField(initial = True) 
+        
     class Meta:
         model = ppModels.Command
+        exclude = ('lastModified', 'supportedBy')
         
 class FPREditRule(ModelForm):
     uuid = forms.HiddenInput()

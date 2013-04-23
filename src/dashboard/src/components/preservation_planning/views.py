@@ -16,13 +16,18 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from time import gmtime, strftime
+from uuid import uuid4
+
 from components.preservation_planning.forms import FPREditFormatID, FPREditCommand, FPREditRule, getFormatIDs, FPREditToolOutput
 from components.preservation_planning.forms import FPRSearchForm
 import components.preservation_planning.models as ppModels
 
+
 from django.db import connection, transaction
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from main import models
 from components import helpers
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
@@ -243,19 +248,64 @@ def fpr_edit_format(request, uuid=None):
     return render(request, 'main/edit_format_id_fpr.html', locals())
 
 def fpr_edit_command(request, uuid=None):
-    fprCommand = None
+    fprCommand = None    
     if uuid:
         fprCommand = ppModels.Command.objects.get(pk=uuid)
-    else:
-        form = FPREditCommand()
-        
+	     
     if request.POST:
         form = FPREditCommand(request.POST, instance=fprCommand)
         if form.is_valid():
-            newcommand = form.save()
-            newcommand.save()
+            answers = request.POST
+            if answers['verificationCommand'] == '':
+                verificationCommand = None
+            else:
+                verificationCommand = answers['verificationCommand']
+
+            if answers['eventDetailCommand'] == '':
+                eventDetailCommand = None
+            else: 
+                eventDetailCommand = answers['eventDetailCommand']
+
+	    if uuid:   
+                #disable the original command, leave rest of contents alone
+                fprCommand.enabled = 0
+                fprCommand.lastModified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+                fprCommand.save()
+            
+                if answers['enabled']:
+                    #make a copy of the command and save that
+                    fprCommand.enabled = 1
+                    fprCommand.pk = None
+                    fprCommand.commandUsage = answers['commandUsage']
+                    fprCommand.commandType = answers['commandType']
+                    fprCommand.verificationCommand = verificationCommand
+                    fprCommand.eventDetailCommand = eventDetailCommand
+                    fprCommand.command = answers['command']
+                    fprCommand.outputLocation = answers['outputLocation']
+                    fprCommand.description = answers['description']
+                    fprCommand.outputFileFormat = answers['outputFileFormat']
+                    fprCommand.replaces = uuid
+                    fprCommand.save()
+            else:
+                if answers['enabled']:
+                    enabled = 1
+                else:
+                    enabled = 0
+                fprCommand = ppModels.Command(enabled=enabled, commandUsage=answers['commandUsage'],
+                     commandType=answers['commandType'], verificationCommand=verificationCommand,
+                     eventDetailCommand=eventDetailCommand, command=answers['command'], 
+                     outputLocation=answers['outputLocation'], description=answers['description'], 
+                     outputFileFormat=answers['outputFileFormat'], replaces=answers['replaces'], 
+                     lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+                     )
+                fprCommand.save()
+                valid_submission = True
+                url = reverse('components.preservation_planning.views.fpr_edit_command', kwargs={'uuid': fprCommand.pk})
+                return HttpResponseRedirect(url, locals())
+   
             valid_submission = True
-    else:
+    else: 
+        
         form = FPREditCommand(instance = fprCommand)
             
     return render(request, 'main/edit_command_fpr.html', locals())
