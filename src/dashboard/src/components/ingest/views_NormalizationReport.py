@@ -87,7 +87,7 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         where 
             f.fileGrpUse in ('original', 'service')
             and f.sipUUID = '{0}'
-            and {1}
+            and ({1})
         ) a 
     Left Join
         (select
@@ -115,9 +115,11 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
             Tasks t on t.jobUUID = j.jobUUID
         where 
             cc.classification in ('preservation', 'access')
+            and j.sipUUID = '{0}'
         group by cr.fileID
         ) b
-    on a.fileID = b.fileID and a.sipUUID = b.sipUUID;
+    on a.fileID = b.fileID and a.sipUUID = b.sipUUID
+    where a.sipUUID = '{0}';
     """.format(sipUUID, fileIDTypeUsed)
     
     cursor.execute(sql)
