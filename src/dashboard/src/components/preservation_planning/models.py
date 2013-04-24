@@ -3,13 +3,13 @@ from main.models import UUIDPkField
         
 class FormatID(models.Model):
     uuid = UUIDPkField()
-    description = models.CharField(db_column='description')
+    description = models.CharField(db_column='description', max_length=100)
     validpreservationformat = models.BooleanField(null=True, db_column='validPreservationFormat', default=0)
     validaccessformat = models.BooleanField(null=True, db_column='validAccessFormat', default=0)
     tool = models.CharField(null=True, max_length=50, db_column='fileIDType')
     replaces = models.CharField(null=True, max_length=50, db_column='replaces')
     lastmodified = models.DateTimeField(db_column='lastModified', null=True, blank=True)
-    enabled = models.BooleanField(db_column='enabled', default=1)
+    enabled = models.IntegerField(null=True, db_column='enabled', default=1)
     class Meta:
         db_table = u'FileIDs'
         

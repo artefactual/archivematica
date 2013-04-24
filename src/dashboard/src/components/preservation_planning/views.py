@@ -249,6 +249,7 @@ def fpr_edit_format(request, uuid=None):
             form = FPREditFormatID(request.POST)
             if form.is_valid():
                 newformat = form.save(commit=False)
+                newformat.replaces = request.POST['replaces']
                 newformat.save()
         uuid = newformat.pk
         url = reverse('components.preservation_planning.views.fpr_edit_format', kwargs={'uuid': uuid})

@@ -122,11 +122,11 @@ class FPREditFormatID(ModelForm):
     validpreservationformat = forms.BooleanField(required=False, label = 'Valid for Preservation') 
     validaccessformat = forms.BooleanField(required=False, label='Valid for Access') 
     replaces = DescriptionModelChoiceField(queryset=ppModels.FormatID.objects.all().order_by('description'), required=False)
-    enabled = forms.BooleanField(required=False, initial=True) 
+    enabled = forms.BooleanField(initial=True) 
     
     class Meta:
         model = ppModels.FormatID
-        exclude = ('lastModified')
+        
 
 class FPREditCommand(ModelForm):
             
