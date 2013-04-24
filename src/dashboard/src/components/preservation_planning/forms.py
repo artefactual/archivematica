@@ -156,7 +156,7 @@ class FPREditRule(ModelForm):
     purpose = forms.ChoiceField(choices = getPurposes())
     formatID = DescriptionModelChoiceField(queryset=ppModels.FormatID.objects.all().order_by('description'), label = 'Format ID', required = True)
     command = DescriptionModelChoiceField(queryset=ppModels.Command.objects.filter(commandUsage='command').order_by('command'), label = 'Command')
-    replaces = RuleModelChoiceField(queryset=ppModels.FormatPolicyRule.objects.all().order_by('formatID, purpose'))
+    replaces = RuleModelChoiceField(queryset=ppModels.FormatPolicyRule.objects.all().order_by('formatID'))
     enabled = forms.BooleanField(required=False, initial=True)
     exclude = ('lastModified')
     class Meta:
