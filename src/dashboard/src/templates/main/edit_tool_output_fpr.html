@@ -58,7 +58,11 @@
   Tool Output maps the output of a given File Identification Tool to a specific Format ID.<br><br>
 
 <h3>Archivematica Command</h3>
-<form class="form-stacked" method="post" action="{% url components.preservation_planning.views.fpr_edit_tool_output %}">
+<form class="form-stacked" method="post" action="{% if uuid %}
+{% url components.preservation_planning.views.fpr_edit_tool_output uuid %}
+{% else %}
+ {% url components.preservation_planning.views.fpr_edit_tool_output %}
+{% endif %}">
 
     {% include "_form.html" %}
     

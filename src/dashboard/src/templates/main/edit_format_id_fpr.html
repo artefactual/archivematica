@@ -59,7 +59,11 @@
 <br><br>
 
 <h3>Archivematica format ID</h3>
- <form class="form-stacked" method="post" action="{% url components.preservation_planning.views.fpr_edit_format %}">
+<form class="form-stacked" method="post" action="{% if uuid %}
+{% url components.preservation_planning.views.fpr_edit_format uuid %}
+{% else %}
+ {% url components.preservation_planning.views.fpr_edit_format %}
+{% endif %}">
 
     {% include "_form.html" %}
     

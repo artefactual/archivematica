@@ -8,7 +8,7 @@ class FormatID(models.Model):
     validaccessformat = models.BooleanField(null=True, db_column='validAccessFormat', default=0)
     tool = models.CharField(null=True, max_length=50, db_column='fileIDType')
     replaces = models.CharField(null=True, max_length=50, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    lastmodified = models.DateTimeField(db_column='lastModified', null=True, blank=True)
     enabled = models.BooleanField(db_column='enabled', default=1)
     class Meta:
         db_table = u'FileIDs'
@@ -20,7 +20,7 @@ class FormatIDToolOutput(models.Model):
     tool = models.CharField(max_length=150, db_column='tool')
     toolVersion = models.CharField(max_length=20, db_column='toolVersion')
     replaces = models.CharField(null=True, max_length=50, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    lastmodified = models.DateTimeField(db_column='lastModified', null=True, blank=True)
     enabled = models.BooleanField(db_column='enabled')
     class Meta:
         db_table = u'FileIDsBySingleID'
@@ -49,15 +49,11 @@ class Command(models.Model):
         
 class FormatPolicyRule(models.Model):
     uuid = UUIDPkField() 
-    #commandClassification = models.ForeignKey(CommandClassification, db_column='commandClassification')
     purpose = models.CharField(max_length=36, db_column='commandClassification')
-    #command = models.ForeignKey(Command, null=True, db_column='command')
-    #fileID = models.ForeignKey(FileID, db_column='fileID')
-    #replaces = models.CharField(null=True, max_length=50, db_column='replaces')
-    command = models.CharField(max_length=36, null=True)
+    command = models.CharField(max_length=36, null=True, db_column='command')
     formatID = models.CharField(max_length=36, null=True, db_column='fileID')
     replaces = models.CharField(max_length=36, null=True)
-    lastModified = models.DateTimeField(db_column='lastModified')
+    lastModified = models.DateTimeField(db_column='lastModified', null=True, blank=True)
     enabled = models.IntegerField(null=True, db_column='enabled', default=1)
     class Meta:
         db_table = u'CommandRelationships'

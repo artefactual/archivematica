@@ -231,176 +231,150 @@ def preservation_planning_fpr_data(request, current_page_number = None):
 
 def fpr_edit_format(request, uuid=None):
     fprFormat = None
-    if uuid:
-        fprFormat = ppModels.FormatID.objects.get(pk = uuid)
-    
     if request.POST:
-        form = FPREditFormatID(request.POST, instance=fprFormat)
-        if form:
-            answers = request.POST
-            if answers['enabled']:
-                enabled = 1
-            else:
-                enabled = 0
-            if answers['validpreservationformat']:
-                validpreserve = 1
-            else:
-                validpreserve = 0
-
-            if answers['validaccessformat']:
-                validaccess = 1
-            else:
-                validaccess = 0
-
-            if uuid:
-                fprFormat.enabled = 0
+        if uuid:
+            fprFormat = ppModels.FormatID.objects.get(pk = uuid)
+            form = FPREditFormatID(request.POST)
+            if form.is_valid():
+                fprFormat.enabled = False
                 fprFormat.lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
                 fprFormat.save()
-                if enabled:
-                    fprFormat.enabled = 1
-                    fprFormat.pk = None
-                    fprFormat.description = answers['description']
-                    fprFormat.validpreservationformat = validpreserve
-                    fprFormat.validaccessformat = validaccess
-                    fprFormat.tool = answers['tool']
-                    fprFormat.replaces 
-            else:
-                fprFormat = ppModels.FormatID(enabled=enabled, description = answers['description'],
-                                              validpreservationformat = validpreserve,
-                                              validaccessformat = validaccess,
-                                              tool = answers['tool'],
-                                              replaces= answers['replaces'],
-                                              lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-                                              )
-                fprFormat.save()
+                # now make a new object and save form into that
+                newformat = form.save(commit=False)
+                newformat.lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+                newformat.replaces = fprFormat.pk
+                newformat.save()
                 valid_submission = True
-                url = reverse('components.preservation_planning.views.fpr_edit_format', kwargs={'uuid': fprFormat.pk})
-                return HttpResponseRedirect(url)
-            
-            valid_submission = True
+        else:
+            form = FPREditFormatID(request.POST)
+            if form.is_valid():
+                newformat = form.save(commit=False)
+                newformat.save()
+        uuid = newformat.pk
+        url = reverse('components.preservation_planning.views.fpr_edit_format', kwargs={'uuid': uuid})
+        return HttpResponseRedirect(url)
     else:
-        form = FPREditFormatID(instance = fprFormat)
+        if uuid:
+            fprFormat = ppModels.FormatID.objects.get(pk = uuid)
+            form = FPREditFormatID(instance=fprFormat)
+        else:
+            form = FPREditFormatID()
         
     return render(request, 'main/edit_format_id_fpr.html', locals())
 
 def fpr_edit_command(request, uuid=None):
-    fprCommand = None    
-    if uuid:
-        fprCommand = ppModels.Command.objects.get(pk=uuid)
-	     
-    if request.POST:
-        form = FPREditCommand(request.POST, instance=fprCommand)
-        if form.is_valid():
-            answers = request.POST
-            if answers['verificationCommand'] == '':
-                verificationCommand = None
-            else:
-                verificationCommand = answers['verificationCommand']
 
-            if answers['eventDetailCommand'] == '':
-                eventDetailCommand = None
-            else: 
-                eventDetailCommand = answers['eventDetailCommand']
-
-            if answers['enabled']:
-                enabled = 1
-            else:
-                enabled = 0
-
-            if uuid:
-                fprCommand.enabled = 0
-                fprCommand.lastModified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+    fprCommand = None
+    if request.method == 'POST':
+        if uuid:
+            fprCommand = ppModels.Command.objects.get(pk = uuid)
+            form = FPREditCommand(request.POST)
+            if form.is_valid():
+                fprCommand.enabled = False
+                fprCommand.lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
                 fprCommand.save()
             
-                if enabled:
-                    #make a copy of the command and save that
-                    fprCommand.enabled = 1
-                    fprCommand.pk = None
-                    fprCommand.commandUsage = answers['commandUsage']
-                    fprCommand.commandType = answers['commandType']
-                    fprCommand.verificationCommand = verificationCommand
-                    fprCommand.eventDetailCommand = eventDetailCommand
-                    fprCommand.command = answers['command']
-                    fprCommand.outputLocation = answers['outputLocation']
-                    fprCommand.description = answers['description']
-                    fprCommand.outputFileFormat = answers['outputFileFormat']
-                    fprCommand.replaces = uuid
-                    fprCommand.save()
-            else:
-                fprCommand = ppModels.Command(enabled=enabled, commandUsage=answers['commandUsage'],
-                                              commandType=answers['commandType'], verificationCommand=verificationCommand,
-                                              eventDetailCommand=eventDetailCommand, command=answers['command'], 
-                                              outputLocation=answers['outputLocation'], description=answers['description'], 
-                                              outputFileFormat=answers['outputFileFormat'], replaces=answers['replaces'], 
-                                              lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-                                              )
-                fprCommand.save()
+                # now make a new object and save form into that
+                newcommand = form.save(commit=False)
+                newcommand.lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+                newcommand.replaces = fprCommand.pk
+                newcommand.save()
                 valid_submission = True
-                url = reverse('components.preservation_planning.views.fpr_edit_command', kwargs={'uuid': fprCommand.pk})
-                return HttpResponseRedirect(url)
-   
-            valid_submission = True
-    else: 
-        
-        form = FPREditCommand(instance = fprCommand)
-            
+        else:
+            form = FPREditCommand(request.POST)
+            if form.is_valid():
+                newcommand = form.save(commit=False)
+                newcommand.save()
+        uuid = newcommand.pk
+        url = reverse('components.preservation_planning.views.fpr_edit_command', kwargs={'uuid': uuid})
+        return HttpResponseRedirect(url)
+    else:
+        if uuid:
+            fprCommand = ppModels.Command.objects.get(pk = uuid)
+            form = FPREditCommand(instance=fprCommand)
+        else:
+            form = FPREditCommand()
+    
     return render(request, 'main/edit_command_fpr.html', locals())
-
+  
 def fpr_edit_tool_output(request, uuid=None):
     toolOutput = None
-    if uuid:
-        toolOutput = ppModels.FormatIDToolOutput.objects.get(pk=uuid)
-        
-    if request.POST:
-        form = FPREditToolOutput(request.POST, instance=toolOutput)
-        if form.is_valid():
-            answers = request.POST
-            if answers['enabled']:
-                enabled = 1
-            else:
-                enabled = 0
-            
-            if uuid:
-                toolOutput.enabled = 0
-                toolOutput.lastModified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+    if request.method == 'POST':
+        valid_submission = False
+        if uuid:
+            toolOutput = ppModels.FormatIDToolOutput.objects.get(pk=uuid)
+            form = FPREditToolOutput(request.POST)
+            if form.is_valid():
+                toolOutput.enabled = False
+                toolOutput.lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
                 toolOutput.save()
-                
-                if enabled:
-                    toolOutput.enabled=1
-                    toolOutput.pk = None
-                    toolOutput.toolOutput = answers['toolOutput']
-                    toolOutput.tool = answers['tool']
-                    toolOutput.toolVersion = answers['toolVersion']
-                    toolOutput.replaces = uuid
-                    toolOutput.save()
-                
             
-            valid_submission = True
+                # now make a new object and save form into that
+                newoutput = form.save(commit=False)
+                newoutput.lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+                newoutput.replaces = toolOutput.pk
+                newoutput.save()
+                valid_submission = True
+                uuid = newoutput.pk
+        else:
+            form = FPREditToolOutput(request.POST)
+            if form.is_valid():
+                newoutput = form.save(commit=False)
+                newoutput.save()
+                uuid = newoutput.pk
+                valid_submission = True
+        if valid_submission:
+            url = reverse('components.preservation_planning.views.fpr_edit_tool_output', kwargs={'uuid': uuid})
+            return HttpResponseRedirect(url)
     else:
-        form = FPREditToolOutput(instance=toolOutput)
+        if uuid:
+            toolOutput = ppModels.FormatIDToolOutput.objects.get(pk = uuid)
+            form = FPREditToolOutput(instance=toolOutput)
+        else:
+            form = FPREditToolOutput()
             
     return render(request, 'main/edit_tool_output_fpr.html', locals())
 
 def fpr_edit_rule(request, uuid=None):
     rule = None
-    if uuid:
-        rule = ppModels.FormatPolicyRule.objects.get(pk=uuid)
-    else:
-        form = FPREditRule()
-    
-    if request.POST:
-        form = FPREditRule(request.POST, instance=rule)
-        if form.is_valid():
-            newrule = form.save()
-            newrule.save()
-            valid_submission = True
+    if request.method == 'POST':
+        valid_submission = False
+        if uuid:
+            rule = ppModels.FormatPolicyRule.objects.get(pk=uuid)
+            form = FPREditRule(request.POST)
+            if form.is_valid():
+                rule.enabled = False
+                rule.lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+                rule.save()
             
+                # now make a new object and save form into that
+                newrule = form.save(commit=False)
+                newrule.lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+                newrule.replaces = rule.pk
+                newrule.command = request.POST['command']
+                newrule.formatID = request.POST['formatID']
+                newrule.save()
+                valid_submission = True
+                uuid = newrule.pk
+        else:
+            form = FPREditRule(request.POST)
+            if form.is_valid():
+                newrule = form.save(commit=False)
+                newrule.command = request.POST['command']
+                newrule.formatID = request.POST['formatID']
+                newrule.save()
+                uuid = newrule.pk
+                valid_submission = True
+        if valid_submission:
+            url = reverse('components.preservation_planning.views.fpr_edit_rule', kwargs={'uuid': uuid})
+            return HttpResponseRedirect(url)
     else:
-        form =FPREditRule(instance=rule)
-    
-    accessFormats = getFormatIDs('access')
-    preservationFormats = getFormatIDs('preservation')
-    
+        if uuid:
+            rule = ppModels.FormatPolicyRule.objects.get(pk = uuid)
+            form = FPREditRule(instance=rule)
+        else:
+            form = FPREditRule()    
+
     return render(request, 'main/edit_rule_fpr.html', locals())
 
 

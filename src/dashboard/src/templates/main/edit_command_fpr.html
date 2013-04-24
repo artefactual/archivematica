@@ -60,11 +60,15 @@
     <li>normalization commands</li>
   	<li>verification commands, which are run after normalization to ensure all has gone well,</li>
   	<li>event detail commands, which are run after normalization to gather metadata, recorded in the PREMIS event.</li> 
- 
-<br><br>
+<br>
+
 
 <h3>Archivematica Command</h3>
-<form class="form-stacked" method="post" action="{% url components.preservation_planning.views.fpr_edit_command %}">
+<form class="form-stacked" method="post" action="{% if uuid %}
+{% url components.preservation_planning.views.fpr_edit_command uuid %}
+{% else %}
+ {% url components.preservation_planning.views.fpr_edit_command %}
+{% endif %}">
     {% if valid_submission %}
     <h3>Command Saved</h3>
     {% endif %}
