@@ -62,7 +62,10 @@ def get_file_sip_uuid(fileuuid):
     return file.sip.uuid
 
 def task_duration_in_seconds(task):
-    duration = int(format(task.endtime, 'U')) - int(format(task.starttime, 'U'))
+    if task.endtime != None:
+        duration = int(format(task.endtime, 'U')) - int(format(task.starttime, 'U'))
+    else:
+        duration = ''
     if duration == 0:
         duration = '< 1'
     return duration
