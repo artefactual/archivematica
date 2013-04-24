@@ -236,7 +236,7 @@ def fpr_edit_format(request, uuid=None):
     else:
         form = FPREditFormatID()
         
-    if request.POST:
+    if request.POST and uuid:
         form = FPREditFormatID(request.POST, instance = fprFormat)
         if form.is_valid():
             answers = request.POST
@@ -308,9 +308,8 @@ def fpr_edit_command(request, uuid=None):
                 enabled = 1
             else:
                 enabled = 0
-                    
-	        if uuid:   
-                #disable the original command, leave rest of contents alone
+
+            if uuid:
                 fprCommand.enabled = 0
                 fprCommand.lastModified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
                 fprCommand.save()
@@ -353,15 +352,31 @@ def fpr_edit_tool_output(request, uuid=None):
     toolOutput = None
     if uuid:
         toolOutput = ppModels.FormatIDToolOutput.objects.get(pk=uuid)
-    else:
-        form = FPREditToolOutput()
         
     if request.POST:
         form = FPREditToolOutput(request.POST, instance=toolOutput)
         if form.is_valid():
-            #TODO create a new record and mark old as replaced and disabled
-            newtooloutput = form.save()
-            newtooloutput.save()
+            answers = request.POST
+            if answers['enabled']:
+                enabled = 1
+            else:
+                enabled = 0
+            
+            if uuid:
+                toolOutput.enabled = 0
+                toolOutput.lastModified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+                toolOutput.save()
+                
+                if enabled:
+                    toolOutput.enabled=1
+                    toolOutput.pk = None
+                    toolOutput.toolOutput = answers['toolOutput']
+                    toolOutput.tool = answers['tool']
+                    toolOutput.toolVersion = answers['toolVersion']
+                    toolOutput.replaces = uuid
+                    toolOutput.save()
+                
+            
             valid_submission = True
     else:
         form = FPREditToolOutput(instance=toolOutput)

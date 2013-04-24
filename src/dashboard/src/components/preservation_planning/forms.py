@@ -37,8 +37,15 @@ class DescriptionModelChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.description
 
-def getTools():
-    query = 'SELECT description FROM FileIDTypes'
+class RuleModelChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "{0}-{1}".format(obj.formatID, obj.purpose) 
+    
+def getTools(other = None):
+    if other:
+        query = 'select distinct tool from FileIDsBySingleID order by tool'
+    else:
+        query = 'SELECT description FROM FileIDTypes order by description'
 
     cursor = connection.cursor()
     cursor.execute(query)
@@ -135,9 +142,9 @@ class FPREditCommand(ModelForm):
         widget =  TextInput(attrs = {'class':'Description'}))
     description = forms.CharField(label = 'Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
-    verificationCommand = forms.ChoiceField(choices = getCommands('verification'), label = 'Verification command', required=False)
-    eventDetailCommand = forms.ChoiceField(choices = getCommands('eventDetail'), label = 'Event detail command', required=False)
-    replaces = forms.ChoiceField(getCommands(), label='Replaces this', required=False)
+    verificationCommand = DescriptionModelChoiceField(queryset=ppModels.Command.objects.filter(commandUsage='verification').order_by('description'), label = 'Verification command', required=False)
+    eventDetailCommand = DescriptionModelChoiceField(queryset=ppModels.Command.objects.filter(commandUsage='eventDetail').order_by('description'), label = 'Event detail command', required=False)
+    replaces = DescriptionModelChoiceField(queryset=ppModels.Command.objects.all().order_by('description'), label='Replaces this', required=False)
     enabled = forms.BooleanField(initial = True) 
         
     class Meta:
@@ -147,9 +154,9 @@ class FPREditCommand(ModelForm):
 class FPREditRule(ModelForm):
     uuid = forms.HiddenInput()
     purpose = forms.ChoiceField(choices = getPurposes())
-    formatID = forms.ChoiceField(choices = getFormatIDs(), label = 'Format ID', required = True)
-    command = DescriptionModelChoiceField(queryset=ppModels.Command.objects.filter(commandUsage='command'), label = 'Command')
-    replaces = forms.CharField(max_length=50)
+    formatID = DescriptionModelChoiceField(queryset=ppModels.FormatID.objects.all().order_by('description'), label = 'Format ID', required = True)
+    command = DescriptionModelChoiceField(queryset=ppModels.Command.objects.filter(commandUsage='command').order_by('command'), label = 'Command')
+    replaces = RuleModelChoiceField(queryset=ppModels.FormatPolicyRule.objects.all().order_by('formatID, purpose'))
     enabled = forms.BooleanField(required=False, initial=True)
     exclude = ('lastModified')
     class Meta:
@@ -159,7 +166,7 @@ class FPREditToolOutput(ModelForm):
     uuid = forms.HiddenInput()
     formatID = forms.ChoiceField(choices = getFormatIDs(), label='Format ID', required = True)
     toolOutput = forms.CharField(label = 'Tool output', required=True, max_length=50)
-    tool = forms.ChoiceField(choices = getTools())
+    tool = forms.ChoiceField(choices = getTools('other'))
     toolVersion = forms.CharField(max_length=20, label='Tool version')
     replaces = forms.CharField(max_length=50)
     enabled = forms.BooleanField(required=False, initial=True)
