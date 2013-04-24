@@ -175,8 +175,7 @@ def archival_storage_search_augment_file_results(raw_results):
 
 def archival_storage_aip_download(request, uuid):
     aip = elasticSearchFunctions.connect_and_get_aip_data(uuid)
-    return helpers.send_file_or_return_error_response(request, aip.filePath)
-    #return send_file(request, aip.filePath)
+    return helpers.send_file_or_return_error_response(request, aip.filePath, 'AIP')
 
 def archival_storage_aip_file_download(request, uuid):
     # get file basename

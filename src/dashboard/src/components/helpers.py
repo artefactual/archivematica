@@ -18,8 +18,9 @@
 from django.utils.dateformat import format
 from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.core.servers.basehttp import FileWrapper
+from django.shortcuts import render
 from main import models
 import cPickle, pprint, ConfigParser, urllib, os
 
@@ -148,12 +149,14 @@ def redirect_with_get_params(url_name, *args, **kwargs):
     params = urllib.urlencode(kwargs)
     return HttpResponseRedirect(url + "?%s" % params)
 
-def send_file_or_return_error_response(request, filepath):
+def send_file_or_return_error_response(request, filepath, content_type, verb='download'):
     if os.path.exists(filepath):
         return send_file(request, filepath)
     else:
-        raise Http404
-        #return HttpResponse('File not found')
+        return render(request, 'not_found.html', {
+            'content_type': content_type,
+            'verb': verb
+        })
 
 def send_file(request, filepath):
     """

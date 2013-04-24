@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+  <h1>{{ content_type }} not found</h1>
+
+  <div class="alert-message block-message warning">
+    <p>Sorry! The {{ content_type }} that you are trying to {{ verb }} is not here.</p>
+  </div>
+
+{% endblock %}
