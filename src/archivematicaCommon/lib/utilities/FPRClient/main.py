@@ -28,11 +28,13 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 
-databaseInterface.printSQL = True
+databaseInterface.printSQL = False
 
 class FPRClient(object):
+    def __init__(self, fprserver='https://fpr.archivematica.org/fpr/api/v1/'):
+        """FPR Client provides methods to download data from FPR Server"""
+        self.fprserver = fprserver
     
-    fprserver = 'https://fpr.artefactual.com'
     maxLastUpdate = '' 
     def create(self, table, entry):
         sets = []
@@ -84,13 +86,13 @@ class FPRClient(object):
         maxLastUpdateAtStart = self.maxLastUpdate
         databaseInterface.runSQL("SET foreign_key_checks = 0;")
         for x in [
-            ("CommandRelationships", self.fprserver + "/fpr/api/v1/CommandRelationship/"),
-            ("FileIDsBySingleID", self.fprserver + "/fpr/api/v1/FileIDsBySingleID/"),
-            ("FileIDs", self.fprserver + "/fpr/api/v1/FileID/"),
-            ("Commands", self.fprserver + "/fpr/api/v1/Command/"),
-            ("CommandTypes", self.fprserver + "/fpr/api/v1/CommandType/"),
-            ("CommandClassifications", self.fprserver + "/fpr/api/v1/CommandClassification/"),
-            ("FileIDTypes", self.fprserver + "/fpr/api/v1/FileIDType/")
+            ("CommandRelationships", self.fprserver + "CommandRelationship/"),
+            ("FileIDsBySingleID", self.fprserver + "FileIDsBySingleID/"),
+            ("FileIDs", self.fprserver + "FileID/"),
+            ("Commands", self.fprserver + "Command/"),
+            ("CommandTypes", self.fprserver + "CommandType/"),
+            ("CommandClassifications", self.fprserver + "CommandClassification/"),
+            ("FileIDTypes", self.fprserver + "FileIDType/")
         ]:
             table, url = x
             #params = {"format":"json", "order_by":"lastmodified", "lastmodified__gte":maxLastUpdateAtStart, "limit":"0"}

@@ -99,7 +99,7 @@ def fprconnect(request):
 def fprupload(request):
     response_data = {} 
     agent = Agent.objects.get(pk=2)
-    url = 'https://fpr.artefactual.com/fpr/api/v1/Agent/'
+    url = django_settings.FPR_URL + 'Agent/'
     payload = {'uuid': helpers.get_setting('dashboard_uuid'), 
                'agentType': 'new install', 
                'agentName': agent.name, 
@@ -119,7 +119,7 @@ def fprupload(request):
 def fprdownload(request):
     response_data = {}
     try:
-        fpr = FPRClient.FPRClient()
+        fpr = FPRClient.FPRClient(fprserver=django_settings.FPR_URL)
         myresponse = fpr.getUpdates()
         response_data['response'] = myresponse
         response_data['result'] = 'success'
