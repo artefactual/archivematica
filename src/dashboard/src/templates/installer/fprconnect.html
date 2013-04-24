@@ -43,8 +43,8 @@
               $("div#fpr").append("<p>Successfully connected to FPR Server.</p>");
               moreStuff();
           } else {
-              $("div#fpr").append("<br>Unable to connect to FPR Server. You will not be able to get updated format policy rules until your internet connection is fixed.");
-              moveOn(); 
+              $("div#fpr").append("<br>Unable to connect to FPR Server. You will not be able to get updated format policy rules until it is possible to connect to the FPR Server.");
+              AddElement(); 
            }
         }, "json");
 });
