@@ -233,32 +233,30 @@ def fpr_edit_format(request, uuid=None):
     fprFormat = None
     if uuid:
         fprFormat = ppModels.FormatID.objects.get(pk = uuid)
-    else:
-        form = FPREditFormatID()
-        
+    
     if request.POST:
-        form = FPREditFormatID(request.POST, instance = fprFormat)
-        if form.is_valid():
+        form = FPREditFormatID(request.POST, instance=fprFormat)
+        if form:
             answers = request.POST
-            if answers['validpreservationformat']:
-                validpreserve = 1
-            else:
-                validpreserve = 0
-            if answers['validaccessformat']:
-                validaccess = 1
-            else:
-                validaccess = 0
-            
             if answers['enabled']:
                 enabled = 1
             else:
                 enabled = 0
-            
+            if answers['validpreservationformat']:
+                validpreserve = 1
+            else:
+                validpreserve = 0
+
+            if answers['validaccessformat']:
+                validaccess = 1
+            else:
+                validaccess = 0
+
             if uuid:
                 fprFormat.enabled = 0
                 fprFormat.lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
                 fprFormat.save()
-                if answers['enabled']:
+                if enabled:
                     fprFormat.enabled = 1
                     fprFormat.pk = None
                     fprFormat.description = answers['description']
@@ -276,7 +274,7 @@ def fpr_edit_format(request, uuid=None):
                                               )
                 fprFormat.save()
                 valid_submission = True
-                url = reverse('components.preservation_planning.views.fpr_edit_format', kwargs={'uuid': fprCommand.pk})
+                url = reverse('components.preservation_planning.views.fpr_edit_format', kwargs={'uuid': fprFormat.pk})
                 return HttpResponseRedirect(url)
             
             valid_submission = True

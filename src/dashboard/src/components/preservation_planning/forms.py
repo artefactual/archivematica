@@ -43,16 +43,16 @@ class RuleModelChoiceField(ModelChoiceField):
     
 def getTools(other = None):
     if other:
-        query = 'select distinct tool from FileIDsBySingleID order by tool'
+        query = 'select tool, tool from FileIDsBySingleID group by tool order by tool'
     else:
-        query = 'SELECT description FROM FileIDTypes order by description'
+        query = 'SELECT pk, description FROM FileIDTypes order by description'
 
     cursor = connection.cursor()
     cursor.execute(query)
 
     ret = []
     for tool in cursor.fetchall():
-        ret.append( (tool[0], tool[0]) )
+        ret.append( (tool[0], tool[1]) )
 
     return ret
 
@@ -121,11 +121,12 @@ class FPREditFormatID(ModelForm):
         widget = TextInput(attrs = {'class':'Description'}))
     validpreservationformat = forms.BooleanField(required=False, label = 'Valid for Preservation') 
     validaccessformat = forms.BooleanField(required=False, label='Valid for Access') 
-    replaces = DescriptionModelChoiceField(queryset=ppModels.FormatID.objects.all().order_by('description'))
+    replaces = DescriptionModelChoiceField(queryset=ppModels.FormatID.objects.all().order_by('description'), required=False)
     enabled = forms.BooleanField(required=False, initial=True) 
-    exclude = ('lastModified')
+    
     class Meta:
         model = ppModels.FormatID
+        exclude = ('lastModified')
 
 class FPREditCommand(ModelForm):
             
