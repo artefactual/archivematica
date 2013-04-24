@@ -119,9 +119,9 @@ class FPREditFormatID(ModelForm):
     tool = forms.ChoiceField(choices = getTools(), label= "File Identification Tool")
     description = forms.CharField(label = 'Format ID Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
-    validpreservationformat = forms.BooleanField(required=False, initial=False, label = 'Valid for Preservation') 
-    validaccessformat = forms.BooleanField(required=False, initial=False, label='Valid for Access') 
-    replaces = forms.ChoiceField(choices = getFormatIDs())
+    validpreservationformat = forms.BooleanField(required=False, label = 'Valid for Preservation') 
+    validaccessformat = forms.BooleanField(required=False, label='Valid for Access') 
+    replaces = DescriptionModelChoiceField(queryset=ppModels.FormatID.objects.all().order_by('description'))
     enabled = forms.BooleanField(required=False, initial=True) 
     exclude = ('lastModified')
     class Meta:
@@ -134,7 +134,7 @@ class FPREditCommand(ModelForm):
     supportedBy = forms.HiddenInput()
     commandUsage = forms.ChoiceField(choices = COMMAND_USAGE_CHOICES, label='Usage')
     commandType = forms.ChoiceField(choices = getCommandTypes())
-    command = forms.CharField(label = 'Command', required = False, max_length = 100,
+    command = forms.CharField(label = 'Command', required = False, max_length = 200,
         widget = TextInput(attrs = {'class':'Description'}))
     outputLocation = forms.CharField(label= 'Output location', max_length = 255, required=False,
         widget =  TextInput(attrs = {'class':'Description'}))
