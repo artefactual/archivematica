@@ -32,7 +32,7 @@ def getFromRestAPI(url, params, verbose=False, auth=None):
     #url http://loacalhost
     #args {}
     #auth ('demo', 'demo')
-    r = requests.get(url, params=params, auth=auth)
+    r = requests.get(url, params=params, auth=auth, verify=True)
 
     if r.status_code != 200:
         print >>sys.stderr, "got error status code:", r.status_code, responses[r.status_code]

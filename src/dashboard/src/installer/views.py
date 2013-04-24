@@ -108,7 +108,7 @@ def fprupload(request):
                'agentIdentifierValue': agent.identifiervalue
               }
     headers = {'Content-Type': 'application/json'}
-    r = requests.post(url, data=json.dumps(payload), headers=headers)
+    r = requests.post(url, data=json.dumps(payload), headers=headers, verify=True)
     if r.status_code == 201:
         response_data['result'] = 'success'
     else:
