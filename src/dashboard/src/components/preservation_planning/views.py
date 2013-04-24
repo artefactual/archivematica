@@ -236,7 +236,7 @@ def fpr_edit_format(request, uuid=None):
     else:
         form = FPREditFormatID()
         
-    if request.POST and uuid:
+    if request.POST:
         form = FPREditFormatID(request.POST, instance = fprFormat)
         if form.is_valid():
             answers = request.POST
