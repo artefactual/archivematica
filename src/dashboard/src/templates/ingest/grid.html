@@ -10,6 +10,8 @@
 <!-- browser related -->
 <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/backbone-file-explorer.css" />
 <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/directory_picker.css" />
+
+<link href="{{ STATIC_URL }}css/archival_storage.css" rel="stylesheet" type="text/css" />
 {% endblock %}
 
 {% block js %}
@@ -25,10 +27,14 @@
   <script type="text/javascript" src="{{ STATIC_URL }}js/file_browser.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/ingest_file_browser.js"></script>
 
-  <script type="text/javascript">
+  <script type="text/javascript" src="{{ STATIC_URL }}js/advanced-search-query-creator.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/backlog.js"></script>
 
+  <script type="text/javascript">
     $(document).ready(function()
       {
+        renderBacklogSearchForm(true);
+
         {% if polling_interval %}
           window.pollingInterval = {{ polling_interval }};
         {% endif %}
@@ -45,7 +51,6 @@
         '{{ x }}': '{{ y }}',
       {% endfor %}
     };
-
   </script>
 {% endblock %}
 
@@ -123,12 +128,7 @@
 
 <!-- <br clear='all'/> -->
 
-  <form action='/ingest/backlog/' method='GET' target='_blank'>
-    <input name='query' />
-    <input type='hidden' name='field' />
-    <input type='hidden' name='type' />
-    <input type='submit' value='Search transfer backlog' />
-  </form>
+  {% include "ingest/backlog/_search_form.html" %}
 
   <div class="span12" id="sip-container">
     <div>

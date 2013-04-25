@@ -1,5 +1,4 @@
-$(document).ready(function() {
-
+function renderBacklogSearchForm(openInNewTab) {
   // activate completion buttons
   $('.creation').each(function() {
     var url = $(this).attr('href');
@@ -102,7 +101,12 @@ $(document).ready(function() {
     if($('#search_mode').is(':checked')) {
       destination += '&mode=file';
     }
-    window.location = destination;
+
+    if (openInNewTab) {
+      window.open(destination, '_blank');
+    } else {
+      window.location = destination;
+    }
   }
 
   // submit logic
@@ -114,4 +118,4 @@ $(document).ready(function() {
     backlogSearchSubmit();
     return false;
   });
-});
+}

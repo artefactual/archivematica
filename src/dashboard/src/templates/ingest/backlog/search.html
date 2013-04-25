@@ -9,6 +9,11 @@
 {% block js %}
   <script type="text/javascript" src="{{ STATIC_URL }}js/advanced-search-query-creator.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/backlog.js"></script>
+  <script>
+  $(document).ready(function() {
+    renderBacklogSearchForm();
+  });
+  </script>
 {% endblock %}
 
 {% block css %}
