@@ -28,6 +28,7 @@ BASE_PATH = os.path.abspath(os.path.join(path_of_this_file, os.pardir))
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
+
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
@@ -175,6 +176,8 @@ INSTALLED_APPS = (
     'tastypie',
 )
 
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = '/tmp/dashboard-django'
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error.
@@ -227,7 +230,7 @@ TASKS_PER_PAGE = 10 # for paging in tasks dialog
 UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
 
 FPR_URL = 'https://fpr.archivematica.org/fpr/api/v1/'
-
+ALLOWED_HOSTS = ('localhost')
 MICROSERVICES_HELP = {
     'Approve transfer': 'Select "Approve transfer" to begin processing or "Reject transfer" to start over again.',
     'Workflow decision - create transfer backup': 'Create a complete backup of the transfer in case transfer/ingest are interrupted or fail. The transfer will automatically be deleted once the AIP has been moved into storage.',

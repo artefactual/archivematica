@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from django.conf import settings as django_settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -31,7 +32,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
 import FPRClient.main as FPRClient
 
 import json
-import requests
+import requests_1_20 as requests
 import socket
 import uuid
 
@@ -100,6 +101,7 @@ def fprupload(request):
     response_data = {} 
     agent = Agent.objects.get(pk=2)
     url = django_settings.FPR_URL + 'Agent/'
+    #url = 'https://fpr.archivematica.org/fpr/api/v1/Agent/' 
     payload = {'uuid': helpers.get_setting('dashboard_uuid'), 
                'agentType': 'new install', 
                'agentName': agent.name, 
@@ -108,18 +110,21 @@ def fprupload(request):
                'agentIdentifierValue': agent.identifiervalue
               }
     headers = {'Content-Type': 'application/json'}
-    r = requests.post(url, data=json.dumps(payload), headers=headers, verify=True)
-    if r.status_code == 201:
-        response_data['result'] = 'success'
-    else:
-        response_data['result'] = 'failed'
-    
+    try: 
+        r = requests.post(url, data=json.dumps(payload), headers=headers, timeout=10, verify=False)
+        if r.status_code == 201:
+            response_data['result'] = 'success'
+        else:
+            response_data['result'] = 'failed to fetch from ' + url
+    except:
+        response_data['result'] = 'failed to post to ' + url   
+ 
     return HttpResponse(json.dumps(response_data), content_type="application/json")            
 
 def fprdownload(request):
     response_data = {}
     try:
-        fpr = FPRClient.FPRClient(fprserver=django_settings.FPR_URL)
+        fpr = FPRClient.FPRClient(django_settings.FPR_URL)
         myresponse = fpr.getUpdates()
         response_data['response'] = myresponse
         response_data['result'] = 'success'

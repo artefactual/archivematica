@@ -26,13 +26,13 @@ from httplib import responses
 import json
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from externals import requests
+from externals import requests_1_20 as requests
 
 def getFromRestAPI(url, params, verbose=False, auth=None):
     #url http://loacalhost
     #args {}
     #auth ('demo', 'demo')
-    r = requests.get(url, params=params, auth=auth, verify=True)
+    r = requests.get(url, params=params, auth=auth, timeout=10, verify=False)
 
     if r.status_code != 200:
         print >>sys.stderr, "got error status code:", r.status_code, responses[r.status_code]
