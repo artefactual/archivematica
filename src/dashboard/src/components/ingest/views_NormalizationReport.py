@@ -64,6 +64,7 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         b.access_normalization_task_uuid,
         b.preservation_normalization_task_uuid,
         b.access_normalization_failed,
+        b.preservation_normalization_failed,
         b.access_task_exitCode,
         b.preservation_task_exitCode
     from
