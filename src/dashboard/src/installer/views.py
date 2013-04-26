@@ -32,7 +32,7 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
 import FPRClient.main as FPRClient
 
-
+import json
 import requests_1_20 as requests
 import socket
 import uuid
@@ -134,5 +134,8 @@ def fprdownload(request):
         response_data['response'] = 'unable to connect to FPR Server'
         response_data['result'] = 'failed'
      
-    return HttpResponse(simplejson.JSONEncoder().encode(response_data), mimetype='application/json')    
-    #return HttpResponse(json.dumps(response_data), content_type="application/json")
+    myresult=json.dumps(response_data)
+
+    return HttpResponse(myresult, mimetype='application/json')
+    #return HttpResponse(simplejson.JSONEncoder().encode(response_data), content_type="application/json", mimetype='application/json')    
+    #return HttpResponse(json.dumps(response_data), mimetype="application/json", content_type="application/json")

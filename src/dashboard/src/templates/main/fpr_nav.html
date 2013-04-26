@@ -20,9 +20,9 @@ function moreStuff() {
 	var mybutton = document.getElementById("updatefpr");
 	if (mybutton.value == "Update FPR") {
 	    $("div#fpr").append("<p>Updating format policy rules . . .</p>");
-        $.getJSON("installer/fprdownload/", function(data, textStatus)
+        $.get("preservation-planning/fprdownload/", function(data, textStatus)
         {
-            if (data['result'] == 'success') {
+        	if (data['result'] == 'success') {
                 $("div#fpr").append("<p>" + data['response'] + "</p>");
             } else {
                 $("div#fpr").append("<p>Unable to update FPR. " +"</p>");

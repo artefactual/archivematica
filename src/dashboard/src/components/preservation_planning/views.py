@@ -23,7 +23,7 @@ from components.preservation_planning.forms import FPREditFormatID, FPREditComma
 from components.preservation_planning.forms import FPRSearchForm
 import components.preservation_planning.models as ppModels
 
-
+from django.conf import settings as django_settings
 from django.db import connection, transaction
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
@@ -35,6 +35,10 @@ import elasticSearchFunctions
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
+import FPRClient.main as FPRClient
+
+import json
 results_per_page = 16
 
 # TODO: remove this after FPR work finalized
@@ -378,4 +382,18 @@ def fpr_edit_rule(request, uuid=None):
 
     return render(request, 'main/edit_rule_fpr.html', locals())
 
+def fprdownload(request):
+    response_data = {}
 
+    try:
+        fpr = FPRClient.FPRClient(django_settings.FPR_URL)
+        myresponse = fpr.getUpdates()
+        response_data['response'] = myresponse
+        response_data['result'] = 'success'
+    except:
+        response_data['response'] = 'unable to connect to FPR Server'
+        response_data['result'] = 'failed'
+     
+    myresult=json.dumps(response_data)
+
+    return HttpResponse(myresult, mimetype='application/json')
