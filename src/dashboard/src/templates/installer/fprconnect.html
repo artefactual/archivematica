@@ -51,16 +51,24 @@
 
 function moreStuff() {
     $("div#fpr").append("<p>Updating format policy rules . . .</p>");
-    $.get("installer/fprdownload/", function(data, textStatus)
-    {
-        if (data['result'] == 'success') {
-            $("div#fpr").append("<p>" + data['response'] + "</p>");
-            AddElement();
-        } else {
-            $("div#fpr").append("<p>Unable to update FPR.</p>");
-            AddElement(); 
-        }
-    }, "json");
+    $.getJSON("installer/fprdownload/", function(data, textStatus)
+        {
+            if (data['result'] == 'success') {
+                $("div#fpr").append("<p>" + data['response'] + "</p>");
+            } else {
+                $("div#fpr").append("<p>Unable to update FPR.</p>");
+            }
+        })
+        .done(function() { $("div#fpr").append("<p>Attempt completed"); })
+        .fail(function(jqxhr, textStatus, error) {
+            $("div#fpr").append("<p>Request error:</p>");
+            $("div#fpr").append("<p>"+ error + " : " + jqxhr +"</p>");
+            $("div#fpr").append("<p>"+textStatus+ "</p>");
+            
+            })
+        .always(function() { 
+        	AddElement();
+        	});
 }
 
 </script>

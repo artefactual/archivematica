@@ -18,6 +18,7 @@
 from django.conf import settings as django_settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
+from django.utils import simplejson
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
@@ -31,7 +32,7 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
 import FPRClient.main as FPRClient
 
-import json
+
 import requests_1_20 as requests
 import socket
 import uuid
@@ -123,6 +124,7 @@ def fprupload(request):
 
 def fprdownload(request):
     response_data = {}
+
     try:
         fpr = FPRClient.FPRClient(django_settings.FPR_URL)
         myresponse = fpr.getUpdates()
@@ -131,5 +133,6 @@ def fprdownload(request):
     except:
         response_data['response'] = 'unable to connect to FPR Server'
         response_data['result'] = 'failed'
-        
-    return HttpResponse(json.dumps(response_data), content_type="application/json")
+     
+    return HttpResponse(simplejson.JSONEncoder().encode(response_data), mimetype='application/json')    
+    #return HttpResponse(json.dumps(response_data), content_type="application/json")
