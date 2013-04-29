@@ -121,7 +121,7 @@ class FPREditFormatID(ModelForm):
         widget = TextInput(attrs = {'class':'Description'}))
     validpreservationformat = forms.BooleanField(required=False, label = 'Valid for Preservation') 
     validaccessformat = forms.BooleanField(required=False, label='Valid for Access') 
-    replaces = DescriptionModelChoiceField(queryset=ppModels.FormatID.objects.all().order_by('description'), required=False)
+    replaces = forms.CharField(max_length=36, required=False)
     enabled = forms.BooleanField(initial=True) 
     
     class Meta:
@@ -143,7 +143,7 @@ class FPREditCommand(ModelForm):
         widget = TextInput(attrs = {'class':'Description'}))
     verificationCommand = DescriptionModelChoiceField(queryset=ppModels.Command.objects.filter(commandUsage='verification').order_by('description'), label = 'Verification command', required=False)
     eventDetailCommand = DescriptionModelChoiceField(queryset=ppModels.Command.objects.filter(commandUsage='eventDetail').order_by('description'), label = 'Event detail command', required=False)
-    replaces = DescriptionModelChoiceField(queryset=ppModels.Command.objects.all().order_by('description'), label='Replaces this', required=False)
+    replaces = forms.CharField(max_length=36, required=False)
     enabled = forms.BooleanField(initial = True) 
         
     class Meta:
@@ -155,7 +155,7 @@ class FPREditRule(ModelForm):
     purpose = forms.ChoiceField(choices = getPurposes())
     formatID = DescriptionModelChoiceField(queryset=ppModels.FormatID.objects.all().order_by('description'), label = 'Format ID', required = True)
     command = DescriptionModelChoiceField(queryset=ppModels.Command.objects.filter(commandUsage='command').order_by('command'), label = 'Command')
-    replaces = RuleModelChoiceField(queryset=ppModels.FormatPolicyRule.objects.all().order_by('formatID'), required=False)
+    replaces = forms.CharField(max_length=36, required=False)
     enabled = forms.BooleanField(required=False, initial=True)
     class Meta:
         model = ppModels.FormatPolicyRule  
