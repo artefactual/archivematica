@@ -1,17 +1,29 @@
 <processingMCP>
   <preconfiguredChoices>
     <preconfiguredChoice>
-      <appliesTo>Workflow decision - create transfer backup</appliesTo>
-      <goToChain>Do not backup transfer</goToChain>
-    </preconfiguredChoice>
-    <preconfiguredChoice>
       <appliesTo>Workflow decision - send transfer to quarantine</appliesTo>
       <goToChain>Skip quarantine</goToChain>
     </preconfiguredChoice>
     <preconfiguredChoice>
       <appliesTo>Remove from quarantine</appliesTo>
       <goToChain>Unquarantine</goToChain>
-      <delay unitCtime="yes">50</delay>
+      <delay unitCtime="yes">2419200.0</delay>
+    </preconfiguredChoice>
+    <preconfiguredChoice>
+      <appliesTo>Select format identification tool</appliesTo>
+      <goToChain>extension (default)</goToChain>
+    </preconfiguredChoice>
+    <preconfiguredChoice>
+      <appliesTo>Select compression algorithm</appliesTo>
+      <goToChain>lzma</goToChain>
+    </preconfiguredChoice>
+    <preconfiguredChoice>
+      <appliesTo>Select compression level</appliesTo>
+      <goToChain>5 - normal compression mode</goToChain>
+    </preconfiguredChoice>
+    <preconfiguredChoice>
+      <appliesTo>Store AIP location</appliesTo>
+      <goToChain>Store AIP in standard Archivematica Directory</goToChain>
     </preconfiguredChoice>
   </preconfiguredChoices>
 </processingMCP>
