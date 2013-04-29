@@ -255,9 +255,11 @@ def fpr_edit_format(request, uuid=None):
                 newformat = form.save(commit=False)
                 newformat.replaces = request.POST['replaces']
                 newformat.save()
-        uuid = newformat.pk
-        url = reverse('components.preservation_planning.views.fpr_edit_format', kwargs={'uuid': uuid})
-        return HttpResponseRedirect(url)
+                uuid = newformat.pk
+                valid_submission = True
+        if valid_submission:
+            url = reverse('components.preservation_planning.views.fpr_edit_format', kwargs={'uuid': uuid})
+            return HttpResponseRedirect(url)
     else:
         if uuid:
             fprFormat = ppModels.FormatID.objects.get(pk = uuid)
@@ -290,9 +292,11 @@ def fpr_edit_command(request, uuid=None):
             if form.is_valid():
                 newcommand = form.save(commit=False)
                 newcommand.save()
-        uuid = newcommand.pk
-        url = reverse('components.preservation_planning.views.fpr_edit_command', kwargs={'uuid': uuid})
-        return HttpResponseRedirect(url)
+                uuid = newcommand.pk
+                valid_submission = True
+        if valid_submission:
+            url = reverse('components.preservation_planning.views.fpr_edit_command', kwargs={'uuid': uuid})
+            return HttpResponseRedirect(url)
     else:
         if uuid:
             fprCommand = ppModels.Command.objects.get(pk = uuid)
