@@ -72,7 +72,7 @@ def administration_processing(request):
             "name":       "normalize_transfer",
             "label":      "Approve normalization",
             "applies_to": "Approve normalization",
-            "yes_option": "Approve normalization",
+            "yes_option": "Approve",
             "action":     "Approve"
         },
         {
