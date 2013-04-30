@@ -141,10 +141,10 @@ class FPREditCommand(ModelForm):
         widget =  TextInput(attrs = {'class':'Description'}))
     description = forms.CharField(label = 'Description', required = False, max_length = 100,
         widget = TextInput(attrs = {'class':'Description'}))
-    verificationCommand = DescriptionModelChoiceField(queryset=ppModels.Command.objects.filter(commandUsage='verification').order_by('description'), label = 'Verification command', required=False)
-    eventDetailCommand = DescriptionModelChoiceField(queryset=ppModels.Command.objects.filter(commandUsage='eventDetail').order_by('description'), label = 'Event detail command', required=False)
+    verificationCommand = forms.ChoiceField(choices = getCommands('verification'), label = 'Verification command', required=False)
+    eventDetailCommand = forms.ChoiceField(choices = getCommands('eventDetail'), label = 'Event detail command', required=False)
     replaces = forms.CharField(max_length=36, required=False)
-    enabled = forms.BooleanField(initial = True) 
+    enabled = forms.BooleanField(required=False, initial = True) 
         
     class Meta:
         model = ppModels.Command
