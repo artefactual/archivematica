@@ -234,9 +234,10 @@ def preservation_planning_fpr_data(request, current_page_number = None):
     return render(request, 'main/preservation_planning_fpr.html', locals())
 
 def fpr_edit_format(request, uuid=None):
-    valid_submission = False
+    
     fprFormat = None
     if request.POST:
+        valid_submission = False
         if uuid:
             fprFormat = ppModels.FormatID.objects.get(pk = uuid)
             form = FPREditFormatID(request.POST)
@@ -250,6 +251,7 @@ def fpr_edit_format(request, uuid=None):
                 newformat.replaces = fprFormat.pk
                 newformat.save()
                 valid_submission = True
+                uuid = newformat.pk
         else:
             form = FPREditFormatID(request.POST)
             if form.is_valid():
@@ -271,9 +273,10 @@ def fpr_edit_format(request, uuid=None):
     return render(request, 'main/edit_format_id_fpr.html', locals())
 
 def fpr_edit_command(request, uuid=None):
-    valid_submission = False
+    
     fprCommand = None
     if request.method == 'POST':
+        valid_submission = False
         if uuid:
             fprCommand = ppModels.Command.objects.get(pk = uuid)
             form = FPREditCommand(request.POST)
@@ -288,6 +291,7 @@ def fpr_edit_command(request, uuid=None):
                 newcommand.replaces = fprCommand.pk
                 newcommand.save()
                 valid_submission = True
+                uuid = newcommand.pk
         else:
             form = FPREditCommand(request.POST)
             if form.is_valid():
