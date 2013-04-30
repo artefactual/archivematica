@@ -21,6 +21,10 @@
 # @author Joseph Perry <joseph@artefactual.com>>
 # @version svn: $Id$
 
+echo "Disabled, as per issue-1882 ( https://projects.artefactual.com/issues/1882 )."
+exit
+
+
 origDir="`pwd`"
 cd "`dirname $0`"
 databaseName="MCP"

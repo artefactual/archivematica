@@ -37,8 +37,13 @@ fi
 
 
 mysql -u $username $dbpassword --execute="source ./removeFPRData.sql" $databaseName
-mysql -u $username $dbpassword --execute="source ./mysql" $databaseName
+mysql -u $username $dbpassword --execute="source ./mysql_0.10" $databaseName
 mysql -u $username $dbpassword --execute="INSERT INTO UnitVariables SET pk='351e1464-7ab8-4cf1-a4cf-db8cef5c3090', variableValue='2013-03-29T13:10:12', unitType='FPR', unitUUID = 'Client', variable = 'maxLastUpdate';" $databaseName
+mysql -u $username $dbpassword --execute="source ./mysql_dev1" $databaseName
+#./migration1.sh
+#mysql -u $username $dbpassword --execute="source ./mysql_dev2" $databaseName
+#./migration2.sh
+#mysql -u $username $dbpassword --execute="source ./mysql_dev3" $databaseName
 
 /usr/lib/archivematica/FPRClient/addLinks.py
 
