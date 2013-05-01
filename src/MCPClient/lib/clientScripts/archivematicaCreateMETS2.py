@@ -196,6 +196,7 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
                 key2 = key.replace("dc.", "", 1)
             elif  key.startswith("dcterms."):
                 key2 = key.replace("dcterms.", "", 1)
+            value = value.decode('utf-8')
             etree.SubElement(dc, key2).text = value
         else: #not a dublin core item
             #print "non dc: ", key, value
