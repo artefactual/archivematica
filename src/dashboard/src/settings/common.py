@@ -230,7 +230,7 @@ TASKS_PER_PAGE = 10 # for paging in tasks dialog
 UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
 
 FPR_URL = 'https://fpr.archivematica.org/fpr/api/v1/'
-ALLOWED_HOSTS = ('localhost')
+ALLOWED_HOSTS = ('localhost', '127.0.0.1')
 MICROSERVICES_HELP = {
     'Approve transfer': 'Select "Approve transfer" to begin processing or "Reject transfer" to start over again.',
     'Workflow decision - create transfer backup': 'Create a complete backup of the transfer in case transfer/ingest are interrupted or fail. The transfer will automatically be deleted once the AIP has been moved into storage.',
