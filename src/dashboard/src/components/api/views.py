@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import os, simplejson
-from django.http import Http404, HttpResponse, HttpResponseForbidden
+from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseServerError
 from django.db.models import Q
 from tastypie.authentication import ApiKeyAuthentication
 from contrib.mcp.client import MCPClient
@@ -87,10 +87,16 @@ def unapproved_transfers(request):
             else:
                 response['message'] = 'Fetched unapproved transfers successfully.'
 
-                return HttpResponse(
-                    simplejson.JSONEncoder().encode(response),
-                    mimetype='application/json'
-                )
+                if error != None:
+                    return HttpResponseServerError(
+                        simplejson.JSONEncoder().encode(response),
+                        mimetype='application/json'
+                    )
+                else:
+                    return HttpResponse(
+                        simplejson.JSONEncoder().encode(response),
+                        mimetype='application/json'
+                    )
         else:
             return HttpResponseForbidden()
     else:
@@ -121,10 +127,16 @@ def approve_transfer(request):
             else:
                 response['message'] = 'Approval successful.'
 
-            return HttpResponse(
-                simplejson.JSONEncoder().encode(response),
-                mimetype='application/json'
-            )
+            if error != None:
+                return HttpResponseServerError(
+                    simplejson.JSONEncoder().encode(response),
+                    mimetype='application/json'
+                )
+            else:
+                return HttpResponse(
+                    simplejson.JSONEncoder().encode(response),
+                    mimetype='application/json'
+                )
         else:
             return HttpResponseForbidden()
     else:
