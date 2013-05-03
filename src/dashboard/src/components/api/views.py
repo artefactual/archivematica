@@ -52,7 +52,7 @@ def unapproved_transfers(request):
 
             jobs = models.Job.objects.filter(
                  (
-                     Q(jobtype="Approve transfer")
+                     Q(jobtype="Approve standard transfer")
                      | Q(jobtype="Approve DSpace transfer")
                      | Q(jobtype="Approve bagit transfer")
                  ) & Q(currentstep='Awaiting decision')
