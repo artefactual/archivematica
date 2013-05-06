@@ -24,6 +24,8 @@ from main import models
 from components import helpers
 
 def authenticate_request(request):
+    error = None
+
     api_auth = ApiKeyAuthentication()
     authorized = api_auth.is_authenticated(request)
 
@@ -32,20 +34,24 @@ def authenticate_request(request):
         whitelist = helpers.get_setting('api_whitelist', '127.0.0.1').split("\r\n")
         try:
             whitelist.index(client_ip)
-            return True
+            return
         except:
-            pass
+            error = 'Host/IP ' + client_ip + ' not authorized.'
+    else:
+        error = 'API key not valid.'
 
-    return False
+    return error
 
 #
 # Example: http://127.0.0.1/api/transfer/unapproved?username=mike&api_key=<API key>
 #
 def unapproved_transfers(request):
     if request.method == 'GET':
-        authorized = authenticate_request(request)
+        auth_error = authenticate_request(request)
 
-        if authorized == True:
+        response = {}
+
+        if auth_error == None:
             message    = ''
             error      = None
             unapproved = []
@@ -77,8 +83,6 @@ def unapproved_transfers(request):
 
             # get list of unapproved transfers
             # return list as JSON
-            response = {}
-
             response['results'] = unapproved
 
             if error != None:
@@ -98,7 +102,12 @@ def unapproved_transfers(request):
                         mimetype='application/json'
                     )
         else:
-            return HttpResponseForbidden()
+            response['message'] = auth_error
+            response['error']   = True 
+            return HttpResponseForbidden(
+                simplejson.JSONEncoder().encode(response),
+                mimetype='application/json'
+            )
     else:
         return Http404
 
@@ -109,17 +118,17 @@ def unapproved_transfers(request):
 #
 def approve_transfer(request):
     if request.method == 'POST':
-        authorized = authenticate_request(request)
+        auth_error = authenticate_request(request)
 
-        if authorized == True:
+        response = {}
+
+        if auth_error == None:
             message = ''
             error   = None
 
             directory = request.POST.get('directory', '')
             type      = request.POST.get('type', 'standard')
             error     = approve_transfer_via_mcp(directory, type, request.user.id)
-
-            response = {}
 
             if error != None:
                 response['message'] = error
@@ -138,7 +147,12 @@ def approve_transfer(request):
                     mimetype='application/json'
                 )
         else:
-            return HttpResponseForbidden()
+            response['message'] = auth_error
+            response['error']   = True
+            return HttpResponseForbidden(
+                simplejson.JSONEncoder().encode(response),
+                mimetype='application/json'
+            )
     else:
         raise Http404
 
