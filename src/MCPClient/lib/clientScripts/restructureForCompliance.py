@@ -114,6 +114,9 @@ def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitI
             print "moving file to objects: ", item
             dst = os.path.join(unitPath, "objects", item)
             updateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+        elif item in optionalFiles:
+            dst = os.path.join(unitPath, item)
+            updateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
     print "removing empty data directory"
     os.rmdir(unitDataPath)
 
