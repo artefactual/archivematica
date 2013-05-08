@@ -33,6 +33,7 @@ import uuid
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions, databaseInterface, databaseFunctions
 from archivematicaCreateStructuredDirectory import createStructuredDirectory
+from components import helpers
 
 # for unciode sorting support
 import locale
@@ -188,13 +189,12 @@ def copy_transfer_component(request):
         if path == '':
             error = 'No path provided.'
         else:
-            # if transfer compontent path leads to a ZIP file, treat as zipped
+            # if transfer compontent path leads to an archive, treat as zipped
             # bag
-            try:
-                path.lower().index('.zip')
+            if helpers.file_is_an_archive(path):
                 rsync_copy(path, destination)
                 paths_copied = 1
-            except:
+            else:
                 transfer_dir = os.path.join(destination, transfer_name)
 
                 # Create directory before it is used, otherwise shutil.copy()
@@ -322,9 +322,7 @@ def copy_to_start_transfer(request):
 
         # if transfer compontent path leads to a ZIP file, treat as zipped
         # bag
-        try:
-            filepath.lower().index('.zip')
-        except:
+        if not helpers.file_is_an_archive(filepath):
             destination = os.path.join(destination, basename)
             destination = pad_destination_filepath_if_it_already_exists(destination)
 

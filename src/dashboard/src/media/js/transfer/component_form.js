@@ -89,11 +89,11 @@ var TransferComponentFormView = Backbone.View.extend({
 
         // move from temp directory to appropriate watchdir
         var url = '/filesystem/ransfer/'
-          , isZipFile = path.toLowerCase().indexOf('.zip') != -1
+          , isArchiveFile = path.toLowerCase().indexOf('.zip') != -1 || path.toLowerCase().indexOf('.tgz') != -1 || path.toLowerCase().indexOf('.tar.gz') != -1
           , filepath;
 
         // if transfer is a ZIP file, then extract basename add to temporary directory
-        if (isZipFile) {
+        if (isArchiveFile) {
           filepath = tempDir + '/' + path.replace(/\\/g,'/').replace( /.*\//, '' );
         } else {
           filepath = tempDir + '/' + transfer.name;

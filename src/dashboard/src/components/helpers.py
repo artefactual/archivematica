@@ -186,3 +186,7 @@ def send_file(request, filepath):
 
     response['Content-Length'] = os.path.getsize(filepath)
     return response
+
+def file_is_an_archive(file):
+    file = file.lower()
+    return file.endswith('.zip') or file.endswith('.tgz') or file.endswith('.tar.gz')
