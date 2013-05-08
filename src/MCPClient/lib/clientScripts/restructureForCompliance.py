@@ -94,8 +94,9 @@ def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitI
             updateDirectoryLocation(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
             print "moving directory ", dir 
         else:
-            print "creating: ", dir
-            os.mkdir(dirPath)
+            if not os.path.isdir(dirPath):
+                print "creating: ", dir
+                os.mkdir(dirPath)
     for item in os.listdir(unitPath):
         src = os.path.join(unitPath, item)
         if os.path.isfile(src):
