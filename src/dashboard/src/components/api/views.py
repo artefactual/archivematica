@@ -61,6 +61,7 @@ def unapproved_transfers(request):
                      Q(jobtype="Approve standard transfer")
                      | Q(jobtype="Approve DSpace transfer")
                      | Q(jobtype="Approve bagit transfer")
+                     | Q(jobtype="Approve zipped bagit transfer")
                  ) & Q(currentstep='Awaiting decision')
             )
 
@@ -181,7 +182,10 @@ def approve_transfer_via_mcp(directory, type, user_id):
         if modified_transfer_path == None:
             error = 'Invalid transfer type.'
         else:
-            transfer_path = os.path.join(modified_transfer_path, directory) + '/'
+            if type == 'zipped bag':
+                transfer_path = os.path.join(modified_transfer_path, directory)
+            else:
+                transfer_path = os.path.join(modified_transfer_path, directory) + '/'
 
             # look up job UUID using transfer path
             try:
