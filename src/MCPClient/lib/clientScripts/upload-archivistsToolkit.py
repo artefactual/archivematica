@@ -101,7 +101,7 @@ def get_files_from_dip(dip_location, dip_name, dip_uuid):
         raise
         sys.exit(24)
 
-def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix):
+def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions):
     global db
     global cursor
     db, cursor = connect_db(args.atdbhost, args.atdbport, args.atdbuser, args.atdbpass, args.atdb)
@@ -147,6 +147,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         dateExpression = data[4]
         rc_title = data[5]
         
+	logger.debug("found rc_title: " + rc_title + " " + len(rc_title))
         if rc_title:
             short_file_name = rc_title
         else:
@@ -189,7 +190,21 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
            (%d, 1, '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s','%s', %d)""" % (base_fv_id,time_now, time_now,atuser,atuser,file_uri,use_statement,0, ead_actuate,ead_show, doID)
         logger.debug('sql6: ' + sql6)
         process_sql(sql6)
-    
+
+        #create notes
+        sql7 = " select max(archdescriptionrepeatingdataId) from archdescriptionrepeatingdata"
+        logger.debug('sql7: ' + sql7) 
+        cursor.execute(sql7)
+        data = cursor.fetchone()
+        newadrd = int(data[0]) + 1
+
+        sql8 = """insert into archdescriptionrepeatingdata 
+            (archdescriptionrepeatingdataid, descriminator, version, lastupdated, created, lastupdatedby ,createdby, repeatingdatatype, title, sequenceNumber,
+            digitalobjectId, noteContent, notesetctypeid) values 
+            (%d, 'note',0, '%s', '%s', '%s', '%s','Note','Existence and Location of Originals note', 0, %d, '%s',13)""" % (newadrd, time_now, time_now, atuser, atuser, doID, dip_uuid ) 
+        logger.debug('sql8: ' + sql8)
+        cursor.execute(sql8)
+        
     print "done all files"
     process_sql("commit")
 
@@ -229,7 +244,7 @@ if __name__ == '__main__':
     
     try:
         mylist = get_files_from_dip(args.dip_location, args.dip_name, args.dip_uuid)
-        upload_to_atk(mylist, args.atuser, args.ead_actuate, args.ead_show, args.object_type, args.use_statement, args.uri_prefix)
+        upload_to_atk(mylist, args.atuser, args.ead_actuate, args.ead_show, args.object_type, args.use_statement, args.uri_prefix, args.dip_uuid, args.access_conditions, args.use_conditions)
     except Exception as exc:
         print exc
     
