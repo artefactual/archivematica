@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from .common import *
-
+TEMPLATE_DEBUG = True
 DEBUG = True
 TEMPLATE_DEBUG = True
 FPR_URL = 'https://fpr.artefactual.com/fpr/api/v1/'
