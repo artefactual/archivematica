@@ -187,11 +187,36 @@ def approve_transfer_via_mcp(directory, type, user_id):
             try:
                 job = models.Job.objects.filter(directory=transfer_path, currentstep='Awaiting decision')[0]
 
-                # approve transfer
-                client = MCPClient()
+                type_task_config_descriptions = {
+                    'standard':     'Approve standard transfer',
+                    'unzipped bag': 'Approve bagit transfer',
+                    'zipped bag':   'Approve zipped bagit transfer',
+                    'dspace':       'Approve DSpace transfer',
+                    'maildir':      'Approve maildir transfer',
+                    'TRIM':         'Approve TRIM transfer'
+                }
 
-                # 3rd arg should be uid?
-                result = client.execute(job.pk, 'Approve', user_id)
+                type_description = type_task_config_descriptions[type]
+
+                # use transfer type to fetch possible choices to execute
+                task = models.TaskConfig.objects.get(description=type_description)
+                link = models.MicroServiceChainLink.objects.get(currenttask=task.pk)
+                choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink=link.pk)
+
+                # attempt to find appropriate choice
+                chain_to_execute = None
+                for choice in choices:
+                    chain = models.MicroServiceChain.objects.get(pk=choice.chainavailable)
+                    if chain.description == 'Approve transfer':
+                        chain_to_execute=chain.pk
+
+                # execute choice if found
+                if chain_to_execute != None:
+                    client = MCPClient()
+
+                    result = client.execute(job.pk, chain_to_execute, user_id)
+                else:
+                    error = 'Error: could not find MCP choice to execute.'
 
             except:
                 error = 'Unable to find unapproved transfer directory.'
