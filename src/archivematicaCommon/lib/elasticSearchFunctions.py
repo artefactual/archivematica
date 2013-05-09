@@ -171,7 +171,7 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS):
         'size':     os.path.getsize(filePath) / float(1024) / float(1024),
         'mets':     mets_data,
         'origin':   getDashboardUUID(),
-        'created':  time.time()
+        'created':  os.path.getmtime(pathToMETS)
     }
     conn.index(aipData, 'aips', 'aip')
 
