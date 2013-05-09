@@ -71,10 +71,15 @@ def unapproved_transfers(request):
                     get_modified_standard_transfer_path() + '/',
                     '',
                     1
-                )[:-1]
+                )
+
+                # remove trailing slash if not a zipped bag file
+                if not helpers.file_is_an_archive(job.directory):
+                    type_and_directory = type_and_directory[:-1]
 
                 transfer_watch_directory = type_and_directory.split('/')[0]
                 transfer_type = helpers.transfer_type_by_directory(transfer_watch_directory)
+
                 job_directory = type_and_directory.replace(transfer_watch_directory + '/', '', 1)
 
                 unapproved.append({
