@@ -38,14 +38,14 @@ from components import decorators
 AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'
 
 @decorators.elasticsearch_required()
-def archival_storage(request):
-    return archival_storage_list_display(request)
+def overview(request):
+    return list_display(request)
 
 @decorators.elasticsearch_required()
-def archival_storage_page(request, page=None):
-    return archival_storage_list_display(request, page)
+def page(request, page=None):
+    return list_display(request, page)
 
-def archival_storage_search(request):
+def search(request):
     # deal with transfer mode
     file_mode = False
     checked_if_in_file_mode = ''
@@ -59,7 +59,7 @@ def archival_storage_search(request):
     # redirect if no search params have been set
     if not 'query' in request.GET:
         return helpers.redirect_with_get_params(
-            'components.archival_storage.views.archival_storage_search',
+            'components.archival_storage.views.search',
             query='',
             field='',
             type=''
@@ -111,10 +111,10 @@ def archival_storage_search(request):
 
         page_data = helpers.pager(aip_uuids, items_per_page, page + 1)
         aip_uuids = page_data['objects']
-        archival_storage_search_augment_aip_results(conn, aip_uuids)
+        search_augment_aip_results(conn, aip_uuids)
     else:
         number_of_results = results.hits.total
-        results = archival_storage_search_augment_file_results(results)
+        results = search_augment_file_results(results)
 
     # set remaining paging variables
     end, previous_page, next_page = advanced_search.paging_related_values_for_template_use(
@@ -134,7 +134,7 @@ def archival_storage_search(request):
     form = forms.StorageSearchForm(initial={'query': queries[0]})
     return render(request, 'archival_storage/archival_storage_search.html', locals())
 
-def archival_storage_search_augment_aip_results(conn, aips):
+def search_augment_aip_results(conn, aips):
     for aip_uuid in aips:
         documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('uuid', aip_uuid.term)))
         if len(documents['hits']['hits']) > 0:
@@ -145,7 +145,7 @@ def archival_storage_search_augment_aip_results(conn, aips):
         else:
             aip_uuid.name = '(data missing)' 
 
-def archival_storage_search_augment_file_results(raw_results):
+def search_augment_file_results(raw_results):
     modifiedResults = []
 
     for item in raw_results.hits.hits:
@@ -173,11 +173,11 @@ def archival_storage_search_augment_file_results(raw_results):
 
     return modifiedResults
 
-def archival_storage_aip_download(request, uuid):
+def aip_download(request, uuid):
     aip = elasticSearchFunctions.connect_and_get_aip_data(uuid)
     return helpers.send_file_or_return_error_response(request, aip.filePath, 'AIP')
 
-def archival_storage_aip_file_download(request, uuid):
+def aip_file_download(request, uuid):
     # get file basename
     file          = models.File.objects.get(uuid=uuid)
     file_basename = os.path.basename(file.currentlocation)
@@ -220,7 +220,7 @@ def archival_storage_aip_file_download(request, uuid):
     extracted_file_path = os.path.join(temp_dir, file_basename)
     return send_file(request, extracted_file_path)
 
-def archival_storage_send_thumbnail(request, fileuuid):
+def send_thumbnail(request, fileuuid):
     # get AIP location to use to find root of AIP storage
     sipuuid = helpers.get_file_sip_uuid(fileuuid)
     aip = elasticSearchFunctions.connect_and_get_aip_data(sipuuid)
@@ -248,7 +248,7 @@ def archival_storage_send_thumbnail(request, fileuuid):
 
     return send_file(request, thumbnail_path)
 
-def archival_storage_list_display(request, current_page_number=None):
+def list_display(request, current_page_number=None):
     form = forms.StorageSearchForm()
 
     total_size = 0
@@ -307,7 +307,7 @@ def archival_storage_list_display(request, current_page_number=None):
 
     return render(request, 'archival_storage/archival_storage.html', locals())
 
-def archival_storage_document_json_response(document_id_modified, type):
+def document_json_response(document_id_modified, type):
     document_id = document_id_modified.replace('____', '-')
     conn = httplib.HTTPConnection(elasticSearchFunctions.getElasticsearchServerHostAndPort())
     conn.request("GET", "/aips/" + type + "/" + document_id)
@@ -316,8 +316,8 @@ def archival_storage_document_json_response(document_id_modified, type):
     pretty_json = simplejson.dumps(simplejson.loads(data), sort_keys=True, indent=2)
     return HttpResponse(pretty_json, content_type='application/json')
 
-def archival_storage_file_json(request, document_id_modified):
-    return archival_storage_document_json_response(document_id_modified, 'aipfile')
+def file_json(request, document_id_modified):
+    return document_json_response(document_id_modified, 'aipfile')
 
-def archival_storage_aip_json(request, document_id_modified):
-    return archival_storage_document_json_response(document_id_modified, 'aip')
+def aip_json(request, document_id_modified):
+    return document_json_response(document_id_modified, 'aip')

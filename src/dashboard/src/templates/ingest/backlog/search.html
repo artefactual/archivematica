@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block css %}
-  <link href="{{ STATIC_URL }}css/archival_storage.css" rel="stylesheet" type="text/css" />
+  <link href="{{ STATIC_URL }}css/search.css" rel="stylesheet" type="text/css" />
 {% endblock %}
 
 {% block content %}
@@ -142,7 +142,7 @@
     </div>
 
   {% else %}
-    <div id='aip-search-summary'>No results, please try another search.</div>
+    <div id='search-summary'>No results, please try another search.</div>
   {% endif %}
 
 {% endblock %}

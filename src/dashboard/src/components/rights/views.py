@@ -172,10 +172,6 @@ def rights_edit(request, uuid, id=None, section='ingest'):
         copyrightFormset = CopyrightFormSet(request.POST, instance=createdRights)
         createdCopyrightSet = copyrightFormset.save()
 
-        # if copyright has been created, do a reload and inform user - MIGHT NOT NEED TO DO THIS NOW
-        #if request.POST.get('copyright_previous_pk', '') == 'None' and createdCopyright:
-        #    new_content_type_created = 'copyright'
-
         # establish whether or not there is a copyright information instance to use as a parent
         if len(createdCopyrightSet) == 1:
             createdCopyright = createdCopyrightSet[0]
@@ -218,8 +214,6 @@ def rights_edit(request, uuid, id=None, section='ingest'):
 
         licenseFormset = LicenseFormSet(request.POST, instance=createdRights)
         createdLicenseSet = licenseFormset.save()
-        #if request.POST.get('license_previous_pk', '') == 'None' and len(createdLicense) == 1:
-        #    new_content_type_created = 'license'
 
         # establish whether or not there is a license instance to use as a parent
         if len(createdLicenseSet) == 1:
@@ -266,7 +260,6 @@ def rights_edit(request, uuid, id=None, section='ingest'):
         if request.POST.get('statute_previous_pk', '') == 'None' and len(createdStatuteSet) == 1:
             new_content_type_created = 'statute'
 
-        #restrictionCreated = False
         noteCreated = False
         for form in statuteFormset.forms:
             statuteCreated = False
@@ -323,8 +316,6 @@ def rights_edit(request, uuid, id=None, section='ingest'):
 
         otherFormset = OtherFormSet(request.POST, instance=createdRights)
         createdOtherSet = otherFormset.save()
-        #if request.POST.get('other_previous_pk', '') == 'None' and len(createdOther) == 1:
-        #    new_content_type_created = createdRights.rightsbasis
 
         # establish whether or not there is an "other" instance to use as a parent
         if len(createdOtherSet) == 1:

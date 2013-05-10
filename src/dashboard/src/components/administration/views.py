@@ -23,7 +23,7 @@ from django.utils import simplejson
 from main import forms
 from main import models
 import sys
-import components.administration.views_processing as processing
+import components.administration.views_processing as processing_views
 from lxml import etree
 from components.administration.forms import AdministrationForm
 from components.administration.forms import AgentForm
@@ -35,13 +35,13 @@ import components.helpers as helpers
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 def administration(request):
-    return HttpResponseRedirect(reverse('components.administration.views.administration_sources'))
+    return HttpResponseRedirect(reverse('components.administration.views.sources'))
 
 def administration_dip(request):
     upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
     return render(request, 'administration/dip.html', locals())
 
-def administration_dip_edit(request, id):
+def dip_edit(request, id):
     if request.method == 'POST':
         upload_setting = models.StandardTaskConfig.objects.get(pk=id)
         form = AdministrationForm(request.POST)
@@ -51,47 +51,47 @@ def administration_dip_edit(request, id):
 
     return HttpResponseRedirect(reverse("components.administration.views.administration_dip"))
 
-def administration_atom_dips(request):
-    link_id = administration_atom_dip_destination_select_link_id()
+def atom_dips(request):
+    link_id = atom_dip_destination_select_link_id()
     ReplaceDirChoices = models.MicroServiceChoiceReplacementDic.objects.filter(choiceavailableatlink=link_id)
 
-    ReplaceDirChoiceFormSet = administration_dips_formset()
+    ReplaceDirChoiceFormSet = dips_formset()
 
-    valid_submission, formset = administration_dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet)
+    valid_submission, formset = dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet)
 
     if request.method != 'POST' or valid_submission:
         formset = ReplaceDirChoiceFormSet(queryset=ReplaceDirChoices)
 
     return render(request, 'administration/dips_edit.html', locals())
 
-def administration_contentdm_dips(request):
-    link_id = administration_contentdm_dip_destination_select_link_id()
+def contentdm_dips(request):
+    link_id = contentdm_dip_destination_select_link_id()
     ReplaceDirChoices = models.MicroServiceChoiceReplacementDic.objects.filter(choiceavailableatlink=link_id)
 
-    ReplaceDirChoiceFormSet = administration_dips_formset()
+    ReplaceDirChoiceFormSet = dips_formset()
 
-    valid_submission, formset, add_form = administration_dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet)
+    valid_submission, formset, add_form = dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet)
 
     if request.method != 'POST' or valid_submission:
         formset = ReplaceDirChoiceFormSet(queryset=ReplaceDirChoices)
 
     return render(request, 'administration/dips_contentdm_edit.html', locals())
 
-def administration_atom_dip_destination_select_link_id():
+def atom_dip_destination_select_link_id():
     taskconfigs = models.TaskConfig.objects.filter(description='Select DIP upload destination')
     taskconfig = taskconfigs[0]
     links = models.MicroServiceChainLink.objects.filter(currenttask=taskconfig.id)
     link = links[0]
     return link.id
 
-def administration_contentdm_dip_destination_select_link_id():
+def contentdm_dip_destination_select_link_id():
     taskconfigs = models.TaskConfig.objects.filter(description='Select target CONTENTdm server')
     taskconfig = taskconfigs[0]
     links = models.MicroServiceChainLink.objects.filter(currenttask=taskconfig.id)
     link = links[0]
     return link.id
 
-def administration_dips_formset():
+def dips_formset():
     return modelformset_factory(
         models.MicroServiceChoiceReplacementDic,
         form=forms.MicroServiceChoiceReplacementDicForm,
@@ -99,7 +99,7 @@ def administration_dips_formset():
         can_delete=True
     )
 
-def administration_dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet):
+def dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet):
     valid_submission = True
     formset = None
 
@@ -140,23 +140,23 @@ def administration_dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet
                 instance.save()
     return valid_submission, formset, add_form
 
-def administration_storage(request):
+def storage(request):
     picker_js_file = 'storage_directory_picker.js'
     system_directory_description = 'AIP storage'
     return render(request, 'administration/sources.html', locals())
 
-def administration_storage_json(request):
+def storage_json(request):
     return administration_system_directory_data_request_handler(
       request,
       models.StorageDirectory
     )
 
-def administration_sources(request):
+def sources(request):
     picker_js_file = 'source_directory_picker.js'
     system_directory_description = 'Transfer source'
     return render(request, 'administration/sources.html', locals())
 
-def administration_sources_json(request):
+def sources_json(request):
     return administration_system_directory_data_request_handler(
       request,
       models.SourceDirectory
@@ -197,8 +197,8 @@ def administration_system_directory_data_request_handler(request, model):
       mimetype='application/json'
     )
 
-def administration_storage_delete_json(request, id):
-    response = administration_system_directory_delete_request_handler(
+def storage_delete_json(request, id):
+    response = system_directory_delete_request_handler(
       request,
       models.StorageDirectory,
       id
@@ -206,14 +206,14 @@ def administration_storage_delete_json(request, id):
     administration_render_storage_directories_to_dicts()
     return response
 
-def administration_sources_delete_json(request, id):
-    return administration_system_directory_delete_request_handler(
+def sources_delete_json(request, id):
+    return system_directory_delete_request_handler(
       request, 
       models.SourceDirectory,
       id
     )
 
-def administration_system_directory_delete_request_handler(request, model, id):
+def system_directory_delete_request_handler(request, model, id):
     model.objects.get(pk=id).delete()
     if model == models.StorageDirectory:
         administration_render_storage_directories_to_dicts()
@@ -221,8 +221,8 @@ def administration_system_directory_delete_request_handler(request, model, id):
     response['message'] = 'Deleted.'
     return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
 
-def administration_processing(request):
-    return processing.administration_processing(request)
+def processing(request):
+    return processing_views.index(request)
 
 def administration_render_storage_directories_to_dicts():
     administration_flush_aip_storage_dicts()
@@ -252,7 +252,7 @@ def administration_get_aip_storage_link_pk():
     links = models.MicroServiceChainLink.objects.filter(currenttask=tasks[0].pk)
     return links[0].pk
 
-def administration_premis_agent(request):
+def premis_agent(request):
     agent = models.Agent.objects.get(pk=2)
     if request.POST:
         form = AgentForm(request.POST, instance=agent)
@@ -263,7 +263,7 @@ def administration_premis_agent(request):
 
     return render(request, 'administration/premis_agent.html', locals())
 
-def administration_api(request):
+def api(request):
     if request.method == 'POST':
         whitelist = request.POST.get('whitelist', '')
         helpers.set_setting('api_whitelist', whitelist)

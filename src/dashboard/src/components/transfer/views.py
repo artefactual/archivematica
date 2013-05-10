@@ -34,7 +34,7 @@ import components.decorators as decorators
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 @decorators.elasticsearch_required()
-def transfer_grid(request):
+def grid(request):
     if models.SourceDirectory.objects.count() > 0:
         source_directories = models.SourceDirectory.objects.all()
 
@@ -43,7 +43,7 @@ def transfer_grid(request):
     uid = request.user.id
     return render(request, 'transfer/grid.html', locals())
 
-def transfer_browser(request):
+def browser(request):
     originals_directory = '/var/archivematica/sharedDirectory/transferBackups/originals'
     arrange_directory = '/var/archivematica/sharedDirectory/transferBackups/arrange'
     if not os.path.exists(originals_directory):
@@ -52,7 +52,7 @@ def transfer_browser(request):
         os.mkdir(arrange_directory)
     return render(request, 'transfer/browser.html', locals())
 
-def transfer_status(request, uuid=None):
+def status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs GROUP BY SIPUUID
     objects = models.Job.objects.filter(hidden=False, subjobof='', unittype__exact='unitTransfer').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains = 'None').order_by('-timestamp')
     mcp_available = False
@@ -100,18 +100,18 @@ def transfer_status(request, uuid=None):
     response['mcp'] = mcp_available
     return HttpResponse(simplejson.JSONEncoder(default=encoder).encode(response), mimetype='application/json')
 
-def transfer_detail(request, uuid):
+def detail(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid)
     name = utils.get_directory_name(jobs[0])
     is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
     return render(request, 'transfer/detail.html', locals())
 
-def transfer_microservices(request, uuid):
+def microservices(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid)
     name = utils.get_directory_name(jobs[0])
     return render(request, 'transfer/microservices.html', locals())
 
-def transfer_delete(request, uuid):
+def delete(request, uuid):
     try:
         transfer = models.Transfer.objects.get(uuid__exact=uuid)
         transfer.hidden = True

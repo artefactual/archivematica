@@ -54,7 +54,7 @@ class PreconfiguredChoices:
         file = open(file_path, 'w')
         file.write(etree.tostring(self.xml, pretty_print=True))
 
-def administration_processing(request):
+def index(request):
     file_path = os.path.join(
         helpers.get_server_config_value('sharedDirectory'),
         'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'
@@ -176,7 +176,7 @@ def administration_processing(request):
 
         xmlChoices.write_to_file(file_path)
 
-        return HttpResponseRedirect(reverse('components.administration.views.administration_processing'))
+        return HttpResponseRedirect(reverse('components.administration.views.processing'))
     else:
         debug = request.GET.get('debug', '')
         quarantine_expiry = ''

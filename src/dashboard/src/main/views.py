@@ -38,7 +38,7 @@ def home(request):
         request.session.first_login = False
         redirectUrl = reverse('components.administration.views.administration')
     else:
-        redirectUrl = reverse('components.transfer.views.transfer_grid')
+        redirectUrl = reverse('components.transfer.views.grid')
     return HttpResponseRedirect(redirectUrl)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

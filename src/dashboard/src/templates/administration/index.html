@@ -16,9 +16,9 @@
 
       <p><a href="{% url components.administration.views.administration_dip %}" class="btn">Configure AtoM DIP upload</a></p>
 
-      <p><a href="{% url components.administration.views.administration_contentdm_dips %}" class="btn">Configure CONTENTdm DIP upload</a></p>
+      <p><a href="{% url components.administration.views.contentdm_dips %}" class="btn">Configure CONTENTdm DIP upload</a></p>
 
-      <p><a href="{% url components.administration.views.administration_sources %}" class="btn">Configure transfer source directories</a></p>
+      <p><a href="{% url components.administration.views.sources %}" class="btn">Configure transfer source directories</a></p>
 
       {% if user.is_superuser %}
         <p><a href="{% url accounts.views.list %}" class="btn">Users</a></p>

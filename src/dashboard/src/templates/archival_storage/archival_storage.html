@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block css %}
+  <link href="{{ STATIC_URL }}css/search.css" rel="stylesheet" type="text/css" />
   <link href="{{ STATIC_URL }}css/archival_storage.css" rel="stylesheet" type="text/css" />
 {% endblock %}
 
@@ -63,7 +64,7 @@
       <tbody>
         {% for item in sips %}
           <tr>
-            <td><a href="{% url components.archival_storage.views.archival_storage_aip_download item.uuid %}">{{ item.name }}</a></td>
+            <td><a href="{% url components.archival_storage.views.aip_download item.uuid %}">{{ item.name }}</a></td>
             <td class="size">{{ item.size }}</td>
             <td class="uuid">{{ item.uuid }}</td>
             <td><span class='timestamp'>{{ item.date }}</a></td>
@@ -76,13 +77,13 @@
       Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.total_items }}
       <div style='float:right'>
       {% if page.has_previous %}
-        <a href="{% url components.archival_storage.views.archival_storage_page page.previous %}" class="btn">Previous</a>
+        <a href="{% url components.archival_storage.views.page page.previous %}" class="btn">Previous</a>
         {% if page.has_next %}
           &nbsp;
         {% endif %}
       {% endif %}
       {% if page.has_next %}
-        <a href="{% url components.archival_storage.views.archival_storage_page page.next %}" class="btn">Next</a>
+        <a href="{% url components.archival_storage.views.page page.next %}" class="btn">Next</a>
       {% endif %}
       </div>
     {% endif %}
