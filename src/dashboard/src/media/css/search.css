@@ -1,0 +1,136 @@
+td, th {
+  border: 1px solid #eee;
+  text-align: left;
+}
+
+th > a.selected {
+  color: Black;
+}
+
+thead > tr > th {
+  background-color: #ddd;
+}
+
+td.link-sip > a {
+  background: transparent url(/media/images/package_go.png) no-repeat 0% 50%;
+  padding-left: 22px;
+  height: 16px;
+  display: block;
+}
+
+td.uuid, .uuid {
+  font-family: "Courier New", Courier, "Lucida Console", monospace;
+}
+
+th > div {
+  position: relative;
+}
+
+th > div > a {
+  display: block;
+  text-indent: -10000px;
+  position: absolute;
+  width: 16px;
+  height: 16px;
+}
+
+th > div > a.up {
+  background: transparent url(/media/images/bullet_arrow_up.png) no-repeat 0% 0%;
+  top: -8px;
+  right: -4px;
+}
+
+th > div > a.down {
+  background: transparent url(/media/images/bullet_arrow_down.png) no-repeat 0% 0%;
+  top: 6px;
+  right: -4px;
+}
+
+th > div > a.selected_up {
+  background-image: url(/media/images/bullet_orange.png);
+}
+
+th > div > a.selected_down {
+  background-image: url(/media/images/bullet_orange.png);
+}
+
+tbody > tr:last-child > td {
+  border-bottom: 2px solid #ddd;
+}
+
+tfoot > tr > td {
+  border: 0px;
+}
+
+td.size {
+  text-align: right;
+}
+
+/* AIP search */
+.aip-search-query-input {
+  width: 200px;
+}
+
+#aip-search-summary {
+  margin-bottom: 20px;
+  padding: .5em;
+  background-color: whitesmoke;
+}
+
+.aip-search-item-file-column-header {
+  float: left;
+  margin-left:145px;
+  width:330px;
+  text-align: center;
+}
+
+.aip-search-item-aip-column-header {
+  float: left;
+  width: 380px;
+  text-align: center;
+  margin-left: 20px;
+}
+
+.aip-search-item-thumbnail-column {
+  float: left;
+  margin-bottom: 40px;
+  width: 150px;
+}
+
+.aip-search-item-file-column {
+  float: left;
+  width: 330px;
+}
+
+.aip-search-item-aip-column {
+  float: left;
+  width: 380px;
+  margin-left: 20px;
+}
+
+#search_form_container {
+  float: left;
+  margin-bottom: 20px;
+}
+
+#search_form_container > div > div > div {
+  margin-bottom: 5px;
+}
+
+#search_form_container > div > div > div > select {
+  margin-left: 5px;
+}
+
+#search_form_submit_container {
+  float: left;
+  margin-left: 15px;
+}
+
+.search_op_selector {
+  width: 70px;
+  margin-right: 5px;
+}
+
+.advanced_search_form_row_multiple > .advanced_search_form_field_op {
+  width: 90px;
+}
