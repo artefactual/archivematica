@@ -217,8 +217,6 @@ var BaseSipView = Backbone.View.extend({
 
       this.$jobContainer = this.$('.sip-detail-job-container');
 
-      this.$('.sip-detail-actions > a').twipsy();
-
       $(this.el).hover(
         function() {
           // temporarily increase bottom margin if hovering over closed SIP container

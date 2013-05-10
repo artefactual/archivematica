@@ -193,8 +193,6 @@ $(function()
 
           this.$('.job-detail-microservice > a').tooltip();
 
-          this.$('.job-detail-actions > a').twipsy();
-
           return this;
         },
 
