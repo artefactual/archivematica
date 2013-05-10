@@ -2779,16 +2779,31 @@ LOCK TABLES `StorageDirectories` WRITE;
 INSERT INTO `StorageDirectories` (`pk`, `path`, `replaces`, `lastModified`) VALUES ('e9509ecf-be06-4572-b217-8ec3acb24ad2','%sharedPath%www/AIPsStore/',NULL,'2013-04-12 07:34:29');
 /*!40000 ALTER TABLE `StorageDirectories` ENABLE KEYS */;
 
+LOCK TABLES 'TasksConfigs' WRITE;
+/*!40000 ALTER TABLE `TasksConfigs` DISABLE KEYS */;
 INSERT INTO `TasksConfigs` (`pk`, `taskType`, `taskTypePKReference`, `description`, `replaces`, `lastModified`) VALUES ('4d56a90c-8d9f-498c-8331-cf469fcb3147','9c84b047-9a6d-463f-9836-eafa49743b84','','Upload to Archivists Toolkit',NULL,'2013-03-25 20:25:01');
-
 INSERT INTO `TasksConfigs` (`pk`, `taskType`, `taskTypePKReference`, `description`, `replaces`, `lastModified`) VALUES ('bcff2873-f006-442e-9628-5eadbb8d0db7','36b2e239-4a57-4aa5-8ebc-7a29139baca6','a650921e-b754-4e61-9713-1457cf52e77d','Upload to Archivists Toolkit',NULL,'2013-03-25 20:25:01');
+
+/*!40000 ALTER TABLE `TasksConfigs` ENABLE KEYS */;
+
+LOCK TABLES 'MicroServiceChains' WRITE;
+/*!40000 ALTER TABLE `MicroServiceChains` DISABLE KEYS */;
 
 INSERT INTO `MicroServiceChains` (`pk`, `startingLink`, `description`, `replaces`, `lastModified`) VALUES ('f11409ad-cf3c-4e7f-b0d5-4be32d98229b','7b1f1ed8-6c92-46b9-bab6-3a37ffb665f1','Upload DIP to Archivists Toolkit',NULL,'2013-03-25 20:25:01');
 
+/*!40000 ALTER TABLE `MicroServiceChains` ENABLE KEYS */;
+
+LOCK TABLES 'MicroServiceChoiceReplacementDic' WRITE;
+/*!40000 ALTER TABLE `MicroServiceChoiceReplacementDic` DISABLE KEYS */;
 INSERT INTO `MicroServiceChoiceReplacementDic` (`pk`, `choiceAvailableAtLink`, `description`, `replacementDic`, `replaces`, `lastModified`) VALUES ('5395d1ea-a892-4029-b5a8-5264a17bbade','7b1f1ed8-6c92-46b9-bab6-3a37ffb665f1','Archivists Toolkit Config','{\"%host%\":\"192.168.1.124\", \"%port%\":\"3306\", \"%dbname%\":\"atk01\", \"%dbuser%\":\"ATUser\", \"%dbpass%\":\"Password123\", \"%atuser%\":\"atkuser\", \"%restrictions%\":\"premis\", \"%object_type%\":\"\", \"%ead_actuate%\":\"onRequest\", \"%ead_show%\":\"new\", \"%use_statement%\":\"Image-Service\",\"%uri_prefix%\":\"http:www.rockarch.org/\", \"%access_conditions%\":\"\", \"%use_conditions%\":\"\"}',NULL,'2013-03-22 20:25:00');
 
+/*!40000 ALTER TABLE `MicroServiceChoiceReplacementDic` ENABLE KEYS */;
+
+LOCK TABLES 'StandardTasksConfigs' WRITE;
+/*!40000 ALTER TABLE `StandardTasksConfigs` DISABLE KEYS */;
 INSERT INTO `StandardTasksConfigs` (`pk`, `filterFileEnd`, `filterFileStart`, `filterSubDir`, `requiresOutputLock`, `standardOutputFile`, `standardErrorFile`, `execute`, `arguments`, `replaces`, `lastModified`) VALUES ('a650921e-b754-4e61-9713-1457cf52e77d',NULL,NULL,NULL,0,NULL,NULL,'upload-archivists_toolkit_v0.0','--host=%host% --port=%port% --dbname=%dbname% --dbuser=%dbuser% --dbpass=%dbpass% --atuser=%atuser% --dip_location=%SIPDirectory% --dip_name=%SIPName% --dip_uuid=%SIPUUID% --restrictions=%restrictions% --object_type=%object_type% --ead_actuate=%ead_actuate% --ead_show=%ead_show% --use_statement=%use_statement% --uri_prefix=%uri_prefix% --access_conditions=%access_conditions% --use_conditions=%use_conditions%',NULL,'2013-03-22 21:42:00');
 
+/*!40000 ALTER TABLE `StandardTasksConfigs` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
