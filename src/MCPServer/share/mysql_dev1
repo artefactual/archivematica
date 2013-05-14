@@ -1,0 +1,51 @@
+-- Issue 5084
+-- If user restarts while waiting to choose compression algorithm, the SIP job is orphaned
+-- Tail of chain = Prepare AIP = 3e25bda6-5314-4bb4-aa1e-90900dce887d
+-- Start of new chain = Select Compression algorithm = 01d64f58-8295-4b7b-9cab-8f1b153a504f
+
+-- add  move after prepare AIP
+
+SET @microserviceGroup = 'Prepare AIP';
+SET @MoveSIPToFailedLink = '7d728c39-395f-4892-8193-92f086c0546f';
+SET @MoveTransferToFailedLink = '61c316a6-0a50-4f65-8767-1f44b1eeb6dd';
+
+
+SET @XLink = '3e25bda6-5314-4bb4-aa1e-90900dce887d';
+-- SET @YLink = '1cd3b36a-5252-4a69-9b1c-3b36829288ab';
+
+SET @TasksConfigPKReference = 'ae090b70-0234-40ea-bc11-4be27370515f';
+SET @TasksConfig = '18dceb0a-dfb1-4b18-81a7-c6c5c578c5f1';
+SET @MicroServiceChainLink = '002716a1-ae29-4f36-98ab-0d97192669c4';
+SET @MicroServiceChainLinksExitCodes = '2858403b-895f-4ea3-b7b7-388de75fbb39';
+SET @defaultNextChainLink = @MoveSIPToFailedLink;
+SET @NextMicroServiceChainLink = NULL;
+
+INSERT INTO StandardTasksConfigs (pk, filterFileEnd, filterFileStart, filterSubDir, requiresOutputLock, standardOutputFile, standardErrorFile, execute, arguments)
+    VALUES (@TasksConfigPKReference, NULL, NULL, NULL, FALSE, NULL, NULL, 'moveSIP_v0.0', '"%SIPDirectory%" "%watchDirectoryPath%workFlowDecisions/compressionAIPDecisions/." "%SIPUUID%" "%sharedPath%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description)
+    VALUES
+    (@TasksConfig, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @TasksConfigPKReference, 'Move to compressionAIPDecisions directory');
+INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, currentTask, defaultNextChainLink)
+    VALUES (@MicroServiceChainLink, @microserviceGroup, @TasksConfig, @defaultNextChainLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink)
+    VALUES (@MicroServiceChainLinksExitCodes, @MicroServiceChainLink, 0, @NextMicroServiceChainLink);
+SET @NextMicroServiceChainLink = @MicroServiceChainLink;
+
+-- set non zero exit code --
+UPDATE MicroServiceChainLinks SET defaultNextChainLink = @MoveSIPToFailedLink WHERE pk = @XLink;
+
+-- set zero exit code --
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = @NextMicroServiceChainLink where microServiceChainLink = @XLink;
+
+
+-- Add new watched directory for compressionAIP decisions, and chain for it to point to
+SET @WatchedDirectory = 'dfb22984-c6eb-4c5d-939c-0df43559033e';
+SET @MicroServiceChains = '27cf6ca9-11b4-41ac-9014-f8018bcbad5e';
+
+INSERT INTO MicroServiceChains (pk, startingLink, description)
+    VALUES (@MicroServiceChains, '01d64f58-8295-4b7b-9cab-8f1b153a504f', 'Compress AIP');
+
+INSERT INTO WatchedDirectories (pk, watchedDirectoryPath, chain, onlyActOnDirectories, expectedType)
+    VALUES (@WatchedDirectory, '%watchDirectoryPath%workFlowDecisions/compressionAIPDecisions/', @MicroServiceChains, True, '76e66677-40e6-41da-be15-709afb334936');
+
+
