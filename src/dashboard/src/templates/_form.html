@@ -12,10 +12,10 @@
       <ul class="inputs-list">
         <li>
             <div class="input">
-            <label><input {% if field.value == 1 %} checked ="checked" 
-            	{% endif %}
-            	  name="{{ field.name }}" value="{{ field.value}}" id="{{ field.id}}" type="checkbox">
-            	<span>{{ field.label }}</span></label>
+              <label>
+                {{ field }}
+            	<span>{{ field.label }}</span>
+            </label>
           </div> 
         </li>
       </ul>
