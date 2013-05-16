@@ -59,7 +59,7 @@ def sorted_directory_list(path):
     entries = os.listdir(archivematicaFunctions.unicodeToStr(path))
     for entry in entries:
         cleaned.append(archivematicaFunctions.unicodeToStr(entry))
-    return sorted(cleaned, cmp=locale.strcoll)
+    return sorted(cleaned, key=helpers.keynat)
 
 def directory_to_dict(path, directory={}, entry=False):
     # if starting traversal, set entry to directory root
