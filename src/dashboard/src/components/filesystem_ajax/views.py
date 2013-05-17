@@ -482,30 +482,4 @@ def pad_destination_filepath_if_it_already_exists(filepath, original=None, attem
     return filepath
 
 def download(request):
-    return send_file(request, '/' + request.GET.get('filepath', ''))
-
-def send_file(request, filepath):
-    """
-    Send a file through Django without loading the whole file into
-    memory at once. The FileWrapper will turn the file object into an
-    iterator for chunks of 8KB.
-    """
-    filename = os.path.basename(filepath)
-    extension = os.path.splitext(filepath)[1].lower()
-
-    wrapper = FileWrapper(file(filepath))
-    response = HttpResponse(wrapper)
-
-    # force download for certain filetypes
-    extensions_to_download = ['.7z', '.zip']
-
-    try:
-        index = extensions_to_download.index(extension)
-        response['Content-Type'] = 'application/force-download'
-        response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
-    except:
-        mimetype = mimetypes.guess_type(filename)[0]
-        response['Content-type'] = mimetype
-
-    response['Content-Length'] = os.path.getsize(filepath)
-    return response
+    return helpers.send_file(request, '/' + request.GET.get('filepath', ''))

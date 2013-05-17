@@ -44,7 +44,6 @@ from archivematicaCreateStructuredDirectory import createManualNormalizedDirecto
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes, requests
 from components.archival_storage.forms import StorageSearchForm
-from components.filesystem_ajax.views import send_file
 import time
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -527,4 +526,4 @@ def transfer_file_download(request, uuid):
     transfer = models.Transfer.objects.get(uuid=file.transfer.uuid)
     path_to_transfer = transfer.currentlocation.replace('%sharedPath%', shared_directory_path)
     path_to_file = file.currentlocation.replace('%transferDirectory%', path_to_transfer)
-    return send_file(request, path_to_file)
+    return helpers.send_file(request, path_to_file)

@@ -21,7 +21,6 @@ from django.utils import simplejson
 from components.archival_storage import forms
 from django.conf import settings
 from main import models
-from components.filesystem_ajax.views import send_file
 from components import advanced_search
 from components import helpers
 import os
@@ -218,7 +217,7 @@ def aip_file_download(request, uuid):
 
     # send extracted file
     extracted_file_path = os.path.join(temp_dir, file_basename)
-    return send_file(request, extracted_file_path)
+    return helpers.send_file(request, extracted_file_path)
 
 def send_thumbnail(request, fileuuid):
     # get AIP location to use to find root of AIP storage
@@ -246,7 +245,7 @@ def send_thumbnail(request, fileuuid):
     if not os.path.exists(thumbnail_path):
         thumbnail_path = os.path.join(settings.BASE_PATH, 'media/images/1x1-pixel.png')
 
-    return send_file(request, thumbnail_path)
+    return helpers.send_file(request, thumbnail_path)
 
 def list_display(request, current_page_number=None):
     form = forms.StorageSearchForm()
