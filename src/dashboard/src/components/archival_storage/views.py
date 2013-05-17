@@ -250,8 +250,6 @@ def send_thumbnail(request, fileuuid):
 def list_display(request, current_page_number=None):
     form = forms.StorageSearchForm()
 
-    total_size = 0
-
     # get ElasticSearch stats
     aip_indexed_file_count = advanced_search.indexed_count('aips')
 
@@ -290,13 +288,17 @@ def list_display(request, current_page_number=None):
 
         try:
             size = float(aip.size)
-            total_size = total_size + size
             sip['size'] = '{0:.2f} MB'.format(size)
         except:
             sip['size'] = 'Removed'
 
         sips.append(sip)
 
+    # get total size of all AIPS from ElasticSearch
+    q = pyes.StringQuery('*').search()
+    q.facet.add(pyes.facets.StatisticalFacet('total', field='size'))
+    aipResults = conn.search(q, doc_types=['aip'])
+    total_size = aipResults.facets.total.total
     total_size = '{0:.2f}'.format(total_size)
 
     return render(request, 'archival_storage/archival_storage.html', locals())
