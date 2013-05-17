@@ -1,0 +1,17 @@
+<div>
+  <div style='float:right;'>
+    {% if page.has_previous %}
+      <a href='?{{ search_params }}&page={{ page.previous }}'>Previous</a>
+    {% endif %}
+
+    {% if page.has_previous and page.has_next %}
+      |
+    {% endif %}
+
+    {% if page.has_next %}
+      <a href='?{{ search_params }}&page={{ page.next }}'>Next</a>
+    {% endif %}
+  </div>
+
+  <strong>Found {{ page.total_items }} results. Showing {{ page.start_index }} to {{ page.end_index }}.</strong>
+</div>

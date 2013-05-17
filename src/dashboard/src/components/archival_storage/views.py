@@ -85,11 +85,14 @@ def archival_storage_search(request):
         query=advanced_search.assemble_query(queries, ops, fields, types)
 
         # use all results to pull transfer facets if not in file mode
+        # pulling only one field (we don't need field data as we augment
+        # the results using separate queries)
         if not file_mode:
             results = conn.search_raw(
                 query=query,
                 indices='aips',
-                type='aipfile'
+                type='aipfile',
+                fields='uuid'
             )
         else:
             results = conn.search_raw(
@@ -97,7 +100,8 @@ def archival_storage_search(request):
                 indices='aips',
                 type='aipfile',
                 start=start - 1,
-                size=items_per_page
+                size=items_per_page,
+                fields='AIPUUID,filePath,FILEUUID'
             )
     except:
         return HttpResponse('Error accessing index.')
@@ -136,11 +140,11 @@ def archival_storage_search(request):
 
 def archival_storage_search_augment_aip_results(conn, aips):
     for aip_uuid in aips:
-        documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('uuid', aip_uuid.term)))
+        documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('uuid', aip_uuid.term)), fields='name,size,created')
         if len(documents['hits']['hits']) > 0:
-            aip_uuid.name = documents['hits']['hits'][0]['_source']['name']
-            aip_uuid.size = '{0:.2f} MB'.format(documents['hits']['hits'][0]['_source']['size'])
-            aip_uuid.date = documents['hits']['hits'][0]['_source']['created']
+            aip_uuid.name = documents['hits']['hits'][0]['fields']['name']
+            aip_uuid.size = '{0:.2f} MB'.format(documents['hits']['hits'][0]['fields']['size'])
+            aip_uuid.date = documents['hits']['hits'][0]['fields']['created']
             aip_uuid.document_id_no_hyphens = documents['hits']['hits'][0]['_id'].replace('-', '____')
         else:
             aip_uuid.name = '(data missing)' 
@@ -149,7 +153,7 @@ def archival_storage_search_augment_file_results(raw_results):
     modifiedResults = []
 
     for item in raw_results.hits.hits:
-        clone = item._source.copy()
+        clone = item.fields.copy()
 
         # try to find AIP details in database
         try:
@@ -258,7 +262,12 @@ def archival_storage_list_display(request, current_page_number=None):
 
     # get AIPs
     conn = elasticSearchFunctions.connect_and_create_index('aips')
-    aipResults = conn.search(pyes.StringQuery('*'), doc_types=['aip'])
+    aipResults = conn.search(
+        pyes.StringQuery('*'),
+        doc_types=['aip'],
+        fields='origin,uuid,filePath,created,name,size'
+    )
+
     aips = []
 
     #if aipResults._total != None:
