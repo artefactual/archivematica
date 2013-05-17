@@ -257,8 +257,18 @@ def list_display(request, current_page_number=None):
     aip_indexed_file_count = advanced_search.indexed_count('aips')
 
     # get AIPs
+    order_by = request.GET.get('order_by', 'name')
+    sort_by  = request.GET.get('sort_by', 'up')
+
+    if sort_by == 'down':
+        sort_direction = 'desc'
+    else:
+        sort_direction = 'asc'
+
+    sort_specification = order_by + ':' + sort_direction
+
     conn = elasticSearchFunctions.connect_and_create_index('aips')
-    aipResults = conn.search(pyes.StringQuery('*'), doc_types=['aip'])
+    aipResults = conn.search(pyes.StringQuery('*'), doc_types=['aip'], sort=sort_specification)
     aips = []
 
     #if aipResults._total != None:
@@ -287,21 +297,6 @@ def list_display(request, current_page_number=None):
             sip['size'] = 'Removed'
 
         sips.append(sip)
-
-    order_by = request.GET.get('order_by', 'name');
-    sort_by  = request.GET.get('sort_by', 'up');
-
-    def sort_aips(sip):
-        value = 0
-        if 'name' == order_by:
-            value = sip['name'].lower()
-        else:
-            value = sip[order_by]
-        return value
-    sips = sorted(sips, key = sort_aips)
-
-    if sort_by == 'down':
-        sips.reverse()
 
     total_size = '{0:.2f}'.format(total_size)
 

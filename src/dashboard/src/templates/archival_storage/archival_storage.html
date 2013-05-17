@@ -49,15 +49,13 @@
         <th>
           <div>
             UUID
-            <a class="up {% if order_by == 'uuid' and sort_by == 'up' %} selected_up"{% endif %}" href="?order_by=uuid&sort_by=up">Sort</a>
-            <a class="down {% if order_by == 'uuid' and sort_by == 'down' %} selected_down"{% endif %}" href="?order_by=uuid&sort_by=down">Sort</a>
           </div>
         </th>
         <th>
           <div>
             Date stored
-            <a class="up {% if order_by == 'date' and sort_by == 'up' %} selected_up{% endif %}" href="?order_by=date&sort_by=up">Sort</a>
-            <a class="down {% if order_by == 'date' and sort_by == 'down' %} selected_down"{% endif %}" href="?order_by=date&sort_by=down">Sort</a>
+            <a class="up {% if order_by == 'created' and sort_by == 'up' %} selected_up{% endif %}" href="?order_by=created&sort_by=up">Sort</a>
+            <a class="down {% if order_by == 'created' and sort_by == 'down' %} selected_down"{% endif %}" href="?order_by=created&sort_by=down">Sort</a>
           </div>
         </th>
       </thead>
