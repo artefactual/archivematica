@@ -46,6 +46,7 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
 from django.contrib.auth.decorators import user_passes_test
+from components import helpers
 
 # Try to update context instead of sending new params
 def load_jobs(view):
@@ -63,11 +64,15 @@ def load_jobs(view):
 def elasticsearch_required():
     def decorator(func):
         def inner(request, *args, **kwargs):
-            status = elasticSearchFunctions.check_server_status()
-            if status == 'OK':
+            elasticsearch_disabled = helpers.get_client_config_value('disableElasticsearchIndexing')
+            if elasticsearch_disabled:
                 return func(request, *args, **kwargs)
             else:
-                return render(request, 'elasticsearch_error.html', {'status': status})
+                status = elasticSearchFunctions.check_server_status()
+                if status == 'OK':
+                    return func(request, *args, **kwargs)
+                else:
+                    return render(request, 'elasticsearch_error.html', {'status': status})
         return wraps(func)(inner)
     return decorator
 

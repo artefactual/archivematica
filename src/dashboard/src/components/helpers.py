@@ -160,6 +160,16 @@ def set_setting(setting, value=''):
     setting_data.value = value
     setting_data.save()
 
+def get_client_config_value(field):
+    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
+    config = ConfigParser.SafeConfigParser()
+    config.read(clientConfigFilePath)
+
+    try:
+        return config.get('MCPClient', field)
+    except:
+        return ''
+
 def get_server_config_value(field):
     clientConfigFilePath = '/etc/archivematica/MCPServer/serverConfig.conf'
     config = ConfigParser.SafeConfigParser()
