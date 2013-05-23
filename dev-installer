@@ -95,29 +95,6 @@ else
         echo "Not going to ${part}"
 fi
 
-part="run the MCP Server preMCPLogging.sh"
-echo -n "\"Would you like to ${part}?\" (y/N) "
-read a
-if [[ $a == "Y" || $a == "y" ]]; then
-        echo "Going to ${part} ..."
-        tmp="`pwd`"
-        cd ./src/MCPServer/share/
-        sudo ./preMCPLogging.sh
-        cd "$tmp"
-else
-        echo "Not going to ${part}"
-fi
-
-part="run the MCP Server postinst script"
-echo -n "\"Would you like to ${part}?\" (y/N) "
-read a
-if [[ $a == "Y" || $a == "y" ]]; then
-        echo "Going to ${part} ..."
-        sudo ./src/MCPServer/debian/postinst
-else
-        echo "Not going to ${part}"
-fi
-
 part="install AtoM (branch stable/1.3.x)"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
