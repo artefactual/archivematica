@@ -146,13 +146,17 @@ def set_up_mapping(conn, index):
         print 'Transfer mapping created.'
 
     if index == 'aips':
+        print 'Creating AIP mapping...'
+        conn.put_mapping(doc_type='aip', mapping={'aip': {'date_detection': False}}, indices=['aips'])
+        print 'AIP mapping created.'
+
         mapping = {
             'AIPUUID': machine_readable_field_spec,
             'FILEUUID': machine_readable_field_spec
         }
 
         print 'Creating AIP file mapping...'
-        conn.put_mapping(doc_type='aipfile', mapping={'aipfile': {'properties': mapping}}, indices=['aips'])
+        conn.put_mapping(doc_type='aipfile', mapping={'aipfile': {'date_detection': False, 'properties': mapping}}, indices=['aips'])
         print 'AIP file mapping created.'
 
 def connect_and_index_aip(uuid, name, filePath, pathToMETS):
