@@ -191,6 +191,15 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
     # make sure elasticsearch is installed
     if (os.path.exists(pathToElasticSearchServerConfigFile)):
 
+        clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
+        config = ConfigParser.SafeConfigParser()
+        config.read(clientConfigFilePath)
+
+        try:
+            backup_to_mysql = config.getboolean('MCPClient', "backupElasticSearchDocumentsToMySQL")
+        except:
+            backup_to_mysql = False
+
         # make sure transfer files exist
         if (os.path.exists(pathToArchive)):
             conn = connect_and_create_index(index)
@@ -206,7 +215,8 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
                     metsFilePath,
                     index,
                     type,
-                    sipName
+                    sipName,
+                    backup_to_mysql
                 )
 
             # index transfer
@@ -231,7 +241,7 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
 
     return exitCode
 
-def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName):
+def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, backup_to_mysql = False):
     filesIndexed     = 0
     filePathAmdIDs   = {}
     filePathMetsData = {}
@@ -294,7 +304,8 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName):
                 # index data
                 result = conn.index(indexData, index, type)
 
-                backup_indexed_document(result, indexData, index, type)
+                if backup_to_mysql:
+                    backup_indexed_document(result, indexData, index, type)
 
     print 'Indexed AIP files and corresponding METS XML.'
 
