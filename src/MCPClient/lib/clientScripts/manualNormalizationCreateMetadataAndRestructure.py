@@ -20,18 +20,16 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import sys
+import csv
 import os
 import shutil
+import sys
 import uuid
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from databaseFunctions import insertIntoEvents
 from databaseFunctions import insertIntoDerivations
 #databaseInterface.printSQL = True
-while False:
-    import time
-    time.sleep(10)
 
 #"%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%fileUUID%" "%filePath%"
 SIPUUID = sys.argv[1]
@@ -41,12 +39,15 @@ fileUUID = sys.argv[4]
 filePath = sys.argv[5]
 date = sys.argv[6]
 
+# Search for original file associated with the access file given in filePath
 filePathLike = filePath.replace(os.path.join(SIPDirectory, "objects", "manualNormalization", "preservation"), "%SIPDirectory%objects", 1)
 i = filePathLike.rfind(".")
 k = os.path.basename(filePath).rfind(".")
 if i != -1 and k != -1:
      filePathLike = filePathLike[:i+1]
+     # Matches "path/to/file/filename." Includes . so it doesn't false match foobar.txt when we wanted foo.txt
      filePathLike1 = databaseInterface.MySQLdb.escape_string(filePathLike).replace("%", "\%") + "%"
+     # Matches the exact filename.  For files with no extension.
      filePathLike2 = databaseInterface.MySQLdb.escape_string(filePathLike)[:-1]
 unitIdentifierType = "sipUUID"
 unitIdentifier = SIPUUID
@@ -56,11 +57,46 @@ if not len(rows):
     sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '" + filePathLike2 + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
     rows = databaseInterface.queryAllSQL(sql)
 if len(rows) > 1:
-    print >>sys.stderr, "Too many possible files for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1) 
-    exit(2)
+    # There is more than one original file with the same filename (differing extensions)
+    # Look for a CSV that will specify the mapping
+    csv_path = os.path.join(SIPDirectory, "objects", "manualNormalization", 
+        "normalization.csv")
+    if os.path.isfile(csv_path):
+        # Will not work properly if csv_path cannot be opened. (eg permissions)
+        # Can we assume that the permissions are OK due to previous chain links?
+        with open(csv_path, 'rb') as csv_file:
+            reader = csv.reader(csv_file)
+            # Search the file for an access filename that matches the one provided
+            preservation_file = os.path.basename(filePath)
+            try:
+                for row in reader:
+                    if "#" in row[0]: # if first character #, ignore line
+                        continue
+                    original, _, preservation = row
+                    if preservation.lower() == preservation_file.lower():
+                        print "Found preservation file({0}) for original ({1})".format(preservation, original)
+                        break
+                else:
+                    print >>sys.stderr, "Could not find {preservation_file} in {filename}".format(
+                        preservation_file=preservation_file, filename=csv_path)
+                    exit(2)
+            except csv.Error as e:
+                print >>sys.stderr, "Error reading {filename} on line {linenum}".format(
+                    filename=csv_path, linenum=reader.line_num)
+                exit(2)
+        # If we found the original file, retrieve it from the DB
+        # match and pull original location b/c sanitization
+        sql = """SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.originalLocation LIKE '%{filename}' AND {unitIdentifierType} = '{unitIdentifier}';""".format(
+                filename=original, unitIdentifierType=unitIdentifierType, unitIdentifier=unitIdentifier)
+        rows = databaseInterface.queryAllSQL(sql)
+    else:
+        print >>sys.stderr, "Too many possible files for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1) 
+        exit(2)
 elif len(rows) < 1:
     print >>sys.stderr, "No matching file for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1) 
     exit(3)
+
+# We found the original file somewhere above, get the UUID and path
 for row in rows:
     originalFileUUID, originalFilePath = row
 
