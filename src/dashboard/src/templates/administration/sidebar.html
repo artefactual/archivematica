@@ -9,6 +9,7 @@
   {% url components.administration.views.premis_agent as url_premis %}
   {% url components.administration.views.api as url_api %}
   {% url components.accounts.views.list as url_user_list %}
+  {% url components.administration.views.general as url_general %}
 
   <ul>
 
@@ -16,9 +17,13 @@
 
     <li class="{% active request url_storage %}"><a href="{{ url_storage }}">AIP storage directories</a></li>
 
+    {% if not hide_sections.atom_dip %}
     <li class="{% active request url_dip %}"><a href="{{ url_dip }}">AtoM DIP upload</a></li>
+    {% endif %}
 
+    {% if not hide_sections.contentdm_dip %}
     <li class="{% active request url_contentdm_dips %}"><a href="{{ url_contentdm_dips }}">CONTENTdm DIP upload</a></li>
+    {% endif %}
 
     <li class="{% active request url_processing %}"><a href="{{ url_processing }}">Processing configuration</a></li>
 
@@ -30,6 +35,7 @@
       <li class="{% active request url_user_list %}"><a href="{{ url_user_list }}">Users</a></li>
     {% endif %}
 
+    <li class="{% active request url_general %}"><a href="{{ url_general }}">General</a></li>
   </ul>
 
 </div>

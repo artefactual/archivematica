@@ -24,13 +24,14 @@ from django.views.decorators.csrf import csrf_protect
 import components.decorators as decorators
 from django.template import RequestContext
 from tastypie.models import ApiKey
-
 from components.accounts.forms import UserCreationForm
 from components.accounts.forms import UserChangeForm
+from components.administration.helpers import hidden_sections
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
 def list(request):
     users = User.objects.all()
+    hide_sections = hidden_sections()
     return render(request, 'accounts/list.html', locals())
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
@@ -52,7 +53,10 @@ def add(request):
         data = {'email':' '} 
         form = UserCreationForm(initial=data)
 
-    return render(request, 'accounts/add.html', {'form': form })
+    return render(request, 'accounts/add.html', {
+        'hide_sections': hidden_sections(),
+        'form': form
+    })
 
 def edit(request, id=None):
     # Forbidden if user isn't an admin and is trying to edit another user
@@ -112,6 +116,7 @@ def edit(request, id=None):
         api_key = '<no API key generated>'
 
     return render(request, 'accounts/edit.html', {
+      'hide_sections': hidden_sections(),
       'form': form,
       'user': user,
       'api_key': api_key,

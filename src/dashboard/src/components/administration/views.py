@@ -27,8 +27,10 @@ import components.administration.views_processing as processing_views
 from lxml import etree
 from components.administration.forms import AdministrationForm
 from components.administration.forms import AgentForm
+from components.administration.forms import ToggleSettingsForm
 import components.decorators as decorators
 import components.helpers as helpers
+from components.administration.helpers import hidden_sections
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Administration
@@ -39,6 +41,7 @@ def administration(request):
 
 def administration_dip(request):
     upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
+    hide_sections = hidden_sections()
     return render(request, 'administration/dip.html', locals())
 
 def dip_edit(request, id):
@@ -62,6 +65,7 @@ def atom_dips(request):
     if request.method != 'POST' or valid_submission:
         formset = ReplaceDirChoiceFormSet(queryset=ReplaceDirChoices)
 
+    hide_sections = hidden_sections()
     return render(request, 'administration/dips_edit.html', locals())
 
 def contentdm_dips(request):
@@ -75,6 +79,7 @@ def contentdm_dips(request):
     if request.method != 'POST' or valid_submission:
         formset = ReplaceDirChoiceFormSet(queryset=ReplaceDirChoices)
 
+    hide_sections = hidden_sections()
     return render(request, 'administration/dips_contentdm_edit.html', locals())
 
 def atom_dip_destination_select_link_id():
@@ -143,6 +148,7 @@ def dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet):
 def storage(request):
     picker_js_file = 'storage_directory_picker.js'
     system_directory_description = 'AIP storage'
+    hide_sections = hidden_sections()
     return render(request, 'administration/sources.html', locals())
 
 def storage_json(request):
@@ -154,6 +160,7 @@ def storage_json(request):
 def sources(request):
     picker_js_file = 'source_directory_picker.js'
     system_directory_description = 'Transfer source'
+    hide_sections = hidden_sections()
     return render(request, 'administration/sources.html', locals())
 
 def sources_json(request):
@@ -261,6 +268,7 @@ def premis_agent(request):
     else:
         form = AgentForm(instance=agent)
 
+    hide_sections = hidden_sections()
     return render(request, 'administration/premis_agent.html', locals())
 
 def api(request):
@@ -270,4 +278,24 @@ def api(request):
     else:
         whitelist = helpers.get_setting('api_whitelist', '127.0.0.1')
 
+    hide_sections = hidden_sections()
     return render(request, 'administration/api.html', locals())
+
+def general(request):
+    toggleableSettings = {
+        'dashboard_administration_atom_dip_enabled':      'Hide AtoM DIP upload link',
+        'dashboard_administration_contentdm_dip_enabled': 'Hide CONTENTdm DIP upload link'
+    }
+
+    if request.method == 'POST':
+        for name in toggleableSettings:
+            if request.POST.get(name) == 'on':
+                setting = True
+            else:
+                setting = False
+            helpers.set_setting(name, setting)
+
+    form = ToggleSettingsForm(extra=toggleableSettings)
+
+    hide_sections = hidden_sections()
+    return render(request, 'administration/general.html', locals())

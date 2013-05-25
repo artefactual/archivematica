@@ -150,6 +150,13 @@ def get_setting(setting, default=''):
     except:
         return default
 
+def get_boolean_setting(setting, default=''):
+    setting = get_setting(setting, default)
+    if setting == 'False':
+       return False
+    else:
+       return bool(setting)
+
 def set_setting(setting, value=''):
     try:
         setting_data = models.DashboardSetting.objects.get(name=setting)

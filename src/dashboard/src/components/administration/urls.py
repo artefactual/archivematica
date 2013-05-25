@@ -33,5 +33,6 @@ urlpatterns = patterns('components.administration.views',
     (r'sources/json/$', 'sources_json'),
     (r'storage/json/$', 'storage_json'),
     (r'premis/agent/$', 'premis_agent'),
-    (r'api/$', 'api')
+    (r'api/$', 'api'),
+    (r'general/$', 'general')
 )
