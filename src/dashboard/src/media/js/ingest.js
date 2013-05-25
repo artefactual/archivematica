@@ -217,9 +217,6 @@ $(function()
         {
           var jobData = this.model.toJSON();
 
-//console.log(jobData.microservicegroup); Normalize
-// console.log(jobData.currentstep); Awaiting decision
-
           if (
             jobData.microservicegroup == 'Normalize'
             && jobData.type == 'Normalize'
@@ -270,10 +267,6 @@ $(function()
               .append('<a class="btn_browse_job" href="#" title="Browse"><span>Browse</span></a>')
               .append('<a class="btn_approve_job" href="#" title="Approve"><span>Approve</span></a>')
               .append('<a class="btn_reject_job" href="#" title="Reject"><span>Reject</span></a>');
-          }
-          else
-          {
-            // ...
           }
 
           choices = this.model.get('choices');
@@ -337,7 +330,6 @@ $(function()
                 url: '/mcp/execute/'
               });
             };
-
           
           // if ('Upload DIP' == this.model.get('type') && 13 == value)
           if ('- Upload DIP to Atom' == $select.find('option:selected').text())
@@ -468,6 +460,5 @@ $(function()
             keyboard: true
           });
       });
-
   }
 );
