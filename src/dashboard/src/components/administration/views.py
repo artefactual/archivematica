@@ -282,13 +282,14 @@ def api(request):
     return render(request, 'administration/api.html', locals())
 
 def general(request):
-    toggleableSettings = {
-        'dashboard_administration_atom_dip_enabled':      'Hide AtoM DIP upload link',
-        'dashboard_administration_contentdm_dip_enabled': 'Hide CONTENTdm DIP upload link'
-    }
+    toggleableSettings = [
+      {'dashboard_administration_atom_dip_enabled': 'Hide AtoM DIP upload link'},
+      {'dashboard_administration_contentdm_dip_enabled': 'Hide CONTENTdm DIP upload link'}
+    ]
 
     if request.method == 'POST':
-        for name in toggleableSettings:
+        for setting in toggleableSettings:
+            name = setting.keys()[0]
             if request.POST.get(name) == 'on':
                 setting = True
             else:

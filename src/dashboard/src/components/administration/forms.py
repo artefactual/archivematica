@@ -39,7 +39,9 @@ class ToggleSettingsForm(forms.Form):
         extra_fields = kwargs.pop('extra', 0)
         super(ToggleSettingsForm, self).__init__(*args, **kwargs)
 
-        for setting_name, setting_label in extra_fields.items():
+        for setting in extra_fields:
+            setting_name  = setting.keys()[0]
+            setting_label = setting.values()[0]
             setting_value = helpers.get_boolean_setting(setting_name)
             self.fields[setting_name] = forms.BooleanField(
                 label=setting_label,
