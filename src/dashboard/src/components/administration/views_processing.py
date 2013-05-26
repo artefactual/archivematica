@@ -220,7 +220,7 @@ def index(request):
                     field['selected'] = go_to_chain
                     field['checked'] = 'checked'
 
-    hide_sections = hidden_features()
+    hide_features = hidden_features()
     return render(request, 'administration/processing.html', locals())
 
 def lookup_chain_link_by_description(field):
