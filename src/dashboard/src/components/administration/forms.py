@@ -42,9 +42,11 @@ class ToggleSettingsForm(forms.Form):
         for setting in extra_fields:
             setting_name  = setting.keys()[0]
             setting_label = setting.values()[0]
-            setting_value = helpers.get_boolean_setting(setting_name)
+
+            # if it's enabled it shouldn't be checked and visa versa
+            checked       = not helpers.get_boolean_setting(setting_name)
             self.fields[setting_name] = forms.BooleanField(
                 label=setting_label,
-                initial=setting_value,
+                initial=checked,
                 widget=CheckboxInput()
             )

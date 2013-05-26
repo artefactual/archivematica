@@ -22,7 +22,7 @@ from main import models
 import sys, os
 from lxml import etree
 from components import helpers
-from components.administration.helpers import hidden_sections
+from components.helpers import hidden_features
 
 class PreconfiguredChoices:
     xml     = None
@@ -220,7 +220,7 @@ def index(request):
                     field['selected'] = go_to_chain
                     field['checked'] = 'checked'
 
-    hide_sections = hidden_sections()
+    hide_sections = hidden_features()
     return render(request, 'administration/processing.html', locals())
 
 def lookup_chain_link_by_description(field):

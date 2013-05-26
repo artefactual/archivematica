@@ -230,3 +230,21 @@ def send_file(request, filepath):
 def file_is_an_archive(file):
     file = file.lower()
     return file.endswith('.zip') or file.endswith('.tgz') or file.endswith('.tar.gz')
+
+def feature_settings():
+    return {
+        'atom_dip':      'dashboard_administration_atom_dip_enabled',
+        'contentdm_dip': 'dashboard_administration_contentdm_dip_enabled',
+        'dspace':        'dashboard_administration_dspace_enabled'
+    }
+
+def hidden_features():
+    hide_features = {}
+
+    short_forms = feature_settings()
+
+    for short_form, long_form in short_forms.items():
+        # hide feature if setting isn't enabled
+        hide_features[short_form] = not get_boolean_setting(long_form)
+
+    return hide_features
