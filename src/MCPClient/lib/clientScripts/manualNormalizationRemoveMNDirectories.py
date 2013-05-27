@@ -22,39 +22,41 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import os
 import sys
-#sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import databaseFunctions
+import databaseInterface
 
-
-
-#"%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%fileUUID%" "%filePath%"
 SIPDirectory = sys.argv[1]
-accessDir = os.path.join(SIPDirectory, "objects/manualNormalization/access")
-preservationDir = os.path.join(SIPDirectory, "objects/manualNormalization/preservation")
-manualNormalizationDir = os.path.join(SIPDirectory, "objects/manualNormalization")
+manual_normalization_dir = os.path.join(SIPDirectory, "objects", "manualNormalization")
+access_dir = os.path.join(manual_normalization_dir, "access")
+preservation_dir = os.path.join(manual_normalization_dir, "preservation")
 
 global errorCount
 errorCount = 0
 
+if os.path.isdir(manual_normalization_dir) and not errorCount:
+    # Delete normalization.csv if present
+    normalization_csv = os.path.join(manual_normalization_dir, 'normalization.csv')
+    if os.path.isfile(normalization_csv):
+        os.remove(normalization_csv)
+        # Need SIP UUID to get file UUID to remove file in DB
+        sipUUID = SIPDirectory[-37:-1] # Account for trailing /
+        sql = """SELECT fileUUID 
+                 FROM Files 
+                 WHERE removedTime = 0 AND 
+                    Files.originalLocation LIKE '%normalization.csv' AND 
+                    SIPUUID='{sipUUID}';""".format(sipUUID=sipUUID)
+        rows = databaseInterface.queryAllSQL(sql)
+        fileUUID = rows[0][0]
+        databaseFunctions.fileWasRemoved(fileUUID)
 
-def recursivelyRemoveEmptyDirectories(dir):
-    global errorCount
-    for root, dirs, files in os.walk(dir,topdown=False):
-        for directory in dirs:
-            try:
-                os.rmdir(os.path.join(root, directory))
-            except Exception as inst:
-                print directory
-                print >>sys.stderr, type(inst), inst.args      # the exception instance
-                errorCount+= 1
-
-
-if os.path.isdir(manualNormalizationDir) and not errorCount:
-    try:
-        recursivelyRemoveEmptyDirectories(manualNormalizationDir)
-        os.rmdir(manualNormalizationDir)
-    except Exception as inst:
-        print >>sys.stderr, type(inst)     # the exception instance
-        print >>sys.stderr, inst.args
-        errorCount+= 1
+    # Delete empty access, preservation, and manual normalization dir
+    for directory in (access_dir, preservation_dir, manual_normalization_dir):
+        try:
+            os.rmdir(directory)
+        except Exception as e:
+            print >>sys.stderr, "{0} could not be deleted: {1}".format(
+                directory, e.args)
+            errorCount+= 1
 
 exit(errorCount)
