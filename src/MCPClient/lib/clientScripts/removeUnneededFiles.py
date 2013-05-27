@@ -24,7 +24,7 @@
 import sys
 import os
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from fileOperations import removeFileByFileUUID
+from databaseFunctions import fileWasRemoved
 removeIfFileNameIs = ["Thumbs.db", "Icon", u"Icon\u000D"]
 
 def removableFile(target):
@@ -47,4 +47,4 @@ if __name__ == '__main__':
     if removableFile(target):
         print fileUUID + " -> " + os.path.basename(target)
         os.remove(target)
-        removeFileByFileUUID(fileUUID)
+        fileWasRemoved(fileUUID)
