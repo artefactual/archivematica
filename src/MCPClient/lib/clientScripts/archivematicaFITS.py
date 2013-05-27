@@ -111,7 +111,6 @@ def excludeJhoveProperties(fits):
             formatValidation = tool
             break
     if formatValidation == None:
-        print >>sys.stderr, "No format validation tool (Jhove)."
         return fits
     repInfo = getTagged(formatValidation, "repInfo")[0]
     properties = getTagged(repInfo, "properties")
@@ -122,6 +121,7 @@ def excludeJhoveProperties(fits):
 
 
 def formatValidationFITSAssist(fits):
+    global exitCode
     prefix = ""
     formatValidation = None
 
@@ -131,8 +131,9 @@ def formatValidationFITSAssist(fits):
             formatValidation = tool
             break
     if formatValidation == None:
-        print >>sys.stderr, "No format validation tool (Jhove)."
-        quit(3)
+        print >>sys.stderr, "No format validation tool output (Jhove)."
+        exitCode += 6
+        raise Exception('Jhove', 'not present')
 
     repInfo = getTagged(formatValidation, "repInfo")[0]
     #<eventDetail>program="DROID"; version="3.0"</eventDetail>
@@ -161,6 +162,7 @@ def formatValidationFITSAssist(fits):
 
 
 def formatIdentificationFITSAssist(fits, fileUUID):
+    global exitCode
     prefix = "{http://www.nationalarchives.gov.uk/pronom/FileCollection}"
     formatIdentification = None
 
@@ -169,6 +171,10 @@ def formatIdentificationFITSAssist(fits, fileUUID):
         if tool.get("name") == "Droid":
             formatIdentification = tool
             break
+    if formatIdentification == None:
+        print >>sys.stderr, "No format identification tool output (Droid)."
+        exitCode += 5
+        raise Exception('Droid', 'not present')
     #<eventDetail>program="DROID"; version="3.0"</eventDetail>
     eventDetailText =   "program=\"" + formatIdentification.get("name") \
                         + "\"; version=\"" + formatIdentification.get("version") + "\""
@@ -235,28 +241,15 @@ def includeFits(fits, xmlFile, date, eventUUID, fileUUID):
 
     #print etree.tostring(fits, pretty_print=True)
     #</CREATE formatIdentificationFITSAssist EVENTS>
-    #try:
-    eventDetailText, eventOutcomeText, eventOutcomeDetailNotes = formatIdentificationFITSAssist(fits, fileUUID)
-    #except:
-    if 0:
+    try:
+        eventDetailText, eventOutcomeText, eventOutcomeDetailNotes = formatIdentificationFITSAssist(fits, fileUUID)
+    except:
         eventDetailText = "Failed"
         eventOutcomeText = "Failed"
         eventOutcomeDetailNotes = ["Failed"]
         exitCode += 4
-    outcomeInformation = createOutcomeInformation( "To be removed", eventOutcomeText)
-    #formatIdentificationEvent = createEvent( eventUUID, "format identification", \
-    #                                         eventDateTime=date, \
-    #                                         eventDetailText=eventDetailText, \
-    #                                         eOutcomeInformation=outcomeInformation)
-
-    #eventOutcomeInformation = getTagged(formatIdentificationEvent, "eventOutcomeInformation")[0]
-    #eventOutcomeDetail = getTagged(eventOutcomeInformation, "eventOutcomeDetail")[0]
-    #eventOutcomeInformation.remove(eventOutcomeDetail)
-
+    
     for eventOutcomeDetailNote in eventOutcomeDetailNotes:
-        #eventOutcomeDetail = etree.SubElement(eventOutcomeInformation, "eventOutcomeDetail")
-        #etree.SubElement(eventOutcomeDetail, "eventOutcomeDetailNote").text = eventOutcomeDetailNote
-
         insertIntoEvents(fileUUID=fileUUID, \
                          eventIdentifierUUID=uuid.uuid4().__str__(), \
                          eventType="format identification", \
@@ -271,7 +264,7 @@ def includeFits(fits, xmlFile, date, eventUUID, fileUUID):
     except:
         eventDetailText = "Failed"
         eventOutcomeText = "Failed"
-        eventOutcomeDetailNotes = "Failed"
+        eventOutcomeDetailNote = "Failed"
         exitCode += 3
     #outcomeInformation = createOutcomeInformation( eventOutcomeDetailNote, eventOutcomeText)
     #formatValidationEvent = createEvent( uuid.uuid4().__str__(), "validation", \
