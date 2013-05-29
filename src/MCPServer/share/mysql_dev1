@@ -78,5 +78,11 @@ UPDATE MicroServiceChainLinks SET defaultNextChainLink = @NextMicroServiceChainL
 -- set zero exit code --
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = @NextMicroServiceChainLink where microServiceChainLink = @XLink;
 
+-- INSERT INTO `MicroServiceChains` (`pk`, `startingLink`, `description`, `replaces`, `lastModified`) VALUES ('09949bda-5332-482a-ae47-5373bd372174','5bddbb67-76b4-4bcb-9b85-a0d9337e7042','mediainfo',NULL,'2012-10-23 19:41:24');
+UPDATE MicroServiceChains SET description='MediaInfo' WHERE pk = '09949bda-5332-482a-ae47-5373bd372174';
+
+-- INSERT INTO `TasksConfigs` (`pk`, `taskType`, `taskTypePKReference`, `description`, `replaces`, `lastModified`) VALUES ('008e5b38-b19c-48af-896f-349aaf5eba9f','6f0b612c-867f-4dfd-8e43-5b35b7f882d7','be6dda53-ef28-42dd-8452-e11734d57a91','Set SIP to normalize with mediainfo file identification.',NULL,'2012-10-23 19:41:24');
+UPDATE TasksConfigs SET description='Set SIP to normalize with MediaInfo file identification.' WHERE pk = '008e5b38-b19c-48af-896f-349aaf5eba9f';
+
 
 -- /Issue 5034
