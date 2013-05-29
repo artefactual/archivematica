@@ -34,6 +34,7 @@ upload-qubit_v0.0 = upload-qubit
 
 [supportedCommands]
 archivematicaClamscan_v0.0 = %clientScriptsDirectory%archivematicaClamscan.py
+archivematicaMediaInfo_v0.0 = %clientScriptsDirectory%archivematicaMediaInfo.py
 archivematicaSetTransferType_v0.0 = %clientScriptsDirectory%archivematicaSetTransferType.py
 archivematicaVerifyMets_v0.0 = %clientScriptsDirectory%archivematicaVerifyMets.sh
 assignFileUUIDs_v0.0 = %clientScriptsDirectory%archivematicaAssignFileUUID.py

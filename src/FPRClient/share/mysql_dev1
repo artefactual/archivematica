@@ -1,0 +1,123 @@
+-- mediainfo
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('84d4c7ae-2297-40dc-b677-a11897f6f308', '[["Format", "TIFF"], ["Format version", null]]', 0, 0, '9ffdc6e8-f25a-4e5b-aaca-02769c4e7b7f');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('57bc5efd-5cf1-4227-bfa1-f9a3742e8458', '84d4c7ae-2297-40dc-b677-a11897f6f308', '[["Format", "TIFF"], ["Format version", null]]', 'MediaInfo', '0.7.62');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('24568925-eca3-44c6-bb95-2ff7b8e9e319', '84d4c7ae-2297-40dc-b677-a11897f6f308', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('ab3edd68-7696-47ee-ba03-3e199565e596', '84d4c7ae-2297-40dc-b677-a11897f6f308', '3141bc6f-7f77-4809-9244-116b235e7330', 'a1921355-58c2-4d6f-9535-a6d227a0be16');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('df6a43d6-7b1c-4bd8-ab78-514656a82514', '[["Format", "Windows Media"], ["Format version", null]]', 0, 0, '9ffdc6e8-f25a-4e5b-aaca-02769c4e7b7f');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('d1f1fa43-ff79-4671-96f0-fe252bc87d0e', 'df6a43d6-7b1c-4bd8-ab78-514656a82514', '[["Format", "Windows Media"], ["Format version", null]]', 'MediaInfo', '0.7.62');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('580e77f2-0a29-4c45-8d99-9d55c29adcb6', 'df6a43d6-7b1c-4bd8-ab78-514656a82514', '3141bc6f-7f77-4809-9244-116b235e7330', 'bb5a6da2-4b89-4f8c-96e3-ca36c55d3337');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('09efa1b8-efcf-4fca-8028-e14b3f9e149a', 'df6a43d6-7b1c-4bd8-ab78-514656a82514', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', '76fd899e-cd5a-4da3-8752-45c43fc18656');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('9f143d1e-b484-4fe8-9049-0419b852851e', '[["Format", "TGA"], ["Format version", "Version 2"]]', 0, 0, '9ffdc6e8-f25a-4e5b-aaca-02769c4e7b7f');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('56f0b26b-20fa-4fa9-8a63-ee538c89eb7a', '9f143d1e-b484-4fe8-9049-0419b852851e', '[["Format", "TGA"], ["Format version", "Version 2"]]', 'MediaInfo', '0.7.62');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('d92acab7-75f1-49fb-80cc-26a2ade70426', '9f143d1e-b484-4fe8-9049-0419b852851e', '3141bc6f-7f77-4809-9244-116b235e7330', '6957fdac-a1ed-470f-89f7-fb00be42ea13');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('ad594d5a-24b7-4680-ab5d-b1a399222b35', '9f143d1e-b484-4fe8-9049-0419b852851e', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('888969d1-47d4-4135-a566-dde1237df7c2', '9f143d1e-b484-4fe8-9049-0419b852851e', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', 'a34ddc9b-c922-4bb6-8037-bbe713332175');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('830e2666-6f11-4a8f-96a2-277f5c5c6f6d', '[["Format", "AIFF"], ["Format version", null]]', 0, 0, '9ffdc6e8-f25a-4e5b-aaca-02769c4e7b7f');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('0cd212a1-bee9-424c-8211-4f1b6cf9cde9', '830e2666-6f11-4a8f-96a2-277f5c5c6f6d', '[["Format", "AIFF"], ["Format version", null]]', 'MediaInfo', '0.7.62');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('3ac720c5-f735-4f03-8c20-89069f13419d', '830e2666-6f11-4a8f-96a2-277f5c5c6f6d', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', '9dc10fcb-5809-4c0b-917a-02517ef4d1c6');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('5c764d24-dfa6-475f-ac82-f2f95ddb7a80', '830e2666-6f11-4a8f-96a2-277f5c5c6f6d', '3141bc6f-7f77-4809-9244-116b235e7330', '520f976f-476d-4ec6-be1c-7c448c5c074d');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('f119b255-7c3f-4e6f-b32c-3e0cd09d5ed3', '[["Format", "JPEG"], ["Format version", null]]', 0, 1, '9ffdc6e8-f25a-4e5b-aaca-02769c4e7b7f');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('2267ad47-8b21-41a1-bf3f-1befdecdd20a', 'f119b255-7c3f-4e6f-b32c-3e0cd09d5ed3', '[["Format", "JPEG"], ["Format version", null]]', 'MediaInfo', '0.7.62');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('2d123b28-530b-46e8-ac31-f575f5eda8d0', 'f119b255-7c3f-4e6f-b32c-3e0cd09d5ed3', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('131062cb-ba94-4942-8190-65070bbf7e97', 'f119b255-7c3f-4e6f-b32c-3e0cd09d5ed3', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', 'a34ddc9b-c922-4bb6-8037-bbe713332175');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('a544e9b4-97f8-406f-81e4-de615219c9eb', '[["Format", "Bitmap"], ["Format version", null]]', 0, 0, '9ffdc6e8-f25a-4e5b-aaca-02769c4e7b7f');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('075d9de9-ac53-4209-bec1-bdbe9740fccd', 'a544e9b4-97f8-406f-81e4-de615219c9eb', '[["Format", "Bitmap"], ["Format version", null]]', 'MediaInfo', '0.7.62');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('b64fb5e8-ae84-46d3-ab68-3f9cec999b87', 'a544e9b4-97f8-406f-81e4-de615219c9eb', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('c91207f7-eed7-4e1e-be43-9ec4c3db06f9', 'a544e9b4-97f8-406f-81e4-de615219c9eb', '3141bc6f-7f77-4809-9244-116b235e7330', '6957fdac-a1ed-470f-89f7-fb00be42ea13');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('aec7572c-a907-41f7-96ae-748dcca212cb', 'a544e9b4-97f8-406f-81e4-de615219c9eb', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', 'a34ddc9b-c922-4bb6-8037-bbe713332175');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('15ac0d37-d962-4a18-adb4-3c9c39cea305', '[["Format", "MPEG Video"], ["Format version", "Version 1"]]', 0, 0, '9ffdc6e8-f25a-4e5b-aaca-02769c4e7b7f');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('9a61b8ee-ecba-4bce-b079-fd4b9e048226', '15ac0d37-d962-4a18-adb4-3c9c39cea305', '[["Format", "MPEG Video"], ["Format version", "Version 1"]]', 'MediaInfo', '0.7.62');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('805e8b23-54bc-4fcc-a90d-691b2ff4fb7d', '15ac0d37-d962-4a18-adb4-3c9c39cea305', '3141bc6f-7f77-4809-9244-116b235e7330', 'bb5a6da2-4b89-4f8c-96e3-ca36c55d3337');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('844bd683-d8bc-4b78-815a-151106e7428a', '15ac0d37-d962-4a18-adb4-3c9c39cea305', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', '76fd899e-cd5a-4da3-8752-45c43fc18656');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('0481f0fd-102b-4c6b-a894-3f06390a5b69', '[["Format", "GIF"], ["Format version", null]]', 0, 0, '9ffdc6e8-f25a-4e5b-aaca-02769c4e7b7f');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('79426cd9-e298-4041-9335-95589f5b7362', '0481f0fd-102b-4c6b-a894-3f06390a5b69', '[["Format", "GIF"], ["Format version", null]]', 'MediaInfo', '0.7.62');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('9f0ee6f8-e902-49c3-bca3-b1e9d4648d97', '0481f0fd-102b-4c6b-a894-3f06390a5b69', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', 'a34ddc9b-c922-4bb6-8037-bbe713332175');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('3233f1ff-8e42-4232-aa65-feba0936bf8f', '0481f0fd-102b-4c6b-a894-3f06390a5b69', '3141bc6f-7f77-4809-9244-116b235e7330', '6957fdac-a1ed-470f-89f7-fb00be42ea13');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('06268b97-ddd3-44fd-8836-5d5db519c392', '0481f0fd-102b-4c6b-a894-3f06390a5b69', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('2cc24cec-aea9-49e4-aa91-730f321ee3ac', '[["Format", "PNG"], ["Format version", null]]', 1, 0, '9ffdc6e8-f25a-4e5b-aaca-02769c4e7b7f');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('c72245b7-e4e3-4a5b-a7b0-aa0372e3d3a6', '2cc24cec-aea9-49e4-aa91-730f321ee3ac', '[["Format", "PNG"], ["Format version", null]]', 'MediaInfo', '0.7.62');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('364656e3-0c0a-4f91-ba74-ed72e60eac10', '2cc24cec-aea9-49e4-aa91-730f321ee3ac', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('17793931-9178-4e7f-a1f1-457fe0450d38', '2cc24cec-aea9-49e4-aa91-730f321ee3ac', '3141bc6f-7f77-4809-9244-116b235e7330', '6957fdac-a1ed-470f-89f7-fb00be42ea13');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('911bbd3f-0663-4cba-9c5a-41759eccdaf7', '[["Format", "QuickTime"], ["Format version", null]]', 0, 0, '9ffdc6e8-f25a-4e5b-aaca-02769c4e7b7f');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('f0809fcd-9a08-49bf-9d3f-46e72f61aa9a', '911bbd3f-0663-4cba-9c5a-41759eccdaf7', '[["Format", "QuickTime"], ["Format version", null]]', 'MediaInfo', '0.7.62');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('478b887b-74aa-460e-b6ff-b91bf1ec2a3b', '911bbd3f-0663-4cba-9c5a-41759eccdaf7', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', '76fd899e-cd5a-4da3-8752-45c43fc18656');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('0b4036a0-eae7-4867-b09c-87df78b6ca33', '911bbd3f-0663-4cba-9c5a-41759eccdaf7', '3141bc6f-7f77-4809-9244-116b235e7330', 'bb5a6da2-4b89-4f8c-96e3-ca36c55d3337');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('3b510739-70dc-4568-b3b8-6789f7085b0d', '[["Format", "Wave"], ["Format version", null]]', 1, 0, '9ffdc6e8-f25a-4e5b-aaca-02769c4e7b7f');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('3eb30947-ea39-4382-9d45-d78ba8b5909d', '3b510739-70dc-4568-b3b8-6789f7085b0d', '[["Format", "Wave"], ["Format version", null]]', 'MediaInfo', '0.7.62');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('7bc9c759-1b45-4876-83c6-edd5d81a33ee', '3b510739-70dc-4568-b3b8-6789f7085b0d', '3141bc6f-7f77-4809-9244-116b235e7330', '520f976f-476d-4ec6-be1c-7c448c5c074d');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('644ded05-3d65-469b-8870-d5ecf45a97b7', '[["Format", "MPEG Audio"], ["Format version", null]]', 0, 0, '9ffdc6e8-f25a-4e5b-aaca-02769c4e7b7f');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('02a9feb2-fcf6-475b-9f06-24a39c28035a', '644ded05-3d65-469b-8870-d5ecf45a97b7', '[["Format", "MPEG Audio"], ["Format version", null]]', 'MediaInfo', '0.7.62');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('93743b60-639e-4b8a-87d2-601a689ab97d', '644ded05-3d65-469b-8870-d5ecf45a97b7', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', '9dc10fcb-5809-4c0b-917a-02517ef4d1c6');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('80857792-3a35-4f28-b8a6-438787817f91', '644ded05-3d65-469b-8870-d5ecf45a97b7', '3141bc6f-7f77-4809-9244-116b235e7330', '520f976f-476d-4ec6-be1c-7c448c5c074d');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('008b2760-bd2b-4c0a-9dd9-ab386eb91f28', '[["Format", "JPEG 2000"], ["Format version", null]]', 1, 0, '9ffdc6e8-f25a-4e5b-aaca-02769c4e7b7f');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('3e105a1d-0c36-4d6f-93c0-fcb70b076fa4', '008b2760-bd2b-4c0a-9dd9-ab386eb91f28', '[["Format", "JPEG 2000"], ["Format version", null]]', 'MediaInfo', '0.7.62');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('f346a2ae-958d-44f2-88a2-8458677063d4', '008b2760-bd2b-4c0a-9dd9-ab386eb91f28', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('7ec94b5e-90f3-4a35-b0ea-45e16707a433', '008b2760-bd2b-4c0a-9dd9-ab386eb91f28', '3141bc6f-7f77-4809-9244-116b235e7330', '6957fdac-a1ed-470f-89f7-fb00be42ea13');
+
+-- /mediainfo
