@@ -64,8 +64,17 @@ if len(rows) > 1:
         # Can we assume that the permissions are OK due to previous chain links?
         with open(csv_path, 'rb') as csv_file:
             reader = csv.reader(csv_file)
-            # Search the file for an access filename that matches the one provided
+            # Search CSV for an access filename that matches the one provided
             access_file = os.path.basename(opts.filePath)
+            # Get original name of access file, to handle sanitized names
+            # TODO add support for files in subdirectories
+            sql = """SELECT Files.originalLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='manualNormalization' AND Files.currentLocation LIKE '%{filename}' AND {unitIdentifierType} = '{unitIdentifier}';""".format(
+                filename=access_file, unitIdentifierType=unitIdentifierType, unitIdentifier=unitIdentifier)
+            rows = databaseInterface.queryAllSQL(sql)
+            if len(rows) != 1:
+                print >>sys.stderr, "Access file ({0}) not found in DB.".format(access_file)
+                exit(2)
+            access_file = os.path.basename(rows[0][0])
             try:
                 for row in reader:
                     if "#" in row[0]: # if first character #, ignore line
@@ -83,8 +92,7 @@ if len(rows) > 1:
                     filename=csv_path, linenum=reader.line_num)
                 exit(2)
         # If we found the original file, retrieve it from the DB
-        # match and pull original location b/c sanitization
-        sql = """SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.originalLocation LIKE '%{filename}' AND {unitIdentifierType} = '{unitIdentifier}';""".format(
+        sql = """SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '%{filename}' AND {unitIdentifierType} = '{unitIdentifier}';""".format(
                 filename=original, unitIdentifierType=unitIdentifierType, unitIdentifier=unitIdentifier)
         rows = databaseInterface.queryAllSQL(sql)
     else:

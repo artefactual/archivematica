@@ -39,7 +39,7 @@ fileUUID = sys.argv[4]
 filePath = sys.argv[5]
 date = sys.argv[6]
 
-# Search for original file associated with the access file given in filePath
+# Search for original file associated with preservation file given in filePath
 filePathLike = filePath.replace(os.path.join(SIPDirectory, "objects", "manualNormalization", "preservation"), "%SIPDirectory%objects", 1)
 i = filePathLike.rfind(".")
 k = os.path.basename(filePath).rfind(".")
@@ -66,8 +66,17 @@ if len(rows) > 1:
         # Can we assume that the permissions are OK due to previous chain links?
         with open(csv_path, 'rb') as csv_file:
             reader = csv.reader(csv_file)
-            # Search the file for an access filename that matches the one provided
+            # Search CSV for a preservation filename matching the one provided
             preservation_file = os.path.basename(filePath)
+            # Get original name of preservation file, to handle sanitized names
+            # TODO add support for files in subdirectories
+            sql = """SELECT Files.originalLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='preservation' AND Files.currentLocation LIKE '%{filename}' AND {unitIdentifierType} = '{unitIdentifier}';""".format(
+                filename=preservation_file, unitIdentifierType=unitIdentifierType, unitIdentifier=unitIdentifier)
+            rows = databaseInterface.queryAllSQL(sql)
+            if len(rows) != 1:
+                print >>sys.stderr, "Preservation file ({0}) not found in DB.".format(preservation_file)
+                exit(2)
+            preservation_file = os.path.basename(rows[0][0])
             try:
                 for row in reader:
                     if "#" in row[0]: # if first character #, ignore line
@@ -85,8 +94,7 @@ if len(rows) > 1:
                     filename=csv_path, linenum=reader.line_num)
                 exit(2)
         # If we found the original file, retrieve it from the DB
-        # match and pull original location b/c sanitization
-        sql = """SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.originalLocation LIKE '%{filename}' AND {unitIdentifierType} = '{unitIdentifier}';""".format(
+        sql = """SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '%{filename}' AND {unitIdentifierType} = '{unitIdentifier}';""".format(
                 filename=original, unitIdentifierType=unitIdentifierType, unitIdentifier=unitIdentifier)
         rows = databaseInterface.queryAllSQL(sql)
     else:
