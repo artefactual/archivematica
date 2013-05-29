@@ -26,7 +26,7 @@ import logging
 #global variables
 db = None
 cursor = None
-testMode = 0
+testMode =0 
 base_fv_id = 1
 
 logging.basicConfig(level=logging.INFO)
@@ -88,7 +88,7 @@ def get_files_from_dip(dip_location, dip_name, dip_uuid):
     # get a directory listing
     # for each item, set fileName and go
     try:
-        mydir = dip_location + "/objects/"
+        mydir = dip_location + "objects/"
         mylist = list(recursive_file_gen(mydir))
         
         if len(mylist) > 0:
@@ -136,37 +136,42 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         time_now = strftime("%Y-%m-%d %H:%M:%S", localtime())
         file_uri = uri_prefix  + file_name
         sql1="select  d.archdescriptioninstancesid, c.resourceComponentId, c.dateBegin, c.dateEnd, c.dateExpression, c.title from resourcescomponents a join resourcescomponents b on (a.resourcecomponentid = b.parentresourcecomponentid) join resourcescomponents c on (b.resourcecomponentid = c.parentresourcecomponentid) join archdescriptioninstances d on (c.resourcecomponentid = d.resourcecomponentid) where a.resourceid = 31 and d.container1numericindicator = '%s' and d.container2numericindicator = '%s'" % ( container1, container2);
-#sql1 = "select a.archDescriptionInstancesId, a.resourceComponentId, b.dateBegin, b.dateEnd, b.dateExpression from ArchDescriptionInstances a join ResourcesComponents b on a.resourceComponentId = b.resourceComponentId where (container1numericIndicator = '%s' and container2NumericIndicator = '%s')" % ( container1, container2);
+#sql1 = "select a.archDescriptionInstancesId, a.resourceComponentId, b.dateBegin, b.dateEnd, b.dateExpression from ArchDescriptionInstances a join ResourcesComponents b on a.resourceComponentId = b.resourceComponentId where (container1numericIndicator = '%s' and container2NumericIndicator = '%s')" % ( container1, container2)
         logger.info('sql1:' + sql1) 
         cursor.execute(sql1)
+        #logger.info("ran sql1")
         data = cursor.fetchone()
+        #logger.info("got one from sql1: " + str(len(data))) 
         archDID = data[0]
         rcid = data[1]
         dateBegin = data[2]
         dateEnd = data[3]
         dateExpression = data[4]
         rc_title = data[5]
-        
-	logger.debug("found rc_title: " + rc_title + " " + len(rc_title))
-        if rc_title:
-            short_file_name = rc_title
-        else:
-            if dateExpression:
-                short_file_name = dateExpression
+        logger.info("found rc_title " + rc_title + ":" + str(len(rc_title)) ) 
+        if (not rc_title or len(rc_title) == 0):
+            if (not dateExpression or len(dateExpression) == 0):
+                short_file_name = str(dateBegin) + '-' + str(dateEnd)
             else:
-                short_file_name = dateBegin + '-' + dateEnd
+                short_file_name = dateExpression
+        else:
+            short_file_name = rc_title
+
+        logger.info("dateExpression is : " + str(dateExpression) + str(len(dateExpression)))
+        logger.info("dates are  " + str(dateBegin) + "-" + str(dateEnd))
+        logger.info("short file name is " + str(short_file_name))
  
-        logger.debug( "found archDescriptionInstancesId " + str(archDID) + ", rcid " + str(rcid))
+        logger.info( "found archDescriptionInstancesId " + str(archDID) + ", rcid " + str(rcid))
 
         sql2 = "select repositoryId from Repositories" 
-        logger.debug('sql2: ' + sql2)
+        logger.info('sql2: ' + sql2)
 
         cursor.execute(sql2)
         data = cursor.fetchone()
         repoId = data[0]
-        logger.debug('repoId: ' + str(repoId))
+        logger.info('repoId: ' + str(repoId))
         sql3 = " select max(archDescriptionInstancesId) from ArchDescriptionInstances"
-        logger.debug('sql3: ' + sql3) 
+        logger.info('sql3: ' + sql3) 
         cursor.execute(sql3)
         data = cursor.fetchone()
         newaDID = int(data[0]) + 1
@@ -182,30 +187,44 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             `eadDaoActuate`,`eadDaoShow`,`metsIdentifier`,`objectType`,`objectOrder`,
             `archDescriptionInstancesId`,`repositoryId`)
            VALUES (1,'%s', '%s','%s','%s','%s','%s',%d, %d,'English',%d,'%s','%s','%s','%s',0,%d,%d)""" % (time_now, time_now, atuser, atuser, short_file_name,dateExpression, dateBegin, dateEnd, 0, ead_actuate, ead_show,uuid, object_type, newaDID, repoId)
-        logger.debug('sql5: ' + sql5)
+        logger.info('sql5: ' + sql5)
         doID = process_sql(sql5)
-
         sql6 = """insert into FileVersions (fileVersionId, version, lastUpdated, created, lastUpdatedBy, createdBy, uri, useStatement, sequenceNumber, eadDaoActuate,eadDaoShow, digitalObjectId)
               values 
            (%d, 1, '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s','%s', %d)""" % (base_fv_id,time_now, time_now,atuser,atuser,file_uri,use_statement,0, ead_actuate,ead_show, doID)
-        logger.debug('sql6: ' + sql6)
+        logger.info('sql6: ' + sql6)
         process_sql(sql6)
 
         #create notes
         sql7 = " select max(archdescriptionrepeatingdataId) from archdescriptionrepeatingdata"
-        logger.debug('sql7: ' + sql7) 
+        logger.info('sql7: ' + sql7) 
         cursor.execute(sql7)
         data = cursor.fetchone()
+       
+        #existence and location of originals note 
         newadrd = int(data[0]) + 1
-
+        seq_num = 0
+        note_content = dip_uuid
+        logger.info("about to run sql8")
         sql8 = """insert into archdescriptionrepeatingdata 
             (archdescriptionrepeatingdataid, descriminator, version, lastupdated, created, lastupdatedby ,createdby, repeatingdatatype, title, sequenceNumber,
-            digitalobjectId, noteContent, notesetctypeid) values 
-            (%d, 'note',0, '%s', '%s', '%s', '%s','Note','Existence and Location of Originals note', 0, %d, '%s',13)""" % (newadrd, time_now, time_now, atuser, atuser, doID, dip_uuid ) 
-        logger.debug('sql8: ' + sql8)
-        cursor.execute(sql8)
+            digitalObjectId, noteContent, notesetctypeid, basic, multiPart,internalOnly) values 
+            (%d, 'note',%d, '%s', '%s', '%s', '%s','Note','', 0, %d, '%s',13, '', '', '')""" % (newadrd, seq_num, time_now, time_now, atuser, atuser, doID, note_content ) 
+        logger.info('sql8: ' + sql8)
+        adrd = process_sql(sql8) 
         
-    print "done all files"
+        #conditions governing access note
+        newadrd += 1
+        seq_num += 1
+        note_content = access_conditions
+        
+        sql9 = """insert into archdescriptionrepeatingdata 
+            (archdescriptionrepeatingdataid, descriminator, version, lastupdated, created, lastupdatedby ,createdby, repeatingdatatype, title, sequenceNumber,
+            digitalObjectId, noteContent, notesetctypeid, basic, multipart, internalOnly) values 
+            (%d, 'note',0, '%s', '%s', '%s', '%s','Note','', %d, %d, '%s',8, '', '', '')""" % (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content )
+        adrd = process_sql(sql9) 
+         
+    
     process_sql("commit")
 
 if __name__ == '__main__':
@@ -240,12 +259,11 @@ if __name__ == '__main__':
     if not (args.atdb):
         get_user_input()
     
-    #print all input arguments to log
-    
     try:
         mylist = get_files_from_dip(args.dip_location, args.dip_name, args.dip_uuid)
         upload_to_atk(mylist, args.atuser, args.ead_actuate, args.ead_show, args.object_type, args.use_statement, args.uri_prefix, args.dip_uuid, args.access_conditions, args.use_conditions)
+        sys.exit(0)
     except Exception as exc:
         print exc
-    
+        sys.exit(1) 
 
