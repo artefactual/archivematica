@@ -28,13 +28,22 @@ import databaseInterface
 
 SIPDirectory = sys.argv[1]
 manual_normalization_dir = os.path.join(SIPDirectory, "objects", "manualNormalization")
-access_dir = os.path.join(manual_normalization_dir, "access")
-preservation_dir = os.path.join(manual_normalization_dir, "preservation")
 
-global errorCount
 errorCount = 0
 
-if os.path.isdir(manual_normalization_dir) and not errorCount:
+def recursivelyRemoveEmptyDirectories(dir):
+    error_count = 0
+    for root, dirs, files in os.walk(dir,topdown=False):
+       for directory in dirs:
+            try:
+                os.rmdir(os.path.join(root, directory))
+            except Exception as e:
+                print >>sys.stderr, "{0} could not be deleted: {1}".format(
+                    directory, e.args)
+                error_count+= 1
+    return error_count;
+
+if os.path.isdir(manual_normalization_dir):
     # Delete normalization.csv if present
     normalization_csv = os.path.join(manual_normalization_dir, 'normalization.csv')
     if os.path.isfile(normalization_csv):
@@ -50,13 +59,7 @@ if os.path.isdir(manual_normalization_dir) and not errorCount:
         fileUUID = rows[0][0]
         databaseFunctions.fileWasRemoved(fileUUID)
 
-    # Delete empty access, preservation, and manual normalization dir
-    for directory in (access_dir, preservation_dir, manual_normalization_dir):
-        try:
-            os.rmdir(directory)
-        except Exception as e:
-            print >>sys.stderr, "{0} could not be deleted: {1}".format(
-                directory, e.args)
-            errorCount+= 1
+    # Recursively delete empty manual normalization dir
+    errorCount += recursivelyRemoveEmptyDirectories(manual_normalization_dir)
 
 exit(errorCount)
