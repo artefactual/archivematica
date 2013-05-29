@@ -201,6 +201,7 @@ class linkTaskManagerSplitOnFileIdAndruleset:
         SIPPath = SIPPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory", 1))
         normalization_csv = os.path.join(SIPPath, "objects", "manualNormalization", "normalization.csv")
         if os.path.isfile(normalization_csv):
+            found = False
             with open(normalization_csv, 'rb') as csv_file:
                 reader = csv.reader(csv_file)
                 # Search the file for an original filename that matches the one provided
@@ -210,58 +211,55 @@ class linkTaskManagerSplitOnFileIdAndruleset:
                             continue
                         original, access, preservation = row
                         if original.lower() == bname.lower():
+                            found = True
                             break
-                    else:
-                        print >>sys.stderr, "Could not find {original} in {filename}".format(
-                            original=bname, filename=normalization_csv)
-                        return False
                 except csv.Error as e:
                     print >>sys.stderr, "Error reading {filename} on line {linenum}".format(
                         filename=normalization_csv, linenum=reader.line_num)
                     return False # how indicate error?
 
-            # No manually normalized file for command classification
-            if CommandClassification == "preservation" and not preservation:
-                return False
-            if CommandClassification == "access" and not access:
-                return False
+            # If we didn't find a match, let it fall through to the usual method
+            if found:
+                # No manually normalized file for command classification
+                if CommandClassification == "preservation" and not preservation:
+                    return False
+                if CommandClassification == "access" and not access:
+                    return False
 
-            # If we found a match, verify access/preservation exists in DB
-            # match and pull original location b/c sanitization
-            if CommandClassification == "preservation":
-                filename = preservation
-            elif CommandClassification == "access":
-                filename = access
-            else:
-                return False
-            sql = """SELECT Files.fileUUID, Files.currentLocation 
-                     FROM Files 
-                     WHERE sipUUID = '{SIPUUID}' AND 
-                        originalLocation LIKE '%{filename}' AND 
-                        removedTime = 0;""".format(
-                    SIPUUID=SIPUUID, filename=filename)
-            rows = databaseInterface.queryAllSQL(sql)
-            return bool(rows)
+                # If we found a match, verify access/preservation exists in DB
+                # match and pull original location b/c sanitization
+                if CommandClassification == "preservation":
+                    filename = preservation
+                elif CommandClassification == "access":
+                    filename = access
+                else:
+                    return False
+                sql = """SELECT Files.fileUUID, Files.currentLocation 
+                         FROM Files 
+                         WHERE sipUUID = '{SIPUUID}' AND 
+                            originalLocation LIKE '%{filename}' AND 
+                            removedTime = 0;""".format(
+                        SIPUUID=SIPUUID, filename=filename)
+                rows = databaseInterface.queryAllSQL(sql)
+                return bool(rows)
 
         # Assume that any access/preservation file found with the right
         # name is the correct one
+        bname = os.path.splitext(bname)[0]
+        path = os.path.join(dirName, bname)
+        if CommandClassification == "preservation":
+            path = path.replace("%SIPDirectory%objects/",
+                "%SIPDirectory%objects/manualNormalization/preservation/")
+        elif CommandClassification == "access":
+            path = path.replace("%SIPDirectory%objects/",
+                "%SIPDirectory%objects/manualNormalization/access/")
         else:
-            bname = os.path.splitext(bname)[0]
-            path = os.path.join(dirName, bname)
-            if CommandClassification == "preservation":
-                path = path.replace("%SIPDirectory%objects/", 
-                    "%SIPDirectory%objects/manualNormalization/preservation/")
-            elif CommandClassification == "access":
-                path = path.replace("%SIPDirectory%objects/", 
-                    "%SIPDirectory%objects/manualNormalization/access/")
-            else:
-                return False
-            try:
-                sql = """SELECT fileUUID FROM Files WHERE sipUUID = '%s' AND currentLocation LIKE '%s%%' AND removedTime = 0;""" % (SIPUUID, path.replace("%", "\%"))
-                ret = bool(databaseInterface.queryAllSQL(sql))
-                return ret 
-            except Exception as inst:
-                print "DEBUG EXCEPTION!"
-                traceback.print_exc(file=sys.stdout)
-                print type(inst)     # the exception instance
-                print inst.args
+            return False
+        try:
+            sql = """SELECT fileUUID FROM Files WHERE sipUUID = '%s' AND currentLocation LIKE '%s%%' AND removedTime = 0;""" % (SIPUUID, path.replace("%", "\%"))
+            ret = bool(databaseInterface.queryAllSQL(sql))
+            return ret
+        except Exception as inst:
+            print "DEBUG EXCEPTION!"
+            traceback.print_exc(file=sys.stdout)
+            print >>sys.stderr type(inst), inst.args
