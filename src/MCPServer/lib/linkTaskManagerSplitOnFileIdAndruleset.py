@@ -25,6 +25,7 @@ from linkTaskManager import linkTaskManager
 from taskStandard import taskStandard
 from unitFile import unitFile
 from passClasses import *
+import csv
 import jobChain
 import threading
 import math
@@ -178,29 +179,89 @@ class linkTaskManagerSplitOnFileIdAndruleset:
                             commandsRun[command] = microServiceChainLink 
                 self.jobChainLink.linkProcessingComplete(self.exitCode, passVar=self.jobChainLink.passVar)
     
-    def alreadyNormalizedManually(self, unit, ComandClassification):
-        try:
-            SIPUUID = unit.owningUnit.UUID
-            fileUUID = unit.UUID
-            SIPPath = unit.owningUnit.currentPath
-            filePath = unit.currentPath
-            bname = os.path.basename(filePath)
-            dirName = os.path.dirname(filePath)
-            i = bname.rfind(".")
-            if i != -1:
-                bname = bname[:i]
-            path = os.path.join(dirName, bname)
-            if ComandClassification == "preservation":
-                path = path.replace("%SIPDirectory%objects/", "%SIPDirectory%objects/manualNormalization/preservation/")
-            elif ComandClassification == "access":
-                path = path.replace("%SIPDirectory%objects/", "%SIPDirectory%objects/manualNormalization/access/")
+    def alreadyNormalizedManually(self, unit, CommandClassification):
+        """ Return True if file was normalized manually, False if not. 
+
+        Checks by looking for access/preservation files for a give original file.
+
+        Check the manualNormalization/access and manualNormalization/preservation
+        directories for access and preservation files.  If a nomalization.csv 
+        file is specified, check there first for the mapping between original
+        file and access/preservation file. """
+
+        # Setup
+        SIPUUID = unit.owningUnit.UUID
+        fileUUID = unit.UUID
+        SIPPath = unit.owningUnit.currentPath
+        filePath = unit.currentPath
+        bname = os.path.basename(filePath)
+        dirName = os.path.dirname(filePath)
+        # If normalization.csv provided, check there for mapping from original
+        # to access/preservation file
+        SIPPath = SIPPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory", 1))
+        normalization_csv = os.path.join(SIPPath, "objects", "manualNormalization", "normalization.csv")
+        if os.path.isfile(normalization_csv):
+            with open(normalization_csv, 'rb') as csv_file:
+                reader = csv.reader(csv_file)
+                # Search the file for an original filename that matches the one provided
+                try:
+                    for row in reader:
+                        if "#" in row[0]: # ignore comments
+                            continue
+                        original, access, preservation = row
+                        if original.lower() == bname.lower():
+                            break
+                    else:
+                        print >>sys.stderr, "Could not find {original} in {filename}".format(
+                            original=bname, filename=normalization_csv)
+                        return False
+                except csv.Error as e:
+                    print >>sys.stderr, "Error reading {filename} on line {linenum}".format(
+                        filename=normalization_csv, linenum=reader.line_num)
+                    return False # how indicate error?
+
+            # No manually normalized file for command classification
+            if CommandClassification == "preservation" and not preservation:
+                return False
+            if CommandClassification == "access" and not access:
+                return False
+
+            # If we found a match, verify access/preservation exists in DB
+            # match and pull original location b/c sanitization
+            if CommandClassification == "preservation":
+                filename = preservation
+            elif CommandClassification == "access":
+                filename = access
             else:
                 return False
-            sql = """SELECT fileUUID FROM Files WHERE sipUUID = '%s' AND currentLocation LIKE '%s%%' AND removedTime = 0;""" % (SIPUUID, path.replace("%", "\%"))
-            ret = bool(databaseInterface.queryAllSQL(sql))
-            return ret 
-        except Exception as inst:
-            print "DEBUG EXCEPTION!"
-            traceback.print_exc(file=sys.stdout)
-            print type(inst)     # the exception instance
-            print inst.args
+            sql = """SELECT Files.fileUUID, Files.currentLocation 
+                     FROM Files 
+                     WHERE sipUUID = '{SIPUUID}' AND 
+                        originalLocation LIKE '%{filename}' AND 
+                        removedTime = 0;""".format(
+                    SIPUUID=SIPUUID, filename=filename)
+            rows = databaseInterface.queryAllSQL(sql)
+            return bool(rows)
+
+        # Assume that any access/preservation file found with the right
+        # name is the correct one
+        else:
+            bname = os.path.splitext(bname)[0]
+            path = os.path.join(dirName, bname)
+            if CommandClassification == "preservation":
+                path = path.replace("%SIPDirectory%objects/", 
+                    "%SIPDirectory%objects/manualNormalization/preservation/")
+            elif CommandClassification == "access":
+                path = path.replace("%SIPDirectory%objects/", 
+                    "%SIPDirectory%objects/manualNormalization/access/")
+            else:
+                return False
+            try:
+                sql = """SELECT fileUUID FROM Files WHERE sipUUID = '%s' AND currentLocation LIKE '%s%%' AND removedTime = 0;""" % (SIPUUID, path.replace("%", "\%"))
+                ret = bool(databaseInterface.queryAllSQL(sql))
+                return ret 
+            except Exception as inst:
+                print "DEBUG EXCEPTION!"
+                traceback.print_exc(file=sys.stdout)
+                print type(inst)     # the exception instance
+                print inst.args

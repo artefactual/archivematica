@@ -201,6 +201,7 @@ def onceNormalized(command, opts, replacementDic):
         eventDetail = '%s; %s' % (eventDetail, command.eventDetailCommand.stdOut)
     for ef in transcodedFiles:
         if opts["commandClassifications"] == "preservation":
+            # TODO Add manual normalization for files of same name mapping
             #Add the new file to the sip
             filePathRelativeToSIP = ef.replace(opts["sipPath"], "%SIPDirectory%", 1)
             # addFileToSIP(filePathRelativeToSIP, fileUUID, sipUUID, taskUUID, date, sourceType="ingestion"):
