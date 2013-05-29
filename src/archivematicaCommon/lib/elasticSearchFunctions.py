@@ -162,7 +162,7 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS):
     tree = ElementTree.parse(pathToMETS)
     root = tree.getroot()
     xml = ElementTree.tostring(root)
-    mets_data = xmltodict.parse(xml)
+    mets_data = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 
     aipData = {
         'uuid':     uuid,
