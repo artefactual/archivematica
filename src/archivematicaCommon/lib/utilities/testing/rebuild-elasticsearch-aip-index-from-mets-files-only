@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+
+import os, sys, subprocess, tempfile, shutil, ConfigParser
+import xml.etree.ElementTree as ElementTree
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import elasticSearchFunctions, databaseInterface
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
+import pyes
+
+# Determine root of shared directories
+clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
+config = ConfigParser.SafeConfigParser()
+config.read(clientConfigFilePath)
+
+try:
+    sharedDirectory = config.get('MCPClient', "sharedDirectoryMounted")
+except:
+    print "Configuration item 'sharedDirectoryMounted' not available at /etc/archivematica/MCPClient/clientConfig.conf."
+    os._exit(1)
+
+# Clear database backups of indexed AIPs
+sql = "DELETE FROM ElasticsearchIndexBackup WHERE indexName='aips' AND typeName='aipfile'"
+databaseInterface.runSQL(sql)
+
+# Set root directory
+try:
+    rootdir = sys.argv[1]
+    if not os.path.exists(rootdir):
+        print "Directory containing METS files doesn't exist."
+        os._exit(1)
+except:
+    print 'usage: ' + sys.argv[0] + ' <path to directory containing METS files>'
+    os._exit(1)
+
+print "Rebuilding AIPS index from METS files in " + rootdir + "..."
+
+def processMETSfile(conn, metsFilePath):
+    uuid = os.path.basename(metsFilePath)[5:-4]
+
+    print 'Processing METS file for AIP ' + uuid + '...'
+
+    sipName = parseSipNameFromMETSfile(metsFilePath)
+
+    return elasticSearchFunctions.index_mets_file_metadata(
+        conn,
+        uuid,
+        metsFilePath,
+        'aips',
+        'aipfile',
+        sipName
+    )
+
+def parseSipNameFromMETSfile(metsFilePath):
+    # get AIP name from XML
+    tree = ElementTree.parse(os.path.join(rootdir, file))
+    root = tree.getroot()
+
+    # get SIP-wide dmdSec
+    dmdSec = root.findall("{http://www.loc.gov/METS/}structMap/{http://www.loc.gov/METS/}div")
+
+    # there should only be one item
+    for item in dmdSec:
+        pass
+
+    dirName = item.get('LABEL')
+    return dirName[:-37]
+
+conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
+try:
+    conn._send_request('GET', '')
+except pyes.exceptions.NoServerAvailable:
+    print "Connection error: Is Elasticsearch running?"
+    os._exit(1)
+
+for root, subFolders, files in os.walk(rootdir):
+    for file in files:
+        try:
+            file.index('.xml')
+            metsFilePath = os.path.join(root, file)
+            filesIndexed = processMETSfile(conn, metsFilePath)
+            print 'Indexed ' + str(filesIndexed) +  ' files.'
+
+            uuid = os.path.basename(metsFilePath)[5:-4]
+            aipName = parseSipNameFromMETSfile(metsFilePath)
+            # here we give it the metsFilePath for the 3rd arg instead of the AIP archive
+            elasticSearchFunctions.connect_and_index_aip(uuid, aipName, metsFilePath, metsFilePath)
+            print 'Indexed AIP.'
+        except:
+            print 'Bad filename or error processing XML.'
+
+print "Cleaning up..."
+
+print "Indexing complete."
