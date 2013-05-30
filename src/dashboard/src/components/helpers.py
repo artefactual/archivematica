@@ -22,7 +22,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.servers.basehttp import FileWrapper
 from django.shortcuts import render
 from main import models
-import cPickle, pprint, ConfigParser, urllib, os
+import cPickle, pprint, ConfigParser, urllib, os, mimetypes
 
 def pr(object):
     return pprint.pformat(object)
