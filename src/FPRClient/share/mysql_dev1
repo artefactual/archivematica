@@ -121,3 +121,19 @@ INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
             VALUES ('7ec94b5e-90f3-4a35-b0ea-45e16707a433', '008b2760-bd2b-4c0a-9dd9-ab386eb91f28', '3141bc6f-7f77-4809-9244-116b235e7330', '6957fdac-a1ed-470f-89f7-fb00be42ea13');
 
 -- /mediainfo
+
+-- issue 1920 Remove default access normalization for JPEG 2000 images
+-- .jp2
+-- INSERT INTO `FileIDs` (`pk`, `description`, `validPreservationFormat`, `validAccessFormat`, `fileIDType`, `replaces`, `lastModified`, `enabled`) VALUES ('67621d17-25ea-4cef-863d-1431b3946640','A .jp2 file',1,0,'16ae42ff-1018-4815-aac8-cceacd8d88a8',NULL,'2012-10-10 02:16:13',1);
+-- INSERT INTO `FileIDsBySingleID` (`pk`, `fileID`, `id`, `replaces`, `tool`, `toolVersion`, `lastModified`, `enabled`) VALUES ('e0275ab2-c7f1-41cb-9705-80cd6150054a','67621d17-25ea-4cef-863d-1431b3946640','jp2',NULL,'FileIDsByExtension','','2012-10-27 00:29:31',1);
+-- [thumbnail]INSERT INTO `CommandRelationships` (`pk`, `commandClassification`, `command`, `fileID`, `GroupMember`, `countAttempts`, `countOK`, `countNotOK`, `replaces`, `lastModified`, `enabled`) VALUES ('55c7c9e2-ddd7-43f9-8b35-cbe8f6474774','27c2969b-b6a0-441d-888d-85292b692064','1628571b-c2cd-4822-afdb-53561400c7c4','67621d17-25ea-4cef-863d-1431b3946640',0,0,0,0,NULL,'2013-01-05 10:02:50',1);
+-- [access]INSERT INTO `CommandRelationships` (`pk`, `commandClassification`, `command`, `fileID`, `GroupMember`, `countAttempts`, `countOK`, `countNotOK`, `replaces`, `lastModified`, `enabled`) VALUES ('b1a246ef-7739-4679-8264-c1e98c551760','3141bc6f-7f77-4809-9244-116b235e7330','6957fdac-a1ed-470f-89f7-fb00be42ea13','67621d17-25ea-4cef-863d-1431b3946640',0,0,0,0,NULL,'2013-01-05 10:02:50',1);
+
+INSERT INTO `FileIDs` (`pk`, `description`, `validPreservationFormat`, `validAccessFormat`, `fileIDType`, `replaces`, `lastModified`, `enabled`) VALUES ('a2a56f0a-2343-4897-b197-fb270f94803a','A .jp2 file',1,1,'16ae42ff-1018-4815-aac8-cceacd8d88a8','67621d17-25ea-4cef-863d-1431b3946640','2013-05-30 13:56:56',1);
+INSERT INTO `FileIDsBySingleID` (`pk`, `fileID`, `id`, `replaces`, `tool`, `toolVersion`, `lastModified`, `enabled`) VALUES ('4dbd7679-603a-44a1-bf63-12f60df1d0aa','a2a56f0a-2343-4897-b197-fb270f94803a','jp2','e0275ab2-c7f1-41cb-9705-80cd6150054a','FileIDsByExtension','','2013-05-30 13:56:56',1);
+INSERT INTO `CommandRelationships` (`pk`, `commandClassification`, `command`, `fileID`, `GroupMember`, `countAttempts`, `countOK`, `countNotOK`, `replaces`, `lastModified`, `enabled`) VALUES ('6e26baf4-2e0c-4852-bd86-57cb41817032','27c2969b-b6a0-441d-888d-85292b692064','1628571b-c2cd-4822-afdb-53561400c7c4','a2a56f0a-2343-4897-b197-fb270f94803a',0,0,0,0,'55c7c9e2-ddd7-43f9-8b35-cbe8f6474774','2013-05-30 13:56:56',1);
+INSERT INTO `CommandRelationships` (`pk`, `commandClassification`, `command`, `fileID`, `GroupMember`, `countAttempts`, `countOK`, `countNotOK`, `replaces`, `lastModified`, `enabled`) VALUES ('d62e6ce9-5625-4150-8859-72371288bd01','3141bc6f-7f77-4809-9244-116b235e7330','6957fdac-a1ed-470f-89f7-fb00be42ea13','a2a56f0a-2343-4897-b197-fb270f94803a',0,0,0,0,'b1a246ef-7739-4679-8264-c1e98c551760','2013-05-30 13:56:56',0);
+
+
+
+-- /issue 1920
