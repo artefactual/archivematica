@@ -86,3 +86,9 @@ UPDATE TasksConfigs SET description='Set SIP to normalize with MediaInfo file id
 
 
 -- /Issue 5034
+
+-- 5088 Tasks table does not have foreign key for Jobs
+ALTER TABLE Tasks
+ADD FOREIGN KEY (jobUUID)
+REFERENCES Jobs(jobUUID);
+-- /5088
