@@ -262,4 +262,4 @@ class linkTaskManagerSplitOnFileIdAndruleset:
         except Exception as inst:
             print "DEBUG EXCEPTION!"
             traceback.print_exc(file=sys.stdout)
-            print >>sys.stderr type(inst), inst.args
+            print >>sys.stderr, type(inst), inst.args

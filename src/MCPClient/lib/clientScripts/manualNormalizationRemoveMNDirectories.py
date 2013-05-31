@@ -61,5 +61,6 @@ if os.path.isdir(manual_normalization_dir):
 
     # Recursively delete empty manual normalization dir
     errorCount += recursivelyRemoveEmptyDirectories(manual_normalization_dir)
+    os.rmdir(manual_normalization_dir)
 
 exit(errorCount)
