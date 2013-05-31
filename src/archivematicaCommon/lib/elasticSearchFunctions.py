@@ -151,18 +151,22 @@ def set_up_mapping(conn, index):
             'FILEUUID': machine_readable_field_spec
         }
 
+        print 'Creating AIP mapping...'
+        conn.put_mapping(doc_type='aip', mapping={'aip': {'date_detection': False}}, indices=['aips'])
+        print 'AIP mapping created.'
+
         print 'Creating AIP file mapping...'
-        conn.put_mapping(doc_type='aipfile', mapping={'aipfile': {'properties': mapping}}, indices=['aips'])
+        conn.put_mapping(doc_type='aipfile', mapping={'aipfile': {'date_detection': False, 'properties': mapping}}, indices=['aips'])
         print 'AIP file mapping created.'
 
 def connect_and_index_aip(uuid, name, filePath, pathToMETS):
     conn = connect_and_create_index('aips')
 
     # convert METS XML to dict
-    tree = ElementTree.parse(pathToMETS)
-    root = tree.getroot()
-    xml = ElementTree.tostring(root)
-    mets_data = xmltodict.parse(xml)
+    tree      = ElementTree.parse(pathToMETS)
+    root      = tree.getroot()
+    xml       = ElementTree.tostring(root)
+    mets_data = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml))
 
     aipData = {
         'uuid':     uuid,
@@ -171,7 +175,7 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS):
         'size':     os.path.getsize(filePath) / float(1024) / float(1024),
         'mets':     mets_data,
         'origin':   getDashboardUUID(),
-        'created':  time.time()
+        'created':  os.path.getmtime(pathToMETS)
     }
     conn.index(aipData, 'aips', 'aip')
 
