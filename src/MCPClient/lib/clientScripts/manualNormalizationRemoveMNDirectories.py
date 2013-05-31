@@ -37,7 +37,7 @@ def recursivelyRemoveEmptyDirectories(dir):
        for directory in dirs:
             try:
                 os.rmdir(os.path.join(root, directory))
-            except Exception as e:
+            except OSError as e:
                 print >>sys.stderr, "{0} could not be deleted: {1}".format(
                     directory, e.args)
                 error_count+= 1
@@ -60,7 +60,12 @@ if os.path.isdir(manual_normalization_dir):
         databaseFunctions.fileWasRemoved(fileUUID)
 
     # Recursively delete empty manual normalization dir
-    errorCount += recursivelyRemoveEmptyDirectories(manual_normalization_dir)
-    os.rmdir(manual_normalization_dir)
+    try:
+        errorCount += recursivelyRemoveEmptyDirectories(manual_normalization_dir)
+        os.rmdir(manual_normalization_dir)
+    except OSError as e:
+        print >>sys.stderr, "{0} could not be deleted: {1}".format(
+            directory, e.args)
+        errorCount += 1
 
 exit(errorCount)
