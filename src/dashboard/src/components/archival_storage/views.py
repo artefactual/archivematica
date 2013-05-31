@@ -265,7 +265,13 @@ def list_display(request, current_page_number=None):
     sort_specification = order_by + ':' + sort_direction
 
     conn = elasticSearchFunctions.connect_and_create_index('aips')
-    aipResults = conn.search(pyes.StringQuery('*'), doc_types=['aip'], sort=sort_specification)
+    aipResults = conn.search(
+        pyes.StringQuery('*'),
+        doc_types=['aip'],
+        fields='origin,uuid,filePath,created,name,size',
+        sort=sort_specification
+    )
+
     aips = []
 
     #if aipResults._total != None:
