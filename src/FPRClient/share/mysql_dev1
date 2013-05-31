@@ -137,3 +137,206 @@ INSERT INTO `CommandRelationships` (`pk`, `commandClassification`, `command`, `f
 
 
 -- /issue 1920
+
+
+-- issue 5032 Support normalization based on fido file IDs
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('50092320-69e6-4b7a-8bf1-48f9a05fa822', 'fmt/154', 0, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('8d8d002b-8313-45e8-91f1-0e7dbe508455', '50092320-69e6-4b7a-8bf1-48f9a05fa822', 'fmt/154', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('28fa7251-c20f-4283-81d3-69550878931c', '50092320-69e6-4b7a-8bf1-48f9a05fa822', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('ee2a3391-4e3a-4ff1-ad3d-e7c4d420578c', '50092320-69e6-4b7a-8bf1-48f9a05fa822', '3141bc6f-7f77-4809-9244-116b235e7330', 'a1921355-58c2-4d6f-9535-a6d227a0be16');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('82740afa-efe0-410f-9853-f45aa889fc1b', 'fmt/353', 0, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('96cbefd4-af8e-4a78-81a1-eade98648ac9', '82740afa-efe0-410f-9853-f45aa889fc1b', 'fmt/353', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('e357596c-1c7c-4ff9-9819-e587f305e772', '82740afa-efe0-410f-9853-f45aa889fc1b', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('5a1ad5d2-4b9b-4fea-ac2b-627bb2d0f338', '82740afa-efe0-410f-9853-f45aa889fc1b', '3141bc6f-7f77-4809-9244-116b235e7330', 'a1921355-58c2-4d6f-9535-a6d227a0be16');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('d9175e1e-756a-4824-8f91-8c5329e5f84c', 'fido-fmt/189.ppt', 1, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('dc7a946e-1d8e-4b4b-986c-170484bae907', 'd9175e1e-756a-4824-8f91-8c5329e5f84c', 'fido-fmt/189.ppt', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('084bd21d-76f3-457c-960f-2b5b1a47f7c5', 'd9175e1e-756a-4824-8f91-8c5329e5f84c', '3141bc6f-7f77-4809-9244-116b235e7330', '53d34372-8805-4adf-b940-6c05b835a94f');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('0b894586-a385-4570-88ca-1d93872f6e52', 'd9175e1e-756a-4824-8f91-8c5329e5f84c', '3141bc6f-7f77-4809-9244-116b235e7330', '53d34372-8805-4adf-b940-6c05b835a94f');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('4d72a539-9d7a-4b62-8121-b48baba85eed', 'fmt/131', 0, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('4a98ec76-35f7-4e72-9fef-2b4c66fdaf01', '4d72a539-9d7a-4b62-8121-b48baba85eed', 'fmt/131', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('d6a98ae2-547e-4f76-bac7-56f77f3f8f04', '4d72a539-9d7a-4b62-8121-b48baba85eed', '3141bc6f-7f77-4809-9244-116b235e7330', 'bb5a6da2-4b89-4f8c-96e3-ca36c55d3337');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('bd6d8edd-4abe-4f5b-9b02-efda38b541db', '4d72a539-9d7a-4b62-8121-b48baba85eed', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', '76fd899e-cd5a-4da3-8752-45c43fc18656');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('13236ed3-be9d-418b-9460-bc3ce50bd46e', 'fmt/61', 1, 1, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('99779891-9b2a-4468-b1de-f226ce0f6c29', '13236ed3-be9d-418b-9460-bc3ce50bd46e', 'fmt/61', 'Fido', '1.1.3');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('aa053039-a15b-4165-ab6c-860c1dfc6dc8', 'fmt/402', 0, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('e82624ef-c3ad-404a-aa76-b1632744b97a', 'aa053039-a15b-4165-ab6c-860c1dfc6dc8', 'fmt/402', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('89b9fc16-3ce8-4fac-9a9b-5e24fcfb0813', 'aa053039-a15b-4165-ab6c-860c1dfc6dc8', '3141bc6f-7f77-4809-9244-116b235e7330', '6957fdac-a1ed-470f-89f7-fb00be42ea13');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('4df8b5f9-2a8e-4d05-924f-9d73d9aea6fe', 'aa053039-a15b-4165-ab6c-860c1dfc6dc8', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('3b577293-edcb-453a-be5f-9c62f545fe25', 'aa053039-a15b-4165-ab6c-860c1dfc6dc8', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', 'a34ddc9b-c922-4bb6-8037-bbe713332175');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('fdaeb1c7-a6d1-4c15-a93a-72ed47052d19', 'fmt/91', 1, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('9ab66356-c44a-4466-8907-9bc8a7886a09', 'fdaeb1c7-a6d1-4c15-a93a-72ed47052d19', 'fmt/91', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('ca090ed4-dc6f-4320-897b-a584e3a8b1f9', 'fdaeb1c7-a6d1-4c15-a93a-72ed47052d19', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', '64c450b4-135c-46d1-a9aa-3f9b15671677');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('b28e8a96-2d0b-483d-9351-9e9c645054f4', 'fdaeb1c7-a6d1-4c15-a93a-72ed47052d19', '3141bc6f-7f77-4809-9244-116b235e7330', 'd91f0637-b2f6-4492-ac1b-23c155102a3e');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('44cf9e20-9665-4f04-aa12-f1fbbf7952a1', 'fmt/18', 0, 1, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('903a5af0-6dfe-42ab-b63e-f26d911d83b6', '44cf9e20-9665-4f04-aa12-f1fbbf7952a1', 'fmt/18', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('43092034-30aa-46ba-b4e2-d4b899524573', '44cf9e20-9665-4f04-aa12-f1fbbf7952a1', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', 'd6a33093-85d5-4088-83e1-b7a774a826bd');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('f9431ede-cadb-49ec-9a06-4b49c706b02d', 'fmt/156', 1, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('b6f88ecc-8239-4d86-947f-c995c86ac9d0', 'f9431ede-cadb-49ec-9a06-4b49c706b02d', 'fmt/156', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('5c6a310c-f1a6-4c45-be8a-2ddd6e4551a1', 'f9431ede-cadb-49ec-9a06-4b49c706b02d', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('31cd7d0e-4762-468d-add4-fe85319e9ad6', 'f9431ede-cadb-49ec-9a06-4b49c706b02d', '3141bc6f-7f77-4809-9244-116b235e7330', 'a1921355-58c2-4d6f-9535-a6d227a0be16');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('485cabd0-2945-4117-81f4-1010146cb34d', 'fido-fmt/189.word', 1, 1, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('23eaedab-84a7-4313-bb7d-dd270f09c8b7', '485cabd0-2945-4117-81f4-1010146cb34d', 'fido-fmt/189.word', 'Fido', '1.1.3');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('1d65b7c7-df20-4c68-a86e-2217e1b26c95', 'fmt/414', 0, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('fd2fbd1f-5754-49f9-aa69-b2f2c004980a', '1d65b7c7-df20-4c68-a86e-2217e1b26c95', 'fmt/414', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('1f40275e-af88-45ab-b04b-a76138d78393', '1d65b7c7-df20-4c68-a86e-2217e1b26c95', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', '9dc10fcb-5809-4c0b-917a-02517ef4d1c6');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('5605b139-adbe-4697-8fc8-4f03c55a8d0c', '1d65b7c7-df20-4c68-a86e-2217e1b26c95', '3141bc6f-7f77-4809-9244-116b235e7330', '520f976f-476d-4ec6-be1c-7c448c5c074d');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('b5aa8838-45a2-4f5f-b814-77631f5c70ca', 'fido-fmt/189.xl', 1, 1, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('736779ab-fbc7-4c4a-9b16-a260c3a3547a', 'b5aa8838-45a2-4f5f-b814-77631f5c70ca', 'fido-fmt/189.xl', 'Fido', '1.1.3');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('7366f8e2-a34a-47ce-9fea-206b77256aaa', 'fmt/20', 0, 1, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('61b35132-fe0f-4282-9d82-e5e2e2067387', '7366f8e2-a34a-47ce-9fea-206b77256aaa', 'fmt/20', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('c9bf42a7-85c8-44b8-b0a9-baa1c93d8ff3', '7366f8e2-a34a-47ce-9fea-206b77256aaa', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', 'd6a33093-85d5-4088-83e1-b7a774a826bd');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('74590dc6-c2eb-4e34-a653-3d5a57e1f4a0', 'fmt/40', 1, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('9bf3a166-6b48-4fa3-8586-f681ae5908aa', '74590dc6-c2eb-4e34-a653-3d5a57e1f4a0', 'fmt/40', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('7bbb3172-3076-42c3-9792-5c3c0078a74e', '74590dc6-c2eb-4e34-a653-3d5a57e1f4a0', '3141bc6f-7f77-4809-9244-116b235e7330', '53d34372-8805-4adf-b940-6c05b835a94f');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('66dc51a5-fdc3-4ac7-b2ae-c4bd390e2650', 'fmt/4', 0, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('fa0d8035-7e8e-401b-9455-646de8e491cc', '66dc51a5-fdc3-4ac7-b2ae-c4bd390e2650', 'fmt/4', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('fbf6badc-d98f-4ba5-b630-4ef7e3d2b8ec', '66dc51a5-fdc3-4ac7-b2ae-c4bd390e2650', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', 'a34ddc9b-c922-4bb6-8037-bbe713332175');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('65485fef-694c-4f6a-b09b-056a7a0d0b84', '66dc51a5-fdc3-4ac7-b2ae-c4bd390e2650', '3141bc6f-7f77-4809-9244-116b235e7330', '6957fdac-a1ed-470f-89f7-fb00be42ea13');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('afb3246b-34ef-4faa-a172-2ea60bb9989a', '66dc51a5-fdc3-4ac7-b2ae-c4bd390e2650', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('02a464df-87a5-4a8f-a20c-96666e47ca9c', 'fmt/45', 1, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('cfe6a3c4-c572-4205-ae41-3115be22c450', '02a464df-87a5-4a8f-a20c-96666e47ca9c', 'fmt/45', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('8ad2b05c-f43c-42f9-b791-685880fb0bb2', '02a464df-87a5-4a8f-a20c-96666e47ca9c', '3141bc6f-7f77-4809-9244-116b235e7330', '53d34372-8805-4adf-b940-6c05b835a94f');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('ebce4558-b160-4b9e-badb-2cdf9399260f', 'fmt/11', 1, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('53b6d529-e1a7-4304-89fd-c2536a94daf3', 'ebce4558-b160-4b9e-badb-2cdf9399260f', 'fmt/11', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('e2c5a754-4b81-41a5-9237-6313fed04374', 'ebce4558-b160-4b9e-badb-2cdf9399260f', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('d7e00b42-8216-49e9-a421-8b16d3f22c45', 'ebce4558-b160-4b9e-badb-2cdf9399260f', '3141bc6f-7f77-4809-9244-116b235e7330', '6957fdac-a1ed-470f-89f7-fb00be42ea13');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('469b0612-f629-4a8c-9e16-5e03d7f53808', 'x-fmt/384', 0, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('9934df7c-63c4-4f84-8629-12c150783e3f', '469b0612-f629-4a8c-9e16-5e03d7f53808', 'x-fmt/384', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('dd115a8b-a049-4235-9562-622518bfbb11', '469b0612-f629-4a8c-9e16-5e03d7f53808', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', '76fd899e-cd5a-4da3-8752-45c43fc18656');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('4bf13825-3d48-456d-abba-01da33fb0d71', '469b0612-f629-4a8c-9e16-5e03d7f53808', '3141bc6f-7f77-4809-9244-116b235e7330', 'bb5a6da2-4b89-4f8c-96e3-ca36c55d3337');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('99d2b022-4ec3-4f44-9a57-c08fc11d2b78', 'fmt/141', 1, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('bfb79e89-8cd3-411d-8398-5ffc152795be', '99d2b022-4ec3-4f44-9a57-c08fc11d2b78', 'fmt/141', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('d4559990-ee03-413c-985d-0ae7c6ef5217', '99d2b022-4ec3-4f44-9a57-c08fc11d2b78', '3141bc6f-7f77-4809-9244-116b235e7330', '520f976f-476d-4ec6-be1c-7c448c5c074d');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('2a711129-3707-4696-bb05-c1e980048b77', 'fmt/124', 0, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('078266d0-40fd-4afb-b796-5d9ea01a424a', '2a711129-3707-4696-bb05-c1e980048b77', 'fmt/124', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('a8950e9d-2a58-49fc-a980-24ec1aea30ff', '2a711129-3707-4696-bb05-c1e980048b77', '3141bc6f-7f77-4809-9244-116b235e7330', 'e96b787d-57f6-41a4-9693-d0634bfacacb');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('3b520e68-0d86-4223-89d4-15784c392cfb', '2a711129-3707-4696-bb05-c1e980048b77', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', '64c450b4-135c-46d1-a9aa-3f9b15671677');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('920776b3-b537-46b8-805b-7c8144b07ed9', 'fmt/19', 1, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('e473d650-746e-4a13-bd03-9ba6452dff1f', '920776b3-b537-46b8-805b-7c8144b07ed9', 'fmt/19', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('2a53edfa-8e05-4de5-b0ac-6b74ee98b614', '920776b3-b537-46b8-805b-7c8144b07ed9', '3141bc6f-7f77-4809-9244-116b235e7330', 'a74cbffb-281b-49ee-8e96-fbac2ab54785');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('2eb9da04-ff22-4135-853e-ed166cc92312', 'x-fmt/392', 1, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('2ca38260-1b78-46fe-8feb-c5ab95ff6e3e', '2eb9da04-ff22-4135-853e-ed166cc92312', 'x-fmt/392', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('8a0c134f-ad48-433b-b475-fe5b42c41461', '2eb9da04-ff22-4135-853e-ed166cc92312', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('9a3028e3-3d26-4113-926b-4a0aa041d5fd', '2eb9da04-ff22-4135-853e-ed166cc92312', '3141bc6f-7f77-4809-9244-116b235e7330', '6957fdac-a1ed-470f-89f7-fb00be42ea13');
+            
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('8cf14b81-d68e-4922-a240-879db0f7bb29', 'fmt/43', 0, 1, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('9d1e539e-9c45-40df-b5e4-81e56de1de80', '8cf14b81-d68e-4922-a240-879db0f7bb29', 'fmt/43', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('6df117e0-eec7-434a-9536-4ba89b085286', '8cf14b81-d68e-4922-a240-879db0f7bb29', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('bc6b6e16-5f9f-4863-a60c-eb0a7d051d1e', '8cf14b81-d68e-4922-a240-879db0f7bb29', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', 'a34ddc9b-c922-4bb6-8037-bbe713332175');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType) 
+        VALUES ('11cad49d-9d21-4bcc-b1bf-794a32d2edb7', 'fmt/116', 0, 0, 'afdbee13-eec5-4182-8c6c-f5638ee290f3');
+INSERT INTO FileIDsBySingleID  (pk, fileID, id, tool, toolVersion)
+        VALUES ('ec3df343-5858-4fdf-8d2e-451a5a3ad7c6', '11cad49d-9d21-4bcc-b1bf-794a32d2edb7', 'fmt/116', 'Fido', '1.1.3');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('a065bec1-1b56-442b-bedf-402d8c67668c', '11cad49d-9d21-4bcc-b1bf-794a32d2edb7', '27c2969b-b6a0-441d-888d-85292b692064', '1628571b-c2cd-4822-afdb-53561400c7c4');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('c151060d-4b07-477e-a8c5-88e5b3d80e5b', '11cad49d-9d21-4bcc-b1bf-794a32d2edb7', '3141bc6f-7f77-4809-9244-116b235e7330', '6957fdac-a1ed-470f-89f7-fb00be42ea13');
+INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
+            VALUES ('397b193f-18d0-4af9-a6aa-9488fc12e27d', '11cad49d-9d21-4bcc-b1bf-794a32d2edb7', '3d1b570f-f500-4b3c-bbbc-4c58aad05c27', 'a34ddc9b-c922-4bb6-8037-bbe713332175');
+
+
+-- /issue 5032
