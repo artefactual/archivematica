@@ -36,6 +36,7 @@ upload-qubit_v0.0 = upload-qubit
 archivematicaClamscan_v0.0 = %clientScriptsDirectory%archivematicaClamscan.py
 archivematicaMediaInfo_v0.0 = %clientScriptsDirectory%archivematicaMediaInfo.py
 archivematicaSetTransferType_v0.0 = %clientScriptsDirectory%archivematicaSetTransferType.py
+archivematicaTika_v0.0 = %clientScriptsDirectory%archivematicaTika.py
 archivematicaVerifyMets_v0.0 = %clientScriptsDirectory%archivematicaVerifyMets.sh
 archivematicaFido_v0.0 = %clientScriptsDirectory%archivematicaFido.py
 assignFileUUIDs_v0.0 = %clientScriptsDirectory%archivematicaAssignFileUUID.py

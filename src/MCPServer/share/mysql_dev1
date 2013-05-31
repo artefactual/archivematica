@@ -128,4 +128,39 @@ UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = @NextMicr
 
 
 -- /Issue 5032 --
+-- Issue 5027 Support normalization based on tika file IDs --
+INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvailable`, `replaces`, `lastModified`) VALUES ('44304ff6-86f9-444e-975f-e578c7f3d15a','f4dea20e-f3fe-4a37-b20f-0e70a7bc960e','46824987-bd47-4139-9871-6566f5abdf1a',NULL,'2012-10-23 19:41:25'); 
+
+SET @microserviceGroup = 'Normalize';
+SET @XLink = '5fbecef2-49e9-4585-81a2-267b8bbcd568';
+SET @YLink = '83484326-7be7-4f9f-b252-94553cd42370';
+
+SET @TasksConfigPKReference = '9e32257f-161e-430e-9412-07ce7f8db8ab';
+SET @TasksConfig = 'fa61df3a-98a5-47e2-a5ce-281ae1c8c3c2';
+SET @MicroServiceChainLink = 'aa5b8a69-ce6d-49f7-a07f-4683ccd6fcbf';
+SET @MicroServiceChainLinksExitCodes = 'b4f6e0b3-f793-4603-81a8-5d4f0ddca9d7';
+SET @defaultNextChainLink = @YLink;
+SET @NextMicroServiceChainLink = @YLink;
+
+INSERT INTO StandardTasksConfigs (pk, filterFileEnd, filterFileStart, filterSubDir, requiresOutputLock, standardOutputFile, standardErrorFile, execute, arguments)
+    VALUES (@TasksConfigPKReference, NULL, NULL, 'objects/', FALSE, NULL, NULL, 'archivematicaTika_v0.0', '--fileUUID "%fileUUID%" --SIPUUID "%SIPUUID%" --filePath "%relativeLocation%" --eventIdentifierUUID "%taskUUID%" --date "%date%" --fileGrpUse "%fileGrpUse%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description)
+    VALUES
+    (@TasksConfig, 'a6b1c323-7d36-428e-846a-e7e819423577', @TasksConfigPKReference, 'Identify file formats with Tika');
+INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, currentTask, defaultNextChainLink)
+    VALUES (@MicroServiceChainLink, @microserviceGroup, @TasksConfig, @defaultNextChainLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink)
+    VALUES (@MicroServiceChainLinksExitCodes, @MicroServiceChainLink, 0, @NextMicroServiceChainLink);
+SET @NextMicroServiceChainLink = @MicroServiceChainLink;
+
+-- set non zero exit code --
+UPDATE MicroServiceChainLinks SET defaultNextChainLink = @NextMicroServiceChainLink WHERE pk = @XLink;
+
+-- set zero exit code --
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = @NextMicroServiceChainLink where microServiceChainLink = @XLink;
+
+
+
+
+-- /Issue 5027 --
 

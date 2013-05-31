@@ -10,10 +10,6 @@
       <delay unitCtime="yes">2419200.0</delay>
     </preconfiguredChoice>
     <preconfiguredChoice>
-      <appliesTo>Select format identification tool</appliesTo>
-      <goToChain>extension (default)</goToChain>
-    </preconfiguredChoice>
-    <preconfiguredChoice>
       <appliesTo>Select compression algorithm</appliesTo>
       <goToChain>lzma</goToChain>
     </preconfiguredChoice>
