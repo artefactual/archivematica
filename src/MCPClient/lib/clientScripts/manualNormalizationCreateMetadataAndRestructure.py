@@ -20,15 +20,14 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import csv
 import os
 import shutil
 import sys
 import uuid
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
-from databaseFunctions import insertIntoEvents
-from databaseFunctions import insertIntoDerivations
+import databaseFunctions
+import fileOperations
 #databaseInterface.printSQL = True
 
 #"%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%fileUUID%" "%filePath%"
@@ -56,53 +55,45 @@ rows = databaseInterface.queryAllSQL(sql)
 if not len(rows):
     sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '" + filePathLike2 + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
     rows = databaseInterface.queryAllSQL(sql)
-if len(rows) > 1:
-    # There is more than one original file with the same filename (differing extensions)
+if len(rows) != 1:
+    # Original file was not found, or there is more than one original file with
+    # the same filename (differing extensions)
     # Look for a CSV that will specify the mapping
     csv_path = os.path.join(SIPDirectory, "objects", "manualNormalization", 
         "normalization.csv")
     if os.path.isfile(csv_path):
-        # Will not work properly if csv_path cannot be opened. (eg permissions)
-        # Can we assume that the permissions are OK due to previous chain links?
-        with open(csv_path, 'rb') as csv_file:
-            reader = csv.reader(csv_file)
-            # Search CSV for a preservation filename matching the one provided
-            preservation_file = os.path.basename(filePath)
-            # Get original name of preservation file, to handle sanitized names
-            # TODO add support for files in subdirectories
-            sql = """SELECT Files.originalLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='preservation' AND Files.currentLocation LIKE '%{filename}' AND {unitIdentifierType} = '{unitIdentifier}';""".format(
-                filename=preservation_file, unitIdentifierType=unitIdentifierType, unitIdentifier=unitIdentifier)
-            rows = databaseInterface.queryAllSQL(sql)
-            if len(rows) != 1:
-                print >>sys.stderr, "Preservation file ({0}) not found in DB.".format(preservation_file)
-                exit(2)
-            preservation_file = os.path.basename(rows[0][0])
-            try:
-                for row in reader:
-                    if "#" in row[0]: # if first character #, ignore line
-                        continue
-                    original, _, preservation = row
-                    if preservation.lower() == preservation_file.lower():
-                        print "Found preservation file({0}) for original ({1})".format(preservation, original)
-                        break
-                else:
-                    print >>sys.stderr, "Could not find {preservation_file} in {filename}".format(
+        try:
+            preservation_file = filePath[filePath.index('manualNormalization/preservation/'):]
+        except ValueError:
+            print >>sys.stderr, "{0} not in manualNormalization directory".format(filePath)
+            exit(4)
+        original = fileOperations.findFileInNormalizatonCSV(csv_path,
+            "preservation", preservation_file)
+        if original == None:
+            if len(rows) < 1:
+                print >>sys.stderr, "No matching file for: {0}".format(
+                    filePath.replace(SIPDirectory, "%SIPDirectory%"))
+                exit(3)
+            else:
+                print >>sys.stderr, "Could not find {preservation_file} in {filename}".format(
                         preservation_file=preservation_file, filename=csv_path)
-                    exit(2)
-            except csv.Error as e:
-                print >>sys.stderr, "Error reading {filename} on line {linenum}".format(
-                    filename=csv_path, linenum=reader.line_num)
                 exit(2)
         # If we found the original file, retrieve it from the DB
-        sql = """SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '%{filename}' AND {unitIdentifierType} = '{unitIdentifier}';""".format(
-                filename=original, unitIdentifierType=unitIdentifierType, unitIdentifier=unitIdentifier)
+        sql = """SELECT Files.fileUUID, Files.currentLocation 
+                 FROM Files 
+                 WHERE removedTime = 0 AND 
+                    fileGrpUse='original' AND 
+                    Files.currentLocation LIKE '%{filename}' AND 
+                    {unitIdentifierType} = '{unitIdentifier}';""".format(
+                filename=original, unitIdentifierType=unitIdentifierType,
+                unitIdentifier=unitIdentifier)
         rows = databaseInterface.queryAllSQL(sql)
+    elif len(rows) < 1:
+        print >>sys.stderr, "No matching file for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1)
+        exit(3)
     else:
         print >>sys.stderr, "Too many possible files for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1) 
         exit(2)
-elif len(rows) < 1:
-    print >>sys.stderr, "No matching file for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1) 
-    exit(3)
 
 # We found the original file somewhere above, get the UUID and path
 for row in rows:
@@ -127,16 +118,19 @@ sql =  """UPDATE Files SET currentLocation='%s' WHERE fileUUID='%s';""" % (dstR,
 databaseInterface.runSQL(sql)
 
 derivationEventUUID = uuid.uuid4().__str__()
-insertIntoEvents(fileUUID=originalFileUUID, \
-               eventIdentifierUUID=derivationEventUUID, \
-               eventType="normalization", \
-               eventDateTime=date, \
-               eventDetail="manual normalization", \
-               eventOutcome="", \
-               eventOutcomeDetailNote=dstR)
+databaseFunctions.insertIntoEvents(
+    fileUUID=originalFileUUID,
+    eventIdentifierUUID=derivationEventUUID,
+    eventType="normalization",
+    eventDateTime=date,
+    eventDetail="manual normalization",
+    eventOutcome="",
+    eventOutcomeDetailNote=dstR)
 
 #Add linking information between files
-insertIntoDerivations(sourceFileUUID=originalFileUUID, derivedFileUUID=fileUUID, relatedEventUUID=derivationEventUUID)
-
+databaseFunctions.insertIntoDerivations(
+    sourceFileUUID=originalFileUUID,
+    derivedFileUUID=fileUUID,
+    relatedEventUUID=derivationEventUUID)
 
 exit(0)

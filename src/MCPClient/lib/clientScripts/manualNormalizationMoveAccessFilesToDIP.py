@@ -20,12 +20,12 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import csv
 import os
 import shutil
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
+import fileOperations
 #databaseInterface.printSQL = True
 
 #--sipUUID "%SIPUUID%" --sipDirectory "%SIPDirectory%" --filePath "%relativeLocation%"
@@ -54,53 +54,46 @@ if not len(rows):
     #If not found try without extension
     sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation = '" + filePathLike2 + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
 rows = databaseInterface.queryAllSQL(sql)
-if len(rows) > 1:
-    # There is more than one original file with the same filename (differing extensions)
+if len(rows) != 1:
+    # Original file was not found, or there is more than one original file with
+    # the same filename (differing extensions)
     # Look for a CSV that will specify the mapping
     csv_path = os.path.join(opts.sipDirectory, "objects", "manualNormalization", 
         "normalization.csv")
     if os.path.isfile(csv_path):
-        # Will not work properly if csv_path cannot be opened. (eg permissions)
-        # Can we assume that the permissions are OK due to previous chain links?
-        with open(csv_path, 'rb') as csv_file:
-            reader = csv.reader(csv_file)
-            # Search CSV for an access filename that matches the one provided
-            access_file = os.path.basename(opts.filePath)
-            # Get original name of access file, to handle sanitized names
-            # TODO add support for files in subdirectories
-            sql = """SELECT Files.originalLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='manualNormalization' AND Files.currentLocation LIKE '%{filename}' AND {unitIdentifierType} = '{unitIdentifier}';""".format(
-                filename=access_file, unitIdentifierType=unitIdentifierType, unitIdentifier=unitIdentifier)
-            rows = databaseInterface.queryAllSQL(sql)
-            if len(rows) != 1:
-                print >>sys.stderr, "Access file ({0}) not found in DB.".format(access_file)
-                exit(2)
-            access_file = os.path.basename(rows[0][0])
-            try:
-                for row in reader:
-                    if "#" in row[0]: # if first character #, ignore line
-                        continue
-                    original, access, _ = row
-                    if access.lower() == access_file.lower():
-                        print "Found access file({0}) for original ({1})".format(access, original)
-                        break
-                else:
-                    print >>sys.stderr, "Could not find {access_file} in {filename}".format(
+        try:
+            access_file = opts.filePath[opts.filePath.index('manualNormalization/access/'):]
+        except ValueError:
+            print >>sys.stderr, "{0} not in manualNormalization directory".format(opts.filePath)
+            exit(4)
+        original = fileOperations.findFileInNormalizatonCSV(csv_path,
+            "access", access_file)
+        if original == None:
+            if len(rows) < 1:
+                print >>sys.stderr, "No matching file for: {0}".format(
+                    opts.filePath.replace(opts.sipDirectory, "%SIPDirectory%"))
+                exit(3)
+            else:
+                print >>sys.stderr, "Could not find {access_file} in {filename}".format(
                         access_file=access_file, filename=csv_path)
-                    exit(2)
-            except csv.Error as e:
-                print >>sys.stderr, "Error reading {filename} on line {linenum}".format(
-                    filename=csv_path, linenum=reader.line_num)
                 exit(2)
         # If we found the original file, retrieve it from the DB
-        sql = """SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '%{filename}' AND {unitIdentifierType} = '{unitIdentifier}';""".format(
-                filename=original, unitIdentifierType=unitIdentifierType, unitIdentifier=unitIdentifier)
+        sql = """SELECT Files.fileUUID, Files.currentLocation 
+                 FROM Files 
+                 WHERE removedTime = 0 AND 
+                    fileGrpUse='original' AND 
+                    Files.currentLocation LIKE '%{filename}' AND 
+                    {unitIdentifierType} = '{unitIdentifier}';""".format(
+                filename=original, unitIdentifierType=unitIdentifierType,
+                unitIdentifier=unitIdentifier)
         rows = databaseInterface.queryAllSQL(sql)
-    else:
+    elif len(rows) < 1:
+        print >>sys.stderr, "No matching file for: ", opts.filePath.replace(
+            opts.sipDirectory, "%SIPDirectory%", 1)
+        exit(3)
+    else: # len(rows) > 1
         print >>sys.stderr, "Too many possible files for: ", opts.filePath.replace(opts.sipDirectory, "%SIPDirectory%", 1) 
         exit(2)
-elif len(rows) < 1:
-    print >>sys.stderr, "No matching file for: ", opts.filePath.replace(opts.sipDirectory, "%SIPDirectory%", 1) 
-    exit(3)
 
 # We found the original file somewhere above, get the UUID and path
 for row in rows:

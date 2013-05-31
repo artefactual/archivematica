@@ -20,6 +20,7 @@
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
 
+import csv
 import os
 import uuid
 import sys
@@ -237,4 +238,43 @@ def updateFileGrpUsefileGrpUUID(fileUUID, fileGrpUse, fileGrpUUID):
 def updateFileGrpUse(fileUUID, fileGrpUse):
     sql = "UPDATE Files SET fileGrpUse= '%s' WHERE fileUUID = '%s';" % (fileGrpUse, fileUUID)
     rows = databaseInterface.runSQL(sql)
-    
+
+def findFileInNormalizatonCSV(csv_path, commandClassification, target_file):
+    """ Returns the original filename or None for a manually normalized file.
+
+    csv_path: absolute path to normalization.csv
+    commandClassification: "access" or "preservation"
+    target_file: access or preservation file to match against
+
+    TODO handle sanitized filenames
+    """
+    with open(csv_path, 'rb') as csv_file:
+        reader = csv.reader(csv_file)
+        # Search CSV for an access/preservation filename that matches target_file
+
+        # # Get original name of access file, to handle sanitized names
+        # target_file = os.path.basename(opts.filePath)
+        # sql = """SELECT Files.originalLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='manualNormalization' AND Files.currentLocation LIKE '%{filename}' AND {unitIdentifierType} = '{unitIdentifier}';""".format(
+        #     filename=target_file, unitIdentifierType=unitIdentifierType, unitIdentifier=unitIdentifier)
+        # rows = databaseInterface.queryAllSQL(sql)
+        # if len(rows) != 1:
+        #     print >>sys.stderr, "Access file ({0}) not found in DB.".format(target_file)
+        #     exit(2)
+        # target_file = os.path.basename(rows[0][0])
+        try:
+            for row in reader:
+                if "#" in row[0]: # ignore comments
+                    continue
+                original, access, preservation = row
+                if commandClassification == "access" and access.lower() == target_file.lower():
+                    print "Found access file ({0}) for original ({1})".format(access, original)
+                    return original
+                if commandClassification == "preservation" and preservation.lower() == target_file.lower():
+                    print "Found preservation file ({0}) for original ({1})".format(preservation, original)
+                    return original
+            else:
+                return None
+        except csv.Error as e:
+            print >>sys.stderr, "Error reading {filename} on line {linenum}".format(
+                filename=csv_path, linenum=reader.line_num)
+            exit(2)
