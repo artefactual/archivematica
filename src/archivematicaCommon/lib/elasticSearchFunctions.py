@@ -267,6 +267,20 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
     tree = ElementTree.parse(metsFilePath)
     root = tree.getroot()
 
+    #before_length = len(ElementTree.tostring(root))
+
+    # add a conditional to toggle this
+    # remove FITS output nodes
+    fitsOutputNodes = root.findall("{http://www.loc.gov/METS/}amdSec/{http://www.loc.gov/METS/}techMD/{http://www.loc.gov/METS/}mdWrap/{http://www.loc.gov/METS/}xmlData/{info:lc/xmlns/premis-v2}object/{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}objectCharacteristicsExtension/{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}fits") #/{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}toolOutput")
+
+    for parent in fitsOutputNodes:
+        children = parent.findall('{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}toolOutput')
+        for node in children:
+            parent.remove(node)
+
+    #after_length = len(ElementTree.tostring(root))
+    print "Removed FITS output from METS."
+
     # get SIP-wide dmdSec
     dmdSec = root.findall("{http://www.loc.gov/METS/}dmdSec/{http://www.loc.gov/METS/}mdWrap/{http://www.loc.gov/METS/}xmlData")
     for item in dmdSec:
