@@ -35,7 +35,7 @@ except:
 
 print "Rebuilding AIPS index from AIPS in " + rootdir + "..."
 
-def processAIP(path, temp_dir):
+def processAIPThenDeleteMETSFile(path, temp_dir):
     archive_file = os.path.basename(path)
     subdir = archive_file[:-3]
     aip_name = subdir[:-37]
@@ -58,6 +58,7 @@ def processAIP(path, temp_dir):
     elasticSearchFunctions.connect_and_index_files('aips', 'aipfile', uuid, temp_dir)
     pathToMETS = os.path.join(temp_dir, mets_file)
     elasticSearchFunctions.connect_and_index_aip(uuid, aip_name, path, pathToMETS)
+    os.remove(pathToMETS)
 
 conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
 try:
@@ -77,7 +78,7 @@ for root, subFolders, files in os.walk(rootdir):
     for file in files:
         try:
             file.index('.7z')
-            processAIP(os.path.join(root, file), temp_dir)
+            processAIPThenDeleteMETSFile(os.path.join(root, file), temp_dir)
         except:
             pass
 
