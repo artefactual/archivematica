@@ -258,7 +258,12 @@ def archival_storage_list_display(request, current_page_number=None):
 
     # get AIPs
     conn = elasticSearchFunctions.connect_and_create_index('aips')
-    aipResults = conn.search(pyes.StringQuery('*'), doc_types=['aip'])
+    aipResults = conn.search(
+        pyes.StringQuery('*'),
+        doc_types=['aip'],
+        fields='origin,uuid,filePath,created,name,size'
+    )
+
     aips = []
 
     #if aipResults._total != None:
