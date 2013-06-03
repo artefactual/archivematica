@@ -85,11 +85,14 @@ def archival_storage_search(request):
         query=advanced_search.assemble_query(queries, ops, fields, types)
 
         # use all results to pull transfer facets if not in file mode
+        # pulling only one field (we don't need field data as we augment
+        # the results using separate queries)
         if not file_mode:
             results = conn.search_raw(
                 query=query,
                 indices='aips',
-                type='aipfile'
+                type='aipfile',
+                fields='uuid'
             )
         else:
             results = conn.search_raw(
@@ -136,11 +139,11 @@ def archival_storage_search(request):
 
 def archival_storage_search_augment_aip_results(conn, aips):
     for aip_uuid in aips:
-        documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('uuid', aip_uuid.term)))
+        documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('uuid', aip_uuid.term)), fields='name,size,created')
         if len(documents['hits']['hits']) > 0:
-            aip_uuid.name = documents['hits']['hits'][0]['_source']['name']
-            aip_uuid.size = '{0:.2f} MB'.format(documents['hits']['hits'][0]['_source']['size'])
-            aip_uuid.date = documents['hits']['hits'][0]['_source']['created']
+            aip_uuid.name = documents['hits']['hits'][0]['fields']['name']
+            aip_uuid.size = '{0:.2f} MB'.format(documents['hits']['hits'][0]['fields']['size'])
+            aip_uuid.date = documents['hits']['hits'][0]['fields']['created']
             aip_uuid.document_id_no_hyphens = documents['hits']['hits'][0]['_id'].replace('-', '____')
         else:
             aip_uuid.name = '(data missing)' 
