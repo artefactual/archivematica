@@ -181,7 +181,10 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS):
 
 def connect_and_get_aip_data(uuid):
     conn = connect_and_create_index('aips')
-    aips = conn.search(query=pyes.FieldQuery(pyes.FieldParameter('uuid', uuid)))
+    aips = conn.search(
+        query=pyes.FieldQuery(pyes.FieldParameter('uuid', uuid)),
+        fields='uuid,name,filePath,size,origin,created'
+    )
     return aips[0]
 
 def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
