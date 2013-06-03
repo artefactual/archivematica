@@ -99,7 +99,8 @@ def search(request):
                 indices='aips',
                 type='aipfile',
                 start=start - 1,
-                size=items_per_page
+                size=items_per_page,
+                fields='AIPUUID,filePath,FILEUUID'
             )
     except:
         return HttpResponse('Error accessing index.')
@@ -151,7 +152,7 @@ def search_augment_file_results(raw_results):
     modifiedResults = []
 
     for item in raw_results.hits.hits:
-        clone = item._source.copy()
+        clone = item.fields.copy()
 
         # try to find AIP details in database
         try:
