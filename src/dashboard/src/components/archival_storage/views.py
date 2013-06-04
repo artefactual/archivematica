@@ -270,7 +270,7 @@ def list_display(request, current_page_number=None):
 
     conn = elasticSearchFunctions.connect_and_create_index('aips')
     aipResults = conn.search(
-        pyes.StringQuery('*'),
+        pyes.MatchAllQuery(),
         doc_types=['aip'],
         fields='origin,uuid,filePath,created,name,size',
         sort=sort_specification
