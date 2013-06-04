@@ -272,8 +272,9 @@ def fpr_edit_format(request, uuid=None):
         
     return render(request, 'main/edit_format_id_fpr.html', locals())
 
+ 
 def fpr_edit_command(request, uuid=None):
-    
+    old_uuid = None 
     fprCommand = None
     if request.method == 'POST':
         valid_submission = False
@@ -281,10 +282,11 @@ def fpr_edit_command(request, uuid=None):
             fprCommand = ppModels.Command.objects.get(pk = uuid)
             form = FPREditCommand(request.POST)
             if form.is_valid():
+                old_uuid = uuid 
                 fprCommand.enabled = False
                 fprCommand.lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
                 fprCommand.save()
-            
+                
                 # now make a new object and save form into that
                 newcommand = form.save(commit=False)
                 newcommand.lastmodified = strftime("%Y-%m-%d %H:%M:%S", gmtime())
@@ -292,6 +294,19 @@ def fpr_edit_command(request, uuid=None):
                 newcommand.save()
                 valid_submission = True
                 uuid = newcommand.pk
+ 
+                # find all the related format policy rules and disable them
+                # for each related rule, create a replacement rule that 
+                # references the new uuid of this command
+                ppModels.FormatPolicyRule.objects.filter(command=old_uuid).update(enabled=False)
+                relatedRules = ppModels.FormatPolicyRule.objects.filter(command=old_uuid)
+                for oldrule in relatedRules:
+                    newrule = ppModels.FormatPolicyRule()
+                    newrule.command = uuid            
+                    newrule.formatID = oldrule.formatID
+                    newrule.purpose = oldrule.purpose
+                    newrule.replaces = oldrule.uuid
+                    newrule.save()
         else:
             form = FPREditCommand(request.POST)
             if form.is_valid():
@@ -310,7 +325,7 @@ def fpr_edit_command(request, uuid=None):
             form = FPREditCommand()
     
     return render(request, 'main/edit_command_fpr.html', locals())
-  
+ 
 def fpr_edit_tool_output(request, uuid=None):
     toolOutput = None
     if request.method == 'POST':
