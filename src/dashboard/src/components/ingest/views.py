@@ -264,6 +264,45 @@ def ingest_upload(request, uuid):
 
     return HttpResponseBadRequest()
 
+def ingest_upload_atk_match_dip_objects_to_collection_levels(request, uuid, resource_id):
+    # load object relative paths
+    object_path_json = simplejson.JSONEncoder().encode(
+        ingest_upload_atk_get_dip_object_paths(uuid)
+    )
+
+    # load resource and child data
+    resource_data_json = simplejson.JSONEncoder().encode(
+        ingest_upload_atk_get_resource_children(resource_id)
+    )
+
+    return render(request, 'ingest/atk_match.html', locals())
+
+def ingest_upload_atk_get_dip_object_paths(uuid):
+    return [
+      'dog.jpg',
+      'images/cat.jpg'
+    ]
+
+def ingest_upload_atk_get_resource_children(resource_id):
+    return {
+      'id': 1,
+      'title': 'Parent',
+      'children': [{
+        'id': 2,
+        'title': 'Child A',
+        'children': [{
+          'id': 3,
+          'title': 'Grandchild',
+          'children': False
+        },
+        {
+          'id': 4,
+          'title': 'Child B',
+          'children': False
+        }]
+      }]
+    }
+
 def ingest_normalization_report(request, uuid, current_page=None):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     job = jobs[0]

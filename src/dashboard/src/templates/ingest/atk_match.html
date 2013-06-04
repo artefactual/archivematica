@@ -1,0 +1,60 @@
+﻿{% extends "layout_fluid.html" %}
+
+{% block title %}Match{% endblock %}
+{% block h1 %}Match{% endblock %}
+{% block page_id %}atk_match{% endblock %}
+
+{% block css %}
+<link href="{{ STATIC_URL }}css/archival_storage.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block js %}
+  <script type="text/javascript">
+    var objectPaths = {{ object_path_json|safe }};
+    var resourceData = {{ resource_data_json|safe }};
+
+    function renderObjectPaths(destCssId, objectPaths) {
+      objectPaths.forEach(function(path) {
+        $('#' + destCssId).append('<p>' + path + '</p>');
+      });
+    }
+
+    function renderResourceData(destCssId, resourceData, level) {
+      level = level || 0;
+      $('#' + destCssId).append('<p>');
+      for (var index = 0; index < level; index++) {
+        $('#' + destCssId).append('&nbsp;&nbsp;');
+      }
+      $('#' + destCssId).append(resourceData.title);
+      $('#' + destCssId).append('</p>');
+      if (resourceData.children) {
+        resourceData.children.forEach(function(child) {
+          renderResourceData(destCssId, child, level + 1);
+        });
+      }
+    }
+
+    function renderResourceLevels(destCssId, resourceData) {
+    }
+
+    $(document).ready(function()
+      {
+        renderObjectPaths('object_pane', objectPaths);
+        renderResourceData('resource_pane', resourceData);
+      });
+  </script>
+{% endblock %}
+
+{% block content %}
+<div>
+  <div id='object_pane' style='width:200px;float:left;'>
+  </div>
+  <div id='resource_pane' style='width:200px;float:left;'>
+  </div>
+  <div id='match_pane' style='width:200px;float:left;'>
+  </div>
+</div>
+
+{{ uuid }}
+{{ resource_id }}
+{% endblock %}
