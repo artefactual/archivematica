@@ -305,7 +305,7 @@ def list_display(request, current_page_number=None):
         sips.append(sip)
 
     # get total size of all AIPS from ElasticSearch
-    q = pyes.StringQuery('*').search()
+    q = pyes.MatchAllQuery().search()
     q.facet.add(pyes.facets.StatisticalFacet('total', field='size'))
     aipResults = conn.search(q, doc_types=['aip'])
     total_size = aipResults.facets.total.total
