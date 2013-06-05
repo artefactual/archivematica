@@ -15,8 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import sys
+import os, sys, ConfigParser
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 
 path_of_this_file = os.path.abspath(os.path.dirname(__file__))
@@ -28,21 +27,24 @@ BASE_PATH = os.path.abspath(os.path.join(path_of_this_file, os.pardir))
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
-
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
 
 MANAGERS = ADMINS
 
+# Get DB settings from main configuration file
+config = ConfigParser.SafeConfigParser()
+config.read('/etc/archivematica/archivematicaCommon/dbsettings')
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'MCP',                        # Or path to database file if using sqlite3.
-        'USER': 'archivematica',              # Not used with sqlite3.
-        'PASSWORD': 'demo',                   # Not used with sqlite3.
-        'HOST': '',                           # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                           # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.mysql',         # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'MCP',                                # Or path to database file if using sqlite3.
+        'USER': config.get('client', 'user'),         # Not used with sqlite3.
+        'PASSWORD': config.get('client', 'password'), # Not used with sqlite3.
+        'HOST': config.get('client', 'host'),         # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',                                   # Set to empty string for default. Not used with sqlite3.
     }
 }
 
