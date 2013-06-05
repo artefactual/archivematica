@@ -5,17 +5,15 @@ var ATKMatcherView = Backbone.View.extend({
     this.objectPaneCSSId = options.objectPaneCSSId || alert('objectPaneCSSId required.');
     this.resourcePaneCSSId = options.resourcePaneCSSId || alert('resourcePaneCSSId required.');
 
+    this.matcherLayoutTemplate  = _.template(options.matcherLayoutTemplate);
     this.objectPathTemplate     = _.template(options.objectPathTemplate);
     this.resourceItemTemplate   = _.template(options.resourceItemTemplate);
   },
 
   render: function() {
-    // add and render object pane
-    $(this.el).append('<div id="' + this.objectPaneCSSId + '"></div>');
-    this.renderObjectPaths();
+    $(this.el).append(this.matcherLayoutTemplate());
 
-    // add and render resource data pane
-    $(this.el).append('<div id="' + this.resourcePaneCSSId + '"></div>');
+    this.renderObjectPaths();
     this.renderResourceData(this.resourceData);
   },
 
