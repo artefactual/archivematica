@@ -30,7 +30,10 @@ var ATKMatcherView = Backbone.View.extend({
       if (self.selectedResourceId) {
         var selectedPaths = [];
         $('#' + self.objectPaneCSSId + ' > div').each(function() {
-          if ($(this).children('input').attr('checked') == 'checked') {
+          if (
+            $(this).children('input').attr('checked') == 'checked'
+            && $(this).children('input').attr('disabled') != 'disabled'
+          ) {
             selectedPaths.push({
               'id': $(this).attr('id'),
               'path': $(this).children('label').text()
@@ -49,6 +52,11 @@ var ATKMatcherView = Backbone.View.extend({
             $newMatchEl.hide();
             $('#' + self.matchPaneCSSId).append($newMatchEl);
             $newMatchEl.fadeIn('fast');
+            (function(index) {
+              $('#match_delete_' + self.matchIndex).click(function() {
+                $('#match_' + index).remove();
+              });
+            })(self.matchIndex)
             self.matchIndex++;
           });
         }

@@ -26,12 +26,12 @@
 }
 
 #button_pane {
-  width: 80px;
+  width: 65px;
   float: left;
   margin-right: 20px;
 }
 
-#match_pane }
+#match_pane {
   width: 200px;
   height: 500px;
   float: left;
