@@ -25,6 +25,10 @@
   margin-right: 20px;
 }
 
+#object_pane_search, #resource_pane_search {
+  margin-bottom:10px;
+}
+
 #button_pane {
   width: 65px;
   float: left;

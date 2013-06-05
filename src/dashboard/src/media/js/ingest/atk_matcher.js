@@ -1,29 +1,39 @@
 var ATKMatcherView = Backbone.View.extend({
   initialize: function(options) {
+    // data needed for matching
     this.objectPaths     = options.objectPaths || alert('objectPaths required.');
     this.resourceData    = options.resourceData || alert('resourceData required.');
 
-    this.objectPaneCSSId   = options.objectPaneCSSId || alert('objectPaneCSSId required.');
-    this.resourcePaneCSSId = options.resourcePaneCSSId || alert('resourcePaneCSSId required.');
-    this.matchButtonCSSId  = options.matchButtonCSSId || alert('matchButtonCSSId required.');
-    this.matchPaneCSSId    = options.matchPaneCSSId || alert('matchPaneCSSId required.');
+    // CSS ID mapping
+    this.objectPaneCSSId        = options.objectPaneCSSId || alert('objectPaneCSSId required.');
+    this.objectPaneSearchCSSId  = options.objectPaneSearchCSSId || alert('objectPaneSearchCSSId required.');
+    this.objectPanePathsCSSId   = options.objectPanePathsCSSId || alert('objectPanePathsCSSId required.');
+    this.resourcePaneCSSId      = options.resourcePaneCSSId || alert('resourcePaneCSSId required.');
+    this.resourcePaneItemsCSSId = options.resourcePaneItemsCSSId || alert('resourcePaneItemsCSSId required.');
+    this.matchButtonCSSId       = options.matchButtonCSSId || alert('matchButtonCSSId required.');
+    this.matchPaneCSSId         = options.matchPaneCSSId || alert('matchPaneCSSId required.');
 
+    // set up matcher template methods
     this.matcherLayoutTemplate  = _.template(options.matcherLayoutTemplate);
     this.objectPathTemplate     = _.template(options.objectPathTemplate);
     this.resourceItemTemplate   = _.template(options.resourceItemTemplate);
     this.matchItemTemplate      = _.template(options.matchItemTemplate);
 
-    this.resourceIndex = 0;
+    // set matcher state maintenance properties
+    this.resourceIndex      = 0;
     this.selectedResourceId = false;
-    this.matchIndex = 0;
+    this.matchIndex         = 0;
   },
 
   render: function() {
     $(this.el).append(this.matcherLayoutTemplate());
 
+    // render initial data
     this.renderObjectPaths();
     this.renderResourceData(this.resourceData);
 
+    // activate interface behaviour
+    this.activateObjectFiltering();
     this.activateResourceSelection();
     this.activateMatchButton();
   },
@@ -33,7 +43,7 @@ var ATKMatcherView = Backbone.View.extend({
         index = 0;
 
     this.objectPaths.forEach(function(path) {
-      $('#' + self.objectPaneCSSId).append(
+      $('#' + self.objectPanePathsCSSId).append(
         self.objectPathTemplate({'index': index, 'path': path})
       );
       index++;
@@ -49,7 +59,7 @@ var ATKMatcherView = Backbone.View.extend({
       padding = padding + '&nbsp;&nbsp;';
     }
 
-    $('#' + this.resourcePaneCSSId).append(
+    $('#' + this.resourcePaneItemsCSSId).append(
       this.resourceItemTemplate({
         'index':   this.resourceIndex,
         'padding': padding,
@@ -68,11 +78,27 @@ var ATKMatcherView = Backbone.View.extend({
     }
   },
 
+  activateObjectFiltering: function() {
+    var self = this;
+    $('#' + this.objectPaneSearchCSSId + ' > input').change(function() {
+      var filterTerm = $(this).val();
+      $('#' + self.objectPanePathsCSSId)
+        .children()
+        .each(function() {
+          if ($($(this).children('label')[0]).text().indexOf(filterTerm) == -1) {
+            $(this).hide();
+          } else {
+            $(this).show();
+          }
+        });
+    });
+  },
+
   activateResourceSelection: function() {
     var self = this;
 
-    $('#resource_pane > div').click(function() {
-      $('#resource_pane > div').css('background-color', '');
+    $('#' + this.resourcePaneItemsCSSId + ' > div').click(function() {
+      $('#' + self.resourcePaneItemsCSSId + ' > div').css('background-color', '');
       $(this).css('background-color', '#ff8888');
       self.selectedResourceId = $(this).attr('id');
     });
@@ -85,7 +111,7 @@ var ATKMatcherView = Backbone.View.extend({
       // if a resource is highlighted, attempt to add selected paths
       if (self.selectedResourceId) {
         var selectedPaths = [];
-        $('#' + self.objectPaneCSSId + ' > div').each(function() {
+        $('#' + self.objectPanePathsCSSId + ' > div').each(function() {
           if (
             $(this).children('input').attr('checked') == 'checked'
             && $(this).children('input').attr('disabled') != 'disabled'
