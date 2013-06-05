@@ -15,13 +15,14 @@
     $(document).ready(function()
       {
         var matcher = new ATKMatcherView({
-          'el':                 $('#atk_matcher'),
-          'objectPaneCSSId':    'object_pane',
-          'objectPathTemplate': $('#object-path-template').html(),
-          'resourcePaneCSSId':  'resource_pane',
-          'matchPaneCSSId':     'match_pane',
-          'objectPaths':        {{ object_path_json|safe }},
-          'resourceData':       {{ resource_data_json|safe }},
+          'el':                   $('#atk_matcher'),
+          'objectPaneCSSId':      'object_pane',
+          'objectPathTemplate':   $('#object-path-template').html(),
+          'resourcePaneCSSId':    'resource_pane',
+          'resourceItemTemplate': $('#resource-item-template').html(),
+          'matchPaneCSSId':       'match_pane',
+          'objectPaths':          {{ object_path_json|safe }},
+          'resourceData':         {{ resource_data_json|safe }},
        });
 
         matcher.render();
@@ -36,7 +37,14 @@
 
   <script type="text/template" id="object-path-template">
     <div class="atk-matcher-object-path">
+      <input name="path_<%= index %>" type="checkbox" />
       <%= path %>
+    </div>
+  </script>
+
+  <script type="text/template" id="resource-item-template">
+    <div class="atk-matcher-resource-item">
+      <%= padding %><%= title %>
     </div>
   </script>
 

@@ -5,9 +5,8 @@ var ATKMatcherView = Backbone.View.extend({
     this.objectPaneCSSId = options.objectPaneCSSId || alert('objectPaneCSSId required.');
     this.resourcePaneCSSId = options.resourcePaneCSSId || alert('resourcePaneCSSId required.');
 
-    /*
-    this.form_layout_template = _.template(options.form_layout_template);
-    */
+    this.objectPathTemplate     = _.template(options.objectPathTemplate);
+    this.resourceItemTemplate   = _.template(options.resourceItemTemplate);
   },
 
   render: function() {
@@ -21,22 +20,35 @@ var ATKMatcherView = Backbone.View.extend({
   },
 
   renderObjectPaths: function() {
-    var self = this;
+    var self = this,
+        index = 0;
+
     this.objectPaths.forEach(function(path) {
-      $('#' + self.objectPaneCSSId).append('<p>' + path + '</p>');
+      $('#' + self.objectPaneCSSId).append(
+        self.objectPathTemplate({'index': index, 'path': path})
+      );
+      index++;
     });
   },
 
   renderResourceData: function(resourceData, level) {
     level = level || 0;
-    $('#' + this.resourcePaneCSSId).append('<p>');
+
+    var padding = '';
+
     for (var index = 0; index < level; index++) {
-      $('#' + this.resourcePaneCSSId).append('&nbsp;&nbsp;');
+      padding = padding + '&nbsp;&nbsp;';
     }
-    $('#' + this.resourcePaneCSSId).append(resourceData.title);
-    $('#' + this.resourcePaneCSSId).append('</p>');
+
+    $('#' + this.resourcePaneCSSId).append(
+      this.resourceItemTemplate({
+        'padding': padding,
+        'title':   resourceData.title
+      })
+    );
 
     var self = this;
+
     if (resourceData.children) {
       resourceData.children.forEach(function(child) {
         self.renderResourceData(child, level + 1);
