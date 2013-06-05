@@ -6,12 +6,14 @@ var ATKMatcherView = Backbone.View.extend({
     this.objectPaneCSSId   = options.objectPaneCSSId || alert('objectPaneCSSId required.');
     this.resourcePaneCSSId = options.resourcePaneCSSId || alert('resourcePaneCSSId required.');
     this.matchButtonCSSId  = options.matchButtonCSSId || alert('matchButtonCSSId required.');
+    this.matchPaneCSSId    = options.matchPaneCSSId || alert('matchPaneCSSId required.');
 
     this.matcherLayoutTemplate  = _.template(options.matcherLayoutTemplate);
     this.objectPathTemplate     = _.template(options.objectPathTemplate);
     this.resourceItemTemplate   = _.template(options.resourceItemTemplate);
 
-    this.resourceId = 0;
+    this.resourceIndex = 0;
+    this.selectedResourceId = false;
   },
 
   render: function() {
@@ -22,21 +24,32 @@ var ATKMatcherView = Backbone.View.extend({
 
     var self = this;
     $('#' + this.matchButtonCSSId).click(function() {
-      // if a resource is highlighted, add matches, if any
-      if (1) {
+      // if a resource is highlighted, attempt to add selected paths
+      if (self.selectedResourceId) {
         var selectedPaths = [];
         $('#' + self.objectPaneCSSId + ' > div').each(function() {
           if ($(this).children('input').attr('checked') == 'checked') {
-            selectedPaths.push($(this).children('span').text());
+            selectedPaths.push({
+              'id': $(this).attr('id'),
+              'path': $(this).children('label').text()
+            });
           }
         });
-        console.log(selectedPaths);
+
+        // if any paths have been selected
+        if(selectedPaths.length) {
+          selectedPaths.forEach(function(item) {
+            $('#' + item.id + ' > input').attr('disabled', 'disabled');
+            $('#' + self.matchPaneCSSId).append('<p>' + item.path + '</p>');
+          });
+        }
       }
     });
 
     $('#resource_pane > div').click(function() {
       $('#resource_pane > div').css('background-color', 'white');
       $(this).css('background-color', 'red');
+      self.selectedResourceId = $(this).attr('id');
     });
   },
 
@@ -63,13 +76,13 @@ var ATKMatcherView = Backbone.View.extend({
 
     $('#' + this.resourcePaneCSSId).append(
       this.resourceItemTemplate({
-        'id':      this.resourceId,
+        'index':   this.resourceIndex,
         'padding': padding,
         'title':   resourceData.title
       })
     );
 
-    this.resourceId++;
+    this.resourceIndex++;
 
     var self = this;
 

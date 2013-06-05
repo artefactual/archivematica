@@ -1,28 +1,35 @@
+/* override Boostrap style */
+.atk-matcher-object-path > label {
+  float: none;
+}
+
 #object_pane {
   width: 200px;
-  height: 20px;
+  height: 500px;
   float: left;
   overflow: auto;
   resize: both;
+  margin-right: 20px;
 }
 
 #resource_pane {
   width: 200px;
-  height: 200px;
+  height: 500px;
   float: left;
   overflow: auto;
   resize: both;
+  margin-right: 20px;
 }
 
 #button_pane {
   width: 50px;
-  height: 200px;
   float: left;
+  margin-right: 20px;
 }
 
 #match_pane }
   width: 200px;
-  height: 200px;
+  height: 500px;
   float: left;
   overflow: auto;
   resize: both;

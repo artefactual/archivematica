@@ -47,14 +47,14 @@
   </script>
 
   <script type="text/template" id="object-path-template">
-    <div class="atk-matcher-object-path">
-      <input name="path_<%= index %>" type="checkbox" />
-      <span><%= path %></span>
+    <div class="atk-matcher-object-path" id="path_<%= index %>">
+      <input id="path_<%= index %>_checkbox" type="checkbox" />
+      <label for="path_<%= index %>_checkbox"><%= path %></label>
     </div>
   </script>
 
   <script type="text/template" id="resource-item-template">
-    <div class="atk-matcher-resource-item" id="resource_<%= id %>">
+    <div class="atk-matcher-resource-item" id="resource_<%= index %>">
       <%= padding %><%= title %>
     </div>
   </script>
