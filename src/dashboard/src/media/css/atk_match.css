@@ -3,6 +3,10 @@
   float: none;
 }
 
+.atk-matcher-resource-item:hover {
+  background-color: green;
+}
+
 #object_pane {
   width: 200px;
   height: 500px;
