@@ -1,19 +1,29 @@
 #object_pane {
-  width:200px;
-  float:left;
+  width: 200px;
+  height: 20px;
+  float: left;
+  overflow: auto;
+  resize: both;
 }
 
 #resource_pane {
-  width:200px;
-  float:left;
+  width: 200px;
+  height: 200px;
+  float: left;
+  overflow: auto;
+  resize: both;
 }
 
 #button_pane {
-  width:50px;
-  float:left;
+  width: 50px;
+  height: 200px;
+  float: left;
 }
 
 #match_pane }
-  width:200px;
-  float:left;
+  width: 200px;
+  height: 200px;
+  float: left;
+  overflow: auto;
+  resize: both;
 }

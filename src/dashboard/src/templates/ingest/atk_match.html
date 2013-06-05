@@ -22,6 +22,7 @@
           'resourcePaneCSSId':     'resource_pane',
           'resourceItemTemplate':  $('#resource-item-template').html(),
           'matchPaneCSSId':        'match_pane',
+          'matchButtonCSSId':      'match_button',
           'objectPaths':           {{ object_path_json|safe }},
           'resourceData':          {{ resource_data_json|safe }},
        });
@@ -39,19 +40,21 @@
   <script type="text/template" id="matcher-layout-template">
     <div id="object_pane"></div>
     <div id="resource_pane"></div>
-    <div id="button_pane"></div>
+    <div id="button_pane">
+      <input id='match_button' type='button' value='Match' class='btn' />
+    </div>
     <div id="match_pane"></div>
   </script>
 
   <script type="text/template" id="object-path-template">
     <div class="atk-matcher-object-path">
       <input name="path_<%= index %>" type="checkbox" />
-      <%= path %>
+      <span><%= path %></span>
     </div>
   </script>
 
   <script type="text/template" id="resource-item-template">
-    <div class="atk-matcher-resource-item">
+    <div class="atk-matcher-resource-item" id="resource_<%= id %>">
       <%= padding %><%= title %>
     </div>
   </script>

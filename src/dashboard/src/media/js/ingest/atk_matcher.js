@@ -2,12 +2,16 @@ var ATKMatcherView = Backbone.View.extend({
   initialize: function(options) {
     this.objectPaths     = options.objectPaths || alert('objectPaths required.');
     this.resourceData    = options.resourceData || alert('resourceData required.');
-    this.objectPaneCSSId = options.objectPaneCSSId || alert('objectPaneCSSId required.');
+
+    this.objectPaneCSSId   = options.objectPaneCSSId || alert('objectPaneCSSId required.');
     this.resourcePaneCSSId = options.resourcePaneCSSId || alert('resourcePaneCSSId required.');
+    this.matchButtonCSSId  = options.matchButtonCSSId || alert('matchButtonCSSId required.');
 
     this.matcherLayoutTemplate  = _.template(options.matcherLayoutTemplate);
     this.objectPathTemplate     = _.template(options.objectPathTemplate);
     this.resourceItemTemplate   = _.template(options.resourceItemTemplate);
+
+    this.resourceId = 0;
   },
 
   render: function() {
@@ -15,6 +19,25 @@ var ATKMatcherView = Backbone.View.extend({
 
     this.renderObjectPaths();
     this.renderResourceData(this.resourceData);
+
+    var self = this;
+    $('#' + this.matchButtonCSSId).click(function() {
+      // if a resource is highlighted, add matches, if any
+      if (1) {
+        var selectedPaths = [];
+        $('#' + self.objectPaneCSSId + ' > div').each(function() {
+          if ($(this).children('input').attr('checked') == 'checked') {
+            selectedPaths.push($(this).children('span').text());
+          }
+        });
+        console.log(selectedPaths);
+      }
+    });
+
+    $('#resource_pane > div').click(function() {
+      $('#resource_pane > div').css('background-color', 'white');
+      $(this).css('background-color', 'red');
+    });
   },
 
   renderObjectPaths: function() {
@@ -40,10 +63,13 @@ var ATKMatcherView = Backbone.View.extend({
 
     $('#' + this.resourcePaneCSSId).append(
       this.resourceItemTemplate({
+        'id':      this.resourceId,
         'padding': padding,
         'title':   resourceData.title
       })
     );
+
+    this.resourceId++;
 
     var self = this;
 
