@@ -5,19 +5,27 @@
 {% block page_id %}atk_match{% endblock %}
 
 {% block css %}
-<link href="{{ STATIC_URL }}css/archival_storage.css" rel="stylesheet" type="text/css" />
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/atk_match.css" />
 {% endblock %}
 
 {% block js %}
-  <script type="text/javascript">
-    var objectPaths = {{ object_path_json|safe }};
-    var resourceData = {{ resource_data_json|safe }};
+<script type="text/javascript" src="{{ STATIC_URL }}js/ingest/atk_matcher.js"></script>
 
-    function renderObjectPaths(destCssId, objectPaths) {
-      objectPaths.forEach(function(path) {
-        $('#' + destCssId).append('<p>' + path + '</p>');
-      });
-    }
+  <script type="text/javascript">
+    $(document).ready(function()
+      {
+        var matcher = new ATKMatcherView({
+          'el':                 $('#atk_matcher'),
+          'objectPaneCSSId':    'object_pane',
+          'objectPathTemplate': $('#object-path-template').html(),
+          'resourcePaneCSSId':  'resource_pane',
+          'matchPaneCSSId':     'match_pane',
+          'objectPaths':        {{ object_path_json|safe }},
+          'resourceData':       {{ resource_data_json|safe }},
+       });
+
+        matcher.render();
+    });
 
     function renderResourceData(destCssId, resourceData, level) {
       level = level || 0;
@@ -33,28 +41,18 @@
         });
       }
     }
-
-    function renderResourceLevels(destCssId, resourceData) {
-    }
-
-    $(document).ready(function()
-      {
-        renderObjectPaths('object_pane', objectPaths);
-        renderResourceData('resource_pane', resourceData);
-      });
   </script>
 {% endblock %}
 
 {% block content %}
-<div>
-  <div id='object_pane' style='width:200px;float:left;'>
-  </div>
-  <div id='resource_pane' style='width:200px;float:left;'>
-  </div>
-  <div id='match_pane' style='width:200px;float:left;'>
-  </div>
-</div>
+<div id='atk_matcher'></div>
 
-{{ uuid }}
-{{ resource_id }}
+  <!-- Templates -->
+
+  <script type="text/template" id="object-path-template">
+    <div class="atk-matcher-object-path">
+      <%= path %>
+    </div>
+  </script>
+
 {% endblock %}
