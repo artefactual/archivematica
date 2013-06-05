@@ -80,12 +80,14 @@ var ATKMatcherView = Backbone.View.extend({
 
   activateObjectFiltering: function() {
     var self = this;
-    $('#' + this.objectPaneSearchCSSId + ' > input').change(function() {
+    $('#' + this.objectPaneSearchCSSId + ' > input').keyup(function() {
       var filterTerm = $(this).val();
+
+      // cycle through each object path, hiding or showing based on the filter term
       $('#' + self.objectPanePathsCSSId)
         .children()
         .each(function() {
-          if ($($(this).children('label')[0]).text().indexOf(filterTerm) == -1) {
+          if ($(this).children('label').text().indexOf(filterTerm) == -1) {
             $(this).hide();
           } else {
             $(this).show();
