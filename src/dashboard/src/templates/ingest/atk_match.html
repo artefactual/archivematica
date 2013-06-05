@@ -26,21 +26,6 @@
 
         matcher.render();
     });
-
-    function renderResourceData(destCssId, resourceData, level) {
-      level = level || 0;
-      $('#' + destCssId).append('<p>');
-      for (var index = 0; index < level; index++) {
-        $('#' + destCssId).append('&nbsp;&nbsp;');
-      }
-      $('#' + destCssId).append(resourceData.title);
-      $('#' + destCssId).append('</p>');
-      if (resourceData.children) {
-        resourceData.children.forEach(function(child) {
-          renderResourceData(destCssId, child, level + 1);
-        });
-      }
-    }
   </script>
 {% endblock %}
 

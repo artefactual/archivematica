@@ -16,12 +16,14 @@ var ATKMatcherView = Backbone.View.extend({
     this.renderObjectPaths();
 
     // add and render resource data pane
+    $(this.el).append('<div id="' + this.resourcePaneCSSId + '"></div>');
     this.renderResourceData(this.resourceData);
   },
 
   renderObjectPaths: function() {
+    var self = this;
     this.objectPaths.forEach(function(path) {
-      $('#' + this.objectPaneCSSId).append('<p>' + path + '</p>');
+      $('#' + self.objectPaneCSSId).append('<p>' + path + '</p>');
     });
   },
 
@@ -37,7 +39,6 @@ var ATKMatcherView = Backbone.View.extend({
     var self = this;
     if (resourceData.children) {
       resourceData.children.forEach(function(child) {
-console.log('poo');
         self.renderResourceData(child, level + 1);
       });
     }
