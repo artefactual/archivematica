@@ -52,11 +52,12 @@ var ATKMatcherView = Backbone.View.extend({
             $newMatchEl.hide();
             $('#' + self.matchPaneCSSId).append($newMatchEl);
             $newMatchEl.fadeIn('fast');
-            (function(index) {
+            (function(index, pathId) {
               $('#match_delete_' + self.matchIndex).click(function() {
+                $('#' + pathId + ' > input').removeAttr('disabled');
                 $('#match_' + index).remove();
               });
-            })(self.matchIndex)
+            })(self.matchIndex, item.id)
             self.matchIndex++;
           });
         }
