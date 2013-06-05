@@ -11,9 +11,11 @@ var ATKMatcherView = Backbone.View.extend({
     this.matcherLayoutTemplate  = _.template(options.matcherLayoutTemplate);
     this.objectPathTemplate     = _.template(options.objectPathTemplate);
     this.resourceItemTemplate   = _.template(options.resourceItemTemplate);
+    this.matchItemTemplate      = _.template(options.matchItemTemplate);
 
     this.resourceIndex = 0;
     this.selectedResourceId = false;
+    this.matchIndex = 0;
   },
 
   render: function() {
@@ -40,7 +42,14 @@ var ATKMatcherView = Backbone.View.extend({
         if(selectedPaths.length) {
           selectedPaths.forEach(function(item) {
             $('#' + item.id + ' > input').attr('disabled', 'disabled');
-            $('#' + self.matchPaneCSSId).append('<p>' + item.path + '</p>');
+            var $newMatchEl = $(self.matchItemTemplate({
+              'index': self.matchIndex,
+              'path': item.path
+            }));
+            $newMatchEl.hide();
+            $('#' + self.matchPaneCSSId).append($newMatchEl);
+            $newMatchEl.fadeIn('fast');
+            self.matchIndex++;
           });
         }
       }

@@ -22,6 +22,7 @@
           'resourcePaneCSSId':     'resource_pane',
           'resourceItemTemplate':  $('#resource-item-template').html(),
           'matchPaneCSSId':        'match_pane',
+          'matchItemTemplate':     $('#match-item-template').html(),
           'matchButtonCSSId':      'match_button',
           'objectPaths':           {{ object_path_json|safe }},
           'resourceData':          {{ resource_data_json|safe }},
@@ -56,6 +57,12 @@
   <script type="text/template" id="resource-item-template">
     <div class="atk-matcher-resource-item" id="resource_<%= index %>">
       <%= padding %><%= title %>
+    </div>
+  </script>
+
+  <script type="text/template" id="match-item-template">
+    <div class="atk-matcher-match-item" id="match_<%= index %>">
+      <%= path %>
     </div>
   </script>
 
