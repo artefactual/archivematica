@@ -24,51 +24,8 @@ var ATKMatcherView = Backbone.View.extend({
     this.renderObjectPaths();
     this.renderResourceData(this.resourceData);
 
-    var self = this;
-    $('#' + this.matchButtonCSSId).click(function() {
-      // if a resource is highlighted, attempt to add selected paths
-      if (self.selectedResourceId) {
-        var selectedPaths = [];
-        $('#' + self.objectPaneCSSId + ' > div').each(function() {
-          if (
-            $(this).children('input').attr('checked') == 'checked'
-            && $(this).children('input').attr('disabled') != 'disabled'
-          ) {
-            selectedPaths.push({
-              'id': $(this).attr('id'),
-              'path': $(this).children('label').text()
-            });
-          }
-        });
-
-        // if any paths have been selected
-        if(selectedPaths.length) {
-          selectedPaths.forEach(function(item) {
-            $('#' + item.id + ' > input').attr('disabled', 'disabled');
-            var $newMatchEl = $(self.matchItemTemplate({
-              'index': self.matchIndex,
-              'path': item.path
-            }));
-            $newMatchEl.hide();
-            $('#' + self.matchPaneCSSId).append($newMatchEl);
-            $newMatchEl.fadeIn('fast');
-            (function(index, pathId) {
-              $('#match_delete_' + self.matchIndex).click(function() {
-                $('#' + pathId + ' > input').removeAttr('disabled');
-                $('#match_' + index).remove();
-              });
-            })(self.matchIndex, item.id)
-            self.matchIndex++;
-          });
-        }
-      }
-    });
-
-    $('#resource_pane > div').click(function() {
-      $('#resource_pane > div').css('background-color', '');
-      $(this).css('background-color', '#ff8888');
-      self.selectedResourceId = $(this).attr('id');
-    });
+    this.activateResourceSelection();
+    this.activateMatchButton();
   },
 
   renderObjectPaths: function() {
@@ -109,5 +66,58 @@ var ATKMatcherView = Backbone.View.extend({
         self.renderResourceData(child, level + 1);
       });
     }
+  },
+
+  activateResourceSelection: function() {
+    var self = this;
+
+    $('#resource_pane > div').click(function() {
+      $('#resource_pane > div').css('background-color', '');
+      $(this).css('background-color', '#ff8888');
+      self.selectedResourceId = $(this).attr('id');
+    });
+  },
+
+  activateMatchButton: function() {
+    var self = this;
+
+    $('#' + this.matchButtonCSSId).click(function() {
+      // if a resource is highlighted, attempt to add selected paths
+      if (self.selectedResourceId) {
+        var selectedPaths = [];
+        $('#' + self.objectPaneCSSId + ' > div').each(function() {
+          if (
+            $(this).children('input').attr('checked') == 'checked'
+            && $(this).children('input').attr('disabled') != 'disabled'
+          ) {
+            selectedPaths.push({
+              'id': $(this).attr('id'),
+              'path': $(this).children('label').text()
+            });
+          }
+        });
+
+        // if any paths have been selected
+        if(selectedPaths.length) {
+          selectedPaths.forEach(function(item) {
+            $('#' + item.id + ' > input').attr('disabled', 'disabled');
+            var $newMatchEl = $(self.matchItemTemplate({
+              'index': self.matchIndex,
+              'path': item.path
+            }));
+            $newMatchEl.hide();
+            $('#' + self.matchPaneCSSId).append($newMatchEl);
+            $newMatchEl.fadeIn('fast');
+            (function(index, pathId) {
+              $('#match_delete_' + self.matchIndex).click(function() {
+                $('#' + pathId + ' > input').removeAttr('disabled');
+                $('#match_' + index).remove();
+              });
+            })(self.matchIndex, item.id)
+            self.matchIndex++;
+          });
+        }
+      }
+    });
   }
 });
