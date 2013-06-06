@@ -13,6 +13,7 @@ var ATKMatcherView = Backbone.View.extend({
     this.resourcePaneItemsCSSId   = options.resourcePaneItemsCSSId || alert('resourcePaneItemsCSSId required.');
     this.matchButtonCSSId         = options.matchButtonCSSId || alert('matchButtonCSSId required.');
     this.matchPaneCSSId           = options.matchPaneCSSId || alert('matchPaneCSSId required.');
+    this.matchPanePairsCSSId      = options.matchPanePairsCSSId || alert('matchPanePairsCSSId required.');
 
     // set up matcher template methods
     this.matcherLayoutTemplate  = _.template(options.matcherLayoutTemplate);
@@ -156,7 +157,7 @@ var ATKMatcherView = Backbone.View.extend({
             }));
 
             $newMatchEl.hide();
-            $('#' + self.matchPaneCSSId).append($newMatchEl);
+            $('#' + self.matchPanePairsCSSId).append($newMatchEl);
             $newMatchEl.fadeIn('fast');
             (function(index, pathId) {
               $('#match_delete_' + self.matchIndex).click(function() {

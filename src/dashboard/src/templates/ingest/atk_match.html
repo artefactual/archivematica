@@ -26,6 +26,7 @@
           'resourcePaneItemsCSSId':   'resource_pane_items',
           'resourceItemTemplate':     $('#resource-item-template').html(),
           'matchPaneCSSId':           'match_pane',
+          'matchPanePairsCSSId':      'match_pane_pairs',
           'matchItemTemplate':        $('#match-item-template').html(),
           'matchButtonCSSId':         'match_button',
           'objectPaths':              {{ object_path_json|safe }},
@@ -44,6 +45,7 @@
 
   <script type="text/template" id="matcher-layout-template">
     <div id="object_pane">
+      <h3>Objects</h3>
       <div id="object_pane_search">
         <input style="width: 150px" />
         <img src="{{ STATIC_URL }}images/zoom.png" />
@@ -51,6 +53,7 @@
       <div id="object_pane_paths"></div>
     </div>
     <div id="resource_pane">
+      <h3>Resources</h3>
       <div id="resource_pane_search">
         <input style="width: 150px" />
         <img src="{{ STATIC_URL }}images/zoom.png" />
@@ -58,9 +61,13 @@
       <div id="resource_pane_items"></div>
     </div>
     <div id="button_pane">
-      <input id='match_button' type='button' value='Match' class='btn' />
+      <h3>&nbsp;</h3>
+      <input id='match_button' type='button' value='Pair' class='btn' />
     </div>
-    <div id="match_pane"></div>
+    <div id="match_pane">
+      <h3>Pairs</h3>
+      <div id="match_pane_pairs"></div>
+    </div>
   </script>
 
   <script type="text/template" id="object-path-template">
