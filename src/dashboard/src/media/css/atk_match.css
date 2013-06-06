@@ -29,6 +29,10 @@
   margin-bottom:10px;
 }
 
+#object_pane_search > input, #resource_pane_search > input {
+  margin-right:5px;
+}
+
 #button_pane {
   width: 65px;
   float: left;

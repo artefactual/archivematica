@@ -112,7 +112,7 @@ var ATKMatcherView = Backbone.View.extend({
 
     $('#' + this.resourcePaneItemsCSSId + ' > div').click(function() {
       $('#' + self.resourcePaneItemsCSSId + ' > div').css('background-color', '');
-      $(this).css('background-color', '#ff8888');
+      $(this).css('background-color', '#d8f2dc');
       self.selectedResourceId = $(this).attr('id');
     });
   },
