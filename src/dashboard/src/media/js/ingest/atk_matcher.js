@@ -21,9 +21,10 @@ var ATKMatcherView = Backbone.View.extend({
     this.matchItemTemplate      = _.template(options.matchItemTemplate);
 
     // set matcher state maintenance properties
-    this.resourceIndex      = 0;
-    this.selectedResourceId = false;
-    this.matchIndex         = 0;
+    this.resourceIndex      = 0;     // internal ID counter for resources
+    this.resourceDataFlat   = {};    // flat version of resource data
+    this.selectedResourceId = false; // resource currently selected in UI
+    this.matchIndex         = 0;     // internal ID counter for matches 
   },
 
   render: function() {
@@ -61,6 +62,7 @@ var ATKMatcherView = Backbone.View.extend({
       padding = padding + '&nbsp;&nbsp;';
     }
 
+    // display resource
     $('#' + this.resourcePaneItemsCSSId).append(
       this.resourceItemTemplate({
         'index':   this.resourceIndex,
@@ -68,6 +70,9 @@ var ATKMatcherView = Backbone.View.extend({
         'title':   resourceData.title
       })
     );
+
+    // store internal representation for reference
+    this.resourceDataFlat[this.resourceIndex] = resourceData;
 
     this.resourceIndex++;
 
@@ -137,11 +142,19 @@ var ATKMatcherView = Backbone.View.extend({
         // if any paths have been selected
         if(selectedPaths.length) {
           selectedPaths.forEach(function(item) {
+            // disable the checkbox on the path being matched
             $('#' + item.id + ' > input').attr('disabled', 'disabled');
+
+            var indexFromCSSId = self.selectedResourceId.substring(
+              self.selectedResourceId.indexOf('_') + 1
+            );
+
             var $newMatchEl = $(self.matchItemTemplate({
               'index': self.matchIndex,
-              'path': item.path
+              'path': item.path,
+              'resource_title': self.resourceDataFlat[indexFromCSSId].title
             }));
+
             $newMatchEl.hide();
             $('#' + self.matchPaneCSSId).append($newMatchEl);
             $newMatchEl.fadeIn('fast');
