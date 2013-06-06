@@ -23,8 +23,7 @@ var ATKMatcherView = Backbone.View.extend({
     this.matchItemTemplate      = _.template(options.matchItemTemplate);
 
     // set matcher state maintenance properties
-    this.resourceIndex      = 0;     // internal ID counter for resources
-    this.resourceDataFlat   = {};    // flat version of resource data
+    this.resourceCollection = new Backbone.Collection();
     this.selectedResourceId = false; // resource currently selected in UI
     this.matchIndex         = 0;     // internal ID counter for matches 
   },
@@ -65,20 +64,18 @@ var ATKMatcherView = Backbone.View.extend({
       padding = padding + '&nbsp;&nbsp;';
     }
 
+    // store internal representation for reference
+    this.resourceCollection.add(resourceData);
+
     // display resource
     $('#' + this.resourcePaneItemsCSSId).append(
       this.resourceItemTemplate({
-        'index':   this.resourceIndex,
+        'index':   this.resourceCollection.length,
         'padding': padding,
         'title':   resourceData.title,
         'id':      resourceData.id
       })
     );
-
-    // store internal representation for reference
-    this.resourceDataFlat[this.resourceIndex] = resourceData;
-
-    this.resourceIndex++;
 
     // recurse if children are found
     if (resourceData.children) {
@@ -151,14 +148,15 @@ var ATKMatcherView = Backbone.View.extend({
             // disable the checkbox on the path being matched
             $('#' + item.id + ' > input').attr('disabled', 'disabled');
 
-            var indexFromCSSId = self.selectedResourceId.substring(
+            var indexFromCSSId = parseInt(self.selectedResourceId.substring(
               self.selectedResourceId.indexOf('_') + 1
-            );
+            ));
 
             var $newMatchEl = $(self.matchItemTemplate({
               'index': self.matchIndex,
               'path': item.path,
-              'resource_title': self.resourceDataFlat[indexFromCSSId].title
+              'resource_title': self.resourceCollection.get(indexFromCSSId).attributes.title
+              //'resource_title': self.resourceDatalat[indexFromCSSId].title
             }));
 
             $newMatchEl.hide();
