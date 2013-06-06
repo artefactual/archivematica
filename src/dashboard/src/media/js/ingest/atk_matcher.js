@@ -9,7 +9,8 @@ var ATKMatcherView = Backbone.View.extend({
     this.objectPaneSearchCSSId    = options.objectPaneSearchCSSId || alert('objectPaneSearchCSSId required.');
     this.objectPanePathsCSSId     = options.objectPanePathsCSSId || alert('objectPanePathsCSSId required.');
     this.resourcePaneCSSId        = options.resourcePaneCSSId || alert('resourcePaneCSSId required.');
-    this.resourcePanelSearchCSSId = options.resourcePanelSearchCSSId || alert('resourcePanelSearchCSSId required.');
+    this.resourcePaneSearchCSSId  = options.resourcePaneSearchCSSId || alert('resourcePaneSearchCSSId required.');
+    this.resourcePaneSearchCSSId  = options.resourcePaneSearchCSSId || alert('resourcePaneSearchCSSId required.');
     this.resourcePaneItemsCSSId   = options.resourcePaneItemsCSSId || alert('resourcePaneItemsCSSId required.');
     this.matchButtonCSSId         = options.matchButtonCSSId || alert('matchButtonCSSId required.');
     this.matchPaneCSSId           = options.matchPaneCSSId || alert('matchPaneCSSId required.');
@@ -46,6 +47,7 @@ var ATKMatcherView = Backbone.View.extend({
     var self = this,
         index = 0;
 
+    // add each path to object pane
     this.objectPaths.forEach(function(path) {
       $('#' + self.objectPanePathsCSSId).append(
         self.objectPathTemplate({'index': index, 'path': path})
@@ -77,9 +79,10 @@ var ATKMatcherView = Backbone.View.extend({
 
     this.resourceIndex++;
 
-    var self = this;
-
+    // recurse if children are found
     if (resourceData.children) {
+      var self = this;
+
       resourceData.children.forEach(function(child) {
         self.renderResourceData(child, level + 1);
       });
@@ -116,14 +119,15 @@ var ATKMatcherView = Backbone.View.extend({
 
   activateResourceFiltering: function() {
     var self = this;
-    $('#' + this.resourcePaneSearchCSSId + ' > input').keyup(function() {  // changed CSS ID
+
+    $('#' + this.resourcePaneSearchCSSId + ' > input').keyup(function() {
       var filterTerm = $(this).val();
 
-      // cycle through each object path, hiding or showing based on the filter term
-      $('#' + self.objectResourceItemsCSSId) // changed CSS ID
+      // cycle through each item, hiding or showing based on the filter term
+      $('#' + self.resourcePaneItemsCSSId)
         .children()
         .each(function() {
-          if ($(this).children('label').text().indexOf(filterTerm) == -1) {
+          if ($(this).text().indexOf(filterTerm) == -1) {
             $(this).hide();
           } else {
             $(this).show();
