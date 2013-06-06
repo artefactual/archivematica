@@ -58,7 +58,7 @@
         <input style="width: 150px" placeholder="Filter resources" />
         <img src="{{ STATIC_URL }}images/zoom.png" />
       </div>
-      <div id="resource_pane_items"></div>
+      <table id="resource_pane_items"></table>
     </div>
     <div id="button_pane">
       <h3>&nbsp;</h3>
@@ -78,9 +78,10 @@
   </script>
 
   <script type="text/template" id="resource-item-template">
-    <div class="atk-matcher-resource-item" id="resource_<%= index %>">
-      <%= padding %><%= title %>
-    </div>
+    <tr class="atk-matcher-resource-item" id="resource_<%= index %>">
+      <td><%= padding %><%= title %></td>
+      <td><%= id %></td>
+    </tr>
   </script>
 
   <script type="text/template" id="match-item-template">

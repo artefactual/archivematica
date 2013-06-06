@@ -70,7 +70,8 @@ var ATKMatcherView = Backbone.View.extend({
       this.resourceItemTemplate({
         'index':   this.resourceIndex,
         'padding': padding,
-        'title':   resourceData.title
+        'title':   resourceData.title,
+        'id':      resourceData.id
       })
     );
 
@@ -110,8 +111,8 @@ var ATKMatcherView = Backbone.View.extend({
   activateResourceSelection: function() {
     var self = this;
 
-    $('#' + this.resourcePaneItemsCSSId + ' > div').click(function() {
-      $('#' + self.resourcePaneItemsCSSId + ' > div').css('background-color', '');
+    $('#' + this.resourcePaneItemsCSSId + ' > tr').click(function() {
+      $('#' + self.resourcePaneItemsCSSId + ' > tr').css('background-color', '');
       $(this).css('background-color', '#d8f2dc');
       self.selectedResourceId = $(this).attr('id');
     });
