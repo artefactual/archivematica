@@ -15,20 +15,21 @@
     $(document).ready(function()
       {
         var matcher = new ATKMatcherView({
-          'el':                     $('#atk_matcher'),
-          'matcherLayoutTemplate':  $('#matcher-layout-template').html(),
-          'objectPaneCSSId':        'object_pane',
-          'objectPaneSearchCSSId':  'object_pane_search',
-          'objectPanePathsCSSId':   'object_pane_paths',
-          'objectPathTemplate':     $('#object-path-template').html(),
-          'resourcePaneCSSId':      'resource_pane',
-          'resourcePaneItemsCSSId': 'resource_pane_items',
-          'resourceItemTemplate':   $('#resource-item-template').html(),
-          'matchPaneCSSId':         'match_pane',
-          'matchItemTemplate':      $('#match-item-template').html(),
-          'matchButtonCSSId':       'match_button',
-          'objectPaths':            {{ object_path_json|safe }},
-          'resourceData':           {{ resource_data_json|safe }},
+          'el':                       $('#atk_matcher'),
+          'matcherLayoutTemplate':    $('#matcher-layout-template').html(),
+          'objectPaneCSSId':          'object_pane',
+          'objectPaneSearchCSSId':    'object_pane_search',
+          'objectPanePathsCSSId':     'object_pane_paths',
+          'objectPathTemplate':       $('#object-path-template').html(),
+          'resourcePaneCSSId':        'resource_pane',
+          'resourcePanelSearchCSSId': 'resource_pane_search',
+          'resourcePaneItemsCSSId':   'resource_pane_items',
+          'resourceItemTemplate':     $('#resource-item-template').html(),
+          'matchPaneCSSId':           'match_pane',
+          'matchItemTemplate':        $('#match-item-template').html(),
+          'matchButtonCSSId':         'match_button',
+          'objectPaths':              {{ object_path_json|safe }},
+          'resourceData':             {{ resource_data_json|safe }},
        });
 
         matcher.render();
@@ -78,7 +79,7 @@
   <script type="text/template" id="match-item-template">
     <div class="atk-matcher-match-item" id="match_<%= index %>">
       <div id="match_delete_<%= index %>" style="float:right">
-        <img src="{{ STATIC_URL }}images/delete.png" />
+        <img src="{{ STATIC_URL }}images/delete.png" title="Delete match" />
       </div>
       <%= path %>
     </div>

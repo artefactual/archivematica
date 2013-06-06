@@ -5,13 +5,14 @@ var ATKMatcherView = Backbone.View.extend({
     this.resourceData    = options.resourceData || alert('resourceData required.');
 
     // CSS ID mapping
-    this.objectPaneCSSId        = options.objectPaneCSSId || alert('objectPaneCSSId required.');
-    this.objectPaneSearchCSSId  = options.objectPaneSearchCSSId || alert('objectPaneSearchCSSId required.');
-    this.objectPanePathsCSSId   = options.objectPanePathsCSSId || alert('objectPanePathsCSSId required.');
-    this.resourcePaneCSSId      = options.resourcePaneCSSId || alert('resourcePaneCSSId required.');
-    this.resourcePaneItemsCSSId = options.resourcePaneItemsCSSId || alert('resourcePaneItemsCSSId required.');
-    this.matchButtonCSSId       = options.matchButtonCSSId || alert('matchButtonCSSId required.');
-    this.matchPaneCSSId         = options.matchPaneCSSId || alert('matchPaneCSSId required.');
+    this.objectPaneCSSId          = options.objectPaneCSSId || alert('objectPaneCSSId required.');
+    this.objectPaneSearchCSSId    = options.objectPaneSearchCSSId || alert('objectPaneSearchCSSId required.');
+    this.objectPanePathsCSSId     = options.objectPanePathsCSSId || alert('objectPanePathsCSSId required.');
+    this.resourcePaneCSSId        = options.resourcePaneCSSId || alert('resourcePaneCSSId required.');
+    this.resourcePanelSearchCSSId = options.resourcePanelSearchCSSId || alert('resourcePanelSearchCSSId required.');
+    this.resourcePaneItemsCSSId   = options.resourcePaneItemsCSSId || alert('resourcePaneItemsCSSId required.');
+    this.matchButtonCSSId         = options.matchButtonCSSId || alert('matchButtonCSSId required.');
+    this.matchPaneCSSId           = options.matchPaneCSSId || alert('matchPaneCSSId required.');
 
     // set up matcher template methods
     this.matcherLayoutTemplate  = _.template(options.matcherLayoutTemplate);
@@ -35,6 +36,7 @@ var ATKMatcherView = Backbone.View.extend({
     // activate interface behaviour
     this.activateObjectFiltering();
     this.activateResourceSelection();
+    this.activateResourceFiltering();
     this.activateMatchButton();
   },
 
@@ -106,24 +108,31 @@ var ATKMatcherView = Backbone.View.extend({
     });
   },
 
+  activateResourceFiltering: function() {
+    var self = this;
+    $('#' + this.resourcePaneSearchCSSId + ' > input').keyup(function() {  // changed CSS ID
+      var filterTerm = $(this).val();
+
+      // cycle through each object path, hiding or showing based on the filter term
+      $('#' + self.objectResourceItemsCSSId) // changed CSS ID
+        .children()
+        .each(function() {
+          if ($(this).children('label').text().indexOf(filterTerm) == -1) {
+            $(this).hide();
+          } else {
+            $(this).show();
+          }
+        });
+    });
+  },
+
   activateMatchButton: function() {
     var self = this;
 
     $('#' + this.matchButtonCSSId).click(function() {
       // if a resource is highlighted, attempt to add selected paths
       if (self.selectedResourceId) {
-        var selectedPaths = [];
-        $('#' + self.objectPanePathsCSSId + ' > div').each(function() {
-          if (
-            $(this).children('input').attr('checked') == 'checked'
-            && $(this).children('input').attr('disabled') != 'disabled'
-          ) {
-            selectedPaths.push({
-              'id': $(this).attr('id'),
-              'path': $(this).children('label').text()
-            });
-          }
-        });
+        var selectedPaths = self.getSelectedPaths();
 
         // if any paths have been selected
         if(selectedPaths.length) {
@@ -147,5 +156,24 @@ var ATKMatcherView = Backbone.View.extend({
         }
       }
     });
+  },
+
+  getSelectedPaths: function() {
+    var self = this,
+        selectedPaths = [];
+
+    $('#' + self.objectPanePathsCSSId + ' > div').each(function() {
+      if (
+        $(this).children('input').attr('checked') == 'checked'
+        && $(this).children('input').attr('disabled') != 'disabled'
+      ) {
+        selectedPaths.push({
+          'id': $(this).attr('id'),
+          'path': $(this).children('label').text()
+        });
+      }
+    });
+
+    return selectedPaths;
   }
 });
