@@ -22,7 +22,6 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import sys
 import os
-import shutil
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 #databaseInterface.printSQL = True

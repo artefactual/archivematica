@@ -113,28 +113,6 @@ def writeToFile(output, fileName, writeWhite=False):
         print "No output, or file specified"
     return 0
 
-def checksumFile(filePath, fileUUID):
-    global transferDirectory
-    truePath = filePath.replace("transfer/", transferDirectory, 1)
-    checksum = sha_for_file(truePath)
-    utcDate = databaseInterface.getUTCDate()
-
-    #Create Event
-    eventIdentifierUUID = uuid.uuid4().__str__()
-    eventType = "message digest calculation"
-    eventDateTime = utcDate
-    eventDetail = 'program="python"; module="hashlib.sha256()" ; file="/usr/lib/python2.6/hashlib.pyc"'
-    eventOutcome = ""
-    eventOutcomeDetailNote = checksum.__str__()
-
-    databaseInterface.insertIntoEvents(fileUUID=fileUUID, \
-                                       eventIdentifierUUID=eventIdentifierUUID, \
-                                       eventType=eventType, \
-                                       eventDateTime=eventDateTime, \
-                                       eventDetail=eventDetail, \
-                                       eventOutcome=eventOutcome, \
-                                       eventOutcomeDetailNote=eventOutcomeDetailNote)
-
 def renameAsSudo(source, destination):
     """Used to move/rename Directories that the archivematica user may or may not have writes to move"""
     command = "sudo mv \"" + source + "\"   \"" + destination + "\""
