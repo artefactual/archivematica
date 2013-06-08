@@ -1,20 +1,24 @@
 var ATKMatcherView = Backbone.View.extend({
   initialize: function(options) {
-    // data needed for matching
-    this.objectPaths     = options.objectPaths || alert('objectPaths required.');
-    this.resourceData    = options.resourceData || alert('resourceData required.');
+    var self = this,
+        manditoryProperties = [
+          'objectPaths',
+          'resourceData',
+          'objectPaneCSSId',
+          'objectPaneSearchCSSId',
+          'objectPanePathsCSSId',
+          'resourcePaneCSSId',
+          'resourcePaneSearchCSSId',
+          'resourcePaneItemsCSSId',
+          'matchButtonCSSId',
+          'matchPaneCSSId',
+          'matchPanePairsCSSId'
+        ];
 
-    // CSS ID mapping
-    this.objectPaneCSSId          = options.objectPaneCSSId || alert('objectPaneCSSId required.');
-    this.objectPaneSearchCSSId    = options.objectPaneSearchCSSId || alert('objectPaneSearchCSSId required.');
-    this.objectPanePathsCSSId     = options.objectPanePathsCSSId || alert('objectPanePathsCSSId required.');
-    this.resourcePaneCSSId        = options.resourcePaneCSSId || alert('resourcePaneCSSId required.');
-    this.resourcePaneSearchCSSId  = options.resourcePaneSearchCSSId || alert('resourcePaneSearchCSSId required.');
-    this.resourcePaneSearchCSSId  = options.resourcePaneSearchCSSId || alert('resourcePaneSearchCSSId required.');
-    this.resourcePaneItemsCSSId   = options.resourcePaneItemsCSSId || alert('resourcePaneItemsCSSId required.');
-    this.matchButtonCSSId         = options.matchButtonCSSId || alert('matchButtonCSSId required.');
-    this.matchPaneCSSId           = options.matchPaneCSSId || alert('matchPaneCSSId required.');
-    this.matchPanePairsCSSId      = options.matchPanePairsCSSId || alert('matchPanePairsCSSId required.');
+    // set mandatory properties
+    manditoryProperties.forEach(function(property) {
+      self[property] = options[property] || alert(property + ' required.');
+    });
 
     // set up matcher template methods
     this.matcherLayoutTemplate  = _.template(options.matcherLayoutTemplate);
