@@ -171,13 +171,12 @@ var ATKMatcherView = Backbone.View.extend({
             // disable the checkbox on the path being matched
             $('#' + item.id + ' > input').attr('disabled', 'disabled');
 
-            var indexFromCSSId = parseInt(self.selectedResourceId.substring(
-              self.selectedResourceId.indexOf('_') + 1
-            ));
+            var resource = self.resourceCollection.get(self.indexNumberFromCSSId(self.selectedResourceId));
 
+            // store pair in collection for easy retrieval
             self.pairCollection.add({
               'objectPath':    item.path,
-              'resourceTitle': self.resourceCollection.get(indexFromCSSId).attributes.title,
+              'resourceIdentifier': resource.get('identifier'),
             });
 
             var pairModel = self.pairCollection.at(self.pairCollection.length - 1);
@@ -185,7 +184,10 @@ var ATKMatcherView = Backbone.View.extend({
             var $newMatchEl = $(self.matchItemTemplate({
               'index': pairModel.id,
               'path': item.path,
-              'resource_title': self.resourceCollection.get(indexFromCSSId).attributes.title
+              'title': resource.get('title'),
+              'identifier': resource.get('identifier'),
+              'levelOfDescription': resource.get('levelOfDescription'),
+              'dates': resource.get('dates')
             }));
 
             // hide new pair, add it to the pane, then fade it in
@@ -197,6 +199,7 @@ var ATKMatcherView = Backbone.View.extend({
               $('#match_delete_' + index).click(function() {
                 $('#' + pathId + ' > input').removeAttr('disabled');
                 $('#match_' + index).remove();
+                self.pairCollection.remove(self.pairCollection.get(index));
               });
             })(pairModel.id, item.id)
             self.matchIndex++;
@@ -227,6 +230,12 @@ var ATKMatcherView = Backbone.View.extend({
     });
 
     return selectedPaths;
+  },
+
+  indexNumberFromCSSId: function(CSSId) {
+    return parseInt(CSSId.substring(
+      CSSId.indexOf('_') + 1
+    ));
   },
 
   notify: function(text) {
