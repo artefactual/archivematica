@@ -93,7 +93,7 @@ var ATKMatcherView = Backbone.View.extend({
     // display resource
     $('#' + this.resourcePaneItemsCSSId).append(
       this.resourceItemTemplate({
-        'index':              resourceModel.id,
+        'tempId':             resourceModel.id,
         'padding':            padding,
         'title':              resourceData.title,
         'levelOfDescription': resourceData.levelOfDescription,
@@ -186,7 +186,7 @@ var ATKMatcherView = Backbone.View.extend({
             var pairModel = self.pairCollection.at(self.pairCollection.length - 1);
 
             var $newMatchEl = $(self.matchItemTemplate({
-              'index': pairModel.id,
+              'tempId': pairModel.id,
               'path': item.path,
               'title': resource.get('title'),
               'identifier': resource.get('identifier'),
