@@ -12,6 +12,19 @@ var ATKMatcherResourceCollection = Backbone.Collection.extend({
   }
 });
 
+var ATKMatcherPairCollection = Backbone.Collection.extend({
+  initialize: function() {
+    this.currentId = 0;
+
+    var self = this;
+    this.bind('add', function(model, collection) {
+      self.currentId++;
+      model.id = self.currentId;
+      self._byId[model.id] = model;
+    });
+  }
+});
+
 var ATKMatcherView = Backbone.View.extend({
   initialize: function(options) {
     var self = this,
@@ -42,9 +55,9 @@ var ATKMatcherView = Backbone.View.extend({
 
     // set matcher state maintenance properties
     this.resourceCollection = new ATKMatcherResourceCollection();
-
     this.selectedResourceId = false; // resource currently selected in UI
-    this.matchIndex         = 0;     // internal ID counter for matches 
+
+    this.pairCollection = new ATKMatcherPairCollection();
   },
 
   render: function() {
@@ -174,22 +187,30 @@ var ATKMatcherView = Backbone.View.extend({
               self.selectedResourceId.indexOf('_') + 1
             ));
 
+            self.pairCollection.add({
+              'objectPath':    item.path,
+              'resourceTitle': self.resourceCollection.get(indexFromCSSId).attributes.title,
+            });
+
+            var pairModel = self.pairCollection.at(self.pairCollection.length - 1);
+
             var $newMatchEl = $(self.matchItemTemplate({
-              'index': self.matchIndex,
+              'index': pairModel.id,
               'path': item.path,
               'resource_title': self.resourceCollection.get(indexFromCSSId).attributes.title
-              //'resource_title': self.resourceDatalat[indexFromCSSId].title
             }));
 
+            // hide new pair, add it to the pane, then fade it in
             $newMatchEl.hide();
             $('#' + self.matchPanePairsCSSId).append($newMatchEl);
             $newMatchEl.fadeIn('fast');
+
             (function(index, pathId) {
-              $('#match_delete_' + self.matchIndex).click(function() {
+              $('#match_delete_' + index).click(function() {
                 $('#' + pathId + ' > input').removeAttr('disabled');
                 $('#match_' + index).remove();
               });
-            })(self.matchIndex, item.id)
+            })(pairModel.id, item.id)
             self.matchIndex++;
           });
         } else {
