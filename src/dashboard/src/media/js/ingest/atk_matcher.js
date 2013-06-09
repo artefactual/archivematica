@@ -1,18 +1,5 @@
 // manages auto-incrementing of internal ID
-var ATKMatcherResourceCollection = Backbone.Collection.extend({
-  initialize: function() {
-    this.currentId = 0;
-
-    var self = this;
-    this.bind('add', function(model, collection) {
-      self.currentId++;
-      model.id = self.currentId;
-      self._byId[model.id] = model;
-    });
-  }
-});
-
-var ATKMatcherPairCollection = Backbone.Collection.extend({
+var ATKMatcherCollection = Backbone.Collection.extend({
   initialize: function() {
     this.currentId = 0;
 
@@ -54,10 +41,10 @@ var ATKMatcherView = Backbone.View.extend({
     this.matchItemTemplate      = _.template(options.matchItemTemplate);
 
     // set matcher state maintenance properties
-    this.resourceCollection = new ATKMatcherResourceCollection();
+    this.resourceCollection = new ATKMatcherCollection();
     this.selectedResourceId = false; // resource currently selected in UI
 
-    this.pairCollection = new ATKMatcherPairCollection();
+    this.pairCollection = new ATKMatcherCollection();
   },
 
   render: function() {
