@@ -288,14 +288,17 @@ def ingest_upload_atk_get_resource_children(resource_id):
       'identifier': 'PR01',
       'title': 'Parent',
       'levelOfDescription': 'Fonds',
+      'dates': '1880-1889',
       'children': [{
         'identifier': 'CH01',
         'title': 'Child A',
         'levelOfDescription': 'Sousfonds',
+        'dates': '1880-1888',
         'children': [{
           'identifier': 'GR01',
           'title': 'Grandchild A',
           'levelOfDescription': 'Item',
+          'dates': '1880-1888',
           'children': False
         },
         {
@@ -309,6 +312,7 @@ def ingest_upload_atk_get_resource_children(resource_id):
         'identifier': 'CH02',
         'title': 'Child B',
         'levelOfDescription': 'Sousfonds',
+        'dates': '1889',
         'children': False
       }]
     }

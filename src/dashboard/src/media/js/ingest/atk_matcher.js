@@ -95,7 +95,8 @@ var ATKMatcherView = Backbone.View.extend({
         'padding':            padding,
         'title':              resourceData.title,
         'levelOfDescription': resourceData.levelOfDescription,
-        'identifier':         resourceData.identifier
+        'identifier':         resourceData.identifier,
+        'dates':              resourceData.dates
       })
     );
 
