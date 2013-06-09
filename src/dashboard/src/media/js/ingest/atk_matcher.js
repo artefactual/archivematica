@@ -43,7 +43,7 @@ var ATKMatcherView = Backbone.View.extend({
 
     // set matcher state maintenance properties
     this.resourceCollection = new ATKMatcherCollection();
-    this.selectedResourceId = false; // resource currently selected in UI
+    this.selectedResourceCSSId = false; // resource currently selected in UI
 
     this.pairCollection = new ATKMatcherCollection();
   },
@@ -136,7 +136,7 @@ var ATKMatcherView = Backbone.View.extend({
     $('#' + this.resourcePaneItemsCSSId + ' > tr').click(function() {
       $('#' + self.resourcePaneItemsCSSId + ' > tr').css('background-color', '');
       $(this).css('background-color', '#ffcc00');
-      self.selectedResourceId = $(this).attr('id');
+      self.selectedResourceCSSId = $(this).attr('id');
     });
   },
 
@@ -164,7 +164,7 @@ var ATKMatcherView = Backbone.View.extend({
 
     $('#' + this.matchButtonCSSId).click(function() {
       // if a resource is highlighted, attempt to add selected paths
-      if (self.selectedResourceId) {
+      if (self.selectedResourceCSSId) {
         var selectedPaths = self.getSelectedPaths();
 
         // if any paths have been selected
@@ -173,7 +173,9 @@ var ATKMatcherView = Backbone.View.extend({
             // disable the checkbox on the path being matched
             $('#' + item.id + ' > input').attr('disabled', 'disabled');
 
-            var resource = self.resourceCollection.get(self.indexNumberFromCSSId(self.selectedResourceId));
+            var resource = self.resourceCollection.get(
+              self.indexNumberFromCSSId(self.selectedResourceCSSId)
+            );
 
             // store pair in collection for easy retrieval
             self.pairCollection.add({
