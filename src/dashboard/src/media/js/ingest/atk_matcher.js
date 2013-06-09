@@ -1,3 +1,17 @@
+// manages auto-incrementing of internal ID
+var ATKMatcherResourceCollection = Backbone.Collection.extend({
+  initialize: function() {
+    this.currentId = 0;
+
+    var self = this;
+    this.bind('add', function(model, collection) {
+      self.currentId++;
+      model.id = self.currentId;
+      self._byId[model.id] = model;
+    });
+  }
+});
+
 var ATKMatcherView = Backbone.View.extend({
   initialize: function(options) {
     var self = this,
@@ -27,7 +41,8 @@ var ATKMatcherView = Backbone.View.extend({
     this.matchItemTemplate      = _.template(options.matchItemTemplate);
 
     // set matcher state maintenance properties
-    this.resourceCollection = new Backbone.Collection();
+    this.resourceCollection = new ATKMatcherResourceCollection();
+
     this.selectedResourceId = false; // resource currently selected in UI
     this.matchIndex         = 0;     // internal ID counter for matches 
   },
@@ -71,13 +86,16 @@ var ATKMatcherView = Backbone.View.extend({
     // store internal representation for reference
     this.resourceCollection.add(resourceData);
 
+    var resourceModel = this.resourceCollection.at(this.resourceCollection.length - 1);
+
     // display resource
     $('#' + this.resourcePaneItemsCSSId).append(
       this.resourceItemTemplate({
-        'index':   this.resourceCollection.length,
-        'padding': padding,
-        'title':   resourceData.title,
-        'id':      resourceData.id
+        'index':              resourceModel.id,
+        'padding':            padding,
+        'title':              resourceData.title,
+        'levelOfDescription': resourceData.levelOfDescription,
+        'identifier':         resourceData.identifier
       })
     );
 

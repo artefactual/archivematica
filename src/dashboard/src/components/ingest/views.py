@@ -285,21 +285,31 @@ def ingest_upload_atk_get_dip_object_paths(uuid):
 
 def ingest_upload_atk_get_resource_children(resource_id):
     return {
-      'id': 1,
+      'identifier': 'PR01',
       'title': 'Parent',
+      'levelOfDescription': 'Fonds',
       'children': [{
-        'id': 2,
+        'identifier': 'CH01',
         'title': 'Child A',
+        'levelOfDescription': 'Sousfonds',
         'children': [{
-          'id': 3,
-          'title': 'Grandchild',
+          'identifier': 'GR01',
+          'title': 'Grandchild A',
+          'levelOfDescription': 'Item',
           'children': False
         },
         {
-          'id': 4,
-          'title': 'Child B',
+          'identifier': 'GR02',
+          'title': 'Grandchild B',
+          'levelOfDescription': 'Item',
           'children': False
         }]
+      },
+      {
+        'identifier': 'CH02',
+        'title': 'Child B',
+        'levelOfDescription': 'Sousfonds',
+        'children': False
       }]
     }
 
