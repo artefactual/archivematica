@@ -192,7 +192,11 @@ var ATKMatcherView = Backbone.View.extend({
             })(self.matchIndex, item.id)
             self.matchIndex++;
           });
+        } else {
+          self.notify('No objects selected.');
         }
+      } else {
+        self.notify('No resource selected.');
       }
     });
   },
@@ -214,5 +218,23 @@ var ATKMatcherView = Backbone.View.extend({
     });
 
     return selectedPaths;
+  },
+
+  notify: function(text) {
+    var dialog = $('<div>' + text + '</div>');
+
+    setTimeout(function() {
+      $(dialog).dialog('close');
+    }, 2000);
+
+    dialog.dialog({
+      title: 'Warning',
+      width: 640,
+      height: 200,
+      buttons: [{
+        text: 'Dismiss',
+        click: function() { $(this).dialog('close'); }
+      }]
+    });
   }
 });
