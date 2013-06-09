@@ -26,7 +26,8 @@ var ATKMatcherView = Backbone.View.extend({
           'resourcePaneItemsCSSId',
           'matchButtonCSSId',
           'matchPaneCSSId',
-          'matchPanePairsCSSId'
+          'matchPanePairsCSSId',
+          'saveButtonCSSId'
         ];
 
     // set mandatory properties
@@ -59,6 +60,7 @@ var ATKMatcherView = Backbone.View.extend({
     this.activateResourceSelection();
     this.activateResourceFiltering();
     this.activateMatchButton();
+    this.activateSaveButton();
   },
 
   renderObjectPaths: function() {
@@ -194,12 +196,16 @@ var ATKMatcherView = Backbone.View.extend({
             $newMatchEl.hide();
             $('#' + self.matchPanePairsCSSId).append($newMatchEl);
             $newMatchEl.fadeIn('fast');
+            $('#' + self.saveButtonCSSId).show();
 
             (function(index, pathId) {
               $('#match_delete_' + index).click(function() {
                 $('#' + pathId + ' > input').removeAttr('disabled');
                 $('#match_' + index).remove();
                 self.pairCollection.remove(self.pairCollection.get(index));
+                if (self.pairCollection.length == 0) {
+                  $('#' + self.saveButtonCSSId).hide();
+                }
               });
             })(pairModel.id, item.id)
             self.matchIndex++;
@@ -210,6 +216,13 @@ var ATKMatcherView = Backbone.View.extend({
       } else {
         self.notify('No resource selected.');
       }
+    });
+  },
+
+  activateSaveButton: function() {
+    var self = this;
+    $('#' + self.saveButtonCSSId).click(function () {
+      console.log(self.pairCollection.toJSON());
     });
   },
 

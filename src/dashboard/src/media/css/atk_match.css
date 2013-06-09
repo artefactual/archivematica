@@ -43,3 +43,7 @@
   overflow: auto;
   resize: both;
 }
+
+#match_save_button {
+  display: none;
+}
