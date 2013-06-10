@@ -284,7 +284,7 @@ def ingest_upload_atk_get_dip_object_paths(uuid):
     ]
 
 def ingest_upload_atk_get_resource_children(resource_id):
-    resource_id = 63451;
+    resource_id = 31;
     return ingest_upload_atk_get_resource_component_and_children(resource_id, 'collection');
 
 def ingest_upload_atk_get_resource_component_and_children(resource_id, resource_type='collection'):
@@ -300,7 +300,7 @@ def ingest_upload_atk_get_resource_component_and_children(resource_id, resource_
 
     cursor = db.cursor() 
 
-    if (resource_type == 'collection'):
+    if resource_type == 'collection':
         # TODO: fix injection
         cursor.execute("SELECT title, dateExpression FROM atk_collection WHERE resourceid=" + str(resource_id))
 
@@ -319,8 +319,11 @@ def ingest_upload_atk_get_resource_component_and_children(resource_id, resource_
 
     resource_data['children'] = False
 
-    # TODO: fix injection issue
-    cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId=" + str(resource_id))
+    if resource_type == 'collection':
+        cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId IS NULL AND resourceId=" + str(resource_id))
+    else:
+        # TODO: fix injection issue
+        cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId=" + str(resource_id))
 
     rows = cursor.fetchall()
 
