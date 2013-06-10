@@ -11,6 +11,9 @@ usage = "usage: %prog [options] <path to AIP store>"
 
 parser = OptionParser(usage=usage)
 
+parser.add_option('-d', '--delete', action='store_true', dest='delete',
+    help='delete AIP-related ElasticSearch data before indexing AIP data')
+
 parser.add_option('-u', '--uuid', action='store', type='string', dest='uuid',
     help='specify a single AIP, by UUID, to process')
 
@@ -25,7 +28,8 @@ def get_command_line_arguments(parser):
 
     return {
         'root_dir': root_dir,
-        'uuid': options.uuid
+        'uuid': options.uuid,
+        'delete': options.delete
     }
 
 # Determine root of shared directories
@@ -64,11 +68,31 @@ if options['uuid'] == None:
 else:
     print "Rebuilding AIP UUID " + options['uuid']
 
-def processAIPThenDeleteMETSFile(path, temp_dir):
+def delete_aip_related_data(uuid):
+    print "Deleting AIP files..."
+    deleted = elasticSearchFunctions.connect_and_delete_aip_files(uuid)
+    print "Deleted " + str(deleted) + " AIP files."
+
+    print "Deleting AIP..."
+    deleted = elasticSearchFunctions.delete_matching_documents(
+        'aips',
+        'aip',
+        'uuid',
+        uuid,
+        max_documents=1
+    )
+    print "Deleted " + str(deleted) + " AIPs."
+
+def processAIPThenDeleteMETSFile(path, temp_dir, delete_existing_data = False):
     archive_file = os.path.basename(path)
+    uuid =  archive_file[-39:-3]
+
+    if delete_existing_data == True:
+        print "Deleting existing AIP-related data..."
+        delete_aip_related_data(uuid)
+
     subdir = archive_file[:-3]
     aip_name = subdir[:-37]
-    uuid =  archive_file[-39:-3]
     mets_file = "METS." + uuid + ".xml"
     mets_file_relative_path = subdir + "/data/" + mets_file
 
@@ -103,7 +127,11 @@ for root, subFolders, files in os.walk(rootdir):
         try:
             file.index('.7z')
             if options['uuid'] == None or options['uuid'].lower() in file.lower():
-                processAIPThenDeleteMETSFile(os.path.join(root, file), temp_dir)
+                processAIPThenDeleteMETSFile(
+                    os.path.join(root, file),
+                    temp_dir,
+                    options['delete']
+                )
         except ValueError:
             pass
 
