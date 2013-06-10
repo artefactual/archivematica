@@ -134,9 +134,19 @@ var ATKMatcherView = Backbone.View.extend({
     var self = this;
 
     $('#' + this.resourcePaneItemsCSSId + ' > tr').click(function() {
+      var newSelectionCSSId = $(this).attr('id');
+
+      // reset background of resource table rows
       $('#' + self.resourcePaneItemsCSSId + ' > tr').css('background-color', '');
-      $(this).css('background-color', '#ffcc00');
-      self.selectedResourceCSSId = $(this).attr('id');
+
+      // if a new selection, highlight clicked row and set current selection to its CSS ID
+      if (self.selectedResourceCSSId != newSelectionCSSId) {
+        $(this).css('background-color', '#ffcc00');
+        self.selectedResourceCSSId = newSelectionCSSId;
+      } else {
+        // ...otherwise, set to no selection
+        self.selectedResourceCSSId = false;
+      }
     });
   },
 
