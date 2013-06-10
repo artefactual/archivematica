@@ -3,7 +3,7 @@
   float: none;
 }
 
-.atk-matcher-resource-item:hover {
+.atk-matcher-resource-item:hover, .atk-matcher-object-path:hover {
   background-color: #d8f2dc;
 }
 
