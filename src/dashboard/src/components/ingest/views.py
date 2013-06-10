@@ -285,10 +285,6 @@ def ingest_upload_atk_get_dip_object_paths(uuid):
 
 def ingest_upload_atk_get_resource_children(resource_id):
     resource_id = 31;
-    return ingest_upload_atk_get_resource_component_and_children(resource_id, 'collection');
-
-def ingest_upload_atk_get_resource_component_and_children(resource_id, resource_type='collection'):
-    resource_data = {};
 
     # TODO: where to store config?
     db = MySQLdb.connect(
@@ -297,6 +293,11 @@ def ingest_upload_atk_get_resource_component_and_children(resource_id, resource_
         passwd="",
         db="MCP"
     )
+
+    return ingest_upload_atk_get_resource_component_and_children(db, resource_id, 'collection');
+
+def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resource_type='collection'):
+    resource_data = {};
 
     cursor = db.cursor() 
 
@@ -331,6 +332,7 @@ def ingest_upload_atk_get_resource_component_and_children(resource_id, resource_
         for row in rows:
             resource_data['children'].append(
                 ingest_upload_atk_get_resource_component_and_children(
+                    db,
                     row[0],
                     'description'
                 )
