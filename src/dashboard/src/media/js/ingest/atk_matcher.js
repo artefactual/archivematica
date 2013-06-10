@@ -172,6 +172,7 @@ var ATKMatcherView = Backbone.View.extend({
           selectedPaths.forEach(function(item) {
             // disable the checkbox on the path being matched
             $('#' + item.id + ' > input').attr('disabled', 'disabled');
+            $('#' + item.id + ' > label').addClass('atk-matcher-disabled-object-label');
 
             var resource = self.resourceCollection.get(
               self.indexNumberFromCSSId(self.selectedResourceCSSId)
@@ -203,6 +204,7 @@ var ATKMatcherView = Backbone.View.extend({
             (function(index, pathId) {
               $('#match_delete_' + index).click(function() {
                 $('#' + pathId + ' > input').removeAttr('disabled');
+                $('#' + item.id + ' > label').removeClass('atk-matcher-disabled-object-label');
                 $('#match_' + index).remove();
                 self.pairCollection.remove(self.pairCollection.get(index));
                 if (self.pairCollection.length == 0) {

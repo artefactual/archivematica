@@ -47,3 +47,7 @@
 #match_save_button {
   display: none;
 }
+
+.atk-matcher-disabled-object-label {
+  color: #aaa;
+}
