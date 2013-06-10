@@ -269,6 +269,7 @@ def list_display(request, current_page_number=None):
     sort_specification = order_by + ':' + sort_direction
 
     conn = elasticSearchFunctions.connect_and_create_index('aips')
+
     aipResults = conn.search(
         pyes.MatchAllQuery(),
         doc_types=['aip'],
@@ -279,9 +280,14 @@ def list_display(request, current_page_number=None):
     aips = []
 
     #if aipResults._total != None:
-    if len(aipResults) > 0:
-        for aip in aipResults:
-            aips.append(aip)
+    try:
+        if len(aipResults) > 0:
+            for aip in aipResults:
+                aips.append(aip)
+    except pyes.exceptions.ElasticSearchException:
+        # there will be an error if no mapping exists for AIPs due to no AIPs
+        # having been created
+        return render(request, 'archival_storage/archival_storage.html', locals())
 
     # handle pagination
     page = helpers.pager(aips, 10, current_page_number)
