@@ -8,7 +8,6 @@
 }
 
 #object_pane {
-  height: 500px;
   float: left;
   overflow: auto;
   resize: both;
@@ -16,7 +15,6 @@
 }
 
 #resource_pane {
-  height: 500px;
   float: left;
   overflow: auto;
   resize: both;
@@ -38,7 +36,6 @@
 }
 
 #match_pane {
-  height: 500px;
   float: left;
   overflow: auto;
   resize: both;
