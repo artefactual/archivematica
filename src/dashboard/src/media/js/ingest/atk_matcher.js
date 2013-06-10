@@ -115,13 +115,13 @@ var ATKMatcherView = Backbone.View.extend({
   activateObjectFiltering: function() {
     var self = this;
     $('#' + this.objectPaneSearchCSSId + ' > input').keyup(function() {
-      var filterTerm = $(this).val();
+      var filterTerm = $(this).val().toLowerCase();
 
       // cycle through each object path, hiding or showing based on the filter term
       $('#' + self.objectPanePathsCSSId)
         .children()
         .each(function() {
-          if ($(this).children('label').text().indexOf(filterTerm) == -1) {
+          if ($(this).children('label').text().toLowerCase().indexOf(filterTerm) == -1) {
             $(this).hide();
           } else {
             $(this).show();
@@ -154,13 +154,13 @@ var ATKMatcherView = Backbone.View.extend({
     var self = this;
 
     $('#' + this.resourcePaneSearchCSSId + ' > input').keyup(function() {
-      var filterTerm = $(this).val();
+      var filterTerm = $(this).val().toLowerCase();
 
       // cycle through each item, hiding or showing based on the filter term
       $('#' + self.resourcePaneItemsCSSId)
         .children()
         .each(function() {
-          if ($(this).text().indexOf(filterTerm) == -1) {
+          if ($(this).text().toLowerCase().indexOf(filterTerm) == -1) {
             $(this).hide();
           } else {
             $(this).show();
