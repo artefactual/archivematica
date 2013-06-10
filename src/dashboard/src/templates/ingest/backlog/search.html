@@ -1,6 +1,7 @@
 {% extends "layout_fluid.html" %}
 {% load breadcumbs %}
 {% load keyvalue %}
+{% load url from future %}
 
 {% block title %}Transfer backlog{% endblock %}
 {% block h1 %}Transfer backlog{% endblock %}
@@ -112,7 +113,7 @@
         {% for item in results %}
           <tr>
             <td>
-              <div><a href="{% url components.ingest.views.transfer_file_download item.fileuuid %}">{{ item.filename }}</a></div>
+              <div><a href="{% url 'components.ingest.views.transfer_file_download' item.fileuuid %}">{{ item.filename }}</a></div>
             </td>
             <td>
               <div>{{item.sipuuid}}</div>

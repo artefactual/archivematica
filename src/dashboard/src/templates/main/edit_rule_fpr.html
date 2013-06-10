@@ -1,5 +1,7 @@
 {% extends "layout_fluid.html" %}
 
+{% load url from future %}
+
 {% block css %}
 <style type="text/css">
   table {
@@ -80,9 +82,9 @@ $(document).ready(function() {
 
 <h3>Archivematica Format Policy Rule</h3>
   	<form class="form-stacked" method="post" action="{% if uuid %}
-{% url components.preservation_planning.views.fpr_edit_rule uuid %}
+{% url 'components.preservation_planning.views.fpr_edit_rule' uuid %}
 {% else %}
- {% url components.preservation_planning.views.fpr_edit_rule %}
+ {% url 'components.preservation_planning.views.fpr_edit_rule' %}
 {% endif %}">
 
     {% include "_form.html" %}
@@ -93,7 +95,7 @@ $(document).ready(function() {
           {% else %}
             <button type="submit" class="btn primary">Create</button>
           {% endif %}
-            <a href="{% url components.preservation_planning.views.preservation_planning_fpr_data %}" class="btn">Cancel</a>
+            <a href="{% url 'components.preservation_planning.views.preservation_planning_fpr_data' %}" class="btn">Cancel</a>
            
     </div>
 

@@ -1,5 +1,6 @@
 {% extends "layout_fluid.html" %}
 {% load breadcumbs %}
+{% load url from future %}
 
 {% block content %}
   <div class="row">
@@ -41,11 +42,11 @@
               <td>{{ grant.enddate }}</td>
               <td>
                 {% if section == 'ingest' %}
-                  <a href="{% url components.rights.views.ingest_rights_edit uuid grant.rightsstatement.id %}">Edit</a>
-                  <a href="{% url components.rights.views.ingest_rights_delete uuid grant.rightsstatement.id %}">Delete</a>
+                  <a href="{% url 'components.rights.views.ingest_rights_edit' uuid grant.rightsstatement.id %}">Edit</a>
+                  <a href="{% url 'components.rights.views.ingest_rights_delete' uuid grant.rightsstatement.id %}">Delete</a>
                 {% else %}
-                  <a href="{% url components.rights.views.transfer_rights_edit uuid grant.rightsstatement.id %}">Edit</a>
-                  <a href="{% url components.rights.views.transfer_rights_delete uuid grant.rightsstatement.id %}">Delete</a>
+                  <a href="{% url 'components.rights.views.transfer_rights_edit' uuid grant.rightsstatement.id %}">Edit</a>
+                  <a href="{% url 'components.rights.views.transfer_rights_delete' uuid grant.rightsstatement.id %}">Delete</a>
                 {% endif %}
               </td>
             </tr>
@@ -69,9 +70,9 @@
 
       <div class="actions" style="padding-left: 1em;">
         {% if section == 'ingest' %}
-          <a class="btn primary" href="{% url components.rights.views.ingest_rights_edit uuid %}">Add</a>
+          <a class="btn primary" href="{% url 'components.rights.views.ingest_rights_edit' uuid %}">Add</a>
         {% else %}
-          <a class="btn primary" href="{% url components.rights.views.transfer_rights_edit uuid %}">Add</a>
+          <a class="btn primary" href="{% url 'components.rights.views.transfer_rights_edit' uuid %}">Add</a>
         {% endif %}
       </div>
 

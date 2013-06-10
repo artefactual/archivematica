@@ -1,5 +1,6 @@
 {% extends "layout_fluid.html" %}
 {% load breadcumbs %}
+{% load url from future %}
 
 {% block title %}Users - Add new{% endblock %}
 {% block h1 %}Users - Add new{% endblock %}
@@ -18,7 +19,7 @@
         {% breadcrumb 'Add new user' %}
       </ul>
 
-      <form method="post" action="{% url components.accounts.views.add %}">
+      <form method="post" action="{% url 'components.accounts.views.add' %}">
 
         {% csrf_token %}
 
@@ -26,7 +27,7 @@
 
         <div class="actions">
           <button type="submit" class="btn primary">Create</button>
-          <a class="btn" href="{% url components.accounts.views.list %}">Cancel</a>
+          <a class="btn" href="{% url 'components.accounts.views.list' %}">Cancel</a>
         </div>
 
       </form>

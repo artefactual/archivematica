@@ -1,5 +1,7 @@
 {% extends "layout_fluid.html" %}
 
+{% load url from future %}
+
 {% block css %}
 <style type="text/css">
   table {
@@ -65,9 +67,9 @@
 
 <h3>Archivematica Command</h3>
 <form class="form-stacked" method="post" action="{% if uuid %}
-{% url components.preservation_planning.views.fpr_edit_command uuid %}
+{% url 'components.preservation_planning.views.fpr_edit_command' uuid %}
 {% else %}
- {% url components.preservation_planning.views.fpr_edit_command %}
+ {% url 'components.preservation_planning.views.fpr_edit_command' %}
 {% endif %}">
     {% if valid_submission %}
     <h3>Command Saved</h3>
@@ -81,6 +83,6 @@
           {% else %}
             <button type="submit" class="btn primary">Create</button>
           {% endif %}
-            <a href="{% url components.preservation_planning.views.preservation_planning_fpr_data %}" class="btn">Cancel</a>
+            <a href="{% url 'components.preservation_planning.views.preservation_planning_fpr_data' %}" class="btn">Cancel</a>
     </div>
 {% endblock %}

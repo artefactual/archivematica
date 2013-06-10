@@ -1,7 +1,8 @@
+{% load url from future %}
 <div id='search-summary'>
   <div style='float:right;'>
     {% if page %}
-      <a href='{% url components.ingest.views.transfer_backlog %}?{{ search_params }}&page={{ previous_page }}'>Previous</a>
+      <a href='{% url 'components.ingest.views.transfer_backlog' %}?{{ search_params }}&page={{ previous_page }}'>Previous</a>
     {% endif %}
 
     {% if page and next_page %}
@@ -9,7 +10,7 @@
     {% endif %}
 
     {% if next_page %}
-      <a href='{% url components.ingest.views.transfer_backlog %}?{{ search_params }}&page={{ next_page }}'>Next</a>
+      <a href='{% url 'components.ingest.views.transfer_backlog' %}?{{ search_params }}&page={{ next_page }}'>Next</a>
     {% endif %}
   </div>
 

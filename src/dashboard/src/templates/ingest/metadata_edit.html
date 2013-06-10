@@ -1,5 +1,6 @@
 {% extends "layout_fluid.html" %}
 {% load breadcumbs %}
+{% load url from future %}
 
 {% block js %}
   <script type="text/javascript" src="{{ STATIC_URL }}js/contextual_help.js"></script>
@@ -40,9 +41,9 @@ $(document).ready(function() {
       <h1>Metadata<br /><small>{{ name }}</small></h1>
 
       {% if id %}
-        <form class="form-stacked" method="post" action="{% url components.ingest.views.ingest_metadata_edit uuid id %}">
+        <form class="form-stacked" method="post" action="{% url 'components.ingest.views.ingest_metadata_edit' uuid id %}">
       {% else %}
-        <form class="form-stacked" method="post" action="{% url components.ingest.views.ingest_metadata_edit uuid %}">
+        <form class="form-stacked" method="post" action="{% url 'components.ingest.views.ingest_metadata_edit' uuid %}">
       {% endif %}
 
         <div class="clearfix">
@@ -63,7 +64,7 @@ $(document).ready(function() {
           {% else %}
             <button type="submit" class="btn primary">Create</button>
           {% endif %}
-          <a href="{% url components.ingest.views.ingest_metadata_list uuid %}" class="btn">Cancel</a>
+          <a href="{% url 'components.ingest.views.ingest_metadata_list' uuid %}" class="btn">Cancel</a>
         </div>
 
       </form>

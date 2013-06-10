@@ -1,4 +1,5 @@
 {% extends "layout_fluid.html" %}
+{% load url from future %}
 
 {% block css %}
 <style type="text/css">
@@ -59,9 +60,9 @@
 
 <h3>Archivematica Command</h3>
 <form class="form-stacked" method="post" action="{% if uuid %}
-{% url components.preservation_planning.views.fpr_edit_tool_output uuid %}
+{% url 'components.preservation_planning.views.fpr_edit_tool_output' uuid %}
 {% else %}
- {% url components.preservation_planning.views.fpr_edit_tool_output %}
+ {% url 'components.preservation_planning.views.fpr_edit_tool_output' %}
 {% endif %}">
 
     {% include "_form.html" %}
@@ -72,7 +73,7 @@
           {% else %}
             <button type="submit" class="btn primary">Create</button>
           {% endif %}
-            <a href="{% url components.preservation_planning.views.preservation_planning_fpr_data %}" class="btn">Cancel</a>
+            <a href="{% url 'components.preservation_planning.views.preservation_planning_fpr_data' %}" class="btn">Cancel</a>
           
     </div>
 {% endblock %}

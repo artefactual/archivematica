@@ -1,5 +1,6 @@
 {% extends "layout_fluid.html" %}
 {% load breadcumbs %}
+{% load url from future %}
 
 {% block js %}
   <script src="{{ STATIC_URL }}vendor/jquery.inputmask.js" type="text/javascript"></script>
@@ -54,15 +55,15 @@
 
       {% if section == 'ingest' %}
         {% if id %}
-          <form class="form-stacked" method="post" action="{% url components.rights.views.ingest_rights_edit uuid id %}">
+          <form class="form-stacked" method="post" action="{% url 'components.rights.views.ingest_rights_edit' uuid id %}">
         {% else %}
-          <form class="form-stacked" method="post" action="{% url components.rights.views.ingest_rights_edit uuid %}">
+          <form class="form-stacked" method="post" action="{% url 'components.rights.views.ingest_rights_edit' uuid %}">
         {% endif %}
       {% else %}
         {% if id %}
-          <form class="form-stacked" method="post" action="{% url components.rights.views.transfer_rights_edit uuid id %}">
+          <form class="form-stacked" method="post" action="{% url 'components.rights.views.transfer_rights_edit' uuid id %}">
         {% else %}
-          <form class="form-stacked" method="post" action="{% url components.rights.views.transfer_rights_edit uuid %}">
+          <form class="form-stacked" method="post" action="{% url 'components.rights.views.transfer_rights_edit' uuid %}">
         {% endif %}
       {% endif %}
 
@@ -272,9 +273,9 @@
           <button type="submit" name='next_button' value='Next' class="btn primary">Next</button>
 
           {% if section == 'ingest' %}
-            <a href="{% url components.rights.views.ingest_rights_list uuid %}" class="btn">Cancel</a>
+            <a href="{% url 'components.rights.views.ingest_rights_list' uuid %}" class="btn">Cancel</a>
           {% else %}
-             <a href="{% url components.rights.views.transfer_rights_list uuid %}" class="btn">Cancel</a>
+             <a href="{% url 'components.rights.views.transfer_rights_list' uuid %}" class="btn">Cancel</a>
           {% endif %}
         </div>
 

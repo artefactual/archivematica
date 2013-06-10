@@ -1,15 +1,16 @@
 {% load active %}
+{% load url from future %}
 <div class="span3 sidebar">
 
-  {% url components.administration.views.administration_dip as url_dip %}
-  {% url components.administration.views.contentdm_dips as url_contentdm_dips %}
-  {% url components.administration.views.sources as url_sources %}
-  {% url components.administration.views.storage as url_storage %}
-  {% url components.administration.views.processing as url_processing %}
-  {% url components.administration.views.premis_agent as url_premis %}
-  {% url components.administration.views.api as url_api %}
-  {% url components.accounts.views.list as url_user_list %}
-  {% url components.administration.views.general as url_general %}
+  {% url 'components.administration.views.administration_dip' as url_dip %}
+  {% url 'components.administration.views.contentdm_dips' as url_contentdm_dips %}
+  {% url 'components.administration.views.sources' as url_sources %}
+  {% url 'components.administration.views.storage' as url_storage %}
+  {% url 'components.administration.views.processing' as url_processing %}
+  {% url 'components.administration.views.premis_agent' as url_premis %}
+  {% url 'components.administration.views.api' as url_api %}
+  {% url 'components.accounts.views.list' as url_user_list %}
+  {% url 'components.administration.views.general' as url_general %}
 
   <ul>
 

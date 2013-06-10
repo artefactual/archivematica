@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 
+{% load url from future %}
+
 {% block title %}Welcome{% endblock %}
 {% block h1 %}Welcome{% endblock %}
 {% block page_id %}welcome{% endblock %}
@@ -39,7 +41,7 @@
         <p>It seems that Archivematica has been installed successfully. Now, please take a minute to create your first user in the system.</p>
       </div>
 
-      <form class="form-stacked" method="post" action="{% url installer.views.welcome %}">
+      <form class="form-stacked" method="post" action="{% url 'installer.views.welcome' %}">
 
         {% include "_form.html" %}
 

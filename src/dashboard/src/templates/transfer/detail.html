@@ -1,5 +1,6 @@
 {% extends "layout_fluid.html" %}
 {% load breadcumbs %}
+{% load url from future %}
 
 {% block content %}
   <div class="row">
@@ -18,19 +19,19 @@
         <div class="alert-message block-message">
           <p>There are micro-services awaiting user decisions.</p>
           <div class="alert-actions">
-            <a class="btn small" href="{% url components.ingest.views.ingest_microservices uuid %}">View micro-services</a>
+            <a class="btn small" href="{% url 'components.ingest.views.ingest_microservices' uuid %}">View micro-services</a>
           </div>
         </div>
       {% endif %}
 
       <h5>Micro-Services</h5>
       <ul>
-        <li><a href="{% url components.transfer.views.microservices uuid %}">List</a></li>
+        <li><a href="{% url 'components.transfer.views.microservices' uuid %}">List</a></li>
       </ul>
       <h5>Rights</h5>
       <ul>
-        <li><a href="{% url components.rights.views.transfer_rights_list uuid %}">List</a></li>
-        <li><a href="{% url components.rights.views.transfer_rights_edit uuid %}">Add</a></li>
+        <li><a href="{% url 'components.rights.views.transfer_rights_list' uuid %}">List</a></li>
+        <li><a href="{% url 'components.rights.views.transfer_rights_edit' uuid %}">Add</a></li>
       </ul>
 
     </div>

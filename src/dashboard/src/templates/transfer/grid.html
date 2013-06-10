@@ -1,4 +1,5 @@
 {% extends "layout_fluid.html" %}
+{% load url from future %}
 
 {% block title %}Transfer{% endblock %}
 {% block h1 %}Transfer{% endblock %}
@@ -88,7 +89,7 @@
 
   {% else %}
 
-    {% url components.administration.views.sources as source_admin %}
+    {% url 'components.administration.views.sources' as source_admin %}
 
     <div class="alert-message">
       <p>

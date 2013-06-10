@@ -1,5 +1,7 @@
 {% extends "layout_fluid.html" %}
 
+{% load url from future %}
+
 {% block js %}
 <script type="text/javascript" src="{{ STATIC_URL }}js/jobs.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/normalization_report.js"></script>
@@ -89,13 +91,13 @@
     Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.total_items }}
     <div style='float:right'>
     {% if page.has_previous %}
-      <a href="{% url components.ingest.views.ingest_normalization_report uuid page.previous %}" class="btn">Previous</a>
+      <a href="{% url 'components.ingest.views.ingest_normalization_report' uuid page.previous %}" class="btn">Previous</a>
       {% if page.has_next %}
         &nbsp;
       {% endif %}
     {% endif %}
     {% if page.has_next %}
-      <a href="{% url components.ingest.views.ingest_normalization_report uuid page.next %}" class="btn">Next</a>
+      <a href="{% url 'components.ingest.views.ingest_normalization_report' uuid page.next %}" class="btn">Next</a>
     {% endif %}
     </div>
   {% endif %}

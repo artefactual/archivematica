@@ -1,7 +1,7 @@
 {% extends "layout_fluid.html" %}
-
 {% load math %}
 {% load percentage %}
+{% load url from future %}
 
 {% block title %}Preservation planning{% endblock %}
 {% block h1 %}Preservation planning{% endblock %}
@@ -152,7 +152,7 @@
 
 {% block content %}
   
-<form name = "search" action='{% url components.preservation_planning.views.preservation_planning_fpr_search %}' method='GET'>
+<form name = "search" action='{% url 'components.preservation_planning.views.preservation_planning_fpr_search' %}' method='GET'>
   {{ form }}
   <input type='submit' value='Search files'/>&nbsp;&nbsp;
   <input type="checkbox" id="perf"> Show performance
@@ -244,13 +244,13 @@
   <!-- View / Change details -->
   <td>
         {% if row.rule_pk %}
-  	<a href="{% url components.preservation_planning.views.fpr_edit_rule row.rule_pk %}">Format Policy Rule</a><br>
+  	<a href="{% url 'components.preservation_planning.views.fpr_edit_rule' row.rule_pk %}">Format Policy Rule</a><br>
   	{% endif %}
   	{% if row.command_pk %}
-  	<a href="{% url components.preservation_planning.views.fpr_edit_command row.command_pk %}">Command</a> |   	
+  	<a href="{% url 'components.preservation_planning.views.fpr_edit_command' row.command_pk %}">Command</a> |   	
   	{% endif %}
-  	<a href="{% url components.preservation_planning.views.fpr_edit_format row.pk %}">Format ID</a> |
-  	<a href="{% url components.preservation_planning.views.fpr_edit_tool_output row.toolOutput_pk %}">Tool Output</a>
+  	<a href="{% url 'components.preservation_planning.views.fpr_edit_format' row.pk %}">Format ID</a> |
+  	<a href="{% url 'components.preservation_planning.views.fpr_edit_tool_output' row.toolOutput_pk %}">Tool Output</a>
 </td>
 </tr>
 
@@ -265,9 +265,9 @@
     {% if page.has_previous %}
 
       {% if request.session.fpr_query == '' %}
-        <a href="{% url components.preservation_planning.views.preservation_planning_fpr_data page.previous %}" class="btn">Previous</a>
+        <a href="{% url 'components.preservation_planning.views.preservation_planning_fpr_data' page.previous %}" class="btn">Previous</a>
       {% else %}
-        <a href="{% url components.preservation_planning.views.preservation_planning_fpr_search page.previous %}" class="btn">Previous</a>
+        <a href="{% url 'components.preservation_planning.views.preservation_planning_fpr_search' page.previous %}" class="btn">Previous</a>
       {% endif %}
 
       {% if page.has_next %}
@@ -278,9 +278,9 @@
    
    {% if page.has_next %}
       {% if request.session.fpr_query == '' %}  
-        <a href="{% url components.preservation_planning.views.preservation_planning_fpr_data page.next %}" class="btn">Next</a>
+        <a href="{% url 'components.preservation_planning.views.preservation_planning_fpr_data' page.next %}" class="btn">Next</a>
       {% else %}
-        <a href="{% url components.preservation_planning.views.preservation_planning_fpr_search page.next %}" class="btn">Next</a>
+        <a href="{% url 'components.preservation_planning.views.preservation_planning_fpr_search' page.next %}" class="btn">Next</a>
       {% endif %}
    {% endif %}
 
@@ -289,7 +289,7 @@
   Page {{ current_page_number }} of {{ page.num_pages }}
 
   {% if request.session.fpr_query != '' %}
-    | <a href="{% url components.preservation_planning.views.preservation_planning_fpr_data 1 %}">Exit Search</a>
+    | <a href="{% url 'components.preservation_planning.views.preservation_planning_fpr_data' 1 %}">Exit Search</a>
   {% endif %}
 
 

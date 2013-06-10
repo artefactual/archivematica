@@ -1,5 +1,6 @@
 {% extends "layout_fluid.html" %}
 {% load breadcumbs %}
+{% load url from future %}
 
 {% block content %}
   <div class="row">
@@ -27,8 +28,8 @@
               <td>{{ item }}</td>
               <td>{{ name }}</td>
               <td>
-                <a href='{% url components.ingest.views.ingest_metadata_edit uuid item.id %}'>Edit</a>
-                <a href='{% url components.ingest.views.ingest_metadata_delete uuid item.id %}'>Delete</a>
+                <a href='{% url 'components.ingest.views.ingest_metadata_edit' uuid item.id %}'>Edit</a>
+                <a href='{% url 'components.ingest.views.ingest_metadata_delete' uuid item.id %}'>Delete</a>
               </td>
             </tr>
           {% endfor %}
@@ -36,7 +37,7 @@
       </table>
 
       <div class="actions" style="padding-left: 1em;">
-        <a class="btn primary" href="{% url components.ingest.views.ingest_metadata_edit uuid %}">Add</a>
+        <a class="btn primary" href="{% url 'components.ingest.views.ingest_metadata_edit' uuid %}">Add</a>
       </div>
 
     </div>

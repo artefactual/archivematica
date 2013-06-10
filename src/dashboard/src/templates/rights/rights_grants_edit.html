@@ -1,5 +1,6 @@
 {% extends "layout_fluid.html" %}
 {% load breadcumbs %}
+{% load url from future %}
 
 {% block js %}
   <script src="{{ STATIC_URL }}vendor/jquery.inputmask.js" type="text/javascript"></script>
@@ -47,9 +48,9 @@
       {% endif %}
 
       {% if section == 'ingest' %}
-        <form class="form-stacked" method="post" action="{% url components.rights.views.ingest_rights_grants_edit uuid id %}">
+        <form class="form-stacked" method="post" action="{% url 'components.rights.views.ingest_rights_grants_edit' uuid id %}">
       {% else %}
-        <form class="form-stacked" method="post" action="{% url components.rights.views.transfer_rights_grants_edit uuid id %}">
+        <form class="form-stacked" method="post" action="{% url 'components.rights.views.transfer_rights_grants_edit' uuid id %}">
       {% endif %}
 
         {{ grantFormset.management_form }}
@@ -99,9 +100,9 @@
           <button type="submit" name='next_button' value='Next' class="btn primary">Done</button>
 
           {% if section == 'ingest' %}
-            <a href="{% url components.rights.views.ingest_rights_list uuid %}" class="btn">Cancel</a>
+            <a href="{% url 'components.rights.views.ingest_rights_list' uuid %}" class="btn">Cancel</a>
           {% else %}
-             <a href="{% url components.rights.views.transfer_rights_list uuid %}" class="btn">Cancel</a>
+             <a href="{% url 'components.rights.views.transfer_rights_list' uuid %}" class="btn">Cancel</a>
           {% endif %}
         </div>
 

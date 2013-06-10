@@ -1,4 +1,6 @@
 {% load active %}
+{% load url from future %}
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -30,15 +32,15 @@
         <div class="topbar-inner">
           <div class="container-fluid">
 
-            <a class="brand" href="{% url main.views.home %}">Archivematica</a>
+            <a class="brand" href="{% url 'main.views.home' %}">Archivematica</a>
 
-            {% url main.views.home as url_home %}
-            {% url components.transfer.views.grid as url_transfer %}
-            {% url components.ingest.views.ingest_grid as url_ingest %}
-            {% url components.archival_storage.views.overview as url_archival_storage %}
-            {% url components.preservation_planning.views.preservation_planning_fpr_data as url_preservation_planning %}
-            {% url main.views.access_list as url_access %}
-            {% url components.administration.views.administration as url_administration %}
+            {% url 'main.views.home' as url_home %}
+            {% url 'components.transfer.views.grid' as url_transfer %}
+            {% url 'components.ingest.views.ingest_grid' as url_ingest %}
+            {% url 'components.archival_storage.views.overview' as url_archival_storage %}
+            {% url 'components.preservation_planning.views.preservation_planning_fpr_data' as url_preservation_planning %}
+            {% url 'main.views.access_list' as url_access %}
+            {% url 'components.administration.views.administration' as url_administration %}
 
             <ul class="nav">
 
@@ -53,9 +55,9 @@
                 <li class="user dropdown" data-dropdown="dropdown">
                   <a class="dropdown-toggle">{{ request.user }}</a>
                   <ul class="dropdown-menu">
-                    <li><a href="{% url components.accounts.views.edit %}">Your profile</a></li>
+                    <li><a href="{% url 'components.accounts.views.edit' %}">Your profile</a></li>
                     <li class="divider"></li>
-                    <li><a href="{% url django.contrib.auth.views.logout_then_login %}">Log out</a></li>
+                    <li><a href="{% url 'django.contrib.auth.views.logout_then_login' %}">Log out</a></li>
                   </ul>
                 </li>
               {% endif %}
