@@ -22,6 +22,8 @@ import MySQLdb
 from time import localtime, strftime
 import argparse
 import logging
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/lib")
+import mets
 
 #global variables
 db = None
@@ -101,7 +103,19 @@ def get_files_from_dip(dip_location, dip_name, dip_uuid):
         raise
         sys.exit(24)
 
-def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions):
+def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
+    #get mets object if needed
+    mets_file = None
+    mets = None
+    if restrictions == 'premis' or len(access_conditions) == 0:
+        try:
+            mets_file = mets.MetsFile(dip_location)
+            mets_file.parse()
+            mets = mets_files.mets
+        except Exception:
+            raise
+            sys.exit(24)
+            
     global db
     global cursor
     db, cursor = connect_db(args.atdbhost, args.atdbport, args.atdbuser, args.atdbpass, args.atdb)
@@ -131,7 +145,38 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         except:
             logger.error('file name does not have container ids in it')
             sys.exit(25)
- 
+        
+        #determine restrictions
+        if restrictions == 'no':
+            restrictions_apply = "False"
+        elif restrictions == 'yes':
+            restrictions_apply = "True"
+            ead_actuate = "none"
+            ead_show = "none"
+        elif restrictions == 'premis':
+            #get act and restrictions from Premis for this file
+            #act == disseminate, restriction == Allow, then False
+            #anything else True
+            print "need premis for restrictions"
+            act = mets[uuid]['premis']['act']
+            restriction = mets[uuid]['premis']['restriction']
+            if act == 'Disseminate' and restriction == 'Allow':
+                restrictions_apply = False
+            else:
+                restrictions_apply = True
+                ead_actuate = "none"
+                ead_show = "none"
+            
+            
+        #determine access_conditions
+        if len(access_conditions) == 0:
+            #get rightsGranted note
+            print "need premis for access conditions"
+            rightsGrantedNote = mets[uuid]['premis']['rightsGrantedNote']
+            if rightsGrantedNote:
+                access_conditions = rightsGrantedNote
+            
+            
         short_file_name = file_name[37:]
         time_now = strftime("%Y-%m-%d %H:%M:%S", localtime())
         file_uri = uri_prefix  + file_name
@@ -186,7 +231,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             `dateExpression`,`dateBegin`,`dateEnd`,`languageCode`,`restrictionsApply`,
             `eadDaoActuate`,`eadDaoShow`,`metsIdentifier`,`objectType`,`objectOrder`,
             `archDescriptionInstancesId`,`repositoryId`)
-           VALUES (1,'%s', '%s','%s','%s','%s','%s',%d, %d,'English',%d,'%s','%s','%s','%s',0,%d,%d)""" % (time_now, time_now, atuser, atuser, short_file_name,dateExpression, dateBegin, dateEnd, 0, ead_actuate, ead_show,uuid, object_type, newaDID, repoId)
+           VALUES (1,'%s', '%s','%s','%s','%s','%s',%d, %d,'English',%d,'%s','%s','%s','%s',0,%d,%d)""" % (time_now, time_now, atuser, atuser, short_file_name,dateExpression, dateBegin, dateEnd, restrictions_apply, ead_actuate, ead_show,uuid, object_type, newaDID, repoId)
         logger.info('sql5: ' + sql5)
         doID = process_sql(sql5)
         sql6 = """insert into FileVersions (fileVersionId, version, lastUpdated, created, lastUpdatedBy, createdBy, uri, useStatement, sequenceNumber, eadDaoActuate,eadDaoShow, digitalObjectId)
@@ -261,7 +306,7 @@ if __name__ == '__main__':
     
     try:
         mylist = get_files_from_dip(args.dip_location, args.dip_name, args.dip_uuid)
-        upload_to_atk(mylist, args.atuser, args.ead_actuate, args.ead_show, args.object_type, args.use_statement, args.uri_prefix, args.dip_uuid, args.access_conditions, args.use_conditions)
+        upload_to_atk(mylist, args.atuser, args.ead_actuate, args.ead_show, args.object_type, args.use_statement, args.uri_prefix, args.dip_uuid, args.access_conditions, args.use_conditions, args.restrictions)
         sys.exit(0)
     except Exception as exc:
         print exc
