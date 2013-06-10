@@ -211,12 +211,21 @@ var ATKMatcherView = Backbone.View.extend({
             $newMatchEl.fadeIn('fast');
             $('#' + self.saveButtonCSSId).show();
 
+            // enable deletion of match
             (function(index, pathId) {
               $('#match_delete_' + index).click(function() {
+                // enable checkbox and remove greying out of associated label
                 $('#' + pathId + ' > input').removeAttr('disabled');
                 $('#' + item.id + ' > label').removeClass('atk-matcher-disabled-object-label');
+
+                // un-check checkbox
+                $('#' + item.id + ' > input').removeAttr('checked');
+
+                // remove visual and internal pair representations
                 $('#match_' + index).remove();
                 self.pairCollection.remove(self.pairCollection.get(index));
+
+                // hide save button if no pairs now exist
                 if (self.pairCollection.length == 0) {
                   $('#' + self.saveButtonCSSId).hide();
                 }
