@@ -1,10 +1,32 @@
 #!/usr/bin/env python
 
 import os, sys, subprocess, tempfile, shutil, ConfigParser
+from optparse import OptionParser
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions, databaseInterface
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
+
+usage = "usage: %prog [options] <path to AIP store>"
+
+parser = OptionParser(usage=usage)
+
+parser.add_option('-u', '--uuid', action='store', type='string', dest='uuid',
+    help='specify a single AIP, by UUID, to process')
+
+def get_command_line_arguments(parser):
+
+    (options, args) = parser.parse_args()
+
+    if len(args) < 1:
+        root_dir = ''
+    else:
+        root_dir = args[0]
+
+    return {
+        'root_dir': root_dir,
+        'uuid': options.uuid
+    }
 
 # Determine root of shared directories
 clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
@@ -21,19 +43,26 @@ except:
 sql = "DELETE FROM ElasticsearchIndexBackup WHERE indexName='aips' AND typeName='aipfile'"
 databaseInterface.runSQL(sql)
 
+# Get options from command-line
+options = get_command_line_arguments(parser)
+
 # Set root directory
 try:
-    rootdir = sys.argv[1]
+    rootdir = options['root_dir']
     if not os.path.exists(rootdir):
         print "AIP store location doesn't exist."
         os._exit(1)
 except:
-    print 'usage: ' + sys.argv[0] + ' <path to AIP store>'
+    parser.print_help()
     rootdir = os.path.join(sharedDirectory, 'www/AIPsStore')
-    print 'Default path is: ' + rootdir
+    print
+    print 'Default path to AIP store is: ' + rootdir
     os._exit(1)
 
-print "Rebuilding AIPS index from AIPS in " + rootdir + "..."
+if options['uuid'] == None:
+    print "Rebuilding AIPS index from AIPS in " + rootdir + "..."
+else:
+    print "Rebuilding AIP UUID " + options['uuid']
 
 def processAIPThenDeleteMETSFile(path, temp_dir):
     archive_file = os.path.basename(path)
@@ -67,19 +96,15 @@ except pyes.exceptions.NoServerAvailable:
     print "Connection error: Is Elasticsearch running?"
     os._exit(1)
 
-#try:
-#    conn.delete_index('aips')
-#except:
-#    print "Error deleting index or index already deleted."
-
 temp_dir = tempfile.mkdtemp()
 
 for root, subFolders, files in os.walk(rootdir):
     for file in files:
         try:
             file.index('.7z')
-            processAIPThenDeleteMETSFile(os.path.join(root, file), temp_dir)
-        except:
+            if options['uuid'] == None or options['uuid'].lower() in file.lower():
+                processAIPThenDeleteMETSFile(os.path.join(root, file), temp_dir)
+        except ValueError:
             pass
 
 print "Cleaning up..."
