@@ -294,7 +294,7 @@ def ingest_upload_atk_get_resource_children(resource_id):
         db="MCP"
     )
 
-    return ingest_upload_atk_get_resource_component_and_children(db, resource_id, 'collection');
+    return ingest_upload_atk_get_resource_component_and_children(db, resource_id);
 
 def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resource_type='collection'):
     resource_data = {};
