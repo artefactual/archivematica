@@ -20,20 +20,22 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
     cursor = db.cursor() 
 
     if resource_type == 'collection':
-        cursor.execute("SELECT title, dateExpression FROM Resources WHERE resourceid=%s", (resource_id))
+        cursor.execute("SELECT title, dateExpression, resourceId FROM Resources WHERE resourceid=%s", (resource_id))
 
         for row in cursor.fetchall():
             resource_data['title']              = row[0]
             resource_data['dates']              = row[1]
+            resource_data['resourceId']         = row[2]
             resource_data['levelOfDescription'] = 'Fonds'
     else:
-        cursor.execute("SELECT title, dateExpression, persistentId, resourceLevel FROM ResourcesComponents WHERE resourceComponentId=%s", (resource_id))
+        cursor.execute("SELECT title, dateExpression, persistentId, resourceLevel, resourceComponentId FROM ResourcesComponents WHERE resourceComponentId=%s", (resource_id))
 
         for row in cursor.fetchall():
             resource_data['title']              = row[0]
             resource_data['dates']              = row[1]
             resource_data['identifier']         = row[2]
             resource_data['levelOfDescription'] = row[3]
+            resource_data['resourcesComponentId'] = row[4]
 
     resource_data['children'] = False
 
