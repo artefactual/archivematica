@@ -23,6 +23,7 @@ from time import localtime, strftime
 import argparse
 import logging
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/lib")
+import archivistsToolkit.atk as atk
 import mets
 
 #global variables
@@ -36,20 +37,13 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 #logger.addHandler(logging.FileHandler('at_upload.log', mode='a'))
 
+
+    
 def recursive_file_gen(mydir):
     for root, dirs, files in os.walk(mydir):
         for file in files:
             yield os.path.join(root, file)
 
-def connect_db(atdbhost, atdbport, atdbuser, atpass, atdb):
-    try:
-        db = MySQLdb.connect(atdbhost,atdbuser,atpass,atdb)
-        cursor = db.cursor()
-        logger.info('connected to db' + atdb)
-        return db, cursor 
-    except Exception:
-        logger.error('db error')
-        raise
 
 def process_sql(str):
     global cursor 
@@ -98,10 +92,10 @@ def get_files_from_dip(dip_location, dip_name, dip_uuid):
         else:
             logger.error("no files in " + mydir)
             raise ValueError("cannot find dip")
-            sys.exit(24)
+            exit(2)
     except Exception:
         raise
-        sys.exit(24)
+        exit(3)
 
 def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
     #get mets object if needed
@@ -114,11 +108,11 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             mets = mets_files.mets
         except Exception:
             raise
-            sys.exit(24)
+            exit(4)
             
     global db
     global cursor
-    db, cursor = connect_db(args.atdbhost, args.atdbport, args.atdbuser, args.atdbpass, args.atdb)
+    db, cursor = atk.connect_db(args.atdbhost, args.atdbport, args.atdbuser, args.atdbpass, args.atdb)
     sql0 = "select max(fileVersionId) from FileVersions"
     logger.debug('sql0: ' + sql0)
     cursor.execute(sql0)
@@ -144,7 +138,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             container2 = file_name[48:53]
         except:
             logger.error('file name does not have container ids in it')
-            sys.exit(25)
+            exit(5)
         
         #determine restrictions
         if restrictions == 'no':
@@ -307,8 +301,8 @@ if __name__ == '__main__':
     try:
         mylist = get_files_from_dip(args.dip_location, args.dip_name, args.dip_uuid)
         upload_to_atk(mylist, args.atuser, args.ead_actuate, args.ead_show, args.object_type, args.use_statement, args.uri_prefix, args.dip_uuid, args.access_conditions, args.use_conditions, args.restrictions)
-        sys.exit(0)
+        
     except Exception as exc:
         print exc
-        sys.exit(1) 
+        exit(1) 
 
