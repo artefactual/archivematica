@@ -20,14 +20,14 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
     cursor = db.cursor() 
 
     if resource_type == 'collection':
-        cursor.execute("SELECT title, dateExpression FROM atk_collection WHERE resourceid=%s", (resource_id))
+        cursor.execute("SELECT title, dateExpression FROM Resources WHERE resourceid=%s", (resource_id))
 
         for row in cursor.fetchall():
             resource_data['title']              = row[0]
             resource_data['dates']              = row[1]
             resource_data['levelOfDescription'] = 'Fonds'
     else:
-        cursor.execute("SELECT title, dateExpression, persistentId, resourceLevel FROM atk_description WHERE resourceComponentId=%s", (resource_id))
+        cursor.execute("SELECT title, dateExpression, persistentId, resourceLevel FROM ResourcesComponents WHERE resourceComponentId=%s", (resource_id))
 
         for row in cursor.fetchall():
             resource_data['title']              = row[0]
@@ -38,9 +38,9 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
     resource_data['children'] = False
 
     if resource_type == 'collection':
-        cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId IS NULL AND resourceId=%s", (resource_id))
+        cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId IS NULL AND resourceId=%s", (resource_id))
     else:
-        cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId=%s", (resource_id))
+        cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId=%s", (resource_id))
 
     rows = cursor.fetchall()
 
