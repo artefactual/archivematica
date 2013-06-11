@@ -84,7 +84,7 @@ def administration_atk_dips(request):
             new_settings_string = '{{"%host%":"{}", "%port%":"{}", "%dbname%":"{}", "%dbuser%":"{}", "%dbpass%":"{}", \
                                    "%atuser%":"{}", "%restrictions%":"{}", "%object_type%":"{}", "%ead_actuate%":"{}", \
                                    "%ead_show%":"{}", "%use_statement%":"{}", "%uri_prefix%":"{}", "%access_conditions%":"{}", \
-                                   "%use_conditions%":"{}}}'.format(newatk.host, newatk.port, newatk.dbname, newatk.dbuser,
+                                   "%use_conditions%":"{}"}}'.format(newatk.host, newatk.port, newatk.dbname, newatk.dbuser,
                                                                     newatk.dbpass,newatk.atuser,newatk.premis, newatk.object_type, 
                                                                     newatk.ead_actuate, newatk.ead_show,newatk.use_statement, 
                                                                     newatk.uri_prefix, newatk.access_conditions, newatk.use_conditions)
