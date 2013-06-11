@@ -165,7 +165,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             
             
         #determine access_conditions
-        if len(access_conditions) == 0:
+        if len(access_conditions) == 0 or restrictions == 'premis':
             #get rightsGranted note
             print "need premis for access conditions"
             rightsGrantedNote = mymets[uuid]['premis']['rightsGrantedNote']
