@@ -104,16 +104,17 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
     if restrictions == 'premis' or len(access_conditions) == 0:
         try:
             dip_file = dip_location + 'METS.' + dip_uuid + '.xml'
-            mets_file = atk.MetsFile(dip_file)
+            mets_file = mets.MetsFile(dip_file)
             mets_file.parse()
-            mymets = mets_files.mets
+            mymets = mets_file.mets
         except Exception:
             raise
             exit(4)
             
     global db
     global cursor
-    db, cursor = atk.connect_db(args.atdbhost, args.atdbport, args.atdbuser, args.atdbpass, args.atdb)
+    db = atk.connect_db(args.atdbhost, args.atdbport, args.atdbuser, args.atdbpass, args.atdb)
+    cursor = db.cursor()
     sql0 = "select max(fileVersionId) from FileVersions"
     logger.debug('sql0: ' + sql0)
     cursor.execute(sql0)
@@ -191,7 +192,10 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         logger.info("found rc_title " + rc_title + ":" + str(len(rc_title)) ) 
         if (not rc_title or len(rc_title) == 0):
             if (not dateExpression or len(dateExpression) == 0):
-                short_file_name = str(dateBegin) + '-' + str(dateEnd)
+                if dateBegin == dateEnd:
+                    short_file_name = str(dateBegin)
+                else:
+                    short_file_name = str(dateBegin) + '-' + str(dateEnd)
             else:
                 short_file_name = dateExpression
         else:
