@@ -100,12 +100,13 @@ def get_files_from_dip(dip_location, dip_name, dip_uuid):
 def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
     #get mets object if needed
     mets_file = None
-    mets = None
+    mymets = None
     if restrictions == 'premis' or len(access_conditions) == 0:
         try:
-            mets_file = mets.MetsFile(dip_location)
+            dip_file = dip_location + 'METS.' + dip_uuid + '.xml'
+            mets_file = atk.MetsFile(dip_file)
             mets_file.parse()
-            mets = mets_files.mets
+            mymets = mets_files.mets
         except Exception:
             raise
             exit(4)
@@ -152,8 +153,8 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             #act == disseminate, restriction == Allow, then False
             #anything else True
             print "need premis for restrictions"
-            act = mets[uuid]['premis']['act']
-            restriction = mets[uuid]['premis']['restriction']
+            act = mymets[uuid]['premis']['act']
+            restriction = mymets[uuid]['premis']['restriction']
             if act == 'Disseminate' and restriction == 'Allow':
                 restrictions_apply = False
             else:
@@ -166,7 +167,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         if len(access_conditions) == 0:
             #get rightsGranted note
             print "need premis for access conditions"
-            rightsGrantedNote = mets[uuid]['premis']['rightsGrantedNote']
+            rightsGrantedNote = mymets[uuid]['premis']['rightsGrantedNote']
             if rightsGrantedNote:
                 access_conditions = rightsGrantedNote
             
