@@ -22,7 +22,7 @@ import MySQLdb
 from time import localtime, strftime
 import argparse
 import logging
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/lib")
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivistsToolkit.atk as atk
 import mets
 
@@ -300,7 +300,7 @@ if __name__ == '__main__':
     
     try:
         mylist = get_files_from_dip(args.dip_location, args.dip_name, args.dip_uuid)
-        upload_to_atk(mylist, args.atuser, args.ead_actuate, args.ead_show, args.object_type, args.use_statement, args.uri_prefix, args.dip_uuid, args.access_conditions, args.use_conditions, args.restrictions)
+        upload_to_atk(mylist, args.atuser, args.ead_actuate, args.ead_show, args.object_type, args.use_statement, args.uri_prefix, args.dip_uuid, args.access_conditions, args.use_conditions, args.restrictions, args.dip_location)
         
     except Exception as exc:
         print exc
