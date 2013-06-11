@@ -22,6 +22,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
 from main import forms
 from main import models
+import logging
 import sys
 import components.administration.views_processing as processing_views
 from lxml import etree
@@ -31,6 +32,10 @@ from components.administration.forms import ToggleSettingsForm
 import components.decorators as decorators
 import components.helpers as helpers
 from components.helpers import hidden_features
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="/tmp/archivematica."+__name__+'.log', 
+    level=logging.DEBUG)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Administration
@@ -164,9 +169,43 @@ def sources(request):
     return render(request, 'administration/sources.html', locals())
 
 def sources_json(request):
-    return administration_system_directory_data_request_handler(
+    return administration_system_directory_data_request_handler2(
       request,
-      models.SourceDirectory
+      "TS",
+    )
+
+def administration_system_directory_data_request_handler2(request, purpose, access_protocol="FS"):
+    message = ''
+    if request.method == 'POST':
+        path = request.POST.get('path', '')
+        logging.debug("POSTed dir {}".format(path))
+        if path != '':
+            if helpers.get_storage(path=path, 
+                                   purpose=purpose, 
+                                   access_protocol=access_protocol):
+                message = 'Directory already added.'
+            elif helpers.create_storage(path=path, 
+                                        purpose=purpose, 
+                                        access_protocol=access_protocol):
+                message = 'Directory added.'
+            else:
+                message = 'Error adding directory.'
+        else:
+            message = 'Path is empty.'
+        logging.debug("Message: {}".format(message))
+        if purpose == "AS":
+            administration_render_storage_directories_to_dicts()
+
+    directories = helpers.get_storage(purpose=purpose)
+    logging.debug("Source Directories: {}".format(directories))
+
+    response = {}
+    response['message'] = message
+    response['directories'] = directories
+
+    return HttpResponse(
+      simplejson.JSONEncoder().encode(response),
+      mimetype='application/json'
     )
 
 def administration_system_directory_data_request_handler(request, model):
@@ -214,11 +253,26 @@ def storage_delete_json(request, id):
     return response
 
 def sources_delete_json(request, id):
-    return system_directory_delete_request_handler(
+    return system_directory_delete_request_handler2(
       request, 
-      models.SourceDirectory,
+      "TS",
       id
     )
+
+def system_directory_delete_request_handler2(request, purpose, uuid):
+    if helpers.delete_storage(uuid):
+        logging.info("UUID deleted.")
+        message = 'Deleted.'
+    else:
+        logging.warning("Failde to delete directory {}, purpose {}".format(
+            uuid, purpose))
+        message = 'Failed to delete directory.'
+
+    if purpose == "AS":
+            administration_render_storage_directories_to_dicts()
+    response = {}
+    response['message'] = message
+    return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
 
 def system_directory_delete_request_handler(request, model, id):
     model.objects.get(pk=id).delete()

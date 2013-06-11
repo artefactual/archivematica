@@ -26,8 +26,13 @@ from main import models
 from lxml import etree
 import calendar
 import os
+import logging
 from components import helpers
 import components.decorators as decorators
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="/tmp/am."+__name__+'.log', 
+    level=logging.DEBUG)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Transfer
@@ -35,8 +40,9 @@ import components.decorators as decorators
 
 @decorators.elasticsearch_required()
 def grid(request):
-    if models.SourceDirectory.objects.count() > 0:
-        source_directories = models.SourceDirectory.objects.all()
+    source_directories = helpers.get_storage(purpose="TS")
+
+    logging.debug("Source directories found: {}".format(source_directories))
 
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP

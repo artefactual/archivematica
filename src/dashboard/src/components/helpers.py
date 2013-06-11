@@ -15,6 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import ConfigParser
+import cPickle
+import logging
+import mimetypes
+import os
+import pprint
+import slumber
+import urllib
+
 from django.utils.dateformat import format
 from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
@@ -22,7 +31,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.servers.basehttp import FileWrapper
 from django.shortcuts import render
 from main import models
-import cPickle, pprint, ConfigParser, urllib, os, mimetypes
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="/tmp/archivematica."+__name__+'.log', 
+    level=logging.DEBUG)
 
 def pr(object):
     return pprint.pformat(object)
@@ -248,3 +260,74 @@ def hidden_features():
         hide_features[short_form] = not get_boolean_setting(long_form)
 
     return hide_features
+
+
+######################### INTERFACE WITH STORAGE API #########################
+
+def _storage_api():
+    """ Returns slumber access to storage API. """
+    # TODO get this from config
+    storage_server = "http://localhost:8000/api/v1/"
+    api = slumber.API(storage_server)
+    return api
+
+def get_storage(path=None, purpose=None, access_protocol=None, **kwargs):
+    """ Returns a list of storage locations.
+
+    Return format: [{'id': <UUID>, 'path': <path>}]
+
+    Queries the storage service and returns a list of storage locations, 
+    optionally filtered by purpose or access_protocol.
+
+    purpose: How the storage is used.  Should reference storage service
+        purposes, found in storage_service.locations.models.py
+    access_protocol: How the storage is accessed.  Should reference storage 
+        service purposes, in storage_service.locations.models.py
+    """
+    api = _storage_api()
+    locations = api.location.get(path=path,
+                                 purpose=purpose, 
+                                 access_protocol=access_protocol)
+    logging.debug("Locations retrieved: {}".format(locations))
+    return_locations = [{'id': location['id'], 'path': location['path']} 
+        for location in locations['objects']]
+    logging.debug("Locations returned: {}".format(return_locations))
+    return return_locations
+
+def delete_storage(uuid):
+    """ Deletes storage with UUID uuid, returns True on success."""
+    api = _storage_api()
+    logging.debug("Deleting storage location with UUID {}".format(uuid))
+    try:
+        ret = api.location(str(uuid)).delete()
+    except slumber.exceptions.HttpClientError as e:
+        logging.warning("Unable to delete storage location with UUID {}".format(uuid))
+        return False
+    return ret
+
+def create_storage(path, purpose, access_protocol, quota=0, used=0):
+    """ Creates a new storage location. Returns True on success.
+
+    purpose: How the storage is used.  Should reference storage service
+        purposes, found in storage_service.locations.models.py
+    access_protocol: How the storage is accessed.  Should reference storage 
+        service purposes, in storage_service.locations.models.py
+    quota: Quota or size of storage location, in bytes.  0 is unlimited
+    used: Space used in storage location, in bytes.
+    """
+    api = _storage_api()
+
+    new_location = {}
+    new_location['path'] = path
+    new_location['purpose'] = purpose
+    new_location['access_protocol'] = access_protocol
+    new_location['quota'] = quota
+    new_location['used'] = used
+
+    logging.debug("Creating storage with {}".format(new_location))
+    try:
+        api.location.post(new_location)
+    except slumber.exceptions.HttpClientError as e:
+        logging.warning("Unable to create storage from {} because {}".format(new_location, e.content))
+        return False
+    return True
