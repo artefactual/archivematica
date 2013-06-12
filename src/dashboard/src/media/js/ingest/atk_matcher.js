@@ -9,6 +9,10 @@ var ATKMatcherCollection = Backbone.Collection.extend({
       model.id = self.currentId;
       self._byId[model.id] = model;
     });
+  },
+
+  lastModelAdded: function() {
+    return this.at(this.length - 1);
   }
 });
 
@@ -88,7 +92,7 @@ var ATKMatcherView = Backbone.View.extend({
     // store internal representation for reference
     this.resourceCollection.add(resourceData);
 
-    var resourceModel = this.resourceCollection.at(this.resourceCollection.length - 1);
+    var resourceModel = this.resourceCollection.lastModelAdded();
 
     // display resource
     $('#' + this.resourcePaneItemsCSSId).append(
@@ -192,9 +196,11 @@ var ATKMatcherView = Backbone.View.extend({
             self.pairCollection.add({
               'objectPath':    item.path,
               'resourceIdentifier': resource.get('identifier'),
+              'resourceSortPosition': resource.get('sortPosition')
             });
 
-            var pairModel = self.pairCollection.at(self.pairCollection.length - 1);
+            // get the pair model that was added
+            var pairModel = self.pairCollection.lastModelAdded();
 
             var $newMatchEl = $(self.matchItemTemplate({
               'tempId': pairModel.id,
@@ -207,8 +213,27 @@ var ATKMatcherView = Backbone.View.extend({
 
             // hide new pair, add it to the pane, then fade it in
             $newMatchEl.hide();
-            $('#' + self.matchPanePairsCSSId).append($newMatchEl);
-            $newMatchEl.fadeIn('fast');
+
+            // logic to place it according to sort position
+            var pairPlaced = false;
+            $('#' + self.matchPanePairsCSSId).children().each(function() {
+              var pairCSSId = $(this).attr('id'),
+                  pairId = self.indexNumberFromCSSId(pairCSSId),
+                  pairPosition = self.pairCollection.get(pairId).get('resourceSortPosition');
+
+              if (pairPosition > pairModel.get('resourceSortPosition')) {
+                $('#' + pairCSSId).parent().prepend($newMatchEl);
+                pairPlaced = true;
+              }
+            });
+
+            // if the pair hasn't been placed, add it to the end
+            if (!pairPlaced) {
+              $('#' + self.matchPanePairsCSSId).append($newMatchEl);
+            }
+
+            //$('#' + self.matchPanePairsCSSId).append($newMatchEl);
+            $newMatchEl.fadeIn('slow');
             $('#' + self.saveButtonCSSId).show();
 
             // enable deletion of match
