@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 userID=`id -u archivematica`
 
 if [ "${userID}" = 333 ]; then
@@ -16,9 +16,9 @@ sudo find -L /var/archivematica/ -type d  | sudo xargs -IF chmod u+rwx,g+rwxt,o-
 
 
 #Configure sudoers for mcp and client
-echo about to edit sudoers file
+echo "about to edit sudoers file"
 set -e
-tmp="./sudoers-`uuid`"
+tmp="/tmp/sudoers-`uuid`"
 sudo cat /etc/sudoers > "./ETCsudoersBackup"
 sudo grep -v archivematica  "/etc/sudoers" > "${tmp}"
 sudo echo "archivematica ALL=NOPASSWD:/bin/mv,/bin/chown,/bin/chmod,/usr/bin/find,/usr/bin/gs,/usr/bin/inkscape" >> "${tmp}"
@@ -26,5 +26,4 @@ sudo chown 0:0 "${tmp}"
 sudo chmod 440 "${tmp}"
 sudo mv -f "${tmp}" /etc/sudoers
 echo sudoers file was edited
-#chown archivematica:archivematica /etc/archivematica/MCPServer/dbsettings
-#chmod 700 /etc/archivematica/MCPServer/dbsettings
+

@@ -91,7 +91,8 @@ sudo ln -s "${svnDir}src/MCPServer/share/sharedDirectoryStructure" "/var/archive
 sudo chown -R archivematica:archivematica "/var/archivematica/sharedDirectory"
 sudo chmod -R g+s "/var/archivematica/sharedDirectory"
 
-${svnDir}src/MCPServer/share/postinstSharedWithDev
+cd "$origDir" 
+"${svnDir}src/MCPServer/share/postinstSharedWithDev" || echo "Problem with MCPServer/share/postinstSharedWithDev!"
 
 echo restarting apache
 sudo apache2ctl restart
