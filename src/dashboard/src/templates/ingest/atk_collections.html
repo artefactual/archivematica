@@ -1,0 +1,24 @@
+﻿{% extends "layout_fluid.html" %}
+
+{% block title %}Match{% endblock %}
+{% block h1 %}Match{% endblock %}
+{% block page_id %}atk_match{% endblock %}
+
+{% block content %}
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Dates</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for collection in collections %}
+        <tr>
+          <td><a href='{% url components.ingest.views.ingest_upload_atk_match_dip_objects_to_collection_levels uuid collection.id %}'>{{ collection.title }}</a></td>
+          <td><a href='{% url components.ingest.views.ingest_upload_atk_match_dip_objects_to_collection_levels uuid collection.id %}'>{{ collection.dates }}</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

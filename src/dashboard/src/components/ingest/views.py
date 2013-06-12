@@ -224,7 +224,7 @@ def ingest_upload_destination_url_check(request):
     response = requests.request('GET', url)
 
     # return resulting status code from request
-    return HttpResponse(response.status_code);
+    return HttpResponse(response.status_code)
 
 def ingest_upload(request, uuid):
     """
@@ -264,6 +264,39 @@ def ingest_upload(request, uuid):
 
     return HttpResponseBadRequest()
 
+def ingest_upload_atk_db_connection():
+    # TODO: where to store config?
+    return MySQLdb.connect(
+        host="localhost",
+        user="root",
+        passwd="",
+        db="MCP"
+    )
+
+def ingest_upload_atk(request, uuid):
+
+    collections = ingest_upload_atk_get_collections()
+
+    return render(request, 'ingest/atk_collections.html', locals())
+
+def ingest_upload_atk_get_collections():
+    collections = []
+
+    db = ingest_upload_atk_db_connection()
+
+    cursor = db.cursor()
+
+    cursor.execute("SELECT resourceId, title, dateExpression FROM atk_collection ORDER BY title")
+
+    for row in cursor.fetchall():
+        collections.append({
+          'id':    row[0],
+          'title': row[1],
+          'dates': row[2]
+        })
+
+    return collections
+
 def ingest_upload_atk_match_dip_objects_to_collection_levels(request, uuid, resource_id):
     # load object relative paths
     object_path_json = simplejson.JSONEncoder().encode(
@@ -284,17 +317,8 @@ def ingest_upload_atk_get_dip_object_paths(uuid):
     ]
 
 def ingest_upload_atk_get_resource_children(resource_id):
-    resource_id = 31;
-
-    # TODO: where to store config?
-    db = MySQLdb.connect(
-        host="localhost",
-        user="root",
-        passwd="",
-        db="MCP"
-    )
-
-    return ingest_upload_atk_get_resource_component_and_children(db, resource_id);
+    db = ingest_upload_atk_db_connection()
+    return ingest_upload_atk_get_resource_component_and_children(db, resource_id)
 
 def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resource_type='collection', level=1, sort_data={}):
     # we pass the sort position as a dict so it passes by reference and we
@@ -306,7 +330,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
 
     sort_data['position'] = sort_data['position'] + 1
 
-    resource_data = {};
+    resource_data = {}
 
     cursor = db.cursor() 
 
