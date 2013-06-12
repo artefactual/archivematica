@@ -159,7 +159,7 @@ def storage(request):
 def storage_json(request):
     return administration_system_directory_data_request_handler(
       request,
-      models.StorageDirectory
+      "AS",
     )
 
 def sources(request):
@@ -169,12 +169,12 @@ def sources(request):
     return render(request, 'administration/sources.html', locals())
 
 def sources_json(request):
-    return administration_system_directory_data_request_handler2(
+    return administration_system_directory_data_request_handler(
       request,
       "TS",
     )
 
-def administration_system_directory_data_request_handler2(request, purpose, access_protocol="FS"):
+def administration_system_directory_data_request_handler(request, purpose, access_protocol="FS"):
     message = ''
     if request.method == 'POST':
         path = request.POST.get('path', '')
@@ -208,58 +208,23 @@ def administration_system_directory_data_request_handler2(request, purpose, acce
       mimetype='application/json'
     )
 
-def administration_system_directory_data_request_handler(request, model):
-    message = ''
-    if request.method == 'POST':
-         path = request.POST.get('path', '')
-         if path != '':
-             try:
-                 model.objects.get(path=path)
-             except model.DoesNotExist:
-                 # save dir
-                 source_dir = model()
-                 source_dir.path = path
-                 source_dir.save()
-                 message = 'Directory added.'
-             else:
-                 message = 'Directory already added.'
-         else:
-             message = 'Path is empty.'
-         if model == models.StorageDirectory:
-             administration_render_storage_directories_to_dicts()
-
-    response = {}
-    response['message'] = message
-    response['directories'] = []
-
-    for directory in model.objects.all():
-      response['directories'].append({
-        'id':   directory.id,
-        'path': directory.path
-      })
-
-    return HttpResponse(
-      simplejson.JSONEncoder().encode(response),
-      mimetype='application/json'
-    )
-
 def storage_delete_json(request, id):
     response = system_directory_delete_request_handler(
       request,
-      models.StorageDirectory,
+      "AS",
       id
     )
     administration_render_storage_directories_to_dicts()
     return response
 
 def sources_delete_json(request, id):
-    return system_directory_delete_request_handler2(
+    return system_directory_delete_request_handler(
       request, 
       "TS",
       id
     )
 
-def system_directory_delete_request_handler2(request, purpose, uuid):
+def system_directory_delete_request_handler(request, purpose, uuid):
     if helpers.delete_storage(uuid):
         logging.info("UUID deleted.")
         message = 'Deleted.'
@@ -269,17 +234,9 @@ def system_directory_delete_request_handler2(request, purpose, uuid):
         message = 'Failed to delete directory.'
 
     if purpose == "AS":
-            administration_render_storage_directories_to_dicts()
-    response = {}
-    response['message'] = message
-    return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
-
-def system_directory_delete_request_handler(request, model, id):
-    model.objects.get(pk=id).delete()
-    if model == models.StorageDirectory:
         administration_render_storage_directories_to_dicts()
     response = {}
-    response['message'] = 'Deleted.'
+    response['message'] = message
     return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
 
 def processing(request):
@@ -287,7 +244,8 @@ def processing(request):
 
 def administration_render_storage_directories_to_dicts():
     administration_flush_aip_storage_dicts()
-    storage_directories = models.StorageDirectory.objects.all()
+    storage_directories = helpers.get_storage(purpose="AS")
+    logging.debug("Storage Directories: {}".format(storage_directories))
     link_pk = administration_get_aip_storage_link_pk()
     for dir in storage_directories:
         dict = models.MicroServiceChoiceReplacementDic()
