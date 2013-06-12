@@ -15,7 +15,7 @@
     <tbody>
       {% for collection in collections %}
         <tr>
-          <td><a href='{% url components.ingest.views.ingest_upload_atk_match_dip_objects_to_collection_levels uuid collection.id %}'>{{ collection.title }}</a></td>
+          <td><a href='{% url components.ingest.views.ingest_upload_atk_match_dip_objects_to_collection_levels uuid collection.id %}'>{{ collection.title }} ({{ collection.id }})</a></td>
           <td><a href='{% url components.ingest.views.ingest_upload_atk_match_dip_objects_to_collection_levels uuid collection.id %}'>{{ collection.dates }}</a></td>
         </tr>
       {% endfor %}
