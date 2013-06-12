@@ -320,9 +320,9 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
     resource_data['children'] = False
 
     if resource_type == 'collection':
-        cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId IS NULL AND resourceId=%s", (resource_id))
+        cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId IS NULL AND resourceId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
     else:
-        cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId=%s", (resource_id))
+        cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
 
     rows = cursor.fetchall()
 
