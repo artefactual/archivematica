@@ -31,7 +31,10 @@ var ATKMatcherView = Backbone.View.extend({
           'matchButtonCSSId',
           'matchPaneCSSId',
           'matchPanePairsCSSId',
-          'saveButtonCSSId'
+          'buttonPaneCSSId',
+          'saveButtonCSSId',
+          'confirmButtonCSSId',
+          'cancelButtonCSSId'
         ];
 
     // set mandatory properties
@@ -65,6 +68,8 @@ var ATKMatcherView = Backbone.View.extend({
     this.activateResourceFiltering();
     this.activateMatchButton();
     this.activateSaveButton();
+    this.activateConfirmButton();
+    this.activateCancelButton();
   },
 
   renderObjectPaths: function() {
@@ -270,7 +275,31 @@ var ATKMatcherView = Backbone.View.extend({
   activateSaveButton: function() {
     var self = this;
     $('#' + self.saveButtonCSSId).click(function () {
+      $('#' + self.objectPaneCSSId).fadeOut('fast');
+      $('#' + self.resourcePaneCSSId).fadeOut('fast');
+      $('#' + self.buttonPaneCSSId).fadeOut('fast');
+      $('#' + self.saveButtonCSSId).fadeOut('fast');
+      $('#' + self.confirmButtonCSSId).fadeIn('fast');
+      $('#' + self.cancelButtonCSSId).fadeIn('slow');
+    });
+  },
+
+  activateConfirmButton: function() {
+    var self = this;
+    $('#' + self.confirmButtonCSSId).click(function() {
       console.log(self.pairCollection.toJSON());
+    });
+  },
+
+  activateCancelButton: function() {
+    var self = this;
+    $('#' + self.cancelButtonCSSId).click(function() {
+      $('#' + self.objectPaneCSSId).fadeIn('slow');
+      $('#' + self.resourcePaneCSSId).fadeIn('slow');
+      $('#' + self.buttonPaneCSSId).fadeIn('slow');
+      $('#' + self.saveButtonCSSId).fadeIn('slow');
+      $('#' + self.confirmButtonCSSId).fadeOut('fast');
+      $('#' + self.cancelButtonCSSId).fadeOut('slow');
     });
   },
 
