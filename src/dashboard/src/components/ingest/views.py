@@ -296,7 +296,16 @@ def ingest_upload_atk_get_resource_children(resource_id):
 
     return ingest_upload_atk_get_resource_component_and_children(db, resource_id);
 
-def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resource_type='collection'):
+def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resource_type='collection', level=1, sort_data={}):
+    # we pass the sort position as a dict so it passes by reference and we
+    # can use it to share state during recursion
+
+    # intialize sort position if this is the beginning of recursion
+    if level == 1:
+        sort_data['position'] = 0
+
+    sort_data['position'] = sort_data['position'] + 1
+
     resource_data = {};
 
     cursor = db.cursor() 
@@ -305,6 +314,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
         cursor.execute("SELECT title, dateExpression FROM atk_collection WHERE resourceid=%s", (resource_id))
 
         for row in cursor.fetchall():
+            resource_data['sortPosition']       = sort_data['position']
             resource_data['title']              = row[0]
             resource_data['dates']              = row[1]
             resource_data['levelOfDescription'] = 'Fonds'
@@ -312,6 +322,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
         cursor.execute("SELECT title, dateExpression, persistentId, resourceLevel FROM atk_description WHERE resourceComponentId=%s", (resource_id))
 
         for row in cursor.fetchall():
+            resource_data['sortPosition']       = sort_data['position']
             resource_data['title']              = row[0]
             resource_data['dates']              = row[1]
             resource_data['identifier']         = row[2]
@@ -334,7 +345,9 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
                 ingest_upload_atk_get_resource_component_and_children(
                     db,
                     row[0],
-                    'description'
+                    'description',
+                    level + 1,
+                    sort_data
                 )
             )
 
@@ -344,16 +357,19 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
     Example data:
 
     return {
+      'sortPosition': '1',
       'identifier': 'PR01',
       'title': 'Parent',
       'levelOfDescription': 'Fonds',
       'dates': '1880-1889',
       'children': [{
+        'sortPosition': '2',
         'identifier': 'CH01',
         'title': 'Child A',
         'levelOfDescription': 'Sousfonds',
         'dates': '1880-1888',
         'children': [{
+          'sortPosition': '3',
           'identifier': 'GR01',
           'title': 'Grandchild A',
           'levelOfDescription': 'Item',
@@ -361,6 +377,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
           'children': False
         },
         {
+          'sortPosition': '4',
           'identifier': 'GR02',
           'title': 'Grandchild B',
           'levelOfDescription': 'Item',
@@ -368,6 +385,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
         }]
       },
       {
+        'sortPosition': '5',
         'identifier': 'CH02',
         'title': 'Child B',
         'levelOfDescription': 'Sousfonds',
