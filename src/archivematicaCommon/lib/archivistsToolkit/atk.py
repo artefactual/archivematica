@@ -14,6 +14,21 @@ def connect_db(atdbhost, atdbport, atdbuser, atpass, atdb):
         logger.error('db error')
         raise
 
+def collection_list(db, resource_id):
+    col = ingest_upload_atk_get_resource_component_and_children(db, resource_id)
+    ret = flatten(col)
+    return ret
+        
+def flatten(d, ret=None):
+    if ret is None:
+        ret = []
+    for k, v in sorted(d.items()):
+        if k == 'resourcesComponentsId':
+            ret.append(k)
+        if v:
+            flatten(v, ret)
+    return ret
+    
 def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resource_type='collection'):
     resource_data = {};
 
