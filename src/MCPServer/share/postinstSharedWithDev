@@ -18,7 +18,6 @@ sudo find -L /var/archivematica/ -type d  | sudo xargs -IF chmod u+rwx,g+rwxt,o-
 #Configure sudoers for mcp and client
 echo about to edit sudoers file
 set -e
-cd "$origDir"
 tmp="./sudoers-`uuid`"
 sudo cat /etc/sudoers > "./ETCsudoersBackup"
 sudo grep -v archivematica  "/etc/sudoers" > "${tmp}"
