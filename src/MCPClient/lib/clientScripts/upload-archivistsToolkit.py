@@ -97,6 +97,9 @@ def get_files_from_dip(dip_location, dip_name, dip_uuid):
         raise
         exit(3)
 
+def collection2dict(db, resourceId=31):
+    ret = atk.ingest_upload_atk_get_resource_component_and_children(db, resourceId)
+    
 def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
     #get mets object if needed
     mets_file = None
@@ -144,9 +147,9 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         
         #determine restrictions
         if restrictions == 'no':
-            restrictions_apply = "False"
+            restrictions_apply = False
         elif restrictions == 'yes':
-            restrictions_apply = "True"
+            restrictions_apply = True
             ead_actuate = "none"
             ead_show = "none"
         elif restrictions == 'premis':
@@ -220,9 +223,8 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         data = cursor.fetchone()
         newaDID = int(data[0]) + 1
 
- 
         sql4 = "insert into ArchDescriptionInstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceComponentId) values (%d, 'digital','Digital object',%d)" % (newaDID, rcid)
-        logger.debug('sql4:' + sql4)
+        logger.info('sql4:' + sql4)
         adid = process_sql(sql4)
 
         sql5 = """INSERT INTO DigitalObjects                  
@@ -230,7 +232,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             `dateExpression`,`dateBegin`,`dateEnd`,`languageCode`,`restrictionsApply`,
             `eadDaoActuate`,`eadDaoShow`,`metsIdentifier`,`objectType`,`objectOrder`,
             `archDescriptionInstancesId`,`repositoryId`)
-           VALUES (1,'%s', '%s','%s','%s','%s','%s',%d, %d,'English',%d,'%s','%s','%s','%s',0,%d,%d)""" % (time_now, time_now, atuser, atuser, short_file_name,dateExpression, dateBegin, dateEnd, restrictions_apply, ead_actuate, ead_show,uuid, object_type, newaDID, repoId)
+           VALUES (1,'%s', '%s','%s','%s','%s','%s',%d, %d,'English',%d,'%s','%s','%s','%s',0,%d,%d)""" % (time_now, time_now, atuser, atuser, short_file_name,dateExpression, dateBegin, dateEnd, int(restrictions_apply), ead_actuate, ead_show,uuid, object_type, newaDID, repoId)
         logger.info('sql5: ' + sql5)
         doID = process_sql(sql5)
         sql6 = """insert into FileVersions (fileVersionId, version, lastUpdated, created, lastUpdatedBy, createdBy, uri, useStatement, sequenceNumber, eadDaoActuate,eadDaoShow, digitalObjectId)
