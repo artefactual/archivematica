@@ -415,9 +415,12 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
             if fileExtension != '':
                 indexData['fileExtension']  = fileExtension[1:].lower()
 
-            conn.index(indexData, index, type)
+            conn.index(indexData, index, type, bulk=True)
 
             filesIndexed = filesIndexed + 1
+
+    if filesIndexed > 0:
+        conn.refresh()
 
     return filesIndexed
 
