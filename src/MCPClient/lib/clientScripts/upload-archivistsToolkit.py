@@ -146,7 +146,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         access_rightsGrantedNote = None
         use_restrictions = None
         use_rightsGrantedNote = None
-        logging.info("looking for mets")
+        #logging.info("looking for mets")
         if mets and mets[uuid]:
             #get premis info from mets
             for premis in mets[uuid]['premis']:
