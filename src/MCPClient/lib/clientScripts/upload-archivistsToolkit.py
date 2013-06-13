@@ -130,7 +130,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         newfVID = 1
     else:
         newfVID = int(data[0]) 
-    logger.debug('base file version id found is ' + str(data[0]))
+    logger.info('base file version id found is ' + str(data[0]))
     global base_fv_id 
     base_fv_id = newfVID        
 
@@ -139,15 +139,17 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         base_fv_id+=1 
         logger.info( 'using ' + f)
         file_name = os.path.basename(f)
-        logger.debug('file_name is ' + file_name)
+        logger.info('file_name is ' + file_name)
         uuid = file_name[0:36]
         #aipUUID = aip[5:41]
         access_restrictions = None
         access_rightsGrantedNote = None
         use_restrictions = None
         use_rightsGrantedNote = None
-        if mets:
+        logging.info("looking for mets")
+        if mets and mets[uuid]:
             #get premis info from mets
+            logger.info("we have a mets file")
             for premis in mets[uuid]['premis']:
                 #print "{} rights = {} {}".format(p, mets[f]['premis'][p]['restriction'],mets[f]['premis'][p]['rightsGrantedNote'])
                 if premis['Disseminate']:
