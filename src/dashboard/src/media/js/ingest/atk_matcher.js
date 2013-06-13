@@ -280,15 +280,32 @@ var ATKMatcherView = Backbone.View.extend({
     });
   },
 
+  fadeElementsByCSSIds: function(ids, type, speed) {
+    ids.forEach(function(id) {
+      if (type == 'in') {
+        $('#' + id).fadeIn(speed);
+      } else {
+        $('#' + id).fadeOut(speed);
+      }
+    });
+  },
+
   activateSaveButton: function() {
-    var self = this;
+    var self = this,
+        fadeOutElementCSSIds = [
+          this.objectPaneCSSId,
+          this.resourcePaneCSSId,
+          this.buttonPaneCSSId,
+          this.saveButtonCSSId
+        ],
+        fadeInElementCSSIds = [
+          this.confirmButtonCSSId,
+          this.cancelButtonCSSId
+        ];
+
     $('#' + self.saveButtonCSSId).click(function () {
-      $('#' + self.objectPaneCSSId).fadeOut('fast');
-      $('#' + self.resourcePaneCSSId).fadeOut('fast');
-      $('#' + self.buttonPaneCSSId).fadeOut('fast');
-      $('#' + self.saveButtonCSSId).fadeOut('fast');
-      $('#' + self.confirmButtonCSSId).fadeIn('fast');
-      $('#' + self.cancelButtonCSSId).fadeIn('slow');
+      self.fadeElementsByCSSIds(fadeOutElementCSSIds, 'out', 'fast');
+      self.fadeElementsByCSSIds(fadeInElementCSSIds, 'in', 'fast');
     });
   },
 
@@ -300,14 +317,21 @@ var ATKMatcherView = Backbone.View.extend({
   },
 
   activateCancelButton: function() {
-    var self = this;
+    var self = this,
+        fadeInElementCSSIds = [
+          this.objectPaneCSSId,
+          this.resourcePaneCSSId,
+          this.buttonPaneCSSId,
+          this.saveButtonCSSId
+        ],
+        fadeOutElementCSSIds = [
+          this.confirmButtonCSSId,
+          this.cancelButtonCSSId
+        ];
+
     $('#' + self.cancelButtonCSSId).click(function() {
-      $('#' + self.objectPaneCSSId).fadeIn('slow');
-      $('#' + self.resourcePaneCSSId).fadeIn('slow');
-      $('#' + self.buttonPaneCSSId).fadeIn('slow');
-      $('#' + self.saveButtonCSSId).fadeIn('slow');
-      $('#' + self.confirmButtonCSSId).fadeOut('fast');
-      $('#' + self.cancelButtonCSSId).fadeOut('slow');
+      self.fadeElementsByCSSIds(fadeInElementCSSIds, 'in', 'fast');
+      self.fadeElementsByCSSIds(fadeOutElementCSSIds, 'out', 'fast');
     });
   },
 
