@@ -78,62 +78,61 @@ class MetsContentHandler(xml.sax.ContentHandler):
         self.in_metsHdr = 0
         self.in_amdSec = 0
         self.in_fileSec = 0
-
+                
         #inside amdSec, there are optional subsections:
         self.in_techMD = 0
         self.in_rightsMD = 0
-        self.in_objectCharacteristics = 0;
+        self.in_rightsGranted = 0
+        self.in_objectCharacteristics = 0
         
         
     def startElement(self, name, attrs):
         if name == "metsHdr":
-            self.in_metsHdr = 1;
+            self.in_metsHdr = 1
             
         if name == "amdSec":
-            self.in_amdSec = 1;
+            self.in_amdSec = 1
             #print "entering: " + attrs.get('ID')
         if name == "fileSec":
-            self.in_fileSec = 1;
+            self.in_fileSec = 1
         if name == "techMD":
-            self.in_techMD = 1;
+            self.in_techMD = 1
             #print "\t: " + attrs.get('ID')
         if name == "rightsMD":
-            self.in_rightsMD = 1;   
+            self.in_rightsMD = 1
             #print "\t: " + attrs.get('ID')     
         if name == "objectCharacteristics":
-            self.in_objectCharacteristics = 1;     
+            self.in_objectCharacteristics = 1     
+        if name == "rightsGranted":
+            self.in_rightsGranted = 1
     
     def endElement(self, name):
         if name == "metsHdr":
-            self.in_metsHdr = 0;
+            self.in_metsHdr = 0
         if name == "amdSec":
-            self.in_amdSec = 0;
+            self.in_amdSec = 0
         if name == "fileSec":
-            self.in_fileSec = 0;
+            self.in_fileSec = 0
         if name == "techMD":
-            self.in_techMD = 0;
+            self.in_techMD = 0
             #print "leaving techMD"
-            
         if name == "rightsMD":
-            self.in_rightsMD = 0; 
+            self.in_rightsMD = 0 
             self.size = ""
             self.file_uuid = ""
+        if name == "rightsGranted":
+            self.in_rightsGranted = 0
             
         if name == "objectCharacteristics":
-            self.in_objectCharacteristics = 0;     
-      
+            self.in_objectCharacteristics = 0     
         if name == "objectIdentifierValue":
-            
             self.file_uuid = self.data.strip()
             #print "leaving object identifier value \t: "  + self.file_uuid 
-           
         if name == "size":
             if self.in_techMD and self.in_objectCharacteristics:
                self.mets[self.file_uuid]['size'] =  self.data.strip()
-
         #if name == "objectIdentifier":
             #print "leaving objectIdentifier"
-                       
         if name  == "act":
             if self.in_rightsMD:
                  self.mets [self.file_uuid]['premis']['act'] = self.data.strip()
