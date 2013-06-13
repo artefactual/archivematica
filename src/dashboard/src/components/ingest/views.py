@@ -303,10 +303,13 @@ def ingest_upload_atk_match_dip_objects_to_collection_levels(request, uuid, reso
         ingest_upload_atk_get_dip_object_paths(uuid)
     )
 
-    # load resource and child data
-    resource_data_json = simplejson.JSONEncoder().encode(
-        ingest_upload_atk_get_resource_children(resource_id)
-    )
+    try:
+        # load resource and child data
+        resource_data_json = simplejson.JSONEncoder().encode(
+            ingest_upload_atk_get_resource_children(resource_id)
+        )
+    except:
+        return HttpResponse('Database error. Please contact an administrator.')
 
     return render(request, 'ingest/atk_match.html', locals())
 
