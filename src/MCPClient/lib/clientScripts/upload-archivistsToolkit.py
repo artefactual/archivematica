@@ -25,6 +25,7 @@ import logging
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivistsToolkit.atk as atk
 import mets
+from xml2obj import mets_file
 
 #global variables
 db = None
@@ -96,20 +97,19 @@ def get_files_from_dip(dip_location, dip_name, dip_uuid):
     except Exception:
         raise
         exit(3)
-
-def collection2dict(db, resourceId=31):
-    ret = atk.ingest_upload_atk_get_resource_component_and_children(db, resourceId)
     
 def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
+    #TODO get resource_id from caller
+    resource_id = 31
+    
     #get mets object if needed
-    mets_file = None
-    mymets = None
-    if restrictions == 'premis' or len(access_conditions) == 0:
+    mets = None
+    if restrictions == 'premis' or len(access_conditions) == 0 or len(use_conditions) == 0:
         try:
-            dip_file = dip_location + 'METS.' + dip_uuid + '.xml'
-            mets_file = mets.MetsFile(dip_file)
-            mets_file.parse()
-            mymets = mets_file.mets
+            logger.info("looking for mets: {}".format(dip_uuid))
+            mets_source = dip_location + 'METS.' + dip_uuid + '.xml'
+            mets = mets_file(mets_source)
+            
         except Exception:
             raise
             exit(4)
@@ -118,6 +118,10 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
     global cursor
     db = atk.connect_db(args.atdbhost, args.atdbport, args.atdbuser, args.atdbpass, args.atdb)
     cursor = db.cursor()
+    
+    #get a list of all the items in this collection
+    col = atk.collection_list(db, resource_id)
+    
     sql0 = "select max(fileVersionId) from FileVersions"
     logger.debug('sql0: ' + sql0)
     cursor.execute(sql0)
@@ -138,6 +142,20 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         logger.debug('file_name is ' + file_name)
         uuid = file_name[0:36]
         #aipUUID = aip[5:41]
+        access_restrictions = None
+        access_rightsGrantedNote = None
+        use_restrictions = None
+        use_rightsGrantedNote = None
+        if mets:
+            #get premis info from mets
+            for premis in mets[uuid]['premis']:
+                #print "{} rights = {} {}".format(p, mets[f]['premis'][p]['restriction'],mets[f]['premis'][p]['rightsGrantedNote'])
+                if premis['Disseminate']:
+                    access_restrictions = premis['Disseminate']['restriction']
+                    access_rightsGrantedNote = premis['Disseminate']['rightsGrantedNote']
+                if premis['Publish']:
+                    use_restrictions = premis['Publish']['restriction']
+                    use_rightsGrantedNote = premis['Publish']['rightsGrantedNote']
         try:
             container1 = file_name[44:47]
             container2 = file_name[48:53]
@@ -153,39 +171,38 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             ead_actuate = "none"
             ead_show = "none"
         elif restrictions == 'premis':
-            #get act and restrictions from Premis for this file
-            #act == disseminate, restriction == Allow, then False
-            #anything else True
-            print "need premis for restrictions"
-            act = mymets[uuid]['premis']['act']
-            restriction = mymets[uuid]['premis']['restriction']
-            if act == 'Disseminate' and restriction == 'Allow':
+
+            if access_restrictions == 'Allow' and use_restrictions == 'Allow':
                 restrictions_apply = False
             else:
                 restrictions_apply = True
                 ead_actuate = "none"
-                ead_show = "none"
-            
-            
-        #determine access_conditions
+                ead_show = "none"        
+                
+        if len(use_conditions) == 0 or restrictions == 'premis':
+            if use_rightsGrantedNote:
+                use_conditions = use_rightsGrantedNote
+
         if len(access_conditions) == 0 or restrictions == 'premis':
-            #get rightsGranted note
-            print "need premis for access conditions"
-            rightsGrantedNote = mymets[uuid]['premis']['rightsGrantedNote']
-            if rightsGrantedNote:
-                access_conditions = rightsGrantedNote
-            
-            
+            if access_rightsGrantedNote:
+                access_conditions = access_rightsGrantedNote
+                                           
         short_file_name = file_name[37:]
         time_now = strftime("%Y-%m-%d %H:%M:%S", localtime())
         file_uri = uri_prefix  + file_name
-        sql1="select  d.archdescriptioninstancesid, c.resourceComponentId, c.dateBegin, c.dateEnd, c.dateExpression, c.title from resourcescomponents a join resourcescomponents b on (a.resourcecomponentid = b.parentresourcecomponentid) join resourcescomponents c on (b.resourcecomponentid = c.parentresourcecomponentid) join archdescriptioninstances d on (c.resourcecomponentid = d.resourcecomponentid) where a.resourceid = 31 and d.container1numericindicator = '%s' and d.container2numericindicator = '%s'" % ( container1, container2);
-#sql1 = "select a.archDescriptionInstancesId, a.resourceComponentId, b.dateBegin, b.dateEnd, b.dateExpression from ArchDescriptionInstances a join ResourcesComponents b on a.resourceComponentId = b.resourceComponentId where (container1numericIndicator = '%s' and container2NumericIndicator = '%s')" % ( container1, container2)
+        
+        #instead of querying db to find the resourcescomponentid directly
+        #look in atk collection
+        
+        sql1 = '''select d.archdescriptioninstancesid, c.resourceComponentId, c.dateBegin, c.dateEnd, c.dateExpression, c.title from
+                  archdescriptioninstances d join resourcescomponent c on (c.resourcecomponentid = d.resourcecomponentid) 
+                  where d.container1numericindicator = '{}' and  d.container2numericindicator = '{}' and 
+                  c.resourceComponentId in ({})'''.format(container1, container2, ', '.join(str(n) for n in col))
+        
+        #sql1="select  d.archdescriptioninstancesid, c.resourceComponentId, c.dateBegin, c.dateEnd, c.dateExpression, c.title from resourcescomponents a join resourcescomponents b on (a.resourcecomponentid = b.parentresourcecomponentid) join resourcescomponents c on (b.resourcecomponentid = c.parentresourcecomponentid) join archdescriptioninstances d on (c.resourcecomponentid = d.resourcecomponentid) where a.resourceid = 31 and d.container1numericindicator = '%s' and d.container2numericindicator = '%s'" % ( container1, container2);
         logger.info('sql1:' + sql1) 
         cursor.execute(sql1)
-        #logger.info("ran sql1")
         data = cursor.fetchone()
-        #logger.info("got one from sql1: " + str(len(data))) 
         archDID = data[0]
         rcid = data[1]
         dateBegin = data[2]
