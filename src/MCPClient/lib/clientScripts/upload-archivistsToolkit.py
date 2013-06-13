@@ -36,7 +36,7 @@ base_fv_id = 1
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
-#logger.addHandler(logging.FileHandler('at_upload.log', mode='a'))
+logger.addHandler(logging.FileHandler('/tmp/at_upload.log', mode='a'))
 
 
     
@@ -149,22 +149,21 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         logging.info("looking for mets")
         if mets and mets[uuid]:
             #get premis info from mets
-            logger.info("we have a mets file")
             for premis in mets[uuid]['premis']:
-                #print "{} rights = {} {}".format(p, mets[f]['premis'][p]['restriction'],mets[f]['premis'][p]['rightsGrantedNote'])
-                if premis['Disseminate']:
-                    access_restrictions = premis['Disseminate']['restriction']
-                    access_rightsGrantedNote = premis['Disseminate']['rightsGrantedNote']
-                if premis['Publish']:
-                    use_restrictions = premis['Publish']['restriction']
-                    use_rightsGrantedNote = premis['Publish']['rightsGrantedNote']
+                logger.info("{} rights = {} {}".format(premis, mets[uuid]['premis']['Disseminate']['restriction'],mets[uuid]['premis']['Disseminate']['rightsGrantedNote']))
+                if premis == 'Disseminate':
+                    access_restrictions = mets[uuid][premis]['Disseminate']['restriction']
+                    access_rightsGrantedNote = mets[uuid][premis]['Disseminate']['rightsGrantedNote']
+                if premis == 'Publish':
+                    use_restrictions = mets[uuid][premis]['Publish']['restriction']
+                    use_rightsGrantedNote = mets[uuid][premis]['Publish']['rightsGrantedNote']
         try:
             container1 = file_name[44:47]
             container2 = file_name[48:53]
         except:
             logger.error('file name does not have container ids in it')
             exit(5)
-        
+        logger.info ("determine restrictions")
         #determine restrictions
         if restrictions == 'no':
             restrictions_apply = False
@@ -173,7 +172,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             ead_actuate = "none"
             ead_show = "none"
         elif restrictions == 'premis':
-
+            logger.info("premis restrictions")
             if access_restrictions == 'Allow' and use_restrictions == 'Allow':
                 restrictions_apply = False
             else:
@@ -197,7 +196,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         #look in atk collection
         
         sql1 = '''select d.archdescriptioninstancesid, c.resourceComponentId, c.dateBegin, c.dateEnd, c.dateExpression, c.title from
-                  archdescriptioninstances d join resourcescomponent c on (c.resourcecomponentid = d.resourcecomponentid) 
+                  archdescriptioninstances d join resourcescomponents c on (c.resourcecomponentid = d.resourcecomponentid) 
                   where d.container1numericindicator = '{}' and  d.container2numericindicator = '{}' and 
                   c.resourceComponentId in ({})'''.format(container1, container2, ', '.join(str(n) for n in col))
         
