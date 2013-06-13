@@ -146,7 +146,7 @@ var ATKMatcherView = Backbone.View.extend({
       var newSelectionCSSId = $(this).attr('id');
 
       // reset background of resource table rows
-      $('#' + self.resourcePaneItemsCSSId + ' > tr').css('background-color', '');
+      self.resetBackgroundOfResourceTableRows();
 
       // if a new selection, highlight clicked row and set current selection to its CSS ID
       if (self.selectedResourceCSSId != newSelectionCSSId) {
@@ -157,6 +157,10 @@ var ATKMatcherView = Backbone.View.extend({
         self.selectedResourceCSSId = false;
       }
     });
+  },
+
+  resetBackgroundOfResourceTableRows: function() {
+    $('#' + this.resourcePaneItemsCSSId + ' > tr').css('background-color', '');
   },
 
   activateResourceFiltering: function() {
@@ -237,9 +241,13 @@ var ATKMatcherView = Backbone.View.extend({
               $('#' + self.matchPanePairsCSSId).append($newMatchEl);
             }
 
-            //$('#' + self.matchPanePairsCSSId).append($newMatchEl);
+            // fade added element in and show Save button
             $newMatchEl.fadeIn('slow');
             $('#' + self.saveButtonCSSId).show();
+
+            // deselect resource
+            self.selectedResourceCSSId = false;
+            self.resetBackgroundOfResourceTableRows();
 
             // enable deletion of match
             (function(index, pathId) {
