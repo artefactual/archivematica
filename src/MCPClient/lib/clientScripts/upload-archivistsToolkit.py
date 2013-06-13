@@ -109,7 +109,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             logger.info("looking for mets: {}".format(dip_uuid))
             mets_source = dip_location + 'METS.' + dip_uuid + '.xml'
             mets = mets_file(mets_source)
-            
+            logger.info("found mets file")
         except Exception:
             raise
             exit(4)
@@ -121,7 +121,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
     
     #get a list of all the items in this collection
     col = atk.collection_list(db, resource_id)
-    
+    logger.info("got collection_list: {}".format(len(col)))
     sql0 = "select max(fileVersionId) from FileVersions"
     logger.debug('sql0: ' + sql0)
     cursor.execute(sql0)
