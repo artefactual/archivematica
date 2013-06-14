@@ -297,7 +297,7 @@ def ingest_upload_atk_get_collections():
 
     return collections
 
-def ingest_upload_atk_match_dip_objects_to_collection_levels(request, uuid, resource_id):
+def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resource_id):
     # load object relative paths
     object_path_json = simplejson.JSONEncoder().encode(
         ingest_upload_atk_get_dip_object_paths(uuid)
@@ -319,9 +319,29 @@ def ingest_upload_atk_get_dip_object_paths(uuid):
       'images/cat.jpg'
     ]
 
+def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uuid, resource_component_id):
+    # load object relative paths
+    object_path_json = simplejson.JSONEncoder().encode(
+        ingest_upload_atk_get_dip_object_paths(uuid)
+    )
+
+    try:
+        # load resource and child data
+        resource_data_json = simplejson.JSONEncoder().encode(
+            ingest_upload_atk_get_resource_component_children(resource_component_id)
+        )
+    except:
+        return HttpResponse('Database error. Please contact an administrator.')
+
+    return render(request, 'ingest/atk_match.html', locals())
+
 def ingest_upload_atk_get_resource_children(resource_id):
     db = ingest_upload_atk_db_connection()
     return ingest_upload_atk_get_resource_component_and_children(db, resource_id)
+
+def ingest_upload_atk_get_resource_component_children(resource_component_id):
+    db = ingest_upload_atk_db_connection()
+    return ingest_upload_atk_get_resource_component_and_children(db, resource_component_id, resource_type='resource')
 
 def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resource_type='collection', level=1, sort_data={}):
     # we pass the sort position as a dict so it passes by reference and we
