@@ -277,7 +277,7 @@ def ingest_upload_atk(request, uuid):
 
     collections = ingest_upload_atk_get_collections()
 
-    return render(request, 'ingest/atk_collections.html', locals())
+    return render(request, 'ingest/atk_resources.html', locals())
 
 def ingest_upload_atk_get_collections():
     collections = []
