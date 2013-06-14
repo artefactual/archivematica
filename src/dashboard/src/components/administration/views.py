@@ -229,7 +229,7 @@ def system_directory_delete_request_handler(request, purpose, uuid):
         logging.info("UUID deleted.")
         message = 'Deleted.'
     else:
-        logging.warning("Failde to delete directory {}, purpose {}".format(
+        logging.warning("Failed to delete directory {}, purpose {}".format(
             uuid, purpose))
         message = 'Failed to delete directory.'
 
@@ -247,15 +247,15 @@ def administration_render_storage_directories_to_dicts():
     storage_directories = helpers.get_storage(purpose="AS")
     logging.debug("Storage Directories: {}".format(storage_directories))
     link_pk = administration_get_aip_storage_link_pk()
-    for dir in storage_directories:
+    for d in storage_directories:
         dict = models.MicroServiceChoiceReplacementDic()
         dict.choiceavailableatlink = link_pk
-        if dir.path == '%sharedPath%www/AIPsStore/':
+        if d['path'] == '%sharedPath%www/AIPsStore/':
             description = 'Store AIP in standard Archivematica Directory'
         else:
-            description = dir.path
+            description = d['path']
         dict.description = description
-        dict.replacementdic = '{"%AIPsStore%":"' + dir.path + '/"}'
+        dict.replacementdic = '{"%AIPsStore%":"' + d['path'] + '/"}'
         dict.save()
 
 def administration_flush_aip_storage_dicts():
