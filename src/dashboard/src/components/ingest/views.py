@@ -276,12 +276,12 @@ def ingest_upload_atk_db_connection():
 def ingest_upload_atk(request, uuid):
     collections = ingest_upload_atk_get_collections()
 
-    return render(request, 'ingest/atk_resources.html', locals())
+    return render(request, 'ingest/atk/resource_list.html', locals())
 
 def ingest_upload_atk_resource(request, uuid, resource_id):
     resource_components = ingest_upload_atk_get_resource_components(resource_id)
 
-    return render(request, 'ingest/atk_resource.html', locals())
+    return render(request, 'ingest/atk/resource_detail.html', locals())
 
 def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     db = ingest_upload_atk_db_connection()
@@ -297,7 +297,7 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
             reverse('components.ingest.views.ingest_upload_atk_match_dip_objects_to_resource_component_levels', args=[uuid, resource_component_id])
         )
     else:
-        return render(request, 'ingest/atk_resource_component.html', locals())
+        return render(request, 'ingest/atk/resource_component.html', locals())
 
 def ingest_upload_atk_get_collections():
     collections = []
@@ -349,7 +349,7 @@ def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resour
     except:
         return HttpResponse('Database error. Please contact an administrator.')
 
-    return render(request, 'ingest/atk_match.html', locals())
+    return render(request, 'ingest/atk/match.html', locals())
 
 def ingest_upload_atk_get_dip_object_paths(uuid):
     return [
@@ -371,7 +371,7 @@ def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uu
     except:
         return HttpResponse('Database error. Please contact an administrator.')
 
-    return render(request, 'ingest/atk_match.html', locals())
+    return render(request, 'ingest/atk/match.html', locals())
 
 def ingest_upload_atk_get_resource_children(resource_id):
     db = ingest_upload_atk_db_connection()
