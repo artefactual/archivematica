@@ -150,13 +150,13 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         if mets and mets[uuid]:
             #get premis info from mets
             for premis in mets[uuid]['premis']:
-                logger.info("{} rights = {}, note={}".format(premis, mets[uuid]['premis']['Disseminate']['restriction'],mets[uuid]['premis']['Disseminate']['rightsGrantedNote']))
+                logger.info("{} rights = {}, note={}".format(premis, mets[uuid]['premis'][premis]['restriction'],mets[uuid]['premis'][premis]['rightsGrantedNote']))
                 if premis == 'Disseminate':
-                    access_restrictions = mets[uuid][premis]['Disseminate']['restriction']
-                    access_rightsGrantedNote = mets[uuid][premis]['Disseminate']['rightsGrantedNote']
+                    access_restrictions = mets[uuid]['premis']['Disseminate']['restriction']
+                    access_rightsGrantedNote = mets[uuid]['premis']['Disseminate']['rightsGrantedNote']
                 if premis == 'Publish':
-                    use_restrictions = mets[uuid][premis]['Publish']['restriction']
-                    use_rightsGrantedNote = mets[uuid][premis]['Publish']['rightsGrantedNote']
+                    use_restrictions = mets[uuid]['premis']['Publish']['restriction']
+                    use_rightsGrantedNote = mets[uuid]['premis']['Publish']['rightsGrantedNote']
         try:
             container1 = file_name[44:47]
             container2 = file_name[48:53]

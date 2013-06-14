@@ -16,9 +16,11 @@ def mets_file(src):
         file_uuid = amd.techMD.mdWrap.xmlData.object.objectIdentifier.objectIdentifierValue
         if amd.rightsMD:
             for rights in amd.rightsMD:
+                print "found rightsMD: {}".format(rights['ID'])
                 for granted in rights.mdWrap.xmlData.rightsStatement.rightsGranted:
                     act = granted.act
-                    print "found {} has {} with {}".format(file_uuid, act, mets[file_uuid]['premis'][act]['rightsGrantedNote'])
+                    note = granted.rightsGrantedNote
+                    print "found {} has {} with {}".format(file_uuid, act, note)
                     mets[file_uuid]['premis'][act]['restriction'] = granted.restriction
                     mets[file_uuid]['premis'][act]['rightsGrantedNote'] = granted.rightsGrantedNote
     
