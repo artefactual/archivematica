@@ -150,7 +150,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         if mets and mets[uuid]:
             #get premis info from mets
             for premis in mets[uuid]['premis']:
-                logger.info("{} rights = {} {}".format(premis, mets[uuid]['premis']['Disseminate']['restriction'],mets[uuid]['premis']['Disseminate']['rightsGrantedNote']))
+                logger.info("{} rights = {}, note={}".format(premis, mets[uuid]['premis']['Disseminate']['restriction'],mets[uuid]['premis']['Disseminate']['rightsGrantedNote']))
                 if premis == 'Disseminate':
                     access_restrictions = mets[uuid][premis]['Disseminate']['restriction']
                     access_rightsGrantedNote = mets[uuid][premis]['Disseminate']['rightsGrantedNote']
@@ -187,7 +187,9 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         if len(access_conditions) == 0 or restrictions == 'premis':
             if access_rightsGrantedNote:
                 access_conditions = access_rightsGrantedNote
-                                           
+        
+        print "conditions governing use {}".format(use_conditions)
+        print "conditions governing access {}".format(access_conditions)                                   
         short_file_name = file_name[37:]
         time_now = strftime("%Y-%m-%d %H:%M:%S", localtime())
         file_uri = uri_prefix  + file_name
@@ -287,8 +289,20 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             digitalObjectId, noteContent, notesetctypeid, basic, multipart, internalOnly) values 
             (%d, 'note',0, '%s', '%s', '%s', '%s','Note','', %d, %d, '%s',8, '', '', '')""" % (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content )
         adrd = process_sql(sql9) 
+        logger.info('sql9:' + sql9)
          
-    
+        #conditions governing use` note
+        newadrd += 1
+        seq_num += 1
+        note_content = use_conditions
+
+        sql10 = """insert into archdescriptionrepeatingdata 
+            (archdescriptionrepeatingdataid, descriminator, version, lastupdated, created, lastupdatedby ,createdby, repeatingdatatype, title, sequenceNumber,
+            digitalObjectId, noteContent, notesetctypeid, basic, multipart, internalOnly) values 
+            (%d, 'note',0, '%s', '%s', '%s', '%s','Note','', %d, %d, '%s',9, '', '', '')""" % (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content )
+        adrd = process_sql(sql10)
+        logger.info('sql10:' + sql10)
+   
     process_sql("commit")
 
 if __name__ == '__main__':
