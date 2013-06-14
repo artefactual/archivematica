@@ -245,10 +245,6 @@ var ATKMatcherView = Backbone.View.extend({
             $newMatchEl.fadeIn('slow');
             $('#' + self.saveButtonCSSId).show();
 
-            // deselect resource
-            self.selectedResourceCSSId = false;
-            self.resetBackgroundOfResourceTableRows();
-
             // enable deletion of match
             (function(index, pathId) {
               $('#match_delete_' + index).click(function() {
@@ -271,6 +267,10 @@ var ATKMatcherView = Backbone.View.extend({
             })(pairModel.id, item.id)
             self.matchIndex++;
           });
+
+          // deselect resource
+          self.selectedResourceCSSId = false;
+          self.resetBackgroundOfResourceTableRows();
         } else {
           self.notify('No objects selected.');
         }
