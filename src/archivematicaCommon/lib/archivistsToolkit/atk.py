@@ -19,7 +19,7 @@ def collection_list(db, resource_id, ret=None, resource_type='collection'):
         ret = []
         
     cursor = db.cursor() 
-    print "looging for resouce: {}".format(resource_id)
+    #print "looking for resouce: {}".format(resource_id)
     if resource_type == 'collection':
         cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId IS NULL AND resourceId=%s", (resource_id))
     else:
@@ -28,22 +28,12 @@ def collection_list(db, resource_id, ret=None, resource_type='collection'):
 
     rows = cursor.fetchall()
     if len(rows):
-        print ("found children: {}".format(len(rows)))
+        #print ("found children: {}".format(len(rows)))
         for row in rows:
             collection_list(db,row[0],ret,'description')
     
     return ret
         
-def flatten(d, ret=None):
-    if ret is None:
-        ret = []
-    for k in d['children']:
-        if k == 'resourcesComponentsId':
-            ret.append(k)
-        if k == 'children':
-            flatten(v, ret)
-    return ret
-    
 def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resource_type='collection'):
     resource_data = {};
 
