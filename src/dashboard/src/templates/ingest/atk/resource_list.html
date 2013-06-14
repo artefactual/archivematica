@@ -13,10 +13,10 @@
       </tr>
     </thead>
     <tbody>
-      {% for collection in collections %}
+      {% for resource in resources %}
         <tr>
-          <td><a href='{% url components.ingest.views.ingest_upload_atk_resource uuid collection.id %}'>{{ collection.title }} ({{ collection.id }})</a></td>
-          <td><a href='{% url components.ingest.views.ingest_upload_atk_resource uuid collection.id %}'>{{ collection.dates }}</a></td>
+          <td><a href='{% url components.ingest.views.ingest_upload_atk_resource uuid resource.id %}'>{{ resource.title }} ({{ resource.id }})</a></td>
+          <td><a href='{% url components.ingest.views.ingest_upload_atk_resource uuid resource.id %}'>{{ resource.dates }}</a></td>
         </tr>
       {% endfor %}
     </tbody>

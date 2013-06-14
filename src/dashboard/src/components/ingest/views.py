@@ -274,18 +274,24 @@ def ingest_upload_atk_db_connection():
     )
 
 def ingest_upload_atk(request, uuid):
-    collections = ingest_upload_atk_get_collections()
+    try:
+        resources = ingest_upload_atk_get_collections()
+    except MySQLdb.ProgrammingError:
+        return HttpResponse('Database error. Please contact an administrator.')
 
     return render(request, 'ingest/atk/resource_list.html', locals())
 
 def ingest_upload_atk_resource(request, uuid, resource_id):
     db = ingest_upload_atk_db_connection()
-    resource_data = ingest_upload_atk_get_resource_component_and_children(
-        db,
-        resource_id,
-        'collection',
-        recurse_max_level=2
-    )
+    try:
+        resource_data = ingest_upload_atk_get_resource_component_and_children(
+            db,
+            resource_id,
+            'collection',
+            recurse_max_level=2
+        )
+    except MySQLdb.ProgrammingError:
+        return HttpResponse('Database error. Please contact an administrator.')
 
     if not resource_data['children']:
         return HttpResponseRedirect(
@@ -296,12 +302,15 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
 
 def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     db = ingest_upload_atk_db_connection()
-    resource_component_data = ingest_upload_atk_get_resource_component_and_children(
-        db,
-        resource_component_id,
-        'description',
-        recurse_max_level=2
-    )
+    try:
+        resource_component_data = ingest_upload_atk_get_resource_component_and_children(
+            db,
+            resource_component_id,
+            'description',
+            recurse_max_level=2
+        )
+    except MySQLdb.ProgrammingError:
+        return HttpResponse('Database error. Please contact an administrator.')
 
     if not resource_component_data['children']:
         return HttpResponseRedirect(
