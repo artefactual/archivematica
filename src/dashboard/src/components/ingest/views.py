@@ -441,18 +441,21 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
     Example data:
 
     return {
+      'id': '31',
       'sortPosition': '1',
       'identifier': 'PR01',
       'title': 'Parent',
       'levelOfDescription': 'Fonds',
       'dates': '1880-1889',
       'children': [{
+        'id': '23',
         'sortPosition': '2',
         'identifier': 'CH01',
         'title': 'Child A',
         'levelOfDescription': 'Sousfonds',
         'dates': '1880-1888',
         'children': [{
+          'id': '24',
           'sortPosition': '3',
           'identifier': 'GR01',
           'title': 'Grandchild A',
@@ -461,6 +464,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
           'children': False
         },
         {
+          'id': '25',
           'sortPosition': '4',
           'identifier': 'GR02',
           'title': 'Grandchild B',
@@ -469,6 +473,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
         }]
       },
       {
+        'id': '26',
         'sortPosition': '5',
         'identifier': 'CH02',
         'title': 'Child B',
