@@ -5,7 +5,8 @@
 {% block page_id %}atk_match{% endblock %}
 
 {% block content %}
-  <a href='{% url components.ingest.views.ingest_upload_atk_match_dip_objects_to_resource_component_levels uuid resource_component_id %}'>Pair DIP objects with "{{ resource_component_data.title }}" ({{ resource_component_id }})</a>
+  <h3>{{ resource_component_data.title }} ({{ resource_component_id }})</h3>
+  <a class='btn' href='{% url components.ingest.views.ingest_upload_atk_match_dip_objects_to_resource_component_levels uuid resource_component_id %}'>Pair DIP objects with this level of description</a>
 
   <table>
     <thead>
