@@ -279,7 +279,13 @@ def ingest_upload_atk(request, uuid):
     return render(request, 'ingest/atk/resource_list.html', locals())
 
 def ingest_upload_atk_resource(request, uuid, resource_id):
-    resource_components = ingest_upload_atk_get_resource_components(resource_id)
+    db = ingest_upload_atk_db_connection()
+    resource_data = ingest_upload_atk_get_resource_component_and_children(
+        db,
+        resource_id,
+        'collection',
+        recurse_max_level=2
+    )
 
     return render(request, 'ingest/atk/resource_detail.html', locals())
 
@@ -316,24 +322,6 @@ def ingest_upload_atk_get_collections():
         })
 
     return collections
-
-def ingest_upload_atk_get_resource_components(resource_id):
-    resource_components = []
-
-    db = ingest_upload_atk_db_connection()
-
-    cursor = db.cursor()
-
-    cursor.execute("SELECT resourceComponentId, title, dateExpression FROM atk_description WHERE resourceId=%s ORDER BY title", (resource_id))
-
-    for row in cursor.fetchall():
-        resource_components.append({
-          'id':    row[0],
-          'title': row[1],
-          'dates': row[2]
-        })
-
-    return resource_components
 
 def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resource_id):
     # load object relative paths
