@@ -409,7 +409,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
             resource_data['dates']              = row[1]
             resource_data['levelOfDescription'] = 'Fonds'
     else:
-        cursor.execute("SELECT title, dateExpression, persistentId, resourceLevel FROM atk_description WHERE resourceComponentId=%s", (resource_id))
+        cursor.execute("SELECT title, dateExpression, persistentId, resourceLevel, resourceId FROM atk_description WHERE resourceComponentId=%s", (resource_id))
 
         for row in cursor.fetchall():
             resource_data['id']                 = resource_id
@@ -418,6 +418,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
             resource_data['dates']              = row[1]
             resource_data['identifier']         = row[2]
             resource_data['levelOfDescription'] = row[3]
+            resource_data['collectionId']       = row[4]
 
     resource_data['children'] = False
 

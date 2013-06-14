@@ -1,11 +1,18 @@
 ﻿{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
 
 {% block title %}Match{% endblock %}
 {% block h1 %}Match{% endblock %}
 {% block page_id %}atk_match{% endblock %}
 
 {% block content %}
-  <h3>Archivist's Toolkit collections</h3>
+<div class="span12">
+
+  <ul class="breadcrumb">
+    {% breadcrumb 'DIP Upload' %} 
+  </ul>
+
+  <h1>Collections<br /><small>Archivist's Toolkit</small></h1>
 
   <table>
     <thead>
@@ -23,4 +30,6 @@
       {% endfor %}
     </tbody>
   </table>
+
+</div>
 {% endblock %}
