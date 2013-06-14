@@ -300,6 +300,20 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
     else:
         return render(request, 'ingest/atk/resource_detail.html', locals())
 
+def ingest_upload_atk_determine_resource_component_resource_id(resource_component_id):
+    db = ingest_upload_atk_db_connection()
+
+    cursor = db.cursor()
+
+    cursor.execute("SELECT resourceId, parentResourceComponentId FROM atk_description WHERE resourceComponentId=%s", (resource_component_id))
+
+    row = cursor.fetchone()
+
+    if row[0] != None:
+        return row[0]
+    else:
+        return ingest_upload_atk_determine_resource_component_resource_id(row[1])
+
 def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     db = ingest_upload_atk_db_connection()
     try:
@@ -311,6 +325,8 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
         )
     except MySQLdb.ProgrammingError:
         return HttpResponse('Database error. Please contact an administrator.')
+
+    resource_id = ingest_upload_atk_determine_resource_component_resource_id(resource_component_id)
 
     if not resource_component_data['children']:
         return HttpResponseRedirect(
@@ -409,7 +425,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
             resource_data['dates']              = row[1]
             resource_data['levelOfDescription'] = 'Fonds'
     else:
-        cursor.execute("SELECT title, dateExpression, persistentId, resourceLevel, resourceId FROM atk_description WHERE resourceComponentId=%s", (resource_id))
+        cursor.execute("SELECT title, dateExpression, persistentId, resourceLevel FROM atk_description WHERE resourceComponentId=%s", (resource_id))
 
         for row in cursor.fetchall():
             resource_data['id']                 = resource_id
@@ -418,7 +434,6 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
             resource_data['dates']              = row[1]
             resource_data['identifier']         = row[2]
             resource_data['levelOfDescription'] = row[3]
-            resource_data['collectionId']       = row[4]
 
     resource_data['children'] = False
 
