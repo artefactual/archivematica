@@ -287,7 +287,12 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
         recurse_max_level=2
     )
 
-    return render(request, 'ingest/atk/resource_detail.html', locals())
+    if not resource_data['children']:
+        return HttpResponseRedirect(
+            reverse('components.ingest.views.ingest_upload_atk_match_dip_objects_to_resource_levels', args=[uuid, resource_id])
+        )
+    else:
+        return render(request, 'ingest/atk/resource_detail.html', locals())
 
 def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     db = ingest_upload_atk_db_connection()
