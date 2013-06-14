@@ -283,6 +283,22 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
 
     return render(request, 'ingest/atk_resource.html', locals())
 
+def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
+    db = ingest_upload_atk_db_connection()
+    resource_component_data = ingest_upload_atk_get_resource_component_and_children(
+        db,
+        resource_component_id,
+        'description',
+        recurse_max_level=2
+    )
+
+    if not resource_component_data['children']:
+        return HttpResponseRedirect(
+            reverse('components.ingest.views.ingest_upload_atk_match_dip_objects_to_resource_component_levels', args=[uuid, resource_component_id])
+        )
+    else:
+        return render(request, 'ingest/atk_resource_component.html', locals())
+
 def ingest_upload_atk_get_collections():
     collections = []
 
@@ -363,11 +379,13 @@ def ingest_upload_atk_get_resource_children(resource_id):
 
 def ingest_upload_atk_get_resource_component_children(resource_component_id):
     db = ingest_upload_atk_db_connection()
-    return ingest_upload_atk_get_resource_component_and_children(db, resource_component_id, resource_type='resource')
+    return ingest_upload_atk_get_resource_component_and_children(db, resource_component_id, 'resource')
 
-def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resource_type='collection', level=1, sort_data={}):
+def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resource_type='collection', level=1, sort_data={}, **kwargs):
     # we pass the sort position as a dict so it passes by reference and we
     # can use it to share state during recursion
+
+    recurse_max_level = kwargs.get('recurse_max_level', False)
 
     # intialize sort position if this is the beginning of recursion
     if level == 1:
@@ -383,6 +401,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
         cursor.execute("SELECT title, dateExpression FROM atk_collection WHERE resourceid=%s", (resource_id))
 
         for row in cursor.fetchall():
+            resource_data['id']                 = resource_id
             resource_data['sortPosition']       = sort_data['position']
             resource_data['title']              = row[0]
             resource_data['dates']              = row[1]
@@ -391,6 +410,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
         cursor.execute("SELECT title, dateExpression, persistentId, resourceLevel FROM atk_description WHERE resourceComponentId=%s", (resource_id))
 
         for row in cursor.fetchall():
+            resource_data['id']                 = resource_id
             resource_data['sortPosition']       = sort_data['position']
             resource_data['title']              = row[0]
             resource_data['dates']              = row[1]
@@ -399,26 +419,28 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
 
     resource_data['children'] = False
 
-    if resource_type == 'collection':
-        cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId IS NULL AND resourceId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
-    else:
-        cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
+    # fetch children if we haven't reached the maximum recursion level
+    if (not recurse_max_level) or level < recurse_max_level:
+        if resource_type == 'collection':
+            cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId IS NULL AND resourceId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
+        else:
+            cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
 
-    rows = cursor.fetchall()
+        rows = cursor.fetchall()
 
-    if len(rows):
-        resource_data['children'] = []
+        if len(rows):
+            resource_data['children'] = []
 
-        for row in rows:
-            resource_data['children'].append(
-                ingest_upload_atk_get_resource_component_and_children(
-                    db,
-                    row[0],
-                    'description',
-                    level + 1,
-                    sort_data
-                )
-            )
+            for row in rows:
+                resource_data['children'].append(
+                    ingest_upload_atk_get_resource_component_and_children(
+                        db,
+                        row[0],
+                        'description',
+                        level + 1,
+                        sort_data
+                    )
+                 )
 
     return resource_data
 

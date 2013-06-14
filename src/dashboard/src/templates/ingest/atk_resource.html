@@ -1,0 +1,26 @@
+﻿{% extends "layout_fluid.html" %}
+
+{% block title %}Match{% endblock %}
+{% block h1 %}Match{% endblock %}
+{% block page_id %}atk_match{% endblock %}
+
+{% block content %}
+  <a href='{% url components.ingest.views.ingest_upload_atk_match_dip_objects_to_resource_levels uuid resource_id %}'>Pair DIP objects with resource ({{ resource_id }})</a>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Dates</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for component in resource_components %}
+        <tr>
+          <td><a href='{% url components.ingest.views.ingest_upload_atk_resource_component uuid component.id %}'>{{ component.title }} ({{ component.id }})</a></td>
+          <td><a href='{% url components.ingest.views.ingest_upload_atk_resource_component uuid component.id %}'>{{ component.dates }}</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
