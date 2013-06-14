@@ -65,9 +65,9 @@
       <table>
         <thead>
           <tr>
+            <th>Level of description</th>
             <th>Title</th>
             <th>Identifier</th>
-            <th>Level of description</th>
             <th>Dates</th>
           </tr>
         </thead>
@@ -84,9 +84,9 @@
       <table>
         <tr>
           <th>File</th>
+          <th>Level of description</th>
           <th>Title</th>
           <th>Identifier</th>
-          <th>Level of description</th>
           <th>Dates</th>
         </tr>
         <tbody id="match_pane_pairs"></tbody>
@@ -108,9 +108,9 @@
 
   <script type="text/template" id="resource-item-template">
     <tr class="atk-matcher-resource-item" id="resource_<%= tempId %>">
+      <td><%= levelOfDescription %></td>
       <td><%= padding %><%= title %></td>
       <td><%= identifier %></td>
-      <td><%= levelOfDescription %></td>
       <td><%= dates %></td>
     </tr>
   </script>
@@ -118,9 +118,9 @@
   <script type="text/template" id="match-item-template">
     <tr class="atk-matcher-match-item" id="match_<%= tempId %>">
       <td><%= path %></td>
+      <td><%= levelOfDescription %></td>
       <td><%= title %></td>
       <td><%= identifier %></td>
-      <td><%= levelOfDescription %></td>
       <td><%= dates %></td>
       <td id="match_delete_<%= tempId %>">
         <img src="{{ STATIC_URL }}images/delete.png" title="Delete match" />
