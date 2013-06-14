@@ -66,7 +66,7 @@ var ATKMatcherView = Backbone.View.extend({
     this.activateObjectFiltering();
     this.activateResourceSelection();
     this.activateResourceFiltering();
-    this.activateMatchButton();
+    this.activateMatchButtonAndKeypressResponse();
     this.activateSaveButton();
     this.activateConfirmButton();
     this.activateCancelButton();
@@ -182,10 +182,10 @@ var ATKMatcherView = Backbone.View.extend({
     });
   },
 
-  activateMatchButton: function() {
+  activateMatchButtonAndKeypressResponse: function() {
     var self = this;
 
-    $('#' + this.matchButtonCSSId).click(function() {
+    var doMatch = function() {
       // if a resource is highlighted, attempt to add selected paths
       if (self.selectedResourceCSSId) {
         var selectedPaths = self.getSelectedPaths();
@@ -277,7 +277,15 @@ var ATKMatcherView = Backbone.View.extend({
       } else {
         self.notify('No resource selected.');
       }
+    };
+
+    $(document).bind('keypress', function(e){
+       if(e.which === 13) {
+         doMatch();
+       }
     });
+
+    $('#' + this.matchButtonCSSId).click(doMatch);
   },
 
   fadeElementsByCSSIds: function(ids, type, speed) {
