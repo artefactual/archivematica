@@ -48,6 +48,16 @@ def reconnect():
             database.autocommit(True)
             warnings.filterwarnings('error', category=MySQLdb.Warning)
             break
+        except MySQLdb.OperationalError, message:
+            if message[0] == 1045 and message[1].startswith('Access denied for user'):
+                raise
+            else:
+                print >>sys.stderr, "Error connecting to database:"
+                print >>sys.stderr, type(inst)     # the exception instance
+                print >>sys.stderr, inst.args
+                time.sleep(secondsBetweenRetry)
+                if a+1 == retryAttempts:
+                    raise
         except Exception as inst:
             print >>sys.stderr, "Error connecting to database:"
             print >>sys.stderr, type(inst)     # the exception instance

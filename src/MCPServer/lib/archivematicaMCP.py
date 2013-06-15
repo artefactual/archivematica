@@ -109,11 +109,15 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep):
     uuidLen = -36
     if isUUID(path[uuidLen-1:-1]):
         UUID = path[uuidLen-1:-1]
+        sql = """SELECT sipUUID FROM SIPs WHERE sipUUID = '""" + UUID + "';"
+        rows = databaseInterface.queryAllSQL(sql)
+        if not rows:
+            databaseFunctions.createSIP(path, UUID=UUID)
+        
 
 
     if UUID == "":
         #Find it in the database
-        databaseInterface.printSQL = True
         sql = """SELECT sipUUID FROM SIPs WHERE currentPath = '""" + MySQLdb.escape_string(path) + "';"
         #if waitSleep != 0:
             #time.sleep(waitSleep) #let db be updated by the microservice that moved it.

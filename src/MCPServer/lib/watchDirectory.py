@@ -53,7 +53,7 @@ class archivematicaWatchDirectory:
         self.interval= interval
         
         if not os.path.isdir(directory):
-            os.makedirs(directory)
+            os.makedirs(directory, mode=770)
         
         if threaded:
             t = threading.Thread(target=self.start)

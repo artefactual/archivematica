@@ -39,6 +39,7 @@ archivematicaSetTransferType_v0.0 = %clientScriptsDirectory%archivematicaSetTran
 archivematicaTika_v0.0 = %clientScriptsDirectory%archivematicaTika.py
 archivematicaVerifyMets_v0.0 = %clientScriptsDirectory%archivematicaVerifyMets.sh
 archivematicaFido_v0.0 = %clientScriptsDirectory%archivematicaFido.py
+assignFauxFileUUIDs_v0.0 = %clientScriptsDirectory%assignFauxFileUUIDs.py
 assignFileUUIDs_v0.0 = %clientScriptsDirectory%archivematicaAssignFileUUID.py
 backlogUpdatingTransferFileIndex_v0.0 = %clientScriptsDirectory%backlogUpdatingTransferFileIndex.py
 backupDIP_v0.0 = %clientScriptsDirectory%backupDIP.sh
@@ -56,17 +57,20 @@ createMETS_v0.0 = %clientScriptsDirectory%archivematicaCreateMETS.py
 createMETS_v2.0 = %clientScriptsDirectory%archivematicaCreateMETS2.py
 createSIPfromTransferObjects_v0.0 = %clientScriptsDirectory%createSIPfromTransferObjects.py
 createSIPsfromTRIMTransferContainers_v0.0 = %clientScriptsDirectory%createSIPsfromTRIMTransferContainers.py
+determineAIPVersionKeyExitCode_v0.0 = %clientScriptsDirectory%determineAIPVersionKeyExitCode.py
 echo_v0.0 = /bin/echo
 emailFailReport_v0.0 = %clientScriptsDirectory%emailFailReport.py
 extractBAG_v0.0 = %clientScriptsDirectory%extractBAG.sh
 extractBagTransfer_v0.0 = %clientScriptsDirectory%extractBagTransfer.py
 extractMaildirAttachments_v0.0 = %clientScriptsDirectory%extractMaildirAttachments.py
 FITS_v0.0 = %clientScriptsDirectory%archivematicaFITS.py
+generateDIPFromAIPGenerateDIP_v0.0 = %clientScriptsDirectory%generateDIPFromAIPGenerateDIP.py
 getContentdmCollectionList_v0.0 = %clientScriptsDirectory%getContentdmCollectionList.py
 identifyDspaceLicenseFiles_v0.0 = %clientScriptsDirectory%identifyDspaceLicenseFiles.py
 identifyDspaceMETSFiles_v0.0 = %clientScriptsDirectory%identifyDspaceMETSFiles.py
 identifyDspaceTextFiles_v0.0 = %clientScriptsDirectory%identifyDspaceTextFiles.py
 identifyFilesByExtension_v0.0 = %clientScriptsDirectory%identifyFilesByExtension.py
+isMaildirAIP_v0.0 = %clientScriptsDirectory%isMaildirAIP.py
 loadLabelsFromCSV_v0.0 = %clientScriptsDirectory%loadLabelsFromCSV.py
 manualNormalizationCheckForManualNormalizationDirectory_v0.0 = %clientScriptsDirectory%manualNormalizationCheckForManualNormalizationDirectory.py
 manualNormalizationCreateMetadataAndRestructure_v0.0 = %clientScriptsDirectory%manualNormalizationCreateMetadataAndRestructure.py
@@ -85,14 +89,17 @@ removeFilesWithoutPresmisMetadata_v0.0 = %clientScriptsDirectory%removeFilesWith
 removeHiddenFilesAndDirectories_v0.0 = %clientScriptsDirectory%removeHiddenFilesAndDirectories.py
 removeUnneededFiles_v0.0 = %clientScriptsDirectory%removeUnneededFiles.py
 removeWithAsterisk_v0.0 = %clientScriptsDirectory%removeWithAsterisk.sh
+renameDIPFauxToOrigUUIDs_v0.0 = %clientScriptsDirectory%renameDIPFauxToOrigUUIDs.py
 restructureBAG_v0.0 = %clientScriptsDirectory%restructureBAG.sh
 restructureForCompliance_v0.0 = %clientScriptsDirectory%restructureForCompliance.py
 restructureForComplianceMaildir_v0.0 = %clientScriptsDirectory%restructureForComplianceMaildir.py
+restructureBagAIPToSIP_v0.0 = %clientScriptsDirectory%restructureBagAIPToSIP.py
 retryNormalizeRemoveNormalized_v0.0 = %clientScriptsDirectory%retryNormalizeRemoveNormalized.py
 sanitizeObjectNames_v0.0 = %clientScriptsDirectory%sanitizeObjectNames.py
 sanitizeSIPName_v0.0 = %clientScriptsDirectory%sanitizeSIPName.py
 setDirectoryPermissionsForAppraisal_v0.0 = %clientScriptsDirectory%setDirectoryPermissionsForAppraisal.sh
 setFilePermission_v0.0 = chmod
+setMaildirFileGrpUseAndFileIDs_v0.0 = %clientScriptsDirectory%setMaildirFileGrpUseAndFileIDs.py
 setSIPQuarantine_v0.0 = %clientScriptsDirectory%quarantineSIP.sh
 sha256deepRelative_v0.0 = %clientScriptsDirectory%sha256deepRelative.sh
 transcoderExtractPackages_v0.0 = /usr/lib/archivematica/transcoder/transcoderExtraction.py
@@ -111,10 +118,4 @@ verifyMD5_v0.0 = %clientScriptsDirectory%verifyMD5.sh
 verifyPREMISChecksums_v0.0 = %clientScriptsDirectory%verifyPREMISChecksums.py
 verifySIPCompliance_v0.0 = %clientScriptsDirectory%verifySIPCompliance.py
 verifyTransferCompliance_v0.0 = %clientScriptsDirectory%verifyTransferCompliance.py
-
-
-
-
-
-
 
