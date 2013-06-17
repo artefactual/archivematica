@@ -13,10 +13,18 @@
     {% breadcrumb 'Collection' %}
   </ul>
 
-  <h1>Collection<br /><small>{{ resource_data.title }} ({{ resource_data.id }})</small></h1>
+  <h1>Collection<br />
+  <a style='float:right' class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels uuid resource_id %}'>Assign DIP objects to this resource</a>
 
-  <a class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels uuid resource_id %}'>Pair DIP objects with resource</a>
+    <small>{{ resource_data.title }} ({{ resource_data.id }})</small>
+  </h1>
 
+  <form action='' method='GET'>
+    <input name='query' type='text' value='{{ query }}' />
+    <input type='submit' value='Search' class='btn' />
+  </form>
+
+  {% if resource_data.children %}
   <table>
     <thead>
       <tr>
@@ -33,6 +41,9 @@
       {% endfor %}
     </tbody>
   </table>
+  {% else %}
+  <p>No child descriptions found.</p>
+  {% endif %}
 
 </div>
 {% endblock %}

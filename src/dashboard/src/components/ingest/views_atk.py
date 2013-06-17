@@ -45,16 +45,18 @@ def ingest_upload_atk(request, uuid):
 def ingest_upload_atk_resource(request, uuid, resource_id):
     db = ingest_upload_atk_db_connection()
     try:
+        query = request.GET.get('query', '')
         resource_data = ingest_upload_atk_get_resource_component_and_children(
             db,
             resource_id,
             'collection',
-            recurse_max_level=2
+            recurse_max_level=2,
+            search_pattern=query
         )
     except MySQLdb.ProgrammingError:
         return HttpResponse('Database error. Please contact an administrator.')
 
-    if not resource_data['children']:
+    if not resource_data['children'] and query == '':
         return HttpResponseRedirect(
             reverse('components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels', args=[uuid, resource_id])
         )
@@ -78,18 +80,20 @@ def ingest_upload_atk_determine_resource_component_resource_id(resource_componen
 def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     db = ingest_upload_atk_db_connection()
     try:
+        query = request.GET.get('query', '')
         resource_component_data = ingest_upload_atk_get_resource_component_and_children(
             db,
             resource_component_id,
             'description',
-            recurse_max_level=2
+            recurse_max_level=2,
+            search_pattern=query
         )
     except MySQLdb.ProgrammingError:
         return HttpResponse('Database error. Please contact an administrator.')
 
     resource_id = ingest_upload_atk_determine_resource_component_resource_id(resource_component_id)
 
-    if not resource_component_data['children']:
+    if not resource_component_data['children'] and query == '':
         return HttpResponseRedirect(
             reverse('components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_component_levels', args=[uuid, resource_component_id])
         )
@@ -168,6 +172,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
     # can use it to share state during recursion
 
     recurse_max_level = kwargs.get('recurse_max_level', False)
+    query             = kwargs.get('search_pattern', '')
 
     # intialize sort position if this is the beginning of recursion
     if level == 1:
@@ -204,9 +209,9 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
     # fetch children if we haven't reached the maximum recursion level
     if (not recurse_max_level) or level < recurse_max_level:
         if resource_type == 'collection':
-            cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId IS NULL AND resourceId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
+            cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId IS NULL AND resourceId=%s AND title LIKE %s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%'))
         else:
-            cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
+            cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId=%s AND title LIKE %s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%'))
 
         rows = cursor.fetchall()
 
