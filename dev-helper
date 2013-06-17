@@ -174,9 +174,12 @@ function export-sampledata() {
   if [[ $a == "Y" || $a == "y" ]]; then
     cd ~/archivematica-sampledata
     DATE=`date +%Y-%m-%d-%H-%M-%S`
-    echo exporting to "~/archivematica-sampledata-$DATE"
-    mkdir ~/archivematica-sampledata-$DATE
-    git archive master | tar -x -C ~/archivematica-sampledata-$DATE
+    exportDir="$HOME/archivematica-sampledata-$DATE"
+    echo exporting to "${exportDir}"
+    mkdir "${exportDir}"
+    mkdir "${exportDir}/OPF format-corpus"
+    git archive master | tar -x -C "${exportDir}"
+    git submodule foreach "git archive master | tar -x -C \"${exportDir}/OPF format-corpus\""
     cd `dirname $0`
   else
           echo "Not going to ${part}."
