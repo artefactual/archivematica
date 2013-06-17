@@ -35,7 +35,8 @@ def ingest_upload_atk_db_connection():
 
 def ingest_upload_atk(request, uuid):
     try:
-        resources = ingest_upload_atk_get_collections()
+        query = request.GET.get('query', '')
+        resources = ingest_upload_atk_get_collections(query)
     except MySQLdb.ProgrammingError:
         return HttpResponse('Database error. Please contact an administrator.')
 
@@ -95,14 +96,17 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     else:
         return render(request, 'ingest/atk/resource_component.html', locals())
 
-def ingest_upload_atk_get_collections():
+def ingest_upload_atk_get_collections(search_pattern=''):
     collections = []
 
     db = ingest_upload_atk_db_connection()
 
     cursor = db.cursor()
 
-    cursor.execute("SELECT resourceId, title, dateExpression FROM atk_collection ORDER BY title")
+    cursor.execute(
+      "SELECT resourceId, title, dateExpression FROM atk_collection WHERE title LIKE %s ORDER BY title",
+      ('%' + search_pattern + '%')
+    )
 
     for row in cursor.fetchall():
         collections.append({
