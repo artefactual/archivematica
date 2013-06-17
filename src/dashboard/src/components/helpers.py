@@ -34,7 +34,7 @@ from main import models
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica."+__name__+'.log', 
-    level=logging.DEBUG)
+    level=logging.INFO)
 
 def pr(object):
     return pprint.pformat(object)
@@ -271,63 +271,120 @@ def _storage_api():
     api = slumber.API(storage_server)
     return api
 
-def get_storage(path=None, purpose=None, access_protocol=None, **kwargs):
-    """ Returns a list of storage locations.
+def create_location(purpose, path, space=None, quota=None, used=0):
+    """ Creates a location.
+
+    purpose: How the storage is used.  Should reference storage service
+        purposes, found in storage_service.locations.models.py
+    path: Absolute path to location.
+    space: storage space to put the location in.  The space['path'] will be 
+        stripped off the start of path.
+
+    Dashboard may only create locations on the local filesystem.  If no space
+    is provided, it will try to find an existing storage space to put the 
+    location in, matching based on path.
+    """
+    api = _storage_api()
+
+    # If no space provided, try to find space with common prefix with path
+    if not space:
+        spaces = get_space(access_protocol="FS")
+        try:
+            space = filter(lambda s: path.startswith(s['path']), 
+                spaces)[0]
+        except IndexError as e:
+            logging.warning("No storage space containing {}".format(path))
+            return False
+
+    # Strip space['path'] and / from path
+    path = path[len(space['path'])+1:]
+
+    new_location = {}
+    new_location['purpose'] = purpose
+    new_location['path'] = path
+    new_location['quota'] = quota
+    new_location['used'] = used
+    new_location['space'] = space['resource_uri']
+
+    logging.info("Creating storage location with {}".format(new_location))
+    try:
+        api.location.post(new_location)
+    except slumber.exceptions.HttpClientError as e:
+        logging.warning("Unable to create storage location from {} because {}".format(new_location, e.content))
+        return False
+    return True
+
+def get_location(path=None, purpose=None, space=None):
+    """ Returns a list of storage locations, filtered by parameters.
 
     Return format: [{'id': <UUID>, 'path': <path>}]
 
     Queries the storage service and returns a list of storage locations, 
-    optionally filtered by purpose or access_protocol.
+    optionally filtered by purpose, containing space or path.
 
     purpose: How the storage is used.  Should reference storage service
         purposes, found in storage_service.locations.models.py
-    access_protocol: How the storage is accessed.  Should reference storage 
-        service purposes, in storage_service.locations.models.py
     """
+    # TODO handle pagination
     api = _storage_api()
     locations = api.location.get(path=path,
                                  purpose=purpose, 
-                                 access_protocol=access_protocol)
-    logging.debug("Locations retrieved: {}".format(locations))
-    return_locations = [{'id': location['id'], 'path': location['path']} 
+                                 space=space)
+    logging.debug("Storage locations retrieved: {}".format(locations))
+    return_locations = [{'id': location['uuid'], 'path': location['full_path']} 
         for location in locations['objects']]
-    logging.debug("Locations returned: {}".format(return_locations))
+    logging.debug("Storage locations returned: {}".format(return_locations))
     return return_locations
 
-def delete_storage(uuid):
+def delete_location(uuid):
     """ Deletes storage with UUID uuid, returns True on success."""
     api = _storage_api()
-    logging.debug("Deleting storage location with UUID {}".format(uuid))
-    try:
-        ret = api.location(str(uuid)).delete()
-    except slumber.exceptions.HttpClientError as e:
-        logging.warning("Unable to delete storage location with UUID {}".format(uuid))
-        return False
-    return ret
+    logging.info("Deleting storage location with UUID {}".format(uuid))
+    ret = api.location(str(uuid)).patch({'disabled': True})
+    return ret['disabled']
 
-def create_storage(path, purpose, access_protocol, quota=0, used=0):
-    """ Creates a new storage location. Returns True on success.
+def create_space(path, access_protocol, size=None, used=0):
+    """ Creates a new storage space. Returns True on success.
 
-    purpose: How the storage is used.  Should reference storage service
-        purposes, found in storage_service.locations.models.py
     access_protocol: How the storage is accessed.  Should reference storage 
         service purposes, in storage_service.locations.models.py
-    quota: Quota or size of storage location, in bytes.  0 is unlimited
-    used: Space used in storage location, in bytes.
+        Currently, dashboard can only create local FS locations.
+    size: Size of storage space, in bytes.  Default: unlimited
+    used: Space used in storage space, in bytes.
     """
     api = _storage_api()
 
-    new_location = {}
-    new_location['path'] = path
-    new_location['purpose'] = purpose
-    new_location['access_protocol'] = access_protocol
-    new_location['quota'] = quota
-    new_location['used'] = used
+    new_space = {}
+    new_space['path'] = path
+    new_space['access_protocol'] = access_protocol
+    new_space['size'] = size
+    new_space['used'] = used
 
-    logging.debug("Creating storage with {}".format(new_location))
+    if access_protocol != "FS":
+        logging.warning("Trying to create storage space with access protocol {}".format(access_protocol))
+
+    logging.info("Creating storage space with {}".format(new_space))
     try:
-        api.location.post(new_location)
+        api.space.post(new_space)
     except slumber.exceptions.HttpClientError as e:
-        logging.warning("Unable to create storage from {} because {}".format(new_location, e.content))
+        logging.warning("Unable to create storage space from {} because {}".format(new_space, e.content))
         return False
     return True
+
+def get_space(access_protocol=None, path=None):
+    """ Returns a list of storage spaces, optionally filtered by parameters.
+
+    Queries the storage service and returns a list of storage spaces, 
+    optionally filtered by access_protocol or path.
+
+    access_protocol: How the storage is accessed.  Should reference storage 
+        service purposes, in storage_service.locations.models.py
+    """
+    # TODO handle pagination
+    api = _storage_api()
+    spaces = api.space.get(access_protocol=access_protocol,
+                           path=path)
+    return_spaces = spaces['objects']
+    logging.debug("Storage spaces returned: {}".format(return_spaces))
+    return return_spaces
+

@@ -40,7 +40,7 @@ logging.basicConfig(filename="/tmp/am."+__name__+'.log',
 
 @decorators.elasticsearch_required()
 def grid(request):
-    source_directories = helpers.get_storage(purpose="TS")
+    source_directories = helpers.get_location(purpose="TS")
 
     logging.debug("Source directories found: {}".format(source_directories))
 

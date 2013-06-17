@@ -35,7 +35,7 @@ from components.helpers import hidden_features
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica."+__name__+'.log', 
-    level=logging.DEBUG)
+    level=logging.INFO)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Administration
@@ -178,15 +178,12 @@ def administration_system_directory_data_request_handler(request, purpose, acces
     message = ''
     if request.method == 'POST':
         path = request.POST.get('path', '')
-        logging.debug("POSTed dir {}".format(path))
         if path != '':
-            if helpers.get_storage(path=path, 
-                                   purpose=purpose, 
-                                   access_protocol=access_protocol):
+            if helpers.get_location(path=path, 
+                                    purpose=purpose):
                 message = 'Directory already added.'
-            elif helpers.create_storage(path=path, 
-                                        purpose=purpose, 
-                                        access_protocol=access_protocol):
+            elif helpers.create_location(path=path, 
+                                         purpose=purpose):
                 message = 'Directory added.'
             else:
                 message = 'Error adding directory.'
@@ -196,8 +193,7 @@ def administration_system_directory_data_request_handler(request, purpose, acces
         if purpose == "AS":
             administration_render_storage_directories_to_dicts()
 
-    directories = helpers.get_storage(purpose=purpose)
-    logging.debug("Source Directories: {}".format(directories))
+    directories = helpers.get_location(purpose=purpose)
 
     response = {}
     response['message'] = message
@@ -225,8 +221,7 @@ def sources_delete_json(request, id):
     )
 
 def system_directory_delete_request_handler(request, purpose, uuid):
-    if helpers.delete_storage(uuid):
-        logging.info("UUID deleted.")
+    if helpers.delete_location(uuid):
         message = 'Deleted.'
     else:
         logging.warning("Failed to delete directory {}, purpose {}".format(
@@ -244,7 +239,7 @@ def processing(request):
 
 def administration_render_storage_directories_to_dicts():
     administration_flush_aip_storage_dicts()
-    storage_directories = helpers.get_storage(purpose="AS")
+    storage_directories = helpers.get_location(purpose="AS")
     logging.debug("Storage Directories: {}".format(storage_directories))
     link_pk = administration_get_aip_storage_link_pk()
     for d in storage_directories:
