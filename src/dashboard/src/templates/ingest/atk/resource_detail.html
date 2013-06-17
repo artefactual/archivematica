@@ -19,10 +19,7 @@
     <small>{{ resource_data.title }} ({{ resource_data.id }})</small>
   </h1>
 
-  <form action='' method='GET'>
-    <input name='query' type='text' value='{{ query }}' />
-    <input type='submit' value='Search' class='btn' />
-  </form>
+  {% include "ingest/atk/_search_form.html" %}
 
   {% if resource_data.children %}
   <table>
