@@ -1,3 +1,7 @@
+-- Issue 5244
+ALTER TABLE Jobs CHANGE directory directory LONGTEXT;
+-- /Issue 5244
+
 -- Issue 5084
 -- If user restarts while waiting to choose compression algorithm, the SIP job is orphaned
 -- Tail of chain = Prepare AIP = 3e25bda6-5314-4bb4-aa1e-90900dce887d
