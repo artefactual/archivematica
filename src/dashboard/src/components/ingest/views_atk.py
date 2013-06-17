@@ -21,6 +21,7 @@ from django.shortcuts import render
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.utils import simplejson
 import os, sys, MySQLdb
+from components import helpers
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions, databaseInterface, databaseFunctions
 
@@ -37,6 +38,9 @@ def ingest_upload_atk(request, uuid):
     try:
         query = request.GET.get('query', '')
         resources = ingest_upload_atk_get_collections(query)
+
+        page = helpers.pager(resources, 20, request.GET.get('page', 1))
+
     except MySQLdb.ProgrammingError:
         return HttpResponse('Database error. Please contact an administrator.')
 
@@ -53,6 +57,7 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
             recurse_max_level=2,
             search_pattern=query
         )
+        page = helpers.pager(resource_data['children'], 20, request.GET.get('page', 1))
     except MySQLdb.ProgrammingError:
         return HttpResponse('Database error. Please contact an administrator.')
 
@@ -88,6 +93,7 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
             recurse_max_level=2,
             search_pattern=query
         )
+        page = helpers.pager(resource_component_data['children'], 20, request.GET.get('page', 1))
     except MySQLdb.ProgrammingError:
         return HttpResponse('Database error. Please contact an administrator.')
 

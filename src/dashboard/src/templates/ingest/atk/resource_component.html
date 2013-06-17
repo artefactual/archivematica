@@ -22,25 +22,27 @@
 
   {% include "ingest/atk/_search_form.html" %}
 
-  {% if resource_component_data.children %}
-  <table>
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>Dates</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for component in resource_component_data.children %}
+  {% if page.objects %}
+    <table>
+      <thead>
         <tr>
-          <td><a href='{% url components.ingest.views_atk.ingest_upload_atk_resource_component uuid component.id %}'>{{ component.title }} ({{ component.id }})</a></td>
-          <td><a href='{% url components.ingest.views_atk.ingest_upload_atk_resource_component uuid component.id %}'>{{ component.dates }}</a></td>
+          <th>Title</th>
+          <th>Dates</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for component in page.objects %}
+          <tr>
+            <td><a href='{% url components.ingest.views_atk.ingest_upload_atk_resource_component uuid component.id %}'>{{ component.title }} ({{ component.id }})</a></td>
+            <td><a href='{% url components.ingest.views_atk.ingest_upload_atk_resource_component uuid component.id %}'>{{ component.dates }}</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% include "_pager.html" %}
   {% else %}
-  <p>No child descriptions found.</p>
+    <p>No child descriptions found.</p>
   {% endif %}
 
 </div>
