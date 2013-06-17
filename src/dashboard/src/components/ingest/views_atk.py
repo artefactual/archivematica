@@ -57,7 +57,8 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
             recurse_max_level=2,
             search_pattern=query
         )
-        page = helpers.pager(resource_data['children'], 20, request.GET.get('page', 1))
+        if resource_data['children']:
+             page = helpers.pager(resource_data['children'], 20, request.GET.get('page', 1))
     except MySQLdb.ProgrammingError:
         return HttpResponse('Database error. Please contact an administrator.')
 
@@ -93,7 +94,8 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
             recurse_max_level=2,
             search_pattern=query
         )
-        page = helpers.pager(resource_component_data['children'], 20, request.GET.get('page', 1))
+        if resource_component_data['children']:
+            page = helpers.pager(resource_component_data['children'], 20, request.GET.get('page', 1))
     except MySQLdb.ProgrammingError:
         return HttpResponse('Database error. Please contact an administrator.')
 
@@ -146,7 +148,32 @@ def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resour
 def ingest_upload_atk_get_dip_object_paths(uuid):
     return [
       'dog.jpg',
-      'images/cat.jpg'
+      'budget.xls',
+      'book.doc',
+      'manual.pdf',
+      'hats.png',
+      'demons.jpg',
+      'goat.png',
+      'celery.png',
+      'owls.jpg',
+      'candyman.jpg',
+      'clown.jpg',
+      'taxes.xls',
+      'stats.xls',
+      'donut.jpg',
+      'hamburger.jpg',
+      'goose.png',
+      'chicken.png',
+      'crayons.png',
+      'hammer.jpg',
+      'banana.jpg',
+      'minutes.doc',
+      'revised.pdf',
+      'carrot.jpg',
+      'hinge.jpg',
+      'hatrack.png',
+      'images/cat.jpg',
+      'images/racoon.jpg'
     ]
 
 def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uuid, resource_component_id):

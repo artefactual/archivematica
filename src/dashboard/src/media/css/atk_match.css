@@ -8,6 +8,7 @@
 }
 
 #object_pane {
+  height: 500px;
   float: left;
   overflow: auto;
   resize: both;
