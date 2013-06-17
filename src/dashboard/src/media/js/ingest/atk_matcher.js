@@ -241,6 +241,9 @@ var ATKMatcherView = Backbone.View.extend({
               $('#' + self.matchPanePairsCSSId).append($newMatchEl);
             }
 
+            // hack to fix Firefox issue
+            $('tr').css('display', 'table-row');
+
             // fade added element in and show Save button
             $newMatchEl.fadeIn('slow');
             $('#' + self.saveButtonCSSId).show();
