@@ -85,28 +85,50 @@ var ATKMatcherView = Backbone.View.extend({
       (function(index) {
         // add shift-click handling for selecting multiple paths
         newObjectPath.children().click(function(event) {
-          if (event.shiftKey) {
-            // don't respond to label click event, just checkbox
-            if ($(this).get(0).tagName == 'INPUT') {
-              // only want to perform this logic if th user has checked a checkbox
-              if ($(this).attr('checked') == 'checked') {
-                // work backwards, checking previously rendered checkboxes, to try to find
-                // one that's checked
-                var previousIndex = index - 1;
-                while (previousIndex >= 0) {
-                  // if a checkbox is checked, check all between it and the one that
-                  // was clicked
-                  if ($('#path_' + previousIndex + '_checkbox').attr('checked') == 'checked') {
-                    for(var checkIndex = previousIndex + 1; checkIndex < index; checkIndex++) {
-                      // check checkbox
-                      $('#path_' + checkIndex + '_checkbox').attr('checked', 'checked');
-                    }
+          // don't respond to label click event, just checkbox
+          if ($(this).get(0).tagName == 'INPUT') {
+            // only want to perform this logic if the user has checked a checkbox
+            if ($(this).attr('checked') == 'checked') {
+              // if user has shift-clicked, try multiple select
+              if (event.shiftKey && self.pathIndexOfLastChecked != undefined) {
+                // try multiple select direction based on the user's last checked path
+                if (self.pathIndexOfLastChecked < index) {
+                  // work backwards, checking previously rendered checkboxes, to try to find
+                  // one that's checked
+                  var previousIndex = index - 1;
+                  while (previousIndex >= 0) {
+                    // if a checkbox is checked, check all between it and the one that
+                    // was clicked
+                    if ($('#path_' + previousIndex + '_checkbox').attr('checked') == 'checked') {
+                      for(var checkIndex = previousIndex + 1; checkIndex < index; checkIndex++) {
+                        // check checkbox
+                        $('#path_' + checkIndex + '_checkbox').attr('checked', 'checked');
+                      }
 
-                    break;
+                      break;
+                    }
+                    previousIndex--;
                   }
-                  previousIndex--;
+                } else {
+                  // work forwards, checked checkboxes rendered after this checkbox, to find
+                  // one that's checked
+                  var nextIndex = index + 1;
+                  while (nextIndex < self.objectPaths.length) {
+                    if ($('#path_' + nextIndex + '_checkbox').attr('checked') == 'checked') {
+                      for(var checkIndex = nextIndex - 1; checkIndex > index; checkIndex--) {
+                        // check checkbox
+                        $('#path_' + checkIndex + '_checkbox').attr('checked', 'checked');
+                      }
+
+                      break;
+                    }
+                    nextIndex++;
+                  }
                 }
               }
+
+              // take note that this was the last checkbox checked
+              self.pathIndexOfLastChecked = index;
             }
           }
         });
