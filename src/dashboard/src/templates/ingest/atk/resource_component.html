@@ -14,13 +14,19 @@
     {% breadcrumb 'Description' %}
   </ul>
 
+  <div style="float:right">
+    {% include "ingest/atk/_search_form.html" %}
+  </div>
+
   <h1>
     Description<br />
-    <a style='float:right' class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_component_levels uuid resource_component_id %}'>Assign DIP objects to this level of description</a>
     <small>{{ resource_component_data.title }} ({{ resource_component_data.id }})</small>
   </h1>
 
-  {% include "ingest/atk/_search_form.html" %}
+  <a class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_component_levels uuid resource_component_id %}'>Assign DIP objects to this level of description</a>
+
+  <br />
+  <br />
 
   {% if page.objects %}
     <table>

@@ -13,13 +13,17 @@
     {% breadcrumb 'Collection' %}
   </ul>
 
-  <h1>Collection<br />
-  <a style='float:right' class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels uuid resource_id %}'>Assign DIP objects to this resource</a>
+  <div style="float:right">
+    {% include "ingest/atk/_search_form.html" %}
+  </div>
 
+  <h1>Collection<br />
     <small>{{ resource_data.title }} ({{ resource_data.id }})</small>
   </h1>
 
-  {% include "ingest/atk/_search_form.html" %}
+  <a class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels uuid resource_id %}'>Assign DIP objects to this resource</a>
+  <br />
+  <br />
 
   {% if page.objects %}
     <table>
