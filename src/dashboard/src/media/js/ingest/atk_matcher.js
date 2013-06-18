@@ -181,8 +181,28 @@ var ATKMatcherView = Backbone.View.extend({
           resourceAttribute = sortHandleCSSId.replace('sort_by_', '');
 
       $(this).click(function() {
+        // establish sort direction
+        if (self.resourceCollection.lastSortedBy != resourceAttribute) {
+          self.resourceCollection.sortDirection = 'asc';
+        } else {
+          if (self.resourceCollection.sortDirection == 'asc') {
+            self.resourceCollection.sortDirection = 'desc'
+          } else {
+            self.resourceCollection.sortDirection = 'asc'
+          }
+        }
+        self.resourceCollection.lastSortedBy = resourceAttribute;
+
+        // perform sort
         self.resourceCollection.sortAttribute = resourceAttribute;
         self.resourceCollection.sort();
+
+        // reverse sort if applicable
+        if (self.resourceCollection.sortDirection == 'desc') {
+          self.resourceCollection.models.reverse();
+        }
+
+        // render resource collection
         self.renderResourceCollection();
       });
     });
