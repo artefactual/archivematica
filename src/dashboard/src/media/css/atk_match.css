@@ -23,6 +23,7 @@
 }
 
 #object_pane_search, #resource_pane_search {
+  width: 210px;
   margin-bottom:10px;
 }
 
