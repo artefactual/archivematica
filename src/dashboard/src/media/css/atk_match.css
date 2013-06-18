@@ -30,6 +30,7 @@
   resize: both;
   display: inline-block;
   margin-right: 20px;
+  padding-right: 20px;
 }
 
 #object_pane_search, #resource_pane_search {
