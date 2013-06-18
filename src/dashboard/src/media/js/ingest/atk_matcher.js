@@ -66,6 +66,7 @@ var ATKMatcherView = Backbone.View.extend({
     this.activateObjectFiltering();
     this.activateResourceSelection();
     this.activateResourceFiltering();
+    this.activateResourceSorting();
     this.activateMatchButtonAndKeypressResponse();
     this.activateSaveButton();
     this.activateConfirmButton();
@@ -111,13 +112,29 @@ var ATKMatcherView = Backbone.View.extend({
   renderResourceCollection: function() {
     var self = this;
 
+    // empty resource pane
+    $('#' + self.resourcePaneItemsCSSId).empty();
+
+    // add items in collection to pane
     this.resourceCollection.models.forEach(function (resource) {
 
-      // render resource
+      // padding only makes sense when sorted by the order in which the
+      // data was origianlly provided by the server (ordered by
+      // level of description, then title)
+      if (
+        self.resourceCollection.sortAttribute == undefined
+        || self.resourceCollection.sortAttribute == 'sortPosition'
+      ) {
+        padding = resource.get('padding');
+      } else {
+        padding = '';
+      }
+
+      // render individual resource
       $('#' + self.resourcePaneItemsCSSId).append(
         self.resourceItemTemplate({
           'tempId':             resource.id,
-          'padding':            resource.get('padding'),
+          'padding':            padding,
           'title':              resource.get('title'),
           'levelOfDescription': resource.get('levelOfDescription'),
           'identifier':         resource.get('identifier'),
@@ -142,6 +159,32 @@ var ATKMatcherView = Backbone.View.extend({
             $(this).show();
           }
         });
+    });
+  },
+
+  activateResourceSorting: function() {
+    var self = this;
+
+    // add comparator
+    this.resourceCollection.comparator = function(resource) {
+      if (self.resourceCollection.sortAttribute != undefined) {
+        return resource.get(self.resourceCollection.sortAttribute);
+      } else {
+        return resource.id;
+      }
+    };
+
+    // activate sort handles
+    this.resourceCollection.sortAttribute = 'sortPosition';
+    $('.atk_resource_sort').each(function() {
+      var sortHandleCSSId = $(this).attr('id'),
+          resourceAttribute = sortHandleCSSId.replace('sort_by_', '');
+
+      $(this).click(function() {
+        self.resourceCollection.sortAttribute = resourceAttribute;
+        self.resourceCollection.sort();
+        self.renderResourceCollection();
+      });
     });
   },
 
