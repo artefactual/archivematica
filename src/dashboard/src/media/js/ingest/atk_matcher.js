@@ -206,8 +206,9 @@ var ATKMatcherView = Backbone.View.extend({
 
             // store pair in collection for easy retrieval
             self.pairCollection.add({
-              'objectPath':    item.path,
-              'resourceIdentifier': resource.get('identifier'),
+              'objectPath':           item.path,
+              'resourceCSSId':        self.selectedResourceCSSId,
+              'resourceIdentifier':   resource.get('identifier'),
               'resourceSortPosition': resource.get('sortPosition')
             });
 
@@ -263,7 +264,18 @@ var ATKMatcherView = Backbone.View.extend({
 
                 // remove visual and internal pair representations
                 $('#match_' + index).remove();
-                self.pairCollection.remove(self.pairCollection.get(index));
+                var pair = self.pairCollection.get(index);
+                self.pairCollection.remove(pair);
+
+                // see if the resource in the pairing is still associated with any objects
+                var found = self.pairCollection.find(function(item) {
+                  return item.get('resourceCSSId') === pair.get('resourceCSSId');
+                });
+
+                // if the resource isn't associated with any objects, remove usage highlighting
+                if (found == undefined) {
+                  $('#' + pair.get('resourceCSSId') + ' > td').css('color', '');
+                }
 
                 // hide save button if no pairs now exist
                 if (self.pairCollection.length == 0) {
