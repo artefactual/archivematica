@@ -321,8 +321,25 @@ var ATKMatcherView = Backbone.View.extend({
   },
 
   activateConfirmButton: function() {
-    var self = this;
+    var self = this,
+        url = window.location.href.split('/').slice(0, 7).join('/') + '/';
+
     $('#' + self.confirmButtonCSSId).click(function() {
+      $.ajax({
+        context: this,
+        type: 'POST',
+        dataType: 'json',
+        data: self.pairCollection.toJSON(),
+        success: function(result)
+          {
+            alert(result.message);
+          },
+        error: function()
+          {
+            alert("Error submitting data.");
+          },
+        url: url
+      });
       console.log(self.pairCollection.toJSON());
     });
   },

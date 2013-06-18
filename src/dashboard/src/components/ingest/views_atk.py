@@ -35,16 +35,26 @@ def ingest_upload_atk_db_connection():
     )
 
 def ingest_upload_atk(request, uuid):
-    try:
-        query = request.GET.get('query', '')
-        resources = ingest_upload_atk_get_collections(query)
+    if request.method == 'GET':
+        try:
+            query = request.GET.get('query', '')
+            resources = ingest_upload_atk_get_collections(query)
 
-        page = helpers.pager(resources, 20, request.GET.get('page', 1))
+            page = helpers.pager(resources, 20, request.GET.get('page', 1))
 
-    except MySQLdb.ProgrammingError:
-        return HttpResponse('Database error. Please contact an administrator.')
+        except MySQLdb.ProgrammingError:
+            return HttpResponse('Database error. Please contact an administrator.')
 
-    return render(request, 'ingest/atk/resource_list.html', locals())
+        return render(request, 'ingest/atk/resource_list.html', locals())
+    else:
+        response = {
+            "message": "Submitted successfully."
+        }
+
+        return HttpResponse(
+            simplejson.JSONEncoder().encode(response),
+            mimetype='application/json'
+        )
 
 def ingest_upload_atk_resource(request, uuid, resource_id):
     db = ingest_upload_atk_db_connection()
