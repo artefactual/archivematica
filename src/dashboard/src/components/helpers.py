@@ -325,14 +325,23 @@ def get_location(path=None, purpose=None, space=None):
     purpose: How the storage is used.  Should reference storage service
         purposes, found in storage_service.locations.models.py
     """
-    # TODO handle pagination
     api = _storage_api()
-    locations = api.location.get(path=path,
-                                 purpose=purpose, 
-                                 space=space)
-    logging.debug("Storage locations retrieved: {}".format(locations))
-    return_locations = [{'id': location['uuid'], 'path': location['full_path']} 
-        for location in locations['objects']]
+    offset = 0
+    return_locations = []
+    while True:
+        locations = api.location.get(path=path,
+                                     purpose=purpose, 
+                                     space=space,
+                                     offset=offset)
+        logging.debug("Storage locations retrieved: {}".format(locations))
+        return_locations += [
+            {'id': location['uuid'], 'path': location['full_path']} 
+            for location in locations['objects']
+            ]
+        if not locations['meta']['next']:
+            break
+        offset += locations['meta']['limit']
+
     logging.debug("Storage locations returned: {}".format(return_locations))
     return return_locations
 
@@ -380,11 +389,20 @@ def get_space(access_protocol=None, path=None):
     access_protocol: How the storage is accessed.  Should reference storage 
         service purposes, in storage_service.locations.models.py
     """
-    # TODO handle pagination
     api = _storage_api()
-    spaces = api.space.get(access_protocol=access_protocol,
-                           path=path)
-    return_spaces = spaces['objects']
+    offset = 0
+    return_spaces = []
+    while True:
+        spaces = api.space.get(access_protocol=access_protocol,
+                               path=path,
+                               offset=offset)
+        logging.debug("Storage spaces retrieved: {}".format(spaces))
+        return_spaces += spaces['objects']
+        if not spaces['meta']['next']:
+            break
+        offset += spaces['meta']['limit']
+
     logging.debug("Storage spaces returned: {}".format(return_spaces))
     return return_spaces
+
 
