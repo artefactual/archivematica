@@ -201,6 +201,9 @@ var ATKMatcherView = Backbone.View.extend({
               self.indexNumberFromCSSId(self.selectedResourceCSSId)
             );
 
+            // visually indicate that resource has had objects assigned to it
+            $('#' + self.selectedResourceCSSId + ' > td').css('color', 'red');
+
             // store pair in collection for easy retrieval
             self.pairCollection.add({
               'objectPath':    item.path,
