@@ -202,8 +202,9 @@ var ATKMatcherView = Backbone.View.extend({
           self.resourceCollection.models.reverse();
         }
 
-        // render resource collection
+        // render resource collection and re-activate resource selection
         self.renderResourceCollection();
+        self.activateResourceSelection();
       });
     });
   },
