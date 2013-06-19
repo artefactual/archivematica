@@ -12,12 +12,14 @@
     {% breadcrumb 'DIP Upload' %} 
   </ul>
 
+  <div style="float:right">
+    {% include "ingest/atk/_search_form.html" %}
+  </div>
+
   <h1>
     Collections<br />
     <small>Archivist's Toolkit</small>
   </h1>
-
-  {% include "ingest/atk/_search_form.html" %}
 
   <table>
     <thead>
@@ -25,14 +27,26 @@
         <th>Title</th>
         <th>Identifier</th>
         <th>Dates</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
       {% for resource in page.objects %}
         <tr>
-          <td><a href='{% url components.ingest.views_atk.ingest_upload_atk_resource uuid resource.id %}'>{{ resource.title }} ({{ resource.id }})</a></td>
+          <td>
+            {% if resource.children %}
+              <a href='{% url components.ingest.views_atk.ingest_upload_atk_resource uuid resource.id %}'>{{ resource.title }} ({{ resource.id }})</a>
+            {% else %}
+              {{ resource.title }} ({{ resource.id }})
+            {% endif %}
+          </td>
           <td>{{ resource.identifier }}</td>
           <td>{{ resource.dates }}</td>
+          <td>
+            {% if not resource.children %}
+              <a class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_resource uuid resource.id %}'>Assign&nbsp;Objects</a>
+            {% endif %}
+          </td>
         </tr>
       {% endfor %}
     </tbody>

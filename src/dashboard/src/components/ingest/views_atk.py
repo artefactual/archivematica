@@ -126,17 +126,14 @@ def ingest_upload_atk_get_collections(search_pattern=''):
     cursor = db.cursor()
 
     cursor.execute(
-      "SELECT resourceId, title, dateExpression, persistentID FROM atk_collection WHERE title LIKE %s OR persistentID LIKE %s ORDER BY title",
+      "SELECT resourceId FROM atk_collection WHERE title LIKE %s OR persistentID LIKE %s ORDER BY title",
       ('%' + search_pattern + '%', '%' + search_pattern + '%')
     )
 
     for row in cursor.fetchall():
-        collections.append({
-          'id':    row[0],
-          'title': row[1],
-          'dates': row[2],
-          'identifier': row[3]
-        })
+        collections.append(
+            ingest_upload_atk_get_resource_component_and_children(db, row[0])
+        )
 
     return collections
 
