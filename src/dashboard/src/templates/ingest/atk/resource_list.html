@@ -45,7 +45,7 @@
           <td>{{ resource.identifier }}</td>
           <td>{{ resource.dates }}</td>
           <td>
-            <a class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_resource uuid resource.id %}'>Assign&nbsp;Objects</a>
+            <a class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels uuid resource.id %}'>Assign&nbsp;Objects</a>
           </td>
         </tr>
       {% endfor %}
