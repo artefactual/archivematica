@@ -31,6 +31,7 @@
         <tr>
           <th>Level of Description</th>
           <th>Title</th>
+          <th>Identifier</th>
           <th>Dates</th>
         </tr>
       </thead>
@@ -39,6 +40,7 @@
           <tr>
             <td>{{ component.levelOfDescription }}</td>
             <td><a href='{% url components.ingest.views_atk.ingest_upload_atk_resource_component uuid component.id %}'>{{ component.title }} ({{ component.id }})</a></td>
+            <td>{{ component.identifier }}</td>
             <td>{{ component.dates }}</td>
           </tr>
         {% endfor %}

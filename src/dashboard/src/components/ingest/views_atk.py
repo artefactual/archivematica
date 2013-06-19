@@ -126,7 +126,7 @@ def ingest_upload_atk_get_collections(search_pattern=''):
     cursor = db.cursor()
 
     cursor.execute(
-      "SELECT resourceId, title, dateExpression FROM atk_collection WHERE title LIKE %s ORDER BY title",
+      "SELECT resourceId, title, dateExpression, persistentID FROM atk_collection WHERE title LIKE %s ORDER BY title",
       ('%' + search_pattern + '%')
     )
 
@@ -134,7 +134,8 @@ def ingest_upload_atk_get_collections(search_pattern=''):
         collections.append({
           'id':    row[0],
           'title': row[1],
-          'dates': row[2]
+          'dates': row[2],
+          'identifier': row[3]
         })
 
     return collections
@@ -232,16 +233,17 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
     cursor = db.cursor() 
 
     if resource_type == 'collection':
-        cursor.execute("SELECT title, dateExpression FROM atk_collection WHERE resourceid=%s", (resource_id))
+        cursor.execute("SELECT title, dateExpression, persistentID FROM atk_collection WHERE resourceid=%s", (resource_id))
 
         for row in cursor.fetchall():
             resource_data['id']                 = resource_id
             resource_data['sortPosition']       = sort_data['position']
             resource_data['title']              = row[0]
             resource_data['dates']              = row[1]
+            resource_data['identifier']         = row[2]
             resource_data['levelOfDescription'] = 'Fonds'
     else:
-        cursor.execute("SELECT title, dateExpression, persistentId, resourceLevel FROM atk_description WHERE resourceComponentId=%s", (resource_id))
+        cursor.execute("SELECT title, dateExpression, persistentID, resourceLevel FROM atk_description WHERE resourceComponentId=%s", (resource_id))
 
         for row in cursor.fetchall():
             resource_data['id']                 = resource_id
