@@ -154,13 +154,14 @@ function restart() {
 }
 
 function update-sampledata() {
-  part="update sample data in $HOME"
+  part="update sample data in $HOME/archivematica-sampledata"
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
     cd ~/archivematica-sampledata
     currentBranch=`git status | grep '# On branch ' | awk '{print $4}'`
     colour git pull origin ${currentBranch}
+    colour git submodule update
     cd `dirname $0`
   else
           echo "Not going to ${part}."
@@ -168,7 +169,7 @@ function update-sampledata() {
 }
 
 function export-sampledata() {
-  part="export sample data from $HOME"
+  part="export sample data from $HOME/archivematica-sampledata"
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
@@ -177,9 +178,10 @@ function export-sampledata() {
     exportDir="$HOME/archivematica-sampledata-$DATE"
     echo exporting to "${exportDir}"
     mkdir "${exportDir}"
-    mkdir "${exportDir}/OPF format-corpus"
     git archive master | tar -x -C "${exportDir}"
-    git submodule foreach "git archive master | tar -x -C \"${exportDir}/OPF format-corpus\""
+    git submodule foreach "cd ~/archivematica-sampledata && 
+        cd \"\$path\" &&
+        git archive master | tar -x -C \"${exportDir}/\$path\"" 
     cd `dirname $0`
   else
           echo "Not going to ${part}."
