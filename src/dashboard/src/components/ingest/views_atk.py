@@ -25,6 +25,26 @@ from components import helpers
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions, databaseInterface, databaseFunctions
 
+# TODO: move into helpers module at some point
+# From http://www.ironzebra.com/news/23/converting-multi-dimensional-form-arrays-in-django
+def getDictArray(post, name):
+    dic = {}
+    for k in post.keys():
+        if k.startswith(name):
+            rest = k[len(name):]
+            
+            # split the string into different components
+            parts = [p[:-1] for p in rest.split('[')][1:]
+            id = int(parts[0])
+            
+            # add a new dictionary if it doesn't exist yet
+            if id not in dic:
+                dic[id] = {}
+                
+            # add the information to the dictionary
+            dic[id][parts[1]] = post.get(k)
+    return dic
+
 def ingest_upload_atk_db_connection():
     # TODO: where to store config?
     return MySQLdb.connect(
@@ -47,6 +67,15 @@ def ingest_upload_atk(request, uuid):
 
         return render(request, 'ingest/atk/resource_list.html', locals())
     else:
+        pairs = getDictArray(request.POST, 'pairs')
+
+        keys = pairs.keys()
+        keys.sort()
+
+        for key in keys:
+            # TODO: write data in pairs[key] to DB
+            pass
+
         response = {
             "message": "Submitted successfully."
         }

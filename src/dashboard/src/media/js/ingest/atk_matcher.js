@@ -479,7 +479,7 @@ var ATKMatcherView = Backbone.View.extend({
         context: this,
         type: 'POST',
         dataType: 'json',
-        data: self.pairCollection.toJSON(),
+        data: {pairs: self.pairCollection.toJSON()},
         success: function(result)
           {
             alert(result.message);
@@ -491,7 +491,7 @@ var ATKMatcherView = Backbone.View.extend({
           },
         url: url
       });
-      console.log(self.pairCollection.toJSON());
+console.log(self.pairCollection.toJSON());
     });
   },
 
