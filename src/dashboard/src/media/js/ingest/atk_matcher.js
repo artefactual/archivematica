@@ -59,7 +59,8 @@ var ATKMatcherView = Backbone.View.extend({
 
     // render initial data
     this.renderObjectPaths();
-    this.renderResourceData(this.resourceData);
+    this.populateResourceCollection(this.resourceData);
+    this.renderResourceCollection();
 
     // activate interface behaviour
     this.activateObjectFiltering();
@@ -84,7 +85,7 @@ var ATKMatcherView = Backbone.View.extend({
     });
   },
 
-  renderResourceData: function(resourceData, level) {
+  populateResourceCollection: function(resourceData, level) {
     level = level || 0;
 
     var padding = '';
@@ -94,30 +95,36 @@ var ATKMatcherView = Backbone.View.extend({
     }
 
     // store internal representation for reference
+    resourceData['padding'] = padding;
     this.resourceCollection.add(resourceData);
-
-    var resourceModel = this.resourceCollection.lastModelAdded();
-
-    // display resource
-    $('#' + this.resourcePaneItemsCSSId).append(
-      this.resourceItemTemplate({
-        'tempId':             resourceModel.id,
-        'padding':            padding,
-        'title':              resourceData.title,
-        'levelOfDescription': resourceData.levelOfDescription,
-        'identifier':         resourceData.identifier,
-        'dates':              resourceData.dates
-      })
-    );
 
     // recurse if children are found
     if (resourceData.children) {
       var self = this;
 
       resourceData.children.forEach(function(child) {
-        self.renderResourceData(child, level + 1);
+        self.populateResourceCollection(child, level + 1);
       });
     }
+  },
+
+  renderResourceCollection: function() {
+    var self = this;
+
+    this.resourceCollection.models.forEach(function (resource) {
+
+      // render resource
+      $('#' + self.resourcePaneItemsCSSId).append(
+        self.resourceItemTemplate({
+          'tempId':             resource.id,
+          'padding':            resource.get('padding'),
+          'title':              resource.get('title'),
+          'levelOfDescription': resource.get('levelOfDescription'),
+          'identifier':         resource.get('identifier'),
+          'dates':              resource.get('dates')
+        })
+      );
+    });
   },
 
   activateObjectFiltering: function() {
