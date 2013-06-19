@@ -41,20 +41,18 @@
   margin-right:5px;
 }
 
-#button_pane {
-  vertical-align: top;
-  height: 500px;
-  width: 65px;
-  display: inline-block;
-  margin-right: 20px;
-}
-
 #match_pane {
   vertical-align: top;
   height: 500px;
   overflow: auto;
   resize: both;
   display: inline-block;
+}
+
+#match_button {
+  float: right;
+  margin-top: 10px;
+  margin-right: 10px;
 }
 
 #match_save_button, #match_confirm_button, #match_cancel_button {

@@ -31,7 +31,6 @@ var ATKMatcherView = Backbone.View.extend({
           'matchButtonCSSId',
           'matchPaneCSSId',
           'matchPanePairsCSSId',
-          'buttonPaneCSSId',
           'saveButtonCSSId',
           'confirmButtonCSSId',
           'cancelButtonCSSId'
@@ -321,7 +320,6 @@ var ATKMatcherView = Backbone.View.extend({
         fadeOutElementCSSIds = [
           this.objectPaneCSSId,
           this.resourcePaneCSSId,
-          this.buttonPaneCSSId,
           this.saveButtonCSSId
         ],
         fadeInElementCSSIds = [
@@ -364,7 +362,6 @@ var ATKMatcherView = Backbone.View.extend({
         fadeInElementCSSIds = [
           this.objectPaneCSSId,
           this.resourcePaneCSSId,
-          this.buttonPaneCSSId,
           this.saveButtonCSSId
         ],
         fadeOutElementCSSIds = [
