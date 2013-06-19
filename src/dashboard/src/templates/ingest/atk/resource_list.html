@@ -45,9 +45,7 @@
           <td>{{ resource.identifier }}</td>
           <td>{{ resource.dates }}</td>
           <td>
-            {% if not resource.children %}
-              <a class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_resource uuid resource.id %}'>Assign&nbsp;Objects</a>
-            {% endif %}
+            <a class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_resource uuid resource.id %}'>Assign&nbsp;Objects</a>
           </td>
         </tr>
       {% endfor %}

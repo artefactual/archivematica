@@ -49,9 +49,7 @@
             <td>{{ component.identifier }}</td>
             <td>{{ component.dates }}</td>
             <td>
-              {% if not component.children %}
-                <a class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_resource_component uuid component.id %}'>Assign&nbsp;Objects</a>
-              {% endif %}
+              <a class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_component_levels uuid component.id %}'>Assign&nbsp;Objects</a>
             </td>
           </tr>
         {% endfor %}
