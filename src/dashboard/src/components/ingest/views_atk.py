@@ -20,7 +20,8 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.utils import simplejson
-import os, sys, MySQLdb
+import os, sys, MySQLdb, ast
+from main import models
 from components import helpers
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivistsToolkit.atk as atk
@@ -47,12 +48,15 @@ def getDictArray(post, name):
     return dic
 
 def ingest_upload_atk_db_connection():
-    # TODO: where to store config?
+    dict = models.MicroServiceChoiceReplacementDic.objects.get(description='Archivists Toolkit Config')
+    config = ast.literal_eval(dict.replacementdic)
+
     return MySQLdb.connect(
-        host="localhost",
-        user="root",
-        passwd="",
-        db="MCP"
+        host=config['%host%'],
+        port=int(config['%port%']),
+        user=config['%dbuser%'],
+        passwd=config['%dbpass%'],
+        db=config['%dbname%']
     )
 
 def ingest_upload_atk(request, uuid):
