@@ -156,7 +156,7 @@ def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resour
     return render(request, 'ingest/atk/match.html', locals())
 
 def ingest_upload_atk_get_dip_object_paths(uuid):
-    return [
+    paths = [
       'dog.jpg',
       'budget.xls',
       'book.doc',
@@ -185,6 +185,10 @@ def ingest_upload_atk_get_dip_object_paths(uuid):
       'images/cat.jpg',
       'images/racoon.jpg'
     ]
+
+    paths.sort()
+
+    return paths
 
 def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uuid, resource_component_id):
     # load object relative paths
