@@ -166,7 +166,7 @@ def ingest_upload_atk_get_collections(search_pattern=''):
 
     for row in cursor.fetchall():
         collections.append(
-            atk.get_resource_component_and_children(db, row[0])
+            atk.get_resource_component_and_children(db, row[0], recurse_max_level=2)
         )
 
     return collections
