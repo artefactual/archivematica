@@ -62,8 +62,8 @@ def ingest_upload_atk_db_connection():
 def ingest_upload_atk(request, uuid):
     if request.method == 'GET':
         try:
-            query = request.GET.get('query', '')
-            resources = ingest_upload_atk_get_collections(query)
+            query = request.GET.get('query', '').strip()
+            resources = ingest_upload_atk_get_collection_ids(query)
 
             page = helpers.pager(resources, 20, request.GET.get('page', 1))
 
@@ -101,7 +101,7 @@ def ingest_upload_atk(request, uuid):
 def ingest_upload_atk_resource(request, uuid, resource_id):
     db = ingest_upload_atk_db_connection()
     try:
-        query = request.GET.get('query', '')
+        query = request.GET.get('query', '').strip()
         resource_data = atk.get_resource_component_and_children(
             db,
             resource_id,
@@ -138,7 +138,7 @@ def ingest_upload_atk_determine_resource_component_resource_id(resource_componen
 def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     db = ingest_upload_atk_db_connection()
     try:
-        query = request.GET.get('query', '')
+        query = request.GET.get('query', '').strip()
         resource_component_data = atk.get_resource_component_and_children(
             db,
             resource_component_id,
@@ -160,17 +160,20 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     else:
         return render(request, 'ingest/atk/resource_component.html', locals())
 
-def ingest_upload_atk_get_collections(search_pattern=''):
+def ingest_upload_atk_get_collection_ids(search_pattern=''):
     collections = []
 
     db = ingest_upload_atk_db_connection()
 
     cursor = db.cursor()
 
-    cursor.execute(
-      "SELECT resourceId FROM Resources WHERE (title LIKE %s OR resourceid LIKE %s) AND resourceLevel = 'collection' ORDER BY title",
-      ('%' + search_pattern + '%', '%' + search_pattern + '%')
-    )
+    if search_pattern != '':
+        cursor.execute(
+            "SELECT resourceId FROM Resources WHERE (title LIKE %s OR resourceid LIKE %s) AND resourceLevel = 'collection' ORDER BY title",
+            ('%' + search_pattern + '%', '%' + search_pattern + '%')
+        )
+    else:
+        cursor.execute("SELECT resourceId FROM Resources WHERE resourceLevel = 'collection' ORDER BY title")
 
     for row in cursor.fetchall():
         collections.append(row[0])
