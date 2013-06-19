@@ -3,14 +3,15 @@ DROP table IF EXISTS Resources;
 CREATE TABLE Resources (
   resourceid INT(10),
   title varchar(255),
-  dateExpression varchar(255)
+  dateExpression varchar(255),
+  resourceLevel varchar(255)
 );
 
-INSERT INTO Resources (resourceid,title,dateExpression) VALUES (31,"Foundation for Child Development records","1898, 1902, 1907, 1909-1910, 1912-1998, bulk 1960-1998");
-INSERT INTO Resources (resourceid,title,dateExpression) VALUES (827,"John D. Rockefeller papers","Bulk, 1879-1894 1855-1942 (bulk 1879-1894)");
-INSERT INTO Resources (resourceid,title,dateExpression) VALUES (18983, "Ford Foundation records, Peace & Social Justice Program (PSJ), Human Rights and International Cooperation (HRIC), Office Files of Alan Jenkins","1995-2001");
-INSERT INTO Resources (resourceid,title,dateExpression) VALUES (19020,"Dorothy I. Parker papers","1932-1985");
-INSERT INTO Resources (resourceid,title,dateExpression) VALUES (19157,"Ford Foundation records, International Division, Office Files of Elinor Barber","1967-1981");
+INSERT INTO Resources (resourceid,title,dateExpression,resourceLevel) VALUES (31,"Foundation for Child Development records","1898, 1902, 1907, 1909-1910, 1912-1998, bulk 1960-1998", "collection");
+INSERT INTO Resources (resourceid,title,dateExpression,resourceLevel) VALUES (827,"John D. Rockefeller papers","Bulk, 1879-1894 1855-1942 (bulk 1879-1894)", "collection");
+INSERT INTO Resources (resourceid,title,dateExpression,resourceLevel) VALUES (18983, "Ford Foundation records, Peace & Social Justice Program (PSJ), Human Rights and International Cooperation (HRIC), Office Files of Alan Jenkins","1995-2001", "collection");
+INSERT INTO Resources (resourceid,title,dateExpression,resourceLevel) VALUES (19020,"Dorothy I. Parker papers","1932-1985", "collection");
+INSERT INTO Resources (resourceid,title,dateExpression,resourceLevel) VALUES (19157,"Ford Foundation records, International Division, Office Files of Elinor Barber","1967-1981", "collection");
 
 DROP TABLE IF EXISTS ResourcesComponents;
 
