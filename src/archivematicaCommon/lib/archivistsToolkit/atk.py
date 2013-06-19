@@ -58,14 +58,13 @@ def get_resource_component_and_children(db, resource_id, resource_type='collecti
     cursor = db.cursor() 
 
     if resource_type == 'collection':
-        cursor.execute("SELECT title, dateExpression, persistentID FROM Resources WHERE resourceid=%s", (resource_id))
+        cursor.execute("SELECT title, dateExpression FROM Resources WHERE resourceid=%s", (resource_id))
 
         for row in cursor.fetchall():
             resource_data['id']                 = resource_id
             resource_data['sortPosition']       = sort_data['position']
             resource_data['title']              = row[0]
             resource_data['dates']              = row[1]
-            resource_data['identifier']         = row[2]
             resource_data['levelOfDescription'] = 'collection'
     else:
         cursor.execute("SELECT title, dateExpression, persistentID, resourceLevel FROM ResourcesComponents WHERE resourceComponentId=%s", (resource_id))
