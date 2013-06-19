@@ -68,12 +68,7 @@ def ingest_upload_atk(request, uuid):
             page = helpers.pager(resources, 20, request.GET.get('page', 1))
 
             db = ingest_upload_atk_db_connection()
-            resources_augmented = []
-            for id in page['objects']:
-                resources_augmented.append(
-                    atk.get_resource_component_and_children(db, id, recurse_max_level=2)
-                )
-            page['objects'] = resources_augmented
+            page['objects'] = augment_resource_data(db, page['objects'])
 
         except MySQLdb.ProgrammingError:
             return HttpResponse('Database error. Please contact an administrator.')
@@ -97,6 +92,14 @@ def ingest_upload_atk(request, uuid):
             simplejson.JSONEncoder().encode(response),
             mimetype='application/json'
         )
+
+def augment_resource_data(db, resource_ids):
+    resources_augmented = []
+    for id in resource_ids:
+        resources_augmented.append(
+            atk.get_resource_component_and_children(db, id, recurse_max_level=2)
+        )
+    return resources_augmented
 
 def ingest_upload_atk_resource(request, uuid, resource_id):
     db = ingest_upload_atk_db_connection()
