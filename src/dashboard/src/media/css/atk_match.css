@@ -1,0 +1,54 @@
+/* override Boostrap style */
+.atk-matcher-object-path > label {
+  float: none;
+}
+
+.atk-matcher-resource-item:hover, .atk-matcher-object-path:hover {
+  background-color: #d8f2dc;
+}
+
+#object_pane {
+  height: 500px;
+  float: left;
+  overflow: auto;
+  resize: both;
+  margin-right: 20px;
+}
+
+#resource_pane {
+  height: 500px;
+  float: left;
+  overflow: auto;
+  resize: both;
+  margin-right: 20px;
+}
+
+#object_pane_search, #resource_pane_search {
+  width: 210px;
+  margin-bottom:10px;
+}
+
+#object_pane_search > input, #resource_pane_search > input {
+  margin-right:5px;
+}
+
+#button_pane {
+  width: 65px;
+  float: left;
+  margin-right: 20px;
+}
+
+#match_pane {
+  height: 500px;
+  float: left;
+  overflow: auto;
+  resize: both;
+}
+
+#match_save_button, #match_confirm_button, #match_cancel_button {
+  display: none;
+}
+
+.atk-matcher-disabled-object-label {
+  color: #aaa;
+}

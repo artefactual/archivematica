@@ -45,7 +45,6 @@ def recursive_file_gen(mydir):
         for file in files:
             yield os.path.join(root, file)
 
-
 def process_sql(str):
     global cursor 
     if testMode:
