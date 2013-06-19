@@ -81,8 +81,15 @@ def ingest_upload_atk(request, uuid):
         keys.sort()
 
         for key in keys:
-            # TODO: write data in pairs[key] to DB
-            pass
+            pairing = models.AtkDIPObjectResourcePairing.objects.create(
+                dipuuid=pairs[key]['DIPUUID'],
+                fileuuid=pairs[key]['objectPath']
+            )
+            if pairs[key]['resourceLevelOfDescription'] == 'collection':
+                pairing.resourceid = pairs[key]['resourceId']
+            else:
+                pairing.resourcecomponentid = pairs[key]['resourceId']
+            pairing.save()
 
         response = {
             "message": "Submitted successfully."

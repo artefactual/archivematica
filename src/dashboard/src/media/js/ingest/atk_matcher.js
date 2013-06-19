@@ -20,6 +20,7 @@ var ATKMatcherView = Backbone.View.extend({
   initialize: function(options) {
     var self = this,
         manditoryProperties = [
+          'DIPUUID',
           'objectPaths',
           'resourceData',
           'objectPaneCSSId',
@@ -338,6 +339,7 @@ var ATKMatcherView = Backbone.View.extend({
 
             // store pair in collection for easy retrieval
             self.pairCollection.add({
+              'DIPUUID':                    self.DIPUUID,
               'objectPath':                 item.path,
               'resourceId':                 resource.id,
               'resourceCSSId':              self.selectedResourceCSSId,
