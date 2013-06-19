@@ -69,7 +69,7 @@ def ingest_upload_atk(request, uuid):
 
             db = ingest_upload_atk_db_connection()
             resources_augmented = []
-            for id in resources:
+            for id in page['objects']:
                 resources_augmented.append(
                     atk.get_resource_component_and_children(db, id, recurse_max_level=2)
                 )
