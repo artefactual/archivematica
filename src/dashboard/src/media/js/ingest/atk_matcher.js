@@ -338,10 +338,11 @@ var ATKMatcherView = Backbone.View.extend({
 
             // store pair in collection for easy retrieval
             self.pairCollection.add({
-              'objectPath':           item.path,
-              'resourceCSSId':        self.selectedResourceCSSId,
-              'resourceIdentifier':   resource.get('identifier'),
-              'resourceSortPosition': resource.get('sortPosition')
+              'objectPath':                 item.path,
+              'resourceId':                 resource.id,
+              'resourceCSSId':              self.selectedResourceCSSId,
+              'resourceLevelOfDescription': resource.get('levelOfDescription'),
+              'resourceSortPosition':       resource.get('sortPosition')
             });
 
             // get the pair model that was added
