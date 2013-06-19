@@ -7,19 +7,28 @@
   background-color: #d8f2dc;
 }
 
+#atk_matcher {
+  width: 100%;
+  float:left;
+  overflow: auto;
+  white-space: nowrap;
+}
+
 #object_pane {
+  vertical-align: top;
   height: 500px;
-  float: left;
   overflow: auto;
   resize: both;
+  display: inline-block;
   margin-right: 20px;
 }
 
 #resource_pane {
+  vertical-align: top;
   height: 500px;
-  float: left;
   overflow: auto;
   resize: both;
+  display: inline-block;
   margin-right: 20px;
 }
 
@@ -33,16 +42,19 @@
 }
 
 #button_pane {
+  vertical-align: top;
+  height: 500px;
   width: 65px;
-  float: left;
+  display: inline-block;
   margin-right: 20px;
 }
 
 #match_pane {
+  vertical-align: top;
   height: 500px;
-  float: left;
   overflow: auto;
   resize: both;
+  display: inline-block;
 }
 
 #match_save_button, #match_confirm_button, #match_cancel_button {
