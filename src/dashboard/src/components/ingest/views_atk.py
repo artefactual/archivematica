@@ -126,8 +126,8 @@ def ingest_upload_atk_get_collections(search_pattern=''):
     cursor = db.cursor()
 
     cursor.execute(
-      "SELECT resourceId, title, dateExpression, persistentID FROM atk_collection WHERE title LIKE %s ORDER BY title",
-      ('%' + search_pattern + '%')
+      "SELECT resourceId, title, dateExpression, persistentID FROM atk_collection WHERE title LIKE %s OR persistentID LIKE %s ORDER BY title",
+      ('%' + search_pattern + '%', '%' + search_pattern + '%')
     )
 
     for row in cursor.fetchall():
@@ -258,9 +258,9 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
     # fetch children if we haven't reached the maximum recursion level
     if (not recurse_max_level) or level < recurse_max_level:
         if resource_type == 'collection':
-            cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId IS NULL AND resourceId=%s AND title LIKE %s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%'))
+            cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId IS NULL AND resourceId=%s AND (title LIKE %s OR persistentID LIKE %s) ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%', '%' + query + '%'))
         else:
-            cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId=%s AND title LIKE %s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%'))
+            cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId=%s AND (title LIKE %s OR persistentID LIKE %s) ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%', '%' + query + '%'))
 
         rows = cursor.fetchall()
 
