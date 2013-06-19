@@ -346,6 +346,7 @@ var ATKMatcherView = Backbone.View.extend({
         success: function(result)
           {
             alert(result.message);
+            window.location = '/ingest';
           },
         error: function()
           {
