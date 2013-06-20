@@ -141,6 +141,11 @@ var ATKMatcherView = Backbone.View.extend({
           'dates':              resource.get('dates')
         })
       );
+
+      // highlight if it has been paired with any objects
+      if (resource.get('used')) {
+        $('#resource_' + resource.id).css('color', 'red');
+      }
     });
   },
 
@@ -271,7 +276,9 @@ var ATKMatcherView = Backbone.View.extend({
               self.indexNumberFromCSSId(self.selectedResourceCSSId)
             );
 
-            // visually indicate that resource has had objects assigned to it
+            // take note that resource has had objects assigned to it and visually
+            // indicate it
+            resource.set({'used': true});
             $('#' + self.selectedResourceCSSId + ' > td').css('color', 'red');
 
             // store pair in collection for easy retrieval
@@ -323,7 +330,7 @@ var ATKMatcherView = Backbone.View.extend({
             $('#' + self.saveButtonCSSId).show();
 
             // enable deletion of match
-            (function(index, pathId) {
+            (function(index, pathId, resourceId) {
               $('#match_delete_' + index).click(function() {
                 // enable checkbox and remove greying out of associated label
                 $('#' + pathId + ' > input').removeAttr('disabled');
@@ -344,7 +351,11 @@ var ATKMatcherView = Backbone.View.extend({
 
                 // if the resource isn't associated with any objects, remove usage highlighting
                 if (found == undefined) {
-                  $('#' + pair.get('resourceCSSId') + ' > td').css('color', '');
+                  // TODO: redo using a class
+                  $('#' + pair.get('resourceCSSId') + ' > td').css('color', 'black');
+                  // set used in resource with ID resourceId to false
+                  var resource = self.resourceCollection.get({id: resourceId});
+                  resource.set({used: false});
                 }
 
                 // hide save button if no pairs now exist
@@ -352,7 +363,7 @@ var ATKMatcherView = Backbone.View.extend({
                   $('#' + self.saveButtonCSSId).hide();
                 }
               });
-            })(pairModel.id, item.id)
+            })(pairModel.id, item.id, resource.id)
             self.matchIndex++;
           });
 
