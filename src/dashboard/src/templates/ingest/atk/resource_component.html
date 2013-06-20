@@ -14,9 +14,7 @@
     {% breadcrumb 'Description' %}
   </ul>
 
-  <div style="float:right">
-    {% include "ingest/atk/_search_form.html" %}
-  </div>
+  <div style="float:right"><form action='' method='GET'><input name='query' type='text' value='{{ query }}' /><input type='submit' value='Search' class='btn' /></form></div>
 
   <h1>
     Description<br />
