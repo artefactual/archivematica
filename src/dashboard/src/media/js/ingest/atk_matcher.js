@@ -144,7 +144,7 @@ var ATKMatcherView = Backbone.View.extend({
 
       // highlight if it has been paired with any objects
       if (resource.get('used')) {
-        $('#resource_' + resource.id).css('color', 'red');
+        $('#resource_' + resource.id + ' > td').addClass('atk-matcher-resource-item-paired');
       }
     });
   },
@@ -279,7 +279,7 @@ var ATKMatcherView = Backbone.View.extend({
             // take note that resource has had objects assigned to it and visually
             // indicate it
             resource.set({'used': true});
-            $('#' + self.selectedResourceCSSId + ' > td').css('color', 'red');
+            $('#' + self.selectedResourceCSSId + ' > td').addClass('atk-matcher-resource-item-paired');
 
             // store pair in collection for easy retrieval
             self.pairCollection.add({
@@ -352,7 +352,7 @@ var ATKMatcherView = Backbone.View.extend({
                 // if the resource isn't associated with any objects, remove usage highlighting
                 if (found == undefined) {
                   // TODO: redo using a class
-                  $('#' + pair.get('resourceCSSId') + ' > td').css('color', 'black');
+                  $('#' + pair.get('resourceCSSId') + ' > td').removeClass('atk-matcher-resource-item-paired');
                   // set used in resource with ID resourceId to false
                   var resource = self.resourceCollection.get({id: resourceId});
                   resource.set({used: false});

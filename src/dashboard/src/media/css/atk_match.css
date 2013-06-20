@@ -7,6 +7,10 @@
   background-color: #d8f2dc;
 }
 
+.atk-matcher-resource-item-paired {
+  color: #ff0000;
+}
+
 #atk_matcher {
   width: 100%;
   float:left;
