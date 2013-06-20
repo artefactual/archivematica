@@ -79,9 +79,39 @@ var ATKMatcherView = Backbone.View.extend({
 
     // add each path to object pane
     this.objectPaths.forEach(function(path) {
-      $('#' + self.objectPanePathsCSSId).append(
-        self.objectPathTemplate({'index': index, 'path': path})
-      );
+      // create object path representation (checkbox and label)
+      var newObjectPath = $(self.objectPathTemplate({'index': index, 'path': path}));
+
+      (function(index) {
+        // add shift-click handling for selecting multiple paths
+        newObjectPath.children().click(function(event) {
+          if (event.shiftKey) {
+            // don't respond to label click event, just checkbox
+            if ($(this).get(0).tagName == 'INPUT') {
+              // only want to perform this logic if th user has checked a checkbox
+              if ($(this).attr('checked') == 'checked') {
+                // work backwards, checking previously rendered checkboxes, to try to find
+                // one that's checked
+                var previousIndex = index - 1;
+                while (previousIndex >= 0) {
+                  // if a checkbox is checked, check all between it and the one that
+                  // was clicked
+                  if ($('#path_' + previousIndex + '_checkbox').attr('checked') == 'checked') {
+                    for(var checkIndex = previousIndex + 1; checkIndex < index; checkIndex++) {
+                      // check checkbox
+                      $('#path_' + checkIndex + '_checkbox').attr('checked', 'checked');
+                    }
+
+                    break;
+                  }
+                  previousIndex--;
+                }
+              }
+            }
+          }
+        });
+      })(index);
+      $('#' + self.objectPanePathsCSSId).append(newObjectPath);
       index++;
     });
   },
