@@ -238,7 +238,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
             resource_data['title']              = row[0]
             resource_data['dates']              = row[1]
             resource_data['identifier']         = row[2]
-            resource_data['levelOfDescription'] = 'Fonds'
+            resource_data['levelOfDescription'] = 'collection'
     else:
         cursor.execute("SELECT title, dateExpression, persistentID, resourceLevel FROM atk_description WHERE resourceComponentId=%s", (resource_id))
 
@@ -285,7 +285,7 @@ def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resou
       'sortPosition': '1',
       'identifier': 'PR01',
       'title': 'Parent',
-      'levelOfDescription': 'Fonds',
+      'levelOfDescription': 'collection',
       'dates': '1880-1889',
       'children': [{
         'id': '23',
