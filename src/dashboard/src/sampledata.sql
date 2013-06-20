@@ -36,9 +36,9 @@ INSERT INTO atk_description (resourceComponentId, parentResourceComponentId, per
 INSERT INTO atk_description (resourceComponentId, parentResourceComponentId, persistentID, resourceLevel, dateExpression, title) VALUES (62992, 63451, 'ref495', 'subseries', '1951-1996', 'Administration - Council');
 INSERT INTO atk_description (resourceComponentId, parentResourceComponentId, persistentID, resourceLevel, dateExpression, title) VALUES (62993, 63451, 'ref377', 'subseries', '1950-1992, 1996', 'Administration - Committees');
 INSERT INTO atk_description (resourceComponentId, parentResourceComponentId, persistentID, resourceLevel, dateExpression, title) VALUES (63107, 63451, 'ref14', 'subseries', '1951-1996', 'Administration - Board of Directors Meetings');
-INSERT INTO atk_description (resourceComponentId, parentResourceComponentId, persistentID, resourceLevel, dateExpression, title) VALUES (63263, 63107, 'ref205', 'file', 'March 16, 1964', '');
-INSERT INTO atk_description (resourceComponentId, parentResourceComponentId, persistentID, resourceLevel, dateExpression, title) VALUES (3264, 63107, 'ref204', 'file', 'October 22, 1963', '');
-INSERT INTO atk_description (resourceComponentId, parentResourceComponentId, persistentID, resourceLevel, dateExpression, title) VALUES (63265, 63107, 'ref203', 'file', 'May 28, 1963', '');
+INSERT INTO atk_description (resourceComponentId, parentResourceComponentId, persistentID, resourceLevel, dateExpression, title) VALUES (63263, 63107, 'ref205', 'file', 'March 16, 1964', 'Some stuff');
+INSERT INTO atk_description (resourceComponentId, parentResourceComponentId, persistentID, resourceLevel, dateExpression, title) VALUES (3264, 63107, 'ref204', 'file', 'October 22, 1963', 'Some more stuff');
+INSERT INTO atk_description (resourceComponentId, parentResourceComponentId, persistentID, resourceLevel, dateExpression, title) VALUES (63265, 63107, 'ref203', 'file', 'May 28, 1963', 'Even more stuff');
 INSERT INTO atk_description (resourceComponentId, parentResourceComponentId, persistentID, resourceLevel, dateExpression, title) VALUES (63266, 63107, 'ref202', 'file', 'April 23, 1963', 'Annual Meeting');
-INSERT INTO atk_description (resourceComponentId, parentResourceComponentId, persistentID, resourceLevel, dateExpression, title) VALUES (63295, 63107, 'ref173', 'file', 'May 16, 1951, May 16, 1951', '');
+INSERT INTO atk_description (resourceComponentId, parentResourceComponentId, persistentID, resourceLevel, dateExpression, title) VALUES (63295, 63107, 'ref173', 'file', 'May 16, 1951, May 16, 1951', 'Stuff');
 
