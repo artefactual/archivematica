@@ -49,6 +49,7 @@
 #match_pane {
   vertical-align: top;
   height: 500px;
+  width: 500px;
   overflow: auto;
   resize: both;
   display: inline-block;
