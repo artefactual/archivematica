@@ -40,9 +40,9 @@
             <td>{{ component.levelOfDescription }}</td>
             <td>
               {% if component.children %}
-                <a href='{% url components.ingest.views_atk.ingest_upload_atk_resource_component uuid component.id %}'>{{ component.title }} ({{ component.id }})</a>
+                <a href='{% url components.ingest.views_atk.ingest_upload_atk_resource_component uuid component.id %}'>{{ component.title }}</a>
               {% else %}
-                {{ component.title }} ({{ component.id }})
+                {{ component.title }}
               {% endif %}
             </td>
             <td>{{ component.identifier }}</td>

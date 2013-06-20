@@ -37,9 +37,9 @@
         <tr>
           <td>
             {% if resource.children %}
-              <a href='{% url components.ingest.views_atk.ingest_upload_atk_resource uuid resource.id %}'>{{ resource.title }} ({{ resource.id }})</a>
+              <a href='{% url components.ingest.views_atk.ingest_upload_atk_resource uuid resource.id %}'>{{ resource.title }}</a>
             {% else %}
-              {{ resource.title }} ({{ resource.id }})
+              {{ resource.title }}
             {% endif %}
           </td>
           <td>{{ resource.identifier }}</td>
