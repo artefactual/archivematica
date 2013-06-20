@@ -18,6 +18,10 @@
   white-space: nowrap;
 }
 
+.atk-pane-header {
+  height: 75px;
+}
+
 #object_pane {
   vertical-align: top;
   height: 500px;
@@ -27,16 +31,6 @@
   margin-right: 20px;
 }
 
-#resource_pane {
-  vertical-align: top;
-  height: 500px;
-  overflow: auto;
-  resize: both;
-  display: inline-block;
-  margin-right: 20px;
-  padding-right: 20px;
-}
-
 #object_pane_search, #resource_pane_search {
   width: 210px;
   margin-bottom:10px;
@@ -44,6 +38,25 @@
 
 #object_pane_search > input, #resource_pane_search > input {
   margin-right:5px;
+}
+
+#object_pane_paths {
+  margin-top: 10px;
+}
+
+.atk-matcher-disabled-object-label {
+  color: #aaa;
+}
+
+#resource_pane {
+  vertical-align: top;
+  height: 500px;
+  width: 500px;
+  overflow: auto;
+  resize: both;
+  display: inline-block;
+  margin-right: 20px;
+  padding-right: 20px;
 }
 
 #match_pane {
@@ -63,8 +76,4 @@
 
 #match_save_button, #match_confirm_button, #match_cancel_button {
   display: none;
-}
-
-.atk-matcher-disabled-object-label {
-  color: #aaa;
 }

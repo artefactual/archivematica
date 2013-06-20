@@ -38,19 +38,23 @@
 
   <script type="text/template" id="matcher-layout-template">
     <div id="object_pane">
-      <h3>Objects</h3>
-      <div id="object_pane_search">
-        <input style="width: 150px" placeholder="Filter objects" />
-        <img src="{{ STATIC_URL }}images/zoom.png" />
+      <div class="atk-pane-header">
+        <h3>Objects</h3>
+        <div id="object_pane_search">
+          <input style="width: 150px" placeholder="Filter objects" />
+          <img src="{{ STATIC_URL }}images/zoom.png" />
+        </div>
       </div>
       <div id="object_pane_paths"></div>
     </div>
     <div id="resource_pane">
-      <input id='match_button' type='button' value='Pair' class='btn' />
-      <h3>Resources</h3>
-      <div id="resource_pane_search">
-        <input style="width: 150px" placeholder="Filter resources" />
-        <img src="{{ STATIC_URL }}images/zoom.png" />
+      <div class="atk-pane-header">
+        <input id='match_button' type='button' value='Pair' class='btn' />
+        <h3>Resources</h3>
+        <div id="resource_pane_search">
+          <input style="width: 150px" placeholder="Filter resources" />
+          <img src="{{ STATIC_URL }}images/zoom.png" />
+        </div>
       </div>
       <table>
         <thead>
@@ -66,8 +70,10 @@
       </table>
     </div>
     <div id="match_pane">
-      <input id="match_save_button" type='button' class='btn' value='Save' />
-      <h3>Pairs</h3>
+      <div class="atk-pane-header">
+        <input id="match_save_button" type='button' class='btn' value='Save' />
+        <h3>Pairs</h3>
+      </div>
       <table>
         <thead>
           <tr>
