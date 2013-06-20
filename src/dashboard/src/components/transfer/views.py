@@ -31,7 +31,7 @@ from components import helpers
 import components.decorators as decorators
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/tmp/am."+__name__+'.log', 
+logging.basicConfig(filename="/tmp/archivematica.log", 
     level=logging.DEBUG)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
