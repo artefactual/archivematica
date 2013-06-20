@@ -33,9 +33,14 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
 import FPRClient.main as FPRClient
 
 import json
+import logging
 import requests_1_20 as requests
 import socket
 import uuid
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="/tmp/archivematica.log", 
+    level=logging.INFO)
 
 def welcome(request):
     # This form will be only accessible when the database has no users
@@ -45,7 +50,7 @@ def welcome(request):
     if request.method == 'POST':
         
         # assign UUID to dashboard
-        dashboard_uuid = uuid.uuid4().__str__()
+        dashboard_uuid = str(uuid.uuid4())
         helpers.set_setting('dashboard_uuid', dashboard_uuid)
         
         # save organization PREMIS agent if supplied
@@ -94,7 +99,7 @@ def get_my_ip():
     
 def fprconnect(request):
     if request.method == 'POST':
-        return HttpResponseRedirect(reverse('main.views.home'))
+        return HttpResponseRedirect(reverse('installer.views.storagesetup'))
     else:
         return render(request, 'installer/fprconnect.html')
 
@@ -139,3 +144,27 @@ def fprdownload(request):
     return HttpResponse(myresult, mimetype='application/json')
     #return HttpResponse(simplejson.JSONEncoder().encode(response_data), content_type="application/json", mimetype='application/json')    
     #return HttpResponse(json.dumps(response_data), mimetype="application/json", content_type="application/json")
+
+def storagesetup(request):
+    if request.method == 'POST':
+        if "use_default" in request.POST:
+            default_space = "/"
+            # TODO get value of %sharedPath%, and add wwww/AIPsStore/
+            default_aip_storage = 'var/archivematica/sharedDirectory/www/AIPsStore/'
+            logging.info("Using default values for storage service; space: {}; AIP storage: {}".format(default_space, default_aip_storage))
+            # Check if default space already exists, create if it doesn't
+            space = helpers.get_space(access_protocol="FS", path=default_space)
+            if len(space) < 1:
+                space = helpers.create_space(default_space, "FS")
+            else:
+                space = space[0]
+            if not helpers.get_location(purpose="AS", path=default_aip_storage):
+                helpers.create_location(path=default_aip_storage,
+                                        purpose="AS",
+                                        space=space)
+        return HttpResponseRedirect(reverse('main.views.home'))
+    else:
+        # TODO get this from config
+        storage_service = "http://localhost:8000"
+        return render(request, 'installer/storagesetup.html', locals())
+

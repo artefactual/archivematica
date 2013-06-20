@@ -272,13 +272,13 @@ def _storage_api():
     return api
 
 def create_location(purpose, path, space=None, quota=None, used=0):
-    """ Creates a location.
+    """ Creates a storage location.  Returns resulting dict on success, false on failure.
 
     purpose: How the storage is used.  Should reference storage service
         purposes, found in storage_service.locations.models.py
-    path: Absolute path to location.
+    path: Path to location.
     space: storage space to put the location in.  The space['path'] will be 
-        stripped off the start of path.
+        stripped off the start of path if path is absolute.
 
     Dashboard may only create locations on the local filesystem.  If no space
     is provided, it will try to find an existing storage space to put the 
@@ -296,8 +296,12 @@ def create_location(purpose, path, space=None, quota=None, used=0):
             logging.warning("No storage space containing {}".format(path))
             return False
 
-    # Strip space['path'] and / from path
-    path = path[len(space['path'])+1:]
+    # Strip space['path'] and leading / from path
+    if path[0] == '/':
+        strip = len(space['path'])
+        if path[strip] == '/':
+            strip += 1
+        path = path[strip:]
 
     new_location = {}
     new_location['purpose'] = purpose
@@ -308,11 +312,11 @@ def create_location(purpose, path, space=None, quota=None, used=0):
 
     logging.info("Creating storage location with {}".format(new_location))
     try:
-        api.location.post(new_location)
+        location = api.location.post(new_location)
     except slumber.exceptions.HttpClientError as e:
         logging.warning("Unable to create storage location from {} because {}".format(new_location, e.content))
         return False
-    return True
+    return location
 
 def get_location(path=None, purpose=None, space=None):
     """ Returns a list of storage locations, filtered by parameters.
@@ -353,7 +357,7 @@ def delete_location(uuid):
     return ret['disabled']
 
 def create_space(path, access_protocol, size=None, used=0):
-    """ Creates a new storage space. Returns True on success.
+    """ Creates a new storage space. Returns resulting dict on success, false on failure.
 
     access_protocol: How the storage is accessed.  Should reference storage 
         service purposes, in storage_service.locations.models.py
@@ -374,11 +378,11 @@ def create_space(path, access_protocol, size=None, used=0):
 
     logging.info("Creating storage space with {}".format(new_space))
     try:
-        api.space.post(new_space)
+        space = api.space.post(new_space)
     except slumber.exceptions.HttpClientError as e:
         logging.warning("Unable to create storage space from {} because {}".format(new_space, e.content))
         return False
-    return True
+    return space
 
 def get_space(access_protocol=None, path=None):
     """ Returns a list of storage spaces, optionally filtered by parameters.

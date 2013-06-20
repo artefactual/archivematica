@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %}Welcome{% endblock %}
+{% block h1 %}Welcome{% endblock %}
+{% block page_id %}welcome{% endblock %}
+
+{% block css %}
+  <style type="text/css">
+    .submit {
+      margin-bottom: 1em;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="span9 offset2">
+    <img src="{{ STATIC_URL }}images/logo_welcome.gif" style="margin-bottom: 20px;" />
+
+    <div id="storage" class="well">
+        <p>Would you like to used the default transfer source and AIP storage locations?</p>
+    </div>
+    <form id="use_default" action="#" method="POST">
+      <input class="submit" type="submit" name="use_default" value="Yes, I'll use the default setup" />
+      <input class="submit" type="submit" name="configure" value="No, I'll set it up myself" onclick="window.open('{{storage_service}}');"/>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

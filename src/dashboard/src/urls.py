@@ -33,10 +33,3 @@ urlpatterns = patterns('',
     (r'^api/', include('components.api.urls')),
     (r'', include('main.urls'))
 )
-
-# Put run once on boot code here
-# Django doesn't have a better spot to put it - see http://stackoverflow.com/questions/9259844/running-startup-code-right-after-django-settings-also-for-commands and https://code.djangoproject.com/ticket/13024
-import components.helpers as helpers
-
-if not helpers.get_space(access_protocol="FS", path="/"):
-    helpers.create_space("/", "FS")

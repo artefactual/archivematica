@@ -22,4 +22,5 @@ urlpatterns = patterns('installer.views',
     (r'fprconnect/$','fprconnect'),
     (r'fprupload/$', 'fprupload'),
     (r'fprdownload/$', 'fprdownload'),
+    (r'storagesetup/$', 'storagesetup'),
 )
