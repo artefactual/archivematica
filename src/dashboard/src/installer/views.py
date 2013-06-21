@@ -151,6 +151,7 @@ def storagesetup(request):
             default_space = "/"
             # TODO get value of %sharedPath%, and add wwww/AIPsStore/
             default_aip_storage = 'var/archivematica/sharedDirectory/www/AIPsStore/'
+            description = 'Store AIP in standard Archivematica Directory'
             logging.info("Using default values for storage service; space: {}; AIP storage: {}".format(default_space, default_aip_storage))
             # Check if default space already exists, create if it doesn't
             space = helpers.get_space(access_protocol="FS", path=default_space)
@@ -158,10 +159,13 @@ def storagesetup(request):
                 space = helpers.create_space(default_space, "FS")
             else:
                 space = space[0]
-            if not helpers.get_location(purpose="AS", path=default_aip_storage):
-                helpers.create_location(path=default_aip_storage,
-                                        purpose="AS",
-                                        space=space)
+            if not helpers.get_location(purpose="AS",
+                                        path=default_aip_storage,
+                                        space=space):
+                helpers.create_location(purpose="AS",
+                                        path=default_aip_storage,
+                                        space=space,
+                                        description=description)
         return HttpResponseRedirect(reverse('main.views.home'))
     else:
         # TODO get this from config

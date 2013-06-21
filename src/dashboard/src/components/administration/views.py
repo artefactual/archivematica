@@ -177,10 +177,13 @@ def sources_json(request):
 def administration_system_directory_data_request_handler(request, purpose, access_protocol="FS"):
     message = ''
     if request.method == 'POST':
+        # TODO This should be passed in by the view
+        space = helpers.get_space(access_protocol="FS", path="/")[0]
         path = request.POST.get('path', '')
         if path != '':
             if helpers.get_location(path=path, 
-                                    purpose=purpose):
+                                    purpose=purpose,
+                                    space=space):
                 message = 'Directory already added.'
             elif helpers.create_location(path=path, 
                                          purpose=purpose):

@@ -271,7 +271,18 @@ def _storage_api():
     api = slumber.API(storage_server)
     return api
 
-def create_location(purpose, path, space=None, quota=None, used=0):
+def _storage_relative_from_absolute(location_path, space_path):
+    """ Strip space_path and next / from location_path. """
+    location_path = os.path.normpath(location_path)
+    if location_path[0] == '/':
+        strip = len(space_path)
+        if location_path[strip] == '/':
+            strip += 1
+        location_path = location_path[strip:]
+    return location_path
+
+
+def create_location(purpose, path, description=None, space=None, quota=None, used=0):
     """ Creates a storage location.  Returns resulting dict on success, false on failure.
 
     purpose: How the storage is used.  Should reference storage service
@@ -296,16 +307,12 @@ def create_location(purpose, path, space=None, quota=None, used=0):
             logging.warning("No storage space containing {}".format(path))
             return False
 
-    # Strip space['path'] and leading / from path
-    if path[0] == '/':
-        strip = len(space['path'])
-        if path[strip] == '/':
-            strip += 1
-        path = path[strip:]
+    path = _storage_relative_from_absolute(path, space['path'])
 
     new_location = {}
     new_location['purpose'] = purpose
-    new_location['path'] = path
+    new_location['relative_path'] = path
+    new_location['description'] = description
     new_location['quota'] = quota
     new_location['used'] = used
     new_location['space'] = space['resource_uri']
@@ -328,12 +335,17 @@ def get_location(path=None, purpose=None, space=None):
 
     purpose: How the storage is used.  Should reference storage service
         purposes, found in storage_service.locations.models.py
+    path: Path to location.  If a space is passed in, paths starting with /
+        have the space's path stripped.
     """
     api = _storage_api()
     offset = 0
     return_locations = []
+    if space:
+        path = _storage_relative_from_absolute(path, space['path'])
+        space = space['uuid']
     while True:
-        locations = api.location.get(path=path,
+        locations = api.location.get(relative_path=path,
                                      purpose=purpose, 
                                      space=space,
                                      offset=offset)
@@ -346,7 +358,7 @@ def get_location(path=None, purpose=None, space=None):
             break
         offset += locations['meta']['limit']
 
-    logging.debug("Storage locations returned: {}".format(return_locations))
+    logging.info("Storage locations returned: {}".format(return_locations))
     return return_locations
 
 def delete_location(uuid):
@@ -406,7 +418,7 @@ def get_space(access_protocol=None, path=None):
             break
         offset += spaces['meta']['limit']
 
-    logging.debug("Storage spaces returned: {}".format(return_spaces))
+    logging.info("Storage spaces returned: {}".format(return_spaces))
     return return_spaces
 
 
