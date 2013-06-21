@@ -591,3 +591,23 @@ INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
 INSERT INTO CommandRelationships (pk, fileID, commandClassification, command)
             VALUES ('1a6b2eb0-0733-4357-adaf-8f7e8290de97', @FileIDsUUID, @preservation, 'a34ddc9b-c922-4bb6-8037-bbe713332175');
 -- /5027
+
+-- <5269 Maildir - access normalization includes individual maildir files.>
+INSERT INTO FileIDTypes (pk, description)
+    VALUES ('ceff7e8c-3e78-4d51-9654-eb72efd28777', 'supersede other types');
+
+INSERT INTO FileIDs (pk, description, validPreservationFormat, validAccessFormat, fileIDType, replaces)
+    VALUES ('90ee3e7e-634f-4ed2-bd93-8b81da5379d9', 'A maildir email file', 1, 1, 'ceff7e8c-3e78-4d51-9654-eb72efd28777', '40597064-f02e-4bc6-9efa-b2d214925b73'),
+    ('b50261b9-596b-40bb-ab72-90f2442fd597', 'A .archivematicaMaildir file', 1, 0, 'ceff7e8c-3e78-4d51-9654-eb72efd28777', '8ef30615-ebf0-4877-a521-64457b598158');
+
+-- update cr's
+INSERT INTO CommandRelationships (pk, commandClassification, command, fileID, replaces)
+    VALUES ('97f0b736-ccee-47bb-9c88-900f4869dadf', '3141bc6f-7f77-4809-9244-116b235e7330', 'b3b3b726-acef-4d58-82e4-ef8875d654ce', '90ee3e7e-634f-4ed2-bd93-8b81da5379d9', 'fddc163f-621a-4ccf-bdf8-8183983e506d'),
+    ('ee7e117a-331b-4f90-8418-093c9363a545', '3141bc6f-7f77-4809-9244-116b235e7330', '90db809f-268c-4b26-988b-b44c103ac655', 'b50261b9-596b-40bb-ab72-90f2442fd597', '9889648d-1508-406c-87d5-c4fd8c79c14e');
+
+-- update enabled
+UPDATE FileIDs SET enabled = FALSE WHERE pk = '40597064-f02e-4bc6-9efa-b2d214925b73';
+UPDATE FileIDs SET enabled = FALSE WHERE pk = '8ef30615-ebf0-4877-a521-64457b598158';
+UPDATE CommandRelationships SET enabled = FALSE WHERE pk = 'fddc163f-621a-4ccf-bdf8-8183983e506d';
+UPDATE CommandRelationships SET enabled = FALSE WHERE pk = '9889648d-1508-406c-87d5-c4fd8c79c14e';
+-- </5269>

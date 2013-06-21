@@ -61,7 +61,7 @@ def getFileUUIDofSourceFile(transferUUID, sourceFilePath):
     return ret
 
 def setSourceFileToBeExcludedFromDIP(sourceFileUUID):
-    sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', (SELECT pk FROM FileIDs WHERE description = 'A maildir email file')); """ % (sourceFileUUID)
+    sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', (SELECT pk FROM FileIDs WHERE enabled = TRUE AND description = 'A maildir email file')); """ % (sourceFileUUID)
     databaseInterface.runSQL(sql)
     
 def addKeyFileToNormalizeMaildirOffOf(relativePathToRepresent, mirrorDir, transferPath, transferUUID, date, eventDetail = "", fileUUID=uuid.uuid4().__str__()):
@@ -76,6 +76,8 @@ path = %s
     f.write(content)
     f.close()
     addFile(outFile, transferPath, transferUUID, date, eventDetail=eventDetail, fileUUID=fileUUID)
+    sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', (SELECT pk FROM FileIDs WHERE enabled = TRUE AND description = 'A .archivematicaMaildir file')); """ % (fileUUID)
+    databaseInterface.runSQL(sql)
     return
    
 if __name__ == '__main__':
