@@ -23,6 +23,7 @@ from django.utils import simplejson
 import os, sys, MySQLdb, ast
 from main import models
 from components import helpers
+import xml.etree.ElementTree as ElementTree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivistsToolkit.atk as atk
 import elasticSearchFunctions, databaseInterface, databaseFunctions
@@ -208,6 +209,39 @@ def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resour
     return render(request, 'ingest/atk/match.html', locals())
 
 def ingest_upload_atk_get_dip_object_paths(uuid):
+    # determine the DIP upload directory
+    watch_dir = helpers.get_server_config_value('watchDirectoryPath')
+    dip_upload_dir = os.path.join(watch_dir, 'uploadDIP')
+
+    # work out directory name for DIP (should be the same as the SIP)
+    sip = models.SIP.objects.get(uuid=uuid)
+    directory = os.path.basename(os.path.dirname(sip.currentpath))
+
+    # work out the path to the DIP's METS file
+    metsFilePath = os.path.join(dip_upload_dir, directory, 'METS.' + uuid + '.xml')
+
+    # read file paths from METS file
+    tree = ElementTree.parse(metsFilePath)
+    root = tree.getroot()
+    paths = [] # temporary, will be replaced by...
+    files = [] # <- this
+
+    # get each object's filepath
+    for item in root.findall("{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp[@USE='original']/{http://www.loc.gov/METS/}file"):
+        for item2 in item.findall("{http://www.loc.gov/METS/}FLocat"):
+            object_path = item2.attrib['{http://www.w3.org/1999/xlink}href']
+
+            paths.append(object_path)
+
+            # look up file's UUID
+            file = models.File.objects.get(
+                sip=uuid,
+                currentlocation='%SIPDirectory%' + object_path
+            )
+
+            files.append({'uuid': file.uuid, 'path': object_path})
+
+    """
     paths = [
       'dog.jpg',
       'budget.xls',
@@ -237,6 +271,7 @@ def ingest_upload_atk_get_dip_object_paths(uuid):
       'images/cat.jpg',
       'images/racoon.jpg'
     ]
+    """
 
     paths.sort()
 
