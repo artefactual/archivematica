@@ -1,0 +1,56 @@
+﻿{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block title %}Match{% endblock %}
+{% block h1 %}Match{% endblock %}
+{% block page_id %}atk_match{% endblock %}
+
+{% block content %}
+<div class="span12">
+
+  <ul class="breadcrumb">
+    {% breadcrumb 'DIP Upload' %} 
+  </ul>
+
+  <div style="float:right; margin-top: 5px;"><form action='' method='GET'><input name='query' type='text' value='{{ query }}' /> <input type='submit' value='Search' class='btn' /></form></div>
+
+  <h1>
+    Collections<br />
+    <small>Archivist's Toolkit</small>
+  </h1>
+
+  <br />
+
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Identifier</th>
+        <th>Dates</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for resource in page.objects %}
+        <tr>
+          <td>
+            {% if resource.children %}
+              <a href='{% url components.ingest.views_atk.ingest_upload_atk_resource uuid resource.id %}'>{{ resource.title }}</a>
+            {% else %}
+              {{ resource.title }}
+            {% endif %}
+          </td>
+          <td>{{ resource.identifier }}</td>
+          <td>{{ resource.dates }}</td>
+          <td>
+            <a class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels uuid resource.id %}'>Assign&nbsp;Objects</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% include "_pager.html" %}
+
+</div>
+{% endblock %}
