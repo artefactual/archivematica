@@ -248,11 +248,7 @@ def administration_render_storage_directories_to_dicts():
     for d in storage_directories:
         dict = models.MicroServiceChoiceReplacementDic()
         dict.choiceavailableatlink = link_pk
-        if d['path'] == '%sharedPath%www/AIPsStore/':
-            description = 'Store AIP in standard Archivematica Directory'
-        else:
-            description = d['path']
-        dict.description = description
+        dict.description = d['description']
         dict.replacementdic = '{"%AIPsStore%":"' + d['path'] + '/"}'
         dict.save()
 

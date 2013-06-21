@@ -71,7 +71,7 @@
     $(document).ready(function() {
       var sourceDirectories = {
         {% for dir in source_directories %}
-          '{{ dir.id }}': '{{ dir.path }}',
+          '{{ dir.uuid }}': '{{ dir.path }}',
         {% endfor %}
       };
 

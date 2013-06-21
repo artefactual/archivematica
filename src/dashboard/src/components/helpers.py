@@ -328,8 +328,6 @@ def create_location(purpose, path, description=None, space=None, quota=None, use
 def get_location(path=None, purpose=None, space=None):
     """ Returns a list of storage locations, filtered by parameters.
 
-    Return format: [{'id': <UUID>, 'path': <path>}]
-
     Queries the storage service and returns a list of storage locations, 
     optionally filtered by purpose, containing space or path.
 
@@ -350,10 +348,7 @@ def get_location(path=None, purpose=None, space=None):
                                      space=space,
                                      offset=offset)
         logging.debug("Storage locations retrieved: {}".format(locations))
-        return_locations += [
-            {'id': location['uuid'], 'path': location['full_path']} 
-            for location in locations['objects']
-            ]
+        return_locations += locations['objects']
         if not locations['meta']['next']:
             break
         offset += locations['meta']['limit']

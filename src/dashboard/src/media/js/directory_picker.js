@@ -93,7 +93,7 @@ var DirectoryPickerView = fileBrowser.FileExplorer.extend({
 
         for(var index in results['directories']) {
           rowHtml += rowTemplate({
-            id:   results.directories[index].id,
+            id:   results.directories[index].uuid,
             path: results.directories[index].path
           });
         }
