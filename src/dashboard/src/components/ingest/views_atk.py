@@ -160,7 +160,7 @@ def ingest_upload_atk_get_collections(search_pattern=''):
     cursor = db.cursor()
 
     cursor.execute(
-      "SELECT resourceId FROM Resources WHERE title LIKE %s OR resourceid LIKE %s ORDER BY title",
+      "SELECT resourceId FROM Resources WHERE (title LIKE %s OR resourceid LIKE %s) AND resourceLevel = 'collection' ORDER BY title",
       ('%' + search_pattern + '%', '%' + search_pattern + '%')
     )
 
