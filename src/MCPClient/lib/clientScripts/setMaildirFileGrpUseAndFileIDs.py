@@ -24,8 +24,40 @@
 import os
 import sys
 exitCode = 0
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from externals.extractMaildirAttachments import parse
+import databaseInterface
 
+
+def setArchivematicaMaildirFiles(sipUUID, sipPath):
+    for root, dirs, files in os.walk(os.path.join(sipPath, "objects", "attachments")):
+        for file in files:
+            if file.endswith('.archivematicaMaildir'):
+                fileRelativePath = os.path.join(root, file).replace(sipPath, "%SIPDirectory%", 1)
+                sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND sipUUID = '%s' AND currentLocation = '%s';""" % (sipUUID, fileRelativePath)
+                rows = databaseInterface.queryAllSQL(sql)
+                if len(rows):
+                    fileUUID = rows[0][0]
+                    sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', (SELECT pk FROM FileIDs WHERE enabled = TRUE AND description = 'A .archivematicaMaildir file')); """ % (fileUUID)
+                    databaseInterface.runSQL(sql)
+        
+def setMaildirFiles(sipUUID, sipPath):
+    for root, dirs, files in os.walk(os.path.join(sipPath, "objects", "Maildir")):
+        for file in files:
+            fileRelativePath = os.path.join(root, file).replace(sipPath, "%SIPDirectory%", 1)
+            sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND sipUUID = '%s' AND currentLocation = '%s';""" % (sipUUID, fileRelativePath)
+            rows = databaseInterface.queryAllSQL(sql)
+            if len(rows):
+                fileUUID = rows[0][0]
+                sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', (SELECT pk FROM FileIDs WHERE enabled = TRUE AND description = 'A maildir email file')); """ % (fileUUID)
+                databaseInterface.runSQL(sql)
+    
+    
 
 if __name__ == '__main__':
-    path = sys.argv[1]
+    sipUUID = sys.argv[1]
+    sipPath = sys.argv[2]
+    setMaildirFiles(sipUUID, sipPath)    
+    setArchivematicaMaildirFiles(sipUUID, sipPath)
+    
     exit(exitCode)
