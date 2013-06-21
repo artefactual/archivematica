@@ -67,6 +67,14 @@ def ingest_upload_atk(request, uuid):
 
             page = helpers.pager(resources, 20, request.GET.get('page', 1))
 
+            db = ingest_upload_atk_db_connection()
+            resources_augmented = []
+            for id in page['objects']:
+                resources_augmented.append(
+                    atk.get_resource_component_and_children(db, id, recurse_max_level=2)
+                )
+            page['objects'] = resources_augmented
+
         except MySQLdb.ProgrammingError:
             return HttpResponse('Database error. Please contact an administrator.')
 
@@ -165,9 +173,7 @@ def ingest_upload_atk_get_collections(search_pattern=''):
     )
 
     for row in cursor.fetchall():
-        collections.append(
-            atk.get_resource_component_and_children(db, row[0], recurse_max_level=2)
-        )
+        collections.append(row[0])
 
     return collections
 
