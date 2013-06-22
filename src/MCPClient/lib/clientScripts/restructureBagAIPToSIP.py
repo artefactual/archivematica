@@ -25,6 +25,7 @@ import os
 import sys
 import shutil
 from restructureForCompliance import requiredDirectories
+from archivematicaCreateStructuredDirectory import createManualNormalizedDirectoriesList
 
 
 if __name__ == '__main__':
@@ -46,3 +47,9 @@ if __name__ == '__main__':
         if not os.path.isdir(dirPath):
             os.mkdir(dirPath)
             print "creating: ", dir
+    
+    for directory in createManualNormalizedDirectoriesList:
+        dirPath = os.path.join(path, directory)
+        if not os.path.isdir(dirPath):
+            os.makedirs(dirPath)
+            print "creating: ", dirPath
