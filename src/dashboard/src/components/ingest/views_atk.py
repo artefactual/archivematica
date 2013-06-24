@@ -61,25 +61,22 @@ def ingest_upload_atk_db_connection():
     )
 
 def ingest_upload_atk(request, uuid):
-    if request.method == 'GET':
+    try:
+        query = request.GET.get('query', '').strip()
         try:
-            query = request.GET.get('query', '').strip()
-            try:
-                resources = ingest_upload_atk_get_collection_ids(query)
-            except MySQLdb.OperationalError:
-                return HttpResponseServerError('Database connection error. Please contact an administration.')
+            resources = ingest_upload_atk_get_collection_ids(query)
+        except MySQLdb.OperationalError:
+            return HttpResponseServerError('Database connection error. Please contact an administration.')
 
-            page = helpers.pager(resources, 20, request.GET.get('page', 1))
+        page = helpers.pager(resources, 20, request.GET.get('page', 1))
 
-            db = ingest_upload_atk_db_connection()
-            page['objects'] = augment_resource_data(db, page['objects'])
+        db = ingest_upload_atk_db_connection()
+        page['objects'] = augment_resource_data(db, page['objects'])
 
-        except MySQLdb.ProgrammingError:
-            return HttpResponseServerError('Database error. Please contact an administrator.')
+    except MySQLdb.ProgrammingError:
+        return HttpResponseServerError('Database error. Please contact an administrator.')
 
-        return render(request, 'ingest/atk/resource_list.html', locals())
-    else:
-        return ingest_upload_atk_save(request, uuid)
+    return render(request, 'ingest/atk/resource_list.html', locals())
 
 def ingest_upload_atk_save(request, uuid):
     pairs_saved = ingest_upload_atk_save_to_db(request, uuid)

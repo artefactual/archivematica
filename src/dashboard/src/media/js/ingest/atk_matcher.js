@@ -513,20 +513,8 @@ var ATKMatcherView = Backbone.View.extend({
   },
 
   activateConfirmButton: function() {
-    var self = this,
-        url = window.location.href.split('/').slice(0, 7).join('/') + '/';
-
-    $('#' + self.confirmButtonCSSId).click(function() {
-      self.sendPairData(
-        url,
-        function(result) {
-          alert(result.message);
-          window.location = '/ingest';
-        },
-        function() {
-          alert("Error submitting data.");
-        }
-      );
+    $('#' + this.confirmButtonCSSId).click(function() {
+      window.location.href = '/ingest';
     });
   },
 
