@@ -79,30 +79,49 @@ def ingest_upload_atk(request, uuid):
 
         return render(request, 'ingest/atk/resource_list.html', locals())
     else:
-        pairs = getDictArray(request.POST, 'pairs')
+        return ingest_upload_atk_save(request, uuid)
 
-        keys = pairs.keys()
-        keys.sort()
+def ingest_upload_atk_save(request, uuid):
+    pairs_saved = ingest_upload_atk_save_to_db(request, uuid)
 
-        for key in keys:
-            pairing = models.AtkDIPObjectResourcePairing.objects.create(
-                dipuuid=pairs[key]['DIPUUID'],
-                fileuuid=pairs[key]['objectUUID']
-            )
-            if pairs[key]['resourceLevelOfDescription'] == 'collection':
-                pairing.resourceid = pairs[key]['resourceId']
-            else:
-                pairing.resourcecomponentid = pairs[key]['resourceId']
-            pairing.save()
-
+    if pairs_saved > 0:
         response = {
             "message": "Submitted successfully."
         }
+    else:
+        response = {
+            "message": "No pairs saved."
+        }
 
-        return HttpResponse(
-            simplejson.JSONEncoder().encode(response),
-            mimetype='application/json'
+    return HttpResponse(
+        simplejson.JSONEncoder().encode(response),
+        mimetype='application/json'
+    )
+
+def ingest_upload_atk_save_to_db(request, uuid):
+    saved = 0
+
+    # delete existing mapping, if any, for this DIP
+    models.AtkDIPObjectResourcePairing.objects.filter(dipuuid=uuid).delete()
+
+    pairs = getDictArray(request.POST, 'pairs')
+
+    keys = pairs.keys()
+    keys.sort()
+
+    for key in keys:
+        pairing = models.AtkDIPObjectResourcePairing.objects.create(
+            dipuuid=pairs[key]['DIPUUID'],
+            fileuuid=pairs[key]['objectUUID']
         )
+        if pairs[key]['resourceLevelOfDescription'] == 'collection':
+            pairing.resourceid = pairs[key]['resourceId']
+        else:
+            pairing.resourcecomponentid = pairs[key]['resourceId']
+        pairing.save()
+        saved = saved + 1
+
+    return saved
 
 def augment_resource_data(db, resource_ids):
     resources_augmented = []
