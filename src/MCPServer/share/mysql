@@ -2806,3 +2806,14 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 SET foreign_key_checks = 1;
+
+DROP table IF EXISTS AtkDIPObjectResourcePairing;
+
+CREATE TABLE AtkDIPObjectResourcePairing (
+  pk INT(11) NOT NULL AUTO_INCREMENT,
+  dipUUID VARCHAR(255) NOT NULL,
+  fileUUID VARCHAR(255) NOT NULL,
+  resourceId INT(11),
+  resourceComponentId INT(11),
+  PRIMARY KEY (pk)
+);
