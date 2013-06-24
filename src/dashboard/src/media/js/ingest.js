@@ -340,7 +340,12 @@ $(function()
               });
             };
 
-          
+          // redict to object/resource mapping pages
+          if ('- Upload DIP to Archivists Toolkit' == $select.find('option:selected').text())
+          {
+            window.location.href = '/ingest/' + this.model.sip.get('uuid') + '/upload/atk/';
+          }
+
           // if ('Upload DIP' == this.model.get('type') && 13 == value)
           if ('- Upload DIP to Atom' == $select.find('option:selected').text())
           {
