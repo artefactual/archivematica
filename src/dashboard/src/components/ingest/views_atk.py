@@ -87,7 +87,7 @@ def ingest_upload_atk(request, uuid):
         for key in keys:
             pairing = models.AtkDIPObjectResourcePairing.objects.create(
                 dipuuid=pairs[key]['DIPUUID'],
-                fileuuid=pairs[key]['objectPath']
+                fileuuid=pairs[key]['objectUUID']
             )
             if pairs[key]['resourceLevelOfDescription'] == 'collection':
                 pairing.resourceid = pairs[key]['resourceId']
@@ -230,8 +230,13 @@ def ingest_upload_atk_get_dip_object_paths(uuid):
     # read file paths from METS file
     tree = ElementTree.parse(metsFilePath)
     root = tree.getroot()
-    paths = [] # temporary, will be replaced by...
-    files = [] # <- this
+
+    # use paths to create an array that we'll sort and store path UUIDs separately
+    paths = []
+    path_uuids = {}
+
+    # in the end we'll populate this using paths and path_uuids
+    files = []
 
     # get each object's filepath
     for item in root.findall("{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp[@USE='original']/{http://www.loc.gov/METS/}file"):
@@ -246,43 +251,28 @@ def ingest_upload_atk_get_dip_object_paths(uuid):
                 currentlocation='%SIPDirectory%' + object_path
             )
 
-            files.append({'uuid': file.uuid, 'path': object_path})
+            path_uuids[object_path] = file.uuid
 
-    """
-    paths = [
-      'dog.jpg',
-      'budget.xls',
-      'book.doc',
-      'manual.pdf',
-      'hats.png',
-      'demons.jpg',
-      'goat.png',
-      'celery.png',
-      'owls.jpg',
-      'candyman.jpg',
-      'clown.jpg',
-      'taxes.xls',
-      'stats.xls',
-      'donut.jpg',
-      'hamburger.jpg',
-      'goose.png',
-      'chicken.png',
-      'crayons.png',
-      'hammer.jpg',
-      'banana.jpg',
-      'minutes.doc',
-      'revised.pdf',
-      'carrot.jpg',
-      'hinge.jpg',
-      'hatrack.png',
-      'images/cat.jpg',
-      'images/racoon.jpg'
-    ]
-    """
-
+    # create array of objects with object data
     paths.sort()
+    for path in paths:
+        files.append({
+            'uuid': path_uuids[path],
+            'path': path
+        })
 
-    return paths
+    return files
+
+    """
+    files = [{
+        'uuid': '7665dc52-29f3-4309-b3fe-273c4c04df4b',
+        'path': 'dog.jpg'
+    },
+    {
+        'uuid': 'c2e41289-8280-4db9-ae4e-7730fbaa1471',
+        'path': 'inages/candy.jpg'
+    }]
+    """
 
 def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uuid, resource_component_id):
     # load object relative paths

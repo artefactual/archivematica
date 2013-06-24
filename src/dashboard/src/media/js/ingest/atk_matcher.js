@@ -48,6 +48,9 @@ var ATKMatcherView = Backbone.View.extend({
     this.resourceItemTemplate   = _.template(options.resourceItemTemplate);
     this.matchItemTemplate      = _.template(options.matchItemTemplate);
 
+    // path UUIDs will be stored here using data supplied by the objectPaths parameter
+    this.pathData = {};
+
     // set matcher state maintenance properties
     this.resourceCollection = new ATKMatcherCollection();
     this.selectedResourceCSSId = false; // resource currently selected in UI
@@ -79,9 +82,15 @@ var ATKMatcherView = Backbone.View.extend({
         index = 0;
 
     // add each path to object pane
-    this.objectPaths.forEach(function(path) {
+    this.objectPaths.forEach(function(pathData) {
       // create object path representation (checkbox and label)
-      var newObjectPath = $(self.objectPathTemplate({'index': index, 'path': path}));
+      var newObjectPath = $(self.objectPathTemplate({
+        'index': index,
+        'path': pathData.path}
+      ));
+
+      self.pathData[pathData.path] = pathData.uuid;
+
       self.activateCheckboxMultipleSelection(index, newObjectPath);
       $('#' + self.objectPanePathsCSSId).append(newObjectPath);
       index++;
@@ -341,6 +350,7 @@ var ATKMatcherView = Backbone.View.extend({
             self.pairCollection.add({
               'DIPUUID':                    self.DIPUUID,
               'objectPath':                 item.path,
+              'objectUUID':                 self.pathData[item.path],
               'resourceId':                 resource.id,
               'resourceCSSId':              self.selectedResourceCSSId,
               'resourceLevelOfDescription': resource.get('levelOfDescription'),
