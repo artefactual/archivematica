@@ -18,7 +18,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.utils import simplejson
 import os, sys, MySQLdb, ast
 from main import models
@@ -67,7 +67,7 @@ def ingest_upload_atk(request, uuid):
             try:
                 resources = ingest_upload_atk_get_collection_ids(query)
             except MySQLdb.OperationalError:
-                return HttpResponse('Database error. Please contact an administration.')
+                return HttpResponseServerError('Database connection error. Please contact an administration.')
 
             page = helpers.pager(resources, 20, request.GET.get('page', 1))
 
@@ -75,7 +75,7 @@ def ingest_upload_atk(request, uuid):
             page['objects'] = augment_resource_data(db, page['objects'])
 
         except MySQLdb.ProgrammingError:
-            return HttpResponse('Database error. Please contact an administrator.')
+            return HttpResponseServerError('Database error. Please contact an administrator.')
 
         return render(request, 'ingest/atk/resource_list.html', locals())
     else:
@@ -126,7 +126,7 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
         if resource_data['children']:
              page = helpers.pager(resource_data['children'], 20, request.GET.get('page', 1))
     except MySQLdb.ProgrammingError:
-        return HttpResponse('Database error. Please contact an administrator.')
+        return HttpResponseServerError('Database error. Please contact an administrator.')
 
     if not resource_data['children'] and query == '':
         return HttpResponseRedirect(
@@ -163,7 +163,7 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
         if resource_component_data['children']:
             page = helpers.pager(resource_component_data['children'], 20, request.GET.get('page', 1))
     except MySQLdb.ProgrammingError:
-        return HttpResponse('Database error. Please contact an administrator.')
+        return HttpResponseServerError('Database error. Please contact an administrator.')
 
     resource_id = ingest_upload_atk_determine_resource_component_resource_id(resource_component_id)
 
@@ -207,7 +207,7 @@ def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resour
             atk.get_resource_children(db, resource_id)
         )
     except:
-        return HttpResponse('Database error. Please contact an administrator.')
+        return HttpResponseServerError('Database error. Please contact an administrator.')
 
     return render(request, 'ingest/atk/match.html', locals())
 
@@ -287,6 +287,6 @@ def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uu
             atk.get_resource_component_children(db, resource_component_id)
         )
     except:
-        return HttpResponse('Database error. Please contact an administrator.')
+        return HttpResponseServerError('Database error. Please contact an administrator.')
 
     return render(request, 'ingest/atk/match.html', locals())
