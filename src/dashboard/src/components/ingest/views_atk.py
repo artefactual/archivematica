@@ -217,7 +217,11 @@ def ingest_upload_atk_get_dip_object_paths(uuid):
     dip_upload_dir = os.path.join(watch_dir, 'uploadDIP')
 
     # work out directory name for DIP (should be the same as the SIP)
-    sip = models.SIP.objects.get(uuid=uuid)
+    try:
+        sip = models.SIP.objects.get(uuid=uuid)
+    except:
+         raise Http404
+
     directory = os.path.basename(os.path.dirname(sip.currentpath))
 
     # work out the path to the DIP's METS file
