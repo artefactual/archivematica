@@ -465,8 +465,29 @@ var ATKMatcherView = Backbone.View.extend({
     });
   },
 
+  sendPairData: function(url, success, error) {
+    var self = this;
+
+    $.ajax({
+      context: this,
+      type: 'POST',
+      dataType: 'json',
+      data: {pairs: self.pairCollection.toJSON()},
+      success: function(result)
+        {
+          success(result);
+        },
+      error: function()
+        {
+          error();
+        },
+      url: url
+    });
+  },
+
   activateSaveButton: function() {
     var self = this,
+        url = window.location.href.split('/').slice(0, 7).join('/') + '/save/',
         fadeOutElementCSSIds = [
           this.objectPaneCSSId,
           this.resourcePaneCSSId,
@@ -478,8 +499,16 @@ var ATKMatcherView = Backbone.View.extend({
         ];
 
     $('#' + self.saveButtonCSSId).click(function () {
-      self.fadeElementsByCSSIds(fadeOutElementCSSIds, 'out', 'fast');
-      self.fadeElementsByCSSIds(fadeInElementCSSIds, 'in', 'fast');
+      self.sendPairData(
+        url,
+        function(result) {
+          self.fadeElementsByCSSIds(fadeOutElementCSSIds, 'out', 'fast');
+          self.fadeElementsByCSSIds(fadeInElementCSSIds, 'in', 'fast');
+        },
+        function() {
+          alert("Error submitting data.");
+        }
+      );
     });
   },
 
@@ -488,23 +517,16 @@ var ATKMatcherView = Backbone.View.extend({
         url = window.location.href.split('/').slice(0, 7).join('/') + '/';
 
     $('#' + self.confirmButtonCSSId).click(function() {
-      $.ajax({
-        context: this,
-        type: 'POST',
-        dataType: 'json',
-        data: {pairs: self.pairCollection.toJSON()},
-        success: function(result)
-          {
-            alert(result.message);
-            window.location = '/ingest';
-          },
-        error: function()
-          {
-            alert("Error submitting data.");
-          },
-        url: url
-      });
-console.log(self.pairCollection.toJSON());
+      self.sendPairData(
+        url,
+        function(result) {
+          alert(result.message);
+          window.location = '/ingest';
+        },
+        function() {
+          alert("Error submitting data.");
+        }
+      );
     });
   },
 
