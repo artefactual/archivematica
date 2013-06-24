@@ -64,7 +64,10 @@ def ingest_upload_atk(request, uuid):
     if request.method == 'GET':
         try:
             query = request.GET.get('query', '').strip()
-            resources = ingest_upload_atk_get_collection_ids(query)
+            try:
+                resources = ingest_upload_atk_get_collection_ids(query)
+            except MySQLdb.OperationalError:
+                return HttpResponse('Database error. Please contact an administration.')
 
             page = helpers.pager(resources, 20, request.GET.get('page', 1))
 
