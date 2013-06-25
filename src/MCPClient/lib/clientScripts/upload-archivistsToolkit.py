@@ -103,7 +103,7 @@ def get_pairs(dip_uuid):
     pairs = dict()
     #connect to archivematica db, make a set of pairs from pairs table
    
-    sql = """SELECT fileUUID, resourceId, resourceComponentId from AtkDIPObjectResourcePairing where dipUUID = {}""".format(dip_uuid)
+    sql = """SELECT fileUUID, resourceId, resourceComponentId from AtkDIPObjectResourcePairing where dipUUID = '{}'""".format(dip_uuid)
     c, sqlLock = databaseInterface.querySQL(sql)
     dbresult = c.fetchall()
     for item in dbresult:
