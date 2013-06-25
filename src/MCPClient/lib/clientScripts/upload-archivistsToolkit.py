@@ -113,19 +113,28 @@ def get_pairs(dip_uuid):
         pairs[item[0]] =  ids
     sqlLock.release()
     return pairs
+
+def delete_pairs(dip_uuid):
+    sql = """delete from AtkDIPObjectResourcePairing where dipUUID = '{}'""".format(dip_uuid)
+    c, sqlLock = databaseInterface.querySQL(sql)
+    sqlLock.release()
       
 def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
     #TODO get resource_id from caller
     resource_id = 31
-    
+    if uri_prefix[-1] == '/':
+        uri_prefix = uri_prefix + dip_uuid + "/objects/"
+    else:
+        uri_prefix = uri_prefix + "/" + dip_uuid + "/objects
+        "
     #get mets object if needed
     mets = None
     if restrictions == 'premis' or len(access_conditions) == 0 or len(use_conditions) == 0:
         try:
-            logger.info("looking for mets: {}".format(dip_uuid))
+            logger.debug("looking for mets: {}".format(dip_uuid))
             mets_source = dip_location + 'METS.' + dip_uuid + '.xml'
             mets = mets_file(mets_source)
-            logger.info("found mets file")
+            logger.debug("found mets file")
         except Exception:
             raise
             exit(4)
@@ -137,7 +146,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
     
     #get a list of all the items in this collection
     col = atk.collection_list(db, resource_id)
-    logger.info("got collection_list: {}".format(len(col)))
+    logger.debug("got collection_list: {}".format(len(col)))
     sql0 = "select max(fileVersionId) from FileVersions"
     logger.debug('sql0: ' + sql0)
     cursor.execute(sql0)
@@ -146,7 +155,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         newfVID = 1
     else:
         newfVID = int(data[0]) 
-    logger.info('base file version id found is ' + str(data[0]))
+    logger.debug('base file version id found is ' + str(data[0]))
     global base_fv_id 
     base_fv_id = newfVID        
 
@@ -168,7 +177,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         if mets and mets[uuid]:
             #get premis info from mets
             for premis in mets[uuid]['premis']:
-                logger.info("{} rights = {}, note={}".format(premis, mets[uuid]['premis'][premis]['restriction'],mets[uuid]['premis'][premis]['rightsGrantedNote']))
+                logger.debug("{} rights = {}, note={}".format(premis, mets[uuid]['premis'][premis]['restriction'],mets[uuid]['premis'][premis]['rightsGrantedNote']))
                 if premis == 'Disseminate':
                     access_restrictions = mets[uuid]['premis']['Disseminate']['restriction']
                     access_rightsGrantedNote = mets[uuid]['premis']['Disseminate']['rightsGrantedNote']
@@ -181,7 +190,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         except:
             logger.error('file name does not have container ids in it')
             exit(5)
-        logger.info ("determine restrictions")
+        logger.debug ("determine restrictions")
         #determine restrictions
         if restrictions == 'no':
             restrictions_apply = False
@@ -190,7 +199,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             ead_actuate = "none"
             ead_show = "none"
         elif restrictions == 'premis':
-            logger.info("premis restrictions")
+            logger.debug("premis restrictions")
             if access_restrictions == 'Allow' and use_restrictions == 'Allow':
                 restrictions_apply = False
             else:
@@ -206,24 +215,10 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             if access_rightsGrantedNote:
                 access_conditions = access_rightsGrantedNote
         
-        print "conditions governing use {}".format(use_conditions)
-        print "conditions governing access {}".format(access_conditions)                                   
         short_file_name = file_name[37:]
         time_now = strftime("%Y-%m-%d %H:%M:%S", localtime())
         file_uri = uri_prefix  + file_name
         
-        ################################################################
-        #old method of finding the resourcesComponentID or ResourceId
-        #instead of querying db to find the resourcescomponentid directly
-        #look in atk collection
-        
-        #sql1 = '''select d.archdescriptioninstancesid, c.resourceComponentId, c.dateBegin, c.dateEnd, c.dateExpression, c.title from
-        #          archdescriptioninstances d join resourcescomponents c on (c.resourcecomponentid = d.resourcecomponentid) 
-        #          where d.container1numericindicator = '{}' and  d.container2numericindicator = '{}' and 
-        #          c.resourceComponentId in ({})'''.format(container1, container2, ', '.join(str(n) for n in col))
-        #sql1="select  d.archdescriptioninstancesid, c.resourceComponentId, c.dateBegin, c.dateEnd, c.dateExpression, c.title from resourcescomponents a join resourcescomponents b on (a.resourcecomponentid = b.parentresourcecomponentid) join resourcescomponents c on (b.resourcecomponentid = c.parentresourcecomponentid) join archdescriptioninstances d on (c.resourcecomponentid = d.resourcecomponentid) where a.resourceid = 31 and d.container1numericindicator = '%s' and d.container2numericindicator = '%s'" % ( container1, container2);
-        
-        ################################################################
         is_resource = False
         if pairs[uuid]['rcid'] > 0:
             sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
@@ -233,7 +228,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
                       Resources where resourceid = {}'''.format(pairs[uuid]['rid']) 
                        
-        logger.info('sql1:' + sql1) 
+        logger.debug('sql1:' + sql1) 
         cursor.execute(sql1)
         data = cursor.fetchone()
         rcid = data[0]
@@ -241,7 +236,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         dateEnd = data[2]
         dateExpression = data[3]
         rc_title = data[4]
-        logger.info("found rc_title " + rc_title + ":" + str(len(rc_title)) ) 
+        logger.debug("found rc_title " + rc_title + ":" + str(len(rc_title)) ) 
         if (not rc_title or len(rc_title) == 0):
             if (not dateExpression or len(dateExpression) == 0):
                 if dateBegin == dateEnd:
@@ -253,19 +248,19 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         else:
             short_file_name = rc_title
 
-        logger.info("dateExpression is : " + str(dateExpression) + str(len(dateExpression)))
-        logger.info("dates are  " + str(dateBegin) + "-" + str(dateEnd))
-        logger.info("short file name is " + str(short_file_name))
+        logger.debug("dateExpression is : " + str(dateExpression) + str(len(dateExpression)))
+        logger.debug("dates are  " + str(dateBegin) + "-" + str(dateEnd))
+        logger.debug("short file name is " + str(short_file_name))
  
         sql2 = "select repositoryId from Repositories" 
-        logger.info('sql2: ' + sql2)
+        logger.debug('sql2: ' + sql2)
 
         cursor.execute(sql2)
         data = cursor.fetchone()
         repoId = data[0]
-        logger.info('repoId: ' + str(repoId))
+        logger.debug('repoId: ' + str(repoId))
         sql3 = " select max(archDescriptionInstancesId) from ArchDescriptionInstances"
-        logger.info('sql3: ' + sql3) 
+        logger.debug('sql3: ' + sql3) 
         cursor.execute(sql3)
         data = cursor.fetchone()
         newaDID = int(data[0]) + 1
@@ -275,7 +270,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         else:
             sql4 = "insert into ArchDescriptionInstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceComponentId) values (%d, 'digital','Digital object',%d)" % (newaDID, rcid)
         
-        logger.info('sql4:' + sql4)
+        logger.debug('sql4:' + sql4)
         adid = process_sql(sql4)
         #added sanity checks in case date fields in original archival description were all empty
         if len(dateExpression) == 0:
@@ -291,17 +286,17 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             `eadDaoActuate`,`eadDaoShow`,`metsIdentifier`,`objectType`,`objectOrder`,
             `archDescriptionInstancesId`,`repositoryId`)
            VALUES (1,'%s', '%s','%s','%s','%s','%s',%d, %d,'English',%d,'%s','%s','%s','%s',0,%d,%d)""" % (time_now, time_now, atuser, atuser, short_file_name,dateExpression, dateBegin, dateEnd, int(restrictions_apply), ead_actuate, ead_show,uuid, object_type, newaDID, repoId)
-        logger.info('sql5: ' + sql5)
+        logger.debug('sql5: ' + sql5)
         doID = process_sql(sql5)
         sql6 = """insert into FileVersions (fileVersionId, version, lastUpdated, created, lastUpdatedBy, createdBy, uri, useStatement, sequenceNumber, eadDaoActuate,eadDaoShow, digitalObjectId)
               values 
            (%d, 1, '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s','%s', %d)""" % (base_fv_id,time_now, time_now,atuser,atuser,file_uri,use_statement,0, ead_actuate,ead_show, doID)
-        logger.info('sql6: ' + sql6)
+        logger.debug('sql6: ' + sql6)
         process_sql(sql6)
 
         #create notes
         sql7 = " select max(archdescriptionrepeatingdataId) from archdescriptionrepeatingdata"
-        logger.info('sql7: ' + sql7) 
+        logger.debug('sql7: ' + sql7) 
         cursor.execute(sql7)
         data = cursor.fetchone()
        
@@ -309,12 +304,12 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         newadrd = int(data[0]) + 1
         seq_num = 0
         note_content = dip_uuid
-        logger.info("about to run sql8")
+        logger.debug("about to run sql8")
         sql8 = """insert into archdescriptionrepeatingdata 
             (archdescriptionrepeatingdataid, descriminator, version, lastupdated, created, lastupdatedby ,createdby, repeatingdatatype, title, sequenceNumber,
             digitalObjectId, noteContent, notesetctypeid, basic, multiPart,internalOnly) values 
             (%d, 'note',%d, '%s', '%s', '%s', '%s','Note','', 0, %d, '%s',13, '', '', '')""" % (newadrd, seq_num, time_now, time_now, atuser, atuser, doID, note_content ) 
-        logger.info('sql8: ' + sql8)
+        logger.debug('sql8: ' + sql8)
         adrd = process_sql(sql8) 
         
         #conditions governing access note
@@ -327,7 +322,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             digitalObjectId, noteContent, notesetctypeid, basic, multipart, internalOnly) values 
             (%d, 'note',0, '%s', '%s', '%s', '%s','Note','', %d, %d, '%s',8, '', '', '')""" % (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content )
         adrd = process_sql(sql9) 
-        logger.info('sql9:' + sql9)
+        logger.debug('sql9:' + sql9)
          
         #conditions governing use` note
         newadrd += 1
@@ -339,10 +334,12 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             digitalObjectId, noteContent, notesetctypeid, basic, multipart, internalOnly) values 
             (%d, 'note',0, '%s', '%s', '%s', '%s','Note','', %d, %d, '%s',9, '', '', '')""" % (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content )
         adrd = process_sql(sql10)
-        logger.info('sql10:' + sql10)
+        logger.debug('sql10:' + sql10)
    
     process_sql("commit")
-
+    delete_pairs(dip_uuid)
+    logger.info("completed upload successfully")
+    
 if __name__ == '__main__':
     
     RESTRICTIONS_CHOICES=[ 'yes', 'no', 'premis' ]
