@@ -77,9 +77,14 @@ def administration_atk_dips(request):
     atk = ArchivistsToolkitConfig.objects.get(pk=1)
     if request.POST:        
         form = ArchivistsToolkitConfigForm(request.POST, instance=atk)
+        newpass = form.fields['dbpass']
+        oldpass = atk.dbpass
+    
         if form.is_valid():
             newatk = form.save()
-            logger.debug('trying to show name ' + newatk.dbname)
+            if newpass != '' and newpass != oldpass:
+                newatk.dbpass = oldpass
+
             #save this new form data into MicroServiceChoiceReplacementDic
             new_settings_string = '{{"%host%":"{}", "%port%":"{}", "%dbname%":"{}", "%dbuser%":"{}", "%dbpass%":"{}", \
                                    "%atuser%":"{}", "%restrictions%":"{}", "%object_type%":"{}", "%ead_actuate%":"{}", \
