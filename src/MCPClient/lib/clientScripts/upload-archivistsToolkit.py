@@ -102,15 +102,7 @@ def get_files_from_dip(dip_location, dip_name, dip_uuid):
 def get_pairs(dip_uuid):
     pairs = dict()
     #connect to archivematica db, make a set of pairs from pairs table
-    #CREATE TABLE AtkDIPObjectResourcePairing (
-    #pk INT(11) NOT NULL AUTO_INCREMENT,
-    #dipUUID VARCHAR(255) NOT NULL,
-    #fileUUID VARCHAR(255) NOT NULL,
-    #resourceId INT(11),
-    #resourceComponentId INT(11),
-    #PRIMARY KEY (pk)
-    # );
-    
+   
     sql = """SELECT fileUUID, resourceId, resourceComponentId from AtkDIPObjectResourcePairing where dipUUID = {}""".format(dipUUID)
     c, sqlLock = databaseInterface.querySQL(sql)
     dbresult = c.fetchall()
