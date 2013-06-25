@@ -113,6 +113,11 @@ def get_pairs(dip_uuid):
         pairs[item[0]] =  ids
     sqlLock.release()
     return pairs
+
+def delete_pairs(dip_uuid):
+    sql = """delete from AtkDIPObjectResourcePairing where dipUUID = '{}'""".format(dip_uuid)
+    c, sqlLock = databaseInterface.querySQL(sql)
+    sqlLock.release()
       
 def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
     #TODO get resource_id from caller
@@ -328,6 +333,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         logger.debug('sql10:' + sql10)
    
     process_sql("commit")
+    delete_pairs(dip_uuid)
     logger.info("completed upload successfully")
     
 if __name__ == '__main__':
