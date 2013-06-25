@@ -122,7 +122,11 @@ def delete_pairs(dip_uuid):
 def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
     #TODO get resource_id from caller
     resource_id = 31
-    
+    if uri_prefix[-1] == '/':
+        uri_prefix = uri_prefix + dip_uuid + "/objects/"
+    else:
+        uri_prefix = uri_prefix + "/" + dip_uuid + "/objects
+        "
     #get mets object if needed
     mets = None
     if restrictions == 'premis' or len(access_conditions) == 0 or len(use_conditions) == 0:
