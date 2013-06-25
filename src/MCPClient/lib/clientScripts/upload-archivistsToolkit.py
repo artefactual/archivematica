@@ -277,7 +277,14 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         
         logger.info('sql4:' + sql4)
         adid = process_sql(sql4)
-
+        #added sanity checks in case date fields in original archival description were all empty
+        if len(dateExpression) == 0:
+            dateExpression = 'null'
+        if not dateBegin: 
+            dateBegin = 0
+        if not dateEnd:
+            dateEnd = 0
+   
         sql5 = """INSERT INTO DigitalObjects                  
            (`version`,`lastUpdated`,`created`,`lastUpdatedBy`,`createdBy`,`title`,
             `dateExpression`,`dateBegin`,`dateEnd`,`languageCode`,`restrictionsApply`,
