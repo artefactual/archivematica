@@ -75,23 +75,22 @@ def administration_atom_dips(request):
 
 def administration_atk_dips(request):
     atk = ArchivistsToolkitConfig.objects.get(pk=1)
-    if request.POST:        
+    if request.POST:
         form = ArchivistsToolkitConfigForm(request.POST, instance=atk)
-        newpass = form.fields['dbpass']
-        oldpass = atk.dbpass
-    
+        usingpass =  atk.dbpass
         if form.is_valid():
             newatk = form.save()
-            if newpass != '' and newpass != oldpass:
-                newatk.dbpass = oldpass
-
-            #save this new form data into MicroServiceChoiceReplacementDic
+            if newatk.dbpass != '' and newatk.dbpass != usingpass:
+                usingpass = newatk.dbpass
+            else:
+                newatk.dbpass = usingpass
+             #save this new form data into MicroServiceChoiceReplacementDic
             new_settings_string = '{{"%host%":"{}", "%port%":"{}", "%dbname%":"{}", "%dbuser%":"{}", "%dbpass%":"{}", \
                                    "%atuser%":"{}", "%restrictions%":"{}", "%object_type%":"{}", "%ead_actuate%":"{}", \
                                    "%ead_show%":"{}", "%use_statement%":"{}", "%uri_prefix%":"{}", "%access_conditions%":"{}", \
                                    "%use_conditions%":"{}"}}'.format(newatk.host, newatk.port, newatk.dbname, newatk.dbuser,
-                                                                    newatk.dbpass,newatk.atuser,newatk.premis, newatk.object_type, 
-                                                                    newatk.ead_actuate, newatk.ead_show,newatk.use_statement, 
+                                                                    usingpass,newatk.atuser,newatk.premis, newatk.object_type,
+                                                                    newatk.ead_actuate, newatk.ead_show,newatk.use_statement,
                                                                     newatk.uri_prefix, newatk.access_conditions, newatk.use_conditions)
             logger.debug('new settings '+ new_settings_string)                       
             new_mscrDic = models.MicroServiceChoiceReplacementDic.objects.get(description='Archivists Toolkit Config')
