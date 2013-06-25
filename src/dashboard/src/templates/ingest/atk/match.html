@@ -17,6 +17,7 @@
     $(document).ready(function()
       {
        atkMatcherInitialize(
+         '{{ uuid }}',
          {{ object_path_json|safe }},
          {{ resource_data_json|safe }}
        );

@@ -18,11 +18,12 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.utils import simplejson
 import os, sys, MySQLdb, ast
 from main import models
 from components import helpers
+import xml.etree.ElementTree as ElementTree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivistsToolkit.atk as atk
 import elasticSearchFunctions, databaseInterface, databaseFunctions
@@ -60,48 +61,77 @@ def ingest_upload_atk_db_connection():
     )
 
 def ingest_upload_atk(request, uuid):
-    if request.method == 'GET':
+    try:
+        query = request.GET.get('query', '').strip()
         try:
-            query = request.GET.get('query', '')
-            resources = ingest_upload_atk_get_collections(query)
+            resources = ingest_upload_atk_get_collection_ids(query)
+        except MySQLdb.OperationalError:
+            return HttpResponseServerError('Database connection error. Please contact an administration.')
 
-            page = helpers.pager(resources, 20, request.GET.get('page', 1))
+        page = helpers.pager(resources, 20, request.GET.get('page', 1))
 
-            db = ingest_upload_atk_db_connection()
-            resources_augmented = []
-            for id in page['objects']:
-                resources_augmented.append(
-                    atk.get_resource_component_and_children(db, id, recurse_max_level=2)
-                )
-            page['objects'] = resources_augmented
+        db = ingest_upload_atk_db_connection()
+        page['objects'] = augment_resource_data(db, page['objects'])
 
-        except MySQLdb.ProgrammingError:
-            return HttpResponse('Database error. Please contact an administrator.')
+    except MySQLdb.ProgrammingError:
+        return HttpResponseServerError('Database error. Please contact an administrator.')
 
-        return render(request, 'ingest/atk/resource_list.html', locals())
-    else:
-        pairs = getDictArray(request.POST, 'pairs')
+    return render(request, 'ingest/atk/resource_list.html', locals())
 
-        keys = pairs.keys()
-        keys.sort()
+def ingest_upload_atk_save(request, uuid):
+    pairs_saved = ingest_upload_atk_save_to_db(request, uuid)
 
-        for key in keys:
-            # TODO: write data in pairs[key] to DB
-            pass
-
+    if pairs_saved > 0:
         response = {
             "message": "Submitted successfully."
         }
+    else:
+        response = {
+            "message": "No pairs saved."
+        }
 
-        return HttpResponse(
-            simplejson.JSONEncoder().encode(response),
-            mimetype='application/json'
+    return HttpResponse(
+        simplejson.JSONEncoder().encode(response),
+        mimetype='application/json'
+    )
+
+def ingest_upload_atk_save_to_db(request, uuid):
+    saved = 0
+
+    # delete existing mapping, if any, for this DIP
+    models.AtkDIPObjectResourcePairing.objects.filter(dipuuid=uuid).delete()
+
+    pairs = getDictArray(request.POST, 'pairs')
+
+    keys = pairs.keys()
+    keys.sort()
+
+    for key in keys:
+        pairing = models.AtkDIPObjectResourcePairing.objects.create(
+            dipuuid=pairs[key]['DIPUUID'],
+            fileuuid=pairs[key]['objectUUID']
         )
+        if pairs[key]['resourceLevelOfDescription'] == 'collection':
+            pairing.resourceid = pairs[key]['resourceId']
+        else:
+            pairing.resourcecomponentid = pairs[key]['resourceId']
+        pairing.save()
+        saved = saved + 1
+
+    return saved
+
+def augment_resource_data(db, resource_ids):
+    resources_augmented = []
+    for id in resource_ids:
+        resources_augmented.append(
+            atk.get_resource_component_and_children(db, id, recurse_max_level=2)
+        )
+    return resources_augmented
 
 def ingest_upload_atk_resource(request, uuid, resource_id):
     db = ingest_upload_atk_db_connection()
     try:
-        query = request.GET.get('query', '')
+        query = request.GET.get('query', '').strip()
         resource_data = atk.get_resource_component_and_children(
             db,
             resource_id,
@@ -112,7 +142,7 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
         if resource_data['children']:
              page = helpers.pager(resource_data['children'], 20, request.GET.get('page', 1))
     except MySQLdb.ProgrammingError:
-        return HttpResponse('Database error. Please contact an administrator.')
+        return HttpResponseServerError('Database error. Please contact an administrator.')
 
     if not resource_data['children'] and query == '':
         return HttpResponseRedirect(
@@ -138,7 +168,7 @@ def ingest_upload_atk_determine_resource_component_resource_id(resource_componen
 def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     db = ingest_upload_atk_db_connection()
     try:
-        query = request.GET.get('query', '')
+        query = request.GET.get('query', '').strip()
         resource_component_data = atk.get_resource_component_and_children(
             db,
             resource_component_id,
@@ -149,7 +179,7 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
         if resource_component_data['children']:
             page = helpers.pager(resource_component_data['children'], 20, request.GET.get('page', 1))
     except MySQLdb.ProgrammingError:
-        return HttpResponse('Database error. Please contact an administrator.')
+        return HttpResponseServerError('Database error. Please contact an administrator.')
 
     resource_id = ingest_upload_atk_determine_resource_component_resource_id(resource_component_id)
 
@@ -160,17 +190,20 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     else:
         return render(request, 'ingest/atk/resource_component.html', locals())
 
-def ingest_upload_atk_get_collections(search_pattern=''):
+def ingest_upload_atk_get_collection_ids(search_pattern=''):
     collections = []
 
     db = ingest_upload_atk_db_connection()
 
     cursor = db.cursor()
 
-    cursor.execute(
-      "SELECT resourceId FROM Resources WHERE (title LIKE %s OR resourceid LIKE %s) AND resourceLevel = 'collection' ORDER BY title",
-      ('%' + search_pattern + '%', '%' + search_pattern + '%')
-    )
+    if search_pattern != '':
+        cursor.execute(
+            "SELECT resourceId FROM Resources WHERE (title LIKE %s OR resourceid LIKE %s) AND resourceLevel = 'collection' ORDER BY title",
+            ('%' + search_pattern + '%', '%' + search_pattern + '%')
+        )
+    else:
+        cursor.execute("SELECT resourceId FROM Resources WHERE resourceLevel = 'collection' ORDER BY title")
 
     for row in cursor.fetchall():
         collections.append(row[0])
@@ -190,44 +223,72 @@ def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resour
             atk.get_resource_children(db, resource_id)
         )
     except:
-        return HttpResponse('Database error. Please contact an administrator.')
+        return HttpResponseServerError('Database error. Please contact an administrator.')
 
     return render(request, 'ingest/atk/match.html', locals())
 
 def ingest_upload_atk_get_dip_object_paths(uuid):
-    paths = [
-      'dog.jpg',
-      'budget.xls',
-      'book.doc',
-      'manual.pdf',
-      'hats.png',
-      'demons.jpg',
-      'goat.png',
-      'celery.png',
-      'owls.jpg',
-      'candyman.jpg',
-      'clown.jpg',
-      'taxes.xls',
-      'stats.xls',
-      'donut.jpg',
-      'hamburger.jpg',
-      'goose.png',
-      'chicken.png',
-      'crayons.png',
-      'hammer.jpg',
-      'banana.jpg',
-      'minutes.doc',
-      'revised.pdf',
-      'carrot.jpg',
-      'hinge.jpg',
-      'hatrack.png',
-      'images/cat.jpg',
-      'images/racoon.jpg'
-    ]
+    # determine the DIP upload directory
+    watch_dir = helpers.get_server_config_value('watchDirectoryPath')
+    dip_upload_dir = os.path.join(watch_dir, 'uploadDIP')
 
+    # work out directory name for DIP (should be the same as the SIP)
+    try:
+        sip = models.SIP.objects.get(uuid=uuid)
+    except:
+         raise Http404
+
+    directory = os.path.basename(os.path.dirname(sip.currentpath))
+
+    # work out the path to the DIP's METS file
+    metsFilePath = os.path.join(dip_upload_dir, directory, 'METS.' + uuid + '.xml')
+
+    # read file paths from METS file
+    tree = ElementTree.parse(metsFilePath)
+    root = tree.getroot()
+
+    # use paths to create an array that we'll sort and store path UUIDs separately
+    paths = []
+    path_uuids = {}
+
+    # in the end we'll populate this using paths and path_uuids
+    files = []
+
+    # get each object's filepath
+    for item in root.findall("{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp[@USE='original']/{http://www.loc.gov/METS/}file"):
+        for item2 in item.findall("{http://www.loc.gov/METS/}FLocat"):
+            object_path = item2.attrib['{http://www.w3.org/1999/xlink}href']
+
+            paths.append(object_path)
+
+            # look up file's UUID
+            file = models.File.objects.get(
+                sip=uuid,
+                currentlocation='%SIPDirectory%' + object_path
+            )
+
+            path_uuids[object_path] = file.uuid
+
+    # create array of objects with object data
     paths.sort()
+    for path in paths:
+        files.append({
+            'uuid': path_uuids[path],
+            'path': path
+        })
 
-    return paths
+    return files
+
+    """
+    files = [{
+        'uuid': '7665dc52-29f3-4309-b3fe-273c4c04df4b',
+        'path': 'dog.jpg'
+    },
+    {
+        'uuid': 'c2e41289-8280-4db9-ae4e-7730fbaa1471',
+        'path': 'inages/candy.jpg'
+    }]
+    """
 
 def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uuid, resource_component_id):
     # load object relative paths
@@ -242,6 +303,6 @@ def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uu
             atk.get_resource_component_children(db, resource_component_id)
         )
     except:
-        return HttpResponse('Database error. Please contact an administrator.')
+        return HttpResponseServerError('Database error. Please contact an administrator.')
 
     return render(request, 'ingest/atk/match.html', locals())

@@ -1,4 +1,4 @@
-﻿function atkMatcherInitialize(objectPaths, resourceData) {
+﻿function atkMatcherInitialize(DIPUUID, objectPaths, resourceData) {
   var matcher = new ATKMatcherView({
     'el':                       $('#atk_matcher'),
     'matcherLayoutTemplate':    $('#matcher-layout-template').html(),
@@ -17,6 +17,7 @@
     'saveButtonCSSId':          'match_save_button',
     'confirmButtonCSSId':       'match_confirm_button',
     'cancelButtonCSSId':        'match_cancel_button',
+    'DIPUUID':                  DIPUUID,
     'objectPaths':              objectPaths,
     'resourceData':             resourceData
  });

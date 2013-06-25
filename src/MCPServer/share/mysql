@@ -2802,3 +2802,16 @@ UNLOCK TABLES;
 
 SET foreign_key_checks = 1;
 
+<<<<<<< HEAD
+=======
+DROP table IF EXISTS AtkDIPObjectResourcePairing;
+
+CREATE TABLE AtkDIPObjectResourcePairing (
+  pk INT(11) NOT NULL AUTO_INCREMENT,
+  dipUUID VARCHAR(255) NOT NULL,
+  fileUUID VARCHAR(255) NOT NULL,
+  resourceId INT(11),
+  resourceComponentId INT(11),
+  PRIMARY KEY (pk)
+);
+>>>>>>> b81c21cc546ea0f5d01c23995f3c16532d5e252f

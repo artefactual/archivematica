@@ -26,6 +26,8 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivistsToolkit.atk as atk
 import mets
 from xml2obj import mets_file
+import MySQLdb
+import databaseInterface
 
 #global variables
 db = None
@@ -96,7 +98,30 @@ def get_files_from_dip(dip_location, dip_name, dip_uuid):
     except Exception:
         raise
         exit(3)
+
+def get_pairs(dip_uuid):
+    pairs = dict()
+    #connect to archivematica db, make a set of pairs from pairs table
+    #CREATE TABLE AtkDIPObjectResourcePairing (
+    #pk INT(11) NOT NULL AUTO_INCREMENT,
+    #dipUUID VARCHAR(255) NOT NULL,
+    #fileUUID VARCHAR(255) NOT NULL,
+    #resourceId INT(11),
+    #resourceComponentId INT(11),
+    #PRIMARY KEY (pk)
+    # );
     
+    sql = """SELECT fileUUID, resourceId, resourceComponentId from AtkDIPObjectResourcePairing where dipUUID = {}""".format(dipUUID)
+    c, sqlLock = databaseInterface.querySQL(sql)
+    dbresult = c.fetchall()
+    for item in dbresult:
+        ids = dict()
+        ids['rid'] = item[1]
+        ids['rcid'] = item[2]
+        pairs[item[0]] =  ids
+    sqlLock.release()
+    return pairs
+      
 def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
     #TODO get resource_id from caller
     resource_id = 31
@@ -133,7 +158,9 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
     global base_fv_id 
     base_fv_id = newfVID        
 
-
+    pairs = get_pairs(dip_uuid)
+    #TODO test to make sure we got some pairs
+    
     for f in mylist:
         base_fv_id+=1 
         logger.info( 'using ' + f)
@@ -193,24 +220,35 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         time_now = strftime("%Y-%m-%d %H:%M:%S", localtime())
         file_uri = uri_prefix  + file_name
         
+        ################################################################
+        #old method of finding the resourcesComponentID or ResourceId
         #instead of querying db to find the resourcescomponentid directly
         #look in atk collection
         
-        sql1 = '''select d.archdescriptioninstancesid, c.resourceComponentId, c.dateBegin, c.dateEnd, c.dateExpression, c.title from
-                  archdescriptioninstances d join resourcescomponents c on (c.resourcecomponentid = d.resourcecomponentid) 
-                  where d.container1numericindicator = '{}' and  d.container2numericindicator = '{}' and 
-                  c.resourceComponentId in ({})'''.format(container1, container2, ', '.join(str(n) for n in col))
-        
+        #sql1 = '''select d.archdescriptioninstancesid, c.resourceComponentId, c.dateBegin, c.dateEnd, c.dateExpression, c.title from
+        #          archdescriptioninstances d join resourcescomponents c on (c.resourcecomponentid = d.resourcecomponentid) 
+        #          where d.container1numericindicator = '{}' and  d.container2numericindicator = '{}' and 
+        #          c.resourceComponentId in ({})'''.format(container1, container2, ', '.join(str(n) for n in col))
         #sql1="select  d.archdescriptioninstancesid, c.resourceComponentId, c.dateBegin, c.dateEnd, c.dateExpression, c.title from resourcescomponents a join resourcescomponents b on (a.resourcecomponentid = b.parentresourcecomponentid) join resourcescomponents c on (b.resourcecomponentid = c.parentresourcecomponentid) join archdescriptioninstances d on (c.resourcecomponentid = d.resourcecomponentid) where a.resourceid = 31 and d.container1numericindicator = '%s' and d.container2numericindicator = '%s'" % ( container1, container2);
+        
+        ################################################################
+        is_resource = False
+        if pairs[uuid]['rcid'] > 0:
+            sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
+                      ResourcesComponents where resourcecomponentid = {}'''.format(pairs[uuid]['rcid'])
+        else:
+            is_resource = True
+            sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
+                      Resources where resourceid = {}'''.format(pairs[uuid]['rid']) 
+                       
         logger.info('sql1:' + sql1) 
         cursor.execute(sql1)
         data = cursor.fetchone()
-        archDID = data[0]
-        rcid = data[1]
-        dateBegin = data[2]
-        dateEnd = data[3]
-        dateExpression = data[4]
-        rc_title = data[5]
+        rcid = data[0]
+        dateBegin = data[1]
+        dateEnd = data[2]
+        dateExpression = data[3]
+        rc_title = data[4]
         logger.info("found rc_title " + rc_title + ":" + str(len(rc_title)) ) 
         if (not rc_title or len(rc_title) == 0):
             if (not dateExpression or len(dateExpression) == 0):
@@ -227,8 +265,6 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         logger.info("dates are  " + str(dateBegin) + "-" + str(dateEnd))
         logger.info("short file name is " + str(short_file_name))
  
-        logger.info( "found archDescriptionInstancesId " + str(archDID) + ", rcid " + str(rcid))
-
         sql2 = "select repositoryId from Repositories" 
         logger.info('sql2: ' + sql2)
 
@@ -242,7 +278,11 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         data = cursor.fetchone()
         newaDID = int(data[0]) + 1
 
-        sql4 = "insert into ArchDescriptionInstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceComponentId) values (%d, 'digital','Digital object',%d)" % (newaDID, rcid)
+        if is_resource:
+            sql4 = "insert into ArchDescriptionInstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceId) values (%d, 'digital','Digital object',%d)" % (newaDID, rcid)
+        else:
+            sql4 = "insert into ArchDescriptionInstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceComponentId) values (%d, 'digital','Digital object',%d)" % (newaDID, rcid)
+        
         logger.info('sql4:' + sql4)
         adid = process_sql(sql4)
 

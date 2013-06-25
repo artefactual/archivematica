@@ -20,6 +20,7 @@ var ATKMatcherView = Backbone.View.extend({
   initialize: function(options) {
     var self = this,
         manditoryProperties = [
+          'DIPUUID',
           'objectPaths',
           'resourceData',
           'objectPaneCSSId',
@@ -46,6 +47,9 @@ var ATKMatcherView = Backbone.View.extend({
     this.objectPathTemplate     = _.template(options.objectPathTemplate);
     this.resourceItemTemplate   = _.template(options.resourceItemTemplate);
     this.matchItemTemplate      = _.template(options.matchItemTemplate);
+
+    // path UUIDs will be stored here using data supplied by the objectPaths parameter
+    this.pathData = {};
 
     // set matcher state maintenance properties
     this.resourceCollection = new ATKMatcherCollection();
@@ -78,9 +82,15 @@ var ATKMatcherView = Backbone.View.extend({
         index = 0;
 
     // add each path to object pane
-    this.objectPaths.forEach(function(path) {
+    this.objectPaths.forEach(function(pathData) {
       // create object path representation (checkbox and label)
-      var newObjectPath = $(self.objectPathTemplate({'index': index, 'path': path}));
+      var newObjectPath = $(self.objectPathTemplate({
+        'index': index,
+        'path': pathData.path}
+      ));
+
+      self.pathData[pathData.path] = pathData.uuid;
+
       self.activateCheckboxMultipleSelection(index, newObjectPath);
       $('#' + self.objectPanePathsCSSId).append(newObjectPath);
       index++;
@@ -338,10 +348,13 @@ var ATKMatcherView = Backbone.View.extend({
 
             // store pair in collection for easy retrieval
             self.pairCollection.add({
-              'objectPath':           item.path,
-              'resourceCSSId':        self.selectedResourceCSSId,
-              'resourceIdentifier':   resource.get('identifier'),
-              'resourceSortPosition': resource.get('sortPosition')
+              'DIPUUID':                    self.DIPUUID,
+              'objectPath':                 item.path,
+              'objectUUID':                 self.pathData[item.path],
+              'resourceId':                 resource.id,
+              'resourceCSSId':              self.selectedResourceCSSId,
+              'resourceLevelOfDescription': resource.get('levelOfDescription'),
+              'resourceSortPosition':       resource.get('sortPosition')
             });
 
             // get the pair model that was added
@@ -452,8 +465,29 @@ var ATKMatcherView = Backbone.View.extend({
     });
   },
 
+  sendPairData: function(url, success, error) {
+    var self = this;
+
+    $.ajax({
+      context: this,
+      type: 'POST',
+      dataType: 'json',
+      data: {pairs: self.pairCollection.toJSON()},
+      success: function(result)
+        {
+          success(result);
+        },
+      error: function()
+        {
+          error();
+        },
+      url: url
+    });
+  },
+
   activateSaveButton: function() {
     var self = this,
+        url = window.location.href.split('/').slice(0, 7).join('/') + '/save/',
         fadeOutElementCSSIds = [
           this.objectPaneCSSId,
           this.resourcePaneCSSId,
@@ -465,33 +499,22 @@ var ATKMatcherView = Backbone.View.extend({
         ];
 
     $('#' + self.saveButtonCSSId).click(function () {
-      self.fadeElementsByCSSIds(fadeOutElementCSSIds, 'out', 'fast');
-      self.fadeElementsByCSSIds(fadeInElementCSSIds, 'in', 'fast');
+      self.sendPairData(
+        url,
+        function(result) {
+          self.fadeElementsByCSSIds(fadeOutElementCSSIds, 'out', 'fast');
+          self.fadeElementsByCSSIds(fadeInElementCSSIds, 'in', 'fast');
+        },
+        function() {
+          alert("Error submitting data.");
+        }
+      );
     });
   },
 
   activateConfirmButton: function() {
-    var self = this,
-        url = window.location.href.split('/').slice(0, 7).join('/') + '/';
-
-    $('#' + self.confirmButtonCSSId).click(function() {
-      $.ajax({
-        context: this,
-        type: 'POST',
-        dataType: 'json',
-        data: {pairs: self.pairCollection.toJSON()},
-        success: function(result)
-          {
-            alert(result.message);
-            window.location = '/ingest';
-          },
-        error: function()
-          {
-            alert("Error submitting data.");
-          },
-        url: url
-      });
-console.log(self.pairCollection.toJSON());
+    $('#' + this.confirmButtonCSSId).click(function() {
+      window.location.href = '/ingest';
     });
   },
 

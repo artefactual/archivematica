@@ -1,3 +1,14 @@
+DROP table IF EXISTS AtkDIPObjectResourcePairing;
+
+CREATE TABLE AtkDIPObjectResourcePairing (
+  pk INT(11) NOT NULL AUTO_INCREMENT,
+  dipUUID VARCHAR(255) NOT NULL,
+  fileUUID VARCHAR(255) NOT NULL,
+  resourceId INT(11),
+  resourceComponentId INT(11),
+  PRIMARY KEY (pk)
+);
+
 DROP table IF EXISTS Resources;
 
 CREATE TABLE Resources (

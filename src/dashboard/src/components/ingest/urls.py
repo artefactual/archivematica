@@ -45,5 +45,6 @@ urlpatterns = urlpatterns + patterns('components.ingest.views_atk',
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/match/resourcecomponent/(?P<resource_component_id>\d+)/$', 'ingest_upload_atk_match_dip_objects_to_resource_component_levels'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/resource/(?P<resource_id>\d+)/$', 'ingest_upload_atk_resource'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/resourcecomponent/(?P<resource_component_id>\d+)/$', 'ingest_upload_atk_resource_component'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/save/$', 'ingest_upload_atk_save'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/$', 'ingest_upload_atk')
 )
