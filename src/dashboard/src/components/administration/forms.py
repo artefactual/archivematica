@@ -44,7 +44,7 @@ class ArchivistsToolkitConfigForm(ModelForm):
     port = forms.CharField(widget=TextInput(attrs=settings.INPUT_ATTRS), label="db port:")
     dbname = forms.CharField(widget=TextInput(attrs=settings.INPUT_ATTRS), label="db name:")
     dbuser = forms.CharField(widget=TextInput(attrs=settings.INPUT_ATTRS), label="db user:")
-    dbpass = forms.CharField(widget=forms.PasswordInput(), label="db password:")
+    dbpass = forms.CharField(widget=forms.PasswordInput(), label="db password:", required=False)
     atuser = forms.CharField(widget=TextInput(attrs=settings.INPUT_ATTRS), label="at username:")
     premis = forms.ChoiceField(widget=RadioSelect(), label="Restrictions Apply:", choices=PREMIS_CHOICES)
     ead_actuate = forms.ChoiceField(widget=RadioSelect(), label="EAD DAO Actuate:", choices=EAD_ACTUATE_CHOICES)
