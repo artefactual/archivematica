@@ -1,6 +1,10 @@
 <div>
   <div style='float:right;'>
     {% if page.has_previous %}
+      {% ifnotequal page.previous 1 %}
+        <a href='?{{ search_params }}&page=1'>First</a>
+        |
+      {% endifnotequal %}
       <a href='?{{ search_params }}&page={{ page.previous }}'>Previous</a>
     {% endif %}
 
@@ -10,6 +14,11 @@
 
     {% if page.has_next %}
       <a href='?{{ search_params }}&page={{ page.next }}'>Next</a>
+
+      {% ifnotequal page.next page.num_pages %}
+        |
+        <a href='?{{ search_params }}&page={{ page.num_pages }}'>Last</a>
+      {% endifnotequal %}
     {% endif %}
   </div>
 
