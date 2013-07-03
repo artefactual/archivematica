@@ -55,6 +55,18 @@ def pager(objects, items_per_page, current_page_number):
     page['objects']      = pager.object_list
     page['num_pages']    = p.num_pages
 
+    if (page['previous']) > 2:
+        if (page['previous'] - 4) >= 2:
+          previous_start = page['previous'] - 3
+        else:
+          previous_start = 2
+        page['previous_pages'] = range(previous_start, page['previous'] - 1)
+
+    if (page['next'] + 1) < page['num_pages']:
+        subsequent_pages = range(page['next'] + 1, page['num_pages'])
+        page['next_pages'] = subsequent_pages[:3]
+        page['all_next_pages_shown'] = len(page['next_pages']) == len(subsequent_pages)
+
     return page
 
 def get_file_sip_uuid(fileuuid):
