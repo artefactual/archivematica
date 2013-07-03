@@ -60,7 +60,8 @@ def pager(objects, items_per_page, current_page_number):
           previous_start = page['previous'] - 3
         else:
           previous_start = 2
-        page['previous_pages'] = range(previous_start, page['previous'] - 1)
+        page['previous_pages'] = range(previous_start, page['previous'])
+        page['all_previous_pages_shown'] = previous_start != 2
 
     if (page['next'] + 1) < page['num_pages']:
         subsequent_pages = range(page['next'] + 1, page['num_pages'])
