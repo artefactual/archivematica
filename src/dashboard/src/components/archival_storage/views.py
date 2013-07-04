@@ -251,7 +251,7 @@ def send_thumbnail(request, fileuuid):
 
     return helpers.send_file(request, thumbnail_path)
 
-def list_display(request, current_page_number=None):
+def list_display(request, current_page_number=1):
     form = forms.StorageSearchForm()
 
     # get ElasticSearch stats
@@ -270,8 +270,11 @@ def list_display(request, current_page_number=None):
 
     conn = elasticSearchFunctions.connect_and_create_index('aips')
 
+    items_per_page = 10
+    start = (int(current_page_number) - 1) * items_per_page
+
     aipResults = conn.search(
-        pyes.MatchAllQuery(),
+        pyes.Search(pyes.MatchAllQuery(), start=start, size=items_per_page),
         doc_types=['aip'],
         fields='origin,uuid,filePath,created,name,size',
         sort=sort_specification
@@ -279,7 +282,6 @@ def list_display(request, current_page_number=None):
 
     aips = []
 
-    #if aipResults._total != None:
     try:
         if len(aipResults) > 0:
             for aip in aipResults:
@@ -290,10 +292,15 @@ def list_display(request, current_page_number=None):
         return render(request, 'archival_storage/archival_storage.html', locals())
 
     # handle pagination
-    page = helpers.pager(aips, 10, current_page_number)
+    page = helpers.pager(
+        aipResults,
+        items_per_page,
+        current_page_number
+    )
 
+    # augment data
     sips = []
-    for aip in page['objects']:
+    for aip in aips:
         sip = {}
         sip['href'] = aip.filePath.replace(AIPSTOREPATH + '/', "AIPsStore/")
         sip['name'] = aip.name
