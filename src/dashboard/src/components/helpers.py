@@ -55,18 +55,25 @@ def pager(objects, items_per_page, current_page_number):
     page['objects']      = pager.object_list
     page['num_pages']    = p.num_pages
 
-    if (page['previous']) > 2:
-        if (page['previous'] - 4) >= 2:
-          previous_start = page['previous'] - 3
-        else:
-          previous_start = 2
-        page['previous_pages'] = range(previous_start, page['previous'])
-        page['all_previous_pages_shown'] = previous_start != 2
+    num_of_neighbors_to_show = 5
+    if page['current'] > num_of_neighbors_to_show:
+        page['previous_pages'] = range(
+            page['current'] - num_of_neighbors_to_show,
+            page['current']
+        )
+    else:
+        page['previous_pages'] = range(1, page['current'])
 
-    if (page['next'] + 1) < page['num_pages']:
-        subsequent_pages = range(page['next'] + 1, page['num_pages'])
-        page['next_pages'] = subsequent_pages[:3]
-        page['all_next_pages_shown'] = len(page['next_pages']) == len(subsequent_pages)
+    if page['current'] < (page['num_pages'] - num_of_neighbors_to_show):
+        page['next_pages'] = range(
+            int(page['current']) + 1,
+            page['current'] + num_of_neighbors_to_show + 1
+        )
+    else:
+        page['next_pages'] = range(
+            page['current'] + 1,
+            page['num_pages'] + 1
+        )
 
     return page
 

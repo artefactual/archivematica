@@ -1,37 +1,42 @@
 <div>
   <div style='float:right;'>
     {% if page.has_previous %}
-      {% ifnotequal page.previous 1 %}
-        <a href='?{{ search_params }}&page=1'>First</a>
-      {% endifnotequal %}
+      <span style='margin-right: 20px'>
+        {% ifnotequal page.previous 1 %}
+          <a href='?{{ search_params }}&page=1'>First</a>
+        {% endifnotequal %}
+
+        <a href='?{{ search_params }}&page={{ page.previous }}'>Previous</a>
+      </span>
+
       {% if page.previous_pages %}
-        {% if not page.all_previous_pages_shown %}
-          ...
-        {% endif %}
         {% for page_number in page.previous_pages %}
           <a href='?{{ search_params }}&page={{ page_number }}'>{{ page_number }}</a>
         {% endfor %}
       {% endif %}
-      <a href='?{{ search_params }}&page={{ page.previous }}'>Previous</a>
     {% endif %}
 
-    {% if page.has_next %}
-      <a href='?{{ search_params }}&page={{ page.next }}'>Next</a>
+    <strong>{{ page.current }}</strong>
 
+    {% if page.has_next %}
       {% if page.next_pages %}
         {% for page_number in page.next_pages %}
           <a href='?{{ search_params }}&page={{ page_number }}'>{{ page_number }}</a>
         {% endfor %}
-        {% if not page.all_next_pages_shown %}
-          ...
-        {% endif %}
       {% endif %}
 
-      {% ifnotequal page.next page.num_pages %}
-        <a href='?{{ search_params }}&page={{ page.num_pages }}'>Last</a>
-      {% endifnotequal %}
+      <span style='margin-left: 20px'>
+        <a href='?{{ search_params }}&page={{ page.next }}'>Next</a>
+
+        {% ifnotequal page.next page.num_pages %}
+          <a href='?{{ search_params }}&page={{ page.num_pages }}'>Last</a>
+        {% endifnotequal %}
+      </span>
     {% endif %}
   </div>
 
-  <strong>Found {{ page.total_items }} results. Showing {{ page.start_index }} to {{ page.end_index }}.</strong>
+  <strong>
+    Found {{ page.total_items }} results.
+    Showing {{ page.start_index }} to {{ page.end_index }}.
+  </strong>
 </div>
