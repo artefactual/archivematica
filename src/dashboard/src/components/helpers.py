@@ -59,6 +59,29 @@ def keynat(string):
             r.append(c.lower())
     return r
 
+# this class wraps Pyes search results so the Django Paginator class
+# can work on the results (except object_list doesn't yet work)
+class DjangoPaginatableListFromPyesSearchResult:
+    def __init__(self, result, start, size):
+        self.result = result
+        self.start  = start
+        self.size   = size
+
+    def count(self):
+        return self.result.count()
+
+    def __len__(self):
+        return self.count()
+
+    def __getitem__(self, key):
+        if key < self.start:
+            return
+        else:
+            if key >= (self.start + self.size):
+                return
+            else:
+                return self.result[key - self.start]
+
 def pager(objects, items_per_page, current_page_number):
     page = {}
 
