@@ -1,9 +1,11 @@
 <div>
   <div style='float:right;'>
     {% if page.has_previous %}
-      <span style='margin-right: 20px'>
+      <span style='margin-right: 2em'>
         {% ifnotequal page.previous 1 %}
-          <a href='?{{ search_params }}&page=1'>First</a>
+          <span style='margin-right: 1em'>
+            <a href='?{{ search_params }}&page=1'>First</a>
+          </span>
         {% endifnotequal %}
 
         <a href='?{{ search_params }}&page={{ page.previous }}'>Previous</a>
@@ -25,11 +27,13 @@
         {% endfor %}
       {% endif %}
 
-      <span style='margin-left: 20px'>
+      <span style='margin-left: 2em'>
         <a href='?{{ search_params }}&page={{ page.next }}'>Next</a>
 
         {% ifnotequal page.next page.num_pages %}
-          <a href='?{{ search_params }}&page={{ page.num_pages }}'>Last</a>
+          <span style='margin-left: 1em'>
+            <a href='?{{ search_params }}&page={{ page.num_pages }}'>Last</a>
+          </span>
         {% endifnotequal %}
       </span>
     {% endif %}
