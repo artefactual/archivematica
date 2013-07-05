@@ -63,14 +63,16 @@ def ingest_upload_atk_db_connection():
 def ingest_upload_atk(request, uuid):
     try:
         query = request.GET.get('query', '').strip()
+
+        db = ingest_upload_atk_db_connection()
+
         try:
-            resources = ingest_upload_atk_get_collection_ids(query)
+            resources = ingest_upload_atk_get_collection_ids(db, query)
         except MySQLdb.OperationalError:
             return HttpResponseServerError('Database connection error. Please contact an administration.')
 
         page = helpers.pager(resources, 20, request.GET.get('page', 1))
 
-        db = ingest_upload_atk_db_connection()
         page['objects'] = augment_resource_data(db, page['objects'])
 
     except MySQLdb.ProgrammingError:
@@ -190,10 +192,8 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     else:
         return render(request, 'ingest/atk/resource_component.html', locals())
 
-def ingest_upload_atk_get_collection_ids(search_pattern=''):
+def ingest_upload_atk_get_collection_ids(db, search_pattern=''):
     collections = []
-
-    db = ingest_upload_atk_db_connection()
 
     cursor = db.cursor()
 
