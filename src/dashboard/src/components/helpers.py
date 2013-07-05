@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.utils.dateformat import format
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.servers.basehttp import FileWrapper
@@ -100,7 +100,13 @@ def pager(objects, items_per_page, current_page_number):
         p = Paginator(objects, items_per_page)
 
     page['current']      = 1 if current_page_number == None else int(current_page_number)
-    pager                = p.page(page['current'])
+
+    try:
+        pager = p.page(page['current'])
+
+    except EmptyPage:
+        return False
+
     page['has_next']     = pager.has_next()
     page['next']         = page['current'] + 1
     page['has_previous'] = pager.has_previous()
