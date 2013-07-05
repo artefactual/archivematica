@@ -259,14 +259,17 @@ def ingest_upload_atk_get_dip_object_paths(uuid):
         for item2 in item.findall("{http://www.loc.gov/METS/}FLocat"):
             object_path = item2.attrib['{http://www.w3.org/1999/xlink}href']
 
-            paths.append(object_path)
-
             # look up file's UUID
             file = models.File.objects.get(
                 sip=uuid,
                 currentlocation='%SIPDirectory%' + object_path
             )
 
+            # remove "objects/" dir when storing representation
+            if object_path.index('objects/') == 0:
+                object_path = object_path[8:]
+
+            paths.append(object_path)
             path_uuids[object_path] = file.uuid
 
     # create array of objects with object data
