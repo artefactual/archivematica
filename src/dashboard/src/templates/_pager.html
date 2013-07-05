@@ -34,7 +34,7 @@
 
         {% ifnotequal page.next page.num_pages %}
           <span style='margin-left: 1em'>
-            <a href='?{{ search_params }}&page={{ page.num_pages }}'>Last</a>
+            <a href='?{{ search_params }}&page={{ page.num_pages }}' title='Page {{ page.num_pages }}'>Last</a>
           </span>
         {% endifnotequal %}
       </span>
