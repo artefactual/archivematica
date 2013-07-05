@@ -65,7 +65,7 @@ def search(request):
 
     # set paging variables
     if not file_mode:
-        items_per_page = 10
+        items_per_page = 2
     else:
         items_per_page = 20
 
@@ -102,8 +102,7 @@ def search(request):
         return HttpResponse('Error accessing index.')
 
     # take note of facet data
-    file_extension_usage = results['facets']['fileExtension']['terms']
-    aip_uuids            = results['facets']['AIPUUID']['terms']
+    aip_uuids = results['facets']['AIPUUID']['terms']
 
     if not file_mode:
         number_of_results = len(aip_uuids)
