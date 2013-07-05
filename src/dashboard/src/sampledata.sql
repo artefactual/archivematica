@@ -14,6 +14,7 @@ DROP table IF EXISTS Resources;
 CREATE TABLE Resources (
   resourceid INT(10),
   title varchar(255),
+  resourceIdentifier1 varchar(255),
   dateExpression varchar(255),
   resourceLevel varchar(255)
 );
