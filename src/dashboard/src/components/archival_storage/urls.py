@@ -19,7 +19,6 @@ from django.conf.urls.defaults import patterns
 from django.conf import settings
 
 urlpatterns = patterns('components.archival_storage.views',
-    (r'page/(?P<page>\d+)/$', 'page'),
     (r'search/json/file/(?P<document_id_modified>\w+)/$', 'file_json'),
     (r'search/json/aip/(?P<document_id_modified>\w+)/$', 'aip_json'),
     (r'search/$', 'search'),

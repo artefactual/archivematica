@@ -1,0 +1,53 @@
+<div style='height: 50px; line-height: 50px;'>
+  <div style='float:right;'>
+    {% if page.has_previous %}
+      <span style='margin-right: 2em'>
+        {% ifnotequal page.previous 1 %}
+          <span style='margin-right: 1em'>
+            <a href='?{{ search_params }}&page=1'>First</a>
+          </span>
+        {% endifnotequal %}
+
+        <a href='?{{ search_params }}&page={{ page.previous }}'>Previous</a>
+      </span>
+
+      {% if page.previous_pages %}
+        {% for page_number in page.previous_pages %}
+          <a href='?{{ search_params }}&page={{ page_number }}'>{{ page_number }}</a>
+        {% endfor %}
+      {% endif %}
+    {% endif %}
+
+    {% if page.num_pages > 1 %}
+      <strong>{{ page.current }}</strong>
+    {% endif %}
+
+    {% if page.has_next %}
+      {% if page.next_pages %}
+        {% for page_number in page.next_pages %}
+          <a href='?{{ search_params }}&page={{ page_number }}'>{{ page_number }}</a>
+        {% endfor %}
+      {% endif %}
+
+      <span style='margin-left: 2em'>
+        <a href='?{{ search_params }}&page={{ page.next }}'>Next</a>
+
+        {% ifnotequal page.next page.num_pages %}
+          <span style='margin-left: 1em'>
+            <a href='?{{ search_params }}&page={{ page.num_pages }}' title='Page {{ page.num_pages }}'>Last</a>
+          </span>
+        {% endifnotequal %}
+      </span>
+    {% endif %}
+
+    {% if page.num_pages > 1 %}
+      <span style='margin-left: 2em'>
+        Jump to &nbsp;<input id='paging_jump_to' style='width: 20px;' />
+      </span>
+    {% endif %}
+  </div>
+
+  <div>
+      Showing {{ page.start_index }} to {{ page.end_index }} of {{ page.total_items }}.
+  </div>
+</div>

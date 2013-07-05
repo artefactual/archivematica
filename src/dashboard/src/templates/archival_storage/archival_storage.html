@@ -72,20 +72,15 @@
       </tbody>
     </table>
 
-    {% if page.has_other %}
-      Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.total_items }}
-      <div style='float:right'>
-      {% if page.has_previous %}
-        <a href="{% url 'components.archival_storage.views.page' page.previous %}" class="btn">Previous</a>
-        {% if page.has_next %}
-          &nbsp;
-        {% endif %}
-      {% endif %}
-      {% if page.has_next %}
-        <a href="{% url 'components.archival_storage.views.page' page.next %}" class="btn">Next</a>
-      {% endif %}
-      </div>
-    {% endif %}
+    <script>
+    $(document).ready(function () {
+      $('#paging_jump_to').change(function() {
+        window.location = '/archival-storage/?{{ search_params }}&page=' + $(this).val();
+      });
+    });
+    </script>
+
+    {% include '_pager.html' %}
 
   {% else %}
 

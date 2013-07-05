@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.utils import simplejson
 from components.archival_storage import forms
 from django.conf import settings
@@ -39,10 +39,6 @@ AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'
 @decorators.elasticsearch_required()
 def overview(request):
     return list_display(request)
-
-@decorators.elasticsearch_required()
-def page(request, page=None):
-    return list_display(request, page)
 
 def search(request):
     # deal with transfer mode
@@ -251,7 +247,9 @@ def send_thumbnail(request, fileuuid):
 
     return helpers.send_file(request, thumbnail_path)
 
-def list_display(request, current_page_number=1):
+def list_display(request):
+    current_page_number = request.GET.get('page', 1)
+
     form = forms.StorageSearchForm()
 
     # get ElasticSearch stats
@@ -280,12 +278,8 @@ def list_display(request, current_page_number=1):
         sort=sort_specification
     )
 
-    aips = []
-
     try:
-        if len(aipResults) > 0:
-            for aip in aipResults:
-                aips.append(aip)
+        len(aipResults)
     except pyes.exceptions.ElasticSearchException:
         # there will be an error if no mapping exists for AIPs due to no AIPs
         # having been created
@@ -298,15 +292,17 @@ def list_display(request, current_page_number=1):
         current_page_number
     )
 
+    if not page:
+        raise Http404
+
     # augment data
     sips = []
-    for aip in aips:
+    for aip in page['objects']:
         sip = {}
         sip['href'] = aip.filePath.replace(AIPSTOREPATH + '/', "AIPsStore/")
         sip['name'] = aip.name
         sip['uuid'] = aip.uuid
 
-        #sip['date'] = str(aip.date)[0:19].replace('T', ' ')
         sip['date'] = aip.created
 
         try:
