@@ -1,17 +1,46 @@
 <div>
   <div style='float:right;'>
     {% if page.has_previous %}
-      <a href='?{{ search_params }}&page={{ page.previous }}'>Previous</a>
+      <span style='margin-right: 2em'>
+        {% ifnotequal page.previous 1 %}
+          <span style='margin-right: 1em'>
+            <a href='?{{ search_params }}&page=1'>First</a>
+          </span>
+        {% endifnotequal %}
+
+        <a href='?{{ search_params }}&page={{ page.previous }}'>Previous</a>
+      </span>
+
+      {% if page.previous_pages %}
+        {% for page_number in page.previous_pages %}
+          <a href='?{{ search_params }}&page={{ page_number }}'>{{ page_number }}</a>
+        {% endfor %}
+      {% endif %}
     {% endif %}
 
-    {% if page.has_previous and page.has_next %}
-      |
-    {% endif %}
+    <strong>{{ page.current }}</strong>
 
     {% if page.has_next %}
-      <a href='?{{ search_params }}&page={{ page.next }}'>Next</a>
+      {% if page.next_pages %}
+        {% for page_number in page.next_pages %}
+          <a href='?{{ search_params }}&page={{ page_number }}'>{{ page_number }}</a>
+        {% endfor %}
+      {% endif %}
+
+      <span style='margin-left: 2em'>
+        <a href='?{{ search_params }}&page={{ page.next }}'>Next</a>
+
+        {% ifnotequal page.next page.num_pages %}
+          <span style='margin-left: 1em'>
+            <a href='?{{ search_params }}&page={{ page.num_pages }}'>Last</a>
+          </span>
+        {% endifnotequal %}
+      </span>
     {% endif %}
   </div>
 
-  <strong>Found {{ page.total_items }} results. Showing {{ page.start_index }} to {{ page.end_index }}.</strong>
+  <strong>
+    Found {{ page.total_items }} results.
+    Showing {{ page.start_index }} to {{ page.end_index }}.
+  </strong>
 </div>
