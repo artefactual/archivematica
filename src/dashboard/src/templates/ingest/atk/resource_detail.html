@@ -53,6 +53,20 @@
       </tbody>
     </table>
 
+    <script>
+    $(document).ready(function () {
+      $('#paging_jump_to').change(function() {
+        var url_chunks = window.location.href.split('/'),
+            uuid = url_chunks[4],
+            entity_type = url_chunks[7],
+            entity_id = url_chunks[8],
+            new_url_path = '/ingest/' + uuid + '/upload/atk/' + entity_type + '/' + entity_id + '/?{{ search_params }}&page=' + $(this).val();
+
+        window.location = new_url_path;
+      });
+    });
+    </script>
+
     {% include "_pager.html" %}
   {% else %}
     <p>No child descriptions found.</p>

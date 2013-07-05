@@ -1,4 +1,4 @@
-<div>
+<div style='height: 50px; line-height: 50px;'>
   <div style='float:right;'>
     {% if page.has_previous %}
       <span style='margin-right: 2em'>
@@ -18,7 +18,9 @@
       {% endif %}
     {% endif %}
 
-    <strong>{{ page.current }}</strong>
+    {% if page.num_pages > 1 %}
+      <strong>{{ page.current }}</strong>
+    {% endif %}
 
     {% if page.has_next %}
       {% if page.next_pages %}
@@ -37,10 +39,15 @@
         {% endifnotequal %}
       </span>
     {% endif %}
+
+    {% if page.num_pages > 1 %}
+      <span style='margin-left: 2em'>
+        Jump to &nbsp;<input id='paging_jump_to' style='width: 20px;' />
+      </span>
+    {% endif %}
   </div>
 
-  <strong>
-    Found {{ page.total_items }} results.
-    Showing {{ page.start_index }} to {{ page.end_index }}.
-  </strong>
+  <div>
+      Showing {{ page.start_index }} to {{ page.end_index }} of {{ page.total_items }}.
+  </div>
 </div>

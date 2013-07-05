@@ -50,6 +50,18 @@
     </tbody>
   </table>
 
+  <script>
+  $(document).ready(function () {
+    $('#paging_jump_to').change(function() {
+      var url_chunks = window.location.href.split('/'),
+          uuid = url_chunks[4],
+          new_url_path = '/ingest/' + uuid + '/upload/atk/?{{ search_params }}&page=' + $(this).val();
+
+      window.location = new_url_path;
+    });
+  });
+  </script>
+
   {% include "_pager.html" %}
 
 </div>
