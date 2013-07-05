@@ -40,7 +40,7 @@
               {{ resource.title }}
             {% endif %}
           </td>
-          <td>{{ resource.id }}</td>
+          <td>{{ resource.identifier }}</td>
           <td>{{ resource.dates }}</td>
           <td>
             <a class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels uuid resource.id %}'>Assign&nbsp;Objects</a>
