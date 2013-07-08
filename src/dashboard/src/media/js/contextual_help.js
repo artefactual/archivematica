@@ -37,6 +37,7 @@ function archivematicaEnableContextualHelp() {
   $('.has_contextual_help').each(function() {
     var self = this;
     $(this).focus(function() {
+      $('#contextual_help').remove();
       var helpElementId = $(self).attr('id') + '_help'
         , helpText = $('#' + helpElementId).html();
 
@@ -44,7 +45,11 @@ function archivematicaEnableContextualHelp() {
       $('#contextual_help').html(helpText);
     });
     $(this).blur(function() {
-      $('#contextual_help').remove();
+      // wait a bit to remove help in case there's links in the help that
+      // can be clicked
+      setTimeout(function() {
+        $('#contextual_help').remove();
+      }, 2000);
     });
   });
 }

@@ -19,8 +19,7 @@
 
 <script>
 $(document).ready(function() {
-  // disabled as it has some issues
-  //archivematicaEnableContextualHelp();
+  archivematicaEnableContextualHelp();
 });
 </script>
 
@@ -75,59 +74,63 @@ $(document).ready(function() {
   <!-- define contextual help -->
 
   <div id='id_title_help' style='display:none'>
-    <p>Provide either a formal title or a concise supplied title in accordance with the rules of multilevel description and national conventions. (ISAD 3.1.2) Enter the title proper, either transcribed or supplied. (RAD 1.1B)</p>
+    <p>A name given to the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
   </div>
 
   <div id='id_creator_help' style='display:none'>
-    <p>This is a name access point. Record the name of the organization(s) or the individual(s) responsible for the creation, accumulation and maintenance of the records in the unit of description to create and/or link to an authority record. (ISAD 3.2.1) “Choose provenance, author and other non-subject access points from the archival description, as appropriate. All access points must be apparent from the archival description to which they relate." (RAD 21.0B) Type a name to create and/or link to a new authority record.</p>
+    <p>An entity primarily responsible for making the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
   </div>
 
   <div id='id_subject_help' style='display:none'>
-    <p>This is a subject access point. Type a term to create and/or link to a subject term in your taxonomy. Does not map to ISAD(G) or RAD.</p>
+    <p>The topic of the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
   </div>
 
   <div id='id_description_help' style='display:none'>
-    <p>Give a summary of the scope (such as, time periods, geography) and content, (such as documentary forms, subject matter, administrative processes) of the unit of description, appropriate to the level of description. (ISAD 3.3.1) "At the fonds, series, and collection levels of description, and when necessary at the file and the item levels of description, indicate the level being described and give information about the scope and the internal structure of or arrangement of the records, and about their contents." (RAD 1.7D) "For the scope of the unit being described, give information about the functions and/or kinds of activities generating the records, the period of time, the subject matter, and the geographical area to which they pertain. For the content of the unit being described, give information about its internal structure by indicating its arrangement, organization, and/or enumerating its next lowest level of description. Summarize the principal documentary forms (e.g., reports, minutes, correspondence, drawings, speeches)." (RAD 1.7D1)</p>
+    <p>An account of the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
   </div>
 
   <div id='id_publisher_help' style='display:none'>
-    <p>This is a name access point. Does not map to ISAD(G). Name of publisher, distributor etc. (RAD 1.4D)</p>
+    <p>An entity responsible for making the resource available. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
   </div>
 
   <div id='id_contributor_help' style='display:none'>
-    <p>This is a name access point. Does not map to ISAD(G) or RAD.</p>
+    <p>An entity responsible for making contributions to the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
   </div>
 
   <div id='id_date_help' style='display:none'>
-    <p>Identify and record the date(s) of the unit of description. Identify the type of date given. Record as a single date or a range of dates as appropriate. Use YYYY-MM-DD format. (ISAD 3.1.3) Give the date(s) of creation of the unit being described either as a single date, or range of dates (for inclusive dates and/or predominant dates). Always give the inclusive dates. When providing predominant dates, specify them as such, preceded by the word predominant..." (RAD 1.4B2). Record probable and uncertain dates in square brackets, using the conventions described in RAD 1.4B5.</p>
+    <p>A point or period of time associated with an event in the lifecycle of the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
+  </div>
+
+  <div id='id_type_help' style='display:none'>
+    <p>The nature or genre of the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>) You may wish to use the DCMI type vocabulary provided here: <a href="http://dublincore.org/documents/dcmi-type-vocabulary/">http://dublincore.org/documents/dcmi-type-vocabulary/</a></p>
   </div>
 
   <div id='id_format_help' style='display:none'>
-    <p>Record the extent of the unit of description by giving the number of physical or logical units in arabic numerals and the unit of measurement. Give the specific medium.</p>
+    <p>The file format, physical medium, or dimensions of the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>) Best practice  is to use a controlled vocabulary such as the list of Internet Media Types [MIME] provided here: <a href="http://www.iana.org/assignments/media-types/" target="_blank">http://www.iana.org/assignments/media-types/</a></p>
   </div>
 
   <div id='id_identifier_help' style='display:none'>
-    <p>Provide a specific local reference code, control number, or other unique identifier. The country and repository code will be automatically added from the linked repository record to form a full reference code. (ISAD 3.1.1) Enter an unambiguous code used to uniquely identify the description. (RAD 1.9B)</p>
+    <p>An unambiguous reference to the resource within a given context. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
   </div>
 
   <div id='id_source_help' style='display:none'>
-    <p>Location of originals. “If the original of the unit of description is available (either in the institution or elsewhere) record its location, together with any significant control numbers. If the originals no longer exist, or their location is unknown, give that information.” (ISAD 3.5.1) “Location of originals. If the unit being described is a reproduction and the location of the original material is known, give that location. Give, in addition, any identifying numbers that may help in locating the original material in the cited location. If the originals are known to be no longer extant, give that information. ” (RAD 1.8B15a.)</p>
+    <p>A related resource from which the described resource is derived. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
   </div>
 
   <div id='id_relation_help' style='display:none'>
-    <p>Record information about units of description in the same repository or elsewhere that are related by provenance or other association(s). Use appropriate introductory wording and explain the nature of the relationship . If the related unit of description is a finding aid, use the finding aids element of description (ISAD 3.4.5) to make the reference to it. (ISAD 3.5.3) For associated material, "If records in another institution are associated with the unit being described by virtue of the fact that they share the same provenance, make a citation to the associated material at the fonds, series or collection level, or for discrete items, indicating its location if known." (RAD 1.8B18). For related material, "Indicate groups of records having some significant relationship by reason of shared responsibility or shared sphere of activity in one or more units of material external to the unit being described." (RAD 1.8B20)</p>
+    <p>A related resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
   </div>
 
   <div id='id_language_help' style='display:none'>
-    <p>“Record the language(s) and/or script(s) of the materials comprising the unit of description. Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. Optionally, also include the appropriate ISO codes for language(s) (ISO 639-1 and ISO 639-2: International Standards for Language Codes) or script(s), (ISO 15924: International Standard for Names of Scripts)." (ISAD 3.4.3) "Record the language or languages of the unit being described, unless they are noted elsewhere or are apparent from other elements of the description." (RAD 1.8.B14).</p>
+    <p>A language of the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
   </div>
 
   <div id='id_coverage_help' style='display:none'>
-    <p>This is a place access point. Does not map to ISAD(G) or RAD.</p>
+    <p>The spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
   </div>
 
   <div id='id_rights_help' style='display:none'>
-    <p>Specify the law or legal status, contract, regulation or policy that affects access to the unit of description. Indicate the extent of the period of closure and the date at which the material will open when appropriate. (ISAD 3.4.1) "Give information about any restrictions placed on access to the unit (or parts of the unit) being described." (RAD 1.8B16a)</p>
+    <p>Information about rights held in and over the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
   </div>
 
 {% endblock %}

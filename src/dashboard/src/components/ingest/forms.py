@@ -30,7 +30,7 @@ class DublinCoreMetadataForm(forms.Form):
     publisher = forms.CharField(required=False, widget=TextInput(attrs=settings.INPUT_WITH_HELP_ATTRS))
     contributor = forms.CharField(required=False, widget=TextInput(attrs=settings.INPUT_WITH_HELP_ATTRS))
     date = forms.CharField(required=False, help_text='Use ISO 8061 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)', widget=TextInput(attrs=settings.INPUT_WITH_HELP_ATTRS))
-    type = forms.CharField(required=False, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    type = forms.CharField(required=False, widget=TextInput(attrs=settings.INPUT_WITH_HELP_ATTRS))
     format = forms.CharField(required=False, widget=TextInput(attrs=settings.INPUT_WITH_HELP_ATTRS))
     identifier = forms.CharField(required=False, widget=TextInput(attrs=settings.INPUT_WITH_HELP_ATTRS))
     source = forms.CharField(required=False, widget=TextInput(attrs=settings.INPUT_WITH_HELP_ATTRS))
