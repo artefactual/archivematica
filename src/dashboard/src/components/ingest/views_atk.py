@@ -71,7 +71,7 @@ def ingest_upload_atk(request, uuid):
         except MySQLdb.OperationalError:
             return HttpResponseServerError('Database connection error. Please contact an administration.')
 
-        page = helpers.pager(resources, 20, request.GET.get('page', 1))
+        page = helpers.pager(resources, 10, request.GET.get('page', 1))
 
         page['objects'] = augment_resource_data(db, page['objects'])
 
@@ -142,7 +142,7 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
             search_pattern=query
         )
         if resource_data['children']:
-             page = helpers.pager(resource_data['children'], 20, request.GET.get('page', 1))
+             page = helpers.pager(resource_data['children'], 10, request.GET.get('page', 1))
     except MySQLdb.ProgrammingError:
         return HttpResponseServerError('Database error. Please contact an administrator.')
 
@@ -179,7 +179,7 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
             search_pattern=query
         )
         if resource_component_data['children']:
-            page = helpers.pager(resource_component_data['children'], 20, request.GET.get('page', 1))
+            page = helpers.pager(resource_component_data['children'], 10, request.GET.get('page', 1))
     except MySQLdb.ProgrammingError:
         return HttpResponseServerError('Database error. Please contact an administrator.')
 
