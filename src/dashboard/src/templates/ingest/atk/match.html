@@ -105,7 +105,7 @@
   <script type="text/template" id="resource-item-template">
     <tr class="atk-matcher-resource-item" id="resource_<%= tempId %>">
       <td><%= levelOfDescription %></td>
-      <td><%= padding %><%= title %></td>
+      <td title="<%= title %>"><%= padding %><%= truncated_title %></td>
       <td><%= identifier %></td>
       <td><%= dates %></td>
     </tr>
@@ -113,9 +113,9 @@
 
   <script type="text/template" id="match-item-template">
     <tr class="atk-matcher-match-item" id="match_<%= tempId %>">
-      <td><%= path %></td>
+      <td title="<%= path %>"><%= truncated_path %></td>
       <td><%= levelOfDescription %></td>
-      <td><%= title %></td>
+      <td title="<%= title %>"><%= truncated_title %></td>
       <td><%= identifier %></td>
       <td><%= dates %></td>
       <td id="match_delete_<%= tempId %>">

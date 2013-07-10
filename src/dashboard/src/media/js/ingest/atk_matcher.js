@@ -211,6 +211,7 @@ var ATKMatcherView = Backbone.View.extend({
           'tempId':             resource.id,
           'padding':            padding,
           'title':              resource.get('title'),
+          'truncated_title':    self.truncate(resource.get('title'), 40),
           'levelOfDescription': resource.get('levelOfDescription'),
           'identifier':         resource.get('identifier'),
           'dates':              resource.get('dates')
@@ -373,7 +374,9 @@ var ATKMatcherView = Backbone.View.extend({
             var $newMatchEl = $(self.matchItemTemplate({
               'tempId': pairModel.id,
               'path': item.path,
+              'truncated_path': self.truncate(item.path, 40),
               'title': resource.get('title'),
+              'truncated_title': self.truncate(resource.get('title'), 40),
               'identifier': resource.get('identifier'),
               'levelOfDescription': resource.get('levelOfDescription'),
               'dates': resource.get('dates')
@@ -555,9 +558,10 @@ var ATKMatcherView = Backbone.View.extend({
         $(this).children('input').attr('checked') == 'checked'
         && $(this).children('input').attr('disabled') != 'disabled'
       ) {
+        // the label title holds the complete path
         selectedPaths.push({
           'id': $(this).attr('id'),
-          'path': $(this).children('label').text()
+          'path': $(this).children('label').attr('title')
         });
       }
     });
