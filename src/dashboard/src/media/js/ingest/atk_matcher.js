@@ -77,6 +77,15 @@ var ATKMatcherView = Backbone.View.extend({
     this.activateCancelButton();
   },
 
+  // this can be replaced with Underscore's truncation once we update
+  // Underscore...
+  truncate: function(string, length, truncation) {
+      length = length || 30;
+      truncation = _.isUndefined(truncation) ? '...' : truncation;
+      return string.length > length ?
+        string.slice(0, length - truncation.length) + truncation : String(string);
+    },
+
   renderObjectPaths: function() {
     var self = this,
         index = 0;
@@ -86,7 +95,8 @@ var ATKMatcherView = Backbone.View.extend({
       // create object path representation (checkbox and label)
       var newObjectPath = $(self.objectPathTemplate({
         'index': index,
-        'path': pathData.path}
+        'path': pathData.path,
+        'truncated_path': self.truncate(pathData.path, 40)}
       ));
 
       self.pathData[pathData.path] = pathData.uuid;
