@@ -59,6 +59,7 @@
             <a class="down {% if order_by == 'created' and sort_by == 'down' %} selected_down"{% endif %}" href="?order_by=created&sort_by=down">Sort</a>
           </div>
         </th>
+        <th></th>
       </thead>
       <tbody>
         {% for item in sips %}
@@ -67,6 +68,7 @@
             <td class="size">{{ item.size }}</td>
             <td class="uuid">{{ item.uuid }}</td>
             <td><span class='timestamp'>{{ item.date }}</a></td>
+            <td><a href="{% url 'components.archival_storage.views.aip_delete' item.uuid %}"><img src="/media/images/delete.png"/></a></td>
           </tr>
         {% endfor %}
       </tbody>

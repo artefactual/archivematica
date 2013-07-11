@@ -16,7 +16,8 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.shortcuts import render
-from django.http import HttpResponse, Http404
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.utils import simplejson
 from components.archival_storage import forms
 from django.conf import settings
@@ -33,6 +34,7 @@ import httplib
 import tempfile
 import subprocess
 from components import decorators
+from django.template import RequestContext
 
 AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'
 
@@ -170,6 +172,25 @@ def search_augment_file_results(raw_results):
         modifiedResults.append(clone)
 
     return modifiedResults
+
+def delete_context(request, uuid):
+    #user = User.objects.get(pk=id)
+    prompt = 'Delete AIP?'
+    #prompt = 'Delete user ' + user.username + '?'
+    cancel_url = reverse("components.archival_storage.views.overview")
+    return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
+
+@decorators.confirm_required('simple_confirm.html', delete_context)
+def aip_delete(request, uuid):
+    try:
+        aip = elasticSearchFunctions.connect_and_get_aip_data(uuid)
+        aip_filepath = aip['filePath']
+        os.remove(aip_filepath)
+        elasticSearchFunctions.delete_aip(uuid)
+        elasticSearchFunctions.connect_and_delete_aip_files(uuid)
+        return HttpResponseRedirect(reverse('components.archival_storage.views.overview'))
+    except:
+        raise Http404
 
 def aip_download(request, uuid):
     aip = elasticSearchFunctions.connect_and_get_aip_data(uuid)

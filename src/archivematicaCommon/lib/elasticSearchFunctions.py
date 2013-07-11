@@ -477,6 +477,9 @@ def connect_and_remove_sip_transfer_files(uuid):
                 document_id = documents['hits']['hits'][0]['_id']
                 conn.delete('transfers', 'transferfile', document_id)
 
+def delete_aip(uuid):
+    return delete_matching_documents('aips', 'aip', 'uuid', uuid)
+
 def delete_matching_documents(index, type, field, value, **kwargs):
     # open connection if one hasn't been provided
     conn = kwargs.get('conn', False)
