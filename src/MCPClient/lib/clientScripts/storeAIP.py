@@ -36,9 +36,7 @@ printSubProcessOutput=True
 AIPsStore = sys.argv[1]
 AIP = sys.argv[2]
 SIPUUID = sys.argv[3]
-HTMLFilePath = sys.argv[4]
-SIPNAME = sys.argv[5]
-SIPDATE = sys.argv[6]
+SIPNAME = sys.argv[4]
 
 #Get the UUID quads
 uuidQuads = []
