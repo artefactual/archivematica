@@ -29,6 +29,7 @@ import os
 import logging
 from components import helpers
 import components.decorators as decorators
+import storageService as storage_service
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica.log", 
@@ -40,7 +41,7 @@ logging.basicConfig(filename="/tmp/archivematica.log",
 
 @decorators.elasticsearch_required()
 def grid(request):
-    source_directories = helpers.get_location(purpose="TS")
+    source_directories = storage_service.get_location(purpose="TS")
 
     logging.debug("Source directories found: {}".format(source_directories))
 

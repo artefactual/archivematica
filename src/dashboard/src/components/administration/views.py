@@ -31,7 +31,8 @@ from components.administration.forms import AgentForm
 from components.administration.forms import ToggleSettingsForm
 import components.decorators as decorators
 import components.helpers as helpers
-from components.helpers import hidden_features
+import storageService as storage_service
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica.log", 
@@ -46,7 +47,7 @@ def administration(request):
 
 def administration_dip(request):
     upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
-    hide_features = hidden_features()
+    hide_features = helpers.hidden_features()
     return render(request, 'administration/dip.html', locals())
 
 def dip_edit(request, id):
@@ -70,7 +71,7 @@ def atom_dips(request):
     if request.method != 'POST' or valid_submission:
         formset = ReplaceDirChoiceFormSet(queryset=ReplaceDirChoices)
 
-    hide_features = hidden_features()
+    hide_features = helpers.hidden_features()
     return render(request, 'administration/dips_edit.html', locals())
 
 def contentdm_dips(request):
@@ -84,7 +85,7 @@ def contentdm_dips(request):
     if request.method != 'POST' or valid_submission:
         formset = ReplaceDirChoiceFormSet(queryset=ReplaceDirChoices)
 
-    hide_features = hidden_features()
+    hide_features = helpers.hidden_features()
     return render(request, 'administration/dips_contentdm_edit.html', locals())
 
 def atom_dip_destination_select_link_id():
@@ -153,7 +154,7 @@ def dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet):
 def storage(request):
     picker_js_file = 'storage_directory_picker.js'
     system_directory_description = 'AIP storage'
-    hide_features = hidden_features()
+    hide_features = helpers.hidden_features()
     return render(request, 'administration/sources.html', locals())
 
 def storage_json(request):
@@ -165,7 +166,7 @@ def storage_json(request):
 def sources(request):
     picker_js_file = 'source_directory_picker.js'
     system_directory_description = 'Transfer source'
-    hide_features = hidden_features()
+    hide_features = helpers.hidden_features()
     return render(request, 'administration/sources.html', locals())
 
 def sources_json(request):
@@ -178,14 +179,14 @@ def administration_system_directory_data_request_handler(request, purpose, acces
     message = ''
     if request.method == 'POST':
         # TODO This should be passed in by the view
-        space = helpers.get_space(access_protocol="FS", path="/")[0]
+        space = storage_service.get_space(access_protocol="FS", path="/")[0]
         path = request.POST.get('path', '')
         if path != '':
-            if helpers.get_location(path=path, 
+            if storage_service.get_location(path=path,
                                     purpose=purpose,
                                     space=space):
                 message = 'Directory already added.'
-            elif helpers.create_location(path=path, 
+            elif storage_service.create_location(path=path,
                                          purpose=purpose):
                 message = 'Directory added.'
             else:
@@ -196,7 +197,7 @@ def administration_system_directory_data_request_handler(request, purpose, acces
         if purpose == "AS":
             administration_render_storage_directories_to_dicts()
 
-    directories = helpers.get_location(purpose=purpose)
+    directories = storage_service.get_location(purpose=purpose)
 
     response = {}
     response['message'] = message
@@ -224,7 +225,7 @@ def sources_delete_json(request, id):
     )
 
 def system_directory_delete_request_handler(request, purpose, uuid):
-    if helpers.delete_location(uuid):
+    if storage_service.delete_location(uuid):
         message = 'Deleted.'
     else:
         logging.warning("Failed to delete directory {}, purpose {}".format(
@@ -242,7 +243,7 @@ def processing(request):
 
 def administration_render_storage_directories_to_dicts():
     administration_flush_aip_storage_dicts()
-    storage_directories = helpers.get_location(purpose="AS")
+    storage_directories = storage_service.get_location(purpose="AS")
     logging.debug("Storage Directories: {}".format(storage_directories))
     link_pk = administration_get_aip_storage_link_pk()
     for d in storage_directories:
@@ -274,7 +275,7 @@ def premis_agent(request):
     else:
         form = AgentForm(instance=agent)
 
-    hide_features = hidden_features()
+    hide_features = helpers.hidden_features()
     return render(request, 'administration/premis_agent.html', locals())
 
 def api(request):
@@ -284,7 +285,7 @@ def api(request):
     else:
         whitelist = helpers.get_setting('api_whitelist', '127.0.0.1')
 
-    hide_features = hidden_features()
+    hide_features = helpers.hidden_features()
     return render(request, 'administration/api.html', locals())
 
 def general(request):
@@ -310,5 +311,5 @@ def general(request):
 
     form = ToggleSettingsForm(extra=toggleableSettings)
 
-    hide_features = hidden_features()
+    hide_features = helpers.hidden_features()
     return render(request, 'administration/general.html', locals())
