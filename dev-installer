@@ -29,7 +29,9 @@ read a
 if [[ $a == "Y" || $a == "y" ]]; then
         echo "Going to ${part} ..."
         sudo adduser --uid 333 --group --system --home /var/lib/archivematica/ archivematica
+        sudo adduser --uid 334 --group --system --home /var/lib/archivematica-django/ archivematicadashboard
         sudo gpasswd -a $USER archivematica
+        sudo gpasswd -a archivematicadashboard archivematica
 else
         echo "Not going to ${part}"
 fi

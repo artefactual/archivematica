@@ -53,7 +53,7 @@ uuidQuads.append(SIPUUIDStripped[24:28])
 uuidQuads.append(SIPUUIDStripped[28:32])
 
 AIPsStoreWithQuads = AIPsStore
-mode= stat.S_IWUSR + stat.S_IRUSR + stat.S_IXUSR + stat.S_IRGRP + stat.S_IXGRP + stat.S_IXOTH + stat.S_IROTH
+mode= stat.S_IWUSR + stat.S_IRUSR + stat.S_IXUSR + stat.S_IRGRP + stat.S_IWGRP + stat.S_IXGRP + stat.S_IXOTH + stat.S_IROTH
 for quad in uuidQuads:
     AIPsStoreWithQuads = AIPsStoreWithQuads + quad + "/"
     if not os.path.isdir(AIPsStoreWithQuads):
