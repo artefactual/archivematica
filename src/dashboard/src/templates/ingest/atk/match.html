@@ -26,6 +26,20 @@
 {% endblock %}
 
 {% block content %}
+  <div style="padding: 5px; background-color: white; position: fixed; top: 57px; right: 10px; float: right;">
+    <span id="object_pane_search">
+      <input style="width: 150px" placeholder="Filter objects" />
+      <img src="{{ STATIC_URL }}images/zoom.png" />
+    </span>
+
+    <span id="resource_pane_search">
+      <input style="width: 150px" placeholder="Filter resources" />
+      <img src="{{ STATIC_URL }}images/zoom.png" />
+    </span>
+
+    <input id='match_button' type='button' value='Pair' class='btn' />
+  </div>
+
   <ul class="breadcrumb">
     {% breadcrumb_url 'DIP Upload' components.ingest.views_atk.ingest_upload_atk uuid %}
     {% breadcrumb 'Assign Objects' %}
@@ -41,21 +55,12 @@
     <div id="object_pane">
       <div class="atk-pane-header">
         <h3>Objects</h3>
-        <div id="object_pane_search">
-          <input style="width: 150px" placeholder="Filter objects" />
-          <img src="{{ STATIC_URL }}images/zoom.png" />
-        </div>
       </div>
       <div id="object_pane_paths"></div>
     </div>
     <div id="resource_pane">
       <div class="atk-pane-header">
-        <input id='match_button' type='button' value='Pair' class='btn' />
         <h3>Resources</h3>
-        <div id="resource_pane_search">
-          <input style="width: 150px" placeholder="Filter resources" />
-          <img src="{{ STATIC_URL }}images/zoom.png" />
-        </div>
       </div>
       <table>
         <thead>
