@@ -4,6 +4,8 @@
 #Author Ian Lewis
 #http://www.ianlewis.org/en/parsing-email-attachments-python
 
+#additional:
+#http://blog.magiksys.net/parsing-email-using-python-content
 
 # Modification
 # Author Joseph Perry
@@ -45,84 +47,82 @@ def tweakContentDisposition(content_disposition):
 #>>> parse_headers(c)
 #ContentDisposition(u'attachment', {u'filename*': LangTagged(string=u' Southern Roots of of Modern Philanthropy.pptx', langtag=None)}, None)
 
+def get_filename(part):
+    """Many mail user agents send attachments with the filename in 
+    the 'name' parameter of the 'content-type' header instead 
+    of in the 'filename' parameter of the 'content-disposition' header.
+    """
+    ##http://blog.magiksys.net/parsing-email-using-python-content
+    filename=part.get_param('filename', None, 'content-disposition')
+    if not filename:
+        filename=part.get_param('name', None) # default is 'content-type'
+        
+    if filename:
+        # RFC 2231 must be used to encode parameters inside MIME header
+        filename=email.Utils.collapse_rfc2231_value(filename).strip()
+
+    if filename and isinstance(filename, str):
+        # But a lot of MUA erroneously use RFC 2047 instead of RFC 2231
+        # in fact anybody miss use RFC2047 here !!!
+        filename=getmailheader(filename)
+        
+    return filename
+
+def getmailheader(header_text, default="ascii"):
+    """Decode header_text if needed"""
+    ##http://blog.magiksys.net/parsing-email-using-python-content
+    try:
+        headers=email.Header.decode_header(header_text)
+    except email.Errors.HeaderParseError:
+        # This already append in email.base64mime.decode()
+        # instead return a sanitized ascii string
+        # this faile '=?UTF-8?B?15HXmdeh15jXqNeVINeY15DXpteUINeTJ9eV16jXlSDXkdeg15XXldeUINem15PXpywg15TXptei16bXldei15nXnSDXqdecINek15zXmdeZ?==?UTF-8?B?157XldeR15nXnCwg157Xldek16Ig157Xl9eV15wg15HXodeV15bXnyDXk9ec15DXnCDXldeh15gg157Xl9eR16rXldeqINep15wg15HXmdeQ?==?UTF-8?B?15zXmNeZ?='
+        return header_text.encode('ascii', 'replace').decode('ascii')
+    else:
+        for i, (text, charset) in enumerate(headers):
+            try:
+                headers[i]=unicode(text, charset or default, errors='replace')
+            except LookupError:
+                # if the charset is unknown, force default 
+                headers[i]=unicode(text, default, errors='replace')
+        return u"".join(headers)
+
 
 def parse_attachment(message_part, attachments=None):
     content_disposition = message_part.get("Content-Disposition", None)
     if content_disposition:
         try:
-            try:
-                content_disposition = tweakContentDisposition(content_disposition)
-                dispositions = content_disposition.strip().split(";", 1)
-            except Exception as inst:
-                print type(inst)
-                print inst.args
-                print >>sys.stderr, "Error parsing file: {%s}%s" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath)
-                print >>sys.stderr, "Error parsing the content_disposition:", content_disposition
-                if "attachment" in content_disposition.lower() and "filename" in content_disposition.lower():  
-                    try:
-                        filename = uuid.uuid4().__str__()
-                        print >>sys.stderr, "Attempting extraction with random filename: %s" % (filename)
-                        print >>sys.stderr
-                        content_disposition = "attachment; filename=%s;" % (filename)
-                        dispositions = content_disposition.strip().split(";")
-                    except Exception as inst:
-                        print >>sys.stderr, type(inst)
-                        print >>sys.stderr, inst.args
-                        print >>sys.stderr, "Failed"
-                        print >>sys.stderr
-                        return None
-                else:
-                    print >>sys.stderr
-                    return None
-            if content_disposition and dispositions[0].lower() == "attachment":
-                file_data = message_part.get_payload(decode=True)
-                if not file_data:
-                    payload = message_part.get_payload()
-                    if isinstance(payload, list):
-                        for msgobj in payload:
-                            parse2(msgobj, attachments)
-                        return None
-                    print >>sys.stderr, message_part.get_payload()
-                    print >>sys.stderr, message_part.get_content_charset()
-
-                attachment = StringIO(file_data)
-                attachment.content_type = message_part.get_content_type()
-                attachment.size = len(file_data)
-                attachment.create_date = None
-                attachment.mod_date = None
-                attachment.read_date = None
-                attachment.name = ""
-                
-                for param in dispositions[1:]:
-                    name,value = param.split("=", 1)
-                    name = name.lower().strip()
+            if content_disposition:
+                dispositions = content_disposition.strip().split(";")
+                if content_disposition and (dispositions[0].lower() == "attachment" or dispositions[0].lower() == "inline"):
+                    file_data = message_part.get_payload(decode=True)
+                    attachment = StringIO(file_data)
+                    attachment.content_type = message_part.get_content_type()
+                    attachment.size = len(file_data)
+                    attachment.name = None
+                    attachment.create_date = None
+                    attachment.mod_date = None
+                    attachment.read_date = None
                     
-                    if name == "filename":
-                        attachment.name = urllib2.unquote(value.strip()).strip('"')
-                    if name == "filename*":
-                        attachment.name = urllib2.unquote(value.strip())
-                        try:
-                            enc, name = attachment.name.split("''", 1)
-                            attachment.name = name.decode(enc)
-                        except Exception as inst:
-                            print >>sys.stderr, type(inst)
-                            print >>sys.stderr, inst.args
-                            pass
-                    elif name == "create-date":
-                        attachment.create_date = value  #TODO: datetime
-                    elif name == "modification-date":
-                        attachment.mod_date = value #TODO: datetime
-                    elif name == "read-date":
-                        attachment.read_date = value #TODO: datetime
-                
-                if not attachment.name: 
-                    print >>sys.stderr, """Warning, no filename found in: [{%s}%s]%s""" % (sharedVariablesAcrossModules.sourceFileUUID, sharedVariablesAcrossModules.sourceFilePath, content_disposition)
-                    filename = uuid.uuid4().__str__()
-                    print >>sys.stderr, "Attempting extraction with random filename: %s" % (filename)
-                    print >>sys.stderr
-
-                return attachment
-                            
+                    attachment.name = get_filename(message_part)
+                    print attachment.name
+                    for param in dispositions[1:]:
+                        i = param.find("=")
+                        if i == -1:
+                            continue
+                        name = param[:i]
+                        print name
+                        value = param[i+1:]
+                        print name, value
+                        name = name.lower()
+        
+                        if name == "create-date":
+                            attachment.create_date = value  #TODO: datetime
+                        elif name == "modification-date":
+                            attachment.mod_date = value #TODO: datetime
+                        elif name == "read-date":
+                            attachment.read_date = value #TODO: datetime
+                    return attachment                            
         except Exception as inst:
             print >>sys.stderr, type(inst)
             print >>sys.stderr, inst.args
