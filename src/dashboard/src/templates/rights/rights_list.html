@@ -43,10 +43,10 @@
               <td>
                 {% if section == 'ingest' %}
                   <a href="{% url 'components.rights.views.ingest_rights_edit' uuid grant.rightsstatement.id %}">Edit</a>
-                  <a href="{% url 'components.rights.views.ingest_rights_delete' uuid grant.rightsstatement.id %}">Delete</a>
+                  <a href="{% url 'components.rights.views.ingest_rights_grant_delete' uuid grant.id %}">Delete</a>
                 {% else %}
                   <a href="{% url 'components.rights.views.transfer_rights_edit' uuid grant.rightsstatement.id %}">Edit</a>
-                  <a href="{% url 'components.rights.views.transfer_rights_delete' uuid grant.rightsstatement.id %}">Delete</a>
+                  <a href="{% url 'components.rights.views.transfer_rights_grant_delete' uuid grant.id %}">Delete</a>
                 {% endif %}
               </td>
             </tr>

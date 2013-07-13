@@ -21,6 +21,7 @@ urlpatterns = patterns('components.rights.views',
     (r'^$', 'transfer_rights_list'),
     (r'add/$', 'transfer_rights_edit'),
     (r'delete/(?P<id>\d+)/$', 'transfer_rights_delete'),
+    (r'grants/(?P<id>\d+)/delete/$', 'transfer_rights_grant_delete'),
     (r'grants/(?P<id>\d+)/$', 'transfer_rights_grants_edit'),
     (r'(?P<id>\d+)/$', 'transfer_rights_edit')
 )

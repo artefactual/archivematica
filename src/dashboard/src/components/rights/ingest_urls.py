@@ -21,6 +21,7 @@ urlpatterns = patterns('components.rights.views',
     (r'^$', 'ingest_rights_list'),
     (r'add/$', 'ingest_rights_edit'),
     (r'delete/(?P<id>\d+)/$', 'ingest_rights_delete'),
+    (r'grants/(?P<id>\d+)/delete/$', 'ingest_rights_grant_delete'),
     (r'grants/(?P<id>\d+)/$', 'ingest_rights_grants_edit'),
     (r'(?P<id>\d+)/$', 'ingest_rights_edit')
 )

@@ -39,6 +39,9 @@ def transfer_rights_edit(request, uuid, id=None):
 def transfer_rights_delete(request, uuid, id):
     return rights_delete(request, uuid, id, 'transfer')
 
+def transfer_rights_grant_delete(request, uuid, id):
+    return rights_grant_delete(request, uuid, id, 'transfer')
+
 def transfer_rights_grants_edit(request, uuid, id):
     return rights_grants_edit(request, uuid, id, 'transfer')
 
@@ -50,6 +53,9 @@ def ingest_rights_edit(request, uuid, id=None):
 
 def ingest_rights_delete(request, uuid, id):
     return rights_delete(request, uuid, id, 'ingest')
+
+def ingest_rights_grant_delete(request, uuid, id):
+    return rights_grant_delete(request, uuid, id, 'ingest')
 
 def ingest_rights_grants_edit(request, uuid, id):
     return rights_grants_edit(request, uuid, id, 'ingest')
@@ -470,6 +476,10 @@ def rights_delete(request, uuid, id, section):
     models.RightsStatement.objects.get(pk=id).delete()
     return HttpResponseRedirect(reverse('components.rights.views.%s_rights_list' % section, args=[uuid]))
 
+def rights_grant_delete(request, uuid, id, section):
+    models.RightsStatementRightsGranted.objects.get(pk=id).delete()
+    return HttpResponseRedirect(reverse('components.rights.views.%s_rights_list' % section, args=[uuid]))
+
 def rights_holders_lookup(request, id):
     try:
         agent = models.RightsStatementLinkingAgentIdentifier.objects.get(pk=id)
@@ -512,6 +522,7 @@ def rights_list(request, uuid, section):
     modifiedGrants = []
     for grant in grants:
         item = {
+            'id':           grant.pk,
             'act':          grant.act,
             'basis':        grant.rightsstatement.rightsbasis,
             'restrictions': [],
