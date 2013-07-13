@@ -32,7 +32,7 @@ if [ -e "${target}" ]; then
 	echo `basename "${target}"` owned by "archivematica:archivematica" now 
 	sudo chmod -R 660 "${target}"
 	sudo chmod 640 "${target}"
-    sudo find "${target}" -type d -execdir chmod 750 '{}' +
+    sudo find "${target}" -type d -execdir chmod 770 '{}' +
 	if [ -d "${target}objects" ]; then	
 		sudo chmod -R 660 "${target}objects"
         sudo find "${target}objects" -type d -execdir chmod 770 '{}' +
