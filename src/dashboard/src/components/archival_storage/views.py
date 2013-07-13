@@ -174,7 +174,6 @@ def search_augment_file_results(raw_results):
     return modifiedResults
 
 def delete_context(request, uuid):
-    #user = User.objects.get(pk=id)
     prompt = 'Delete AIP?'
     #prompt = 'Delete user ' + user.username + '?'
     cancel_url = reverse("components.archival_storage.views.overview")

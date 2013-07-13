@@ -25,6 +25,8 @@ from components.rights import forms
 from main import models
 from components import helpers
 import re
+from components import decorators
+from django.template import RequestContext
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Rights-related
@@ -39,6 +41,12 @@ def transfer_rights_edit(request, uuid, id=None):
 def transfer_rights_delete(request, uuid, id):
     return rights_delete(request, uuid, id, 'transfer')
 
+def transfer_grant_delete_context(request, uuid, id):
+    prompt = 'Delete rights grant?'
+    cancel_url = reverse("components.rights.views.transfer_rights_list", args=[uuid])
+    return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
+
+@decorators.confirm_required('simple_confirm.html', transfer_grant_delete_context)
 def transfer_rights_grant_delete(request, uuid, id):
     return rights_grant_delete(request, uuid, id, 'transfer')
 
@@ -54,6 +62,12 @@ def ingest_rights_edit(request, uuid, id=None):
 def ingest_rights_delete(request, uuid, id):
     return rights_delete(request, uuid, id, 'ingest')
 
+def ingest_grant_delete_context(request, uuid, id):
+    prompt = 'Delete rights grant?'
+    cancel_url = reverse("components.rights.views.ingest_rights_list", args=[uuid])
+    return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
+
+@decorators.confirm_required('simple_confirm.html', ingest_grant_delete_context)
 def ingest_rights_grant_delete(request, uuid, id):
     return rights_grant_delete(request, uuid, id, 'ingest')
 
