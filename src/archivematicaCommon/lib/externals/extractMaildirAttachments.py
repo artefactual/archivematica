@@ -105,15 +105,12 @@ def parse_attachment(message_part, attachments=None):
                     attachment.read_date = None
                     
                     attachment.name = get_filename(message_part)
-                    print attachment.name
                     for param in dispositions[1:]:
                         i = param.find("=")
                         if i == -1:
                             continue
                         name = param[:i]
-                        print name
                         value = param[i+1:]
-                        print name, value
                         name = name.lower()
         
                         if name == "create-date":
