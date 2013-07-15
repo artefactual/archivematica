@@ -27,11 +27,11 @@ from installer.forms import SuperUserCreationForm
 from installer.forms import FPRConnectForm
 from tastypie.models import ApiKey
 import components.helpers as helpers
-import storageService as storage_service
 
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
 import FPRClient.main as FPRClient
+import storageService as storage_service
 
 import json
 import logging
@@ -170,6 +170,6 @@ def storagesetup(request):
         return HttpResponseRedirect(reverse('main.views.home'))
     else:
         # TODO get this from config
-        storage_service = "http://localhost:8000"
+        storage_service_url = "http://localhost:8000"
         return render(request, 'installer/storagesetup.html', locals())
 
