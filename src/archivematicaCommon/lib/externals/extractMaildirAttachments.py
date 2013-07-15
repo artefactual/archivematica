@@ -66,6 +66,9 @@ def get_filename(part):
         # in fact anybody miss use RFC2047 here !!!
         filename=getmailheader(filename)
         
+    if filename:
+        filename = filename.replace('\r', "").replace("\n", "")
+        
     return filename
 
 def getmailheader(header_text, default="ascii"):
