@@ -861,3 +861,25 @@ INSERT INTO WatchedDirectories (pk, watchedDirectoryPath, chain, onlyActOnDirect
     
 -- /issue-1843
 
+
+-- Issue 5005
+--
+-- Add microservice chain link to DSpace "Complete transfer" microchain to index transfer files
+
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments)
+    VALUES ('14780202-4aab-43f4-94ed-3bf9a040d055', 0, 'elasticSearchIndex_v0.0', '\"%SIPDirectory%\" \"%SIPUUID%\"');
+
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description)
+    VALUES ('e0b25af2-1ce4-4ed3-b14f-87843fbd4c93', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '14780202-4aab-43f4-94ed-3bf9a040d055', 'Index transfer contents');
+
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink)
+    VALUES ('d2c2b65d-36c6-4636-9459-b5f0b4b0065a', 'Complete transfer', 'Failed', 'e0b25af2-1ce4-4ed3-b14f-87843fbd4c93', NULL);
+
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage)
+    VALUES ('46b4ff53-11f6-49a3-9aa7-1d5d56a63fa2', 'd2c2b65d-36c6-4636-9459-b5f0b4b0065a', 0, NULL, 'Completed successfully');
+
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='d2c2b65d-36c6-4636-9459-b5f0b4b0065a' WHERE pk='8a0bc7c6-f7c2-4656-a690-976660c66a8a';
+
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='d2c2b65d-36c6-4636-9459-b5f0b4b0065a' WHERE microServiceChainLink='8a0bc7c6-f7c2-4656-a690-976660c66a8a';
+
+-- /Issue 5005
