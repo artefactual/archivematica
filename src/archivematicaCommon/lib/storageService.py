@@ -104,6 +104,11 @@ def get_location(path=None, purpose=None, space=None):
     logging.info("Storage locations returned: {}".format(return_locations))
     return return_locations
 
+def get_location_by_uri(uri):
+    """ Get a specific location by the URI.  Only returns one location. """
+    api = _storage_api()
+    return api.location(uri).get()
+
 def delete_location(uuid):
     """ Deletes storage with UUID uuid, returns True on success."""
     api = _storage_api()
@@ -168,3 +173,59 @@ def get_space(access_protocol=None, path=None):
 
 ############# FILES #############
 
+def create_file(uuid, origin_location, origin_path, current_location,
+        current_path, package_type):
+    """ Creates a new file. Returns resulting dict on success, None on failure.
+
+    origin_location and current_location should be URIs for the storage service.
+    """
+
+    api = _storage_api()
+
+    new_file = {}
+    new_file['uuid'] = uuid
+    new_file['origin_location'] = origin_location
+    new_file['origin_path'] = origin_path
+    new_file['current_location'] = current_location
+    new_file['current_path'] = current_path
+    new_file['package_type'] = package_type
+
+    logging.info("Creating file with {}".format(new_file))
+    try:
+        file_ = api.file.post(new_file)
+    except slumber.exceptions.HttpClientError as e:
+        logging.warning("Unable to create file from {} because {}".format(new_file, e.content))
+        return None
+    except slumber.exceptions.HttpServerError as e:
+        logging.warning("Could not connect to storage service: {} ({})".format(
+            e, e.content))
+        return None
+    return file_
+
+def get_file_info(uuid=None, origin_location=None, origin_path=None,
+        current_location=None, current_path=None, package_type=None):
+    """ Returns a list of files, optionally filtered by parameters.
+
+    Queries the storage service and returns a list of files,
+    optionally filtered by origin location/path, current location/path, or
+    package_type.
+    """
+    api = _storage_api()
+    offset = 0
+    return_files = []
+    while True:
+        files = api.space.get(uuid=uuid,
+                              origin_location=origin_location,
+                              origin_path=origin_path,
+                              current_location=current_location,
+                              current_path=current_path,
+                              package_type=package_type,
+                              offset=offset)
+        logging.debug("Files retrieved: {}".format(files))
+        return_files += files['objects']
+        if not files['meta']['next']:
+            break
+        offset += files['meta']['limit']
+
+    logging.info("Files returned: {}".format(return_files))
+    return return_files

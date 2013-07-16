@@ -160,6 +160,7 @@ def storagesetup(request):
                 space = storage_service.create_space(default_space, "FS")
             else:
                 space = space[0]
+            # Create default AIP storage
             if not storage_service.get_location(purpose="AS",
                                         path=default_aip_storage,
                                         space=space):
@@ -167,6 +168,13 @@ def storagesetup(request):
                                         path=default_aip_storage,
                                         space=space,
                                         description=description)
+            # Create currently processing location
+            if not storage_service.get_location(purpose="CP",
+                                        path='.',
+                                        space=space):
+                storage_service.create_location(purpose="CP",
+                                        path=".",
+                                        space=space)
         return HttpResponseRedirect(reverse('main.views.home'))
     else:
         # TODO get this from config

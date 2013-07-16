@@ -250,7 +250,7 @@ def administration_render_storage_directories_to_dicts():
         dict = models.MicroServiceChoiceReplacementDic()
         dict.choiceavailableatlink = link_pk
         dict.description = d['description']
-        dict.replacementdic = '{"%AIPsStore%":"' + d['path'] + '/"}'
+        dict.replacementdic = '{{"%AIPsStore%": "{}"}}'.format(d['resource_uri'])
         dict.save()
 
 def administration_flush_aip_storage_dicts():
