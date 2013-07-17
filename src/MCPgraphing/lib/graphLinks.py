@@ -24,6 +24,7 @@
 #sudo apt-get install python-pygraphviz
 #http://networkx.lanl.gov/pygraphviz/
 
+import datetime
 import traceback
 import pygraphviz as pgv
 import sys
@@ -173,8 +174,8 @@ def draw():
     print "Creating"   
     G.layout(prog='dot')
     args= "-Goverlap=prism -v "
-    G.draw('test.png', args=args) #firefox
-    G.draw('test.svg', args=args) #inkscape
+    G.draw('chainlinks-{}.png'.format(datetime.date.today()), args=args) #firefox
+    G.draw('chainlinks-{}.svg'.format(datetime.date.today()), args=args) #inkscape
     
 
 
@@ -202,4 +203,4 @@ if __name__ == '__main__':
     draw()
     #print G.string()
     #print linkUUIDtoNodeName
-    
+
