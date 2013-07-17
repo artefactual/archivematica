@@ -18,15 +18,14 @@
 from django.conf import settings as django_settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from django.utils import simplejson
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from main.models import Agent
 from installer.forms import SuperUserCreationForm
-from installer.forms import FPRConnectForm
 from tastypie.models import ApiKey
 import components.helpers as helpers
+from components.administration.views import administration_render_storage_directories_to_dicts
 
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
@@ -46,7 +45,7 @@ logging.basicConfig(filename="/tmp/archivematica.log",
 def welcome(request):
     # This form will be only accessible when the database has no users
     if 0 < User.objects.count():
-      return HttpResponseRedirect(reverse('main.views.home'))
+        return HttpResponseRedirect(reverse('main.views.home'))
     # Form
     if request.method == 'POST':
         
@@ -74,9 +73,9 @@ def welcome(request):
             api_key.save()
             user = authenticate(username=user.username, password=form.cleaned_data['password1'])
             if user is not None:
-              login(request, user)
-              request.session['first_login'] = True
-              return HttpResponseRedirect(reverse('installer.views.fprconnect'))
+                login(request, user)
+                request.session['first_login'] = True
+                return HttpResponseRedirect(reverse('installer.views.fprconnect'))
     else:
         form = SuperUserCreationForm()
 
@@ -86,7 +85,6 @@ def welcome(request):
 
 def get_my_ip():
     server_addr = '1.2.3.4'
-    non_open_port = 50000
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     try:
@@ -140,11 +138,9 @@ def fprdownload(request):
         response_data['response'] = 'unable to connect to FPR Server'
         response_data['result'] = 'failed'
      
-    myresult=json.dumps(response_data)
+    myresult = json.dumps(response_data)
 
     return HttpResponse(myresult, mimetype='application/json')
-    #return HttpResponse(simplejson.JSONEncoder().encode(response_data), content_type="application/json", mimetype='application/json')    
-    #return HttpResponse(json.dumps(response_data), mimetype="application/json", content_type="application/json")
 
 def storagesetup(request):
     if request.method == 'POST':
@@ -175,6 +171,8 @@ def storagesetup(request):
                 storage_service.create_location(purpose="CP",
                                         path=".",
                                         space=space)
+        # Initial setup of storage directories MicroServiceChoiceReplacementDic
+        administration_render_storage_directories_to_dicts()
         return HttpResponseRedirect(reverse('main.views.home'))
     else:
         # TODO get this from config

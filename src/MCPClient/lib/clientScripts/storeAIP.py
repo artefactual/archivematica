@@ -20,10 +20,8 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import ConfigParser
 import logging
 import os
-import shutil
 import sys
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
@@ -57,12 +55,11 @@ def store_aip():
     aip_destination_uri = sys.argv[1]  # %AIPsStore%
     aip_path = sys.argv[2]  # SIPDirectory%%sip_name%-%sip_uuid%.7z
     sip_uuid = sys.argv[3]  # %sip_uuid%
-    sip_name = sys.argv[4]  # %sip_name%
+    sip_name = sys.argv[4]  # %sip_name%, currently unused
 
     # FIXME Assume current Location is the one set up by default until location
     # is passed in properly, or use Agent to make sure is correct CP
     current_location = storage_service.get_location(purpose="CP")[0]
-    destination = storage_service.get_location_by_uri(aip_destination_uri)
 
     #Store the AIP
     new_file = storage_service.create_file(
@@ -75,10 +72,10 @@ def store_aip():
         )
     if new_file:
         logging.info("Storage service created AIP: {}".format(new_file))
-        exit (0)
+        sys.exit(0)
     else:
         logging.warning("AIP unabled to be created from {}".format(current_location))
-        exit (-1)
+        sys.exit(-1)
 
 
     # FIXME this should be moved to the storage service and areas that rely
