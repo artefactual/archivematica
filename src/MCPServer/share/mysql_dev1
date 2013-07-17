@@ -158,9 +158,16 @@ UPDATE MicroServiceChainLinks SET defaultNextChainLink = @NextMicroServiceChainL
 
 -- set zero exit code --
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = @NextMicroServiceChainLink where microServiceChainLink = @XLink;
-
-
-
-
 -- /Issue 5027 --
+
+
+-- Issue 5187 Develop Storage Service --
+-- Remove StorageDirectories and SourceDirectories - in storage service now
+DROP TABLE IF EXISTS `StorageDirectories`;
+DROP TABLE IF EXISTS `SourceDirectories`;
+
+-- Update storeAIP parameters
+UPDATE StandardTasksConfigs SET arguments='\"%AIPsStore%\" \"%SIPDirectory%%SIPName%-%SIPUUID%.7z\" \"%SIPUUID%\" \"%SIPName%\"' WHERE pk='7df9e91b-282f-457f-b91a-ad6135f4337d';
+
+-- /Issue 5187 Develop Storage Service
 
