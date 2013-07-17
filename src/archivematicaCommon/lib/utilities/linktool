@@ -24,29 +24,29 @@ def simple_value_query(sql):
         return row[0]
 
 def get_next_link(link_uuid):
-    sql = "SELECT nextMicroServiceChainLink FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink='" + link_uuid + "' and exitCode=0"
+    sql = """SELECT nextMicroServiceChainLink FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink='%s' AND exitCode=0""" % (link_uuid)
     return simple_value_query(sql)
 
 def get_previous_link(link_uuid):
-    sql = "SELECT microServiceChainLink FROM MicroServiceChainLinksExitCodes WHERE nextMicroServiceChainLink='" + link_uuid + "' and exitCode=0"
+    sql = """SELECT microServiceChainLink FROM MicroServiceChainLinksExitCodes WHERE nextMicroServiceChainLink='%s' and exitCode=0""" % (link_uuid)
     return simple_value_query(sql)
 
 def get_link_microservice_group(link_uuid):
-    sql = "SELECT microserviceGroup FROM MicroServiceChainLinks WHERE pk='" + link_uuid + "'"
+    sql = """SELECT microserviceGroup FROM MicroServiceChainLinks WHERE pk='%s'""" % (link_uuid)
     return simple_value_query(sql)
 
 def link_exists(link_uuid):
-    sql = "SELECT pk FROM MicroServiceChainLinks WHERE pk='" + link_uuid + "'"
+    sql = """SELECT pk FROM MicroServiceChainLinks WHERE pk='%s'""" % (link_uuid)
     return simple_value_query(sql) != None
 
 def link_for_display(link_uuid, indent=''):
     return indent + link_uuid + ' (' + get_link_task_description(link_uuid) + ')'
 
 def get_link_task_description(link_uuid):
-    sql = "SELECT currentTask FROM MicroServiceChainLinks WHERE pk='" + link_uuid + "'"
+    sql = """SELECT currentTask FROM MicroServiceChainLinks WHERE pk='%s'""" % (link_uuid)
     task_config_uuid = simple_value_query(sql)
 
-    sql = "SELECT description FROM TasksConfigs WHERE pk='" + task_config_uuid + "'"
+    sql = """SELECT description FROM TasksConfigs WHERE pk='%s'""" % (task_config_uuid)
     return simple_value_query(sql)
 
 def generate_standard_task_config_sql_from_user_input(standard_task_uuid):
@@ -56,7 +56,7 @@ def generate_standard_task_config_sql_from_user_input(standard_task_uuid):
     print 'Arguments? '
     arguments = raw_input()
 
-    return "INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('" + standard_task_uuid + "', 0, '" + command + "', '" + arguments + "');"
+    return """INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('%s', 0, '%s', '%s');""" % (standard_task_uuid, command, arguments)
 
 def generate_task_config_sql_from_user_input(task_uuid, standard_task_uuid):
     print 'Creating new task entry SQL...'
@@ -65,14 +65,14 @@ def generate_task_config_sql_from_user_input(task_uuid, standard_task_uuid):
     print 'Description? '
     description = raw_input()
 
-    return "INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('" + task_uuid + "', '" + task_type_uuid + "', '" + standard_task_uuid + "', '" + description + "');"
+    return """INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('%s', '%s', '%s', '%s');""" % (task_uuid, task_type_uuid, standard_task_uuid, description)
 
 def generate_exit_code_sql_from_user_input(exit_code_uuid, link_uuid, next_link_uuid=None):
 
     if next_link_uuid == None:
-        sql = "INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('" + exit_code_uuid + "', '" + link_uuid + "', 0, NULL, 'Completed successfully');"
+        sql =  """INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('%s', '%s', 0, NULL, 'Completed successfully');""" % (exit_code_uuid, link_uuid)
     else:
-        sql = "INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('" + exit_code_uuid + "', '" + link_uuid + "', 0, '" + next_link_uuid + "', 'Completed successfully');"
+        sql = """INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('%s', '%s', 0, '%s', 'Completed successfully');""" % (exit_code_uuid, link_uuid, next_link_uuid)
     return sql
 
 #
@@ -80,13 +80,13 @@ def generate_exit_code_sql_from_user_input(exit_code_uuid, link_uuid, next_link_
 #
 
 def show_link_uuid_using_task_uuid(task_uuid):
-    sql = "SELECT jobUUID FROM Tasks WHERE taskUUID='" + task_uuid + "'"
+    sql = """SELECT jobUUID FROM Tasks WHERE taskUUID='%s'""" % (task_uuid)
     job_uuid = simple_value_query(sql)
 
     if job_uuid == None:
         print "ERROR: Task not found."
     else:
-        sql = "SELECT MicroServiceChainLinksPK FROM Jobs WHERE jobUUID='" + job_uuid + "'"
+        sql = """SELECT MicroServiceChainLinksPK FROM Jobs WHERE jobUUID='%s'""" % (job_uuid)
         link_uuid = simple_value_query(sql)
 
         if link_uuid == None:
@@ -118,9 +118,9 @@ def show_link_info(link_uuid, show_all_groups=False):
             previous_link = None
 
     if show_all_groups:
-        sql = "SELECT description FROM MicroServiceChains WHERE startingLink='" + earliest_link_found + "'"
+        sql = """SELECT description FROM MicroServiceChains WHERE startingLink='%s'""" % (earliest_link_found)
         chain_description = simple_value_query(sql)
-        sql = "SELECT pk FROM MicroServiceChains WHERE startingLink='" + earliest_link_found + "'"
+        sql = """SELECT pk FROM MicroServiceChains WHERE startingLink='%s'""" % (earliest_link_found)
         chain_uuid = simple_value_query(sql)
         print 'Chain ' + chain_uuid + ' (' + chain_description + ')'
 
@@ -172,7 +172,7 @@ def insert_link_before_link(link_uuid):
     microservice_group = raw_input()
 
     # add new link that will proceed to target link after normal execution
-    sql = "INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('" + new_link_uuid + "', '" + microservice_group + "', 'Failed', '" + task_uuid + "', '" + link_uuid + "');"
+    sql = """INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('%s', '%s', 'Failed', '%s', '%s');""" % (new_link_uuid, microservice_group, task_uuid, link_uuid)
     sql_commands = sql_commands + sql + "\n"
 
     # add new exit code that will proceed to target link after normal execution
@@ -181,16 +181,16 @@ def insert_link_before_link(link_uuid):
 
     if link_before_target_link == None:
         # must update chain row to insert new link
-        sql = "UPDATE MicroServiceChains SET startingLink='" + new_link_uuid + "' WHERE startingLink='" + link_uuid + "';"
+        sql = """UPDATE MicroServiceChains SET startingLink='%s' WHERE startingLink='%s';""" % (new_link_uuid, link_uuid)
         sql_commands = sql_commands + sql + "\n"
     else:
         # there is a link before our target link that we need to alter to point to our next link
 
         # update link before target link to proceed to new link after normal execution
-        sql = "UPDATE MicroServiceChainLinks SET defaultNextChainLink='" + new_link_uuid + "' WHERE pk='" + link_before_target_link + "';"
+        sql = """UPDATE MicroServiceChainLinks SET defaultNextChainLink='%s' WHERE pk='%s';""" % (new_link_uuid, link_before_target_link)
         sql_commands = sql_commands + sql + "\n"
 
-        sql = "UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='" + new_link_uuid + "' WHERE microServiceChainLink='" + link_before_target_link + "';"
+        sql = """UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='%s' WHERE microServiceChainLink='%s';""" % (new_link_uuid, link_before_target_link)
         sql_commands = sql_commands + sql + "\n"
 
     print sql_commands
@@ -216,18 +216,18 @@ def insert_link_after_link(link_uuid):
     microservice_group = raw_input()
 
     if link_after_target_link == None:
-        sql = "INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('" + new_link_uuid + "', '" + microservice_group + "', 'Failed', '" + task_uuid + "', NULL);"
+        sql = """INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('%s', '%s', 'Failed', '%s', NULL);""" % (new_link_uuid, microservice_group, task_uuid)
     else:
-        sql = "INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('" + new_link_uuid + "', '" + microservice_group + "', 'Failed', '" + task_uuid + "', '" + link_after_target_link + "');"
+        sql = """INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('%s', '%s', 'Failed', '%s', '%s');""" % (new_link_uuid, microservice_group, task_uuid, link_after_target_link)
     sql_commands = sql_commands + sql + "\n"
 
     exit_code_uuid = uuid.uuid4().__str__()
     sql_commands = sql_commands + generate_exit_code_sql_from_user_input(exit_code_uuid, new_link_uuid, link_after_target_link) + "\n"
 
-    sql = "UPDATE MicroServiceChainLinks SET defaultNextChainLink='" + new_link_uuid + "' WHERE pk='" + link_uuid + "';"
+    sql = """UPDATE MicroServiceChainLinks SET defaultNextChainLink='%s' WHERE pk='%s';""" % (new_link_uuid, link_uuid)
     sql_commands = sql_commands + sql + "\n"
 
-    sql = "UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='" + new_link_uuid + "' WHERE microServiceChainLink='" + link_uuid + "';"
+    sql = """UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='%s' WHERE microServiceChainLink='%s';""" % (new_link_uuid, link_uuid)
     sql_commands = sql_commands + sql + "\n"
 
     # update target link to go to new link
