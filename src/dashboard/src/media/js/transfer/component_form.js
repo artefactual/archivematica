@@ -37,10 +37,10 @@ var TransferComponentFormView = Backbone.View.extend({
     // add directory selector
     var locationUUID = $('#path_source_select').children(':selected').val();
     createDirectoryPicker(
-      locationUUID,
       sourceDir,
       'transfer-component-select-modal',
-      'path_container'
+      'path_container',
+      locationUUID
     );
   },
 
@@ -55,6 +55,7 @@ var TransferComponentFormView = Backbone.View.extend({
   startTransfer: function(transfer) {
     var path;
 
+console.log('S:' + transferMetadataSetRowId);
     $('.transfer-component-activity-indicator').show();
     // get path to temp directory in which to copy individual transfer
     // components

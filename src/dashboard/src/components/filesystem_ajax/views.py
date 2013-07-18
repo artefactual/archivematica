@@ -166,6 +166,17 @@ def delete(request):
 
     return helpers.json_response(response)
 
+def get_transfer_metadata_set(request):
+    # create DB row
+    response = {
+      'id': 3
+    }
+
+    return HttpResponse(
+        simplejson.JSONEncoder().encode(response),
+        mimetype='application/json'
+    )
+
 def get_temp_directory(request):
     temp_base_dir = helpers.get_client_config_value('temp_dir')
 

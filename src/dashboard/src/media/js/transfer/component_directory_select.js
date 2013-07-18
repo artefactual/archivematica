@@ -17,7 +17,9 @@ You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCssId) {
+var transferMetadataSetRowId = false;
+
+function createDirectoryPicker(baseDirectory, modalCssId, targetCssId, locationUUID) {
   var selector = new DirectoryPickerView({
     ajaxChildDataUrl: '/filesystem/children/location/' + locationUUID + '/',
     el: $('#explorer'),
@@ -49,6 +51,26 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
     description: 'Select',
     iconHtml: 'Add',
     logic: function(result) {
+      // A global variable is used to track the current transfer metadata
+      // set ID.
+      //
+      // If a transfer metadata set hasn't been created, create one via a 
+      // synchronous AJAX request.
+      if (transferMetadataSetRowId == false) {
+        $.ajax({
+          'url': '/filesystem/get_transfer_metadata_set/',
+          'type': 'GET',
+          'async': false,
+          'cache': false,
+          'success': function(results) {
+             transferMetadataSetRowId = results.id;
+          },
+          'error': function() {
+            alert('Error: contact administrator.');
+          }
+        });
+      }
+
       var $transferPathRowEl = $('<div></div>')
         , $transferPathEl = $('<span class="transfer_path"></span>')
         , $transferPathDeleteRl = $('<span style="margin-left: 1em;"><img src="/media/images/delete.png" /></span>');
