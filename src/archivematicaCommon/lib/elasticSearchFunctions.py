@@ -159,24 +159,37 @@ def set_up_mapping(conn, index):
         conn.put_mapping(doc_type='aipfile', mapping={'aipfile': {'date_detection': False, 'properties': mapping}}, indices=['aips'])
         print 'AIP file mapping created.'
 
+def transfer_type_from_sip_uuid(sip_uuid):
+    transfer_type = None;
+
+    sql = "SELECT type FROM Files f INNER JOIN Transfers t ON f.transferUUID=t.transferUUID WHERE sipUUID='%s' LIMIT 1" % (sip_uuid)
+
+    rows = databaseInterface.queryAllSQL(sql)
+    if len(rows) == 1:
+        transfer_type = rows[0][0]
+
+    return transfer_type
+
 def connect_and_index_aip(uuid, name, filePath, pathToMETS):
     conn = connect_and_create_index('aips')
-
-    # convert METS XML to dict
-    tree      = ElementTree.parse(pathToMETS)
-    root      = tree.getroot()
-    xml       = ElementTree.tostring(root)
-    mets_data = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 
     aipData = {
         'uuid':     uuid,
         'name':     name,
         'filePath': filePath,
         'size':     os.path.getsize(filePath) / float(1024) / float(1024),
-        'mets':     mets_data,
+        'type':     transfer_type_from_sip_uuid(uuid),
         'origin':   getDashboardUUID(),
         'created':  os.path.getmtime(pathToMETS)
     }
+
+    if aipData['type'] != 'Maildir':
+        # convert METS XML to dict
+        tree      = ElementTree.parse(pathToMETS)
+        root      = tree.getroot()
+        xml       = ElementTree.tostring(root)
+        aipData['mets'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
+
     conn.index(aipData, 'aips', 'aip')
 
 def connect_and_get_aip_data(uuid):
