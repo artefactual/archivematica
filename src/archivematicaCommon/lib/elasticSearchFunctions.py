@@ -258,12 +258,15 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName):
       'indexedAt': time.time(),
       'filePath':  '',
       'fileExtension': '',
-      'METS':      {
-        'dmdSec': {},
-        'amdSec': {}
-      },
       'origin': getDashboardUUID()
     }
+
+    if transfer_type_from_sip_uuid(uuid) != 'Maildir':
+        fileData['METS'] = {
+            'dmdSec': {},
+            'amdSec': {}
+        }
+
     dmdSecData = {}
 
     # parse XML
@@ -301,8 +304,9 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName):
                 if fileExtension != '':
                     indexData['fileExtension']  = fileExtension[1:].lower()
 
-                indexData['METS']['dmdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(dmdSecData))
-                indexData['METS']['amdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
+                if transfer_type_from_sip_uuid(uuid) != 'Maildir':
+                    indexData['METS']['dmdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(dmdSecData))
+                    indexData['METS']['amdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 
                 # index data
                 result = conn.index(indexData, index, type)
