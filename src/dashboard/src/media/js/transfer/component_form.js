@@ -55,7 +55,6 @@ var TransferComponentFormView = Backbone.View.extend({
   startTransfer: function(transfer) {
     var path;
 
-console.log('S:' + transferMetadataSetRowId);
     $('.transfer-component-activity-indicator').show();
     // get path to temp directory in which to copy individual transfer
     // components
@@ -117,9 +116,10 @@ console.log('S:' + transferMetadataSetRowId);
           async: false,
           cache: false,
           data: {
-            filepath:  filepath,
-            type:      transfer.type,
-            accession: transfer.accessionNumber
+            filepath:                   filepath,
+            type:                       transfer.type,
+            accession:                  transfer.accessionNumber,
+            transferMetadataSetRowUUID: transfer.transferMetadataSetRowUUID
           },
           success: function(results) {
             if (results['error']) {
@@ -209,11 +209,14 @@ console.log('S:' + transferMetadataSetRowId);
         if (!self.addedPaths().length) {
           alert('Please click "Browse" to add one or more paths from the source directory.');
         } else {
+          // note that the transferMetadataSetRowUUID is a global variable set from the
+          // directory picker
           var transferData = {
-            'name':            transferName,
-            'type':            $('#transfer-type').val(),
-            'accessionNumber': $('#transfer-accession-number').val(),
-            'sourcePaths':     self.addedPaths()
+            'name':                       transferName,
+            'type':                       $('#transfer-type').val(),
+            'accessionNumber':            $('#transfer-accession-number').val(),
+            'sourcePaths':                self.addedPaths(),
+            'transferMetadataSetRowUUID': transferMetadataSetRowUUID
           };
           self.startTransfer(transferData);
         }

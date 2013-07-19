@@ -166,11 +166,20 @@ def delete(request):
 
     return helpers.json_response(response)
 
+"""
+Transfer metadata sets are used to associate a group of metadata field values with
+a transfer. The transfer metadata set UUID is relayed to the MCP chain by including
+it in a row in a pre-created Transfers table entry.
+"""
 def get_transfer_metadata_set(request):
-    # create DB row
-    response = {
-      'id': 3
-    }
+    response = {}
+
+    try:
+        ts = models.TransferMetadataSet()
+        ts.save()
+        response['uuid'] = ts.pk
+    except:
+        response['error'] = 'Unabled to create transfer metadata set: contact administrator.'
 
     return HttpResponse(
         simplejson.JSONEncoder().encode(response),
@@ -289,9 +298,10 @@ def copy_to_originals(request):
     return helpers.json_response(response)
 
 def copy_to_start_transfer(request):
-    filepath  = archivematicaFunctions.unicodeToStr(request.POST.get('filepath', ''))
-    type      = request.POST.get('type', '')
-    accession = request.POST.get('accession', '')
+    filepath                       = archivematicaFunctions.unicodeToStr(request.POST.get('filepath', ''))
+    type                           = request.POST.get('type', '')
+    accession                      = request.POST.get('accession', '')
+    transfer_metadata_set_row_uuid = request.POST.get('transferMetadataSetRowUUID', '')
 
     error = check_filepath_exists('/' + filepath)
 
@@ -324,12 +334,13 @@ def copy_to_start_transfer(request):
 
         # relay accession via DB row that MCPClient scripts will use to get
         # supplementary info from
-        if accession != '':
+        if accession != '' or transfer_metadata_set_row_uuid != '':
             temp_uuid = uuid.uuid4().__str__()
             mcp_destination = destination.replace(SHARED_DIRECTORY_ROOT + '/', '%sharedPath%') + '/'
             transfer = models.Transfer.objects.create(
                 uuid=temp_uuid,
                 accessionid=accession,
+                transfermetadatasetrowuuid=transfer_metadata_set_row_uuid,
                 currentlocation=mcp_destination
             )
             transfer.save()

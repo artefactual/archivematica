@@ -34,3 +34,13 @@ UPDATE MicroServiceChainLinks SET defaultNextChainLink='e19f8eed-faf9-4e04-bf1f-
 UPDATE MicroServiceChoiceReplacementDic SET replacementDic='{\"%ContentdmServer%\":\"http://111.222.333.444:81\", \"%ContentdmUser%\":\"usernamebar\", \"%ContentdmGroup%\":\"456\"}' WHERE pk='c001db23-200c-4195-9c4a-65f206f817f2';
 UPDATE MicroServiceChoiceReplacementDic SET replacementDic='{\"%ContentdmServer%\":\"http://localhost\", \"%ContentdmUser%\":\"usernamefoo\", \"%ContentdmGroup%\":\"123\"}' WHERE pk='ce62eec6-0a49-489f-ac4b-c7b8c93086fd';
 -- /Issue 5232
+
+-- Issue 5356
+CREATE TABLE TransferMetadataSets (
+  pk VARCHAR(50) NOT NULL,
+  createdTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (pk)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE Transfers ADD COLUMN transferMetadataSetRowUUID VARCHAR(50);
+-- /Issue 5356
