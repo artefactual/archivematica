@@ -132,6 +132,8 @@ var TransferComponentFormView = Backbone.View.extend({
             $('#transfer-type').val('standard');
             $('#path_container').html('');
             $('.transfer-component-activity-indicator').hide();
+
+            transferMetadataSetRowUUID = false;
           }
         });
         // report progress
