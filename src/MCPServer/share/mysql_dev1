@@ -178,5 +178,13 @@ INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode
 UPDATE MicroServiceChainLinks SET defaultNextChainLink='3f543585-fa4f-4099-9153-dd6d53572f5c' WHERE pk='5f213529-ced4-49b0-9e30-be4e0c9b81d5';
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='3f543585-fa4f-4099-9153-dd6d53572f5c' WHERE microServiceChainLink='5f213529-ced4-49b0-9e30-be4e0c9b81d5';
 
+-- Index AIP
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('81f36881-9e54-4c75-a5b2-838cfb2ca228', 0, 'indexAIP_v0.0', '\"%SIPUUID%\" \"%SIPName%\" \"%SIPDirectory%%SIPName%-%SIPUUID%.7z\"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('134a1a94-22f0-4e67-be17-23a4c7178105', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '81f36881-9e54-4c75-a5b2-838cfb2ca228', 'Index AIP');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('48703fad-dc44-4c8e-8f47-933df3ef6179', 'Store AIP', 'Failed', '134a1a94-22f0-4e67-be17-23a4c7178105', @MoveSIPToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('0783a1ab-f70e-437b-8bec-cd1f2135ba2a', '48703fad-dc44-4c8e-8f47-933df3ef6179', 0, 'd5a2ef60-a757-483c-a71a-ccbffe6b80da', 'Completed successfully');
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='48703fad-dc44-4c8e-8f47-933df3ef6179' WHERE pk='20515483-25ed-4133-b23e-5bb14cab8e22';
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='48703fad-dc44-4c8e-8f47-933df3ef6179' WHERE microServiceChainLink='20515483-25ed-4133-b23e-5bb14cab8e22';
+
 -- /Issue 5187 Develop Storage Service
 

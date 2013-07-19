@@ -67,6 +67,7 @@ identifyDspaceLicenseFiles_v0.0 = %clientScriptsDirectory%identifyDspaceLicenseF
 identifyDspaceMETSFiles_v0.0 = %clientScriptsDirectory%identifyDspaceMETSFiles.py
 identifyDspaceTextFiles_v0.0 = %clientScriptsDirectory%identifyDspaceTextFiles.py
 identifyFilesByExtension_v0.0 = %clientScriptsDirectory%identifyFilesByExtension.py
+indexAIP_v0.0 = %clientScriptsDirectory%indexAIP.py
 loadLabelsFromCSV_v0.0 = %clientScriptsDirectory%loadLabelsFromCSV.py
 manualNormalizationCheckForManualNormalizationDirectory_v0.0 = %clientScriptsDirectory%manualNormalizationCheckForManualNormalizationDirectory.py
 manualNormalizationCreateMetadataAndRestructure_v0.0 = %clientScriptsDirectory%manualNormalizationCreateMetadataAndRestructure.py

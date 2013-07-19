@@ -210,17 +210,19 @@ def get_file_info(uuid=None, origin_location=None, origin_path=None,
     optionally filtered by origin location/path, current location/path, or
     package_type.
     """
+    # TODO Need a better way to deal with mishmash of relative and absolute
+    # paths coming in
     api = _storage_api()
     offset = 0
     return_files = []
     while True:
-        files = api.space.get(uuid=uuid,
-                              origin_location=origin_location,
-                              origin_path=origin_path,
-                              current_location=current_location,
-                              current_path=current_path,
-                              package_type=package_type,
-                              offset=offset)
+        files = api.file.get(uuid=uuid,
+                             origin_location=origin_location,
+                             origin_path=origin_path,
+                             current_location=current_location,
+                             current_path=current_path,
+                             package_type=package_type,
+                             offset=offset)
         logging.debug("Files retrieved: {}".format(files))
         return_files += files['objects']
         if not files['meta']['next']:
