@@ -69,19 +69,31 @@ function createDirectoryPicker(baseDirectory, modalCssId, targetCssId, locationU
             alert('Error: contact administrator.');
           }
         });
+
+        // disable transfer type select as disk image transfer types
+        // are displayed with a metadata editing option, but others
+        // are not
+        $('#transfer-type').attr('disabled', 'disabled');
       }
 
       var $transferPathRowEl = $('<div></div>')
         , $transferPathEl = $('<span class="transfer_path"></span>')
-        , $transferPathDeleteRl = $('<span style="margin-left: 1em;"><img src="/media/images/delete.png" /></span>');
+        , $transferPathDeleteEl = $('<span style="margin-left: 1em;"><img src="/media/images/delete.png" /></span>');
 
-      $transferPathDeleteRl.click(function() {
+      $transferPathDeleteEl.click(function() {
         $transferPathRowEl.remove();
       });
 
       $transferPathEl.html(result.path);
       $transferPathRowEl.append($transferPathEl);
-      $transferPathRowEl.append($transferPathDeleteRl);
+      if ($('#transfer-type').val() == 'disk image') {
+        $transferPathEditEl = $('<span style="margin-left: 1em;"><img src="/media/images/table_edit.png" /></span>');
+        $transferPathEditEl.click(function() {
+          alert('Edit ' + result.path);
+        });
+        $transferPathRowEl.append($transferPathEditEl);
+      }
+      $transferPathRowEl.append($transferPathDeleteEl);
       $('#' + targetCssId).append($transferPathRowEl);
       $('#' + modalCssId).remove();
 
