@@ -189,6 +189,8 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS):
         root      = tree.getroot()
         xml       = ElementTree.tostring(root)
         aipData['mets'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
+    else:
+        print 'Skipping indexing of METS as transfer is of maildir data...'
 
     conn.index(aipData, 'aips', 'aip')
 
@@ -266,6 +268,8 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName):
             'dmdSec': {},
             'amdSec': {}
         }
+    else:
+        print 'Skipping indexing of METS as transfer is of maildir data...'
 
     dmdSecData = {}
 
