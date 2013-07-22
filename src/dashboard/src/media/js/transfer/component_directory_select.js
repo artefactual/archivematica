@@ -78,7 +78,7 @@ function createDirectoryPicker(baseDirectory, modalCssId, targetCssId, locationU
 
       var $transferPathRowEl = $('<div></div>')
         , $transferPathEl = $('<span class="transfer_path"></span>')
-        , $transferPathDeleteEl = $('<span style="margin-left: 1em;"><img src="/media/images/delete.png" /></span>');
+        , $transferPathDeleteEl = $('<span style="margin-left: 1em; float: right;"><img src="/media/images/delete.png" /></span>');
 
       $transferPathDeleteEl.click(function() {
         $transferPathRowEl.remove();
@@ -87,7 +87,7 @@ function createDirectoryPicker(baseDirectory, modalCssId, targetCssId, locationU
       $transferPathEl.html(result.path);
       $transferPathRowEl.append($transferPathEl);
       if ($('#transfer-type').val() == 'disk image') {
-        $transferPathEditEl = $('<span style="margin-left: 1em;"><img src="/media/images/table_edit.png" /></span>');
+        $transferPathEditEl = $('<span style="margin-left: 1em; float: right;"><img src="/media/images/table_edit.png" /></span>');
         $transferPathEditEl.click(function() {
           alert('Edit ' + result.path);
         });
