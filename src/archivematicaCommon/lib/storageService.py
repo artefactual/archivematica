@@ -1,13 +1,17 @@
 import logging
 import os
+import platform
 import slumber
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica.log",
     level=logging.INFO)
 
+from components import helpers
 
 ######################### INTERFACE WITH STORAGE API #########################
+
+_pipeline = None
 
 ############# HELPER FUNCTIONS #############
 
@@ -27,6 +31,28 @@ def _storage_relative_from_absolute(location_path, space_path):
             strip += 1
         location_path = location_path[strip:]
     return location_path
+
+############# PIPELINE #############
+
+def create_pipeline():
+    api = _storage_api()
+    global _pipeline
+    if not _pipeline:
+        pipeline = {}
+        pipeline['uuid'] = helpers.get_setting('dashboard_uuid')
+        pipeline['description'] = "Archivematica on {}".format(platform.node())
+        logging.info("Creating pipeline in storage service with {}".format(pipeline))
+        try:
+            _pipeline = api.pipeline.post(pipeline)
+        except slumber.exceptions.HttpClientError as e:
+            logging.warning("Unable to Archivematica pipeline in storage service from {} because {}".format(pipeline, e.content))
+            return False
+        except slumber.exceptions.HttpServerError as e:
+            if e.content['error_message'] == 'column uuid is not unique':
+                _pipeline = api.pipeline.get(pipeline['uuid'])
+            else:
+                raise
+    return True
 
 ############# LOCATIONS #############
 
@@ -58,6 +84,7 @@ def create_location(purpose, path, description=None, space=None, quota=None, use
     path = _storage_relative_from_absolute(path, space['path'])
 
     new_location = {}
+    new_location['pipeline'] = _pipeline['resource_uri']
     new_location['purpose'] = purpose
     new_location['relative_path'] = path
     new_location['description'] = description
@@ -87,11 +114,12 @@ def get_location(path=None, purpose=None, space=None):
     api = _storage_api()
     offset = 0
     return_locations = []
-    if space:
+    if space and path:
         path = _storage_relative_from_absolute(path, space['path'])
         space = space['uuid']
     while True:
-        locations = api.location.get(relative_path=path,
+        locations = api.location.get(pipeline=_pipeline['uuid'],
+                                     relative_path=path,
                                      purpose=purpose,
                                      space=space,
                                      offset=offset)
@@ -107,12 +135,14 @@ def get_location(path=None, purpose=None, space=None):
 def get_location_by_uri(uri):
     """ Get a specific location by the URI.  Only returns one location. """
     api = _storage_api()
+    # TODO check that location is associated with this pipeline
     return api.location(uri).get()
 
 def delete_location(uuid):
     """ Deletes storage with UUID uuid, returns True on success."""
     api = _storage_api()
     logging.info("Deleting storage location with UUID {}".format(uuid))
+    # TODO check that location is associated with this pipeline
     ret = api.location(str(uuid)).patch({'disabled': True})
     return ret['disabled']
 

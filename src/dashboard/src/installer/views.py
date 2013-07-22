@@ -150,6 +150,8 @@ def storagesetup(request):
             default_aip_storage = 'var/archivematica/sharedDirectory/www/AIPsStore/'
             description = 'Store AIP in standard Archivematica Directory'
             logging.info("Using default values for storage service; space: {}; AIP storage: {}".format(default_space, default_aip_storage))
+            # Create pipeline
+            storage_service.create_pipeline()
             # Check if default space already exists, create if it doesn't
             space = storage_service.get_space(access_protocol="FS", path=default_space)
             if len(space) < 1:
@@ -166,7 +168,6 @@ def storagesetup(request):
                                         description=description)
             # Create currently processing location
             if not storage_service.get_location(purpose="CP",
-                                        path='.',
                                         space=space):
                 storage_service.create_location(purpose="CP",
                                         path=".",
