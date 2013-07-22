@@ -64,6 +64,36 @@ def grid(request):
     hide_features = helpers.hidden_features()
     return render(request, 'transfer/grid.html', locals())
 
+def component(request, uuid):
+    if request.method == 'GET':
+        path = request.GET.get('path', '')
+    else:
+        path = request.POST.get('path', '')
+
+    # get set/field data and initialize dict of form field values
+    set    = models.TransferMetadataSet.objects.get(pk=uuid)
+    fields = models.TransferMetadataField.objects.all().order_by('sortorder')
+    values = {}
+
+    for field in fields:
+        try:
+            field_value = models.TransferMetadataFieldValue.objects.get(fielduuid=field.pk, setuuid=set.pk, filepath=path)
+            values[(field.fieldname)] = field_value.fieldvalue
+        except:
+            if request.method == 'POST':
+                field_value = models.TransferMetadataFieldValue()
+                field_value.fielduuid = field.pk
+                field_value.setuuid = set.pk
+                field_value.filepath = path
+            else:
+                values[(field.fieldname)] = ''
+        if request.method == 'POST':
+            field_value.fieldvalue = request.POST.get(field.fieldname, '')
+            field_value.save()
+            values[(field.fieldname)] = field_value.fieldvalue # override initially loaded value, if any
+
+    return render(request, 'transfer/component.html', locals())
+
 def browser(request):
     originals_directory = '/var/archivematica/sharedDirectory/transferBackups/originals'
     arrange_directory = '/var/archivematica/sharedDirectory/transferBackups/arrange'

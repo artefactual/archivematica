@@ -567,3 +567,23 @@ class TransferMetadataSet(models.Model):
 
     class Meta:
         db_table = u'TransferMetadataSets'
+
+class TransferMetadataField(models.Model):
+    id = UUIDPkField()
+    fieldlabel = models.TextField(db_column='fieldLabel')
+    fieldname = models.TextField(db_column='fieldName')
+    fieldtype = models.TextField(db_column='fieldType')
+    sortorder = models.IntegerField(db_column='sortOrder')
+
+    class Meta:
+        db_table = u'TransferMetadataFields'
+
+class TransferMetadataFieldValue(models.Model):
+    id = UUIDPkField()
+    setuuid = models.TextField(db_column='setUUID')
+    filepath = models.TextField(db_column='filePath')
+    fielduuid = models.TextField(db_column='fieldUUID')
+    fieldvalue = models.TextField(db_column='fieldValue')
+
+    class Meta:
+        db_table = u'TransferMetadataFieldValues'
