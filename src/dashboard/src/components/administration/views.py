@@ -289,6 +289,8 @@ def api(request):
     return render(request, 'administration/api.html', locals())
 
 def general(request):
+    dashboard_uuid = helpers.get_setting('dashboard_uuid')
+
     toggleableSettings = [
       {'dashboard_administration_atom_dip_enabled': 'Hide AtoM DIP upload link'},
       {'dashboard_administration_contentdm_dip_enabled': 'Hide CONTENTdm DIP upload link'},
