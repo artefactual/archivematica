@@ -564,6 +564,7 @@ class AtkDIPObjectResourcePairing(models.Model):
 class TransferMetadataSet(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    createdbyuserid = models.IntegerField(db_column='createdByUserID')
 
     class Meta:
         db_table = u'TransferMetadataSets'

@@ -176,10 +176,12 @@ def get_transfer_metadata_set(request):
 
     try:
         ts = models.TransferMetadataSet()
+        ts.transfer_type   = transfer_type
+        ts.createdbyuserid = request.user.id
         ts.save()
         response['uuid'] = ts.pk
     except:
-        response['error'] = 'Unabled to create transfer metadata set: contact administrator.'
+        response['message'] = 'Unable to create transfer metadata set: contact administrator.'
 
     return HttpResponse(
         simplejson.JSONEncoder().encode(response),

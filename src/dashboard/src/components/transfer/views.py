@@ -77,7 +77,11 @@ def component(request, uuid):
 
     for field in fields:
         try:
-            field_value = models.TransferMetadataFieldValue.objects.get(fielduuid=field.pk, setuuid=set.pk, filepath=path)
+            field_value = models.TransferMetadataFieldValue.objects.get(
+                fielduuid=field.pk,
+                setuuid=set.pk,
+                filepath=path
+            )
             values[(field.fieldname)] = field_value.fieldvalue
         except:
             if request.method == 'POST':
