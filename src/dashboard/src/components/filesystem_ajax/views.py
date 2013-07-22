@@ -171,13 +171,12 @@ Transfer metadata sets are used to associate a group of metadata field values wi
 a transfer. The transfer metadata set UUID is relayed to the MCP chain by including
 it in a row in a pre-created Transfers table entry.
 """
-def get_transfer_metadata_set(request):
+def get_transfer_metadata_set(request, transfer_type):
     response = {}
 
     try:
         ts = models.TransferMetadataSet()
-        ts.transfer_type   = transfer_type
-        ts.createdbyuserid = request.user.id
+        ts.transfer_type = transfer_type
         ts.save()
         response['uuid'] = ts.pk
     except:
