@@ -65,11 +65,61 @@ def grid(request):
     return render(request, 'transfer/grid.html', locals())
 
 def component(request, uuid):
-    path = request.GET.get('path', '')
-    set = models.TransferMetadataSet.objects.get(pk=uuid)
+    if request.method == 'GET':
+        path = request.GET.get('path', '')
+    else:
+        path = request.POST.get('path', '')
 
-    # present fields for editing
-    return HttpResponse(set.pk)
+    # get set/field data and initialize dict of form field values
+    set    = models.TransferMetadataSet.objects.get(pk=uuid)
+    fields = models.TransferMetadataField.objects.all().order_by('sortorder')
+    values = {}  # field values
+    options = [] # field options (for value selection)
+
+    for field in fields:
+        if field.optiontaxonomyuuid != '' and field.optiontaxonomyuuid != None:
+            # check for newly added terms
+            new_term = request.POST.get('add_to_' + field.pk, '')
+            if new_term != '':
+                term = models.TaxonomyTerm()
+                term.taxonomyuuid = field.optiontaxonomyuuid
+                term.term = new_term
+                term.save()
+
+            # load taxonomy terms into option values
+            optionvalues = ['']
+            for term in models.TaxonomyTerm.objects.filter(taxonomyuuid=field.optiontaxonomyuuid):
+                optionvalues.append(term.term)
+            options.append({
+              'field':   field.pk,
+              'options': optionvalues
+            })
+
+            # determine whether field should allow new terms to be specified
+            field.allownewvalue = True
+            # support allownewvalue
+            # by loading taxonomy and checked if it's open
+        try:
+            field_value = models.TransferMetadataFieldValue.objects.get(
+                fielduuid=field.pk,
+                setuuid=set.pk,
+                filepath=path
+            )
+            values[(field.fieldname)] = field_value.fieldvalue
+        except:
+            if request.method == 'POST':
+                field_value = models.TransferMetadataFieldValue()
+                field_value.fielduuid = field.pk
+                field_value.setuuid = set.pk
+                field_value.filepath = path
+            else:
+                values[(field.fieldname)] = ''
+        if request.method == 'POST':
+            field_value.fieldvalue = request.POST.get(field.fieldname, '')
+            field_value.save()
+            values[(field.fieldname)] = field_value.fieldvalue # override initially loaded value, if any
+
+    return render(request, 'transfer/component.html', locals())
 
 def browser(request):
     originals_directory = '/var/archivematica/sharedDirectory/transferBackups/originals'

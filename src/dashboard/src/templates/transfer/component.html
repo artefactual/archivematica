@@ -28,6 +28,27 @@
             {% if field.fieldtype == 'textarea' %}
               <textarea name='{{ field.fieldname }}'>{{ values|keyvalue:field.fieldname }}</textarea>
             {% endif %}
+
+            {% if field.fieldtype == 'select' %}
+              <select name='{{ field.fieldname }}'>
+                {% for optiondata in options %}
+                  {% if optiondata.field == field.pk %}
+                    {% for option in optiondata.options %}
+                      <option>{{ option }}</option>
+                    {% endfor %}
+                  {% endif %}
+                {% endfor %}
+              </select>
+
+              {% if field.allownewvalue %}
+                <p>
+                  <input name='add_to_{{ field.pk }}' type='text' placeholder='Add new value' />
+                </p>
+                <p>
+                  <a href='/administration/taxonomy/terms/{{ field.optiontaxonomyuuid }}'>Manage values</a>
+                </p>
+              {% endif %}
+            {% endif %}
           </td>
         </tr>
       {% endfor %}

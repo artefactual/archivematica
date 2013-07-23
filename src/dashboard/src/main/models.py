@@ -575,6 +575,7 @@ class TransferMetadataField(models.Model):
     fieldlabel = models.TextField(db_column='fieldLabel')
     fieldname = models.TextField(db_column='fieldName')
     fieldtype = models.TextField(db_column='fieldType')
+    optiontaxonomyuuid = models.TextField(db_column='optionTaxonomyUUID')
     sortorder = models.IntegerField(db_column='sortOrder')
 
     class Meta:
