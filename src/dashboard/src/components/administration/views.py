@@ -253,6 +253,16 @@ def api(request):
     hide_features = helpers.hidden_features()
     return render(request, 'administration/api.html', locals())
 
+def taxonomy(request):
+    taxonomies = models.Taxonomy.objects.all()
+    page = helpers.pager(taxonomies, 20, request.GET.get('page', 1))
+    return render(request, 'administration/taxonomy.html', locals())
+
+def terms(request, taxonomy_uuid):
+    terms = models.TaxonomyTerm.objects.filter(taxonomyuuid=taxonomy_uuid)
+    page = helpers.pager(terms, 20, request.GET.get('page', 1))
+    return render(request, 'administration/terms.html', locals())
+
 def general(request):
     toggleableSettings = {
         'dashboard_administration_atom_dip_enabled':

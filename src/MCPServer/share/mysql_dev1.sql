@@ -119,13 +119,6 @@ CREATE TABLE Taxonomies (
   PRIMARY KEY (pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO Taxonomies (pk, name) VALUES ('312fc2b3-d786-458d-a762-57add7f96c22', 'Disk media formats');
-INSERT INTO Taxonomies (pk, name) VALUES ('f6980e68-bac2-46db-842b-da4eba4ba418', 'Disk media densities');
-INSERT INTO Taxonomies (pk, name) VALUES ('31e0bdc9-1114-4427-9f37-ca284577dcac', 'Filesystem types');
-INSERT INTO Taxonomies (pk, name) VALUES ('fbf318db-4908-4971-8273-1094d2ba29a6', 'Disk imaging interfaces');
-INSERT INTO Taxonomies (pk, name) VALUES ('cc4231ef-9886-4722-82ec-917e60d3b2c7', 'Disk image format');
-INSERT INTO Taxonomies (pk, name) VALUES ('cae76c7f-4d8e-48ee-9522-4b3fbf492516', 'Disk imaging software');
-
 CREATE TABLE TaxonomyTerms (
   pk varchar(50) NOT NULL,
   createdTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -133,6 +126,13 @@ CREATE TABLE TaxonomyTerms (
   term varchar(255) DEFAULT '',
   PRIMARY KEY (pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO Taxonomies (pk, name) VALUES ('312fc2b3-d786-458d-a762-57add7f96c22', 'Disk media formats');
+INSERT INTO Taxonomies (pk, name) VALUES ('f6980e68-bac2-46db-842b-da4eba4ba418', 'Disk media densities');
+INSERT INTO Taxonomies (pk, name) VALUES ('31e0bdc9-1114-4427-9f37-ca284577dcac', 'Filesystem types');
+INSERT INTO Taxonomies (pk, name) VALUES ('fbf318db-4908-4971-8273-1094d2ba29a6', 'Disk imaging interfaces');
+INSERT INTO Taxonomies (pk, name) VALUES ('cc4231ef-9886-4722-82ec-917e60d3b2c7', 'Disk image format');
+INSERT INTO Taxonomies (pk, name) VALUES ('cae76c7f-4d8e-48ee-9522-4b3fbf492516', 'Disk imaging software');
 
 INSERT INTO TaxonomyTerms (pk, taxonomyUUID, term)
   VALUES ('867ab18d-e860-445f-a254-8fcdebfe95b6', '312fc2b3-d786-458d-a762-57add7f96c22', '3.5" floppy');

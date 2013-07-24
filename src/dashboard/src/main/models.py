@@ -590,3 +590,18 @@ class TransferMetadataFieldValue(models.Model):
 
     class Meta:
         db_table = u'TransferMetadataFieldValues'
+
+class Taxonomy(models.Model):
+    id = UUIDPkField()
+    name = models.TextField(db_column='name')
+
+    class Meta:
+        db_table = u'Taxonomies'
+
+class TaxonomyTerm(models.Model):
+    id = UUIDPkField()
+    taxonomyuuid =  models.TextField(db_column='taxonomyUUID')
+    term = models.TextField(db_column='term')
+
+    class Meta:
+        db_table = u'TaxonomyTerms'

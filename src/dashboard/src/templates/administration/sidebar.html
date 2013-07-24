@@ -13,6 +13,8 @@
   {% url 'components.administration.views.premis_agent' as url_premis %}
   {% url 'components.administration.views.api' as url_api %}
   {% url 'components.accounts.views.list' as url_user_list %}
+  {% url 'components.administration.views.taxonomy' as url_taxonomy %}
+  {% url 'components.administration.views.general' as url_general %}
 
   <ul>
     <li class="{% active request url_processing %}"><a href="{{ url_processing }}">Processing configuration</a></li>
@@ -41,6 +43,8 @@
 
     {% if user.is_superuser %}
       <li class="{% active request url_user_list %}"><a href="{{ url_user_list }}">Users</a></li>
+
+      <li class="{% active request url_taxonomy %}"><a href="{{ url_taxonomy }}">Taxonomy</a></li>
     {% endif %}
   </ul>
 
