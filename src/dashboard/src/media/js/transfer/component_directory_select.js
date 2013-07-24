@@ -17,9 +17,10 @@ You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-var transferMetadataSetRowUUID = false;
+var transferMetadataSetRowUUID = false,
+    transferDirectoryPickerPathCounter = 1;
 
-function createDirectoryPicker(baseDirectory, modalCssId, targetCssId, locationUUID) {
+function createDirectoryPicker(baseDirectory, modalCssId, targetCssId, pathTemplateCssId) {
   var selector = new DirectoryPickerView({
     ajaxChildDataUrl: '/filesystem/children/location/' + locationUUID + '/',
     el: $('#explorer'),
@@ -32,6 +33,8 @@ function createDirectoryPicker(baseDirectory, modalCssId, targetCssId, locationU
     'parent': baseDirectory.replace(/\\/g,'/').replace(/\/[^\/]*$/, ''), // parse out path directory
     'children': []
   };
+
+  selector.pathTemplateRender = _.template($('#' + pathTemplateCssId).html());
 
   selector.options.entryDisplayFilter = function(entry) {
     // if a file and not an archive file, then hide
@@ -77,27 +80,28 @@ function createDirectoryPicker(baseDirectory, modalCssId, targetCssId, locationU
         $('#transfer-type').attr('disabled', 'disabled');
       }
 
-      var $transferPathRowEl = $('<div></div>')
-        , $transferPathEl = $('<span class="transfer_path"></span>')
-        , $transferPathDeleteEl = $('<span style="margin-left: 1em; float: right;"><img src="/media/images/delete.png" /></span>');
+      // render path component
+      $('#' + targetCssId).append(selector.pathTemplateRender({
+        'path_counter': transferDirectoryPickerPathCounter,
+        'path': result.path,
+        'edit_icon': '1',
+        'delete_icon': '2'
+      }));
 
-      $transferPathDeleteEl.click(function() {
-        $transferPathRowEl.remove();
+      // activate edit and delete icons
+      $('#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter).children('.transfer_path_edit_icon').click(function() {
+        var path = $(this).parent().children('.transfer_path').text(),
+            component_metadata_url = '/transfer/component/' + transferMetadataSetRowUUID + '/?path=' + encodeURIComponent(path);
+        window.open(component_metadata_url, '_blank');
       });
 
-      $transferPathEl.html(result.path);
-      $transferPathRowEl.append($transferPathEl);
-      if ($('#transfer-type').val() == 'disk image') {
-        $transferPathEditEl = $('<span style="margin-left: 1em; float: right;"><img src="/media/images/table_edit.png" /></span>');
-        $transferPathEditEl.click(function() {
-          var path = $(this).parent().children('.transfer_path').text(),
-              component_metadata_url = '/transfer/component/' + transferMetadataSetRowUUID + '/?path=' + encodeURIComponent(path);
-          window.open(component_metadata_url, '_blank');
-        });
-        $transferPathRowEl.append($transferPathEditEl);
-      }
-      $transferPathRowEl.append($transferPathDeleteEl);
-      $('#' + targetCssId).append($transferPathRowEl);
+      $('#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter).children('.transfer_path_delete_icon').click(function() {
+        $(this).parent().remove();
+      });
+
+      transferDirectoryPickerPathCounter++;
+
+      // remove directory picker
       $('#' + modalCssId).remove();
 
       // tiger stripe transfer paths

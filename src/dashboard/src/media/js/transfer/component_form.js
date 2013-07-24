@@ -40,7 +40,7 @@ var TransferComponentFormView = Backbone.View.extend({
       sourceDir,
       'transfer-component-select-modal',
       'path_container',
-      locationUUID
+      'transfer-component-path-item'
     );
   },
 

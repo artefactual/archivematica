@@ -48,6 +48,11 @@
   margin-bottom: 10px;
 }
 
+.transfer_path_delete_icon, .transfer_path_edit_icon {
+  margin-left: 1em;
+  float: right;
+}
+
 .microservice-group {
   padding-bottom: 3px;
 }
