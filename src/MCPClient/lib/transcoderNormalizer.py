@@ -59,7 +59,6 @@ def executeCommandReleationship(gearman_worker, gearman_job):
             for key2 in opts:
                 opts[key2] = opts[key2].replace(key, value)
         replacementDic = getReplacementDic(opts)
-        #if True:
         opts["prependStdOut"] =    """Operating on file: {%s}%s \r\nUsing  %s  command classifications""" % (opts["fileUUID"], replacementDic["%fileName%"], opts["commandClassification"])
         opts["prependStdError"] = "\r\nSTDError:"
         #    print clientID, execute, data

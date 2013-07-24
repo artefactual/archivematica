@@ -292,18 +292,17 @@ if __name__ == '__main__':
             time.sleep(3)
     print "This PID: ", si.pid
 
-    if True:
-        import getpass
-        print "user: ", getpass.getuser()
-        os.setuid(333)
-    if True:
-        t = threading.Thread(target=debugMonitor)
-        t.daemon = True
-        t.start()
-    if True:
-        t = threading.Thread(target=flushOutputs)
-        t.daemon = True
-        t.start()
+    import getpass
+    print "user: ", getpass.getuser()
+    os.setuid(333)
+
+    t = threading.Thread(target=debugMonitor)
+    t.daemon = True
+    t.start()
+
+    t = threading.Thread(target=flushOutputs)
+    t.daemon = True
+    t.start()
     cleanupOldDbEntriesOnNewRun()
     watchDirectories()
 

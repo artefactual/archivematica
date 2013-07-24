@@ -108,8 +108,6 @@ def executeCommand(gearman_worker, gearman_job):
 Unable to determine if it completed successfully."""
             return cPickle.dumps({"exitCode" : exitCode, "stdOut": stdOut, "stdError": stdError})
         
-        #if True:
-        #    print clientID, execute, data
         logTaskAssignedSQL(gearman_job.unique.__str__(), clientID, utcDate)
 
         if execute not in supportedModules:
@@ -206,10 +204,9 @@ def flushOutputs():
 
 def startThreads(t=1):
     """Start a processing thread for each core (t=0), or a specified number of threads.""" 
-    if True:
-        t2 = threading.Thread(target=flushOutputs)
-        t2.daemon = True
-        t2.start()
+    t2 = threading.Thread(target=flushOutputs)
+    t2.daemon = True
+    t2.start()
     if t == 0:
         from externals.detectCores import detectCPUs
         t = detectCPUs()

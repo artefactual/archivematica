@@ -64,29 +64,28 @@ def onceExtracted(command):
     for ef in extractedFiles:
         fileUUID = uuid.uuid4().__str__()
         #print "File Extracted:", ef
-        if True: #Add the file to the SIP
-            #<arguments>"%relativeLocation%" "%SIPObjectsDirectory%" "%SIPLogsDirectory%" "%date%" "%taskUUID%" "%fileUUID%"</arguments>
-            sipDirectory = sys.argv[2].__str__()
-            transferUUID = sys.argv[3].__str__()
-            date = sys.argv[4].__str__()
-            taskUUID = sys.argv[5].__str__()
-            packageFileUUID = sys.argv[6].__str__()
+        #Add the file to the SIP
+        #<arguments>"%relativeLocation%" "%SIPObjectsDirectory%" "%SIPLogsDirectory%" "%date%" "%taskUUID%" "%fileUUID%"</arguments>
+        sipDirectory = sys.argv[2].__str__()
+        transferUUID = sys.argv[3].__str__()
+        date = sys.argv[4].__str__()
+        taskUUID = sys.argv[5].__str__()
+        packageFileUUID = sys.argv[6].__str__()
 
-            filePathRelativeToSIP = ef.replace(sipDirectory,"%transferDirectory%", 1)
-            print "File Extracted:: {" + fileUUID + "} ", filePathRelativeToSIP
-            eventDetail="Unpacked from: {" + packageFileUUID + "}" + filePathRelativeToSIP
-            addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType="unpacking", eventDetail=eventDetail)
-            updateSizeAndChecksum(fileUUID, ef, date, uuid.uuid4.__str__())
-
+        filePathRelativeToSIP = ef.replace(sipDirectory,"%transferDirectory%", 1)
+        print "File Extracted:: {" + fileUUID + "} ", filePathRelativeToSIP
+        eventDetail="Unpacked from: {" + packageFileUUID + "}" + filePathRelativeToSIP
+        addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType="unpacking", eventDetail=eventDetail)
+        updateSizeAndChecksum(fileUUID, ef, date, uuid.uuid4.__str__())
 
         run = sys.argv[0].__str__() + \
         " \"" + transcoder.escapeForCommand(ef) + "\""
-        if True: #Add the file to the SIP
-            run = run + " \"" + transcoder.escapeForCommand(sys.argv[2].__str__()) + "\"" + \
-            " \"" + transcoder.escapeForCommand(sys.argv[3].__str__()) + "\"" + \
-            " \"" + transcoder.escapeForCommand(sys.argv[4].__str__()) + "\"" + \
-            " \"" + transcoder.escapeForCommand(sys.argv[5].__str__()) + "\"" + \
-            " \"" + fileUUID + "\""
+        #Add the file to the SIP
+        run = run + " \"" + transcoder.escapeForCommand(sys.argv[2].__str__()) + "\"" + \
+        " \"" + transcoder.escapeForCommand(sys.argv[3].__str__()) + "\"" + \
+        " \"" + transcoder.escapeForCommand(sys.argv[4].__str__()) + "\"" + \
+        " \"" + transcoder.escapeForCommand(sys.argv[5].__str__()) + "\"" + \
+        " \"" + fileUUID + "\""
 
         exitCode, stdOut, stdError = executeOrRun("command", run)
         print stdOut

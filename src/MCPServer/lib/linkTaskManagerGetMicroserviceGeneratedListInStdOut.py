@@ -118,5 +118,5 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut:
                 self.jobChainLink.passVar = [choices, self.jobChainLink.passVar] 
         else:
             self.jobChainLink.passVar = [choices]
-        if True:
-            self.jobChainLink.linkProcessingComplete(task.results["exitCode"], self.jobChainLink.passVar)
+
+        self.jobChainLink.linkProcessingComplete(task.results["exitCode"], self.jobChainLink.passVar)
