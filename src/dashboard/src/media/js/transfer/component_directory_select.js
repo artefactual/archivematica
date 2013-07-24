@@ -97,6 +97,10 @@ function createDirectoryPicker(baseDirectory, modalCssId, targetCssId, pathTempl
 
       $('#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter).children('.transfer_path_delete_icon').click(function() {
         $(this).parent().remove();
+        if ($('.transfer_path').length < 1) {
+          // re-enable transfer type select
+          $('#transfer-type').removeAttr('disabled');
+        }
       });
 
       transferDirectoryPickerPathCounter++;
