@@ -80,11 +80,14 @@ def store_aip():
         size=os.path.getsize(aip_path)
         )
     if new_file:
-        logging.info("Storage service created AIP: {}".format(new_file))
+        message = "Storage service created AIP: {}".format(new_file)
+        logging.info(message)
+        print message
         sys.exit(0)
     else:
-        logging.warning("AIP unabled to be created from {}".format(current_location))
-        sys.exit(-1)
+        print >>sys.stderr, "AIP creation failed.  See logs for more details."
+        logging.warning("AIP unabled to be created: {}".format(new_file))
+        sys.exit(1)
 
 
     # FIXME this should be moved to the storage service and areas that rely
