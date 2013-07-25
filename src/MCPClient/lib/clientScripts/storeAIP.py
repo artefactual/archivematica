@@ -24,7 +24,15 @@ import logging
 import os
 import sys
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# Set up Django settings
+path = '/usr/share/archivematica/dashboard'
+if path not in sys.path:
+    sys.path.append(path)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+
+path = "/usr/lib/archivematica/archivematicaCommon"
+if path not in sys.path:
+    sys.path.append(path)
 import storageService as storage_service
 
 logger = logging.getLogger(__name__)
@@ -69,6 +77,7 @@ def store_aip():
         current_location=aip_destination_uri,
         current_path=os.path.basename(aip_path),
         package_type="AIP",
+        size=os.path.getsize(aip_path)
         )
     if new_file:
         logging.info("Storage service created AIP: {}".format(new_file))

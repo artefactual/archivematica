@@ -3,14 +3,21 @@
 import ConfigParser
 import os
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+
+path = "/usr/lib/archivematica/archivematicaCommon"
+if path not in sys.path:
+    sys.path.append(path)
+path = '/usr/share/archivematica/dashboard'
+if path not in sys.path:
+    sys.path.append(path)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+
 import elasticSearchFunctions
 from executeOrRunSubProcess import executeOrRun
 import storageService as storage_service
 
 def index_aip():
     """ Write AIP information to ElasticSearch. """
-    print 'sys.argv', sys.argv
     sip_uuid = sys.argv[1]  # %sip_uuid%
     sip_name = sys.argv[2]  # %sip_name%
     aip_path = sys.argv[3]  # %SIPDirectory%%sip_name%-%sip_uuid%.7z
@@ -40,7 +47,7 @@ def index_aip():
         "data",
         'METS.{}.xml'.format(sip_uuid))
     command = "7z e -o/tmp {} {}".format(aip_path, zip_mets_path)
-    print 'Running extraction command:', command
+    print 'Extracting METS file with:', command
     exit_code, _, _ = executeOrRun("command", command, printing=True)
     if exit_code != 0:
         print >>sys.stderr, "Error extracting"

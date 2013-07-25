@@ -2,16 +2,18 @@ import logging
 import os
 import platform
 import slumber
+import sys
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica.log",
     level=logging.INFO)
 
-from components import helpers
+dashboard_path = '/usr/share/archivematica/dashboard'
+if dashboard_path not in sys.path:
+    sys.path.append(dashboard_path)
+from components.helpers import get_setting
 
 ######################### INTERFACE WITH STORAGE API #########################
-
-_pipeline = None
 
 ############# HELPER FUNCTIONS #############
 
@@ -36,23 +38,31 @@ def _storage_relative_from_absolute(location_path, space_path):
 
 def create_pipeline():
     api = _storage_api()
-    global _pipeline
-    if not _pipeline:
-        pipeline = {}
-        pipeline['uuid'] = helpers.get_setting('dashboard_uuid')
-        pipeline['description'] = "Archivematica on {}".format(platform.node())
-        logging.info("Creating pipeline in storage service with {}".format(pipeline))
-        try:
-            _pipeline = api.pipeline.post(pipeline)
-        except slumber.exceptions.HttpClientError as e:
-            logging.warning("Unable to Archivematica pipeline in storage service from {} because {}".format(pipeline, e.content))
-            return False
-        except slumber.exceptions.HttpServerError as e:
-            if e.content['error_message'] == 'column uuid is not unique':
-                _pipeline = api.pipeline.get(pipeline['uuid'])
-            else:
-                raise
+    pipeline = {}
+    pipeline['uuid'] = get_setting('dashboard_uuid')
+    pipeline['description'] = "Archivematica on {}".format(platform.node())
+    logging.info("Creating pipeline in storage service with {}".format(pipeline))
+    try:
+        api.pipeline.post(pipeline)
+    except slumber.exceptions.HttpClientError as e:
+        logging.warning("Unable to Archivematica pipeline in storage service from {} because {}".format(pipeline, e.content))
+        return False
+    except slumber.exceptions.HttpServerError as e:
+        if 'column uuid is not unique' in e.content:
+            pass
+        else:
+            raise
     return True
+
+def _get_pipeline(uuid):
+    api = _storage_api()
+    try:
+        pipeline = api.pipeline(uuid).get()
+    except slumber.exceptions.HttpClientError as e:
+        if e.response.status_code == 404:
+            logging.warning("This Archivematica instance is not registered with the storage service.")
+        pipeline = None
+    return pipeline
 
 ############# LOCATIONS #############
 
@@ -82,9 +92,11 @@ def create_location(purpose, path, description=None, space=None, quota=None, use
             return False
 
     path = _storage_relative_from_absolute(path, space['path'])
-
+    pipeline = _get_pipeline(get_setting('dashboard_uuid'))
+    if pipeline is None:
+        return False
     new_location = {}
-    new_location['pipeline'] = _pipeline['resource_uri']
+    new_location['pipeline'] = pipeline['resource_uri']
     new_location['purpose'] = purpose
     new_location['relative_path'] = path
     new_location['description'] = description
@@ -117,8 +129,9 @@ def get_location(path=None, purpose=None, space=None):
     if space and path:
         path = _storage_relative_from_absolute(path, space['path'])
         space = space['uuid']
+    pipeline_uuid = get_setting('dashboard_uuid')
     while True:
-        locations = api.location.get(pipeline=_pipeline['uuid'],
+        locations = api.location.get(pipeline=pipeline_uuid,
                                      relative_path=path,
                                      purpose=purpose,
                                      space=space,
@@ -204,7 +217,7 @@ def get_space(access_protocol=None, path=None):
 ############# FILES #############
 
 def create_file(uuid, origin_location, origin_path, current_location,
-        current_path, package_type):
+        current_path, package_type, size):
     """ Creates a new file. Returns resulting dict on success, None on failure.
 
     origin_location and current_location should be URIs for the storage service.
@@ -219,6 +232,7 @@ def create_file(uuid, origin_location, origin_path, current_location,
     new_file['current_location'] = current_location
     new_file['current_path'] = current_path
     new_file['package_type'] = package_type
+    new_file['size'] = size
 
     logging.info("Creating file with {}".format(new_file))
     try:

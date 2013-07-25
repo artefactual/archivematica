@@ -172,7 +172,7 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None):
         'uuid': uuid,
         'name': name,
         'filePath': filePath,
-        'size': size or os.path.getsize(filePath) / float(1024) / float(1024),
+        'size': (size or os.path.getsize(filePath)) / float(1024) / float(1024),
         'mets': mets_data,
         'origin': getDashboardUUID(),
         'created': os.path.getmtime(pathToMETS)
