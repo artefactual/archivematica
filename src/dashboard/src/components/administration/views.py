@@ -273,6 +273,9 @@ def term_detail(request, term_uuid):
         form = TaxonomyTermForm(request.POST, instance=term)
         if form.is_valid():
             form.save()
+            messages = [{
+              'text': 'Saved.'
+            }]
     else:
         form = TaxonomyTermForm(instance=term)
 

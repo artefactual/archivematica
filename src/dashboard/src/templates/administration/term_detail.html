@@ -1,0 +1,42 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+% load url from future %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block js %}
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Taxonomy' components.administration.views.taxonomy %}
+        {% breadcrumb_url taxonomy.name components.administration.views.terms taxonomy.pk %}
+        {% breadcrumb term.term %}
+      </ul>
+
+      {% include "_messages.html" %}
+
+      <h3>Term</h3>
+
+      <form method='POST'>
+      {% include "_form.html" %}
+
+      <input type='submit' value='Save' />
+      </form>
+    </div>
+
+  </div>
+
+{% endblock %}
