@@ -30,7 +30,8 @@ urlpatterns = patterns('components.administration.views',
     (r'processing/$', 'processing'),
     (r'premis/agent/$', 'premis_agent'),
     (r'api/$', 'api'),
-    (r'taxonomy/terms/(?P<taxonomy_uuid>' + settings.UUID_REGEX + ')/$', 'terms'),
+    (r'taxonomy/term/(?P<term_uuid>' + settings.UUID_REGEX + ')/$', 'term_detail'),
+    (r'taxonomy/(?P<taxonomy_uuid>' + settings.UUID_REGEX + ')/$', 'terms'),
     (r'taxonomy/$', 'taxonomy'),
     (r'general/$', 'general')
 )

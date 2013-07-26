@@ -32,6 +32,8 @@ from components.administration.forms import SettingsForm
 from components.administration.forms import StorageSettingsForm
 from components.administration.models import ArchivistsToolkitConfig
 
+from components.administration.forms import ToggleSettingsForm
+from components.administration.forms import TaxonomyTermForm
 import components.decorators as decorators
 from django.template import RequestContext
 import components.helpers as helpers
@@ -254,14 +256,25 @@ def api(request):
     return render(request, 'administration/api.html', locals())
 
 def taxonomy(request):
-    taxonomies = models.Taxonomy.objects.all()
+    taxonomies = models.Taxonomy.objects.all().order_by('name')
     page = helpers.pager(taxonomies, 20, request.GET.get('page', 1))
     return render(request, 'administration/taxonomy.html', locals())
 
 def terms(request, taxonomy_uuid):
-    terms = models.TaxonomyTerm.objects.filter(taxonomyuuid=taxonomy_uuid)
+    terms = models.TaxonomyTerm.objects.filter(taxonomyuuid=taxonomy_uuid).order_by('term')
     page = helpers.pager(terms, 20, request.GET.get('page', 1))
     return render(request, 'administration/terms.html', locals())
+
+def term_detail(request, term_uuid):
+    term = models.TaxonomyTerm.objects.get(pk=term_uuid)
+    if request.POST:
+        form = TaxonomyTermForm(request.POST, instance=term)
+        if form.is_valid():
+            form.save()
+    else:
+        form = TaxonomyTermForm(instance=term)
+
+    return render(request, 'administration/term_detail.html', locals())
 
 def general(request):
     toggleableSettings = {
