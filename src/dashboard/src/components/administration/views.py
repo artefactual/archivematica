@@ -261,12 +261,14 @@ def taxonomy(request):
     return render(request, 'administration/taxonomy.html', locals())
 
 def terms(request, taxonomy_uuid):
+    taxonomy = models.Taxonomy.objects.get(pk=taxonomy_uuid)
     terms = models.TaxonomyTerm.objects.filter(taxonomyuuid=taxonomy_uuid).order_by('term')
     page = helpers.pager(terms, 20, request.GET.get('page', 1))
     return render(request, 'administration/terms.html', locals())
 
 def term_detail(request, term_uuid):
     term = models.TaxonomyTerm.objects.get(pk=term_uuid)
+    taxonomy = models.Taxonomy.objects.get(pk=term.taxonomyuuid)
     if request.POST:
         form = TaxonomyTermForm(request.POST, instance=term)
         if form.is_valid():

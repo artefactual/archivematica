@@ -20,6 +20,11 @@
 
     <div class="span12">
 
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Taxonomy' components.administration.views.taxonomy %}
+        {% breadcrumb taxonomy.name %}
+      </ul>
+
       <h3>Terms</h3>
 
       {% for term in page.objects %}
