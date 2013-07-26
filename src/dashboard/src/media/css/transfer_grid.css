@@ -48,9 +48,13 @@
   margin-bottom: 10px;
 }
 
-.transfer_path_delete_icon, .transfer_path_edit_icon {
-  margin-left: 1em;
+.transfer_path_icons {
   float: right;
+  clear: both;
+}
+
+.transfer_path_delete_icon, .transfer_path_edit_icon {
+  margin-left: .5em;
 }
 
 .transfer_path_edit_icon {

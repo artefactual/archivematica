@@ -92,10 +92,10 @@ function createDirectoryPicker(baseDirectory, modalCssId, targetCssId, pathTempl
       if ($('#transfer-type').val() == 'disk image') {
         var $transferEditIconEl =  $(
           '#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter
-        ).children('.transfer_path_edit_icon');
+        ).children('.transfer_path_icons').children('.transfer_path_edit_icon');
 
         $transferEditIconEl.click(function() {
-          var path = $(this).parent().children('.transfer_path').text(),
+          var path = $(this).parent().children('.transfer_path_icons > .transfer_path').text(),
               component_metadata_url = '/transfer/component/' + transferMetadataSetRowUUID + '/?path=' + encodeURIComponent(path);
           window.open(component_metadata_url, '_blank');
         });
@@ -104,7 +104,10 @@ function createDirectoryPicker(baseDirectory, modalCssId, targetCssId, pathTempl
       }
 
       // activate edit and delete icons
-      $('#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter).children('.transfer_path_delete_icon').click(function() {
+      $('#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter)
+      .children('.transfer_path_icons')
+      .children('.transfer_path_delete_icon')
+      .click(function() {
         if (confirm('Are you sure you want to remove this transfer component?')) {
           $(this).parent().remove();
           if ($('.transfer_path').length < 1) {
