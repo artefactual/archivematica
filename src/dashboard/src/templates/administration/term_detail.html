@@ -33,7 +33,9 @@
       <form method='POST'>
       {% include "_form.html" %}
 
-      <input type='submit' value='Save' />
+      <div style='float: right'>
+        <input type='submit' value='Save' /> <a href='/administration/taxonomy/term/{{ term.pk }}/delete/' class='btn'>Delete</a>
+      </div>
       </form>
     </div>
 
