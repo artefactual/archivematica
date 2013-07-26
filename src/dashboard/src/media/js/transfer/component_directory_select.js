@@ -105,10 +105,12 @@ function createDirectoryPicker(baseDirectory, modalCssId, targetCssId, pathTempl
 
       // activate edit and delete icons
       $('#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter).children('.transfer_path_delete_icon').click(function() {
-        $(this).parent().remove();
-        if ($('.transfer_path').length < 1) {
-          // re-enable transfer type select
-          $('#transfer-type').removeAttr('disabled');
+        if (confirm('Are you sure you want to remove this transfer component?')) {
+          $(this).parent().remove();
+          if ($('.transfer_path').length < 1) {
+            // re-enable transfer type select
+            $('#transfer-type').removeAttr('disabled');
+          }
         }
       });
 
