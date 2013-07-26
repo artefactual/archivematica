@@ -53,6 +53,10 @@
   float: right;
 }
 
+.transfer_path_edit_icon {
+  display: none;
+}
+
 .microservice-group {
   padding-bottom: 3px;
 }

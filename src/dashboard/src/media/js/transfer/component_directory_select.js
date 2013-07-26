@@ -88,13 +88,22 @@ function createDirectoryPicker(baseDirectory, modalCssId, targetCssId, pathTempl
         'delete_icon': '2'
       }));
 
-      // activate edit and delete icons
-      $('#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter).children('.transfer_path_edit_icon').click(function() {
-        var path = $(this).parent().children('.transfer_path').text(),
-            component_metadata_url = '/transfer/component/' + transferMetadataSetRowUUID + '/?path=' + encodeURIComponent(path);
-        window.open(component_metadata_url, '_blank');
-      });
+      // enable editing of transfer component metadata
+      if ($('#transfer-type').val() == 'disk image') {
+        var $transferEditIconEl =  $(
+          '#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter
+        ).children('.transfer_path_edit_icon');
 
+        $transferEditIconEl.click(function() {
+          var path = $(this).parent().children('.transfer_path').text(),
+              component_metadata_url = '/transfer/component/' + transferMetadataSetRowUUID + '/?path=' + encodeURIComponent(path);
+          window.open(component_metadata_url, '_blank');
+        });
+
+        $transferEditIconEl.show();
+      }
+
+      // activate edit and delete icons
       $('#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter).children('.transfer_path_delete_icon').click(function() {
         $(this).parent().remove();
         if ($('.transfer_path').length < 1) {
