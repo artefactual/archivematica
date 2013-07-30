@@ -26,6 +26,7 @@ from components import advanced_search
 from components import helpers
 import os
 import sys
+import slumber
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
@@ -179,21 +180,35 @@ def search_augment_file_results(raw_results):
     return modifiedResults
 
 def delete_context(request, uuid):
-    #user = User.objects.get(pk=id)
     prompt = 'Delete AIP?'
-    #prompt = 'Delete user ' + user.username + '?'
     cancel_url = reverse("components.archival_storage.views.overview")
     return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
 
-@decorators.confirm_required('simple_confirm.html', delete_context)
+@decorators.confirm_required('archival_storage/delete_request.html', delete_context)
 def aip_delete(request, uuid):
+    reason_for_deletion = request.POST.get('reason_for_deletion', '')
+
     try:
-        aip = elasticSearchFunctions.connect_and_get_aip_data(uuid)
-        aip_filepath = aip['filePath']
-        os.remove(aip_filepath)
-        elasticSearchFunctions.delete_aip(uuid)
-        elasticSearchFunctions.connect_and_delete_aip_files(uuid)
-        return HttpResponseRedirect(reverse('components.archival_storage.views.overview'))
+        # send delete request
+        api = slumber.API("http://localhost:8000/api/v1/")
+        file_URI = "/api/v1/file/" + uuid + "/"
+        api_request = {
+            'event_reason': reason_for_deletion,
+            'pipeline':     elasticSearchFunctions.getDashboardUUID(),
+            'user_email':   request.user.email,
+            'user_id':      request.user.id
+        }
+        response = api.file(file_URI).delete_aip.post(api_request)
+        #import pprint
+        #pp = pprint.PrettyPrinter(indent=4)
+        #return HttpResponse(pprint.pformat(response))
+
+        #elasticSearchFunctions.delete_aip(uuid)
+        #elasticSearchFunctions.connect_and_delete_aip_files(uuid)
+        #return HttpResponseRedirect(reverse('components.archival_storage.views.overview'))
+
+        result = 'Your deletion response has been sent.'
+        return render(request, 'archival_storage/delete_request_results.html', locals())
     except:
         raise Http404
 
