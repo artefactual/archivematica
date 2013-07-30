@@ -27,6 +27,7 @@ from components import helpers
 import os
 import sys
 import slumber
+import requests
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
@@ -199,18 +200,17 @@ def aip_delete(request, uuid):
             'user_id':      request.user.id
         }
         response = api.file(file_URI).delete_aip.post(api_request)
-        #import pprint
-        #pp = pprint.PrettyPrinter(indent=4)
-        #return HttpResponse(pprint.pformat(response))
+        result = response['message']
 
         #elasticSearchFunctions.delete_aip(uuid)
         #elasticSearchFunctions.connect_and_delete_aip_files(uuid)
         #return HttpResponseRedirect(reverse('components.archival_storage.views.overview'))
-
-        result = 'Your deletion response has been sent.'
-        return render(request, 'archival_storage/delete_request_results.html', locals())
+    except requests.exceptions.ConnectionError:
+        result = 'Unable to connect to storage server. Please contact your administrator.'
     except:
         raise Http404
+
+    return render(request, 'archival_storage/delete_request_results.html', locals())
 
 def aip_download(request, uuid):
     aip = elasticSearchFunctions.connect_and_get_aip_data(uuid)
