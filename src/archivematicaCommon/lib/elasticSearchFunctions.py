@@ -474,6 +474,36 @@ def connect_and_remove_sip_transfer_files(uuid):
                 document_id = documents['hits']['hits'][0]['_id']
                 conn.delete('transfers', 'transferfile', document_id)
 
+def delete_aip(uuid):
+    return delete_matching_documents('aips', 'aip', 'uuid', uuid)
+
+def delete_matching_documents(index, type, field, value, **kwargs):
+    # open connection if one hasn't been provided
+    conn = kwargs.get('conn', False)
+    if not conn:
+        conn = connect_and_create_index(index)
+
+    # a max_documents of 0 means unlimited
+    max_documents = kwargs.get('max_documents', 0)
+
+    # cycle through fields to find matches
+    documents = conn.search_raw(
+        indices=[index],
+        doc_types=[type],
+        query=pyes.FieldQuery(pyes.FieldParameter(field, value))
+    )
+
+    count = 0
+    if len(documents['hits']['hits']) > 0:
+        for hit in documents['hits']['hits']:
+            document_id = hit['_id']
+            conn.delete(index, type, document_id)
+            count = count + 1
+            if count == max_documents:
+                return count
+
+    return count
+
 def connect_and_delete_aip_files(uuid):
     deleted = 0
     conn = pyes.ES(getElasticsearchServerHostAndPort())
