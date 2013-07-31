@@ -287,6 +287,13 @@ def send_thumbnail(request, fileuuid):
 
     return helpers.send_file(request, thumbnail_path)
 
+def get_file_status(uuid):
+   api = slumber.API("http://localhost:8000/api/v1/")
+   file_URI = "/api/v1/file/" + uuid + "/"
+   response = api.file(file_URI).get()
+
+   return response['status']
+
 def list_display(request, current_page_number=None):
     form = forms.StorageSearchForm()
 
@@ -314,10 +321,11 @@ def list_display(request, current_page_number=None):
 
     aips = []
 
-    #if aipResults._total != None:
     if len(aipResults) > 0:
         for aip in aipResults:
-            aips.append(aip)
+            aip['status'] = get_file_status(aip['uuid'])
+            if aip['status'] != 'DEL_REQ':
+                aips.append(aip)
 
     # handle pagination
     page = helpers.pager(aips, 10, current_page_number)
@@ -325,12 +333,11 @@ def list_display(request, current_page_number=None):
     sips = []
     for aip in page['objects']:
         sip = {}
-        sip['href'] = aip.filePath.replace(AIPSTOREPATH + '/', "AIPsStore/")
-        sip['name'] = aip.name
-        sip['uuid'] = aip.uuid
-
-        #sip['date'] = str(aip.date)[0:19].replace('T', ' ')
-        sip['date'] = aip.created
+        sip['href']   = aip.filePath.replace(AIPSTOREPATH + '/', "AIPsStore/")
+        sip['name']   = aip.name
+        sip['uuid']   = aip.uuid
+        sip['status'] = aip.status
+        sip['date']   = aip.created
 
         try:
             size = float(aip.size)
