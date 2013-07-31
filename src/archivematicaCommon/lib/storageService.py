@@ -156,8 +156,8 @@ def delete_location(uuid):
     api = _storage_api()
     logging.info("Deleting storage location with UUID {}".format(uuid))
     # TODO check that location is associated with this pipeline
-    ret = api.location(str(uuid)).patch({'disabled': True})
-    return ret['disabled']
+    ret = api.location(str(uuid)).patch({'enabled': True})
+    return not ret['enabled']
 
 ############# SPACES #############
 
