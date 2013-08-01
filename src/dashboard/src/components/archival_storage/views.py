@@ -294,11 +294,25 @@ def get_file_status(uuid):
 
    return response['status']
 
+def aip_file_count():
+    # get UUIDs of AIPs where deletion has been requested
+    api = slumber.API("http://localhost:8000/api/v1/")
+    files_URI = "/api/v1/file/"
+    response = api.file(files_URI).get(status='DEL_REQ')
+
+    # add these UUIDs to exclusion when counting AIP files
+    must_not_haves = []
+    for aip in response['objects']:
+        must_not_haves.append(pyes.TermQuery('AIPUUID', aip['uuid']))
+    query = pyes.BoolQuery(must_not=must_not_haves)
+
+    return advanced_search.indexed_count('aips', ['aipfile'], query)
+
 def list_display(request, current_page_number=None):
     form = forms.StorageSearchForm()
 
-    # get ElasticSearch stats
-    aip_indexed_file_count = advanced_search.indexed_count('aips', ['aipfile'])
+    # get count of AIP files
+    aip_indexed_file_count = aip_file_count()
 
     # get AIPs
     order_by = request.GET.get('order_by', 'name')
