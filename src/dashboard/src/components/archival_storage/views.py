@@ -298,7 +298,7 @@ def list_display(request, current_page_number=None):
     form = forms.StorageSearchForm()
 
     # get ElasticSearch stats
-    aip_indexed_file_count = advanced_search.indexed_count('aips')
+    aip_indexed_file_count = advanced_search.indexed_count('aips', ['aipfile'])
 
     # get AIPs
     order_by = request.GET.get('order_by', 'name')
