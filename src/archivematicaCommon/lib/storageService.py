@@ -45,7 +45,7 @@ def create_pipeline():
     try:
         api.pipeline.post(pipeline)
     except slumber.exceptions.HttpClientError as e:
-        logging.warning("Unable to Archivematica pipeline in storage service from {} because {}".format(pipeline, e.content))
+        logging.warning("Unable to create Archivematica pipeline in storage service from {} because {}".format(pipeline, e.content))
         return False
     except slumber.exceptions.HttpServerError as e:
         if 'column uuid is not unique' in e.content:
@@ -60,7 +60,7 @@ def _get_pipeline(uuid):
         pipeline = api.pipeline(uuid).get()
     except slumber.exceptions.HttpClientError as e:
         if e.response.status_code == 404:
-            logging.warning("This Archivematica instance is not registered with the storage service.")
+            logging.warning("This Archivematica instance is not registered with the storage service or has been disabled.")
         pipeline = None
     return pipeline
 
@@ -129,9 +129,11 @@ def get_location(path=None, purpose=None, space=None):
     if space and path:
         path = _storage_relative_from_absolute(path, space['path'])
         space = space['uuid']
-    pipeline_uuid = get_setting('dashboard_uuid')
+    pipeline = _get_pipeline(get_setting('dashboard_uuid'))
+    if pipeline is None:
+        return False
     while True:
-        locations = api.location.get(pipeline=pipeline_uuid,
+        locations = api.location.get(pipeline=pipeline['uuid'],
                                      relative_path=path,
                                      purpose=purpose,
                                      space=space,
