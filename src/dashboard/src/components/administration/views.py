@@ -15,27 +15,25 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
 from django.core.urlresolvers import reverse
 from django.forms.models import modelformset_factory
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
-from main import forms
-from main import models
-import logging
-import sys
+
+from main import forms, models
 import components.administration.views_processing as processing_views
-from lxml import etree
-from components.administration.forms import AdministrationForm
-from components.administration.forms import AgentForm
-from components.administration.forms import ToggleSettingsForm
-import components.decorators as decorators
+from components.administration.forms import (AdministrationForm, AgentForm,
+    SettingsForm, StorageSettingsForm)
+import components.decorators  # Not used, but if it's removed, everything breaks
 import components.helpers as helpers
 import storageService as storage_service
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/tmp/archivematica.log", 
+logging.basicConfig(filename="/tmp/archivematica.log",
     level=logging.INFO)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -289,29 +287,25 @@ def api(request):
     return render(request, 'administration/api.html', locals())
 
 def general(request):
+    toggleableSettings = {
+        'dashboard_administration_atom_dip_enabled':
+            'Hide AtoM DIP upload link',
+        'dashboard_administration_contentdm_dip_enabled':
+            'Hide CONTENTdm DIP upload link',
+        'dashboard_administration_dspace_enabled':
+            'Hide DSpace transfer type',
+    }
+    initial_data = dict(models.DashboardSetting.objects.all().values_list(
+        'name', 'value'))
+    interface_form = SettingsForm(request.POST or None, prefix='interface',
+        reverse_checkboxes=toggleableSettings)
+    storage_form = StorageSettingsForm(request.POST or None, prefix='storage',
+        initial=initial_data)
+
+    if interface_form.is_valid() and storage_form.is_valid():
+        interface_form.save()
+        storage_form.save()
+
     dashboard_uuid = helpers.get_setting('dashboard_uuid')
-
-    toggleableSettings = [
-      {'dashboard_administration_atom_dip_enabled': 'Hide AtoM DIP upload link'},
-      {'dashboard_administration_contentdm_dip_enabled': 'Hide CONTENTdm DIP upload link'},
-      {'dashboard_administration_dspace_enabled': 'Hide DSpace transfer type'},
-    ]
-
-    if request.method == 'POST':
-        for setting in toggleableSettings:
-            name = setting.keys()[0]
-            if request.POST.get(name) == 'on':
-                setting = True
-            else:
-                setting = False
-
-            # settings indicate whether or not something is enabled so if we want
-            # do disable it we do a boolean not
-            setting = not setting
-
-            helpers.set_setting(name, setting)
-
-    form = ToggleSettingsForm(extra=toggleableSettings)
-
     hide_features = helpers.hidden_features()
     return render(request, 'administration/general.html', locals())

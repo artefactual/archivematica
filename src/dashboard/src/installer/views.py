@@ -144,6 +144,7 @@ def fprdownload(request):
 
 def storagesetup(request):
     if request.method == 'POST':
+        helpers.set_setting('storage_service_url', 'http://localhost:8000')
         if "use_default" in request.POST:
             default_space = "/"
             # TODO get value of %sharedPath%, and add wwww/AIPsStore/
@@ -180,7 +181,4 @@ def storagesetup(request):
         administration_render_storage_directories_to_dicts()
         return HttpResponseRedirect(reverse('main.views.home'))
     else:
-        # TODO get this from config
-        storage_service_url = "http://localhost:8000"
         return render(request, 'installer/storagesetup.html', locals())
-

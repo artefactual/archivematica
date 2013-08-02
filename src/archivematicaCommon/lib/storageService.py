@@ -19,9 +19,17 @@ from components.helpers import get_setting
 
 def _storage_api():
     """ Returns slumber access to storage API. """
-    # TODO get this from config
-    storage_server = "http://localhost:8000/api/v1/"
-    api = slumber.API(storage_server)
+    # Get storage service URL from DashboardSetting model
+    storage_service_url = get_setting('storage_service_url', None)
+    if storage_service_url is None:
+        logging.error("Storage server not configured.")
+        storage_service_url = 'http://localhost:8000/'
+    # If the URL doesn't end in a /, add one
+    if storage_service_url[-1] != '/':
+        storage_service_url+='/'
+    storage_service_url = storage_service_url+'api/v1/'
+    logging.debug("Storage service URL: {}".format(storage_service_url))
+    api = slumber.API(storage_service_url)
     return api
 
 def _storage_relative_from_absolute(location_path, space_path):

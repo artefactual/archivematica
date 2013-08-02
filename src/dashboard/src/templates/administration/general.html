@@ -25,12 +25,17 @@
 
       <h3>General configuration</h3>
 
-      <h4>Interface options</h4>
-
-      <p>Parts of the interface may be hidden if not needed.</p>
-
       <form method='POST'>
-        {% include "_form.html" %}
+        <h4>Interface options</h4>
+
+        <p>Parts of the interface may be hidden if not needed.</p>
+
+        {% include "_form.html" with form=interface_form %}
+
+        <h4>Storage Service options</h4>
+
+        {% include "_form.html" with form=storage_form %}
+
         <div class='span7'>
           <span style='float: right'><input type='submit' value='Save'></span>
         </div>
