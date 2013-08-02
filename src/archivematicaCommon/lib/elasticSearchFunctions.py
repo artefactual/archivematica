@@ -453,6 +453,12 @@ def backup_indexed_document(result, indexData, index, type):
 
     databaseInterface.runSQL(sql)
 
+def document_id_from_field_query(conn, field, value, doc_types):
+    documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter(field, value)))
+    if len(documents['hits']['hits']) == 0:
+        document_id = documents['hits']['hits'][0]['_id']
+    return document_id
+
 def connect_and_change_transfer_file_status(uuid, status):
     # get file UUIDs for each file in the SIP
     sql = "SELECT fileUUID from Files WHERE transferUUID='" + MySQLdb.escape_string(uuid) + "'"
@@ -464,10 +470,8 @@ def connect_and_change_transfer_file_status(uuid, status):
 
         # cycle through file UUIDs and update status
         for row in rows:
-            documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('fileuuid', row[0])))
-            if len(documents['hits']['hits']) > 0:
-                document_id = documents['hits']['hits'][0]['_id']
-                conn.update({'status': status}, 'transfers', 'transferfile', document_id)
+            document_id = document_id_from_field_query(conn, 'fileuuid', row[0], ['transferfile'])
+            conn.update({'status': status}, 'transfers', 'transferfile', document_id)
     return len(rows)
 
 def connect_and_remove_sip_transfer_files(uuid):
@@ -481,10 +485,8 @@ def connect_and_remove_sip_transfer_files(uuid):
 
         # cycle through file UUIDs and delete files from transfer backlog
         for row in rows:
-            documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('fileuuid', row[0])))
-            if len(documents['hits']['hits']) > 0:
-                document_id = documents['hits']['hits'][0]['_id']
-                conn.delete('transfers', 'transferfile', document_id)
+            document_id = document_id_from_field_query(conn, 'fileuuid', row[0], ['transferfile'])
+            conn.delete('transfers', 'transferfile', document_id)
 
 def delete_aip(uuid):
     return delete_matching_documents('aips', 'aip', 'uuid', uuid)
