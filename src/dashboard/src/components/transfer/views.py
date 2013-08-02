@@ -41,7 +41,11 @@ logging.basicConfig(filename="/tmp/archivematica.log",
 
 @decorators.elasticsearch_required()
 def grid(request):
-    source_directories = storage_service.get_location(purpose="TS")
+    try:
+        source_directories = storage_service.get_location(purpose="TS")
+    except:
+        # TODO: make this pretty
+        return HttpResponse('Error retrieving source directories: is the storage server running? Please contact administrator.')
 
     logging.debug("Source directories found: {}".format(source_directories))
 

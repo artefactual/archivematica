@@ -201,10 +201,6 @@ def aip_delete(request, uuid):
         }
         response = api.file(file_URI).delete_aip.post(api_request)
         result = response['message']
-
-        #elasticSearchFunctions.delete_aip(uuid)
-        #elasticSearchFunctions.connect_and_delete_aip_files(uuid)
-        #return HttpResponseRedirect(reverse('components.archival_storage.views.overview'))
     except requests.exceptions.ConnectionError:
         result = 'Unable to connect to storage server. Please contact your administrator.'
     except:
@@ -366,7 +362,16 @@ def list_display(request, current_page_number=None):
     if len(aipResults) > 0:
         for aip in aipResults:
             aip['status'] = get_file_status(aip['uuid'])
-            if aip['status'] != 'DEL_REQ':
+
+            # delete AIP metadata in ElasticSearch if AIP has been deleted from the
+            # storage server
+            # TODO: handle this asynchronously
+            if aip['status'] == 'DELETED':
+                elasticSearchFunctions.delete_aip(aip['uuid'])
+                elasticSearchFunctions.connect_and_delete_aip_files(aip['uuid'])
+
+            # don't show AIPs that have been deleted or where deletion is pending
+            if aip['status'] != 'DEL_REQ' and aip['status'] != 'DELETED':
                 aips.append(aip)
 
     # handle pagination
