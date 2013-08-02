@@ -294,19 +294,47 @@ def get_file_status(uuid):
 
    return response['status']
 
-def aip_file_count():
+def aips_pending_deletion():
     # get UUIDs of AIPs where deletion has been requested
     api = slumber.API("http://localhost:8000/api/v1/")
     files_URI = "/api/v1/file/"
     response = api.file(files_URI).get(status='DEL_REQ')
 
-    # add these UUIDs to exclusion when counting AIP files
-    must_not_haves = []
-    for aip in response['objects']:
-        must_not_haves.append(pyes.TermQuery('AIPUUID', aip['uuid']))
-    query = pyes.BoolQuery(must_not=must_not_haves)
+    aip_uuids = []
 
+    for aip in response['objects']:
+        aip_uuids.append(aip['uuid'])
+
+    return aip_uuids
+
+def elasticsearch_query_excluding_aips_pending_deletion(uuid_field_name):
+    # add UUIDs of AIPs pending deletion, if any, to boolean query
+    must_not_haves = []
+
+    for aip_uuid in aips_pending_deletion():
+        must_not_haves.append(pyes.TermQuery(uuid_field_name, aip_uuid))
+
+    if len(must_not_haves):
+        query = pyes.BoolQuery(must_not=must_not_haves)
+    else:
+        query = pyes.MatchAllQuery()
+
+    return query
+
+def aip_file_count():
+    query = elasticsearch_query_excluding_aips_pending_deletion('AIPUUID')
     return advanced_search.indexed_count('aips', ['aipfile'], query)
+
+def total_size_of_aips(conn):
+    query = elasticsearch_query_excluding_aips_pending_deletion('uuid')
+
+    query = query.search()
+    query.facet.add(pyes.facets.StatisticalFacet('total', field='size'))
+
+    aipResults = conn.search(query, doc_types=['aip'])
+    total_size = aipResults.facets.total.total
+    total_size = '{0:.2f}'.format(total_size)
+    return total_size
 
 def list_display(request, current_page_number=None):
     form = forms.StorageSearchForm()
@@ -361,12 +389,7 @@ def list_display(request, current_page_number=None):
 
         sips.append(sip)
 
-    # get total size of all AIPS from ElasticSearch
-    q = pyes.MatchAllQuery().search()
-    q.facet.add(pyes.facets.StatisticalFacet('total', field='size'))
-    aipResults = conn.search(q, doc_types=['aip'])
-    total_size = aipResults.facets.total.total
-    total_size = '{0:.2f}'.format(total_size)
+    total_size = total_size_of_aips(conn)
 
     return render(request, 'archival_storage/archival_storage.html', locals())
 
