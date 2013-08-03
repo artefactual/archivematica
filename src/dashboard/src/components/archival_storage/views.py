@@ -201,6 +201,12 @@ def aip_delete(request, uuid):
         }
         response = api.file(file_URI).delete_aip.post(api_request)
         result = response['message']
+
+        # mark AIP as having deletion requested
+        conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
+        document_id = elasticSearchFunctions.document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', uuid)
+        conn.update({'status': 'DEL_REQ'}, 'aips', 'aip', document_id)
+
     except requests.exceptions.ConnectionError:
         result = 'Unable to connect to storage server. Please contact your administrator.'
     except:
@@ -350,6 +356,24 @@ def list_display(request, current_page_number=None):
     sort_specification = order_by + ':' + sort_direction
 
     conn = elasticSearchFunctions.connect_and_create_index('aips')
+
+    # get list of UUIDs of AIPs that are deleted or pending deletion
+    aips_deleted_or_pending_deletion = []
+    should_haves = [
+        pyes.FieldQuery(pyes.FieldParameter('status', 'DEL_REQ')),
+        pyes.FieldQuery(pyes.FieldParameter('status', 'DELETED'))
+    ]
+    query = pyes.BoolQuery(should=should_haves).search()
+    deleted_aip_results = conn.search(
+        query,
+        indices=['aips'],
+        doc_types=['aip'],
+        fields='uuid,status'
+    )
+    for deleted_aip in deleted_aip_results:
+        aips_deleted_or_pending_deletion.append(deleted_aip['uuid'])
+
+    # get all AIPs
     aipResults = conn.search(
         pyes.MatchAllQuery(),
         doc_types=['aip'],
@@ -358,20 +382,36 @@ def list_display(request, current_page_number=None):
     )
 
     aips = []
-
+    messages = []
     if len(aipResults) > 0:
         for aip in aipResults:
-            aip['status'] = get_file_status(aip['uuid'])
-
-            # delete AIP metadata in ElasticSearch if AIP has been deleted from the
-            # storage server
-            # TODO: handle this asynchronously
-            if aip['status'] == 'DELETED':
-                elasticSearchFunctions.delete_aip(aip['uuid'])
-                elasticSearchFunctions.connect_and_delete_aip_files(aip['uuid'])
-
             # don't show AIPs that have been deleted or where deletion is pending
-            if aip['status'] != 'DEL_REQ' and aip['status'] != 'DELETED':
+            try:
+                aips_deleted_or_pending_deletion.index(aip['uuid'])
+
+                # check with storage server to see current status
+                aip_status = get_file_status(aip['uuid'])
+
+                # delete AIP metadata in ElasticSearch if AIP has been deleted from the
+                # storage server
+                # TODO: handle this asynchronously
+                if aip_status == 'DELETED':
+                    elasticSearchFunctions.delete_aip(aip['uuid'])
+                    elasticSearchFunctions.connect_and_delete_aip_files(aip['uuid'])
+                elif aip_status == 'UPLOADED':
+                    # a delete request was rejected... see if this user was the last one to reject
+                    # deletion
+                    if 1:
+                        # if a rejection event exists for this user that's newer than the delete request
+                        # event, display the reason for rejection and update the AIP's status in
+                        # ElasticSearch
+                        if 1:
+                            message = 'The deletetion request for AIP ' + aip['uuid'] + ' was rejected.'
+                            messages.append({'text': message})
+                            # update the status in ElasticSearch for this AIP
+                            document_id = elasticSearchFunctions.document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', aip['uuid'])
+                            conn.update({'status': 'UPLOADED'}, 'aips', 'aip', document_id)
+            except ValueError:
                 aips.append(aip)
 
     # handle pagination
