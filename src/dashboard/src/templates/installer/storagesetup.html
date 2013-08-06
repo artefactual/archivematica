@@ -17,12 +17,16 @@
   <div class="span9 offset2">
     <img src="{{ STATIC_URL }}images/logo_welcome.gif" style="margin-bottom: 20px;" />
 
-    <div id="storage" class="well">
+    <form action="#" method="POST">
+      <div id="storage" class="well">
+        <p>Dashboard UUID: {{ dashboard_uuid }}</p>
+
+        {{ storage_form.as_p }}
+
         <p>Would you like to used the default transfer source and AIP storage locations?</p>
-    </div>
-    <form id="use_default" action="#" method="POST">
+      </div>
       <input class="submit" type="submit" name="use_default" value="Yes, I'll use the default setup" />
-      <input class="submit" type="submit" name="configure" value="No, I'll set it up myself" />
+      <input class="submit" type="submit" name="configure" value="No, just register this pipeline" onclick="window.open($('#id_storage_service_url').val());" />
     </form>
   </div>
 </div>

@@ -15,28 +15,31 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
+import logging
+import requests_1_20 as requests
+import socket
+import sys
+import uuid
+
 from django.conf import settings as django_settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from main.models import Agent
-from installer.forms import SuperUserCreationForm
-from tastypie.models import ApiKey
-import components.helpers as helpers
-from components.administration.views import administration_render_storage_directories_to_dicts
 
-import sys
+from tastypie.models import ApiKey
+
+import components.helpers as helpers
+from components.administration.forms import StorageSettingsForm
+from components.administration.views import administration_render_storage_directories_to_dicts
+from installer.forms import SuperUserCreationForm
+from main.models import Agent
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
 import FPRClient.main as FPRClient
 import storageService as storage_service
-
-import json
-import logging
-import requests_1_20 as requests
-import socket
-import uuid
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica.log", 
@@ -143,18 +146,24 @@ def fprdownload(request):
     return HttpResponse(myresult, mimetype='application/json')
 
 def storagesetup(request):
-    if request.method == 'POST':
-        helpers.set_setting('storage_service_url', 'http://localhost:8000')
+    # Display the dashboard UUID on the storage service setup page
+    dashboard_uuid = helpers.get_setting('dashboard_uuid', None)
+    assert dashboard_uuid is not None
+    # Prefil the storage service URL
+    inital_data = {'storage_service_url':
+        helpers.get_setting('storage_service_url', 'http://localhost:8000')}
+    storage_form = StorageSettingsForm(request.POST or None, initial=inital_data)
+    if storage_form.is_valid():
+        # Set storage service URL
+        storage_form.save()
+
+        # Set up default space and locations
         if "use_default" in request.POST:
             default_space = "/"
-            # TODO get value of %sharedPath%, and add wwww/AIPsStore/
-            default_aip_storage = 'var/archivematica/sharedDirectory/www/AIPsStore/'
-            description = 'Store AIP in standard Archivematica Directory'
-            logging.info("Using default values for storage service; space: {}; AIP storage: {}".format(default_space, default_aip_storage))
             # Create pipeline
             try:
                 storage_service.create_pipeline()
-            except:
+            except Exception:
                 # TODO: make this pretty
                 return HttpResponse('Error creating pipeline: is the storage server running? Please contact administrator.')
             # Check if default space already exists, create if it doesn't
@@ -164,6 +173,10 @@ def storagesetup(request):
             else:
                 space = space[0]
             # Create default AIP storage
+            # TODO get value of %sharedPath%, and add wwww/AIPsStore/
+            default_aip_storage = 'var/archivematica/sharedDirectory/www/AIPsStore/'
+            description = 'Store AIP in standard Archivematica Directory'
+            logging.info("Using default values for storage service; space: {}; AIP storage: {}".format(default_space, default_aip_storage))
             if not storage_service.get_location(purpose="AS",
                                         path=default_aip_storage,
                                         space=space):
@@ -177,8 +190,12 @@ def storagesetup(request):
                 storage_service.create_location(purpose="CP",
                                         path=".",
                                         space=space)
-        # Initial setup of storage directories MicroServiceChoiceReplacementDic
-        administration_render_storage_directories_to_dicts()
+        else:
+            # Storage service manually set up, just register Pipeline
+            try:
+                storage_service.create_pipeline()
+            except Exception:
+                pass
         return HttpResponseRedirect(reverse('main.views.home'))
     else:
         return render(request, 'installer/storagesetup.html', locals())
