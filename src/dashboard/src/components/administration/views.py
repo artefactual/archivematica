@@ -162,10 +162,14 @@ def storage_json(request):
     )
 
 def sources(request):
-    picker_js_file = 'source_directory_picker.js'
-    system_directory_description = 'Transfer source'
-    hide_features = helpers.hidden_features()
-    return render(request, 'administration/sources.html', locals())
+    try:
+        locations = storage_service.get_location(purpose="TS")
+    except:
+        # TODO: make this pretty
+        return HttpResponse('Error retrieving locations: is the storage server running? Please contact administrator.')
+
+    system_directory_description = 'Available transfer source'
+    return render(request, 'administration/locations.html', locals())
 
 def sources_json(request):
     return administration_system_directory_data_request_handler(

@@ -25,8 +25,7 @@ var TransferComponentFormView = Backbone.View.extend({
   },
 
   showSelector: function(sourceDir) {
-
-   // display action selector in modal window
+    // display action selector in modal window
     $(this.modal_template).modal({show: true});
 
     // make it destroy rather than hide modal
@@ -36,7 +35,9 @@ var TransferComponentFormView = Backbone.View.extend({
       });
 
     // add directory selector
+    var locationUUID = $('#path_source_select').children(':selected').val();
     createDirectoryPicker(
+      locationUUID,
       sourceDir,
       'transfer-component-select-modal',
       'path_container'
