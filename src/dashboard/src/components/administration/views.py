@@ -150,16 +150,14 @@ def dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet):
     return valid_submission, formset, add_form
 
 def storage(request):
-    picker_js_file = 'storage_directory_picker.js'
-    system_directory_description = 'AIP storage'
-    hide_features = helpers.hidden_features()
-    return render(request, 'administration/sources.html', locals())
+    try:
+        locations = storage_service.get_location(purpose="AS")
+    except:
+        # TODO: make this pretty
+        return HttpResponse('Error retrieving locations: is the storage server running? Please contact administrator.')
 
-def storage_json(request):
-    return administration_system_directory_data_request_handler(
-      request,
-      "AS",
-    )
+    system_directory_description = 'Available transfer source'
+    return render(request, 'administration/locations.html', locals())
 
 def sources(request):
     try:
@@ -171,85 +169,8 @@ def sources(request):
     system_directory_description = 'Available transfer source'
     return render(request, 'administration/locations.html', locals())
 
-def sources_json(request):
-    return administration_system_directory_data_request_handler(
-      request,
-      "TS",
-    )
-
-def administration_system_directory_data_request_handler(request, purpose, access_protocol="FS"):
-    message = ''
-    if request.method == 'POST':
-        # TODO This should be passed in by the view
-        space = storage_service.get_space(access_protocol="FS", path="/")[0]
-        path = request.POST.get('path', '')
-        if path != '':
-            if storage_service.get_location(path=path,
-                                    purpose=purpose,
-                                    space=space):
-                message = 'Directory already added.'
-            elif storage_service.create_location(path=path,
-                                         purpose=purpose):
-                message = 'Directory added.'
-            else:
-                message = 'Error adding directory.'
-        else:
-            message = 'Path is empty.'
-        logging.debug("Message: {}".format(message))
-
-    directories = storage_service.get_location(purpose=purpose)
-
-    response = {}
-    response['message'] = message
-    response['directories'] = directories
-
-    return HttpResponse(
-      simplejson.JSONEncoder().encode(response),
-      mimetype='application/json'
-    )
-
-def storage_delete_json(request, id):
-    response = system_directory_delete_request_handler(
-      request,
-      "AS",
-      id
-    )
-    return response
-
-def sources_delete_json(request, id):
-    return system_directory_delete_request_handler(
-      request,
-      "TS",
-      id
-    )
-
-def system_directory_delete_request_handler(request, purpose, uuid):
-    if storage_service.delete_location(uuid):
-        message = 'Deleted.'
-    else:
-        logging.warning("Failed to delete directory {}, purpose {}".format(
-            uuid, purpose))
-        message = 'Failed to delete directory.'
-
-    response = {}
-    response['message'] = message
-    return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
-
 def processing(request):
     return processing_views.index(request)
-
-def administration_flush_aip_storage_dicts():
-    link_pk = administration_get_aip_storage_link_pk()
-    entries = models.MicroServiceChoiceReplacementDic.objects.filter(
-      choiceavailableatlink=link_pk
-    )
-    for entry in entries:
-        entry.delete()
-
-def administration_get_aip_storage_link_pk():
-    tasks = models.TaskConfig.objects.filter(description='Store AIP location')
-    links = models.MicroServiceChainLink.objects.filter(currenttask=tasks[0].pk)
-    return links[0].pk
 
 def premis_agent(request):
     agent = models.Agent.objects.get(pk=2)
