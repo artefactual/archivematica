@@ -192,8 +192,6 @@ def administration_system_directory_data_request_handler(request, purpose, acces
         else:
             message = 'Path is empty.'
         logging.debug("Message: {}".format(message))
-        if purpose == "AS":
-            administration_render_storage_directories_to_dicts()
 
     directories = storage_service.get_location(purpose=purpose)
 
@@ -212,12 +210,11 @@ def storage_delete_json(request, id):
       "AS",
       id
     )
-    administration_render_storage_directories_to_dicts()
     return response
 
 def sources_delete_json(request, id):
     return system_directory_delete_request_handler(
-      request, 
+      request,
       "TS",
       id
     )
@@ -230,26 +227,12 @@ def system_directory_delete_request_handler(request, purpose, uuid):
             uuid, purpose))
         message = 'Failed to delete directory.'
 
-    if purpose == "AS":
-        administration_render_storage_directories_to_dicts()
     response = {}
     response['message'] = message
     return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
 
 def processing(request):
     return processing_views.index(request)
-
-def administration_render_storage_directories_to_dicts():
-    administration_flush_aip_storage_dicts()
-    storage_directories = storage_service.get_location(purpose="AS")
-    logging.debug("Storage Directories: {}".format(storage_directories))
-    link_pk = administration_get_aip_storage_link_pk()
-    for d in storage_directories:
-        dict = models.MicroServiceChoiceReplacementDic()
-        dict.choiceavailableatlink = link_pk
-        dict.description = d['description']
-        dict.replacementdic = '{{"%AIPsStore%": "{}"}}'.format(d['resource_uri'])
-        dict.save()
 
 def administration_flush_aip_storage_dicts():
     link_pk = administration_get_aip_storage_link_pk()

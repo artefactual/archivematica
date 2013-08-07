@@ -185,5 +185,15 @@ INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, cu
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('0783a1ab-f70e-437b-8bec-cd1f2135ba2a', '48703fad-dc44-4c8e-8f47-933df3ef6179', 0, 'd5a2ef60-a757-483c-a71a-ccbffe6b80da', 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='48703fad-dc44-4c8e-8f47-933df3ef6179' WHERE microServiceChainLink='20515483-25ed-4133-b23e-5bb14cab8e22';
 
+-- Fetch AIP Store Locations from Storage Service, instead of using MicroServiceChoiceReplacementDic
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('857fb861-8aa1-45c0-95f5-c5af66764142', 0, 'getAipStorageLocations_v0.0', '');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('75e00332-24a3-4076-aed1-e3dc44379227', 'a19bfd9f-9989-4648-9351-013a10b382ed', '857fb861-8aa1-45c0-95f5-c5af66764142', 'Retrieve AIP Storage Locations');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('49cbcc4d-067b-4cd5-b52e-faf50857b35a', 'Store AIP', 'Failed', '75e00332-24a3-4076-aed1-e3dc44379227', '2d32235c-02d4-4686-88a6-96f4d6c7b1c3');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('7deb2533-ae68-4ffa-9217-85d5bb4bfd62', '49cbcc4d-067b-4cd5-b52e-faf50857b35a', 0, 'b320ce81-9982-408a-9502-097d0daa48fa', 'Completed successfully');
+UPDATE MicroServiceChains SET startingLink='49cbcc4d-067b-4cd5-b52e-faf50857b35a' WHERE startingLink='b320ce81-9982-408a-9502-097d0daa48fa';
+-- Store AIP Location gets info from MicroService
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute) VALUES ('ebab9878-f42e-4451-a24a-ec709889a858', 0, '%AIPsStore%');
+UPDATE TasksConfigs SET taskType='01b748fe-2e9d-44e4-ae5d-113f74c9a0ba', taskTypePKReference='ebab9878-f42e-4451-a24a-ec709889a858' WHERE pk='fb64af31-8f8a-4fe5-a20d-27ee26c9dda2';
+
 -- /Issue 5187 Develop Storage Service
 
