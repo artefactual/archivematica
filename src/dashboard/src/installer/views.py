@@ -33,7 +33,6 @@ from tastypie.models import ApiKey
 
 import components.helpers as helpers
 from components.administration.forms import StorageSettingsForm
-from components.administration.views import administration_render_storage_directories_to_dicts
 from installer.forms import SuperUserCreationForm
 from main.models import Agent
 
