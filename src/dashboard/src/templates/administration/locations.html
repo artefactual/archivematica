@@ -18,9 +18,22 @@
       <div id="directories"></div>
 
       {% if locations %}
+        <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Path</th>
+          </tr>
+        </thead>
+        <tbody>
         {% for location in locations %}
-          <p>{{ location.relative_path }}</p>
+          <tr>
+            <td>{{ location.description }}</td>
+            <td>{{ location.path }}</td>
+          </tr>
         {% endfor %}
+        </tbody>
+        </table>
       {% else %}
         <p>No available locations.</p>
       {% endif %}
