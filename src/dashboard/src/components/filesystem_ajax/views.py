@@ -33,6 +33,7 @@ import uuid
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions, databaseInterface, databaseFunctions
 from archivematicaCreateStructuredDirectory import createStructuredDirectory
+from components import helpers
 
 # for unciode sorting support
 import locale
@@ -165,7 +166,15 @@ def delete(request):
     )
 
 def get_temp_directory(request):
-    temp_dir = tempfile.mkdtemp()
+    temp_base_dir = helpers.get_client_config_value('temp_dir')
+
+    # use system temp dir if none specifically defined
+    if temp_base_dir == '':
+        temp_dir = tempfile.mkdtemp()
+    else:
+        temp_dir = tempfile.mkdtemp(dir=temp_base_dir)
+
+    #os.chmod(temp_dir, 0o777)
 
     response = {}
     response['tempDir'] = temp_dir
