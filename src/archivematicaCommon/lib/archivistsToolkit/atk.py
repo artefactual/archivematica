@@ -8,7 +8,7 @@ logger.addHandler(logging.NullHandler())
 def connect_db(atdbhost, atdbport, atdbuser, atpass, atdb):
     try:
         db = MySQLdb.connect(atdbhost,atdbuser,atpass,atdb)
-        logger.info('connected to db' + atdb)
+        logger.debug('connected to db' + atdb)
         return db 
     except Exception:
         logger.error('db error')
@@ -19,7 +19,6 @@ def collection_list(db, resource_id, ret=None, resource_type='collection'):
         ret = []
         
     cursor = db.cursor() 
-    #print "looking for resouce: {}".format(resource_id)
     if resource_type == 'collection':
         cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId IS NULL AND resourceId=%s", (resource_id))
     else:
