@@ -37,6 +37,7 @@ import tempfile
 import subprocess
 from components import decorators
 from django.template import RequestContext
+import storageService as storage_service
 
 AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'
 
@@ -289,13 +290,6 @@ def send_thumbnail(request, fileuuid):
 
     return helpers.send_file(request, thumbnail_path)
 
-def get_file_status(uuid):
-   api = slumber.API("http://localhost:8000/api/v1/")
-   file_URI = "/api/v1/file/" + uuid + "/"
-   response = api.file(file_URI).get()
-
-   return response['status']
-
 def aips_pending_deletion():
     # get UUIDs of AIPs where deletion has been requested
     api = slumber.API("http://localhost:8000/api/v1/")
@@ -390,7 +384,10 @@ def list_display(request, current_page_number=None):
                 aips_deleted_or_pending_deletion.index(aip['uuid'])
 
                 # check with storage server to see current status
-                aip_status = get_file_status(aip['uuid'])
+                api = storage_service._storage_api()
+                api_results = api.file.get(uuid=aip['uuid'])
+                aip_data = api_results['objects'][0]
+                aip_status = aip_data['status']
 
                 # delete AIP metadata in ElasticSearch if AIP has been deleted from the
                 # storage server
