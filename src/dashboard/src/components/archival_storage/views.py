@@ -291,12 +291,10 @@ def send_thumbnail(request, fileuuid):
     return helpers.send_file(request, thumbnail_path)
 
 def aips_pending_deletion():
-    # get UUIDs of AIPs where deletion has been requested
-    api = slumber.API("http://localhost:8000/api/v1/")
-    files_URI = "/api/v1/file/"
-    response = api.file(files_URI).get(status='DEL_REQ')
-
     aip_uuids = []
+
+    api = storage_service._storage_api()
+    response = api.file.get(status='DEL_REQ')
 
     for aip in response['objects']:
         aip_uuids.append(aip['uuid'])
