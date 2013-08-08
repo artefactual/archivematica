@@ -257,7 +257,8 @@ def create_file(uuid, origin_location, origin_path, current_location,
     return file_
 
 def get_file_info(uuid=None, origin_location=None, origin_path=None,
-        current_location=None, current_path=None, package_type=None):
+        current_location=None, current_path=None, package_type=None,
+        status=None):
     """ Returns a list of files, optionally filtered by parameters.
 
     Queries the storage service and returns a list of files,
@@ -276,6 +277,7 @@ def get_file_info(uuid=None, origin_location=None, origin_path=None,
                              current_location=current_location,
                              current_path=current_path,
                              package_type=package_type,
+                             status=status,
                              offset=offset)
         logging.debug("Files retrieved: {}".format(files))
         return_files += files['objects']

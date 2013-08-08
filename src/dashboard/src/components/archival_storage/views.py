@@ -293,10 +293,9 @@ def send_thumbnail(request, fileuuid):
 def aips_pending_deletion():
     aip_uuids = []
 
-    api = storage_service._storage_api()
-    response = api.file.get(status='DEL_REQ')
+    aips = storage_service.get_file_info(status='DEL_REQ')
 
-    for aip in response['objects']:
+    for aip in aips:
         aip_uuids.append(aip['uuid'])
 
     return aip_uuids
