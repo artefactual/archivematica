@@ -191,16 +191,13 @@ def aip_delete(request, uuid):
     reason_for_deletion = request.POST.get('reason_for_deletion', '')
 
     try:
-        # send delete request
-        api = storage_service._storage_api()
-        file_URI = "/api/v1/file/" + uuid + "/"
-        api_request = {
-            'event_reason': reason_for_deletion,
-            'pipeline':     elasticSearchFunctions.getDashboardUUID(),
-            'user_email':   request.user.email,
-            'user_id':      request.user.id
-        }
-        response = api.file(file_URI).delete_aip.post(api_request)
+        response = storage_service.request_file_deletion(
+           uuid,
+           request.user.id,
+           request.user.email,
+           reason_for_deletion
+        )
+
         result = response['message']
 
         # mark AIP as having deletion requested
@@ -210,8 +207,8 @@ def aip_delete(request, uuid):
 
     except requests.exceptions.ConnectionError:
         result = 'Unable to connect to storage server. Please contact your administrator.'
-    except:
-        raise Http404
+    except slumber.exceptions.HttpClientError:
+         raise Http404
 
     return render(request, 'archival_storage/delete_request_results.html', locals())
 
@@ -381,9 +378,8 @@ def list_display(request, current_page_number=None):
                 aips_deleted_or_pending_deletion.index(aip['uuid'])
 
                 # check with storage server to see current status
-                api = storage_service._storage_api()
-                api_results = api.file.get(uuid=aip['uuid'])
-                aip_data = api_results['objects'][0]
+                api_results = storage_service.get_file_info(uuid=aip['uuid'])
+                aip_data = api_results[0]
                 aip_status = aip_data['status']
 
                 # delete AIP metadata in ElasticSearch if AIP has been deleted from the

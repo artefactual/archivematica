@@ -207,3 +207,17 @@ def get_file_info(uuid=None, origin_location=None, origin_path=None,
 
     logging.info("Files returned: {}".format(return_files))
     return return_files
+
+def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
+    """ Returns the server response. """
+
+    api = _storage_api()
+    file_URI = "/api/v1/file/" + uuid + "/"
+    api_request = {
+        'event_reason': reason_for_deletion,
+        'pipeline':     get_setting('dashboard_uuid'),
+        'user_email':   user_email,
+        'user_id':      user_id
+    }
+
+    return api.file(file_URI).delete_aip.post(api_request)
