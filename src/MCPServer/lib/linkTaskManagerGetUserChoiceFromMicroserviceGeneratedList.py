@@ -41,6 +41,11 @@ from linkTaskManagerChoice import waitingOnTimer
 from linkTaskManagerGetMicroserviceGeneratedListInStdOut import choicesDic
 from passClasses import replacementDic
 
+import logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="/tmp/archivematica.log",
+    level=logging.INFO)
+
 class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
     def __init__(self, jobChainLink, pk, unit):
         self.choices = []
@@ -60,10 +65,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
             #choiceIndex += 1
         sqlLock.release()
         if isinstance(self.jobChainLink.passVar, list):
-            found = False
             for item in self.jobChainLink.passVar:
-                print >>sys.stderr
-                print >>sys.stderr
                 print >>sys.stderr
                 print >>sys.stderr, isinstance(item, choicesDic), item
                 if isinstance(item, choicesDic):
@@ -71,13 +73,16 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
                         replacementDic_ = {key: value}.__str__()
                         self.choices.append((choiceIndex, description_, replacementDic_))
                         choiceIndex += 1
-                    found = True
                     break
-            if not found:
+            else:
                 print >>sys.stderr, "self.jobChainLink.passVar", self.jobChainLink.passVar
-                throw(exception2)
+                logging.error("ChoicesDic not found in passVar: {}".format(self.jobChainLink.passVar))
+                raise Exception("ChoicesDic not found in passVar: {}".format(self.jobChainLink.passVar))
         else:
-            throw(exception)
+            logging.error("passVar is {} instead of expected list".format(
+                type(self.jobChainLink.passVar)))
+            raise Exception("passVar is {} instead of expected list".format(
+                type(self.jobChainLink.passVar)))
 
         print "choices", self.choices
 
@@ -216,4 +221,3 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
         else:
             rd = [rd]
         self.jobChainLink.linkProcessingComplete(0, rd)
-        
