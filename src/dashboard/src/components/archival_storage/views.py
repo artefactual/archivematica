@@ -375,6 +375,7 @@ def list_display(request, current_page_number=None):
         for aip in aipResults:
             # don't show AIPs that have been deleted or where deletion is pending
             try:
+                # the below line will throw an error if an AIP is deleted or pending deletion
                 aips_deleted_or_pending_deletion.index(aip['uuid'])
 
                 # check with storage server to see current status
@@ -396,7 +397,7 @@ def list_display(request, current_page_number=None):
                         # event, display the reason for rejection and update the AIP's status in
                         # ElasticSearch
                         if 1:
-                            message = 'The deletetion request for AIP ' + aip['uuid'] + ' was rejected.'
+                            message = 'The deletion request for AIP ' + aip['uuid'] + ' was rejected.'
                             messages.append({'text': message})
                             # update the status in ElasticSearch for this AIP
                             document_id = elasticSearchFunctions.document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', aip['uuid'])
