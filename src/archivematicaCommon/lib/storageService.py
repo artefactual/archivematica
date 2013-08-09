@@ -212,7 +212,6 @@ def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
     """ Returns the server response. """
 
     api = _storage_api()
-    file_URI = "/api/v1/file/" + uuid + "/"
     api_request = {
         'event_reason': reason_for_deletion,
         'pipeline':     get_setting('dashboard_uuid'),
@@ -220,4 +219,4 @@ def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
         'user_id':      user_id
     }
 
-    return api.file(file_URI).delete_aip.post(api_request)
+    return api.file(uuid).delete_aip.post(api_request)
