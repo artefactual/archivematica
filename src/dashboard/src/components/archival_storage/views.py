@@ -192,7 +192,7 @@ def aip_delete(request, uuid):
 
     try:
         # send delete request
-        api = slumber.API("http://localhost:8000/api/v1/")
+        api = storage_service._storage_api()
         file_URI = "/api/v1/file/" + uuid + "/"
         api_request = {
             'event_reason': reason_for_deletion,
