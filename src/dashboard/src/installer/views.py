@@ -41,7 +41,7 @@ import FPRClient.main as FPRClient
 import storageService as storage_service
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/tmp/archivematica.log", 
+logging.basicConfig(filename="/tmp/archivematica.log",
     level=logging.INFO)
 
 def welcome(request):
@@ -148,49 +148,24 @@ def storagesetup(request):
     # Display the dashboard UUID on the storage service setup page
     dashboard_uuid = helpers.get_setting('dashboard_uuid', None)
     assert dashboard_uuid is not None
-    # Prefil the storage service URL
+    # Prefill the storage service URL
     inital_data = {'storage_service_url':
         helpers.get_setting('storage_service_url', 'http://localhost:8000')}
     storage_form = StorageSettingsForm(request.POST or None, initial=inital_data)
     if storage_form.is_valid():
         # Set storage service URL
         storage_form.save()
-
-        # Set up default space and locations
         if "use_default" in request.POST:
-            default_space = "/"
-            # Create pipeline
+            shared_path = helpers.get_server_config_value('sharedDirectory')
+            # Create pipeline, tell it to use default setup
             try:
-                storage_service.create_pipeline()
+                storage_service.create_pipeline(create_default_locations=True,
+                    shared_path=shared_path)
             except Exception:
                 # TODO: make this pretty
                 return HttpResponse('Error creating pipeline: is the storage server running? Please contact administrator.')
-            # Check if default space already exists, create if it doesn't
-            space = storage_service.get_space(access_protocol="FS", path=default_space)
-            if len(space) < 1:
-                space = storage_service.create_space(default_space, "FS")
-            else:
-                space = space[0]
-            # Create default AIP storage
-            # TODO get value of %sharedPath%, and add wwww/AIPsStore/
-            default_aip_storage = 'var/archivematica/sharedDirectory/www/AIPsStore/'
-            description = 'Store AIP in standard Archivematica Directory'
-            logging.info("Using default values for storage service; space: {}; AIP storage: {}".format(default_space, default_aip_storage))
-            if not storage_service.get_location(purpose="AS",
-                                        path=default_aip_storage,
-                                        space=space):
-                storage_service.create_location(purpose="AS",
-                                        path=default_aip_storage,
-                                        space=space,
-                                        description=description)
-            # Create currently processing location
-            if not storage_service.get_location(purpose="CP",
-                                        space=space):
-                storage_service.create_location(purpose="CP",
-                                        path=".",
-                                        space=space)
         else:
-            # Storage service manually set up, just register Pipeline
+            # Storage service manually set up, just register Pipeline if possible
             try:
                 storage_service.create_pipeline()
             except Exception:
