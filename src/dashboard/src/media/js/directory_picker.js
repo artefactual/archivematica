@@ -39,7 +39,7 @@ var DirectoryPickerView = fileBrowser.FileExplorer.extend({
     this.render();
 
     var self = this;
-    this.options.actionHandlers = [ 
+    this.options.actionHandlers = this.options.actionHandlers || [ 
       { 
         name: 'Select', 
         description: 'Select directory', 
