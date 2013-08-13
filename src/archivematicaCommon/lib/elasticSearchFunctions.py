@@ -49,6 +49,20 @@ def getElasticsearchServerHostAndPort():
     except:
         return '127.0.0.1:9200'
 
+def wait_for_cluster_yellow_status(conn, wait_between_tries=10, max_tries=10):
+    health = {}      
+    health['status'] = None
+    tries = 0       
+
+    # wait for either yellow or green status
+    while health['status'] != 'yellow' and health['status'] != 'green' and tries < max_tries:
+        tries = tries + 1
+        health = conn.cluster_health()
+
+        # sleep if cluster not healthy
+        if health['status'] != 'yellow' and health['status'] != 'green':
+            time.sleep(wait_between_tries)
+
 def check_server_status_and_create_indexes_if_needed():
     try:
         conn = pyes.ES(getElasticsearchServerHostAndPort())
