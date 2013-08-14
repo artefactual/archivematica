@@ -187,6 +187,7 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS):
         'origin':   getDashboardUUID(),
         'created':  time.time()
     }
+    wait_for_cluster_yellow_status(conn)
     conn.index(aipData, 'aips', 'aip')
 
 def connect_and_get_aip_data(uuid):
@@ -302,6 +303,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName):
                 indexData['METS']['amdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 
                 # index data
+                wait_for_cluster_yellow_status(conn)
                 result = conn.index(indexData, index, type)
 
                 backup_indexed_document(result, indexData, index, type)
@@ -411,6 +413,7 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
             if fileExtension != '':
                 indexData['fileExtension']  = fileExtension[1:].lower()
 
+            wait_for_cluster_yellow_status(conn)
             conn.index(indexData, index, type)
 
             filesIndexed = filesIndexed + 1
