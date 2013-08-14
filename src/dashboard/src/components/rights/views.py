@@ -19,7 +19,7 @@ from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
 from django.shortcuts import redirect, render
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils import simplejson
+import json
 from contrib import utils
 from components.rights import forms
 from main import models
@@ -493,7 +493,10 @@ def rights_holders_autocomplete(request):
         value = agent.linkingagentidentifiervalue + ' [' + str(agent.id) + ']'
         response_data[value] = value
 
-    return HttpResponse(simplejson.dumps(response_data), mimetype='application/json')
+    return HttpResponse(
+        json.dumps(response_data),
+        mimetype='application/json'
+    )
 
 def rights_list(request, uuid, section):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')

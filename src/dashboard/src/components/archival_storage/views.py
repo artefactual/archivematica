@@ -18,7 +18,7 @@
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.utils import simplejson
+import json
 from components.archival_storage import forms
 from django.conf import settings
 from main import models
@@ -435,7 +435,7 @@ def document_json_response(document_id_modified, type):
     conn.request("GET", "/aips/" + type + "/" + document_id)
     response = conn.getresponse()
     data = response.read()
-    pretty_json = simplejson.dumps(simplejson.loads(data), sort_keys=True, indent=2)
+    pretty_json = json.dumps(json.loads(data), sort_keys=True, indent=2)
     return HttpResponse(pretty_json, content_type='application/json')
 
 def file_json(request, document_id_modified):

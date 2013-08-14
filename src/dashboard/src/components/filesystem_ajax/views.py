@@ -17,7 +17,7 @@
 
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.db import connection
-from django.utils import simplejson
+import json
 import os
 from subprocess import call
 import shutil
@@ -102,7 +102,7 @@ def directory_children_proxy_to_storage_server(request, location_uuid, basePath=
     response = storage_service.browse_location(location_uuid, path)
 
     return HttpResponse(
-        simplejson.JSONEncoder(encoding='utf-8').encode(response),
+        json.dumps(response),
         mimetype='application/json'
     )
 
@@ -131,7 +131,7 @@ def directory_children(request, basePath=False):
     }
 
     return HttpResponse(
-        simplejson.JSONEncoder(encoding='utf-8').encode(response),
+        json.dumps(response),
         mimetype='application/json'
     )
 
@@ -148,7 +148,7 @@ def contents(request):
     path = request.GET.get('path', '/home')
     response = directory_to_dict(path)
     return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
+        json.dumps(response),
         mimetype='application/json'
     )
 
@@ -176,7 +176,7 @@ def delete(request):
       response['message'] = 'Delete successful.'
 
     return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
+        json.dumps(response),
         mimetype='application/json'
     )
 
@@ -187,7 +187,7 @@ def get_temp_directory(request):
     response['tempDir'] = temp_dir
 
     return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
+        json.dumps(response),
         mimetype='application/json'
     )
 
@@ -222,21 +222,7 @@ def copy_transfer_component(request):
                 # cycle through each path copying files/dirs inside it to transfer dir
                 for entry in sorted_directory_list(path):
                     entry_path = os.path.join(path, entry)
-                    if os.path.isdir(entry_path):
-                        rsync_copy(entry_path, transfer_dir)
-                        """
-                        destination_dir = os.path.join(transfer_dir, entry)
-                        try:
-                            shutil.copytree(
-                                entry_path,
-                                destination_dir
-                            )
-                        except:
-                            error = 'Error copying from ' + entry_path + ' to ' + destination_dir + '. (' + str(sys.exc_info()[0]) + ')'
-                        """
-                    else:
-                        rsync_copy(entry_path, transfer_dir)
-                        #shutil.copy(entry_path, transfer_dir)
+                    rsync_copy(entry_path, transfer_dir)
 
                     paths_copied = paths_copied + 1
 
@@ -249,7 +235,7 @@ def copy_transfer_component(request):
       response['message'] = 'Copied ' + str(paths_copied) + ' entries.'
 
     return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
+        json.dumps(response),
         mimetype='application/json'
     )
 
@@ -279,21 +265,6 @@ def copy_to_originals(request):
         #moveSIPTo autoProcessSIPDirectory
         shutil.move(tmpSIPDir, destSIPDir)
 
-        """
-        # confine destination to subdir of originals
-        filepath = os.path.join('/', filepath)
-        destination = os.path.join(ORIGINALS_DIR, os.path.basename(filepath))
-        destination = pad_destination_filepath_if_it_already_exists(destination)
-        #error = 'Copying from ' + filepath + ' to ' + destination + '.'
-        try:
-            shutil.copytree(
-                filepath,
-                destination
-            )
-        except:
-            error = 'Error copying from ' + filepath + ' to ' + destination + '.'
-        """
-
     response = {}
 
     if error != None:
@@ -303,7 +274,7 @@ def copy_to_originals(request):
         response['message'] = 'Copy successful.'
 
     return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
+        json.dumps(response),
         mimetype='application/json'
     )
 
@@ -367,46 +338,12 @@ def copy_to_start_transfer(request):
         response['message'] = 'Copy successful.'
 
     return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
+        json.dumps(response),
         mimetype='application/json'
     )
 
 def copy_from_arrange_to_completed(request):
     return copy_to_originals(request)
-    """
-    sourcepath  = request.POST.get('filepath', '')
-
-    error = check_filepath_exists('/' + sourcepath)
-
-    if error == None:
-        sourcepath = os.path.join('/', sourcepath)
-        destination = os.path.join(COMPLETED_TRANSFERS_DIR, os.path.basename(sourcepath))
-
-        # do check if directory already exists
-        if os.path.exists(destination):
-            error = 'A transfer with this directory name has already been started.'
-        else:
-            try:
-                shutil.copytree(
-                    sourcepath,
-                    destination
-                )
-            except:
-                error = 'Error copying from ' + filepath + ' to ' + destination + '.'
-
-    response = {}
-
-    if error != None:
-        response['message'] = error
-        response['error']   = True
-    else:
-        response['message'] = 'Transfer started.'
-
-    return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
-        mimetype='application/json'
-    )
-    """
 
 def copy_to_arrange(request):
     sourcepath  = request.POST.get('filepath', '')
@@ -464,7 +401,7 @@ def copy_to_arrange(request):
         response['message'] = 'Copy successful.'
 
     return HttpResponse(
-      simplejson.JSONEncoder().encode(response),
+      json.dumps(response),
       mimetype='application/json'
     )
 

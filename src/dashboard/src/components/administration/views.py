@@ -21,7 +21,6 @@ from django.core.urlresolvers import reverse
 from django.forms.models import modelformset_factory
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils import simplejson
 
 from main import forms, models
 import components.administration.views_processing as processing_views

@@ -19,7 +19,7 @@ from django.db.models import Max
 from django.conf import settings as django_settings
 from django.shortcuts import render
 from django.http import Http404, HttpResponse
-from django.utils import simplejson
+import json
 from contrib.mcp.client import MCPClient
 from contrib import utils
 from main import models
@@ -110,7 +110,7 @@ def status(request, uuid=None):
     response = {}
     response['objects'] = objects
     response['mcp'] = mcp_available
-    return HttpResponse(simplejson.JSONEncoder(default=encoder).encode(response), mimetype='application/json')
+    return HttpResponse(json.JSONEncoder(default=encoder).encode(response), mimetype='application/json')
 
 def detail(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid)
@@ -128,7 +128,7 @@ def delete(request, uuid):
         transfer = models.Transfer.objects.get(uuid__exact=uuid)
         transfer.hidden = True
         transfer.save()
-        response = simplejson.JSONEncoder().encode({'removed': True})
+        response = json.dumps({'removed': True})
         return HttpResponse(response, mimetype='application/json')
     except:
         raise Http404
