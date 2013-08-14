@@ -34,7 +34,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions, databaseInterface, databaseFunctions
 from archivematicaCreateStructuredDirectory import createStructuredDirectory
 from components import helpers
-import requests
+import storageService as storage_service
 
 # for unciode sorting support
 import locale
@@ -99,11 +99,10 @@ def directory_children_proxy_to_storage_server(request, location_uuid, basePath=
     path = path + request.GET.get('base_path', '')
     path = path + request.GET.get('path', '')
 
-    url = 'http://127.0.0.1:8000/api/v1/location/' + location_uuid + '/browse/'
-    response = requests.get(url, params={'path': path})
+    response = storage_service.browse_location(location_uuid, path)
 
     return HttpResponse(
-        response.text,
+        simplejson.JSONEncoder(encoding='utf-8').encode(response),
         mimetype='application/json'
     )
 

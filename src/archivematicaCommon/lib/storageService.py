@@ -117,6 +117,11 @@ def get_location_by_uri(uri):
     # TODO check that location is associated with this pipeline
     return api.location(uri).get()
 
+def browse_location(uuid, path):
+    """ Browse files in a location. """
+    api = _storage_api()
+    return api.location(uuid).browse.get(path=path)
+
 ############# SPACES #############
 
 def get_space(access_protocol=None, path=None):
