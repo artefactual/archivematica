@@ -24,6 +24,11 @@ from lxml import etree
 from components import helpers
 from components.helpers import hidden_features
 
+path = "/usr/lib/archivematica/archivematicaCommon"
+if path not in sys.path:
+    sys.path.append(path)
+import storageService as storage_service
+
 class PreconfiguredChoices:
     xml     = None
     choices = None
@@ -110,16 +115,31 @@ def index(request):
         {
             "name":  "compression_level",
            "label": "Select compression level"
-        },
+        }
+    ]
+
+    """ Return a dict of AIP Storage Locations and their descriptions."""
+    storage_directories = storage_service.get_location(purpose="AS")
+
+    storage_directory_options =  [{'value': '', 'label': '--Actions--'}]
+
+    for storage_dir in storage_directories:
+        storage_directory_options.append({
+            'value': storage_dir['resource_uri'],
+            'label': storage_dir['description']
+        })
+
+    other_fields = [
         {
-            "name":  "store_aip_location",
-            "label": "Store AIP location"
+            "name":    "store_aip_location",
+            "label":   "Store AIP location",
+            "options": storage_directory_options
         }
     ]
 
     populate_select_fields_with_replace_dict_options(replace_dict_fields)
 
-    select_fields = chain_choice_fields + replace_dict_fields
+    select_fields = chain_choice_fields + replace_dict_fields + other_fields
 
     if request.method == 'POST':
         # render XML using request data
