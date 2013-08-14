@@ -97,7 +97,7 @@ def get_location(path=None, purpose=None, space=None):
     if pipeline is None:
         return False
     while True:
-        locations = api.location.get(pipeline=pipeline['uuid'],
+        locations = api.location.get(pipeline__uuid=pipeline['uuid'],
                                      relative_path=path,
                                      purpose=purpose,
                                      space=space,
