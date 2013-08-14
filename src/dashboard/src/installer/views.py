@@ -125,8 +125,8 @@ def fprupload(request):
             response_data['result'] = 'failed to fetch from ' + url
     except:
         response_data['result'] = 'failed to post to ' + url   
- 
-    return HttpResponse(json.dumps(response_data), content_type="application/json")            
+
+    return helpers.json_response(response_data) 
 
 def fprdownload(request):
     response_data = {}
@@ -139,11 +139,9 @@ def fprdownload(request):
     except:
         response_data['response'] = 'unable to connect to FPR Server'
         response_data['result'] = 'failed'
-     
-    myresult = json.dumps(response_data)
 
-    return HttpResponse(myresult, mimetype='application/json')
-
+    return helpers.json_response(response_data)
+ 
 def storagesetup(request):
     # Display the dashboard UUID on the storage service setup page
     dashboard_uuid = helpers.get_setting('dashboard_uuid', None)

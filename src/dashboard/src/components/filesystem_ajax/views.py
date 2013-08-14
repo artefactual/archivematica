@@ -17,7 +17,6 @@
 
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.db import connection
-import json
 import os
 from subprocess import call
 import shutil
@@ -101,10 +100,7 @@ def directory_children_proxy_to_storage_server(request, location_uuid, basePath=
 
     response = storage_service.browse_location(location_uuid, path)
 
-    return HttpResponse(
-        json.dumps(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def directory_children(request, basePath=False):
     path = ''
@@ -130,10 +126,7 @@ def directory_children(request, basePath=False):
       'directories': directories
     }
 
-    return HttpResponse(
-        json.dumps(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def directory_contents(path, contents=[]):
     entries = sorted_directory_list(path)
@@ -147,10 +140,7 @@ def directory_contents(path, contents=[]):
 def contents(request):
     path = request.GET.get('path', '/home')
     response = directory_to_dict(path)
-    return HttpResponse(
-        json.dumps(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def delete(request):
     filepath = request.POST.get('filepath', '')
@@ -175,10 +165,7 @@ def delete(request):
     else:
       response['message'] = 'Delete successful.'
 
-    return HttpResponse(
-        json.dumps(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def get_temp_directory(request):
     temp_dir = tempfile.mkdtemp()
@@ -186,10 +173,7 @@ def get_temp_directory(request):
     response = {}
     response['tempDir'] = temp_dir
 
-    return HttpResponse(
-        json.dumps(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def copy_transfer_component(request):
     transfer_name = archivematicaFunctions.unicodeToStr(request.POST.get('name', ''))
@@ -234,10 +218,7 @@ def copy_transfer_component(request):
     else:
       response['message'] = 'Copied ' + str(paths_copied) + ' entries.'
 
-    return HttpResponse(
-        json.dumps(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def copy_to_originals(request):
     filepath = request.POST.get('filepath', '')
@@ -273,10 +254,7 @@ def copy_to_originals(request):
     else:
         response['message'] = 'Copy successful.'
 
-    return HttpResponse(
-        json.dumps(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def copy_to_start_transfer(request):
     filepath  = archivematicaFunctions.unicodeToStr(request.POST.get('filepath', ''))
@@ -337,10 +315,7 @@ def copy_to_start_transfer(request):
     else:
         response['message'] = 'Copy successful.'
 
-    return HttpResponse(
-        json.dumps(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def copy_from_arrange_to_completed(request):
     return copy_to_originals(request)
@@ -400,10 +375,7 @@ def copy_to_arrange(request):
     else:
         response['message'] = 'Copy successful.'
 
-    return HttpResponse(
-      json.dumps(response),
-      mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def check_filepath_exists(filepath):
     error = None

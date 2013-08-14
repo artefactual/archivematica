@@ -22,6 +22,7 @@ import mimetypes
 import os
 import pprint
 import urllib
+import json
 
 from django.utils.dateformat import format
 from django.core.paginator import Paginator
@@ -35,6 +36,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica.log", 
     level=logging.INFO)
 
+# Used for debugging
 def pr(object):
     return pprint.pformat(object)
 
@@ -69,6 +71,12 @@ def keynat(string):
         else:
             r.append(c.lower())
     return r
+
+def json_response(data):
+    return HttpResponse(
+        json.dumps(data),
+        mimetype='application/json'
+    )
 
 def pager(objects, items_per_page, current_page_number):
     page = {}

@@ -103,10 +103,7 @@ def unapproved_transfers(request):
                         mimetype='application/json'
                     )
                 else:
-                    return HttpResponse(
-                        json.dumps(response),
-                        mimetype='application/json'
-                    )
+                    return helpers.json_response(response)
         else:
             response['message'] = auth_error
             response['error']   = True 
@@ -148,10 +145,7 @@ def approve_transfer(request):
                     mimetype='application/json'
                 )
             else:
-                return HttpResponse(
-                    json.dumps(response),
-                    mimetype='application/json'
-                )
+                return helpers.json_response(response)
         else:
             response['message'] = auth_error
             response['error']   = True

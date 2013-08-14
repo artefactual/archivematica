@@ -128,7 +128,7 @@ def delete(request, uuid):
         transfer = models.Transfer.objects.get(uuid__exact=uuid)
         transfer.hidden = True
         transfer.save()
-        response = json.dumps({'removed': True})
-        return HttpResponse(response, mimetype='application/json')
+        response = {'removed': True}
+        return helpers.json_response(response)
     except:
         raise Http404
