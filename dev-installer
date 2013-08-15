@@ -135,7 +135,7 @@ if [[ $a == "Y" || $a == "y" ]]; then
         sudo ln --no-dereference --force --symbolic ${WDIR}/atom-git /var/www/ica-atom
 
         # Enable SWORD plugin
-        sed -i "s/'qbAclPlugin',/      'qbAclPlugin',\n'qtSwordPlugin',/g" /var/www/atom/config/ProjectConfiguration.class.php
+        sed -i "s/'qbAclPlugin',/      'qbAclPlugin',\n'qtSwordPlugin',/g" /var/www/ica-atom/config/ProjectConfiguration.class.php
 
         # Permissions
         sudo chown -R www-data:www-data ${WDIR}/atom-git
