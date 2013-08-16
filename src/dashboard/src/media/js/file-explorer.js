@@ -171,6 +171,7 @@
       this.model              = this.options.directory;
       this.explorer           = this.options.explorer;
       this.ajaxChildDataUrl   = this.options.ajaxChildDataUrl;
+      this.itemsPerPage       = this.options.itemsPerPage;
       this.levelTemplate      = _.template(this.options.levelTemplate);
       this.entryTemplate      = _.template(this.options.entryTemplate);
       this.closeDirsByDefault = this.options.closeDirsByDefault;
@@ -181,7 +182,6 @@
     },
 
     activateHover: function(el) {
-      console.log('activate');
       $(el).hover(
         function() {
           $(this).addClass('backbone-file-exporer-entry-highlighted');
@@ -192,16 +192,78 @@
       );
     },
 
-    renderChildren: function (self, entry, levelEl, level) {
+    renderPagingLinks: function(entry, levelEl, level, index, indexStart, previousOnly, previousIndexStarts) {
+      var self = this;
+      var $pagingEl = $('<div9 style="padding:6px"></div>');
+
+      // add link to previous entries, if any
+      if (indexStart > 0) {
+        var prevHTML = '<span style="color:red">Previous ' + self.itemsPerPage + '</span>';
+        if (!previousOnly) {
+          prevHTML = prevHTML + '<span>&nbsp;|&nbsp;</span>';
+        }
+        var $prevEl = $(prevHTML);
+        (function(index) {
+          $prevEl.click(function() {
+            $(levelEl).html('');
+            $pagingEl.remove();
+            self.renderChildren(self, entry, levelEl, level, previousIndexStarts.pop(), previousIndexStarts);
+            $(levelEl).show();
+          });
+        })(index);
+        $pagingEl.append($prevEl);
+      }
+
+      if (!previousOnly) {
+        // add link to next entries
+        var $nextEl = $('<span style="color:red">Next ' + self.itemsPerPage + '</span>');
+        (function(index) {
+          $nextEl.click(function() {
+            $(levelEl).html('');
+            $pagingEl.remove();
+            previousIndexStarts.push(indexStart);
+            self.renderChildren(self, entry, levelEl, level, index, previousIndexStarts);
+            $(levelEl).show();
+          });
+        })(index);
+        $pagingEl.append($nextEl);
+      }
+
+      var $pagingInfo = '<span>()</span>';
+
+      $(levelEl).append($pagingEl);
+    },
+
+    renderChildren: function (self, entry, levelEl, level, indexStart, previousIndexStarts) {
+      if (typeof previousIndexStarts == 'undefined') {
+        previousIndexStarts = [];
+      }
+
       // if entry is a directory, render children to directory level
       if (entry.children != undefined) {
+        var counter = 0,
+            pagingDisplayed = false;
 
-        for (var index in entry.children) {
+        if (indexStart == undefined) {
+          indexStart = 0;
+        }
+
+        for (var index = indexStart; index < entry.children.length; index++) {
           var child = entry.children[index]
             , allowDisplay = true;
 
           if (self.entryDisplayFilter) {
             allowDisplay = self.entryDisplayFilter(child);
+          }
+
+          if (self.itemsPerPage && counter >= self.itemsPerPage) {
+            allowDisplay = false;
+            if (!pagingDisplayed) {
+              self.renderPagingLinks(entry, levelEl, level, index, indexStart, false, previousIndexStarts);
+              pagingDisplayed = true;
+            }
+          } else if(allowDisplay) {
+            counter++;
           }
 
           // if display is allowed, do
@@ -253,6 +315,10 @@
             }
           }
         }
+
+        if (indexStart > 0 && !pagingDisplayed) {
+          self.renderPagingLinks(entry, levelEl, level, index, indexStart, true, previousIndexStarts);
+        }
       }
     },
 
@@ -287,7 +353,6 @@
                   path: entry.path()
                 },
                 success: function(results) {
-                  //console.log(results);
                   for(var index in results.entries) {
                     var entryName = results.entries[index];
                     if (results.directories.indexOf(entryName) == -1) {
@@ -297,22 +362,21 @@
                     }
                   }
 
-              // this code repeats below and should be refactored
-              self.renderChildren(self, entry, levelEl, level);
+                  // this code repeats below and should be refactored
+                  self.renderChildren(self, entry, levelEl, level);
 
-              // update zebra striping
-              $('.backbone-file-explorer-entry').removeClass(
-                'backbone-file-explorer-entry-odd'
-              );
-              $('.backbone-file-explorer-entry:visible:odd').addClass(
-                'backbone-file-explorer-entry-odd'
-              );
+                  // update zebra striping
+                  $('.backbone-file-explorer-entry').removeClass(
+                    'backbone-file-explorer-entry-odd'
+                  );
+                  $('.backbone-file-explorer-entry:visible:odd').addClass(
+                    'backbone-file-explorer-entry-odd'
+                  );
 
-              // re-bind drag/drop
-              if (self.explorer.moveHandler) {
-                self.explorer.initDragAndDrop();
-              }
-
+                  // re-bind drag/drop
+                  if (self.explorer.moveHandler) {
+                    self.explorer.initDragAndDrop();
+                  }
                 }
               });
             } else {
@@ -381,6 +445,7 @@
       this.ajaxChildDataUrl = this.options.ajaxChildDataUrl;
       this.directory        = this.options.directory;
       this.structure        = this.options.structure;
+      this.itemsPerPage     = this.options.itemsPerPage || false;
       this.moveHandler      = this.options.moveHandler;
       this.openDirs         = this.options.openDirs;
       this.openDirs         = this.openDirs || [];
@@ -535,6 +600,7 @@
         ajaxChildDataUrl: this.ajaxChildDataUrl,
         directory: directory,
         openDirs: this.openDirs,
+        itemsPerPage: this.itemsPerPage,
         levelTemplate: this.options.levelTemplate,
         entryTemplate: this.options.entryTemplate,
         closeDirsByDefault: this.options.closeDirsByDefault,
