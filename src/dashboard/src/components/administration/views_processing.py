@@ -15,12 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.core.urlresolvers import reverse
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from main import models
-import sys, os
 from lxml import etree
+import os
+import sys
+
+from django.core.urlresolvers import reverse
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+
+from main import models
 from components import helpers
 from components.helpers import hidden_features
 
@@ -114,21 +118,22 @@ def index(request):
         },
         {
             "name":  "compression_level",
-           "label": "Select compression level"
+            "label": "Select compression level"
         }
     ]
 
     """ Return a dict of AIP Storage Locations and their descriptions."""
-    storage_directories = storage_service.get_location(purpose="AS")
-
-    storage_directory_options =  [{'value': '', 'label': '--Actions--'}]
-
-    for storage_dir in storage_directories:
-        storage_directory_options.append({
-            'value': storage_dir['resource_uri'],
-            'label': storage_dir['description']
-        })
-
+    storage_directory_options = [{'value': '', 'label': '--Actions--'}]
+    try:
+        storage_directories = storage_service.get_location(purpose="AS")
+    except Exception:
+        messages.warning(request, 'Error retrieving AIP storage locations: is the storage server running? Please contact an administrator.')
+    else:
+        for storage_dir in storage_directories:
+            storage_directory_options.append({
+                'value': storage_dir['resource_uri'],
+                'label': storage_dir['description']
+            })
     other_fields = [
         {
             "name":    "store_aip_location",

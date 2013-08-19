@@ -15,29 +15,38 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.shortcuts import render
-from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+import httplib
 import json
-from components.archival_storage import forms
-from django.conf import settings
-from main import models
-from components import advanced_search
-from components import helpers
+import logging
 import os
-import sys
-import slumber
 import requests
+import slumber
+import subprocess
+import sys
+import tempfile
+
+from django.contrib import messages
+from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, Http404
+from django.shortcuts import render
+from django.template import RequestContext
+
+from main import models
+from components.archival_storage import forms
+from components import advanced_search
+from components import decorators
+from components import helpers
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
+import storageService as storage_service
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
-import httplib
-import tempfile
-import subprocess
-from components import decorators
-from django.template import RequestContext
-import storageService as storage_service
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="/tmp/archivematica.log",
+    level=logging.INFO)
+
 
 AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'
 
@@ -289,12 +298,14 @@ def send_thumbnail(request, fileuuid):
 
 def aips_pending_deletion():
     aip_uuids = []
-
-    aips = storage_service.get_file_info(status='DEL_REQ')
-
-    for aip in aips:
-        aip_uuids.append(aip['uuid'])
-
+    try:
+        aips = storage_service.get_file_info(status='DEL_REQ')
+    except Exception as e:
+        # TODO this should be messages.warning, but we need 'request' here
+        logging.warning("Error retrieving AIPs pending deletion: is the storage server running?  Error: {}".format(e))
+    else:
+        for aip in aips:
+            aip_uuids.append(aip['uuid'])
     return aip_uuids
 
 def elasticsearch_query_excluding_aips_pending_deletion(uuid_field_name):

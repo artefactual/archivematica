@@ -23,11 +23,12 @@ import sys
 import uuid
 
 from django.conf import settings as django_settings
+from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 
 from tastypie.models import ApiKey
 
@@ -160,8 +161,7 @@ def storagesetup(request):
                 storage_service.create_pipeline(create_default_locations=True,
                     shared_path=shared_path)
             except Exception:
-                # TODO: make this pretty
-                return HttpResponse('Error creating pipeline: is the storage server running? Please contact administrator.')
+                messages.warning(request, 'Error creating pipeline: is the storage server running? Please contact an administrator.')
         else:
             # Storage service manually set up, just register Pipeline if possible
             try:

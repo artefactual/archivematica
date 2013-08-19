@@ -18,9 +18,10 @@
 import logging
 
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 from django.forms.models import modelformset_factory
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
 
 from main import forms, models
 import components.administration.views_processing as processing_views
@@ -152,8 +153,7 @@ def storage(request):
     try:
         locations = storage_service.get_location(purpose="AS")
     except:
-        # TODO: make this pretty
-        return HttpResponse('Error retrieving locations: is the storage server running? Please contact administrator.')
+        messages.warning(request, 'Error retrieving locations: is the storage server running? Please contact an administrator.')
 
     system_directory_description = 'Available transfer source'
     return render(request, 'administration/locations.html', locals())
@@ -162,8 +162,7 @@ def sources(request):
     try:
         locations = storage_service.get_location(purpose="TS")
     except:
-        # TODO: make this pretty
-        return HttpResponse('Error retrieving locations: is the storage server running? Please contact administrator.')
+        messages.warning(request, 'Error retrieving locations: is the storage server running? Please contact an administrator.')
 
     system_directory_description = 'Available transfer source'
     return render(request, 'administration/locations.html', locals())
@@ -214,5 +213,12 @@ def general(request):
         storage_form.save()
 
     dashboard_uuid = helpers.get_setting('dashboard_uuid')
+    try:
+        pipeline = storage_service._get_pipeline(dashboard_uuid)
+    except Exception :
+        messages.warning(request, "Storage server inaccessible.  Please contact an administrator or update storage service URL below.")
+    else:
+        if not pipeline:
+            messages.warning(request, "This pipeline is not registered with the storage service or has been disabled in the storage service.  Please contact an administrator.")
     hide_features = helpers.hidden_features()
     return render(request, 'administration/general.html', locals())

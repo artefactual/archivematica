@@ -15,18 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import calendar
+import json
+import logging
+from lxml import etree
+import os
+
 from django.db.models import Max
 from django.conf import settings as django_settings
+from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import Http404, HttpResponse
-import json
+from django.utils.safestring import mark_safe
+
 from contrib.mcp.client import MCPClient
 from contrib import utils
+
 from main import models
-from lxml import etree
-import calendar
-import os
-import logging
 from components import helpers
 import components.decorators as decorators
 import storageService as storage_service
@@ -44,10 +50,13 @@ def grid(request):
     try:
         source_directories = storage_service.get_location(purpose="TS")
     except:
-        # TODO: make this pretty
-        return HttpResponse('Error retrieving source directories: is the storage server running? Please contact administrator.')
-
-    logging.debug("Source directories found: {}".format(source_directories))
+        messages.warning(request, 'Error retrieving source directories: is the storage server running? Please contact an administrator.')
+    else:
+        logging.debug("Source directories found: {}".format(source_directories))
+        if not source_directories:
+            msg = "Please choose at least one transfer source directory in <a href='{source_admin}''>the administration tab</a> to begin.".format(
+                source_admin=reverse('components.administration.views.sources'))
+            messages.warning(request, mark_safe(msg))
 
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
