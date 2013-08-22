@@ -22,39 +22,50 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import os
 import sys
-#sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import databaseFunctions
+import databaseInterface
 
-
-
-#"%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%fileUUID%" "%filePath%"
 SIPDirectory = sys.argv[1]
-accessDir = os.path.join(SIPDirectory, "objects/manualNormalization/access")
-preservationDir = os.path.join(SIPDirectory, "objects/manualNormalization/preservation")
-manualNormalizationDir = os.path.join(SIPDirectory, "objects/manualNormalization")
+manual_normalization_dir = os.path.join(SIPDirectory, "objects", "manualNormalization")
 
-global errorCount
 errorCount = 0
 
-
 def recursivelyRemoveEmptyDirectories(dir):
-    global errorCount
+    error_count = 0
     for root, dirs, files in os.walk(dir,topdown=False):
-        for directory in dirs:
+       for directory in dirs:
             try:
                 os.rmdir(os.path.join(root, directory))
-            except Exception as inst:
-                print directory
-                print >>sys.stderr, type(inst), inst.args      # the exception instance
-                errorCount+= 1
+            except OSError as e:
+                print >>sys.stderr, "{0} could not be deleted: {1}".format(
+                    directory, e.args)
+                error_count+= 1
+    return error_count;
 
+if os.path.isdir(manual_normalization_dir):
+    # Delete normalization.csv if present
+    normalization_csv = os.path.join(manual_normalization_dir, 'normalization.csv')
+    if os.path.isfile(normalization_csv):
+        os.remove(normalization_csv)
+        # Need SIP UUID to get file UUID to remove file in DB
+        sipUUID = SIPDirectory[-37:-1] # Account for trailing /
+        sql = """SELECT fileUUID 
+                 FROM Files 
+                 WHERE removedTime = 0 AND 
+                    Files.originalLocation LIKE '%normalization.csv' AND 
+                    SIPUUID='{sipUUID}';""".format(sipUUID=sipUUID)
+        rows = databaseInterface.queryAllSQL(sql)
+        fileUUID = rows[0][0]
+        databaseFunctions.fileWasRemoved(fileUUID)
 
-if os.path.isdir(manualNormalizationDir) and not errorCount:
+    # Recursively delete empty manual normalization dir
     try:
-        recursivelyRemoveEmptyDirectories(manualNormalizationDir)
-        os.rmdir(manualNormalizationDir)
-    except Exception as inst:
-        print >>sys.stderr, type(inst)     # the exception instance
-        print >>sys.stderr, inst.args
-        errorCount+= 1
+        errorCount += recursivelyRemoveEmptyDirectories(manual_normalization_dir)
+        os.rmdir(manual_normalization_dir)
+    except OSError as e:
+        print >>sys.stderr, "{0} could not be deleted: {1}".format(
+            directory, e.args)
+        errorCount += 1
 
 exit(errorCount)

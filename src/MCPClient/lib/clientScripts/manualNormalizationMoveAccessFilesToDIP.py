@@ -20,15 +20,12 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import sys
 import os
+import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
+import fileOperations
 #databaseInterface.printSQL = True
-
-while False:
-    import time
-    time.sleep(10)
 
 #--sipUUID "%SIPUUID%" --sipDirectory "%SIPDirectory%" --filePath "%relativeLocation%"
 from optparse import OptionParser
@@ -38,12 +35,14 @@ parser.add_option("-d",  "--sipDirectory", action="store", dest="sipDirectory", 
 parser.add_option("-f",  "--filePath", action="store", dest="filePath", default="") #transferUUID/sipUUID
 (opts, args) = parser.parse_args()
 
-
+# Search for original file associated with the access file given in filePath
 filePathLike = opts.filePath.replace(os.path.join(opts.sipDirectory, "objects", "manualNormalization", "access"), "%SIPDirectory%objects", 1)
 i = filePathLike.rfind(".")
 if i != -1:
      filePathLike = filePathLike[:i+1]
+     # Matches "path/to/file/filename." Includes . so it doesn't false match foobar.txt when we wanted foo.txt
      filePathLike1 = databaseInterface.MySQLdb.escape_string(filePathLike).replace("%", "\%") + "%"
+     # Matches the exact filename.  For files with no extension.
      filePathLike2 = databaseInterface.MySQLdb.escape_string(filePathLike)[:-1]
      
 unitIdentifierType = "sipUUID"
@@ -54,12 +53,48 @@ if not len(rows):
     #If not found try without extension
     sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation = '" + filePathLike2 + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
 rows = databaseInterface.queryAllSQL(sql)
-if len(rows) > 1:
-    print >>sys.stderr, "Too many possible files for: ", opts.filePath.replace(opts.sipDirectory, "%SIPDirectory%", 1) 
-    exit(2)
-elif len(rows) < 1:
-    print >>sys.stderr, "No matching file for: ", opts.filePath.replace(opts.sipDirectory, "%SIPDirectory%", 1) 
-    exit(3)
+if len(rows) != 1:
+    # Original file was not found, or there is more than one original file with
+    # the same filename (differing extensions)
+    # Look for a CSV that will specify the mapping
+    csv_path = os.path.join(opts.sipDirectory, "objects", "manualNormalization", 
+        "normalization.csv")
+    if os.path.isfile(csv_path):
+        try:
+            access_file = opts.filePath[opts.filePath.index('manualNormalization/access/'):]
+        except ValueError:
+            print >>sys.stderr, "{0} not in manualNormalization directory".format(opts.filePath)
+            exit(4)
+        original = fileOperations.findFileInNormalizatonCSV(csv_path,
+            "access", access_file)
+        if original == None:
+            if len(rows) < 1:
+                print >>sys.stderr, "No matching file for: {0}".format(
+                    opts.filePath.replace(opts.sipDirectory, "%SIPDirectory%"))
+                exit(3)
+            else:
+                print >>sys.stderr, "Could not find {access_file} in {filename}".format(
+                        access_file=access_file, filename=csv_path)
+                exit(2)
+        # If we found the original file, retrieve it from the DB
+        sql = """SELECT Files.fileUUID, Files.currentLocation 
+                 FROM Files 
+                 WHERE removedTime = 0 AND 
+                    fileGrpUse='original' AND 
+                    Files.currentLocation LIKE '%{filename}' AND 
+                    {unitIdentifierType} = '{unitIdentifier}';""".format(
+                filename=original, unitIdentifierType=unitIdentifierType,
+                unitIdentifier=unitIdentifier)
+        rows = databaseInterface.queryAllSQL(sql)
+    elif len(rows) < 1:
+        print >>sys.stderr, "No matching file for: ", opts.filePath.replace(
+            opts.sipDirectory, "%SIPDirectory%", 1)
+        exit(3)
+    else: # len(rows) > 1
+        print >>sys.stderr, "Too many possible files for: ", opts.filePath.replace(opts.sipDirectory, "%SIPDirectory%", 1) 
+        exit(2)
+
+# We found the original file somewhere above, get the UUID and path
 for row in rows:
     originalFileUUID, originalFilePath = row
 
@@ -71,7 +106,7 @@ dstFile = originalFileUUID + "-" + os.path.basename(opts.filePath)
 i = 0
 while os.path.exists(os.path.join(dstDir, dstFile)):
     i+=1
-    dstFile = originalFileUUID + "-" + i.__str__() + "-" + os.path.basename(opts.filePath)
+    dstFile = originalFileUUID + "-" + str(i) + "-" + os.path.basename(opts.filePath)
     
 try:
     if not os.path.isdir(dstDir):

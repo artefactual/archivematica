@@ -20,17 +20,14 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import sys
 import os
+import sys
 import uuid
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
-from databaseFunctions import insertIntoEvents
-from databaseFunctions import insertIntoDerivations
+import databaseFunctions
+import fileOperations
 #databaseInterface.printSQL = True
-while False:
-    import time
-    time.sleep(10)
 
 #"%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%fileUUID%" "%filePath%"
 SIPUUID = sys.argv[1]
@@ -40,13 +37,16 @@ fileUUID = sys.argv[4]
 filePath = sys.argv[5]
 date = sys.argv[6]
 
+# Search for original file associated with preservation file given in filePath
 filePathLike = filePath.replace(os.path.join(SIPDirectory, "objects", "manualNormalization", "preservation"), "%SIPDirectory%objects", 1)
 i = filePathLike.rfind(".")
 k = os.path.basename(filePath).rfind(".")
 if i != -1 and k != -1:
-     filePathLike = filePathLike[:i+1]
-     filePathLike1 = databaseInterface.MySQLdb.escape_string(filePathLike).replace("%", "\%") + "%"
-     filePathLike2 = databaseInterface.MySQLdb.escape_string(filePathLike)[:-1]
+    filePathLike = filePathLike[:i+1]
+    # Matches "path/to/file/filename." Includes . so it doesn't false match foobar.txt when we wanted foo.txt
+    filePathLike1 = databaseInterface.MySQLdb.escape_string(filePathLike).replace("%", "\%") + "%"
+    # Matches the exact filename.  For files with no extension.
+    filePathLike2 = databaseInterface.MySQLdb.escape_string(filePathLike)[:-1]
 unitIdentifierType = "sipUUID"
 unitIdentifier = SIPUUID
 sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '" + filePathLike1 + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
@@ -54,12 +54,47 @@ rows = databaseInterface.queryAllSQL(sql)
 if not len(rows):
     sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '" + filePathLike2 + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
     rows = databaseInterface.queryAllSQL(sql)
-if len(rows) > 1:
-    print >>sys.stderr, "Too many possible files for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1) 
-    exit(2)
-elif len(rows) < 1:
-    print >>sys.stderr, "No matching file for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1) 
-    exit(3)
+if len(rows) != 1:
+    # Original file was not found, or there is more than one original file with
+    # the same filename (differing extensions)
+    # Look for a CSV that will specify the mapping
+    csv_path = os.path.join(SIPDirectory, "objects", "manualNormalization",
+        "normalization.csv")
+    if os.path.isfile(csv_path):
+        try:
+            preservation_file = filePath[filePath.index('manualNormalization/preservation/'):]
+        except ValueError:
+            print >>sys.stderr, "{0} not in manualNormalization directory".format(filePath)
+            exit(4)
+        original = fileOperations.findFileInNormalizatonCSV(csv_path,
+            "preservation", preservation_file)
+        if original is None:
+            if len(rows) < 1:
+                print >>sys.stderr, "No matching file for: {0}".format(
+                    filePath.replace(SIPDirectory, "%SIPDirectory%"))
+                exit(3)
+            else:
+                print >>sys.stderr, "Could not find {preservation_file} in {filename}".format(
+                        preservation_file=preservation_file, filename=csv_path)
+                exit(2)
+        # If we found the original file, retrieve it from the DB
+        sql = """SELECT Files.fileUUID, Files.currentLocation 
+                 FROM Files 
+                 WHERE removedTime = 0 AND 
+                    fileGrpUse='original' AND 
+                    Files.currentLocation LIKE '%{filename}' AND 
+                    {unitIdentifierType} = '{unitIdentifier}';""".format(
+                filename=original, unitIdentifierType=unitIdentifierType,
+                unitIdentifier=unitIdentifier)
+        rows = databaseInterface.queryAllSQL(sql)
+    elif len(rows) < 1:
+        print >>sys.stderr, "No matching file for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1)
+        exit(3)
+    else:
+        print >>sys.stderr, "Too many possible files for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1)
+        exit(2)
+
+# We found the original file somewhere above, get the UUID and path
 for row in rows:
     originalFileUUID, originalFilePath = row
 
@@ -74,7 +109,7 @@ dstR = dst.replace(SIPDirectory, "%SIPDirectory%", 1)
 if os.path.isfile(dst) or os.path.isdir(dst):
     print >>sys.stderr, "already exists:", dstR
     exit(2)
-    
+
 #Rename the file or directory src to dst. If dst is a directory, OSError will be raised. On Unix, if dst exists and is a file, it will be replaced silently if the user has permission. The operation may fail on some Unix flavors if src and dst are on different filesystems.
 #see http://docs.python.org/2/library/os.html
 os.rename(filePath, dst)
@@ -82,16 +117,19 @@ sql =  """UPDATE Files SET currentLocation='%s' WHERE fileUUID='%s';""" % (dstR,
 databaseInterface.runSQL(sql)
 
 derivationEventUUID = uuid.uuid4().__str__()
-insertIntoEvents(fileUUID=originalFileUUID, \
-               eventIdentifierUUID=derivationEventUUID, \
-               eventType="normalization", \
-               eventDateTime=date, \
-               eventDetail="manual normalization", \
-               eventOutcome="", \
-               eventOutcomeDetailNote=dstR)
+databaseFunctions.insertIntoEvents(
+    fileUUID=originalFileUUID,
+    eventIdentifierUUID=derivationEventUUID,
+    eventType="normalization",
+    eventDateTime=date,
+    eventDetail="manual normalization",
+    eventOutcome="",
+    eventOutcomeDetailNote=dstR)
 
 #Add linking information between files
-insertIntoDerivations(sourceFileUUID=originalFileUUID, derivedFileUUID=fileUUID, relatedEventUUID=derivationEventUUID)
-
+databaseFunctions.insertIntoDerivations(
+    sourceFileUUID=originalFileUUID,
+    derivedFileUUID=fileUUID,
+    relatedEventUUID=derivationEventUUID)
 
 exit(0)
