@@ -883,3 +883,12 @@ UPDATE MicroServiceChainLinks SET defaultNextChainLink='d2c2b65d-36c6-4636-9459-
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='d2c2b65d-36c6-4636-9459-b5f0b4b0065a' WHERE microServiceChainLink='8a0bc7c6-f7c2-4656-a690-976660c66a8a';
 
 -- /Issue 5005
+
+
+-- Issue 5246
+-- Skip 'Create removal from backlog PREMIS events' for SIPS that were never in backlog
+-- new MicroServiceChain for auto-created SIPS
+INSERT INTO `MicroServiceChains` (`pk`, `startingLink`, `description`, `replaces`, `lastModified`) VALUES ('fefdcee4-dd84-4b55-836f-99ef880ecdb6','db6d3830-9eb4-4996-8f3a-18f4f998e07f','Automatic SIP Creation complete',NULL,'2013-08-22 16:25:08');
+-- WatchedDirectory system/autoProcessSIP should point at new chain
+UPDATE WatchedDirectories SET chain='fefdcee4-dd84-4b55-836f-99ef880ecdb6' WHERE pk='88f9c08e-ebc3-4334-9126-79d0489e8f39';
+-- /Issue 5246
