@@ -427,22 +427,23 @@ def list_display(request, current_page_number=None):
     # handle pagination
     page = helpers.pager(aips, 10, current_page_number)
 
-    sips = []
+    aips = []
     for aip in page['objects']:
-        sip = {}
-        sip['href']   = aip.filePath.replace(AIPSTOREPATH + '/', "AIPsStore/")
-        sip['name']   = aip.name
-        sip['uuid']   = aip.uuid
-        sip['status'] = aip.status
-        sip['date']   = aip.created
-
         try:
-            size = float(aip.size)
-            sip['size'] = '{0:.2f} MB'.format(size)
+            size = '{0:.2f} MB'.format(float(aip.size))
         except:
-            sip['size'] = 'Removed'
+            size = 'Removed'
 
-        sips.append(sip)
+        aip_display_data = {
+            'href':   aip.filePath.replace(AIPSTOREPATH + '/', "AIPsStore/"),
+            'name':   aip.name,
+            'uuid':   aip.uuid,
+            'status': aip.status,
+            'size':   size,
+            'date':   aip.created
+        }
+
+        aips.append(aip_display_data)
 
     total_size = total_size_of_aips(conn)
 

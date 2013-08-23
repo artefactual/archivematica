@@ -19,7 +19,7 @@
 
   {% include "archival_storage/_archival_storage_search_form.html" %}
 
-  {% if sips %}
+  {% if aips %}
     <h1>
       Browse archival storage<br/>
       <small>
@@ -66,7 +66,7 @@
         <th></th>
       </thead>
       <tbody>
-        {% for item in sips %}
+        {% for item in aips %}
           <tr>
             <td><a href="{% url components.archival_storage.views.aip_download item.uuid %}">{{ item.name }}</a></td>
             <td class="size">{{ item.size }}</td>
