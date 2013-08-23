@@ -401,18 +401,9 @@ def list_display(request, current_page_number=None):
                 elasticSearchFunctions.delete_aip(aip['uuid'])
                 elasticSearchFunctions.connect_and_delete_aip_files(aip['uuid'])
             elif aip_status != 'DEL_REQ':
-                # a delete request was rejected... see if this user was the last one to reject deletion
-                # TODO implement the condition
-                if 1:
-                    # if a rejection event exists for this user that's newer than the delete request event, display the reason for rejection and update the AIP's status in ElasticSearch
-                    # TODO implement the condition
-                    if 1:
-                        messages.info(request,
-                            'The deletion request for AIP {} was rejected.'.format(aip['uuid']))
-
-                        # update the status in ElasticSearch for this AIP
-                        document_id = elasticSearchFunctions.document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', aip['uuid'])
-                        conn.update({'status': 'UPLOADED'}, 'aips', 'aip', document_id)
+                # update the status in ElasticSearch for this AIP
+                document_id = elasticSearchFunctions.document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', aip['uuid'])
+                conn.update({'status': 'UPLOADED'}, 'aips', 'aip', document_id)
         else:
             aip_status = 'UPLOADED'
 
