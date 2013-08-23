@@ -382,41 +382,47 @@ def list_display(request, current_page_number=None):
 
     aips = []
     for aip in aipResults:
-        # If an AIP is not deleted or pending deletion, just add it to the list of AIPs to display
-        if aip['uuid'] not in aips_deleted_or_pending_deletion:
-            aips.append(aip)
-            continue
-        # Don't show AIPs that have been deleted or where deletion is pending
+        # If an AIP was deleted or is pending deletion, react if status changed
+        if aip['uuid'] in aips_deleted_or_pending_deletion:
+            # check with storage server to see current status
+            api_results = storage_service.get_file_info(uuid=aip['uuid'])
+            try:
+                aip_status = api_results[0]['status']
+            except IndexError:
+                # Storage service does not know about this AIP
+                # TODO what should happen here?
+                logging.info("AIP not found in storage service: {}".format(aip))
+                continue
 
-        # check with storage server to see current status
-        api_results = storage_service.get_file_info(uuid=aip['uuid'])
-        try:
-            aip_status = api_results[0]['status']
-        except IndexError:
-            # Storage service does not know about this AIP
-            # TODO what should happen here?
-            logging.info("AIP not found in storage service: {}".format(aip))
-            continue
-
-        # delete AIP metadata in ElasticSearch if AIP has been deleted from the
-        # storage server
-        # TODO: handle this asynchronously
-        if aip_status == 'DELETED':
-            elasticSearchFunctions.delete_aip(aip['uuid'])
-            elasticSearchFunctions.connect_and_delete_aip_files(aip['uuid'])
-        elif aip_status != 'DEL_REQ':
-            # a delete request was rejected... see if this user was the last one to reject deletion
-            # TODO implement the condition
-            if 1:
-                # if a rejection event exists for this user that's newer than the delete request event, display the reason for rejection and update the AIP's status in ElasticSearch
+            # delete AIP metadata in ElasticSearch if AIP has been deleted from the
+            # storage server
+            # TODO: handle this asynchronously
+            if aip_status == 'DELETED':
+                elasticSearchFunctions.delete_aip(aip['uuid'])
+                elasticSearchFunctions.connect_and_delete_aip_files(aip['uuid'])
+            elif aip_status != 'DEL_REQ':
+                # a delete request was rejected... see if this user was the last one to reject deletion
                 # TODO implement the condition
                 if 1:
-                    messages.info(request,
-                        'The deletion request for AIP {} was rejected.'.format(aip['uuid']))
+                    # if a rejection event exists for this user that's newer than the delete request event, display the reason for rejection and update the AIP's status in ElasticSearch
+                    # TODO implement the condition
+                    if 1:
+                        messages.info(request,
+                            'The deletion request for AIP {} was rejected.'.format(aip['uuid']))
 
-                    # update the status in ElasticSearch for this AIP
-                    document_id = elasticSearchFunctions.document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', aip['uuid'])
-                    conn.update({'status': 'UPLOADED'}, 'aips', 'aip', document_id)
+                        # update the status in ElasticSearch for this AIP
+                        document_id = elasticSearchFunctions.document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', aip['uuid'])
+                        conn.update({'status': 'UPLOADED'}, 'aips', 'aip', document_id)
+        else:
+            aip_status = 'UPLOADED'
+
+        if aip_status != 'DELETED':
+            aip_status_descriptions = {
+              'UPLOADED': 'Stored',
+              'DEL_REQ':  'Deletion requested'
+            }
+            aip['status'] = aip_status_descriptions[aip_status]
+            aips.append(aip)
 
     # handle pagination
     page = helpers.pager(aips, 10, current_page_number)

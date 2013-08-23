@@ -58,6 +58,11 @@
             <a class="down {% if order_by == 'created' and sort_by == 'down' %} selected_down"{% endif %}" href="?order_by=created&sort_by=down">Sort</a>
           </div>
         </th>
+        <th>
+          <div>
+            Status
+          </div>
+        </th>
         <th></th>
       </thead>
       <tbody>
@@ -67,6 +72,7 @@
             <td class="size">{{ item.size }}</td>
             <td class="uuid">{{ item.uuid }}</td>
             <td><span class='timestamp'>{{ item.date }}</a></td>
+            <td>{{ item.status }}</td>
             <td><a href="/archival-storage/delete/aip/{{ item.uuid }}"><img src="/media/images/delete.png"/></a></td>
           </tr>
         {% endfor %}
