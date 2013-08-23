@@ -28,7 +28,7 @@ import tempfile
 from django.contrib import messages
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.template import RequestContext
 
@@ -197,9 +197,9 @@ def delete_context(request, uuid):
 
 @decorators.confirm_required('archival_storage/delete_request.html', delete_context)
 def aip_delete(request, uuid):
-    reason_for_deletion = request.POST.get('reason_for_deletion', '')
-
     try:
+        reason_for_deletion = request.POST.get('reason_for_deletion', '')
+
         response = storage_service.request_file_deletion(
            uuid,
            request.user.id,
@@ -207,7 +207,7 @@ def aip_delete(request, uuid):
            reason_for_deletion
         )
 
-        result = response['message']
+        messages.info(request, response['message'])
 
         # mark AIP as having deletion requested
         conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
@@ -215,10 +215,14 @@ def aip_delete(request, uuid):
         conn.update({'status': 'DEL_REQ'}, 'aips', 'aip', document_id)
 
     except requests.exceptions.ConnectionError:
-        result = 'Unable to connect to storage server. Please contact your administrator.'
+        error_message = 'Unable to connect to storage server. Please contact your administrator.'
+        messages.warning(request, error_message)
     except slumber.exceptions.HttpClientError:
          raise Http404
 
+    # It would be more elegant to redirect to the AIP storage overview page, but because
+    # ElasticSearch processes updates asynchronously this would often result in the user
+    # having to refresh the page to get an up-to-date result
     return render(request, 'archival_storage/delete_request_results.html', locals())
 
 def aip_download(request, uuid):
