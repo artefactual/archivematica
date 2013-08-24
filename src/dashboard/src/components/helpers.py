@@ -25,7 +25,7 @@ import urllib
 import json
 
 from django.utils.dateformat import format
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.servers.basehttp import FileWrapper
@@ -78,13 +78,54 @@ def json_response(data):
         mimetype='application/json'
     )
 
+# this class wraps Pyes search results so the Django Paginator class
+# can work on the results
+class DjangoPaginatableListFromPyesSearchResult:
+    def __init__(self, result, start, size):
+        self.result = result
+        self.start  = start
+        self.size   = size
+
+    def count(self):
+        return self.result.count()
+
+    def __len__(self):
+        return self.count()
+
+    def __getitem__(self, key):
+        if key < self.start:
+            return
+        else:
+            if key >= (self.start + self.size):
+                return
+            else:
+                return self.result[key - self.start]
+
 def pager(objects, items_per_page, current_page_number):
     page = {}
 
-    p                    = Paginator(objects, items_per_page)
+    # if a Pyes resultset, wrap it in a class so it emulates
+    # a standard Python list
+    if objects.__class__.__name__ == 'ResultSet':
+        p = Paginator(
+            DjangoPaginatableListFromPyesSearchResult(
+                objects,
+                (int(current_page_number) - 1) * items_per_page,
+                items_per_page
+            ),
+            items_per_page,
+        )
+    else:
+        p = Paginator(objects, items_per_page)
 
     page['current']      = 1 if current_page_number == None else int(current_page_number)
-    pager                = p.page(page['current'])
+
+    try:
+        pager = p.page(page['current'])
+
+    except EmptyPage:
+        return False
+
     page['has_next']     = pager.has_next()
     page['next']         = page['current'] + 1
     page['has_previous'] = pager.has_previous()
@@ -94,7 +135,13 @@ def pager(objects, items_per_page, current_page_number):
     page['end_index']    = pager.end_index()
     page['start_index']  = pager.start_index()
     page['total_items']  = len(objects)
-    page['objects']      = pager.object_list
+
+    # if a Pyes resultset, won't need paginator to splice it
+    if objects.__class__.__name__ == 'ResultSet':
+        page['objects']  = objects
+    else:
+        page['objects']  = pager.object_list
+
     page['num_pages']    = p.num_pages
 
     return page

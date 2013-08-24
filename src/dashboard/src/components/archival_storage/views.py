@@ -341,7 +341,7 @@ def total_size_of_aips(conn):
     total_size = '{0:.2f}'.format(total_size)
     return total_size
 
-def list_display(request, current_page_number=None):
+def list_display(request, current_page_number=1):
     form = forms.StorageSearchForm()
 
     # get count of AIP files
@@ -376,16 +376,27 @@ def list_display(request, current_page_number=None):
     for deleted_aip in deleted_aip_results:
         aips_deleted_or_pending_deletion.append(deleted_aip['uuid'])
 
-    # get all AIPs
+    # get page of AIPs
+    items_per_page = 2
+    start          = (int(current_page_number) - 1) * items_per_page
+
     aipResults = conn.search(
-        pyes.MatchAllQuery(),
+        pyes.Search(pyes.MatchAllQuery(), start=start, size=items_per_page),
         doc_types=['aip'],
         fields='origin,uuid,filePath,created,name,size',
         sort=sort_specification
     )
 
+    # handle pagination
+    page = helpers.pager(
+        aipResults,
+        items_per_page,
+        current_page_number
+    )
+
+    # process deletion, etc., and format results
     aips = []
-    for aip in aipResults:
+    for aip in page['objects']:
         # If an AIP was deleted or is pending deletion, react if status changed
         if aip['uuid'] in aips_deleted_or_pending_deletion:
             # check with storage server to see current status
@@ -411,34 +422,25 @@ def list_display(request, current_page_number=None):
         else:
             aip_status = 'UPLOADED'
 
+        # Tweak AIP presentation and add to display array
         if aip_status != 'DELETED':
             aip_status_descriptions = {
               'UPLOADED': 'Stored',
               'DEL_REQ':  'Deletion requested'
             }
             aip['status'] = aip_status_descriptions[aip_status]
+
+            try:
+                size = '{0:.2f} MB'.format(float(aip.size))
+            except:
+                size = 'Removed'
+
+            aip['size'] = size
+
+            aip['href'] = aip['filePath'].replace(AIPSTOREPATH + '/', "AIPsStore/")
+            aip['date'] = aip['created']
+
             aips.append(aip)
-
-    # handle pagination
-    page = helpers.pager(aips, 10, current_page_number)
-
-    aips = []
-    for aip in page['objects']:
-        try:
-            size = '{0:.2f} MB'.format(float(aip.size))
-        except:
-            size = 'Removed'
-
-        aip_display_data = {
-            'href':   aip.filePath.replace(AIPSTOREPATH + '/', "AIPsStore/"),
-            'name':   aip.name,
-            'uuid':   aip.uuid,
-            'status': aip.status,
-            'size':   size,
-            'date':   aip.created
-        }
-
-        aips.append(aip_display_data)
 
     total_size = total_size_of_aips(conn)
 
