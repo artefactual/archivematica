@@ -165,13 +165,10 @@ DROP TABLE IF EXISTS `StorageDirectories`;
 DROP TABLE IF EXISTS `SourceDirectories`;
 DELETE FROM `MicroServiceChoiceReplacementDic` WHERE description = 'Store AIP in standard Archivematica Directory';
 
--- Update storeAIP parameters
-UPDATE StandardTasksConfigs SET arguments='\"%AIPsStore%\" \"%SIPDirectory%%SIPName%-%SIPUUID%.7z\" \"%SIPUUID%\" \"%SIPName%\"' WHERE pk='7df9e91b-282f-457f-b91a-ad6135f4337d';
-
 -- Split storeAIP into several sequential scripts: verifyAIP, storeAIP and indexAIP
 
 -- Verify AIP
-INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('ae6b87d8-59c8-4ffa-b417-ce93ab472e74', 0, 'verifyAIP_v0.0', '\"%SIPUUID%\" \"%SIPDirectory%%SIPName%-%SIPUUID%.7z\"');
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('ae6b87d8-59c8-4ffa-b417-ce93ab472e74', 0, 'verifyAIP_v0.0', '\"%SIPUUID%\" \"%SIPDirectory%%AIPFilename%\"');
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('b57b3564-e271-4226-a5f9-2c7cf1661a83', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', 'ae6b87d8-59c8-4ffa-b417-ce93ab472e74', 'Verify AIP');
 INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('3f543585-fa4f-4099-9153-dd6d53572f5c', 'Store AIP', 'Failed', 'b57b3564-e271-4226-a5f9-2c7cf1661a83', @MoveSIPToFailedLink);
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('b060a877-9a59-450c-8da0-f32b97b1a516', '3f543585-fa4f-4099-9153-dd6d53572f5c', 0, '20515483-25ed-4133-b23e-5bb14cab8e22', 'Completed successfully');
@@ -179,7 +176,7 @@ UPDATE MicroServiceChainLinks SET defaultNextChainLink='3f543585-fa4f-4099-9153-
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='3f543585-fa4f-4099-9153-dd6d53572f5c' WHERE microServiceChainLink='5f213529-ced4-49b0-9e30-be4e0c9b81d5';
 
 -- Index AIP
-INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('81f36881-9e54-4c75-a5b2-838cfb2ca228', 0, 'indexAIP_v0.0', '\"%SIPUUID%\" \"%SIPName%\" \"%SIPDirectory%%SIPName%-%SIPUUID%.7z\"');
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('81f36881-9e54-4c75-a5b2-838cfb2ca228', 0, 'indexAIP_v0.0', '\"%SIPUUID%\" \"%SIPName%\" \"%SIPDirectory%%AIPFilename%\"');
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('134a1a94-22f0-4e67-be17-23a4c7178105', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '81f36881-9e54-4c75-a5b2-838cfb2ca228', 'Index AIP');
 INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('48703fad-dc44-4c8e-8f47-933df3ef6179', 'Store AIP', 'Failed', '134a1a94-22f0-4e67-be17-23a4c7178105', @MoveSIPToFailedLink);
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('0783a1ab-f70e-437b-8bec-cd1f2135ba2a', '48703fad-dc44-4c8e-8f47-933df3ef6179', 0, 'd5a2ef60-a757-483c-a71a-ccbffe6b80da', 'Completed successfully');
@@ -197,3 +194,22 @@ UPDATE TasksConfigs SET taskType='01b748fe-2e9d-44e4-ae5d-113f74c9a0ba', taskTyp
 
 -- /Issue 5187 Develop Storage Service
 
+
+-- Issue 5484
+
+-- Update compression algorithm choices
+UPDATE MicroServiceChoiceReplacementDic SET description='7z using lzma', replacementDic='{\"%AIPCompressionAlgorithm%\":\"7z-lzma\"}' WHERE pk='c96353b9-0d55-46cf-baa0-d7c3e180dd43';
+UPDATE MicroServiceChoiceReplacementDic SET description='7z using bzip2', replacementDic='{\"%AIPCompressionAlgorithm%\":\"7z-bzip2\"}' WHERE pk='9475447c-9889-430c-9477-6287a9574c5b';
+-- Add pbzip choice
+INSERT INTO MicroServiceChoiceReplacementDic (pk, choiceAvailableAtLink, description, replacementDic, replaces, lastModified) VALUES ('f61b00a1-ef2e-4dc4-9391-111c6f42b9a7','01d64f58-8295-4b7b-9cab-8f1b153a504f','Parallel bzip2','{\"%AIPCompressionAlgorithm%\":\"pbzip2-\"}',NULL,'2013-08-19 17:25:08');
+-- delete 0-copy option
+DELETE FROM MicroServiceChoiceReplacementDic WHERE pk='727e3506-961d-4eeb-8178-e290946c329a';
+-- Add AIPFilename to SIPs table
+ALTER TABLE SIPs ADD aipFilename TEXT NULL DEFAULT NULL;
+-- Update Compress AIP job config
+UPDATE StandardTasksConfigs SET execute='compressAIP_v0.0', arguments='%AIPCompressionAlgorithm% %AIPCompressionLevel% %SIPDirectory% %SIPName% %SIPUUID%' WHERE pk='4dc2b1d2-acbb-47e7-88ca-570281f3236f';
+-- Use %AIPFilename% where needed
+UPDATE StandardTasksConfigs SET arguments='\"%AIPsStore%\" \"%SIPDirectory%%AIPFilename%\" \"%SIPUUID%\" \"%SIPName%\"' where pk='7df9e91b-282f-457f-b91a-ad6135f4337d';
+UPDATE StandardTasksConfigs SET arguments='775 \"%SIPDirectory%%AIPFilename%\"' WHERE pk='ba937c55-6148-4f45-a9ad-9697c0cf11ed';
+
+-- /Issue 5484

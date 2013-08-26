@@ -24,7 +24,6 @@
 #the version numbers are versions of the protocol, not versions of the programs themselves.
 
 [supportedCommandsSpecial]
-7z_v0.0 = /usr/bin/7z
 elasticSearchAIPIndex_v0.0 = %clientScriptsDirectory%elasticSearchIndexProcessAIP.py
 elasticSearchIndex_v0.0 = %clientScriptsDirectory%elasticSearchIndexProcessTransfer.py
 restructureDIPForContentDMUpload_v0.0 = %clientScriptsDirectory%restructureDIPForContentDMUpload.py
@@ -47,6 +46,7 @@ checkForAccessDirectory_v0.0 = %clientScriptsDirectory%checkForAccessDirectory.p
 checkForServiceDirectory_v0.0 = %clientScriptsDirectory%checkForServiceDirectory.py
 checkForSubmissionDocumenation_v0.0 = %clientScriptsDirectory%checkForSubmissionDocumenation.py
 checkTransferDirectoryForObjects_v0.0 = %clientScriptsDirectory%checkTransferDirectoryForObjects.py
+compressAIP_v0.0 = %clientScriptsDirectory%compressAIP.py
 copy_v0.0 = cp
 copyTransfersMetadataAndLogs_v0.0 = %clientScriptsDirectory%copyTransfersMetadataAndLogs.py
 copyTransferSubmissionDocumentation_v0.0 = %clientScriptsDirectory%copyTransferSubmissionDocumentation.py

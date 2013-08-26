@@ -11,7 +11,7 @@
     </preconfiguredChoice>
     <preconfiguredChoice>
       <appliesTo>Select compression algorithm</appliesTo>
-      <goToChain>lzma</goToChain>
+      <goToChain>7z using bzip2</goToChain>
     </preconfiguredChoice>
     <preconfiguredChoice>
       <appliesTo>Select compression level</appliesTo>

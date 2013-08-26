@@ -21,17 +21,18 @@ def verify_aip():
     extract_dir = os.path.join("/tmp", sip_uuid)
     os.makedirs(extract_dir)
 
-
-    command = '7z x -bd -o"{extract_dir}" "{aip_path}" '.format(
-        extract_dir=extract_dir,
-        aip_path=aip_path)
+    command = "atool --extract-to={extract_dir} -V0 {aip_path}".format(
+        extract_dir=extract_dir, aip_path=aip_path)
     print 'Running extraction command:', command
     exit_code, _, _ = executeOrRun("command", command, printing=True)
     if exit_code != 0:
         print >>sys.stderr, "Error extracting"
         sys.exit(1)
 
-    bag = os.path.join(extract_dir, os.path.splitext(os.path.basename(aip_path))[0])
+    aip_identifier, ext = os.path.splitext(os.path.basename(aip_path))
+    if ext in ('.bz2', '.gz'):
+        aip_identifier, _ = os.path.splitext(aip_identifier)
+    bag = os.path.join(extract_dir, aip_identifier)
     verification_commands = [
         '/usr/share/bagit/bin/bag verifyvalid "{}"'.format(bag),
         '/usr/share/bagit/bin/bag checkpayloadoxum "{}"'.format(bag),

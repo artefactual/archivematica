@@ -46,14 +46,15 @@ def index_aip():
         "{}-{}".format(sip_name, sip_uuid),
         "data",
         'METS.{}.xml'.format(sip_uuid))
-    command = "7z e -o/tmp {} {}".format(aip_path, zip_mets_path)
+    mets_path = os.path.join('/tmp', "METS.{}.xml".format(sip_uuid))
+    command = 'atool --cat {aip_path} {zip_mets_path} > {mets_path}'.format(
+        aip_path=aip_path, zip_mets_path=zip_mets_path, mets_path=mets_path)
     print 'Extracting METS file with:', command
-    exit_code, _, _ = executeOrRun("command", command, printing=True)
+    exit_code, _, _ = executeOrRun("bashScript", command, printing=True)
     if exit_code != 0:
         print >>sys.stderr, "Error extracting"
         sys.exit(1)
 
-    mets_path = "/tmp/METS.{}.xml".format(sip_uuid)
     elasticSearchFunctions.connect_and_index_aip(
         sip_uuid,
         sip_name,
