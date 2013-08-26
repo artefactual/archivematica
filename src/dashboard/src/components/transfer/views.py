@@ -15,19 +15,31 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import calendar
+import json
+import logging
+from lxml import etree
+import os
+
 from django.db.models import Max
 from django.conf import settings as django_settings
+from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import Http404, HttpResponse
-from django.utils import simplejson
+from django.utils.safestring import mark_safe
+
 from contrib.mcp.client import MCPClient
 from contrib import utils
+
 from main import models
-from lxml import etree
-import calendar
-import os
 from components import helpers
 import components.decorators as decorators
+import storageService as storage_service
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="/tmp/archivematica.log", 
+    level=logging.DEBUG)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Transfer
@@ -35,8 +47,16 @@ import components.decorators as decorators
 
 @decorators.elasticsearch_required()
 def grid(request):
-    if models.SourceDirectory.objects.count() > 0:
-        source_directories = models.SourceDirectory.objects.all()
+    try:
+        source_directories = storage_service.get_location(purpose="TS")
+    except:
+        messages.warning(request, 'Error retrieving source directories: is the storage server running? Please contact an administrator.')
+    else:
+        logging.debug("Source directories found: {}".format(source_directories))
+        if not source_directories:
+            msg = "Please choose at least one transfer source directory in <a href='{source_admin}''>the administration tab</a> to begin.".format(
+                source_admin=reverse('components.administration.views.sources'))
+            messages.warning(request, mark_safe(msg))
 
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
@@ -99,7 +119,7 @@ def status(request, uuid=None):
     response = {}
     response['objects'] = objects
     response['mcp'] = mcp_available
-    return HttpResponse(simplejson.JSONEncoder(default=encoder).encode(response), mimetype='application/json')
+    return HttpResponse(json.JSONEncoder(default=encoder).encode(response), mimetype='application/json')
 
 def detail(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid)
@@ -117,7 +137,7 @@ def delete(request, uuid):
         transfer = models.Transfer.objects.get(uuid__exact=uuid)
         transfer.hidden = True
         transfer.save()
-        response = simplejson.JSONEncoder().encode({'removed': True})
-        return HttpResponse(response, mimetype='application/json')
+        response = {'removed': True}
+        return helpers.json_response(response)
     except:
         raise Http404

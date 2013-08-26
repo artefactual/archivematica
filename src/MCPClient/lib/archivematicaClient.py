@@ -46,11 +46,27 @@ import gearman
 import threading
 import cPickle
 import traceback
+import time
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 import databaseInterface
 from databaseFunctions import logTaskAssignedSQL
 printOutputLock = threading.Lock()
+
+print "Attempting to read dashboard UUID..."
+
+dashboardUUID = False
+while dashboardUUID == False:
+    sql = "SELECT value FROM DashboardSettings WHERE name='dashboard_uuid';"
+    rows = databaseInterface.queryAllSQL(sql)
+    if not rows:
+        time.sleep(1)
+    else:
+        dashboardUUID = rows[0][0]
+
+print "Dashboard UUID: " + dashboardUUID
+
+os.environ['ARCHIVEMATICA_DASHBOARD_UUID'] = dashboardUUID
 
 databaseInterface.printSQL = True
 
@@ -58,6 +74,7 @@ config = ConfigParser.SafeConfigParser({'MCPArchivematicaServerInterface': ""})
 config.read("/etc/archivematica/MCPClient/clientConfig.conf")
 
 replacementDic = {
+    "%dashboardUUID%": dashboardUUID, \
     "%sharedPath%":config.get('MCPClient', "sharedDirectoryMounted"), \
     "%clientScriptsDirectory%":config.get('MCPClient', "clientScriptsDirectory")
 }

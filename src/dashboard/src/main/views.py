@@ -19,7 +19,6 @@ from django.conf import settings as django_settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.utils import simplejson
 from contrib.mcp.client import MCPClient
 from main import models
 from lxml import etree
@@ -65,7 +64,7 @@ def status(request):
 
     response = {'sip': sip_count, 'transfer': transfer_count, 'dip': dip_count}
 
-    return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
+    return helpers.json_response(response)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Access
@@ -142,7 +141,7 @@ def jobs_list_objects(request, uuid):
             directory = root.replace(job.directory + '/objects', '')
             response.append(os.path.join(directory, name))
 
-    return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
+    return helpers.json_response(response)
 
 def jobs_explore(request, uuid):
     # Database query
@@ -198,7 +197,8 @@ def jobs_explore(request, uuid):
             newItem['type'] = 'file'
             newItem['size'] = os.path.getsize(os.path.join(directory, item))
         contents.append(newItem)
-    return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
+
+    return helpers.json_response(response)
 
 def formdata_delete(request, type, parent_id, delete_id):
   return formdata(request, type, parent_id, delete_id)
@@ -352,4 +352,4 @@ def formdata(request, type, parent_id, delete_id = None):
     if (model == None):
         response['message'] = 'Incorrect type.'
 
-    return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
+    return helpers.json_response(response)

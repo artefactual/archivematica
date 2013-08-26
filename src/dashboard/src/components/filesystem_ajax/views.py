@@ -17,7 +17,6 @@
 
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.db import connection
-from django.utils import simplejson
 import os
 from subprocess import call
 import shutil
@@ -34,6 +33,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions, databaseInterface, databaseFunctions
 from archivematicaCreateStructuredDirectory import createStructuredDirectory
 from components import helpers
+import storageService as storage_service
 
 # for unciode sorting support
 import locale
@@ -91,6 +91,17 @@ def directory_to_dict(path, directory={}, entry=False):
 
 import archivematicaFunctions
 
+def directory_children_proxy_to_storage_server(request, location_uuid, basePath=False):
+    path = ''
+    if (basePath):
+        path = path + basePath
+    path = path + request.GET.get('base_path', '')
+    path = path + request.GET.get('path', '')
+
+    response = storage_service.browse_location(location_uuid, path)
+
+    return helpers.json_response(response)
+
 def directory_children(request, basePath=False):
     path = ''
     if (basePath):
@@ -115,10 +126,7 @@ def directory_children(request, basePath=False):
       'directories': directories
     }
 
-    return HttpResponse(
-        simplejson.JSONEncoder(encoding='utf-8').encode(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def directory_contents(path, contents=[]):
     entries = sorted_directory_list(path)
@@ -132,10 +140,7 @@ def directory_contents(path, contents=[]):
 def contents(request):
     path = request.GET.get('path', '/home')
     response = directory_to_dict(path)
-    return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def delete(request):
     filepath = request.POST.get('filepath', '')
@@ -160,10 +165,7 @@ def delete(request):
     else:
       response['message'] = 'Delete successful.'
 
-    return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def get_temp_directory(request):
     temp_dir = tempfile.mkdtemp()
@@ -171,10 +173,7 @@ def get_temp_directory(request):
     response = {}
     response['tempDir'] = temp_dir
 
-    return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def copy_transfer_component(request):
     transfer_name = archivematicaFunctions.unicodeToStr(request.POST.get('name', ''))
@@ -207,21 +206,7 @@ def copy_transfer_component(request):
                 # cycle through each path copying files/dirs inside it to transfer dir
                 for entry in sorted_directory_list(path):
                     entry_path = os.path.join(path, entry)
-                    if os.path.isdir(entry_path):
-                        rsync_copy(entry_path, transfer_dir)
-                        """
-                        destination_dir = os.path.join(transfer_dir, entry)
-                        try:
-                            shutil.copytree(
-                                entry_path,
-                                destination_dir
-                            )
-                        except:
-                            error = 'Error copying from ' + entry_path + ' to ' + destination_dir + '. (' + str(sys.exc_info()[0]) + ')'
-                        """
-                    else:
-                        rsync_copy(entry_path, transfer_dir)
-                        #shutil.copy(entry_path, transfer_dir)
+                    rsync_copy(entry_path, transfer_dir)
 
                     paths_copied = paths_copied + 1
 
@@ -233,10 +218,7 @@ def copy_transfer_component(request):
     else:
       response['message'] = 'Copied ' + str(paths_copied) + ' entries.'
 
-    return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def copy_to_originals(request):
     filepath = request.POST.get('filepath', '')
@@ -264,21 +246,6 @@ def copy_to_originals(request):
         #moveSIPTo autoProcessSIPDirectory
         shutil.move(tmpSIPDir, destSIPDir)
 
-        """
-        # confine destination to subdir of originals
-        filepath = os.path.join('/', filepath)
-        destination = os.path.join(ORIGINALS_DIR, os.path.basename(filepath))
-        destination = pad_destination_filepath_if_it_already_exists(destination)
-        #error = 'Copying from ' + filepath + ' to ' + destination + '.'
-        try:
-            shutil.copytree(
-                filepath,
-                destination
-            )
-        except:
-            error = 'Error copying from ' + filepath + ' to ' + destination + '.'
-        """
-
     response = {}
 
     if error != None:
@@ -287,10 +254,7 @@ def copy_to_originals(request):
     else:
         response['message'] = 'Copy successful.'
 
-    return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def copy_to_start_transfer(request):
     filepath  = archivematicaFunctions.unicodeToStr(request.POST.get('filepath', ''))
@@ -351,47 +315,10 @@ def copy_to_start_transfer(request):
     else:
         response['message'] = 'Copy successful.'
 
-    return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def copy_from_arrange_to_completed(request):
     return copy_to_originals(request)
-    """
-    sourcepath  = request.POST.get('filepath', '')
-
-    error = check_filepath_exists('/' + sourcepath)
-
-    if error == None:
-        sourcepath = os.path.join('/', sourcepath)
-        destination = os.path.join(COMPLETED_TRANSFERS_DIR, os.path.basename(sourcepath))
-
-        # do check if directory already exists
-        if os.path.exists(destination):
-            error = 'A transfer with this directory name has already been started.'
-        else:
-            try:
-                shutil.copytree(
-                    sourcepath,
-                    destination
-                )
-            except:
-                error = 'Error copying from ' + filepath + ' to ' + destination + '.'
-
-    response = {}
-
-    if error != None:
-        response['message'] = error
-        response['error']   = True
-    else:
-        response['message'] = 'Transfer started.'
-
-    return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
-        mimetype='application/json'
-    )
-    """
 
 def copy_to_arrange(request):
     sourcepath  = request.POST.get('filepath', '')
@@ -448,10 +375,7 @@ def copy_to_arrange(request):
     else:
         response['message'] = 'Copy successful.'
 
-    return HttpResponse(
-      simplejson.JSONEncoder().encode(response),
-      mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def check_filepath_exists(filepath):
     error = None

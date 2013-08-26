@@ -147,11 +147,11 @@ def query_clause(index, queries, ops, fields, types):
     else:
         return pyes.StringQuery(queries[index], search_fields=search_fields)
 
-def indexed_count(index):
+def indexed_count(index, types=None, query=None):
     aip_indexed_file_count = 0
     try:
         conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
-        count_data = conn.count(indices=index)
+        count_data = conn.count(indices=index, doc_types=types, query=query)
         aip_indexed_file_count = count_data.count
     except:
         pass

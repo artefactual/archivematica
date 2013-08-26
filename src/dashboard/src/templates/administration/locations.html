@@ -1,0 +1,77 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <h3>{{ system_directory_description }} locations</h3>
+
+      <div id="directories"></div>
+
+      {% if locations %}
+        <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Path</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for location in locations %}
+          <tr>
+            <td>{{ location.description }}</td>
+            <td>{{ location.path }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+      {% else %}
+        <p>No available locations.</p>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Templates below -->
+
+  <script type="text/template" id="template-dir-level">
+    <div class="backbone-file-explorer-level"></div>
+  </script>
+
+  <script type="text/template" id="template-dir-entry">
+    <div class="backbone-file-explorer-entry" style="clear: both;">
+      <span class="backbone-file-explorer-directory_icon_button"></span>
+      <span class="backbone-file-explorer-directory_entry_name"><%= name %></span>
+      <span class="backbone-file-explorer-directory_entry_actions"></span>
+    </div>
+  </script>
+
+  <script type="text/template" id="template-source-directory-table">
+    <table>
+      <thead>
+        <th>Path</th>
+        <th></th>
+      </thead>
+      <tbody>
+        <%= rows %>
+      </tbody>
+    </table>
+  </script>
+
+  <script type="text/template" id="template-source-directory-table-row">
+    <tr>
+      <td><%= path %></td>
+      <td><a href="#" id="directory_<%= id %>" class="btn" style="float: right;">Remove</a></td>
+    </tr>
+  </script>
+
+{% endblock %}

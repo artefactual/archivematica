@@ -15,26 +15,37 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.shortcuts import render
-from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.utils import simplejson
-from components.archival_storage import forms
-from django.conf import settings
-from main import models
-from components import advanced_search
-from components import helpers
+import httplib
+import json
+import logging
 import os
+import requests
+import slumber
+import subprocess
 import sys
+import tempfile
+
+from django.contrib import messages
+from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.shortcuts import render
+from django.template import RequestContext
+
+from main import models
+from components.archival_storage import forms
+from components import advanced_search
+from components import decorators
+from components import helpers
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
+import storageService as storage_service
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
-import httplib
-import tempfile
-import subprocess
-from components import decorators
-from django.template import RequestContext
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="/tmp/archivematica.log",
+    level=logging.INFO)
 
 AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'
 
@@ -175,21 +186,38 @@ def search_augment_file_results(raw_results):
 
 def delete_context(request, uuid):
     prompt = 'Delete AIP?'
-    #prompt = 'Delete user ' + user.username + '?'
     cancel_url = reverse("components.archival_storage.views.overview")
     return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
 
-@decorators.confirm_required('simple_confirm.html', delete_context)
+@decorators.confirm_required('archival_storage/delete_request.html', delete_context)
 def aip_delete(request, uuid):
     try:
-        aip = elasticSearchFunctions.connect_and_get_aip_data(uuid)
-        aip_filepath = aip['filePath']
-        os.remove(aip_filepath)
-        elasticSearchFunctions.delete_aip(uuid)
-        elasticSearchFunctions.connect_and_delete_aip_files(uuid)
-        return HttpResponseRedirect(reverse('components.archival_storage.views.overview'))
-    except:
-        raise Http404
+        reason_for_deletion = request.POST.get('reason_for_deletion', '')
+
+        response = storage_service.request_file_deletion(
+           uuid,
+           request.user.id,
+           request.user.email,
+           reason_for_deletion
+        )
+
+        messages.info(request, response['message'])
+
+        # mark AIP as having deletion requested
+        conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
+        document_id = elasticSearchFunctions.document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', uuid)
+        conn.update({'status': 'DEL_REQ'}, 'aips', 'aip', document_id)
+
+    except requests.exceptions.ConnectionError:
+        error_message = 'Unable to connect to storage server. Please contact your administrator.'
+        messages.warning(request, error_message)
+    except slumber.exceptions.HttpClientError:
+         raise Http404
+
+    # It would be more elegant to redirect to the AIP storage overview page, but because
+    # ElasticSearch processes updates asynchronously this would often result in the user
+    # having to refresh the page to get an up-to-date result
+    return render(request, 'archival_storage/delete_request_results.html', locals())
 
 def aip_download(request, uuid):
     aip = elasticSearchFunctions.connect_and_get_aip_data(uuid)
@@ -266,13 +294,52 @@ def send_thumbnail(request, fileuuid):
 
     return helpers.send_file(request, thumbnail_path)
 
-def list_display(request):
-    current_page_number = request.GET.get('page', 1)
+def aips_pending_deletion():
+    aip_uuids = []
+    try:
+        aips = storage_service.get_file_info(status='DEL_REQ')
+    except Exception as e:
+        # TODO this should be messages.warning, but we need 'request' here
+        logging.warning("Error retrieving AIPs pending deletion: is the storage server running?  Error: {}".format(e))
+    else:
+        for aip in aips:
+            aip_uuids.append(aip['uuid'])
+    return aip_uuids
 
+def elasticsearch_query_excluding_aips_pending_deletion(uuid_field_name):
+    # add UUIDs of AIPs pending deletion, if any, to boolean query
+    must_not_haves = []
+
+    for aip_uuid in aips_pending_deletion():
+        must_not_haves.append(pyes.TermQuery(uuid_field_name, aip_uuid))
+
+    if len(must_not_haves):
+        query = pyes.BoolQuery(must_not=must_not_haves)
+    else:
+        query = pyes.MatchAllQuery()
+
+    return query
+
+def aip_file_count():
+    query = elasticsearch_query_excluding_aips_pending_deletion('AIPUUID')
+    return advanced_search.indexed_count('aips', ['aipfile'], query)
+
+def total_size_of_aips(conn):
+    query = elasticsearch_query_excluding_aips_pending_deletion('uuid')
+
+    query = query.search()
+    query.facet.add(pyes.facets.StatisticalFacet('total', field='size'))
+
+    aipResults = conn.search(query, doc_types=['aip'])
+    total_size = aipResults.facets.total.total
+    total_size = '{0:.2f}'.format(total_size)
+    return total_size
+
+def list_display(request, current_page_number=1):
     form = forms.StorageSearchForm()
 
-    # get ElasticSearch stats
-    aip_indexed_file_count = advanced_search.indexed_count('aips')
+    # get count of AIP files
+    aip_indexed_file_count = aip_file_count()
 
     # get AIPs
     order_by = request.GET.get('order_by', 'name')
@@ -287,8 +354,25 @@ def list_display(request):
 
     conn = elasticSearchFunctions.connect_and_create_index('aips')
 
-    items_per_page = 10
-    start = (int(current_page_number) - 1) * items_per_page
+    # get list of UUIDs of AIPs that are deleted or pending deletion
+    aips_deleted_or_pending_deletion = []
+    should_haves = [
+        pyes.FieldQuery(pyes.FieldParameter('status', 'DEL_REQ')),
+        pyes.FieldQuery(pyes.FieldParameter('status', 'DELETED'))
+    ]
+    query = pyes.BoolQuery(should=should_haves).search()
+    deleted_aip_results = conn.search(
+        query,
+        indices=['aips'],
+        doc_types=['aip'],
+        fields='uuid,status'
+    )
+    for deleted_aip in deleted_aip_results:
+        aips_deleted_or_pending_deletion.append(deleted_aip['uuid'])
+
+    # get page of AIPs
+    items_per_page = 2
+    start          = (int(current_page_number) - 1) * items_per_page
 
     aipResults = conn.search(
         pyes.Search(pyes.MatchAllQuery(), start=start, size=items_per_page),
@@ -297,13 +381,6 @@ def list_display(request):
         sort=sort_specification
     )
 
-    try:
-        len(aipResults)
-    except pyes.exceptions.ElasticSearchException:
-        # there will be an error if no mapping exists for AIPs due to no AIPs
-        # having been created
-        return render(request, 'archival_storage/archival_storage.html', locals())
-
     # handle pagination
     page = helpers.pager(
         aipResults,
@@ -311,33 +388,55 @@ def list_display(request):
         current_page_number
     )
 
-    if not page:
-        raise Http404
-
-    # augment data
-    sips = []
+    # process deletion, etc., and format results
+    aips = []
     for aip in page['objects']:
-        sip = {}
-        sip['href'] = aip.filePath.replace(AIPSTOREPATH + '/', "AIPsStore/")
-        sip['name'] = aip.name
-        sip['uuid'] = aip.uuid
+        # If an AIP was deleted or is pending deletion, react if status changed
+        if aip['uuid'] in aips_deleted_or_pending_deletion:
+            # check with storage server to see current status
+            api_results = storage_service.get_file_info(uuid=aip['uuid'])
+            try:
+                aip_status = api_results[0]['status']
+            except IndexError:
+                # Storage service does not know about this AIP
+                # TODO what should happen here?
+                logging.info("AIP not found in storage service: {}".format(aip))
+                continue
 
-        sip['date'] = aip.created
+            # delete AIP metadata in ElasticSearch if AIP has been deleted from the
+            # storage server
+            # TODO: handle this asynchronously
+            if aip_status == 'DELETED':
+                elasticSearchFunctions.delete_aip(aip['uuid'])
+                elasticSearchFunctions.connect_and_delete_aip_files(aip['uuid'])
+            elif aip_status != 'DEL_REQ':
+                # update the status in ElasticSearch for this AIP
+                document_id = elasticSearchFunctions.document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', aip['uuid'])
+                conn.update({'status': 'UPLOADED'}, 'aips', 'aip', document_id)
+        else:
+            aip_status = 'UPLOADED'
 
-        try:
-            size = float(aip.size)
-            sip['size'] = '{0:.2f} MB'.format(size)
-        except:
-            sip['size'] = 'Removed'
+        # Tweak AIP presentation and add to display array
+        if aip_status != 'DELETED':
+            aip_status_descriptions = {
+              'UPLOADED': 'Stored',
+              'DEL_REQ':  'Deletion requested'
+            }
+            aip['status'] = aip_status_descriptions[aip_status]
 
-        sips.append(sip)
+            try:
+                size = '{0:.2f} MB'.format(float(aip.size))
+            except:
+                size = 'Removed'
 
-    # get total size of all AIPS from ElasticSearch
-    q = pyes.MatchAllQuery().search()
-    q.facet.add(pyes.facets.StatisticalFacet('total', field='size'))
-    aipResults = conn.search(q, doc_types=['aip'])
-    total_size = aipResults.facets.total.total
-    total_size = '{0:.2f}'.format(total_size)
+            aip['size'] = size
+
+            aip['href'] = aip['filePath'].replace(AIPSTOREPATH + '/', "AIPsStore/")
+            aip['date'] = aip['created']
+
+            aips.append(aip)
+
+    total_size = total_size_of_aips(conn)
 
     return render(request, 'archival_storage/archival_storage.html', locals())
 
@@ -347,7 +446,7 @@ def document_json_response(document_id_modified, type):
     conn.request("GET", "/aips/" + type + "/" + document_id)
     response = conn.getresponse()
     data = response.read()
-    pretty_json = simplejson.dumps(simplejson.loads(data), sort_keys=True, indent=2)
+    pretty_json = json.dumps(json.loads(data), sort_keys=True, indent=2)
     return HttpResponse(pretty_json, content_type='application/json')
 
 def file_json(request, document_id_modified):

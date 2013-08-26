@@ -72,7 +72,7 @@
     $(document).ready(function() {
       var sourceDirectories = {
         {% for dir in source_directories %}
-          '{{ dir.id }}': '{{ dir.path }}',
+          '{{ dir.uuid }}': '{{ dir.path }}',
         {% endfor %}
       };
 
@@ -86,17 +86,6 @@
       form.render();
     });
     </script>
-
-  {% else %}
-
-    {% url 'components.administration.views.sources' as source_admin %}
-
-    <div class="alert-message">
-      <p>
-        Please choose at least one transfer source directory in
-        <a href="{{ source_admin }}">the administration tab</a> to begin.
-      </p>
-    </div>
 
   {% endif %}
 

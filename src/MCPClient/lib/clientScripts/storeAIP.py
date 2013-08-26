@@ -20,114 +20,91 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import sys
+import logging
 import os
-import stat
-import shutil
-import MySQLdb
-import ConfigParser
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from executeOrRunSubProcess import executeOrRun
-import elasticSearchFunctions
+import sys
+
+# Set up Django settings
+path = '/usr/share/archivematica/dashboard'
+if path not in sys.path:
+    sys.path.append(path)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+
+path = "/usr/lib/archivematica/archivematicaCommon"
+if path not in sys.path:
+    sys.path.append(path)
+import storageService as storage_service
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="/tmp/archivematica.log",
+    level=logging.INFO)
+
+def store_aip():
+    """ Stores an AIP with the storage service.
+
+    sys.argv[1] = storage service destination URI
+      URI of the storage service Location.  Should be of purpose AIP Store (AS)
+    sys.argv[2] = current location
+      Full absolute path to the AIP's current location on the local filesystem
+    sys.argv[3] = UUID
+      UUID of the SIP, which will become the UUID of the AIP
+    sys.argv[4] = SIP name
+      User-chosen name for the AIP.  Not used directly, but part of the AIP name
 
 
-printSubProcessOutput=True
+    Example inputs:
+    storeAIP.py
+        "/api/v1/location/9c2b5bb7-abd6-477b-88e0-57107219dace/"
+        "/var/archivematica/sharedDirectory/currentlyProcessing/ep6-0737708e-9b99-471a-b331-283e2244164f/ep6-0737708e-9b99-471a-b331-283e2244164f.7z"
+        "0737708e-9b99-471a-b331-283e2244164f"
+        "ep6"
+    """
 
-AIPsStore = sys.argv[1]
-AIP = sys.argv[2]
-SIPUUID = sys.argv[3]
-HTMLFilePath = sys.argv[4]
-SIPNAME = sys.argv[5]
-SIPDATE = sys.argv[6]
+    aip_destination_uri = sys.argv[1]  # %AIPsStore%
+    aip_path = sys.argv[2]  # SIPDirectory%%sip_name%-%sip_uuid%.7z
+    sip_uuid = sys.argv[3]  # %sip_uuid%
+    sip_name = sys.argv[4]  # %sip_name%, currently unused
 
-#Get the UUID quads
-uuidQuads = []
-SIPUUIDStripped = SIPUUID.replace("-","")
-uuidQuads.append(SIPUUIDStripped[:4])
-uuidQuads.append(SIPUUIDStripped[4:8])
-uuidQuads.append(SIPUUIDStripped[8:12])
-uuidQuads.append(SIPUUIDStripped[12:16])
-uuidQuads.append(SIPUUIDStripped[16:20])
-uuidQuads.append(SIPUUIDStripped[20:24])
-uuidQuads.append(SIPUUIDStripped[24:28])
-uuidQuads.append(SIPUUIDStripped[28:32])
+    # FIXME Assume current Location is the one set up by default until location
+    # is passed in properly, or use Agent to make sure is correct CP
+    current_location = storage_service.get_location(purpose="CP")[0]
 
-AIPsStoreWithQuads = AIPsStore
-mode= stat.S_IWUSR + stat.S_IRUSR + stat.S_IXUSR + stat.S_IRGRP + stat.S_IWGRP + stat.S_IXGRP + stat.S_IXOTH + stat.S_IROTH
-for quad in uuidQuads:
-    AIPsStoreWithQuads = AIPsStoreWithQuads + quad + "/"
-    if not os.path.isdir(AIPsStoreWithQuads):
-        os.mkdir(AIPsStoreWithQuads, mode)
-        #mode isn't working on the mkdir
-        os.chmod(AIPsStoreWithQuads, mode)
-
-storeLocation=os.path.join(AIPsStoreWithQuads, os.path.basename(os.path.abspath(AIP)))
-
-#Store the AIP
-shutil.move(AIP, storeLocation)
-
-#Extract the AIP
-extractDirectory = "/tmp/" + SIPUUID + "/"
-os.makedirs(extractDirectory)
-#
-command = "7z x -bd -o\"" + extractDirectory + "\" \"" + storeLocation + "\""
-ret = executeOrRun("command", command, printing=printSubProcessOutput)
-exitCode, stdOut, stdErr = ret
-if exitCode != 0:
-    print >>sys.stderr, "Error extracting"
-    quit(1)
-
-bag = extractDirectory + SIPNAME + "-" + SIPUUID + "/"
-verificationCommands = []
-verificationCommands.append("/usr/share/bagit/bin/bag verifyvalid \"" + bag + "\"")
-verificationCommands.append("/usr/share/bagit/bin/bag checkpayloadoxum \"" + bag + "\"")
-verificationCommands.append("/usr/share/bagit/bin/bag verifycomplete \"" + bag + "\"")
-verificationCommands.append("/usr/share/bagit/bin/bag verifypayloadmanifests \"" + bag + "\"")
-verificationCommands.append("/usr/share/bagit/bin/bag verifytagmanifests \"" + bag + "\"")
-exitCode = 0
-for command in verificationCommands:
-    ret = executeOrRun("command", command, printing=printSubProcessOutput)
-    exit, stdOut, stdErr = ret
-    if exit != 0:
-        print >>sys.stderr, "Failed test: ", command
-        exitCode=1
+    #Store the AIP
+    new_file = storage_service.create_file(
+        uuid=sip_uuid,
+        origin_location=current_location['resource_uri'],
+        origin_path=aip_path,  # FIXME should be relative
+        current_location=aip_destination_uri,
+        current_path=os.path.basename(aip_path),
+        package_type="AIP",
+        size=os.path.getsize(aip_path)
+        )
+    if new_file:
+        message = "Storage service created AIP: {}".format(new_file)
+        logging.info(message)
+        print message
+        sys.exit(0)
     else:
-        print >>sys.stderr, "Passed test: ", command
+        print >>sys.stderr, "AIP creation failed.  See logs for more details."
+        logging.warning("AIP unabled to be created: {}".format(new_file))
+        sys.exit(1)
 
-#copy thumbnails to an AIP-specific directory for easy admin access
-thumbnailSourceDir = os.path.join(bag, 'data/thumbnails')
-thumbnailDestDir   = os.path.join(AIPsStore, 'thumbnails', SIPUUID)
 
-#create thumbnail dest dir
-if not os.path.exists(thumbnailDestDir):
-    os.makedirs(thumbnailDestDir)
+    # FIXME this should be moved to the storage service and areas that rely
+    # on the thumbnails should be updated
 
-#copy thumbnails to destination directory
-thumbnails = os.listdir(thumbnailSourceDir)
-for filename in thumbnails:
-    shutil.copy(os.path.join(thumbnailSourceDir, filename), thumbnailDestDir)
+    # #copy thumbnails to an AIP-specific directory for easy admin access
+    # thumbnailSourceDir = os.path.join(bag, 'data', 'thumbnails')
+    # thumbnailDestDir   = os.path.join(destination['path'], 'thumbnails', sip_uuid)
 
-#write to ElasticSearch
-clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-config = ConfigParser.SafeConfigParser()
-config.read(clientConfigFilePath)
+    # #create thumbnail dest dir
+    # if not os.path.exists(thumbnailDestDir):
+    #     os.makedirs(thumbnailDestDir)
 
-elasticsearchDisabled = False
+    # #copy thumbnails to destination directory
+    # thumbnails = os.listdir(thumbnailSourceDir)
+    # for filename in thumbnails:
+    #     shutil.copy(os.path.join(thumbnailSourceDir, filename), thumbnailDestDir)
 
-try:
-    elasticsearchDisabled = config.getboolean('MCPClient', "disableElasticsearchIndexing")
-except:
-    pass
-
-if elasticsearchDisabled is True:
-    print 'Skipping indexing: indexing is currently disabled in ' + clientConfigFilePath + '.'
-
-else:
-    pathToMETS = os.path.join(extractDirectory, SIPNAME + '-' + SIPUUID, 'data', 'METS.' + SIPUUID + '.xml')
-    elasticSearchFunctions.connect_and_index_aip(SIPUUID, SIPNAME, storeLocation, pathToMETS)
-    elasticSearchFunctions.connect_and_remove_sip_transfer_files(SIPUUID)
-
-#cleanup
-shutil.rmtree(extractDirectory)
-
-quit(exitCode)
+if __name__ == '__main__':
+    store_aip()

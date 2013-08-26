@@ -19,7 +19,6 @@ from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
 from django.shortcuts import redirect, render
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils import simplejson
 from contrib import utils
 from components.rights import forms
 from main import models
@@ -510,14 +509,14 @@ def rights_holders_autocomplete(request):
         search_text = request.REQUEST['text']
     except Exception: pass
 
-    response_data = {}
+    response = {}
 
     agents = models.RightsStatementLinkingAgentIdentifier.objects.filter(linkingagentidentifiervalue__icontains=search_text)
     for agent in agents:
         value = agent.linkingagentidentifiervalue + ' [' + str(agent.id) + ']'
-        response_data[value] = value
+        response[value] = value
 
-    return HttpResponse(simplejson.dumps(response_data), mimetype='application/json')
+    return helpers.json_response(response)
 
 def rights_list(request, uuid, section):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')

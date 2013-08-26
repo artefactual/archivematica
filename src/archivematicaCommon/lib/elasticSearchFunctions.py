@@ -146,8 +146,16 @@ def set_up_mapping(conn, index):
         print 'Transfer mapping created.'
 
     if index == 'aips':
+        mapping = {
+            'uuid': machine_readable_field_spec
+        }
+
         print 'Creating AIP mapping...'
-        conn.put_mapping(doc_type='aip', mapping={'aip': {'date_detection': False}}, indices=['aips'])
+        conn.put_mapping(
+            doc_type='aip',
+            mapping={'aip': {'date_detection': False, 'properties': mapping}},
+            indices=['aips']
+        )
         print 'AIP mapping created.'
 
         mapping = {
@@ -156,10 +164,14 @@ def set_up_mapping(conn, index):
         }
 
         print 'Creating AIP file mapping...'
-        conn.put_mapping(doc_type='aipfile', mapping={'aipfile': {'date_detection': False, 'properties': mapping}}, indices=['aips'])
+        conn.put_mapping(
+            doc_type='aipfile',
+            mapping={'aipfile': {'date_detection': False, 'properties': mapping}},
+            indices=['aips']
+        )
         print 'AIP file mapping created.'
 
-def connect_and_index_aip(uuid, name, filePath, pathToMETS):
+def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None):
     conn = connect_and_create_index('aips')
 
     # convert METS XML to dict
@@ -169,13 +181,13 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS):
     mets_data = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 
     aipData = {
-        'uuid':     uuid,
-        'name':     name,
+        'uuid': uuid,
+        'name': name,
         'filePath': filePath,
-        'size':     os.path.getsize(filePath) / float(1024) / float(1024),
-        'mets':     mets_data,
-        'origin':   getDashboardUUID(),
-        'created':  os.path.getmtime(pathToMETS)
+        'size': (size or os.path.getsize(filePath)) / float(1024) / float(1024),
+        'mets': mets_data,
+        'origin': getDashboardUUID(),
+        'created': os.path.getmtime(pathToMETS)
     }
     conn.index(aipData, 'aips', 'aip')
 
@@ -444,6 +456,18 @@ def backup_indexed_document(result, indexData, index, type):
 
     databaseInterface.runSQL(sql)
 
+def document_id_from_field_query(conn, index, doc_types, field, value):
+    document_id = None
+
+    documents = conn.search_raw(
+        query=pyes.FieldQuery(pyes.FieldParameter(field, value)),
+        doc_types=doc_types
+    )
+
+    if len(documents['hits']['hits']) == 1:
+        document_id = documents['hits']['hits'][0]['_id']
+    return document_id
+
 def connect_and_change_transfer_file_status(uuid, status):
     # get file UUIDs for each file in the SIP
     sql = "SELECT fileUUID from Files WHERE transferUUID='" + MySQLdb.escape_string(uuid) + "'"
@@ -455,10 +479,8 @@ def connect_and_change_transfer_file_status(uuid, status):
 
         # cycle through file UUIDs and update status
         for row in rows:
-            documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('fileuuid', row[0])))
-            if len(documents['hits']['hits']) > 0:
-                document_id = documents['hits']['hits'][0]['_id']
-                conn.update({'status': status}, 'transfers', 'transferfile', document_id)
+            document_id = document_id_from_field_query(conn, 'transfers', ['transferfile'], 'fileuuid', row[0])
+            conn.update({'status': status}, 'transfers', 'transferfile', document_id)
     return len(rows)
 
 def connect_and_remove_sip_transfer_files(uuid):
@@ -472,9 +494,8 @@ def connect_and_remove_sip_transfer_files(uuid):
 
         # cycle through file UUIDs and delete files from transfer backlog
         for row in rows:
-            documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('fileuuid', row[0])))
-            if len(documents['hits']['hits']) > 0:
-                document_id = documents['hits']['hits'][0]['_id']
+            document_id = document_id_from_field_query(conn, 'transfers', ['transferfile'],  'fileuuid', row[0])
+            if document_id != None:
                 conn.delete('transfers', 'transferfile', document_id)
 
 def delete_aip(uuid):

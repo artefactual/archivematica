@@ -15,22 +15,26 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 from django.forms.models import modelformset_factory
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from django.utils import simplejson
-from main import forms
-from main import models
-import sys
+
+from main import forms, models
 import components.administration.views_processing as processing_views
-from lxml import etree
-from components.administration.forms import AdministrationForm
-from components.administration.forms import AgentForm
-from components.administration.forms import ToggleSettingsForm
-import components.decorators as decorators
+from components.administration.forms import (AdministrationForm, AgentForm,
+    SettingsForm, StorageSettingsForm)
+import components.decorators  # Not used, but if it's removed, everything breaks
 import components.helpers as helpers
-from components.helpers import hidden_features
+import storageService as storage_service
+
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="/tmp/archivematica.log",
+    level=logging.INFO)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Administration
@@ -41,7 +45,7 @@ def administration(request):
 
 def administration_dip(request):
     upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
-    hide_features = hidden_features()
+    hide_features = helpers.hidden_features()
     return render(request, 'administration/dip.html', locals())
 
 def dip_edit(request, id):
@@ -65,7 +69,7 @@ def atom_dips(request):
     if request.method != 'POST' or valid_submission:
         formset = ReplaceDirChoiceFormSet(queryset=ReplaceDirChoices)
 
-    hide_features = hidden_features()
+    hide_features = helpers.hidden_features()
     return render(request, 'administration/dips_edit.html', locals())
 
 def contentdm_dips(request):
@@ -79,7 +83,7 @@ def contentdm_dips(request):
     if request.method != 'POST' or valid_submission:
         formset = ReplaceDirChoiceFormSet(queryset=ReplaceDirChoices)
 
-    hide_features = hidden_features()
+    hide_features = helpers.hidden_features()
     return render(request, 'administration/dips_contentdm_edit.html', locals())
 
 def atom_dip_destination_select_link_id():
@@ -146,118 +150,25 @@ def dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet):
     return valid_submission, formset, add_form
 
 def storage(request):
-    picker_js_file = 'storage_directory_picker.js'
-    system_directory_description = 'AIP storage'
-    hide_features = hidden_features()
-    return render(request, 'administration/sources.html', locals())
+    try:
+        locations = storage_service.get_location(purpose="AS")
+    except:
+        messages.warning(request, 'Error retrieving locations: is the storage server running? Please contact an administrator.')
 
-def storage_json(request):
-    return administration_system_directory_data_request_handler(
-      request,
-      models.StorageDirectory
-    )
+    system_directory_description = 'Available transfer source'
+    return render(request, 'administration/locations.html', locals())
 
 def sources(request):
-    picker_js_file = 'source_directory_picker.js'
-    system_directory_description = 'Transfer source'
-    hide_features = hidden_features()
-    return render(request, 'administration/sources.html', locals())
+    try:
+        locations = storage_service.get_location(purpose="TS")
+    except:
+        messages.warning(request, 'Error retrieving locations: is the storage server running? Please contact an administrator.')
 
-def sources_json(request):
-    return administration_system_directory_data_request_handler(
-      request,
-      models.SourceDirectory
-    )
-
-def administration_system_directory_data_request_handler(request, model):
-    message = ''
-    if request.method == 'POST':
-         path = request.POST.get('path', '')
-         if path != '':
-             try:
-                 model.objects.get(path=path)
-             except model.DoesNotExist:
-                 # save dir
-                 source_dir = model()
-                 source_dir.path = path
-                 source_dir.save()
-                 message = 'Directory added.'
-             else:
-                 message = 'Directory already added.'
-         else:
-             message = 'Path is empty.'
-         if model == models.StorageDirectory:
-             administration_render_storage_directories_to_dicts()
-
-    response = {}
-    response['message'] = message
-    response['directories'] = []
-
-    for directory in model.objects.all():
-      response['directories'].append({
-        'id':   directory.id,
-        'path': directory.path
-      })
-
-    return HttpResponse(
-      simplejson.JSONEncoder().encode(response),
-      mimetype='application/json'
-    )
-
-def storage_delete_json(request, id):
-    response = system_directory_delete_request_handler(
-      request,
-      models.StorageDirectory,
-      id
-    )
-    administration_render_storage_directories_to_dicts()
-    return response
-
-def sources_delete_json(request, id):
-    return system_directory_delete_request_handler(
-      request, 
-      models.SourceDirectory,
-      id
-    )
-
-def system_directory_delete_request_handler(request, model, id):
-    model.objects.get(pk=id).delete()
-    if model == models.StorageDirectory:
-        administration_render_storage_directories_to_dicts()
-    response = {}
-    response['message'] = 'Deleted.'
-    return HttpResponse(simplejson.JSONEncoder().encode(response), mimetype='application/json')
+    system_directory_description = 'Available transfer source'
+    return render(request, 'administration/locations.html', locals())
 
 def processing(request):
     return processing_views.index(request)
-
-def administration_render_storage_directories_to_dicts():
-    administration_flush_aip_storage_dicts()
-    storage_directories = models.StorageDirectory.objects.all()
-    link_pk = administration_get_aip_storage_link_pk()
-    for dir in storage_directories:
-        dict = models.MicroServiceChoiceReplacementDic()
-        dict.choiceavailableatlink = link_pk
-        if dir.path == '%sharedPath%www/AIPsStore/':
-            description = 'Store AIP in standard Archivematica Directory'
-        else:
-            description = dir.path
-        dict.description = description
-        dict.replacementdic = '{"%AIPsStore%":"' + dir.path + '/"}'
-        dict.save()
-
-def administration_flush_aip_storage_dicts():
-    link_pk = administration_get_aip_storage_link_pk()
-    entries = models.MicroServiceChoiceReplacementDic.objects.filter(
-      choiceavailableatlink=link_pk
-    )
-    for entry in entries:
-        entry.delete()
-
-def administration_get_aip_storage_link_pk():
-    tasks = models.TaskConfig.objects.filter(description='Store AIP location')
-    links = models.MicroServiceChainLink.objects.filter(currenttask=tasks[0].pk)
-    return links[0].pk
 
 def premis_agent(request):
     agent = models.Agent.objects.get(pk=2)
@@ -268,7 +179,7 @@ def premis_agent(request):
     else:
         form = AgentForm(instance=agent)
 
-    hide_features = hidden_features()
+    hide_features = helpers.hidden_features()
     return render(request, 'administration/premis_agent.html', locals())
 
 def api(request):
@@ -278,31 +189,36 @@ def api(request):
     else:
         whitelist = helpers.get_setting('api_whitelist', '127.0.0.1')
 
-    hide_features = hidden_features()
+    hide_features = helpers.hidden_features()
     return render(request, 'administration/api.html', locals())
 
 def general(request):
-    toggleableSettings = [
-      {'dashboard_administration_atom_dip_enabled': 'Hide AtoM DIP upload link'},
-      {'dashboard_administration_contentdm_dip_enabled': 'Hide CONTENTdm DIP upload link'},
-      {'dashboard_administration_dspace_enabled': 'Hide DSpace transfer type'},
-    ]
+    toggleableSettings = {
+        'dashboard_administration_atom_dip_enabled':
+            'Hide AtoM DIP upload link',
+        'dashboard_administration_contentdm_dip_enabled':
+            'Hide CONTENTdm DIP upload link',
+        'dashboard_administration_dspace_enabled':
+            'Hide DSpace transfer type',
+    }
+    initial_data = dict(models.DashboardSetting.objects.all().values_list(
+        'name', 'value'))
+    interface_form = SettingsForm(request.POST or None, prefix='interface',
+        reverse_checkboxes=toggleableSettings)
+    storage_form = StorageSettingsForm(request.POST or None, prefix='storage',
+        initial=initial_data)
 
-    if request.method == 'POST':
-        for setting in toggleableSettings:
-            name = setting.keys()[0]
-            if request.POST.get(name) == 'on':
-                setting = True
-            else:
-                setting = False
+    if interface_form.is_valid() and storage_form.is_valid():
+        interface_form.save()
+        storage_form.save()
 
-            # settings indicate whether or not something is enabled so if we want
-            # do disable it we do a boolean not
-            setting = not setting
-
-            helpers.set_setting(name, setting)
-
-    form = ToggleSettingsForm(extra=toggleableSettings)
-
-    hide_features = hidden_features()
+    dashboard_uuid = helpers.get_setting('dashboard_uuid')
+    try:
+        pipeline = storage_service._get_pipeline(dashboard_uuid)
+    except Exception :
+        messages.warning(request, "Storage server inaccessible.  Please contact an administrator or update storage service URL below.")
+    else:
+        if not pipeline:
+            messages.warning(request, "This pipeline is not registered with the storage service or has been disabled in the storage service.  Please contact an administrator.")
+    hide_features = helpers.hidden_features()
     return render(request, 'administration/general.html', locals())

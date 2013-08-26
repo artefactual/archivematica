@@ -15,37 +15,45 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf import settings as django_settings
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
-from django.utils import simplejson
-from django.core.urlresolvers import reverse
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from main.models import Agent
-from installer.forms import SuperUserCreationForm
-from installer.forms import FPRConnectForm
-from tastypie.models import ApiKey
-import components.helpers as helpers
-
-import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
-import FPRClient.main as FPRClient
-
 import json
+import logging
 import requests_1_20 as requests
 import socket
+import sys
 import uuid
+
+from django.conf import settings as django_settings
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.shortcuts import render
+from django.http import HttpResponseRedirect
+
+from tastypie.models import ApiKey
+
+import components.helpers as helpers
+from components.administration.forms import StorageSettingsForm
+from installer.forms import SuperUserCreationForm
+from main.models import Agent
+
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
+import FPRClient.main as FPRClient
+import storageService as storage_service
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="/tmp/archivematica.log",
+    level=logging.INFO)
 
 def welcome(request):
     # This form will be only accessible when the database has no users
     if 0 < User.objects.count():
-      return HttpResponseRedirect(reverse('main.views.home'))
+        return HttpResponseRedirect(reverse('main.views.home'))
     # Form
     if request.method == 'POST':
         
         # assign UUID to dashboard
-        dashboard_uuid = uuid.uuid4().__str__()
+        dashboard_uuid = str(uuid.uuid4())
         helpers.set_setting('dashboard_uuid', dashboard_uuid)
         
         # save organization PREMIS agent if supplied
@@ -68,9 +76,9 @@ def welcome(request):
             api_key.save()
             user = authenticate(username=user.username, password=form.cleaned_data['password1'])
             if user is not None:
-              login(request, user)
-              request.session['first_login'] = True
-              return HttpResponseRedirect(reverse('installer.views.fprconnect'))
+                login(request, user)
+                request.session['first_login'] = True
+                return HttpResponseRedirect(reverse('installer.views.fprconnect'))
     else:
         form = SuperUserCreationForm()
 
@@ -80,7 +88,6 @@ def welcome(request):
 
 def get_my_ip():
     server_addr = '1.2.3.4'
-    non_open_port = 50000
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     try:
@@ -94,7 +101,7 @@ def get_my_ip():
     
 def fprconnect(request):
     if request.method == 'POST':
-        return HttpResponseRedirect(reverse('main.views.home'))
+        return HttpResponseRedirect(reverse('installer.views.storagesetup'))
     else:
         return render(request, 'installer/fprconnect.html')
 
@@ -119,8 +126,8 @@ def fprupload(request):
             response_data['result'] = 'failed to fetch from ' + url
     except:
         response_data['result'] = 'failed to post to ' + url   
- 
-    return HttpResponse(json.dumps(response_data), content_type="application/json")            
+
+    return helpers.json_response(response_data) 
 
 def fprdownload(request):
     response_data = {}
@@ -133,9 +140,34 @@ def fprdownload(request):
     except:
         response_data['response'] = 'unable to connect to FPR Server'
         response_data['result'] = 'failed'
-     
-    myresult=json.dumps(response_data)
 
-    return HttpResponse(myresult, mimetype='application/json')
-    #return HttpResponse(simplejson.JSONEncoder().encode(response_data), content_type="application/json", mimetype='application/json')    
-    #return HttpResponse(json.dumps(response_data), mimetype="application/json", content_type="application/json")
+    return helpers.json_response(response_data)
+ 
+def storagesetup(request):
+    # Display the dashboard UUID on the storage service setup page
+    dashboard_uuid = helpers.get_setting('dashboard_uuid', None)
+    assert dashboard_uuid is not None
+    # Prefill the storage service URL
+    inital_data = {'storage_service_url':
+        helpers.get_setting('storage_service_url', 'http://localhost:8000')}
+    storage_form = StorageSettingsForm(request.POST or None, initial=inital_data)
+    if storage_form.is_valid():
+        # Set storage service URL
+        storage_form.save()
+        if "use_default" in request.POST:
+            shared_path = helpers.get_server_config_value('sharedDirectory')
+            # Create pipeline, tell it to use default setup
+            try:
+                storage_service.create_pipeline(create_default_locations=True,
+                    shared_path=shared_path)
+            except Exception:
+                messages.warning(request, 'Error creating pipeline: is the storage server running? Please contact an administrator.')
+        else:
+            # Storage service manually set up, just register Pipeline if possible
+            try:
+                storage_service.create_pipeline()
+            except Exception:
+                pass
+        return HttpResponseRedirect(reverse('main.views.home'))
+    else:
+        return render(request, 'installer/storagesetup.html', locals())

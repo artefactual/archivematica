@@ -22,7 +22,7 @@ from django.core.urlresolvers import reverse
 from django.db import connection
 from django.shortcuts import render
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
-from django.utils import simplejson
+import json
 from contrib.mcp.client import MCPClient
 from contrib import utils
 from main import forms
@@ -112,7 +112,7 @@ def ingest_status(request, uuid=None):
     response['mcp'] = mcp_available
 
     return HttpResponse(
-        simplejson.JSONEncoder(default=encoder).encode(response),
+        json.JSONEncoder(default=encoder).encode(response),
         mimetype='application/json'
     )
 
@@ -191,8 +191,10 @@ def ingest_delete(request, uuid):
         sip = models.SIP.objects.get(uuid__exact=uuid)
         sip.hidden = True
         sip.save()
-        response = simplejson.JSONEncoder().encode({ 'removed': True })
-        return HttpResponse(response, mimetype='application/json')
+
+        response = { 'removed': True }
+        return helpers.json_response(response)
+
     except:
         raise Http404
 
@@ -246,8 +248,8 @@ def ingest_upload(request, uuid):
             access.target = cPickle.dumps({
               "target": request.POST['target'] })
             access.save()
-            response = simplejson.JSONEncoder().encode({ 'ready': True })
-            return HttpResponse(response, mimetype='application/json')
+            response = { 'ready': True }
+            return helpers.json_response(response)
     elif request.method == 'GET':
         try:
             access = models.Access.objects.get(sipuuid=uuid)
@@ -258,8 +260,7 @@ def ingest_upload(request, uuid):
         # Disabled, it could be very slow
         # job = models.Job.objects.get(jobtype='Upload DIP', sipuuid=uuid)
         # data['size'] = utils.get_directory_size(job.directory)
-        response = simplejson.JSONEncoder().encode(data)
-        return HttpResponse(response, mimetype='application/json')
+        return helpers.json_response(data)
 
     return HttpResponseBadRequest()
 
@@ -509,10 +510,7 @@ def process_transfer(request, transfer_uuid):
         response['error']   = True
         response['message'] = 'Must be logged in.'
 
-    return HttpResponse(
-        simplejson.JSONEncoder(encoding='utf-8').encode(response),
-        mimetype='application/json'
-    )
+    return helpers.json_response(response)
 
 def transfer_file_download(request, uuid):
     # get file basename

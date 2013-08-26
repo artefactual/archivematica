@@ -7,12 +7,10 @@ ALTER TABLE Jobs CHANGE directory directory LONGTEXT;
 -- Tail of chain = Prepare AIP = 3e25bda6-5314-4bb4-aa1e-90900dce887d
 -- Start of new chain = Select Compression algorithm = 01d64f58-8295-4b7b-9cab-8f1b153a504f
 
--- add  move after prepare AIP
-
+-- add move after prepare AIP
 SET @microserviceGroup = 'Prepare AIP';
 SET @MoveSIPToFailedLink = '7d728c39-395f-4892-8193-92f086c0546f';
 SET @MoveTransferToFailedLink = '61c316a6-0a50-4f65-8767-1f44b1eeb6dd';
-
 
 SET @XLink = '3e25bda6-5314-4bb4-aa1e-90900dce887d';
 -- SET @YLink = '1cd3b36a-5252-4a69-9b1c-3b36829288ab';
@@ -51,6 +49,8 @@ INSERT INTO MicroServiceChains (pk, startingLink, description)
 
 INSERT INTO WatchedDirectories (pk, watchedDirectoryPath, chain, onlyActOnDirectories, expectedType)
     VALUES (@WatchedDirectory, '%watchDirectoryPath%workFlowDecisions/compressionAIPDecisions/', @MicroServiceChains, True, '76e66677-40e6-41da-be15-709afb334936');
+-- /Issue 5084
+
 
 -- Issue 5034
 -- mediainfo
@@ -87,15 +87,15 @@ UPDATE MicroServiceChains SET description='MediaInfo' WHERE pk = '09949bda-5332-
 
 -- INSERT INTO `TasksConfigs` (`pk`, `taskType`, `taskTypePKReference`, `description`, `replaces`, `lastModified`) VALUES ('008e5b38-b19c-48af-896f-349aaf5eba9f','6f0b612c-867f-4dfd-8e43-5b35b7f882d7','be6dda53-ef28-42dd-8452-e11734d57a91','Set SIP to normalize with mediainfo file identification.',NULL,'2012-10-23 19:41:24');
 UPDATE TasksConfigs SET description='Set SIP to normalize with MediaInfo file identification.' WHERE pk = '008e5b38-b19c-48af-896f-349aaf5eba9f';
-
-
 -- /Issue 5034
+
 
 -- 5088 Tasks table does not have foreign key for Jobs
 ALTER TABLE Tasks
 ADD FOREIGN KEY (jobUUID)
 REFERENCES Jobs(jobUUID);
 -- /5088
+
 
 -- Issue 5032 Support normalization based on FIDO file IDs --
 INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvailable`, `replaces`, `lastModified`) VALUES ('e95b8f27-ea52-4247-bdf0-615273bc5fca','f4dea20e-f3fe-4a37-b20f-0e70a7bc960e','c76624a8-6f85-43cf-8ea7-0663502c712f',NULL,'2012-10-23 19:41:24');
@@ -127,11 +127,9 @@ UPDATE MicroServiceChainLinks SET defaultNextChainLink = @NextMicroServiceChainL
 
 -- set zero exit code --
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = @NextMicroServiceChainLink where microServiceChainLink = @XLink;
-
-
-
-
 -- /Issue 5032 --
+
+
 -- Issue 5027 Support normalization based on tika file IDs --
 INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvailable`, `replaces`, `lastModified`) VALUES ('44304ff6-86f9-444e-975f-e578c7f3d15a','f4dea20e-f3fe-4a37-b20f-0e70a7bc960e','46824987-bd47-4139-9871-6566f5abdf1a',NULL,'2012-10-23 19:41:25'); 
 
@@ -162,6 +160,7 @@ UPDATE MicroServiceChainLinks SET defaultNextChainLink = @NextMicroServiceChainL
 
 -- set zero exit code --
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = @NextMicroServiceChainLink where microServiceChainLink = @XLink;
+-- /Issue 5027 --
 
 -- /Issue 5027 --
 
@@ -884,6 +883,43 @@ UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='d2c2b65d-3
 
 -- /Issue 5005
 
+-- Issue 5187 Develop Storage Service --
+-- Remove StorageDirectories and SourceDirectories - in storage service now
+DROP TABLE IF EXISTS `StorageDirectories`;
+DROP TABLE IF EXISTS `SourceDirectories`;
+DELETE FROM `MicroServiceChoiceReplacementDic` WHERE description = 'Store AIP in standard Archivematica Directory';
+
+-- Update storeAIP parameters
+UPDATE StandardTasksConfigs SET arguments='\"%AIPsStore%\" \"%SIPDirectory%%SIPName%-%SIPUUID%.7z\" \"%SIPUUID%\" \"%SIPName%\"' WHERE pk='7df9e91b-282f-457f-b91a-ad6135f4337d';
+
+-- Split storeAIP into several sequential scripts: verifyAIP, storeAIP and indexAIP
+
+-- Verify AIP
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('ae6b87d8-59c8-4ffa-b417-ce93ab472e74', 0, 'verifyAIP_v0.0', '\"%SIPUUID%\" \"%SIPDirectory%%SIPName%-%SIPUUID%.7z\"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('b57b3564-e271-4226-a5f9-2c7cf1661a83', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', 'ae6b87d8-59c8-4ffa-b417-ce93ab472e74', 'Verify AIP');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('3f543585-fa4f-4099-9153-dd6d53572f5c', 'Store AIP', 'Failed', 'b57b3564-e271-4226-a5f9-2c7cf1661a83', @MoveSIPToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('b060a877-9a59-450c-8da0-f32b97b1a516', '3f543585-fa4f-4099-9153-dd6d53572f5c', 0, '20515483-25ed-4133-b23e-5bb14cab8e22', 'Completed successfully');
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='3f543585-fa4f-4099-9153-dd6d53572f5c' WHERE pk='5f213529-ced4-49b0-9e30-be4e0c9b81d5';
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='3f543585-fa4f-4099-9153-dd6d53572f5c' WHERE microServiceChainLink='5f213529-ced4-49b0-9e30-be4e0c9b81d5';
+
+-- Index AIP
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('81f36881-9e54-4c75-a5b2-838cfb2ca228', 0, 'indexAIP_v0.0', '\"%SIPUUID%\" \"%SIPName%\" \"%SIPDirectory%%SIPName%-%SIPUUID%.7z\"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('134a1a94-22f0-4e67-be17-23a4c7178105', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '81f36881-9e54-4c75-a5b2-838cfb2ca228', 'Index AIP');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('48703fad-dc44-4c8e-8f47-933df3ef6179', 'Store AIP', 'Failed', '134a1a94-22f0-4e67-be17-23a4c7178105', @MoveSIPToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('0783a1ab-f70e-437b-8bec-cd1f2135ba2a', '48703fad-dc44-4c8e-8f47-933df3ef6179', 0, 'd5a2ef60-a757-483c-a71a-ccbffe6b80da', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='48703fad-dc44-4c8e-8f47-933df3ef6179' WHERE microServiceChainLink='20515483-25ed-4133-b23e-5bb14cab8e22';
+
+-- Fetch AIP Store Locations from Storage Service, instead of using MicroServiceChoiceReplacementDic
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('857fb861-8aa1-45c0-95f5-c5af66764142', 0, 'getAipStorageLocations_v0.0', '');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('75e00332-24a3-4076-aed1-e3dc44379227', 'a19bfd9f-9989-4648-9351-013a10b382ed', '857fb861-8aa1-45c0-95f5-c5af66764142', 'Retrieve AIP Storage Locations');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('49cbcc4d-067b-4cd5-b52e-faf50857b35a', 'Store AIP', 'Failed', '75e00332-24a3-4076-aed1-e3dc44379227', '2d32235c-02d4-4686-88a6-96f4d6c7b1c3');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('7deb2533-ae68-4ffa-9217-85d5bb4bfd62', '49cbcc4d-067b-4cd5-b52e-faf50857b35a', 0, 'b320ce81-9982-408a-9502-097d0daa48fa', 'Completed successfully');
+UPDATE MicroServiceChains SET startingLink='49cbcc4d-067b-4cd5-b52e-faf50857b35a' WHERE startingLink='b320ce81-9982-408a-9502-097d0daa48fa';
+-- Store AIP Location gets info from MicroService
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute) VALUES ('ebab9878-f42e-4451-a24a-ec709889a858', 0, '%AIPsStore%');
+UPDATE TasksConfigs SET taskType='01b748fe-2e9d-44e4-ae5d-113f74c9a0ba', taskTypePKReference='ebab9878-f42e-4451-a24a-ec709889a858' WHERE pk='fb64af31-8f8a-4fe5-a20d-27ee26c9dda2';
+
+-- /Issue 5187 Develop Storage Service
 
 -- Issue 5246
 -- Skip 'Create removal from backlog PREMIS events' for SIPS that were never in backlog

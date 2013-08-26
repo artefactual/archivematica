@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block title %}Welcome{% endblock %}
+{% block h1 %}Welcome{% endblock %}
+{% block page_id %}welcome{% endblock %}
+
+{% block css %}
+  <style type="text/css">
+    .submit {
+      margin-bottom: 1em;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="span9 offset2">
+    <img src="{{ STATIC_URL }}images/logo_welcome.gif" style="margin-bottom: 20px;" />
+
+    <form action="#" method="POST">
+      <div id="storage" class="well">
+        <p>Dashboard UUID: {{ dashboard_uuid }}</p>
+
+        {{ storage_form.as_p }}
+
+        <p>Would you like to used the default transfer source and AIP storage locations?</p>
+      </div>
+      <input class="submit" type="submit" name="use_default" value="Yes, I'll use the default setup" />
+      <input class="submit" type="submit" name="configure" value="No, just register this pipeline" onclick="window.open($('#id_storage_service_url').val());" />
+    </form>
+  </div>
+</div>
+
+{% endblock %}

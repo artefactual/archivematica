@@ -15,6 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import ConfigParser
+import cPickle
+import logging
+import mimetypes
+import os
+import pprint
+import urllib
+import json
+
 from django.utils.dateformat import format
 from django.core.paginator import Paginator, EmptyPage
 from django.core.urlresolvers import reverse
@@ -22,8 +31,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.servers.basehttp import FileWrapper
 from django.shortcuts import render
 from main import models
-import cPickle, pprint, ConfigParser, urllib, os, mimetypes
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="/tmp/archivematica.log", 
+    level=logging.INFO)
+
+# Used for debugging
 def pr(object):
     return pprint.pformat(object)
 
@@ -58,6 +71,12 @@ def keynat(string):
         else:
             r.append(c.lower())
     return r
+
+def json_response(data):
+    return HttpResponse(
+        json.dumps(data),
+        mimetype='application/json'
+    )
 
 # this class wraps Pyes search results so the Django Paginator class
 # can work on the results
@@ -295,3 +314,5 @@ def hidden_features():
         hide_features[short_form] = not get_boolean_setting(long_form)
 
     return hide_features
+
+

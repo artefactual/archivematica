@@ -1,0 +1,21 @@
+{% extends "layout_fluid.html" %}
+
+{% block content %}
+
+<h1>{{ prompt }}</h1>
+
+<p>Choosing to delete this AIP will send a request to your Archival Storage administrator. If the administrator approves the request, your AIP will be deleted from your Archival Storage and your index will be updated. If the administrator denies the request, the AIP will remain in storage and the administrator will contact you.</p>
+<br/>
+
+<form method="POST" action="">
+  <input type="hidden" name="__confirm__" value="1" />
+  <p>
+    <strong>Reason for deletion:</strong>
+  </p>
+  <p>
+    <textarea name="reason_for_deletion"></textarea>
+  </p>
+  <input type="submit" value="{{ action }}" class='btn primary' /> <a href="{{ cancel_url }}" class='btn'>Cancel</a>
+</form>
+
+{% endblock %}

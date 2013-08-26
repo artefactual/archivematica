@@ -20,18 +20,13 @@ from django.conf import settings
 
 urlpatterns = patterns('components.administration.views',
     (r'^$', 'administration'),
-    #(r'edit/(?P<id>\d+)/$', 'administration_edit'),
     (r'dip/$', 'administration_dip'),
     (r'dip/edit/(?P<id>' + settings.UUID_REGEX + ')/$', 'dip_edit'),
     (r'dips/atom/$', 'atom_dips'),
     (r'dips/contentdm/$', 'contentdm_dips'),
     (r'sources/$', 'sources'),
-    (r'sources/delete/json/(?P<id>' + settings.UUID_REGEX + ')/$', 'sources_delete_json'),
-    (r'storage/delete/json/(?P<id>' + settings.UUID_REGEX + ')/$', 'storage_delete_json'),
     (r'storage/$', 'storage'),
     (r'processing/$', 'processing'),
-    (r'sources/json/$', 'sources_json'),
-    (r'storage/json/$', 'storage_json'),
     (r'premis/agent/$', 'premis_agent'),
     (r'api/$', 'api'),
     (r'general/$', 'general')

@@ -17,9 +17,9 @@ You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function createDirectoryPicker(baseDirectory, modalCssId, targetCssId) {
+function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCssId) {
   var selector = new DirectoryPickerView({
-    ajaxChildDataUrl: '/filesystem/children/',
+    ajaxChildDataUrl: '/filesystem/children/location/' + locationUUID + '/',
     el: $('#explorer'),
     levelTemplate: $('#template-dir-level').html(),
     entryTemplate: $('#template-dir-entry').html()

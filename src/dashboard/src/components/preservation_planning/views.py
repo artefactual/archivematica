@@ -38,7 +38,6 @@ import pyes
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
 import FPRClient.main as FPRClient
 
-import json
 results_per_page = 16
 
 # TODO: remove this after FPR work finalized
@@ -402,7 +401,5 @@ def fprdownload(request):
     except:
         response_data['response'] = 'unable to connect to FPR Server'
         response_data['result'] = 'failed'
-     
-    myresult=json.dumps(response_data)
-
-    return HttpResponse(myresult, mimetype='application/json')
+ 
+    return helpers.json_response(response_data)
