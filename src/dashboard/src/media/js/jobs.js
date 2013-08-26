@@ -166,7 +166,7 @@ JobCollection = Backbone.Collection.extend({
       for(status in statusIcons) {
          if (job.currentstep == status) {
            icon = statusIcons[status];
-           title = job.currentStep;
+           title = job.currentstep;
            break;
          }
       }
