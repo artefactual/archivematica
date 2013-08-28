@@ -17,6 +17,7 @@
 
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render
@@ -45,6 +46,8 @@ def add(request):
             api_key = ApiKey.objects.create(user=newuser)
             api_key.key = api_key.generate_key()
             api_key.save()
+
+            messages.info(request, 'Saved.')
             return HttpResponseRedirect(reverse('components.accounts.views.list'))
         else:
             print "%s" % repr(form.errors)   
@@ -67,7 +70,6 @@ def edit(request, id=None):
     # Load user
     if id is None:
         user = request.user
-        #id = request.user.id
         title = 'Edit your profile (%s)' % user
     else:
         try:
@@ -104,6 +106,7 @@ def edit(request, id=None):
             else:
                 return_view = 'components.accounts.views.list'
 
+            messages.info(request, 'Saved.')
             return HttpResponseRedirect(reverse(return_view))
     else:
         form = UserChangeForm(instance=user)
