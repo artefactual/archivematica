@@ -213,3 +213,12 @@ UPDATE StandardTasksConfigs SET arguments='\"%AIPsStore%\" \"%SIPDirectory%%AIPF
 UPDATE StandardTasksConfigs SET arguments='775 \"%SIPDirectory%%AIPFilename%\"' WHERE pk='ba937c55-6148-4f45-a9ad-9697c0cf11ed';
 
 -- /Issue 5484
+
+-- Issue 5159 AIP Pointer file
+-- Add MicroService that generates Pointer File after Compress AIP
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('45f11547-0df9-4856-b95a-3b1ff0c658bd', 0, 'createPointerFile_v0.0', '%SIPUUID% %SIPName% %AIPCompressionAlgorithm% %SIPDirectory% %AIPFilename%');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('a20c5353-9e23-4b5d-bb34-09f2efe1e54d', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '45f11547-0df9-4856-b95a-3b1ff0c658bd', 'Create AIP Pointer File');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('0915f727-0bc3-47c8-b9b2-25dc2ecef2bb', 'Prepare AIP', 'Failed', 'a20c5353-9e23-4b5d-bb34-09f2efe1e54d', @MoveSIPToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('f5644951-ecaa-42bc-9286-ed4ee220b58f', '0915f727-0bc3-47c8-b9b2-25dc2ecef2bb', 0, '5fbc344c-19c8-48be-a753-02dac987428c', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='0915f727-0bc3-47c8-b9b2-25dc2ecef2bb' WHERE microServiceChainLink='d55b42c8-c7c5-4a40-b626-d248d2bd883f';
+-- /Issue 5159
