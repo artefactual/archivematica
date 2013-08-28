@@ -31,10 +31,6 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from externals.HTML import HTML 
 
-
-def getEmailsFromList():
-    return ["joseph@artefactual.com"]
-
 def getEmailsFromDashboardUsers():
     ret = []
     sql = "SELECT email FROM auth_user where is_active = 1;"
@@ -47,10 +43,6 @@ def getEmailsFromDashboardUsers():
             continue
         ret.append(email)
     return ret
-
-def getEmailsFromUnitApprovingUser():
-    return []
-
 
 def sendEmail(subject, to, from_, content, server):
     to2 = ", ".join(to) 
@@ -69,27 +61,15 @@ def sendEmail(subject, to, from_, content, server):
     server.sendmail(from_, to, msg.as_string())
     server.quit()
 
+def getUnitStatisticalDataHTML(unitIdentifier):
+    fields = ["unitType", "Total time processing", "total file size", "number of files", "average file size KB", "average file size MB"]
+    sql = """SELECT `%s` FROM PDI_by_unit WHERE SIP_OR_TRANSFER_UUID = '%s';""" % ("`, `".join(fields), unitIdentifier)
+    rows = databaseInterface.queryAllSQL(sql)
+    return HTML.table(rows, header_row=fields)
 
-
-
-def getContentFor(unitType, unitName, unitIdentifier):
-    root = etree.Element("HTML")
-    body = etree.SubElement(root, "body")
+def getUnitJobLogHTML(unitIdentifier):
     parser = etree.HTMLParser(remove_blank_text=True)
-    
-    try:
-        fields = ["unitType", "Total time processing", "total file size", "number of files", "average file size KB", "average file size MB"]
-        sql = """SELECT `%s` FROM PDI_by_unit WHERE SIP_OR_TRANSFER_UUID = '%s';""" % ("`, `".join(fields), unitIdentifier)
-        rows = databaseInterface.queryAllSQL(sql)
-        htmlcode1 = HTML.table(rows, header_row=fields)
-        t1 = etree.fromstring(htmlcode1, parser).find("body/table")  
-        body.append(t1)
-        
-        etree.SubElement(body, "p")
-    except:
-        pass
 
-        
     sql = """SELECT Jobs.jobType, Jobs.currentStep, Jobs.createdTime, jobUUID
     FROM Jobs 
     WHERE Jobs.SIPUUID = '%s' 
@@ -119,8 +99,8 @@ def getContentFor(unitType, unitName, unitIdentifier):
             duration = 0
             newRow.append(0)
         
-        
         rows2.append(newRow)
+
     htmlcode2 = HTML.table(rows2, header_row=["Type", "Status", "Started", "Duration"])
     t2 = etree.fromstring(htmlcode2, parser).find("body/table")
     i = 0  
@@ -140,10 +120,44 @@ def getContentFor(unitType, unitName, unitIdentifier):
         else:
             tr.set("bgcolor", "yellow")
         i+=1
-        
-    body.append(t2)
+
+    return etree.tostring(t2)
+
+def getContentFor(unitType, unitName, unitIdentifier, as_html_page=True):
+    if as_html_page:
+        root = etree.Element("HTML")
+        body = etree.SubElement(root, "BODY")
+    else:
+        root = etree.Element("DIV")
+
+    parser = etree.HTMLParser(remove_blank_text=True)
     
+    try:
+        htmlcode1 = getUnitStatisticalDataHTML(unitIdentifier)
+        t1 = etree.fromstring(htmlcode1, parser).find("body/table")  
+
+        if as_html_page:
+            body.append(t1)
+            etree.SubElement(body, "p")
+        else:
+            root.append(t1)
+            etree.SubElement(root, "p")
+    except:
+        pass
+
+    html2code = getUnitJobLogHTML(unitIdentifier)
+    t2 = etree.fromstring(html2code, parser).find("body/table")
+
+    if as_html_page:
+        body.append(t2)
+    else:
+        root.append(t2)
+
     return etree.tostring(root, pretty_print=True)
+
+def storeReport(content, type, name, UUID):
+    sql = """INSERT INTO Reports (content, unitType, unitName, unitIdentifier) VALUES ('%s', '%s', '%s', '%s')""" % (content, type, name, UUID)
+    databaseInterface.queryAllSQL(sql)
 
 if __name__ == '__main__':
     parser = OptionParser()
@@ -165,3 +179,6 @@ if __name__ == '__main__':
     server = "localhost"
     
     sendEmail(subject, to, from_, content, server)
+
+    content = getContentFor(opts.unitType, opts.unitName, opts.unitIdentifier, False)
+    storeReport(content, opts.unitType, opts.unitName, opts.unitIdentifier)

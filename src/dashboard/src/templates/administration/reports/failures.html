@@ -1,0 +1,63 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+{% load url from future %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <h3>Failure report</h3>
+
+      {% if reports|length > 0 %}
+        <table class="bordered-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Name</th>
+              <th>UUID</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for report in page.objects %}
+            <tr>
+              <td><a href="{% url 'components.administration.views.failure_report' report.pk %}"><span class='timestamp'>{{ report.created|date:"U" }}</span></a></td>
+              <td><span class="label important">{{ report.unittype }}</span></td>
+              <td><a href="{% url 'components.administration.views.failure_report' report.pk %}">{{ report.unitname }}</a></td>
+              <td><a href="{% url 'components.administration.views.failure_report' report.pk %}">{{ report.unitidentifier }}</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <script>
+        $(document).ready(function () {
+          $('#paging_jump_to').change(function() {
+            window.location = '/administration/reports/failures/?{{ search_params }}&page=' + $(this).val();
+          });
+        });
+        </script>
+
+        {% include '_pager.html' %}
+      {% else %}
+        No reports found.
+      {% endif %}
+
+    </div>
+  </div>
+
+  <script>
+  $(document).ready(function() {
+    localizeTimestampElements();
+  });
+  </script>
+
+{% endblock %}

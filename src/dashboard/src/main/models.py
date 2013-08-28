@@ -237,6 +237,17 @@ class Agent(models.Model):
     class Meta:
         db_table = u'Agents'
 
+class Report(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk')
+    unittype = models.CharField(max_length=50, db_column='unitType')
+    unitname = models.CharField(max_length=50, db_column='unitName')
+    unitidentifier = models.CharField(max_length=50, db_column='unitIdentifier')
+    content = models.TextField(db_column='content')
+    created = models.DateTimeField(db_column='created')
+
+    class Meta:
+        db_table = u'Reports'
+
 class RightsStatement(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     metadataappliestotype = models.CharField(max_length=50, db_column='metadataAppliesToType')

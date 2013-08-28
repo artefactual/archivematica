@@ -27,7 +27,8 @@ from main import forms, models
 import components.administration.views_processing as processing_views
 from components.administration.forms import (AdministrationForm, AgentForm,
     SettingsForm, StorageSettingsForm)
-import components.decorators  # Not used, but if it's removed, everything breaks
+import components.decorators as decorators
+from django.template import RequestContext
 import components.helpers as helpers
 import storageService as storage_service
 
@@ -41,7 +42,35 @@ logging.basicConfig(filename="/tmp/archivematica.log",
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 def administration(request):
-    return HttpResponseRedirect(reverse('components.administration.views.sources'))
+    return HttpResponseRedirect(reverse('components.administration.views.failure_report'))
+
+def failure_report(request, report_id=None):
+    if report_id != None:
+        report = models.Report.objects.get(pk=report_id)
+        return render(request, 'administration/reports/failure_detail.html', locals())
+    else:
+        current_page_number = request.GET.get('page', '1')
+        items_per_page = 10
+
+        reports = models.Report.objects.all().order_by('-created')
+        page = helpers.pager(reports, items_per_page, current_page_number)
+        return render(request, 'administration/reports/failures.html', locals())
+
+def delete_context(request, report_id):
+    report = models.Report.objects.get(pk=report_id)
+    prompt = 'Delete failure report for ' + report.unitname + '?'
+    cancel_url = reverse("components.administration.views.failure_report", args=[report.pk])
+    return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
+
+@decorators.confirm_required('simple_confirm.html', delete_context)
+def failure_report_delete(request, report_id):
+    models.Report.objects.get(pk=report_id).delete()
+    # add notification
+    # redirect to blah
+    return HttpResponseRedirect(reverse('components.administration.views.failure_report'))
+
+def failure_report_detail(request):
+    return render(request, 'administration/reports/failure_report_detail.html', locals())
 
 def administration_dip(request):
     upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")

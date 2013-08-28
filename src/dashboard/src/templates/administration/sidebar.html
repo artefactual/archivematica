@@ -2,6 +2,7 @@
 {% load url from future %}
 <div class="span3 sidebar">
 
+  {% url 'components.administration.views.failure_report' as failure_report %}
   {% url 'components.administration.views.administration_dip' as url_dip %}
   {% url 'components.administration.views.contentdm_dips' as url_contentdm_dips %}
   {% url 'components.administration.views.sources' as url_sources %}
@@ -13,6 +14,7 @@
   {% url 'components.administration.views.general' as url_general %}
 
   <ul>
+    <li class="{% active request failure_report %}"><a href="{{ failure_report }}">Failures</a></li>
 
     <li class="{% active request url_sources %}"><a href="{{ url_sources }}">Transfer source locations</a></li>
 

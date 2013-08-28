@@ -928,3 +928,16 @@ INSERT INTO `MicroServiceChains` (`pk`, `startingLink`, `description`, `replaces
 -- WatchedDirectory system/autoProcessSIP should point at new chain
 UPDATE WatchedDirectories SET chain='fefdcee4-dd84-4b55-836f-99ef880ecdb6' WHERE pk='88f9c08e-ebc3-4334-9126-79d0489e8f39';
 -- /Issue 5246
+
+-- Issue 1929
+-- Store pass/fail reports in database for easy reference
+CREATE TABLE Reports (
+  pk int(10) unsigned NOT NULL AUTO_INCREMENT,
+  unitType VARCHAR(50) DEFAULT NULL,
+  unitName VARCHAR(50) DEFAULT NULL,
+  unitIdentifier VARCHAR(50) DEFAULT NULL,
+  content LONGTEXT,
+  created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (pk)
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- /Issue 1929

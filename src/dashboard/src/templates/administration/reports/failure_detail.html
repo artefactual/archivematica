@@ -1,0 +1,34 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+{% load url from future %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <h3>Failure report: {{ report.unitname }}</h3>
+      <code>{{ report.unitidentifier }}</code>
+
+      <p/>
+      <br/>
+
+      {{ report.content|safe }}
+
+      <div style='float:right'>
+        <form action="{% url 'components.administration.views.failure_report_delete' report_id %}" method='POST'>
+          <input type='submit' value='Delete'>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+{% endblock %}
