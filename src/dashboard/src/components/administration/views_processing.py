@@ -23,6 +23,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from django.contrib import messages
 
 from main import models
 from components import helpers
@@ -201,6 +202,8 @@ def index(request):
                     )
 
         xmlChoices.write_to_file(file_path)
+
+        messages.info(request, 'Saved!')
 
         return HttpResponseRedirect(reverse('components.administration.views.processing'))
     else:

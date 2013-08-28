@@ -55,6 +55,7 @@ def dip_edit(request, id):
         if form.is_valid():
             upload_setting.arguments = form.cleaned_data['arguments']
             upload_setting.save()
+            messages.info(request, 'Saved.')
 
     return HttpResponseRedirect(reverse("components.administration.views.administration_dip"))
 
@@ -82,6 +83,12 @@ def contentdm_dips(request):
 
     if request.method != 'POST' or valid_submission:
         formset = ReplaceDirChoiceFormSet(queryset=ReplaceDirChoices)
+
+    if request.method == 'POST':
+        if valid_submission:
+            messages.info(request, 'Saved.')
+        else:
+            messages.warning(request, 'An error has occurred.')
 
     hide_features = helpers.hidden_features()
     return render(request, 'administration/dips_contentdm_edit.html', locals())
@@ -175,6 +182,7 @@ def premis_agent(request):
     if request.POST:
         form = AgentForm(request.POST, instance=agent)
         if form.is_valid():
+            messages.info(request, 'Saved.')
             form.save()
     else:
         form = AgentForm(instance=agent)
@@ -186,6 +194,7 @@ def api(request):
     if request.method == 'POST':
         whitelist = request.POST.get('whitelist', '')
         helpers.set_setting('api_whitelist', whitelist)
+        messages.info(request, 'Saved.')
     else:
         whitelist = helpers.get_setting('api_whitelist', '127.0.0.1')
 
@@ -211,6 +220,7 @@ def general(request):
     if interface_form.is_valid() and storage_form.is_valid():
         interface_form.save()
         storage_form.save()
+        messages.info(request, 'Saved.')
 
     dashboard_uuid = helpers.get_setting('dashboard_uuid')
     try:

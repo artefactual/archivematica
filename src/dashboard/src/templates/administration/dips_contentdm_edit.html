@@ -53,18 +53,6 @@
       <pre>{"%ContentdmServer%": "142.103.160.77"}</pre>
     </div>
 
-    {% if request.method == 'POST' %}
-      {% if valid_submission %}
-        <div class="alert-message success">
-          <p><strong>Saved!</p>
-        </div>
-      {% else %}
-        <div class="alert-message error">
-          <p>An error has occurred.</p>
-        </div>
-      {% endif %}
-    {% endif %}
-
     {% include "_formset.html" with formset=formset %}
 
     {{ add_form }}
