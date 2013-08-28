@@ -147,6 +147,8 @@ def set_up_mapping(conn, index):
 
     if index == 'aips':
         mapping = {
+            'name': {'type': 'string'},
+            'size': {'type': 'double'},
             'uuid': machine_readable_field_spec
         }
 
