@@ -114,9 +114,9 @@ def getUnitJobLogHTML(unitIdentifier):
         #job row
         status = rows2[i-1][1]
         if status == "Completed successfully":
-            tr.set("bgcolor", "#00FF00")
+            tr.set("bgcolor", "#dff0d8")
         elif status == "Failed":
-            tr.set("bgcolor", "RED")
+            tr.set("bgcolor", "#f2dede")
         else:
             tr.set("bgcolor", "yellow")
         i+=1
