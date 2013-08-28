@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+import argparse
 import logging
 import os
 import sys
@@ -39,18 +40,16 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica.log",
     level=logging.INFO)
 
-def store_aip():
+
+def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name):
     """ Stores an AIP with the storage service.
 
-    sys.argv[1] = storage service destination URI
-      URI of the storage service Location.  Should be of purpose AIP Store (AS)
-    sys.argv[2] = current location
-      Full absolute path to the AIP's current location on the local filesystem
-    sys.argv[3] = UUID
-      UUID of the SIP, which will become the UUID of the AIP
-    sys.argv[4] = SIP name
-      User-chosen name for the AIP.  Not used directly, but part of the AIP name
-
+    aip_destination_uri = storage service destination URI, should be of purpose
+        AIP Store (AS)
+    aip_path = Full absolute path to the AIP's current location on the local
+        filesystem
+    sip_uuid = UUID of the SIP, which will become the UUID of the AIP
+    sip_name = SIP name.  Not used directly, but part of the AIP name
 
     Example inputs:
     storeAIP.py
@@ -59,11 +58,6 @@ def store_aip():
         "0737708e-9b99-471a-b331-283e2244164f"
         "ep6"
     """
-
-    aip_destination_uri = sys.argv[1]  # %AIPsStore%
-    aip_path = sys.argv[2]  # SIPDirectory%%sip_name%-%sip_uuid%.7z
-    sip_uuid = sys.argv[3]  # %sip_uuid%
-    sip_name = sys.argv[4]  # %sip_name%, currently unused
 
     # FIXME Assume current Location is the one set up by default until location
     # is passed in properly, or use Agent to make sure is correct CP
@@ -78,7 +72,7 @@ def store_aip():
         current_path=os.path.basename(aip_path),
         package_type="AIP",
         size=os.path.getsize(aip_path)
-        )
+    )
     if new_file:
         message = "Storage service created AIP: {}".format(new_file)
         logging.info(message)
@@ -107,4 +101,11 @@ def store_aip():
     #     shutil.copy(os.path.join(thumbnailSourceDir, filename), thumbnailDestDir)
 
 if __name__ == '__main__':
-    store_aip()
+    parser = argparse.ArgumentParser(description='Create AIP pointer file.')
+    parser.add_argument('aip_destination_uri', type=str, help='%AIPsStore%')
+    parser.add_argument('aip_filename', type=str, help='%AIPFilename%')
+    parser.add_argument('sip_uuid', type=str, help='%SIPUUID%')
+    parser.add_argument('sip_name', type=str, help='%SIPName%')
+    args = parser.parse_args()
+    sys.exit(store_aip(args.aip_destination_uri, args.aip_filename,
+        args.sip_uuid, args.sip_name))
