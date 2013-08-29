@@ -3,7 +3,7 @@
 import argparse
 import datetime
 from lxml import etree
-from lxml.builder import E, ElementMaker
+from lxml.builder import ElementMaker
 import os.path
 import sys
 import uuid
@@ -61,9 +61,8 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
         'xsi': xsi,
         'xlink': xlink,
     }
-    X = ElementMaker(namespace=xsi, nsmap={'xsi': xsi})
-    XL = ElementMaker(namespace=xlink, nsmap={'xlink': xlink})
     # Set up structure
+    E = ElementMaker(nsmap=nsmap)
     root = (
         E.mets(
             E.metsHdr(CREATEDATE=now),
@@ -77,9 +76,11 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
                 ),
                 TYPE='physical'
             ),
-            schemaLocation=mets_schema_location,  # TODO namespace
         )
     )
+    # Namespaced attributes have to be added separately - don't know how to do
+    # inline with E
+    root.attrib['{{{ns}}}schemaLocation'.format(ns=xsi)] = mets_schema_location
 
     add_amdsec_after = root.find('metsHdr')
     filegrp = root.iterdescendants(tag='fileGrp').next()
@@ -133,11 +134,11 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
                         E.dateCreatedByApplication(now),
                     ),
                 ),
-                type='file',  # TODO namespace
-                schemaLocation=premis_schema_location,
                 version='2.2',
             )
         )
+        obj.attrib['{{{ns}}}type'.format(ns=xsi)] = 'file'
+        obj.attrib['{{{ns}}}schemaLocation'.format(ns=xsi)] = premis_schema_location
         # add obj as child of xmldata
         amdsec.iterdescendants(tag='xmlData').next().append(obj)
         # add amdSec after previous amdSec (or metsHdr if first one)
@@ -149,7 +150,6 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
         file_ = (
             E.file(
                 E.FLocat(
-                    href=aip_path,  # TODO namespace stuff
                     LOCTYPE="OTHER",
                     OTHERLOCTYPE="SYSTEM",
                 ),
@@ -158,6 +158,8 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
             )
         )
         filegrp.append(file_)
+        flocat = file_.find('FLocat')
+        flocat.attrib['{{{ns}}}href'.format(ns=xlink)] = aip_path
 
         # structMap
         fptr = etree.Element('fptr', FILEID=aip_identifier)
