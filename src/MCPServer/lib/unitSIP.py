@@ -44,6 +44,7 @@ class unitSIP(unit):
         self.pathString = "%SIPDirectory%"
         self.owningUnit = None
         self.unitType = "SIP"
+        self.aipFilename = ""
 
     def reloadFileList(self):
         """Match files to their UUID's via their location and the File table's currentLocation"""
@@ -130,22 +131,25 @@ class unitSIP(unit):
             
 
     def reload(self):
-        sql = """SELECT * FROM SIPs WHERE sipUUID =  '""" + self.UUID + "'"
+        sql = """SELECT createdTime, currentPath, aipFilename FROM SIPs WHERE sipUUID =  '""" + self.UUID + """'"""
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         while row != None:
             print row
             #self.UUID = row[0]
-            self.createdTime = deUnicode(row[1])
-            self.currentPath = deUnicode(row[2])
+            self.createdTime = deUnicode(row[0])
+            self.currentPath = deUnicode(row[1])
+            self.aipFilename = deUnicode(row[2])
+            if self.aipFilename is None:
+                self.aipFilename = ""
             row = c.fetchone()
         sqlLock.release()
 
 
     def getReplacementDic(self, target):
-        # self.currentPath = currentPath.__str__()
-        # self.UUID = uuid.uuid4().__str__()
-        #Pre do some variables, that other variables rely on, because dictionaries don't maintain order
+        """ Return a dict with all of the replacement strings for this unit and the value to replace with. """
+        # Pre-do some variables that other variables rely on because dicts
+        # don't maintain order
         SIPUUID = self.UUID
         if self.currentPath.endswith("/"):
             SIPName = os.path.basename(self.currentPath[:-1]).replace("-" + SIPUUID, "")
@@ -154,20 +158,26 @@ class unitSIP(unit):
         SIPDirectory = self.currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
         relativeDirectoryLocation = target.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
 
-
-        ret = { \
-        "%SIPLogsDirectory%": SIPDirectory + "logs/", \
-        "%SIPObjectsDirectory%": SIPDirectory + "objects/", \
-        "%SIPDirectory%": SIPDirectory, \
-        "%SIPDirectoryBasename%": os.path.basename(os.path.abspath(SIPDirectory)), \
-        "%relativeLocation%": target.replace(self.currentPath, relativeDirectoryLocation, 1), \
-        "%processingDirectory%": archivematicaMCP.config.get('MCPServer', "processingDirectory"), \
-        "%checksumsNoExtention%":archivematicaMCP.config.get('MCPServer', "checksumsNoExtention"), \
-        "%watchDirectoryPath%":archivematicaMCP.config.get('MCPServer', "watchDirectoryPath"), \
-        "%rejectedDirectory%":archivematicaMCP.config.get('MCPServer', "rejectedDirectory"), \
-        "%SIPUUID%":SIPUUID, \
-        "%SIPName%":SIPName, \
-        "%unitType%":self.unitType \
+        ret = {
+            "%SIPLogsDirectory%": SIPDirectory + "logs/",
+            "%SIPObjectsDirectory%": SIPDirectory + "objects/",
+            "%SIPDirectory%": SIPDirectory,
+            "%SIPDirectoryBasename%":
+                os.path.basename(os.path.abspath(SIPDirectory)),
+            "%relativeLocation%":
+                target.replace(self.currentPath, relativeDirectoryLocation, 1),
+            "%processingDirectory%":
+                archivematicaMCP.config.get('MCPServer', "processingDirectory"),
+            "%checksumsNoExtention%":
+                archivematicaMCP.config.get('MCPServer', "checksumsNoExtention"),
+            "%watchDirectoryPath%":
+                archivematicaMCP.config.get('MCPServer', "watchDirectoryPath"),
+            "%rejectedDirectory%":
+                archivematicaMCP.config.get('MCPServer', "rejectedDirectory"),
+            "%AIPFilename%": self.aipFilename,
+            "%SIPUUID%": SIPUUID,
+            "%SIPName%": SIPName,
+            "%unitType%": self.unitType,
         }
         return ret
 
