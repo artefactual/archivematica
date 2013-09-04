@@ -14,13 +14,13 @@
 
       <ul class="breadcrumb">
         {% if section == 'ingest' %}
-          {% breadcrumb_url 'Ingest' components.ingest.views.ingest_grid %}
+          {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
           {% breadcrumb_url name components.ingest.views.ingest_detail uuid %}
-          {% breadcrumb_url 'Rights' components.rights.views.ingest_rights_list uuid %}
+          {% breadcrumb_url 'Rights' 'components.rights.views.ingest_rights_list' uuid %}
         {% else %}
-          {% breadcrumb_url 'Transfer' components.transfer.views.grid %}
+          {% breadcrumb_url 'Transfer' 'components.transfer.views.grid' %}
           {% breadcrumb_url name components.transfer.views.detail uuid %}
-          {% breadcrumb_url 'Rights' components.rights.views.transfer_rights_list uuid %}
+          {% breadcrumb_url 'Rights' 'components.rights.views.transfer_rights_list' uuid %}
         {% endif %}
         {% if id %}
           {% breadcrumb 'Edit' %}
