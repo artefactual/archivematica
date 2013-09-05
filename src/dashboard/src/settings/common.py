@@ -169,6 +169,9 @@ INSTALLED_APPS = (
     'main',
     'components.mcp',
 
+    # FPR
+    'fpr',
+
     # For REST API
     'tastypie',
 )
