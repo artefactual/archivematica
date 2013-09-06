@@ -6,3 +6,4 @@ logutils==0.3.3
 django-tastypie==0.9.15
 django-extensions==1.1.1
 django-autoslug==1.7.0
+django-annoying
