@@ -28,7 +28,7 @@ $(document).ready(function() {
 
       <ul class="breadcrumb">
         {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
-        {% breadcrumb_url name components.ingest.views.ingest_detail uuid %}
+        {% breadcrumb_url name 'components.ingest.views.ingest_detail' uuid %}
         {% breadcrumb_url 'Metadata' 'components.ingest.views.ingest_metadata_list' uuid %}
         {% if id %}
           {% breadcrumb 'Edit' %}
