@@ -82,3 +82,5 @@ def executeOrRun(type, text, stdIn="", printing=True):
     if type == "pythonScript":
         text = "#!/usr/bin/python -OO\n" + text
         return createAndRunScript(text, stdIn=stdIn, printing=printing)
+    if type == "as_is":
+        return createAndRunScript(text, stdIn=stdIn, printing=printing)
