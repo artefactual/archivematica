@@ -38,7 +38,7 @@
             {% url 'components.transfer.views.grid' as url_transfer %}
             {% url 'components.ingest.views.ingest_grid' as url_ingest %}
             {% url 'components.archival_storage.views.overview' as url_archival_storage %}
-            {% url 'components.preservation_planning.views.preservation_planning_fpr_data' as url_preservation_planning %}
+            {% url 'fpr.views.home' as url_fpr %}
             {% url 'main.views.access_list' as url_access %}
             {% url 'components.administration.views.administration' as url_administration %}
 
@@ -47,7 +47,7 @@
               <li class="{% active request url_transfer %}"><a href="{{ url_transfer }}">Transfer</a></li>
               <li class="{% active request url_ingest %}"><a href="{{ url_ingest }}">Ingest</a></li>
               <li class="{% active request url_archival_storage %}"><a href="{{ url_archival_storage }}">Archival storage</a></li>
-              <li class="{% active request url_preservation_planning %}"><a href="{{ url_preservation_planning }}">Preservation planning</a></li>
+              <li class="{% active request url_fpr %}"><a href="{{ url_fpr }}">Format Policy</a></li>
               <li class="{% active request url_access %}"><a href="{{ url_access }}">Access</a></li>
               <li class="{% active request url_administration %}"><a href="{{ url_administration }}">Administration</a></li>
 

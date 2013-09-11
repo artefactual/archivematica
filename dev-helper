@@ -58,6 +58,12 @@ function git-pull() {
       cd localDevSetup/
       colour ./createLocalDevDirectories.sh
       cd ..
+
+      echo "Updating FPR admin..."
+      cd src/dashboard/src/external/archivematica-fpr-admin
+      git checkout master
+      git pull
+      cd ../../../../..
   else
           echo "not going to ${part}"
   fi

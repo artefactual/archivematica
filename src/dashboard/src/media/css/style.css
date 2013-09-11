@@ -701,3 +701,16 @@ textarea.command {
 #upload-dip-modal-spinner {
   display: none;
 }
+
+/* FPR administration */
+
+.breadcrumb > li:before {
+    content: " / ";
+    margin-left: 5px;
+    margin-right: 5px;
+    color: #bbb;
+}
+
+.breadcrumb > li:first-child:before {
+    content: "";
+}

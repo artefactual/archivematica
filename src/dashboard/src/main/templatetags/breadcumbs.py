@@ -17,7 +17,7 @@
 
 from django.template import loader, Node, Variable, Library
 from django.utils.encoding import smart_str, smart_unicode
-from django.template.defaulttags import url
+from django.templatetags.future import url
 from django.template import VariableDoesNotExist
 
 register = Library()

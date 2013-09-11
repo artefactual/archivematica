@@ -1116,7 +1116,9 @@ CREATE TABLE IF NOT EXISTS fpr_fprule (
 CREATE TABLE IF NOT EXISTS fpr_idcommand (
   id int(11) NOT NULL AUTO_INCREMENT,
   uuid varchar(36) NOT NULL,
-  script varchar(256) NOT NULL,
+  description varchar(256) NOT NULL,
+  script longtext NOT NULL,
+  script_type varchar(16) NOT NULL,
   replaces_id int(11) DEFAULT NULL,
   lastmodified datetime NOT NULL,
   enabled tinyint(1) NOT NULL,
@@ -1127,7 +1129,7 @@ CREATE TABLE IF NOT EXISTS fpr_idcommand (
 CREATE TABLE IF NOT EXISTS fpr_idrule (
   id int(11) NOT NULL AUTO_INCREMENT,
   uuid varchar(36) NOT NULL,
-  tool_id varchar(36) NOT NULL,
+  script_id varchar(36) NOT NULL,
   format_id varchar(36) NOT NULL,
   script_output longtext NOT NULL,
   replaces_id int(11) DEFAULT NULL,

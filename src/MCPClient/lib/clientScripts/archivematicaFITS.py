@@ -26,11 +26,7 @@ import lxml.etree as etree
 import uuid
 import subprocess
 import os
-import uuid
 
-from createXmlEventsAssist import createEvent
-from createXmlEventsAssist import createOutcomeInformation
-from createXmlEventsAssist import createLinkingAgentIdentifier
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivematicaFunctions import getTagged
 from archivematicaFunctions import escapeForCommand
@@ -47,7 +43,6 @@ FITSNS = "{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}"
 
 
 def parseIdsSimple(FITS_XML, fileUUID):
-    #simpleIdPlaces = [(table, tool, iter)]
     simpleIdPlaces = [
         ("FileIDsByFitsDROIDMimeType", "Droid", "{http://www.nationalarchives.gov.uk/pronom/FileCollection}MimeType"),
         ("FITS DROID PUID", "Droid", "{http://www.nationalarchives.gov.uk/pronom/FileCollection}PUID"),
@@ -100,10 +95,7 @@ def parseIdsSimple(FITS_XML, fileUUID):
             
 def excludeJhoveProperties(fits):
     """Exclude <properties> from <fits><toolOutput><tool name="Jhove" version="1.5"><repInfo> because that field contains unnecessary excess data and the key data are covered by output from other FITS tools."""
-    prefix = ""
     formatValidation = None
-    #print fits
-    #print etree.tostring(fits, pretty_print=True)
 
     tools = getTagged(getTagged(fits, FITSNS + "toolOutput")[0], FITSNS + "tool")
     for tool in tools:
@@ -200,23 +192,17 @@ def formatIdentificationFITSAssist(fits, fileUUID):
                         "formatRegistryKey":""}
             eventOutcomeDetailNote = getTagged(fileFormatHit, prefix + "PUID")[0].text
 
-            #formatDesignation = etree.SubElement(format, "formatDesignation")
             formatName = getTagged(fileFormatHit, prefix + "Name")
             formatVersion = getTagged(fileFormatHit, prefix + "Version")
 
 
             if len(formatName):
-                #etree.SubElement(formatDesignation, "formatName").text = formatName[0].text
                 formatIDSQL["formatName"] = formatName[0].text
             if len(formatVersion):
-                #etree.SubElement(formatDesignation, "formatVersion").text = formatVersion[0].text
                 formatIDSQL["formatVersion"] = formatVersion[0].text
-            formatRegistry = etree.SubElement(format, "formatRegistry")
 
             PUID = getTagged(fileFormatHit, prefix + "PUID")
             if len(PUID):
-                #etree.SubElement(formatRegistry, "formatRegistryName").text = "PRONOM"
-                #etree.SubElement(formatRegistry, "formatRegistryKey").text = PUID[0].text
                 formatIDSQL["formatRegistryKey"] = PUID[0].text
             formats.append(format)
             print formatIDSQL
@@ -236,19 +222,11 @@ def formatIdentificationFITSAssist(fits, fileUUID):
 
 def includeFits(fits, xmlFile, date, eventUUID, fileUUID):
     global exitCode
-    ##eventOutcome = createOutcomeInformation( eventOutcomeDetailNote = uuid)
     #TO DO... Gleam the event outcome information from the output
 
-    #print etree.tostring(fits, pretty_print=True)
     #</CREATE formatIdentificationFITSAssist EVENTS>
-    try:
-        eventDetailText, eventOutcomeText, eventOutcomeDetailNotes = formatIdentificationFITSAssist(fits, fileUUID)
-    except:
-        eventDetailText = "Failed"
-        eventOutcomeText = "Failed"
-        eventOutcomeDetailNotes = ["Failed"]
-        exitCode += 4
-    
+    eventDetailText, eventOutcomeText, eventOutcomeDetailNotes = formatIdentificationFITSAssist(fits, fileUUID)
+
     for eventOutcomeDetailNote in eventOutcomeDetailNotes:
         insertIntoEvents(fileUUID=fileUUID, \
                          eventIdentifierUUID=uuid.uuid4().__str__(), \
@@ -266,11 +244,6 @@ def includeFits(fits, xmlFile, date, eventUUID, fileUUID):
         eventOutcomeText = "Failed"
         eventOutcomeDetailNote = "Failed"
         exitCode += 3
-    #outcomeInformation = createOutcomeInformation( eventOutcomeDetailNote, eventOutcomeText)
-    #formatValidationEvent = createEvent( uuid.uuid4().__str__(), "validation", \
-    #                                         eventDateTime=date, \
-    #                                         eventDetailText=eventDetailText, \
-    #                                         eOutcomeInformation=outcomeInformation)
     insertIntoEvents(fileUUID=fileUUID, \
                      eventIdentifierUUID=uuid.uuid4().__str__(), \
                      eventType="validation", \
@@ -278,24 +251,6 @@ def includeFits(fits, xmlFile, date, eventUUID, fileUUID):
                      eventDetail=eventDetailText, \
                      eventOutcome=eventOutcomeText, \
                      eventOutcomeDetailNote=eventOutcomeDetailNote)
-
-    #tree = etree.parse( xmlFile )
-    #root = tree.getroot()
-
-    #events = getTagged(root, "events")[0]
-    #events.append(formatIdentificationEvent)
-    #events.append(formatValidationEvent)
-
-    #objectCharacteristics = getTagged(getTagged(root, "object")[0], "objectCharacteristics")[0]
-    #for format in formats:
-    #    objectCharacteristics.append(format)
-    #objectCharacteristicsExtension = etree.SubElement(objectCharacteristics, "objectCharacteristicsExtension")
-    #objectCharacteristicsExtension.append(fits)
-
-
-
-    #tree = etree.ElementTree(root)
-    #tree.write(xmlFile)
 
 if __name__ == '__main__':
     global exitCode
@@ -319,12 +274,9 @@ if __name__ == '__main__':
     tempFile="/tmp/" + uuid.uuid4().__str__()
 
     command = "openfits -i \"" + escapeForCommand(target) + "\" -o \"" + tempFile + "\""
-    #print >>sys.stderr, command
-    #print >>sys.stderr,  shlex.split(command)
     try:
         p = subprocess.Popen(shlex.split(command), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        #p.wait()
         output = p.communicate()
         retcode = p.returncode
 
@@ -337,7 +289,6 @@ if __name__ == '__main__':
         if retcode != 0:
             print >>sys.stderr, "error code:" + retcode.__str__()
             print output[1]# sError
-            #return retcode
             quit(retcode)
         try:
             tree = etree.parse(tempFile)
@@ -347,7 +298,6 @@ if __name__ == '__main__':
             exit(2)
         fits = tree.getroot()
         os.remove(tempFile)
-        #fits = etree.XML(output[0])
         if excludeJhoveProperties:
             fits = excludeJhoveProperties(fits)
         insertIntoFilesFits(fileUUID, etree.tostring(fits, pretty_print=False))
@@ -356,6 +306,5 @@ if __name__ == '__main__':
 
     except OSError, ose:
         print >>sys.stderr, "Execution failed:", ose
-        #return 1
         exit(1)
     exit(exitCode)
