@@ -152,10 +152,11 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
                     LOCTYPE="OTHER",
                     OTHERLOCTYPE="SYSTEM",
                 ),
-                ID=aip_identifier,  # file
-                ADMID=amdsec_id,
             )
         )
+        # Specify attribute ordering
+        file_.set('ID', aip_identifier)
+        file_.set('ADMID', amdsec_id)
         filegrp.append(file_)
         flocat = file_.find('FLocat')
         flocat.attrib['{{{ns}}}href'.format(ns=xlink)] = aip_path
