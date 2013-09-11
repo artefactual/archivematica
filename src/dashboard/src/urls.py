@@ -31,6 +31,5 @@ urlpatterns = patterns('',
     (r'^administration/', include('components.administration.urls')),
     (r'^filesystem/', include('components.filesystem_ajax.urls')),
     (r'^api/', include('components.api.urls')),
-    (r'^fpr/', include('fpr.urls')),
     (r'', include('main.urls'))
 )

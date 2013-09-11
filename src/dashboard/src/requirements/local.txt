@@ -1,0 +1,3 @@
+-r base.txt
+
+ipython==1.1.0

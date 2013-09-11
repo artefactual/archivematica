@@ -1129,9 +1129,9 @@ CREATE TABLE IF NOT EXISTS fpr_idcommand (
 CREATE TABLE IF NOT EXISTS fpr_idrule (
   id int(11) NOT NULL AUTO_INCREMENT,
   uuid varchar(36) NOT NULL,
-  script_id varchar(36) NOT NULL,
+  command_id varchar(36) NOT NULL,
   format_id varchar(36) NOT NULL,
-  script_output longtext NOT NULL,
+  command_output longtext NOT NULL,
   replaces_id int(11) DEFAULT NULL,
   lastmodified datetime NOT NULL,
   enabled tinyint(1) NOT NULL,
@@ -1164,7 +1164,7 @@ CREATE TABLE IF NOT EXISTS fpr_idtoolconfig (
   UNIQUE KEY uuid (uuid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS fpr_normalizationcommand (
+CREATE TABLE IF NOT EXISTS fpr_fpcommand (
   id int(11) NOT NULL AUTO_INCREMENT,
   uuid varchar(36) NOT NULL,
   description varchar(256) NOT NULL,
@@ -1183,15 +1183,15 @@ CREATE TABLE IF NOT EXISTS fpr_normalizationcommand (
   UNIQUE KEY uuid (uuid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS fpr_normalizationcommand_tool (
+CREATE TABLE IF NOT EXISTS fpr_fpcommand_tool (
   id int(11) NOT NULL AUTO_INCREMENT,
-  normalizationcommand_id int(11) NOT NULL,
-  normalizationtool_id int(11) NOT NULL,
+  fpcommand_id int(11) NOT NULL,
+  fptool_id int(11) NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY fpr_normalizationcommand__normalizationcommand_id_1ef78061_uniq (normalizationcommand_id,normalizationtool_id)
+  UNIQUE KEY fpr_fpcommand__fpcommand_id_1ef78061_uniq (fpcommand_id,fptool_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS fpr_normalizationtool (
+CREATE TABLE IF NOT EXISTS fpr_fptool (
   id int(11) NOT NULL AUTO_INCREMENT,
   uuid varchar(36) NOT NULL,
   description varchar(256) NOT NULL,
