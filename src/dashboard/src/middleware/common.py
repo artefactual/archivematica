@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf import settings
-from django.http import HttpResponseServerError, HttpResponseRedirect
+from django.http import HttpResponseServerError
 from django.template.base import TemplateDoesNotExist
 
 class AJAXSimpleExceptionResponseMiddleware:

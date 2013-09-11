@@ -28,7 +28,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
 
 from tastypie.models import ApiKey
 
@@ -48,7 +48,7 @@ logging.basicConfig(filename="/tmp/archivematica.log",
 def welcome(request):
     # This form will be only accessible when the database has no users
     if 0 < User.objects.count():
-        return HttpResponseRedirect(reverse('main.views.home'))
+        return redirect('main.views.home')
     # Form
     if request.method == 'POST':
         
@@ -78,7 +78,7 @@ def welcome(request):
             if user is not None:
                 login(request, user)
                 request.session['first_login'] = True
-                return HttpResponseRedirect(reverse('installer.views.fprconnect'))
+                return redirect('installer.views.fprconnect')
     else:
         form = SuperUserCreationForm()
 
@@ -101,7 +101,7 @@ def get_my_ip():
     
 def fprconnect(request):
     if request.method == 'POST':
-        return HttpResponseRedirect(reverse('installer.views.storagesetup'))
+        return redirect('installer.views.storagesetup')
     else:
         return render(request, 'installer/fprconnect.html')
 
@@ -168,6 +168,6 @@ def storagesetup(request):
                 storage_service.create_pipeline()
             except Exception:
                 pass
-        return HttpResponseRedirect(reverse('main.views.home'))
+        return redirect('main.views.home')
     else:
         return render(request, 'installer/storagesetup.html', locals())

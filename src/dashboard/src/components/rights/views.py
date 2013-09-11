@@ -18,7 +18,7 @@
 from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
 from django.shortcuts import redirect, render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from contrib import utils
 from components.rights import forms
 from main import models
@@ -377,9 +377,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
             new_content_type_created = 'other'
 
         if request.POST.get('next_button', '') != None and request.POST.get('next_button', '') != '':
-            return HttpResponseRedirect(
-                reverse('components.rights.views.%s_rights_grants_edit' % section, args=[uuid, createdRights.pk])
-            )
+            return redirect('components.rights.views.%s_rights_grants_edit' % section, uuid, createdRights.pk)
         else:
             url = reverse('components.rights.views.%s_rights_edit' % section, args=[uuid, createdRights.pk])
             try:
@@ -387,7 +385,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
                 url = url + '?created=' + new_content_type_created
             except:
                 pass
-            return HttpResponseRedirect(url)
+            return redirect(url)
     else:
         copyrightFormset = CopyrightFormSet(instance=viewRights)
         statuteFormset   = StatuteFormSet(instance=viewRights)
@@ -473,7 +471,7 @@ def rights_grants_edit(request, uuid, id, section='ingest'):
 
     if request.method == 'POST':
         if request.POST.get('next_button', '') != None and request.POST.get('next_button', '') != '':
-            return HttpResponseRedirect(reverse('components.rights.views.%s_rights_list' % section, args=[uuid]))
+            return redirect('components.rights.views.%s_rights_list' % section, uuid)
         else:
             url = reverse('components.rights.views.%s_rights_grants_edit' % section, args=[uuid, viewRights.pk])
             try:
@@ -481,17 +479,17 @@ def rights_grants_edit(request, uuid, id, section='ingest'):
                 url = url + '?created=' + new_content_type_created
             except:
                 pass
-            return HttpResponseRedirect(url)
+            return redirect(url)
     else:
         return render(request, 'rights/rights_grants_edit.html', locals())
 
 def rights_delete(request, uuid, id, section):
     models.RightsStatement.objects.get(pk=id).delete()
-    return HttpResponseRedirect(reverse('components.rights.views.%s_rights_list' % section, args=[uuid]))
+    return redirect('components.rights.views.%s_rights_list' % section, uuid)
 
 def rights_grant_delete(request, uuid, id, section):
     models.RightsStatementRightsGranted.objects.get(pk=id).delete()
-    return HttpResponseRedirect(reverse('components.rights.views.%s_rights_list' % section, args=[uuid]))
+    return redirect('components.rights.views.%s_rights_list' % section, uuid)
 
 def rights_holders_lookup(request, id):
     try:

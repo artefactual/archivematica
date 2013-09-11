@@ -21,7 +21,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import connection
 from django.shortcuts import render
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseBadRequest
+from django.shortcuts import redirect
 import json
 from contrib.mcp.client import MCPClient
 from contrib import utils
@@ -136,9 +137,7 @@ def ingest_metadata_edit(request, uuid, id=None):
         # Right now we only support linking metadata to the Ingest
         try:
             dc = models.DublinCore.objects.get_sip_metadata(uuid)
-            return HttpResponseRedirect(
-                reverse('components.ingest.views.ingest_metadata_edit', args=[uuid, dc.id])
-            )
+            return redirect('components.ingest.views.ingest_metadata_edit', uuid, dc.id)
         except ObjectDoesNotExist:
             dc = models.DublinCore(
                 metadataappliestotype=ingest_sip_metadata_type_id(),
@@ -155,9 +154,7 @@ def ingest_metadata_edit(request, uuid, id=None):
             for item in fields:
                 setattr(dc, item, form.cleaned_data[item])
             dc.save()
-            return HttpResponseRedirect(
-                reverse('components.ingest.views.ingest_metadata_list', args=[uuid])
-            )
+            return redirect('components.ingest.views.ingest_metadata_list', uuid)
     else:
         initial = {}
         for item in fields:
@@ -171,7 +168,7 @@ def ingest_metadata_edit(request, uuid, id=None):
 def ingest_metadata_delete(request, uuid, id):
     try:
         models.DublinCore.objects.get(pk=id).delete()
-        return HttpResponseRedirect(reverse('components.ingest.views.ingest_detail', args=[uuid]))
+        return redirect('components.ingest.views.ingest_detail', uuid)
     except:
         raise Http404
 

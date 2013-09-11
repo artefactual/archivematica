@@ -23,7 +23,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.db import connection, transaction
 from django.forms.models import modelformset_factory, inlineformset_factory
 from django.shortcuts import render_to_response, get_object_or_404, redirect, render
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.utils.functional import wraps
 from django.views.static import serve
 from django.utils.functional import wraps

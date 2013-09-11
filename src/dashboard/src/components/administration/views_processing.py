@@ -21,7 +21,7 @@ import sys
 
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
 from django.shortcuts import render
 from django.contrib import messages
 
@@ -205,7 +205,7 @@ def index(request):
 
         messages.info(request, 'Saved!')
 
-        return HttpResponseRedirect(reverse('components.administration.views.processing'))
+        return redirect('components.administration.views.processing')
     else:
         debug = request.GET.get('debug', '')
         quarantine_expiry = ''

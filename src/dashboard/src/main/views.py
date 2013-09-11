@@ -18,7 +18,7 @@
 from django.conf import settings as django_settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse
 from contrib.mcp.client import MCPClient
 from main import models
 from lxml import etree
@@ -40,7 +40,7 @@ def home(request):
         redirectUrl = reverse('components.administration.views.administration')
     else:
         redirectUrl = reverse('components.transfer.views.grid')
-    return HttpResponseRedirect(redirectUrl)
+    return redirect(redirectUrl)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Status
@@ -49,7 +49,7 @@ def home(request):
 def elasticsearch_login_check(request):
     status = elasticSearchFunctions.check_server_status_and_create_indexes_if_needed()
     if status == 'OK':
-        return HttpResponseRedirect(reverse('django.contrib.auth.views.login'))
+        return redirect('django.contrib.auth.views.login')
     else:
         return render(request, 'elasticsearch_error.html', {'status': status})
 
@@ -86,7 +86,7 @@ def access_list(request):
 def access_delete(request, id):
     access = get_object_or_404(models.Access, pk=id)
     access.delete()
-    return HttpResponseRedirect(reverse('main.views.access_list'))
+    return redirect('main.views.access_list')
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Misc

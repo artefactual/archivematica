@@ -19,7 +19,8 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseBadRequest
+from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
 import components.decorators as decorators
@@ -48,7 +49,7 @@ def add(request):
             api_key.save()
 
             messages.info(request, 'Saved.')
-            return HttpResponseRedirect(reverse('components.accounts.views.list'))
+            return redirect('components.accounts.views.list')
         else:
             print "%s" % repr(form.errors)   
     else:
@@ -65,7 +66,7 @@ def edit(request, id=None):
     # Forbidden if user isn't an admin and is trying to edit another user
     if str(request.user.id) != str(id) and id != None:
         if request.user.is_superuser is False:
-            return HttpResponseRedirect(reverse('main.views.forbidden'))
+            return redirect('main.views.forbidden')
 
     # Load user
     if id is None:
@@ -107,7 +108,7 @@ def edit(request, id=None):
                 return_view = 'components.accounts.views.list'
 
             messages.info(request, 'Saved.')
-            return HttpResponseRedirect(reverse(return_view))
+            return redirect(return_view)
     else:
         form = UserChangeForm(instance=user)
 
@@ -138,16 +139,16 @@ def delete(request, id):
     # Security check
     if request.user.id != id:
         if request.user.is_superuser is False:
-            return HttpResponseRedirect(reverse('main.views.forbidden'))
+            return redirect('main.views.forbidden')
     # Avoid removing the last user
     if 1 == User.objects.count():
-        return HttpResponseRedirect(reverse('main.views.forbidden'))
+        return redirect('main.views.forbidden')
     # Delete
     try:
         user = User.objects.get(pk=id)
         if request.user.username == user.username:
             raise Http404
         user.delete()
-        return HttpResponseRedirect(reverse('components.accounts.views.list'))
+        return redirect('components.accounts.views.list')
     except:
         raise Http404
