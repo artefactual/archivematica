@@ -27,7 +27,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     aip_identifier = aip_name+'-'+aip_uuid
     aip_path = os.path.join(sip_dir, aip_filename)
     # Get archive tool and version
-    program, _ = compression.split('-')
+    program, algorithm = compression.split('-')
     if program == '7z':
         archive_tool = '7-Zip'
         archive_tool_version = '9.20'  # TODO get this dynamically
@@ -35,13 +35,11 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
         archive_tool = program
         archive_tool_version = '1.1.6'  # TODO get this dynamically
     # Format / file extension
-    # TODO handle nested formats, eg. .tar.bz2
-    format_name = '{} format'.format(compression)
-    extension = os.path.splitext(aip_filename)[1]
+    _, extension = os.path.splitext(aip_filename)
+    # PRONOM ID and PRONOM name for each file extension
     pronom_conversion = {
-        '.7z': 'fmt/484',
-        '.bz2': 'x-fmt/268',
-        '.tar': 'x-fmt/265',
+        '.7z': {'puid': 'fmt/484', 'name': '7Zip format'},
+        '.bz2': {'puid': 'x-fmt/268', 'name': 'BZIP2 Compressed Archive'},
     }
     num_files = 1
     # Get size
@@ -119,13 +117,14 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
                     E.size(str(aip_size)),
                     E.format(
                         E.formatDesignation(
-                            E.formatName(format_name),
+                            E.formatName(
+                                pronom_conversion[extension]['name']),
                             E.formatVersion(),
                         ),
                         E.formatRegistry(
                             E.formatRegistryName('PRONOM'),
                             E.formatRegistryKey(
-                                pronom_conversion[extension])
+                                pronom_conversion[extension]['puid'])
                         ),
                     ),
                     E.creatingApplication(
@@ -161,6 +160,22 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
         flocat = file_.find('FLocat')
         flocat.attrib['{{{ns}}}href'.format(ns=xlink)] = aip_path
 
+        # compression - 7z or tar.bz2
+        if extension == '.7z':
+            etree.SubElement(flocat, "transformFile",
+                TRANSFORMORDER='1',
+                TRANSFORMTYPE='decompression',
+                TRANSFORMALGORITHM=algorithm)
+        elif extension == '.bz2':
+            etree.SubElement(flocat, "transformFile",
+                TRANSFORMORDER='1',
+                TRANSFORMTYPE='decompression',
+                TRANSFORMALGORITHM='bzip2')
+            etree.SubElement(flocat, "transformFile",
+                TRANSFORMORDER='2',
+                TRANSFORMTYPE='decompression',
+                TRANSFORMALGORITHM='tar')
+
         # structMap
         fptr = etree.Element('fptr', FILEID=aip_identifier)
         div.append(fptr)
@@ -178,6 +193,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
         date=now,
         sourceType="aip creation",
     )
+    return 0
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create AIP pointer file.')
