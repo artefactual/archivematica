@@ -24,6 +24,7 @@
               <th>Type</th>
               <th>Name</th>
               <th>UUID</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -33,6 +34,9 @@
               <td><span class="label important">{{ report.unittype }}</span></td>
               <td><a href="{% url 'components.administration.views.failure_report' report.pk %}">{{ report.unitname }}</a></td>
               <td><a href="{% url 'components.administration.views.failure_report' report.pk %}">{{ report.unitidentifier }}</a></td>
+              <td>
+                <a href="{% url 'components.administration.views.failure_report_delete' report.pk %}" class='btn'>Delete</a>
+              </td>
             </tr>
             {% endfor %}
           </tbody>

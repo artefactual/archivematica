@@ -20,8 +20,9 @@ import logging
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.forms.models import modelformset_factory
-from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
 from django.shortcuts import render
+
 
 from main import forms, models
 import components.administration.views_processing as processing_views
@@ -42,7 +43,7 @@ logging.basicConfig(filename="/tmp/archivematica.log",
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 def administration(request):
-    return HttpResponseRedirect(reverse('components.administration.views.failure_report'))
+    return redirect('components.administration.views.failure_report')
 
 def failure_report(request, report_id=None):
     if report_id != None:
@@ -59,15 +60,14 @@ def failure_report(request, report_id=None):
 def delete_context(request, report_id):
     report = models.Report.objects.get(pk=report_id)
     prompt = 'Delete failure report for ' + report.unitname + '?'
-    cancel_url = reverse("components.administration.views.failure_report", args=[report.pk])
+    cancel_url = reverse("components.administration.views.failure_report")
     return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
 
 @decorators.confirm_required('simple_confirm.html', delete_context)
 def failure_report_delete(request, report_id):
     models.Report.objects.get(pk=report_id).delete()
-    # add notification
-    # redirect to blah
-    return HttpResponseRedirect(reverse('components.administration.views.failure_report'))
+    messages.info(request, 'Deleted.')
+    return redirect('components.administration.views.failure_report'')
 
 def failure_report_detail(request):
     return render(request, 'administration/reports/failure_report_detail.html', locals())
@@ -86,7 +86,7 @@ def dip_edit(request, id):
             upload_setting.save()
             messages.info(request, 'Saved.')
 
-    return HttpResponseRedirect(reverse("components.administration.views.administration_dip"))
+    return redirect('components.administration.views.administration_dip')
 
 def atom_dips(request):
     link_id = atom_dip_destination_select_link_id()
