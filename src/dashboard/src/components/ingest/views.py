@@ -23,6 +23,7 @@ from django.db import connection
 from django.shortcuts import render
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
+from django.contrib import messages
 import json
 from contrib.mcp.client import MCPClient
 from contrib import utils
@@ -35,6 +36,7 @@ from components import helpers
 import calendar, ConfigParser, socket, uuid
 import cPickle
 import components.decorators as decorators
+from django.template import RequestContext
 from components import helpers
 from components import advanced_search
 import os, sys, MySQLdb, shutil
@@ -165,10 +167,17 @@ def ingest_metadata_edit(request, uuid, id=None):
 
     return render(request, 'ingest/metadata_edit.html', locals())
 
+def delete_context(request, uuid, id):
+    prompt = 'Are you sure you want to delete this metadata?'
+    cancel_url = reverse("components.ingest.views.ingest_metadata_list", args=[uuid])
+    return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
+
+@decorators.confirm_required('simple_confirm.html', delete_context)
 def ingest_metadata_delete(request, uuid, id):
     try:
         models.DublinCore.objects.get(pk=id).delete()
-        return redirect('components.ingest.views.ingest_detail', uuid)
+        messages.info(request, 'Deleted.')
+        return redirect('components.ingest.views.ingest_metadata_list', uuid)
     except:
         raise Http404
 
