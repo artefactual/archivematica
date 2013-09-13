@@ -111,23 +111,17 @@ def get_previous_links_lists(previous_link, previous_links_list, show_all_groups
     return previous_links_list
 
 def print_nested_lists(nested_list, indent, show_all_groups):
-    if all(isinstance(lst, list) for lst in nested_list):
-        # All children are lists - print chain info for each list and recurse
-        for lst in nested_list:
-            if show_all_groups:
-                chain_uuid, chain_description = get_chain_info(lst[0])
-                print "{}Chain {} ({})".format(indent, chain_uuid, chain_description)
-            print_nested_lists(lst, indent+' ', show_all_groups)
-            print
-    elif isinstance(nested_list[0], list):
-        # Only the first element is a list - recurse on it separately to hit
-        # first if, and recurse on rest of list to hit else
-        print_nested_lists(nested_list[0], indent+'  ', show_all_groups)
-        print_nested_lists(nested_list[1:], indent, show_all_groups)
-    else:
-        # All elements strings - print them
-        for link in nested_list:
+    # print chain info
+    if show_all_groups and nested_list and isinstance(nested_list[0], basestring):
+        chain_uuid, chain_description = get_chain_info(nested_list[0])
+        print "{}Chain {} ({})".format(indent[2:], chain_uuid, chain_description)
+    for link in nested_list:
+        if isinstance(link, list):
+            print_nested_lists(link, indent+"  ", show_all_groups)
+        elif isinstance(link, basestring):
             print link_for_display(link, indent)
+        else:
+            print indent+"Something went wrong"
 
 def generate_standard_task_config_sql_from_user_input(standard_task_uuid):
     print 'Creating new standard task config entry SQL...'
