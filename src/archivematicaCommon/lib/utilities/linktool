@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-import os, sys, ConfigParser, uuid
 from optparse import OptionParser
+import sys
+import uuid
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 
@@ -13,7 +14,19 @@ import databaseInterface
 # Internal helpers
 #
 
+def simple_multi_value_query(sql):
+    """ Returns first item from each row as a list. """
+    rows = []
+    c, sqlLock = databaseInterface.querySQL(sql)
+    row = c.fetchone()
+    while row is not None:
+        rows.append(row[0])
+        row = c.fetchone()
+    sqlLock.release()
+    return rows
+
 def simple_value_query(sql):
+    """ Returns first item from first row of query. """
     c, sqlLock = databaseInterface.querySQL(sql)
     row = c.fetchone()
     sqlLock.release()
@@ -27,9 +40,9 @@ def get_next_link(link_uuid):
     sql = """SELECT nextMicroServiceChainLink FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink='%s' AND exitCode=0""" % (link_uuid)
     return simple_value_query(sql)
 
-def get_previous_link(link_uuid):
+def get_previous_links(link_uuid):
     sql = """SELECT microServiceChainLink FROM MicroServiceChainLinksExitCodes WHERE nextMicroServiceChainLink='%s' and exitCode=0""" % (link_uuid)
-    return simple_value_query(sql)
+    return simple_multi_value_query(sql)
 
 def get_link_default_next_link(link_uuid):
     sql = "SELECT defaultNextChainLink FROM MicroServiceChainLinks WHERE pk='%s'" % (link_uuid)
@@ -46,9 +59,6 @@ def get_link_default_next_link_and_prompt_if_nonexistant(link_uuid):
         return raw_input()
 
     return default_next_chain_link
-
-def get_previous_link_default_next_link_and_prompt_if_nonexistant(link_uuid):
-    return get_link_default_next_link_and_prompt_if_nonexistant(get_previous_link(link_uuid))
 
 def get_link_microservice_group(link_uuid):
     sql = """SELECT microserviceGroup FROM MicroServiceChainLinks WHERE pk='%s'""" % (link_uuid)
@@ -67,6 +77,57 @@ def get_link_task_description(link_uuid):
 
     sql = """SELECT description FROM TasksConfigs WHERE pk='%s'""" % (task_config_uuid)
     return simple_value_query(sql)
+
+def get_chain_info(first_link):
+    """ Returns (uuid, description) for the chain if it exists, given the first link."""
+    sql = """SELECT description FROM MicroServiceChains WHERE startingLink='%s'""" % (first_link)
+    chain_description = simple_value_query(sql)
+    sql = """SELECT pk FROM MicroServiceChains WHERE startingLink='%s'""" % (first_link)
+    chain_uuid = simple_value_query(sql)
+    return (chain_uuid, chain_description)
+
+def get_previous_links_lists(previous_link, previous_links_list, show_all_groups, microservice_group):
+    while(previous_link != []):
+        if len(previous_link) == 1:
+            # Only one parent, process as normal
+            previous_link = previous_link[0]
+            previous_link_group = get_link_microservice_group(previous_link)
+            if previous_link_group == microservice_group or show_all_groups:
+                previous_links_list.insert(0, previous_link)
+                previous_link = get_previous_links(previous_link)
+            else:
+                previous_link = []
+        else:
+            # Multiple parents - form nested structure of
+            # [[parent list], [parent list], ...] through recursion
+            parent_lists = []
+            for link in previous_link:
+                parent_list = get_previous_links_lists([link], [], show_all_groups, microservice_group)
+                if parent_list != []:
+                    parent_lists.insert(0, parent_list)
+            previous_links_list.insert(0, parent_lists)
+            # Terminate recursion for this function
+            previous_link = []
+    return previous_links_list
+
+def print_nested_lists(nested_list, indent, show_all_groups):
+    if all(isinstance(lst, list) for lst in nested_list):
+        # All children are lists - print chain info for each list and recurse
+        for lst in nested_list:
+            if show_all_groups:
+                chain_uuid, chain_description = get_chain_info(lst[0])
+                print "{}Chain {} ({})".format(indent, chain_uuid, chain_description)
+            print_nested_lists(lst, indent+' ', show_all_groups)
+            print
+    elif isinstance(nested_list[0], list):
+        # Only the first element is a list - recurse on it separately to hit
+        # first if, and recurse on rest of list to hit else
+        print_nested_lists(nested_list[0], indent+'  ', show_all_groups)
+        print_nested_lists(nested_list[1:], indent, show_all_groups)
+    else:
+        # All elements strings - print them
+        for link in nested_list:
+            print link_for_display(link, indent)
 
 def generate_standard_task_config_sql_from_user_input(standard_task_uuid):
     print 'Creating new standard task config entry SQL...'
@@ -123,28 +184,11 @@ def show_link_info(link_uuid, show_all_groups=False):
 
     microservice_group = get_link_microservice_group(link_uuid)
 
-    previous_links = []
-
-    earliest_link_found = link_uuid
-    previous_link = get_previous_link(link_uuid)
-    while(previous_link != None):
-        earliest_link_found = previous_link
-        previous_link_group = get_link_microservice_group(previous_link)
-        if previous_link_group == microservice_group or show_all_groups:
-            previous_links.insert(0, previous_link)
-            previous_link = get_previous_link(previous_link)
-        else:
-            previous_link = None
-
-    if show_all_groups:
-        sql = """SELECT description FROM MicroServiceChains WHERE startingLink='%s'""" % (earliest_link_found)
-        chain_description = simple_value_query(sql)
-        sql = """SELECT pk FROM MicroServiceChains WHERE startingLink='%s'""" % (earliest_link_found)
-        chain_uuid = simple_value_query(sql)
-        print 'Chain ' + chain_uuid + ' (' + chain_description + ')'
+    previous_links_list = []
+    previous_link = get_previous_links(link_uuid)
+    previous_links_list = get_previous_links_lists(previous_link, previous_links_list, show_all_groups, microservice_group)
 
     next_links = []
-
     next_link = get_next_link(link_uuid)
     while(next_link != None):
         next_link_group = get_link_microservice_group(next_link)
@@ -161,8 +205,7 @@ def show_link_info(link_uuid, show_all_groups=False):
     print
 
     print 'Previous links: '
-    for link in previous_links:
-        print link_for_display(link, indent)
+    print_nested_lists(previous_links_list, indent, show_all_groups)
 
     print
 
@@ -184,7 +227,7 @@ def insert_link_before_link(link_uuid):
     sql_commands = sql_commands + generate_task_config_sql_from_user_input(task_uuid, standard_task_uuid) + "\n"
 
     new_link_uuid = uuid.uuid4().__str__()
-    link_before_target_link = get_previous_link(link_uuid)
+    links_before_target_link = get_previous_links(link_uuid)
 
     print 'Creating new link SQL...'
     print 'Microservice group? '
@@ -199,14 +242,15 @@ def insert_link_before_link(link_uuid):
     exit_code_uuid = uuid.uuid4().__str__()
     sql_commands = sql_commands + generate_exit_code_sql_from_user_input(exit_code_uuid, new_link_uuid, link_uuid) + "\n"
 
-    if link_before_target_link == None:
-        # must update chain row to insert new link
-        sql = """UPDATE MicroServiceChains SET startingLink='%s' WHERE startingLink='%s';""" % (new_link_uuid, link_uuid)
-        sql_commands = sql_commands + sql + "\n"
-    else:
+    for link in links_before_target_link:
         # there is a link before our target link that we need to alter to point to our next link
-        sql = """UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='%s' WHERE microServiceChainLink='%s';""" % (new_link_uuid, link_before_target_link)
-        sql_commands = sql_commands + sql + "\n"
+        sql = """UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='%s' WHERE microServiceChainLink='%s';""" % (new_link_uuid, link)
+        sql_commands += sql + "\n"
+    chain_uuid, _ = get_chain_info(link_uuid)
+    if chain_uuid:
+        # must update chain row to insert new link
+        sql = """UPDATE MicroServiceChains SET startingLink='%s' WHERE startingLink='%s';""" % (new_link_uuid, chain_uuid)
+        sql_commands += sql + "\n"
 
     print sql_commands
 
@@ -250,7 +294,8 @@ def show_next(link_uuid):
     print "Next link UUID: " + str(get_next_link(link_uuid))
 
 def show_previous(link_uuid):
-    print "Previous link UUID: " + str(get_previous_link(link_uuid))
+    previous_uuids = get_previous_links(link_uuid)
+    print "Previous link UUIDs: {0}".format(', '.join(previous_uuids))
 
 #
 # CLI interface
@@ -263,60 +308,61 @@ def help(parser, commands):
     for command in commands:
         print '  ' + commands[command]['usage'].ljust(28) + commands[command]['description']
 
-usage = "usage: %prog [options] <command>"
+if __name__ == '__main__':
+    usage = "usage: %prog [options] <command>"
 
-parser = OptionParser(usage=usage)
+    parser = OptionParser(usage=usage)
 
-(options, args) = parser.parse_args()
+    (options, args) = parser.parse_args()
 
-if len(args) > 0:
-    # get command from first arg
-    command = args.pop(0)
-else:
-    command = ''
+    if len(args) > 0:
+        # get command from first arg
+        command = args.pop(0)
+    else:
+        command = ''
 
-# command definitions
-commands = {
-    'linkfromtask': {
-        'function':    'show_link_uuid_using_task_uuid',
-        'usage':       'linkfromtask <task UUID>',
-        'description': "use task UUID to look up corresponding link's UUID"
-    },
-    'info': {
-        'function':    'show_link_info',
-        'usage':       'info <link UUID>',
-        'description': 'show other links in the same microservice group'
-    },
-    'chaininfo': {
-        'function':    'show_link_chain_info',
-        'usage':       'chaininfo <link UUID>',
-        'description': 'show other links in the same chain'
-    },
-    'insertbefore': {
-        'function':    'insert_link_before_link',
-        'usage':       'insertbefore <link UUID>',
-        'description': 'insert a new link before an existing link'
-    },
-    'insertafter': {
-        'function':    'insert_link_after_link',
-        'usage':       'insertafter <link UUID>',
-        'description': 'insert a new link after an existing link'
-    },
-    'next': {
-        'function':    'show_next',
-        'usage':       'next <link UUID>',
-        'description': 'show the UUID of the next link in the chain'
-    },
-    'previous': {
-        'function':    'show_previous',
-        'usage':       'previous <link UUID>',
-        'description': 'show the UUID of the previous link in the chain'
+    # command definitions
+    commands = {
+        'linkfromtask': {
+            'function':    show_link_uuid_using_task_uuid,
+            'usage':       'linkfromtask <task UUID>',
+            'description': "use task UUID to look up corresponding link's UUID"
+        },
+        'info': {
+            'function':    show_link_info,
+            'usage':       'info <link UUID>',
+            'description': 'show other links in the same microservice group'
+        },
+        'chaininfo': {
+            'function':    show_link_chain_info,
+            'usage':       'chaininfo <link UUID>',
+            'description': 'show other links in the same chain'
+        },
+        'insertbefore': {
+            'function':    insert_link_before_link,
+            'usage':       'insertbefore <link UUID>',
+            'description': 'insert a new link before an existing link'
+        },
+        'insertafter': {
+            'function':    insert_link_after_link,
+            'usage':       'insertafter <link UUID>',
+            'description': 'insert a new link after an existing link'
+        },
+        'next': {
+            'function':    show_next,
+            'usage':       'next <link UUID>',
+            'description': 'show the UUID of the next link in the chain'
+        },
+        'previous': {
+            'function':    show_previous,
+            'usage':       'previous <link UUID>',
+            'description': 'show the UUID of the previous link in the chain'
+        }
     }
-}
 
-# execute command or show usage
-if command in commands:
-    command_function = commands[command]['function']
-    locals()[command_function](args.pop(0))
-else:
-    help(parser, commands)
+    # execute command or show usage
+    if command in commands:
+        command_function = commands[command]['function']
+        command_function(args.pop(0))
+    else:
+        help(parser, commands)
