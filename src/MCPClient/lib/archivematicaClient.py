@@ -32,21 +32,18 @@
 #The server will send the transcoder association pk, and file uuid to run.
 #The client is responsible for running the correct command on the file. 
 
-import sys
-import os
-import shlex
-import subprocess
-import time
-import threading
-import string
 import ConfigParser
-from socket import gethostname
-import transcoderNormalizer 
-import gearman
-import threading
 import cPickle
-import traceback
+import gearman
+import os
 import time
+from socket import gethostname
+import sys
+import threading
+import traceback
+
+import transcoderNormalizer
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 import databaseInterface

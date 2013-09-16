@@ -27,7 +27,6 @@ import uuid
 import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from executeOrRunSubProcess import executeOrRun
 import databaseInterface
 from fileOperations import addFileToSIP
 from fileOperations import updateSizeAndChecksum
@@ -48,7 +47,6 @@ def executeCommandReleationship(gearman_worker, gearman_job):
         #if isinstance(arguments, str):
         #    arguments = unicode(arguments)
         
-        sInput = ""
         clientID = gearman_worker.worker_client_id
 
         opts["date"] = utcDate
@@ -172,7 +170,7 @@ def getReplacementDic(opts):
     ret["%fileName%"] =  fileTitle
     ret["%prefix%"] = prefix
     ret["%postfix%"] = postfix
-    ret["%outputFileUUID%"] = opts["taskUUID"]
+    ret["%outputFileUUID%"] = outputFileUUID
     return ret
 
 

@@ -23,15 +23,14 @@
 import sys
 import os
 import uuid
-from transcoder import main
+
 from executeOrRunSubProcess import executeOrRun
 import transcoder
-#from premisXMLlinker import xmlNormalize
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from fileOperations import addFileToTransfer
 from databaseFunctions import fileWasRemoved
-from fileOperations import updateSizeAndChecksum
 import databaseInterface
+from fileOperations import addFileToTransfer, updateSizeAndChecksum
 
 global extractedCount
 extractedCount = 1
@@ -170,4 +169,4 @@ if __name__ == '__main__':
     transcoder.replacementDic = replacementDic
     filename = sys.argv[1].__str__()
     print filename
-    main(filename)
+    transcoder.main(filename)
