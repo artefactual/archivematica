@@ -25,7 +25,7 @@ BASE_PATH = os.path.abspath(os.path.join(path_of_this_file, os.pardir))
 
 # Django settings for app project.
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 

@@ -77,6 +77,15 @@ var ATKMatcherView = Backbone.View.extend({
     this.activateCancelButton();
   },
 
+  // this can be replaced with Underscore's truncation once we update
+  // Underscore...
+  truncate: function(string, length, truncation) {
+      length = length || 30;
+      truncation = _.isUndefined(truncation) ? '...' : truncation;
+      return string.length > length ?
+        string.slice(0, length - truncation.length) + truncation : String(string);
+    },
+
   renderObjectPaths: function() {
     var self = this,
         index = 0;
@@ -86,7 +95,8 @@ var ATKMatcherView = Backbone.View.extend({
       // create object path representation (checkbox and label)
       var newObjectPath = $(self.objectPathTemplate({
         'index': index,
-        'path': pathData.path}
+        'path': pathData.path,
+        'truncated_path': self.truncate(pathData.path, 40)}
       ));
 
       self.pathData[pathData.path] = pathData.uuid;
@@ -201,6 +211,7 @@ var ATKMatcherView = Backbone.View.extend({
           'tempId':             resource.id,
           'padding':            padding,
           'title':              resource.get('title'),
+          'truncated_title':    self.truncate(resource.get('title'), 40),
           'levelOfDescription': resource.get('levelOfDescription'),
           'identifier':         resource.get('identifier'),
           'dates':              resource.get('dates')
@@ -363,7 +374,9 @@ var ATKMatcherView = Backbone.View.extend({
             var $newMatchEl = $(self.matchItemTemplate({
               'tempId': pairModel.id,
               'path': item.path,
+              'truncated_path': self.truncate(item.path, 40),
               'title': resource.get('title'),
+              'truncated_title': self.truncate(resource.get('title'), 40),
               'identifier': resource.get('identifier'),
               'levelOfDescription': resource.get('levelOfDescription'),
               'dates': resource.get('dates')
@@ -545,9 +558,10 @@ var ATKMatcherView = Backbone.View.extend({
         $(this).children('input').attr('checked') == 'checked'
         && $(this).children('input').attr('disabled') != 'disabled'
       ) {
+        // the label title holds the complete path
         selectedPaths.push({
           'id': $(this).attr('id'),
-          'path': $(this).children('label').text()
+          'path': $(this).children('label').attr('title')
         });
       }
     });

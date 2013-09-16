@@ -146,26 +146,22 @@ def set_up_mapping(conn, index):
         print 'Transfer mapping created.'
 
     if index == 'aips':
-        print 'Creating AIP mapping...'
-        conn.put_mapping(doc_type='aip', mapping={'aip': {'date_detection': False}}, indices=['aips'])
-        print 'AIP mapping created.'
-
         mapping = {
             'AIPUUID': machine_readable_field_spec,
             'FILEUUID': machine_readable_field_spec
         }
 
         print 'Creating AIP file mapping...'
-        conn.put_mapping(doc_type='aipfile', mapping={'aipfile': {'date_detection': False, 'properties': mapping}}, indices=['aips'])
+        conn.put_mapping(doc_type='aipfile', mapping={'aipfile': {'properties': mapping}}, indices=['aips'])
         print 'AIP file mapping created.'
 
 def connect_and_index_aip(uuid, name, filePath, pathToMETS):
     conn = connect_and_create_index('aips')
 
     # convert METS XML to dict
-    tree      = ElementTree.parse(pathToMETS)
-    root      = tree.getroot()
-    xml       = ElementTree.tostring(root)
+    tree = ElementTree.parse(pathToMETS)
+    root = tree.getroot()
+    xml = ElementTree.tostring(root)
     mets_data = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 
     aipData = {
@@ -175,16 +171,13 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS):
         'size':     os.path.getsize(filePath) / float(1024) / float(1024),
         'mets':     mets_data,
         'origin':   getDashboardUUID(),
-        'created':  os.path.getmtime(pathToMETS)
+        'created':  time.time()
     }
     conn.index(aipData, 'aips', 'aip')
 
 def connect_and_get_aip_data(uuid):
     conn = connect_and_create_index('aips')
-    aips = conn.search(
-        query=pyes.FieldQuery(pyes.FieldParameter('uuid', uuid)),
-        fields='uuid,name,filePath,size,origin,created'
-    )
+    aips = conn.search(query=pyes.FieldQuery(pyes.FieldParameter('uuid', uuid)))
     return aips[0]
 
 def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
@@ -193,15 +186,6 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
 
     # make sure elasticsearch is installed
     if (os.path.exists(pathToElasticSearchServerConfigFile)):
-
-        clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-        config = ConfigParser.SafeConfigParser()
-        config.read(clientConfigFilePath)
-
-        try:
-            backup_to_mysql = config.getboolean('MCPClient', "backupElasticSearchDocumentsToMySQL")
-        except:
-            backup_to_mysql = False
 
         # make sure transfer files exist
         if (os.path.exists(pathToArchive)):
@@ -218,8 +202,7 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
                     metsFilePath,
                     index,
                     type,
-                    sipName,
-                    backup_to_mysql
+                    sipName
                 )
 
             # index transfer
@@ -244,7 +227,7 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
 
     return exitCode
 
-def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, backup_to_mysql = False):
+def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName):
     filesIndexed     = 0
     filePathAmdIDs   = {}
     filePathMetsData = {}
@@ -269,20 +252,6 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
     # parse XML
     tree = ElementTree.parse(metsFilePath)
     root = tree.getroot()
-
-    #before_length = len(ElementTree.tostring(root))
-
-    # add a conditional to toggle this
-    # remove FITS output nodes
-    fitsOutputNodes = root.findall("{http://www.loc.gov/METS/}amdSec/{http://www.loc.gov/METS/}techMD/{http://www.loc.gov/METS/}mdWrap/{http://www.loc.gov/METS/}xmlData/{info:lc/xmlns/premis-v2}object/{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}objectCharacteristicsExtension/{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}fits") #/{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}toolOutput")
-
-    for parent in fitsOutputNodes:
-        children = parent.findall('{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}toolOutput')
-        for node in children:
-            parent.remove(node)
-
-    #after_length = len(ElementTree.tostring(root))
-    print "Removed FITS output from METS."
 
     # get SIP-wide dmdSec
     dmdSec = root.findall("{http://www.loc.gov/METS/}dmdSec/{http://www.loc.gov/METS/}mdWrap/{http://www.loc.gov/METS/}xmlData")
@@ -321,8 +290,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
                 # index data
                 result = conn.index(indexData, index, type)
 
-                if backup_to_mysql:
-                    backup_indexed_document(result, indexData, index, type)
+                backup_indexed_document(result, indexData, index, type)
 
     print 'Indexed AIP files and corresponding METS XML.'
 

@@ -19,7 +19,7 @@
 }
 
 .atk-pane-header {
-  height: 75px;
+  margin-bottom: 10px;
 }
 
 #object_pane {
@@ -34,6 +34,7 @@
 #object_pane_search, #resource_pane_search {
   width: 210px;
   margin-bottom:10px;
+margin-right:10px;
 }
 
 #object_pane_search > input, #resource_pane_search > input {
@@ -68,7 +69,7 @@
   display: inline-block;
 }
 
-#match_button, #match_save_button {
+#match_save_button {
   float: right;
   margin-top: 10px;
   margin-right: 10px;

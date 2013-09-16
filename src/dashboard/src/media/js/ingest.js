@@ -343,6 +343,7 @@ $(function()
           // redict to object/resource mapping pages
           if ('- Upload DIP to Archivists Toolkit' == $select.find('option:selected').text())
           {
+            $('body').html('<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Loading...</h1>');
             window.location.href = '/ingest/' + this.model.sip.get('uuid') + '/upload/atk/';
           }
 
