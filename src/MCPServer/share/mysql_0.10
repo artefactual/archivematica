@@ -24,7 +24,7 @@ CREATE TABLE `Accesses` (
   `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedTime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Agents`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -36,7 +36,7 @@ CREATE TABLE `Agents` (
   `agentName` longtext,
   `agentType` longtext,
   PRIMARY KEY (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `MetadataAppliesToTypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -48,7 +48,7 @@ CREATE TABLE `MetadataAppliesToTypes` (
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `MetadataAppliesToTypes` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Dublincore`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -75,7 +75,7 @@ CREATE TABLE `Dublincore` (
   PRIMARY KEY (`pk`),
   KEY `metadataAppliesToType` (`metadataAppliesToType`),
   CONSTRAINT `Dublincore_ibfk_1` FOREIGN KEY (`metadataAppliesToType`) REFERENCES `MetadataAppliesToTypes` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatement`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -92,7 +92,7 @@ CREATE TABLE `RightsStatement` (
   KEY `fkAgent` (`fkAgent`),
   KEY `metadataAppliesToType` (`metadataAppliesToType`),
   CONSTRAINT `RightsStatement_ibfk_1` FOREIGN KEY (`metadataAppliesToType`) REFERENCES `MetadataAppliesToTypes` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementCopyright`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -108,7 +108,7 @@ CREATE TABLE `RightsStatementCopyright` (
   `copyrightApplicableEndDateOpen` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatement` (`fkRightsStatement`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementCopyrightNote`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -120,7 +120,7 @@ CREATE TABLE `RightsStatementCopyrightNote` (
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatementCopyrightInformation` (`fkRightsStatementCopyrightInformation`),
   CONSTRAINT `RightsStatementCopyrightNote_ibfk_1` FOREIGN KEY (`fkRightsStatementCopyrightInformation`) REFERENCES `RightsStatementCopyright` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementCopyrightDocumentationIdentifier`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -134,7 +134,7 @@ CREATE TABLE `RightsStatementCopyrightDocumentationIdentifier` (
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatementCopyrightInformation` (`fkRightsStatementCopyrightInformation`),
   CONSTRAINT `RightsStatementCopyrightDocumentationIdentifier_ibfk_1` FOREIGN KEY (`fkRightsStatementCopyrightInformation`) REFERENCES `RightsStatementCopyright` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementLicense`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -148,7 +148,7 @@ CREATE TABLE `RightsStatementLicense` (
   `licenseApplicableEndDateOpen` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatement` (`fkRightsStatement`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementLicenseDocumentationIdentifier`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -162,7 +162,7 @@ CREATE TABLE `RightsStatementLicenseDocumentationIdentifier` (
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatementLicense` (`fkRightsStatementLicense`),
   CONSTRAINT `RightsStatementLicenseDocumentationIdentifier_ibfk_1` FOREIGN KEY (`fkRightsStatementLicense`) REFERENCES `RightsStatementLicense` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementLicenseNote`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -174,7 +174,7 @@ CREATE TABLE `RightsStatementLicenseNote` (
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatementLicense` (`fkRightsStatementLicense`),
   CONSTRAINT `RightsStatementLicenseNote_ibfk_1` FOREIGN KEY (`fkRightsStatementLicense`) REFERENCES `RightsStatementLicense` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `ArchivematicaRightsStatement`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -189,7 +189,7 @@ CREATE TABLE `ArchivematicaRightsStatement` (
   KEY `metadataAppliesToType` (`metadataAppliesToType`),
   CONSTRAINT `ArchivematicaRightsStatement_ibfk_2` FOREIGN KEY (`fkRightsStatement`) REFERENCES `RightsStatement` (`pk`),
   CONSTRAINT `ArchivematicaRightsStatement_ibfk_3` FOREIGN KEY (`metadataAppliesToType`) REFERENCES `MetadataAppliesToTypes` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementStatuteInformation`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -206,7 +206,7 @@ CREATE TABLE `RightsStatementStatuteInformation` (
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatement` (`fkRightsStatement`),
   CONSTRAINT `RightsStatementStatuteInformation_ibfk_1` FOREIGN KEY (`fkRightsStatement`) REFERENCES `RightsStatement` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementStatuteInformationNote`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -218,7 +218,7 @@ CREATE TABLE `RightsStatementStatuteInformationNote` (
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatementStatuteInformation` (`fkRightsStatementStatuteInformation`),
   CONSTRAINT `RightsStatementStatuteInformationNote_ibfk_1` FOREIGN KEY (`fkRightsStatementStatuteInformation`) REFERENCES `RightsStatementStatuteInformation` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementStatuteDocumentationIdentifier`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -232,7 +232,7 @@ CREATE TABLE `RightsStatementStatuteDocumentationIdentifier` (
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatementStatuteInformation` (`fkRightsStatementStatuteInformation`),
   CONSTRAINT `RightsStatementStatuteDocumentationIdentifier_ibfk_1` FOREIGN KEY (`fkRightsStatementStatuteInformation`) REFERENCES `RightsStatementStatuteInformation` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementOtherRightsInformation`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -247,7 +247,7 @@ CREATE TABLE `RightsStatementOtherRightsInformation` (
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatement` (`fkRightsStatement`),
   CONSTRAINT `RightsStatementOtherRightsInformation_ibfk_1` FOREIGN KEY (`fkRightsStatement`) REFERENCES `RightsStatement` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementOtherRightsDocumentationIdentifier`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -261,7 +261,7 @@ CREATE TABLE `RightsStatementOtherRightsDocumentationIdentifier` (
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatementOtherRightsInformation` (`fkRightsStatementOtherRightsInformation`),
   CONSTRAINT `RightsStatementOtherRightsDocumentationIdentifier_ibfk_1` FOREIGN KEY (`fkRightsStatementOtherRightsInformation`) REFERENCES `RightsStatementOtherRightsInformation` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementOtherRightsNote`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -273,7 +273,7 @@ CREATE TABLE `RightsStatementOtherRightsNote` (
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatementOtherRightsInformation` (`fkRightsStatementOtherRightsInformation`),
   CONSTRAINT `RightsStatementOtherRightsNote_ibfk_1` FOREIGN KEY (`fkRightsStatementOtherRightsInformation`) REFERENCES `RightsStatementOtherRightsInformation` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementRightsGranted`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -288,7 +288,7 @@ CREATE TABLE `RightsStatementRightsGranted` (
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatement` (`fkRightsStatement`),
   CONSTRAINT `RightsStatementRightsGranted_ibfk_1` FOREIGN KEY (`fkRightsStatement`) REFERENCES `RightsStatement` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementRightsGrantedRestriction`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -300,7 +300,7 @@ CREATE TABLE `RightsStatementRightsGrantedRestriction` (
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatementRightsGranted` (`fkRightsStatementRightsGranted`),
   CONSTRAINT `RightsStatementRightsGrantedRestriction_ibfk_1` FOREIGN KEY (`fkRightsStatementRightsGranted`) REFERENCES `RightsStatementRightsGranted` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementRightsGrantedNote`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -312,7 +312,7 @@ CREATE TABLE `RightsStatementRightsGrantedNote` (
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatementRightsGranted` (`fkRightsStatementRightsGranted`),
   CONSTRAINT `RightsStatementRightsGrantedNote_ibfk_1` FOREIGN KEY (`fkRightsStatementRightsGranted`) REFERENCES `RightsStatementRightsGranted` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `RightsStatementLinkingAgentIdentifier`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -325,7 +325,7 @@ CREATE TABLE `RightsStatementLinkingAgentIdentifier` (
   PRIMARY KEY (`pk`),
   KEY `fkRightsStatement` (`fkRightsStatement`),
   CONSTRAINT `RightsStatementLinkingAgentIdentifier_ibfk_1` FOREIGN KEY (`fkRightsStatement`) REFERENCES `RightsStatement` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Tasks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -345,7 +345,7 @@ CREATE TABLE `Tasks` (
   `stdError` longtext,
   `exitCode` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`taskUUID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Notifications`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -355,7 +355,7 @@ CREATE TABLE `Notifications` (
   `message` longtext,
   `created` int(11) DEFAULT NULL,
   PRIMARY KEY (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Sounds`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -368,7 +368,7 @@ CREATE TABLE `Sounds` (
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `Sounds` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `TaskTypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -380,7 +380,7 @@ CREATE TABLE `TaskTypes` (
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `TaskTypes` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `TasksConfigs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -396,7 +396,7 @@ CREATE TABLE `TasksConfigs` (
   KEY `TasksConfigs` (`pk`),
   KEY `taskType` (`taskType`),
   CONSTRAINT `TasksConfigs_ibfk_1` FOREIGN KEY (`taskType`) REFERENCES `TaskTypes` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `MicroServiceChainLinks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -419,7 +419,7 @@ CREATE TABLE `MicroServiceChainLinks` (
   CONSTRAINT `MicroServiceChainLinks_ibfk_1` FOREIGN KEY (`currentTask`) REFERENCES `TasksConfigs` (`pk`),
   CONSTRAINT `MicroServiceChainLinks_ibfk_2` FOREIGN KEY (`defaultNextChainLink`) REFERENCES `MicroServiceChainLinks` (`pk`),
   CONSTRAINT `MicroServiceChainLinks_ibfk_3` FOREIGN KEY (`defaultPlaySound`) REFERENCES `Sounds` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Transfers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -439,7 +439,7 @@ CREATE TABLE `Transfers` (
   PRIMARY KEY (`transferUUID`),
   KEY `magicLink` (`magicLink`),
   CONSTRAINT `Transfers_ibfk_1` FOREIGN KEY (`magicLink`) REFERENCES `MicroServiceChainLinks` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `SIPs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -454,7 +454,7 @@ CREATE TABLE `SIPs` (
   PRIMARY KEY (`sipUUID`),
   KEY `magicLink` (`magicLink`),
   CONSTRAINT `SIPs_ibfk_1` FOREIGN KEY (`magicLink`) REFERENCES `MicroServiceChainLinks` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Files`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -478,7 +478,7 @@ CREATE TABLE `Files` (
   KEY `transferUUID` (`transferUUID`),
   CONSTRAINT `Files_ibfk_1` FOREIGN KEY (`sipUUID`) REFERENCES `SIPs` (`sipUUID`),
   CONSTRAINT `Files_ibfk_2` FOREIGN KEY (`transferUUID`) REFERENCES `Transfers` (`transferUUID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `FilesFits`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -488,7 +488,7 @@ CREATE TABLE `FilesFits` (
   `FITSxml` longtext,
   PRIMARY KEY (`fileUUID`),
   CONSTRAINT `FilesFits_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `FilesIDs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -503,7 +503,7 @@ CREATE TABLE `FilesIDs` (
   PRIMARY KEY (`pk`),
   KEY `fileUUID` (`fileUUID`),
   CONSTRAINT `FilesIDs_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -521,7 +521,7 @@ CREATE TABLE `Events` (
   PRIMARY KEY (`pk`),
   KEY `fileUUID` (`fileUUID`),
   CONSTRAINT `Events_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Derivations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -536,7 +536,7 @@ CREATE TABLE `Derivations` (
   KEY `derivedFileUUID` (`derivedFileUUID`),
   CONSTRAINT `Derivations_ibfk_1` FOREIGN KEY (`sourceFileUUID`) REFERENCES `Files` (`fileUUID`),
   CONSTRAINT `Derivations_ibfk_2` FOREIGN KEY (`derivedFileUUID`) REFERENCES `Files` (`fileUUID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `MicroServiceChainLinksExitCodes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -558,7 +558,7 @@ CREATE TABLE `MicroServiceChainLinksExitCodes` (
   CONSTRAINT `MicroServiceChainLinksExitCodes_ibfk_1` FOREIGN KEY (`microServiceChainLink`) REFERENCES `MicroServiceChainLinks` (`pk`),
   CONSTRAINT `MicroServiceChainLinksExitCodes_ibfk_2` FOREIGN KEY (`nextMicroServiceChainLink`) REFERENCES `MicroServiceChainLinks` (`pk`),
   CONSTRAINT `MicroServiceChainLinksExitCodes_ibfk_3` FOREIGN KEY (`playSound`) REFERENCES `Sounds` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Jobs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -579,7 +579,7 @@ CREATE TABLE `Jobs` (
   PRIMARY KEY (`jobUUID`),
   KEY `MicroServiceChainLinksPK` (`MicroServiceChainLinksPK`),
   CONSTRAINT `Jobs_ibfk_1` FOREIGN KEY (`MicroServiceChainLinksPK`) REFERENCES `MicroServiceChainLinks` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `MicroServiceChains`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -594,7 +594,7 @@ CREATE TABLE `MicroServiceChains` (
   KEY `MicroServiceChains` (`pk`),
   KEY `startingLink` (`startingLink`),
   CONSTRAINT `MicroServiceChains_ibfk_1` FOREIGN KEY (`startingLink`) REFERENCES `MicroServiceChainLinks` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `MicroServiceChainChoice`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -611,7 +611,7 @@ CREATE TABLE `MicroServiceChainChoice` (
   KEY `choiceAvailableAtLink` (`choiceAvailableAtLink`),
   CONSTRAINT `MicroServiceChainChoice_ibfk_1` FOREIGN KEY (`chainAvailable`) REFERENCES `MicroServiceChains` (`pk`),
   CONSTRAINT `MicroServiceChainChoice_ibfk_2` FOREIGN KEY (`choiceAvailableAtLink`) REFERENCES `MicroServiceChainLinks` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `MicroServiceChoiceReplacementDic`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -627,7 +627,7 @@ CREATE TABLE `MicroServiceChoiceReplacementDic` (
   KEY `MicroServiceChoiceReplacementDic` (`pk`),
   KEY `choiceAvailableAtLink` (`choiceAvailableAtLink`),
   CONSTRAINT `MicroServiceChoiceReplacementDic_ibfk_1` FOREIGN KEY (`choiceAvailableAtLink`) REFERENCES `MicroServiceChainLinks` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `WatchedDirectoriesExpectedTypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -639,7 +639,7 @@ CREATE TABLE `WatchedDirectoriesExpectedTypes` (
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `WatchedDirectoriesExpectedTypes` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `WatchedDirectories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -658,7 +658,7 @@ CREATE TABLE `WatchedDirectories` (
   KEY `expectedType` (`expectedType`),
   CONSTRAINT `WatchedDirectories_ibfk_1` FOREIGN KEY (`chain`) REFERENCES `MicroServiceChains` (`pk`),
   CONSTRAINT `WatchedDirectories_ibfk_2` FOREIGN KEY (`expectedType`) REFERENCES `WatchedDirectoriesExpectedTypes` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `StandardTasksConfigs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -677,7 +677,7 @@ CREATE TABLE `StandardTasksConfigs` (
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `StandardTasksConfigs` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `TasksConfigsAssignMagicLink`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -691,7 +691,7 @@ CREATE TABLE `TasksConfigsAssignMagicLink` (
   KEY `TasksConfigsAssignMagicLink` (`pk`),
   KEY `execute` (`execute`),
   CONSTRAINT `TasksConfigsAssignMagicLink_ibfk_1` FOREIGN KEY (`execute`) REFERENCES `MicroServiceChainLinks` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `TasksConfigsStartLinkForEachFile`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -706,7 +706,7 @@ CREATE TABLE `TasksConfigsStartLinkForEachFile` (
   KEY `TasksConfigsStartLinkForEachFile` (`pk`),
   KEY `execute` (`execute`),
   CONSTRAINT `TasksConfigsStartLinkForEachFile_ibfk_1` FOREIGN KEY (`execute`) REFERENCES `MicroServiceChains` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `UnitVariables`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -723,7 +723,7 @@ CREATE TABLE `UnitVariables` (
   PRIMARY KEY (`pk`),
   KEY `microServiceChainLink` (`microServiceChainLink`),
   CONSTRAINT `UnitVariables_ibfk_1` FOREIGN KEY (`microServiceChainLink`) REFERENCES `MicroServiceChainLinks` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `TasksConfigsSetUnitVariable`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -738,7 +738,7 @@ CREATE TABLE `TasksConfigsSetUnitVariable` (
   PRIMARY KEY (`pk`),
   KEY `microServiceChainLink` (`microServiceChainLink`),
   CONSTRAINT `TasksConfigsSetUnitVariable_ibfk_1` FOREIGN KEY (`microServiceChainLink`) REFERENCES `MicroServiceChainLinks` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `TasksConfigsUnitVariableLinkPull`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -753,7 +753,7 @@ CREATE TABLE `TasksConfigsUnitVariableLinkPull` (
   PRIMARY KEY (`pk`),
   KEY `defaultMicroServiceChainLink` (`defaultMicroServiceChainLink`),
   CONSTRAINT `TasksConfigsUnitVariableLinkPull_ibfk_1` FOREIGN KEY (`defaultMicroServiceChainLink`) REFERENCES `MicroServiceChainLinks` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -2239,7 +2239,7 @@ CREATE TABLE `CommandTypes` (
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`),
   KEY `CommandTypes` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `CommandClassifications`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2252,7 +2252,7 @@ CREATE TABLE `CommandClassifications` (
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`),
   KEY `CommandClassifications` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `CommandsSupportedBy`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2265,7 +2265,7 @@ CREATE TABLE `CommandsSupportedBy` (
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`),
   KEY `CommandsSupportedBy` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Commands`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2294,7 +2294,7 @@ CREATE TABLE `Commands` (
   CONSTRAINT `Commands_ibfk_2` FOREIGN KEY (`eventDetailCommand`) REFERENCES `Commands` (`pk`),
   CONSTRAINT `Commands_ibfk_3` FOREIGN KEY (`supportedBy`) REFERENCES `CommandsSupportedBy` (`pk`),
   CONSTRAINT `Commands_ibfk_4` FOREIGN KEY (`verificationCommand`) REFERENCES `Commands` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `FileIDTypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2306,7 +2306,7 @@ CREATE TABLE `FileIDTypes` (
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `FileIDs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2324,7 +2324,7 @@ CREATE TABLE `FileIDs` (
   KEY `FileIDs` (`pk`),
   KEY `fileIDType` (`fileIDType`),
   CONSTRAINT `FileIDs_ibfk_1` FOREIGN KEY (`fileIDType`) REFERENCES `FileIDTypes` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `CommandRelationships`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2349,7 +2349,7 @@ CREATE TABLE `CommandRelationships` (
   CONSTRAINT `CommandRelationships_ibfk_1` FOREIGN KEY (`command`) REFERENCES `Commands` (`pk`),
   CONSTRAINT `CommandRelationships_ibfk_2` FOREIGN KEY (`commandClassification`) REFERENCES `CommandClassifications` (`pk`),
   CONSTRAINT `CommandRelationships_ibfk_3` FOREIGN KEY (`fileID`) REFERENCES `FileIDs` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `Groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2362,7 +2362,7 @@ CREATE TABLE `Groups` (
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`),
   KEY `Groups` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `FileIDGroupMembers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2380,7 +2380,7 @@ CREATE TABLE `FileIDGroupMembers` (
   KEY `groupID` (`groupID`),
   CONSTRAINT `FileIDGroupMembers_ibfk_1` FOREIGN KEY (`fileID`) REFERENCES `FileIDs` (`pk`),
   CONSTRAINT `FileIDGroupMembers_ibfk_2` FOREIGN KEY (`groupID`) REFERENCES `Groups` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `SubGroups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2397,7 +2397,7 @@ CREATE TABLE `SubGroups` (
   KEY `parentGroupID` (`parentGroupID`),
   CONSTRAINT `SubGroups_ibfk_1` FOREIGN KEY (`childGroupID`) REFERENCES `Groups` (`pk`),
   CONSTRAINT `SubGroups_ibfk_2` FOREIGN KEY (`parentGroupID`) REFERENCES `Groups` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `DefaultCommandsForClassifications`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2415,7 +2415,7 @@ CREATE TABLE `DefaultCommandsForClassifications` (
   KEY `MicroserviceChainLink` (`MicroserviceChainLink`),
   CONSTRAINT `DefaultCommandsForClassifications_ibfk_2` FOREIGN KEY (`forClassification`) REFERENCES `CommandClassifications` (`pk`),
   CONSTRAINT `DefaultCommandsForClassifications_ibfk_3` FOREIGN KEY (`MicroserviceChainLink`) REFERENCES `MicroServiceChainLinks` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `FileIDsBySingleID`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2434,7 +2434,7 @@ CREATE TABLE `FileIDsBySingleID` (
   KEY `tool` (`tool`(50)) USING HASH,
   KEY `toolVersion` (`toolVersion`(50)) USING HASH,
   CONSTRAINT `FileIDsBySingleID_ibfk_1` FOREIGN KEY (`fileID`) REFERENCES `FileIDs` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `FilesIdentifiedIDs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2448,7 +2448,7 @@ CREATE TABLE `FilesIdentifiedIDs` (
   KEY `fileID` (`fileID`),
   CONSTRAINT `FilesIdentifiedIDs_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`),
   CONSTRAINT `FilesIdentifiedIDs_ibfk_2` FOREIGN KEY (`fileID`) REFERENCES `FileIDs` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -2481,7 +2481,7 @@ CREATE TABLE `ElasticsearchIndexBackup` (
   `typeName` varchar(255) DEFAULT NULL,
   `data` longtext NOT NULL,
   PRIMARY KEY (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -2634,7 +2634,7 @@ CREATE TABLE `SourceDirectories` (
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `SourceDirectories` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `DashboardSettings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2657,7 +2657,7 @@ CREATE TABLE `StorageDirectories` (
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `StorageDirectories` (`pk`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `tastypie_apiaccess`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

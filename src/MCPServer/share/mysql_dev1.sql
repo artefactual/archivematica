@@ -12,7 +12,7 @@ SET @microserviceGroup = 'Prepare AIP';
 SET @MoveSIPToFailedLink = '7d728c39-395f-4892-8193-92f086c0546f';
 SET @MoveTransferToFailedLink = '61c316a6-0a50-4f65-8767-1f44b1eeb6dd';
 
-SET @XLink = '3e25bda6-5314-4bb4-aa1e-90900dce887d';
+SET @XLink = '3e25bda6-5314-4bb4-aa1e-90900dce887d' COLLATE utf8_unicode_ci;
 -- SET @YLink = '1cd3b36a-5252-4a69-9b1c-3b36829288ab';
 
 SET @TasksConfigPKReference = 'ae090b70-0234-40ea-bc11-4be27370515f';
@@ -57,7 +57,7 @@ INSERT INTO WatchedDirectories (pk, watchedDirectoryPath, chain, onlyActOnDirect
 INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvailable`, `replaces`, `lastModified`) VALUES ('8240d294-ad72-4a7f-8c67-6777e165a642','f4dea20e-f3fe-4a37-b20f-0e70a7bc960e','09949bda-5332-482a-ae47-5373bd372174',NULL,'2012-10-23 19:41:25');
 
 SET @microserviceGroup = 'Normalize';
-SET @XLink = '5bddbb67-76b4-4bcb-9b85-a0d9337e7042';
+SET @XLink = '5bddbb67-76b4-4bcb-9b85-a0d9337e7042' COLLATE utf8_unicode_ci;
 SET @YLink = '83484326-7be7-4f9f-b252-94553cd42370';
 
 SET @TasksConfigPKReference = 'c7e6b467-445e-4142-a837-5b50184238fc';
@@ -101,7 +101,7 @@ REFERENCES Jobs(jobUUID);
 INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvailable`, `replaces`, `lastModified`) VALUES ('e95b8f27-ea52-4247-bdf0-615273bc5fca','f4dea20e-f3fe-4a37-b20f-0e70a7bc960e','c76624a8-6f85-43cf-8ea7-0663502c712f',NULL,'2012-10-23 19:41:24');
 
 SET @microserviceGroup = 'Normalize';
-SET @XLink = '982229bd-73b8-432e-a1d9-2d9d15d7287d';;
+SET @XLink = '982229bd-73b8-432e-a1d9-2d9d15d7287d' COLLATE utf8_unicode_ci;
 SET @YLink = '83484326-7be7-4f9f-b252-94553cd42370';
 
 SET @TasksConfigPKReference = '46883944-8561-44d0-ac50-e1c3fd9aeb59';
@@ -134,7 +134,7 @@ UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = @NextMicr
 INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvailable`, `replaces`, `lastModified`) VALUES ('44304ff6-86f9-444e-975f-e578c7f3d15a','f4dea20e-f3fe-4a37-b20f-0e70a7bc960e','46824987-bd47-4139-9871-6566f5abdf1a',NULL,'2012-10-23 19:41:25'); 
 
 SET @microserviceGroup = 'Normalize';
-SET @XLink = '5fbecef2-49e9-4585-81a2-267b8bbcd568';
+SET @XLink = '5fbecef2-49e9-4585-81a2-267b8bbcd568' COLLATE utf8_unicode_ci;
 SET @YLink = '83484326-7be7-4f9f-b252-94553cd42370';
 
 SET @TasksConfigPKReference = '9e32257f-161e-430e-9412-07ce7f8db8ab';
@@ -405,7 +405,7 @@ CREATE TABLE `FauxFileIDsMap` (
   `fileUUID` varchar(50) DEFAULT NULL,
   FOREIGN KEY (`fauxFileUUID`) REFERENCES `Files` (`fileUUID`),
   FOREIGN KEY (`fauxSIPUUID`) REFERENCES `SIPs` (`sipUUID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------------------------------------------------------------------------
 -- Add ability to generate a DIP from an AIP.
@@ -414,7 +414,7 @@ CREATE TABLE `FauxFileIDsMap` (
 SET @microserviceGroup = 'Normalize';
 
 SET @XLink = '06d5979d-cd45-4a33-a139-0a606a52aa06';
-SET @YLink = '0b5ad647-5092-41ce-9fe5-1cc376d0bc3f';
+SET @YLink = '0b5ad647-5092-41ce-9fe5-1cc376d0bc3f' COLLATE utf8_unicode_ci;
 
 SET @TasksConfigPKReference = 'e076e08f-5f14-4fc3-93d0-1e80ca727f34';
 SET @TasksConfig = 'c4b2e8ce-fe02-45d4-9b0f-b163bffcc05f';
@@ -444,7 +444,7 @@ UPDATE MicroServiceChains SET startingLink = @MicroServiceChainLink WHERE starti
 
 
 SET @XLink = 'e543a615-e497-45e2-99ae-dfac4777e99c';
-SET @YLink = 'b443ba1a-a0b6-4f7c-aeb2-65bd83de5e8b';
+SET @YLink = 'b443ba1a-a0b6-4f7c-aeb2-65bd83de5e8b' COLLATE utf8_unicode_ci;
 
 SET @TasksConfigPKReference = '7477907c-79ec-4d48-93ae-9e0cbbfd2b65';
 SET @TasksConfig = '5092ff10-097b-4bac-a4d8-9b4766aaf40d';
@@ -934,7 +934,7 @@ CREATE TABLE Reports (
   content LONGTEXT,
   created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (pk)
-)  ENGINE=InnoDB DEFAULT CHARSET=utf8;
+)  ENGINE=InnoDB;
 -- /Issue 1929
 
 -- Issue 5484
@@ -964,328 +964,3 @@ INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, cu
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('f5644951-ecaa-42bc-9286-ed4ee220b58f', '0915f727-0bc3-47c8-b9b2-25dc2ecef2bb', 0, '5fbc344c-19c8-48be-a753-02dac987428c', 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='0915f727-0bc3-47c8-b9b2-25dc2ecef2bb' WHERE microServiceChainLink='d55b42c8-c7c5-4a40-b626-d248d2bd883f';
 -- /Issue 5159
-
--- FPR admin additions
-CREATE TABLE IF NOT EXISTS Agent (
-  uuid varchar(36) NOT NULL,
-  agentIdentifierType varchar(100) NOT NULL,
-  agentIdentifierValue varchar(100) NOT NULL,
-  agentName varchar(100) NOT NULL,
-  agentType varchar(100) NOT NULL,
-  clientIP varchar(100) NOT NULL,
-  PRIMARY KEY (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS Command (
-  pk varchar(36) NOT NULL,
-  commandUsage varchar(15) NOT NULL,
-  commandType varchar(36) NOT NULL,
-  verificationCommand varchar(36) DEFAULT NULL,
-  eventDetailCommand varchar(36) DEFAULT NULL,
-  supportedBy varchar(36) DEFAULT NULL,
-  command longtext NOT NULL,
-  outputLocation longtext,
-  description longtext NOT NULL,
-  outputFileFormat longtext,
-  replaces varchar(36) DEFAULT NULL,
-  lastModified datetime DEFAULT NULL,
-  enabled int(11) DEFAULT NULL,
-  PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS CommandClassification (
-  pk varchar(36) NOT NULL,
-  classification longtext,
-  replaces varchar(50) DEFAULT NULL,
-  lastModified datetime NOT NULL,
-  enabled int(11) DEFAULT NULL,
-  PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS CommandRelationship (
-  pk varchar(36) NOT NULL,
-  commandClassification varchar(36) NOT NULL,
-  command varchar(36) DEFAULT NULL,
-  fileID varchar(36) DEFAULT NULL,
-  replaces varchar(36) DEFAULT NULL,
-  lastModified datetime NOT NULL,
-  enabled int(11) DEFAULT NULL,
-  PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS CommandType (
-  pk varchar(36) NOT NULL,
-  replaces varchar(50) DEFAULT NULL,
-  type longtext NOT NULL,
-  lastModified datetime NOT NULL,
-  enabled int(11) DEFAULT NULL,
-  PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS FileID (
-  pk varchar(36) NOT NULL,
-  description longtext NOT NULL,
-  validPreservationFormat int(11) DEFAULT NULL,
-  validAccessFormat int(11) DEFAULT NULL,
-  fileidtype_id varchar(36) DEFAULT NULL,
-  replaces varchar(36) DEFAULT NULL,
-  lastModified datetime NOT NULL,
-  enabled int(11) DEFAULT NULL,
-  PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS FileIDType (
-  pk varchar(36) NOT NULL,
-  description longtext,
-  replaces varchar(50) DEFAULT NULL,
-  lastModified datetime NOT NULL,
-  enabled int(11) DEFAULT NULL,
-  PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS django_admin_log (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  action_time datetime NOT NULL,
-  user_id int(11) NOT NULL,
-  content_type_id int(11) DEFAULT NULL,
-  object_id longtext,
-  object_repr varchar(200) NOT NULL,
-  action_flag smallint(5) unsigned NOT NULL,
-  change_message longtext NOT NULL,
-  PRIMARY KEY (id),
-  KEY django_admin_log_6340c63c (user_id),
-  KEY django_admin_log_37ef4eb4 (content_type_id),
-  CONSTRAINT user_id_refs_id_c0d12874 FOREIGN KEY (user_id) REFERENCES auth_user (id),
-  CONSTRAINT content_type_id_refs_id_93d2d1f8 FOREIGN KEY (content_type_id) REFERENCES django_content_type (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS django_site (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  domain varchar(100) NOT NULL,
-  name varchar(50) NOT NULL,
-  PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_format (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  description varchar(128) NOT NULL,
-  group_id varchar(36) NOT NULL,
-  slug varchar(50) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_formatgroup (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  description varchar(128) NOT NULL,
-  slug varchar(50) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_formatversion (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  format_id varchar(36) NOT NULL,
-  description varchar(128) DEFAULT NULL,
-  access_format tinyint(1) NOT NULL,
-  preservation_format tinyint(1) NOT NULL,
-  replaces_id int(11) DEFAULT NULL,
-  lastmodified datetime NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  slug varchar(50) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_fprule (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  purpose varchar(16) NOT NULL,
-  command_id int(11) NOT NULL,
-  format_id int(11) NOT NULL,
-  replaces_id int(11) DEFAULT NULL,
-  lastmodified datetime NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_idcommand (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  description varchar(256) NOT NULL,
-  script longtext NOT NULL,
-  script_type varchar(16) NOT NULL,
-  replaces_id int(11) DEFAULT NULL,
-  lastmodified datetime NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_idrule (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  command_id varchar(36) NOT NULL,
-  format_id varchar(36) NOT NULL,
-  command_output longtext NOT NULL,
-  replaces_id int(11) DEFAULT NULL,
-  lastmodified datetime NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_idtool (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  description varchar(256) NOT NULL,
-  version varchar(64) NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  slug varchar(50) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_idtoolconfig (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  tool_id varchar(36) NOT NULL,
-  config varchar(4) NOT NULL,
-  command_id varchar(36) NOT NULL,
-  replaces_id int(11) DEFAULT NULL,
-  lastmodified datetime NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  slug varchar(50) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_fpcommand (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  description varchar(256) NOT NULL,
-  command longtext NOT NULL,
-  script_type varchar(16) NOT NULL,
-  output_file_format varchar(256) DEFAULT NULL,
-  output_location longtext,
-  command_usage varchar(16) NOT NULL,
-  verification_command_id int(11) DEFAULT NULL,
-  event_detail_command_id int(11) DEFAULT NULL,
-  supported_by_id varchar(36) DEFAULT NULL,
-  replaces_id int(11) DEFAULT NULL,
-  lastmodified datetime NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_fpcommand_tool (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  fpcommand_id int(11) NOT NULL,
-  fptool_id int(11) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY fpr_fpcommand__fpcommand_id_1ef78061_uniq (fpcommand_id,fptool_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_fptool (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  description varchar(256) NOT NULL,
-  version varchar(64) NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  slug varchar(50) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS south_migrationhistory (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  app_name varchar(255) NOT NULL,
-  migration varchar(255) NOT NULL,
-  applied datetime NOT NULL,
-  PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
--- /FPR admin additions
-
--- Issue 5575 FPR integration with Storage Service
-
--- Add choice of which format ID tool to use before identify and extract metadata
-
--- Updated FilesIdentifiedIDs constraint
-ALTER TABLE `FilesIdentifiedIDs` DROP FOREIGN KEY `FilesIdentifiedIDs_ibfk_2`;
-ALTER TABLE `FilesIdentifiedIDs` ADD CONSTRAINT `FilesIdentifiedIDs_ibfk_2` FOREIGN KEY (`fileID`) REFERENCES `fpr_formatversion` (`uuid`);
--- sanitize transfer name
-SET @startingLink='a329d39b-4711-4231-b54e-b5958934dccb';
--- characterize and extract metadata
-SET @characterizeExtractMetadata='303a65f6-a16f-4a06-807b-cb3425a30201';
-
--- Add Identify File Format
-SET @identifyFileFormatMSCL='2522d680-c7d9-4d06-8b11-a28d8bd8a71f';
-INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES ('9c3680a5-91cb-413f-af4e-d39c3346f8db', 0, 'identifyFileFormat_v0.0', '%IDCommand% %relativeLocation% %fileUUID%', 'objects');
-INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('8558d885-d6c2-4d74-af46-20da45487ae7', 'a6b1c323-7d36-428e-846a-e7e819423577', '9c3680a5-91cb-413f-af4e-d39c3346f8db', 'Identify file format');
-INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@identifyFileFormatMSCL, 'Characterize and extract metadata', 'Failed', '8558d885-d6c2-4d74-af46-20da45487ae7', @MoveTransferToFailedLink);
-INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('1f877d65-66c5-49da-bf51-2f1757b59c90', @identifyFileFormatMSCL, 0, @characterizeExtractMetadata, 'Completed successfully');
-
--- Add Select file format identification command
-SET @selectFileIDCommandMSCL='f09847c2-ee51-429a-9478-a860477f6b8d';
-INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('97545cb5-3397-4934-9bc5-143b774e4fa7', '9c84b047-9a6d-463f-9836-eafa49743b84', NULL, 'Select file format identification command');
-INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@selectFileIDCommandMSCL, 'Characterize and extract metadata', 'Failed', '97545cb5-3397-4934-9bc5-143b774e4fa7', @MoveTransferToFailedLink);
-INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('ef56e6a6-5280-4227-9799-9c1d2d7c0919', @selectFileIDCommandMSCL, 0, @identifyFileFormatMSCL, 'Completed successfully');
-UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@selectFileIDCommandMSCL WHERE microServiceChainLink=@startingLink;
-
--- Remove identifyFilesByExtension
-SET @loadLabels='1b1a4565-b501-407b-b40f-2f20889423f1';
-UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@loadLabels WHERE microServiceChainLink=@characterizeExtractMetadata;
-UPDATE MicroServiceChainLinks SET defaultNextChainLink=@loadLabels WHERE pk=@characterizeExtractMetadata;
-DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink='1297fb61-ba59-4286-9a7f-0c55203f99e8';
-DELETE FROM MicroServiceChainLinks WHERE pk='1297fb61-ba59-4286-9a7f-0c55203f99e8';
-
--- Remove more identifyFilesByExtension
--- X -> remove link -> Y
-SET @del = 'a5bb37b4-41b4-46cc-b10d-fbc82d87edf0';
-SET @Y='8c425901-13c7-4ea2-8955-2abdbaa3d67a';
-UPDATE MicroServiceChainLinks SET defaultNextChainLink=@Y where defaultNextChainLink=@del;
-UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@Y where nextMicroServiceChainLink=@del;
-DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@del;
-DELETE FROM MicroServiceChainLinks WHERE pk=@del;
-SET @del = '9b06bf64-5b81-4ae7-9618-f3b653547896';
-SET @Y='634918c4-1f06-4f62-9ed2-a3383aa2e962';
-UPDATE MicroServiceChainLinks SET defaultNextChainLink=@Y where defaultNextChainLink=@del;
-UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@Y where nextMicroServiceChainLink=@del;
-DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@del;
-DELETE FROM MicroServiceChainLinks WHERE pk=@del;
-
--- Remove select format identification tool in SIP and its children
-SET @resumeAfterNormalizationFileIdentificationToolSelected='83484326-7be7-4f9f-b252-94553cd42370';
-SET @magiclink1='f63970a2-dc63-4ab4-80a6-9bfd72e3cf5a';
-SET @magiclink2='c73acd63-19c9-4ca8-912c-311107d0454e';
-UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@resumeAfterNormalizationFileIdentificationToolSelected WHERE microServiceChainLink in (@magiclink1, @magiclink2);
-UPDATE MicroServiceChainLinks SET defaultNextChainLink=@resumeAfterNormalizationFileIdentificationToolSelected WHERE pk in (@magiclink1, @magiclink2);
--- nodes to delete
-SET @d1='56b42318-3eb3-466c-8a0d-7ac272136a96';
-SET @d2='a4f7ebb7-3bce-496f-a6bc-ef73c5ce8118';
-SET @d3='5bddbb67-76b4-4bcb-9b85-a0d9337e7042';
-SET @d4='37f2e794-6485-4524-a384-37b3209916ed';
-SET @d5='766b23ad-65ed-46a3-aa2e-b9bdaf3386d0';
-SET @d6='d7a0e33d-aa3c-435f-a6ef-8e39f2e7e3a0';
-SET @d7='b549130c-943b-4791-b1f6-93b837990138';
-SET @d8='5fbecef2-49e9-4585-81a2-267b8bbcd568';
-SET @d9='4c4281a1-43cd-4c6e-b1dc-573bd1a23c43';
-SET @d10='982229bd-73b8-432e-a1d9-2d9d15d7287d';
-SET @d11='91d7e5f3-d89b-4c10-83dd-ab417243f583';
-SET @d12='fbebca6d-53bc-42ef-98ea-3f707e53832e';
-SET @d13='f4dea20e-f3fe-4a37-b20f-0e70a7bc960e';
-SET @d14='f87f13d2-8aae-45c9-bc8a-e5c32a37654e';
-SET @d15='aa5b8a69-ce6d-49f7-a07f-4683ccd6fcbf';
-DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10, @d11, @d12, @d13, @d14, @d15);
-DELETE FROM MicroServiceChainChoice WHERE chainAvailable IN (SELECT pk FROM MicroServiceChains WHERE startingLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10, @d11, @d12, @d13, @d14, @d15));
-DELETE FROM MicroServiceChains WHERE startingLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10, @d11, @d12, @d13, @d14, @d15);
-DELETE FROM MicroServiceChainLinks WHERE defaultNextChainLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10, @d11, @d12, @d13, @d14, @d15);
-DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10, @d11, @d12, @d13, @d14, @d15);
-
-
--- /Issue 5575
