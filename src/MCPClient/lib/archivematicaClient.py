@@ -181,20 +181,16 @@ def startThread(threadNumber):
         gm_worker.register_task(key, executeCommand)
     
     #load transoder jobs
-    sql = """SELECT CommandRelationships.pk 
-                FROM CommandRelationships 
-                JOIN Commands ON CommandRelationships.command = Commands.pk
-                JOIN CommandsSupportedBy ON Commands.supportedBy = CommandsSupportedBy.pk 
-                WHERE CommandsSupportedBy.description = 'supported by default archivematica client';"""
+    # FPRule.active.values_list('uuid', flat=True)
+    sql = """SELECT fpr_fprule.uuid FROM fpr_fprule WHERE enabled = 1;"""
     rows = databaseInterface.queryAllSQL(sql)
-    if rows:
-        for row in rows:
-            CommandRelationshipsPK = row[0]
-            key = "transcoder_cr%s" % (CommandRelationshipsPK.__str__())
-            printOutputLock.acquire()
-            print "registering:", '"' + key + '"'
-            printOutputLock.release()
-            gm_worker.register_task(key, transcoderNormalizer.executeCommandReleationship)
+    for row in rows:
+        fprule_uuid = row[0]
+        key = "transcoder_fprule_{0}".format(fprule_uuid)
+        printOutputLock.acquire()
+        print 'registering: "', key, '"'
+        printOutputLock.release()
+        gm_worker.register_task(key, transcoderNormalizer.executeCommandReleationship)
             
     failMaxSleep = 30
     failSleep = 1

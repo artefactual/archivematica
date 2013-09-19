@@ -445,6 +445,9 @@ class MicroServiceChainLink(models.Model):
     class Meta:
         db_table = u'MicroServiceChainLinks'
 
+    def __unicode__(self):
+        return u'MicroServiceChainLink ID: {}'.format(self.id)
+
 class MicroServiceChainLinkExitCode(models.Model):
     id = UUIDPkField()
     microservicechainlink = models.CharField(max_length=50, db_column='microServiceChainLink')
@@ -496,9 +499,13 @@ class StandardTaskConfig(models.Model):
 
 class TaskConfig(models.Model):
     id = UUIDPkField()
-    tasktype = models.IntegerField(db_column='taskType')
-    tasktypepkreference = models.IntegerField(db_column='taskTypePKReference')
+    # Foreign key to TaskTypes
+    tasktype = models.CharField(max_length=36, db_column='taskType')
+    tasktypepkreference = models.CharField(max_length=36, null=True, blank=True, db_column='taskTypePKReference')
     description = models.TextField(db_column='description')
 
     class Meta:
         db_table = u'TasksConfigs'
+
+    def __unicode__(self):
+        return u'TaskConfig ID: {}, desc: {}'.format(self.id, self.description)
