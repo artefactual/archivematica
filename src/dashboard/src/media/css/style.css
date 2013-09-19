@@ -714,3 +714,13 @@ textarea.command {
 .breadcrumb > li:first-child:before {
     content: "";
 }
+
+.revisions_link {
+  float: right;
+  border: 1px solid #666;
+  border-radius: 15px;
+  -moz-border-radius: 15px;
+  padding: 5px;
+  color: black;
+  background-color: #eee;
+}
