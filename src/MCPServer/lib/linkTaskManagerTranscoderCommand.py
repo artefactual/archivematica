@@ -22,23 +22,19 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 
+import math
+import MySQLdb
+import sys
+import threading
+import uuid
+
 from linkTaskManager import linkTaskManager
 from taskStandard import taskStandard
-from unitFile import unitFile
-from passClasses import *
-import databaseInterface
-import threading
-import math
-import uuid
-import time
-import sys
-import archivematicaMCP
+import passClasses
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import databaseInterface
 import databaseFunctions
-from databaseFunctions import deUnicode
 
-import os
-import MySQLdb
 
 global outputLock
 outputLock = threading.Lock()
@@ -59,7 +55,7 @@ class linkTaskManagerTranscoderCommand:
         SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
         for optsKey, optsValue in opts.iteritems():
             if self.jobChainLink.passVar != None:
-                if isinstance(self.jobChainLink.passVar, replacementDic):
+                if isinstance(self.jobChainLink.passVar, passClasses.replacementDic):
                     opts[optsKey] = self.jobChainLink.passVar.replace(opts[optsKey])[0]
 
             commandReplacementDic = unit.getReplacementDic()
@@ -81,7 +77,7 @@ class linkTaskManagerTranscoderCommand:
                 opts["taskUUID"] = UUID
                 opts["CommandRelationship"] = pk.__str__()
                 execute = "transcoder_cr%s" % (pk)
-                deUnicode(execute)
+                databaseFunctions.deUnicode(execute)
                 arguments = row.__str__()
                 standardOutputFile = opts["standardOutputFile"] 
                 standardErrorFile = opts["standardErrorFile"] 
@@ -101,10 +97,6 @@ class linkTaskManagerTranscoderCommand:
         
         else:
             self.jobChainLink.linkProcessingComplete(self.exitCode)
-        
-        
-        
-            
 
 
     def taskCompletedCallBackFunction(self, task):
@@ -123,7 +115,6 @@ class linkTaskManagerTranscoderCommand:
             print >>sys.stderr, "Key Value Error:", self.tasks
             exit(1)
 
-        
         if self.tasks == {} :
             print "DEBUG proceeding to next link", self.jobChainLink.UUID
             self.jobChainLink.linkProcessingComplete(self.exitCode, self.jobChainLink.passVar)

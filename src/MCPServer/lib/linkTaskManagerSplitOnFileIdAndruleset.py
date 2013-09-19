@@ -21,29 +21,20 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-from linkTaskManager import linkTaskManager
-from taskStandard import taskStandard
-from unitFile import unitFile
-from passClasses import *
+import ast
 import csv
-import jobChain
-import threading
-import math
-import uuid
-import time
+import os
 import sys
-import archivematicaMCP
+import threading
 import traceback
+
+from linkTaskManager import linkTaskManager
+from passClasses import *
+import archivematicaMCP
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
-import databaseFunctions
 from databaseFunctions import deUnicode
 
-import os
-
-
-    
-    
 
 class linkTaskManagerSplitOnFileIdAndruleset:
     def __init__(self, jobChainLink, pk, unit):
@@ -53,26 +44,19 @@ class linkTaskManagerSplitOnFileIdAndruleset:
         self.jobChainLink = jobChainLink
         self.exitCode = 0
         self.clearToNextLink = False
-        sql = """SELECT * FROM StandardTasksConfigs where pk = '%s'""" % (pk.__str__())
+        sql = """SELECT filterFileEnd, filterFileStart, filterSubDir, standardOutputFile, standardErrorFile, execute, arguments FROM StandardTasksConfigs where pk = '%s'""" % (pk.__str__())
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         while row != None:
-            filterFileEnd = deUnicode(row[1])
-            filterFileStart = deUnicode(row[2])
-            filterSubDir = deUnicode(row[3])
-            requiresOutputLock = row[4]
-            self.standardOutputFile = deUnicode(row[5])
-            self.standardErrorFile = deUnicode(row[6])
-            self.execute = deUnicode(row[7])
-            self.arguments = deUnicode(row[8])
+            filterFileEnd = deUnicode(row[0])
+            filterFileStart = deUnicode(row[1])
+            filterSubDir = deUnicode(row[2])
+            self.standardOutputFile = deUnicode(row[3])
+            self.standardErrorFile = deUnicode(row[4])
+            self.execute = deUnicode(row[5])
+            self.arguments = deUnicode(row[6])
             row = c.fetchone()
         sqlLock.release()
-        if requiresOutputLock:
-            outputLock = threading.Lock()
-        else:
-            outputLock = None
-
-        SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
         
         SIPUUID = unit.owningUnit.UUID
         sql = """SELECT variableValue FROM UnitVariables WHERE unitType = 'SIP' AND variable = 'normalizationFileIdentificationToolIdentifierTypes' AND unitUUID = '%s';""" % (SIPUUID)
@@ -84,7 +68,6 @@ class linkTaskManagerSplitOnFileIdAndruleset:
         
         self.tasksLock.acquire()
         for file, fileUnit in unit.fileList.items():
-            #print "file:", file, fileUnit
             if filterFileEnd:
                 if not file.endswith(filterFileEnd):
                     continue
@@ -92,11 +75,6 @@ class linkTaskManagerSplitOnFileIdAndruleset:
                 if not os.path.basename(file).startswith(filterFileStart):
                     continue
             if filterSubDir:
-                #print "file", file, type(file)
-                #print unit.pathString, type(unit.pathString)
-                #filterSubDir = filterSubDir.encode('utf-8')
-                #print filterSubDir, type(filterSubDir)
-
                 if not file.startswith(unit.pathString + filterSubDir):
                     print "skipping file", file, filterSubDir, " :   \t Doesn't start with: ", unit.pathString + filterSubDir
                     continue
@@ -113,7 +91,7 @@ class linkTaskManagerSplitOnFileIdAndruleset:
             fileUUID = unit.UUID
             ComandClassification = self.execute
             #passVar=self.jobChainLink.passVar
-            toPassVar = eval(arguments)
+            toPassVar = ast.literal_eval(arguments)
             toPassVar.update({"%standardErrorFile%":standardErrorFile, "%standardOutputFile%":standardOutputFile, '%commandClassifications%':ComandClassification})
             #print "debug", toPassVar, toPassVar['%normalizeFileGrpUse%'], unit.fileGrpUse
             passVar=replacementDic(toPassVar)
@@ -199,7 +177,6 @@ class linkTaskManagerSplitOnFileIdAndruleset:
 
         # Setup
         SIPUUID = unit.owningUnit.UUID
-        fileUUID = unit.UUID
         SIPPath = unit.owningUnit.currentPath
         filePath = unit.currentPath
         bname = os.path.basename(filePath)

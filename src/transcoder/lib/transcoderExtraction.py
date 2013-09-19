@@ -24,10 +24,10 @@ import sys
 import os
 import uuid
 
-from executeOrRunSubProcess import executeOrRun
 import transcoder
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import fileWasRemoved
 import databaseInterface
 from fileOperations import addFileToTransfer, updateSizeAndChecksum
