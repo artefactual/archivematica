@@ -7,3 +7,6 @@ django-tastypie==0.9.15
 django-extensions==1.1.1
 django-autoslug==1.7.0
 django-annoying==0.7.7
+
+# Required by storage-service component
+slumber==0.6.0
