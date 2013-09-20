@@ -164,10 +164,13 @@ function update-sampledata() {
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
-    cd ~/archivematica-sampledata
-    currentBranch=`git status | grep '# On branch ' | awk '{print $4}'`
-    colour git pull origin ${currentBranch}
-    colour git submodule update
+    if [ ! -d ~/archivematica-sampledata ]; then
+        cd 
+        colour git clone https://github.com/artefactual/archivematica-sampledata.git
+    else
+        cd ~/archivematica-sampledata
+        colour git pull
+    fi
     cd `dirname $0`
   else
           echo "Not going to ${part}."
