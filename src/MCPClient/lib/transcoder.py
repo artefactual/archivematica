@@ -50,11 +50,9 @@ class Command:
         self.exitCode=None
         self.failedCount=0
         self.opts = opts
-        sql = """SELECT CT.type, C.verificationCommand, C.eventDetailCommand, C.command, C.outputLocation, C.description, C.outputFileFormat
-        FROM Commands AS C
-        JOIN CommandTypes AS CT ON C.commandType = CT.pk
-        WHERE C.pk = '""" + commandID.__str__() + """'
-        ;"""
+        sql = """SELECT fpr_fpcommand.script_type, fpr_fpcommand.verification_command_id, fpr_fpcommand.event_detail_command_id, fpr_fpcommand.command, fpr_fpcommand.output_location, fpr_fpcommand.description, fpr_fpcommand.output_file_format
+        FROM fpr_fpcommand
+        WHERE fpr_fpcommand.uuid = '{}';""".format(commandID)
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         while row is not None:
@@ -109,8 +107,6 @@ class Command:
             self.opts["prependStdOut"] += "\r\nRunning: \r\n{}".format(self)
 
         self.exitCode, self.stdOut, self.stdError = executeOrRun(self.type, self.command)
-
-
         if (not self.exitCode) and self.verificationCommand:
             print
             if self.opts:
@@ -142,7 +138,7 @@ class CommandLinker:
         self.replacementDic = replacementDic
         self.opts = opts
         self.onSuccess = onSuccess
-        sql =  "SELECT command FROM CommandRelationships where pk = '%s';" % (self.pk.__str__())
+        sql =  "SELECT command_id FROM fpr_fprule WHERE uuid = '{0}';".format(self.pk)
         rows = databaseInterface.queryAllSQL(sql)
         for row in rows:
             self.command = row[0]
@@ -152,15 +148,16 @@ class CommandLinker:
         return "[Command Linker]\nPK: {pk}\n{co}".format(pk=self.pk, co=self.commandObject)
 
     def execute(self):
-        sql = "UPDATE CommandRelationships SET countAttempts=countAttempts+1 WHERE pk='" + self.pk.__str__() + "';"
-        databaseInterface.runSQL(sql)
+        # TODO/FIXME Add tracking of successful/failed commands for FPR stats
+        # sql = "UPDATE CommandRelationships SET countAttempts=countAttempts+1 WHERE pk='" + self.pk.__str__() + "';"
+        # databaseInterface.runSQL(sql)
         ret = self.commandObject.execute()
-        if ret:
-            column = "countNotOK"
-        else:
-            column = "countOK"
-        sql = "UPDATE CommandRelationships SET " + column + "=" + column + "+1 WHERE pk='" + self.pk.__str__() + "';"
-        databaseInterface.runSQL(sql)
+        # if ret:
+        #     column = "countNotOK"
+        # else:
+        #     column = "countOK"
+        # sql = "UPDATE CommandRelationships SET " + column + "=" + column + "+1 WHERE pk='" + self.pk.__str__() + "';"
+        # databaseInterface.runSQL(sql)
         return ret
 
 

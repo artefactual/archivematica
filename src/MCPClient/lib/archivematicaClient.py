@@ -190,7 +190,7 @@ def startThread(threadNumber):
         printOutputLock.acquire()
         print 'registering:"{}"'.format(key)
         printOutputLock.release()
-        gm_worker.register_task(key, transcoderNormalizer.executeCommandReleationship)
+        gm_worker.register_task(key, transcoderNormalizer.executeFPRule)
             
     failMaxSleep = 30
     failSleep = 1
