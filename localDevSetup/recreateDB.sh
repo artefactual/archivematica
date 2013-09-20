@@ -50,24 +50,21 @@ set -e
 
 echo "Creating MCP database"
 mysql -u root "${dbpassword}" --execute="CREATE DATABASE ${databaseName} CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+echo "Creating ${username} user"
+mysql -u root "${dbpassword}" --execute="CREATE USER '${username}'@'localhost' IDENTIFIED BY '${password}';"
+mysql -u root "${dbpassword}" --execute="GRANT SELECT, UPDATE, INSERT, DELETE ON ${databaseName}.* TO '${username}'@'localhost';"
 
 echo "Creating and populating MCP tables"
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_0.10;"
-mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_dev1;"
+../src/MCPServer/share/mysql_dev.sh ${databaseName} ${dbpassword}
+# mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_dev1;"
 #$currentDir/../src/MCPServer/share/migration1.sh
-#mysql -u $username $dbpassword --execute="source $currentDir/../src/MCPServer/share/mysql_dev2" $databaseName
-#$currentDir/../src/MCPServer/share/migration2.sh
-#mysql -u $username $dbpassword --execute="source $currentDir/../src/MCPServer/share/mysql_dev3" $databaseName
 
 echo "Creating MCP Views"
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql2Views;"
 
 #echo "Creating and populating Transcoder Tables"
 #mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/transcoder/share/mysql;"
-
-echo "Creating ${username} user"
-mysql -u root "${dbpassword}" --execute="CREATE USER '${username}'@'localhost' IDENTIFIED BY '${password}';"
-mysql -u root "${dbpassword}" --execute="GRANT SELECT, UPDATE, INSERT, DELETE ON ${databaseName}.* TO '${username}'@'localhost';"
 
 dbpassword=""
 

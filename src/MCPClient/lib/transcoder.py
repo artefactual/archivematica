@@ -19,17 +19,14 @@
 # @package Archivematica
 # @subpackage archivematicaClient
 # @author Joseph Perry <joseph@artefactual.com>
-import re
-import math
 import sys
-import os
 import time
-from pipes import quote
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
-from fileOperations import updateSizeAndChecksum
 from archivematicaFunctions import escapeForCommand
 import databaseInterface
+
 LowerEndMainGroupMax = -10
 
 commandObjects = {}
@@ -53,27 +50,22 @@ class Command:
         self.exitCode=None
         self.failedCount=0
         self.opts = opts
-        sql = """SELECT CT.type, C.verificationCommand, C.eventDetailCommand, C.command, C.outputLocation, C.description, C.outputFileFormat
-        FROM Commands AS C
-        JOIN CommandTypes AS CT ON C.commandType = CT.pk
-        WHERE C.pk = '""" + commandID.__str__() + """'
-        ;"""
+        sql = """SELECT fpr_fpcommand.script_type, fpr_fpcommand.verification_command_id, fpr_fpcommand.event_detail_command_id, fpr_fpcommand.command, fpr_fpcommand.output_location, fpr_fpcommand.description, fpr_fpcommand.output_file_format
+        FROM fpr_fpcommand
+        WHERE fpr_fpcommand.uuid = '{}';""".format(commandID)
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
-        while row != None:
-            rowSTR = []
-            for colIndex in range(len(row)):
-                rowSTR.append(toStrFromUnicode(row[colIndex])) 
-            self.type, \
-            self.verificationCommand, \
-            self.eventDetailCommand, \
-            self.command, \
-            self.outputLocation, \
-            self.description, \
-            self.outputFormat = \
-            rowSTR
-            if isinstance(self.command, unicode):
-                self.command = self.command.encode('utf-8')
+        while row is not None:
+            row =[toStrFromUnicode(x) for x in row]
+            ( # Extract all elements from row
+                self.type,
+                self.verificationCommand,
+                self.eventDetailCommand,
+                self.command,
+                self.outputLocation,
+                self.description,
+                self.outputFormat,
+            ) = row
             row = c.fetchone()
         sqlLock.release()
         if self.verificationCommand:
@@ -107,20 +99,14 @@ class Command:
         for key, value in self.replacementDic.iteritems():
             key = toStrFromUnicode(key)
             self.replacementDic[key] = toStrFromUnicode(value)
-            #self.outputLocation = toStrFromUnicode(self.outputLocation)
-            #self.command = self.command.replace ( key, quote(replacementDic[key]) )
             self.command = self.command.replace( key, escapeForCommand(self.replacementDic[key]) )
             if self.outputLocation:
                 self.outputLocation = self.outputLocation.replace( key, self.replacementDic[key] )
-        print "Running: "
-        selfstr = self.__str__()
-        print selfstr
+        print "Running: ", self
         if self.opts:
-            self.opts["prependStdOut"] += "\r\nRunning: \r\n%s" % (selfstr)
+            self.opts["prependStdOut"] += "\r\nRunning: \r\n{}".format(self)
 
         self.exitCode, self.stdOut, self.stdError = executeOrRun(self.type, self.command)
-
-
         if (not self.exitCode) and self.verificationCommand:
             print
             if self.opts:
@@ -152,28 +138,26 @@ class CommandLinker:
         self.replacementDic = replacementDic
         self.opts = opts
         self.onSuccess = onSuccess
-        sql =  "SELECT command FROM CommandRelationships where pk = '%s';" % (self.pk.__str__())
+        sql =  "SELECT command_id FROM fpr_fprule WHERE uuid = '{0}';".format(self.pk)
         rows = databaseInterface.queryAllSQL(sql)
-        if rows:
-            for row in rows:
-                self.command = row[0]
-        self.commandObject = Command(self.command.__str__(), replacementDic, self.onSuccess, opts)
+        for row in rows:
+            self.command = row[0]
+        self.commandObject = Command(str(self.command), replacementDic, self.onSuccess, opts)
 
     def __str__(self):
-        return "[Command Linker]\n" + \
-        "PK: " + self.pk.__str__() + "\n" + \
-        self.commandObject.__str__()
+        return "[Command Linker]\nPK: {pk}\n{co}".format(pk=self.pk, co=self.commandObject)
 
     def execute(self):
-        sql = "UPDATE CommandRelationships SET countAttempts=countAttempts+1 WHERE pk='" + self.pk.__str__() + "';"
-        databaseInterface.runSQL(sql)
+        # TODO/FIXME Add tracking of successful/failed commands for FPR stats
+        # sql = "UPDATE CommandRelationships SET countAttempts=countAttempts+1 WHERE pk='" + self.pk.__str__() + "';"
+        # databaseInterface.runSQL(sql)
         ret = self.commandObject.execute()
-        if ret:
-            column = "countNotOK"
-        else:
-            column = "countOK"
-        sql = "UPDATE CommandRelationships SET " + column + "=" + column + "+1 WHERE pk='" + self.pk.__str__() + "';"
-        databaseInterface.runSQL(sql)
+        # if ret:
+        #     column = "countNotOK"
+        # else:
+        #     column = "countOK"
+        # sql = "UPDATE CommandRelationships SET " + column + "=" + column + "+1 WHERE pk='" + self.pk.__str__() + "';"
+        # databaseInterface.runSQL(sql)
         return ret
 
 

@@ -47,7 +47,6 @@ class taskStandard():
         self.UUID = UUID
         self.linkTaskManager = linkTaskManager
         self.execute = execute.encode( "utf-8" )
-        #print >>sys.stderr, "EXECUTE: ", self.execute, type(self.execute), self.UUID, type(self.UUID)
         self.arguments = arguments
         self.standardOutputFile = standardOutputFile
         self.standardErrorFile = standardErrorFile
@@ -69,8 +68,6 @@ class taskStandard():
         while completed_job_request == None:
             try:
                 completed_job_request = gm_client.submit_job(self.execute.lower(), cPickle.dumps(data), self.UUID)
-            #raise ServerUnavailable('Found no valid connections: %r' % self.connection_list)
-            #ServerUnavailable: Found no valid connections: [<GearmanConnection localhost:4730 connected=False>]
             except gearman.errors.ServerUnavailable as inst:
                 completed_job_request = None
                 time.sleep(failSleep)

@@ -12,7 +12,7 @@ SET @microserviceGroup = 'Prepare AIP';
 SET @MoveSIPToFailedLink = '7d728c39-395f-4892-8193-92f086c0546f';
 SET @MoveTransferToFailedLink = '61c316a6-0a50-4f65-8767-1f44b1eeb6dd';
 
-SET @XLink = '3e25bda6-5314-4bb4-aa1e-90900dce887d';
+SET @XLink = '3e25bda6-5314-4bb4-aa1e-90900dce887d' COLLATE utf8_unicode_ci;
 -- SET @YLink = '1cd3b36a-5252-4a69-9b1c-3b36829288ab';
 
 SET @TasksConfigPKReference = 'ae090b70-0234-40ea-bc11-4be27370515f';
@@ -57,7 +57,7 @@ INSERT INTO WatchedDirectories (pk, watchedDirectoryPath, chain, onlyActOnDirect
 INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvailable`, `replaces`, `lastModified`) VALUES ('8240d294-ad72-4a7f-8c67-6777e165a642','f4dea20e-f3fe-4a37-b20f-0e70a7bc960e','09949bda-5332-482a-ae47-5373bd372174',NULL,'2012-10-23 19:41:25');
 
 SET @microserviceGroup = 'Normalize';
-SET @XLink = '5bddbb67-76b4-4bcb-9b85-a0d9337e7042';
+SET @XLink = '5bddbb67-76b4-4bcb-9b85-a0d9337e7042' COLLATE utf8_unicode_ci;
 SET @YLink = '83484326-7be7-4f9f-b252-94553cd42370';
 
 SET @TasksConfigPKReference = 'c7e6b467-445e-4142-a837-5b50184238fc';
@@ -101,7 +101,7 @@ REFERENCES Jobs(jobUUID);
 INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvailable`, `replaces`, `lastModified`) VALUES ('e95b8f27-ea52-4247-bdf0-615273bc5fca','f4dea20e-f3fe-4a37-b20f-0e70a7bc960e','c76624a8-6f85-43cf-8ea7-0663502c712f',NULL,'2012-10-23 19:41:24');
 
 SET @microserviceGroup = 'Normalize';
-SET @XLink = '982229bd-73b8-432e-a1d9-2d9d15d7287d';;
+SET @XLink = '982229bd-73b8-432e-a1d9-2d9d15d7287d' COLLATE utf8_unicode_ci;
 SET @YLink = '83484326-7be7-4f9f-b252-94553cd42370';
 
 SET @TasksConfigPKReference = '46883944-8561-44d0-ac50-e1c3fd9aeb59';
@@ -134,7 +134,7 @@ UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = @NextMicr
 INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvailable`, `replaces`, `lastModified`) VALUES ('44304ff6-86f9-444e-975f-e578c7f3d15a','f4dea20e-f3fe-4a37-b20f-0e70a7bc960e','46824987-bd47-4139-9871-6566f5abdf1a',NULL,'2012-10-23 19:41:25'); 
 
 SET @microserviceGroup = 'Normalize';
-SET @XLink = '5fbecef2-49e9-4585-81a2-267b8bbcd568';
+SET @XLink = '5fbecef2-49e9-4585-81a2-267b8bbcd568' COLLATE utf8_unicode_ci;
 SET @YLink = '83484326-7be7-4f9f-b252-94553cd42370';
 
 SET @TasksConfigPKReference = '9e32257f-161e-430e-9412-07ce7f8db8ab';
@@ -405,7 +405,7 @@ CREATE TABLE `FauxFileIDsMap` (
   `fileUUID` varchar(50) DEFAULT NULL,
   FOREIGN KEY (`fauxFileUUID`) REFERENCES `Files` (`fileUUID`),
   FOREIGN KEY (`fauxSIPUUID`) REFERENCES `SIPs` (`sipUUID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------------------------------------------------------------------------
 -- Add ability to generate a DIP from an AIP.
@@ -414,7 +414,7 @@ CREATE TABLE `FauxFileIDsMap` (
 SET @microserviceGroup = 'Normalize';
 
 SET @XLink = '06d5979d-cd45-4a33-a139-0a606a52aa06';
-SET @YLink = '0b5ad647-5092-41ce-9fe5-1cc376d0bc3f';
+SET @YLink = '0b5ad647-5092-41ce-9fe5-1cc376d0bc3f' COLLATE utf8_unicode_ci;
 
 SET @TasksConfigPKReference = 'e076e08f-5f14-4fc3-93d0-1e80ca727f34';
 SET @TasksConfig = 'c4b2e8ce-fe02-45d4-9b0f-b163bffcc05f';
@@ -444,7 +444,7 @@ UPDATE MicroServiceChains SET startingLink = @MicroServiceChainLink WHERE starti
 
 
 SET @XLink = 'e543a615-e497-45e2-99ae-dfac4777e99c';
-SET @YLink = 'b443ba1a-a0b6-4f7c-aeb2-65bd83de5e8b';
+SET @YLink = 'b443ba1a-a0b6-4f7c-aeb2-65bd83de5e8b' COLLATE utf8_unicode_ci;
 
 SET @TasksConfigPKReference = '7477907c-79ec-4d48-93ae-9e0cbbfd2b65';
 SET @TasksConfig = '5092ff10-097b-4bac-a4d8-9b4766aaf40d';
@@ -934,7 +934,7 @@ CREATE TABLE Reports (
   content LONGTEXT,
   created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (pk)
-)  ENGINE=InnoDB DEFAULT CHARSET=utf8;
+)  ENGINE=InnoDB;
 -- /Issue 1929
 
 -- Issue 5484
@@ -964,249 +964,3 @@ INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, cu
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('f5644951-ecaa-42bc-9286-ed4ee220b58f', '0915f727-0bc3-47c8-b9b2-25dc2ecef2bb', 0, '5fbc344c-19c8-48be-a753-02dac987428c', 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='0915f727-0bc3-47c8-b9b2-25dc2ecef2bb' WHERE microServiceChainLink='d55b42c8-c7c5-4a40-b626-d248d2bd883f';
 -- /Issue 5159
-
--- FPR admin additions
-CREATE TABLE IF NOT EXISTS Agent (
-  uuid varchar(36) NOT NULL,
-  agentIdentifierType varchar(100) NOT NULL,
-  agentIdentifierValue varchar(100) NOT NULL,
-  agentName varchar(100) NOT NULL,
-  agentType varchar(100) NOT NULL,
-  clientIP varchar(100) NOT NULL,
-  PRIMARY KEY (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS Command (
-  pk varchar(36) NOT NULL,
-  commandUsage varchar(15) NOT NULL,
-  commandType varchar(36) NOT NULL,
-  verificationCommand varchar(36) DEFAULT NULL,
-  eventDetailCommand varchar(36) DEFAULT NULL,
-  supportedBy varchar(36) DEFAULT NULL,
-  command longtext NOT NULL,
-  outputLocation longtext,
-  description longtext NOT NULL,
-  outputFileFormat longtext,
-  replaces varchar(36) DEFAULT NULL,
-  lastModified datetime DEFAULT NULL,
-  enabled int(11) DEFAULT NULL,
-  PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS CommandClassification (
-  pk varchar(36) NOT NULL,
-  classification longtext,
-  replaces varchar(50) DEFAULT NULL,
-  lastModified datetime NOT NULL,
-  enabled int(11) DEFAULT NULL,
-  PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS CommandRelationship (
-  pk varchar(36) NOT NULL,
-  commandClassification varchar(36) NOT NULL,
-  command varchar(36) DEFAULT NULL,
-  fileID varchar(36) DEFAULT NULL,
-  replaces varchar(36) DEFAULT NULL,
-  lastModified datetime NOT NULL,
-  enabled int(11) DEFAULT NULL,
-  PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS CommandType (
-  pk varchar(36) NOT NULL,
-  replaces varchar(50) DEFAULT NULL,
-  type longtext NOT NULL,
-  lastModified datetime NOT NULL,
-  enabled int(11) DEFAULT NULL,
-  PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS FileID (
-  pk varchar(36) NOT NULL,
-  description longtext NOT NULL,
-  validPreservationFormat int(11) DEFAULT NULL,
-  validAccessFormat int(11) DEFAULT NULL,
-  fileidtype_id varchar(36) DEFAULT NULL,
-  replaces varchar(36) DEFAULT NULL,
-  lastModified datetime NOT NULL,
-  enabled int(11) DEFAULT NULL,
-  PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS FileIDType (
-  pk varchar(36) NOT NULL,
-  description longtext,
-  replaces varchar(50) DEFAULT NULL,
-  lastModified datetime NOT NULL,
-  enabled int(11) DEFAULT NULL,
-  PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS django_admin_log (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  action_time datetime NOT NULL,
-  user_id int(11) NOT NULL,
-  content_type_id int(11) DEFAULT NULL,
-  object_id longtext,
-  object_repr varchar(200) NOT NULL,
-  action_flag smallint(5) unsigned NOT NULL,
-  change_message longtext NOT NULL,
-  PRIMARY KEY (id),
-  KEY django_admin_log_6340c63c (user_id),
-  KEY django_admin_log_37ef4eb4 (content_type_id),
-  CONSTRAINT user_id_refs_id_c0d12874 FOREIGN KEY (user_id) REFERENCES auth_user (id),
-  CONSTRAINT content_type_id_refs_id_93d2d1f8 FOREIGN KEY (content_type_id) REFERENCES django_content_type (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS django_site (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  domain varchar(100) NOT NULL,
-  name varchar(50) NOT NULL,
-  PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_format (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  description varchar(128) NOT NULL,
-  group_id varchar(36) NOT NULL,
-  slug varchar(50) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_formatgroup (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  description varchar(128) NOT NULL,
-  slug varchar(50) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_formatversion (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  format_id varchar(36) NOT NULL,
-  description varchar(128) DEFAULT NULL,
-  access_format tinyint(1) NOT NULL,
-  preservation_format tinyint(1) NOT NULL,
-  replaces_id int(11) DEFAULT NULL,
-  lastmodified datetime NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  slug varchar(50) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_fprule (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  purpose varchar(16) NOT NULL,
-  command_id int(11) NOT NULL,
-  format_id int(11) NOT NULL,
-  replaces_id int(11) DEFAULT NULL,
-  lastmodified datetime NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_idcommand (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  description varchar(256) NOT NULL,
-  script longtext NOT NULL,
-  script_type varchar(16) NOT NULL,
-  replaces_id int(11) DEFAULT NULL,
-  lastmodified datetime NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_idrule (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  command_id varchar(36) NOT NULL,
-  format_id varchar(36) NOT NULL,
-  command_output longtext NOT NULL,
-  replaces_id int(11) DEFAULT NULL,
-  lastmodified datetime NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_idtool (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  description varchar(256) NOT NULL,
-  version varchar(64) NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  slug varchar(50) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_idtoolconfig (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  tool_id varchar(36) NOT NULL,
-  config varchar(4) NOT NULL,
-  command_id varchar(36) NOT NULL,
-  replaces_id int(11) DEFAULT NULL,
-  lastmodified datetime NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  slug varchar(50) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_fpcommand (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  description varchar(256) NOT NULL,
-  command longtext NOT NULL,
-  script_type varchar(16) NOT NULL,
-  output_file_format varchar(256) DEFAULT NULL,
-  output_location longtext,
-  command_usage varchar(16) NOT NULL,
-  verification_command_id int(11) DEFAULT NULL,
-  event_detail_command_id int(11) DEFAULT NULL,
-  supported_by_id varchar(36) DEFAULT NULL,
-  replaces_id int(11) DEFAULT NULL,
-  lastmodified datetime NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_fpcommand_tool (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  fpcommand_id int(11) NOT NULL,
-  fptool_id int(11) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY fpr_fpcommand__fpcommand_id_1ef78061_uniq (fpcommand_id,fptool_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS fpr_fptool (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  uuid varchar(36) NOT NULL,
-  description varchar(256) NOT NULL,
-  version varchar(64) NOT NULL,
-  enabled tinyint(1) NOT NULL,
-  slug varchar(50) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS south_migrationhistory (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  app_name varchar(255) NOT NULL,
-  migration varchar(255) NOT NULL,
-  applied datetime NOT NULL,
-  PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
--- /FPR admin additions

@@ -19,27 +19,26 @@
 # Needs some cleanups, make sure each model has its primary_key=True
 # Feel free to rename the models, but don't rename db_table values or field names.
 
-from django.db import models
-from contrib import utils
-from django import forms
+# stdlib, alphabetical by import source
 import ast
+
+# Core Django, alphabetical by import source
+from django.db import models
+from django import forms
+
+# Third party dependencies, alphabetical by import source
+from django_extensions.db.fields import UUIDField
+
+# This project, alphabetical by import source
+from contrib import utils
 import main
-import uuid
 
-class UUIDPkField(models.CharField):
+class UUIDPkField(UUIDField):
     def __init__(self, *args, **kwargs):
-        kwargs['max_length'] = kwargs.get('max_length', 64)
-        kwargs['blank'] = False
+        kwargs.setdefault('max_length', 50)
         kwargs['primary_key'] = True
-        kwargs['editable'] = False
         kwargs['db_column'] = 'pk'
-        kwargs['default'] = True # provide a placeholder pk value or else it won't save
-        models.CharField.__init__(self, *args, **kwargs)
-
-    def pre_save(self, model_instance, add):
-        # set uuid during save
-        setattr(model_instance, self.attname, uuid.uuid4().__str__())
-        return super(models.CharField, self).pre_save(model_instance, add)
+        super(UUIDPkField, self).__init__(*args, **kwargs)
 
 class DashboardSetting(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -197,6 +196,14 @@ class File(models.Model):
 
     class Meta:
         db_table = u'Files'
+
+class FileFormatVersion(models.Model):
+    id = models.IntegerField(primary_key=True, db_column='pk')
+    file_uuid = models.ForeignKey(File, db_column='fileUUID', to_field='uuid')
+    format_version = models.ForeignKey('fpr.FormatVersion', db_column='fileID', to_field='uuid')
+
+    class Meta:
+        db_table = u'FilesIdentifiedIDs'
 
 class FPRFileID(models.Model):
     uuid = models.CharField(max_length=150, primary_key=True, db_column='pk')
@@ -438,6 +445,9 @@ class MicroServiceChainLink(models.Model):
     class Meta:
         db_table = u'MicroServiceChainLinks'
 
+    def __unicode__(self):
+        return u'MicroServiceChainLink ID: {}'.format(self.id)
+
 class MicroServiceChainLinkExitCode(models.Model):
     id = UUIDPkField()
     microservicechainlink = models.CharField(max_length=50, db_column='microServiceChainLink')
@@ -489,9 +499,13 @@ class StandardTaskConfig(models.Model):
 
 class TaskConfig(models.Model):
     id = UUIDPkField()
-    tasktype = models.IntegerField(db_column='taskType')
-    tasktypepkreference = models.IntegerField(db_column='taskTypePKReference')
+    # Foreign key to TaskTypes
+    tasktype = models.CharField(max_length=36, db_column='taskType')
+    tasktypepkreference = models.CharField(max_length=36, null=True, blank=True, db_column='taskTypePKReference')
     description = models.TextField(db_column='description')
 
     class Meta:
         db_table = u'TasksConfigs'
+
+    def __unicode__(self):
+        return u'TaskConfig ID: {}, desc: {}'.format(self.id, self.description)
