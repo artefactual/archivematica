@@ -176,7 +176,7 @@ def startThread(threadNumber):
     gm_worker.set_client_id(hostID)
     for key in supportedModules.iterkeys():
         printOutputLock.acquire()
-        print "registering:", '"' + key + '"'
+        print 'registering:"{}"'.format(key)
         printOutputLock.release()
         gm_worker.register_task(key, executeCommand)
     
@@ -188,7 +188,7 @@ def startThread(threadNumber):
         fprule_uuid = row[0]
         key = "transcoder_fprule_{0}".format(fprule_uuid)
         printOutputLock.acquire()
-        print 'registering: "', key, '"'
+        print 'registering:"{}"'.format(key)
         printOutputLock.release()
         gm_worker.register_task(key, transcoderNormalizer.executeCommandReleationship)
             

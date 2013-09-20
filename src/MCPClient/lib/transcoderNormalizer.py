@@ -41,25 +41,21 @@ def executeCommandReleationship(gearman_worker, gearman_job):
         print "executing:", execute, "{", gearman_job.unique, "}"
         data = cPickle.loads(gearman_job.data)
         utcDate = databaseInterface.getUTCDate()
-        opts = data["arguments"]#.encode("utf-8")
-        #if isinstance(arguments, unicode):
-        #    arguments = arguments.encode("utf-8")
-        #if isinstance(arguments, str):
-        #    arguments = unicode(arguments)
+        opts = data["arguments"]
         
         clientID = gearman_worker.worker_client_id
 
         opts["date"] = utcDate
-        opts["accessDirectory"] = os.path.join(opts['sipPath'], "DIP/objects") + "/"
+        opts["accessDirectory"] = os.path.join(opts['sipPath'], "DIP", "objects") + "/"
         opts["thumbnailDirectory"] = os.path.join(opts['sipPath'], "thumbnails")  + "/"
         print opts
         for key, value in archivematicaClient.replacementDic.iteritems():
             for key2 in opts:
                 opts[key2] = opts[key2].replace(key, value)
         replacementDic = getReplacementDic(opts)
-        opts["prependStdOut"] =    """Operating on file: {%s}%s \r\nUsing  %s  command classifications""" % (opts["fileUUID"], replacementDic["%fileName%"], opts["commandClassification"])
+        opts["prependStdOut"] = """Operating on file: {%s}%s \r\nUsing %s command classifications""" % (opts["fileUUID"], replacementDic["%fileName%"], opts["commandClassification"])
         opts["prependStdError"] = "\r\nSTDError:"
-        #    print clientID, execute, data
+
         archivematicaClient.logTaskAssignedSQL(gearman_job.unique.__str__(), clientID, utcDate)
         cl = transcoder.CommandLinker(opts["CommandRelationship"], replacementDic, opts, onceNormalized)
         cl.execute()
@@ -81,7 +77,6 @@ def executeCommandReleationship(gearman_worker, gearman_job):
         #archivematicaClient.printOutputLock.release()
         #exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=False)
         return cPickle.dumps({"exitCode" : exitCode, "stdOut": stdOut, "stdError": stdError})
-    #catch OS errors
     except OSError, ose:
         archivematicaClient.printOutputLock.acquire()
         traceback.print_exc(file=sys.stdout)
@@ -223,7 +218,3 @@ def onceNormalized(command, opts, replacementDic):
             
             replacementDic["%outputFileUUID%"] = uuid.uuid4().__str__()
             replacementDic["%postfix%"] = "-" + replacementDic["%outputFileUUID%"]
-
-
-
-

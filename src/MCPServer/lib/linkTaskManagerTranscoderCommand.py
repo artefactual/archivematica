@@ -50,11 +50,25 @@ class linkTaskManagerTranscoderCommand:
         self.exitCode = 0
         self.clearToNextLink = False
 
-        opts = {"inputFile":"%relativeLocation%", "fileUUID":"%fileUUID%", 'commandClassifications':'%commandClassifications%', "taskUUID":"%taskUUID%", "objectsDirectory":"%SIPObjectsDirectory%", "logsDirectory":"%SIPLogsDirectory%", "sipUUID":"%SIPUUID%", "sipPath":"%SIPDirectory%", "fileGrpUse":"%fileGrpUse%", "normalizeFileGrpUse":"%normalizeFileGrpUse%", "excludeDirectory":"%excludeDirectory%", "standardErrorFile":"%standardErrorFile%", "standardOutputFile":"%standardOutputFile%"}
+        opts = {
+            "inputFile": "%relativeLocation%",
+            "fileUUID": "%fileUUID%",
+            'commandClassifications': '%commandClassifications%',
+            "taskUUID": "%taskUUID%",
+            "objectsDirectory": "%SIPObjectsDirectory%",
+            "logsDirectory": "%SIPLogsDirectory%",
+            "sipUUID": "%SIPUUID%",
+            "sipPath": "%SIPDirectory%",
+            "fileGrpUse": "%fileGrpUse%",
+            "normalizeFileGrpUse": "%normalizeFileGrpUse%",
+            "excludeDirectory": "%excludeDirectory%",
+            "standardErrorFile": "%standardErrorFile%",
+            "standardOutputFile": "%standardOutputFile%",
+        }
         
         SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
         for optsKey, optsValue in opts.iteritems():
-            if self.jobChainLink.passVar != None:
+            if self.jobChainLink.passVar is not None:
                 if isinstance(self.jobChainLink.passVar, passClasses.replacementDic):
                     opts[optsKey] = self.jobChainLink.passVar.replace(opts[optsKey])[0]
 
