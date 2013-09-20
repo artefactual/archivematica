@@ -55,7 +55,10 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     # Namespaces
     xsi = 'http://www.w3.org/2001/XMLSchema-instance'
     xlink = 'http://www.w3.org/1999/xlink'
+    metsns = 'http://www.loc.gov/METS/'
     nsmap = {
+        # Default, unprefixed namespace
+        None: metsns,
         'xsi': xsi,
         'xlink': xlink,
     }
@@ -133,6 +136,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
                         E.dateCreatedByApplication(now),
                     ),
                 ),
+                xmlns="info:lc/xmlns/premis-v2",
                 version='2.2',
             )
         )
@@ -163,16 +167,16 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
 
         # compression - 7z or tar.bz2
         if extension == '.7z':
-            etree.SubElement(flocat, "transformFile",
+            etree.SubElement(file_, "transformFile",
                 TRANSFORMORDER='1',
                 TRANSFORMTYPE='decompression',
                 TRANSFORMALGORITHM=algorithm)
         elif extension == '.bz2':
-            etree.SubElement(flocat, "transformFile",
+            etree.SubElement(file_, "transformFile",
                 TRANSFORMORDER='1',
                 TRANSFORMTYPE='decompression',
                 TRANSFORMALGORITHM='bzip2')
-            etree.SubElement(flocat, "transformFile",
+            etree.SubElement(file_, "transformFile",
                 TRANSFORMORDER='2',
                 TRANSFORMTYPE='decompression',
                 TRANSFORMALGORITHM='tar')
