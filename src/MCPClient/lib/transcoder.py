@@ -50,13 +50,14 @@ class Command:
         self.exitCode=None
         self.failedCount=0
         self.opts = opts
-        sql = """SELECT fpr_fpcommand.script_type, fpr_fpcommand.verification_command_id, fpr_fpcommand.event_detail_command_id, fpr_fpcommand.command, fpr_fpcommand.output_location, fpr_fpcommand.description, fpr_fpcommand.output_file_format
+        sql = """SELECT fpr_fpcommand.script_type, fpr_fpcommand.verification_command_id, fpr_fpcommand.event_detail_command_id, fpr_fpcommand.command, fpr_fpcommand.output_location, fpr_fpcommand.description, fpr_formatversion.description
         FROM fpr_fpcommand
+        JOIN fpr_formatversion ON fpr_fpcommand.output_format_id = fpr_formatversion.uuid
         WHERE fpr_fpcommand.uuid = '{}';""".format(commandID)
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         while row is not None:
-            row =[toStrFromUnicode(x) for x in row]
+            row = [toStrFromUnicode(r) for r in row]
             ( # Extract all elements from row
                 self.type,
                 self.verificationCommand,
@@ -68,6 +69,7 @@ class Command:
             ) = row
             row = c.fetchone()
         sqlLock.release()
+
         if self.verificationCommand:
             self.verificationCommand = Command(self.verificationCommand, replacementDic)
             self.verificationCommand.command = self.verificationCommand.command.replace("%outputLocation%", self.outputLocation)
