@@ -24,7 +24,7 @@ def main(id_command, file_path, file_uuid):
     output = output.strip()
     print 'Command output:', output
     try:
-        idrule = IDRule.active.get(command_output=output)
+        idrule = IDRule.active.get(command_output=output, command=command.uuid)
     except (IDRule.DoesNotExist, IDRule.MultipleObjectsReturned) as e:
         print >>sys.stderr, 'Error:', e
         return -1
