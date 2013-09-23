@@ -60,10 +60,9 @@ function git-pull() {
       cd ..
 
       echo "Updating FPR admin..."
-      cd src/dashboard/src/external/archivematica-fpr-admin
-      git checkout master
-      git pull
-      cd ../../../../..
+      # this will do nothing if you are in a branch with no submodules
+      git submodule init
+      git submodule update
   else
           echo "not going to ${part}"
   fi
