@@ -63,6 +63,15 @@ function git-pull() {
       # this will do nothing if you are in a branch with no submodules
       git submodule init
       git submodule update
+      
+      if [ -d src/dashboard/src/fpr ]; then
+          echo "entering fpr admin module"
+          cd src/dashboard/src/fpr
+          git checkout master
+          git pull
+          cd ../../../../
+      fi
+
   else
           echo "not going to ${part}"
   fi
