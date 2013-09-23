@@ -18,9 +18,7 @@ from main.models import FileFormatVersion, File
 def main(id_command, file_path, file_uuid):
     print "Command UUID:", id_command
     command = IDCommand.active.get(uuid=id_command)
-    text = command.script
-    text = text.replace('%filePath%', file_path)
-    _, output, _ = executeOrRun(command.script_type, text, printing=False)
+    _, output, _ = executeOrRun(command.script_type, command.script, arguments=[file_path], printing=False)
     output = output.strip()
     print 'Command output:', output
     try:
