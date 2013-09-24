@@ -89,9 +89,9 @@ class linkTaskManagerSplitOnFileIdAndruleset:
                     execute, arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(execute, arguments, standardOutputFile, standardErrorFile)
 
             fileUUID = unit.UUID
-            ComandClassification = self.execute
+            command_purpose = self.execute
             toPassVar = ast.literal_eval(arguments)
-            toPassVar.update({"%standardErrorFile%":standardErrorFile, "%standardOutputFile%":standardOutputFile, '%commandClassifications%':ComandClassification})
+            toPassVar.update({"%standardErrorFile%":standardErrorFile, "%standardOutputFile%":standardOutputFile, '%commandClassifications%':command_purpose})
             passVar=replacementDic(toPassVar)
 
             # FIXME Removed superseded check related to maildir here.
@@ -100,7 +100,7 @@ class linkTaskManagerSplitOnFileIdAndruleset:
 
             # If it's not manually normalized and the file group use the right
             # one (ie. fileGrpUse matches), we need to normalize it
-            if toPassVar['%normalizeFileGrpUse%'] == unit.fileGrpUse and not self.alreadyNormalizedManually(unit, ComandClassification):
+            if toPassVar['%normalizeFileGrpUse%'] == unit.fileGrpUse and not self.alreadyNormalizedManually(unit, command_purpose):
                 transcodeTaskType = u'5e70152a-9c5b-4c17-b823-c9298c546eeb';
                 
                 # If there is a command for this file format and possibly
@@ -114,104 +114,55 @@ class linkTaskManagerSplitOnFileIdAndruleset:
                     JOIN fpr_fprule ON FilesIdentifiedIDs.fileID = fpr_fprule.fileID
                     JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = fpr_fprule.uuid
                     JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk
-                    WHERE TasksConfigs.taskType = '%s'
-                    AND FilesIdentifiedIDs.fileUUID = '%s'
-                    AND fpr_fprule.purpose = '%s'
-                    AND (%s)
+                    WHERE TasksConfigs.taskType = '{transcode}'
+                    AND FilesIdentifiedIDs.fileUUID = '{file_uuid}'
+                    AND fpr_fprule.purpose = '{purpose}'
+                    AND ({special_restriction})
                     AND fpr_fprule.enabled = TRUE
-                    GROUP BY MicroServiceChainLinks.pk;""" % (transcodeTaskType, fileUUID, ComandClassification, fileIdentificationRestriction)
+                    GROUP BY MicroServiceChainLinks.pk;""".format(
+                        transcode=transcodeTaskType,
+                        file_uuid=fileUUID,
+                        purpose=command_purpose,
+                        special_restriction=fileIdentificationRestriction)
                 else:
                     sql = """SELECT MicroServiceChainLinks.pk, fpr_fprule.uuid, fpr_fprule.command_id
                     FROM FilesIdentifiedIDs
                     JOIN fpr_fprule ON FilesIdentifiedIDs.fileID = fpr_fprule.format_id
                     JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = fpr_fprule.uuid
                     JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk
-                    WHERE TasksConfigs.taskType = '%s'
-                    AND FilesIdentifiedIDs.fileUUID = '%s'
-                    AND fpr_fprule.purpose = '%s'
+                    WHERE TasksConfigs.taskType = '{transcode}'
+                    AND FilesIdentifiedIDs.fileUUID = '{file_uuid}'
+                    AND fpr_fprule.purpose = '{purpose}'
                     AND fpr_fprule.enabled = TRUE
-                    GROUP BY MicroServiceChainLinks.pk;""" % (transcodeTaskType, fileUUID, ComandClassification)
+                    GROUP BY MicroServiceChainLinks.pk;""".format(
+                        transcode=transcodeTaskType,
+                        file_uuid=fileUUID,
+                        purpose=command_purpose)
 
                 rows = databaseInterface.queryAllSQL(sql)
-                commandsRun={}
-                #if the rule is defined
-                if rows and len(rows):
-                    for row in rows:
-                        microServiceChainLink, fprule, command = row
-                        if command in commandsRun:
-                            link = commandsRun[command]
-                            sql = """SELECT exitCode
-                            FROM Tasks
-                            JOIN Jobs ON Jobs.jobUUID = Tasks.jobUUID
-                            WHERE Tasks.jobUUID IN
-                                (SELECT jobUUID
-                                 FROM Jobs
-                                 WHERE subJobOf = '%s')
-                            AND Jobs.MicroServiceChainLinksPK = '%s';""" % (self.jobChainLink.UUID, link)
-                            rows = databaseInterface.queryAllSQL(sql)
-                            if len(rows) != 1:
-                                print sys.stderr, "Bad query:", sql
-                            # TODO/FIXME Add tracking of successful/failed
-                            # commands for FPR stats
-                            # for row in rows:
-                            #     ret = row[0]
-                            #     sql = "UPDATE fpr_fprule SET countAttempts=countAttempts+1 WHERE uuid='" + fprule + "';"
-                            #     databaseInterface.runSQL(sql)
-                            #     if ret:
-                            #         column = "countNotOK"
-                            #     else:
-                            #         column = "countOK"
-                            #     sql = "UPDATE fpr_fprule SET " + column + "=" + column + "+1 WHERE uuid='" + fprule + "';"
-                            #     databaseInterface.runSQL(sql)
-                        else:
-                            commandsRun[command] = microServiceChainLink
-                            jobChainLink.jobChain.nextChainLink(microServiceChainLink, passVar=passVar, incrementLinkSplit=True, subJobOf=self.jobChainLink.UUID)
-                #no rule defined, use default
-                else:
-                    # TODO/FIXME add default commands for classification in FPR v2
-                    # since this will always fail currently
+                # If no rule is found, check for a default command for this purpose
+                # TODO/FIXME add default commands for classification in FPR v2
+                # since this will always fail currently
+                if not(rows and len(rows)):  # FIXME do we need both checks?
                     sql = """SELECT MicroserviceChainLink, fpr_fprule.uuid, fpr_fprule.command_id
                     FROM DefaultCommandsForClassifications
                     JOIN MicroServiceChainLinks ON MicroServiceChainLinks.pk = DefaultCommandsForClassifications.MicroserviceChainLink 
                     JOIN TasksConfigs ON TasksConfigs.pk = MicroServiceChainLinks.currentTask
                     JOIN fpr_fprule ON fpr_fprule.uuid = TasksConfigs.taskTypePKReference
                     JOIN CommandClassifications ON CommandClassifications.pk = DefaultCommandsForClassifications.forClassification
-                    WHERE TasksConfigs.taskType = '%s'
-                    AND CommandClassifications.classification = '%s'
-                    AND DefaultCommandsForClassifications.enabled = TRUE;""" % (transcodeTaskType, ComandClassification)
+                    WHERE TasksConfigs.taskType = '{transcode}'
+                    AND CommandClassifications.classification = '{purpose}'
+                    AND DefaultCommandsForClassifications.enabled = TRUE;""".format(
+                        transcode=transcodeTaskType,
+                        purpose=command_purpose)
                     rows = databaseInterface.queryAllSQL(sql)
-                    
-                    for row in rows:
-                        microServiceChainLink, commandRelationship, command = row
-                        
-                        if command in commandsRun:
-                            link = commandsRun[command]
-                            sql = """SELECT exitCode
-                            FROM Tasks
-                            JOIN Jobs ON Jobs.jobUUID = Tasks.jobUUID
-                            WHERE Tasks.jobUUID IN
-                                (SELECT jobUUID
-                                 FROM Jobs
-                                 WHERE subJobOf = '%s')
-                            AND Jobs.MicroServiceChainLinksPK = '%s';""" % (self.jobChainLink.UUID, link)
-                            rows = databaseInterface.queryAllSQL(sql)
-                            if len(rows) != 1:
-                                print sys.stderr, "Bad query:", sql
-                            # TODO/FIXME Add tracking of successful/failed
-                            # commands for FPR stats
-                            # for row in rows:
-                            #     ret = row[0]
-                            #     sql = "UPDATE CommandRelationships SET countAttempts=countAttempts+1 WHERE pk='" + commandRelationship + "';"
-                            #     databaseInterface.runSQL(sql)
-                            #     if ret:
-                            #         column = "countNotOK"
-                            #     else:
-                            #         column = "countOK"
-                            #     sql = "UPDATE CommandRelationships SET " + column + "=" + column + "+1 WHERE pk='" + commandRelationship + "';"
-                            #     databaseInterface.runSQL(sql)
-                        else:
-                            jobChainLink.jobChain.nextChainLink(microServiceChainLink, passVar=passVar, incrementLinkSplit=True, subJobOf=self.jobChainLink.UUID)
-                            commandsRun[command] = microServiceChainLink
+
+                commandsRun=set()
+                for row in rows:
+                    microServiceChainLink, fprule_uuid, command = row
+                    if command not in commandsRun:
+                        commandsRun.add(command)
+                        jobChainLink.jobChain.nextChainLink(microServiceChainLink, passVar=passVar, incrementLinkSplit=True, subJobOf=self.jobChainLink.UUID)
             # Complete job chain link
             self.jobChainLink.linkProcessingComplete(self.exitCode, passVar=self.jobChainLink.passVar)
     

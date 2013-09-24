@@ -150,16 +150,15 @@ class CommandLinker:
         return "[Command Linker]\nPK: {pk}\n{co}".format(pk=self.pk, co=self.commandObject)
 
     def execute(self):
-        # TODO/FIXME Add tracking of successful/failed commands for FPR stats
-        # sql = "UPDATE CommandRelationships SET countAttempts=countAttempts+1 WHERE pk='" + self.pk.__str__() + "';"
-        # databaseInterface.runSQL(sql)
+        # Track success/failure rates of FP Rules
+        sql = "UPDATE fpr_fprule SET count_attempts=count_attempts+1 WHERE uuid='{}';".format(self.pk)
+        databaseInterface.runSQL(sql)
         ret = self.commandObject.execute()
-        # if ret:
-        #     column = "countNotOK"
-        # else:
-        #     column = "countOK"
-        # sql = "UPDATE CommandRelationships SET " + column + "=" + column + "+1 WHERE pk='" + self.pk.__str__() + "';"
-        # databaseInterface.runSQL(sql)
+        if ret:
+            column = "count_not_okay"
+        else:
+            column = "count_okay"
+        sql = "UPDATE fpr_fprule SET {column} = {column}+1 WHERE uuid='{pk}';".format(column=column, pk=self.pk)
+        databaseInterface.runSQL(sql)
         return ret
-
 

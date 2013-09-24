@@ -88,6 +88,9 @@ CREATE TABLE IF NOT EXISTS `fpr_fprule` (
     `purpose` varchar(16) NOT NULL,
     `command_id` varchar(36) NOT NULL,
     `format_id` varchar(36) NOT NULL,
+    `count_attempts` integer NOT NULL,
+    `count_okay` integer NOT NULL,
+    `count_not_okay` integer NOT NULL,
     `lastmodified` datetime NOT NULL
 )
 ;
