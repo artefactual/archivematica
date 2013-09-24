@@ -38,7 +38,7 @@ import components.decorators as decorators
 import storageService as storage_service
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/tmp/archivematica.log", 
+logging.basicConfig(filename="/tmp/archivematicaDashboard.log", 
     level=logging.DEBUG)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

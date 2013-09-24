@@ -33,7 +33,7 @@ from django.shortcuts import render
 from main import models
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/tmp/archivematica.log", 
+logging.basicConfig(filename="/tmp/archivematicaDashboard.log", 
     level=logging.INFO)
 
 # Used for debugging
