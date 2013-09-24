@@ -23,7 +23,6 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.contrib import messages
 
 from main import models
 from components import helpers
@@ -101,10 +100,6 @@ def index(request):
             "label": "Create SIP(s)"
         },
         {
-            "name":  "select_format_id_tool",
-            "label": "Select format identification tool"
-        },
-        {
             "name":  "normalize",
             "label": "Normalize"
         }
@@ -113,6 +108,10 @@ def index(request):
     populate_select_fields_with_chain_choice_options(chain_choice_fields)
 
     replace_dict_fields = [
+        {
+            "name": "select_format_id_tool",
+            "label": "Select file format identification command",
+        },
         {
             "name":  "compression_algo",
             "label": "Select compression algorithm"
