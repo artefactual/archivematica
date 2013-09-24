@@ -49,6 +49,26 @@ def getElasticsearchServerHostAndPort():
     except:
         return '127.0.0.1:9200'
 
+def wait_for_cluster_yellow_status(conn, wait_between_tries=10, max_tries=10):
+    health = {}      
+    health['status'] = None
+    tries = 0       
+
+    # wait for either yellow or green status
+    while health['status'] != 'yellow' and health['status'] != 'green' and tries < max_tries:
+        tries = tries + 1
+
+        try:
+            health = conn.cluster_health()
+        except:
+            print 'ERROR: failed health check.'
+            health['status'] = None
+
+        # sleep if cluster not healthy
+        if health['status'] != 'yellow' and health['status'] != 'green':
+            print "Cluster not in yellow or green state... waiting to retry."
+            time.sleep(wait_between_tries)
+
 def check_server_status_and_create_indexes_if_needed():
     try:
         conn = pyes.ES(getElasticsearchServerHostAndPort())
@@ -191,7 +211,22 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None):
         'origin': getDashboardUUID(),
         'created': os.path.getmtime(pathToMETS)
     }
-    conn.index(aipData, 'aips', 'aip')
+    wait_for_cluster_yellow_status(conn)
+    try_to_index(conn, aipData, 'aips', 'aip')
+
+def try_to_index(conn, data, index, doc_type, wait_between_tries=10, max_tries=10):
+    tries = 0
+
+    while tries < max_tries:
+        tries = tries + 1
+
+        try:
+            return conn.index(data, index, doc_type)
+        except:
+            print "ERROR: error trying to index."
+            time.sleep(wait_between_tries)
+            pass
+        tries = tries + 1
 
 def connect_and_get_aip_data(uuid):
     conn = connect_and_create_index('aips')
@@ -319,7 +354,8 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
                 indexData['METS']['amdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 
                 # index data
-                result = conn.index(indexData, index, type)
+                wait_for_cluster_yellow_status(conn)
+                result = try_to_index(conn, indexData, index, type)
 
                 if backup_to_mysql:
                     backup_indexed_document(result, indexData, index, type)
@@ -429,7 +465,8 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
             if fileExtension != '':
                 indexData['fileExtension']  = fileExtension[1:].lower()
 
-            conn.index(indexData, index, type, bulk=True)
+            wait_for_cluster_yellow_status(conn)
+            try_to_index(conn, indexData, index, type)
 
             filesIndexed = filesIndexed + 1
 

@@ -23,6 +23,8 @@ var DirectoryPickerView = fileBrowser.FileExplorer.extend({
     this.structure                  = {};
     this.options.closeDirsByDefault = true;
 
+    this.itemsPerPage = 50;
+
     // hide all files
     this.options.entryDisplayFilter = function(entry) {
       if (entry.children == undefined) {

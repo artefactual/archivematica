@@ -23,6 +23,8 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
     this.structure = {};
     this.options.closeDirsByDefault = true;
 
+    this.itemsPerPage = 50;
+
     this.render();
     this.initDragAndDrop();
 
