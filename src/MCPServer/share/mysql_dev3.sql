@@ -1,3 +1,9 @@
+-- Common
+SET @MoveTransferToFailedLink = '61c316a6-0a50-4f65-8767-1f44b1eeb6dd';
+SET @MoveSIPToFailedLink = '7d728c39-395f-4892-8193-92f086c0546f';
+
+-- /Common
+
 CREATE TABLE IF NOT EXISTS south_migrationhistory (
   id int(11) NOT NULL AUTO_INCREMENT,
   app_name varchar(255) NOT NULL,
@@ -20,14 +26,14 @@ SET @startingLink='a329d39b-4711-4231-b54e-b5958934dccb' COLLATE utf8_unicode_ci
 SET @characterizeExtractMetadata='303a65f6-a16f-4a06-807b-cb3425a30201' COLLATE utf8_unicode_ci;
 
 -- Add Identify File Format
-SET @identifyFileFormatMSCL='2522d680-c7d9-4d06-8b11-a28d8bd8a71f';
+SET @identifyFileFormatMSCL='2522d680-c7d9-4d06-8b11-a28d8bd8a71f' COLLATE utf8_unicode_ci;
 INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES ('9c3680a5-91cb-413f-af4e-d39c3346f8db', 0, 'identifyFileFormat_v0.0', '%IDCommand% %relativeLocation% %fileUUID%', 'objects');
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('8558d885-d6c2-4d74-af46-20da45487ae7', 'a6b1c323-7d36-428e-846a-e7e819423577', '9c3680a5-91cb-413f-af4e-d39c3346f8db', 'Identify file format');
 INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@identifyFileFormatMSCL, 'Characterize and extract metadata', 'Failed', '8558d885-d6c2-4d74-af46-20da45487ae7', @MoveTransferToFailedLink);
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('1f877d65-66c5-49da-bf51-2f1757b59c90', @identifyFileFormatMSCL, 0, @characterizeExtractMetadata, 'Completed successfully');
 
 -- Add Select file format identification command
-SET @selectFileIDCommandMSCL='f09847c2-ee51-429a-9478-a860477f6b8d';
+SET @selectFileIDCommandMSCL='f09847c2-ee51-429a-9478-a860477f6b8d' COLLATE utf8_unicode_ci;
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('97545cb5-3397-4934-9bc5-143b774e4fa7', '9c84b047-9a6d-463f-9836-eafa49743b84', NULL, 'Select file format identification command');
 INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@selectFileIDCommandMSCL, 'Characterize and extract metadata', 'Failed', '97545cb5-3397-4934-9bc5-143b774e4fa7', @MoveTransferToFailedLink);
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('ef56e6a6-5280-4227-9799-9c1d2d7c0919', @selectFileIDCommandMSCL, 0, @identifyFileFormatMSCL, 'Completed successfully');
@@ -83,5 +89,25 @@ DELETE FROM MicroServiceChains WHERE startingLink IN (@d1, @d2, @d3, @d4, @d5, @
 DELETE FROM MicroServiceChainLinks WHERE defaultNextChainLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10, @d11, @d12, @d13, @d14, @d15);
 DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10, @d11, @d12, @d13, @d14, @d15);
 
-
 -- /Issue 5575
+
+
+-- Issue 5633 'Add Select file format identification command watched dir
+
+-- Insert move to watched dir before Select file format ID command
+-- NOTE to make this work with multiple chains, may have to set UnitVar for where to go after chain starts, like with Normalization
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('3e8f5b9e-b3a6-4782-a944-749de6ae234d', 0, 'moveTransfer_v0.0', '"%SIPDirectory%" "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDTool/."  "%SIPUUID%" "%sharedPath%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('38cea9c4-d75c-48f9-ba88-8052e9d3aa61', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '3e8f5b9e-b3a6-4782-a944-749de6ae234d', 'Move to select file ID tool');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('d1b27e9e-73c8-4954-832c-36bd1e00c802', 'Characterize and extract metadata', 'Failed', '38cea9c4-d75c-48f9-ba88-8052e9d3aa61', @MoveTransferToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('6740b87f-6d30-4f43-8848-1371fe9b08c5', 'd1b27e9e-73c8-4954-832c-36bd1e00c802', 0, NULL, 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='d1b27e9e-73c8-4954-832c-36bd1e00c802' WHERE microServiceChainLink='a329d39b-4711-4231-b54e-b5958934dccb';
+
+-- Add MicroServiceChain pointing to Select file format ID command
+SET @selectFormatIDChain='bd94cc9b-7990-45a2-a255-a1b70936f9f2';
+INSERT INTO MicroServiceChains(pk, startingLink, description) VALUES (@selectFormatIDChain, @selectFileIDCommandMSCL, 'Identify file format');
+
+-- Add WatchedDirectory for folder/chain
+SET @watchedDirExpectTransfer='f9a3a93b-f184-4048-8072-115ffac06b5d';
+INSERT INTO WatchedDirectories(pk, watchedDirectoryPath, chain, expectedType) VALUES ('11a4f280-9b43-45a0-9ebd-ec7a115ccc62', "%watchDirectoryPath%workFlowDecisions/selectFormatIDTool/", @selectFormatIDChain, @watchedDirExpectTransfer);
+
+-- / Issue 5633
