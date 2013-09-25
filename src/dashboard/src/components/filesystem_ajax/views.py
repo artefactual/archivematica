@@ -170,15 +170,20 @@ def delete(request):
 def get_temp_directory(request):
     temp_base_dir = helpers.get_client_config_value('temp_dir')
 
+    response = {}
+
     # use system temp dir if none specifically defined
     if temp_base_dir == '':
         temp_dir = tempfile.mkdtemp()
     else:
-        temp_dir = tempfile.mkdtemp(dir=temp_base_dir)
+        try:
+            temp_dir = tempfile.mkdtemp(dir=temp_base_dir)
+        except:
+            temp_dir = ''
+            response['error'] = 'Unable to create temp directory.'
 
     #os.chmod(temp_dir, 0o777)
 
-    response = {}
     response['tempDir'] = temp_dir
 
     return helpers.json_response(response)

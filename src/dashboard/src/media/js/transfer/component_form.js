@@ -63,6 +63,10 @@ var TransferComponentFormView = Backbone.View.extend({
       type: 'GET',
       cache: false,
       success: function(results) {
+        if (results['error']) {
+          alert(results['error']);
+          return;
+        }
 
         var tempDir = results.tempDir;
 
