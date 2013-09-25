@@ -121,7 +121,11 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         ) b
     on a.fileID = b.fileID and a.sipUUID = b.sipUUID
     where a.sipUUID = '{0}'
-    order by fileName, fileID;
+    ORDER BY b.preservation_normalization_failed DESC,
+        b.access_normalization_failed DESC,
+        IF(b.preservation_normalization_attempted=0 AND a.already_in_preservation_format=0, 0, 1),
+        fileName,
+        fileID;
     """.format(sipUUID, fileIDTypeUsed)
     
     cursor.execute(sql)
