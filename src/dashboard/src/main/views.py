@@ -37,7 +37,7 @@ def home(request):
         request.session.first_login = False
         for feature_setting in helpers.feature_settings().values():
             helpers.set_setting(feature_setting, 'True')
-        redirectUrl = reverse('components.administration.views.administration')
+        redirectUrl = reverse('components.transfer.views.grid')
     else:
         redirectUrl = reverse('components.transfer.views.grid')
     return redirect(redirectUrl)
