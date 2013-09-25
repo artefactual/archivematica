@@ -54,7 +54,7 @@ def grid(request):
     else:
         logging.debug("Source directories found: {}".format(source_directories))
         if not source_directories:
-            msg = "No <a href='{source_admin}''>transfer source locations</a> are available. Please contact an administrator.".format(
+            msg = "No <a href='{source_admin}'>transfer source locations</a> are available. Please contact an administrator.".format(
                 source_admin=reverse('components.administration.views.sources'))
             messages.warning(request, mark_safe(msg))
 
