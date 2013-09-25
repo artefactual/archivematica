@@ -1164,23 +1164,30 @@ CREATE TABLE IF NOT EXISTS fpr_idtoolconfig (
   UNIQUE KEY uuid (uuid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS fpr_fpcommand (
+CREATE TABLE fpr_fpcommand (
   id int(11) NOT NULL AUTO_INCREMENT,
+  replaces_id varchar(36) DEFAULT NULL,
+  enabled tinyint(1) NOT NULL,
   uuid varchar(36) NOT NULL,
   description varchar(256) NOT NULL,
   command longtext NOT NULL,
   script_type varchar(16) NOT NULL,
-  output_file_format varchar(256) DEFAULT NULL,
   output_location longtext,
+  output_format_id varchar(36) NOT NULL,
   command_usage varchar(16) NOT NULL,
-  verification_command_id int(11) DEFAULT NULL,
-  event_detail_command_id int(11) DEFAULT NULL,
-  supported_by_id varchar(36) DEFAULT NULL,
-  replaces_id int(11) DEFAULT NULL,
+  verification_command_id varchar(36) DEFAULT NULL,
+  event_detail_command_id varchar(36) DEFAULT NULL,
   lastmodified datetime NOT NULL,
-  enabled tinyint(1) NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid)
+  UNIQUE KEY uuid (uuid),
+  KEY fpr_fpcommand_3d48252d (replaces_id),
+  KEY fpr_fpcommand_8e2c4a10 (output_format_id),
+  KEY fpr_fpcommand_98ce186d (verification_command_id),
+  KEY fpr_fpcommand_db13be16 (event_detail_command_id),
+  CONSTRAINT event_detail_command_id_refs_uuid_42ec6b03 FOREIGN KEY (event_detail_command_id) REFERENCES fpr_fpcommand (uuid),
+  CONSTRAINT output_format_id_refs_uuid_1e782771 FOREIGN KEY (output_format_id) REFERENCES fpr_formatversion (uuid),
+  CONSTRAINT replaces_id_refs_uuid_42ec6b03 FOREIGN KEY (replaces_id) REFERENCES fpr_fpcommand (uuid),
+  CONSTRAINT verification_command_id_refs_uuid_42ec6b03 FOREIGN KEY (verification_command_id) REFERENCES fpr_fpcommand (uuid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS fpr_fpcommand_tool (
