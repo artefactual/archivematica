@@ -43,7 +43,7 @@ logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 def administration(request):
-    return redirect('components.administration.views.failure_report')
+    return redirect('components.administration.views.processing')
 
 def failure_report(request, report_id=None):
     if report_id != None:
