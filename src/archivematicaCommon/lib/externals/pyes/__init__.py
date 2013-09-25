@@ -36,8 +36,12 @@ try:
 except ImportError:
     pass
 
+"""
+Disabled: as per https://github.com/aparo/pyes/commit/2cb1b70f2ab9be246cd3a05a975fd383ce253c5e
+
 try:
     #useful for additional features for django users
     from .djangoutils import *
 except ImportError:
     pass
+"""
