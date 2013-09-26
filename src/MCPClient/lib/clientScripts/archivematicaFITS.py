@@ -32,7 +32,6 @@ from archivematicaFunctions import getTagged
 from archivematicaFunctions import escapeForCommand
 from databaseFunctions import insertIntoFilesFits
 from databaseFunctions import insertIntoEvents
-from databaseFunctions import insertIntoFilesIDs
 import databaseInterface
 
 databaseInterface.printSQL = False
@@ -101,88 +100,9 @@ def formatValidationFITSAssist(fits):
     return tuple([eventDetailText, eventOutcomeText, eventOutcomeDetailNote]) #tuple([1, 2, 3]) returns (1, 2, 3).
 
 
-def formatIdentificationFITSAssist(fits, fileUUID):
-    global exitCode
-    prefix = "{http://www.nationalarchives.gov.uk/pronom/FileCollection}"
-    formatIdentification = None
-
-    tools = getTagged(getTagged(fits, FITSNS + "toolOutput")[0], FITSNS + "tool")
-    for tool in tools:
-        if tool.get("name") == "Droid":
-            formatIdentification = tool
-            break
-    if formatIdentification == None:
-        print >>sys.stderr, "No format identification tool output (Droid)."
-        exitCode += 5
-        raise Exception('Droid', 'not present')
-    #<eventDetail>program="DROID"; version="3.0"</eventDetail>
-    eventDetailText =   "program=\"" + formatIdentification.get("name") \
-                        + "\"; version=\"" + formatIdentification.get("version") + "\""
-
-    #<eventOutcome>positive</eventOutcome>
-
-    fileCollection = getTagged(formatIdentification, prefix + "FileCollection")[0]
-    IdentificationFile = getTagged(fileCollection, prefix + "IdentificationFile")[0]
-    eventOutcomeText =  IdentificationFile.get( "IdentQuality")
-
-    #<eventOutcomeDetailNote>fmt/116</eventOutcomeDetailNote>
-    #<FileFormatHit />
-    fileFormatHits = getTagged(IdentificationFile, prefix + "FileFormatHit")
-    eventOutcomeDetailNotes = []
-    eventOutcomeDetailNote = ""
-    for fileFormatHit in fileFormatHits:
-        format = etree.Element("format")
-        if len(fileFormatHit):
-            formatIDSQL = {"fileUUID":fileUUID, \
-                        "formatName":"", \
-                        "formatVersion":"", \
-                        "formatRegistryName":"PRONOM", \
-                        "formatRegistryKey":""}
-            eventOutcomeDetailNote = getTagged(fileFormatHit, prefix + "PUID")[0].text
-
-            formatName = getTagged(fileFormatHit, prefix + "Name")
-            formatVersion = getTagged(fileFormatHit, prefix + "Version")
-
-
-            if len(formatName):
-                formatIDSQL["formatName"] = formatName[0].text
-            if len(formatVersion):
-                formatIDSQL["formatVersion"] = formatVersion[0].text
-
-            PUID = getTagged(fileFormatHit, prefix + "PUID")
-            if len(PUID):
-                formatIDSQL["formatRegistryKey"] = PUID[0].text
-            formats.append(format)
-            print formatIDSQL
-            insertIntoFilesIDs(fileUUID=fileUUID, \
-                               formatName=formatIDSQL["formatName"], \
-                               formatVersion=formatIDSQL["formatVersion"], \
-                               formatRegistryName=formatIDSQL["formatRegistryName"], \
-                               formatRegistryKey=formatIDSQL["formatRegistryKey"])
-        else:
-            eventOutcomeDetailNote = "No Matching Format Found"
-            formatDesignation = etree.SubElement(format, "formatDesignation")
-            etree.SubElement(formatDesignation, "formatName").text = "Unknown"
-            formats.append(format)
-        eventOutcomeDetailNotes.append(eventOutcomeDetailNote)
-    return tuple([eventDetailText, eventOutcomeText, eventOutcomeDetailNotes]) #tuple([1, 2, 3]) returns (1, 2, 3).
-
-
 def includeFits(fits, xmlFile, date, eventUUID, fileUUID):
     global exitCode
     #TO DO... Gleam the event outcome information from the output
-
-    #</CREATE formatIdentificationFITSAssist EVENTS>
-    eventDetailText, eventOutcomeText, eventOutcomeDetailNotes = formatIdentificationFITSAssist(fits, fileUUID)
-
-    for eventOutcomeDetailNote in eventOutcomeDetailNotes:
-        insertIntoEvents(fileUUID=fileUUID, \
-                         eventIdentifierUUID=uuid.uuid4().__str__(), \
-                         eventType="format identification", \
-                         eventDateTime=date, \
-                         eventDetail=eventDetailText, \
-                         eventOutcome=eventOutcomeText, \
-                         eventOutcomeDetailNote=eventOutcomeDetailNote)
 
     #</CREATE formatIdentificationFITSAssist EVENTS>
     try:
