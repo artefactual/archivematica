@@ -156,7 +156,7 @@ Unable to determine if it completed successfully."""
         printOutputLock.acquire()
         print >>sys.stderr, "Execution failed:", ose
         printOutputLock.release()
-        output = ["Archivematica Client Error!", ose.__str__() ]
+        output = ["Archivematica Client Error!", traceback.format_exc()]
         exitCode = 1
         return cPickle.dumps({"exitCode" : exitCode, "stdOut": output[0], "stdError": output[1]})
     except:
@@ -165,7 +165,7 @@ Unable to determine if it completed successfully."""
         print sys.exc_info().__str__()
         print "Unexpected error:", sys.exc_info()[0]
         printOutputLock.release()
-        output = ["", sys.exc_info().__str__()]
+        output = ["", traceback.format_exc()]
         return cPickle.dumps({"exitCode" : -1, "stdOut": output[0], "stdError": output[1]})
 
 
