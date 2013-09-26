@@ -59,7 +59,8 @@ while dashboardUUID == False:
     if not rows:
         time.sleep(1)
     else:
-        dashboardUUID = rows[0][0]
+        # This might be returned as a unicode, which may cause Problems later on
+        dashboardUUID = str(rows[0][0])
 
 print "Dashboard UUID: " + dashboardUUID
 
