@@ -17,7 +17,14 @@ from main.models import FileFormatVersion, File
 
 def main(id_toolconfig, file_path, file_uuid):
     print "IDToolConfig UUID:", id_toolconfig
-    config = IDToolConfig.active.get(uuid=id_toolconfig)
+    if id_toolconfig == "None":
+        print "Skipping file format identification"
+        return 0
+    try:
+        config = IDToolConfig.active.get(uuid=id_toolconfig)
+    except IDToolConfig.DoesNotExist:
+        sys.stderr.write("IDToolConfig with UUID {} does not exist.\n".format(id_toolconfig))
+        return -1
     command = config.command
     print "IDCommand UUID:", command.uuid
     _, output, _ = executeOrRun(command.script_type, command.script, arguments=[file_path], printing=False)

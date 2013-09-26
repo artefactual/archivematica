@@ -27,15 +27,17 @@ SET @characterizeExtractMetadata='303a65f6-a16f-4a06-807b-cb3425a30201' COLLATE 
 
 -- Add Identify File Format
 SET @identifyFileFormatMSCL='2522d680-c7d9-4d06-8b11-a28d8bd8a71f' COLLATE utf8_unicode_ci;
+SET @identifyFileFormatTC='8558d885-d6c2-4d74-af46-20da45487ae7' COLLATE utf8_unicode_ci;
 INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES ('9c3680a5-91cb-413f-af4e-d39c3346f8db', 0, 'identifyFileFormat_v0.0', '%IDCommand% %relativeLocation% %fileUUID%', 'objects');
-INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('8558d885-d6c2-4d74-af46-20da45487ae7', 'a6b1c323-7d36-428e-846a-e7e819423577', '9c3680a5-91cb-413f-af4e-d39c3346f8db', 'Identify file format');
-INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@identifyFileFormatMSCL, 'Characterize and extract metadata', 'Failed', '8558d885-d6c2-4d74-af46-20da45487ae7', @MoveTransferToFailedLink);
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@identifyFileFormatTC, 'a6b1c323-7d36-428e-846a-e7e819423577', '9c3680a5-91cb-413f-af4e-d39c3346f8db', 'Identify file format');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@identifyFileFormatMSCL, 'Characterize and extract metadata', 'Failed', '8558d885-d6c2-4d74-af46-20da45487ae7', @characterizeExtractMetadata);
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('1f877d65-66c5-49da-bf51-2f1757b59c90', @identifyFileFormatMSCL, 0, @characterizeExtractMetadata, 'Completed successfully');
 
 -- Add Select file format identification command
 SET @selectFileIDCommandMSCL='f09847c2-ee51-429a-9478-a860477f6b8d' COLLATE utf8_unicode_ci;
-INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('97545cb5-3397-4934-9bc5-143b774e4fa7', '9c84b047-9a6d-463f-9836-eafa49743b84', NULL, 'Select file format identification command');
-INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@selectFileIDCommandMSCL, 'Characterize and extract metadata', 'Failed', '97545cb5-3397-4934-9bc5-143b774e4fa7', @MoveTransferToFailedLink);
+SET @selectFileIDCommandTC='97545cb5-3397-4934-9bc5-143b774e4fa7' COLLATE utf8_unicode_ci;
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@selectFileIDCommandTC, '9c84b047-9a6d-463f-9836-eafa49743b84', NULL, 'Select file format identification command');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@selectFileIDCommandMSCL, 'Characterize and extract metadata', 'Failed', @selectFileIDCommandTC, @MoveTransferToFailedLink);
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('ef56e6a6-5280-4227-9799-9c1d2d7c0919', @selectFileIDCommandMSCL, 0, @identifyFileFormatMSCL, 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@selectFileIDCommandMSCL WHERE microServiceChainLink=@startingLink;
 
@@ -96,7 +98,7 @@ DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3, @d4, @d5, @d6, @d
 
 -- Insert move to watched dir before Select file format ID command
 -- NOTE to make this work with multiple chains, may have to set UnitVar for where to go after chain starts, like with Normalization
-INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('3e8f5b9e-b3a6-4782-a944-749de6ae234d', 0, 'moveTransfer_v0.0', '"%SIPDirectory%" "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDTool/."  "%SIPUUID%" "%sharedPath%"');
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('3e8f5b9e-b3a6-4782-a944-749de6ae234d', 0, 'moveTransfer_v0.0', '"%SIPDirectory%" "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolTransfer/."  "%SIPUUID%" "%sharedPath%"');
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('38cea9c4-d75c-48f9-ba88-8052e9d3aa61', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '3e8f5b9e-b3a6-4782-a944-749de6ae234d', 'Move to select file ID tool');
 INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('d1b27e9e-73c8-4954-832c-36bd1e00c802', 'Characterize and extract metadata', 'Failed', '38cea9c4-d75c-48f9-ba88-8052e9d3aa61', @MoveTransferToFailedLink);
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('6740b87f-6d30-4f43-8848-1371fe9b08c5', 'd1b27e9e-73c8-4954-832c-36bd1e00c802', 0, NULL, 'Completed successfully');
@@ -108,6 +110,51 @@ INSERT INTO MicroServiceChains(pk, startingLink, description) VALUES (@selectFor
 
 -- Add WatchedDirectory for folder/chain
 SET @watchedDirExpectTransfer='f9a3a93b-f184-4048-8072-115ffac06b5d';
-INSERT INTO WatchedDirectories(pk, watchedDirectoryPath, chain, expectedType) VALUES ('11a4f280-9b43-45a0-9ebd-ec7a115ccc62', "%watchDirectoryPath%workFlowDecisions/selectFormatIDTool/", @selectFormatIDChain, @watchedDirExpectTransfer);
+INSERT INTO WatchedDirectories(pk, watchedDirectoryPath, chain, expectedType) VALUES ('11a4f280-9b43-45a0-9ebd-ec7a115ccc62', "%watchDirectoryPath%workFlowDecisions/selectFormatIDToolTransfer/", @selectFormatIDChain, @watchedDirExpectTransfer);
 
 -- / Issue 5633
+
+
+-- Issue 5674
+-- Add MSCL choice for run format identification before normalization (in Ingest)
+
+-- Add Identify File Format
+SET @selectFileIDCommandMSCLIngest='7a024896-c4f7-4808-a240-44c87c762bc5' COLLATE utf8_unicode_ci;
+SET @identifyFileFormatMSCLIngest='2dd53959-8106-457d-a385-fee57fc93aa9' COLLATE utf8_unicode_ci;
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@identifyFileFormatMSCLIngest, 'Normalize', 'Failed', @identifyFileFormatTC, '7d728c39-395f-4892-8193-92f086c0546f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('71a09b45-3f64-4618-af51-6a960ae16754', @identifyFileFormatMSCLIngest, 0, @resumeAfterNormalizationFileIdentificationToolSelected, 'Completed successfully');
+-- Add Select file format identification command
+SET @selectFileIDCommandTCIngest='f8d0b7df-68e8-4214-a49d-60a91ed27029' COLLATE utf8_unicode_ci;
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@selectFileIDCommandTCIngest, '9c84b047-9a6d-463f-9836-eafa49743b84', NULL, 'Select pre-normalize file format identification command');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@selectFileIDCommandMSCLIngest, 'Normalize', 'Failed', @selectFileIDCommandTCIngest, @MoveSIPToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('ab61e4b6-1167-461f-921e-ebcb5126ff89', @selectFileIDCommandMSCLIngest, 0, @identifyFileFormatMSCLIngest, 'Completed successfully');
+-- Add skip option to select format id command (in both places)
+INSERT INTO MicroServiceChoiceReplacementDic (pk, choiceAvailableAtLink, description, replacementDic) VALUES ("1f77af0a-2f7a-468f-af8c-653a9e61ca4f", @selectFileIDCommandMSCL, "Skip File Identification", '{"%IDCommand%":"None"}');
+INSERT INTO MicroServiceChoiceReplacementDic (pk, choiceAvailableAtLink, description, replacementDic) VALUES ("3c1faec7-7e1e-4cdd-b3bd-e2f05f4baa9b", @selectFileIDCommandMSCLIngest, "Use existing data", '{"%IDCommand%":"None"}');
+
+-- Insert move to watched dir before Select file format ID command
+-- NOTE to make this work with multiple chains, may have to set UnitVar for where to go after chain starts, like with Normalization
+SET @moveToFormatMSCL='a58bd669-79af-4999-8654-951f638d4457' COLLATE utf8_unicode_ci;
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('179373e8-a6b4-4274-a245-ca3f4b105396', 0, 'moveSIP_v0.0', '"%SIPDirectory%" "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolIngest/."  "%SIPUUID%" "%sharedPath%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('8b846431-5da9-4743-906d-2cdc4e777f8f', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '179373e8-a6b4-4274-a245-ca3f4b105396', 'Move to select file ID tool');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@moveToFormatMSCL, 'Normalize', 'Failed', '8b846431-5da9-4743-906d-2cdc4e777f8f', @MoveSIPToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('eb5c83b1-1f60-4f77-85af-ee8cccf01924', @moveToFormatMSCL, 0, NULL, 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink =@moveToFormatMSCL WHERE microServiceChainLink IN (@magiclink1, @magiclink2);
+UPDATE MicroServiceChainLinks SET defaultNextChainLink = @moveToFormatMSCL WHERE pk IN (@magiclink1, @magiclink2);
+
+
+-- Add MicroServiceChain pointing to Select file format ID command
+SET @selectFormatIDChain2='0ea3a6f9-ff37-4f32-ac01-eec5393f008a';
+INSERT INTO MicroServiceChains(pk, startingLink, description) VALUES (@selectFormatIDChain2, @selectFileIDCommandMSCLIngest, 'Pre-normalize identify file format');
+
+-- Add WatchedDirectory for folder/chain
+SET @watchedDirExpectSIP='76e66677-40e6-41da-be15-709afb334936';
+INSERT INTO WatchedDirectories(pk, watchedDirectoryPath, chain, expectedType) VALUES ('50c378ed-6a88-4988-bf21-abe1ea3e0115', "%watchDirectoryPath%workFlowDecisions/selectFormatIDToolIngest/", @selectFormatIDChain2, @watchedDirExpectSIP);
+
+
+
+-- This is from AIP->DIP workflow
+-- UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@selectFileIDCommandMSCLIngest WHERE microServiceChainLink='b063c4ce-ada1-4e72-a137-800f1c10905c';
+
+
+-- /Issue 5674
