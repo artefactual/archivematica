@@ -25,7 +25,9 @@ CREATE TABLE IF NOT EXISTS `fpr_formatversion` (
     `access_format` bool NOT NULL,
     `preservation_format` bool NOT NULL,
     `lastmodified` datetime NOT NULL,
-    `slug` varchar(50) NOT NULL
+    `slug` varchar(50) NOT NULL,
+    `version` varchar(10) COLLATE utf8_unicode_ci,
+    `pronom_id` varchar(16) COLLATE utf8_unicode_ci
 )
 ;
 ALTER TABLE `fpr_formatversion` ADD CONSTRAINT `format_id_refs_uuid_f14962b4` FOREIGN KEY (`format_id`) REFERENCES `fpr_format` (`uuid`);
