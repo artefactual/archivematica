@@ -519,7 +519,12 @@ def connect_and_change_transfer_file_status(uuid, status):
         # cycle through file UUIDs and update status
         for row in rows:
             document_id = document_id_from_field_query(conn, 'transfers', ['transferfile'], 'fileuuid', row[0])
-            conn.update({'status': status}, 'transfers', 'transferfile', document_id)
+            if document_id == None:
+                print >>sys.stderr, 'Transfer file ', row[0], ' not found in index.'
+                print 'Transfer file ' + row[0] + ' not found in index.'
+                exit(1)
+            else:
+                conn.update({'status': status}, 'transfers', 'transferfile', document_id)
     return len(rows)
 
 def connect_and_remove_sip_transfer_files(uuid):
