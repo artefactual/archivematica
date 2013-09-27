@@ -1,3 +1,3 @@
 [submodule "src/dashboard/src/external/archivematica-fpr-admin"]
 	path = src/dashboard/src/external/archivematica-fpr-admin
-	url = git@git.artefactual.com:archivematica-fpr-admin
+	url = https://github.com/artefactual/archivematica-fpr-admin.git
