@@ -93,12 +93,13 @@ def insertIntoDerivations(sourceFileUUID="", derivedFileUUID="", relatedEventUUI
         + derivedFileUUID + databaseInterface.separator \
         + relatedEventUUID + "');")
 
-def insertIntoFilesFits(fileUUID="", fitsXMLString=""):
-    databaseInterface.runSQL("""INSERT INTO FilesFits
-        (fileUUID, FITSxml)
+def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
+    databaseInterface.runSQL("""INSERT INTO FPCommandOutput
+        (fileUUID, content, ruleUUID)
         VALUES ( '""" \
         + escapeForDB(fileUUID) + databaseInterface.separator \
-        + escapeForDB(fitsXMLString) + "');")
+        + escapeForDB(fitsXMLString) + databaseInterface.separator \
+        + escapeForDB(ruleUUID) + "');")
 
 def insertIntoFilesIDs(fileUUID="", formatName="", formatVersion="", formatRegistryName="", formatRegistryKey=""):
     databaseInterface.runSQL("""INSERT INTO FilesIDs

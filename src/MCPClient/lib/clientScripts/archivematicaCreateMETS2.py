@@ -335,24 +335,21 @@ def createTechMD(fileUUID):
 
     objectCharacteristicsExtension = etree.SubElement(objectCharacteristics, "objectCharacteristicsExtension")
 
-    sql = "SELECT FilesFits.FITSxml FROM FilesFits WHERE fileUUID = '" + fileUUID + "';"
+    sql = "SELECT FPCommandOutput.content FROM FPCommandOutput \
+           INNER JOIN fpr_fprule ON FPCommandOutput.ruleUUID = fpr_fprule.uuid \
+           WHERE fileUUID = '{file}' AND purpose = 'characterize';".format(file=fileUUID)
     c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    #if not row:
-    #    print >>sys.stderr, "Error no fits.", fileUUID
     parser = etree.XMLParser(remove_blank_text=True)
-    while row != None:
-        #fits = etree.fromstring(row[0])
-        fits = etree.XML(row[0], parser)
-        objectCharacteristicsExtension.append(fits)
-        row = c.fetchone()
+    for row in c:
+        output = etree.XML(row[0], parser)
+        objectCharacteristicsExtension.append(output)
     sqlLock.release()
 
     sql = "SELECT Files.originalLocation FROM Files WHERE Files.fileUUID = '" + fileUUID + "';"
     c, sqlLock = databaseInterface.querySQL(sql)
     row = c.fetchone()
     if not row:
-        print >>sys.stderr, "Error no fits."
+        print >>sys.stderr, "Error: no location found."
     while row != None:
         etree.SubElement(object, "originalName").text = escape(row[0])
         row = c.fetchone()

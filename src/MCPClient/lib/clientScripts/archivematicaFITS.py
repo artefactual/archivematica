@@ -30,9 +30,8 @@ import os
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivematicaFunctions import getTagged
 from archivematicaFunctions import escapeForCommand
-from databaseFunctions import insertIntoFilesFits
+from databaseFunctions import insertIntoFPCommandOutput
 from databaseFunctions import insertIntoEvents
-from databaseFunctions import insertIntoFilesIDs
 import databaseInterface
 
 databaseInterface.printSQL = False
@@ -40,58 +39,6 @@ excludeJhoveProperties = True
 formats = []
 FITSNS = "{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}"
 
-
-
-def parseIdsSimple(FITS_XML, fileUUID):
-    simpleIdPlaces = [
-        ("FileIDsByFitsDROIDMimeType", "Droid", "{http://www.nationalarchives.gov.uk/pronom/FileCollection}MimeType"),
-        ("FITS DROID PUID", "Droid", "{http://www.nationalarchives.gov.uk/pronom/FileCollection}PUID"),
-        ("FileIDsByFitsFfidentMimetype", "ffident", "mimetype"),
-        ("FileIDsByFitsFileUtilityMimetype", "file utility", "mimetype"),
-        ("FileIDsByFitsFileUtilityFormat", "file utility", "format"),
-        ("FileIDsByFitsJhoveMimeType", "Jhove", "{}mimeType"),
-        ("FileIDsByFitsJhoveFormat", "Jhove", "{}format")
-        
-    ]
-    
-    for toolKey, tool, iterOn in simpleIdPlaces:
-        identified = []
-        fileIDs = []
-        for element in FITS_XML.iter("{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}tool"):
-            if element.get("name") == tool:
-                toolVersion = element.get("version")
-                for element2 in element.getiterator(iterOn):
-                    if element2.text != None:
-                        if element2.text in identified:
-                            continue
-                        identified.append(element2.text)
-                        sql = """SELECT fileID FROM FileIDsBySingleID WHERE tool = '%s' AND toolVersion='%s' AND id = '%s' AND FileIDsBySingleID.enabled = TRUE;""" % (toolKey, toolVersion, element2.text)
-                        fileIDS = databaseInterface.queryAllSQL(sql)
-                        if not fileIDS:
-                            print "No Archivematica entry found for:", toolKey, toolVersion, element2.text
-                        for fileID in fileIDS:
-                            sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (fileUUID, fileID[0])
-                            databaseInterface.runSQL(sql)
-        if fileIDs == [] and False:
-            print >>sys.stderr, "No archivematica id for: ", tool, iterOn, element2.text
-                
-                
-    for element in FITS_XML.findall(".//{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}identity[@mimetype]"):
-        format = element.get("mimetype")
-        if format:
-            sql = """SELECT FileIDsBySingleID.fileID, FileIDs.fileIDType, FileIDsBySingleID.id FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = 'c26227f7-fca8-4d98-9d8e-cfab86a2dd0a' AND FileIDsBySingleID.id = '%s' AND FileIDsBySingleID.enabled = TRUE AND FileIDs.enabled = TRUE;""" % (format)
-            fileIDS = databaseInterface.queryAllSQL(sql)
-            for fileID in fileIDS:
-                sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (fileUUID, fileID[0])
-                databaseInterface.runSQL(sql)
-    for element in FITS_XML.findall(".//{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}identity[@format]"):
-        format = element.get("format")
-        if format:
-            sql = """SELECT FileIDsBySingleID.fileID, FileIDs.fileIDType, FileIDsBySingleID.id FROM FileIDsBySingleID JOIN FileIDs ON FileIDsBySingleID.fileID = FileIDs.pk WHERE FileIDs.fileIDType = 'b0bcccfb-04bc-4daa-a13c-77c23c2bda85' AND FileIDsBySingleID.id = '%s' AND FileIDsBySingleID.enabled = TRUE AND FileIDs.enabled = TRUE;""" % (format)
-            fileIDS = databaseInterface.queryAllSQL(sql)
-            for fileID in fileIDS:
-                sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', '%s');""" % (fileUUID, fileID[0])
-                databaseInterface.runSQL(sql)
             
 def excludeJhoveProperties(fits):
     """Exclude <properties> from <fits><toolOutput><tool name="Jhove" version="1.5"><repInfo> because that field contains unnecessary excess data and the key data are covered by output from other FITS tools."""
@@ -153,88 +100,9 @@ def formatValidationFITSAssist(fits):
     return tuple([eventDetailText, eventOutcomeText, eventOutcomeDetailNote]) #tuple([1, 2, 3]) returns (1, 2, 3).
 
 
-def formatIdentificationFITSAssist(fits, fileUUID):
-    global exitCode
-    prefix = "{http://www.nationalarchives.gov.uk/pronom/FileCollection}"
-    formatIdentification = None
-
-    tools = getTagged(getTagged(fits, FITSNS + "toolOutput")[0], FITSNS + "tool")
-    for tool in tools:
-        if tool.get("name") == "Droid":
-            formatIdentification = tool
-            break
-    if formatIdentification == None:
-        print >>sys.stderr, "No format identification tool output (Droid)."
-        exitCode += 5
-        raise Exception('Droid', 'not present')
-    #<eventDetail>program="DROID"; version="3.0"</eventDetail>
-    eventDetailText =   "program=\"" + formatIdentification.get("name") \
-                        + "\"; version=\"" + formatIdentification.get("version") + "\""
-
-    #<eventOutcome>positive</eventOutcome>
-
-    fileCollection = getTagged(formatIdentification, prefix + "FileCollection")[0]
-    IdentificationFile = getTagged(fileCollection, prefix + "IdentificationFile")[0]
-    eventOutcomeText =  IdentificationFile.get( "IdentQuality")
-
-    #<eventOutcomeDetailNote>fmt/116</eventOutcomeDetailNote>
-    #<FileFormatHit />
-    fileFormatHits = getTagged(IdentificationFile, prefix + "FileFormatHit")
-    eventOutcomeDetailNotes = []
-    eventOutcomeDetailNote = ""
-    for fileFormatHit in fileFormatHits:
-        format = etree.Element("format")
-        if len(fileFormatHit):
-            formatIDSQL = {"fileUUID":fileUUID, \
-                        "formatName":"", \
-                        "formatVersion":"", \
-                        "formatRegistryName":"PRONOM", \
-                        "formatRegistryKey":""}
-            eventOutcomeDetailNote = getTagged(fileFormatHit, prefix + "PUID")[0].text
-
-            formatName = getTagged(fileFormatHit, prefix + "Name")
-            formatVersion = getTagged(fileFormatHit, prefix + "Version")
-
-
-            if len(formatName):
-                formatIDSQL["formatName"] = formatName[0].text
-            if len(formatVersion):
-                formatIDSQL["formatVersion"] = formatVersion[0].text
-
-            PUID = getTagged(fileFormatHit, prefix + "PUID")
-            if len(PUID):
-                formatIDSQL["formatRegistryKey"] = PUID[0].text
-            formats.append(format)
-            print formatIDSQL
-            insertIntoFilesIDs(fileUUID=fileUUID, \
-                               formatName=formatIDSQL["formatName"], \
-                               formatVersion=formatIDSQL["formatVersion"], \
-                               formatRegistryName=formatIDSQL["formatRegistryName"], \
-                               formatRegistryKey=formatIDSQL["formatRegistryKey"])
-        else:
-            eventOutcomeDetailNote = "No Matching Format Found"
-            formatDesignation = etree.SubElement(format, "formatDesignation")
-            etree.SubElement(formatDesignation, "formatName").text = "Unknown"
-            formats.append(format)
-        eventOutcomeDetailNotes.append(eventOutcomeDetailNote)
-    return tuple([eventDetailText, eventOutcomeText, eventOutcomeDetailNotes]) #tuple([1, 2, 3]) returns (1, 2, 3).
-
-
 def includeFits(fits, xmlFile, date, eventUUID, fileUUID):
     global exitCode
     #TO DO... Gleam the event outcome information from the output
-
-    #</CREATE formatIdentificationFITSAssist EVENTS>
-    eventDetailText, eventOutcomeText, eventOutcomeDetailNotes = formatIdentificationFITSAssist(fits, fileUUID)
-
-    for eventOutcomeDetailNote in eventOutcomeDetailNotes:
-        insertIntoEvents(fileUUID=fileUUID, \
-                         eventIdentifierUUID=uuid.uuid4().__str__(), \
-                         eventType="format identification", \
-                         eventDateTime=date, \
-                         eventDetail=eventDetailText, \
-                         eventOutcome=eventOutcomeText, \
-                         eventOutcomeDetailNote=eventOutcomeDetailNote)
 
     #</CREATE formatIdentificationFITSAssist EVENTS>
     try:
@@ -266,7 +134,7 @@ if __name__ == '__main__':
         print "file's fileGrpUse in exclusion list, skipping"
         exit(0)
 
-    sql = """SELECT fileUUID FROM FilesFits WHERE fileUUID = '%s';""" % (fileUUID)
+    sql = """SELECT fileUUID FROM FPCommandOutput WHERE fileUUID = '%s';""" % (fileUUID)
     if len(databaseInterface.queryAllSQL(sql)):
         print >>sys.stderr, "Warning: Fits has already run on this file. Not running again."
         exit(0)
@@ -300,9 +168,11 @@ if __name__ == '__main__':
         os.remove(tempFile)
         if excludeJhoveProperties:
             fits = excludeJhoveProperties(fits)
-        insertIntoFilesFits(fileUUID, etree.tostring(fits, pretty_print=False))
+        # NOTE: This is hardcoded for now because FPCommandOutput references FPRule for future development,
+        #       when characterization will become user-configurable and be decoupled from FITS specifically.
+        #       Thus a stub rule must exist for FITS; this will be replaced with a real rule in the future.
+        insertIntoFPCommandOutput(fileUUID, etree.tostring(fits, pretty_print=False), '3a19de70-0e42-4145-976b-3a248d43b462')
         includeFits(fits, XMLfile, date, eventUUID, fileUUID)
-        parseIdsSimple(fits, fileUUID)
 
     except OSError, ose:
         print >>sys.stderr, "Execution failed:", ose

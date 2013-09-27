@@ -21,24 +21,11 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import databaseInterface
-import threading
 import uuid
-import sys
-import time
-#select * from MicroServiceChainChoice JOIN MicroServiceChains on chainAvailable = MicroServiceChains.pk;
-#| pk | choiceAvailableAtLink | chainAvailable | pk | startingLink | description
 
 from linkTaskManager import linkTaskManager
-from taskStandard import taskStandard
-import jobChain
-import databaseInterface
-import lxml.etree as etree
-import os
-import archivematicaMCP
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
-choicesAvailableForUnitsLock = threading.Lock()
 
 class linkTaskManagerLoadMagicLink:
     """Load a link from the unit to process.

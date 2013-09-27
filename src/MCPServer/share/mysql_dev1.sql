@@ -12,7 +12,7 @@ SET @microserviceGroup = 'Prepare AIP';
 SET @MoveSIPToFailedLink = '7d728c39-395f-4892-8193-92f086c0546f';
 SET @MoveTransferToFailedLink = '61c316a6-0a50-4f65-8767-1f44b1eeb6dd';
 
-SET @XLink = '3e25bda6-5314-4bb4-aa1e-90900dce887d';
+SET @XLink = '3e25bda6-5314-4bb4-aa1e-90900dce887d' COLLATE utf8_unicode_ci;
 -- SET @YLink = '1cd3b36a-5252-4a69-9b1c-3b36829288ab';
 
 SET @TasksConfigPKReference = 'ae090b70-0234-40ea-bc11-4be27370515f';
@@ -57,7 +57,7 @@ INSERT INTO WatchedDirectories (pk, watchedDirectoryPath, chain, onlyActOnDirect
 INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvailable`, `replaces`, `lastModified`) VALUES ('8240d294-ad72-4a7f-8c67-6777e165a642','f4dea20e-f3fe-4a37-b20f-0e70a7bc960e','09949bda-5332-482a-ae47-5373bd372174',NULL,'2012-10-23 19:41:25');
 
 SET @microserviceGroup = 'Normalize';
-SET @XLink = '5bddbb67-76b4-4bcb-9b85-a0d9337e7042';
+SET @XLink = '5bddbb67-76b4-4bcb-9b85-a0d9337e7042' COLLATE utf8_unicode_ci;
 SET @YLink = '83484326-7be7-4f9f-b252-94553cd42370';
 
 SET @TasksConfigPKReference = 'c7e6b467-445e-4142-a837-5b50184238fc';
@@ -101,7 +101,7 @@ REFERENCES Jobs(jobUUID);
 INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvailable`, `replaces`, `lastModified`) VALUES ('e95b8f27-ea52-4247-bdf0-615273bc5fca','f4dea20e-f3fe-4a37-b20f-0e70a7bc960e','c76624a8-6f85-43cf-8ea7-0663502c712f',NULL,'2012-10-23 19:41:24');
 
 SET @microserviceGroup = 'Normalize';
-SET @XLink = '982229bd-73b8-432e-a1d9-2d9d15d7287d';;
+SET @XLink = '982229bd-73b8-432e-a1d9-2d9d15d7287d' COLLATE utf8_unicode_ci;
 SET @YLink = '83484326-7be7-4f9f-b252-94553cd42370';
 
 SET @TasksConfigPKReference = '46883944-8561-44d0-ac50-e1c3fd9aeb59';
@@ -134,7 +134,7 @@ UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = @NextMicr
 INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvailable`, `replaces`, `lastModified`) VALUES ('44304ff6-86f9-444e-975f-e578c7f3d15a','f4dea20e-f3fe-4a37-b20f-0e70a7bc960e','46824987-bd47-4139-9871-6566f5abdf1a',NULL,'2012-10-23 19:41:25'); 
 
 SET @microserviceGroup = 'Normalize';
-SET @XLink = '5fbecef2-49e9-4585-81a2-267b8bbcd568';
+SET @XLink = '5fbecef2-49e9-4585-81a2-267b8bbcd568' COLLATE utf8_unicode_ci;
 SET @YLink = '83484326-7be7-4f9f-b252-94553cd42370';
 
 SET @TasksConfigPKReference = '9e32257f-161e-430e-9412-07ce7f8db8ab';
@@ -414,7 +414,7 @@ CREATE TABLE `FauxFileIDsMap` (
 SET @microserviceGroup = 'Normalize';
 
 SET @XLink = '06d5979d-cd45-4a33-a139-0a606a52aa06';
-SET @YLink = '0b5ad647-5092-41ce-9fe5-1cc376d0bc3f';
+SET @YLink = '0b5ad647-5092-41ce-9fe5-1cc376d0bc3f' COLLATE utf8_unicode_ci;
 
 SET @TasksConfigPKReference = 'e076e08f-5f14-4fc3-93d0-1e80ca727f34';
 SET @TasksConfig = 'c4b2e8ce-fe02-45d4-9b0f-b163bffcc05f';
@@ -444,7 +444,7 @@ UPDATE MicroServiceChains SET startingLink = @MicroServiceChainLink WHERE starti
 
 
 SET @XLink = 'e543a615-e497-45e2-99ae-dfac4777e99c';
-SET @YLink = 'b443ba1a-a0b6-4f7c-aeb2-65bd83de5e8b';
+SET @YLink = 'b443ba1a-a0b6-4f7c-aeb2-65bd83de5e8b' COLLATE utf8_unicode_ci;
 
 SET @TasksConfigPKReference = '7477907c-79ec-4d48-93ae-9e0cbbfd2b65';
 SET @TasksConfig = '5092ff10-097b-4bac-a4d8-9b4766aaf40d';
@@ -1164,30 +1164,23 @@ CREATE TABLE IF NOT EXISTS fpr_idtoolconfig (
   UNIQUE KEY uuid (uuid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE fpr_fpcommand (
+CREATE TABLE IF NOT EXISTS fpr_fpcommand (
   id int(11) NOT NULL AUTO_INCREMENT,
-  replaces_id varchar(36) DEFAULT NULL,
-  enabled tinyint(1) NOT NULL,
   uuid varchar(36) NOT NULL,
   description varchar(256) NOT NULL,
   command longtext NOT NULL,
   script_type varchar(16) NOT NULL,
+  output_file_format varchar(256) DEFAULT NULL,
   output_location longtext,
-  output_format_id varchar(36) NOT NULL,
   command_usage varchar(16) NOT NULL,
-  verification_command_id varchar(36) DEFAULT NULL,
-  event_detail_command_id varchar(36) DEFAULT NULL,
+  verification_command_id int(11) DEFAULT NULL,
+  event_detail_command_id int(11) DEFAULT NULL,
+  supported_by_id varchar(36) DEFAULT NULL,
+  replaces_id int(11) DEFAULT NULL,
   lastmodified datetime NOT NULL,
+  enabled tinyint(1) NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY uuid (uuid),
-  KEY fpr_fpcommand_3d48252d (replaces_id),
-  KEY fpr_fpcommand_8e2c4a10 (output_format_id),
-  KEY fpr_fpcommand_98ce186d (verification_command_id),
-  KEY fpr_fpcommand_db13be16 (event_detail_command_id),
-  CONSTRAINT event_detail_command_id_refs_uuid_42ec6b03 FOREIGN KEY (event_detail_command_id) REFERENCES fpr_fpcommand (uuid),
-  CONSTRAINT output_format_id_refs_uuid_1e782771 FOREIGN KEY (output_format_id) REFERENCES fpr_formatversion (uuid),
-  CONSTRAINT replaces_id_refs_uuid_42ec6b03 FOREIGN KEY (replaces_id) REFERENCES fpr_fpcommand (uuid),
-  CONSTRAINT verification_command_id_refs_uuid_42ec6b03 FOREIGN KEY (verification_command_id) REFERENCES fpr_fpcommand (uuid)
+  UNIQUE KEY uuid (uuid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS fpr_fpcommand_tool (

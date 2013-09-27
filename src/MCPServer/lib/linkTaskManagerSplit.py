@@ -21,23 +21,19 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-from linkTaskManager import linkTaskManager
-from taskStandard import taskStandard
-from unitFile import unitFile
-from passClasses import *
-import jobChain
-import databaseInterface
-import threading
-import math
-import uuid
-import time
 import sys
-import archivematicaMCP
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseFunctions
-from databaseFunctions import deUnicode
+import threading
+import time
+import uuid
 
-import os
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from databaseFunctions import deUnicode
+import databaseInterface
+
+from linkTaskManager import linkTaskManager
+import jobChain
+import passClasses
+import archivematicaMCP
 
 
 class linkTaskManagerSplit:
@@ -53,89 +49,46 @@ class linkTaskManagerSplit:
         row = c.fetchone()
         
         while row != None:
-            filterFileEnd = "" #deUnicode(row[1])
-            filterFileStart = "" #deUnicode(row[2])
             filterSubDir = deUnicode(row[0])
-            requiresOutputLock = "" #row[4]
-            self.standardOutputFile = "" #deUnicode(row[5])
-            self.standardErrorFile = "" #deUnicode(row[6])
             self.execute = deUnicode(row[1])
-            self.arguments = "" #deUnicode(row[8])
             row = c.fetchone()
         sqlLock.release()
-        if requiresOutputLock:
-            outputLock = threading.Lock()
-        else:
-            outputLock = None
-
         SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
 
         self.tasksLock.acquire()
         for file, fileUnit in unit.fileList.items():
-            #print "file:", file, fileUnit
-            if filterFileEnd:
-                if not file.endswith(filterFileEnd):
-                    continue
-            if filterFileStart:
-                if not os.path.basename(file).startswith(filterFileStart):
-                    continue
             if filterSubDir:
-                #print "file", file, type(file)
-                #print unit.pathString, type(unit.pathString)
-                #filterSubDir = filterSubDir.encode('utf-8')
-                #print filterSubDir, type(filterSubDir)
-
                 if not file.startswith(unit.pathString + filterSubDir):
                     print "skipping file", file, filterSubDir, " :   \t Doesn't start with: ", unit.pathString + filterSubDir 
                     continue
 
-            standardOutputFile = self.standardOutputFile
-            standardErrorFile = self.standardErrorFile
             execute = self.execute
-            arguments = self.arguments
             
             if self.jobChainLink.passVar != None:
-                if isinstance(self.jobChainLink.passVar, replacementDic):
-                    execute, arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(execute, arguments, standardOutputFile, standardErrorFile)
+                if isinstance(self.jobChainLink.passVar, passClasses.replacementDic):
+                    execute = self.jobChainLink.passVar.replace(execute)
 
             commandReplacementDic = fileUnit.getReplacementDic()
-            for key in commandReplacementDic.iterkeys():
+            for key in commandReplacementDic:
                 value = commandReplacementDic[key].replace("\"", ("\\\""))
-                #print "key", type(key), key
-                #print "value", type(value), value
                 if isinstance(value, unicode):
                     value = value.encode("utf-8")
-                #key = key.encode("utf-8")
-                #value = value.encode("utf-8")
                 if execute:
                     execute = execute.replace(key, value)
-                if arguments:
-                    arguments = arguments.replace(key, value)
-                if standardOutputFile:
-                    standardOutputFile = standardOutputFile.replace(key, value)
-                if standardErrorFile:
-                    standardErrorFile = standardErrorFile.replace(key, value)
-            for key in SIPReplacementDic.iterkeys():
+            for key in SIPReplacementDic:
                 value = SIPReplacementDic[key].replace("\"", ("\\\""))
-                #print "key", type(key), key
-                #print "value", type(value), value
                 if isinstance(value, unicode):
                     value = value.encode("utf-8")
-                #key = key.encode("utf-8")
-                #value = value.encode("utf-8")
-
                 if execute:
                     execute = execute.replace(key, value)
-                if arguments:
-                    arguments = arguments.replace(key, value)
-                if standardOutputFile:
-                    standardOutputFile = standardOutputFile.replace(key, value)
-                if standardErrorFile:
-                    standardErrorFile = standardErrorFile.replace(key, value)
-            UUID = uuid.uuid4().__str__()
+            UUID = str(uuid.uuid4())
             self.tasks[UUID] = None
-            ## passVar = [{preservationJobUUID, accessJobUUID, thumbnailsJobUUID}] #an idea not in use
-            t = threading.Thread(target=jobChain.jobChain, args=(fileUnit, execute, self.taskCompletedCallBackFunction,), kwargs={"passVar":self.jobChainLink.passVar, "UUID":UUID, "subJobOf":self.jobChainLink.UUID.__str__()} )
+
+            t = threading.Thread(
+                target=jobChain.jobChain, 
+                args=(fileUnit, execute, self.taskCompletedCallBackFunction,), 
+                kwargs={"passVar": self.jobChainLink.passVar, "UUID": UUID, "subJobOf": str(self.jobChainLink.UUID)} 
+                )
             t.daemon = True
             while(archivematicaMCP.limitTaskThreads/2 <= threading.activeCount()):
                 #print "Waiting for active threads", threading.activeCount()

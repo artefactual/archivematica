@@ -23,7 +23,6 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.contrib import messages
 
 from main import models
 from components import helpers
@@ -71,6 +70,11 @@ def index(request):
         'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'
     )
 
+    # Lists of dicts declare what options to display, and where to look for
+    # the options
+    # Name: name in HTML
+    # Label: text to display, <label> in HTML, required.  Fallback value for
+    #   applies_to, lookup_description
     boolean_select_fields = [
         {
             "name":       "quarantine_transfer",
@@ -95,24 +99,47 @@ def index(request):
         }
     ]
 
+    # 'label': text to display, <label> in HTML.  Also, the
+    # 'lookup_description': TasksConfig description to search against to find
+    #   the MicroServiceChainLink for the
+    #   MicroServiceChainChoice.choiceavailableatlink  If not specified, use label
+    # 'link_uuid': If there are conflicts on lookup_description, specify this
+    #   to use that MicroServiceChainLink
     chain_choice_fields = [
         {
             "name":  "create_sip",
             "label": "Create SIP(s)"
         },
         {
-            "name":  "select_format_id_tool",
-            "label": "Select format identification tool"
-        },
-        {
             "name":  "normalize",
-            "label": "Normalize"
+            "label": "Normalize",
+            "link_uuid": "cb8e5706-e73f-472f-ad9b-d1236af8095f",
         }
     ]
 
     populate_select_fields_with_chain_choice_options(chain_choice_fields)
 
+    # 'label': text to display, <label> in HTML.  Also, the
+    # 'lookup_description': TasksConfig description to search against to find 
+    #   the MicroServiceChainLink for the
+    #   MicroServiceChainChoice.choiceavailableatlink  If not specified, use label
+    # 'link_uuid': If there are conflicts on lookup_description, specify this
+    #   to use that MicroServiceChainLink
+    # 'applies_to': Description of the TasksConfig that the choice applies to.
+    #   Put in defaultProcessingMCP.xml
     replace_dict_fields = [
+        {
+            "name": "select_format_id_tool_transfer",
+            "label": "Select file format identification command (Transfer)",
+            "link_uuid": 'f09847c2-ee51-429a-9478-a860477f6b8d',
+            "applies_to": "Select file format identification command",
+        },
+        {
+            "name": "select_format_id_tool_ingest",
+            "label": "Select file format identification command (Ingest)",
+            "link_uuid": '7a024896-c4f7-4808-a240-44c87c762bc5',
+            "applies_to": "Select pre-normalize file format identification command",
+        },
         {
             "name":  "compression_algo",
             "label": "Select compression algorithm"
@@ -196,8 +223,9 @@ def index(request):
             if enabled == 'yes':
                 field_value = request.POST.get(field['name'], '')
                 if field_value != '':
+                    applies_to = field.get('applies_to', field['label'])
                     xmlChoices.add_choice(
-                        field['label'],
+                        applies_to,
                         field_value
                     )
 
@@ -244,31 +272,19 @@ def index(request):
 
             # check select fields for defaults
             for field in select_fields:
-                if applies_to == field['label']:
+                if applies_to == field['label'] or applies_to == field.get('applies_to', ""):
                     field['selected'] = go_to_chain
                     field['checked'] = 'checked'
 
     hide_features = hidden_features()
     return render(request, 'administration/processing.html', locals())
 
-def lookup_chain_link_by_description(field):
-    try:
-        lookup_description = field['lookup_description']
-    except:
-        lookup_description = field['label']
-
-    if lookup_description == 'Normalize':
-        # there are two task configs with the same description so we need to do more work
-        tasks = models.TaskConfig.objects.filter(description=lookup_description)
-        for task in tasks:
-            link = models.MicroServiceChainLink.objects.get(currenttask=task.pk)
-            choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink=link.pk)
-
-            # look for the correct version
-            if len(choices) > 3:
-                return link
-    else:
-        task = models.TaskConfig.objects.filter(description=lookup_description)[0]
+def lookup_chain_link(field):
+    if 'link_uuid' in field:
+        link = models.MicroServiceChainLink.objects.get(pk=field['link_uuid'])
+    elif 'lookup_description' in field or 'label' in field:
+        lookup_description = field.get('lookup_description', field['label'])
+        task = models.TaskConfig.objects.get(description=lookup_description)
         link = models.MicroServiceChainLink.objects.get(currenttask=task.pk)
 
     return link
@@ -279,7 +295,7 @@ def remove_option_by_value(options, value):
             options.remove(option)
 
 def populate_select_field_options_with_chain_choices(field):
-    link = lookup_chain_link_by_description(field)
+    link = lookup_chain_link(field)
 
     choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink=link.pk)
 
@@ -301,7 +317,7 @@ def populate_select_field_options_with_chain_choices(field):
     field['options'] += options
 
 def populate_select_field_options_with_replace_dict_values(field):
-    link = lookup_chain_link_by_description(field)
+    link = lookup_chain_link(field)
 
     replace_dicts = models.MicroServiceChoiceReplacementDic.objects.filter(
         choiceavailableatlink=link.pk

@@ -19,15 +19,12 @@
 # @package Archivematica
 # @subpackage transcoder
 # @author Joseph Perry <joseph@artefactual.com>
-import re
 import math
 import sys
 import os
 import time
-from pipes import quote
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
-from fileOperations import updateSizeAndChecksum
 from archivematicaFunctions import escapeForCommand
 import databaseInterface
 LowerEndMainGroupMax = -10

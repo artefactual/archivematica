@@ -27,7 +27,6 @@ import uuid
 import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from executeOrRunSubProcess import executeOrRun
 import databaseInterface
 from fileOperations import addFileToSIP
 from fileOperations import updateSizeAndChecksum
@@ -35,35 +34,29 @@ from databaseFunctions import insertIntoEvents
 from databaseFunctions import insertIntoDerivations
 
 
-def executeCommandReleationship(gearman_worker, gearman_job):
-    """some text"""
+def executeFPRule(gearman_worker, gearman_job):
     try:
         execute = gearman_job.task
         print "executing:", execute, "{", gearman_job.unique, "}"
         data = cPickle.loads(gearman_job.data)
         utcDate = databaseInterface.getUTCDate()
-        opts = data["arguments"]#.encode("utf-8")
-        #if isinstance(arguments, unicode):
-        #    arguments = arguments.encode("utf-8")
-        #if isinstance(arguments, str):
-        #    arguments = unicode(arguments)
+        opts = data["arguments"]
         
-        sInput = ""
         clientID = gearman_worker.worker_client_id
 
         opts["date"] = utcDate
-        opts["accessDirectory"] = os.path.join(opts['sipPath'], "DIP/objects") + "/"
+        opts["accessDirectory"] = os.path.join(opts['sipPath'], "DIP", "objects") + "/"
         opts["thumbnailDirectory"] = os.path.join(opts['sipPath'], "thumbnails")  + "/"
         print opts
         for key, value in archivematicaClient.replacementDic.iteritems():
             for key2 in opts:
                 opts[key2] = opts[key2].replace(key, value)
         replacementDic = getReplacementDic(opts)
-        opts["prependStdOut"] =    """Operating on file: {%s}%s \r\nUsing  %s  command classifications""" % (opts["fileUUID"], replacementDic["%fileName%"], opts["commandClassification"])
+        opts["prependStdOut"] = """Operating on file: {%s}%s \r\nUsing %s command classifications""" % (opts["fileUUID"], replacementDic["%fileName%"], opts["commandClassification"])
         opts["prependStdError"] = "\r\nSTDError:"
-        #    print clientID, execute, data
+
         archivematicaClient.logTaskAssignedSQL(gearman_job.unique.__str__(), clientID, utcDate)
-        cl = transcoder.CommandLinker(opts["CommandRelationship"], replacementDic, opts, onceNormalized)
+        cl = transcoder.CommandLinker(opts["FPRule"], replacementDic, opts, onceNormalized)
         cl.execute()
         
         co = cl.commandObject
@@ -83,7 +76,6 @@ def executeCommandReleationship(gearman_worker, gearman_job):
         #archivematicaClient.printOutputLock.release()
         #exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=False)
         return cPickle.dumps({"exitCode" : exitCode, "stdOut": stdOut, "stdError": stdError})
-    #catch OS errors
     except OSError, ose:
         archivematicaClient.printOutputLock.acquire()
         traceback.print_exc(file=sys.stdout)
@@ -107,72 +99,42 @@ def getReplacementDic(opts):
     prefix = ""
     postfix = ""
     outputDirectory = ""
+    outputFileUUID = ""
     #get file name and extension
-    s = opts["inputFile"]
-    #get indexes for python string array
-    #index of next char after last /
-    x1 = s.rfind('/')+1
-    #index of last .
-    x2 = s.rfind('.')
-    #index of next char after last .
-    x2mod = x2+1
-    #length of s
-    sLen = len(s)
+    (directory, basename) = os.path.split(opts['inputFile'])
+    directory+=os.path.sep  # All paths should have trailing /
+    (filename, extension_dot) = os.path.splitext(basename)
 
-    if x2 < x1:
-        x2mod = 0
-
-
-    fileDirectory = os.path.dirname(s) + "/"
-    if x2mod != 0:
-        fileExtension = s[x2mod:sLen]
-        fileTitle = s[x1:x2]
-        fileFullName = fileDirectory + fileTitle + "." + fileExtension
-    else:
-        #print "No file extension!"
-        fileExtension = ""
-        fileTitle = s[x1:sLen]
-        fileFullName = fileDirectory + fileTitle
-    fileExtensionWithDot = "." + fileExtension
-    if fileExtension == "":
-        fileExtensionWithDot = ""
-
-    sql = """SELECT CommandClassifications.classification FROM CommandRelationships JOIN CommandClassifications ON CommandRelationships.commandClassification = CommandClassifications.pk WHERE CommandRelationships.pk = '%s';""" % (opts["CommandRelationship"])
+    sql = """SELECT purpose FROM fpr_fprule WHERE fpr_fprule.uuid = '{}';""".format(opts["FPRule"])
     rows = databaseInterface.queryAllSQL(sql)
-    if rows:
-        for row in rows:
-            opts["commandClassification"] = row[0]
-            if row[0] == "preservation":
-                postfix = "-" + opts["taskUUID"]
-                outputFileUUID = opts["taskUUID"]
-                outputDirectory = fileDirectory
-            elif row[0] == "access":
-                prefix = opts["fileUUID"] + "-"
-                outputDirectory = opts["accessDirectory"]
-            elif row[0] == "thumbnail":
-                outputDirectory = opts["thumbnailDirectory"]
-                postfix = opts["fileUUID"]
-            else:
-                print >>sys.stderr, "Unsupported command classification.", opts["CommandRelationship"], row[0]
-                return ret
-    else:
-        print >>sys.stderr, "Unsupported None command classification.", opts["CommandRelationship"]
+    for (purpose,) in rows:
+        opts["commandClassification"] = purpose
+        if purpose == "preservation":
+            postfix = "-" + opts["taskUUID"]
+            outputFileUUID = opts["taskUUID"]
+            outputDirectory = directory
+        elif purpose == "access":
+            prefix = opts["fileUUID"] + "-"
+            outputDirectory = opts["accessDirectory"]
+        elif purpose == "thumbnail":
+            outputDirectory = opts["thumbnailDirectory"]
+            postfix = opts["fileUUID"]
+        else:
+            print >>sys.stderr, "Unsupported command purpose.", opts["FPRule"], purpose
+            return ret
 
-    
-    
-    
-    ret["%inputFile%"]= fileFullName
+    ret["%inputFile%"]= opts['inputFile']
     ret["%outputDirectory%"] = outputDirectory
-    ret["%fileExtension%"] = fileExtension
-    ret["%fileExtensionWithDot%"] = fileExtensionWithDot
-    ret["%fileFullName%"] = fileFullName
-    ret["%preservationFileDirectory%"] = fileDirectory
-    ret["%fileDirectory%"] = fileDirectory
-    ret["%fileTitle%"] = fileTitle
-    ret["%fileName%"] =  fileTitle
+    ret["%fileExtension%"] = extension_dot.lstrip('.')
+    ret["%fileExtensionWithDot%"] = extension_dot
+    ret["%fileFullName%"] = opts['inputFile']
+    ret["%preservationFileDirectory%"] = directory
+    ret["%fileDirectory%"] = directory
+    ret["%fileTitle%"] = filename
+    ret["%fileName%"] =  filename
     ret["%prefix%"] = prefix
     ret["%postfix%"] = postfix
-    ret["%outputFileUUID%"] = opts["taskUUID"]
+    ret["%outputFileUUID%"] = outputFileUUID
     return ret
 
 
@@ -225,7 +187,3 @@ def onceNormalized(command, opts, replacementDic):
             
             replacementDic["%outputFileUUID%"] = uuid.uuid4().__str__()
             replacementDic["%postfix%"] = "-" + replacementDic["%outputFileUUID%"]
-
-
-
-

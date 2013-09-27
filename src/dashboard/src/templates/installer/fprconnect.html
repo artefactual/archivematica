@@ -40,12 +40,11 @@
         $.get("installer/fprupload/", function(data, textStatus)
         {
           if (data['result'] == 'success') {
-              $("div#fpr").append("<p>Successfully connected to FPR Server.</p>");
-              moreStuff();
+              $("div#fpr").append("<p>Successfully registered with FPR Server.</p>");
           } else {
-              $("div#fpr").append("<br>Unable to connect to FPR Server. You will not be able to get updated format policy rules until it is possible to connect to the FPR Server.");
-              AddElement(); 
-           }
+              $("div#fpr").append("<p>Unable to register with the FPR Server.</p>");
+          }
+          moreStuff();
         }, "json");
 });
 
@@ -56,10 +55,10 @@ function moreStuff() {
             if (data['result'] == 'success') {
                 $("div#fpr").append("<p>" + data['response'] + "</p>");
             } else {
-                $("div#fpr").append("<p>Unable to update FPR.</p>");
+                $("div#fpr").append("<p>Unable to update FPR.  You will not be able to get updated format policy rules until it is possible to connect to the FPR Server.</p>");
             }
         })
-        .done(function() { $("div#fpr").append("<p>Attempt completed"); })
+        .done(function() { $("div#fpr").append("<p>Attempt completed</p>"); })
         .fail(function(jqxhr, textStatus, error) {
             $("div#fpr").append("<p>Request error:</p>");
             $("div#fpr").append("<p>"+ error + " : " + jqxhr +"</p>");

@@ -32,21 +32,18 @@
 #The server will send the transcoder association pk, and file uuid to run.
 #The client is responsible for running the correct command on the file. 
 
-import sys
-import os
-import shlex
-import subprocess
-import time
-import threading
-import string
 import ConfigParser
-from socket import gethostname
-import transcoderNormalizer 
-import gearman
-import threading
 import cPickle
-import traceback
+import gearman
+import os
 import time
+from socket import gethostname
+import sys
+import threading
+import traceback
+
+import transcoderNormalizer
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 import databaseInterface
@@ -62,7 +59,8 @@ while dashboardUUID == False:
     if not rows:
         time.sleep(1)
     else:
-        dashboardUUID = rows[0][0]
+        # This might be returned as a unicode, which may cause Problems later on
+        dashboardUUID = str(rows[0][0])
 
 print "Dashboard UUID: " + dashboardUUID
 
@@ -159,7 +157,7 @@ Unable to determine if it completed successfully."""
         printOutputLock.acquire()
         print >>sys.stderr, "Execution failed:", ose
         printOutputLock.release()
-        output = ["Archivematica Client Error!", ose.__str__() ]
+        output = ["Archivematica Client Error!", traceback.format_exc()]
         exitCode = 1
         return cPickle.dumps({"exitCode" : exitCode, "stdOut": output[0], "stdError": output[1]})
     except:
@@ -168,7 +166,7 @@ Unable to determine if it completed successfully."""
         print sys.exc_info().__str__()
         print "Unexpected error:", sys.exc_info()[0]
         printOutputLock.release()
-        output = ["", sys.exc_info().__str__()]
+        output = ["", traceback.format_exc()]
         return cPickle.dumps({"exitCode" : -1, "stdOut": output[0], "stdError": output[1]})
 
 
@@ -179,25 +177,21 @@ def startThread(threadNumber):
     gm_worker.set_client_id(hostID)
     for key in supportedModules.iterkeys():
         printOutputLock.acquire()
-        print "registering:", '"' + key + '"'
+        print 'registering:"{}"'.format(key)
         printOutputLock.release()
         gm_worker.register_task(key, executeCommand)
     
     #load transoder jobs
-    sql = """SELECT CommandRelationships.pk 
-                FROM CommandRelationships 
-                JOIN Commands ON CommandRelationships.command = Commands.pk
-                JOIN CommandsSupportedBy ON Commands.supportedBy = CommandsSupportedBy.pk 
-                WHERE CommandsSupportedBy.description = 'supported by default archivematica client';"""
+    # FPRule.active.values_list('uuid', flat=True)
+    sql = """SELECT fpr_fprule.uuid FROM fpr_fprule WHERE enabled = 1;"""
     rows = databaseInterface.queryAllSQL(sql)
-    if rows:
-        for row in rows:
-            CommandRelationshipsPK = row[0]
-            key = "transcoder_cr%s" % (CommandRelationshipsPK.__str__())
-            printOutputLock.acquire()
-            print "registering:", '"' + key + '"'
-            printOutputLock.release()
-            gm_worker.register_task(key, transcoderNormalizer.executeCommandReleationship)
+    for row in rows:
+        fprule_uuid = row[0]
+        key = "transcoder_fprule_{0}".format(fprule_uuid)
+        printOutputLock.acquire()
+        print 'registering:"{}"'.format(key)
+        printOutputLock.release()
+        gm_worker.register_task(key, transcoderNormalizer.executeFPRule)
             
     failMaxSleep = 30
     failSleep = 1

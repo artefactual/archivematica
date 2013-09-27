@@ -48,6 +48,8 @@ function git-pull() {
         git stash
       fi
       colour git pull --rebase origin ${currentBranch}
+      colour git submodule init
+      colour git submodule update
       if [ -z "$gitDiff" -a "${gitDiff+xxx}" = "xxx" ]; then
         echo "No changes to restore"
       else

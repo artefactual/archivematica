@@ -108,8 +108,9 @@ def fprconnect(request):
 def fprupload(request):
     response_data = {} 
     agent = Agent.objects.get(pk=2)
-    url = django_settings.FPR_URL + 'Agent/'
-    #url = 'https://fpr.archivematica.org/fpr/api/v1/Agent/' 
+    #url = 'https://fpr.archivematica.org/fpr/api/v2/agent/'
+    url = django_settings.FPR_URL + 'agent/'
+    logging.info("FPR Server URL: {}".format(django_settings.FPR_URL))
     payload = {'uuid': helpers.get_setting('dashboard_uuid'), 
                'agentType': 'new install', 
                'agentName': agent.name, 

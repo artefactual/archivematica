@@ -20,41 +20,41 @@
 # @package Archivematica
 # @subpackage FPRClient
 # @author Joseph Perry <joseph@artefactual.com>
+import ast
 from optparse import OptionParser
-from StringIO import StringIO    
 from httplib import responses
 import json
+import requests
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from externals import requests_1_20 as requests
 
-def getFromRestAPI(url, params, verbose=False, auth=None):
-    #url http://loacalhost
-    #args {}
-    #auth ('demo', 'demo')
-    r = requests.get(url, params=params, auth=auth, timeout=10, verify=True)
+def getFromRestAPI(url, resource, params, verbose=False, auth=None):
+    # TOOD make this use slumber
+    # How to dynamically set resource in api.resource.get()
+
+    resource_url = "{url}{resource}/".format(url=url, resource=resource)
+    r = requests.get(resource_url, params=params, auth=auth, timeout=10, verify=True)
 
     if r.status_code != 200:
         print >>sys.stderr, "got error status code:", r.status_code, responses[r.status_code]
-        print >>sys.stderr, "url:", url, "params:", params 
+        print >>sys.stderr, "resource_url:", resource_url, "params:", params
         raise Exception(r.status_code, responses[r.status_code])
     if verbose:
+        print r
         print r.headers['content-type']
         print r.encoding
     
-    print r
     ret = json.loads(r.content) 
     if verbose:
         for x in ret["objects"]:
-            print type(x), x
+            print x
     return ret['objects']
 
 if __name__ == '__main__':
     parser = OptionParser()
-    parser.add_option("-u",  "--url", action="store", dest="url", default="http://fprserver/api/fpr/v1/file_id/")
-    parser.add_option("-p",  "--postFields", action="store", dest="postFields", default='{"format":"json", "order_by":"lastmodified", "lastmodified__gte":"2012-10-10T10:00:00"}')
-    parser.add_option("-v",  "--verbose", action="store_true", dest="verbose", default=False)
+    parser.add_option("-u", "--url", action="store", dest="url", default="http://fpr.archivematica.org/api/fpr/v2/")
+    parser.add_option('-r', '--resource', action='store', dest='resource')
+    parser.add_option("-p", "--postFields", action="store", dest="postFields", default='{"format":"json", "order_by":"lastmodified", "lastmodified__gte":"2012-10-10T10:00:00"}')
+    parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False)
 
-    
     (opts, args) = parser.parse_args()
-    getFromRestAPI(opts.url, eval(opts.postFields), verbose=opts.verbose)
+    getFromRestAPI(opts.url, opts.resource, ast.literal_eval(opts.postFields), verbose=opts.verbose)

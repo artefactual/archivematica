@@ -22,23 +22,18 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 
+import math
+import MySQLdb
+import sys
+import threading
+import uuid
+
 from linkTaskManager import linkTaskManager
 from taskStandard import taskStandard
-from unitFile import unitFile
-from passClasses import *
-import databaseInterface
-import threading
-import math
-import uuid
-import time
-import sys
-import archivematicaMCP
+import passClasses
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseFunctions
-from databaseFunctions import deUnicode
 
-import os
-import MySQLdb
 
 global outputLock
 outputLock = threading.Lock()
@@ -54,12 +49,26 @@ class linkTaskManagerTranscoderCommand:
         self.exitCode = 0
         self.clearToNextLink = False
 
-        opts = {"inputFile":"%relativeLocation%", "fileUUID":"%fileUUID%", 'commandClassifications':'%commandClassifications%', "taskUUID":"%taskUUID%", "objectsDirectory":"%SIPObjectsDirectory%", "logsDirectory":"%SIPLogsDirectory%", "sipUUID":"%SIPUUID%", "sipPath":"%SIPDirectory%", "fileGrpUse":"%fileGrpUse%", "normalizeFileGrpUse":"%normalizeFileGrpUse%", "excludeDirectory":"%excludeDirectory%", "standardErrorFile":"%standardErrorFile%", "standardOutputFile":"%standardOutputFile%"}
-        
+        opts = {
+            "inputFile": "%relativeLocation%",
+            "fileUUID": "%fileUUID%",
+            'commandClassifications': '%commandClassifications%',
+            "taskUUID": "%taskUUID%",
+            "objectsDirectory": "%SIPObjectsDirectory%",
+            "logsDirectory": "%SIPLogsDirectory%",
+            "sipUUID": "%SIPUUID%",
+            "sipPath": "%SIPDirectory%",
+            "fileGrpUse": "%fileGrpUse%",
+            "normalizeFileGrpUse": "%normalizeFileGrpUse%",
+            "excludeDirectory": "%excludeDirectory%",
+            "standardErrorFile": "%standardErrorFile%",
+            "standardOutputFile": "%standardOutputFile%",
+        }
+
         SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
         for optsKey, optsValue in opts.iteritems():
-            if self.jobChainLink.passVar != None:
-                if isinstance(self.jobChainLink.passVar, replacementDic):
+            if self.jobChainLink.passVar is not None:
+                if isinstance(self.jobChainLink.passVar, passClasses.replacementDic):
                     opts[optsKey] = self.jobChainLink.passVar.replace(opts[optsKey])[0]
 
             commandReplacementDic = unit.getReplacementDic()
@@ -70,42 +79,23 @@ class linkTaskManagerTranscoderCommand:
                 opts[optsKey] = opts[optsKey].replace(key, value)
 
         commandReplacementDic = unit.getReplacementDic()
-        sql = """SELECT CommandRelationships.pk FROM CommandRelationships JOIN Commands ON CommandRelationships.command = Commands.pk WHERE CommandRelationships.pk = '%s';""" % (pk.__str__())
-        rows = databaseInterface.queryAllSQL(sql)
-        taskCount = 0
-        tasksList = []
-        if rows:
-            self.tasksLock.acquire()
-            for row in rows:
-                UUID = uuid.uuid4().__str__()
-                opts["taskUUID"] = UUID
-                opts["CommandRelationship"] = pk.__str__()
-                execute = "transcoder_cr%s" % (pk)
-                deUnicode(execute)
-                arguments = row.__str__()
-                standardOutputFile = opts["standardOutputFile"] 
-                standardErrorFile = opts["standardErrorFile"] 
-                self.standardOutputFile = standardOutputFile 
-                self.standardErrorFile = standardErrorFile
-                self.execute = execute
-                self.arguments = arguments
-                task = taskStandard(self, execute, opts, standardOutputFile, standardErrorFile, outputLock=outputLock, UUID=UUID)
-                self.tasks[UUID] = task
-                databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, UUID, arguments)
-                taskCount += 1
-                tasksList.append(task)
-            self.tasksLock.release()
-            
-            for task in tasksList:
-                task.performTask()
-        
-        else:
-            self.jobChainLink.linkProcessingComplete(self.exitCode)
-        
-        
-        
-            
 
+        self.tasksLock.acquire()
+        UUID = str(uuid.uuid4())
+        opts["taskUUID"] = UUID
+        opts["FPRule"] = str(pk)
+        execute = "transcoder_fprule_{0}".format(pk)
+        execute = databaseFunctions.deUnicode(execute)
+        self.standardOutputFile = opts["standardOutputFile"]
+        self.standardErrorFile = opts["standardErrorFile"]
+        self.execute = execute
+        self.arguments = str(pk)
+        task = taskStandard(self, execute, opts, opts["standardOutputFile"], opts["standardErrorFile"], outputLock=outputLock, UUID=UUID)
+        self.tasks[UUID] = task
+        databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, UUID, self.arguments)
+        self.tasksLock.release()
+
+        task.performTask()
 
     def taskCompletedCallBackFunction(self, task):
         #logTaskCompleted()
@@ -123,7 +113,6 @@ class linkTaskManagerTranscoderCommand:
             print >>sys.stderr, "Key Value Error:", self.tasks
             exit(1)
 
-        
         if self.tasks == {} :
             print "DEBUG proceeding to next link", self.jobChainLink.UUID
             self.jobChainLink.linkProcessingComplete(self.exitCode, self.jobChainLink.passVar)
