@@ -508,8 +508,14 @@ def document_id_from_field_query(conn, index, doc_types, field, value):
     return document_id
 
 def connect_and_change_transfer_file_status(uuid, status):
+    # TODO: find a way to share this between this script and src/transcoder/lib/transcoderExtraction.py
+    SevenZipExtensions = ['.ARJ', '.CAB', '.CHM', '.CPIO',
+                  '.DMG', '.HFS', '.LZH', '.LZMA',
+                  '.NSIS', '.UDF', '.WIM', '.XAR',
+                  '.Z', '.ZIP', '.GZIP', '.TAR',]
+
     # get file UUIDs for each file in the SIP
-    sql = "SELECT fileUUID from Files WHERE transferUUID='" + MySQLdb.escape_string(uuid) + "'"
+    sql = "SELECT fileUUID, currentLocation from Files WHERE transferUUID='" + MySQLdb.escape_string(uuid) + "'"
 
     rows = databaseInterface.queryAllSQL(sql)
 
@@ -518,13 +524,22 @@ def connect_and_change_transfer_file_status(uuid, status):
 
         # cycle through file UUIDs and update status
         for row in rows:
-            document_id = document_id_from_field_query(conn, 'transfers', ['transferfile'], 'fileuuid', row[0])
-            if document_id == None:
-                print >>sys.stderr, 'Transfer file ', row[0], ' not found in index.'
-                print 'Transfer file ' + row[0] + ' not found in index.'
-                exit(1)
-            else:
-                conn.update({'status': status}, 'transfers', 'transferfile', document_id)
+            is_archive = False
+
+            for extension in SevenZipExtensions:
+                if row[1].lower().endswith(extension.lower()):
+                    is_archive = True
+
+            # archives end up getting expanded into individual files by microservices, so ignore them
+            if not is_archive:
+                document_id = document_id_from_field_query(conn, 'transfers', ['transferfile'], 'fileuuid', row[0])
+
+                if document_id == None:
+                    print >>sys.stderr, 'Transfer file ', row[0], ' not found in index.'
+                    print 'Transfer file ' + row[0] + ' not found in index.'
+                    exit(1)
+                else:
+                    conn.update({'status': status}, 'transfers', 'transferfile', document_id)
     return len(rows)
 
 def connect_and_remove_sip_transfer_files(uuid):
