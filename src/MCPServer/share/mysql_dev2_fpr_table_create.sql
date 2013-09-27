@@ -148,7 +148,7 @@ CREATE TABLE IF NOT EXISTS `Agent` (
 ;
 CREATE TABLE IF NOT EXISTS `CommandType` (
     `pk` varchar(36) NOT NULL PRIMARY KEY,
-    `replaces` varchar(50),
+    `replaces` varchar(36),
     `type` longtext NOT NULL,
     `lastModified` datetime NOT NULL,
     `enabled` integer
@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS `CommandsSupportedBy` (
 CREATE TABLE IF NOT EXISTS `FileIDType` (
     `pk` varchar(36) NOT NULL PRIMARY KEY,
     `description` longtext,
-    `replaces` varchar(50),
+    `replaces` varchar(36),
     `lastModified` datetime NOT NULL,
     `enabled` integer
 )
@@ -202,7 +202,7 @@ ALTER TABLE `FileID` ADD CONSTRAINT `format_id_refs_uuid_59596453` FOREIGN KEY (
 CREATE TABLE IF NOT EXISTS `CommandClassification` (
     `pk` varchar(36) NOT NULL PRIMARY KEY,
     `classification` longtext,
-    `replaces` varchar(50),
+    `replaces` varchar(36),
     `lastModified` datetime NOT NULL,
     `enabled` integer
 )
@@ -223,7 +223,7 @@ CREATE TABLE IF NOT EXISTS `FileIDsBySingleID` (
     `id` longtext NOT NULL,
     `tool` longtext NOT NULL,
     `toolVersion` longtext,
-    `replaces` varchar(50),
+    `replaces` varchar(36),
     `lastModified` datetime NOT NULL,
     `enabled` integer
 )
