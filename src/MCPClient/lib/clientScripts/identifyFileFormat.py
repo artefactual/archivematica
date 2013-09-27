@@ -37,6 +37,7 @@ def main(id_toolconfig, file_path, file_uuid):
             version = FormatVersion.active.get(pronom_id=output)
         else:
             version = IDRule.active.get(command_output=output, command=command.uuid)
+            version = version.format
     except (FormatVersion.DoesNotExist, IDRule.DoesNotExist, IDRule.MultipleObjectsReturned) as e:
         print >>sys.stderr, 'Error:', e
         return -1
