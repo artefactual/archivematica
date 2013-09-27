@@ -11,7 +11,7 @@ path = '/usr/share/archivematica/dashboard'
 if path not in sys.path:
     sys.path.append(path)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-from fpr.models import IDToolConfig, IDRule
+from fpr.models import IDToolConfig, IDRule, FormatVersion
 from main.models import FileFormatVersion, File
 
 
@@ -30,15 +30,20 @@ def main(id_toolconfig, file_path, file_uuid):
     _, output, _ = executeOrRun(command.script_type, command.script, arguments=[file_path], printing=False)
     output = output.strip()
     print 'Command output:', output
+    # PUIDs are the same regardless of tool, so PUID-producing tools don't have "rules" per se - we just
+    # go straight to the FormatVersion table to see if there's a matching PUID
     try:
-        idrule = IDRule.active.get(command_output=output, command=command.uuid)
-    except (IDRule.DoesNotExist, IDRule.MultipleObjectsReturned) as e:
+        if config.config == 'PUID':
+            version = FormatVersion.active.get(pronom_id=output)
+        else:
+            version = IDRule.active.get(command_output=output, command=command.uuid)
+    except (FormatVersion.DoesNotExist, IDRule.DoesNotExist, IDRule.MultipleObjectsReturned) as e:
         print >>sys.stderr, 'Error:', e
         return -1
     # TODO shouldn't have to get File object - http://stackoverflow.com/questions/2846029/django-set-foreign-key-using-integer
     file_ = File.objects.get(uuid=file_uuid)
-    FileFormatVersion.objects.create(file_uuid=file_, format_version=idrule.format)
-    print "{} identified as a {}".format(file_path, idrule.format)
+    FileFormatVersion.objects.create(file_uuid=file_, format_version=version)
+    print "{} identified as a {}".format(file_path, version.description)
     return 0
 
 
