@@ -21,13 +21,13 @@ CREATE TABLE IF NOT EXISTS `fpr_formatversion` (
     `enabled` bool NOT NULL,
     `uuid` varchar(36) NOT NULL UNIQUE,
     `format_id` varchar(36) NOT NULL,
+    `version` varchar(10),
+    `pronom_id` varchar(16),
     `description` varchar(128),
     `access_format` bool NOT NULL,
     `preservation_format` bool NOT NULL,
     `lastmodified` datetime NOT NULL,
-    `slug` varchar(50) NOT NULL,
-    `version` varchar(10) COLLATE utf8_unicode_ci,
-    `pronom_id` varchar(16) COLLATE utf8_unicode_ci
+    `slug` varchar(50) NOT NULL
 )
 ;
 ALTER TABLE `fpr_formatversion` ADD CONSTRAINT `format_id_refs_uuid_f14962b4` FOREIGN KEY (`format_id`) REFERENCES `fpr_format` (`uuid`);
@@ -96,15 +96,8 @@ CREATE TABLE IF NOT EXISTS `fpr_fprule` (
     `lastmodified` datetime NOT NULL
 )
 ;
-ALTER TABLE `fpr_fprule` ADD CONSTRAINT `format_id_refs_uuid_365f2da7` FOREIGN KEY (`format_id`) REFERENCES `fpr_formatversion` (`uuid`);
-ALTER TABLE `fpr_fprule` ADD CONSTRAINT `replaces_id_refs_uuid_50262b13` FOREIGN KEY (`replaces_id`) REFERENCES `fpr_fprule` (`uuid`);
-CREATE TABLE IF NOT EXISTS `fpr_fpcommand_tool` (
-    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    `fpcommand_id` integer NOT NULL,
-    `fptool_id` integer NOT NULL,
-    UNIQUE (`fpcommand_id`, `fptool_id`)
-)
-;
+ALTER TABLE `fpr_fprule` ADD CONSTRAINT `format_id_refs_uuid_2f95cc1f` FOREIGN KEY (`format_id`) REFERENCES `fpr_formatversion` (`uuid`);
+ALTER TABLE `fpr_fprule` ADD CONSTRAINT `replaces_id_refs_uuid_b2a13c23` FOREIGN KEY (`replaces_id`) REFERENCES `fpr_fprule` (`uuid`);
 CREATE TABLE IF NOT EXISTS `fpr_fpcommand` (
     `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
     `replaces_id` varchar(36),
@@ -121,12 +114,11 @@ CREATE TABLE IF NOT EXISTS `fpr_fpcommand` (
     `lastmodified` datetime NOT NULL
 )
 ;
-ALTER TABLE `fpr_fpcommand` ADD CONSTRAINT `output_format_id_refs_uuid_e187d88f` FOREIGN KEY (`output_format_id`) REFERENCES `fpr_formatversion` (`uuid`);
-ALTER TABLE `fpr_fprule` ADD CONSTRAINT `command_id_refs_uuid_37ce2045` FOREIGN KEY (`command_id`) REFERENCES `fpr_fpcommand` (`uuid`);
-ALTER TABLE `fpr_fpcommand_tool` ADD CONSTRAINT `fpcommand_id_refs_id_3cd7cf7b` FOREIGN KEY (`fpcommand_id`) REFERENCES `fpr_fpcommand` (`id`);
-ALTER TABLE `fpr_fpcommand` ADD CONSTRAINT `replaces_id_refs_uuid_bd1394fd` FOREIGN KEY (`replaces_id`) REFERENCES `fpr_fpcommand` (`uuid`);
-ALTER TABLE `fpr_fpcommand` ADD CONSTRAINT `verification_command_id_refs_uuid_bd1394fd` FOREIGN KEY (`verification_command_id`) REFERENCES `fpr_fpcommand` (`uuid`);
-ALTER TABLE `fpr_fpcommand` ADD CONSTRAINT `event_detail_command_id_refs_uuid_bd1394fd` FOREIGN KEY (`event_detail_command_id`) REFERENCES `fpr_fpcommand` (`uuid`);
+ALTER TABLE `fpr_fpcommand` ADD CONSTRAINT `output_format_id_refs_uuid_b9ad8917` FOREIGN KEY (`output_format_id`) REFERENCES `fpr_formatversion` (`uuid`);
+ALTER TABLE `fpr_fprule` ADD CONSTRAINT `command_id_refs_uuid_14457878` FOREIGN KEY (`command_id`) REFERENCES `fpr_fpcommand` (`uuid`);
+ALTER TABLE `fpr_fpcommand` ADD CONSTRAINT `replaces_id_refs_uuid_3335b0a4` FOREIGN KEY (`replaces_id`) REFERENCES `fpr_fpcommand` (`uuid`);
+ALTER TABLE `fpr_fpcommand` ADD CONSTRAINT `verification_command_id_refs_uuid_3335b0a4` FOREIGN KEY (`verification_command_id`) REFERENCES `fpr_fpcommand` (`uuid`);
+ALTER TABLE `fpr_fpcommand` ADD CONSTRAINT `event_detail_command_id_refs_uuid_3335b0a4` FOREIGN KEY (`event_detail_command_id`) REFERENCES `fpr_fpcommand` (`uuid`);
 CREATE TABLE IF NOT EXISTS `fpr_fptool` (
     `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
     `uuid` varchar(36) NOT NULL UNIQUE,
@@ -136,7 +128,15 @@ CREATE TABLE IF NOT EXISTS `fpr_fptool` (
     `slug` varchar(50) NOT NULL
 )
 ;
-ALTER TABLE `fpr_fpcommand_tool` ADD CONSTRAINT `fptool_id_refs_id_b01f744b` FOREIGN KEY (`fptool_id`) REFERENCES `fpr_fptool` (`id`);
+CREATE TABLE IF NOT EXISTS `fpr_fpcommandtool` (
+    `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `uuid` varchar(36) NOT NULL UNIQUE,
+    `command_id` varchar(36) NOT NULL,
+    `tool_id` varchar(36) NOT NULL
+)
+;
+ALTER TABLE `fpr_fpcommandtool` ADD CONSTRAINT `command_id_refs_uuid_252ec85e` FOREIGN KEY (`command_id`) REFERENCES `fpr_fpcommand` (`uuid`);
+ALTER TABLE `fpr_fpcommandtool` ADD CONSTRAINT `tool_id_refs_uuid_d370e272` FOREIGN KEY (`tool_id`) REFERENCES `fpr_fptool` (`uuid`);
 CREATE TABLE IF NOT EXISTS `Agent` (
     `uuid` varchar(36) NOT NULL PRIMARY KEY,
     `agentIdentifierType` varchar(100) NOT NULL,
@@ -228,4 +228,5 @@ CREATE TABLE IF NOT EXISTS `FileIDsBySingleID` (
     `enabled` integer
 )
 ;
+
 COMMIT;

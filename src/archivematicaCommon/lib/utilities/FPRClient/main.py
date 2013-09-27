@@ -20,123 +20,161 @@
 # @package Archivematica
 # @subpackage FPRClient
 # @author Joseph Perry <joseph@artefactual.com>
-import uuid
-from addLinks import addLinks
-from optparse import OptionParser
-from getFromRestAPI import getFromRestAPI
+import os
 import sys
+import uuid
+
+from getFromRestAPI import getFromRestAPI
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
+
+# Set up Django settings
+path = '/usr/share/archivematica/dashboard'
+if path not in sys.path:
+    sys.path.append(path)
+if 'DJANGO_SETTINGS_MODULE' not in os.environ:
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+import django.db.models.fields
+
+from annoying.functions import get_object_or_None
+
+from fpr import models
 
 databaseInterface.printSQL = False
 
 class FPRClient(object):
-    def __init__(self, fprserver='https://fpr.archivematica.org/fpr/api/v1/'):
-        """FPR Client provides methods to download data from FPR Server"""
+    """FPR Client provides methods to download data from FPR Server"""
+
+    def __init__(self, fprserver='https://fpr.archivematica.org/fpr/api/v2/'):
         self.fprserver = fprserver
+        self.maxLastUpdate = None
+        self.maxLastUpdateUUID = None
+
+    def getMaxLastUpdate(self):
+        sql = """SELECT pk, variableValue FROM UnitVariables WHERE unitType = 'FPR' AND unitUUID = 'Client' AND variable = 'maxLastUpdate' """
+        rows = databaseInterface.queryAllSQL(sql)
+        if rows:
+            self.maxLastUpdateUUID, self.maxLastUpdate = rows[0]
+        else:
+            self.maxLastUpdate = "2000-01-01T00:00:00"
+            self.maxLastUpdateUUID = str(uuid.uuid4())
     
-    maxLastUpdate = '' 
-    def create(self, table, entry):
-        sets = []
-        for key, value in entry.iteritems():
-            if key == "resource_uri":
-                continue
-            if key == "uuid":
-                key = "pk"
-            if key == "lastmodified" and value > self.maxLastUpdate:
-                self.maxLastUpdate = value
-            #print type(value)
-            if value == None:
-                sets.append("%s=NULL" % (key))
-            elif isinstance(value, int):
-                sets.append("%s=%s" % (key, value))
-            elif isinstance(value, unicode):
-                sets.append("%s='%s'" % (key, databaseInterface.MySQLdb.escape_string(value)))
-            elif isinstance(value, str):
-                sets.append("%s='%s'" % (key, databaseInterface.MySQLdb.escape_string(value)))
-                
-        sets = ", ".join(sets)
-        sql = """INSERT INTO %s SET %s;""" % (table, sets)
-        #print sql
+    def setMaxLastUpdate(self):
+        sql = """INSERT INTO UnitVariables(pk, variableValue, variable, unitType, unitUUID) VALUES ('{pk}', '{variableValue}', 'maxLastUpdate', 'FPR', 'Client') ON DUPLICATE KEY UPDATE variableValue='{variableValue}';""".format(
+                pk=self.maxLastUpdateUUID,
+                variableValue=self.maxLastUpdate
+            )
         databaseInterface.runSQL(sql)
     
-    def getMaxLastUpdate(self):
-        sql = """SELECT variableValue FROM UnitVariables WHERE unitType = 'FPR' AND unitUUID = 'Client' AND variable = 'maxLastUpdate' """
-        rows = databaseInterface.queryAllSQL(sql)
-        if rows:
-            maxLastUpdate = rows[0][0]
-        else:
-            maxLastUpdate = "2000-01-01T00:00:00"
-        return maxLastUpdate
-    
-    def setMaxLastUpdate(self, maxLastUpdate):
-        sql = """SELECT pk FROM UnitVariables WHERE unitType = 'FPR' AND unitUUID = 'Client' AND variable = 'maxLastUpdate'; """
-        rows = databaseInterface.queryAllSQL(sql)
-        if rows:
-            sql = """UPDATE UnitVariables SET variableValue='%s' WHERE unitType = 'FPR' AND unitUUID = 'Client' AND variable = 'maxLastUpdate';""" % (self.maxLastUpdate)
-            databaseInterface.runSQL(sql)
-        else:
-            pk = uuid.uuid4().__str__()
-            sql = """INSERT INTO UnitVariables SET pk='%s', variableValue='%s', unitType='FPR', unitUUID = 'Client', variable = 'maxLastUpdate';""" % (pk, self.maxLastUpdate)
-            databaseInterface.runSQL(sql)
-        return maxLastUpdate
-    
     def autoUpdateFPR(self):
-        self.maxLastUpdate = self.getMaxLastUpdate()
+        self.getMaxLastUpdate()
         maxLastUpdateAtStart = self.maxLastUpdate
+        print 'maxLastUpdateAtStart', maxLastUpdateAtStart
         databaseInterface.runSQL("SET foreign_key_checks = 0;")
-        for x in [
-            ("CommandRelationships", self.fprserver + "CommandRelationship/"),
-            ("FileIDsBySingleID", self.fprserver + "FileIDsBySingleID/"),
-            ("FileIDs", self.fprserver + "FileID/"),
-            ("Commands", self.fprserver + "Command/"),
-            ("CommandTypes", self.fprserver + "CommandType/"),
-            ("CommandClassifications", self.fprserver + "CommandClassification/"),
-            ("FileIDTypes", self.fprserver + "FileIDType/")
-        ]:
-            table, url = x
-            #params = {"format":"json", "order_by":"lastmodified", "lastmodified__gte":maxLastUpdateAtStart, "limit":"0"}
-            params = {"format":"json", "order_by":"lastmodified", "lastmodified__gte":maxLastUpdateAtStart, "limit":"0"}
-            entries = getFromRestAPI(url, params, verbose=False, auth=None)
-            #print "test", entries
+        resources = [
+            (models.Format, 'format'),
+            (models.FormatVersion, 'format-version'),
+            (models.IDTool, 'id-tool'),
+            (models.IDCommand, 'id-command'),
+            (models.IDToolConfig, 'id-tool-config'),
+            (models.IDRule, 'id-rule'),
+            (models.FPTool, 'fp-tool'),
+            (models.FPCommand, 'fp-command'),
+            (models.FPRule, 'fp-rule'),
+        ]
+
+        for r in resources:
+            table, resource = r
+            print 'resource:', resource
+            params = {
+                "format": "json",
+                "limit": "0"
+            }
+            try:
+                table._meta.get_field_by_name('lastmodified')
+            except django.db.models.fields.FieldDoesNotExist:
+                pass
+            else:
+                params["order_by"] = "lastmodified",
+                params['lastmodified__gte'] = maxLastUpdateAtStart
+            # TODO handle pagination of results for FPRServer
+            #  Should handle pagination here, rather than creating big array
+            #  of entries - possibly use generator function?
+            entries = getFromRestAPI(self.fprserver, resource, params, verbose=False, auth=None)
             for entry in entries:
-                #print table, entry
-                
-                #check if it already exists
-                sql = """SELECT pk FROM %s WHERE pk = '%s'""" % (table, entry['uuid'])
-                if databaseInterface.queryAllSQL(sql):
-                    #pass
+                # Update lastmodified if exists
+                if 'lastmodified' in entry and entry['lastmodified'] > self.maxLastUpdate:
+                    self.maxLastUpdate = entry['lastmodified']
+
+                # If an entry with this UUID exists, update enabled
+                obj = get_object_or_None(table, uuid=entry['uuid'])
+                if obj:
+                    print 'object not None', get_object_or_None(table, uuid=entry['uuid'])
+                    if not hasattr(table, 'replaces') and hasattr(table, 'enabled'):
+                        obj.enabled = entry['enabled']
+                        obj.save()
                     continue
-                
-                if not 'replaces' in entry:
-                    print >>sys.stderr, "Required entry 'replaces' missing."
-                    print entry
-                    #continue
-                    exit(3)
-                    
-                #If updating a disabled entry, it will continue to be disabled.
-                if entry['replaces'] != None:
-                     sql = """SELECT enabled FROM %s WHERE pk = '%s';""" % (table, entry['replaces'])
-                     enabled=databaseInterface.queryAllSQL(sql)[0][0]
-                     if not enabled:
-                         entry['enabled'] = 0
-                     sql = """UPDATE %s SET enabled=FALSE WHERE pk = '%s';""" % (table, entry['replaces'])
-                     databaseInterface.runSQL(sql)
-                     
-                self.create(table, entry) 
-                
-        addLinks()
+                # Otherwise, new entry, need to add to table
+
+                # TastyPie doesn't like fields named format, so they're all fmt
+                if 'fmt' in entry:
+                    entry['format'] = entry.pop('fmt')
+
+                # Only keep fields that are in the model
+                valid_fields = dict(
+                    [ (k, v) for k, v in entry.iteritems()
+                        if k in table._meta.get_all_field_names()
+                    ])
+
+                # Convert foreign keys from URIs to just UUIDs
+                for field, value in valid_fields.iteritems():
+                    if isinstance(value, basestring) and value.startswith('/fpr/api/'):
+                        # Parse out UUID.  value.split gives
+                        # ['', 'fpr', 'api', '<version>', '<resource>', '<uuid>', '']
+                        uuid = value.split('/')[-2]
+                        del valid_fields[field]
+                        valid_fields[field+u"_id"] = uuid
+                # Insert FormatGroup for Formats if not exist
+                if table == models.Format:
+                    if not get_object_or_None(
+                            models.FormatGroup,
+                            uuid=entry['group']['uuid']):
+                        models.FormatGroup.objects.create(**entry['group'])
+                    valid_fields['group_id'] = entry['group']['uuid']
+                    del valid_fields['group']
+
+                # Remove many-to-many fields, since they'll come down as their
+                # own tables and are complicated to handle here
+                m2m = table._meta.many_to_many
+                for field in m2m:
+                    del valid_fields[field.name]
+
+                # print 'valid_fields', valid_fields
+                # Create
+                obj = table.objects.create(**valid_fields)
+
+                # Update enabled on self and replaces
+                if hasattr(table, 'replaces') and obj.replaces:
+                    if obj.replaces.enabled:
+                        obj.replaces.enabled = False
+                        obj.replaces.save()
+                    else:  # obj.replaces is disabled
+                        obj.enabled = False
+                        obj.save()
+                print 'new object:', obj
         databaseInterface.runSQL("SET foreign_key_checks = 1;")
         if self.maxLastUpdate != maxLastUpdateAtStart:
-            self.setMaxLastUpdate(self.maxLastUpdate)
+            self.setMaxLastUpdate()
+            print 'maxLastUpdate at end', self.maxLastUpdate
     
     def getUpdates(self):
         try:
             self.autoUpdateFPR()
         except:
-            return "no updates at this time"
+            return "No updates at this time"
         
-        return "successfully updated fpr"
+        return "Successfully updated FPR"
         
 if __name__ == '__main__':
     FPRClient().autoUpdateFPR()

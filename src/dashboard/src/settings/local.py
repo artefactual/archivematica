@@ -19,4 +19,4 @@ from .common import *
 
 DEBUG = True
 TEMPLATE_DEBUG = True
-FPR_URL = 'https://fpr.artefactual.com/fpr/api/v1/'
+FPR_URL = 'https://fpr.artefactual.com/fpr/api/v2/'
