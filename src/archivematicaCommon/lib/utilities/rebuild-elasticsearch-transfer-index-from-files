@@ -1,0 +1,147 @@
+#!/usr/bin/env python
+
+import os, sys, subprocess, tempfile, shutil, ConfigParser, subprocess
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import elasticSearchFunctions
+import databaseInterface
+import MySQLdb
+import _mysql_exceptions
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
+import pyes
+sys.path.append('/usr/lib/sanitizeNames')
+import sanitizeNames
+import xml.etree.ElementTree as ElementTree
+
+# Make sure the user knows what he or she is going to do
+print
+print "WARNING: This script will delete your current ElasticSearch transfer"
+print "data, rebuilding it using files."
+print
+
+proceed = raw_input("Are you sure you want to continue? (yes/no)\n")
+if proceed != 'yes':
+  print "You didn't enter 'yes': exiting."
+  exit(0)
+
+# Determine root of shared directories
+clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
+config = ConfigParser.SafeConfigParser()
+config.read(clientConfigFilePath)
+
+try:
+    sharedDirectory = config.get('MCPClient', "sharedDirectoryMounted")
+except:
+    print "Configuration item 'sharedDirectoryMounted' not available at /etc/archivematica/MCPClient/clientConfig.conf."
+    os._exit(1)
+
+# Clear database backups of indexed AIPs
+sql = "DELETE FROM ElasticsearchIndexBackup WHERE indexName='transfers' AND typeName='transferfile'"
+databaseInterface.runSQL(sql)
+
+# Set root directory
+try:
+    rootdir = sys.argv[1]
+    if not os.path.exists(rootdir):
+        print "AIP store location doesn't exist."
+        os._exit(1)
+except:
+    print 'usage: ' + sys.argv[0] + ' <path to AIP store>'
+    rootdir = os.path.join(sharedDirectory, 'www/AIPsStore')
+    print 'Default path is: ' + rootdir
+    os._exit(1)
+
+print "Rebuilding transfer index from transfer backlog in " + rootdir + "..."
+
+def get_file_checksum(path):
+    p = subprocess.Popen(['sha256sum', path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = p.communicate()
+    return out.split(' ')[0]
+
+def process_transfer(path, temp_dir):
+    transfer_dir = os.path.basename(path)
+    transfer_name = transfer_dir[:-37]
+    uuid =  transfer_dir[-36:]
+    mets_file = "METS." + uuid + ".xml"
+    mets_file_relative_path = os.path.join(transfer_dir, 'metadata/submissionDocumentation/METS.xml')
+
+    # parse METS data
+    tree = ElementTree.parse(os.path.join(path, 'metadata/submissionDocumentation/METS.xml'))
+    root = tree.getroot()
+
+    # attempt to insert row in MySQL Transfers table if it doesn't already exist
+    try:
+        sql = "INSERT INTO Transfers (transferUUID, currentLocation) VALUES ('" + MySQLdb.escape_string(uuid) + "', '" + MySQLdb.escape_string('%sharedPath%www/AIPsStore/transferBacklog/originals/' + transfer_dir) + "')"
+        databaseInterface.runSQL(sql)
+    except _mysql_exceptions.IntegrityError:
+        pass
+
+    # extract list of files from METS data so as to populate the MySQL Files table
+    files = root.findall("{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp/{http://www.loc.gov/METS/}file")
+    for file in files:
+        id = file.attrib['ID'][-36:]
+
+        # extract original path
+        location = file.find('{http://www.loc.gov/METS/}FLocat')
+        file_path = location.attrib['{http://www.w3.org/1999/xlink}href']
+
+        # create sanitized version of path
+        path_to_object = os.path.dirname(file_path)
+        file_basename_sanitized = sanitizeNames.sanitizeName(os.path.basename(file_path))
+
+        # calculate filesize
+        real_file_path = os.path.join(path, path_to_object, file_basename_sanitized)
+        file_size = str(os.path.getsize(real_file_path))
+
+        location_with_token = '%transferDirectory%' + path_to_object + '/' + file_basename_sanitized
+        checksum = get_file_checksum(real_file_path)
+
+        # attempt to insert row in MySQL Files table if it doesn't already exist
+        try:
+            sql = "INSERT INTO Files (fileUUID, originalLocation, currentLocation, transferUUID, fileSize, checksum, fileGrpUse) VALUES ('" + MySQLdb.escape_string(id) + "', '" + MySQLdb.escape_string(location_with_token) + "', '" + MySQLdb.escape_string(location_with_token) + "', '" + MySQLdb.escape_string(uuid) + "', '" + MySQLdb.escape_string(file_size) + "', '" + MySQLdb.escape_string(checksum) + "', 'original')"
+            databaseInterface.runSQL(sql)
+        except _mysql_exceptions.IntegrityError:
+            pass
+
+
+    elasticSearchFunctions.connect_and_index_files(
+        'transfers',
+        'transferfile',
+        uuid,
+        os.path.join(path, 'objects')
+    )
+
+    found = elasticSearchFunctions.connect_and_change_transfer_file_status(uuid, 'backlog')
+
+    return found
+
+conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
+
+try:
+    conn._send_request('GET', '')
+except pyes.exceptions.NoServerAvailable:
+    print "Connection error: Is Elasticsearch running?"
+    os._exit(1)
+
+# delete transfers ElasticSearch index
+try:
+    conn.delete_index('transfers')
+except pyes.exceptions.IndexMissingException:
+    pass
+
+# recreate transfers index, setting up mapping
+elasticSearchFunctions.check_server_status_and_create_indexes_if_needed()
+
+temp_dir = tempfile.mkdtemp()
+
+backlog_original_dir = os.path.join(rootdir, 'transferBacklog', 'originals')
+
+for directory in os.listdir(backlog_original_dir):
+    if directory != '.gitignore':
+        files_changed = process_transfer(os.path.join(backlog_original_dir, directory), temp_dir)
+        print 'Updated ' + str(files_changed) + ' transfer file entries.'
+
+print "Cleaning up..."
+
+shutil.rmtree(temp_dir)
+
+print "Indexing complete."
