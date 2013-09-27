@@ -110,7 +110,7 @@ class FPRClient(object):
                 # If an entry with this UUID exists, update enabled
                 obj = get_object_or_None(table, uuid=entry['uuid'])
                 if obj:
-                    print 'object not None', get_object_or_None(table, uuid=entry['uuid'])
+                    print 'Object already in DB:', get_object_or_None(table, uuid=entry['uuid'])
                     if not hasattr(table, 'replaces') and hasattr(table, 'enabled'):
                         obj.enabled = entry['enabled']
                         obj.save()
@@ -162,7 +162,7 @@ class FPRClient(object):
                     else:  # obj.replaces is disabled
                         obj.enabled = False
                         obj.save()
-                print 'new object:', obj
+                print 'Added:', obj
         databaseInterface.runSQL("SET foreign_key_checks = 1;")
         if self.maxLastUpdate != maxLastUpdateAtStart:
             self.setMaxLastUpdate()

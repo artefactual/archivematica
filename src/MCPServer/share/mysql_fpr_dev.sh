@@ -17,12 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica. If not, see <http://www.gnu.org/licenses/>>.
 
-# @package Archivematica
-# @author Joseph Perry <joseph@artefactual.com>>
-# @version svn: $Id$
-
 origDir="`pwd`"
 cd "`dirname $0`"
+
 username="root"
 databaseName="MCP"
 set -e
@@ -35,18 +32,14 @@ else
   dbpassword=""
 fi
 
-
-mysql -u $username $dbpassword --execute="source ./removeFPRData.sql" $databaseName
-mysql -u $username $dbpassword --execute="source ./mysql_0.10" $databaseName
-mysql -u $username $dbpassword --execute="INSERT INTO UnitVariables SET pk='351e1464-7ab8-4cf1-a4cf-db8cef5c3090', variableValue='2013-03-29T13:10:12', unitType='FPR', unitUUID = 'Client', variable = 'maxLastUpdate';" $databaseName
-mysql -u $username $dbpassword --execute="source ./mysql_dev1" $databaseName
-#./migration1.sh
-#mysql -u $username $dbpassword --execute="source ./mysql_dev2" $databaseName
-#./migration2.sh
-#mysql -u $username $dbpassword --execute="source ./mysql_dev3" $databaseName
-
-/usr/lib/archivematica/FPRClient/addLinks.py
+pwd
+mysql -u $username $dbpassword --execute="source ./delete_fpr_data.sql" $databaseName
+mysql -u $username $dbpassword --execute="source ./mysql_fpr_1.0.sql" $databaseName
+# mysql -u $username $dbpassword --execute="source ./mysql_fpr_dev1.sql" $databaseName
+# ./migration1.sh
+# mysql -u $username $dbpassword --execute="source ./mysql_dev2.sql" $databaseName
+# ./migration2.sh
+# mysql -u $username $dbpassword --execute="source ./mysql_dev3.sql" $databaseName
 
 cd "$origDir"
 dbpassword=""
-
