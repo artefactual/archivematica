@@ -30,7 +30,7 @@ import os
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivematicaFunctions import getTagged
 from archivematicaFunctions import escapeForCommand
-from databaseFunctions import insertIntoFilesFits
+from databaseFunctions import insertIntoFPCommandOutput
 from databaseFunctions import insertIntoEvents
 import databaseInterface
 
@@ -134,7 +134,7 @@ if __name__ == '__main__':
         print "file's fileGrpUse in exclusion list, skipping"
         exit(0)
 
-    sql = """SELECT fileUUID FROM FilesFits WHERE fileUUID = '%s';""" % (fileUUID)
+    sql = """SELECT fileUUID FROM FPCommandOutput WHERE fileUUID = '%s';""" % (fileUUID)
     if len(databaseInterface.queryAllSQL(sql)):
         print >>sys.stderr, "Warning: Fits has already run on this file. Not running again."
         exit(0)
@@ -168,7 +168,10 @@ if __name__ == '__main__':
         os.remove(tempFile)
         if excludeJhoveProperties:
             fits = excludeJhoveProperties(fits)
-        insertIntoFilesFits(fileUUID, etree.tostring(fits, pretty_print=False))
+        # NOTE: This is hardcoded for now because FPCommandOutput references FPRule for future development,
+        #       when characterization will become user-configurable and be decoupled from FITS specifically.
+        #       Thus a stub rule must exist for FITS; this will be replaced with a real rule in the future.
+        insertIntoFPCommandOutput(fileUUID, etree.tostring(fits, pretty_print=False), '3a19de70-0e42-4145-976b-3a248d43b462')
         includeFits(fits, XMLfile, date, eventUUID, fileUUID)
 
     except OSError, ose:

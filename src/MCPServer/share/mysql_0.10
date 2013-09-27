@@ -480,14 +480,16 @@ CREATE TABLE `Files` (
   CONSTRAINT `Files_ibfk_2` FOREIGN KEY (`transferUUID`) REFERENCES `Transfers` (`transferUUID`)
 ) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `FilesFits`;
+DROP TABLE IF EXISTS `FilesCharacterizationOutputs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `FilesFits` (
+CREATE TABLE `FPCommandOutput` (
   `fileUUID` varchar(50) NOT NULL,
-  `FITSxml` longtext,
+  `content` longtext,
+  `ruleUUID` varchar(36) NOT NULL,
   PRIMARY KEY (`fileUUID`),
-  CONSTRAINT `FilesFits_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`)
+  CONSTRAINT `FPCommandOutput_ibfk_1` FOREIGN KEY (`fileUUID`) REFERENCES `Files` (`fileUUID`),
+  CONSTRAINT `FPCommandOutput_ibfk_2` FOREIGN KEY (`ruleUUID`) REFERENCES `fpr_fprule` (`uuid`)
 ) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `FilesIDs`;
