@@ -934,7 +934,7 @@ CREATE TABLE Reports (
   content LONGTEXT,
   created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (pk)
-)  ENGINE=InnoDB DEFAULT CHARSET=utf8;
+)  ;
 -- /Issue 1929
 
 -- Issue 5484
@@ -974,7 +974,7 @@ CREATE TABLE IF NOT EXISTS Agent (
   agentType varchar(100) NOT NULL,
   clientIP varchar(100) NOT NULL,
   PRIMARY KEY (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS Command (
   pk varchar(36) NOT NULL,
@@ -991,7 +991,7 @@ CREATE TABLE IF NOT EXISTS Command (
   lastModified datetime DEFAULT NULL,
   enabled int(11) DEFAULT NULL,
   PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS CommandClassification (
   pk varchar(36) NOT NULL,
@@ -1000,7 +1000,7 @@ CREATE TABLE IF NOT EXISTS CommandClassification (
   lastModified datetime NOT NULL,
   enabled int(11) DEFAULT NULL,
   PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS CommandRelationship (
   pk varchar(36) NOT NULL,
@@ -1011,7 +1011,7 @@ CREATE TABLE IF NOT EXISTS CommandRelationship (
   lastModified datetime NOT NULL,
   enabled int(11) DEFAULT NULL,
   PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS CommandType (
   pk varchar(36) NOT NULL,
@@ -1020,7 +1020,7 @@ CREATE TABLE IF NOT EXISTS CommandType (
   lastModified datetime NOT NULL,
   enabled int(11) DEFAULT NULL,
   PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS FileID (
   pk varchar(36) NOT NULL,
@@ -1032,7 +1032,7 @@ CREATE TABLE IF NOT EXISTS FileID (
   lastModified datetime NOT NULL,
   enabled int(11) DEFAULT NULL,
   PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS FileIDType (
   pk varchar(36) NOT NULL,
@@ -1041,7 +1041,7 @@ CREATE TABLE IF NOT EXISTS FileIDType (
   lastModified datetime NOT NULL,
   enabled int(11) DEFAULT NULL,
   PRIMARY KEY (pk)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS django_admin_log (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -1057,14 +1057,14 @@ CREATE TABLE IF NOT EXISTS django_admin_log (
   KEY django_admin_log_37ef4eb4 (content_type_id),
   CONSTRAINT user_id_refs_id_c0d12874 FOREIGN KEY (user_id) REFERENCES auth_user (id),
   CONSTRAINT content_type_id_refs_id_93d2d1f8 FOREIGN KEY (content_type_id) REFERENCES django_content_type (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS django_site (
   id int(11) NOT NULL AUTO_INCREMENT,
   domain varchar(100) NOT NULL,
   name varchar(50) NOT NULL,
   PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS fpr_format (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -1074,7 +1074,7 @@ CREATE TABLE IF NOT EXISTS fpr_format (
   slug varchar(50) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS fpr_formatgroup (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -1083,7 +1083,7 @@ CREATE TABLE IF NOT EXISTS fpr_formatgroup (
   slug varchar(50) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS fpr_formatversion (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -1098,7 +1098,7 @@ CREATE TABLE IF NOT EXISTS fpr_formatversion (
   slug varchar(50) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE IF NOT EXISTS fpr_fprule (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -1111,7 +1111,7 @@ CREATE TABLE IF NOT EXISTS fpr_fprule (
   enabled tinyint(1) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS fpr_idcommand (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -1124,7 +1124,7 @@ CREATE TABLE IF NOT EXISTS fpr_idcommand (
   enabled tinyint(1) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS fpr_idrule (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -1137,7 +1137,7 @@ CREATE TABLE IF NOT EXISTS fpr_idrule (
   enabled tinyint(1) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+); 
 
 CREATE TABLE IF NOT EXISTS fpr_idtool (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -1148,7 +1148,7 @@ CREATE TABLE IF NOT EXISTS fpr_idtool (
   slug varchar(50) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE IF NOT EXISTS fpr_idtoolconfig (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -1162,7 +1162,7 @@ CREATE TABLE IF NOT EXISTS fpr_idtoolconfig (
   slug varchar(50) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS fpr_fpcommand (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -1181,7 +1181,7 @@ CREATE TABLE IF NOT EXISTS fpr_fpcommand (
   enabled tinyint(1) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS fpr_fpcommand_tool (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -1189,7 +1189,7 @@ CREATE TABLE IF NOT EXISTS fpr_fpcommand_tool (
   fptool_id int(11) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY fpr_fpcommand__fpcommand_id_1ef78061_uniq (fpcommand_id,fptool_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS fpr_fptool (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -1200,7 +1200,7 @@ CREATE TABLE IF NOT EXISTS fpr_fptool (
   slug varchar(50) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uuid (uuid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 CREATE TABLE IF NOT EXISTS south_migrationhistory (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -1208,5 +1208,5 @@ CREATE TABLE IF NOT EXISTS south_migrationhistory (
   migration varchar(255) NOT NULL,
   applied datetime NOT NULL,
   PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 -- /FPR admin additions

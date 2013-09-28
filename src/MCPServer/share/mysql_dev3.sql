@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS south_migrationhistory (
   migration varchar(255) NOT NULL,
   applied datetime NOT NULL,
   PRIMARY KEY (id)
-) ENGINE=InnoDB;
+) ;
 -- /FPR admin additions
 
 -- Issue 5575 FPR integration with Storage Service
