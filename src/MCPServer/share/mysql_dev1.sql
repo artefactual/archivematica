@@ -405,7 +405,7 @@ CREATE TABLE `FauxFileIDsMap` (
   `fileUUID` varchar(50) DEFAULT NULL,
   FOREIGN KEY (`fauxFileUUID`) REFERENCES `Files` (`fileUUID`),
   FOREIGN KEY (`fauxSIPUUID`) REFERENCES `SIPs` (`sipUUID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 -- --------------------------------------------------------------------------------------------------------------------------
 -- Add ability to generate a DIP from an AIP.
