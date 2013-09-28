@@ -51,7 +51,7 @@ def getFromRestAPI(url, params, verbose=False, auth=None):
 
 if __name__ == '__main__':
     parser = OptionParser()
-    parser.add_option("-u",  "--url", action="store", dest="url", default="http://fprserver/api/fpr/v1/file_id/")
+    parser.add_option("-u",  "--url", action="store", dest="url", default="http://192.241.212.80:8000/api/fpr/v2/format/")
     parser.add_option("-p",  "--postFields", action="store", dest="postFields", default='{"format":"json", "order_by":"lastmodified", "lastmodified__gte":"2012-10-10T10:00:00"}')
     parser.add_option("-v",  "--verbose", action="store_true", dest="verbose", default=False)
 

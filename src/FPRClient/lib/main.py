@@ -85,7 +85,7 @@ if __name__ == '__main__':
     maxLastUpdate = getMaxLastUpdate()
     maxLastUpdateAtStart = maxLastUpdate
     databaseInterface.runSQL("SET foreign_key_checks = 0;")
-    server = "http://fpr.archivematica.org:80"
+    server = "http://192.241.212.80:8000"
     for x in [
         ("CommandRelationships", server + "/fpr/api/v1/CommandRelationship/"),
         ("FileIDsBySingleID", server + "/fpr/api/v1/FileIDsBySingleID/"),
