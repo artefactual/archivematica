@@ -526,26 +526,28 @@ def connect_and_change_transfer_file_status(uuid, status):
         for row in rows:
             is_archive = False
 
-            for extension in SevenZipExtensions:
-                if row[1].lower().endswith(extension.lower()):
-                    is_archive = True
+            # the currentLocation may be NULL for archives, which should be ignored
+            if row[1] != None:
+                for extension in SevenZipExtensions:
+                    if row[1].lower().endswith(extension.lower()):
+                        is_archive = True
 
-            # archives end up getting expanded into individual files by microservices, so ignore them
-            # and ignore certain paths
-            ignored_paths = [
-                '%transferDirectory%metadata/manifest-sha512.txt',
-                '%transferDirectory%logs/BagIt/bagit.txt',
-                '%transferDirectory%logs/BagIt/bag-info.txt'
-            ]
-            if not is_archive and row[1] not in ignored_paths:
-                document_id = document_id_from_field_query(conn, 'transfers', ['transferfile'], 'fileuuid', row[0])
+                # archives end up getting expanded into individual files by microservices, so ignore them
+                # and ignore certain paths
+                ignored_paths = [
+                    '%transferDirectory%metadata/manifest-sha512.txt',
+                    '%transferDirectory%logs/BagIt/bagit.txt',
+                    '%transferDirectory%logs/BagIt/bag-info.txt'
+                ]
+                if not is_archive and row[1] not in ignored_paths:
+                    document_id = document_id_from_field_query(conn, 'transfers', ['transferfile'], 'fileuuid', row[0])
 
-                if document_id == None:
-                    print >>sys.stderr, 'Transfer file ', row[0], ' not found in index.'
-                    print 'Transfer file ' + row[0] + ' not found in index.'
-                    exit(1)
-                else:
-                    conn.update({'status': status}, 'transfers', 'transferfile', document_id)
+                    if document_id == None:
+                        print >>sys.stderr, 'Transfer file ', row[0], ' not found in index.'
+                        print 'Transfer file ' + row[0] + ' not found in index.'
+                        exit(1)
+                    else:
+                        conn.update({'status': status}, 'transfers', 'transferfile', document_id)
     return len(rows)
 
 def connect_and_remove_sip_transfer_files(uuid):
