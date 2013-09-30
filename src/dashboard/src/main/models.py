@@ -35,7 +35,7 @@ import main
 
 class UUIDPkField(UUIDField):
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('max_length', 50)
+        kwargs.setdefault('max_length', 36)
         kwargs['primary_key'] = True
         kwargs['db_column'] = 'pk'
         super(UUIDPkField, self).__init__(*args, **kwargs)
@@ -50,7 +50,7 @@ class DashboardSetting(models.Model):
 
 class Access(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    sipuuid = models.CharField(max_length=150, db_column='SIPUUID', blank=True)
+    sipuuid = models.CharField(max_length=36, db_column='SIPUUID', blank=True)
     # Qubit ID (slug) generated or preexisting if a new description was not created
     resource = models.TextField(db_column='resource', blank=True)
     # Before the UploadDIP micro-service is executed, a dialog shows up and ask the user
@@ -126,23 +126,23 @@ class DublinCore(models.Model):
 class MetadataAppliesToType(models.Model):
     id = UUIDPkField()
     description = models.CharField(max_length=50, db_column='description')
-    replaces = models.CharField(max_length=50, db_column='replaces')
+    replaces = models.CharField(max_length=36, db_column='replaces')
     lastmodified = models.DateTimeField(db_column='lastModified')
 
     class Meta:
         db_table = u'MetadataAppliesToTypes'
 
 class Job(models.Model):
-    jobuuid = models.CharField(max_length=150, primary_key=True, db_column='jobUUID')
-    jobtype = models.CharField(max_length=750, db_column='jobType', blank=True)
+    jobuuid = models.CharField(max_length=36, primary_key=True, db_column='jobUUID')
+    jobtype = models.CharField(max_length=250, db_column='jobType', blank=True)
     createdtime = models.DateTimeField(db_column='createdTime')
     createdtimedec = models.DecimalField(null=True, db_column='createdTimeDec', blank=True, max_digits=24, decimal_places=10)
-    directory = models.CharField(max_length=750, blank=True)
-    sipuuid = models.CharField(max_length=150, db_column='SIPUUID', blank=True)
-    unittype = models.CharField(max_length=150, db_column='unitType', blank=True)
-    currentstep = models.CharField(max_length=150, db_column='currentStep', blank=True)
-    microservicegroup = models.CharField(max_length=150, db_column='microserviceGroup', blank=True)
-    subjobof = models.CharField(max_length=50, db_column='subJobOf', blank=True)
+    directory = models.TextField(blank=True)
+    sipuuid = models.CharField(max_length=36, db_column='SIPUUID', blank=True)
+    unittype = models.CharField(max_length=36, db_column='unitType', blank=True)
+    currentstep = models.CharField(max_length=50, db_column='currentStep', blank=True)
+    microservicegroup = models.CharField(max_length=50, db_column='microserviceGroup', blank=True)
+    subjobof = models.CharField(max_length=36, db_column='subJobOf', blank=True)
     hidden = models.BooleanField(default=False, blank=False)
 
     class Meta:
@@ -156,7 +156,7 @@ class SIPManager(models.Manager):
             return False
 
 class SIP(models.Model):
-    uuid = models.CharField(max_length=150, primary_key=True, db_column='sipUUID')
+    uuid = models.CharField(max_length=36, primary_key=True, db_column='sipUUID')
     createdtime = models.DateTimeField(db_column='createdTime')
     currentpath = models.TextField(db_column='currentPath', blank=True)
     # ...
@@ -175,7 +175,7 @@ class TransferManager(models.Manager):
             return False
 
 class Transfer(models.Model):
-    uuid = models.CharField(max_length=150, primary_key=True, db_column='transferUUID')
+    uuid = models.CharField(max_length=36, primary_key=True, db_column='transferUUID')
     currentlocation = models.TextField(db_column='currentLocation')
     type = models.CharField(max_length=50, primary_key=True, db_column='type')
     accessionid = models.TextField(db_column='accessionID')
@@ -188,7 +188,7 @@ class Transfer(models.Model):
         db_table = u'Transfers'
 
 class File(models.Model):
-    uuid = models.CharField(max_length=150, primary_key=True, db_column='fileUUID')
+    uuid = models.CharField(max_length=36, primary_key=True, db_column='fileUUID')
     sip = models.ForeignKey(SIP, db_column='sipUUID', to_field = 'uuid')
     transfer = models.ForeignKey(Transfer, db_column='transferUUID', to_field = 'uuid')
     originallocation = models.TextField(db_column='originalLocation')
@@ -206,24 +206,24 @@ class FileFormatVersion(models.Model):
         db_table = u'FilesIdentifiedIDs'
 
 class FPRFileID(models.Model):
-    uuid = models.CharField(max_length=150, primary_key=True, db_column='pk')
+    uuid = models.CharField(max_length=36, primary_key=True, db_column='pk')
     description = models.TextField(db_column='description')
     validpreservationformat = models.IntegerField(null=True, db_column='validPreservationFormat', default=0)
     validaccessformat = models.IntegerField(null=True, db_column='validAccessFormat', default=0)
     fileidtype = models.CharField(null=True, max_length=50, db_column='fileIDType')
-    replaces = models.CharField(null=True, max_length=50, db_column='replaces')
+    replaces = models.CharField(null=True, max_length=36, db_column='replaces')
     lastmodified = models.DateTimeField(db_column='lastModified')
 
     class Meta:
         db_table = u'FileIDs'
 
 class Task(models.Model):
-    taskuuid = models.CharField(max_length=50, primary_key=True, db_column='taskUUID')
+    taskuuid = models.CharField(max_length=36, primary_key=True, db_column='taskUUID')
     job = models.ForeignKey(Job, db_column='jobuuid', to_field = 'jobuuid')
     createdtime = models.DateTimeField(db_column='createdTime')
-    fileuuid = models.CharField(max_length=50, db_column='fileUUID', blank=True)
+    fileuuid = models.CharField(max_length=36, db_column='fileUUID', blank=True)
     filename = models.CharField(max_length=100, db_column='fileName', blank=True)
-    execution = models.CharField(max_length=50, db_column='exec', blank=True)
+    execution = models.CharField(max_length=250, db_column='exec', blank=True)
     arguments = models.CharField(max_length=1000, blank=True)
     starttime = models.DateTimeField(db_column='startTime')
     client = models.CharField(max_length=50, blank=True)
@@ -427,7 +427,7 @@ class RightsStatementLinkingAgentIdentifier(models.Model):
 
 class MicroServiceChain(models.Model):
     id = UUIDPkField()
-    startinglink = models.CharField(max_length=50, db_column='startingLink')
+    startinglink = models.CharField(max_length=36, db_column='startingLink')
     description = models.TextField(db_column='description')
 
     class Meta:
@@ -435,8 +435,8 @@ class MicroServiceChain(models.Model):
 
 class MicroServiceChainLink(models.Model):
     id = UUIDPkField()
-    currenttask =  models.CharField(max_length=50, db_column='currentTask')
-    defaultnextchainlink = models.CharField(max_length=50, null=True, default=1, db_column='defaultNextChainLink')
+    currenttask =  models.CharField(max_length=36, db_column='currentTask')
+    defaultnextchainlink = models.CharField(max_length=36, null=True, default=1, db_column='defaultNextChainLink')
     defaultplaysound = models.IntegerField(null=True, db_column='defaultPlaySound')
     microservicegroup = models.TextField(db_column='microserviceGroup')
     reloadfilelist = models.IntegerField(default=1, db_column='reloadFileList')
@@ -450,9 +450,9 @@ class MicroServiceChainLink(models.Model):
 
 class MicroServiceChainLinkExitCode(models.Model):
     id = UUIDPkField()
-    microservicechainlink = models.CharField(max_length=50, db_column='microServiceChainLink')
+    microservicechainlink = models.CharField(max_length=36, db_column='microServiceChainLink')
     exitcode = models.IntegerField(db_column='exitCode')
-    nextmicroservicechainlink = models.CharField(max_length=50, db_column='nextMicroServiceChainLink')
+    nextmicroservicechainlink = models.CharField(max_length=36, db_column='nextMicroServiceChainLink')
     playsound = models.IntegerField(null=True, db_column='playSound')
     exitmessage = models.TextField(db_column='exitMessage')
 
@@ -461,15 +461,15 @@ class MicroServiceChainLinkExitCode(models.Model):
 
 class MicroServiceChainChoice(models.Model):
     id = UUIDPkField()
-    choiceavailableatlink = models.CharField(max_length=150, db_column='choiceAvailableAtLink')
-    chainavailable = models.CharField(max_length=50, db_column='chainAvailable')
+    choiceavailableatlink = models.CharField(max_length=36, db_column='choiceAvailableAtLink')
+    chainavailable = models.CharField(max_length=36, db_column='chainAvailable')
 
     class Meta:
         db_table = u'MicroServiceChainChoice'
 
 class MicroServiceChoiceReplacementDic(models.Model):
     id = UUIDPkField()
-    choiceavailableatlink = models.CharField(max_length=50, db_column='choiceAvailableAtLink')
+    choiceavailableatlink = models.CharField(max_length=36, db_column='choiceAvailableAtLink')
     description = models.TextField(db_column='description', verbose_name='Description')
     replacementdic = models.TextField(db_column='replacementDic', verbose_name='Configuration')
 

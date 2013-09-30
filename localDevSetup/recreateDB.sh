@@ -58,13 +58,9 @@ echo "Creating and populating MCP tables"
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_0.10;"
 ../src/MCPServer/share/mysql_dev.sh ${databaseName} ${dbpassword}
 # mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_dev1;"
-#$currentDir/../src/MCPServer/share/migration1.sh
 
 echo "Creating MCP Views"
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql2Views;"
-
-#echo "Creating and populating Transcoder Tables"
-#mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/transcoder/share/mysql;"
 
 dbpassword=""
 
@@ -74,4 +70,4 @@ echo -e "\e[6;32m${printGreen}\e[0m"
 
 #do initial FPR setup:
 echo "Insert FPR data dump"
-"${currentDir}/../src/FPRClient/share/putInitialFPR.sh"
+"${currentDir}/../src/MCPServer/share/mysql_fpr_dev.sh"

@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS `Accesses`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Accesses` (
   `pk` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `SIPUUID` varchar(50) DEFAULT NULL,
+  `SIPUUID` varchar(36) DEFAULT NULL,
   `target` longtext,
   `resource` longtext,
   `status` longtext,
@@ -42,9 +42,9 @@ DROP TABLE IF EXISTS `MetadataAppliesToTypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `MetadataAppliesToTypes` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `description` varchar(50) DEFAULT NULL,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `MetadataAppliesToTypes` (`pk`)
@@ -331,10 +331,10 @@ DROP TABLE IF EXISTS `Tasks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Tasks` (
-  `taskUUID` varchar(50) NOT NULL,
-  `jobUUID` varchar(50) DEFAULT NULL,
+  `taskUUID` varchar(36) NOT NULL,
+  `jobUUID` varchar(36) DEFAULT NULL,
   `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `fileUUID` varchar(50) DEFAULT NULL,
+  `fileUUID` varchar(36) DEFAULT NULL,
   `fileName` longtext,
   `exec` varchar(250) DEFAULT NULL,
   `arguments` varchar(1000) DEFAULT NULL,
@@ -361,10 +361,10 @@ DROP TABLE IF EXISTS `Sounds`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Sounds` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `description` longtext,
   `fileLocation` longtext,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `Sounds` (`pk`)
@@ -374,9 +374,9 @@ DROP TABLE IF EXISTS `TaskTypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `TaskTypes` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `description` longtext,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `TaskTypes` (`pk`)
@@ -386,11 +386,11 @@ DROP TABLE IF EXISTS `TasksConfigs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `TasksConfigs` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
-  `taskType` varchar(50) DEFAULT NULL,
-  `taskTypePKReference` varchar(50) DEFAULT NULL,
+  `pk` varchar(36) NOT NULL DEFAULT '',
+  `taskType` varchar(36) DEFAULT NULL,
+  `taskTypePKReference` varchar(36) DEFAULT NULL,
   `description` longtext,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `TasksConfigs` (`pk`),
@@ -402,14 +402,14 @@ DROP TABLE IF EXISTS `MicroServiceChainLinks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `MicroServiceChainLinks` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
-  `currentTask` varchar(50) DEFAULT NULL,
-  `defaultNextChainLink` varchar(50) DEFAULT NULL,
-  `defaultPlaySound` varchar(50) DEFAULT NULL,
+  `pk` varchar(36) NOT NULL DEFAULT '',
+  `currentTask` varchar(36) DEFAULT NULL,
+  `defaultNextChainLink` varchar(36) DEFAULT NULL,
+  `defaultPlaySound` varchar(36) DEFAULT NULL,
   `microserviceGroup` varchar(50) DEFAULT NULL,
   `reloadFileList` tinyint(1) DEFAULT '1',
   `defaultExitMessage` varchar(50) DEFAULT 'Failed',
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `MicroServiceChainLinks` (`pk`),
@@ -425,9 +425,9 @@ DROP TABLE IF EXISTS `Transfers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Transfers` (
-  `transferUUID` varchar(50) NOT NULL,
+  `transferUUID` varchar(36) NOT NULL,
   `currentLocation` longtext,
-  `magicLink` varchar(50) DEFAULT NULL,
+  `magicLink` varchar(36) DEFAULT NULL,
   `magicLinkExitMessage` varchar(50) DEFAULT 'Completed successfully',
   `type` varchar(50) DEFAULT NULL,
   `accessionID` longtext,
@@ -445,10 +445,10 @@ DROP TABLE IF EXISTS `SIPs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `SIPs` (
-  `sipUUID` varchar(50) NOT NULL,
+  `sipUUID` varchar(36) NOT NULL,
   `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `currentPath` longtext,
-  `magicLink` varchar(50) DEFAULT NULL,
+  `magicLink` varchar(36) DEFAULT NULL,
   `magicLinkExitMessage` varchar(50) DEFAULT 'Completed successfully',
   `hidden` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`sipUUID`),
@@ -460,17 +460,17 @@ DROP TABLE IF EXISTS `Files`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Files` (
-  `fileUUID` varchar(50) NOT NULL,
+  `fileUUID` varchar(36) NOT NULL,
   `originalLocation` longtext,
   `currentLocation` longtext,
-  `sipUUID` varchar(50) DEFAULT NULL,
-  `transferUUID` varchar(50) DEFAULT NULL,
+  `sipUUID` varchar(36) DEFAULT NULL,
+  `transferUUID` varchar(36) DEFAULT NULL,
   `removedTime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `enteredSystem` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fileSize` bigint(20) unsigned DEFAULT NULL,
   `checksum` varchar(100) DEFAULT NULL,
   `fileGrpUse` varchar(50) DEFAULT 'Original',
-  `fileGrpUUID` varchar(50) DEFAULT NULL,
+  `fileGrpUUID` varchar(36) DEFAULT NULL,
   `label` longtext,
   PRIMARY KEY (`fileUUID`),
   KEY `currentLocation` (`currentLocation`(255)) USING BTREE,
@@ -484,7 +484,7 @@ DROP TABLE IF EXISTS `FilesCharacterizationOutputs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `FPCommandOutput` (
-  `fileUUID` varchar(50) NOT NULL,
+  `fileUUID` varchar(36) NOT NULL,
   `content` longtext,
   `ruleUUID` varchar(36) NOT NULL,
   PRIMARY KEY (`fileUUID`),
@@ -497,7 +497,7 @@ DROP TABLE IF EXISTS `FilesIDs`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `FilesIDs` (
   `pk` int(11) NOT NULL AUTO_INCREMENT,
-  `fileUUID` varchar(50) DEFAULT NULL,
+  `fileUUID` varchar(36) DEFAULT NULL,
   `formatName` longtext,
   `formatVersion` longtext,
   `formatRegistryName` longtext,
@@ -512,8 +512,8 @@ DROP TABLE IF EXISTS `Events`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Events` (
   `pk` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `fileUUID` varchar(50) DEFAULT NULL,
-  `eventIdentifierUUID` varchar(50) DEFAULT NULL,
+  `fileUUID` varchar(36) DEFAULT NULL,
+  `eventIdentifierUUID` varchar(36) DEFAULT NULL,
   `eventType` longtext,
   `eventDateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `eventDetail` longtext,
@@ -530,9 +530,9 @@ DROP TABLE IF EXISTS `Derivations`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Derivations` (
   `pk` bigint(20) NOT NULL AUTO_INCREMENT,
-  `sourceFileUUID` varchar(50) DEFAULT NULL,
-  `derivedFileUUID` varchar(50) DEFAULT NULL,
-  `relatedEventUUID` varchar(50) DEFAULT NULL,
+  `sourceFileUUID` varchar(36) DEFAULT NULL,
+  `derivedFileUUID` varchar(36) DEFAULT NULL,
+  `relatedEventUUID` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`pk`),
   KEY `sourceFileUUID` (`sourceFileUUID`),
   KEY `derivedFileUUID` (`derivedFileUUID`),
@@ -544,13 +544,13 @@ DROP TABLE IF EXISTS `MicroServiceChainLinksExitCodes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `MicroServiceChainLinksExitCodes` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
-  `microServiceChainLink` varchar(50) DEFAULT NULL,
+  `pk` varchar(36) NOT NULL DEFAULT '',
+  `microServiceChainLink` varchar(36) DEFAULT NULL,
   `exitCode` int(11) DEFAULT '0',
-  `nextMicroServiceChainLink` varchar(50) DEFAULT NULL,
-  `playSound` varchar(50) DEFAULT NULL,
+  `nextMicroServiceChainLink` varchar(36) DEFAULT NULL,
+  `playSound` varchar(36) DEFAULT NULL,
   `exitMessage` varchar(50) DEFAULT 'Completed successfully',
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `MicroServiceChainLinksExitCodes` (`pk`),
@@ -566,18 +566,18 @@ DROP TABLE IF EXISTS `Jobs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Jobs` (
-  `jobUUID` varchar(50) NOT NULL,
+  `jobUUID` varchar(36) NOT NULL,
   `jobType` varchar(250) DEFAULT NULL,
   `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `createdTimeDec` decimal(24,10) NOT NULL DEFAULT '0.0000000000',
   `directory` varchar(250) DEFAULT NULL,
-  `SIPUUID` varchar(50) DEFAULT NULL,
+  `SIPUUID` varchar(36) DEFAULT NULL,
   `unitType` varchar(50) DEFAULT NULL,
   `currentStep` varchar(50) DEFAULT NULL,
   `microserviceGroup` varchar(50) DEFAULT NULL,
   `hidden` tinyint(1) NOT NULL DEFAULT '0',
-  `MicroServiceChainLinksPK` varchar(50) DEFAULT NULL,
-  `subJobOf` varchar(50) DEFAULT NULL,
+  `MicroServiceChainLinksPK` varchar(36) DEFAULT NULL,
+  `subJobOf` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`jobUUID`),
   KEY `MicroServiceChainLinksPK` (`MicroServiceChainLinksPK`),
   CONSTRAINT `Jobs_ibfk_1` FOREIGN KEY (`MicroServiceChainLinksPK`) REFERENCES `MicroServiceChainLinks` (`pk`)
@@ -587,10 +587,10 @@ DROP TABLE IF EXISTS `MicroServiceChains`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `MicroServiceChains` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
-  `startingLink` varchar(50) DEFAULT NULL,
+  `pk` varchar(36) NOT NULL DEFAULT '',
+  `startingLink` varchar(36) DEFAULT NULL,
   `description` longtext,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `MicroServiceChains` (`pk`),
@@ -602,10 +602,10 @@ DROP TABLE IF EXISTS `MicroServiceChainChoice`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `MicroServiceChainChoice` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
-  `choiceAvailableAtLink` varchar(50) DEFAULT NULL,
-  `chainAvailable` varchar(50) DEFAULT NULL,
-  `replaces` varchar(50) DEFAULT NULL,
+  `pk` varchar(36) NOT NULL DEFAULT '',
+  `choiceAvailableAtLink` varchar(36) DEFAULT NULL,
+  `chainAvailable` varchar(36) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `MicroServiceChainChoice` (`pk`),
@@ -619,11 +619,11 @@ DROP TABLE IF EXISTS `MicroServiceChoiceReplacementDic`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `MicroServiceChoiceReplacementDic` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
-  `choiceAvailableAtLink` varchar(50) DEFAULT NULL,
+  `pk` varchar(36) NOT NULL DEFAULT '',
+  `choiceAvailableAtLink` varchar(36) DEFAULT NULL,
   `description` longtext,
   `replacementDic` longtext,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `MicroServiceChoiceReplacementDic` (`pk`),
@@ -635,9 +635,9 @@ DROP TABLE IF EXISTS `WatchedDirectoriesExpectedTypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `WatchedDirectoriesExpectedTypes` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `description` longtext,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `WatchedDirectoriesExpectedTypes` (`pk`)
@@ -647,12 +647,12 @@ DROP TABLE IF EXISTS `WatchedDirectories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `WatchedDirectories` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `watchedDirectoryPath` longtext,
-  `chain` varchar(50) DEFAULT NULL,
+  `chain` varchar(36) DEFAULT NULL,
   `onlyActOnDirectories` tinyint(1) DEFAULT '1',
-  `expectedType` varchar(50) DEFAULT NULL,
-  `replaces` varchar(50) DEFAULT NULL,
+  `expectedType` varchar(36) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `WatchedDirectories` (`pk`),
@@ -666,7 +666,7 @@ DROP TABLE IF EXISTS `StandardTasksConfigs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `StandardTasksConfigs` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `filterFileEnd` varchar(50) DEFAULT NULL,
   `filterFileStart` varchar(50) DEFAULT NULL,
   `filterSubDir` varchar(50) DEFAULT NULL,
@@ -675,7 +675,7 @@ CREATE TABLE `StandardTasksConfigs` (
   `standardErrorFile` varchar(250) DEFAULT NULL,
   `execute` varchar(250) DEFAULT NULL,
   `arguments` longtext,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `StandardTasksConfigs` (`pk`)
@@ -685,9 +685,9 @@ DROP TABLE IF EXISTS `TasksConfigsAssignMagicLink`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `TasksConfigsAssignMagicLink` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `execute` varchar(250) DEFAULT NULL,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `TasksConfigsAssignMagicLink` (`pk`),
@@ -699,10 +699,10 @@ DROP TABLE IF EXISTS `TasksConfigsStartLinkForEachFile`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `TasksConfigsStartLinkForEachFile` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `filterSubDir` varchar(50) DEFAULT NULL,
   `execute` varchar(250) DEFAULT NULL,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `TasksConfigsStartLinkForEachFile` (`pk`),
@@ -714,12 +714,12 @@ DROP TABLE IF EXISTS `UnitVariables`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `UnitVariables` (
-  `pk` varchar(50) NOT NULL,
+  `pk` varchar(36) NOT NULL,
   `unitType` varchar(50) DEFAULT NULL,
-  `unitUUID` varchar(50) DEFAULT NULL,
+  `unitUUID` varchar(36) DEFAULT NULL,
   `variable` longtext,
   `variableValue` longtext,
-  `microServiceChainLink` varchar(50) DEFAULT NULL,
+  `microServiceChainLink` varchar(36) DEFAULT NULL,
   `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedTime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`pk`),
@@ -731,10 +731,10 @@ DROP TABLE IF EXISTS `TasksConfigsSetUnitVariable`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `TasksConfigsSetUnitVariable` (
-  `pk` varchar(50) NOT NULL,
+  `pk` varchar(36) NOT NULL,
   `variable` longtext,
   `variableValue` longtext,
-  `microServiceChainLink` varchar(50) DEFAULT NULL,
+  `microServiceChainLink` varchar(36) DEFAULT NULL,
   `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedTime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`pk`),
@@ -746,10 +746,10 @@ DROP TABLE IF EXISTS `TasksConfigsUnitVariableLinkPull`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `TasksConfigsUnitVariableLinkPull` (
-  `pk` varchar(50) NOT NULL,
+  `pk` varchar(36) NOT NULL,
   `variable` longtext,
   `variableValue` longtext,
-  `defaultMicroServiceChainLink` varchar(50) DEFAULT NULL,
+  `defaultMicroServiceChainLink` varchar(36) DEFAULT NULL,
   `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedTime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`pk`),
@@ -2234,9 +2234,9 @@ DROP TABLE IF EXISTS `CommandTypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `CommandTypes` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `type` text,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`),
@@ -2247,9 +2247,9 @@ DROP TABLE IF EXISTS `CommandClassifications`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `CommandClassifications` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `classification` text,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`),
@@ -2260,9 +2260,9 @@ DROP TABLE IF EXISTS `CommandsSupportedBy`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `CommandsSupportedBy` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `description` text,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`),
@@ -2273,17 +2273,17 @@ DROP TABLE IF EXISTS `Commands`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Commands` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `commandUsage` enum('command','verification','eventDetail') DEFAULT NULL,
-  `commandType` varchar(50) DEFAULT NULL,
-  `verificationCommand` varchar(50) DEFAULT NULL,
+  `commandType` varchar(36) DEFAULT NULL,
+  `verificationCommand` varchar(36) DEFAULT NULL,
   `command` longtext,
   `outputLocation` text,
-  `eventDetailCommand` varchar(50) DEFAULT NULL,
+  `eventDetailCommand` varchar(36) DEFAULT NULL,
   `description` longtext,
-  `supportedBy` varchar(50) DEFAULT NULL,
+  `supportedBy` varchar(36) DEFAULT NULL,
   `outputFileFormat` text,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`),
@@ -2302,9 +2302,9 @@ DROP TABLE IF EXISTS `FileIDTypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `FileIDTypes` (
-  `pk` varchar(50) NOT NULL,
+  `pk` varchar(36) NOT NULL,
   `description` longtext,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`)
@@ -2314,12 +2314,12 @@ DROP TABLE IF EXISTS `FileIDs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `FileIDs` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `description` text,
   `validPreservationFormat` tinyint(1) DEFAULT '0',
   `validAccessFormat` tinyint(1) DEFAULT '0',
-  `fileIDType` varchar(50) DEFAULT NULL,
-  `replaces` varchar(50) DEFAULT NULL,
+  `fileIDType` varchar(36) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`),
@@ -2332,15 +2332,15 @@ DROP TABLE IF EXISTS `CommandRelationships`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `CommandRelationships` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
-  `commandClassification` varchar(50) DEFAULT NULL,
-  `command` varchar(50) DEFAULT NULL,
-  `fileID` varchar(50) DEFAULT NULL,
+  `pk` varchar(36) NOT NULL DEFAULT '',
+  `commandClassification` varchar(36) DEFAULT NULL,
+  `command` varchar(36) DEFAULT NULL,
+  `fileID` varchar(36) DEFAULT NULL,
   `GroupMember` int(10) unsigned DEFAULT '0',
   `countAttempts` int(10) unsigned DEFAULT '0',
   `countOK` int(10) unsigned DEFAULT '0',
   `countNotOK` int(10) unsigned DEFAULT '0',
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`),
@@ -2357,9 +2357,9 @@ DROP TABLE IF EXISTS `Groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Groups` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `description` text,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`),
@@ -2370,10 +2370,10 @@ DROP TABLE IF EXISTS `FileIDGroupMembers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `FileIDGroupMembers` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
-  `fileID` varchar(50) DEFAULT NULL,
-  `groupID` varchar(50) DEFAULT NULL,
-  `replaces` varchar(50) DEFAULT NULL,
+  `pk` varchar(36) NOT NULL DEFAULT '',
+  `fileID` varchar(36) DEFAULT NULL,
+  `groupID` varchar(36) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`),
@@ -2389,9 +2389,9 @@ DROP TABLE IF EXISTS `SubGroups`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `SubGroups` (
   `pk` int(11) NOT NULL AUTO_INCREMENT,
-  `parentGroupID` varchar(50) DEFAULT NULL,
-  `childGroupID` varchar(50) DEFAULT NULL,
-  `replaces` varchar(50) DEFAULT NULL,
+  `parentGroupID` varchar(36) DEFAULT NULL,
+  `childGroupID` varchar(36) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`),
@@ -2405,10 +2405,10 @@ DROP TABLE IF EXISTS `DefaultCommandsForClassifications`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `DefaultCommandsForClassifications` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
-  `MicroserviceChainLink` varchar(50) DEFAULT NULL,
-  `forClassification` varchar(50) DEFAULT NULL,
-  `replaces` varchar(50) DEFAULT NULL,
+  `pk` varchar(36) NOT NULL DEFAULT '',
+  `MicroserviceChainLink` varchar(36) DEFAULT NULL,
+  `forClassification` varchar(36) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `enabled` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`pk`),
@@ -2423,10 +2423,10 @@ DROP TABLE IF EXISTS `FileIDsBySingleID`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `FileIDsBySingleID` (
-  `pk` varchar(50) NOT NULL,
-  `fileID` varchar(50) DEFAULT NULL,
+  `pk` varchar(36) NOT NULL,
+  `fileID` varchar(36) DEFAULT NULL,
   `id` text,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `tool` text,
   `toolVersion` text,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2443,8 +2443,8 @@ DROP TABLE IF EXISTS `FilesIdentifiedIDs`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `FilesIdentifiedIDs` (
   `pk` int(11) NOT NULL AUTO_INCREMENT,
-  `fileUUID` varchar(50) DEFAULT NULL,
-  `fileID` varchar(50) DEFAULT NULL,
+  `fileUUID` varchar(36) DEFAULT NULL,
+  `fileID` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`pk`),
   KEY `fileUUID` (`fileUUID`),
   KEY `fileID` (`fileID`),
@@ -2630,9 +2630,9 @@ DROP TABLE IF EXISTS `SourceDirectories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `SourceDirectories` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `path` longtext,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `SourceDirectories` (`pk`)
@@ -2653,9 +2653,9 @@ DROP TABLE IF EXISTS `StorageDirectories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `StorageDirectories` (
-  `pk` varchar(50) NOT NULL DEFAULT '',
+  `pk` varchar(36) NOT NULL DEFAULT '',
   `path` longtext,
-  `replaces` varchar(50) DEFAULT NULL,
+  `replaces` varchar(36) DEFAULT NULL,
   `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pk`),
   KEY `StorageDirectories` (`pk`)

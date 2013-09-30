@@ -400,9 +400,9 @@ INSERT INTO WatchedDirectories (pk, watchedDirectoryPath, chain, onlyActOnDirect
 DROP TABLE IF EXISTS FauxFileIDsMap;
 CREATE TABLE `FauxFileIDsMap` (
   `pk` int(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `fauxSIPUUID` varchar(50) DEFAULT NULL,
-  `fauxFileUUID` varchar(50) DEFAULT NULL,
-  `fileUUID` varchar(50) DEFAULT NULL,
+  `fauxSIPUUID` varchar(36) DEFAULT NULL,
+  `fauxFileUUID` varchar(36) DEFAULT NULL,
+  `fileUUID` varchar(36) DEFAULT NULL,
   FOREIGN KEY (`fauxFileUUID`) REFERENCES `Files` (`fileUUID`),
   FOREIGN KEY (`fauxSIPUUID`) REFERENCES `SIPs` (`sipUUID`)
 );
@@ -934,7 +934,7 @@ CREATE TABLE Reports (
   content LONGTEXT,
   created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (pk)
-)  ;
+);
 -- /Issue 1929
 
 -- Issue 5484
