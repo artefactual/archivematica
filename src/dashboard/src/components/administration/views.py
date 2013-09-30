@@ -191,7 +191,7 @@ def storage(request):
     except:
         messages.warning(request, 'Error retrieving locations: is the storage server running? Please contact an administrator.')
 
-    system_directory_description = 'Available transfer source'
+    system_directory_description = 'Available storage'
     return render(request, 'administration/locations.html', locals())
 
 def sources(request):
