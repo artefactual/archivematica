@@ -531,7 +531,13 @@ def connect_and_change_transfer_file_status(uuid, status):
                     is_archive = True
 
             # archives end up getting expanded into individual files by microservices, so ignore them
-            if not is_archive:
+            # and ignore certain paths
+            ignored_paths = [
+                '%transferDirectory%metadata/manifest-sha512.txt',
+                '%transferDirectory%logs/BagIt/bagit.txt',
+                '%transferDirectory%logs/BagIt/bag-info.txt'
+            ]
+            if not is_archive and row[1] not in ignored_paths:
                 document_id = document_id_from_field_query(conn, 'transfers', ['transferfile'], 'fileuuid', row[0])
 
                 if document_id == None:
