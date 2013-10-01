@@ -81,7 +81,7 @@ def executeFPRule(gearman_worker, gearman_job):
         traceback.print_exc(file=sys.stdout)
         print >>sys.stderr, "Execution failed:", ose
         archivematicaClient.printOutputLock.release()
-        output = ["Config Error!", ose.__str__() ]
+        output = ["Config Error!", traceback.format_exc()]
         exitCode = 1
         return cPickle.dumps({"exitCode" : exitCode, "stdOut": output[0], "stdError": output[1]})
     except:
@@ -90,7 +90,7 @@ def executeFPRule(gearman_worker, gearman_job):
         print sys.exc_info().__str__()
         print "Unexpected error:", sys.exc_info()[0]
         archivematicaClient.printOutputLock.release()
-        output = ["", sys.exc_info().__str__()]
+        output = ["", traceback.format_exc()]
         return cPickle.dumps({"exitCode" : -1, "stdOut": output[0], "stdError": output[1]})
 
 
