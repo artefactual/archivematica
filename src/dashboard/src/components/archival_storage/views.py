@@ -220,8 +220,9 @@ def aip_delete(request, uuid):
     return render(request, 'archival_storage/delete_request_results.html', locals())
 
 def aip_download(request, uuid):
-    aip = elasticSearchFunctions.connect_and_get_aip_data(uuid)
-    return helpers.send_file_or_return_error_response(request, aip.filePath, 'AIP')
+    server_url = helpers.get_setting('storage_service_url', None)
+    redirect_url = server_url + 'api/v1/file/' + uuid + '/download'
+    return HttpResponseRedirect(redirect_url)
 
 def aip_file_download(request, uuid):
     # get file basename
