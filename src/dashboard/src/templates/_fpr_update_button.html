@@ -4,21 +4,29 @@
 </div>
 
 <script>
-$('#fpr_update_button').click(function() {
-  $('#fpr_update_button').hide();
-  $('#fpr_update_status_indicator').show();
-  $.ajax({
-    url: '/installer/fprdownload/',
-    type: 'GET',
-    cache: false,
-    success: function(results) {
-      alert(results['response']);
-      window.location = '/fpr/format';
-    },
-    error: function(results) {
-      alert('Error updating FPR.');
-      console.log(results);
-    }
+$(document).ready(function() {
+  // allow manual FPR updating
+  $('#fpr_update_button').click(function() {
+    $('#fpr_update_button').hide();
+    $('#fpr_update_status_indicator').show();
+    $.ajax({
+      url: '/installer/fprdownload/',
+      type: 'GET',
+      cache: false,
+      success: function(results) {
+        alert(results['response']);
+        window.location = '/fpr/format';
+      },
+      error: function(results) {
+        alert('Error updating FPR.');
+        console.log(results);
+      }
+    });
+  });
+
+  // allow welcome message to be closed
+  $('button.close').click(function () {
+    $(this).parent().remove();
   });
 });
 </script>
