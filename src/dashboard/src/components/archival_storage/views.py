@@ -78,7 +78,7 @@ def search(request):
 
     # set paging variables
     if not file_mode:
-        items_per_page = 2
+        items_per_page = 10
     else:
         items_per_page = 20
 
@@ -322,7 +322,9 @@ def total_size_of_aips(conn):
     total_size = '{0:.2f}'.format(total_size)
     return total_size
 
-def list_display(request, current_page_number=1):
+def list_display(request):
+    current_page_number = request.GET.get('page', 1)
+
     form = forms.StorageSearchForm()
 
     # get count of AIP files
@@ -358,7 +360,7 @@ def list_display(request, current_page_number=1):
         aips_deleted_or_pending_deletion.append(deleted_aip['uuid'])
 
     # get page of AIPs
-    items_per_page = 2
+    items_per_page = 10
     start          = (int(current_page_number) - 1) * items_per_page
 
     aipResults = conn.search(
