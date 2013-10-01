@@ -54,7 +54,7 @@ class Command:
         self.opts = opts
         sql = """SELECT fpr_fpcommand.script_type, fpr_fpcommand.verification_command_id, fpr_fpcommand.event_detail_command_id, fpr_fpcommand.command, fpr_fpcommand.output_location, fpr_fpcommand.description, fpr_formatversion.description
         FROM fpr_fpcommand
-        JOIN fpr_formatversion ON fpr_fpcommand.output_format_id = fpr_formatversion.uuid
+        LEFT JOIN fpr_formatversion ON fpr_fpcommand.output_format_id = fpr_formatversion.uuid
         WHERE fpr_fpcommand.uuid = '{}';""".format(commandID)
         c, sqlLock = databaseInterface.querySQL(sql)
         if c.rowcount == 0L:
