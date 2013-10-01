@@ -24,7 +24,7 @@ import os
 import sys
 import uuid
 
-from getFromRestAPI import getFromRestAPI
+import getFromRestAPI
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
@@ -35,7 +35,7 @@ if path not in sys.path:
     sys.path.append(path)
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-import django.db.models.fields
+import django.db
 
 from annoying.functions import get_object_or_None
 
@@ -50,6 +50,7 @@ class FPRClient(object):
         self.fprserver = fprserver
         self.maxLastUpdate = None
         self.maxLastUpdateUUID = None
+        self.count_rules_updated = 0
 
     def getMaxLastUpdate(self):
         sql = """SELECT pk, variableValue FROM UnitVariables WHERE unitType = 'FPR' AND unitUUID = 'Client' AND variable = 'maxLastUpdate' """
@@ -101,7 +102,8 @@ class FPRClient(object):
             # TODO handle pagination of results for FPRServer
             #  Should handle pagination here, rather than creating big array
             #  of entries - possibly use generator function?
-            entries = getFromRestAPI(self.fprserver, resource, params, verbose=False, auth=None)
+            entries = getFromRestAPI.getFromRestAPI(self.fprserver, resource, params, verbose=False, auth=None)
+
             for entry in entries:
                 # Update lastmodified if exists
                 if 'lastmodified' in entry and entry['lastmodified'] > self.maxLastUpdate:
@@ -150,9 +152,9 @@ class FPRClient(object):
                 for field in m2m:
                     del valid_fields[field.name]
 
-                # print 'valid_fields', valid_fields
                 # Create
                 obj = table.objects.create(**valid_fields)
+                self.count_rules_updated += 1
 
                 # Update enabled on self and replaces
                 if hasattr(table, 'replaces') and obj.replaces:
@@ -164,19 +166,27 @@ class FPRClient(object):
                         obj.save()
                 print 'Added:', obj
         databaseInterface.runSQL("SET foreign_key_checks = 1;")
+        print 'maxLastUpdate at end', self.maxLastUpdate
         if self.maxLastUpdate != maxLastUpdateAtStart:
             self.setMaxLastUpdate()
-            print 'maxLastUpdate at end', self.maxLastUpdate
     
     def getUpdates(self):
         try:
             self.autoUpdateFPR()
-        except:
-            return "No updates at this time"
-        
-        return "Successfully updated FPR"
+        except django.db.utils.IntegrityError:
+            response = "Error updating FPR"
+        except getFromRestAPI.FPRConnectionError:
+            response = "Error connecting to FPR"
+        except Exception as e:
+            print e
+            response = 'Error updating FPR'
+        else:
+            if self.count_rules_updated == 0:
+                response = "No updates at this time"
+            elif self.count_rules_updated > 0:
+                response = "Successfully updated FPR: {} changes".format(self.count_rules_updated)
+        return response
         
 if __name__ == '__main__':
-    FPRClient().autoUpdateFPR()
-        
-        
+    ret = FPRClient().getUpdates()
+    print ret

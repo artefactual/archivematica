@@ -27,6 +27,9 @@ import json
 import requests
 import sys
 
+class FPRConnectionError(Exception):
+    pass
+
 def getFromRestAPI(url, resource, params, verbose=False, auth=None):
     # TOOD make this use slumber
     # How to dynamically set resource in api.resource.get()
@@ -37,7 +40,7 @@ def getFromRestAPI(url, resource, params, verbose=False, auth=None):
     if r.status_code != 200:
         print >>sys.stderr, "got error status code:", r.status_code, responses[r.status_code]
         print >>sys.stderr, "resource_url:", resource_url, "params:", params
-        raise Exception(r.status_code, responses[r.status_code])
+        raise FPRConnectionError(r.status_code, responses[r.status_code])
     if verbose:
         print r
         print r.headers['content-type']
