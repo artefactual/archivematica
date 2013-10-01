@@ -36,19 +36,8 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
     
     cursor = connection.cursor()
         
-    sql =  """
-    SELECT variableValue 
-    FROM UnitVariables 
-    WHERE unitType = 'SIP' 
-    AND variable = 'normalizationFileIdentificationToolIdentifierTypes' 
-    AND unitUUID = '{0}';
-    """.format(sipUUID)
+    # not fetching name of ID Tool, don't think we need it.
     
-    cursor.execute(sql)
-    
-    fileIDTypeUsed = cursor.fetchone()
-    fileIDTypeUsed = str(fileIDTypeUsed[0])
-    print "fileIDTypeUsed " + fileIDTypeUsed
     sql = """
     select
         CONCAT(a.currentLocation, ' ', a.fileUUID,' ', IFNULL(b.fileID, "")) AS 'pagingIndex', 
@@ -72,8 +61,8 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
             f.fileUUID,
             f.sipUUID, 
             f.originalLocation as location,
-            f.currentLocation, 
-            fid.pk as 'fileID',
+            f.currentLocation,
+            fid.uuid as 'fileID',
             fid.description, 
             fid.validAccessFormat AS 'already_in_access_format', 
             fid.validPreservationFormat AS 'already_in_preservation_format'
@@ -82,30 +71,25 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         Join
         FilesIdentifiedIDs fii on f.fileUUID = fii.fileUUID
         Join
-        FileIDs fid on fii.fileID = fid.pk 
-        Join
-        FileIDTypes on FileIDTypes.pk = fid.fileIDType
+        fpr_formatversion fid on fii.fileID = fid.uuid 
         where 
             f.fileGrpUse in ('original', 'service')
             and f.sipUUID = '{0}'
-            and ({1})
         ) a 
     Left Join
         (select
             cr.fileID,
             j.sipUUID,
-            max(if(cc.classification = 'access', t.taskUUID, null)) IS NOT NULL as access_normalization_attempted,
-            max(if(cc.classification = 'preservation', t.taskUUID, null)) IS NOT NULL as preservation_normalization_attempted,
-            max(if(cc.classification = 'access', t.taskUUID, null)) as access_normalization_task_uuid,
-            max(if(cc.classification = 'preservation', t.taskUUID, null)) as preservation_normalization_task_uuid,
-            max(if(cc.classification = 'access', t.exitCode, null)) != 0 AS access_normalization_failed,
-            max(if(cc.classification = 'preservation', t.exitCode, null)) != 0 AS preservation_normalization_failed,
-            max(if(cc.classification = 'access', t.exitCode, null)) as access_task_exitCode,
-            max(if(cc.classification = 'preservation', t.exitCode, null)) as preservation_task_exitCode
+            max(if(cr.purpose = 'access', t.taskUUID, null)) IS NOT NULL as access_normalization_attempted,
+            max(if(cr.purpose = 'preservation', t.taskUUID, null)) IS NOT NULL as preservation_normalization_attempted,
+            max(if(cr.purpose = 'access', t.taskUUID, null)) as access_normalization_task_uuid,
+            max(if(cr.purpose = 'preservation', t.taskUUID, null)) as preservation_normalization_task_uuid,
+            max(if(cr.purpose = 'access', t.exitCode, null)) != 0 AS access_normalization_failed,
+            max(if(cr.purpose = 'preservation', t.exitCode, null)) != 0 AS preservation_normalization_failed,
+            max(if(cr.purpose = 'access', t.exitCode, null)) as access_task_exitCode,
+            max(if(cr.purpose = 'preservation', t.exitCode, null)) as preservation_task_exitCode
         from 
-            CommandRelationships cr
-            Join
-            CommandClassifications cc on cr.commandClassification  = cc.pk
+            fpr_fprule cr
             Join 
             TasksConfigs tc on tc.taskTypePKReference = cr.pk
             join
@@ -126,7 +110,7 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         IF(b.preservation_normalization_attempted=0 AND a.already_in_preservation_format=0, 0, 1),
         fileName,
         fileID;
-    """.format(sipUUID, fileIDTypeUsed)
+    """.format(sipUUID)
     
     cursor.execute(sql)
     objects = helpers.dictfetchall(cursor)
