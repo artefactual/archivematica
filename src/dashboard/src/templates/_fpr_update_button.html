@@ -1,0 +1,24 @@
+<div id='fpr_update_button_container' style='float:right'>
+  <input id='fpr_update_button' type='button' class='btn' value='Update' />
+  <img id='fpr_update_status_indicator' src='/media/images/ajax-loader.gif' style='display:none' />
+</div>
+
+<script>
+$('#fpr_update_button').click(function() {
+  $('#fpr_update_button').hide();
+  $('#fpr_update_status_indicator').show();
+  $.ajax({
+    url: '/installer/fprdownload/',
+    type: 'GET',
+    cache: false,
+    success: function(results) {
+      alert(results['response']);
+      window.location = '/fpr/format';
+    },
+    error: function(results) {
+      alert('Error updating FPR.');
+      console.log(results);
+    }
+  });
+});
+</script>
