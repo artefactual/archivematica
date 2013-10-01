@@ -78,7 +78,7 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         ) a 
     Left Join
         (select
-            cr.fileID,
+            cr.format_id fileID,
             j.sipUUID,
             max(if(cr.purpose = 'access', t.taskUUID, null)) IS NOT NULL as access_normalization_attempted,
             max(if(cr.purpose = 'preservation', t.taskUUID, null)) IS NOT NULL as preservation_normalization_attempted,
@@ -91,7 +91,7 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         from 
             fpr_fprule cr
             Join 
-            TasksConfigs tc on tc.taskTypePKReference = cr.pk
+            TasksConfigs tc on tc.taskTypePKReference = cr.uuid
             join
             MicroServiceChainLinks ml on tc.pk = ml.currentTask
             Join
@@ -99,9 +99,9 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
             join
             Tasks t on t.jobUUID = j.jobUUID
         where 
-            cc.classification in ('preservation', 'access')
+            cr.purpose in ('preservation', 'access')
             and j.sipUUID = '{0}'
-        group by cr.fileID
+        group by cr.format_id
         ) b
     on a.fileID = b.fileID and a.sipUUID = b.sipUUID
     where a.sipUUID = '{0}'
