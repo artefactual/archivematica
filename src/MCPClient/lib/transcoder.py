@@ -39,6 +39,8 @@ def toStrFromUnicode(inputString, encoding='utf-8'):
         inputString = inputString.encode('utf-8')
     return inputString
 
+class CommandQueryFailed(Exception):
+    pass
 
 class Command:
     def __init__(self, commandID, replacementDic, onSuccess=None, opts=None):
@@ -55,9 +57,13 @@ class Command:
         JOIN fpr_formatversion ON fpr_fpcommand.output_format_id = fpr_formatversion.uuid
         WHERE fpr_fpcommand.uuid = '{}';""".format(commandID)
         c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        while row is not None:
-            row = [toStrFromUnicode(r) for r in row]
+        if c.rowcount == 0L:
+            raise CommandQueryFailed('Zero results retrieved for query: {s}'.format(s=sql))
+        # This should be impossible, since we're fetching on fpr_fpcommand.uuid
+        elif c.rowcount > 1L:
+            raise CommandQueryFailed('More than one result retrieved for query: {s}'.format(s=sql))
+        else:
+            row = [toStrFromUnicode(r) for r in c.fetchone()]
             ( # Extract all elements from row
                 self.type,
                 self.verificationCommand,
@@ -67,7 +73,6 @@ class Command:
                 self.description,
                 self.outputFormat,
             ) = row
-            row = c.fetchone()
         sqlLock.release()
 
         if self.verificationCommand:
