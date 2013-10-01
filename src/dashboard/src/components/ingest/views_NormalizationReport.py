@@ -64,8 +64,8 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
             f.currentLocation,
             fid.uuid as 'fileID',
             fid.description, 
-            fid.validAccessFormat AS 'already_in_access_format', 
-            fid.validPreservationFormat AS 'already_in_preservation_format'
+            fid.access_format AS 'already_in_access_format', 
+            fid.preservation_format AS 'already_in_preservation_format'
         from 
         Files f
         Join
