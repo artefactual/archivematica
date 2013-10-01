@@ -28,7 +28,7 @@ import tempfile
 from django.contrib import messages
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.template import RequestContext
 
@@ -249,22 +249,9 @@ def aip_file_download(request, uuid):
       file_basename
     )
 
-    #return HttpResponse('7za e -o' + temp_dir + ' ' + aip_filepath + ' ' + file_relative_path)
-
-    # extract file from AIP
-    command_data = [
-        '7za',
-        'e',
-        '-o' + temp_dir,
-        aip_filepath,
-        file_relative_path
-    ]
-
-    subprocess.call(command_data)
-
-    # send extracted file
-    extracted_file_path = os.path.join(temp_dir, file_basename)
-    return helpers.send_file(request, extracted_file_path)
+    server_url = helpers.get_setting('storage_service_url', None)
+    redirect_url = server_url + 'api/v1/file/' + aip.uuid + '/extract_file/?relative_path_to_file=' + file_relative_path
+    return HttpResponseRedirect(redirect_url)
 
 def send_thumbnail(request, fileuuid):
     # get AIP location to use to find root of AIP storage
