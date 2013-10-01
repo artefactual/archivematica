@@ -27,6 +27,12 @@ import subprocess
 import sys
 import tempfile
 import time
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
+logger.addHandler(logging.FileHandler('/tmp/qubit_upload.log', mode='a'))
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import requests
@@ -50,7 +56,7 @@ def hilite(string, status=True):
 
 # Print to stdout
 def log(message, access=None):
-    print "%s %s" % (PREFIX, hilite(message))
+    logger.error("%s %s" % (PREFIX, hilite(message)))
     if access:
         access.status = message
         access.save()
@@ -195,6 +201,7 @@ def start(data):
     # Auth and request!
     log("About to deposit to: %s" % data.url)
     access.statuscode = 13
+    access.resource = data.url
     access.save()
     auth = requests.auth.HTTPBasicAuth(data.email, data.password)
     response = requests.request('POST', data.url, auth=auth, headers=headers)
