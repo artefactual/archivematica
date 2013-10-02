@@ -11,33 +11,32 @@ path = '/usr/share/archivematica/dashboard'
 if path not in sys.path:
     sys.path.append(path)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-from fpr.models import IDToolConfig, IDRule, FormatVersion
+from fpr.models import IDCommand, IDRule, FormatVersion
 from main.models import FileFormatVersion, File
 
 
-def main(id_toolconfig, file_path, file_uuid):
-    print "IDToolConfig UUID:", id_toolconfig
-    if id_toolconfig == "None":
+def main(command_uuid, file_path, file_uuid):
+    print "IDCommand UUID:", command_uuid
+
+    if command_uuid == "None":
         print "Skipping file format identification"
         return 0
     try:
-        config = IDToolConfig.active.get(uuid=id_toolconfig)
-    except IDToolConfig.DoesNotExist:
-        sys.stderr.write("IDToolConfig with UUID {} does not exist.\n".format(id_toolconfig))
+        command = IDCommand.active.get(uuid=command_uuid)
+    except IDCommand.DoesNotExist:
+        sys.stderr.write("IDCommand with UUID {} does not exist.\n".format(command))
         return -1
-    command = config.command
-    print "IDCommand UUID:", command.uuid
     _, output, _ = executeOrRun(command.script_type, command.script, arguments=[file_path], printing=False)
     output = output.strip()
     print 'Command output:', output
     # PUIDs are the same regardless of tool, so PUID-producing tools don't have "rules" per se - we just
     # go straight to the FormatVersion table to see if there's a matching PUID
     try:
-        if config.config == 'PUID':
+        if command.config == 'PUID':
             version = FormatVersion.active.get(pronom_id=output)
         else:
-            version = IDRule.active.get(command_output=output, command=command.uuid)
-            version = version.format
+            rule = IDRule.active.get(command_output=output, command=command)
+            version = rule.format
     except (FormatVersion.DoesNotExist, IDRule.DoesNotExist, IDRule.MultipleObjectsReturned) as e:
         print >>sys.stderr, 'Error:', e
         return -1
@@ -50,9 +49,9 @@ def main(id_toolconfig, file_path, file_uuid):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Identify file formats.')
-    parser.add_argument('id_toolconfig', type=str, help='%IDCommand%')
+    parser.add_argument('idcommand', type=str, help='%IDCommand%')
     parser.add_argument('file_path', type=str, help='%relativeLocation%')
     parser.add_argument('file_uuid', type=str, help='%fileUUID%')
 
     args = parser.parse_args()
-    sys.exit(main(args.id_toolconfig, args.file_path, args.file_uuid))
+    sys.exit(main(args.idcommand, args.file_path, args.file_uuid))

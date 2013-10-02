@@ -51,6 +51,7 @@ class FPRClient(object):
         self.maxLastUpdate = None
         self.maxLastUpdateUUID = None
         self.count_rules_updated = 0
+        self.retry = {}
 
     def getMaxLastUpdate(self):
         sql = """SELECT pk, variableValue FROM UnitVariables WHERE unitType = 'FPR' AND unitUUID = 'Client' AND variable = 'maxLastUpdate' """
@@ -67,6 +68,71 @@ class FPRClient(object):
                 variableValue=self.maxLastUpdate
             )
         databaseInterface.runSQL(sql)
+
+    def addResource(self, fields, table):
+        """ Add an object with data `fields` to the model `table`.  Adds to
+        retry dictionary if it fails to be inserted because of an integrity
+        error so it can be retried. """
+        # Update lastmodified if exists
+        if 'lastmodified' in fields and fields['lastmodified'] > self.maxLastUpdate:
+            self.maxLastUpdate = fields['lastmodified']
+
+        # If an fields with this UUID exists, update enabled
+        obj = get_object_or_None(table, uuid=fields['uuid'])
+        if obj:
+            print 'Object already in DB:', get_object_or_None(table, uuid=fields['uuid'])
+            if not hasattr(table, 'replaces') and hasattr(table, 'enabled'):
+                obj.enabled = fields['enabled']
+                obj.save()
+            return
+        # Otherwise, new fields, need to add to table
+        # print 'fields', fields
+        # TastyPie doesn't like fields named format, so they're all fmt
+        if 'fmt' in fields:
+            fields['format'] = fields.pop('fmt')
+
+        # Only keep fields that are in the model
+        valid_fields = dict(
+            [ (k, v) for k, v in fields.iteritems()
+                if k in table._meta.get_all_field_names()
+            ])
+
+        # Convert foreign keys from URIs to just UUIDs
+        for field, value in valid_fields.iteritems():
+            if isinstance(value, basestring) and value.startswith('/fpr/api/'):
+                # Parse out UUID.  value.split gives
+                # ['', 'fpr', 'api', '<version>', '<resource>', '<uuid>', '']
+                uuid = value.split('/')[-2]
+                del valid_fields[field]
+                valid_fields[field+u"_id"] = uuid
+        # Insert FormatGroup for Formats if not exist
+        if table == models.Format:
+            if not get_object_or_None(
+                    models.FormatGroup,
+                    uuid=fields['group']['uuid']):
+                models.FormatGroup.objects.create(**fields['group'])
+            valid_fields['group_id'] = fields['group']['uuid']
+            del valid_fields['group']
+
+        # Create
+        try:
+            obj = table.objects.create(**valid_fields)
+        except django.db.utils.IntegrityError:
+            self.retry[table].append(valid_fields)
+            print 'Integrity error failed; will retry later'
+            return
+        self.count_rules_updated += 1
+
+        # Update enabled on self and replaces
+        if hasattr(table, 'replaces') and obj.replaces:
+            if obj.replaces.enabled:
+                obj.replaces.enabled = False
+                obj.replaces.save()
+            else:  # obj.replaces is disabled
+                obj.enabled = False
+                obj.save()
+        print 'Added:', obj
+
     
     def autoUpdateFPR(self):
         self.getMaxLastUpdate()
@@ -78,7 +144,6 @@ class FPRClient(object):
             (models.FormatVersion, 'format-version'),
             (models.IDTool, 'id-tool'),
             (models.IDCommand, 'id-command'),
-            (models.IDToolConfig, 'id-tool-config'),
             (models.IDRule, 'id-rule'),
             (models.FPTool, 'fp-tool'),
             (models.FPCommand, 'fp-command'),
@@ -104,58 +169,15 @@ class FPRClient(object):
             #  of entries - possibly use generator function?
             entries = getFromRestAPI.getFromRestAPI(self.fprserver, resource, params, verbose=False, auth=None)
 
+            self.retry[table] = []
             for entry in entries:
-                # Update lastmodified if exists
-                if 'lastmodified' in entry and entry['lastmodified'] > self.maxLastUpdate:
-                    self.maxLastUpdate = entry['lastmodified']
-
-                # If an entry with this UUID exists, update enabled
-                obj = get_object_or_None(table, uuid=entry['uuid'])
-                if obj:
-                    print 'Object already in DB:', get_object_or_None(table, uuid=entry['uuid'])
-                    if not hasattr(table, 'replaces') and hasattr(table, 'enabled'):
-                        obj.enabled = entry['enabled']
-                        obj.save()
-                    continue
-                # Otherwise, new entry, need to add to table
-
-                # TastyPie doesn't like fields named format, so they're all fmt
-                if 'fmt' in entry:
-                    entry['format'] = entry.pop('fmt')
-
-                # Only keep fields that are in the model
-                valid_fields = dict(
-                    [ (k, v) for k, v in entry.iteritems()
-                        if k in table._meta.get_all_field_names()
-                    ])
-
-                # Convert foreign keys from URIs to just UUIDs
-                for field, value in valid_fields.iteritems():
-                    if isinstance(value, basestring) and value.startswith('/fpr/api/'):
-                        # Parse out UUID.  value.split gives
-                        # ['', 'fpr', 'api', '<version>', '<resource>', '<uuid>', '']
-                        uuid = value.split('/')[-2]
-                        del valid_fields[field]
-                        valid_fields[field+u"_id"] = uuid
-                # Insert FormatGroup for Formats if not exist
-                if table == models.Format:
-                    if not get_object_or_None(
-                            models.FormatGroup,
-                            uuid=entry['group']['uuid']):
-                        models.FormatGroup.objects.create(**entry['group'])
-                    valid_fields['group_id'] = entry['group']['uuid']
-                    del valid_fields['group']
-
-                # Remove many-to-many fields, since they'll come down as their
-                # own tables and are complicated to handle here
-                m2m = table._meta.many_to_many
-                for field in m2m:
-                    del valid_fields[field.name]
-
+                self.addResource(entry, table)
+            print 'Retrying entries that fail because of foreign keys'
+            for entry in self.retry[table]:
+                print "Retrying:", entry
                 # Create
-                obj = table.objects.create(**valid_fields)
+                obj = table.objects.create(**entry)
                 self.count_rules_updated += 1
-
                 # Update enabled on self and replaces
                 if hasattr(table, 'replaces') and obj.replaces:
                     if obj.replaces.enabled:
@@ -165,6 +187,7 @@ class FPRClient(object):
                         obj.enabled = False
                         obj.save()
                 print 'Added:', obj
+
         databaseInterface.runSQL("SET foreign_key_checks = 1;")
         print 'maxLastUpdate at end', self.maxLastUpdate
         if self.maxLastUpdate != maxLastUpdateAtStart:

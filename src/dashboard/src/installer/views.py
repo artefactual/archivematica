@@ -134,7 +134,9 @@ def fprdownload(request):
     response_data = {}
 
     try:
-        fpr = FPRClient.FPRClient(django_settings.FPR_URL)
+        fprserver = django_settings.FPR_URL
+        logging.info("FPR Server URL: {}".format(fprserver))
+        fpr = FPRClient.FPRClient(fprserver)
         myresponse = fpr.getUpdates()
         response_data['response'] = myresponse
         response_data['result'] = 'success'
