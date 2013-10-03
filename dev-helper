@@ -139,17 +139,6 @@ function erase-indexes() {
   fi
 }
 
-function FPRClient() {
-  part="Include FPRClient pull"
-  echo -n "\"Would you like to ${part}?\" (y/N) "
-  read a
-  if [[ $a == "Y" || $a == "y" ]]; then
-    ./src/archivematicaCommon/lib/utilities/FPRClient/main.py 
-  else
-          echo "Not going to ${part}."
-  fi
-}
-
 function restart() {
   part="restart archivematica services"
   echo -n "\"Would you like to ${part}?\" (y/N) "
@@ -272,7 +261,6 @@ git-pull
 package-update
 recreate-db
 erase-indexes
-FPRClient
 restart
 update-sampledata
 export-sampledata
