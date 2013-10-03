@@ -128,6 +128,17 @@ function recreate-db() {
   fi
 }
 
+function erase-indexes() {
+  part="erase the ElasticSearch indexes"
+  echo -n "\"Would you like to ${part}?\" (y/N) "
+  read a
+  if [[ $a == "Y" || $a == "y" ]]; then
+          localDevSetup/eraseElasticSearchIndexes.py -f
+  else
+          echo "Not going to ${part}."
+  fi
+}
+
 function FPRClient() {
   part="Include FPRClient pull"
   echo -n "\"Would you like to ${part}?\" (y/N) "
@@ -260,6 +271,7 @@ fi
 git-pull
 package-update
 recreate-db
+erase-indexes
 FPRClient
 restart
 update-sampledata
