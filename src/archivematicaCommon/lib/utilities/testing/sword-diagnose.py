@@ -46,12 +46,12 @@ if check_for_string_in_web_request(
     print "Please visit http://127.0.0.1/ica-atom to complete installation."
     exit(1)
 
-# Make sure qubit-sword process is running
+# Make sure atom-worker process is running
 processData = subprocess.check_output(['ps', 'aux'])
-if not 'gearman:worker' in processData:
+if not 'tools:gearman-worker' in processData:
     print "The sword service doesn't seem to be running."
     print
-    print "Enter 'sudo service qubit-sword start' to start the service."
+    print "Enter 'sudo service atom-worker start' to start the service."
     print "If this results in 'no job found', try restarting."
     exit(1)
 
