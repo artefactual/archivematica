@@ -32,7 +32,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
-logger.addHandler(logging.FileHandler('/tmp/qubit_upload.log', mode='a'))
+logger.addHandler(logging.FileHandler('/tmp/atom_upload.log', mode='a'))
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import requests
@@ -215,13 +215,13 @@ def start(data):
         # log("> Headers received: %s" % response.headers)
         log("> Content received: %s" % response.content)
 
-    # Check Qubit response status code
+    # Check AtoM response status code
     if not response.status_code in [200, 201, 302]:
         error("Response code not expected")
 
-    # Location is a must, if it is not included in the Qubit response something was wrong
+    # Location is a must, if it is not included in the AtoM response something was wrong
     if response.headers['Location'] is None:
-        error("Location is expected, if not is likely something is wrong with Qubit")
+        error("Location is expected, if not is likely something is wrong with AtoM")
     else:
         access.resource = data.url
 
@@ -232,7 +232,7 @@ def start(data):
         log(access.status)
     else:
         access.statuscode = 15
-        access.status = "Deposited asynchronously, Qubit is processing the DIP in the job queue"
+        access.status = "Deposited asynchronously, AtoM is processing the DIP in the job queue"
         log(access.status)
     access.save()
 
