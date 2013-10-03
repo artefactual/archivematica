@@ -109,14 +109,14 @@ def getReplacementDic(opts):
     rows = databaseInterface.queryAllSQL(sql)
     for (purpose,) in rows:
         opts["commandClassification"] = purpose
-        if purpose == "preservation":
+        if "preservation" in purpose:
             postfix = "-" + opts["taskUUID"]
             outputFileUUID = opts["taskUUID"]
             outputDirectory = directory
-        elif purpose == "access":
+        elif "access" in purpose:
             prefix = opts["fileUUID"] + "-"
             outputDirectory = opts["accessDirectory"]
-        elif purpose == "thumbnail":
+        elif "thumbnail" in purpose:
             outputDirectory = opts["thumbnailDirectory"]
             postfix = opts["fileUUID"]
         else:

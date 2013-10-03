@@ -144,16 +144,17 @@ class linkTaskManagerSplitOnFileIdAndruleset:
                 # TODO/FIXME add default commands for classification in FPR v2
                 # since this will always fail currently
                 if not(rows and len(rows)):  # FIXME do we need both checks?
-                    sql = """SELECT MicroserviceChainLink, fpr_fprule.uuid, fpr_fprule.command_id
-                    FROM DefaultCommandsForClassifications
-                    JOIN MicroServiceChainLinks ON MicroServiceChainLinks.pk = DefaultCommandsForClassifications.MicroserviceChainLink 
-                    JOIN TasksConfigs ON TasksConfigs.pk = MicroServiceChainLinks.currentTask
-                    JOIN fpr_fprule ON fpr_fprule.uuid = TasksConfigs.taskTypePKReference
-                    JOIN CommandClassifications ON CommandClassifications.pk = DefaultCommandsForClassifications.forClassification
+                    # select command with default purpose
+                    sql = """SELECT MicroServiceChainLinks.pk, fpr_fprule.uuid, fpr_fprule.command_id
+                    FROM fpr_fprule
+                    JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = fpr_fprule.uuid
+                    JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk
                     WHERE TasksConfigs.taskType = '{transcode}'
-                    AND CommandClassifications.classification = '{purpose}'
-                    AND DefaultCommandsForClassifications.enabled = TRUE;""".format(
+                    AND fpr_fprule.purpose = 'default_{purpose}'
+                    AND fpr_fprule.enabled = TRUE
+                    GROUP BY MicroServiceChainLinks.pk;""".format(
                         transcode=transcodeTaskType,
+                        file_uuid=fileUUID,
                         purpose=command_purpose)
                     rows = databaseInterface.queryAllSQL(sql)
 

@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS `fpr_fprule` (
     `enabled` bool NOT NULL,
     `lastmodified` datetime NOT NULL,
     `uuid` varchar(36) NOT NULL UNIQUE,
-    `purpose` varchar(16) NOT NULL,
+    `purpose` varchar(32) NOT NULL,
     `command_id` varchar(36) NOT NULL,
     `format_id` varchar(36) NOT NULL,
     `count_attempts` integer NOT NULL,
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `fpr_fpcommand` (
     `enabled` bool NOT NULL,
     `lastmodified` datetime NOT NULL,
     `uuid` varchar(36) NOT NULL UNIQUE,
-    `tool_id` varchar(36) NOT NULL,
+    `tool_id` varchar(36),
     `description` varchar(256) NOT NULL,
     `command` longtext NOT NULL,
     `script_type` varchar(16) NOT NULL,
@@ -209,4 +209,5 @@ CREATE TABLE IF NOT EXISTS `FileIDsBySingleID` (
     `enabled` integer
 )
 ;
+
 COMMIT;
