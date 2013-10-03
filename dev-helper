@@ -206,21 +206,6 @@ function export-sampledata() {
   fi
 }
 
-function install-gui() {
-  part="re-create gui-scripts editor file"
-  echo -n "\"Would you like to ${part}?\" (y/N) "
-  read a
-  if [[ $a == "Y" || $a == "y" ]]; then
-          rm /home/$USER/.config/Thunar/uca.xml
-          tmp="`pwd`"
-          cd src/xubuntuGuiScriptsEditor/share
-          colour ./addArchivematicaGUIScripts.sh
-          cd "$tmp"
-  else
-          echo "Not going to ${part}."
-  fi
-}
-
 function update-atom() {
   part="update AtoM and restart its atom-worker service"
   echo -n "\"Would you like to ${part}?\" (y/N) "
@@ -264,5 +249,4 @@ erase-indexes
 restart
 update-sampledata
 export-sampledata
-install-gui
 update-atom
