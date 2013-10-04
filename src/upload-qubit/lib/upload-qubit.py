@@ -204,7 +204,9 @@ def start(data):
     access.resource = data.url
     access.save()
     auth = requests.auth.HTTPBasicAuth(data.email, data.password)
-    response = requests.request('POST', data.url, auth=auth, headers=headers)
+
+    # Disable redirects: AtoM returns 302 instead of 202, but Location header field is valid
+    response = requests.request('POST', data.url, auth=auth, headers=headers, allow_redirects=False)
 
     # response.{content,headers,status_code}
     log("> Response code: %s" % response.status_code)
@@ -226,13 +228,12 @@ def start(data):
         access.resource = data.url
 
     # (A)synchronously?
-    if response.status_code is 200:
-        access.statuscode = 14
-        access.status = "Deposited synchronously"
+    if response.status_code == 302:
+        access.status = "Deposited asynchronously, AtoM is processing the DIP in the job queue"
         log(access.status)
     else:
-        access.statuscode = 15
-        access.status = "Deposited asynchronously, AtoM is processing the DIP in the job queue"
+        access.statuscode = 14
+        access.status = "Deposited synchronously"
         log(access.status)
     access.save()
 
