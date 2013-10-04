@@ -24,7 +24,7 @@ def main(command_uuid, file_path, file_uuid):
     try:
         command = IDCommand.active.get(uuid=command_uuid)
     except IDCommand.DoesNotExist:
-        sys.stderr.write("IDCommand with UUID {} does not exist.\n".format(command))
+        sys.stderr.write("IDCommand with UUID {} does not exist.\n".format(command_uuid))
         return -1
     _, output, _ = executeOrRun(command.script_type, command.script, arguments=[file_path], printing=False)
     output = output.strip()
