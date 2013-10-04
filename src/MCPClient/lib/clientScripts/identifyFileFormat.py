@@ -26,8 +26,13 @@ def main(command_uuid, file_path, file_uuid):
     except IDCommand.DoesNotExist:
         sys.stderr.write("IDCommand with UUID {} does not exist.\n".format(command_uuid))
         return -1
-    _, output, _ = executeOrRun(command.script_type, command.script, arguments=[file_path], printing=False)
+    exitcode, output, _ = executeOrRun(command.script_type, command.script, arguments=[file_path], printing=False)
     output = output.strip()
+
+    if exitcode != 0:
+        print >>sys.stderr, 'Error: IDCommand with UUID {} exited non-zero.'.format(command_uuid)
+        return -1
+
     print 'Command output:', output
     # PUIDs are the same regardless of tool, so PUID-producing tools don't have "rules" per se - we just
     # go straight to the FormatVersion table to see if there's a matching PUID
