@@ -19,6 +19,7 @@
 # @package Archivematica
 # @subpackage archivematicaClient
 # @author Joseph Perry <joseph@artefactual.com>
+import re
 import sys
 import time
 
@@ -102,18 +103,38 @@ class Command:
             "verificationCommand: " + self.verificationCommand.__str__()
 
     def execute(self, skipOnSuccess=False):
-        #for each key replace all instances of the key in the command string
-        for key, value in self.replacementDic.iteritems():
-            key = toStrFromUnicode(key)
-            self.replacementDic[key] = toStrFromUnicode(value)
-            self.command = self.command.replace( key, escapeForCommand(self.replacementDic[key]) )
-            if self.outputLocation:
-                self.outputLocation = self.outputLocation.replace( key, self.replacementDic[key] )
+        # For "command" and "bashScript" type delegate tools, e.g.
+        # individual commandline statements or bash scripts, we interpolate
+        # the necessary values into the script's source
+        args = []
+        if self.type in ['command', 'bashScript']:
+            # For each key replace all instances of the key in the command string
+            for key, value in self.replacementDic.iteritems():
+                key = toStrFromUnicode(key)
+                self.replacementDic[key] = toStrFromUnicode(value)
+                self.command = self.command.replace( key, escapeForCommand(self.replacementDic[key]) )
+                if self.outputLocation:
+                    self.outputLocation = self.outputLocation.replace( key, self.replacementDic[key] )
+        # For other command types, we translate the entries from
+        # replacementDic into GNU-style long options, e.g.
+        # [%fileName%, foo] => --file-name=foo
+        else:
+            for key, value in self.replacementDic.iteritems():
+                key = toStrFromUnicode(key)
+                value = toStrFromUnicode(value)
+                self.replacementDic[key] = value
+
+                optname = re.sub(r'([A-Z]+)', r'-\1', key[1:-1]).lower()
+                optvalue = escapeForCommand(value)
+                opt = '--{k}={v}'.format(k=optname, v=optvalue)
+                args.append(opt)
+                if self.outputLocation:
+                    self.outputLocation = self.outputLocation.replace( key, self.replacementDic[key] )
         print "Running: ", self
         if self.opts:
             self.opts["prependStdOut"] += "\r\nRunning: \r\n{}".format(self)
 
-        self.exitCode, self.stdOut, self.stdError = executeOrRun(self.type, self.command)
+        self.exitCode, self.stdOut, self.stdError = executeOrRun(self.type, self.command, arguments=args)
         if (not self.exitCode) and self.verificationCommand:
             print
             if self.opts:
