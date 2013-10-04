@@ -134,6 +134,7 @@ def getReplacementDic(opts):
     ret["%fileName%"] =  filename
     ret["%prefix%"] = prefix
     ret["%postfix%"] = postfix
+    ret["%outputFileName%"] = ''.join([outputDirectory, prefix, filename, postfix])
     ret["%outputFileUUID%"] = outputFileUUID
     return ret
 
