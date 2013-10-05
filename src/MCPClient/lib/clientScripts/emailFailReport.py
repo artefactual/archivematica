@@ -85,23 +85,26 @@ def getUnitJobLogHTML(unitIdentifier):
         newRow.append(row[0])
         newRow.append(row[1])
         newRow.append(row[2])
-        try:
-            databaseInterface.printErrors = False
-            sql = """SELECT SEC_TO_TIME(jobDurationsView.time_from_job_created_till_end_of_processing_in_seconds) FROM  jobDurationsView WHERE jobUUID = '%s';""" % (row[3])
-            duration = databaseInterface.queryAllSQL(sql)
-            if duration and duration[0] and duration[0][0]:
-                newRow.append(duration[0][0])
-            else:
-                newRow.append("-")
-            databaseInterface.printErrors = True
-        except:
-            databaseInterface.printErrors = True
-            duration = 0
-            newRow.append(0)
-        
+
+        # TODO: Fix issues with duration
+        if False:
+            try:
+                databaseInterface.printErrors = False
+                sql = """SELECT SEC_TO_TIME(jobDurationsView.time_from_job_created_till_end_of_processing_in_seconds) FROM  jobDurationsView WHERE jobUUID = '%s';""" % (row[3])
+                duration = databaseInterface.queryAllSQL(sql)
+                if duration and duration[0] and duration[0][0]:
+                    newRow.append(duration[0][0])
+                else:
+                    newRow.append("-")
+                databaseInterface.printErrors = True
+            except:
+                databaseInterface.printErrors = True
+                duration = 0
+                newRow.append(0)
+
         rows2.append(newRow)
 
-    htmlcode2 = HTML.table(rows2, header_row=["Type", "Status", "Started", "Duration"])
+    htmlcode2 = HTML.table(rows2, header_row=["Type", "Status", "Started"]) # TODO: Re-add duration
     t2 = etree.fromstring(htmlcode2, parser).find("body/table")
     i = 0  
     for tr in t2.findall("tr"):
