@@ -231,7 +231,7 @@ def ingest_upload_destination_url_check(request):
     response = requests.request('GET', url)
 
     # return resulting status code from request
-    return HttpResponse(response.status_code);
+    return HttpResponse(response.status_code)
 
 def ingest_upload(request, uuid):
     """

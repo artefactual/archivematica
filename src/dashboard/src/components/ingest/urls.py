@@ -27,8 +27,8 @@ urlpatterns = patterns('components.ingest.views',
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/(?P<id>\d+)/$', 'ingest_metadata_edit'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/delete/(?P<id>\d+)/$', 'ingest_metadata_delete'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/microservices/$', 'ingest_microservices'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/$', 'ingest_upload'),
     (r'upload/url/check/$', 'ingest_upload_destination_url_check'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/$', 'ingest_upload'),
     (r'status/$', 'ingest_status'),
     (r'status/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'ingest_status'),
     (r'normalization-report/(?P<uuid>' + settings.UUID_REGEX + ')/(?P<current_page>\d+)/$', 'ingest_normalization_report'),
@@ -38,4 +38,12 @@ urlpatterns = patterns('components.ingest.views',
     (r'backlog/process/(?P<transfer_uuid>' + settings.UUID_REGEX + ')/', 'process_transfer'),
     (r'backlog/file/download/(?P<uuid>' + settings.UUID_REGEX + ')/', 'transfer_file_download'),
     (r'backlog/$', 'transfer_backlog')
+)
+
+urlpatterns = urlpatterns + patterns('components.ingest.views_atk',
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/match/resource/(?P<resource_id>\d+)/$', 'ingest_upload_atk_match_dip_objects_to_resource_levels'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/match/resourcecomponent/(?P<resource_component_id>\d+)/$', 'ingest_upload_atk_match_dip_objects_to_resource_component_levels'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/resource/(?P<resource_id>\d+)/$', 'ingest_upload_atk_resource'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/resourcecomponent/(?P<resource_component_id>\d+)/$', 'ingest_upload_atk_resource_component'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/$', 'ingest_upload_atk')
 )
