@@ -236,7 +236,7 @@ STATUS_POLLING_INTERVAL = 5 # Seconds
 TASKS_PER_PAGE = 10 # for paging in tasks dialog
 UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
 
-FPR_URL = 'http://192.241.212.80:8000/fpr/api/v2/'
+FPR_URL = 'https://fpr.archivematica.org/fpr/api/v2/'
 
 ALLOWED_HOSTS = ('*')
 MICROSERVICES_HELP = {
