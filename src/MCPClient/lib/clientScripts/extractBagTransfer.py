@@ -27,16 +27,29 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 import databaseInterface
 
-
 def extract(target, destinationDirectory):
-    command = """/usr/bin/7z x -bd -o"%s" "%s" """ % (destinationDirectory, target)
-    exitC, stdOut, stdErr = executeOrRun("command", command, printing=False)
-    if exitC != 0:
-        print stdOut
-        print >>sys.stderr, "Failed extraction: ", command, "\r\n", stdErr
-        exit(exitC)
-        
-    
+    filename, file_extension = os.path.splitext(target)
+
+    if file_extension != '.tgz' and file_extension != '.gz':
+        print 'Unzipping...'
+
+        command = """/usr/bin/7z x -bd -o"%s" "%s" """ % (destinationDirectory, target)
+        exitC, stdOut, stdErr = executeOrRun("command", command, printing=False)
+        if exitC != 0:
+            print stdOut
+            print >>sys.stderr, "Failed extraction: ", command, "\r\n", stdErr
+            exit(exitC)
+    else:
+        print 'Untarring...'
+
+        parent_dir = os.path.abspath(os.path.join(destinationDirectory, os.pardir))
+        file_extension = ''
+        command = ("tar zxvf " + target + ' --directory="%s"') % (parent_dir)
+        exitC, stdOut, stdErr = executeOrRun("command", command, printing=False)
+        if exitC != 0:
+            print stdOut
+            print >>sys.stderr, "Failed to untar: ", command, "\r\n", stdErr
+            exit(exitC)
 
 
 if __name__ == '__main__':
@@ -49,6 +62,14 @@ if __name__ == '__main__':
     basename = basename[:basename.rfind(".")]
     
     destinationDirectory = os.path.join(processingDirectory, basename)
+
+    # trim off '.tar' if present (os.path.basename doesn't deal well with '.tar.gz')
+    try:
+        tar_extension_position = destinationDirectory.rindex('.tar')
+        destinationDirectory = destinationDirectory[:tar_extension_position]
+    except ValueError:
+        pass
+
     zipLocation = os.path.join(processingDirectory, os.path.basename(target))
     
     #move to processing directory
@@ -75,7 +96,3 @@ if __name__ == '__main__':
     
     #remove bag
     os.remove(zipLocation)
-
- 
-
-
