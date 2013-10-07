@@ -49,6 +49,11 @@ logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
 
 AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'
 
+AIP_STATUS_DESCRIPTIONS = {
+    'UPLOADED': 'Stored',
+    'DEL_REQ':  'Deletion requested'
+}
+
 @decorators.elasticsearch_required()
 def overview(request):
     return list_display(request)
@@ -147,11 +152,18 @@ def search(request):
 
 def search_augment_aip_results(conn, aips):
     for aip_uuid in aips:
-        documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('uuid', aip_uuid.term)), fields='name,size,created')
+        documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('uuid', aip_uuid.term)), fields='name,size,created,status')
         if len(documents['hits']['hits']) > 0:
             aip_uuid.name = documents['hits']['hits'][0]['fields']['name']
             aip_uuid.size = '{0:.2f} MB'.format(documents['hits']['hits'][0]['fields']['size'])
             aip_uuid.date = documents['hits']['hits'][0]['fields']['created']
+
+            if 'status' in documents['hits']['hits'][0]['fields']:
+                 status = documents['hits']['hits'][0]['fields']['status']
+                 aip_uuid.status = AIP_STATUS_DESCRIPTIONS[status]
+            else:
+                 aip_uuid.status = 'Stored'
+
             aip_uuid.document_id_no_hyphens = documents['hits']['hits'][0]['_id'].replace('-', '____')
         else:
             aip_uuid.name = '(data missing)' 
@@ -408,11 +420,7 @@ def list_display(request):
 
         # Tweak AIP presentation and add to display array
         if aip_status != 'DELETED':
-            aip_status_descriptions = {
-              'UPLOADED': 'Stored',
-              'DEL_REQ':  'Deletion requested'
-            }
-            aip['status'] = aip_status_descriptions[aip_status]
+            aip['status'] = AIP_STATUS_DESCRIPTIONS[aip_status]
 
             try:
                 size = '{0:.2f} MB'.format(float(aip.size))
