@@ -133,16 +133,12 @@ def fprupload(request):
 def fprdownload(request):
     response_data = {}
 
-    try:
-        fprserver = django_settings.FPR_URL
-        logging.info("FPR Server URL: {}".format(fprserver))
-        fpr = FPRClient.FPRClient(fprserver)
-        myresponse = fpr.getUpdates()
-        response_data['response'] = myresponse
-        response_data['result'] = 'success'
-    except:
-        response_data['response'] = 'unable to connect to FPR Server'
-        response_data['result'] = 'failed'
+    fprserver = django_settings.FPR_URL
+    logging.info("FPR Server URL: {}".format(fprserver))
+    fpr = FPRClient.FPRClient(fprserver)
+    (response_data['result'], response_data['response'], error) = fpr.getUpdates()
+    if error:
+        logging.warning("FPR update error: {}".format(error))
 
     return helpers.json_response(response_data)
  

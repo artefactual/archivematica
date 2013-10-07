@@ -194,21 +194,26 @@ class FPRClient(object):
             self.setMaxLastUpdate()
     
     def getUpdates(self):
+        status = 'failed'
+        exception = None
         try:
             self.autoUpdateFPR()
-        except django.db.utils.IntegrityError:
+        except django.db.utils.IntegrityError as e:
             response = "Error updating FPR"
-        except getFromRestAPI.FPRConnectionError:
+            exception = e
+        except getFromRestAPI.FPRConnectionError as e:
             response = "Error connecting to FPR"
+            exception = e
         except Exception as e:
-            print e
             response = 'Error updating FPR'
+            exception = e
         else:
+            status = 'success'
             if self.count_rules_updated == 0:
                 response = "No updates at this time"
             elif self.count_rules_updated > 0:
                 response = "Successfully updated FPR: {} changes".format(self.count_rules_updated)
-        return response
+        return (status, response, exception)
         
 if __name__ == '__main__':
     ret = FPRClient().getUpdates()
