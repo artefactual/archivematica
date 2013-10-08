@@ -18,49 +18,123 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.utils import simplejson
-import os, sys, MySQLdb
+import os, sys, MySQLdb, ast
+from main import models
 from components import helpers
+import xml.etree.ElementTree as ElementTree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import archivistsToolkit.atk as atk
 import elasticSearchFunctions, databaseInterface, databaseFunctions
 
+# TODO: move into helpers module at some point
+# From http://www.ironzebra.com/news/23/converting-multi-dimensional-form-arrays-in-django
+def getDictArray(post, name):
+    dic = {}
+    for k in post.keys():
+        if k.startswith(name):
+            rest = k[len(name):]
+            
+            # split the string into different components
+            parts = [p[:-1] for p in rest.split('[')][1:]
+            id = int(parts[0])
+            
+            # add a new dictionary if it doesn't exist yet
+            if id not in dic:
+                dic[id] = {}
+                
+            # add the information to the dictionary
+            dic[id][parts[1]] = post.get(k)
+    return dic
+
 def ingest_upload_atk_db_connection():
-    # TODO: where to store config?
+    dict = models.MicroServiceChoiceReplacementDic.objects.get(description='Archivists Toolkit Config')
+    config = ast.literal_eval(dict.replacementdic)
+
     return MySQLdb.connect(
-        host="localhost",
-        user="root",
-        passwd="",
-        db="MCP"
+        host=config['%host%'],
+        port=int(config['%port%']),
+        user=config['%dbuser%'],
+        passwd=config['%dbpass%'],
+        db=config['%dbname%']
     )
 
 def ingest_upload_atk(request, uuid):
-    if request.method == 'GET':
+    try:
+        query = request.GET.get('query', '').strip()
+
+        db = ingest_upload_atk_db_connection()
+
         try:
-            query = request.GET.get('query', '')
-            resources = ingest_upload_atk_get_collections(query)
+            resources = ingest_upload_atk_get_collection_ids(db, query)
+        except MySQLdb.OperationalError:
+            return HttpResponseServerError('Database connection error. Please contact an administration.')
 
-            page = helpers.pager(resources, 20, request.GET.get('page', 1))
+        page = helpers.pager(resources, 10, request.GET.get('page', 1))
 
-        except MySQLdb.ProgrammingError:
-            return HttpResponse('Database error. Please contact an administrator.')
+        page['objects'] = augment_resource_data(db, page['objects'])
 
-        return render(request, 'ingest/atk/resource_list.html', locals())
-    else:
+    except MySQLdb.ProgrammingError:
+        return HttpResponseServerError('Database error. Please contact an administrator.')
+
+    return render(request, 'ingest/atk/resource_list.html', locals())
+
+def ingest_upload_atk_save(request, uuid):
+    pairs_saved = ingest_upload_atk_save_to_db(request, uuid)
+
+    if pairs_saved > 0:
         response = {
             "message": "Submitted successfully."
         }
+    else:
+        response = {
+            "message": "No pairs saved."
+        }
 
-        return HttpResponse(
-            simplejson.JSONEncoder().encode(response),
-            mimetype='application/json'
+    return HttpResponse(
+        simplejson.JSONEncoder().encode(response),
+        mimetype='application/json'
+    )
+
+def ingest_upload_atk_save_to_db(request, uuid):
+    saved = 0
+
+    # delete existing mapping, if any, for this DIP
+    models.AtkDIPObjectResourcePairing.objects.filter(dipuuid=uuid).delete()
+
+    pairs = getDictArray(request.POST, 'pairs')
+
+    keys = pairs.keys()
+    keys.sort()
+
+    for key in keys:
+        pairing = models.AtkDIPObjectResourcePairing.objects.create(
+            dipuuid=pairs[key]['DIPUUID'],
+            fileuuid=pairs[key]['objectUUID']
         )
+        if pairs[key]['resourceLevelOfDescription'] == 'collection':
+            pairing.resourceid = pairs[key]['resourceId']
+        else:
+            pairing.resourcecomponentid = pairs[key]['resourceId']
+        pairing.save()
+        saved = saved + 1
+
+    return saved
+
+def augment_resource_data(db, resource_ids):
+    resources_augmented = []
+    for id in resource_ids:
+        resources_augmented.append(
+            atk.get_resource_component_and_children(db, id, recurse_max_level=2)
+        )
+    return resources_augmented
 
 def ingest_upload_atk_resource(request, uuid, resource_id):
     db = ingest_upload_atk_db_connection()
     try:
-        query = request.GET.get('query', '')
-        resource_data = ingest_upload_atk_get_resource_component_and_children(
+        query = request.GET.get('query', '').strip()
+        resource_data = atk.get_resource_component_and_children(
             db,
             resource_id,
             'collection',
@@ -68,9 +142,9 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
             search_pattern=query
         )
         if resource_data['children']:
-             page = helpers.pager(resource_data['children'], 20, request.GET.get('page', 1))
+             page = helpers.pager(resource_data['children'], 10, request.GET.get('page', 1))
     except MySQLdb.ProgrammingError:
-        return HttpResponse('Database error. Please contact an administrator.')
+        return HttpResponseServerError('Database error. Please contact an administrator.')
 
     if not resource_data['children'] and query == '':
         return HttpResponseRedirect(
@@ -84,7 +158,7 @@ def ingest_upload_atk_determine_resource_component_resource_id(resource_componen
 
     cursor = db.cursor()
 
-    cursor.execute("SELECT resourceId, parentResourceComponentId FROM atk_description WHERE resourceComponentId=%s", (resource_component_id))
+    cursor.execute("SELECT resourceId, parentResourceComponentId FROM ResourcesComponents WHERE resourceComponentId=%s", (resource_component_id))
 
     row = cursor.fetchone()
 
@@ -96,8 +170,8 @@ def ingest_upload_atk_determine_resource_component_resource_id(resource_componen
 def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     db = ingest_upload_atk_db_connection()
     try:
-        query = request.GET.get('query', '')
-        resource_component_data = ingest_upload_atk_get_resource_component_and_children(
+        query = request.GET.get('query', '').strip()
+        resource_component_data = atk.get_resource_component_and_children(
             db,
             resource_component_id,
             'description',
@@ -105,9 +179,9 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
             search_pattern=query
         )
         if resource_component_data['children']:
-            page = helpers.pager(resource_component_data['children'], 20, request.GET.get('page', 1))
+            page = helpers.pager(resource_component_data['children'], 10, request.GET.get('page', 1))
     except MySQLdb.ProgrammingError:
-        return HttpResponse('Database error. Please contact an administrator.')
+        return HttpResponseServerError('Database error. Please contact an administrator.')
 
     resource_id = ingest_upload_atk_determine_resource_component_resource_id(resource_component_id)
 
@@ -118,24 +192,21 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     else:
         return render(request, 'ingest/atk/resource_component.html', locals())
 
-def ingest_upload_atk_get_collections(search_pattern=''):
+def ingest_upload_atk_get_collection_ids(db, search_pattern=''):
     collections = []
-
-    db = ingest_upload_atk_db_connection()
 
     cursor = db.cursor()
 
-    cursor.execute(
-      "SELECT resourceId, title, dateExpression FROM atk_collection WHERE title LIKE %s ORDER BY title",
-      ('%' + search_pattern + '%')
-    )
+    if search_pattern != '':
+        cursor.execute(
+            "SELECT resourceId FROM Resources WHERE (title LIKE %s OR resourceid LIKE %s) AND resourceLevel = 'collection' ORDER BY title",
+            ('%' + search_pattern + '%', '%' + search_pattern + '%')
+        )
+    else:
+        cursor.execute("SELECT resourceId FROM Resources WHERE resourceLevel = 'collection' ORDER BY title")
 
     for row in cursor.fetchall():
-        collections.append({
-          'id':    row[0],
-          'title': row[1],
-          'dates': row[2]
-        })
+        collections.append(row[0])
 
     return collections
 
@@ -147,44 +218,80 @@ def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resour
 
     try:
         # load resource and child data
+        db = ingest_upload_atk_db_connection()
         resource_data_json = simplejson.JSONEncoder().encode(
-            ingest_upload_atk_get_resource_children(resource_id)
+            atk.get_resource_children(db, resource_id)
         )
     except:
-        return HttpResponse('Database error. Please contact an administrator.')
+        return HttpResponseServerError('Database error. Please contact an administrator.')
 
     return render(request, 'ingest/atk/match.html', locals())
 
 def ingest_upload_atk_get_dip_object_paths(uuid):
-    return [
-      'dog.jpg',
-      'budget.xls',
-      'book.doc',
-      'manual.pdf',
-      'hats.png',
-      'demons.jpg',
-      'goat.png',
-      'celery.png',
-      'owls.jpg',
-      'candyman.jpg',
-      'clown.jpg',
-      'taxes.xls',
-      'stats.xls',
-      'donut.jpg',
-      'hamburger.jpg',
-      'goose.png',
-      'chicken.png',
-      'crayons.png',
-      'hammer.jpg',
-      'banana.jpg',
-      'minutes.doc',
-      'revised.pdf',
-      'carrot.jpg',
-      'hinge.jpg',
-      'hatrack.png',
-      'images/cat.jpg',
-      'images/racoon.jpg'
-    ]
+    # determine the DIP upload directory
+    watch_dir = helpers.get_server_config_value('watchDirectoryPath')
+    dip_upload_dir = os.path.join(watch_dir, 'uploadDIP')
+
+    # work out directory name for DIP (should be the same as the SIP)
+    try:
+        sip = models.SIP.objects.get(uuid=uuid)
+    except:
+         raise Http404
+
+    directory = os.path.basename(os.path.dirname(sip.currentpath))
+
+    # work out the path to the DIP's METS file
+    metsFilePath = os.path.join(dip_upload_dir, directory, 'METS.' + uuid + '.xml')
+
+    # read file paths from METS file
+    tree = ElementTree.parse(metsFilePath)
+    root = tree.getroot()
+
+    # use paths to create an array that we'll sort and store path UUIDs separately
+    paths = []
+    path_uuids = {}
+
+    # in the end we'll populate this using paths and path_uuids
+    files = []
+
+    # get each object's filepath
+    for item in root.findall("{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp[@USE='original']/{http://www.loc.gov/METS/}file"):
+        for item2 in item.findall("{http://www.loc.gov/METS/}FLocat"):
+            object_path = item2.attrib['{http://www.w3.org/1999/xlink}href']
+
+            # look up file's UUID
+            file = models.File.objects.get(
+                sip=uuid,
+                currentlocation='%SIPDirectory%' + object_path
+            )
+
+            # remove "objects/" dir when storing representation
+            if object_path.index('objects/') == 0:
+                object_path = object_path[8:]
+
+            paths.append(object_path)
+            path_uuids[object_path] = file.uuid
+
+    # create array of objects with object data
+    paths.sort()
+    for path in paths:
+        files.append({
+            'uuid': path_uuids[path],
+            'path': path
+        })
+
+    return files
+
+    """
+    files = [{
+        'uuid': '7665dc52-29f3-4309-b3fe-273c4c04df4b',
+        'path': 'dog.jpg'
+    },
+    {
+        'uuid': 'c2e41289-8280-4db9-ae4e-7730fbaa1471',
+        'path': 'inages/candy.jpg'
+    }]
+    """
 
 def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uuid, resource_component_id):
     # load object relative paths
@@ -194,129 +301,11 @@ def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uu
 
     try:
         # load resource and child data
+        db = ingest_upload_atk_db_connection()
         resource_data_json = simplejson.JSONEncoder().encode(
-            ingest_upload_atk_get_resource_component_children(resource_component_id)
+            atk.get_resource_component_children(db, resource_component_id)
         )
     except:
-        return HttpResponse('Database error. Please contact an administrator.')
+        return HttpResponseServerError('Database error. Please contact an administrator.')
 
     return render(request, 'ingest/atk/match.html', locals())
-
-def ingest_upload_atk_get_resource_children(resource_id):
-    db = ingest_upload_atk_db_connection()
-    return ingest_upload_atk_get_resource_component_and_children(db, resource_id)
-
-def ingest_upload_atk_get_resource_component_children(resource_component_id):
-    db = ingest_upload_atk_db_connection()
-    return ingest_upload_atk_get_resource_component_and_children(db, resource_component_id, 'resource')
-
-def ingest_upload_atk_get_resource_component_and_children(db, resource_id, resource_type='collection', level=1, sort_data={}, **kwargs):
-    # we pass the sort position as a dict so it passes by reference and we
-    # can use it to share state during recursion
-
-    recurse_max_level = kwargs.get('recurse_max_level', False)
-    query             = kwargs.get('search_pattern', '')
-
-    # intialize sort position if this is the beginning of recursion
-    if level == 1:
-        sort_data['position'] = 0
-
-    sort_data['position'] = sort_data['position'] + 1
-
-    resource_data = {}
-
-    cursor = db.cursor() 
-
-    if resource_type == 'collection':
-        cursor.execute("SELECT title, dateExpression FROM atk_collection WHERE resourceid=%s", (resource_id))
-
-        for row in cursor.fetchall():
-            resource_data['id']                 = resource_id
-            resource_data['sortPosition']       = sort_data['position']
-            resource_data['title']              = row[0]
-            resource_data['dates']              = row[1]
-            resource_data['levelOfDescription'] = 'Fonds'
-    else:
-        cursor.execute("SELECT title, dateExpression, persistentId, resourceLevel FROM atk_description WHERE resourceComponentId=%s", (resource_id))
-
-        for row in cursor.fetchall():
-            resource_data['id']                 = resource_id
-            resource_data['sortPosition']       = sort_data['position']
-            resource_data['title']              = row[0]
-            resource_data['dates']              = row[1]
-            resource_data['identifier']         = row[2]
-            resource_data['levelOfDescription'] = row[3]
-
-    resource_data['children'] = False
-
-    # fetch children if we haven't reached the maximum recursion level
-    if (not recurse_max_level) or level < recurse_max_level:
-        if resource_type == 'collection':
-            cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId IS NULL AND resourceId=%s AND title LIKE %s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%'))
-        else:
-            cursor.execute("SELECT resourceComponentId FROM atk_description WHERE parentResourceComponentId=%s AND title LIKE %s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%'))
-
-        rows = cursor.fetchall()
-
-        if len(rows):
-            resource_data['children'] = []
-
-            for row in rows:
-                resource_data['children'].append(
-                    ingest_upload_atk_get_resource_component_and_children(
-                        db,
-                        row[0],
-                        'description',
-                        level + 1,
-                        sort_data
-                    )
-                 )
-
-    return resource_data
-
-    """
-    Example data:
-
-    return {
-      'id': '31',
-      'sortPosition': '1',
-      'identifier': 'PR01',
-      'title': 'Parent',
-      'levelOfDescription': 'Fonds',
-      'dates': '1880-1889',
-      'children': [{
-        'id': '23',
-        'sortPosition': '2',
-        'identifier': 'CH01',
-        'title': 'Child A',
-        'levelOfDescription': 'Sousfonds',
-        'dates': '1880-1888',
-        'children': [{
-          'id': '24',
-          'sortPosition': '3',
-          'identifier': 'GR01',
-          'title': 'Grandchild A',
-          'levelOfDescription': 'Item',
-          'dates': '1880-1888',
-          'children': False
-        },
-        {
-          'id': '25',
-          'sortPosition': '4',
-          'identifier': 'GR02',
-          'title': 'Grandchild B',
-          'levelOfDescription': 'Item',
-          'children': False
-        }]
-      },
-      {
-        'id': '26',
-        'sortPosition': '5',
-        'identifier': 'CH02',
-        'title': 'Child B',
-        'levelOfDescription': 'Sousfonds',
-        'dates': '1889',
-        'children': False
-      }]
-    }
-    """

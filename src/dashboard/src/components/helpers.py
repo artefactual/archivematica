@@ -144,6 +144,26 @@ def pager(objects, items_per_page, current_page_number):
 
     page['num_pages']    = p.num_pages
 
+    num_of_neighbors_to_show = 5
+    if page['current'] > num_of_neighbors_to_show:
+        page['previous_pages'] = range(
+            page['current'] - num_of_neighbors_to_show,
+            page['current']
+        )
+    else:
+        page['previous_pages'] = range(1, page['current'])
+
+    if page['current'] < (page['num_pages'] - num_of_neighbors_to_show):
+        page['next_pages'] = range(
+            int(page['current']) + 1,
+            page['current'] + num_of_neighbors_to_show + 1
+        )
+    else:
+        page['next_pages'] = range(
+            page['current'] + 1,
+            page['num_pages'] + 1
+        )
+
     return page
 
 def get_file_sip_uuid(fileuuid):

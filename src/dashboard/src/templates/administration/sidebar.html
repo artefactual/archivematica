@@ -7,6 +7,7 @@
   {% url 'components.administration.views.failure_report' as failure_report %}
   {% url 'components.administration.views.administration_dip' as url_dip %}
   {% url 'components.administration.views.contentdm_dips' as url_contentdm_dips %}
+  {% url 'components.administration.views.administration_atk_dips' as url_atk_dips %}
   {% url 'components.administration.views.sources' as url_sources %}
   {% url 'components.administration.views.storage' as url_storage %}
   {% url 'components.administration.views.premis_agent' as url_premis %}
@@ -31,6 +32,8 @@
     {% if not hide_features.contentdm_dip_admin %}
     <li class="{% active request url_contentdm_dips %}"><a href="{{ url_contentdm_dips }}">CONTENTdm DIP upload</a></li>
     {% endif %}
+
+    <li class="{% active request url_atk_dips %}"><a href="{{ url_atk_dips }}">Archivists Toolkit DIP upload</a></li>
 
     <li class="{% active request url_premis %}"><a href="{{ url_premis }}">PREMIS agent</a></li>
 

@@ -509,3 +509,13 @@ class TaskConfig(models.Model):
 
     def __unicode__(self):
         return u'TaskConfig ID: {}, desc: {}'.format(self.id, self.description)
+
+class AtkDIPObjectResourcePairing(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk')
+    dipuuid = models.CharField(max_length=50, db_column='dipUUID')
+    fileuuid = models.CharField(max_length=50, db_column='fileUUID')
+    resourceid = models.IntegerField(db_column='resourceId')
+    resourcecomponentid = models.IntegerField(db_column='resourceComponentId')
+
+    class Meta:
+        db_table = u'AtkDIPObjectResourcePairing'

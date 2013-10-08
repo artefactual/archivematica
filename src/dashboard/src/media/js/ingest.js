@@ -217,6 +217,9 @@ $(function()
         {
           var jobData = this.model.toJSON();
 
+//console.log(jobData.microservicegroup); Normalize
+// console.log(jobData.currentstep); Awaiting decision
+
           if (
             jobData.microservicegroup == 'Normalize'
             && jobData.type == 'Normalize'
@@ -268,6 +271,10 @@ $(function()
               .append('<a class="btn_approve_job" href="#" title="Approve"><span>Approve</span></a>')
               .append('<a class="btn_reject_job" href="#" title="Reject"><span>Reject</span></a>');
           }
+          else
+          {
+            // ...
+          }
 
           choices = this.model.get('choices');
 
@@ -298,6 +305,8 @@ $(function()
           }
 
           this.$('.job-detail-microservice > a').tooltip();
+
+          this.$('.job-detail-actions > a').twipsy();
 
           return this;
         },
@@ -330,7 +339,14 @@ $(function()
                 url: '/mcp/execute/'
               });
             };
-          
+
+          // redict to object/resource mapping pages
+          if ('- Upload DIP to Archivists Toolkit' == $select.find('option:selected').text())
+          {
+            $('body').html('<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Loading...</h1>');
+            window.location.href = '/ingest/' + this.model.sip.get('uuid') + '/upload/atk/';
+          }
+
           // if ('Upload DIP' == this.model.get('type') && 13 == value)
           if ('- Upload DIP to Atom' == $select.find('option:selected').text())
           {
@@ -460,5 +476,6 @@ $(function()
             keyboard: true
           });
       });
+
   }
 );

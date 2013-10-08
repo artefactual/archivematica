@@ -17,7 +17,7 @@
 #
 
 import os
-import sys
+import sys, traceback
 import MySQLdb
 from time import localtime, strftime
 import argparse
@@ -26,7 +26,6 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivistsToolkit.atk as atk
 import mets
 from xml2obj import mets_file
-import MySQLdb
 import databaseInterface
 
 #global variables
@@ -35,7 +34,7 @@ cursor = None
 testMode =0 
 base_fv_id = 1
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 logger.addHandler(logging.FileHandler('/tmp/at_upload.log', mode='a'))
@@ -133,20 +132,19 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         try:
             logger.debug("looking for mets: {}".format(dip_uuid))
             mets_source = dip_location + 'METS.' + dip_uuid + '.xml'
+            logger.debug ("mets is at " + mets_source) 
             mets = mets_file(mets_source)
             logger.debug("found mets file")
         except Exception:
             raise
             exit(4)
-            
+           
     global db
     global cursor
     db = atk.connect_db(args.atdbhost, args.atdbport, args.atdbuser, args.atdbpass, args.atdb)
     cursor = db.cursor()
-    
     #get a list of all the items in this collection
     col = atk.collection_list(db, resource_id)
-    logger.debug("got collection_list: {}".format(len(col)))
     sql0 = "select max(fileVersionId) from FileVersions"
     logger.debug('sql0: ' + sql0)
     cursor.execute(sql0)
@@ -159,14 +157,14 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
     global base_fv_id 
     base_fv_id = newfVID        
 
-    pairs = get_pairs(dip_uuid)
+    #pairs = get_pairs(dip_uuid)
     #TODO test to make sure we got some pairs
     
     for f in mylist:
         base_fv_id+=1 
-        logger.info( 'using ' + f)
+        logger.debug( 'using ' + f)
         file_name = os.path.basename(f)
-        logger.info('file_name is ' + file_name)
+        #logger.info('file_name is ' + file_name)
         uuid = file_name[0:36]
         #aipUUID = aip[5:41]
         access_restrictions = None
@@ -184,13 +182,14 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
                 if premis == 'Publish':
                     use_restrictions = mets[uuid]['premis']['Publish']['restriction']
                     use_rightsGrantedNote = mets[uuid]['premis']['Publish']['rightsGrantedNote']
+        else:
+            logger.debug("no mets or uuid")
         try:
             container1 = file_name[44:47]
             container2 = file_name[48:53]
         except:
             logger.error('file name does not have container ids in it')
             exit(5)
-        logger.debug ("determine restrictions")
         #determine restrictions
         if restrictions == 'no':
             restrictions_apply = False
@@ -199,7 +198,6 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             ead_actuate = "none"
             ead_show = "none"
         elif restrictions == 'premis':
-            logger.debug("premis restrictions")
             if access_restrictions == 'Allow' and use_restrictions == 'Allow':
                 restrictions_apply = False
             else:
@@ -218,27 +216,50 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         short_file_name = file_name[37:]
         time_now = strftime("%Y-%m-%d %H:%M:%S", localtime())
         file_uri = uri_prefix  + file_name
-        
-        is_resource = False
-        if pairs[uuid]['rcid'] > 0:
-            sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
-                      ResourcesComponents where resourcecomponentid = {}'''.format(pairs[uuid]['rcid'])
-        else:
-            is_resource = True
-            sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
-                      Resources where resourceid = {}'''.format(pairs[uuid]['rid']) 
-                       
-        logger.debug('sql1:' + sql1) 
-        cursor.execute(sql1)
-        data = cursor.fetchone()
-        rcid = data[0]
-        dateBegin = data[1]
-        dateEnd = data[2]
-        dateExpression = data[3]
-        rc_title = data[4]
-        logger.debug("found rc_title " + rc_title + ":" + str(len(rc_title)) ) 
+        logger.debug("trying " + container1 + " " + container2)
+        try:
+            sql1="select  d.archdescriptioninstancesid, c.resourceComponentId, c.dateBegin, c.dateEnd, c.dateExpression, c.title from resourcescomponents a join resourcescomponents b on (a.resourcecomponentid = b.parentresourcecomponentid) join resourcescomponents c on (b.resourcecomponentid = c.parentresourcecomponentid) join archdescriptioninstances d on (c.resourcecomponentid = d.resourcecomponentid) where a.resourceid = 31 and d.container1numericindicator = '%s' and d.container2numericindicator = '%s'" % ( container1, container2)
+      
+            logger.debug('sql1:' + sql1) 
+            cursor.execute(sql1)
+            data = None
+            if cursor.rowcount == 0:
+                logger.debug("trying 2 levels of description instead")
+                sql1b="""select  d.archdescriptioninstancesid, b.resourceComponentId, b.dateBegin, b.dateEnd, b.dateExpression, b.title 
+                          from resourcescomponents a join resourcescomponents b on (a.resourcecomponentid = b.parentresourcecomponentid) 
+                          join archdescriptioninstances d on (b.resourcecomponentid = d.resourcecomponentid) 
+                          where a.resourceid = 31 and d.container1numericindicator = '%s' and d.container2numericindicator = '%s'""" % ( container1, container2) 
+                cursor.execute(sql1b)
+                if cursor.rowcount == 0:
+                    logger.debug("trying 4 levels of description now last try")
+                    sql1c="""select  d.archdescriptioninstancesid, c.resourceComponentId, c.dateBegin, c.dateEnd, c.dateExpression, c.title 
+                             from resourcescomponents a join resourcescomponents f on (a.resourcecomponentid = f.parentresourcecomponentid) 
+                             join resourcescomponents b on (f.resourcecomponentid = b.parentresourcecomponentid)  
+                             join resourcescomponents c on (b.resourcecomponentid = c.parentresourcecomponentid) 
+                             join archdescriptioninstances d on (c.resourcecomponentid = d.resourcecomponentid) 
+                             where a.resourceid = 31 and d.container1numericindicator ='%s' 
+                             and d.container2numericindicator = '%s'""" % ( container1, container2)
+                    cursor.execute(sql1c)
+                    if cursor.rowcount == 0:
+                        logger.info("Missing ArchDescription: " + container1 + " " + container2)
+                        continue 
+            data = cursor.fetchone()
+            logger.info("Found ArchDescription: " + container1 + " " + container2)    
+        except:
+            logger.info("problem")
+            print '-'*60
+            traceback.print_exc(file=sys.stdout)
+            print '-'*60
+            continue   
+  
+        oldadid = data[0] 
+        rcid = data[1]
+        dateBegin = data[2]
+        dateEnd = data[3]
+        dateExpression = data[4]
+        rc_title = data[5]
         if (not rc_title or len(rc_title) == 0):
-            if (not dateExpression or len(dateExpression) == 0):
+            if (not dateExpression or len(str(dateExpression)) == 0):
                 if dateBegin == dateEnd:
                     short_file_name = str(dateBegin)
                 else:
@@ -247,11 +268,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
                 short_file_name = dateExpression
         else:
             short_file_name = rc_title
-
-        logger.debug("dateExpression is : " + str(dateExpression) + str(len(dateExpression)))
-        logger.debug("dates are  " + str(dateBegin) + "-" + str(dateEnd))
-        logger.debug("short file name is " + str(short_file_name))
- 
+        short_file_name = MySQLdb.escape_string(short_file_name) 
         sql2 = "select repositoryId from Repositories" 
         logger.debug('sql2: ' + sql2)
 
@@ -265,10 +282,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         data = cursor.fetchone()
         newaDID = int(data[0]) + 1
 
-        if is_resource:
-            sql4 = "insert into ArchDescriptionInstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceId) values (%d, 'digital','Digital object',%d)" % (newaDID, rcid)
-        else:
-            sql4 = "insert into ArchDescriptionInstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceComponentId) values (%d, 'digital','Digital object',%d)" % (newaDID, rcid)
+        sql4 = "insert into ArchDescriptionInstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceComponentId) values (%d, 'digital','Digital object',%d)" % (newaDID, rcid)
         
         logger.debug('sql4:' + sql4)
         adid = process_sql(sql4)
@@ -279,13 +293,8 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             dateBegin = 0
         if not dateEnd:
             dateEnd = 0
-   
-        sql5 = """INSERT INTO DigitalObjects                  
-           (`version`,`lastUpdated`,`created`,`lastUpdatedBy`,`createdBy`,`title`,
-            `dateExpression`,`dateBegin`,`dateEnd`,`languageCode`,`restrictionsApply`,
-            `eadDaoActuate`,`eadDaoShow`,`metsIdentifier`,`objectType`,`objectOrder`,
-            `archDescriptionInstancesId`,`repositoryId`)
-           VALUES (1,'%s', '%s','%s','%s','%s','%s',%d, %d,'English',%d,'%s','%s','%s','%s',0,%d,%d)""" % (time_now, time_now, atuser, atuser, short_file_name,dateExpression, dateBegin, dateEnd, int(restrictions_apply), ead_actuate, ead_show,uuid, object_type, newaDID, repoId)
+         
+        sql5 = "INSERT INTO DigitalObjects (`version`,`lastUpdated`,`created`,`lastUpdatedBy`,`createdBy`,`title`,`dateExpression`,`dateBegin`,`dateEnd`,`languageCode`,`restrictionsApply`,`eadDaoActuate`,`eadDaoShow`,`metsIdentifier`,`objectType`,`objectOrder`,`archDescriptionInstancesId`,`repositoryId`) VALUES (1,'%s', '%s','%s','%s','%s','%s',%d, %d,'English',%d,'%s','%s','%s','%s',0,%d,%d)" % (time_now, time_now, atuser, atuser, short_file_name,dateExpression, dateBegin, dateEnd, int(restrictions_apply), ead_actuate, ead_show,uuid, object_type, newaDID, repoId)
         logger.debug('sql5: ' + sql5)
         doID = process_sql(sql5)
         sql6 = """insert into FileVersions (fileVersionId, version, lastUpdated, created, lastUpdatedBy, createdBy, uri, useStatement, sequenceNumber, eadDaoActuate,eadDaoShow, digitalObjectId)

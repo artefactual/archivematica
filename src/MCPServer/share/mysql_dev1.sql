@@ -54,8 +54,6 @@ INSERT INTO WatchedDirectories (pk, watchedDirectoryPath, chain, onlyActOnDirect
 
 -- Issue 5034
 -- mediainfo
-INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvailable`, `replaces`, `lastModified`) VALUES ('8240d294-ad72-4a7f-8c67-6777e165a642','f4dea20e-f3fe-4a37-b20f-0e70a7bc960e','09949bda-5332-482a-ae47-5373bd372174',NULL,'2012-10-23 19:41:25');
-
 SET @microserviceGroup = 'Normalize';
 SET @XLink = '5bddbb67-76b4-4bcb-9b85-a0d9337e7042' COLLATE utf8_unicode_ci;
 SET @YLink = '83484326-7be7-4f9f-b252-94553cd42370';

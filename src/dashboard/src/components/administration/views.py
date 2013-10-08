@@ -22,12 +22,20 @@ from django.contrib import messages
 from django.forms.models import modelformset_factory
 from django.shortcuts import redirect
 from django.shortcuts import render
-
-
-from main import forms, models
+from django.http import HttpResponse, HttpResponseRedirect
+from django.utils import simplejson
+from main import forms
+from main import models
+import sys
 import components.administration.views_processing as processing_views
-from components.administration.forms import (AdministrationForm, AgentForm,
-    SettingsForm, StorageSettingsForm)
+from lxml import etree
+from components.administration.forms import AdministrationForm
+from components.administration.forms import AgentForm
+from components.administration.forms import ArchivistsToolkitConfigForm
+from components.administration.forms import SettingsForm
+from components.administration.forms import StorageSettingsForm
+from components.administration.models import ArchivistsToolkitConfig
+
 import components.decorators as decorators
 from django.template import RequestContext
 import components.helpers as helpers
@@ -102,6 +110,41 @@ def atom_dips(request):
     hide_features = helpers.hidden_features()
     return render(request, 'administration/dips_edit.html', locals())
 
+def administration_atk_dips(request):
+    atk = ArchivistsToolkitConfig.objects.get(pk=1)
+    if request.POST:
+        form = ArchivistsToolkitConfigForm(request.POST, instance=atk)
+        usingpass =  atk.dbpass
+        if form.is_valid():
+            newatk = form.save()
+            if newatk.dbpass != '' and newatk.dbpass != usingpass:
+                usingpass = newatk.dbpass
+            else:
+                newatk.dbpass = usingpass
+             #save this new form data into MicroServiceChoiceReplacementDic
+            new_settings_string = '{{"%host%":"{}", "%port%":"{}", "%dbname%":"{}", "%dbuser%":"{}", "%dbpass%":"{}", \
+                                   "%atuser%":"{}", "%restrictions%":"{}", "%object_type%":"{}", "%ead_actuate%":"{}", \
+                                   "%ead_show%":"{}", "%use_statement%":"{}", "%uri_prefix%":"{}", "%access_conditions%":"{}", \
+                                   "%use_conditions%":"{}"}}'.format(newatk.host, newatk.port, newatk.dbname, newatk.dbuser,
+                                                                    usingpass,newatk.atuser,newatk.premis, newatk.object_type,
+                                                                    newatk.ead_actuate, newatk.ead_show,newatk.use_statement,
+                                                                    newatk.uri_prefix, newatk.access_conditions, newatk.use_conditions)
+            logger.debug('new settings '+ new_settings_string)                       
+            new_mscrDic = models.MicroServiceChoiceReplacementDic.objects.get(description='Archivists Toolkit Config')
+            logger.debug('trying to save mscr ' + new_mscrDic.description)
+            newatk.save()
+            logger.debug('old: ' + new_mscrDic.replacementdic)
+            new_mscrDic.replacementdic = new_settings_string
+            logger.debug('new: ' + new_mscrDic.replacementdic)
+            new_mscrDic.save() 
+            logger.debug('done')
+            valid_submission = True
+    else:
+        form = ArchivistsToolkitConfigForm(instance=atk)
+    return render(request, 'administration/dips_atk_edit.html', locals())
+
+
+
 def contentdm_dips(request):
     link_id = contentdm_dip_destination_select_link_id()
     ReplaceDirChoices = models.MicroServiceChoiceReplacementDic.objects.filter(choiceavailableatlink=link_id)
@@ -122,7 +165,15 @@ def contentdm_dips(request):
     hide_features = helpers.hidden_features()
     return render(request, 'administration/dips_contentdm_edit.html', locals())
 
-def atom_dip_destination_select_link_id():
+#TODO refactor the following 3 functions into 1
+def administration_atk_dip_destination_select_link_id():
+    taskconfigs = models.TaskConfig.objects.filter(description='Select target CONTENTdm server')
+    taskconfig = taskconfigs[0]
+    links = models.MicroServiceChainLink.objects.filter(currenttask=taskconfig.id)
+    link = links[0]
+    return link.id
+
+def administration_atom_dip_destination_select_link_id():
     taskconfigs = models.TaskConfig.objects.filter(description='Select DIP upload destination')
     taskconfig = taskconfigs[0]
     links = models.MicroServiceChainLink.objects.filter(currenttask=taskconfig.id)

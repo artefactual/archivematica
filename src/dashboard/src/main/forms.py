@@ -22,6 +22,7 @@ from django.forms.widgets import TextInput, Textarea, CheckboxInput, HiddenInput
 from main import models
 from django.conf import settings
 
+
 class MicroServiceChoiceReplacementDicForm(ModelForm):
     class Meta:
         model = models.MicroServiceChoiceReplacementDic
@@ -32,3 +33,5 @@ class MicroServiceChoiceReplacementDicForm(ModelForm):
             'replacementdic': Textarea(attrs=settings.TEXTAREA_ATTRS),
             'choiceavailableatlink': HiddenInput
         }
+
+
