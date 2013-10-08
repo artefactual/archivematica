@@ -112,10 +112,10 @@ def identifyCommands(fileName):
             JOIN CommandClassifications ON CR.commandClassification = CommandClassifications.pk
             WHERE FileIDs.description='unrar-nonfreeCompatable'
             AND CommandClassifications.classification = 'extract';"""
-            databaseInterface.runSQL(sql)
-            while row != None:
+            c, sqlLock = databaseInterface.querySQL(sql)
+            for row in c:
                 ret.append(row)
-                row = c.fetchone()
+            sqlLock.release()
             break
 
     SevenZipExtensions = ['.ARJ', '.CAB', '.CHM', '.CPIO',

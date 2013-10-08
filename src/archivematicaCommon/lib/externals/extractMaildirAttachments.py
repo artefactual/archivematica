@@ -16,7 +16,9 @@ from base64 import b64decode
 import sys
 from email.Parser import Parser as EmailParser
 from email.utils import parseaddr
-# cStringIOはダメ
+# According to the original blogpost, StringIO was chosen over cStringIO because PIL
+# required native Python types.
+# TODO: Look at using cStringIO instead, as it's faster, and we're not using PIL
 from StringIO import StringIO
 import uuid
 import re
