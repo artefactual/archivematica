@@ -111,7 +111,7 @@ def atom_dips(request):
     return render(request, 'administration/dips_edit.html', locals())
 
 def administration_atk_dips(request):
-    atk = ArchivistsToolkitConfig.objects.get(pk=1)
+    atk = ArchivistsToolkitConfig.objects.all()[0]
     if request.POST:
         form = ArchivistsToolkitConfigForm(request.POST, instance=atk)
         usingpass =  atk.dbpass
@@ -138,6 +138,7 @@ def administration_atk_dips(request):
             logger.debug('new: ' + new_mscrDic.replacementdic)
             new_mscrDic.save() 
             logger.debug('done')
+            messages.info(request, 'Saved.')
             valid_submission = True
     else:
         form = ArchivistsToolkitConfigForm(instance=atk)

@@ -36,6 +36,7 @@ import components.helpers as helpers
 from components.administration.forms import StorageSettingsForm
 from installer.forms import SuperUserCreationForm
 from main.models import Agent
+from components.administration.models import ArchivistsToolkitConfig
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
 import FPRClient.main as FPRClient
@@ -55,7 +56,11 @@ def welcome(request):
         # assign UUID to dashboard
         dashboard_uuid = str(uuid.uuid4())
         helpers.set_setting('dashboard_uuid', dashboard_uuid)
-        
+
+        # create blank ATK DIP upload config
+        config = ArchivistsToolkitConfig()
+        config.save()
+
         # save organization PREMIS agent if supplied
         org_name       = request.POST.get('org_name', '')
         org_identifier = request.POST.get('org_identifier', '')
