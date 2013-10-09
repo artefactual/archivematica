@@ -20,10 +20,10 @@ def collection_list(db, resource_id, ret=None, resource_type='collection'):
         
     cursor = db.cursor() 
     if resource_type == 'collection':
-        cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId IS NULL AND resourceId=%s", (resource_id))
+        cursor.execute("SELECT resourceComponentId FROM resourcescomponents WHERE parentResourceComponentId IS NULL AND resourceId=%s", (resource_id))
     else:
         ret.append(resource_id)
-        cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId=%s", (resource_id))
+        cursor.execute("SELECT resourceComponentId FROM resourcescomponents WHERE parentResourceComponentId=%s", (resource_id))
 
     rows = cursor.fetchall()
     if len(rows):
@@ -57,7 +57,7 @@ def get_resource_component_and_children(db, resource_id, resource_type='collecti
     cursor = db.cursor() 
 
     if resource_type == 'collection':
-        cursor.execute("SELECT title, dateExpression, resourceIdentifier1 FROM Resources WHERE resourceid=%s", (resource_id))
+        cursor.execute("SELECT title, dateExpression, resourceIdentifier1 FROM resources WHERE resourceid=%s", (resource_id))
 
         for row in cursor.fetchall():
             resource_data['id']                 = resource_id
@@ -67,7 +67,7 @@ def get_resource_component_and_children(db, resource_id, resource_type='collecti
             resource_data['identifier']         = row[2]
             resource_data['levelOfDescription'] = 'collection'
     else:
-        cursor.execute("SELECT title, dateExpression, persistentID, resourceLevel FROM ResourcesComponents WHERE resourceComponentId=%s", (resource_id))
+        cursor.execute("SELECT title, dateExpression, persistentID, resourceLevel FROM resourcescomponents WHERE resourceComponentId=%s", (resource_id))
 
         for row in cursor.fetchall():
             resource_data['id']                 = resource_id
@@ -83,14 +83,14 @@ def get_resource_component_and_children(db, resource_id, resource_type='collecti
     if (not recurse_max_level) or level < recurse_max_level:
         if resource_type == 'collection':
             if query == '':
-                cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId IS NULL AND resourceId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
+                cursor.execute("SELECT resourceComponentId FROM resourcescomponents WHERE parentResourceComponentId IS NULL AND resourceId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
             else:
-                cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId IS NULL AND resourceId=%s AND (title LIKE %s OR persistentID LIKE %s) ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%', '%' + query + '%'))
+                cursor.execute("SELECT resourceComponentId FROM resourcescomponents WHERE parentResourceComponentId IS NULL AND resourceId=%s AND (title LIKE %s OR persistentID LIKE %s) ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%', '%' + query + '%'))
         else:
             if query == '':
-                cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
+                cursor.execute("SELECT resourceComponentId FROM resourcescomponents WHERE parentResourceComponentId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
             else:
-                cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId=%s AND (title LIKE %s OR persistentID LIKE %s) ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%', '%' + query + '%'))
+                cursor.execute("SELECT resourceComponentId FROM resourcescomponents WHERE parentResourceComponentId=%s AND (title LIKE %s OR persistentID LIKE %s) ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%', '%' + query + '%'))
 
         rows = cursor.fetchall()
 

@@ -9,7 +9,7 @@
 <div class="span12">
 
   <ul class="breadcrumb">
-    {% breadcrumb_url 'DIP Upload' components.ingest.views_atk.ingest_upload_atk uuid %}
+    {% breadcrumb_url 'DIP Upload' 'components.ingest.views_atk.ingest_upload_atk' uuid %}
     {% breadcrumb 'Collection' %}
   </ul>
 
@@ -21,7 +21,7 @@
     <small>{{ resource_data.title }} ({{ resource_data.id }})</small>
   </h1>
 
-  <a class='btn' href='{% url components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels uuid resource_id %}'>Assign DIP objects to this resource</a>
+  <a class='btn' href="{% url 'components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels' uuid resource_id %}">Assign DIP objects to this resource</a>
   <br />
   <br />
 
@@ -37,9 +37,9 @@
       <tbody>
         {% for component in page.objects %}
           <tr>
-            <td><a href='{% url components.ingest.views_atk.ingest_upload_atk_resource_component uuid component.id %}'>{{ component.levelOfDescription }}</a></td>
-            <td><a href='{% url components.ingest.views_atk.ingest_upload_atk_resource_component uuid component.id %}'>{{ component.title }} ({{ component.id }})</a></td>
-            <td><a href='{% url components.ingest.views_atk.ingest_upload_atk_resource_component uuid component.id %}'>{{ component.dates }}</a></td>
+            <td><a href="{% url 'components.ingest.views_atk.ingest_upload_atk_resource_component' uuid component.id %}">{{ component.levelOfDescription }}</a></td>
+            <td><a href="{% url 'components.ingest.views_atk.ingest_upload_atk_resource_component' uuid component.id %}">{{ component.title }} ({{ component.id }})</a></td>
+            <td><a href="{% url 'components.ingest.views_atk.ingest_upload_atk_resource_component' uuid component.id %}">{{ component.dates }}</a></td>
           </tr>
         {% endfor %}
       </tbody>

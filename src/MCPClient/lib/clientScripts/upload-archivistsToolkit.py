@@ -226,7 +226,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         else:
             is_resource = True
             sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
-                      Resources where resourceid = {}'''.format(pairs[uuid]['rid']) 
+                      resources where resourceid = {}'''.format(pairs[uuid]['rid']) 
                        
         logger.debug('sql1:' + sql1) 
         cursor.execute(sql1)
