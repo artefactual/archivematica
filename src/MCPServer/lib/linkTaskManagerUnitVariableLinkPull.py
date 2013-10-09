@@ -48,4 +48,4 @@ class linkTaskManagerUnitVariableLinkPull:
         ###Update the unit
         if link != None:
             self.jobChainLink.setExitMessage("Completed successfully")
-            self.jobChainLink.jobChain.nextChainLink(link)
+            self.jobChainLink.jobChain.nextChainLink(link, passVar=self.jobChainLink.passVar)

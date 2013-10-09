@@ -162,10 +162,10 @@ def bridgeLoadVariable():
         rows2 = databaseInterface.queryAllSQL(sql)
         for row2 in rows2:
             microServiceChainLink2, variable,  microServiceChainLinkDest = row2
-            addArrow(microServiceChainLink, microServiceChainLinkDest, color="brown")
+            addArrow(microServiceChainLink, microServiceChainLinkDest, color="orangered")
             count +=1
         if defaultMicroServiceChainLink:
-            addArrow(microServiceChainLink, defaultMicroServiceChainLink, color="brown")
+            addArrow(microServiceChainLink, defaultMicroServiceChainLink, color="orangered")
         if count == 0:
             print "no bridge variable set for: ", linkUUIDtoNodeName[microServiceChainLink]           
     return
@@ -174,7 +174,7 @@ def draw():
     print "Creating"   
     G.layout(prog='dot')
     args= "-Goverlap=prism -v "
-    G.draw('chainlinks-{}.png'.format(datetime.date.today()), args=args) #firefox
+    # G.draw('chainlinks-{}.png'.format(datetime.date.today()), args=args) #firefox
     G.draw('chainlinks-{}.svg'.format(datetime.date.today()), args=args) #inkscape
     
 
@@ -188,8 +188,7 @@ def test():
     
 def bridgeSpecial():
     # sip to transfer
-    addArrow('39a128e3-c35d-40b7-9363-87f75091e1ff', 'db6d3830-9eb4-4996-8f3a-18f4f998e07f') 
-    addArrow('5f99ca60-67b8-4d70-8173-fc22ebda9202', 'db6d3830-9eb4-4996-8f3a-18f4f998e07f')
+    addArrow('3e75f0fa-2a2b-4813-ba1a-b16b4be4cac5', 'db6d3830-9eb4-4996-8f3a-18f4f998e07f')
     
 if __name__ == '__main__':
     #test()

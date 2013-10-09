@@ -158,3 +158,109 @@ INSERT INTO WatchedDirectories(pk, watchedDirectoryPath, chain, expectedType) VA
 
 
 -- /Issue 5674
+
+
+-- Issue 5759
+
+-- Clean up of Transfer MSCL
+DELETE FROM MicroServiceChainLinksExitCodes WHERE pk='d82b17d1-ad41-43a3-90a8-2649a2ab9375';
+DELETE FROM MicroServiceChainLinks WHERE pk='ea69c596-3903-4de7-9ea0-d1b8da73473a';
+UPDATE MicroServiceChainLinks SET currentTask='ad38cdea-d1da-4d06-a7e5-6f75da85a718' WHERE currentTask='10846796-f1ee-499a-9908-4c49f8edd7e6';
+DELETE FROM TasksConfigs WHERE pk='10846796-f1ee-499a-9908-4c49f8edd7e6';
+DELETE FROM StandardTasksConfigs WHERE pk='f6dcdd6f-fcd4-4314-9eec-765ea776116b';
+
+-- Remove stubbed chain of 'Create single SIP'
+SET @chainStart='6d88a276-860b-40e9-b941-772a654d6a51' COLLATE utf8_unicode_ci;
+SET @c2 = '5f99ca60-67b8-4d70-8173-fc22ebda9202' COLLATE utf8_unicode_ci;
+SET @c3 = 'e564b156-804f-4ab0-92ea-43bf1de95c40' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChains WHERE startingLink=@chainStart;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@chainStart, @c2, @c3);
+DELETE FROM MicroServiceChainLinks WHERE pk IN (@chainStart, @c2, @c3);
+DELETE FROM TasksConfigs WHERE pk='95678fce-e651-4b5e-8cb7-c596b18b8320';
+DELETE FROM StandardTasksConfigs WHERE pk='b0034946-4a5f-4ee4-a4f8-bcbc9ff7e1e9';
+
+-- Merge DSPACE with standard transfer & delete extra MSCLs
+SET @sanitizeObjectNames='2584b25c-8d98-44b7-beca-2b3ea2ea2505' COLLATE utf8_unicode_ci;
+SET @dspaceIDMETS='8ec0b0c1-79ad-4d22-abcd-8e95fcceabbc' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink = @sanitizeObjectNames WHERE pk=@dspaceIDMETS;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@sanitizeObjectNames WHERE microServiceChainLink=@dspaceIDMETS;
+SET @d1 = 'd2c2b65d-36c6-4636-9459-b5f0b4b0065a' COLLATE utf8_unicode_ci; -- index
+SET @d2 = '8a0bc7c6-f7c2-4656-a690-976660c66a8a' COLLATE utf8_unicode_ci; -- move to completed
+SET @d3 = '730df394-6690-42f3-8b68-37f029d4d03e' COLLATE utf8_unicode_ci; -- set file perm
+SET @d4 = 'be093c77-7bdc-406e-a1fd-7ebe01d0fd9b' COLLATE utf8_unicode_ci; -- load labels
+SET @d5 = 'd817d32d-10d8-46c7-a68e-9eab82d8cd77' COLLATE utf8_unicode_ci; -- id by ext
+SET @d6 = '7688473b-7740-4281-a903-7caae1cde29c' COLLATE utf8_unicode_ci; -- char and extract
+SET @d7 = '4a332ca2-4742-4fba-acc4-6f6b78e7da88' COLLATE utf8_unicode_ci; -- sanitize transfer name
+SET @d8 = '710cc1ca-090c-422f-8afc-f89858d64610' COLLATE utf8_unicode_ci; -- sanitize object names
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
+SET foreign_key_checks = 0;
+DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
+SET foreign_key_checks = 1;
+DELETE FROM TasksConfigs WHERE pk IN (SELECT currentTask FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d4, @d5));
+
+-- Merge maildir with standard transfer & delete extra MSCLs
+SET @sanitizeTransferName='a329d39b-4711-4231-b54e-b5958934dccb' COLLATE utf8_unicode_ci;
+SET @maildirSanitizeObj='c8f7bf7b-d903-42ec-bfdf-74d357ac4230' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@sanitizeTransferName WHERE microServiceChainLink=@maildirSanitizeObj;
+SET @d0='3e636c6a-8a59-4a8a-b754-bf0fcd402194' COLLATE utf8_unicode_ci; -- move completed
+SET @d1='112b1cb9-f9dd-4317-b603-65cac35da4c5' COLLATE utf8_unicode_ci; -- file perm
+SET @d2='1efe11c1-f6e7-4baf-9dff-98079b1cdf69' COLLATE utf8_unicode_ci; -- id file by ext
+SET @d3='79c3a37e-0415-4262-8720-a76410500f23' COLLATE utf8_unicode_ci; -- char and extract metadata
+SET @d4='51edd1ca-3dae-402c-8782-f007a5ae8f70' COLLATE utf8_unicode_ci; -- sanitize trans name
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d0, @d1, @d2, @d3, @d4);
+SET foreign_key_checks = 0;
+DELETE FROM MicroServiceChainLinks WHERE pk IN (@d0, @d1, @d2, @d3, @d4);
+SET foreign_key_checks = 1;
+DELETE FROM TasksConfigs WHERE pk IN (SELECT currentTask FROM MicroServiceChainLinks WHERE pk IN (@d0, @d2, @d3, @d4));
+
+-- Index transfer contents before move to completed dir
+SET @indexTransfer = 'eb52299b-9ae6-4a1f-831e-c7eee0de829f' COLLATE utf8_unicode_ci;
+SET @moveCompleted = 'd27fd07e-d3ed-4767-96a5-44a2251c6d0a' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = @indexTransfer WHERE microServiceChainLink='c4898520-448c-40fc-8eb3-0603b6aacfb7';
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = @moveCompleted WHERE microServiceChainLink=@indexTransfer;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@moveCompleted WHERE pk=@indexTransfer;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=NULL WHERE microServiceChainLink=@moveCompleted;
+
+-- Move actually completed transfers to sharedDirectory/completed/transfers
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('8516867e-b223-41af-8069-d42b08d32e99', 0, 'moveTransfer_v0.0', '"%SIPDirectory%" "%sharedPath%completed/transfers/." "%SIPUUID%" "%sharedPath%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('1df8d388-fdc9-4c37-a639-bd8b6f4a87c7', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '8516867e-b223-41af-8069-d42b08d32e99', 'Move to completed transfers directory');
+UPDATE MicroServiceChainLinks SET currentTask='1df8d388-fdc9-4c37-a639-bd8b6f4a87c7' WHERE pk='3e75f0fa-2a2b-4813-ba1a-b16b4be4cac5';
+UPDATE TasksConfigs SET description='Move to SIP creation directory for completed transfers' WHERE pk='39ac9ff8-d312-4033-a2c6-44219471abda';
+
+
+-- One 'Move to completedTransfers directory' TC and StandardTasksConfigs
+UPDATE MicroServiceChainLinks SET currentTask = '39ac9ff8-d312-4033-a2c6-44219471abda' WHERE pk IN ('3e75f0fa-2a2b-4813-ba1a-b16b4be4cac5', 'e564b156-804f-4ab0-92ea-43bf1de95c40');
+DELETE FROM TasksConfigs WHERE pk IN ('5b5ef3c4-5f7e-417e-a1f8-ff5ca1a220b6', '45605b0a-a701-47ba-923f-8e107ac35820', 'd1342d53-f930-472f-8043-58d806285a11', '2123f249-edcb-45e2-8332-f59633189fd5', 'cf8d4bf9-fe4b-4b45-8442-678963ad9966');
+DELETE FROM StandardTasksConfigs WHERE pk IN ('a851b8a3-d074-419f-ab18-78de0d0cd5b0', '15afe1ca-bf7a-438d-b3bf-ee517cd43ad8');
+
+-- Add maildir specific file ID and characterization chain likns
+UPDATE TasksConfigs SET description='Characterize and extract metadata for attachments' WHERE pk='445d6579-ee40-47d0-af6c-e2f6799f450d';
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('bd382151-afd0-41bf-bb7a-b39aef728a32', 'Characterize and extract metadata', 'Failed', '445d6579-ee40-47d0-af6c-e2f6799f450d', @MoveTransferToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('5b2542c8-2088-4541-8bf9-a750eacb4ac5', 'bd382151-afd0-41bf-bb7a-b39aef728a32', 0, '1b1a4565-b501-407b-b40f-2f20889423f1', 'Completed successfully');
+
+SET @identifyFileFormatMSCLTransferMaildir='0e41c244-6c3e-46b9-a554-65e66e5c9324' COLLATE utf8_unicode_ci;
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES ('02fd0952-4c9c-4da6-9ea3-a1409c87963d', 0, 'identifyFileFormat_v0.0', '%IDCommand% %relativeLocation% %fileUUID%', 'objects/attachments');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('a75ee667-3a1c-4950-9194-e07d0e6bf545', 'a6b1c323-7d36-428e-846a-e7e819423577', '02fd0952-4c9c-4da6-9ea3-a1409c87963d', 'Identify file format of attachments');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@identifyFileFormatMSCLTransferMaildir, 'Characterize and extract metadata', 'Failed', 'a75ee667-3a1c-4950-9194-e07d0e6bf545', 'bd382151-afd0-41bf-bb7a-b39aef728a32');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('6ff56b9a-2e0d-4117-a6ee-0ba51e6da708', @identifyFileFormatMSCLTransferMaildir, 0, 'bd382151-afd0-41bf-bb7a-b39aef728a32', 'Completed successfully');
+
+
+-- Add a Set Unit Variable for maildir with the File ID MSCL
+SET @fileIDCmdTransfer='fileIDcommand-transfer' COLLATE utf8_unicode_ci;
+INSERT INTO TasksConfigsSetUnitVariable (pk, variable, variableValue, microServiceChainLink) VALUES ('65263ec0-f3ff-4fd5-9cd3-cf6f51ef92c7', @fileIDCmdTransfer, "", @identifyFileFormatMSCLTransferMaildir);
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('0bb3f551-1418-4b99-8094-05a43fcd9537', '6f0b612c-867f-4dfd-8e43-5b35b7f882d7', '65263ec0-f3ff-4fd5-9cd3-cf6f51ef92c7', 'Set files to identify');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('4417b129-fab3-4503-82dd-740f8e774bff', 'Rename with transfer UUID', 'Failed', '0bb3f551-1418-4b99-8094-05a43fcd9537', 'fdfac6e5-86c0-4c81-895c-19a9edadedef');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('5035f15f-90a9-4beb-9251-c24ec3e530d7', '4417b129-fab3-4503-82dd-740f8e774bff', 0, 'fdfac6e5-86c0-4c81-895c-19a9edadedef', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='4417b129-fab3-4503-82dd-740f8e774bff' WHERE microServiceChainLink='da2d650e-8ce3-4b9a-ac97-8ca4744b019f';
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='4417b129-fab3-4503-82dd-740f8e774bff' WHERE pk='da2d650e-8ce3-4b9a-ac97-8ca4744b019f';
+
+-- Add a Get Unit Variable for which File ID stuff to run
+-- objects or objects/attachments
+INSERT INTO TasksConfigsUnitVariableLinkPull (pk, variable, variableValue, defaultMicroServiceChainLink) VALUES ('97ddf0be-7b07-48b1-82f6-6a3b49edde2b', @fileIDCmdTransfer, NULL, @identifyFileFormatMSCL);
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('7a96f085-924b-483e-bc63-440323bce587', 'c42184a3-1a7f-4c4d-b380-15d8d97fdd11', '97ddf0be-7b07-48b1-82f6-6a3b49edde2b', 'Determine which files to identify');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('c3269a0a-91db-44e8-96d0-9c748cf80177', 'Characterize and extract metadata', 'Failed', '7a96f085-924b-483e-bc63-440323bce587', @MoveTransferToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('55dd25a7-944a-4a99-8b94-a508d28d0b38', 'c3269a0a-91db-44e8-96d0-9c748cf80177', 0, NULL, 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='c3269a0a-91db-44e8-96d0-9c748cf80177' WHERE microServiceChainLink=@selectFileIDCommandMSCL;
+
+-- /Issue 5759
+
