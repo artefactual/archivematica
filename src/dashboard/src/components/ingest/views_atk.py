@@ -75,8 +75,10 @@ def ingest_upload_atk(request, uuid):
 
         page['objects'] = augment_resource_data(db, page['objects'])
 
-    except MySQLdb.ProgrammingError:
-        return HttpResponseServerError('Database error. Please contact an administrator.')
+    except (MySQLdb.ProgrammingError, MySQLdb.OperationalError) as e:
+        return HttpResponseServerError(
+          'Database error {0}. Please contact an administrator.'.format(str(e))
+        )
 
     return render(request, 'ingest/atk/resource_list.html', locals())
 
