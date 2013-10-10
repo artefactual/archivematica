@@ -263,8 +263,6 @@ INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, cu
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('55dd25a7-944a-4a99-8b94-a508d28d0b38', 'c3269a0a-91db-44e8-96d0-9c748cf80177', 0, NULL, 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='c3269a0a-91db-44e8-96d0-9c748cf80177' WHERE microServiceChainLink=@selectFileIDCommandMSCL;
 
--- /Issue 5759
-
 -- Issue 5759, 5248
 -- Maildir support
 SET @fileIDCmdIngest='fileIDcommand-ingest' COLLATE utf8_unicode_ci;
@@ -304,3 +302,59 @@ UPDATE StandardTasksConfigs SET standardErrorFile ='%SIPLogsDirectory%fileFormat
 
 -- /Issue 5759, 5248 Maildir
 
+-- /Issue 5759
+
+-- Insert "Extract contents" task after identification
+SET @extractContentsMSCL = '1cb7e228-6e94-4c93-bf70-430af99b9264' COLLATE utf8_unicode_ci;
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('8fad772e-7d2e-4cdd-89e6-7976152b6696', 0, 'extractContents_v0.0', '"%SIPUUID%" "%transferDirectory%" "%date%" "%taskUUID%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('09f73737-f7ca-4ea2-9676-d369f390e650', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '8fad772e-7d2e-4cdd-89e6-7976152b6696', 'Extract contents from compressed archives');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@extractContentsMSCL, 'Extract packages', 'Completed successfully', '09f73737-f7ca-4ea2-9676-d369f390e650', @characterizeExtractMetadata);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('f0ba8289-b40f-4279-a968-7496f837c9f9', @extractContentsMSCL, 0, @characterizeExtractMetadata, 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@extractContentsMSCL WHERE microServiceChainLink=@identifyFileFormatMSCL;
+-- Identify files will exit non-zero if some files weren't identified, however it may have returned some identifications this task can use
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@extractContentsMSCL WHERE pk=@identifyFileFormatMSCL;
+
+-- Remove the old extract microservice chain links, pointing them at identification instead
+-- "Move to processing directory" moves to point to the first entry of the "Clean up names" group
+SET @moveToProcessingDirectoryMSCL = '0e379b19-771e-4d90-a7e5-1583e4893c56' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='1c2550f1-3fc0-45d8-8bc4-4c06d720283b' WHERE microServiceChainLink=@moveToProcessingDirectoryMSCL;
+UPDATE MicroServiceChainLinks SET microserviceGroup='Clean up names' WHERE pk=@moveToProcessingDirectoryMSCL;
+
+-- Point "Create unquarantine PREMIS event" at identification
+SET @createQuarantinePremisMSCL = '5158c618-6160-41d6-bbbe-ddf34b5b06bc' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@selectFileIDCommandMSCL WHERE pk=@createQuarantinePremisMSCL;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@selectFileIDCommandMSCL WHERE microServiceChainLink=@createQuarantinePremisMSCL;
+
+SET @oldExtractMSCL='f140cc1f-1e0d-4eb1-aa93-8fa8ac52eca9' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@oldExtractMSCL;
+DELETE FROM MicroServiceChainLinks WHERE pk=@oldExtractMSCL;
+
+-- DSpace: point "extract" at identification
+-- Both are separate "Move to processing directory" chains
+SET @dspaceScanForVirusesMSCL='f92dabe5-9dd5-495e-a996-f8eb9ef90f48' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@dspaceScanForVirusesMSCL WHERE microServiceChainLink='d7e6404a-a186-4806-a130-7e6d27179a15';
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@dspaceScanForVirusesMSCL WHERE microServiceChainLink='38c591d4-b7ee-4bc0-b993-c592bf15d97d';
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@dspaceScanForVirusesMSCL WHERE pk='38c591d4-b7ee-4bc0-b993-c592bf15d97d';
+
+-- Remove DSpace "extract packages"
+SET @dspaceExtractMSCL='28d4e61d-1f00-4e70-b79b-6a9779f8edc4' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@dspaceExtractMSCL;
+DELETE FROM MicroServiceChainLinks WHERE pk=@dspaceExtractMSCL;
+
+-- Create new set of commands that covers the second-pass identification and filename sanitization
+-- Insert a second pass of "Sanitize object's file and directory names" following package extraction
+SET @sanitizeNamesPostExtractionMSCL='c5ecb5a9-d697-4188-844f-9a756d8734fa' COLLATE utf8_unicode_ci;
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('f368a36d-2b27-4f08-b662-2828a96d189a', 0, 'sanitizeObjectNames_v0.0', '"%SIPObjectsDirectory%" "%SIPUUID%" "%date%" "%taskUUID%" "transferDirectory" "transferUUID" "%SIPDirectory%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('57bd2747-181e-4f06-b969-dc012c592982', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', 'f368a36d-2b27-4f08-b662-2828a96d189a', "Sanitize extracted objects' file and directory names");
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@sanitizeNamesPostExtractionMSCL, 'Clean up names', 'Failed', '57bd2747-181e-4f06-b969-dc012c592982', '303a65f6-a16f-4a06-807b-cb3425a30201');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('345fc8d9-f44d-41d7-a439-57067cc04c10', @sanitizeNamesPostExtractionMSCL, 0, '303a65f6-a16f-4a06-807b-cb3425a30201', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@sanitizeNamesPostExtractionMSCL WHERE microServiceChainLink='1cb7e228-6e94-4c93-bf70-430af99b9264';
+
+-- Insert a second pass of "Identify files"; this reuses the same tool from last time
+SET @identifyFileFormatPostExtractionMSCL = 'aaa929e4-5c35-447e-816a-033a66b9b90b' COLLATE utf8_unicode_ci;
+
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@identifyFileFormatPostExtractionMSCL, 'Extract packages', 'Failed', @identifyFileFormatTC, @characterizeExtractMetadata);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('e132d3e2-6dcd-4c81-b6f3-7a0ea04193c0', @identifyFileFormatPostExtractionMSCL, 0, @characterizeExtractMetadata, 'Completed successfully');
+
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@identifyFileFormatPostExtractionMSCL WHERE pk=@sanitizeNamesPostExtractionMSCL;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@identifyFileFormatPostExtractionMSCL WHERE microServiceChainLink=@sanitizeNamesPostExtractionMSCL;
