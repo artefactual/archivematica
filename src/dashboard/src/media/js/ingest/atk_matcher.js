@@ -20,6 +20,7 @@ var ATKMatcherView = Backbone.View.extend({
   initialize: function(options) {
     var self = this,
         manditoryProperties = [
+          'DIPUUID',
           'objectPaths',
           'resourceData',
           'objectPaneCSSId',
@@ -31,7 +32,6 @@ var ATKMatcherView = Backbone.View.extend({
           'matchButtonCSSId',
           'matchPaneCSSId',
           'matchPanePairsCSSId',
-          'buttonPaneCSSId',
           'saveButtonCSSId',
           'confirmButtonCSSId',
           'cancelButtonCSSId'
@@ -48,6 +48,9 @@ var ATKMatcherView = Backbone.View.extend({
     this.resourceItemTemplate   = _.template(options.resourceItemTemplate);
     this.matchItemTemplate      = _.template(options.matchItemTemplate);
 
+    // path UUIDs will be stored here using data supplied by the objectPaths parameter
+    this.pathData = {};
+
     // set matcher state maintenance properties
     this.resourceCollection = new ATKMatcherCollection();
     this.selectedResourceCSSId = false; // resource currently selected in UI
@@ -60,32 +63,105 @@ var ATKMatcherView = Backbone.View.extend({
 
     // render initial data
     this.renderObjectPaths();
-    this.renderResourceData(this.resourceData);
+    this.populateResourceCollection(this.resourceData);
+    this.renderResourceCollection();
 
     // activate interface behaviour
     this.activateObjectFiltering();
     this.activateResourceSelection();
     this.activateResourceFiltering();
+    this.activateResourceSorting();
     this.activateMatchButtonAndKeypressResponse();
     this.activateSaveButton();
     this.activateConfirmButton();
     this.activateCancelButton();
   },
 
+  // this can be replaced with Underscore's truncation once we update
+  // Underscore...
+  truncate: function(string, length, truncation) {
+      length = length || 30;
+      truncation = _.isUndefined(truncation) ? '...' : truncation;
+      return string.length > length ?
+        string.slice(0, length - truncation.length) + truncation : String(string);
+    },
+
   renderObjectPaths: function() {
     var self = this,
         index = 0;
 
     // add each path to object pane
-    this.objectPaths.forEach(function(path) {
-      $('#' + self.objectPanePathsCSSId).append(
-        self.objectPathTemplate({'index': index, 'path': path})
-      );
+    this.objectPaths.forEach(function(pathData) {
+      // create object path representation (checkbox and label)
+      var newObjectPath = $(self.objectPathTemplate({
+        'index': index,
+        'path': pathData.path,
+        'truncated_path': self.truncate(pathData.path, 40)}
+      ));
+
+      self.pathData[pathData.path] = pathData.uuid;
+
+      self.activateCheckboxMultipleSelection(index, newObjectPath);
+      $('#' + self.objectPanePathsCSSId).append(newObjectPath);
       index++;
     });
   },
 
-  renderResourceData: function(resourceData, level) {
+  activateCheckboxMultipleSelection: function(index, newObjectPath) {
+    var self = this;
+
+    // add shift-click handling for selecting multiple paths
+    newObjectPath.children().click(function(event) {
+      // don't respond to label click event, just checkbox
+      if ($(this).get(0).tagName == 'INPUT') {
+        // only want to perform this logic if the user has checked a checkbox
+        if ($(this).attr('checked') == 'checked') {
+          // if user has shift-clicked, try multiple select
+          if (event.shiftKey && self.pathIndexOfLastChecked != undefined) {
+            // try multiple select direction based on the user's last checked path
+            if (self.pathIndexOfLastChecked < index) {
+              // work backwards, checking previously rendered checkboxes, to try to find
+              // one that's checked
+              var previousIndex = index - 1;
+              while (previousIndex >= 0) {
+                // if a checkbox is checked, check all between it and the one that
+                // was clicked
+                if ($('#path_' + previousIndex + '_checkbox').attr('checked') == 'checked') {
+                  for(var checkIndex = previousIndex + 1; checkIndex < index; checkIndex++) {
+                    // check checkbox
+                    $('#path_' + checkIndex + '_checkbox').attr('checked', 'checked');
+                  }
+
+                  break;
+                }
+                previousIndex--;
+              }
+            } else {
+              // work forwards, checked checkboxes rendered after this checkbox, to find
+              // one that's checked
+              var nextIndex = index + 1;
+              while (nextIndex < self.objectPaths.length) {
+                if ($('#path_' + nextIndex + '_checkbox').attr('checked') == 'checked') {
+                  for(var checkIndex = nextIndex - 1; checkIndex > index; checkIndex--) {
+                    // check checkbox
+                    $('#path_' + checkIndex + '_checkbox').attr('checked', 'checked');
+                  }
+
+                  break;
+                }
+                nextIndex++;
+              }
+            }
+          }
+
+          // take note that this was the last checkbox checked
+          self.pathIndexOfLastChecked = index;
+        }
+      }
+    });
+  },
+
+  populateResourceCollection: function(resourceData, level) {
     level = level || 0;
 
     var padding = '';
@@ -95,30 +171,58 @@ var ATKMatcherView = Backbone.View.extend({
     }
 
     // store internal representation for reference
+    resourceData['padding'] = padding;
     this.resourceCollection.add(resourceData);
-
-    var resourceModel = this.resourceCollection.lastModelAdded();
-
-    // display resource
-    $('#' + this.resourcePaneItemsCSSId).append(
-      this.resourceItemTemplate({
-        'tempId':             resourceModel.id,
-        'padding':            padding,
-        'title':              resourceData.title,
-        'levelOfDescription': resourceData.levelOfDescription,
-        'identifier':         resourceData.identifier,
-        'dates':              resourceData.dates
-      })
-    );
 
     // recurse if children are found
     if (resourceData.children) {
       var self = this;
 
       resourceData.children.forEach(function(child) {
-        self.renderResourceData(child, level + 1);
+        self.populateResourceCollection(child, level + 1);
       });
     }
+  },
+
+  renderResourceCollection: function() {
+    var self = this;
+
+    // empty resource pane
+    $('#' + self.resourcePaneItemsCSSId).empty();
+
+    // add items in collection to pane
+    this.resourceCollection.models.forEach(function (resource) {
+
+      // padding only makes sense when sorted by the order in which the
+      // data was origianlly provided by the server (ordered by
+      // level of description, then title)
+      if (
+        self.resourceCollection.sortAttribute == undefined
+        || self.resourceCollection.sortAttribute == 'sortPosition'
+      ) {
+        padding = resource.get('padding');
+      } else {
+        padding = '';
+      }
+
+      // render individual resource
+      $('#' + self.resourcePaneItemsCSSId).append(
+        self.resourceItemTemplate({
+          'tempId':             resource.id,
+          'padding':            padding,
+          'title':              resource.get('title'),
+          'truncated_title':    self.truncate(resource.get('title'), 40),
+          'levelOfDescription': resource.get('levelOfDescription'),
+          'identifier':         resource.get('identifier'),
+          'dates':              resource.get('dates')
+        })
+      );
+
+      // highlight if it has been paired with any objects
+      if (resource.get('used')) {
+        $('#resource_' + resource.id + ' > td').addClass('atk-matcher-resource-item-paired');
+      }
+    });
   },
 
   activateObjectFiltering: function() {
@@ -136,6 +240,53 @@ var ATKMatcherView = Backbone.View.extend({
             $(this).show();
           }
         });
+    });
+  },
+
+  activateResourceSorting: function() {
+    var self = this;
+
+    // add comparator
+    this.resourceCollection.comparator = function(resource) {
+      if (self.resourceCollection.sortAttribute != undefined) {
+        return resource.get(self.resourceCollection.sortAttribute);
+      } else {
+        return resource.id;
+      }
+    };
+
+    // activate sort handles
+    this.resourceCollection.sortAttribute = 'sortPosition';
+    $('.atk_resource_sort').each(function() {
+      var sortHandleCSSId = $(this).attr('id'),
+          resourceAttribute = sortHandleCSSId.replace('sort_by_', '');
+
+      $(this).click(function() {
+        // establish sort direction
+        if (self.resourceCollection.lastSortedBy != resourceAttribute) {
+          self.resourceCollection.sortDirection = 'asc';
+        } else {
+          if (self.resourceCollection.sortDirection == 'asc') {
+            self.resourceCollection.sortDirection = 'desc'
+          } else {
+            self.resourceCollection.sortDirection = 'asc'
+          }
+        }
+        self.resourceCollection.lastSortedBy = resourceAttribute;
+
+        // perform sort
+        self.resourceCollection.sortAttribute = resourceAttribute;
+        self.resourceCollection.sort();
+
+        // reverse sort if applicable
+        if (self.resourceCollection.sortDirection == 'desc') {
+          self.resourceCollection.models.reverse();
+        }
+
+        // render resource collection and re-activate resource selection
+        self.renderResourceCollection();
+        self.activateResourceSelection();
+      });
     });
   },
 
@@ -201,15 +352,20 @@ var ATKMatcherView = Backbone.View.extend({
               self.indexNumberFromCSSId(self.selectedResourceCSSId)
             );
 
-            // visually indicate that resource has had objects assigned to it
-            $('#' + self.selectedResourceCSSId + ' > td').css('color', 'red');
+            // take note that resource has had objects assigned to it and visually
+            // indicate it
+            resource.set({'used': true});
+            $('#' + self.selectedResourceCSSId + ' > td').addClass('atk-matcher-resource-item-paired');
 
             // store pair in collection for easy retrieval
             self.pairCollection.add({
-              'objectPath':           item.path,
-              'resourceCSSId':        self.selectedResourceCSSId,
-              'resourceIdentifier':   resource.get('identifier'),
-              'resourceSortPosition': resource.get('sortPosition')
+              'DIPUUID':                    self.DIPUUID,
+              'objectPath':                 item.path,
+              'objectUUID':                 self.pathData[item.path],
+              'resourceId':                 resource.id,
+              'resourceCSSId':              self.selectedResourceCSSId,
+              'resourceLevelOfDescription': resource.get('levelOfDescription'),
+              'resourceSortPosition':       resource.get('sortPosition')
             });
 
             // get the pair model that was added
@@ -218,7 +374,9 @@ var ATKMatcherView = Backbone.View.extend({
             var $newMatchEl = $(self.matchItemTemplate({
               'tempId': pairModel.id,
               'path': item.path,
+              'truncated_path': self.truncate(item.path, 40),
               'title': resource.get('title'),
+              'truncated_title': self.truncate(resource.get('title'), 40),
               'identifier': resource.get('identifier'),
               'levelOfDescription': resource.get('levelOfDescription'),
               'dates': resource.get('dates')
@@ -253,7 +411,7 @@ var ATKMatcherView = Backbone.View.extend({
             $('#' + self.saveButtonCSSId).show();
 
             // enable deletion of match
-            (function(index, pathId) {
+            (function(index, pathId, resourceId) {
               $('#match_delete_' + index).click(function() {
                 // enable checkbox and remove greying out of associated label
                 $('#' + pathId + ' > input').removeAttr('disabled');
@@ -274,7 +432,11 @@ var ATKMatcherView = Backbone.View.extend({
 
                 // if the resource isn't associated with any objects, remove usage highlighting
                 if (found == undefined) {
-                  $('#' + pair.get('resourceCSSId') + ' > td').css('color', '');
+                  // TODO: redo using a class
+                  $('#' + pair.get('resourceCSSId') + ' > td').removeClass('atk-matcher-resource-item-paired');
+                  // set used in resource with ID resourceId to false
+                  var resource = self.resourceCollection.get({id: resourceId});
+                  resource.set({used: false});
                 }
 
                 // hide save button if no pairs now exist
@@ -282,7 +444,7 @@ var ATKMatcherView = Backbone.View.extend({
                   $('#' + self.saveButtonCSSId).hide();
                 }
               });
-            })(pairModel.id, item.id)
+            })(pairModel.id, item.id, resource.id)
             self.matchIndex++;
           });
 
@@ -316,12 +478,32 @@ var ATKMatcherView = Backbone.View.extend({
     });
   },
 
+  sendPairData: function(url, success, error) {
+    var self = this;
+
+    $.ajax({
+      context: this,
+      type: 'POST',
+      dataType: 'json',
+      data: {pairs: self.pairCollection.toJSON()},
+      success: function(result)
+        {
+          success(result);
+        },
+      error: function()
+        {
+          error();
+        },
+      url: url
+    });
+  },
+
   activateSaveButton: function() {
     var self = this,
+        url = window.location.href.split('/').slice(0, 7).join('/') + '/save/',
         fadeOutElementCSSIds = [
           this.objectPaneCSSId,
           this.resourcePaneCSSId,
-          this.buttonPaneCSSId,
           this.saveButtonCSSId
         ],
         fadeInElementCSSIds = [
@@ -330,32 +512,22 @@ var ATKMatcherView = Backbone.View.extend({
         ];
 
     $('#' + self.saveButtonCSSId).click(function () {
-      self.fadeElementsByCSSIds(fadeOutElementCSSIds, 'out', 'fast');
-      self.fadeElementsByCSSIds(fadeInElementCSSIds, 'in', 'fast');
+      self.sendPairData(
+        url,
+        function(result) {
+          self.fadeElementsByCSSIds(fadeOutElementCSSIds, 'out', 'fast');
+          self.fadeElementsByCSSIds(fadeInElementCSSIds, 'in', 'fast');
+        },
+        function() {
+          alert("Error submitting data.");
+        }
+      );
     });
   },
 
   activateConfirmButton: function() {
-    var self = this,
-        url = window.location.href.split('/').slice(0, 7).join('/') + '/';
-
-    $('#' + self.confirmButtonCSSId).click(function() {
-      $.ajax({
-        context: this,
-        type: 'POST',
-        dataType: 'json',
-        data: self.pairCollection.toJSON(),
-        success: function(result)
-          {
-            alert(result.message);
-          },
-        error: function()
-          {
-            alert("Error submitting data.");
-          },
-        url: url
-      });
-      console.log(self.pairCollection.toJSON());
+    $('#' + this.confirmButtonCSSId).click(function() {
+      window.location.href = '/ingest';
     });
   },
 
@@ -364,7 +536,6 @@ var ATKMatcherView = Backbone.View.extend({
         fadeInElementCSSIds = [
           this.objectPaneCSSId,
           this.resourcePaneCSSId,
-          this.buttonPaneCSSId,
           this.saveButtonCSSId
         ],
         fadeOutElementCSSIds = [
@@ -387,9 +558,10 @@ var ATKMatcherView = Backbone.View.extend({
         $(this).children('input').attr('checked') == 'checked'
         && $(this).children('input').attr('disabled') != 'disabled'
       ) {
+        // the label title holds the complete path
         selectedPaths.push({
           'id': $(this).attr('id'),
-          'path': $(this).children('label').text()
+          'path': $(this).children('label').attr('title')
         });
       }
     });
