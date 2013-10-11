@@ -336,7 +336,8 @@ $(function()
                     // get rid of select, etc.
                     self.$('.job-detail-actions').empty();
                   },
-                url: '/mcp/execute/'
+                url: '/mcp/execute/',
+                async: false
               });
             };
 
