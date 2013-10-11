@@ -147,7 +147,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
     #get a list of all the items in this collection
     col = atk.collection_list(db, resource_id)
     logger.debug("got collection_list: {}".format(len(col)))
-    sql0 = "select max(fileVersionId) from FileVersions"
+    sql0 = "select max(fileVersionId) from fileversions"
     logger.debug('sql0: ' + sql0)
     cursor.execute(sql0)
     data = cursor.fetchone()
@@ -288,7 +288,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
            VALUES (1,'%s', '%s','%s','%s','%s','%s',%d, %d,'English',%d,'%s','%s','%s','%s',0,%d,%d)""" % (time_now, time_now, atuser, atuser, short_file_name,dateExpression, dateBegin, dateEnd, int(restrictions_apply), ead_actuate, ead_show,uuid, object_type, newaDID, repoId)
         logger.debug('sql5: ' + sql5)
         doID = process_sql(sql5)
-        sql6 = """insert into FileVersions (fileVersionId, version, lastUpdated, created, lastUpdatedBy, createdBy, uri, useStatement, sequenceNumber, eadDaoActuate,eadDaoShow, digitalObjectId)
+        sql6 = """insert into fileversions (fileVersionId, version, lastUpdated, created, lastUpdatedBy, createdBy, uri, useStatement, sequenceNumber, eadDaoActuate,eadDaoShow, digitalObjectId)
               values 
            (%d, 1, '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s','%s', %d)""" % (base_fv_id,time_now, time_now,atuser,atuser,file_uri,use_statement,0, ead_actuate,ead_show, doID)
         logger.debug('sql6: ' + sql6)
@@ -341,6 +341,8 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
     logger.info("completed upload successfully")
     
 if __name__ == '__main__':
+
+    print sys.argv
     
     RESTRICTIONS_CHOICES=[ 'yes', 'no', 'premis' ]
     EAD_SHOW_CHOICES=['embed', 'new', 'none', 'other', 'replace']
@@ -372,11 +374,11 @@ if __name__ == '__main__':
     if not (args.atdb):
         get_user_input()
     
-    try:
-        mylist = get_files_from_dip(args.dip_location, args.dip_name, args.dip_uuid)
-        upload_to_atk(mylist, args.atuser, args.ead_actuate, args.ead_show, args.object_type, args.use_statement, args.uri_prefix, args.dip_uuid, args.access_conditions, args.use_conditions, args.restrictions, args.dip_location)
+    #try:
+    mylist = get_files_from_dip(args.dip_location, args.dip_name, args.dip_uuid)
+    upload_to_atk(mylist, args.atuser, args.ead_actuate, args.ead_show, args.object_type, args.use_statement, args.uri_prefix, args.dip_uuid, args.access_conditions, args.use_conditions, args.restrictions, args.dip_location)
         
-    except Exception as exc:
-        print exc
-        exit(1) 
+    #except Exception as exc:
+    #    print exc
+    #    exit(1) 
 
