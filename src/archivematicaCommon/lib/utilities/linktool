@@ -168,6 +168,15 @@ def show_link_uuid_using_task_uuid(task_uuid):
         else:
             print "Link UUID: " + link_uuid
 
+def show_link_uuid_using_job_uuid(job_uuid):
+    sql = """SELECT MicroServiceChainLinksPK FROM Jobs WHERE jobUUID='%s'""" % (job_uuid)
+    link_uuid = simple_value_query(sql)
+
+    if link_uuid == None:
+        print "ERROR: Job not found."
+    else:
+        print "Link UUID: " + link_uuid
+
 def show_link_chain_info(link_uuid):
     show_link_info(link_uuid, True)
 
@@ -321,6 +330,11 @@ if __name__ == '__main__':
             'function':    show_link_uuid_using_task_uuid,
             'usage':       'linkfromtask <task UUID>',
             'description': "use task UUID to look up corresponding link's UUID"
+        },
+        'linkfromjob': {
+            'function':    show_link_uuid_using_job_uuid,
+            'usage':       'linkfromjob <job UUID>',
+            'description': "use job UUID to look up corresponding link's UUID"
         },
         'info': {
             'function':    show_link_info,
