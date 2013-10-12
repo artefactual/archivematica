@@ -24,12 +24,7 @@ import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
-from databaseFunctions import insertIntoEvents
 
-alsoRemove = ["/var/archivematica/sharedDirectory/watchedDirectories/SIPCreation/completedTransfers/", \
-              "/var/archivematica/sharedDirectory/failed/", \
-              "/var/archivematica/sharedDirectory/currentlyProcessing/", \
-              "/var/archivematica/sharedDirectory/rejected/"]
 
 def removeEverythingInDirectory(directory):
     if directory[-1] != "/":
@@ -54,13 +49,18 @@ def cleanWatchedDirectories():
     sqlLock.release()
 
 if __name__ == '__main__':
-    if True:
-        import getpass
-        user = getpass.getuser()
-        print "user: ", user
-        if user != "root":
-            print "Please run as root (with sudo)"
-            exit (1)
+    import getpass
+    user = getpass.getuser()
+    print "user: ", user
+    if user != "root":
+        print "Please run as root (with sudo)"
+        exit (1)
     cleanWatchedDirectories()
+    alsoRemove = [
+        "/var/archivematica/sharedDirectory/failed/",
+        "/var/archivematica/sharedDirectory/currentlyProcessing/",
+        "/var/archivematica/sharedDirectory/rejected/",
+        "/var/archivematica/sharedDirectory/completed/transfers/",
+    ]
     for directory in alsoRemove:
         removeEverythingInDirectory(directory)
