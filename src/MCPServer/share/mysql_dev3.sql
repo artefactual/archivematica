@@ -239,15 +239,16 @@ INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, cu
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('5b2542c8-2088-4541-8bf9-a750eacb4ac5', 'bd382151-afd0-41bf-bb7a-b39aef728a32', 0, '1b1a4565-b501-407b-b40f-2f20889423f1', 'Completed successfully');
 
 SET @identifyFileFormatMSCLTransferMaildir='0e41c244-6c3e-46b9-a554-65e66e5c9324' COLLATE utf8_unicode_ci;
+SET @identifyFileFormatMaildirTC='a75ee667-3a1c-4950-9194-e07d0e6bf545' COLLATE utf8_unicode_ci;
 INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES ('02fd0952-4c9c-4da6-9ea3-a1409c87963d', 0, 'identifyFileFormat_v0.0', '%IDCommand% %relativeLocation% %fileUUID%', 'objects/attachments');
-INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('a75ee667-3a1c-4950-9194-e07d0e6bf545', 'a6b1c323-7d36-428e-846a-e7e819423577', '02fd0952-4c9c-4da6-9ea3-a1409c87963d', 'Identify file format of attachments');
-INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@identifyFileFormatMSCLTransferMaildir, 'Characterize and extract metadata', 'Failed', 'a75ee667-3a1c-4950-9194-e07d0e6bf545', 'bd382151-afd0-41bf-bb7a-b39aef728a32');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@identifyFileFormatMaildirTC, 'a6b1c323-7d36-428e-846a-e7e819423577', '02fd0952-4c9c-4da6-9ea3-a1409c87963d', 'Identify file format of attachments');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@identifyFileFormatMSCLTransferMaildir, 'Characterize and extract metadata', 'Failed', @identifyFileFormatMaildirTC, 'bd382151-afd0-41bf-bb7a-b39aef728a32');
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('6ff56b9a-2e0d-4117-a6ee-0ba51e6da708', @identifyFileFormatMSCLTransferMaildir, 0, 'bd382151-afd0-41bf-bb7a-b39aef728a32', 'Completed successfully');
 
 
 -- Add a Set Unit Variable for maildir with the File ID MSCL
 SET @fileIDCmdTransfer='fileIDcommand-transfer' COLLATE utf8_unicode_ci;
-INSERT INTO TasksConfigsSetUnitVariable (pk, variable, variableValue, microServiceChainLink) VALUES ('65263ec0-f3ff-4fd5-9cd3-cf6f51ef92c7', @fileIDCmdTransfer, "", @identifyFileFormatMSCLTransferMaildir);
+INSERT INTO TasksConfigsSetUnitVariable (pk, variable, variableValue, microServiceChainLink) VALUES ('65263ec0-f3ff-4fd5-9cd3-cf6f51ef92c7', @fileIDCmdTransfer, NULL, @identifyFileFormatMSCLTransferMaildir);
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('0bb3f551-1418-4b99-8094-05a43fcd9537', '6f0b612c-867f-4dfd-8e43-5b35b7f882d7', '65263ec0-f3ff-4fd5-9cd3-cf6f51ef92c7', 'Set files to identify');
 INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('4417b129-fab3-4503-82dd-740f8e774bff', 'Rename with transfer UUID', 'Failed', '0bb3f551-1418-4b99-8094-05a43fcd9537', 'fdfac6e5-86c0-4c81-895c-19a9edadedef');
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('5035f15f-90a9-4beb-9251-c24ec3e530d7', '4417b129-fab3-4503-82dd-740f8e774bff', 0, 'fdfac6e5-86c0-4c81-895c-19a9edadedef', 'Completed successfully');
@@ -263,4 +264,39 @@ INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='c3269a0a-91db-44e8-96d0-9c748cf80177' WHERE microServiceChainLink=@selectFileIDCommandMSCL;
 
 -- /Issue 5759
+
+-- Issue 5759, 5248
+-- Maildir support
+SET @fileIDCmdIngest='fileIDcommand-ingest' COLLATE utf8_unicode_ci;
+-- Add a Get Unit Variable for which File ID stuff to run
+INSERT INTO TasksConfigsUnitVariableLinkPull (pk, variable, variableValue, defaultMicroServiceChainLink) VALUES ('ce6d43be-ac11-431d-be8b-570a09b6913e', @fileIDCmdIngest, NULL, @identifyFileFormatMSCLIngest);
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('75377725-8759-4cf7-9f83-700b96f72ac4', 'c42184a3-1a7f-4c4d-b380-15d8d97fdd11', 'ce6d43be-ac11-431d-be8b-570a09b6913e', 'Determine which files to identify');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('24d9ff02-a29b-48b2-a68e-cebd30fe3851', 'Normalize', 'Failed', '75377725-8759-4cf7-9f83-700b96f72ac4', '7d728c39-395f-4892-8193-92f086c0546f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('1985e136-3522-4f33-aff9-1b0008472ed2', '24d9ff02-a29b-48b2-a68e-cebd30fe3851', 0, @identifyFileFormatMSCLIngest, 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='24d9ff02-a29b-48b2-a68e-cebd30fe3851' WHERE microServiceChainLink='7a024896-c4f7-4808-a240-44c87c762bc5';
+
+-- Add maildir specific file ID chain link
+SET @identifyFileFormatMSCLIngestMaildir = 'd9493000-4bb7-4c43-851f-73e57d1b69e9' COLLATE utf8_unicode_ci;
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@identifyFileFormatMSCLIngestMaildir, 'Normalize', 'Failed', @identifyFileFormatMaildirTC, '83484326-7be7-4f9f-b252-94553cd42370');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('99a4c796-073f-4cda-ba18-5e147d110f68', @identifyFileFormatMSCLIngestMaildir, 0, '83484326-7be7-4f9f-b252-94553cd42370', 'Completed successfully');
+
+-- Add check if maildir AIP, and set unit vars for file ID & normalization
+-- Set norm dir
+INSERT INTO TasksConfigsSetUnitVariable (pk, variable, variableValue, microServiceChainLink) VALUES ('f226ecea-ae91-42d5-b039-39a1125b1c30', 'normalizationDirectory', 'objects/attachments', NULL);
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('99324102-ebe8-415d-b5d8-b299ab2f4703', '6f0b612c-867f-4dfd-8e43-5b35b7f882d7', 'f226ecea-ae91-42d5-b039-39a1125b1c30', 'Set files to normalize');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('823b0d76-9f3c-410d-83ab-f3c2cdd9ab22', 'Rename SIP directory with SIP UUID', 'Failed', '99324102-ebe8-415d-b5d8-b299ab2f4703', @MoveSIPToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('32cae09e-0262-46b8-ba76-eb6cf6be1272', '823b0d76-9f3c-410d-83ab-f3c2cdd9ab22', 0, 'e3a6d178-fa65-4086-a4aa-6533e8f12d51', 'Completed successfully');
+-- Set file ID MSCL
+INSERT INTO TasksConfigsSetUnitVariable (pk, variable, variableValue, microServiceChainLink) VALUES ('42454e81-e776-44cc-ae9f-b40e7e5c7738', @fileIDCmdIngest, NULL, @identifyFileFormatMSCLIngestMaildir);
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('fa2307df-e42a-4553-aaf5-b08879b0cbf4', '6f0b612c-867f-4dfd-8e43-5b35b7f882d7', '42454e81-e776-44cc-ae9f-b40e7e5c7738', 'Set files to identify');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('bdfecadc-8219-4109-885c-cfb9ef53ebc3', 'Rename SIP directory with SIP UUID', 'Failed', 'fa2307df-e42a-4553-aaf5-b08879b0cbf4', '823b0d76-9f3c-410d-83ab-f3c2cdd9ab22');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('dad05633-987d-4672-9b7c-1341cecbf59c', 'bdfecadc-8219-4109-885c-cfb9ef53ebc3', 0, '823b0d76-9f3c-410d-83ab-f3c2cdd9ab22', 'Completed successfully');
+-- Maildir check
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('3f3ab7ae-766e-4405-a05a-5ee9aea5042f', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', 'c0ae5130-0c17-4fc1-91c7-aa36265a21d5', 'Check if SIP is from Maildir Transfer');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('b3d11842-0090-420a-8919-52d7039d50e6', 'Rename SIP directory with SIP UUID', 'Failed', '3f3ab7ae-766e-4405-a05a-5ee9aea5042f', @MoveSIPToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('ae13dd4f-81d6-44d5-94c8-0c19aa6c6cf8', 'b3d11842-0090-420a-8919-52d7039d50e6', 0, 'e3a6d178-fa65-4086-a4aa-6533e8f12d51', 'Completed successfully');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('42353ec8-76cb-477f-841c-4adfc8432d78', 'b3d11842-0090-420a-8919-52d7039d50e6', 179, 'bdfecadc-8219-4109-885c-cfb9ef53ebc3', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='b3d11842-0090-420a-8919-52d7039d50e6' WHERE microServiceChainLink='d1018160-aaab-4d92-adce-d518880d7c7d';
+
+-- /Issue 5759, 5248 Maildir
 

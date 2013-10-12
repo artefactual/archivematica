@@ -53,6 +53,21 @@ class linkTaskManagerSplit:
             self.execute = deUnicode(row[1])
             row = c.fetchone()
         sqlLock.release()
+        # Check for a unit variable that specifies a normalization path
+        # that overrides this
+        sql = """ SELECT variableValue FROM UnitVariables WHERE unitUUID ='{unit_uuid}' AND unitType ='{unit}' AND variable='normalizationDirectory'; """.format(
+            unit_uuid=unit.UUID,
+            unit='SIP')
+        c, sqlLock = databaseInterface.querySQL(sql)
+        row = c.fetchone()
+        if row != None:
+            variableValue = deUnicode(row[0])
+            row = c.fetchone()
+        else:
+            variableValue = None
+        sqlLock.release()
+        if variableValue:
+            filterSubDir = variableValue
         SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
 
         self.tasksLock.acquire()
