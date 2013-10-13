@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+
+import os, sys, subprocess, shutil
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import elasticSearchFunctions
+sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
+import pyes
+
+conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
+try:
+    conn._send_request('GET', '')
+except pyes.exceptions.NoServerAvailable:
+    print "Connection error: restarting ElasticSearch..."
+
+    command_data = [
+        'service',
+        'elasticsearch',
+        'restart'
+    ]
+
+    subprocess.call(command_data)
