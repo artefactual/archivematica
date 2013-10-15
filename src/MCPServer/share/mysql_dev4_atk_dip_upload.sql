@@ -39,8 +39,10 @@ INSERT INTO `TasksConfigs` (`pk`, `taskType`, `taskTypePKReference`, `descriptio
 
 INSERT INTO `TasksConfigs` (`pk`, `taskType`, `taskTypePKReference`, `description`, `replaces`, `lastModified`) VALUES ('bcff2873-f006-442e-9628-5eadbb8d0db7','36b2e239-4a57-4aa5-8ebc-7a29139baca6','a650921e-b754-4e61-9713-1457cf52e77d','Upload to Archivists Toolkit',NULL,'2013-03-25 20:25:01');
 
+-- Link that runs ATK DIP upload script
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('bb1f1ed8-6c92-46b9-bab6-3a37ffb665f1','bcff2873-f006-442e-9628-5eadbb8d0db7',NULL,NULL,'Upload DIP',1,'Failed',NULL,'2012-10-02 07:25:06');
 
+-- Link that allows selection of ATK config
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('7b1f1ed8-6c92-46b9-bab6-3a37ffb665f1','4d56a90c-8d9f-498c-8331-cf469fcb3147','bb1f1ed8-6c92-46b9-bab6-3a37ffb665f1',NULL,'Upload DIP',1,'Failed',NULL,'2012-10-02 07:25:06');
 
 INSERT INTO `MicroServiceChains` (`pk`, `startingLink`, `description`, `replaces`, `lastModified`) VALUES ('09949bda-5332-482a-ae47-5373bd372174','5bddbb67-76b4-4bcb-9b85-a0d9337e7042','mediainfo',NULL,'2012-10-23 19:41:24');
@@ -49,8 +51,12 @@ INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvai
 
 INSERT INTO `MicroServiceChains` (`pk`, `startingLink`, `description`, `replaces`, `lastModified`) VALUES ('f11409ad-cf3c-4e7f-b0d5-4be32d98229b','7b1f1ed8-6c92-46b9-bab6-3a37ffb665f1','Upload DIP to Archivists Toolkit',NULL,'2013-03-25 20:25:01');
 
-INSERT INTO `MicroServiceChoiceReplacementDic` (`pk`, `choiceAvailableAtLink`, `description`, `replacementDic`, `replaces`, `lastModified`) VALUES ('5395d1ea-a892-4029-b5a8-5264a17bbade','7b1f1ed8-6c92-46b9-bab6-3a37ffb665f1','Archivists Toolkit Config','{\"%host%\":\"192.168.1.124\", \"%port%\":\"3306\", \"%dbname%\":\"atk01\", \"%dbuser%\":\"ATUser\", \"%dbpass%\":\"Password123\", \"%atuser%\":\"atkuser\", \"%restrictions%\":\"premis\", \"%object_type%\":\"\", \"%ead_actuate%\":\"onRequest\", \"%ead_show%\":\"new\", \"%use_statement%\":\"Image-Service\",\"%uri_prefix%\":\"http:www.rockarch.org/\", \"%access_conditions%\":\"\", \"%use_conditions%\":\"\"}',NULL,'2013-03-22 20:25:00');
+INSERT INTO `MicroServiceChoiceReplacementDic` (`pk`, `choiceAvailableAtLink`, `description`, `replacementDic`, `replaces`, `lastModified`) VALUES ('5395d1ea-a892-4029-b5a8-5264a17bbade','7b1f1ed8-6c92-46b9-bab6-3a37ffb665f1','Archivists Toolkit Config','{\"%host%\":\"localhost\", \"%port%\":\"3306\", \"%dbname%\":\"atk01\", \"%dbuser%\":\"ATUser\", \"%dbpass%\":\"\", \"%atuser%\":\"atkuser\", \"%restrictions%\":\"premis\", \"%object_type%\":\"\", \"%ead_actuate%\":\"onRequest\", \"%ead_show%\":\"new\", \"%use_statement%\":\"Image-Service\",\"%uri_prefix%\":\"http:www.example.com/\", \"%access_conditions%\":\"\", \"%use_conditions%\":\"\"}',NULL,'2013-03-22 20:25:00');
 
 INSERT INTO `StandardTasksConfigs` (`pk`, `filterFileEnd`, `filterFileStart`, `filterSubDir`, `requiresOutputLock`, `standardOutputFile`, `standardErrorFile`, `execute`, `arguments`, `replaces`, `lastModified`) VALUES ('a650921e-b754-4e61-9713-1457cf52e77d',NULL,NULL,NULL,0,NULL,NULL,'upload-archivistsToolkit_v0.0','--host=%host% --port=%port% --dbname=%dbname% --dbuser=%dbuser% --dbpass=%dbpass% --atuser=%atuser% --dip_location=%SIPDirectory% --dip_name=%SIPName% --dip_uuid=%SIPUUID% --restrictions=%restrictions% --object_type=%object_type% --ead_actuate=%ead_actuate% --ead_show=%ead_show% --use_statement=%use_statement% --uri_prefix=%uri_prefix% --access_conditions=%access_conditions% --use_conditions=%use_conditions%',NULL,'2013-03-22 21:42:00');
 
 INSERT INTO `MicroServiceChainChoice` (`pk`, `choiceAvailableAtLink`, `chainAvailable`, `replaces`, `lastModified`) VALUES ('4197199a-897a-47eb-b573-59c90ba1373a','92879a29-45bf-4f0b-ac43-e64474f0f2f9','f11409ad-cf3c-4e7f-b0d5-4be32d98229b',NULL,'2012-10-02 00:25:05');
+
+INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('6fe4c525-f337-408a-abcc-1caf2d3ee003','bb1f1ed8-6c92-46b9-bab6-3a37ffb665f1',0, NULL, NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
+
+INSERT INTO `MicroServiceChainLinksExitCodes` (`pk`, `microServiceChainLink`, `exitCode`, `nextMicroServiceChainLink`, `playSound`, `exitMessage`, `replaces`, `lastModified`) VALUES ('9e7cc8ee-4732-4dfa-86c4-cdb8b9c710da','7b1f1ed8-6c92-46b9-bab6-3a37ffb665f1',0, 'bb1f1ed8-6c92-46b9-bab6-3a37ffb665f1', NULL,'Completed successfully',NULL,'2012-10-02 00:25:07');
