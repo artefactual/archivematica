@@ -298,5 +298,9 @@ INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('42353ec8-76cb-477f-841c-4adfc8432d78', 'b3d11842-0090-420a-8919-52d7039d50e6', 179, 'bdfecadc-8219-4109-885c-cfb9ef53ebc3', 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='b3d11842-0090-420a-8919-52d7039d50e6' WHERE microServiceChainLink='d1018160-aaab-4d92-adce-d518880d7c7d';
 
+-- File logging file ID output
+UPDATE StandardTasksConfigs SET standardOutputFile ='%SIPLogsDirectory%fileFormatIdentification.log' WHERE execute ='identifyFileFormat_v0.0';
+UPDATE StandardTasksConfigs SET standardErrorFile ='%SIPLogsDirectory%fileFormatIdentification.log' WHERE execute ='identifyFileFormat_v0.0';
+
 -- /Issue 5759, 5248 Maildir
 

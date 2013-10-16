@@ -17,7 +17,7 @@ from main.models import FileFormatVersion, File
 
 def main(command_uuid, file_path, file_uuid):
     print "IDCommand UUID:", command_uuid
-
+    print "File: ({}) {}".format(file_uuid, file_path)
     if command_uuid == "None":
         print "Skipping file format identification"
         return 0
