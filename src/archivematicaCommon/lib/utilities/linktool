@@ -236,8 +236,8 @@ def show_link_info(link_uuid, show_all_groups=False):
     print '  Task ' + task_uuid + ' (' + task_type_description + ')'
     if std_task_config_uuid:
         print '  Std Task Config: ' + std_task_config_uuid
-        print '    Execute: ' + std_task_execute
-        print '    Arguments: ' + std_task_arguments
+        print '    Execute: ' + str(std_task_execute)
+        print '    Arguments: ' + str(std_task_arguments)
     print
 
     print 'Previous links: '
