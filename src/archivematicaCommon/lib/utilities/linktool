@@ -44,6 +44,22 @@ def get_previous_links(link_uuid):
     sql = """SELECT microServiceChainLink FROM MicroServiceChainLinksExitCodes WHERE nextMicroServiceChainLink='%s' and exitCode=0""" % (link_uuid)
     return simple_multi_value_query(sql)
 
+def get_link_property(link_uuid, property):
+    sql = "SELECT " + property + " FROM MicroServiceChainLinks WHERE pk='%s'" % (link_uuid)
+    return simple_value_query(sql)
+
+def get_task_property(task_uuid, property):
+    sql = "SELECT " + property + " FROM TasksConfigs WHERE pk='%s'" % (task_uuid)
+    return simple_value_query(sql)
+
+def get_task_type_property(task_type_uuid, property):
+    sql = "SELECT " + property + " FROM TaskTypes WHERE pk='%s'" % (task_type_uuid)
+    return simple_value_query(sql)
+
+def get_std_task_config_property(config_uuid, property):
+    sql = "SELECT " + property + " FROM StandardTasksConfigs WHERE pk='%s'" % (config_uuid)
+    return simple_value_query(sql)
+
 def get_link_default_next_link(link_uuid):
     sql = "SELECT defaultNextChainLink FROM MicroServiceChainLinks WHERE pk='%s'" % (link_uuid)
     return simple_value_query(sql)
@@ -187,6 +203,18 @@ def show_link_info(link_uuid, show_all_groups=False):
 
     microservice_group = get_link_microservice_group(link_uuid)
 
+    task_uuid = get_link_property(link_uuid, 'currentTask')
+    task_type_uuid = get_task_property(task_uuid, 'taskType')
+    task_type = get_task_type_property(task_type_uuid, 'description')
+
+    std_task_config_uuid = get_task_property(task_uuid, 'taskTypePKReference')
+    std_task_execute = get_std_task_config_property(std_task_config_uuid, 'execute')
+    std_task_arguments = get_std_task_config_property(std_task_config_uuid, 'arguments')
+
+    task_type_description = 'Type: ' + task_type_uuid
+    if task_type != None:
+        task_type_description = task_type_description + ', ' + task_type
+
     previous_links_list = []
     previous_link = get_previous_links(link_uuid)
     previous_links_list = get_previous_links_lists(previous_link, previous_links_list, show_all_groups, microservice_group)
@@ -205,6 +233,11 @@ def show_link_info(link_uuid, show_all_groups=False):
 
     print
     print 'Link ' + link_for_display(link_uuid)
+    print '  Task ' + task_uuid + ' (' + task_type_description + ')'
+    if std_task_config_uuid:
+        print '  Std Task Config: ' + std_task_config_uuid
+        print '    Execute: ' + std_task_execute
+        print '    Arguments: ' + std_task_arguments
     print
 
     print 'Previous links: '
