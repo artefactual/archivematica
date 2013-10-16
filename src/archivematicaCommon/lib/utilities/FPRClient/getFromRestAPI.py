@@ -30,12 +30,12 @@ import sys
 class FPRConnectionError(Exception):
     pass
 
-def getFromRestAPI(url, resource, params, verbose=False, auth=None):
+def getFromRestAPI(url, resource, params, verbose=False, auth=None, verify=True):
     # TOOD make this use slumber
     # How to dynamically set resource in api.resource.get()
 
     resource_url = "{url}{resource}/".format(url=url, resource=resource)
-    r = requests.get(resource_url, params=params, auth=auth, timeout=10, verify=True)
+    r = requests.get(resource_url, params=params, auth=auth, timeout=10, verify=verify)
 
     if r.status_code != 200:
         print >>sys.stderr, "got error status code:", r.status_code, responses[r.status_code]

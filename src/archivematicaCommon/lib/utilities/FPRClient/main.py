@@ -36,6 +36,7 @@ if path not in sys.path:
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 import django.db
+from django.conf import settings as django_settings
 
 from annoying.functions import get_object_or_None
 
@@ -167,7 +168,7 @@ class FPRClient(object):
             # TODO handle pagination of results for FPRServer
             #  Should handle pagination here, rather than creating big array
             #  of entries - possibly use generator function?
-            entries = getFromRestAPI.getFromRestAPI(self.fprserver, resource, params, verbose=False, auth=None)
+            entries = getFromRestAPI.getFromRestAPI(self.fprserver, resource, params, verbose=False, auth=None, verify=django_settings.FPR_VERIFY_CERT)
 
             self.retry[table] = []
             for entry in entries:
