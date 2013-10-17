@@ -25,7 +25,10 @@ import archivematicaClient
 import transcoder
 import uuid
 import os
+import shutil
 import sys
+import errno
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from fileOperations import addFileToSIP
@@ -58,6 +61,31 @@ def executeFPRule(gearman_worker, gearman_job):
         archivematicaClient.logTaskAssignedSQL(gearman_job.unique.__str__(), clientID, utcDate)
         cl = transcoder.CommandLinker(opts["FPRule"], replacementDic, opts, onceNormalized)
         cl.execute()
+
+        # store thumbnails for use during AIP searches
+        if opts["commandClassification"] == 'thumbnail':
+            thumbnail_filepath = cl.commandObject.outputLocation.__str__()
+            thumbnail_storage_dir = os.path.join(
+                archivematicaClient.replacementDic['%sharedPath%'],
+                'www',
+                'thumbnails',
+                opts['sipUUID']
+            )
+
+            try:
+                os.makedirs(thumbnail_storage_dir)
+            except OSError as e:
+                if e.errno == errno.EEXIST and os.path.isdir(thumbnail_storage_dir):
+                    pass
+                else: raise
+
+            thumbnail_basename, thumbnail_extension = os.path.splitext(thumbnail_filepath)
+            thumbnail_storage_file = os.path.join(
+                thumbnail_storage_dir,
+                opts["fileUUID"] + thumbnail_extension
+            )
+
+            shutil.copyfile(thumbnail_filepath, thumbnail_storage_file)
         
         co = cl.commandObject
         exitCode = co.exitCode

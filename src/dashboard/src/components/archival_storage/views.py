@@ -269,16 +269,10 @@ def aip_file_download(request, uuid):
 def send_thumbnail(request, fileuuid):
     # get AIP location to use to find root of AIP storage
     sipuuid = helpers.get_file_sip_uuid(fileuuid)
-    aip = elasticSearchFunctions.connect_and_get_aip_data(sipuuid)
-    aip_filepath = aip.filePath
 
-    # strip path to AIP from root of AIP storage
-    for index in range(1, 10):
-        aip_filepath = os.path.dirname(aip_filepath)
-
-    # derive thumbnail path
     thumbnail_path = os.path.join(
-        aip_filepath,
+        helpers.get_client_config_value('sharedDirectoryMounted'),
+        'www',
         'thumbnails',
         sipuuid,
         fileuuid + '.jpg'
