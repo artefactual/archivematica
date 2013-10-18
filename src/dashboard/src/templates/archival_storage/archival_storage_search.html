@@ -26,6 +26,15 @@
   {% include "archival_storage/_archival_storage_search_form.html" %}
 
   {% if results %}
+    {% if not file_mode %}
+    <div>
+      <form action="{% url 'create_aic' %}" method="post">
+        {{ aic_creation_form }}
+        <input type='submit' id='create_aic' value='Create an AIC'>
+      </form>
+    </div>
+    {% endif %}
+
     {% include "archival_storage/_archival_storage_search_summary.html" %}
 
     {% if not file_mode %}
@@ -65,7 +74,7 @@
         <th></th>
       </thead>
       <tbody>
-      {% for term_usage in aip_uuids %}
+      {% for term_usage in results %}
         <tr>
           <td>
             <a href="{% url 'components.archival_storage.views.aip_download' term_usage.term %}">{{ term_usage.name }}</a>
@@ -123,11 +132,11 @@
     {% endif %}
 
     <div style='clear: both'>
-    {% include "archival_storage/_archival_storage_search_summary.html" %}
+      {% include "archival_storage/_archival_storage_search_summary.html" %}
     </div>
 
   {% else %}
-    <div id='search-summary'>No results, please try another search.</div>
+    <div class='search-summary'>No results, please try another search.</div>
   {% endif %}
 
   <script>

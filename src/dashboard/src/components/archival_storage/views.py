@@ -15,21 +15,23 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import ast
 import httplib
 import json
 import logging
 import os
 import requests
+import shutil
 import slumber
-import subprocess
 import sys
 import tempfile
+import uuid
 
 from django.contrib import messages
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template import RequestContext
 
 from main import models
@@ -94,6 +96,7 @@ def search(request):
     # perform search
     conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
 
+    results = None
     try:
         query=advanced_search.assemble_query(queries, ops, fields, types)
 
@@ -119,16 +122,18 @@ def search(request):
     except:
         return HttpResponse('Error accessing index.')
 
-    # take note of facet data
-    aip_uuids = results['facets']['AIPUUID']['terms']
-
     if not file_mode:
+        # take note of facet data
+        aip_uuids = results['facets']['AIPUUID']['terms']
+
         number_of_results = len(aip_uuids)
 
         page_data = helpers.pager(aip_uuids, items_per_page, page + 1)
         aip_uuids = page_data['objects']
-        search_augment_aip_results(conn, aip_uuids)
-    else:
+        results = search_augment_aip_results(conn, aip_uuids)
+
+        aic_creation_form = forms.CreateAICForm(initial={'results': results})
+    else:  # if file_mode
         number_of_results = results.hits.total
         results = search_augment_file_results(results)
 
@@ -140,33 +145,28 @@ def search(request):
        number_of_results
     )
 
-    # make sure results is set
-    try:
-        if results:
-            pass
-    except:
-        results = False
-
     form = forms.StorageSearchForm(initial={'query': queries[0]})
     return render(request, 'archival_storage/archival_storage_search.html', locals())
 
 def search_augment_aip_results(conn, aips):
     for aip_uuid in aips:
         documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('uuid', aip_uuid.term)), fields='name,size,created,status')
-        if len(documents['hits']['hits']) > 0:
-            aip_uuid.name = documents['hits']['hits'][0]['fields']['name']
-            aip_uuid.size = '{0:.2f} MB'.format(documents['hits']['hits'][0]['fields']['size'])
-            aip_uuid.date = documents['hits']['hits'][0]['fields']['created']
+        if documents['hits']['hits']:
+            aip_info = documents['hits']['hits'][0]
+            aip_uuid.name = aip_info['fields']['name']
+            aip_uuid.size = '{0:.2f} MB'.format(aip_info['fields']['size'])
+            aip_uuid.date = aip_info['fields']['created']
 
-            if 'status' in documents['hits']['hits'][0]['fields']:
-                 status = documents['hits']['hits'][0]['fields']['status']
+            if 'status' in aip_info['fields']:
+                 status = aip_info['fields']['status']
                  aip_uuid.status = AIP_STATUS_DESCRIPTIONS[status]
             else:
                  aip_uuid.status = 'Stored'
 
-            aip_uuid.document_id_no_hyphens = documents['hits']['hits'][0]['_id'].replace('-', '____')
+            aip_uuid.document_id_no_hyphens = aip_info['_id'].replace('-', '____')
         else:
-            aip_uuid.name = '(data missing)' 
+            aip_uuid.name = '(data missing)'
+    return aips
 
 def search_augment_file_results(raw_results):
     modifiedResults = []
@@ -195,6 +195,50 @@ def search_augment_file_results(raw_results):
         modifiedResults.append(clone)
 
     return modifiedResults
+
+
+def create_aic(request, *args, **kwargs):
+    aic_form = forms.CreateAICForm(request.POST or None)
+    if aic_form.is_valid():
+        results = ast.literal_eval(aic_form.cleaned_data['results'])
+        logging.info("AIC AIP info: {}".format(results))
+
+        # Create file in createAIC watched directory with results
+        shared_dir = helpers.get_server_config_value('sharedDirectory')
+        watched_dir = helpers.get_server_config_value('watchDirectoryPath')
+        create_aic_dir = os.path.join(watched_dir, 'system', 'createAIC')
+
+        # Create SIP (AIC) directory in watched directory
+        temp_uuid = str(uuid.uuid4())
+        destination = os.path.join(create_aic_dir, temp_uuid)
+        try:
+            os.mkdir(destination)
+            os.chmod(destination, 0o770)
+        except os.error:
+            messages.error(request, "Error creating AIC")
+            logging.exception("Error creating AIC: Error creating directory {}".format(destination))
+            return redirect('archival_storage_index')
+
+        # Create SIP in DB
+        mcp_destination = destination.replace(shared_dir, '%sharedPath%') + '/'
+        sip = models.SIP.objects.create(
+            uuid=temp_uuid,
+            currentpath=mcp_destination,
+        )
+        sip.save()
+
+        # Create file with results info
+        for aip in results:
+            filepath = os.path.join(destination, aip['term'])
+            with open(filepath, 'w') as f:
+                os.chmod(filepath, 0o660)
+                f.write(str(aip['name']))
+
+        return redirect('ingest_index')
+    else:
+        messages.error(request, "Error creating AIC")
+        logging.error("Error creating AIC: Form not valid: {}".format(aic_form))
+        return redirect('archival_storage_index')
 
 def delete_context(request, uuid):
     prompt = 'Delete AIP?'

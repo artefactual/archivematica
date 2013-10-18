@@ -17,13 +17,13 @@
 
 from django import forms
 from django.forms import ModelForm
-from django.forms.models import modelformset_factory
 from django.forms.widgets import TextInput, Textarea, CheckboxInput, HiddenInput
 from main import models
 from django.conf import settings
 
 class DublinCoreMetadataForm(forms.Form):
     title = forms.CharField(required=False, widget=TextInput(attrs=settings.INPUT_WITH_HELP_ATTRS))
+    part_of_aic = forms.CharField(required=False, label="Part of AIC", help_text="Optional: leave blank if unsure")
     creator = forms.CharField(required=False, widget=TextInput(attrs=settings.INPUT_WITH_HELP_ATTRS))
     subject = forms.CharField(required=False, widget=TextInput(attrs=settings.INPUT_WITH_HELP_ATTRS))
     description = forms.CharField(required=False, widget=Textarea(attrs=settings.TEXTAREA_WITH_HELP_ATTRS))
