@@ -4,23 +4,29 @@ import platform
 import slumber
 import sys
 
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import databaseInterface
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica.log",
     level=logging.INFO)
-
-dashboard_path = '/usr/share/archivematica/dashboard'
-if dashboard_path not in sys.path:
-    sys.path.append(dashboard_path)
-from components.helpers import get_setting
 
 ######################### INTERFACE WITH STORAGE API #########################
 
 ############# HELPER FUNCTIONS #############
 
+def get_setting_no_orm(setting, default=''):
+    sql = """SELECT value FROM DashboardSettings WHERE name = '{}';""".format(setting)
+    try:
+        value = databaseInterface.queryAllSQL(sql)[0][0]
+        return value
+    except Exception:
+        return default
+
 def _storage_api():
     """ Returns slumber access to storage API. """
     # Get storage service URL from DashboardSetting model
-    storage_service_url = get_setting('storage_service_url', None)
+    storage_service_url = get_setting_no_orm('storage_service_url', None)
     if storage_service_url is None:
         logging.error("Storage server not configured.")
         storage_service_url = 'http://localhost:8000/'
@@ -47,7 +53,7 @@ def _storage_relative_from_absolute(location_path, space_path):
 def create_pipeline(create_default_locations=False, shared_path=None):
     api = _storage_api()
     pipeline = {}
-    pipeline['uuid'] = get_setting('dashboard_uuid')
+    pipeline['uuid'] = get_setting_no_orm('dashboard_uuid')
     pipeline['description'] = "Archivematica on {}".format(platform.node())
     pipeline['create_default_locations'] = create_default_locations
     pipeline['shared_path'] = shared_path
@@ -93,7 +99,7 @@ def get_location(path=None, purpose=None, space=None):
     if space and path:
         path = _storage_relative_from_absolute(path, space['path'])
         space = space['uuid']
-    pipeline = _get_pipeline(get_setting('dashboard_uuid'))
+    pipeline = _get_pipeline(get_setting_no_orm('dashboard_uuid'))
     if pipeline is None:
         return None
     while True:
@@ -217,13 +223,22 @@ def get_file_info(uuid=None, origin_location=None, origin_path=None,
     logging.info("Files returned: {}".format(return_files))
     return return_files
 
+def extract_file(uuid, relative_path, save_path):
+    """ Fetches `relative_path` from package with `uuid` and saves to `save_path`. """
+    api = _storage_api()
+    params = {'relative_path_to_file': relative_path}
+    with open(save_path, 'w') as f:
+        f.write(api.file(uuid).extract_file.get(**params))
+        os.chmod(save_path, 0o660)
+
+
 def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
     """ Returns the server response. """
 
     api = _storage_api()
     api_request = {
         'event_reason': reason_for_deletion,
-        'pipeline':     get_setting('dashboard_uuid'),
+        'pipeline':     get_setting_no_orm('dashboard_uuid'),
         'user_email':   user_email,
         'user_id':      user_id
     }

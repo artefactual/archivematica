@@ -94,8 +94,8 @@ class DublinCoreManager(models.Manager):
 
 class DublinCore(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    metadataappliestotype = models.CharField(max_length=50, db_column='metadataAppliesToType')
-    metadataappliestoidentifier = models.CharField(max_length=50, blank=True, db_column='metadataAppliesToidentifier')
+    metadataappliestotype = models.CharField(max_length=36, db_column='metadataAppliesToType')
+    metadataappliestoidentifier = models.CharField(max_length=36, blank=True, db_column='metadataAppliesToidentifier')
     title = models.TextField(db_column='title', blank=True)
     creator = models.TextField(db_column='creator', blank=True)
     subject = models.TextField(db_column='subject', blank=True)
