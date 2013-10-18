@@ -21,6 +21,7 @@ import json
 import logging
 import os
 import requests
+import shutil
 import slumber
 import sys
 import tempfile
