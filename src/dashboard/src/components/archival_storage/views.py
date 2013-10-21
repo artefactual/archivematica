@@ -324,7 +324,7 @@ def total_size_of_aips(conn):
     query = query.search()
     query.facet.add(pyes.facets.StatisticalFacet('total', field='size'))
 
-    aipResults = conn.search(query, doc_types=['aip'])
+    aipResults = conn.search(query, doc_types=['aip'], indices=['aips'])
     total_size = aipResults.facets.total.total
     total_size = '{0:.2f}'.format(total_size)
     return total_size
@@ -373,6 +373,7 @@ def list_display(request):
     aipResults = conn.search(
         pyes.Search(pyes.MatchAllQuery(), start=start, size=items_per_page),
         doc_types=['aip'],
+        indices=['aips'],
         fields='origin,uuid,filePath,created,name,size',
         sort=sort_specification
     )
