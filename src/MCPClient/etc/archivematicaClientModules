@@ -52,6 +52,7 @@ compressAIP_v0.0 = %clientScriptsDirectory%compressAIP.py
 copy_v0.0 = cp
 copyTransfersMetadataAndLogs_v0.0 = %clientScriptsDirectory%copyTransfersMetadataAndLogs.py
 copyTransferSubmissionDocumentation_v0.0 = %clientScriptsDirectory%copyTransferSubmissionDocumentation.py
+createAIC_METS_v1.0 =  %clientScriptsDirectory%createAICMETS.py
 createDirectory_v0.0 = mkdir
 createEvent_v0.0 = %clientScriptsDirectory%createEvent.py
 createMETS_v0.0 = %clientScriptsDirectory%archivematicaCreateMETS.py

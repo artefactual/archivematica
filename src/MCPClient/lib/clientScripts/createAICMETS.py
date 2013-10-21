@@ -20,6 +20,7 @@ import storageService as storage_service
 def get_aip_info(aic_dir):
     """ Get AIP UUID, name and labels from objects directory and METS file. """
     aips = []
+    aic_dir = os.path.join(aic_dir, 'objects')
     # Parse out AIP names and UUIDs
     # The only contents of the folder should be a bunch of files whose filenames
     # are AIP UUIDs, and the contents are the AIP name.
@@ -138,7 +139,7 @@ def create_mets_file(aic, aips):
     print etree.tostring(mets, pretty_print=True)
 
     # Write out the file
-    basename = "METS-{}.xml".format(aic['uuid'])
+    basename = os.path.join('metadata', "METS-{}.xml".format(aic['uuid']))
     filename = os.path.join(aic['dir'], basename)
     with open(filename, 'w') as f:
         f.write(etree.tostring(mets, pretty_print=True))

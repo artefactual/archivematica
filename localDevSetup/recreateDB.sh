@@ -28,6 +28,7 @@ password="demo"
 
 echo "Removing existing units"
 sudo ./removeUnitsFromWatchedDirectories.py
+sudo rm /var/archivematica/sharedDirectory/tmp/tmp*
 
 set -e
 echo -n "Enter the DATABASE root password (Hit enter if blank):"
