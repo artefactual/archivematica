@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-import os, sys, subprocess, shutil
+import os
+import sys
+import subprocess
+import shutil
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
@@ -19,3 +23,10 @@ except pyes.exceptions.NoServerAvailable:
     ]
 
     subprocess.call(command_data)
+
+    # note service was restarted in log
+    log_file = "/tmp/archivematica_elasticsearch_restarter.log"
+    with open(log_file, 'a') as logfile:
+        log_message = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_message += ' Restarted ElasticSearch'
+        logfile.write(log_message)
