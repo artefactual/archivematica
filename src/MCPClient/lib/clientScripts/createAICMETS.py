@@ -48,7 +48,7 @@ def get_aip_info(aic_dir):
 
         root = etree.parse(mets_path)
         aip['label'] = root.find('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore/dc:title',
-            namespaces=nsmap).text
+            namespaces=nsmap).text or ""
 
         os.remove(mets_path)
 

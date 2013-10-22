@@ -21,6 +21,7 @@ from django.conf import settings
 urlpatterns = patterns('components.ingest.views',
     url(r'^$', 'ingest_grid',
         name='ingest_index'),
+    url(r'^aic/(?P<uuid>' + settings.UUID_REGEX + ')/metadata/add/$', 'aic_metadata_add'),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/$', 'ingest_detail'),
     url(r'(?P<uuid>' + settings.UUID_REGEX + ')/delete/$', 'ingest_delete'),
     url(r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/$', 'ingest_metadata_list'),

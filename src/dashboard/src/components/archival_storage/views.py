@@ -21,7 +21,6 @@ import json
 import logging
 import os
 import requests
-import shutil
 import slumber
 import sys
 import tempfile
@@ -203,14 +202,13 @@ def create_aic(request, *args, **kwargs):
         results = ast.literal_eval(aic_form.cleaned_data['results'])
         logging.info("AIC AIP info: {}".format(results))
 
-        # Create file in createAIC watched directory with results
+        # Create files in staging directory with AIP information
         shared_dir = helpers.get_server_config_value('sharedDirectory')
-        watched_dir = helpers.get_server_config_value('watchDirectoryPath')
-        create_aic_dir = os.path.join(watched_dir, 'system', 'createAIC')
+        staging_dir = os.path.join(shared_dir, 'staging')
 
-        # Create SIP (AIC) directory in watched directory
+        # Create SIP (AIC) directory in staging directory
         temp_uuid = str(uuid.uuid4())
-        destination = os.path.join(create_aic_dir, temp_uuid)
+        destination = os.path.join(staging_dir, temp_uuid)
         try:
             os.mkdir(destination)
             os.chmod(destination, 0o770)
@@ -227,14 +225,14 @@ def create_aic(request, *args, **kwargs):
         )
         sip.save()
 
-        # Create file with results info
+        # Create files with filename = AIP UUID, and contents = AIP name
         for aip in results:
             filepath = os.path.join(destination, aip['term'])
             with open(filepath, 'w') as f:
                 os.chmod(filepath, 0o660)
                 f.write(str(aip['name']))
 
-        return redirect('ingest_index')
+        return redirect('components.ingest.views.aic_metadata_add', temp_uuid)
     else:
         messages.error(request, "Error creating AIC")
         logging.error("Error creating AIC: Form not valid: {}".format(aic_form))
