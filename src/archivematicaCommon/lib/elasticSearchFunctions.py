@@ -21,13 +21,20 @@
 # @subpackage archivematicaCommon
 # @author Mike Cantelon <mike@artefactual.com>
 
-import time, os, sys, MySQLdb, cPickle, base64, ConfigParser, datetime
+import ConfigParser
+import MySQLdb
+import base64
+import cPickle
+import datetime
+import os
+import sys
+import time
+from xml.etree import ElementTree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 import version
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes, xmltodict
-import xml.etree.ElementTree as ElementTree
 
 pathToElasticSearchServerConfigFile='/etc/elasticsearch/elasticsearch.yml'
 
@@ -445,11 +452,8 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
     filesIndexed = 0
     ingest_date  = str(datetime.datetime.today())[0:10]
     create_time  = time.time()
-
-    # extract transfer name from path
-    path_without_uuid = pathToTransfer[:-45]
-    last_slash_position = path_without_uuid.rfind('/')
-    transfer_name = path_without_uuid[last_slash_position + 1:]
+    # Temporary Archivematica internal files should not be indexed
+    exclude_files = ['processingMCP.xml']
 
     # get accessionId from transfers table using UUID
     accession_id = ''
@@ -459,16 +463,10 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
     if len(rows) > 0:
         accession_id = rows[0][0]
 
-    # get file UUID information
-    fileUUIDs = {}
-    sql = "SELECT currentLocation, fileUUID FROM Files WHERE transferUUID='" + MySQLdb.escape_string(uuid) + "'"
-
-    rows = databaseInterface.queryAllSQL(sql)
-    for row in rows:
-        file_path = row[0]
-        fileUUIDs[file_path] = row[1]
-
     for filepath in list_files_in_dir(pathToTransfer):
+        if any(f in filepath for f in exclude_files):
+            print filepath, 'in excluded files list: skipping'
+            continue
         if os.path.isfile(filepath):
 
             relative_path = '%transferDirectory%objects' + filepath.replace(pathToTransfer, '')
@@ -492,7 +490,7 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
               'created'      : create_time
             }
 
-            fileName, fileExtension = os.path.splitext(filepath)
+            _, fileExtension = os.path.splitext(filepath)
             if fileExtension != '':
                 indexData['fileExtension']  = fileExtension[1:].lower()
 
