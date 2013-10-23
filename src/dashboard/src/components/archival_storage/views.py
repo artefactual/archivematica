@@ -251,7 +251,13 @@ def aip_file_download(request, uuid):
 
     # work out path components
     aip_archive_filename = os.path.basename(aip_filepath)
-    subdir = os.path.splitext(aip_archive_filename)[0]
+
+    # splittext doesn't deal with double extensions, so special-case .tar.bz2
+    if aip_archive_filename.endswith('.tar.bz2'):
+        subdir = aip_archive_filename[:-8]
+    else:
+        subdir = os.path.splitext(aip_archive_filename)[0]
+
     path_to_file_within_aip_data_dir \
       = os.path.dirname(file.originallocation.replace('%transferDirectory%', ''))
 
