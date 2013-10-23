@@ -198,7 +198,7 @@ INSERT INTO MicroServiceChains(pk, startingLink, description) VALUES ('0766af55-
 INSERT INTO WatchedDirectories(pk, watchedDirectoryPath, chain, expectedType) VALUES ('aae2a1df-b012-492d-8d84-4fd9bcc25b71', '%watchDirectoryPath%system/createAIC/', '0766af55-a950-44d0-a79b-9f2bb65f92c8', '76e66677-40e6-41da-be15-709afb334936');
 
 -- Add Part of AIC to Dublin Core
-ALTER TABLE Dublincore ADD part_of_aic longtext;
+ALTER TABLE Dublincore ADD isPartOf longtext;
 
 -- Updated bagit command to put metadata/ in the payload too
 UPDATE StandardTasksConfigs SET arguments='create "%SIPDirectory%%SIPName%-%SIPUUID%" "%SIPLogsDirectory%" "%SIPObjectsDirectory%" "%SIPDirectory%METS.%SIPUUID%.xml" "%SIPDirectory%thumbnails/" "%SIPDirectory%metadata/" --writer filesystem --payloadmanifestalgorithm "sha512"' WHERE pk='045f84de-2669-4dbc-a31b-43a4954d0481';

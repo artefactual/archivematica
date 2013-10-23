@@ -22,7 +22,7 @@ from django.conf import settings
 class DublinCoreMetadataForm(forms.ModelForm):
     class Meta:
         model = models.DublinCore
-        fields = ('title', 'part_of_aic', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'format', 'identifier', 'source', 'relation', 'language', 'coverage', 'rights')
+        fields = ('title', 'is_part_of', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'format', 'identifier', 'source', 'relation', 'language', 'coverage', 'rights')
 
     def __init__(self, *args, **kwargs):
         super(DublinCoreMetadataForm, self).__init__(*args, **kwargs)
@@ -35,7 +35,7 @@ class DublinCoreMetadataForm(forms.ModelForm):
 class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
     class Meta:
         model = models.DublinCore
-        fields = ('title', 'identifier', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'format', 'source', 'relation', 'language', 'coverage', 'rights')  # Removed 'part_of_aic'
+        fields = ('title', 'identifier', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'format', 'source', 'relation', 'language', 'coverage', 'rights')  # Removed 'is_part_of'
 
     def __init__(self, *args, **kwargs):
         super(AICDublinCoreMetadataForm, self).__init__(*args, **kwargs)

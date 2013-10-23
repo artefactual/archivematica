@@ -94,7 +94,7 @@ class DublinCore(models.Model):
     metadataappliestotype = models.CharField(max_length=36, db_column='metadataAppliesToType')
     metadataappliestoidentifier = models.CharField(max_length=36, blank=True, null=True, db_column='metadataAppliesToidentifier')
     title = models.CharField(max_length=255, db_column='title', blank=True, null=True)
-    part_of_aic = models.CharField(verbose_name='Part of AIC', help_text='Optional: leave blank if unsure', max_length=255, db_column='part_of_aic', blank=True, null=True)
+    is_part_of = models.CharField(verbose_name='Part of AIC', help_text='Optional: leave blank if unsure', max_length=255, db_column='isPartOf', blank=True, null=True)
     creator = models.CharField(max_length=255, db_column='creator', blank=True, null=True)
     subject = models.CharField(max_length=255, db_column='subject', blank=True, null=True)
     description = models.TextField(db_column='description', blank=True, null=True)

@@ -125,32 +125,23 @@ def createAgent(agentIdentifierType, agentIdentifierValue, agentName, agentType)
 SIPMetadataAppliesToType = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
 TransferMetadataAppliesToType = '45696327-44c5-4e78-849b-e027a189bf4d'
 FileMetadataAppliesToType = '7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17'
-def getDublinCore(type_, id):
-    sql = """SELECT     title, creator, subject, description, publisher, contributor, date, type, format, identifier, source, relation, language, coverage, rights
-    FROM Dublincore WHERE metadataAppliesToType = '%s' AND metadataAppliesToidentifier = '%s';""" % \
-    (type_.__str__(), id.__str__())
-    
+def getDublinCore(unit, id):
+    field_list = ["title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "relation", "language", "coverage", "rights", "isPartOf"]
+    sql = """SELECT {fields}
+    FROM Dublincore WHERE metadataAppliesToType = '{type}' AND metadataAppliesToidentifier = '{id}';""".format(
+            fields=', '.join(field_list),
+            type=unit,
+            id=id)
     c, sqlLock = databaseInterface.querySQL(sql)
     row = c.fetchone()
-    if row == None:
-        sqlLock.release()
-        return None
-    ret = etree.Element( "dublincore", nsmap = {None:dctermsNS} )
-    ret.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
-    dctermsElements= ["isPartOf"]
-    while row != None:
-        key = ["title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "relation", "language", "coverage", "rights"]
+    if row is not None:
+        ret = etree.Element("dublincore", nsmap={None:dctermsNS})
+        ret.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+    while row is not None:
         #title, creator, subject, description, publisher, contributor, date, type, format, identifier, source, relation, language, coverage, rights = row
-        #key.index("title") == title
-        i = 0
-        for term in key:
-            if row[i] != None:
-                txt = row[i]
-            else:
-                txt = ""
+        for i, term in enumerate(field_list):
+            txt = row[i] or ""
             newChild(ret, term, text=txt)
-            i+=1
-
         row = c.fetchone()
     sqlLock.release()
     return ret
