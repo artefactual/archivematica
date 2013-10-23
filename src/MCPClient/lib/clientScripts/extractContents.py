@@ -87,12 +87,19 @@ def main(transfer_uuid, sip_directory, date, task_uuid):
 
         file_path = file_.currentlocation.replace('%transferDirectory%', sip_directory)
 
-        command_to_execute = command.command.replace('%inputFile%',
-            file_path)
-        command_to_execute = command_to_execute.replace('%outputDirectory%',
-            output_directory(file_path, date))
+        if command.script_type == 'command' or command.script_type == 'bashScript':
+            args = []
+            command_to_execute = command.command.replace('%inputFile%',
+                file_path)
+            command_to_execute = command_to_execute.replace('%outputDirectory%',
+                output_directory(file_path, date))
+        else:
+            command_to_execute = command.command
+            args = [file_path, output_directory(file_path, date)]
+
         exitstatus, stdout, stderr = executeOrRun(command.script_type,
                                         command_to_execute,
+                                        arguments=args,
                                         printing=True)
 
         if not exitstatus == 0:
