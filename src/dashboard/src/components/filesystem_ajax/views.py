@@ -419,8 +419,8 @@ def pad_destination_filepath_if_it_already_exists(filepath, original=None, attem
     return filepath
 
 def download(request):
-    shared_dir = helpers.get_client_config_value('sharedDirectoryMounted')
-    requested_filepath = '/' + request.GET.get('filepath', '')
+    shared_dir = os.path.realpath(helpers.get_client_config_value('sharedDirectoryMounted'))
+    requested_filepath = os.path.realpath('/' + request.GET.get('filepath', ''))
 
     # respond with 404 if a non-Archivematica file is requested
     try:
