@@ -20,55 +20,79 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+import argparse
 import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 
 
-
-def runBag(arguments):
-    command = "/usr/share/bagit/bin/bag %s" % (arguments) 
-    exitCode, stdOut, stdError = executeOrRun("command", command, printing=False)
-    if exitCode != 0:
-        print >>sys.stderr, ""
-        print >>sys.stderr, "Error with command: ", command
-        print >>sys.stderr, "Standard OUT:"
-        print >>sys.stderr, stdOut
-        print >>sys.stderr, "Standard Error:"
-        print >>sys.stderr, stdError
-        exit(exitCode)
+def run_bag(arguments):
+    """ Run Bagit's create bag command. """
+    command = "/usr/share/bagit/bin/bag {}".format(arguments)
+    print 'Command to run:', command
+    exit_code, std_out, std_err = executeOrRun("command", command, printing=False)
+    if exit_code != 0:
+        print >> sys.stderr, "Error with command: ", command
+        print >> sys.stderr, "Standard OUT:"
+        print >> sys.stderr, std_out
+        print >> sys.stderr, "Standard Error:"
+        print >> sys.stderr, std_err
+        exit(exit_code)
     else:
-        print stdOut
-        print >>sys.stderr, stdError
+        print std_out
+        print >> sys.stderr, std_err
 
-def getListOfDirectories(dir):
-    ret = []
-    for dir2, subDirs, files in os.walk(dir):
-        for subDir in subDirs:
-            p = os.path.join(dir2, subDir).replace(dir + "/", "", 1)
-            ret.append(p)
-        ret.append(dir2.replace(dir + "/", "", 1))
+def get_sip_directories(sip_dir):
+    """ Get a list of directories in the SIP, to be created after bagged. """
+    directory_list = []
+    for directory, subdirs, _ in os.walk(sip_dir):
+        for subdir in subdirs:
+            path = os.path.join(directory, subdir).replace(sip_dir + "/", "", 1)
+            directory_list.append(path)
     print "directory list:"
-    for dir in ret:
-        print "\t", dir
-    return ret
+    for sip_dir in directory_list:
+        print "\t", sip_dir
+    return directory_list
 
-def createDirectoriesAsNeeded(baseDir, dirList):
-    for dir in dirList:
-        directory = os.path.join(baseDir, dir)
-        if not os.path.isdir(directory):
-            try:
-                os.makedirs(directory)
-            except:
-                continue
+def create_directories(base_dir, dir_list):
+    """ Create all the SIP's directories in the bag's data/ folder.
+
+    Some directories should have been created in the data/ folder by the bagit
+    command, but create any empty (or unspecified) directories. """
+    for directory in dir_list:
+        directory = os.path.join(base_dir, directory)
+        try:
+            os.makedirs(directory)
+        except os.error:
+            pass
+
+def bag_with_empty_directories(args):
+    """ Run bagit create bag command, and create any empty directories from the SIP. """
+    # Get list of directories in SIP
+    sip_dir = os.path.dirname(args.destination)
+    dir_list = get_sip_directories(sip_dir)
+
+    # Ensure all payload items actually exist
+    payload_entries = [e for e in args.payload_entries if os.path.exists(e)]
+    payload_entries = ' '.join('"{}"'.format(d) for d in payload_entries)
+
+    # Reconstruct bagit arguments
+    bagit_args = [args.operation, '"{}"'.format(args.destination), payload_entries, '--writer', args.writer, '--payloadmanifestalgorithm', args.algorithm]
+    bagit_args = ' '.join(bagit_args)
+
+    # Run bagit bag creator
+    run_bag(bagit_args)
+    create_directories(os.path.join(args.destination, "data"), dir_list)
 
 if __name__ == '__main__':
-    dest = sys.argv[2]
-    SIPDir = os.path.dirname(dest)
-    dirList = getListOfDirectories(SIPDir)
-    arguments = ""
-    for s in sys.argv[1:]:
-        arguments = "%s \"%s\"" % (arguments, s)
-    runBag(arguments)
-    createDirectoriesAsNeeded(os.path.join(dest, "data"), dirList)
+    # Parse arguments
+    parser = argparse.ArgumentParser(description='Convert folder into a bag.')
+    parser.add_argument('operation')
+    parser.add_argument('destination')
+    parser.add_argument('payload_entries', metavar='Payload', nargs='+',
+                   help='All the files/folders that should go in the bag.')
+    parser.add_argument('--writer', dest='writer')
+    parser.add_argument('--payloadmanifestalgorithm', dest='algorithm')
+    args = parser.parse_args()
+    bag_with_empty_directories(args)

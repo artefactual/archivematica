@@ -220,6 +220,8 @@ def createDublincoreDMDSecFromDBData(type, id):
     dc = getDublinCore(type, id)
     if dc == None:
         transfers = os.path.join(baseDirectoryPath, "objects/metadata/transfers/")
+        if not os.path.isdir(transfers):
+            return None
         for transfer in os.listdir(transfers):
             dcXMLFile = os.path.join(transfers, transfer, "dublincore.xml")
             if os.path.isfile(dcXMLFile):
@@ -550,6 +552,8 @@ def getIncludedStructMap():
 
     ret = []
     transferMetadata = os.path.join(baseDirectoryPath, "objects/metadata/transfers")
+    if not os.path.isdir(transferMetadata):
+        return []
     baseLocations = os.listdir(transferMetadata)
     baseLocations.append(baseDirectoryPath)
     for dir in baseLocations:
