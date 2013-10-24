@@ -44,6 +44,7 @@ assignFileUUIDs_v0.0 = %clientScriptsDirectory%archivematicaAssignFileUUID.py
 backlogUpdatingTransferFileIndex_v0.0 = %clientScriptsDirectory%backlogUpdatingTransferFileIndex.py
 backupDIP_v0.0 = %clientScriptsDirectory%backupDIP.sh
 bagit_v0.0 = %clientScriptsDirectory%archivematicaBagWithEmptyDirectories.py
+characterizeFile_v0.0 = %clientScriptsDirectory%characterizeFile.py
 checkForAccessDirectory_v0.0 = %clientScriptsDirectory%checkForAccessDirectory.py
 checkForServiceDirectory_v0.0 = %clientScriptsDirectory%checkForServiceDirectory.py
 checkForSubmissionDocumenation_v0.0 = %clientScriptsDirectory%checkForSubmissionDocumenation.py
