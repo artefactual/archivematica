@@ -151,7 +151,7 @@ def ingest_metadata_list(request, uuid, jobs, name):
 
 def ingest_metadata_edit(request, uuid, id=None):
     if id:
-        # If we have the ID of the DC object, use that
+        # If we have the ID of the DC object, use that - Edit
         dc = models.DublinCore.objects.get(pk=id)
     else:
         # Otherwise look for a SIP with the provided UUID, creating a new one
@@ -168,10 +168,19 @@ def ingest_metadata_edit(request, uuid, id=None):
                 metadataappliestotype=sip_type_id,
                 metadataappliestoidentifier=uuid)
 
-    form = ingest_forms.DublinCoreMetadataForm(request.POST or None, instance=dc)
+    # If the SIP is an AIC, use the AIC metadata form
+    if models.SIP.objects.get(uuid=uuid).sip_type == 'AIC':
+        form = ingest_forms.AICDublinCoreMetadataForm(request.POST or None,
+            instance=dc)
+        dc_type = "Archival Information Collection"
+    else:
+        form = ingest_forms.DublinCoreMetadataForm(request.POST or None,
+            instance=dc)
+        dc_type = "Archival Information Package"
+
     if form.is_valid():
         dc = form.save()
-        dc.type = "Archival Information Package"
+        dc.type = dc_type
         dc.save()
         return redirect('components.ingest.views.ingest_metadata_list', uuid)
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
@@ -181,9 +190,6 @@ def ingest_metadata_edit(request, uuid, id=None):
 
 
 def aic_metadata_add(request, uuid):
-    # Look for a SIP with the provided UUID, creating a new one if needed.
-    # Not using get_or_create because that save the empty object, even if the
-    # form is not submitted.
     sip_type_id = ingest_sip_metadata_type_id()
     try:
         dc = models.DublinCore.objects.get(

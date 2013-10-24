@@ -25,15 +25,10 @@ import logging
 import os
 import sys
 
-# Set up Django settings
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-
 path = "/usr/lib/archivematica/archivematicaCommon"
 if path not in sys.path:
     sys.path.append(path)
+import databaseInterface
 import storageService as storage_service
 
 logger = logging.getLogger(__name__)
@@ -63,6 +58,13 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name):
     # is passed in properly, or use Agent to make sure is correct CP
     current_location = storage_service.get_location(purpose="CP")[0]
 
+    # Get the package type: AIC or AIP
+    sql = """SELECT sipType FROM SIPs WHERE sipUUID='{uuid}';""".format(uuid=sip_uuid)
+    rows = databaseInterface.queryAllSQL(sql)
+    package_type = "AIP"
+    if rows and 'AIC' in rows[0][0]:
+        package_type = 'AIC'
+
     #Store the AIP
     (new_file, error_msg) = storage_service.create_file(
         uuid=sip_uuid,
@@ -70,7 +72,7 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name):
         origin_path=aip_path,  # FIXME should be relative
         current_location=aip_destination_uri,
         current_path=os.path.basename(aip_path),
-        package_type="AIP",
+        package_type=package_type,
         size=os.path.getsize(aip_path)
     )
     if new_file is not None and new_file.get('status', '') != "FAIL":

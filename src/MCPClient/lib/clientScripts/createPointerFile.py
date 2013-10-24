@@ -8,7 +8,10 @@ import os.path
 import sys
 import uuid
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+PATH = "/usr/lib/archivematica/archivematicaCommon"
+if PATH not in sys.path:
+    sys.path.append(PATH)
+import databaseInterface
 import fileOperations
 from externals import checksummingTools
 
@@ -51,6 +54,14 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     # Calculate checksum
     checksum_algorithm = 'sha256'
     checksum = checksummingTools.sha_for_file(aip_path)
+    # Get package type (AIP, AIC)
+    sip_metadata_uuid = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
+    sql = """SELECT type FROM Dublincore WHERE metadataAppliesToType='{type}' AND metadataAppliesToidentifier='{uuid}';""".format(
+        type=sip_metadata_uuid, uuid=aip_uuid)
+    rows = databaseInterface.queryAllSQL(sql)
+    package_type = "Archival Information Package"
+    if rows and rows[0][0]:
+        package_type = rows[0][0]
 
     # Namespaces
     xsi = 'http://www.w3.org/2001/XMLSchema-instance'
@@ -73,7 +84,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
             ),
             E.structMap(
                 E.div(
-                    TYPE="Archival Information Package",
+                    TYPE=package_type,
                 ),
                 TYPE='physical'
             ),
@@ -184,6 +195,8 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
         # structMap
         fptr = etree.Element('fptr', FILEID=aip_identifier)
         div.append(fptr)
+
+    print etree.tostring(root, pretty_print=True)
 
     # Write out pointer.xml
     xml_filename = 'pointer.xml'

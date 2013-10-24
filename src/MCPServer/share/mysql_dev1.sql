@@ -203,4 +203,7 @@ ALTER TABLE Dublincore ADD isPartOf longtext;
 -- Updated bagit command to put metadata/ in the payload too
 UPDATE StandardTasksConfigs SET arguments='create "%SIPDirectory%%SIPName%-%SIPUUID%" "%SIPLogsDirectory%" "%SIPObjectsDirectory%" "%SIPDirectory%METS.%SIPUUID%.xml" "%SIPDirectory%thumbnails/" "%SIPDirectory%metadata/" --writer filesystem --payloadmanifestalgorithm "sha512"' WHERE pk='045f84de-2669-4dbc-a31b-43a4954d0481';
 
+-- Add sipType to SIPs table
+ALTER TABLE SIPs ADD sipType varchar(8);
+
 -- /Issue 5803 AIC

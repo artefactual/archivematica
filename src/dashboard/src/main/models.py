@@ -192,9 +192,15 @@ class SIPManager(models.Manager):
 class SIP(models.Model):
     uuid = models.CharField(max_length=36, primary_key=True, db_column='sipUUID')
     createdtime = models.DateTimeField(db_column='createdTime')
-    currentpath = models.TextField(db_column='currentPath', blank=True)
+    currentpath = models.TextField(db_column='currentPath', null=True, blank=True)
     # ...
     hidden = models.BooleanField(default=False, blank=False)
+    aip_filename = models.TextField(db_column='aipFilename', null=True, blank=True)
+    SIP_TYPE_CHOICES = (
+        ('SIP', 'SIP'),
+        ('AIC', 'AIC')
+    )
+    sip_type = models.CharField(max_length=8, choices=SIP_TYPE_CHOICES, db_column='sipType', null=True)
 
     objects = SIPManager()
 

@@ -134,6 +134,7 @@ def getDublinCore(unit, id):
             id=id)
     c, sqlLock = databaseInterface.querySQL(sql)
     row = c.fetchone()
+    ret = None
     if row is not None:
         ret = etree.Element("dublincore", nsmap={None:dctermsNS})
         ret.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")

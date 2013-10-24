@@ -39,6 +39,7 @@ from components import advanced_search
 from components import decorators
 from components import helpers
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import databaseFunctions
 import elasticSearchFunctions
 import storageService as storage_service
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
@@ -219,11 +220,7 @@ def create_aic(request, *args, **kwargs):
 
         # Create SIP in DB
         mcp_destination = destination.replace(shared_dir, '%sharedPath%') + '/'
-        sip = models.SIP.objects.create(
-            uuid=temp_uuid,
-            currentpath=mcp_destination,
-        )
-        sip.save()
+        databaseFunctions.createSIP(mcp_destination, UUID=temp_uuid, sip_type='AIC')
 
         # Create files with filename = AIP UUID, and contents = AIP name
         for aip in results:
