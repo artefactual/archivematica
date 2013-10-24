@@ -221,3 +221,13 @@ INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, cu
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('abe6c490-9749-46fc-98aa-a6814a507d72', '8c8bac29-4102-4fd2-9d0a-a3bd2e607566', 0, 'f1bfce12-b637-443f-85f8-b6450ca01a13', 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='8c8bac29-4102-4fd2-9d0a-a3bd2e607566' WHERE microServiceChainLink='370aca94-65ab-4f2a-9d7d-294a62c8b7ba';
 -- /Issue 6261
+
+-- Issue 5866 - Customizeable FPR characterization
+-- Inserts a new TasksConfigs entry for the new "Characterize and extract metadata", replacing archivematicaFITS
+SET @characterizeSTC = 'd6307888-f5ef-4828-80d6-fb6f707ae023' COLLATE utf8_unicode_ci;
+SET @characterizeTC = '00041f5a-42cd-4b77-a6d4-6ef0f376a817' COLLATE utf8_unicode_ci;
+SET @characterizeExtractMetadata='303a65f6-a16f-4a06-807b-cb3425a30201' COLLATE utf8_unicode_ci;
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES (@characterizeSTC, 0, 'characterizeFile_v0.0', '"%relativeLocation%" "%fileUUID%" "%SIPUUID%"', 'objects');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@characterizeTC, 'a6b1c323-7d36-428e-846a-e7e819423577', @characterizeSTC, "Characterize and extract metadata");
+UPDATE MicroServiceChainLinks SET currentTask=@characterizeTC WHERE pk=@characterizeExtractMetadata;
+-- /Issue 5866
