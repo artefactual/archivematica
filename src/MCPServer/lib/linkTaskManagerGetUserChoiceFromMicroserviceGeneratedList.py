@@ -23,13 +23,10 @@
 
 # Stdlib, alphabetical by import source
 import ast
-import datetime
 import logging
 from lxml import etree
 import os
 import sys
-import time
-import threading
 
 # This project,  alphabetical by import source
 from linkTaskManager import LinkTaskManager
@@ -61,6 +58,8 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
             for item in self.jobChainLink.passVar:
                 print item, "is ChoicesDict: ", isinstance(item, ChoicesDict)
                 if isinstance(item, ChoicesDict):
+                    # For display, convert the ChoicesDict passVar into a list
+                    # of tuples: (index, description, replacement dict string)
                     for description, value in item.iteritems():
                         replacementDic_ = str({key: value})
                         self.choices.append((choiceIndex, description, replacementDic_))
@@ -76,17 +75,12 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
             raise Exception("passVar is {} instead of expected list".format(
                 type(self.jobChainLink.passVar)))
 
-        print "choices", self.choices
+        print "LTM GetUserChoiceFromMicroserviceGeneratedList choices", self.choices
 
-        preConfiguredChain = self.checkForPreconfiguredXML()
-        if preConfiguredChain != None:
-            if preConfiguredChain != waitingOnTimer:
-                self.jobChainLink.setExitMessage("Completed successfully")
-                rd = ReplacementDict(eval(preConfiguredChain))
-                self.update_passvar_replacement_dict(rd)
-                self.jobChainLink.linkProcessingComplete(0, passVar=self.jobChainLink.passVar)
-            else:
-                print "waiting on delay to resume processing on unit:", unit
+        preConfiguredIndex = self.checkForPreconfiguredXML()
+        if preConfiguredIndex is not None:
+            self.jobChainLink.setExitMessage("Completed successfully")
+            self.proceedWithChoice(index=preConfiguredIndex, agent=None)
         else:
             choicesAvailableForUnitsLock.acquire()
             self.jobChainLink.setExitMessage('Awaiting decision')
@@ -94,63 +88,31 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
             choicesAvailableForUnitsLock.release()
 
     def checkForPreconfiguredXML(self):
-        ret = None
-        xmlFilePath = os.path.join( \
-                                        self.unit.currentPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1) + "/", \
-                                        archivematicaMCP.config.get('MCPServer', "processingXMLFile") \
-                                    )
+        """ Check the processing XML file for a pre-selected choice.
 
-        if os.path.isfile(xmlFilePath):
-            # For a list of items with pks:
-            # SELECT TasksConfigs.description, choiceAvailableAtLink, ' ' AS 'SPACE', MicroServiceChains.description, chainAvailable FROM MicroServiceChainChoice Join MicroServiceChains on MicroServiceChainChoice.chainAvailable = MicroServiceChains.pk Join MicroServiceChainLinks on MicroServiceChainLinks.pk = MicroServiceChainChoice.choiceAvailableAtLink Join TasksConfigs on TasksConfigs.pk = MicroServiceChainLinks.currentTask ORDER BY choiceAvailableAtLink desc;
-            try:
-                tree = etree.parse(xmlFilePath)
-                root = tree.getroot()
-                for preconfiguredChoice in root.find("preconfiguredChoices"):
-                    #if int(preconfiguredChoice.find("appliesTo").text) == self.jobChainLink.pk:
-                    if preconfiguredChoice.find("appliesTo").text == self.jobChainLink.description:
-                        desiredChoice = preconfiguredChoice.find("goToChain").text
-                        sql = """SELECT MicroServiceChoiceReplacementDic.replacementDic FROM MicroServiceChoiceReplacementDic  WHERE MicroServiceChoiceReplacementDic.description = '%s' AND MicroServiceChoiceReplacementDic.choiceAvailableAtLink = '%s';""" % (desiredChoice, self.jobChainLink.pk.__str__())
-                        c, sqlLock = databaseInterface.querySQL(sql)
-                        row = c.fetchone()
-                        while row != None:
-                            ret = row[0]
-                            row = c.fetchone()
-                        sqlLock.release()
-                        try:
-                            #<delay unitAtime="yes">30</delay>
-                            delayXML = preconfiguredChoice.find("delay")
-                            unitAtimeXML = delayXML.get("unitCtime")
-                            if unitAtimeXML != None and unitAtimeXML.lower() != "no":
-                                delaySeconds=int(delayXML.text)
-                                unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%", \
-                                               archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
-                                nowTime=time.time()
-                                timeDifference = nowTime - unitTime
-                                timeToGo = delaySeconds - timeDifference
-                                print "time to go:", timeToGo
-                                #print "that will be: ", (nowTime + timeToGo)
-                                self.jobChainLink.setExitMessage("Waiting till: " + datetime.datetime.fromtimestamp((nowTime + timeToGo)).ctime())
-                                rd = ReplacementDict(eval(ret))
-                                if self.jobChainLink.passVar != None:
-                                        if isinstance(self.jobChainLink.passVar, ReplacementDict):
-                                            new = {}
-                                            new.update(self.jobChainLink.passVar.dic)
-                                            new.update(rd.dic)
-                                            rd.dic = new
-                                t = threading.Timer(timeToGo, self.jobChainLink.linkProcessingComplete, args=[0, rd], kwargs={})
-                                t.daemon = True
-                                t.start()
-
-                                t2 = threading.Timer(timeToGo, self.jobChainLink.setExitMessage, args=["Completed successfully"], kwargs={})
-                                t2.start()
-                                return waitingOnTimer
-
-                        except Exception as inst:
-                            print >>sys.stderr, "Error parsing xml for pre-configured choice"
-            except Exception as inst:
-                print >>sys.stderr, "Error parsing xml for pre-configured choice", inst
-        return ret
+        Returns an index for self.choices if found, None otherwise. """
+        sharedPath = archivematicaMCP.config.get('MCPServer', "sharedDirectory")
+        xmlFilePath = os.path.join(
+            self.unit.currentPath.replace("%sharedPath%", sharedPath, 1),
+            archivematicaMCP.config.get('MCPServer', "processingXMLFile")
+        )
+        try:
+            tree = etree.parse(xmlFilePath)
+            root = tree.getroot()
+        except (etree.LxmlError, IOError) as e:
+            print >>sys.stderr, "Error parsing xml for pre-configured choice", e
+            return None
+        for choice in root.find("preconfiguredChoices"):
+            # Find the choice whose text matches this link's description
+            if choice.find("appliesTo").text == self.jobChainLink.description:
+                # Search self.choices for desired choice, return index of
+                # matching choice
+                desiredChoice = choice.find("goToChain").text
+                for choice in self.choices:
+                    index, description, replace_dict = choice
+                    if desiredChoice == description or desiredChoice in replace_dict:
+                        return index
+        return None
 
     def xmlify(self):
         """Returns an etree XML representation of the choices available."""
@@ -172,11 +134,14 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
         if agent:
             self.unit.setVariable("activeAgent", agent, None)
         choicesAvailableForUnitsLock.acquire()
-        del choicesAvailableForUnits[self.jobChainLink.UUID]
+        try:
+            del choicesAvailableForUnits[self.jobChainLink.UUID]
+        except KeyError:
+            pass
         choicesAvailableForUnitsLock.release()
         
         #get the one at index, and go with it.
-        choiceIndex, description, replacementDic2 = self.choices[int(index)]
-        rd = ReplacementDict(ast.literal_eval(replacementDic2))
+        _, _, replace_dict = self.choices[int(index)]
+        rd = ReplacementDict(ast.literal_eval(replace_dict))
         self.update_passvar_replacement_dict(rd)
         self.jobChainLink.linkProcessingComplete(0, passVar=self.jobChainLink.passVar)
