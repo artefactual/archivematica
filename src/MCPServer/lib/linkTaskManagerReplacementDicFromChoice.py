@@ -21,34 +21,26 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import databaseInterface
+import ast
 import datetime
-import threading
-import uuid
-import sys
-import time
-#select * from MicroServiceChainChoice JOIN MicroServiceChains on chainAvailable = MicroServiceChains.pk;
-#| pk | choiceAvailableAtLink | chainAvailable | pk | startingLink | description
-
-from linkTaskManager import linkTaskManager
-from taskStandard import taskStandard
-import jobChain
-import databaseInterface
 import lxml.etree as etree
 import os
+import threading
+import sys
+import time
+
+from linkTaskManager import LinkTaskManager
+import databaseInterface
 import archivematicaMCP
 from linkTaskManagerChoice import choicesAvailableForUnits
 from linkTaskManagerChoice import choicesAvailableForUnitsLock
 from linkTaskManagerChoice import waitingOnTimer
-from passClasses import *
+from passClasses import ReplacementDict
 
-class linkTaskManagerReplacementDicFromChoice:
+class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
+        super(linkTaskManagerReplacementDicFromChoice, self).__init__(jobChainLink, pk, unit)
         self.choices = []
-        self.pk = pk
-        self.jobChainLink = jobChainLink
-        self.UUID = uuid.uuid4().__str__()
-        self.unit = unit
         sql = """SELECT replacementDic, description FROM MicroServiceChoiceReplacementDic WHERE choiceAvailableAtLink = '%s'""" % (jobChainLink.pk.__str__())
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
@@ -70,24 +62,9 @@ class linkTaskManagerReplacementDicFromChoice:
                 #print "checking for xml file for processing rules. TODO"
                 self.jobChainLink.setExitMessage("Completed successfully")
                 #jobChain.jobChain(self.unit, preConfiguredChain)
-                rd = replacementDic(eval(preConfiguredChain))
-                if self.jobChainLink.passVar != None:
-                    if isinstance(self.jobChainLink.passVar, list):
-                        found = False
-                        for passVar in self.jobChainLink.passVar:
-                            if isinstance(self.jobChainLink.passVar, replacementDic):
-                                new = {}
-                                new.update(self.jobChainLink.passVar.dic)
-                                new.update(rd.dic)
-                                rd.dic = [new]
-                                found = True
-                                break
-                        if not found:
-                            self.jobChainLink.passVar.append(rd)
-                            rd = self.jobChainLink.passVar 
-                else:
-                    rd = [rd]
-                self.jobChainLink.linkProcessingComplete(0, rd)
+                rd = ReplacementDict(ast.literal_eval(preConfiguredChain))
+                self.update_passvar_replacement_dict(rd)
+                self.jobChainLink.linkProcessingComplete(0, passVar=self.jobChainLink.passVar)
             else:
                 print "waiting on delay to resume processing on unit:", unit
         else:
@@ -134,9 +111,9 @@ class linkTaskManagerReplacementDicFromChoice:
                                 print "time to go:", timeToGo
                                 #print "that will be: ", (nowTime + timeToGo)
                                 self.jobChainLink.setExitMessage("Waiting till: " + datetime.datetime.fromtimestamp((nowTime + timeToGo)).ctime())
-                                rd = replacementDic(eval(ret))
+                                rd = ReplacementDict(ast.literal_eval(ret))
                                 if self.jobChainLink.passVar != None:
-                                        if isinstance(self.jobChainLink.passVar, replacementDic):
+                                        if isinstance(self.jobChainLink.passVar, ReplacementDict):
                                             new = {}
                                             new.update(self.jobChainLink.passVar.dic)
                                             new.update(rd.dic)
@@ -182,22 +159,6 @@ class linkTaskManagerReplacementDicFromChoice:
         
         #get the one at index, and go with it.
         choiceIndex, description, replacementDic2 = self.choices[int(index)]
-        rd = replacementDic(eval(replacementDic2))
-        if self.jobChainLink.passVar != None:
-            if isinstance(self.jobChainLink.passVar, list):
-                found = False
-                for passVar in self.jobChainLink.passVar:
-                    if isinstance(self.jobChainLink.passVar, replacementDic):
-                        new = {}
-                        new.update(self.jobChainLink.passVar.dic)
-                        new.update(rd.dic)
-                        rd.dic = [new]
-                        found = True
-                        break
-                if not found:
-                    self.jobChainLink.passVar.append(rd)
-                    rd = self.jobChainLink.passVar 
-        else:
-            rd = [rd]
-        self.jobChainLink.linkProcessingComplete(0, rd)
-        
+        rd = ReplacementDict(ast.literal_eval(replacementDic2))
+        self.update_passvar_replacement_dict(rd)
+        self.jobChainLink.linkProcessingComplete(0, passVar=self.jobChainLink.passVar)

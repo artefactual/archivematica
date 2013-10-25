@@ -22,20 +22,16 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import databaseInterface
-import uuid
 
-from linkTaskManager import linkTaskManager
+from linkTaskManager import LinkTaskManager
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 
-class linkTaskManagerAssignMagicLink:
+class linkTaskManagerAssignMagicLink(LinkTaskManager):
     """Assign a link to the unit to process when loaded.
         Deprecated! Replaced with Set/Load Unit Variable"""
     def __init__(self, jobChainLink, pk, unit):
-        self.pk = pk
-        self.jobChainLink = jobChainLink
-        self.UUID = uuid.uuid4().__str__()
-        self.unit = unit
+        super(linkTaskManagerAssignMagicLink, self).__init__(jobChainLink, pk, unit)
 
         ###GET THE MAGIC NUMBER FROM THE TASK stuff
         link = 0

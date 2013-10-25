@@ -21,16 +21,15 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-from linkTaskManager import linkTaskManager
+from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
-from unitFile import unitFile
-from passClasses import *
+from passClasses import ReplacementDict
 import databaseInterface
 import threading
 import math
-import uuid
 import time
 import sys
+import uuid
 import archivematicaMCP
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseFunctions
@@ -39,12 +38,11 @@ from databaseFunctions import deUnicode
 import os
 
 
-class linkTaskManagerFiles:
+class linkTaskManagerFiles(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
+        super(linkTaskManagerFiles, self).__init__(jobChainLink, pk, unit)
         self.tasks = {}
         self.tasksLock = threading.Lock()
-        self.pk = pk
-        self.jobChainLink = jobChainLink
         self.exitCode = 0
         self.clearToNextLink = False
         sql = """SELECT * FROM StandardTasksConfigs where pk = '%s'""" % (pk.__str__())
@@ -93,9 +91,9 @@ class linkTaskManagerFiles:
             if self.jobChainLink.passVar != None:
                 if isinstance(self.jobChainLink.passVar, list):
                     for passVar in self.jobChainLink.passVar:
-                        if isinstance(passVar, replacementDic):
+                        if isinstance(passVar, ReplacementDict):
                             execute, arguments, standardOutputFile, standardErrorFile = passVar.replace(execute, arguments, standardOutputFile, standardErrorFile)
-                elif isinstance(self.jobChainLink.passVar, replacementDic):
+                elif isinstance(self.jobChainLink.passVar, ReplacementDict):
                     execute, arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(execute, arguments, standardOutputFile, standardErrorFile)
 
             commandReplacementDic = fileUnit.getReplacementDic()
@@ -134,7 +132,7 @@ class linkTaskManagerFiles:
                 if standardErrorFile:
                     standardErrorFile = standardErrorFile.replace(key, value)
 
-            UUID = uuid.uuid4().__str__()
+            UUID = str(uuid.uuid4())
             task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, outputLock=outputLock, UUID=UUID)
             self.tasks[UUID] = task
             databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, UUID, arguments)

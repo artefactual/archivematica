@@ -21,21 +21,15 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import uuid
-
-from linkTaskManager import linkTaskManager
+from linkTaskManager import LinkTaskManager
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 
-class linkTaskManagerLoadMagicLink:
+class linkTaskManagerLoadMagicLink(LinkTaskManager):
     """Load a link from the unit to process.
         Deprecated! Replaced with Set/Load Unit Variable"""
     def __init__(self, jobChainLink, pk, unit):
-        self.pk = pk
-        self.jobChainLink = jobChainLink
-        self.UUID = uuid.uuid4().__str__()
-        self.unit = unit
-
+        super(linkTaskManagerLoadMagicLink, self).__init__(jobChainLink, pk, unit)
         ###Update the unit
         magicLink = self.unit.getMagicLink()
         if magicLink != None:

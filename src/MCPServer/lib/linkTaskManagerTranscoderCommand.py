@@ -26,11 +26,10 @@ import math
 import MySQLdb
 import sys
 import threading
-import uuid
 
-from linkTaskManager import linkTaskManager
+from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
-import passClasses
+from passClasses import ReplacementDict
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseFunctions
 
@@ -39,13 +38,12 @@ global outputLock
 outputLock = threading.Lock()
 
 
-class linkTaskManagerTranscoderCommand:
+class linkTaskManagerTranscoderCommand(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
+        super(linkTaskManagerTranscoderCommand, self).__init__(jobChainLink, pk, unit)
         global outputLock
         self.tasks = {}
         self.tasksLock = threading.Lock()
-        self.pk = pk
-        self.jobChainLink = jobChainLink
         self.exitCode = 0
         self.clearToNextLink = False
 
@@ -68,7 +66,7 @@ class linkTaskManagerTranscoderCommand:
         SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
         for optsKey, optsValue in opts.iteritems():
             if self.jobChainLink.passVar is not None:
-                if isinstance(self.jobChainLink.passVar, passClasses.replacementDic):
+                if isinstance(self.jobChainLink.passVar, ReplacementDict):
                     opts[optsKey] = self.jobChainLink.passVar.replace(opts[optsKey])[0]
 
             commandReplacementDic = unit.getReplacementDic()
@@ -81,8 +79,7 @@ class linkTaskManagerTranscoderCommand:
         commandReplacementDic = unit.getReplacementDic()
 
         self.tasksLock.acquire()
-        UUID = str(uuid.uuid4())
-        opts["taskUUID"] = UUID
+        opts["taskUUID"] = self.UUID
         opts["FPRule"] = str(pk)
         execute = "transcoder_fprule_{0}".format(pk)
         execute = databaseFunctions.deUnicode(execute)
@@ -90,9 +87,9 @@ class linkTaskManagerTranscoderCommand:
         self.standardErrorFile = opts["standardErrorFile"]
         self.execute = execute
         self.arguments = str(pk)
-        task = taskStandard(self, execute, opts, opts["standardOutputFile"], opts["standardErrorFile"], outputLock=outputLock, UUID=UUID)
-        self.tasks[UUID] = task
-        databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, UUID, self.arguments)
+        task = taskStandard(self, execute, opts, opts["standardOutputFile"], opts["standardErrorFile"], outputLock=outputLock, UUID=self.UUID)
+        self.tasks[self.UUID] = task
+        databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, self.UUID, self.arguments)
         self.tasksLock.release()
 
         task.performTask()

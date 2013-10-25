@@ -21,11 +21,10 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-from linkTaskManager import linkTaskManager
+from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
-from passClasses import *
+from passClasses import ReplacementDict
 import os
-import uuid
 import sys
 import threading
 import traceback
@@ -35,11 +34,10 @@ import databaseFunctions
 from databaseFunctions import deUnicode
 
 
-class linkTaskManagerDirectories:
+class linkTaskManagerDirectories(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
+        super(linkTaskManagerDirectories, self).__init__(jobChainLink, pk, unit)
         self.tasks = []
-        self.pk = pk
-        self.jobChainLink = jobChainLink
         sql = """SELECT * FROM StandardTasksConfigs where pk = '%s'""" % (pk.__str__())
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
@@ -74,9 +72,9 @@ class linkTaskManagerDirectories:
         if self.jobChainLink.passVar != None:
             if isinstance(self.jobChainLink.passVar, list):
                 for passVar in self.jobChainLink.passVar:
-                    if isinstance(passVar, replacementDic):
+                    if isinstance(passVar, ReplacementDict):
                         execute, arguments, standardOutputFile, standardErrorFile = passVar.replace(execute, arguments, standardOutputFile, standardErrorFile)
-            elif isinstance(self.jobChainLink.passVar, replacementDic):
+            elif isinstance(self.jobChainLink.passVar, ReplacementDict):
                 execute, arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(execute, arguments, standardOutputFile, standardErrorFile)
                     
         commandReplacementDic = unit.getReplacementDic(directory)
@@ -92,16 +90,11 @@ class linkTaskManagerDirectories:
             if standardErrorFile:
                 standardErrorFile = standardErrorFile.replace(key, value)
         
-        UUID = uuid.uuid4().__str__()
-        self.task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, UUID=UUID)
-        databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, UUID, arguments)
+        self.task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, UUID=self.UUID)
+        databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, self.UUID, arguments)
         t = threading.Thread(target=self.task.performTask)
         t.daemon = True
         t.start()
-
-
-
-
 
     def taskCompletedCallBackFunction(self, task):
         databaseFunctions.logTaskCompletedSQL(task)

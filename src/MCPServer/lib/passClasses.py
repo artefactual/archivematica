@@ -21,21 +21,16 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-class replacementDic:
-    def __init__(self, dictionary):
-        self.dic = dictionary
-    
+class ReplacementDict(dict):
     def replace(self, *a):
         ret = []
         for orig in a:
-            new = orig
-            if orig != None:
-                for key, value in self.dic.iteritems():
+            if orig is not None:
+                for key, value in self.iteritems():
                     orig = orig.replace(key, value)
             ret.append(orig)
         return ret
 
 
-class choicesDic:
-    def __init__(self, dictionary):
-        self.dic = dictionary
+class ChoicesDict(dict):
+    pass

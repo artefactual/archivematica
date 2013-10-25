@@ -22,19 +22,13 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import databaseInterface
-import uuid
-
-from linkTaskManager import linkTaskManager
+from linkTaskManager import LinkTaskManager
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 
-class linkTaskManagerSetUnitVariable:
+class linkTaskManagerSetUnitVariable(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
-        self.pk = pk
-        self.jobChainLink = jobChainLink
-        self.UUID = uuid.uuid4().__str__()
-        self.unit = unit
-
+        super(linkTaskManagerSetUnitVariable, self).__init__(jobChainLink, pk, unit)
         ###GET THE MAGIC NUMBER FROM THE TASK stuff
         sql = """SELECT variable, variableValue, microServiceChainLink FROM TasksConfigsSetUnitVariable where pk = '%s'""" % (pk)
         c, sqlLock = databaseInterface.querySQL(sql)

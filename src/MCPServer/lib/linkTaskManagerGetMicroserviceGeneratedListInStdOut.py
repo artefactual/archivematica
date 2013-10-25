@@ -21,24 +21,25 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-from linkTaskManager import linkTaskManager
-from taskStandard import taskStandard
-from passClasses import choicesDic
-from passClasses import replacementDic
+# Stdlib, alphabetical by import source
+import ast
 import os
-import uuid
 import sys
 import threading
+
+# This project,  alphabetical by import source
+from linkTaskManager import LinkTaskManager
+from taskStandard import taskStandard
+from passClasses import ChoicesDict, ReplacementDict
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 import databaseFunctions
 
 
-class linkTaskManagerGetMicroserviceGeneratedListInStdOut:
+class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
+        super(linkTaskManagerGetMicroserviceGeneratedListInStdOut, self).__init__(jobChainLink, pk, unit)
         self.tasks = []
-        self.pk = pk
-        self.jobChainLink = jobChainLink
         sql = """SELECT * FROM StandardTasksConfigs where pk = '%s'""" % (pk.__str__())
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
@@ -70,9 +71,9 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut:
         if self.jobChainLink.passVar != None:
             if isinstance(self.jobChainLink.passVar, list):
                 for passVar in self.jobChainLink.passVar:
-                    if isinstance(passVar, replacementDic):
+                    if isinstance(passVar, ReplacementDict):
                         execute, arguments, standardOutputFile, standardErrorFile = passVar.replace(execute, arguments, standardOutputFile, standardErrorFile)
-            elif isinstance(self.jobChainLink.passVar, replacementDic):
+            elif isinstance(self.jobChainLink.passVar, ReplacementDict):
                 execute, arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(execute, arguments, standardOutputFile, standardErrorFile)
                     
         commandReplacementDic = unit.getReplacementDic(directory)
@@ -88,31 +89,26 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut:
             if standardErrorFile:
                 standardErrorFile = standardErrorFile.replace(key, value)
 
-        UUID = uuid.uuid4().__str__()
-        self.task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, UUID=UUID)
-        databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, UUID, arguments)
+        self.task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, UUID=self.UUID)
+        databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, self.UUID, arguments)
         t = threading.Thread(target=self.task.performTask)
         t.daemon = True
         t.start()
 
-
-
-
-
     def taskCompletedCallBackFunction(self, task):
         databaseFunctions.logTaskCompletedSQL(task)
         try:
-            choices = choicesDic(eval(task.results["stdOut"]))
-        except:
+            choices = ChoicesDict(ast.literal_eval(task.results["stdOut"]))
+        except Exception:
             print >>sys.stderr, "Error creating dic from output"
-            choices = choicesDic({})
-        if self.jobChainLink.passVar != None:
+            choices = ChoicesDict({})
+        if self.jobChainLink.passVar is not None:
             if isinstance(self.jobChainLink.passVar, list):
-                found = False
-                for passVarIndex in range(len(self.jobChainLink.passVar)):
-                    if isinstance(self.jobChainLink.passVar[passVarIndex], choicesDic):
-                        self.jobChainLink.passVar[passVarIndex] = choices
-                if not found:
+                for index, value in enumerate(self.jobChainLink.passVar):
+                    if isinstance(value, ChoicesDict):
+                        self.jobChainLink.passVar[index] = choices
+                        break
+                else:
                    self.jobChainLink.passVar.append(choices)
             else:
                 self.jobChainLink.passVar = [choices, self.jobChainLink.passVar] 

@@ -21,38 +21,33 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import databaseInterface
+# Stdlib, alphabetical by import source
+import ast
 import datetime
-import threading
-import uuid
+import logging
+from lxml import etree
+import os
 import sys
 import time
+import threading
 
-from linkTaskManager import linkTaskManager
-from taskStandard import taskStandard
-import jobChain
-import databaseInterface
-import lxml.etree as etree
-import os
+# This project,  alphabetical by import source
+from linkTaskManager import LinkTaskManager
 import archivematicaMCP
 from linkTaskManagerChoice import choicesAvailableForUnits
 from linkTaskManagerChoice import choicesAvailableForUnitsLock
 from linkTaskManagerChoice import waitingOnTimer
-from linkTaskManagerGetMicroserviceGeneratedListInStdOut import choicesDic
-from passClasses import replacementDic
+from passClasses import ReplacementDict, ChoicesDict
+import databaseInterface
 
-import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica.log",
     level=logging.INFO)
 
-class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
+class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
+        super(linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList, self).__init__(jobChainLink, pk, unit)
         self.choices = []
-        self.pk = pk
-        self.jobChainLink = jobChainLink
-        self.UUID = uuid.uuid4().__str__()
-        self.unit = unit
         sql = sql = """SELECT execute FROM StandardTasksConfigs where pk = '%s'""" % (pk)
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
@@ -60,24 +55,21 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
         while row != None:
             print row
             key = row[0]
-            #self.choices.append((choiceIndex, description_, replacementDic_))
             row = c.fetchone()
-            #choiceIndex += 1
         sqlLock.release()
         if isinstance(self.jobChainLink.passVar, list):
             for item in self.jobChainLink.passVar:
-                print >>sys.stderr
-                print >>sys.stderr, isinstance(item, choicesDic), item
-                if isinstance(item, choicesDic):
-                    for description_, value in item.dic.iteritems():
-                        replacementDic_ = {key: value}.__str__()
-                        self.choices.append((choiceIndex, description_, replacementDic_))
+                print item, "is ChoicesDict: ", isinstance(item, ChoicesDict)
+                if isinstance(item, ChoicesDict):
+                    for description, value in item.iteritems():
+                        replacementDic_ = str({key: value})
+                        self.choices.append((choiceIndex, description, replacementDic_))
                         choiceIndex += 1
                     break
             else:
                 print >>sys.stderr, "self.jobChainLink.passVar", self.jobChainLink.passVar
-                logging.error("ChoicesDic not found in passVar: {}".format(self.jobChainLink.passVar))
-                raise Exception("ChoicesDic not found in passVar: {}".format(self.jobChainLink.passVar))
+                logging.error("ChoicesDict not found in passVar: {}".format(self.jobChainLink.passVar))
+                raise Exception("ChoicesDict not found in passVar: {}".format(self.jobChainLink.passVar))
         else:
             logging.error("passVar is {} instead of expected list".format(
                 type(self.jobChainLink.passVar)))
@@ -89,28 +81,10 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
         preConfiguredChain = self.checkForPreconfiguredXML()
         if preConfiguredChain != None:
             if preConfiguredChain != waitingOnTimer:
-                #time.sleep(archivematicaMCP.config.getint('MCPServer', "waitOnAutoApprove"))
-                #print "checking for xml file for processing rules. TODO"
                 self.jobChainLink.setExitMessage("Completed successfully")
-                #jobChain.jobChain(self.unit, preConfiguredChain)
-                rd = replacementDic(eval(preConfiguredChain))
-                if self.jobChainLink.passVar != None:
-                    if isinstance(self.jobChainLink.passVar, list):
-                        found = False
-                        for passVar in self.jobChainLink.passVar:
-                            if isinstance(self.jobChainLink.passVar, replacementDic):
-                                new = {}
-                                new.update(self.jobChainLink.passVar.dic)
-                                new.update(rd.dic)
-                                rd.dic = [new]
-                                found = True
-                                break
-                        if not found:
-                            self.jobChainLink.passVar.append(rd)
-                            rd = self.jobChainLink.passVar 
-                else:
-                    rd = [rd]
-                self.jobChainLink.linkProcessingComplete(0, rd)
+                rd = ReplacementDict(eval(preConfiguredChain))
+                self.update_passvar_replacement_dict(rd)
+                self.jobChainLink.linkProcessingComplete(0, passVar=self.jobChainLink.passVar)
             else:
                 print "waiting on delay to resume processing on unit:", unit
         else:
@@ -157,9 +131,9 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
                                 print "time to go:", timeToGo
                                 #print "that will be: ", (nowTime + timeToGo)
                                 self.jobChainLink.setExitMessage("Waiting till: " + datetime.datetime.fromtimestamp((nowTime + timeToGo)).ctime())
-                                rd = replacementDic(eval(ret))
+                                rd = ReplacementDict(eval(ret))
                                 if self.jobChainLink.passVar != None:
-                                        if isinstance(self.jobChainLink.passVar, replacementDic):
+                                        if isinstance(self.jobChainLink.passVar, ReplacementDict):
                                             new = {}
                                             new.update(self.jobChainLink.passVar.dic)
                                             new.update(rd.dic)
@@ -175,7 +149,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
                         except Exception as inst:
                             print >>sys.stderr, "Error parsing xml for pre-configured choice"
             except Exception as inst:
-                print >>sys.stderr, "Error parsing xml for pre-configured choice"
+                print >>sys.stderr, "Error parsing xml for pre-configured choice", inst
         return ret
 
     def xmlify(self):
@@ -203,21 +177,6 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
         
         #get the one at index, and go with it.
         choiceIndex, description, replacementDic2 = self.choices[int(index)]
-        rd = replacementDic(eval(replacementDic2))
-        if self.jobChainLink.passVar != None:
-            if isinstance(self.jobChainLink.passVar, list):
-                found = False
-                for passVar in self.jobChainLink.passVar:
-                    if isinstance(self.jobChainLink.passVar, replacementDic):
-                        new = {}
-                        new.update(self.jobChainLink.passVar.dic)
-                        new.update(rd.dic)
-                        rd.dic = [new]
-                        found = True
-                        break
-                if not found:
-                    self.jobChainLink.passVar.append(rd)
-                    rd = self.jobChainLink.passVar 
-        else:
-            rd = [rd]
-        self.jobChainLink.linkProcessingComplete(0, rd)
+        rd = ReplacementDict(ast.literal_eval(replacementDic2))
+        self.update_passvar_replacement_dict(rd)
+        self.jobChainLink.linkProcessingComplete(0, passVar=self.jobChainLink.passVar)

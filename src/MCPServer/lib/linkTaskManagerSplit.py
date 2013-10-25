@@ -24,24 +24,22 @@
 import sys
 import threading
 import time
-import uuid
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from databaseFunctions import deUnicode
 import databaseInterface
 
-from linkTaskManager import linkTaskManager
+from linkTaskManager import LinkTaskManager
 import jobChain
-import passClasses
+from passClasses import ReplacementDict
 import archivematicaMCP
 
 
-class linkTaskManagerSplit:
+class linkTaskManagerSplit(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
+        super(linkTaskManagerSplit, self).__init__(jobChainLink, pk, unit)
         self.tasks = {}
         self.tasksLock = threading.Lock()
-        self.pk = pk
-        self.jobChainLink = jobChainLink
         self.exitCode = 0
         self.clearToNextLink = False
         sql = """SELECT filterSubDir, execute FROM TasksConfigsStartLinkForEachFile where pk = '%s'""" % (pk.__str__())
@@ -80,7 +78,7 @@ class linkTaskManagerSplit:
             execute = self.execute
             
             if self.jobChainLink.passVar != None:
-                if isinstance(self.jobChainLink.passVar, passClasses.replacementDic):
+                if isinstance(self.jobChainLink.passVar, ReplacementDict):
                     execute = self.jobChainLink.passVar.replace(execute)
 
             commandReplacementDic = fileUnit.getReplacementDic()
@@ -96,13 +94,12 @@ class linkTaskManagerSplit:
                     value = value.encode("utf-8")
                 if execute:
                     execute = execute.replace(key, value)
-            UUID = str(uuid.uuid4())
-            self.tasks[UUID] = None
+            self.tasks[self.UUID] = None
 
             t = threading.Thread(
                 target=jobChain.jobChain, 
                 args=(fileUnit, execute, self.taskCompletedCallBackFunction,), 
-                kwargs={"passVar": self.jobChainLink.passVar, "UUID": UUID, "subJobOf": str(self.jobChainLink.UUID)} 
+                kwargs={"passVar": self.jobChainLink.passVar, "UUID": self.UUID, "subJobOf": str(self.jobChainLink.UUID)}
                 )
             t.daemon = True
             while(archivematicaMCP.limitTaskThreads/2 <= threading.activeCount()):

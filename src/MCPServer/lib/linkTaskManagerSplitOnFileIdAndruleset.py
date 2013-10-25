@@ -28,20 +28,19 @@ import sys
 import threading
 import traceback
 
-from linkTaskManager import linkTaskManager
-from passClasses import *
+from linkTaskManager import LinkTaskManager
+from passClasses import ReplacementDict
 import archivematicaMCP
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from databaseFunctions import deUnicode
 
 
-class linkTaskManagerSplitOnFileIdAndruleset:
+class linkTaskManagerSplitOnFileIdAndruleset(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
+        super(linkTaskManagerSplitOnFileIdAndruleset, self).__init__(jobChainLink, pk, unit)
         self.tasks = {}
         self.tasksLock = threading.Lock()
-        self.pk = pk
-        self.jobChainLink = jobChainLink
         self.exitCode = 0
         self.clearToNextLink = False
         sql = """SELECT filterFileEnd, filterFileStart, filterSubDir, standardOutputFile, standardErrorFile, execute, arguments FROM StandardTasksConfigs where pk = '%s'""" % (pk.__str__())
@@ -85,14 +84,14 @@ class linkTaskManagerSplitOnFileIdAndruleset:
             arguments = self.arguments
             
             if self.jobChainLink.passVar != None:
-                if isinstance(self.jobChainLink.passVar, replacementDic):
+                if isinstance(self.jobChainLink.passVar, ReplacementDict):
                     execute, arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(execute, arguments, standardOutputFile, standardErrorFile)
 
             fileUUID = unit.UUID
             command_purpose = self.execute
             toPassVar = ast.literal_eval(arguments)
             toPassVar.update({"%standardErrorFile%":standardErrorFile, "%standardOutputFile%":standardOutputFile, '%commandClassifications%':command_purpose})
-            passVar=replacementDic(toPassVar)
+            passVar=ReplacementDict(toPassVar)
 
             # FIXME Removed superseded check related to maildir here.
             # Will need to re-implement the maildir checks.  See bug #5269

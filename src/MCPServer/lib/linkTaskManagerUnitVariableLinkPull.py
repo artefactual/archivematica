@@ -22,19 +22,14 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import databaseInterface
-import uuid
 
-from linkTaskManager import linkTaskManager
+from linkTaskManager import LinkTaskManager
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 
-class linkTaskManagerUnitVariableLinkPull:
+class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
-        self.pk = pk
-        self.jobChainLink = jobChainLink
-        self.UUID = uuid.uuid4().__str__()
-        self.unit = unit
-        
+        super(linkTaskManagerUnitVariableLinkPull, self).__init__(jobChainLink, pk, unit)
         sql = """SELECT variable, variableValue, defaultMicroServiceChainLink FROM TasksConfigsUnitVariableLinkPull where pk = '%s'""" % (pk)
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()

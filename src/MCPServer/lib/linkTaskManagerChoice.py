@@ -21,22 +21,17 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import databaseInterface
 import datetime
-import threading
-import uuid
-import sys
-import time
-#select * from MicroServiceChainChoice JOIN MicroServiceChains on chainAvailable = MicroServiceChains.pk;
-#| pk | choiceAvailableAtLink | chainAvailable | pk | startingLink | description
-
-from linkTaskManager import linkTaskManager
-from taskStandard import taskStandard
-from executeOrRunSubProcess import executeOrRun
-import jobChain
-import databaseInterface
 import lxml.etree as etree
 import os
+import sys
+import threading
+import time
+
+from linkTaskManager import LinkTaskManager
+import databaseInterface
+from executeOrRunSubProcess import executeOrRun
+import jobChain
 import archivematicaMCP
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
@@ -46,14 +41,11 @@ from archivematicaFunctions import unicodeToStr
 
 waitingOnTimer="waitingOnTimer"
 
-class linkTaskManagerChoice:
+class linkTaskManagerChoice(LinkTaskManager):
+    """Used to get a selection, from a list of chains, to process"""
     def __init__(self, jobChainLink, pk, unit):
-        """Used to get a selection, from a list of chains, to process"""
+        super(linkTaskManagerChoice, self).__init__(jobChainLink, pk, unit)
         self.choices = []
-        self.pk = pk
-        self.jobChainLink = jobChainLink
-        self.UUID = uuid.uuid4().__str__()
-        self.unit = unit
         self.delayTimerLock = threading.Lock()
         self.delayTimer = None
         sql = """SELECT chainAvailable, description FROM MicroServiceChainChoice JOIN MicroServiceChains on chainAvailable = MicroServiceChains.pk WHERE choiceAvailableAtLink = '%s' ORDER BY MicroServiceChainChoice.pk;""" % (jobChainLink.pk.__str__())
