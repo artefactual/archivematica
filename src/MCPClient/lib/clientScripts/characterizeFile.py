@@ -29,11 +29,17 @@ def main(file_path, file_uuid, sip_uuid):
     try:
         format = FormatVersion.active.get(fileformatversion__file_uuid=file_uuid)
     except FormatVersion.DoesNotExist:
-        print('No identification data found for file {} ({}); skipping characterization'.format(file_path, file_uuid),
-            file=sys.stderr)
-        return
+        rules = format = None
 
-    rules = FPRule.active.filter(format=format.uuid, purpose='characterization')
+    if format:
+        rules = FPRule.active.filter(format=format.uuid,
+                                     purpose='characterization')
+
+    # Characterization always occurs - if nothing is specified, get one or more
+    # defaults specified in the FPR.
+    if not rules:
+        rules = FPRule.active.filter(purpose='default_characterization')
+
     for rule in rules:
         if rule.command.script_type == 'bashScript' or rule.command.script_type == 'command':
             args = []
