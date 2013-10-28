@@ -64,6 +64,7 @@ createSIPsfromTRIMTransferContainers_v0.0 = %clientScriptsDirectory%createSIPsfr
 determineAIPVersionKeyExitCode_v0.0 = %clientScriptsDirectory%determineAIPVersionKeyExitCode.py
 echo_v0.0 = /bin/echo
 emailFailReport_v0.0 = %clientScriptsDirectory%emailFailReport.py
+examineContents_v0.0 = %clientScriptsDirectory%examineContents.py
 extractBagTransfer_v0.0 = %clientScriptsDirectory%extractBagTransfer.py
 extractContents_v0.0 = %clientScriptsDirectory%extractContents.py
 extractMaildirAttachments_v0.0 = %clientScriptsDirectory%extractMaildirAttachments.py

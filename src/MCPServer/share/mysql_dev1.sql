@@ -321,3 +321,53 @@ DELETE FROM MicroServiceChainLinksExitCodes WHERE nextMicroServiceChainLink in (
 DELETE FROM MicroServiceChainLinks WHERE defaultNextChainLink in (@d0, @d1, @d2, @d3, @d4, @d6, @d7, @d8, @d9, @d10);
 DELETE FROM MicroServiceChainLinks WHERE pk IN (@d0, @d1, @d2, @d3, @d4, @d6, @d7, @d8, @d9, @d10);
 -- /Issue 5866
+
+-- Issue 5880
+-- Insert the new "Examine contents" step immediately following characterization.
+-- This runs bulk_extractor currently, but may be expanded into running other tools in the future.
+SET @examineContentsMSCL = '100a75f4-9d2a-41bf-8dd0-aec811ae1077' COLLATE utf8_unicode_ci;
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES ('3a17cc3f-eabc-4b58-90e8-1df2a96cf182', 0, 'examineContents_v0.0', '"%relativeLocation%" "%SIPDirectory%" "%fileUUID%"', 'objects');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('869c4c44-6e7d-4473-934d-80c7b95a8310', 'a6b1c323-7d36-428e-846a-e7e819423577', '3a17cc3f-eabc-4b58-90e8-1df2a96cf182', 'Examine contents');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@examineContentsMSCL, 'Characterize and extract metadata', 'Failed', '869c4c44-6e7d-4473-934d-80c7b95a8310', '1b1a4565-b501-407b-b40f-2f20889423f1');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('87dcd08a-7688-425a-ae5f-2f623feb078a', @examineContentsMSCL, 0, '1b1a4565-b501-407b-b40f-2f20889423f1', 'Completed successfully');
+-- Characterize and extract (normal)
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@examineContentsMSCL WHERE microServiceChainLink='303a65f6-a16f-4a06-807b-cb3425a30201';
+-- Characterize and extract (maildir)
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@examineContentsMSCL WHERE microServiceChainLink='bd382151-afd0-41bf-bb7a-b39aef728a32';
+
+-- Insert a "Examine contents?" choice
+SET @examineContentsChoice = 'accea2bf-ba74-4a3a-bb97-614775c74459' COLLATE utf8_unicode_ci;
+SET @examineContentsType = '7569eff6-401f-11e3-ae52-1c6f65d9668b' COLLATE utf8_unicode_ci;
+-- First we create new chains - one for examination, one that picks back up immediately following examination
+SET @examineChoiceChain = '96b49116-b114-47e8-95d0-b3c6ae4e80f5' COLLATE utf8_unicode_ci;
+SET @examineChain = '06f03bb3-121d-4c85-bec7-abbc5320a409' COLLATE utf8_unicode_ci;
+SET @postExamineChain = 'e0a39199-c62a-4a2f-98de-e9d1116460a8' COLLATE utf8_unicode_ci;
+INSERT INTO MicroServiceChains (pk, startingLink, description) VALUES (@examineChain, @examineContentsMSCL, 'Examine contents');
+INSERT INTO MicroServiceChains (pk, startingLink, description) VALUES (@postExamineChain, '1b1a4565-b501-407b-b40f-2f20889423f1', 'Skip examine contents');
+
+-- Next we make sure we move it into a new watched directory before executing the choice
+SET @examineContentsWatchDirectorySTC = 'f62e7309-61b3-4318-a770-ab40595bc7b8' COLLATE utf8_unicode_ci;
+SET @examineContentsWatchDirectoryTC = '08fc82e7-bc15-4608-8171-50475e8071e2' COLLATE utf8_unicode_ci;
+SET @examineContentsWatchDirectoryMSCL = 'dae3c416-a8c2-4515-9081-6dbd7b265388' COLLATE utf8_unicode_ci;
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES (@examineContentsWatchDirectorySTC, 0, 'moveTransfer_v0.0', '"%SIPDirectory%" "%sharedPath%watchedDirectories/workFlowDecisions/examineContentsChoice/."  "%SIPUUID%" "%sharedPath%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@examineContentsWatchDirectoryTC, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @examineContentsWatchDirectorySTC, 'Move to examine contents');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@examineContentsWatchDirectoryMSCL, 'Examine contents', 'Failed', @examineContentsWatchDirectoryTC, @MoveTransferToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('72559113-a0a6-4ba8-8b17-c855389e5f16', @examineContentsWatchDirectoryMSCL, 0, NULL, 'Completed successfully');
+
+-- Next create the choice itself and point the chains there
+INSERT INTO TasksConfigs (pk, taskType, description) VALUES (@examineContentsType, '61fb3874-8ef6-49d3-8a2d-3cb66e86a30c', 'Examine contents?');
+INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, defaultExitMessage, currentTask) VALUES (@examineContentsChoice, 'Examine contents', 'Failed', @examineContentsType);
+
+-- New watched directory entry, pointing at this chainlink
+INSERT INTO MicroServiceChains (pk, startingLink, description) VALUES (@examineChoiceChain, @examineContentsChoice, 'Examine contents?');
+INSERT INTO WatchedDirectories(pk, watchedDirectoryPath, chain, expectedType) VALUES ('da0ce3b8-07c4-4a89-8313-15df5884ac48', "%watchDirectoryPath%workFlowDecisions/examineContentsChoice/", @examineChoiceChain, 'f9a3a93b-f184-4048-8072-115ffac06b5d');
+
+-- Insert the two choices - examine, or don't examine
+INSERT INTO MicroServiceChainChoice (pk, choiceAvailableAtLink, chainAvailable) VALUES ('913ee4f7-35f4-44a0-9249-eb1cfc270d4e', @examineContentsChoice, @examineChain);
+INSERT INTO MicroServiceChainChoice (pk, choiceAvailableAtLink, chainAvailable) VALUES ('64e33508-c51d-4d96-9523-1a0c3b0809b1', @examineContentsChoice, @postExamineChain);
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@examineContentsWatchDirectoryMSCL WHERE nextMicroServiceChainLink=@examineContentsMSCL;
+
+-- Ensure the default link for "Characterize and extract metadata" goes to a sensible place
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@examineContentsWatchDirectoryMSCL WHERE pk=@characterizeExtractMetadata;
+
+-- /Issue 5880
