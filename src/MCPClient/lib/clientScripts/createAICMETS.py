@@ -139,13 +139,14 @@ def create_mets_file(aic, aips):
     print etree.tostring(mets, pretty_print=True)
 
     # Write out the file
-    basename = os.path.join('metadata', "METS-{}.xml".format(aic['uuid']))
+    file_uuid = str(uuid.uuid4())
+    basename = os.path.join('metadata', "METS.{}.xml".format(file_uuid))
     filename = os.path.join(aic['dir'], basename)
     with open(filename, 'w') as f:
         f.write(etree.tostring(mets, pretty_print=True))
     fileOperations.addFileToSIP(
         filePathRelativeToSIP='%SIPDirectory%'+basename,
-        fileUUID=str(uuid.uuid4()),
+        fileUUID=file_uuid,
         sipUUID=aic['uuid'],
         taskUUID=str(uuid.uuid4()),  # Unsure what should go here
         date=now,
