@@ -42,9 +42,16 @@ def main(command_uuid, file_path, file_uuid):
         else:
             rule = IDRule.active.get(command_output=output, command=command)
             version = rule.format
-    except (FormatVersion.DoesNotExist, IDRule.DoesNotExist, IDRule.MultipleObjectsReturned) as e:
-        print >>sys.stderr, 'Error:', e
+    except IDRule.DoesNotExist:
+        print >>sys.stderr, 'Error: No FPR identification rule for tool output "{}" found'.format(output)
         return -1
+    except IDRule.MultipleObjectsReturned:
+        print >>sys.stderr, 'Error: Multiple FPR identification rules for tool output "{}" found'.format(output)
+        return -1
+    except FormatVersion.DoesNotExist:
+        print >>sys.stderr, 'Error: No FPR format record found for PUID {}'.format(output)
+        return -1
+
     # TODO shouldn't have to get File object - http://stackoverflow.com/questions/2846029/django-set-foreign-key-using-integer
     file_ = File.objects.get(uuid=file_uuid)
     FileFormatVersion.objects.create(file_uuid=file_, format_version=version)
