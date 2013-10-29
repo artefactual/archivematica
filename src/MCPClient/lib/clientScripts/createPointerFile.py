@@ -8,6 +8,7 @@ import os.path
 import sys
 import uuid
 
+import archivematicaXMLNamesSpace as namespaces
 PATH = "/usr/lib/archivematica/archivematicaCommon"
 if PATH not in sys.path:
     sys.path.append(PATH)
@@ -64,14 +65,11 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
         package_type = rows[0][0]
 
     # Namespaces
-    xsi = 'http://www.w3.org/2001/XMLSchema-instance'
-    xlink = 'http://www.w3.org/1999/xlink'
-    metsns = 'http://www.loc.gov/METS/'
     nsmap = {
         # Default, unprefixed namespace
-        None: metsns,
-        'xsi': xsi,
-        'xlink': xlink,
+        None: namespaces.metsNS,
+        'xsi': namespaces.xsiNS,
+        'xlink': namespaces.xlinkNS,
     }
     # Set up structure
     E = ElementMaker(nsmap=nsmap)
@@ -92,7 +90,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     )
     # Namespaced attributes have to be added separately - don't know how to do
     # inline with E
-    root.attrib['{{{ns}}}schemaLocation'.format(ns=xsi)] = mets_schema_location
+    root.attrib[namespaces.xsiBNS+'schemaLocation'] = mets_schema_location
 
     add_amdsec_after = root.find('metsHdr')
     filegrp = root.iterdescendants(tag='fileGrp').next()
@@ -151,8 +149,8 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
                 version='2.2',
             )
         )
-        obj.attrib['{{{ns}}}type'.format(ns=xsi)] = 'file'
-        obj.attrib['{{{ns}}}schemaLocation'.format(ns=xsi)] = premis_schema_location
+        obj.attrib[namespaces.xsiBNS+'type'] = 'file'
+        obj.attrib[namespaces.xsiBNS+'schemaLocation'] = premis_schema_location
         # add obj as child of xmldata
         amdsec.iterdescendants(tag='xmlData').next().append(obj)
         # add amdSec after previous amdSec (or metsHdr if first one)
@@ -174,7 +172,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
         file_.set('ADMID', amdsec_id)
         filegrp.append(file_)
         flocat = file_.find('FLocat')
-        flocat.attrib['{{{ns}}}href'.format(ns=xlink)] = aip_path
+        flocat.attrib['{{{ns}}}href'.format(ns=namespaces.xlinkNS)] = aip_path
 
         # compression - 7z or tar.bz2
         if extension == '.7z':

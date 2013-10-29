@@ -9,10 +9,13 @@ import re
 import sys
 import uuid
 
+import archivematicaCreateMETS2
+import archivematicaXMLNamesSpace as namespaces
 PATH = "/usr/lib/archivematica/archivematicaCommon"
 if PATH not in sys.path:
     sys.path.append(PATH)
 import databaseInterface
+import databaseFunctions
 import fileOperations
 import storageService as storage_service
 
@@ -37,8 +40,8 @@ def get_aip_info(aic_dir):
 
     # Fetch the METS file and parse out the Dublic Core metadata with the label
     nsmap = {
-        'm': 'http://www.loc.gov/METS/',  # METS
-        'dc': 'http://purl.org/dc/terms/',  # Dublin Core
+        'm': namespaces.metsNS,  # METS
+        'dc': namespaces.dcNS,  # Dublin Core
     }
     for aip in aips:
         mets_in_aip = "{aip_name}-{aip_uuid}/data/METS.{aip_uuid}.xml".format(
@@ -79,9 +82,9 @@ def create_mets_file(aic, aips):
 
     # Prepare constants
     nsmap = {
-        None: 'http://www.loc.gov/METS/',  # METS
-        'xlink': 'http://www.w3.org/1999/xlink',
-        'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+        None: namespaces.metsNS,  # METS
+        'xlink': namespaces.xlinkNS,
+        'xsi': namespaces.xsiNS,
     }
     now = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
@@ -112,18 +115,9 @@ def create_mets_file(aic, aips):
     mets.attrib['{{{ns}}}schemaLocation'.format(ns=nsmap['xsi'])] = "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd"
 
     # Add Dublin Core info
-    nsmap_dc = {None: 'http://purl.org/dc/terms/'}
     xml_data = mets.find('dmdSec/mdWrap/xmlData')
-    # dublincore = etree.SubElement(xml_data, 'dublincore', nsmap=nsmap_dc)
-    E_dc = ElementMaker(nsmap=nsmap_dc)
-    dublincore = (
-        E_dc.dublincore(
-            E_dc.title(aic['title']),
-            E_dc.type("Archival Information Collection"),
-            E_dc.identifier(aic['identifier']),
-        )
-    )
-    dublincore.attrib['{{{ns}}}schemaLocation'.format(ns=nsmap['xsi'])] = "http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd"
+    dublincore = archivematicaCreateMETS2.getDublinCore(
+        archivematicaCreateMETS2.SIPMetadataAppliesToType, aic['uuid'])
     xml_data.append(dublincore)
 
     # Add elements for each AIP
@@ -151,7 +145,10 @@ def create_mets_file(aic, aips):
         taskUUID=str(uuid.uuid4()),  # Unsure what should go here
         date=now,
         sourceType="aip creation",
+        use='metadata'
     )
+    # To make this work with the createMETS2 (for SIPs)
+    databaseFunctions.insertIntoDerivations(file_uuid, file_uuid)
 
 
 def create_aic_mets(aic_uuid, aic_dir):

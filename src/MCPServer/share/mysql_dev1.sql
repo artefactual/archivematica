@@ -161,7 +161,9 @@ UPDATE MicroServiceChainLinks SET microserviceGroup = "Prepare AIP" WHERE pk IN 
 -- Issue 5803 AIC
 
 -- Create METS.xml file
-INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('53e14112-21bb-46f0-aed3-4e8c2de6678f', 'Prepare AIC', 'Failed', '23650e92-092d-4ace-adcc-c627c41b127e', @MoveSIPToFailedLink);
+INSERT INTO StandardTasksConfigs(pk, execute, arguments) VALUES ('1f3f4e3b-2f5a-47a2-8d1c-27a6f1b94b95', 'createMETS_v2.0', '--baseDirectoryPath "%SIPDirectory%" --baseDirectoryPathString "SIPDirectory" --fileGroupIdentifier "%SIPUUID%" --fileGroupType "sipUUID" --xmlFile "%SIPDirectory%METS.%SIPUUID%.xml"');
+INSERT INTO TasksConfigs(pk, taskType, taskTypePKReference, description) VALUES ('8ea17652-a136-4251-b460-d50b0c7090eb', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '1f3f4e3b-2f5a-47a2-8d1c-27a6f1b94b95', 'Generate METS.xml document');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('53e14112-21bb-46f0-aed3-4e8c2de6678f', 'Prepare AIC', 'Failed', '8ea17652-a136-4251-b460-d50b0c7090eb', @MoveSIPToFailedLink);
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('27e94795-ae8e-4e7d-942f-346024167c76', '53e14112-21bb-46f0-aed3-4e8c2de6678f', 0, '3ba518ab-fc47-4cba-9b5c-79629adac10b', 'Completed successfully');
 -- Create thumbnail dir
 INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('9e810686-d747-4da1-9908-876fb89ac78e', 'Prepare AIC', 'Failed', 'ea463bfd-5fa2-4936-b8c3-1ce3b74303cf', @MoveSIPToFailedLink);
