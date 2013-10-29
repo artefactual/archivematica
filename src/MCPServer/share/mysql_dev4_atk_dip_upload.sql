@@ -40,7 +40,7 @@ INSERT INTO `TasksConfigs` (`pk`, `taskType`, `taskTypePKReference`, `descriptio
 INSERT INTO `TasksConfigs` (`pk`, `taskType`, `taskTypePKReference`, `description`, `replaces`, `lastModified`) VALUES ('bcff2873-f006-442e-9628-5eadbb8d0db7','36b2e239-4a57-4aa5-8ebc-7a29139baca6','a650921e-b754-4e61-9713-1457cf52e77d','Upload to Archivists Toolkit',NULL,'2013-03-25 20:25:01');
 
 -- Link that runs ATK DIP upload script
-INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('bb1f1ed8-6c92-46b9-bab6-3a37ffb665f1','bcff2873-f006-442e-9628-5eadbb8d0db7','e485f0f4-7d44-45c6-a0d2-bba4b2abd0d0',NULL,'Upload DIP',1,'Failed',NULL,'2012-10-02 07:25:06');
+INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('bb1f1ed8-6c92-46b9-bab6-3a37ffb665f1','bcff2873-f006-442e-9628-5eadbb8d0db7','e3efab02-1860-42dd-a46c-25601251b930',NULL,'Upload DIP',1,'Failed',NULL,'2012-10-02 07:25:06');
 
 -- Link that allows selection of ATK config
 INSERT INTO `MicroServiceChainLinks` (`pk`, `currentTask`, `defaultNextChainLink`, `defaultPlaySound`, `microserviceGroup`, `reloadFileList`, `defaultExitMessage`, `replaces`, `lastModified`) VALUES ('7b1f1ed8-6c92-46b9-bab6-3a37ffb665f1','4d56a90c-8d9f-498c-8331-cf469fcb3147','bb1f1ed8-6c92-46b9-bab6-3a37ffb665f1',NULL,'Upload DIP',1,'Failed',NULL,'2012-10-02 07:25:06');
