@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<formats xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xsi:noNamespaceSchemaLocation="fido-formats.xsd" version="0.3">
+  <format>
+    <puid>archivematica-fmt/1</puid>
+    <name>KryoFlux STREAM Image</name>
+    <extension>raw</extension>
+    <signature>
+      <name>KryoFlux STREAM Image</name>
+      <pattern>
+        <position>BOF</position>
+        <regex>\x0D\x04.+name=KryoFlux DiskSystem</regex>
+      </pattern>
+    </signature>
+  </format>
+</formats>
