@@ -125,6 +125,11 @@ def index(request):
             "label": "Reminder: add metadata if desired",
             "choice_uuid": "eeb23509-57e2-4529-8857-9d62525db048",
         },
+        {
+            "name":  "examine",
+            "label": "Examine contents",
+            "choice_uuid": "accea2bf-ba74-4a3a-bb97-614775c74459"
+        },
     ]
 
     populate_select_fields_with_chain_choice_options(chain_choice_fields)
