@@ -54,7 +54,9 @@ $(document).ready(function() {
     'filePath'     : 'File path',
     'fileExtension': 'File extension',
     'AIPUUID'      : 'AIP UUID',
-    'sipName'      : 'AIP name'
+    'sipName'      : 'AIP name',
+    'isPartOf'     : 'isPartOf AIC',
+    'AICID'        : 'AIC Identifier',
   });
 
   // default field name field

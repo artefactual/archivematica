@@ -206,7 +206,9 @@ def set_up_mapping(conn, index):
 
         mapping = {
             'AIPUUID': machine_readable_field_spec,
-            'FILEUUID': machine_readable_field_spec
+            'FILEUUID': machine_readable_field_spec,
+            'isPartOf': machine_readable_field_spec,
+            'AICID': machine_readable_field_spec,
         }
 
         print 'Creating AIP file mapping...'
@@ -221,10 +223,20 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None):
     conn = connect_and_create_index('aips')
 
     # convert METS XML to dict
-    tree      = ElementTree.parse(pathToMETS)
-    root      = tree.getroot()
-    xml       = ElementTree.tostring(root)
+    tree = ElementTree.parse(pathToMETS)
+    root = tree.getroot()
+    xml = ElementTree.tostring(root)
     mets_data = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
+    nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
+        'dc': 'http://purl.org/dc/terms/',
+        'm': 'http://www.loc.gov/METS/',
+    }
+    dublincore = root.find('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore', namespaces=nsmap)
+    aic_identifier = None
+    aip_type = dublincore.findtext('dc:type', namespaces=nsmap)
+    if aip_type == "Archival Information Collection":
+        aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap)
+    is_part_of = dublincore.findtext('dc:isPartOf', namespaces=nsmap)
 
     aipData = {
         'uuid': uuid,
@@ -233,7 +245,9 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None):
         'size': (size or os.path.getsize(filePath)) / float(1024) / float(1024),
         'mets': mets_data,
         'origin': getDashboardUUID(),
-        'created': os.path.getmtime(pathToMETS)
+        'created': os.path.getmtime(pathToMETS),
+        'AICID': aic_identifier,
+        'isPartOf': is_part_of,
     }
     wait_for_cluster_yellow_status(conn)
     try_to_index(conn, aipData, 'aips', 'aip')
@@ -320,37 +334,44 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
 def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, backup_to_mysql = False):
     filesIndexed     = 0
     filePathAmdIDs   = {}
-    filePathMetsData = {}
 
     # establish structure to be indexed for each file item
     fileData = {
-      'archivematicaVersion': version.get_version(),
-      'AIPUUID':   uuid,
-      'sipName':   sipName,
-      'FILEUUID':  '',
-      'indexedAt': time.time(),
-      'filePath':  '',
-      'fileExtension': '',
-      'METS':      {
-        'dmdSec': {},
-        'amdSec': {}
-      },
-      'origin': getDashboardUUID()
+        'archivematicaVersion': '1.0',
+        'AIPUUID': uuid,
+        'sipName': sipName,
+        'FILEUUID': '',
+        'indexedAt': time.time(),
+        'filePath': '',
+        'fileExtension': '',
+        'isPartOf': '',
+        'AICID': '',
+        'METS': {
+            'dmdSec': {},
+            'amdSec': {},
+        },
+        'origin': getDashboardUUID(),
     }
     dmdSecData = {}
 
     # parse XML
     tree = ElementTree.parse(metsFilePath)
     root = tree.getroot()
+    nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
+        'dc': 'http://purl.org/dc/terms/',
+        'm': 'http://www.loc.gov/METS/',
+        'p': 'info:lc/xmlns/premis-v2',
+        'f': 'http://hul.harvard.edu/ois/xml/ns/fits/fits_output',
+    }
 
     #before_length = len(ElementTree.tostring(root))
 
     # add a conditional to toggle this
     # remove FITS output nodes
-    fitsOutputNodes = root.findall("{http://www.loc.gov/METS/}amdSec/{http://www.loc.gov/METS/}techMD/{http://www.loc.gov/METS/}mdWrap/{http://www.loc.gov/METS/}xmlData/{info:lc/xmlns/premis-v2}object/{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}objectCharacteristicsExtension/{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}fits") #/{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}toolOutput")
+    fitsOutputNodes = root.findall("m:amdSec/m:techMD/m:mdWrap/m:xmlData/p:object/p:objectCharacteristics/p:objectCharacteristicsExtension/f:fits", namespaces=nsmap) #/f:toolOutput")
 
     for parent in fitsOutputNodes:
-        children = parent.findall('{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}toolOutput')
+        children = parent.findall('f:toolOutput', namespaces=nsmap)
         for node in children:
             parent.remove(node)
 
@@ -358,21 +379,31 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
     print "Removed FITS output from METS."
 
     # get SIP-wide dmdSec
-    dmdSec = root.findall("{http://www.loc.gov/METS/}dmdSec/{http://www.loc.gov/METS/}mdWrap/{http://www.loc.gov/METS/}xmlData")
+    dmdSec = root.findall("m:dmdSec/m:mdWrap/m:xmlData", namespaces=nsmap)
     for item in dmdSec:
         xml = ElementTree.tostring(item)
         dmdSecData = xmltodict.parse(xml)
 
+    # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore
+    dublincore = root.find('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore', namespaces=nsmap)
+    aip_type = dublincore.findtext('dc:type', namespaces=nsmap)
+    aic_identifier = None
+    is_part_of = None
+    if aip_type == "Archival Information Collection":
+        aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap)
+    elif aip_type == "Archival Information Package":
+        is_part_of = dublincore.findtext('dc:isPartOf', namespaces=nsmap)
+
     # get amdSec IDs for each filepath
-    for item in root.findall("{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp[@USE='original']/{http://www.loc.gov/METS/}file"):
-        for item2 in item.findall("{http://www.loc.gov/METS/}FLocat"):
+    for item in root.findall("m:fileSec/m:fileGrp[@USE='original']/m:file", namespaces=nsmap):
+        for item2 in item.findall("m:FLocat", namespaces=nsmap):
             filePath = item2.attrib['{http://www.w3.org/1999/xlink}href']
             filePathAmdIDs[filePath] = item.attrib['ADMID']
 
     # for each filepath, get data and convert to dictionary then index everything in the appropriate amdSec element
     for filePath in filePathAmdIDs:
         filesIndexed = filesIndexed + 1
-        items = root.findall("{http://www.loc.gov/METS/}amdSec[@ID='" + filePathAmdIDs[filePath] + "']")
+        items = root.findall("m:amdSec[@ID='" + filePathAmdIDs[filePath] + "']", namespaces=nsmap)
         for item in items:
             if item != None:
                 xml = ElementTree.tostring(item)
@@ -380,14 +411,16 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
                 # set up data for indexing
                 indexData = fileData
 
-                indexData['FILEUUID'] = item.find('{http://www.loc.gov/METS/}techMD/{http://www.loc.gov/METS/}mdWrap/{http://www.loc.gov/METS/}xmlData/{info:lc/xmlns/premis-v2}object/{info:lc/xmlns/premis-v2}objectIdentifier/{info:lc/xmlns/premis-v2}objectIdentifierValue').text
+                indexData['FILEUUID'] = item.findtext('m:techMD/m:mdWrap/m:xmlData/p:object/p:objectIdentifier/p:objectIdentifierValue', namespaces=nsmap)
 
-                indexData['filePath']   = filePath
+                indexData['filePath'] = filePath
 
                 fileName, fileExtension = os.path.splitext(filePath)
                 if fileExtension != '':
                     indexData['fileExtension']  = fileExtension[1:].lower()
 
+                indexData['isPartOf'] = is_part_of
+                indexData['AICID'] = aic_identifier
                 indexData['METS']['dmdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(dmdSecData))
                 indexData['METS']['amdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 

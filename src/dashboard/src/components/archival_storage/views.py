@@ -150,12 +150,14 @@ def search(request):
 
 def search_augment_aip_results(conn, aips):
     for aip_uuid in aips:
-        documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('uuid', aip_uuid.term)), fields='name,size,created,status')
+        documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('uuid', aip_uuid.term)), fields='name,size,created,status,AICID,isPartOf')
         if documents['hits']['hits']:
             aip_info = documents['hits']['hits'][0]
             aip_uuid.name = aip_info['fields']['name']
             aip_uuid.size = '{0:.2f} MB'.format(aip_info['fields']['size'])
             aip_uuid.date = aip_info['fields']['created']
+            aip_uuid.isPartOf = aip_info['fields'].get('isPartOf', '')
+            aip_uuid.AICID = aip_info['fields'].get('AICID', '')
 
             if 'status' in aip_info['fields']:
                  status = aip_info['fields']['status']
