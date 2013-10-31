@@ -18,10 +18,6 @@ from fpr.models import FPCommand
 from main.models import FileFormatVersion, File
 
 file_path_cache = {}
-# Controls whether or not to delete the package file after extracting its contents.
-# Default is true.
-# TODO: Make this configurable in some fashion.
-remove_package_file = True
 
 def output_directory(file_path, date):
     if file_path_cache.get(file_path):
@@ -52,7 +48,7 @@ def delete_and_record_package_file(file_path, file_uuid, current_location):
     event_detail_note = "removed from: " + current_location
     fileWasRemoved(file_uuid, eventDetail=event_detail_note)
 
-def main(transfer_uuid, sip_directory, date, task_uuid):
+def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
     files = File.objects.filter(transfer=transfer_uuid)
     if not files:
         print('No files found for transfer: ', transfer_uuid)
@@ -120,7 +116,7 @@ def main(transfer_uuid, sip_directory, date, task_uuid):
             for extracted_file in tree(output_directory(file_path, date)):
                 assign_uuid(extracted_file, file_.uuid, transfer_uuid, date, task_uuid, sip_directory)
             # We may want to remove the original package file after extracting its contents
-            if remove_package_file:
+            if delete:
                 delete_and_record_package_file(file_path, file_.uuid, file_.currentlocation)
 
 
@@ -134,4 +130,11 @@ if __name__ == '__main__':
     sip_directory = sys.argv[2]
     date = sys.argv[3]
     task_uuid = sys.argv[4]
-    exit(main(transfer_uuid, sip_directory, date, task_uuid))
+    # Whether or not to remove the package file post-extraction
+    # This is set by the user during the transfer, and defaults to false.
+    if sys.argv[5] == "True":
+        delete = True
+    else:
+        delete = False
+    print("Deleting: {}".format(delete), file=sys.stderr)
+    sys.exit(main(transfer_uuid, sip_directory, date, task_uuid, delete=delete))
