@@ -101,9 +101,9 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
         except (etree.LxmlError, IOError) as e:
             print >>sys.stderr, "Error parsing xml for pre-configured choice", e
             return None
-        for choice in root.find("preconfiguredChoices"):
+        for choice in root.findall(".//preconfiguredChoice"):
             # Find the choice whose text matches this link's description
-            if choice.find("appliesTo").text == self.jobChainLink.description:
+            if choice.find("appliesTo").text == self.jobChainLink.pk:
                 # Search self.choices for desired choice, return index of
                 # matching choice
                 desiredChoice = choice.find("goToChain").text
