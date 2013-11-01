@@ -37,10 +37,10 @@ var TransferComponentFormView = Backbone.View.extend({
     // add directory selector
     var locationUUID = $('#path_source_select').children(':selected').val();
     createDirectoryPicker(
+      locationUUID,
       sourceDir,
       'transfer-component-select-modal',
-      'path_container',
-      'transfer-component-path-item'
+      'path_container'
     );
   },
 
@@ -116,10 +116,9 @@ var TransferComponentFormView = Backbone.View.extend({
           async: false,
           cache: false,
           data: {
-            filepath:                   filepath,
-            type:                       transfer.type,
-            accession:                  transfer.accessionNumber,
-            transferMetadataSetRowUUID: transfer.transferMetadataSetRowUUID
+            filepath:  filepath,
+            type:      transfer.type,
+            accession: transfer.accessionNumber
           },
           success: function(results) {
             if (results['error']) {
@@ -132,9 +131,6 @@ var TransferComponentFormView = Backbone.View.extend({
             $('#transfer-type').val('standard');
             $('#path_container').html('');
             $('.transfer-component-activity-indicator').hide();
-
-            transferMetadataSetRowUUID = false;
-            $('#transfer-type').removeAttr('disabled');
           }
         });
         // report progress
@@ -212,14 +208,11 @@ var TransferComponentFormView = Backbone.View.extend({
         if (!self.addedPaths().length) {
           alert('Please click "Browse" to add one or more paths from the source directory.');
         } else {
-          // note that the transferMetadataSetRowUUID is a global variable set from the
-          // directory picker
           var transferData = {
-            'name':                       transferName,
-            'type':                       $('#transfer-type').val(),
-            'accessionNumber':            $('#transfer-accession-number').val(),
-            'sourcePaths':                self.addedPaths(),
-            'transferMetadataSetRowUUID': transferMetadataSetRowUUID
+            'name':            transferName,
+            'type':            $('#transfer-type').val(),
+            'accessionNumber': $('#transfer-accession-number').val(),
+            'sourcePaths':     self.addedPaths()
           };
           self.startTransfer(transferData);
         }
