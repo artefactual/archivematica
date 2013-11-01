@@ -1,25 +1,30 @@
 <processingMCP>
   <preconfiguredChoices>
+    <!-- Send to quarantine? -->
     <preconfiguredChoice>
-      <appliesTo>Workflow decision - send transfer to quarantine</appliesTo>
-      <goToChain>Skip quarantine</goToChain>
+      <appliesTo>755b4177-c587-41a7-8c52-015277568302</appliesTo>
+      <goToChain>d4404ab1-dc7f-4e9e-b1f8-aa861e766b8e</goToChain>
     </preconfiguredChoice>
+    <!-- Remove from quarantine -->
     <preconfiguredChoice>
-      <appliesTo>Remove from quarantine</appliesTo>
-      <goToChain>Unquarantine</goToChain>
+      <appliesTo>19adb668-b19a-4fcb-8938-f49d7485eaf3</appliesTo>
+      <goToChain>333643b7-122a-4019-8bef-996443f3ecc5</goToChain>
       <delay unitCtime="yes">2419200.0</delay>
     </preconfiguredChoice>
+    <!-- Select pre-normalize file format identification command -->
     <preconfiguredChoice>
-      <appliesTo>Select pre-normalize file format identification command</appliesTo>
-      <goToChain>Use existing data</goToChain>
+      <appliesTo>7a024896-c4f7-4808-a240-44c87c762bc5</appliesTo>
+      <goToChain>3c1faec7-7e1e-4cdd-b3bd-e2f05f4baa9b</goToChain>
     </preconfiguredChoice>
+    <!-- Select compression algorithm -->
     <preconfiguredChoice>
-      <appliesTo>Select compression algorithm</appliesTo>
-      <goToChain>7z using bzip2</goToChain>
+      <appliesTo>01d64f58-8295-4b7b-9cab-8f1b153a504f</appliesTo>
+      <goToChain>9475447c-9889-430c-9477-6287a9574c5b</goToChain>
     </preconfiguredChoice>
+    <!-- Select compression level -->
     <preconfiguredChoice>
-      <appliesTo>Select compression level</appliesTo>
-      <goToChain>5 - normal compression mode</goToChain>
+      <appliesTo>01c651cb-c174-4ba4-b985-1d87a44d6754</appliesTo>
+      <goToChain>414da421-b83f-4648-895f-a34840e3c3f5</goToChain>
     </preconfiguredChoice>
   </preconfiguredChoices>
 </processingMCP>

@@ -77,43 +77,41 @@ def index(request):
     #   applies_to, lookup_description
     boolean_select_fields = [
         {
-            "name":       "quarantine_transfer",
-            "label":      "Send transfer to quarantine",
-            "yes_option": "Quarantine",
-            "no_option":  "Skip quarantine",
-            "applies_to": "Workflow decision - send transfer to quarantine"
+            "name":         "quarantine_transfer",
+            "choice_uuid":  "755b4177-c587-41a7-8c52-015277568302", # Workflow decision - send transfer to quarantine
+            "label":        "Send transfer to quarantine",
+            "yes_option":   "97ea7702-e4d5-48bc-b4b5-d15d897806ab", # Quarantine
+            "no_option":    "d4404ab1-dc7f-4e9e-b1f8-aa861e766b8e" # Skip quarantine
         },
         {
-            "name":       "normalize_transfer",
-            "label":      "Approve normalization",
-            "applies_to": "Approve normalization",
-            "yes_option": "Approve",
-            "action":     "Approve"
+            "name":         "normalize_transfer",
+            "choice_uuid":  "de909a42-c5b5-46e1-9985-c031b50e9d30",
+            "label":        "Approve normalization",
+            "yes_option":   "1e0df175-d56d-450d-8bee-7df1dc7ae815", # Approve
+            "action":       "Approve"
         },
         {
-            "name":       "store_aip",
-            "label":      "Store AIP",
-            "yes_option": "Store AIP",
-            "applies_to": "Store AIP",
-            "action":     "Store AIP"
+            "name":         "store_aip",
+            "choice_uuid":  "2d32235c-02d4-4686-88a6-96f4d6c7b1c3",
+            "label":        "Store AIP",
+            "yes_option":   "9efab23c-31dc-4cbd-a39d-bb1665460cbe", # Store AIP
+            "action":       "Store AIP"
         }
     ]
 
-    # 'label': text to display, <label> in HTML.  Also, the
-    # 'lookup_description': TasksConfig description to search against to find
-    #   the MicroServiceChainLink for the
-    #   MicroServiceChainChoice.choiceavailableatlink  If not specified, use label
+    # 'label': text to display, <label> in HTML.
     # 'link_uuid': If there are conflicts on lookup_description, specify this
     #   to use that MicroServiceChainLink
     chain_choice_fields = [
         {
             "name":  "create_sip",
-            "label": "Create SIP(s)"
+            "label": "Create SIP(s)",
+            "choice_uuid": "bb194013-597c-4e4a-8493-b36d190f8717"
         },
         {
             "name":  "normalize",
             "label": "Normalize",
-            "link_uuid": "cb8e5706-e73f-472f-ad9b-d1236af8095f",
+            "choice_uuid": "cb8e5706-e73f-472f-ad9b-d1236af8095f",
         }
     ]
 
@@ -131,22 +129,22 @@ def index(request):
         {
             "name": "select_format_id_tool_transfer",
             "label": "Select file format identification command (Transfer)",
-            "link_uuid": 'f09847c2-ee51-429a-9478-a860477f6b8d',
-            "applies_to": "Select file format identification command",
+            "choice_uuid": 'f09847c2-ee51-429a-9478-a860477f6b8d'
         },
         {
             "name": "select_format_id_tool_ingest",
             "label": "Select file format identification command (Ingest)",
-            "link_uuid": '7a024896-c4f7-4808-a240-44c87c762bc5',
-            "applies_to": "Select pre-normalize file format identification command",
+            "choice_uuid": '7a024896-c4f7-4808-a240-44c87c762bc5'
         },
         {
             "name":  "compression_algo",
-            "label": "Select compression algorithm"
+            "label": "Select compression algorithm",
+            "choice_uuid": "01d64f58-8295-4b7b-9cab-8f1b153a504f"
         },
         {
             "name":  "compression_level",
-            "label": "Select compression level"
+            "label": "Select compression level",
+            "choice_uuid": "01c651cb-c174-4ba4-b985-1d87a44d6754"
         }
     ]
 
@@ -166,9 +164,10 @@ def index(request):
             })
     other_fields = [
         {
-            "name":    "store_aip_location",
-            "label":   "Store AIP location",
-            "options": storage_directory_options
+            "name":        "store_aip_location",
+            "label":       "Store AIP location",
+            "choice_uuid": "b320ce81-9982-408a-9502-097d0daa48fa",
+            "options":     storage_directory_options
         }
     ]
 
@@ -194,28 +193,23 @@ def index(request):
 
                     if 'no_option' in field:
                         xmlChoices.add_choice(
-                            field['applies_to'],
+                            field['choice_uuid'],
                             go_to_chain_text
                         )
                     else:
                         if toggle == 'yes':
                             xmlChoices.add_choice(
-                                field['applies_to'],
+                                field['choice_uuid'],
                                 go_to_chain_text
                             )
-                else:
-                    xmlChoices.add_choice(
-                        field['label'],
-                        field['action']
-                    )
 
         # set quarantine duration if applicable
         quarantine_expiry_enabled = request.POST.get('quarantine_expiry_enabled', '')
         quarantine_expiry         = request.POST.get('quarantine_expiry', '')
         if quarantine_expiry_enabled == 'yes' and quarantine_expiry != '':
             xmlChoices.add_choice(
-                'Remove from quarantine',
-                'Unquarantine',
+                '19adb668-b19a-4fcb-8938-f49d7485eaf3', # Remove from quarantine
+                '333643b7-122a-4019-8bef-996443f3ecc5', # Unquarantine
                 str(float(quarantine_expiry) * (24 * 60 * 60))
             )
 
@@ -225,10 +219,9 @@ def index(request):
             if enabled == 'yes':
                 field_value = request.POST.get(field['name'], '')
                 if field_value != '':
-                    applies_to = field.get('applies_to', field['label'])
                     xmlChoices.add_choice(
-                        applies_to,
-                        field_value
+                        field['choice_uuid'],
+                        uuid_from_description(field_value)
                     )
 
         xmlChoices.write_to_file(file_path)
@@ -245,7 +238,7 @@ def index(request):
 
         # parse XML to work out locals()
         root = etree.fromstring(xml)
-        choices = root.find('preconfiguredChoices')
+        choices = root.findall('.//preconfiguredChoice')
 
         for item in boolean_select_fields:
             item['checked']     = ''
@@ -258,7 +251,7 @@ def index(request):
 
             # use toggle field submissions to add to XML
             for field in boolean_select_fields:
-                if applies_to == field['applies_to']:
+                if applies_to == field['choice_uuid']:
                     set_field_property_by_name(boolean_select_fields, field['name'], 'checked', 'checked')
 
                     if 'yes_option' in field:
@@ -274,27 +267,35 @@ def index(request):
 
             # check select fields for defaults
             for field in select_fields:
-                if applies_to == field['label'] or applies_to == field.get('applies_to', ""):
-                    field['selected'] = go_to_chain
+                if applies_to == field['choice_uuid'] and go_to_chain:
+                    try:
+                        chain = models.MicroServiceChain.objects.get(pk=go_to_chain)
+                        choice = chain.description
+                    except models.MicroServiceChain.DoesNotExist:
+                        try:
+                            choice = models.MicroServiceChoiceReplacementDic.objects.get(pk=go_to_chain).description
+                        except models.MicroServiceChoiceReplacementDic.DoesNotExist:
+                            continue
+
+                    field['selected'] = choice
                     field['checked'] = 'checked'
 
     hide_features = hidden_features()
     return render(request, 'administration/processing.html', locals())
 
 def lookup_chain_link(field):
-    if 'link_uuid' in field:
-        link = models.MicroServiceChainLink.objects.get(pk=field['link_uuid'])
-    elif 'lookup_description' in field or 'label' in field:
-        lookup_description = field.get('lookup_description', field['label'])
-        task = models.TaskConfig.objects.get(description=lookup_description)
-        link = models.MicroServiceChainLink.objects.get(currenttask=task.pk)
-
-    return link
+    return models.MicroServiceChainLink.objects.get(pk=field['choice_uuid'])
 
 def remove_option_by_value(options, value):
     for option in options:
         if option['value'] == value:
             options.remove(option)
+
+def uuid_from_description(description):
+    try:
+        return models.MicroServiceChain.objects.get(description=description).pk
+    except models.MicroServiceChain.DoesNotExist:
+        return models.MicroServiceChoiceReplacementDic.objects.filter(description=description)[0].pk
 
 def populate_select_field_options_with_chain_choices(field):
     link = lookup_chain_link(field)
