@@ -14,7 +14,6 @@ import archivematicaXMLNamesSpace as namespaces
 PATH = "/usr/lib/archivematica/archivematicaCommon"
 if PATH not in sys.path:
     sys.path.append(PATH)
-import databaseInterface
 import databaseFunctions
 import fileOperations
 import storageService as storage_service
@@ -58,24 +57,6 @@ def get_aip_info(aic_dir):
     print 'AIP info:', aips
     return aips
 
-def get_aic_info(aic_uuid):
-    """ Get AIC title and identifier. """
-    title = identifier = ''
-    sql = """SELECT title, identifier
-             FROM Dublincore
-             JOIN MetadataAppliesToTypes ON metadataAppliesToType = MetadataAppliesToTypes.pk
-             WHERE MetadataAppliesToTypes.description = "SIP"
-             AND metadataAppliesToidentifier='{uuid}';""".format(uuid=aic_uuid)
-    rows = databaseInterface.queryAllSQL(sql)
-    if rows:
-        ((title, identifier),) = rows
-    aic = {
-        'uuid': aic_uuid,
-        'title': title,
-        'identifier': "AIC# {}".format(identifier) if identifier else '',
-    }
-    print 'AIC info:', aic
-    return aic
 
 def create_mets_file(aic, aips):
     """ Create AIC METS file with AIP information. """
@@ -153,8 +134,10 @@ def create_mets_file(aic, aips):
 
 def create_aic_mets(aic_uuid, aic_dir):
     aips = get_aip_info(aic_dir)
-    aic = get_aic_info(aic_uuid)
-    aic['dir'] = aic_dir
+    aic = {
+        'dir': aic_dir,
+        'uuid': aic_uuid
+    }
     create_mets_file(aic, aips)
 
 

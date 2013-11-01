@@ -32,6 +32,12 @@ class DublinCoreMetadataForm(forms.ModelForm):
             elif isinstance(self.fields[field].widget, forms.widgets.Textarea):
                 self.fields[field].widget.attrs = settings.TEXTAREA_WITH_HELP_ATTRS
 
+    def clean_is_part_of(self):
+        data = self.cleaned_data['is_part_of']
+        if data:
+            data = 'AIC# {}'.format(data)
+        return data
+
 class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
     class Meta:
         model = models.DublinCore
@@ -40,3 +46,9 @@ class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
     def __init__(self, *args, **kwargs):
         super(AICDublinCoreMetadataForm, self).__init__(*args, **kwargs)
         self.fields['identifier'].required = True
+
+    def clean_identifier(self):
+        data = self.cleaned_data['identifier']
+        if data:
+            data = 'AIC# {}'.format(data)
+        return data

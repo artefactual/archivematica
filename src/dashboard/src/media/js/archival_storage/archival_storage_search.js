@@ -55,7 +55,7 @@ $(document).ready(function() {
     'fileExtension': 'File extension',
     'AIPUUID'      : 'AIP UUID',
     'sipName'      : 'AIP name',
-    'isPartOf'     : 'isPartOf AIC',
+    'isPartOf'     : 'Part of AIC',
     'AICID'        : 'AIC Identifier',
   });
 
