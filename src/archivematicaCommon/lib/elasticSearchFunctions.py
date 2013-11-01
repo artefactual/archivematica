@@ -21,12 +21,13 @@
 # @subpackage archivematicaCommon
 # @author Mike Cantelon <mike@artefactual.com>
 
-import ConfigParser
-import MySQLdb
 import base64
+import ConfigParser
 import cPickle
 import datetime
+import MySQLdb
 import os
+import re
 import sys
 import time
 from xml.etree import ElementTree
@@ -335,25 +336,6 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
     filesIndexed     = 0
     filePathAmdIDs   = {}
 
-    # establish structure to be indexed for each file item
-    fileData = {
-        'archivematicaVersion': '1.0',
-        'AIPUUID': uuid,
-        'sipName': sipName,
-        'FILEUUID': '',
-        'indexedAt': time.time(),
-        'filePath': '',
-        'fileExtension': '',
-        'isPartOf': '',
-        'AICID': '',
-        'METS': {
-            'dmdSec': {},
-            'amdSec': {},
-        },
-        'origin': getDashboardUUID(),
-    }
-    dmdSecData = {}
-
     # parse XML
     tree = ElementTree.parse(metsFilePath)
     root = tree.getroot()
@@ -380,6 +362,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
 
     # get SIP-wide dmdSec
     dmdSec = root.findall("m:dmdSec/m:mdWrap/m:xmlData", namespaces=nsmap)
+    dmdSecData = {}
     for item in dmdSec:
         xml = ElementTree.tostring(item)
         dmdSecData = xmltodict.parse(xml)
@@ -400,6 +383,24 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
             filePath = item2.attrib['{http://www.w3.org/1999/xlink}href']
             filePathAmdIDs[filePath] = item.attrib['ADMID']
 
+    # establish structure to be indexed for each file item
+    fileData = {
+        'archivematicaVersion': '1.0',
+        'AIPUUID': uuid,
+        'sipName': sipName,
+        'FILEUUID': '',
+        'indexedAt': time.time(),
+        'filePath': '',
+        'fileExtension': '',
+        'isPartOf': is_part_of,
+        'AICID': aic_identifier,
+        'METS': {
+            'dmdSec': {},
+            'amdSec': {},
+        },
+        'origin': getDashboardUUID(),
+    }
+
     # for each filepath, get data and convert to dictionary then index everything in the appropriate amdSec element
     for filePath in filePathAmdIDs:
         filesIndexed = filesIndexed + 1
@@ -409,7 +410,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
                 xml = ElementTree.tostring(item)
 
                 # set up data for indexing
-                indexData = fileData
+                indexData = fileData.copy() # Deep copy of dict, not dict contents
 
                 indexData['FILEUUID'] = item.findtext('m:techMD/m:mdWrap/m:xmlData/p:object/p:objectIdentifier/p:objectIdentifierValue', namespaces=nsmap)
 
@@ -419,8 +420,6 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
                 if fileExtension != '':
                     indexData['fileExtension']  = fileExtension[1:].lower()
 
-                indexData['isPartOf'] = is_part_of
-                indexData['AICID'] = aic_identifier
                 indexData['METS']['dmdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(dmdSecData))
                 indexData['METS']['amdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 
@@ -430,6 +429,38 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
 
                 if backup_to_mysql:
                     backup_indexed_document(result, indexData, index, type)
+
+    # Reset fileData['METS'], since it is updated in the loop above
+    # See http://stackoverflow.com/a/3975388 for explanation
+    fileData['METS'] = {}
+
+    # Index AIC METS file if it exists
+    metadata_files = root.findall("m:fileSec/m:fileGrp[@USE='metadata']/m:file", namespaces=nsmap)
+    for file_ in metadata_files:
+        indexData = fileData.copy() # Deep copy of dict, not of dict contents
+        # Parse UUID from file ID
+        fileUUID = None
+        uuix_regex = r'\w{8}-?\w{4}-?\w{4}-?\w{4}-?\w{12}'
+        uuids = re.findall(uuix_regex, file_.attrib['ID'])
+        # Multiple UUIDs may be returned - if they are all identical, use that
+        # UUID, otherwise use None.
+        # To determine all UUIDs are identical, use the size of the set
+        if len(set(uuids)) == 1:
+            fileUUID = uuids[0]
+        indexData['FILEUUID'] = fileUUID
+
+        filePath = file_.find('m:FLocat', namespaces=nsmap).attrib['{http://www.w3.org/1999/xlink}href']
+        indexData['filePath'] = filePath
+        _, fileExtension = os.path.splitext(filePath)
+        if fileExtension != '':
+            indexData['fileExtension']  = fileExtension[1:].lower()
+
+        # index data
+        wait_for_cluster_yellow_status(conn)
+        result = try_to_index(conn, indexData, index, type)
+
+        if backup_to_mysql:
+            backup_indexed_document(result, indexData, index, type)
 
     print 'Indexed AIP files and corresponding METS XML.'
 
