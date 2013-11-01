@@ -31,8 +31,6 @@ from components.administration.forms import ArchivistsToolkitConfigForm
 from components.administration.forms import SettingsForm
 from components.administration.forms import StorageSettingsForm
 from components.administration.models import ArchivistsToolkitConfig
-
-from components.administration.forms import ToggleSettingsForm
 from components.administration.forms import TaxonomyTermForm
 from django.template import RequestContext
 import components.decorators as decorators
