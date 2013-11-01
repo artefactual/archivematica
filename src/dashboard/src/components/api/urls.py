@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns
 from components.api.models import SelectionAvailableResource
 from components.api.models import SelectionAPIResource
 
