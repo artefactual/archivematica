@@ -79,8 +79,11 @@ $(document).ready(function() {
 
   function aipSearchSubmit() {
     var destination = '/archival-storage/search/' + '?' + search.toUrlParams();
-    if($('#search_mode').is(':checked')) {
-      destination += '&mode=file';
+    if($('#id_show_files').is(':checked')) {
+      destination += '&filemode=true';
+    }
+    if($('#id_show_aics').is(':checked')) {
+      destination += '&show_aics=true';
     }
     window.location = destination;
   }

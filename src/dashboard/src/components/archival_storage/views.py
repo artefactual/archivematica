@@ -62,12 +62,21 @@ def overview(request):
     return list_display(request)
 
 def search(request):
-    # deal with transfer mode
+    # FIXME there has to be a better way of handling checkboxes than parsing
+    # them by hand here, and displaying 'checked' in
+    # _archival_storage_search_form.html
+    # Parse checkbox for file mode
+    yes_options = ('checked', 'yes', 'true', 'on')
     file_mode = False
     checked_if_in_file_mode = ''
-    if request.GET.get('mode', '') != '':
+    if request.GET.get('filemode', '') in yes_options:
         file_mode = True
         checked_if_in_file_mode = 'checked'
+
+    # Parse checkbox for show AICs
+    show_aics = ''
+    if request.GET.get('show_aics', '') in yes_options:
+        show_aics = 'checked'
 
     # get search parameters from request
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
@@ -151,7 +160,6 @@ def search(request):
        number_of_results
     )
 
-    form = forms.StorageSearchForm(initial={'query': queries[0]})
     return render(request, 'archival_storage/archival_storage_search.html', locals())
 
 def search_augment_aip_results(conn, aips):
@@ -165,6 +173,11 @@ def search_augment_aip_results(conn, aips):
             aip_uuid.isPartOf = aip_info['fields'].get('isPartOf', '')
             aip_uuid.AICID = aip_info['fields'].get('AICID', '')
 
+            # TODO is there a more reliable way to determine package type?
+            if 'AIC#' in aip_uuid.AICID:
+                aip_uuid.type = 'AIC'
+            else:
+                aip_uuid.type = 'AIP'
             if 'status' in aip_info['fields']:
                  status = aip_info['fields']['status']
                  aip_uuid.status = AIP_STATUS_DESCRIPTIONS[status]
@@ -384,8 +397,6 @@ def total_size_of_aips(conn):
 
 def list_display(request):
     current_page_number = request.GET.get('page', 1)
-
-    form = forms.StorageSearchForm()
 
     # get count of AIP files
     aip_indexed_file_count = aip_file_count()

@@ -16,10 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django import forms
-from django.conf import settings
 
-class StorageSearchForm(forms.Form):
-    query = forms.CharField(label='', required=False, widget=forms.widgets.TextInput(attrs=settings.INPUT_ATTRS))
 
 class CreateAICForm(forms.Form):
     results = forms.CharField(label=None, required=True, widget=forms.widgets.HiddenInput())

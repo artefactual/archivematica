@@ -60,7 +60,6 @@ from archivematicaFunctions import escape
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes, requests
-from components.archival_storage.forms import StorageSearchForm
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
@@ -496,7 +495,6 @@ def transfer_backlog(request):
     except:
         results = False
 
-    form = StorageSearchForm(initial={'query': queries[0]})
     return render(request, 'ingest/backlog/search.html', locals())
 
 def transfer_backlog_augment_search_results(raw_results):

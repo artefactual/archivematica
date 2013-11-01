@@ -42,34 +42,27 @@
       <table>
       <thead>
         <th>
-          <div>
-            AIP
-          </div>
+          AIP
         </th>
         <th>
-          <div>
-            Size
-          </div>
+          Size
         </th>
         <th>
-          <div>
-            UUID
-          </div>
+          UUID
+        </th>
+        {% if show_aics %}
+        <th>
+          AIC #
+        </th>
+        {% endif %}
+        <th>
+          Files
         </th>
         <th>
-          <div>
-            Files
-          </div>
+          Date stored
         </th>
         <th>
-          <div>
-            Date stored
-          </div>
-        </th>
-        <th>
-          <div>
-            Status
-          </div>
+          Status
         </th>
         <th></th>
       </thead>
@@ -86,6 +79,17 @@
             {% endif %}
           </td>
           <td class="uuid">{{ term_usage.term }}</td>
+          {% if show_aics %}
+          <td>
+            {% if term_usage.type == 'AIC' %}
+              {{ term_usage.AICID }}
+            {% elif term_usage.isPartOf %}
+              Part of {{ term_usage.isPartOf }}
+            {% else %}
+              None
+            {% endif %}
+          </td>
+          {% endif %}
           <td>{{ term_usage.count }} files</td>
           <td><span class='timestamp'>{{ term_usage.date }}</a></td>
           <td>{{ term_usage.status }}</td>
