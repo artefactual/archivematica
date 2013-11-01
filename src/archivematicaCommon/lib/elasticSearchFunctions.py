@@ -234,10 +234,12 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None):
     }
     dublincore = root.find('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore', namespaces=nsmap)
     aic_identifier = None
-    aip_type = dublincore.findtext('dc:type', namespaces=nsmap)
-    if aip_type == "Archival Information Collection":
-        aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap)
-    is_part_of = dublincore.findtext('dc:isPartOf', namespaces=nsmap)
+    is_part_of = None
+    if dublincore is not None:
+        aip_type = dublincore.findtext('dc:type', namespaces=nsmap)
+        if aip_type == "Archival Information Collection":
+            aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap)
+        is_part_of = dublincore.findtext('dc:isPartOf', namespaces=nsmap)
 
     aipData = {
         'uuid': uuid,
@@ -369,19 +371,14 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
 
     # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore
     dublincore = root.find('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore', namespaces=nsmap)
-    aip_type = dublincore.findtext('dc:type', namespaces=nsmap)
     aic_identifier = None
     is_part_of = None
-    if aip_type == "Archival Information Collection":
-        aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap)
-    elif aip_type == "Archival Information Package":
-        is_part_of = dublincore.findtext('dc:isPartOf', namespaces=nsmap)
-
-    # get amdSec IDs for each filepath
-    for item in root.findall("m:fileSec/m:fileGrp[@USE='original']/m:file", namespaces=nsmap):
-        for item2 in item.findall("m:FLocat", namespaces=nsmap):
-            filePath = item2.attrib['{http://www.w3.org/1999/xlink}href']
-            filePathAmdIDs[filePath] = item.attrib['ADMID']
+    if dublincore is not None:
+        aip_type = dublincore.findtext('dc:type', namespaces=nsmap)
+        if aip_type == "Archival Information Collection":
+            aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap)
+        elif aip_type == "Archival Information Package":
+            is_part_of = dublincore.findtext('dc:isPartOf', namespaces=nsmap)
 
     # establish structure to be indexed for each file item
     fileData = {
@@ -395,65 +392,51 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
         'isPartOf': is_part_of,
         'AICID': aic_identifier,
         'METS': {
-            'dmdSec': {},
+            'dmdSec': rename_dict_keys_with_child_dicts(normalize_dict_values(dmdSecData)),
             'amdSec': {},
         },
         'origin': getDashboardUUID(),
     }
 
-    # for each filepath, get data and convert to dictionary then index everything in the appropriate amdSec element
-    for filePath in filePathAmdIDs:
-        filesIndexed = filesIndexed + 1
-        items = root.findall("m:amdSec[@ID='" + filePathAmdIDs[filePath] + "']", namespaces=nsmap)
-        for item in items:
-            if item != None:
-                xml = ElementTree.tostring(item)
-
-                # set up data for indexing
-                indexData = fileData.copy() # Deep copy of dict, not dict contents
-
-                indexData['FILEUUID'] = item.findtext('m:techMD/m:mdWrap/m:xmlData/p:object/p:objectIdentifier/p:objectIdentifierValue', namespaces=nsmap)
-
-                indexData['filePath'] = filePath
-
-                fileName, fileExtension = os.path.splitext(filePath)
-                if fileExtension != '':
-                    indexData['fileExtension']  = fileExtension[1:].lower()
-
-                indexData['METS']['dmdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(dmdSecData))
-                indexData['METS']['amdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
-
-                # index data
-                wait_for_cluster_yellow_status(conn)
-                result = try_to_index(conn, indexData, index, type)
-
-                if backup_to_mysql:
-                    backup_indexed_document(result, indexData, index, type)
-
-    # Reset fileData['METS'], since it is updated in the loop above
-    # See http://stackoverflow.com/a/3975388 for explanation
-    fileData['METS'] = {}
+    # Index all files in a fileGrup with USE='original' or USE='metadata'
+    original_files = root.findall("m:fileSec/m:fileGrp[@USE='original']/m:file", namespaces=nsmap)
+    metadata_files = root.findall("m:fileSec/m:fileGrp[@USE='metadata']/m:file", namespaces=nsmap)
+    files = original_files + metadata_files
 
     # Index AIC METS file if it exists
-    metadata_files = root.findall("m:fileSec/m:fileGrp[@USE='metadata']/m:file", namespaces=nsmap)
-    for file_ in metadata_files:
+    for file_ in files:
         indexData = fileData.copy() # Deep copy of dict, not of dict contents
-        # Parse UUID from file ID
-        fileUUID = None
-        uuix_regex = r'\w{8}-?\w{4}-?\w{4}-?\w{4}-?\w{12}'
-        uuids = re.findall(uuix_regex, file_.attrib['ID'])
-        # Multiple UUIDs may be returned - if they are all identical, use that
-        # UUID, otherwise use None.
-        # To determine all UUIDs are identical, use the size of the set
-        if len(set(uuids)) == 1:
-            fileUUID = uuids[0]
+
+        # Get file UUID.  If and ADMID exists, look in the amdSec for the UUID,
+        # otherwise parse it out of the file ID.
+        # 'Original' files have ADMIDs, 'Metadata' files don't
+        admID = file_.attrib.get('ADMID', None)
+        if admID is None:
+            # Parse UUID from file ID
+            fileUUID = None
+            uuix_regex = r'\w{8}-?\w{4}-?\w{4}-?\w{4}-?\w{12}'
+            uuids = re.findall(uuix_regex, file_.attrib['ID'])
+            # Multiple UUIDs may be returned - if they are all identical, use that
+            # UUID, otherwise use None.
+            # To determine all UUIDs are identical, use the size of the set
+            if len(set(uuids)) == 1:
+                fileUUID = uuids[0]
+        else:
+            amdSecInfo = root.find("m:amdSec[@ID='{}']".format(admID), namespaces=nsmap)
+            fileUUID = amdSecInfo.findtext("m:techMD/m:mdWrap/m:xmlData/p:object/p:objectIdentifier/p:objectIdentifierValue", namespaces=nsmap)
+
+            # Index amdSec information
+            xml = ElementTree.tostring(amdSecInfo)
+            indexData['METS']['amdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
+
         indexData['FILEUUID'] = fileUUID
 
+        # Get file path from FLocat and extension
         filePath = file_.find('m:FLocat', namespaces=nsmap).attrib['{http://www.w3.org/1999/xlink}href']
         indexData['filePath'] = filePath
         _, fileExtension = os.path.splitext(filePath)
         if fileExtension != '':
-            indexData['fileExtension']  = fileExtension[1:].lower()
+            indexData['fileExtension'] = fileExtension[1:].lower()
 
         # index data
         wait_for_cluster_yellow_status(conn)
@@ -462,9 +445,13 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
         if backup_to_mysql:
             backup_indexed_document(result, indexData, index, type)
 
+        # Reset fileData['METS']['amdSec'], since it is updated in the loop
+        # above. See http://stackoverflow.com/a/3975388 for explanation
+        fileData['METS']['amdSec'] = {}
+
     print 'Indexed AIP files and corresponding METS XML.'
 
-    return filesIndexed
+    return len(files)
 
 # To avoid Elasticsearch schema collisions, if a dict value is itself a
 # dict then rename the dict key to differentiate it from similar instances

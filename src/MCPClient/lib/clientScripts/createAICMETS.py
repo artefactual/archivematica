@@ -49,8 +49,8 @@ def get_aip_info(aic_dir):
         storage_service.extract_file(aip['uuid'], mets_in_aip, mets_path)
 
         root = etree.parse(mets_path)
-        aip['label'] = root.find('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore/dc:title',
-            namespaces=nsmap).text or ""
+        aip['label'] = root.findtext('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore/dc:title',
+            namespaces=nsmap) or ""
 
         os.remove(mets_path)
 

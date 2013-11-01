@@ -24,6 +24,8 @@ class DublinCoreMetadataForm(forms.ModelForm):
         model = models.DublinCore
         fields = ('title', 'is_part_of', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'format', 'identifier', 'source', 'relation', 'language', 'coverage', 'rights')
 
+    aic_prefix = 'AIC#'
+
     def __init__(self, *args, **kwargs):
         super(DublinCoreMetadataForm, self).__init__(*args, **kwargs)
         for field in self.fields:
@@ -34,8 +36,8 @@ class DublinCoreMetadataForm(forms.ModelForm):
 
     def clean_is_part_of(self):
         data = self.cleaned_data['is_part_of']
-        if data:
-            data = 'AIC# {}'.format(data)
+        if data and not data.startswith(self.aic_prefix):
+            data = self.aic_prefix+data
         return data
 
 class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
@@ -49,6 +51,6 @@ class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
 
     def clean_identifier(self):
         data = self.cleaned_data['identifier']
-        if data:
-            data = 'AIC# {}'.format(data)
+        if data and not data.startswith(self.aic_prefix):
+            data = self.aic_prefix+data
         return data
