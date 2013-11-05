@@ -358,3 +358,50 @@ INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode
 
 UPDATE MicroServiceChainLinks SET defaultNextChainLink=@identifyFileFormatPostExtractionMSCL WHERE pk=@sanitizeNamesPostExtractionMSCL;
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@identifyFileFormatPostExtractionMSCL WHERE microServiceChainLink=@sanitizeNamesPostExtractionMSCL;
+
+-- /Insert "Extract contents" task after identification
+
+
+-- Issue 5889 DSpace not identify licenses and text properly
+
+SET @idDspaceFiles = 'd0dfbd93-d2d0-44db-9945-94fd8de8a1d4' COLLATE utf8_unicode_ci;
+SET @idDspaceMETS = '8ec0b0c1-79ad-4d22-abcd-8e95fcceabbc' COLLATE utf8_unicode_ci;
+SET @del = '8367ccf7-2f00-4ea5-b830-936d0a7600e3' COLLATE utf8_unicode_ci;
+SET @dspaceChainStart = '2fd123ea-196f-4c9c-95c0-117aa65ed9c6' COLLATE utf8_unicode_ci;
+SET @dspaceChainEnd = @idDspaceMETS;
+SET @afterDspaceChain = 'eb52299b-9ae6-4a1f-831e-c7eee0de829f' COLLATE utf8_unicode_ci;
+
+-- Merge Identify DSpace licenses and Identify DSpace Text files
+UPDATE StandardTasksConfigs SET execute='identifyDspaceFiles_v0.0', arguments='"%relativeLocation%" "%SIPDirectory%" "%SIPUUID%"' WHERE pk='9ea66f4e-150b-4911-b68d-29fd5d372d2c';
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@idDspaceMETS WHERE pk=@idDspaceFiles;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@idDspaceMETS WHERE microServiceChainLink=@idDspaceFiles;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@del;
+DELETE FROM MicroServiceChainLinks WHERE pk=@del;
+DELETE FROM TasksConfigs WHERE pk='1c3f14e5-c542-4b79-a047-d4f901dd4f2e';
+DELETE FROM StandardTasksConfigs WHERE pk='29f9d509-e740-4e44-b8dc-ab7d6e568b64';
+
+-- Set 'specialized processing' link for DSpace files
+INSERT INTO TasksConfigsSetUnitVariable(pk, variable, microServiceChainLink) VALUES ('ed98984f-69c5-45de-8a32-2c9ecf65e83f', 'postExtractSpecializedProcessing', @dspaceChainStart);
+INSERT INTO TasksConfigs(pk, taskType, taskTypePKReference, description) VALUES ('06b45b5d-d06b-49a8-8f15-e9458fbae842', '6f0b612c-867f-4dfd-8e43-5b35b7f882d7', 'ed98984f-69c5-45de-8a32-2c9ecf65e83f', 'Set specialized processing link');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('f2a019ea-0601-419c-a475-1b96a927a2fb', 'Verify transfer compliance', 'Failed', '06b45b5d-d06b-49a8-8f15-e9458fbae842', @MoveTransferToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes(pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('d6914e3c-4d4a-4b0d-9d26-eeb340ac027b', 'f2a019ea-0601-419c-a475-1b96a927a2fb', 0, 'aa9ba088-0b1e-4962-a9d7-79d7a0cbea2d', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='f2a019ea-0601-419c-a475-1b96a927a2fb' WHERE microServiceChainLink='26bf24c9-9139-4923-bf99-aa8648b1692b';
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='f2a019ea-0601-419c-a475-1b96a927a2fb' WHERE pk='26bf24c9-9139-4923-bf99-aa8648b1692b';
+
+-- Add 'specialized processing' link after extraction
+INSERT INTO TasksConfigsUnitVariableLinkPull (pk, variable, defaultMicroServiceChainLink) VALUES ('49d853a9-646d-4e9f-b825-d1bcc3ba77f0', 'postExtractSpecializedProcessing', @afterDspaceChain);
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('3649f0f4-2174-44af-aef9-31ebeddeb73b', 'c42184a3-1a7f-4c4d-b380-15d8d97fdd11', '49d853a9-646d-4e9f-b825-d1bcc3ba77f0', 'Check for specialized processing');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('192315ea-a1bf-44cf-8cb4-0b3edd1522a6', 'Characterize and extract metadata', 'Failed', '3649f0f4-2174-44af-aef9-31ebeddeb73b', @MoveTransferToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('d2c5ab7b-ced1-45cd-a7da-98ab30a31259', '192315ea-a1bf-44cf-8cb4-0b3edd1522a6', 0, '2fd123ea-196f-4c9c-95c0-117aa65ed9c6', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='192315ea-a1bf-44cf-8cb4-0b3edd1522a6' WHERE microServiceChainLink='c4898520-448c-40fc-8eb3-0603b6aacfb7';
+
+-- Move DSpace specific MSCLs to after extract packages, so files actually exist to be worked on
+UPDATE MicroServiceChainLinks SET defaultNextChainLink = @afterDspaceChain WHERE pk= @dspaceChainEnd;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = @afterDspaceChain WHERE microServiceChainLink=@dspaceChainEnd;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = '2584b25c-8d98-44b7-beca-2b3ea2ea2505' WHERE microServiceChainLink = 'f92dabe5-9dd5-495e-a996-f8eb9ef90f48';
+-- New Group - identify DSpace files
+UPDATE MicroServiceChainLinks SET microserviceGroup = "Identify DSpace files" WHERE pk in (@idDspaceFiles, @idDspaceMETS, '2fd123ea-196f-4c9c-95c0-117aa65ed9c6');
+-- Move Set File Permissions to Characterize group
+UPDATE MicroServiceChainLinks SET microserviceGroup = "Characterize and extract metadata" WHERE pk in ('c4898520-448c-40fc-8eb3-0603b6aacfb7');
+
+-- /Issue 5889
