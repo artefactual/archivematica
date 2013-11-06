@@ -95,7 +95,7 @@ def get_location(path=None, purpose=None, space=None):
         space = space['uuid']
     pipeline = _get_pipeline(get_setting('dashboard_uuid'))
     if pipeline is None:
-        return False
+        return None
     while True:
         locations = api.location.get(pipeline__uuid=pipeline['uuid'],
                                      relative_path=path,

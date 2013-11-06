@@ -154,7 +154,7 @@ def index(request):
     storage_directory_options = [{'value': '', 'label': '--Actions--'}]
     try:
         storage_directories = storage_service.get_location(purpose="AS")
-        if type(storage_directories) is bool:
+        if storage_directories == None:
             raise Exception("Storage server improperly configured.")
     except Exception:
         messages.warning(request, 'Error retrieving AIP storage locations: is the storage server running? Please contact an administrator.')
