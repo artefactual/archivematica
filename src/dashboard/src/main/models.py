@@ -197,13 +197,22 @@ class File(models.Model):
     class Meta:
         db_table = u'Files'
 
+    def __unicode__(self):
+        return u'{uuid}: {originallocation} now at {currentlocation}'.format(
+            uuid=self.uuid,
+            originallocation=self.originallocation,
+            currentlocation=self.currentlocation)
+
 class FileFormatVersion(models.Model):
     id = models.IntegerField(primary_key=True, db_column='pk')
-    file_uuid = models.ForeignKey(File, db_column='fileUUID', to_field='uuid')
-    format_version = models.ForeignKey('fpr.FormatVersion', db_column='fileID', to_field='uuid')
+    file_uuid = models.ForeignKey(File, db_column='fileUUID', to_field='uuid', null=True)
+    format_version = models.ForeignKey('fpr.FormatVersion', db_column='fileID', to_field='uuid', null=True)
 
     class Meta:
         db_table = u'FilesIdentifiedIDs'
+
+    def __unicode__(self):
+        return u'{file} is {format}'.format(file=self.file_uuid, format=self.format_version)
 
 class FPRFileID(models.Model):
     uuid = models.CharField(max_length=36, primary_key=True, db_column='pk')

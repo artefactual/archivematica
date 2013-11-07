@@ -405,3 +405,72 @@ UPDATE MicroServiceChainLinks SET microserviceGroup = "Identify DSpace files" WH
 UPDATE MicroServiceChainLinks SET microserviceGroup = "Characterize and extract metadata" WHERE pk in ('c4898520-448c-40fc-8eb3-0603b6aacfb7');
 
 -- /Issue 5889
+
+-- Cleanup - Maildir use new extraction code
+
+SET @maildirIDFormat = '0e41c244-6c3e-46b9-a554-65e66e5c9324' COLLATE utf8_unicode_ci;
+SET @maildirExtract = '95616c10-a79f-48ca-a352-234cc91eaf08' COLLATE utf8_unicode_ci;
+SET @extractTC = '09f73737-f7ca-4ea2-9676-d369f390e650' COLLATE utf8_unicode_ci;
+SET @maildirSanitizeExtracted = '01b30826-bfc4-4e07-8ca2-4263debad642' COLLATE utf8_unicode_ci;
+SET @maildirIdExtracted = '22ded604-6cc0-444b-b320-f96afb15d581' COLLATE utf8_unicode_ci;
+SET @maildirCharacterize = 'bd382151-afd0-41bf-bb7a-b39aef728a32' COLLATE utf8_unicode_ci;
+-- ID file format of extracted
+INSERT INTO MicroServiceChainLinks (pk, currentTask, defaultNextChainLink, microserviceGroup) VALUES (@maildirIdExtracted, 'a75ee667-3a1c-4950-9194-e07d0e6bf545', @maildirCharacterize, 'Extract packages');
+INSERT INTO MicroServiceChainLinksExitCodes(pk, microServiceChainLink, exitCode, nextMicroServiceChainLink) VALUES ('8c346844-b95d-4ed5-8fc3-694c34844de9', @maildirIdExtracted, 0, @maildirCharacterize);
+-- Sanitize extracted names
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('c2c7edcc-0e65-4df7-812f-a2ee5b5d52b6', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '89b4d447-1cfc-4bbf-beaa-fb6477b00f70', "Sanitize extracted objects' file and directory names");
+INSERT INTO MicroServiceChainLinks (pk, currentTask, defaultNextChainLink, microserviceGroup) VALUES (@maildirSanitizeExtracted, 'c2c7edcc-0e65-4df7-812f-a2ee5b5d52b6', @maildirIdExtracted, 'Extract packages');
+INSERT INTO MicroServiceChainLinksExitCodes(pk, microServiceChainLink, exitCode, nextMicroServiceChainLink) VALUES ('2c4004db-5816-4bd2-b37c-a89dee2c4fe7', @maildirSanitizeExtracted, 0, @maildirIdExtracted);
+-- Extract contents
+INSERT INTO MicroServiceChainLinks(pk, currentTask, defaultNextChainLink, microserviceGroup) VALUES (@maildirExtract, @extractTC, @maildirCharacterize, 'Extract packages');
+INSERT INTO MicroServiceChainLinksExitCodes(pk, microServiceChainLink, exitCode, nextMicroServiceChainLink) VALUES ('21a92e57-bc78-4c62-872d-fb166294132a', @maildirExtract, 0, @maildirSanitizeExtracted);
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@maildirExtract WHERE pk=@maildirIDFormat;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@maildirExtract WHERE microServiceChainLink=@maildirIDFormat;
+-- Rename groups to flow better and not mis-group in GUI
+UPDATE MicroServiceChainLinks SET microserviceGroup='Identify file format' WHERE pk IN ('d1b27e9e-73c8-4954-832c-36bd1e00c802', 'f09847c2-ee51-429a-9478-a860477f6b8d', 'c3269a0a-91db-44e8-96d0-9c748cf80177', '0e41c244-6c3e-46b9-a554-65e66e5c9324', '2522d680-c7d9-4d06-8b11-a28d8bd8a71f', '');
+UPDATE MicroServiceChainLinks SET microserviceGroup='Extract packages' WHERE pk IN ('c5ecb5a9-d697-4188-844f-9a756d8734fa');
+UPDATE MicroServiceChainLinks SET microserviceGroup='Extract attachments' WHERE pk IN ('b2552a90-e674-4a40-a482-687c046407d3');
+-- Remove old extract packages for Maildir
+SET @before = 'b2552a90-e674-4a40-a482-687c046407d3' COLLATE utf8_unicode_ci;
+SET @del = '12d31cf0-cfc5-4ddb-a7d2-f71a8ff1dd0a' COLLATE utf8_unicode_ci;
+SET @after = '21d6d597-b876-4b3f-ab85-f97356f10507' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@after WHERE pk=@before;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@after WHERE microServiceChainLink=@before;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@del;
+DELETE FROM MicroServiceChainLinks WHERE pk=@del;
+DELETE FROM TasksConfigs WHERE pk='17bb8c16-597f-48ac-83f1-539de9442c93';
+DELETE FROM StandardTasksConfigs WHERE pk='e9509ecf-be06-4572-b217-8ec3acb24ad1';
+
+-- Remove Extract Packages using old extract packages
+-- Remove Extract packages in metadata
+SET @before = 'b6b0fe37-aa26-40bd-8be8-d3acebf3ccf8' COLLATE utf8_unicode_ci;
+SET @del = 'd8706e6e-7f38-4d98-9721-4f120156dca8' COLLATE utf8_unicode_ci;
+SET @after = 'b21018df-f67d-469a-9ceb-ac92ac68654e' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@after WHERE pk=@before;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@after WHERE microServiceChainLink=@before;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@del;
+DELETE FROM MicroServiceChainLinks WHERE pk=@del;
+-- Delete TasksConfig and StandardTasksConfig?
+
+-- Remove Extract packages in submission (1)
+SET @before = '0ba9bbd9-6c21-4127-b971-12dbc43c8119' COLLATE utf8_unicode_ci;
+SET @del = '3e7cc9e1-29ec-436f-92d7-0493a5b33c61' COLLATE utf8_unicode_ci;
+SET @after = 'e888269d-460a-4cdf-9bc7-241c92734402' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@after WHERE pk=@before;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@after WHERE microServiceChainLink=@before;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@del;
+DELETE FROM MicroServiceChainLinks WHERE pk=@del;
+-- Delete TasksConfig and StandardTasksConfig?
+
+-- Remove Extract packages in submission (2)
+SET @before = '2a62f025-83ec-4f23-adb4-11d5da7ad8c2' COLLATE utf8_unicode_ci;
+SET @del = '78f8953a-11cd-4125-bab7-2ca76647bd7a' COLLATE utf8_unicode_ci;
+SET @after = '11033dbd-e4d4-4dd6-8bcf-48c424e222e3' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@after WHERE pk=@before;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@after WHERE microServiceChainLink=@before;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@del;
+DELETE FROM MicroServiceChainLinks WHERE pk=@del;
+-- Delete TasksConfig and StandardTasksConfig?
+
+
+-- /Cleanup

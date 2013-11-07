@@ -73,6 +73,12 @@ def main(transfer_uuid, sip_directory, date, task_uuid):
                 ' - file format not identified',
                 file=sys.stderr)
             continue
+        if format_id.format_version == None:
+            print('Not extracting contents from',
+                os.path.basename(file_.currentlocation),
+                ' - file format not identified',
+                file=sys.stderr)
+            continue
         # Extraction commands are defined in the FPR just like normalization
         # commands
         try:
