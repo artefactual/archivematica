@@ -47,6 +47,17 @@ class UserChangeForm(UserChangeForm):
     is_superuser = forms.BooleanField(label = 'Administrator', required=False)
     regenerate_api_key = forms.CharField(widget=forms.CheckboxInput, label='Regenerate API key (shown below)?')
 
+    def __init__(self, *args, **kwargs):
+        suppress_administrator_toggle = kwargs.get('suppress_administrator_toggle', False)
+
+        if 'suppress_administrator_toggle' in kwargs:
+            del kwargs['suppress_administrator_toggle']
+
+        super(UserChangeForm, self).__init__(*args, **kwargs)
+
+        if suppress_administrator_toggle:
+            del self.fields['is_superuser']
+
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'is_superuser')

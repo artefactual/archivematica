@@ -93,6 +93,11 @@ def edit(request, id=None):
             password = request.POST.get('password', '')
             if password != '':
                 user.set_password(password)
+
+            # prevent non-admin from self-promotion
+            if not request.user.is_superuser:
+                user.is_superuser = False
+
             user.save()
 
             # regenerate API key if requested
@@ -114,7 +119,10 @@ def edit(request, id=None):
             messages.info(request, 'Saved.')
             return redirect(return_view)
     else:
-        form = UserChangeForm(instance=user)
+        suppress_administrator_toggle = True
+        if request.user.is_superuser:
+            suppress_administrator_toggle = False
+        form = UserChangeForm(instance=user, suppress_administrator_toggle=suppress_administrator_toggle)
 
     # load API key for display
     try:
