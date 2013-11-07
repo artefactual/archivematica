@@ -472,5 +472,7 @@ DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@del;
 DELETE FROM MicroServiceChainLinks WHERE pk=@del;
 -- Delete TasksConfig and StandardTasksConfig?
 
-
+-- Removed unused 'identifyFilesByExtension_v0.0' StandardTasksConfigs/TasksConfigs
+DELETE FROM StandardTasksConfigs WHERE pk IN ('5dfba5b1-f4b7-4884-8bd2-6b855a03b3f2', '5f1cea07-483f-4c88-adfe-606fed6a9a52', 'b32d79b7-1fd5-4c61-abca-3b4f168faf19');
+DELETE FROM TasksConfigs WHERE pk IN ('1a9b46f4-79a6-4bc9-a725-c9862b21e0c2', '59fc6d9e-a648-443f-93f3-7f172f8e85a7', '6b173074-382a-4247-9bac-600f31f69e6c', 'bb2523de-e310-44f5-b3f1-c92eab920f26', 'bebba280-91fd-415d-89ce-1ad2b5c27c28');
 -- /Cleanup

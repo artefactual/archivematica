@@ -72,7 +72,6 @@ getAipStorageLocations_v0.0 = %clientScriptsDirectory%getAipStorageLocations.py
 identifyDspaceMETSFiles_v0.0 = %clientScriptsDirectory%identifyDspaceMETSFiles.py
 identifyDspaceFiles_v0.0 = %clientScriptsDirectory%identifyDspaceFiles.py
 identifyFileFormat_v0.0 = %clientScriptsDirectory%identifyFileFormat.py
-identifyFilesByExtension_v0.0 = %clientScriptsDirectory%identifyFilesByExtension.py
 isMaildirAIP_v0.0 = %clientScriptsDirectory%isMaildirAIP.py
 indexAIP_v0.0 = %clientScriptsDirectory%indexAIP.py
 loadLabelsFromCSV_v0.0 = %clientScriptsDirectory%loadLabelsFromCSV.py
