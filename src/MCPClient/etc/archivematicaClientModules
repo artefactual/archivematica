@@ -105,7 +105,6 @@ setFilePermission_v0.0 = chmod
 setMaildirFileGrpUseAndFileIDs_v0.0 = %clientScriptsDirectory%setMaildirFileGrpUseAndFileIDs.py
 setSIPQuarantine_v0.0 = %clientScriptsDirectory%quarantineSIP.sh
 sha256deepRelative_v0.0 = %clientScriptsDirectory%sha256deepRelative.sh
-transcoderExtractPackages_v0.0 = /usr/lib/archivematica/transcoder/transcoderExtraction.py
 trimCreateRightsEntries_v0.0 = %clientScriptsDirectory%trimCreateRightsEntries.py
 trimRestructureForCompliance_v0.0 = %clientScriptsDirectory%trimRestructureForCompliance.py
 trimVerifyChecksums_v0.0 = %clientScriptsDirectory%trimVerifyChecksums.py
