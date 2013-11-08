@@ -8,6 +8,6 @@ Homepage: http://archivematica.org
 
 Package: upload-qubit
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, python, python-support, php5, php5-cli, php5-curl, php5-gearman, rsync
+Depends: ${shlibs:Depends}, ${misc:Depends}, python, python-support, rsync
 Description: DIP uploader for Qubit
   Enter long description
