@@ -39,77 +39,72 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
     # not fetching name of ID Tool, don't think we need it.
     
     sql = """
-    select
-        CONCAT(a.currentLocation, ' ', a.fileUUID,' ', IFNULL(b.fileID, "")) AS 'pagingIndex', 
+    select 
+        CONCAT(a.currentLocation, ' ', a.fileUUID,' ', IFNULL(a.fileID, "")) AS 'pagingIndex',
         a.fileUUID, 
         a.location,
         substring(a.currentLocation,23) as fileName, 
         a.fileID, 
-        a.description, 
+        a.description,
         a.already_in_access_format, 
         a.already_in_preservation_format,
-        b.access_normalization_attempted,
-        b.preservation_normalization_attempted,
-        b.access_normalization_task_uuid,
-        b.preservation_normalization_task_uuid,
-        b.access_normalization_failed,
-        b.preservation_normalization_failed,
-        b.access_task_exitCode,
-        b.preservation_task_exitCode
-    from
-        (select
+        case when b.exitCode < 2 and a.fileID is not null then 1 else 0 end as access_normalization_attempted,
+        case when a.fileID is not null and b.exitcode = 1 then 1 else 0 end as access_normalization_failed,
+        case when c.exitCode < 2 and a.fileID is not null then 1 else 0 end as preservation_normalization_attempted,
+        case when a.fileID is not null and c.exitcode = 1 then 1 else 0 end as preservation_normalization_failed,
+        b.taskUUID as access_normalization_task_uuid,
+        c.taskUUID as preservation_normalization_task_uuid,
+        b.exitCode as access_task_exitCode,
+        c.exitCode as preservation_task_exitCode
+    from (
+        select
             f.fileUUID,
             f.sipUUID, 
             f.originalLocation as location,
             f.currentLocation,
             fid.uuid as 'fileID',
             fid.description, 
+            f.fileGrpUse,
             fid.access_format AS 'already_in_access_format', 
             fid.preservation_format AS 'already_in_preservation_format'
         from 
-        Files f
-        Join
-        FilesIdentifiedIDs fii on f.fileUUID = fii.fileUUID
-        Join
-        fpr_formatversion fid on fii.fileID = fid.uuid 
+            Files f
+            Left Join
+            FilesIdentifiedIDs fii on f.fileUUID = fii.fileUUID
+            Left Join
+            fpr_formatversion fid on fii.fileID = fid.uuid
         where 
             f.fileGrpUse in ('original', 'service')
-            and f.sipUUID = '{0}'
         ) a 
-    Left Join
-        (select
-            cr.format_id fileID,
+        Left Join (
+        select
             j.sipUUID,
-            max(if(cr.purpose = 'access', t.taskUUID, null)) IS NOT NULL as access_normalization_attempted,
-            max(if(cr.purpose = 'preservation', t.taskUUID, null)) IS NOT NULL as preservation_normalization_attempted,
-            max(if(cr.purpose = 'access', t.taskUUID, null)) as access_normalization_task_uuid,
-            max(if(cr.purpose = 'preservation', t.taskUUID, null)) as preservation_normalization_task_uuid,
-            max(if(cr.purpose = 'access', t.exitCode, null)) != 0 AS access_normalization_failed,
-            max(if(cr.purpose = 'preservation', t.exitCode, null)) != 0 AS preservation_normalization_failed,
-            max(if(cr.purpose = 'access', t.exitCode, null)) as access_task_exitCode,
-            max(if(cr.purpose = 'preservation', t.exitCode, null)) as preservation_task_exitCode
+            t.fileUUID,
+            t.taskUUID,
+            t.exitcode
         from 
-            fpr_fprule cr
-            Join 
-            TasksConfigs tc on tc.taskTypePKReference = cr.uuid
-            join
-            MicroServiceChainLinks ml on tc.pk = ml.currentTask
+            Jobs j 
             Join
-            Jobs j on j.MicroServiceChainLinksPK = ml.pk 
+            Tasks t on t.jobUUID = j.jobUUID
+        where
+            j.jobType = 'Normalize for preservation'
+        ) b
+        on a.fileUUID = b.fileUUID and a.sipUUID = b.sipUUID
+        Left Join (
+        select
+            j.sipUUID,
+            t.fileUUID,
+            t.taskUUID,
+            t.exitcode
+        from 
+            Jobs j 
             join
             Tasks t on t.jobUUID = j.jobUUID
-        where 
-            cr.purpose in ('preservation', 'access')
-            and j.sipUUID = '{0}'
-        group by cr.format_id
-        ) b
-    on a.fileID = b.fileID and a.sipUUID = b.sipUUID
-    where a.sipUUID = '{0}'
-    ORDER BY b.preservation_normalization_failed DESC,
-        b.access_normalization_failed DESC,
-        IF(b.preservation_normalization_attempted=0 AND a.already_in_preservation_format=0, 0, 1),
-        fileName,
-        fileID;
+        Where
+            j.jobType = 'Normalize for access'
+        ) c
+        on a.fileUUID = c.fileUUID and a.sipUUID = c.sipUUID
+        where a.sipUUID = '{0}';
     """.format(sipUUID)
     
     cursor.execute(sql)

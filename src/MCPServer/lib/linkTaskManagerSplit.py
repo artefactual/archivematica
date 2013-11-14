@@ -53,6 +53,7 @@ class linkTaskManagerSplit(LinkTaskManager):
         sqlLock.release()
         # Check for a unit variable that specifies a normalization path
         # that overrides this
+        # TODO port me to LTM Files?
         sql = """ SELECT variableValue FROM UnitVariables WHERE unitUUID ='{unit_uuid}' AND unitType ='{unit}' AND variable='normalizationDirectory'; """.format(
             unit_uuid=unit.UUID,
             unit='SIP')

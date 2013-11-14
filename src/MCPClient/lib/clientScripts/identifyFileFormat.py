@@ -54,7 +54,10 @@ def main(command_uuid, file_path, file_uuid):
 
     # TODO shouldn't have to get File object - http://stackoverflow.com/questions/2846029/django-set-foreign-key-using-integer
     file_ = File.objects.get(uuid=file_uuid)
-    FileFormatVersion.objects.create(file_uuid=file_, format_version=version)
+    (ffv, created) = FileFormatVersion.objects.get_or_create(file_uuid=file_, defaults={'format_version': version})
+    if not created:  # Update the version if it wasn't created new
+        ffv.format_version = version
+        ffv.save()
     print "{} identified as a {}".format(file_path, version.description)
     return 0
 

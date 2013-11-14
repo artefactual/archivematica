@@ -42,8 +42,6 @@ import sys
 import threading
 import traceback
 
-import transcoderNormalizer
-
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 import databaseInterface
@@ -180,18 +178,6 @@ def startThread(threadNumber):
         print 'registering:"{}"'.format(key)
         printOutputLock.release()
         gm_worker.register_task(key, executeCommand)
-    
-    #load transoder jobs
-    # FPRule.active.values_list('uuid', flat=True)
-    sql = """SELECT fpr_fprule.uuid FROM fpr_fprule WHERE enabled = 1;"""
-    rows = databaseInterface.queryAllSQL(sql)
-    for row in rows:
-        fprule_uuid = row[0]
-        key = "transcoder_fprule_{0}".format(fprule_uuid)
-        printOutputLock.acquire()
-        print 'registering:"{}"'.format(key)
-        printOutputLock.release()
-        gm_worker.register_task(key, transcoderNormalizer.executeFPRule)
             
     failMaxSleep = 30
     failSleep = 1

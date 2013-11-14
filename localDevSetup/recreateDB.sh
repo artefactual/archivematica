@@ -55,7 +55,7 @@ mysql -u root "${dbpassword}" --execute="CREATE USER '${username}'@'localhost' I
 mysql -u root "${dbpassword}" --execute="GRANT SELECT, UPDATE, INSERT, DELETE ON ${databaseName}.* TO '${username}'@'localhost';"
 
 echo "Creating and populating MCP tables"
-mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_0.10;"
+mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_1.0.sql;"
 ../src/MCPServer/share/mysql_dev.sh ${databaseName} ${dbpassword}
 # mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_dev1;"
 

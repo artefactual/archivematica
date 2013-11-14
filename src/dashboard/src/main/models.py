@@ -193,6 +193,7 @@ class File(models.Model):
     transfer = models.ForeignKey(Transfer, db_column='transferUUID', to_field = 'uuid')
     originallocation = models.TextField(db_column='originalLocation')
     currentlocation = models.TextField(db_column='currentLocation')
+    filegrpuse = models.TextField(db_column='fileGrpUse')
 
     class Meta:
         db_table = u'Files'

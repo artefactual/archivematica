@@ -26,7 +26,6 @@ from taskStandard import taskStandard
 from passClasses import ReplacementDict
 import databaseInterface
 import threading
-import math
 import time
 import sys
 import uuid
@@ -155,7 +154,7 @@ class linkTaskManagerFiles(LinkTaskManager):
 
     def taskCompletedCallBackFunction(self, task):
         #logTaskCompleted()
-        self.exitCode += math.fabs(task.results["exitCode"])
+        self.exitCode = max(self.exitCode, task.results["exitCode"])
         databaseFunctions.logTaskCompletedSQL(task)
 
         self.tasksLock.acquire()

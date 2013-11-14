@@ -60,7 +60,6 @@ function moreStuff() {
         })
         .done(function() {
           $("div#fpr").append("<p>Attempt completed.</p>");
-          $("div#fpr").append("<p><strong>Please restart Archivematica services using the following command: <pre>sudo restart archivematica-mcp-client</pre></strong></p>");
         })
         .fail(function(jqxhr, textStatus, error) {
             $("div#fpr").append("<p>Request error:</p>");
