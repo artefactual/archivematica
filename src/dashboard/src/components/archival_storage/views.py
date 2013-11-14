@@ -344,7 +344,7 @@ def list_display(request):
     aip_indexed_file_count = aip_file_count()
 
     # get AIPs
-    order_by = request.GET.get('order_by', 'name')
+    order_by = request.GET.get('order_by', 'name_unanalyzed')
     sort_by  = request.GET.get('sort_by', 'up')
 
     if sort_by == 'down':

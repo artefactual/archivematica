@@ -142,6 +142,18 @@ def connect_and_create_index(index, attempt=1):
 
     return conn
 
+def _sortable_string_field_specification(field_name):
+    return {
+        'type': 'multi_field',
+        'fields': {
+            field_name: {'type': 'string'},
+            field_name + '_unanalyzed': {
+                'type': 'string',
+                'index': 'not_analyzed'
+            }
+        }
+    }
+
 def set_up_mapping(conn, index):
     machine_readable_field_spec = {
         'type':  'string',
@@ -171,7 +183,7 @@ def set_up_mapping(conn, index):
         print 'AIP mapping created.'
 
         mapping = {
-            'name': {'type': 'string'},
+            'name': _sortable_string_field_specification('name'),
             'size': {'type': 'double'},
             'uuid': machine_readable_field_spec
         }
