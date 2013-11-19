@@ -1,3 +1,7 @@
+<!-- Comments are not added when this is written by the admin panel.
+     When changing default settings, please remember to keep/add
+     comments as appropriate! -->
+
 <processingMCP>
   <preconfiguredChoices>
     <!-- Send to quarantine? -->
