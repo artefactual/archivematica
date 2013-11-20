@@ -33,6 +33,10 @@ else
 fi
 
 pwd
+# For a new dump,
+# mysqldump -u root --complete-insert --no-create-info MCP fpr_idtool fpr_idcommand fpr_formatgroup fpr_fpcommand fpr_fptool fpr_format fpr_fprule fpr_idrule fpr_formatversion > mysql_fpr_1.0.sql
+# mysqldump -u root --complete-insert --no-create-info MCP MicroServiceChoiceReplacementDic --where "replacementDic LIKE '%IDCommand%' AND replacementDic NOT LIKE '%None%'" >> mysql_fpr_1.0.sql
+
 mysql -u $username $dbpassword --execute="source ./delete_fpr_data.sql" $databaseName
 mysql -u $username $dbpassword --execute="source ./mysql_fpr_1.0.sql" $databaseName
 # mysql -u $username $dbpassword --execute="source ./mysql_fpr_dev1.sql" $databaseName
