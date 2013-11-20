@@ -362,7 +362,7 @@ var ATKMatcherView = Backbone.View.extend({
               'DIPUUID':                    self.DIPUUID,
               'objectPath':                 item.path,
               'objectUUID':                 self.pathData[item.path],
-              'resourceId':                 resource.id,
+              'resourceId':                 resource.attributes.id,
               'resourceCSSId':              self.selectedResourceCSSId,
               'resourceLevelOfDescription': resource.get('levelOfDescription'),
               'resourceSortPosition':       resource.get('sortPosition')

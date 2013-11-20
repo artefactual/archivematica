@@ -11,3 +11,4 @@ mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_0.10_dev2_fpr_table_create.sql;"
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_0.10_dev3.sql;"
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_0.10_dev4_atk_dip_upload.sql;"
+mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_0.10_dev5.sql;"
