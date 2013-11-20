@@ -29,9 +29,6 @@ from linkTaskManagerChoice import linkTaskManagerChoice
 from linkTaskManagerAssignMagicLink import linkTaskManagerAssignMagicLink
 from linkTaskManagerLoadMagicLink import linkTaskManagerLoadMagicLink
 from linkTaskManagerReplacementDicFromChoice import linkTaskManagerReplacementDicFromChoice
-from linkTaskManagerSplit import linkTaskManagerSplit
-from linkTaskManagerSplitOnFileIdAndruleset import linkTaskManagerSplitOnFileIdAndruleset
-from linkTaskManagerTranscoderCommand import linkTaskManagerTranscoderCommand
 from linkTaskManagerGetMicroserviceGeneratedListInStdOut import linkTaskManagerGetMicroserviceGeneratedListInStdOut
 from linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList import linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList
 from linkTaskManagerSetUnitVariable import linkTaskManagerSetUnitVariable
@@ -49,9 +46,6 @@ constSelectPathTask = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WH
 constSetMagicLink = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("assign magic link"))[0][0]
 constLoadMagicLink = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("goto magic link"))[0][0]
 constGetReplacementDic = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("get replacement dic from user choice"))[0][0]
-constSplitByFile = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Split creating Jobs for each file"))[0][0]
-constlinkTaskManagerSplitOnFileIdAndruleset = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Split Job into many links based on file ID"))[0][0]
-constTranscoderTaskLink = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Transcoder task type"))[0][0]
 constlinkTaskManagerGetMicroserviceGeneratedListInStdOut = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Get microservice generated list in stdOut"))[0][0]
 constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Get user choice from microservice generated list"))[0][0]
 constlinkTaskManagerSetUnitVariable = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("linkTaskManagerSetUnitVariable"))[0][0]
@@ -115,18 +109,6 @@ class jobChainLink:
             linkTaskManagerLoadMagicLink(self, taskTypePKReference, self.unit)
         elif taskType == constGetReplacementDic:
             linkTaskManagerReplacementDicFromChoice(self, taskTypePKReference, self.unit)
-        elif taskType == constSplitByFile:
-            if self.reloadFileList:
-                self.unit.reloadFileList();
-            linkTaskManagerSplit(self, taskTypePKReference, self.unit)
-        elif taskType == constlinkTaskManagerSplitOnFileIdAndruleset:
-            if self.reloadFileList:
-                self.unit.reloadFileList();
-            linkTaskManagerSplitOnFileIdAndruleset(self, taskTypePKReference, self.unit)
-        elif taskType == constTranscoderTaskLink:
-            if self.reloadFileList:
-                self.unit.reloadFileList();
-            linkTaskManagerTranscoderCommand(self, taskTypePKReference, self.unit)
         elif taskType == constlinkTaskManagerGetMicroserviceGeneratedListInStdOut:
             linkTaskManagerGetMicroserviceGeneratedListInStdOut(self, taskTypePKReference, self.unit)
         elif taskType == constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:

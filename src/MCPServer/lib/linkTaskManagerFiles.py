@@ -21,20 +21,21 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-from linkTaskManager import LinkTaskManager
-from taskStandard import taskStandard
-from passClasses import ReplacementDict
-import databaseInterface
+import ast
+import os
 import threading
 import time
 import sys
 import uuid
+
 import archivematicaMCP
+from linkTaskManager import LinkTaskManager
+from taskStandard import taskStandard
+from passClasses import ReplacementDict
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import databaseInterface
 import databaseFunctions
 from databaseFunctions import deUnicode
-
-import os
 
 
 class linkTaskManagerFiles(LinkTaskManager):
@@ -62,6 +63,22 @@ class linkTaskManagerFiles(LinkTaskManager):
             outputLock = threading.Lock()
         else:
             outputLock = None
+
+        # Check if filterSubDir has been overridden for this Transfer/SIP
+        sql = """SELECT variableValue
+            FROM UnitVariables
+            WHERE unitType='%s'
+            AND unitUUID='%s'
+            AND variable='%s';""" % (self.unit.unitType, self.unit.UUID, self.execute)
+        rows = databaseInterface.queryAllSQL(sql)
+        try:
+            variableValue = ast.literal_eval(rows[0][0])
+        except (SyntaxError, IndexError):
+            # IndexError = rows was empty
+            # SyntaxError = contents of variableValue weren't the expected dict
+            pass
+        else:
+            filterSubDir = variableValue['filterSubDir']
 
         SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
         self.tasksLock.acquire()

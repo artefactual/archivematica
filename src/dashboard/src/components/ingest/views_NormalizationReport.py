@@ -39,8 +39,8 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
     # not fetching name of ID Tool, don't think we need it.
     
     sql = """
-    select 
-        CONCAT(a.currentLocation, ' ', a.fileUUID,' ', IFNULL(a.fileID, "")) AS 'pagingIndex',
+    select
+        CONCAT(a.currentLocation, ' ', a.fileUUID,' ', IFNULL(b.fileID, "")) AS 'pagingIndex', 
         a.fileUUID, 
         a.location,
         substring(a.currentLocation,23) as fileName, 
@@ -75,6 +75,7 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
             fpr_formatversion fid on fii.fileID = fid.uuid
         where 
             f.fileGrpUse in ('original', 'service')
+            and f.sipUUID = '{0}'
         ) a 
         Left Join (
         select
