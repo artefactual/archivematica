@@ -39,8 +39,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 logger.addHandler(logging.FileHandler('/tmp/at_upload.log', mode='a'))
-
-
     
 def recursive_file_gen(mydir):
     for root, dirs, files in os.walk(mydir):
@@ -78,7 +76,6 @@ def get_user_input():
     #aip = raw_input("Name of mets file:")
     #fileName = raw_input("File name:")
     return atdbhost, atdbport, atdbuser, atpass, atdb, dip_location, dip_name, atuser, object_type, ead_actuate, ead_show, use_statement, uri_prefix
-
 
 def get_files_from_dip(dip_location, dip_name, dip_uuid):
     #need to find files in objects dir of dip:
@@ -120,8 +117,8 @@ def delete_pairs(dip_uuid):
     sqlLock.release()
       
 def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
-    #TODO get resource_id from caller
-    resource_id = 31
+    
+    logger.info("inputs: actuate '{}' show '{}' type '{}'  use_statement '{}' use_conditions '{}'".format(ead_actuate, ead_show, object_type, use_statement, use_conditions))
     if uri_prefix[-1] == '/':
         uri_prefix = uri_prefix + dip_uuid + "/objects/"
     else:
@@ -145,17 +142,17 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
     cursor = db.cursor()
     
     #get a list of all the items in this collection
-    col = atk.collection_list(db, resource_id)
-    logger.debug("got collection_list: {}".format(len(col)))
+    #col = atk.collection_list(db, resource_id)
+    #logger.debug("got collection_list: {}".format(len(col)))
     sql0 = "select max(fileVersionId) from fileversions"
-    logger.debug('sql0: ' + sql0)
+    logger.info('sql0: ' + sql0)
     cursor.execute(sql0)
     data = cursor.fetchone()
     if not data[0]:
         newfVID = 1
     else:
         newfVID = int(data[0]) 
-    logger.debug('base file version id found is ' + str(data[0]))
+    logger.info('base file version id found is ' + str(data[0]))
     global base_fv_id 
     base_fv_id = newfVID        
 
