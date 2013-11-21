@@ -40,7 +40,7 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
     
     sql = """
     select
-        CONCAT(a.currentLocation, ' ', a.fileUUID,' ', IFNULL(b.fileID, "")) AS 'pagingIndex', 
+        CONCAT(a.currentLocation, ' ', a.fileUUID,' ', IFNULL(a.fileID, "")) AS 'pagingIndex', 
         a.fileUUID, 
         a.location,
         substring(a.currentLocation,23) as fileName, 
