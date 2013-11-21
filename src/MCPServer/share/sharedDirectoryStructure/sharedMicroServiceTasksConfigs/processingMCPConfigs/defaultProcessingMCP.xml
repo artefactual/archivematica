@@ -15,6 +15,16 @@
       <goToChain>333643b7-122a-4019-8bef-996443f3ecc5</goToChain>
       <delay unitCtime="yes">2419200.0</delay>
     </preconfiguredChoice>
+    <!-- Extract packages -->
+    <preconfiguredChoice>
+      <appliesTo>dec97e3c-5598-4b99-b26e-f87a435a6b7f</appliesTo>
+      <goToChain>01d80b27-4ad1-4bd1-8f8d-f819f18bf685</goToChain>
+    </preconfiguredChoice>
+    <!-- Delete extracted packages -->
+    <preconfiguredChoice>
+      <appliesTo>f19926dd-8fb5-4c79-8ade-c83f61f55b40</appliesTo>
+      <goToChain>85b1e45d-8f98-4cae-8336-72f40e12cbef</goToChain>
+    </preconfiguredChoice>
     <!-- Select pre-normalize file format identification command -->
     <preconfiguredChoice>
       <appliesTo>7a024896-c4f7-4808-a240-44c87c762bc5</appliesTo>

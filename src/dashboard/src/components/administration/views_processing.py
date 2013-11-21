@@ -109,6 +109,12 @@ def index(request):
             "choice_uuid": "bb194013-597c-4e4a-8493-b36d190f8717"
         },
         {
+            "name":  "extract_packages",
+            "label": "Extract packages",
+            "choice_uuid": "dec97e3c-5598-4b99-b26e-f87a435a6b7f",
+            "uuid": "01d80b27-4ad1-4bd1-8f8d-f819f18bf685"
+        },
+        {
             "name":  "normalize",
             "label": "Normalize",
             "choice_uuid": "cb8e5706-e73f-472f-ad9b-d1236af8095f",
@@ -135,6 +141,12 @@ def index(request):
             "name": "select_format_id_tool_ingest",
             "label": "Select file format identification command (Ingest)",
             "choice_uuid": '7a024896-c4f7-4808-a240-44c87c762bc5'
+        },
+        {
+            "name":  "delete_packages",
+            "label": "Delete packages after extraction",
+            "choice_uuid": "f19926dd-8fb5-4c79-8ade-c83f61f55b40",
+            "uuid": "85b1e45d-8f98-4cae-8336-72f40e12cbef"
         },
         {
             "name":  "compression_algo",
