@@ -12,4 +12,17 @@
       </pattern>
     </signature>
   </format>
+
+  <format>
+    <puid>archivematica-fmt/2</puid>
+    <name>AccessData AD1 Disk Image</name>
+    <extension>ad1</extension>
+    <signature>
+      <name>AccessData AD1 Disk Image</name>
+      <pattern>
+        <position>BOF</position>
+        <regex>ADSEGMENTEDFILE</regex>
+      </pattern>
+    </signature>
+  </format>
 </formats>
