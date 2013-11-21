@@ -64,7 +64,7 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name):
     current_location = storage_service.get_location(purpose="CP")[0]
 
     #Store the AIP
-    new_file = storage_service.create_file(
+    (new_file, error_msg) = storage_service.create_file(
         uuid=sip_uuid,
         origin_location=current_location['resource_uri'],
         origin_path=aip_path,  # FIXME should be relative
@@ -73,14 +73,15 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name):
         package_type="AIP",
         size=os.path.getsize(aip_path)
     )
-    if new_file:
+    if new_file is not None:
         message = "Storage service created AIP: {}".format(new_file)
         logging.info(message)
         print message
         sys.exit(0)
     else:
-        print >>sys.stderr, "AIP creation failed.  See logs for more details."
-        logging.warning("AIP unabled to be created: {}".format(new_file))
+        print >>sys.stderr, "AIP creation failed."
+        print >>sys.stderr, error_msg
+        logging.warning("AIP unabled to be created: {}.  See logs for more details.".format(error_msg))
         sys.exit(1)
 
 

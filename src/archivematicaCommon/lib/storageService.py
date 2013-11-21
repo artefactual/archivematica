@@ -153,33 +153,37 @@ def get_space(access_protocol=None, path=None):
 
 def create_file(uuid, origin_location, origin_path, current_location,
         current_path, package_type, size):
-    """ Creates a new file. Returns resulting dict on success, None on failure.
+    """ Creates a new file. Returns a tuple of (resulting dict, None) on success, (None, error) on failure.
 
     origin_location and current_location should be URIs for the storage service.
     """
 
     api = _storage_api()
-
-    new_file = {}
-    new_file['uuid'] = uuid
-    new_file['origin_location'] = origin_location
-    new_file['origin_path'] = origin_path
-    new_file['current_location'] = current_location
-    new_file['current_path'] = current_path
-    new_file['package_type'] = package_type
-    new_file['size'] = size
+    pipeline = _get_pipeline(get_setting('dashboard_uuid'))
+    if pipeline is None:
+        return (None, 'Pipeline not available, see logs.')
+    new_file = {
+        'uuid': uuid,
+        'origin_location': origin_location,
+        'origin_path': origin_path,
+        'current_location': current_location,
+        'current_path': current_path,
+        'package_type': package_type,
+        'size': size,
+        'origin_pipeline': pipeline['resource_uri'],
+    }
 
     logging.info("Creating file with {}".format(new_file))
     try:
         file_ = api.file.post(new_file)
     except slumber.exceptions.HttpClientError as e:
         logging.warning("Unable to create file from {} because {}".format(new_file, e.content))
-        return None
+        return (None, e)
     except slumber.exceptions.HttpServerError as e:
         logging.warning("Could not connect to storage service: {} ({})".format(
             e, e.content))
-        return None
-    return file_
+        return (None, e)
+    return (file_, None)
 
 def get_file_info(uuid=None, origin_location=None, origin_path=None,
         current_location=None, current_path=None, package_type=None,
