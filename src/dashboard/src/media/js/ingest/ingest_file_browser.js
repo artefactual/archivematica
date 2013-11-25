@@ -54,7 +54,7 @@ function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
   });
 
   originals.moveHandler = moveHandler;
-
+  originals.options.actionHandlers = [];
   originals.refresh(originalsDirectory);
 
   var arrange = new FileExplorer({

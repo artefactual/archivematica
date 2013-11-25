@@ -67,10 +67,10 @@ def grid(request):
     return render(request, 'transfer/grid.html', locals())
 
 def browser(request):
-    originals_directory = '/var/archivematica/sharedDirectory/transferBackups/originals'
-    arrange_directory = '/var/archivematica/sharedDirectory/transferBackups/arrange'
+    originals_directory = '/var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals'
+    arrange_directory = '/var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/arrange'
     if not os.path.exists(originals_directory):
-        os.mkdir(directory)
+        os.mkdir(originals_directory)
     if not os.path.exists(arrange_directory):
         os.mkdir(arrange_directory)
     return render(request, 'transfer/browser.html', locals())
