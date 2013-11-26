@@ -23,17 +23,28 @@
     };
   }
 
+  /* Used to keep track of drag-and-drop-related data */
   exports.Data = {
     idPaths: {},
     startX: {},
-    startY: {}
+    startY: {},
+    mouseX: 0,
+    mouseY: 0
   };
 
+  /* Capture mouse position */
+  $(document).mousemove(function(event) {
+    exports.Data['mouseX'] = event.pageX;
+    exports.Data['mouseY'] = event.pageY;
+  });
+
+  /* Internal representation of a file */
   exports.File = Backbone.Model.extend({
 
     // generate id without slashes and replacing periods
     id: function() {
-      return this.path().replace(/\//g, '_').replace('.', '__');
+      var path = this.path().replace(/\//g, '_').replace('.', '__');
+      return path.replace(/\ /g, '___');
     },
 
     // Provides a human-readable version of the path, suitable for display.
@@ -58,6 +69,7 @@
     }
   });
 
+  /* Internal representation of a directory */
   exports.Directory = exports.File.extend({
     initialize: function() {
       this.children = [];
@@ -93,6 +105,7 @@
     }
   });
 
+  /* Presentation logic for files and directories */
   exports.EntryView = Backbone.View.extend({
 
     initialize: function() {
@@ -107,6 +120,7 @@
       this.actionHandlers    = this.options.actionHandlers;
     },
 
+    // template variables for rendering to HTML
     context: function() {
       var context = this.model.toJSON();
       context.className = this.className;
@@ -174,7 +188,9 @@
 
       if (this.model.children == undefined) {
         // remove directory button class for file entries
-        $(this.el).children('.backbone-file-explorer-directory_icon_button').removeClass('backbone-file-explorer-directory_icon_button');
+        $(this.el)
+          .children('.backbone-file-explorer-directory_icon_button')
+          .removeClass('backbone-file-explorer-directory_icon_button');
       } else {
         // add click handler to directory icon
         var self = this;
@@ -187,6 +203,7 @@
     }
   });
 
+  /* Presentation logic for a group of files and directories */
   exports.DirectoryView = Backbone.View.extend({
 
     tagName: 'div',
@@ -205,6 +222,7 @@
       this.actionHandlers     = this.options.actionHandlers;
     },
 
+    // activate highlighting via adding/removing a CSS class
     activateHover: function(el) {
       $(el).hover(
         function() {
@@ -216,12 +234,14 @@
       );
     },
 
+    // render links for navigating between pages of directory children
     renderPagingLinks: function(entry, levelEl, level, index, indexStart, previousOnly, previousIndexStarts) {
       var self = this;
       var $pagingEl = $('<div9 style="padding:6px"></div>');
 
       // add link to previous entries, if any
       if (indexStart > 0) {
+        // TODO: replace the inline styling with CSS
         var prevHTML = '<span style="color:red">Previous ' + self.itemsPerPage + '</span>';
         if (!previousOnly) {
           prevHTML = prevHTML + '<span>&nbsp;|&nbsp;</span>';
@@ -238,8 +258,9 @@
         $pagingEl.append($prevEl);
       }
 
+      // add link to next entries, if any
       if (!previousOnly) {
-        // add link to next entries
+        // TODO: replace the inline styling with CSS
         var $nextEl = $('<span style="color:red">Next ' + self.itemsPerPage + '</span>');
         (function(index) {
           $nextEl.click(function() {
@@ -253,11 +274,13 @@
         $pagingEl.append($nextEl);
       }
 
+      // TODO: figure out what this was for?
       var $pagingInfo = '<span>()</span>';
 
       $(levelEl).append($pagingEl);
     },
 
+    // recursively render directory children
     renderChildren: function (self, entry, levelEl, level, indexStart, previousIndexStarts) {
       if (typeof previousIndexStarts == 'undefined') {
         previousIndexStarts = [];
@@ -311,7 +334,14 @@
             var entryEl = entryView.render().el
               , isOpenDir = false;
 
+            // open the directory if the file explorer has been invoked with this directory
+            // expressly open
             if (this.explorer.openDirs && this.explorer.openDirs.indexOf(entryView.cssId()) != -1) {
+              isOpenDir = true;
+            }
+
+            // open the directory if the last snapshot had it open
+            if (this.explorer.opened && this.explorer.opened.indexOf(entryView.cssId()) != -1) {
               isOpenDir = true;
             }
 
@@ -346,6 +376,7 @@
       }
     },
 
+    // render a single directory level then recurse through its children
     renderDirectoryLevel: function(destEl, entry, level, isOpen) {
       var level = level || 1
         , levelEl = $(this.levelTemplate());
@@ -368,6 +399,8 @@
         var self = this
           , rendered = false;
 
+        // logic to do AJAX load of directory children, if applicable, and 
+        // post-render UI styling (zebra striping, etc.)
         var uiUpdateLogic = function() {
           if (!rendered) {
             if (self.ajaxChildDataUrl && entry.type() == 'directory') {
@@ -423,6 +456,9 @@
           }
         };
 
+        // if the directory is already open, trigger UI updating...
+        // otherwise, wait for using to hover over the directory
+        // to trigger it
         if (isOpen) {
           uiUpdateLogic();
           $(levelEl).show();
@@ -430,10 +466,12 @@
           $(destEl).hover(uiUpdateLogic);
         }
       } else {
+        // directories are open by default, so no lazy loading
         this.renderChildren(this, entry, levelEl, level);
       }
     },
 
+    // render a group of files and directories
     render: function() {
       var entryView = new exports.EntryView({
         explorer: this.explorer,
@@ -455,12 +493,22 @@
         .empty()
         .append(entryEl);
 
-      this.renderDirectoryLevel(this.el, this.model);
+      var isOpen;
+
+      // allow top level open state to be snapshotted
+      if (this.explorer.opened && (this.explorer.opened.indexOf(entryView.cssId()) != -1)) {
+        isOpen = true;
+      } else {
+        isOpen = false;
+      }
+
+      this.renderDirectoryLevel(this.el, this.model, 0, isOpen);
 
       return this;
     }
   });
 
+  /* Internal representation of the file explorer */
   exports.FileExplorer = Backbone.View.extend({
 
     tagName: 'div',
@@ -478,6 +526,7 @@
       this.initDragAndDrop();
     },
 
+    // bind/re-bind drag-and-drop logic
     initDragAndDrop: function() {
       if (this.moveHandler) {
         // bind drag-and-drop functionality
@@ -520,38 +569,49 @@
       return base;
     },
 
+    // indicate, in the UI, that a background task is happening
     busy: function() {
       $(this.el).append('<span id="backbone-file-explorer-busy-text">Loading...</span>');
       $(this.el).addClass('backbone-file-explorer-busy');
       $(this.el).removeClass('backbone-file-explorer-idle');
     },
 
+    // indicate, in the UI, that no background task is happening
     idle: function() {
       $('#backbone-file-explorer-busy-text').remove();
       $(this.el).addClass('backbone-file-explorer-idle');
       $(this.el).removeClass('backbone-file-explorer-busy');
     },
 
-    snapShotToggledFolders: function() {
-      this.toggled = [];
+    // take note of which folders have been opened
+    snapShotOpenedFolders: function() {
+      this.opened = [];
       var self = this;
-      $('.backbone-file-explorer-directory').each(function(index, value) {
-        if (!$(value).next().is(':visible')) {
-          self.toggled.push($(value).attr('id'));
+      $(this.el).find('.backbone-file-explorer-directory').each(function(index, value) {
+        if($(value).hasClass('backbone-file-explorer-directory_open')) {
+            self.opened.push($(value).attr('id'));
         }
       }); 
     },
 
-    restoreToggledFolders: function() {
-      for (var index in this.toggled) {
-        var cssId = this.toggled[index];
-        this.toggleDirectory($('#' + cssId));
+    // restore opened folders to the previous snapshot
+    restoreOpenedFolders: function() {
+      for (var index in this.opened) {
+        var cssId = this.opened[index],
+            $openEl = $('#' + cssId);
+
+        // TODO: make this a helper function
+        $openEl.next().show();
+        if (!$openEl.hasClass('backbone-file-explorer-directory_open')) {
+          $openEl.addClass('backbone-file-explorer-directory_open');
+        }
       }
     },
 
+    // logic to keep track of where a dragged directory entry is
     dragHandler: function(event) {
       var id = event.currentTarget.id
-        , $el = $('#' + event.currentTarget.id)
+        , $el = $("[id='" + event.currentTarget.id + "']")
         , offsets = $el.offset();
 
       if (exports.Data.startY[id] == undefined) {
@@ -560,10 +620,11 @@
       }
 
       $el.css({'z-index': 1});
-      $el.css({left: event.offsetX - exports.Data.startX[id]});
-      $el.css({top: event.offsetY - exports.Data.startY[id]});
+      $el.css({left: exports.Data['mouseX'] - exports.Data.startX[id] + 5});
+      $el.css({top: exports.Data['mouseY'] - exports.Data.startY[id] + 5});
     },
 
+    // logic to keep handle dropping a directory entry
     dropHandler: function(event) {
       var droppedId   = event.dragTarget.id;
       var containerId = event.dropTarget.id;
@@ -584,6 +645,7 @@
       $('#' + droppedId).css({top: 0});
     },
 
+    // open/close a directory
     toggleDirectory: function($el) {
       $el.next().toggle();
       if ($el.next().is(':visible')) {
@@ -593,10 +655,12 @@
       }
     },
 
+    // use a directory entry's CSS ID to determine its filepath
     getPathForCssId: function(id) {
       return exports.Data.idPaths[id];
     },
 
+    // use a directory entry's CSS ID to determine whether it's a file or dir
     getTypeForCssId: function(id) {
       if ($('#' + id).hasClass('backbone-file-explorer-directory')) {
         return 'directory';
@@ -605,6 +669,7 @@
       }
     },
 
+    // render the file explorer
     render: function() {
       var directory = this.directory;
 
@@ -617,7 +682,7 @@
         );
       }
 
-      var toggledFolders = this.snapShotToggledFolders();
+      this.snapShotOpenedFolders();
 
       this.dirView = new exports.DirectoryView({
         explorer: this,
@@ -638,7 +703,7 @@
         .empty()
         .append(this.dirView.render().el);
 
-      this.restoreToggledFolders();
+      this.restoreOpenedFolders();
 
       $('.backbone-file-explorer-entry:odd').addClass('backbone-file-explorer-entry-odd');
 

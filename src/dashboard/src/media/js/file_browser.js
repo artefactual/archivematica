@@ -82,7 +82,7 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
   },
 
   refresh: function(path) {
-    $(this.el).empty();
+    //$(this.el).empty();
     this.busy();
 
     if (path != undefined)

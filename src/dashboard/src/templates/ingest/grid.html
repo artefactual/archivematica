@@ -60,9 +60,9 @@
 
 {% block content %}
 
-  <div id='originals' class='backbone-file-explorer' style='float:left; width: 450px;'></div>
+  <div id='originals' class='backbone-file-explorer' style='float:left; width: 460px;'></div>
   <div style='margin-left: 30px; float:left;'>
-    <div id='arrange' class='backbone-file-explorer' style='float:left; width: 450px;'></div>
+    <div id='arrange' class='backbone-file-explorer' style='float:left; width: 460px;'></div>
     <div id='arrange_controls'>
        <span id='arrange_delete_button' class='btn'>Delete</span>
        <span id='arrange_create_sip_button' class='btn'>Create SIP</span>
@@ -72,34 +72,35 @@
   <br />
 
   <script>
+  var browser;
   $(document).ready(function() {
 
-    var arrange = setupBacklogBrowser(
+    browser = setupBacklogBrowser(
       '/var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals',
       '/var/archivematica/sharedDirectory/arrange'
     );
 
     // delete button functionality
     $('#arrange_delete_button').click(function() {
-      console.log(arrange.selectedEntryId);
-      var path = arrange.getPathForCssId(arrange.selectedEntryId)
-        , type = arrange.getTypeForCssId(arrange.selectedEntryId);
+      console.log(browser.selectedEntryId);
+      var path = browser.getPathForCssId(browser.selectedEntryId)
+        , type = browser.getTypeForCssId(browser.selectedEntryId);
 
-      arrange.confirm(
+      browser.confirm(
         'Delete',
         'Are you sure you want to delete this directory or file?',
         function() {
-          arrange.deleteEntry(path, type);
+          browser.deleteEntry(path, type);
         }
       );
     });
 
     // create SIP button functionality
     $('#arrange_create_sip_button').click(function() {
-      var entryDiv = $('#' + arrange.selectedEntryId)
-        , path = arrange.getPathForCssId(arrange.selectedEntryId);
+      var entryDiv = $('#' + browser.selectedEntryId)
+        , path = browser.getPathForCssId(browser.selectedEntryId);
 
-      arrange.confirm(
+      browser.confirm(
         'Create SIP',
         'Are you sure you want to create a SIP?',
         function() {
@@ -108,7 +109,7 @@
             {filepath: path},
             function(result) {
               var title = (result.error) ? 'Error' : '';
-              arrange.alert(
+              browser.alert(
                 title,
                 result.message
               );
