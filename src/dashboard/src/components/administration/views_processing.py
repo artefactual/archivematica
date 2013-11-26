@@ -96,7 +96,7 @@ def index(request):
             "label":        "Store AIP",
             "yes_option":   "9efab23c-31dc-4cbd-a39d-bb1665460cbe", # Store AIP
             "action":       "Store AIP"
-        }
+        },
     ]
 
     # 'label': text to display, <label> in HTML.
