@@ -25,4 +25,17 @@
       </pattern>
     </signature>
   </format>
+
+  <format>
+    <puid>archivematica-fmt/3</puid>
+    <name>AccessData AD1 Encrypted Disk Image</name>
+    <extension>ad1</extension>
+    <signature>
+      <name>AccessData AD1 Encrypted Disk Image</name>
+      <pattern>
+        <position>BOF</position>
+        <regex>ADCRYPT</regex>
+      </pattern>
+    </signature>
+  </format>
 </formats>
