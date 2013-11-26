@@ -132,6 +132,44 @@ class MetadataAppliesToType(models.Model):
     class Meta:
         db_table = u'MetadataAppliesToTypes'
 
+
+class Event(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', editable=False)
+    event_id = UUIDField(auto=False, null=True, db_column='eventIdentifierUUID')
+    file_uuid = models.ForeignKey('File', db_column='fileUUID', to_field='uuid', null=True, blank=True)
+    event_type = models.CharField(max_length=256, db_column='eventType')
+    event_datetime = models.DateTimeField(db_column='eventDateTime')
+    event_detail = models.TextField(db_column='eventDetail')
+    event_outcome = models.CharField(max_length=256, db_column='eventOutcome')
+    event_outcome_detail = models.TextField(db_column='eventOutcomeDetailNote')
+    linking_agent = models.ForeignKey('Agent', db_column='linkingAgentIdentifier')
+
+    class Meta:
+        db_table = u'Events'
+
+    def __unicode__(self):
+        return u"{event_type} event on {file} ({event_detail})".format(
+            event_type=self.event_type,
+            file=self.file_uuid,
+            event_detail=self.event_detail)
+
+
+class Derivation(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk', editable=False)
+    source_file = models.ForeignKey('File', db_column='sourceFileUUID', to_field='uuid', related_name='derived_file_set', null=True)
+    derived_file = models.ForeignKey('File', db_column='derivedFileUUID', to_field='uuid', related_name='original_file_set', null=True)
+    event = models.ForeignKey(Event, db_column='relatedEventUUID', to_field='event_id', null=True)
+
+    class Meta:
+        db_table=u'Derivations'
+
+    def __unicode__(self):
+        return u'{derived} derived from {src} in {event}'.format(
+            src=self.source_file,
+            derived=self.derived_file,
+            event=self.event)
+
+
 class Job(models.Model):
     jobuuid = models.CharField(max_length=36, primary_key=True, db_column='jobUUID')
     jobtype = models.CharField(max_length=250, db_column='jobType', blank=True)

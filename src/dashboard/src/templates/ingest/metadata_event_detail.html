@@ -1,0 +1,49 @@
+{% extends "layout_fluid.html" %}
+{% load breadcumbs %}
+{% load url from future %}
+
+{% block content %}
+  <div class="row">
+    <div class="span12">
+
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
+        {% breadcrumb_url name 'components.ingest.views.ingest_detail' uuid %}
+        {% breadcrumb 'Manual Normalization Event Detail' %}
+      </ul>
+
+      <h1>Normalization Event Detail<br /><small>{{ name }}</small></h1>
+      <form method="post" action="">
+        {{ formset.management_form }}
+        {{ formset.non_form_errors.as_ul }}
+
+        <table id="formset" class="form">
+          {% for form in formset %}
+            {{ form.id }}
+            <thead>
+              <tr>
+                <th>Original File</th>
+                <th>Manually normalized file</th>
+                {% for field in form.visible_fields %}
+                <th>{{ field.label }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tr class="{% cycle row1,row2 %}">
+              <td>{{ form.original_file }}</td>
+              <td>{{ form.derived_file }}</td>
+              {% for field in form.visible_fields %}
+              <td>{{ field.errors.as_ul }} {{ field }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </table>
+
+        <div class="actions">
+          <button type="submit" class="btn primary">Save</button>
+          <a href="{% url 'components.ingest.views.ingest_detail' uuid %}" class="btn">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

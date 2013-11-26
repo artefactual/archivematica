@@ -52,6 +52,7 @@ def removeThumbnails(SIPDirectory, SIPUUID):
         print inst.args
 
 def removePreservationFiles(SIPDirectory, SIPUUID):
+    # Remove Archivematia-created preservation files
     try:
         sql = """SELECT fileUUID, currentLocation FROM Files WHERE SIPUUID = '%s' AND removedTime = 0 AND fileGrpUse = 'preservation';""" % (SIPUUID)
         files = databaseInterface.queryAllSQL(sql)
@@ -69,6 +70,26 @@ def removePreservationFiles(SIPDirectory, SIPUUID):
         traceback.print_exc(file=sys.stdout)
         print type(inst)     # the exception instance
         print inst.args
+
+    # Remove manually normalized derivation links
+    # TODO? Update this to delete for all derivations where the event is deleted
+    try:
+        sql = """DELETE FROM Derivations USING Derivations JOIN Files ON Derivations.derivedFileUUID = Files.fileUUID WHERE fileGrpUse='manualNormalization' AND sipUUID = '%s';""" % SIPUUID
+        databaseInterface.runSQL(sql)
+    except Exception as inst:
+        traceback.print_exc(file=sys.stdout)
+        print type(inst)     # the exception instance
+        print inst.args
+
+    # Remove normalization events
+    try:
+        sql = """DELETE FROM Events USING Events JOIN Files ON Events.fileUUID = Files.fileUUID WHERE eventType='normalization' AND sipUUID = '%s';""" % SIPUUID
+        databaseInterface.runSQL(sql)
+    except Exception as inst:
+        traceback.print_exc(file=sys.stdout)
+        print type(inst)     # the exception instance
+        print inst.args
+
 
 if __name__ == '__main__':
     parser = OptionParser()
@@ -92,6 +113,3 @@ if __name__ == '__main__':
         removeThumbnails(SIPDirectory, SIPUUID)
     if opts.access:
         removeDIP(SIPDirectory, SIPUUID)
-    
-    
-    
