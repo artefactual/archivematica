@@ -557,3 +557,16 @@ class AtkDIPObjectResourcePairing(models.Model):
 
     class Meta:
         db_table = u'AtkDIPObjectResourcePairing'
+
+class UnitVariable(models.Model):
+    id = UUIDPkField()
+    unit_type = models.CharField(max_length=50, null=True, db_column='unitType')
+    unit_uuid = models.CharField(max_length=36, null=True, db_column='unitUUID')
+    variable = models.TextField(null=True)
+    variable_value = models.TextField(null=True, db_column='variableValue')
+    microservicechainlink = models.CharField(max_length=36, null=True, db_column='microServiceChainLink')
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True)
+
+    class Meta:
+        db_table = u'UnitVariables'
