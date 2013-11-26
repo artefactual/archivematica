@@ -38,4 +38,12 @@
       </pattern>
     </signature>
   </format>
+
+  <format>
+    <puid>archivematica-fmt/4</puid>
+    <name>Raw disk image</name>
+    <extension>dd</extension>
+    <extension>dd.001</extension>
+    <extension>001</extension>
+  </format>
 </formats>
