@@ -100,23 +100,24 @@ def isUUID(uuid):
         return False
     return True
 
-def findOrCreateSipInDB(path, waitSleep=dbWaitSleep):
-    """Matches a directory to a database sip by it's appended UUID, or path. If it doesn't find one, it will create one"""
-    UUID = ""
-    path = path.replace(config.get('MCPServer', "sharedDirectory"), "%sharedPath%", 1)
-
+def fetchUUIDFromPath(path):
     #find UUID on end of SIP path
     uuidLen = -36
     if isUUID(path[uuidLen-1:-1]):
-        UUID = path[uuidLen-1:-1]
+        return path[uuidLen-1:-1]
+
+def findOrCreateSipInDB(path, waitSleep=dbWaitSleep):
+    """Matches a directory to a database sip by it's appended UUID, or path. If it doesn't find one, it will create one"""
+    path = path.replace(config.get('MCPServer', "sharedDirectory"), "%sharedPath%", 1)
+
+    #find UUID on end of SIP path
+    UUID = fetchUUIDFromPath(path)
+    if UUID:
         sql = """SELECT sipUUID FROM SIPs WHERE sipUUID = '""" + UUID + "';"
         rows = databaseInterface.queryAllSQL(sql)
         if not rows:
             databaseFunctions.createSIP(path, UUID=UUID)
-        
-
-
-    if UUID == "":
+    else:
         #Find it in the database
         sql = """SELECT sipUUID FROM SIPs WHERE currentPath = '""" + MySQLdb.escape_string(path) + "';"
         #if waitSleep != 0:
@@ -133,7 +134,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep):
 
 
     #Create it
-    if UUID == "":
+    if not UUID:
         UUID = databaseFunctions.createSIP(path)
         print "DEBUG creating sip", path, UUID
     return UUID
@@ -152,7 +153,6 @@ def createUnitAndJobChain(path, config, terminate=False):
             UUID = findOrCreateSipInDB(path)
             unit = unitDIP(path, UUID)
         elif config[3] == "Transfer":
-            #UUID = findOrCreateSipInDB(path)
             unit = unitTransfer(path)
     elif os.path.isfile(path):
         if config[3] == "Transfer":
@@ -164,6 +164,7 @@ def createUnitAndJobChain(path, config, terminate=False):
     else:
         return
     jobChain(unit, config[1])
+
     if terminate:
         exit(0)
 

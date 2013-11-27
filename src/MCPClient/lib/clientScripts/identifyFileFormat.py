@@ -12,8 +12,34 @@ if path not in sys.path:
     sys.path.append(path)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 from fpr.models import IDCommand, IDRule, FormatVersion
-from main.models import FileFormatVersion, File
+from main.models import FileFormatVersion, File, UnitVariable
 
+
+def save_idtool(file_, value):
+    """
+    Saves the chosen ID tool's UUID in a unit variable, which allows it to be
+    refetched by a later chain.
+
+    This is necessary in order to allow post-extraction identification to work.
+    The replacement dict will be saved to the special 'replacementDict' unit
+    variable, which will be transformed back into a passVar when a new chain in
+    the same unit is begun.
+    """
+
+    # The unit_uuid foreign key can point to a transfer or SIP, and this tool
+    # runs in both.
+    # Check the SIP first - if it hasn't been assigned yet, then this is being
+    # run during the transfer.
+    try:
+        unit = file_.sip
+    except:
+        unit = file_.transfer
+
+    rd = {
+        "%IDCommand%": value
+    }
+
+    UnitVariable.objects.create(unituuid=unit.pk, variable='replacementDict', variablevalue=str(rd))
 
 def main(command_uuid, file_path, file_uuid):
     print "IDCommand UUID:", command_uuid
@@ -26,6 +52,11 @@ def main(command_uuid, file_path, file_uuid):
     except IDCommand.DoesNotExist:
         sys.stderr.write("IDCommand with UUID {} does not exist.\n".format(command_uuid))
         return -1
+
+    # Save the selected ID command for use in a later chain
+    file_ = File.objects.get(uuid=file_uuid)
+    save_idtool(file_, command_uuid)
+
     exitcode, output, _ = executeOrRun(command.script_type, command.script, arguments=[file_path], printing=False)
     output = output.strip()
 
@@ -52,13 +83,12 @@ def main(command_uuid, file_path, file_uuid):
         print >>sys.stderr, 'Error: No FPR format record found for PUID {}'.format(output)
         return -1
 
-    # TODO shouldn't have to get File object - http://stackoverflow.com/questions/2846029/django-set-foreign-key-using-integer
-    file_ = File.objects.get(uuid=file_uuid)
     (ffv, created) = FileFormatVersion.objects.get_or_create(file_uuid=file_, defaults={'format_version': version})
     if not created:  # Update the version if it wasn't created new
         ffv.format_version = version
         ffv.save()
     print "{} identified as a {}".format(file_path, version.description)
+
     return 0
 
 

@@ -26,6 +26,7 @@ import threading
 from jobChainLink import jobChainLink
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
+from passClasses import ReplacementDict
 #Holds:
 #-UNIT
 #-Job chain link
@@ -33,6 +34,27 @@ import databaseInterface
 #
 #potentialToHold/getFromDB
 #-previous chain links
+
+
+def fetchUnitVariableForUnit(unit_uuid):
+    """
+    Returns a dict combining all of the replacementDict unit variables for the
+    specified unit.
+    """
+
+    results = ReplacementDict()
+    sql = "SELECT variableValue FROM UnitVariables WHERE unitUUID = \"{}\" AND variable = 'replacementDict'".format(unit_uuid)
+    rows, lock = databaseInterface.querySQL(sql)
+    lock.release()
+    if not rows:
+        return results
+
+    for replacement_dict, in rows:
+        rd = ReplacementDict.fromstring(replacement_dict)
+        results.update(rd)
+
+    return results
+
 class jobChain:
     def __init__(self, unit, chainPK, notifyComplete=None, passVar=None, UUID=None, subJobOf=""):
         """Create an instance of a chain from the MicroServiceChains table"""
@@ -59,7 +81,14 @@ class jobChain:
             self.description = row[2]
             row = c.fetchone()
         sqlLock.release()
-        self.currentLink = jobChainLink(self, self.startingChainLink, unit, passVar=passVar, subJobOf=subJobOf)
+
+        # Migrate over unit variables containing replacement dicts from previous chains,
+        # but prioritize any values contained in passVars passed in as kwargs
+        rd = fetchUnitVariableForUnit(unit.UUID)
+        if passVar:
+            rd.update(passVar)
+
+        self.currentLink = jobChainLink(self, self.startingChainLink, unit, passVar=rd, subJobOf=subJobOf)
         if self.currentLink == None:
             return None
 
