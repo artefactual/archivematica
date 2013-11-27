@@ -60,47 +60,57 @@
 
 {% block content %}
 
-  <div id='originals' class='backbone-file-explorer' style='float:left; width: 460px;'></div>
+  <div style='float:left;'>
+    <div id='originals' class='backbone-file-explorer' style='float:left; width: 460px;'></div>
+    <div id='originals_controls'>
+      <span id='open_originals_file_button' class='btn'>Open File</span>
+    </div>
+  </div>
   <div style='margin-left: 30px; float:left;'>
     <div id='arrange' class='backbone-file-explorer' style='float:left; width: 460px;'></div>
     <div id='arrange_controls'>
-       <span id='arrange_delete_button' class='btn'>Delete</span>
-       <span id='arrange_create_sip_button' class='btn'>Create SIP</span>
+      <span id='arrange_delete_button' class='btn'>Delete</span>
+      <span id='arrange_create_sip_button' class='btn'>Create SIP</span>
+      <span id='open_arrange_file_button' class='btn'>Open File</span>
     </div>
   </div>
   <br clear='all' />
   <br />
 
   <script>
-  var browser;
+  var originals_browser,
+      arrange_browser;
+
   $(document).ready(function() {
 
-    browser = setupBacklogBrowser(
+    browsers = setupBacklogBrowser(
       '/var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals',
       '/var/archivematica/sharedDirectory/arrange'
     );
+    originals_browser = browsers['originals'];
+    arrange_browser = browsers['arrange'];
 
     // delete button functionality
     $('#arrange_delete_button').click(function() {
-      console.log(browser.selectedEntryId);
-      var path = browser.getPathForCssId(browser.selectedEntryId)
-        , type = browser.getTypeForCssId(browser.selectedEntryId);
+      console.log(arrange_browser.selectedEntryId);
+      var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId)
+        , type = arrange_browser.getTypeForCssId(arrange_browser.selectedEntryId);
 
-      browser.confirm(
+      arrange_browser.confirm(
         'Delete',
         'Are you sure you want to delete this directory or file?',
         function() {
-          browser.deleteEntry(path, type);
+          arrange_browser.deleteEntry(path, type);
         }
       );
     });
 
     // create SIP button functionality
     $('#arrange_create_sip_button').click(function() {
-      var entryDiv = $('#' + browser.selectedEntryId)
-        , path = browser.getPathForCssId(browser.selectedEntryId);
+      var entryDiv = $('#' + arrange_browser.selectedEntryId)
+        , path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId);
 
-      browser.confirm(
+      arrange_browser.confirm(
         'Create SIP',
         'Are you sure you want to create a SIP?',
         function() {
@@ -109,7 +119,7 @@
             {filepath: path},
             function(result) {
               var title = (result.error) ? 'Error' : '';
-              browser.alert(
+              arrange_browser.alert(
                 title,
                 result.message
               );
@@ -120,6 +130,28 @@
             }
           );
         }
+      );
+    });
+
+    // open originals file button functionality
+    $('#open_originals_file_button').click(function() {
+      var entryDiv = $('#' + originals_browser.selectedEntryId)
+        , path = originals_browser.getPathForCssId(originals_browser.selectedEntryId);
+
+      window.open(
+        '/filesystem/download?filepath=' + encodeURIComponent(path),
+        '_blank'
+      );
+    });
+
+    // open arrange file button functionality
+    $('#open_arrange_file_button').click(function() {
+      var entryDiv = $('#' + arrange_browser.selectedEntryId)
+        , path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId);
+
+      window.open(
+        '/filesystem/download?filepath=' + encodeURIComponent(path),
+        '_blank'
       );
     });
   });

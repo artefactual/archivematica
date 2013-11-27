@@ -352,6 +352,30 @@ def copy_to_originals(request):
 def copy_from_arrange_to_completed(request):
     return copy_to_originals(request)
 
+def move_within_arrange(request):
+    sourcepath  = request.POST.get('filepath', '')
+    destination = request.POST.get('destination', '')
+
+    error = check_filepath_exists('/' + sourcepath)
+
+    if error == None:
+        basename = os.path.basename('/' + sourcepath)
+        destination_full = os.path.join('/', destination, basename)
+        if (os.path.exists(destination_full)):
+            error = 'A file or directory named ' + basename + ' already exists at this path.'
+        else:
+            shutil.move('/' + sourcepath, destination_full)
+
+    response = {}
+
+    if error != None:
+        response['message'] = error
+        response['error']   = True
+    else:
+        response['message'] = 'Copy successful.'
+
+    return helpers.json_response(response)
+
 def copy_to_arrange(request):
     sourcepath  = request.POST.get('filepath', '')
     destination = request.POST.get('destination', '')

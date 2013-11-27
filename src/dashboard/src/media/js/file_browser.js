@@ -32,14 +32,16 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
 
     this.eventClickHandler = this.options.eventClickHandler;
 
-    this.options.nameClickHandler = function(result) { 
-      if (result.type != 'directory') { 
-        window.open(
-          '/filesystem/download?filepath=' + encodeURIComponent(result.path),
-          '_blank'
-        );
-      } 
-    };
+    if (!this.options.nameClickHandler) {
+      this.options.nameClickHandler = function(result) { 
+        if (result.type != 'directory') { 
+          window.open(
+            '/filesystem/download?filepath=' + encodeURIComponent(result.path),
+            '_blank'
+          );
+        } 
+      };
+    }
 
     if (this.options.actionHandlers == undefined) {
       this.options.actionHandlers = [];
