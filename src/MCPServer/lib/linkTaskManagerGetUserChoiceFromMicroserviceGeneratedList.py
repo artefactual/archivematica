@@ -22,7 +22,6 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 # Stdlib, alphabetical by import source
-import ast
 import logging
 from lxml import etree
 import os
@@ -142,6 +141,6 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
         
         #get the one at index, and go with it.
         _, _, replace_dict = self.choices[int(index)]
-        rd = ReplacementDict(ast.literal_eval(replace_dict))
+        rd = ReplacementDict.fromstring(replace_dict)
         self.update_passvar_replacement_dict(rd)
         self.jobChainLink.linkProcessingComplete(0, passVar=self.jobChainLink.passVar)

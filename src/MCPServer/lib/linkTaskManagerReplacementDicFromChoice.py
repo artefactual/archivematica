@@ -21,7 +21,6 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import ast
 import datetime
 import lxml.etree as etree
 import os
@@ -62,7 +61,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                 #print "checking for xml file for processing rules. TODO"
                 self.jobChainLink.setExitMessage("Completed successfully")
                 #jobChain.jobChain(self.unit, preConfiguredChain)
-                rd = ReplacementDict(ast.literal_eval(preConfiguredChain))
+                rd = ReplacementDict.fromstring(preConfiguredChain)
                 self.update_passvar_replacement_dict(rd)
                 self.jobChainLink.linkProcessingComplete(0, passVar=self.jobChainLink.passVar)
             else:
@@ -111,7 +110,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                                 print "time to go:", timeToGo
                                 #print "that will be: ", (nowTime + timeToGo)
                                 self.jobChainLink.setExitMessage("Waiting till: " + datetime.datetime.fromtimestamp((nowTime + timeToGo)).ctime())
-                                rd = ReplacementDict(ast.literal_eval(ret))
+                                rd = ReplacementDict.fromstring(ret)
                                 if self.jobChainLink.passVar != None:
                                         if isinstance(self.jobChainLink.passVar, ReplacementDict):
                                             new = {}
@@ -159,6 +158,6 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
         
         #get the one at index, and go with it.
         choiceIndex, description, replacementDic2 = self.choices[int(index)]
-        rd = ReplacementDict(ast.literal_eval(replacementDic2))
+        rd = ReplacementDict.fromstring(replacementDic2)
         self.update_passvar_replacement_dict(rd)
         self.jobChainLink.linkProcessingComplete(0, passVar=self.jobChainLink.passVar)

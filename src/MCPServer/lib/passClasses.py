@@ -21,7 +21,13 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+import ast
+
 class ReplacementDict(dict):
+    @staticmethod
+    def fromstring(s):
+        return ReplacementDict(ast.literal_eval(s))
+
     def replace(self, *a):
         ret = []
         for orig in a:
