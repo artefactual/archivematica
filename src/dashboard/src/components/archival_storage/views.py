@@ -309,9 +309,6 @@ def aip_file_download(request, uuid):
     aip          = elasticSearchFunctions.connect_and_get_aip_data(sipuuid)
     aip_filepath = aip.filePath
 
-    # create temp dir to extract to
-    temp_dir = tempfile.mkdtemp()
-
     # work out path components
     aip_archive_filename = os.path.basename(aip_filepath)
 
@@ -321,8 +318,8 @@ def aip_file_download(request, uuid):
     else:
         subdir = os.path.splitext(aip_archive_filename)[0]
 
-    path_to_file_within_aip_data_dir \
-      = os.path.dirname(file.currentlocation.replace('%SIPDirectory%', ''))
+    # Strip %Directory% from the path
+    path_to_file_within_aip_data_dir = os.path.dirname(file.currentlocation.replace('%transferDirectory%', '').replace('%SIPDirectory%', ''))
 
     file_relative_path = os.path.join(
       subdir,
