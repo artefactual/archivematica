@@ -208,4 +208,7 @@ UPDATE StandardTasksConfigs SET arguments='create "%SIPDirectory%%SIPName%-%SIPU
 -- Add sipType to SIPs table
 ALTER TABLE SIPs ADD sipType varchar(8);
 
+-- storeAIP uses sipType
+UPDATE StandardTasksConfigs SET arguments='"%AIPsStore%" "%SIPDirectory%%AIPFilename%" "%SIPUUID%" "%SIPName%" "%SIPType%"' WHERE pk='7df9e91b-282f-457f-b91a-ad6135f4337d';
+
 -- /Issue 5803 AIC

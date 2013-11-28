@@ -28,7 +28,6 @@ import sys
 path = "/usr/lib/archivematica/archivematicaCommon"
 if path not in sys.path:
     sys.path.append(path)
-import databaseInterface
 import storageService as storage_service
 
 logger = logging.getLogger(__name__)
@@ -36,7 +35,7 @@ logging.basicConfig(filename="/tmp/archivematica.log",
     level=logging.INFO)
 
 
-def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name):
+def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     """ Stores an AIP with the storage service.
 
     aip_destination_uri = storage service destination URI, should be of purpose
@@ -59,11 +58,10 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name):
     current_location = storage_service.get_location(purpose="CP")[0]
 
     # Get the package type: AIC or AIP
-    sql = """SELECT sipType FROM SIPs WHERE sipUUID='{uuid}';""".format(uuid=sip_uuid)
-    rows = databaseInterface.queryAllSQL(sql)
-    package_type = "AIP"
-    if rows and 'AIC' in rows[0][0]:
-        package_type = 'AIC'
+    if sip_type == "SIP":
+        package_type = "AIP"
+    elif sip_type == 'AIC':
+        package_type = sip_type
 
     #Store the AIP
     (new_file, error_msg) = storage_service.create_file(
@@ -109,6 +107,7 @@ if __name__ == '__main__':
     parser.add_argument('aip_filename', type=str, help='%AIPFilename%')
     parser.add_argument('sip_uuid', type=str, help='%SIPUUID%')
     parser.add_argument('sip_name', type=str, help='%SIPName%')
+    parser.add_argument('sip_type', type=str, help='%SIPType%')
     args = parser.parse_args()
     sys.exit(store_aip(args.aip_destination_uri, args.aip_filename,
-        args.sip_uuid, args.sip_name))
+        args.sip_uuid, args.sip_name, args.sip_type))
