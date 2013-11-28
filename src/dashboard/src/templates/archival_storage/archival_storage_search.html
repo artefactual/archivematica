@@ -82,7 +82,7 @@
           {% if show_aics %}
           <td>
             {% if term_usage.type == 'AIC' %}
-              {{ term_usage.AICID }}
+              {{ term_usage.AICID }} ({{ term_usage.aips_in_aic }} AIP{{ term_usage.aips_in_aic|pluralize }} in AIC)
             {% elif term_usage.isPartOf %}
               Part of {{ term_usage.isPartOf }}
             {% else %}
@@ -90,7 +90,7 @@
             {% endif %}
           </td>
           {% endif %}
-          <td>{{ term_usage.count }} files</td>
+          <td>{{ term_usage.count }} file{{term_usage.count|pluralize}}</td>
           <td><span class='timestamp'>{{ term_usage.date }}</a></td>
           <td>{{ term_usage.status }}</td>
           <td>

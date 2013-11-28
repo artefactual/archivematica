@@ -15,6 +15,7 @@ PATH = "/usr/lib/archivematica/archivematicaCommon"
 if PATH not in sys.path:
     sys.path.append(PATH)
 import databaseFunctions
+import databaseInterface
 import fileOperations
 import storageService as storage_service
 
@@ -99,6 +100,9 @@ def create_mets_file(aic, aips):
     xml_data = mets.find('dmdSec/mdWrap/xmlData')
     dublincore = archivematicaCreateMETS2.getDublinCore(
         archivematicaCreateMETS2.SIPMetadataAppliesToType, aic['uuid'])
+    # Add <extent> with number of AIPs
+    extent = etree.SubElement(dublincore, 'extent')
+    extent.text = "{} AIPs".format(len(aips))
     xml_data.append(dublincore)
 
     # Add elements for each AIP
@@ -130,6 +134,11 @@ def create_mets_file(aic, aips):
     )
     # To make this work with the createMETS2 (for SIPs)
     databaseFunctions.insertIntoDerivations(file_uuid, file_uuid)
+
+    # Insert the count of AIPs in the AIC into UnitVariables, so it can be
+    # indexed later
+    sql = """INSERT INTO UnitVariables (pk, unitType, unitUUID, variable, variableValue) VALUES ('%s', 'SIP', '%s', 'AIPsinAIC', '%s');""" % (uuid.uuid4(), aic['uuid'], str(len(aips)))
+    databaseInterface.runSQL(sql)
 
 
 def create_aic_mets(aic_uuid, aic_dir):

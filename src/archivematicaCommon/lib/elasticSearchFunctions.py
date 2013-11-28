@@ -220,26 +220,28 @@ def set_up_mapping(conn, index):
         )
         print 'AIP file mapping created.'
 
-def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None):
+def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_aic=None):
     conn = connect_and_create_index('aips')
 
-    # convert METS XML to dict
     tree = ElementTree.parse(pathToMETS)
     root = tree.getroot()
-    xml = ElementTree.tostring(root)
-    mets_data = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
     nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
         'dc': 'http://purl.org/dc/terms/',
         'm': 'http://www.loc.gov/METS/',
     }
-    dublincore = root.find('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore', namespaces=nsmap)
+    # Extract AIC identifier, other specially-indexed information
     aic_identifier = None
     is_part_of = None
+    dublincore = root.find('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore', namespaces=nsmap)
     if dublincore is not None:
         aip_type = dublincore.findtext('dc:type', namespaces=nsmap)
         if aip_type == "Archival Information Collection":
             aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap)
         is_part_of = dublincore.findtext('dc:isPartOf', namespaces=nsmap)
+
+    # convert METS XML to dict
+    xml = ElementTree.tostring(root)
+    mets_data = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 
     aipData = {
         'uuid': uuid,
@@ -251,6 +253,7 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None):
         'created': os.path.getmtime(pathToMETS),
         'AICID': aic_identifier,
         'isPartOf': is_part_of,
+        'countAIPsinAIC': aips_in_aic,
     }
     wait_for_cluster_yellow_status(conn)
     try_to_index(conn, aipData, 'aips', 'aip')
@@ -335,8 +338,6 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
     return exitCode
 
 def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, backup_to_mysql = False):
-    filesIndexed     = 0
-    filePathAmdIDs   = {}
 
     # parse XML
     tree = ElementTree.parse(metsFilePath)
