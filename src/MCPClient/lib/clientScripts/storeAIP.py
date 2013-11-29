@@ -73,14 +73,14 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name):
         package_type="AIP",
         size=os.path.getsize(aip_path)
     )
-    if new_file is not None:
+    if new_file is not None and new_file['status'] != "FAIL":
         message = "Storage service created AIP: {}".format(new_file)
         logging.info(message)
         print message
         sys.exit(0)
     else:
-        print >>sys.stderr, "AIP creation failed."
-        print >>sys.stderr, error_msg
+        print >>sys.stderr, "AIP creation failed.  See Storage Service logs for more details"
+        print >>sys.stderr, error_msg or "Package status: Failed"
         logging.warning("AIP unabled to be created: {}.  See logs for more details.".format(error_msg))
         sys.exit(1)
 
