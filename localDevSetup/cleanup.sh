@@ -29,13 +29,15 @@ fi
 dirs=("/usr/lib/archivematica" "/etc/archivematica" "/usr/share/archivematica" "/var/archivematica")
 for dir in ${dirs[@]} 
 do
-    find $dir -type l | while read file ; do
-        if [[ ! ${file} =~ "storage" ]]; then
-            sudo rm ${file}
+    if [ "$(ls -A $dir)" ]; then
+        find $dir -type l | while read file ; do
+            if [[ ! ${file} =~ "storage" ]]; then
+                sudo rm ${file}
+            fi
+        done
+        if  [ ! "$(ls -A $dir)" ]; then
+            sudo rmdir $dir 
         fi
-    done
-    if  [ ! "$(ls -A $dir)" ]; then
-        sudo rmdir $dir 
     fi
 done
 
