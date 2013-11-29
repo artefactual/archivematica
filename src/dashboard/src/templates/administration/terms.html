@@ -1,6 +1,6 @@
 {% extends "layout_fluid.html" %}
 {% load breadcumbs %}
-% load url from future %}
+{% load url from future %}
 
 {% block title %}Administration{% endblock %}
 {% block h1 %}Administration{% endblock %}
@@ -21,7 +21,7 @@
     <div class="span12">
 
       <ul class="breadcrumb">
-        {% breadcrumb_url 'Taxonomy' components.administration.views.taxonomy %}
+        {% breadcrumb_url 'Taxonomy' 'components.administration.views.taxonomy' %}
         {% breadcrumb taxonomy.name %}
       </ul>
 
