@@ -2,6 +2,7 @@
 
 import ConfigParser
 import shutil
+from lxml import etree
 from optparse import OptionParser
 import os
 import re
@@ -13,6 +14,38 @@ import elasticSearchFunctions, databaseInterface
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 
+NSMAP = {
+    'dc': 'http://purl.org/dc/terms/',
+    'm': 'http://www.loc.gov/METS/',
+    'x': 'http://www.w3.org/1999/xlink',
+}
+
+def extract_file(archive_path, destination_dir, relative_path):
+    """ Extracts `relative_path` from `archive_path` into `destination_dir`. """
+    if archive_path.endswith('.tar.bz2'):
+        strip_components = len(relative_path.split('/'))-1
+        command_data = [
+            'tar',
+            'xvjf',
+            archive_path,
+            '-C' + destination_dir,
+            '--strip-components={}'.format(strip_components), # Output not in subfolder
+            relative_path
+        ]
+    else:
+        command_data = [
+            '7za',
+            'e',
+            '-o' + destination_dir,
+            archive_path,
+            relative_path
+        ]
+
+    print 'Command to run:', command_data
+    subprocess.call(command_data)
+
+    output_path = os.path.join(destination_dir, os.path.basename(relative_path))
+    return output_path
 
 def delete_aip_related_data(uuid):
     print "Deleting AIP files..."
@@ -28,6 +61,34 @@ def delete_aip_related_data(uuid):
         max_documents=1
     )
     print "Deleted " + str(deleted) + " AIPs."
+
+def get_aips_in_aic(mets_root, archive_path, temp_dir):
+    """ Returns the number of AIPs in the AIC, extracted from AIC METS file. """
+    # Find name of AIC METS file
+    try:
+        # aic_mets_filename includes metadata/
+        aic_mets_filename = mets_root.find("m:fileSec/m:fileGrp[@USE='metadata']/m:file/m:FLocat", namespaces=NSMAP).get('{'+NSMAP['x']+'}href')
+        aip_dirname = mets_root.find("m:structMap/m:div", namespaces=NSMAP).get('LABEL')
+    except Exception:
+        # Catch any parsing errors
+        return None
+
+    # Extract AIC METS file
+    aic_mets_path = extract_file(archive_path=archive_path,
+        destination_dir=temp_dir,
+        relative_path=os.path.join(aip_dirname, 'data', aic_mets_filename))
+
+    # Parse for number of AIPs
+    aic_root = etree.parse(aic_mets_path)
+    extent = aic_root.find("m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore/dc:extent", namespaces=NSMAP)
+    try:
+        aips_in_aic = re.search("\d+", extent.text).group()
+    except AttributeError:
+        # Probably because extent was None
+        # Or the search returned None
+        return None
+
+    return aips_in_aic
 
 
 def processAIPThenDeleteMETSFile(path, temp_dir, delete_existing_data = False):
@@ -53,32 +114,23 @@ def processAIPThenDeleteMETSFile(path, temp_dir, delete_existing_data = False):
     aip_name = subdir[:-37]
     mets_file = "METS." + aip_uuid + ".xml"
     mets_file_relative_path = os.path.join(subdir,"data", mets_file)
+    path_to_mets = extract_file(archive_path=path,
+        destination_dir=temp_dir, relative_path=mets_file_relative_path)
 
-    if path.endswith('.tar.bz2'):
-        command_data = [
-            'tar',
-            'xvjf',
-            path,
-            '-C' + temp_dir,
-            '--strip-components=2', # inside 2 folders
-            mets_file_relative_path
-        ]
+    # If AIC, need to extract number of AIPs in AIC to index as well
+    aips_in_aic = None
+    root = etree.parse(path_to_mets)
+    try:
+        aip_type = root.find("m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore/dc:type", namespaces=NSMAP).text
+    except AttributeError:
+        pass
     else:
-        command_data = [
-            '7za',
-            'e',
-            '-o' + temp_dir,
-            path,
-            mets_file_relative_path
-        ]
-
-    print 'command_data', command_data
-    subprocess.call(command_data)
+        if aip_type == "Archival Information Collection":
+            aips_in_aic = get_aips_in_aic(root, path, temp_dir)
 
     elasticSearchFunctions.connect_and_index_files('aips', 'aipfile', aip_uuid, temp_dir)
-    pathToMETS = os.path.join(temp_dir, mets_file)
-    elasticSearchFunctions.connect_and_index_aip(aip_uuid, aip_name, path, pathToMETS)
-    os.remove(pathToMETS)
+    elasticSearchFunctions.connect_and_index_aip(aip_uuid, aip_name, path, path_to_mets, aips_in_aic=aips_in_aic)
+    os.remove(path_to_mets)
 
 
 def main():
