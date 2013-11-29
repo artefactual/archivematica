@@ -1,72 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
-import os, sys, subprocess, tempfile, shutil, ConfigParser
+import ConfigParser
+import shutil
 from optparse import OptionParser
+import os
+import re
+import subprocess
+import sys
+import tempfile
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions, databaseInterface
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes
 
-usage = "usage: %prog [options] <path to AIP store>"
-
-parser = OptionParser(usage=usage)
-
-parser.add_option('-d', '--delete', action='store_true', dest='delete',
-    help='delete AIP-related ElasticSearch data before indexing AIP data')
-
-parser.add_option('-u', '--uuid', action='store', type='string', dest='uuid',
-    help='specify a single AIP, by UUID, to process')
-
-def get_command_line_arguments(parser):
-
-    (options, args) = parser.parse_args()
-
-    if len(args) < 1:
-        root_dir = ''
-    else:
-        root_dir = args[0]
-
-    return {
-        'root_dir': root_dir,
-        'uuid': options.uuid,
-        'delete': options.delete
-    }
-
-# Determine root of shared directories
-clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-config = ConfigParser.SafeConfigParser()
-config.read(clientConfigFilePath)
-
-try:
-    sharedDirectory = config.get('MCPClient', "sharedDirectoryMounted")
-except:
-    print "Configuration item 'sharedDirectoryMounted' not available at /etc/archivematica/MCPClient/clientConfig.conf."
-    os._exit(1)
-
-# Clear database backups of indexed AIPs
-sql = "DELETE FROM ElasticsearchIndexBackup WHERE indexName='aips' AND typeName='aipfile'"
-databaseInterface.runSQL(sql)
-
-# Get options from command-line
-options = get_command_line_arguments(parser)
-
-# Set root directory
-try:
-    rootdir = options['root_dir']
-    if not os.path.exists(rootdir):
-        print "AIP store location doesn't exist."
-        os._exit(1)
-except:
-    parser.print_help()
-    rootdir = os.path.join(sharedDirectory, 'www/AIPsStore')
-    print
-    print 'Default path to AIP store is: ' + rootdir
-    os._exit(1)
-
-if options['uuid'] == None:
-    print "Rebuilding AIPS index from AIPS in " + rootdir + "..."
-else:
-    print "Rebuilding AIP UUID " + options['uuid']
 
 def delete_aip_related_data(uuid):
     print "Deleting AIP files..."
@@ -83,60 +29,144 @@ def delete_aip_related_data(uuid):
     )
     print "Deleted " + str(deleted) + " AIPs."
 
+
 def processAIPThenDeleteMETSFile(path, temp_dir, delete_existing_data = False):
     archive_file = os.path.basename(path)
-    uuid =  archive_file[-39:-3]
+
+    # Regex match the UUID - AIP might end with .7z, .tar.bz2, or something else
+    match = re.search(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", archive_file)
+    if match is not None:
+        aip_uuid = match.group()
+    else:
+        return -1
+
+    print '*'*25
+    print 'Processing AIP ' + aip_uuid + '...'
 
     if delete_existing_data == True:
         print "Deleting existing AIP-related data..."
-        delete_aip_related_data(uuid)
+        delete_aip_related_data(aip_uuid)
 
-    subdir = archive_file[:-3]
+    # AIP filenames are <name>-<uuid><extension>
+    # Index of match end is right before the extension
+    subdir = archive_file[:match.end()]
     aip_name = subdir[:-37]
-    mets_file = "METS." + uuid + ".xml"
-    mets_file_relative_path = subdir + "/data/" + mets_file
+    mets_file = "METS." + aip_uuid + ".xml"
+    mets_file_relative_path = os.path.join(subdir,"data", mets_file)
 
-    print 'Processing AIP ' + uuid + '...'
+    if path.endswith('.tar.bz2'):
+        command_data = [
+            'tar',
+            'xvjf',
+            path,
+            '-C' + temp_dir,
+            '--strip-components=2', # inside 2 folders
+            mets_file_relative_path
+        ]
+    else:
+        command_data = [
+            '7za',
+            'e',
+            '-o' + temp_dir,
+            path,
+            mets_file_relative_path
+        ]
 
-    command_data = [
-        '7za',
-        'e',
-        '-o' + temp_dir,
-        path,
-        mets_file_relative_path
-    ]
-
+    print 'command_data', command_data
     subprocess.call(command_data)
 
-    elasticSearchFunctions.connect_and_index_files('aips', 'aipfile', uuid, temp_dir)
+    elasticSearchFunctions.connect_and_index_files('aips', 'aipfile', aip_uuid, temp_dir)
     pathToMETS = os.path.join(temp_dir, mets_file)
-    elasticSearchFunctions.connect_and_index_aip(uuid, aip_name, path, pathToMETS)
+    elasticSearchFunctions.connect_and_index_aip(aip_uuid, aip_name, path, pathToMETS)
     os.remove(pathToMETS)
 
-conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
-try:
-    conn._send_request('GET', '')
-except pyes.exceptions.NoServerAvailable:
-    print "Connection error: Is Elasticsearch running?"
-    os._exit(1)
 
-temp_dir = tempfile.mkdtemp()
+def main():
+    usage = "usage: %prog [options] <path to AIP store>"
 
-for root, subFolders, files in os.walk(rootdir):
-    for file in files:
-        try:
-            file.index('.7z')
-            if options['uuid'] == None or options['uuid'].lower() in file.lower():
+    parser = OptionParser(usage=usage)
+
+    parser.add_option('-d', '--delete', action='store_true', dest='delete',
+        help='delete AIP-related ElasticSearch data before indexing AIP data')
+
+    parser.add_option('-u', '--uuid', action='store', type='string', dest='uuid',
+        help='specify a single AIP, by UUID, to process')
+
+    # Determine root of shared directories
+    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
+    config = ConfigParser.SafeConfigParser()
+    config.read(clientConfigFilePath)
+
+    try:
+        sharedDirectory = config.get('MCPClient', "sharedDirectoryMounted")
+    except:
+        print "Configuration item 'sharedDirectoryMounted' not available at /etc/archivematica/MCPClient/clientConfig.conf."
+        os._exit(1)
+
+    # Clear database backups of indexed AIPs
+    sql = "DELETE FROM ElasticsearchIndexBackup WHERE indexName='aips' AND typeName='aipfile'"
+    databaseInterface.runSQL(sql)
+
+    # Get options from command-line
+    (opts, args) = parser.parse_args()
+
+    if len(args) < 1:
+        root_dir = ''
+    else:
+        root_dir = args[0]
+
+    options = {
+        'root_dir': root_dir,
+        'uuid': opts.uuid,
+        'delete': opts.delete
+    }
+
+    # Set root directory
+    try:
+        rootdir = options['root_dir']
+        if not os.path.exists(rootdir):
+            print "AIP store location doesn't exist."
+            os._exit(1)
+    except:
+        parser.print_help()
+        rootdir = os.path.join(sharedDirectory, 'www', 'AIPsStore')
+        print
+        print 'Default path to AIP store is: ' + rootdir
+        os._exit(1)
+
+    if options['uuid'] == None:
+        print "Rebuilding AIPS index from AIPS in " + rootdir + "..."
+    else:
+        print "Rebuilding AIP UUID " + options['uuid']
+
+    conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
+    try:
+        conn._send_request('GET', '')
+    except pyes.exceptions.NoServerAvailable:
+        print "Connection error: Is Elasticsearch running?"
+        os._exit(1)
+
+    temp_dir = tempfile.mkdtemp()
+    count = 0
+
+    for root, subFolders, files in os.walk(rootdir):
+        for filename in files:
+            if filename.endswith(('.7z', '.tar.bz2')) and (
+              options['uuid'] == None or
+              options['uuid'].lower() in filename.lower()):
+                count += 1
                 processAIPThenDeleteMETSFile(
-                    os.path.join(root, file),
+                    os.path.join(root, filename),
                     temp_dir,
                     options['delete']
                 )
-        except ValueError:
-            pass
 
-print "Cleaning up..."
+    print "Cleaning up..."
 
-shutil.rmtree(temp_dir)
+    shutil.rmtree(temp_dir)
 
-print "Indexing complete."
+    print "Indexing complete. Indexed", count, "files"
+
+
+if __name__ == '__main__':
+    main()
