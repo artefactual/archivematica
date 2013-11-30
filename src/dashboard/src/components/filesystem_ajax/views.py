@@ -17,6 +17,7 @@
 
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.db import connection
+import json
 import os
 from subprocess import call
 import shutil
@@ -183,7 +184,7 @@ def get_transfer_metadata_set(request, transfer_type):
         response['message'] = 'Unable to create transfer metadata set: contact administrator.'
 
     return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
+        json.dumps(response),
         mimetype='application/json'
     )
 
