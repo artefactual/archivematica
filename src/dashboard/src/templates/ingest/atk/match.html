@@ -103,14 +103,14 @@
   <script type="text/template" id="object-path-template">
     <div class="atk-matcher-object-path" id="path_<%= index %>">
       <input id="path_<%= index %>_checkbox" type="checkbox" />
-      <label for="path_<%= index %>_checkbox" title="<%= path %>"><%= truncated_path %></label>
+      <label for="path_<%= index %>_checkbox" title="<%= path %>"><%= path %></label>
     </div>
   </script>
 
   <script type="text/template" id="resource-item-template">
     <tr class="atk-matcher-resource-item" id="resource_<%= tempId %>">
       <td><%= levelOfDescription %></td>
-      <td title="<%= title %>"><%= padding %><%= truncated_title %></td>
+      <td title="<%= title %>"><%= padding %><%= title %></td>
       <td><%= identifier %></td>
       <td><%= dates %></td>
     </tr>
@@ -118,9 +118,9 @@
 
   <script type="text/template" id="match-item-template">
     <tr class="atk-matcher-match-item" id="match_<%= tempId %>">
-      <td title="<%= path %>"><%= truncated_path %></td>
+      <td title="<%= path %>"><%= path %></td>
       <td><%= levelOfDescription %></td>
-      <td title="<%= title %>"><%= truncated_title %></td>
+      <td title="<%= title %>"><%= title %></td>
       <td><%= identifier %></td>
       <td><%= dates %></td>
       <td id="match_delete_<%= tempId %>">
