@@ -23,6 +23,7 @@ from django.utils import simplejson
 import os, sys, MySQLdb, ast
 from main import models
 from components import helpers
+from components import advanced_search
 import xml.etree.ElementTree as ElementTree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivistsToolkit.atk as atk
@@ -80,6 +81,7 @@ def ingest_upload_atk(request, uuid):
           'Database error {0}. Please contact an administrator.'.format(str(e))
         )
 
+    search_params = advanced_search.extract_url_search_params_from_request(request)
     return render(request, 'ingest/atk/resource_list.html', locals())
 
 def ingest_upload_atk_save(request, uuid):
@@ -153,6 +155,7 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
             reverse('components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels', args=[uuid, resource_id])
         )
     else:
+        search_params = advanced_search.extract_url_search_params_from_request(request)
         return render(request, 'ingest/atk/resource_detail.html', locals())
 
 def ingest_upload_atk_determine_resource_component_resource_id(resource_component_id):
@@ -192,6 +195,7 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
             reverse('components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_component_levels', args=[uuid, resource_component_id])
         )
     else:
+	search_params = advanced_search.extract_url_search_params_from_request(request)
         return render(request, 'ingest/atk/resource_component.html', locals())
 
 def ingest_upload_atk_get_collection_ids(db, search_pattern=''):
