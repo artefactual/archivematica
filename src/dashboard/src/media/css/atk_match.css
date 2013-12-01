@@ -8,11 +8,13 @@
 }
 
 #object_pane {
+  width: 200px;
   height: 500px;
   float: left;
   overflow: auto;
   resize: both;
   margin-right: 20px;
+  white-space: nowrap;
 }
 
 #resource_pane {
@@ -21,6 +23,7 @@
   overflow: auto;
   resize: both;
   margin-right: 20px;
+  white-space: nowrap;
 }
 
 #object_pane_search, #resource_pane_search {
