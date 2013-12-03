@@ -37,7 +37,7 @@ UPDATE MicroServiceChoiceReplacementDic SET replacementDic='{\"%ContentdmServer%
 
 -- Issue 5356
 CREATE TABLE TransferMetadataSets (
-  pk VARCHAR(50) NOT NULL,
+  pk VARCHAR(36) NOT NULL,
   createdTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   createdByUserID INT(11) NOT NULL,
   transferType VARCHAR(50) NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE TransferMetadataSets (
 ALTER TABLE Transfers ADD COLUMN transferMetadataSetRowUUID VARCHAR(50);
 
 CREATE TABLE TransferMetadataFields (
-  pk varchar(50) NOT NULL,
+  pk varchar(36) NOT NULL,
   createdTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   fieldLabel VARCHAR(50) DEFAULT '',
   fieldName VARCHAR(50) NOT NULL,
@@ -103,7 +103,7 @@ INSERT INTO TransferMetadataFields (pk, createdTime, fieldLabel, fieldName, fiel
     VALUES ('0a9e346a-f08c-4e0d-9753-d9733f7205e5', UNIX_TIMESTAMP(), 'Image fixity', 'image_fixity', 'text', 14);
 
 CREATE TABLE TransferMetadataFieldValues (
-  pk varchar(50) NOT NULL,
+  pk varchar(36) NOT NULL,
   createdTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   setUUID VARCHAR(50) NOT NULL,
   filePath longtext NOT NULL,
@@ -113,7 +113,7 @@ CREATE TABLE TransferMetadataFieldValues (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE Taxonomies (
-  pk varchar(50) NOT NULL,
+  pk varchar(36) NOT NULL,
   createdTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   name VARCHAR(255) DEFAULT '',
   type VARCHAR(50) NOT NULL DEFAULT 'open',
@@ -128,7 +128,7 @@ INSERT INTO Taxonomies (pk, name) VALUES ('cc4231ef-9886-4722-82ec-917e60d3b2c7'
 INSERT INTO Taxonomies (pk, name) VALUES ('cae76c7f-4d8e-48ee-9522-4b3fbf492516', 'Disk imaging software');
 
 CREATE TABLE TaxonomyTerms (
-  pk varchar(50) NOT NULL,
+  pk varchar(36) NOT NULL,
   createdTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   taxonomyUUID varchar(50) NOT NULL,
   term varchar(255) DEFAULT '',
