@@ -167,12 +167,12 @@ def delete(request):
 
     return helpers.json_response(response)
 
-"""
-Transfer metadata sets are used to associate a group of metadata field values with
-a transfer. The transfer metadata set UUID is relayed to the MCP chain by including
-it in a row in a pre-created Transfers table entry.
-"""
 def get_transfer_metadata_set(request, transfer_type):
+    """
+    Transfer metadata sets are used to associate a group of metadata field values with
+    a transfer. The transfer metadata set UUID is relayed to the MCP chain by including
+    it in a row in a pre-created Transfers table entry.
+    """
     response = {}
 
     try:
