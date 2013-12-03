@@ -17,7 +17,12 @@ You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+var transferMetadataSetRowUUID;
+var transferDirectoryPickerPathCounter = 1;
+
 function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCssId) {
+  var pathTemplateCssId = 'transfer-component-path-item';
+
   var selector = new DirectoryPickerView({
     ajaxChildDataUrl: '/filesystem/children/location/' + locationUUID + '/',
     el: $('#explorer'),
@@ -30,6 +35,8 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
     'parent': baseDirectory.replace(/\\/g,'/').replace(/\/[^\/]*$/, ''), // parse out path directory
     'children': []
   };
+
+  selector.pathTemplateRender = _.template($('#' + pathTemplateCssId).html());
 
   selector.options.entryDisplayFilter = function(entry) {
     // if a file and not an archive file, then hide
@@ -49,18 +56,73 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
     description: 'Select',
     iconHtml: 'Add',
     logic: function(result) {
-      var $transferPathRowEl = $('<div></div>')
-        , $transferPathEl = $('<span class="transfer_path"></span>')
-        , $transferPathDeleteRl = $('<span style="margin-left: 1em;"><img src="/media/images/delete.png" /></span>');
+      if (!transferMetadataSetRowUUID) {
+        var transferTypeNormalized = $('#transfer-type').val().replace(' ', '_');
+        $.ajax({
+          'url': '/filesystem/get_transfer_metadata_set/' + transferTypeNormalized + '/',
+          'type': 'GET',
+          'async': false,
+          'cache': false,
+          'success': function(results) {
+             transferMetadataSetRowUUID = results.uuid;
+          },
+          'error': function() {
+            alert('Error: contact administrator.');
+          }
+        });
 
-      $transferPathDeleteRl.click(function() {
-        $transferPathRowEl.remove();
+        // disable transfer type select as disk image transfer types
+        // are displayed with a metadata editing option, but others
+        // are not
+        $('#transfer-type').attr('disabled', 'disabled');
+      }
+
+      // render path component
+      $('#' + targetCssId).append(selector.pathTemplateRender({
+        'path_counter': transferDirectoryPickerPathCounter,
+        'path': result.path,
+        'edit_icon': '1',
+        'delete_icon': '2'
+      }));
+
+      // enable editing of transfer component metadata
+      if ($('#transfer-type').val() == 'disk image') {
+        var $transferEditIconEl = $(
+          '#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter
+        ).children('.transfer_path_icons').children('.transfer_path_edit_icon');
+
+        $transferEditIconEl.click(function() {
+          var path = $(this).parent().children('.transfer_path_icons > .transfer_path').text(),
+              component_metadata_url = '/transfer/component/' + transferMetadataSetRowUUID + '/?path=' + encodeURIComponent(path);
+          window.open(component_metadata_url, '_blank');
+        });
+
+        $transferEditIconEl.show();
+      }
+
+      // activate edit and delete icons
+      $('#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter)
+      .children('.transfer_path_icons')
+      .children('.transfer_path_delete_icon')
+      .click(function() {
+        if (confirm('Are you sure you want to remove this transfer component?')) {
+          $(this).parent().remove();
+          if ($('.transfer_path').length < 1) {
+            // re-enable transfer type select
+            $('#transfer-type').removeAttr('disabled');
+          }
+        }
       });
+
+      transferDirectoryPickerPathCounter++;
 
       $transferPathEl.html(result.path);
       $transferPathRowEl.append($transferPathEl);
       $transferPathRowEl.append($transferPathDeleteRl);
       $('#' + targetCssId).append($transferPathRowEl);
+      $('#' + modalCssId).remove();
+
+      // remove directory picker
       $('#' + modalCssId).remove();
 
       // tiger stripe transfer paths
