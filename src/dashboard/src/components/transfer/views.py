@@ -88,9 +88,7 @@ def component(request, uuid):
                 term.taxonomyuuid = field.optiontaxonomyuuid
                 term.term = new_term
                 term.save()
-                messages.append({
-                    'text': 'Term added.'
-                })
+                messages.append('Term added.')
 
             # load taxonomy terms into option values
             optionvalues = ['']
@@ -127,9 +125,7 @@ def component(request, uuid):
             values[(field.fieldname)] = field_value.fieldvalue # override initially loaded value, if any
 
     if fields_saved:
-        messages.append({
-            'text': 'Metadata saved.'
-        })
+        messages.append('Metadata saved.')
 
     return render(request, 'transfer/component.html', locals())
 
