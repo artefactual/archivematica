@@ -177,7 +177,8 @@ def get_transfer_metadata_set(request, transfer_type):
 
     try:
         ts = models.TransferMetadataSet()
-        ts.transfer_type = transfer_type
+        ts.transfer_type   = transfer_type
+        ts.createdbyuserid = request.user.id
         ts.save()
         response['uuid'] = ts.pk
     except:
