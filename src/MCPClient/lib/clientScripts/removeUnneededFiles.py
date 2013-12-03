@@ -1,50 +1,24 @@
-#!/usr/bin/python -OO
+#!/usr/bin/python2 -OO
 
-# This file is part of Archivematica.
-#
-# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
-#
-# Archivematica is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Archivematica is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
-# @package Archivematica
-# @subpackage archivematicaClientScript
-# @author Joseph Perry <joseph@artefactual.com>
-
-import sys
 import os
+import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from databaseFunctions import fileWasRemoved
-removeIfFileNameIs = ["Thumbs.db", "Icon", u"Icon\u000D"]
 
-def removableFile(target):
-    global eventDetailText
-    basename = os.path.basename(target)
-    if basename in removeIfFileNameIs:
-        eventDetailText = basename + " is noted as a removable file."
-        return True
-    return False
+REMOVEABLE_FILES = ["Thumbs.db", "Icon", u"Icon\u000D"]
+
+def remove_file(target_file, file_uuid):
+    basename = os.path.basename(target_file)
+    if basename in REMOVEABLE_FILES:
+        print "Removing {filename} (UUID: {uuid})".format(uuid=file_uuid, filename=basename)
+        os.remove(target_file)
+        # Gearman passes parameters as strings, so None (NoneType) becomes
+        # "None" (string)
+        if file_uuid and file_uuid != "None":
+            fileWasRemoved(file_uuid)
 
 if __name__ == '__main__':
     target = sys.argv[1]
-    fileUUID = sys.argv[2]
-    logsDirectory = sys.argv[3]
-    date = sys.argv[4]
-    eIDValue = sys.argv[5]
+    file_uuid = sys.argv[2]
 
-    global eventDetailText
-    eventDetailText = "fileRemoved"
-    if removableFile(target):
-        print fileUUID + " -> " + os.path.basename(target)
-        os.remove(target)
-        fileWasRemoved(fileUUID)
+    sys.exit(remove_file(target, file_uuid))
