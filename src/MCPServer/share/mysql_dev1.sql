@@ -44,7 +44,7 @@ CREATE TABLE TransferMetadataSets (
   PRIMARY KEY (pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE Transfers ADD COLUMN transferMetadataSetRowUUID VARCHAR(50);
+ALTER TABLE Transfers ADD COLUMN transferMetadataSetRowUUID VARCHAR(36);
 
 CREATE TABLE TransferMetadataFields (
   pk varchar(36) NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE TransferMetadataFields (
   fieldLabel VARCHAR(50) DEFAULT '',
   fieldName VARCHAR(50) NOT NULL,
   fieldType VARCHAR(50) NOT NULL,
-  optionTaxonomyUUID VARCHAR(50) NOT NULL,
+  optionTaxonomyUUID VARCHAR(36) NOT NULL,
   sortOrder INT(11) DEFAULT 0,
   PRIMARY KEY (pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -105,9 +105,9 @@ INSERT INTO TransferMetadataFields (pk, createdTime, fieldLabel, fieldName, fiel
 CREATE TABLE TransferMetadataFieldValues (
   pk varchar(36) NOT NULL,
   createdTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  setUUID VARCHAR(50) NOT NULL,
+  setUUID VARCHAR(36) NOT NULL,
   filePath longtext NOT NULL,
-  fieldUUID VARCHAR(50) NOT NULL,
+  fieldUUID VARCHAR(36) NOT NULL,
   fieldValue LONGTEXT DEFAULT '',
   PRIMARY KEY (pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -130,7 +130,7 @@ INSERT INTO Taxonomies (pk, name) VALUES ('cae76c7f-4d8e-48ee-9522-4b3fbf492516'
 CREATE TABLE TaxonomyTerms (
   pk varchar(36) NOT NULL,
   createdTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  taxonomyUUID varchar(50) NOT NULL,
+  taxonomyUUID varchar(36) NOT NULL,
   term varchar(255) DEFAULT '',
   PRIMARY KEY (pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
