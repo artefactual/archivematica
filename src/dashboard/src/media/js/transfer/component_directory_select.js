@@ -56,26 +56,10 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
     description: 'Select',
     iconHtml: 'Add',
     logic: function(result) {
-      if (!transferMetadataSetRowUUID) {
-        var transferTypeNormalized = $('#transfer-type').val().replace(' ', '_');
-        $.ajax({
-          'url': '/filesystem/get_transfer_metadata_set/' + transferTypeNormalized + '/',
-          'type': 'GET',
-          'async': false,
-          'cache': false,
-          'success': function(results) {
-             transferMetadataSetRowUUID = results.uuid;
-          },
-          'error': function() {
-            alert('Error: contact administrator.');
-          }
-        });
-
-        // disable transfer type select as disk image transfer types
-        // are displayed with a metadata editing option, but others
-        // are not
-        $('#transfer-type').attr('disabled', 'disabled');
-      }
+      // disable transfer type select as disk image transfer types
+      // are displayed with a metadata editing option, but others
+      // are not
+      $('#transfer-type').attr('disabled', 'disabled');
 
       // render path component
       $('#' + targetCssId).append(selector.pathTemplateRender({
@@ -91,9 +75,32 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
           '#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter
         ).children('.transfer_path_icons').children('.transfer_path_edit_icon');
 
+        // Fix up the temporary path that was assigned previously to point to the real path
+        // that's now been assigned
+        var path = $('#transfer-component-path-item-' + transferDirectoryPickerPathCounter + ' > .transfer_path').text();
+        var temp_path = "metadata-component-" + transferDirectoryPickerPathCounter;
+        var update_metadata_url = '/filesystem/rename_transfer_metadata_set/' + transferMetadataSetRowUUID +
+          '/' + temp_path + '/';
+        console.log(update_metadata_url);
+
+        $.ajax({
+          'url': update_metadata_url,
+          'type': 'POST',
+          'async': false,
+          'cache': false,
+          'data': {
+            'path': path
+          },
+          'success': function(results) {
+            console.log(results);
+          },
+          'error': function() {
+            alert('Error: unable to update metadata set ID. Contact administrator.');
+          }
+        });
+
         $transferEditIconEl.click(function() {
-          var path = $(this).parent().children('.transfer_path_icons > .transfer_path').text(),
-              component_metadata_url = '/transfer/component/' + transferMetadataSetRowUUID + '/?path=' + encodeURIComponent(path);
+          var component_metadata_url = '/transfer/component/' + transferMetadataSetRowUUID + '/?path=' + encodeURIComponent(path);
           window.open(component_metadata_url, '_blank');
         });
 
@@ -115,12 +122,6 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
       });
 
       transferDirectoryPickerPathCounter++;
-
-      $transferPathEl.html(result.path);
-      $transferPathRowEl.append($transferPathEl);
-      $transferPathRowEl.append($transferPathDeleteRl);
-      $('#' + targetCssId).append($transferPathRowEl);
-      $('#' + modalCssId).remove();
 
       // remove directory picker
       $('#' + modalCssId).remove();

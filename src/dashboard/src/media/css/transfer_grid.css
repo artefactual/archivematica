@@ -38,6 +38,14 @@
   margin-right: 10px;
 }
 
+#start_transfer_button {
+  margin-right: 10px;
+}
+
+#transfer_metadata_edit_button {
+  display: none;
+}
+
 #path_source_select {
   margin-right: 10px;
 }

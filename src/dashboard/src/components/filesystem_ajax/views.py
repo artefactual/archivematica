@@ -189,6 +189,32 @@ def get_transfer_metadata_set(request, transfer_type):
         mimetype='application/json'
     )
 
+def rename_metadata_transfer_set(request, set_uuid, placeholder_id):
+    response = {}
+
+    try:
+        path = request.POST.get('path')
+        if not path:
+            raise KeyError
+        fields = models.TransferMetadataFieldValue.objects.filter(setuuid=set_uuid, filepath=placeholder_id)
+        fields.update(filepath=path)
+        response['status'] = 'Success'
+    except KeyError:
+        response['status'] = 'Failure'
+        response['message'] = 'Updated path was not provided.'
+    except Exception as e:
+        if not e.message:
+            message = 'Unable to update transfer metadata set: contact administrator.'
+        else:
+            message = e.message
+        response['status'] = 'Failure'
+        response['message'] = message
+
+    return HttpResponse(
+        json.dumps(response),
+        mimetype='application/json'
+    )
+
 def get_temp_directory(request):
     temp_base_dir = helpers.get_client_config_value('temp_dir')
 

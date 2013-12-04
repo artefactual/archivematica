@@ -17,6 +17,26 @@ You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+var transferMetadataSetRowUUID;
+
+function createMetadataSetID() {
+  if (!transferMetadataSetRowUUID) {
+    var transferTypeNormalized = $('#transfer-type').val().replace(' ', '_');
+    $.ajax({
+      'url': '/filesystem/get_transfer_metadata_set/' + transferTypeNormalized + '/',
+      'type': 'GET',
+      'async': false,
+      'cache': false,
+      'success': function(results) {
+         transferMetadataSetRowUUID = results.uuid;
+      },
+      'error': function() {
+        alert('Error: contact administrator.');
+      }
+    });
+  }
+}
+
 var TransferComponentFormView = Backbone.View.extend({
   initialize: function(options) {
     this.form_layout_template = _.template(options.form_layout_template);
@@ -149,12 +169,14 @@ var TransferComponentFormView = Backbone.View.extend({
       , $addButton = $('<span id="path_add_button" class="btn">Browse</span>')
       , $sourceDirSelect = $('<select id="path_source_select"></select>')
       , $startTransferButton = $('<span id="start_transfer_button" class="btn success">Start transfer</span>')
+      , $metadataEditButton = $('<span id="transfer_metadata_edit_button" class="btn metadata-edit">Add metadata</span>')
       , self = this;
 
     $buttonContainer
       .append($sourceDirSelect)
       .append($addButton)
-      .append($startTransferButton);
+      .append($startTransferButton)
+      .append($metadataEditButton);
 
     $pathAreaEl.append($buttonContainer);
 
@@ -187,9 +209,32 @@ var TransferComponentFormView = Backbone.View.extend({
     $('#transfer-type').change(function() {
       if ($(this).val() == 'zipped bag') {
         $('#transfer-name-container').hide('slide', {direction: 'left'}, 250);
-      } else {
+      } else if($(this).is(':hidden')) {
         $('#transfer-name-container').show('slide', {direction: 'left'}, 250);
       }
+
+      // If the transfer type is a Disk Image, the metadata edit button is visible;
+      // otherwise, we hide it
+      if ($(this).val() == 'disk image') {
+        $('#transfer_metadata_edit_button').show('fade', {}, 250);
+      } else {
+        $('#transfer_metadata_edit_button').hide('fade', {}, 250);
+      }
+    });
+
+    createMetadataSetID();
+
+    // The metadata set edit button is available as soon as a disk image transfer type is selected.
+    // This allows for entering metadata before the associated transfer component is created,
+    // for instance to write metadata about a disk image before the image file is ready to be added
+    // as a new transfer component.
+    // It creates a metadata form associated with a placeholder path; that path will be updated to
+    // point at the actual component path once a new transfer path is added.
+    $('#transfer_metadata_edit_button').click(function() {
+      var path = "metadata-component-" + transferDirectoryPickerPathCounter;
+      console.log(path);
+      metadata_url = '/transfer/component/' + transferMetadataSetRowUUID + '?path=' + path;
+      window.open(metadata_url, '_blank');
     });
 
     // make start transfer button clickable
