@@ -41,7 +41,7 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
   selector.options.entryDisplayFilter = function(entry) {
     // if a file and not an archive file, then hide
     if (
-      entry.children == undefined
+      entry.children === undefined
       && entry.attributes.name.toLowerCase().indexOf('.zip') == -1
       && entry.attributes.name.toLowerCase().indexOf('.tgz') == -1
       && entry.attributes.name.toLowerCase().indexOf('.tar.gz') == -1
