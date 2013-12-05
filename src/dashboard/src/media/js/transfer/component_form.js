@@ -74,6 +74,7 @@ var TransferComponentFormView = Backbone.View.extend({
 
   startTransfer: function(transfer) {
     var path;
+    transferMetadataSetRowUUID = undefined; // So the next transfer gets a unique ID
 
     $('.transfer-component-activity-indicator').show();
     // get path to temp directory in which to copy individual transfer
