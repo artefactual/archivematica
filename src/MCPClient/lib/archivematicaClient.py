@@ -69,31 +69,23 @@ databaseInterface.printSQL = True
 config = ConfigParser.SafeConfigParser({'MCPArchivematicaServerInterface': ""})
 config.read("/etc/archivematica/MCPClient/clientConfig.conf")
 
-replacementDic = {
+REPLACEMENT_DICT = {
     "%dashboardUUID%": dashboardUUID, \
     "%sharedPath%":config.get('MCPClient', "sharedDirectoryMounted"), \
     "%clientScriptsDirectory%":config.get('MCPClient', "clientScriptsDirectory")
 }
-supportedModules = {}
+SUPPORTED_MODULES = {}
 
-def loadSupportedModulesSupport(key, value):
-    for key2, value2 in replacementDic.iteritems():
-        value = value.replace(key2, value2)
-    if not os.path.isfile(value):
-        print >>sys.stderr, "Warning - Module can't find file, or relies on system path:{%s}%s" % (key.__str__(), value.__str__())
-    supportedModules[key] = value + " "
 
-def loadSupportedModules(file):
-    supportedModulesConfig = ConfigParser.RawConfigParser()
-    supportedModulesConfig.read(file)
-    for key, value in supportedModulesConfig.items('supportedCommands'):
-        loadSupportedModulesSupport(key, value)
-
-    loadSupportedCommandsSpecial = config.get('MCPClient', "LoadSupportedCommandsSpecial")
-    if loadSupportedCommandsSpecial.lower() == "yes" or \
-    loadSupportedCommandsSpecial.lower() == "true":
-        for key, value in supportedModulesConfig.items('supportedCommandsSpecial'):
-            loadSupportedModulesSupport(key, value)
+def loadSupportedModules(client_modules_file):
+    supported_modules_config = ConfigParser.RawConfigParser()
+    supported_modules_config.read(client_modules_file)
+    for command_alias, command_path in supported_modules_config.items('supportedCommands'):
+        for replace_var, replace_value in REPLACEMENT_DICT.iteritems():
+            command_path = command_path.replace(replace_var, replace_value)
+        if not os.path.isfile(command_path):
+            print >>sys.stderr, "Warning - Module can't find file, or relies on system path:{%s}%s" % (str(command_alias), str(command_path))
+        SUPPORTED_MODULES[command_alias] = command_path + " "
 
 
 def executeCommand(gearman_worker, gearman_job):
@@ -123,19 +115,19 @@ Unable to determine if it completed successfully."""
         
         logTaskAssignedSQL(gearman_job.unique.__str__(), clientID, utcDate)
 
-        if execute not in supportedModules:
+        if execute not in SUPPORTED_MODULES:
             output = ["Error!", "Error! - Tried to run and unsupported command." ]
             exitCode = -1
             return cPickle.dumps({"exitCode" : exitCode, "stdOut": output[0], "stdError": output[1]})
-        command = supportedModules[execute]
+        command = SUPPORTED_MODULES[execute]
 
 
-        replacementDic["%date%"] = utcDate
-        replacementDic["%jobCreatedDate%"] = data["createdDate"]
+        REPLACEMENT_DICT["%date%"] = utcDate
+        REPLACEMENT_DICT["%jobCreatedDate%"] = data["createdDate"]
         #Replace replacement strings
-        for key in replacementDic.iterkeys():
-            command = command.replace ( key, replacementDic[key] )
-            arguments = arguments.replace ( key, replacementDic[key] )
+        for key, value in REPLACEMENT_DICT.iteritems():
+            command = command.replace(key, value)
+            arguments = arguments.replace(key, value)
 
         key = "%taskUUID%"
         value = gearman_job.unique.__str__()
@@ -173,7 +165,7 @@ def startThread(threadNumber):
     gm_worker = gearman.GearmanWorker([config.get('MCPClient', "MCPArchivematicaServer")])
     hostID = gethostname() + "_" + threadNumber.__str__()
     gm_worker.set_client_id(hostID)
-    for key in supportedModules.iterkeys():
+    for key in SUPPORTED_MODULES.iterkeys():
         printOutputLock.acquire()
         print 'registering:"{}"'.format(key)
         printOutputLock.release()

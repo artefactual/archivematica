@@ -23,15 +23,6 @@
 #!!! this is a list of supported commands/tasks, not modules
 #the version numbers are versions of the protocol, not versions of the programs themselves.
 
-[supportedCommandsSpecial]
-elasticSearchAIPIndex_v0.0 = %clientScriptsDirectory%elasticSearchIndexProcessAIP.py
-elasticSearchIndex_v0.0 = %clientScriptsDirectory%elasticSearchIndexProcessTransfer.py
-restructureDIPForContentDMUpload_v0.0 = %clientScriptsDirectory%restructureDIPForContentDMUpload.py
-storeAIP_v0.0 = %clientScriptsDirectory%storeAIP.py
-upload-contentDM_v0.0 = %clientScriptsDirectory%upload-contentDM.py
-upload-qubit_v0.0 = upload-qubit
-upload-archivistsToolkit_v0.0 = %clientScriptsDirectory%upload-archivistsToolkit.py
-
 [supportedCommands]
 archivematicaClamscan_v0.0 = %clientScriptsDirectory%archivematicaClamscan.py
 archivematicaMediaInfo_v0.0 = %clientScriptsDirectory%archivematicaMediaInfo.py
@@ -61,6 +52,8 @@ createSIPfromTransferObjects_v0.0 = %clientScriptsDirectory%createSIPfromTransfe
 createSIPsfromTRIMTransferContainers_v0.0 = %clientScriptsDirectory%createSIPsfromTRIMTransferContainers.py
 determineAIPVersionKeyExitCode_v0.0 = %clientScriptsDirectory%determineAIPVersionKeyExitCode.py
 echo_v0.0 = /bin/echo
+elasticSearchAIPIndex_v0.0 = %clientScriptsDirectory%elasticSearchIndexProcessAIP.py
+elasticSearchIndex_v0.0 = %clientScriptsDirectory%elasticSearchIndexProcessTransfer.py
 emailFailReport_v0.0 = %clientScriptsDirectory%emailFailReport.py
 extractBagTransfer_v0.0 = %clientScriptsDirectory%extractBagTransfer.py
 extractContents_v0.0 = %clientScriptsDirectory%extractContents.py
@@ -95,6 +88,7 @@ removeUnneededFiles_v0.0 = %clientScriptsDirectory%removeUnneededFiles.py
 removeWithAsterisk_v0.0 = %clientScriptsDirectory%removeWithAsterisk.sh
 renameDIPFauxToOrigUUIDs_v0.0 = %clientScriptsDirectory%renameDIPFauxToOrigUUIDs.py
 restructureBAG_v0.0 = %clientScriptsDirectory%restructureBAG.sh
+restructureDIPForContentDMUpload_v0.0 = %clientScriptsDirectory%restructureDIPForContentDMUpload.py
 restructureForCompliance_v0.0 = %clientScriptsDirectory%restructureForCompliance.py
 restructureForComplianceMaildir_v0.0 = %clientScriptsDirectory%restructureForComplianceMaildir.py
 restructureBagAIPToSIP_v0.0 = %clientScriptsDirectory%restructureBagAIPToSIP.py
@@ -106,11 +100,15 @@ setFilePermission_v0.0 = chmod
 setMaildirFileGrpUseAndFileIDs_v0.0 = %clientScriptsDirectory%setMaildirFileGrpUseAndFileIDs.py
 setSIPQuarantine_v0.0 = %clientScriptsDirectory%quarantineSIP.sh
 sha256deepRelative_v0.0 = %clientScriptsDirectory%sha256deepRelative.sh
+storeAIP_v0.0 = %clientScriptsDirectory%storeAIP.py
 trimCreateRightsEntries_v0.0 = %clientScriptsDirectory%trimCreateRightsEntries.py
 trimRestructureForCompliance_v0.0 = %clientScriptsDirectory%trimRestructureForCompliance.py
 trimVerifyChecksums_v0.0 = %clientScriptsDirectory%trimVerifyChecksums.py
 trimVerifyManifest_v0.0 = %clientScriptsDirectory%trimVerifyManifest.py
 updateSizeAndChecksum_v0.0 = %clientScriptsDirectory%archivematicaUpdateSizeAndChecksum.py
+upload-archivistsToolkit_v0.0 = %clientScriptsDirectory%upload-archivistsToolkit.py
+upload-contentDM_v0.0 = %clientScriptsDirectory%upload-contentDM.py
+upload-qubit_v0.0 = upload-qubit
 verifyAIP_v0.0 = %clientScriptsDirectory%verifyAIP.py
 verifyAndRestructureTransferBag_v0.0 = %clientScriptsDirectory%verifyAndRestructureTransferBag.py
 verifyBAG_v0.0 = %clientScriptsDirectory%verifyBAG.py
