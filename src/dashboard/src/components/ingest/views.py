@@ -25,6 +25,7 @@ import MySQLdb
 import os
 import shutil
 import socket
+import subprocess
 import sys
 import uuid
 
@@ -54,6 +55,7 @@ from main import forms
 from main import models
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from externals.checksummingTools import sha_for_file
 import elasticSearchFunctions, databaseInterface, databaseFunctions
 from archivematicaCreateStructuredDirectory import createStructuredDirectory
 from archivematicaFunctions import escape
@@ -531,7 +533,7 @@ def transfer_awaiting_sip_creation(uuid):
 def process_transfer(request, transfer_uuid):
     response = {}
 
-    if request.user.id:
+    if request == None or request.user.id:
         # get transfer info
         transfer = models.Transfer.objects.get(uuid=transfer_uuid)
         transfer_path = transfer.currentlocation.replace(
@@ -543,7 +545,10 @@ def process_transfer(request, transfer_uuid):
 
         processingDirectory = helpers.get_server_config_value('processingDirectory')
         transfer_directory_name = os.path.basename(transfer_path[:-1])
+
+        # removed UUID from transfer directory name
         transfer_name = transfer_directory_name[:-37]
+
         sharedPath = helpers.get_server_config_value('sharedDirectory')
 
         tmpSIPDir = os.path.join(processingDirectory, transfer_name) + "/"
@@ -598,6 +603,56 @@ def process_transfer(request, transfer_uuid):
         response['message'] = 'Must be logged in.'
 
     return helpers.json_response(response)
+
+"""
+In order to create a SIP from some files that are structured as a completed transfer, but we created manually
+(via the SIP arrangement functionality) rather than in the Transfers tab, we have to create an internal
+database representation of the transfer. This database representation is referred to during SIP creation.
+"""
+def _initiate_sip_from_files_structured_like_a_completed_transfer(transfer_files_path):
+    transfer_uuid = str(uuid.uuid4())
+
+    # add UUID to path because the backlog's transfer to SIP logic expects it
+    transfer_path = transfer_files_path + '-' + transfer_uuid
+    shutil.move(transfer_files_path, transfer_path)
+
+    # create transfer DB representation
+    transfer = models.Transfer()
+    transfer.uuid = transfer_uuid
+    transfer.currentlocation = transfer_path + '/'
+    transfer.type = 'Standard'
+    transfer.save()
+
+    # create file rows for each file in objects directory
+    objects_directory = os.path.join(transfer_path, 'objects')
+    for dirname, dirnames, filenames in os.walk(objects_directory):
+        for filename in filenames:
+            filepath = os.path.join(dirname, filename)
+
+            new_file = models.File()
+            new_file.uuid = str(uuid.uuid4())
+            new_file.transfer = transfer
+
+            # properties that need to be determined using normal path
+            new_file.checksum = sha_for_file(filepath).__str__()
+            new_file.size = os.path.getsize(filepath).__str__()
+            new_file.filegrpuse = 'original'
+
+            # properties that need to be set using abbreviated path
+            filepath = filepath.replace(objects_directory, '%transferDirectory%objects')
+            new_file.originallocation = filepath
+            new_file.currentlocation = filepath
+            new_file.save()
+
+    # create ElasticSearch representation of transfer data
+    elasticSearchFunctions.connect_and_index_files(
+        'transfers',
+        'transferfile',
+        transfer_uuid,
+        os.path.join(transfer_path, 'objects')
+    )
+
+    process_transfer(None, transfer_uuid)
 
 def transfer_file_download(request, uuid):
     # get file basename

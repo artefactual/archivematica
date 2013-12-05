@@ -235,6 +235,8 @@ class File(models.Model):
     originallocation = models.TextField(db_column='originalLocation')
     currentlocation = models.TextField(db_column='currentLocation')
     filegrpuse = models.TextField(db_column='fileGrpUse')
+    checksum =  models.TextField(db_column='checksum')
+    size = models.TextField(db_column='fileSize')
 
     class Meta:
         db_table = u'Files'

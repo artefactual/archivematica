@@ -20,6 +20,7 @@ from django.db import connection
 import base64
 import os
 from subprocess import call
+import logging
 import shutil
 import MySQLdb
 import tempfile
@@ -39,6 +40,10 @@ import storageService as storage_service
 # for unciode sorting support
 import locale
 locale.setlocale(locale.LC_ALL, '')
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
+    level=logging.INFO)
 
 SHARED_DIRECTORY_ROOT   = '/var/archivematica/sharedDirectory'
 ORIGINALS_DIR           = SHARED_DIRECTORY_ROOT + '/transferBackups/originals'
@@ -350,7 +355,13 @@ def copy_to_originals(request):
     return helpers.json_response(response)
 
 def copy_from_arrange_to_completed(request):
-    return copy_to_originals(request)
+    filepath = '/' + request.POST.get('filepath', '')
+    from components.ingest import views
+
+    if filepath != '':
+        views._initiate_sip_from_files_structured_like_a_completed_transfer(filepath)
+
+    #return copy_to_originals(request)
 
 def move_within_arrange(request):
     sourcepath  = request.POST.get('filepath', '')
