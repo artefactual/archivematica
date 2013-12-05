@@ -113,7 +113,7 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
       .children('.transfer_path_delete_icon')
       .click(function() {
         if (confirm('Are you sure you want to remove this transfer component?')) {
-          $(this).parent().remove();
+          $(this).parent().parent().remove();
           if ($('.transfer_path').length < 1) {
             // re-enable transfer type select
             $('#transfer-type').removeAttr('disabled');
