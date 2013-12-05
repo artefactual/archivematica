@@ -1,4 +1,5 @@
 #!/usr/bin/python -OO
+import ConfigParser
 import os
 import shutil
 import sys
@@ -18,16 +19,20 @@ def verify_aip():
     sip_uuid = sys.argv[1]  # %sip_uuid%
     aip_path = sys.argv[2]  # SIPDirectory%%sip_name%-%sip_uuid%.7z
 
-    extract_dir = os.path.join("/tmp", sip_uuid)
-    os.makedirs(extract_dir)
+    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
+    config = ConfigParser.SafeConfigParser()
+    config.read(clientConfigFilePath)
+    temp_dir = config.get('MCPClient', 'temp_dir')
 
+    extract_dir = os.path.join(temp_dir, sip_uuid)
+    os.makedirs(extract_dir)
     command = "atool --extract-to={extract_dir} -V0 {aip_path}".format(
         extract_dir=extract_dir, aip_path=aip_path)
     print 'Running extraction command:', command
     exit_code, _, _ = executeOrRun("command", command, printing=True)
     if exit_code != 0:
         print >>sys.stderr, "Error extracting"
-        sys.exit(1)
+        return 1
 
     aip_identifier, ext = os.path.splitext(os.path.basename(aip_path))
     if ext in ('.bz2', '.gz'):
@@ -49,7 +54,7 @@ def verify_aip():
             return_code = 1
     #cleanup
     shutil.rmtree(extract_dir)
-    sys.exit(return_code)
+    return return_code
 
 if __name__ == '__main__':
-    verify_aip()
+    sys.exit(verify_aip())
