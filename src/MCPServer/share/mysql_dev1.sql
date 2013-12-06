@@ -100,7 +100,7 @@ INSERT INTO TransferMetadataFields (pk, createdTime, fieldLabel, fieldName, fiel
     VALUES ('0c1b4233-fbe7-463f-8346-be6542574b86', UNIX_TIMESTAMP(), 'Imaging software', 'imaging_software', 'select', 'cae76c7f-4d8e-48ee-9522-4b3fbf492516', 13);
 
 INSERT INTO TransferMetadataFields (pk, createdTime, fieldLabel, fieldName, fieldType, sortOrder)
-    VALUES ('0a9e346a-f08c-4e0d-9753-d9733f7205e5', UNIX_TIMESTAMP(), 'Image fixity', 'image_fixity', 'text', 14);
+    VALUES ('0a9e346a-f08c-4e0d-9753-d9733f7205e5', UNIX_TIMESTAMP(), 'Image fixity', 'image_fixity', 'textarea', 14);
 
 CREATE TABLE TransferMetadataFieldValues (
   pk varchar(36) NOT NULL,
