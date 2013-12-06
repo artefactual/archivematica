@@ -21,7 +21,6 @@ import logging
 import os
 import requests
 import slumber
-import subprocess
 import sys
 import tempfile
 
@@ -47,7 +46,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
     level=logging.INFO)
 
-AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'
+AIPSTOREPATH = os.path.join(helpers.get_client_config_value('sharedDirectory'), 'www', 'AIPsStore')
 
 AIP_STATUS_DESCRIPTIONS = {
     'UPLOADED': 'Stored',

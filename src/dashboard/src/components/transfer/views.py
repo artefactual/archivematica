@@ -65,10 +65,11 @@ def grid(request):
     return render(request, 'transfer/grid.html', locals())
 
 def browser(request):
-    originals_directory = '/var/archivematica/sharedDirectory/transferBackups/originals'
-    arrange_directory = '/var/archivematica/sharedDirectory/transferBackups/arrange'
+    shared_directory_path = helpers.get_server_config_value('sharedDirectory')
+    originals_directory = os.path.join(shared_directory_path, 'transferBackups', 'originals')
+    arrange_directory = os.path.join(shared_directory_path, 'transferBackups', 'arrange')
     if not os.path.exists(originals_directory):
-        os.mkdir(directory)
+        os.mkdir(originals_directory)
     if not os.path.exists(arrange_directory):
         os.mkdir(arrange_directory)
     return render(request, 'transfer/browser.html', locals())

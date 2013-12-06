@@ -24,6 +24,9 @@
 import os
 import sys
 import shutil
+
+import helpers
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from databaseFunctions import createSIP
@@ -52,7 +55,8 @@ if __name__ == '__main__':
     
     #Move DIP
     src = os.path.join(unitPath, "DIP")
-    dst = os.path.join("/var/archivematica/sharedDirectory/watchedDirectories/uploadDIP/", originalSIPName + "-" + originalSIPUUID)  
+    shared_path = helpers.get_client_config_value('sharedDirectoryMounted')
+    dst = os.path.join(shared_path, 'watchedDirectories', 'uploadDIP', originalSIPName + "-" + originalSIPUUID)
     shutil.move(src, dst)
     
     
@@ -64,4 +68,3 @@ if __name__ == '__main__':
         createSIP(unitPath, UUID=originalSIPUUID)
         databaseInterface.runSQL("""INSERT INTO Jobs (jobUUID, jobType, directory, SIPUUID, currentStep, unitType, subJobOf, microserviceGroup) 
                  VALUES ('%s','Hack to make DIP Jobs appear', '%s', '%s', 'Completed successfully', 'unitSIP', '', 'Upload DIP');""" % (str(uuid.uuid4()), unitPath, originalSIPUUID))
-        

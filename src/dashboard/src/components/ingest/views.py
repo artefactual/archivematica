@@ -292,8 +292,8 @@ def ingest_browse_normalization(request, jobuuid):
     job = jobs[0]
     title = 'Review normalization'
     name = utils.get_directory_name(job)
-    directory = '/var/archivematica/sharedDirectory/watchedDirectories/approveNormalization'
-
+    shared_directory_path = helpers.get_server_config_value('sharedDirectory')
+    directory = os.path.join(shared_directory_path, 'watchedDirectories', 'approveNormalization')
     return render(request, 'ingest/aip_browse.html', locals())
 
 def ingest_browse_aip(request, jobuuid):
@@ -301,7 +301,8 @@ def ingest_browse_aip(request, jobuuid):
     job = jobs[0]
     title = 'Review AIP'
     name = utils.get_directory_name(job)
-    directory = '/var/archivematica/sharedDirectory/watchedDirectories/storeAIP'
+    shared_directory_path = helpers.get_server_config_value('sharedDirectory')
+    directory = os.path.join('watchedDirectories', 'storeAIP')
 
     return render(request, 'ingest/aip_browse.html', locals())
 

@@ -15,38 +15,33 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.http import Http404, HttpResponse, HttpResponseBadRequest
-from django.db import connection
+import locale
 import os
-from subprocess import call
 import shutil
-import MySQLdb
-import tempfile
-from django.core.servers.basehttp import FileWrapper
-from main import models
-
+import subprocess
 import sys
+import tempfile
 import uuid
-import mimetypes
-import uuid
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import archivematicaFunctions, databaseInterface, databaseFunctions
-from archivematicaCreateStructuredDirectory import createStructuredDirectory
+
+from django.db import connection
+from django.http import Http404
+
+from main import models
 from components import helpers
+
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import archivematicaFunctions
+import databaseFunctions
+from archivematicaCreateStructuredDirectory import createStructuredDirectory
 import storageService as storage_service
 
 # for unciode sorting support
-import locale
 locale.setlocale(locale.LC_ALL, '')
 
-SHARED_DIRECTORY_ROOT   = '/var/archivematica/sharedDirectory'
-ORIGINALS_DIR           = SHARED_DIRECTORY_ROOT + '/transferBackups/originals'
-ACTIVE_TRANSFER_DIR     = SHARED_DIRECTORY_ROOT + '/watchedDirectories/activeTransfers'
-STANDARD_TRANSFER_DIR   = ACTIVE_TRANSFER_DIR + '/standardTransfer'
-COMPLETED_TRANSFERS_DIR = SHARED_DIRECTORY_ROOT + '/watchedDirectories/SIPCreation/completedTransfers'
+SHARED_DIRECTORY_ROOT = helpers.get_server_config_value('sharedDirectory')
 
 def rsync_copy(source, destination):
-    call([
+    subprocess.call([
         'rsync',
         '-r',
         '-t',
@@ -89,7 +84,6 @@ def directory_to_dict(path, directory={}, entry=False):
     # return fully traversed data
     return directory
 
-import archivematicaFunctions
 
 def directory_children_proxy_to_storage_server(request, location_uuid, basePath=False):
     path = ''
@@ -238,17 +232,17 @@ def copy_to_originals(request):
     error = check_filepath_exists('/' + filepath)
 
     if error == None:
-        processingDirectory = '/var/archivematica/sharedDirectory/currentlyProcessing/'
+        processingDirectory = os.path.join(SHARED_DIRECTORY_ROOT, 'currentlyProcessing')
         sipName = os.path.basename(filepath)
-        #autoProcessSIPDirectory = ORIGINALS_DIR
-        autoProcessSIPDirectory = '/var/archivematica/sharedDirectory/watchedDirectories/SIPCreation/SIPsUnderConstruction/'
+        autoProcessSIPDirectory = os.path.join(SHARED_DIRECTORY_ROOT, 'watchedDirectories', 'SIPCreation', 'SIPsUnderConstruction')
         tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
         destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
 
-        sipUUID = uuid.uuid4().__str__()
+        sipUUID = str(uuid.uuid4())
 
         createStructuredDirectory(tmpSIPDir)
-        databaseFunctions.createSIP(destSIPDir.replace('/var/archivematica/sharedDirectory/', '%sharedPath%'), sipUUID)
+        dbDestSIPDir = destSIPDir.replace(SHARED_DIRECTORY_ROOT.rstrip('/')+'/', '%sharedPath%')  # Ensure exactly one '/' on the end
+        databaseFunctions.createSIP(dbDestSIPDir, sipUUID)
 
         objectsDirectory = os.path.join('/', filepath, 'objects')
 
@@ -292,10 +286,10 @@ def copy_to_start_transfer(request):
         }
 
         try:
-          type_subdir = type_paths[type]
-          destination = os.path.join(ACTIVE_TRANSFER_DIR, type_subdir)
+            type_subdir = type_paths[type]
         except KeyError:
-          destination = os.path.join(STANDARD_TRANSFER_DIR)
+            type_subdir = type_paths['standard']
+        destination = os.path.join(SHARED_DIRECTORY_ROOT, 'watchedDirectories', 'activeTransfers', type_subdir)
 
         # if transfer compontent path leads to a ZIP file, treat as zipped
         # bag
