@@ -241,6 +241,10 @@ var TransferComponentFormView = Backbone.View.extend({
       } else {
         $('#transfer_metadata_edit_button').hide('fade', {}, 250);
       }
+
+      // The set ID is scoped to the transfer type; if a new transfer
+      // type is selected, then we need a new ID too.
+      createMetadataSetID();
     });
 
     if (!transferMetadataSetRowUUID) { createMetadataSetID(); }
