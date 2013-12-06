@@ -20,21 +20,19 @@ along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 var transferMetadataSetRowUUID;
 
 function createMetadataSetID() {
-  if (!transferMetadataSetRowUUID) {
-    var transferTypeNormalized = $('#transfer-type').val().replace(' ', '_');
-    $.ajax({
-      'url': '/filesystem/get_transfer_metadata_set/' + transferTypeNormalized + '/',
-      'type': 'GET',
-      'async': false,
-      'cache': false,
-      'success': function(results) {
-         transferMetadataSetRowUUID = results.uuid;
-      },
-      'error': function() {
-        alert('Error: contact administrator.');
-      }
-    });
-  }
+  var transferTypeNormalized = $('#transfer-type').val().replace(' ', '_');
+  $.ajax({
+    'url': '/filesystem/get_transfer_metadata_set/' + transferTypeNormalized + '/',
+    'type': 'GET',
+    'async': false,
+    'cache': false,
+    'success': function(results) {
+       transferMetadataSetRowUUID = results.uuid;
+    },
+    'error': function() {
+      alert('Error: contact administrator.');
+    }
+  });
 }
 
 var TransferComponentFormView = Backbone.View.extend({
@@ -74,7 +72,8 @@ var TransferComponentFormView = Backbone.View.extend({
 
   startTransfer: function(transfer) {
     var path;
-    transferMetadataSetRowUUID = undefined; // So the next transfer gets a unique ID
+    // Recreate the metadata row set ID, otherwise the ID will be reused on the next transfer
+    createMetadataSetID();
 
     $('.transfer-component-activity-indicator').show();
     // get path to temp directory in which to copy individual transfer
@@ -223,7 +222,7 @@ var TransferComponentFormView = Backbone.View.extend({
       }
     });
 
-    createMetadataSetID();
+    if (!transferMetadataSetRowUUID) { createMetadataSetID(); }
 
     // The metadata set edit button is available as soon as a disk image transfer type is selected.
     // This allows for entering metadata before the associated transfer component is created,
