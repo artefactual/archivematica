@@ -72,8 +72,14 @@ var TransferComponentFormView = Backbone.View.extend({
 
   startTransfer: function(transfer) {
     var path;
+
     // Recreate the metadata row set ID, otherwise the ID will be reused on the next transfer
     createMetadataSetID();
+    // re-enable transfer type select
+    $('#transfer-type').removeAttr('disabled');
+    $('#transfer_metadata_edit_button').hide('fade', {}, 250);
+    // transfer directory counter goes back to 1 for the next transfer
+    transferDirectoryPickerPathCounter = 1;
 
     $('.transfer-component-activity-indicator').show();
     // get path to temp directory in which to copy individual transfer
