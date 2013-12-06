@@ -22,7 +22,7 @@ var transferMetadataSetRowUUID;
 function createMetadataSetID() {
   var transferTypeNormalized = $('#transfer-type').val().replace(' ', '_');
   $.ajax({
-    'url': '/filesystem/get_transfer_metadata_set/' + transferTypeNormalized + '/',
+    'url': '/transfer/create_metadata_set_uuid/' + transferTypeNormalized + '/',
     'type': 'GET',
     'async': false,
     'cache': false,
@@ -37,7 +37,7 @@ function createMetadataSetID() {
 
 function cleanupUnusedMetadataForms() {
   $.ajax({
-    'url': '/filesystem/cleanup_transfer_metadata_set/' + transferMetadataSetRowUUID + '/',
+    'url': '/transfer/cleanup_metadata_set/' + transferMetadataSetRowUUID + '/',
     'type': 'POST',
     'async': false,
     'cache': false,

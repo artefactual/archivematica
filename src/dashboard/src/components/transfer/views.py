@@ -206,3 +206,74 @@ def delete(request, uuid):
         return helpers.json_response(response)
     except:
         raise Http404
+
+def create_metadata_set_uuid(request, transfer_type):
+    """
+    Transfer metadata sets are used to associate a group of metadata field values with
+    a transfer. The transfer metadata set UUID is relayed to the MCP chain by including
+    it in a row in a pre-created Transfers table entry.
+    """
+    response = {}
+
+    try:
+        ts = models.TransferMetadataSet()
+        ts.transfer_type   = transfer_type
+        ts.createdbyuserid = request.user.id
+        ts.save()
+        response['uuid'] = ts.pk
+    except:
+        response['message'] = 'Unable to create transfer metadata set: contact administrator.'
+
+    return HttpResponse(
+        json.dumps(response),
+        mimetype='application/json'
+    )
+
+def rename_metadata_set(request, set_uuid, placeholder_id):
+    response = {}
+
+    try:
+        path = request.POST.get('path')
+        if not path:
+            raise KeyError
+        fields = models.TransferMetadataFieldValue.objects.filter(setuuid=set_uuid, filepath=placeholder_id)
+        fields.update(filepath=path)
+        response['status'] = 'Success'
+    except KeyError:
+        response['status'] = 'Failure'
+        response['message'] = 'Updated path was not provided.'
+    except Exception as e:
+        if not e.message:
+            message = 'Unable to update transfer metadata set: contact administrator.'
+        else:
+            message = e.message
+        response['status'] = 'Failure'
+        response['message'] = message
+
+    return HttpResponse(
+        json.dumps(response),
+        mimetype='application/json'
+    )
+
+def cleanup_metadata_set(request, set_uuid):
+    """
+    Cleans up any unassigned metadata forms for the given set_uuid.
+    Normally these are created with placeholder IDs, then asssigned the
+    permanent path within the component after a component is added.
+    However, if the user enters a metadata form and then starts the
+    transfer without adding a new component, this placeholder form
+    needs to be cleaned up before starting the transfer.
+    """
+    response = {}
+
+    try:
+        objects = models.TransferMetadataFieldValue.objects.filter(setuuid=set_uuid, filepath__contains='metadata-component-')
+        response['deleted_objects'] = len(objects)
+        objects.delete()
+    except Exception as e:
+        response['message'] = e.message
+
+    return HttpResponse(
+        json.dumps(response),
+        mimetype='application/json'
+    )

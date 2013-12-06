@@ -29,9 +29,6 @@ urlpatterns = patterns('components.filesystem_ajax.views',
     (r'^copy_to_arrange/$', 'copy_to_arrange'),
     (r'^copy_transfer_component/$', 'copy_transfer_component'),
     (r'^get_temp_directory/$', 'get_temp_directory'),
-    (r'^get_transfer_metadata_set/(?P<transfer_type>\w+)/$', 'get_transfer_metadata_set'),
-    (r'^rename_transfer_metadata_set/(?P<set_uuid>' + settings.UUID_REGEX + ')/(?P<placeholder_id>[\w\-]+)/$', 'rename_metadata_transfer_set'),
-    (r'^cleanup_transfer_metadata_set/(?P<set_uuid>' + settings.UUID_REGEX + ')/$', 'cleanup_metadata_transfer_set'),
     (r'^ransfer/$', 'copy_to_start_transfer'),
     (r'^copy_from_arrange/$', 'copy_from_arrange_to_completed')
 )

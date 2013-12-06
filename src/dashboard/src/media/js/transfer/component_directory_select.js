@@ -79,7 +79,7 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
         // that's now been assigned
         var path = $('#transfer-component-path-item-' + transferDirectoryPickerPathCounter + ' > .transfer_path').text();
         var temp_path = "metadata-component-" + transferDirectoryPickerPathCounter;
-        var update_metadata_url = '/filesystem/rename_transfer_metadata_set/' + transferMetadataSetRowUUID +
+        var update_metadata_url = '/transfer/rename_metadata_set/' + transferMetadataSetRowUUID +
           '/' + temp_path + '/';
         console.log(update_metadata_url);
 
