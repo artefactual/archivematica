@@ -215,6 +215,29 @@ def rename_metadata_transfer_set(request, set_uuid, placeholder_id):
         mimetype='application/json'
     )
 
+def cleanup_metadata_transfer_set(request, set_uuid):
+    """
+    Cleans up any unassigned metadata forms for the given set_uuid.
+    Normally these are created with placeholder IDs, then asssigned the
+    permanent path within the component after a component is added.
+    However, if the user enters a metadata form and then starts the
+    transfer without adding a new component, this placeholder form
+    needs to be cleaned up before starting the transfer.
+    """
+    response = {}
+
+    try:
+        objects = models.TransferMetadataFieldValue.objects.filter(setuuid=set_uuid, filepath__contains='metadata-component-')
+        response['deleted_objects'] = len(objects)
+        objects.delete()
+    except Exception as e:
+        response['message'] = e.message
+
+    return HttpResponse(
+        json.dumps(response),
+        mimetype='application/json'
+    )
+
 def get_temp_directory(request):
     temp_base_dir = helpers.get_client_config_value('temp_dir')
 

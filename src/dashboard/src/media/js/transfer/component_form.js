@@ -35,6 +35,18 @@ function createMetadataSetID() {
   });
 }
 
+function cleanupUnusedMetadataForms() {
+  $.ajax({
+    'url': '/filesystem/cleanup_transfer_metadata_set/' + transferMetadataSetRowUUID + '/',
+    'type': 'POST',
+    'async': false,
+    'cache': false,
+    'error': function() {
+      alert('Error: unable to clean up unused metadata. Contact administrator.');
+    }
+  });
+}
+
 var TransferComponentFormView = Backbone.View.extend({
   initialize: function(options) {
     this.form_layout_template = _.template(options.form_layout_template);
@@ -73,6 +85,9 @@ var TransferComponentFormView = Backbone.View.extend({
   startTransfer: function(transfer) {
     var path;
 
+    // Clean up unused metadata forms that may have been entered but
+    // not associated with any files
+    cleanupUnusedMetadataForms();
     // Recreate the metadata row set ID, otherwise the ID will be reused on the next transfer
     createMetadataSetID();
     // re-enable transfer type select
