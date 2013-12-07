@@ -25,17 +25,24 @@ import base64
 import ConfigParser
 import cPickle
 import datetime
+import logging
 import MySQLdb
 import os
 import re
 import sys
 import time
 from xml.etree import ElementTree
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 import version
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes, xmltodict
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
+    level=logging.INFO)
 
 pathToElasticSearchServerConfigFile='/etc/elasticsearch/elasticsearch.yml'
 
@@ -329,7 +336,9 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
             print 'Files indexed: ' + str(filesIndexed)
 
         else:
-            print >>sys.stderr, "Directory does not exist: ", pathToArchive
+            error_message = "Directory does not exist: " + pathToArchive
+            logging.warning(error_message)
+            print >>sys.stderr, error_message
             exitCode = 1
     else:
         print >>sys.stderr, "Elasticsearch not found, normally installed at ", pathToElasticSearchServerConfigFile
@@ -624,8 +633,10 @@ def connect_and_change_transfer_file_status(uuid, status):
                     document_id = document_id_from_field_query(conn, 'transfers', ['transferfile'], 'fileuuid', row[0])
 
                     if document_id == None:
-                        print >>sys.stderr, 'Transfer file ', row[0], ' not found in index.'
-                        print 'Transfer file ' + row[0] + ' not found in index.'
+                        error_message = 'Transfer file ', row[0], ' not found in index.'
+                        logging.warning(error_message)
+                        print >>sys.stderr, error_message
+                        print error_message
                         exit(1)
                     else:
                         conn.update({'status': status}, 'transfers', 'transferfile', document_id)
