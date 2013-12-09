@@ -24,15 +24,10 @@
 from archivematicaXMLNamesSpace import *
 
 import os
-import uuid
 import sys
 import lxml.etree as etree
-import string
 import MySQLdb
 from xml.sax.saxutils import quoteattr
-from datetime import datetime
-from createXmlEventsAssist import createArchivematicaAgent
-from createXmlEventsAssist import createOrganizationAgent
 #from archivematicaCreateMETS2 import escape
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface

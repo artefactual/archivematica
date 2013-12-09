@@ -41,6 +41,7 @@ from components.administration.models import ArchivistsToolkitConfig
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
 import FPRClient.main as FPRClient
 import storageService as storage_service
+import version
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
@@ -56,6 +57,11 @@ def welcome(request):
         # assign UUID to dashboard
         dashboard_uuid = str(uuid.uuid4())
         helpers.set_setting('dashboard_uuid', dashboard_uuid)
+
+        # Update Archivematica version in DB
+        archivematica_agent = Agent.objects.get(pk=1)
+        archivematica_agent.identifiervalue = "Archivematica-"+version.get_version()
+        archivematica_agent.save()
 
         # create blank ATK DIP upload config
         config = ArchivistsToolkitConfig()
