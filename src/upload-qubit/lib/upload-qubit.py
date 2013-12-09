@@ -196,7 +196,8 @@ def start(data):
     """ headers['Content-Disposition'] """
 
     # Build URL (expected sth like http://localhost/ica-atom/index.php)
-    data.url = "%s/;sword/deposit/%s" % (data.url, target['target'])
+    atom_url_prefix = ';' if data.version == 1 else ''
+    data.url = "%s/%ssword/deposit/%s" % (data.url, atom_url_prefix, target['target'])
 
     # Auth and request!
     log("About to deposit to: %s" % data.url)
@@ -249,6 +250,7 @@ if __name__ == '__main__':
     options.add_option('-p', '--password', dest='password', metavar='PASSWORD', help='account password')
     options.add_option('-U', '--uuid', dest='uuid', metavar='UUID', help='UUID')
     options.add_option('-d', '--debug', dest='debug', metavar='DEBUG', action="store_true", default=False, help='Debug mode, prints HTTP headers')
+    options.add_option('-v', '--version', dest='version', type='int', default=1, help='AtoM version')
     parser.add_option_group(options)
 
     options = optparse.OptionGroup(parser, 'Rsync options')
