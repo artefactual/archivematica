@@ -24,6 +24,7 @@
 import time, os, sys, MySQLdb, cPickle, base64, ConfigParser, datetime
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
+import version
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes, xmltodict
 import xml.etree.ElementTree as ElementTree
@@ -316,7 +317,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
 
     # establish structure to be indexed for each file item
     fileData = {
-      'archivematicaVersion': '0.9',
+      'archivematicaVersion': version.get_version(),
       'AIPUUID':   uuid,
       'sipName':   sipName,
       'FILEUUID':  '',
