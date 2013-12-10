@@ -197,7 +197,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             ead_show = "none"
         elif restrictions == 'premis':
             logger.debug("premis restrictions")
-            if access_restrictions == 'Allow':
+            if access_restrictions == 'Allow' and use_restrictions == 'Allow':
                 restrictions_apply = False
             else:
                 restrictions_apply = True
