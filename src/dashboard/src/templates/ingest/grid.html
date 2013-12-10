@@ -107,30 +107,35 @@
 
     // create SIP button functionality
     $('#arrange_create_sip_button').click(function() {
-      var entryDiv = $('#' + arrange_browser.selectedEntryId)
-        , path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId);
+      console.log(arrange_browser.selectedEntryId);
+      if (typeof arrange_browser.selectedEntryId === 'undefined') {
+        arrange_browser.alert('Create SIP', 'Please select a directory before creating a SIP.');
+      } else {
+        var entryDiv = $('#' + arrange_browser.selectedEntryId)
+          , path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId);
 
-      arrange_browser.confirm(
-        'Create SIP',
-        'Are you sure you want to create a SIP?',
-        function() {
-          $.post(
-            '/filesystem/copy_from_arrange/',
-            {filepath: path},
-            function(result) {
-              var title = (result.error) ? 'Error' : '';
-              arrange_browser.alert(
-                title,
-                result.message
-              );
-              if (!result.error) {
-                $(entryDiv).next().hide();
-                $(entryDiv).hide();
+        arrange_browser.confirm(
+          'Create SIP',
+          'Are you sure you want to create a SIP?',
+          function() {
+            $.post(
+              '/filesystem/copy_from_arrange/',
+              {filepath: path},
+              function(result) {
+                var title = (result.error) ? 'Error' : '';
+                arrange_browser.alert(
+                  title,
+                  result.message
+                );
+                if (!result.error) {
+                  $(entryDiv).next().hide();
+                  $(entryDiv).hide();
+                }
               }
-            }
-          );
-        }
-      );
+            );
+          }
+        );
+      }
     });
 
     // open originals file button functionality
