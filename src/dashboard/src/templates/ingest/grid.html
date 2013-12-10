@@ -82,32 +82,40 @@
       arrange_browser;
 
   $(document).ready(function() {
-
+    var arrange_directory = '/var/archivematica/sharedDirectory/arrange';
     browsers = setupBacklogBrowser(
       '/var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals',
-      '/var/archivematica/sharedDirectory/arrange'
+      arrange_directory
     );
     originals_browser = browsers['originals'];
     arrange_browser = browsers['arrange'];
 
     // delete button functionality
     $('#arrange_delete_button').click(function() {
-      console.log(arrange_browser.selectedEntryId);
-      var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId)
-        , type = arrange_browser.getTypeForCssId(arrange_browser.selectedEntryId);
+      if (typeof arrange_browser.selectedEntryId === 'undefined') {
+        arrange_browser.alert('Delete', 'Please select a directory to delete.');
+      } else {
+        // only allow top-level directories to be deleted
+        var delete_path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId);
+        if (delete_path.split('/').length >= arrange_directory.split('/').length + 1) {
+          arrange_browser.alert('Delete', 'You can only delete top-level directories.');
+        } else {
+          var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId)
+            , type = arrange_browser.getTypeForCssId(arrange_browser.selectedEntryId);
 
-      arrange_browser.confirm(
-        'Delete',
-        'Are you sure you want to delete this directory or file?',
-        function() {
-          arrange_browser.deleteEntry(path, type);
+          arrange_browser.confirm(
+            'Delete',
+            'Are you sure you want to delete this directory or file?',
+            function() {
+              arrange_browser.deleteEntry(path, type);
+            }
+          );
         }
-      );
+      }
     });
 
     // create SIP button functionality
     $('#arrange_create_sip_button').click(function() {
-      console.log(arrange_browser.selectedEntryId);
       if (typeof arrange_browser.selectedEntryId === 'undefined') {
         arrange_browser.alert('Create SIP', 'Please select a directory before creating a SIP.');
       } else {
