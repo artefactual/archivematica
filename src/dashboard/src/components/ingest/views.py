@@ -612,6 +612,25 @@ database representation of the transfer. This database representation is referre
 def _initiate_sip_from_files_structured_like_a_completed_transfer(transfer_files_path):
     transfer_uuid = str(uuid.uuid4())
 
+    # remove pre-selection of pre-normalize file format identification command
+    # because this set of files hasn't been actually ran through the transfer phase
+    # and therefore isn't identified
+    processing_config_filepath = os.path.join(transfer_files_path, 'processingMCP.xml')
+    if os.path.exists(processing_config_filepath):
+        # get processing config XML, if any
+        filedata = open(processing_config_filepath, "r")
+        elem = etree.parse(filedata)
+
+        root = elem.getroot()
+        choices = root.find('preconfiguredChoices')
+        for choice in choices:
+            if choice.find('appliesTo').text == 'Select pre-normalize file format identification command':
+                choices.remove(choice)
+
+        # re-write processing config XML
+        filedata = open(processing_config_filepath, "w")
+        filedata.write(etree.tostring(root, pretty_print=True))
+
     # add UUID to path because the backlog's transfer to SIP logic expects it
     transfer_path = transfer_files_path + '-' + transfer_uuid
     shutil.move(transfer_files_path, transfer_path)
