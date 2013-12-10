@@ -89,7 +89,7 @@ def status(request, uuid=None):
             if models.Transfer.objects.is_hidden(item['sipuuid']):
                 continue
             jobs = helpers.get_jobs_by_sipuuid(item['sipuuid'])
-            item['directory'] = os.path.basename(utils.get_directory_name(jobs[0]))
+            item['directory'] = os.path.basename(utils.get_directory_name_from_job(jobs[0]))
             item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
             item['uuid'] = item['sipuuid']
             item['id'] = item['sipuuid']
@@ -123,13 +123,13 @@ def status(request, uuid=None):
 
 def detail(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid)
-    name = utils.get_directory_name(jobs[0])
+    name = utils.get_directory_name_from_job(jobs[0])
     is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
     return render(request, 'transfer/detail.html', locals())
 
 def microservices(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid)
-    name = utils.get_directory_name(jobs[0])
+    name = utils.get_directory_name_from_job(jobs[0])
     return render(request, 'transfer/microservices.html', locals())
 
 def delete(request, uuid):

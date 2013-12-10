@@ -76,7 +76,7 @@ def ingest_status(request, uuid=None):
             if models.SIP.objects.is_hidden(item['sipuuid']):
                 continue
             jobs = helpers.get_jobs_by_sipuuid(item['sipuuid'])
-            item['directory'] = utils.get_directory_name(jobs[0])
+            item['directory'] = utils.get_directory_name_from_job(jobs[0])
             item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
             item['uuid'] = item['sipuuid']
             item['id'] = item['sipuuid']
@@ -163,7 +163,7 @@ def ingest_metadata_edit(request, uuid, id=None):
             initial[item] = getattr(dc, item)
         form = DublinCoreMetadataForm(initial=initial)
         jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-        name = utils.get_directory_name(jobs[0])
+        name = utils.get_directory_name_from_job(jobs[0])
 
     return render(request, 'ingest/metadata_edit.html', locals())
 
@@ -184,12 +184,12 @@ def ingest_metadata_delete(request, uuid, id):
 def ingest_detail(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
-    name = utils.get_directory_name(jobs[0])
+    name = utils.get_directory_name_from_job(jobs[0])
     return render(request, 'ingest/detail.html', locals())
 
 def ingest_microservices(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    name = utils.get_directory_name(jobs[0])
+    name = utils.get_directory_name_from_job(jobs[0])
     return render(request, 'ingest/microservices.html', locals())
 
 def ingest_delete(request, uuid):
@@ -273,7 +273,7 @@ def ingest_upload(request, uuid):
 def ingest_normalization_report(request, uuid, current_page=None):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     job = jobs[0]
-    sipname = utils.get_directory_name(job)
+    sipname = utils.get_directory_name_from_job(job)
 
     objects = getNormalizationReportQuery(sipUUID=uuid)
 
@@ -291,7 +291,7 @@ def ingest_browse_normalization(request, jobuuid):
     jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof='')
     job = jobs[0]
     title = 'Review normalization'
-    name = utils.get_directory_name(job)
+    name = utils.get_directory_name_from_job(job)
     directory = '/var/archivematica/sharedDirectory/watchedDirectories/approveNormalization'
 
     return render(request, 'ingest/aip_browse.html', locals())
@@ -300,7 +300,7 @@ def ingest_browse_aip(request, jobuuid):
     jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof='')
     job = jobs[0]
     title = 'Review AIP'
-    name = utils.get_directory_name(job)
+    name = utils.get_directory_name_from_job(job)
     directory = '/var/archivematica/sharedDirectory/watchedDirectories/storeAIP'
 
     return render(request, 'ingest/aip_browse.html', locals())
