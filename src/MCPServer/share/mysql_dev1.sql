@@ -3,6 +3,7 @@ SET @MoveTransferToFailedLink = '61c316a6-0a50-4f65-8767-1f44b1eeb6dd';
 SET @MoveSIPToFailedLink = '7d728c39-395f-4892-8193-92f086c0546f';
 -- /Common
 
+<<<<<<< HEAD
 -- Issue 6020
 
 -- Updated remove unneeded files to remove excess args
@@ -28,3 +29,9 @@ UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='e19f8eed-f
 UPDATE MicroServiceChainLinks SET defaultNextChainLink='e19f8eed-faf9-4e04-bf1f-e9418f2b2b11' WHERE pk='01b30826-bfc4-4e07-8ca2-4263debad642';
 
 -- /Issue 6020
+=======
+-- Issue ???
+
+
+-- /Issue ???
+>>>>>>> origin/dev/issue-6008-ss-polish
