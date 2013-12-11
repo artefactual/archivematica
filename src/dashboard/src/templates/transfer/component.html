@@ -40,15 +40,6 @@
                 {% endfor %}
               </select>
 
-              {% if field.allownewvalue %}
-                <p>
-                  <input name='add_to_{{ field.pk }}' type='text' placeholder='Add new value' />
-                </p>
-                <p>
-                  {% url 'components.administration.views.terms' field.optiontaxonomyuuid as terms_admin %}
-                  <a href='{{ terms_admin }}' target='_blank'>Manage values</a>
-                </p>
-              {% endif %}
             {% endif %}
           </td>
         </tr>
