@@ -21,10 +21,14 @@
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
 
+import ConfigParser
 import lxml.etree as etree
 import os
 import sys
 import re
+
+MCPSERVER_CONFIG_PATH = "/etc/archivematica/MCPServer/serverConfig.conf"
+MCPCLIENT_CONFIG_PATH = "/etc/archivematica/MCPClient/clientConfig.conf"
 
 def unicodeToStr(string):
     if isinstance(string, unicode):
@@ -123,3 +127,39 @@ def normalizeNonDcElementName(string):
      # Lower case string.
      normalizedString = normalizedString.lower()
      return normalizedString
+
+
+# Config Settings
+
+def set_client_config(values_dict):
+    """ Updates the client config file with values in the given dict.
+
+    values_dict should be a dict where the keys are the variable names and the
+    values are the associated setting. """
+    config = ConfigParser.SafeConfigParser()
+    config.read(MCPCLIENT_CONFIG_PATH)
+    section = 'MCPClient'
+    set_config_value(config, MCPCLIENT_CONFIG_PATH, section, values_dict)
+
+
+def set_server_config(values_dict):
+    """ Updates the server config file with values in the given dict.
+
+    values_dict should be a dict where the keys are the variable names and the
+    values are the associated setting. """
+    config = ConfigParser.SafeConfigParser()
+    config.read(MCPSERVER_CONFIG_PATH)
+    section = 'MCPServer'
+    set_config_value(config, MCPSERVER_CONFIG_PATH, section, values_dict)
+
+def set_config_value(config, config_path, section, values_dict):
+    """ Updates `config`, section `section` with the values in `values_dict`.
+
+    'config': ConfigParser.SafeConfigParser instance
+    'section': The name of the section to update
+    'values_dict': Dict of key-values pairs corresponding to the values that
+        should be updated. """
+    for key, value in values_dict.iteritems():
+        config.set(section, key, value)
+    with open(config_path, 'w') as configfile:
+        config.write(configfile)
