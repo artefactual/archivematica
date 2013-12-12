@@ -1,8 +1,0 @@
-<processingMCP>
-    <preconfiguredChoices>
-        <preconfiguredChoice>
-            <appliesTo>Workflow decision - send transfer to quarantine</appliesTo>
-            <goToChain>Quarantine</goToChain>
-        </preconfiguredChoice>
-    </preconfiguredChoices>
-</processingMCP>
