@@ -409,30 +409,47 @@ def copy_to_arrange(request):
         else:
           modified_basename = os.path.basename(sourcepath)
 
-        # confine destination to subdir of originals
         sourcepath = os.path.join('/', sourcepath)
         destination = os.path.join('/', destination) + '/' + modified_basename
-        # do a check making sure destination is a subdir of ARRANGE_DIR
-        destination = pad_destination_filepath_if_it_already_exists(destination)
 
-        if os.path.isdir(sourcepath):
-            try:
-                shutil.copytree(
-                    sourcepath,
-                    destination
-                )
-            except:
-                error = 'Error copying from ' + sourcepath + ' to ' + destination + '.'
+        # confine destination to subdir of originals
+        arrange_dir = os.path.join(
+            helpers.get_client_config_value('sharedDirectoryMounted'),
+            'arrange')
 
-            if error == None:
-                # remove any metadata and logs folders
-                for path in directory_contents(destination):
-                    basename = os.path.basename(path)
-                    if basename == 'metadata' or basename == 'logs':
-                        if os.path.isdir(path):
-                            shutil.rmtree(path)
+        logging.warning('SD:' + helpers.get_client_config_value('sharedDirectoryMounted'))
+        logging.warning('AD:' + arrange_dir)
+        logging.warning('DD:' + destination)
+        if arrange_dir in destination and destination.index(arrange_dir) == 0:
+            destination = pad_destination_filepath_if_it_already_exists(destination)
+
+            # do a check making sure destination is a subdir of ARRANGE_DIR
+            if os.path.isdir(sourcepath):
+                try:
+                    shutil.copytree(
+                        sourcepath,
+                        destination
+                    )
+                except:
+                    error = 'Error copying from ' + sourcepath + ' to ' + destination + '.'
+
+                if error == None:
+                    # remove any metadata and logs folders
+                    for path in directory_contents(destination):
+                        basename = os.path.basename(path)
+                        if basename == 'metadata' or basename == 'logs':
+                            if os.path.isdir(path):
+                                shutil.rmtree(path)
+
+                    # if the source path isn't a whole transfer folder, then
+                    # copy the source transfer's METS file into the objects
+                    # folder of the destination... if there is not objects
+                    # folder then return an error
+                
+            else:
+                shutil.copy(sourcepath, destination)
         else:
-            shutil.copy(sourcepath, destination)
+            error = 'The destination must be within the arrange directory ({}).'.format(arrange_dir)
 
     response = {}
 
