@@ -335,4 +335,10 @@ def hidden_features():
 
     return hide_features
 
-
+def pad_destination_filepath_if_it_already_exists(filepath, original=None, attempt=0):
+    if original == None:
+        original = filepath
+    attempt = attempt + 1
+    if os.path.exists(filepath):
+        return pad_destination_filepath_if_it_already_exists(original + '_' + str(attempt), original, attempt)
+    return filepath

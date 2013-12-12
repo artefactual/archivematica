@@ -551,14 +551,18 @@ def process_transfer(request, transfer_uuid):
 
         sharedPath = helpers.get_server_config_value('sharedDirectory')
 
-        tmpSIPDir = os.path.join(processingDirectory, transfer_name) + "/"
+        tmpSIPDir = os.path.join(processingDirectory, transfer_name)
+        tmpSIPDir = helpers.pad_destination_filepath_if_it_already_exists(tmpSIPDir)
+        tmpSIPDir += "/"
         processSIPDirectory = os.path.join(sharedPath, 'watchedDirectories/SIPCreation/SIPsUnderConstruction') + '/'
 
         createStructuredDirectory(tmpSIPDir, createManualNormalizedDirectories=False)
         objectsDirectory = os.path.join(transfer_path, 'objects') + '/'
 
         sipUUID = uuid.uuid4().__str__()
-        destSIPDir = os.path.join(processSIPDirectory, transfer_name) + "/"
+        destSIPDir = os.path.join(processSIPDirectory, transfer_name)
+        destSIPDir = helpers.pad_destination_filepath_if_it_already_exists(destSIPDir)
+        destSIPDir += "/"
         lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
         databaseFunctions.createSIP(lookup_path, sipUUID)
 

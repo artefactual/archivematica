@@ -410,16 +410,13 @@ def copy_to_arrange(request):
           modified_basename = os.path.basename(sourcepath)
 
         sourcepath = os.path.join('/', sourcepath)
-        destination = os.path.join('/', destination) + '/' + modified_basename
+        destination = os.path.realpath(os.path.join('/', destination) + '/' + modified_basename)
+
+        arrange_dir = os.path.realpath(os.path.join(
+            helpers.get_client_config_value('sharedDirectoryMounted'),
+            'arrange'))
 
         # confine destination to subdir of originals
-        arrange_dir = os.path.join(
-            helpers.get_client_config_value('sharedDirectoryMounted'),
-            'arrange')
-
-        logging.warning('SD:' + helpers.get_client_config_value('sharedDirectoryMounted'))
-        logging.warning('AD:' + arrange_dir)
-        logging.warning('DD:' + destination)
         if arrange_dir in destination and destination.index(arrange_dir) == 0:
             destination = pad_destination_filepath_if_it_already_exists(destination)
 
@@ -445,11 +442,12 @@ def copy_to_arrange(request):
                     # copy the source transfer's METS file into the objects
                     # folder of the destination... if there is not objects
                     # folder then return an error
-                
+                    arrange_subpath = destination.replace(arrange_dir, '')
+                    logging.warning(arrange_subpath)
             else:
                 shutil.copy(sourcepath, destination)
         else:
-            error = 'The destination must be within the arrange directory ({}).'.format(arrange_dir)
+            error = 'The destination {} is not within the arrange directory ({}).'.format(destination, arrange_dir)
 
     response = {}
 
