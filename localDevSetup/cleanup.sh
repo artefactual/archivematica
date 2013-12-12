@@ -25,6 +25,8 @@ if [ -e /usr/share/fits/xml/fits.xmlbackup ]; then
     sudo rm /usr/share/fits/xml/fits.xml
 fi
 
+sudo rm /usr/share/archivematica/dashboard
+
 # this loop is required because we need to leave storage service files alone
 dirs=("/usr/lib/archivematica" "/etc/archivematica" "/usr/share/archivematica" "/var/archivematica")
 for dir in ${dirs[@]} 

@@ -66,7 +66,7 @@ os.environ['ARCHIVEMATICA_DASHBOARD_UUID'] = dashboardUUID
 
 databaseInterface.printSQL = True
 
-config = ConfigParser.SafeConfigParser({'MCPArchivematicaServerInterface': ""})
+config = ConfigParser.SafeConfigParser()
 config.read("/etc/archivematica/MCPClient/clientConfig.conf")
 
 REPLACEMENT_DICT = {

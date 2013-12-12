@@ -31,7 +31,6 @@ sudo mkdir $lib
 etc="/etc/archivematica"
 sudo mkdir $etc
 share="/usr/share/archivematica"
-sudo mkdir $share
 
 sudo ln -s "${svnDir}src/MCPServer/etc" "${etc}/MCPServer"
 sudo ln -s "${svnDir}src/MCPClient/etc" "${etc}/MCPClient"
@@ -46,6 +45,7 @@ sudo ln -s "${svnDir}src/SIPCreationTools/lib/" "${lib}/SIPCreationTools"
 sudo ln -s "${svnDir}src/upload-qubit/lib/" "${lib}/upload-qubit"
 sudo ln -s "${svnDir}src/transcoder/lib/" "${lib}/transcoder"
 sudo ln -s "${svnDir}src/sanitizeNames/lib/" "/usr/lib/sanitizeNames"
+sudo ln -s "${svnDir}src/MCPServer/share/" "${share}"
 sudo ln -s "${svnDir}src/dashboard/src/" "${share}/dashboard"
 sudo ln "${svnDir}src/SIPCreationTools/bin/archivematicaCreateMD5" "/usr/bin/"
 sudo ln "${svnDir}src/SIPCreationTools/bin/archivematicaRestructureForCompliance" "/usr/bin/"
@@ -81,8 +81,7 @@ fi
 sudo ln -f "${svnDir}externals/fits/archivematicaConfigs/fits.xml" /usr/share/fits/xml/
 sudo chmod 644 /usr/share/fits/xml/fits.xml
 
-sudo mkdir /var/archivematica/
-sudo ln -s "${svnDir}src/MCPServer/share/sharedDirectoryStructure" "/var/archivematica/sharedDirectory"
+sudo mkdir -p /var/archivematica/sharedDirectory
 sudo chown -R archivematica:archivematica "/var/archivematica/sharedDirectory"
 sudo chmod -R g+s "/var/archivematica/sharedDirectory"
 

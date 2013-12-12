@@ -9,9 +9,10 @@ fi
 
 sudo usermod -a -G audio archivematica
 sudo chown -R archivematica:archivematica "/var/archivematica/"
-sudo chown -R archivematica:archivematica "/var/archivematica/sharedDirectory/"
+sudo chown -R :archivematica "/etc/archivematica/MCPClient/" "/etc/archivematica/MCPServer/"
 sudo chmod -R g+s "/var/archivematica/"
-sudo chmod -R 664 "/var/archivematica/sharedDirectory" 
+sudo chmod -R 664 "/var/archivematica/sharedDirectory"
+sudo chmod -R g+w "/usr/share/archivematica/" "/etc/archivematica/MCPClient/" "/etc/archivematica/MCPServer/"
 sudo find -L /var/archivematica/ -type d  | sudo xargs -IF chmod u+rwx,g+rwxt,o-rwx F
 
 

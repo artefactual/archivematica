@@ -72,6 +72,9 @@ def create_pipeline(create_default_locations=False, shared_path=None):
 
 def _get_pipeline(uuid):
     api = _storage_api()
+    if not uuid:
+        logging.warning("No pipeline UUID found.")
+        return None
     try:
         pipeline = api.pipeline(uuid).get()
     except slumber.exceptions.HttpClientError as e:

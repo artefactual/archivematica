@@ -21,10 +21,7 @@
 # @subpackage DevCleanup
 # @author Joseph Perry <joseph@artefactual.com>
 import os
-import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
-
+import ConfigParser
 
 def removeEverythingInDirectory(directory):
     if directory[-1] != "/":
@@ -33,21 +30,6 @@ def removeEverythingInDirectory(directory):
     print "executing: ", execute
     os.system(execute)
 
-def cleanWatchedDirectories():
-    sql = """SELECT watchedDirectoryPath FROM WatchedDirectories;"""
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    while row != None:
-        try:
-            directory = row[0].replace("%watchDirectoryPath%", "/var/archivematica/sharedDirectory/watchedDirectories/", 1)
-            removeEverythingInDirectory(directory)
-        except Exception as inst:
-            print "debug except 2"
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
-        row = c.fetchone()
-    sqlLock.release()
-
 if __name__ == '__main__':
     import getpass
     user = getpass.getuser()
@@ -55,12 +37,11 @@ if __name__ == '__main__':
     if user != "root":
         print "Please run as root (with sudo)"
         exit (1)
-    cleanWatchedDirectories()
-    alsoRemove = [
-        "/var/archivematica/sharedDirectory/failed/",
-        "/var/archivematica/sharedDirectory/currentlyProcessing/",
-        "/var/archivematica/sharedDirectory/rejected/",
-        "/var/archivematica/sharedDirectory/completed/transfers/",
-    ]
-    for directory in alsoRemove:
-        removeEverythingInDirectory(directory)
+
+    # Get sharedDirectory from config file
+    config = ConfigParser.SafeConfigParser()
+    config.read("/etc/archivematica/MCPServer/serverConfig.conf")
+    sharedDirectory = config.get('MCPServer', "sharedDirectory")
+    if not sharedDirectory:
+        sharedDirectory = '/var/archivematica/sharedDirectory/'
+    removeEverythingInDirectory(sharedDirectory)

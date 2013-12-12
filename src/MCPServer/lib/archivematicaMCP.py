@@ -31,40 +31,40 @@
 #
 # It loads configurations from the database.
 #
+
+# From stdlib, alphabetical by import source
+import ConfigParser
+import errno
+import getpass
+import MySQLdb
+import os
+import pyinotify
+import shutil
+import signal
+import stat
+import subprocess
+import sys
 import threading
+import time
+import traceback
+import uuid
+
+# From this project, alphabetical by import source
 import watchDirectory
 from jobChain import jobChain
 from unitSIP import unitSIP
 from unitDIP import unitDIP
 from unitFile import unitFile
 from unitTransfer import unitTransfer
-from pyinotify import ThreadedNotifier
 import RPCServer
-import MySQLdb
 
-import signal
-import os
-import pyinotify
-# from archivematicaReplacementDics import replacementDics
-# from MCPlogging import *
-# from MCPloggingSQL import getUTCDate
-import ConfigParser
-# from mcpModules.modules import modulesClass
-import uuid
-import string
-import math
-import copy
-import time
-import subprocess
-import shlex
-import sys
-import lxml.etree as etree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import archivematicaFunctions
 import databaseInterface
 import databaseFunctions
-import traceback
 from externals.singleInstance import singleinstance
 from archivematicaFunctions import unicodeToStr
+import storageService as storage_service
 
 # Print SQL sent to the database interface 
 databaseInterface.printSQL = True
@@ -72,14 +72,11 @@ databaseInterface.printSQL = True
 global countOfCreateUnitAndJobChainThreaded
 countOfCreateUnitAndJobChainThreaded = 0
 
-config = ConfigParser.SafeConfigParser({'MCPArchivematicaServerInterface': ""})
+config = ConfigParser.SafeConfigParser()
 config.read("/etc/archivematica/MCPServer/serverConfig.conf")
-
-# archivematicaRD = replacementDics(config)
 
 #time to sleep to allow db to be updated with the new location of a SIP
 dbWaitSleep = 2
-
 
 limitTaskThreads = config.getint('Protocol', "limitTaskThreads")
 limitTaskThreadsSleep = config.getfloat('Protocol', "limitTaskThreadsSleep")
@@ -109,7 +106,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep):
     uuidLen = -36
     if isUUID(path[uuidLen-1:-1]):
         UUID = path[uuidLen-1:-1]
-        sql = """SELECT sipUUID FROM SIPs WHERE sipUUID = '""" + UUID + "';"
+        sql = """SELECT sipUUID FROM SIPs WHERE sipUUID = '%s';""" % UUID
         rows = databaseInterface.queryAllSQL(sql)
         if not rows:
             databaseFunctions.createSIP(path, UUID=UUID)
@@ -118,7 +115,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep):
 
     if UUID == "":
         #Find it in the database
-        sql = """SELECT sipUUID FROM SIPs WHERE currentPath = '""" + MySQLdb.escape_string(path) + "';"
+        sql = """SELECT sipUUID FROM SIPs WHERE currentPath = '%s';""" % MySQLdb.escape_string(path)
         #if waitSleep != 0:
             #time.sleep(waitSleep) #let db be updated by the microservice that moved it.
         c, sqlLock = databaseInterface.querySQL(sql)
@@ -191,6 +188,105 @@ def createUnitAndJobChainThreaded(path, config, terminate=True):
         traceback.print_exc(file=sys.stdout)
         print type(inst)     # the exception instance
         print inst.args
+
+
+def createDirectoryStructure():
+    """ Create the shared directory structure for Archivematica. """
+    # Poll trying to get storage service currently processing location
+    while True:
+        locations = storage_service.get_location(purpose='CP')
+        if locations:
+            break
+        time.sleep(dbWaitSleep)
+
+    if len(locations) > 1:
+        print >>sys.stderr, 'WARNING: More than one currently processing location found, using the first one.', locations
+    processing_path = locations[0]['path']
+    print 'Processing path:', processing_path
+
+    # Create shared directory structure
+
+    # Only leaf nodes needed - parents will be created as needed
+    dirs_to_make = [
+        'arrange',
+        'completed/transfers',
+        'currentlyProcessing',
+        'DIPbackups',
+        'failed',
+        'rejected',
+        'SIPbackups',
+        os.path.join('sharedMicroServiceTasksConfigs', 'transcoder', 'defaultIcons'),  # To copy into
+        os.path.join('sharedMicroServiceTasksConfigs', 'processingMCPConfigs'),  # To copy into
+        'staging',
+        'tmp',
+        os.path.join('www', 'AIPsStore', 'thumbnails'),
+        os.path.join('www', 'AIPsStore', 'transferBacklog', 'originals'),
+        os.path.join('www', 'AIPsStore', 'transferBacklog', 'arrange'),
+        os.path.join('www', 'thumbnails'),
+    ]
+
+    # Get Watched Directories paths
+    sql = """SELECT watchedDirectoryPath FROM WatchedDirectories;"""
+    rows = databaseInterface.queryAllSQL(sql)
+    for (db_path,) in rows:
+        relative_path = db_path.replace('%watchDirectoryPath%', '')
+        relative_path = os.path.join('watchedDirectories', relative_path)
+        dirs_to_make.append(relative_path)
+
+    # rwxrws--- = 2770
+    mode = stat.S_IRWXU | stat.S_IRWXG | stat.S_ISGID
+    for d in dirs_to_make:
+        d = os.path.join(processing_path, d)
+        print 'Creating directory:', d
+        try:
+            os.makedirs(d, mode)
+        except os.error as e:
+            if e.errno == errno.EEXIST:
+                print '  Skipping directory - already exists'
+            else:
+                raise
+
+    # makedirs with mode doesn't seem to set permissions properly
+    command = ['sudo', 'chown', '-R', 'archivematica:archivematica', processing_path]
+    subprocess.call(command)
+    command = ['sudo', 'chmod', '-R', '2770', processing_path]
+    subprocess.call(command)
+
+    # Copy files to the correct location
+    copy_files = [
+        (os.path.join(os.sep, 'usr', 'share', 'archivematica', 'processingMCPConfigs', 'defaultProcessingMCP.xml'),
+            os.path.join(processing_path, 'sharedMicroServiceTasksConfigs', 'processingMCPConfigs', 'defaultProcessingMCP.xml')
+        ),
+        (os.path.join(os.sep, 'usr', 'share', 'archivematica', 'defaultIcons', 'default.jpg'),
+            os.path.join(processing_path, 'sharedMicroServiceTasksConfigs', 'transcoder', 'defaultIcons', 'default.jpg')
+        ),
+    ]
+    for (source, destination) in copy_files:
+        print 'Copying', source, '->', destination
+        if os.path.isfile(destination):
+            print destination, 'already exists, skipping'
+            continue
+        try:
+            shutil.copyfile(source, destination)
+        except os.error as e:
+            print "Could not copy to {}".format(destination)
+
+    # Update config file so Archivematica knows where the shared directory is
+    server_config_values = {
+        # Archivematica expects directory paths to end with / (os.sep)
+        'sharedDirectory': processing_path+os.sep,
+        'watchDirectoryPath': '%(sharedDirectory)swatchedDirectories'+os.sep,
+        'processingDirectory': '%(sharedDirectory)scurrentlyProcessing'+os.sep,
+        'rejectedDirectory': '%(sharedDirectory)srejected'+os.sep,
+    }
+    archivematicaFunctions.set_server_config(server_config_values)
+    client_config_values = {
+        'sharedDirectoryMounted': processing_path+os.sep,
+        'temp_dir': '%(sharedDirectory)stmp',
+    }
+    archivematicaFunctions.set_client_config(client_config_values)
+
+
 
 def watchDirectories():
     """Start watching the watched directories defined in the WatchedDirectories table in the database."""
@@ -286,15 +382,13 @@ if __name__ == '__main__':
     if si.alreadyrunning():
         print >>sys.stderr, "Another instance is already running. Killing PID:", si.pid
         si.kill()
-    elif False: #testing single instance stuff
-        while 1:
-            print "psudo run"
-            time.sleep(3)
     print "This PID: ", si.pid
 
-    import getpass
     print "user: ", getpass.getuser()
     os.setuid(333)
+
+    cleanupOldDbEntriesOnNewRun()
+    createDirectoryStructure()
 
     t = threading.Thread(target=debugMonitor)
     t.daemon = True
@@ -303,7 +397,7 @@ if __name__ == '__main__':
     t = threading.Thread(target=flushOutputs)
     t.daemon = True
     t.start()
-    cleanupOldDbEntriesOnNewRun()
+
     watchDirectories()
 
 
