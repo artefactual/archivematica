@@ -46,7 +46,6 @@ logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
     level=logging.INFO)
 
 SHARED_DIRECTORY_ROOT   = '/var/archivematica/sharedDirectory'
-ORIGINALS_DIR           = SHARED_DIRECTORY_ROOT + '/transferBackups/originals'
 ACTIVE_TRANSFER_DIR     = SHARED_DIRECTORY_ROOT + '/watchedDirectories/activeTransfers'
 STANDARD_TRANSFER_DIR   = ACTIVE_TRANSFER_DIR + '/standardTransfer'
 COMPLETED_TRANSFERS_DIR = SHARED_DIRECTORY_ROOT + '/watchedDirectories/SIPCreation/completedTransfers'
@@ -325,7 +324,6 @@ def copy_to_originals(request):
     if error == None:
         processingDirectory = '/var/archivematica/sharedDirectory/currentlyProcessing/'
         sipName = os.path.basename(filepath)
-        #autoProcessSIPDirectory = ORIGINALS_DIR
         autoProcessSIPDirectory = '/var/archivematica/sharedDirectory/watchedDirectories/SIPCreation/SIPsUnderConstruction/'
         tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
         destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
@@ -388,9 +386,11 @@ def move_within_arrange(request):
     return helpers.json_response(response)
 
 def copy_to_arrange(request):
+    # TODO: limit sourcepath to certain allowable locations
     sourcepath  = request.POST.get('filepath', '')
     destination = request.POST.get('destination', '')
 
+    logging.warning('SP:' + sourcepath)
     error = check_filepath_exists('/' + sourcepath)
 
     if error == None:
@@ -412,15 +412,15 @@ def copy_to_arrange(request):
         sourcepath = os.path.join('/', sourcepath)
         destination = os.path.realpath(os.path.join('/', destination) + '/' + modified_basename)
 
+        # TODO: this shouldn't be hardcoded
+        originals_dir = '/var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals'
         arrange_dir = os.path.realpath(os.path.join(
             helpers.get_client_config_value('sharedDirectoryMounted'),
             'arrange'))
 
-        # confine destination to subdir of originals
+        # confine destination to subdir of arrange
         if arrange_dir in destination and destination.index(arrange_dir) == 0:
             destination = pad_destination_filepath_if_it_already_exists(destination)
-
-            # do a check making sure destination is a subdir of ARRANGE_DIR
             if os.path.isdir(sourcepath):
                 try:
                     shutil.copytree(
@@ -442,8 +442,26 @@ def copy_to_arrange(request):
                     # copy the source transfer's METS file into the objects
                     # folder of the destination... if there is not objects
                     # folder then return an error
-                    arrange_subpath = destination.replace(arrange_dir, '')
-                    logging.warning(arrange_subpath)
+                    logging.warning('Rolling...')
+                    originals_subpath = sourcepath.replace(originals_dir, '')
+                    logging.warning('OS:' + originals_subpath)
+                    transfer_directory_level = originals_subpath.count('/')
+
+                    # an entire transfer isn't being copied... copy in METS if
+                    # it doesn't exist
+                    if transfer_directory_level != 1:
+                        # work out location of METS file in source transfer
+                        source_transfer_directory = originals_subpath.split('/')[1]
+                        source_mets_path = os.path.join(originals_dir, source_transfer_directory, 'METS.xml')
+                        logging.warning('METS:' + source_mets_path)
+
+                        # work out destination object folder
+                        arrange_subpath = destination.replace(arrange_dir, '')
+                        dest_transfer_directory = arrange_subpath.split('/')[1]
+                        objects_directory = os.path.join(arrange_dir, dest_transfer_directory, 'objects')
+                        logging.warning('Objects dest dir:' + objects_directory)
+                        logging.warning('DF:' + destination)
+                    logging.warning('TL:' + str(transfer_directory_level))
             else:
                 shutil.copy(sourcepath, destination)
         else:
@@ -479,6 +497,7 @@ def check_filepath_exists(filepath):
 
     return error
 
+# TODO: remove and use version in helpers
 def pad_destination_filepath_if_it_already_exists(filepath, original=None, attempt=0):
     if original == None:
         original = filepath
