@@ -102,9 +102,10 @@ def fileNoLongerExists(root, objectsDir):
 
 def escapeForCommand(string):
     ret = string
-    if isinstance(ret, unicode) or isinstance(ret,str) :
+    if isinstance(ret, basestring):
         ret = ret.replace("\\", "\\\\")
         ret = ret.replace("\"", "\\\"")
+        ret = ret.replace("`", "\`")
         #ret = ret.replace("'", "\\'")
         #ret = ret.replace("$", "\\$")
     return ret
