@@ -65,11 +65,12 @@ var TransferComponentFormView = Backbone.View.extend({
       success: function(results) {
         if (results['error']) {
           alert(results['error']);
+          $('.transfer-component-activity-indicator').hide();
           return;
         }
 
         var tempDir = results.tempDir;
-
+        var error = false;
         // copy each transfer component to the temp directory
         for (var index in transfer.sourcePaths) {
           path = transfer.sourcePaths[index];
@@ -87,9 +88,14 @@ var TransferComponentFormView = Backbone.View.extend({
             success: function(results) {
               if (results['error']) {
                 alert(results.message);
+                error = true;
               }
             }
           });
+        }
+        if (error) {
+          $('.transfer-component-activity-indicator').hide();
+          return;
         }
 
         // move from temp directory to appropriate watchdir

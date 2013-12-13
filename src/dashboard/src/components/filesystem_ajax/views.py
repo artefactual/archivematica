@@ -57,8 +57,7 @@ def rsync_copy(source, destination):
 def sorted_directory_list(path):
     cleaned = []
     entries = os.listdir(archivematicaFunctions.unicodeToStr(path))
-    for entry in entries:
-        cleaned.append(archivematicaFunctions.unicodeToStr(entry))
+    cleaned = [archivematicaFunctions.unicodeToStr(entry) for entry in entries]
     return sorted(cleaned, key=helpers.keynat)
 
 def directory_to_dict(path, directory={}, entry=False):
@@ -217,19 +216,28 @@ def copy_transfer_component(request):
                 paths_copied = 0
 
                 # cycle through each path copying files/dirs inside it to transfer dir
-                for entry in sorted_directory_list(path):
-                    entry_path = os.path.join(path, entry)
-                    rsync_copy(entry_path, transfer_dir)
-
-                    paths_copied = paths_copied + 1
+                try:
+                    entries = sorted_directory_list(path)
+                except os.error as e:
+                    error = "Error: {e.strerror}: {e.filename}".format(e=e)
+                    # Clean up temp dir - don't use os.removedirs because
+                    # <shared_path>/tmp might not have anything else in it and
+                    # we don't want to delete it
+                    os.rmdir(transfer_dir)
+                    os.rmdir(destination)
+                else:
+                    for entry in entries:
+                        entry_path = os.path.join(path, entry)
+                        rsync_copy(entry_path, transfer_dir)
+                        paths_copied = paths_copied + 1
 
     response = {}
 
     if error != None:
-      response['message'] = error
-      response['error']   = True
+        response['message'] = error
+        response['error']   = True
     else:
-      response['message'] = 'Copied ' + str(paths_copied) + ' entries.'
+        response['message'] = 'Copied ' + str(paths_copied) + ' entries.'
 
     return helpers.json_response(response)
 
