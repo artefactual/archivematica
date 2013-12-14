@@ -386,37 +386,47 @@ def move_within_arrange(request):
     return helpers.json_response(response)
 
 def copy_to_arrange(request):
+    # TODO: this shouldn't be hardcoded
+    originals_dir = '/var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals'
+    arrange_dir = os.path.realpath(os.path.join(
+        helpers.get_client_config_value('sharedDirectoryMounted'),
+        'arrange'))
+
     # TODO: limit sourcepath to certain allowable locations
     sourcepath  = request.POST.get('filepath', '')
     destination = request.POST.get('destination', '')
 
-    logging.warning('SP:' + sourcepath)
-    error = check_filepath_exists('/' + sourcepath)
+    # make source and destination path absolute
+    sourcepath = os.path.join('/', sourcepath)
+    destination = os.path.realpath(os.path.join('/', destination))
+
+    # work out relative path within originals folder
+    originals_subpath = sourcepath.replace(originals_dir, '')
+
+    # work out transfer directory level and source transfer directory
+    transfer_directory_level = originals_subpath.count('/')
+    source_transfer_directory = originals_subpath.split('/')[1]
+
+    error = check_filepath_exists(sourcepath)
 
     if error == None:
         # use lookup path to cleanly find UUID
-        lookup_path = '%sharedPath%' + sourcepath[SHARED_DIRECTORY_ROOT.__len__():sourcepath.__len__()] + '/'
+        #lookup_path = '%sharedPath%' + sourcepath[SHARED_DIRECTORY_ROOT.__len__() + 1:sourcepath.__len__()] + '/'
+        lookup_path = '%sharedPath%www/AIPsStore/transferBacklog/originals/' + source_transfer_directory + '/'
         cursor = connection.cursor()
-        query = 'SELECT unitUUID FROM transfersAndSIPs WHERE currentLocation=%s LIMIT 1'
-        cursor.execute(query, (lookup_path, ))
+        sql = 'SELECT unitUUID FROM transfersAndSIPs WHERE currentLocation=%s LIMIT 1'
+        cursor.execute(sql, (lookup_path, ))
         possible_uuid_data = cursor.fetchone()
 
+        # if UUID valid in system found, remove it
         if possible_uuid_data:
           uuid = possible_uuid_data[0]
 
           # remove UUID from destination directory name
           modified_basename = os.path.basename(sourcepath).replace('-' + uuid, '')
         else:
+          # TODO: should return error?
           modified_basename = os.path.basename(sourcepath)
-
-        sourcepath = os.path.join('/', sourcepath)
-        destination = os.path.realpath(os.path.join('/', destination) + '/' + modified_basename)
-
-        # TODO: this shouldn't be hardcoded
-        originals_dir = '/var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals'
-        arrange_dir = os.path.realpath(os.path.join(
-            helpers.get_client_config_value('sharedDirectoryMounted'),
-            'arrange'))
 
         # confine destination to subdir of arrange
         if arrange_dir in destination and destination.index(arrange_dir) == 0:
@@ -438,32 +448,27 @@ def copy_to_arrange(request):
                             if os.path.isdir(path):
                                 shutil.rmtree(path)
 
-                    # if the source path isn't a whole transfer folder, then
-                    # copy the source transfer's METS file into the objects
-                    # folder of the destination... if there is not objects
-                    # folder then return an error
-                    logging.warning('Rolling...')
-                    originals_subpath = sourcepath.replace(originals_dir, '')
-                    logging.warning('OS:' + originals_subpath)
-                    transfer_directory_level = originals_subpath.count('/')
-
-                    # an entire transfer isn't being copied... copy in METS if
-                    # it doesn't exist
-                    if transfer_directory_level != 1:
-                        # work out location of METS file in source transfer
-                        source_transfer_directory = originals_subpath.split('/')[1]
-                        source_mets_path = os.path.join(originals_dir, source_transfer_directory, 'METS.xml')
-                        logging.warning('METS:' + source_mets_path)
-
-                        # work out destination object folder
-                        arrange_subpath = destination.replace(arrange_dir, '')
-                        dest_transfer_directory = arrange_subpath.split('/')[1]
-                        objects_directory = os.path.join(arrange_dir, dest_transfer_directory, 'objects')
-                        logging.warning('Objects dest dir:' + objects_directory)
-                        logging.warning('DF:' + destination)
-                    logging.warning('TL:' + str(transfer_directory_level))
             else:
                 shutil.copy(sourcepath, destination)
+
+            # if the source path isn't a whole transfer folder, then
+            # copy the source transfer's METS file into the objects
+            # folder of the destination... if there is not objects
+            # folder then return an error
+
+            # an entire transfer isn't being copied... copy in METS if
+            # it doesn't exist
+            if transfer_directory_level != 1:
+                # work out location of METS file in source transfer
+                source_mets_path = os.path.join(originals_dir, source_transfer_directory, 'metadata/submissionDocumentation/METS.xml')
+
+                # work out destination object folder
+                arrange_subpath = destination.replace(arrange_dir, '')
+                dest_transfer_directory = arrange_subpath.split('/')[1]
+                objects_directory = os.path.join(arrange_dir, dest_transfer_directory, 'objects')
+                destination_mets = os.path.join(objects_directory, 'METS-' + uuid + '.xml')
+                if not os.path.exists(destination_mets):
+                    shutil.copy(source_mets_path, destination_mets)
         else:
             error = 'The destination {} is not within the arrange directory ({}).'.format(destination, arrange_dir)
 
