@@ -430,26 +430,28 @@ def copy_to_arrange(request):
 
         # confine destination to subdir of arrange
         if arrange_dir in destination and destination.index(arrange_dir) == 0:
-            destination = pad_destination_filepath_if_it_already_exists(destination)
+            full_destination = os.path.join(destination, modified_basename)
+            full_destination = pad_destination_filepath_if_it_already_exists(full_destination)
+
             if os.path.isdir(sourcepath):
                 try:
                     shutil.copytree(
                         sourcepath,
-                        destination
+                        full_destination
                     )
                 except:
-                    error = 'Error copying from ' + sourcepath + ' to ' + destination + '.'
+                    error = 'Error copying from ' + sourcepath + ' to ' + full_destination + '.'
 
                 if error == None:
                     # remove any metadata and logs folders
-                    for path in directory_contents(destination):
+                    for path in directory_contents(full_destination):
                         basename = os.path.basename(path)
                         if basename == 'metadata' or basename == 'logs':
                             if os.path.isdir(path):
                                 shutil.rmtree(path)
 
             else:
-                shutil.copy(sourcepath, destination)
+                shutil.copy(sourcepath, full_destination)
 
             # if the source path isn't a whole transfer folder, then
             # copy the source transfer's METS file into the objects
@@ -463,7 +465,7 @@ def copy_to_arrange(request):
                 source_mets_path = os.path.join(originals_dir, source_transfer_directory, 'metadata/submissionDocumentation/METS.xml')
 
                 # work out destination object folder
-                arrange_subpath = destination.replace(arrange_dir, '')
+                arrange_subpath = full_destination.replace(arrange_dir, '')
                 dest_transfer_directory = arrange_subpath.split('/')[1]
                 objects_directory = os.path.join(arrange_dir, dest_transfer_directory, 'objects')
                 destination_mets = os.path.join(objects_directory, 'METS-' + uuid + '.xml')
