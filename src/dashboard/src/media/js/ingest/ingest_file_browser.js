@@ -125,37 +125,44 @@ var originals_browser,
     arrange_browser;
 
 $(document).ready(function() {
-  var arrange_directory = '/var/archivematica/sharedDirectory/arrange';
+  var arrange_directory = '/var/archivematica/sharedDirectory/arrange'
+    , originals_directory = '/var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals';
+
   browsers = setupBacklogBrowser(
-    '/var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals',
+    originals_directory,
     arrange_directory
   );
   originals_browser = browsers['originals'];
   arrange_browser = browsers['arrange'];
 
   // delete button functionality
-  $('#arrange_delete_button').click(function() {
-    if (typeof arrange_browser.selectedEntryId === 'undefined') {
-      arrange_browser.alert('Delete', 'Please select a directory to delete.');
-    } else {
-      // only allow top-level directories to be deleted
-      var delete_path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId);
-      if (delete_path.split('/').length >= arrange_directory.split('/').length + 1) {
-        arrange_browser.alert('Delete', 'You can only delete top-level directories.');
+  var createDeleteHandler = function(browser, directory) {
+    return function() {
+      if (typeof browser.selectedEntryId === 'undefined') {
+        browser.alert('Delete', 'Please select a directory to delete.');
       } else {
-        var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId)
-          , type = arrange_browser.getTypeForCssId(arrange_browser.selectedEntryId);
+        // only allow top-level directories to be deleted
+        var delete_path = browser.getPathForCssId(browser.selectedEntryId);
+        if (delete_path.split('/').length >= directory.split('/').length + 1) {
+          browser.alert('Delete', 'You can only delete top-level directories.');
+        } else {
+          var path = browser.getPathForCssId(browser.selectedEntryId)
+            , type = browser.getTypeForCssId(browser.selectedEntryId);
 
-        arrange_browser.confirm(
-          'Delete',
-          'Are you sure you want to delete this directory or file?',
-          function() {
-            arrange_browser.deleteEntry(path, type);
-          }
-        );
+          browser.confirm(
+            'Delete',
+            'Are you sure you want to delete this directory or file?',
+            function() {
+              browser.deleteEntry(path, type);
+            }
+          );
+        }
       }
-    }
-  });
+    };
+  };
+
+  $('#arrange_delete_button').click(createDeleteHandler(arrange_browser, arrange_directory));
+  $('#originals_delete_button').click(createDeleteHandler(originals_browser, originals_directory));
 
   // create SIP button functionality
   $('#arrange_create_sip_button').click(function() {

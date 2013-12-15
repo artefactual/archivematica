@@ -49,6 +49,7 @@ SHARED_DIRECTORY_ROOT   = '/var/archivematica/sharedDirectory'
 ACTIVE_TRANSFER_DIR     = SHARED_DIRECTORY_ROOT + '/watchedDirectories/activeTransfers'
 STANDARD_TRANSFER_DIR   = ACTIVE_TRANSFER_DIR + '/standardTransfer'
 COMPLETED_TRANSFERS_DIR = SHARED_DIRECTORY_ROOT + '/watchedDirectories/SIPCreation/completedTransfers'
+ORIGINAL_DIR            = SHARED_DIRECTORY_ROOT + '/www/AIPsStore/transferBacklog/originals'
 
 def rsync_copy(source, destination):
     call([
@@ -387,7 +388,6 @@ def move_within_arrange(request):
 
 def copy_to_arrange(request):
     # TODO: this shouldn't be hardcoded
-    originals_dir = '/var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals'
     arrange_dir = os.path.realpath(os.path.join(
         helpers.get_client_config_value('sharedDirectoryMounted'),
         'arrange'))
@@ -401,7 +401,7 @@ def copy_to_arrange(request):
     destination = os.path.realpath(os.path.join('/', destination))
 
     # work out relative path within originals folder
-    originals_subpath = sourcepath.replace(originals_dir, '')
+    originals_subpath = sourcepath.replace(ORIGINAL_DIR, '')
 
     # work out transfer directory level and source transfer directory
     transfer_directory_level = originals_subpath.count('/')
@@ -411,7 +411,6 @@ def copy_to_arrange(request):
 
     if error == None:
         # use lookup path to cleanly find UUID
-        #lookup_path = '%sharedPath%' + sourcepath[SHARED_DIRECTORY_ROOT.__len__() + 1:sourcepath.__len__()] + '/'
         lookup_path = '%sharedPath%www/AIPsStore/transferBacklog/originals/' + source_transfer_directory + '/'
         cursor = connection.cursor()
         sql = 'SELECT unitUUID FROM transfersAndSIPs WHERE currentLocation=%s LIMIT 1'
