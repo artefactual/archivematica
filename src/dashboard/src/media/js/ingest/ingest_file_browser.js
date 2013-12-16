@@ -98,6 +98,7 @@ function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
     nameClickHandler: backlogBrowserEntryClickHandler
   });
 
+  originals.itemsPerPage = 10;
   originals.moveHandler = moveHandler;
   originals.options.actionHandlers = [];
   originals.refresh(originalsDirectory);
@@ -110,6 +111,7 @@ function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
     nameClickHandler: backlogBrowserEntryClickHandler
   });
 
+  arrange.itemsPerPage = 10;
   arrange.options.actionHandlers = [];
   arrange.moveHandler = moveHandler;
   arrange.refresh(arrangeDirectory);
