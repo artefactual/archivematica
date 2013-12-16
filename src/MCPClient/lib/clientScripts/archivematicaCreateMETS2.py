@@ -677,9 +677,7 @@ def createFileSec(directoryPath, structMapDiv):
             row = c.fetchone()
         sqlLock.release()
         
-        filename = ''.join(quoteattr(item).split("\"")[1:-1])
         directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, "", 1)
-        #print filename, directoryPathSTR
 
         if typeOfTransfer == "TRIM" and trimStructMap == None:
             trimStructMap = etree.Element("structMap", attrib={"TYPE":"logical", "ID":"structMap_2", "LABEL":"Hierarchical arrangement"})
@@ -708,18 +706,13 @@ def createFileSec(directoryPath, structMapDiv):
             
             trimStructMapObjects.set("ADMID", ID)
             
-        FILEID="%s-%s" % (item, myuuid)
-        if FILEID[0].isdigit():
-            FILEID = "_" + FILEID
+        fileId="file-%s" % (myuuid, )
 
-
-        #<fptr FILEID="file1-UUID"/>
-        fileDiv = etree.SubElement(structMapDiv, "div")
-        if label != None:
-            fileDiv.set("LABEL", label)
-        fileDiv.set("TYPE", "Item") 
-        newChild(fileDiv, "fptr", sets=[("FILEID",FILEID)])
-        fileNameToFileID[item] = FILEID
+        #<fptr FILEID="file-<UUID>" LABEL="filename.ext">
+        label = item if label is None else label
+        fileDiv = etree.SubElement(structMapDiv, "div", LABEL=label, TYPE='Item')
+        etree.SubElement(fileDiv, 'fptr', FILEID=fileId)
+        fileNameToFileID[item] = fileId
 
         GROUPID = ""
         if fileGrpUUID:
@@ -746,7 +739,7 @@ def createFileSec(directoryPath, structMapDiv):
                     
                     trimFileDiv.set("DMDID", ID)       
                     
-                    etree.SubElement(trimFileDiv, "fptr", attrib={"FILEID":FILEID})             
+                    etree.SubElement(trimFileDiv, "fptr", FILEID=fileId)
 
         elif use == "preservation":
             sql = "SELECT * FROM Derivations WHERE derivedFileUUID = '" + myuuid + "';"
@@ -812,11 +805,11 @@ def createFileSec(directoryPath, structMapDiv):
             print >>sys.stderr, "Invalid use: \"%s\"" % (use)
             sharedVariablesAcrossModules.globalErrorCount += 1
         else:
-            file = newChild(globalFileGrps[use], "file", sets=[("ID",FILEID), ("GROUPID",GROUPID)])
+            file = etree.SubElement(globalFileGrps[use], "file", ID=fileId, GROUPID=GROUPID)
             if use == "original":
                 filesInThisDirectory.append(file)
             #<Flocat xlink:href="objects/file1-UUID" locType="other" otherLocType="system"/>
-            Flocat = newChild(file, "FLocat", sets=[(xlinkBNS +"href",directoryPathSTR), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM")])
+            newChild(file, "FLocat", sets=[(xlinkBNS +"href",directoryPathSTR), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM")])
             if includeAmdSec:
                 AMD, ADMID = getAMDSec(myuuid, directoryPathSTR, use, fileGroupType, fileGroupIdentifier, transferUUID, itemdirectoryPath, typeOfTransfer)
                 amdSecs.append(AMD)
