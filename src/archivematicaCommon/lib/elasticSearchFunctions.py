@@ -642,9 +642,15 @@ def connect_and_change_transfer_file_status(uuid, status):
                         conn.update({'status': status}, 'transfers', 'transferfile', document_id)
     return len(rows)
 
+def connect_and_remove_backlog_transfer_files(uuid):
+    return connect_and_remove_transfer_files(uuid, 'transfer')
+
 def connect_and_remove_sip_transfer_files(uuid):
+    return connect_and_remove_transfer_files(uuid, 'sip')
+
+def connect_and_remove_transfer_files(uuid, unit_type):
     # get file UUIDs for each file in the SIP
-    sql = "SELECT fileUUID from Files WHERE sipUUID='" + MySQLdb.escape_string(uuid) + "'"
+    sql = "SELECT fileUUID from Files WHERE " + unit_type + "UUID='" + MySQLdb.escape_string(uuid) + "'"
 
     rows = databaseInterface.queryAllSQL(sql)
 

@@ -32,7 +32,7 @@ import uuid
 import mimetypes
 import uuid
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import archivematicaFunctions, databaseInterface, databaseFunctions
+import elasticSearchFunctions, archivematicaFunctions, databaseInterface, databaseFunctions
 from archivematicaCreateStructuredDirectory import createStructuredDirectory
 from components import helpers
 import storageService as storage_service
@@ -164,6 +164,12 @@ def delete(request):
             os.remove(filepath)
 
     response = {}
+
+    # if deleting from originals, delete ES data as well
+    if ORIGINAL_DIR in filepath and filepath.index(ORIGINAL_DIR) == 0:
+        transfer_uuid = _find_uuid_of_transfer_in_originals_directory_using_path(filepath)
+        if transfer_uuid != None:
+            elasticSearchFunctions.connect_and_remove_backlog_transfer_files(transfer_uuid)
 
     if error != None:
       response['message'] = error
@@ -355,6 +361,7 @@ def copy_to_originals(request):
 
 def copy_from_arrange_to_completed(request):
     filepath = '/' + request.POST.get('filepath', '')
+    # TODO: refactor so this is cleaner, not using private function in ingest views module
     from components.ingest import views
 
     if filepath != '':
@@ -386,6 +393,22 @@ def move_within_arrange(request):
 
     return helpers.json_response(response)
 
+def _find_uuid_of_transfer_in_originals_directory_using_path(transfer_path):
+    transfer_basename = transfer_path.replace(ORIGINAL_DIR, '').split('/')[1]
+
+    # use lookup path to cleanly find UUID
+    lookup_path = '%sharedPath%www/AIPsStore/transferBacklog/originals/' + transfer_basename + '/'
+    cursor = connection.cursor()
+    sql = 'SELECT unitUUID FROM transfersAndSIPs WHERE currentLocation=%s LIMIT 1'
+    cursor.execute(sql, (lookup_path, ))
+    possible_uuid_data = cursor.fetchone()
+
+    # if UUID valid in system found, remove it
+    if possible_uuid_data:
+        return possible_uuid_data[0]
+    else:
+        return None
+
 def copy_to_arrange(request):
     # TODO: this shouldn't be hardcoded
     arrange_dir = os.path.realpath(os.path.join(
@@ -410,22 +433,14 @@ def copy_to_arrange(request):
     error = check_filepath_exists(sourcepath)
 
     if error == None:
-        # use lookup path to cleanly find UUID
-        lookup_path = '%sharedPath%www/AIPsStore/transferBacklog/originals/' + source_transfer_directory + '/'
-        cursor = connection.cursor()
-        sql = 'SELECT unitUUID FROM transfersAndSIPs WHERE currentLocation=%s LIMIT 1'
-        cursor.execute(sql, (lookup_path, ))
-        possible_uuid_data = cursor.fetchone()
+        uuid = _find_uuid_of_transfer_in_originals_directory_using_path(os.path.join(ORIGINAL_DIR, source_transfer_directory))
 
-        # if UUID valid in system found, remove it
-        if possible_uuid_data:
-          uuid = possible_uuid_data[0]
-
-          # remove UUID from destination directory name
-          modified_basename = os.path.basename(sourcepath).replace('-' + uuid, '')
+        if uuid != None:
+            # remove UUID from destination directory name
+            modified_basename = os.path.basename(sourcepath).replace('-' + uuid, '')
         else:
-          # TODO: should return error?
-          modified_basename = os.path.basename(sourcepath)
+            # TODO: should return error?
+            modified_basename = os.path.basename(sourcepath)
 
         # confine destination to subdir of arrange
         if arrange_dir in destination and destination.index(arrange_dir) == 0:
@@ -459,9 +474,9 @@ def copy_to_arrange(request):
 
             # an entire transfer isn't being copied... copy in METS if
             # it doesn't exist
-            if transfer_directory_level != 1:
+            if transfer_directory_level != 1 and uuid != None:
                 # work out location of METS file in source transfer
-                source_mets_path = os.path.join(originals_dir, source_transfer_directory, 'metadata/submissionDocumentation/METS.xml')
+                source_mets_path = os.path.join(ORIGINAL_DIR, source_transfer_directory, 'metadata/submissionDocumentation/METS.xml')
 
                 # work out destination object folder
                 arrange_subpath = full_destination.replace(arrange_dir, '')
