@@ -198,25 +198,26 @@ $(document).ready(function() {
     }
   });
 
-  // open originals file button functionality
-  $('#open_originals_file_button').click(function() {
-    var entryDiv = $('#' + originals_browser.selectedEntryId)
-      , path = originals_browser.getPathForCssId(originals_browser.selectedEntryId);
+  var createOpenHandler = function(browser) {
+      return function() {
+        var entryDiv = $('#' + browser.selectedEntryId)
+           , path = browser.getPathForCssId(browser.selectedEntryId)
+           , type = browser.getTypeForCssId(browser.selectedEntryId);
 
-    window.open(
-      '/filesystem/download?filepath=' + encodeURIComponent(path),
-      '_blank'
-    );
-  });
+        if (type == 'directory') {
+          browser.alert('Error', 'You can not open a directory.');
+        } else {
+          window.open(
+            '/filesystem/download?filepath=' + encodeURIComponent(path),
+            '_blank'
+          );
+        }
+      };
+  };
+
+  // open originals file button functionality
+  $('#open_originals_file_button').click(createOpenHandler(originals_browser));
 
   // open arrange file button functionality
-  $('#open_arrange_file_button').click(function() {
-    var entryDiv = $('#' + arrange_browser.selectedEntryId)
-      , path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId);
-
-    window.open(
-      '/filesystem/download?filepath=' + encodeURIComponent(path),
-      '_blank'
-    );
-  });
+  $('#open_arrange_file_button').click(createOpenHandler(arrange_browser));
 });
