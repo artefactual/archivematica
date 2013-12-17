@@ -445,7 +445,7 @@ def copy_to_arrange(request):
         # confine destination to subdir of arrange
         if arrange_dir in destination and destination.index(arrange_dir) == 0:
             full_destination = os.path.join(destination, modified_basename)
-            full_destination = pad_destination_filepath_if_it_already_exists(full_destination)
+            full_destination = helpers.pad_destination_filepath_if_it_already_exists(full_destination)
 
             if os.path.isdir(sourcepath):
                 try:

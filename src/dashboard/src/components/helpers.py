@@ -340,5 +340,17 @@ def pad_destination_filepath_if_it_already_exists(filepath, original=None, attem
         original = filepath
     attempt = attempt + 1
     if os.path.exists(filepath):
-        return pad_destination_filepath_if_it_already_exists(original + '_' + str(attempt), original, attempt)
+        if os.path.isdir(filepath):
+            return pad_destination_filepath_if_it_already_exists(original + '_' + str(attempt), original, attempt)
+        else:
+            # need to work out basename
+            basedirectory = os.path.dirname(original)
+            basename = os.path.basename(original)
+            # do more complex padding to preserve file extension
+            period_position = basename.index('.')
+            non_extension = basename[0:period_position]
+            extension = basename[period_position:]
+            new_basename = non_extension + '_' + str(attempt) + extension
+            new_filepath = os.path.join(basedirectory, new_basename)
+            return pad_destination_filepath_if_it_already_exists(new_filepath, original, attempt)
     return filepath
