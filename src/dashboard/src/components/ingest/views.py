@@ -465,6 +465,11 @@ def transfer_backlog(request):
             try:
                 awaiting_creation[transfer_instance.term] = transfer_awaiting_sip_creation_v2(transfer_instance.term)
                 transfer = models.Transfer.objects.get(uuid=transfer_instance.term)
+                
+                # expand transfer path and trim leading slash so it'll work with AJAX filesystem API
+                transfer_path_relative = transfer.currentlocation.replace('%sharedPath%', helpers.get_client_config_value('sharedDirectoryMounted'))
+                transfer_instance.filepath = transfer_path_relative[1:-1]
+
                 transfer_basename = os.path.basename(transfer.currentlocation[:-1])
                 transfer_instance.name = transfer_basename[:-37]
                 if transfer.accessionid != None:

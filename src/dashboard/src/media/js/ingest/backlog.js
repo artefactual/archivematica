@@ -1,27 +1,38 @@
 function renderBacklogSearchForm(openInNewTab) {
-  // activate completion buttons
-  $('.creation').each(function() {
-    var url = $(this).attr('href');
+  // activate deletion buttons
+  $('.creation, .deletion').each(function() {
+    var url = $(this).attr('href')
+      , id = $(this).attr('id');
+      
     $(this).removeAttr('href');
     this.url = url;
+    this.id = id;
     this.fired = false;
+
     $(this).click(function() {
       if (this.fired == false) {
         this.fired = true;
         // remove all button with same url
-        $('.creation').each(function() {
-          if (this.url == url) {
+        $('.creation, .deletion').each(function() {
+          if (this.id == url) {
+            console.log('DISABLING...');
             $(this).attr('disabled', 'disabled');
           }
         });
 
-        // complete SIP
+        var data = {};
+        if ($(this).hasClass('deletion')) {
+          data['filepath'] = $(this).attr('id');
+        }
+
+        // perform action
         $.ajax({
           type: "POST",
+          data: data,
           url: url,
           error: function(error) {
-            $('.creation').each(function() {
-              if (this.url == url) {
+            $('.creation, .deletion').each(function() {
+              if (this.id == id) {
                 alert(error.statusText);
                 $(this).removeAttr('disabled');
                 this.fired = false;
@@ -30,8 +41,8 @@ function renderBacklogSearchForm(openInNewTab) {
           },
           success: function(result) {
             alert(result.message);
-            $('.creation').each(function() {
-              if (this.url == url) {
+            $('.creation, .deletion').each(function() {
+              if (this.id == id) {
                 $(this).parent().parent().fadeOut();
               }
             });

@@ -74,7 +74,8 @@
             <td>{{ term_usage.count }} files</td>
             <td>
               {% if awaiting_creation|keyvalue:term_usage.term %}
-                <a href='/ingest/backlog/process/{{ term_usage.term }}/' target='_blank' class='creation btn'>Create SIP</a>
+                <a id='create_{{ term_usage.term }}' href='/ingest/backlog/process/{{ term_usage.term }}/' target='_blank' class='creation btn'>Create SIP</a>
+                <a id='{{ term_usage.filepath }}' href='/filesystem/delete/' class='deletion btn'>Delete</a>
               {% else %}
                 Yes
               {% endif %}
