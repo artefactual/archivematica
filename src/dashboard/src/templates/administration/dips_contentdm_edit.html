@@ -30,7 +30,7 @@
 
     <div style='margin-bottom: 20px'>
 
-      <p>The arguments below are passed to a Python script called upload-qubit.py. Please note that some arguments are mandatory:</p>
+      <p>The arguments below are passed to a Python script called upload-contentDM.py. Please note that some arguments are mandatory:</p>
 
       <table class="bordered-table">
         <thead>
@@ -42,15 +42,25 @@
         </thead>
         <tbody>
           <tr>
-            <td class="option">%ContentdmServer%</td>
+            <td class="option"><code>%ContentdmServer%</code></td>
             <td><span class="label important">Required</span></td>
             <td>Hostname or IP address of CONTENTdm server.</td>
+          </tr>
+          <tr>
+            <td class="option"><code>%ContentdmUser%</code></td>
+            <td><span class="label">Optional</span></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="option"><code>%ContentdmGroup%</code></td>
+            <td><span class="label">Optional</span></td>
+            <td></td>
           </tr>
         </tbody>
       </table>
 
       <p><strong>Example configuration:</strong></p>
-      <pre>{"%ContentdmServer%": "142.103.160.77"}</pre>
+      <pre>{"%ContentdmServer%": "http://142.103.160.77:81/dmwebservices/index.php"}</pre>
     </div>
 
     {% include "_formset.html" with formset=formset %}
