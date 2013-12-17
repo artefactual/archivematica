@@ -65,10 +65,7 @@ class PreconfiguredChoices:
         file.write(etree.tostring(self.xml, pretty_print=True))
 
 def index(request):
-    file_path = os.path.join(
-        helpers.get_server_config_value('sharedDirectory'),
-        'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'
-    )
+    file_path = helpers.default_processing_config_path()
 
     # Lists of dicts declare what options to display, and where to look for
     # the options

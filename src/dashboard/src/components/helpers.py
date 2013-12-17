@@ -354,3 +354,9 @@ def pad_destination_filepath_if_it_already_exists(filepath, original=None, attem
             new_filepath = os.path.join(basedirectory, new_basename)
             return pad_destination_filepath_if_it_already_exists(new_filepath, original, attempt)
     return filepath
+
+def default_processing_config_path():
+    return os.path.join(
+        get_server_config_value('sharedDirectory'),
+        'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'
+    )

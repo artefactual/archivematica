@@ -621,10 +621,14 @@ database representation of the transfer. This database representation is referre
 def _initiate_sip_from_files_structured_like_a_completed_transfer(transfer_files_path):
     transfer_uuid = str(uuid.uuid4())
 
-    # remove pre-selection of pre-normalize file format identification command
+    # replace processing configuration, if any, with default processing configuration
+    # and remove pre-selection of pre-normalize file format identification command
     # because this set of files hasn't been actually ran through the transfer phase
     # and therefore isn't identified
+    default_processing_config_filepath = helpers.default_processing_config_path()
     processing_config_filepath = os.path.join(transfer_files_path, 'processingMCP.xml')
+    shutil.copyfile(default_processing_config_filepath, processing_config_filepath)
+
     if os.path.exists(processing_config_filepath):
         # get processing config XML, if any
         filedata = open(processing_config_filepath, "r")
