@@ -20,16 +20,12 @@ import logging
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.forms.models import modelformset_factory
-from django.shortcuts import redirect
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from django.utils import simplejson
+from django.shortcuts import redirect, render
+
 from main import forms
 from main import models
-import sys
 import components.administration.views_processing as processing_views
-from lxml import etree
-from components.administration.forms import AdministrationForm
+from components.administration.forms import AtomSettingsForm
 from components.administration.forms import AgentForm
 from components.administration.forms import ArchivistsToolkitConfigForm
 from components.administration.forms import SettingsForm
@@ -80,35 +76,16 @@ def failure_report_delete(request, report_id):
 def failure_report_detail(request):
     return render(request, 'administration/reports/failure_report_detail.html', locals())
 
-def administration_dip(request):
-    upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
-    hide_features = helpers.hidden_features()
-    return render(request, 'administration/dip.html', locals())
-
-def dip_edit(request, id):
-    if request.method == 'POST':
-        upload_setting = models.StandardTaskConfig.objects.get(pk=id)
-        form = AdministrationForm(request.POST)
-        if form.is_valid():
-            upload_setting.arguments = form.cleaned_data['arguments']
-            upload_setting.save()
-            messages.info(request, 'Saved.')
-
-    return redirect('components.administration.views.administration_dip')
-
 def atom_dips(request):
-    link_id = atom_dip_destination_select_link_id()
-    ReplaceDirChoices = models.MicroServiceChoiceReplacementDic.objects.filter(choiceavailableatlink=link_id)
-
-    ReplaceDirChoiceFormSet = dips_formset()
-
-    valid_submission, formset = dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet)
-
-    if request.method != 'POST' or valid_submission:
-        formset = ReplaceDirChoiceFormSet(queryset=ReplaceDirChoices)
+    upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
+    form = AtomSettingsForm(request.POST or None, instance=upload_setting)
+    if form.is_valid():
+        form.save()
+        messages.info(request, 'Saved.')
 
     hide_features = helpers.hidden_features()
-    return render(request, 'administration/dips_edit.html', locals())
+    return render(request, 'administration/dips_atom_edit.html', locals())
+
 
 def administration_atk_dips(request):
     atk = ArchivistsToolkitConfig.objects.all()[0]
@@ -166,7 +143,7 @@ def contentdm_dips(request):
     hide_features = helpers.hidden_features()
     return render(request, 'administration/dips_contentdm_edit.html', locals())
 
-#TODO refactor the following 3 functions into 1
+#TODO refactor the following 2 functions into 1
 def administration_atk_dip_destination_select_link_id():
     taskconfigs = models.TaskConfig.objects.filter(description='Select target CONTENTdm server')
     taskconfig = taskconfigs[0]
@@ -174,12 +151,6 @@ def administration_atk_dip_destination_select_link_id():
     link = links[0]
     return link.id
 
-def administration_atom_dip_destination_select_link_id():
-    taskconfigs = models.TaskConfig.objects.filter(description='Select DIP upload destination')
-    taskconfig = taskconfigs[0]
-    links = models.MicroServiceChainLink.objects.filter(currenttask=taskconfig.id)
-    link = links[0]
-    return link.id
 
 def contentdm_dip_destination_select_link_id():
     taskconfigs = models.TaskConfig.objects.filter(description='Select target CONTENTdm server')

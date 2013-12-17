@@ -18,14 +18,24 @@
 from django import forms
 from components import helpers
 from django.forms import ModelForm
-from django.forms.models import modelformset_factory
 from django.forms.widgets import TextInput, Textarea, RadioSelect, CheckboxInput
 from main import models
 from django.conf import settings
 from components.administration.models import ArchivistsToolkitConfig
 
-class AdministrationForm(forms.Form):
-    arguments = forms.CharField(required=False, widget=Textarea(attrs=settings.TEXTAREA_ATTRS))
+class AtomSettingsForm(forms.ModelForm):
+    class Meta:
+        model = models.StandardTaskConfig
+        fields = ('arguments',)
+
+    def __init__(self, *args, **kwargs):
+        super(AtomSettingsForm, self).__init__(*args, **kwargs)
+        # Should add this to Meta: widgets but unsure how to modify 'class' in place
+        arguments_attrs = settings.TEXTAREA_ATTRS
+        arguments_attrs['class'] += ' command'
+        self.fields['arguments'].widget.attrs = arguments_attrs
+        # TODO in Django 1.6 move this to Meta: help_texts
+        self.fields['arguments'].help_text = "Note that a backslash is necessary for each new line."
 
 class AgentForm(forms.ModelForm):
     identifiervalue = forms.CharField(required=True, widget=TextInput(attrs=settings.INPUT_ATTRS))

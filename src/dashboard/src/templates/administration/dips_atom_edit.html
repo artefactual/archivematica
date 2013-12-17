@@ -1,6 +1,5 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
-{% load url from future %}
 
 {% block title %}Administration{% endblock %}
 {% block h1 %}Administration{% endblock %}
@@ -24,7 +23,7 @@
 
     <div class="span12">
 
-      <form class="form-stacked" method="post" action="{% url 'components.administration.views.dip_edit' upload_setting.id %}">
+      <form class="form-stacked" method="post" action="{% url 'components.administration.views.atom_dips' %}">
 
         <h3>AtoM DIP upload</h3>
 
@@ -40,53 +39,49 @@
           </thead>
           <tbody>
             <tr>
-              <td class="option">--url</td>
+              <td class="option"><code>--url</code></td>
               <td><span class="label important">Required</span></td>
               <td>URL where the Qubit index.php frontend lives, SWORD services path will be appended.</td>
             </tr>
             <tr>
-              <td class="option">--email</td>
+              <td class="option"><code>--email</code></td>
               <td><span class="label important">Required</span></td>
               <td>E-mail account used to log into Qubit.</td>
             </tr>
             <tr>
-              <td class="option">--password</td>
+              <td class="option"><code>--password</code></td>
               <td><span class="label important">Required</span></td>
               <td>Password linked to your e-mail account.</td>
             </tr>
             <tr>
-              <td class="option">--uuid</td>
+              <td class="option"><code>--uuid</code></td>
               <td><span class="label important">Required</span></td>
-              <td>Use this wildcard: %SIPUUID%. Archivematica will do the rest for you.</td>
+              <td>Use this wildcard: <code>%SIPUUID%</code>. Archivematica will do the rest for you.</td>
             </tr>
             <tr>
-              <td>--rsync-target</td>
+              <td class="option"><code>--rsync-target</code></td>
               <td><span class="label">Optional</span></td>
-              <td>The DIP can be sent with Rsync to a remote host before is deposited in Qubit. This is the destination value passed to Rsync (see man 1 rsync). For example: "foobar.com:~/dips/".</td>
+              <td>The DIP can be sent with Rsync to a remote host before is deposited in Qubit. This is the destination value passed to Rsync (see <code>man 1 rsync</code>). For example: <code>foobar.com:~/dips/</code>.</td>
             </tr>
             <tr>
-              <td class="option">--rsync-command</td>
+              <td class="option"><code>--rsync-command</code></td>
               <td><span class="label">Optional</span></td>
-              <td>If --rsync-target is used, you can use this argument to specify the remote shell manually. For example: "ssh -p 22222 -l user".</td>
+              <td>If --rsync-target is used, you can use this argument to specify the remote shell manually. For example: <code>ssh -p 22222 -l user</code>.</td>
             </tr>
             <tr>
-              <td class="option">--version</td>
+              <td class="option"><code>--version</code></td>
               <td><span class="label">Optional</span></td>
               <td>Use <code>--version=2</code> if you are using AtoM 2.</td>
             </tr>
             <tr>
-              <td class="option">--debug</td>
+              <td class="option"><code>--debug</code></td>
               <td><span class="label">Optional</span></td>
               <td>Show additional details.</td>
             </tr>
           </tbody>
         </table>
 
-        <div class="clearfix">
-          <label for="arguments">Command arguments</label>
-          <textarea class="span12 command" name="arguments" rows="6">{{ upload_setting.arguments }}</textarea>
-          <span class="help-block">Note that a backslash is necessary for each new line.</span>
-        </div>
+        {% include "_form.html" %}
 
         <div class="actions">
           <input type="submit" value="Save" class="btn primary" />

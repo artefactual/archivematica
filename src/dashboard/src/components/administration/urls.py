@@ -16,15 +16,12 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls import patterns
-from django.conf import settings
 
 urlpatterns = patterns('components.administration.views',
     (r'^$', 'administration'),
-    (r'dip/$', 'administration_dip'),
     (r'reports/failures/delete/(?P<report_id>\w+)/$', 'failure_report_delete'),
     (r'reports/failures/(?P<report_id>\w+)/$', 'failure_report'),
     (r'reports/failures/$', 'failure_report'),
-    (r'dip/edit/(?P<id>' + settings.UUID_REGEX + ')/$', 'dip_edit'),
     (r'dips/atk/$', 'administration_atk_dips'),
     (r'dips/atom/$', 'atom_dips'),
     (r'dips/contentdm/$', 'contentdm_dips'),
