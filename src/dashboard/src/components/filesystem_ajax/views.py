@@ -35,6 +35,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions, archivematicaFunctions, databaseInterface, databaseFunctions
 from archivematicaCreateStructuredDirectory import createStructuredDirectory
 from components import helpers
+import components.ingest.helpers as ingest_helpers
 import storageService as storage_service
 
 # for unciode sorting support
@@ -361,11 +362,9 @@ def copy_to_originals(request):
 
 def copy_from_arrange_to_completed(request):
     filepath = '/' + request.POST.get('filepath', '')
-    # TODO: refactor so this is cleaner, not using private function in ingest views module
-    from components.ingest import views
 
     if filepath != '':
-        views._initiate_sip_from_files_structured_like_a_completed_transfer(filepath)
+        ingest_helpers.initiate_sip_from_files_structured_like_a_completed_transfer(filepath)
 
     #return copy_to_originals(request)
 
