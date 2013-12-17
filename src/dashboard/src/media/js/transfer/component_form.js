@@ -139,42 +139,42 @@ var TransferComponentFormView = Backbone.View.extend({
           return;
         }
 
-        // move from temp directory to appropriate watchdir
-        var url = '/filesystem/ransfer/'
-          , isArchiveFile = path.toLowerCase().indexOf('.zip') != -1 || path.toLowerCase().indexOf('.tgz') != -1 || path.toLowerCase().indexOf('.tar.gz') != -1
-          , filepath;
+          // move from temp directory to appropriate watchdir
+          var url = '/filesystem/ransfer/'
+            , isArchiveFile = path.toLowerCase().indexOf('.zip') != -1 || path.toLowerCase().indexOf('.tgz') != -1 || path.toLowerCase().indexOf('.tar.gz') != -1
+            , filepath;
 
-        // if transfer is a ZIP file, then extract basename add to temporary directory
-        if (isArchiveFile) {
-          filepath = tempDir + '/' + path.replace(/\\/g,'/').replace( /.*\//, '' );
-        } else {
-          filepath = tempDir + '/' + transfer.name;
-        }
-
-        $.ajax({
-          url: url,
-          type: 'POST',
-          async: false,
-          cache: false,
-          data: {
-            filepath:  filepath,
-            type:      transfer.type,
-            accession: transfer.accessionNumber
-          },
-          success: function(results) {
-            if (results['error']) {
-              alert(results.message);
-            }
-
-            $('#transfer-name').val('');
-            $('#transfer-accession-number').val('');
-            $('#transfer-name-container').show();
-            $('#transfer-type').val('standard');
-            $('#path_container').html('');
-            $('.transfer-component-activity-indicator').hide();
+          // if transfer is a ZIP file, then extract basename add to temporary directory
+          if (isArchiveFile) {
+            filepath = tempDir + '/' + path.replace(/\\/g,'/').replace( /.*\//, '' );
+          } else {
+            filepath = tempDir + '/' + transfer.name;
           }
-        });
-        // report progress
+
+          $.ajax({
+            url: url,
+            type: 'POST',
+            async: false,
+            cache: false,
+            data: {
+              filepath:  filepath,
+              type:      transfer.type,
+              accession: transfer.accessionNumber
+            },
+            success: function(results) {
+              if (results['error']) {
+                alert(results.message);
+              }
+
+              $('#transfer-name').val('');
+              $('#transfer-accession-number').val('');
+              $('#transfer-name-container').show();
+              $('#transfer-type').val('standard');
+              $('#path_container').html('');
+              $('.transfer-component-activity-indicator').hide();
+            }
+          });
+        }
       }
     });
   },
