@@ -56,6 +56,7 @@ createDirectory_v0.0 = mkdir
 createEvent_v0.0 = %clientScriptsDirectory%createEvent.py
 createMETS_v0.0 = %clientScriptsDirectory%archivematicaCreateMETS.py
 createMETS_v2.0 = %clientScriptsDirectory%archivematicaCreateMETS2.py
+createTransferMetadata_v0.0 = %clientScriptsDirectory%archivematicaTransferMetadata.py
 createPointerFile_v0.0 = %clientScriptsDirectory%createPointerFile.py
 createSIPfromTransferObjects_v0.0 = %clientScriptsDirectory%createSIPfromTransferObjects.py
 createSIPsfromTRIMTransferContainers_v0.0 = %clientScriptsDirectory%createSIPsfromTRIMTransferContainers.py
