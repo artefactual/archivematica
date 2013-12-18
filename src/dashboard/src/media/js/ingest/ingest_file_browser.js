@@ -137,6 +137,34 @@ $(document).ready(function() {
   originals_browser = browsers['originals'];
   arrange_browser = browsers['arrange'];
 
+  $('#arrange_create_directory_button').click(function() {
+    var path = prompt('Name of new directory?');
+
+    if (path != '') {
+      var path_root = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId)
+        , relative_path = path_root + '/' + path;
+
+      $.ajax({
+        url: '/filesystem/create_directory_within_arrange/',
+        type: 'POST',
+        async: false,
+        cache: false,
+        data: {
+          path: relative_path
+        },
+        success: function(results) {
+          var directory = arrange_browser.getByPath(path_root);
+          directory.addDir({'name': path});
+          arrange_browser.refresh(arrange_directory);
+          arrange_browser.alert('Create directory', results.message);
+        },
+        error: function(results) {
+          originals_browser.alert('Error', results.message);
+        }
+      });
+    }
+  });
+
   // delete button functionality
   var createDeleteHandler = function(browser, directory) {
     return function() {

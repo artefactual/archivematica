@@ -368,6 +368,29 @@ def copy_from_arrange_to_completed(request):
 
     #return copy_to_originals(request)
 
+def create_directory_within_arrange(request):
+    error = None
+    
+    path = request.POST.get('path', '')
+
+    if path != '':
+        absolute_path = os.path.join('/', path)
+        if _within_arrange_dir(absolute_path):
+            os.mkdir(absolute_path)
+        else:
+            error = 'Directory is not within the arrange directory.'
+
+    response = {}
+
+    response['message'] = absolute_path
+    if error != None:
+        response['message'] = error
+        response['error']   = True
+    else:
+        response['message'] = 'Creation successful.'
+
+    return helpers.json_response(response)
+
 def move_within_arrange(request):
     sourcepath  = request.POST.get('filepath', '')
     destination = request.POST.get('destination', '')
@@ -375,6 +398,7 @@ def move_within_arrange(request):
     error = check_filepath_exists('/' + sourcepath)
 
     if error == None:
+        # TODO: make sure within arrange
         basename = os.path.basename('/' + sourcepath)
         destination_full = os.path.join('/', destination, basename)
         if (os.path.exists(destination_full)):
@@ -408,11 +432,18 @@ def _find_uuid_of_transfer_in_originals_directory_using_path(transfer_path):
     else:
         return None
 
-def copy_to_arrange(request):
-    # TODO: this shouldn't be hardcoded
-    arrange_dir = os.path.realpath(os.path.join(
+def _arrange_dir():
+    return os.path.realpath(os.path.join(
         helpers.get_client_config_value('sharedDirectoryMounted'),
         'arrange'))
+
+def _within_arrange_dir(path):
+    arrange_dir = _arrange_dir()
+    real_path = os.path.realpath(path)
+    return arrange_dir in real_path and real_path.index(arrange_dir) == 0
+
+def copy_to_arrange(request):
+    arrange_dir = _arrange_dir()
 
     # TODO: limit sourcepath to certain allowable locations
     sourcepath  = request.POST.get('filepath', '')
@@ -442,7 +473,7 @@ def copy_to_arrange(request):
             modified_basename = os.path.basename(sourcepath)
 
         # confine destination to subdir of arrange
-        if arrange_dir in destination and destination.index(arrange_dir) == 0:
+        if _within_arrange_dir(destination):
             full_destination = os.path.join(destination, modified_basename)
             full_destination = helpers.pad_destination_filepath_if_it_already_exists(full_destination)
 

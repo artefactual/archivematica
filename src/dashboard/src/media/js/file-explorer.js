@@ -546,6 +546,46 @@
       }
     },
 
+    // find an entry corresponding to a given path
+    getByPath: function(path) {
+      var found = this.findEntry(function(entry) {
+        if (typeof entry != 'undefined') {
+          return entry.path() == path;
+        } else {
+          return false;
+        }
+      });
+      if (found.length > 0) {
+        return found[0];
+      }
+    },
+
+    // find entry object
+    findEntry: function(testLogic, found, entry) {
+      if (typeof found === 'undefined') {
+        found = [];
+      }
+
+      if (typeof entry === 'undefined') {
+        entry = this.dirView.model;
+      }
+
+      // add entry to results if the test passes
+      if (testLogic(entry)) {
+        found.push(entry);
+      }
+
+      // find in entry children
+      var foundEntry = false;
+      if (typeof entry.children != 'undefined') {
+        for (var index = 0; index < entry.children.length; index++) {
+          this.findEntry(testLogic, found, entry.children[index]);
+        }
+      }
+
+      return found;
+    },
+
     // convert JSON structure to entry objects
     structureToObjects: function(structure, base) {
       if (structure.children != undefined) {
