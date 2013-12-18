@@ -17,32 +17,38 @@ You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-var transferMetadataSetRowUUID;
+var active_component;
+var components = {};
 
 function createMetadataSetID() {
-  var transferTypeNormalized = $('#transfer-type').val().replace(' ', '_');
+  var set_id;
+
   $.ajax({
-    'url': '/transfer/create_metadata_set_uuid/' + transferTypeNormalized + '/',
+    'url': '/transfer/create_metadata_set_uuid/',
     'type': 'GET',
     'async': false,
     'cache': false,
     'success': function(results) {
-       transferMetadataSetRowUUID = results.uuid;
+       set_id = results.uuid;
     },
     'error': function() {
       alert('Error: contact administrator.');
     }
   });
+
+  return {uuid: set_id};
 }
 
-function cleanupUnusedMetadataForms() {
+// Removes all form values associated with the given UUID,
+// along with the metadata row set in the database
+function removeMetadataForms(uuid) {
   $.ajax({
-    'url': '/transfer/cleanup_metadata_set/' + transferMetadataSetRowUUID + '/',
+    'url': '/transfer/cleanup_metadata_set/' + uuid + '/',
     'type': 'POST',
     'async': false,
     'cache': false,
     'error': function() {
-      alert('Error: unable to clean up unused metadata. Contact administrator.');
+      alert('Failed to clean up metadata for UUID: ' + component.uuid);
     }
   });
 }
@@ -76,9 +82,11 @@ var TransferComponentFormView = Backbone.View.extend({
 
   addedPaths: function() {
     var paths = [];
-    $('.transfer_path').each(function() {
-      paths.push($(this).text());
-    });
+    component_keys = Object.keys(components);
+    for (var i in component_keys) {
+      key = component_keys[i];
+      paths.push(components[key]);
+    }
     return paths;
   },
 
@@ -87,9 +95,11 @@ var TransferComponentFormView = Backbone.View.extend({
 
     // Clean up unused metadata forms that may have been entered but
     // not associated with any files
-    cleanupUnusedMetadataForms();
-    // Recreate the metadata row set ID, otherwise the ID will be reused on the next transfer
-    createMetadataSetID();
+    // active_component is set if a metadata row has been started, but
+    // not yet been associated with a component via the browse button.
+    if (active_component) {
+      removeMetadataForms(active_component.uuid);
+    }
     // re-enable transfer type select
     $('#transfer-type').removeAttr('disabled');
     $('#transfer_metadata_edit_button').hide('fade', {}, 250);
@@ -113,8 +123,11 @@ var TransferComponentFormView = Backbone.View.extend({
         var tempDir = results.tempDir;
         var error = false;
         // copy each transfer component to the temp directory
+        console.log(transfer.sourcePaths);
         for (var index in transfer.sourcePaths) {
-          path = transfer.sourcePaths[index];
+          var component = transfer.sourcePaths[index];
+          var path = component.path;
+          var uuid = component.uuid;
 
           $.ajax({
             url: '/filesystem/copy_transfer_component/',
@@ -159,7 +172,8 @@ var TransferComponentFormView = Backbone.View.extend({
             data: {
               filepath:  filepath,
               type:      transfer.type,
-              accession: transfer.accessionNumber
+              accession: transfer.accessionNumber,
+              transferMetadataSetRowUUID: uuid
             },
             success: function(results) {
               if (results['error']) {
@@ -177,6 +191,8 @@ var TransferComponentFormView = Backbone.View.extend({
         }
       }
     });
+
+    components = {};
   },
 
   render: function() {
@@ -241,13 +257,7 @@ var TransferComponentFormView = Backbone.View.extend({
       } else {
         $('#transfer_metadata_edit_button').hide('fade', {}, 250);
       }
-
-      // The set ID is scoped to the transfer type; if a new transfer
-      // type is selected, then we need a new ID too.
-      createMetadataSetID();
     });
-
-    if (!transferMetadataSetRowUUID) { createMetadataSetID(); }
 
     // The metadata set edit button is available as soon as a disk image transfer type is selected.
     // This allows for entering metadata before the associated transfer component is created,
@@ -256,9 +266,8 @@ var TransferComponentFormView = Backbone.View.extend({
     // It creates a metadata form associated with a placeholder path; that path will be updated to
     // point at the actual component path once a new transfer path is added.
     $('#transfer_metadata_edit_button').click(function() {
-      var path = "metadata-component-" + transferDirectoryPickerPathCounter;
-      console.log(path);
-      metadata_url = '/transfer/component/' + transferMetadataSetRowUUID + '?path=' + path;
+      if (!active_component) { active_component = createMetadataSetID(); }
+      metadata_url = '/transfer/component/' + active_component.uuid;
       window.open(metadata_url, '_blank');
     });
 
@@ -275,14 +284,15 @@ var TransferComponentFormView = Backbone.View.extend({
       {
         alert('Please enter a transfer name');
       } else {
-        if (!self.addedPaths().length) {
+        var paths = self.addedPaths();
+        if (!paths.length) {
           alert('Please click "Browse" to add one or more paths from the source directory.');
         } else {
           var transferData = {
             'name':            transferName,
             'type':            $('#transfer-type').val(),
             'accessionNumber': $('#transfer-accession-number').val(),
-            'sourcePaths':     self.addedPaths()
+            'sourcePaths':     paths
           };
           self.startTransfer(transferData);
         }

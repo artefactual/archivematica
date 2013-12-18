@@ -22,7 +22,7 @@ urlpatterns = patterns('components.transfer.views',
     (r'^$', 'grid'),
 
     # Transfer metadata set functions
-    (r'^create_metadata_set_uuid/(?P<transfer_type>\w+)/$', 'create_metadata_set_uuid'),
+    (r'^create_metadata_set_uuid/$', 'create_metadata_set_uuid'),
     (r'^rename_metadata_set/(?P<set_uuid>' + settings.UUID_REGEX + ')/(?P<placeholder_id>[\w\-]+)/$', 'rename_metadata_set'),
     (r'^cleanup_metadata_set/(?P<set_uuid>' + settings.UUID_REGEX + ')/$', 'cleanup_metadata_set'),
 

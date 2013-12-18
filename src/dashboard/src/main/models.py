@@ -563,7 +563,6 @@ class AtkDIPObjectResourcePairing(models.Model):
 
 class TransferMetadataSet(models.Model):
     id = UUIDPkField()
-    transfer_type = models.TextField(db_column='transferType')
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
     createdbyuserid = models.IntegerField(db_column='createdByUserID')
 
@@ -584,7 +583,6 @@ class TransferMetadataField(models.Model):
 class TransferMetadataFieldValue(models.Model):
     id = UUIDPkField()
     setuuid = models.TextField(db_column='setUUID')
-    filepath = models.TextField(db_column='filePath')
     fielduuid = models.TextField(db_column='fieldUUID')
     fieldvalue = models.TextField(db_column='fieldValue')
 

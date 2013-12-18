@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+var components;
 var transferMetadataSetRowUUID;
 var transferDirectoryPickerPathCounter = 1;
 
@@ -69,43 +70,27 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
         'delete_icon': '2'
       }));
 
+      if (!active_component) { active_component = createMetadataSetID(); }
+      var component = active_component;
+      var path = $('#transfer-component-path-item-' + transferDirectoryPickerPathCounter + ' > .transfer_path').text().trim();
+      component.path = path;
+      components[path] = component;
+
       // enable editing of transfer component metadata
       if ($('#transfer-type').val() == 'disk image') {
         var $transferEditIconEl = $(
           '#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter
         ).children('.transfer_path_icons').children('.transfer_path_edit_icon');
 
-        // Fix up the temporary path that was assigned previously to point to the real path
-        // that's now been assigned
-        var path = $('#transfer-component-path-item-' + transferDirectoryPickerPathCounter + ' > .transfer_path').text();
-        var temp_path = "metadata-component-" + transferDirectoryPickerPathCounter;
-        var update_metadata_url = '/transfer/rename_metadata_set/' + transferMetadataSetRowUUID +
-          '/' + temp_path + '/';
-        console.log(update_metadata_url);
-
-        $.ajax({
-          'url': update_metadata_url,
-          'type': 'POST',
-          'async': false,
-          'cache': false,
-          'data': {
-            'path': path
-          },
-          'success': function(results) {
-            console.log(results);
-          },
-          'error': function() {
-            alert('Error: unable to update metadata set ID. Contact administrator.');
-          }
-        });
-
         $transferEditIconEl.click(function() {
-          var component_metadata_url = '/transfer/component/' + transferMetadataSetRowUUID + '/?path=' + encodeURIComponent(path);
+          var component_metadata_url = '/transfer/component/' + component.uuid + '/';
           window.open(component_metadata_url, '_blank');
         });
 
         $transferEditIconEl.show();
       }
+
+      active_component = undefined;
 
       // activate edit and delete icons
       $('#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter)
@@ -113,6 +98,12 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
       .children('.transfer_path_delete_icon')
       .click(function() {
         if (confirm('Are you sure you want to remove this transfer component?')) {
+          var path = $(this).parent().parent().text().trim();
+          var component = components[path];
+
+          removeMetadataForms(component.uuid);
+
+          delete components[path];
           $(this).parent().parent().remove();
           if ($('.transfer_path').length < 1) {
             // re-enable transfer type select

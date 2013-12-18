@@ -40,7 +40,6 @@ CREATE TABLE TransferMetadataSets (
   pk VARCHAR(36) NOT NULL,
   createdTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   createdByUserID INT(11) NOT NULL,
-  transferType VARCHAR(50) NOT NULL,
   PRIMARY KEY (pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -106,7 +105,6 @@ CREATE TABLE TransferMetadataFieldValues (
   pk varchar(36) NOT NULL,
   createdTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   setUUID VARCHAR(36) NOT NULL,
-  filePath longtext NOT NULL,
   fieldUUID VARCHAR(36) NOT NULL,
   fieldValue LONGTEXT DEFAULT '',
   PRIMARY KEY (pk)

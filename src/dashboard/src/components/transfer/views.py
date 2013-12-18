@@ -68,11 +68,6 @@ def component(request, uuid):
     messages = []
     fields_saved = False
 
-    if request.method == 'GET':
-        path = request.GET.get('path', '')
-    else:
-        path = request.POST.get('path', '')
-
     # get set/field data and initialize dict of form field values
     set    = models.TransferMetadataSet.objects.get(pk=uuid)
     fields = models.TransferMetadataField.objects.all().order_by('sortorder')
@@ -106,8 +101,7 @@ def component(request, uuid):
         try:
             field_value = models.TransferMetadataFieldValue.objects.get(
                 fielduuid=field.pk,
-                setuuid=set.pk,
-                filepath=path
+                setuuid=set.pk
             )
             values[(field.fieldname)] = field_value.fieldvalue
         except:
@@ -115,7 +109,6 @@ def component(request, uuid):
                 field_value = models.TransferMetadataFieldValue()
                 field_value.fielduuid = field.pk
                 field_value.setuuid = set.pk
-                field_value.filepath = path
             else:
                 values[(field.fieldname)] = ''
         if request.method == 'POST':
@@ -207,7 +200,7 @@ def delete(request, uuid):
     except:
         raise Http404
 
-def create_metadata_set_uuid(request, transfer_type):
+def create_metadata_set_uuid(request):
     """
     Transfer metadata sets are used to associate a group of metadata field values with
     a transfer. The transfer metadata set UUID is relayed to the MCP chain by including
@@ -217,7 +210,6 @@ def create_metadata_set_uuid(request, transfer_type):
 
     try:
         ts = models.TransferMetadataSet()
-        ts.transfer_type   = transfer_type
         ts.createdbyuserid = request.user.id
         ts.save()
         response['uuid'] = ts.pk
@@ -267,9 +259,10 @@ def cleanup_metadata_set(request, set_uuid):
     response = {}
 
     try:
-        objects = models.TransferMetadataFieldValue.objects.filter(setuuid=set_uuid, filepath__contains='metadata-component-')
+        objects = models.TransferMetadataFieldValue.objects.filter(setuuid=set_uuid)
         response['deleted_objects'] = len(objects)
         objects.delete()
+        models.TransferMetadataSet.objects.get(id=set_uuid).delete()
     except Exception as e:
         response['message'] = e.message
 
