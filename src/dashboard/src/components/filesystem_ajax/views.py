@@ -502,6 +502,11 @@ def copy_to_arrange(request):
             # folder of the destination... if there is not objects
             # folder then return an error
 
+            arrange_subpath = full_destination.replace(arrange_dir, '')
+            dest_transfer_directory = arrange_subpath.split('/')[1]
+
+            _add_copied_files_to_arrange_log(sourcepath, full_destination)
+
             # an entire transfer isn't being copied... copy in METS if
             # it doesn't exist
             if transfer_directory_level != 1 and uuid != None:
@@ -509,12 +514,13 @@ def copy_to_arrange(request):
                 source_mets_path = os.path.join(ORIGINAL_DIR, source_transfer_directory, 'metadata/submissionDocumentation/METS.xml')
 
                 # work out destination object folder
-                arrange_subpath = full_destination.replace(arrange_dir, '')
-                dest_transfer_directory = arrange_subpath.split('/')[1]
                 objects_directory = os.path.join(arrange_dir, dest_transfer_directory, 'objects')
                 destination_mets = os.path.join(objects_directory, 'METS-' + uuid + '.xml')
                 if not os.path.exists(destination_mets):
                     shutil.copy(source_mets_path, destination_mets)
+
+            # log all files copied to arrange.log
+            #f
         else:
             error = 'The destination {} is not within the arrange directory ({}).'.format(destination, arrange_dir)
 
@@ -527,6 +533,39 @@ def copy_to_arrange(request):
         response['message'] = 'Copy successful.'
 
     return helpers.json_response(response)
+
+def _add_copied_files_to_arrange_log(sourcepath, full_destination):
+    arrange_dir = _arrange_dir()
+
+    # work out relative path within originals folder
+    originals_subpath = sourcepath.replace(ORIGINAL_DIR, '')
+
+    arrange_subpath = full_destination.replace(arrange_dir, '')
+    dest_transfer_directory = arrange_subpath.split('/')[1]
+
+    # add to arrange log
+    transfer_logs_directory = os.path.join(arrange_dir, dest_transfer_directory, 'logs')
+    if not os.path.exists(transfer_logs_directory):
+        os.mkdir(transfer_logs_directory)
+    arrange_log_filepath = os.path.join(transfer_logs_directory, 'arrange.log')
+    transfer_root = os.path.join(arrange_dir, dest_transfer_directory)
+    with open(arrange_log_filepath, "a") as logfile:
+        if os.path.isdir(full_destination):
+            # recursively add all files to arrange log 
+            for dirname, dirnames, filenames in os.walk(full_destination):
+                # print path to all filenames.
+                for filename in filenames:
+                    filepath = os.path.join(dirname, filename).replace(transfer_root, '')
+                    relative_path_to_file_within_source_dir = '/'.join(filepath.split('/')[3:])
+                    original_filepath = os.path.join(
+                        originals_subpath[1:],
+                        relative_path_to_file_within_source_dir
+                    )
+                    log_entry = original_filepath + ' -> ' + filepath.replace(transfer_root, '')[1:] + "\n"
+                    logfile.write(log_entry)
+        else:
+            log_entry = originals_subpath[1:] + ' -> ' + full_destination.replace(transfer_root, '')[1:] + "\n"
+            logfile.write(log_entry)
 
 def check_filepath_exists(filepath):
     error = None
