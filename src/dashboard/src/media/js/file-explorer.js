@@ -353,7 +353,7 @@
             // set up hovering
             self.activateHover(entryEl);
 
-            // add entry to current directory livel
+            // add entry to current directory level
             $(levelEl).append(entryEl);
 
             // render child directories
@@ -562,10 +562,12 @@
 
     // find entry object
     findEntry: function(testLogic, found, entry) {
+      // initialize result set
       if (typeof found === 'undefined') {
         found = [];
       }
 
+      // default to root entry
       if (typeof entry === 'undefined') {
         entry = this.dirView.model;
       }
