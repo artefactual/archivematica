@@ -62,6 +62,11 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
       // are not
       $('#transfer-type').attr('disabled', 'disabled');
 
+      if (components[result.path]) {
+        alert("Error: The selected path is already present in this transfer.");
+        return;
+      }
+
       // render path component
       $('#' + targetCssId).append(selector.pathTemplateRender({
         'path_counter': transferDirectoryPickerPathCounter,
