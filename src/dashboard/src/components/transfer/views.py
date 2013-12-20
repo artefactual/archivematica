@@ -183,6 +183,7 @@ def detail(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid)
     name = utils.get_directory_name_from_job(jobs[0])
     is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
+    set_uuid = models.Transfer.objects.get(uuid=uuid).transfermetadatasetrowuuid
     return render(request, 'transfer/detail.html', locals())
 
 def microservices(request, uuid):
