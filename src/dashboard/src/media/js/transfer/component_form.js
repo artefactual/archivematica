@@ -146,7 +146,7 @@ var TransferComponentFormView = Backbone.View.extend({
               }
             }
           });
-        }
+
         if (error) {
           $('.transfer-component-activity-indicator').hide();
           return;
