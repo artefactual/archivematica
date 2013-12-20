@@ -77,8 +77,7 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
 
       if (!active_component) { active_component = createMetadataSetID(); }
       var component = active_component;
-      var path = $('#transfer-component-path-item-' + transferDirectoryPickerPathCounter + ' > .transfer_path').text().trim();
-      component.path = path;
+      component.path = results.path;
       components[path] = component;
 
       // enable editing of transfer component metadata
