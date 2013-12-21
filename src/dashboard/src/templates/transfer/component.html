@@ -1,5 +1,5 @@
 {% extends "layout_fluid.html" %}
-{% load breadcumbs %}
+{% load breadcrumb %}
 {% load url from future %}
 {% load keyvalue %}
 
@@ -31,13 +31,13 @@
 
             {% if field.fieldtype == 'select' %}
               <select name='{{ field.fieldname }}'>
-                {% for optiondata in options %}
-                  {% if optiondata.field == field.pk %}
+                {% with values|keyvalue:field.fieldname as select_value %}
+                  {% for optiondata in options %}
                     {% for option in optiondata.options %}
-                      <option>{{ option }}</option>
+                      <option {% if option == select_value %}selected{% endif %}>{{ option }}</option>
                     {% endfor %}
-                  {% endif %}
-                {% endfor %}
+                  {% endfor %}
+                {% endwith %}
               </select>
 
             {% endif %}
