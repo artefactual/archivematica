@@ -116,6 +116,29 @@ function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
   arrange.moveHandler = moveHandler;
   arrange.refresh(arrangeDirectory);
 
+  var search_results = new fileBrowser.EntryList({
+    'el': $('#search_results'),
+    'moveHandler': moveHandler,
+    'template': _.template($('#template-dir-entry').html())
+  });
+
+  $('#originals_search_button').click(function() {
+    $('#originals').hide();
+    search_results.results = originals.findEntry(function(entry) {
+       var query = $('#originals_query').val();
+       return entry.get('name').toLowerCase().indexOf(query.toLowerCase()) != -1;
+    });
+    search_results.render();
+    search_results.initDragAndDrop();
+    $('#search_results').show();
+  });
+
+  $('#originals_search_reset_button').click(function() {
+    $('#originals_query').val('');
+    $('#search_results').hide();
+    $('#originals').show();
+  });
+
   return {
     'originals': originals,
     'arrange': arrange
