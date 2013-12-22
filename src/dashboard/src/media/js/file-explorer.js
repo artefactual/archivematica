@@ -508,6 +508,73 @@
     }
   });
 
+  // logic to keep track of where a dragged directory entry is
+  function dragHandler(event) {
+    var id = event.currentTarget.id
+      , $el = $("[id='" + event.currentTarget.id + "']")
+      , offsets = $el.offset();
+
+    if (exports.Data.startY[id] == undefined) {
+     exports.Data.startX[id] = offsets.left;
+     exports.Data.startY[id] = offsets.top;
+    }
+
+    $el.css({'z-index': 1});
+    $el.css({left: exports.Data['mouseX'] - exports.Data.startX[id] + 5});
+    $el.css({top: exports.Data['mouseY'] - exports.Data.startY[id] + 5});
+  };
+
+  /* Internal representation of the file explorer */
+  exports.EntryList = Backbone.View.extend({
+
+    tagName: 'div',
+
+    initialize: function() {
+      this.results     = this.options.results || [];
+      this.moveHandler = this.options.moveHandler;
+      this.template    = this.options.template;
+      this.id          = $(this.el).attr('id');
+      this.render();
+      this.initDragAndDrop();
+    },
+
+    dragHandler: dragHandler,
+
+    // bind/re-bind drag-and-drop logic
+    initDragAndDrop: function() {
+      if (this.moveHandler) {
+        // bind drag-and-drop functionality
+        var self = this;
+
+       // exclude top-level directory from being dragged
+       $(this.el)
+          .find('.backbone-file-explorer-entry:not(:first)')
+          .unbind('drag')
+          .bind('drag', {'self': self}, self.dragHandler);
+      }
+    },
+
+    // render the entry list
+    render: function() {
+      $(this.el).empty();
+
+      for (var index = 0; index < this.results.length; index++) {
+        var entry = new exports.EntryView({
+          'el': this.el,
+          'entry': this.results[index],
+          'template': this.template,
+          'explorer': this
+        });
+        exports.Data.idPaths[this.id + '_' + entry.model.id()] = entry.model.path();
+        entry.render();
+
+        $(this.el).append(entry.el);
+      }
+
+      return this;
+    }
+  });
+
   /* Internal representation of the file explorer */
   exports.FileExplorer = Backbone.View.extend({
 
@@ -651,20 +718,7 @@
     },
 
     // logic to keep track of where a dragged directory entry is
-    dragHandler: function(event) {
-      var id = event.currentTarget.id
-        , $el = $("[id='" + event.currentTarget.id + "']")
-        , offsets = $el.offset();
-
-      if (exports.Data.startY[id] == undefined) {
-       exports.Data.startX[id] = offsets.left;
-       exports.Data.startY[id] = offsets.top;
-      }
-
-      $el.css({'z-index': 1});
-      $el.css({left: exports.Data['mouseX'] - exports.Data.startX[id] + 5});
-      $el.css({top: exports.Data['mouseY'] - exports.Data.startY[id] + 5});
-    },
+    dragHandler: dragHandler,
 
     // logic to keep handle dropping a directory entry
     dropHandler: function(event) {
