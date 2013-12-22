@@ -19,7 +19,7 @@ along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
   var backlogBrowserEntryClickHandler = function(event) {
     if (typeof event.data != 'undefined') {
-      var explorer = event.data.self.explorer
+      var explorer = event.data.self.container
         , explorerId = explorer.id
 
         var entryEl = this
@@ -116,26 +116,40 @@ function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
   arrange.moveHandler = moveHandler;
   arrange.refresh(arrangeDirectory);
 
-  var search_results = new fileBrowser.EntryList({
-    'el': $('#search_results'),
+  // search results widget
+  var originals_search_results = new fileBrowser.EntryList({
+    'el': $('#originals_search_results'),
     'moveHandler': moveHandler,
     'template': _.template($('#template-dir-entry').html())
   });
 
-  $('#originals_search_button').click(function() {
+  // define search behavior
+  function searchOriginals() {
     $('#originals').hide();
-    search_results.results = originals.findEntry(function(entry) {
+    originals_search_results.entries = originals.findEntry(function(entry) {
        var query = $('#originals_query').val();
        return entry.get('name').toLowerCase().indexOf(query.toLowerCase()) != -1;
     });
-    search_results.render();
-    search_results.initDragAndDrop();
-    $('#search_results').show();
+    originals_search_results.render();
+    originals_search_results.initDragAndDrop();
+    $('#originals_search_results').show();
+  }
+
+  // search if user presses "enter"
+  $('#originals_search_form').submit(function(e) {
+    e.preventDefault(e);
+    searchOriginals();
   });
 
+  // search if use clicks "search" button
+  $('#originals_search_button').click(function() {
+    searchOriginals();
+  });
+
+  // reset search form and hide search results widget
   $('#originals_search_reset_button').click(function() {
     $('#originals_query').val('');
-    $('#search_results').hide();
+    $('#originals_search_results').hide();
     $('#originals').show();
   });
 

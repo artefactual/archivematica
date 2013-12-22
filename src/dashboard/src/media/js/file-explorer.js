@@ -110,7 +110,7 @@
 
     initialize: function() {
       this.model     = this.options.entry;
-      this.explorer  = this.options.explorer;
+      this.container = this.options.container;
       this.className = (this.model.children != undefined)
         ? 'backbone-file-explorer-directory'
         : 'directory-file';
@@ -128,7 +128,7 @@
     },
 
     cssId: function() {
-      return this.explorer.id + '_' + this.model.id();
+      return this.container.id + '_' + this.model.id();
     },
 
     render: function() {
@@ -145,7 +145,7 @@
 
       // set CSS ID for entries (used to capture whether directory is
       // open/closed by user between data refreshes, etc.)
-      var id = (this.explorer) ? this.explorer.id + '_' : '';
+      var id = (this.container) ? this.container.id + '_' : '';
       $(this.el).attr('id', id + this.model.id());
 
       // add entry click handler if specified
@@ -195,7 +195,7 @@
         // add click handler to directory icon
         var self = this;
         $(this.el).children('.backbone-file-explorer-directory_icon_button').click(function() {
-          self.explorer.toggleDirectory($(self.el));
+          self.container.toggleDirectory($(self.el));
         });
       }
 
@@ -323,7 +323,7 @@
 
             // render entry
             var entryView = new exports.EntryView({
-              explorer: self.explorer,
+              container: self.explorer,
               entry: child,
               template: self.entryTemplate,
               entryClickHandler: self.entryClickHandler,
@@ -474,7 +474,7 @@
     // render a group of files and directories
     render: function() {
       var entryView = new exports.EntryView({
-        explorer: this.explorer,
+        container: this.explorer,
         entry: this.model,
         template: this.entryTemplate
       });
@@ -524,13 +524,13 @@
     $el.css({top: exports.Data['mouseY'] - exports.Data.startY[id] + 5});
   };
 
-  /* Internal representation of the file explorer */
+  /* Internal representation of a list of entries */
   exports.EntryList = Backbone.View.extend({
 
     tagName: 'div',
 
     initialize: function() {
-      this.results     = this.options.results || [];
+      this.entries     = this.options.entries || [];
       this.moveHandler = this.options.moveHandler;
       this.template    = this.options.template;
       this.id          = $(this.el).attr('id');
@@ -540,17 +540,32 @@
 
     dragHandler: dragHandler,
 
+    // logic to simply put anything dropped on the entry list
+    // back where it was originally placed
+    dropHandler: function(event) {
+      var droppedId   = event.dragTarget.id;
+
+      $('#' + droppedId).css({left: 0});
+      $('#' + droppedId).css({top: 0});
+    },
+
     // bind/re-bind drag-and-drop logic
     initDragAndDrop: function() {
       if (this.moveHandler) {
         // bind drag-and-drop functionality
         var self = this;
 
-       // exclude top-level directory from being dragged
-       $(this.el)
-          .find('.backbone-file-explorer-entry:not(:first)')
+        // bind all list entries to drag handler
+        $(this.el)
+          .find('.backbone-file-explorer-entry')
           .unbind('drag')
           .bind('drag', {'self': self}, self.dragHandler);
+
+        // bind all list entries to drop handler
+        $(this.el)
+          .find('.backbone-file-explorer-entry')
+          .unbind('drop')
+          .bind('drop', {'self': self}, self.dropHandler);
       }
     },
 
@@ -558,12 +573,12 @@
     render: function() {
       $(this.el).empty();
 
-      for (var index = 0; index < this.results.length; index++) {
+      for (var index = 0; index < this.entries.length; index++) {
         var entry = new exports.EntryView({
           'el': this.el,
-          'entry': this.results[index],
+          'entry': this.entries[index],
           'template': this.template,
-          'explorer': this
+          'container': this
         });
         exports.Data.idPaths[this.id + '_' + entry.model.id()] = entry.model.path();
         entry.render();
