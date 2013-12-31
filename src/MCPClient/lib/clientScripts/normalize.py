@@ -165,7 +165,7 @@ def once_normalized(command, opts, replacement_dict):
         command.exit_code = -2
 
     derivation_event_uuid = str(uuid.uuid4())
-    event_detail_output = 'ArchivematicaFPRCommandID="%s"'.format(command.fpcommand.uuid)
+    event_detail_output = 'ArchivematicaFPRCommandID="{}"'.format(command.fpcommand.uuid)
     if command.event_detail_command is not None:
         event_detail_output += '; {}'.format(command.event_detail_command.std_out)
     for ef in transcoded_files:
