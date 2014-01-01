@@ -39,7 +39,7 @@ pwd
 
 mysql -u $username $dbpassword --execute="source ./delete_fpr_data.sql" $databaseName
 mysql -u $username $dbpassword --execute="source ./mysql_fpr_1.0.sql" $databaseName
-# mysql -u $username $dbpassword --execute="source ./mysql_fpr_dev1.sql" $databaseName
+mysql -u $username $dbpassword --execute="source ./mysql_fpr_dev1.sql" $databaseName
 # ./migration1.sh
 # mysql -u $username $dbpassword --execute="source ./mysql_dev2.sql" $databaseName
 # ./migration2.sh
