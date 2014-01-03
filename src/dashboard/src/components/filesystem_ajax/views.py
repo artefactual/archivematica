@@ -19,7 +19,6 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.db import connection
 import base64
 import os
-from subprocess import call
 import logging
 import shutil
 import MySQLdb
@@ -36,6 +35,7 @@ import elasticSearchFunctions, archivematicaFunctions, databaseInterface, databa
 from archivematicaCreateStructuredDirectory import createStructuredDirectory
 from components import helpers
 import components.ingest.helpers as ingest_helpers
+import components.filesystem_ajax.helpers as filesystem_ajax_helpers
 import storageService as storage_service
 
 # for unciode sorting support
@@ -52,50 +52,6 @@ STANDARD_TRANSFER_DIR   = ACTIVE_TRANSFER_DIR + '/standardTransfer'
 COMPLETED_TRANSFERS_DIR = SHARED_DIRECTORY_ROOT + '/watchedDirectories/SIPCreation/completedTransfers'
 ORIGINAL_DIR            = SHARED_DIRECTORY_ROOT + '/www/AIPsStore/transferBacklog/originals'
 
-def rsync_copy(source, destination):
-    call([
-        'rsync',
-        '-r',
-        '-t',
-        source,
-        destination
-    ])
-
-def sorted_directory_list(path):
-    cleaned = []
-    entries = os.listdir(archivematicaFunctions.unicodeToStr(path))
-    cleaned = [archivematicaFunctions.unicodeToStr(entry) for entry in entries]
-    return sorted(cleaned, key=helpers.keynat)
-
-def directory_to_dict(path, directory={}, entry=False):
-    # if starting traversal, set entry to directory root
-    if (entry == False):
-        entry = directory
-        # remove leading slash
-        entry['parent'] = base64.b64encode(os.path.dirname(path)[1:])
-
-    # set standard entry properties
-    entry['name'] = base64.b64encode(os.path.basename(path))
-    entry['children'] = []
-
-    # define entries
-    entries = sorted_directory_list(path)
-    for file in entries:
-        new_entry = None
-        if file[0] != '.':
-            new_entry = {}
-            new_entry['name'] = base64.b64encode(file)
-            entry['children'].append(new_entry)
-
-        # if entry is a directory, recurse
-        child_path = os.path.join(path, file)
-        if new_entry != None and os.path.isdir(child_path) and os.access(child_path, os.R_OK):
-            directory_to_dict(child_path, directory, new_entry)
-
-    # return fully traversed data
-    return directory
-
-import archivematicaFunctions
 
 def directory_children_proxy_to_storage_server(request, location_uuid, basePath=False):
     path = ''
@@ -109,50 +65,15 @@ def directory_children_proxy_to_storage_server(request, location_uuid, basePath=
 
     return helpers.json_response(response)
 
-def directory_children(request, basePath=False):
-    path = ''
-    if (basePath):
-        path = path + basePath
-    path = path + request.GET.get('base_path', '')
-    path = path + request.GET.get('path', '')
-
-    response    = {}
-    entries     = []
-    directories = []
-
-    for entry in sorted_directory_list(path):
-        entry = archivematicaFunctions.strToUnicode(entry)
-        if unicode(entry)[0] != '.':
-            entries.append(entry)
-            entry_path = os.path.join(path, entry)
-            if os.path.isdir(archivematicaFunctions.unicodeToStr(entry_path)) and os.access(archivematicaFunctions.unicodeToStr(entry_path), os.R_OK):
-                directories.append(entry)
-
-    response = {
-      'entries': entries,
-      'directories': directories
-    }
-
-    return helpers.json_response(response)
-
-def directory_contents(path, contents=[]):
-    entries = sorted_directory_list(path)
-    for entry in entries:
-        contents.append(os.path.join(path, entry))
-        entry_path = os.path.join(path, entry)
-        if os.path.isdir(entry_path) and os.access(entry_path, os.R_OK):
-            directory_contents(entry_path, contents)
-    return contents
-
 def contents(request):
     path = request.GET.get('path', '/home')
-    response = directory_to_dict(path)
+    response = filesystem_ajax_helpers.directory_to_dict(path)
     return helpers.json_response(response)
 
 def delete(request):
     filepath = request.POST.get('filepath', '')
     filepath = os.path.join('/', filepath)
-    error = check_filepath_exists(filepath)
+    error = filesystem_ajax_helpers.check_filepath_exists(filepath)
 
     if error == None:
         filepath = os.path.join(filepath)
@@ -242,7 +163,7 @@ def copy_transfer_component(transfer_name='', path='', destination=''):
             # if transfer compontent path leads to an archive, treat as zipped
             # bag
             if helpers.file_is_an_archive(path):
-                rsync_copy(path, destination)
+                filesystem_ajax_helpers.rsync_copy(path, destination)
                 paths_copied = 1
             else:
                 transfer_dir = os.path.join(destination, transfer_name)
@@ -257,7 +178,7 @@ def copy_transfer_component(transfer_name='', path='', destination=''):
                 # cycle through each path copying files/dirs
                 # inside it to transfer dir
                 try:
-                    entries = sorted_directory_list(path)
+                    entries = filesystem_ajax_helpers.sorted_directory_list(path)
                 except os.error as e:
                     error = "Error: {e.strerror}: {e.filename}".format(e=e)
                     # Clean up temp dir - don't use os.removedirs because
@@ -268,7 +189,7 @@ def copy_transfer_component(transfer_name='', path='', destination=''):
                 else:
                     for entry in entries:
                         entry_path = os.path.join(str(path), str(entry))
-                        rsync_copy(entry_path, transfer_dir)
+                        filesystem_ajax_helpers.rsync_copy(entry_path, transfer_dir)
                         paths_copied = paths_copied + 1
 
     if error:
@@ -277,7 +198,7 @@ def copy_transfer_component(transfer_name='', path='', destination=''):
     return paths_copied
 
 def copy_to_start_transfer(filepath='', type='', accession=''):
-    error = check_filepath_exists(filepath)
+    error = filesystem_ajax_helpers.check_filepath_exists(filepath)
 
     if error == None:
         # confine destination to subdir of originals
@@ -303,7 +224,7 @@ def copy_to_start_transfer(filepath='', type='', accession=''):
         # bag
         if not helpers.file_is_an_archive(filepath):
             destination = os.path.join(destination, basename)
-            destination = pad_destination_filepath_if_it_already_exists(destination)
+            destination = helpers.pad_destination_filepath_if_it_already_exists(destination)
 
         # relay accession via DB row that MCPClient scripts will use to get
         # supplementary info from
@@ -327,7 +248,7 @@ def copy_to_start_transfer(filepath='', type='', accession=''):
 
 def copy_to_originals(request):
     filepath = request.POST.get('filepath', '')
-    error = check_filepath_exists('/' + filepath)
+    error = filesystem_ajax_helpers.check_filepath_exists('/' + filepath)
 
     if error == None:
         processingDirectory = '/var/archivematica/sharedDirectory/currentlyProcessing/'
@@ -395,7 +316,7 @@ def move_within_arrange(request):
     sourcepath  = request.POST.get('filepath', '')
     destination = request.POST.get('destination', '')
 
-    error = check_filepath_exists('/' + sourcepath)
+    error = filesystem_ajax_helpers.check_filepath_exists('/' + sourcepath)
 
     if error == None:
         # TODO: make sure within arrange
@@ -460,7 +381,7 @@ def copy_to_arrange(request):
     transfer_directory_level = originals_subpath.count('/')
     source_transfer_directory = originals_subpath.split('/')[1]
 
-    error = check_filepath_exists(sourcepath)
+    error = filesystem_ajax_helpers.check_filepath_exists(sourcepath)
 
     if error == None:
         uuid = _find_uuid_of_transfer_in_originals_directory_using_path(os.path.join(ORIGINAL_DIR, source_transfer_directory))
@@ -488,7 +409,7 @@ def copy_to_arrange(request):
 
                 if error == None:
                     # remove any metadata and logs folders
-                    for path in directory_contents(full_destination):
+                    for path in filesystem_ajax_helpers.directory_contents(full_destination):
                         basename = os.path.basename(path)
                         if basename == 'metadata' or basename == 'logs':
                             if os.path.isdir(path):
@@ -566,35 +487,6 @@ def _add_copied_files_to_arrange_log(sourcepath, full_destination):
         else:
             log_entry = originals_subpath[1:] + ' -> ' + full_destination.replace(transfer_root, '')[1:] + "\n"
             logfile.write(log_entry)
-
-def check_filepath_exists(filepath):
-    error = None
-    if filepath == '':
-        error = 'No filepath provided.'
-
-    # check if exists
-    if error == None and not os.path.exists(filepath):
-        error = 'Filepath ' + filepath + ' does not exist.'
-
-    # check if is file or directory
-
-    # check for trickery
-    try:
-        filepath.index('..')
-        error = 'Illegal path.'
-    except:
-        pass
-
-    return error
-
-# TODO: remove and use version in helpers
-def pad_destination_filepath_if_it_already_exists(filepath, original=None, attempt=0):
-    if original == None:
-        original = filepath
-    attempt = attempt + 1
-    if os.path.exists(filepath):
-        return pad_destination_filepath_if_it_already_exists(original + '_' + str(attempt), original, attempt)
-    return filepath
 
 def download(request):
     shared_dir = os.path.realpath(helpers.get_client_config_value('sharedDirectoryMounted'))
