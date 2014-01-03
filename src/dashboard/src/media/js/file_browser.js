@@ -30,6 +30,12 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
 
     var self = this;
 
+    if (typeof this.options.directoryContentsURLPath != 'undefined') {
+      this.directoryContentsURLPath = this.options.directoryContentsURLPath;
+    } else {
+      this.directoryContentsURLPath = '/filesystem/contents/';
+    }
+
     this.eventClickHandler = this.options.eventClickHandler;
 
     if (!this.options.nameClickHandler) {
@@ -92,10 +98,9 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
       this.path = path;
     }
 
-    var baseUrl = '/filesystem/contents/';
     var url = (this.path != undefined)
-      ? baseUrl + '?path=' + encodeURIComponent(this.path)
-      : baseUrl;
+      ? this.directoryContentsURLPath + '?path=' + encodeURIComponent(this.path)
+      : this.directoryContentsURLPath;
 
     var self = this;
 
