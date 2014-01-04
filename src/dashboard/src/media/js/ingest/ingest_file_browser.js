@@ -128,8 +128,22 @@ function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
   function searchOriginals() {
     $('#originals').hide();
     originals_search_results.entries = originals.findEntry(function(entry) {
-       var query = $('#originals_query').val();
-       return entry.get('name').toLowerCase().indexOf(query.toLowerCase()) != -1;
+      var query = $('#originals_query').val(),
+          hit = false;
+
+      // check if query matches name
+      hit = entry.get('name').toLowerCase().indexOf(query.toLowerCase()) != -1;
+
+      // if query doesn't match name, check if other field matches
+      if (hit == false && typeof entry.get('data') != 'undefined') {
+
+        // if entry has accession ID data, see if it matches          
+        if (typeof entry.get('data')['accessionId'] != 'undefined') {
+          hit = entry.get('data')['accessionId'].indexOf(query) != -1;
+        }
+      }
+
+      return hit;
     });
     originals_search_results.render();
     originals_search_results.initDragAndDrop();

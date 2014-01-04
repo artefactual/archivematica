@@ -79,7 +79,10 @@ def originals_contents(request):
         if len(possible_uuid) == 36:
             try:
                 transfer = models.Transfer.objects.get(uuid=possible_uuid)
-                child['data'] = {'transfer_uuid': possible_uuid}
+                data = {'transfer_uuid': possible_uuid}
+                if transfer.accessionid != None:
+                    data['accessionId'] = transfer.accessionid
+                child['data'] = data
             except:
                 pass
     return helpers.json_response(response)
