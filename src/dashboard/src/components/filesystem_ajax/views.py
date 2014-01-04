@@ -70,6 +70,20 @@ def contents(request):
     response = filesystem_ajax_helpers.directory_to_dict(path)
     return helpers.json_response(response)
 
+def originals_contents(request):
+    path = request.GET.get('path', '/home')
+    response = filesystem_ajax_helpers.directory_to_dict(path)
+    for child in response['children']:
+        # check if name has uuid and, if so, check if it's valid
+        possible_uuid = child['name'][-36:]
+        if len(possible_uuid) == 36:
+            try:
+                transfer = models.Transfer.objects.get(uuid=possible_uuid)
+                child['data'] = {'transfer_uuid': possible_uuid}
+            except:
+                pass
+    return helpers.json_response(response)
+
 def delete(request):
     filepath = request.POST.get('filepath', '')
     filepath = os.path.join('/', filepath)

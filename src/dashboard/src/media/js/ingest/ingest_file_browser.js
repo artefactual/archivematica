@@ -95,7 +95,8 @@ function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
     levelTemplate: $('#template-dir-level').html(),
     entryTemplate: $('#template-dir-entry').html(),
     entryClickHandler: backlogBrowserEntryClickHandler,
-    nameClickHandler: backlogBrowserEntryClickHandler
+    nameClickHandler: backlogBrowserEntryClickHandler,
+    directoryContentsURLPath: '/filesystem/contents/originals/'
   });
 
   originals.itemsPerPage = 10;

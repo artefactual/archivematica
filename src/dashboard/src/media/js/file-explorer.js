@@ -690,6 +690,11 @@
         base.addFile(structure.name);
       }
 
+      // allow structure to provide additional data for special applications
+      if (typeof structure.data != 'undefined') {
+        base.set({'data': structure.data});
+      }
+
       return base;
     },
 
