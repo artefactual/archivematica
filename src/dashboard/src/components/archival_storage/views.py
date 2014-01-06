@@ -259,7 +259,7 @@ def aip_file_download(request, uuid):
         subdir = os.path.splitext(aip_archive_filename)[0]
 
     path_to_file_within_aip_data_dir \
-      = os.path.dirname(file.originallocation.replace('%transferDirectory%', ''))
+      = os.path.dirname(file.currentlocation.replace('%SIPDirectory%', ''))
 
     file_relative_path = os.path.join(
       subdir,
