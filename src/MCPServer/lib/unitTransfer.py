@@ -102,7 +102,7 @@ class unitTransfer(unit):
             while row != None:
                 #print row
                 UUID = row[0]
-                currentPath = row[1].encode("utf-8")
+                currentPath = row[1]
                 fileGrpUse = row[2]
                 #print currentPath in self.fileList, row
                 if currentPath in self.fileList:

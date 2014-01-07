@@ -28,10 +28,9 @@ import sys
 import lxml.etree as etree
 import MySQLdb
 from xml.sax.saxutils import quoteattr
-#from archivematicaCreateMETS2 import escape
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
-#from archivematicaFunctions import escape
+from archivematicaFunctions import escape
 
 
 UUIDsDic={}
@@ -55,10 +54,6 @@ XMLFile = opts.xmlFile
 includeAmdSec = opts.amdSec
 basePathString = "%%%s%%" % (opts.basePathString)
 fileGroupIdentifier = opts.fileGroupIdentifier
-
-def escape(string):
-    string = string.decode('utf-8')
-    return string
 
 
 def newChild(parent, tag, text=None, tailText=None):

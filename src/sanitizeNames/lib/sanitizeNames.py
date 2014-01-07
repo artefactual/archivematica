@@ -36,7 +36,6 @@ def transliterate(basename):
     
 def sanitizeName(basename):
     ret = ""
-    basename = basename.decode('utf8')
     basename = transliterate(basename)
     for c in basename:
         if c in valid:

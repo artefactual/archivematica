@@ -44,6 +44,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions, databaseInterface, databaseFunctions
 from archivematicaCreateStructuredDirectory import createStructuredDirectory
 from archivematicaCreateStructuredDirectory import createManualNormalizedDirectoriesList
+from archivematicaFunctions import escape
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes, requests
 from components.archival_storage.forms import StorageSearchForm
@@ -276,6 +277,8 @@ def ingest_normalization_report(request, uuid, current_page=None):
     sipname = utils.get_directory_name_from_job(job)
 
     objects = getNormalizationReportQuery(sipUUID=uuid)
+    for o in objects:
+        o['location'] = escape(o['location'])
 
     results_per_page = 10
 

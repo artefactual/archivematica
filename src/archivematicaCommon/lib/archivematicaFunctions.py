@@ -110,8 +110,12 @@ def escapeForCommand(string):
         #ret = ret.replace("$", "\\$")
     return ret
 
+# This replaces non-unicode characters with a replacement character,
+# and is primarily used for arbitrary strings (e.g. filenames, paths)
+# that might not be valid unicode to begin with.
 def escape(string):
-    #string = string.decode('utf-8')
+    if isinstance(string, basestring):
+        string = string.decode('utf-8', errors='replace')
     return string
 
 

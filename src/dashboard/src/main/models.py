@@ -191,6 +191,7 @@ class File(models.Model):
     uuid = models.CharField(max_length=36, primary_key=True, db_column='fileUUID')
     sip = models.ForeignKey(SIP, db_column='sipUUID', to_field = 'uuid')
     transfer = models.ForeignKey(Transfer, db_column='transferUUID', to_field = 'uuid')
+    # both actually `longblob` in the database
     originallocation = models.TextField(db_column='originalLocation')
     currentlocation = models.TextField(db_column='currentLocation')
     filegrpuse = models.TextField(db_column='fileGrpUse')
@@ -232,12 +233,19 @@ class Task(models.Model):
     job = models.ForeignKey(Job, db_column='jobuuid', to_field = 'jobuuid')
     createdtime = models.DateTimeField(db_column='createdTime')
     fileuuid = models.CharField(max_length=36, db_column='fileUUID', blank=True)
+    # Actually a `longblob` in the database, since filenames may contain
+    # arbitrary non-unicode characters - other blob and binary fields
+    # have these types for the same reason.
+    # Note that Django doesn't have a specific blob type, hence the use of
+    # the char field types instead.
     filename = models.CharField(max_length=100, db_column='fileName', blank=True)
     execution = models.CharField(max_length=250, db_column='exec', blank=True)
+    # actually a `varbinary(1000)` in the database
     arguments = models.CharField(max_length=1000, blank=True)
     starttime = models.DateTimeField(db_column='startTime')
     client = models.CharField(max_length=50, blank=True)
     endtime = models.DateTimeField(db_column='endTime')
+    # both actually `longblobs` in the database
     stdout = models.TextField(db_column='stdOut', blank=True)
     stderror = models.TextField(db_column='stdError', blank=True)
     exitcode = models.IntegerField(null=True, db_column='exitCode', blank=True)

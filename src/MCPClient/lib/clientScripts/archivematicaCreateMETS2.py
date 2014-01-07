@@ -628,7 +628,7 @@ def createFileSec(directoryPath, structMapDiv):
                 originalLocation = row[1]
                 if derivedFromOriginalName != None:
                     originalLocation = derivedFromOriginalName
-                originalName = os.path.basename(originalLocation) + u"/" #+ u"/" keeps normalized after original / is very uncommon in a file name
+                originalName = os.path.basename(originalLocation) + "/" #+ u"/" keeps normalized after original / is very uncommon in a file name
                 directoryContentsTuples.append((originalName, item,)) 
                 row = c.fetchone()
             sqlLock.release()
