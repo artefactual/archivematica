@@ -252,6 +252,12 @@
           var child = entry.children[index]
             , allowDisplay = true;
 
+          // File paths from the storage service are base64-encoded because
+          // they may contain arbitrary non-unicode characters.
+          // They're base64-decoded here for viewing, but will be
+          // re-encoded prior to being sent back to the server.
+          child.attributes.name = Base64.decode(child.attributes.name);
+
           if (self.entryDisplayFilter) {
             allowDisplay = self.entryDisplayFilter(child);
           }

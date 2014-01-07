@@ -44,10 +44,13 @@ var TransferComponentFormView = Backbone.View.extend({
     );
   },
 
+  // This function is solely used for paths to be POSTed to the server,
+  // so all paths must be base64-encoded to guard against
+  // potential non-unicode characters
   addedPaths: function() {
     var paths = [];
     $('.transfer_path').each(function() {
-      paths.push($(this).text());
+      paths.push(Base64.encode($(this).text()));
     });
     return paths;
   },

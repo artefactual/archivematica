@@ -27,7 +27,7 @@ def _storage_api():
     # If the URL doesn't end in a /, add one
     if storage_service_url[-1] != '/':
         storage_service_url+='/'
-    storage_service_url = storage_service_url+'api/v1/'
+    storage_service_url = storage_service_url+'api/v2/'
     logging.debug("Storage service URL: {}".format(storage_service_url))
     api = slumber.API(storage_service_url)
     return api

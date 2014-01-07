@@ -17,6 +17,7 @@
 
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.db import connection
+import base64
 import os
 from subprocess import call
 import shutil
@@ -96,6 +97,7 @@ def directory_children_proxy_to_storage_server(request, location_uuid, basePath=
         path = path + basePath
     path = path + request.GET.get('base_path', '')
     path = path + request.GET.get('path', '')
+    path = base64.b64encode(path)
 
     response = storage_service.browse_location(location_uuid, path)
 
@@ -189,7 +191,9 @@ def get_temp_directory(request):
 
 def copy_transfer_component(request):
     transfer_name = archivematicaFunctions.unicodeToStr(request.POST.get('name', ''))
-    path = archivematicaFunctions.unicodeToStr(request.POST.get('path', ''))
+    # Note that the path may contain arbitrary, non-unicode characters,
+    # and hence is POSTed to the server base64-encoded
+    path = base64.b64decode(request.POST.get('path', ''))
     destination = archivematicaFunctions.unicodeToStr(request.POST.get('destination', ''))
 
     error = None

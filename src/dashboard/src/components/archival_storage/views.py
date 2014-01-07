@@ -233,7 +233,7 @@ def aip_delete(request, uuid):
 
 def aip_download(request, uuid):
     server_url = helpers.get_setting('storage_service_url', None)
-    redirect_url = server_url + 'api/v1/file/' + uuid + '/download'
+    redirect_url = server_url + 'api/v2/file/' + uuid + '/download'
     return HttpResponseRedirect(redirect_url)
 
 def aip_file_download(request, uuid):
@@ -269,7 +269,7 @@ def aip_file_download(request, uuid):
     )
 
     server_url = helpers.get_setting('storage_service_url', None)
-    redirect_url = server_url + 'api/v1/file/' + aip.uuid + '/extract_file/?relative_path_to_file=' + file_relative_path
+    redirect_url = server_url + 'api/v2/file/' + aip.uuid + '/extract_file/?relative_path_to_file=' + file_relative_path
     return HttpResponseRedirect(redirect_url)
 
 def send_thumbnail(request, fileuuid):
