@@ -27,6 +27,7 @@ from components import helpers
 import components.decorators as decorators
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
+from archivematicaFunctions import escape
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Home
@@ -107,6 +108,15 @@ def tasks(request, uuid):
 
     if (len(objects) == 0):
         return tasks_subjobs(request, uuid)
+
+    # Filenames can be any encoding - we want to be able to display
+    # unicode, while just displaying unicode replacement characters
+    # for any other encoding present.
+    for item in objects:
+        item.filename = escape(item.filename)
+        item.arguments = escape(item.arguments)
+        item.stdout = escape(item.stdout)
+        item.stderror = escape(item.stderror)
 
     page    = helpers.pager(objects, django_settings.TASKS_PER_PAGE, request.GET.get('page', None))
     objects = page['objects']

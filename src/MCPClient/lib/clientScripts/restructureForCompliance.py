@@ -40,7 +40,11 @@ def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unit
         reqDirPath = os.path.join(unitPath, dir)
         if not os.path.isdir(reqDirPath):
             os.mkdir(reqDirPath)
-    
+
+    # The types returned by os.listdir() depends on the type of the argument
+    # passed to it. In this case, we want all of the returned names to be
+    # bytestrings because they may contain arbitrary, non-Unicode characters.
+    unitPath = str(unitPath)
     for item in os.listdir(unitPath):
         if item in requiredDirectories:
             continue
@@ -83,7 +87,11 @@ def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unit
 def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith = "%transferDirectory%"):
     bagFileDefaultDest = os.path.join(unitPath, "logs", "BagIt")
     requiredDirectories.append(bagFileDefaultDest)
-    unitDataPath = os.path.join(unitPath, "data")
+    # This needs to be cast to a string since we're calling os.path.join(),
+    # and any of the other arguments could contain arbitrary, non-Unicode
+    # characters.
+    unitPath = str(unitPath)
+    unitDataPath = str(os.path.join(unitPath, "data"))
     for dir in requiredDirectories:
         dirPath = os.path.join(unitPath, dir)
         dirDataPath = os.path.join(unitPath, "data", dir)
@@ -126,6 +134,7 @@ def restructureForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIden
     print unitUUID, unitType
 
 def restructureDirectory(unitPath):
+    unitPath = str(unitPath)
     for dir in requiredDirectories:
         dirPath = os.path.join(unitPath, dir)
         if not os.path.isdir(dirPath):

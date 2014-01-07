@@ -83,3 +83,17 @@ UPDATE MicroServiceChains SET startingLink=@extractDeleteChoiceMSCL WHERE pk=@ex
 UPDATE StandardTasksConfigs SET arguments='"%SIPUUID%" "%transferDirectory%" "%date%" "%taskUUID%" "%DeletePackage%"' WHERE pk='8fad772e-7d2e-4cdd-89e6-7976152b6696';
 
 -- /Issue 5895
+
+-- Issue 6067
+-- All of these columns may at some point contain a non-Unicode filename,
+-- so they need to be one of the various binary datatypes instead of "text"
+ALTER TABLE Tasks MODIFY fileName longblob;
+ALTER TABLE Tasks MODIFY arguments varbinary(1000);
+ALTER TABLE Tasks MODIFY stdOut longblob;
+ALTER TABLE Tasks MODIFY stdError longblob;
+
+ALTER TABLE Files MODIFY originalLocation longblob;
+ALTER TABLE Files MODIFY currentLocation longblob;
+
+ALTER TABLE Events MODIFY eventOutcomeDetailNote longblob;
+-- /Issue 6067
