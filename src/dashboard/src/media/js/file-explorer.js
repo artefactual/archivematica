@@ -131,6 +131,15 @@
       return this.container.id + '_' + this.model.id();
     },
 
+    toggleDirectory: function($el) {
+      $el.next().toggle();
+      if ($el.next().is(':visible')) {
+        $el.addClass('backbone-file-explorer-directory_open');
+      } else {
+        $el.removeClass('backbone-file-explorer-directory_open');
+      }
+    },
+
     render: function() {
       // The actual path is stored as base64, so it needs to be decoded
       // before being displayed in HTML.
@@ -195,7 +204,7 @@
         // add click handler to directory icon
         var self = this;
         $(this.el).children('.backbone-file-explorer-directory_icon_button').click(function() {
-          self.container.toggleDirectory($(self.el));
+          self.toggleDirectory($(self.el));
         });
       }
 
@@ -538,18 +547,6 @@
       this.initDragAndDrop();
     },
 
-
-    // open/close a directory
-    toggleDirectory: function($el) {
-      $el.next().toggle();
-      if ($el.next().is(':visible')) {
-        $el.addClass('backbone-file-explorer-directory_open');
-      } else {
-        $el.removeClass('backbone-file-explorer-directory_open');
-      }
-    },
-
-
     dragHandler: dragHandler,
 
     // logic to simply put anything dropped on the entry list
@@ -787,16 +784,6 @@
       }
       $('#' + droppedId).css({left: 0});
       $('#' + droppedId).css({top: 0});
-    },
-
-    // open/close a directory
-    toggleDirectory: function($el) {
-      $el.next().toggle();
-      if ($el.next().is(':visible')) {
-        $el.addClass('backbone-file-explorer-directory_open');
-      } else {
-        $el.removeClass('backbone-file-explorer-directory_open');
-      }
     },
 
     // use a directory entry's CSS ID to determine its filepath
