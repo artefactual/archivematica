@@ -538,6 +538,18 @@
       this.initDragAndDrop();
     },
 
+
+    // open/close a directory
+    toggleDirectory: function($el) {
+      $el.next().toggle();
+      if ($el.next().is(':visible')) {
+        $el.addClass('backbone-file-explorer-directory_open');
+      } else {
+        $el.removeClass('backbone-file-explorer-directory_open');
+      }
+    },
+
+
     dragHandler: dragHandler,
 
     // logic to simply put anything dropped on the entry list
@@ -574,12 +586,28 @@
       $(this.el).empty();
 
       for (var index = 0; index < this.entries.length; index++) {
-        var entry = new exports.EntryView({
-          'el': this.el,
-          'entry': this.entries[index],
-          'template': this.template,
-          'container': this
-        });
+
+        if (this.entries[index].type() == 'directory') {
+          var entry = new exports.DirectoryView({
+            explorer: this,
+            directory: this.entries[index],
+            //itemsPerPage: this.itemsPerPage,
+            levelTemplate: $('#template-dir-level').html(),
+            entryTemplate: $('#template-dir-entry').html(),
+            closeDirsByDefault: true,
+            //entryClickHandler: this.options.entryClickHandler,
+            //nameClickHandler: this.options.nameClickHandler,
+            //actionHandlers: this.options.actionHandlers
+          });
+        } else {
+          var entry = new exports.EntryView({
+            'el': this.el,
+            'entry': this.entries[index],
+            'template': this.template,
+            'container': this
+          });
+        }
+
         exports.Data.idPaths[this.id + '_' + entry.model.id()] = entry.model.path();
         entry.render();
 
