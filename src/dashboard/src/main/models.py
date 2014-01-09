@@ -177,7 +177,7 @@ class TransferManager(models.Manager):
 class Transfer(models.Model):
     uuid = models.CharField(max_length=36, primary_key=True, db_column='transferUUID')
     currentlocation = models.TextField(db_column='currentLocation')
-    type = models.CharField(max_length=50, primary_key=True, db_column='type')
+    type = models.CharField(max_length=50, db_column='type')
     accessionid = models.TextField(db_column='accessionID')
     # ...
     hidden = models.BooleanField(default=False, blank=False)
@@ -276,6 +276,7 @@ class RightsStatement(models.Model):
 
     class Meta:
         db_table = u'RightsStatement'
+        verbose_name = 'Rights Statement'
 
 class RightsStatementCopyright(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -289,6 +290,7 @@ class RightsStatementCopyright(models.Model):
 
     class Meta:
         db_table = u'RightsStatementCopyright'
+        verbose_name = 'Rights: Copyright'
 
 class RightsStatementCopyrightDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -299,6 +301,7 @@ class RightsStatementCopyrightDocumentationIdentifier(models.Model):
 
     class Meta:
         db_table = u'RightsStatementCopyrightDocumentationIdentifier'
+        verbose_name = 'Rights: Copyright: Docs ID'
 
 class RightsStatementCopyrightNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -307,6 +310,7 @@ class RightsStatementCopyrightNote(models.Model):
 
     class Meta:
         db_table = u'RightsStatementCopyrightNote'
+        verbose_name = 'Rights: Copyright: Note'
 
 class RightsStatementLicense(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -318,6 +322,7 @@ class RightsStatementLicense(models.Model):
 
     class Meta:
         db_table = u'RightsStatementLicense'
+        verbose_name = 'Rights: License'
 
 class RightsStatementLicenseDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -328,6 +333,7 @@ class RightsStatementLicenseDocumentationIdentifier(models.Model):
 
     class Meta:
         db_table = u'RightsStatementLicenseDocumentationIdentifier'
+        verbose_name = 'Rights: License: Docs ID'
 
 class RightsStatementLicenseNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -336,6 +342,7 @@ class RightsStatementLicenseNote(models.Model):
 
     class Meta:
         db_table = u'RightsStatementLicenseNote'
+        verbose_name = 'Rights: License: Note'
 
 class RightsStatementRightsGranted(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -347,6 +354,7 @@ class RightsStatementRightsGranted(models.Model):
 
     class Meta:
         db_table = u'RightsStatementRightsGranted'
+        verbose_name = 'Rights: Granted'
 
 class RightsStatementRightsGrantedNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -355,6 +363,7 @@ class RightsStatementRightsGrantedNote(models.Model):
 
     class Meta:
         db_table = u'RightsStatementRightsGrantedNote'
+        verbose_name = 'Rights: Granted: Note'
 
 class RightsStatementRightsGrantedRestriction(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -363,6 +372,7 @@ class RightsStatementRightsGrantedRestriction(models.Model):
 
     class Meta:
         db_table = u'RightsStatementRightsGrantedRestriction'
+        verbose_name = 'Rights: Granted: Restriction'
 
 class RightsStatementStatuteInformation(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -376,6 +386,7 @@ class RightsStatementStatuteInformation(models.Model):
 
     class Meta:
         db_table = u'RightsStatementStatuteInformation'
+        verbose_name = 'Rights: Statute'
 
 class RightsStatementStatuteInformationNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -384,6 +395,7 @@ class RightsStatementStatuteInformationNote(models.Model):
 
     class Meta:
         db_table = u'RightsStatementStatuteInformationNote'
+        verbose_name = 'Rights: Statute: Note'
 
 class RightsStatementStatuteDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -394,6 +406,7 @@ class RightsStatementStatuteDocumentationIdentifier(models.Model):
 
     class Meta:
         db_table = u'RightsStatementStatuteDocumentationIdentifier'
+        verbose_name = 'Rights: Statute: Docs ID'
 
 class RightsStatementOtherRightsInformation(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -405,6 +418,7 @@ class RightsStatementOtherRightsInformation(models.Model):
 
     class Meta:
         db_table = u'RightsStatementOtherRightsInformation'
+        verbose_name = 'Rights: Other'
 
 class RightsStatementOtherRightsDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -415,6 +429,7 @@ class RightsStatementOtherRightsDocumentationIdentifier(models.Model):
 
     class Meta:
         db_table = u'RightsStatementOtherRightsDocumentationIdentifier'
+        verbose_name = 'Rights: Other: Docs ID'
 
 class RightsStatementOtherRightsInformationNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -423,6 +438,7 @@ class RightsStatementOtherRightsInformationNote(models.Model):
 
     class Meta:
         db_table = u'RightsStatementOtherRightsNote'
+        verbose_name = 'Rights: Other: Note'
 
 class RightsStatementLinkingAgentIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -432,6 +448,7 @@ class RightsStatementLinkingAgentIdentifier(models.Model):
 
     class Meta:
         db_table = u'RightsStatementLinkingAgentIdentifier'
+        verbose_name = 'Rights: Agent'
 
 """ MCP data interoperability """
 
@@ -519,6 +536,17 @@ class TaskConfig(models.Model):
 
     def __unicode__(self):
         return u'TaskConfig ID: {}, desc: {}'.format(self.id, self.description)
+
+class UnitVariable(models.Model):
+    id = UUIDPkField()
+    unittype = models.CharField(max_length=50, null=True, db_column='unitType')
+    unituuid = models.CharField(max_length=36, null=True, help_text='Semantically a foreign key to SIP or Transfer', db_column='unitUUID')
+    variable = models.TextField(null=True, db_column='variable')
+    variablevalue = models.TextField(null=True, db_column='variableValue')
+    microservicechainlink = models.CharField(null=True, max_length=36, help_text='UUID of the MicroServiceChainLink if used in task type linkTaskManagerUnitVariableLinkPull', db_column='microServiceChainLink')
+
+    class Meta:
+        db_table = u'UnitVariables'
 
 class AtkDIPObjectResourcePairing(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
