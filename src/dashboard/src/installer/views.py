@@ -39,7 +39,8 @@ from main.models import Agent
 from components.administration.models import ArchivistsToolkitConfig
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
-import FPRClient.main as FPRClient
+import FPRClient.client as FPRClient
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import storageService as storage_service
 import version
 
