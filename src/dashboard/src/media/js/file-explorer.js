@@ -109,6 +109,7 @@
   exports.EntryView = Backbone.View.extend({
 
     initialize: function() {
+      this.cssIdNamespace = this.options.cssIdNamespace;
       this.model     = this.options.entry;
       this.container = this.options.container;
       this.className = (this.model.children != undefined)
@@ -128,7 +129,11 @@
     },
 
     cssId: function() {
-      return this.container.id + '_' + this.model.id();
+      if (this.cssIdNamespace) {
+        return this.cssIdNamespace + '_' + this.model.id();
+      } else {
+        return this.container.id + '_' + this.model.id();
+      }
     },
 
     toggleDirectory: function($el) {
@@ -154,8 +159,7 @@
 
       // set CSS ID for entries (used to capture whether directory is
       // open/closed by user between data refreshes, etc.)
-      var id = (this.container) ? this.container.id + '_' : '';
-      $(this.el).attr('id', id + this.model.id());
+      $(this.el).attr('id', this.cssId());
 
       // add entry click handler if specified
       if (this.entryClickHandler) {
@@ -218,6 +222,10 @@
     tagName: 'div',
 
     initialize: function() {
+      this.cssIdNamespace     = this.options.cssIdNamespace;
+        // allow overriding of container's ID to allow the same directory tree
+        // to be shown in multiple contexts without CSS ID repeating
+
       this.model              = this.options.directory;
       this.explorer           = this.options.explorer;
       this.ajaxChildDataUrl   = this.options.ajaxChildDataUrl;
@@ -324,14 +332,9 @@
 
           // if display is allowed, do
           if (allowDisplay) {
-            // take note of file paths that correspond to CSS IDs
-            // so they can be referenced by any external logic
-            var id = (this.explorer) ? this.explorer.id + '_' : '';
-            id = id + child.id();
-            exports.Data.idPaths[id] = child.path();
-
             // render entry
             var entryView = new exports.EntryView({
+              cssIdNamespace: self.cssIdNamespace,
               container: self.explorer,
               entry: child,
               template: self.entryTemplate,
@@ -339,6 +342,10 @@
               nameClickHandler: self.nameClickHandler,
               actionHandlers: self.actionHandlers
             });
+
+            // take note of file paths that correspond to CSS IDs
+            // so they can be referenced by any external logic
+            exports.Data.idPaths[entryView.cssId()] = child.path();
 
             var entryEl = entryView.render().el
               , isOpenDir = false;
@@ -482,7 +489,9 @@
 
     // render a group of files and directories
     render: function() {
+
       var entryView = new exports.EntryView({
+        cssIdNamespace: this.cssIdNamespace,
         container: this.explorer,
         entry: this.model,
         template: this.entryTemplate
@@ -586,6 +595,9 @@
 
         if (this.entries[index].type() == 'directory') {
           var entry = new exports.DirectoryView({
+            cssIdNamespace: this.id + '_' + index,
+              // provide CSS ID namespace as same directory might be shown
+              // more than once
             explorer: this,
             directory: this.entries[index],
             //itemsPerPage: this.itemsPerPage,
