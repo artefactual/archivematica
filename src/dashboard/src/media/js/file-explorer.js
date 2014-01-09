@@ -548,10 +548,12 @@
     tagName: 'div',
 
     initialize: function() {
-      this.entries     = this.options.entries || [];
-      this.moveHandler = this.options.moveHandler;
-      this.template    = this.options.template;
-      this.id          = $(this.el).attr('id');
+      this.entries       = this.options.entries || [];
+      this.moveHandler   = this.options.moveHandler;
+      this.id            = $(this.el).attr('id');
+      this.levelTemplate = this.options.levelTemplate;
+      this.entryTemplate = this.options.entryTemplate;
+
       this.render();
       this.initDragAndDrop();
     },
@@ -601,8 +603,8 @@
             explorer: this,
             directory: this.entries[index],
             //itemsPerPage: this.itemsPerPage,
-            levelTemplate: $('#template-dir-level').html(),
-            entryTemplate: $('#template-dir-entry').html(),
+            levelTemplate: this.levelTemplate,
+            entryTemplate: this.entryTemplate,
             closeDirsByDefault: true,
             //entryClickHandler: this.options.entryClickHandler,
             //nameClickHandler: this.options.nameClickHandler,
@@ -610,10 +612,10 @@
           });
         } else {
           var entry = new exports.EntryView({
-            'el': this.el,
-            'entry': this.entries[index],
-            'template': this.template,
-            'container': this
+            el: this.el,
+            entry: this.entries[index],
+            template: _.template(this.entryTemplate),
+            container: this
           });
         }
 

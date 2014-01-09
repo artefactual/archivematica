@@ -119,9 +119,10 @@ function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
 
   // search results widget
   var originals_search_results = new fileBrowser.EntryList({
-    'el': $('#originals_search_results'),
-    'moveHandler': moveHandler,
-    'template': _.template($('#template-dir-entry').html())
+    el: $('#originals_search_results'),
+    moveHandler: moveHandler,
+    levelTemplate: $('#template-dir-level').html(),
+    entryTemplate: $('#template-dir-entry').html()
   });
 
   // define search behavior
