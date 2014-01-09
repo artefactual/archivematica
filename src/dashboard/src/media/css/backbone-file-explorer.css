@@ -22,7 +22,7 @@
   padding: 6px;
 }
 
-.backbone-file-exporer-entry-list > .backbone-file-explorer-entry {
+.backbone-file-explorer-entry-list > .backbone-file-explorer-entry {
   padding: 2px;
 }
 
@@ -30,7 +30,7 @@
   background-color: #f5f5f5;
 }
 
-.backbone-file-exporer-entry-highlighted {
+.backbone-file-explorer-entry-highlighted {
   background-color: #ffcc00;
 }
 

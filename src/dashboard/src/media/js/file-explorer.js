@@ -243,10 +243,10 @@
     activateHover: function(el) {
       $(el).hover(
         function() {
-          $(this).addClass('backbone-file-exporer-entry-highlighted');
+          $(this).addClass('backbone-file-explorer-entry-highlighted');
         },
         function() {
-          $(this).removeClass('backbone-file-exporer-entry-highlighted');
+          $(this).removeClass('backbone-file-explorer-entry-highlighted');
         }
       );
     },
@@ -254,7 +254,7 @@
     // render links for navigating between pages of directory children
     renderPagingLinks: function(entry, levelEl, level, index, indexStart, previousOnly, previousIndexStarts) {
       var self = this;
-      var $pagingEl = $('<div9 style="padding:6px"></div>');
+      var $pagingEl = $('<div style="padding:6px"></div>');
 
       // add link to previous entries, if any
       if (indexStart > 0) {
