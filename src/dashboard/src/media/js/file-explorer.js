@@ -756,11 +756,11 @@
       // default to root entry
       if (typeof entry === 'undefined') {
         entry = this.dirView.model;
-      }
-
-      // add entry to results if the test passes
-      if (testLogic(entry)) {
-        found.push(entry);
+      } else {
+        // add entry to results if the test passes
+        if (testLogic(entry)) {
+          found.push(entry);
+        }
       }
 
       // find in entry children
