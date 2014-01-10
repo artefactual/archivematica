@@ -56,3 +56,11 @@
 }
 
 .backbone-file-explorer-level { padding-left: 10px; }
+
+.backbone-file-explorer-paging-link {
+  color: red;
+}
+
+.backbone-file-explorer-paging-link {
+  padding: 6px;
+}

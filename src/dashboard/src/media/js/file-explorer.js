@@ -41,13 +41,13 @@
   // TODO: replace inline styling with CSS
   exports.defaultPagingRenderFunctions = {
     previous: function(itemsPerPage) {
-      return $('<span style="color:red">Previous ' + itemsPerPage + '</span>');
+      return $('<span class="backbone-file-explorer-paging-link">Previous ' + itemsPerPage + '</span>');
     },
     next: function(itemsPerPage) {
-      return $('<span style="color:red">Next ' + itemsPerPage + '</span>');
+      return $('<span class="backbone-file-explorer-paging-link">Next ' + itemsPerPage + '</span>');
     },
     separator: function(itemsPerPage) {
-      return $('<span>&nbsp;|&nbsp;</span>');
+      return $('<span class="backbone-file-explorer-paging-link-separator">&nbsp;|&nbsp;</span>');
     }
   };
 
@@ -269,7 +269,7 @@
     // render links for navigating between pages of directory children
     renderPagingLinks: function(entry, levelEl, level, index, indexStart, previousOnly, previousIndexStarts) {
       var self = this;
-      var $pagingEl = $('<div style="padding:6px"></div>');
+      var $pagingEl = $('<div class="backbone-file-explorer-paging-link"></div>');
 
       // add link to previous entries, if any
       if (indexStart > 0) {
