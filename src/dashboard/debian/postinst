@@ -2,3 +2,7 @@
 
 a2enmod wsgi
 /etc/init.d/apache2 restart
+
+#install dashboard requirements
+pip install -r /usr/share/archivematica/dashboard/requirements.txt
+adduser --uid 334 --group --system --home /var/lib/archivematica-django/ archivematicadashboard
