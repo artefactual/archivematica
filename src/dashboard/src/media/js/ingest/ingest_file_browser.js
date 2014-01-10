@@ -129,7 +129,10 @@ function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
   // define search behavior
   function searchOriginals() {
     $('#originals').hide();
+    $('#originals_controls').hide();
+
     originals_search_results.currentPage = 0;
+
     originals_search_results.entries = originals.findEntry(function(entry) {
       var query = $('#originals_query').val(),
           hit = false;
@@ -148,8 +151,14 @@ function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
 
       return hit;
     });
-    originals_search_results.render();
-    originals_search_results.initDragAndDrop();
+
+    if (originals_search_results.entries.length > 0) {
+      originals_search_results.render();
+      originals_search_results.initDragAndDrop();
+    } else {
+      $('#originals_search_results').html('No results.');
+    }
+
     $('#originals_search_results').show();
   }
 
@@ -169,6 +178,7 @@ function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
     $('#originals_query').val('');
     $('#originals_search_results').hide();
     $('#originals').show();
+    $('#originals_controls').show();
   });
 
   return {
