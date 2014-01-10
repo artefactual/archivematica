@@ -38,6 +38,7 @@
     exports.Data['mouseY'] = event.pageY;
   });
 
+  // TODO: replace inline styling with CSS
   exports.defaultPagingRenderFunctions = {
     previous: function(itemsPerPage) {
       return $('<span style="color:red">Previous ' + itemsPerPage + '</span>');
@@ -249,7 +250,9 @@
       this.entryClickHandler  = this.options.entryClickHandler;
       this.nameClickHandler   = this.options.nameClickHandler;
       this.actionHandlers     = this.options.actionHandlers;
-    },
+       // TODO: make this configurable
+      this.pagingRenderFunctions = exports.defaultPagingRenderFunctions;
+   },
 
     // activate highlighting via adding/removing a CSS class
     activateHover: function(el) {
@@ -270,12 +273,7 @@
 
       // add link to previous entries, if any
       if (indexStart > 0) {
-        // TODO: replace the inline styling with CSS
-        var prevHTML = '<span style="color:red">Previous ' + self.itemsPerPage + '</span>';
-        if (!previousOnly) {
-          prevHTML = prevHTML + '<span>&nbsp;|&nbsp;</span>';
-        }
-        var $prevEl = $(prevHTML);
+        var $prevEl = self.pagingRenderFunctions.previous(self.itemsPerPage);
         (function(index) {
           $prevEl.click(function() {
             $(levelEl).html('');
@@ -285,12 +283,14 @@
           });
         })(index);
         $pagingEl.append($prevEl);
+        if (!previousOnly) {
+          $pagingEl.append(self.pagingRenderFunctions.separator());
+        }
       }
 
       // add link to next entries, if any
       if (!previousOnly) {
-        // TODO: replace the inline styling with CSS
-        var $nextEl = $('<span style="color:red">Next ' + self.itemsPerPage + '</span>');
+        var $nextEl = self.pagingRenderFunctions.next(self.itemsPerPage);
         (function(index) {
           $nextEl.click(function() {
             $(levelEl).html('');
