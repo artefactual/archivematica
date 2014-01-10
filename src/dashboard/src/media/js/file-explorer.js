@@ -1,7 +1,11 @@
 (function(exports) {
 
-  // patch in indexOf for IE8
-  // As per: http://stackoverflow.com/questions/3629183/why-doesnt-indexof-work-on-an-array-ie8
+  /*
+   * A patch to indexOf to fix IE8-related issues.
+   *
+   * See:
+   * http://stackoverflow.com/questions/3629183/why-doesnt-indexof-work-on-an-array-ie8
+   */
   if (!Array.prototype.indexOf) {
     Array.prototype.indexOf = function(elt /*, from*/) {
       var len = this.length >>> 0;
@@ -23,23 +27,31 @@
     };
   }
 
-  /* Used to keep track of drag-and-drop-related data */
+  /*
+   * Data shared by various views. Stores drag-and-drop related bookkeeping
+   * data and a map for associating CSS IDs with paths.
+   */
   exports.Data = {
-    idPaths: {},
     startX: {},
     startY: {},
     mouseX: 0,
-    mouseY: 0
+    mouseY: 0,
+    idPaths: {}
   };
 
-  /* Capture mouse position */
+  /*
+   * Capture mouse position for drag-and-drop use.
+   */
   $(document).mousemove(function(event) {
     exports.Data['mouseX'] = event.pageX;
     exports.Data['mouseY'] = event.pageY;
   });
 
-  // TODO: replace inline styling with CSS
-  exports.defaultPagingRenderFunctions = {
+  /**
+   * Default functions for functions used to render paging controls.
+   * @constant
+   */
+  var DEFAULT_PAGING_CONTROL_RENDER_FUNCTIONS = {
     previous: function(itemsPerPage) {
       return $('<span class="backbone-file-explorer-paging-link">Previous ' + itemsPerPage + '</span>');
     },
@@ -51,7 +63,10 @@
     }
   };
 
-  /* Internal representation of a file */
+  /**
+   * Backbone model to represent a file entry.
+   * @constructor
+   */
   exports.File = Backbone.Model.extend({
 
     // generate id without slashes and replacing periods
@@ -82,7 +97,11 @@
     }
   });
 
-  /* Internal representation of a directory */
+  /**
+   * Backbone model to represent a directory entry.
+   * @constructor
+   * @extends File
+   */
   exports.Directory = exports.File.extend({
     initialize: function() {
       this.children = [];
@@ -118,7 +137,10 @@
     }
   });
 
-  /* Presentation logic for files and directories */
+  /**
+   * Backbone view for a file or directory entry.
+   * @constructor
+   */
   exports.EntryView = Backbone.View.extend({
 
     initialize: function() {
@@ -229,7 +251,10 @@
     }
   });
 
-  /* Presentation logic for a group of files and directories */
+  /**
+   * Backbone view for a subtree of files or directory entries.
+   * @constructor
+   */
   exports.DirectoryView = Backbone.View.extend({
 
     tagName: 'div',
@@ -251,7 +276,7 @@
       this.nameClickHandler   = this.options.nameClickHandler;
       this.actionHandlers     = this.options.actionHandlers;
        // TODO: make this configurable
-      this.pagingRenderFunctions = exports.defaultPagingRenderFunctions;
+      this.pagingRenderFunctions = DEFAULT_PAGING_CONTROL_RENDER_FUNCTIONS;
    },
 
     // activate highlighting via adding/removing a CSS class
@@ -535,23 +560,32 @@
     }
   });
 
-  // logic to keep track of where a dragged directory entry is
+  /**
+   * Logic to handle keeping track of the location of a dragged entry.
+   * @function
+   */
   function dragHandler(event) {
     var id = event.currentTarget.id
       , $el = $("[id='" + event.currentTarget.id + "']")
       , offsets = $el.offset();
 
+    // if an element hasn't been dragged yet, take note of its start
+    // position
     if (exports.Data.startY[id] == undefined) {
      exports.Data.startX[id] = offsets.left;
      exports.Data.startY[id] = offsets.top;
     }
 
+    // raise the element above others and reposition it
     $el.css({'z-index': 1});
     $el.css({left: exports.Data['mouseX'] - exports.Data.startX[id] + 5});
     $el.css({top: exports.Data['mouseY'] - exports.Data.startY[id] + 5});
   };
 
-  /* Internal representation of a list of entries */
+  /**
+   * Backbone view for a list of files/directories.
+   * @constructor
+   */
   exports.EntryList = Backbone.View.extend({
 
     tagName: 'div',
@@ -563,7 +597,7 @@
       this.levelTemplate         = this.options.levelTemplate;
       this.entryTemplate         = this.options.entryTemplate;
       // TODO: make this configurable
-      this.pagingRenderFunctions = exports.defaultPagingRenderFunctions;
+      this.pagingRenderFunctions = DEFAULT_PAGING_CONTROL_RENDER_FUNCTIONS;
       this.itemsPerPage          = this.options.itemsPerPage;
       this.currentPage           = 0;
 
@@ -573,8 +607,8 @@
 
     dragHandler: dragHandler,
 
-    // logic to simply put anything dropped on the entry list
-    // back where it was originally placed
+    // default drop handling logic for the entry list
+    // (returns element to its original position)
     dropHandler: function(event) {
       var droppedId   = event.dragTarget.id;
 
@@ -612,10 +646,12 @@
         var endItem = startItem + this.itemsPerPage;
       }
 
+      // render each entry in the list
       for (var index = 0; index < this.entries.length; index++) {
         var allowDisplay = true;
 
-        // handle paging, if any
+        // if paging is enabled, determine whether entry is on current
+        // page and should be displayed
         if (this.itemsPerPage) {
           if (index >= startItem && index < endItem) {
             allowDisplay = true;
@@ -640,6 +676,7 @@
               //actionHandlers: this.options.actionHandlers
             };
 
+            // if paging is enabled, pass on to directory view
             if (this.itemsPerPage) {
               directoryViewOptions.itemsPerPage = this.itemsPerPage;
             }
@@ -654,9 +691,11 @@
             });
           }
 
+          // take note of entry's path
           exports.Data.idPaths[this.id + '_' + entry.model.id()] = entry.model.path();
           entry.render();
 
+          // add rendered entry to the view's DOM element
           $(this.el).append(entry.el);
         }
       }
@@ -664,7 +703,7 @@
       if (this.itemsPerPage) {
         var self = this;
 
-        // render previous link, if applicable
+        // render previous page control, if applicable
         if (startItem > 0) {
           var $prevEl = this.pagingRenderFunctions.previous(this.itemsPerPage);
           $prevEl.click(function() {
@@ -675,7 +714,7 @@
           $(this.el).append($prevEl);
         }
 
-        // render next link, if applicable
+        // render next control, if applicable
         if (this.entries.length > (startItem + this.itemsPerPage)) {
           if (startItem > 0) {
             $(this.el).append(this.pagingRenderFunctions.separator());
@@ -694,7 +733,10 @@
     }
   });
 
-  /* Internal representation of the file explorer */
+  /**
+   * Backbone view for a file explorer.
+   * @constructor
+   */
   exports.FileExplorer = Backbone.View.extend({
 
     tagName: 'div',
