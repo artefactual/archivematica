@@ -38,6 +38,18 @@
     exports.Data['mouseY'] = event.pageY;
   });
 
+  exports.defaultPagingRenderFunctions = {
+    previous: function(itemsPerPage) {
+      return $('<span style="color:red">Previous ' + itemsPerPage + '</span>');
+    },
+    next: function(itemsPerPage) {
+      return $('<span style="color:red">Next ' + itemsPerPage + '</span>');
+    },
+    separator: function(itemsPerPage) {
+      return $('<span>&nbsp;|&nbsp;</span>');
+    }
+  };
+
   /* Internal representation of a file */
   exports.File = Backbone.Model.extend({
 
@@ -290,9 +302,6 @@
         })(index);
         $pagingEl.append($nextEl);
       }
-
-      // TODO: figure out what this was for?
-      var $pagingInfo = '<span>()</span>';
 
       $(levelEl).append($pagingEl);
     },
@@ -548,11 +557,15 @@
     tagName: 'div',
 
     initialize: function() {
-      this.entries       = this.options.entries || [];
-      this.moveHandler   = this.options.moveHandler;
-      this.id            = $(this.el).attr('id');
-      this.levelTemplate = this.options.levelTemplate;
-      this.entryTemplate = this.options.entryTemplate;
+      this.entries               = this.options.entries || [];
+      this.moveHandler           = this.options.moveHandler;
+      this.id                    = $(this.el).attr('id');
+      this.levelTemplate         = this.options.levelTemplate;
+      this.entryTemplate         = this.options.entryTemplate;
+      // TODO: make this configurable
+      this.pagingRenderFunctions = exports.defaultPagingRenderFunctions;
+      this.itemsPerPage          = this.options.itemsPerPage;
+      this.currentPage           = 0;
 
       this.render();
       this.initDragAndDrop();
@@ -593,36 +606,88 @@
     render: function() {
       $(this.el).empty();
 
-      for (var index = 0; index < this.entries.length; index++) {
+      // intialize paging-related variables
+      if (this.itemsPerPage) {
+        var startItem = this.currentPage * this.itemsPerPage;
+        var endItem = startItem + this.itemsPerPage;
+      }
 
-        if (this.entries[index].type() == 'directory') {
-          var entry = new exports.DirectoryView({
-            cssIdNamespace: this.id + '_' + index,
-              // provide CSS ID namespace as same directory might be shown
-              // more than once
-            explorer: this,
-            directory: this.entries[index],
-            //itemsPerPage: this.itemsPerPage,
-            levelTemplate: this.levelTemplate,
-            entryTemplate: this.entryTemplate,
-            closeDirsByDefault: true,
-            //entryClickHandler: this.options.entryClickHandler,
-            //nameClickHandler: this.options.nameClickHandler,
-            //actionHandlers: this.options.actionHandlers
-          });
-        } else {
-          var entry = new exports.EntryView({
-            el: this.el,
-            entry: this.entries[index],
-            template: _.template(this.entryTemplate),
-            container: this
-          });
+      for (var index = 0; index < this.entries.length; index++) {
+        var allowDisplay = true;
+
+        // handle paging, if any
+        if (this.itemsPerPage) {
+          if (index >= startItem && index < endItem) {
+            allowDisplay = true;
+          } else {
+            allowDisplay = false;
+          }
         }
 
-        exports.Data.idPaths[this.id + '_' + entry.model.id()] = entry.model.path();
-        entry.render();
+        if (allowDisplay) {
+          if (this.entries[index].type() == 'directory') {
+            var directoryViewOptions = {
+              cssIdNamespace: this.id + '_' + index,
+                // provide CSS ID namespace as same directory might be shown
+                // more than once
+              explorer: this,
+              directory: this.entries[index],
+              levelTemplate: this.levelTemplate,
+              entryTemplate: this.entryTemplate,
+              closeDirsByDefault: true,
+              //entryClickHandler: this.options.entryClickHandler,
+              //nameClickHandler: this.options.nameClickHandler,
+              //actionHandlers: this.options.actionHandlers
+            };
 
-        $(this.el).append(entry.el);
+            if (this.itemsPerPage) {
+              directoryViewOptions.itemsPerPage = this.itemsPerPage;
+            }
+
+            var entry = new exports.DirectoryView(directoryViewOptions);
+          } else {
+            var entry = new exports.EntryView({
+              el: this.el,
+              entry: this.entries[index],
+              template: _.template(this.entryTemplate),
+              container: this
+            });
+          }
+
+          exports.Data.idPaths[this.id + '_' + entry.model.id()] = entry.model.path();
+          entry.render();
+
+          $(this.el).append(entry.el);
+        }
+      }
+
+      if (this.itemsPerPage) {
+        var self = this;
+
+        // render previous link, if applicable
+        if (startItem > 0) {
+          var $prevEl = this.pagingRenderFunctions.previous(this.itemsPerPage);
+          $prevEl.click(function() {
+            self.currentPage -= 1;
+            self.render();
+            self.initDragAndDrop();
+          });
+          $(this.el).append($prevEl);
+        }
+
+        // render next link, if applicable
+        if (this.entries.length > (startItem + this.itemsPerPage)) {
+          if (startItem > 0) {
+            $(this.el).append(this.pagingRenderFunctions.separator());
+          }
+          var $nextEl = this.pagingRenderFunctions.next(this.itemsPerPage);
+          $nextEl.click(function() {
+            self.currentPage += 1;
+            self.render();
+            self.initDragAndDrop();
+          });
+          $(this.el).append($nextEl);
+        }
       }
 
       return this;

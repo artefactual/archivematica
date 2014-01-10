@@ -122,12 +122,14 @@ function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
     el: $('#originals_search_results'),
     moveHandler: moveHandler,
     levelTemplate: $('#template-dir-level').html(),
-    entryTemplate: $('#template-dir-entry').html()
+    entryTemplate: $('#template-dir-entry').html(),
+    itemsPerPage: 20
   });
 
   // define search behavior
   function searchOriginals() {
     $('#originals').hide();
+    originals_search_results.currentPage = 0;
     originals_search_results.entries = originals.findEntry(function(entry) {
       var query = $('#originals_query').val(),
           hit = false;
