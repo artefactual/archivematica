@@ -2,13 +2,13 @@ Source: archivematica-mcp-client
 Section: utils
 Priority: extra
 Maintainer: Austin Trask <austin@artefactual.com>
-Build-Depends: debhelper (>= 7)
-Standards-Version: 3.8.3
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.3
 Homepage: http://archivematica.org
 
 Package: archivematica-mcp-client
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, logapp, gearman, python-gearman, uuid, clamav, clamav-daemon, unrar-free, p7zip-full, nfs-common, python-lxml, openfits, bagit, archivematica-transcoder, md5deep, archivematica-common, python-mysqldb, python-pyicu, libxml2-utils, elasticsearch, openjdk-7-jre-headless, python-rfc6266, postfix, mediainfo, python-fido, tika, atool, pbzip2
+Depends: ${shlibs:Depends}, ${misc:Depends}, logapp, gearman, python-gearman, uuid, clamav, clamav-daemon, unrar-free, p7zip-full, nfs-common, python-lxml, openfits, bagit, md5deep, archivematica-common, python-mysqldb, python-pyicu, libxml2-utils, elasticsearch, openjdk-7-jre-headless, python-rfc6266, postfix, mediainfo, python-fido, tika, atool, pbzip2
 Description: MCP Client for Archivematica
   Enter long description
   
