@@ -46,4 +46,17 @@
     <extension>dd.001</extension>
     <extension>001</extension>
   </format>
+
+  <format>
+    <puid>archivematica-fmt/5</puid>
+    <name>Advanced Forensic Format</name>
+    <extension>aff</extension>
+    <signature>
+      <name>Advanced Forensic Format</name>
+      <pattern>
+        <position>BOF</position>
+        <regex>AFF10\r\n\x00</regex>
+      </pattern>
+    </signature>
+  </format>
 </formats>
