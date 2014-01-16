@@ -2,13 +2,12 @@ Source: sip-creation-tools
 Section: utils
 Priority: extra
 Maintainer: Austin Trask <austin@artefactual.com>
-Build-Depends: debhelper (>= 7)
-Standards-Version: 3.8.3
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.3
 Homepage: http://archivematica.org
 
 Package: sip-creation-tools
-Architecture: any
+Architecture: i386 amd64
 Depends: ${shlibs:Depends}, ${misc:Depends}, python
 Description: SIP creation tools for Archivematica
-  Enter long description
   
