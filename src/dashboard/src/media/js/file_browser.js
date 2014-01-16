@@ -26,7 +26,6 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
     this.itemsPerPage = 50;
 
     this.render();
-    this.initDragAndDrop();
 
     var self = this;
 
@@ -70,6 +69,7 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
     });
 
     this.id = $(this.el).attr('id'); 
+    //this.initDragAndDrop();
   },
 
   deleteEntry: function(path, type) {
