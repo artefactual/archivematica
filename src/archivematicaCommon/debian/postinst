@@ -1,0 +1,1 @@
+pip install -r /usr/share/archivematica/archivematicaCommon/requirements.txt
