@@ -4,7 +4,6 @@ SET @MoveSIPToFailedLink = '7d728c39-395f-4892-8193-92f086c0546f';
 SET @identifyFileFormatMSCL='2522d680-c7d9-4d06-8b11-a28d8bd8a71f' COLLATE utf8_unicode_ci;
 SET @characterizeExtractMetadata = '303a65f6-a16f-4a06-807b-cb3425a30201' COLLATE utf8_unicode_ci;
 SET @watchedDirExpectTransfer = 'f9a3a93b-f184-4048-8072-115ffac06b5d' COLLATE utf8_unicode_ci;
-
 -- /Common
 
 -- Issue 6020
@@ -121,3 +120,33 @@ INSERT INTO MicroServiceChains (pk, startingLink, description) VALUES ('e2382ce4
 INSERT INTO WatchedDirectories (pk, watchedDirectoryPath, chain, expectedType) VALUES ('0a621b7d-6cbd-4193-b1d4-b4b90fbc2461', '%watchDirectoryPath%manualNormalizationMetadata/', 'e2382ce4-6ee0-4445-aca3-0764ebae94ac', '76e66677-40e6-41da-be15-709afb334936');
 
 -- /Issue 5216
+
+-- Issue 6217
+-- Prompts the user to add metadata just before the METS file will be generated
+SET @metadata_reminder_watch_chain  = '86fbea68-d08c-440f-af2c-dac68556db12';
+SET @metadata_reminder_watch_stc    = 'b6b39093-297e-4180-ad61-274bc9c5b451';
+SET @metadata_reminder_watch_tc     = '1cf09019-56a1-47eb-8fe0-9bbff158892d';
+SET @metadata_reminder_watch_mscl   = '54b73077-a062-41cc-882c-4df1eba447d9';
+SET @metadata_reminder_mscl         = 'eeb23509-57e2-4529-8857-9d62525db048';
+SET @metadata_reminder_config       = '5c149b3b-8fb3-431c-a577-11cf349cfb38';
+SET @metadata_reminder_tc           = '9f0388ae-155c-4cbf-9e15-525ff03e025f';
+SET @metadata_prepare_mscl          = 'ccf8ec5c-3a9a-404a-a7e7-8f567d3b36a0';
+SET @metadata_prepare_chain         = '5727faac-88af-40e8-8c10-268644b0142d';
+
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@metadata_reminder_tc, '61fb3874-8ef6-49d3-8a2d-3cb66e86a30c', @metadata_reminder_config, 'Reminder: add metadata if desired');
+INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, currentTask) VALUES (@metadata_reminder_mscl, 'Process metadata directory', @metadata_reminder_tc);
+
+INSERT INTO MicroServiceChains (pk, startingLink, description) VALUES (@metadata_reminder_watch_chain, @metadata_reminder_mscl, 'Move to metadata reminder');
+INSERT INTO MicroServiceChains (pk, startingLink, description) VALUES (@metadata_prepare_chain, @metadata_prepare_mscl, 'Continue');
+
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES (@metadata_reminder_watch_stc, 0, 'moveTransfer_v0.0', '"%SIPDirectory%" "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/."  "%SIPUUID%" "%sharedPath%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@metadata_reminder_watch_tc, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @metadata_reminder_watch_stc, 'Move to metadata reminder');
+INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@metadata_reminder_watch_mscl, 'Process metadata directory', 'Failed', @metadata_reminder_watch_tc, @MoveTransferToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('bb20acc4-ca05-4800-831d-2ef585f32e2a', @metadata_reminder_watch_mscl, 0, NULL, 'Completed successfully');
+
+INSERT INTO WatchedDirectories (pk, watchedDirectoryPath, chain, expectedType) VALUES ('7ac9aec3-396a-485d-8695-d7015121d865', "%watchDirectoryPath%workFlowDecisions/metadataReminder/", @metadata_reminder_watch_chain, @watchedDirExpectTransfer);
+
+INSERT INTO MicroServiceChainChoice (pk, choiceavailableatlink, chainAvailable) VALUES (@metadata_reminder_config, @metadata_reminder_mscl, @metadata_prepare_chain);
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@metadata_reminder_watch_mscl WHERE microServiceChainLink='75fb5d67-5efa-4232-b00b-d85236de0d3f';
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@metadata_reminder_watch_mscl WHERE pk='75fb5d67-5efa-4232-b00b-d85236de0d3f';
+-- /Issue 6217

@@ -118,7 +118,12 @@ def index(request):
             "name":  "normalize",
             "label": "Normalize",
             "choice_uuid": "cb8e5706-e73f-472f-ad9b-d1236af8095f",
-        }
+        },
+        {
+            "name":  "reminder",
+            "label": "Reminder: add metadata if desired",
+            "choice_uuid": "eeb23509-57e2-4529-8857-9d62525db048",
+        },
     ]
 
     populate_select_fields_with_chain_choice_options(chain_choice_fields)
