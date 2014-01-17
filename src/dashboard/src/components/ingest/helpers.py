@@ -122,18 +122,15 @@ def initiate_sip_from_files_structured_like_a_completed_transfer(transfer_files_
 
     if os.path.exists(processing_config_filepath):
         # get processing config XML, if any
-        filedata = open(processing_config_filepath, "r")
-        elem = etree.parse(filedata)
+        root = etree.parse(processing_config_filepath)
 
-        root = elem.getroot()
-        choices = root.find('preconfiguredChoices')
-        for choice in choices:
+        for choice in root.findall('preconfiguredChoices/preconfiguredChoice'):
             if choice.find('appliesTo').text == 'Select pre-normalize file format identification command':
-                choices.remove(choice)
+                choice.getparent().remove(choice)
 
         # re-write processing config XML
-        filedata = open(processing_config_filepath, "w")
-        filedata.write(etree.tostring(root, pretty_print=True))
+        with open(processing_config_filepath, "w") as f:
+            f.write(etree.tostring(root, pretty_print=True))
 
     # add UUID to path because the backlog's transfer to SIP logic expects it
     transfer_path = transfer_files_path + '-' + transfer_uuid
