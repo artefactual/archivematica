@@ -56,88 +56,29 @@ var TransferComponentFormView = Backbone.View.extend({
   },
 
   startTransfer: function(transfer) {
-    var path;
-
     $('.transfer-component-activity-indicator').show();
-    // get path to temp directory in which to copy individual transfer
-    // components
     $.ajax({
-      url: '/filesystem/get_temp_directory/',
-      type: 'GET',
+      url: '/filesystem/ransfer/',
+      type: 'POST',
       cache: false,
+      async: false,
+      data: {
+        name:      transfer.name,
+        type:      transfer.type,
+        accession: transfer.accessionNumber,
+        "paths[]": transfer.sourcePaths
+      },
       success: function(results) {
         if (results['error']) {
-          alert(results['error']);
-          $('.transfer-component-activity-indicator').hide();
-          return;
+          alert(results.message);
         }
 
-        var tempDir = results.tempDir;
-        var error = false;
-        // copy each transfer component to the temp directory
-        for (var index in transfer.sourcePaths) {
-          path = transfer.sourcePaths[index];
-
-          $.ajax({
-            url: '/filesystem/copy_transfer_component/',
-            type: 'POST',
-            async: false,
-            cache: false,
-            data: {
-              name:        transfer.name,
-              path:        path,
-              destination: tempDir
-            },
-            success: function(results) {
-              if (results['error']) {
-                alert(results.message);
-                error = true;
-              }
-            }
-          });
-        }
-        if (error) {
-          $('.transfer-component-activity-indicator').hide();
-          return;
-        }
-
-        // move from temp directory to appropriate watchdir
-        var decoded_path = Base64.decode(path);
-        var url = '/filesystem/ransfer/'
-          , isArchiveFile = decoded_path.toLowerCase().indexOf('.zip') != -1 || decoded_path.toLowerCase().indexOf('.tgz') != -1 || decoded_path.toLowerCase().indexOf('.tar.gz') != -1
-          , filepath;
-
-        // if transfer is a ZIP file, then extract basename add to temporary directory
-        if (isArchiveFile) {
-          filepath = tempDir + '/' + decoded_path.replace(/\\/g,'/').replace( /.*\//, '' );
-        } else {
-          filepath = tempDir + '/' + transfer.name;
-        }
-
-        $.ajax({
-          url: url,
-          type: 'POST',
-          async: false,
-          cache: false,
-          data: {
-            filepath:  filepath,
-            type:      transfer.type,
-            accession: transfer.accessionNumber
-          },
-          success: function(results) {
-            if (results['error']) {
-              alert(results.message);
-            }
-
-            $('#transfer-name').val('');
-            $('#transfer-accession-number').val('');
-            $('#transfer-name-container').show();
-            $('#transfer-type').val('standard');
-            $('#path_container').html('');
-            $('.transfer-component-activity-indicator').hide();
-          }
-        });
-        // report progress
+        $('#transfer-name').val('');
+        $('#transfer-accession-number').val('');
+        $('#transfer-name-container').show();
+        $('#transfer-type').val('standard');
+        $('#path_container').html('');
+        $('.transfer-component-activity-indicator').hide();
       }
     });
   },

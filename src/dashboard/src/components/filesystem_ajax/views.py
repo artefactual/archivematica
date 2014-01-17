@@ -189,13 +189,35 @@ def get_temp_directory(request):
 
     return helpers.json_response(response)
 
-def copy_transfer_component(request):
+
+def start_transfer(request):
     transfer_name = archivematicaFunctions.unicodeToStr(request.POST.get('name', ''))
     # Note that the path may contain arbitrary, non-unicode characters,
     # and hence is POSTed to the server base64-encoded
-    path = base64.b64decode(request.POST.get('path', ''))
-    destination = archivematicaFunctions.unicodeToStr(request.POST.get('destination', ''))
+    transfer_type = archivematicaFunctions.unicodeToStr(request.POST.get('type', ''))
+    accession = archivematicaFunctions.unicodeToStr(request.POST.get('accession', ''))
+    paths = request.POST.getlist('paths[]', '')
+    paths = [base64.b64decode(path) for path in paths]
 
+    # Create temp directory that everything will be copied into
+    temp_base_dir = helpers.get_client_config_value('temp_dir') or None
+    temp_dir = tempfile.mkdtemp(dir=temp_base_dir)
+
+    for path in paths:
+        copy_transfer_component(transfer_name=transfer_name,
+                                path=path, destination=temp_dir)
+
+    if len(paths) == 1 and helpers.file_is_an_archive(paths[0]):
+        filepath = os.path.join(temp_dir, os.path.basename(paths[0]))
+    else:
+        filepath = os.path.join(temp_dir, transfer_name)
+    copy_to_start_transfer(filepath=filepath,
+                           type=transfer_type, accession=accession)
+
+    response = {'message': 'Copy successful.'}
+    return helpers.json_response(response)
+
+def copy_transfer_component(transfer_name='', path='', destination=''):
     error = None
 
     if transfer_name == '':
@@ -219,7 +241,8 @@ def copy_transfer_component(request):
 
                 paths_copied = 0
 
-                # cycle through each path copying files/dirs inside it to transfer dir
+                # cycle through each path copying files/dirs
+                # inside it to transfer dir
                 try:
                     entries = sorted_directory_list(path)
                 except os.error as e:
@@ -231,66 +254,20 @@ def copy_transfer_component(request):
                     os.rmdir(destination)
                 else:
                     for entry in entries:
-                        entry_path = os.path.join(path, entry)
+                        entry_path = os.path.join(str(path), str(entry))
                         rsync_copy(entry_path, transfer_dir)
                         paths_copied = paths_copied + 1
 
-    response = {}
+    if error:
+        raise Exception(error)
 
-    if error != None:
-        response['message'] = error
-        response['error']   = True
-    else:
-        response['message'] = 'Copied ' + str(paths_copied) + ' entries.'
+    return paths_copied
 
-    return helpers.json_response(response)
-
-def copy_to_originals(request):
-    filepath = request.POST.get('filepath', '')
-    error = check_filepath_exists('/' + filepath)
-
-    if error == None:
-        processingDirectory = '/var/archivematica/sharedDirectory/currentlyProcessing/'
-        sipName = os.path.basename(filepath)
-        #autoProcessSIPDirectory = ORIGINALS_DIR
-        autoProcessSIPDirectory = '/var/archivematica/sharedDirectory/watchedDirectories/SIPCreation/SIPsUnderConstruction/'
-        tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
-        destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
-
-        sipUUID = uuid.uuid4().__str__()
-
-        createStructuredDirectory(tmpSIPDir)
-        databaseFunctions.createSIP(destSIPDir.replace('/var/archivematica/sharedDirectory/', '%sharedPath%'), sipUUID)
-
-        objectsDirectory = os.path.join('/', filepath, 'objects')
-
-        #move the objects to the SIPDir
-        for item in os.listdir(objectsDirectory):
-            shutil.move(os.path.join(objectsDirectory, item), os.path.join(tmpSIPDir, "objects", item))
-
-        #moveSIPTo autoProcessSIPDirectory
-        shutil.move(tmpSIPDir, destSIPDir)
-
-    response = {}
-
-    if error != None:
-        response['message'] = error
-        response['error']   = True
-    else:
-        response['message'] = 'Copy successful.'
-
-    return helpers.json_response(response)
-
-def copy_to_start_transfer(request):
-    filepath  = archivematicaFunctions.unicodeToStr(request.POST.get('filepath', ''))
-    type      = request.POST.get('type', '')
-    accession = request.POST.get('accession', '')
-
-    error = check_filepath_exists('/' + filepath)
+def copy_to_start_transfer(filepath='', type='', accession=''):
+    error = check_filepath_exists(filepath)
 
     if error == None:
         # confine destination to subdir of originals
-        filepath = os.path.join('/', filepath)
         basename = os.path.basename(filepath)
 
         # default to standard transfer
@@ -331,6 +308,35 @@ def copy_to_start_transfer(request):
             shutil.move(filepath, destination)
         except:
             error = 'Error copying from ' + filepath + ' to ' + destination + '. (' + str(sys.exc_info()[0]) + ')'
+
+    if error:
+        raise Exception(error)
+
+def copy_to_originals(request):
+    filepath = request.POST.get('filepath', '')
+    error = check_filepath_exists('/' + filepath)
+
+    if error == None:
+        processingDirectory = '/var/archivematica/sharedDirectory/currentlyProcessing/'
+        sipName = os.path.basename(filepath)
+        #autoProcessSIPDirectory = ORIGINALS_DIR
+        autoProcessSIPDirectory = '/var/archivematica/sharedDirectory/watchedDirectories/SIPCreation/SIPsUnderConstruction/'
+        tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
+        destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
+
+        sipUUID = uuid.uuid4().__str__()
+
+        createStructuredDirectory(tmpSIPDir)
+        databaseFunctions.createSIP(destSIPDir.replace('/var/archivematica/sharedDirectory/', '%sharedPath%'), sipUUID)
+
+        objectsDirectory = os.path.join('/', filepath, 'objects')
+
+        #move the objects to the SIPDir
+        for item in os.listdir(objectsDirectory):
+            shutil.move(os.path.join(objectsDirectory, item), os.path.join(tmpSIPDir, "objects", item))
+
+        #moveSIPTo autoProcessSIPDirectory
+        shutil.move(tmpSIPDir, destSIPDir)
 
     response = {}
 
