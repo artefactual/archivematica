@@ -22,7 +22,6 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 # Stdlib, alphabetical by import source
-import ast
 import os
 import sys
 import threading
@@ -98,7 +97,7 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
     def taskCompletedCallBackFunction(self, task):
         databaseFunctions.logTaskCompletedSQL(task)
         try:
-            choices = ChoicesDict(ast.literal_eval(task.results["stdOut"]))
+            choices = ChoicesDict.fromstring(task.results["stdOut"])
         except Exception:
             print >>sys.stderr, "Error creating dic from output"
             choices = ChoicesDict({})
