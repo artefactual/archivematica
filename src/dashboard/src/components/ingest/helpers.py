@@ -16,17 +16,20 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from main import models
 from lxml import etree
-from components import helpers
+import MySQLdb
+import os
+import shutil
+import sys
 import uuid
+
 from components import helpers
-import os, sys, MySQLdb, shutil
+from main import models
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from externals.checksummingTools import sha_for_file
 import elasticSearchFunctions, databaseInterface, databaseFunctions
 from archivematicaCreateStructuredDirectory import createStructuredDirectory
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematicaDashboard.log",

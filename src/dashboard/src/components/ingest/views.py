@@ -21,11 +21,9 @@ import cPickle
 import json
 import logging
 from lxml import etree
-import MySQLdb
 import os
 import shutil
 import socket
-import subprocess
 import sys
 import uuid
 

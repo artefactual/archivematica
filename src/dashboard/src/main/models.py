@@ -258,18 +258,6 @@ class FileFormatVersion(models.Model):
     def __unicode__(self):
         return u'{file} is {format}'.format(file=self.file_uuid, format=self.format_version)
 
-class FPRFileID(models.Model):
-    uuid = models.CharField(max_length=36, primary_key=True, db_column='pk')
-    description = models.TextField(db_column='description')
-    validpreservationformat = models.IntegerField(null=True, db_column='validPreservationFormat', default=0)
-    validaccessformat = models.IntegerField(null=True, db_column='validAccessFormat', default=0)
-    fileidtype = models.CharField(null=True, max_length=50, db_column='fileIDType')
-    replaces = models.CharField(null=True, max_length=36, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified')
-
-    class Meta:
-        db_table = u'FileIDs'
-
 class Task(models.Model):
     taskuuid = models.CharField(max_length=36, primary_key=True, db_column='taskUUID')
     job = models.ForeignKey(Job, db_column='jobuuid', to_field = 'jobuuid')

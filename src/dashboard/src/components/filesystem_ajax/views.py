@@ -15,27 +15,27 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.http import Http404, HttpResponse, HttpResponseBadRequest
-from django.db import connection
 import base64
 import os
 import logging
 import shutil
-import MySQLdb
-import tempfile
-from django.core.servers.basehttp import FileWrapper
-from main import models
-
 import sys
+import tempfile
 import uuid
-import mimetypes
-import uuid
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import elasticSearchFunctions, archivematicaFunctions, databaseInterface, databaseFunctions
-from archivematicaCreateStructuredDirectory import createStructuredDirectory
+
+from django.http import Http404, HttpResponse, HttpResponseBadRequest
+from django.db import connection
+
 from components import helpers
 import components.ingest.helpers as ingest_helpers
 import components.filesystem_ajax.helpers as filesystem_ajax_helpers
+from main import models
+
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import archivematicaFunctions
+import databaseFunctions
+import elasticSearchFunctions
+from archivematicaCreateStructuredDirectory import createStructuredDirectory
 import storageService as storage_service
 
 # for unciode sorting support
