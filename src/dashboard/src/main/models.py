@@ -227,6 +227,24 @@ class Transfer(models.Model):
     class Meta:
         db_table = u'Transfers'
 
+
+class SIPArrange(models.Model):
+    # original_location = models.CharField(max_length=36)
+    original_path = models.TextField()
+    # arrange_location = models.CharField(max_length=36)
+    arrange_path = models.TextField()
+    file_uuid = UUIDField(auto=False)
+    sip_created = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Arranged SIPs"
+
+    def __unicode__(self):
+        return u'{original} -> {arrange}'.format(
+            original=self.original_path,
+            arrange=self.arrange_path)
+
+
 class File(models.Model):
     uuid = models.CharField(max_length=36, primary_key=True, db_column='fileUUID')
     sip = models.ForeignKey(SIP, db_column='sipUUID', to_field = 'uuid')
