@@ -57,10 +57,14 @@ echo "Creating MCP database"
 mysql -u root "${dbpassword}" --execute="CREATE DATABASE ${databaseName} CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
 echo "Creating ${username} user"
 mysql -u root "${dbpassword}" --execute="CREATE USER '${username}'@'localhost' IDENTIFIED BY '${password}';"
-mysql -u root "${dbpassword}" --execute="GRANT SELECT, UPDATE, INSERT, DELETE ON ${databaseName}.* TO '${username}'@'localhost';"
+mysql -u root "${dbpassword}" --execute="GRANT SELECT, UPDATE, INSERT, DELETE, CREATE, ALTER, INDEX ON ${databaseName}.* TO '${username}'@'localhost';"
 
 echo "Creating and populating MCP tables"
+# Set up initial DB state
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_1.0.sql;"
+# Run Django's syncdb
+../src/dashboard/src/manage.py syncdb --noinput --settings='settings.local'
+# Run SQL dev scripts
 ../src/MCPServer/share/mysql_dev.sh ${databaseName} ${dbpassword}
 # mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_dev1;"
 
