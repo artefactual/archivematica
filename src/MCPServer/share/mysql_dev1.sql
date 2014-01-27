@@ -213,3 +213,11 @@ UPDATE StandardTasksConfigs SET arguments='"%SIPUUID%" "%SIPName%" "%SIPDirector
 UPDATE StandardTasksConfigs SET arguments='"%AIPsStore%" "%SIPDirectory%%AIPFilename%" "%SIPUUID%" "%SIPName%" "%SIPType%"' WHERE pk='7df9e91b-282f-457f-b91a-ad6135f4337d';
 
 -- /Issue 5803 AIC
+
+-- Issue 6261
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('44d3789b-10ad-4a9c-9984-c2fe503c8720', 0, 'jsonMetadataToCSV_v0.0', '"%SIPUUID%" "%SIPDirectory%metadata/metadata.json"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('f0e49772-3e2b-480d-8c06-023efc670dcd', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '44d3789b-10ad-4a9c-9984-c2fe503c8720', 'Process transfer JSON metadata');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('8c8bac29-4102-4fd2-9d0a-a3bd2e607566', 'Reformat metadata files', 'Failed', 'f0e49772-3e2b-480d-8c06-023efc670dcd', '61c316a6-0a50-4f65-8767-1f44b1eeb6dd');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('abe6c490-9749-46fc-98aa-a6814a507d72', '8c8bac29-4102-4fd2-9d0a-a3bd2e607566', 0, 'f1bfce12-b637-443f-85f8-b6450ca01a13', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='8c8bac29-4102-4fd2-9d0a-a3bd2e607566' WHERE microServiceChainLink='370aca94-65ab-4f2a-9d7d-294a62c8b7ba';
+-- /Issue 6261
