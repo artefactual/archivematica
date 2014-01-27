@@ -29,10 +29,16 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
 
     var self = this;
 
+    // allow use of contents paths with augmented data, if desired
     if (typeof this.options.directoryContentsURLPath != 'undefined') {
       this.directoryContentsURLPath = this.options.directoryContentsURLPath;
     } else {
       this.directoryContentsURLPath = '/filesystem/contents/';
+    }
+
+    // allow option use of a child data URL for larger directories
+    if (typeof this.options.ajaxChildDataUrl != 'undefined') {
+      this.ajaxChildDataUrl = this.options.ajaxChildDataUrl;
     }
 
     this.eventClickHandler = this.options.eventClickHandler;
@@ -84,7 +90,12 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
             response.message
           );
         }
-        self.refresh();
+
+        if (self.ajaxChildDataUrl) {
+          self.render();
+        } else {
+          self.refresh();
+        }
       }
     );
   },
