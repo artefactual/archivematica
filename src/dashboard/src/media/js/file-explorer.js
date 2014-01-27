@@ -413,7 +413,7 @@
             if (
               self.closeDirsByDefault
               && child.children != undefined
-              && (child.children.length == 0 || !allowDisplay)
+              && child.children.length == 0
             ) {
               $(entryEl).next().hide();
             }
@@ -483,6 +483,12 @@
                   // re-bind drag/drop
                   if (self.explorer.moveHandler) {
                     self.explorer.initDragAndDrop();
+                  }
+
+                  // allow top level open state to be snapshotted
+                  var entryCssId = self.explorer.id + '_' + entry.id();
+                  if (self.explorer.opened && (self.explorer.opened.indexOf(entryCssId) != -1)) {
+                    $(levelEl).show();
                   }
                 }
               });
