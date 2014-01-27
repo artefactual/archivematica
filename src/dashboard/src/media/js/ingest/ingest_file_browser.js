@@ -16,7 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
-function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
+function setupBacklogBrowser() {
   var backlogBrowserEntryClickHandler = function(event) {
     if (typeof event.data != 'undefined') {
       var explorer = event.data.self.container
@@ -74,8 +74,8 @@ function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
           },
           function(result) {
             if (result.error == undefined) {
-              // TODO: remove from DOM
-              arrange.refresh(arrangeDirectory);
+              move.self.idle();
+              arrange.render();
             } else {
               alert(result.message);
               move.self.idle();
@@ -90,32 +90,52 @@ function setupBacklogBrowser(originalsDirectory, arrangeDirectory) {
     }
   }
 
+  /*
+  TODO: figure out how to augment AJAX child data with accession ID...
+
+  Was using directoryContentsURLPath: '/filesystem/contents/originals/' but that
+  doesn't scale. Figure out new way and get rid of /filesystem/contents/originals/
+  endpoint.
+  */
   var originals = new FileExplorer({
     el: $('#originals'),
     levelTemplate: $('#template-dir-level').html(),
     entryTemplate: $('#template-dir-entry').html(),
     entryClickHandler: backlogBrowserEntryClickHandler,
     nameClickHandler: backlogBrowserEntryClickHandler,
-    directoryContentsURLPath: '/filesystem/contents/originals/'
+    ajaxChildDataUrl: '/filesystem/children/location/' + shared_dir_location_uuid + '/'
   });
+
+  originals.structure = {
+    'name': 'originals',
+    'parent': shared_dir_location_path + '/www/AIPsStore/transferBacklog',
+    'children': []
+  };
 
   originals.itemsPerPage = 10;
   originals.moveHandler = moveHandler;
   originals.options.actionHandlers = [];
-  originals.refresh(originalsDirectory);
+  originals.render();
 
   var arrange = new FileExplorer({
     el: $('#arrange'),
     levelTemplate: $('#template-dir-level').html(),
     entryTemplate: $('#template-dir-entry').html(),
     entryClickHandler: backlogBrowserEntryClickHandler,
-    nameClickHandler: backlogBrowserEntryClickHandler
+    nameClickHandler: backlogBrowserEntryClickHandler,
+    ajaxChildDataUrl: '/filesystem/children/location/' + shared_dir_location_uuid + '/'
   });
+
+  arrange.structure = {
+    'name': 'arrange',
+    'parent': shared_dir_location_path,
+    'children': []
+  };
 
   arrange.itemsPerPage = 10;
   arrange.options.actionHandlers = [];
   arrange.moveHandler = moveHandler;
-  arrange.refresh(arrangeDirectory);
+  arrange.render();
 
   // search results widget
   var originals_search_results = new fileBrowser.EntryList({
@@ -192,13 +212,11 @@ var originals_browser,
     arrange_browser;
 
 $(document).ready(function() {
-  var arrange_directory = '/var/archivematica/sharedDirectory/arrange'
-    , originals_directory = '/var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals';
+  var arrange_directory = shared_dir_location_path + '/arrange',
+      originals_directory = shared_dir_location_path + '/www/AIPsStore/transferBacklog/originals';
 
-  browsers = setupBacklogBrowser(
-    originals_directory,
-    arrange_directory
-  );
+  browsers = setupBacklogBrowser();
+
   originals_browser = browsers['originals'];
   arrange_browser = browsers['arrange'];
 
@@ -220,7 +238,7 @@ $(document).ready(function() {
         success: function(results) {
           var directory = arrange_browser.getByPath(path_root);
           directory.addDir({'name': path});
-          arrange_browser.refresh(arrange_directory);
+          arrange_browser.render();
           arrange_browser.alert('Create directory', results.message);
         },
         error: function(results) {
@@ -238,7 +256,8 @@ $(document).ready(function() {
       } else {
         // only allow top-level directories to be deleted
         var delete_path = browser.getPathForCssId(browser.selectedEntryId);
-        if (delete_path.split('/').length >= directory.split('/').length + 1) {
+
+        if (delete_path.split('/').length != directory.split('/').length + 1) {
           browser.alert('Delete', 'You can only delete top-level directories.');
         } else {
           var path = browser.getPathForCssId(browser.selectedEntryId)

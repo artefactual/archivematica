@@ -46,6 +46,9 @@
         });
       });
 
+    shared_dir_location_uuid = '{{ shared_dir_location_uuid }}';
+    shared_dir_location_path = '{{ shared_dir_location_path }}';
+
     window.microservices_help = {
       {% for x, y in microservices_help.iteritems %}
         '{{ x }}': '{{ y }}',
@@ -60,6 +63,7 @@
 
 {% block content %}
 
+  {% if shared_dir_location_uuid %}
   <div style='float:left;'>
     <form id='originals_search_form'>
       <input id='originals_query' />
@@ -84,6 +88,7 @@
   </div>
   <br clear='all' />
   <br />
+  {% endif %}
 
   {% include "ingest/backlog/_search_form.html" %}
 

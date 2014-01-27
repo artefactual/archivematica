@@ -54,10 +54,9 @@ from main import forms
 from main import models
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from externals.checksummingTools import sha_for_file
-import elasticSearchFunctions, databaseInterface, databaseFunctions
-from archivematicaCreateStructuredDirectory import createStructuredDirectory
 from archivematicaFunctions import escape
+import elasticSearchFunctions
+import storageService as storage_service
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes, requests
@@ -75,6 +74,14 @@ def ingest_grid(request):
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
     uid = request.user.id
+
+    try:
+        shared_dir_location = current_location = storage_service.get_location(purpose="CP")[0]
+        shared_dir_location_uuid = shared_dir_location['uuid']
+        shared_dir_location_path = shared_dir_location['path']
+    except:
+        messages.warning(request, 'Error retrieving originals/arrange directory locations: is the storage server running? Please contact an administrator.')
+
     return render(request, 'ingest/grid.html', locals())
 
 def ingest_status(request, uuid=None):
