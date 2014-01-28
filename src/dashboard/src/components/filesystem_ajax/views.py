@@ -70,6 +70,36 @@ def contents(request):
     response = filesystem_ajax_helpers.directory_to_dict(path)
     return helpers.json_response(response)
 
+def arrange_contents(request):
+    base_path = request.GET.get('path', '')
+
+    # Must indicate that base_path is a folder by ending with /
+    if base_path and not base_path.endswith(os.sep):
+        base_path+=(os.sep)
+
+    # Query SIP Arrangement for results
+    # Get all the paths that are not in SIPs and start with base_path.  We don't
+    # need the objects, just the arrange_path
+    paths = models.SIPArrange.objects.filter(sip_created=False).filter(arrange_path__startswith=base_path).order_by('arrange_path').values_list('arrange_path', flat=True)
+
+    # Convert the response into an entries [] and directories []
+    # 'entries' contains everything (files and directories)
+    response = {'entries': [], 'directories': []}
+    for path in paths:
+        # Stip common prefix
+        if path.startswith(base_path):
+            path = path[len(base_path):]
+        parts = path.split(os.sep, 1)
+        entry = parts[0]
+        # Only insert once
+        if entry not in response['entries']:
+            response['entries'].append(parts[0])
+            if len(parts) > 1:  # path is a dir
+                response['directories'].append(parts[0])
+
+    return helpers.json_response(response)
+
+
 def originals_contents(request):
     path = request.GET.get('path', '/home')
     response = filesystem_ajax_helpers.directory_to_dict(path)

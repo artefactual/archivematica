@@ -1,0 +1,72 @@
+[
+{
+    "pk": 1, 
+    "model": "main.siparrange", 
+    "fields": {
+        "original_path": "foo", 
+        "file_uuid": "", 
+        "sip_created": false, 
+        "arrange_path": "newsip/objects/oneobject"
+    }
+},
+{
+    "pk": 2, 
+    "model": "main.siparrange", 
+    "fields": {
+        "original_path": "foo", 
+        "file_uuid": "", 
+        "sip_created": false, 
+        "arrange_path": "folder/item_main"
+    }
+},
+{
+    "pk": 3, 
+    "model": "main.siparrange", 
+    "fields": {
+        "original_path": "foo", 
+        "file_uuid": "", 
+        "sip_created": false, 
+        "arrange_path": "folder/objects/item1"
+    }
+},
+{
+    "pk": 4, 
+    "model": "main.siparrange", 
+    "fields": {
+        "original_path": "foo", 
+        "file_uuid": "", 
+        "sip_created": false, 
+        "arrange_path": "folder/objects/item2"
+    }
+},
+{
+    "pk": 5, 
+    "model": "main.siparrange", 
+    "fields": {
+        "original_path": "foo", 
+        "file_uuid": "", 
+        "sip_created": false, 
+        "arrange_path": "folder/objects/item3"
+    }
+},
+{
+    "pk": 6, 
+    "model": "main.siparrange", 
+    "fields": {
+        "original_path": "foo", 
+        "file_uuid": "", 
+        "sip_created": false, 
+        "arrange_path": "folder/metadata/mitem1"
+    }
+},
+{
+    "pk": 7, 
+    "model": "main.siparrange", 
+    "fields": {
+        "original_path": "foo", 
+        "file_uuid": "", 
+        "sip_created": false, 
+        "arrange_path": "folder/metadata/mitem2"
+    }
+}
+]
