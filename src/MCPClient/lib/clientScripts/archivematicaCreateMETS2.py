@@ -25,6 +25,7 @@ from archivematicaXMLNamesSpace import *
 import lxml.etree as etree
 from xml.sax.saxutils import quoteattr
 import os
+import re
 import sys
 import MySQLdb
 import PyICU
@@ -166,6 +167,14 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
     dc = None
     other = None
     ret = []
+
+    # Archivematica does not support refined Dublin Core, e.g.
+    # multitiered terms in the format dc.description.abstract
+    # If these terms are encountered, an element with only the
+    # last portion of the name will be added.
+    # e.g., dc.description.abstract is mapped to <dcterms:abstract>
+    refinement_regex = re.compile('\w+\.(.+)')
+
     for i in range(1, len(keys)):
         key = keys[i]
         value = values[i]
@@ -189,7 +198,12 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
             elif key.startswith("dcterms."):
                 key2 = key.replace("dcterms.", "", 1)
             value = value.decode('utf-8')
-            etree.SubElement(dc, key2).text = value
+            match = re.match(refinement_regex, key2)
+            if match:
+                key2, = match.groups()
+
+            el = etree.SubElement(dc, key2)
+            el.text = value
         else:  # not a dublin core item
             if other is None:
                 globalDmdSecCounter += 1
