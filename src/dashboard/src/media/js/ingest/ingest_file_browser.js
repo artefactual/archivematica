@@ -53,7 +53,7 @@ function setupBacklogBrowser() {
 
         // determine whether a move or copy should be performed
         var actionUrlPath,
-            arrangeDir = 'var/archivematica/sharedDirectory/arrange/';
+            arrangeDir = '/arrange';
 
         // do a move if drag and drop occurs within the arrange
         // pane
@@ -123,12 +123,12 @@ function setupBacklogBrowser() {
     entryTemplate: $('#template-dir-entry').html(),
     entryClickHandler: backlogBrowserEntryClickHandler,
     nameClickHandler: backlogBrowserEntryClickHandler,
-    ajaxChildDataUrl: '/filesystem/children/location/' + shared_dir_location_uuid + '/'
+    ajaxChildDataUrl: '/filesystem/contents/arrange/'
   });
 
   arrange.structure = {
     'name': 'arrange',
-    'parent': shared_dir_location_path,
+    'parent': '',
     'children': []
   };
 

@@ -40,7 +40,7 @@ class TestSIPArrange(TestCase):
         assert json.loads(response.content) == expected_json
 
         # Folder, without /
-        response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': 'folder'}, follow=True)
+        response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': '/arrange/folder'}, follow=True)
         expected_json = {
             "directories": [
                 "metadata",

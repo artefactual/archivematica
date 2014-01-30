@@ -71,11 +71,11 @@ def contents(request):
     return helpers.json_response(response)
 
 def arrange_contents(request):
-    base_path = request.GET.get('path', '')
+    base_path = request.GET.get('path', '/arrange/')
 
     # Must indicate that base_path is a folder by ending with /
-    if base_path and not base_path.endswith(os.sep):
-        base_path+=(os.sep)
+    if base_path and not base_path.endswith('/'):
+        base_path += '/'
 
     # Query SIP Arrangement for results
     # Get all the paths that are not in SIPs and start with base_path.  We don't
@@ -89,13 +89,12 @@ def arrange_contents(request):
         # Stip common prefix
         if path.startswith(base_path):
             path = path[len(base_path):]
-        parts = path.split(os.sep, 1)
-        entry = parts[0]
+        entry = path.split('/', 1)[0]
         # Only insert once
-        if entry not in response['entries']:
-            response['entries'].append(parts[0])
-            if len(parts) > 1:  # path is a dir
-                response['directories'].append(parts[0])
+        if entry and entry not in response['entries']:
+            response['entries'].append(entry)
+            if path.endswith('/'):  # path is a dir
+                response['directories'].append(entry)
 
     return helpers.json_response(response)
 
