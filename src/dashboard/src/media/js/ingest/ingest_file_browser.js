@@ -121,12 +121,12 @@ function setupBacklogBrowser() {
     entryTemplate: $('#template-dir-entry').html(),
     entryClickHandler: backlogBrowserEntryClickHandler,
     nameClickHandler: backlogBrowserEntryClickHandler,
-    ajaxChildDataUrl: '/filesystem/children/location/' + shared_dir_location_uuid + '/'
+    ajaxChildDataUrl: '/filesystem/contents/originals/'
   });
 
   originals.structure = {
     'name': 'originals',
-    'parent': shared_dir_location_path + '/www/AIPsStore/transferBacklog',
+    'parent': '',
     'children': []
   };
 

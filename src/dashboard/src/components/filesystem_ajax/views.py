@@ -104,20 +104,13 @@ def arrange_contents(request):
 
 
 def originals_contents(request):
-    path = request.GET.get('path', '/home')
-    response = filesystem_ajax_helpers.directory_to_dict(path)
-    for child in response['children']:
-        # check if name has uuid and, if so, check if it's valid
-        possible_uuid = child['name'][-36:]
-        if len(possible_uuid) == 36:
-            try:
-                transfer = models.Transfer.objects.get(uuid=possible_uuid)
-                data = {'transfer_uuid': possible_uuid}
-                if transfer.accessionid != None:
-                    data['accessionId'] = transfer.accessionid
-                child['data'] = data
-            except:
-                pass
+    path = request.GET.get('path', 'originals').lstrip('/')
+    # IDEA memoize the backlog location?
+    backlog = storage_service.get_location(purpose='BL')[0]
+
+    # TODO need to be able to search on accession ID
+    response = storage_service.browse_location(backlog['uuid'], path)
+
     return helpers.json_response(response)
 
 def delete(request):
