@@ -49,8 +49,9 @@ logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
 SHARED_DIRECTORY_ROOT   = '/var/archivematica/sharedDirectory'
 ACTIVE_TRANSFER_DIR     = SHARED_DIRECTORY_ROOT + '/watchedDirectories/activeTransfers'
 STANDARD_TRANSFER_DIR   = ACTIVE_TRANSFER_DIR + '/standardTransfer'
-COMPLETED_TRANSFERS_DIR = SHARED_DIRECTORY_ROOT + '/watchedDirectories/SIPCreation/completedTransfers'
 ORIGINAL_DIR            = SHARED_DIRECTORY_ROOT + '/www/AIPsStore/transferBacklog/originals'
+
+DEFAULT_ARRANGE_PATH = '/arrange/'
 
 
 def directory_children_proxy_to_storage_server(request, location_uuid, basePath=False):
@@ -71,11 +72,14 @@ def contents(request):
     return helpers.json_response(response)
 
 def arrange_contents(request):
-    base_path = request.GET.get('path', '/arrange/')
+    base_path = request.GET.get('path', DEFAULT_ARRANGE_PATH)
 
     # Must indicate that base_path is a folder by ending with /
-    if base_path and not base_path.endswith('/'):
+    if not base_path.endswith('/'):
         base_path += '/'
+
+    if not base_path.startswith(DEFAULT_ARRANGE_PATH):
+        base_path = DEFAULT_ARRANGE_PATH
 
     # Query SIP Arrangement for results
     # Get all the paths that are not in SIPs and start with base_path.  We don't
@@ -373,7 +377,9 @@ def move_within_arrange(request):
 
     logging.debug('Move within arrange: source: {}, destination: {}'.format(sourcepath, destination))
 
-    if destination.endswith('/'):  # destination is a directory
+    if not (sourcepath.startswith(DEFAULT_ARRANGE_PATH) and destination.startswith(DEFAULT_ARRANGE_PATH)):
+        error = '{} and {} must be inside {}'.format(sourcepath, destination, DEFAULT_ARRANGE_PATH)
+    elif destination.endswith('/'):  # destination is a directory
         if sourcepath.endswith('/'):  # source is a directory
             folder_contents = models.SIPArrange.objects.filter(arrange_path__startswith=sourcepath)
             # Strip the last folder off sourcepath, but leave a trailing /, so
