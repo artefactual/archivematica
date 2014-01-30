@@ -359,27 +359,41 @@ def create_directory_within_arrange(request):
     return helpers.json_response(response)
 
 def move_within_arrange(request):
+    """ Move files/folders within SIP Arrange.
+
+    source path is in GET parameter 'filepath'
+    destination path is in GET parameter 'destination'.
+
+    If a source/destination path ends with / it is assumed to be a folder,
+    otherwise it is assumed to be a file.
+    """
     sourcepath  = request.POST.get('filepath', '')
     destination = request.POST.get('destination', '')
+    error = None
 
-    error = filesystem_ajax_helpers.check_filepath_exists('/' + sourcepath)
+    logging.debug('Move within arrange: source: {}, destination: {}'.format(sourcepath, destination))
 
-    if error == None:
-        # TODO: make sure within arrange
-        basename = os.path.basename('/' + sourcepath)
-        destination_full = os.path.join('/', destination, basename)
-        if (os.path.exists(destination_full)):
-            error = 'A file or directory named ' + basename + ' already exists at this path.'
-        else:
-            shutil.move('/' + sourcepath, destination_full)
+    if destination.endswith('/'):  # destination is a directory
+        if sourcepath.endswith('/'):  # source is a directory
+            folder_contents = models.SIPArrange.objects.filter(arrange_path__startswith=sourcepath)
+            # Strip the last folder off sourcepath, but leave a trailing /, so
+            # we retain the folder name when we move the files.
+            source_parent = '/'.join(sourcepath.split('/')[:-2])+'/'
+            for entry in folder_contents:
+                entry.arrange_path = entry.arrange_path.replace(source_parent,destination,1)
+                entry.save()
+        else:  # source is a file
+            models.SIPArrange.objects.filter(arrange_path=sourcepath).update(arrange_path=destination+os.path.basename(sourcepath))
+    else:  # destination is a file (this should have been caught by JS)
+        error = 'You cannot drag and drop onto a file.'
 
-    response = {}
-
-    if error != None:
-        response['message'] = error
-        response['error']   = True
+    if error is not None:
+        response = {
+            'message': error,
+            'error': True,
+        }
     else:
-        response['message'] = 'Copy successful.'
+        response = {'message': 'SIP files successfully moved.'}
 
     return helpers.json_response(response)
 

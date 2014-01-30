@@ -47,47 +47,65 @@ function setupBacklogBrowser() {
 
   function moveHandler(move) {
     // don't allow moving anything into the originals directory
-    if (move.self.id != 'originals') {
-      if (move.allowed) {
-        move.self.busy();
+    if (move.self.id == 'originals') {
+      move.self.alert('Error', "You can't copy into the originals directory.");
+      return;
+    }
+    if (!move.allowed) {
+      move.self.alert('Error', "You can't move a directory into its subdirectory.");
+      return;
+    }
+    // move.self is the arrange browser
+    move.self.busy();
 
-        // determine whether a move or copy should be performed
-        var actionUrlPath,
-            arrangeDir = '/arrange';
+    // determine whether a move or copy should be performed
+    var actionUrlPath,
+        arrangeDir = '/'+move.self.structure.name;
 
-        // do a move if drag and drop occurs within the arrange
-        // pane
-        if (
-          move.droppedPath.indexOf(arrangeDir) == 0
-          && move.containerPath.indexOf(arrangeDir) == 0
-        ) {
-          actionUrlPath = '/filesystem/move_within_arrange/';
-        } else {
-          actionUrlPath = '/filesystem/copy_to_arrange/';
-        }
-
-        $.post(
-          actionUrlPath,
-          {
-            filepath: move.droppedPath,
-            destination: move.containerPath
-          },
-          function(result) {
-            if (result.error == undefined) {
-              move.self.idle();
-              arrange.render();
-            } else {
-              alert(result.message);
-              move.self.idle();
-            }
-          }
-        );
-      } else {
-        move.self.alert('Error', "You can't move a directory into its subdirectory.");
+    // do a move if drag and drop occurs within the arrange pane
+    if (
+      move.droppedPath.indexOf(arrangeDir) == 0
+      && move.containerPath.indexOf(arrangeDir) == 0
+    ) {
+      actionUrlPath = '/filesystem/move_within_arrange/';
+      // Add trailing / to directories
+      if (move.self.getByPath(move.droppedPath).type() == 'directory') {
+        move.droppedPath+='/'
       }
     } else {
-      move.self.alert('Error', "You can't copy into the originals directory.");
+      actionUrlPath = '/filesystem/copy_to_arrange/';
+      // TODO how to get directory info from original??
     }
+
+    var destination = move.self.getByPath(move.containerPath);
+    if (typeof destination == 'undefined') {
+      // FIXME error if source is a file
+      // Moving into the parent directory arrange/
+      move.containerPath = arrangeDir+'/'
+    } else if (destination.type() == 'directory') {
+      move.containerPath+='/'
+    } else {
+      move.self.alert('Error', "You cannot drag and drop onto a file.");
+      move.self.idle();
+      return;
+    }
+
+    $.post(
+      actionUrlPath,
+      {
+        filepath: move.droppedPath,
+        destination: move.containerPath
+      },
+      function(result) {
+        if (result.error == undefined) {
+          move.self.idle();
+          move.self.render();
+        } else {
+          alert(result.message);
+          move.self.idle();
+        }
+      }
+    );
   }
 
   /*
