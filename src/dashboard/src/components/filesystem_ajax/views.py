@@ -292,41 +292,6 @@ def copy_to_start_transfer(filepath='', type='', accession=''):
     if error:
         raise Exception(error)
 
-def copy_to_originals(request):
-    filepath = request.POST.get('filepath', '')
-    error = filesystem_ajax_helpers.check_filepath_exists('/' + filepath)
-
-    if error == None:
-        processingDirectory = '/var/archivematica/sharedDirectory/currentlyProcessing/'
-        sipName = os.path.basename(filepath)
-        autoProcessSIPDirectory = '/var/archivematica/sharedDirectory/watchedDirectories/SIPCreation/SIPsUnderConstruction/'
-        tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
-        destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
-
-        sipUUID = uuid.uuid4().__str__()
-
-        createStructuredDirectory(tmpSIPDir)
-        databaseFunctions.createSIP(destSIPDir.replace('/var/archivematica/sharedDirectory/', '%sharedPath%'), sipUUID)
-
-        objectsDirectory = os.path.join('/', filepath, 'objects')
-
-        #move the objects to the SIPDir
-        for item in os.listdir(objectsDirectory):
-            shutil.move(os.path.join(objectsDirectory, item), os.path.join(tmpSIPDir, "objects", item))
-
-        #moveSIPTo autoProcessSIPDirectory
-        shutil.move(tmpSIPDir, destSIPDir)
-
-    response = {}
-
-    if error != None:
-        response['message'] = error
-        response['error']   = True
-    else:
-        response['message'] = 'Copy successful.'
-
-    return helpers.json_response(response)
-
 def copy_from_arrange_to_completed(request):
     filepath = '/' + request.POST.get('filepath', '')
 
@@ -534,39 +499,6 @@ def copy_to_arrange(request):
 
     return helpers.json_response(response)
 
-
-def _add_copied_files_to_arrange_log(sourcepath, full_destination):
-    arrange_dir = _arrange_dir()
-
-    # work out relative path within originals folder
-    originals_subpath = sourcepath.replace(ORIGINAL_DIR, '')
-
-    arrange_subpath = full_destination.replace(arrange_dir, '')
-    dest_transfer_directory = arrange_subpath.split('/')[1]
-
-    # add to arrange log
-    transfer_logs_directory = os.path.join(arrange_dir, dest_transfer_directory, 'logs')
-    if not os.path.exists(transfer_logs_directory):
-        os.mkdir(transfer_logs_directory)
-    arrange_log_filepath = os.path.join(transfer_logs_directory, 'arrange.log')
-    transfer_root = os.path.join(arrange_dir, dest_transfer_directory)
-    with open(arrange_log_filepath, "a") as logfile:
-        if os.path.isdir(full_destination):
-            # recursively add all files to arrange log 
-            for dirname, dirnames, filenames in os.walk(full_destination):
-                # print path to all filenames.
-                for filename in filenames:
-                    filepath = os.path.join(dirname, filename).replace(transfer_root, '')
-                    relative_path_to_file_within_source_dir = '/'.join(filepath.split('/')[3:])
-                    original_filepath = os.path.join(
-                        originals_subpath[1:],
-                        relative_path_to_file_within_source_dir
-                    )
-                    log_entry = original_filepath + ' -> ' + filepath.replace(transfer_root, '')[1:] + "\n"
-                    logfile.write(log_entry)
-        else:
-            log_entry = originals_subpath[1:] + ' -> ' + full_destination.replace(transfer_root, '')[1:] + "\n"
-            logfile.write(log_entry)
 
 def download(request):
     shared_dir = os.path.realpath(helpers.get_client_config_value('sharedDirectoryMounted'))

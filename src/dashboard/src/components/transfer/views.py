@@ -66,15 +66,6 @@ def grid(request):
     hide_features = helpers.hidden_features()
     return render(request, 'transfer/grid.html', locals())
 
-def browser(request):
-    originals_directory = '/var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals'
-    arrange_directory = '/var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/arrange'
-    if not os.path.exists(originals_directory):
-        os.mkdir(originals_directory)
-    if not os.path.exists(arrange_directory):
-        os.mkdir(arrange_directory)
-    return render(request, 'transfer/browser.html', locals())
-
 def status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs GROUP BY SIPUUID
     objects = models.Job.objects.filter(hidden=False, subjobof='', unittype__exact='unitTransfer').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains = 'None').order_by('-timestamp')

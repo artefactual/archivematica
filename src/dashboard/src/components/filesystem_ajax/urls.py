@@ -26,7 +26,6 @@ urlpatterns = patterns('components.filesystem_ajax.views',
     (r'^children/location/(?P<location_uuid>' + settings.UUID_REGEX + ')/$', 'directory_children_proxy_to_storage_server'),
 
     (r'^delete/$', 'delete'),
-    (r'^copy_to_originals/$', 'copy_to_originals'),
     (r'^move_within_arrange/$', 'move_within_arrange'),
     (r'^create_directory_within_arrange/$', 'create_directory_within_arrange'),
     (r'^copy_to_arrange/$', 'copy_to_arrange'),
