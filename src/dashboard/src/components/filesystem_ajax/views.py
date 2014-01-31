@@ -119,16 +119,17 @@ def delete(request):
     error = filesystem_ajax_helpers.check_filepath_exists(filepath)
 
     if error == None:
-        filepath = os.path.join(filepath)
         if os.path.isdir(filepath):
             try:
                 shutil.rmtree(filepath)
-            except:
+            except Exception as e:
+                logging.exception('Error deleting directory {}'.format(filepath))
                 error = 'Error attempting to delete directory.'
         else:
             os.remove(filepath)
-
-    response = {}
+    elif filepath.startswith(DEFAULT_ARRANGE_PATH):
+        # Might be for SIP Arrange view
+        models.SIPArrange.objects.filter(arrange_path__startswith=filepath).delete()
 
     # if deleting from originals, delete ES data as well
     if ORIGINAL_DIR in filepath and filepath.index(ORIGINAL_DIR) == 0:
@@ -136,11 +137,13 @@ def delete(request):
         if transfer_uuid != None:
             elasticSearchFunctions.connect_and_remove_backlog_transfer_files(transfer_uuid)
 
-    if error != None:
-      response['message'] = error
-      response['error']   = True
+    if error is not None:
+        response = {
+            'message': error,
+            'error': True,
+        }
     else:
-      response['message'] = 'Delete successful.'
+        response = {'message': 'Delete successful.'}
 
     return helpers.json_response(response)
 
