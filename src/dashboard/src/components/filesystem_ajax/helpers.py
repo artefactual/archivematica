@@ -75,15 +75,6 @@ def directory_to_dict(path, directory={}, entry=False):
     # return fully traversed data
     return directory
 
-def directory_contents(path, contents=[]):
-    entries = sorted_directory_list(path)
-    for entry in entries:
-        contents.append(os.path.join(path, entry))
-        entry_path = os.path.join(path, entry)
-        if os.path.isdir(entry_path) and os.access(entry_path, os.R_OK):
-            directory_contents(entry_path, contents)
-    return contents
-
 def check_filepath_exists(filepath):
     error = None
     if filepath == '':

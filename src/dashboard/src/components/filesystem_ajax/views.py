@@ -422,97 +422,112 @@ def _within_arrange_dir(path):
     real_path = os.path.realpath(path)
     return arrange_dir in real_path and real_path.index(arrange_dir) == 0
 
+
+def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
+    """ Fetches all the children of original_path from backlog_uuid and creates
+    an identical tree in arrange_path.
+
+    Helper function for copy_to_arrange.
+    """
+    ret = []
+    browse = storage_service.browse_location(backlog_uuid, original_path)
+
+    # Add everything that is not a directory (ie that is a file)
+    entries = [e for e in browse['entries'] if e not in browse['directories']]
+    for entry in entries:
+        if entry not in ('processingMCP.xml'):
+            ret.append(
+                {'original_path': os.path.join(original_path, entry), 
+                 'arrange_path': os.path.join(arrange_path, entry)})
+
+    # Add directories and recurse, adding their children too
+    for directory in browse['directories']:
+        original_dir = os.path.join(original_path, directory, '')
+        arrange_dir = os.path.join(arrange_path, directory, '')
+        # Don't fetch metadata or logs dirs
+        # TODO only filter if the children of a SIP ie /arrange/sipname/metadata
+        if not directory in ('metadata', 'logs'):
+            ret.append({'original_path': original_dir,
+                        'arrange_path': arrange_dir})
+            ret.extend(_get_arrange_directory_tree(backlog_uuid, original_dir, arrange_dir))
+
+    return ret
+
+
 def copy_to_arrange(request):
-    arrange_dir = _arrange_dir()
+    """ Add files from backlog to in-progress SIPs being arranged.
 
-    # TODO: limit sourcepath to certain allowable locations
-    sourcepath  = request.POST.get('filepath', '')
+    sourcepath: GET parameter, path relative to this pipelines backlog. Leading
+        '/'s are stripped
+    destination: GET parameter, path within arrange folder, should start with
+        DEFAULT_ARRANGE_PATH ('/arrange/')
+    """
+    error = None
+
+    # Insert each file into the DB
+    # Check if the file is already in the DB (original == DB.arrange) and update if so
+    sourcepath  = request.POST.get('filepath', '').lstrip('/')
     destination = request.POST.get('destination', '')
+    logging.info('copy_to_arrange: sourcepath: {}'.format(sourcepath))
+    logging.info('copy_to_arrange: destination: {}'.format(destination))
 
-    # make source and destination path absolute
-    sourcepath = os.path.join('/', sourcepath)
-    destination = os.path.realpath(os.path.join('/', destination))
+    if not sourcepath or not destination:
+        error = "GET parameter 'filepath' or 'destination' was blank."
 
-    # work out relative path within originals folder
-    originals_subpath = sourcepath.replace(ORIGINAL_DIR, '')
+    if not destination.startswith(DEFAULT_ARRANGE_PATH):
+        error = '{} must be in arrange directory.'.format(destination)
 
-    # work out transfer directory level and source transfer directory
-    transfer_directory_level = originals_subpath.count('/')
-    source_transfer_directory = originals_subpath.split('/')[1]
+    # If drop onto a file, drop it into its parent directory instead
+    if not destination.endswith('/'):
+        destination = os.path.dirname(destination)
 
-    error = filesystem_ajax_helpers.check_filepath_exists(sourcepath)
+    # Files cannot go into the top level folder
+    if destination == DEFAULT_ARRANGE_PATH and not sourcepath.endswith('/'):
+        error = '{} must go in a SIP, cannot be dropped onto {}'.format(
+            sourcepath, DEFAULT_ARRANGE_PATH)
 
-    if error == None:
-        uuid = _find_uuid_of_transfer_in_originals_directory_using_path(os.path.join(ORIGINAL_DIR, source_transfer_directory))
-
-        if uuid != None:
-            # remove UUID from destination directory name
-            modified_basename = os.path.basename(sourcepath).replace('-' + uuid, '')
-        else:
-            # TODO: should return error?
-            modified_basename = os.path.basename(sourcepath)
-
-        # confine destination to subdir of arrange
-        if _within_arrange_dir(destination):
-            full_destination = os.path.join(destination, modified_basename)
-            full_destination = helpers.pad_destination_filepath_if_it_already_exists(full_destination)
-
-            if os.path.isdir(sourcepath):
-                try:
-                    shutil.copytree(
-                        sourcepath,
-                        full_destination
-                    )
-                except:
-                    error = 'Error copying from ' + sourcepath + ' to ' + full_destination + '.'
-
-                if error == None:
-                    # remove any metadata and logs folders
-                    for path in filesystem_ajax_helpers.directory_contents(full_destination):
-                        basename = os.path.basename(path)
-                        if basename == 'metadata' or basename == 'logs':
-                            if os.path.isdir(path):
-                                shutil.rmtree(path)
-
-            else:
-                shutil.copy(sourcepath, full_destination)
-
-            # if the source path isn't a whole transfer folder, then
-            # copy the source transfer's METS file into the objects
-            # folder of the destination... if there is not objects
-            # folder then return an error
-
-            arrange_subpath = full_destination.replace(arrange_dir, '')
-            dest_transfer_directory = arrange_subpath.split('/')[1]
-
-            _add_copied_files_to_arrange_log(sourcepath, full_destination)
-
-            # an entire transfer isn't being copied... copy in METS if
-            # it doesn't exist
-            if transfer_directory_level != 1 and uuid != None:
-                # work out location of METS file in source transfer
-                source_mets_path = os.path.join(ORIGINAL_DIR, source_transfer_directory, 'metadata/submissionDocumentation/METS.xml')
-
-                # work out destination object folder
-                objects_directory = os.path.join(arrange_dir, dest_transfer_directory, 'objects')
-                destination_mets = os.path.join(objects_directory, 'METS-' + uuid + '.xml')
-                if not os.path.exists(destination_mets):
-                    shutil.copy(source_mets_path, destination_mets)
-
-            # log all files copied to arrange.log
-            #f
-        else:
-            error = 'The destination {} is not within the arrange directory ({}).'.format(destination, arrange_dir)
-
-    response = {}
-
-    if error != None:
-        response['message'] = error
-        response['error']   = True
+    # Construct the base arrange_path differently for files vs folders
+    if sourcepath.endswith('/'):
+        leaf_dir = sourcepath.split('/')[-2]
+        arrange_path = os.path.join(destination, leaf_dir) + '/'
     else:
-        response['message'] = 'Copy successful.'
+        arrange_path = os.path.join(destination, os.path.basename(sourcepath))
+    logging.info('copy_to_arrange: arrange_path: {}'.format(arrange_path))
+
+    # Cannot add an object that already exists
+    if models.SIPArrange.objects.filter(arrange_path=arrange_path).exists():
+        # TODO pad this with _, see helpers.pad_destination_filepath_if_it_already_exists
+        error = '{} already exists.'.format(arrange_path)
+
+    # Create new SIPArrange entry for each object being copied over
+    if not error:
+        # IDEA memoize the backlog location?
+        backlog_uuid = storage_service.get_location(purpose='BL')[0]['uuid']
+        to_add = [{'original_path': sourcepath,
+                   'arrange_path': arrange_path}]
+
+        # If it's a directory, fetch all the children
+        if sourcepath.endswith('/'):
+            to_add.extend(_get_arrange_directory_tree(backlog_uuid, sourcepath, arrange_path,))
+        logging.debug('copy_to_arrange: files to be added: {}'.format(to_add))
+
+        for entry in to_add:
+            models.SIPArrange.objects.create(
+                original_path=entry['original_path'],
+                arrange_path=entry['arrange_path'],
+                file_uuid='', # TODO how get file UUID?
+            )
+
+    if error is not None:
+        response = {
+            'message': error,
+            'error': True,
+        }
+    else:
+        response = {'message': 'Files added to the SIP.'}
 
     return helpers.json_response(response)
+
 
 def _add_copied_files_to_arrange_log(sourcepath, full_destination):
     arrange_dir = _arrange_dir()

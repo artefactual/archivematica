@@ -59,7 +59,7 @@ function setupBacklogBrowser() {
     move.self.busy();
 
     // determine whether a move or copy should be performed
-    var actionUrlPath,
+    var actionUrlPath, source
         arrangeDir = '/'+move.self.structure.name;
 
     // do a move if drag and drop occurs within the arrange pane
@@ -67,27 +67,30 @@ function setupBacklogBrowser() {
       move.droppedPath.indexOf(arrangeDir) == 0
       && move.containerPath.indexOf(arrangeDir) == 0
     ) {
+      // arrange -> arrange
       actionUrlPath = '/filesystem/move_within_arrange/';
-      // Add trailing / to directories
-      if (move.self.getByPath(move.droppedPath).type() == 'directory') {
-        move.droppedPath+='/'
-      }
+      source = move.self.getByPath(move.droppedPath)
     } else {
+      // originals -> arrange
       actionUrlPath = '/filesystem/copy_to_arrange/';
-      // TODO how to get directory info from original??
+      // TODO don't use global if possible
+      source = originals.getByPath(move.droppedPath)
     }
 
     var destination = move.self.getByPath(move.containerPath);
+    // Add trailing / to directories
+    if (source.type() == 'directory') {
+      move.droppedPath+='/'
+    }
     if (typeof destination == 'undefined') {
-      // FIXME error if source is a file
       // Moving into the parent directory arrange/
+      // Error if source is a file
+      if (source.type() != 'directory') {
+        move.self.alert('Error', "Files must go in a SIP, not the parent directory.");
+      }
       move.containerPath = arrangeDir+'/'
     } else if (destination.type() == 'directory') {
       move.containerPath+='/'
-    } else {
-      move.self.alert('Error', "You cannot drag and drop onto a file.");
-      move.self.idle();
-      return;
     }
 
     $.post(
@@ -271,25 +274,18 @@ $(document).ready(function() {
     return function() {
       if (typeof browser.selectedEntryId === 'undefined') {
         browser.alert('Delete', 'Please select a directory to delete.');
-      } else {
-        // only allow top-level directories to be deleted
-        var delete_path = browser.getPathForCssId(browser.selectedEntryId);
-
-        if (delete_path.split('/').length != directory.split('/').length + 1) {
-          browser.alert('Delete', 'You can only delete top-level directories.');
-        } else {
-          var path = browser.getPathForCssId(browser.selectedEntryId)
-            , type = browser.getTypeForCssId(browser.selectedEntryId);
-
-          browser.confirm(
-            'Delete',
-            'Are you sure you want to delete this directory or file?',
-            function() {
-              browser.deleteEntry(path, type);
-            }
-          );
-        }
+        return;
       }
+      var path = browser.getPathForCssId(browser.selectedEntryId)
+        , type = browser.getTypeForCssId(browser.selectedEntryId);
+
+      browser.confirm(
+        'Delete',
+        'Are you sure you want to delete this directory or file?',
+        function() {
+          browser.deleteEntry(path, type);
+        }
+      );
     };
   };
 
