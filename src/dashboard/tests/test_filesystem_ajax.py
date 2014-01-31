@@ -1,7 +1,7 @@
 #! /usr/bin/python2
 
 # Run from src/dashboard with:
-# bash: PYTHONPATH='./src' py.test --ds 'settings.local -v
+# bash: PYTHONPATH='./src' py.test --ds 'settings.local' -v
 # fish: env PYTHONPATH='./src' py.test --ds 'settings.local' -v
 
 import json
@@ -43,12 +43,10 @@ class TestSIPArrange(TestCase):
         response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': '/arrange/folder'}, follow=True)
         expected_json = {
             "directories": [
-                "metadata",
                 "objects"
             ],
             "entries": [
                 "item_main",
-                "metadata",
                 "objects"
             ]
         }

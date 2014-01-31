@@ -333,25 +333,31 @@ def copy_from_arrange_to_completed(request):
     #return copy_to_originals(request)
 
 def create_directory_within_arrange(request):
+    """ Creates a directory entry in the SIPArrange table.
+
+    path: GET parameter, path to directory in DEFAULT_ARRANGE_PATH to create
+    """
     error = None
     
     path = request.POST.get('path', '')
 
-    if path != '':
-        absolute_path = os.path.join('/', path)
-        if _within_arrange_dir(absolute_path):
-            os.mkdir(absolute_path)
+    if path:
+        if path.startswith(DEFAULT_ARRANGE_PATH):
+            models.SIPArrange.objects.create(
+                original_path=None,
+                arrange_path=os.path.join(path, ''), # ensure ends with /
+                file_uuid=None,
+            )
         else:
             error = 'Directory is not within the arrange directory.'
 
-    response = {}
-
-    response['message'] = absolute_path
-    if error != None:
-        response['message'] = error
-        response['error']   = True
+    if error is not None:
+        response = {
+            'message': error,
+            'error': True,
+        }
     else:
-        response['message'] = 'Creation successful.'
+        response = {'message': 'Creation successful.'}
 
     return helpers.json_response(response)
 
@@ -417,11 +423,6 @@ def _arrange_dir():
         helpers.get_client_config_value('sharedDirectoryMounted'),
         'arrange'))
 
-def _within_arrange_dir(path):
-    arrange_dir = _arrange_dir()
-    real_path = os.path.realpath(path)
-    return arrange_dir in real_path and real_path.index(arrange_dir) == 0
-
 
 def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
     """ Fetches all the children of original_path from backlog_uuid and creates
@@ -437,8 +438,9 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
     for entry in entries:
         if entry not in ('processingMCP.xml'):
             ret.append(
-                {'original_path': os.path.join(original_path, entry), 
-                 'arrange_path': os.path.join(arrange_path, entry)})
+                {'original_path': os.path.join(original_path, entry),
+                 'arrange_path': os.path.join(arrange_path, entry),
+                  'file_uuid': 'TODO'})  # TODO how get file UUID?
 
     # Add directories and recurse, adding their children too
     for directory in browse['directories']:
@@ -447,8 +449,9 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
         # Don't fetch metadata or logs dirs
         # TODO only filter if the children of a SIP ie /arrange/sipname/metadata
         if not directory in ('metadata', 'logs'):
-            ret.append({'original_path': original_dir,
-                        'arrange_path': arrange_dir})
+            ret.append({'original_path': None,
+                        'arrange_path': arrange_dir,
+                        'file_uuid': None})
             ret.extend(_get_arrange_directory_tree(backlog_uuid, original_dir, arrange_dir))
 
     return ret
@@ -515,7 +518,7 @@ def copy_to_arrange(request):
             models.SIPArrange.objects.create(
                 original_path=entry['original_path'],
                 arrange_path=entry['arrange_path'],
-                file_uuid='', # TODO how get file UUID?
+                file_uuid=entry['file_uuid'],
             )
 
     if error is not None:
