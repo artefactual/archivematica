@@ -114,6 +114,10 @@ def index(request):
             "name":  "normalize",
             "label": "Normalize",
             "link_uuid": "cb8e5706-e73f-472f-ad9b-d1236af8095f",
+        },
+        {
+            "name":  "reminder",
+            "label": "Reminder: add metadata if desired"
         }
     ]
 
