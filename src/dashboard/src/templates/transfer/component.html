@@ -1,0 +1,57 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+{% load url from future %}
+{% load keyvalue %}
+
+{% block content %}
+  <div class="row">
+    <div class="span12">
+
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Transfer' 'components.transfer.views.grid' %}
+        Component metadata
+      </ul>
+
+      <form method='POST'>
+      <input name='path' type='hidden' value='{{ path }}'/>
+      <table>
+      {% for field in fields %}
+        <tr>
+          <td>
+            <label>{{ field.fieldlabel }}</label>
+          </td>
+          <td>
+            {% if field.fieldtype == 'text' %}
+              <input name='{{ field.fieldname }}' value='{{ values|keyvalue:field.fieldname }}' />
+            {% endif %}
+
+            {% if field.fieldtype == 'textarea' %}
+              <textarea name='{{ field.fieldname }}'>{{ values|keyvalue:field.fieldname }}</textarea>
+            {% endif %}
+
+            {% if field.fieldtype == 'select' %}
+              <select name='{{ field.fieldname }}'>
+                {% with values|keyvalue:field.fieldname as select_value %}
+                  {% for optiondata in options %}
+                    {% for option in optiondata.options %}
+                      <option {% if option == select_value %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                  {% endfor %}
+                {% endwith %}
+              </select>
+
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+        <tr>
+          <td colspan=2>
+            <input type='submit' value='Save' />
+          </td>
+        </tr>
+      </table>
+      </form>
+
+    </div>
+  </div>
+{% endblock %}

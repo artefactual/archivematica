@@ -13,6 +13,7 @@
   {% url 'components.administration.views.premis_agent' as url_premis %}
   {% url 'components.administration.views.api' as url_api %}
   {% url 'components.accounts.views.list' as url_user_list %}
+  {% url 'components.administration.views.general' as url_general %}
 
   <ul>
     <li class="{% active request url_processing %}"><a href="{{ url_processing }}">Processing configuration</a></li>

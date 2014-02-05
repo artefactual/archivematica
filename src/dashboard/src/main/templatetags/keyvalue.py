@@ -21,4 +21,7 @@ register = Library()
 
 @register.filter
 def keyvalue(d, key):
-    return d[key]
+    try:
+        return d[key]
+    except:
+        pass

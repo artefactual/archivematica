@@ -33,6 +33,23 @@ import elasticSearchFunctions
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 def home(request):
+    # clean up user's session-specific data
+    if 'user_temp_data_cleanup_ran' not in request.session:
+        # create all transfer metadata sets created by user
+        transfer_metadata_sets = models.TransferMetadataSet.objects.filter(createdbyuserid=1)
+
+        # check each set to see if, and related data, should be deleted
+        for set in transfer_metadata_sets:
+            # delete transfer metadata set and field values if no corresponding transfer exists
+            try:
+                transfer = models.Transfer.objects.get(transfermetadatasetrowuuid=set.pk)
+            except:
+                field_values = models.TransferMetadataFieldValue.objects.filter(setuuid=set.pk)
+                for field_value in field_values:
+                    field_value.delete()
+                set.delete()
+        request.session['user_temp_data_cleanup_ran'] = True
+
     if 'first_login' in request.session and request.session['first_login']:
         request.session.first_login = False
         for feature_setting in helpers.feature_settings().values():

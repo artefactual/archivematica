@@ -20,10 +20,17 @@ from django.conf import settings
 
 urlpatterns = patterns('components.transfer.views',
     (r'^$', 'grid'),
+
+    # Transfer metadata set functions
+    (r'^create_metadata_set_uuid/$', 'create_metadata_set_uuid'),
+    (r'^rename_metadata_set/(?P<set_uuid>' + settings.UUID_REGEX + ')/(?P<placeholder_id>[\w\-]+)/$', 'rename_metadata_set'),
+    (r'^cleanup_metadata_set/(?P<set_uuid>' + settings.UUID_REGEX + ')/$', 'cleanup_metadata_set'),
+
+    (r'component/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'component'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/$', 'detail'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/delete/$', 'delete'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/microservices/$', 'microservices'),
     (r'status/$', 'status'),
     (r'status/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'status'),
-    (r'browser/$', 'browser')
+    (r'browser/$', 'browser'),
 )

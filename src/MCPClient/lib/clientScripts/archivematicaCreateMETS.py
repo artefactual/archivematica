@@ -28,10 +28,8 @@ import sys
 import lxml.etree as etree
 import MySQLdb
 from xml.sax.saxutils import quoteattr
-#from archivematicaCreateMETS2 import escape
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
-#from archivematicaFunctions import escape
 
 
 UUIDsDic={}
@@ -79,14 +77,10 @@ def createFileSec(path, parentBranch, structMapParent):
     pathSTR = path.__str__()
     if pathSTR == basePath + "objects/": #IF it's it's the SIP folder, it's OBJECTS
         pathSTR = "objects"
-    #pathSTR = string.replace(path.__str__(), "/tmp/" + sys.argv[2] + "/" + sys.argv[3], "objects", 1)
-    #if pathSTR + "/" == basePath: #if it's the very first run through (recursive function)
+
     if path == basePath: #if it's the very first run through (recursive function)
         pathSTR = os.path.basename(os.path.dirname(basePath))
-        #structMapParent.set("DMDID", "SIP-description")
 
-        #currentBranch = newChild(parentBranch, "fileGrp")
-        #currentBranch.set("USE", "directory")
         # structMap directory
         div = newChild(structMapParent, "div")
         createFileSec(os.path.join(path, "objects/"), parentBranch, div)
@@ -108,8 +102,6 @@ def createFileSec(path, parentBranch, structMapParent):
                 if os.path.isdir(itempath):
                     if not doDirectories:
                         continue
-                    #currentBranch = newChild(parentBranch, "fileGrp")
-                    #currentBranch.set("USE", "directory")
                     # structMap directory
                     div = newChild(structMapParent, "div")
 
@@ -155,7 +147,6 @@ def createFileSec(path, parentBranch, structMapParent):
                     Flocat.set("OTHERLOCTYPE", "SYSTEM")
 
                     # structMap file
-                    #div = newChild(structMapParent, "div")
                     fptr = newChild(structMapParent, "fptr")
                     FILEID = "file-" + myuuid.__str__()
                     fptr.set("FILEID", escape(FILEID))

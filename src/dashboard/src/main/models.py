@@ -179,6 +179,7 @@ class Transfer(models.Model):
     currentlocation = models.TextField(db_column='currentLocation')
     type = models.CharField(max_length=50, db_column='type')
     accessionid = models.TextField(db_column='accessionID')
+    transfermetadatasetrowuuid = models.TextField(db_column='transferMetadataSetRowUUID')
     # ...
     hidden = models.BooleanField(default=False, blank=False)
 
@@ -559,3 +560,46 @@ class AtkDIPObjectResourcePairing(models.Model):
 
     class Meta:
         db_table = u'AtkDIPObjectResourcePairing'
+
+class TransferMetadataSet(models.Model):
+    id = UUIDPkField()
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    createdbyuserid = models.IntegerField(db_column='createdByUserID')
+
+    class Meta:
+        db_table = u'TransferMetadataSets'
+
+class TransferMetadataField(models.Model):
+    id = UUIDPkField()
+    fieldlabel = models.TextField(db_column='fieldLabel')
+    fieldname = models.TextField(db_column='fieldName')
+    fieldtype = models.TextField(db_column='fieldType')
+    optiontaxonomyuuid = models.TextField(db_column='optionTaxonomyUUID')
+    sortorder = models.IntegerField(db_column='sortOrder')
+
+    class Meta:
+        db_table = u'TransferMetadataFields'
+
+class TransferMetadataFieldValue(models.Model):
+    id = UUIDPkField()
+    setuuid = models.TextField(db_column='setUUID')
+    fielduuid = models.TextField(db_column='fieldUUID')
+    fieldvalue = models.TextField(db_column='fieldValue')
+
+    class Meta:
+        db_table = u'TransferMetadataFieldValues'
+
+class Taxonomy(models.Model):
+    id = UUIDPkField()
+    name = models.TextField(db_column='name')
+
+    class Meta:
+        db_table = u'Taxonomies'
+
+class TaxonomyTerm(models.Model):
+    id = UUIDPkField()
+    taxonomyuuid =  models.TextField(db_column='taxonomyUUID')
+    term = models.TextField(db_column='term')
+
+    class Meta:
+        db_table = u'TaxonomyTerms'

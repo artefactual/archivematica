@@ -38,13 +38,35 @@
   margin-right: 10px;
 }
 
+#start_transfer_button {
+  margin-right: 10px;
+}
+
+#transfer_metadata_edit_button {
+  display: none;
+}
+
 #path_source_select {
   margin-right: 10px;
 }
 
 #path_container {
+  width: 844px;
   margin-top: 20px;
   margin-bottom: 10px;
+}
+
+.transfer_path_icons {
+  float: right;
+  clear: both;
+}
+
+.transfer_path_delete_icon, .transfer_path_edit_icon {
+  margin-left: .5em;
+}
+
+.transfer_path_edit_icon {
+  display: none;
 }
 
 .microservice-group {

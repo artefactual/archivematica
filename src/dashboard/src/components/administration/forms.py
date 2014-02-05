@@ -98,3 +98,11 @@ class ArchivistsToolkitConfigForm(ModelForm):
  
     class Meta:
         model = ArchivistsToolkitConfig
+
+class TaxonomyTermForm(ModelForm):
+    taxonomyuuid = forms.CharField(required=True, widget=TextInput(attrs=settings.INPUT_ATTRS))
+    term = forms.CharField(required=True, widget=TextInput(attrs=settings.INPUT_ATTRS))
+
+    class Meta:
+        model = models.TaxonomyTerm
+        exclude = ('identifiertype')
