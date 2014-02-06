@@ -229,12 +229,12 @@ class Transfer(models.Model):
 
 
 class SIPArrange(models.Model):
-    # original_location = models.CharField(max_length=36)
-    original_path = models.TextField(null=True, blank=True)
-    # arrange_location = models.CharField(max_length=36)
+    original_path = models.TextField(null=True, blank=True, default=None)
     arrange_path = models.TextField()
-    file_uuid = UUIDField(auto=False, null=True, blank=True)
+    file_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
+    transfer_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
     sip_created = models.BooleanField(default=False)
+    aip_created = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Arranged SIPs"
