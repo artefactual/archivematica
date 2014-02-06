@@ -46,9 +46,6 @@
         });
       });
 
-    shared_dir_location_uuid = '{{ shared_dir_location_uuid }}';
-    shared_dir_location_path = '{{ shared_dir_location_path }}';
-
     window.microservices_help = {
       {% for x, y in microservices_help.iteritems %}
         '{{ x }}': '{{ y }}',
@@ -63,17 +60,12 @@
 
 {% block content %}
 
-  {% if shared_dir_location_uuid %}
+  {% include "ingest/backlog/_search_form.html" %}
+
   <div style='float:left;'>
-    <form id='originals_search_form'>
-      <input id='originals_query' />
-      <input id='originals_search_button' type='button' value='Search' />
-      <input id='originals_search_reset_button' type='button' value='Reset' />
-    </form>
-    <div id='originals_search_results' class='backbone-file-explorer-entry-list'></div>
     <div id='originals' class='backbone-file-explorer' style='float:left; width: 460px;'></div>
     <div id='originals_controls'>
-      <span id='originals_delete_button' class='btn'>Delete</span>
+      <span id='originals_hide_button' class='btn'>Hide</span>
       <span id='open_originals_file_button' class='btn'>View File</span>
     </div>
   </div>
@@ -88,9 +80,6 @@
   </div>
   <br clear='all' />
   <br />
-  {% endif %}
-
-  {% include "ingest/backlog/_search_form.html" %}
 
   <div class="span12" id="sip-container">
     <div>

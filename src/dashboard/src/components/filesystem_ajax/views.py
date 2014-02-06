@@ -386,11 +386,6 @@ def _find_uuid_of_transfer_in_originals_directory_using_path(transfer_path):
     else:
         return None
 
-def _arrange_dir():
-    return os.path.realpath(os.path.join(
-        helpers.get_client_config_value('sharedDirectoryMounted'),
-        'arrange'))
-
 
 def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
     """ Fetches all the children of original_path from backlog_uuid and creates
@@ -461,8 +456,10 @@ def copy_to_arrange(request):
     if sourcepath.endswith('/'):
         leaf_dir = sourcepath.split('/')[-2]
         arrange_path = os.path.join(destination, leaf_dir) + '/'
+        file_uuid = None
     else:
         arrange_path = os.path.join(destination, os.path.basename(sourcepath))
+        file_uuid = 'TODO'
     logging.info('copy_to_arrange: arrange_path: {}'.format(arrange_path))
 
     # Cannot add an object that already exists
@@ -475,7 +472,8 @@ def copy_to_arrange(request):
         # IDEA memoize the backlog location?
         backlog_uuid = storage_service.get_location(purpose='BL')[0]['uuid']
         to_add = [{'original_path': sourcepath,
-                   'arrange_path': arrange_path}]
+                   'arrange_path': arrange_path,
+                   'file_uuid': file_uuid}]
 
         # If it's a directory, fetch all the children
         if sourcepath.endswith('/'):

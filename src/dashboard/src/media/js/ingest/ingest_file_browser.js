@@ -233,9 +233,6 @@ var originals_browser,
     arrange_browser;
 
 $(document).ready(function() {
-  var arrange_directory = shared_dir_location_path + '/arrange',
-      originals_directory = shared_dir_location_path + '/www/AIPsStore/transferBacklog/originals';
-
   browsers = setupBacklogBrowser();
 
   originals_browser = browsers['originals'];
@@ -269,8 +266,9 @@ $(document).ready(function() {
     }
   });
 
+// TODO move delete handler to arrange_delete_button, give custom delete URL
   // delete button functionality
-  var createDeleteHandler = function(browser, directory) {
+  var createDeleteHandler = function(browser) {
     return function() {
       if (typeof browser.selectedEntryId === 'undefined') {
         browser.alert('Delete', 'Please select a directory to delete.');
@@ -289,8 +287,9 @@ $(document).ready(function() {
     };
   };
 
-  $('#arrange_delete_button').click(createDeleteHandler(arrange_browser, arrange_directory));
-  $('#originals_delete_button').click(createDeleteHandler(originals_browser, originals_directory));
+  $('#arrange_delete_button').click(createDeleteHandler(arrange_browser));
+  // TODO originals_delete_button now originals_hide_button
+  $('#originals_delete_button').click(createDeleteHandler(originals_browser));
 
   // create SIP button functionality
   $('#arrange_create_sip_button').click(function() {

@@ -76,9 +76,7 @@ def ingest_grid(request):
     uid = request.user.id
 
     try:
-        shared_dir_location = current_location = storage_service.get_location(purpose="CP")[0]
-        shared_dir_location_uuid = shared_dir_location['uuid']
-        shared_dir_location_path = shared_dir_location['path']
+        storage_service.get_location(purpose="BL")
     except:
         messages.warning(request, 'Error retrieving originals/arrange directory locations: is the storage server running? Please contact an administrator.')
 
