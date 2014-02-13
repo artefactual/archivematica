@@ -23,7 +23,7 @@ urlpatterns = patterns('components.filesystem_ajax.views',
     (r'^contents/arrange/$', 'arrange_contents'),
     (r'^contents/$', 'contents'),
     (r'^children/location/(?P<location_uuid>' + settings.UUID_REGEX + ')/$', 'directory_children_proxy_to_storage_server'),
-
+    (r'^delete/arrange/$', 'delete_arrange'),
     (r'^delete/$', 'delete'),
     (r'^move_within_arrange/$', 'move_within_arrange'),
     (r'^create_directory_within_arrange/$', 'create_directory_within_arrange'),

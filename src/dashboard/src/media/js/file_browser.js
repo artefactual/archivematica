@@ -41,6 +41,8 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
       this.ajaxChildDataUrl = this.options.ajaxChildDataUrl;
     }
 
+    this.ajaxDeleteUrl = this.options.ajaxDeleteUrl || '/filesystem/delete/';
+
     this.eventClickHandler = this.options.eventClickHandler;
 
     if (!this.options.nameClickHandler) {
@@ -81,7 +83,7 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
   deleteEntry: function(path, type) {
     var self = this;
     $.post(
-      '/filesystem/delete/',
+      this.ajaxDeleteUrl,
       {filepath: path},
       function(response) {
         if (response.error) {

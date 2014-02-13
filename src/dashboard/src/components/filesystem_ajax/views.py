@@ -110,14 +110,11 @@ def delete(request):
         if os.path.isdir(filepath):
             try:
                 shutil.rmtree(filepath)
-            except Exception as e:
+            except Exception:
                 logging.exception('Error deleting directory {}'.format(filepath))
                 error = 'Error attempting to delete directory.'
         else:
             os.remove(filepath)
-    elif filepath.startswith(DEFAULT_ARRANGE_PATH):
-        # Might be for SIP Arrange view
-        models.SIPArrange.objects.filter(arrange_path__startswith=filepath).delete()
 
     # if deleting from originals, delete ES data as well
     if ORIGINAL_DIR in filepath and filepath.index(ORIGINAL_DIR) == 0:
@@ -134,6 +131,13 @@ def delete(request):
         response = {'message': 'Delete successful.'}
 
     return helpers.json_response(response)
+
+
+def delete_arrange(request):
+    filepath = request.POST.get('filepath', '')
+    models.SIPArrange.objects.filter(arrange_path__startswith=filepath).delete()
+    return helpers.json_response({'message': 'Delete successful.'})
+
 
 def get_temp_directory(request):
     temp_base_dir = helpers.get_client_config_value('temp_dir')

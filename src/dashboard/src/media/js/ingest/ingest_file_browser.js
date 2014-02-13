@@ -137,6 +137,7 @@ function setupBacklogBrowser() {
     entryTemplate: $('#template-dir-entry').html(),
     entryClickHandler: backlogBrowserEntryClickHandler,
     nameClickHandler: backlogBrowserEntryClickHandler,
+    ajaxDeleteUrl: '/filesystem/delete/arrange/',
     ajaxChildDataUrl: '/filesystem/contents/arrange/'
   });
 
@@ -212,30 +213,29 @@ $(document).ready(function() {
     }
   });
 
-// TODO move delete handler to arrange_delete_button, give custom delete URL
-  // delete button functionality
-  var createDeleteHandler = function(browser) {
-    return function() {
-      if (typeof browser.selectedEntryId === 'undefined') {
-        browser.alert('Delete', 'Please select a directory to delete.');
-        return;
+  $('#arrange_delete_button').click(function() {
+    if (typeof arrange_browser.selectedEntryId === 'undefined') {
+      arrange_browser.alert('Delete', 'Please select a directory to delete.');
+      return;
+    }
+    var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId)
+      , type = arrange_browser.getTypeForCssId(arrange_browser.selectedEntryId);
+
+    arrange_browser.confirm(
+      'Delete',
+      'Are you sure you want to delete this directory or file?',
+      function() {
+        arrange_browser.deleteEntry(path, type);
       }
-      var path = browser.getPathForCssId(browser.selectedEntryId)
-        , type = browser.getTypeForCssId(browser.selectedEntryId);
+    );
+  });
 
-      browser.confirm(
-        'Delete',
-        'Are you sure you want to delete this directory or file?',
-        function() {
-          browser.deleteEntry(path, type);
-        }
-      );
-    };
-  };
-
-  $('#arrange_delete_button').click(createDeleteHandler(arrange_browser));
-  // TODO originals_delete_button now originals_hide_button
-  $('#originals_delete_button').click(createDeleteHandler(originals_browser));
+  // Hide the selected object
+  $('#originals_hide_button').click(function () {
+    // Have to hide all its children too or weird behaviour
+    $('#' + originals_browser.selectedEntryId).next().hide();
+    $('#' + originals_browser.selectedEntryId).hide();
+  });
 
   // create SIP button functionality
   $('#arrange_create_sip_button').click(function() {
