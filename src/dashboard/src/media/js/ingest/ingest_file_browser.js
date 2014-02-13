@@ -123,7 +123,9 @@ function setupBacklogBrowser() {
   originals.structure = {
     'name': 'originals',
     'parent': '',
-    'children': []
+    'children': [
+      {'name': 'Search the transfer backlog to populate this panel.',
+       'not_draggable': true}]
   };
 
   originals.itemsPerPage = 10;
@@ -190,7 +192,7 @@ $(document).ready(function() {
     var path = prompt('Name of new directory?');
 
     if (path != '') {
-      var path_root = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId)
+      var path_root = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId) || '/' + arrange_browser.structure.name
         , relative_path = path_root + '/' + path;
 
       $.ajax({
@@ -202,10 +204,8 @@ $(document).ready(function() {
           path: relative_path
         },
         success: function(results) {
-          var directory = arrange_browser.getByPath(path_root);
-          directory.addDir({'name': path});
+          arrange_browser.dirView.model.addDir({'name': path});
           arrange_browser.render();
-          arrange_browser.alert('Create directory', results.message);
         },
         error: function(results) {
           originals_browser.alert('Error', results.message);
@@ -226,7 +226,11 @@ $(document).ready(function() {
       'Delete',
       'Are you sure you want to delete this directory or file?',
       function() {
+        if( type == 'directory') {
+          path += '/'
+        }
         arrange_browser.deleteEntry(path, type);
+        arrange_browser.selectedEntryId = undefined;
       }
     );
   });
