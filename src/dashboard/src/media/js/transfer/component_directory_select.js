@@ -78,7 +78,7 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
       if (!active_component) { active_component = createMetadataSetID(); }
       var component = active_component;
       component.path = result.path;
-      components[path] = component;
+      components[result.path] = component;
 
       // enable editing of transfer component metadata
       if ($('#transfer-type').val() == 'disk image') {
