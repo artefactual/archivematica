@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls import patterns
+from django.conf import settings
 
 urlpatterns = patterns('components.administration.views',
     (r'^$', 'administration'),
