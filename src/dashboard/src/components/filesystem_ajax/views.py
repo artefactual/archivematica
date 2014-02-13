@@ -319,12 +319,14 @@ def copy_from_arrange_to_completed(request):
     """
     error = None
     filepath = request.POST.get('filepath', '')
-
     filepath = os.path.normpath(filepath)
 
     # Error checking
     if not filepath.startswith(DEFAULT_ARRANGE_PATH):
         error = '{} is not in {}'.format(filepath, DEFAULT_ARRANGE_PATH)
+    elif len(filepath.split('/')) != 3:
+        # Must create SIP from a full SIP, not a top tier dir or subdirectory
+        error = 'Must create SIP from the parent SIP directory, not a subdirectory.'
     else:
         # Filepath is prefix on arrange_path in SIPArrange
         filepath = os.path.join(filepath, '')
@@ -497,42 +499,26 @@ def copy_to_arrange(request):
     destination: GET parameter, path within arrange folder, should start with
         DEFAULT_ARRANGE_PATH ('/arrange/')
     """
-    error = None
-
     # Insert each file into the DB
-    # Check if the file is already in the DB (original == DB.arrange) and update if so
+
+    error = None
     sourcepath  = request.POST.get('filepath', '').lstrip('/')
     destination = request.POST.get('destination', '')
     logging.info('copy_to_arrange: sourcepath: {}'.format(sourcepath))
     logging.info('copy_to_arrange: destination: {}'.format(destination))
 
+    # Lots of error checking:
     if not sourcepath or not destination:
         error = "GET parameter 'filepath' or 'destination' was blank."
-
     if not destination.startswith(DEFAULT_ARRANGE_PATH):
         error = '{} must be in arrange directory.'.format(destination)
-
     # If drop onto a file, drop it into its parent directory instead
     if not destination.endswith('/'):
         destination = os.path.dirname(destination)
-
     # Files cannot go into the top level folder
     if destination == DEFAULT_ARRANGE_PATH and not sourcepath.endswith('/'):
         error = '{} must go in a SIP, cannot be dropped onto {}'.format(
             sourcepath, DEFAULT_ARRANGE_PATH)
-
-    # Construct the base arrange_path differently for files vs folders
-    if sourcepath.endswith('/'):
-        leaf_dir = sourcepath.split('/')[-2]
-        arrange_path = os.path.join(destination, leaf_dir) + '/'
-    else:
-        arrange_path = os.path.join(destination, os.path.basename(sourcepath))
-    logging.info('copy_to_arrange: arrange_path: {}'.format(arrange_path))
-
-    # Cannot add an object that already exists
-    if models.SIPArrange.objects.filter(arrange_path=arrange_path).exists():
-        # TODO pad this with _, see helpers.pad_destination_filepath_if_it_already_exists
-        error = '{} already exists.'.format(arrange_path)
 
     # Create new SIPArrange entry for each object being copied over
     if not error:
@@ -540,16 +526,26 @@ def copy_to_arrange(request):
         backlog_uuid = storage_service.get_location(purpose='BL')[0]['uuid']
         to_add = []
 
-        # If it's a directory, fetch all the children
+        # Construct the base arrange_path differently for files vs folders
         if sourcepath.endswith('/'):
-            to_add.append({'original_path': None,
+            leaf_dir = sourcepath.split('/')[-2]
+            # If dragging objects/ folder, actually move the contents of (not
+            # the folder itself)
+            if leaf_dir == 'objects':
+                arrange_path = os.path.join(destination, '')
+            else:
+                arrange_path = os.path.join(destination, leaf_dir) + '/'
+                to_add.append({'original_path': None,
                            'arrange_path': arrange_path,
                            'file_uuid': None})
-            to_add.extend(_get_arrange_directory_tree(backlog_uuid, sourcepath, arrange_path,))
+            to_add.extend(_get_arrange_directory_tree(backlog_uuid, sourcepath, arrange_path))
         else:
+            arrange_path = os.path.join(destination, os.path.basename(sourcepath))
             to_add.append({'original_path': sourcepath,
-                           'arrange_path': arrange_path,
-                           'file_uuid': 'TODO'})
+               'arrange_path': arrange_path,
+               'file_uuid': 'TODO'})
+
+        logging.info('copy_to_arrange: arrange_path: {}'.format(arrange_path))
         logging.debug('copy_to_arrange: files to be added: {}'.format(to_add))
 
         for entry in to_add:
@@ -561,6 +557,7 @@ def copy_to_arrange(request):
                 )
             except IntegrityError:
                 error = '{} already exists'.format(entry['arrange_path'])
+                # TODO pad this with _ and try again? see helpers.pad_destination_filepath_if_it_already_exists
                 break
 
     if error is not None:
