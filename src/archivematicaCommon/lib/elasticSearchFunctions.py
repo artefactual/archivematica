@@ -45,6 +45,7 @@ logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
     level=logging.INFO)
 
 pathToElasticSearchServerConfigFile='/etc/elasticsearch/elasticsearch.yml'
+MAX_QUERY_SIZE = 50000  # TODO Check that this is a reasonable number
 
 def getDashboardUUID():
     sql = "SELECT value FROM DashboardSettings WHERE name='%s'"
@@ -105,6 +106,25 @@ def check_server_status_and_create_indexes_if_needed():
 
     # no error!
     return 'OK'
+
+def search_raw_wrapper(conn, query, indices=None, doc_types=None, **query_params):
+    """
+    Performs conn.search_raw with the size set to MAX_QUERY_SIZE.
+
+    By default search_raw returns only 10 results.  Since we usually want all
+    results, this is a wrapper that fetches MAX_QUERY_SIZE results and logs a
+    warning if more results were available.
+    """
+    results = conn.search_raw(
+        query,
+        indices=indices,
+        doc_types=doc_types,
+        size=MAX_QUERY_SIZE,
+        **query_params)
+
+    if results.hits.total > MAX_QUERY_SIZE:
+        logging.warning('Number of items in backlog (%s) exceeds maximum amount fetched (%s)', results.hits.total, MAX_QUERY_SIZE)
+    return results
 
 def check_server_status():
     try:
@@ -178,15 +198,16 @@ def set_up_mapping(conn, index):
 
     if index == 'transfers':
         mapping = {
-            'filepath'     : {'type': 'string'},
             'filename'     : {'type': 'string'},
+            'relative_path': {'type': 'string'},
             'fileuuid'     : machine_readable_field_spec,
             'sipuuid'      : machine_readable_field_spec,
             'accessionid'  : machine_readable_field_spec,
             'status'       : machine_readable_field_spec,
             'origin'       : machine_readable_field_spec,
             'ingestdate'   : {'type': 'date' , 'format': 'dateOptionalTime'},
-            'created'      : {'type': 'double'}
+            'created'      : {'type': 'double'},
+            'file_extension': machine_readable_field_spec,
         }
 
         print 'Creating transfer file mapping...'
@@ -510,55 +531,79 @@ def normalize_list_dict_elements(list):
     return list
 
 def index_transfer_files(conn, uuid, pathToTransfer, index, type):
+    """
+    Indexes files in the Transfer with UUID `uuid` at path `pathToTransfer`.
+
+    Returns the number of files indexed.
+
+    conn: ElasticSearch connection - see connect_and_create_index
+    uuid: UUID of the Transfer in the DB
+    pathToTransfer: path on disk, including the transfer directory and a
+        trailing / but not including objects/
+    index, type: index and type in ElasticSearch
+    """
     filesIndexed = 0
     ingest_date  = str(datetime.datetime.today())[0:10]
     create_time  = time.time()
-    # Temporary Archivematica internal files should not be indexed
-    exclude_files = ['processingMCP.xml']
 
-    # get accessionId from transfers table using UUID
+    # Some files should not be indexed
+    # This should match the basename of the file
+    ignore_files = [
+        'processingMCP.xml',
+    ]
+
+    # Get accessionId and name from Transfers table using UUID
     accession_id = ''
-    sql = "SELECT accessionID from Transfers WHERE transferUUID='" + MySQLdb.escape_string(uuid) + "'"
-
+    sql = "SELECT accessionID, currentLocation FROM Transfers WHERE transferUUID='{}';".format(MySQLdb.escape_string(uuid))
     rows = databaseInterface.queryAllSQL(sql)
     if len(rows) > 0:
         accession_id = rows[0][0]
+        # TODO Transfer name should be stored in the DB, for now parse from path
+        transfer_name = rows[0][1].split('/')[-2]
+
+    # Get dashboard UUID
+    dashboard_uuid = getDashboardUUID()
 
     for filepath in list_files_in_dir(pathToTransfer):
-        if any(f in filepath for f in exclude_files):
-            print filepath, 'in excluded files list: skipping'
-            continue
         if os.path.isfile(filepath):
-
-            relative_path = '%transferDirectory%objects' + filepath.replace(pathToTransfer, '')
-
-            sql = "SELECT fileUUID FROM Files WHERE currentLocation='" + MySQLdb.escape_string(relative_path) + "' AND transferUUID='" + MySQLdb.escape_string(uuid) + "'"
+            # Get file UUID
+            file_uuid = ''
+            relative_path = filepath.replace(pathToTransfer, '%transferDirectory%')
+            sql = "SELECT fileUUID FROM Files WHERE currentLocation='{}' AND transferUUID='{}';".format(
+                MySQLdb.escape_string(relative_path),
+                MySQLdb.escape_string(uuid))
             rows = databaseInterface.queryAllSQL(sql)
             if len(rows) > 0:
                 file_uuid = rows[0][0]
+
+            # Get file path info
+            relative_path = relative_path.replace('%transferDirectory%', transfer_name+'/')
+            file_extension = os.path.splitext(filepath)[1][1:].lower()
+            filename = os.path.basename(filepath)
+
+            if filename not in ignore_files:
+                print 'Indexing {} (UUID: {})'.format(relative_path, file_uuid)
+
+                # TODO Index Backlog Location UUID?
+                indexData = {
+                  'filename'     : filename,
+                  'relative_path' : relative_path,
+                  'fileuuid'     : file_uuid,
+                  'sipuuid'      : uuid,
+                  'accessionid'  : accession_id,
+                  'status'       : '',
+                  'origin'       : dashboard_uuid,
+                  'ingestdate'   : ingest_date,
+                  'created'      : create_time,
+                  'file_extension': file_extension,
+                }
+
+                wait_for_cluster_yellow_status(conn)
+                try_to_index(conn, indexData, index, type)
+
+                filesIndexed = filesIndexed + 1
             else:
-                file_uuid = ''
-
-            indexData = {
-              'filepath'     : filepath,
-              'filename'     : os.path.basename(filepath),
-              'fileuuid'     : file_uuid,
-              'sipuuid'      : uuid,
-              'accessionid'  : accession_id,
-              'status'       : '',
-              'origin'       : getDashboardUUID(),
-              'ingestdate'   : ingest_date,
-              'created'      : create_time
-            }
-
-            _, fileExtension = os.path.splitext(filepath)
-            if fileExtension != '':
-                indexData['fileExtension']  = fileExtension[1:].lower()
-
-            wait_for_cluster_yellow_status(conn)
-            try_to_index(conn, indexData, index, type)
-
-            filesIndexed = filesIndexed + 1
+                print 'Skipping indexing {}'.format(relative_path)
 
     if filesIndexed > 0:
         conn.refresh()
@@ -585,62 +630,34 @@ def backup_indexed_document(result, indexData, index, type):
 
     databaseInterface.runSQL(sql)
 
-def document_id_from_field_query(conn, index, doc_types, field, value):
-    document_id = None
+def _document_ids_from_field_query(conn, index, doc_types, field, value):
+    document_ids = []
 
-    documents = conn.search_raw(
+    documents = search_raw_wrapper(
+        conn,
         query=pyes.FieldQuery(pyes.FieldParameter(field, value)),
         doc_types=doc_types
     )
 
-    if len(documents['hits']['hits']) == 1:
-        document_id = documents['hits']['hits'][0]['_id']
-    return document_id
+    if len(documents['hits']['hits']) > 0:
+        document_ids = [ d['_id'] for d in documents['hits']['hits'] ]
+
+    return document_ids
 
 def connect_and_change_transfer_file_status(uuid, status):
-    # TODO: find a way to share this between this script and src/transcoder/lib/transcoderExtraction.py
-    SevenZipExtensions = ['.ARJ', '.CAB', '.CHM', '.CPIO',
-                  '.DMG', '.HFS', '.LZH', '.LZMA',
-                  '.NSIS', '.UDF', '.WIM', '.XAR',
-                  '.Z', '.ZIP', '.GZIP', '.TAR',]
-
-    # get file UUIDs for each file in the SIP
-    sql = "SELECT fileUUID, currentLocation from Files WHERE transferUUID='" + MySQLdb.escape_string(uuid) + "'"
-
-    rows = databaseInterface.queryAllSQL(sql)
-
-    if len(rows) > 0:
-        conn = connect_and_create_index('transfers')
-
-        # cycle through file UUIDs and update status
-        for row in rows:
-            is_archive = False
-
-            # the currentLocation may be NULL for archives, which should be ignored
-            if row[1] != None:
-                for extension in SevenZipExtensions:
-                    if row[1].lower().endswith(extension.lower()):
-                        is_archive = True
-
-                # archives end up getting expanded into individual files by microservices, so ignore them
-                # and ignore certain paths
-                ignored_paths = [
-                    '%transferDirectory%metadata/manifest-sha512.txt',
-                    '%transferDirectory%logs/BagIt/bagit.txt',
-                    '%transferDirectory%logs/BagIt/bag-info.txt'
-                ]
-                if not is_archive and row[1] not in ignored_paths:
-                    document_id = document_id_from_field_query(conn, 'transfers', ['transferfile'], 'fileuuid', row[0])
-
-                    if document_id == None:
-                        error_message = 'Transfer file ', row[0], ' not found in index.'
-                        logging.warning(error_message)
-                        print >>sys.stderr, error_message
-                        print error_message
-                        exit(1)
-                    else:
-                        conn.update({'status': status}, 'transfers', 'transferfile', document_id)
-    return len(rows)
+    """ Update all files with sipuuid `uuid` to have status `status`. """
+    conn = connect_and_create_index('transfers')
+    # Fetch ES info for all files in the SIP
+    document_ids = _document_ids_from_field_query(conn, 'transfers', ['transferfile'], 'sipuuid', uuid)
+    # Update status
+    for doc_id in document_ids:
+        conn.update(
+            extra_doc={'status': status},
+            index='transfers',
+            doc_type='transferfile',
+            id=doc_id,
+        )
+    return len(document_ids)
 
 def connect_and_remove_backlog_transfer_files(uuid):
     return connect_and_remove_transfer_files(uuid, 'transfer')

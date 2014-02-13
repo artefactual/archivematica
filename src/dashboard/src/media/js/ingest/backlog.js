@@ -83,7 +83,7 @@ function renderBacklogSearchForm(openInNewTab) {
   search.addSelect('field', {title: 'field name'}, {
     ''             : 'Any',
     'filename'     : 'File name',
-    'fileExtension': 'File extension',
+    'file_extension': 'File extension',
     'accessionid'  : 'Accession number',
     'ingestdate'   : 'Ingest date (YYYY-MM-DD)',
     'sipuuid'      : 'SIP UUID'
