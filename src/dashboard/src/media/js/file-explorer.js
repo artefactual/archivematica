@@ -880,12 +880,14 @@
       for (var index in this.opened) {
         var cssId = this.opened[index],
             $openEl = $('#' + cssId);
+        this.openFolder($openEl);
+      }
+    },
 
-        // TODO: make this a helper function
-        $openEl.next().show();
-        if (!$openEl.hasClass('backbone-file-explorer-directory_open')) {
-          $openEl.addClass('backbone-file-explorer-directory_open');
-        }
+    openFolder: function ($openEl) {
+      $openEl.next().show();
+      if (!$openEl.hasClass('backbone-file-explorer-directory_open')) {
+        $openEl.addClass('backbone-file-explorer-directory_open');
       }
     },
 

@@ -181,8 +181,9 @@ $(document).ready(function() {
     // Accept and display data from an external source
     // Assumes it is properly formatted already
     this.structure.children = data;
+    // Open top level folder
+    this.openFolder($('#'+this.id+'__'+this.structure.name));
     this.render();
-    // TODO open the top level dir
   }
 
   $('#arrange_create_directory_button').click(function() {
