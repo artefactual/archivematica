@@ -15,13 +15,21 @@ def fetch_set_uuid(sip_uuid):
     """.format(sip_uuid)
     print(sql, file=sys.stderr)
     cursor, sql_lock = databaseInterface.querySQL(sql)
-    set_uuid, = cursor.fetchone()
+    results = cursor.fetchone()
     sql_lock.release()
+
+    # Will be empty if no metadata was saved
+    if not results:
+        return
+    else:
+        set_uuid, = results
 
     return set_uuid
 
 def fetch_fields_and_values(sip_uuid):
     set_uuid = fetch_set_uuid(sip_uuid)
+    if set_uuid is None:
+        return []
 
     sql = """SELECT fieldName, fieldValue FROM TransferMetadataFieldValues FV
     INNER JOIN TransferMetadataFields F ON FV.fieldUUID = F.pk
