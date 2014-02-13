@@ -1,57 +1,4 @@
 function renderBacklogSearchForm(openInNewTab) {
-  // activate deletion buttons
-  $('.creation, .deletion').each(function() {
-    var url = $(this).attr('href')
-      , id = $(this).attr('id');
-      
-    $(this).removeAttr('href');
-    this.url = url;
-    this.id = id;
-    this.fired = false;
-
-    $(this).click(function() {
-      if (this.fired == false) {
-        this.fired = true;
-        // remove all button with same url
-        $('.creation, .deletion').each(function() {
-          if (this.id == url) {
-            console.log('DISABLING...');
-            $(this).attr('disabled', 'disabled');
-          }
-        });
-
-        var data = {};
-        if ($(this).hasClass('deletion')) {
-          data['filepath'] = $(this).attr('id');
-        }
-
-        // perform action
-        $.ajax({
-          type: "POST",
-          data: data,
-          url: url,
-          error: function(error) {
-            $('.creation, .deletion').each(function() {
-              if (this.id == id) {
-                alert(error.statusText);
-                $(this).removeAttr('disabled');
-                this.fired = false;
-              }
-            });
-          },
-          success: function(result) {
-            alert(result.message);
-            $('.creation, .deletion').each(function() {
-              if (this.id == id) {
-                $(this).parent().parent().fadeOut();
-              }
-            });
-          }
-        });
-      }
-    });
-  });
-
   // create new form instance, providing a single row of default data
   var search = new advancedSearch.AdvancedSearchView({
     el: $('#search_form_container'),
@@ -108,16 +55,21 @@ function renderBacklogSearchForm(openInNewTab) {
   search.render();
 
   function backlogSearchSubmit() {
-    var destination = '/ingest/backlog/' + '?' + search.toUrlParams();
-    if($('#search_mode').is(':checked')) {
-      destination += '&mode=file';
-    }
-
-    if (openInNewTab) {
-      window.open(destination, '_blank');
-    } else {
-      window.location = destination;
-    }
+    // Query Django, which queries ElasticSearch, to get the backlog file info
+    var query_url = '/ingest/backlog/' + '?' + search.toUrlParams();
+    $.get(
+      query_url,
+      null,
+      function (data, status) {
+        if (status == 'success') {
+          // Originals browser from ingest_file_browser.js
+          // Search information needs to go here
+          originals_browser.display_data(data)
+        } else {
+          console.log('Failed to get transfer backlog data from '+query_url);
+        }
+      }
+    );
   }
 
   // submit logic

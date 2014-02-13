@@ -393,43 +393,37 @@ def ingest_browse_aip(request, jobuuid):
 
     return render(request, 'ingest/aip_browse.html', locals())
 
+
+def _es_results_to_directory_tree(path, return_dict):
+    # Helper function for transfer_backlog
+    # Paths MUST be input in sorted order
+    # Otherwise the same directory might end up with multiple entries
+    parts = path.split('/', 1)
+    if len(parts) == 1:  # path is a file
+        return_dict.append({'name': parts[0]})
+    else:
+        node, others = parts
+        if not return_dict or return_dict[-1]['name'] != node:
+            return_dict.append({'name': node, 'children': []})
+        _es_results_to_directory_tree(others, return_dict[-1]['children'])
+
+
 @decorators.elasticsearch_required()
 def transfer_backlog(request):
-    # deal with transfer mode
-    file_mode = False
-    checked_if_in_file_mode = ''
-    if request.GET.get('mode', '') != '':
-        file_mode = True
-        checked_if_in_file_mode = 'checked'
-
-    # get search parameters from request
+    """
+    AJAX endpoint to query for and return transfer backlog items.
+    """
+    # Get search parameters from request
+    results = None
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
 
-    # redirect if no search params have been set 
+    # redirect if no search params have been set
+    # TODO fix what to do if no request - return nothing?  All?
     if not 'query' in request.GET:
-        return helpers.redirect_with_get_params(
-            'components.ingest.views.transfer_backlog',
-            query='',
-            field='',
-            type=''
-        )
-
-    # get string of URL parameters that should be passed along when paging
-    search_params = advanced_search.extract_url_search_params_from_request(request)
-
-    # set paging variables
-    if not file_mode:
-        items_per_page = 10
-    else:
-        items_per_page = 20
-
-    page = advanced_search.extract_page_number_from_url(request)
-
-    start = page * items_per_page + 1
+        return redirect(reverse('components.ingest.views.transfer_backlog'))
 
     # perform search
     conn = elasticSearchFunctions.connect_and_create_index('transfers')
-
     try:
         query = advanced_search.assemble_query(
             queries,
@@ -439,105 +433,51 @@ def transfer_backlog(request):
             must_haves=[pyes.TermQuery('status', 'backlog')]
         )
 
-        # use all results to pull transfer facets if not in file mode
-        if not file_mode:
-            results = conn.search_raw(
-                query,
-                indices='transfers',
-                type='transferfile',
-            )
-        else:
-        # otherwise use pages results
-            results = conn.search_raw(
-                query,
-                indices='transfers',
-                type='transferfile',
-                start=start - 1,
-                size=items_per_page
-            )
+        results = elasticSearchFunctions.search_raw_wrapper(
+            conn,
+            query=query,
+            indices='transfers',
+            doc_types='transferfile',
+        )
     except:
         return HttpResponse('Error accessing index.')
 
-    # take note of facet data
-    file_extension_usage = results['facets']['fileExtension']['terms']
-    transfer_uuids       = results['facets']['sipuuid']['terms']
 
-    if not file_mode:
-        # run through transfers to see if they've been created yet
-        awaiting_creation = {}
-        for transfer_instance in transfer_uuids:
-            try:
-                awaiting_creation[transfer_instance.term] = transfer_awaiting_sip_creation_v2(transfer_instance.term)
-                transfer = models.Transfer.objects.get(uuid=transfer_instance.term)
-                
-                # expand transfer path and trim leading slash so it'll work with AJAX filesystem API
-                transfer_path_relative = transfer.currentlocation.replace('%sharedPath%', helpers.get_client_config_value('sharedDirectoryMounted'))
-                transfer_instance.filepath = transfer_path_relative[1:-1]
+    # Convert results into a more workable form
+    results = _transfer_backlog_augment_search_results(results)
 
-                transfer_basename = os.path.basename(transfer.currentlocation[:-1])
-                transfer_instance.name = transfer_basename[:-37]
-                if transfer.accessionid != None:
-                    transfer_instance.accession = transfer.accessionid
-                else:
-                    transfer_instance.accession = ''
-            except:
-                awaiting_creation[transfer_instance.term] = False
+    # Convert to a form JS can use:
+    # [{'name': <filename>},
+    #  {'name': <directory name>,
+    #   'children': [
+    #    {'name': <filename>},
+    #    {'name': <directory name>,
+    #     'children': [...]
+    #    }
+    #   ]
+    #  },
+    #  {'name': <filename>},
+    # ]
+    return_list = []
+    # _es_results_to_directory_tree requires that paths MUST be sorted
+    results.sort(key=lambda x: x['relative_path'])
+    for path in results:
+        _es_results_to_directory_tree(path['relative_path'], return_list)
 
-        # page data
-        number_of_results = len(transfer_uuids)
-        page_data = helpers.pager(transfer_uuids, items_per_page, page + 1)
-        transfer_uuids = page_data['objects']
-    else:
-        # page data
-        number_of_results = results.hits.total
-        results = transfer_backlog_augment_search_results(results)
+    # retun JSON response
+    return helpers.json_response(return_list)
 
-    # set remaining paging variables
-    end, previous_page, next_page = advanced_search.paging_related_values_for_template_use(
-       items_per_page,
-       page,
-       start,
-       number_of_results
-    )
 
-    # make sure results is set
-    try:
-        if results:
-            pass
-    except:
-        results = False
-
-    return render(request, 'ingest/backlog/search.html', locals())
-
-def transfer_backlog_augment_search_results(raw_results):
+def _transfer_backlog_augment_search_results(raw_results):
     modifiedResults = []
 
     for item in raw_results.hits.hits:
         clone = item._source.copy()
-
-        clone['awaiting_creation'] = transfer_awaiting_sip_creation(clone['sipuuid'])
-
-        clone['document_id'] = item['_id']
-        clone['document_id_no_hyphens'] = item['_id'].replace('-', '____')
-
+        clone['document_id'] = item[u'_id']
         modifiedResults.append(clone)
 
     return modifiedResults
 
-def transfer_awaiting_sip_creation_v2(uuid):
-    transfer = models.Transfer.objects.get(uuid=uuid)
-    return transfer.currentlocation.find('%sharedPath%www/AIPsStore/transferBacklog/originals/') == 0
-
-def transfer_awaiting_sip_creation(uuid):
-    try:
-        job = models.Job.objects.filter(
-            sipuuid=uuid,
-            microservicegroup='Create SIP from Transfer',
-            currentstep='Awaiting decision'
-        )[0]
-        return True
-    except:
-        return False
 
 def transfer_file_download(request, uuid):
     # get file basename

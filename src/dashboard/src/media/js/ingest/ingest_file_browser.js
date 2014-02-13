@@ -111,20 +111,13 @@ function setupBacklogBrowser() {
     );
   }
 
-  /*
-  TODO: figure out how to augment AJAX child data with accession ID...
-
-  Was using directoryContentsURLPath: '/filesystem/contents/originals/' but that
-  doesn't scale. Figure out new way and get rid of /filesystem/contents/originals/
-  endpoint.
-  */
   var originals = new FileExplorer({
     el: $('#originals'),
     levelTemplate: $('#template-dir-level').html(),
     entryTemplate: $('#template-dir-entry').html(),
     entryClickHandler: backlogBrowserEntryClickHandler,
     nameClickHandler: backlogBrowserEntryClickHandler,
-    ajaxChildDataUrl: '/filesystem/contents/originals/'
+    // Data will be populated by backlog.js when a search is conducted
   });
 
   originals.structure = {
@@ -167,61 +160,6 @@ function setupBacklogBrowser() {
     itemsPerPage: 20
   });
 
-  // define search behavior
-  function searchOriginals() {
-    $('#originals').hide();
-    $('#originals_controls').hide();
-
-    originals_search_results.currentPage = 0;
-
-    originals_search_results.entries = originals.findEntry(function(entry) {
-      var query = $('#originals_query').val(),
-          hit = false;
-
-      // check if query matches name
-      hit = entry.get('name').toLowerCase().indexOf(query.toLowerCase()) != -1;
-
-      // if query doesn't match name, check if other field matches
-      if (hit == false && typeof entry.get('data') != 'undefined') {
-
-        // if entry has accession ID data, see if it matches          
-        if (typeof entry.get('data')['accessionId'] != 'undefined') {
-          hit = entry.get('data')['accessionId'].indexOf(query) != -1;
-        }
-      }
-
-      return hit;
-    });
-
-    if (originals_search_results.entries.length > 0) {
-      originals_search_results.render();
-      originals_search_results.initDragAndDrop();
-    } else {
-      $('#originals_search_results').html('No results.');
-    }
-
-    $('#originals_search_results').show();
-  }
-
-  // search if user presses "enter"
-  $('#originals_search_form').submit(function(e) {
-    e.preventDefault(e);
-    searchOriginals();
-  });
-
-  // search if use clicks "search" button
-  $('#originals_search_button').click(function() {
-    searchOriginals();
-  });
-
-  // reset search form and hide search results widget
-  $('#originals_search_reset_button').click(function() {
-    $('#originals_query').val('');
-    $('#originals_search_results').hide();
-    $('#originals').show();
-    $('#originals_controls').show();
-  });
-
   return {
     'originals': originals,
     'arrange': arrange
@@ -237,6 +175,14 @@ $(document).ready(function() {
 
   originals_browser = browsers['originals'];
   arrange_browser = browsers['arrange'];
+
+  originals_browser.display_data = function(data) {
+    // Accept and display data from an external source
+    // Assumes it is properly formatted already
+    this.structure.children = data;
+    this.render();
+    // TODO open the top level dir
+  }
 
   $('#arrange_create_directory_button').click(function() {
     var path = prompt('Name of new directory?');

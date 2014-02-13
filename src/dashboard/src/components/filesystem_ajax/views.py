@@ -101,16 +101,6 @@ def arrange_contents(request):
     return helpers.json_response(response)
 
 
-def originals_contents(request):
-    path = request.GET.get('path', 'originals').lstrip('/')
-    # IDEA memoize the backlog location?
-    backlog = storage_service.get_location(purpose='BL')[0]
-
-    # TODO need to be able to search on accession ID
-    response = storage_service.browse_location(backlog['uuid'], path)
-
-    return helpers.json_response(response)
-
 def delete(request):
     filepath = request.POST.get('filepath', '')
     filepath = os.path.join('/', filepath)
