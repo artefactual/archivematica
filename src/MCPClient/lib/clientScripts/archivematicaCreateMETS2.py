@@ -343,7 +343,7 @@ def createTechMD(fileUUID):
 
     sql = "SELECT FPCommandOutput.content FROM FPCommandOutput \
            INNER JOIN fpr_fprule ON FPCommandOutput.ruleUUID = fpr_fprule.uuid \
-           WHERE fileUUID = '{file}' AND purpose = 'characterize';".format(file=fileUUID)
+           WHERE fileUUID = '{file}' AND purpose = 'characterization' OR purpose = 'default_characterization';".format(file=fileUUID)
     c, sqlLock = databaseInterface.querySQL(sql)
     parser = etree.XMLParser(remove_blank_text=True)
     for row in c:
