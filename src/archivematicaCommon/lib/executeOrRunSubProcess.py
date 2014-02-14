@@ -26,24 +26,27 @@ import uuid
 import os
 import sys
 
+
 def launchSubProcess(command, stdIn="", printing=True, arguments=[]):
     """
     Launches a subprocess using ``command``, where ``command`` is either:
     a) a single string containing a commandline statement, or
     b) an array of commands and parameters.
 
-    In the former case, ``command`` is first split via shlex.split() before being
-    executed. No subshell will be used in either case; the commands are
+    In the former case, ``command`` is first split via shlex.split() before
+    being executed. No subshell will be used in either case; the commands are
     directly execed.
 
     Keyword arguments:
-    stdIn:      A string which will be fed as standard input to the executed process.
-                Default is empty.
+    stdIn:      A string which will be fed as standard input to the executed
+                process, or a file object which will be provided as a stream
+                to the process being executed.
+                Default is an empty string.
     printing:   Boolean which controls whether the subprocess's output is
                 printed to standard output. Default is True.
-    arguments:  An array of arguments to pass to ``command``. Note that this is only
-                honoured if ``command`` is an array, and will be ignored if ``command``
-                is a string.
+    arguments:  An array of arguments to pass to ``command``. Note that this is
+                only honoured if ``command`` is an array, and will be ignored
+                if ``command`` is a string.
     """
     stdError = ""
     stdOut = ""
@@ -61,8 +64,18 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[]):
              my_env['LANG'] = 'en_US.UTF-8'
         if (not my_env.has_key('LANGUAGE')) or (not my_env['LANGUAGE']):
              my_env['LANGUAGE'] = my_env['LANG']
-        p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, env=my_env)
-        stdOut, stdError = p.communicate(input=stdIn)
+
+        if isinstance(stdIn, basestring):
+            stdin_pipe = subprocess.PIPE
+            stdin_string = stdIn
+        elif isinstance(stdIn, file):
+            stdin_pipe = stdIn
+            stdin_string = ""
+        else:
+            raise Exception("stdIn must be a string or a file object")
+
+        p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=stdin_pipe, env=my_env)
+        stdOut, stdError = p.communicate(input=stdin_string)
         #append the output to stderror and stdout
         if printing:
             print stdOut
