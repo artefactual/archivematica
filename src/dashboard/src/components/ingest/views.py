@@ -394,18 +394,24 @@ def ingest_browse_aip(request, jobuuid):
     return render(request, 'ingest/aip_browse.html', locals())
 
 
-def _es_results_to_directory_tree(path, return_dict):
+def _es_results_to_directory_tree(path, return_dict, not_draggable=False):
     # Helper function for transfer_backlog
     # Paths MUST be input in sorted order
     # Otherwise the same directory might end up with multiple entries
     parts = path.split('/', 1)
+    if parts[0] in ('logs', 'metadata'):
+        not_draggable = True
     if len(parts) == 1:  # path is a file
-        return_dict.append({'name': parts[0]})
+        return_dict.append({'name': parts[0], 'not-draggable': not_draggable})
     else:
         node, others = parts
         if not return_dict or return_dict[-1]['name'] != node:
-            return_dict.append({'name': node, 'children': []})
-        _es_results_to_directory_tree(others, return_dict[-1]['children'])
+            return_dict.append({
+                'name': node,
+                'not_draggable': not_draggable,
+                'children': []})
+        _es_results_to_directory_tree(others, return_dict[-1]['children'],
+            not_draggable=not_draggable)
 
 
 @decorators.elasticsearch_required()
@@ -447,16 +453,18 @@ def transfer_backlog(request):
     results = _transfer_backlog_augment_search_results(results)
 
     # Convert to a form JS can use:
-    # [{'name': <filename>},
+    # [{'name': <filename>,
+    #   'not_draggable': False},
     #  {'name': <directory name>,
+    #   'not_draggable': True,
     #   'children': [
-    #    {'name': <filename>},
+    #    {'name': <filename>,
+    #     'not_draggable': True},
     #    {'name': <directory name>,
     #     'children': [...]
     #    }
     #   ]
     #  },
-    #  {'name': <filename>},
     # ]
     return_list = []
     # _es_results_to_directory_tree requires that paths MUST be sorted

@@ -196,6 +196,11 @@
       // open/closed by user between data refreshes, etc.)
       $(this.el).attr('id', this.cssId());
 
+      // If not draggable, add class to that effect
+      if (this.model.attributes.not_draggable) {
+        $(this.el).addClass('not_draggable');
+      }
+
       // add entry click handler if specified
       if (this.entryClickHandler) {
         var self = this;
@@ -630,7 +635,7 @@
 
         // bind all list entries to drag handler
         $(this.el)
-          .find('.backbone-file-explorer-entry')
+          .find('.backbone-file-explorer-entry:not(.not_draggable)')
           .unbind('drag')
           .bind('drag', {'self': self}, self.dragHandler);
 
@@ -767,8 +772,9 @@
         var self = this;
 
        // exclude top-level directory from being dragged
+       // Don't bind drag to anything with 'not_draggable' class
        $(this.el)
-          .find('.backbone-file-explorer-entry:not(:first)')
+          .find('.backbone-file-explorer-entry:not(:first):not(.not_draggable)')
           .unbind('drag')
           .bind('drag', {'self': self}, self.dragHandler);
 
@@ -832,10 +838,10 @@
         for (var index in structure.children) {
           var child = structure.children[index];
           if (child.children != undefined) {
-            var parent = base.addDir({name: child.name});
+            var parent = base.addDir({name: child.name, not_draggable: child.not_draggable});
             parent = this.structureToObjects(child, parent);
           } else {
-            base.addFile({name: child.name});
+            base.addFile({name: child.name, not_draggable: child.not_draggable});
           }
         }
       } else {

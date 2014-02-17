@@ -64,3 +64,7 @@
 .backbone-file-explorer-paging-link {
   padding: 6px;
 }
+
+.not_draggable {
+  color: #888888;
+}
