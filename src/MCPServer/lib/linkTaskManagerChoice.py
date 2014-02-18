@@ -100,8 +100,11 @@ class linkTaskManagerChoice(LinkTaskManager):
                         try:
                             #<delay unitAtime="yes">30</delay>
                             delayXML = preconfiguredChoice.find("delay")
-                            unitAtimeXML = delayXML.get("unitCtime")
-                            if unitAtimeXML != None and unitAtimeXML.lower() != "no":
+                            if delayXML is not None:
+                                unitAtimeXML = delayXML.get("unitCtime")
+                            else:
+                                unitAtimeXML = None
+                            if unitAtimeXML is not None and unitAtimeXML.lower() != "no":
                                 delaySeconds=int(delayXML.text)
                                 unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%", \
                                                archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
