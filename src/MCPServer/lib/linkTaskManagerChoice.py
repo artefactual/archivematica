@@ -22,7 +22,6 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import datetime
-import logging
 import lxml.etree as etree
 import os
 import sys
@@ -39,10 +38,6 @@ choicesAvailableForUnits = {}
 choicesAvailableForUnitsLock = threading.Lock()
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivematicaFunctions import unicodeToStr
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
-                    level=logging.DEBUG)
 
 waitingOnTimer="waitingOnTimer"
 
@@ -122,9 +117,9 @@ class linkTaskManagerChoice(LinkTaskManager):
                                 return None
 
                         except Exception:
-                            logger.exception("Error parsing xml for pre-configured choice")
+                            print >>sys.stderr, "Error parsing xml for pre-configured choice"
             except Exception:
-                logger.exception("Error parsing xml for pre-configured choice")
+                print >>sys.stderr, "Error parsing xml for pre-configured choice"
         return desiredChoice
 
     def xmlify(self):
