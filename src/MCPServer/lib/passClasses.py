@@ -38,5 +38,7 @@ class ReplacementDict(dict):
         return ret
 
 
-class ChoicesDict(dict):
-    pass
+class ChoicesDict(ReplacementDict):
+    @staticmethod
+    def fromstring(s):
+        return ChoicesDict(ast.literal_eval(s))
