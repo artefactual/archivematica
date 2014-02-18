@@ -99,7 +99,8 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
         try:
             choices = ChoicesDict.fromstring(task.results["stdOut"])
         except Exception:
-            print >>sys.stderr, "Error creating dic from output"
+            print >>sys.stderr, "ERROR: Unable to create dic from output", \
+                task.results["stdOut"], 'taskCompletedCallBackFunction'
             choices = ChoicesDict({})
         if self.jobChainLink.passVar is not None:
             if isinstance(self.jobChainLink.passVar, list):
