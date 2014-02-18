@@ -18,6 +18,7 @@
 import base64
 import os
 import logging
+import re
 import shutil
 import sys
 import tempfile
@@ -49,6 +50,7 @@ ACTIVE_TRANSFER_DIR     = SHARED_DIRECTORY_ROOT + '/watchedDirectories/activeTra
 STANDARD_TRANSFER_DIR   = ACTIVE_TRANSFER_DIR + '/standardTransfer'
 ORIGINAL_DIR            = SHARED_DIRECTORY_ROOT + '/www/AIPsStore/transferBacklog/originals'
 
+DEFAULT_BACKLOG_PATH = 'originals/'
 DEFAULT_ARRANGE_PATH = '/arrange/'
 
 
@@ -464,6 +466,7 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
 
     Helper function for copy_to_arrange.
     """
+    # TODO Use ElasticSearch, since that's where we're getting the original info from now?  Could be easier to get file UUID that way
     ret = []
     browse = storage_service.browse_location(backlog_uuid, original_path)
 
@@ -471,10 +474,13 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
     entries = [e for e in browse['entries'] if e not in browse['directories']]
     for entry in entries:
         if entry not in ('processingMCP.xml'):
+            path = os.path.join(original_path, entry)
+            file_uuid = elasticSearchFunctions.get_transfer_file_info(
+                'relative_path', path.replace(DEFAULT_BACKLOG_PATH, '', 1)).get('fileuuid')
             ret.append(
-                {'original_path': os.path.join(original_path, entry),
+                {'original_path': path,
                  'arrange_path': os.path.join(arrange_path, entry),
-                  'file_uuid': 'TODO'})  # TODO how get file UUID?
+                 'file_uuid': file_uuid})
 
     # Add directories and recurse, adding their children too
     for directory in browse['directories']:
@@ -534,6 +540,9 @@ def copy_to_arrange(request):
             if leaf_dir == 'objects':
                 arrange_path = os.path.join(destination, '')
             else:
+                # Strip UUID from transfer name
+                uuid_regex = r'-[\w]{8}(-[\w]{4}){3}-[\w]{12}$'
+                leaf_dir = re.sub(uuid_regex, '', leaf_dir)
                 arrange_path = os.path.join(destination, leaf_dir) + '/'
                 to_add.append({'original_path': None,
                            'arrange_path': arrange_path,
@@ -541,9 +550,11 @@ def copy_to_arrange(request):
             to_add.extend(_get_arrange_directory_tree(backlog_uuid, sourcepath, arrange_path))
         else:
             arrange_path = os.path.join(destination, os.path.basename(sourcepath))
+            file_uuid = elasticSearchFunctions.get_transfer_file_info(
+                'relative_path', sourcepath.replace(DEFAULT_BACKLOG_PATH, '', 1)).get('fileuuid')
             to_add.append({'original_path': sourcepath,
                'arrange_path': arrange_path,
-               'file_uuid': 'TODO'})
+               'file_uuid': file_uuid})
 
         logging.info('copy_to_arrange: arrange_path: {}'.format(arrange_path))
         logging.debug('copy_to_arrange: files to be added: {}'.format(to_add))

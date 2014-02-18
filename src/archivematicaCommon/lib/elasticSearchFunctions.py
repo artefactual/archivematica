@@ -659,6 +659,29 @@ def connect_and_change_transfer_file_status(uuid, status):
         )
     return len(document_ids)
 
+
+def get_transfer_file_info(field, value):
+    """
+    Get transferfile information from ElasticSearch with query field = value.
+    """
+    logging.debug('get_transfer_file_info: field: %s, value: %s', field, value)
+    results = {}
+    conn = connect_and_create_index('transfers')
+    indicies = ['transfers']
+    # doc_types='transferfile'
+    documents = search_raw_wrapper(
+        conn,
+        pyes.FieldQuery(pyes.FieldParameter(field, value)),
+        indicies=indicies,
+    )
+    if len(documents['hits']['hits']) > 0:
+        results = documents['hits']['hits'][0]['_source']
+
+    if results.get(field) != value:
+        logging.warning('May not be correct transfer info: %s is %s instead of %s', field, results.get(field), value)
+    return results
+
+
 def connect_and_remove_backlog_transfer_files(uuid):
     return connect_and_remove_transfer_files(uuid, 'transfer')
 
