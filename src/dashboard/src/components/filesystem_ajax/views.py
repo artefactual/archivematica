@@ -560,16 +560,12 @@ def copy_to_arrange(request):
         logging.debug('copy_to_arrange: files to be added: {}'.format(to_add))
 
         for entry in to_add:
-            try:
-                models.SIPArrange.objects.create(
-                    original_path=entry['original_path'],
-                    arrange_path=entry['arrange_path'],
-                    file_uuid=entry['file_uuid'],
-                )
-            except IntegrityError:
-                error = '{} already exists'.format(entry['arrange_path'])
-                # TODO pad this with _ and try again? see helpers.pad_destination_filepath_if_it_already_exists
-                break
+            # TODO enforce uniqueness on arrange panel?
+            models.SIPArrange.objects.create(
+                original_path=entry['original_path'],
+                arrange_path=entry['arrange_path'],
+                file_uuid=entry['file_uuid'],
+            )
 
     if error is not None:
         response = {
