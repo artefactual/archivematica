@@ -7,7 +7,7 @@ import uuid
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
-from databaseFunctions import insertIntoEvents
+from databaseFunctions import insertIntoEvents, insertIntoFilesIDs
 from databaseInterface import getUTCDate
 
 path = '/usr/share/archivematica/dashboard'
@@ -67,6 +67,24 @@ def write_identification_event(file_uuid, command, format=None, success=True):
                      eventOutcomeDetailNote=format)
 
 
+def write_file_id(file_uuid, format=None, output=''):
+    if format.pronom_id:
+        format_registry = 'PRONOM'
+        key = format.pronom_id
+    else:
+        format_registry = 'Archivematica Format Policy Registry'
+        key = output
+
+    # Sometimes, this is null instead of an empty string
+    version = format.version or ''
+
+    insertIntoFilesIDs(fileUUID=file_uuid,
+                       formatName=format.description,
+                       formatVersion=version,
+                       formatRegistryName=format_registry,
+                       formatRegistryKey=key)
+
+
 def main(command_uuid, file_path, file_uuid):
     print "IDCommand UUID:", command_uuid
     print "File: ({}) {}".format(file_uuid, file_path)
@@ -119,6 +137,7 @@ def main(command_uuid, file_path, file_uuid):
     print "{} identified as a {}".format(file_path, version.description)
 
     write_identification_event(file_uuid, command, format=version.pronom_id)
+    write_file_id(file_uuid, format=version, output=output)
 
     return 0
 
