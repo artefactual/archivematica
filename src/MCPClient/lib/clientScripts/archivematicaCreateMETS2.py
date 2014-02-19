@@ -398,19 +398,8 @@ def createTechMD(fileUUID):
 def createDigiprovMD(fileUUID):
     ret = []
     #EVENTS
-    
-    #for #5379 - changed sql to limit premis events generated for email messages
-    sql = """SELECT e.pk, e.fileUUID, e.eventIdentifierUUID, e.eventType, 
-             e.eventDateTime, e.eventDetail, e.eventOutcome, 
-             e.eventOutcomeDetailNote, e.linkingAgentIdentifier, 
-             t.type, f.currentLocation 
-             FROM Events e join Files f on e.fileUUID = f.fileUUID join 
-             Transfers t on f.transferUUID = t.transferUUID  
-             WHERE e.fileUUID = '{}' and ((t.type !='Maildir') or 
-             (t.type ='Maildir' and f.currentLocation like '\%SIPDirectory\%objects/attachment%') 
-             or (t.type='Maildir' and e.eventType = 'ingestion'))""".format(fileUUID)
 
-    #sql = "SELECT pk, fileUUID, eventIdentifierUUID, eventType, eventDateTime, eventDetail, eventOutcome, eventOutcomeDetailNote, linkingAgentIdentifier FROM Events WHERE fileUUID = '" + fileUUID + "';"
+    sql = "SELECT pk, fileUUID, eventIdentifierUUID, eventType, eventDateTime, eventDetail, eventOutcome, eventOutcomeDetailNote, linkingAgentIdentifier FROM Events WHERE fileUUID = '" + fileUUID + "';"
     rows = databaseInterface.queryAllSQL(sql)
     for row in rows:
         digiprovMD = etree.Element("digiprovMD")
