@@ -4,6 +4,8 @@ SET @MoveSIPToFailedLink = '7d728c39-395f-4892-8193-92f086c0546f';
 SET @identifyFileFormatMSCL='2522d680-c7d9-4d06-8b11-a28d8bd8a71f' COLLATE utf8_unicode_ci;
 SET @characterizeExtractMetadata = '303a65f6-a16f-4a06-807b-cb3425a30201' COLLATE utf8_unicode_ci;
 SET @watchedDirExpectTransfer = 'f9a3a93b-f184-4048-8072-115ffac06b5d' COLLATE utf8_unicode_ci;
+SET @watchedDirExpectSIP = '76e66677-40e6-41da-be15-709afb334936' COLLATE utf8_unicode_ci;
+
 -- /Common
 
 -- Issue 6020
@@ -97,30 +99,6 @@ ALTER TABLE Files MODIFY currentLocation longblob;
 ALTER TABLE Events MODIFY eventOutcomeDetailNote longblob;
 -- /Issue 6067
 
--- Issue 5216
-
--- Add Chain Choice for 'Add manual normalization metadata'
--- MSCL move to watched dir - terminate
-INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('38920eaa-09a2-470c-bb3d-791d66ec359c', 0, 'moveSIP_v0.0', '"%SIPDirectory%" "%sharedPath%watchedDirectories/manualNormalizationMetadata/." "%SIPUUID%" "%sharedPath%" "%SIPUUID%" "%sharedPath%"');
-INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('fa8b1f81-0d79-4f9a-a888-fc3292f2d992', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '38920eaa-09a2-470c-bb3d-791d66ec359c', 'Move to manual normalization metadata directory');
-INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('b366e9c5-95f6-49f1-957c-a8f7bb601120', 'Normalize', 'Failed', 'fa8b1f81-0d79-4f9a-a888-fc3292f2d992', @MoveSIPToFailedLink);
-INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('5ce2e89a-ea14-4445-bc92-d287bf02afb3', 'b366e9c5-95f6-49f1-957c-a8f7bb601120', 0, NULL, 'Completed successfully');
-UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='b366e9c5-95f6-49f1-957c-a8f7bb601120' WHERE microServiceChainLink='91ca6f1f-feb5-485d-99d2-25eed195e330';
--- MSCL move currently processing
-INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('50ddfe31-de9d-4a25-b0aa-fd802520607b', 'Normalize', 'Failed', '74146fe4-365d-4f14-9aae-21eafa7d8393', @MoveSIPToFailedLink);
-INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('8008c4a7-bea2-43b0-83ff-b6df0ceb3937', '50ddfe31-de9d-4a25-b0aa-fd802520607b', 0, 'ab0d3815-a9a3-43e1-9203-23a40c00c551', 'Completed successfully');
--- MSCL done MN metadata - Use replacement dict since only one path
-INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('71d0caff-1257-4843-8df7-82615724d5a5', '9c84b047-9a6d-463f-9836-eafa49743b84', 'a9d91e76-8639-4cfa-9189-54c139cbac60', 'Add manual normalization metadata?');
-INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('a50570ee-2acf-4205-81fd-ddf11c1a6582', 'Normalize', 'Failed', '71d0caff-1257-4843-8df7-82615724d5a5', @MoveSIPToFailedLink);
-INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('8b65763d-de29-4ce8-b42f-9e244d6d701f', 'a50570ee-2acf-4205-81fd-ddf11c1a6582', 0, '50ddfe31-de9d-4a25-b0aa-fd802520607b', 'Completed successfully');
-INSERT INTO MicroServiceChoiceReplacementDic (pk, choiceAvailableAtLink, description, replacementDic) VALUES ('a9d91e76-8639-4cfa-9189-54c139cbac60', 'a50570ee-2acf-4205-81fd-ddf11c1a6582', 'Metadata entered', '{"%Unused%":"%Unused%"}');
--- MSC manual normalization event detail chain
-INSERT INTO MicroServiceChains (pk, startingLink, description) VALUES ('e2382ce4-6ee0-4445-aca3-0764ebae94ac', 'a50570ee-2acf-4205-81fd-ddf11c1a6582', 'Manual normalization metadata entry wait');
--- WatchedDir to start up Add manual normalization metadata chain
-INSERT INTO WatchedDirectories (pk, watchedDirectoryPath, chain, expectedType) VALUES ('0a621b7d-6cbd-4193-b1d4-b4b90fbc2461', '%watchDirectoryPath%manualNormalizationMetadata/', 'e2382ce4-6ee0-4445-aca3-0764ebae94ac', '76e66677-40e6-41da-be15-709afb334936');
-
--- /Issue 5216
-
 -- Issue 6217
 -- Prompts the user to add metadata just before the METS file will be generated
 SET @metadata_reminder_watch_chain  = '86fbea68-d08c-440f-af2c-dac68556db12';
@@ -130,23 +108,47 @@ SET @metadata_reminder_watch_mscl   = '54b73077-a062-41cc-882c-4df1eba447d9';
 SET @metadata_reminder_mscl         = 'eeb23509-57e2-4529-8857-9d62525db048';
 SET @metadata_reminder_config       = '5c149b3b-8fb3-431c-a577-11cf349cfb38';
 SET @metadata_reminder_tc           = '9f0388ae-155c-4cbf-9e15-525ff03e025f';
-SET @metadata_prepare_mscl          = 'ccf8ec5c-3a9a-404a-a7e7-8f567d3b36a0';
+SET @metadata_prepare_mscl          = 'ccf8ec5c-3a9a-404a-a7e7-8f567d3b36a0' COLLATE utf8_unicode_ci;
 SET @metadata_prepare_chain         = '5727faac-88af-40e8-8c10-268644b0142d';
 
+-- Insert reminder "question"
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@metadata_reminder_tc, '61fb3874-8ef6-49d3-8a2d-3cb66e86a30c', @metadata_reminder_config, 'Reminder: add metadata if desired');
 INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, currentTask) VALUES (@metadata_reminder_mscl, 'Process metadata directory', @metadata_reminder_tc);
-
+-- Insert reminder chain for WD
 INSERT INTO MicroServiceChains (pk, startingLink, description) VALUES (@metadata_reminder_watch_chain, @metadata_reminder_mscl, 'Move to metadata reminder');
+-- Insert post-reminder chain
 INSERT INTO MicroServiceChains (pk, startingLink, description) VALUES (@metadata_prepare_chain, @metadata_prepare_mscl, 'Continue');
-
-INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES (@metadata_reminder_watch_stc, 0, 'moveTransfer_v0.0', '"%SIPDirectory%" "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/."  "%SIPUUID%" "%sharedPath%"');
+-- Insert move to reminder Watched Directory
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES (@metadata_reminder_watch_stc, 0, 'moveSIP_v0.0', '"%SIPDirectory%" "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/."  "%SIPUUID%" "%sharedPath%"');
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@metadata_reminder_watch_tc, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @metadata_reminder_watch_stc, 'Move to metadata reminder');
-INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@metadata_reminder_watch_mscl, 'Process metadata directory', 'Failed', @metadata_reminder_watch_tc, @MoveTransferToFailedLink);
+INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@metadata_reminder_watch_mscl, 'Process metadata directory', 'Failed', @metadata_reminder_watch_tc, @MoveSIPToFailedLink);
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('bb20acc4-ca05-4800-831d-2ef585f32e2a', @metadata_reminder_watch_mscl, 0, NULL, 'Completed successfully');
-
-INSERT INTO WatchedDirectories (pk, watchedDirectoryPath, chain, expectedType) VALUES ('7ac9aec3-396a-485d-8695-d7015121d865', "%watchDirectoryPath%workFlowDecisions/metadataReminder/", @metadata_reminder_watch_chain, @watchedDirExpectTransfer);
-
+-- Insert Reminder watched directory
+INSERT INTO WatchedDirectories (pk, watchedDirectoryPath, chain, expectedType) VALUES ('7ac9aec3-396a-485d-8695-d7015121d865', "%watchDirectoryPath%workFlowDecisions/metadataReminder/", @metadata_reminder_watch_chain, @watchedDirExpectSIP);
+-- Insert choice
 INSERT INTO MicroServiceChainChoice (pk, choiceavailableatlink, chainAvailable) VALUES (@metadata_reminder_config, @metadata_reminder_mscl, @metadata_prepare_chain);
-UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@metadata_reminder_watch_mscl WHERE microServiceChainLink='75fb5d67-5efa-4232-b00b-d85236de0d3f';
-UPDATE MicroServiceChainLinks SET defaultNextChainLink=@metadata_reminder_watch_mscl WHERE pk='75fb5d67-5efa-4232-b00b-d85236de0d3f';
+
+-- Move Generate METS and related question to before split in path
+SET @virus_scan = '8bc92801-4308-4e3b-885b-1a89fdcd3014' COLLATE utf8_unicode_ci;
+SET @remove_mn_dirs = '75fb5d67-5efa-4232-b00b-d85236de0d3f' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@remove_mn_dirs WHERE microServiceChainLink=@virus_scan;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@metadata_reminder_watch_mscl WHERE microServiceChainLink=@remove_mn_dirs;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@metadata_reminder_watch_mscl WHERE pk=@remove_mn_dirs;
+-- Post generate METS go back to preservation/access split
+SET @load_post_metadata_mscl = 'f1e286f9-4ec7-4e19-820c-dae7b8ea7d09' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@load_post_metadata_mscl WHERE microServiceChainLink=@metadata_prepare_mscl;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@load_post_metadata_mscl WHERE pk=@metadata_prepare_mscl;
+-- Update where load links point to
+UPDATE TasksConfigsSetUnitVariable SET microServiceChainLink='378ae4fc-7b62-40af-b448-a1ab47ac2c0c' WHERE pk='6b4600f2-6df6-42cb-b611-32938b46a9cf';
+UPDATE TasksConfigsSetUnitVariable SET microServiceChainLink='65240550-d745-4afe-848f-2bf5910457c9' WHERE pk='771dd17a-02d1-403b-a761-c70cc9cc1d1a';
+
+-- Remove unneeded
+SET @del_mscl_1='fa5b0c43-ed7b-4c7e-95a8-4f9ec7181260' COLLATE utf8_unicode_ci;
+SET @del_mscl_2='cccc2da4-e9b8-43a0-9ca2-7383eff0fac9' COLLATE utf8_unicode_ci;
+SET @del_tc_1='23650e92-092d-4ace-adcc-c627c41b127e' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@del_mscl_1, @del_mscl_2);
+DELETE FROM MicroServiceChainLinks WHERE pk=@del_mscl_1;
+DELETE FROM MicroServiceChainLinks WHERE pk=@del_mscl_2;
+DELETE FROM TasksConfigs WHERE pk=@del_tc_1;
+
 -- /Issue 6217
