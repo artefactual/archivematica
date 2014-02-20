@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import base64
+import errno
 import os
 import logging
 import re
@@ -300,16 +301,27 @@ def create_arranged_sip(staging_sip_path, files):
 
     # Update currentLocation of files
     for file_ in files:
-        # Strip 'arrange/sip_name' from file path
-        in_sip_path = '/'.join(file_['destination'].split('/')[2:])
-        currentlocation = '%SIPDirectory%'+ in_sip_path
-        models.File.objects.filter(uuid=file_['uuid']).update(sip=sip_uuid, currentlocation=currentlocation)
+        if file_.get('uuid'):
+            # Strip 'arrange/sip_name' from file path
+            in_sip_path = '/'.join(file_['destination'].split('/')[2:])
+            currentlocation = '%SIPDirectory%'+ in_sip_path
+            models.File.objects.filter(uuid=file_['uuid']).update(sip=sip_uuid, currentlocation=currentlocation)
+
+    # TODO add log of original location and new location of files
 
     # Move to watchedDirectories/SIPCreation/SIPsUnderConstruction
     logging.info('create_arranged_sip: move from %s to %s', os.path.join(shared_dir, staging_sip_path), os.path.join(sip_path))
     shutil.move(
         src=os.path.join(shared_dir, staging_sip_path),
         dst=os.path.join(sip_path))
+
+    # Create directories for logs and metadata, if they don't exist
+    for directory in ('logs', 'metadata', os.path.join('metadata', 'submissionDocumentation')):
+        try:
+            os.mkdir(os.path.join(sip_path, directory))
+        except os.error as exception:
+            if exception.errno != errno.EEXIST:
+                raise
 
 
 def copy_from_arrange_to_completed(request):
@@ -322,6 +334,7 @@ def copy_from_arrange_to_completed(request):
     error = None
     filepath = request.POST.get('filepath', '')
     filepath = os.path.normpath(filepath)
+    logging.info('copy_from_arrange_to_completed: filepath: %s', filepath)
 
     # Error checking
     if not filepath.startswith(DEFAULT_ARRANGE_PATH):
@@ -332,21 +345,33 @@ def copy_from_arrange_to_completed(request):
     else:
         # Filepath is prefix on arrange_path in SIPArrange
         filepath = os.path.join(filepath, '')
+        sip_name = filepath.replace(DEFAULT_ARRANGE_PATH, '', 1)
         # Fetch all files with 'filepath' as prefix, and have a source path
         arrange = models.SIPArrange.objects.filter(sip_created=False).filter(arrange_path__startswith=filepath).filter(original_path__isnull=False)
-
-        # TODO fetch metadata information based on transfer UUID and add to
-        # files to be moved
 
         # Collect file information.  Change path to be in staging, not arrange
         files = []
         for arranged_file in arrange:
             files.append(
                 {'source': arranged_file.original_path.lstrip('/'),
-                 'destination': arranged_file.arrange_path.lstrip('/').replace('arrange', 'staging', 1),
+                 'destination': arranged_file.arrange_path.lstrip('/').replace(
+                    'arrange', 'staging', 1),
                  'uuid': arranged_file.file_uuid,
                 }
             )
+            # Get transfer folder name
+            transfer_name = arranged_file.original_path.replace(
+                DEFAULT_BACKLOG_PATH, '', 1).split('/', 1)[0]
+            # Add metadata & logs to be copied if they aren't already
+            for directory in ('logs', 'metadata'):
+                file_ = {
+                    'source': os.path.join(
+                        DEFAULT_BACKLOG_PATH, transfer_name, directory, '.'),
+                    'destination': os.path.join(
+                        'staging', sip_name, directory, transfer_name, ''),
+                }
+                if file_ not in files:
+                    files.append(file_)
 
         # Move files from backlog to local staging path
         (sip, error) = storage_service.get_files_from_backlog(files)
