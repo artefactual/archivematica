@@ -85,10 +85,8 @@ def removePreservationFiles(SIPDirectory, SIPUUID):
     try:
         sql = """DELETE FROM Events USING Events JOIN Files ON Events.fileUUID = Files.fileUUID WHERE eventType='normalization' AND sipUUID = '%s';""" % SIPUUID
         databaseInterface.runSQL(sql)
-    except Exception as inst:
+    except Exception:
         traceback.print_exc(file=sys.stdout)
-        print type(inst)     # the exception instance
-        print inst.args
 
 
 if __name__ == '__main__':

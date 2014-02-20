@@ -214,7 +214,7 @@ def insert_derivation_event(original_uuid, output_uuid, derivation_uuid,
     """ Add the derivation link for preservation files and the event. """
     if today is None:
         today = str(datetime.date.today())
-    #Add event information to current file
+    # Add event information to current file
     databaseFunctions.insertIntoEvents(
        fileUUID=original_uuid,
        eventIdentifierUUID=derivation_uuid,
@@ -225,7 +225,7 @@ def insert_derivation_event(original_uuid, output_uuid, derivation_uuid,
        eventOutcomeDetailNote=outcome_detail_note or "",
     )
 
-    #Add linking information between files
+    # Add linking information between files
     databaseFunctions.insertIntoDerivations(
         sourceFileUUID=original_uuid,
         derivedFileUUID=output_uuid,
