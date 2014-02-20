@@ -230,4 +230,10 @@ SET @characterizeExtractMetadata='303a65f6-a16f-4a06-807b-cb3425a30201' COLLATE 
 INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES (@characterizeSTC, 0, 'characterizeFile_v0.0', '"%relativeLocation%" "%fileUUID%" "%SIPUUID%"', 'objects');
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@characterizeTC, 'a6b1c323-7d36-428e-846a-e7e819423577', @characterizeSTC, "Characterize and extract metadata");
 UPDATE MicroServiceChainLinks SET currentTask=@characterizeTC WHERE pk=@characterizeExtractMetadata;
+
+-- This is necessary because we can have multiple command outputs per
+-- file, not just one. The unique constraint is a combo of file and command.
+ALTER TABLE FPCommandOutput
+	DROP PRIMARY KEY,
+	ADD PRIMARY KEY(fileUUID, ruleUUID);
 -- /Issue 5866
