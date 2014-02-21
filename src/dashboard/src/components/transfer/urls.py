@@ -25,5 +25,12 @@ urlpatterns = patterns('components.transfer.views',
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/microservices/$', 'microservices'),
     (r'status/$', 'status'),
     (r'status/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'status'),
-    (r'browser/$', 'browser')
+    (r'browser/$', 'browser'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/$',
+        'transfer_metadata_list'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/add/$',
+        'transfer_metadata_edit'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/(?P<id>\d+)/$',
+        'transfer_metadata_edit'),
+
 )
