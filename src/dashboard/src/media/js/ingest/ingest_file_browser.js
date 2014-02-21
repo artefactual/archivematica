@@ -103,6 +103,7 @@ function setupBacklogBrowser() {
         if (result.error == undefined) {
           move.self.idle();
           move.self.render();
+          $('#search_submit').click(); // Fetches from backlog again and renders it
         } else {
           alert(result.message);
           move.self.idle();
@@ -231,6 +232,7 @@ $(document).ready(function() {
         }
         arrange_browser.deleteEntry(path, type);
         arrange_browser.selectedEntryId = undefined;
+        $('#search_submit').click();
       }
     );
   });

@@ -585,12 +585,18 @@ def copy_to_arrange(request):
         logging.debug('copy_to_arrange: files to be added: {}'.format(to_add))
 
         for entry in to_add:
-            # TODO enforce uniqueness on arrange panel?
-            models.SIPArrange.objects.create(
-                original_path=entry['original_path'],
-                arrange_path=entry['arrange_path'],
-                file_uuid=entry['file_uuid'],
-            )
+            try:
+                # TODO enforce uniqueness on arrange panel?
+                models.SIPArrange.objects.create(
+                    original_path=entry['original_path'],
+                    arrange_path=entry['arrange_path'],
+                    file_uuid=entry['file_uuid'],
+                )
+            except IntegrityError:
+                # FIXME Expecting this to catch duplicate original_paths, which
+                # we want to ignore since a file can only be in one SIP.  Needs
+                # to be updated not to ignore other classes of IntegrityErrors.
+                logging.exception('Integrity error inserting: %s', entry)
 
     if error is not None:
         response = {

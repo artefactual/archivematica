@@ -394,7 +394,7 @@ def ingest_browse_aip(request, jobuuid):
     return render(request, 'ingest/aip_browse.html', locals())
 
 
-def _es_results_to_directory_tree(path, return_dict, not_draggable=False):
+def _es_results_to_directory_tree(path, return_list, not_draggable=False):
     # Helper function for transfer_backlog
     # Paths MUST be input in sorted order
     # Otherwise the same directory might end up with multiple entries
@@ -402,16 +402,19 @@ def _es_results_to_directory_tree(path, return_dict, not_draggable=False):
     if parts[0] in ('logs', 'metadata'):
         not_draggable = True
     if len(parts) == 1:  # path is a file
-        return_dict.append({'name': parts[0], 'not-draggable': not_draggable})
+        return_list.append({'name': parts[0], 'not_draggable': not_draggable})
     else:
         node, others = parts
-        if not return_dict or return_dict[-1]['name'] != node:
-            return_dict.append({
+        if not return_list or return_list[-1]['name'] != node:
+            return_list.append({
                 'name': node,
                 'not_draggable': not_draggable,
                 'children': []})
-        _es_results_to_directory_tree(others, return_dict[-1]['children'],
+        _es_results_to_directory_tree(others, return_list[-1]['children'],
             not_draggable=not_draggable)
+        # If any children of a dir are draggable, the whole dir should be
+        # Otherwise, directories have the draggability of their first child
+        return_list[-1]['not_draggable'] = return_list[-1]['not_draggable'] and not_draggable
 
 
 @decorators.elasticsearch_required()
@@ -470,7 +473,12 @@ def transfer_backlog(request):
     # _es_results_to_directory_tree requires that paths MUST be sorted
     results.sort(key=lambda x: x['relative_path'])
     for path in results:
-        _es_results_to_directory_tree(path['relative_path'], return_list)
+        # If a path is in SIPArrange.original_path, then it shouldn't be draggable
+        not_draggable = False
+        if models.SIPArrange.objects.filter(
+            original_path__endswith=path['relative_path']).exists():
+            not_draggable = True
+        _es_results_to_directory_tree(path['relative_path'], return_list, not_draggable=not_draggable)
 
     # retun JSON response
     return helpers.json_response(return_list)
