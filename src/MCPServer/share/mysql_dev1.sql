@@ -371,3 +371,12 @@ UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@examineCon
 UPDATE MicroServiceChainLinks SET defaultNextChainLink=@examineContentsWatchDirectoryMSCL WHERE pk=@characterizeExtractMetadata;
 
 -- /Issue 5880
+
+-- Issue 6217
+-- Serialize JSON metadata to disk, so it can be pulled back into the DB later
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('ed6daadf-a594-4327-b85c-7219c5832369', 0, 'saveDublinCore_v0.0', '"%SIPUUID%" "%relativeLocation%metadata/dc.json"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('e5789749-00df-4b6c-af12-47eeabc8926a', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', 'ed6daadf-a594-4327-b85c-7219c5832369', 'Serialize Dublin Core metadata to disk');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('f378ec85-adcc-4ee6-ada2-bc90cfe20efb', 'Create SIP from Transfer', 'Failed', 'e5789749-00df-4b6c-af12-47eeabc8926a', '39a128e3-c35d-40b7-9363-87f75091e1ff');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('12fb389b-06c4-43d4-b647-9727c410088f', 'f378ec85-adcc-4ee6-ada2-bc90cfe20efb', 0, '39a128e3-c35d-40b7-9363-87f75091e1ff', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='f378ec85-adcc-4ee6-ada2-bc90cfe20efb' WHERE microServiceChainLink='8f639582-8881-4a8b-8574-d2f86dc4db3d';
+-- /Issue 6217

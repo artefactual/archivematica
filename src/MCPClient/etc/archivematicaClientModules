@@ -105,6 +105,7 @@ restructureBagAIPToSIP_v0.0 = %clientScriptsDirectory%restructureBagAIPToSIP.py
 retryNormalizeRemoveNormalized_v0.0 = %clientScriptsDirectory%retryNormalizeRemoveNormalized.py
 sanitizeObjectNames_v0.0 = %clientScriptsDirectory%sanitizeObjectNames.py
 sanitizeSIPName_v0.0 = %clientScriptsDirectory%sanitizeSIPName.py
+saveDublinCore_v0.0 = %clientScriptsDirectory%saveDublinCore.py
 setDirectoryPermissionsForAppraisal_v0.0 = %clientScriptsDirectory%setDirectoryPermissionsForAppraisal.sh
 setFilePermission_v0.0 = chmod
 setMaildirFileGrpUseAndFileIDs_v0.0 = %clientScriptsDirectory%setMaildirFileGrpUseAndFileIDs.py
