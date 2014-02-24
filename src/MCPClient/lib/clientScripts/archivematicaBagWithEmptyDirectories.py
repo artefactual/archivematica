@@ -29,9 +29,9 @@ from executeOrRunSubProcess import executeOrRun
 
 def run_bag(arguments):
     """ Run Bagit's create bag command. """
-    command = "/usr/share/bagit/bin/bag {}".format(arguments)
-    print 'Command to run:', command
-    exit_code, std_out, std_err = executeOrRun("command", command, printing=False)
+    command = "/usr/share/bagit/bin/bag"
+    print 'Command to run:', command, "Arguments: ", arguments
+    exit_code, std_out, std_err = executeOrRun("command", [command], arguments=arguments, printing=False)
     if exit_code != 0:
         print >> sys.stderr, "Error with command: ", command
         print >> sys.stderr, "Standard OUT:"
@@ -75,11 +75,12 @@ def bag_with_empty_directories(args):
 
     # Ensure all payload items actually exist
     payload_entries = [e for e in args.payload_entries if os.path.exists(e)]
-    payload_entries = ' '.join('"{}"'.format(d) for d in payload_entries)
 
     # Reconstruct bagit arguments
-    bagit_args = [args.operation, '"{}"'.format(args.destination), payload_entries, '--writer', args.writer, '--payloadmanifestalgorithm', args.algorithm]
-    bagit_args = ' '.join(bagit_args)
+    # Goal: bagit <operation> <destination> <flattened payload list> <optional args>
+    bagit_args = [args.operation, args.destination]
+    bagit_args.extend(payload_entries)
+    bagit_args.extend(['--writer', args.writer, '--payloadmanifestalgorithm', args.algorithm])
 
     # Run bagit bag creator
     run_bag(bagit_args)

@@ -135,8 +135,8 @@ def getDublinCore(unit, id):
     row = c.fetchone()
     ret = None
     if row is not None:
-        ret = etree.Element("dublincore", nsmap={None:dcNS})
-        ret.set(xsiBNS+"schemaLocation", dcNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+        ret = etree.Element("dublincore", nsmap={None:dctermsNS})
+        ret.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
     while row is not None:
         #title, creator, subject, description, publisher, contributor, date, type, format, identifier, source, relation, language, coverage, rights = row
         for i, term in enumerate(field_list):
@@ -181,8 +181,8 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
                 mdWrap = etree.SubElement(dmdSec, "mdWrap")
                 mdWrap.set("MDTYPE", "DC")
                 xmlData = etree.SubElement(mdWrap, "xmlData")
-                dc = etree.Element( "dublincore", nsmap = {None: dcNS} )
-                dc.set(xsiBNS+"schemaLocation", dcNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+                dc = etree.Element( "dublincore", nsmap = {None: dctermsNS} )
+                dc.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
                 xmlData.append(dc)
             if key.startswith("dc."):
                 key2 = key.replace("dc.", "", 1)

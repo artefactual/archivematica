@@ -41,7 +41,7 @@ def get_aip_info(aic_dir):
     # Fetch the METS file and parse out the Dublic Core metadata with the label
     nsmap = {
         'm': namespaces.metsNS,  # METS
-        'dc': namespaces.dcNS,  # Dublin Core
+        'dc': namespaces.dctermsNS,  # Dublin Core
     }
     for aip in aips:
         mets_in_aip = "{aip_name}-{aip_uuid}/data/METS.{aip_uuid}.xml".format(

@@ -165,7 +165,7 @@ def create_file(uuid, origin_location, origin_path, current_location,
     """
 
     api = _storage_api()
-    pipeline = _get_pipeline(get_setting('dashboard_uuid'))
+    pipeline = _get_pipeline(get_setting_no_orm('dashboard_uuid'))
     if pipeline is None:
         return (None, 'Pipeline not available, see logs.')
     new_file = {

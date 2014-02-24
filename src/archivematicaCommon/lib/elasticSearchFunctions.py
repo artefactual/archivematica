@@ -383,7 +383,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
 
     # establish structure to be indexed for each file item
     fileData = {
-        'archivematicaVersion': '1.0',
+        'archivematicaVersion': version.get_version(),
         'AIPUUID': uuid,
         'sipName': sipName,
         'FILEUUID': '',
@@ -436,7 +436,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
         filePath = file_.find('m:FLocat', namespaces=nsmap).attrib['{http://www.w3.org/1999/xlink}href']
         indexData['filePath'] = filePath
         _, fileExtension = os.path.splitext(filePath)
-        if fileExtension != '':
+        if fileExtension:
             indexData['fileExtension'] = fileExtension[1:].lower()
 
         # index data
