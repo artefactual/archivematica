@@ -26,8 +26,8 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
   });
 
   selector.structure = {
-    'name': baseDirectory.replace(/\\/g,'/').replace( /.*\//, '' ),      // parse out path basename
-    'parent': baseDirectory.replace(/\\/g,'/').replace(/\/[^\/]*$/, ''), // parse out path directory
+    'name': Base64.encode(baseDirectory.replace(/\\/g,'/').replace( /.*\//, '' )),      // parse out path basename
+    'parent': Base64.encode(baseDirectory.replace(/\\/g,'/').replace(/\/[^\/]*$/, '')), // parse out path directory
     'children': []
   };
 
@@ -57,7 +57,12 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
         $transferPathRowEl.remove();
       });
 
-      $transferPathEl.html(result.path);
+      // result.path is base64-encoded from the server
+      // NOTE: If this value needs to get communicated somewhere else,
+      //       for instance if transfer starts are moved into the
+      //       storage service in the future, this value will need to
+      //       be base64-encoded again.
+      $transferPathEl.html(Base64.decode(result.path));
       $transferPathRowEl.append($transferPathEl);
       $transferPathRowEl.append($transferPathDeleteRl);
       $('#' + targetCssId).append($transferPathRowEl);
