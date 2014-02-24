@@ -174,18 +174,22 @@ def index(request):
                 'value': storage_dir['resource_uri'],
                 'label': storage_dir['description']
             })
-    other_fields = [
+
+    storage_service_options = [
         {
-            "name":        "store_aip_location",
-            "label":       "Store AIP location",
-            "choice_uuid": "b320ce81-9982-408a-9502-097d0daa48fa",
-            "options":     storage_directory_options
+            "name":          "store_aip_location",
+            "label":         "Store AIP location",
+            "choice_uuid":   "b320ce81-9982-408a-9502-097d0daa48fa",
+            "options":       storage_directory_options,
+            # Unlike other options, the correct value here is a literal string,
+            # not a pointer to a chain or dict in the database.
+            "do_not_lookup": True
         }
     ]
 
     populate_select_fields_with_replace_dict_options(replace_dict_fields)
 
-    select_fields = chain_choice_fields + replace_dict_fields + other_fields
+    select_fields = chain_choice_fields + replace_dict_fields + storage_service_options
 
     if request.method == 'POST':
         # render XML using request data
@@ -231,9 +235,14 @@ def index(request):
             if enabled == 'yes':
                 field_value = request.POST.get(field['name'], '')
                 if field_value != '':
+                    if field.get('do_not_lookup', False):
+                        target = field_value
+                    else:
+                        target = uuid_from_description(field_value)
+
                     xmlChoices.add_choice(
                         field['choice_uuid'],
-                        uuid_from_description(field_value)
+                        target
                     )
 
         xmlChoices.write_to_file(file_path)
@@ -287,7 +296,10 @@ def index(request):
                         try:
                             choice = models.MicroServiceChoiceReplacementDic.objects.get(pk=go_to_chain).description
                         except models.MicroServiceChoiceReplacementDic.DoesNotExist:
-                            continue
+                            # fallback for storage service options, which are
+                            # strings that don't map to chains or dicts in
+                            # the database
+                            choice = go_to_chain
 
                     field['selected'] = choice
                     field['checked'] = 'checked'
