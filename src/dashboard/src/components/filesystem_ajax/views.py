@@ -66,10 +66,10 @@ def directory_to_dict(path, directory={}, entry=False):
     if (entry == False):
         entry = directory
         # remove leading slash
-        entry['parent'] = base64.b64encode(os.path.dirname(path)[1:])
+        entry['parent'] = os.path.dirname(path)[1:]
 
     # set standard entry properties
-    entry['name'] = base64.b64encode(os.path.basename(path))
+    entry['name'] = os.path.basename(path)
     entry['children'] = []
 
     # define entries
@@ -78,7 +78,7 @@ def directory_to_dict(path, directory={}, entry=False):
         new_entry = None
         if file[0] != '.':
             new_entry = {}
-            new_entry['name'] = base64.b64encode(file)
+            new_entry['name'] = file
             entry['children'].append(new_entry)
 
         # if entry is a directory, recurse

@@ -417,13 +417,6 @@
     },
 
     render: function() {
-      // Entries fetched from places like the storage service, or the Dashboard
-      // ingest preview, will have their strings base64-encoded. This needs to
-      // be decoded for human viewing.
-      entry = this.model;
-      if (entry.attributes.name)
-           entry.attributes.name = Base64.decode(entry.attributes.name);
-
       var entryView = new exports.EntryView({
         explorer: this.explorer,
         entry: this.model,
