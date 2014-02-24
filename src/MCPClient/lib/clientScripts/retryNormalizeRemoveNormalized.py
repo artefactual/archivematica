@@ -35,10 +35,9 @@ def removeDIP(SIPDirectory, SIPUUID):
         DIP = os.path.join(SIPDirectory, "DIP")
         if os.path.isdir(DIP):
             shutil.rmtree(DIP)
-    except Exception as inst:
+    except (os.error, shutil.Error):
+        print >> sys.stderr, 'Error deleting DIP'
         traceback.print_exc(file=sys.stdout)
-        print type(inst)     # the exception instance
-        print inst.args
 
 
 def removeThumbnails(SIPDirectory, SIPUUID):
@@ -46,46 +45,44 @@ def removeThumbnails(SIPDirectory, SIPUUID):
         thumbnails = os.path.join(SIPDirectory, "thumbnails")
         if os.path.isdir(thumbnails):
             shutil.rmtree(thumbnails)
-    except Exception as inst:
+    except (os.error, shutil.Error):
+        print >> sys.stderr, 'Error deleting thumbnails'
         traceback.print_exc(file=sys.stdout)
-        print type(inst)     # the exception instance
-        print inst.args
+
 
 def removePreservationFiles(SIPDirectory, SIPUUID):
     # Remove Archivematia-created preservation files
     try:
         sql = """SELECT fileUUID, currentLocation FROM Files WHERE SIPUUID = '%s' AND removedTime = 0 AND fileGrpUse = 'preservation';""" % (SIPUUID)
         files = databaseInterface.queryAllSQL(sql)
-        for file in files:
+        for file_ in files:
             try:
-                fileUUID, currentLocation = file
+                fileUUID, currentLocation = file_
                 sql = """UPDATE Files SET removedTime=NOW() WHERE fileUUID = '%s';""" % (fileUUID)
                 databaseInterface.runSQL(sql)
                 os.remove(currentLocation.replace("%SIPDirectory%", SIPDirectory, 1))
-            except Exception as inst:
+            except Exception:
+                print >> sys.stderr, 'Error removing preservation files'
                 traceback.print_exc(file=sys.stdout)
-                print type(inst)     # the exception instance
-                print inst.args
-    except Exception as inst:
+    except Exception:
+        print >> sys.stderr, 'Error running SQL'
         traceback.print_exc(file=sys.stdout)
-        print type(inst)     # the exception instance
-        print inst.args
 
     # Remove manually normalized derivation links
     # TODO? Update this to delete for all derivations where the event is deleted
     try:
         sql = """DELETE FROM Derivations USING Derivations JOIN Files ON Derivations.derivedFileUUID = Files.fileUUID WHERE fileGrpUse='manualNormalization' AND sipUUID = '%s';""" % SIPUUID
         databaseInterface.runSQL(sql)
-    except Exception as inst:
+    except Exception:
+        print >> sys.stderr, 'Error deleting manual normalization links from database'
         traceback.print_exc(file=sys.stdout)
-        print type(inst)     # the exception instance
-        print inst.args
 
     # Remove normalization events
     try:
         sql = """DELETE FROM Events USING Events JOIN Files ON Events.fileUUID = Files.fileUUID WHERE eventType='normalization' AND sipUUID = '%s';""" % SIPUUID
         databaseInterface.runSQL(sql)
     except Exception:
+        print >> sys.stderr, 'Error deleting normalization events from database.'
         traceback.print_exc(file=sys.stdout)
 
 
