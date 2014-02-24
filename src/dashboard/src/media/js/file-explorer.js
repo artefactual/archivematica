@@ -36,8 +36,21 @@
       return this.path().replace(/\//g, '_').replace('.', '__');
     },
 
+    // Provides a human-readable version of the path, suitable for display.
+    // This is used by path() below.
+    displaypath: function() {
+      parent = this.get('parent') || '';
+      parent = Base64.decode(parent);
+      name = this.get('name') || '';
+      name = Base64.decode(name);
+      return parent + '/' + name;
+    },
+
+    // Decode parent and child elements, concatenate them as plaintext,
+    // then base64-encode them again for transfer to a server.
+    // This is primarily used when querying the storage service.
     path: function() {
-      return this.get('parent') + '/' + this.get('name');
+      return Base64.encode(this.displaypath());
     },
 
     type: function() {
@@ -55,9 +68,15 @@
       var child = new Type(options)
         , parent = this.get('parent');
 
+      // Both parent (if present) and child are still base64-encoded at this point
+      name = this.get('name') || '';
+      name = Base64.decode(name);
       parent = (parent != undefined)
-        ? parent + '/' + this.get('name')
-        : this.get('name');
+        ? Base64.decode(parent) + '/' + name
+        : name;
+      if (parent) {
+        parent = Base64.encode(parent);
+      }
 
       child.set({parent: parent});
 
@@ -99,8 +118,13 @@
     },
 
     render: function() {
-      var context = this.context()
-        , html = this.template(context);
+      // The actual path is stored as base64, so it needs to be decoded
+      // before being displayed in HTML.
+      var context = this.context();
+      if (context.name) {
+        context.name = Base64.decode(context.name);
+      }
+      html = this.template(context);
 
       this.el = $(html);
       $(this.el).addClass(this.className);
@@ -251,12 +275,6 @@
         for (var index = indexStart; index < entry.children.length; index++) {
           var child = entry.children[index]
             , allowDisplay = true;
-
-          // File paths from the storage service are base64-encoded because
-          // they may contain arbitrary non-unicode characters.
-          // They're base64-decoded here for viewing, but will be
-          // re-encoded prior to being sent back to the server.
-          child.attributes.name = Base64.decode(child.attributes.name);
 
           if (self.entryDisplayFilter) {
             allowDisplay = self.entryDisplayFilter(child);
