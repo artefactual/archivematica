@@ -209,7 +209,7 @@ def aic_metadata_add(request, uuid):
 
         # Start the MicroServiceChainLink for the AIC
         shared_dir = helpers.get_server_config_value('sharedDirectory')
-        source = os.path.join(shared_dir, 'staging', uuid)
+        source = os.path.join(shared_dir, 'tmp', uuid)
 
         watched_dir = helpers.get_server_config_value('watchDirectoryPath')
         name = slugify(dc.title).replace('-', '_')

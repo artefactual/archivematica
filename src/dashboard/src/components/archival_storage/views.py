@@ -229,7 +229,7 @@ def create_aic(request, *args, **kwargs):
 
         # Create files in staging directory with AIP information
         shared_dir = helpers.get_server_config_value('sharedDirectory')
-        staging_dir = os.path.join(shared_dir, 'staging')
+        staging_dir = os.path.join(shared_dir, 'tmp')
 
         # Create SIP (AIC) directory in staging directory
         temp_uuid = str(uuid.uuid4())
