@@ -73,7 +73,7 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name):
         package_type="AIP",
         size=os.path.getsize(aip_path)
     )
-    if new_file is not None and new_file['status'] != "FAIL":
+    if new_file is not None and new_file.get('status', '') != "FAIL":
         message = "Storage service created AIP: {}".format(new_file)
         logging.info(message)
         print message
