@@ -116,20 +116,33 @@ os.rename(filePath, dst)
 sql =  """UPDATE Files SET currentLocation='%s' WHERE fileUUID='%s';""" % (dstR, fileUUID)
 databaseInterface.runSQL(sql)
 
-derivationEventUUID = uuid.uuid4().__str__()
-databaseFunctions.insertIntoEvents(
-    fileUUID=originalFileUUID,
-    eventIdentifierUUID=derivationEventUUID,
-    eventType="normalization",
-    eventDateTime=date,
-    eventDetail="manual normalization",
-    eventOutcome="",
-    eventOutcomeDetailNote=dstR)
+sql = """SELECT eventIdentifierUUID FROM Events WHERE eventType ='normalization' AND fileUUID='%s'; """ % originalFileUUID
+rows = databaseInterface.queryAllSQL(sql)
+if len(rows) >= 1:
+    derivationEventUUID = rows[0][0]
+    # Normalization event already exists, so just update it
+    # fileUUID, eventIdentifierUUID, eventType, eventDateTime, eventDetail
+    # probably already correct, and we only set eventOutcomeDetailNote here
+    sql = """UPDATE Events SET eventOutcomeDetailNote='%s' WHERE eventIdentifierUUID='%s';""" % (dstR, derivationEventUUID)
+    databaseInterface.runSQL(sql)
+else:
+    # No normalization event was created in normalize.py - probably manually
+    # normalized during Ingest
+    derivationEventUUID = uuid.uuid4().__str__()
+    databaseFunctions.insertIntoEvents(
+        fileUUID=originalFileUUID,
+        eventIdentifierUUID=derivationEventUUID,
+        eventType="normalization",
+        eventDateTime=date,
+        eventDetail="manual normalization",
+        eventOutcome="",
+        eventOutcomeDetailNote=dstR)
 
-#Add linking information between files
-databaseFunctions.insertIntoDerivations(
-    sourceFileUUID=originalFileUUID,
-    derivedFileUUID=fileUUID,
-    relatedEventUUID=derivationEventUUID)
+    # Add linking information between files
+    # Assuming that if an event already exists, then the derivation does as well
+    databaseFunctions.insertIntoDerivations(
+        sourceFileUUID=originalFileUUID,
+        derivedFileUUID=fileUUID,
+        relatedEventUUID=derivationEventUUID)
 
 exit(0)

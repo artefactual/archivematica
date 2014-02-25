@@ -117,7 +117,8 @@ def check_manual_normalization(opts):
             else:
                 return None
             print('Looking for', filename, 'in database')
-            return File.objects.get(sip=opts.sip_uuid, originallocation__iendswith=filename).currentlocation #removedtime = 0
+            # FIXME: SQL uses removedtime=0. Convince Django to express this
+            return File.objects.get(sip=opts.sip_uuid, originallocation__iendswith=filename) #removedtime = 0
 
     # Assume that any access/preservation file found with the right
     # name is the correct one
@@ -133,7 +134,8 @@ def check_manual_normalization(opts):
     else:
         return None
     try:
-        return File.objects.get(sip=opts.sip_uuid, currentlocation__startswith=path).currentlocation #removedtime = 0
+        # FIXME: SQL uses removedtime=0. Cannot get Django to express this
+        return File.objects.get(sip=opts.sip_uuid, currentlocation__startswith=path) #removedtime = 0
     except File.DoesNotExist, File.MultipleObjectsReturned:
         # No file with the correct path found, assume not manually normalized
         return None
@@ -184,16 +186,6 @@ def once_normalized(command, opts, replacement_dict):
                 sourceType="creation",
                 use="preservation",
             )
-            #Add event information to current file
-            databaseFunctions.insertIntoEvents(
-               fileUUID=opts.file_uuid,
-               eventIdentifierUUID=derivation_event_uuid,
-               eventType="normalization",
-               eventDateTime=today,
-               eventDetail=event_detail_output,
-               eventOutcome="",
-               eventOutcomeDetailNote=path_relative_to_sip
-            )
 
             #Calculate new file checksum
             fileOperations.updateSizeAndChecksum(
@@ -203,16 +195,42 @@ def once_normalized(command, opts, replacement_dict):
                 str(uuid.uuid4()), # Event UUID, new UUID
             )
 
-            #Add linking information between files
-            databaseFunctions.insertIntoDerivations(
-                sourceFileUUID=opts.file_uuid,
-                derivedFileUUID=output_file_uuid,
-                relatedEventUUID=derivation_event_uuid,
+            # Add derivation link and associated event
+            insert_derivation_event(
+                original_uuid=opts.file_uuid,
+                output_uuid=output_file_uuid,
+                derivation_uuid=derivation_event_uuid,
+                event_detail_output=event_detail_output,
+                outcome_detail_note=path_relative_to_sip,
+                today=today,
             )
 
             sql = "INSERT INTO FilesIDs (fileUUID, formatName, formatVersion, formatRegistryName, formatRegistryKey) VALUES ('%s', '%s', NULL, NULL, NULL);" % (output_file_uuid, command.fpcommand.output_format.description)
             databaseInterface.runSQL(sql)
 
+
+def insert_derivation_event(original_uuid, output_uuid, derivation_uuid,
+        event_detail_output, outcome_detail_note, today=None):
+    """ Add the derivation link for preservation files and the event. """
+    if today is None:
+        today = str(datetime.date.today())
+    # Add event information to current file
+    databaseFunctions.insertIntoEvents(
+       fileUUID=original_uuid,
+       eventIdentifierUUID=derivation_uuid,
+       eventType="normalization",
+       eventDateTime=today,
+       eventDetail=event_detail_output,
+       eventOutcome="",
+       eventOutcomeDetailNote=outcome_detail_note or "",
+    )
+
+    # Add linking information between files
+    databaseFunctions.insertIntoDerivations(
+        sourceFileUUID=original_uuid,
+        derivedFileUUID=output_uuid,
+        relatedEventUUID=derivation_uuid,
+    )
 
 def main(opts):
     """ Find and execute normalization commands on input file. """
@@ -240,7 +258,16 @@ def main(opts):
     # If a file has been manually normalized for this purpose, skip it
     manually_normalized_file = check_manual_normalization(opts)
     if manually_normalized_file:
-        print(os.path.basename(opts.file_path), 'was already manually normalized into', manually_normalized_file)
+        print(os.path.basename(opts.file_path), 'was already manually normalized into', manually_normalized_file.currentlocation)
+        if 'preservation' in opts.purpose:
+            # Add derivation link and associated event
+            insert_derivation_event(
+                original_uuid=opts.file_uuid,
+                output_uuid=manually_normalized_file.uuid,
+                derivation_uuid=str(uuid.uuid4()),
+                event_detail_output="manual normalization",
+                outcome_detail_note=None,
+            )
         return SUCCESS
 
     try:

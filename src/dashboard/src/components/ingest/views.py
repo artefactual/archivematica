@@ -15,40 +15,49 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.db.models import Max
+# stdlib, alphabetical by import source
+import calendar
+import cPickle
+import json
+from lxml import etree
+import MySQLdb
+import os
+import shutil
+import socket
+import sys
+import uuid
+
+# Django core, alphabetical
 from django.conf import settings as django_settings
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.db import connection
-from django.shortcuts import render
+from django.db.models import Max
+from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
-from django.shortcuts import redirect
-from django.contrib import messages
-import json
+from django.shortcuts import render, redirect
+from django.template import RequestContext
+
+# External dependencies, alphabetical
+
+# This project, alphabetical
 from contrib.mcp.client import MCPClient
 from contrib import utils
 from main import forms
 from main import models
-from lxml import etree
 from components.ingest.forms import DublinCoreMetadataForm
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
 from components import helpers
-import calendar, ConfigParser, socket, uuid
-import cPickle
-import components.decorators as decorators
-from django.template import RequestContext
-from components import helpers
+from components import decorators
 from components import advanced_search
-import os, sys, MySQLdb, shutil
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions, databaseInterface, databaseFunctions
 from archivematicaCreateStructuredDirectory import createStructuredDirectory
-from archivematicaCreateStructuredDirectory import createManualNormalizedDirectoriesList
 from archivematicaFunctions import escape
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes, requests
 from components.archival_storage.forms import StorageSearchForm
-import time
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Ingest
@@ -167,6 +176,27 @@ def ingest_metadata_edit(request, uuid, id=None):
         name = utils.get_directory_name_from_job(jobs[0])
 
     return render(request, 'ingest/metadata_edit.html', locals())
+
+def ingest_metadata_event_detail(request, uuid):
+    EventDetailFormset = modelformset_factory(models.Event, form=forms.EventDetailForm, extra=0)
+    manual_norm_files = models.File.objects.filter(sip=uuid).filter(originallocation__icontains='manualNormalization/preservation')
+    events = models.Event.objects.filter(derivation__derived_file__in=manual_norm_files).order_by('file_uuid__currentlocation')
+    formset = EventDetailFormset(request.POST or None, queryset=events)
+
+    if formset.is_valid():
+        formset.save()
+        return redirect('components.ingest.views.ingest_detail', uuid)
+
+    # Add path for original and derived files to each form
+    for form in formset:
+        form.original_file = form.instance.file_uuid.originallocation.replace("%transferDirectory%objects/", "", 1)
+        form.derived_file = form.instance.file_uuid.derived_file_set.get().derived_file.originallocation.replace("%transferDirectory%objects/", "", 1)
+
+    # Get name of SIP from directory name of most recent job
+    # Making list and slicing for speed: http://stackoverflow.com/questions/5123839/fastest-way-to-get-the-first-object-from-a-queryset-in-django
+    jobs = list(models.Job.objects.filter(sipuuid=uuid, subjobof='')[:1])
+    name = utils.get_directory_name(jobs[0])
+    return render(request, 'ingest/metadata_event_detail.html', locals())
 
 def delete_context(request, uuid, id):
     prompt = 'Are you sure you want to delete this metadata?'
