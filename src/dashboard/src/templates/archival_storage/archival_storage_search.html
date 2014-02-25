@@ -26,6 +26,15 @@
   {% include "archival_storage/_archival_storage_search_form.html" %}
 
   {% if results %}
+    {% if not file_mode %}
+    <div>
+      <form action="{% url 'create_aic' %}" method="post">
+        {{ aic_creation_form }}
+        <input type='submit' id='create_aic' value='Create an AIC'>
+      </form>
+    </div>
+    {% endif %}
+
     {% include "archival_storage/_archival_storage_search_summary.html" %}
 
     {% if not file_mode %}
@@ -33,39 +42,32 @@
       <table>
       <thead>
         <th>
-          <div>
-            AIP
-          </div>
+          AIP
         </th>
         <th>
-          <div>
-            Size
-          </div>
+          Size
         </th>
         <th>
-          <div>
-            UUID
-          </div>
+          UUID
+        </th>
+        {% if show_aics %}
+        <th>
+          AIC #
+        </th>
+        {% endif %}
+        <th>
+          Files
         </th>
         <th>
-          <div>
-            Files
-          </div>
+          Date stored
         </th>
         <th>
-          <div>
-            Date stored
-          </div>
-        </th>
-        <th>
-          <div>
-            Status
-          </div>
+          Status
         </th>
         <th></th>
       </thead>
       <tbody>
-      {% for term_usage in aip_uuids %}
+      {% for term_usage in results %}
         <tr>
           <td>
             <a href="{% url 'components.archival_storage.views.aip_download' term_usage.term %}">{{ term_usage.name }}</a>
@@ -77,7 +79,18 @@
             {% endif %}
           </td>
           <td class="uuid">{{ term_usage.term }}</td>
-          <td>{{ term_usage.count }} files</td>
+          {% if show_aics %}
+          <td>
+            {% if term_usage.type == 'AIC' %}
+              {{ term_usage.AICID }} ({{ term_usage.aips_in_aic }} AIP{{ term_usage.aips_in_aic|pluralize }} in AIC)
+            {% elif term_usage.isPartOf %}
+              Part of {{ term_usage.isPartOf }}
+            {% else %}
+              None
+            {% endif %}
+          </td>
+          {% endif %}
+          <td>{{ term_usage.count }} file{{term_usage.count|pluralize}}</td>
           <td><span class='timestamp'>{{ term_usage.date }}</a></td>
           <td>{{ term_usage.status }}</td>
           <td>
@@ -123,11 +136,11 @@
     {% endif %}
 
     <div style='clear: both'>
-    {% include "archival_storage/_archival_storage_search_summary.html" %}
+      {% include "archival_storage/_archival_storage_search_summary.html" %}
     </div>
 
   {% else %}
-    <div id='search-summary'>No results, please try another search.</div>
+    <div class='search-summary'>No results, please try another search.</div>
   {% endif %}
 
   <script>

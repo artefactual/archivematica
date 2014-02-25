@@ -88,31 +88,27 @@ class Access(models.Model):
         except:
             return 'N/A'
 
-class DublinCoreManager(models.Manager):
-    def get_sip_metadata(self, uuid):
-        return DublinCore.objects.get(metadataappliestotype__exact=1, metadataappliestoidentifier__exact=uuid)
 
 class DublinCore(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    metadataappliestotype = models.CharField(max_length=50, db_column='metadataAppliesToType')
-    metadataappliestoidentifier = models.CharField(max_length=50, blank=True, db_column='metadataAppliesToidentifier')
-    title = models.TextField(db_column='title', blank=True)
-    creator = models.TextField(db_column='creator', blank=True)
-    subject = models.TextField(db_column='subject', blank=True)
-    description = models.TextField(db_column='description', blank=True)
-    publisher = models.TextField(db_column='publisher', blank=True)
-    contributor = models.TextField(db_column='contributor', blank=True)
-    date = models.TextField(db_column='date', blank=True)
-    type = models.TextField(db_column='type', blank=True)
-    format = models.TextField(db_column='format', blank=True)
-    identifier = models.TextField(db_column='identifier', blank=True)
-    source = models.TextField(db_column='source', blank=True)
-    relation = models.TextField(db_column='relation', blank=True)
-    language = models.TextField(db_column='language', blank=True)
-    coverage = models.TextField(db_column='coverage', blank=True)
-    rights = models.TextField(db_column='rights', blank=True)
-
-    objects = DublinCoreManager()
+    metadataappliestotype = models.CharField(max_length=36, db_column='metadataAppliesToType')
+    metadataappliestoidentifier = models.CharField(max_length=36, blank=True, null=True, db_column='metadataAppliesToidentifier')
+    title = models.CharField(max_length=255, db_column='title', blank=True, null=True)
+    is_part_of = models.CharField(verbose_name='Part of AIC', help_text='Optional: leave blank if unsure', max_length=255, db_column='isPartOf', blank=True, null=True)
+    creator = models.CharField(max_length=255, db_column='creator', blank=True, null=True)
+    subject = models.CharField(max_length=255, db_column='subject', blank=True, null=True)
+    description = models.TextField(db_column='description', blank=True, null=True)
+    publisher = models.CharField(max_length=255, db_column='publisher', blank=True, null=True)
+    contributor = models.CharField(max_length=255, db_column='contributor', blank=True, null=True)
+    date = models.CharField(help_text='Use ISO 8061 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)', max_length=255, db_column='date', blank=True, null=True)
+    type = models.CharField(max_length=255, db_column='type', blank=True, null=True)
+    format = models.CharField(max_length=255, db_column='format', blank=True, null=True)
+    identifier = models.CharField(max_length=255, db_column='identifier', blank=True, null=True)
+    source = models.CharField(max_length=255, db_column='source', blank=True, null=True)
+    relation = models.CharField(max_length=255, db_column='relation', blank=True, null=True)
+    language = models.CharField(help_text='Use ISO 3166', max_length=255, db_column='language', blank=True, null=True)
+    coverage = models.CharField(max_length=255, db_column='coverage', blank=True, null=True)
+    rights = models.TextField(db_column='rights', blank=True, null=True)
 
     class Meta:
         db_table = u'Dublincore'
@@ -196,9 +192,15 @@ class SIPManager(models.Manager):
 class SIP(models.Model):
     uuid = models.CharField(max_length=36, primary_key=True, db_column='sipUUID')
     createdtime = models.DateTimeField(db_column='createdTime')
-    currentpath = models.TextField(db_column='currentPath', blank=True)
+    currentpath = models.TextField(db_column='currentPath', null=True, blank=True)
     # ...
     hidden = models.BooleanField(default=False, blank=False)
+    aip_filename = models.TextField(db_column='aipFilename', null=True, blank=True)
+    SIP_TYPE_CHOICES = (
+        ('SIP', 'SIP'),
+        ('AIC', 'AIC')
+    )
+    sip_type = models.CharField(max_length=8, choices=SIP_TYPE_CHOICES, db_column='sipType', null=True)
 
     objects = SIPManager()
 

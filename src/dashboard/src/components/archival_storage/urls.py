@@ -15,16 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns
+from django.conf.urls import patterns, url
 from django.conf import settings
 
 urlpatterns = patterns('components.archival_storage.views',
-    (r'search/json/file/(?P<document_id_modified>\w+)/$', 'file_json'),
-    (r'search/json/aip/(?P<document_id_modified>\w+)/$', 'aip_json'),
-    (r'search/$', 'search'),
-    (r'delete/aip/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'aip_delete'),
-    (r'download/aip/file/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'aip_file_download'),
-    (r'download/aip/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'aip_download'),
-    (r'thumbnail/(?P<fileuuid>' + settings.UUID_REGEX + ')/$', 'send_thumbnail'),
-    (r'^$', 'overview')
+    url(r'search/json/file/(?P<document_id_modified>\w+)/$', 'file_json'),
+    url(r'search/json/aip/(?P<document_id_modified>\w+)/$', 'aip_json'),
+    url(r'search/create_aic/$', 'create_aic',
+        name='create_aic'),
+    url(r'search/$', 'search',
+        name='archival_storage_search'),
+    url(r'delete/aip/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'aip_delete'),
+    url(r'download/aip/file/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'aip_file_download'),
+    url(r'download/aip/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'aip_download'),
+    url(r'thumbnail/(?P<fileuuid>' + settings.UUID_REGEX + ')/$', 'send_thumbnail'),
+    url(r'^$', 'overview',
+        name='archival_storage_index')
 )

@@ -263,6 +263,9 @@ INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, cu
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('55dd25a7-944a-4a99-8b94-a508d28d0b38', 'c3269a0a-91db-44e8-96d0-9c748cf80177', 0, NULL, 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='c3269a0a-91db-44e8-96d0-9c748cf80177' WHERE microServiceChainLink=@selectFileIDCommandMSCL;
 
+-- /Issue 5759
+
+
 -- Issue 5759, 5248
 -- Maildir support
 SET @fileIDCmdIngest='fileIDcommand-ingest' COLLATE utf8_unicode_ci;
@@ -302,8 +305,7 @@ UPDATE StandardTasksConfigs SET standardErrorFile ='%SIPLogsDirectory%fileFormat
 
 -- /Issue 5759, 5248 Maildir
 
--- /Issue 5759
-
+-- Issue #5751
 -- Insert "Extract contents" task after identification
 SET @extractContentsMSCL = '1cb7e228-6e94-4c93-bf70-430af99b9264' COLLATE utf8_unicode_ci;
 INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('8fad772e-7d2e-4cdd-89e6-7976152b6696', 0, 'extractContents_v0.0', '"%SIPUUID%" "%transferDirectory%" "%date%" "%taskUUID%"');

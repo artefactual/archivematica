@@ -15,30 +15,32 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns
+from django.conf.urls import patterns, url
 from django.conf import settings
 
 urlpatterns = patterns('components.ingest.views',
-    (r'^$', 'ingest_grid'),
-    (r'^(?P<uuid>' + settings.UUID_REGEX + ')/$', 'ingest_detail'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/delete/$', 'ingest_delete'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/$', 'ingest_metadata_list'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/add/$', 'ingest_metadata_edit'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/(?P<id>\d+)/$', 'ingest_metadata_edit'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/delete/(?P<id>\d+)/$', 'ingest_metadata_delete'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/event_detail/$', 'ingest_metadata_event_detail'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/microservices/$', 'ingest_microservices'),
-    (r'upload/url/check/$', 'ingest_upload_destination_url_check'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/$', 'ingest_upload'),
-    (r'status/$', 'ingest_status'),
-    (r'status/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'ingest_status'),
-    (r'normalization-report/(?P<uuid>' + settings.UUID_REGEX + ')/(?P<current_page>\d+)/$', 'ingest_normalization_report'),
-    (r'normalization-report/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'ingest_normalization_report'),
-    (r'preview/aip/(?P<jobuuid>' + settings.UUID_REGEX + ')/$', 'ingest_browse_aip'),
-    (r'preview/normalization/(?P<jobuuid>' + settings.UUID_REGEX + ')/$', 'ingest_browse_normalization'),
-    (r'backlog/process/(?P<transfer_uuid>' + settings.UUID_REGEX + ')/', 'process_transfer'),
-    (r'backlog/file/download/(?P<uuid>' + settings.UUID_REGEX + ')/', 'transfer_file_download'),
-    (r'backlog/$', 'transfer_backlog')
+    url(r'^$', 'ingest_grid',
+        name='ingest_index'),
+    url(r'^aic/(?P<uuid>' + settings.UUID_REGEX + ')/metadata/add/$', 'aic_metadata_add'),
+    url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/$', 'ingest_detail'),
+    url(r'(?P<uuid>' + settings.UUID_REGEX + ')/delete/$', 'ingest_delete'),
+    url(r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/$', 'ingest_metadata_list'),
+    url(r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/add/$', 'ingest_metadata_edit'),
+    url(r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/(?P<id>\d+)/$', 'ingest_metadata_edit'),
+    url(r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/delete/(?P<id>\d+)/$', 'ingest_metadata_delete'),
+    url(r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/event_detail/$', 'ingest_metadata_event_detail'),
+    url(r'(?P<uuid>' + settings.UUID_REGEX + ')/microservices/$', 'ingest_microservices'),
+    url(r'upload/url/check/$', 'ingest_upload_destination_url_check'),
+    url(r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/$', 'ingest_upload'),
+    url(r'status/$', 'ingest_status'),
+    url(r'status/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'ingest_status'),
+    url(r'normalization-report/(?P<uuid>' + settings.UUID_REGEX + ')/(?P<current_page>\d+)/$', 'ingest_normalization_report'),
+    url(r'normalization-report/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'ingest_normalization_report'),
+    url(r'preview/aip/(?P<jobuuid>' + settings.UUID_REGEX + ')/$', 'ingest_browse_aip'),
+    url(r'preview/normalization/(?P<jobuuid>' + settings.UUID_REGEX + ')/$', 'ingest_browse_normalization'),
+    url(r'backlog/process/(?P<transfer_uuid>' + settings.UUID_REGEX + ')/', 'process_transfer'),
+    url(r'backlog/file/download/(?P<uuid>' + settings.UUID_REGEX + ')/', 'transfer_file_download'),
+    url(r'backlog/$', 'transfer_backlog')
 )
 
 urlpatterns = urlpatterns + patterns('components.ingest.views_atk',

@@ -21,13 +21,21 @@
 # @subpackage archivematicaCommon
 # @author Mike Cantelon <mike@artefactual.com>
 
-import time, os, sys, MySQLdb, cPickle, base64, ConfigParser, datetime
+import base64
+import ConfigParser
+import cPickle
+import datetime
+import MySQLdb
+import os
+import re
+import sys
+import time
+from xml.etree import ElementTree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 import version
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes, xmltodict
-import xml.etree.ElementTree as ElementTree
 
 pathToElasticSearchServerConfigFile='/etc/elasticsearch/elasticsearch.yml'
 
@@ -199,7 +207,9 @@ def set_up_mapping(conn, index):
 
         mapping = {
             'AIPUUID': machine_readable_field_spec,
-            'FILEUUID': machine_readable_field_spec
+            'FILEUUID': machine_readable_field_spec,
+            'isPartOf': machine_readable_field_spec,
+            'AICID': machine_readable_field_spec,
         }
 
         print 'Creating AIP file mapping...'
@@ -210,13 +220,27 @@ def set_up_mapping(conn, index):
         )
         print 'AIP file mapping created.'
 
-def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None):
+def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_aic=None):
     conn = connect_and_create_index('aips')
 
+    tree = ElementTree.parse(pathToMETS)
+    root = tree.getroot()
+    nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
+        'dc': 'http://purl.org/dc/terms/',
+        'm': 'http://www.loc.gov/METS/',
+    }
+    # Extract AIC identifier, other specially-indexed information
+    aic_identifier = None
+    is_part_of = None
+    dublincore = root.find('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore', namespaces=nsmap)
+    if dublincore is not None:
+        aip_type = dublincore.findtext('dc:type', namespaces=nsmap)
+        if aip_type == "Archival Information Collection":
+            aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap)
+        is_part_of = dublincore.findtext('dc:isPartOf', namespaces=nsmap)
+
     # convert METS XML to dict
-    tree      = ElementTree.parse(pathToMETS)
-    root      = tree.getroot()
-    xml       = ElementTree.tostring(root)
+    xml = ElementTree.tostring(root)
     mets_data = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 
     aipData = {
@@ -226,7 +250,10 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None):
         'size': (size or os.path.getsize(filePath)) / float(1024) / float(1024),
         'mets': mets_data,
         'origin': getDashboardUUID(),
-        'created': os.path.getmtime(pathToMETS)
+        'created': os.path.getmtime(pathToMETS),
+        'AICID': aic_identifier,
+        'isPartOf': is_part_of,
+        'countAIPsinAIC': aips_in_aic,
     }
     wait_for_cluster_yellow_status(conn)
     try_to_index(conn, aipData, 'aips', 'aip')
@@ -311,39 +338,25 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
     return exitCode
 
 def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, backup_to_mysql = False):
-    filesIndexed     = 0
-    filePathAmdIDs   = {}
-    filePathMetsData = {}
-
-    # establish structure to be indexed for each file item
-    fileData = {
-      'archivematicaVersion': version.get_version(),
-      'AIPUUID':   uuid,
-      'sipName':   sipName,
-      'FILEUUID':  '',
-      'indexedAt': time.time(),
-      'filePath':  '',
-      'fileExtension': '',
-      'METS':      {
-        'dmdSec': {},
-        'amdSec': {}
-      },
-      'origin': getDashboardUUID()
-    }
-    dmdSecData = {}
 
     # parse XML
     tree = ElementTree.parse(metsFilePath)
     root = tree.getroot()
+    nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
+        'dc': 'http://purl.org/dc/terms/',
+        'm': 'http://www.loc.gov/METS/',
+        'p': 'info:lc/xmlns/premis-v2',
+        'f': 'http://hul.harvard.edu/ois/xml/ns/fits/fits_output',
+    }
 
     #before_length = len(ElementTree.tostring(root))
 
     # add a conditional to toggle this
     # remove FITS output nodes
-    fitsOutputNodes = root.findall("{http://www.loc.gov/METS/}amdSec/{http://www.loc.gov/METS/}techMD/{http://www.loc.gov/METS/}mdWrap/{http://www.loc.gov/METS/}xmlData/{info:lc/xmlns/premis-v2}object/{info:lc/xmlns/premis-v2}objectCharacteristics/{info:lc/xmlns/premis-v2}objectCharacteristicsExtension/{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}fits") #/{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}toolOutput")
+    fitsOutputNodes = root.findall("m:amdSec/m:techMD/m:mdWrap/m:xmlData/p:object/p:objectCharacteristics/p:objectCharacteristicsExtension/f:fits", namespaces=nsmap) #/f:toolOutput")
 
     for parent in fitsOutputNodes:
-        children = parent.findall('{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}toolOutput')
+        children = parent.findall('f:toolOutput', namespaces=nsmap)
         for node in children:
             parent.remove(node)
 
@@ -351,49 +364,95 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
     print "Removed FITS output from METS."
 
     # get SIP-wide dmdSec
-    dmdSec = root.findall("{http://www.loc.gov/METS/}dmdSec/{http://www.loc.gov/METS/}mdWrap/{http://www.loc.gov/METS/}xmlData")
+    dmdSec = root.findall("m:dmdSec/m:mdWrap/m:xmlData", namespaces=nsmap)
+    dmdSecData = {}
     for item in dmdSec:
         xml = ElementTree.tostring(item)
         dmdSecData = xmltodict.parse(xml)
 
-    # get amdSec IDs for each filepath
-    for item in root.findall("{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp[@USE='original']/{http://www.loc.gov/METS/}file"):
-        for item2 in item.findall("{http://www.loc.gov/METS/}FLocat"):
-            filePath = item2.attrib['{http://www.w3.org/1999/xlink}href']
-            filePathAmdIDs[filePath] = item.attrib['ADMID']
+    # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore
+    dublincore = root.find('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore', namespaces=nsmap)
+    aic_identifier = None
+    is_part_of = None
+    if dublincore is not None:
+        aip_type = dublincore.findtext('dc:type', namespaces=nsmap)
+        if aip_type == "Archival Information Collection":
+            aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap)
+        elif aip_type == "Archival Information Package":
+            is_part_of = dublincore.findtext('dc:isPartOf', namespaces=nsmap)
 
-    # for each filepath, get data and convert to dictionary then index everything in the appropriate amdSec element
-    for filePath in filePathAmdIDs:
-        filesIndexed = filesIndexed + 1
-        items = root.findall("{http://www.loc.gov/METS/}amdSec[@ID='" + filePathAmdIDs[filePath] + "']")
-        for item in items:
-            if item != None:
-                xml = ElementTree.tostring(item)
+    # establish structure to be indexed for each file item
+    fileData = {
+        'archivematicaVersion': version.get_version(),
+        'AIPUUID': uuid,
+        'sipName': sipName,
+        'FILEUUID': '',
+        'indexedAt': time.time(),
+        'filePath': '',
+        'fileExtension': '',
+        'isPartOf': is_part_of,
+        'AICID': aic_identifier,
+        'METS': {
+            'dmdSec': rename_dict_keys_with_child_dicts(normalize_dict_values(dmdSecData)),
+            'amdSec': {},
+        },
+        'origin': getDashboardUUID(),
+    }
 
-                # set up data for indexing
-                indexData = fileData
+    # Index all files in a fileGrup with USE='original' or USE='metadata'
+    original_files = root.findall("m:fileSec/m:fileGrp[@USE='original']/m:file", namespaces=nsmap)
+    metadata_files = root.findall("m:fileSec/m:fileGrp[@USE='metadata']/m:file", namespaces=nsmap)
+    files = original_files + metadata_files
 
-                indexData['FILEUUID'] = item.find('{http://www.loc.gov/METS/}techMD/{http://www.loc.gov/METS/}mdWrap/{http://www.loc.gov/METS/}xmlData/{info:lc/xmlns/premis-v2}object/{info:lc/xmlns/premis-v2}objectIdentifier/{info:lc/xmlns/premis-v2}objectIdentifierValue').text
+    # Index AIC METS file if it exists
+    for file_ in files:
+        indexData = fileData.copy() # Deep copy of dict, not of dict contents
 
-                indexData['filePath']   = filePath
+        # Get file UUID.  If and ADMID exists, look in the amdSec for the UUID,
+        # otherwise parse it out of the file ID.
+        # 'Original' files have ADMIDs, 'Metadata' files don't
+        admID = file_.attrib.get('ADMID', None)
+        if admID is None:
+            # Parse UUID from file ID
+            fileUUID = None
+            uuix_regex = r'\w{8}-?\w{4}-?\w{4}-?\w{4}-?\w{12}'
+            uuids = re.findall(uuix_regex, file_.attrib['ID'])
+            # Multiple UUIDs may be returned - if they are all identical, use that
+            # UUID, otherwise use None.
+            # To determine all UUIDs are identical, use the size of the set
+            if len(set(uuids)) == 1:
+                fileUUID = uuids[0]
+        else:
+            amdSecInfo = root.find("m:amdSec[@ID='{}']".format(admID), namespaces=nsmap)
+            fileUUID = amdSecInfo.findtext("m:techMD/m:mdWrap/m:xmlData/p:object/p:objectIdentifier/p:objectIdentifierValue", namespaces=nsmap)
 
-                fileName, fileExtension = os.path.splitext(filePath)
-                if fileExtension != '':
-                    indexData['fileExtension']  = fileExtension[1:].lower()
+            # Index amdSec information
+            xml = ElementTree.tostring(amdSecInfo)
+            indexData['METS']['amdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
 
-                indexData['METS']['dmdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(dmdSecData))
-                indexData['METS']['amdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
+        indexData['FILEUUID'] = fileUUID
 
-                # index data
-                wait_for_cluster_yellow_status(conn)
-                result = try_to_index(conn, indexData, index, type)
+        # Get file path from FLocat and extension
+        filePath = file_.find('m:FLocat', namespaces=nsmap).attrib['{http://www.w3.org/1999/xlink}href']
+        indexData['filePath'] = filePath
+        _, fileExtension = os.path.splitext(filePath)
+        if fileExtension:
+            indexData['fileExtension'] = fileExtension[1:].lower()
 
-                if backup_to_mysql:
-                    backup_indexed_document(result, indexData, index, type)
+        # index data
+        wait_for_cluster_yellow_status(conn)
+        result = try_to_index(conn, indexData, index, type)
+
+        if backup_to_mysql:
+            backup_indexed_document(result, indexData, index, type)
+
+        # Reset fileData['METS']['amdSec'], since it is updated in the loop
+        # above. See http://stackoverflow.com/a/3975388 for explanation
+        fileData['METS']['amdSec'] = {}
 
     print 'Indexed AIP files and corresponding METS XML.'
 
-    return filesIndexed
+    return len(files)
 
 # To avoid Elasticsearch schema collisions, if a dict value is itself a
 # dict then rename the dict key to differentiate it from similar instances
@@ -445,11 +504,8 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
     filesIndexed = 0
     ingest_date  = str(datetime.datetime.today())[0:10]
     create_time  = time.time()
-
-    # extract transfer name from path
-    path_without_uuid = pathToTransfer[:-45]
-    last_slash_position = path_without_uuid.rfind('/')
-    transfer_name = path_without_uuid[last_slash_position + 1:]
+    # Temporary Archivematica internal files should not be indexed
+    exclude_files = ['processingMCP.xml']
 
     # get accessionId from transfers table using UUID
     accession_id = ''
@@ -459,16 +515,10 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
     if len(rows) > 0:
         accession_id = rows[0][0]
 
-    # get file UUID information
-    fileUUIDs = {}
-    sql = "SELECT currentLocation, fileUUID FROM Files WHERE transferUUID='" + MySQLdb.escape_string(uuid) + "'"
-
-    rows = databaseInterface.queryAllSQL(sql)
-    for row in rows:
-        file_path = row[0]
-        fileUUIDs[file_path] = row[1]
-
     for filepath in list_files_in_dir(pathToTransfer):
+        if any(f in filepath for f in exclude_files):
+            print filepath, 'in excluded files list: skipping'
+            continue
         if os.path.isfile(filepath):
 
             relative_path = '%transferDirectory%objects' + filepath.replace(pathToTransfer, '')
@@ -492,7 +542,7 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
               'created'      : create_time
             }
 
-            fileName, fileExtension = os.path.splitext(filepath)
+            _, fileExtension = os.path.splitext(filepath)
             if fileExtension != '':
                 indexData['fileExtension']  = fileExtension[1:].lower()
 

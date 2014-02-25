@@ -15,21 +15,23 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import ast
 import httplib
 import json
 import logging
 import os
 import requests
+import shutil
 import slumber
-import subprocess
 import sys
 import tempfile
+import uuid
 
 from django.contrib import messages
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template import RequestContext
 
 from main import models
@@ -38,6 +40,7 @@ from components import advanced_search
 from components import decorators
 from components import helpers
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import databaseFunctions
 import elasticSearchFunctions
 import storageService as storage_service
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
@@ -59,12 +62,21 @@ def overview(request):
     return list_display(request)
 
 def search(request):
-    # deal with transfer mode
+    # FIXME there has to be a better way of handling checkboxes than parsing
+    # them by hand here, and displaying 'checked' in
+    # _archival_storage_search_form.html
+    # Parse checkbox for file mode
+    yes_options = ('checked', 'yes', 'true', 'on')
     file_mode = False
     checked_if_in_file_mode = ''
-    if request.GET.get('mode', '') != '':
+    if request.GET.get('filemode', '') in yes_options:
         file_mode = True
         checked_if_in_file_mode = 'checked'
+
+    # Parse checkbox for show AICs
+    show_aics = ''
+    if request.GET.get('show_aics', '') in yes_options:
+        show_aics = 'checked'
 
     # get search parameters from request
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
@@ -94,6 +106,7 @@ def search(request):
     # perform search
     conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
 
+    results = None
     try:
         query=advanced_search.assemble_query(queries, ops, fields, types)
 
@@ -101,6 +114,11 @@ def search(request):
         # pulling only one field (we don't need field data as we augment
         # the results using separate queries)
         if not file_mode:
+            # Searching for AIPs still actually searches type 'aipfile', and
+            # returns the UUID of the AIP the files are a part of.  To search
+            # for an attribute of an AIP, the aipfile must index that
+            # information about their AIP in
+            # elasticSearchFunctions.index_mets_file_metadata
             results = conn.search_raw(
                 query=query,
                 indices='aips',
@@ -119,16 +137,18 @@ def search(request):
     except:
         return HttpResponse('Error accessing index.')
 
-    # take note of facet data
-    aip_uuids = results['facets']['AIPUUID']['terms']
-
     if not file_mode:
+        # take note of facet data
+        aip_uuids = results['facets']['AIPUUID']['terms']
+
         number_of_results = len(aip_uuids)
 
         page_data = helpers.pager(aip_uuids, items_per_page, page + 1)
         aip_uuids = page_data['objects']
-        search_augment_aip_results(conn, aip_uuids)
-    else:
+        results = search_augment_aip_results(conn, aip_uuids)
+
+        aic_creation_form = forms.CreateAICForm(initial={'results': results})
+    else:  # if file_mode
         number_of_results = results.hits.total
         results = search_augment_file_results(results)
 
@@ -140,33 +160,37 @@ def search(request):
        number_of_results
     )
 
-    # make sure results is set
-    try:
-        if results:
-            pass
-    except:
-        results = False
-
-    form = forms.StorageSearchForm(initial={'query': queries[0]})
     return render(request, 'archival_storage/archival_storage_search.html', locals())
 
 def search_augment_aip_results(conn, aips):
     for aip_uuid in aips:
-        documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('uuid', aip_uuid.term)), fields='name,size,created,status')
-        if len(documents['hits']['hits']) > 0:
-            aip_uuid.name = documents['hits']['hits'][0]['fields']['name']
-            aip_uuid.size = '{0:.2f} MB'.format(documents['hits']['hits'][0]['fields']['size'])
-            aip_uuid.date = documents['hits']['hits'][0]['fields']['created']
+        documents = conn.search_raw(query=pyes.FieldQuery(
+            pyes.FieldParameter('uuid', aip_uuid.term)),
+            fields='name,size,created,status,AICID,isPartOf,countAIPsinAIC')
+        if documents['hits']['hits']:
+            aip_info = documents['hits']['hits'][0]
+            aip_uuid.name = aip_info['fields']['name']
+            aip_uuid.size = '{0:.2f} MB'.format(aip_info['fields']['size'])
+            aip_uuid.date = aip_info['fields']['created']
+            aip_uuid.isPartOf = aip_info['fields'].get('isPartOf', '')
+            aip_uuid.AICID = aip_info['fields'].get('AICID', '')
+            aip_uuid.aips_in_aic = aip_info['fields'].get('countAIPsinAIC', '(unknown)')
 
-            if 'status' in documents['hits']['hits'][0]['fields']:
-                 status = documents['hits']['hits'][0]['fields']['status']
+            # TODO is there a more reliable way to determine package type?
+            if 'AIC#' in aip_uuid.AICID:
+                aip_uuid.type = 'AIC'
+            else:
+                aip_uuid.type = 'AIP'
+            if 'status' in aip_info['fields']:
+                 status = aip_info['fields']['status']
                  aip_uuid.status = AIP_STATUS_DESCRIPTIONS[status]
             else:
                  aip_uuid.status = 'Stored'
 
-            aip_uuid.document_id_no_hyphens = documents['hits']['hits'][0]['_id'].replace('-', '____')
+            aip_uuid.document_id_no_hyphens = aip_info['_id'].replace('-', '____')
         else:
-            aip_uuid.name = '(data missing)' 
+            aip_uuid.name = '(data missing)'
+    return aips
 
 def search_augment_file_results(raw_results):
     modifiedResults = []
@@ -195,6 +219,45 @@ def search_augment_file_results(raw_results):
         modifiedResults.append(clone)
 
     return modifiedResults
+
+
+def create_aic(request, *args, **kwargs):
+    aic_form = forms.CreateAICForm(request.POST or None)
+    if aic_form.is_valid():
+        results = ast.literal_eval(aic_form.cleaned_data['results'])
+        logging.info("AIC AIP info: {}".format(results))
+
+        # Create files in staging directory with AIP information
+        shared_dir = helpers.get_server_config_value('sharedDirectory')
+        staging_dir = os.path.join(shared_dir, 'tmp')
+
+        # Create SIP (AIC) directory in staging directory
+        temp_uuid = str(uuid.uuid4())
+        destination = os.path.join(staging_dir, temp_uuid)
+        try:
+            os.mkdir(destination)
+            os.chmod(destination, 0o770)
+        except os.error:
+            messages.error(request, "Error creating AIC")
+            logging.exception("Error creating AIC: Error creating directory {}".format(destination))
+            return redirect('archival_storage_index')
+
+        # Create SIP in DB
+        mcp_destination = destination.replace(shared_dir, '%sharedPath%') + '/'
+        databaseFunctions.createSIP(mcp_destination, UUID=temp_uuid, sip_type='AIC')
+
+        # Create files with filename = AIP UUID, and contents = AIP name
+        for aip in results:
+            filepath = os.path.join(destination, aip['term'])
+            with open(filepath, 'w') as f:
+                os.chmod(filepath, 0o660)
+                f.write(str(aip['name']))
+
+        return redirect('components.ingest.views.aic_metadata_add', temp_uuid)
+    else:
+        messages.error(request, "Error creating AIC")
+        logging.error("Error creating AIC: Form not valid: {}".format(aic_form))
+        return redirect('archival_storage_index')
 
 def delete_context(request, uuid):
     prompt = 'Delete AIP?'
@@ -246,9 +309,6 @@ def aip_file_download(request, uuid):
     aip          = elasticSearchFunctions.connect_and_get_aip_data(sipuuid)
     aip_filepath = aip.filePath
 
-    # create temp dir to extract to
-    temp_dir = tempfile.mkdtemp()
-
     # work out path components
     aip_archive_filename = os.path.basename(aip_filepath)
 
@@ -258,8 +318,8 @@ def aip_file_download(request, uuid):
     else:
         subdir = os.path.splitext(aip_archive_filename)[0]
 
-    path_to_file_within_aip_data_dir \
-      = os.path.dirname(file.currentlocation.replace('%SIPDirectory%', ''))
+    # Strip %Directory% from the path
+    path_to_file_within_aip_data_dir = os.path.dirname(file.currentlocation.replace('%transferDirectory%', '').replace('%SIPDirectory%', ''))
 
     file_relative_path = os.path.join(
       subdir,
@@ -337,8 +397,6 @@ def total_size_of_aips(conn):
 
 def list_display(request):
     current_page_number = request.GET.get('page', 1)
-
-    form = forms.StorageSearchForm()
 
     # get count of AIP files
     aip_indexed_file_count = aip_file_count()

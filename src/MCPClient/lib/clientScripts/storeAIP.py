@@ -25,12 +25,6 @@ import logging
 import os
 import sys
 
-# Set up Django settings
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-
 path = "/usr/lib/archivematica/archivematicaCommon"
 if path not in sys.path:
     sys.path.append(path)
@@ -41,7 +35,7 @@ logging.basicConfig(filename="/tmp/archivematica.log",
     level=logging.INFO)
 
 
-def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name):
+def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     """ Stores an AIP with the storage service.
 
     aip_destination_uri = storage service destination URI, should be of purpose
@@ -63,6 +57,12 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name):
     # is passed in properly, or use Agent to make sure is correct CP
     current_location = storage_service.get_location(purpose="CP")[0]
 
+    # Get the package type: AIC or AIP
+    if sip_type == "SIP":
+        package_type = "AIP"
+    elif sip_type == 'AIC':
+        package_type = sip_type
+
     #Store the AIP
     (new_file, error_msg) = storage_service.create_file(
         uuid=sip_uuid,
@@ -70,7 +70,7 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name):
         origin_path=aip_path,  # FIXME should be relative
         current_location=aip_destination_uri,
         current_path=os.path.basename(aip_path),
-        package_type="AIP",
+        package_type=package_type,
         size=os.path.getsize(aip_path)
     )
     if new_file is not None and new_file.get('status', '') != "FAIL":
@@ -107,6 +107,7 @@ if __name__ == '__main__':
     parser.add_argument('aip_filename', type=str, help='%AIPFilename%')
     parser.add_argument('sip_uuid', type=str, help='%SIPUUID%')
     parser.add_argument('sip_name', type=str, help='%SIPName%')
+    parser.add_argument('sip_type', type=str, help='%SIPType%')
     args = parser.parse_args()
     sys.exit(store_aip(args.aip_destination_uri, args.aip_filename,
-        args.sip_uuid, args.sip_name))
+        args.sip_uuid, args.sip_name, args.sip_type))
