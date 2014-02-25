@@ -212,7 +212,8 @@ def aic_metadata_add(request, uuid):
         source = os.path.join(shared_dir, 'tmp', uuid)
 
         watched_dir = helpers.get_server_config_value('watchDirectoryPath')
-        name = slugify(dc.title).replace('-', '_')
+        name = dc.title if dc.title else dc.identifier
+        name = slugify(name).replace('-', '_')
         dir_name = '{name}-{uuid}'.format(name=name, uuid=uuid)
         destination = os.path.join(watched_dir, 'system', 'createAIC', dir_name)
 
