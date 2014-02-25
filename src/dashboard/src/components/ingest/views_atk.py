@@ -205,7 +205,7 @@ def ingest_upload_atk_get_collection_ids(db, search_pattern=''):
 
     if search_pattern != '':
         cursor.execute(
-            "SELECT resourceId FROM resources WHERE (title LIKE %s OR resourceid LIKE %s) AND resourceLevel = 'collection' ORDER BY title",
+            "SELECT resourceId FROM resources WHERE (title LIKE %s OR resourceid LIKE %s) AND resourceLevel in ('recordgrp', 'collection') ORDER BY title",
             ('%' + search_pattern + '%', '%' + search_pattern + '%')
         )
     else:
