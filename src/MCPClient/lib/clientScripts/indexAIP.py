@@ -7,20 +7,23 @@ import sys
 path = "/usr/lib/archivematica/archivematicaCommon"
 if path not in sys.path:
     sys.path.append(path)
+import databaseInterface
+import elasticSearchFunctions
+from executeOrRunSubProcess import executeOrRun
+
 path = '/usr/share/archivematica/dashboard'
 if path not in sys.path:
     sys.path.append(path)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 
-import elasticSearchFunctions
-from executeOrRunSubProcess import executeOrRun
 import storageService as storage_service
 
 def index_aip():
     """ Write AIP information to ElasticSearch. """
-    sip_uuid = sys.argv[1]  # %sip_uuid%
-    sip_name = sys.argv[2]  # %sip_name%
-    aip_path = sys.argv[3]  # %SIPDirectory%%sip_name%-%sip_uuid%.7z
+    sip_uuid = sys.argv[1]  # %SIPUUID%
+    sip_name = sys.argv[2]  # %SIPName%
+    aip_path = sys.argv[3]  # %SIPDirectory%%SIPName%-%SIPUUID%.7z
+    sip_type = sys.argv[4]  # %SIPType%
 
     # Check if ElasticSearch is enabled
     client_config_path = '/etc/archivematica/MCPClient/clientConfig.conf'
@@ -55,12 +58,21 @@ def index_aip():
         print >>sys.stderr, "Error extracting"
         sys.exit(1)
 
+    # If this is an AIC, find the number of AIP stored in it and index that
+    aips_in_aic = None
+    if sip_type == "AIC":
+        sql = """SELECT variableValue FROM UnitVariables WHERE unitType='SIP' AND unitUUID='%s' AND variable='AIPsinAIC';""" % (sip_uuid,)
+        rows = databaseInterface.queryAllSQL(sql)
+        if rows:
+            aips_in_aic = rows[0][0]
+
     elasticSearchFunctions.connect_and_index_aip(
         sip_uuid,
         sip_name,
         aip_info['current_full_path'],
         mets_path,
-        size=aip_info['size'])
+        size=aip_info['size'],
+        aips_in_aic=aips_in_aic)
     elasticSearchFunctions.connect_and_remove_sip_transfer_files(sip_uuid)
 
     os.remove(mets_path)

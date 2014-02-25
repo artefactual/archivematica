@@ -44,6 +44,8 @@ CSVMetadata=(simpleMetadataCSVkey, simpleMetadataCSV, compoundMetadataCSVkey, co
 def parseMetadata(SIPPath):
     ret = ({},{})
     transfersPath = os.path.join(SIPPath, "objects", "metadata", "transfers")
+    if not os.path.isdir(transfersPath):
+        return
     for transfer in os.listdir(transfersPath):
         metadataCSVFilePath = os.path.join(transfersPath, transfer, "metadata.csv")
         if os.path.isfile(metadataCSVFilePath):
@@ -85,7 +87,3 @@ def parseMetadtaCSV(metadataCSVFilePath):
                         directory = directory[:-1]
                     compoundMetadataCSV[directory] = row 
                 
-
-            
-        
-    

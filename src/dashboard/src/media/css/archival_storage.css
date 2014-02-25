@@ -33,3 +33,7 @@
   width: 380px;
   margin-left: 20px;
 }
+
+div.search-summary p {
+  font-weight: bold;
+}

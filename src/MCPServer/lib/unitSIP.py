@@ -131,7 +131,7 @@ class unitSIP(unit):
             
 
     def reload(self):
-        sql = """SELECT createdTime, currentPath, aipFilename FROM SIPs WHERE sipUUID =  '""" + self.UUID + """'"""
+        sql = """SELECT createdTime, currentPath, aipFilename, sipType FROM SIPs WHERE sipUUID =  '""" + self.UUID + """'"""
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         while row != None:
@@ -142,6 +142,7 @@ class unitSIP(unit):
             self.aipFilename = deUnicode(row[2])
             if self.aipFilename is None:
                 self.aipFilename = ""
+            self.sipType = deUnicode(row[3])
             row = c.fetchone()
         sqlLock.release()
 
@@ -178,6 +179,7 @@ class unitSIP(unit):
             "%SIPUUID%": SIPUUID,
             "%SIPName%": SIPName,
             "%unitType%": self.unitType,
+            "%SIPType%": self.sipType,
         }
         return ret
 

@@ -40,7 +40,6 @@ from archivematicaCreateMETSTrim import getTrimFileAmdSec
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from archivematicaFunctions import escape
-from archivematicaFunctions import unicodeToStr
 from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import normalizeNonDcElementName
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
@@ -102,8 +101,8 @@ trimStructMapObjects = None
 
 #move to common
 def newChild(parent, tag, text=None, tailText=None, sets=[]):
-    child = etree.Element(tag)
-    parent.append(child)
+    # TODO convert sets to a dict, and use **dict
+    child = etree.SubElement(parent, tag)
     child.text = strToUnicode(text)
     if tailText:
         child.tail = strToUnicode(tailText)
@@ -125,32 +124,25 @@ def createAgent(agentIdentifierType, agentIdentifierValue, agentName, agentType)
 SIPMetadataAppliesToType = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
 TransferMetadataAppliesToType = '45696327-44c5-4e78-849b-e027a189bf4d'
 FileMetadataAppliesToType = '7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17'
-def getDublinCore(type_, id):
-    sql = """SELECT     title, creator, subject, description, publisher, contributor, date, type, format, identifier, source, relation, language, coverage, rights
-    FROM Dublincore WHERE metadataAppliesToType = '%s' AND metadataAppliesToidentifier = '%s';""" % \
-    (type_.__str__(), id.__str__())
-    
+def getDublinCore(unit, id):
+    field_list = ["title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "relation", "language", "coverage", "rights", "isPartOf"]
+    sql = """SELECT {fields}
+    FROM Dublincore WHERE metadataAppliesToType = '{type}' AND metadataAppliesToidentifier = '{id}';""".format(
+            fields=', '.join(field_list),
+            type=unit,
+            id=id)
     c, sqlLock = databaseInterface.querySQL(sql)
     row = c.fetchone()
-    if row == None:
-        sqlLock.release()
-        return None
-    ret = etree.Element( "dublincore", nsmap = {None:dctermsNS} )
-    ret.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
-    dctermsElements= ["isPartOf"]
-    while row != None:
-        key = ["title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "relation", "language", "coverage", "rights"]
+    ret = None
+    if row is not None:
+        ret = etree.Element("dublincore", nsmap={None:dctermsNS})
+        ret.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+    while row is not None:
         #title, creator, subject, description, publisher, contributor, date, type, format, identifier, source, relation, language, coverage, rights = row
-        #key.index("title") == title
-        i = 0
-        for term in key:
-            if row[i] != None:
-                txt = row[i]
-            else:
-                txt = ""
-            newChild(ret, term, text=txt)
-            i+=1
-
+        for i, term in enumerate(field_list):
+            txt = row[i] or ""
+            if txt:
+                newChild(ret, term, text=txt)
         row = c.fetchone()
     sqlLock.release()
     return ret
@@ -186,9 +178,9 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
                 ID = "dmdSec_" + globalDmdSecCounter.__str__()
                 ret.append(ID)
                 dmdSec.set("ID", ID)
-                mdWrap = newChild(dmdSec, "mdWrap")
+                mdWrap = etree.SubElement(dmdSec, "mdWrap")
                 mdWrap.set("MDTYPE", "DC")
-                xmlData = newChild(mdWrap, "xmlData")
+                xmlData = etree.SubElement(mdWrap, "xmlData")
                 dc = etree.Element( "dublincore", nsmap = {None: dctermsNS} )
                 dc.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
                 xmlData.append(dc)
@@ -207,10 +199,10 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
                 ID = "dmdSec_" + globalDmdSecCounter.__str__()
                 ret.append(ID)
                 dmdSec.set("ID", ID)
-                mdWrap = newChild(dmdSec, "mdWrap")
+                mdWrap = etree.SubElement(dmdSec, "mdWrap")
                 mdWrap.set("MDTYPE", "OTHER")
                 mdWrap.set("OTHERMDTYPE", "CUSTOM")
-                other = newChild(mdWrap, "xmlData")
+                other = etree.SubElement(mdWrap, "xmlData")
             etree.SubElement(other, normalizeNonDcElementName(key)).text = value
     return  " ".join(ret)
             
@@ -220,6 +212,8 @@ def createDublincoreDMDSecFromDBData(type, id):
     dc = getDublinCore(type, id)
     if dc == None:
         transfers = os.path.join(baseDirectoryPath, "objects/metadata/transfers/")
+        if not os.path.isdir(transfers):
+            return None
         for transfer in os.listdir(transfers):
             dcXMLFile = os.path.join(transfers, transfer, "dublincore.xml")
             if os.path.isfile(dcXMLFile):
@@ -242,9 +236,9 @@ def createDublincoreDMDSecFromDBData(type, id):
     dmdSec = etree.Element("dmdSec")
     ID = "dmdSec_" + globalDmdSecCounter.__str__()
     dmdSec.set("ID", ID)
-    mdWrap = newChild(dmdSec, "mdWrap")
+    mdWrap = etree.SubElement(dmdSec, "mdWrap")
     mdWrap.set("MDTYPE", "DC")
-    xmlData = newChild(mdWrap, "xmlData")
+    xmlData = etree.SubElement(mdWrap, "xmlData")
     xmlData.append(dc)
     return (dmdSec, ID)
 
@@ -272,9 +266,9 @@ def createTechMD(fileUUID):
     globalTechMDCounter += 1
     techMD.set("ID", "techMD_"+ globalTechMDCounter.__str__())
 
-    mdWrap = newChild(techMD,"mdWrap")
+    mdWrap = etree.SubElement(techMD, "mdWrap")
     mdWrap.set("MDTYPE", "PREMIS:OBJECT")
-    xmlData = newChild(mdWrap, "xmlData")
+    xmlData = etree.SubElement(mdWrap, "xmlData")
     #premis = etree.SubElement( xmlData, "premis", nsmap={None: premisNS}, \
     #    attrib = { "{" + xsiNS + "}schemaLocation" : "info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/premis.xsd" })
     #premis.set("version", "2.0")
@@ -409,9 +403,9 @@ def createDigiprovMD(fileUUID):
         globalDigiprovMDCounter += 1
         digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
 
-        mdWrap = newChild(digiprovMD,"mdWrap")
+        mdWrap = etree.SubElement(digiprovMD, "mdWrap")
         mdWrap.set("MDTYPE", "PREMIS:EVENT")
-        xmlData = newChild(mdWrap,"xmlData")
+        xmlData = etree.SubElement(mdWrap, "xmlData")
         event = etree.SubElement(xmlData, "event", nsmap={None: premisNS})
         event.set(xsiBNS+"schemaLocation", premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
         event.set("version", "2.2")
@@ -550,6 +544,8 @@ def getIncludedStructMap():
 
     ret = []
     transferMetadata = os.path.join(baseDirectoryPath, "objects/metadata/transfers")
+    if not os.path.isdir(transferMetadata):
+        return []
     baseLocations = os.listdir(transferMetadata)
     baseLocations.append(baseDirectoryPath)
     for dir in baseLocations:
@@ -584,7 +580,7 @@ def getIncludedStructMap():
 
 #DMDID="dmdSec_01" for an object goes in here
 #<file ID="file1-UUID" GROUPID="G1" DMDID="dmdSec_02" ADMID="amdSec_01">
-def createFileSec(directoryPath, structMapDiv):
+def createFileSec(directoryPath, parentDiv):
     global fileNameToFileID
     global trimStructMap
     global trimStructMapObjects
@@ -594,12 +590,23 @@ def createFileSec(directoryPath, structMapDiv):
     global dmdSecs
     global amdSecs
     
-    
     delayed = []
     filesInThisDirectory = []
     dspaceMetsDMDID = None
-    directoryContents = os.listdir(directoryPath)
     directoryContentsTuples = []
+    try:
+        directoryContents = os.listdir(directoryPath)
+    except os.error:
+        # Directory doesn't exist
+        print >> sys.stderr, directoryPath, "doesn't exist"
+        return
+
+    structMapDiv = etree.SubElement(parentDiv, 'div', TYPE='Directory', LABEL=os.path.basename(directoryPath))
+
+    DMDIDS = createDMDIDSFromCSVParsedMetadataDirectories(directoryPath.replace(baseDirectoryPath, "", 1))
+    if DMDIDS:
+        structMapDiv.set("DMDID", DMDIDS)
+
     for item in directoryContents:
         itemdirectoryPath = os.path.join(directoryPath, item)
         if os.path.isdir(itemdirectoryPath):
@@ -620,8 +627,6 @@ def createFileSec(directoryPath, structMapDiv):
             if row == None:
                 print >>sys.stderr, "No uuid for file: \"", directoryPathSTR, "\""
                 sharedVariablesAcrossModules.globalErrorCount += 1
-                sqlLock.release()
-                continue
             while row != None:
                 #add to files in this directory tuple list
                 derivedFromOriginalName = row[0]
@@ -811,12 +816,7 @@ def createFileSec(directoryPath, structMapDiv):
     
     for item in sorted(delayed, cmp=sharedVariablesAcrossModules.collator.compare):
         itemdirectoryPath = os.path.join(directoryPath, item)
-        directoryDiv = newChild(structMapDiv, "div", sets=[("TYPE","Directory"), ("LABEL",item)])
-        DMDIDS = createDMDIDSFromCSVParsedMetadataDirectories(itemdirectoryPath.replace(baseDirectoryPath, "", 1))
-        if DMDIDS:
-            directoryDiv.set("DMDID", DMDIDS)
-        createFileSec(itemdirectoryPath, directoryDiv)
-        
+        createFileSec(itemdirectoryPath, structMapDiv)
 
 
 if __name__ == '__main__':
@@ -829,13 +829,10 @@ if __name__ == '__main__':
 
     if not baseDirectoryPath.endswith('/'):
         baseDirectoryPath += '/'
-    structMap = etree.Element("structMap")
-    structMap.set("TYPE", "physical")
-    structMap.set("ID", "structMap_1")
-    structMap.set("LABEL", "Archivematica default")
-    structMapDiv = newChild(structMap, "div", sets=[("TYPE","Directory"), ("LABEL",os.path.basename(baseDirectoryPath[:-1]))])
-    structMapDiv = newChild(structMapDiv, "div", sets=[("TYPE","Directory"), ("LABEL","objects") ])
+    structMap = etree.Element("structMap", TYPE='physical', ID='structMap_1', LABEL="Archivematica default")
+    structMapDiv = etree.SubElement(structMap, 'div', TYPE="Directory", LABEL=os.path.basename(baseDirectoryPath.rstrip('/')))
     createFileSec(os.path.join(baseDirectoryPath, "objects"), structMapDiv)
+    createFileSec(os.path.join(baseDirectoryPath, "metadata"), structMapDiv)
 
 
     fileSec = etree.Element( "fileSec")
