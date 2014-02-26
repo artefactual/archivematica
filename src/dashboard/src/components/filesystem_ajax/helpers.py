@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import base64
 import os
 from subprocess import call
 import logging
@@ -52,10 +53,10 @@ def directory_to_dict(path, directory={}, entry=False):
     if (entry == False):
         entry = directory
         # remove leading slash
-        entry['parent'] = os.path.dirname(path)[1:]
+        entry['parent'] = base64.b64encode(os.path.dirname(path)[1:])
 
     # set standard entry properties
-    entry['name'] = os.path.basename(path)
+    entry['name'] = base64.b64encode(os.path.basename(path))
     entry['children'] = []
 
     # define entries
@@ -64,7 +65,7 @@ def directory_to_dict(path, directory={}, entry=False):
         new_entry = None
         if file[0] != '.':
             new_entry = {}
-            new_entry['name'] = file
+            new_entry['name'] = base64.b64encode(file)
             entry['children'].append(new_entry)
 
         # if entry is a directory, recurse

@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 # Standard library, alphabetical by import source
+import base64
 import calendar
 import cPickle
 import json
@@ -25,12 +26,10 @@ import os
 import shutil
 import socket
 import sys
-import uuid
 
 # Django Core, alphabetical by import source
 from django.conf import settings as django_settings
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db.models import Max
 from django.forms.models import modelformset_factory
@@ -48,7 +47,6 @@ from components import advanced_search
 from components import helpers
 from components import decorators
 from components.ingest import forms as ingest_forms
-import components.ingest.helpers as ingest_helpers
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
 from main import forms
 from main import models
@@ -402,9 +400,12 @@ def _es_results_to_directory_tree(path, return_list, not_draggable=False):
     if parts[0] in ('logs', 'metadata'):
         not_draggable = True
     if len(parts) == 1:  # path is a file
-        return_list.append({'name': parts[0], 'not_draggable': not_draggable})
+        return_list.append({
+            'name': base64.b64encode(parts[0]),
+            'not_draggable': not_draggable})
     else:
         node, others = parts
+        node = base64.b64encode(node)
         if not return_list or return_list[-1]['name'] != node:
             return_list.append({
                 'name': node,

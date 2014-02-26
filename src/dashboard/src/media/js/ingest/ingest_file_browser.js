@@ -60,7 +60,7 @@ function setupBacklogBrowser() {
 
     // determine whether a move or copy should be performed
     var actionUrlPath, source
-        arrangeDir = '/'+move.self.structure.name;
+        arrangeDir = '/'+Base64.decode(move.self.structure.name)
 
     // do a move if drag and drop occurs within the arrange pane
     if (
@@ -96,8 +96,8 @@ function setupBacklogBrowser() {
     $.post(
       actionUrlPath,
       {
-        filepath: move.droppedPath,
-        destination: move.containerPath
+        filepath: Base64.encode(move.droppedPath),
+        destination: Base64.encode(move.containerPath)
       },
       function(result) {
         if (result.error == undefined) {
@@ -122,10 +122,10 @@ function setupBacklogBrowser() {
   });
 
   originals.structure = {
-    'name': 'originals',
+    'name': Base64.encode('originals'),
     'parent': '',
     'children': [
-      {'name': 'Search the transfer backlog to populate this panel.',
+      {'name': Base64.encode('Search the transfer backlog to populate this panel.'),
        'not_draggable': true}]
   };
 
@@ -145,7 +145,7 @@ function setupBacklogBrowser() {
   });
 
   arrange.structure = {
-    'name': 'arrange',
+    'name': Base64.encode('arrange'),
     'parent': '',
     'children': []
   };
@@ -185,7 +185,7 @@ $(document).ready(function() {
     // Assumes it is properly formatted already
     this.structure.children = data;
     // Open top level folder
-    this.openFolder($('#'+this.id+'__'+this.structure.name));
+    this.openFolder($('#'+this.id+'__'+Base64.decode(this.structure.name)))
     this.render();
   }
 
@@ -193,7 +193,7 @@ $(document).ready(function() {
     var path = prompt('Name of new directory?');
 
     if (path != '') {
-      var path_root = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId) || '/' + arrange_browser.structure.name
+      var path_root = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId) || '/' + Base64.decode(arrange_browser.structure.name)
         , relative_path = path_root + '/' + path;
 
       $.ajax({
@@ -202,7 +202,7 @@ $(document).ready(function() {
         async: false,
         cache: false,
         data: {
-          path: relative_path
+          path: Base64.encode(relative_path)
         },
         success: function(results) {
           arrange_browser.dirView.model.addDir({'name': path});
@@ -258,7 +258,7 @@ $(document).ready(function() {
         function() {
           $.post(
             '/filesystem/copy_from_arrange/',
-            {filepath: path},
+            {filepath: Base64.encode(path)},
             function(result) {
               var title = (result.error) ? 'Error' : '';
               arrange_browser.alert(

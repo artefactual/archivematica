@@ -71,7 +71,7 @@
 
     // generate id without slashes and replacing periods
     id: function() {
-      var path = this.path().replace(/\//g, '_').replace('.', '__');
+      var path = this.displaypath().replace(/\//g, '_').replace('.', '__');
       return path.replace(/\ /g, '___');
     },
 
@@ -384,7 +384,7 @@
 
             // take note of file paths that correspond to CSS IDs
             // so they can be referenced by any external logic
-            exports.Data.idPaths[entryView.cssId()] = child.path();
+            exports.Data.idPaths[entryView.cssId()] = child.displaypath();
 
             var entryEl = entryView.render().el
               , isOpenDir = false;
@@ -544,7 +544,7 @@
 
       var entryEl = entryView.render().el;
 
-      exports.Data.idPaths[entryView.cssId()] = entryView.model.path();
+      exports.Data.idPaths[entryView.cssId()] = entryView.model.displaypath();
 
       if (!this.closeDirsByDefault) {
         $(entryEl).addClass('backbone-file-explorer-directory_open');
@@ -703,7 +703,7 @@
           }
 
           // take note of entry's path
-          exports.Data.idPaths[this.id + '_' + entry.model.id()] = entry.model.path();
+          exports.Data.idPaths[this.id + '_' + entry.model.id()] = entry.model.displaypath();
           entry.render();
 
           // add rendered entry to the view's DOM element
@@ -790,7 +790,7 @@
     getByPath: function(path) {
       var found = this.findEntry(function(entry) {
         if (typeof entry != 'undefined') {
-          return entry.path() == path;
+          return entry.displaypath() == path;
         } else {
           return false;
         }

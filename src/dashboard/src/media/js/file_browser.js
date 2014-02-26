@@ -84,7 +84,7 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
     var self = this;
     $.post(
       this.ajaxDeleteUrl,
-      {filepath: path},
+      {filepath: Base64.encode(path)},
       function(response) {
         if (response.error) {
           self.alert(

@@ -61,9 +61,10 @@ def directory_children_proxy_to_storage_server(request, location_uuid, basePath=
         path = base64.b64decode(basePath)
     path = path + base64.b64decode(request.GET.get('base_path', ''))
     path = path + base64.b64decode(request.GET.get('path', ''))
-    path = base64.b64encode(path)
 
     response = storage_service.browse_location(location_uuid, path)
+    response['entries'] = map(base64.b64encode, response['entries'])
+    response['directories'] = map(base64.b64encode, response['directories'])
 
     return helpers.json_response(response)
 
@@ -73,7 +74,7 @@ def contents(request):
     return helpers.json_response(response)
 
 def arrange_contents(request):
-    base_path = request.GET.get('path', DEFAULT_ARRANGE_PATH)
+    base_path = base64.b64decode(request.GET.get('path', DEFAULT_ARRANGE_PATH))
 
     # Must indicate that base_path is a folder by ending with /
     if not base_path.endswith('/'):
@@ -95,6 +96,7 @@ def arrange_contents(request):
         if path.startswith(base_path):
             path = path[len(base_path):]
         entry = path.split('/', 1)[0]
+        entry = base64.b64encode(entry)
         # Only insert once
         if entry and entry not in response['entries']:
             response['entries'].append(entry)
@@ -137,7 +139,7 @@ def delete(request):
 
 
 def delete_arrange(request):
-    filepath = request.POST.get('filepath', '')
+    filepath = base64.b64decode(request.POST.get('filepath', ''))
     models.SIPArrange.objects.filter(arrange_path__startswith=filepath).delete()
     return helpers.json_response({'message': 'Delete successful.'})
 
@@ -332,7 +334,7 @@ def copy_from_arrange_to_completed(request):
     and start the microservice chain.
     """
     error = None
-    filepath = request.POST.get('filepath', '')
+    filepath = base64.b64decode(request.POST.get('filepath', ''))
     filepath = os.path.normpath(filepath)
     logging.info('copy_from_arrange_to_completed: filepath: %s', filepath)
 
@@ -405,7 +407,7 @@ def create_directory_within_arrange(request):
     """
     error = None
     
-    path = request.POST.get('path', '')
+    path = base64.b64decode(request.POST.get('path', ''))
 
     if path:
         if path.startswith(DEFAULT_ARRANGE_PATH):
@@ -436,8 +438,8 @@ def move_within_arrange(request):
     If a source/destination path ends with / it is assumed to be a folder,
     otherwise it is assumed to be a file.
     """
-    sourcepath  = request.POST.get('filepath', '')
-    destination = request.POST.get('destination', '')
+    sourcepath = base64.b64decode(request.POST.get('filepath', ''))
+    destination = base64.b64decode(request.POST.get('destination', ''))
     error = None
 
     logging.debug('Move within arrange: source: {}, destination: {}'.format(sourcepath, destination))
@@ -533,8 +535,8 @@ def copy_to_arrange(request):
     # Insert each file into the DB
 
     error = None
-    sourcepath  = request.POST.get('filepath', '').lstrip('/')
-    destination = request.POST.get('destination', '')
+    sourcepath  = base64.b64decode(request.POST.get('filepath', '')).lstrip('/')
+    destination = base64.b64decode(request.POST.get('destination', ''))
     logging.info('copy_to_arrange: sourcepath: {}'.format(sourcepath))
     logging.info('copy_to_arrange: destination: {}'.format(destination))
 

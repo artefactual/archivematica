@@ -1,3 +1,4 @@
+import base64
 import logging
 import os
 import platform
@@ -129,9 +130,15 @@ def get_location_by_uri(uri):
     return api.location(uri).get()
 
 def browse_location(uuid, path):
-    """ Browse files in a location. """
+    """
+    Browse files in a location. Encodes path in base64 for transimission, returns decoded entries.
+    """
     api = _storage_api()
-    return api.location(uuid).browse.get(path=path)
+    path = base64.b64encode(path)
+    browse = api.location(uuid).browse.get(path=path)
+    browse['entries'] = map(base64.b64decode, browse['entries'])
+    browse['directories'] = map(base64.b64decode, browse['directories'])
+    return browse
 
 def copy_files(source_location, destination_location, files, api=None):
     """
