@@ -243,7 +243,7 @@ def index(request):
                     if field.get('do_not_lookup', False):
                         target = field_value
                     else:
-                        target = uuid_from_description(field_value)
+                        target = uuid_from_description(field_value, field['choice_uuid'])
 
                     xmlChoices.add_choice(
                         field['choice_uuid'],
@@ -320,11 +320,19 @@ def remove_option_by_value(options, value):
         if option['value'] == value:
             options.remove(option)
 
-def uuid_from_description(description):
+def uuid_from_description(description, choice):
+    """
+    Attempts to fetch the UUID of either a MicroServiceChain or a
+    MicroServiceChoiceReplacementDic that matches the provided description.
+
+    "choice" is the pk of the choice with which the option is associated;
+    it will be used when looking up a replacement dict in order to ensure the
+    result is associated with the correct choice.
+    """
     try:
         return models.MicroServiceChain.objects.get(description=description).pk
     except models.MicroServiceChain.DoesNotExist:
-        return models.MicroServiceChoiceReplacementDic.objects.filter(description=description)[0].pk
+        return models.MicroServiceChoiceReplacementDic.objects.filter(description=description, choiceavailableatlink=choice)[0].pk
 
 def populate_select_field_options_with_chain_choices(field):
     link = lookup_chain_link(field)
