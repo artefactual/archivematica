@@ -161,10 +161,9 @@ def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, 
         exit(4)
     for row in rows:
         fileUUID = row[0]
-        location = row[1]
         sql =  """UPDATE Files SET currentLocation='%s' WHERE fileUUID='%s';""" % (MySQLdb.escape_string(dstDB), fileUUID)
         databaseInterface.runSQL(sql)
-    print "moving: ", src, dst
+    print "Moving", src, 'to', dst
     shutil.move(src, dst)
 
 #import lxml.etree as etree

@@ -96,6 +96,7 @@ removeHiddenFilesAndDirectories_v0.0 = %clientScriptsDirectory%removeHiddenFiles
 removeUnneededFiles_v0.0 = %clientScriptsDirectory%removeUnneededFiles.py
 renameDIPFauxToOrigUUIDs_v0.0 = %clientScriptsDirectory%renameDIPFauxToOrigUUIDs.py
 restructureForCompliance_v0.0 = %clientScriptsDirectory%restructureForCompliance.py
+restructureForComplianceSIP_v0.0 = %clientScriptsDirectory%restructureForComplianceSIP.py
 restructureForComplianceMaildir_v0.0 = %clientScriptsDirectory%restructureForComplianceMaildir.py
 restructureBagAIPToSIP_v0.0 = %clientScriptsDirectory%restructureBagAIPToSIP.py
 retryNormalizeRemoveNormalized_v0.0 = %clientScriptsDirectory%retryNormalizeRemoveNormalized.py
