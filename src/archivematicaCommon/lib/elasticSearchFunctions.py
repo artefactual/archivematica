@@ -699,9 +699,9 @@ def connect_and_remove_transfer_files(uuid, unit_type):
 
         # cycle through file UUIDs and delete files from transfer backlog
         for row in rows:
-            document_id = document_id_from_field_query(conn, 'transfers', ['transferfile'],  'fileuuid', row[0])
-            if document_id != None:
-                conn.delete('transfers', 'transferfile', document_id)
+            document_id = _document_ids_from_field_query(conn, 'transfers', ['transferfile'],  'fileuuid', row[0])
+            if document_id:
+                conn.delete('transfers', 'transferfile', document_id[0])
 
 def delete_aip(uuid):
     return delete_matching_documents('aips', 'aip', 'uuid', uuid)

@@ -86,7 +86,7 @@ def arrange_contents(request):
     # Query SIP Arrangement for results
     # Get all the paths that are not in SIPs and start with base_path.  We don't
     # need the objects, just the arrange_path
-    paths = models.SIPArrange.objects.filter(sip_created=False).filter(arrange_path__startswith=base_path).order_by('arrange_path').values_list('arrange_path', flat=True)
+    paths = models.SIPArrange.objects.filter(sip_created=False).filter(aip_created=False).filter(arrange_path__startswith=base_path).order_by('arrange_path').values_list('arrange_path', flat=True)
 
     # Convert the response into an entries [] and directories []
     # 'entries' contains everything (files and directories)
@@ -502,12 +502,16 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
     for entry in entries:
         if entry not in ('processingMCP.xml'):
             path = os.path.join(original_path, entry)
-            file_uuid = elasticSearchFunctions.get_transfer_file_info(
-                'relative_path', path.replace(DEFAULT_BACKLOG_PATH, '', 1)).get('fileuuid')
+            file_info = elasticSearchFunctions.get_transfer_file_info(
+                'relative_path', path.replace(DEFAULT_BACKLOG_PATH, '', 1))
+            file_uuid = file_info.get('fileuuid')
+            transfer_uuid = file_info.get('sipuuid')
             ret.append(
                 {'original_path': path,
                  'arrange_path': os.path.join(arrange_path, entry),
-                 'file_uuid': file_uuid})
+                 'file_uuid': file_uuid,
+                 'transfer_uuid': transfer_uuid
+                })
 
     # Add directories and recurse, adding their children too
     for directory in browse['directories']:
@@ -518,7 +522,8 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
         if not directory in ('metadata', 'logs'):
             ret.append({'original_path': None,
                         'arrange_path': arrange_dir,
-                        'file_uuid': None})
+                        'file_uuid': None,
+                        'transfer_uuid': None})
             ret.extend(_get_arrange_directory_tree(backlog_uuid, original_dir, arrange_dir))
 
     return ret
@@ -572,16 +577,22 @@ def copy_to_arrange(request):
                 leaf_dir = re.sub(uuid_regex, '', leaf_dir)
                 arrange_path = os.path.join(destination, leaf_dir) + '/'
                 to_add.append({'original_path': None,
-                           'arrange_path': arrange_path,
-                           'file_uuid': None})
+                   'arrange_path': arrange_path,
+                   'file_uuid': None,
+                   'transfer_uuid': None
+                })
             to_add.extend(_get_arrange_directory_tree(backlog_uuid, sourcepath, arrange_path))
         else:
             arrange_path = os.path.join(destination, os.path.basename(sourcepath))
-            file_uuid = elasticSearchFunctions.get_transfer_file_info(
-                'relative_path', sourcepath.replace(DEFAULT_BACKLOG_PATH, '', 1)).get('fileuuid')
+            file_info = elasticSearchFunctions.get_transfer_file_info(
+                'relative_path', sourcepath.replace(DEFAULT_BACKLOG_PATH, '', 1))
+            file_uuid = file_info.get('fileuuid')
+            transfer_uuid = file_info.get('sipuuid')
             to_add.append({'original_path': sourcepath,
                'arrange_path': arrange_path,
-               'file_uuid': file_uuid})
+               'file_uuid': file_uuid,
+               'transfer_uuid': transfer_uuid
+            })
 
         logging.info('copy_to_arrange: arrange_path: {}'.format(arrange_path))
         logging.debug('copy_to_arrange: files to be added: {}'.format(to_add))
@@ -593,6 +604,7 @@ def copy_to_arrange(request):
                     original_path=entry['original_path'],
                     arrange_path=entry['arrange_path'],
                     file_uuid=entry['file_uuid'],
+                    transfer_uuid=entry['transfer_uuid'],
                 )
             except IntegrityError:
                 # FIXME Expecting this to catch duplicate original_paths, which
