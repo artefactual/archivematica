@@ -22,7 +22,15 @@ function setupAIPBrowser(directory) {
   var explorer = new FileExplorer({
     el: $('#explorer'),
     levelTemplate: $('#template-dir-level').html(),
-    entryTemplate: $('#template-dir-entry').html()
+    entryTemplate: $('#template-dir-entry').html(),
+    nameClickHandler: function(result) {
+      if (result.type != 'directory') {
+        window.open(
+          '/filesystem/download_fs/?filepath=' + encodeURIComponent(result.path),
+          '_blank'
+        );
+      }
+    },
   });
 
   explorer.options.actionHandlers = [];

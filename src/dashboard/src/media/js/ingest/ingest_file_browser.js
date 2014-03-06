@@ -286,7 +286,7 @@ $(document).ready(function() {
           browser.alert('Error', 'You can not open a directory.');
         } else {
           window.open(
-            '/filesystem/download?filepath=' + encodeURIComponent(path),
+            '/filesystem/download_ss/?filepath=' + encodeURIComponent(Base64.encode(path)),
             '_blank'
           );
         }
@@ -295,7 +295,4 @@ $(document).ready(function() {
 
   // open originals file button functionality
   $('#open_originals_file_button').click(createOpenHandler(originals_browser));
-
-  // open arrange file button functionality
-  $('#open_arrange_file_button').click(createOpenHandler(arrange_browser));
 });

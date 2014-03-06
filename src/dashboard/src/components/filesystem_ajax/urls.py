@@ -19,7 +19,8 @@ from django.conf.urls import patterns
 from django.conf import settings
 
 urlpatterns = patterns('components.filesystem_ajax.views',
-    (r'^download/$', 'download'),
+    (r'^download_ss/$', 'download_ss'),
+    (r'^download_fs/$', 'download_fs'),
     (r'^contents/arrange/$', 'arrange_contents'),
     (r'^contents/$', 'contents'),
     (r'^children/location/(?P<location_uuid>' + settings.UUID_REGEX + ')/$', 'directory_children_proxy_to_storage_server'),

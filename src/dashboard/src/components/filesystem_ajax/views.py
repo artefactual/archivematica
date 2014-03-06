@@ -25,7 +25,7 @@ import sys
 import tempfile
 import uuid
 
-from django.http import Http404
+import django.http
 from django.db import connection, IntegrityError
 
 from components import helpers
@@ -623,8 +623,26 @@ def copy_to_arrange(request):
     return helpers.json_response(response)
 
 
-def download(request):
-    shared_dir = os.path.realpath(helpers.get_client_config_value('sharedDirectoryMounted'))
+def download_ss(request):
+    filepath = base64.b64decode(request.GET.get('filepath', '')).lstrip('/')
+    logging.info('download filepath: %s', filepath)
+    if not filepath.startswith(DEFAULT_BACKLOG_PATH):
+        return django.http.HttpResponseBadRequest()
+    filepath = filepath.replace(DEFAULT_BACKLOG_PATH, '', 1)
+
+    # Get UUID
+    uuid_regex = r'[\w]{8}(-[\w]{4}){3}-[\w]{12}'
+    transfer_uuid = re.search(uuid_regex, filepath).group()
+
+    # Get relative path
+    # Find first /, should be at the end of the transfer name/uuid, rest is relative ptah
+    relative_path = filepath[filepath.find('/')+1:]
+
+    redirect_url = storage_service.extract_file_url(transfer_uuid, relative_path)
+    return django.http.HttpResponseRedirect(redirect_url)
+
+def download_fs(request):
+    shared_dir = os.path.realpath(helpers.get_server_config_value('sharedDirectory'))
     filepath = base64.b64decode(request.GET.get('filepath', ''))
     requested_filepath = os.path.realpath('/' + filepath)
 
@@ -633,6 +651,7 @@ def download(request):
         if requested_filepath.index(shared_dir) == 0:
             return helpers.send_file(request, requested_filepath)
         else:
-            raise Http404
+            raise django.http.Http404
     except ValueError:
-        raise Http404
+        raise django.http.Http404
+

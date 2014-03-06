@@ -295,8 +295,7 @@ def aip_delete(request, uuid):
     return render(request, 'archival_storage/delete_request_results.html', locals())
 
 def aip_download(request, uuid):
-    server_url = helpers.get_setting('storage_service_url', None)
-    redirect_url = server_url + 'api/v2/file/' + uuid + '/download'
+    redirect_url = storage_service.download_file_url(uuid)
     return HttpResponseRedirect(redirect_url)
 
 def aip_file_download(request, uuid):
@@ -328,8 +327,7 @@ def aip_file_download(request, uuid):
       file_basename
     )
 
-    server_url = helpers.get_setting('storage_service_url', None)
-    redirect_url = server_url + 'api/v2/file/' + aip.uuid + '/extract_file/?relative_path_to_file=' + file_relative_path
+    redirect_url = storage_service.extract_file_url(aip.uuid, file_relative_path)
     return HttpResponseRedirect(redirect_url)
 
 def aip_pointer_file_download(request, uuid):
