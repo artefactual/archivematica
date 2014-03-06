@@ -41,29 +41,38 @@ excludedNodes={'61c316a6-0a50-4f65-8767-1f44b1eeb6dd':"default fail procedure fo
                '333532b9-b7c2-4478-9415-28a3056d58df':"reject transfer option.",
                '3467d003-1603-49e3-b085-e58aa693afed':"reject transfer option."}
 
-def addArrow(sourceUUID, destUUID, color="black"):
+def addArrow(sourceUUID, destUUID, color="black", label=None):
     if sourceUUID in excludedNodes or destUUID in excludedNodes:
         return
     if sourceUUID == None or destUUID == None:
         return
-    G.add_edge(linkUUIDtoNodeName[sourceUUID], linkUUIDtoNodeName[destUUID], color=color)
+    if label:
+        G.add_edge(linkUUIDtoNodeName[sourceUUID], linkUUIDtoNodeName[destUUID], color=color, label=label)
+    else:
+        G.add_edge(linkUUIDtoNodeName[sourceUUID], linkUUIDtoNodeName[destUUID], color=color)
 
 def loadAllLinks():
     ""
-    sql = """SELECT MicroServiceChainLinks.pk, MicroServiceChainLinks.defaultNextChainLink, TasksConfigs.description 
+    sql = """SELECT MicroServiceChainLinks.pk, MicroServiceChainLinks.defaultNextChainLink, TasksConfigs.description, TaskTypes.description, TasksConfigs.taskTypePKReference
         FROM MicroServiceChainLinks 
         JOIN TasksConfigs ON currentTask = TasksConfigs.pk
+        JOIN TaskTypes ON taskType = TaskTypes.pk
         WHERE TasksConfigs.taskType != '5e70152a-9c5b-4c17-b823-c9298c546eeb';"""
     links = databaseInterface.queryAllSQL(sql)
     for link in links:
-        pk, defaultNextChainLink, description = link
+        pk, defaultNextChainLink, description, taskType, pkRef = link
         if pk in excludedNodes:
             continue
-        nodeName = "{%s}%s" % (pk, description)
+        sql = """SELECT execute FROM StandardTasksConfigs WHERE pk='%s';""" % pkRef
+        script_name = databaseInterface.queryAllSQL(sql)
+        if script_name:
+            script_name = script_name[0][0]
+        nodeName = r"{%s} %s\n(%s) [%s]" % (pk, description, taskType, script_name or pkRef)
         G.add_node(nodeName, URL="MicroServiceChainLinks/%s" % pk, label=nodeName, id=nodeName)
         linkUUIDtoNodeName[pk] = nodeName
     for link in links:
-        pk, defaultNextChainLink, description = link
+        pk = link[0]
+        defaultNextChainLink = link[1]
         if defaultNextChainLink != None:
             addArrow(pk, defaultNextChainLink)
     return
@@ -81,12 +90,12 @@ def bridgeExitCodes():
 
 def bridgeUserSelections():
     ""
-    sql="SELECT MicroServiceChainChoice.choiceAvailableAtLink, MicroServiceChains.startingLink FROM MicroServiceChainChoice JOIN MicroServiceChains ON MicroServiceChainChoice.chainAvailable = MicroServiceChains.pk;"
+    sql="SELECT MicroServiceChainChoice.choiceAvailableAtLink, MicroServiceChains.startingLink, MicroServiceChains.description FROM MicroServiceChainChoice JOIN MicroServiceChains ON MicroServiceChainChoice.chainAvailable = MicroServiceChains.pk;"
     rows = databaseInterface.queryAllSQL(sql)
     for row in rows:
-        choiceAvailableAtLink, startingLink = row
+        choiceAvailableAtLink, startingLink, description = row
         if choiceAvailableAtLink and startingLink:
-            addArrow(choiceAvailableAtLink, startingLink, color='green')
+            addArrow(choiceAvailableAtLink, startingLink, color='green', label=description)
 
 
 def bridgeWatchedDirectories():
@@ -101,13 +110,13 @@ def bridgeWatchedDirectories():
         rows2 = databaseInterface.queryAllSQL(sql)
         for row2 in rows2:
             microServiceChainLink = row2[0]
-            addArrow(microServiceChainLink, startingLink, color="yellow")
+            addArrow(microServiceChainLink, startingLink, color="yellow", label=watchedDirectoryPath)
             countOfSources +=1
         sql = "SELECT MicroServiceChainLinks.pk FROM StandardTasksConfigs JOIN TasksConfigs ON TasksConfigs.taskTypePKReference = StandardTasksConfigs.pk JOIN MicroServiceChainLinks ON MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE ( execute LIKE 'moveSIP%%' OR execute LIKE 'moveTransfer%%') AND taskType = '36b2e239-4a57-4aa5-8ebc-7a29139baca6' AND arguments like '%%%s%%';" % (watchedDirectoryPath.replace('%watchDirectoryPath%', '%sharedPath%watchedDirectories/', 1).replace('%', '\%'))
         rows2 = databaseInterface.queryAllSQL(sql)
         for row2 in rows2:
             microServiceChainLink = row2[0]
-            addArrow(microServiceChainLink, startingLink, color="yellow")
+            addArrow(microServiceChainLink, startingLink, color="yellow", label=watchedDirectoryPath)
             countOfSources +=1
             
         if countOfSources == 0:
@@ -162,10 +171,10 @@ def bridgeLoadVariable():
         rows2 = databaseInterface.queryAllSQL(sql)
         for row2 in rows2:
             microServiceChainLink2, variable,  microServiceChainLinkDest = row2
-            addArrow(microServiceChainLink, microServiceChainLinkDest, color="orangered")
+            addArrow(microServiceChainLink, microServiceChainLinkDest, color="orangered", label=variable)
             count +=1
         if defaultMicroServiceChainLink:
-            addArrow(microServiceChainLink, defaultMicroServiceChainLink, color="orangered")
+            addArrow(microServiceChainLink, defaultMicroServiceChainLink, color="orangered", label='default MSCL')
         if count == 0:
             print "no bridge variable set for: ", linkUUIDtoNodeName[microServiceChainLink]           
     return
