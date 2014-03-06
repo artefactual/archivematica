@@ -154,19 +154,22 @@ def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, 
     """Dest needs to be the actual full destination path with filename."""
     srcDB = src.replace(unitPath, unitPathReplaceWith)
     dstDB = dst.replace(unitPath, unitPathReplaceWith)
-    sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND Files.currentLocation = '" + MySQLdb.escape_string(srcDB) + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
+    # Fetch the file UUID
+    sql = """SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND Files.currentLocation = '%s' AND %s = '%s';""" % (MySQLdb.escape_string(srcDB) , unitIdentifierType, unitIdentifier)
     rows = databaseInterface.queryAllSQL(sql)
     if len(rows) != 1:
-        print sys.stderr, len(rows), "rows", sql, rows
+        print >> sys.stderr, 'ERROR: file information not found:', len(rows), "rows for SQL:", sql
+        print >> sys.stderr, 'Rows returned:', rows
         exit(4)
+    # Move the file
+    print "Moving", src, 'to', dst
+    shutil.move(src, dst)
+    # Update the DB
     for row in rows:
         fileUUID = row[0]
         sql =  """UPDATE Files SET currentLocation='%s' WHERE fileUUID='%s';""" % (MySQLdb.escape_string(dstDB), fileUUID)
         databaseInterface.runSQL(sql)
-    print "Moving", src, 'to', dst
-    shutil.move(src, dst)
 
-#import lxml.etree as etree
 def updateFileLocation(src, dst, eventType, eventDateTime, eventDetail, eventIdentifierUUID = uuid.uuid4().__str__(), fileUUID="None", sipUUID = None, transferUUID=None, eventOutcomeDetailNote = ""):
     """If the file uuid is not provided, will use the sip uuid and old path to find the file uuid"""
     src = unicodeToStr(src)

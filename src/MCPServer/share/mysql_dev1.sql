@@ -394,8 +394,10 @@ INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VA
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('8e06349b-d4a3-420a-9a64-69553bd9a183', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '285a7b4d-155b-4f5b-ab35-daa6414303f9', 'Attempt restructure for compliance');
 INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('7d0616b2-afed-41a6-819a-495032e86291', 'Verify SIP compliance', 'Failed', '8e06349b-d4a3-420a-9a64-69553bd9a183', 'f025f58c-d48c-4ba1-8904-a56d2a67b42f');
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('18080f7f-e6aa-4448-bc6c-c928ff2629cb', '7d0616b2-afed-41a6-819a-495032e86291', 0, 'd1018160-aaab-4d92-adce-d518880d7c7d', 'Completed successfully');
-UPDATE MicroServiceChainLinks SET defaultNextChainLink='7d0616b2-afed-41a6-819a-495032e86291' WHERE pk='208d441b-6938-44f9-b54a-bd73f05bc764';
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='7d0616b2-afed-41a6-819a-495032e86291', defaultExitMessage='Completed successfully' WHERE pk='208d441b-6938-44f9-b54a-bd73f05bc764';
 
+-- Update move to backlog to talk to the storage service
+UPDATE StandardTasksConfigs SET execute='moveToBacklog_v1.0', arguments='"%SIPUUID%" "%SIPDirectory%"' WHERE pk='9f25a366-f7a4-4b59-b219-2d5f259a1be9';
 
 -- /Issue 6131
 

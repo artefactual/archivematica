@@ -87,6 +87,7 @@ moveDspaceLicenseFilesToDSpaceLicenses_v0.0 = %clientScriptsDirectory%moveDspace
 moveDspaceMetsFilesToDSpaceMETS_v0.0 = %clientScriptsDirectory%moveDspaceMetsFilesToDSpaceMETS.py
 moveSIP_v0.0 =  %clientScriptsDirectory%archivematicaMoveSIP.py
 moveTransfer_v0.0 =  %clientScriptsDirectory%archivematicaMoveTransfer.py
+moveToBacklog_v1.0 = %clientScriptsDirectory%moveToBacklog.py
 normalize_v1.0 = %clientScriptsDirectory%normalize.py
 remove_v0.0 = rm
 removeAIPFilesFromIndex_v0.0 = %clientScriptsDirectory%removeAIPFilesFromIndex.py
