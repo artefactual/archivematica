@@ -78,6 +78,7 @@ identifyFileFormat_v0.0 = %clientScriptsDirectory%identifyFileFormat.py
 isMaildirAIP_v0.0 = %clientScriptsDirectory%isMaildirAIP.py
 indexAIP_v0.0 = %clientScriptsDirectory%indexAIP.py
 jsonMetadataToCSV_v0.0 = %clientScriptsDirectory%jsonMetadataToCSV.py
+loadDublinCore_v0.0 = %clientScriptsDirectory%loadDublinCore.py
 loadLabelsFromCSV_v0.0 = %clientScriptsDirectory%loadLabelsFromCSV.py
 manualNormalizationCheckForManualNormalizationDirectory_v0.0 = %clientScriptsDirectory%manualNormalizationCheckForManualNormalizationDirectory.py
 manualNormalizationCreateMetadataAndRestructure_v0.0 = %clientScriptsDirectory%manualNormalizationCreateMetadataAndRestructure.py

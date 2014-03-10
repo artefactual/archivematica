@@ -379,4 +379,11 @@ INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES
 INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('f378ec85-adcc-4ee6-ada2-bc90cfe20efb', 'Create SIP from Transfer', 'Failed', 'e5789749-00df-4b6c-af12-47eeabc8926a', '39a128e3-c35d-40b7-9363-87f75091e1ff');
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('12fb389b-06c4-43d4-b647-9727c410088f', 'f378ec85-adcc-4ee6-ada2-bc90cfe20efb', 0, '39a128e3-c35d-40b7-9363-87f75091e1ff', 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='f378ec85-adcc-4ee6-ada2-bc90cfe20efb' WHERE microServiceChainLink='8f639582-8881-4a8b-8574-d2f86dc4db3d';
+
+-- Load Dublin Core metadata back from disk into the database
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('cc8a1a4f-ccc8-4639-947e-01d0a5fddbb7', 0, 'loadDublinCore_v0.0', '"%SIPUUID%" "%relativeLocation%metadata/dc.json"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('efb7bf8e-4624-4b52-bf90-e3d389099fd9', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', 'cc8a1a4f-ccc8-4639-947e-01d0a5fddbb7', 'Load Dublin Core metadata from disk');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('970b7d17-7a6b-4d51-808b-c94b78c0d97f', 'Clean up names', 'Failed', 'efb7bf8e-4624-4b52-bf90-e3d389099fd9', '7d728c39-395f-4892-8193-92f086c0546f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('5ffe0c72-5a98-4fa5-8281-a266471ffb2c', '970b7d17-7a6b-4d51-808b-c94b78c0d97f', 0, '15a2df8a-7b45-4c11-b6fa-884c9b7e5c67', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='970b7d17-7a6b-4d51-808b-c94b78c0d97f' WHERE microServiceChainLink='a46e95fe-4a11-4d3c-9b76-c5d8ea0b094d';
 -- /Issue 6217
