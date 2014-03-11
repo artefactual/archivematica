@@ -81,6 +81,14 @@ if __name__ == '__main__':
         path = os.path.join(tmpSIPDir, directory)
         if not os.path.isdir(path):
             os.makedirs(path)
+
+    # Copy the JSON metadata file, if present;
+    # this contains a serialized copy of DC metadata entered in the dashboard UI
+    src = os.path.normpath(os.path.join(objectsDirectory, "..", "metadata", "dc.json"))
+    dst = os.path.join(tmpSIPDir, "metadata", "dc.json")
+    # This file only exists if any metadata was created during the transfer
+    if os.path.exists(src):
+        shutil.copy(src, dst)
     
     #copy processingMCP.xml file
     src = os.path.join(os.path.dirname(objectsDirectory[:-1]), "processingMCP.xml") 
