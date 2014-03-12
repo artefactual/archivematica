@@ -633,9 +633,11 @@ def backup_indexed_document(result, indexData, index, type):
 def _document_ids_from_field_query(conn, index, doc_types, field, value):
     document_ids = []
 
+    # Escape /'s with \\
+    searchvalue = value.replace('/', '\\/')
     documents = search_raw_wrapper(
         conn,
-        query=pyes.FieldQuery(pyes.FieldParameter(field, value)),
+        query=pyes.FieldQuery(pyes.FieldParameter(field, searchvalue)),
         doc_types=doc_types
     )
 
@@ -669,14 +671,17 @@ def get_transfer_file_info(field, value):
     conn = connect_and_create_index('transfers')
     indicies = ['transfers']
     # doc_types='transferfile'
+    # Escape /'s with \\
+    searchvalue = value.replace('/', '\\/')
     documents = search_raw_wrapper(
         conn,
-        pyes.FieldQuery(pyes.FieldParameter(field, value)),
+        pyes.FieldQuery(pyes.FieldParameter(field, searchvalue)),
         indicies=indicies,
     )
     if len(documents['hits']['hits']) > 0:
         results = documents['hits']['hits'][0]['_source']
 
+    logging.debug('get_transfer_file_info: results: %s', results)
     if results.get(field) != value:
         logging.warning('May not be correct transfer info: %s is %s instead of %s', field, results.get(field), value)
     return results
