@@ -335,19 +335,21 @@ def copy_from_arrange_to_completed(request):
     """
     error = None
     filepath = base64.b64decode(request.POST.get('filepath', ''))
-    filepath = os.path.normpath(filepath)
     logging.info('copy_from_arrange_to_completed: filepath: %s', filepath)
 
     # Error checking
     if not filepath.startswith(DEFAULT_ARRANGE_PATH):
+        # Must be in DEFAULT_ARRANGE_PATH
         error = '{} is not in {}'.format(filepath, DEFAULT_ARRANGE_PATH)
-    elif len(filepath.split('/')) != 3:
-        # Must create SIP from a full SIP, not a top tier dir or subdirectory
-        error = 'Must create SIP from the parent SIP directory, not a subdirectory.'
+    elif not filepath.endswith('/'):
+        # Must be a directory (end with /)
+        error = '{} is not a directory'.format(filepath)
     else:
         # Filepath is prefix on arrange_path in SIPArrange
-        filepath = os.path.join(filepath, '')
-        sip_name = filepath.replace(DEFAULT_ARRANGE_PATH, '', 1)
+        filepath = os.path.normpath(filepath)
+        sip_name = os.path.basename(filepath)
+        staging_sip_path = os.path.join('staging', sip_name, '')
+        logging.debug('copy_from_arrange_to_completed: staging_sip_path: %s', staging_sip_path)
         # Fetch all files with 'filepath' as prefix, and have a source path
         arrange = models.SIPArrange.objects.filter(sip_created=False).filter(arrange_path__startswith=filepath).filter(original_path__isnull=False)
 
@@ -356,8 +358,8 @@ def copy_from_arrange_to_completed(request):
         for arranged_file in arrange:
             files.append(
                 {'source': arranged_file.original_path.lstrip('/'),
-                 'destination': arranged_file.arrange_path.lstrip('/').replace(
-                    'arrange', 'staging', 1),
+                 'destination': arranged_file.arrange_path.replace(
+                    filepath, staging_sip_path, 1),
                  'uuid': arranged_file.file_uuid,
                 }
             )
@@ -375,12 +377,13 @@ def copy_from_arrange_to_completed(request):
                 if file_ not in files:
                     files.append(file_)
 
+        logging.debug('copy_from_arrange_to_completed: files: %s', files)
         # Move files from backlog to local staging path
         (sip, error) = storage_service.get_files_from_backlog(files)
 
         if error is None:
             # Create SIP object
-            error = create_arranged_sip(filepath.replace('arrange', 'staging', 1), files)
+            error = create_arranged_sip(staging_sip_path, files)
 
         if error is None:
             # Update SIPArrange with in_SIP = True
