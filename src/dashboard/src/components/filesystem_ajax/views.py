@@ -293,6 +293,7 @@ def copy_to_start_transfer(filepath='', type='', accession=''):
 def create_arranged_sip(staging_sip_path, files):
     shared_dir = helpers.get_server_config_value('sharedDirectory')
     staging_sip_path = staging_sip_path.lstrip('/')
+    staging_abs_path = os.path.join(shared_dir, staging_sip_path)
 
     # Create SIP object
     sip_uuid = str(uuid.uuid4())
@@ -309,21 +310,23 @@ def create_arranged_sip(staging_sip_path, files):
             currentlocation = '%SIPDirectory%'+ in_sip_path
             models.File.objects.filter(uuid=file_['uuid']).update(sip=sip_uuid, currentlocation=currentlocation)
 
-    # TODO add log of original location and new location of files
-
-    # Move to watchedDirectories/SIPCreation/SIPsUnderConstruction
-    logging.info('create_arranged_sip: move from %s to %s', os.path.join(shared_dir, staging_sip_path), os.path.join(sip_path))
-    shutil.move(
-        src=os.path.join(shared_dir, staging_sip_path),
-        dst=os.path.join(sip_path))
-
     # Create directories for logs and metadata, if they don't exist
     for directory in ('logs', 'metadata', os.path.join('metadata', 'submissionDocumentation')):
         try:
-            os.mkdir(os.path.join(sip_path, directory))
+            os.mkdir(os.path.join(staging_abs_path, directory))
         except os.error as exception:
             if exception.errno != errno.EEXIST:
                 raise
+
+    # Add log of original location and new location of files
+    arrange_log = os.path.join(staging_abs_path, 'logs', 'arrange.log')
+    with open(arrange_log, 'w') as f:
+        log = ('%s -> %s\n' % (file_['source'], file_['destination']) for file_ in files if file_.get('uuid'))
+        f.writelines(log)
+
+    # Move to watchedDirectories/SIPCreation/SIPsUnderConstruction
+    logging.info('create_arranged_sip: move from %s to %s', staging_abs_path, sip_path)
+    shutil.move(src=staging_abs_path, dst=sip_path)
 
 
 def copy_from_arrange_to_completed(request):
@@ -346,8 +349,7 @@ def copy_from_arrange_to_completed(request):
         error = '{} is not a directory'.format(filepath)
     else:
         # Filepath is prefix on arrange_path in SIPArrange
-        filepath = os.path.normpath(filepath)
-        sip_name = os.path.basename(filepath)
+        sip_name = os.path.basename(filepath.rstrip('/'))
         staging_sip_path = os.path.join('staging', sip_name, '')
         logging.debug('copy_from_arrange_to_completed: staging_sip_path: %s', staging_sip_path)
         # Fetch all files with 'filepath' as prefix, and have a source path
@@ -366,13 +368,14 @@ def copy_from_arrange_to_completed(request):
             # Get transfer folder name
             transfer_name = arranged_file.original_path.replace(
                 DEFAULT_BACKLOG_PATH, '', 1).split('/', 1)[0]
-            # Add metadata & logs to be copied if they aren't already
+            # Copy metadata & logs to completedTransfers, where later scripts expect
             for directory in ('logs', 'metadata'):
                 file_ = {
                     'source': os.path.join(
                         DEFAULT_BACKLOG_PATH, transfer_name, directory, '.'),
                     'destination': os.path.join(
-                        'staging', sip_name, directory, transfer_name, ''),
+                        'watchedDirectories', 'SIPCreation',
+                        'completedTransfers', transfer_name, directory, '.'),
                 }
                 if file_ not in files:
                     files.append(file_)
