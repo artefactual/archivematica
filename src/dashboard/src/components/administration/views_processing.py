@@ -330,8 +330,10 @@ def uuid_from_description(description, choice):
     result is associated with the correct choice.
     """
     try:
-        return models.MicroServiceChain.objects.get(description=description).pk
-    except models.MicroServiceChain.DoesNotExist:
+        choice = models.MicroServiceChainChoice.objects.get(choiceavailableatlink=choice,
+            chainavailable__description=description)
+        return choice.chainavailable.pk
+    except models.MicroServiceChainChoice.DoesNotExist:
         return models.MicroServiceChoiceReplacementDic.objects.filter(description=description, choiceavailableatlink=choice)[0].pk
 
 def populate_select_field_options_with_chain_choices(field):
