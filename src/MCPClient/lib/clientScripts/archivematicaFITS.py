@@ -140,7 +140,7 @@ if __name__ == '__main__':
 
     tempFile="/tmp/" + uuid.uuid4().__str__()
 
-    command = "openfits -i \"" + escapeForCommand(target) + "\" -o \"" + tempFile + "\""
+    command = "fits.sh -i \"" + escapeForCommand(target) + "\" -o \"" + tempFile + "\""
     try:
         p = subprocess.Popen(shlex.split(command), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 

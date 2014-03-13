@@ -37,13 +37,14 @@ if __name__ == '__main__':
     date = sys.argv[3]
     taskUUID = sys.argv[4]
 
-    command = 'clamdscan  - <"' + escapeForCommand(target).replace("$", "\\$") + '"'
-    print >>sys.stderr, command
-    commandVersion = "clamdscan -V"
-    eventOutcome = "Pass"
+    with open(target) as file_:
+        command = ['clamdscan', '-']
+        print >> sys.stdout, ' '.join(command), '<', target
+        commandVersion = "clamdscan -V"
+        eventOutcome = "Pass"
 
-    clamscanOutput = executeOrRun("bashScript", command, printing=False)
-    clamscanVersionOutput = executeOrRun("command", commandVersion, printing=False)
+        clamscanOutput = executeOrRun("command", command, printing=False, stdIn=file_)
+        clamscanVersionOutput = executeOrRun("command", commandVersion, printing=False)
 
     if clamscanOutput[0] or clamscanVersionOutput[0]:
         if clamscanVersionOutput[0]:
