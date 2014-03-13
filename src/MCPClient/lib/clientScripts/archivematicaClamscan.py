@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     with open(target) as file_:
         command = ['clamdscan', '-']
-        print >> sys.stderr, ' '.join(command), '<', target
+        print >> sys.stdout, ' '.join(command), '<', target
         commandVersion = "clamdscan -V"
         eventOutcome = "Pass"
 
