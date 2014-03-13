@@ -342,7 +342,7 @@ def populate_select_field_options_with_chain_choices(field):
     field['options'] = [{'value': '', 'label': '--Actions--'}]
     options = []
     for choice in choices:
-        chain = models.MicroServiceChain.objects.get(pk=choice.chainavailable)
+        chain = choice.chainavailable
         option = {'value': chain.description, 'label': chain.description}
         options.append(option)
 

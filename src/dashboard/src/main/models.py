@@ -537,7 +537,7 @@ class MicroServiceChainLinkExitCode(models.Model):
 class MicroServiceChainChoice(models.Model):
     id = UUIDPkField()
     choiceavailableatlink = models.CharField(max_length=36, db_column='choiceAvailableAtLink')
-    chainavailable = models.CharField(max_length=36, db_column='chainAvailable')
+    chainavailable = models.ForeignKey(MicroServiceChain, db_column='chainAvailable')
 
     class Meta:
         db_table = u'MicroServiceChainChoice'
