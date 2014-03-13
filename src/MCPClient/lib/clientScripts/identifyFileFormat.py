@@ -3,9 +3,12 @@
 import argparse
 import os
 import sys
+import uuid
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
+from databaseFunctions import insertIntoEvents, insertIntoFilesIDs
+from databaseInterface import getUTCDate
 
 path = '/usr/share/archivematica/dashboard'
 if path not in sys.path:
@@ -41,6 +44,47 @@ def save_idtool(file_, value):
 
     UnitVariable.objects.create(unituuid=unit.pk, variable='replacementDict', variablevalue=str(rd))
 
+
+def write_identification_event(file_uuid, command, format=None, success=True):
+    event_detail_text = 'program="{}"; version="{}"'.format(
+        command.tool.description, command.tool.version)
+    if success:
+        event_outcome_text = "Positive"
+    else:
+        event_outcome_text = "Not identified"
+
+    if not format:
+        format = 'No Matching Format'
+
+    date = getUTCDate()
+
+    insertIntoEvents(fileUUID=file_uuid,
+                     eventIdentifierUUID=str(uuid.uuid4()),
+                     eventType="format identification",
+                     eventDateTime=date,
+                     eventDetail=event_detail_text,
+                     eventOutcome=event_outcome_text,
+                     eventOutcomeDetailNote=format)
+
+
+def write_file_id(file_uuid, format=None, output=''):
+    if format.pronom_id:
+        format_registry = 'PRONOM'
+        key = format.pronom_id
+    else:
+        format_registry = 'Archivematica Format Policy Registry'
+        key = output
+
+    # Sometimes, this is null instead of an empty string
+    version = format.version or ''
+
+    insertIntoFilesIDs(fileUUID=file_uuid,
+                       formatName=format.description,
+                       formatVersion=version,
+                       formatRegistryName=format_registry,
+                       formatRegistryKey=key)
+
+
 def main(command_uuid, file_path, file_uuid):
     print "IDCommand UUID:", command_uuid
     print "File: ({}) {}".format(file_uuid, file_path)
@@ -75,12 +119,15 @@ def main(command_uuid, file_path, file_uuid):
             version = rule.format
     except IDRule.DoesNotExist:
         print >>sys.stderr, 'Error: No FPR identification rule for tool output "{}" found'.format(output)
+        write_identification_event(file_uuid, command, success=False)
         return -1
     except IDRule.MultipleObjectsReturned:
         print >>sys.stderr, 'Error: Multiple FPR identification rules for tool output "{}" found'.format(output)
+        write_identification_event(file_uuid, command, success=False)
         return -1
     except FormatVersion.DoesNotExist:
         print >>sys.stderr, 'Error: No FPR format record found for PUID {}'.format(output)
+        write_identification_event(file_uuid, command, success=False)
         return -1
 
     (ffv, created) = FileFormatVersion.objects.get_or_create(file_uuid=file_, defaults={'format_version': version})
@@ -88,6 +135,9 @@ def main(command_uuid, file_path, file_uuid):
         ffv.format_version = version
         ffv.save()
     print "{} identified as a {}".format(file_path, version.description)
+
+    write_identification_event(file_uuid, command, format=version.pronom_id)
+    write_file_id(file_uuid, format=version, output=output)
 
     return 0
 
