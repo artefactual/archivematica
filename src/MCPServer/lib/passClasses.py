@@ -28,9 +28,23 @@ class ReplacementDict(dict):
     def fromstring(s):
         return ReplacementDict(ast.literal_eval(s))
 
-    def replace(self, *a):
+    def replace(self, *strings):
+        """
+        Iterates over a set of strings. Any keys in self found within
+        the string will be replaced with their respective values.
+        Returns an array of strings, regardless of the number of parameters
+        pased in.
+
+        e.g.:
+
+        rd = ReplacementDict({"$foo": "bar"})
+
+        rd.replace('The value of the foo variable is: $foo')
+        # returns
+        ['The value of the foo variable is: bar']
+        """
         ret = []
-        for orig in a:
+        for orig in strings:
             if orig is not None:
                 for key, value in self.iteritems():
                     orig = orig.replace(key, value)
