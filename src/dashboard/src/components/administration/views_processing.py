@@ -72,9 +72,10 @@ def index(request):
 
     # Lists of dicts declare what options to display, and where to look for
     # the options
-    # Name: name in HTML
-    # Label: text to display, <label> in HTML, required.  Fallback value for
-    #   applies_to, lookup_description
+    # name: Value of the `name` attribute in the <input> HTML element
+    # choice_uuid: UUID of the microservice chainlink at which the choice occurs
+    # label: Human-readable label to be displayed to the user
+    # yes_option and no_option: UUIDs for the yes and no choice chains, respectively
     boolean_select_fields = [
         {
             "name":         "quarantine_transfer",
@@ -99,9 +100,9 @@ def index(request):
         },
     ]
 
-    # 'label': text to display, <label> in HTML.
-    # 'link_uuid': If there are conflicts on lookup_description, specify this
-    #   to use that MicroServiceChainLink
+    # name: Value of the `name` attribute in the <input> HTML element
+    # label: Human-readable label to be displayed to the user
+    # choice_uuid: UUID of the microservice chainlink at which the choice occurs
     chain_choice_fields = [
         {
             "name":  "create_sip",
@@ -128,14 +129,8 @@ def index(request):
 
     populate_select_fields_with_chain_choice_options(chain_choice_fields)
 
-    # 'label': text to display, <label> in HTML.  Also, the
-    # 'lookup_description': TasksConfig description to search against to find 
-    #   the MicroServiceChainLink for the
-    #   MicroServiceChainChoice.choiceavailableatlink  If not specified, use label
-    # 'link_uuid': If there are conflicts on lookup_description, specify this
-    #   to use that MicroServiceChainLink
-    # 'applies_to': Description of the TasksConfig that the choice applies to.
-    #   Put in defaultProcessingMCP.xml
+    # name: Value of the `name` attribute in the <input> HTML element
+    # choice_uuid: UUID of the microservice chainlink at which the choice occurs
     replace_dict_fields = [
         {
             "name": "select_format_id_tool_transfer",
