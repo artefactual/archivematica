@@ -75,12 +75,6 @@ sudo ln -sf "${svnDir}src/vm-includes/share/httpd.conf" "/etc/apache2/httpd.conf
 sudo ln -sf "${svnDir}qubit-git" /var/www/ica-atom
 sudo chown -R www-data:www-data "${svnDir}qubit-git"
 
-if [ ! -e /usr/share/fits/xml/fits.xmlbackup ]; then
-sudo cp /usr/share/fits/xml/fits.xml /usr/share/fits/xml/fits.xmlbackup
-fi
-sudo ln -f "${svnDir}externals/fits/archivematicaConfigs/fits.xml" /usr/share/fits/xml/
-sudo chmod 644 /usr/share/fits/xml/fits.xml
-
 sudo mkdir /var/archivematica/
 sudo ln -s "${svnDir}src/MCPServer/share/sharedDirectoryStructure" "/var/archivematica/sharedDirectory"
 sudo chown -R archivematica:archivematica "/var/archivematica/sharedDirectory"

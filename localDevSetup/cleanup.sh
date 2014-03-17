@@ -21,10 +21,6 @@
 # @author Joseph Perry <joseph@artefactual.com>
 # @author Justin Simpson <jsimpson@artefactual.com>
 
-if [ -e /usr/share/fits/xml/fits.xmlbackup ]; then
-    sudo rm /usr/share/fits/xml/fits.xml
-fi
-
 # this loop is required because we need to leave storage service files alone
 dirs=("/usr/lib/archivematica" "/etc/archivematica" "/usr/share/archivematica" "/var/archivematica")
 for dir in ${dirs[@]} 
