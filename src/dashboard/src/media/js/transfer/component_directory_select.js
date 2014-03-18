@@ -33,11 +33,12 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
 
   selector.options.entryDisplayFilter = function(entry) {
     // if a file and not an archive file, then hide
+    name = Base64.decode(entry.attributes.name);
     if (
-      entry.children == undefined
-      && entry.attributes.name.toLowerCase().indexOf('.zip') == -1
-      && entry.attributes.name.toLowerCase().indexOf('.tgz') == -1
-      && entry.attributes.name.toLowerCase().indexOf('.tar.gz') == -1
+      entry.children === undefined &&
+      name.indexOf('.zip') == -1 &&
+      name.indexOf('.tgz') == -1 &&
+      name.indexOf('.tar.gz') == -1
     ) {
         return false;
     }
