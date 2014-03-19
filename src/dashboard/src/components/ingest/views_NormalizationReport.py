@@ -21,7 +21,7 @@
 # @package Archivematica
 # @subpackage Dashboard
 # @author Joseph Perry <joseph@artefactual.com>
-# @autho Justin Simpson <jsimpson@artefactual.com>
+# @author Justin Simpson <jsimpson@artefactual.com>
 #import sys
 #sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 
@@ -48,14 +48,14 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         a.description,
         a.already_in_access_format, 
         a.already_in_preservation_format,
-        case when b.exitCode < 2 and a.fileID is not null then 1 else 0 end as access_normalization_attempted,
-        case when a.fileID is not null and b.exitcode = 1 then 1 else 0 end as access_normalization_failed,
-        case when c.exitCode < 2 and a.fileID is not null then 1 else 0 end as preservation_normalization_attempted,
-        case when a.fileID is not null and c.exitcode = 1 then 1 else 0 end as preservation_normalization_failed,
-        b.taskUUID as access_normalization_task_uuid,
-        c.taskUUID as preservation_normalization_task_uuid,
-        b.exitCode as access_task_exitCode,
-        c.exitCode as preservation_task_exitCode
+        case when c.exitCode < 2 and a.fileID is not null then 1 else 0 end as access_normalization_attempted,
+        case when a.fileID is not null and c.exitcode = 1 then 1 else 0 end as access_normalization_failed,
+        case when b.exitCode < 2 and a.fileID is not null then 1 else 0 end as preservation_normalization_attempted,
+        case when a.fileID is not null and b.exitcode = 1 then 1 else 0 end as preservation_normalization_failed,
+        c.taskUUID as access_normalization_task_uuid,
+        b.taskUUID as preservation_normalization_task_uuid,
+        c.exitCode as access_task_exitCode,
+        b.exitCode as preservation_task_exitCode
     from (
         select
             f.fileUUID,
