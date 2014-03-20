@@ -131,7 +131,7 @@ class MetadataAppliesToType(models.Model):
 
 class Event(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
-    event_id = UUIDField(auto=False, null=True, db_column='eventIdentifierUUID')
+    event_id = UUIDField(auto=False, null=True, unique=True, db_column='eventIdentifierUUID')
     file_uuid = models.ForeignKey('File', db_column='fileUUID', to_field='uuid', null=True, blank=True)
     event_type = models.CharField(max_length=256, db_column='eventType')
     event_datetime = models.DateTimeField(db_column='eventDateTime')
