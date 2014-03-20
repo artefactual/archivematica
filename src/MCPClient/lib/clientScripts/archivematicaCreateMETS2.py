@@ -817,6 +817,7 @@ def createFileSec(directoryPath, parentDiv):
     for item in sorted(delayed, cmp=sharedVariablesAcrossModules.collator.compare):
         itemdirectoryPath = os.path.join(directoryPath, item)
         createFileSec(itemdirectoryPath, structMapDiv)
+    return structMapDiv
 
 
 if __name__ == '__main__':
@@ -831,7 +832,7 @@ if __name__ == '__main__':
         baseDirectoryPath += '/'
     structMap = etree.Element("structMap", TYPE='physical', ID='structMap_1', LABEL="Archivematica default")
     structMapDiv = etree.SubElement(structMap, 'div', TYPE="Directory", LABEL=os.path.basename(baseDirectoryPath.rstrip('/')))
-    createFileSec(os.path.join(baseDirectoryPath, "objects"), structMapDiv)
+    structMapDivObjects = createFileSec(os.path.join(baseDirectoryPath, "objects"), structMapDiv)
     createFileSec(os.path.join(baseDirectoryPath, "metadata"), structMapDiv)
 
 
@@ -853,7 +854,7 @@ if __name__ == '__main__':
     dc = createDublincoreDMDSecFromDBData(SIPMetadataAppliesToType, fileGroupIdentifier)
     if dc != None:
         (dmdSec, ID) = dc
-        structMapDiv.set("DMDID", ID)
+        structMapDivObjects.set("DMDID", ID)
         root.append(dmdSec)
 
     for dmdSec in dmdSecs:
