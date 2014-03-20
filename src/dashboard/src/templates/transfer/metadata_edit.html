@@ -45,16 +45,6 @@ $(document).ready(function() {
         <form class="form-stacked" method="post" action="{% url 'components.transfer.views.transfer_metadata_edit' uuid %}">
       {% endif %}
 
-        <div class="clearfix">
-          <label>Applies to</label>
-          <div class="input">
-            <select class="span7" disabled="disabled">
-              <option>{{ name }}</option>
-            </select>
-            <span class="help-block">Metadata can be added at the SIP/AIP level only</span>
-          </div>
-        </div>
-
         {% include "_form.html" %}
 
         <div class="actions">
