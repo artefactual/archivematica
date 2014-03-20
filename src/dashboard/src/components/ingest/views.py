@@ -183,7 +183,7 @@ def ingest_metadata_edit(request, uuid, id=None):
         dc.save()
         return redirect('components.ingest.views.ingest_metadata_list', uuid)
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    name = utils.get_directory_name(jobs[0])
+    name = utils.get_directory_name_from_job(jobs[0])
 
     return render(request, 'ingest/metadata_edit.html', locals())
 
@@ -244,7 +244,7 @@ def ingest_metadata_event_detail(request, uuid):
     # Get name of SIP from directory name of most recent job
     # Making list and slicing for speed: http://stackoverflow.com/questions/5123839/fastest-way-to-get-the-first-object-from-a-queryset-in-django
     jobs = list(models.Job.objects.filter(sipuuid=uuid, subjobof='')[:1])
-    name = utils.get_directory_name(jobs[0])
+    name = utils.get_directory_name_from_job(jobs[0])
     return render(request, 'ingest/metadata_event_detail.html', locals())
 
 def delete_context(request, uuid, id):
