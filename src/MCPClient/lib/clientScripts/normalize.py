@@ -18,6 +18,9 @@ import databaseFunctions
 import databaseInterface
 import fileOperations
 
+sys.path.append("/usr/lib/archivematica/MCPServer")
+from passClasses import ReplacementDict
+
 path = '/usr/share/archivematica/dashboard'
 if path not in sys.path:
     sys.path.append(path)
@@ -53,6 +56,11 @@ def get_replacement_dict(opts):
         print("Unsupported command purpose", opts.purpose, file=sys.stderr)
         return None
 
+    # Populates the standard set of unit variables, so,
+    # e.g., %fileUUID% is available
+    standard_values = ReplacementDict.frommodel(type_='file',
+                                                file_=opts.file_uuid)
+
     output_filename = ''.join([prefix, filename, postfix])
     replacement_dict = {
         "%inputFile%": opts.file_path,
@@ -65,6 +73,7 @@ def get_replacement_dict(opts):
         "%outputFileName%": output_filename, # does not include extension
         "%outputFilePath%": os.path.join(output_dir, output_filename) # does not include extension
     }
+    replacement_dict.update(standard_values)
     return replacement_dict
 
 
