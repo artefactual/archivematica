@@ -46,7 +46,12 @@ while followup.startswith((' ', '\t')):
     followup = f.readline()
 
 for part in line.split(","):
-    part = part.strip()
+    # The word is split in order to try to install the latest version of
+    # packages expressed in the syntax: foo (>= bar)
+    # TODO apt-get install doesn't appear to support the full version
+    # syntax control files support, but this should possibly try to
+    # install the exact version specified?
+    part = part.strip().split(' ')[0]
     if part.find("${shlibs:Depends}") != -1 or \
         part.find("${misc:Depends}") != -1:
         continue
