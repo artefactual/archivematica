@@ -39,7 +39,11 @@ line = f.readline()
 while not line.startswith("Depends:"):
     line = f.readline()
 
-
+# Depends: statements can span lines
+followup = f.readline()
+while followup.startswith((' ', '\t')):
+    line = line + followup
+    followup = f.readline()
 
 for part in line.split(","):
     part = part.strip()
