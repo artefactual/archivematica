@@ -96,11 +96,17 @@ class Command(object):
                 opt = '--{k}={v}'.format(k=optname, v=optvalue)
                 args.append(opt)
         print "Command to execute:", self.command
+        print "-----"
+        print "Command stdout:"
         self.exit_code, self.std_out, std_err = executeOrRun(self.type, self.command, arguments=args, printing=True)
+        print "-----"
         print 'Command exit code:', self.exit_code
         if self.exit_code == 0 and self.verification_command:
             print "Running verification command", self.verification_command
+            print "-----"
+            print "Command stdout:"
             self.exit_code = self.verification_command.execute(skip_on_success=True)
+            print "-----"
             print 'Verification Command exit code:', self.exit_code
 
         if self.exit_code == 0 and self.event_detail_command:
