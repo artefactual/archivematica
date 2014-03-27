@@ -1,8 +1,0 @@
-<processingMCP>
-    <preconfiguredChoices>
-        <preconfiguredChoice>
-            <appliesTo>Workflow decision - Create DIP?</appliesTo>
-            <goToChain>Create AIP</goToChain>
-        </preconfiguredChoice>
-    </preconfiguredChoices>
-</processingMCP>
