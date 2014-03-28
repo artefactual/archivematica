@@ -106,7 +106,7 @@ class DublinCore(models.Model):
     identifier = models.CharField(max_length=255, db_column='identifier', blank=True, null=True)
     source = models.CharField(max_length=255, db_column='source', blank=True, null=True)
     relation = models.CharField(max_length=255, db_column='relation', blank=True, null=True)
-    language = models.CharField(help_text='Use ISO 3166', max_length=255, db_column='language', blank=True, null=True)
+    language = models.CharField(help_text='Use ISO 639', max_length=255, db_column='language', blank=True, null=True)
     coverage = models.CharField(max_length=255, db_column='coverage', blank=True, null=True)
     rights = models.TextField(db_column='rights', blank=True, null=True)
 
