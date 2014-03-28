@@ -1,5 +1,5 @@
 
-ARCHIVEMATICA_VERSION = (1, 0, 0)
+ARCHIVEMATICA_VERSION = (1, 1, 0)
 
 def get_version():
     """ Returns the version number as a string. """
