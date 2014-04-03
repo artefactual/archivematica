@@ -53,6 +53,7 @@ copyTransfersMetadataAndLogs_v0.0 = %clientScriptsDirectory%copyTransfersMetadat
 copyTransferSubmissionDocumentation_v0.0 = %clientScriptsDirectory%copyTransferSubmissionDocumentation.py
 createAIC_METS_v1.0 =  %clientScriptsDirectory%createAICMETS.py
 createDirectory_v0.0 = mkdir
+createDirectoryTree_v0.0 = tree
 createEvent_v0.0 = %clientScriptsDirectory%createEvent.py
 createMETS_v0.0 = %clientScriptsDirectory%archivematicaCreateMETS.py
 createMETS_v2.0 = %clientScriptsDirectory%archivematicaCreateMETS2.py

@@ -102,6 +102,14 @@ def index(request):
             "yes_option":   "5a9985d3-ce7e-4710-85c1-f74696770fa9",
             "no_option":    "1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53",
         },
+        {
+            "name":         "tree",
+            "choice_uuid":  "56eebd45-5600-4768-a8c2-ec0114555a3d",
+            "label":        "Generate transfer tree",
+            "yes_option":   "df54fec1-dae1-4ea6-8d17-a839ee7ac4a7", # Generate transfer tree
+            "no_option":    "e9eaef1e-c2e0-4e3b-b942-bfb537162795",
+            "action":       "Generate transfer tree"
+        },
     ]
 
     # name: Value of the `name` attribute in the <input> HTML element
