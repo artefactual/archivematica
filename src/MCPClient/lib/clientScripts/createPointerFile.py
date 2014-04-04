@@ -9,6 +9,7 @@ import sys
 import uuid
 
 import archivematicaXMLNamesSpace as namespaces
+import archivematicaCreateMETS2
 PATH = "/usr/lib/archivematica/archivematicaCommon"
 if PATH not in sys.path:
     sys.path.append(PATH)
@@ -117,7 +118,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
                 E_P.objectIdentifierValue(aip_uuid),
             ),
             E_P.objectCharacteristics(
-                E_P.objcompositionLevel('1'),
+                E_P.compositionLevel('1'),
                 E_P.fixity(
                     E_P.messageDigestAlgorithm(checksum_algorithm),
                     E_P.messageDigest(checksum),
@@ -148,6 +149,15 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
 
         # Add as child of xmldata
         amdsec.find('.//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]/mets:xmlData', namespaces=namespaces.NSMAP).append(obj)
+
+        # Add PREMIS:EVENT for compression, use archivematicaCreateMETS2 code
+        elements = archivematicaCreateMETS2.createDigiprovMD(aip_uuid)
+        for element in elements:
+            amdsec.append(element)
+        # Add PREMIS:AGENT for Archivematica
+        elements = archivematicaCreateMETS2.createDigiprovMDAgents()
+        for element in elements:
+            amdsec.append(element)
 
         # add amdSec after previous amdSec (or metsHdr if first one)
         add_amdsec_after.addnext(amdsec)

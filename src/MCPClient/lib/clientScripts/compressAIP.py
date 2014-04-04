@@ -5,6 +5,7 @@ import os.path
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
+import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 
 
@@ -44,19 +45,41 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
             uncompressed_location=uncompressed_location,
             compressed_location=compressed_location
         )
+        tool_info_command = 'echo program=\"7z\"\; version=\"`7z | grep Version`\"'
     elif program == 'pbzip2':
         compressed_location = uncompressed_location+".tar.bz2"
         command = '/bin/tar -c --directory "{sip_directory}" "{archive_path}" | /usr/bin/pbzip2 --compress -{level} > "{compressed_location}"'.format(
             sip_directory=sip_directory, archive_path=archive_path,
             level=compression_level, compressed_location=compressed_location
         )
+        tool_info_command = 'echo program=\"pbzip2\"\; version=\"`pbzip2 --version`\"'
     else:
         msg = "Program {} not recognized, exiting script prematurely.".format(program)
         print >> sys.stderr, msg
         return -1
 
-    print 'Executing command: {}'.format(command)
-    exit_code, _, _ = executeOrRun("bashScript", command, printing=True)
+    print 'Executing command:', command
+    exit_code, std_out, std_err = executeOrRun("bashScript", command, printing=True)
+
+    # Add new AIP File
+    file_uuid = sip_uuid
+    databaseFunctions.insertIntoFiles(
+        fileUUID=file_uuid,
+        filePath=compressed_location.replace(sip_directory, '%SIPDirectory%', 1),
+        sipUUID=sip_uuid,
+        use='aip',
+    )
+
+    # Add compression event
+    print 'Tool info command:', tool_info_command
+    _, tool_info, _ = executeOrRun("bashScript", tool_info_command, printing=True)
+    tool_output = 'Standard Output="{}"; Standard Error="{}"'.format(std_out, std_err)
+    databaseFunctions.insertIntoEvents(
+        eventType='compression',
+        eventDetail=tool_info,
+        eventOutcomeDetailNote=tool_output,
+        fileUUID=file_uuid,
+    )
 
     # Set aipFilename in Unit
     sql = """ UPDATE SIPs SET aipFilename='{aipFilename}' WHERE sipUUID='{sip_uuid}';""".format(
