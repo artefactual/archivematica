@@ -17,9 +17,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseFunctions
 import databaseInterface
 import fileOperations
-
-sys.path.append("/usr/lib/archivematica/MCPServer")
-from passClasses import ReplacementDict
+from dicts import ReplacementDict
 
 path = '/usr/share/archivematica/dashboard'
 if path not in sys.path:

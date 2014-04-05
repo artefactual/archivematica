@@ -26,7 +26,7 @@ import threading
 from jobChainLink import jobChainLink
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
-from passClasses import ReplacementDict
+from dicts import ReplacementDict
 #Holds:
 #-UNIT
 #-Job chain link

@@ -33,8 +33,10 @@ import archivematicaMCP
 from linkTaskManagerChoice import choicesAvailableForUnits
 from linkTaskManagerChoice import choicesAvailableForUnitsLock
 from linkTaskManagerChoice import waitingOnTimer
-from passClasses import ReplacementDict, ChoicesDict
 import databaseInterface
+
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from dicts import ReplacementDict, ChoicesDict
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica.log",
