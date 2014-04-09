@@ -64,7 +64,7 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     # Get the package type: AIC or AIP
     if sip_type == "SIP":
         package_type = "AIP"
-    elif sip_type == 'AIC':
+    elif sip_type == 'AIC' or sip_type == 'DIP':
         package_type = sip_type
 
     # Uncompressed directory AIPs must be terminated in a /,
@@ -85,14 +85,14 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
         size=os.path.getsize(aip_path)
     )
     if new_file is not None and new_file.get('status', '') != "FAIL":
-        message = "Storage service created AIP: {}".format(new_file)
+        message = "Storage service created {}: {}".format(sip_type, new_file)
         logging.info(message)
         print message
         sys.exit(0)
     else:
-        print >>sys.stderr, "AIP creation failed.  See Storage Service logs for more details"
+        print >>sys.stderr, "{} creation failed.  See Storage Service logs for more details".format(sip_type)
         print >>sys.stderr, error_msg or "Package status: Failed"
-        logging.warning("AIP unabled to be created: {}.  See logs for more details.".format(error_msg))
+        logging.warning("{} unabled to be created: {}.  See logs for more details.".format(sip_type, error_msg))
         sys.exit(1)
 
 
