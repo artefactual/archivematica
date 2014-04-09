@@ -182,20 +182,25 @@ def index(request):
         }
     ]
 
+    def storage_dir_cb(storage_dir):
+        return {
+            'value': storage_dir['resource_uri'],
+            'label': storage_dir['description']
+        }
+
     """ Return a dict of AIP Storage Locations and their descriptions."""
     storage_directory_options = [{'value': '', 'label': '--Actions--'}]
+    dip_directory_options = [{'value': '', 'label': '--Actions--'}]
     try:
         storage_directories = storage_service.get_location(purpose="AS")
-        if storage_directories == None:
+        dip_directories = storage_service.get_location(purpose="DS")
+        if None in (storage_directories, dip_directories):
             raise Exception("Storage server improperly configured.")
     except Exception:
-        messages.warning(request, 'Error retrieving AIP storage locations: is the storage server running? Please contact an administrator.')
+        messages.warning(request, 'Error retrieving AIP/DIP storage locations: is the storage server running? Please contact an administrator.')
     else:
-        for storage_dir in storage_directories:
-            storage_directory_options.append({
-                'value': storage_dir['resource_uri'],
-                'label': storage_dir['description']
-            })
+        storage_directory_options += [storage_dir_cb(d) for d in storage_directories]
+        dip_directory_options += [storage_dir_cb(d) for d in dip_directories]
 
     storage_service_options = [
         {
@@ -203,6 +208,15 @@ def index(request):
             "label":         "Store AIP location",
             "choice_uuid":   "b320ce81-9982-408a-9502-097d0daa48fa",
             "options":       storage_directory_options,
+            # Unlike other options, the correct value here is a literal string,
+            # not a pointer to a chain or dict in the database.
+            "do_not_lookup": True
+        },
+        {
+            "name":          "store_dip_location",
+            "label":         "Store DIP location",
+            "choice_uuid":   "b7a83da6-ed5a-47f7-a643-1e9f9f46e364",
+            "options":       dip_directory_options,
             # Unlike other options, the correct value here is a literal string,
             # not a pointer to a chain or dict in the database.
             "do_not_lookup": True
