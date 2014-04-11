@@ -104,7 +104,6 @@ class ReplacementDict(dict):
             except:
                 sip = file_.transfer
 
-
         rd = ReplacementDict()
         if sip:
             if isinstance(sip, models.Transfer):
