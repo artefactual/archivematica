@@ -26,17 +26,6 @@ import ConfigParser
 import os
 import sys
 
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-from main import models
-
-# TODO This probably shouldn't be directly read here, but this file can't
-#      safely import archivematicaMCP because it has too many side effects.
-config = ConfigParser.SafeConfigParser({'MCPArchivematicaServerInterface': ""})
-config.read("/etc/archivematica/MCPServer/serverConfig.conf")
-
 
 def replace_string_values(string, **kwargs):
     """
@@ -162,14 +151,10 @@ class ReplacementDict(dict):
         Iterates over a set of strings. Any keys in self found within
         the string will be replaced with their respective values.
         Returns an array of strings, regardless of the number of parameters
-        pased in.
+        pased in. For example:
 
-        e.g.:
-
-        rd = ReplacementDict({"$foo": "bar"})
-
-        rd.replace('The value of the foo variable is: $foo')
-        # returns
+        >>> rd = ReplacementDict({"$foo": "bar"})
+        >>> rd.replace('The value of the foo variable is: $foo')
         ['The value of the foo variable is: bar']
         """
         ret = []
@@ -185,3 +170,24 @@ class ChoicesDict(ReplacementDict):
     @staticmethod
     def fromstring(s):
         return ChoicesDict(ast.literal_eval(s))
+
+# We can't guarantee this is being run from an actual
+# Archivematica installation if this is being run via
+# doctest, so don't try to import the dashboard models
+# in that case.
+#
+# Unfortunately that means we can't doctest .frommodel.
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
+else:
+    path = '/usr/share/archivematica/dashboard'
+    if path not in sys.path:
+        sys.path.append(path)
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+    from main import models
+
+    # TODO This probably shouldn't be directly read here, but this file can't
+    #      safely import archivematicaMCP because it has too many side effects.
+    config = ConfigParser.SafeConfigParser({'MCPArchivematicaServerInterface': ""})
+    config.read("/etc/archivematica/MCPServer/serverConfig.conf")
