@@ -209,9 +209,8 @@ def approve_transfer_via_mcp(directory, type, user_id):
                 # attempt to find appropriate choice
                 chain_to_execute = None
                 for choice in choices:
-                    chain = models.MicroServiceChain.objects.get(pk=choice.chainavailable)
-                    if chain.description == 'Approve transfer':
-                        chain_to_execute=chain.pk
+                    if choice.chainavailable.description == 'Approve transfer':
+                        chain_to_execute=choice.chainavailable.pk
 
                 # execute choice if found
                 if chain_to_execute != None:
