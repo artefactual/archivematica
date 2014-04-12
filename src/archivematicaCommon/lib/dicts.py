@@ -43,6 +43,12 @@ def replace_string_values(string, **kwargs):
 class ReplacementDict(dict):
     @staticmethod
     def fromstring(s):
+        """
+        Create a new ReplacementDict given a string representing a
+        serialized Python dict. This is commonly used within the
+        MCPServer, where unit variables are frequently dicts stored
+        in the database.
+        """
         return ReplacementDict(ast.literal_eval(s))
 
     @staticmethod
@@ -169,6 +175,9 @@ class ReplacementDict(dict):
 class ChoicesDict(ReplacementDict):
     @staticmethod
     def fromstring(s):
+        """
+        See ReplacementDict.fromstring.
+        """
         return ChoicesDict(ast.literal_eval(s))
 
 # We can't guarantee this is being run from an actual
