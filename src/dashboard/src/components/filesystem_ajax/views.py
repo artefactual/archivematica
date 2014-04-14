@@ -203,16 +203,17 @@ def start_transfer(request):
     temp_base_dir = helpers.get_client_config_value('temp_dir') or None
     temp_dir = tempfile.mkdtemp(dir=temp_base_dir)
 
-    for path in paths:
-        copy_transfer_component(transfer_name=transfer_name,
+    for i, path in enumerate(paths):
+        target = transfer_name + '_' + str(i + 1)
+        copy_transfer_component(transfer_name=target,
                                 path=path, destination=temp_dir)
 
-    if len(paths) == 1 and helpers.file_is_an_archive(paths[0]):
-        filepath = os.path.join(temp_dir, os.path.basename(paths[0]))
-    else:
-        filepath = os.path.join(temp_dir, transfer_name)
-    copy_to_start_transfer(filepath=filepath,
-                           type=transfer_type, accession=accession)
+        if helpers.file_is_an_archive(path):
+            filepath = os.path.join(temp_dir, os.path.basename(path))
+        else:
+            filepath = os.path.join(temp_dir, target)
+        copy_to_start_transfer(filepath=filepath,
+                               type=transfer_type, accession=accession)
 
     response = {'message': 'Copy successful.'}
     return helpers.json_response(response)
