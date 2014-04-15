@@ -236,4 +236,38 @@ UPDATE MicroServiceChainLinks SET currentTask=@characterizeTC WHERE pk=@characte
 ALTER TABLE FPCommandOutput
 	DROP PRIMARY KEY,
 	ADD PRIMARY KEY(fileUUID, ruleUUID);
+
+-- Insert a run of identify file format before running characterize on
+-- submission docs in ingest, then update that characterization so it
+-- uses this new microservice.
+
+-- The pre-existing microservice
+SET @characterizeIngest = '33d7ac55-291c-43ae-bb42-f599ef428325' COLLATE utf8_unicode_ci;
+
+SET @idToolChoiceMSCL = '087d27be-c719-47d8-9bbb-9a7d8b609c44' COLLATE utf8_unicode_ci;
+SET @idToolChoiceTC = '0c95f944-837f-4ada-a396-2c7a818806c6' COLLATE utf8_unicode_ci;
+SET @idSubmissionDocsMSCL = '1dce8e21-7263-4cc4-aa59-968d9793b5f2' COLLATE utf8_unicode_ci;
+SET @idSubmissionDocsSTC = '82b08f3a-ca8f-4259-bd92-2fc1ab4f9974' COLLATE utf8_unicode_ci;
+SET @idSubmissionDocsTC = '28e8e81c-3380-47f6-a973-e48f94104692' COLLATE utf8_unicode_ci;
+
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@idToolChoiceTC, '9c84b047-9a6d-463f-9836-eafa49743b84', NULL, 'Select file format identification command');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@idToolChoiceMSCL, 'Process submission documentation', 'Failed', @idtoolchoicetc, @MoveSIPToFailedLink);
+-- Insert file ID choice after scan for viruses
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@idToolChoiceMSCL WHERE microServiceChainLink='1ba589db-88d1-48cf-bb1a-a5f9d2b17378';
+
+
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES (@idSubmissionDocsSTC, 0, 'identifyFileFormat_v0.0', '%IDCommand% %relativeLocation% %fileUUID%', 'objects/submissionDocumentation');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@idSubmissionDocsTC, 'a6b1c323-7d36-428e-846a-e7e819423577', @idSubmissionDocsSTC, 'Identify file format');
+INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@idSubmissionDocsMSCL, 'Process submission documentation', 'Failed', @idSubmissionDocsTC, @MoveSIPToFailedLink);
+
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('c3f1a78b-0e5e-4d3f-8d32-ba9554ebddf8', @idToolChoiceMSCL, 0, @idSubmissionDocsMSCL, 'Completed successfully');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('80547eac-c724-45e1-8804-3eabf18bea47', @idSubmissionDocsMSCL, 0, @characterizeIngest, 'Completed successfully');
+
+UPDATE StandardTasksConfigs SET execute='characterizeFile_v0.0', arguments='"%relativeLocation%" "%fileUUID%" "%SIPUUID%"' WHERE pk = '4b816807-10a7-447a-b42f-f34c8b8b3b76';
+
+-- Insert the initial MicroServiceChoiceReplacementDics; newly-created commands will be autoinserted
+-- in the future.
+INSERT INTO MicroServiceChoiceReplacementDic (pk, choiceAvailableAtLink, description, replacementDic) VALUES ('782bbf56-e220-48b5-9eb6-6610583f2072', @idToolChoiceMSCL, 'Skip File Identification', '{"%IDCommand%":"None"}');
+INSERT INTO MicroServiceChoiceReplacementDic (pk, choiceAvailableAtLink, description, replacementDic) VALUES ('6f9bfd67-f598-400a-aa2e-12b2657962fc', @idToolChoiceMSCL, 'Fido version 1 PUID runs Identify using Fido', '{"%IDCommand%":"1c7dd02f-dfd8-46cb-af68-5b305aea1d6e"}');
+INSERT INTO MicroServiceChoiceReplacementDic (pk, choiceAvailableAtLink, description, replacementDic) VALUES ('724b17a2-668b-4ef6-9f3b-860d8dfcbb29', @idToolChoiceMSCL, 'File Extension version 0.1 file extension runs Identify by File Extension', '{"%IDCommand%":"41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"}');
 -- /Issue 5866

@@ -143,6 +143,11 @@ def index(request):
             "choice_uuid": '7a024896-c4f7-4808-a240-44c87c762bc5'
         },
         {
+            "name": "select_format_id_tool_submissiondocs",
+            "label": "Select file format identification command (Submission documentation)",
+            "choice_uuid": '087d27be-c719-47d8-9bbb-9a7d8b609c44'
+        },
+        {
             "name":  "delete_packages",
             "label": "Delete packages after extraction",
             "choice_uuid": "f19926dd-8fb5-4c79-8ade-c83f61f55b40",
