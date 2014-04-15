@@ -69,7 +69,7 @@ function git-pull() {
       if [ -d src/dashboard/src/fpr ]; then
           echo "entering fpr admin module"
           cd src/dashboard/src/fpr
-          git checkout master
+          git checkout 1.x
           git pull
           cd ../../../../
       fi
