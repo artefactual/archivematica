@@ -539,19 +539,6 @@ def transfer_awaiting_sip_creation(uuid):
     except:
         return False
 
-def process_transfer(request, transfer_uuid):
-    response = {}
-
-    if request == None or request.user.id:
-        sipUUID = ingest_helpers.process_transfer(transfer_uuid)
-
-        response['message'] = 'SIP ' + sipUUID + ' created.'
-    else:
-        response['error']   = True
-        response['message'] = 'Must be logged in.'
-
-    return helpers.json_response(response)
-
 def transfer_file_download(request, uuid):
     # get file basename
     try:

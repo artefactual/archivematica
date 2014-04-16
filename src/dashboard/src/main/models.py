@@ -229,8 +229,8 @@ class Transfer(models.Model):
 
 
 class SIPArrange(models.Model):
-    original_path = models.TextField(null=True, blank=True, default=None)
-    arrange_path = models.TextField()
+    original_path = models.CharField(max_length=255, null=True, blank=True, default=None)
+    arrange_path = models.CharField(max_length=255, unique=True)
     file_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
     transfer_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
     sip_created = models.BooleanField(default=False)

@@ -23,11 +23,10 @@ import sys
 import tempfile
 import uuid
 
-from django.http import Http404, HttpResponse, HttpResponseBadRequest
-from django.db import connection
+from django.http import Http404
+from django.db import connection, IntegrityError
 
 from components import helpers
-import components.ingest.helpers as ingest_helpers
 import components.filesystem_ajax.helpers as filesystem_ajax_helpers
 from main import models
 
@@ -35,7 +34,6 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
 import databaseFunctions
 import elasticSearchFunctions
-from archivematicaCreateStructuredDirectory import createStructuredDirectory
 import storageService as storage_service
 
 # for unciode sorting support
@@ -292,13 +290,90 @@ def copy_to_start_transfer(filepath='', type='', accession=''):
     if error:
         raise Exception(error)
 
+
+def create_arranged_sip(staging_sip_path, files):
+    shared_dir = helpers.get_server_config_value('sharedDirectory')
+    staging_sip_path = staging_sip_path.lstrip('/')
+
+    # Create SIP object
+    sip_uuid = str(uuid.uuid4())
+    sip_name = staging_sip_path.split('/')[1]
+    sip_path = os.path.join(shared_dir, 'watchedDirectories', 'SIPCreation', 'SIPsUnderConstruction', sip_name)
+    sip_path = helpers.pad_destination_filepath_if_it_already_exists(sip_path)
+    sip_uuid = databaseFunctions.createSIP(sip_path.replace(shared_dir, '%sharedPath%', 1)+'/', sip_uuid)
+
+    # Update currentLocation of files
+    for file_ in files:
+        # Strip 'arrange/sip_name' from file path
+        in_sip_path = '/'.join(file_['destination'].split('/')[2:])
+        currentlocation = '%SIPDirectory%'+ in_sip_path
+        models.File.objects.filter(uuid=file_['uuid']).update(sip=sip_uuid, currentlocation=currentlocation)
+
+    # Move to watchedDirectories/SIPCreation/SIPsUnderConstruction
+    logging.info('create_arranged_sip: move from %s to %s', os.path.join(shared_dir, staging_sip_path), os.path.join(sip_path))
+    shutil.move(
+        src=os.path.join(shared_dir, staging_sip_path),
+        dst=os.path.join(sip_path))
+
+
 def copy_from_arrange_to_completed(request):
-    filepath = '/' + request.POST.get('filepath', '')
+    """ Create a SIP from the information stored in the SIPArrange table.
 
-    if filepath != '':
-        ingest_helpers.initiate_sip_from_files_structured_like_a_completed_transfer(filepath)
+    Get all the files in the new SIP, and all their associated metadata, and
+    move to the processing space.  Create needed database entries for the SIP
+    and start the microservice chain.
+    """
+    error = None
+    filepath = request.POST.get('filepath', '')
 
-    #return copy_to_originals(request)
+    filepath = os.path.normpath(filepath)
+
+    # Error checking
+    if not filepath.startswith(DEFAULT_ARRANGE_PATH):
+        error = '{} is not in {}'.format(filepath, DEFAULT_ARRANGE_PATH)
+    else:
+        # Filepath is prefix on arrange_path in SIPArrange
+        filepath = os.path.join(filepath, '')
+        # Fetch all files with 'filepath' as prefix, and have a source path
+        arrange = models.SIPArrange.objects.filter(sip_created=False).filter(arrange_path__startswith=filepath).filter(original_path__isnull=False)
+
+        # TODO fetch metadata information based on transfer UUID and add to
+        # files to be moved
+
+        # Collect file information.  Change path to be in staging, not arrange
+        files = []
+        for arranged_file in arrange:
+            files.append(
+                {'source': arranged_file.original_path.lstrip('/'),
+                 'destination': arranged_file.arrange_path.lstrip('/').replace('arrange', 'staging', 1),
+                 'uuid': arranged_file.file_uuid,
+                }
+            )
+
+        # Move files from backlog to local staging path
+        (sip, error) = storage_service.get_files_from_backlog(files)
+
+        if error is None:
+            # Create SIP object
+            error = create_arranged_sip(filepath.replace('arrange', 'staging', 1), files)
+
+        if error is None:
+            # Update SIPArrange with in_SIP = True
+            arrange.update(sip_created=True)
+            # Remove directories
+            models.SIPArrange.objects.filter(sip_created=False).filter(arrange_path__startswith=filepath).filter(original_path__isnull=True).delete()
+
+
+    if error is not None:
+        response = {
+            'message': error,
+            'error': True,
+        }
+    else:
+        response = {'message': 'SIP created.'}
+
+    return helpers.json_response(response)
+
 
 def create_directory_within_arrange(request):
     """ Creates a directory entry in the SIPArrange table.
@@ -456,10 +531,8 @@ def copy_to_arrange(request):
     if sourcepath.endswith('/'):
         leaf_dir = sourcepath.split('/')[-2]
         arrange_path = os.path.join(destination, leaf_dir) + '/'
-        file_uuid = None
     else:
         arrange_path = os.path.join(destination, os.path.basename(sourcepath))
-        file_uuid = 'TODO'
     logging.info('copy_to_arrange: arrange_path: {}'.format(arrange_path))
 
     # Cannot add an object that already exists
@@ -471,21 +544,30 @@ def copy_to_arrange(request):
     if not error:
         # IDEA memoize the backlog location?
         backlog_uuid = storage_service.get_location(purpose='BL')[0]['uuid']
-        to_add = [{'original_path': sourcepath,
-                   'arrange_path': arrange_path,
-                   'file_uuid': file_uuid}]
+        to_add = []
 
         # If it's a directory, fetch all the children
         if sourcepath.endswith('/'):
+            to_add.append({'original_path': None,
+                           'arrange_path': arrange_path,
+                           'file_uuid': None})
             to_add.extend(_get_arrange_directory_tree(backlog_uuid, sourcepath, arrange_path,))
+        else:
+            to_add.append({'original_path': sourcepath,
+                           'arrange_path': arrange_path,
+                           'file_uuid': 'TODO'})
         logging.debug('copy_to_arrange: files to be added: {}'.format(to_add))
 
         for entry in to_add:
-            models.SIPArrange.objects.create(
-                original_path=entry['original_path'],
-                arrange_path=entry['arrange_path'],
-                file_uuid=entry['file_uuid'],
-            )
+            try:
+                models.SIPArrange.objects.create(
+                    original_path=entry['original_path'],
+                    arrange_path=entry['arrange_path'],
+                    file_uuid=entry['file_uuid'],
+                )
+            except IntegrityError:
+                error = '{} already exists'.format(entry['arrange_path'])
+                break
 
     if error is not None:
         response = {
