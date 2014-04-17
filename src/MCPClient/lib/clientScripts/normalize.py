@@ -61,11 +61,7 @@ def get_replacement_dict(opts):
 
     output_filename = ''.join([prefix, filename, postfix])
     replacement_dict = {
-        "%inputFile%": opts.file_path,
         "%outputDirectory%": output_dir,
-        "%fileExtensionWithDot%": extension_dot,
-        "%fileFullName%": opts.file_path,
-        "%fileName%":  filename,
         "%prefix%": prefix,
         "%postfix%": postfix,
         "%outputFileName%": output_filename, # does not include extension

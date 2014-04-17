@@ -145,6 +145,13 @@ class ReplacementDict(dict):
             if type_ == 'file':
                 rd['%relativeLocation%'] = current_location
 
+            # These synonyms were originally defined by the Normalize microservice
+            rd['%inputFile%'] = current_location
+            rd['%fileFullName%'] = current_location
+            name, ext = os.path.splitext(current_location)
+            rd['%fileName%'] = os.path.basename(name)
+            rd['%fileExtensionWithDot%'] = ext
+
         rd['%processingDirectory%'] = config.get('MCPServer', "processingDirectory")
         rd['%checksumsNoExtension%'] = config.get('MCPServer', "checksumsNoExtention")
         rd['%watchDirectoryPath%'] = config.get('MCPServer', "watchDirectoryPath")
