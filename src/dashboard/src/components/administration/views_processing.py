@@ -95,6 +95,13 @@ def index(request):
             "yes_option":   "9efab23c-31dc-4cbd-a39d-bb1665460cbe", # Store AIP
             "action":       "Store AIP"
         },
+        {
+            "name":         "transcribe_file",
+            "choice_uuid":  "7079be6d-3a25-41e6-a481-cee5f352fe6e",
+            "label":        "Transcribe files (OCR)",
+            "yes_option":   "5a9985d3-ce7e-4710-85c1-f74696770fa9",
+            "no_option":    "1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53",
+        },
     ]
 
     # name: Value of the `name` attribute in the <input> HTML element
