@@ -25,6 +25,7 @@ from archivematicaXMLNamesSpace import *
 import lxml.etree as etree
 from xml.sax.saxutils import quoteattr
 import os
+import re
 import sys
 import MySQLdb
 import PyICU
@@ -159,19 +160,27 @@ def createDMDIDSFromCSVParsedMetadataDirectories(directory):
         if directory == key:
             return createDMDIDSFromCSVParsedMetadataPart2(compoundMetadataCSVkey, values)
 
-                
+
 def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
     global globalDmdSecCounter
     global dmdSecs
     dc = None
     other = None
     ret = []
+
+    # Archivematica does not support refined Dublin Core, e.g.
+    # multitiered terms in the format dc.description.abstract
+    # If these terms are encountered, an element with only the
+    # last portion of the name will be added.
+    # e.g., dc.description.abstract is mapped to <dcterms:abstract>
+    refinement_regex = re.compile('\w+\.(.+)')
+
     for i in range(1, len(keys)):
         key = keys[i]
         value = values[i]
         if key.startswith("dc.") or key.startswith("dcterms."):
             #print "dc item: ", key, value
-            if dc == None:
+            if dc is None:
                 globalDmdSecCounter += 1
                 dmdSec = etree.Element("dmdSec")
                 dmdSecs.append(dmdSec)
@@ -181,18 +190,22 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
                 mdWrap = etree.SubElement(dmdSec, "mdWrap")
                 mdWrap.set("MDTYPE", "DC")
                 xmlData = etree.SubElement(mdWrap, "xmlData")
-                dc = etree.Element( "dublincore", nsmap = {None: dctermsNS} )
+                dc = etree.Element("dublincore", nsmap={None: dctermsNS})
                 dc.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
                 xmlData.append(dc)
             if key.startswith("dc."):
                 key2 = key.replace("dc.", "", 1)
-            elif  key.startswith("dcterms."):
+            elif key.startswith("dcterms."):
                 key2 = key.replace("dcterms.", "", 1)
             value = value.decode('utf-8')
-            etree.SubElement(dc, key2).text = value
-        else: #not a dublin core item
-            #print "non dc: ", key, value
-            if other == None:
+            match = re.match(refinement_regex, key2)
+            if match:
+                key2, = match.groups()
+
+            el = etree.SubElement(dc, key2)
+            el.text = value
+        else:  # not a dublin core item
+            if other is None:
                 globalDmdSecCounter += 1
                 dmdSec = etree.Element("dmdSec")
                 dmdSecs.append(dmdSec)
@@ -204,13 +217,12 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
                 mdWrap.set("OTHERMDTYPE", "CUSTOM")
                 other = etree.SubElement(mdWrap, "xmlData")
             etree.SubElement(other, normalizeNonDcElementName(key)).text = value
-    return  " ".join(ret)
-            
-    
+    return " ".join(ret)
+
 
 def createDublincoreDMDSecFromDBData(type, id):
     dc = getDublinCore(type, id)
-    if dc == None:
+    if dc is None:
         transfers = os.path.join(baseDirectoryPath, "objects/metadata/transfers/")
         if not os.path.isdir(transfers):
             return None

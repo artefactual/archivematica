@@ -38,16 +38,17 @@ compoundMetadataCSVkey = []
 compoundMetadataCSV = {}
 
 
-CSVMetadata=(simpleMetadataCSVkey, simpleMetadataCSV, compoundMetadataCSVkey, compoundMetadataCSV)
+CSVMetadata = (simpleMetadataCSVkey, simpleMetadataCSV,
+               compoundMetadataCSVkey, compoundMetadataCSV)
 
 
 def parseMetadata(SIPPath):
-    ret = ({},{})
     transfersPath = os.path.join(SIPPath, "objects", "metadata", "transfers")
     if not os.path.isdir(transfersPath):
         return
     for transfer in os.listdir(transfersPath):
-        metadataCSVFilePath = os.path.join(transfersPath, transfer, "metadata.csv")
+        metadataCSVFilePath = os.path.join(transfersPath,
+                                           transfer, "metadata.csv")
         if os.path.isfile(metadataCSVFilePath):
             try:
                 parseMetadtaCSV(metadataCSVFilePath)
@@ -55,17 +56,17 @@ def parseMetadata(SIPPath):
                 print >>sys.stderr, type(inst)     # the exception instance
                 print >>sys.stderr, inst.args
                 print >>sys.stderr, "error parsing: ", metadataCSVFilePath
-                traceback.print_exc(file=sys.stdout) 
-                sharedVariablesAcrossModules.globalErrorCount +=1
-        
-    
+                traceback.print_exc(file=sys.stdout)
+                sharedVariablesAcrossModules.globalErrorCount += 1
+
+
 def parseMetadtaCSV(metadataCSVFilePath):
     with open(metadataCSVFilePath, 'rb') as f:
         reader = csv.reader(f)
         firstRow = True
         type = ""
         for row in reader:
-            if firstRow: #header row
+            if firstRow:  # header row
                 type = row[0].lower()
                 if type == "filename":
                     CSVMetadata[0].extend(row)
@@ -74,16 +75,15 @@ def parseMetadtaCSV(metadataCSVFilePath):
                 else:
                     print >>sys.stderr, "error parsing: ", metadataCSVFilePath
                     print >>sys.stderr, "unsupported: ", type
-                    sharedVariablesAcrossModules.globalErrorCount +=1
+                    sharedVariablesAcrossModules.globalErrorCount += 1
                     return
                 firstRow = False
-            
-            else: #data row
+
+            else:  # data row
                 if type == "filename":
-                    simpleMetadataCSV[row[0]] = row 
+                    simpleMetadataCSV[row[0]] = row
                 elif type == "parts":
                     directory = row[0]
                     if directory.endswith("/"):
                         directory = directory[:-1]
-                    compoundMetadataCSV[directory] = row 
-                
+                    compoundMetadataCSV[directory] = row
