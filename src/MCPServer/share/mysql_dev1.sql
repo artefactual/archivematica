@@ -492,4 +492,11 @@ INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, cu
 
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('22ebafb1-3ec3-406a-939d-4eb9f3b8bbd1', @transcribeChoiceMSCL, 0, @transcribeFileMSCL, 'Completed successfully');
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('804d4d23-e81b-4d81-8e67-1a3b5470c841', @transcribeFileMSCL, 0, @postTranscribeMSCL, 'Completed successfully');
+
+-- Copy OCR data into DIP
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('5c4f877f-b352-4977-b51b-53ebc437b08c', 0, 'copyRecursive_v0.0', '"%SIPObjectsDirectory%metadata/OCRfiles" "%SIPDirectory%DIP"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('102cd6b0-5d30-4e04-9b62-4e9f12d74549', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '5c4f877f-b352-4977-b51b-53ebc437b08c', 'Copy OCR data to DIP directory');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('43c72f8b-3cea-4b4c-b99d-cfdefdfcc270', 'Prepare DIP', 'Failed', '102cd6b0-5d30-4e04-9b62-4e9f12d74549', '7d728c39-395f-4892-8193-92f086c0546f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('95ba6779-2ed2-47ea-a7ad-df4a4cf3764d', '43c72f8b-3cea-4b4c-b99d-cfdefdfcc270', 0, '6ee25a55-7c08-4c9a-a114-c200a37146c4', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='43c72f8b-3cea-4b4c-b99d-cfdefdfcc270' WHERE microServiceChainLink='ad011cc2-b0eb-4f51-96bb-400149a2ea11';
 -- /Issue 6565 OCR

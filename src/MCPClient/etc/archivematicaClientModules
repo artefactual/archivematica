@@ -48,6 +48,7 @@ checkForSubmissionDocumenation_v0.0 = %clientScriptsDirectory%checkForSubmission
 checkTransferDirectoryForObjects_v0.0 = %clientScriptsDirectory%checkTransferDirectoryForObjects.py
 compressAIP_v0.0 = %clientScriptsDirectory%compressAIP.py
 copy_v0.0 = cp
+copyRecursive_v0.0 = %clientScriptsDirectory%copyRecursiveIfExists.sh
 copyTransfersMetadataAndLogs_v0.0 = %clientScriptsDirectory%copyTransfersMetadataAndLogs.py
 copyTransferSubmissionDocumentation_v0.0 = %clientScriptsDirectory%copyTransferSubmissionDocumentation.py
 createAIC_METS_v1.0 =  %clientScriptsDirectory%createAICMETS.py
