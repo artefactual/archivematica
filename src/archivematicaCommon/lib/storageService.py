@@ -2,6 +2,7 @@ import base64
 import logging
 import os
 import platform
+import requests
 import slumber
 import sys
 
@@ -322,6 +323,31 @@ def pointer_file_url(file_uuid):
     download_url = "{base_url}file/{uuid}/pointer_file/".format(
         base_url=storage_service_url, uuid=file_uuid)
     return download_url
+
+
+def request_reingest(package_uuid, reingest_type):
+    """
+    Requests `package_uuid` for reingest in this pipeline.
+
+    `reingest_type` determines what files will be copied for reingest, defined
+    by ReingestAIPForm.REINGEST_CHOICES.
+
+    Returns a dict: {'error': [True|False], 'message': '<error message>'}
+    """
+    api = _storage_api()
+    api_request = {
+        'pipeline': get_setting('dashboard_uuid'),
+        'reingest_type': reingest_type
+    }
+    try:
+        response = api.file(package_uuid).reingest.post(api_request)
+    except (slumber.exceptions.HttpClientError, slumber.exceptions.HttpServerError) as e:
+        LOGGER.exception("Unable to reingest {}".format(package_uuid))
+        return  e.response.json() or {'error': True}
+    except requests.ConnectionError as e:
+        LOGGER.exception("Could not connect to storage service")
+        return {'error': True, 'message': 'Could not connect to storage service'}
+    return response
 
 
 def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):

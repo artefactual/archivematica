@@ -1,0 +1,31 @@
+{% extends "layout_fluid.html" %}
+{% block title %}Archival Storage - Reingest AIP{% endblock %}
+
+{% block extra_css %}
+<style type='text/css'>
+form li {
+  list-style-type: none;
+}
+form label {
+  text-align: left;
+}
+form li>label {
+  clear: both;
+  width: auto;
+}
+</style>
+
+{% endblock %}
+
+{% block content %}
+<h1>Reingest AIP</h1>
+
+<div>
+  <form action="{% url 'reingest_aip' package_uuid %}" method="post">
+    {% csrf_token %}
+    <p>Package: {{ package_uuid }}</p>
+    <div class='clearfix'>{{ form }}</div>
+    <a href="{% url 'archival_storage_index' %}" class='btn'>Cancel</a> <input class='btn primary' type="submit" value="Re-ingest Package" />
+  </form>
+</div>
+{% endblock %}

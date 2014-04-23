@@ -65,7 +65,7 @@
           </div>
         </th>
         <th>Pointer File</th>
-        <th></th>
+        <th>Actions</th>
       </thead>
       <tbody>
         {% for item in aips %}
@@ -76,7 +76,10 @@
             <td><span class='timestamp'>{{ item.date }}</a></td>
             <td>{{ item.status }}</td>
             <td><a href="{% url 'components.archival_storage.views.aip_pointer_file_download' item.uuid %}">Pointer File</a></td>
-            <td><a href="{% url 'components.archival_storage.views.aip_delete' item.uuid %}"><img src="{{ STATIC_URL }}images/delete.png"/></a></td>
+            <td>
+              <a href="{% url 'aip_delete' item.uuid %}"><img src="{{ STATIC_URL }}images/delete.png" /></a>
+              <a href="{% url 'reingest_aip' item.uuid %}" class='btn small'>Re-ingest</a>
+            </td>
           </tr>
         {% endfor %}
       </tbody>

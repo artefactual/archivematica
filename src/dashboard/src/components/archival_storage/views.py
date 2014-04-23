@@ -337,6 +337,21 @@ def aip_delete(request, uuid):
     # having to refresh the page to get an up-to-date result
     return render(request, 'archival_storage/delete_request_results.html', locals())
 
+def reingest_aip(request, package_uuid):
+    form = forms.ReingestAIPForm(request.POST or None)
+    if form.is_valid():
+        # POST to SS for reingest
+        response = storage_service.request_reingest(
+            package_uuid, form.cleaned_data['reingest_type'])
+        error = response.get('error', True)
+        message = response.get('message', 'An unknown error occurred.')
+        if error:
+            messages.error(request, 'Error re-ingesting package: {}'.format(message))
+        else:
+            messages.success(request, message)
+        return redirect('archival_storage_index')
+    return render(request, 'archival_storage/reingest_request.html', locals())
+
 def aip_download(request, uuid):
     redirect_url = storage_service.download_file_url(uuid)
     return HttpResponseRedirect(redirect_url)
