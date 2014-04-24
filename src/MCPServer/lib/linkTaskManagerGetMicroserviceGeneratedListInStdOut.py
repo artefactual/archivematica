@@ -29,10 +29,10 @@ import threading
 # This project,  alphabetical by import source
 from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
-from passClasses import ChoicesDict, ReplacementDict
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 import databaseFunctions
+from dicts import ChoicesDict, ReplacementDict
 
 
 class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):

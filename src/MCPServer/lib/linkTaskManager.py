@@ -21,9 +21,11 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+import sys
 import uuid
 
-from passClasses import ReplacementDict
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from dicts import ReplacementDict
 
 
 class LinkTaskManager(object):

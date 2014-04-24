@@ -31,11 +31,11 @@ import uuid
 import archivematicaMCP
 from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
-from passClasses import ReplacementDict
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 import databaseFunctions
 from databaseFunctions import deUnicode
+from dicts import ReplacementDict
 
 
 class linkTaskManagerFiles(LinkTaskManager):

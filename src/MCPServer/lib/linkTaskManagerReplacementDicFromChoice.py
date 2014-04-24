@@ -34,7 +34,9 @@ import archivematicaMCP
 from linkTaskManagerChoice import choicesAvailableForUnits
 from linkTaskManagerChoice import choicesAvailableForUnitsLock
 from linkTaskManagerChoice import waitingOnTimer
-from passClasses import ReplacementDict
+
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from dicts import ReplacementDict
 
 class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
