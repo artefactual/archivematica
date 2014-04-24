@@ -102,3 +102,8 @@ def test_replacementdict_model_constructor_file_only():
     assert rd['%currentLocation%'] == FILE.currentlocation
     assert rd['%relativeLocation%'] == FILE.currentlocation
     assert rd['%fileGrpUse%'] == FILE.filegrpuse
+
+
+def test_replacementdict_options():
+    d = ReplacementDict({'%relativeLocation%': 'bar'})
+    assert d.to_gnu_options() == ['--relative-location=bar']

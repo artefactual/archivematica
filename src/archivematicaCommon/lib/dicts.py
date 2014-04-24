@@ -24,6 +24,7 @@
 import ast
 import ConfigParser
 import os
+import re
 import sys
 
 
@@ -177,6 +178,24 @@ class ReplacementDict(dict):
                     orig = orig.replace(key, value)
             ret.append(orig)
         return ret
+
+    def to_gnu_options(self):
+        """
+        Returns the replacement dict's values as an array of GNU-style
+        long options. This is primarily useful for passing options to
+        FPR commands. For example:
+
+        >>> rd = ReplacementDict({'%foo%': 'bar'})
+        >>> rd.to_gnu_options()
+        ['--foo=bar']
+        """
+        args = []
+        for key, value in self.iteritems():
+            optname = re.sub(r'([A-Z]+)', r'-\1', key[1:-1]).lower()
+            opt = '--{k}={v}'.format(k=optname, v=value)
+            args.append(opt)
+
+        return args
 
 
 class ChoicesDict(ReplacementDict):

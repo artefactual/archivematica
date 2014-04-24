@@ -343,11 +343,14 @@ def createTechMD(fileUUID):
 
     sql = "SELECT FPCommandOutput.content FROM FPCommandOutput \
            INNER JOIN fpr_fprule ON FPCommandOutput.ruleUUID = fpr_fprule.uuid \
-           WHERE fileUUID = '{file}' AND purpose = 'characterize';".format(file=fileUUID)
+           WHERE fileUUID = '{file}' AND purpose = 'characterization' OR purpose = 'default_characterization';".format(file=fileUUID)
     c, sqlLock = databaseInterface.querySQL(sql)
     parser = etree.XMLParser(remove_blank_text=True)
-    for row in c:
-        output = etree.XML(row[0], parser)
+    for document, in c:
+        # This needs to be converted into an str because lxml doesn't accept
+        # XML documents in unicode strings if the document contains an
+        # encoding declaration.
+        output = etree.XML(str(document), parser)
         objectCharacteristicsExtension.append(output)
     sqlLock.release()
 

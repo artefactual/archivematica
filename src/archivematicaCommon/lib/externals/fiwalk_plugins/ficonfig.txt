@@ -1,0 +1,24 @@
+#
+# Configuration file for fiwalk
+#
+
+
+#*.jpeg	dgi	java -classpath /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/plugins.jar jpeg_extract
+#*.jpeg	jvm	/usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/jpeg_extract.jar jpeg_extract
+
+#*.jpeg	dgi	/usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/jpeg_extract
+#*.jpg	dgi	/usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/jpeg_extract
+#*.pdf	dgi	java -classpath /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/plugins.jar Libextract_plugin
+#*.gif	dgi	java -classpath /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/plugins.jar Libextract_plugin
+#*.mp3	dgi	java -classpath /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/plugins.jar Libextract_plugin
+#*.doc	dgi	java -classpath /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/plugins.jar word_extract
+#*.xls	dgi	java -classpath /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/plugins.jar word_extract
+#*.ppt	dgi	java -classpath /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/plugins.jar word_extract
+#*.docx	dgi	python /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/docx_extractor.py
+#*.xlsx	dgi	python /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/docx_extractor.py
+#*.pptx	dgi	python /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/docx_extractor.py
+#*.odt	dgi	python /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/odf_extractor.py
+#*.ods	dgi	python /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/odf_extractor.py
+#*.odp	dgi	python /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/odf_extractor.py
+*	dgi	python /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/pronom_ident.py
+

@@ -221,3 +221,103 @@ INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, cu
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('abe6c490-9749-46fc-98aa-a6814a507d72', '8c8bac29-4102-4fd2-9d0a-a3bd2e607566', 0, 'f1bfce12-b637-443f-85f8-b6450ca01a13', 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='8c8bac29-4102-4fd2-9d0a-a3bd2e607566' WHERE microServiceChainLink='370aca94-65ab-4f2a-9d7d-294a62c8b7ba';
 -- /Issue 6261
+
+-- Issue 5866 - Customizeable FPR characterization
+-- Inserts a new TasksConfigs entry for the new "Characterize and extract metadata", replacing archivematicaFITS
+SET @characterizeSTC = 'd6307888-f5ef-4828-80d6-fb6f707ae023' COLLATE utf8_unicode_ci;
+SET @characterizeTC = '00041f5a-42cd-4b77-a6d4-6ef0f376a817' COLLATE utf8_unicode_ci;
+SET @characterizeExtractMetadata='303a65f6-a16f-4a06-807b-cb3425a30201' COLLATE utf8_unicode_ci;
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES (@characterizeSTC, 0, 'characterizeFile_v0.0', '"%relativeLocation%" "%fileUUID%" "%SIPUUID%"', 'objects');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@characterizeTC, 'a6b1c323-7d36-428e-846a-e7e819423577', @characterizeSTC, "Characterize and extract metadata");
+UPDATE MicroServiceChainLinks SET currentTask=@characterizeTC WHERE pk=@characterizeExtractMetadata;
+
+-- This is necessary because we can have multiple command outputs per
+-- file, not just one. The unique constraint is a combo of file and command.
+ALTER TABLE FPCommandOutput
+	DROP PRIMARY KEY,
+	ADD PRIMARY KEY(fileUUID, ruleUUID);
+
+-- Insert a run of identify file format before running characterize on
+-- submission docs in ingest, then update that characterization so it
+-- uses this new microservice.
+
+-- The pre-existing microservice
+SET @characterizeIngest = '33d7ac55-291c-43ae-bb42-f599ef428325' COLLATE utf8_unicode_ci;
+
+SET @idToolChoiceMSCL = '087d27be-c719-47d8-9bbb-9a7d8b609c44' COLLATE utf8_unicode_ci;
+SET @idToolChoiceTC = '0c95f944-837f-4ada-a396-2c7a818806c6' COLLATE utf8_unicode_ci;
+SET @idSubmissionDocsMSCL = '1dce8e21-7263-4cc4-aa59-968d9793b5f2' COLLATE utf8_unicode_ci;
+SET @idSubmissionDocsSTC = '82b08f3a-ca8f-4259-bd92-2fc1ab4f9974' COLLATE utf8_unicode_ci;
+SET @idSubmissionDocsTC = '28e8e81c-3380-47f6-a973-e48f94104692' COLLATE utf8_unicode_ci;
+
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@idToolChoiceTC, '9c84b047-9a6d-463f-9836-eafa49743b84', NULL, 'Select file format identification command');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@idToolChoiceMSCL, 'Process submission documentation', 'Failed', @idtoolchoicetc, @MoveSIPToFailedLink);
+-- Insert file ID choice after scan for viruses
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@idToolChoiceMSCL WHERE microServiceChainLink='1ba589db-88d1-48cf-bb1a-a5f9d2b17378';
+
+
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES (@idSubmissionDocsSTC, 0, 'identifyFileFormat_v0.0', '%IDCommand% %relativeLocation% %fileUUID%', 'objects/submissionDocumentation');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@idSubmissionDocsTC, 'a6b1c323-7d36-428e-846a-e7e819423577', @idSubmissionDocsSTC, 'Identify file format');
+INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@idSubmissionDocsMSCL, 'Process submission documentation', 'Failed', @idSubmissionDocsTC, @MoveSIPToFailedLink);
+
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('c3f1a78b-0e5e-4d3f-8d32-ba9554ebddf8', @idToolChoiceMSCL, 0, @idSubmissionDocsMSCL, 'Completed successfully');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('80547eac-c724-45e1-8804-3eabf18bea47', @idSubmissionDocsMSCL, 0, @characterizeIngest, 'Completed successfully');
+
+UPDATE StandardTasksConfigs SET execute='characterizeFile_v0.0', arguments='"%relativeLocation%" "%fileUUID%" "%SIPUUID%"' WHERE pk = '4b816807-10a7-447a-b42f-f34c8b8b3b76';
+
+-- Insert the initial MicroServiceChoiceReplacementDics; newly-created commands will be autoinserted
+-- in the future.
+INSERT INTO MicroServiceChoiceReplacementDic (pk, choiceAvailableAtLink, description, replacementDic) VALUES ('782bbf56-e220-48b5-9eb6-6610583f2072', @idToolChoiceMSCL, 'Skip File Identification', '{"%IDCommand%":"None"}');
+INSERT INTO MicroServiceChoiceReplacementDic (pk, choiceAvailableAtLink, description, replacementDic) VALUES ('6f9bfd67-f598-400a-aa2e-12b2657962fc', @idToolChoiceMSCL, 'Fido version 1 PUID runs Identify using Fido', '{"%IDCommand%":"1c7dd02f-dfd8-46cb-af68-5b305aea1d6e"}');
+INSERT INTO MicroServiceChoiceReplacementDic (pk, choiceAvailableAtLink, description, replacementDic) VALUES ('724b17a2-668b-4ef6-9f3b-860d8dfcbb29', @idToolChoiceMSCL, 'File Extension version 0.1 file extension runs Identify by File Extension', '{"%IDCommand%":"41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9"}');
+
+-- Unify a pair of sets of chainlinks that duplicated identical behaviour needlessly
+--
+-- Move the "set unit variable" chainlinks to the top of the chain;
+-- both of these then converge into an identical chain afterwards.
+--
+-- This path is followed if normalization is performed
+SET @setResumeLink1 = 'c168f1ee-5d56-4188-8521-09f0c5475133' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='77a7fa46-92b9-418e-aa88-fbedd4114c9f' WHERE microServiceChainLink=@setResumeLink1;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='e4b0c713-988a-4606-82ea-4b565936d9a7' WHERE pk='ee438694-815f-4b74-97e1-8e7dde2cc6d5';
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='e4b0c713-988a-4606-82ea-4b565936d9a7' WHERE microServiceChainLink='ee438694-815f-4b74-97e1-8e7dde2cc6d5';
+UPDATE TasksConfigsSetUnitVariable SET microServiceChainLink=@setResumeLink1 WHERE pk='5035632e-7879-4ece-bf43-2fc253026ff5';
+
+-- This is an alternate path into the first chain; needs to be updated
+-- to point at the new first chainlink.
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@setResumeLink1 WHERE microServiceChainLink='cddde867-4cf9-4248-ac31-f7052fae053f';
+
+-- This path is followed if normalization is not performed
+SET @setResumeLink2 = 'f060d17f-2376-4c0b-a346-b486446e46ce' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='77a7fa46-92b9-418e-aa88-fbedd4114c9f' WHERE microServiceChainLink=@setResumeLink2;
+UPDATE TasksConfigsSetUnitVariable SET microServiceChainLink=@setResumeLink2 WHERE pk='fc9f30bf-7f6e-4e62-9f99-689c8dc2e4ec';
+
+-- There are a couple of extra entrances to this second chain; make sure they
+-- point at the new entrance so they set the resume link, then converge
+-- with the rest of the chain.
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@setResumeLink2 WHERE microServiceChainLink='65916156-41a5-4ed2-9472-7dca11e6bc08';
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@setResumeLink2 WHERE microServiceChainLink='14a0678f-9c2a-4995-a6bd-5acd141eeef1';
+-- The previous two have a defaultNextChainLink into a failure management link,
+-- but this one doesn't, so we have to update that too.
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@setResumeLink2 WHERE pk='0a6558cf-cf5f-4646-977e-7d6b4fde47e8';
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@setResumeLink2 WHERE microServiceChainLink='0a6558cf-cf5f-4646-977e-7d6b4fde47e8';
+
+-- Delete the old chain
+-- MSCLs
+SET @d0  = '055de204-6229-4200-87f7-e3c29f095017' COLLATE utf8_unicode_ci;
+SET @d1  = 'befaf1ef-a595-4a32-b083-56eac51082b0' COLLATE utf8_unicode_ci;
+SET @d2  = '9619706c-385a-472c-8144-fd5885c21532' COLLATE utf8_unicode_ci;
+SET @d3  = '4ac461f9-ee69-4e03-924f-60ac0e8a4b7f' COLLATE utf8_unicode_ci;
+SET @d4  = '0ba9bbd9-6c21-4127-b971-12dbc43c8119' COLLATE utf8_unicode_ci;
+SET @d5  = 'e888269d-460a-4cdf-9bc7-241c92734402' COLLATE utf8_unicode_ci;
+SET @d6  = 'faaea8eb-5872-4428-b609-9dd870cf5ceb' COLLATE utf8_unicode_ci;
+SET @d7  = '4ef35d72-9494-431a-8cdb-8527b42664c7' COLLATE utf8_unicode_ci;
+SET @d8  = '76d87f57-9718-4f68-82e6-91174674c49c' COLLATE utf8_unicode_ci;
+SET @d9  = 'a536965b-e501-42aa-95eb-0656775be6f2' COLLATE utf8_unicode_ci;
+SET @d10 = '88affaa2-13c5-4efb-a860-b182bd46c2c6' COLLATE utf8_unicode_ci;
+
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d0, @d1, @d2, @d3, @d4, @d6, @d7, @d8, @d9, @d10);
+DELETE FROM MicroServiceChainLinksExitCodes WHERE nextMicroServiceChainLink in (@d0, @d1, @d2, @d3, @d4, @d6, @d7, @d8, @d9, @d10);
+DELETE FROM MicroServiceChainLinks WHERE defaultNextChainLink in (@d0, @d1, @d2, @d3, @d4, @d6, @d7, @d8, @d9, @d10);
+DELETE FROM MicroServiceChainLinks WHERE pk IN (@d0, @d1, @d2, @d3, @d4, @d6, @d7, @d8, @d9, @d10);
+-- /Issue 5866
