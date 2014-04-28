@@ -91,7 +91,6 @@ read a
 if [[ $a == "Y" || $a == "y" ]]; then
 	sudo apt-get install python-software-properties -y
         sudo add-apt-repository ppa:archivematica/externals-dev
-        #sudo add-apt-repository ppa:twisted-dev/ppa
         sudo apt-get update
 else
         echo "Not going to ${part}"
