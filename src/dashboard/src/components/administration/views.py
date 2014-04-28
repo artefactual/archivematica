@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import sys
 
 from django.core.urlresolvers import reverse
 from django.contrib import messages
@@ -36,6 +37,9 @@ import components.decorators as decorators
 from django.template import RequestContext
 import components.helpers as helpers
 import storageService as storage_service
+
+sys.path.append('/usr/lib/archivematica/archivematicaCommon')
+from version import get_full_version
 
 
 logger = logging.getLogger(__name__)
@@ -284,3 +288,7 @@ def general(request):
             messages.warning(request, "This pipeline is not registered with the storage service or has been disabled in the storage service.  Please contact an administrator.")
     hide_features = helpers.hidden_features()
     return render(request, 'administration/general.html', locals())
+
+def version(request):
+    version = get_full_version()
+    return render(request, 'administration/version.html', locals())

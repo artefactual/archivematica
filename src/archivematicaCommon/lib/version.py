@@ -1,5 +1,5 @@
-
 ARCHIVEMATICA_VERSION = (1, 1, 0)
+
 
 def get_version():
     """ Returns the version number as a string. """
@@ -8,3 +8,7 @@ def get_version():
     parts = 2 if version[2] == 0 else 3
     main = '.'.join(str(x) for x in version[:parts])
     return main
+
+
+def get_full_version():
+    return '.'.join(map(str, ARCHIVEMATICA_VERSION))

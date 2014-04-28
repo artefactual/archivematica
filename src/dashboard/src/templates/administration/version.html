@@ -1,0 +1,35 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+
+{% block title %}Version{% endblock %}
+{% block h1 %}Version{% endblock %}
+{% block page_id %}Version{% endblock %}
+
+{% block js %}
+{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <h3>About Archivematica</h3>
+
+      <table>
+        <tr>
+          <th>Version</th>
+          <th>{{ version }}</th>
+        </tr>
+      </table>
+
+    </div>
+
+  </div>
+
+{% endblock %}

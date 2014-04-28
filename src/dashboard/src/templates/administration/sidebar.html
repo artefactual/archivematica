@@ -12,6 +12,7 @@
   {% url 'components.administration.views.storage' as url_storage %}
   {% url 'components.administration.views.premis_agent' as url_premis %}
   {% url 'components.administration.views.api' as url_api %}
+  {% url 'components.administration.views.version' as url_version %}
   {% url 'components.accounts.views.list' as url_user_list %}
 
   <ul>
@@ -42,6 +43,8 @@
     {% if user.is_superuser %}
       <li class="{% active request url_user_list %}"><a href="{{ url_user_list }}">Users</a></li>
     {% endif %}
+
+    <li class="{% active request url_version %}"><a href="{{ url_version }}">Version</a></li>
   </ul>
 
 </div>
