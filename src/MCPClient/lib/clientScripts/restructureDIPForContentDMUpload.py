@@ -548,7 +548,7 @@ def groupDmdSecs(dmdSecs):
             groupedDmdSecs.append(tmpList)
         # We need to check to make sure we don't reduce the number of
         # dmdSecs down to 0.
-        if groupSize == 2 and len(dmdSecs) >= dmdSecsLen / 2:
+        if groupSize == 2 and len(dmdSecs) >= groupSize:
             tmpList = list()
             firstDmdSec = dmdSecs.pop(0)
             tmpList.append(firstDmdSec)
