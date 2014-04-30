@@ -45,5 +45,10 @@
       <appliesTo>01c651cb-c174-4ba4-b985-1d87a44d6754</appliesTo>
       <goToChain>414da421-b83f-4648-895f-a34840e3c3f5</goToChain>
     </preconfiguredChoice>
+    <!-- Examine contents -->
+    <preconfiguredChoice>
+      <appliesTo>accea2bf-ba74-4a3a-bb97-614775c74459</appliesTo>
+      <goToChain>e0a39199-c62a-4a2f-98de-e9d1116460a8</goToChain>
+    </preconfiguredChoice>
   </preconfiguredChoices>
 </processingMCP>
