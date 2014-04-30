@@ -24,8 +24,9 @@ import os
 from django.db.models import Max
 from django.conf import settings as django_settings
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist 
 from django.core.urlresolvers import reverse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import Http404, HttpResponse
 from django.utils.safestring import mark_safe
 
@@ -34,6 +35,7 @@ from contrib import utils
 
 from main import models
 from components import helpers
+from components.ingest.forms import DublinCoreMetadataForm
 import components.decorators as decorators
 import storageService as storage_service
 
@@ -141,3 +143,56 @@ def delete(request, uuid):
         return helpers.json_response(response)
     except:
         raise Http404
+
+
+def transfer_metadata_type_id():
+    return helpers.get_metadata_type_id_by_description('Transfer')
+
+
+@decorators.load_jobs  # Adds jobs, name
+def transfer_metadata_list(request, uuid, jobs, name):
+    # See MetadataAppliesToTypes table
+    metadata = models.DublinCore.objects.filter(
+        metadataappliestotype__exact=transfer_metadata_type_id(),
+        metadataappliestoidentifier__exact=uuid
+    )
+
+    return render(request, 'transfer/metadata_list.html', locals())
+
+
+def transfer_metadata_edit(request, uuid, id=None):
+    if id:
+        dc = models.DublinCore.objects.get(pk=id)
+    else:
+        try:
+            dc = models.DublinCore.objects.get(metadataappliestotype__exact=1,
+                    metadataappliestoidentifier__exact=uuid)
+            return redirect('components.transfer.views.transfer_metadata_edit', uuid, dc.id)
+        except ObjectDoesNotExist:
+            dc = models.DublinCore(
+                metadataappliestotype=transfer_metadata_type_id(),
+                metadataappliestoidentifier=uuid
+            )
+
+    fields = ['title', 'creator', 'subject', 'description', 'publisher',
+              'contributor', 'date', 'type', 'format', 'identifier',
+              'source', 'relation', 'language', 'coverage', 'rights']
+
+    if request.method == 'POST':
+        form = DublinCoreMetadataForm(request.POST)
+        if form.is_valid():
+            for item in fields:
+                if not item in form.cleaned_data:
+                    continue
+                setattr(dc, item, form.cleaned_data[item])
+            dc.save()
+            return redirect('components.transfer.views.transfer_metadata_list', uuid)
+    else:
+        initial = {}
+        for item in fields:
+            initial[item] = getattr(dc, item)
+        form = DublinCoreMetadataForm(initial=initial)
+        jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
+        name = utils.get_directory_name_from_job(jobs[0])
+
+    return render(request, 'transfer/metadata_edit.html', locals())

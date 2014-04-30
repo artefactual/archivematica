@@ -1,0 +1,126 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+{% load url from future %}
+
+{% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/contextual_help.js"></script>
+{% endblock %}
+
+{% block content %}
+<style>
+#contextual_help {
+  width: 220px;
+  background-color: #eee;
+  padding: 1em;
+  position: absolute;
+  left: 700px;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+  archivematicaEnableContextualHelp();
+});
+</script>
+
+  <div class="row">
+    <div class="span16">
+
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Transfer' 'components.transfer.views.grid' %}
+        {% breadcrumb_url name 'components.transfer.views.detail' uuid %}
+        {% breadcrumb_url 'Metadata' 'components.transfer.views.transfer_metadata_list' uuid %}
+        {% if id %}
+          {% breadcrumb 'Edit' %}
+        {% else %}
+          {% breadcrumb 'Add' %}
+        {% endif %}
+      </ul>
+
+      <h1>Metadata<br /><small>{{ name }}</small></h1>
+
+      {% if id %}
+        <form class="form-stacked" method="post" action="{% url 'components.transfer.views.transfer_metadata_edit' uuid id %}">
+      {% else %}
+        <form class="form-stacked" method="post" action="{% url 'components.transfer.views.transfer_metadata_edit' uuid %}">
+      {% endif %}
+
+        {% include "_form.html" %}
+
+        <div class="actions">
+          {% if id %}
+            <input type="submit" class="btn primary" value="Save" />
+          {% else %}
+            <input type="submit" class="btn primary" value="Create" />
+          {% endif %}
+          <a href="{% url 'components.transfer.views.transfer_metadata_list' uuid %}" class="btn">Cancel</a>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- define contextual help -->
+
+  <div id='id_title_help' style='display:none'>
+    <p>A name given to the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
+  </div>
+
+  <div id='id_creator_help' style='display:none'>
+    <p>An entity primarily responsible for making the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
+  </div>
+
+  <div id='id_subject_help' style='display:none'>
+    <p>The topic of the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
+  </div>
+
+  <div id='id_description_help' style='display:none'>
+    <p>An account of the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
+  </div>
+
+  <div id='id_publisher_help' style='display:none'>
+    <p>An entity responsible for making the resource available. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
+  </div>
+
+  <div id='id_contributor_help' style='display:none'>
+    <p>An entity responsible for making contributions to the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
+  </div>
+
+  <div id='id_date_help' style='display:none'>
+    <p>A point or period of time associated with an event in the lifecycle of the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
+  </div>
+
+  <div id='id_type_help' style='display:none'>
+    <p>The nature or genre of the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>) You may wish to use the DCMI type vocabulary provided here: <a href="http://dublincore.org/documents/dcmi-type-vocabulary/">http://dublincore.org/documents/dcmi-type-vocabulary/</a></p>
+  </div>
+
+  <div id='id_format_help' style='display:none'>
+    <p>The file format, physical medium, or dimensions of the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>) Best practice  is to use a controlled vocabulary such as the list of Internet Media Types [MIME] provided here: <a href="http://www.iana.org/assignments/media-types/" target="_blank">http://www.iana.org/assignments/media-types/</a></p>
+  </div>
+
+  <div id='id_identifier_help' style='display:none'>
+    <p>An unambiguous reference to the resource within a given context. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
+  </div>
+
+  <div id='id_source_help' style='display:none'>
+    <p>A related resource from which the described resource is derived. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
+  </div>
+
+  <div id='id_relation_help' style='display:none'>
+    <p>A related resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
+  </div>
+
+  <div id='id_language_help' style='display:none'>
+    <p>A language of the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
+  </div>
+
+  <div id='id_coverage_help' style='display:none'>
+    <p>The spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
+  </div>
+
+  <div id='id_rights_help' style='display:none'>
+    <p>Information about rights held in and over the resource. (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
+  </div>
+
+{% endblock %}

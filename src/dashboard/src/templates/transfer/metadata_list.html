@@ -1,0 +1,44 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+{% load url from future %}
+
+{% block content %}
+  <div class="row">
+    <div class="span12">
+
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Transfer' 'components.transfer.views.grid' %}
+        {% breadcrumb_url name 'components.transfer.views.detail' uuid %}
+        {% breadcrumb 'Metadata' %}
+      </ul>
+
+      <h1>Metadata<br /><small>{{ name }}</small></h1>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Applies to</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in metadata %}
+            <tr>
+              <td>{{ item }}</td>
+              <td>{{ name }}</td>
+              <td>
+                <a href='{% url 'components.transfer.views.transfer_metadata_edit' uuid item.id %}'>Edit</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="actions" style="padding-left: 1em;">
+        <a class="btn primary" href="{% url 'components.transfer.views.transfer_metadata_edit' uuid %}">Add</a>
+      </div>
+
+    </div>
+  </div>
+{% endblock %}
