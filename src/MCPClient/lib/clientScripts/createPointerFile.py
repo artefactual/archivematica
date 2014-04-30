@@ -9,6 +9,7 @@ import sys
 import uuid
 
 import archivematicaXMLNamesSpace as namespaces
+import archivematicaCreateMETS2
 PATH = "/usr/lib/archivematica/archivematicaCommon"
 if PATH not in sys.path:
     sys.path.append(PATH)
@@ -72,18 +73,17 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
         'xlink': namespaces.xlinkNS,
     }
     # Set up structure
-    E = ElementMaker(nsmap=nsmap)
+    E = ElementMaker(namespace=namespaces.metsNS, nsmap=nsmap)
+    E_P = ElementMaker(namespace=namespaces.premisNS, nsmap={None: namespaces.premisNS})
+
     root = (
         E.mets(
             E.metsHdr(CREATEDATE=now),
             # amdSec goes here
             E.fileSec(
-                E.fileGrp(),
+                E.fileGrp(USE='Archival Information Package'),
             ),
             E.structMap(
-                E.div(
-                    TYPE=package_type,
-                ),
                 TYPE='physical'
             ),
         )
@@ -92,86 +92,87 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     # inline with E
     root.attrib[namespaces.xsiBNS+'schemaLocation'] = mets_schema_location
 
-    add_amdsec_after = root.find('metsHdr')
-    filegrp = root.iterdescendants(tag='fileGrp').next()
-    div = root.iterdescendants(tag='div').next()
+    add_amdsec_after = root.find('mets:metsHdr', namespaces=namespaces.NSMAP)
+    filegrp = root.find('.//mets:fileGrp', namespaces=namespaces.NSMAP)
+    structmap = root.find('.//mets:structMap', namespaces=namespaces.NSMAP)
     # For each file, add amdSec, file, fptr
     for admin_id in range(1, num_files+1):
 
         # amdSec
         amdsec_id = 'amdSec_{}'.format(admin_id)
-        amdsec = etree.Element('amdSec', ID=amdsec_id)
-        amdsec = (
-            E.amdSec(
-                E.techMD(
-                    E.mdWrap(
-                        E.xmlData(
-                        ),
-                        MDTYPE='PREMIS:OBJECT',  # mdWrap
+        amdsec = E.amdSec(
+            E.techMD(
+                E.mdWrap(
+                    E.xmlData(
                     ),
-                    ID='techMD_1',  # techMD
+                    MDTYPE='PREMIS:OBJECT',  # mdWrap
                 ),
-                ID='amdSec_{}'.format(admin_id),  # amdSec
-            )
+                ID='techMD_1',  # techMD
+            ),
+            ID=amdsec_id,  # amdSec
         )
-        obj = (
-            E.object(
-                E.objectIdentifier(
-                    E.objectIdentifierType('UUID'),
-                    E.objectIdentifierValue(aip_uuid),
+        # Add PREMIS:OBJECT
+        obj = E_P.object(
+            E_P.objectIdentifier(
+                E_P.objectIdentifierType('UUID'),
+                E_P.objectIdentifierValue(aip_uuid),
+            ),
+            E_P.objectCharacteristics(
+                E_P.compositionLevel('1'),
+                E_P.fixity(
+                    E_P.messageDigestAlgorithm(checksum_algorithm),
+                    E_P.messageDigest(checksum),
                 ),
-                E.objectCharacteristics(
-                    E.compositionLevel('0'),
-                    E.fixity(
-                        E.messageDigestAlgorithm(checksum_algorithm),
-                        E.messageDigest(checksum),
+                E_P.size(str(aip_size)),
+                E_P.format(
+                    E_P.formatDesignation(
+                        E_P.formatName(
+                            pronom_conversion[extension]['name']),
+                        E_P.formatVersion(),
                     ),
-                    E.size(str(aip_size)),
-                    E.format(
-                        E.formatDesignation(
-                            E.formatName(
-                                pronom_conversion[extension]['name']),
-                            E.formatVersion(),
-                        ),
-                        E.formatRegistry(
-                            E.formatRegistryName('PRONOM'),
-                            E.formatRegistryKey(
-                                pronom_conversion[extension]['puid'])
-                        ),
-                    ),
-                    E.creatingApplication(
-                        E.creatingApplicationName(archive_tool),
-                        E.creatingApplicationVersion(archive_tool_version),
-                        E.dateCreatedByApplication(now),
+                    E_P.formatRegistry(
+                        E_P.formatRegistryName('PRONOM'),
+                        E_P.formatRegistryKey(
+                            pronom_conversion[extension]['puid'])
                     ),
                 ),
-                xmlns="info:lc/xmlns/premis-v2",
-                version='2.2',
-            )
+                E_P.creatingApplication(
+                    E_P.creatingApplicationName(archive_tool),
+                    E_P.creatingApplicationVersion(archive_tool_version),
+                    E_P.dateCreatedByApplication(now),
+                ),
+            ),
+            version='2.2',
         )
         obj.attrib[namespaces.xsiBNS+'type'] = 'file'
         obj.attrib[namespaces.xsiBNS+'schemaLocation'] = premis_schema_location
-        # add obj as child of xmldata
-        amdsec.iterdescendants(tag='xmlData').next().append(obj)
+
+        # Add as child of xmldata
+        amdsec.find('.//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]/mets:xmlData', namespaces=namespaces.NSMAP).append(obj)
+
+        # Add PREMIS:EVENT for compression, use archivematicaCreateMETS2 code
+        elements = archivematicaCreateMETS2.createDigiprovMD(aip_uuid)
+        for element in elements:
+            amdsec.append(element)
+        # Add PREMIS:AGENT for Archivematica
+        elements = archivematicaCreateMETS2.createDigiprovMDAgents()
+        for element in elements:
+            amdsec.append(element)
+
         # add amdSec after previous amdSec (or metsHdr if first one)
         add_amdsec_after.addnext(amdsec)
-
         add_amdsec_after = amdsec
 
         # fileGrp
-        file_ = (
-            E.file(
-                E.FLocat(
-                    LOCTYPE="OTHER",
-                    OTHERLOCTYPE="SYSTEM",
-                ),
-            )
+        file_ = E.file(
+            E.FLocat(
+                LOCTYPE="OTHER",
+                OTHERLOCTYPE="SYSTEM",
+            ),
+            ID=aip_identifier
         )
-        # Specify attribute ordering
-        file_.set('ID', aip_identifier)
-        file_.set('ADMID', amdsec_id)
         filegrp.append(file_)
-        flocat = file_.find('FLocat')
+        flocat = file_.find('mets:FLocat', namespaces=namespaces.NSMAP)
         flocat.attrib['{{{ns}}}href'.format(ns=namespaces.xlinkNS)] = aip_path
 
         # compression - 7z or tar.bz2
@@ -191,8 +192,8 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
                 TRANSFORMALGORITHM='tar')
 
         # structMap
-        fptr = etree.Element('fptr', FILEID=aip_identifier)
-        div.append(fptr)
+        div = etree.SubElement(structmap, namespaces.metsBNS+'div', ADMID=amdsec_id, TYPE=package_type)
+        etree.SubElement(div, namespaces.metsBNS+'fptr', FILEID=aip_identifier)
 
     print etree.tostring(root, pretty_print=True)
 
