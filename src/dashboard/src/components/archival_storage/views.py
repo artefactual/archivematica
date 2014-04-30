@@ -332,6 +332,10 @@ def aip_file_download(request, uuid):
     redirect_url = server_url + 'api/v2/file/' + aip.uuid + '/extract_file/?relative_path_to_file=' + file_relative_path
     return HttpResponseRedirect(redirect_url)
 
+def aip_pointer_file_download(request, uuid):
+    redirect_url = storage_service.pointer_file_url(uuid)
+    return HttpResponseRedirect(redirect_url)
+
 def send_thumbnail(request, fileuuid):
     # get AIP location to use to find root of AIP storage
     sipuuid = helpers.get_file_sip_uuid(fileuuid)

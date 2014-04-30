@@ -23,8 +23,7 @@ def get_setting_no_orm(setting, default=''):
     except Exception:
         return default
 
-def _storage_api():
-    """ Returns slumber access to storage API. """
+def _storage_service_url():
     # Get storage service URL from DashboardSetting model
     storage_service_url = get_setting_no_orm('storage_service_url', None)
     if storage_service_url is None:
@@ -35,6 +34,12 @@ def _storage_api():
         storage_service_url+='/'
     storage_service_url = storage_service_url+'api/v2/'
     logging.debug("Storage service URL: {}".format(storage_service_url))
+    return storage_service_url
+
+
+def _storage_api():
+    """ Returns slumber access to storage API. """
+    storage_service_url = _storage_service_url()
     api = slumber.API(storage_service_url)
     return api
 
@@ -230,6 +235,16 @@ def extract_file(uuid, relative_path, save_path):
     with open(save_path, 'w') as f:
         f.write(api.file(uuid).extract_file.get(**params))
         os.chmod(save_path, 0o660)
+
+
+def pointer_file_url(file_uuid):
+    """
+    Returns URL to storage service for pointer file for `file_uuid`.
+    """
+    storage_service_url = _storage_service_url()
+    download_url = "{base_url}file/{uuid}/pointer_file/".format(
+        base_url=storage_service_url, uuid=file_uuid)
+    return download_url
 
 
 def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
