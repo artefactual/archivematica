@@ -14,6 +14,10 @@ sudo chmod -R g+s "/var/archivematica/"
 sudo chmod -R 664 "/var/archivematica/sharedDirectory" 
 sudo find -L /var/archivematica/ -type d  | sudo xargs -IF chmod u+rwx,g+rwxt,o-rwx F
 
+logdir=/var/log/archivematica/MCPServer
+sudo mkdir -p $logdir
+sudo chown -R archivematica:archivematica $logdir
+sudo chmod -R g+s $logdir
 
 #Configure sudoers for mcp and client
 echo "About to add archivematica sudoers file"

@@ -1,10 +1,11 @@
 #!/usr/bin/python2 -OO
 
 import logging
+from logging.handlers import RotatingFileHandler
 import sys
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/var/log/archivematica/archivematica.log",
+logger = logging.getLogger('archivematica.mcp.client')
+logger.addHandler(RotatingFileHandler("/var/log/archivematica/archivematica.log", maxBytes=4194304),
     level=logging.INFO)
 
 # archivematicaCommon

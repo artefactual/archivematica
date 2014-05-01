@@ -7,3 +7,8 @@ if [ "${userID}" = 333 ]; then
 else
   adduser --uid 333 --group --system --home /var/lib/archivematica/ archivematica
 fi
+
+logdir=/var/log/archivematica/MCPClient
+mkdir -p $logdir
+chown -R archivematica:archivematica $logdir
+chmod -R g+s $logdir

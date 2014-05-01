@@ -1,5 +1,6 @@
 import base64
 import logging
+from logging.handlers import RotatingFileHandler
 import os
 import platform
 import slumber
@@ -8,8 +9,8 @@ import sys
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import DashboardSetting
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/var/log/archivematica/archivematica.log",
+logger = logging.getLogger('archivematica.common')
+logger.addHandler(RotatingFileHandler("/var/log/archivematica/archivematica.log", maxBytes=4194304),
     level=logging.INFO)
 
 

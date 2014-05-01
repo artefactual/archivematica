@@ -32,7 +32,7 @@ from django.core.servers.basehttp import FileWrapper
 from django.shortcuts import render
 from main import models
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('archivematica.dashboard')
 logging.basicConfig(filename="/var/log/archivematica/dashboard.log", 
     level=logging.INFO)
 

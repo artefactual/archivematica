@@ -39,7 +39,7 @@ from components.ingest.forms import DublinCoreMetadataForm
 import components.decorators as decorators
 import storageService as storage_service
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('archivematica.dashboard')
 logging.basicConfig(filename="/var/log/archivematica/dashboard.log", 
     level=logging.DEBUG)
 

@@ -21,6 +21,7 @@ import calendar
 import cPickle
 import json
 import logging
+from logging.handlers import RotatingFileHandler
 from lxml import etree
 import os
 import shutil
@@ -60,8 +61,8 @@ import storageService as storage_service
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import requests
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/var/log/archivematica/dashboard.log",
+logger = logging.getLogger('archivematica.dashboard')
+logger.addHandler(RotatingFileHandler("/var/log/archivematica/dashboard.log", maxBytes=4194304),
     level=logging.INFO)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

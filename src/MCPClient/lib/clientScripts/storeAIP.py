@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import argparse
 import logging
+from logging.handlers import RotatingFileHandler
 import os
 import sys
 from uuid import uuid4
@@ -29,8 +30,8 @@ from uuid import uuid4
 # archivematicaCommon
 import storageService as storage_service
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/var/log/archivematica/archivematica.log",
+logger = logging.getLogger('archivematica.mcp.client')
+logger.addHandler(RotatingFileHandler("/var/log/archivematica/archivematica.log", maxBytes=4194304),
     level=logging.INFO)
 
 

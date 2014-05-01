@@ -19,6 +19,7 @@ import ast
 import httplib
 import json
 import logging
+from logging.handlers import RotatingFileHandler
 import os
 import requests
 import shutil
@@ -45,8 +46,8 @@ import databaseFunctions
 import elasticSearchFunctions
 import storageService as storage_service
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/var/log/archivematica/dashboard.log",
+logger = logging.getLogger('archivematica.dashboard')
+logger.addHandler(RotatingFileHandler("/var/log/archivematica/dashboard.log", maxBytes=4194304),
     level=logging.INFO)
 
 AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'

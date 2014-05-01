@@ -8,8 +8,6 @@ pip install -r /usr/share/archivematica/dashboard/requirements.txt
 #this is required to allow syncdb to work properly
 mysql -u archivematica -pdemo MCP -e 'alter database MCP CHARACTER SET utf8 COLLATE utf8_unicode_ci'
 /usr/share/archivematica/dashboard/manage.py syncdb --settings='settings.common'
-touch /tmp/archivematicaDashboard.log
-chmod 666 /tmp/archivematicaDashboard.log
 
 /etc/init.d/apache2 restart
 

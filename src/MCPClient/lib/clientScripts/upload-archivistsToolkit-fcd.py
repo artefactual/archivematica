@@ -35,7 +35,7 @@ testMode =0
 base_fv_id = 1
 
 logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('archivematica.mcp.client')
 logger.addHandler(logging.NullHandler())
 logger.addHandler(logging.FileHandler('/var/log/archivematica/at_upload.log', mode='a'))
 
