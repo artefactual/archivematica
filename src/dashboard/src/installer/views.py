@@ -46,7 +46,7 @@ import storageService as storage_service
 import version
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
+logging.basicConfig(filename="/var/log/archivematica/dashboard.log",
     level=logging.INFO)
 
 def welcome(request):

@@ -30,7 +30,7 @@ from uuid import uuid4
 import storageService as storage_service
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/tmp/archivematica.log",
+logging.basicConfig(filename="/var/log/archivematica/archivematica.log",
     level=logging.INFO)
 
 

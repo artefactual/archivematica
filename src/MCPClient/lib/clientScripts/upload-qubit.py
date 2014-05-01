@@ -32,7 +32,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
-logger.addHandler(logging.FileHandler('/tmp/atom_upload.log', mode='a'))
+logger.addHandler(logging.FileHandler('/var/log/archivematica/atom_upload.log', mode='a'))
 
 # externals
 import requests

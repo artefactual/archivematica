@@ -37,7 +37,7 @@ base_fv_id = 1
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
-logger.addHandler(logging.FileHandler('/tmp/at_upload.log', mode='a'))
+logger.addHandler(logging.FileHandler('/var/log/archivematica/at_upload.log', mode='a'))
 
 
     

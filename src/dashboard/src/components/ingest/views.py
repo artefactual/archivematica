@@ -61,7 +61,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import requests
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
+logging.basicConfig(filename="/var/log/archivematica/dashboard.log",
     level=logging.INFO)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

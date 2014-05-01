@@ -32,6 +32,10 @@ etc="/etc/archivematica"
 sudo mkdir $etc
 share="/usr/share/archivematica"
 sudo mkdir $share
+log="/var/log/archivematica"
+sudo mkdir -p $log
+sudo chown -R archivematica:archivematica $log
+sudo chmod g+ws $log
 
 sudo ln -s "${svnDir}src/MCPServer/etc" "${etc}/MCPServer"
 sudo ln -s "${svnDir}src/MCPClient/etc" "${etc}/MCPClient"

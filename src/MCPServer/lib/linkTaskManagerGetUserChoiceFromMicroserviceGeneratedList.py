@@ -40,7 +40,7 @@ sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import StandardTaskConfig
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/tmp/archivematica.log",
+logging.basicConfig(filename="/var/log/archivematica/archivematica.log",
     level=logging.INFO)
 
 class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager):

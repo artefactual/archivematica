@@ -168,7 +168,10 @@ function restart() {
           sleep 3
           sudo /etc/init.d/elasticsearch start
           sudo /etc/init.d/gearman-job-server start
-          sudo rm /tmp/archivematicaMCP*
+          sudo rm /var/log/archivematica/*
+          sudo rm /var/log/archivematica/dashboard/*
+          sudo rm /var/log/archivematica/MCPClient/*
+          sudo rm /var/log/archivematica/MCPServer/*
           colour sudo start archivematica-mcp-server
           colour sudo start archivematica-mcp-client
           colour sudo apache2ctl restart
