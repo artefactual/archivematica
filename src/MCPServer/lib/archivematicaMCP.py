@@ -45,6 +45,7 @@ import MySQLdb
 import signal
 import os
 import pyinotify
+from pwd import getpwnam
 # from archivematicaReplacementDics import replacementDics
 # from MCPlogging import *
 # from MCPloggingSQL import getUTCDate
@@ -295,7 +296,7 @@ if __name__ == '__main__':
 
     import getpass
     print "user: ", getpass.getuser()
-    os.setuid(333)
+    os.setuid(getpwnam('archivematica').pw_uid)
 
     t = threading.Thread(target=debugMonitor)
     t.daemon = True
