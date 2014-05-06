@@ -139,6 +139,20 @@ function erase-indexes() {
   fi
 }
 
+function clear-storage() {
+  part="clear transfer backlog and AIP storage?"
+  echo -n "\"Would you like to ${part}?\" (y/N) "
+  read a
+  if [[ $a == "Y" || $a == "y" ]]; then
+    set -x
+    sudo rm -rf /var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals/*
+    sudo rm -rf /var/archivematica/sharedDirectory/www/AIPsStore/????
+    set +x
+  else
+    echo "Not going to ${part}"
+  fi
+}
+
 function restart() {
   part="restart archivematica services"
   echo -n "\"Would you like to ${part}?\" (y/N) "
@@ -246,6 +260,7 @@ git-pull
 package-update
 recreate-db
 erase-indexes
+clear-storage
 restart
 update-sampledata
 export-sampledata
