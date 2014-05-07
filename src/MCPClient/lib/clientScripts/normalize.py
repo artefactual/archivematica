@@ -24,7 +24,7 @@ if path not in sys.path:
     sys.path.append(path)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 from fpr.models import FPRule
-from main.models import FileFormatVersion, File
+from main.models import Derivation, FileFormatVersion, File
 from annoying.functions import get_object_or_None
 
 # Return codes
@@ -174,31 +174,37 @@ def once_normalized(command, opts, replacement_dict):
     if command.event_detail_command is not None:
         event_detail_output += '; {}'.format(command.event_detail_command.std_out)
     for ef in transcoded_files:
+        if "thumbnails" in opts.purpose:
+            continue
+
+        today = str(datetime.date.today())
+        output_file_uuid = str(uuid.uuid4())
+        # TODO Add manual normalization for files of same name mapping?
+        #Add the new file to the SIP
+        path_relative_to_sip = ef.replace(opts.sip_path, "%SIPDirectory%", 1)
+        fileOperations.addFileToSIP(
+            path_relative_to_sip,
+            output_file_uuid, # File UUID
+            opts.sip_uuid, # SIP UUID
+            opts.task_uuid, # Task UUID
+            today, # Current date
+            sourceType="creation",
+            use=opts.purpose,
+        )
+
+        #Calculate new file checksum
+        fileOperations.updateSizeAndChecksum(
+            output_file_uuid, # File UUID, same as task UUID for preservation
+            ef, # File path
+            today, # Date
+            str(uuid.uuid4()), # Event UUID, new UUID
+        )
+
+        # Add derivation link and associated event
+        #
+        # Track both events and insert into Derivations table for
+        # preservation copies
         if "preservation" in opts.purpose:
-            today = str(datetime.date.today())
-            output_file_uuid = opts.task_uuid # File UUID is the same as task UUID for preservation
-            # TODO Add manual normalization for files of same name mapping?
-            #Add the new file to the SIP
-            path_relative_to_sip = ef.replace(opts.sip_path, "%SIPDirectory%", 1)
-            fileOperations.addFileToSIP(
-                path_relative_to_sip,
-                output_file_uuid, # File UUID
-                opts.sip_uuid, # SIP UUID
-                opts.task_uuid, # Task UUID
-                today, # Current date
-                sourceType="creation",
-                use="preservation",
-            )
-
-            #Calculate new file checksum
-            fileOperations.updateSizeAndChecksum(
-                output_file_uuid, # File UUID, same as task UUID for preservation
-                ef, # File path
-                today, # Date
-                str(uuid.uuid4()), # Event UUID, new UUID
-            )
-
-            # Add derivation link and associated event
             insert_derivation_event(
                 original_uuid=opts.file_uuid,
                 output_uuid=output_file_uuid,
@@ -207,9 +213,27 @@ def once_normalized(command, opts, replacement_dict):
                 outcome_detail_note=path_relative_to_sip,
                 today=today,
             )
+        # Other derivatives go into the Derivations table, but
+        # don't get added to the PREMIS Events because they will
+        # not appear in the METS.
+        else:
+            d = Derivation(
+                source_file_id=opts.file_uuid,
+                derived_file_id=output_file_uuid,
+                event=None
+            )
+            d.save()
 
-            sql = "INSERT INTO FilesIDs (fileUUID, formatName, formatVersion, formatRegistryName, formatRegistryKey) VALUES ('%s', '%s', NULL, NULL, NULL);" % (output_file_uuid, command.fpcommand.output_format.description)
-            databaseInterface.runSQL(sql)
+        # Use the format info from the normalization command
+        # to save identification into the DB
+        ffv = FileFormatVersion(
+            file_uuid_id=output_file_uuid,
+            format_version=command.fpcommand.output_format
+        )
+        ffv.save()
+
+        sql = "INSERT INTO FilesIDs (fileUUID, formatName, formatVersion, formatRegistryName, formatRegistryKey) VALUES ('%s', '%s', NULL, NULL, NULL);" % (output_file_uuid, command.fpcommand.output_format.description)
+        databaseInterface.runSQL(sql)
 
 
 def insert_derivation_event(original_uuid, output_uuid, derivation_uuid,
