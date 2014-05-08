@@ -508,6 +508,11 @@ class MicroServiceChain(models.Model):
     class Meta:
         db_table = u'MicroServiceChains'
 
+    def __unicode__(self):
+        return u'MicroServiceChain ID: {uuid}; {desc}'.format(
+            uuid=self.id,
+            desc=self.description)
+
 class MicroServiceChainLink(models.Model):
     id = UUIDPkField()
     currenttask =  models.CharField(max_length=36, db_column='currentTask')
@@ -541,6 +546,12 @@ class MicroServiceChainChoice(models.Model):
 
     class Meta:
         db_table = u'MicroServiceChainChoice'
+
+    def __unicode__(self):
+        return u'MicroServiceChainChoice ID: {uuid} ({chain} at {choice})'.format(
+            uuid=self.id,
+            chain=self.chainavailable,
+            choice=self.choiceavailableatlink)
 
 class MicroServiceChoiceReplacementDic(models.Model):
     id = UUIDPkField()
