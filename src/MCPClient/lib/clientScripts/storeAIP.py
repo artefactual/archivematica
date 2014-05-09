@@ -24,6 +24,7 @@ import argparse
 import logging
 import os
 import sys
+from uuid import uuid4
 
 path = "/usr/lib/archivematica/archivematicaCommon"
 if path not in sys.path:
@@ -74,9 +75,17 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     if os.path.isdir(aip_path) and not aip_path.endswith('/'):
         relative_aip_path = relative_aip_path + '/'
 
+    # DIPs cannot share the AIP UUID, as the storage service depends on
+    # having a unique UUID; assign a new one before uploading.
+    # TODO allow mapping the AIP UUID to the DIP UUID for retrieval.
+    if sip_type == 'DIP':
+        uuid = str(uuid4())
+    else:
+        uuid = sip_uuid
+
     #Store the AIP
     (new_file, error_msg) = storage_service.create_file(
-        uuid=sip_uuid,
+        uuid=uuid,
         origin_location=current_location['resource_uri'],
         origin_path=relative_aip_path,
         current_location=aip_destination_uri,
