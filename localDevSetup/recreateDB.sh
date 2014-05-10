@@ -29,6 +29,10 @@ password="demo"
 echo "Removing existing units"
 sudo ./removeUnitsFromWatchedDirectories.py
 sudo rm -rf /var/archivematica/sharedDirectory/tmp/tmp*
+sudo rm -rf /var/archivematica/sharedDirectory/www/thumbnails/*
+
+# Delete pyc's & pyo's
+find ../src -name '*.py[o|c]' -delete
 
 set -e
 echo -n "Enter the DATABASE root password (Hit enter if blank):"
