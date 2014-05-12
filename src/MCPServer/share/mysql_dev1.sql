@@ -499,4 +499,10 @@ INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES
 INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('43c72f8b-3cea-4b4c-b99d-cfdefdfcc270', 'Prepare DIP', 'Failed', '102cd6b0-5d30-4e04-9b62-4e9f12d74549', '7d728c39-395f-4892-8193-92f086c0546f');
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('95ba6779-2ed2-47ea-a7ad-df4a4cf3764d', '43c72f8b-3cea-4b4c-b99d-cfdefdfcc270', 0, '6ee25a55-7c08-4c9a-a114-c200a37146c4', 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='43c72f8b-3cea-4b4c-b99d-cfdefdfcc270' WHERE microServiceChainLink='ad011cc2-b0eb-4f51-96bb-400149a2ea11';
+
+-- "Assign file UUIDs to metadata" - disable updating the fileGrpUse to avoid
+-- clobbering the fileGrpUse set by the Transcribe microservice
+UPDATE StandardTasksConfigs
+	SET arguments='--sipUUID "%SIPUUID%" --sipDirectory "%SIPDirectory%" --filePath "%relativeLocation%" --fileUUID "%fileUUID%" --eventIdentifierUUID "%taskUUID%" --date "%date%" --use "metadata" --disable-update-filegrpuse'
+	WHERE pk='34966164-9800-4ae1-91eb-0a0c608d72d5';
 -- /Issue 6565 OCR

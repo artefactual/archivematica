@@ -39,6 +39,7 @@ if __name__ == '__main__':
     parser.add_option("-S",  "--sipUUID", action="store", dest="sipUUID", default="")
     parser.add_option("-T",  "--transferUUID", action="store", dest="transferUUID", default="")
     parser.add_option("-e",  "--use", action="store", dest="use", default="original")
+    parser.add_option("--disable-update-filegrpuse", action="store_false", dest="update_use", default=True)
 
 
     (opts, args) = parser.parse_args()
@@ -51,8 +52,9 @@ if __name__ == '__main__':
         fileUUID = uuid.uuid4().__str__()
     else:
         print >>sys.stderr, "File already has UUID:", fileUUID
-        sql = """UPDATE Files SET fileGrpUse='%s' WHERE fileUUID = '%s';""" % (opts.use, fileUUID)
-        databaseInterface.runSQL(sql)
+        if opts.update_use:
+            sql = """UPDATE Files SET fileGrpUse='%s' WHERE fileUUID = '%s';""" % (opts.use, fileUUID)
+            databaseInterface.runSQL(sql)
         exit(0) 
 
 
