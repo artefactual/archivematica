@@ -21,12 +21,13 @@ var components;
 var transferMetadataSetRowUUID;
 var transferDirectoryPickerPathCounter = 1;
 
-function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCssId, pathTemplateCssId, foldersOnly) {
+function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCssId, pathTemplateCssId, entryDisplayFilter) {
   var selector = new DirectoryPickerView({
     ajaxChildDataUrl: '/filesystem/children/location/' + locationUUID + '/',
     el: $('#explorer'),
     levelTemplate: $('#template-dir-level').html(),
-    entryTemplate: $('#template-dir-entry').html()
+    entryTemplate: $('#template-dir-entry').html(),
+    entryDisplayFilter: entryDisplayFilter
   });
 
   var path_components = baseDirectory.replace(/\\/g,'/').split('/');
@@ -43,22 +44,6 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
   };
 
   selector.pathTemplateRender = _.template($('#' + pathTemplateCssId).html());
-
-  if (!foldersOnly) {
-    selector.options.entryDisplayFilter = function(entry) {
-      // if a file and not an archive file, then hide
-      var name = Base64.decode(entry.attributes.name);
-      if (
-        entry.children === undefined &&
-        name.indexOf('.zip') == -1 &&
-        name.indexOf('.tgz') == -1 &&
-        name.indexOf('.tar.gz') == -1
-      ) {
-          return false;
-      }
-      return true;
-    };
-  }
 
   selector.options.actionHandlers = [{
     name: 'Select',

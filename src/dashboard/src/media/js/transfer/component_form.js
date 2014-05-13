@@ -74,13 +74,27 @@ var TransferComponentFormView = Backbone.View.extend({
     // add directory selector
     // Zipped bags should display archives, so set foldersOnly to false
     var locationUUID = $('#path_source_select').children(':selected').val();
+    var zip_filter = function(entry) {
+      // if a file and not an archive file, then hide
+      var name = Base64.decode(entry.attributes.name);
+      if (
+        entry.children === undefined &&
+        name.indexOf('.zip') == -1 &&
+        name.indexOf('.tgz') == -1 &&
+        name.indexOf('.tar.gz') == -1
+      ) {
+          return false;
+      }
+      return true;
+    };
+
     createDirectoryPicker(
       locationUUID,
       sourceDir,
       'transfer-component-select-modal',
       'path_container',
       'transfer-component-path-item',
-      this.transfer_type != 'zipped bag'
+      this.transfer_type == 'zipped bag' ? zip_filter : undefined
     );
   },
 
