@@ -752,21 +752,23 @@ def createFileSec(directoryPath, parentDiv):
                     
                     etree.SubElement(trimFileDiv, "fptr", FILEID=fileId)
 
-        elif use == "preservation":
-            sql = "SELECT * FROM Derivations WHERE derivedFileUUID = '" + myuuid + "';"
-            c, sqlLock = databaseInterface.querySQL(sql)
-            row = c.fetchone()
-            while row != None:
-                GROUPID = "Group-%s" % (row[1])
-                row = c.fetchone()
-            sqlLock.release()
-
-        elif use == "license" or use == "text/ocr" or use == "DSPACEMETS":
+        # Dspace transfers are treated specially, but some of these fileGrpUses
+        # may be encountered in other types
+        elif typeOfTransfer == "Dspace" and (use == "license" or use == "text/ocr" or use == "DSPACEMETS"):
             sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse = 'original' AND originalLocation LIKE '%s/%%'""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(os.path.dirname(originalLocation)).replace("%", "\%"))
             c, sqlLock = databaseInterface.querySQL(sql)
             row = c.fetchone()
             while row != None:
                 GROUPID = "Group-%s" % (row[0])
+                row = c.fetchone()
+            sqlLock.release()
+
+        elif use == "preservation" or use == "text/ocr":
+            sql = "SELECT * FROM Derivations WHERE derivedFileUUID = '" + myuuid + "';"
+            c, sqlLock = databaseInterface.querySQL(sql)
+            row = c.fetchone()
+            while row != None:
+                GROUPID = "Group-%s" % (row[1])
                 row = c.fetchone()
             sqlLock.release()
 
