@@ -22,10 +22,11 @@
 # @author Joseph Perry <joseph@artefactual.com>
 # @version svn: $Id$
 
-from archivematicaXMLNamesSpace import *
 import os
 import sys
 import lxml.etree as etree
+
+import archivematicaXMLNamesSpace as ns
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 
@@ -39,21 +40,21 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
     mdWrap.set("MDTYPE", "DC")
     xmlData = etree.SubElement(mdWrap, "xmlData")
     
-    dublincore = etree.SubElement(xmlData, "dublincore", attrib=None, nsmap={None:dctermsNS})
-    dublincore.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+    dublincore = etree.SubElement(xmlData, "dublincore", attrib=None, nsmap={None:ns.dctermsNS})
+    dublincore.set(ns.xsiBNS+"schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
     tree = etree.parse(os.path.join(baseDirectoryPath, "objects", "ContainerMetadata.xml"))
     root = tree.getroot()
     
     
-    etree.SubElement(dublincore, dctermsBNS + "title").text = root.find("Container/TitleFreeTextPart").text
-    etree.SubElement(dublincore, dctermsBNS + "provenance").text = "Department: %s; OPR: %s" % (root.find("Container/Department").text, root.find("Container/OPR").text)
-    etree.SubElement(dublincore, dctermsBNS + "isPartOf").text = root.find("Container/FullClassificationNumber").text
-    etree.SubElement(dublincore, dctermsBNS + "identifier").text = root.find("Container/RecordNumber").text.split('/')[-1]
+    etree.SubElement(dublincore, ns.dctermsBNS + "title").text = root.find("Container/TitleFreeTextPart").text
+    etree.SubElement(dublincore, ns.dctermsBNS + "provenance").text = "Department: %s; OPR: %s" % (root.find("Container/Department").text, root.find("Container/OPR").text)
+    etree.SubElement(dublincore, ns.dctermsBNS + "isPartOf").text = root.find("Container/FullClassificationNumber").text
+    etree.SubElement(dublincore, ns.dctermsBNS + "identifier").text = root.find("Container/RecordNumber").text.split('/')[-1]
     
     #get objects count
     sql = "SELECT fileUUID FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse='original';" % ('sipUUID', fileGroupIdentifier)
     rows = databaseInterface.queryAllSQL(sql)
-    etree.SubElement(dublincore, dctermsBNS + "extent").text = "%d digital objects" % (len(rows))
+    etree.SubElement(dublincore, ns.dctermsBNS + "extent").text = "%d digital objects" % (len(rows))
     
     sql = "SELECT currentLocation FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse='TRIM file metadata';" % ('sipUUID', fileGroupIdentifier)
     rows = databaseInterface.queryAllSQL(sql)
@@ -71,7 +72,7 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
             if maxDateMod ==  None or dateMod > maxDateMod:
                maxDateMod = dateMod
 
-    etree.SubElement(dublincore, dctermsBNS + "date").text = "%s/%s" % (minDateMod, maxDateMod)
+    etree.SubElement(dublincore, ns.dctermsBNS + "date").text = "%s/%s" % (minDateMod, maxDateMod)
     
     #print etree.tostring(dublincore, pretty_print = True)
     return ret
@@ -92,13 +93,13 @@ def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
         return None
     for row in rows:
         xmlFilePath = row[0].replace('%SIPDirectory%', baseDirectoryPath, 1)
-        dublincore = etree.SubElement(xmlData, "dublincore", attrib=None, nsmap={None:dctermsNS})
+        dublincore = etree.SubElement(xmlData, "dublincore", attrib=None, nsmap={None: ns.dctermsNS})
         tree = etree.parse(os.path.join(baseDirectoryPath, xmlFilePath))
         root = tree.getroot()
         
-        etree.SubElement(dublincore, dctermsBNS + "title").text = root.find("Document/TitleFreeTextPart").text
-        etree.SubElement(dublincore, dctermsBNS + "date").text = root.find("Document/DateModified").text
-        etree.SubElement(dublincore, dctermsBNS + "identifier").text = root.find("Document/RecordNumber").text
+        etree.SubElement(dublincore, ns.dctermsBNS + "title").text = root.find("Document/TitleFreeTextPart").text
+        etree.SubElement(dublincore, ns.dctermsBNS + "date").text = root.find("Document/DateModified").text
+        etree.SubElement(dublincore, ns.dctermsBNS + "identifier").text = root.find("Document/RecordNumber").text
         
     return ret
 
@@ -111,7 +112,7 @@ def getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
         return None
     for row in rows:
         label = os.path.basename(row[0])
-        attrib = {"LABEL":label, xlinkBNS + "href":row[0].replace("%SIPDirectory%", "", 1), "MDTYPE":"OTHER", "OTHERMDTYPE":"CUSTOM", 'LOCTYPE':"OTHER", 'OTHERLOCTYPE':"SYSTEM"}
+        attrib = {"LABEL":label, ns.xlinkBNS + "href":row[0].replace("%SIPDirectory%", "", 1), "MDTYPE":"OTHER", "OTHERMDTYPE":"CUSTOM", 'LOCTYPE':"OTHER", 'OTHERLOCTYPE':"SYSTEM"}
         etree.SubElement(ret, "mdRef", attrib=attrib)
     return ret    
 
@@ -121,7 +122,7 @@ def getTrimAmdSec(baseDirectoryPath, fileGroupIdentifier):
     sql = "SELECT currentLocation FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse='TRIM container metadata';" % ('sipUUID', fileGroupIdentifier)
     rows = databaseInterface.queryAllSQL(sql)
     for row in rows:
-        attrib = {"LABEL":"ContainerMetadata.xml", xlinkBNS + "href":row[0].replace("%SIPDirectory%", "", 1), "MDTYPE":"OTHER", "OTHERMDTYPE":"CUSTOM", 'LOCTYPE':"OTHER", 'OTHERLOCTYPE':"SYSTEM"}
+        attrib = {"LABEL":"ContainerMetadata.xml", ns.xlinkBNS + "href":row[0].replace("%SIPDirectory%", "", 1), "MDTYPE":"OTHER", "OTHERMDTYPE":"CUSTOM", 'LOCTYPE':"OTHER", 'OTHERLOCTYPE':"SYSTEM"}
         etree.SubElement(ret, "mdRef", attrib=attrib)
     return ret
         

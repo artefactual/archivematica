@@ -21,9 +21,8 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-from archivematicaXMLNamesSpace import *
+import archivematicaXMLNamesSpace as ns
 import lxml.etree as etree
-from xml.sax.saxutils import quoteattr
 import os
 import re
 import sys
@@ -136,8 +135,8 @@ def getDublinCore(unit, id):
     row = c.fetchone()
     ret = None
     if row is not None:
-        ret = etree.Element("dublincore", nsmap={None:dctermsNS})
-        ret.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+        ret = etree.Element("dublincore", nsmap={None:ns.dctermsNS})
+        ret.set(ns.xsiBNS+"schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
     while row is not None:
         #title, creator, subject, description, publisher, contributor, date, type, format, identifier, source, relation, language, coverage, rights = row
         for i, term in enumerate(field_list):
@@ -190,8 +189,8 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
                 mdWrap = etree.SubElement(dmdSec, "mdWrap")
                 mdWrap.set("MDTYPE", "DC")
                 xmlData = etree.SubElement(mdWrap, "xmlData")
-                dc = etree.Element("dublincore", nsmap={None: dctermsNS})
-                dc.set(xsiBNS+"schemaLocation", dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+                dc = etree.Element("dublincore", nsmap={None: ns.dctermsNS})
+                dc.set(ns.xsiBNS+"schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
                 xmlData.append(dc)
             if key.startswith("dc."):
                 key2 = key.replace("dc.", "", 1)
@@ -266,7 +265,7 @@ def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
     for item in root.findall("{http://www.loc.gov/METS/}dmdSec"):
         XPTR = "%s %s" % (XPTR, item.get("ID"))
     XPTR = XPTR.replace(" ", "'", 1) + "'))"
-    newChild(dmdSec, "mdRef", text=None, sets=[("LABEL", LABEL), (xlinkBNS +"href", directoryPathSTR), ("MDTYPE", "OTHER"), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM"), ("XPTR", XPTR)])
+    newChild(dmdSec, "mdRef", text=None, sets=[("LABEL", LABEL), (ns.xlinkBNS +"href", directoryPathSTR), ("MDTYPE", "OTHER"), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM"), ("XPTR", XPTR)])
     return (dmdSec, ID)
 
 
@@ -281,11 +280,11 @@ def createTechMD(fileUUID):
     mdWrap = etree.SubElement(techMD, "mdWrap")
     mdWrap.set("MDTYPE", "PREMIS:OBJECT")
     xmlData = etree.SubElement(mdWrap, "xmlData")
-    #premis = etree.SubElement( xmlData, "premis", nsmap={None: premisNS}, \
-    #    attrib = { "{" + xsiNS + "}schemaLocation" : "info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/premis.xsd" })
+    #premis = etree.SubElement( xmlData, "premis", nsmap={None: ns.premisNS}, \
+    #    attrib = { "{" + ns.xsiNS + "}schemaLocation" : "info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/premis.xsd" })
     #premis.set("version", "2.0")
 
-    #premis = etree.SubElement( xmlData, "premis", attrib = {xsiBNS+"type": "premis:file"})
+    #premis = etree.SubElement( xmlData, "premis", attrib = {ns.xsiBNS+"type": "premis:file"})
 
     sql = "SELECT fileSize, checksum FROM Files WHERE fileUUID = '%s';" % (fileUUID)
     c, sqlLock = databaseInterface.querySQL(sql)
@@ -297,9 +296,9 @@ def createTechMD(fileUUID):
     sqlLock.release()
 
     #OBJECT
-    object = etree.SubElement(xmlData, "object", nsmap={None: premisNS})
-    object.set( xsiBNS+"type", "file")
-    object.set(xsiBNS+"schemaLocation", premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
+    object = etree.SubElement(xmlData, "object", nsmap={None: ns.premisNS})
+    object.set(ns.xsiBNS+"type", "file")
+    object.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
     object.set("version", "2.2")
 
     objectIdentifier = etree.SubElement(object, "objectIdentifier")
@@ -421,8 +420,8 @@ def createDigiprovMD(fileUUID):
         mdWrap = etree.SubElement(digiprovMD, "mdWrap")
         mdWrap.set("MDTYPE", "PREMIS:EVENT")
         xmlData = etree.SubElement(mdWrap, "xmlData")
-        event = etree.SubElement(xmlData, "event", nsmap={None: premisNS})
-        event.set(xsiBNS+"schemaLocation", premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
+        event = etree.SubElement(xmlData, "event", nsmap={None: ns.premisNS})
+        event.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
         event.set("version", "2.2")
 
         eventIdentifier = etree.SubElement(event, "eventIdentifier")
@@ -572,12 +571,12 @@ def getIncludedStructMap():
             tree = etree.parse(structMapXmlPath)
             root = tree.getroot() #TDOD - not root to return, but sub element structMap
             #print etree.tostring(root)
-            structMap = root.find(metsBNS + "structMap")
+            structMap = root.find(ns.metsBNS + "structMap")
             id = structMap.get("ID")
             if not id:
                 structMap.set("ID", "structMap_2")
             ret.append(structMap)
-            for item in structMap.findall(".//" + metsBNS + "fptr"):
+            for item in structMap.findall(".//" + ns.metsBNS + "fptr"):
                 fileName = item.get("FILEID")
                 if fileName in fileNameToFileID:
                     #print fileName, " -> ", fileNameToFileID[fileName]
@@ -818,7 +817,7 @@ def createFileSec(directoryPath, parentDiv):
             if use == "original":
                 filesInThisDirectory.append(file)
             #<Flocat xlink:href="objects/file1-UUID" locType="other" otherLocType="system"/>
-            newChild(file, "FLocat", sets=[(xlinkBNS +"href",directoryPathSTR), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM")])
+            newChild(file, "FLocat", sets=[(ns.xlinkBNS +"href",directoryPathSTR), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM")])
             if includeAmdSec:
                 AMD, ADMID = getAMDSec(myuuid, directoryPathSTR, use, fileGroupType, fileGroupIdentifier, transferUUID, itemdirectoryPath, typeOfTransfer)
                 amdSecs.append(AMD)
@@ -857,11 +856,15 @@ if __name__ == '__main__':
         if len(grp) > 0:
             fileSec.append(grp)
 
-    rootNSMap = {None: metsNS}
-    rootNSMap.update(NSMAP)
-    root = etree.Element( "mets", \
-    nsmap = rootNSMap, \
-    attrib = { "{" + xsiNS + "}schemaLocation" : "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd" } )
+    rootNSMap = {
+        None: ns.metsNS,
+        'xsi': ns.xsiNS,
+        'xlink': ns.xlinkNS,
+    }
+    root = etree.Element("mets",
+        nsmap = rootNSMap,
+        attrib = { "{" + ns.xsiNS + "}schemaLocation" : "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd" },
+    )
     etree.SubElement(root,"metsHdr").set("CREATEDATE", databaseInterface.getUTCDate().split(".")[0])
 
 

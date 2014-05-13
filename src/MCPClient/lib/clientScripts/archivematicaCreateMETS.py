@@ -21,13 +21,13 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
-from archivematicaXMLNamesSpace import *
-
 import os
 import sys
 import lxml.etree as etree
 import MySQLdb
 from xml.sax.saxutils import quoteattr
+
+import archivematicaXMLNamesSpace as ns
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from archivematicaFunctions import escape
@@ -145,7 +145,7 @@ def createFileSec(path, parentBranch, structMapParent):
                         fileI.set("ADMID", "digiprov-" + item.__str__() + "-"    + myuuid.__str__())
 
                     Flocat = newChild(fileI, "FLocat")
-                    Flocat.set(xlinkBNS + "href", escape(pathSTR) )
+                    Flocat.set(ns.xlinkBNS + "href", escape(pathSTR) )
                     Flocat.set("LOCTYPE", "OTHER")
                     Flocat.set("OTHERLOCTYPE", "SYSTEM")
 
@@ -156,9 +156,10 @@ def createFileSec(path, parentBranch, structMapParent):
                     fptr.set("FILEID", escape(FILEID))
 
 if __name__ == '__main__':
-    root = etree.Element( "mets", \
-    nsmap = {None: metsNS, "xlink": xlinkNS}, \
-    attrib = { "{" + xsiNS + "}schemaLocation" : "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd" } )
+    root = etree.Element("mets",
+        nsmap = {None: ns.metsNS, "xlink": ns.xlinkNS},
+        attrib = { "{" + ns.xsiNS + "}schemaLocation" : "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd" }
+    )
 
     #cd /tmp/$UUID;
     opath = os.getcwd()

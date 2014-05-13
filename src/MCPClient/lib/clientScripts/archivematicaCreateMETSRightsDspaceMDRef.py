@@ -21,10 +21,11 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
-from archivematicaXMLNamesSpace import *
 import os
 import sys
 import lxml.etree as etree
+
+import archivematicaXMLNamesSpace as ns
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
@@ -42,7 +43,7 @@ def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
     XPTR = XPTR.replace(" ", "'", 1) + "'))"
     mdRef = etree.Element("mdRef")
     mdRef.set("LABEL", LABEL)
-    mdRef.set(xlinkBNS +"href", directoryPathSTR)
+    mdRef.set(ns.xlinkBNS +"href", directoryPathSTR)
     mdRef.set("MDTYPE", "OTHER")
     mdRef.set("OTHERMDTYPE", "METSRIGHTS")
     mdRef.set("LOCTYPE","OTHER")

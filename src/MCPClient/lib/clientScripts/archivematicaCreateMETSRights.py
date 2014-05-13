@@ -23,17 +23,15 @@
 
 #/src/dashboard/src/main/models.py
 
-from archivematicaXMLNamesSpace import *
-
-import os
 import sys
 import uuid
 import lxml.etree as etree
+
+import archivematicaXMLNamesSpace as ns
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from countryCodes import getCodeForCountry
 import databaseInterface
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
-from archivematicaFunctions import escape
 
 
 def formatDate(date):
@@ -57,8 +55,8 @@ def archivematicaGetRights(metadataAppliesToList, fileUUID):
         else:
             for row in rows:
                 valueDic= {}
-                rightsStatement = etree.Element("rightsStatement", nsmap={None: premisNS})
-                rightsStatement.set(xsiBNS+"schemaLocation", premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
+                rightsStatement = etree.Element("rightsStatement", nsmap={None: ns.premisNS})
+                rightsStatement.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
                 #rightsStatement.set("version", "2.1") #cvc-complex-type.3.2.2: Attribute 'version' is not allowed to appear in element 'rightsStatement'.
                 ret.append(rightsStatement)
                 for i in range(len(key)):
