@@ -52,9 +52,10 @@ from main import forms
 from main import models
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from archivematicaFunctions import escape
+import archivematicaFunctions
 import elasticSearchFunctions
 import storageService as storage_service
+
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import requests
@@ -190,6 +191,24 @@ def ingest_metadata_edit(request, uuid, id=None):
     name = utils.get_directory_name_from_job(jobs[0])
 
     return render(request, 'ingest/metadata_edit.html', locals())
+
+
+def ingest_metadata_add_files(request, sip_uuid):
+    try:
+        source_directories = storage_service.get_location(purpose="TS")
+    except:
+        messages.warning(request, 'Error retrieving source directories: is the storage server running? Please contact an administrator.')
+    else:
+        logging.debug("Source directories found: {}".format(source_directories))
+        if not source_directories:
+            msg = "No transfer source locations are available. Please contact an administrator."
+            messages.warning(request, msg)
+    # Get name of SIP from directory name of most recent job
+    # Making list and slicing for speed: http://stackoverflow.com/questions/5123839/fastest-way-to-get-the-first-object-from-a-queryset-in-django
+    jobs = list(models.Job.objects.filter(sipuuid=sip_uuid, subjobof='')[:1])
+    name = utils.get_directory_name_from_job(jobs[0])
+
+    return render(request, 'ingest/metadata_add_files.html', locals())
 
 
 def aic_metadata_add(request, uuid):
@@ -361,7 +380,7 @@ def ingest_normalization_report(request, uuid, current_page=None):
 
     objects = getNormalizationReportQuery(sipUUID=uuid)
     for o in objects:
-        o['location'] = escape(o['location'])
+        o['location'] = archivematicaFunctions.escape(o['location'])
 
     results_per_page = 10
 

@@ -1,0 +1,30 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+
+{% block extra_css %}
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/backbone-file-explorer.css" />
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/directory_picker.css" />
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/transfer_grid.css" />
+{% endblock %}
+
+{% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/file-explorer.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/directory_picker.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/transfer/component_directory_select.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/base64.js"></script>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="span12">
+
+    <ul class="breadcrumb">
+      {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
+      {% breadcrumb_url name 'components.ingest.views.ingest_detail' sip_uuid %}
+      {% breadcrumb 'Add Metadata Files' %}
+    </ul>
+
+    <h1>Add Metadata Files<br /><small>{{ name }}</small></h1>
+  </div>
+
+{% endblock %}
