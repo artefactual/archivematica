@@ -56,13 +56,16 @@ def _storage_relative_from_absolute(location_path, space_path):
 
 ############# PIPELINE #############
 
-def create_pipeline(create_default_locations=False, shared_path=None):
+def create_pipeline(create_default_locations=False, shared_path=None, api_username=None, api_key=None):
     api = _storage_api()
-    pipeline = {}
-    pipeline['uuid'] = get_setting_no_orm('dashboard_uuid')
-    pipeline['description'] = "Archivematica on {}".format(platform.node())
-    pipeline['create_default_locations'] = create_default_locations
-    pipeline['shared_path'] = shared_path
+    pipeline = {
+        'uuid': get_setting_no_orm('dashboard_uuid'),
+        'description': "Archivematica on {}".format(platform.node()),
+        'create_default_locations': create_default_locations,
+        'shared_path': shared_path,
+        'api_username': api_username,
+        'api_key': api_key,
+    }
     logging.info("Creating pipeline in storage service with {}".format(pipeline))
     try:
         api.pipeline.post(pipeline)
