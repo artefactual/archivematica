@@ -16,15 +16,8 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls import patterns
-from components.api.models import SelectionAvailableResource
-from components.api.models import SelectionAPIResource
-
-selectionAvailable = SelectionAvailableResource()
-selectionAPI = SelectionAPIResource()
 
 urlpatterns = patterns('components.api.views',
-    #(r'', include(selectionAvailable.urls)),
-    #(r'', include(selectionAPI.urls)),
     (r'transfer/approve', 'approve_transfer'), 
     (r'transfer/unapproved', 'unapproved_transfers')
 )
