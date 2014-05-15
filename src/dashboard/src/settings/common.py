@@ -245,12 +245,6 @@ MICROSERVICES_HELP = {
     'Workflow decision - create transfer backup': 'Create a complete backup of the transfer in case transfer/ingest are interrupted or fail. The transfer will automatically be deleted once the AIP has been moved into storage.',
     'Workflow decision - send transfer to quarantine': 'If desired, quarantine transfer to allow definitions in anti-virus software to be updated.',
     'Remove from quarantine': 'If desired, select "Unquarantine" to remove the transfer from quarantine immediately. Otherwise, wait until the quarantine period has expired and the transfer will be removed automatically.',
-    'Create SIP(s)': 'Create a SIP from the transfer.',
-    'Approve SIP Creation': 'Once you have added files from the transfer to the SIP and have completed any appraisal and physical arrangement, select "SIP creation complete" to start ingest micro-services.',
-    'Normalize': 'Create preservation and/or access copies of files if desired. Creating access copies will result in a DIP being generated for upload into an access system.',
-    'Approve normalization': 'If desired, click "review" to view the normalized files. To see a report summarizing the normalization results, click on the report icon next to the Actions drop-down menu. If normalization has failed, click on "Yes" under "Preservation normalization failed" or "Access normalization failed" to view the tool output and error message.',
-    'Store AIP': 'If desired, click "review" to view AIP contents. Select "Store AIP" to move the AIP into archival storage.',
-    'UploadDIP': 'If desired, select "Upload DIP" to upload the DIP to the access system.',
 }
 
 # Form styling

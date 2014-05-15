@@ -73,12 +73,8 @@
             <td>{{ term_usage.accession }}</td>
             <td>{{ term_usage.count }} files</td>
             <td>
-              {% if awaiting_creation|keyvalue:term_usage.term %}
-                <a href='/ingest/backlog/process/{{ term_usage.term }}/' target='_blank' class='creation btn'>Create SIP</a>
-              {% else %}
                 Yes
-              {% endif %}
-            </td>
+             </td>
           </tr>
         {% endfor %}
         </tbody>
