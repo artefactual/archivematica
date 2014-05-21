@@ -427,3 +427,38 @@ UPDATE MicroServiceChainLinks SET defaultNextChainLink='f2e784a0-356b-4b92-9a5a-
 
 -- /Issue 6131
 
+-- Issue 6589 - Uncompressed AIPs
+--
+-- Inserts a new compression choice associated with the compression
+-- choice selection MSCL
+INSERT INTO MicroServiceChoiceReplacementDic (pk, choiceAvailableAtLink, description, replacementDic) VALUES ('dc04c4c0-07ea-4796-b643-66d967ed33a4', '01d64f58-8295-4b7b-9cab-8f1b153a504f', 'Uncompressed', '{"%AIPCompressionAlgorithm%":"None-"}');
+
+-- Inserts a check right before clearing out bagged files, which branches to
+-- one of two alternate versions of the microservice.
+-- If an AIP is uncompressed (read: a directory), then we don't want to delete
+-- the uncompressed bag as that *is* the AIP. The original MSCL did this
+-- unconditionally.
+--
+-- First, the new version of the microservice chain link;
+-- this is exactly the same as the old one, minus deleting the uncompressed AIP.
+SET @removeAllButAIPDirectoryMSCL = '63f35161-ba76-4a43-8cfa-c38c6a2d5b2f' COLLATE utf8_unicode_ci;
+SET @removeAllButAIPDirectoryTC = '83755035-1dfd-4e25-9031-e1178be4bb84' COLLATE utf8_unicode_ci;
+SET @removeAllButAIPDirectorySTC = 'd17b25c7-f83c-4862-904b-8074150b1395' COLLATE utf8_unicode_ci;
+
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES (@removeAllButAIPDirectorySTC, 0, 'remove_v0.0', '-R "%SIPDirectory%METS.%SIPUUID%.xml" "%SIPLogsDirectory%" "%SIPObjectsDirectory%" "%SIPDirectory%thumbnails/"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@removeAllButAIPDirectoryTC, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @removeAllButAIPDirectorySTC, 'Remove bagged files');
+INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@removeAllButAIPDirectoryMSCL, 'Prepare AIP', 'Failed', @removeAllButAIPDirectoryTC, '7d728c39-395f-4892-8193-92f086c0546f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('7aad879a-ffc4-4276-8e6e-eeb89a5bc0fa', @removeAllButAIPDirectoryMSCL, 0, '7c44c454-e3cc-43d4-abe0-885f93d693c6', 'Completed successfully');
+
+-- Next insert the new check
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('8c96ba0c-44e5-4ff8-8c73-0c567d52e2d4', 0, 'test_v0.0', '-d "%SIPDirectory%%AIPFilename%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('ee00a5c7-a69c-46cf-a5e0-a9e2f18e563e', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '8c96ba0c-44e5-4ff8-8c73-0c567d52e2d4', 'Check if AIP is a file or directory');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('91dc1ab1-487e-4121-a6c5-d8441da7a422', 'Prepare AIP', 'Failed', 'ee00a5c7-a69c-46cf-a5e0-a9e2f18e563e', '7d728c39-395f-4892-8193-92f086c0546f');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='91dc1ab1-487e-4121-a6c5-d8441da7a422' WHERE microServiceChainLink='5fbc344c-19c8-48be-a753-02dac987428c';
+
+-- The exit code of this test (0 if a directory, 1 otherwise) is used to branch to two
+-- different versions of the deletion task, which then progress to the same followup
+-- link.
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('4f85bfa3-1e4a-4698-8b02-5eb1bd434c5d', '91dc1ab1-487e-4121-a6c5-d8441da7a422', 0, @removeAllButAIPDirectoryMSCL, 'Completed successfully');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('b992b4c5-97da-4a0b-a434-a114cfa39329', '91dc1ab1-487e-4121-a6c5-d8441da7a422', 1, '746b1f47-2dad-427b-8915-8b0cb7acccd8', 'Completed successfully');
+-- /Issue 6589
