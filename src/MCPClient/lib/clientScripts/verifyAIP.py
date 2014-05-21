@@ -7,6 +7,21 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 
+
+def extract_aip(aip_path, extract_path):
+    os.makedirs(extract_path)
+    command = "atool --extract-to={} -V0 {}".format(extract_path, aip_path)
+    print 'Running extraction command:', command
+    exit_code, _, _ = executeOrRun("command", command, printing=True)
+    if exit_code != 0:
+        raise Exception("Error extracting AIP")
+
+    aip_identifier, ext = os.path.splitext(os.path.basename(aip_path))
+    if ext in ('.bz2', '.gz'):
+        aip_identifier, _ = os.path.splitext(aip_identifier)
+    return os.path.join(extract_path, aip_identifier)
+
+
 def verify_aip():
     """ Verify the AIP was bagged correctly by extracting it and running verification on its contents.
 
@@ -24,20 +39,18 @@ def verify_aip():
     config.read(clientConfigFilePath)
     temp_dir = config.get('MCPClient', 'temp_dir')
 
-    extract_dir = os.path.join(temp_dir, sip_uuid)
-    os.makedirs(extract_dir)
-    command = "atool --extract-to={extract_dir} -V0 {aip_path}".format(
-        extract_dir=extract_dir, aip_path=aip_path)
-    print 'Running extraction command:', command
-    exit_code, _, _ = executeOrRun("command", command, printing=True)
-    if exit_code != 0:
-        print >>sys.stderr, "Error extracting"
-        return 1
+    is_uncompressed_aip = os.path.isdir(aip_path)
 
-    aip_identifier, ext = os.path.splitext(os.path.basename(aip_path))
-    if ext in ('.bz2', '.gz'):
-        aip_identifier, _ = os.path.splitext(aip_identifier)
-    bag = os.path.join(extract_dir, aip_identifier)
+    if is_uncompressed_aip:
+        bag = aip_path
+    else:
+        try:
+            extract_dir = os.path.join(temp_dir, sip_uuid)
+            bag = extract_aip(aip_path, extract_dir)
+        except Exception:
+            print >>sys.stderr, 'Error extracting AIP at "{}"'.format(aip_path)
+            return 1
+
     verification_commands = [
         '/usr/share/bagit/bin/bag verifyvalid "{}"'.format(bag),
         '/usr/share/bagit/bin/bag checkpayloadoxum "{}"'.format(bag),
@@ -53,7 +66,8 @@ def verify_aip():
             print >>sys.stderr, "Failed test: ", command
             return_code = 1
     #cleanup
-    shutil.rmtree(extract_dir)
+    if not is_uncompressed_aip:
+        shutil.rmtree(extract_dir)
     return return_code
 
 if __name__ == '__main__':
