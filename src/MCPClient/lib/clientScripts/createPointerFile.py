@@ -33,6 +33,14 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     aip_path = os.path.join(sip_dir, aip_filename)
     # Get archive tool and version
     program, algorithm = compression.split('-')
+
+    # Pointer files are not written for uncompressed AIPs;
+    # the purpose of the pointer file is primarily to provide information
+    # on how to read a compressed AIP file, so there isn't anything for
+    # it to do when pointing at an uncompressed AIP.
+    if program == 'None':
+        return 0
+
     if program == '7z':
         archive_tool = '7-Zip'
         archive_tool_version = '9.20'  # TODO get this dynamically
