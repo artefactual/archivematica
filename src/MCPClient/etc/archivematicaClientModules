@@ -109,6 +109,7 @@ setDirectoryPermissionsForAppraisal_v0.0 = %clientScriptsDirectory%setDirectoryP
 setFilePermission_v0.0 = chmod
 setMaildirFileGrpUseAndFileIDs_v0.0 = %clientScriptsDirectory%setMaildirFileGrpUseAndFileIDs.py
 setSIPQuarantine_v0.0 = %clientScriptsDirectory%quarantineSIP.sh
+test_v0.0 = test
 trimCreateRightsEntries_v0.0 = %clientScriptsDirectory%trimCreateRightsEntries.py
 trimRestructureForCompliance_v0.0 = %clientScriptsDirectory%trimRestructureForCompliance.py
 trimVerifyChecksums_v0.0 = %clientScriptsDirectory%trimVerifyChecksums.py
