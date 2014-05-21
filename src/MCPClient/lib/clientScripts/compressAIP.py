@@ -9,6 +9,14 @@ import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 
 
+def update_unit(sip_uuid, compressed_location):
+    # Set aipFilename in Unit
+    sql = """ UPDATE SIPs SET aipFilename='{aipFilename}' WHERE sipUUID='{sip_uuid}';""".format(
+        aipFilename=os.path.basename(compressed_location),
+        sip_uuid=sip_uuid)
+    databaseInterface.runSQL(sql)
+
+
 def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uuid):
     """ Compresses AIP according to compression algorithm and level.
     compression = AIP compression algorithm, format: <program>-<algorithm>, eg. 7z-lzma, pbzip2-
@@ -34,6 +42,15 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
 
     archive_path = '{name}-{uuid}'.format(name=sip_name, uuid=sip_uuid)
     uncompressed_location = sip_directory+archive_path
+
+    # Even though no actual compression is taking place,
+    # the location still needs to be set in the unit to ensure that the
+    # %AIPFilename% variable is set appropriately.
+    # Setting it to an empty string ensures the common
+    # "%SIPDirectory%%AIPFilename%" pattern still points at the right thing.
+    if program == 'None':
+        update_unit(sip_uuid, uncompressed_location)
+        return 0
 
     print "Compressing {} with {}, algorithm {}, level {}".format(
         uncompressed_location, program, compression_algorithm, compression_level)
@@ -81,11 +98,7 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
         fileUUID=file_uuid,
     )
 
-    # Set aipFilename in Unit
-    sql = """ UPDATE SIPs SET aipFilename='{aipFilename}' WHERE sipUUID='{sip_uuid}';""".format(
-        aipFilename=os.path.basename(compressed_location),
-        sip_uuid=sip_uuid)
-    databaseInterface.runSQL(sql)
+    update_unit(sip_uuid, compressed_location)
 
     return exit_code
 
