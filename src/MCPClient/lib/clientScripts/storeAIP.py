@@ -67,13 +67,20 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     elif sip_type == 'AIC':
         package_type = sip_type
 
+    # Uncompressed directory AIPs must be terminated in a /,
+    # otherwise the storage service will place the directory
+    # inside another directory of the same name.
+    current_path = os.path.basename(aip_path)
+    if os.path.isdir(aip_path) and not aip_path.endswith('/'):
+        relative_aip_path = relative_aip_path + '/'
+
     #Store the AIP
     (new_file, error_msg) = storage_service.create_file(
         uuid=sip_uuid,
         origin_location=current_location['resource_uri'],
         origin_path=relative_aip_path,
         current_location=aip_destination_uri,
-        current_path=os.path.basename(aip_path),
+        current_path=current_path,
         package_type=package_type,
         size=os.path.getsize(aip_path)
     )
