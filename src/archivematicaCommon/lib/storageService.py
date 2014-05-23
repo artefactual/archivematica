@@ -223,7 +223,7 @@ def get_space(access_protocol=None, path=None):
 ############# FILES #############
 
 def create_file(uuid, origin_location, origin_path, current_location,
-        current_path, package_type, size):
+        current_path, package_type, size, update=False):
     """ Creates a new file. Returns a tuple of (resulting dict, None) on success, (None, error) on failure.
 
     origin_location and current_location should be URIs for the storage service.
@@ -246,7 +246,11 @@ def create_file(uuid, origin_location, origin_path, current_location,
 
     LOGGER.info("Creating file with {}".format(new_file))
     try:
-        file_ = api.file.post(new_file)
+        if update:
+            new_file['reingest'] = pipeline['uuid']
+            file_ = api.file(uuid).put(new_file)
+        else:
+            file_ = api.file.post(new_file)
     except slumber.exceptions.HttpClientError as e:
         LOGGER.warning("Unable to create file from {} because {}".format(new_file, e.content))
         return (None, e)
@@ -343,7 +347,10 @@ def request_reingest(package_uuid, reingest_type):
         response = api.file(package_uuid).reingest.post(api_request)
     except (slumber.exceptions.HttpClientError, slumber.exceptions.HttpServerError) as e:
         LOGGER.exception("Unable to reingest {}".format(package_uuid))
-        return  e.response.json() or {'error': True}
+        try:
+            return e.response.json()
+        except Exception:
+            return {'error': True}
     except requests.ConnectionError as e:
         LOGGER.exception("Could not connect to storage service")
         return {'error': True, 'message': 'Could not connect to storage service'}

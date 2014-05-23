@@ -207,7 +207,9 @@ class SIP(models.Model):
     aip_filename = models.TextField(db_column='aipFilename', null=True, blank=True)
     SIP_TYPE_CHOICES = (
         ('SIP', 'SIP'),
-        ('AIC', 'AIC')
+        ('AIC', 'AIC'),
+        ('AIP-REIN', 'Reingested AIP'),
+        ('AIC-REIN', 'Reingested AIC'),
     )
     sip_type = models.CharField(max_length=8, choices=SIP_TYPE_CHOICES, db_column='sipType', default='SIP')
 

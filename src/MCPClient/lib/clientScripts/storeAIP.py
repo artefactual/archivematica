@@ -58,10 +58,12 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     relative_aip_path = aip_path.replace(shared_path, '')
 
     # Get the package type: AIC or AIP
-    if sip_type == "SIP":
+    if 'SIP' in sip_type or 'AIP' in sip_type:  # Also matches AIP-REIN
         package_type = "AIP"
-    elif sip_type == 'AIC' or sip_type == 'DIP':
-        package_type = sip_type
+    elif 'AIC' in sip_type:  # Also matches AIC-REIN
+        package_type = 'AIC'
+    elif 'DIP' in sip_type:
+        package_type = 'DIP'
 
     # Uncompressed directory AIPs must be terminated in a /,
     # otherwise the storage service will place the directory
@@ -96,7 +98,8 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
         current_location=aip_destination_uri,
         current_path=current_path,
         package_type=package_type,
-        size=size
+        size=size,
+        update='REIN' in sip_type,
     )
 
     if new_file is not None and new_file.get('status', '') != "FAIL":

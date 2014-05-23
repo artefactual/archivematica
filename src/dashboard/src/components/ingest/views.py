@@ -171,7 +171,7 @@ def ingest_metadata_edit(request, uuid, id=None):
                 metadataappliestoidentifier=uuid)
 
     # If the SIP is an AIC, use the AIC metadata form
-    if models.SIP.objects.get(uuid=uuid).sip_type == 'AIC':
+    if 'AIC' in models.SIP.objects.get(uuid=uuid).sip_type:
         form = ingest_forms.AICDublinCoreMetadataForm(request.POST or None,
             instance=dc)
         dc_type = "Archival Information Collection"
