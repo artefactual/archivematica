@@ -35,8 +35,12 @@ if os.path.isdir(manualNormalizationPath):
     manualNormalizationAccessPath = os.path.join(manualNormalizationPath, "access")
     if os.path.isdir(manualNormalizationAccessPath):
         if len(os.listdir(manualNormalizationAccessPath)):
-            #77a7fa46-92b9-418e-aa88-fbedd4114c9f or 055de204-6229-4200-87f7-e3c29f095017 (indicate there is an access directory
-            databaseInterface.runSQL("""UPDATE UnitVariables SET microServiceChainLink = '055de204-6229-4200-87f7-e3c29f095017' WHERE unitType='SIP' AND unitUUID = '%s' AND variable = 'returnFromManualNormalized' """ % (SIPUUID) )
+            # FIXME Workflow decisions should not be made in client scripts! It
+            # is not discoverable and leads to bugs when workflow changes are
+            # made and setting unit variables in client scripts is missed! This
+            # should be eliminated (by having another way of setting when DIPs
+            # are created) or moved to its own MSCL.
+            databaseInterface.runSQL("""UPDATE UnitVariables SET microServiceChainLink = 'f060d17f-2376-4c0b-a346-b486446e46ce' WHERE unitType='SIP' AND unitUUID = '%s' AND variable = 'returnFromManualNormalized' """ % (SIPUUID) )
             exit(179)
     manualNormalizationPreservationPath = os.path.join(manualNormalizationPath, "preservation")
     if os.path.isdir(manualNormalizationPreservationPath):
