@@ -62,6 +62,9 @@
             <div>Files</div>
           </th>
           <th>
+            <div>Logs</div>
+          </th>
+          <th>
             <div>Ingested?</div>
           </th>
         </thead>
@@ -72,6 +75,7 @@
             <td>{{ term_usage.term }}</td>
             <td>{{ term_usage.accession }}</td>
             <td>{{ term_usage.count }} files</td>
+            <td><a href='/ingest/preview/logs/{{ term_usage.term }}/' target='_blank'>View logs</a></td>
             <td>
               {% if awaiting_creation|keyvalue:term_usage.term %}
                 <a href='/ingest/backlog/process/{{ term_usage.term }}/' target='_blank' class='creation btn'>Create SIP</a>

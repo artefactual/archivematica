@@ -387,6 +387,22 @@ def ingest_browse_aip(request, jobuuid):
 
     return render(request, 'ingest/aip_browse.html', locals())
 
+def ingest_browse_logs(request, transferuuid):
+    """
+    Displays a preview browser for logs from transfers. This is primarily intended
+    for use with transfers in the transfer backlog, but can work with any transfer.
+    """
+    transfer = models.Transfer.objects.get(pk=transferuuid)
+    title = 'Review transfer logs'
+    shared_dir = helpers.get_server_config_value('sharedDirectory')
+    path = transfer.currentlocation.replace('%sharedPath%', shared_dir)
+    name = utils.get_directory_name(path)
+    directory = os.path.join(path, 'logs')
+    with open('/tmp/dir.log', 'a') as log:
+        print >> log, name
+
+    return render(request, 'ingest/aip_browse.html', locals())
+
 @decorators.elasticsearch_required()
 def transfer_backlog(request):
     # deal with transfer mode
