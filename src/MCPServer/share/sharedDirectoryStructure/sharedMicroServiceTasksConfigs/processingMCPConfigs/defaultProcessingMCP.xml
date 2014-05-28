@@ -55,5 +55,10 @@
       <appliesTo>7079be6d-3a25-41e6-a481-cee5f352fe6e</appliesTo>
       <goToChain>1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53</goToChain>
     </preconfiguredChoice>
+    <!-- Transfer tree diagram -->
+    <preconfiguredChoice>
+      <appliesTo>56eebd45-5600-4768-a8c2-ec0114555a3d</appliesTo>
+      <goToChain>e9eaef1e-c2e0-4e3b-b942-bfb537162795</goToChain>
+    </preconfiguredChoice>
   </preconfiguredChoices>
 </processingMCP>
