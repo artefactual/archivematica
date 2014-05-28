@@ -50,5 +50,10 @@
       <appliesTo>accea2bf-ba74-4a3a-bb97-614775c74459</appliesTo>
       <goToChain>e0a39199-c62a-4a2f-98de-e9d1116460a8</goToChain>
     </preconfiguredChoice>
+    <!-- Transcribe file -->
+    <preconfiguredChoice>
+      <appliesTo>7079be6d-3a25-41e6-a481-cee5f352fe6e</appliesTo>
+      <goToChain>1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53</goToChain>
+    </preconfiguredChoice>
   </preconfiguredChoices>
 </processingMCP>
