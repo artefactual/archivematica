@@ -26,20 +26,24 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
     this.itemsPerPage = 50;
 
     this.render();
-    this.initDragAndDrop();
 
     var self = this;
 
-    this.eventClickHandler = this.options.eventClickHandler;
+    // allow use of contents paths with augmented data, if desired
+    if (typeof this.options.directoryContentsURLPath != 'undefined') {
+      this.directoryContentsURLPath = this.options.directoryContentsURLPath;
+    } else {
+      this.directoryContentsURLPath = '/filesystem/contents/';
+    }
 
-    this.options.nameClickHandler = function(result) { 
-      if (result.type != 'directory') { 
-        window.open(
-          '/filesystem/download?filepath=' + encodeURIComponent(result.path),
-          '_blank'
-        );
-      } 
-    };
+    // allow option use of a child data URL for larger directories
+    if (typeof this.options.ajaxChildDataUrl != 'undefined') {
+      this.ajaxChildDataUrl = this.options.ajaxChildDataUrl;
+    }
+
+    this.ajaxDeleteUrl = this.options.ajaxDeleteUrl || '/filesystem/delete/';
+
+    this.eventClickHandler = this.options.eventClickHandler;
 
     if (this.options.actionHandlers == undefined) {
       this.options.actionHandlers = [];
@@ -62,13 +66,14 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
     });
 
     this.id = $(this.el).attr('id'); 
+    //this.initDragAndDrop();
   },
 
   deleteEntry: function(path, type) {
     var self = this;
     $.post(
-      '/filesystem/delete/',
-      {filepath: path},
+      this.ajaxDeleteUrl,
+      {filepath: Base64.encode(path)},
       function(response) {
         if (response.error) {
           self.alert(
@@ -76,13 +81,18 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
             response.message
           );
         }
-        self.refresh();
+
+        if (self.ajaxChildDataUrl) {
+          self.render();
+        } else {
+          self.refresh();
+        }
       }
     );
   },
 
   refresh: function(path) {
-    $(this.el).empty();
+    //$(this.el).empty();
     this.busy();
 
     if (path != undefined)
@@ -90,10 +100,9 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
       this.path = path;
     }
 
-    var baseUrl = '/filesystem/contents/';
     var url = (this.path != undefined)
-      ? baseUrl + '?path=' + encodeURIComponent(this.path)
-      : baseUrl;
+      ? this.directoryContentsURLPath + '?path=' + encodeURIComponent(this.path)
+      : this.directoryContentsURLPath;
 
     var self = this;
 

@@ -57,16 +57,22 @@ def insertIntoFiles(fileUUID, filePath, enteredSystem=databaseInterface.getUTCDa
 
 def getAgentForFileUUID(fileUUID):
     agent = None
-    rows = databaseInterface.queryAllSQL("""SELECT sipUUID, transferUUID FROM Files WHERE fileUUID = '%s';""" % (fileUUID))
-    sipUUID, transferUUID = rows[0]
-    if sipUUID:
-        rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ('SIP', sipUUID, "activeAgent"))
-        if len(rows):
-            agent = "%s" % (rows[0])
-    if transferUUID and not agent: #agent hasn't been found yet
-        rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ("Transfer", transferUUID, "activeAgent"))
-        if len(rows):
-            agent = "%s" % (rows[0])
+    if fileUUID == 'None':
+        error_message = "Unable to get agent for file: no file UUID provided."
+        print >>sys.stderr, error_message
+        raise Exception(error_message)
+    else:
+        rows = databaseInterface.queryAllSQL("""SELECT sipUUID, transferUUID FROM Files WHERE fileUUID = '%s';""" % (fileUUID))
+        print """SELECT sipUUID, transferUUID FROM Files WHERE fileUUID = '%s';""" % (fileUUID)
+        sipUUID, transferUUID = rows[0]
+        if sipUUID:
+            rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ('SIP', sipUUID, "activeAgent"))
+            if len(rows):
+                agent = "%s" % (rows[0])
+        if transferUUID and not agent: #agent hasn't been found yet
+            rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ("Transfer", transferUUID, "activeAgent"))
+            if len(rows):
+                agent = "%s" % (rows[0])
     return agent
 
 def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=databaseInterface.getUTCDate(), eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):

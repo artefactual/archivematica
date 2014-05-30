@@ -19,13 +19,15 @@ from django.conf.urls import patterns
 from django.conf import settings
 
 urlpatterns = patterns('components.filesystem_ajax.views',
-    (r'^download/$', 'download'),
+    (r'^download_ss/$', 'download_ss'),
+    (r'^download_fs/$', 'download_fs'),
+    (r'^contents/arrange/$', 'arrange_contents'),
     (r'^contents/$', 'contents'),
     (r'^children/location/(?P<location_uuid>' + settings.UUID_REGEX + ')/$', 'directory_children_proxy_to_storage_server'),
-    #(r'^children/$', 'directory_children'),
-
+    (r'^delete/arrange/$', 'delete_arrange'),
     (r'^delete/$', 'delete'),
-    (r'^copy_to_originals/$', 'copy_to_originals'),
+    (r'^move_within_arrange/$', 'move_within_arrange'),
+    (r'^create_directory_within_arrange/$', 'create_directory_within_arrange'),
     (r'^copy_to_arrange/$', 'copy_to_arrange'),
     (r'^get_temp_directory/$', 'get_temp_directory'),
     (r'^ransfer/$', 'start_transfer'),

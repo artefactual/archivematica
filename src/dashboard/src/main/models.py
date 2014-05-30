@@ -227,6 +227,24 @@ class Transfer(models.Model):
     class Meta:
         db_table = u'Transfers'
 
+
+class SIPArrange(models.Model):
+    original_path = models.CharField(max_length=255, null=True, blank=True, default=None, unique=True)
+    arrange_path = models.CharField(max_length=255)
+    file_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
+    transfer_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
+    sip_created = models.BooleanField(default=False)
+    aip_created = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Arranged SIPs"
+
+    def __unicode__(self):
+        return u'{original} -> {arrange}'.format(
+            original=self.original_path,
+            arrange=self.arrange_path)
+
+
 class File(models.Model):
     uuid = models.CharField(max_length=36, primary_key=True, db_column='fileUUID')
     sip = models.ForeignKey(SIP, db_column='sipUUID', to_field = 'uuid')
@@ -235,6 +253,8 @@ class File(models.Model):
     originallocation = models.TextField(db_column='originalLocation')
     currentlocation = models.TextField(db_column='currentLocation')
     filegrpuse = models.TextField(db_column='fileGrpUse')
+    checksum =  models.TextField(db_column='checksum')
+    size = models.TextField(db_column='fileSize')
 
     class Meta:
         db_table = u'Files'
@@ -255,18 +275,6 @@ class FileFormatVersion(models.Model):
 
     def __unicode__(self):
         return u'{file} is {format}'.format(file=self.file_uuid, format=self.format_version)
-
-class FPRFileID(models.Model):
-    uuid = models.CharField(max_length=36, primary_key=True, db_column='pk')
-    description = models.TextField(db_column='description')
-    validpreservationformat = models.IntegerField(null=True, db_column='validPreservationFormat', default=0)
-    validaccessformat = models.IntegerField(null=True, db_column='validAccessFormat', default=0)
-    fileidtype = models.CharField(null=True, max_length=50, db_column='fileIDType')
-    replaces = models.CharField(null=True, max_length=36, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified')
-
-    class Meta:
-        db_table = u'FileIDs'
 
 class Task(models.Model):
     taskuuid = models.CharField(max_length=36, primary_key=True, db_column='taskUUID')

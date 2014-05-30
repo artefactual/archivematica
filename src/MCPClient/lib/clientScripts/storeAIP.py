@@ -57,6 +57,10 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     # is passed in properly, or use Agent to make sure is correct CP
     current_location = storage_service.get_location(purpose="CP")[0]
 
+    # Make aip_path relative to the Location
+    shared_path = os.path.join(current_location['path'], '')  # Ensure ends with /
+    relative_aip_path = aip_path.replace(shared_path, '')
+
     # Get the package type: AIC or AIP
     if sip_type == "SIP":
         package_type = "AIP"
@@ -67,7 +71,7 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     (new_file, error_msg) = storage_service.create_file(
         uuid=sip_uuid,
         origin_location=current_location['resource_uri'],
-        origin_path=aip_path,  # FIXME should be relative
+        origin_path=relative_aip_path,
         current_location=aip_destination_uri,
         current_path=os.path.basename(aip_path),
         package_type=package_type,

@@ -23,6 +23,7 @@
   <!-- browser related -->
   <script type="text/javascript" src="{{ STATIC_URL }}vendor/jquery.event.drag-1.5.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}vendor/jquery.event.drop-1.1.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/base64.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/file-explorer.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/file_browser.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/ingest_file_browser.js"></script>
@@ -60,75 +61,25 @@
 
 {% block content %}
 
-  <!--
-  <div id='originals' class='backbone-file-explorer' style='float:left'></div>
-  <div style='margin-left: 30px; float:left;'>
-    <div id='arrange' class='backbone-file-explorer' style='float:left'></div>
-    <div id='arrange_controls'>
-       <span id='arrange_delete_button' class='btn'>Delete</span>
-       <span id='arrange_create_sip_button' class='btn'>Create SIP</span>
+  {% include "ingest/backlog/_search_form.html" %}
+
+  <div style='float:left;'>
+    <div id='originals' class='backbone-file-explorer' style='float:left; width: 460px;'></div>
+    <div id='originals_controls'>
+      <span id='originals_hide_button' class='btn'>Hide</span>
+      <span id='open_originals_file_button' class='btn'>View File</span>
     </div>
   </div>
-  -->
-
-  <script>
-  $(document).ready(function() {
-
-    /*
-    var arrange = setupBacklogBrowser(
-      '/var/archivematica/sharedDirectory/watchedDirectories/SIPCreation/completedTransfers',
-      '/var/archivematica/sharedDirectory/arrange'
-    );
-
-    // delete button functionality
-    $('#arrange_delete_button').click(function() {
-      console.log(arrange.selectedEntryId);
-      var path = arrange.getPathForCssId(arrange.selectedEntryId)
-        , type = arrange.getTypeForCssId(arrange.selectedEntryId);
-
-      arrange.confirm(
-        'Delete',
-        'Are you sure you want to delete this directory or file?',
-        function() {
-          arrange.deleteEntry(path, type);
-        }
-      );
-    });
-
-    // create SIP button functionality
-    $('#arrange_create_sip_button').click(function() {
-      var entryDiv = $('#' + arrange.selectedEntryId)
-        , path = arrange.getPathForCssId(arrange.selectedEntryId);
-
-      arrange.confirm(
-        'Create SIP',
-        'Are you sure you want to create a SIP?',
-        function() {
-          $.post(
-            '/filesystem/copy_from_arrange/',
-            {filepath: path},
-            function(result) {
-              var title = (result.error) ? 'Error' : '';
-              arrange.alert(
-                title,
-                result.message
-              );
-              if (!result.error) {
-                $(entryDiv).next().hide();
-                $(entryDiv).hide();
-              }
-            }
-          );
-        }
-      );
-    });
-    */
-  });
-  </script>
-
-<!-- <br clear='all'/> -->
-
-  {% include "ingest/backlog/_search_form.html" %}
+  <div style='margin-left: 30px; float:left;'>
+    <div id='arrange' class='backbone-file-explorer' style='float:left; width: 460px;'></div>
+    <div id='arrange_controls'>
+      <span id='arrange_delete_button' class='btn'>Delete</span>
+      <span id='arrange_create_sip_button' class='btn'>Create SIP</span>
+      <span id='arrange_create_directory_button' class='btn'>Add Directory</span>
+    </div>
+  </div>
+  <br clear='all' />
+  <br />
 
   <div class="span12" id="sip-container">
     <div>

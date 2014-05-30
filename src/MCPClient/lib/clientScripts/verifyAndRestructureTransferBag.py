@@ -23,8 +23,9 @@
 import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
+import fileOperations
 from executeOrRunSubProcess import executeOrRun
-from restructureForCompliance import restructureBagForComplianceFileUUIDsAssigned
 from databaseFunctions import insertIntoEvents
 import databaseInterface
 
@@ -64,7 +65,54 @@ def verifyBag(bag):
             exitCode += 1
         else:
             print "Passed test: ", command
-    
+
+
+def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith = "%transferDirectory%"):
+    bagFileDefaultDest = os.path.join(unitPath, "logs", "BagIt")
+    REQUIRED_DIRECTORIES.append(bagFileDefaultDest)
+    # This needs to be cast to a string since we're calling os.path.join(),
+    # and any of the other arguments could contain arbitrary, non-Unicode
+    # characters.
+    unitPath = str(unitPath)
+    unitDataPath = str(os.path.join(unitPath, "data"))
+    for dir in REQUIRED_DIRECTORIES:
+        dirPath = os.path.join(unitPath, dir)
+        dirDataPath = os.path.join(unitPath, "data", dir)
+        if os.path.isdir(dirDataPath):
+            #move to the top level
+            src = dirDataPath
+            dst = dirPath
+            fileOperations.updateDirectoryLocation(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+            print "moving directory ", dir
+        else:
+            if not os.path.isdir(dirPath):
+                print "creating: ", dir
+                os.mkdir(dirPath)
+    for item in os.listdir(unitPath):
+        src = os.path.join(unitPath, item)
+        if os.path.isfile(src):
+            if item.startswith("manifest"):
+                dst = os.path.join(unitPath, "metadata", item)
+            else:
+                dst = os.path.join(bagFileDefaultDest, item)
+            fileOperations.updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+    for item in os.listdir(unitDataPath):
+        itemPath =  os.path.join(unitDataPath, item)
+        if os.path.isdir(itemPath) and item not in REQUIRED_DIRECTORIES:
+            print "moving directory to objects: ", item
+            dst = os.path.join(unitPath, "objects", item)
+            fileOperations.requiredDirectoriesupdateDirectoryLocation(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+        elif os.path.isfile(itemPath) and item not in OPTIONAL_FILES:
+            print "moving file to objects: ", item
+            dst = os.path.join(unitPath, "objects", item)
+            fileOperations.requiredDirectoriesupdateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+        elif item in OPTIONAL_FILES:
+            dst = os.path.join(unitPath, item)
+            fileOperations.requiredDirectoriesupdateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+    print "removing empty data directory"
+    os.rmdir(unitDataPath)
+
+
 if __name__ == '__main__':
     target = sys.argv[1]
     transferUUID =  sys.argv[2]

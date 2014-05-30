@@ -16,22 +16,20 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 # Standard library, alphabetical by import source
+import base64
 import calendar
 import cPickle
 import json
 import logging
 from lxml import etree
-import MySQLdb
 import os
 import shutil
 import socket
 import sys
-import uuid
 
 # Django Core, alphabetical by import source
 from django.conf import settings as django_settings
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db.models import Max
 from django.forms.models import modelformset_factory
@@ -54,9 +52,9 @@ from main import forms
 from main import models
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import elasticSearchFunctions, databaseInterface, databaseFunctions
-from archivematicaCreateStructuredDirectory import createStructuredDirectory
 from archivematicaFunctions import escape
+import elasticSearchFunctions
+import storageService as storage_service
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import pyes, requests
@@ -74,6 +72,12 @@ def ingest_grid(request):
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
     uid = request.user.id
+
+    try:
+        storage_service.get_location(purpose="BL")
+    except:
+        messages.warning(request, 'Error retrieving originals/arrange directory locations: is the storage server running? Please contact an administrator.')
+
     return render(request, 'ingest/grid.html', locals())
 
 def ingest_status(request, uuid=None):
@@ -387,43 +391,49 @@ def ingest_browse_aip(request, jobuuid):
 
     return render(request, 'ingest/aip_browse.html', locals())
 
+
+def _es_results_to_directory_tree(path, return_list, not_draggable=False):
+    # Helper function for transfer_backlog
+    # Paths MUST be input in sorted order
+    # Otherwise the same directory might end up with multiple entries
+    parts = path.split('/', 1)
+    if parts[0] in ('logs', 'metadata'):
+        not_draggable = True
+    if len(parts) == 1:  # path is a file
+        return_list.append({
+            'name': base64.b64encode(parts[0]),
+            'not_draggable': not_draggable})
+    else:
+        node, others = parts
+        node = base64.b64encode(node)
+        if not return_list or return_list[-1]['name'] != node:
+            return_list.append({
+                'name': node,
+                'not_draggable': not_draggable,
+                'children': []})
+        _es_results_to_directory_tree(others, return_list[-1]['children'],
+            not_draggable=not_draggable)
+        # If any children of a dir are draggable, the whole dir should be
+        # Otherwise, directories have the draggability of their first child
+        return_list[-1]['not_draggable'] = return_list[-1]['not_draggable'] and not_draggable
+
+
 @decorators.elasticsearch_required()
 def transfer_backlog(request):
-    # deal with transfer mode
-    file_mode = False
-    checked_if_in_file_mode = ''
-    if request.GET.get('mode', '') != '':
-        file_mode = True
-        checked_if_in_file_mode = 'checked'
-
-    # get search parameters from request
+    """
+    AJAX endpoint to query for and return transfer backlog items.
+    """
+    # Get search parameters from request
+    results = None
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
 
-    # redirect if no search params have been set 
+    # redirect if no search params have been set
+    # TODO fix what to do if no request - return nothing?  All?
     if not 'query' in request.GET:
-        return helpers.redirect_with_get_params(
-            'components.ingest.views.transfer_backlog',
-            query='',
-            field='',
-            type=''
-        )
-
-    # get string of URL parameters that should be passed along when paging
-    search_params = advanced_search.extract_url_search_params_from_request(request)
-
-    # set paging variables
-    if not file_mode:
-        items_per_page = 10
-    else:
-        items_per_page = 20
-
-    page = advanced_search.extract_page_number_from_url(request)
-
-    start = page * items_per_page + 1
+        return redirect(reverse('components.ingest.views.transfer_backlog'))
 
     # perform search
     conn = elasticSearchFunctions.connect_and_create_index('transfers')
-
     try:
         query = advanced_search.assemble_query(
             queries,
@@ -433,171 +443,58 @@ def transfer_backlog(request):
             must_haves=[pyes.TermQuery('status', 'backlog')]
         )
 
-        # use all results to pull transfer facets if not in file mode
-        if not file_mode:
-            results = conn.search_raw(
-                query,
-                indices='transfers',
-                type='transferfile',
-            )
-        else:
-        # otherwise use pages results
-            results = conn.search_raw(
-                query,
-                indices='transfers',
-                type='transferfile',
-                start=start - 1,
-                size=items_per_page
-            )
+        results = elasticSearchFunctions.search_raw_wrapper(
+            conn,
+            query=query,
+            indices='transfers',
+            doc_types='transferfile',
+        )
     except:
         return HttpResponse('Error accessing index.')
 
-    # take note of facet data
-    file_extension_usage = results['facets']['fileExtension']['terms']
-    transfer_uuids       = results['facets']['sipuuid']['terms']
 
-    if not file_mode:
-        # run through transfers to see if they've been created yet
-        awaiting_creation = {}
-        for transfer_instance in transfer_uuids:
-            try:
-                awaiting_creation[transfer_instance.term] = transfer_awaiting_sip_creation_v2(transfer_instance.term)
-                transfer = models.Transfer.objects.get(uuid=transfer_instance.term)
-                transfer_basename = os.path.basename(transfer.currentlocation[:-1])
-                transfer_instance.name = transfer_basename[:-37]
-                if transfer.accessionid != None:
-                    transfer_instance.accession = transfer.accessionid
-                else:
-                    transfer_instance.accession = ''
-            except:
-                awaiting_creation[transfer_instance.term] = False
+    # Convert results into a more workable form
+    results = _transfer_backlog_augment_search_results(results)
 
-        # page data
-        number_of_results = len(transfer_uuids)
-        page_data = helpers.pager(transfer_uuids, items_per_page, page + 1)
-        transfer_uuids = page_data['objects']
-    else:
-        # page data
-        number_of_results = results.hits.total
-        results = transfer_backlog_augment_search_results(results)
+    # Convert to a form JS can use:
+    # [{'name': <filename>,
+    #   'not_draggable': False},
+    #  {'name': <directory name>,
+    #   'not_draggable': True,
+    #   'children': [
+    #    {'name': <filename>,
+    #     'not_draggable': True},
+    #    {'name': <directory name>,
+    #     'children': [...]
+    #    }
+    #   ]
+    #  },
+    # ]
+    return_list = []
+    # _es_results_to_directory_tree requires that paths MUST be sorted
+    results.sort(key=lambda x: x['relative_path'])
+    for path in results:
+        # If a path is in SIPArrange.original_path, then it shouldn't be draggable
+        not_draggable = False
+        if models.SIPArrange.objects.filter(
+            original_path__endswith=path['relative_path']).exists():
+            not_draggable = True
+        _es_results_to_directory_tree(path['relative_path'], return_list, not_draggable=not_draggable)
 
-    # set remaining paging variables
-    end, previous_page, next_page = advanced_search.paging_related_values_for_template_use(
-       items_per_page,
-       page,
-       start,
-       number_of_results
-    )
+    # retun JSON response
+    return helpers.json_response(return_list)
 
-    # make sure results is set
-    try:
-        if results:
-            pass
-    except:
-        results = False
 
-    return render(request, 'ingest/backlog/search.html', locals())
-
-def transfer_backlog_augment_search_results(raw_results):
+def _transfer_backlog_augment_search_results(raw_results):
     modifiedResults = []
 
     for item in raw_results.hits.hits:
         clone = item._source.copy()
-
-        clone['awaiting_creation'] = transfer_awaiting_sip_creation(clone['sipuuid'])
-
-        clone['document_id'] = item['_id']
-        clone['document_id_no_hyphens'] = item['_id'].replace('-', '____')
-
+        clone['document_id'] = item[u'_id']
         modifiedResults.append(clone)
 
     return modifiedResults
 
-def transfer_awaiting_sip_creation_v2(uuid):
-    transfer = models.Transfer.objects.get(uuid=uuid)
-    return transfer.currentlocation.find('%sharedPath%www/AIPsStore/transferBacklog/originals/') == 0
-
-def transfer_awaiting_sip_creation(uuid):
-    try:
-        job = models.Job.objects.filter(
-            sipuuid=uuid,
-            microservicegroup='Create SIP from Transfer',
-            currentstep='Awaiting decision'
-        )[0]
-        return True
-    except:
-        return False
-
-def process_transfer(request, transfer_uuid):
-    response = {}
-
-    if request.user.id:
-        # get transfer info
-        transfer = models.Transfer.objects.get(uuid=transfer_uuid)
-        transfer_path = transfer.currentlocation.replace(
-            '%sharedPath%',
-            helpers.get_server_config_value('sharedDirectory')
-        )
-
-        createStructuredDirectory(transfer_path, createManualNormalizedDirectories=False)
-
-        processingDirectory = helpers.get_server_config_value('processingDirectory')
-        transfer_directory_name = os.path.basename(transfer_path[:-1])
-        transfer_name = transfer_directory_name[:-37]
-        sharedPath = helpers.get_server_config_value('sharedDirectory')
-
-        tmpSIPDir = os.path.join(processingDirectory, transfer_name) + "/"
-        processSIPDirectory = os.path.join(sharedPath, 'watchedDirectories/SIPCreation/SIPsUnderConstruction') + '/'
-
-        createStructuredDirectory(tmpSIPDir, createManualNormalizedDirectories=False)
-        objectsDirectory = os.path.join(transfer_path, 'objects') + '/'
-
-        sipUUID = uuid.uuid4().__str__()
-        destSIPDir = os.path.join(processSIPDirectory, transfer_name) + "/"
-        lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
-        databaseFunctions.createSIP(lookup_path, sipUUID)
-
-        #move the objects to the SIPDir
-        for item in os.listdir(objectsDirectory):
-            shutil.move(os.path.join(objectsDirectory, item), os.path.join(tmpSIPDir, "objects", item))
-
-        #get the database list of files in the objects directory
-        #for each file, confirm it's in the SIP objects directory, and update the current location/ owning SIP'
-        sql = """SELECT  fileUUID, currentLocation FROM Files WHERE removedTime = 0 AND currentLocation LIKE '\%transferDirectory\%objects%' AND transferUUID =  '""" + transfer_uuid + "'"
-        for row in databaseInterface.queryAllSQL(sql):
-            fileUUID = row[0]
-            currentPath = databaseFunctions.deUnicode(row[1])
-            currentSIPFilePath = currentPath.replace("%transferDirectory%", tmpSIPDir)
-            if os.path.isfile(currentSIPFilePath):
-                sql = """UPDATE Files SET currentLocation='%s', sipUUID='%s' WHERE fileUUID='%s'""" % (MySQLdb.escape_string(currentPath.replace("%transferDirectory%", "%SIPDirectory%")), sipUUID, fileUUID)
-                databaseInterface.runSQL(sql)
-            else:
-                print >>sys.stderr, "file not found: ", currentSIPFilePath
-
-        #copy processingMCP.xml file
-        src = os.path.join(os.path.dirname(objectsDirectory[:-1]), "processingMCP.xml")
-        dst = os.path.join(tmpSIPDir, "processingMCP.xml")
-        shutil.copy(src, dst)
-
-        #moveSIPTo processSIPDirectory
-        shutil.move(tmpSIPDir, destSIPDir)
-
-        elasticSearchFunctions.connect_and_change_transfer_file_status(transfer_uuid, '')
-
-        # move original files to completed transfers
-        completed_directory = os.path.join(sharedPath, 'watchedDirectories/SIPCreation/completedTransfers')
-        shutil.move(transfer_path, completed_directory)
-
-        # update DB
-        transfer.currentlocation = '%sharedPath%/watchedDirectories/SIPCreation/completedTransfers/' + transfer_name + '-' + transfer_uuid + '/'
-        transfer.save()
-
-        response['message'] = 'SIP ' + sipUUID + ' created.'
-    else:
-        response['error']   = True
-        response['message'] = 'Must be logged in.'
-
-    return helpers.json_response(response)
 
 def transfer_file_download(request, uuid):
     # get file basename

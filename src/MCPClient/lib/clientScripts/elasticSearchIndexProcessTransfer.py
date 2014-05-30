@@ -20,9 +20,9 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Mike Cantelon <mike@artefactual.com>
-import sys, os, time, ConfigParser
+import ConfigParser
+import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import elasticSearchFunctions
 
 exitCode = 0
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         print 'Skipping indexing: indexing is currently disabled in ' + clientConfigFilePath + '.'
 
     else:
-        pathToTransfer = sys.argv[1] + 'objects'
+        pathToTransfer = sys.argv[1]
         transferUUID = sys.argv[2]
 
         exitCode = elasticSearchFunctions.connect_and_index_files(

@@ -23,130 +23,25 @@
 import os
 import sys
 import shutil
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from fileOperations import updateDirectoryLocation
-from fileOperations import updateFileLocation2
-from fileOperations import updateFileGrpUsefileGrpUUID
-from fileOperations import updateFileGrpUse
-from fileOperations import getFileUUIDLike
-import MySQLdb
+import archivematicaFunctions
+from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
 
-
-requiredDirectories = ["logs", "logs/fileMeta", "metadata", "metadata/submissionDocumentation", "objects"]
-optionalFiles = "processingMCP.xml"
-
-def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith = "%transferDirectory%"):
-    for dir in requiredDirectories:
-        reqDirPath = os.path.join(unitPath, dir)
-        if not os.path.isdir(reqDirPath):
-            os.mkdir(reqDirPath)
-
-    # The types returned by os.listdir() depends on the type of the argument
-    # passed to it. In this case, we want all of the returned names to be
-    # bytestrings because they may contain arbitrary, non-Unicode characters.
-    unitPath = str(unitPath)
-    for item in os.listdir(unitPath):
-        if item in requiredDirectories:
-            continue
-        src = os.path.join(unitPath, item)
-        if os.path.isdir(src):
-            objectsDir = os.path.join(unitPath, "objects", item)
-            os.mkdir(objectsDir)
-            for item2 in os.listdir(src):
-                itemPath = os.path.join(src, item2)
-                dst = os.path.join(objectsDir, item2)
-                updateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
-                
-                if item2.endswith("Metadata.xml"):
-                    TRIMfileID = os.path.join(item, item2[:-1 - len("Metadata.xml")])
-                    files = getFileUUIDLike('%' + TRIMfileID + '%', unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
-                    fileUUID = None
-                    fileGrpUUID = None
-                    for key, value in files.iteritems():
-                        if key.endswith("Metadata.xml"):
-                            fileUUID = value
-                        else:
-                            fileGrpUUID = value
-                    if fileUUID and fileGrpUUID:
-                        fileGrpUse = "TRIM file metadata"
-                        updateFileGrpUsefileGrpUUID(fileUUID, fileGrpUse, fileGrpUUID)
-                    elif fileUUID and not fileGrpUUID:
-                        updateFileGrpUse(fileUUID, "TRIM container metadata")
-            os.removedirs(src)
-        else:
-            destDir = "metadata"
-            if item == "manifest.txt":
-                destDir = "metadata/submissionDocumentation"
-            dst = os.path.join(unitPath, destDir, item)
-            updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
-            files = getFileUUIDLike(dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
-            for key, value in files.iteritems():
-                fileUUID = value
-                updateFileGrpUse(fileUUID, "TRIM metadata")
-
-def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith = "%transferDirectory%"):
-    bagFileDefaultDest = os.path.join(unitPath, "logs", "BagIt")
-    requiredDirectories.append(bagFileDefaultDest)
-    # This needs to be cast to a string since we're calling os.path.join(),
-    # and any of the other arguments could contain arbitrary, non-Unicode
-    # characters.
-    unitPath = str(unitPath)
-    unitDataPath = str(os.path.join(unitPath, "data"))
-    for dir in requiredDirectories:
-        dirPath = os.path.join(unitPath, dir)
-        dirDataPath = os.path.join(unitPath, "data", dir)
-        if os.path.isdir(dirDataPath):
-            #move to the top level
-            src = dirDataPath 
-            dst = dirPath
-            updateDirectoryLocation(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
-            print "moving directory ", dir 
-        else:
-            if not os.path.isdir(dirPath):
-                print "creating: ", dir
-                os.mkdir(dirPath)
-    for item in os.listdir(unitPath):
-        src = os.path.join(unitPath, item)
-        if os.path.isfile(src):
-            if item.startswith("manifest"):
-                dst = os.path.join(unitPath, "metadata", item)
-            else:
-                dst = os.path.join(bagFileDefaultDest, item)
-            updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
-    for item in os.listdir(unitDataPath):
-        itemPath =  os.path.join(unitDataPath, item)
-        if os.path.isdir(itemPath) and item not in requiredDirectories:
-            print "moving directory to objects: ", item
-            dst = os.path.join(unitPath, "objects", item)
-            updateDirectoryLocation(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
-        elif os.path.isfile(itemPath) and item not in optionalFiles:
-            print "moving file to objects: ", item
-            dst = os.path.join(unitPath, "objects", item)
-            updateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
-        elif item in optionalFiles:
-            dst = os.path.join(unitPath, item)
-            updateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
-    print "removing empty data directory"
-    os.rmdir(unitDataPath)
-
-def restructureForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType):
-    print "Not implemented"
-    print unitUUID, unitType
 
 def restructureDirectory(unitPath):
     unitPath = str(unitPath)
-    for dir in requiredDirectories:
-        dirPath = os.path.join(unitPath, dir)
-        if not os.path.isdir(dirPath):
-            os.mkdir(dirPath)
-            print "creating: ", dir
+    # Create required directories
+    archivematicaFunctions.create_directories(
+        REQUIRED_DIRECTORIES, unitPath, printing=True)
+    # Move everything else to the objects directory
     for item in os.listdir(unitPath):
-        dst = os.path.join(unitPath, "objects") + "/."
+        dst = os.path.join(unitPath, "objects", '.')
         itemPath =  os.path.join(unitPath, item)
-        if os.path.isdir(itemPath) and item not in requiredDirectories:
+        if os.path.isdir(itemPath) and item not in REQUIRED_DIRECTORIES:
             shutil.move(itemPath, dst)
             print "moving directory to objects: ", item
-        elif os.path.isfile(itemPath) and item not in optionalFiles:
+        elif os.path.isfile(itemPath) and item not in OPTIONAL_FILES:
             shutil.move(itemPath, dst)
             print "moving file to objects: ", item
 

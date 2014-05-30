@@ -1,0 +1,98 @@
+[
+{
+    "pk": 1, 
+    "model": "main.siparrange", 
+    "fields": {
+        "transfer_uuid": null, 
+        "aip_created": false, 
+        "arrange_path": "/arrange/newsip/", 
+        "original_path": null, 
+        "file_uuid": null, 
+        "sip_created": false
+    }
+},
+{
+    "pk": 2, 
+    "model": "main.siparrange", 
+    "fields": {
+        "transfer_uuid": null, 
+        "aip_created": false, 
+        "arrange_path": "/arrange/newsip/objects/", 
+        "original_path": null, 
+        "file_uuid": null, 
+        "sip_created": false
+    }
+},
+{
+    "pk": 3, 
+    "model": "main.siparrange", 
+    "fields": {
+        "transfer_uuid": "a29e7e86-eca9-43b6-b059-6f23a9802dc8", 
+        "aip_created": false, 
+        "arrange_path": "/arrange/newsip/objects/evelyn_s_photo.jpg", 
+        "original_path": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/objects/evelyn_s_photo.jpg", 
+        "file_uuid": "4fa8f739-b633-4c0f-8833-d108a4f4e88d", 
+        "sip_created": false
+    }
+},
+{
+    "pk": 4, 
+    "model": "main.siparrange", 
+    "fields": {
+        "transfer_uuid": null, 
+        "aip_created": false, 
+        "arrange_path": "/arrange/newsip/objects/evelyn_s_second_photo/", 
+        "original_path": null, 
+        "file_uuid": null, 
+        "sip_created": false
+    }
+},
+{
+    "pk": 5, 
+    "model": "main.siparrange", 
+    "fields": {
+        "transfer_uuid": "a29e7e86-eca9-43b6-b059-6f23a9802dc8", 
+        "aip_created": false, 
+        "arrange_path": "/arrange/newsip/objects/evelyn_s_second_photo/evelyn_s_second_photo.jpg", 
+        "original_path": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/objects/evelyn_s_second_photo/evelyn_s_second_photo.jpg", 
+        "file_uuid": "7f889d5d-7849-490e-a8e6-ccb9595445d7", 
+        "sip_created": false
+    }
+},
+{
+    "pk": 8, 
+    "model": "main.siparrange", 
+    "fields": {
+        "transfer_uuid": null, 
+        "aip_created": false, 
+        "arrange_path": "/arrange/toplevel/subsip/", 
+        "original_path": null, 
+        "file_uuid": null, 
+        "sip_created": false
+    }
+},
+{
+    "pk": 9, 
+    "model": "main.siparrange", 
+    "fields": {
+        "transfer_uuid": null, 
+        "aip_created": false, 
+        "arrange_path": "/arrange/toplevel/", 
+        "original_path": null, 
+        "file_uuid": null, 
+        "sip_created": false
+    }
+},
+{
+    "pk": 10, 
+    "model": "main.siparrange", 
+    "fields": {
+        "transfer_uuid": "a29e7e86-eca9-43b6-b059-6f23a9802dc8", 
+        "aip_created": false, 
+        "arrange_path": "/arrange/toplevel/subsip/evelyn_s_third_photo.jpg", 
+        "original_path": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/objects/evelyn_s_third_photo/evelyn_s_third_photo.jpg", 
+        "file_uuid": "0fa7d499-24b9-4cd1-afb2-997eba5351bd", 
+        "sip_created": false
+    }
+}
+]

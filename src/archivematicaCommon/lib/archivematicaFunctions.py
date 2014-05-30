@@ -23,8 +23,19 @@
 
 import lxml.etree as etree
 import os
-import sys
 import re
+
+REQUIRED_DIRECTORIES = [
+    "logs",
+    "logs/fileMeta",
+    "metadata",
+    "metadata/submissionDocumentation",
+    "objects",
+]
+OPTIONAL_FILES = [
+    "processingMCP.xml",
+]
+
 
 def unicodeToStr(string):
     if isinstance(string, unicode):
@@ -128,3 +139,12 @@ def normalizeNonDcElementName(string):
      # Lower case string.
      normalizedString = normalizedString.lower()
      return normalizedString
+
+def create_directories(directories, basepath='', printing=False):
+    for directory in directories:
+        dir_path = os.path.join(basepath, directory)
+        if not os.path.isdir(dir_path):
+            os.mkdir(dir_path)
+            if printing:
+                print 'Creating directory', dir_path
+

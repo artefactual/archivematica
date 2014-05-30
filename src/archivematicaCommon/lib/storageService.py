@@ -1,3 +1,4 @@
+import base64
 import logging
 import os
 import platform
@@ -129,9 +130,60 @@ def get_location_by_uri(uri):
     return api.location(uri).get()
 
 def browse_location(uuid, path):
-    """ Browse files in a location. """
+    """
+    Browse files in a location. Encodes path in base64 for transimission, returns decoded entries.
+    """
     api = _storage_api()
-    return api.location(uuid).browse.get(path=path)
+    path = base64.b64encode(path)
+    browse = api.location(uuid).browse.get(path=path)
+    browse['entries'] = map(base64.b64decode, browse['entries'])
+    browse['directories'] = map(base64.b64decode, browse['directories'])
+    return browse
+
+def copy_files(source_location, destination_location, files, api=None):
+    """
+    Copies `files` from `source_location` to `destination_location` using SS.
+
+    source_location/destination_location: Dict with Location information, result
+        of a call to get_location or get_location_by_uri.
+    files: List of dicts with source and destination paths relative to
+        source_location and destination_location, respectively.  All other
+        fields ignored.
+    """
+    if api is None:
+        api = _storage_api()
+    pipeline = _get_pipeline(get_setting_no_orm('dashboard_uuid'))
+    move_files = {
+        'origin_location': source_location['resource_uri'],
+        'files': files,
+        'pipeline': pipeline['resource_uri'],
+    }
+    try:
+        ret = api.location(destination_location['uuid']).post(move_files)
+    except slumber.exceptions.HttpClientError as e:
+        logging.warning("Unable to move files with {} because {}".format(move_files, e.content))
+        return (None, e)
+    except slumber.exceptions.HttpServerError as e:
+        logging.warning("Could not connect to storage service: {} ({})".format(
+            e, e.content))
+        return (None, e)
+    return (ret, None)
+
+def get_files_from_backlog(files):
+    """
+    Copies files from the backlog location to the currently processing location.
+    See copy_files for more details.
+    """
+    api = _storage_api()
+
+    # Get Backlog location UUID
+    # Assuming only one backlog location
+    backlog = get_location(purpose='BL')[0]
+    # Get currently processing location
+    processing = get_location(purpose='CP')[0]
+
+    return copy_files(backlog, processing, files, api)
+
 
 ############# SPACES #############
 
@@ -227,6 +279,24 @@ def get_file_info(uuid=None, origin_location=None, origin_path=None,
 
     logging.info("Files returned: {}".format(return_files))
     return return_files
+
+def download_file_url(file_uuid):
+    """
+    Returns URL to storage service for downloading `file_uuid`.
+    """
+    storage_service_url = _storage_service_url()
+    download_url = "{base_url}file/{uuid}/download/".format(
+        base_url=storage_service_url, uuid=file_uuid)
+    return download_url
+
+def extract_file_url(file_uuid, relative_path):
+    """
+    Returns URL to storage service for `relative_path` in `file_uuid`.
+    """
+    storage_service_url = _storage_service_url()
+    download_url = "{base_url}file/{uuid}/extract_file/?relative_path_to_file={path}".format(
+        base_url=storage_service_url, uuid=file_uuid, path=relative_path)
+    return download_url
 
 def extract_file(uuid, relative_path, save_path):
     """ Fetches `relative_path` from package with `uuid` and saves to `save_path`. """

@@ -387,3 +387,43 @@ INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, cu
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('5ffe0c72-5a98-4fa5-8281-a266471ffb2c', '970b7d17-7a6b-4d51-808b-c94b78c0d97f', 0, '15a2df8a-7b45-4c11-b6fa-884c9b7e5c67', 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='970b7d17-7a6b-4d51-808b-c94b78c0d97f' WHERE microServiceChainLink='a46e95fe-4a11-4d3c-9b76-c5d8ea0b094d';
 -- /Issue 6217
+
+-- Issue 6131 add restructure for compliance to SIP creation
+-- Insert restructureForComplianceSIP after Verify SIP compliance if it fails
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('285a7b4d-155b-4f5b-ab35-daa6414303f9', 0, 'restructureForComplianceSIP_v0.0', '"%SIPDirectory%" "%SIPUUID%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('8e06349b-d4a3-420a-9a64-69553bd9a183', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '285a7b4d-155b-4f5b-ab35-daa6414303f9', 'Attempt restructure for compliance');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('7d0616b2-afed-41a6-819a-495032e86291', 'Verify SIP compliance', 'Failed', '8e06349b-d4a3-420a-9a64-69553bd9a183', 'f025f58c-d48c-4ba1-8904-a56d2a67b42f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('18080f7f-e6aa-4448-bc6c-c928ff2629cb', '7d0616b2-afed-41a6-819a-495032e86291', 0, 'd1018160-aaab-4d92-adce-d518880d7c7d', 'Completed successfully');
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='7d0616b2-afed-41a6-819a-495032e86291', defaultExitMessage='Completed successfully' WHERE pk='208d441b-6938-44f9-b54a-bd73f05bc764';
+
+-- Update move to backlog to talk to the storage service
+UPDATE StandardTasksConfigs SET execute='moveToBacklog_v1.0', arguments='"%SIPUUID%" "%SIPDirectory%"' WHERE pk='9f25a366-f7a4-4b59-b219-2d5f259a1be9';
+
+-- Add failedSIPCleanup to Failed and Rejected SIP paths
+-- Add Failed
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('bad1aea1-404c-4a0a-8f0a-83f09bf99fd5', 0, 'failedSIPCleanup_v1.0', '"fail" "%SIPUUID%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('7d5cb258-1ce2-4510-bd04-3517abbe8fbc', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', 'bad1aea1-404c-4a0a-8f0a-83f09bf99fd5', 'Cleanup failed SIP');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('b2ef06b9-bca4-49da-bc5c-866d7b3c4bb1', 'Failed SIP', 'Failed', '7d5cb258-1ce2-4510-bd04-3517abbe8fbc', '828528c2-2eb9-4514-b5ca-dfd1f7cb5b8c');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('6a4ef1c6-d54d-46d6-af8e-8a8851fa744e', 'b2ef06b9-bca4-49da-bc5c-866d7b3c4bb1', 0, '828528c2-2eb9-4514-b5ca-dfd1f7cb5b8c', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='b2ef06b9-bca4-49da-bc5c-866d7b3c4bb1' WHERE microServiceChainLink='7d728c39-395f-4892-8193-92f086c0546f';
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='b2ef06b9-bca4-49da-bc5c-866d7b3c4bb1' WHERE pk='7d728c39-395f-4892-8193-92f086c0546f';
+
+-- Add Rejected STC, TC
+SET @rejectCleanupTC = '2d8f4aa1-76ad-4c88-af81-f7f494780628';
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('44758789-e1b5-4cfe-8011-442612da2d3b', 0, 'failedSIPCleanup_v1.0', '"reject" "%SIPUUID%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@rejectCleanupTC, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '44758789-e1b5-4cfe-8011-442612da2d3b', 'Cleanup rejected SIP');
+
+-- Add Rejected for normalize/approve normalize
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('19c94543-14cb-4158-986b-1d2b55723cd8', 'Reject SIP', 'Failed', @rejectCleanupTC, '3467d003-1603-49e3-b085-e58aa693afed');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('a0bb8527-e58f-4043-a7c4-c4fc5e34d786', '19c94543-14cb-4158-986b-1d2b55723cd8', 0, '3467d003-1603-49e3-b085-e58aa693afed', 'Completed successfully');
+UPDATE MicroServiceChains SET startingLink='19c94543-14cb-4158-986b-1d2b55723cd8' WHERE startingLink='3467d003-1603-49e3-b085-e58aa693afed';
+
+-- Add Rejected for store AIP
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('f2e784a0-356b-4b92-9a5a-11887aa3cf48', 'Reject AIP', 'Failed', @rejectCleanupTC, '0d7f5dc2-b9af-43bf-b698-10fdcc5b014d');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('0f4bcf43-0aaf-4901-a860-bd68a5567709', 'f2e784a0-356b-4b92-9a5a-11887aa3cf48', 0, '0d7f5dc2-b9af-43bf-b698-10fdcc5b014d', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='f2e784a0-356b-4b92-9a5a-11887aa3cf48' WHERE microServiceChainLink='bfade79c-ab7b-11e2-bace-08002742f837';
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='f2e784a0-356b-4b92-9a5a-11887aa3cf48' WHERE pk='bfade79c-ab7b-11e2-bace-08002742f837';
+
+
+-- /Issue 6131
+

@@ -1,7 +1,11 @@
 (function(exports) {
 
-  // patch in indexOf for IE8
-  // As per: http://stackoverflow.com/questions/3629183/why-doesnt-indexof-work-on-an-array-ie8
+  /*
+   * A patch to indexOf to fix IE8-related issues.
+   *
+   * See:
+   * http://stackoverflow.com/questions/3629183/why-doesnt-indexof-work-on-an-array-ie8
+   */
   if (!Array.prototype.indexOf) {
     Array.prototype.indexOf = function(elt /*, from*/) {
       var len = this.length >>> 0;
@@ -23,17 +27,52 @@
     };
   }
 
+  /*
+   * Data shared by various views. Stores drag-and-drop related bookkeeping
+   * data and a map for associating CSS IDs with paths.
+   */
   exports.Data = {
-    idPaths: {},
     startX: {},
-    startY: {}
+    startY: {},
+    mouseX: 0,
+    mouseY: 0,
+    idPaths: {}
   };
 
+  /*
+   * Capture mouse position for drag-and-drop use.
+   */
+  $(document).mousemove(function(event) {
+    exports.Data['mouseX'] = event.pageX;
+    exports.Data['mouseY'] = event.pageY;
+  });
+
+  /**
+   * Default functions for functions used to render paging controls.
+   * @constant
+   */
+  var DEFAULT_PAGING_CONTROL_RENDER_FUNCTIONS = {
+    previous: function(itemsPerPage) {
+      return $('<span class="backbone-file-explorer-paging-link">Previous ' + itemsPerPage + '</span>');
+    },
+    next: function(itemsPerPage) {
+      return $('<span class="backbone-file-explorer-paging-link">Next ' + itemsPerPage + '</span>');
+    },
+    separator: function(itemsPerPage) {
+      return $('<span class="backbone-file-explorer-paging-link-separator">&nbsp;|&nbsp;</span>');
+    }
+  };
+
+  /**
+   * Backbone model to represent a file entry.
+   * @constructor
+   */
   exports.File = Backbone.Model.extend({
 
     // generate id without slashes and replacing periods
     id: function() {
-      return this.path().replace(/\//g, '_').replace('.', '__');
+      var path = this.displaypath().replace(/\//g, '_').replace('.', '__');
+      return path.replace(/\ /g, '___');
     },
 
     // Provides a human-readable version of the path, suitable for display.
@@ -58,6 +97,11 @@
     }
   });
 
+  /**
+   * Backbone model to represent a directory entry.
+   * @constructor
+   * @extends File
+   */
   exports.Directory = exports.File.extend({
     initialize: function() {
       this.children = [];
@@ -93,11 +137,16 @@
     }
   });
 
+  /**
+   * Backbone view for a file or directory entry.
+   * @constructor
+   */
   exports.EntryView = Backbone.View.extend({
 
     initialize: function() {
+      this.cssIdNamespace = this.options.cssIdNamespace;
       this.model     = this.options.entry;
-      this.explorer  = this.options.explorer;
+      this.container = this.options.container;
       this.className = (this.model.children != undefined)
         ? 'backbone-file-explorer-directory'
         : 'directory-file';
@@ -107,6 +156,7 @@
       this.actionHandlers    = this.options.actionHandlers;
     },
 
+    // template variables for rendering to HTML
     context: function() {
       var context = this.model.toJSON();
       context.className = this.className;
@@ -114,7 +164,20 @@
     },
 
     cssId: function() {
-      return this.explorer.id + '_' + this.model.id();
+      if (this.cssIdNamespace) {
+        return this.cssIdNamespace + '_' + this.model.id();
+      } else {
+        return this.container.id + '_' + this.model.id();
+      }
+    },
+
+    toggleDirectory: function($el) {
+      $el.next().toggle();
+      if ($el.next().is(':visible')) {
+        $el.addClass('backbone-file-explorer-directory_open');
+      } else {
+        $el.removeClass('backbone-file-explorer-directory_open');
+      }
     },
 
     render: function() {
@@ -131,8 +194,12 @@
 
       // set CSS ID for entries (used to capture whether directory is
       // open/closed by user between data refreshes, etc.)
-      var id = (this.explorer) ? this.explorer.id + '_' : '';
-      $(this.el).attr('id', id + this.model.id());
+      $(this.el).attr('id', this.cssId());
+
+      // If not draggable, add class to that effect
+      if (this.model.attributes.not_draggable) {
+        $(this.el).addClass('not_draggable');
+      }
 
       // add entry click handler if specified
       if (this.entryClickHandler) {
@@ -174,12 +241,14 @@
 
       if (this.model.children == undefined) {
         // remove directory button class for file entries
-        $(this.el).children('.backbone-file-explorer-directory_icon_button').removeClass('backbone-file-explorer-directory_icon_button');
+        $(this.el)
+          .children('.backbone-file-explorer-directory_icon_button')
+          .removeClass('backbone-file-explorer-directory_icon_button');
       } else {
         // add click handler to directory icon
         var self = this;
         $(this.el).children('.backbone-file-explorer-directory_icon_button').click(function() {
-          self.explorer.toggleDirectory($(self.el));
+          self.toggleDirectory($(self.el));
         });
       }
 
@@ -187,11 +256,19 @@
     }
   });
 
+  /**
+   * Backbone view for a subtree of files or directory entries.
+   * @constructor
+   */
   exports.DirectoryView = Backbone.View.extend({
 
     tagName: 'div',
 
     initialize: function() {
+      this.cssIdNamespace     = this.options.cssIdNamespace;
+        // allow overriding of container's ID to allow the same directory tree
+        // to be shown in multiple contexts without CSS ID repeating
+
       this.model              = this.options.directory;
       this.explorer           = this.options.explorer;
       this.ajaxChildDataUrl   = this.options.ajaxChildDataUrl;
@@ -203,30 +280,30 @@
       this.entryClickHandler  = this.options.entryClickHandler;
       this.nameClickHandler   = this.options.nameClickHandler;
       this.actionHandlers     = this.options.actionHandlers;
-    },
+       // TODO: make this configurable
+      this.pagingRenderFunctions = DEFAULT_PAGING_CONTROL_RENDER_FUNCTIONS;
+   },
 
+    // activate highlighting via adding/removing a CSS class
     activateHover: function(el) {
       $(el).hover(
         function() {
-          $(this).addClass('backbone-file-exporer-entry-highlighted');
+          $(this).addClass('backbone-file-explorer-entry-highlighted');
         },
         function() {
-          $(this).removeClass('backbone-file-exporer-entry-highlighted');
+          $(this).removeClass('backbone-file-explorer-entry-highlighted');
         }
       );
     },
 
+    // render links for navigating between pages of directory children
     renderPagingLinks: function(entry, levelEl, level, index, indexStart, previousOnly, previousIndexStarts) {
       var self = this;
-      var $pagingEl = $('<div9 style="padding:6px"></div>');
+      var $pagingEl = $('<div class="backbone-file-explorer-paging-link"></div>');
 
       // add link to previous entries, if any
       if (indexStart > 0) {
-        var prevHTML = '<span style="color:red">Previous ' + self.itemsPerPage + '</span>';
-        if (!previousOnly) {
-          prevHTML = prevHTML + '<span>&nbsp;|&nbsp;</span>';
-        }
-        var $prevEl = $(prevHTML);
+        var $prevEl = self.pagingRenderFunctions.previous(self.itemsPerPage);
         (function(index) {
           $prevEl.click(function() {
             $(levelEl).html('');
@@ -236,11 +313,14 @@
           });
         })(index);
         $pagingEl.append($prevEl);
+        if (!previousOnly) {
+          $pagingEl.append(self.pagingRenderFunctions.separator());
+        }
       }
 
+      // add link to next entries, if any
       if (!previousOnly) {
-        // add link to next entries
-        var $nextEl = $('<span style="color:red">Next ' + self.itemsPerPage + '</span>');
+        var $nextEl = self.pagingRenderFunctions.next(self.itemsPerPage);
         (function(index) {
           $nextEl.click(function() {
             $(levelEl).html('');
@@ -253,11 +333,10 @@
         $pagingEl.append($nextEl);
       }
 
-      var $pagingInfo = '<span>()</span>';
-
       $(levelEl).append($pagingEl);
     },
 
+    // recursively render directory children
     renderChildren: function (self, entry, levelEl, level, indexStart, previousIndexStarts) {
       if (typeof previousIndexStarts == 'undefined') {
         previousIndexStarts = [];
@@ -292,15 +371,10 @@
 
           // if display is allowed, do
           if (allowDisplay) {
-            // take note of file paths that correspond to CSS IDs
-            // so they can be referenced by any external logic
-            var id = (this.explorer) ? this.explorer.id + '_' : '';
-            id = id + child.id();
-            exports.Data.idPaths[id] = child.path();
-
             // render entry
             var entryView = new exports.EntryView({
-              explorer: self.explorer,
+              cssIdNamespace: self.cssIdNamespace,
+              container: self.explorer,
               entry: child,
               template: self.entryTemplate,
               entryClickHandler: self.entryClickHandler,
@@ -308,10 +382,21 @@
               actionHandlers: self.actionHandlers
             });
 
+            // take note of file paths that correspond to CSS IDs
+            // so they can be referenced by any external logic
+            exports.Data.idPaths[entryView.cssId()] = child.displaypath();
+
             var entryEl = entryView.render().el
               , isOpenDir = false;
 
+            // open the directory if the file explorer has been invoked with this directory
+            // expressly open
             if (this.explorer.openDirs && this.explorer.openDirs.indexOf(entryView.cssId()) != -1) {
+              isOpenDir = true;
+            }
+
+            // open the directory if the last snapshot had it open
+            if (this.explorer.opened && this.explorer.opened.indexOf(entryView.cssId()) != -1) {
               isOpenDir = true;
             }
 
@@ -323,7 +408,7 @@
             // set up hovering
             self.activateHover(entryEl);
 
-            // add entry to current directory livel
+            // add entry to current directory level
             $(levelEl).append(entryEl);
 
             // render child directories
@@ -333,7 +418,7 @@
             if (
               self.closeDirsByDefault
               && child.children != undefined
-              && (child.children.length == 0 || !allowDisplay)
+              && child.children.length == 0
             ) {
               $(entryEl).next().hide();
             }
@@ -346,6 +431,7 @@
       }
     },
 
+    // render a single directory level then recurse through its children
     renderDirectoryLevel: function(destEl, entry, level, isOpen) {
       var level = level || 1
         , levelEl = $(this.levelTemplate());
@@ -368,6 +454,8 @@
         var self = this
           , rendered = false;
 
+        // logic to do AJAX load of directory children, if applicable, and 
+        // post-render UI styling (zebra striping, etc.)
         var uiUpdateLogic = function() {
           if (!rendered) {
             if (self.ajaxChildDataUrl && entry.type() == 'directory') {
@@ -401,6 +489,12 @@
                   if (self.explorer.moveHandler) {
                     self.explorer.initDragAndDrop();
                   }
+
+                  // allow top level open state to be snapshotted
+                  var entryCssId = self.explorer.id + '_' + entry.id();
+                  if (self.explorer.opened && (self.explorer.opened.indexOf(entryCssId) != -1)) {
+                    $(levelEl).show();
+                  }
                 }
               });
             } else {
@@ -423,6 +517,9 @@
           }
         };
 
+        // if the directory is already open, trigger UI updating...
+        // otherwise, wait for using to hover over the directory
+        // to trigger it
         if (isOpen) {
           uiUpdateLogic();
           $(levelEl).show();
@@ -430,20 +527,24 @@
           $(destEl).hover(uiUpdateLogic);
         }
       } else {
+        // directories are open by default, so no lazy loading
         this.renderChildren(this, entry, levelEl, level);
       }
     },
 
+    // render a group of files and directories
     render: function() {
+
       var entryView = new exports.EntryView({
-        explorer: this.explorer,
+        cssIdNamespace: this.cssIdNamespace,
+        container: this.explorer,
         entry: this.model,
         template: this.entryTemplate
       });
 
       var entryEl = entryView.render().el;
 
-      exports.Data.idPaths[entryView.cssId()] = entryView.model.path();
+      exports.Data.idPaths[entryView.cssId()] = entryView.model.displaypath();
 
       if (!this.closeDirsByDefault) {
         $(entryEl).addClass('backbone-file-explorer-directory_open');
@@ -455,12 +556,198 @@
         .empty()
         .append(entryEl);
 
-      this.renderDirectoryLevel(this.el, this.model);
+      var isOpen;
+
+      // allow top level open state to be snapshotted
+      if (this.explorer.opened && (this.explorer.opened.indexOf(entryView.cssId()) != -1)) {
+        isOpen = true;
+      } else {
+        isOpen = false;
+      }
+
+      this.renderDirectoryLevel(this.el, this.model, 0, isOpen);
 
       return this;
     }
   });
 
+  /**
+   * Logic to handle keeping track of the location of a dragged entry.
+   * @function
+   */
+  function dragHandler(event) {
+    var id = event.currentTarget.id
+      , $el = $("[id='" + event.currentTarget.id + "']")
+      , offsets = $el.offset();
+
+    // if an element hasn't been dragged yet, take note of its start
+    // position
+    if (exports.Data.startY[id] == undefined) {
+     exports.Data.startX[id] = offsets.left;
+     exports.Data.startY[id] = offsets.top;
+    }
+
+    // raise the element above others and reposition it
+    $el.css({'z-index': 1});
+    $el.css({left: exports.Data['mouseX'] - exports.Data.startX[id] + 5});
+    $el.css({top: exports.Data['mouseY'] - exports.Data.startY[id] + 5});
+  };
+
+  /**
+   * Backbone view for a list of files/directories.
+   * @constructor
+   */
+  exports.EntryList = Backbone.View.extend({
+
+    tagName: 'div',
+
+    initialize: function() {
+      this.entries               = this.options.entries || [];
+      this.moveHandler           = this.options.moveHandler;
+      this.id                    = $(this.el).attr('id');
+      this.levelTemplate         = this.options.levelTemplate;
+      this.entryTemplate         = this.options.entryTemplate;
+      // TODO: make this configurable
+      this.pagingRenderFunctions = DEFAULT_PAGING_CONTROL_RENDER_FUNCTIONS;
+      this.itemsPerPage          = this.options.itemsPerPage;
+      this.currentPage           = 0;
+
+      this.render();
+      this.initDragAndDrop();
+    },
+
+    dragHandler: dragHandler,
+
+    // default drop handling logic for the entry list
+    // (returns element to its original position)
+    dropHandler: function(event) {
+      var droppedId   = event.dragTarget.id;
+
+      $('#' + droppedId).css({left: 0});
+      $('#' + droppedId).css({top: 0});
+    },
+
+    // bind/re-bind drag-and-drop logic
+    initDragAndDrop: function() {
+      if (this.moveHandler) {
+        // bind drag-and-drop functionality
+        var self = this;
+
+        // bind all list entries to drag handler
+        $(this.el)
+          .find('.backbone-file-explorer-entry:not(.not_draggable)')
+          .unbind('drag')
+          .bind('drag', {'self': self}, self.dragHandler);
+
+        // bind all list entries to drop handler
+        $(this.el)
+          .find('.backbone-file-explorer-entry')
+          .unbind('drop')
+          .bind('drop', {'self': self}, self.dropHandler);
+      }
+    },
+
+    // render the entry list
+    render: function() {
+      $(this.el).empty();
+
+      // intialize paging-related variables
+      if (this.itemsPerPage) {
+        var startItem = this.currentPage * this.itemsPerPage;
+        var endItem = startItem + this.itemsPerPage;
+      }
+
+      // render each entry in the list
+      for (var index = 0; index < this.entries.length; index++) {
+        var allowDisplay = true;
+
+        // if paging is enabled, determine whether entry is on current
+        // page and should be displayed
+        if (this.itemsPerPage) {
+          if (index >= startItem && index < endItem) {
+            allowDisplay = true;
+          } else {
+            allowDisplay = false;
+          }
+        }
+
+        if (allowDisplay) {
+          if (this.entries[index].type() == 'directory') {
+            var directoryViewOptions = {
+              cssIdNamespace: this.id + '_' + index,
+                // provide CSS ID namespace as same directory might be shown
+                // more than once
+              explorer: this,
+              directory: this.entries[index],
+              levelTemplate: this.levelTemplate,
+              entryTemplate: this.entryTemplate,
+              closeDirsByDefault: true,
+              //entryClickHandler: this.options.entryClickHandler,
+              //nameClickHandler: this.options.nameClickHandler,
+              //actionHandlers: this.options.actionHandlers
+            };
+
+            // if paging is enabled, pass on to directory view
+            if (this.itemsPerPage) {
+              directoryViewOptions.itemsPerPage = this.itemsPerPage;
+            }
+
+            var entry = new exports.DirectoryView(directoryViewOptions);
+          } else {
+            var entry = new exports.EntryView({
+              el: this.el,
+              entry: this.entries[index],
+              template: _.template(this.entryTemplate),
+              container: this
+            });
+          }
+
+          // take note of entry's path
+          exports.Data.idPaths[this.id + '_' + entry.model.id()] = entry.model.displaypath();
+          entry.render();
+
+          // add rendered entry to the view's DOM element
+          $(this.el).append(entry.el);
+        }
+      }
+
+      if (this.itemsPerPage) {
+        var self = this;
+
+        // render previous page control, if applicable
+        if (startItem > 0) {
+          var $prevEl = this.pagingRenderFunctions.previous(this.itemsPerPage);
+          $prevEl.click(function() {
+            self.currentPage -= 1;
+            self.render();
+            self.initDragAndDrop();
+          });
+          $(this.el).append($prevEl);
+        }
+
+        // render next control, if applicable
+        if (this.entries.length > (startItem + this.itemsPerPage)) {
+          if (startItem > 0) {
+            $(this.el).append(this.pagingRenderFunctions.separator());
+          }
+          var $nextEl = this.pagingRenderFunctions.next(this.itemsPerPage);
+          $nextEl.click(function() {
+            self.currentPage += 1;
+            self.render();
+            self.initDragAndDrop();
+          });
+          $(this.el).append($nextEl);
+        }
+      }
+
+      return this;
+    }
+  });
+
+  /**
+   * Backbone view for a file explorer.
+   * @constructor
+   */
   exports.FileExplorer = Backbone.View.extend({
 
     tagName: 'div',
@@ -478,14 +765,16 @@
       this.initDragAndDrop();
     },
 
+    // bind/re-bind drag-and-drop logic
     initDragAndDrop: function() {
       if (this.moveHandler) {
         // bind drag-and-drop functionality
         var self = this;
 
        // exclude top-level directory from being dragged
+       // Don't bind drag to anything with 'not_draggable' class
        $(this.el)
-          .find('.backbone-file-explorer-entry:not(:first)')
+          .find('.backbone-file-explorer-entry:not(:first):not(.not_draggable)')
           .unbind('drag')
           .bind('drag', {'self': self}, self.dragHandler);
 
@@ -495,6 +784,48 @@
           .unbind('drop')
           .bind('drop', {'self': self}, self.dropHandler);
       }
+    },
+
+    // find an entry corresponding to a given path
+    getByPath: function(path) {
+      var found = this.findEntry(function(entry) {
+        if (typeof entry != 'undefined') {
+          return entry.displaypath() == path;
+        } else {
+          return false;
+        }
+      });
+      if (found.length > 0) {
+        return found[0];
+      }
+    },
+
+    // find entry object
+    findEntry: function(testLogic, found, entry) {
+      // initialize result set
+      if (typeof found === 'undefined') {
+        found = [];
+      }
+
+      // default to root entry
+      if (typeof entry === 'undefined') {
+        entry = this.dirView.model;
+      } else {
+        // add entry to results if the test passes
+        if (testLogic(entry)) {
+          found.push(entry);
+        }
+      }
+
+      // find in entry children
+      var foundEntry = false;
+      if (typeof entry.children != 'undefined') {
+        for (var index = 0; index < entry.children.length; index++) {
+          this.findEntry(testLogic, found, entry.children[index]);
+        }
+      }
+
+      return found;
     },
 
     // convert JSON structure to entry objects
@@ -507,63 +838,69 @@
         for (var index in structure.children) {
           var child = structure.children[index];
           if (child.children != undefined) {
-            var parent = base.addDir({name: child.name});
+            var parent = base.addDir({name: child.name, not_draggable: child.not_draggable});
             parent = this.structureToObjects(child, parent);
           } else {
-            base.addFile({name: child.name});
+            base.addFile({name: child.name, not_draggable: child.not_draggable});
           }
         }
       } else {
         base.addFile(structure.name);
       }
 
+      // allow structure to provide additional data for special applications
+      if (typeof structure.data != 'undefined') {
+        base.set({'data': structure.data});
+      }
+
       return base;
     },
 
+    // indicate, in the UI, that a background task is happening
     busy: function() {
       $(this.el).append('<span id="backbone-file-explorer-busy-text">Loading...</span>');
       $(this.el).addClass('backbone-file-explorer-busy');
       $(this.el).removeClass('backbone-file-explorer-idle');
     },
 
+    // indicate, in the UI, that no background task is happening
     idle: function() {
       $('#backbone-file-explorer-busy-text').remove();
       $(this.el).addClass('backbone-file-explorer-idle');
       $(this.el).removeClass('backbone-file-explorer-busy');
     },
 
-    snapShotToggledFolders: function() {
-      this.toggled = [];
+    // take note of which folders have been opened
+    snapShotOpenedFolders: function() {
+      this.opened = [];
       var self = this;
-      $('.backbone-file-explorer-directory').each(function(index, value) {
-        if (!$(value).next().is(':visible')) {
-          self.toggled.push($(value).attr('id'));
+      $(this.el).find('.backbone-file-explorer-directory').each(function(index, value) {
+        if($(value).hasClass('backbone-file-explorer-directory_open')) {
+            self.opened.push($(value).attr('id'));
         }
       }); 
     },
 
-    restoreToggledFolders: function() {
-      for (var index in this.toggled) {
-        var cssId = this.toggled[index];
-        this.toggleDirectory($('#' + cssId));
+    // restore opened folders to the previous snapshot
+    restoreOpenedFolders: function() {
+      for (var index in this.opened) {
+        var cssId = this.opened[index],
+            $openEl = $('#' + cssId);
+        this.openFolder($openEl);
       }
     },
 
-    dragHandler: function(event) {
-      var id = event.currentTarget.id
-        , $el = $('#' + event.currentTarget.id)
-        , offsets = $el.offset();
-
-      if (exports.Data.startY[id] == undefined) {
-       exports.Data.startX[id] = offsets.left;
-       exports.Data.startY[id] = offsets.top;
+    openFolder: function ($openEl) {
+      $openEl.next().show();
+      if (!$openEl.hasClass('backbone-file-explorer-directory_open')) {
+        $openEl.addClass('backbone-file-explorer-directory_open');
       }
-
-      $el.css({'z-index': 1});
-      $el.css({left: event.offsetX - exports.Data.startX[id]});
-      $el.css({top: event.offsetY - exports.Data.startY[id]});
     },
 
+    // logic to keep track of where a dragged directory entry is
+    dragHandler: dragHandler,
+
+    // logic to keep handle dropping a directory entry
     dropHandler: function(event) {
       var droppedId   = event.dragTarget.id;
       var containerId = event.dropTarget.id;
@@ -584,19 +921,12 @@
       $('#' + droppedId).css({top: 0});
     },
 
-    toggleDirectory: function($el) {
-      $el.next().toggle();
-      if ($el.next().is(':visible')) {
-        $el.addClass('backbone-file-explorer-directory_open');
-      } else {
-        $el.removeClass('backbone-file-explorer-directory_open');
-      }
-    },
-
+    // use a directory entry's CSS ID to determine its filepath
     getPathForCssId: function(id) {
       return exports.Data.idPaths[id];
     },
 
+    // use a directory entry's CSS ID to determine whether it's a file or dir
     getTypeForCssId: function(id) {
       if ($('#' + id).hasClass('backbone-file-explorer-directory')) {
         return 'directory';
@@ -605,6 +935,7 @@
       }
     },
 
+    // render the file explorer
     render: function() {
       var directory = this.directory;
 
@@ -617,7 +948,7 @@
         );
       }
 
-      var toggledFolders = this.snapShotToggledFolders();
+      this.snapShotOpenedFolders();
 
       this.dirView = new exports.DirectoryView({
         explorer: this,
@@ -638,7 +969,7 @@
         .empty()
         .append(this.dirView.render().el);
 
-      this.restoreToggledFolders();
+      this.restoreOpenedFolders();
 
       $('.backbone-file-explorer-entry:odd').addClass('backbone-file-explorer-entry-odd');
 
