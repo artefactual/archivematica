@@ -1,0 +1,104 @@
+#!/usr/bin/python
+
+from __future__ import print_function
+from argparse import ArgumentParser
+import os
+import sys
+
+sys.path.append('/usr/share/archivematica/dashboard')
+os.environ["DJANGO_SETTINGS_MODULE"] = "settings.local"
+
+from django.db import connection
+
+from fpr.models import IDCommand, IDRule, IDTool, Format, FormatVersion, FPCommand, FPRule, FPTool
+
+IDCOMMAND_FIELDS = (
+    "description",
+    "config",
+    "replaces_id",
+    "script",
+    "script_type",
+    "tool_id",
+)
+
+IDRULE_FIELDS = (
+    "command_id",
+    "format_id",
+)
+
+IDTOOL_FIELDS = (
+    "description",
+    "version",
+)
+
+FPCOMMAND_FIELDS = (
+    "description",
+    "tool_id",
+    "command_usage",
+    "command",
+    "script_type",
+    "output_location",
+    "output_format_id",
+    "verification_command_id",
+    "event_detail_command_id",
+    "replaces_id",
+)
+
+
+FPRULE_FIELDS = (
+    "command_id",
+    "format_id",
+)
+
+FPTOOL_FIELDS = (
+    "description",
+    "version",
+)
+
+
+NAME_MAP = {
+    "idcommand": (IDCommand, IDCOMMAND_FIELDS),
+    "idrule": (IDRule, IDRULE_FIELDS),
+    "idtool": (IDTool, IDTOOL_FIELDS),
+    "fpcommand": (FPCommand, FPCOMMAND_FIELDS),
+    "fprule": (FPRule, FPRULE_FIELDS),
+    "fptool": (FPTool, FPTOOL_FIELDS),
+}
+
+
+def save_object(obj):
+    obj.save()
+    return connection.queries[-1]['sql']
+
+
+def create_rule(kind, command=None):
+    klass, fields = NAME_MAP[kind]
+    obj = klass()
+    for field in fields:
+        print(field + ":")
+        val = sys.stdin.readline()[0:-1]
+
+        # Empty values should be NULL, not empty strings
+        if val:
+            setattr(obj, field, val)
+
+    if hasattr(obj, "replaces") and obj.replaces:
+        obj.replaces.enabled = False
+        sql = save_object(obj.replaces)
+        print(sql + ";", file=sys.stderr)
+
+    sql = save_object(obj)
+    print(sql + ";", file=sys.stderr)
+
+
+if __name__ == '__main__':
+    parser = ArgumentParser()
+    parser.add_argument("kind", help="Type of FPR rule to create")
+    parser.add_argument("command", nargs="?", default=None,
+                        help="Path to command source code (optional)")
+    opts = parser.parse_args()
+
+    try:
+        create_rule(opts.kind, opts.command)
+    except KeyboardInterrupt:
+        print("\nAborting")
