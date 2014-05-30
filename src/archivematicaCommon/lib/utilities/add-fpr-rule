@@ -75,7 +75,7 @@ def create_rule(kind, command=None):
     klass, fields = NAME_MAP[kind]
     obj = klass()
     for field in fields:
-        print(field + ":")
+        print(field + ":", file=sys.stderr)
         val = sys.stdin.readline()[0:-1]
 
         # Empty values should be NULL, not empty strings
@@ -85,10 +85,10 @@ def create_rule(kind, command=None):
     if hasattr(obj, "replaces") and obj.replaces:
         obj.replaces.enabled = False
         sql = save_object(obj.replaces)
-        print(sql + ";", file=sys.stderr)
+        print(sql + ";")
 
     sql = save_object(obj)
-    print(sql + ";", file=sys.stderr)
+    print(sql + ";")
 
 
 if __name__ == '__main__':
@@ -101,4 +101,4 @@ if __name__ == '__main__':
     try:
         create_rule(opts.kind, opts.command)
     except KeyboardInterrupt:
-        print("\nAborting")
+        sys.exit("\nAborting")
