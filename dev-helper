@@ -140,7 +140,7 @@ function erase-indexes() {
 }
 
 function clear-storage() {
-  part="clear transfer backlog and AIP storage?"
+  part="clear transfer backlog and AIP storage"
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
