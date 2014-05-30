@@ -22,6 +22,7 @@ IDCOMMAND_FIELDS = (
 )
 
 IDRULE_FIELDS = (
+    "command_output",
     "command_id",
     "format_id",
 )
@@ -46,6 +47,7 @@ FPCOMMAND_FIELDS = (
 
 
 FPRULE_FIELDS = (
+    "purpose",
     "command_id",
     "format_id",
 )
