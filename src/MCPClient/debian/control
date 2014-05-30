@@ -9,12 +9,12 @@ Homepage: http://archivematica.org
 Package: archivematica-mcp-client
 Architecture: i386 amd64 
 Depends: ${shlibs:Depends}, ${misc:Depends}, archivematica-common,
- atool, bagit, clamav, clamav-daemon, ffmpeg (>= 7:2.1.0), fits (>= 0.8.0-3),
+ atool, bagit, bulk_extractor, clamav, clamav-daemon, ffmpeg (>= 7:2.1.0), fits (>= 0.8.0-3),
  gearman, imagemagick, inkscape, libimage-exiftool-perl, libxml2-utils, logapp,
  md5deep, mediainfo, nfs-common, openjdk-7-jre-headless, p7zip-full,
  pbzip2, postfix, python-fido, python-gearman, python-lxml,
  python-mysqldb, python-pyicu, python-rfc6266, readpst, sanitize-names,
- tesseract-ocr, tika, tree, ufraw, unrar-free, uuid
+ sleuthkit, tesseract-ocr, tika, tree, ufraw, unrar-free, uuid
 Description: MCP Client for Archivematica
   
   
