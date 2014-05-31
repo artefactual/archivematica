@@ -10,7 +10,13 @@ os.environ["DJANGO_SETTINGS_MODULE"] = "settings.local"
 
 from django.db import connection
 
-from fpr.models import IDCommand, IDRule, IDTool, Format, FormatVersion, FPCommand, FPRule, FPTool
+from fpr.models import IDCommand, IDRule, IDTool, Format, FormatGroup, FormatVersion, FPCommand, FPRule, FPTool
+
+FORMAT_FIELDS = (
+    "description",
+    "pronom_id",
+    "version",
+)
 
 IDCOMMAND_FIELDS = (
     "description",
@@ -73,6 +79,39 @@ def save_object(obj):
     return connection.queries[-1]['sql']
 
 
+def create_format():
+    obj = FormatVersion()
+
+    print("format")
+    format_description = sys.stdin.readline()[0:-1]
+    try:
+        format = Format.objects.get(description=format_description)
+    except Format.DoesNotExist:
+        format = Format(description=format_description)
+        sql = save_object(format)
+        print(sql + ";")
+
+    if not format.group:
+        print("format_group")
+        group_description = sys.stdin.readline()[0:-1]
+        try:
+            group = FormatGroup.objects.get(description=group_description)
+        except FormatGroup.DoesNotExist:
+            group = FormatGroup(description=group_description)
+            sql = save_object(group)
+            print(sql + ";")
+        format.group = group
+
+    for field in FORMAT_FIELDS:
+        print(field + ":", file=sys.stderr)
+        val = sys.stdin.readline()[0:-1]
+        if val:
+            setattr(obj, field, val)
+
+    sql = save_object(obj)
+    print(sql + ";")
+
+
 def create_rule(kind, command_file=None):
     klass, fields = NAME_MAP[kind]
     obj = klass()
@@ -105,6 +144,9 @@ if __name__ == '__main__':
     opts = parser.parse_args()
 
     try:
-        create_rule(opts.kind, command_file=opts.command)
+        if os.path.basename(sys.argv[0]) == "add-format":
+            create_format()
+        else:
+            create_rule(opts.kind, command_file=opts.command)
     except KeyboardInterrupt:
         sys.exit("\nAborting")
