@@ -79,11 +79,15 @@ def save_object(obj):
     return connection.queries[-1]['sql']
 
 
+def ask_for_field(field):
+    print(field + ":", file=sys.stderr)
+    return sys.stdin.readline().rstrip("\n", 1)
+
+
 def create_format():
     obj = FormatVersion()
 
-    print("format")
-    format_description = sys.stdin.readline()[0:-1]
+    format_description = ask_for_field("format")
     try:
         format = Format.objects.get(description=format_description)
     except Format.DoesNotExist:
@@ -92,8 +96,7 @@ def create_format():
         print(sql + ";")
 
     if not format.group:
-        print("format_group")
-        group_description = sys.stdin.readline()[0:-1]
+        group_description = ask_for_field("format_group")
         try:
             group = FormatGroup.objects.get(description=group_description)
         except FormatGroup.DoesNotExist:
@@ -103,8 +106,7 @@ def create_format():
         format.group = group
 
     for field in FORMAT_FIELDS:
-        print(field + ":", file=sys.stderr)
-        val = sys.stdin.readline()[0:-1]
+        val = ask_for_field(field)
         if val:
             setattr(obj, field, val)
 
@@ -120,8 +122,7 @@ def create_rule(kind, command_file=None):
             with open(command_file) as command:
                 val = command.read()
         else:
-            print(field + ":", file=sys.stderr)
-            val = sys.stdin.readline()[0:-1]
+            val = ask_for_field(field)
 
         # Empty values should be NULL, not empty strings
         if val:
