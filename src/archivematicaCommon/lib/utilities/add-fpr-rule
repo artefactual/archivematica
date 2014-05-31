@@ -73,12 +73,16 @@ def save_object(obj):
     return connection.queries[-1]['sql']
 
 
-def create_rule(kind, command=None):
+def create_rule(kind, command_file=None):
     klass, fields = NAME_MAP[kind]
     obj = klass()
     for field in fields:
-        print(field + ":", file=sys.stderr)
-        val = sys.stdin.readline()[0:-1]
+        if command_file and field in ("command", "script"):
+            with open(command_file) as command:
+                val = command.read()
+        else:
+            print(field + ":", file=sys.stderr)
+            val = sys.stdin.readline()[0:-1]
 
         # Empty values should be NULL, not empty strings
         if val:
@@ -101,6 +105,6 @@ if __name__ == '__main__':
     opts = parser.parse_args()
 
     try:
-        create_rule(opts.kind, opts.command)
+        create_rule(opts.kind, command_file=opts.command)
     except KeyboardInterrupt:
         sys.exit("\nAborting")
