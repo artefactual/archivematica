@@ -204,7 +204,12 @@ def start_transfer(request):
     temp_dir = tempfile.mkdtemp(dir=temp_base_dir)
 
     for i, path in enumerate(paths):
-        target = transfer_name + '_' + str(i + 1)
+        index = i + 1  # so transfers start from 1, not 0
+        # Don't suffix the first transfer component, only subsequent ones
+        if index > 1:
+            target = transfer_name + '_' + str(index)
+        else:
+            target = transfer_name
         copy_transfer_component(transfer_name=target,
                                 path=path, destination=temp_dir)
 
