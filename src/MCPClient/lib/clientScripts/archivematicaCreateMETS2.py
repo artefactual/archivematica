@@ -349,7 +349,7 @@ def createTechMD(fileUUID):
         # This needs to be converted into an str because lxml doesn't accept
         # XML documents in unicode strings if the document contains an
         # encoding declaration.
-        output = etree.XML(str(document), parser)
+        output = etree.XML(document.encode("utf-8"), parser)
         objectCharacteristicsExtension.append(output)
     sqlLock.release()
 
