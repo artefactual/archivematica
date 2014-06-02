@@ -112,13 +112,16 @@ def newChild(parent, tag, text=None, tailText=None, sets=[]):
     return child
 
 def createAgent(agentIdentifierType, agentIdentifierValue, agentName, agentType):
-    ret = etree.Element("agent")
-    agentIdentifier = etree.SubElement( ret, "agentIdentifier")
-    etree.SubElement( agentIdentifier, "agentIdentifierType").text = agentIdentifierType
-    etree.SubElement( agentIdentifier, "agentIdentifierValue").text = agentIdentifierValue
-    etree.SubElement( ret, "agentName").text = agentName
-    etree.SubElement( ret, "agentType").text = agentType
-    return ret
+    agent = etree.Element("agent", nsmap={None: ns.premisNS})
+    agent.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
+    agent.set("version", "2.2")
+
+    agentIdentifier = etree.SubElement(agent, "agentIdentifier")
+    etree.SubElement(agentIdentifier, "agentIdentifierType").text = agentIdentifierType
+    etree.SubElement(agentIdentifier, "agentIdentifierValue").text = agentIdentifierValue
+    etree.SubElement(agent, "agentName").text = agentName
+    etree.SubElement(agent, "agentType").text = agentType
+    return agent
 
 
 SIPMetadataAppliesToType = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
