@@ -94,6 +94,7 @@ moveSIP_v0.0 =  %clientScriptsDirectory%archivematicaMoveSIP.py
 moveTransfer_v0.0 =  %clientScriptsDirectory%archivematicaMoveTransfer.py
 moveToBacklog_v1.0 = %clientScriptsDirectory%moveToBacklog.py
 normalize_v1.0 = %clientScriptsDirectory%normalize.py
+postStoreAIPHook_v1.0 = %clientScriptsDirectory%post_store_aip_hook.py
 remove_v0.0 = rm
 removeAIPFilesFromIndex_v0.0 = %clientScriptsDirectory%removeAIPFilesFromIndex.py
 removeEmptyDirectories_v0.0 = %clientScriptsDirectory%removeEmptyDirectories.py
