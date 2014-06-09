@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls import patterns
+from django.conf import settings
 
 urlpatterns = patterns('components.administration.views',
     (r'^$', 'administration'),
@@ -32,4 +33,8 @@ urlpatterns = patterns('components.administration.views',
     (r'api/$', 'api'),
     (r'general/$', 'general'),
     (r'version/$', 'version'),
+    (r'taxonomy/term/(?P<term_uuid>' + settings.UUID_REGEX + ')/$', 'term_detail'),
+    (r'taxonomy/term/(?P<term_uuid>' + settings.UUID_REGEX + ')/delete/$', 'term_delete'),
+    (r'taxonomy/(?P<taxonomy_uuid>' + settings.UUID_REGEX + ')/$', 'terms'),
+    (r'taxonomy/$', 'taxonomy'),
 )

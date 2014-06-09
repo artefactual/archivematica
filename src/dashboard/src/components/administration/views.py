@@ -32,7 +32,9 @@ from components.administration.forms import ArchivistsToolkitConfigForm
 from components.administration.forms import SettingsForm
 from components.administration.forms import StorageSettingsForm
 from components.administration.models import ArchivistsToolkitConfig
-
+from components.administration.forms import TaxonomyTermForm
+from django.http import HttpResponseRedirect
+from django.template import RequestContext
 import components.decorators as decorators
 from django.template import RequestContext
 import components.helpers as helpers
@@ -256,6 +258,45 @@ def api(request):
 
     hide_features = helpers.hidden_features()
     return render(request, 'administration/api.html', locals())
+
+def taxonomy(request):
+    taxonomies = models.Taxonomy.objects.all().order_by('name')
+    page = helpers.pager(taxonomies, 20, request.GET.get('page', 1))
+    return render(request, 'administration/taxonomy.html', locals())
+
+def terms(request, taxonomy_uuid):
+    taxonomy = models.Taxonomy.objects.get(pk=taxonomy_uuid)
+    terms = taxonomy.taxonomyterm_set.order_by('term')
+    page = helpers.pager(terms, 20, request.GET.get('page', 1))
+    return render(request, 'administration/terms.html', locals())
+
+def term_detail(request, term_uuid):
+    term = models.TaxonomyTerm.objects.get(pk=term_uuid)
+    taxonomy = term.taxonomy
+    if request.POST:
+        form = TaxonomyTermForm(request.POST, instance=term)
+        if form.is_valid():
+            form.save()
+            messages = [{
+              'text': 'Saved.'
+            }]
+    else:
+        form = TaxonomyTermForm(instance=term)
+
+    return render(request, 'administration/term_detail.html', locals())
+
+def term_delete_context(request, term_uuid):
+    term = models.TaxonomyTerm.objects.get(pk=term_uuid)
+    prompt = 'Delete term ' + term.term + '?'
+    cancel_url = reverse("components.administration.views.term_detail", args=[term_uuid])
+    return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
+
+@decorators.confirm_required('simple_confirm.html', term_delete_context)
+def term_delete(request, term_uuid):
+    if request.method == 'POST':
+        term = models.TaxonomyTerm.objects.get(pk=term_uuid)
+        term.delete()
+        return HttpResponseRedirect(reverse('components.administration.views.terms', args=[term.taxonomy_id]))
 
 def general(request):
     toggleableSettings = {

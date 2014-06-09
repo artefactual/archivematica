@@ -1,0 +1,49 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+{% load url from future %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block js %}
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Taxonomy' 'components.administration.views.taxonomy' %}
+        {% breadcrumb taxonomy.name %}
+      </ul>
+
+      <h3>Terms</h3>
+
+      {% for term in page.objects %}
+        <p><a href='/administration/taxonomy/term/{{ term.pk }}'>{{ term.term }}</a></p>
+      {% endfor %}
+
+      {% if page.has_other %}
+      {% if page.has_previous %}
+      <a class='btn' href='/administration/taxonomy/terms/{{ taxonomy_uuid }}/?page={{ page.previous }}'>Previous Page</a>
+      {% endif %}
+
+      {% if has_next and has_previous %}&nbsp;{% endif %}
+
+      {% if page.has_next %}
+      <a class='btn' href='/administration/taxonomy/terms/{{ taxonomy_uuid }}/?page={{ page.next }}'>Next Page</a>
+      {% endif %}
+      {% endif %}
+    </div>
+
+  </div>
+
+{% endblock %}

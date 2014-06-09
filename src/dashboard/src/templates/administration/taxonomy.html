@@ -1,0 +1,47 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+% load url from future %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block js %}
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <h3>Taxonomies</h3>
+
+      {% for taxonomy in page.objects %}
+        <p><a href='/administration/taxonomy/{{ taxonomy.pk }}/'>{{ taxonomy.name }}</a></p>
+      {% endfor %}
+
+      {% url 'components.administration.views.taxonomy' as taxonomy_admin %}
+
+      {% if page.has_other %}
+      {% if page.has_previous %}
+      <a class='btn' href='{{ taxonomy_admin }}?page={{ page.previous }}'>Previous Page</a>
+      {% endif %}
+
+      {% if has_next and has_previous %}&nbsp;{% endif %}
+
+      {% if page.has_next %}
+      <a class='btn' href='{{ taxonomy_admin }}?page={{ page.next }}'>Next Page</a>
+      {% endif %}
+      {% endif %}
+
+    </div>
+
+  </div>
+
+{% endblock %}

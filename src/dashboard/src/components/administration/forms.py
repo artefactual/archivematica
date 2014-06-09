@@ -98,3 +98,10 @@ class ArchivistsToolkitConfigForm(ModelForm):
  
     class Meta:
         model = ArchivistsToolkitConfig
+
+class TaxonomyTermForm(ModelForm):
+    class Meta:
+        model = models.TaxonomyTerm
+        widgets = {
+            "term": TextInput(attrs=settings.INPUT_ATTRS)
+        }
