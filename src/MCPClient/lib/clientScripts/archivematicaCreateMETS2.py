@@ -23,6 +23,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import archivematicaXMLNamesSpace as ns
 import lxml.etree as etree
+from glob import glob
 import os
 import re
 import sys
@@ -837,6 +838,65 @@ def createFileSec(directoryPath, parentDiv):
         itemdirectoryPath = os.path.join(directoryPath, item)
         createFileSec(itemdirectoryPath, structMapDiv)
     return structMapDiv
+        
+def find_source_metadata(path):
+    """
+    Returns lists of all metadata to be referenced in the final document.
+    This includes transfer metadata (embedded), and any XML metadata contained
+    in the `metadata/sourceMD` directory from the original transfer (mdRef).
+
+    The first returned list is the set of transfer metadata; the second is
+    all other metadata to reference.
+    """
+    transfer = []
+    source = []
+    for dirpath, subdirs, filenames in os.walk(path):
+        if 'transfer_metadata.xml' in filenames:
+            transfer.append(os.path.join(dirpath, 'transfer_metadata.xml'))
+
+        if 'sourceMD' in subdirs:
+            pattern = os.path.join(dirpath, 'sourceMD', '*.xml')
+            source.extend(glob(pattern))
+
+    return transfer, source
+
+def create_object_metadata(struct_map):
+    transfer_metadata_path = os.path.join(baseDirectoryPath, "objects/metadata/transfers")
+    transfer, source = find_source_metadata(transfer_metadata_path)
+    if not transfer and not source:
+        return
+
+    global globalAmdSecCounter
+
+    globalAmdSecCounter += 1
+    label = "amdSec_{}".format(globalAmdSecCounter)
+    struct_map.set("ADMID", label)
+
+    source_md_counter = 1
+
+    el = etree.Element('amdSec', {'ID': label})
+
+    for filename in transfer:
+        sourcemd = etree.SubElement(el, 'sourceMD', {'ID': 'sourceMD_{}'.format(source_md_counter)})
+        mdwrap = etree.SubElement(sourcemd, 'mdWrap', {'MDTYPE': 'OTHER'})
+        xmldata = etree.SubElement(mdwrap, 'xmlData')
+        source_md_counter += 1
+        parser = etree.XMLParser(remove_blank_text=True)
+        md = etree.parse(filename, parser)
+        xmldata.append(md.getroot())
+
+    for filename in source:
+        sourcemd = etree.SubElement(el, 'sourceMD', {'ID': 'sourceMD_{}'.format(source_md_counter)})
+        source_md_counter += 1
+        attributes = {
+            ns.xlinkBNS + 'href': os.path.relpath(filename, baseDirectoryPath),
+            'MDTYPE': 'OTHER',
+            'LOCTYPE': 'OTHER',
+            'OTHERLOCTYPE': 'SYSTEM'
+        }
+        etree.SubElement(sourcemd, 'mdRef', attributes)
+
+    return el
 
 
 if __name__ == '__main__':
@@ -852,6 +912,11 @@ if __name__ == '__main__':
     structMap = etree.Element("structMap", TYPE='physical', ID='structMap_1', LABEL="Archivematica default")
     structMapDiv = etree.SubElement(structMap, 'div', TYPE="Directory", LABEL=os.path.basename(baseDirectoryPath.rstrip('/')))
     structMapDivObjects = createFileSec(os.path.join(baseDirectoryPath, "objects"), structMapDiv)
+
+    el = create_object_metadata(structMapDivObjects)
+    if el:
+        amdSecs.append(el)
+
     createFileSec(os.path.join(baseDirectoryPath, "metadata"), structMapDiv)
 
 

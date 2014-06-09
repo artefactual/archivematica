@@ -652,4 +652,11 @@ INSERT INTO TaxonomyTerms (pk, taxonomyUUID, term)
 
 INSERT INTO TaxonomyTerms (pk, taxonomyUUID, term)
   VALUES ('6836caa4-8a0f-465e-be1b-4d8c547a7bf4', 'cae76c7f-4d8e-48ee-9522-4b3fbf492516', 'Kryoflux');
+
+-- Write the metadata to disk right before moving to SIP or transfer backlog
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('290c1989-4d8a-4b6e-80bd-9ff43439aeca', 0, 'createTransferMetadata_v0.0', '--sipUUID "%SIPUUID%" --xmlFile "%SIPDirectory%"metadata/transfer_metadata.xml');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('81304470-37ef-4abb-99d9-ca075a9f440e', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '290c1989-4d8a-4b6e-80bd-9ff43439aeca', 'Create transfer metadata XML');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask) values ('db99ab43-04d7-44ab-89ec-e09d7bbdc39d', 'Complete transfer', 'Failed', '81304470-37ef-4abb-99d9-ca075a9f440e');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('e7837301-3891-4d0f-8b86-6f0a95d5a30b', 'db99ab43-04d7-44ab-89ec-e09d7bbdc39d', 0, 'd27fd07e-d3ed-4767-96a5-44a2251c6d0a', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='db99ab43-04d7-44ab-89ec-e09d7bbdc39d' WHERE microServiceChainLink='eb52299b-9ae6-4a1f-831e-c7eee0de829f';
 -- /Issue 5356 Transfer metadata
