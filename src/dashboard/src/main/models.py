@@ -219,6 +219,7 @@ class Transfer(models.Model):
     currentlocation = models.TextField(db_column='currentLocation')
     type = models.CharField(max_length=50, db_column='type')
     accessionid = models.TextField(db_column='accessionID')
+    transfermetadatasetrow = models.ForeignKey('TransferMetadataSet', db_column='transferMetadataSetRowUUID', to_field='id', null=True)
     # ...
     hidden = models.BooleanField(default=False, blank=False)
 
@@ -626,3 +627,64 @@ class AtkDIPObjectResourcePairing(models.Model):
 
     class Meta:
         db_table = u'AtkDIPObjectResourcePairing'
+
+class TransferMetadataSet(models.Model):
+    id = UUIDPkField()
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    createdbyuserid = models.IntegerField(db_column='createdByUserID')
+
+    class Meta:
+        db_table = u'TransferMetadataSets'
+
+class TransferMetadataField(models.Model):
+    id = UUIDPkField()
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    fieldlabel = models.CharField(max_length=50, blank=True, db_column='fieldLabel')
+    fieldname = models.CharField(max_length=50, db_column='fieldName')
+    fieldtype = models.CharField(max_length=50, db_column='fieldType')
+    optiontaxonomy = models.ForeignKey('Taxonomy', db_column='optionTaxonomyUUID', to_field='id', null=True)
+    sortorder = models.IntegerField(default=0, db_column='sortOrder')
+
+    class Meta:
+        db_table = u'TransferMetadataFields'
+
+    def __unicode__(self):
+        return self.fieldlabel
+
+class TransferMetadataFieldValue(models.Model):
+    id = UUIDPkField()
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    set = models.ForeignKey('TransferMetadataSet', db_column='setUUID', to_field='id')
+    field = models.ForeignKey('TransferMetadataField', db_column='fieldUUID', to_field='id')
+    fieldvalue = models.TextField(blank=True, db_column='fieldValue')
+
+    class Meta:
+        db_table = u'TransferMetadataFieldValues'
+
+# Taxonomies and their field definitions are in separate tables
+# to leave room for future expansion. The possible taxonomy terms are
+# designed to be editable, and forms to do so exist. (Forms for editing and
+# defining new fields are present in the code but currently disabled.)
+class Taxonomy(models.Model):
+    id = UUIDPkField()
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    name = models.CharField(max_length=255, blank=True, db_column='name')
+    type = models.CharField(max_length=50, default='open')
+
+    class Meta:
+        db_table = u'Taxonomies'
+
+    def __unicode__(self):
+        return self.name
+
+class TaxonomyTerm(models.Model):
+    id = UUIDPkField()
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    taxonomy = models.ForeignKey('Taxonomy', db_column='taxonomyUUID', to_field='id')
+    term = models.CharField(max_length=255, db_column='term')
+
+    class Meta:
+        db_table = u'TaxonomyTerms'
+
+    def __unicode__(self):
+        return self.term
