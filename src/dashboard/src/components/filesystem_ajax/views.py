@@ -172,8 +172,9 @@ def start_transfer(request):
     # and hence is POSTed to the server base64-encoded
     transfer_type = archivematicaFunctions.unicodeToStr(request.POST.get('type', ''))
     accession = archivematicaFunctions.unicodeToStr(request.POST.get('accession', ''))
-    paths = request.POST.getlist('paths[]', '')
+    paths = request.POST.getlist('paths[]', [])
     paths = [base64.b64decode(path) for path in paths]
+    row_ids = request.POST.getlist('row_ids[]', [])
 
     # Create temp directory that everything will be copied into
     temp_base_dir = helpers.get_client_config_value('temp_dir') or None
@@ -186,6 +187,7 @@ def start_transfer(request):
             target = transfer_name + '_' + str(index)
         else:
             target = transfer_name
+        row_id = row_ids[i]
         copy_transfer_component(transfer_name=target,
                                 path=path, destination=temp_dir)
 
@@ -194,7 +196,8 @@ def start_transfer(request):
         else:
             filepath = os.path.join(temp_dir, target)
         copy_to_start_transfer(filepath=filepath,
-                               type=transfer_type, accession=accession)
+                               type=transfer_type, accession=accession,
+                               transfer_metadata_set_row_uuid=row_id)
 
     response = {'message': 'Copy successful.'}
     return helpers.json_response(response)
@@ -245,7 +248,7 @@ def copy_transfer_component(transfer_name='', path='', destination=''):
 
     return paths_copied
 
-def copy_to_start_transfer(filepath='', type='', accession=''):
+def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata_set_row_uuid=''):
     error = filesystem_ajax_helpers.check_filepath_exists(filepath)
 
     if error == None:
@@ -276,14 +279,28 @@ def copy_to_start_transfer(filepath='', type='', accession=''):
 
         # relay accession via DB row that MCPClient scripts will use to get
         # supplementary info from
-        if accession != '':
+        if accession != '' or transfer_metadata_set_row_uuid != '':
             temp_uuid = uuid.uuid4().__str__()
             mcp_destination = destination.replace(SHARED_DIRECTORY_ROOT + '/', '%sharedPath%') + '/'
-            transfer = models.Transfer.objects.create(
-                uuid=temp_uuid,
-                accessionid=accession,
-                currentlocation=mcp_destination
-            )
+            kwargs = {
+                "uuid": temp_uuid,
+                "accessionid": accession,
+                "currentlocation": mcp_destination
+            }
+
+            # Even if a UUID is passed, there might not be a row with
+            # that UUID yet - for instance, if the user opened an edit
+            # form but did not save any metadata for that row.
+            if transfer_metadata_set_row_uuid:
+                try:
+                    row = models.TransferMetadataSet.objects.get(
+                        id="transfer_metadata_set_row_uuid"
+                    )
+                    kwargs["transfermetadatasetrow"] = row
+                except models.TransferMetadataSet.DoesNotExist:
+                    pass
+
+            transfer = models.Transfer.objects.create(**kwargs)
             transfer.save()
 
         try:

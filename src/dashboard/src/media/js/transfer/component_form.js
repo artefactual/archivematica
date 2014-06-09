@@ -17,6 +17,42 @@ You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+var active_component;
+var components = {};
+
+function createMetadataSetID() {
+  var set_id;
+
+  $.ajax({
+    'url': '/transfer/create_metadata_set_uuid/',
+    'type': 'GET',
+    'async': false,
+    'cache': false,
+    'success': function(results) {
+       set_id = results.uuid;
+    },
+    'error': function() {
+      alert('Error requesting metadata set ID: contact administrator.');
+    }
+  });
+
+  return {uuid: set_id};
+}
+
+// Removes all form values associated with the given UUID,
+// along with the metadata row set in the database
+function removeMetadataForms(uuid) {
+  $.ajax({
+    'url': '/transfer/cleanup_metadata_set/' + uuid + '/',
+    'type': 'POST',
+    'async': false,
+    'cache': false,
+    'error': function() {
+      alert('Failed to clean up metadata for UUID: ' + component.uuid);
+    }
+  });
+}
+
 var TransferComponentFormView = Backbone.View.extend({
   initialize: function(options) {
     this.form_layout_template = _.template(options.form_layout_template);
@@ -40,22 +76,43 @@ var TransferComponentFormView = Backbone.View.extend({
       locationUUID,
       sourceDir,
       'transfer-component-select-modal',
-      'path_container'
+      'path_container',
+      'transfer-component-path-item'
     );
   },
 
   // This function is solely used for paths to be POSTed to the server,
   // so all paths must be base64-encoded to guard against
   // potential non-unicode characters
+  //
+  // This returns a set of component objects, with "path" and "uuid"
+  // attributes.
   addedPaths: function() {
     var paths = [];
-    $('.transfer_path').each(function() {
-      paths.push(Base64.encode($(this).text()));
-    });
+    var component_keys = Object.keys(components);
+    for (var i in component_keys) {
+      key = component_keys[i];
+      component = $.extend(true, {}, components[key]);
+      component.path = Base64.encode(component.path);
+      paths.push(component);
+    }
     return paths;
   },
 
   startTransfer: function(transfer) {
+    // Clean up unused metadata forms that may have been entered but
+    // not associated with any files
+    // active_component is set if a metadata row has been started, but
+    // not yet been associated with a component via the browse button.
+    if (active_component) {
+      removeMetadataForms(active_component.uuid);
+    }
+    // re-enable transfer type select
+    $('#transfer-type').removeAttr('disabled');
+    $('#transfer_metadata_edit_button').hide('fade', {}, 250);
+    // transfer directory counter goes back to 1 for the next transfer
+    transferDirectoryPickerPathCounter = 1;
+
     $('.transfer-component-activity-indicator').show();
     $.ajax({
       url: '/filesystem/ransfer/',
@@ -66,7 +123,8 @@ var TransferComponentFormView = Backbone.View.extend({
         name:      transfer.name,
         type:      transfer.type,
         accession: transfer.accessionNumber,
-        "paths[]": transfer.sourcePaths
+        "paths[]": transfer.sourcePaths.map(function (c) {return c.path}),
+        "row_ids[]": transfer.sourcePaths.map(function(c) {return c.uuid})
       },
       success: function(results) {
         if (results['error']) {
@@ -79,6 +137,8 @@ var TransferComponentFormView = Backbone.View.extend({
         $('#transfer-type').val('standard');
         $('#path_container').html('');
         $('.transfer-component-activity-indicator').hide();
+
+        components = {};
       }
     });
   },
@@ -94,12 +154,14 @@ var TransferComponentFormView = Backbone.View.extend({
       , $addButton = $('<span id="path_add_button" class="btn">Browse</span>')
       , $sourceDirSelect = $('<select id="path_source_select"></select>')
       , $startTransferButton = $('<span id="start_transfer_button" class="btn success">Start transfer</span>')
+      , $metadataEditButton = $('<span id="transfer_metadata_edit_button" class="btn metadata-edit">Add metadata</span>')
       , self = this;
 
     $buttonContainer
       .append($sourceDirSelect)
       .append($addButton)
-      .append($startTransferButton);
+      .append($startTransferButton)
+      .append($metadataEditButton);
 
     $pathAreaEl.append($buttonContainer);
 
@@ -132,9 +194,29 @@ var TransferComponentFormView = Backbone.View.extend({
     $('#transfer-type').change(function() {
       if ($(this).val() == 'zipped bag') {
         $('#transfer-name-container').hide('slide', {direction: 'left'}, 250);
-      } else {
+      } else if($(this).is(':hidden')) {
         $('#transfer-name-container').show('slide', {direction: 'left'}, 250);
       }
+
+      // If the transfer type is a Disk Image, the metadata edit button is visible;
+      // otherwise, we hide it
+      if ($(this).val() == 'disk image') {
+        $('#transfer_metadata_edit_button').show('fade', {}, 250);
+      } else {
+        $('#transfer_metadata_edit_button').hide('fade', {}, 250);
+      }
+    });
+
+    // The metadata set edit button is available as soon as a disk image transfer type is selected.
+    // This allows for entering metadata before the associated transfer component is created,
+    // for instance to write metadata about a disk image before the image file is ready to be added
+    // as a new transfer component.
+    // It creates a metadata form associated with a placeholder path; that path will be updated to
+    // point at the actual component path once a new transfer path is added.
+    $('#transfer_metadata_edit_button').click(function() {
+      if (!active_component) { active_component = createMetadataSetID(); }
+      metadata_url = '/transfer/component/' + active_component.uuid;
+      window.open(metadata_url, '_blank');
     });
 
     // make start transfer button clickable
@@ -150,14 +232,15 @@ var TransferComponentFormView = Backbone.View.extend({
       {
         alert('Please enter a transfer name');
       } else {
-        if (!self.addedPaths().length) {
+        var paths = self.addedPaths();
+        if (!paths.length) {
           alert('Please click "Browse" to add one or more paths from the source directory.');
         } else {
           var transferData = {
             'name':            transferName,
             'type':            $('#transfer-type').val(),
             'accessionNumber': $('#transfer-accession-number').val(),
-            'sourcePaths':     self.addedPaths()
+            'sourcePaths':     paths
           };
           self.startTransfer(transferData);
         }

@@ -17,7 +17,11 @@ You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCssId) {
+var components;
+var transferMetadataSetRowUUID;
+var transferDirectoryPickerPathCounter = 1;
+
+function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCssId, pathTemplateCssId) {
   var selector = new DirectoryPickerView({
     ajaxChildDataUrl: '/filesystem/children/location/' + locationUUID + '/',
     el: $('#explorer'),
@@ -30,6 +34,8 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
     'parent': Base64.encode(baseDirectory.replace(/\\/g,'/').replace(/\/[^\/]*$/, '')), // parse out path directory
     'children': []
   };
+
+  selector.pathTemplateRender = _.template($('#' + pathTemplateCssId).html());
 
   selector.options.entryDisplayFilter = function(entry) {
     // if a file and not an archive file, then hide
@@ -50,23 +56,70 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
     description: 'Select',
     iconHtml: 'Add',
     logic: function(result) {
-      var $transferPathRowEl = $('<div></div>')
-        , $transferPathEl = $('<span class="transfer_path"></span>')
-        , $transferPathDeleteRl = $('<span style="margin-left: 1em;"><img src="/media/images/delete.png" /></span>');
+      // disable transfer type select as disk image transfer types
+      // are displayed with a metadata editing option, but others
+      // are not
+      $('#transfer-type').attr('disabled', 'disabled');
 
-      $transferPathDeleteRl.click(function() {
-        $transferPathRowEl.remove();
+      var decoded_path = Base64.decode(result.path)
+
+      if (components[decoded_path]) {
+        alert("Error: The selected path is already present in this transfer.");
+        return;
+      }
+
+      // render path component
+      $('#' + targetCssId).append(selector.pathTemplateRender({
+        'path_counter': transferDirectoryPickerPathCounter,
+        'path': decoded_path,
+        'edit_icon': '1',
+        'delete_icon': '2'
+      }));
+
+      if (!active_component) { active_component = createMetadataSetID(); }
+      var component = active_component;
+      component.path = decoded_path;
+      components[decoded_path] = component;
+
+      // enable editing of transfer component metadata
+      if ($('#transfer-type').val() == 'disk image') {
+        var $transferEditIconEl = $(
+          '#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter
+        ).children('.transfer_path_icons').children('.transfer_path_edit_icon');
+
+        $transferEditIconEl.click(function() {
+          var component_metadata_url = '/transfer/component/' + component.uuid + '/';
+          window.open(component_metadata_url, '_blank');
+        });
+
+        $transferEditIconEl.show();
+      }
+
+      active_component = undefined;
+
+      // activate edit and delete icons
+      $('#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter)
+      .children('.transfer_path_icons')
+      .children('.transfer_path_delete_icon')
+      .click(function() {
+        if (confirm('Are you sure you want to remove this transfer component?')) {
+          var path = $(this).parent().parent().text().trim();
+          var component = components[path];
+
+          removeMetadataForms(component.uuid);
+
+          delete components[path];
+          $(this).parent().parent().remove();
+          if ($('.transfer_path').length < 1) {
+            // re-enable transfer type select
+            $('#transfer-type').removeAttr('disabled');
+          }
+        }
       });
 
-      // result.path is base64-encoded from the server
-      // NOTE: If this value needs to get communicated somewhere else,
-      //       for instance if transfer starts are moved into the
-      //       storage service in the future, this value will need to
-      //       be base64-encoded again.
-      $transferPathEl.html(Base64.decode(result.path));
-      $transferPathRowEl.append($transferPathEl);
-      $transferPathRowEl.append($transferPathDeleteRl);
-      $('#' + targetCssId).append($transferPathRowEl);
+      transferDirectoryPickerPathCounter++;
+
+      // remove directory picker
       $('#' + modalCssId).remove();
 
       // tiger stripe transfer paths

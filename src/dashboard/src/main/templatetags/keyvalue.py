@@ -21,4 +21,4 @@ register = Library()
 
 @register.filter
 def keyvalue(d, key):
-    return d[key]
+    return d.get(key)
