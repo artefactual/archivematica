@@ -646,6 +646,17 @@ def _document_ids_from_field_query(conn, index, doc_types, field, value):
 
     return document_ids
 
+def document_id_from_field_query(conn, index, doc_types, field, value):
+    document_id = None
+    documents = search_raw_wrapper(
+        conn,
+        query=pyes.FieldQuery(pyes.FieldParameter(field, value)),
+        doc_types=doc_types
+     )
+    if len(documents['hits']['hits']) == 1:
+        document_id = documents['hits']['hits'][0]['_id']
+    return document_id
+
 def connect_and_change_transfer_file_status(uuid, status):
     """ Update all files with sipuuid `uuid` to have status `status`. """
     conn = connect_and_create_index('transfers')
