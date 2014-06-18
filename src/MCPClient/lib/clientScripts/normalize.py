@@ -84,7 +84,8 @@ def check_manual_normalization(opts):
     # If normalization.csv provided, check there for mapping from original
     # to access/preservation file
     normalization_csv = os.path.join(opts.sip_path, "objects", "manualNormalization", "normalization.csv")
-    dirname, bname = os.path.split(opts.file_path)
+    objects_dir = os.path.join(opts.sip_path, 'objects', '')
+    bname = opts.file_path.replace(objects_dir, '', 1)
     if os.path.isfile(normalization_csv):
         found = False
         with open(normalization_csv, 'rb') as csv_file:
@@ -92,10 +93,13 @@ def check_manual_normalization(opts):
             # Search the file for an original filename that matches the one provided
             try:
                 for row in reader:
+                    if not row:
+                        continue
                     if "#" in row[0]: # ignore comments
                         continue
                     original, access_file, preservation_file = row
                     if original.lower() == bname.lower():
+                        print('Filename', bname, 'matches entry in normalization.csv', original)
                         found = True
                         break
             except csv.Error:
@@ -125,9 +129,8 @@ def check_manual_normalization(opts):
 
     # Assume that any access/preservation file found with the right
     # name is the correct one
-    bname, _ = os.path.splitext(bname)
-    dirname = dirname.replace(opts.sip_path, '%SIPDirectory%')
-    path = os.path.join(dirname, bname)
+    # Strip extension, replace SIP path with %var%
+    path = os.path.splitext(opts.file_path.replace(opts.sip_path, '%SIPDirectory%', 1))[0]
     if "preservation" in opts.purpose:
         path = path.replace("%SIPDirectory%objects/",
             "%SIPDirectory%objects/manualNormalization/preservation/")
