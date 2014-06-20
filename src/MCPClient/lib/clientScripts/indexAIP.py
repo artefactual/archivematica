@@ -66,6 +66,12 @@ def index_aip():
             pass
 
     print('Indexing AIP info')
+    # Delete ES index before creating new one if reingesting
+    if 'REIN' in sip_type:
+        elasticSearchFunctions.delete_aip(sip_uuid)
+        print('Deleted outdated entry for AIP with UUID', sip_uuid, ' from archival storage')
+
+    # Index AIP
     elasticSearchFunctions.connect_and_index_aip(
         sip_uuid,
         sip_name,
