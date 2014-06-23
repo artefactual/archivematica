@@ -30,6 +30,10 @@ import lxml.etree as etree
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import SIP
 
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from dicts import ReplacementDict
+
+
 class unitSIP(unit):
 
     def __init__(self, currentPath, UUID):
@@ -69,38 +73,13 @@ class unitSIP(unit):
 
     def getReplacementDic(self, target):
         """ Return a dict with all of the replacement strings for this unit and the value to replace with. """
-        # Pre-do some variables that other variables rely on because dicts
-        # don't maintain order
-        SIPUUID = self.UUID
-        if self.currentPath.endswith("/"):
-            SIPName = os.path.basename(self.currentPath[:-1]).replace("-" + SIPUUID, "")
-        else:
-            SIPName = os.path.basename(self.currentPath).replace("-" + SIPUUID, "")
-        SIPDirectory = self.currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
-        relativeDirectoryLocation = target.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
-
-        ret = {
-            "%SIPLogsDirectory%": SIPDirectory + "logs/",
-            "%SIPObjectsDirectory%": SIPDirectory + "objects/",
-            "%SIPDirectory%": SIPDirectory,
-            "%SIPDirectoryBasename%":
-                os.path.basename(os.path.abspath(SIPDirectory)),
-            "%relativeLocation%":
-                target.replace(self.currentPath, relativeDirectoryLocation, 1),
-            "%processingDirectory%":
-                archivematicaMCP.config.get('MCPServer', "processingDirectory"),
-            "%checksumsNoExtention%":
-                archivematicaMCP.config.get('MCPServer', "checksumsNoExtention"),
-            "%watchDirectoryPath%":
-                archivematicaMCP.config.get('MCPServer', "watchDirectoryPath"),
-            "%rejectedDirectory%":
-                archivematicaMCP.config.get('MCPServer', "rejectedDirectory"),
-            "%AIPFilename%": self.aipFilename,
-            "%SIPUUID%": SIPUUID,
-            "%SIPName%": SIPName,
-            "%unitType%": self.unitType,
-            "%SIPType%": self.sipType,
-        }
+        ret = ReplacementDict.frommodel(
+            type_='sip',
+            sip=self.UUID
+        )
+        ret["%AIPFilename%"] = self.aipFilename
+        ret["%unitType%"] = self.unitType
+        ret["%SIPType%"] = self.sipType
         return ret
 
     def xmlify(self):
