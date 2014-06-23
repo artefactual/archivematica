@@ -26,10 +26,15 @@ from unitFile import unitFile
 import archivematicaMCP
 import os
 import sys
+
 import lxml.etree as etree
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import File
+
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from dicts import ReplacementDict
+
 
 class UnitDIPError(Exception):
     pass
@@ -60,32 +65,23 @@ class unitDIP(unit):
         return
 
     def getReplacementDic(self, target):
-        # self.currentPath = currentPath.__str__()
-        # self.UUID = uuid.uuid4().__str__()
-        #Pre do some variables, that other variables rely on, because dictionaries don't maintain order
-        SIPUUID = self.UUID
-        if self.currentPath.endswith("/"):
-            SIPName = os.path.basename(self.currentPath[:-1]).replace("-" + SIPUUID, "")
-        else:
-            SIPName = os.path.basename(self.currentPath).replace("-" + SIPUUID, "")
-        SIPDirectory = self.currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
-        relativeDirectoryLocation = target.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
+        ret = ReplacementDict.frommodel(
+            type_='sip',
+            sip=self.UUID
+        )
 
+        # augment the dict here, because DIP is a special case whose paths are
+        # not entirely based on data from the database - the locations need to
+        # be overridden.
+        sip_directory = self.currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
+        relative_directory_location = target.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
 
-        ret = { \
-        "%SIPLogsDirectory%": SIPDirectory + "logs/", \
-        "%SIPObjectsDirectory%": SIPDirectory + "objects/", \
-        "%SIPDirectory%": SIPDirectory, \
-        "%SIPDirectoryBasename%": os.path.basename(os.path.abspath(SIPDirectory)), \
-        "%relativeLocation%": target.replace(self.currentPath, relativeDirectoryLocation, 1), \
-        "%processingDirectory%": archivematicaMCP.config.get('MCPServer', "processingDirectory"), \
-        "%checksumsNoExtention%":archivematicaMCP.config.get('MCPServer', "checksumsNoExtention"), \
-        "%watchDirectoryPath%":archivematicaMCP.config.get('MCPServer', "watchDirectoryPath"), \
-        "%rejectedDirectory%":archivematicaMCP.config.get('MCPServer', "rejectedDirectory"), \
-        "%SIPUUID%":SIPUUID, \
-        "%SIPName%":SIPName, \
-        "%unitType%":"DIP" \
-        }
+        ret["%SIPLogsDirectory%"] = os.path.join(sip_directory, "logs", "")
+        ret["%SIPObjectsDirectory%"] = os.path.join(sip_directory, "objects", "")
+        ret["%SIPDirectory%"] = sip_directory
+        ret["%SIPDirectoryBasename"] = os.path.basename(os.path.abspath(sip_directory))
+        ret["%relativeLocation%"] = target.replace(self.currentPath, relative_directory_location, 1)
+        ret["%unitType%"] = "DIP"
         return ret
 
     def xmlify(self):

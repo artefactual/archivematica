@@ -21,6 +21,12 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+import sys
+
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from dicts import ReplacementDict
+
+
 class unitFile(object):
     """For objects representing a File"""
     def __init__(self, currentPath, UUID="None", owningUnit=None):
@@ -34,21 +40,25 @@ class unitFile(object):
             self.pathString = owningUnit.pathString
 
     def getReplacementDic(self, target=None):
-        if target != None and self.owningUnit:
+        if target is not None and self.owningUnit:
             return self.owningUnit.getReplacementDic(self.owningUnit.currentPath)
-        # self.currentPath = currentPath.__str__()
-        # self.UUID = uuid.uuid4().__str__()
-        #Pre do some variables, that other variables rely on, because dictionaries don't maintain order
+        elif self.UUID != "None":
+            return ReplacementDict.frommodel(
+                type_='file',
+                file_=self.UUID
+            )
+        # If no UUID has been assigned yet, we can't use the
+        # ReplacementDict.frommodel constructor; fall back to the
+        # old style of manual construction.
         else:
-            ret = {\
-                   "%relativeLocation%": self.currentPath, \
-                   "%fileUUID%": self.UUID, \
-                   "%fileGrpUse%": self.fileGrpUse
+            return {
+                "%relativeLocation%": self.currentPath,
+                "%fileUUID%": self.UUID,
+                "%fileGrpUse%": self.fileGrpUse
             }
-            return ret
-    
+
     def reload(self):
-        return 
-    
+        return
+
     def reloadFileList(self):
         return
