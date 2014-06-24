@@ -101,14 +101,14 @@ def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitI
         if os.path.isdir(itemPath) and item not in REQUIRED_DIRECTORIES:
             print "moving directory to objects: ", item
             dst = os.path.join(unitPath, "objects", item)
-            fileOperations.requiredDirectoriesupdateDirectoryLocation(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+            fileOperations.updateDirectoryLocation(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
         elif os.path.isfile(itemPath) and item not in OPTIONAL_FILES:
             print "moving file to objects: ", item
             dst = os.path.join(unitPath, "objects", item)
-            fileOperations.requiredDirectoriesupdateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+            fileOperations.updateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
         elif item in OPTIONAL_FILES:
             dst = os.path.join(unitPath, item)
-            fileOperations.requiredDirectoriesupdateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+            fileOperations.updateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
     print "removing empty data directory"
     os.rmdir(unitDataPath)
 
