@@ -385,12 +385,20 @@ class Report(models.Model):
 
 class RightsStatement(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    metadataappliestotype = models.ForeignKey('MetadataAppliesToType', db_column='metadataAppliesToType')
-    metadataappliestoidentifier = models.CharField(max_length=50, db_column='metadataAppliesToidentifier')
+    metadataappliestotype = models.ForeignKey(MetadataAppliesToType, to_field='id', db_column='metadataAppliesToType')
+    metadataappliestoidentifier = models.CharField(max_length=36, blank=True, db_column='metadataAppliesToidentifier')
     rightsstatementidentifiertype = models.TextField(db_column='rightsStatementIdentifierType', blank=True, verbose_name='Type')
     rightsstatementidentifiervalue = models.TextField(db_column='rightsStatementIdentifierValue', blank=True, verbose_name='Value')
     rightsholder = models.IntegerField(db_column='fkAgent', default=0, verbose_name='Rights holder')
-    rightsbasis = models.TextField(db_column='rightsBasis', verbose_name='Basis')
+    RIGHTS_BASIS_CHOICES = (
+        ('Copyright', 'Copyright'),
+        ('Statute', 'Statute'),
+        ('License', 'License'),
+        ('Donor', 'Donor'),
+        ('Policy', 'Policy'),
+        ('Other', 'Other')
+    )
+    rightsbasis = models.CharField(db_column='rightsBasis', choices=RIGHTS_BASIS_CHOICES, max_length=64, verbose_name='Basis', default='Copyright')
 
     class Meta:
         db_table = u'RightsStatement'
