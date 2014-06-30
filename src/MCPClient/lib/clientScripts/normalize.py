@@ -25,6 +25,7 @@ if path not in sys.path:
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 from fpr.models import FPRule
 from main.models import FileFormatVersion, File
+from annoying.functions import get_object_or_None
 
 # Return codes
 SUCCESS = 0
@@ -234,6 +235,9 @@ def insert_derivation_event(original_uuid, output_uuid, derivation_uuid,
         relatedEventUUID=derivation_uuid,
     )
 
+def get_default_rule(purpose):
+    return FPRule.active.get(purpose='default_'+purpose)
+
 def main(opts):
     """ Find and execute normalization commands on input file. """
     # TODO fix for maildir working only on attachments
@@ -272,37 +276,30 @@ def main(opts):
             )
         return SUCCESS
 
-    try:
-        format_id = FileFormatVersion.objects.get(file_uuid=opts.file_uuid)
-    # Can't do anything if the file wasn't identified
-    except FileFormatVersion.DoesNotExist, FileFormatVersion. MultipleObjectsReturned:
-        print('Not normalizing ',
-            os.path.basename(file_.currentlocation),
-            ' - file format not identified',
-            file=sys.stderr)
-        return NO_RULE_FOUND
-    if format_id.format_version == None:
-        print('Not normalizing',
-            os.path.basename(file_.currentlocation),
-            ' - file format not identified',
-            file=sys.stderr)
-        return NO_RULE_FOUND
-    print('File format:', format_id.format_version)
+    format_id = get_object_or_None(
+        FileFormatVersion,
+        file_uuid=opts.file_uuid
+    )
 
     # Look up the normalization command in the FPR
-    try:
-        rule = FPRule.active.get(format=format_id.format_version,
-        purpose=opts.purpose)
-    except FPRule.DoesNotExist:
+    if format_id is None:
+        rule = get_default_rule(opts.purpose)
+        print(os.path.basename(file_.currentlocation), "not identified - falling back to default", opts.purpose, "rule")
+    else:
+        print('File format:', format_id.format_version)
         try:
-            rule = FPRule.active.get(purpose='default_'+opts.purpose)
-            print("No rule for", os.path.basename(file_.currentlocation),
-                "falling back to default", opts.purpose, "rule")
+            rule = FPRule.active.get(format=format_id.format_version,
+                                     purpose=opts.purpose)
         except FPRule.DoesNotExist:
-            print('Not normalizing', os.path.basename(file_.currentlocation),
-                ' - No rule or default rule found to normalize for', opts.purpose,
-                file=sys.stderr)
-            return NO_RULE_FOUND
+            try:
+                rule = get_default_rule(opts.purpose)
+                print("No rule for", os.path.basename(file_.currentlocation),
+                    "falling back to default", opts.purpose, "rule")
+            except FPRule.DoesNotExist:
+                print('Not normalizing', os.path.basename(file_.currentlocation),
+                    ' - No rule or default rule found to normalize for', opts.purpose,
+                    file=sys.stderr)
+                return NO_RULE_FOUND
     print('Format Policy Rule:', rule)
     command = rule.command
     print('Format Policy Command', command.description)
