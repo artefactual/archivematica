@@ -45,21 +45,16 @@ class Command(object):
         self.command = command.command
         self.type = command.script_type
         self.output_location = command.output_location
-        self.replacement_dict = {}
+        self.replacement_dict = replacement_dict
         self.on_success = on_success
         self.std_out = ""
         self.exit_code = None
         self.opts = opts
 
-        # Enocding stuff for the replacement dict, since it was here before
-        for key, value in replacement_dict.iteritems():
-            self.replacement_dict[toStrFromUnicode(key)] = toStrFromUnicode(value
-                )
         # Add the output location to the replacement dict - for use in
         # verification and event detail commands
         if self.output_location:
-            for (key, value) in self.replacement_dict.iteritems():
-                self.output_location = self.output_location.replace(key, value)
+            self.output_location = self.replacement_dict.replace(self.output_location)[0]
             self.replacement_dict['%outputLocation%'] = self.output_location
 
         # Add verification and event detail commands, if they exist
@@ -83,18 +78,12 @@ class Command(object):
         # the necessary values into the script's source
         args = []
         if self.type in ['command', 'bashScript']:
-            # For each key replace all instances of the key in the command string
-            for key, value in self.replacement_dict.iteritems():
-                self.command = self.command.replace(key, escapeForCommand(value) )
+            self.command = self.replacement_dict.replace(self.command)[0]
         # For other command types, we translate the entries from
         # replacement_dict into GNU-style long options, e.g.
         # [%fileName%, foo] => --file-name=foo
         else:
-            for key, value in self.replacement_dict.iteritems():
-                optname = re.sub(r'([A-Z]+)', r'-\1', key[1:-1]).lower()
-                optvalue = escapeForCommand(value)
-                opt = '--{k}={v}'.format(k=optname, v=optvalue)
-                args.append(opt)
+            args = self.replacement_dict.to_gnu_options()
         print "Command to execute:", self.command
         print "-----"
         print "Command stdout:"
