@@ -56,18 +56,17 @@ def get_replacement_dict(opts):
 
     # Populates the standard set of unit variables, so,
     # e.g., %fileUUID% is available
-    standard_values = ReplacementDict.frommodel(type_='file',
-                                                file_=opts.file_uuid)
+    replacement_dict = ReplacementDict.frommodel(type_='file',
+                                                 file_=opts.file_uuid)
 
     output_filename = ''.join([prefix, filename, postfix])
-    replacement_dict = {
+    replacement_dict.update({
         "%outputDirectory%": output_dir,
         "%prefix%": prefix,
         "%postfix%": postfix,
         "%outputFileName%": output_filename, # does not include extension
         "%outputFilePath%": os.path.join(output_dir, output_filename) # does not include extension
-    }
-    replacement_dict.update(standard_values)
+    })
     return replacement_dict
 
 
