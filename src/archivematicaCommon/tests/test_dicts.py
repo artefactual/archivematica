@@ -96,8 +96,6 @@ def test_replacementdict_model_constructor_sip():
 def test_replacementdict_model_constructor_file_only():
     rd = ReplacementDict.frommodel(file_=FILE, type_='file')
 
-    assert not '%SIPUUID%' in rd
-
     assert rd['%fileUUID%'] == FILE.uuid
     assert rd['%originalLocation%'] == FILE.originallocation
     assert rd['%currentLocation%'] == FILE.currentlocation
