@@ -53,6 +53,9 @@ By viewing the "Files changed", you can leave a comment on any line of the diff.
 This is a great way to scope discussion to a particular part of a diff.
 Any discussion you have in a specific part of the diff will also be automatically hidden once a change is pushed that addresses it, which helps keep the pull request page clear and readable.
 
+When leaving line comments, make sure you leave them on the *diff* - not on the page for an individual commit.
+Any comments left on the commit will disappear from the pull request page as soon as that commit is no longer in the branch, even if a newer revision of that commit is.
+
 Anyone can participate in code review discussions.
 Feel free to jump in if you have something to contribute on another pull request, even if you're not the one who opened it.
 
