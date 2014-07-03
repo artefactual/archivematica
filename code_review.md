@@ -6,13 +6,13 @@ This applies both to developers at Artefactual and to outside contributors.
 
 Here's an outline of the code review process:
 
-1) Fork the Artefactual project on GitHub, and commit your changes to a branch.
-2) Open a pull request.
-3) Back and forth discussion with developers on the branch.
-4) Make any changes suggested by reviewers.
-5) Repeat 3 and 4 as necessary.
-6) Clean up commit history, if necessary.
-7) Your branch will be merged!
+1. Fork the Artefactual project on GitHub, and commit your changes to a branch.
+2. Open a pull request.
+3. Back and forth discussion with developers on the branch.
+4. Make any changes suggested by reviewers.
+5. Repeat 3 and 4 as necessary.
+6. Clean up commit history, if necessary.
+7. Your branch will be merged!
 
 Getting started
 ---------------
