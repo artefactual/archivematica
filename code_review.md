@@ -24,6 +24,8 @@ Every change being submitted to an Artefactual project should be submitted as a 
 A branch being submitted for code review should contain commits covering a related section of code.
 Try not to bundle unrelated changes together in one branch; it makes review harder.
 
+If you're not familiar with forking repositories and creating branches in GitHub, consult their [guide](https://help.github.com/articles/fork-a-repo).
+
 When to submit code for review?
 -------------------------------
 
