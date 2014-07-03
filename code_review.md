@@ -63,6 +63,7 @@ Cleaning up commit history
 --------------------------
 
 Once code review is finished or nearly finished, and no further development is planned on the branch, the branch's commit history should be cleaned up.
+You can alter the commit history of a branch using git's powerful [interactive rebase feature](http://www.git-scm.com/book/en/Git-Tools-Rewriting-History).
 The following few criteria help outline what makes for a clean commit history:
 
 ### Commits should be specific and atomic
