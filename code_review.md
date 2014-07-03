@@ -31,7 +31,7 @@ When to submit code for review?
 
 Your code doesn't have to be ready yet to submit for code review!
 You should submit a branch for code review as soon as you want to get feedback on it.
-Sometimes, that means submitting a feature-complete branch, but sometimes that means submitting an early WIP n order to get feedback on direction.
+Sometimes, that means submitting a feature-complete branch, but sometimes that means submitting an early WIP in order to get feedback on direction.
 Don't be shy about submitting early.
 
 Opening the pull request
