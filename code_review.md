@@ -4,6 +4,56 @@ Code review
 Every new feature and bugfix to a project is expected to go through code review before inclusion.
 This applies both to developers at Artefactual and to outside contributors.
 
+Here's an outline of the code review process:
+
+1) Fork the Artefactual project on GitHub, and commit your changes to a branch.
+2) Open a pull request.
+3) Back and forth discussion with developers on the branch.
+4) Make any changes suggested by reviewers.
+5) Repeat 3 and 4 as necessary.
+6) Clean up commit history, if necessary.
+7) Your branch will be merged!
+
+Getting started
+---------------
+
+So you have something to contribute to an Artefactual project. Great!
+
+Artefactual uses GitHub's pull request feature for code review.
+Every change being submitted to an Artefactual project should be submitted as a pull request to the appropriate repository.
+A branch being submitted for code review should contain commits covering a related section of code.
+Try not to bundle unrelated changes together in one branch; it makes review harder.
+
+When to submit code for review?
+-------------------------------
+
+Your code doesn't have to be ready yet to submit for code review!
+You should submit a branch for code review as soon as you want to get feedback on it.
+Sometimes, that means submitting a feature-complete branch, but sometimes that means submitting an early WIP n order to get feedback on direction.
+Don't be shy about submitting early.
+
+Opening the pull request
+------------------------
+
+GitHub has an [excellent](https://help.github.com/articles/using-pull-requests) guide on using the pull request feature.
+
+Discussion
+----------
+
+Discussion on pull requests is usually a back and forth process.
+Don't feel like you have to make every change the reviewer suggests; the pull request is a great place to have in-depth conversation on the issue.
+
+Do make use of GitHub's line comment feature!
+
+![Line comment](http://i.imgur.com/FsWppGN.png)
+
+By viewing the "Files changed", you can leave a comment on any line of the diff.
+This is a great way to scope discussion to a particular part of a diff.
+Any discussion you have in a specific part of the diff will also be automatically hidden once a change is pushed that addresses it, which helps keep the pull request page clear and readable.
+
+Anyone can participate in code review discussions.
+Feel free to jump in if you have something to contribute on another pull request, even if you're not the one who opened it.
+
 Cleaning up commit history
 --------------------------
 
@@ -45,7 +95,7 @@ Unclear commit summaries:
 
 The unclear messages make it hard to tell at a glance what changed, and that makes browsing the commit history harder.
 
-### Commit messages should be as detailed as they need to be
+### Commit messages should be as detailed as they need to be (and no more)
 
 The commit message is the rest of the commit past the first line.
 If a commit makes a small and obvious change, it's fine to not even have a commit message past the summary.
