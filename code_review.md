@@ -19,7 +19,7 @@ Getting started
 
 So you have something to contribute to an Artefactual project. Great!
 
-Artefactual uses GitHub's pull request feature for code review.
+Artefactual uses [GitHub](https://github.com/)'s pull request feature for code review.
 Every change being submitted to an Artefactual project should be submitted as a pull request to the appropriate repository.
 A branch being submitted for code review should contain commits covering a related section of code.
 Try not to bundle unrelated changes together in one branch; it makes review harder.
