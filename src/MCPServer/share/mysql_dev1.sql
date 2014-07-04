@@ -554,6 +554,7 @@ INSERT INTO MicroServiceChainChoice (pk, choiceAvailableAtLink, chainAvailable) 
 INSERT INTO MicroServiceChainChoice (pk, choiceAvailableAtLink, chainAvailable) VALUES ('63f0e429-1435-48e2-8eb0-dcb68e507168', @treeChoiceMSCL, @noTreeChain);
 -- /Issue 6566 Tree
 
+<<<<<<< HEAD
 -- Issue 5356 Transfer metadata
 ALTER TABLE Transfers
 	ADD COLUMN transferMetadataSetRowUUID VARCHAR(36),
@@ -660,3 +661,9 @@ INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, cu
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('e7837301-3891-4d0f-8b86-6f0a95d5a30b', 'db99ab43-04d7-44ab-89ec-e09d7bbdc39d', 0, 'd27fd07e-d3ed-4767-96a5-44a2251c6d0a', 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='db99ab43-04d7-44ab-89ec-e09d7bbdc39d' WHERE microServiceChainLink='eb52299b-9ae6-4a1f-831e-c7eee0de829f';
 -- /Issue 5356 Transfer metadata
+
+-- Issue 6539 Extract package chain naming
+-- Rename "extract"/"do not extract" to "yes"/"no"
+UPDATE MicroServiceChains SET description='Yes' WHERE pk='01d80b27-4ad1-4bd1-8f8d-f819f18bf685';
+UPDATE MicroServiceChains SET description='No' WHERE pk='79f1f5af-7694-48a4-b645-e42790bbf870';
+-- /Issue 6539 Extract package chain naming
