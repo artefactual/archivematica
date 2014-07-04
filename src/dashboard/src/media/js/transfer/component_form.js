@@ -58,6 +58,7 @@ var TransferComponentFormView = Backbone.View.extend({
     this.form_layout_template = _.template(options.form_layout_template);
     this.modal_template = options.modal_template;
     this.sourceDirectories = options.sourceDirectories;
+    this.transfer_type = 'standard';
   },
 
   showSelector: function(sourceDir) {
@@ -71,13 +72,15 @@ var TransferComponentFormView = Backbone.View.extend({
       });
 
     // add directory selector
+    // Zipped bags should display archives, so set foldersOnly to false
     var locationUUID = $('#path_source_select').children(':selected').val();
     createDirectoryPicker(
       locationUUID,
       sourceDir,
       'transfer-component-select-modal',
       'path_container',
-      'transfer-component-path-item'
+      'transfer-component-path-item',
+      this.transfer_type != 'zipped bag'
     );
   },
 
@@ -192,9 +195,10 @@ var TransferComponentFormView = Backbone.View.extend({
     // add logic to determine whether or not transfer name needs to be
     // visible if transfer type changed
     $('#transfer-type').change(function() {
+      self.transfer_type = $(this).val();
       if ($(this).val() == 'zipped bag') {
         $('#transfer-name-container').hide('slide', {direction: 'left'}, 250);
-      } else if($(this).is(':hidden')) {
+      } else if($('#transfer-name-container').is(':hidden')) {
         $('#transfer-name-container').show('slide', {direction: 'left'}, 250);
       }
 

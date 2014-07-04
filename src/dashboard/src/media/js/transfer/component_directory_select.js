@@ -21,7 +21,7 @@ var components;
 var transferMetadataSetRowUUID;
 var transferDirectoryPickerPathCounter = 1;
 
-function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCssId, pathTemplateCssId) {
+function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCssId, pathTemplateCssId, foldersOnly) {
   var selector = new DirectoryPickerView({
     ajaxChildDataUrl: '/filesystem/children/location/' + locationUUID + '/',
     el: $('#explorer'),
@@ -37,19 +37,21 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
 
   selector.pathTemplateRender = _.template($('#' + pathTemplateCssId).html());
 
-  selector.options.entryDisplayFilter = function(entry) {
-    // if a file and not an archive file, then hide
-    var name = Base64.decode(entry.attributes.name);
-    if (
-      entry.children === undefined &&
-      name.indexOf('.zip') == -1 &&
-      name.indexOf('.tgz') == -1 &&
-      name.indexOf('.tar.gz') == -1
-    ) {
-        return false;
-    }
-    return true;
-  };
+  if (!foldersOnly) {
+    selector.options.entryDisplayFilter = function(entry) {
+      // if a file and not an archive file, then hide
+      var name = Base64.decode(entry.attributes.name);
+      if (
+        entry.children === undefined &&
+        name.indexOf('.zip') == -1 &&
+        name.indexOf('.tgz') == -1 &&
+        name.indexOf('.tar.gz') == -1
+      ) {
+          return false;
+      }
+      return true;
+    };
+  }
 
   selector.options.actionHandlers = [{
     name: 'Select',
