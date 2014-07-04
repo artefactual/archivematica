@@ -19,18 +19,17 @@
 # @package Archivematica
 # @subpackage archivematicaClient
 import os
-import re
 import sys
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
-from archivematicaFunctions import escapeForCommand
 
-# TODO is this needed?  Django models used, but not defined/queried here
 path = '/usr/share/archivematica/dashboard'
 if path not in sys.path:
     sys.path.append(path)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+from django.db.models import F
+
 
 def toStrFromUnicode(inputString, encoding='utf-8'):
     """Converts to str, if it's unicode input type."""
@@ -129,10 +128,12 @@ class CommandLinker(object):
 
         Returns 0 on success, non-0 on failure. """
         # Track success/failure rates of FP Rules
-        self.fprule.count_attempts += 1
+        # Use Django's F() to prevent race condition updating the counts
+        self.fprule.count_attempts = F('count_attempts') + 1
         ret = self.commandObject.execute()
         if ret:
-            self.fprule.count_not_okay += 1
+            self.fprule.count_not_okay = F('count_not_okay') + 1
         else:
-            self.fprule.count_okay += 1
+            self.fprule.count_okay = F('count_okay') + 1
+        self.fprule.save()
         return ret
