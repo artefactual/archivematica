@@ -21,48 +21,51 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
-#source /etc/archivematica/archivematicaConfig.conf
 import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoEvents
-from archivematicaFunctions import escapeForCommand
-
-clamscanResultShouldBe="Infected files: 0"
 
 if __name__ == '__main__':
     fileUUID = sys.argv[1]
-    target =  sys.argv[2]
+    target = sys.argv[2]
     date = sys.argv[3]
     taskUUID = sys.argv[4]
 
+    command = ['clamdscan', '-']
+    print 'Clamscan command:', ' '.join(command), '<', target
     with open(target) as file_:
-        command = ['clamdscan', '-']
-        print >> sys.stdout, ' '.join(command), '<', target
-        commandVersion = "clamdscan -V"
-        eventOutcome = "Pass"
+        scan_rc, scan_stdout, scan_stderr = executeOrRun("command", command, printing=False, stdIn=file_)
+    commandVersion = "clamdscan -V"
+    print 'Clamscan version command:', commandVersion
+    version_rc, version_stdout, version_stderr = executeOrRun("command", commandVersion, printing=False)
 
-        clamscanOutput = executeOrRun("command", command, printing=False, stdIn=file_)
-        clamscanVersionOutput = executeOrRun("command", commandVersion, printing=False)
-
-    if clamscanOutput[0] or clamscanVersionOutput[0]:
-        if clamscanVersionOutput[0]:
-            print >>sys.stderr, clamscanVersionOutput
-            exit(2)
+    eventOutcome = "Pass"
+    if scan_rc or version_rc:  # Either command returned non-0 RC
+        if version_rc:
+            print >>sys.stderr, 'Error determining version, aborting'
+            print >>sys.stderr, 'Version RC:', version_rc
+            print >>sys.stderr, 'Version Standard output:', version_stdout
+            print >>sys.stderr, 'Version Standard error:', version_stderr
+            sys.exit(2)
         else:
             eventOutcome = "Fail"
 
-    if eventOutcome == "Fail" or clamscanOutput[1].find(clamscanResultShouldBe) == -1:
+    clamscanResultShouldBe = "Infected files: 0"
+    if eventOutcome == "Fail" or scan_stdout.find(clamscanResultShouldBe) == -1:
         eventOutcome = "Fail"
-        print >>sys.stderr, fileUUID, " - ", os.path.basename(target)
-        print >>sys.stderr, clamscanOutput
+        print >>sys.stderr, 'Scan failed for file', fileUUID, " - ", os.path.basename(target)
+        print >>sys.stderr, 'Clamscan RC:', scan_rc
+        print >>sys.stderr, 'Clamscan Standard output:', scan_stdout
+        print >>sys.stderr, 'Clamscan Standard error:', scan_stderr
 
-    version, virusDefs, virusDefsDate = clamscanVersionOutput[1].split("/")
+    version, virusDefs, virusDefsDate = version_stdout.split("/")
     virusDefs = virusDefs + "/" + virusDefsDate
-    eventDetailText = "program=\"Clam AV\"; version=\"" + version + "\"; virusDefinitions=\"" + virusDefs + "\""
+    eventDetailText = 'program="Clam AV"; version="' + version + '"; virusDefinitions="' + virusDefs + '"'
 
+    print 'Event outcome:', eventOutcome
     if fileUUID != "None":
         insertIntoEvents(fileUUID=fileUUID, eventIdentifierUUID=taskUUID, eventType="virus check", eventDateTime=date, eventDetail=eventDetailText, eventOutcome=eventOutcome, eventOutcomeDetailNote="")
     if eventOutcome != "Pass":
-        exit(3)
+        sys.exit(3)
