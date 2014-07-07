@@ -554,7 +554,6 @@ INSERT INTO MicroServiceChainChoice (pk, choiceAvailableAtLink, chainAvailable) 
 INSERT INTO MicroServiceChainChoice (pk, choiceAvailableAtLink, chainAvailable) VALUES ('63f0e429-1435-48e2-8eb0-dcb68e507168', @treeChoiceMSCL, @noTreeChain);
 -- /Issue 6566 Tree
 
-<<<<<<< HEAD
 -- Issue 5356 Transfer metadata
 ALTER TABLE Transfers
 	ADD COLUMN transferMetadataSetRowUUID VARCHAR(36),
