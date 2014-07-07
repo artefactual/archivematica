@@ -666,3 +666,13 @@ UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='db99ab43-0
 UPDATE MicroServiceChains SET description='Yes' WHERE pk='01d80b27-4ad1-4bd1-8f8d-f819f18bf685';
 UPDATE MicroServiceChains SET description='No' WHERE pk='79f1f5af-7694-48a4-b645-e42790bbf870';
 -- /Issue 6539 Extract package chain naming
+
+-- Issue 6350 Extract package prompt
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('93039c6d-5ef7-4a95-bf07-5f89c8886808', 0, 'hasPackages_v0.0', '%SIPUUID%');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('d9ce0690-a8f9-40dc-a8b5-b021f578f8ff', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '93039c6d-5ef7-4a95-bf07-5f89c8886808', 'Determine if transfer contains packages');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('b944ec7f-7f99-491f-986d-58914c9bb4fa', 'Extract packages', 'Failed', 'd9ce0690-a8f9-40dc-a8b5-b021f578f8ff', NULL);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('4ba2d89a-d741-4868-98a7-6202d0c57163', 'b944ec7f-7f99-491f-986d-58914c9bb4fa', 0, 'dec97e3c-5598-4b99-b26e-f87a435a6b7f', 'Completed successfully');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('2b3f01ca-7101-4801-96a9-ede85dba319c', 'b944ec7f-7f99-491f-986d-58914c9bb4fa', 1, '303a65f6-a16f-4a06-807b-cb3425a30201', 'Completed successfully');
+
+UPDATE MicroServiceChains SET startingLink='b944ec7f-7f99-491f-986d-58914c9bb4fa' WHERE pk='c868840c-cf0b-49db-a684-af4248702954';
+-- /Issue 6350 Extract package prompt

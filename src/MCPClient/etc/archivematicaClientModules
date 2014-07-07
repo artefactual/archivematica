@@ -77,6 +77,7 @@ identifyDspaceMETSFiles_v0.0 = %clientScriptsDirectory%identifyDspaceMETSFiles.p
 identifyDspaceFiles_v0.0 = %clientScriptsDirectory%identifyDspaceFiles.py
 identifyFileFormat_v0.0 = %clientScriptsDirectory%identifyFileFormat.py
 isMaildirAIP_v0.0 = %clientScriptsDirectory%isMaildirAIP.py
+hasPackages_v0.0 = %clientScriptsDirectory%hasPackages.py
 indexAIP_v0.0 = %clientScriptsDirectory%indexAIP.py
 jsonMetadataToCSV_v0.0 = %clientScriptsDirectory%jsonMetadataToCSV.py
 loadDublinCore_v0.0 = %clientScriptsDirectory%loadDublinCore.py
