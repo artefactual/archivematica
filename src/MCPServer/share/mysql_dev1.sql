@@ -676,3 +676,20 @@ INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode
 
 UPDATE MicroServiceChains SET startingLink='b944ec7f-7f99-491f-986d-58914c9bb4fa' WHERE pk='c868840c-cf0b-49db-a684-af4248702954';
 -- /Issue 6350 Extract package prompt
+
+-- Issue #6347 extracted files not virus scanned
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES ('51bce222-4157-427c-aca9-a670083db223', 1, 'archivematicaClamscan_v0.0', '"%fileUUID%" "%relativeLocation%" "%date%" "%taskUUID%"', 'objects/');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('5370a0cb-da97-4983-868a-1376d7737af5', 'a6b1c323-7d36-428e-846a-e7e819423577', '51bce222-4157-427c-aca9-a670083db223', 'Scan for viruses on extracted files');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('7d33f228-0fa8-4f4c-a66b-24f8e264c214', 'Extract packages', 'Failed', '5370a0cb-da97-4983-868a-1376d7737af5', @MoveTransferToFailedLink);
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('73028cdb-b35d-4490-a89c-d0fe35c68054', '7d33f228-0fa8-4f4c-a66b-24f8e264c214', 0, 'aaa929e4-5c35-447e-816a-033a66b9b90b', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='7d33f228-0fa8-4f4c-a66b-24f8e264c214' WHERE microServiceChainLink='bdce640d-6e94-49fe-9300-3192a7e5edac';
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='7d33f228-0fa8-4f4c-a66b-24f8e264c214' WHERE pk='bdce640d-6e94-49fe-9300-3192a7e5edac';
+-- Remove hanging unused scan for viruses
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink='f92dabe5-9dd5-495e-a996-f8eb9ef90f48';
+DELETE FROM MicroServiceChainLinks WHERE pk='f92dabe5-9dd5-495e-a996-f8eb9ef90f48';
+-- Fix microserviceGroup
+UPDATE MicroServiceChainLinks SET microserviceGroup='Scan for viruses' WHERE pk='d7e6404a-a186-4806-a130-7e6d27179a15';
+-- Update to fail if virus scan to fail transfer/SIP if MSCL fails
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@MoveTransferToFailedLink WHERE pk IN ('21d6d597-b876-4b3f-ab85-f97356f10507', '1c2550f1-3fc0-45d8-8bc4-4c06d720283b');
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@MoveSIPToFailedLink WHERE pk IN ('1ba589db-88d1-48cf-bb1a-a5f9d2b17378', '8bc92801-4308-4e3b-885b-1a89fdcd3014');
+-- /Issue #6347 extracted files not virus scanned

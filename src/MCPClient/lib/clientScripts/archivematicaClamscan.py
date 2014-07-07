@@ -26,12 +26,20 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoEvents
+import databaseInterface
 
 if __name__ == '__main__':
     fileUUID = sys.argv[1]
     target = sys.argv[2]
     date = sys.argv[3]
     taskUUID = sys.argv[4]
+
+    # Check if scan event already exists for this file - if so abort early
+    sql = """SELECT COUNT(*) FROM Events WHERE fileUUID ='%s' AND eventType='virus check';""" % (fileUUID)
+    count = databaseInterface.queryAllSQL(sql)[0][0]
+    if count >= 1:
+        print 'Virus scan already performed, not running scan again'
+        sys.exit(0)
 
     command = ['clamdscan', '-']
     print 'Clamscan command:', ' '.join(command), '<', target
