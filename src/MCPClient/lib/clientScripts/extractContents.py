@@ -32,10 +32,12 @@ def tree(root):
         for file in files:
             yield os.path.join(dirpath, file)
 
-def assign_uuid(filename, package_uuid, transfer_uuid, date, task_uuid, sip_directory):
+def assign_uuid(filename, package_uuid, transfer_uuid, date, task_uuid, sip_directory, package_filename):
     file_uuid = uuid.uuid4().__str__()
     relative_path = filename.replace(sip_directory, "%transferDirectory%", 1)
-    event_detail = "Unpacked from: {" + package_uuid + "}"
+    relative_package_path = package_filename.replace(sip_directory, "%transferDirectory%", 1)
+    package_detail = "{} ({})".format(relative_package_path, package_uuid)
+    event_detail = "Unpacked from: " + package_detail
     addFileToTransfer(relative_path, file_uuid, transfer_uuid, task_uuid, date,
         sourceType="unpacking", eventDetail=event_detail)
     updateSizeAndChecksum(file_uuid, filename, date, uuid.uuid4().__str__())
@@ -114,7 +116,7 @@ def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
             # Assign UUIDs and insert them into the database, so the newly-
             # extracted files are properly tracked by Archivematica
             for extracted_file in tree(output_directory(file_path, date)):
-                assign_uuid(extracted_file, file_.uuid, transfer_uuid, date, task_uuid, sip_directory)
+                assign_uuid(extracted_file, file_.uuid, transfer_uuid, date, task_uuid, sip_directory, file_.currentlocation)
             # We may want to remove the original package file after extracting its contents
             if delete:
                 delete_and_record_package_file(file_path, file_.uuid, file_.currentlocation)
