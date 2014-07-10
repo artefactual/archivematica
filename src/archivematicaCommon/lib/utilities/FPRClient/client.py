@@ -3,7 +3,7 @@
 import os
 import sys
 
-import getFromRestAPI
+from getFromRestAPI import each_record, FPRConnectionError
 
 from annoying.functions import get_object_or_None
 
@@ -132,27 +132,24 @@ class FPRClient(object):
             (models.FPRule, 'fp-rule'),
         ]
 
-        for r in resources:
-            table, resource = r
+        for table, resource in resources:
             print 'resource:', resource
-            params = {
-                "format": "json",
-                "limit": "0"
-            }
             try:
                 table._meta.get_field_by_name('lastmodified')
             except django.db.models.fields.FieldDoesNotExist:
-                pass
+                start_at = None
             else:
-                params["order_by"] = "lastmodified",
-                params['lastmodified__gte'] = maxLastUpdateAtStart
-            # TODO handle pagination of results for FPRServer
-            #  Should handle pagination here, rather than creating big array
-            #  of entries - possibly use generator function?
-            entries = getFromRestAPI.getFromRestAPI(self.fprserver, resource, params, verbose=False, auth=None, verify=django_settings.FPR_VERIFY_CERT)
+                start_at = maxLastUpdateAtStart
+
+            kwargs = {
+                "url": self.fprserver,
+                "verify": django_settings.FPR_VERIFY_CERT
+            }
+            if start_at:
+                kwargs["start_at"] = start_at
 
             self.retry[table] = []
-            for entry in entries:
+            for entry in each_record(resource, **kwargs):
                 self.addResource(entry, table)
             print 'Retrying entries that fail because of foreign keys'
             for entry in self.retry[table]:
@@ -182,7 +179,7 @@ class FPRClient(object):
         except django.db.utils.IntegrityError as e:
             response = "Error updating FPR"
             exception = e
-        except getFromRestAPI.FPRConnectionError as e:
+        except FPRConnectionError as e:
             response = "Error connecting to FPR"
             exception = e
         except Exception as e:
