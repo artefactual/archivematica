@@ -61,10 +61,8 @@ class FPRClient(object):
             fields['format'] = fields.pop('fmt')
 
         # Only keep fields that are in the model
-        valid_fields = dict(
-            [ (k, v) for k, v in fields.iteritems()
-                if k in model._meta.get_all_field_names()
-            ])
+        valid_fields = {k: v for k, v in fields.iteritems()
+                        if k in model._meta.get_all_field_names()}
 
         # Convert foreign keys from URIs to just UUIDs
         for field, value in valid_fields.iteritems():
@@ -73,7 +71,7 @@ class FPRClient(object):
                 # ['', 'fpr', 'api', '<version>', '<resource>', '<uuid>', '']
                 uuid = value.split('/')[-2]
                 del valid_fields[field]
-                valid_fields[field+u"_id"] = uuid
+                valid_fields[field + u"_id"] = uuid
         # Insert FormatGroup for Formats if not exist
         if model == models.Format:
             if not get_object_or_None(

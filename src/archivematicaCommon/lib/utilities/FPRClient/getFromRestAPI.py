@@ -28,8 +28,10 @@ import json
 import requests
 import sys
 
+
 class FPRConnectionError(Exception):
     pass
+
 
 def getFromRestAPI(resource="", params=None, url="https://fpr.archivematica.org/fpr/api/v2/", limit=0, start_at=None, verbose=False, auth=None, verify=True):
     """
@@ -100,12 +102,13 @@ def getFromRestAPI(resource="", params=None, url="https://fpr.archivematica.org/
         print r
         print r.headers['content-type']
         print r.encoding
-    
-    ret = json.loads(r.content) 
+
+    ret = json.loads(r.content)
     if verbose:
         for x in ret["objects"]:
             print x
     return ret
+
 
 def each_record(resource, url="https://fpr.archivematica.org/fpr/api/v2/", start_at=None, verify=True, verbose=False):
     """
