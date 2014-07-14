@@ -153,8 +153,8 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-u", "--url", action="store", dest="url", default="https://fpr.archivematica.org/fpr/api/v2/")
     parser.add_option('-r', '--resource', action='store', dest='resource')
-    parser.add_option("-p", "--postFields", action="store", dest="postFields", default='{"format":"json", "order_by":"lastmodified", "lastmodified__gte":"2012-10-10T10:00:00"}')
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False)
 
     (opts, args) = parser.parse_args()
-    getFromRestAPI(opts.url, opts.resource, ast.literal_eval(opts.postFields), verbose=opts.verbose)
+    for record in each_record(opts.resource, opts.url, verbose=opts.verbose):
+        pass
