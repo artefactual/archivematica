@@ -1,6 +1,7 @@
 
 import sys
 import pytest
+import vcr
 
 import client
 import getFromRestAPI
@@ -89,6 +90,7 @@ def idcommands():
     }
 
 
+@vcr.use_cassette("fixtures/vcr_cassettes/get_from_rest_api_id-commands.yaml")
 def test_can_get_info_from_fprserver():
     """ Confirm the configured fprserver is accessible, and returns info. """
     params = {
@@ -97,6 +99,12 @@ def test_can_get_info_from_fprserver():
     }
     entries = getFromRestAPI._get_from_rest_api(url=FPRSERVER, resource='id-command', params=params, verbose=False, auth=None, verify=False)
     assert len(entries) == 2
+
+
+@vcr.use_cassette("fixtures/vcr_cassettes/each_record_id-commands.yaml")
+def test_can_fetch_records():
+    records = list(getFromRestAPI.each_record("id-command", url=FPRSERVER))
+    assert len(records) == 2
 
 
 @pytest.mark.django_db

@@ -1,0 +1,44 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      User-Agent: [python-requests/2.3.0 CPython/2.7.3 Linux/3.2.0-65-generic]
+    method: GET
+    uri: http://localhost:9000/fpr/api/v2/id-command?limit=100&format=json
+  response:
+    body: {string: !!python/unicode ''}
+    headers:
+      content-type: [text/html; charset=utf-8]
+      date: ['Mon, 14 Jul 2014 19:26:55 GMT']
+      location: ['http://localhost:9000/fpr/api/v2/id-command/?limit=100&format=json']
+      server: [WSGIServer/0.1 Python/2.7.3]
+    status: {code: 301, message: MOVED PERMANENTLY}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      User-Agent: [python-requests/2.3.0 CPython/2.7.3 Linux/3.2.0-65-generic]
+    method: GET
+    uri: http://localhost:9000/fpr/api/v2/id-command/?limit=100&format=json
+  response:
+    body: {string: !!python/unicode '{"meta": {"limit": 100, "next": null, "offset":
+        0, "previous": null, "total_count": 2}, "objects": [{"config": "PUID", "description":
+        "test_command_1", "enabled": true, "lastmodified": "2014-07-14T15:17:15",
+        "replaces": null, "resource_uri": "/fpr/api/v2/id-command/f0f29dbc-2926-4323-bdae-a4fdd8af73e4/",
+        "script": "false", "script_type": "pythonScript", "tool": "/fpr/api/v2/id-tool/7142f1f6-04bc-48e6-9509-8d8e94b29c96/",
+        "uuid": "f0f29dbc-2926-4323-bdae-a4fdd8af73e4"}, {"config": "MIME", "description":
+        "test_command_2", "enabled": true, "lastmodified": "2014-07-14T15:21:15",
+        "replaces": null, "resource_uri": "/fpr/api/v2/id-command/7c5b5199-5f4b-4556-85c0-cbefb9d9f494/",
+        "script": "false", "script_type": "command", "tool": "/fpr/api/v2/id-tool/7142f1f6-04bc-48e6-9509-8d8e94b29c96/",
+        "uuid": "7c5b5199-5f4b-4556-85c0-cbefb9d9f494"}]}'}
+    headers:
+      cache-control: [no-cache]
+      content-type: [application/json]
+      date: ['Mon, 14 Jul 2014 19:26:55 GMT']
+      server: [WSGIServer/0.1 Python/2.7.3]
+      vary: ['Accept, Cookie']
+    status: {code: 200, message: OK}
+version: 1
