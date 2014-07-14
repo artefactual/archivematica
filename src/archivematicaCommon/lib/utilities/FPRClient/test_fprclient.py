@@ -98,7 +98,7 @@ def test_can_get_info_from_fprserver(fprserver):
         "format": "json",
         "limit": "0"
     }
-    entries = getFromRestAPI.getFromRestAPI(fprserver, 'format-version', params, verbose=False, auth=None, verify=False)
+    entries = getFromRestAPI._get_from_rest_api(fprserver, 'format-version', params, verbose=False, auth=None, verify=False)
     assert len(entries) > 0
 
 

@@ -33,7 +33,7 @@ class FPRConnectionError(Exception):
     pass
 
 
-def getFromRestAPI(resource="", params=None, url="https://fpr.archivematica.org/fpr/api/v2/", limit=0, start_at=None, verbose=False, auth=None, verify=True):
+def _get_from_rest_api(resource="", params=None, url="https://fpr.archivematica.org/fpr/api/v2/", limit=0, start_at=None, verbose=False, auth=None, verify=True):
     """
     Fetch a response from the FPR REST API.
 
@@ -135,16 +135,16 @@ def each_record(resource, url="https://fpr.archivematica.org/fpr/api/v2/", start
     url = urlparse.urlparse(url)
     base_url = "{}://{}".format(url.scheme, url.netloc)
 
-    response = getFromRestAPI(resource, url=url.geturl(),
-                              start_at=start_at, limit=100,
-                              verify=verify, verbose=verbose)
+    response = _get_from_rest_api(resource, url=url.geturl(),
+                                  start_at=start_at, limit=100,
+                                  verify=verify, verbose=verbose)
 
     for object in response["objects"]:
         yield object
 
     while response["meta"]["next"]:
         next = urlparse.urljoin(base_url, response["meta"]["next"])
-        response = getFromRestAPI(url=next, verify=verify)
+        response = _get_from_rest_api(url=next, verify=verify)
 
         for object in response["objects"]:
             yield object
