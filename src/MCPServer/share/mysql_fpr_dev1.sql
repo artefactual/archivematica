@@ -2220,3 +2220,29 @@ INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `pur
 INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-07-11 23:29:18', '7f6f083f-0c78-4698-8458-d0d7f18a2450', 'characterization', '114c9525-d676-4fac-9962-4672faa924bb', '70274690-dffc-4052-848b-949c6321422f', 0, 0, 0);
 INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-07-11 23:29:18', 'd632f6f0-f07b-4d98-9da2-36398051ff21', 'characterization', '114c9525-d676-4fac-9962-4672faa924bb', '20723c2f-9af9-4228-934f-5856392d0179', 0, 0, 0);
 -- /Issue 6977 FPR formats
+
+-- Issue 5892 - Disk image formats
+-- Note that most of these have no ID rules for file extension IDing,
+-- because they don't have unique file extensions.
+
+-- New Disk Image format group
+INSERT INTO `fpr_formatgroup` (`uuid`, `description`, `slug`) VALUES ('84362779-5e64-442d-9394-1d42ea961240', 'Disk Image', 'disk-image');
+
+-- KryoFlux
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('e9026a4c-0cd7-4775-90a9-e26d151a9795', 'KryoFlux STREAM', '84362779-5e64-442d-9394-1d42ea961240', 'kryoflux-stream');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-14 22:56:28', '0c38b64b-23fc-4058-aba5-fae4105041ab', 'e9026a4c-0cd7-4775-90a9-e26d151a9795', NULL, 'archivematica-fmt/1', 'KryoFlux STREAM Image', 0, 0, 'kryoflux-stream-image');
+
+-- AccessData AD1
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('865e0538-959b-4297-b353-4e894331b27e', 'AccessData AD1', '84362779-5e64-442d-9394-1d42ea961240', 'accessdata-ad1');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-14 22:59:30', 'd0918331-b596-41ac-87ad-6dbd97f8fe4a', '865e0538-959b-4297-b353-4e894331b27e', NULL, 'archivematica-fmt/2', 'AccessData AD1 Disk Image', 0, 0, 'accessdata-ad1-disk-image');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-14 23:00:02', '238ccd5f-9280-44a1-ba42-90470c6e2f2f', '865e0538-959b-4297-b353-4e894331b27e', NULL, 'archivematica-fmt/3', 'AccessData AD1 Encrypted Disk Image', 0, 0, 'accessdata-ad1-encrypted-disk-image');
+
+-- Raw disk image
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('9c0daf15-2d03-4537-9493-76eec2a657ff', 'Raw Disk Image', '84362779-5e64-442d-9394-1d42ea961240', 'raw-disk-image');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-14 23:00:45', '561ce423-d028-46d5-87c3-878d631113df', '9c0daf15-2d03-4537-9493-76eec2a657ff', NULL, 'archivematica-fmt/4', 'Raw Disk Image', 0, 0, 'raw-disk-image');
+
+-- AFF
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('dcbba7c2-ead6-4473-a452-e70fcfd06750', 'Advanced Forensic Format', '84362779-5e64-442d-9394-1d42ea961240', 'advanced-forensic-format');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-14 23:02:15', '9f8bda35-f4f0-4dff-a65d-57fd7544d7c4', 'dcbba7c2-ead6-4473-a452-e70fcfd06750', 'AFFv3', 'archivematica-fmt/5', 'Advanced Forensic Format', 0, 0, 'advanced-forensic-format');
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2014-07-14 23:05:47', 'ed2f9a84-de7d-430d-b49f-086bdfbc2e91', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '9f8bda35-f4f0-4dff-a65d-57fd7544d7c4', '.aff');
+-- /Issue 5892 Disk image formats
