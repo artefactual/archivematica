@@ -11,16 +11,13 @@ import main.models
 
 # WARNING Rules must be refetched from the DB to get updated values
 
-@pytest.fixture
-def fprserver():
-    """ URL of the testing FPR server. """
-    return 'http://localhost:9000/fpr/api/v2/'
+FPRSERVER = 'http://localhost:9000/fpr/api/v2/'
 
 
 @pytest.fixture
-def fprclient(fprserver):
+def fprclient():
     """ FPRClient object, newly created for testing. """
-    fpr_client = client.FPRClient(fprserver=fprserver)
+    fpr_client = client.FPRClient(fprserver=FPRSERVER)
     assert fpr_client
     return fpr_client
 
@@ -92,14 +89,14 @@ def idcommands():
     }
 
 
-def test_can_get_info_from_fprserver(fprserver):
+def test_can_get_info_from_fprserver():
     """ Confirm the configured fprserver is accessible, and returns info. """
     params = {
         "format": "json",
         "limit": "0"
     }
-    entries = getFromRestAPI._get_from_rest_api(fprserver, 'format-version', params, verbose=False, auth=None, verify=False)
-    assert len(entries) > 0
+    entries = getFromRestAPI._get_from_rest_api(url=FPRSERVER, resource='id-command', params=params, verbose=False, auth=None, verify=False)
+    assert len(entries) == 2
 
 
 @pytest.mark.django_db
