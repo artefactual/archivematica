@@ -27,59 +27,7 @@
 
         <h3>AtoM DIP upload</h3>
 
-        <p>The arguments below are passed to a Python script called upload-qubit.py. Please note that some arguments are mandatory:</p>
-
-        <table class="bordered-table">
-          <thead>
-            <tr>
-              <th>Option</th>
-              <th>Type</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="option"><code>--url</code></td>
-              <td><span class="label important">Required</span></td>
-              <td>URL where the Qubit index.php frontend lives, SWORD services path will be appended.</td>
-            </tr>
-            <tr>
-              <td class="option"><code>--email</code></td>
-              <td><span class="label important">Required</span></td>
-              <td>E-mail account used to log into Qubit.</td>
-            </tr>
-            <tr>
-              <td class="option"><code>--password</code></td>
-              <td><span class="label important">Required</span></td>
-              <td>Password linked to your e-mail account.</td>
-            </tr>
-            <tr>
-              <td class="option"><code>--uuid</code></td>
-              <td><span class="label important">Required</span></td>
-              <td>Use this wildcard: <code>%SIPUUID%</code>. Archivematica will do the rest for you.</td>
-            </tr>
-            <tr>
-              <td class="option"><code>--rsync-target</code></td>
-              <td><span class="label">Optional</span></td>
-              <td>The DIP can be sent with Rsync to a remote host before is deposited in Qubit. This is the destination value passed to Rsync (see <code>man 1 rsync</code>). For example: <code>foobar.com:~/dips/</code>.</td>
-            </tr>
-            <tr>
-              <td class="option"><code>--rsync-command</code></td>
-              <td><span class="label">Optional</span></td>
-              <td>If --rsync-target is used, you can use this argument to specify the remote shell manually. For example: <code>ssh -p 22222 -l user</code>.</td>
-            </tr>
-            <tr>
-              <td class="option"><code>--version</code></td>
-              <td><span class="label">Optional</span></td>
-              <td>Use <code>--version=2</code> if you are using AtoM 2.</td>
-            </tr>
-            <tr>
-              <td class="option"><code>--debug</code></td>
-              <td><span class="label">Optional</span></td>
-              <td>Show additional details.</td>
-            </tr>
-          </tbody>
-        </table>
+        <p>The settings below configure DIP uploading to Atom.</p>
 
         {% include "_form.html" %}
 

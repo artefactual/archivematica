@@ -23,20 +23,6 @@ from main import models
 from django.conf import settings
 from components.administration.models import ArchivistsToolkitConfig, ArchivesSpaceConfig
 
-class AtomSettingsForm(forms.ModelForm):
-    class Meta:
-        model = models.StandardTaskConfig
-        fields = ('arguments',)
-
-    def __init__(self, *args, **kwargs):
-        super(AtomSettingsForm, self).__init__(*args, **kwargs)
-        # Should add this to Meta: widgets but unsure how to modify 'class' in place
-        arguments_attrs = settings.TEXTAREA_ATTRS
-        arguments_attrs['class'] += ' command'
-        self.fields['arguments'].widget.attrs = arguments_attrs
-        # TODO in Django 1.6 move this to Meta: help_texts
-        self.fields['arguments'].help_text = "Note that a backslash is necessary for each new line."
-
 class AgentForm(forms.ModelForm):
     identifiervalue = forms.CharField(required=True, widget=TextInput(attrs=settings.INPUT_ATTRS))
     name = forms.CharField(required=True, widget=TextInput(attrs=settings.INPUT_ATTRS))
@@ -117,6 +103,29 @@ class ArchivesSpaceConfigForm(ModelForm):
 
     class Meta:
         model = ArchivesSpaceConfig
+
+class AtomDipUploadSettingsForm(SettingsForm):
+    dip_upload_atom_url = forms.CharField(required=True,
+        label="Upload URL",
+        help_text="URL where the Qubit index.php frontend lives, SWORD services path will be appended.")
+    dip_upload_atom_email = forms.CharField(required=True,
+        label="Login email",
+        help_text="E-mail account used to log into Qubit.")
+    dip_upload_atom_password = forms.CharField(required=True,
+        label="Login password",
+        help_text="E-mail account used to log into Qubit.")
+    dip_upload_atom_version = forms.ChoiceField(label="AtoM version",
+        choices=((1, 'Atom 1.x'), (2, 'Atom 2.x')))
+    dip_upload_atom_rsync_target = forms.CharField(required=False,
+        label="Rsync target",
+        help_text="The DIP can be sent with Rsync to a remote host before is deposited in Qubit. This is the destination value passed to Rsync (see man 1 rsync). For example: foobar.com:~/dips/.")
+    dip_upload_atom_rsync_command = forms.CharField(required=False,
+        label="Rsync command",
+        help_text="If --rsync-target is used, you can use this argument to specify the remote shell manually. For example: ssh -p 22222 -l user.")
+    dip_upload_atom_debug = forms.ChoiceField(required=False,
+        label="Debug mode",
+        help_text="Show additional details.",
+        choices=((False, 'No'), (True, 'Yes')))
 
 class TaxonomyTermForm(ModelForm):
     class Meta:

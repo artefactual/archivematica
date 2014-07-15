@@ -32,7 +32,7 @@ from django.shortcuts import redirect, render
 from main import forms
 from main import models
 import components.administration.views_processing as processing_views
-from components.administration.forms import AtomSettingsForm
+from components.administration.forms import AtomDipUploadSettingsForm
 from components.administration.forms import AgentForm
 from components.administration.forms import ArchivesSpaceConfigForm
 from components.administration.forms import ArchivistsToolkitConfigForm
@@ -88,8 +88,9 @@ def failure_report_detail(request):
     return render(request, 'administration/reports/failure_report_detail.html', locals())
 
 def atom_dips(request):
-    upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
-    form = AtomSettingsForm(request.POST or None, instance=upload_setting)
+    initial_data = _intial_settings_data()
+    form = AtomDipUploadSettingsForm(request.POST or None, prefix='storage',
+        initial=initial_data)
     if form.is_valid():
         form.save()
         messages.info(request, 'Saved.')
@@ -444,6 +445,10 @@ def term_delete(request, term_uuid):
         term.delete()
         return HttpResponseRedirect(reverse('components.administration.views.terms', args=[term.taxonomy_id]))
 
+def _intial_settings_data():
+    return dict(models.DashboardSetting.objects.all().values_list(
+        'name', 'value'))
+
 def general(request):
     toggleableSettings = {
         'dashboard_administration_atom_dip_enabled':
@@ -451,8 +456,7 @@ def general(request):
         'dashboard_administration_dspace_enabled':
             'Hide DSpace transfer type',
     }
-    initial_data = dict(models.DashboardSetting.objects.all().values_list(
-        'name', 'value'))
+    initial_data = _intial_settings_data()
     interface_form = SettingsForm(request.POST or None, prefix='interface',
         reverse_checkboxes=toggleableSettings)
     storage_form = StorageSettingsForm(request.POST or None, prefix='storage',
