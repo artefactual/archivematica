@@ -92,6 +92,26 @@ def atom_dips(request):
     form = AtomDipUploadSettingsForm(request.POST or None, prefix='storage',
         initial=initial_data)
     if form.is_valid():
+        # Produce a set of commandline arguments for the AtoM upload job
+        upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
+        opts = []
+        char_fields = ['dip_upload_atom_url', 'dip_upload_atom_email',
+                       'dip_upload_atom_password', 'dip_upload_atom_rsync_target',
+                       'dip_upload_atom_rsync_command', 'dip_upload_atom_version']
+        for field in char_fields:
+            value = form.cleaned_data.get(field)
+            if not value:
+                continue
+            optname = field.replace('dip_upload_atom_', '').replace('_', '-')
+            opts.append('--{}="{}"'.format(optname, value))
+        if form.cleaned_data['dip_upload_atom_debug'] == 'True':
+            opts.append('--debug')
+        # Add file UUID
+        opts.append('--uuid="%SIPUUID%"')
+        arguments = ' '.join(opts)
+        upload_setting.arguments = arguments
+        upload_setting.save()
+
         form.save()
         messages.info(request, 'Saved.')
 
