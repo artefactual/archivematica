@@ -328,7 +328,7 @@ DELETE FROM MicroServiceChainLinks WHERE pk IN (@d0, @d1, @d2, @d3, @d4, @d6, @d
 SET @examineContentsMSCL = '100a75f4-9d2a-41bf-8dd0-aec811ae1077' COLLATE utf8_unicode_ci;
 INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES ('3a17cc3f-eabc-4b58-90e8-1df2a96cf182', 0, 'examineContents_v0.0', '"%relativeLocation%" "%SIPDirectory%" "%fileUUID%"', 'objects');
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('869c4c44-6e7d-4473-934d-80c7b95a8310', 'a6b1c323-7d36-428e-846a-e7e819423577', '3a17cc3f-eabc-4b58-90e8-1df2a96cf182', 'Examine contents');
-INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@examineContentsMSCL, 'Characterize and extract metadata', 'Failed', '869c4c44-6e7d-4473-934d-80c7b95a8310', '1b1a4565-b501-407b-b40f-2f20889423f1');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@examineContentsMSCL, 'Examine contents', 'Failed', '869c4c44-6e7d-4473-934d-80c7b95a8310', '1b1a4565-b501-407b-b40f-2f20889423f1');
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('87dcd08a-7688-425a-ae5f-2f623feb078a', @examineContentsMSCL, 0, '1b1a4565-b501-407b-b40f-2f20889423f1', 'Completed successfully');
 -- Characterize and extract (normal)
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@examineContentsMSCL WHERE microServiceChainLink='303a65f6-a16f-4a06-807b-cb3425a30201';
