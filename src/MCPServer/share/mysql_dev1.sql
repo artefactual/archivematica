@@ -529,15 +529,15 @@ SET @treeChoiceWatchTC = '48416179-7ae4-47cc-a0aa-f9847da08c63' COLLATE utf8_uni
 SET @treeChoiceWatchSTC = '760a9654-de3e-4ea7-bb76-eeff06acdf95' COLLATE utf8_unicode_ci;
 INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES (@treeChoiceWatchSTC, 0, 'moveTransfer_v0.0', '"%SIPDirectory%" "%sharedPath%watchedDirectories/workFlowDecisions/createTree/." "%SIPUUID%" "%sharedPath%"');
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@treeChoiceWatchTC, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @treechoiceWatchSTC, 'Move to generate transfer tree');
-INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@treeChoiceWatchMSCL, 'Generate transfer structure diagram', 'Failed', @treeChoiceWatchTC, @MoveTransferToFailedLink);
+INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@treeChoiceWatchMSCL, 'Generate transfer structure report', 'Failed', @treeChoiceWatchTC, @MoveTransferToFailedLink);
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('d312ae33-3555-472e-803c-ef8076cb789b', @treeChoiceWatchMSCL, 0, NULL, 'Completed successfully');
 
 SET @treeChoiceMSCL = '56eebd45-5600-4768-a8c2-ec0114555a3d' COLLATE utf8_unicode_ci;
 SET @treeChoiceTC = 'f1ebd62a-fbf3-4790-88e8-4a3abec4ba00' COLLATE utf8_unicode_ci;
-INSERT INTO TasksConfigs (pk, taskType, description) VALUES (@treeChoiceTC, '61fb3874-8ef6-49d3-8a2d-3cb66e86a30c', 'Generate transfer structure diagram');
-INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, defaultExitMessage, currentTask) VALUES (@treeChoiceMSCL, 'Generate transfer structure diagram', 'Failed', @treeChoiceTC);
+INSERT INTO TasksConfigs (pk, taskType, description) VALUES (@treeChoiceTC, '61fb3874-8ef6-49d3-8a2d-3cb66e86a30c', 'Generate transfer structure report');
+INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, defaultExitMessage, currentTask) VALUES (@treeChoiceMSCL, 'Generate transfer structure report', 'Failed', @treeChoiceTC);
 
-INSERT INTO MicroServiceChains (pk, startingLink, description) VALUES (@treeChoiceChain, @treeChoiceMSCL, 'Generate transfer structure diagram');
+INSERT INTO MicroServiceChains (pk, startingLink, description) VALUES (@treeChoiceChain, @treeChoiceMSCL, 'Generate transfer structure report');
 INSERT INTO WatchedDirectories(pk, watchedDirectoryPath, chain, expectedType) VALUES ('e237217e-7b07-48f0-8129-36da0abfc97f', '%watchDirectoryPath%workFlowDecisions/createTree/', @treeChoiceChain, @watchedDirExpectTransfer);
 
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@treeChoiceWatchMSCL WHERE microServiceChainLink=@preTreeChoiceMSCL;
@@ -545,7 +545,7 @@ UPDATE MicroServiceChainLinks SET defaultNextChainLink=@treeChoiceWatchMSCL WHER
 
 INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('f1a272df-bb3f-463e-95c0-6d2062bddfb8', 0, 'createDirectoryTree_v0.0', '"%SIPObjectsDirectory%" -o "%SIPDirectory%metadata/directory_tree.txt"');
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('ede67763-2a12-4e8f-8c36-e266d3f05c6b', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', 'f1a272df-bb3f-463e-95c0-6d2062bddfb8', 'Save directory tree');
-INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@treeMSCL, 'Generate transfer structure diagram', 'Failed', 'ede67763-2a12-4e8f-8c36-e266d3f05c6b', @postTreeMSCL);
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@treeMSCL, 'Generate transfer structure report', 'Failed', 'ede67763-2a12-4e8f-8c36-e266d3f05c6b', @postTreeMSCL);
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('882486b7-034e-49b8-bc65-2f6d8946bdcd', @treeMSCL, 0, @postTreeMSCL, 'Completed successfully');
 
 INSERT INTO MicroServiceChains (pk, startingLink, description) VALUES (@treeChain, @treeMSCL, 'Yes');

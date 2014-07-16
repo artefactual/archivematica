@@ -105,10 +105,10 @@ def index(request):
         {
             "name":         "tree",
             "choice_uuid":  "56eebd45-5600-4768-a8c2-ec0114555a3d",
-            "label":        "Generate transfer tree",
-            "yes_option":   "df54fec1-dae1-4ea6-8d17-a839ee7ac4a7", # Generate transfer tree
+            "label":        "Generate transfer structure report",
+            "yes_option":   "df54fec1-dae1-4ea6-8d17-a839ee7ac4a7", # Generate transfer structure report
             "no_option":    "e9eaef1e-c2e0-4e3b-b942-bfb537162795",
-            "action":       "Generate transfer tree"
+            "action":       "Generate transfer structure report"
         },
     ]
 
