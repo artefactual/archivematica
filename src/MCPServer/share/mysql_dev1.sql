@@ -665,6 +665,9 @@ UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='db99ab43-0
 -- Rename "extract"/"do not extract" to "yes"/"no"
 UPDATE MicroServiceChains SET description='Yes' WHERE pk='01d80b27-4ad1-4bd1-8f8d-f819f18bf685';
 UPDATE MicroServiceChains SET description='No' WHERE pk='79f1f5af-7694-48a4-b645-e42790bbf870';
+-- Rename "delete"/"do not delete" to "yes"/"no"
+UPDATE MicroServiceChoiceReplacementDic SET description='Yes' WHERE pk='85b1e45d-8f98-4cae-8336-72f40e12cbef';
+UPDATE MicroServiceChoiceReplacementDic SET description='No' WHERE pk='72e8443e-a8eb-49a8-ba5f-76d52f960bde';
 -- /Issue 6539 Extract package chain naming
 
 -- Issue 6350 Extract package prompt
