@@ -696,3 +696,9 @@ UPDATE MicroServiceChainLinks SET microserviceGroup='Scan for viruses' WHERE pk=
 UPDATE MicroServiceChainLinks SET defaultNextChainLink=@MoveTransferToFailedLink WHERE pk IN ('21d6d597-b876-4b3f-ab85-f97356f10507', '1c2550f1-3fc0-45d8-8bc4-4c06d720283b');
 UPDATE MicroServiceChainLinks SET defaultNextChainLink=@MoveSIPToFailedLink WHERE pk IN ('1ba589db-88d1-48cf-bb1a-a5f9d2b17378', '8bc92801-4308-4e3b-885b-1a89fdcd3014');
 -- /Issue #6347 extracted files not virus scanned
+
+-- Issue 7012 - Normalization ID failure
+-- File ID pre-normalization was incorrectly set to jump to failure instead
+-- of moving to the next link in normalization.
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='83484326-7be7-4f9f-b252-94553cd42370' WHERE pk='2dd53959-8106-457d-a385-fee57fc93aa9';
+-- /Issue 7012 - Normalization ID failure
