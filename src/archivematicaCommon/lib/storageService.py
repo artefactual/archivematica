@@ -329,3 +329,8 @@ def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
     }
 
     return api.file(uuid).delete_aip.post(api_request)
+
+
+def post_store_aip_callback(uuid):
+    api = _storage_api()
+    return api.file(uuid).send_store_callback.get()
