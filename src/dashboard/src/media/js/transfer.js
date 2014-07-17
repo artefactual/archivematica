@@ -167,7 +167,7 @@ $(function()
 
           choices = this.model.get('choices');
 
-         if (choices)
+          if (choices)
           {
             var $select = $('<select />').append('<option>Actions</option>')
               , numberOfChoices = Object.keys(choices).length
@@ -182,9 +182,7 @@ $(function()
 
             for (var code in choices)
             {
-              optionHtml = (choices[code] == 'Create SIP(s) manually')
-                ? '<option value="' + code + '" disabled="disabled" style="color: #aaa">- ' + choices[code] + '</option>'
-                : '<option value="' + code + '">- ' + choices[code] + '</option>';
+              optionHtml = '<option value="' + code + '">- ' + choices[code] + '</option>';
               $select.append(optionHtml);
             }
 

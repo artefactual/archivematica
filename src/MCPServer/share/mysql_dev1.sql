@@ -702,3 +702,9 @@ UPDATE MicroServiceChainLinks SET defaultNextChainLink=@MoveSIPToFailedLink WHER
 -- of moving to the next link in normalization.
 UPDATE MicroServiceChainLinks SET defaultNextChainLink='83484326-7be7-4f9f-b252-94553cd42370' WHERE pk='2dd53959-8106-457d-a385-fee57fc93aa9';
 -- /Issue 7012 - Normalization ID failure
+
+-- Issue 6965 - remove 'create sip manually'
+SET @manualSIPMSC = '9634868c-b183-4d65-8587-2f53f7ff5a0a' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChainChoice WHERE chainAvailable=@manualSIPMSC;
+DELETE FROM MicroServiceChains WHERE pk=@manualSIPMSC;
+-- /Issue 6965 - remove 'create sip manually'
