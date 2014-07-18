@@ -8,7 +8,7 @@ Homepage: http://archivematica.org
 
 Package: archivematica-dashboard
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, apache2-mpm-prefork, libapache2-mod-wsgi, python-pip, python-gearman, python-simplejson
+Depends: ${shlibs:Depends}, ${misc:Depends}, apache2-mpm-prefork, archivematica-common, libapache2-mod-wsgi, python-pip, python-gearman, python-simplejson
 Description: Web Dashboard for Archivematica
   Web based dashboard interface used to control an Archivematica pipeline.
   
