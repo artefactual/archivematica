@@ -61,7 +61,7 @@ mysql -u root "${dbpassword}" --execute="GRANT SELECT, UPDATE, INSERT, DELETE, C
 
 echo "Creating and populating MCP tables"
 # Set up initial DB state
-mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_1.0.sql;"
+mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_1.2.0.sql;"
 # Run Django's syncdb
 ../src/dashboard/src/manage.py syncdb --noinput --settings='settings.local'
 # Run SQL dev scripts
