@@ -88,7 +88,8 @@ def check_manual_normalization(opts):
     bname = opts.file_path.replace(objects_dir, '', 1)
     if os.path.isfile(normalization_csv):
         found = False
-        with open(normalization_csv, 'rb') as csv_file:
+        # use universal newline mode to support unusual newlines, like \r
+        with open(normalization_csv, 'rbU') as csv_file:
             reader = csv.reader(csv_file)
             # Search the file for an original filename that matches the one provided
             try:

@@ -61,7 +61,8 @@ def parseMetadata(SIPPath):
 
 
 def parseMetadtaCSV(metadataCSVFilePath):
-    with open(metadataCSVFilePath, 'rb') as f:
+    # use universal newline mode to support unusual newlines, like \r
+    with open(metadataCSVFilePath, 'rbU') as f:
         reader = csv.reader(f)
         firstRow = True
         type = ""

@@ -228,7 +228,8 @@ def findFileInNormalizatonCSV(csv_path, commandClassification, target_file):
 
     TODO handle sanitized filenames
     """
-    with open(csv_path, 'rb') as csv_file:
+    # use universal newline mode to support unusual newlines, like \r
+    with open(csv_path, 'rbU') as csv_file:
         reader = csv.reader(csv_file)
         # Search CSV for an access/preservation filename that matches target_file
 
