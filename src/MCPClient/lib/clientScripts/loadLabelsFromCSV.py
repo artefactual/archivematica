@@ -37,7 +37,8 @@ if __name__ == '__main__':
         print "No such file:", fileLabels
         exit(0)
     
-    with open(fileLabels, 'rb') as f:
+    # use universal newline mode to support unusual newlines, like \r
+    with open(fileLabels, 'rbU') as f:
         reader = csv.reader(f)
         for row in reader:
             if labelFirst:
