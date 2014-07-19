@@ -157,6 +157,13 @@ def administration_as_dips(request):
     return render(request, 'administration/dips_as_edit.html', locals())
 
 
+def atom_levels_of_description(request):
+    levels = models.LevelOfDescription.objects.all().order_by('sortorder')
+
+    if request.method == 'GET':
+        return render(request, 'administration/atom_levels_of_description.html', locals())
+
+
 def administration_atk_dips(request):
     atk = ArchivistsToolkitConfig.objects.all()[0]
     if request.POST:
