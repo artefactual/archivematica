@@ -28,6 +28,7 @@ from django import forms
 
 # Third party dependencies, alphabetical by import source
 from django_extensions.db.fields import UUIDField
+import requests
 
 # This project, alphabetical by import source
 from contrib import utils
@@ -909,3 +910,8 @@ class FileID(models.Model):
 
     class Meta:
         db_table = 'FilesIDs'
+
+class LevelOfDescription(models.Model):
+    id = UUIDPkField()
+    name = models.CharField(max_length='1024') # seems long, but AtoM allows this much
+    sortorder = models.IntegerField(default=0, db_column='sortOrder')
