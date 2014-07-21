@@ -20,7 +20,9 @@ import logging
 import mimetypes
 import os
 import pprint
+import requests
 import urllib
+from urlparse import urljoin
 import json
 
 from django.utils.dateformat import format
@@ -32,6 +34,9 @@ from django.shortcuts import render
 from main import models
 
 logger = logging.getLogger('archivematica.dashboard')
+
+class AtomError(Exception):
+    pass
 
 # Used for debugging
 def pr(object):
@@ -203,6 +208,42 @@ def get_server_config_value(field):
         return config.get('MCPServer', field)
     except:
         return ''
+
+def get_atom_levels_of_description(clear=True):
+    """
+    Fetch levels of description from an AtoM instance and store them in the database.
+    The URL and authentication details for the AtoM instance must already be stored in the settings.
+    Note that only English levels of description are fetched at this point in time.
+
+    :param bool clear: When True, deletes all existing levels of description from the Archivematica database before fetching; otherwise, the fetched levels of description will be appended to the already-stored values.
+    :raises AtomError: if no AtoM URL or authentication credentials are defined in the settings, or if the levels of description cannot be fetched for another reason
+    """
+    url = get_setting('dip_upload_atom_url')
+    if not url:
+        raise AtomError("AtoM URL not defined!")
+
+    auth = (
+        get_setting('dip_upload_atom_email'),
+        get_setting('dip_upload_atom_password'),
+    )
+    if not auth:
+        raise AtomError("AtoM authentication settings not defined!")
+
+    # taxonomy 34 is "level of description"
+    dest = urljoin(url, 'api/taxonomies/34')
+    response = requests.get(dest, params={'culture': 'en'}, auth=auth)
+    if response.status_code == 200:
+        base = 1
+        if clear:
+            models.LevelOfDescription.objects.all().delete()
+
+        levels = response.json()
+        for idx, level in enumerate(levels):
+            lod = models.LevelOfDescription(name=level['name'], sortorder=base + idx)
+            lod.save()
+    else:
+        raise AtomError("Unable to fetch levels of description from AtoM!")
+
 
 def redirect_with_get_params(url_name, *args, **kwargs):
     url = reverse(url_name, args = args)
