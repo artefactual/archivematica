@@ -392,7 +392,6 @@ def approve_transfer_via_mcp(directory, transfer_type, user_id):
 
     return error, unit_uuid
 
-
 def start_reingest(request):
     """
     Endpoint to approve reingest of an AIP.
@@ -435,3 +434,15 @@ def start_reingest(request):
             return helpers.json_response(response)
     else:
         return django.http.HttpResponseNotAllowed(permitted_methods=['POST'])
+
+
+def get_levels_of_description(request):
+    """
+    Returns a JSON-encoded set of the configured levels of description.
+
+    The response is an array of objects containing the UUID and name for
+    each level of description.
+    """
+    levels = models.LevelOfDescription.objects.all().order_by('sortorder')
+    response = [{l.id: l.name} for l in levels]
+    return helpers.json_response(response)
