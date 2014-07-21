@@ -39,16 +39,6 @@ urlpatterns = patterns('main.views',
     (r'access/$', 'access_list'),
     (r'access/(?P<id>\d+)/delete/$', 'access_delete'),
 
-    # Lookup
-#    (r'lookup/rightsholder/(?P<id>\d+)/$', 'rights_holders_lookup'),
-
-    # Autocomplete
-#    (r'autocomplete/rightsholders$', 'rights_holders_autocomplete'),
-
-    # Disabled until further development can be done
-    #(r'administration/search/$', 'administration_search'),
-    #(r'administration/search/flush/aips/$', 'administration_search_flush_aips'),
-
     # JSON feeds
     (r'status/$', 'status'),
     (r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/(?P<delete_id>\d+)/$', 'formdata_delete'),
