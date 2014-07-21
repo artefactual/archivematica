@@ -26,6 +26,7 @@ import os
 import shutil
 import socket
 import sys
+from urlparse import urljoin
 
 # Django Core, alphabetical by import source
 from django.conf import settings as django_settings
@@ -306,27 +307,10 @@ def ingest_delete(request, uuid):
         raise Http404
 
 def ingest_upload_destination_url_check(request):
-    url = ''
-    server_ip = socket.gethostbyname(request.META['SERVER_NAME'])
-
-    upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
-    upload_arguments = upload_setting.arguments
-
-    # this can probably be done more elegantly with a regex
-    url_start = upload_arguments.find('--url')
-
-    if url_start == -1:
-        url_start = upload_arguments.find('--URL')
-
-    if url_start != -1:
-        chunk = upload_arguments[url_start:]
-        value_start = chunk.find('"')
-        next_chunk = chunk[value_start + 1:]
-        value_end = next_chunk.find('"')
-        url = next_chunk[:value_end]
+    url = helpers.get_setting('dip_upload_atom_url')
 
     # add target to URL
-    url = url + '/' + request.GET.get('target', '')
+    url = urljoin(url, request.GET.get('target', ''))
 
     # make request for URL
     response = requests.request('GET', url)
