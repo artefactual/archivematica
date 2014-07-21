@@ -63,7 +63,6 @@ def getAgentForFileUUID(fileUUID):
         raise Exception(error_message)
     else:
         rows = databaseInterface.queryAllSQL("""SELECT sipUUID, transferUUID FROM Files WHERE fileUUID = '%s';""" % (fileUUID))
-        print """SELECT sipUUID, transferUUID FROM Files WHERE fileUUID = '%s';""" % (fileUUID)
         sipUUID, transferUUID = rows[0]
         if sipUUID:
             rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ('SIP', sipUUID, "activeAgent"))
