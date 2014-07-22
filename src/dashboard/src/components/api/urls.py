@@ -29,4 +29,5 @@ urlpatterns = patterns('components.api.views',
     url(r'^ingest/reingest', 'start_reingest'),
 
     url(r'administration/dips/atom/levels/$', 'get_levels_of_description'),
+    url(r'administration/dips/atom/fetch_levels/$', 'fetch_levels_of_description_from_atom'),
 )

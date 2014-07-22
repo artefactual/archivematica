@@ -446,3 +446,29 @@ def get_levels_of_description(request):
     levels = models.LevelOfDescription.objects.all().order_by('sortorder')
     response = [{l.id: l.name} for l in levels]
     return helpers.json_response(response)
+
+def fetch_levels_of_description(request):
+    """
+    Fetch all levels of description from an AtoM database, removing
+    all levels of description already contained there.
+
+    Returns the newly-populated set of levels of descriptions as JSON.
+
+    On error, returns 500 with an error message. This typically occurs if
+    AtoM was unable to return a set of levels of description.
+    """
+    try:
+        helpers.get_atom_levels_of_description(clear=True)
+        success = True
+    except Exception as e:
+        message = str(e)
+        success = False
+
+    if success:
+        return get_levels_of_description(request)
+    else:
+        body = {
+            "success": False,
+            "error": message
+        }
+        return helpers.json_response(body, status_code=500)
