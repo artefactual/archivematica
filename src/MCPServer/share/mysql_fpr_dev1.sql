@@ -2228,10 +2228,6 @@ INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `pur
 -- Note that most of these have no ID rules for file extension IDing,
 -- because they don't have unique file extensions.
 
--- KryoFlux
-INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('e9026a4c-0cd7-4775-90a9-e26d151a9795', 'KryoFlux STREAM', '84362779-5e64-442d-9394-1d42ea961240', 'kryoflux-stream');
-INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-14 22:56:28', '0c38b64b-23fc-4058-aba5-fae4105041ab', 'e9026a4c-0cd7-4775-90a9-e26d151a9795', NULL, 'archivematica-fmt/1', 'KryoFlux STREAM Image', 0, 0, 'kryoflux-stream-image');
-
 -- AccessData AD1
 INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('865e0538-959b-4297-b353-4e894331b27e', 'AccessData AD1', '84362779-5e64-442d-9394-1d42ea961240', 'accessdata-ad1');
 INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-14 22:59:30', 'd0918331-b596-41ac-87ad-6dbd97f8fe4a', '865e0538-959b-4297-b353-4e894331b27e', NULL, 'archivematica-fmt/2', 'AccessData AD1 Disk Image', 0, 0, 'accessdata-ad1-disk-image');
