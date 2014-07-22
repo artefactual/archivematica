@@ -915,3 +915,15 @@ class LevelOfDescription(models.Model):
     id = UUIDPkField()
     name = models.CharField(max_length='1024') # seems long, but AtoM allows this much
     sortorder = models.IntegerField(default=0, db_column='sortOrder')
+
+class FileLevelOfDescription(models.Model):
+    """
+    Match between a filesystem entry (file or directory) and the level of
+    description string.
+    """
+    id = UUIDPkField()
+    sip = models.ForeignKey('SIP', to_field='uuid', db_column='sipUUID')
+    # The realtive_location is *not* a File foreign key because directories are
+    # not tracked/trackable in the database, and so we have nothing to associate here :(
+    relative_location = models.CharField(max_length=1024)
+    level_of_description = models.CharField(max_length=2014)
