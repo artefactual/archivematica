@@ -189,6 +189,28 @@ $(document).ready(function() {
     this.render();
   }
 
+  $('#arrange_edit_metadata_button').click(function() {
+    var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId) || '/' + Base64.decode(arrange_browser.structure.name);
+
+    $.ajax({
+      url: '/administration/dips/atom/levels/',
+      type: 'GET',
+      async: false,
+      cache: false,
+      data: {
+        path: Base64.encode(path)
+      },
+      success: function(results) {
+        // a GET request will take place here to get current path's metadata
+        // a dialog will show with a selector for the level of description
+        console.log(results);
+      },
+      error: function() {
+        originals_browser.alert('Error retrieving levels of description');
+      }
+    });
+  });
+
   $('#arrange_create_directory_button').click(function() {
     var path = prompt('Name of new directory?');
 
