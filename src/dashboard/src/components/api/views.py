@@ -472,3 +472,19 @@ def fetch_levels_of_description(request):
             "error": message
         }
         return helpers.json_response(body, status_code=500)
+
+def add_sip_hierarchy(request, sip_uuid):
+    body = json.load(request)
+    for item in body:
+        path = item['path']
+        level_of_description = item['levelOfDescription']
+        lod = models.LevelOfDescription(
+            sip=sip_uuid, relative_location=path,
+            level_of_description=level_of_description
+        )
+        lod.save()
+
+    body = {
+        "success": True,
+    }
+    return helpers.json_response(body, status_code=201)
