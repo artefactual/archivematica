@@ -23,19 +23,21 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import collections
+import copy
 from glob import glob
 import lxml.etree as etree
 import os
 import re
 import sys
 import traceback
+from uuid import uuid4
 
 import archivematicaXMLNamesSpace as ns
 
 # dashboard
 from django.contrib.auth.models import User
 from django.utils import timezone
-from main.models import Agent, Derivation, DublinCore, Event, File, FileID, FPCommandOutput, SIP, Transfer
+from main.models import Agent, Derivation, DublinCore, Event, File, FileID, FPCommandOutput, SIP, SIPArrange, Transfer
 
 import archivematicaCreateMETSReingest
 from archivematicaCreateMETSMetadataCSV import parseMetadata
@@ -827,7 +829,59 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
             file_elem.set("DMDID", dspaceMetsDMDID)
     
     return structMapDiv
-        
+
+def build_arranged_structmap(original_structmap, sip_uuid):
+    """
+    Given a structMap, builds a new copy of the structMap with file and directory labels assigned according to their intellectual arrangement.
+    Logical arrangement is determined using the levels of description which were assigned to them during SIP arrange.
+
+    :param etree.Element original_structmap: the structMap on which the arranged structMap should be based.
+    :param str sip_uuid: the SIP's UUID
+    """
+    tag_dict = dict(SIPArrange.objects.filter(sip_id=sip_uuid).values_list('arrange_path', 'level_of_description'))
+    if not tag_dict:
+        return
+
+    structmap = copy.deepcopy(original_structmap)
+    structmap.attrib['TYPE'] = 'logical'
+    structmap.attrib['LABEL'] = 'Hierarchical'
+    structmap.attrib['ID'] = "structMap_{}".format(uuid4())
+    root_div = structmap.find('./mets:div', namespaces=ns.NSMAP)
+    objects = root_div.find('./mets:div[@LABEL="objects"]', namespaces=ns.NSMAP)
+
+    # The contents of submissionDocumentation and metadata do
+    # not have intellectual arrangement, so don't need to be
+    # represented in this structMap.
+    for label in ('submissionDocumentation', 'metadata'):
+        div = objects.find('.mets:div[@LABEL="{}"]'.format(label), namespaces=ns.NSMAP)
+        objects.remove(div)
+
+    for element in root_div.iterdescendants():
+        if not element.tag == "{}div".format(ns.metsBNS):
+            continue
+
+        path = [element.attrib['LABEL']]
+        if path != ['objects']:
+            parent = element.getparent()
+            path.insert(0, parent.attrib['LABEL'])
+
+            while parent.attrib['LABEL'] != 'objects':
+                parent = parent.getparent()
+                path.insert(0, parent.attrib['LABEL'])
+
+        relative_location = os.path.join(*path)
+
+        # Certain items won't have a level of description;
+        # they should be retained in the tree, but have
+        # no TYPE attribute.
+        tag = tag_dict.get(relative_location)
+        if tag:
+            element.attrib['TYPE'] = tag
+        else:
+            del element.attrib['TYPE']
+
+    return structmap
+
 def find_source_metadata(path):
     """
     Returns lists of all metadata to be referenced in the final document.
@@ -1026,6 +1080,10 @@ if __name__ == '__main__':
     root.append(structMap)
     for structMapIncl in getIncludedStructMap(baseDirectoryPath):
         root.append(structMapIncl)
+
+    arranged_structmap = build_arranged_structmap(structMap, fileGroupIdentifier)
+    if arranged_structmap is not None:
+        root.append(arranged_structmap)
 
     printSectionCounters = True
     if printSectionCounters:
