@@ -447,7 +447,7 @@ def get_levels_of_description(request):
     response = [{l.id: l.name} for l in levels]
     return helpers.json_response(response)
 
-def fetch_levels_of_description(request):
+def fetch_levels_of_description_from_atom(request):
     """
     Fetch all levels of description from an AtoM database, removing
     all levels of description already contained there.
