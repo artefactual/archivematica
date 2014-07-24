@@ -496,7 +496,12 @@ def rename_dict_keys_with_child_dicts(data):
         if type(data[key]) is dict:
             new[key + '_data'] = rename_dict_keys_with_child_dicts(data[key])
         elif type(data[key]) is list:
-            new[key + '_list'] = rename_list_elements_if_they_are_dicts(data[key])
+            # Elasticsearch's lists are typed; a list of strings and
+            # a list of objects are not the same type. Check the type
+            # of the first object in the list and use that as the tag,
+            # rather than just tagging this "_list"
+            type_of_list = type(data[key][0]).__name__
+            new[key + '_' + type_of_list + '_list'] = rename_list_elements_if_they_are_dicts(data[key])
         else:
             new[key] = data[key]
     return new
