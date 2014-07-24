@@ -501,13 +501,13 @@ def rename_dict_keys_with_child_dicts(data):
             new[key] = data[key]
     return new
 
-def rename_list_elements_if_they_are_dicts(list):
-    for index, value in enumerate(list):
+def rename_list_elements_if_they_are_dicts(data):
+    for index, value in enumerate(data):
         if type(value) is list:
-            list[index] = rename_list_elements_if_they_are_dicts(value)
+            data[index] = rename_list_elements_if_they_are_dicts(value)
         elif type(value) is dict:
-            list[index] = rename_dict_keys_with_child_dicts(value)
-    return list
+            data[index] = rename_dict_keys_with_child_dicts(value)
+    return data
 
 # Because an XML document node may include one or more children, conversion
 # to a dict can result in the converted child being one of two types.
@@ -524,13 +524,13 @@ def normalize_dict_values(data):
             data[key] = normalize_list_dict_elements(data[key])
     return data
 
-def normalize_list_dict_elements(list):
-    for index, value in enumerate(list):
+def normalize_list_dict_elements(data):
+    for index, value in enumerate(data):
         if type(value) is list:
-            list[index] = normalize_list_dict_elements(value)
+            data[index] = normalize_list_dict_elements(value)
         elif type(value) is dict:
-            list[index] =  normalize_dict_values(value)
-    return list
+            data[index] =  normalize_dict_values(value)
+    return data
 
 def index_transfer_files(conn, uuid, pathToTransfer, index, type):
     """
