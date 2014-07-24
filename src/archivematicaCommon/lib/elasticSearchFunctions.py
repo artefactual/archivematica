@@ -287,18 +287,15 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_a
     try_to_index(conn, aipData, 'aips', 'aip')
 
 def try_to_index(conn, data, index, doc_type, wait_between_tries=10, max_tries=10):
-    tries = 0
+    if max_tries < 1:
+        raise ValueError("max_tries must be 1 or greater")
 
-    while tries < max_tries:
-        tries = tries + 1
-
+    for _ in xrange(0, max_tries):
         try:
             return conn.index(data, index, doc_type)
         except:
             print "ERROR: error trying to index."
             time.sleep(wait_between_tries)
-            pass
-        tries = tries + 1
 
 def connect_and_get_aip_data(uuid):
     conn = connect_and_create_index('aips')
