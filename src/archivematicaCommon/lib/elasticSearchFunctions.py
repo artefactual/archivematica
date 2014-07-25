@@ -493,9 +493,9 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
 def rename_dict_keys_with_child_dicts(data):
     new = {}
     for key in data:
-        if type(data[key]) is dict:
+        if isinstance(data[key], dict):
             new[key + '_data'] = rename_dict_keys_with_child_dicts(data[key])
-        elif type(data[key]) is list:
+        elif isinstance(data[key], list):
             # Elasticsearch's lists are typed; a list of strings and
             # a list of objects are not the same type. Check the type
             # of the first object in the list and use that as the tag,
@@ -508,9 +508,9 @@ def rename_dict_keys_with_child_dicts(data):
 
 def rename_list_elements_if_they_are_dicts(data):
     for index, value in enumerate(data):
-        if type(value) is list:
+        if isinstance(value, list):
             data[index] = rename_list_elements_if_they_are_dicts(value)
-        elif type(value) is dict:
+        elif isinstance(value, dict):
             data[index] = rename_dict_keys_with_child_dicts(value)
     return data
 
@@ -523,17 +523,17 @@ def rename_list_elements_if_they_are_dicts(data):
 #
 def normalize_dict_values(data):
     for key in data:
-        if type(data[key]) is dict:
+        if isinstance(data[key], dict):
             data[key] = [normalize_dict_values(data[key])]
-        elif type(data[key]) is list:
+        elif isinstance(data[key], list):
             data[key] = normalize_list_dict_elements(data[key])
     return data
 
 def normalize_list_dict_elements(data):
     for index, value in enumerate(data):
-        if type(value) is list:
+        if isinstance(value, list):
             data[index] = normalize_list_dict_elements(value)
-        elif type(value) is dict:
+        elif isinstance(value, dict):
             data[index] =  normalize_dict_values(value)
     return data
 
