@@ -273,6 +273,10 @@ def main(opts):
     """ Find and execute normalization commands on input file. """
     # TODO fix for maildir working only on attachments
 
+    # If no explicit return happens earlier, this returns `status`.
+    # This allows default rules to define a non-zero exit status.
+    status = SUCCESS
+
     # Find the file and it's FormatVersion (file identification)
     try:
         file_ = File.objects.get(uuid=opts.file_uuid)
@@ -326,6 +330,7 @@ def main(opts):
                 rule = get_default_rule(opts.purpose)
                 print("No rule for", os.path.basename(file_.currentlocation),
                     "falling back to default", opts.purpose, "rule")
+                status = NO_RULE_FOUND
             except FPRule.DoesNotExist:
                 print('Not normalizing', os.path.basename(file_.currentlocation),
                     ' - No rule or default rule found to normalize for', opts.purpose,
@@ -376,7 +381,7 @@ def main(opts):
         return RULE_FAILED
     else:
         print('Successfully normalized ', os.path.basename(opts.file_path), 'for', opts.purpose)
-        return SUCCESS
+        return status
 
 
 if __name__ == '__main__':
