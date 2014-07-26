@@ -1,5 +1,58 @@
-{% for level in levels %}
-	<tr>
-		<td>{{ level.name }}</td>
-	</tr>
-{% endfor %}
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/administration/atom_levels_of_description.js"></script>
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="span12">
+
+      {% url 'components.api.views.fetch_levels_of_description_from_atom' as url_fetch_atom_levels_of_description %}
+
+      <div style="float: right">
+        <a onClick="fetchAtomLevelsOfDescription('{{ url_fetch_atom_levels_of_description }}')" class="btn">Fetch from AtoM</a>
+      </div>
+
+      <h3>AtoM Levels of Description</h3>
+
+      {% if levels %}
+        <form id="level_form" method="POST">
+        <input id="level_operation" name="operation" type="hidden" />
+        <input id="level_id" name="id" type="hidden" />
+        <table>
+          <thead>
+            <th>Name</th>
+            <th></th>
+          </thead>
+          <tbody>
+            {% for level in levels %}
+    	        <tr>
+                <td>{{ level.name }}</td>
+                <td>
+                  <a onClick="deleteLevel('{{ level.id }}')" href="#"><img src="/media/images/delete.png" alt="Delete" title="Delete" /></a>
+                  {% if level.sortorder > 1 %}<a onClick="promoteLevel('{{ level.id }}')" href="#"><img src="/media/images/bullet_arrow_up.png" alt="Promote" title="Promote" /></a>{% endif %}
+                  {% if level.sortorder < levels|length %}<a onClick="demoteLevel('{{ level.id }}')" href="#"><img src="/media/images/bullet_arrow_down.png" alt="Demote" title="Demote" /></a>{% endif %}
+                </td>
+	            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        </form>
+      {% else %}
+        No levels found.
+      {% endif %}
+
+    </div>
+  </div>
+
+{% endblock %}

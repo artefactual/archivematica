@@ -193,7 +193,7 @@ $(document).ready(function() {
     var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId) || '/' + Base64.decode(arrange_browser.structure.name);
 
     $.ajax({
-      url: '/administration/dips/atom/levels/',
+      url: '/api/administration/dips/atom/levels/',
       type: 'GET',
       async: false,
       cache: false,

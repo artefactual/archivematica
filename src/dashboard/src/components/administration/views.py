@@ -158,11 +158,51 @@ def administration_as_dips(request):
 
 
 def atom_levels_of_description(request):
+    if request.method == 'POST':
+        level_operation = request.POST.get('operation', None)
+        level_id = request.POST.get('id', None)
+
+        if level_operation == 'promote':
+            if _atom_levels_of_description_sort_adjust(level_id):
+                messages.info(request, 'Promoted.')
+            else:
+                messages.error(request, 'Error attempting to promote level of description.')
+
+        if level_operation == 'demote':
+            if _atom_levels_of_description_sort_adjust(level_id, '-sortorder'):
+                messages.info(request, 'Demoted.')
+            else:
+                messages.error(request, 'Error attempting to demote level of description.')
+
+        if level_operation == 'delete':
+            try:
+                level = models.LevelOfDescription.objects.get(id=level_id)
+                level.delete()
+                messages.info(request, 'Deleted.')
+            except models.LevelOfDescription.DoesNotExist:
+                messages.error(request, 'Level of description not found.')
+
     levels = models.LevelOfDescription.objects.all().order_by('sortorder')
 
-    if request.method == 'GET':
-        return render(request, 'administration/atom_levels_of_description.html', locals())
+    return render(request, 'administration/atom_levels_of_description.html', locals())
 
+def _atom_levels_of_description_sort_adjust(id, sortorder='sortorder'):
+    levels = models.LevelOfDescription.objects.all().order_by(sortorder)
+
+    adjustment_made = False
+    previous_level = None
+
+    for level in levels:
+        if level.id == id and previous_level != None:
+            current_sortorder = level.sortorder
+            level.sortorder = previous_level.sortorder
+            level.save()
+            previous_level.sortorder = current_sortorder
+            previous_level.save()
+            adjustment_made = True
+        previous_level = level
+
+    return adjustment_made
 
 def administration_atk_dips(request):
     atk = ArchivistsToolkitConfig.objects.all()[0]

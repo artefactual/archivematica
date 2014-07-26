@@ -23,6 +23,12 @@
 
     <div class="span12">
 
+      {% url 'components.administration.views.atom_levels_of_description' as url_atom_levels_of_description %}
+
+      <div style="float: right">
+        <a href="{{ url_atom_levels_of_description }}" class="btn">Levels of Description</a>
+      </div>
+
       <form class="form-stacked" method="post" action="{% url 'components.administration.views.atom_dips' %}">
 
         <h3>AtoM DIP upload</h3>
