@@ -26,7 +26,7 @@ class TestDublinCore(TestCase):
         dc_elem = archivematicaCreateMETS2.getDublinCore(self.siptypeuuid, self.sipuuid)
 
         # Verify created correctly
-        assert dc_elem
+        assert dc_elem is not None
         assert dc_elem.tag == '{http://purl.org/dc/terms/}dublincore'
         assert len(dc_elem) == 15
         assert dc_elem[0].tag == '{http://purl.org/dc/elements/1.1/}title'
@@ -70,8 +70,7 @@ class TestDublinCore(TestCase):
         # Generate dmdSec if DC exists
         dmdsec_elem, dmdid = archivematicaCreateMETS2.createDublincoreDMDSecFromDBData(self.siptypeuuid, self.sipuuid, THIS_DIR)
         # Verify created correctly
-        assert dmdsec_elem
-        print dmdsec_elem
+        assert dmdsec_elem is not None
         assert dmdsec_elem.tag == '{http://www.loc.gov/METS/}dmdSec'
         assert dmdsec_elem.attrib['ID'] == dmdid
         assert len(dmdsec_elem) == 1

@@ -1,0 +1,193 @@
+# -*- coding: utf8
+import datetime
+from lxml import etree
+import os
+import sys
+
+from django.test import TestCase
+
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
+import archivematicaCreateMETSReingest
+
+NSMAP = {
+    'dc': 'http://purl.org/dc/elements/1.1/',
+    'dcterms': 'http://purl.org/dc/terms/',
+    'mets': 'http://www.loc.gov/METS/',
+    'premis': 'info:lc/xmlns/premis-v2',
+}
+REMOVE_BLANK_PARSER = etree.XMLParser(remove_blank_text=True)
+
+
+class TestUpdateDublinCore(TestCase):
+    """ Test updating SIP-level DublinCore. (update_dublincore) """
+
+    fixture_files = ['dublincore.json']
+    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    now = datetime.datetime.utcnow().replace(microsecond=0).isoformat('T')
+
+    sip_uuid_none = 'dnedne7c-5bd2-4249-84a1-2f00f725b981'
+    sip_uuid_original = '8b891d7c-5bd2-4249-84a1-2f00f725b981'
+    sip_uuid_reingest = '87d30df4-63f5-434b-9da6-25aa995de6fe'
+    sip_uuid_updated = '5d78a2a5-57a6-430f-87b2-b89fb3ccb050'
+
+    def test_no_dc(self):
+        """ It should do nothing if there is no DC entry. """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert root.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
+        root = archivematicaCreateMETSReingest.update_dublincore(root, self.sip_uuid_none, self.now)
+        assert root.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
+
+    def test_dc_not_updated(self):
+        """ It should do nothing if the DC has not been modified. """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert root.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
+        root = archivematicaCreateMETSReingest.update_dublincore(root, self.sip_uuid_reingest, self.now)
+        assert root.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
+
+    def test_new_dc(self):
+        """
+        It should add a new DC if there was none before.
+        It should add after the metsHdr if no dmdSecs exist.
+        """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert root.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
+        root = archivematicaCreateMETSReingest.update_dublincore(root, self.sip_uuid_original, self.now)
+        assert root.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is not None
+        dmdsec = root.find('mets:dmdSec', namespaces=NSMAP)
+        assert dmdsec.attrib['CREATED'] == self.now
+        # Verify fileSec div updated
+        assert root.find('mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=NSMAP).attrib['DMDID'] == dmdsec.attrib['ID']
+        # Verify DC correct
+        dc_elem = root.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]/mets:xmlData/dcterms:dublincore', namespaces=NSMAP)
+        assert len(dc_elem) == 15
+        assert dc_elem[0].tag == '{http://purl.org/dc/elements/1.1/}title'
+        assert dc_elem[0].text == 'Yamani Weapons'
+        assert dc_elem[1].tag == '{http://purl.org/dc/elements/1.1/}creator'
+        assert dc_elem[1].text == 'Keladry of Mindelan'
+        assert dc_elem[2].tag == '{http://purl.org/dc/elements/1.1/}subject'
+        assert dc_elem[2].text == 'Glaives'
+        assert dc_elem[3].tag == '{http://purl.org/dc/elements/1.1/}description'
+        assert dc_elem[3].text == 'Glaives are cool'
+        assert dc_elem[4].tag == '{http://purl.org/dc/elements/1.1/}publisher'
+        assert dc_elem[4].text == 'Tortall Press'
+        assert dc_elem[5].tag == '{http://purl.org/dc/elements/1.1/}contributor'
+        assert dc_elem[5].text == 'Yuki'
+        assert dc_elem[6].tag == '{http://purl.org/dc/elements/1.1/}date'
+        assert dc_elem[6].text == '2015'
+        assert dc_elem[7].tag == '{http://purl.org/dc/elements/1.1/}type'
+        assert dc_elem[7].text == 'Archival Information Package'
+        assert dc_elem[8].tag == '{http://purl.org/dc/elements/1.1/}format'
+        assert dc_elem[8].text == 'parchement'
+        assert dc_elem[9].tag == '{http://purl.org/dc/elements/1.1/}identifier'
+        assert dc_elem[9].text == '42/1'
+        assert dc_elem[10].tag == '{http://purl.org/dc/elements/1.1/}source'
+        assert dc_elem[10].text == "Numair's library"
+        assert dc_elem[11].tag == '{http://purl.org/dc/elements/1.1/}relation'
+        assert dc_elem[11].text == 'None'
+        assert dc_elem[12].tag == '{http://purl.org/dc/elements/1.1/}language'
+        assert dc_elem[12].text == 'en'
+        assert dc_elem[13].tag == '{http://purl.org/dc/elements/1.1/}rights'
+        assert dc_elem[13].text == 'Public Domain'
+        assert dc_elem[14].tag == '{http://purl.org/dc/terms/}isPartOf'
+        assert dc_elem[14].text == 'AIC#42'
+
+    def test_update_existing_dc(self):
+        """
+        It should add a new updated DC and mark the old one as original.
+        It should ignore file-level DC.
+        It should add after the last dmdSec.
+        """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_sip_and_file_dc.xml'), parser=REMOVE_BLANK_PARSER)
+        assert len(root.findall('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP)) == 4
+        root = archivematicaCreateMETSReingest.update_dublincore(root, self.sip_uuid_updated, self.now)
+        assert len(root.findall('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP)) == 5
+        # Verify file-level DC not updated
+        assert root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP).get('STATUS') is None
+        assert root.find('mets:dmdSec[@ID="dmdSec_2"]', namespaces=NSMAP).get('STATUS') is None
+        assert root.find('mets:dmdSec[@ID="dmdSec_3"]', namespaces=NSMAP).get('STATUS') is None
+        # Verify original SIP-level marked as original
+        assert root.find('mets:dmdSec[@ID="dmdSec_4"]', namespaces=NSMAP).attrib['STATUS'] == 'original'
+        # Verify dmdSec created
+        dmdsec = root.xpath('mets:dmdSec[not(@ID="dmdSec_1" or @ID="dmdSec_2" or @ID="dmdSec_3" or @ID="dmdSec_4")]', namespaces=NSMAP)[0]
+        assert dmdsec.attrib['STATUS'] == 'updated'
+        assert dmdsec.attrib['CREATED'] == self.now
+        # Verify fileSec div updated
+        assert dmdsec.attrib['ID'] in root.find('mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=NSMAP).attrib['DMDID']
+        assert 'dmdSec_4' in root.find('mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=NSMAP).attrib['DMDID']
+        # Verify new DC
+        dc_elem = dmdsec.find('.//dcterms:dublincore', namespaces=NSMAP)
+        assert len(dc_elem) == 12
+        assert dc_elem[0].tag == '{http://purl.org/dc/elements/1.1/}title'
+        assert dc_elem[0].text == 'Yamani Weapons'
+        assert dc_elem[1].tag == '{http://purl.org/dc/elements/1.1/}creator'
+        assert dc_elem[1].text == 'Keladry of Mindelan'
+        assert dc_elem[2].tag == '{http://purl.org/dc/elements/1.1/}subject'
+        assert dc_elem[2].text == 'Glaives'
+        assert dc_elem[3].tag == '{http://purl.org/dc/elements/1.1/}description'
+        assert dc_elem[3].text == 'Glaives are awesome'
+        assert dc_elem[4].tag == '{http://purl.org/dc/elements/1.1/}publisher'
+        assert dc_elem[4].text == 'Tortall Press'
+        assert dc_elem[5].tag == '{http://purl.org/dc/elements/1.1/}contributor'
+        assert dc_elem[5].text == 'Yuki, Neal'
+        assert dc_elem[6].tag == '{http://purl.org/dc/elements/1.1/}type'
+        assert dc_elem[6].text == 'Archival Information Package'
+        assert dc_elem[7].tag == '{http://purl.org/dc/elements/1.1/}format'
+        assert dc_elem[7].text == 'palimpsest'
+        assert dc_elem[8].tag == '{http://purl.org/dc/elements/1.1/}identifier'
+        assert dc_elem[8].text == '42/1'
+        assert dc_elem[9].tag == '{http://purl.org/dc/elements/1.1/}language'
+        assert dc_elem[9].text == 'en'
+        assert dc_elem[10].tag == '{http://purl.org/dc/elements/1.1/}coverage'
+        assert dc_elem[10].text == 'Partial'
+        assert dc_elem[11].tag == '{http://purl.org/dc/elements/1.1/}rights'
+        assert dc_elem[11].text == 'Public Domain'
+
+    def test_update_reingested_dc(self):
+        """
+        It should add a new DC if old ones exist.
+        It should not mark other reingested DC as original.
+        """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_multiple_sip_dc.xml'), parser=REMOVE_BLANK_PARSER)
+        assert len(root.findall('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP)) == 2
+        root = archivematicaCreateMETSReingest.update_dublincore(root, self.sip_uuid_updated, self.now)
+        assert len(root.findall('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP)) == 3
+        # Verify existing DC marked as original
+        assert root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP).get('STATUS') == 'original'
+        assert root.find('mets:dmdSec[@ID="dmdSec_2"]', namespaces=NSMAP).get('STATUS') == 'updated'
+        # Verify dmdSec created
+        dmdsec = root.xpath('mets:dmdSec[not(@ID="dmdSec_1" or @ID="dmdSec_2")]', namespaces=NSMAP)[0]
+        assert dmdsec.attrib['STATUS'] == 'updated'
+        assert dmdsec.attrib['CREATED'] == self.now
+        # Verify fileSec div updated
+        assert dmdsec.attrib['ID'] in root.find('mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=NSMAP).attrib['DMDID']
+        assert 'dmdSec_1' in root.find('mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=NSMAP).attrib['DMDID']
+        assert 'dmdSec_2' in root.find('mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=NSMAP).attrib['DMDID']
+        # Verify new DC
+        dc_elem = dmdsec.find('.//dcterms:dublincore', namespaces=NSMAP)
+        assert len(dc_elem) == 12
+        assert dc_elem[0].tag == '{http://purl.org/dc/elements/1.1/}title'
+        assert dc_elem[0].text == 'Yamani Weapons'
+        assert dc_elem[1].tag == '{http://purl.org/dc/elements/1.1/}creator'
+        assert dc_elem[1].text == 'Keladry of Mindelan'
+        assert dc_elem[2].tag == '{http://purl.org/dc/elements/1.1/}subject'
+        assert dc_elem[2].text == 'Glaives'
+        assert dc_elem[3].tag == '{http://purl.org/dc/elements/1.1/}description'
+        assert dc_elem[3].text == 'Glaives are awesome'
+        assert dc_elem[4].tag == '{http://purl.org/dc/elements/1.1/}publisher'
+        assert dc_elem[4].text == 'Tortall Press'
+        assert dc_elem[5].tag == '{http://purl.org/dc/elements/1.1/}contributor'
+        assert dc_elem[5].text == 'Yuki, Neal'
+        assert dc_elem[6].tag == '{http://purl.org/dc/elements/1.1/}type'
+        assert dc_elem[6].text == 'Archival Information Package'
+        assert dc_elem[7].tag == '{http://purl.org/dc/elements/1.1/}format'
+        assert dc_elem[7].text == 'palimpsest'
+        assert dc_elem[8].tag == '{http://purl.org/dc/elements/1.1/}identifier'
+        assert dc_elem[8].text == '42/1'
+        assert dc_elem[9].tag == '{http://purl.org/dc/elements/1.1/}language'
+        assert dc_elem[9].text == 'en'
+        assert dc_elem[10].tag == '{http://purl.org/dc/elements/1.1/}coverage'
+        assert dc_elem[10].text == 'Partial'
+        assert dc_elem[11].tag == '{http://purl.org/dc/elements/1.1/}rights'
+        assert dc_elem[11].text == 'Public Domain'
