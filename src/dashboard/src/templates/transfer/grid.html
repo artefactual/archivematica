@@ -167,7 +167,7 @@
   <script type="text/template" id='transfer-component-layout'>
     <div id="transfer-component-form">
       <div class="activity-indicator">
-        <img src='/media/images/ajax-loader.gif' />
+        <img src='{{STATIC_URL}}images/ajax-loader.gif' />
       </div>
       <div style="float:left">
         <form>
@@ -222,8 +222,8 @@
     <div id='transfer-component-path-item-<%= path_counter %>'>
       <span class="transfer_path" id="<%= location_path %>"><%= path %></span>
       <span class="transfer_path_icons">
-        <span class="transfer_path_edit_icon"><img src="/media/images/table_edit.png" /></span>
-        <span class="transfer_path_delete_icon"><img src="/media/images/delete.png" /></span>
+        <span class="transfer_path_edit_icon"><img src="{{STATIC_URL}}images/table_edit.png" /></span>
+        <span class="transfer_path_delete_icon"><img src="{{STATIC_URL}}images/delete.png" /></span>
       </span>
     </div>
   </script>
