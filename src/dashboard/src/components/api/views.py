@@ -473,18 +473,43 @@ def fetch_levels_of_description_from_atom(request):
         }
         return helpers.json_response(body, status_code=500)
 
-def add_sip_hierarchy(request, sip_uuid):
-    body = json.load(request)
-    for item in body:
-        path = item['path']
-        level_of_description = item['levelOfDescription']
-        lod = models.LevelOfDescription(
-            sip=sip_uuid, relative_location=path,
-            level_of_description=level_of_description
-        )
-        lod.save()
+def path_metadata(request):
+    """
+    Fetch metadata for a path (HTTP GET) or add/update it (HTTP POST).
 
-    body = {
-        "success": True,
-    }
-    return helpers.json_response(body, status_code=201)
+    GET returns a dict of metadata (currently only level of description).
+    """
+
+    # Determine path being requested/updated
+    path = request.GET.get('path', '') if request.method == 'GET' else request.POST.get('path', '')
+
+    arrange_dir = '/arrange/'
+    if path.startswith(arrange_dir):
+        path = path[len(arrange_dir):]
+
+    # Get current metadata, if any
+    file_lod = get_object_or_None(models.FileLevelOfDescription, relative_location=path)
+
+    # Return current metadata, if requested
+    if request.method == 'GET':
+        level_of_description = file_lod.level_of_description if file_lod is not None else ''
+
+        return helpers.json_response({
+            "level_of_description": level_of_description
+        })
+
+    # Add/update metadata, if requested
+    if request.method == 'POST':
+        level_of_description_id = request.POST.get('level_of_description', '')
+
+        level_of_description = get_object_or_None(models.LevelOfDescription, id=level_of_description_id)
+
+        file_lod.relative_location = path
+        file_lod.level_of_description = level_of_description.name if level_of_description is not None else ''
+        file_lod.save()
+
+        body = {
+            "success": True,
+        }
+
+        return helpers.json_response(body, status_code=201)

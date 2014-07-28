@@ -30,5 +30,5 @@ urlpatterns = patterns('components.api.views',
 
     url(r'administration/dips/atom/levels/$', 'get_levels_of_description'),
     url(r'administration/dips/atom/fetch_levels/$', 'fetch_levels_of_description_from_atom'),
-    url(r'filesystem/metadata/(?P<sip_uuid>' + settings.UUID_REGEX + ')/$', 'add_sip_hierarchy'),
+    url(r'filesystem/metadata/$', 'path_metadata'),
 )

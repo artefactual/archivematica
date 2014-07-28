@@ -190,25 +190,9 @@ $(document).ready(function() {
   }
 
   $('#arrange_edit_metadata_button').click(function() {
+    console.log(arrange_browser);
     var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId) || '/' + Base64.decode(arrange_browser.structure.name);
-
-    $.ajax({
-      url: '/api/administration/dips/atom/levels/',
-      type: 'GET',
-      async: false,
-      cache: false,
-      data: {
-        path: Base64.encode(path)
-      },
-      success: function(results) {
-        // a GET request will take place here to get current path's metadata
-        // a dialog will show with a selector for the level of description
-        console.log(results);
-      },
-      error: function() {
-        originals_browser.alert('Error retrieving levels of description');
-      }
-    });
+    directoryMetadataForm.show(path);
   });
 
   $('#arrange_create_directory_button').click(function() {
