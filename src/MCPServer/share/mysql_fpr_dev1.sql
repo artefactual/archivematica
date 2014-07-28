@@ -19,6 +19,9 @@ INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `pur
 
 -- Issue 6977 New FPR formats, commands, rules
 
+-- New Disk Image format group
+INSERT INTO `fpr_formatgroup` (`uuid`, `description`, `slug`) VALUES ('84362779-5e64-442d-9394-1d42ea961240', 'Disk Image', 'disk-image');
+
 -- New formats, formatversions, and ID rules;
 -- these were all automatically imported from PRONOM.
 INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('b76ca95e-bf15-4e76-b5fc-c6277838e8ad', 'Microsoft Word for Macintosh Document', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'microsoft-word-for-macintosh-document');
@@ -1659,7 +1662,7 @@ INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid
 INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-10 00:01:16', '784a64b7-1ad8-4980-a733-cd4c828127f5', 'ae029f61-d3f1-4252-8a13-2739a863d0e9', '4.0', 'fmt/465', 'CorelDraw Drawing Version 4', 0, 0, 'coreldraw-drawing-version-4');
 INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-10 00:01:16', '3de04450-9662-419c-a39c-d7e0be436377', 'ae029f61-d3f1-4252-8a13-2739a863d0e9', '2.0', 'fmt/466', 'CorelDraw Drawing Version 2', 0, 0, 'coreldraw-drawing-version-2');
 INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-10 00:01:16', '9a28701b-d0f7-4852-a115-e02453d27d7f', 'ae029f61-d3f1-4252-8a13-2739a863d0e9', '1.0', 'fmt/467', 'CorelDraw Drawing Version 1', 0, 0, 'coreldraw-drawing-version-1');
-INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('ce08aa20-70c3-4f41-b43f-d3b59ad75f9d', 'ISO Disk Image File', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'iso-disk-image-file');
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('ce08aa20-70c3-4f41-b43f-d3b59ad75f9d', 'ISO Disk Image File', '84362779-5e64-442d-9394-1d42ea961240', 'iso-disk-image-file');
 INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-10 00:01:16', '172f82e9-d15a-4c5c-85a0-a2d586309886', 'ce08aa20-70c3-4f41-b43f-d3b59ad75f9d', NULL, 'fmt/468', 'ISO Disk Image File', 0, 0, 'iso-disk-image-file');
 INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2014-07-10 00:01:16', 'bbd90cba-62a0-40a2-991e-f82d371da06f', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '172f82e9-d15a-4c5c-85a0-a2d586309886', '.iso');
 INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('cf4d49bd-2ead-47aa-9361-fd38f114e41b', 'MS DOS Compression format (KWAJ variant)', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'ms-dos-compression-format-kwaj-variant');
@@ -1936,7 +1939,7 @@ INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `com
 INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('e9228fa6-975f-49bd-8abd-19862ce9397a', 'Stuffit Archive File', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'stuffit-archive-file');
 INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-10 00:01:16', 'e33f6d17-c814-4b7c-8468-580f59994e90', 'e9228fa6-975f-49bd-8abd-19862ce9397a', NULL, 'fmt/639', 'Stuffit', 0, 0, 'stuffit');
 INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2014-07-10 00:01:16', 'df42368f-cc54-4b7a-952d-3f117f239104', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'e33f6d17-c814-4b7c-8468-580f59994e90', '.sit');
-INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('15a846fc-613a-47aa-9dfb-02fd4b4660eb', 'Apple Disk Copy Image', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'apple-disk-copy-image');
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('15a846fc-613a-47aa-9dfb-02fd4b4660eb', 'Apple Disk Copy Image', '84362779-5e64-442d-9394-1d42ea961240', 'apple-disk-copy-image');
 INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-10 00:01:16', '8e256c8c-d53d-4413-a82f-2502316e93bd', '15a846fc-613a-47aa-9dfb-02fd4b4660eb', '4.2', 'fmt/625', 'Apple Disk Copy Image', 0, 0, 'apple-disk-copy-image');
 INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2014-07-10 00:01:17', 'ff9c3a30-5141-4377-89ab-b3feb9bd2fc4', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '8e256c8c-d53d-4413-a82f-2502316e93bd', '.dmg');
 INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('7a44904f-92b1-4952-9797-24a6ab24dafc', 'LHA File Format', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'lha-file-format');
@@ -2224,9 +2227,6 @@ INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `pur
 -- Issue 5892 - Disk image formats
 -- Note that most of these have no ID rules for file extension IDing,
 -- because they don't have unique file extensions.
-
--- New Disk Image format group
-INSERT INTO `fpr_formatgroup` (`uuid`, `description`, `slug`) VALUES ('84362779-5e64-442d-9394-1d42ea961240', 'Disk Image', 'disk-image');
 
 -- KryoFlux
 INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('e9026a4c-0cd7-4775-90a9-e26d151a9795', 'KryoFlux STREAM', '84362779-5e64-442d-9394-1d42ea961240', 'kryoflux-stream');
