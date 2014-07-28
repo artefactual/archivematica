@@ -260,7 +260,7 @@ SET @preTranscribeMSCL = '77a7fa46-92b9-418e-aa88-fbedd4114c9f' COLLATE utf8_uni
 SET @postTranscribeMSCL = 'f574b2a0-6e0b-4c74-ac5b-a73ddb9593a0' COLLATE utf8_unicode_ci;
 
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@transcribeChoiceTC, '9c84b047-9a6d-463f-9836-eafa49743b84', NULL, 'Transcribe SIP contents');
-INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@transcribeChoiceMSCL, 'Normalize', 'Failed', @transcribeChoiceTC, @transcribeFileMSCL);
+INSERT INTO MicroServiceChainLinks (pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@transcribeChoiceMSCL, 'Transcribe SIP contents', 'Failed', @transcribeChoiceTC, @transcribeFileMSCL);
 UPDATE MicroServiceChainLinks SET defaultNextChainLink=@transcribeChoiceMSCL WHERE pk=@preTranscribeMSCL;
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@transcribeChoiceMSCL WHERE microServiceChainLink=@preTranscribeMSCL;
 
@@ -272,8 +272,7 @@ INSERT INTO MicroServiceChoiceReplacementDic (pk, choiceAvailableAtLink, descrip
 SET @transcribeFileMSCL = '2900f6d8-b64c-4f2a-8f7f-bb60a57394f6' COLLATE utf8_unicode_ci;
 INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES ('657bdd72-8f18-4477-8018-1f6c8df7ad85', 0, 'transcribeFile_v0.0', '"%taskUUID%" "%fileUUID%" "%transcribe%"', 'objects');
 INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('297e7ebd-71bb-41e9-b1b7-945b6a9f00c5', 'a6b1c323-7d36-428e-846a-e7e819423577', '657bdd72-8f18-4477-8018-1f6c8df7ad85', 'Transcribe');
-INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@transcribeFileMSCL, 'Normalize', 'Failed', '297e7ebd-71bb-41e9-b1b7-945b6a9f00c5', @postTranscribeMSCL);
-
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@transcribeFileMSCL, 'Transcribe SIP contents', 'Failed', '297e7ebd-71bb-41e9-b1b7-945b6a9f00c5', @postTranscribeMSCL);
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('22ebafb1-3ec3-406a-939d-4eb9f3b8bbd1', @transcribeChoiceMSCL, 0, @transcribeFileMSCL, 'Completed successfully');
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('804d4d23-e81b-4d81-8e67-1a3b5470c841', @transcribeFileMSCL, 0, @postTranscribeMSCL, 'Completed successfully');
 
@@ -2705,10 +2704,6 @@ INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `pur
 -- New Disk Image format group
 INSERT INTO `fpr_formatgroup` (`uuid`, `description`, `slug`) VALUES ('84362779-5e64-442d-9394-1d42ea961240', 'Disk Image', 'disk-image');
 
--- KryoFlux
-INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('e9026a4c-0cd7-4775-90a9-e26d151a9795', 'KryoFlux STREAM', '84362779-5e64-442d-9394-1d42ea961240', 'kryoflux-stream');
-INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-14 22:56:28', '0c38b64b-23fc-4058-aba5-fae4105041ab', 'e9026a4c-0cd7-4775-90a9-e26d151a9795', NULL, 'archivematica-fmt/1', 'KryoFlux STREAM Image', 0, 0, 'kryoflux-stream-image');
-
 -- AccessData AD1
 INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('865e0538-959b-4297-b353-4e894331b27e', 'AccessData AD1', '84362779-5e64-442d-9394-1d42ea961240', 'accessdata-ad1');
 INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-14 22:59:30', 'd0918331-b596-41ac-87ad-6dbd97f8fe4a', '865e0538-959b-4297-b353-4e894331b27e', NULL, 'archivematica-fmt/2', 'AccessData AD1 Disk Image', 0, 0, 'accessdata-ad1-disk-image');
@@ -2737,6 +2732,120 @@ INSERT INTO `MicroServiceChoiceReplacementDic` (`pk`, `choiceAvailableAtLink`, `
 -- of moving to the next link in normalization.
 UPDATE MicroServiceChainLinks SET defaultNextChainLink='83484326-7be7-4f9f-b252-94553cd42370' WHERE pk='2dd53959-8106-457d-a385-fee57fc93aa9';
 -- /Issue 7012 - Normalization ID failure
+
+-- Issue 5843 - Add Sleuthkit FPR rules
+INSERT INTO `fpr_fptool` (`uuid`, `description`, `version`, `enabled`, `slug`) VALUES ('0a78f98a-9484-431a-9759-59e5d1d09281', 'Sleuthkit', '4.1.3', 1, 'sleuthkit-413');
+-- fiwalk characterization - tries to identify files in a disk image
+INSERT INTO `fpr_fpcommand` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `tool_id`, `description`, `command`, `script_type`, `output_location`, `output_format_id`, `command_usage`, `verification_command_id`, `event_detail_command_id`) VALUES (NULL, 1, '2014-07-28 19:10:29', '928ce834-8830-44cc-a282-4ba1271f7842', '0a78f98a-9484-431a-9759-59e5d1d09281', 'fiwalk', 'fiwalk -x %relativeLocation% -c /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/ficonfig.txt', 'command', NULL, 'd60e5243-692e-4af7-90cd-40c53cb8dc7d', 'Characterization', NULL, NULL);
+-- Associate with ISO, raw disk image, and AFF
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-07-28 19:14:19', '825b31d8-6ee0-46fc-bdd7-9bf32edb5755', 'characterization', '928ce834-8830-44cc-a282-4ba1271f7842', '172f82e9-d15a-4c5c-85a0-a2d586309886', 0, 0, 0);
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-07-28 19:13:28', '38ab3a16-e7fc-464d-8be9-1398908f78a9', 'characterization', '928ce834-8830-44cc-a282-4ba1271f7842', '561ce423-d028-46d5-87c3-878d631113df', 0, 0, 0);
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-07-28 19:14:46', '20cad741-3cf1-4b6a-9e71-d1e8af13ba3f', 'characterization', '928ce834-8830-44cc-a282-4ba1271f7842', '9f8bda35-f4f0-4dff-a65d-57fd7544d7c4', 0, 0, 0);
+-- tsk_recover - extract files from a disk image
+INSERT INTO `fpr_fpcommand` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `tool_id`, `description`, `command`, `script_type`, `output_location`, `output_format_id`, `command_usage`, `verification_command_id`, `event_detail_command_id`) VALUES (NULL, 1, '2014-07-28 19:19:09', '8f41dc6f-05eb-46d4-9b22-0a0d74673510', '0a78f98a-9484-431a-9759-59e5d1d09281', 'tsk_recover', 'from __future__ import print_function\nimport re\nimport subprocess\nimport sys\n\ndef extract(package, outdir):\n # -a extracts only allocated files; we\'re not capturing unallocated files\n try:\n process = subprocess.Popen([\'tsk_recover\', package, \'-a\', outdir],\n stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)\n stdout, stderr = process.communicate()\n\n match = re.match(r\'Files Recovered: (\\d+)\', stdout.splitlines()[0])\n if match:\n if match.groups()[0] == \'0\':\n raise Exception(\'tsk_recover failed to extract any files with the message: {}\'.format(stdout))\n else:\n print(stdout)\n except Exception as e:\n return e\n\n return 0\n\ndef main(package, outdir):\n return extract(package, outdir)\n\nif __name__ == \'__main__\':\n package = sys.argv[1]\n outdir = sys.argv[2]\n sys.exit(main(package, outdir))\n', 'pythonScript', NULL, NULL, 'extraction', NULL, NULL);
+-- Associate with ISO, raw disk image, and AFF
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-07-28 19:20:34', '9690ce82-606e-4026-9421-002746e75d69', 'extract', '8f41dc6f-05eb-46d4-9b22-0a0d74673510', '172f82e9-d15a-4c5c-85a0-a2d586309886', 0, 0, 0);
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-07-28 19:20:57', 'bdfc3ef8-99a6-48e2-9017-8c39010a622a', 'extract', '8f41dc6f-05eb-46d4-9b22-0a0d74673510', '561ce423-d028-46d5-87c3-878d631113df', 0, 0, 0);
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-07-28 19:21:38', '9e502f30-ba01-4981-8377-dd01ecf2dc5c', 'extract', '8f41dc6f-05eb-46d4-9b22-0a0d74673510', '9f8bda35-f4f0-4dff-a65d-57fd7544d7c4', 0, 0, 0);
+-- /Issue 5843 - Add Sleuthkit FPR rules
+
+-- Issue 6788 - Add post store AIP hook
+SET @postStoreMSCL = 'b7cf0d9a-504f-4f4e-9930-befa817d67ff' COLLATE utf8_unicode_ci;
+SET @postStoreTC = 'f09c1aa1-8a5d-49d1-ba60-2866e026eed9' COLLATE utf8_unicode_ci;
+SET @postStoreSTC = 'ab404b46-9c54-4ca5-87f1-b69a8d2299a1' COLLATE utf8_unicode_ci;
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES (@postStoreSTC, 0, 'postStoreAIPHook_v1.0', '"%SIPUUID%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@postStoreTC, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @postStoreSTC, 'Clean up after storing AIP');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@postStoreMSCL, 'Store AIP', 'Failed', @postStoreTC, 'd5a2ef60-a757-483c-a71a-ccbffe6b80da');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('c3c8e23c-1c8a-4c24-b8a1-3d6e8a8c3a7b', @postStoreMSCL, 0, 'd5a2ef60-a757-483c-a71a-ccbffe6b80da', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@postStoreMSCL WHERE microServiceChainLink='48703fad-dc44-4c8e-8f47-933df3ef6179';
+-- /Issue 6788 - Add post store AIP hook
+
+-- Issue 6641 PRONOM v77
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('5a49a5b3-42df-4956-9d8b-b05a962773fa', 'Exchangeable Image File Format (Compressed)', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'exchangeable-image-file-format-compressed');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:01', '1b7f9dd1-9bbd-4d8b-ae07-a031c944e93d', '5a49a5b3-42df-4956-9d8b-b05a962773fa', '2.2.1', 'fmt/645', 'EXIF Compressed Image 2.2.1 (big-endian)', 0, 0, 'exif-compressed-image-221-big-endian');
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('fadb85f5-8ce9-4909-b57a-1f1c78e9ba51', 'Apple iWorks Keynote', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'apple-iworks-keynote');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:01', '4e8ad99b-e759-450f-99a7-88024281576a', 'fadb85f5-8ce9-4909-b57a-1f1c78e9ba51', '09', 'fmt/646', 'Apple iWorks Keynote', 0, 0, 'apple-iworks-keynote');
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2014-07-22 21:02:01', '968ba06b-0297-4256-b4a8-507d9590c716', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '4e8ad99b-e759-450f-99a7-88024281576a', '.key');
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('c20cd96e-f20f-4206-9ae1-f463bbdac6e3', 'Microsoft Expression Media', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'microsoft-expression-media');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:01', '043b13b4-f491-4361-bf54-34112b50c4c4', 'c20cd96e-f20f-4206-9ae1-f463bbdac6e3', '2', 'fmt/647', 'Microsoft Expression Media 2', 0, 0, 'microsoft-expression-media-2');
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2014-07-22 21:02:01', '4cece9fc-96da-4bcb-b8bf-dadb0879a647', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '043b13b4-f491-4361-bf54-34112b50c4c4', '.ivc');
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('1d1a89ac-a9bc-41eb-afb5-f74ec350668c', 'Media View Pro', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'media-view-pro');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:01', '95772a2c-c63f-4283-b21b-13329f693165', '1d1a89ac-a9bc-41eb-afb5-f74ec350668c', NULL, 'fmt/648', 'Media View Pro', 0, 0, 'media-view-pro');
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2014-07-22 21:02:01', '8bd159d2-6b26-449e-b406-b89475a20f95', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '95772a2c-c63f-4283-b21b-13329f693165', '.mpcatalog');
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('4e3d0008-fc27-43d4-8b78-14c30ca60acc', 'MPEG-1 Elementary Stream', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'mpeg-1-elementary-stream');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:01', 'bee2e897-3ee8-4ee5-9012-e417f6c097ae', '4e3d0008-fc27-43d4-8b78-14c30ca60acc', NULL, 'fmt/649', 'MPEG-1 Elementary Stream', 0, 0, 'mpeg-1-elementary-stream');
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('96a27627-5ccb-4556-b1c1-baa07fa09129', 'Quark Xpress Report File', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'quark-xpress-report-file');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:01', '5e0f650b-bf85-48e5-bfca-9c02db37eee2', '96a27627-5ccb-4556-b1c1-baa07fa09129', NULL, 'fmt/650', 'QuarkXpress Report 1', 0, 0, 'quarkxpress-report-1');
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2014-07-22 21:02:01', '9d46dd26-4d4c-430b-8fc6-1b8109bbaea0', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '5e0f650b-bf85-48e5-bfca-9c02db37eee2', '.qxp report');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:01', '34fb874d-3e24-4ff7-a1b7-20ae6cc5286c', 'a9df9cf9-413f-4a5c-b1ff-56473296c1ed', '10', 'fmt/651', 'Quark Xpress 10 Data File (Motorola)', 0, 0, 'quark-xpress-10-data-file-motorola');
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2014-07-22 21:02:01', '52c48917-c84c-4329-9f7b-5a2cad25631f', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '34fb874d-3e24-4ff7-a1b7-20ae6cc5286c', '.qct');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:01', '15e658d8-00bf-49a0-b185-efd1b1a596f9', 'a9df9cf9-413f-4a5c-b1ff-56473296c1ed', '6', 'fmt/652', 'Quark Xpress 6 Data File (Intel)', 0, 0, 'quark-xpress-6-data-file-intel');
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('dfd663ef-def3-4c04-a4bd-60e7f36b3e68', 'INTERLIS 2 Transfer File', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'interlis-2-transfer-file');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:02', '9321a9a4-36fc-4e06-92f3-63dd1dd14a16', 'dfd663ef-def3-4c04-a4bd-60e7f36b3e68', NULL, 'fmt/653', 'INTERLIS 2 Transfer File', 0, 0, 'interlis-2-transfer-file');
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2014-07-22 21:02:02', '0d239487-57c5-4cab-b6e8-4a5cf0421218', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '9321a9a4-36fc-4e06-92f3-63dd1dd14a16', '.xtf');
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('c4027268-ec5f-43b1-8b15-26d47b375ed8', 'INTERLIS Model File', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'interlis-model-file');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:02', '4b921093-36e6-4029-b609-f1368bfa1427', 'c4027268-ec5f-43b1-8b15-26d47b375ed8', NULL, 'fmt/654', 'INTERLIS Model File', 0, 0, 'interlis-model-file');
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2014-07-22 21:02:02', 'd261d989-d243-4157-a6d0-7085ae46de2f', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '4b921093-36e6-4029-b609-f1368bfa1427', '.ili');
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('22c817d9-42a2-4171-8f53-0277d35e76bb', 'KryoFlux', '84362779-5e64-442d-9394-1d42ea961240', 'kryoflux');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:02', 'd6191ee1-d4c8-4528-a163-dbffe89bba0b', '22c817d9-42a2-4171-8f53-0277d35e76bb', '2', 'fmt/655', 'KryoFlux v2', 0, 0, 'kryoflux-v2');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:02', '57d03306-2c7c-402f-a8c6-cd6c7a0a962f', '22c817d9-42a2-4171-8f53-0277d35e76bb', '2.2', 'fmt/656', 'KryoFlux v2.2s', 0, 0, 'kryoflux-v22s');
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('63015d7e-0495-4f74-b0f7-1c271e83eb58', 'Open XML Paper Specification', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'open-xml-paper-specification');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:02', 'dbf9a47f-6bb8-4d28-9133-f57e4a83b2db', '63015d7e-0495-4f74-b0f7-1c271e83eb58', NULL, 'fmt/657', 'Open XML Paper Specification', 0, 0, 'open-xml-paper-specification');
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2014-07-22 21:02:02', 'b4da3581-63b0-4000-aa4c-24d4e25b59d4', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'dbf9a47f-6bb8-4d28-9133-f57e4a83b2db', '.xps');
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('a4705840-fec7-45c2-bd22-58c02df39657', 'Cypher Query Language', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'cypher-query-language');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:02', '1cd77b61-ad94-41e0-ba2f-317f4885bbf3', 'a4705840-fec7-45c2-bd22-58c02df39657', NULL, 'fmt/658', 'Cypher Query Language', 0, 0, 'cypher-query-language');
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2014-07-22 21:02:02', '9d24fb84-0970-4580-bc66-f3d62e381bb2', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '1cd77b61-ad94-41e0-ba2f-317f4885bbf3', '.cql');
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('97a16fb4-3ec0-4e46-9823-ea13857150d7', 'Industry Foundation Classes', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'industry-foundation-classes');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:02', 'ee980a82-c59e-4c4b-9e60-d9036f4daf90', '97a16fb4-3ec0-4e46-9823-ea13857150d7', NULL, 'fmt/659', 'Industry Foundation Classes', 0, 0, 'industry-foundation-classes');
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2014-07-22 21:02:02', 'bbd13650-0a88-498c-82d5-f121c0c1a939', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'ee980a82-c59e-4c4b-9e60-d9036f4daf90', '.ifc');
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('65de96fd-4db5-4642-bb39-d31bc3b05878', 'Adobe Type 1 Mac Font File', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'adobe-type-1-mac-font-file');
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2014-07-22 21:02:02', '758147d8-624e-48b9-8de0-fa6ee0fed2e4', '65de96fd-4db5-4642-bb39-d31bc3b05878', NULL, 'fmt/660', 'Adobe Type 1 Mac Font File', 0, 0, 'adobe-type-1-mac-font-file');
+-- /Issue 6641 PRONOM v77
+
+-- Issue 6564 DIP storage
+SET @dip_storage_chain = '2748bedb-12aa-4b10-a556-66e7205580a4' COLLATE utf8_unicode_ci;
+
+-- Store DIP (uses the existing store AIP script)
+SET @dip_storage_mscl = 'e85a01f1-4061-4049-8922-5694b25c23a2' COLLATE utf8_unicode_ci;
+SET @dip_storage_stc = '1f6f0cd1-acaf-40fb-bb2a-047383b8c977' COLLATE utf8_unicode_ci;
+SET @dip_storage_tc = '85ce72dd-627a-4d0d-b118-fdaedf8ed8e6' COLLATE utf8_unicode_ci;
+
+-- Get DIP storage locations from the storage service
+SET @dip_storage_location_mscl = 'ed5d8475-3793-4fb0-a8df-94bd79b26a4c' COLLATE utf8_unicode_ci;
+SET @dip_storage_locations_stc = '5a6d1a88-1c2f-40b5-adec-ad7e533340ff' COLLATE utf8_unicode_ci;
+SET @dip_storage_locations_tc = '21292501-0c12-4376-8fb1-413286060dc2' COLLATE utf8_unicode_ci;
+
+-- Let user select DIP storage location
+SET @dip_storage_choose_location_mscl = 'b7a83da6-ed5a-47f7-a643-1e9f9f46e364' COLLATE utf8_unicode_ci;
+SET @dip_storage_choose_location_stc = '1fa7994d-9106-4d5a-892c-539af7e4ad8d' COLLATE utf8_unicode_ci;
+SET @dip_storage_choose_location_tc = '55123c46-78c9-4b5d-ad92-2b1f3eb658af' COLLATE utf8_unicode_ci;
+
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES (@dip_storage_locations_stc, 1, 'getAipStorageLocations_v0.0', 'DS');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@dip_storage_locations_tc, 'a19bfd9f-9989-4648-9351-013a10b382ed', @dip_storage_locations_stc, 'Retrieve DIP Storage Locations');
+INSERT INTO MicroServiceChainLinks (pk, currentTask, defaultNextChainLink, defaultExitMessage, microserviceGroup) VALUES (@dip_storage_location_mscl, @dip_storage_locations_tc, @MoveSIPToFailedLink, 'Failed', 'Upload DIP');
+
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute) VALUES (@dip_storage_choose_location_stc, 1, '%DIPsStore%');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@dip_storage_choose_location_tc, '01b748fe-2e9d-44e4-ae5d-113f74c9a0ba', @dip_storage_choose_location_stc, 'Store DIP location');
+INSERT INTO MicroServiceChainLinks (pk, currentTask, defaultNextChainLink, defaultExitMessage, microserviceGroup) VALUES (@dip_storage_choose_location_mscl, @dip_storage_choose_location_tc, @MoveSIPToFailedLink, 'Failed', 'Upload DIP');
+
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES (@dip_storage_stc, 1, 'storeAIP_v0.0', '"%DIPsStore%" "%watchDirectoryPath%uploadDIP/%SIPName%-%SIPUUID%" "%SIPUUID%" "%SIPName%" "DIP"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@dip_storage_tc, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @dip_storage_stc, 'Store DIP');
+INSERT INTO MicroServiceChainLinks (pk, currentTask, defaultNextChainLink, defaultExitMessage, microserviceGroup) VALUES (@dip_storage_mscl, @dip_storage_tc, @MoveSIPToFailedLink, 'Failed', 'Upload DIP');
+
+
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('68d19ada-9c7a-47b3-bedc-66788d5e9e3e', @dip_storage_location_mscl, 0, @dip_storage_choose_location_mscl, 'Completed successfully');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('637afa7b-d970-4076-aa4e-d62dfc6bb0b6', @dip_storage_choose_location_mscl, 0, @dip_storage_mscl, 'Completed successfully');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('9a028152-f3a2-4b98-82e1-8f77c594d1de', @dip_storage_mscl, 0, 'e3efab02-1860-42dd-a46c-25601251b930', 'Completed successfully');
+
+INSERT INTO MicroServiceChains (pk, startingLink, description) VALUES (@dip_storage_chain, @dip_storage_location_mscl, 'Store DIP');
+INSERT INTO MicroServiceChainChoice (pk, choiceAvailableAtLink, chainAvailable) VALUES ('cb15da43-5c1b-478a-b25c-2ef69eff1dbf', '92879a29-45bf-4f0b-ac43-e64474f0f2f9', @dip_storage_chain);
+-- /Issue 6564
+
+-- Issue 6965 - remove 'create sip manually'
+SET @manualSIPMSC = '9634868c-b183-4d65-8587-2f53f7ff5a0a' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChainChoice WHERE chainAvailable=@manualSIPMSC;
+DELETE FROM MicroServiceChains WHERE pk=@manualSIPMSC;
+-- /Issue 6965 - remove 'create sip manually'
 
 -- increment version number
 Update Agents set agentIdentifierValue = 'Archivematica-1.2.0' where pk = 1;
