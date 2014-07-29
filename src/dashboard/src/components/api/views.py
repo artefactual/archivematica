@@ -488,7 +488,7 @@ def path_metadata(request):
         path = path[len(arrange_dir):]
 
     # Get current metadata, if any
-    file_lod = get_object_or_None(models.FileLevelOfDescription, relative_location=path)
+    file_lod = get_object_or_None(models.FileLevelOfDescription, relative_location=path, sip__isnull=True)
 
     # Return current metadata, if requested
     if request.method == 'GET':

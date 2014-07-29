@@ -27,6 +27,7 @@ import uuid
 
 import django.http
 from django.db import connection, IntegrityError
+from django.db.models import Q
 import django.template.defaultfilters
 
 from components import helpers
@@ -345,6 +346,15 @@ def create_arranged_sip(staging_sip_path, files):
     with open(arrange_log, 'w') as f:
         log = ('%s -> %s\n' % (file_['source'], file_['destination']) for file_ in files if file_.get('uuid'))
         f.writelines(log)
+
+    # Update directory level of descriptions, if any
+    sip = models.SIP.objects.get(uuid=sip_uuid)
+    levels_of_description = models.FileLevelOfDescription.objects.filter(
+        Q(relative_location__startswith=sip_name + '/') | Q(relative_location=sip_name),
+        sip__isnull=True)
+    for directory in levels_of_description:
+        directory.sip = sip
+        directory.save()
 
     # Move to watchedDirectories/SIPCreation/SIPsUnderConstruction
     logging.info('create_arranged_sip: move from %s to %s', staging_abs_path, sip_path)
