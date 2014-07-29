@@ -5,14 +5,17 @@ var DirectoryMetadataFormView = Backbone.View.extend({
   },
 
   show: function(path) {
-    var self = this;
+    if (typeof path !== 'undefined')
+    {
+      var self = this;
 
-    this.path = path;
+      this.path = path;
 
-    this.fetchAvailableLevelsOfDescription(
-      this.fetchMetadataThenShowModalCallback(),
-      this.requestErrorCallback('fetching levels of description')
-    );
+      this.fetchAvailableLevelsOfDescription(
+        this.fetchMetadataThenShowModalCallback(),
+        this.requestErrorCallback('fetching levels of description')
+      );
+    }
   },
 
   fetchAvailableLevelsOfDescription: function(success, error) {

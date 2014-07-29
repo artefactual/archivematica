@@ -190,8 +190,13 @@ $(document).ready(function() {
   }
 
   $('#arrange_edit_metadata_button').click(function() {
-    console.log(arrange_browser);
-    var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId) || '/' + Base64.decode(arrange_browser.structure.name);
+    if (typeof arrange_browser.selectedEntryId === 'undefined') {
+      arrange_browser.alert('Edit metadata', 'Please select a directory to edit.');
+      return;
+    }
+
+    var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId);
+
     directoryMetadataForm.show(path);
   });
 
