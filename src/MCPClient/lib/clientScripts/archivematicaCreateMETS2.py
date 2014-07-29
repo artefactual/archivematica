@@ -444,49 +444,56 @@ def createTechMD(fileUUID):
     return ret
 
 def createDigiprovMD(fileUUID):
+    """
+    Create digiprovMD for PREMIS Events and linking Agents.
+    """
     ret = []
     # EVENTS
 
     events = Event.objects.filter(file_uuid_id=fileUUID)
     for event_record in events:
         digiprovMD = etree.Element(ns.metsBNS + "digiprovMD")
-        ret.append(digiprovMD) #newChild(amdSec, "digiprovMD")
-        #digiprovMD.set("ID", "digiprov-"+ os.path.basename(filename) + "-" + fileUUID)
+        ret.append(digiprovMD)
         global globalDigiprovMDCounter
         globalDigiprovMDCounter += 1
-        digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
+        digiprovMD.set("ID", "digiprovMD_" + globalDigiprovMDCounter.__str__())
 
-        mdWrap = etree.SubElement(digiprovMD, ns.metsBNS + "mdWrap")
-        mdWrap.set("MDTYPE", "PREMIS:EVENT")
-        xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
-        event = etree.SubElement(xmlData, ns.premisBNS + "event", nsmap={'premis': ns.premisNS})
-        event.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
-        event.set("version", "2.2")
-
-        eventIdentifier = etree.SubElement(event, ns.premisBNS + "eventIdentifier")
-        etree.SubElement(eventIdentifier, ns.premisBNS + "eventIdentifierType").text = "UUID"
-        etree.SubElement(eventIdentifier, ns.premisBNS + "eventIdentifierValue").text = event_record.event_id
-
-        etree.SubElement(event, ns.premisBNS + "eventType").text = event_record.event_type
-        etree.SubElement(event, ns.premisBNS + "eventDateTime").text = event_record.event_datetime.isoformat()
-        etree.SubElement(event, ns.premisBNS + "eventDetail").text = escape(event_record.event_detail)
-
-        eventOutcomeInformation  = etree.SubElement(event, ns.premisBNS + "eventOutcomeInformation")
-        etree.SubElement(eventOutcomeInformation, ns.premisBNS + "eventOutcome").text = event_record.event_outcome
-        eventOutcomeDetail = etree.SubElement(eventOutcomeInformation, ns.premisBNS + "eventOutcomeDetail")
-        etree.SubElement(eventOutcomeDetail, ns.premisBNS + "eventOutcomeDetailNote").text = escape(event_record.event_outcome_detail)
-        
-        if event_record.linking_agent:
-            linkingAgentIdentifier = etree.SubElement(event, ns.premisBNS + "linkingAgentIdentifier")
-            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierType").text = "Archivematica user pk"
-            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = str(event_record.linking_agent)
-        
-        # linkingAgentIdentifier
-        for agent in Agent.objects.all():
-            linkingAgentIdentifier = etree.SubElement(event, ns.premisBNS + "linkingAgentIdentifier")
-            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierType").text = agent.identifiertype
-            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = agent.identifiervalue
+        createEvent(digiprovMD, event_record)
     return ret
+
+def createEvent(digiprovMD, event_record):
+    """ Create a PREMIS Event as a SubElement of digiprovMD. """
+    mdWrap = etree.SubElement(digiprovMD, ns.metsBNS + "mdWrap")
+    mdWrap.set("MDTYPE", "PREMIS:EVENT")
+    xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
+    event = etree.SubElement(xmlData, ns.premisBNS + "event", nsmap={'premis': ns.premisNS})
+    event.set(ns.xsiBNS + "schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
+    event.set("version", "2.2")
+
+    eventIdentifier = etree.SubElement(event, ns.premisBNS + "eventIdentifier")
+    etree.SubElement(eventIdentifier, ns.premisBNS + "eventIdentifierType").text = "UUID"
+    etree.SubElement(eventIdentifier, ns.premisBNS + "eventIdentifierValue").text = event_record.event_id
+
+    etree.SubElement(event, ns.premisBNS + "eventType").text = event_record.event_type
+    etree.SubElement(event, ns.premisBNS + "eventDateTime").text = event_record.event_datetime.isoformat()
+    etree.SubElement(event, ns.premisBNS + "eventDetail").text = escape(event_record.event_detail)
+
+    eventOutcomeInformation = etree.SubElement(event, ns.premisBNS + "eventOutcomeInformation")
+    etree.SubElement(eventOutcomeInformation, ns.premisBNS + "eventOutcome").text = event_record.event_outcome
+    eventOutcomeDetail = etree.SubElement(eventOutcomeInformation, ns.premisBNS + "eventOutcomeDetail")
+    etree.SubElement(eventOutcomeDetail, ns.premisBNS + "eventOutcomeDetailNote").text = escape(event_record.event_outcome_detail)
+
+    if event_record.linking_agent:
+        linkingAgentIdentifier = etree.SubElement(event, ns.premisBNS + "linkingAgentIdentifier")
+        etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierType").text = "Archivematica user pk"
+        etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = str(event_record.linking_agent)
+
+    # linkingAgentIdentifier
+    for agent in Agent.objects.all():
+        linkingAgentIdentifier = etree.SubElement(event, ns.premisBNS + "linkingAgentIdentifier")
+        etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierType").text = agent.identifiertype
+        etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = agent.identifiervalue
+
 
 def createDigiprovMDAgents(fileGroupIdentifier=None):
     ret = []

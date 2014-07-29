@@ -191,3 +191,24 @@ class TestUpdateDublinCore(TestCase):
         assert dc_elem[10].text == 'Partial'
         assert dc_elem[11].tag == '{http://purl.org/dc/elements/1.1/}rights'
         assert dc_elem[11].text == 'Public Domain'
+
+
+class TestAddEvents(TestCase):
+    """ Test adding reingest events to all existing files. (add_events) """
+
+    fixture_files = ['sip.json', 'files.json', 'agents.json', 'reingest_events.json']
+    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
+
+    def test_all_files_get_events(self):
+        """
+        It should add reingestion events to all files.
+        """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 16
+        root = archivematicaCreateMETSReingest.add_events(root, self.sip_uuid)
+        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 19
+        assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_3"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []

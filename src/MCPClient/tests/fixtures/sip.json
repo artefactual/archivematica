@@ -1,0 +1,15 @@
+[
+{
+    "pk": "4060ee97-9c3f-4822-afaf-ebdf838284c3", 
+    "model": "main.sip", 
+    "fields": {
+        "aip_filename": null, 
+        "magiclink": null, 
+        "magiclinkexitmessage": null, 
+        "currentpath": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/no-metadata-4060ee97-9c3f-4822-afaf-ebdf838284c3/", 
+        "sip_type": "AIP-REIN", 
+        "createdtime": "2015-06-24T17:22:02Z",
+        "hidden": false
+    }
+}
+]

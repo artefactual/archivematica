@@ -110,6 +110,29 @@ def add_events(root, sip_uuid):
     """
     Add reingest events for all existing files.
     """
+    # Get all reingestion events for files in this SIP
+    reingest_events = models.Event.objects.filter(file_uuid__sip__uuid=sip_uuid, event_type='reingestion')
+    digiprov_counter = int(root.xpath('count(mets:amdSec/mets:digiprovMD)', namespaces=ns.NSMAP))  # HACK
+    for event in reingest_events:
+        # Use fileSec to get amdSec (use first amdSec)
+        print('Adding reingestion event to', event.file_uuid_id)
+        f = event.file_uuid
+        rel_path = f.currentlocation.replace('%SIPDirectory%', '', 1).replace('%transferDirectory%', '', 1)
+        file_elem = root.xpath('mets:fileSec/mets:fileGrp/mets:file/mets:FLocat[@xlink:href="' + rel_path + '"]/ancestor::mets:file', namespaces=ns.NSMAP)[0]
+        amdid = file_elem.get('ADMID').split()[0]
+        print(event.file_uuid_id, 'has amdSec with ADMID', amdid)
+        amdsec = root.find('mets:amdSec[@ID="' + amdid + '"]', namespaces=ns.NSMAP)
+
+        # Add event after digiprovMD
+        digiprov_counter += 1
+        digiprovid = 'digiprovMD_%s' % digiprov_counter
+        digiprovMD = etree.Element(ns.metsBNS + "digiprovMD", ID=digiprovid)
+
+        createmets2.createEvent(digiprovMD, event)
+
+        # Add digiprovMD after other event digiprovMDs
+        amdsec.findall('mets:digiprovMD', namespaces=ns.NSMAP)[-1].addnext(digiprovMD)
+
     return root
 
 
