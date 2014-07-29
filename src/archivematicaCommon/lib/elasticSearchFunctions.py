@@ -50,6 +50,30 @@ MAX_QUERY_SIZE = 50000  # TODO Check that this is a reasonable number
 class ElasticsearchError(Exception):
     pass
 
+def remove_tool_output_from_mets(doc):
+    """
+    Given an ElementTree object, removes all objectsCharacteristicsExtensions elements.
+    This modifies the existing document in-place; it does not return a new document.
+
+    This helps index METS files, which might otherwise get too large to
+    be usable.
+    """
+    root = doc.getroot()
+    nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
+        'dc': 'http://purl.org/dc/terms/',
+        'm': 'http://www.loc.gov/METS/',
+        'p': 'info:lc/xmlns/premis-v2',
+        'f': 'http://hul.harvard.edu/ois/xml/ns/fits/fits_output',
+    }
+
+    # remove tool output nodes
+    toolNodes = root.findall("m:amdSec/m:techMD/m:mdWrap/m:xmlData/p:object/p:objectCharacteristics/p:objectCharacteristicsExtension", namespaces=nsmap)
+
+    for parent in toolNodes:
+        parent.clear()
+
+    print "Removed FITS output from METS."
+
 def getDashboardUUID():
     sql = "SELECT value FROM DashboardSettings WHERE name='%s'"
     sql = sql % (MySQLdb.escape_string('dashboard_uuid'))
@@ -255,6 +279,10 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_a
     conn = connect_and_create_index('aips')
 
     tree = ElementTree.parse(pathToMETS)
+
+    # TODO add a conditional to toggle this
+    remove_tool_output_from_mets(tree)
+
     root = tree.getroot()
     nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
         'dc': 'http://purl.org/dc/terms/',
@@ -384,19 +412,8 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
         'f': 'http://hul.harvard.edu/ois/xml/ns/fits/fits_output',
     }
 
-    #before_length = len(ElementTree.tostring(root))
-
-    # add a conditional to toggle this
-    # remove FITS output nodes
-    fitsOutputNodes = root.findall("m:amdSec/m:techMD/m:mdWrap/m:xmlData/p:object/p:objectCharacteristics/p:objectCharacteristicsExtension/f:fits", namespaces=nsmap) #/f:toolOutput")
-
-    for parent in fitsOutputNodes:
-        children = parent.findall('f:toolOutput', namespaces=nsmap)
-        for node in children:
-            parent.remove(node)
-
-    #after_length = len(ElementTree.tostring(root))
-    print "Removed FITS output from METS."
+    # TODO add a conditional to toggle this
+    remove_tool_output_from_mets(tree)
 
     # get SIP-wide dmdSec
     dmdSec = root.findall("m:dmdSec/m:mdWrap/m:xmlData", namespaces=nsmap)
