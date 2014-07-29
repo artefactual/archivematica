@@ -42,9 +42,6 @@ def post_store_hook(sip_uuid):
             )
             elasticSearchFunctions.connect_and_remove_sip_transfer_files(transfer_uuid)
 
-    # POST-STORE CALLBACK
-    storage_service.post_store_aip_callback(sip_uuid)
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
