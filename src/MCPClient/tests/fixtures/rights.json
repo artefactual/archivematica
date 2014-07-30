@@ -1,0 +1,377 @@
+[
+{
+    "pk": 1,
+    "model": "main.rightsstatement",
+    "fields": {
+        "status": "ORIGINAL",
+        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadataappliestoidentifier": "a4a5480c-9f51-4119-8dcb-d3f12e647c14",
+        "rightsholder": 0,
+        "rightsstatementidentifiervalue": "",
+        "rightsbasis": "Copyright",
+        "rightsstatementidentifiertype": ""
+    }
+},
+{
+    "pk": 2,
+    "model": "main.rightsstatement",
+    "fields": {
+        "status": "ORIGINAL",
+        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadataappliestoidentifier": "a4a5480c-9f51-4119-8dcb-d3f12e647c14",
+        "rightsholder": 0,
+        "rightsstatementidentifiervalue": "",
+        "rightsbasis": "Statute",
+        "rightsstatementidentifiertype": ""
+    }
+},
+{
+    "pk": 3,
+    "model": "main.rightsstatement",
+    "fields": {
+        "status": "ORIGINAL",
+        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadataappliestoidentifier": "a4a5480c-9f51-4119-8dcb-d3f12e647c14",
+        "rightsholder": 0,
+        "rightsstatementidentifiervalue": "",
+        "rightsbasis": "License",
+        "rightsstatementidentifiertype": ""
+    }
+},
+{
+    "pk": 4,
+    "model": "main.rightsstatement",
+    "fields": {
+        "status": "ORIGINAL",
+        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadataappliestoidentifier": "a4a5480c-9f51-4119-8dcb-d3f12e647c14",
+        "rightsholder": 0,
+        "rightsstatementidentifiervalue": "",
+        "rightsbasis": "Donor",
+        "rightsstatementidentifiertype": ""
+    }
+},
+{
+    "pk": 5,
+    "model": "main.rightsstatement",
+    "fields": {
+        "status": "REINGEST",
+        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadataappliestoidentifier": "10d57d98-29e5-4b2c-9f9f-d163e632eb31",
+        "rightsholder": 0,
+        "rightsstatementidentifiervalue": "",
+        "rightsbasis": "Copyright",
+        "rightsstatementidentifiertype": ""
+    }
+},
+{
+    "pk": 6,
+    "model": "main.rightsstatement",
+    "fields": {
+        "status": "UPDATED",
+        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
+        "rightsholder": 0,
+        "rightsstatementidentifiervalue": "",
+        "rightsbasis": "Statute",
+        "rightsstatementidentifiertype": ""
+    }
+},
+{
+    "pk": 1,
+    "model": "main.rightsstatementcopyright",
+    "fields": {
+        "copyrightapplicableenddate": "",
+        "copyrightstatus": "Under copyright",
+        "copyrightjurisdiction": "Canada",
+        "copyrightenddateopen": true,
+        "copyrightstatusdeterminationdate": "2015",
+        "copyrightapplicablestartdate": "1990",
+        "rightsstatement": 1
+    }
+},
+{
+    "pk": 2,
+    "model": "main.rightsstatementcopyright",
+    "fields": {
+        "copyrightapplicableenddate": "",
+        "copyrightstatus": "Under copyright",
+        "copyrightjurisdiction": "Canada",
+        "copyrightenddateopen": true,
+        "copyrightstatusdeterminationdate": "2015",
+        "copyrightapplicablestartdate": "1990",
+        "rightsstatement": 5
+    }
+},
+{
+    "pk": 1,
+    "model": "main.rightsstatementcopyrightnote",
+    "fields": {
+        "copyrightnote": "Copyright expires 2010",
+        "rightscopyright": 1
+    }
+},
+{
+    "pk": 2,
+    "model": "main.rightsstatementcopyrightnote",
+    "fields": {
+        "copyrightnote": "Copyright expires 2010",
+        "rightscopyright": 2
+    }
+},
+{
+    "pk": 1,
+    "model": "main.rightsstatementlicense",
+    "fields": {
+        "licenseenddateopen": true,
+        "licenseapplicablestartdate": "2015",
+        "licenseapplicableenddate": "",
+        "licenseterms": "CC-BY-SA",
+        "rightsstatement": 3
+    }
+},
+{
+    "pk": 1,
+    "model": "main.rightsstatementlicensenote",
+    "fields": {
+        "licensenote": "Creative Commons Attribution Share Alike",
+        "rightsstatementlicense": 1
+    }
+},
+{
+    "pk": 1,
+    "model": "main.rightsstatementrightsgranted",
+    "fields": {
+        "startdate": "2000",
+        "act": "Disseminate",
+        "enddate": "",
+        "enddateopen": true,
+        "rightsstatement": 1
+    }
+},
+{
+    "pk": 2,
+    "model": "main.rightsstatementrightsgranted",
+    "fields": {
+        "startdate": "1994",
+        "act": "Disseminate",
+        "enddate": "2094",
+        "enddateopen": false,
+        "rightsstatement": 2
+    }
+},
+{
+    "pk": 3,
+    "model": "main.rightsstatementrightsgranted",
+    "fields": {
+        "startdate": "2015",
+        "act": "Disseminate",
+        "enddate": "",
+        "enddateopen": true,
+        "rightsstatement": 3
+    }
+},
+{
+    "pk": 4,
+    "model": "main.rightsstatementrightsgranted",
+    "fields": {
+        "startdate": "2000-01-01",
+        "act": "Publish",
+        "enddate": "2100-01-01",
+        "enddateopen": false,
+        "rightsstatement": 4
+    }
+},
+{
+    "pk": 5,
+    "model": "main.rightsstatementrightsgranted",
+    "fields": {
+        "startdate": "2000",
+        "act": "Disseminate",
+        "enddate": "",
+        "enddateopen": true,
+        "rightsstatement": 5
+    }
+},
+{
+    "pk": 6,
+    "model": "main.rightsstatementrightsgranted",
+    "fields": {
+        "startdate": "1994",
+        "act": "Disseminate",
+        "enddate": "2054",
+        "enddateopen": false,
+        "rightsstatement": 6
+    }
+},
+{
+    "pk": 1,
+    "model": "main.rightsstatementrightsgrantednote",
+    "fields": {
+        "rightsgranted": 1,
+        "rightsgrantednote": "Attribution required"
+    }
+},
+{
+    "pk": 2,
+    "model": "main.rightsstatementrightsgrantednote",
+    "fields": {
+        "rightsgranted": 3,
+        "rightsgrantednote": "Attribution Required"
+    }
+},
+{
+    "pk": 3,
+    "model": "main.rightsstatementrightsgrantednote",
+    "fields": {
+        "rightsgranted": 5,
+        "rightsgrantednote": "Attribution required"
+    }
+},
+{
+    "pk": 1,
+    "model": "main.rightsstatementrightsgrantedrestriction",
+    "fields": {
+        "restriction": "Allow",
+        "rightsgranted": 1
+    }
+},
+{
+    "pk": 2,
+    "model": "main.rightsstatementrightsgrantedrestriction",
+    "fields": {
+        "restriction": "Disallow",
+        "rightsgranted": 2
+    }
+},
+{
+    "pk": 3,
+    "model": "main.rightsstatementrightsgrantedrestriction",
+    "fields": {
+        "restriction": "Allow",
+        "rightsgranted": 3
+    }
+},
+{
+    "pk": 4,
+    "model": "main.rightsstatementrightsgrantedrestriction",
+    "fields": {
+        "restriction": "Conditional",
+        "rightsgranted": 4
+    }
+},
+{
+    "pk": 5,
+    "model": "main.rightsstatementrightsgrantedrestriction",
+    "fields": {
+        "restriction": "Allow",
+        "rightsgranted": 5
+    }
+},
+{
+    "pk": 6,
+    "model": "main.rightsstatementrightsgrantedrestriction",
+    "fields": {
+        "restriction": "Disallow",
+        "rightsgranted": 6
+    }
+},
+{
+    "pk": 1,
+    "model": "main.rightsstatementstatuteinformation",
+    "fields": {
+        "statuteenddateopen": false,
+        "statuteapplicablestartdate": "1994",
+        "rightsstatement": 2,
+        "statuteapplicableenddate": "2094",
+        "statutecitation": "Freedom of Information Act",
+        "statutejurisdiction": "BC, Canada",
+        "statutedeterminationdate": "2011"
+    }
+},
+{
+    "pk": 2,
+    "model": "main.rightsstatementstatuteinformation",
+    "fields": {
+        "statuteenddateopen": false,
+        "statuteapplicablestartdate": "1994",
+        "rightsstatement": 6,
+        "statuteapplicableenddate": "2054",
+        "statutecitation": "Freedom of Information Act",
+        "statutejurisdiction": "BC, Canada",
+        "statutedeterminationdate": "2011"
+    }
+},
+{
+    "pk": 1,
+    "model": "main.rightsstatementstatuteinformationnote",
+    "fields": {
+        "rightsstatementstatute": 1,
+        "statutenote": "SIN & health numbers"
+    }
+},
+{
+    "pk": 2,
+    "model": "main.rightsstatementstatuteinformationnote",
+    "fields": {
+        "rightsstatementstatute": 2,
+        "statutenote": "SIN"
+    }
+},
+{
+    "pk": 1,
+    "model": "main.rightsstatementotherrightsinformation",
+    "fields": {
+        "otherrightsenddateopen": false,
+        "otherrightsapplicablestartdate": "2000-01-01",
+        "otherrightsbasis": "Other",
+        "otherrightsapplicableenddate": "2100-01-01",
+        "rightsstatement": 4
+    }
+},
+{
+    "pk": 1,
+    "model": "main.rightsstatementotherrightsdocumentationidentifier",
+    "fields": {
+        "rightsstatementotherrights": 1,
+        "otherrightsdocumentationidentifiervalue": "1",
+        "otherrightsdocumentationidentifiertype": "DID",
+        "otherrightsdocumentationidentifierrole": "-"
+    }
+},
+{
+    "pk": 1,
+    "model": "main.rightsstatementotherrightsinformationnote",
+    "fields": {
+        "rightsstatementotherrights": 1,
+        "otherrightsnote": "Contact in 2010 for earlier release."
+    }
+},
+{
+    "pk": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+    "model": "main.metadataappliestotype",
+    "fields": {
+        "lastmodified": "2012-10-02T00:25:05Z",
+        "replaces": null,
+        "description": "SIP"
+    }
+},
+{
+    "pk": "45696327-44c5-4e78-849b-e027a189bf4d",
+    "model": "main.metadataappliestotype",
+    "fields": {
+        "lastmodified": "2012-10-02T00:25:05Z",
+        "replaces": null,
+        "description": "Transfer"
+    }
+},
+{
+    "pk": "7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17",
+    "model": "main.metadataappliestotype",
+    "fields": {
+        "lastmodified": "2012-10-02T00:25:05Z",
+        "replaces": null,
+        "description": "File"
+    }
+}
+]

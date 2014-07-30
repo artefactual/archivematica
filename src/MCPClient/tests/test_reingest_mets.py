@@ -195,6 +195,108 @@ class TestUpdateDublinCore(TestCase):
         assert dc_elem[11].text == 'Public Domain'
 
 
+class TestUpdateRights(TestCase):
+    """ Test updating PREMIS:RIGHTS. (update_rights and add_rights_elements) """
+
+    fixture_files = ['rights.json']
+    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    now = datetime.datetime.utcnow().replace(microsecond=0).isoformat('T')
+
+    sip_uuid_none = 'dnedne7c-5bd2-4249-84a1-2f00f725b981'
+    sip_uuid_original = 'a4a5480c-9f51-4119-8dcb-d3f12e647c14'
+    sip_uuid_reingest = '10d57d98-29e5-4b2c-9f9f-d163e632eb31'
+    sip_uuid_updated = '2941f14c-bd57-4f4a-a514-a3bf6ac5adf0'
+
+    def test_no_rights(self):
+        """ It should do nothing if there are no rights entries. """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'), parser=REMOVE_BLANK_PARSER)
+        assert root.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
+        root = archivematicaCreateMETSReingest.update_rights(root, self.sip_uuid_none, self.now)
+        assert root.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
+
+    def test_rights_not_updated(self):
+        """ It should do nothing if the rights have not been modified. """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'), parser=REMOVE_BLANK_PARSER)
+        assert root.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
+        root = archivematicaCreateMETSReingest.update_rights(root, self.sip_uuid_reingest, self.now)
+        assert root.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
+
+    def test_new_rights(self):
+        """
+        It should add a new rights if there were none before.
+        It should add after the last techMD.
+        It should add rights to all original files.
+        It should not add rights to the METS file amdSec.
+        """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'), parser=REMOVE_BLANK_PARSER)
+        assert root.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
+        root = archivematicaCreateMETSReingest.update_rights(root, self.sip_uuid_original, self.now)
+
+        # Verify new rightsMD for all rightsstatements
+        assert len(root.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 4
+        # Verify all associated with the original file
+        assert len(root.findall('mets:amdSec[@ID="amdSec_2"]/mets:rightsMD', namespaces=NSMAP)) == 4
+        # Verify rightsMDs exist with correct basis
+        assert root.xpath('.//premis:rightsBasis[text()="Copyright"]', namespaces=NSMAP)[0] is not None
+        assert root.xpath('.//premis:rightsBasis[text()="Statute"]', namespaces=NSMAP)[0] is not None
+        assert root.xpath('.//premis:rightsBasis[text()="License"]', namespaces=NSMAP)[0] is not None
+        assert root.xpath('.//premis:rightsBasis[text()="Other"]', namespaces=NSMAP)[0] is not None
+
+    def test_update_existing_rights(self):
+        """
+        It should add new updated rights and mark the old ones as superseded.
+        It should add after the last rightsMD.
+        It should add rights to all files.
+        It should not add rights to the METS file.
+        """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_all_rights.xml'), parser=REMOVE_BLANK_PARSER)
+        assert len(root.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 5
+        root = archivematicaCreateMETSReingest.update_rights(root, self.sip_uuid_updated, self.now)
+
+        # Verify new rightsMD for all rightsstatements
+        assert len(root.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 6
+        # Verify all associated with the original file
+        assert len(root.findall('mets:amdSec[@ID="amdSec_1"]/mets:rightsMD', namespaces=NSMAP)) == 6
+        assert root.find('mets:amdSec/mets:rightsMD[@ID="rightsMD_1"]', namespaces=NSMAP).get('STATUS') is None
+        assert root.find('mets:amdSec/mets:rightsMD[@ID="rightsMD_2"]', namespaces=NSMAP).attrib['STATUS'] == 'superseded'
+        assert root.find('mets:amdSec/mets:rightsMD[@ID="rightsMD_3"]', namespaces=NSMAP).get('STATUS') is None
+        assert root.find('mets:amdSec/mets:rightsMD[@ID="rightsMD_4"]', namespaces=NSMAP).get('STATUS') is None
+        assert root.find('mets:amdSec/mets:rightsMD[@ID="rightsMD_5"]', namespaces=NSMAP).get('STATUS') is None
+        new_rights = root.find('mets:amdSec[@ID="amdSec_1"]', namespaces=NSMAP)[6]
+        assert new_rights is not None
+        assert new_rights.attrib['STATUS'] == 'current'
+        assert new_rights.attrib['CREATED'] == self.now
+        assert new_rights.find('.//premis:statuteApplicableDates/premis:endDate', namespaces=NSMAP).text == '2054'
+        assert new_rights.find('.//premis:termOfRestriction/premis:endDate', namespaces=NSMAP).text == '2054'
+        assert new_rights.find('.//premis:statuteNote', namespaces=NSMAP).text == 'SIN'
+
+    def test_update_reingested_rights(self):
+        """
+        It should add new updated rights and mark all the old ones as superseded.
+        It should add after the last rightsMD.
+        It should add rights to all files.
+        It should not add rights to the METS file.
+        """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_updated_rights.xml'), parser=REMOVE_BLANK_PARSER)
+        assert len(root.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 2
+        root = archivematicaCreateMETSReingest.update_rights(root, self.sip_uuid_updated, self.now)
+
+        # Verify new rightsMD for all rightsstatements
+        assert len(root.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 3
+        # Verify all associated with the original file
+        assert len(root.findall('mets:amdSec[@ID="amdSec_1"]/mets:rightsMD', namespaces=NSMAP)) == 3
+        assert root.find('mets:amdSec/mets:rightsMD[@ID="rightsMD_1"]', namespaces=NSMAP).attrib['STATUS'] == 'superseded'
+        assert root.find('mets:amdSec/mets:rightsMD[@ID="rightsMD_2"]', namespaces=NSMAP).attrib['STATUS'] == 'superseded'
+        new_rights = root.find('mets:amdSec[@ID="amdSec_1"]', namespaces=NSMAP)[3]
+        assert new_rights is not None
+        assert new_rights.attrib['STATUS'] == 'current'
+        assert new_rights.attrib['CREATED'] == self.now
+        assert new_rights.find('.//premis:statuteApplicableDates/premis:endDate', namespaces=NSMAP).text == '2054'
+        assert new_rights.find('.//premis:termOfRestriction/premis:endDate', namespaces=NSMAP).text == '2054'
+        assert new_rights.find('.//premis:statuteNote', namespaces=NSMAP).text == 'SIN'
+
+
 class TestAddEvents(TestCase):
     """ Test adding reingest events to all existing files. (add_events) """
 
