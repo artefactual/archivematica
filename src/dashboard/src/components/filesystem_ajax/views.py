@@ -352,9 +352,9 @@ def create_arranged_sip(staging_sip_path, files):
     levels_of_description = models.FileLevelOfDescription.objects.filter(
         Q(relative_location__startswith=sip_name + '/') | Q(relative_location=sip_name),
         sip__isnull=True)
-    for directory in levels_of_description:
-        directory.sip = sip
-        directory.save()
+    for entry in levels_of_description:
+        entry.sip = sip
+        entry.save()
 
     # Move to watchedDirectories/SIPCreation/SIPsUnderConstruction
     logging.info('create_arranged_sip: move from %s to %s', staging_abs_path, sip_path)
