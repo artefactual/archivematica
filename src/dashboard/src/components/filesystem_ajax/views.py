@@ -354,6 +354,11 @@ def create_arranged_sip(staging_sip_path, files):
         sip__isnull=True)
     for entry in levels_of_description:
         entry.sip = sip
+        # Relative location is now relative to SIP dir rather than arrange dir
+        try:
+            entry.relative_location = entry.relative_location[entry.relative_location.index('/') + 1:]
+        except ValueError:
+            entry.relative_location = ''
         entry.save()
 
     # Move to watchedDirectories/SIPCreation/SIPsUnderConstruction
