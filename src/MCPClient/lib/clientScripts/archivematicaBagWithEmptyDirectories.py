@@ -71,10 +71,15 @@ def bag_with_empty_directories(args):
     """ Run bagit create bag command, and create any empty directories from the SIP. """
     # Get list of directories in SIP
     sip_dir = os.path.dirname(args.destination)
-    dir_list = get_sip_directories(sip_dir)
+    dir_list = get_sip_directories(args.sip_directory)
 
+    # These are passed to this script as paths relative to their location in
+    # the SIP; passing the full SIP location each time has the potential to
+    # overflow the 1000-character limit the job's command has in the database,
+    # especially with long SIP names.
+    full_paths = [os.path.join(args.sip_directory, p) for p in args.payload_entries]
     # Ensure all payload items actually exist
-    payload_entries = [e for e in args.payload_entries if os.path.exists(e)]
+    payload_entries = [e for e in full_paths if os.path.exists(e)]
 
     # Reconstruct bagit arguments
     # Goal: bagit <operation> <destination> <flattened payload list> <optional args>
@@ -91,6 +96,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Convert folder into a bag.')
     parser.add_argument('operation')
     parser.add_argument('destination')
+    parser.add_argument('sip_directory')
     parser.add_argument('payload_entries', metavar='Payload', nargs='+',
                    help='All the files/folders that should go in the bag.')
     parser.add_argument('--writer', dest='writer')

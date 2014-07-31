@@ -758,3 +758,10 @@ INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, cu
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('c3c8e23c-1c8a-4c24-b8a1-3d6e8a8c3a7b', @postStoreMSCL, 0, 'd5a2ef60-a757-483c-a71a-ccbffe6b80da', 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@postStoreMSCL WHERE microServiceChainLink='48703fad-dc44-4c8e-8f47-933df3ef6179';
 -- /Issue 6788 - Add post store AIP hook
+
+-- Issue 6624 - Bagit arguments
+-- Update the arguments field to not repeatedly expand the value of
+-- %SIPDirectory% - which is so verbose it causes this to frequently
+-- overflow the 1000-character limit on this field in the database.
+UPDATE StandardTasksConfigs SET arguments='create "%SIPDirectory%%SIPName%-%SIPUUID%" "%SIPDirectory%" "logs/" "objects/" "METS.%SIPUUID%.xml" "thumbnails/" "metadata/" --writer filesystem --payloadmanifestalgorithm "sha512"' WHERE pk='045f84de-2669-4dbc-a31b-43a4954d0481';
+-- /Issue 6624 - Bagit arguments
