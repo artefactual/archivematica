@@ -335,3 +335,81 @@ class TestAddEvents(TestCase):
         assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]', namespaces=NSMAP) != []
         assert root.xpath('mets:amdSec[@ID="amdSec_3"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
         assert root.xpath('mets:amdSec[@ID="amdSec_3"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]', namespaces=NSMAP) != []
+
+
+class TestAddingNewFiles(TestCase):
+    """ Test adding new metadata files to the structMap & fileSec. (add_new_files) """
+
+    fixture_files = ['sip.json', 'files.json']
+    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
+    now = datetime.datetime.utcnow().replace(microsecond=0).isoformat('T')
+
+    def test_no_new_files(self):
+        """ It should not modify the fileSec or structMap if there are no new files. """
+        # Make sure directory is empty
+        sip_dir = os.path.join(THIS_DIR, 'fixtures', 'emptysip', '')
+        try:
+            os.remove(os.path.join(sip_dir, 'objects', 'metadata', 'transfers', '.gitignore'))
+        except OSError:
+            pass
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert len(root.findall('mets:amdSec', namespaces=NSMAP)) == 3
+        assert len(root.findall('mets:fileSec//mets:file', namespaces=NSMAP)) == 3
+        assert root.find('mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP) is None
+        assert len(root.findall('mets:structMap//mets:div', namespaces=NSMAP)) == 10
+
+        root = archivematicaCreateMETSReingest.add_new_files(root, self.sip_uuid, sip_dir, self.now)
+        assert len(root.findall('mets:amdSec', namespaces=NSMAP)) == 3
+        assert len(root.findall('mets:fileSec//mets:file', namespaces=NSMAP)) == 3
+        assert root.find('mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP) is None
+        assert len(root.findall('mets:structMap//mets:div', namespaces=NSMAP)) == 10
+
+        # Reverse deletion
+        with open(os.path.join(sip_dir, 'objects', 'metadata', 'transfers', '.gitignore'), 'w'):
+            pass
+
+    def test_add_metadata_csv(self):
+        """
+        It should add a metadata file to the fileSec, structMap & amdSec.
+        It should add a dmdSec.  (Other testing for TestUpdateMetadataCSV)
+        """
+        sip_dir = os.path.join(THIS_DIR, 'fixtures', 'metadata_csv_sip', '')
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert len(root.findall('mets:amdSec', namespaces=NSMAP)) == 3
+        assert len(root.findall('mets:fileSec//mets:file', namespaces=NSMAP)) == 3
+        assert root.find('mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP) is None
+        assert len(root.findall('mets:structMap//mets:div', namespaces=NSMAP)) == 10
+
+        root = archivematicaCreateMETSReingest.add_new_files(root, self.sip_uuid, sip_dir, self.now)
+
+        file_uuid = '66370f14-2f64-4750-9d50-547614be40e8'
+        # Check structMap
+        div = root.find('mets:structMap/mets:div/mets:div[@LABEL="objects"]/mets:div[@LABEL="metadata"]/mets:div[@TYPE="Item"]', namespaces=NSMAP)
+        assert div is not None
+        assert div.attrib['LABEL'] == 'metadata.csv'
+        assert len(div) == 1
+        assert div[0].tag == '{http://www.loc.gov/METS/}fptr'
+        assert div[0].attrib['FILEID'] == 'file-' + file_uuid
+        # Check fileSec
+        mets_grp = root.find('mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP)
+        assert mets_grp is not None
+        assert len(mets_grp) == 1
+        assert mets_grp[0].tag == '{http://www.loc.gov/METS/}file'
+        assert mets_grp[0].attrib['ID'] == 'file-' + file_uuid
+        assert mets_grp[0].attrib['GROUPID'] == 'Group-' + file_uuid
+        adm_id = mets_grp[0].attrib['ADMID']
+        assert adm_id
+        assert len(mets_grp[0]) == 1
+        assert mets_grp[0][0].tag == '{http://www.loc.gov/METS/}FLocat'
+        assert mets_grp[0][0].attrib['LOCTYPE'] == 'OTHER'
+        assert mets_grp[0][0].attrib['OTHERLOCTYPE'] == 'SYSTEM'
+        assert mets_grp[0][0].attrib['{http://www.w3.org/1999/xlink}href'] == 'objects/metadata/metadata.csv'
+        # Check amdSec
+        amdsec = root.find('mets:amdSec[@ID="' + adm_id + '"]', namespaces=NSMAP)
+        assert amdsec is not None
+        assert amdsec.findtext('.//premis:objectIdentifierValue', namespaces=NSMAP) == file_uuid
+        assert amdsec.findtext('.//premis:messageDigest', namespaces=NSMAP) == 'e8121d8a660e2992872f0b67923d2d08dde9a1ba72dfd58e5a31e68fbac3633c'
+        assert amdsec.findtext('.//premis:size', namespaces=NSMAP) == '154'
+        assert amdsec.findtext('.//premis:originalName', namespaces=NSMAP) == '%SIPDirectory%metadata/metadata.csv'

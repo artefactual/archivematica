@@ -238,8 +238,85 @@ def add_events(root, sip_uuid):
 
 def add_new_files(root, sip_uuid, sip_dir, now):
     """
-    Add new metadata files to structMap, fileSec.  Add new amdSecs??? What events?  Parse files to add metadata to METS.
+    Add new metadata files to structMap, fileSec. Parse metadata.csv to dmdSecs.
     """
+    # Find new metadata files
+    # How tell new file from old with same name? Check hash?
+    # QUESTION should the metadata.csv be parsed and only updated if different even if one already existed?
+    new_files = []
+    metadata_path = os.path.join(sip_dir, 'objects', 'metadata')
+    for dirpath, _, filenames in os.walk(metadata_path):
+        for filename in filenames:
+            current_loc = os.path.join(dirpath, filename).replace(sip_dir, '%SIPDirectory%', 1)
+            rel_path = current_loc.replace('%SIPDirectory%', '', 1)
+            print('Looking for', rel_path, 'in METS')
+            # Find in METS
+            flocat = root.find('.//mets:FLocat[@xlink:href="' + rel_path + '"]', namespaces=ns.NSMAP)
+            if flocat is None:
+                # If not in METS, get File object and store for later
+                print(rel_path, 'not found in METS, must be new file')
+                f = models.File.objects.get(
+                    sip_id=sip_uuid,
+                    filegrpuse='metadata',
+                    currentlocation=current_loc,
+                )
+                new_files.append(f)
+            else:
+                print(rel_path, 'found in METS, no further work needed')
+
+    if not new_files:
+        return root
+
+    # Set global counters so getAMDSec will work
+    createmets2.globalAmdSecCounter = int(root.xpath('count(mets:amdSec)', namespaces=ns.NSMAP))
+    createmets2.globalTechMDCounter = int(root.xpath('count(mets:amdSec/mets:techMD)', namespaces=ns.NSMAP))
+    createmets2.globalDigiprovMDCounter = int(root.xpath('count(mets:amdSec/mets:digiprovMD)', namespaces=ns.NSMAP))
+
+    # Create amdSecs
+    add_after = root.findall('mets:amdSec', namespaces=ns.NSMAP)[-1]
+    filegrp = root.find('mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=ns.NSMAP)
+    if filegrp is None:
+        filesec = root.find('mets:fileSec', namespaces=ns.NSMAP)
+        # CHECK is an empty metadata fileGrp acceptable?
+        filegrp = etree.SubElement(filesec, ns.metsBNS + 'fileGrp', USE='metadata')
+    metadata_div = root.find('mets:structMap/mets:div/mets:div[@LABEL="objects"]/mets:div[@LABEL="metadata"]', namespaces=ns.NSMAP)
+
+    for f in new_files:
+        # Create amdSecs
+        print('Adding amdSec for', f.currentlocation, '(', f.uuid, ')')
+        amdsec, amdid = createmets2.getAMDSec(
+            fileUUID=f.uuid,
+            filePath=None,  # Only needed if use=original
+            use='metadata',
+            type=None,  # Not used
+            id=None,  # Not used
+            transferUUID=None,  # Only needed if use=original
+            itemdirectoryPath=None,  # Only needed if use=original
+            typeOfTransfer=None,  # Only needed if use=original
+            baseDirectoryPath=sip_dir,
+        )
+        print(f.uuid, 'has amdSec with ID', amdid)
+        add_after.addnext(amdsec)
+        add_after = amdsec
+
+        # Add to fileSec
+        fileid = 'file-' + f.uuid
+        file_elem = etree.SubElement(filegrp, ns.metsBNS + 'file', GROUPID='Group-' + f.uuid, ID=fileid, ADMID=amdid)
+        flocat = etree.SubElement(file_elem, ns.metsBNS + 'FLocat', LOCTYPE="OTHER", OTHERLOCTYPE="SYSTEM")
+        flocat.set(ns.xlinkBNS + 'href', f.currentlocation.replace('%SIPDirectory%', '', 1))
+
+        # Add to structMap
+        label = os.path.basename(f.currentlocation)
+        # Create directory divs if needed
+        dirs = os.path.dirname(f.currentlocation.replace('%SIPDirectory%objects/metadata/', '', 1)).split('/')
+        parent_elem = metadata_div
+        for d in (d for d in dirs if d):
+            parent_elem = etree.SubElement(parent_elem, ns.metsBNS + 'div', TYPE='Directory', LABEL=d)
+        file_div = etree.SubElement(parent_elem, ns.metsBNS + 'div', TYPE='Item', LABEL=label)
+        etree.SubElement(file_div, ns.metsBNS + 'fptr', FILEID=fileid)
+
+    # TODO Parse metadata.csv and add dmdSecs
+
     return root
 
 

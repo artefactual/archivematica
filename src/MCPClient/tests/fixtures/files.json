@@ -49,5 +49,22 @@
         "currentlocation": "%SIPDirectory%objects/evelyn_s_photo.jpg", 
         "size": 158131
     }
+},
+{
+    "pk": "66370f14-2f64-4750-9d50-547614be40e8",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+        "originallocation": "%SIPDirectory%metadata/metadata.csv",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "e8121d8a660e2992872f0b67923d2d08dde9a1ba72dfd58e5a31e68fbac3633c",
+        "enteredsystem": "2015-06-24T17:32:09Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/metadata.csv",
+        "size": 154
+    }
 }
 ]
