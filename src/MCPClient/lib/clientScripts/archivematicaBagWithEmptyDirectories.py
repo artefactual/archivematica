@@ -70,7 +70,6 @@ def create_directories(base_dir, dir_list):
 def bag_with_empty_directories(args):
     """ Run bagit create bag command, and create any empty directories from the SIP. """
     # Get list of directories in SIP
-    sip_dir = os.path.dirname(args.destination)
     dir_list = get_sip_directories(args.sip_directory)
 
     # These are passed to this script as paths relative to their location in
