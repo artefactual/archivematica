@@ -245,6 +245,7 @@ def add_new_files(root, sip_uuid, sip_dir, now):
     # QUESTION should the metadata.csv be parsed and only updated if different even if one already existed?
     new_files = []
     metadata_path = os.path.join(sip_dir, 'objects', 'metadata')
+    metadata_csv = None
     for dirpath, _, filenames in os.walk(metadata_path):
         for filename in filenames:
             current_loc = os.path.join(dirpath, filename).replace(sip_dir, '%SIPDirectory%', 1)
@@ -261,6 +262,8 @@ def add_new_files(root, sip_uuid, sip_dir, now):
                     currentlocation=current_loc,
                 )
                 new_files.append(f)
+                if rel_path == 'objects/metadata/metadata.csv':
+                    metadata_csv = f
             else:
                 print(rel_path, 'found in METS, no further work needed')
 
@@ -315,8 +318,92 @@ def add_new_files(root, sip_uuid, sip_dir, now):
         file_div = etree.SubElement(parent_elem, ns.metsBNS + 'div', TYPE='Item', LABEL=label)
         etree.SubElement(file_div, ns.metsBNS + 'fptr', FILEID=fileid)
 
-    # TODO Parse metadata.csv and add dmdSecs
+    # Parse metadata.csv and add dmdSecs
+    if metadata_csv:
+        root = update_metadata_csv(root, metadata_csv, sip_uuid, sip_dir, now)
 
+    return root
+
+
+def update_metadata_csv(root, metadata_csv, sip_uuid, sip_dir, now):
+    print('Parse new metadata.csv')
+    full_path = metadata_csv.currentlocation.replace('%SIPDirectory%', sip_dir, 1)
+    csvmetadata = createmetscsv.parseMetadataCSV(full_path)
+
+    # Set globalDmdSecCounter so createDmdSecsFromCSVParsedMetadata will work
+    createmets2.globalDmdSecCounter = int(root.xpath('count(mets:dmdSec)', namespaces=ns.NSMAP))
+
+    # dmdSecs added after existing dmdSecs or metsHdr if none
+    try:
+        add_after = root.findall('mets:dmdSec', namespaces=ns.NSMAP)[-1]
+    except IndexError:
+        add_after = root.find('mets:metsHdr', namespaces=ns.NSMAP)
+
+    aip_div = root.find('mets:structMap[@TYPE="physical"]/mets:div', namespaces=ns.NSMAP)
+
+    # FIXME Does this have to support having non DC metadata in the CSV?  Assuming not
+    for f, md in csvmetadata.iteritems():
+        # Verify file is in AIP
+        print('Looking for', f, 'from metadata.csv in SIP')
+        # Find File with original or current locationg matching metadata.csv
+        # Prepend % to match the end of %SIPDirectory% or %transferDirectory%
+        try:
+            file_obj = models.File.objects.get(sip_id=sip_uuid, originallocation__endswith='%' + f)
+        except models.File.DoesNotExist:
+            try:
+                file_obj = models.File.objects.get(sip_id=sip_uuid, currentlocation__endswith='%' + f)
+            except models.File.DoesNotExist:
+                print(f, 'not found in database')
+                continue
+        print(f, 'found in database')
+
+        # Find structMap div to associate with
+        split_path = file_obj.currentlocation.replace('%SIPDirectory%', '', 1).split('/')
+        obj_div = aip_div
+        for label in split_path:
+            child = obj_div.find('mets:div[@LABEL="' + label + '"]', namespaces=ns.NSMAP)
+            if child is None:
+                print(f, 'not in structMap')
+                break
+            obj_div = child
+        if obj_div is None:
+            continue
+        ids = obj_div.get('DMDID', '')
+        print(f, 'was associated with', ids)
+
+        # Create dmdSec
+        new_dmdsecs = createmets2.createDmdSecsFromCSVParsedMetadata(md)
+
+        # Add DMDIDs
+        new_ids = [d.get('ID') for d in new_dmdsecs]
+        new_ids = ids.split() + new_ids
+        print(f, 'now associated with', ' '.join(new_ids))
+        obj_div.set('DMDID', ' '.join(new_ids))
+
+        # Update old dmdSecs if needed
+        new = False
+        if not ids:
+            # Newly generated dmdSec is the original
+            new = True
+        else:
+            # Find the dmdSec with no status and mark it original
+            search_ids = ' or '.join(['@ID="%s"' % x for x in ids.split()])
+            dmdsecs = root.xpath('mets:dmdSec[%s][not(@STATUS)]' % search_ids, namespaces=ns.NSMAP)
+            for d in dmdsecs:
+                d.set('STATUS', 'original')
+                print(d.get('ID'), 'STATUS is original')
+
+        # Add dmdSecs to document
+        for d in new_dmdsecs:
+            d.set('CREATED', now)
+            if new:
+                d.set('STATUS', 'original')
+            else:
+                d.set('STATUS', 'updated')
+            print(d.get('ID'), 'STATUS is', d.get('STATUS'))
+
+            add_after.addnext(d)
+            add_after = d
     return root
 
 

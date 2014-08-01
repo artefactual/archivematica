@@ -413,3 +413,72 @@ class TestAddingNewFiles(TestCase):
         assert amdsec.findtext('.//premis:messageDigest', namespaces=NSMAP) == 'e8121d8a660e2992872f0b67923d2d08dde9a1ba72dfd58e5a31e68fbac3633c'
         assert amdsec.findtext('.//premis:size', namespaces=NSMAP) == '154'
         assert amdsec.findtext('.//premis:originalName', namespaces=NSMAP) == '%SIPDirectory%metadata/metadata.csv'
+
+
+class TestUpdateMetadataCSV(TestCase):
+    """ Test adding metadata.csv-based DC metadata. (update_metadata_csv) """
+
+    fixture_files = ['sip.json', 'files.json']
+    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
+    sip_dir = os.path.join(THIS_DIR, 'fixtures', 'metadata_csv_sip', '')
+    now = datetime.datetime.utcnow().replace(microsecond=0).isoformat('T')
+
+    def setUp(self):
+        self.csv_file = models.File.objects.get(uuid='66370f14-2f64-4750-9d50-547614be40e8')
+
+    def test_new_dmdsecs(self):
+        """ It should add file-level dmdSecs. """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 0
+        root = archivematicaCreateMETSReingest.update_metadata_csv(root, self.csv_file, self.sip_uuid, self.sip_dir, self.now)
+        assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 1
+        dmdsec = root.find('mets:dmdSec', namespaces=NSMAP)
+        assert dmdsec.attrib['ID']
+        assert dmdsec.attrib['CREATED'] == self.now
+        assert dmdsec.attrib['STATUS'] == 'original'
+        assert dmdsec.findtext('.//dc:title', namespaces=NSMAP) == 'Mountain Tents'
+        assert dmdsec.findtext('.//dc:description', namespaces=NSMAP) == 'Tents on a mountain'
+
+    def test_update_existing(self):
+        """
+        It should add new dmdSecs.
+        It should updated the existing dmdSec as original.
+        """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_file_dc.xml'))
+        assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 1
+        root = archivematicaCreateMETSReingest.update_metadata_csv(root, self.csv_file, self.sip_uuid, self.sip_dir, self.now)
+        assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 2
+        orig = root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP)
+        assert orig.attrib['STATUS'] == 'original'
+        div = root.xpath('.//mets:div[contains(@DMDID,"dmdSec_1")]', namespaces=NSMAP)[0]
+        assert div.attrib['DMDID']
+        dmdid = div.attrib['DMDID'].split()[1]
+        new = root.find('mets:dmdSec[@ID="' + dmdid + '"]', namespaces=NSMAP)
+        assert new.attrib['CREATED'] == self.now
+        assert new.attrib['STATUS'] == 'updated'
+        assert new.findtext('.//dc:title', namespaces=NSMAP) == 'Mountain Tents'
+        assert new.findtext('.//dc:description', namespaces=NSMAP) == 'Tents on a mountain'
+
+    def test_update_reingest(self):
+        """
+        It should add new dmdSecs.
+        It should not updated the already updated dmdSecs.
+        """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_file_dc_updated.xml'))
+        assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 2
+        root = archivematicaCreateMETSReingest.update_metadata_csv(root, self.csv_file, self.sip_uuid, self.sip_dir, self.now)
+        assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 3
+        orig = root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP)
+        assert orig.attrib['STATUS'] == 'original'
+        updated = root.find('mets:dmdSec[@ID="dmdSec_2"]', namespaces=NSMAP)
+        assert updated.attrib['STATUS'] == 'updated'
+        div = root.xpath('.//mets:div[contains(@DMDID,"dmdSec_1")]', namespaces=NSMAP)[0]
+        assert div.attrib['DMDID']
+        dmdid = div.attrib['DMDID'].split()[2]
+        new = root.find('mets:dmdSec[@ID="' + dmdid + '"]', namespaces=NSMAP)
+        assert new.attrib['CREATED'] == self.now
+        assert new.attrib['STATUS'] == 'updated'
+        assert new.findtext('.//dc:title', namespaces=NSMAP) == 'Mountain Tents'
+        assert new.findtext('.//dc:description', namespaces=NSMAP) == 'Tents on a mountain'
