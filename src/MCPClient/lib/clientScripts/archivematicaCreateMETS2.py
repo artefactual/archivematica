@@ -300,49 +300,49 @@ def createTechMD(fileUUID):
     sqlLock.release()
 
     #OBJECT
-    object = etree.SubElement(xmlData, "object", nsmap={None: ns.premisNS})
-    object.set(ns.xsiBNS+"type", "file")
+    object = etree.SubElement(xmlData, ns.premisBNS + "object", nsmap={'premis': ns.premisNS})
+    object.set(ns.xsiBNS+"type", "premis:file")
     object.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
     object.set("version", "2.2")
 
-    objectIdentifier = etree.SubElement(object, "objectIdentifier")
-    etree.SubElement(objectIdentifier, "objectIdentifierType").text = "UUID"
-    etree.SubElement(objectIdentifier, "objectIdentifierValue").text = fileUUID
+    objectIdentifier = etree.SubElement(object, ns.premisBNS + "objectIdentifier")
+    etree.SubElement(objectIdentifier, ns.premisBNS + "objectIdentifierType").text = "UUID"
+    etree.SubElement(objectIdentifier, ns.premisBNS + "objectIdentifierValue").text = fileUUID
 
     #etree.SubElement(object, "objectCategory").text = "file"
 
-    objectCharacteristics = etree.SubElement(object, "objectCharacteristics")
-    etree.SubElement(objectCharacteristics, "compositionLevel").text = "0"
+    objectCharacteristics = etree.SubElement(object, ns.premisBNS + "objectCharacteristics")
+    etree.SubElement(objectCharacteristics, ns.premisBNS + "compositionLevel").text = "0"
 
-    fixity = etree.SubElement(objectCharacteristics, "fixity")
-    etree.SubElement(fixity, "messageDigestAlgorithm").text = "sha256"
-    etree.SubElement(fixity, "messageDigest").text = checksum
+    fixity = etree.SubElement(objectCharacteristics, ns.premisBNS + "fixity")
+    etree.SubElement(fixity, ns.premisBNS + "messageDigestAlgorithm").text = "sha256"
+    etree.SubElement(fixity, ns.premisBNS + "messageDigest").text = checksum
 
-    etree.SubElement(objectCharacteristics, "size").text = fileSize
+    etree.SubElement(objectCharacteristics, ns.premisBNS + "size").text = fileSize
 
     sql = "SELECT formatName, formatVersion, formatRegistryName, formatRegistryKey FROM FilesIDs WHERE fileUUID = '%s';" % (fileUUID)
     c, sqlLock = databaseInterface.querySQL(sql)
     row = c.fetchone()
     if not row:
-        format = etree.SubElement(objectCharacteristics, "format")
-        formatDesignation = etree.SubElement(format, "formatDesignation")
-        etree.SubElement(formatDesignation, "formatName").text = "Unknown"
+        format = etree.SubElement(objectCharacteristics, ns.premisBNS + "format")
+        formatDesignation = etree.SubElement(format, ns.premisBNS + "formatDesignation")
+        etree.SubElement(formatDesignation, ns.premisBNS + "formatName").text = "Unknown"
     while row != None:
         #print row
-        format = etree.SubElement(objectCharacteristics, "format")
+        format = etree.SubElement(objectCharacteristics, ns.premisBNS + "format")
         #fileUUID = row[0]
 
-        formatDesignation = etree.SubElement(format, "formatDesignation")
-        etree.SubElement(formatDesignation, "formatName").text = row[0]
-        etree.SubElement(formatDesignation, "formatVersion").text = row[1]
+        formatDesignation = etree.SubElement(format, ns.premisBNS + "formatDesignation")
+        etree.SubElement(formatDesignation, ns.premisBNS + "formatName").text = row[0]
+        etree.SubElement(formatDesignation, ns.premisBNS + "formatVersion").text = row[1]
 
-        formatRegistry = etree.SubElement(format, "formatRegistry")
-        etree.SubElement(formatRegistry, "formatRegistryName").text = row[2]
-        etree.SubElement(formatRegistry, "formatRegistryKey").text = row[3]
+        formatRegistry = etree.SubElement(format, ns.premisBNS + "formatRegistry")
+        etree.SubElement(formatRegistry, ns.premisBNS + "formatRegistryName").text = row[2]
+        etree.SubElement(formatRegistry, ns.premisBNS + "formatRegistryKey").text = row[3]
         row = c.fetchone()
     sqlLock.release()
 
-    objectCharacteristicsExtension = etree.SubElement(objectCharacteristics, "objectCharacteristicsExtension")
+    objectCharacteristicsExtension = etree.SubElement(objectCharacteristics, ns.premisBNS + "objectCharacteristicsExtension")
 
     sql = "SELECT FPCommandOutput.content FROM FPCommandOutput \
            INNER JOIN fpr_fprule ON FPCommandOutput.ruleUUID = fpr_fprule.uuid \
@@ -363,7 +363,7 @@ def createTechMD(fileUUID):
     if not row:
         print >>sys.stderr, "Error: no location found."
     while row != None:
-        etree.SubElement(object, "originalName").text = escape(row[0])
+        etree.SubElement(object, ns.premisBNS + "originalName").text = escape(row[0])
         row = c.fetchone()
     sqlLock.release()
 
@@ -372,17 +372,17 @@ def createTechMD(fileUUID):
     c, sqlLock = databaseInterface.querySQL(sql)
     row = c.fetchone()
     while row != None:
-        relationship = etree.SubElement(object, "relationship")
-        etree.SubElement(relationship, "relationshipType").text = "derivation"
-        etree.SubElement(relationship, "relationshipSubType").text = "is source of"
+        relationship = etree.SubElement(object, ns.premisBNS + "relationship")
+        etree.SubElement(relationship, ns.premisBNS + "relationshipType").text = "derivation"
+        etree.SubElement(relationship, ns.premisBNS + "relationshipSubType").text = "is source of"
 
-        relatedObjectIdentification = etree.SubElement(relationship, "relatedObjectIdentification")
-        etree.SubElement(relatedObjectIdentification, "relatedObjectIdentifierType").text = "UUID"
-        etree.SubElement(relatedObjectIdentification, "relatedObjectIdentifierValue").text = row[1]
+        relatedObjectIdentification = etree.SubElement(relationship, ns.premisBNS + "relatedObjectIdentification")
+        etree.SubElement(relatedObjectIdentification, ns.premisBNS + "relatedObjectIdentifierType").text = "UUID"
+        etree.SubElement(relatedObjectIdentification, ns.premisBNS + "relatedObjectIdentifierValue").text = row[1]
 
-        relatedEventIdentification = etree.SubElement(relationship, "relatedEventIdentification")
-        etree.SubElement(relatedEventIdentification, "relatedEventIdentifierType").text = "UUID"
-        etree.SubElement(relatedEventIdentification, "relatedEventIdentifierValue").text = row[2]
+        relatedEventIdentification = etree.SubElement(relationship, ns.premisBNS + "relatedEventIdentification")
+        etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierType").text = "UUID"
+        etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierValue").text = row[2]
 
         row = c.fetchone()
     sqlLock.release()
@@ -391,17 +391,17 @@ def createTechMD(fileUUID):
     c, sqlLock = databaseInterface.querySQL(sql)
     row = c.fetchone()
     while row != None:
-        relationship = etree.SubElement(object, "relationship")
-        etree.SubElement(relationship, "relationshipType").text = "derivation"
-        etree.SubElement(relationship, "relationshipSubType").text = "has source"
+        relationship = etree.SubElement(object, ns.premisBNS + "relationship")
+        etree.SubElement(relationship, ns.premisBNS + "relationshipType").text = "derivation"
+        etree.SubElement(relationship, ns.premisBNS + "relationshipSubType").text = "has source"
 
-        relatedObjectIdentification = etree.SubElement(relationship, "relatedObjectIdentification")
-        etree.SubElement(relatedObjectIdentification, "relatedObjectIdentifierType").text = "UUID"
-        etree.SubElement(relatedObjectIdentification, "relatedObjectIdentifierValue").text = row[0]
+        relatedObjectIdentification = etree.SubElement(relationship, ns.premisBNS + "relatedObjectIdentification")
+        etree.SubElement(relatedObjectIdentification, ns.premisBNS + "relatedObjectIdentifierType").text = "UUID"
+        etree.SubElement(relatedObjectIdentification, ns.premisBNS + "relatedObjectIdentifierValue").text = row[0]
 
-        relatedEventIdentification = etree.SubElement(relationship, "relatedEventIdentification")
-        etree.SubElement(relatedEventIdentification, "relatedEventIdentifierType").text = "UUID"
-        etree.SubElement(relatedEventIdentification, "relatedEventIdentifierValue").text = row[2]
+        relatedEventIdentification = etree.SubElement(relationship, ns.premisBNS + "relatedEventIdentification")
+        etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierType").text = "UUID"
+        etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierValue").text = row[2]
 
         row = c.fetchone()
     sqlLock.release()
