@@ -2370,3 +2370,36 @@ INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `pur
 -- Reflect the correct tool version in the FPTool
 UPDATE `fpr_fptool` SET `version`='2.3-1' WHERE `uuid`='307d4e6d-9cfc-414e-8354-f41fe1247e12';
 -- /Issue 5496 - ffmpeg command
+
+-- Tesseract OCR rules
+INSERT INTO `fpr_fptool` (`uuid`, `description`, `version`, `enabled`, `slug`) VALUES ('765335d5-70b7-4a02-816e-a293a1bc1b6c', 'Tesseract', '3.02', 1, 'tesseract-302');
+INSERT INTO `fpr_fpcommand` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `tool_id`, `description`, `command`, `script_type`, `output_location`, `output_format_id`, `command_usage`, `verification_command_id`, `event_detail_command_id`) VALUES (NULL, 1, '2014-08-05 17:24:14', '4ea06c2b-ee42-4f80-ad10-4e044ba0676a', '765335d5-70b7-4a02-816e-a293a1bc1b6c', 'Transcribe using Tesseract', 'ocrfiles=\"%SIPObjectsDirectory%metadata/OCRfiles\"\ntest -d \"$ocrfiles\" || mkdir -p \"$ocrfiles\"\n\ntesseract %fileFullName% \"$ocrfiles/%fileName%\"\n', 'bashScript', '%SIPObjectsDirectory%metadata/OCRfiles/%fileName%.txt', '61c8d737-e809-47a1-b89f-83c1239dae99', 'transcription', NULL, NULL);
+
+-- JPEG
+-- Generic JPEG
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-08-05 17:30:58', '192b9c0f-5200-4d2b-a835-199bc66e55f2', 'transcription', '4ea06c2b-ee42-4f80-ad10-4e044ba0676a', 'ffb55e9a-29f1-4276-a9a5-5ef813229b79', 0, 0, 0);
+-- JPEG 1.00
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-08-05 17:33:24', 'a809b4d9-b43c-4e66-a965-915d5f0a73bf', 'transcription', '4ea06c2b-ee42-4f80-ad10-4e044ba0676a', 'c95e5c2e-d5e9-44b0-b891-93bceadeabcf', 0, 0, 0);
+-- JPEG 1.01
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-08-05 17:33:51', '3033d383-6ccc-41a8-aed7-044a24c4e681', 'transcription', '4ea06c2b-ee42-4f80-ad10-4e044ba0676a', '05f1242e-127d-4eec-826c-f89571d0283f', 0, 0, 0);
+-- JPEG 1.02
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-08-05 17:34:18', 'de2bd7b3-40dd-4bed-893e-09061f5bc383', 'transcription', '4ea06c2b-ee42-4f80-ad10-4e044ba0676a', '01fac958-274d-41ef-978f-d9cf711b3c4a', 0, 0, 0);
+-- PNG
+-- Generic PNG
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-08-05 17:35:59', '9c8b84b3-1f48-42ee-be20-4ae151d4082e', 'transcription', '4ea06c2b-ee42-4f80-ad10-4e044ba0676a', 'e2930d0a-6e5a-4ece-8966-597f1b3b160b', 0, 0, 0);
+-- PNG 1.0
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-08-05 17:36:25', '1c973054-6ddd-424c-addd-ec2e572c5b52', 'transcription', '4ea06c2b-ee42-4f80-ad10-4e044ba0676a', '9cdb9fd6-b23e-457c-862a-0341649c939e', 0, 0, 0);
+-- PNG 1.1
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-08-05 17:38:20', 'cf10816b-391b-4237-a4e9-77f11941cb71', 'transcription', '4ea06c2b-ee42-4f80-ad10-4e044ba0676a', 'c0b58268-f0e9-46de-ad14-80f2a4792c85', 0, 0, 0);
+-- PNG 1.2
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-08-05 17:38:44', 'c9ab5c20-0022-4ac0-9195-ade974863008', 'transcription', '4ea06c2b-ee42-4f80-ad10-4e044ba0676a', '718d807b-6dc9-406b-9a44-3853cf1b820e', 0, 0, 0);
+-- TIFF
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-08-05 17:39:28', 'be8f8f54-c77d-4de2-8a9f-b183f235e20d', 'transcription', '4ea06c2b-ee42-4f80-ad10-4e044ba0676a', 'd019406a-2eaa-481d-9ba5-8a46983a3bfc', 0, 0, 0);
+-- GIF
+-- Generic GIF
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-08-05 17:39:56', '655de444-c527-4adf-9b72-c9850a2e6209', 'transcription', '4ea06c2b-ee42-4f80-ad10-4e044ba0676a', '8943dfdc-2b37-47df-b00f-76472e92e56d', 0, 0, 0);
+-- GIF 1987a
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-08-05 17:40:19', 'c34c2de6-1dde-49e9-a44b-4255f427dbab', 'transcription', '4ea06c2b-ee42-4f80-ad10-4e044ba0676a', '082f3282-8331-4da4-b452-632b17e90d66', 0, 0, 0);
+-- GIF 1989a
+INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-08-05 17:40:37', '181ae24d-e94e-45aa-8d33-c7d24afbdfb5', 'transcription', '4ea06c2b-ee42-4f80-ad10-4e044ba0676a', '6370b72f-4caa-4d90-abc6-4816c8a0a603', 0, 0, 0);
+-- /Tesseract
