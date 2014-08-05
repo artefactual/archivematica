@@ -765,3 +765,24 @@ UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@postStoreM
 -- overflow the 1000-character limit on this field in the database.
 UPDATE StandardTasksConfigs SET arguments='create "%SIPDirectory%%SIPName%-%SIPUUID%" "%SIPDirectory%" "logs/" "objects/" "METS.%SIPUUID%.xml" "thumbnails/" "metadata/" --writer filesystem --payloadmanifestalgorithm "sha512"' WHERE pk='045f84de-2669-4dbc-a31b-43a4954d0481';
 -- /Issue 6624 - Bagit arguments
+
+-- Issue 6575 Metadata format ID & Characterization
+SET @metadataIDMSCL = 'b2444a6e-c626-4487-9abc-1556dd89a8ae' COLLATE utf8_unicode_ci;
+SET @metadataCharacterizeMSCL = '04493ab2-6cad-400d-8832-06941f121a96' COLLATE utf8_unicode_ci;
+-- Add characterization
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES ('e1e813dd-87ce-4468-a6de-35b787a02c7a', 0, 'characterizeFile_v0.0', '"%relativeLocation%" "%fileUUID%" "%SIPUUID%"', 'objects/metadata/');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('6511ac58-d68e-4381-9cf3-01f2637acb4c', 'a6b1c323-7d36-428e-846a-e7e819423577', 'e1e813dd-87ce-4468-a6de-35b787a02c7a', 'Characterize and extract metadata on metadata files');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@metadataCharacterizeMSCL, 'Process metadata directory', 'Failed', '6511ac58-d68e-4381-9cf3-01f2637acb4c', '75fb5d67-5efa-4232-b00b-d85236de0d3f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('7b41df94-6544-477d-9137-a8d744cf0904', @metadataCharacterizeMSCL, 0, '75fb5d67-5efa-4232-b00b-d85236de0d3f', 'Completed successfully');
+-- Add format ID
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES ('866037a3-d99e-4b9c-afb5-6de527a26e35', 0, 'identifyFileFormat_v0.0', '%IDCommand% %relativeLocation% %fileUUID%', 'objects/metadata/');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('d1f630dc-1082-4ad6-95b7-af36d2e2cf46', 'a6b1c323-7d36-428e-846a-e7e819423577', '866037a3-d99e-4b9c-afb5-6de527a26e35', 'Identify file format of metadata files');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values (@metadataIDMSCL, 'Process metadata directory', 'Failed', 'd1f630dc-1082-4ad6-95b7-af36d2e2cf46', '7d728c39-395f-4892-8193-92f086c0546f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('165579c2-15c5-474b-afc2-16e1cae5d886', @metadataIDMSCL, 0, @metadataCharacterizeMSCL, 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@metadataIDMSCL WHERE microServiceChainLink='8bc92801-4308-4e3b-885b-1a89fdcd3014';
+-- Fix groups
+UPDATE MicroServiceChainLinks SET microserviceGroup = 'Normalize' WHERE pk IN ('db9177f5-41d2-4894-be1a-a7547ed6b63a', 'cddde867-4cf9-4248-ac31-f7052fae053f', 'c168f1ee-5d56-4188-8521-09f0c5475133', '77a7fa46-92b9-418e-aa88-fbedd4114c9f', 'f060d17f-2376-4c0b-a346-b486446e46ce');
+UPDATE MicroServiceChainLinks SET microserviceGroup = 'Process submission documentation' WHERE pk IN ('88807d68-062e-4d1a-a2d5-2d198c88d8ca', '576f1f43-a130-4c15-abeb-c272ec458d33');
+UPDATE MicroServiceChainLinks SET microserviceGroup = 'Process metadata directory' WHERE pk IN ('ee438694-815f-4b74-97e1-8e7dde2cc6d5', '75fb5d67-5efa-4232-b00b-d85236de0d3f');
+UPDATE MicroServiceChainLinks SET microserviceGroup = 'Prepare AIP' WHERE pk IN ('f1e286f9-4ec7-4e19-820c-dae7b8ea7d09');
+-- /Issue 6575 Metadata format ID & Characterization

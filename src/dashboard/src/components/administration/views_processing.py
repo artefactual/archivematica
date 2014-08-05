@@ -161,7 +161,7 @@ def index(request):
         },
         {
             "name": "select_format_id_tool_submissiondocs",
-            "label": "Select file format identification command (Submission documentation)",
+            "label": "Select file format identification command (Submission documentation & metadata)",
             "choice_uuid": '087d27be-c719-47d8-9bbb-9a7d8b609c44'
         },
         {
