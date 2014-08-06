@@ -305,8 +305,8 @@ def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata
 
         try:
             shutil.move(filepath, destination)
-        except:
-            error = 'Error copying from ' + filepath + ' to ' + destination + '. (' + str(sys.exc_info()[0]) + ')'
+        except OSError as e:
+            error = 'Error copying from ' + filepath + ' to ' + destination + '. (' + str(e) + ')'
 
     if error:
         raise Exception(error)

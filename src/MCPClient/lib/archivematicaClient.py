@@ -158,11 +158,10 @@ Unable to determine if it completed successfully."""
         output = ["Archivematica Client Error!", traceback.format_exc()]
         exitCode = 1
         return cPickle.dumps({"exitCode" : exitCode, "stdOut": output[0], "stdError": output[1]})
-    except:
+    except Exception as e:
         traceback.print_exc(file=sys.stdout)
         printOutputLock.acquire()
-        print sys.exc_info().__str__()
-        print "Unexpected error:", sys.exc_info()[0]
+        print "Unexpected error:", e
         printOutputLock.release()
         output = ["", traceback.format_exc()]
         return cPickle.dumps({"exitCode" : -1, "stdOut": output[0], "stdError": output[1]})
