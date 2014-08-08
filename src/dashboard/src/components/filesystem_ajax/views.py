@@ -313,13 +313,12 @@ def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata
     return destination
 
 
-def create_arranged_sip(staging_sip_path, files):
+def create_arranged_sip(staging_sip_path, files, sip_uuid):
     shared_dir = helpers.get_server_config_value('sharedDirectory')
     staging_sip_path = staging_sip_path.lstrip('/')
     staging_abs_path = os.path.join(shared_dir, staging_sip_path)
 
     # Create SIP object
-    sip_uuid = str(uuid.uuid4())
     sip_name = staging_sip_path.split('/')[1]
     sip_path = os.path.join(shared_dir, 'watchedDirectories', 'SIPCreation', 'SIPsUnderConstruction', sip_name)
     sip_path = helpers.pad_destination_filepath_if_it_already_exists(sip_path)
@@ -346,20 +345,6 @@ def create_arranged_sip(staging_sip_path, files):
     with open(arrange_log, 'w') as f:
         log = ('%s -> %s\n' % (file_['source'], file_['destination']) for file_ in files if file_.get('uuid'))
         f.writelines(log)
-
-    # Update directory level of descriptions, if any
-    sip = models.SIP.objects.get(uuid=sip_uuid)
-    levels_of_description = models.FileLevelOfDescription.objects.filter(
-        Q(relative_location__startswith=sip_name + '/') | Q(relative_location=sip_name),
-        sip__isnull=True)
-    for entry in levels_of_description:
-        entry.sip = sip
-        # Relative location is now relative to SIP dir rather than arrange dir
-        try:
-            entry.relative_location = entry.relative_location[entry.relative_location.index('/') + 1:]
-        except ValueError:
-            entry.relative_location = ''
-        entry.save()
 
     # Move to watchedDirectories/SIPCreation/SIPsUnderConstruction
     logging.info('create_arranged_sip: move from %s to %s', staging_abs_path, sip_path)
@@ -390,11 +375,12 @@ def copy_from_arrange_to_completed(request):
         staging_sip_path = os.path.join('staging', sip_name, '')
         logging.debug('copy_from_arrange_to_completed: staging_sip_path: %s', staging_sip_path)
         # Fetch all files with 'filepath' as prefix, and have a source path
-        arrange = models.SIPArrange.objects.filter(sip_created=False).filter(arrange_path__startswith=filepath).filter(original_path__isnull=False)
+        arrange = models.SIPArrange.objects.filter(sip_created=False).filter(arrange_path__startswith=filepath)
+        arrange_files = arrange.filter(original_path__isnull=False)
 
         # Collect file information.  Change path to be in staging, not arrange
         files = []
-        for arranged_file in arrange:
+        for arranged_file in arrange_files:
             files.append(
                 {'source': arranged_file.original_path.lstrip('/'),
                  'destination': arranged_file.arrange_path.replace(
@@ -423,14 +409,19 @@ def copy_from_arrange_to_completed(request):
 
         if error is None:
             # Create SIP object
-            error = create_arranged_sip(staging_sip_path, files)
+            sip_uuid = str(uuid.uuid4())
+            error = create_arranged_sip(staging_sip_path, files, sip_uuid)
 
         if error is None:
-            # Update SIPArrange with in_SIP = True
-            arrange.update(sip_created=True)
-            # Remove directories
-            models.SIPArrange.objects.filter(sip_created=False).filter(arrange_path__startswith=filepath).filter(original_path__isnull=True).delete()
-
+            for arranged_entry in arrange:
+                # Update arrange_path to be relative to new SIP's objects
+                # Use normpath to strip trailing / from directories
+                relative_path = arranged_entry.arrange_path.replace(filepath, '', 1).replace('objects/', '', 1)
+                relative_path = os.path.normpath(relative_path)
+                arranged_entry.arrange_path = relative_path
+                arranged_entry.sip_id = sip_uuid
+                arranged_entry.sip_created = True
+                arranged_entry.save()
 
     if error is not None:
         response = {

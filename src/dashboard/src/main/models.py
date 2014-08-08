@@ -275,6 +275,8 @@ class SIPArrange(models.Model):
     arrange_path = models.CharField(max_length=255)
     file_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
     transfer_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
+    sip = models.ForeignKey(SIP, to_field='uuid', null=True, blank=True, default=None)
+    level_of_description = models.CharField(max_length=2014)
     sip_created = models.BooleanField(default=False)
     aip_created = models.BooleanField(default=False)
 
@@ -915,15 +917,3 @@ class LevelOfDescription(models.Model):
     id = UUIDPkField()
     name = models.CharField(max_length='1024') # seems long, but AtoM allows this much
     sortorder = models.IntegerField(default=0, db_column='sortOrder')
-
-class FileLevelOfDescription(models.Model):
-    """
-    Match between a filesystem entry (file or directory) and the level of
-    description string.
-    """
-    id = UUIDPkField()
-    sip = models.ForeignKey('SIP', to_field='uuid', db_column='sipUUID', null=True)
-    # The relative_location is *not* a File foreign key because directories are
-    # not tracked/trackable in the database, and so we have nothing to associate here :(
-    relative_location = models.CharField(max_length=1024)
-    level_of_description = models.CharField(max_length=2014)
