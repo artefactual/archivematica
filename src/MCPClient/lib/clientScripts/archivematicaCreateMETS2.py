@@ -71,7 +71,7 @@ includeAmdSec = opts.amdSec
 globalFileGrps = {}
 globalFileGrpsUses = ["original", "submissionDocumentation", "preservation", "service", "access", "license", "text/ocr", "metadata"]
 for use in globalFileGrpsUses:
-    grp = etree.Element("fileGrp")
+    grp = etree.Element(ns.metsBNS + "fileGrp")
     grp.set("USE", use)
     globalFileGrps[use] = grp
 
@@ -113,15 +113,15 @@ def newChild(parent, tag, text=None, tailText=None, sets=[]):
     return child
 
 def createAgent(agentIdentifierType, agentIdentifierValue, agentName, agentType):
-    agent = etree.Element("agent", nsmap={None: ns.premisNS})
+    agent = etree.Element(ns.premisBNS + "agent", nsmap={'premis': ns.premisNS})
     agent.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
     agent.set("version", "2.2")
 
-    agentIdentifier = etree.SubElement(agent, "agentIdentifier")
-    etree.SubElement(agentIdentifier, "agentIdentifierType").text = agentIdentifierType
-    etree.SubElement(agentIdentifier, "agentIdentifierValue").text = agentIdentifierValue
-    etree.SubElement(agent, "agentName").text = agentName
-    etree.SubElement(agent, "agentType").text = agentType
+    agentIdentifier = etree.SubElement(agent, ns.premisBNS + "agentIdentifier")
+    etree.SubElement(agentIdentifier, ns.premisBNS + "agentIdentifierType").text = agentIdentifierType
+    etree.SubElement(agentIdentifier, ns.premisBNS + "agentIdentifierValue").text = agentIdentifierValue
+    etree.SubElement(agent, ns.premisBNS + "agentName").text = agentName
+    etree.SubElement(agent, ns.premisBNS + "agentType").text = agentType
     return agent
 
 
@@ -139,14 +139,14 @@ def getDublinCore(unit, id):
     row = c.fetchone()
     ret = None
     if row is not None:
-        ret = etree.Element("dublincore", nsmap={None:ns.dctermsNS})
+        ret = etree.Element(ns.dctermsBNS + "dublincore", nsmap={"dc":ns.dctermsNS})
         ret.set(ns.xsiBNS+"schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
     while row is not None:
         #title, creator, subject, description, publisher, contributor, date, type, format, identifier, source, relation, language, coverage, rights = row
         for i, term in enumerate(field_list):
             txt = row[i] or ""
             if txt:
-                newChild(ret, term, text=txt)
+                newChild(ret, ns.dctermsBNS + term, text=txt)
         row = c.fetchone()
     sqlLock.release()
     return ret
@@ -185,15 +185,15 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
             #print "dc item: ", key, value
             if dc is None:
                 globalDmdSecCounter += 1
-                dmdSec = etree.Element("dmdSec")
+                dmdSec = etree.Element(ns.metsBNS + "dmdSec")
                 dmdSecs.append(dmdSec)
                 ID = "dmdSec_" + globalDmdSecCounter.__str__()
                 ret.append(ID)
                 dmdSec.set("ID", ID)
-                mdWrap = etree.SubElement(dmdSec, "mdWrap")
+                mdWrap = etree.SubElement(dmdSec, ns.metsBNS + "mdWrap")
                 mdWrap.set("MDTYPE", "DC")
-                xmlData = etree.SubElement(mdWrap, "xmlData")
-                dc = etree.Element("dublincore", nsmap={None: ns.dctermsNS})
+                xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
+                dc = etree.Element(ns.dctermsBNS + "dublincore", nsmap={"dc": ns.dctermsNS})
                 dc.set(ns.xsiBNS+"schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
                 xmlData.append(dc)
             if key.startswith("dc."):
@@ -205,21 +205,21 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
             if match:
                 key2, = match.groups()
 
-            el = etree.SubElement(dc, key2)
+            el = etree.SubElement(dc, ns.dctermsBNS + key2)
             el.text = value
         else:  # not a dublin core item
             if other is None:
                 globalDmdSecCounter += 1
-                dmdSec = etree.Element("dmdSec")
+                dmdSec = etree.Element(ns.metsBNS + "dmdSec")
                 dmdSecs.append(dmdSec)
                 ID = "dmdSec_" + globalDmdSecCounter.__str__()
                 ret.append(ID)
                 dmdSec.set("ID", ID)
-                mdWrap = etree.SubElement(dmdSec, "mdWrap")
+                mdWrap = etree.SubElement(dmdSec, ns.metsBNS + "mdWrap")
                 mdWrap.set("MDTYPE", "OTHER")
                 mdWrap.set("OTHERMDTYPE", "CUSTOM")
-                other = etree.SubElement(mdWrap, "xmlData")
-            etree.SubElement(other, normalizeNonDcElementName(key)).text = value
+                other = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
+            etree.SubElement(other, ns.dctermsBNS + normalizeNonDcElementName(key)).text = value
     return " ".join(ret)
 
 
@@ -248,19 +248,19 @@ def createDublincoreDMDSecFromDBData(type, id):
 
     global globalDmdSecCounter
     globalDmdSecCounter += 1
-    dmdSec = etree.Element("dmdSec")
+    dmdSec = etree.Element(ns.metsBNS + "dmdSec")
     ID = "dmdSec_" + globalDmdSecCounter.__str__()
     dmdSec.set("ID", ID)
-    mdWrap = etree.SubElement(dmdSec, "mdWrap")
+    mdWrap = etree.SubElement(dmdSec, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "DC")
-    xmlData = etree.SubElement(mdWrap, "xmlData")
+    xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
     xmlData.append(dc)
     return (dmdSec, ID)
 
 def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
     global globalDmdSecCounter
     globalDmdSecCounter += 1
-    dmdSec = etree.Element("dmdSec")
+    dmdSec = etree.Element(ns.metsBNS + "dmdSec")
     ID = "dmdSec_" + globalDmdSecCounter.__str__()
     dmdSec.set("ID", ID)
     XPTR = "xpointer(id("
@@ -269,21 +269,21 @@ def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
     for item in root.findall("{http://www.loc.gov/METS/}dmdSec"):
         XPTR = "%s %s" % (XPTR, item.get("ID"))
     XPTR = XPTR.replace(" ", "'", 1) + "'))"
-    newChild(dmdSec, "mdRef", text=None, sets=[("LABEL", LABEL), (ns.xlinkBNS +"href", directoryPathSTR), ("MDTYPE", "OTHER"), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM"), ("XPTR", XPTR)])
+    newChild(dmdSec, ns.metsBNS + "mdRef", text=None, sets=[("LABEL", LABEL), (ns.xlinkBNS +"href", directoryPathSTR), ("MDTYPE", "OTHER"), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM"), ("XPTR", XPTR)])
     return (dmdSec, ID)
 
 
 def createTechMD(fileUUID):
-    ret = etree.Element("techMD")
+    ret = etree.Element(ns.metsBNS + "techMD")
     techMD = ret #newChild(amdSec, "digiprovMD")
     #digiprovMD.set("ID", "digiprov-"+ os.path.basename(filename) + "-" + fileUUID)
     global globalTechMDCounter
     globalTechMDCounter += 1
     techMD.set("ID", "techMD_"+ globalTechMDCounter.__str__())
 
-    mdWrap = etree.SubElement(techMD, "mdWrap")
+    mdWrap = etree.SubElement(techMD, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "PREMIS:OBJECT")
-    xmlData = etree.SubElement(mdWrap, "xmlData")
+    xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
     #premis = etree.SubElement( xmlData, "premis", nsmap={None: ns.premisNS}, \
     #    attrib = { "{" + ns.xsiNS + "}schemaLocation" : "info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/premis.xsd" })
     #premis.set("version", "2.0")
@@ -414,46 +414,46 @@ def createDigiprovMD(fileUUID):
     sql = "SELECT pk, fileUUID, eventIdentifierUUID, eventType, eventDateTime, eventDetail, eventOutcome, eventOutcomeDetailNote, linkingAgentIdentifier FROM Events WHERE fileUUID = '" + fileUUID + "';"
     rows = databaseInterface.queryAllSQL(sql)
     for row in rows:
-        digiprovMD = etree.Element("digiprovMD")
+        digiprovMD = etree.Element(ns.metsBNS + "digiprovMD")
         ret.append(digiprovMD) #newChild(amdSec, "digiprovMD")
         #digiprovMD.set("ID", "digiprov-"+ os.path.basename(filename) + "-" + fileUUID)
         global globalDigiprovMDCounter
         globalDigiprovMDCounter += 1
         digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
 
-        mdWrap = etree.SubElement(digiprovMD, "mdWrap")
+        mdWrap = etree.SubElement(digiprovMD, ns.metsBNS + "mdWrap")
         mdWrap.set("MDTYPE", "PREMIS:EVENT")
-        xmlData = etree.SubElement(mdWrap, "xmlData")
-        event = etree.SubElement(xmlData, "event", nsmap={None: ns.premisNS})
+        xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
+        event = etree.SubElement(xmlData, ns.premisBNS + "event", nsmap={'premis': ns.premisNS})
         event.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
         event.set("version", "2.2")
 
-        eventIdentifier = etree.SubElement(event, "eventIdentifier")
-        etree.SubElement(eventIdentifier, "eventIdentifierType").text = "UUID"
-        etree.SubElement(eventIdentifier, "eventIdentifierValue").text = row[2]
+        eventIdentifier = etree.SubElement(event, ns.premisBNS + "eventIdentifier")
+        etree.SubElement(eventIdentifier, ns.premisBNS + "eventIdentifierType").text = "UUID"
+        etree.SubElement(eventIdentifier, ns.premisBNS + "eventIdentifierValue").text = row[2]
 
-        etree.SubElement(event, "eventType").text = row[3]
-        etree.SubElement(event, "eventDateTime").text = row[4].__str__().replace(" ", "T")
-        etree.SubElement(event, "eventDetail").text = escape(row[5])
+        etree.SubElement(event, ns.premisBNS + "eventType").text = row[3]
+        etree.SubElement(event, ns.premisBNS + "eventDateTime").text = row[4].__str__().replace(" ", "T")
+        etree.SubElement(event, ns.premisBNS + "eventDetail").text = escape(row[5])
 
-        eventOutcomeInformation  = etree.SubElement(event, "eventOutcomeInformation")
-        etree.SubElement(eventOutcomeInformation, "eventOutcome").text = row[6]
-        eventOutcomeDetail = etree.SubElement(eventOutcomeInformation, "eventOutcomeDetail")
-        etree.SubElement(eventOutcomeDetail, "eventOutcomeDetailNote").text = escape(row[7])
+        eventOutcomeInformation  = etree.SubElement(event, ns.premisBNS + "eventOutcomeInformation")
+        etree.SubElement(eventOutcomeInformation, ns.premisBNS + "eventOutcome").text = row[6]
+        eventOutcomeDetail = etree.SubElement(eventOutcomeInformation, ns.premisBNS + "eventOutcomeDetail")
+        etree.SubElement(eventOutcomeDetail, ns.premisBNS + "eventOutcomeDetailNote").text = escape(row[7])
         
         if row[8]:
-            linkingAgentIdentifier = etree.SubElement(event, "linkingAgentIdentifier")
-            etree.SubElement(linkingAgentIdentifier, "linkingAgentIdentifierType").text = "Archivematica user pk"
-            etree.SubElement(linkingAgentIdentifier, "linkingAgentIdentifierValue").text = row[8].__str__()
+            linkingAgentIdentifier = etree.SubElement(event, ns.premisBNS + "linkingAgentIdentifier")
+            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierType").text = "Archivematica user pk"
+            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = row[8].__str__()
         
         #linkingAgentIdentifier
         sql = """SELECT agentIdentifierType, agentIdentifierValue, agentName, agentType FROM Agents;"""
         c, sqlLock = databaseInterface.querySQL(sql)
         row = c.fetchone()
         while row != None:
-            linkingAgentIdentifier = etree.SubElement(event, "linkingAgentIdentifier")
-            etree.SubElement(linkingAgentIdentifier, "linkingAgentIdentifierType").text = row[0]
-            etree.SubElement(linkingAgentIdentifier, "linkingAgentIdentifierValue").text = row[1]
+            linkingAgentIdentifier = etree.SubElement(event, ns.premisBNS + "linkingAgentIdentifier")
+            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierType").text = row[0]
+            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = row[1]
             row = c.fetchone()
         sqlLock.release()
     return ret
@@ -467,12 +467,12 @@ def createDigiprovMDAgents():
     row = c.fetchone()
     while row != None:
         globalDigiprovMDCounter += 1
-        digiprovMD = etree.Element("digiprovMD")
+        digiprovMD = etree.Element(ns.metsBNS + "digiprovMD")
         digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
         ret.append(digiprovMD) #newChild(amdSec, "digiprovMD")
-        mdWrap = newChild(digiprovMD,"mdWrap")
+        mdWrap = newChild(digiprovMD, ns.metsBNS + "mdWrap")
         mdWrap.set("MDTYPE", "PREMIS:AGENT")
-        xmlData = newChild(mdWrap,"xmlData")
+        xmlData = newChild(mdWrap, ns.metsBNS + "xmlData")
         #agents = etree.SubElement(xmlData, "agents")
         xmlData.append(createAgent(row[0], row[1], row[2], row[3]))
         row = c.fetchone()
@@ -483,12 +483,12 @@ def createDigiprovMDAgents():
     row = c.fetchone()
     while row != None:
         globalDigiprovMDCounter += 1
-        digiprovMD = etree.Element("digiprovMD")
+        digiprovMD = etree.Element(ns.metsBNS + "digiprovMD")
         digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
         ret.append(digiprovMD) #newChild(amdSec, "digiprovMD")
-        mdWrap = newChild(digiprovMD,"mdWrap")
+        mdWrap = newChild(digiprovMD, ns.metsBNS + "mdWrap")
         mdWrap.set("MDTYPE", "PREMIS:AGENT")
-        xmlData = newChild(mdWrap,"xmlData")
+        xmlData = newChild(mdWrap, ns.metsBNS + "xmlData")
         #agents = etree.SubElement(xmlData, "agents")
         
         id, username, first_name, last_name = row
@@ -517,7 +517,7 @@ def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath
     global globalDigiprovMDCounter
     globalAmdSecCounter += 1
     AMDID = "amdSec_%s" % (globalAmdSecCounter.__str__())
-    AMD = etree.Element("amdSec")
+    AMD = etree.Element(ns.metsBNS + "amdSec")
     AMD.set("ID", AMDID)
     ret = (AMD, AMDID)
     #tech MD
@@ -528,17 +528,17 @@ def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath
         metadataAppliesToList = [(fileUUID, FileMetadataAppliesToType), (fileGroupIdentifier, SIPMetadataAppliesToType), (transferUUID.__str__(), TransferMetadataAppliesToType)]
         for a in archivematicaGetRights(metadataAppliesToList, fileUUID):
             globalRightsMDCounter +=1
-            rightsMD = etree.SubElement(AMD, "rightsMD")
+            rightsMD = etree.SubElement(AMD, ns.metsBNS + "rightsMD")
             rightsMD.set("ID", "rightsMD_" + globalRightsMDCounter.__str__())
-            mdWrap = newChild(rightsMD,"mdWrap")
+            mdWrap = newChild(rightsMD, ns.metsBNS + "mdWrap")
             mdWrap.set("MDTYPE", "PREMIS:RIGHTS")
-            xmlData = newChild(mdWrap, "xmlData")
+            xmlData = newChild(mdWrap, ns.metsBNS + "xmlData")
             xmlData.append(a)
 
         if typeOfTransfer == "Dspace":
             for a in archivematicaCreateMETSRightsDspaceMDRef(fileUUID, filePath, transferUUID, itemdirectoryPath):
                 globalRightsMDCounter +=1
-                rightsMD = etree.SubElement(AMD, "rightsMD")
+                rightsMD = etree.SubElement(AMD, ns.metsBNS + "rightsMD")
                 rightsMD.set("ID", "rightsMD_" + globalRightsMDCounter.__str__())
                 rightsMD.append(a)
 
@@ -619,7 +619,7 @@ def createFileSec(directoryPath, parentDiv):
         print >> sys.stderr, directoryPath, "doesn't exist"
         return
 
-    structMapDiv = etree.SubElement(parentDiv, 'div', TYPE='Directory', LABEL=os.path.basename(directoryPath))
+    structMapDiv = etree.SubElement(parentDiv, ns.metsBNS + 'div', TYPE='Directory', LABEL=os.path.basename(directoryPath))
 
     DMDIDS = createDMDIDSFromCSVParsedMetadataDirectories(directoryPath.replace(baseDirectoryPath, "", 1))
     if DMDIDS:
@@ -692,8 +692,8 @@ def createFileSec(directoryPath, parentDiv):
         directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, "", 1)
 
         if typeOfTransfer == "TRIM" and trimStructMap == None:
-            trimStructMap = etree.Element("structMap", attrib={"TYPE":"logical", "ID":"structMap_2", "LABEL":"Hierarchical arrangement"})
-            trimStructMapObjects = etree.SubElement(trimStructMap, "div", attrib={"TYPE":"File", "LABEL":"objects"})
+            trimStructMap = etree.Element(ns.metsBNS + "structMap", attrib={"TYPE":"logical", "ID":"structMap_2", "LABEL":"Hierarchical arrangement"})
+            trimStructMapObjects = etree.SubElement(trimStructMap, ns.metsBNS + "div", attrib={"TYPE":"File", "LABEL":"objects"})
             
             trimDmdSec = getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier)
             globalDmdSecCounter += 1
@@ -704,7 +704,7 @@ def createFileSec(directoryPath, parentDiv):
             
             # ==
             
-            trimAmdSec = etree.Element("amdSec")
+            trimAmdSec = etree.Element(ns.metsBNS + "amdSec")
             globalAmdSecCounter += 1
             amdSecs.append(trimAmdSec)
             ID = "amdSec_" + globalAmdSecCounter.__str__()
@@ -722,8 +722,8 @@ def createFileSec(directoryPath, parentDiv):
 
         #<fptr FILEID="file-<UUID>" LABEL="filename.ext">
         label = item if label is None else label
-        fileDiv = etree.SubElement(structMapDiv, "div", LABEL=label, TYPE='Item')
-        etree.SubElement(fileDiv, 'fptr', FILEID=fileId)
+        fileDiv = etree.SubElement(structMapDiv, ns.metsBNS + "div", LABEL=label, TYPE='Item')
+        etree.SubElement(fileDiv, ns.metsBNS + 'fptr', FILEID=fileId)
         fileNameToFileID[item] = fileId
 
         GROUPID = ""
@@ -741,7 +741,7 @@ def createFileSec(directoryPath, parentDiv):
                 if DMDIDS:
                     fileDiv.set("DMDID", DMDIDS)
                 if typeOfTransfer == "TRIM":
-                    trimFileDiv = etree.SubElement(trimStructMapObjects, "div", attrib={"TYPE":"Item"})
+                    trimFileDiv = etree.SubElement(trimStructMapObjects, ns.metsBNS + "div", attrib={"TYPE":"Item"})
                     
                     trimFileDmdSec = getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, myuuid)
                     globalDmdSecCounter += 1
@@ -751,7 +751,7 @@ def createFileSec(directoryPath, parentDiv):
                     
                     trimFileDiv.set("DMDID", ID)       
                     
-                    etree.SubElement(trimFileDiv, "fptr", FILEID=fileId)
+                    etree.SubElement(trimFileDiv, ns.metsBNS + "fptr", FILEID=fileId)
 
         # Dspace transfers are treated specially, but some of these fileGrpUses
         # may be encountered in other types
@@ -819,11 +819,11 @@ def createFileSec(directoryPath, parentDiv):
             print >>sys.stderr, "Invalid use: \"%s\"" % (use)
             sharedVariablesAcrossModules.globalErrorCount += 1
         else:
-            file = etree.SubElement(globalFileGrps[use], "file", ID=fileId, GROUPID=GROUPID)
+            file = etree.SubElement(globalFileGrps[use], ns.metsBNS + "file", ID=fileId, GROUPID=GROUPID)
             if use == "original":
                 filesInThisDirectory.append(file)
             #<Flocat xlink:href="objects/file1-UUID" locType="other" otherLocType="system"/>
-            newChild(file, "FLocat", sets=[(ns.xlinkBNS +"href",directoryPathSTR), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM")])
+            newChild(file, ns.metsBNS + "FLocat", sets=[(ns.xlinkBNS +"href",directoryPathSTR), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM")])
             if includeAmdSec:
                 AMD, ADMID = getAMDSec(myuuid, directoryPathSTR, use, fileGroupType, fileGroupIdentifier, transferUUID, itemdirectoryPath, typeOfTransfer)
                 amdSecs.append(AMD)
@@ -874,19 +874,19 @@ def create_object_metadata(struct_map):
 
     source_md_counter = 1
 
-    el = etree.Element('amdSec', {'ID': label})
+    el = etree.Element(ns.metsBNS + 'amdSec', {'ID': label})
 
     for filename in transfer:
-        sourcemd = etree.SubElement(el, 'sourceMD', {'ID': 'sourceMD_{}'.format(source_md_counter)})
-        mdwrap = etree.SubElement(sourcemd, 'mdWrap', {'MDTYPE': 'OTHER'})
-        xmldata = etree.SubElement(mdwrap, 'xmlData')
+        sourcemd = etree.SubElement(el, ns.metsBNS + 'sourceMD', {'ID': 'sourceMD_{}'.format(source_md_counter)})
+        mdwrap = etree.SubElement(sourcemd, ns.metsBNS + 'mdWrap', {'MDTYPE': 'OTHER'})
+        xmldata = etree.SubElement(mdwrap, ns.metsBNS + 'xmlData')
         source_md_counter += 1
         parser = etree.XMLParser(remove_blank_text=True)
         md = etree.parse(filename, parser)
         xmldata.append(md.getroot())
 
     for filename in source:
-        sourcemd = etree.SubElement(el, 'sourceMD', {'ID': 'sourceMD_{}'.format(source_md_counter)})
+        sourcemd = etree.SubElement(el, ns.metsBNS + 'sourceMD', {'ID': 'sourceMD_{}'.format(source_md_counter)})
         source_md_counter += 1
         attributes = {
             ns.xlinkBNS + 'href': os.path.relpath(filename, baseDirectoryPath),
@@ -894,7 +894,7 @@ def create_object_metadata(struct_map):
             'LOCTYPE': 'OTHER',
             'OTHERLOCTYPE': 'SYSTEM'
         }
-        etree.SubElement(sourcemd, 'mdRef', attributes)
+        etree.SubElement(sourcemd, ns.metsBNS + 'mdRef', attributes)
 
     return el
 
@@ -909,8 +909,8 @@ if __name__ == '__main__':
 
     if not baseDirectoryPath.endswith('/'):
         baseDirectoryPath += '/'
-    structMap = etree.Element("structMap", TYPE='physical', ID='structMap_1', LABEL="Archivematica default")
-    structMapDiv = etree.SubElement(structMap, 'div', TYPE="Directory", LABEL=os.path.basename(baseDirectoryPath.rstrip('/')))
+    structMap = etree.Element(ns.metsBNS + "structMap", TYPE='physical', ID='structMap_1', LABEL="Archivematica default")
+    structMapDiv = etree.SubElement(structMap, ns.metsBNS + 'div', TYPE="Directory", LABEL=os.path.basename(baseDirectoryPath.rstrip('/')))
     structMapDivObjects = createFileSec(os.path.join(baseDirectoryPath, "objects"), structMapDiv)
 
     el = create_object_metadata(structMapDivObjects)
@@ -920,22 +920,22 @@ if __name__ == '__main__':
     createFileSec(os.path.join(baseDirectoryPath, "metadata"), structMapDiv)
 
 
-    fileSec = etree.Element( "fileSec")
+    fileSec = etree.Element(ns.metsBNS + "fileSec")
     for group in globalFileGrpsUses: #globalFileGrps.itervalues():
         grp = globalFileGrps[group]
         if len(grp) > 0:
             fileSec.append(grp)
 
     rootNSMap = {
-        None: ns.metsNS,
+        'mets': ns.metsNS,
         'xsi': ns.xsiNS,
         'xlink': ns.xlinkNS,
     }
-    root = etree.Element("mets",
+    root = etree.Element(ns.metsBNS + "mets",
         nsmap = rootNSMap,
         attrib = { "{" + ns.xsiNS + "}schemaLocation" : "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd" },
     )
-    etree.SubElement(root,"metsHdr").set("CREATEDATE", databaseInterface.getUTCDate().split(".")[0])
+    etree.SubElement(root, ns.metsBNS + "metsHdr").set("CREATEDATE", databaseInterface.getUTCDate().split(".")[0])
 
 
 
