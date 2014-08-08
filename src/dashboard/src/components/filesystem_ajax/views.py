@@ -416,7 +416,13 @@ def copy_from_arrange_to_completed(request):
             for arranged_entry in arrange:
                 # Update arrange_path to be relative to new SIP's objects
                 # Use normpath to strip trailing / from directories
-                relative_path = arranged_entry.arrange_path.replace(filepath, '', 1).replace('objects/', '', 1)
+                relative_path = arranged_entry.arrange_path.replace(filepath, '', 1)
+                if relative_path == 'objects/':
+                    # If objects directory created manually, delete it as we
+                    # don't want the LoD for it, and it's not needed elsewhere
+                    arranged_entry.delete()
+                    continue
+                relative_path = relative_path.replace('objects/', '', 1)
                 relative_path = os.path.normpath(relative_path)
                 arranged_entry.arrange_path = relative_path
                 arranged_entry.sip_id = sip_uuid
