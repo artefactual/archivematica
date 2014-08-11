@@ -62,7 +62,17 @@ if __name__ == '__main__':
 
     #move the objects to the SIPDir
     for item in os.listdir(objectsDirectory):
-        shutil.move(os.path.join(objectsDirectory, item), os.path.join(tmpSIPDir, "objects", item))
+        src_path = os.path.join(objectsDirectory, item)
+        dst_path = os.path.join(tmpSIPDir, "objects", item)
+        # If dst_path already exists and is a directory, shutil.move
+        # will move src_path into it rather than overwriting it;
+        # to avoid incorrectly-nested paths, move src_path's contents
+        # into it instead.
+        if os.path.exists(dst_path):
+            for subitem in os.listdir(src_path):
+                shutil.move(os.path.join(src_path, subitem), dst_path)
+        else:
+            shutil.move(src_path, dst_path)
 
     #get the database list of files in the objects directory
     #for each file, confirm it's in the SIP objects directory, and update the current location/ owning SIP'
