@@ -786,3 +786,7 @@ UPDATE MicroServiceChainLinks SET microserviceGroup = 'Process submission docume
 UPDATE MicroServiceChainLinks SET microserviceGroup = 'Process metadata directory' WHERE pk IN ('ee438694-815f-4b74-97e1-8e7dde2cc6d5', '75fb5d67-5efa-4232-b00b-d85236de0d3f');
 UPDATE MicroServiceChainLinks SET microserviceGroup = 'Prepare AIP' WHERE pk IN ('f1e286f9-4ec7-4e19-820c-dae7b8ea7d09');
 -- /Issue 6575 Metadata format ID & Characterization
+
+-- Issue 7080 Move submissionDocs into objects
+UPDATE StandardTasksConfigs SET execute='moveOrMerge_v0.0' WHERE pk in ('2f2a9b2b-bcdb-406b-a842-898d4bed02be', 'ce13677c-8ad4-4af0-92c8-ae8763f5094d');
+-- /Issue 7080 Move submissionDocs into objects

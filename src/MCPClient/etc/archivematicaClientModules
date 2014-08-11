@@ -91,6 +91,7 @@ move_v0.0 = sudo mv
 moveDspaceLicenseFilesToDSpaceLicenses_v0.0 = %clientScriptsDirectory%moveDspaceLicenseFilesToDSpaceLicenses.py
 moveDspaceMetsFilesToDSpaceMETS_v0.0 = %clientScriptsDirectory%moveDspaceMetsFilesToDSpaceMETS.py
 moveSIP_v0.0 =  %clientScriptsDirectory%archivematicaMoveSIP.py
+moveOrMerge_v0.0 = %clientScriptsDirectory%moveOrMerge.py
 moveTransfer_v0.0 =  %clientScriptsDirectory%archivematicaMoveTransfer.py
 moveToBacklog_v1.0 = %clientScriptsDirectory%moveToBacklog.py
 normalize_v1.0 = %clientScriptsDirectory%normalize.py
