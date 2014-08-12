@@ -280,16 +280,26 @@ $(document).ready(function() {
 
   // apply input mask to date fields
   $.extend($.inputmask.defaults.definitions, {
-    'y': {
-      'validator': '[012]\\d\\d\\d',
-      'cardinality': 4,
-      'prevalidator': [
-        { 'validator': '[012]', 'cardinality': 1 }
-      ]
+    'd': { //basic day - from jquery.inputmask.date.extensions
+        validator: "0[1-9]|[12][0-9]|3[01]",
+        cardinality: 2,
+        prevalidator: [{ validator: "[0-3]", cardinality: 1 }],
+        placeholder: 'd'
+    },
+    'm': { //basic month - from jquery.inputmask.date.extensions
+        validator: "0[1-9]|1[012]",
+        cardinality: 2,
+        prevalidator: [{ validator: "[01]", cardinality: 1 }],
+        placeholder: 'm'
+    },
+    'y': { // modified year - to allow dates beyond 19xx and 20xx
+      validator: '\\d\\d\\d\\d',
+      cardinality: 4,
+      placeholder: 'y'
     }
   });
 
-  $('input[type="text"][name*="date"]').inputmask('y/m/d');
+  $('input[type="text"][name*="date"]').inputmask('y[-m[-d]]');
 
   // active formset changer
   $('#id_rightsbasis').change(revealSelectedBasis);
