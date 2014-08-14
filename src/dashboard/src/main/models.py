@@ -915,5 +915,9 @@ class FileID(models.Model):
 
 class LevelOfDescription(models.Model):
     id = UUIDPkField()
-    name = models.CharField(max_length='1024') # seems long, but AtoM allows this much
+    name = models.CharField(max_length='1024')  # seems long, but AtoM allows this much
+    # sortorder should be unique, but is not defined so here to enable swapping
     sortorder = models.IntegerField(default=0, db_column='sortOrder')
+
+    def __unicode__(self):
+        return u'{i.sortorder}: {i.name}'.format(i=self)

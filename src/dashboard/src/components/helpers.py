@@ -28,6 +28,7 @@ import json
 from django.utils.dateformat import format
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
 from django.core.urlresolvers import reverse
+from django.db.models import Max
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.servers.basehttp import FileWrapper
 from django.shortcuts import render
@@ -236,7 +237,9 @@ def get_atom_levels_of_description(clear=True):
         base = 1
         if clear:
             models.LevelOfDescription.objects.all().delete()
-
+        else:
+            # Add after existing LoD
+            base = models.LevelOfDescription.objects.aggregate(max=Max('sortorder'))['max'] + 1
         levels = response.json()
         for idx, level in enumerate(levels):
             lod = models.LevelOfDescription(name=level['name'], sortorder=base + idx)

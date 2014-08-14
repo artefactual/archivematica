@@ -26,6 +26,7 @@ import sys
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+from django.db.models import Max, Min
 from django.forms.models import modelformset_factory
 from django.shortcuts import redirect, render
 
@@ -88,6 +89,7 @@ def failure_report_detail(request):
     return render(request, 'administration/reports/failure_report_detail.html', locals())
 
 def atom_dips(request):
+    """ View to configure AtoM DIP upload. """
     initial_data = _intial_settings_data()
     form = AtomDipUploadSettingsForm(request.POST or None, prefix='storage',
         initial=initial_data)
@@ -116,7 +118,11 @@ def atom_dips(request):
         messages.info(request, 'Saved.')
 
     hide_features = helpers.hidden_features()
-    return render(request, 'administration/dips_atom_edit.html', locals())
+    return render(request, 'administration/dips_atom_edit.html',
+        {
+            'form': form,
+            'hide_features': hide_features,
+        })
 
 
 def administration_as_dips(request):
@@ -159,22 +165,20 @@ def administration_as_dips(request):
 
 def atom_levels_of_description(request):
     if request.method == 'POST':
-        level_operation = request.POST.get('operation', None)
-        level_id = request.POST.get('id', None)
+        level_operation = request.POST.get('operation')
+        level_id = request.POST.get('id')
 
         if level_operation == 'promote':
-            if _atom_levels_of_description_sort_adjust(level_id):
+            if _atom_levels_of_description_sort_adjust(level_id, 'promote'):
                 messages.info(request, 'Promoted.')
             else:
                 messages.error(request, 'Error attempting to promote level of description.')
-
-        if level_operation == 'demote':
-            if _atom_levels_of_description_sort_adjust(level_id, '-sortorder'):
+        elif level_operation == 'demote':
+            if _atom_levels_of_description_sort_adjust(level_id, 'demote'):
                 messages.info(request, 'Demoted.')
             else:
                 messages.error(request, 'Error attempting to demote level of description.')
-
-        if level_operation == 'delete':
+        elif level_operation == 'delete':
             try:
                 level = models.LevelOfDescription.objects.get(id=level_id)
                 level.delete()
@@ -182,27 +186,42 @@ def atom_levels_of_description(request):
             except models.LevelOfDescription.DoesNotExist:
                 messages.error(request, 'Level of description not found.')
 
-    levels = models.LevelOfDescription.objects.all().order_by('sortorder')
+    levels = models.LevelOfDescription.objects.order_by('sortorder')
+    sortorder_min = models.LevelOfDescription.objects.aggregate(min=Min('sortorder'))['min']
+    sortorder_max = models.LevelOfDescription.objects.aggregate(max=Max('sortorder'))['max']
 
-    return render(request, 'administration/atom_levels_of_description.html', locals())
+    return render(request, 'administration/atom_levels_of_description.html',
+        {
+            'levels': levels,
+            'sortorder_min': sortorder_min,
+            'sortorder_max': sortorder_max,
+        })
 
-def _atom_levels_of_description_sort_adjust(id, sortorder='sortorder'):
-    levels = models.LevelOfDescription.objects.all().order_by(sortorder)
 
-    adjustment_made = False
-    previous_level = None
+def _atom_levels_of_description_sort_adjust(level_id, sortorder='promote'):
+    """
+    Move LevelOfDescription with level_id up or down one.
 
-    for level in levels:
-        if level.id == id and previous_level != None:
-            current_sortorder = level.sortorder
-            level.sortorder = previous_level.sortorder
-            level.save()
-            previous_level.sortorder = current_sortorder
-            previous_level.save()
-            adjustment_made = True
-        previous_level = level
+    :param int level_id: ID of LevelOfDescription to adjust
+    :param string sortorder: 'promote' to demote level_id, 'demote' to promote level_id
+    :returns: True if success, False otherwise.
+    """
+    try:
+        level = models.LevelOfDescription.objects.get(id=level_id)
+        # Get object with next highest/lowest sortorder
+        if sortorder == 'demote':
+            previous_level = models.LevelOfDescription.objects.order_by('sortorder').filter(sortorder__gt=level.sortorder)[:1][0]
+        elif sortorder == 'promote':
+            previous_level = models.LevelOfDescription.objects.order_by('-sortorder').filter(sortorder__lt=level.sortorder)[:1][0]
+    except (models.LevelOfDescription.DoesNotExist, IndexError):
+        return False
 
-    return adjustment_made
+    # Swap
+    level.sortorder, previous_level.sortorder = previous_level.sortorder, level.sortorder
+    level.save()
+    previous_level.save()
+    return True
+
 
 def administration_atk_dips(request):
     atk = ArchivistsToolkitConfig.objects.all()[0]

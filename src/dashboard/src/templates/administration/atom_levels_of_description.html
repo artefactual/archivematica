@@ -39,9 +39,9 @@
     	        <tr>
                 <td>{{ level.name }}</td>
                 <td>
-                  <a onClick="deleteLevel('{{ level.id }}')" href="#"><img src="/media/images/delete.png" alt="Delete" title="Delete" /></a>
-                  {% if level.sortorder > 1 %}<a onClick="promoteLevel('{{ level.id }}')" href="#"><img src="/media/images/bullet_arrow_up.png" alt="Promote" title="Promote" /></a>{% endif %}
-                  {% if level.sortorder < levels|length %}<a onClick="demoteLevel('{{ level.id }}')" href="#"><img src="/media/images/bullet_arrow_down.png" alt="Demote" title="Demote" /></a>{% endif %}
+                  <a onClick="deleteLevel('{{ level.id }}')" href="#"><img src="{{STATIC_URL}}images/delete.png" alt="Delete" title="Delete" /></a>
+                  <a onClick="promoteLevel('{{ level.id }}')" href="#"><img src="{{STATIC_URL}}images/bullet_arrow_up.png" alt="Promote" title="Promote" {% if level.sortorder == sortorder_min %}style="visibility: hidden"{% endif %}/></a>
+                  {% if level.sortorder != sortorder_max %}<a onClick="demoteLevel('{{ level.id }}')" href="#"><img src="{{STATIC_URL}}images/bullet_arrow_down.png" alt="Demote" title="Demote" /></a>{% endif %}
                 </td>
 	            </tr>
             {% endfor %}
