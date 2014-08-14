@@ -113,6 +113,15 @@ def add_events(root, sip_uuid):
     # Get all reingestion events for files in this SIP
     reingest_events = models.Event.objects.filter(file_uuid__sip__uuid=sip_uuid, event_type='reingestion')
     digiprov_counter = int(root.xpath('count(mets:amdSec/mets:digiprovMD)', namespaces=ns.NSMAP))  # HACK
+    # Get Agent
+    try:
+        agent = models.Agent.objects.get(identifiertype="preservation system", name="Archivematica", agenttype="software")
+    except models.Agent.DoesNotExist:
+        agent = None
+    except models.Agent.MultipleObjectsReturned:
+        agent = None
+        print('WARNING multiple agents found for Archivematica')
+
     for event in reingest_events:
         # Use fileSec to get amdSec (use first amdSec)
         print('Adding reingestion event to', event.file_uuid_id)
@@ -131,7 +140,21 @@ def add_events(root, sip_uuid):
         createmets2.createEvent(digiprovMD, event)
 
         # Add digiprovMD after other event digiprovMDs
-        amdsec.findall('mets:digiprovMD', namespaces=ns.NSMAP)[-1].addnext(digiprovMD)
+        amdsec.xpath('mets:digiprovMD/mets:mdWrap[@MDTYPE="PREMIS:EVENT"]/parent::mets:digiprovMD', namespaces=ns.NSMAP)[-1].addnext(digiprovMD)
+
+        # Add agent if it's not already in this amdSec
+        if agent and not amdsec.xpath('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]//premis:agentIdentifierValue[text()="' + agent.identifiervalue + '"]', namespaces=ns.NSMAP):
+            print('Adding Agent for', agent.identifiervalue)
+            digiprov_counter += 1
+            digiprovid = 'digiprovMD_%s' % digiprov_counter
+            digiprovMD = etree.Element(ns.metsBNS + "digiprovMD", ID=digiprovid, )
+            mdWrap = etree.SubElement(digiprovMD, ns.metsBNS + "mdWrap", MDTYPE='PREMIS:AGENT')
+            xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
+            xmlData.append(createmets2.createAgent(
+                agent.identifiertype, agent.identifiervalue,
+                agent.name, agent.agenttype))
+            # Add digiprovMD after other agent digiprovMDs
+            amdsec.xpath('mets:digiprovMD/mets:mdWrap[@MDTYPE="PREMIS:AGENT"]/parent::mets:digiprovMD', namespaces=ns.NSMAP)[-1].addnext(digiprovMD)
 
     return root
 

@@ -6,6 +6,8 @@ import sys
 
 from django.test import TestCase
 
+from main import models
+
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
 import archivematicaCreateMETSReingest
@@ -204,11 +206,30 @@ class TestAddEvents(TestCase):
     def test_all_files_get_events(self):
         """
         It should add reingestion events to all files.
+        It should not change Agent information.
         """
+        models.Agent.objects.all().delete()
         root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
         assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 16
+        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 9
         root = archivematicaCreateMETSReingest.add_events(root, self.sip_uuid)
         assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 19
         assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
         assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
         assert root.xpath('mets:amdSec[@ID="amdSec_3"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
+        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 9
+
+    def test_agent_not_in_mets(self):
+        """ It should add a new Agent if it doesn't already exist. """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 16
+        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 9
+        root = archivematicaCreateMETSReingest.add_events(root, self.sip_uuid)
+        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 19
+        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 12
+        assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_3"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_3"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]', namespaces=NSMAP) != []
