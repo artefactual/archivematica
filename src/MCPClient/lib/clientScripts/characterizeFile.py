@@ -13,6 +13,7 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoFPCommandOutput
+import databaseInterface
 from dicts import replace_string_values, ReplacementDict
 
 path = '/usr/share/archivematica/dashboard'
@@ -25,6 +26,15 @@ from fpr.models import FPRule, FormatVersion
 
 def main(file_path, file_uuid, sip_uuid):
     failed = False
+
+    # Check to see whether the file has already been characterized; don't try
+    # to characterize it a second time if so.
+    sql = """SELECT count(fileUUID) FROM FPCommandOutput WHERE fileUUID='{}'""".format(file_uuid)
+    cursor, lock = databaseInterface.querySQL(sql)
+    count, = cursor.fetchone()
+    lock.release()
+    if count > 0:
+        return 0
 
     try:
         format = FormatVersion.active.get(fileformatversion__file_uuid=file_uuid)
