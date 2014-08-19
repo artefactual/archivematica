@@ -84,8 +84,9 @@ def check_manual_normalization(opts):
     # If normalization.csv provided, check there for mapping from original
     # to access/preservation file
     normalization_csv = os.path.join(opts.sip_path, "objects", "manualNormalization", "normalization.csv")
-    objects_dir = os.path.join(opts.sip_path, 'objects', '')
-    bname = opts.file_path.replace(objects_dir, '', 1)
+    # Get original name of target file, to handle sanitized names
+    file_ = File.objects.get(uuid=opts.file_uuid)
+    bname = file_.originallocation.replace('%transferDirectory%objects/', '', 1).replace('%SIPDirectory%objects/', '', 1)
     if os.path.isfile(normalization_csv):
         found = False
         # use universal newline mode to support unusual newlines, like \r
@@ -99,7 +100,7 @@ def check_manual_normalization(opts):
                     if "#" in row[0]: # ignore comments
                         continue
                     original, access_file, preservation_file = row
-                    if original.lower() == bname.lower():
+                    if original == bname:
                         print('Filename', bname, 'matches entry in normalization.csv', original)
                         found = True
                         break
@@ -143,7 +144,7 @@ def check_manual_normalization(opts):
     try:
         # FIXME: SQL uses removedtime=0. Cannot get Django to express this
         return File.objects.get(sip=opts.sip_uuid, currentlocation__startswith=path) #removedtime = 0
-    except File.DoesNotExist, File.MultipleObjectsReturned:
+    except (File.DoesNotExist, File.MultipleObjectsReturned):
         # No file with the correct path found, assume not manually normalized
         return None
     return None

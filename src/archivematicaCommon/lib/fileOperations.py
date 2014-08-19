@@ -219,43 +219,44 @@ def updateFileGrpUse(fileUUID, fileGrpUse):
     sql = "UPDATE Files SET fileGrpUse= '%s' WHERE fileUUID = '%s';" % (fileGrpUse, fileUUID)
     rows = databaseInterface.runSQL(sql)
 
-def findFileInNormalizatonCSV(csv_path, commandClassification, target_file):
+def findFileInNormalizatonCSV(csv_path, commandClassification, target_file, sip_uuid):
     """ Returns the original filename or None for a manually normalized file.
 
-    csv_path: absolute path to normalization.csv
-    commandClassification: "access" or "preservation"
-    target_file: access or preservation file to match against
+    :param str csv_path: absolute path to normalization.csv
+    :param str commandClassification: "access" or "preservation"
+    :param str target_file: Path for access or preservation file to match against, relative to the objects directory
+    :param str sip_uuid: UUID of the SIP the files belong to
 
-    TODO handle sanitized filenames
+    :returns: Path to the origin file for `target_file`. Note this is the path from normalization.csv, so will be the original location.
     """
     # use universal newline mode to support unusual newlines, like \r
     with open(csv_path, 'rbU') as csv_file:
         reader = csv.reader(csv_file)
         # Search CSV for an access/preservation filename that matches target_file
-
-        # # Get original name of access file, to handle sanitized names
-        # target_file = os.path.basename(opts.filePath)
-        # sql = """SELECT Files.originalLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='manualNormalization' AND Files.currentLocation LIKE '%{filename}' AND {unitIdentifierType} = '{unitIdentifier}';""".format(
-        #     filename=target_file, unitIdentifierType=unitIdentifierType, unitIdentifier=unitIdentifier)
-        # rows = databaseInterface.queryAllSQL(sql)
-        # if len(rows) != 1:
-        #     print >>sys.stderr, "Access file ({0}) not found in DB.".format(target_file)
-        #     exit(2)
-        # target_file = os.path.basename(rows[0][0])
+        # Get original name of target file, to handle sanitized names
+        sql = """SELECT Files.originalLocation FROM Files WHERE removedTime = 0 AND Files.currentLocation LIKE '%{filename}' AND sipUUID='{sip_uuid}';""".format(
+            filename=target_file, sip_uuid=sip_uuid)
+        rows = databaseInterface.queryAllSQL(sql)
+        if len(rows) != 1:
+            print >>sys.stderr, "{} file ({}) not found in DB.".format(commandClassification, target_file)
+            sys.exit(2)
+        target_file = rows[0][0].replace('%transferDirectory%objects/', '', 1).replace('%SIPDirectory%objects/', '', 1)
         try:
             for row in reader:
+                if not row:
+                    continue
                 if "#" in row[0]:  # ignore comments
                     continue
                 original, access, preservation = row
-                if commandClassification == "access" and access.lower() == target_file.lower():
+                if commandClassification == "access" and access == target_file:
                     print "Found access file ({0}) for original ({1})".format(access, original)
                     return original
-                if commandClassification == "preservation" and preservation.lower() == target_file.lower():
+                if commandClassification == "preservation" and preservation == target_file:
                     print "Found preservation file ({0}) for original ({1})".format(preservation, original)
                     return original
             else:
                 return None
-        except csv.Error as e:
+        except csv.Error:
             print >>sys.stderr, "Error reading {filename} on line {linenum}".format(
                 filename=csv_path, linenum=reader.line_num)
-            exit(2)
+            sys.exit(2)

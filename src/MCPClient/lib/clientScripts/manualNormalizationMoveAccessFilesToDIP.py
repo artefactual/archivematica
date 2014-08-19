@@ -66,7 +66,7 @@ if len(rows) != 1:
             print >>sys.stderr, "{0} not in manualNormalization directory".format(opts.filePath)
             exit(4)
         original = fileOperations.findFileInNormalizatonCSV(csv_path,
-            "access", access_file)
+            "access", access_file, unitIdentifier)
         if original == None:
             if len(rows) < 1:
                 print >>sys.stderr, "No matching file for: {0}".format(
@@ -81,7 +81,7 @@ if len(rows) != 1:
                  FROM Files 
                  WHERE removedTime = 0 AND 
                     fileGrpUse='original' AND 
-                    Files.currentLocation LIKE '%{filename}' AND 
+                    Files.originalLocation LIKE '%{filename}' AND
                     {unitIdentifierType} = '{unitIdentifier}';""".format(
                 filename=original, unitIdentifierType=unitIdentifierType,
                 unitIdentifier=unitIdentifier)

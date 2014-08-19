@@ -67,7 +67,7 @@ if len(rows) != 1:
             print >>sys.stderr, "{0} not in manualNormalization directory".format(filePath)
             exit(4)
         original = fileOperations.findFileInNormalizatonCSV(csv_path,
-            "preservation", preservation_file)
+            "preservation", preservation_file, SIPUUID)
         if original is None:
             if len(rows) < 1:
                 print >>sys.stderr, "No matching file for: {0}".format(
@@ -82,7 +82,7 @@ if len(rows) != 1:
                  FROM Files 
                  WHERE removedTime = 0 AND 
                     fileGrpUse='original' AND 
-                    Files.currentLocation LIKE '%{filename}' AND 
+                    Files.originalLocation LIKE '%{filename}' AND
                     {unitIdentifierType} = '{unitIdentifier}';""".format(
                 filename=original, unitIdentifierType=unitIdentifierType,
                 unitIdentifier=unitIdentifier)
@@ -98,7 +98,7 @@ if len(rows) != 1:
 for row in rows:
     originalFileUUID, originalFilePath = row
 
-print "matched: {%s}%s" % (originalFileUUID, originalFilePath)
+print "matched: (%s) %s to (%s) %s" % (originalFileUUID, originalFilePath, fileUUID, filePath)
 basename = os.path.basename(filePath)
 i = basename.rfind(".")
 dstFile = basename[:i] + "-" + fileUUID + basename[i:] 
