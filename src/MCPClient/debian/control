@@ -13,7 +13,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, archivematica-common,
  gearman, imagemagick, inkscape, jhove, libimage-exiftool-perl, libxml2-utils, logapp,
  md5deep, mediainfo, nailgun-client, nfs-common, openjdk-7-jre-headless, p7zip-full,
  pbzip2, postfix, python-fido, python-gearman, python-lxml,
- python-mysqldb, python-pyicu, python-unidecode, readpst,
+ python-mysqldb, python-unidecode, readpst,
  rsync, sleuthkit, tesseract-ocr, tika, tree, ufraw, unrar-free, uuid
 Description: MCP Client for Archivematica
   

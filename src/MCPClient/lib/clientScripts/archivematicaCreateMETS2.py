@@ -26,7 +26,6 @@ from glob import glob
 import lxml.etree as etree
 import MySQLdb
 import os
-import PyICU
 import re
 import sys
 import traceback
@@ -56,7 +55,6 @@ parser.add_option("-f",  "--fileGroupIdentifier", action="store", dest="fileGrou
 parser.add_option("-t",  "--fileGroupType", action="store", dest="fileGroupType", default="sipUUID") #
 parser.add_option("-x",  "--xmlFile", action="store", dest="xmlFile", default="")
 parser.add_option("-a",  "--amdSec", action="store_true", dest="amdSec", default=False)
-parser.add_option("-i",  "--PyICULocale", action="store", dest="PyICULocale", default='pl_PL.UTF-8')
 (opts, args) = parser.parse_args()
 
 
@@ -616,10 +614,8 @@ def createFileSec(directoryPath, parentDiv):
     global dmdSecs
     global amdSecs
     
-    delayed = []
     filesInThisDirectory = []
     dspaceMetsDMDID = None
-    directoryContentsTuples = []
     try:
         directoryContents = os.listdir(directoryPath)
     except os.error:
@@ -636,215 +632,176 @@ def createFileSec(directoryPath, parentDiv):
     for item in directoryContents:
         itemdirectoryPath = os.path.join(directoryPath, item)
         if os.path.isdir(itemdirectoryPath):
-            delayed.append(item)
-
+            createFileSec(itemdirectoryPath, structMapDiv)
         elif os.path.isfile(itemdirectoryPath):
-            #find original file name
+            myuuid=""
+            DMDIDS=""
             directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, baseDirectoryPathString, 1)
-            sql = """SELECT Related.originalLocation AS 'derivedFromOriginalLocation', 
-                            Current.originalLocation
-                        FROM Files AS Current 
-                        LEFT OUTER JOIN Derivations ON Current.fileUUID = Derivations.derivedFileUUID 
-                        LEFT OUTER JOIN Files AS Related ON Derivations.sourceFileUUID = Related.fileUUID
-                        WHERE Current.removedTime = 0 AND Current.%s = '%s' 
-                            AND Current.currentLocation = '%s';""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(directoryPathSTR))
+
+            sql = """SELECT fileUUID, fileGrpUse, fileGrpUUID, Files.transferUUID, label, originalLocation, Transfers.type
+                    FROM Files
+                    LEFT OUTER JOIN Transfers ON Files.transferUUID = Transfers.transferUUID
+                    WHERE removedTime = 0 AND %s = '%s' AND Files.currentLocation = '%s';""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(directoryPathSTR))
             c, sqlLock = databaseInterface.querySQL(sql)
             row = c.fetchone()
             if row == None:
                 print >>sys.stderr, "No uuid for file: \"", directoryPathSTR, "\""
                 sharedVariablesAcrossModules.globalErrorCount += 1
+                sqlLock.release()
+                continue
             while row != None:
-                #add to files in this directory tuple list
-                derivedFromOriginalName = row[0]
-                originalLocation = row[1]
-                if derivedFromOriginalName != None:
-                    originalLocation = derivedFromOriginalName
-                originalName = os.path.basename(originalLocation) + "/" #+ u"/" keeps normalized after original / is very uncommon in a file name
-                directoryContentsTuples.append((originalName, item,)) 
+                myuuid = row[0]
+                use = row[1]
+                fileGrpUUID = row[2]
+                transferUUID = row[3]
+                label = row[4]
+                originalLocation = row[5]
+                typeOfTransfer = row[6]
                 row = c.fetchone()
             sqlLock.release()
             
-    #order files by their original name
-    for originalName, item in sorted(directoryContentsTuples, key=lambda listItems: listItems[0], cmp=sharedVariablesAcrossModules.collator.compare):
-        #item = unicode(item)
-        itemdirectoryPath = os.path.join(directoryPath, item)
-            
-        #myuuid = uuid.uuid4()
-        myuuid=""
-        DMDIDS=""
-        #directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath + "objects", "objects", 1)
-        directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, baseDirectoryPathString, 1)
+            directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, "", 1)
 
-        sql = """SELECT fileUUID, fileGrpUse, fileGrpUUID, Files.transferUUID, label, originalLocation, Transfers.type 
-                FROM Files
-                LEFT OUTER JOIN Transfers ON Files.transferUUID = Transfers.transferUUID
-                WHERE removedTime = 0 AND %s = '%s' AND Files.currentLocation = '%s';""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(directoryPathSTR))
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        if row == None:
-            print >>sys.stderr, "No uuid for file: \"", directoryPathSTR, "\""
-            sharedVariablesAcrossModules.globalErrorCount += 1
-            sqlLock.release()
-            continue
-        while row != None:
-            myuuid = row[0]
-            use = row[1]
-            fileGrpUUID = row[2]
-            transferUUID = row[3]
-            label = row[4]
-            originalLocation = row[5]
-            typeOfTransfer = row[6]
-            row = c.fetchone()
-        sqlLock.release()
-        
-        directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, "", 1)
+            if typeOfTransfer == "TRIM" and trimStructMap is None:
+                trimStructMap = etree.Element(ns.metsBNS + "structMap", attrib={"TYPE":"logical", "ID":"structMap_2", "LABEL":"Hierarchical arrangement"})
+                trimStructMapObjects = etree.SubElement(trimStructMap, ns.metsBNS + "div", attrib={"TYPE":"File", "LABEL":"objects"})
 
-        if typeOfTransfer == "TRIM" and trimStructMap == None:
-            trimStructMap = etree.Element(ns.metsBNS + "structMap", attrib={"TYPE":"logical", "ID":"structMap_2", "LABEL":"Hierarchical arrangement"})
-            trimStructMapObjects = etree.SubElement(trimStructMap, ns.metsBNS + "div", attrib={"TYPE":"File", "LABEL":"objects"})
-            
-            trimDmdSec = getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier)
-            globalDmdSecCounter += 1
-            dmdSecs.append(trimDmdSec)
-            ID = "dmdSec_" + globalDmdSecCounter.__str__()
-            trimDmdSec.set("ID", ID)
-            trimStructMapObjects.set("DMDID", ID)
-            
-            # ==
-            
-            trimAmdSec = etree.Element(ns.metsBNS + "amdSec")
-            globalAmdSecCounter += 1
-            amdSecs.append(trimAmdSec)
-            ID = "amdSec_" + globalAmdSecCounter.__str__()
-            trimAmdSec.set("ID", ID)
+                trimDmdSec = getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier)
+                globalDmdSecCounter += 1
+                dmdSecs.append(trimDmdSec)
+                ID = "dmdSec_" + globalDmdSecCounter.__str__()
+                trimDmdSec.set("ID", ID)
+                trimStructMapObjects.set("DMDID", ID)
+
+                trimAmdSec = etree.Element(ns.metsBNS + "amdSec")
+                globalAmdSecCounter += 1
+                amdSecs.append(trimAmdSec)
+                ID = "amdSec_" + globalAmdSecCounter.__str__()
+                trimAmdSec.set("ID", ID)
+
+                digiprovMD = getTrimAmdSec(baseDirectoryPath, fileGroupIdentifier)
+                globalDigiprovMDCounter += 1
+                digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
+
+                trimAmdSec.append(digiprovMD)
+
+                trimStructMapObjects.set("ADMID", ID)
+
+            fileId="file-%s" % (myuuid, )
+
+            #<fptr FILEID="file-<UUID>" LABEL="filename.ext">
+            label = item if label is None else label
+            fileDiv = etree.SubElement(structMapDiv, ns.metsBNS + "div", LABEL=label, TYPE='Item')
+            etree.SubElement(fileDiv, ns.metsBNS + 'fptr', FILEID=fileId)
+            fileNameToFileID[item] = fileId
+
+            GROUPID = ""
+            if fileGrpUUID:
+                GROUPID = "Group-%s" % (fileGrpUUID)
+                if use == "TRIM file metadata":
+                    use = "metadata"
+
+            elif use in ("original", "submissionDocumentation", "metadata", "maildirFile"):
+                GROUPID = "Group-%s" % (myuuid)
+                if use == "maildirFile":
+                    use = "original"
+                if use == "original":
+                    DMDIDS = createDMDIDSFromCSVParsedMetadataFiles(originalLocation.replace('%transferDirectory%', "", 1))
+                    if DMDIDS:
+                        fileDiv.set("DMDID", DMDIDS)
+                    if typeOfTransfer == "TRIM":
+                        trimFileDiv = etree.SubElement(trimStructMapObjects, ns.metsBNS + "div", attrib={"TYPE":"Item"})
                         
-            digiprovMD = getTrimAmdSec(baseDirectoryPath, fileGroupIdentifier)
-            globalDigiprovMDCounter += 1
-            digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
-            
-            trimAmdSec.append(digiprovMD)
-            
-            trimStructMapObjects.set("ADMID", ID)
-            
-        fileId="file-%s" % (myuuid, )
+                        trimFileDmdSec = getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, myuuid)
+                        globalDmdSecCounter += 1
+                        dmdSecs.append(trimFileDmdSec)
+                        ID = "dmdSec_" + globalDmdSecCounter.__str__()
+                        trimFileDmdSec.set("ID", ID)
 
-        #<fptr FILEID="file-<UUID>" LABEL="filename.ext">
-        label = item if label is None else label
-        fileDiv = etree.SubElement(structMapDiv, ns.metsBNS + "div", LABEL=label, TYPE='Item')
-        etree.SubElement(fileDiv, ns.metsBNS + 'fptr', FILEID=fileId)
-        fileNameToFileID[item] = fileId
+                        trimFileDiv.set("DMDID", ID)
 
-        GROUPID = ""
-        if fileGrpUUID:
-            GROUPID = "Group-%s" % (fileGrpUUID)
-            if use == "TRIM file metadata":
+                        etree.SubElement(trimFileDiv, ns.metsBNS + "fptr", FILEID=fileId)
+
+            # Dspace transfers are treated specially, but some of these fileGrpUses
+            # may be encountered in other types
+            elif typeOfTransfer == "Dspace" and (use in ("license", "text/ocr", "DSPACEMETS")):
+                sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse = 'original' AND originalLocation LIKE '%s/%%'""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(os.path.dirname(originalLocation)).replace("%", "\%"))
+                c, sqlLock = databaseInterface.querySQL(sql)
+                row = c.fetchone()
+                while row != None:
+                    GROUPID = "Group-%s" % (row[0])
+                    row = c.fetchone()
+                sqlLock.release()
+
+            elif use == "preservation" or use == "text/ocr":
+                sql = "SELECT * FROM Derivations WHERE derivedFileUUID = '" + myuuid + "';"
+                c, sqlLock = databaseInterface.querySQL(sql)
+                row = c.fetchone()
+                while row != None:
+                    GROUPID = "Group-%s" % (row[1])
+                    row = c.fetchone()
+                sqlLock.release()
+
+            elif use == "service":
+                fileFileIDPath = itemdirectoryPath.replace(baseDirectoryPath + "objects/service/", baseDirectoryPathString + "objects/")
+                objectNameExtensionIndex = fileFileIDPath.rfind(".")
+                fileFileIDPath = fileFileIDPath[:objectNameExtensionIndex + 1]
+                sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse = 'original' AND currentLocation LIKE '%s%%'""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(fileFileIDPath.replace("%", "\%")))
+                c, sqlLock = databaseInterface.querySQL(sql)
+                row = c.fetchone()
+                while row != None:
+                    GROUPID = "Group-%s" % (row[0])
+                    row = c.fetchone()
+                sqlLock.release()
+            
+            
+            elif use == "TRIM container metadata":
+                GROUPID = "Group-%s" % (myuuid)
                 use = "metadata"
             
-        elif  use == "original" or use == "submissionDocumentation" or use == "metadata" or use == "maildirFile":
-            GROUPID = "Group-%s" % (myuuid)
-            if use == "maildirFile":
-                use = "original"
-            if use == "original":
-                DMDIDS = createDMDIDSFromCSVParsedMetadataFiles(originalLocation.replace('%transferDirectory%', "", 1))
-                if DMDIDS:
-                    fileDiv.set("DMDID", DMDIDS)
-                if typeOfTransfer == "TRIM":
-                    trimFileDiv = etree.SubElement(trimStructMapObjects, ns.metsBNS + "div", attrib={"TYPE":"Item"})
-                    
-                    trimFileDmdSec = getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, myuuid)
-                    globalDmdSecCounter += 1
-                    dmdSecs.append(trimFileDmdSec)
-                    ID = "dmdSec_" + globalDmdSecCounter.__str__()
-                    trimFileDmdSec.set("ID", ID)
-                    
-                    trimFileDiv.set("DMDID", ID)       
-                    
-                    etree.SubElement(trimFileDiv, ns.metsBNS + "fptr", FILEID=fileId)
 
-        # Dspace transfers are treated specially, but some of these fileGrpUses
-        # may be encountered in other types
-        elif typeOfTransfer == "Dspace" and (use == "license" or use == "text/ocr" or use == "DSPACEMETS"):
-            sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse = 'original' AND originalLocation LIKE '%s/%%'""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(os.path.dirname(originalLocation)).replace("%", "\%"))
-            c, sqlLock = databaseInterface.querySQL(sql)
-            row = c.fetchone()
-            while row != None:
-                GROUPID = "Group-%s" % (row[0])
-                row = c.fetchone()
-            sqlLock.release()
-
-        elif use == "preservation" or use == "text/ocr":
-            sql = "SELECT * FROM Derivations WHERE derivedFileUUID = '" + myuuid + "';"
-            c, sqlLock = databaseInterface.querySQL(sql)
-            row = c.fetchone()
-            while row != None:
-                GROUPID = "Group-%s" % (row[1])
-                row = c.fetchone()
-            sqlLock.release()
-
-        elif use == "service":
-            fileFileIDPath = itemdirectoryPath.replace(baseDirectoryPath + "objects/service/", baseDirectoryPathString + "objects/")
-            objectNameExtensionIndex = fileFileIDPath.rfind(".")
-            fileFileIDPath = fileFileIDPath[:objectNameExtensionIndex + 1]
-            sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse = 'original' AND currentLocation LIKE '%s%%'""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(fileFileIDPath.replace("%", "\%")))
-            c, sqlLock = databaseInterface.querySQL(sql)
-            row = c.fetchone()
-            while row != None:
-                GROUPID = "Group-%s" % (row[0])
-                row = c.fetchone()
-            sqlLock.release()
-        
-        
-        elif use == "TRIM container metadata":
-            GROUPID = "Group-%s" % (myuuid)
-            use = "metadata"
-        
-
-        if transferUUID:
-            sql = "SELECT type FROM Transfers WHERE transferUUID = '%s';" % (transferUUID)
-            rows = databaseInterface.queryAllSQL(sql)
-            if rows[0][0] == "Dspace":
-                if use == "DSPACEMETS":
-                    use = "submissionDocumentation"
-                    admidApplyTo = None
-                    if GROUPID=="": #is an AIP identifier
-                        GROUPID = myuuid
-                        admidApplyTo = structMapDiv.getparent()
+            if transferUUID:
+                sql = "SELECT type FROM Transfers WHERE transferUUID = '%s';" % (transferUUID)
+                rows = databaseInterface.queryAllSQL(sql)
+                if rows[0][0] == "Dspace":
+                    if use == "DSPACEMETS":
+                        use = "submissionDocumentation"
+                        admidApplyTo = None
+                        if GROUPID=="": #is an AIP identifier
+                            GROUPID = myuuid
+                            admidApplyTo = structMapDiv.getparent()
 
 
-                    LABEL = "mets.xml-%s" % (GROUPID)
-                    dmdSec, ID = createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR)
-                    dmdSecs.append(dmdSec)
-                    if admidApplyTo != None:
-                        admidApplyTo.set("DMDID", ID)
-                    else:
-                        dspaceMetsDMDID = ID
+                        LABEL = "mets.xml-%s" % (GROUPID)
+                        dmdSec, ID = createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR)
+                        dmdSecs.append(dmdSec)
+                        if admidApplyTo != None:
+                            admidApplyTo.set("DMDID", ID)
+                        else:
+                            dspaceMetsDMDID = ID
 
-        if GROUPID=="":
-            sharedVariablesAcrossModules.globalErrorCount += 1
-            print >>sys.stderr, "No groupID for file: \"", directoryPathSTR, "\""
+            if GROUPID=="":
+                sharedVariablesAcrossModules.globalErrorCount += 1
+                print >>sys.stderr, "No groupID for file: \"", directoryPathSTR, "\""
 
-        if use not in globalFileGrps:
-            print >>sys.stderr, "Invalid use: \"%s\"" % (use)
-            sharedVariablesAcrossModules.globalErrorCount += 1
-        else:
-            file = etree.SubElement(globalFileGrps[use], ns.metsBNS + "file", ID=fileId, GROUPID=GROUPID)
-            if use == "original":
-                filesInThisDirectory.append(file)
-            #<Flocat xlink:href="objects/file1-UUID" locType="other" otherLocType="system"/>
-            newChild(file, ns.metsBNS + "FLocat", sets=[(ns.xlinkBNS +"href",directoryPathSTR), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM")])
-            if includeAmdSec:
-                AMD, ADMID = getAMDSec(myuuid, directoryPathSTR, use, fileGroupType, fileGroupIdentifier, transferUUID, itemdirectoryPath, typeOfTransfer)
-                amdSecs.append(AMD)
-                file.set("ADMID", ADMID)
-
+            if use not in globalFileGrps:
+                print >>sys.stderr, "Invalid use: \"%s\"" % (use)
+                sharedVariablesAcrossModules.globalErrorCount += 1
+            else:
+                file_elem = etree.SubElement(globalFileGrps[use], ns.metsBNS + "file", ID=fileId, GROUPID=GROUPID)
+                if use == "original":
+                    filesInThisDirectory.append(file_elem)
+                #<Flocat xlink:href="objects/file1-UUID" locType="other" otherLocType="system"/>
+                newChild(file_elem, ns.metsBNS + "FLocat", sets=[(ns.xlinkBNS +"href",directoryPathSTR), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM")])
+                if includeAmdSec:
+                    AMD, ADMID = getAMDSec(myuuid, directoryPathSTR, use, fileGroupType, fileGroupIdentifier, transferUUID, itemdirectoryPath, typeOfTransfer)
+                    amdSecs.append(AMD)
+                    file_elem.set("ADMID", ADMID)
 
     if dspaceMetsDMDID != None:
-        for file in filesInThisDirectory:
-            file.set("DMDID", dspaceMetsDMDID)
+        for file_elem in filesInThisDirectory:
+            file_elem.set("DMDID", dspaceMetsDMDID)
     
-    for item in sorted(delayed, cmp=sharedVariablesAcrossModules.collator.compare):
-        itemdirectoryPath = os.path.join(directoryPath, item)
-        createFileSec(itemdirectoryPath, structMapDiv)
     return structMapDiv
         
 def find_source_metadata(path):
@@ -908,7 +865,6 @@ def create_object_metadata(struct_map):
 
 
 if __name__ == '__main__':
-    sharedVariablesAcrossModules.collator = PyICU.Collator.createInstance(PyICU.Locale(opts.PyICULocale))
     while False: #used to stall the mcp and stop the client for testing this module
         import time
         time.sleep(10)
