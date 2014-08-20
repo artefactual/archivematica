@@ -21,9 +21,7 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-from unit import unit
-
-class unitFile(unit):
+class unitFile(object):
     """For objects representing a File"""
     def __init__(self, currentPath, UUID="None", owningUnit=None):
         self.currentPath = currentPath

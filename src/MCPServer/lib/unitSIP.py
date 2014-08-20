@@ -29,13 +29,11 @@ import os
 import sys
 import lxml.etree as etree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 from databaseFunctions import insertIntoEvents
 from databaseFunctions import deUnicode
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import SIP
-
 
 class unitSIP(unit):
 
@@ -47,40 +45,6 @@ class unitSIP(unit):
         self.owningUnit = None
         self.unitType = "SIP"
         self.aipFilename = ""
-
-    def reloadFileList(self):
-        """Match files to their UUID's via their location and the File table's currentLocation"""
-        self.fileList = {}
-        #os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
-        currentPath = self.currentPath.replace("%sharedPath%", \
-                                               archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1) + "/"
-        for directory, subDirectories, files in os.walk(currentPath):
-            directory = directory.replace( currentPath, "%SIPDirectory%", 1)
-            for file in files:
-                if directory != "%SIPDirectory%":
-                    filePath = os.path.join(directory, file)
-                else:
-                    filePath = directory + file
-                #print filePath
-                self.fileList[filePath] = unitFile(filePath, owningUnit=self)
-
-        sql = """SELECT  fileUUID, currentLocation, fileGrpUse FROM Files WHERE removedTime = 0 AND sipUUID =  '""" + self.UUID + "'"
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        while row != None:
-            #print row
-            UUID = row[0]
-            currentPath = row[1]
-            fileGrpUse = row[2]
-            if currentPath in self.fileList:
-                self.fileList[currentPath].UUID = UUID
-                self.fileList[currentPath].fileGrpUse = fileGrpUse
-            else:
-                print >>sys.stderr, self.fileList
-                eventDetail = "SIP {" + self.UUID + "} has file {" + UUID + "}\"" + currentPath + "\" in the database, but file doesn't exist in the file system."
-                print >>sys.stderr, "!!!", eventDetail, "!!!"
-            row = c.fetchone()
-        sqlLock.release()
 
     def setMagicLink(self,link, exitStatus=""):
         """Assign a link to the unit to process when loaded.
@@ -100,41 +64,12 @@ class unitSIP(unit):
             return
         return (sip.magiclink, sip.magiclinkexitmessage)
 
-    def setVariable(self, variable, variableValue, microServiceChainLink):
-        if not variableValue:
-            variableValue = ""
-        if not microServiceChainLink:
-            microServiceChainLink = "NULL"
-        else:
-            microServiceChainLink = "'%s'" % (microServiceChainLink)
-        variableValue = databaseInterface.MySQLdb.escape_string(variableValue)
-        sql = """SELECT pk FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % (self.unitType, self.UUID, variable)  
-        rows = databaseInterface.queryAllSQL(sql)
-        if rows:
-            for row in rows:
-                sql = """UPDATE UnitVariables SET variable='%s', variableValue='%s', microServiceChainLink=%s WHERE pk = '%s'; """ % (variable, variableValue, microServiceChainLink,row[0])
-                databaseInterface.runSQL(sql)
-        else:
-            sql = """INSERT INTO UnitVariables (pk, unitType, unitUUID, variable, variableValue, microserviceChainLink) VALUES ('%s', '%s', '%s', '%s', '%s', %s);""" % (uuid.uuid4().__str__(), self.unitType, self.UUID, variable,  variableValue, microServiceChainLink)
-            databaseInterface.runSQL(sql) 
-    
-    def getmicroServiceChainLink(self, variable, variableValue, defaultMicroServiceChainLink):
-        sql = """SELECT pk, microServiceChainLink  FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % (self.unitType, self.UUID, variable)  
-        rows = databaseInterface.queryAllSQL(sql)
-        if len(rows):
-            return rows[0][1]
-        else:
-            return defaultMicroServiceChainLink
-            
 
     def reload(self):
         sip = SIP.objects.get(uuid=self.UUID)
         self.createdTime = sip.createdtime
-        self.currentPath = self.currentPath
-        if self.aip_filename:
-            self.aipFilename = self.aip_filename
-        else:
-            self.aipFilename = ""
+        self.currentPath = sip.currentpath
+        self.aipFilename = sip.aip_filename or ""
         self.sipType = sip.sip_type
 
     def getReplacementDic(self, target):

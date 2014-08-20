@@ -26,10 +26,13 @@ from unitFile import unitFile
 import archivematicaMCP
 import os
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 import lxml.etree as etree
 
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
+
+class UnitDIPError(Exception):
+    pass
 
 class unitDIP(unit):
 
@@ -38,37 +41,8 @@ class unitDIP(unit):
         self.UUID = UUID
         self.fileList = {}
         self.owningUnit = None
-
-    def reloadFileList(self):
-        self.fileList = {}
-        #os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
-        currentPath = self.currentPath.replace("%sharedPath%", \
-                                               archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1) + "/"
-        for directory, subDirectories, files in os.walk(currentPath):
-            directory = directory.replace( currentPath, "%SIPDirectory%", 1)
-            for file in files:
-                filePath = os.path.join(directory, file)
-                #print filePath
-                self.fileList[filePath] = unitFile(filePath)
-
-        sql = """SELECT  fileUUID, currentLocation FROM Files WHERE sipUUID =  '""" + self.UUID + "'" #AND Files.removedTime = 0; TODO
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        while row != None:
-            #print row
-            UUID = row[0]
-            currentPath = row[1]
-            if currentPath in self.fileList:
-                self.fileList[currentPath].UUID = UUID
-            else:
-                print "todo: find deleted files/exclude"
-                print row[99]#fail
-            row = c.fetchone()
-            self.fileList[filePath].UUID = UUID
-        sqlLock.release()
-
-
-
+        self.pathString = "%SIPDirectory%"
+        self.unitType = "DIP"
 
     def reload(self):
         #sql = """SELECT * FROM SIPs WHERE sipUUID =  '""" + self.UUID + "'"
@@ -84,7 +58,6 @@ class unitDIP(unit):
 
         #no-op for reload on DIP
         return
-
 
     def getReplacementDic(self, target):
         # self.currentPath = currentPath.__str__()

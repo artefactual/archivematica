@@ -34,7 +34,6 @@ import threading
 import shutil
 import MySQLdb
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 import lxml.etree as etree
 from fileOperations import renameAsSudo
 from databaseFunctions import insertIntoEvents
@@ -56,6 +55,7 @@ class unitTransfer(unit):
             try:
                 transfer = Transfer.objects.get(currentlocation=currentPath2)
                 UUID = transfer.uuid
+                print "Opening existing Transfer:", UUID, "-", currentPath2
             except Transfer.DoesNotExist:
                 pass
 
@@ -71,50 +71,6 @@ class unitTransfer(unit):
         self.currentPath = currentPath2
         self.UUID = UUID
         self.fileList = {}
-
-
-    def reloadFileList(self):
-        """Match files to their UUID's via their location and the File table's currentLocation"""
-        self.fileList = {}
-        #os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
-        currentPath = self.currentPath.replace("%sharedPath%", \
-                                               archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1) + "/"
-        #print "currentPath: ", currentPath, type(currentPath)
-        try:
-            #print currentPath, type(currentPath)
-            for directory, subDirectories, files in os.walk(currentPath):
-                directory = directory.replace( currentPath, "%transferDirectory%", 1) 
-                for file in files:
-                    if "%transferDirectory%" !=  directory:
-                        filePath = os.path.join(directory, file)
-                    else:
-                        filePath = directory + file
-                    self.fileList[filePath] = unitFile(filePath, owningUnit=self)
-
-            sql = """SELECT  fileUUID, currentLocation, fileGrpUse FROM Files WHERE removedTime = 0 AND transferUUID =  '""" + self.UUID + "'"
-            #print sql
-            c, sqlLock = databaseInterface.querySQL(sql)
-            row = c.fetchone()
-            #print self.fileList
-            while row != None:
-                #print row
-                UUID = row[0]
-                currentPath = row[1]
-                fileGrpUse = row[2]
-                #print currentPath in self.fileList, row
-                if currentPath in self.fileList:
-                    self.fileList[currentPath].UUID = UUID
-                    self.fileList[currentPath].fileGrpUse = fileGrpUse
-                else:
-                    print >>sys.stderr, "!!!", "Transfer {" + self.UUID + "} has file {" + UUID + "}\"", currentPath, "\" in the database, but file doesn't exist in the file system.", "!!!"
-                row = c.fetchone()
-            sqlLock.release()
-
-        except Exception as inst:
-            traceback.print_exc(file=sys.stdout)
-            print  type(inst)
-            print  inst.args
-            exit(1)
 
     def updateLocation(self, newLocation):
         self.currentPath = newLocation
@@ -134,43 +90,11 @@ class unitTransfer(unit):
     def getMagicLink(self):
         """Load a link from the unit to process.
         Deprecated! Replaced with Set/Load Unit Variable"""
-        ret = None
-        sql = """SELECT magicLink, magicLinkExitMessage FROM Transfers WHERE transferUUID =  '""" + self.UUID + "'"
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        while row != None:
-            print row
-            ret = row
-            row = c.fetchone()
-        sqlLock.release()
-        return ret
-
-    def setVariable(self, variable, variableValue, microServiceChainLink):
-        if not variableValue:
-            variableValue = ""
-        if not microServiceChainLink:
-            microServiceChainLink = "NULL"
-        else:
-            microServiceChainLink = "'%s'" % (microServiceChainLink)
-        variableValue = databaseInterface.MySQLdb.escape_string(variableValue) 
-        sql = """SELECT pk FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % (self.unitType, self.UUID, variable)  
-        rows = databaseInterface.queryAllSQL(sql)
-        if rows:
-            for row in rows:
-                sql = """UPDATE UnitVariables SET variable='%s', variableValue='%s', microServiceChainLink=%s WHERE pk = '%s'; """ % (variable, variableValue, microServiceChainLink,row[0])
-                databaseInterface.runSQL(sql)
-        else:
-            sql = """INSERT INTO UnitVariables (pk, unitType, unitUUID, variable, variableValue, microserviceChainLink) VALUES ('%s', '%s', '%s', '%s', '%s', %s);""" % (uuid.uuid4().__str__(), self.unitType, self.UUID, variable,  variableValue, microServiceChainLink)
-            databaseInterface.runSQL(sql) 
-    
-    def getmicroServiceChainLink(self, variable, variableValue, defaultMicroServiceChainLink):
-        sql = """SELECT pk, microServiceChainLink  FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % (self.unitType, self.UUID, variable)  
-        rows = databaseInterface.queryAllSQL(sql)
-        if len(rows):
-            return rows[0][1]
-        else:
-            return defaultMicroServiceChainLink
-
+        try:
+            transfer = Transfer.objects.get(uuid=self.UUID)
+        except Transfer.DoesNotExist:
+            return
+        return (transfer.magiclink, transfer.magiclinkexitmessage)
 
     def reload(self):
         transfer = Transfer.objects.get(uuid=self.UUID)
