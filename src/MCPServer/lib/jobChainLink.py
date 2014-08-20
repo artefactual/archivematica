@@ -37,19 +37,20 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from databaseFunctions import logJobCreatedSQL
 from playAudioFileInCVLC import playAudioFileInThread
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode, TaskType
 
-#Constants
-# SELECT * FROM TaskTypes;
-constOneTask = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("one instance"))[0][0]
-constTaskForEachFile = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("for each file"))[0][0]
-constSelectPathTask = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("get user choice to proceed with"))[0][0]
-constSetMagicLink = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("assign magic link"))[0][0]
-constLoadMagicLink = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("goto magic link"))[0][0]
-constGetReplacementDic = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("get replacement dic from user choice"))[0][0]
-constlinkTaskManagerGetMicroserviceGeneratedListInStdOut = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Get microservice generated list in stdOut"))[0][0]
-constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("Get user choice from microservice generated list"))[0][0]
-constlinkTaskManagerSetUnitVariable = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("linkTaskManagerSetUnitVariable"))[0][0]
-constlinkTaskManagerUnitVariableLinkPull = databaseInterface.queryAllSQL("SELECT pk FROM TaskTypes WHERE description = '%s';" % ("linkTaskManagerUnitVariableLinkPull"))[0][0]
+# Constants
+constOneTask = TaskType.objects.get(description="one instance").pk
+constTaskForEachFile = TaskType.objects.get(description="for each file").pk
+constSelectPathTask = TaskType.objects.get(description="get user choice to proceed with").pk
+constSetMagicLink = TaskType.objects.get(description="assign magic link").pk
+constLoadMagicLink = TaskType.objects.get(description="goto magic link").pk
+constGetReplacementDic = TaskType.objects.get(description="get replacement dic from user choice").pk
+constlinkTaskManagerGetMicroserviceGeneratedListInStdOut = TaskType.objects.get(description="Get microservice generated list in stdOut").pk
+constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList = TaskType.objects.get(description="Get user choice from microservice generated list").pk
+constlinkTaskManagerSetUnitVariable = TaskType.objects.get(description="linkTaskManagerSetUnitVariable").pk
+constlinkTaskManagerUnitVariableLinkPull = TaskType.objects.get(description="linkTaskManagerUnitVariableLinkPull").pk
 
 class jobChainLink:
     def __init__(self, jobChain, jobChainLinkPK, unit, passVar=None, subJobOf=""):
@@ -57,32 +58,33 @@ class jobChainLink:
             return None
         self.UUID = uuid.uuid4().__str__()
         self.jobChain = jobChain
-        self.pk = jobChainLinkPK
         self.unit = unit
         self.passVar=passVar
         self.createdDate = databaseInterface.getUTCDate()
         self.subJobOf = subJobOf
-        sql = """SELECT MicroServiceChainLinks.currentTask, MicroServiceChainLinks.defaultNextChainLink, TasksConfigs.taskType, TasksConfigs.taskTypePKReference, TasksConfigs.description, MicroServiceChainLinks.reloadFileList, Sounds.fileLocation, MicroServiceChainLinks.defaultExitMessage, MicroServiceChainLinks.microserviceGroup FROM MicroServiceChainLinks LEFT OUTER JOIN Sounds ON MicroServiceChainLinks.defaultPlaySound = Sounds.pk JOIN TasksConfigs on MicroServiceChainLinks.currentTask = TasksConfigs.pk WHERE MicroServiceChainLinks.pk = '%s'""" % (jobChainLinkPK.__str__())
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        if row == None:
-            sqlLock.release()
-            return None
-        while row != None:
-            print row
-            self.currentTask = row[0]
-            self.defaultNextChainLink = row[1]
-            taskType = row[2]
-            taskTypePKReference = row[3]
-            self.description = row[4]
-            self.reloadFileList = row[5]
-            self.defaultSoundFile = row[6]
-            self.defaultExitMessage = row[7]
-            self.microserviceGroup = row[8]
-            row = c.fetchone()
-        sqlLock.release()
 
+        # Depending on the path that led to this, jobChainLinkPK may
+        # either be a UUID or a MicroServiceChainLink instance
+        if isinstance(jobChainLinkPK, basestring):
+            try:
+                link = MicroServiceChainLink.objects.get(id=str(jobChainLinkPK))
+            # This will sometimes return no values
+            except MicroServiceChainLink.DoesNotExist:
+                return
+        else:
+            link = jobChainLinkPK
 
+        self.pk = link.id
+
+        self.currentTask = link.currenttask_id
+        self.defaultNextChainLink = link.defaultnextchainlink_id
+        taskType = link.currenttask.tasktype_id
+        taskTypePKReference = link.currenttask.tasktypepkreference
+        self.description = link.currenttask.description
+        self.reloadFileList = link.reloadfilelist
+        self.defaultSoundFile = None
+        self.defaultExitMessage = link.defaultexitmessage
+        self.microserviceGroup = link.microservicegroup
 
         print "<<<<<<<<< ", self.description, " >>>>>>>>>"
         self.unit.reload()
@@ -120,48 +122,34 @@ class jobChainLink:
         else:
             print sys.stderr, "unsupported task type: ", taskType
 
+    # Deprecated, remove later
     def getSoundFileToPlay(self, exitCode):
-        if exitCode != None:
-            ret = self.defaultSoundFile
-            sql = "SELECT Sounds.fileLocation FROM MicroServiceChainLinksExitCodes LEFT OUTER JOIN Sounds ON MicroServiceChainLinksExitCodes.playSound = Sounds.pk WHERE microServiceChainLink = '%s' AND exitCode = %s" % (self.pk.__str__(), exitCode.__str__())
-            c, sqlLock = databaseInterface.querySQL(sql)
-            row = c.fetchone()
-            if row != None:
-                ret = row[0]
-            sqlLock.release()
-            return ret
+        return self.defaultSoundFile
 
     def getNextChainLinkPK(self, exitCode):
-        if exitCode != None:
-            ret = self.defaultNextChainLink
-            sql = "SELECT nextMicroServiceChainLink FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink = '%s' AND exitCode = %s" % (self.pk.__str__(), exitCode.__str__())
-            c, sqlLock = databaseInterface.querySQL(sql)
-            row = c.fetchone()
-            if row != None:
-                ret = row[0]
-            sqlLock.release()
-            return ret
+        if exitCode is not None:
+            try:
+                return MicroServiceChainLinkExitCode.objects.get(microservicechainlink_id=str(self.pk), exitcode=str(exitCode)).nextmicroservicechainlink_id
+            except (MicroServiceChainLinkExitCode.DoesNotExist, MicroServiceChainLinkExitCode.MultipleObjectsReturned):
+                return self.defaultNextChainLink
 
     def setExitMessage(self, message):
-        databaseInterface.runSQL("UPDATE Jobs " + \
-                "SET currentStep='" + MySQLdb.escape_string(message.__str__()) +  "' " + \
-                "WHERE jobUUID='" + self.UUID + "'" )
+        Job.objects.filter(jobuuid=self.UUID).update(currentstep=str(message))
 
     def updateExitMessage(self, exitCode):
-        ret = self.defaultExitMessage
-        if exitCode != None:
-            sql = "SELECT exitMessage FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink = '%s' AND exitCode = %s" % (self.pk.__str__(), exitCode.__str__())
-            c, sqlLock = databaseInterface.querySQL(sql)
-            row = c.fetchone()
-            if row != None:
-                ret = row[0]
-            sqlLock.release()
-        if ret != None:
-            self.setExitMessage(ret)
+        message = self.defaultExitMessage
+        if exitCode is not None:
+            try:
+                message = MicroServiceChainLinkExitCode.objects.get(microservicechainlink_id=str(self.pk), exitcode=str(exitCode)).exitmessage
+            except MicroServiceChainLinkExitCode.DoesNotExist:
+                pass
+        if message is not None:
+            self.setExitMessage(message)
         else:
             print "No exit message"
 
     def linkProcessingComplete(self, exitCode, passVar=None):
+        # Deprecated, remove later
         playSounds = True
         if playSounds:
             filePath = self.getSoundFileToPlay(exitCode)

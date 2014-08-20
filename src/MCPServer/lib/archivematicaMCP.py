@@ -33,7 +33,6 @@
 #
 # stdlib, alphabetical by import source
 import ConfigParser
-import MySQLdb
 import os
 from pwd import getpwnam
 import pyinotify
@@ -59,8 +58,8 @@ import databaseFunctions
 from externals.singleInstance import singleinstance
 from archivematicaFunctions import unicodeToStr
 
-# Print SQL sent to the database interface 
-databaseInterface.printSQL = True
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import Job, SIP, Task, WatchedDirectory
 
 global countOfCreateUnitAndJobChainThreaded
 countOfCreateUnitAndJobChainThreaded = 0
@@ -104,29 +103,27 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
     # Find UUID on end of SIP path
     UUID = fetchUUIDFromPath(path)
     if UUID:
-        sql = """SELECT currentPath FROM SIPs WHERE sipUUID = %s;"""
-        rows = databaseInterface.queryAllSQL(sql, (UUID,))
-        if not rows:
+        try:
+            sip = SIP.objects.get(uuid=UUID)
+        except SIP.DoesNotExist:
             databaseFunctions.createSIP(path, UUID=UUID)
         else:
-            current_path, = rows[0]
+            current_path = sip.currentpath
             if current_path != path and unit_type == 'SIP':
                 # Ensure path provided matches path in DB
-                sql = """UPDATE SIPs SET currentPath=%s WHERE sipUUID=%s;"""
-                databaseInterface.runSQL(sql, (path, UUID))
+                sip.currentpath = path
+                sip.save()
     else:
-        # Find it in the database
-        sql = """SELECT sipUUID FROM SIPs WHERE currentPath = %s;"""
-        c, sqlLock = databaseInterface.querySQL(sql, (path,))
-        row = c.fetchone()
-        if not row:
-            print "Not opening existing SIP:", UUID, "-", path
-        while row != None:
-            UUID = row[0]
+        #Find it in the database
+        sips = SIP.objects.filter(currentpath=path)
+        count = sips.count()
+        if count > 1:
+            print "Warning: found more than one matching SIP for path", path, "- using first result"
+        if count > 0:
+            UUID = sips[0].uuid
             print "Opening existing SIP:", UUID, "-", path
-            row = c.fetchone()
-        sqlLock.release()
-
+        else:
+            print "Not opening existing SIP:", UUID, "-", path
 
     #Create it
     if not UUID:
@@ -187,19 +184,17 @@ def createUnitAndJobChainThreaded(path, config, terminate=True):
 
 def watchDirectories():
     """Start watching the watched directories defined in the WatchedDirectories table in the database."""
-    rows = []
-    sql = """SELECT watchedDirectoryPath, chain, onlyActOnDirectories, description FROM WatchedDirectories LEFT OUTER JOIN WatchedDirectoriesExpectedTypes ON WatchedDirectories.expectedType = WatchedDirectoriesExpectedTypes.pk"""
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    while row != None:
-        rows.append(row)
-        row = c.fetchone()
-    sqlLock.release()
-
     watched_dir_path = config.get('MCPServer', "watchDirectoryPath")
     interval = config.getint('MCPServer', "watchDirectoriesPollInterval")
-    for row in rows:
-        directory = row[0].replace("%watchDirectoryPath%", watched_dir_path, 1)
+
+    watched_directories = WatchedDirectory.objects.all()
+
+    for watched_directory in watched_directories:
+        directory = watched_directory.watched_directory_path.replace("%watchDirectoryPath%", watched_dir_path, 1)
+
+        # Tuple of variables that may be used by a callback
+        row = (watched_directory.watched_directory_path, watched_directory.chain_id, watched_directory.only_act_on_directories, watched_directory.expected_type.description)
+
         if not os.path.isdir(directory):
             os.makedirs(directory)
         for item in os.listdir(directory):
@@ -211,7 +206,7 @@ def watchDirectories():
                 time.sleep(1)
             createUnitAndJobChainThreaded(path, row, terminate=False)
         actOnFiles=True
-        if row[2]: #onlyActOnDirectories
+        if watched_directory.only_act_on_directories:
             actOnFiles=False
         watchDirectory.archivematicaWatchDirectory(
             directory,
@@ -268,16 +263,10 @@ def flushOutputs():
         time.sleep(5)
 
 def cleanupOldDbEntriesOnNewRun():
-    sql = """DELETE FROM Jobs WHERE Jobs.currentStep = 'Awaiting decision';"""
-    databaseInterface.runSQL(sql)
-    
-    sql = """UPDATE Jobs SET currentStep='Failed' WHERE currentStep='Executing command(s)';"""
-    databaseInterface.runSQL(sql)
-    
-    sql = """UPDATE Tasks SET exitCode=-1, stdError='MCP shut down while processing.' WHERE exitCode IS NULL;"""
-    databaseInterface.runSQL(sql)
-    
-    
+    Job.objects.filter(currentstep='Awaiting decision').delete()
+    Job.objects.filter(currentstep='Executing command(s)').update(currentstep='Failed')
+    Task.objects.filter(exitcode=None).update(exitcode=-1, stderror="MCP shut down while processing.")
+
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)

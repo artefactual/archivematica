@@ -33,10 +33,11 @@ import archivematicaMCP
 from linkTaskManagerChoice import choicesAvailableForUnits
 from linkTaskManagerChoice import choicesAvailableForUnitsLock
 from linkTaskManagerChoice import waitingOnTimer
-import databaseInterface
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict, ChoicesDict
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import StandardTaskConfig
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica.log",
@@ -46,15 +47,10 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList, self).__init__(jobChainLink, pk, unit)
         self.choices = []
-        sql = sql = """SELECT execute FROM StandardTasksConfigs where pk = '%s'""" % (pk)
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
+        stc = StandardTaskConfig.objects.get(id=str(pk))
+        key = stc.execute
+
         choiceIndex = 0
-        while row != None:
-            print row
-            key = row[0]
-            row = c.fetchone()
-        sqlLock.release()
         if isinstance(self.jobChainLink.passVar, list):
             for item in self.jobChainLink.passVar:
                 print item, "is ChoicesDict: ", isinstance(item, ChoicesDict)

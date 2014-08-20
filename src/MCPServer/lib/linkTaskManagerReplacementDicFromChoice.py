@@ -29,7 +29,6 @@ import sys
 import time
 
 from linkTaskManager import LinkTaskManager
-import databaseInterface
 import archivematicaMCP
 from linkTaskManagerChoice import choicesAvailableForUnits
 from linkTaskManagerChoice import choicesAvailableForUnitsLock
@@ -37,24 +36,18 @@ from linkTaskManagerChoice import waitingOnTimer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import MicroServiceChoiceReplacementDic
+
 
 class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerReplacementDicFromChoice, self).__init__(jobChainLink, pk, unit)
+
         self.choices = []
-        sql = """SELECT replacementDic, description FROM MicroServiceChoiceReplacementDic WHERE choiceAvailableAtLink = '%s'""" % (jobChainLink.pk.__str__())
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        choiceIndex = 0
-        while row != None:
-            print row
-            replacementDic_ = row[0]
-            description_ = row[1]
-            self.choices.append((choiceIndex, description_, replacementDic_))
-            row = c.fetchone()
-            choiceIndex += 1
-        sqlLock.release()
-        #print "choices", self.choices
+        dicts = MicroServiceChoiceReplacementDic.objects.filter(choiceavailableatlink=str(jobChainLink.pk))
+        for i, dic in enumerate(dicts):
+            self.choices.append((i, dic.description, dic.replacementdic))
 
         preConfiguredChain = self.checkForPreconfiguredXML()
         if preConfiguredChain != None:
@@ -90,13 +83,8 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                 for preconfiguredChoice in root.findall(".//preconfiguredChoice"):
                     if preconfiguredChoice.find("appliesTo").text == self.jobChainLink.pk:
                         desiredChoice = preconfiguredChoice.find("goToChain").text
-                        sql = """SELECT MicroServiceChoiceReplacementDic.replacementDic FROM MicroServiceChoiceReplacementDic  WHERE MicroServiceChoiceReplacementDic.pk = '%s' AND MicroServiceChoiceReplacementDic.choiceAvailableAtLink = '%s';""" % (desiredChoice, self.jobChainLink.pk.__str__())
-                        c, sqlLock = databaseInterface.querySQL(sql)
-                        row = c.fetchone()
-                        while row != None:
-                            ret = row[0]
-                            row = c.fetchone()
-                        sqlLock.release()
+                        dic = MicroServiceChoiceReplacementDic.objects.get(id=desiredChoice, choiceavailableatlink=self.jobChainLink.pk)
+                        ret = dic.replacementdic
                         try:
                             #<delay unitAtime="yes">30</delay>
                             delayXML = preconfiguredChoice.find("delay")

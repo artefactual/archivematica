@@ -206,9 +206,7 @@ def approve_transfer_via_mcp(directory, type, user_id):
                 type_description = type_task_config_descriptions[type]
 
                 # use transfer type to fetch possible choices to execute
-                task = models.TaskConfig.objects.get(description=type_description)
-                link = models.MicroServiceChainLink.objects.get(currenttask=task)
-                choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink=link.pk)
+                choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink__currenttask__description=type_description)
 
                 # attempt to find appropriate choice
                 chain_to_execute = None

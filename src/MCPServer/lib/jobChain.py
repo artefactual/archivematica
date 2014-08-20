@@ -25,8 +25,9 @@ import sys
 import threading
 from jobChainLink import jobChainLink
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 from dicts import ReplacementDict
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import MicroServiceChain, UnitVariable
 #Holds:
 #-UNIT
 #-Job chain link
@@ -43,13 +44,9 @@ def fetchUnitVariableForUnit(unit_uuid):
     """
 
     results = ReplacementDict()
-    sql = "SELECT variableValue FROM UnitVariables WHERE unitUUID = \"{}\" AND variable = 'replacementDict'".format(unit_uuid)
-    rows, lock = databaseInterface.querySQL(sql)
-    lock.release()
-    if not rows:
-        return results
+    variables = UnitVariable.objects.filter(unituuid=unit_uuid, variable="replacementDict").values_list('variablevalue')
 
-    for replacement_dict, in rows:
+    for replacement_dict, in variables:
         rd = ReplacementDict.fromstring(replacement_dict)
         results.update(rd)
 
@@ -67,20 +64,11 @@ class jobChain:
         self.UUID = UUID
         self.linkSplitCount = 1
         self.subJobOf = subJobOf
-        sql = """SELECT * FROM MicroServiceChains WHERE pk =  '%s'""" % (chainPK.__str__())
-        print sql
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        if row == None:
-            sqlLock.release()
-            return None
-        while row != None:
-            print "jobChain", row
-            #self.pk = row[0]
-            self.startingChainLink = row[1]
-            self.description = row[2]
-            row = c.fetchone()
-        sqlLock.release()
+
+        chain = MicroServiceChain.objects.get(id=str(chainPK))
+        print "jobChain", chain
+        self.startingChainLink = chain.startinglink_id
+        self.description = chain.description
 
         # Migrate over unit variables containing replacement dicts from previous chains,
         # but prioritize any values contained in passVars passed in as kwargs

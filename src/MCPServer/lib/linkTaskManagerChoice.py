@@ -29,7 +29,6 @@ import threading
 import time
 
 from linkTaskManager import LinkTaskManager
-import databaseInterface
 from executeOrRunSubProcess import executeOrRun
 import jobChain
 import archivematicaMCP
@@ -38,6 +37,8 @@ choicesAvailableForUnits = {}
 choicesAvailableForUnitsLock = threading.Lock()
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivematicaFunctions import unicodeToStr
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import MicroServiceChainChoice
 
 waitingOnTimer="waitingOnTimer"
 
@@ -48,16 +49,10 @@ class linkTaskManagerChoice(LinkTaskManager):
         self.choices = []
         self.delayTimerLock = threading.Lock()
         self.delayTimer = None
-        sql = """SELECT chainAvailable, description FROM MicroServiceChainChoice JOIN MicroServiceChains on chainAvailable = MicroServiceChains.pk WHERE choiceAvailableAtLink = '%s' ORDER BY MicroServiceChainChoice.pk;""" % (jobChainLink.pk.__str__())
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        while row != None:
-            print row
-            chainAvailable = row[0]
-            description = row[1]
-            self.choices.append((chainAvailable, description,))
-            row = c.fetchone()
-        sqlLock.release()
+
+        choices = MicroServiceChainChoice.objects.filter(choiceavailableatlink_id=str(jobChainLink.pk))
+        for choice in choices:
+            self.choices.append((choice.chainavailable_id, choice.chainavailable.description))
 
         preConfiguredChain = self.checkForPreconfiguredXML()
         if preConfiguredChain != None:

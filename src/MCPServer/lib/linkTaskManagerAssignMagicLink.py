@@ -21,9 +21,13 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import databaseInterface
+import sys
 
 from linkTaskManager import LinkTaskManager
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import TaskConfigAssignMagicLink
+
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 
@@ -35,14 +39,10 @@ class linkTaskManagerAssignMagicLink(LinkTaskManager):
 
         ###GET THE MAGIC NUMBER FROM THE TASK stuff
         link = 0
-        sql = """SELECT execute FROM TasksConfigsAssignMagicLink where pk = '%s'""" % (pk)
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        while row != None:
-            print row
-            link = row[0]
-            row = c.fetchone()
-        sqlLock.release()
+        try:
+            link = TaskConfigAssignMagicLink.objects.get(id=pk).execute
+        except TaskConfigAssignMagicLink.DoesNotExist:
+            pass
 
         ###Update the unit
         #set the magic number

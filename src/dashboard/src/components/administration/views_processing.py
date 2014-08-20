@@ -361,7 +361,7 @@ def uuid_from_description(description, choice):
     result is associated with the correct choice.
     """
     try:
-        choice = models.MicroServiceChainChoice.objects.get(choiceavailableatlink=choice,
+        choice = models.MicroServiceChainChoice.objects.get(choiceavailableatlink_id=choice,
             chainavailable__description=description)
         return choice.chainavailable.pk
     except models.MicroServiceChainChoice.DoesNotExist:
@@ -370,7 +370,7 @@ def uuid_from_description(description, choice):
 def populate_select_field_options_with_chain_choices(field):
     link = lookup_chain_link(field)
 
-    choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink=link.pk)
+    choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink_id=link.pk)
 
     field['options'] = [{'value': '', 'label': '--Actions--'}]
     options = []
@@ -392,7 +392,7 @@ def populate_select_field_options_with_replace_dict_values(field):
     link = lookup_chain_link(field)
 
     replace_dicts = models.MicroServiceChoiceReplacementDic.objects.filter(
-        choiceavailableatlink=link.pk
+        choiceavailableatlink_id=link.pk
     )
 
     field['options'] = [{'value': '', 'label': '--Actions--'}]

@@ -21,25 +21,22 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import databaseInterface
+import sys
+
 from linkTaskManager import LinkTaskManager
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import TaskConfigSetUnitVariable
 
 class linkTaskManagerSetUnitVariable(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerSetUnitVariable, self).__init__(jobChainLink, pk, unit)
         ###GET THE MAGIC NUMBER FROM THE TASK stuff
-        sql = """SELECT variable, variableValue, microServiceChainLink FROM TasksConfigsSetUnitVariable where pk = '%s'""" % (pk)
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        while row != None:
-            print row
-            variable, variableValue, microServiceChainLink = row
-            row = c.fetchone()
-        sqlLock.release()
+        var = TaskConfigSetUnitVariable.objects.get(id=pk)
 
         ###Update the unit
         #set the magic number
-        self.unit.setVariable(variable, variableValue, microServiceChainLink)
+        self.unit.setVariable(var.variable, var.variablevalue, var.microservicechainlink_id)
         self.jobChainLink.linkProcessingComplete(0)

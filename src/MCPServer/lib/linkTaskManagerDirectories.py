@@ -28,41 +28,27 @@ import sys
 import threading
 import traceback
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 import databaseFunctions
 from databaseFunctions import deUnicode
 from dicts import ReplacementDict
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import StandardTaskConfig
 
 
 class linkTaskManagerDirectories(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerDirectories, self).__init__(jobChainLink, pk, unit)
         self.tasks = []
-        sql = """SELECT * FROM StandardTasksConfigs where pk = '%s'""" % (pk.__str__())
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        if row == None:
-            print >>sys.stderr, "\nfind me\n"
-            traceback.print_exc(file=sys.stderr)
-            return None
-        while row != None:
-            print row
-            #pk = row[0]
-            filterFileEnd = deUnicode(row[1])
-            filterFileStart = deUnicode(row[2])
-            filterSubDir = deUnicode(row[3])
-            self.requiresOutputLock = deUnicode(row[4])
-            standardOutputFile = deUnicode(row[5])
-            standardErrorFile = deUnicode(row[6])
-            execute = deUnicode(row[7])
-            self.execute = execute
-            arguments = deUnicode(row[8])
-            row = c.fetchone()
-        sqlLock.release()
-        #if reloadFileList:
-        #    unit.reloadFileList()
-
-        #        "%taskUUID%": task.UUID.__str__(), \
+        stc = StandardTaskConfig.objects.get(id=str(pk))
+        filterFileEnd = stc.filter_file_end
+        filterFileStart = stc.filter_file_start
+        filterSubDir = stc.filter_subdir
+        self.requiresOutputLock = stc.requires_output_lock
+        standardOutputFile = stc.stdout_file
+        standardErrorFile = stc.stderr_file
+        execute = stc.execute
+        self.execute = execute
+        arguments = stc.arguments
 
         if filterSubDir:
             directory = os.path.join(unit.currentPath, filterSubDir)
@@ -78,7 +64,7 @@ class linkTaskManagerDirectories(LinkTaskManager):
                 execute, arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(execute, arguments, standardOutputFile, standardErrorFile)
                     
         commandReplacementDic = unit.getReplacementDic(directory)
-                #for each key replace all instances of the key in the command string
+        # for each key replace all instances of the key in the command string
         for key in commandReplacementDic.iterkeys():
             value = commandReplacementDic[key].replace("\"", ("\\\""))
             if execute:

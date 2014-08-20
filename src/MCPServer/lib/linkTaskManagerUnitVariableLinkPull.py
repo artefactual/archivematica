@@ -21,24 +21,20 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import databaseInterface
+import sys
 
 from linkTaskManager import LinkTaskManager
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import TaskConfigUnitVariableLinkPull
+
 class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerUnitVariableLinkPull, self).__init__(jobChainLink, pk, unit)
-        sql = """SELECT variable, variableValue, defaultMicroServiceChainLink FROM TasksConfigsUnitVariableLinkPull where pk = '%s'""" % (pk)
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        while row != None:
-            print row
-            variable, variableValue, defaultMicroServiceChainLink = row
-            row = c.fetchone()
-        sqlLock.release()
-        link = self.unit.getmicroServiceChainLink(variable, variableValue, defaultMicroServiceChainLink)
+        var = TaskConfigUnitVariableLinkPull.objects.get(id=pk)
+        link = self.unit.getmicroServiceChainLink(var.variable, var.variablevalue, var.defaultmicroservicechainlink_id)
         
         ###Update the unit
         if link != None:

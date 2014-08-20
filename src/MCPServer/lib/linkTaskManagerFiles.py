@@ -32,11 +32,11 @@ import archivematicaMCP
 from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 import databaseFunctions
 from databaseFunctions import deUnicode
 from dicts import ReplacementDict
-
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import StandardTaskConfig, UnitVariable
 
 class linkTaskManagerFiles(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
@@ -45,40 +45,39 @@ class linkTaskManagerFiles(LinkTaskManager):
         self.tasksLock = threading.Lock()
         self.exitCode = 0
         self.clearToNextLink = False
-        sql = """SELECT * FROM StandardTasksConfigs where pk = '%s'""" % (pk.__str__())
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        while row != None:
-            filterFileEnd = deUnicode(row[1])
-            filterFileStart = deUnicode(row[2])
-            filterSubDir = deUnicode(row[3])
-            requiresOutputLock = row[4]
-            self.standardOutputFile = deUnicode(row[5])
-            self.standardErrorFile = deUnicode(row[6])
-            self.execute = deUnicode(row[7])
-            self.arguments = deUnicode(row[8])
-            row = c.fetchone()
-        sqlLock.release()
-        if requiresOutputLock:
+
+        stc = StandardTaskConfig.objects.get(id=str(pk))
+        # These three may be concatenated/compared with other strings,
+        # so they need to be bytestrings here
+        filterFileEnd = str(stc.filter_file_end) if stc.filter_file_end else ''
+        filterFileStart = str(stc.filter_file_start) if stc.filter_file_start else ''
+        filterSubDir = str(stc.filter_subdir) if stc.filter_subdir else ''
+        self.standardOutputFile = stc.stdout_file
+        self.standardErrorFile = stc.stderr_file
+        self.execute = stc.execute
+        self.arguments = stc.arguments
+
+        if stc.requires_output_lock:
             outputLock = threading.Lock()
         else:
             outputLock = None
 
         # Check if filterSubDir has been overridden for this Transfer/SIP
-        sql = """SELECT variableValue
-            FROM UnitVariables
-            WHERE unitType='%s'
-            AND unitUUID='%s'
-            AND variable='%s';""" % (self.unit.unitType, self.unit.UUID, self.execute)
-        rows = databaseInterface.queryAllSQL(sql)
         try:
-            variableValue = ast.literal_eval(rows[0][0])
-        except (SyntaxError, IndexError):
-            # IndexError = rows was empty
-            # SyntaxError = contents of variableValue weren't the expected dict
-            pass
-        else:
-            filterSubDir = variableValue['filterSubDir']
+            var = UnitVariable.objects.get(unittype=self.unit.unitType,
+                                           unituuid=self.unit.UUID,
+                                           variable=self.execute)
+        except (UnitVariable.DoesNotExist, UnitVariable.MultipleObjectsReturned):
+            var = None
+
+        if var:
+            try:
+                variableValue = ast.literal_eval(var.variablevalue)
+            except SyntaxError:
+                # SyntaxError = contents of variableValue weren't the expected dict
+                pass
+            else:
+                filterSubDir = variableValue['filterSubDir']
 
         SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
         self.tasksLock.acquire()

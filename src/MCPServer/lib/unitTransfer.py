@@ -40,6 +40,9 @@ from fileOperations import renameAsSudo
 from databaseFunctions import insertIntoEvents
 from databaseFunctions import deUnicode
 
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import Transfer
+
 class unitTransfer(unit):
     def __init__(self, currentPath, UUID=""):
         self.owningUnit = None
@@ -49,27 +52,21 @@ class unitTransfer(unit):
         currentPath2 = currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), \
                        "%sharedPath%", 1)
 
-        if UUID == "":
-            sql = """SELECT transferUUID FROM Transfers WHERE currentLocation = '""" + MySQLdb.escape_string(currentPath2) + "'"
-            time.sleep(.5)
-            c, sqlLock = databaseInterface.querySQL(sql)
-            row = c.fetchone()
-            while row != None:
-                UUID = row[0]
-                print "Opening existing Transfer:", UUID, "-", currentPath2
-                row = c.fetchone()
-            sqlLock.release()
+        if not UUID:
+            try:
+                transfer = Transfer.objects.get(currentlocation=currentPath2)
+                UUID = transfer.uuid
+            except Transfer.DoesNotExist:
+                pass
 
-        if UUID == "":
+        if not UUID:
             uuidLen = -36
-            if  archivematicaMCP.isUUID(currentPath[uuidLen-1:-1]):
+            if archivematicaMCP.isUUID(currentPath[uuidLen-1:-1]):
                 UUID = currentPath[uuidLen-1:-1]
             else:
-                UUID = uuid.uuid4().__str__()
+                UUID = str(uuid.uuid4())
                 self.UUID = UUID
-                sql = """INSERT INTO Transfers (transferUUID, currentLocation)
-                VALUES ('""" + UUID + databaseInterface.separator + MySQLdb.escape_string(currentPath2) + "');"
-                databaseInterface.runSQL(sql)
+                Transfer.objects.create(uuid=UUID, currentlocation=currentPath2)
 
         self.currentPath = currentPath2
         self.UUID = UUID
@@ -121,17 +118,18 @@ class unitTransfer(unit):
 
     def updateLocation(self, newLocation):
         self.currentPath = newLocation
-        sql =  """UPDATE Transfers SET currentPath='""" + newLocation + """' WHERE transferUUID='""" + self.UUID + """';"""
-        databaseInterface.runSQL(sql)
+        transfer = Transfer.objects.get(uuid=self.UUID)
+        transfer.currentlocation = newLocation
+        transfer.save()
 
     def setMagicLink(self, link, exitStatus=""):
         """Assign a link to the unit to process when loaded.
         Deprecated! Replaced with Set/Load Unit Variable"""
-        if exitStatus != "":
-            sql =  """UPDATE Transfers SET magicLink='""" + link.__str__() + """', magicLinkExitMessage='""" + exitStatus + """' WHERE transferUUID='""" + self.UUID.__str__() + """';"""
-        else:
-            sql =  """UPDATE Transfers SET magicLink='""" + link.__str__() + """' WHERE transferUUID='""" + self.UUID.__str__() + """';"""
-        databaseInterface.runSQL(sql)
+        transfer = Transfer.objects.get(uuid=self.UUID)
+        transfer.magiclink = link
+        if exitStatus:
+            transfer.magiclinkexitmessage = exitStatus
+        transfer.save()
 
     def getMagicLink(self):
         """Load a link from the unit to process.
@@ -175,17 +173,8 @@ class unitTransfer(unit):
 
 
     def reload(self):
-        sql = """SELECT transferUUID, currentLocation FROM Transfers WHERE transferUUID =  '""" + self.UUID + "'"
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        while row != None:
-            self.UUID = deUnicode(row[0])
-            #self.createdTime = row[1]
-            self.currentPath = deUnicode(row[1])
-            row = c.fetchone()
-        sqlLock.release()
-        return
-
+        transfer = Transfer.objects.get(uuid=self.UUID)
+        self.currentPath = transfer.currentlocation
 
     def getReplacementDic(self, target):
         # self.currentPath = currentPath.__str__()

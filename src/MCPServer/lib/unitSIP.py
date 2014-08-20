@@ -33,6 +33,8 @@ import databaseInterface
 from databaseFunctions import insertIntoEvents
 from databaseFunctions import deUnicode
 
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import SIP
 
 
 class unitSIP(unit):
@@ -83,25 +85,20 @@ class unitSIP(unit):
     def setMagicLink(self,link, exitStatus=""):
         """Assign a link to the unit to process when loaded.
         Deprecated! Replaced with Set/Load Unit Variable"""
-        if exitStatus != "":
-            sql =  """UPDATE SIPs SET magicLink='""" + link + """', magicLinkExitMessage='""" + exitStatus + """' WHERE sipUUID='""" + self.UUID + """';"""
-        else:
-            sql =  """UPDATE SIPs SET magicLink='""" + link + """' WHERE sipUUID='""" + self.UUID + """';"""
-        databaseInterface.runSQL(sql)
+        sip = SIP.objects.get(uuid=self.UUID)
+        sip.magiclink = link
+        if exitStatus:
+            sip.magiclinkexitmessage = exitStatus
+        sip.save()
 
     def getMagicLink(self):
         """Load a link from the unit to process.
         Deprecated! Replaced with Set/Load Unit Variable"""
-        ret = None
-        sql = """SELECT magicLink, magicLinkExitMessage FROM SIPs WHERE sipUUID =  '""" + self.UUID + "'"
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        while row != None:
-            print row
-            ret = row
-            row = c.fetchone()
-        sqlLock.release()
-        return ret
+        try:
+            sip = SIP.objects.get(uuid=self.UUID)
+        except SIP.DoesNotExist:
+            return
+        return (sip.magiclink, sip.magiclinkexitmessage)
 
     def setVariable(self, variable, variableValue, microServiceChainLink):
         if not variableValue:
@@ -131,21 +128,14 @@ class unitSIP(unit):
             
 
     def reload(self):
-        sql = """SELECT createdTime, currentPath, aipFilename, sipType FROM SIPs WHERE sipUUID =  '""" + self.UUID + """'"""
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        while row != None:
-            print row
-            #self.UUID = row[0]
-            self.createdTime = deUnicode(row[0])
-            self.currentPath = deUnicode(row[1])
-            self.aipFilename = deUnicode(row[2])
-            if self.aipFilename is None:
-                self.aipFilename = ""
-            self.sipType = deUnicode(row[3])
-            row = c.fetchone()
-        sqlLock.release()
-
+        sip = SIP.objects.get(uuid=self.UUID)
+        self.createdTime = sip.createdtime
+        self.currentPath = self.currentPath
+        if self.aip_filename:
+            self.aipFilename = self.aip_filename
+        else:
+            self.aipFilename = ""
+        self.sipType = sip.sip_type
 
     def getReplacementDic(self, target):
         """ Return a dict with all of the replacement strings for this unit and the value to replace with. """
