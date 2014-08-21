@@ -83,7 +83,9 @@ def _prepare_browse_response(response):
     # Generate display string based on properties
     for entry, prop in response.get('properties', {}).iteritems():
         logger.debug('Properties for %s: %s', entry, prop)
-        if 'object count' in prop:
+        if 'levelOfDescription' in prop:
+            prop['display_string'] = prop['levelOfDescription']
+        elif 'object count' in prop:
             prop['display_string'] = '{} objects'.format(prop['object count'])
         elif 'size' in prop:
             prop['display_string'] = django.template.defaultfilters.filesizeformat(prop['size'])
@@ -124,20 +126,25 @@ def arrange_contents(request):
     # Query SIP Arrangement for results
     # Get all the paths that are not in SIPs and start with base_path.  We don't
     # need the objects, just the arrange_path
-    paths = models.SIPArrange.objects.filter(sip_created=False).filter(aip_created=False).filter(arrange_path__startswith=base_path).order_by('arrange_path').values_list('arrange_path', flat=True)
+    paths = models.SIPArrange.objects.filter(sip_created=False).filter(aip_created=False).filter(arrange_path__startswith=base_path).order_by('arrange_path')
 
     # Convert the response into an entries [] and directories []
     # 'entries' contains everything (files and directories)
     entries = set()
     directories = set()
     properties = {}
-    for path in paths:
+    for item in paths:
         # Strip common prefix
-        path_parts = path.replace(base_path, '', 1).split('/')
+        path_parts = item.arrange_path.replace(base_path, '', 1).split('/')
         entry = path_parts[0]
         if not entry:
             continue
         entries.add(entry)
+        # Specify level of description if set
+        if item.level_of_description:
+            properties[entry] = properties.get(entry, {})  # Default empty dict
+            # Don't overwrite if already exists
+            properties[entry]['levelOfDescription'] = properties[entry].get('levelOfDescription') or item.level_of_description
         if len(path_parts) > 1:  # Path is a directory
             directories.add(entry)
             # Don't add directories to the object count
