@@ -123,6 +123,15 @@
         parent = Base64.encode(parent);
       }
 
+      // set ad-hoc properties, if specified
+      if (typeof options != 'undefined' && typeof options.properties != 'undefined') {
+        for (var property in options.properties) {
+          var propertyMap = {};
+          propertyMap[property] = options.properties[property];
+        }
+        child.set(propertyMap);
+      }
+
       child.set({parent: parent});
 
       this.children.push(child);
@@ -467,11 +476,20 @@
                 },
                 success: function(results) {
                   for(var index in results.entries) {
-                    var entryName = results.entries[index];
+                    var entryName = results.entries[index],
+                        entryProperties,
+                        entryOptions = {'name': entryName};
+
+                    // allow optional entry properties to be relayed (metadata, etc.)
+                    if (typeof results.properties !== 'undefined') {
+                      entryProperties = results.properties[entryName];
+                      entryOptions['properties'] = entryProperties;
+                    }
+
                     if (results.directories.indexOf(entryName) == -1) {
-                      entry.addFile({name: entryName});
+                      entry.addFile(entryOptions);
                     } else {
-                      entry.addDir({name: entryName});
+                      entry.addDir(entryOptions);
                     }
                   }
 
