@@ -175,6 +175,22 @@ var originals_browser,
     arrange_browser;
 
 $(document).ready(function() {
+  // Monkey-patch entry rendering logic to allow the presence of metadata
+  // to be indicated
+  (function(originalRenderLogic) {
+    fileBrowser.EntryView.prototype.render = function() {
+      var result = originalRenderLogic.apply(this, arguments),
+          levelOfDescription = this.model.get('levelOfDescription');
+
+      // If metadata specified, show this in UI
+      if (typeof levelOfDescription != 'undefined') {
+        $(result.el).append('<em>(' + escape(levelOfDescription) + ')</em>');
+      }
+
+      return result;
+    };
+  })(fileBrowser.EntryView.prototype.render);
+
   browsers = setupBacklogBrowser();
 
   originals_browser = browsers['originals'];
@@ -196,6 +212,7 @@ $(document).ready(function() {
     }
 
     var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId);
+    var pathLevel = path.split('/').length - 1;
 
     if (pathLevel > 2) {
       var selectedType = arrange_browser.getTypeForCssId(arrange_browser.selectedEntryId);

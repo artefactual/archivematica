@@ -4,12 +4,13 @@ var DirectoryMetadataFormView = Backbone.View.extend({
     this.template = _.template(this.options.template);
   },
 
-  show: function(path) {
+  show: function(path, postSaveLogic) {
     if (typeof path !== 'undefined')
     {
       var self = this;
 
       this.path = path;
+      this.postSaveLogic = postSaveLogic;
 
       this.fetchAvailableLevelsOfDescription(
         this.fetchMetadataThenShowModalCallback(),
@@ -96,7 +97,7 @@ var DirectoryMetadataFormView = Backbone.View.extend({
         level_of_description: self.currentLevelId
       },
       success: function(levelsOfDescription) {
-        callback();
+        callback(self.currentLevelName);
       },
       error: self.requestErrorCallback('saving metadata')
     });
@@ -131,6 +132,7 @@ var DirectoryMetadataFormView = Backbone.View.extend({
       .click(function() {
         self.saveLevelOfDescription(function() {
           self.el.modal({show: false});
+          self.postSaveLogic();
         });
       });
 
@@ -138,6 +140,7 @@ var DirectoryMetadataFormView = Backbone.View.extend({
     $('#directory-metadata-form-lod-select')
       .change(function() {
         self.currentLevelId = $('#directory-metadata-form-lod-select').val();
+        self.currentLevelName = $('#directory-metadata-form-lod-select option:selected').text();
       });
 
     return this;
