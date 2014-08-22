@@ -197,7 +197,17 @@ $(document).ready(function() {
 
     var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId);
 
-    directoryMetadataForm.show(path);
+    if (pathLevel > 2) {
+      var selectedType = arrange_browser.getTypeForCssId(arrange_browser.selectedEntryId);
+
+      directoryMetadataForm.show(path, function(levelOfDescription) {
+        var entry = arrange_browser.getByPath(path);
+        entry.set({'levelOfDescription': levelOfDescription});
+        arrange_browser.render();
+      });
+    } else {
+      arrange_browser.alert('Edit metadata', 'SIP directory metadata can not be edited.');
+    }
   });
 
   $('#arrange_create_directory_button').click(function() {
