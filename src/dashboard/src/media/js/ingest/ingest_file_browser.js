@@ -16,6 +16,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+var enableElements = function(cssSelectors) {
+  for (var index in cssSelectors) {
+    $(cssSelectors[index]).removeAttr('disabled');
+  }
+};
+
+var disableElements = function(cssSelectors) {
+  for (var index in cssSelectors) {
+    $(cssSelectors[index]).attr('disabled', 'disabled');
+  }
+};
+
 function setupBacklogBrowser() {
   var backlogBrowserEntryClickHandler = function(event) {
     if (typeof event.data != 'undefined') {
@@ -41,7 +54,68 @@ function setupBacklogBrowser() {
 
         // change selected entry
         explorer.selectedEntryId = entryId;
+
+        // enable/disable arrange panel action buttons
+        if (explorer.id == 'originals') {
+          enableOrDisableOriginalsPanelActionButtons(explorer);
+        }
+
+        // enable/disable arrange panel action buttons
+        if (explorer.id == 'arrange') {
+          enableOrDisableArrangePanelActionButtons(explorer);
+        }
       }
+    }
+  }
+
+  function enableOrDisableOriginalsPanelActionButtons(originals) {
+    var selectedType = originals.getTypeForCssId(originals.selectedEntryId);
+
+    // enable/disable hide button
+    if (typeof originals.selectedEntryId !== 'undefined') {
+      enableElements(['#originals_hide_button']);
+    } else {
+      disableElements(['#originals_hide_button']);
+    }
+
+    // enable/disable buttons for actions that only work with files
+    if (typeof originals.selectedEntryId !== 'undefined' && selectedType == 'file') {
+      enableElements(['#open_originals_file_button']);
+    } else {
+      disableElements(['#open_originals_file_button']);
+    }
+  }
+
+  function enableOrDisableArrangePanelActionButtons(arrange) {
+    var selectedType = arrange.getTypeForCssId(arrange.selectedEntryId);
+
+    // enable/disable delete button
+    if (typeof arrange.selectedEntryId !== 'undefined') {
+      enableElements(['#arrange_delete_button']);
+    } else {
+      disableElements(['#arrange_delete_button']);
+    }
+
+    // enable/disable create SIP button
+    if (selectedType == 'directory') {
+      enableElements(['#arrange_create_sip_button']);
+    } else {
+      disableElements(['#arrange_create_sip_button']);
+    }
+
+    // enable/disable metadata button
+    if (typeof arrange.selectedEntryId !== 'undefined') {
+      enableElements(['#arrange_edit_metadata_button']);
+    } else {
+      disableElements(['#arrange_edit_metadata_button']); 
+    }
+
+    // enable/disable create directory button
+    // (if nothing is selected, it'll create in top level)
+    if (typeof arrange.selectedEntryId === 'undefined' || selectedType == 'directory') {
+      enableElements(['#arrange_create_directory_button']);
+    } else {
+      disableElements(['#arrange_create_directory_button']);
     }
   }
 
@@ -133,6 +207,7 @@ function setupBacklogBrowser() {
   originals.moveHandler = moveHandler;
   originals.options.actionHandlers = [];
   originals.render();
+  enableOrDisableOriginalsPanelActionButtons(originals);
 
   var arrange = new FileExplorer({
     el: $('#arrange'),
@@ -154,6 +229,7 @@ function setupBacklogBrowser() {
   arrange.options.actionHandlers = [];
   arrange.moveHandler = moveHandler;
   arrange.render();
+  enableOrDisableArrangePanelActionButtons(arrange);
 
   // search results widget
   var originals_search_results = new fileBrowser.EntryList({
@@ -191,7 +267,28 @@ $(document).ready(function() {
     };
   })(fileBrowser.EntryView.prototype.render);
 
-  browsers = setupBacklogBrowser();
+  // Monkey-patch entry toggling logic to allow auto-search of backlog
+  (function(originalToggleDirectoryLogic) {
+    var backlogSearched = false;
+
+    fileBrowser.EntryView.prototype.toggleDirectory = function($el) {
+      var result = originalToggleDirectoryLogic.apply(this, arguments);
+
+      // if toggling in the original panels, check to see if backlog entries have been
+      // added to it yet and, if not, perform search
+      if (this.container.id == 'originals' &&
+        this.container.structure.children.length == 0 &&
+        backlogSearched == false
+      ) {
+        backlogSearched = true;
+        $('#search_submit').click();
+      }
+
+      return result;
+    };
+  })(fileBrowser.EntryView.prototype.toggleDirectory);
+
+  var browsers = setupBacklogBrowser();
 
   originals_browser = browsers['originals'];
   arrange_browser = browsers['arrange'];
@@ -206,56 +303,61 @@ $(document).ready(function() {
   }
 
   $('#arrange_edit_metadata_button').click(function() {
-    if (typeof arrange_browser.selectedEntryId === 'undefined') {
-      arrange_browser.alert('Edit metadata', 'Please select a directory to edit.');
-      return;
-    }
+    // if metadata button isn't disabled, execute
+    if (typeof $('#arrange_edit_metadata_button').attr('disabled') === 'undefined') {
+      if (typeof arrange_browser.selectedEntryId === 'undefined') {
+        arrange_browser.alert('Edit metadata', 'Please select a directory or file to edit.');
+        return;
+      }
 
-    var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId);
-    var pathLevel = path.split('/').length - 1;
-
-    if (pathLevel > 2) {
-      var selectedType = arrange_browser.getTypeForCssId(arrange_browser.selectedEntryId);
+      var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId);
 
       directoryMetadataForm.show(path, function(levelOfDescription) {
         var entry = arrange_browser.getByPath(path);
         entry.set({'levelOfDescription': levelOfDescription});
         arrange_browser.render();
       });
-    } else {
-      arrange_browser.alert('Edit metadata', 'SIP directory metadata can not be edited.');
     }
   });
 
   $('#arrange_create_directory_button').click(function() {
-    var path = prompt('Name of new directory?');
+    // if create directory button isn't disabled, execute
+    if (typeof $('#arrange_create_directory_button').attr('disabled') === 'undefined') {
+      var selectedType = arrange_browser.getTypeForCssId(arrange_browser.selectedEntryId);
 
-    if (path) {
-      var path_root = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId) || '/' + Base64.decode(arrange_browser.structure.name)
-        , relative_path = path_root + '/' + path;
+      if (selectedType != 'directory' && typeof arrange_browser.selectedEntryId !== 'undefined') {
+        arrange_browser.alert('Create Directory', "You can't create a directory in a file.");
+      } else {
+        var path = prompt('Name of new directory?');
 
-      $.ajax({
-        url: '/filesystem/create_directory_within_arrange/',
-        type: 'POST',
-        async: false,
-        cache: false,
-        data: {
-          path: Base64.encode(relative_path)
-        },
-        success: function(results) {
-          arrange_browser.dirView.model.addDir({'name': path});
-          arrange_browser.render();
-        },
-        error: function(results) {
-          originals_browser.alert('Error', results.message);
+        if (path) {
+          var path_root = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId) || '/' + Base64.decode(arrange_browser.structure.name)
+            , relative_path = path_root + '/' + path;
+
+          $.ajax({
+            url: '/filesystem/create_directory_within_arrange/',
+            type: 'POST',
+            async: false,
+            cache: false,
+            data: {
+              path: Base64.encode(relative_path)
+            },
+            success: function(results) {
+              arrange_browser.dirView.model.addDir({'name': path});
+              arrange_browser.render();
+            },
+            error: function(results) {
+              originals_browser.alert('Error', results.message);
+            }
+          });
         }
-      });
+      }
     }
   });
 
   $('#arrange_delete_button').click(function() {
     if (typeof arrange_browser.selectedEntryId === 'undefined') {
-      arrange_browser.alert('Delete', 'Please select a directory to delete.');
+      arrange_browser.alert('Delete', 'Please select a directory or file to delete.');
       return;
     }
     var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId)
@@ -284,61 +386,72 @@ $(document).ready(function() {
 
   // create SIP button functionality
   $('#arrange_create_sip_button').click(function() {
-    if (typeof arrange_browser.selectedEntryId === 'undefined') {
-      arrange_browser.alert('Create SIP', 'Please select a directory before creating a SIP.');
-      return
-    }
-    var entryDiv = $('#' + arrange_browser.selectedEntryId)
-      , path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId)
-      , entryObject = arrange_browser.getByPath(path)
+    // if create SIP button isn't disabled, execute
+    if (typeof $('#arrange_create_sip_button').attr('disabled') === 'undefined') {
 
-    if (entryObject.type() != 'directory') {
-      arrange_browser.alert('Create SIP', 'SIPs can only be created from directories, not files.')
-      return
-    }
-
-    arrange_browser.confirm(
-      'Create SIP',
-      'Are you sure you want to create a SIP?',
-      function() {
-        $('.activity-indicator').show();
-        $.post(
-          '/filesystem/copy_from_arrange/',
-          {filepath: Base64.encode(path+'/')},
-          function(result) {
-            $('.activity-indicator').hide();
-            var title = (result.error) ? 'Error' : ''
-            arrange_browser.alert(
-              title,
-              result.message
-            )
-            if (!result.error) {
-              $(entryDiv).next().hide()
-              $(entryDiv).hide()
-            }
-          }
-        )
+      if (typeof arrange_browser.selectedEntryId === 'undefined') {
+        arrange_browser.alert('Create SIP', 'Please select a directory before creating a SIP.');
+        return
       }
-    )
+      var entryDiv = $('#' + arrange_browser.selectedEntryId)
+        , path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId)
+        , entryObject = arrange_browser.getByPath(path)
+
+      if (entryObject.type() != 'directory') {
+        arrange_browser.alert('Create SIP', 'SIPs can only be created from directories, not files.')
+        return
+      }
+
+      arrange_browser.confirm(
+        'Create SIP',
+        'Are you sure you want to create a SIP?',
+        function() {
+          $('.activity-indicator').show();
+          $.post(
+            '/filesystem/copy_from_arrange/',
+            {filepath: Base64.encode(path+'/')},
+            function(result) {
+              $('.activity-indicator').hide();
+              var title = (result.error) ? 'Error' : ''
+              arrange_browser.alert(
+                title,
+                result.message
+              )
+              if (!result.error) {
+                $(entryDiv).next().hide()
+                $(entryDiv).hide()
+              }
+            }
+          )
+        }
+      )
+    }
   });
 
-  var createOpenHandler = function(browser) {
+  var createOpenHandler = function(buttonCssSelector, browser) {
       return function() {
-        var entryDiv = $('#' + browser.selectedEntryId)
-           , path = browser.getPathForCssId(browser.selectedEntryId)
-           , type = browser.getTypeForCssId(browser.selectedEntryId);
+        // if view button isn't disabled, execute
+        if (typeof $(buttonCssSelector).attr('disabled') === 'undefined') {
+          if (typeof browser.selectedEntryId === 'undefined') {
+            browser.alert('Error', 'Please specifiy a file to view.');
+          } else {
+            var entryDiv = $('#' + browser.selectedEntryId)
+               , path = browser.getPathForCssId(browser.selectedEntryId)
+               , type = browser.getTypeForCssId(browser.selectedEntryId);
 
-        if (type == 'directory') {
-          browser.alert('Error', 'You can not open a directory.');
-        } else {
-          window.open(
-            '/filesystem/download_ss/?filepath=' + encodeURIComponent(Base64.encode(path)),
-            '_blank'
-          );
+            if (type == 'directory') {
+              browser.alert('Error', 'Please specifiy a file to view.');
+            } else {
+              window.open(
+                '/filesystem/download_ss/?filepath=' + encodeURIComponent(Base64.encode(path)),
+                '_blank'
+              );
+            }
+          }
         }
       };
   };
 
   // open originals file button functionality
-  $('#open_originals_file_button').click(createOpenHandler(originals_browser));
+  $('#open_originals_file_button').click(createOpenHandler('#open_originals_file_button', originals_browser));
 });

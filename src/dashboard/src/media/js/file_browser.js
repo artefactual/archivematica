@@ -17,6 +17,9 @@ You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+ * Extend/tweak file explorer functionality so it can be used as a file browser
+ */
 var FileExplorer = fileBrowser.FileExplorer.extend({
 
   initialize: function() {
@@ -41,6 +44,7 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
       this.ajaxChildDataUrl = this.options.ajaxChildDataUrl;
     }
 
+    // the file explorer base class doesn't handle deletion
     this.ajaxDeleteUrl = this.options.ajaxDeleteUrl || '/filesystem/delete/';
 
     this.eventClickHandler = this.options.eventClickHandler;
@@ -49,6 +53,7 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
       this.options.actionHandlers = [];
     }
 
+    // add delete handler
     var self = this;
     this.options.actionHandlers.push({ 
         name: 'Delete', 
@@ -66,7 +71,6 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
     });
 
     this.id = $(this.el).attr('id'); 
-    //this.initDragAndDrop();
   },
 
   deleteEntry: function(path, type) {
@@ -92,7 +96,6 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
   },
 
   refresh: function(path) {
-    //$(this.el).empty();
     this.busy();
 
     if (path != undefined)
@@ -134,75 +137,7 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
     }
   },
 
-  addSource: function(fileExplorer, path) {
-    var self = this;
-    $.post(
-      '/administration/sources/json/',
-      {path: path},
-      function(response) {
-        self.alert(
-          'Add source directory',
-          response.message
-        );
-        self.updateSources();
-      }
-    );
-  },
-
-  deleteSource: function(id) {
-    var self = this;
-    this.confirm(
-      'Delete source directory',
-      'Are you sure you want to delete this?',
-      function() {
-        $.post(
-          '/administration/sources/delete/json/' + id + '/',
-          {},
-          function(response) {
-            self.alert(
-              'Delete source directory',
-              response.message
-            );
-            self.updateSources();
-          }
-        );
-      }
-    );
-  },
-
-  updateSources: function(cb) {
-    var self = this;
-    $.get('/administration/sources/json/' + '?' + new Date().getTime(), function(results) {
-      tableTemplate = _.template($('#template-source-directory-table').html());
-      rowTemplate   = _.template($('#template-source-directory-table-row').html());
-
-      $('#directories').empty();
-      $('#directories').off('click');
-
-      if (results['directories'].length) {
-        var rowHtml = '';
-
-        for(var index in results['directories']) {
-          rowHtml += rowTemplate({
-            id:   results.directories[index].id,
-            path: results.directories[index].path
-          });
-        }
-
-        $('#directories').append(tableTemplate({rows: rowHtml}));
-
-        $('#directories').on('click', 'a', function() {
-          var directoryId = $(this).attr('id').replace('directory_', '');
-          self.deleteSource(directoryId);
-        });
-      }
-
-      if (cb != undefined) {
-        cb();
-      }
-    });
-  },
-
+  // Bootstrap alert dialog
   alert: function(title, message) {
     $('<div class="task-dialog">' + message + '</div>')
       .dialog({
@@ -221,6 +156,7 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
       });
   },
 
+  // Bootstrap confirm dialog
   confirm: function(title, message, logic) {
     $('<div class="task-dialog">' + message + '</div>')
       .dialog({
