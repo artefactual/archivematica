@@ -46,10 +46,9 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
     level=logging.INFO)
 
-SHARED_DIRECTORY_ROOT   = '/var/archivematica/sharedDirectory'
-ACTIVE_TRANSFER_DIR     = SHARED_DIRECTORY_ROOT + '/watchedDirectories/activeTransfers'
-STANDARD_TRANSFER_DIR   = ACTIVE_TRANSFER_DIR + '/standardTransfer'
-ORIGINAL_DIR            = SHARED_DIRECTORY_ROOT + '/www/AIPsStore/transferBacklog/originals'
+SHARED_DIRECTORY_ROOT = helpers.get_server_config_value('sharedDirectory')
+ACTIVE_TRANSFER_DIR = os.path.join(SHARED_DIRECTORY_ROOT, 'watchedDirectories', 'activeTransfers')
+ORIGINAL_DIR = os.path.join(SHARED_DIRECTORY_ROOT, 'www', 'AIPsStore', 'transferBacklog', 'originals')
 
 DEFAULT_BACKLOG_PATH = 'originals/'
 DEFAULT_ARRANGE_PATH = '/arrange/'
@@ -144,28 +143,6 @@ def delete_arrange(request):
     return helpers.json_response({'message': 'Delete successful.'})
 
 
-def get_temp_directory(request):
-    temp_base_dir = helpers.get_client_config_value('temp_dir')
-
-    response = {}
-
-    # use system temp dir if none specifically defined
-    if temp_base_dir == '':
-        temp_dir = tempfile.mkdtemp()
-    else:
-        try:
-            temp_dir = tempfile.mkdtemp(dir=temp_base_dir)
-        except:
-            temp_dir = ''
-            response['error'] = 'Unable to create temp directory.'
-
-    #os.chmod(temp_dir, 0o777)
-
-    response['tempDir'] = temp_dir
-
-    return helpers.json_response(response)
-
-
 def start_transfer(request):
     transfer_name = archivematicaFunctions.unicodeToStr(request.POST.get('name', ''))
     # Note that the path may contain arbitrary, non-unicode characters,
@@ -251,25 +228,22 @@ def copy_transfer_component(transfer_name='', path='', destination=''):
 def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata_set_row_uuid=''):
     error = filesystem_ajax_helpers.check_filepath_exists(filepath)
 
-    if error == None:
+    if error is None:
         # confine destination to subdir of originals
         basename = os.path.basename(filepath)
 
         # default to standard transfer
         type_paths = {
-          'standard':     'standardTransfer',
-          'unzipped bag': 'baggitDirectory',
-          'zipped bag':   'baggitZippedDirectory',
-          'dspace':       'Dspace',
-          'maildir':      'maildir',
-          'TRIM':         'TRIM'
+            'standard': 'standardTransfer',
+            'unzipped bag': 'baggitDirectory',
+            'zipped bag': 'baggitZippedDirectory',
+            'dspace': 'Dspace',
+            'maildir': 'maildir',
+            'TRIM': 'TRIM'
         }
 
-        try:
-          type_subdir = type_paths[type]
-          destination = os.path.join(ACTIVE_TRANSFER_DIR, type_subdir)
-        except KeyError:
-          destination = os.path.join(STANDARD_TRANSFER_DIR)
+        type_subdir = type_paths.get(type, 'standardTransfer')
+        destination = os.path.join(ACTIVE_TRANSFER_DIR, type_subdir)
 
         # if transfer compontent path leads to a ZIP file, treat as zipped
         # bag
@@ -305,7 +279,7 @@ def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata
 
         try:
             shutil.move(filepath, destination)
-        except OSError as e:
+        except (OSError, shutil.Error) as e:
             error = 'Error copying from ' + filepath + ' to ' + destination + '. (' + str(e) + ')'
 
     if error:

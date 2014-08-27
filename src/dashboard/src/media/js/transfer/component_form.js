@@ -132,6 +132,7 @@ var TransferComponentFormView = Backbone.View.extend({
       success: function(results) {
         if (results['error']) {
           alert(results.message);
+          return;
         }
 
         $('#transfer-name').val('');
@@ -139,11 +140,11 @@ var TransferComponentFormView = Backbone.View.extend({
         $('#transfer-name-container').show();
         $('#transfer-type').val('standard');
         $('#path_container').html('');
-        $('.transfer-component-activity-indicator').hide();
 
         components = {};
       }
     });
+    $('.transfer-component-activity-indicator').hide();
   },
 
   render: function() {
