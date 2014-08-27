@@ -145,17 +145,23 @@ def delete_arrange(request):
 
 def start_transfer(request):
     transfer_name = archivematicaFunctions.unicodeToStr(request.POST.get('name', ''))
-    # Note that the path may contain arbitrary, non-unicode characters,
-    # and hence is POSTed to the server base64-encoded
     transfer_type = archivematicaFunctions.unicodeToStr(request.POST.get('type', ''))
     accession = archivematicaFunctions.unicodeToStr(request.POST.get('accession', ''))
+    # Note that the path may contain arbitrary, non-unicode characters,
+    # and hence is POSTed to the server base64-encoded
     paths = request.POST.getlist('paths[]', [])
     paths = [base64.b64decode(path) for path in paths]
     row_ids = request.POST.getlist('row_ids[]', [])
 
+    if not transfer_name:
+        return helpers.json_response({'error': True, 'message': 'No transfer name provided.'})
+    if not paths:
+        return helpers.json_response({'error': True, 'message': 'No path provided.'})
+
     # Create temp directory that everything will be copied into
-    temp_base_dir = helpers.get_client_config_value('temp_dir') or None
+    temp_base_dir = os.path.join(SHARED_DIRECTORY_ROOT, 'tmp')
     temp_dir = tempfile.mkdtemp(dir=temp_base_dir)
+    os.chmod(temp_dir, 0o770)  # Needs to be writeable by the SS
 
     for i, path in enumerate(paths):
         index = i + 1  # so transfers start from 1, not 0
@@ -165,65 +171,31 @@ def start_transfer(request):
         else:
             target = transfer_name
         row_id = row_ids[i]
-        copy_transfer_component(transfer_name=target,
-                                path=path, destination=temp_dir)
 
         if helpers.file_is_an_archive(path):
+            transfer_dir = temp_dir
             filepath = os.path.join(temp_dir, os.path.basename(path))
         else:
+            path = os.path.join(path, '.')  # Copy contents of dir but not dir
+            transfer_dir = os.path.join(temp_dir, target)
             filepath = os.path.join(temp_dir, target)
-        copy_to_start_transfer(filepath=filepath,
-                               type=transfer_type, accession=accession,
-                               transfer_metadata_set_row_uuid=row_id)
 
+        transfer_relative = transfer_dir.replace(SHARED_DIRECTORY_ROOT, '', 1)
+        copy_from_transfer_sources([path], transfer_relative)
+
+        try:
+            copy_to_start_transfer(filepath=filepath,
+                type=transfer_type, accession=accession,
+                transfer_metadata_set_row_uuid=row_id)
+        except Exception:
+            response = {'error': True,
+                'message': 'Error copying %s to start of transfer.' % filepath}
+            return helpers.json_response(response)
+
+    shutil.rmtree(temp_dir)
     response = {'message': 'Copy successful.'}
     return helpers.json_response(response)
 
-def copy_transfer_component(transfer_name='', path='', destination=''):
-    error = None
-
-    if transfer_name == '':
-        error = 'No transfer name provided.'
-    else:
-        if path == '':
-            error = 'No path provided.'
-        else:
-            # if transfer compontent path leads to an archive, treat as zipped
-            # bag
-            if helpers.file_is_an_archive(path):
-                filesystem_ajax_helpers.rsync_copy(path, destination)
-                paths_copied = 1
-            else:
-                transfer_dir = os.path.join(destination, transfer_name)
-
-                # Create directory before it is used, otherwise shutil.copy()
-                # would that location to store a file
-                if not os.path.isdir(transfer_dir):
-                    os.mkdir(transfer_dir)
-
-                paths_copied = 0
-
-                # cycle through each path copying files/dirs
-                # inside it to transfer dir
-                try:
-                    entries = filesystem_ajax_helpers.sorted_directory_list(path)
-                except os.error as e:
-                    error = "Error: {e.strerror}: {e.filename}".format(e=e)
-                    # Clean up temp dir - don't use os.removedirs because
-                    # <shared_path>/tmp might not have anything else in it and
-                    # we don't want to delete it
-                    os.rmdir(transfer_dir)
-                    os.rmdir(destination)
-                else:
-                    for entry in entries:
-                        entry_path = os.path.join(str(path), str(entry))
-                        filesystem_ajax_helpers.rsync_copy(entry_path, transfer_dir)
-                        paths_copied = paths_copied + 1
-
-    if error:
-        raise Exception(error)
-
-    return paths_copied
 
 def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata_set_row_uuid=''):
     error = filesystem_ajax_helpers.check_filepath_exists(filepath)
