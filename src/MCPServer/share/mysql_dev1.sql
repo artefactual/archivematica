@@ -790,3 +790,7 @@ UPDATE MicroServiceChainLinks SET microserviceGroup = 'Prepare AIP' WHERE pk IN 
 -- Issue 7080 Move submissionDocs into objects
 UPDATE StandardTasksConfigs SET execute='moveOrMerge_v0.0' WHERE pk in ('2f2a9b2b-bcdb-406b-a842-898d4bed02be', 'ce13677c-8ad4-4af0-92c8-ae8763f5094d');
 -- /Issue 7080 Move submissionDocs into objects
+
+-- Issue 7150 Quote Identify task arguments
+UPDATE StandardTasksConfigs SET arguments='"%IDCommand%" "%relativeLocation%" "%fileUUID%"' WHERE execute='identifyFileFormat_v0.0';
+-- /Issue 7150 Quote Identify task arguments
