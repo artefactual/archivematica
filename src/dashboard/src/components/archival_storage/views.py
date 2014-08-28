@@ -389,7 +389,7 @@ def aip_file_count():
 def total_size_of_aips(conn):
     query = elasticsearch_query_excluding_aips_pending_deletion('uuid')
 
-    query = query.search()
+    query = query.search(fields='size')
     query.facet.add(pyes.facets.StatisticalFacet('total', field='size'))
 
     aipResults = conn.search(query, doc_types=['aip'], indices=['aips'])
