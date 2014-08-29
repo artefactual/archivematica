@@ -43,7 +43,6 @@ sudo ln -s "${svnDir}src/MCPServer/lib/" "${lib}/MCPServer"
 sudo ln -s "${svnDir}src/MCPClient/lib/" "${lib}/MCPClient"
 sudo ln -s "${svnDir}src/archivematicaCommon/lib/" "${lib}/archivematicaCommon"
 sudo ln -s "${svnDir}src/SIPCreationTools/lib/" "${lib}/SIPCreationTools"
-sudo ln -s "${svnDir}src/upload-qubit/lib/" "${lib}/upload-qubit"
 sudo ln -s "${svnDir}src/transcoder/lib/" "${lib}/transcoder"
 sudo ln -s "${svnDir}src/sanitizeNames/lib/" "/usr/lib/sanitizeNames"
 sudo ln -s "${svnDir}src/dashboard/src/" "${share}/dashboard"
@@ -64,7 +63,6 @@ if [ ! -e  /etc/init/qubit-sword.conf ] ; then
         sudo ln "${svnDir}qubit-git/init/qubit-sword.conf" "/etc/init/"
 fi
 
-sudo ln "${svnDir}src/upload-qubit/upload-qubit" "/usr/bin/" 
 sudo ln "${svnDir}src/transcoder/bin/transcoder" "/usr/bin/"
 sudo ln "${svnDir}src/sanitizeNames/bin/sanitizeNames" "/usr/bin/"
 

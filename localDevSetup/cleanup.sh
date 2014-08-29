@@ -37,7 +37,6 @@ do
     fi
 done
 
-sudo rm /usr/bin/upload-qubit 
 sudo rm /usr/bin/transcoder
 sudo rm /usr/bin/archivematicaCreateMD5
 sudo rm /usr/bin/archivematicaRestructureForCompliance

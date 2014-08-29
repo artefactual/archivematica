@@ -99,7 +99,6 @@ function package-update() {
           colour sudo ./installDependsFromDebianFile.py ./../src/sanitizeNames/debian/control
           colour sudo ./installDependsFromDebianFile.py ./../src/SIPCreationTools/debian/control
           colour sudo ./installDependsFromDebianFile.py ./../src/transcoder/debian/control
-          colour sudo ./installDependsFromDebianFile.py ./../src/upload-qubit/debian/control
           colour #./installDependsFromDebianFile.py ./../src/vm-includes/debian/control
           colour sudo pip install -r ../src/dashboard/src/requirements/production.txt     
           cd ..
