@@ -94,10 +94,6 @@ function package-update() {
           colour sudo ./installDependsFromDebianFile.py ./../src/MCPClient/debian/control
           colour sudo ./installDependsFromDebianFile.py ./../src/MCPrpcCLI/debian/control
           colour sudo ./installDependsFromDebianFile.py ./../src/MCPServer/debian/control
-          colour #./installDependsFromDebianFile.py ./../src/metaPackage-forensic-tools/debian/control
-          colour #./installDependsFromDebianFile.py ./../src/metaPackage-shotgun/debian/control
-          colour sudo ./installDependsFromDebianFile.py ./../src/SIPCreationTools/debian/control
-          colour #./installDependsFromDebianFile.py ./../src/vm-includes/debian/control
           colour sudo pip install -r ../src/dashboard/src/requirements/production.txt     
           cd ..
   else

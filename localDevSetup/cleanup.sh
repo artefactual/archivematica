@@ -37,6 +37,4 @@ do
     fi
 done
 
-sudo rm /usr/bin/archivematicaCreateMD5
-sudo rm /usr/bin/archivematicaRestructureForCompliance
 sudo rm /etc/apache2/sites-enabled/000-default
