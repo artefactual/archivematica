@@ -77,6 +77,7 @@ def sanitizePath(path):
         return sanitizedName
 
 def sanitizeRecursively(path):
+    path = os.path.abspath(path)
     sanitizations = []
 
     sanitizedName = sanitizePath(path)
@@ -99,7 +100,6 @@ if __name__ == '__main__':
     if not os.path.isdir(path):
         print >>sys.stderr, "Not a directory: " + path
         quit(-1)
-    path = os.path.abspath(path)
     print "Scanning: " + path
     sanitizations = sanitizeRecursively(path)
     for oldfile, newfile in sanitizations:
