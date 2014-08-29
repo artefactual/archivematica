@@ -21,7 +21,6 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 import sys
-import shlex
 import subprocess
 import os
 import MySQLdb
@@ -48,12 +47,12 @@ if __name__ == '__main__':
 
 
     #def executeCommand(taskUUID, requiresOutputLock = "no", sInput = "", sOutput = "", sError = "", execute = "", arguments = "", serverConnection = None):
-    command = "sanitizeNames \"" + objectsDirectory + "\""
+    command = ["sanitizeNames", objectsDirectory]
     lines = []
-    commandVersion = "sanitizeNames -V"
+    commandVersion = ["sanitizeNames", "-V"]
     version = ""
     try:
-        p = subprocess.Popen(shlex.split(command), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         #p.wait()
         output = p.communicate()
@@ -71,7 +70,7 @@ if __name__ == '__main__':
         lines = output[0].split("\n")
 
         #GET VERSION
-        p = subprocess.Popen(shlex.split(commandVersion), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(commandVersion, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         #p.wait()
         output = p.communicate()

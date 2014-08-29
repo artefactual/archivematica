@@ -77,12 +77,16 @@ def sanitizePath(path):
         return sanitizedName
 
 def sanitizeRecursively(path):
+    sanitizations = []
+
     sanitizedName = sanitizePath(path)
     if sanitizedName != path:
-        print path + " -> " + sanitizedName
+        sanitizations.append((path, sanitizedName))
     if os.path.isdir(sanitizedName):
         for f in os.listdir(sanitizedName):
-            sanitizeRecursively(sanitizedName + "/" + f)
+            sanitizations.extend(sanitizeRecursively(sanitizedName + "/" + f))
+
+    return sanitizations
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -97,5 +101,7 @@ if __name__ == '__main__':
         quit(-1)
     path = os.path.abspath(path)
     print "Scanning: " + path
-    sanitizeRecursively(path)
+    sanitizations = sanitizeRecursively(path)
+    for oldfile, newfile in sanitizations:
+        print oldfile, " -> ", newfile
     print >>sys.stderr, "TEST DEBUG CLEAR DON'T INCLUDE IN RELEASE"
