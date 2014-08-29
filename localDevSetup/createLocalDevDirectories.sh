@@ -44,7 +44,6 @@ sudo ln -s "${svnDir}src/MCPClient/lib/" "${lib}/MCPClient"
 sudo ln -s "${svnDir}src/archivematicaCommon/lib/" "${lib}/archivematicaCommon"
 sudo ln -s "${svnDir}src/SIPCreationTools/lib/" "${lib}/SIPCreationTools"
 sudo ln -s "${svnDir}src/transcoder/lib/" "${lib}/transcoder"
-sudo ln -s "${svnDir}src/sanitizeNames/lib/" "/usr/lib/sanitizeNames"
 sudo ln -s "${svnDir}src/dashboard/src/" "${share}/dashboard"
 sudo ln "${svnDir}src/SIPCreationTools/bin/archivematicaCreateMD5" "/usr/bin/"
 sudo ln "${svnDir}src/SIPCreationTools/bin/archivematicaRestructureForCompliance" "/usr/bin/"
@@ -64,7 +63,6 @@ if [ ! -e  /etc/init/qubit-sword.conf ] ; then
 fi
 
 sudo ln "${svnDir}src/transcoder/bin/transcoder" "/usr/bin/"
-sudo ln "${svnDir}src/sanitizeNames/bin/sanitizeNames" "/usr/bin/"
 
 sudo ln "${svnDir}src/vm-includes/share/apache.default" "/etc/apache2/sites-enabled/000-default" -f
 sudo ln "${svnDir}src/vm-includes/share/apache.default" "/etc/apache2/sites-available/default" -f

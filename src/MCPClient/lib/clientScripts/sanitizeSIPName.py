@@ -26,7 +26,6 @@ from archivematicaMoveSIP import moveSIP
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
-sys.path.append("/usr/lib/sanitizeNames")
 from sanitizeNames import sanitizePath
 
 databaseInterface.printSQL = True

@@ -96,7 +96,6 @@ function package-update() {
           colour sudo ./installDependsFromDebianFile.py ./../src/MCPServer/debian/control
           colour #./installDependsFromDebianFile.py ./../src/metaPackage-forensic-tools/debian/control
           colour #./installDependsFromDebianFile.py ./../src/metaPackage-shotgun/debian/control
-          colour sudo ./installDependsFromDebianFile.py ./../src/sanitizeNames/debian/control
           colour sudo ./installDependsFromDebianFile.py ./../src/SIPCreationTools/debian/control
           colour sudo ./installDependsFromDebianFile.py ./../src/transcoder/debian/control
           colour #./installDependsFromDebianFile.py ./../src/vm-includes/debian/control

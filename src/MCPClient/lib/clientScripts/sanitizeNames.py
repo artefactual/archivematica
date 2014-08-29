@@ -18,7 +18,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 # @package Archivematica
-# @subpackage sanitizeNames
+# @subpackage MCPClient
 # @author Joseph Perry <joseph@artefactual.com>
 
 import string
