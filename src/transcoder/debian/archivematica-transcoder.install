@@ -1,6 +1,0 @@
-bin/* /usr/bin/
-etc/* /etc/archivematica/transcoder/
-lib/* /usr/lib/archivematica/transcoder/
-init/* /etc/init/
-share/* /usr/share/archivematica/transcoder/
-

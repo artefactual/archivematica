@@ -1,8 +1,0 @@
-#!/bin/sh
-
-set -e
-
-if [ -x "/etc/init.d/openofficed" ]; then
-        update-rc.d openofficed defaults >/dev/null
-        invoke-rc.d openofficed start || exit $?
-fi

@@ -2403,3 +2403,10 @@ INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `pur
 -- GIF 1989a
 INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-08-05 17:40:37', '181ae24d-e94e-45aa-8d33-c7d24afbdfb5', 'transcription', '4ea06c2b-ee42-4f80-ad10-4e044ba0676a', '6370b72f-4caa-4d90-abc6-4816c8a0a603', 0, 0, 0);
 -- /Tesseract
+
+-- Issue 7168 - Remove transcoder package
+-- This moves the one transcoder script that was still being used
+-- into the clientScript directory, and updates the relevant FPR
+-- command to call it there.
+UPDATE fpr_fpcommand SET command='"/usr/lib/archivematica/MCPClient/clientScripts/archivematicaMaildirToMbox.py" "%fileFullName%" "%outputDirectory%%prefix%%fileName%%postfix%.mbox"' WHERE uuid='e1b71449-8822-49ac-9d8a-b7ed6f960ec8';
+-- /Issue 7168 - Remove transcoder package

@@ -37,13 +37,11 @@ sudo ln -s "${svnDir}src/MCPServer/etc" "${etc}/MCPServer"
 sudo ln -s "${svnDir}src/MCPClient/etc" "${etc}/MCPClient"
 sudo ln -s "${svnDir}src/archivematicaCommon/etc" "${etc}/archivematicaCommon"
 sudo ln -s "${svnDir}src/SIPCreationTools/etc/" "${etc}/SIPCreationTools"
-sudo ln -s "${svnDir}src/transcoder/etc" "${etc}/transcoder"
 
 sudo ln -s "${svnDir}src/MCPServer/lib/" "${lib}/MCPServer"
 sudo ln -s "${svnDir}src/MCPClient/lib/" "${lib}/MCPClient"
 sudo ln -s "${svnDir}src/archivematicaCommon/lib/" "${lib}/archivematicaCommon"
 sudo ln -s "${svnDir}src/SIPCreationTools/lib/" "${lib}/SIPCreationTools"
-sudo ln -s "${svnDir}src/transcoder/lib/" "${lib}/transcoder"
 sudo ln -s "${svnDir}src/dashboard/src/" "${share}/dashboard"
 sudo ln "${svnDir}src/SIPCreationTools/bin/archivematicaCreateMD5" "/usr/bin/"
 sudo ln "${svnDir}src/SIPCreationTools/bin/archivematicaRestructureForCompliance" "/usr/bin/"
@@ -61,8 +59,6 @@ fi
 if [ ! -e  /etc/init/qubit-sword.conf ] ; then
         sudo ln "${svnDir}qubit-git/init/qubit-sword.conf" "/etc/init/"
 fi
-
-sudo ln "${svnDir}src/transcoder/bin/transcoder" "/usr/bin/"
 
 sudo ln "${svnDir}src/vm-includes/share/apache.default" "/etc/apache2/sites-enabled/000-default" -f
 sudo ln "${svnDir}src/vm-includes/share/apache.default" "/etc/apache2/sites-available/default" -f
