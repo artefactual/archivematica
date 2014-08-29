@@ -30,6 +30,7 @@ import databaseInterface
 from databaseFunctions import insertIntoEvents
 from fileOperations import updateFileLocation
 from archivematicaFunctions import unicodeToStr
+import sanitizeNames
 
 if __name__ == '__main__':
     objectsDirectory = sys.argv[1] #the directory to run sanitization on.
@@ -46,85 +47,41 @@ if __name__ == '__main__':
     relativeReplacement = objectsDirectory.replace(sipPath, groupType, 1) #"%SIPDirectory%objects/"
 
 
-    #def executeCommand(taskUUID, requiresOutputLock = "no", sInput = "", sOutput = "", sError = "", execute = "", arguments = "", serverConnection = None):
-    command = ["sanitizeNames", objectsDirectory]
-    lines = []
-    commandVersion = ["sanitizeNames", "-V"]
-    version = ""
-    try:
-        p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    sanitizations = sanitizeNames.sanitizeRecursively(objectsDirectory)
 
-        #p.wait()
-        output = p.communicate()
-        retcode = p.returncode
+    eventDetail= "program=\"sanitizeNames\"; version=\"" + sanitizeNames.VERSION + "\""
+    for oldfile, newfile in sanitizations:
+        if os.path.isfile(newfile):
+            oldfile = oldfile.replace(objectsDirectory, relativeReplacement, 1)
+            newfile = newfile.replace(objectsDirectory, relativeReplacement, 1)
+            print oldfile, " -> ", newfile
 
-        #print output
-        #print output[1]
-        #print >>sys.stderr, output[1]
+            if groupType == "%SIPDirectory%":
+                updateFileLocation(oldfile, newfile, "name cleanup", date, "prohibited characters removed:" + eventDetail, fileUUID=None, sipUUID=sipUUID)
+            elif groupType == "%transferDirectory%":
+                updateFileLocation(oldfile, newfile, "name cleanup", date, "prohibited characters removed:" + eventDetail, fileUUID=None, transferUUID=sipUUID)
+            else:
+                print >>sys.stderr, "bad group type", groupType
+                exit(3)
 
-        #it executes check for errors
-        if retcode != 0:
-            print >>sys.stderr, "error code:" + retcode.__str__()
-            print >>sys.stderr, output[1]# sError
-            quit(retcode)
-        lines = output[0].split("\n")
+        elif os.path.isdir(newfile):
+            oldfile = oldfile.replace(objectsDirectory, relativeReplacement, 1) + "/"
+            newfile = newfile.replace(objectsDirectory, relativeReplacement, 1) + "/"
+            directoryContents = []
 
-        #GET VERSION
-        p = subprocess.Popen(commandVersion, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            sql = "SELECT fileUUID, currentLocation FROM Files WHERE Files.removedTime = 0 AND Files.currentLocation LIKE '" + MySQLdb.escape_string(oldfile.replace("\\", "\\\\")).replace("%","\%") + "%' AND " + groupSQL + " = '" + groupID + "';"
 
-        #p.wait()
-        output = p.communicate()
-        retcode = p.returncode
-
-        #it executes check for errors
-        if retcode != 0:
-            print >>sys.stderr, "Error getting version; error code:" + retcode.__str__()
-            print output[1]# sError
-            quit(retcode)
-        version = output[0].replace("\n", "")
-    except OSError as ose:
-        print >>sys.stderr, "Execution failed:", ose
-        quit(2)
-
-    eventDetail= "program=\"sanitizeNames\"; version=\"" + version + "\""
-    for line in lines:
-        detoxfiles = line.split(" -> ")
-        if len(detoxfiles) > 1 :
-            oldfile = detoxfiles[0].split('\n',1)[0]
-            newfile = detoxfiles[1]
-            #print "line: ", line
-            if os.path.isfile(newfile):
-                oldfile = oldfile.replace(objectsDirectory, relativeReplacement, 1)
-                newfile = newfile.replace(objectsDirectory, relativeReplacement, 1)
-                print oldfile, " -> ", newfile
-
-                if groupType == "%SIPDirectory%":
-                    updateFileLocation(oldfile, newfile, "name cleanup", date, "prohibited characters removed:" + eventDetail, fileUUID=None, sipUUID=sipUUID)
-                elif groupType == "%transferDirectory%":
-                    updateFileLocation(oldfile, newfile, "name cleanup", date, "prohibited characters removed:" + eventDetail, fileUUID=None, transferUUID=sipUUID)
-                else:
-                    print >>sys.stderr, "bad group type", groupType
-                    exit(3)
-
-            elif os.path.isdir(newfile):
-                oldfile = oldfile.replace(objectsDirectory, relativeReplacement, 1) + "/"
-                newfile = newfile.replace(objectsDirectory, relativeReplacement, 1) + "/"
-                directoryContents = []
-
-                sql = "SELECT fileUUID, currentLocation FROM Files WHERE Files.removedTime = 0 AND Files.currentLocation LIKE '" + MySQLdb.escape_string(oldfile.replace("\\", "\\\\")).replace("%","\%") + "%' AND " + groupSQL + " = '" + groupID + "';"
-
-                c, sqlLock = databaseInterface.querySQL(sql)
+            c, sqlLock = databaseInterface.querySQL(sql)
+            row = c.fetchone()
+            while row != None:
+                fileUUID = row[0]
+                oldPath = row[1]
+                newPath = unicodeToStr(oldPath).replace(oldfile, newfile, 1)
+                directoryContents.append((fileUUID, oldPath, newPath))
                 row = c.fetchone()
-                while row != None:
-                    fileUUID = row[0]
-                    oldPath = row[1]
-                    newPath = unicodeToStr(oldPath).replace(oldfile, newfile, 1)
-                    directoryContents.append((fileUUID, oldPath, newPath))
-                    row = c.fetchone()
-                sqlLock.release()
+            sqlLock.release()
 
-                print oldfile, " -> ", newfile
+            print oldfile, " -> ", newfile
 
-                for fileUUID, oldPath, newPath in directoryContents:
-                    updateFileLocation(oldPath, newPath, "name cleanup", date, "prohibited characters removed:" + eventDetail, fileUUID=fileUUID)
-
+            for fileUUID, oldPath, newPath in directoryContents:
+                updateFileLocation(oldPath, newPath, "name cleanup", date, "prohibited characters removed:" + eventDetail, fileUUID=fileUUID)
