@@ -104,7 +104,7 @@ def writeToFile(output, fileName, writeWhite=False):
             f.write(output.__str__())
             f.close()
             os.chmod(fileName, 488)
-        except OSError, ose:
+        except OSError as ose:
             print >>sys.stderr, "output Error", ose
             return -2
         except IOError as (errno, strerror):

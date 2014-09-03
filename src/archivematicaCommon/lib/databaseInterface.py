@@ -48,8 +48,8 @@ def reconnect():
             database.autocommit(True)
             warnings.filterwarnings('error', category=MySQLdb.Warning)
             break
-        except MySQLdb.OperationalError, message:
-            if message[0] == 1045 and message[1].startswith('Access denied for user'):
+        except MySQLdb.OperationalError as inst:
+            if inst[0] == 1045 and inst[1].startswith('Access denied for user'):
                 raise
             else:
                 print >>sys.stderr, "Error connecting to database:"
@@ -109,7 +109,7 @@ def runSQL(sql):
         c.execute(sql)
         database.commit()
         rows = c.fetchall()
-    except MySQLdb.OperationalError, message:
+    except MySQLdb.OperationalError as message:
         #errorMessage = "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
         if message[0] == 2006 and message[1] == 'MySQL server has gone away':
             reconnect()
@@ -151,7 +151,7 @@ def insertAndReturnID(sql):
         c.execute(sql)
         database.commit()
         ret = c.lastrowid
-    except MySQLdb.OperationalError, message:
+    except MySQLdb.OperationalError as message:
         #errorMessage = "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
         if message[0] == 2006 and message[1] == 'MySQL server has gone away':
             reconnect()
@@ -185,7 +185,7 @@ def querySQL(sql):
     try:
         c=database.cursor()
         c.execute(sql)
-    except MySQLdb.OperationalError, message:
+    except MySQLdb.OperationalError as message:
         #errorMessage = "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
         if message[0] == 2006 and message[1] == 'MySQL server has gone away':
             reconnect()
@@ -228,7 +228,7 @@ def queryAllSQL(sql):
         c.execute(sql)
         rows = c.fetchall()
         sqlLock.release()
-    except MySQLdb.OperationalError, message:
+    except MySQLdb.OperationalError as message:
         #errorMessage = "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
         if message[0] == 2006 and message[1] == 'MySQL server has gone away':
             reconnect()

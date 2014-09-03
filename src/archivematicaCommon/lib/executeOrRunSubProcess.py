@@ -81,10 +81,10 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[]):
             print stdOut
             print  >>sys.stderr, stdError
         retcode = p.returncode
-    except OSError, ose:
+    except OSError as ose:
         print >>sys.stderr, "Execution failed:", ose
         return -1, "Config Error!", ose.__str__()
-    except Exception  as inst:
+    except Exception as inst:
         print  >>sys.stderr, "Execution failed:", command
         print >>sys.stderr, type(inst)     # the exception instance
         print >>sys.stderr, inst.args

@@ -150,7 +150,7 @@ Unable to determine if it completed successfully."""
         exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=False)
         return cPickle.dumps({"exitCode" : exitCode, "stdOut": stdOut, "stdError": stdError})
     #catch OS errors
-    except OSError, ose:
+    except OSError as ose:
         traceback.print_exc(file=sys.stdout)
         printOutputLock.acquire()
         print >>sys.stderr, "Execution failed:", ose

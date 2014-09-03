@@ -173,7 +173,7 @@ if __name__ == '__main__':
         insertIntoFPCommandOutput(fileUUID, etree.tostring(fits, pretty_print=False), '3a19de70-0e42-4145-976b-3a248d43b462')
         includeFits(fits, XMLfile, date, eventUUID, fileUUID)
 
-    except OSError, ose:
+    except OSError as ose:
         print >>sys.stderr, "Execution failed:", ose
         exit(1)
     exit(exitCode)

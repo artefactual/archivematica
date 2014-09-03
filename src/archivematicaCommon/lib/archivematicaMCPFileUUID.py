@@ -115,7 +115,7 @@ def findUUIDFromFileUUIDxml(sipUUIDfile, filename, fileUUIDxmlFilesDirectory, up
                                 f = open(sipUUIDfile, 'a')
                                 f.write(uuid.text + " -> " + filename + "\n")
                                 f.close()
-                        except OSError, ose:
+                        except OSError as ose:
                             print >>sys.stderr, "output Error", ose
                             return -2
                         except IOError as (errno, strerror):
