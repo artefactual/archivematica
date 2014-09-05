@@ -107,17 +107,23 @@ def fetchUUIDFromPath(path):
     if isUUID(path[uuidLen-1:-1]):
         return path[uuidLen-1:-1]
 
-def findOrCreateSipInDB(path, waitSleep=dbWaitSleep):
+def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
     """Matches a directory to a database sip by it's appended UUID, or path. If it doesn't find one, it will create one"""
     path = path.replace(config.get('MCPServer', "sharedDirectory"), "%sharedPath%", 1)
 
     #find UUID on end of SIP path
     UUID = fetchUUIDFromPath(path)
     if UUID:
-        sql = """SELECT sipUUID FROM SIPs WHERE sipUUID = '""" + UUID + "';"
-        rows = databaseInterface.queryAllSQL(sql)
+        sql = """SELECT currentPath FROM SIPs WHERE sipUUID = %s;"""
+        rows = databaseInterface.queryAllSQL(sql, (UUID,))
         if not rows:
             databaseFunctions.createSIP(path, UUID=UUID)
+        else:
+            current_path, = rows[0]
+            if current_path != path and unit_type == 'SIP':
+                # Ensure path provided matches path in DB
+                sql = """UPDATE SIPs SET currentPath=%s WHERE sipUUID=%s;"""
+                databaseInterface.runSQL(sql, (path, UUID))
     else:
         #Find it in the database
         sql = """SELECT sipUUID FROM SIPs WHERE currentPath = '""" + MySQLdb.escape_string(path) + "';"
@@ -151,7 +157,7 @@ def createUnitAndJobChain(path, config, terminate=False):
             UUID = findOrCreateSipInDB(path)
             unit = unitSIP(path, UUID)
         elif config[3] == "DIP":
-            UUID = findOrCreateSipInDB(path)
+            UUID = findOrCreateSipInDB(path, unit_type='DIP')
             unit = unitDIP(path, UUID)
         elif config[3] == "Transfer":
             unit = unitTransfer(path)
