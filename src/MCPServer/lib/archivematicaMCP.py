@@ -31,39 +31,31 @@
 #
 # It loads configurations from the database.
 #
+# stdlib, alphabetical by import source
+import ConfigParser
+import MySQLdb
+import os
+from pwd import getpwnam
+import pyinotify
+import signal
+import sys
 import threading
+import time
+import traceback
+import uuid
+
+# This project, alphabetical by import source
 import watchDirectory
 from jobChain import jobChain
 from unitSIP import unitSIP
 from unitDIP import unitDIP
 from unitFile import unitFile
 from unitTransfer import unitTransfer
-from pyinotify import ThreadedNotifier
 import RPCServer
-import MySQLdb
 
-import signal
-import os
-import pyinotify
-from pwd import getpwnam
-# from archivematicaReplacementDics import replacementDics
-# from MCPlogging import *
-# from MCPloggingSQL import getUTCDate
-import ConfigParser
-# from mcpModules.modules import modulesClass
-import uuid
-import string
-import math
-import copy
-import time
-import subprocess
-import shlex
-import sys
-import lxml.etree as etree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 import databaseFunctions
-import traceback
 from externals.singleInstance import singleinstance
 from archivematicaFunctions import unicodeToStr
 
@@ -75,8 +67,6 @@ countOfCreateUnitAndJobChainThreaded = 0
 
 config = ConfigParser.SafeConfigParser({'MCPArchivematicaServerInterface': ""})
 config.read("/etc/archivematica/MCPServer/serverConfig.conf")
-
-# archivematicaRD = replacementDics(config)
 
 #time to sleep to allow db to be updated with the new location of a SIP
 dbWaitSleep = 2
@@ -111,7 +101,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
     """Matches a directory to a database sip by it's appended UUID, or path. If it doesn't find one, it will create one"""
     path = path.replace(config.get('MCPServer', "sharedDirectory"), "%sharedPath%", 1)
 
-    #find UUID on end of SIP path
+    # Find UUID on end of SIP path
     UUID = fetchUUIDFromPath(path)
     if UUID:
         sql = """SELECT currentPath FROM SIPs WHERE sipUUID = %s;"""
@@ -125,11 +115,9 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
                 sql = """UPDATE SIPs SET currentPath=%s WHERE sipUUID=%s;"""
                 databaseInterface.runSQL(sql, (path, UUID))
     else:
-        #Find it in the database
-        sql = """SELECT sipUUID FROM SIPs WHERE currentPath = '""" + MySQLdb.escape_string(path) + "';"
-        #if waitSleep != 0:
-            #time.sleep(waitSleep) #let db be updated by the microservice that moved it.
-        c, sqlLock = databaseInterface.querySQL(sql)
+        # Find it in the database
+        sql = """SELECT sipUUID FROM SIPs WHERE currentPath = %s;"""
+        c, sqlLock = databaseInterface.querySQL(sql, (path,))
         row = c.fetchone()
         if not row:
             print "Not opening existing SIP:", UUID, "-", path
@@ -177,8 +165,6 @@ def createUnitAndJobChain(path, config, terminate=False):
 
 def createUnitAndJobChainThreaded(path, config, terminate=True):
     global countOfCreateUnitAndJobChainThreaded
-    #createUnitAndJobChain(path, config)
-    #return
     try:
         if debug:
             print "DEBGUG alert watch path: ", path
@@ -190,7 +176,6 @@ def createUnitAndJobChainThreaded(path, config, terminate=True):
                 print "Signal was received; stopping createUnitAndJobChainThreaded(path, config)"
                 exit(0)
             print threading.activeCount().__str__()
-            #print "DEBUG createUnitAndJobChainThreaded waiting on thread count", threading.activeCount()
             time.sleep(.5)
         countOfCreateUnitAndJobChainThreaded -= 1
         t.start()
@@ -211,8 +196,10 @@ def watchDirectories():
         row = c.fetchone()
     sqlLock.release()
 
+    watched_dir_path = config.get('MCPServer', "watchDirectoryPath")
+    interval = config.getint('MCPServer', "watchDirectoriesPollInterval")
     for row in rows:
-        directory = row[0].replace("%watchDirectoryPath%", config.get('MCPServer', "watchDirectoryPath"), 1)
+        directory = row[0].replace("%watchDirectoryPath%", watched_dir_path, 1)
         if not os.path.isdir(directory):
             os.makedirs(directory)
         for item in os.listdir(directory):
@@ -220,14 +207,19 @@ def watchDirectories():
                 continue
             item = item.decode("utf-8")
             path = os.path.join(unicode(directory), item)
-            #createUnitAndJobChain(path, row)
             while(limitTaskThreads <= threading.activeCount() + reservedAsTaskProcessingThreads ):
                 time.sleep(1)
             createUnitAndJobChainThreaded(path, row, terminate=False)
         actOnFiles=True
         if row[2]: #onlyActOnDirectories
             actOnFiles=False
-        watchDirectory.archivematicaWatchDirectory(directory,variablesAdded=row, callBackFunctionAdded=createUnitAndJobChainThreaded, alertOnFiles=actOnFiles, interval=config.getint('MCPServer', "watchDirectoriesPollInterval"))
+        watchDirectory.archivematicaWatchDirectory(
+            directory,
+            variablesAdded=row,
+            callBackFunctionAdded=createUnitAndJobChainThreaded,
+            alertOnFiles=actOnFiles,
+            interval=interval,
+        )
 
 def signal_handler(signalReceived, frame):
     """Used to handle the stop/kill command signals (SIGKILL)"""
@@ -294,10 +286,7 @@ if __name__ == '__main__':
     if si.alreadyrunning():
         print >>sys.stderr, "Another instance is already running. Killing PID:", si.pid
         si.kill()
-    elif False: #testing single instance stuff
-        while 1:
-            print "psudo run"
-            time.sleep(3)
+
     print "This PID: ", si.pid
 
     import getpass
@@ -313,11 +302,6 @@ if __name__ == '__main__':
     t.start()
     cleanupOldDbEntriesOnNewRun()
     watchDirectories()
-
-
-    # debug 4545 https://projects.artefactual.com/issues/4545
-    #print sys.stdout.encoding
-    #print u'\u2019'
     
     # This is blocking the main thread with the worker loop
     RPCServer.startRPCServer()
