@@ -71,9 +71,11 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
       }
 
       // render path component
+      trailing_slash = decoded_path + (result.type == 'directory' ? '/' : '');
       $('#' + targetCssId).append(selector.pathTemplateRender({
         'path_counter': transferDirectoryPickerPathCounter,
         'path': decoded_path,
+        'location_path': locationUUID+':'+trailing_slash,
         'edit_icon': '1',
         'delete_icon': '2'
       }));

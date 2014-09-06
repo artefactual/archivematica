@@ -651,6 +651,50 @@ def copy_to_arrange(request):
     return helpers.json_response(response)
 
 
+def copy_from_transfer_sources(paths, relative_destination):
+    """
+    Helper to copy files from transfer source locations to the currently processing location.
+
+    Any files in locations not associated with this pipeline will be ignored.
+
+    :param list paths: List of paths.  Each path should be formatted <uuid of location>:<full path in location>
+    :param str relative_destination: Path relative to the currently processing space to move the files to.
+    :returns: Tuple of (boolean error, message)
+    """
+    processing_location = storage_service.get_location(purpose='CP')[0]
+    transfer_sources = storage_service.get_location(purpose='TS')
+    files = {l['uuid']: {'location': l, 'files': []} for l in transfer_sources}
+
+    for p in paths:
+        try:
+            location, path = p.split(':', 1)
+        except ValueError:
+            logging.debug('Path %s cannot be split into location:path', p)
+            continue
+        if location not in files:
+            logging.debug('Location %s is not associated with this pipeline.', location)
+            continue
+
+        source = path.replace(files[location]['location']['path'], '', 1).lstrip('/')
+        # Use the last segment of the path for the destination - basename for a
+        # file, or the last folder if not. Keep the trailing / for folders.
+        last_segment = os.path.basename(source.rstrip('/')) + '/' if source.endswith('/') else os.path.basename(source)
+        destination = os.path.join(processing_location['path'],
+            relative_destination, last_segment).replace('%sharedPath%', '')
+        files[location]['files'].append({'source': source, 'destination': destination})
+        logging.debug('source: %s, destination: %s', source, destination)
+
+    message = []
+    for pl in files.itervalues():
+        reply, error = storage_service.copy_files(pl['location'], processing_location, pl['files'])
+        if reply is None:
+            message.append(error)
+    if message:
+        return True, 'The following errors occured: {}'.format(', '.join(message))
+    else:
+        return False, 'Files added successfully.'
+
+
 def download_ss(request):
     filepath = base64.b64decode(request.GET.get('filepath', '')).lstrip('/')
     logging.info('download filepath: %s', filepath)
