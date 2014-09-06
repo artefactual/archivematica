@@ -604,6 +604,37 @@ def copy_to_arrange(request):
     return helpers.json_response(response)
 
 
+def copy_metadata_files(request):
+    """
+    Copy files from list `source_paths` to sip_uuid's metadata folder.
+
+    sip_uuid: UUID of the SIP to put files in
+    source_paths: List of files to be copied, base64 encoded, in the format
+        'source_location_uuid:full_path'
+    """
+    sip_uuid = request.POST.get('sip_uuid')
+    paths = request.POST.getlist('source_paths[]')
+    if not sip_uuid or not paths:
+        response = {
+            'error': True,
+            'message': 'sip_uuid and source_paths[] both required.'
+        }
+        return helpers.json_response(response)
+
+    paths = [base64.b64decode(p) for p in paths]
+    sip = models.SIP.objects.get(uuid=sip_uuid)
+    relative_path = sip.currentpath.replace('%sharedPath%', '', 1)
+    relative_path = os.path.join(relative_path, 'metadata')
+
+    error, message = copy_from_transfer_sources(paths, relative_path)
+
+    if not error:
+        message = 'Metadata files added successfully.'
+    response = {'error': error, 'message': message}
+
+    return helpers.json_response(response)
+
+
 def copy_from_transfer_sources(paths, relative_destination):
     """
     Helper to copy files from transfer source locations to the currently processing location.

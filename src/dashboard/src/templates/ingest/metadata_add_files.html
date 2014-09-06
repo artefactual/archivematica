@@ -5,9 +5,16 @@
 <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/backbone-file-explorer.css" />
 <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/directory_picker.css" />
 <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/transfer_grid.css" />
+
+<style type="text/css">
+select {
+  width: auto;
+}
+</style>
 {% endblock %}
 
 {% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/metadata_form.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/file-explorer.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/directory_picker.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/transfer/component_directory_select.js"></script>
@@ -25,6 +32,83 @@
     </ul>
 
     <h1>Add Metadata Files<br /><small>{{ name }}</small></h1>
+    {% if source_directories %}
+
+    <div id='add_metadata_files_form'></div>
+
+    <script>
+    $(document).ready(function() {
+      var sourceDirectories = {
+        {% for dir in source_directories %}
+          '{{ dir.uuid }}': '{{ dir.path }}',
+        {% endfor %}
+      };
+      var form = new MetadataFormView({
+        el: $('#add_metadata_files_form'),
+        form_layout_template: $('#add-metadata-files-layout').html(),
+        modal_template: $('#add-metadata-files-select-modal-layout').html(),
+        sourceDirectories: sourceDirectories,
+        sipUUID: "{{ sip_uuid }}"
+      });
+
+      form.render();
+    });
+    </script>
+    {% endif %}
+    </div>
   </div>
+
+ <!-- Templates -->
+
+  <!-- Transfer component form layout templates -->
+  <script type="text/template" id='add-metadata-files-layout'>
+    <div id="metadata-file-form">
+      <div class="transfer-component-activity-indicator">
+        <img src='/media/images/ajax-loader.gif' />
+      </div>
+      <div id="transfer_paths_area">
+        <%= transfer_paths %>
+      </div>
+    </div>
+    <br clear='all'/>
+  </script>
+
+  <script type="text/template" id='add-metadata-files-select-modal-layout'>
+    <div class="modal hide" id="metadata-file-select-modal">
+      <div class="modal-header">
+        <button type="button" class="close" id="metadata-file-select-close" data-dismiss="modal">×</button>
+        <h3>Select a directory</h3>
+      </div>
+      <div class="modal-body" id="metadata-file-select-body">
+        <div id="explorer" class="backbone-file-explorer"></div>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal" id="metadata-file-select-cancel">Cancel</a>
+      </div>
+    </div>
+  </script>
+
+  <script type="text/template" id='add-metadata-files-path-item'>
+    <div id='add-metadata-files-path-item-<%= path_counter %>'>
+      <span class="transfer_path" id="<%= location_path %>"><%= path %></span>
+      <span class="transfer_path_icons">
+        <span class="transfer_path_edit_icon"><img src="/media/images/table_edit.png" /></span>
+        <span class="transfer_path_delete_icon"><img src="/media/images/delete.png" /></span>
+      </span>
+    </div>
+  </script>
+  <!-- File explorer templates -->
+
+  <script type="text/template" id='template-dir-level'>
+    <div class="backbone-file-explorer-level"></div>
+  </script>
+
+  <script type="text/template" id='template-dir-entry'>
+    <div class="backbone-file-explorer-entry" style='clear:both'>
+      <span class="backbone-file-explorer-directory_icon_button"></span>
+      <span class="backbone-file-explorer-directory_entry_name"><%= name %></span>
+      <span class="backbone-file-explorer-directory_entry_actions"></span>
+    </div>
+  </script>
 
 {% endblock %}

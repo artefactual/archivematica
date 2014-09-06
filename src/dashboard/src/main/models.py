@@ -207,6 +207,9 @@ class SIP(models.Model):
     class Meta:
         db_table = u'SIPs'
 
+    def __unicode__(self):
+        return u'SIP: {path}'.format(path=self.currentpath)
+
 class TransferManager(models.Manager):
     def is_hidden(self, uuid):
         try:
