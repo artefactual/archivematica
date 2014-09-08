@@ -63,8 +63,8 @@ def sendEmail(subject, to, from_, content, server):
 
 def getUnitStatisticalDataHTML(unitIdentifier):
     fields = ["unitType", "Total time processing", "total file size", "number of files", "average file size KB", "average file size MB"]
-    sql = """SELECT `%s` FROM PDI_by_unit WHERE SIP_OR_TRANSFER_UUID = '%s';""" % ("`, `".join(fields), unitIdentifier)
-    rows = databaseInterface.queryAllSQL(sql)
+    sql = """SELECT `{fields}` FROM PDI_by_unit WHERE SIP_OR_TRANSFER_UUID = %s;""".format(fields="`, `".join(fields))
+    rows = databaseInterface.queryAllSQL(sql, (unitIdentifier,))
     return HTML.table(rows, header_row=fields)
 
 def getUnitJobLogHTML(unitIdentifier):
@@ -72,12 +72,12 @@ def getUnitJobLogHTML(unitIdentifier):
 
     sql = """SELECT Jobs.jobType, Jobs.currentStep, Jobs.createdTime, jobUUID
     FROM Jobs 
-    WHERE Jobs.SIPUUID = '%s' 
+    WHERE Jobs.SIPUUID = %s
     AND Jobs.jobType != 'Email fail report'
     AND subJobOf = ''
-    ORDER BY Jobs.createdTime DESC, Jobs.createdTimeDec DESC;""" % (unitIdentifier)
+    ORDER BY Jobs.createdTime DESC, Jobs.createdTimeDec DESC;"""
     
-    rows2Temp = databaseInterface.queryAllSQL(sql)
+    rows2Temp = databaseInterface.queryAllSQL(sql, (unitIdentifier,))
 
     rows2=[]
     for row in rows2Temp:
@@ -90,8 +90,8 @@ def getUnitJobLogHTML(unitIdentifier):
         if False:
             try:
                 databaseInterface.printErrors = False
-                sql = """SELECT SEC_TO_TIME(jobDurationsView.time_from_job_created_till_end_of_processing_in_seconds) FROM  jobDurationsView WHERE jobUUID = '%s';""" % (row[3])
-                duration = databaseInterface.queryAllSQL(sql)
+                sql = """SELECT SEC_TO_TIME(jobDurationsView.time_from_job_created_till_end_of_processing_in_seconds) FROM  jobDurationsView WHERE jobUUID = %s;"""
+                duration = databaseInterface.queryAllSQL(sql, (row[3],))
                 if duration and duration[0] and duration[0][0]:
                     newRow.append(duration[0][0])
                 else:
@@ -159,8 +159,8 @@ def getContentFor(unitType, unitName, unitIdentifier, as_html_page=True):
     return etree.tostring(root, pretty_print=True)
 
 def storeReport(content, type, name, UUID):
-    sql = """INSERT INTO Reports (content, unitType, unitName, unitIdentifier) VALUES ('%s', '%s', '%s', '%s')""" % (content, type, name, UUID)
-    databaseInterface.queryAllSQL(sql)
+    sql = """INSERT INTO Reports (content, unitType, unitName, unitIdentifier) VALUES (%s, %s, %s, %s)"""
+    databaseInterface.queryAllSQL(sql, (content, type, name, UUID))
 
 if __name__ == '__main__':
     parser = OptionParser()
