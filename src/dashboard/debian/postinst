@@ -5,4 +5,17 @@ a2enmod wsgi
 
 #install dashboard requirements
 pip install -r /usr/share/archivematica/dashboard/requirements.txt
-adduser --uid 334 --group --system --home /var/lib/archivematica-django/ archivematicadashboard
+/usr/share/archivematica/dashboard/manage.py syncdb --settings='settings.common'
+/usr/share/archivematica/dashboard/manage.py syncdb --settings='settings.common'
+touch /tmp/archivematicaDashboard.log
+chmod 666 /tmp/archivematicaDashboard.log
+
+userID=`id -u archivematicadashboard`
+
+if [ "${userID}" = 334 ]; then
+  echo "User archivematicadashboard exists"
+else
+  adduser --uid 334 --group --system --home /var/lib/archivematica-django/ archivematicadashboard
+fi
+  
+#DEBHELPER#

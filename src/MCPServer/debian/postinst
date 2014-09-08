@@ -17,3 +17,5 @@ chown -R archivematica:archivematica /var/archivematica/
 
 /usr/share/archivematica/postinstSharedWithDev
 
+#DEBHELPER#
+

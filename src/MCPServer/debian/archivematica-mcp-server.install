@@ -2,5 +2,6 @@ etc/* /etc/archivematica/MCPServer/
 lib/* /usr/lib/archivematica/MCPServer/
 init/* /etc/init/
 share/mysql /usr/share/dbconfig-common/data/archivematica-mcp-server/install/
-share/mysql_updates_1.1.0.sql /usr/share/dbconfig-common/data/archivematica-mcp-server/upgrade/mysql/1.1.0
+share/1.1.0 /usr/share/dbconfig-common/data/archivematica-mcp-server/upgrade/mysql/1.1.0
+share/1.2.0 /usr/share/dbconfig-common/data/archivematica-mcp-server/upgrade/mysql/1.2.0
 share/* /usr/share/archivematica/

@@ -37,9 +37,12 @@ pwd
 # mysqldump -u root --complete-insert --no-create-info MCP fpr_idtool fpr_idcommand fpr_formatgroup fpr_fpcommand fpr_fptool fpr_format fpr_fprule fpr_idrule fpr_formatversion > mysql_fpr_1.0.sql
 # mysqldump -u root --complete-insert --no-create-info MCP MicroServiceChoiceReplacementDic --where "replacementDic LIKE '%IDCommand%' AND replacementDic NOT LIKE '%None%'" >> mysql_fpr_1.0.sql
 
-mysql -u $username $dbpassword --execute="source ./delete_fpr_data.sql" $databaseName
-mysql -u $username $dbpassword --execute="source ./mysql_fpr_1.0.sql" $databaseName
-mysql -u $username $dbpassword --execute="source ./mysql_fpr_dev1.sql" $databaseName
+#fpr data is now included in main mysql dump.
+#any new fpr changes should be added to a mysqL-fpr_dev_XXXX.sql file
+#add a reference to that new file here in your branch
+#mysql -u $username $dbpassword --execute="source ./delete_fpr_data.sql" $databaseName
+#mysql -u $username $dbpassword --execute="source ./mysql_fpr_1.0.sql" $databaseName
+#mysql -u $username $dbpassword --execute="source ./mysql_fpr_dev1.sql" $databaseName
 # ./migration1.sh
 # mysql -u $username $dbpassword --execute="source ./mysql_dev2.sql" $databaseName
 # ./migration2.sh
