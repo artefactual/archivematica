@@ -93,7 +93,7 @@ global database
 reconnect()
 sqlLock.release()
 
-def runSQL(sql):
+def runSQL(sql, arguments=None):
     global database
     if printSQL:
         print sql
@@ -106,7 +106,7 @@ def runSQL(sql):
     try:
         #db.query(sql)
         c=database.cursor()
-        c.execute(sql)
+        c.execute(sql, arguments)
         database.commit()
         rows = c.fetchall()
     except MySQLdb.OperationalError as message:
@@ -134,7 +134,7 @@ def runSQL(sql):
     return
 
 
-def insertAndReturnID(sql):
+def insertAndReturnID(sql, arguments=None):
     global database
     ret = None
     if printSQL:
@@ -148,7 +148,7 @@ def insertAndReturnID(sql):
     try:
         #db.query(sql)
         c=database.cursor()
-        c.execute(sql)
+        c.execute(sql, arguments)
         database.commit()
         ret = c.lastrowid
     except MySQLdb.OperationalError as message:
@@ -175,7 +175,7 @@ def insertAndReturnID(sql):
 
 
 
-def querySQL(sql):
+def querySQL(sql, arguments=None):
     global database
     if printSQL:
         print sql
@@ -184,7 +184,7 @@ def querySQL(sql):
     sqlLock.acquire()
     try:
         c=database.cursor()
-        c.execute(sql)
+        c.execute(sql, arguments)
     except MySQLdb.OperationalError as message:
         #errorMessage = "Error %d:\n%s" % (message[ 0 ], message[ 1 ] )
         if message[0] == 2006 and message[1] == 'MySQL server has gone away':
@@ -192,7 +192,7 @@ def querySQL(sql):
             import time
             time.sleep(10)
             c=database.cursor()
-            c.execute(sql)
+            c.execute(sql, arguments)
         else:
             if printErrors:
                 print >>sys.stderr, "Error with query: ", sql
@@ -213,7 +213,7 @@ def querySQL(sql):
 #            row = c.fetchone()
 
 
-def queryAllSQL(sql):
+def queryAllSQL(sql, arguments=None):
     global database
     if isinstance(sql, unicode):
         sql = sql.encode('utf-8')
@@ -225,7 +225,7 @@ def queryAllSQL(sql):
     rows = []
     try:
         c=database.cursor()
-        c.execute(sql)
+        c.execute(sql, arguments)
         rows = c.fetchall()
         sqlLock.release()
     except MySQLdb.OperationalError as message:
@@ -235,7 +235,7 @@ def queryAllSQL(sql):
             import time
             time.sleep(10)
             c=database.cursor()
-            c.execute(sql)
+            c.execute(sql, arguments)
             rows = c.fetchall()
             sqlLock.release()
         else:
