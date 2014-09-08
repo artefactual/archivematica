@@ -34,10 +34,12 @@
         <li><a href="{% url 'components.rights.views.transfer_rights_edit' uuid %}">Add</a></li>
       </ul>
 
+      {% if set_uuid %}
       <h5>Transfer Metadata</h5>
       <ul>
         <li><a href="{% url 'components.transfer.views.component' set_uuid %}">Edit</a></li>
       </ul>
+      {% endif %}
 
       <h5>Metadata</h5>
       <ul>
