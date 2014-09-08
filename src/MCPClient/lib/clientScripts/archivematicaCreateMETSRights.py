@@ -55,88 +55,88 @@ def archivematicaGetRights(metadataAppliesToList, fileUUID):
         else:
             for row in rows:
                 valueDic= {}
-                rightsStatement = etree.Element("rightsStatement", nsmap={None: ns.premisNS})
+                rightsStatement = etree.Element(ns.premisBNS + "rightsStatement", nsmap={'premis': ns.premisNS})
                 rightsStatement.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
                 #rightsStatement.set("version", "2.1") #cvc-complex-type.3.2.2: Attribute 'version' is not allowed to appear in element 'rightsStatement'.
                 ret.append(rightsStatement)
                 for i in range(len(key)):
                     valueDic[key[i]] = row[i]
                 
-                rightsStatementIdentifier = etree.SubElement(rightsStatement, "rightsStatementIdentifier")
+                rightsStatementIdentifier = etree.SubElement(rightsStatement, ns.premisBNS + "rightsStatementIdentifier")
                 if valueDic["rightsStatementIdentifierValue"]:
-                    etree.SubElement(rightsStatementIdentifier, "rightsStatementIdentifierType").text = valueDic["rightsStatementIdentifierType"]
-                    etree.SubElement(rightsStatementIdentifier, "rightsStatementIdentifierValue").text = valueDic["rightsStatementIdentifierValue"]
+                    etree.SubElement(rightsStatementIdentifier, ns.premisBNS + "rightsStatementIdentifierType").text = valueDic["rightsStatementIdentifierType"]
+                    etree.SubElement(rightsStatementIdentifier, ns.premisBNS + "rightsStatementIdentifierValue").text = valueDic["rightsStatementIdentifierValue"]
                 else:
-                    etree.SubElement(rightsStatementIdentifier, "rightsStatementIdentifierType").text = "UUID"
-                    etree.SubElement(rightsStatementIdentifier, "rightsStatementIdentifierValue").text = uuid.uuid4().__str__()
+                    etree.SubElement(rightsStatementIdentifier, ns.premisBNS + "rightsStatementIdentifierType").text = "UUID"
+                    etree.SubElement(rightsStatementIdentifier, ns.premisBNS + "rightsStatementIdentifierValue").text = uuid.uuid4().__str__()
                 if valueDic["rightsBasis"] in rightsBasisActuallyOther:
-                    etree.SubElement(rightsStatement, "rightsBasis").text = "Other"
+                    etree.SubElement(rightsStatement, ns.premisBNS + "rightsBasis").text = "Other"
                 else:
-                    etree.SubElement(rightsStatement, "rightsBasis").text = valueDic["rightsBasis"]
+                    etree.SubElement(rightsStatement, ns.premisBNS + "rightsBasis").text = valueDic["rightsBasis"]
                 
                 #copright information
                 if valueDic["rightsBasis"].lower() in ["copyright"]:
                     sql = """SELECT pk, copyrightStatus, copyrightJurisdiction, copyrightStatusDeterminationDate, copyrightApplicableStartDate, copyrightApplicableEndDate, copyrightApplicableEndDateOpen FROM RightsStatementCopyright WHERE fkRightsStatement = %d""" % (valueDic["RightsStatement.pk"])
                     rows2 = databaseInterface.queryAllSQL(sql)
                     for row2 in rows2:
-                        copyrightInformation = etree.SubElement(rightsStatement, "copyrightInformation")
-                        etree.SubElement(copyrightInformation, "copyrightStatus").text = valueDic["copyrightStatus"]
+                        copyrightInformation = etree.SubElement(rightsStatement, ns.premisBNS + "copyrightInformation")
+                        etree.SubElement(copyrightInformation, ns.premisBNS + "copyrightStatus").text = valueDic["copyrightStatus"]
                         copyrightJurisdiction = valueDic["copyrightJurisdiction"]
                         copyrightJurisdictionCode = getCodeForCountry(copyrightJurisdiction.__str__().upper())
                         if copyrightJurisdictionCode != None:
                             copyrightJurisdiction = copyrightJurisdictionCode 
-                        etree.SubElement(copyrightInformation, "copyrightJurisdiction").text = copyrightJurisdiction 
-                        etree.SubElement(copyrightInformation, "copyrightStatusDeterminationDate").text = formatDate(valueDic["copyrightStatusDeterminationDate"])
+                        etree.SubElement(copyrightInformation, ns.premisBNS + "copyrightJurisdiction").text = copyrightJurisdiction 
+                        etree.SubElement(copyrightInformation, ns.premisBNS + "copyrightStatusDeterminationDate").text = formatDate(valueDic["copyrightStatusDeterminationDate"])
                         #copyrightNote Repeatable
                         sql = "SELECT copyrightNote FROM RightsStatementCopyrightNote WHERE fkRightsStatementCopyrightInformation = %d;" % (row2[0])
                         rows3 = databaseInterface.queryAllSQL(sql)
                         for row3 in rows3:
-                            etree.SubElement(copyrightInformation, "copyrightNote").text =  row3[0]
+                            etree.SubElement(copyrightInformation, ns.premisBNS + "copyrightNote").text =  row3[0]
                             
                         #RightsStatementCopyrightDocumentationIdentifier
                         getDocumentationIdentifier(valueDic["RightsStatement.pk"], copyrightInformation)
     
-                        copyrightApplicableDates = etree.SubElement(copyrightInformation, "copyrightApplicableDates")
+                        copyrightApplicableDates = etree.SubElement(copyrightInformation, ns.premisBNS + "copyrightApplicableDates")
                         if valueDic["copyrightApplicableStartDate"]:
-                            etree.SubElement(copyrightApplicableDates, "startDate").text = formatDate(valueDic["copyrightApplicableStartDate"])
+                            etree.SubElement(copyrightApplicableDates, ns.premisBNS + "startDate").text = formatDate(valueDic["copyrightApplicableStartDate"])
                         if row2[6]: #, copyrightApplicableEndDateOpen
-                            etree.SubElement(copyrightApplicableDates, "endDate").text = "OPEN"
+                            etree.SubElement(copyrightApplicableDates, ns.premisBNS + "endDate").text = "OPEN"
                         elif valueDic["copyrightApplicableEndDate"]:
-                            etree.SubElement(copyrightApplicableDates, "endDate").text = formatDate(valueDic["copyrightApplicableEndDate"])
+                            etree.SubElement(copyrightApplicableDates, ns.premisBNS + "endDate").text = formatDate(valueDic["copyrightApplicableEndDate"])
                 
                 elif valueDic["rightsBasis"].lower() in ["license"]:
                     sql = """SELECT licenseTerms, licenseApplicableStartDate, licenseApplicableEndDate,  licenseDocumentationIdentifierType, licenseDocumentationIdentifierValue, RightsStatementLicense.pk, licenseDocumentationIdentifierRole, licenseApplicableEndDateOpen
                                 FROM RightsStatementLicense JOIN RightsStatementLicenseDocumentationIdentifier ON RightsStatementLicenseDocumentationIdentifier.fkRightsStatementLicense = RightsStatementLicense.pk WHERE RightsStatementLicense.fkRightsStatement = %d;""" % (valueDic["RightsStatement.pk"])
                     rows2 = databaseInterface.queryAllSQL(sql)
                     for row2 in rows2:
-                        licenseInformation = etree.SubElement(rightsStatement, "licenseInformation")
+                        licenseInformation = etree.SubElement(rightsStatement, ns.premisBNS + "licenseInformation")
                         
-                        licenseDocumentIdentifier = etree.SubElement(licenseInformation, "licenseDocumentationIdentifier")
-                        etree.SubElement(licenseDocumentIdentifier, "licenseDocumentationIdentifierType").text = row2[3]
-                        etree.SubElement(licenseDocumentIdentifier, "licenseDocumentationIdentifierValue").text = row2[4]
-                        etree.SubElement(licenseDocumentIdentifier, "licenseDocumentationRole").text = row2[6]
+                        licenseDocumentIdentifier = etree.SubElement(licenseInformation, ns.premisBNS + "licenseDocumentationIdentifier")
+                        etree.SubElement(licenseDocumentIdentifier, ns.premisBNS + "licenseDocumentationIdentifierType").text = row2[3]
+                        etree.SubElement(licenseDocumentIdentifier, ns.premisBNS + "licenseDocumentationIdentifierValue").text = row2[4]
+                        etree.SubElement(licenseDocumentIdentifier, ns.premisBNS + "licenseDocumentationRole").text = row2[6]
                         
-                        etree.SubElement(licenseInformation, "licenseTerms").text = valueDic["licenseTerms"]
+                        etree.SubElement(licenseInformation, ns.premisBNS + "licenseTerms").text = valueDic["licenseTerms"]
                         
                         sql = "SELECT licenseNote FROM RightsStatementLicenseNote WHERE fkRightsStatementLicense = %d;" % (row2[5])
                         rows3 = databaseInterface.queryAllSQL(sql)
                         for row3 in rows3:
-                            etree.SubElement(licenseInformation, "licenseNote").text =  row3[0]
+                            etree.SubElement(licenseInformation, ns.premisBNS + "licenseNote").text =  row3[0]
                             
-                        licenseApplicableDates = etree.SubElement(licenseInformation, "licenseApplicableDates")
+                        licenseApplicableDates = etree.SubElement(licenseInformation, ns.premisBNS + "licenseApplicableDates")
                         if valueDic["licenseApplicableStartDate"]:
-                            etree.SubElement(licenseApplicableDates, "startDate").text = formatDate(valueDic["licenseApplicableStartDate"])
+                            etree.SubElement(licenseApplicableDates, ns.premisBNS + "startDate").text = formatDate(valueDic["licenseApplicableStartDate"])
                         if row2[7]: #licenseApplicableEndDateOpen
-                            etree.SubElement(licenseApplicableDates, "endDate").text = "OPEN"
+                            etree.SubElement(licenseApplicableDates, ns.premisBNS + "endDate").text = "OPEN"
                         elif valueDic["licenseApplicableEndDate"]:
-                            etree.SubElement(licenseApplicableDates, "endDate").text = formatDate(valueDic["licenseApplicableEndDate"])
+                            etree.SubElement(licenseApplicableDates, ns.premisBNS + "endDate").text = formatDate(valueDic["licenseApplicableEndDate"])
                     
                 elif valueDic["rightsBasis"].lower() in ["statute"]:
                     #4.1.5 statuteInformation (O, R)
                     getstatuteInformation(valueDic["RightsStatement.pk"], rightsStatement)
                     
                 elif valueDic["rightsBasis"].lower() in ["donor", "policy", "other"]:
-                    otherRightsInformation = etree.SubElement(rightsStatement, "otherRightsInformation")
+                    otherRightsInformation = etree.SubElement(rightsStatement, ns.premisBNS + "otherRightsInformation")
                     sql = """SELECT pk, otherRightsBasis, otherRightsApplicableStartDate, otherRightsApplicableEndDate, otherRightsApplicableEndDateOpen FROM RightsStatementOtherRightsInformation WHERE RightsStatementOtherRightsInformation.fkRightsStatement = %d;""" % (valueDic["RightsStatement.pk"])
                     rows2 = databaseInterface.queryAllSQL(sql)
                     for row2 in rows2:
@@ -144,53 +144,53 @@ def archivematicaGetRights(metadataAppliesToList, fileUUID):
                         sql = """SELECT otherRightsDocumentationIdentifierType, otherRightsDocumentationIdentifierValue, otherRightsDocumentationIdentifierRole FROM RightsStatementOtherRightsDocumentationIdentifier WHERE fkRightsStatementotherRightsInformation = %s """ % (row2[0])
                         rows3 = databaseInterface.queryAllSQL(sql)
                         for row3 in rows3:
-                            otherRightsDocumentationIdentifier = etree.SubElement(otherRightsInformation, "otherRightsDocumentationIdentifier")
-                            etree.SubElement(otherRightsDocumentationIdentifier, "otherRightsDocumentationIdentifierType").text = row3[0]
-                            etree.SubElement(otherRightsDocumentationIdentifier, "otherRightsDocumentationIdentifierValue").text = row3[1]
-                            etree.SubElement(otherRightsDocumentationIdentifier, "otherRightsDocumentationRole").text = row3[2]
+                            otherRightsDocumentationIdentifier = etree.SubElement(otherRightsInformation, ns.premisBNS + "otherRightsDocumentationIdentifier")
+                            etree.SubElement(otherRightsDocumentationIdentifier, ns.premisBNS + "otherRightsDocumentationIdentifierType").text = row3[0]
+                            etree.SubElement(otherRightsDocumentationIdentifier, ns.premisBNS + "otherRightsDocumentationIdentifierValue").text = row3[1]
+                            etree.SubElement(otherRightsDocumentationIdentifier, ns.premisBNS + "otherRightsDocumentationRole").text = row3[2]
                         
                         otherRightsBasis = row2[1]
                         
                         if not otherRightsBasis or valueDic["rightsBasis"] in rightsBasisActuallyOther: #not 100%
                             otherRightsBasis = valueDic["rightsBasis"]
-                        etree.SubElement(otherRightsInformation, "otherRightsBasis").text = otherRightsBasis
+                        etree.SubElement(otherRightsInformation, ns.premisBNS + "otherRightsBasis").text = otherRightsBasis
                         
                         
                         otherRightsApplicableStartDate = row2[2]
                         otherRightsApplicableEndDate = row2[3]
                         otherRightsApplicableEndDateOpen = row2[4]
                         if otherRightsApplicableStartDate or otherRightsApplicableEndDate:  
-                            otherRightsApplicableDates = etree.SubElement(otherRightsInformation, "otherRightsApplicableDates")
+                            otherRightsApplicableDates = etree.SubElement(otherRightsInformation, ns.premisBNS + "otherRightsApplicableDates")
                             if otherRightsApplicableStartDate:
-                                etree.SubElement(otherRightsApplicableDates, "startDate").text = formatDate(otherRightsApplicableStartDate)
+                                etree.SubElement(otherRightsApplicableDates, ns.premisBNS + "startDate").text = formatDate(otherRightsApplicableStartDate)
                             if otherRightsApplicableEndDateOpen:
-                                etree.SubElement(otherRightsApplicableDates, "endDate").text = "OPEN"
+                                etree.SubElement(otherRightsApplicableDates, ns.premisBNS + "endDate").text = "OPEN"
                             elif otherRightsApplicableEndDate:
-                                etree.SubElement(otherRightsApplicableDates, "endDate").text = formatDate(otherRightsApplicableEndDate)
+                                etree.SubElement(otherRightsApplicableDates, ns.premisBNS + "endDate").text = formatDate(otherRightsApplicableEndDate)
     
                         #otherRightsNote Repeatable
                         sql = "SELECT otherRightsNote FROM RightsStatementOtherRightsNote WHERE fkRightsStatementOtherRightsInformation = %d;" % (row2[0])
                         rows3 = databaseInterface.queryAllSQL(sql)
                         for row3 in rows3:
-                            etree.SubElement(otherRightsInformation, "otherRightsNote").text =  row3[0]
+                            etree.SubElement(otherRightsInformation, ns.premisBNS + "otherRightsNote").text =  row3[0]
     
                 #4.1.6 rightsGranted (O, R)
                 getrightsGranted(valueDic["RightsStatement.pk"], rightsStatement)
 
                 #4.1.7 linkingObjectIdentifier (O, R)
-                linkingObjectIdentifier = etree.SubElement(rightsStatement, "linkingObjectIdentifier")
-                etree.SubElement(linkingObjectIdentifier, "linkingObjectIdentifierType").text = "UUID"
-                etree.SubElement(linkingObjectIdentifier, "linkingObjectIdentifierValue").text = fileUUID
+                linkingObjectIdentifier = etree.SubElement(rightsStatement, ns.premisBNS + "linkingObjectIdentifier")
+                etree.SubElement(linkingObjectIdentifier, ns.premisBNS + "linkingObjectIdentifierType").text = "UUID"
+                etree.SubElement(linkingObjectIdentifier, ns.premisBNS + "linkingObjectIdentifierValue").text = fileUUID
     return ret
 
 def getDocumentationIdentifier(pk, parent):
     sql = "SELECT pk, copyrightDocumentationIdentifierType, copyrightDocumentationIdentifierValue, copyrightDocumentationIdentifierRole FROM RightsStatementCopyrightDocumentationIdentifier WHERE fkRightsStatementCopyrightInformation = %d" % (pk)
     rows = databaseInterface.queryAllSQL(sql)
     for row in rows:
-        statuteInformation = etree.SubElement(parent, "copyrightDocumentationIdentifier")
-        etree.SubElement(statuteInformation, "copyrightDocumentationIdentifierType").text = row[1]
-        etree.SubElement(statuteInformation, "copyrightDocumentationIdentifierValue").text = row[2]
-        etree.SubElement(statuteInformation, "copyrightDocumentationRole").text = row[3]
+        statuteInformation = etree.SubElement(parent, ns.premisBNS + "copyrightDocumentationIdentifier")
+        etree.SubElement(statuteInformation, ns.premisBNS + "copyrightDocumentationIdentifierType").text = row[1]
+        etree.SubElement(statuteInformation, ns.premisBNS + "copyrightDocumentationIdentifierValue").text = row[2]
+        etree.SubElement(statuteInformation, ns.premisBNS + "copyrightDocumentationRole").text = row[3]
 
 
 def getstatuteInformation(pk, parent):
@@ -198,44 +198,44 @@ def getstatuteInformation(pk, parent):
     #print sql
     rows = databaseInterface.queryAllSQL(sql)
     for row in rows:
-        statuteInformation = etree.SubElement(parent, "statuteInformation")
-        etree.SubElement(statuteInformation, "statuteJurisdiction").text = row[1]
-        etree.SubElement(statuteInformation, "statuteCitation").text = row[2]
-        etree.SubElement(statuteInformation, "statuteInformationDeterminationDate").text = formatDate(row[3])
+        statuteInformation = etree.SubElement(parent, ns.premisBNS + "statuteInformation")
+        etree.SubElement(statuteInformation, ns.premisBNS + "statuteJurisdiction").text = row[1]
+        etree.SubElement(statuteInformation, ns.premisBNS + "statuteCitation").text = row[2]
+        etree.SubElement(statuteInformation, ns.premisBNS + "statuteInformationDeterminationDate").text = formatDate(row[3])
 
         #statuteNote Repeatable
         sql = "SELECT statuteNote FROM RightsStatementStatuteInformationNote WHERE fkRightsStatementStatuteInformation = %d;" % (row[0])
         rows2 = databaseInterface.queryAllSQL(sql)
         for row2 in rows2:
-            etree.SubElement(statuteInformation, "statuteNote").text =  row2[0]
+            etree.SubElement(statuteInformation, ns.premisBNS + "statuteNote").text =  row2[0]
         
         sql = """SELECT statuteDocumentationIdentifierType, statuteDocumentationIdentifierValue, statuteDocumentationIdentifierRole FROM RightsStatementStatuteDocumentationIdentifier WHERE fkRightsStatementStatuteInformation = %s """ % (row[0])
         rows2 = databaseInterface.queryAllSQL(sql)
         for row2 in rows2:
-            statuteDocumentationIdentifier = etree.SubElement(statuteInformation, "statuteDocumentationIdentifier")
-            etree.SubElement(statuteDocumentationIdentifier, "statuteDocumentationIdentifierType").text = row2[0]
-            etree.SubElement(statuteDocumentationIdentifier, "statuteDocumentationIdentifierValue").text = row2[1]
-            etree.SubElement(statuteDocumentationIdentifier, "statuteDocumentationRole").text = row2[2]
+            statuteDocumentationIdentifier = etree.SubElement(statuteInformation, ns.premisBNS + "statuteDocumentationIdentifier")
+            etree.SubElement(statuteDocumentationIdentifier, ns.premisBNS + "statuteDocumentationIdentifierType").text = row2[0]
+            etree.SubElement(statuteDocumentationIdentifier, ns.premisBNS + "statuteDocumentationIdentifierValue").text = row2[1]
+            etree.SubElement(statuteDocumentationIdentifier, ns.premisBNS + "statuteDocumentationRole").text = row2[2]
         
         statuteapplicablestartdate =  row[4]
         statuteapplicableenddate = row[5]
         statuteApplicableEndDateOpen = row[6]
         if statuteapplicablestartdate or statuteapplicableenddate or statuteApplicableEndDateOpen:
-             statuteApplicableDates = etree.SubElement(statuteInformation, "statuteApplicableDates")
+             statuteApplicableDates = etree.SubElement(statuteInformation, ns.premisBNS + "statuteApplicableDates")
              if statuteapplicablestartdate: 
-                etree.SubElement(statuteApplicableDates, "startDate").text = formatDate(statuteapplicablestartdate)
+                etree.SubElement(statuteApplicableDates, ns.premisBNS + "startDate").text = formatDate(statuteapplicablestartdate)
              if statuteApplicableEndDateOpen:
-                 etree.SubElement(statuteApplicableDates, "endDate").text = "OPEN"
+                 etree.SubElement(statuteApplicableDates, ns.premisBNS + "endDate").text = "OPEN"
              elif statuteapplicableenddate:
-                 etree.SubElement(statuteApplicableDates, "endDate").text = formatDate(statuteapplicableenddate)
+                 etree.SubElement(statuteApplicableDates, ns.premisBNS + "endDate").text = formatDate(statuteapplicableenddate)
         
 
 def getrightsGranted(pk, parent):
     sql = "SELECT RightsStatementRightsGranted.pk, act, startDate, endDate, endDateOpen FROM RightsStatementRightsGranted  WHERE fkRightsStatement = %d" % (pk)
     rows = databaseInterface.queryAllSQL(sql)
     for row in rows:
-        rightsGranted = etree.SubElement(parent, "rightsGranted")
-        etree.SubElement(rightsGranted, "act").text = row[1]
+        rightsGranted = etree.SubElement(parent, ns.premisBNS + "rightsGranted")
+        etree.SubElement(rightsGranted, ns.premisBNS + "act").text = row[1]
         
         restriction = "Undefined"
         sql = """SELECT restriction FROM RightsStatementRightsGrantedRestriction WHERE RightsStatementRightsGrantedRestriction.fkRightsStatementRightsGranted = %s """ % (row[0])
@@ -245,27 +245,27 @@ def getrightsGranted(pk, parent):
             if not restriction.lower() in ["disallow", "conditional", "allow"]:
                 print >>sys.stderr, "The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional':", restriction
                 sharedVariablesAcrossModules.globalErrorCount +=1
-            etree.SubElement(rightsGranted, "restriction").text = restriction
+            etree.SubElement(rightsGranted, ns.premisBNS + "restriction").text = restriction
         
         if row[2] or row[3] or row[4]:
             if restriction.lower() in ["allow"]:
-                termOfGrant = etree.SubElement(rightsGranted, "termOfGrant")
+                termOfGrant = etree.SubElement(rightsGranted, ns.premisBNS + "termOfGrant")
             elif restriction.lower() in ["disallow", "conditional"]:
-                termOfGrant = etree.SubElement(rightsGranted, "termOfRestriction")
+                termOfGrant = etree.SubElement(rightsGranted, ns.premisBNS + "termOfRestriction")
             else:
                 print >>sys.stderr, "The value of element restriction must be: 'Allow', 'Dissallow', or 'Conditional'"
                 sharedVariablesAcrossModules.globalErrorCount +=1
                 continue
         
             if row[2]:
-                etree.SubElement(termOfGrant, "startDate").text = formatDate(row[2])
+                etree.SubElement(termOfGrant, ns.premisBNS + "startDate").text = formatDate(row[2])
             if row[4]:
-                etree.SubElement(termOfGrant, "endDate").text = "OPEN"
+                etree.SubElement(termOfGrant, ns.premisBNS + "endDate").text = "OPEN"
             elif row[3]:
-                etree.SubElement(termOfGrant, "endDate").text = formatDate(row[3])
+                etree.SubElement(termOfGrant, ns.premisBNS + "endDate").text = formatDate(row[3])
         
         #4.1.6.4 rightsGrantedNote (O, R)
         sql = "SELECT rightsGrantedNote FROM RightsStatementRightsGrantedNote WHERE fkRightsStatementRightsGranted = %d;" % (row[0])
         rows2 = databaseInterface.queryAllSQL(sql)
         for row2 in rows2:
-            etree.SubElement(rightsGranted, "rightsGrantedNote").text =  row2[0]
+            etree.SubElement(rightsGranted, ns.premisBNS + "rightsGrantedNote").text =  row2[0]
