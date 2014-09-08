@@ -41,7 +41,7 @@ def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
         #print "rights id:", item.get("ID")
         XPTR = "%s %s" % (XPTR, item.get("ID"))
     XPTR = XPTR.replace(" ", "'", 1) + "'))"
-    mdRef = etree.Element("mdRef")
+    mdRef = etree.Element(ns.metsBNS + "mdRef")
     mdRef.set("LABEL", LABEL)
     mdRef.set(ns.xlinkBNS +"href", directoryPathSTR)
     mdRef.set("MDTYPE", "OTHER")
