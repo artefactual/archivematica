@@ -27,28 +27,15 @@ import MySQLdb
 import uuid
 from archivematicaFunctions import unicodeToStr
 
-def escapeForDB(str):
-    str = unicodeToStr(str)
-    str = MySQLdb.escape_string(str)
-    return str
-
 def insertIntoFiles(fileUUID, filePath, enteredSystem=databaseInterface.getUTCDate(), transferUUID="", sipUUID="", use="original"):
     if transferUUID != "" and sipUUID == "":
-        databaseInterface.runSQL("""INSERT INTO Files (fileUUID, originalLocation, currentLocation, enteredSystem, fileGrpUse, transferUUID)
-        VALUES ( '"""   + fileUUID + databaseInterface.separator \
-                        + escapeForDB(filePath) + databaseInterface.separator \
-                        + escapeForDB(filePath) + databaseInterface.separator \
-                        + enteredSystem + databaseInterface.separator \
-                        + use + databaseInterface.separator \
-                        + transferUUID + "' )" )
+        databaseInterface.runSQL("""INSERT INTO Files (fileUUID, originalLocation, currentLocation, enteredSystem, fileGrpUse, transferUUID) VALUES (%s, %s, %s, %s, %s, %s)""",
+            (fileUUID, filePath, filePath, enteredSystem, use, transferUUID)
+        )
     elif transferUUID == "" and sipUUID != "":
-        databaseInterface.runSQL("""INSERT INTO Files (fileUUID, originalLocation, currentLocation, enteredSystem, fileGrpUse, sipUUID)
-        VALUES ( '"""   + fileUUID + databaseInterface.separator \
-                        + escapeForDB(filePath) + databaseInterface.separator \
-                        + escapeForDB(filePath) + databaseInterface.separator \
-                        + enteredSystem + databaseInterface.separator \
-                        + use + databaseInterface.separator \
-                        + sipUUID + "' )" )
+        databaseInterface.runSQL("""INSERT INTO Files (fileUUID, originalLocation, currentLocation, enteredSystem, fileGrpUse, sipUUID) VALUES (%s, %s, %s, %s, %s, %s)""",
+            (fileUUID, filePath, filePath, enteredSystem, use, sipUUID)
+        )
     else:
         print >>sys.stderr, "not supported yet - both SIP and transfer UUID's defined (or neither defined)"
         print >>sys.stderr, "SIP UUID:", sipUUID
@@ -62,10 +49,10 @@ def getAgentForFileUUID(fileUUID):
         print >>sys.stderr, error_message
         raise Exception(error_message)
     else:
-        rows = databaseInterface.queryAllSQL("""SELECT sipUUID, transferUUID FROM Files WHERE fileUUID = '%s';""" % (fileUUID))
+        rows = databaseInterface.queryAllSQL("""SELECT sipUUID, transferUUID FROM Files WHERE fileUUID = %s;""", (fileUUID,))
         sipUUID, transferUUID = rows[0]
         if sipUUID:
-            rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ('SIP', sipUUID, "activeAgent"))
+            rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = %s AND unitUUID = %s AND variable =%s;""", ('SIP', sipUUID, "activeAgent"))
             if len(rows):
                 agent = "%s" % (rows[0])
         if transferUUID and not agent: #agent hasn't been found yet
@@ -81,41 +68,32 @@ def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDat
     if eventIdentifierUUID == "":
         eventIdentifierUUID = uuid.uuid4().__str__()
     databaseInterface.runSQL("""INSERT INTO Events (fileUUID, eventIdentifierUUID, eventType, eventDateTime, eventDetail, eventOutcome, eventOutcomeDetailNote, linkingAgentIdentifier)
-            VALUES ( '"""   + escapeForDB(fileUUID) + databaseInterface.separator \
-                            + escapeForDB(eventIdentifierUUID) + databaseInterface.separator \
-                            + escapeForDB(eventType) + databaseInterface.separator \
-                            + escapeForDB(eventDateTime) + databaseInterface.separator \
-                            + escapeForDB(eventDetail) + databaseInterface.separator \
-                            + escapeForDB(eventOutcome) + databaseInterface.separator \
-                            + escapeForDB(eventOutcomeDetailNote) + "', " + escapeForDB(agent) + " )" )
-
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+        (fileUUID, eventIdentifierUUID, eventType, eventDateTime,
+         eventDetail, eventOutcome, eventOutcomeDetailNote, agent)
+    )
 
 def insertIntoDerivations(sourceFileUUID="", derivedFileUUID="", relatedEventUUID=""):
     databaseInterface.runSQL("""INSERT INTO Derivations
         (sourceFileUUID, derivedFileUUID, relatedEventUUID)
-        VALUES ( '""" \
-        + sourceFileUUID + databaseInterface.separator \
-        + derivedFileUUID + databaseInterface.separator \
-        + relatedEventUUID + "');")
+        VALUES (%s, %s, %s)""",
+        (sourceFileUUID, derivedFileUUID, relatedEventUUID)
+    )
 
 def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
     databaseInterface.runSQL("""INSERT INTO FPCommandOutput
         (fileUUID, content, ruleUUID)
-        VALUES ( '""" \
-        + escapeForDB(fileUUID) + databaseInterface.separator \
-        + escapeForDB(fitsXMLString) + databaseInterface.separator \
-        + escapeForDB(ruleUUID) + "');")
+        VALUES (%s, %s, %s)""",
+        (fileUUID, fitsXMLString, ruleUUID)
+    )
 
 def insertIntoFilesIDs(fileUUID="", formatName="", formatVersion="", formatRegistryName="", formatRegistryKey=""):
     databaseInterface.runSQL("""INSERT INTO FilesIDs
         (fileUUID, formatName, formatVersion, formatRegistryName, formatRegistryKey)
-        VALUES ( '""" \
-        + escapeForDB(fileUUID) + databaseInterface.separator \
-        + escapeForDB(formatName) + databaseInterface.separator \
-        + escapeForDB(formatVersion) + databaseInterface.separator \
-        + escapeForDB(formatRegistryName) + databaseInterface.separator \
-        + escapeForDB(formatRegistryKey) + "');")
-
+        VALUES (%s, %s, %s, %s, %s)""",
+        (fileUUID, formatName, formatVersion,
+         formatRegistryName, formatRegistryKey)
+    )
 
 
 #user approved?
@@ -131,18 +109,16 @@ def logTaskCreatedSQL(taskManager, commandReplacementDic, taskUUID, arguments):
     fileName = os.path.basename(os.path.abspath(commandReplacementDic["%relativeLocation%"]))
 
     databaseInterface.runSQL("""INSERT INTO Tasks (taskUUID, jobUUID, fileUUID, fileName, exec, arguments, createdTime)
-    VALUES ( '"""   + taskUUID + databaseInterface.separator \
-                    + jobUUID + databaseInterface.separator \
-                    + escapeForDB(fileUUID) + databaseInterface.separator \
-                    + escapeForDB(fileName) + databaseInterface.separator \
-                    + escapeForDB(taskexec) + databaseInterface.separator \
-                    + escapeForDB(arguments) + databaseInterface.separator \
-                    + databaseInterface.getUTCDate() + "' )" )
+        VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+        (taskUUID, jobUUID, fileUUID, fileName,
+         taskexec, arguments, databaseInterface.getUTCDate())
+    )
 
 def logTaskAssignedSQL(taskUUID, client, date):
-    databaseInterface.runSQL("UPDATE Tasks " + \
-    "SET startTime='" + date + "', client='" + client + "' " + \
-    "WHERE taskUUID='" + taskUUID + "';" )
+    databaseInterface.runSQL(
+        """UPDATE Tasks SET startTime=%s, client=%s WHERE taskUUID=%s;""",
+        (date, client, taskUUID)
+    )
 
 def logTaskCompletedSQL(task):
     print "Logging task output to db", task.UUID
@@ -151,11 +127,11 @@ def logTaskCompletedSQL(task):
     stdOut = task.results["stdOut"]
     stdError = task.results["stdError"]
 
-    databaseInterface.runSQL("UPDATE Tasks " + \
-    "SET endTime='" + databaseInterface.getUTCDate() +"', exitCode='" + exitCode +  "', " + \
-    "stdOut='" + escapeForDB(stdOut) + "', stdError='" + escapeForDB(stdError) + "' "
-    "WHERE taskUUID='" + taskUUID + "'" )
-
+    databaseInterface.runSQL(
+        """UPDATE Tasks SET endTime=%s, exitCode=%s, stdOut=%s, stdError=%s
+           WHERE taskUUID=%s""",
+        (databaseInterface.getUTCDate(), exitCode, stdOut, stdError, taskUUID)
+    )
 
 def logJobCreatedSQL(job):
     separator = databaseInterface.getSeparator()
@@ -164,15 +140,19 @@ def logJobCreatedSQL(job):
     if job.unit.owningUnit != None:
         unitUUID = job.unit.owningUnit.UUID 
     databaseInterface.runSQL("""INSERT INTO Jobs (jobUUID, jobType, directory, SIPUUID, currentStep, unitType, microserviceGroup, createdTime, createdTimeDec, MicroServiceChainLinksPK, subJobOf)
-        VALUES ( '""" + job.UUID.__str__() + separator + escapeForDB(job.description) + separator \
-        + escapeForDB(job.unit.currentPath) + separator + escapeForDB(unitUUID) + \
-        separator + "Executing command(s)" + separator + job.unit.__class__.__name__  + separator + job.microserviceGroup.__str__() + separator + job.createdDate + separator + decDate + separator + job.pk.__str__()  + separator + job.subJobOf.__str__() + "' )" )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+        (job.UUID, job.description, job.unit.currentPath, unitUUID,
+         "Executing command(s)", job.unit.__class__.__name__,
+         str(job.microserviceGroup), job.createdDate, decDate, str(job.pk),
+         str(job.subJobOf))
+    )
     #TODO -un hardcode executing exeCommand
-
 
 def logJobStepCompletedSQL(job):
     databaseInterface.runSQL("""INSERT INTO jobStepCompleted (jobUUID, step, completedTime)
-        VALUES ( '""" + job.UUID.__str__() + databaseInterface.separator + job.step + databaseInterface.separator + databaseInterface.getUTCDate() + "' )" )
+        VALUES (%s, %s, %s)""",
+        (job.UUID, job.step, databaseInterface.getUTCDate())
+    )
 
 def fileWasRemoved(fileUUID, utcDate=databaseInterface.getUTCDate(), eventDetail = "", eventOutcomeDetailNote = "", eventOutcome=""):
     eventIdentifierUUID = uuid.uuid4().__str__()
@@ -186,22 +166,18 @@ def fileWasRemoved(fileUUID, utcDate=databaseInterface.getUTCDate(), eventDetail
                        eventOutcome=eventOutcome, \
                        eventOutcomeDetailNote=eventOutcomeDetailNote)
 
-
-    databaseInterface.runSQL("UPDATE Files " + \
-       "SET removedTime='" + utcDate + "', currentLocation=NULL " + \
-       "WHERE fileUUID='" + fileUUID + "'" )
+    databaseInterface.runSQL(
+        """UPDATE Files SET removedTime=%s, currentLocation=NULL WHERE fileUUID=%s""",
+        (utcDate, fileUUID)
+    )
 
 def createSIP(path, UUID=None, sip_type='SIP'):
     if UUID is None:
         UUID = str(uuid.uuid4())
     print "Creating SIP:", UUID, "-", path
     sql = """INSERT INTO SIPs (sipUUID, currentPath, sipType)
-        VALUES ('{uuid}{separator}{path}{separator}{sip_type}');""".format(
-            uuid=UUID,
-            separator=databaseInterface.separator,
-            path=escapeForDB(path),
-            sip_type=sip_type)
-    databaseInterface.runSQL(sql)
+        VALUES (%s, %s, %s)"""
+    databaseInterface.runSQL(sql, (UUID, path, sip_type))
     return UUID
 
 def deUnicode(str):
