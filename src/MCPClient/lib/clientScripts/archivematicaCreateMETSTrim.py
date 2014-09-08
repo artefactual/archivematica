@@ -35,12 +35,12 @@ import databaseInterface
 
 def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
     #containerMetadata
-    ret = etree.Element("dmdSec") 
-    mdWrap = etree.SubElement(ret, "mdWrap")
+    ret = etree.Element(ns.metsBNS + "dmdSec") 
+    mdWrap = etree.SubElement(ret, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "DC")
-    xmlData = etree.SubElement(mdWrap, "xmlData")
+    xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
     
-    dublincore = etree.SubElement(xmlData, "dublincore", attrib=None, nsmap={None:ns.dctermsNS})
+    dublincore = etree.SubElement(xmlData, ns.dctermsBNS + "dublincore", attrib=None, nsmap={"dc": ns.dctermsNS})
     dublincore.set(ns.xsiBNS+"schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
     tree = etree.parse(os.path.join(baseDirectoryPath, "objects", "ContainerMetadata.xml"))
     root = tree.getroot()
@@ -79,10 +79,10 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
 
 
 def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
-    ret = etree.Element("dmdSec") 
-    mdWrap = etree.SubElement(ret, "mdWrap")
+    ret = etree.Element(ns.metsBNS + "dmdSec") 
+    mdWrap = etree.SubElement(ret, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "DC")
-    xmlData = etree.SubElement(mdWrap, "xmlData")
+    xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
     
     
     
@@ -93,7 +93,7 @@ def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
         return None
     for row in rows:
         xmlFilePath = row[0].replace('%SIPDirectory%', baseDirectoryPath, 1)
-        dublincore = etree.SubElement(xmlData, "dublincore", attrib=None, nsmap={None: ns.dctermsNS})
+        dublincore = etree.SubElement(xmlData, ns.dctermsBNS + "dublincore", attrib=None, nsmap={"dc": ns.dctermsNS})
         tree = etree.parse(os.path.join(baseDirectoryPath, xmlFilePath))
         root = tree.getroot()
         
@@ -104,7 +104,7 @@ def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
     return ret
 
 def getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
-    ret = etree.Element("digiprovMD") 
+    ret = etree.Element(ns.metsBNS + "digiprovMD") 
     sql = "SELECT currentLocation FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse='TRIM file metadata' AND fileGrpUUID = '%s';" % ('sipUUID', fileGroupIdentifier, fileUUID)
     rows = databaseInterface.queryAllSQL(sql)
     if (len(rows) != 1):
@@ -113,17 +113,17 @@ def getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
     for row in rows:
         label = os.path.basename(row[0])
         attrib = {"LABEL":label, ns.xlinkBNS + "href":row[0].replace("%SIPDirectory%", "", 1), "MDTYPE":"OTHER", "OTHERMDTYPE":"CUSTOM", 'LOCTYPE':"OTHER", 'OTHERLOCTYPE':"SYSTEM"}
-        etree.SubElement(ret, "mdRef", attrib=attrib)
+        etree.SubElement(ret, ns.metsBNS + "mdRef", attrib=attrib)
     return ret    
 
 def getTrimAmdSec(baseDirectoryPath, fileGroupIdentifier):
-    ret = etree.Element("digiprovMD")
+    ret = etree.Element(ns.metsBNS + "digiprovMD")
     
     sql = "SELECT currentLocation FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse='TRIM container metadata';" % ('sipUUID', fileGroupIdentifier)
     rows = databaseInterface.queryAllSQL(sql)
     for row in rows:
         attrib = {"LABEL":"ContainerMetadata.xml", ns.xlinkBNS + "href":row[0].replace("%SIPDirectory%", "", 1), "MDTYPE":"OTHER", "OTHERMDTYPE":"CUSTOM", 'LOCTYPE':"OTHER", 'OTHERLOCTYPE':"SYSTEM"}
-        etree.SubElement(ret, "mdRef", attrib=attrib)
+        etree.SubElement(ret, ns.metsBNS + "mdRef", attrib=attrib)
     return ret
         
     
