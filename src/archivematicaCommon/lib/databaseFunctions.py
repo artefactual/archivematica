@@ -54,17 +54,15 @@ def getAgentForFileUUID(fileUUID):
         if sipUUID:
             rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = %s AND unitUUID = %s AND variable =%s;""", ('SIP', sipUUID, "activeAgent"))
             if len(rows):
-                agent = "%s" % (rows[0])
+                agent = rows[0][0]
         if transferUUID and not agent: #agent hasn't been found yet
             rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ("Transfer", transferUUID, "activeAgent"))
             if len(rows):
-                agent = "%s" % (rows[0])
+                agent = rows[0][0]
     return agent
 
 def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=databaseInterface.getUTCDate(), eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
     agent = getAgentForFileUUID(fileUUID)
-    if not agent:
-        agent = 'NULL'
     if eventIdentifierUUID == "":
         eventIdentifierUUID = uuid.uuid4().__str__()
     databaseInterface.runSQL("""INSERT INTO Events (fileUUID, eventIdentifierUUID, eventType, eventDateTime, eventDetail, eventOutcome, eventOutcomeDetailNote, linkingAgentIdentifier)
