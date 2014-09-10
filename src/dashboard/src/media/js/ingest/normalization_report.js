@@ -37,12 +37,4 @@ $(function() {
     .click(function(event) {
       event.preventDefault();
     });
-
-  // make it so clicking on job shows details
-  $('.normalization-report-task').each(function() {
-    var taskUUID = $(this).attr('id').replace('normalization-report-task-', '');
-    $(this).click(function() {
-      window.open('/task/' + taskUUID + '/', '_blank');
-    });
-  });
 });
