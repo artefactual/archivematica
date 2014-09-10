@@ -179,7 +179,9 @@
               {% if not hide_features.dspace %}
               <option value='dspace'>DSpace</option>
               {% endif %}
+              {% comment 'Disabled until maildir is better supported' %}
               <option value='maildir'>Maildir</option>
+              {% endcomment %}
               <option value='disk image'>Disk Image</option>
             </select>
             <div class="help-block">Type</div>
