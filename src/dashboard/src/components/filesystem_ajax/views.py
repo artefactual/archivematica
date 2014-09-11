@@ -294,7 +294,7 @@ def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata
             if transfer_metadata_set_row_uuid:
                 try:
                     row = models.TransferMetadataSet.objects.get(
-                        id="transfer_metadata_set_row_uuid"
+                        id=transfer_metadata_set_row_uuid
                     )
                     kwargs["transfermetadatasetrow"] = row
                 except models.TransferMetadataSet.DoesNotExist:
