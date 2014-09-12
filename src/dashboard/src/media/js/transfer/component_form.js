@@ -157,7 +157,7 @@ var TransferComponentFormView = Backbone.View.extend({
       , $addButton = $('<span id="path_add_button" class="btn">Browse</span>')
       , $sourceDirSelect = $('<select id="path_source_select"></select>')
       , $startTransferButton = $('<span id="start_transfer_button" class="btn success">Start transfer</span>')
-      , $metadataEditButton = $('<span id="transfer_metadata_edit_button" class="btn metadata-edit">Add metadata</span>')
+      , $metadataEditButton = $('<span id="transfer_metadata_edit_button" class="btn metadata-edit" title="Metadata entered in this form will be associated with the next component added to this transfer. Data will not be used if no component is added after the form is saved.">Add next</span>')
       , self = this;
 
     $buttonContainer
