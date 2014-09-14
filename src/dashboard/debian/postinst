@@ -1,17 +1,17 @@
 #!/bin/sh
 
 a2enmod wsgi
-/etc/init.d/apache2 restart
 
 #install dashboard requirements
-pip install -r /usr/share/archivematica/dashboard/requirements.txts 
+pip install -r /usr/share/archivematica/dashboard/requirements.txt
 # AM 1.1.0 and earlier did not set charset and collation on db properly
 #this is required to allow syncdb to work properly
 mysql -u archivematica -pdemo MCP -e 'alter database MCP CHARACTER SET utf8 COLLATE utf8_unicode_ci'
 /usr/share/archivematica/dashboard/manage.py syncdb --settings='settings.common'
-/usr/share/archivematica/dashboard/manage.py syncdb --settings='settings.common'
 touch /tmp/archivematicaDashboard.log
 chmod 666 /tmp/archivematicaDashboard.log
+
+/etc/init.d/apache2 restart
 
 userID=`id -u archivematicadashboard`
 
