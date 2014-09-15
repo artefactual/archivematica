@@ -21,7 +21,6 @@ import calendar
 import cPickle
 import json
 import logging
-from logging.handlers import RotatingFileHandler
 from lxml import etree
 import os
 import shutil
@@ -54,6 +53,7 @@ from main import models
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
+from custom_handlers import GroupWriteRotatingFileHandler
 import elasticSearchFunctions
 import storageService as storage_service
 
@@ -62,8 +62,9 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import requests
 
 logger = logging.getLogger('archivematica.dashboard')
-logger.addHandler(RotatingFileHandler("/var/log/archivematica/dashboard.log", maxBytes=4194304),
-    level=logging.INFO)
+logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/dashboard/dashboard.log",
+     maxBytes=4194304))
+logger.setLevel(logging.INFO)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Ingest

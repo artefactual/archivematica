@@ -24,14 +24,16 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
 from components import helpers
+from custom_handlers import GroupWriteRotatingFileHandler
 
 # for unciode sorting support
 import locale
 locale.setlocale(locale.LC_ALL, '')
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
-    level=logging.INFO)
+logger = logging.getLogger('archivematica.dashboard')
+logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/dashboard/dashboard.log",
+     maxBytes=4194304))
+logger.setLevel(logging.INFO)
 
 def sorted_directory_list(path):
     cleaned = []

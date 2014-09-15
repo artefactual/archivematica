@@ -1,15 +1,16 @@
 #!/usr/bin/python2 -OO
 
 import logging
-from logging.handlers import RotatingFileHandler
 import sys
 
-logger = logging.getLogger('archivematica.mcp.client')
-logger.addHandler(RotatingFileHandler("/var/log/archivematica/archivematica.log", maxBytes=4194304),
-    level=logging.INFO)
-
 # archivematicaCommon
+from custom_handlers import GroupWriteRotatingFileHandler
 import storageService as storage_service
+
+logger = logging.getLogger('archivematica.mcp.client')
+logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/archivematica.log",
+    maxBytes=4194304))
+logger.setLevel(logging.INFO)
 
 
 def get_aip_storage_locations(purpose):

@@ -16,7 +16,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from logging.handlers import RotatingFileHandler
 import sys
 
 from django.core.urlresolvers import reverse
@@ -42,12 +41,14 @@ import components.helpers as helpers
 import storageService as storage_service
 
 sys.path.append('/usr/lib/archivematica/archivematicaCommon')
+from custom_handlers import GroupWriteRotatingFileHandler
 from version import get_full_version
 
 
 logger = logging.getLogger('archivematica.dashboard')
-logger.addHandler(RotatingFileHandler("/var/log/archivematica/dashboard.log", maxBytes=4194304),
-    level=logging.INFO)
+logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/dashboard/dashboard.log",
+     maxBytes=4194304))
+logger.setLevel(logging.INFO)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Administration

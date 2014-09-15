@@ -17,7 +17,6 @@
 
 import json
 import logging
-from logging.handlers import RotatingFileHandler
 import requests_1_20 as requests
 import socket
 import sys
@@ -43,12 +42,14 @@ from components.administration.models import ArchivistsToolkitConfig
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
 import FPRClient.client as FPRClient
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from custom_handlers import GroupWriteRotatingFileHandler
 import storageService as storage_service
 import version
 
 logger = logging.getLogger('archivematica.dashboard')
-logger.addHandler(RotatingFileHandler("/var/log/archivematica/dashboard.log", maxBytes=4194304),
-    level=logging.INFO)
+logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/dashboard/dashboard.log",
+     maxBytes=4194304))
+logger.setLevel(logging.INFO)
 
 def welcome(request):
     # This form will be only accessible when the database has no users

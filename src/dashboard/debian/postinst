@@ -18,5 +18,10 @@ if [ "${userID}" = 334 ]; then
 else
   adduser --uid 334 --group --system --home /var/lib/archivematica-django/ archivematicadashboard
 fi
+
+logdir=/var/log/archivematica/dashboard
+mkdir -p $logdir
+chown -R archivematica:archivematica $logdir
+chmod -R g+s $logdir
   
 #DEBHELPER#

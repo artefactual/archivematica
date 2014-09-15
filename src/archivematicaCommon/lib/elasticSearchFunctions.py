@@ -38,6 +38,7 @@ from django.db.models import Q
 from main.models import DashboardSetting, File, Transfer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from custom_handlers import GroupWriteRotatingFileHandler
 import version
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
@@ -45,9 +46,10 @@ import xmltodict
 
 from elasticsearch import Elasticsearch, ConnectionError, TransportError
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
-    level=logging.INFO)
+logger = logging.getLogger('archivematica.common')
+logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/dashboard/dashboard.log",
+     maxBytes=4194304))
+logger.setLevel(logging.INFO)
 
 pathToElasticSearchServerConfigFile='/etc/elasticsearch/elasticsearch.yml'
 MAX_QUERY_SIZE = 50000  # TODO Check that this is a reasonable number

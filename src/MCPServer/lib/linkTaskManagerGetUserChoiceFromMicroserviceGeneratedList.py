@@ -23,7 +23,6 @@
 
 # Stdlib, alphabetical by import source
 import logging
-from logging.handlers import RotatingFileHandler
 from lxml import etree
 import os
 import sys
@@ -36,13 +35,15 @@ from linkTaskManagerChoice import choicesAvailableForUnitsLock
 from linkTaskManagerChoice import waitingOnTimer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from custom_handlers import GroupWriteRotatingFileHandler
 from dicts import ReplacementDict, ChoicesDict
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import StandardTaskConfig
 
 logger = logging.getLogger('archivematica.mcp.server')
-logger.addHandler(RotatingFileHandler("/var/log/archivematica/archivematica.log", maxBytes=4194304),
-    level=logging.INFO)
+logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/archivematica.log",
+    maxBytes=4194304))
+logger.setLevel(logging.INFO)
 
 class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
