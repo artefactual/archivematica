@@ -24,32 +24,25 @@
 import os
 import sys
 import shutil
-from restructureForCompliance import requiredDirectories
-from archivematicaCreateStructuredDirectory import createManualNormalizedDirectoriesList
-
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import archivematicaFunctions
 
 if __name__ == '__main__':
     path = sys.argv[1]
     os.makedirs(os.path.join(path, "metadata/submissionDocumentation"))
-    
-    #move everything to submission documentation
+
+    # Move everything to submission documentation
     for item in os.listdir(path):
-        if item == "metadata":
+        if item in archivematicaFunctions.OPTIONAL_FILES + ["metadata"]:
             continue
         src = os.path.join(path, item)
         dst = os.path.join(path, "metadata/submissionDocumentation", item)
+        print 'Moving', src, 'to', dst
         shutil.move(src, dst)
     src = os.path.join(path, "metadata/submissionDocumentation", "data/objects")
     dst = path
-    shutil.move(src, dst)
-    for dir in requiredDirectories:
-        dirPath = os.path.join(path, dir)
-        if not os.path.isdir(dirPath):
-            os.mkdir(dirPath)
-            print "creating: ", dir
-    
-    for directory in createManualNormalizedDirectoriesList:
-        dirPath = os.path.join(path, directory)
-        if not os.path.isdir(dirPath):
-            os.makedirs(dirPath)
-            print "creating: ", dirPath
+    if os.path.exists(src):
+        print 'Moving', src, 'to', dst
+        shutil.move(src, dst)
+
+    archivematicaFunctions.create_structured_directory(path, manual_normalization=True, printing=True)

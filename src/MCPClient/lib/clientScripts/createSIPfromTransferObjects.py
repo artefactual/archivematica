@@ -26,15 +26,10 @@ import MySQLdb
 import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import archivematicaFunctions
 import databaseInterface
 import databaseFunctions
-from archivematicaCreateStructuredDirectory import createStructuredDirectory
-from archivematicaCreateStructuredDirectory import createManualNormalizedDirectoriesList
-#def updateDB(dst, transferUUID):
-#    sql =  """UPDATE Transfers SET currentLocation='""" + dst + """' WHERE transferUUID='""" + transferUUID + """';"""
-#    databaseInterface.runSQL(sql)
 
-#moveSIP(src, dst, transferUUID, sharedDirectoryPath)
 
 if __name__ == '__main__':
     objectsDirectory = sys.argv[1]
@@ -47,7 +42,7 @@ if __name__ == '__main__':
 
     tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
     destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
-    createStructuredDirectory(tmpSIPDir, createManualNormalizedDirectories=False)
+    archivematicaFunctions.create_structured_directory(tmpSIPDir, manual_normalization=False)
 
     #create row in SIPs table if one doesn't already exist
     lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
@@ -87,10 +82,7 @@ if __name__ == '__main__':
         else:
             print >>sys.stderr, "file not found: ", currentSIPFilePath
 
-    for directory in createManualNormalizedDirectoriesList:
-        path = os.path.join(tmpSIPDir, directory)
-        if not os.path.isdir(path):
-            os.makedirs(path)
+    archivematicaFunctions.create_directories(archivematicaFunctions.MANUAL_NORMALIZATION_DIRECTORIES, basepath=tmpSIPDir)
 
     # Copy the JSON metadata file, if present;
     # this contains a serialized copy of DC metadata entered in the dashboard UI

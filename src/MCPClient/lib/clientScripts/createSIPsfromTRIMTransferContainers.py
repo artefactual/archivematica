@@ -26,28 +26,18 @@ import MySQLdb
 import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import archivematicaFunctions
 import databaseInterface
 import databaseFunctions
-from archivematicaCreateStructuredDirectory import createStructuredDirectory
 
-#def updateDB(dst, transferUUID):
-#    sql =  """UPDATE Transfers SET currentLocation='""" + dst + """' WHERE transferUUID='""" + transferUUID + """';"""
-#    databaseInterface.runSQL(sql)
-
-#moveSIP(src, dst, transferUUID, sharedDirectoryPath)
 
 if __name__ == '__main__':
-    while False:
-        import time
-        time.sleep(10)
     objectsDirectory = sys.argv[1]
     transferName = sys.argv[2]
     transferUUID = sys.argv[3]
     processingDirectory = sys.argv[4]
     autoProcessSIPDirectory = sys.argv[5]
     sharedPath = sys.argv[6]
-    
-    
 
     for container in os.listdir(objectsDirectory):
         sipUUID = uuid.uuid4().__str__()
@@ -60,7 +50,7 @@ if __name__ == '__main__':
         
         tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
         destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
-        createStructuredDirectory(tmpSIPDir, createManualNormalizedDirectories=True)
+        archivematicaFunctions.create_structured_directory(tmpSIPDir, manual_normalization=True)
         databaseFunctions.createSIP(destSIPDir.replace(sharedPath, '%sharedPath%'), sipUUID)
     
         #move the objects to the SIPDir
@@ -82,4 +72,3 @@ if __name__ == '__main__':
 
         #moveSIPTo autoProcessSIPDirectory
         shutil.move(tmpSIPDir, destSIPDir)
-    

@@ -36,6 +36,10 @@ OPTIONAL_FILES = [
     "processingMCP.xml",
 ]
 
+MANUAL_NORMALIZATION_DIRECTORIES = [
+    "objects/manualNormalization/access",
+    "objects/manualNormalization/preservation",
+]
 
 def unicodeToStr(string):
     if isinstance(string, unicode):
@@ -144,7 +148,11 @@ def create_directories(directories, basepath='', printing=False):
     for directory in directories:
         dir_path = os.path.join(basepath, directory)
         if not os.path.isdir(dir_path):
-            os.mkdir(dir_path)
+            os.makedirs(dir_path)
             if printing:
                 print 'Creating directory', dir_path
 
+def create_structured_directory(basepath, manual_normalization=False, printing=False):
+    create_directories(REQUIRED_DIRECTORIES, basepath=basepath, printing=printing)
+    if manual_normalization:
+        create_directories(MANUAL_NORMALIZATION_DIRECTORIES, basepath=basepath, printing=printing)
