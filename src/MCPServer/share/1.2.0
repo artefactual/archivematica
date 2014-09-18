@@ -732,3 +732,7 @@ INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `pur
 INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-09-09 21:34:59', '40616003-8af5-48d8-94ca-1871ae2cfaf1', 'validation', 'fe9e3046-29fb-4cc6-b71c-db50b0aac127', '3f24b80e-eb8c-4da2-8ab9-f339091be42a', 0, 0, 0);
 INSERT INTO `fpr_fprule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `purpose`, `command_id`, `format_id`, `count_attempts`, `count_okay`, `count_not_okay`) VALUES (NULL, 1, '2014-09-09 21:34:59', '0cd29763-b64a-43cc-9a72-5f8e6317bbae', 'validation', 'fe9e3046-29fb-4cc6-b71c-db50b0aac127', '67696293-1d77-40c6-92ac-9681d28c03a0', 0, 0, 0);
 -- Issue 7216 - Add new validation microservice
+
+-- Issue 7266 - Update Agent Code for Archivmetica Software Agent
+update Agents set agentIdentifierValue = 'Archivematica-1.2' where pk = 1;
+-- /Issue 7266
