@@ -109,8 +109,9 @@ SET @d10 = '88affaa2-13c5-4efb-a860-b182bd46c2c6' COLLATE utf8_unicode_ci;
 
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d0, @d1, @d2, @d3, @d4, @d6, @d7, @d8, @d9, @d10);
 DELETE FROM MicroServiceChainLinksExitCodes WHERE nextMicroServiceChainLink in (@d0, @d1, @d2, @d3, @d4, @d6, @d7, @d8, @d9, @d10);
-DELETE FROM MicroServiceChainLinks WHERE defaultNextChainLink in (@d0, @d1, @d2, @d3, @d4, @d6, @d7, @d8, @d9, @d10);
-DELETE FROM MicroServiceChainLinks WHERE pk IN (@d0, @d1, @d2, @d3, @d4, @d6, @d7, @d8, @d9, @d10);
+-- commented out for upgrades see Issue 7249
+#DELETE FROM MicroServiceChainLinks WHERE defaultNextChainLink in (@d0, @d1, @d2, @d3, @d4, @d6, @d7, @d8, @d9, @d10);
+#DELETE FROM MicroServiceChainLinks WHERE pk IN (@d0, @d1, @d2, @d3, @d4, @d6, @d7, @d8, @d9, @d10);
 -- /Issue 5866
 
 -- Issue 5880
@@ -480,7 +481,8 @@ UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='7d33f228-0
 UPDATE MicroServiceChainLinks SET defaultNextChainLink='7d33f228-0fa8-4f4c-a66b-24f8e264c214' WHERE pk='bdce640d-6e94-49fe-9300-3192a7e5edac';
 -- Remove hanging unused scan for viruses
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink='f92dabe5-9dd5-495e-a996-f8eb9ef90f48';
-DELETE FROM MicroServiceChainLinks WHERE pk='f92dabe5-9dd5-495e-a996-f8eb9ef90f48';
+-- commented out for upgrades see issue 7249
+#DELETE FROM MicroServiceChainLinks WHERE pk='f92dabe5-9dd5-495e-a996-f8eb9ef90f48';
 -- Fix microserviceGroup
 UPDATE MicroServiceChainLinks SET microserviceGroup='Scan for viruses' WHERE pk='d7e6404a-a186-4806-a130-7e6d27179a15';
 -- Update to fail if virus scan to fail transfer/SIP if MSCL fails
@@ -601,7 +603,8 @@ UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='dae3c416-a
 -- Remove extra set file permissions
 SET @d1 = 'c4898520-448c-40fc-8eb3-0603b6aacfb7' COLLATE utf8_unicode_ci;
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@d1;
-DELETE FROM MicroServiceChainLinks WHERE pk=@d1;
+-- commented out for upgrades see issue 7249
+#DELETE FROM MicroServiceChainLinks WHERE pk=@d1;
 
 -- Add validation MSCL after charaterize
 INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments, filterSubDir) VALUES ('1d3ef137-b060-4b33-b13f-25aa9346877b', 0, 'validateFile_v1.0', '"%relativeLocation%" "%fileUUID%" "%SIPUUID%"', 'objects');
