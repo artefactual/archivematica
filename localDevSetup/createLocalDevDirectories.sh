@@ -56,8 +56,8 @@ if [ ! -e  /etc/init/qubit-sword.conf ] ; then
         sudo ln "${svnDir}qubit-git/init/qubit-sword.conf" "/etc/init/"
 fi
 
-sudo ln "${svnDir}localDevSetup/apache/apache.default" "/etc/apache2/sites-enabled/000-default" -f
-sudo ln "${svnDir}localDevSetup/apache/apache.default" "/etc/apache2/sites-available/default" -f
+sudo ln "${svnDir}localDevSetup/apache/apache.default" "/etc/apache2/sites-enabled/000-default.conf" -f
+sudo ln "${svnDir}localDevSetup/apache/apache.default" "/etc/apache2/sites-available/000-default.conf" -f
 sudo ln -sf "${svnDir}localDevSetup/apache/httpd.conf" "/etc/apache2/httpd.conf"
 
 sudo ln -sf "${svnDir}qubit-git" /var/www/ica-atom
