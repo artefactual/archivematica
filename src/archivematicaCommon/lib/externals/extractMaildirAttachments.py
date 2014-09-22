@@ -8,7 +8,6 @@
 # Modification
 # Author Joseph Perry
 # date Aug 10 2010
-# Using rfc6266 library
 
 import email
 import sys
