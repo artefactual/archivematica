@@ -1,9 +1,8 @@
+import json
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.utils import simplejson
 import os
-import sys
 from main import models
 from components import helpers
 import xml.etree.ElementTree as ElementTree
@@ -59,7 +58,7 @@ def pairs_saved_response(pairs_saved):
         }
 
     return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
+        json.JSONEncoder().encode(response),
         mimetype='application/json'
     )
 
@@ -108,31 +107,31 @@ def render_resource_component(client, request, resource_component_id, query, pag
 
 def match_dip_objects_to_resource_levels(client, request, resource_id, match_template, parent_id, parent_url, reset_url, uuid, matches=[]):
     # load object relative paths
-    object_path_json = simplejson.JSONEncoder().encode(
+    object_path_json = json.JSONEncoder().encode(
         ingest_upload_atk_get_dip_object_paths(uuid)
     )
 
-    resource_data_json = simplejson.JSONEncoder().encode(
+    resource_data_json = json.JSONEncoder().encode(
         client.get_resource_component_and_children(resource_id)
     )
 
-    matches_json = simplejson.JSONEncoder().encode(matches)
+    matches_json = json.JSONEncoder().encode(matches)
 
     return render(request, match_template, locals())
 
 
 def match_dip_objects_to_resource_component_levels(client, request, resource_component_id, match_template, parent_id, parent_url, reset_url, uuid, matches=[]):
     # load object relative paths
-    object_path_json = simplejson.JSONEncoder().encode(
+    object_path_json = json.JSONEncoder().encode(
         ingest_upload_atk_get_dip_object_paths(uuid)
     )
 
     # load resource and child data
-    resource_data_json = simplejson.JSONEncoder().encode(
+    resource_data_json = json.JSONEncoder().encode(
         client.get_resource_component_children(resource_component_id)
     )
 
-    matches_json = simplejson.JSONEncoder().encode(matches)
+    matches_json = json.JSONEncoder().encode(matches)
 
     return render(request, match_template, locals())
 
