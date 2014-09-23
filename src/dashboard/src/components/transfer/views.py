@@ -172,7 +172,7 @@ def status(request, uuid=None):
     response = {}
     response['objects'] = objects
     response['mcp'] = mcp_available
-    return HttpResponse(json.JSONEncoder(default=encoder).encode(response), mimetype='application/json')
+    return HttpResponse(json.JSONEncoder(default=encoder).encode(response), content_type='application/json')
 
 def detail(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid)
@@ -259,7 +259,7 @@ def create_metadata_set_uuid(request):
 
     return HttpResponse(
         json.dumps(response),
-        mimetype='application/json'
+        content_type='application/json'
     )
 
 def rename_metadata_set(request, set_uuid, placeholder_id):
@@ -283,7 +283,7 @@ def rename_metadata_set(request, set_uuid, placeholder_id):
 
     return HttpResponse(
         json.dumps(response),
-        mimetype='application/json'
+        content_type='application/json'
     )
 
 def cleanup_metadata_set(request, set_uuid):
@@ -307,5 +307,5 @@ def cleanup_metadata_set(request, set_uuid):
 
     return HttpResponse(
         json.dumps(response),
-        mimetype='application/json'
+        content_type='application/json'
     )

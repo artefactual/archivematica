@@ -27,7 +27,7 @@ def execute(request):
         choice = request.REQUEST.get('choice', '')
         uid    = request.REQUEST.get('uid', '')
         result = client.execute(uuid, choice, uid)
-    return HttpResponse(result, mimetype = 'text/plain')
+    return HttpResponse(result, content_type='text/plain')
 
 def list(request):
     client = MCPClient()
@@ -37,4 +37,4 @@ def list(request):
         for job in jobs:
             response += etree.tostring(job)
     response = '<MCP>%s</MCP>' % response
-    return HttpResponse(response, mimetype = 'text/xml')
+    return HttpResponse(response, content_type='text/xml')

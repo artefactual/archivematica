@@ -59,7 +59,7 @@ def pairs_saved_response(pairs_saved):
 
     return HttpResponse(
         json.JSONEncoder().encode(response),
-        mimetype='application/json'
+        content_type='application/json'
     )
 
 

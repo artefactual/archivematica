@@ -136,7 +136,7 @@ def ingest_status(request, uuid=None):
 
     return HttpResponse(
         json.JSONEncoder(default=encoder).encode(response),
-        mimetype='application/json'
+        content_type='application/json'
     )
 
 def ingest_sip_metadata_type_id():

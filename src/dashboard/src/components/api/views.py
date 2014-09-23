@@ -110,7 +110,7 @@ def status(request, unit_uuid, unit_type):
         response = {'message': auth_error, 'error': True}
         return django.http.HttpResponseForbidden(
             json.dumps(response),
-            mimetype='application/json'
+            content_type='application/json'
         )
     error = None
 
@@ -127,7 +127,7 @@ def status(request, unit_uuid, unit_type):
         response['error'] = True
         return django.http.HttpResponseBadRequest(
             json.dumps(response),
-            mimetype='application/json',
+            content_type='application/json',
         )
     directory = unit.currentpath if unit_type == 'unitSIP' else unit.currentlocation
     response['path'] = directory.replace('%sharedPath%', SHARED_DIRECTORY_ROOT, 1)
@@ -144,7 +144,7 @@ def status(request, unit_uuid, unit_type):
         response['error'] = True
         return django.http.HttpResponseServerError(
             json.dumps(response),
-            mimetype='application/json'
+            content_type='application/json'
         )
     response['message'] = 'Fetched status for {} successfully.'.format(unit_uuid)
     return helpers.json_response(response)
@@ -161,7 +161,7 @@ def waiting_for_user_input(request):
         response = {'message': auth_error, 'error': True}
         return django.http.HttpResponseForbidden(
             json.dumps(response),
-            mimetype='application/json'
+            content_type='application/json'
         )
 
     error = None
@@ -188,7 +188,7 @@ def waiting_for_user_input(request):
         response['error'] = True
         return django.http.HttpResponseServerError(
             json.dumps(response),
-            mimetype='application/json'
+            content_type='application/json'
         )
     response['message'] = 'Fetched transfers successfully.'
     return helpers.json_response(response)
@@ -207,7 +207,7 @@ def start_transfer_api(request):
         response = {'message': auth_error, 'error': True}
         return django.http.HttpResponseForbidden(
             json.dumps(response),
-            mimetype='application/json'
+            content_type='application/json'
         )
 
     transfer_name = request.POST.get('name', '')

@@ -78,7 +78,7 @@ def keynat(string):
 def json_response(data, status_code=200):
     return HttpResponse(
         json.dumps(data),
-        mimetype='application/json',
+        content_type='application/json',
         status=status_code,
     )
 

@@ -197,7 +197,7 @@ def jobs_explore(request, uuid):
     # If it is a file, return the contents
     if os.path.isfile(directory):
         mime = subprocess.Popen('/usr/bin/file --mime-type ' + directory, shell=True, stdout=subprocess.PIPE).communicate()[0].split(' ')[-1].strip()
-        response = HttpResponse(mimetype=mime)
+        response = HttpResponse(content_type=mime)
         response['Content-Disposition'] = 'attachment; filename=%s' %  os.path.basename(directory)
         with open(directory) as resource:
             response.write(resource.read())
