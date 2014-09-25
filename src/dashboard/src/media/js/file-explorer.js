@@ -78,11 +78,12 @@
     // Provides a human-readable version of the path, suitable for display.
     // This is used by path() below.
     displaypath: function() {
-      parent = this.get('parent') || '';
-      parent = Base64.decode(parent);
+      parent = this.get('parent');
       name = this.get('name') || '';
       name = Base64.decode(name);
-      return parent + '/' + name;
+      return (parent !== undefined)
+        ? Base64.decode(parent) + '/' + name
+        : name;
     },
 
     // Decode parent and child elements, concatenate them as plaintext,
@@ -115,7 +116,7 @@
       // Both parent (if present) and child are still base64-encoded at this point
       name = this.get('name') || '';
       name = Base64.decode(name);
-      parent = (parent != undefined)
+      parent = (parent !== undefined)
         ? Base64.decode(parent) + '/' + name
         : name;
       if (parent) {

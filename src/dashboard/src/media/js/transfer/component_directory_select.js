@@ -29,9 +29,16 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
     entryTemplate: $('#template-dir-entry').html()
   });
 
+  var path_components = baseDirectory.replace(/\\/g,'/').split('/');
+  var name = Base64.encode(path_components.pop()); // parse out path basename
+  var parent = Base64.encode(path_components.join('/')); // parse out path directory
+  if (path_components.length == 0) {
+    // No leading / in baseDirectory, so parent is undefined to prevent leading /
+    parent = undefined;
+  }
   selector.structure = {
-    'name': Base64.encode(baseDirectory.replace(/\\/g,'/').replace( /.*\//, '' )),      // parse out path basename
-    'parent': Base64.encode(baseDirectory.replace(/\\/g,'/').replace(/\/[^\/]*$/, '')), // parse out path directory
+    'name': name,
+    'parent': parent,
     'children': []
   };
 
