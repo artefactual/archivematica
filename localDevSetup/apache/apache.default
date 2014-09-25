@@ -18,14 +18,6 @@
   CustomLog /var/log/apache2/access.log combined
   ServerSignature On
 
-  Alias /ica-atom "/var/www/atom/"
-  <Directory "/var/www/atom/">
-    Options Indexes FollowSymLinks MultiViews
-    AllowOverride All
-    Order allow,deny
-    Allow from all
-  </Directory>
-
   # Serve static files from Dashboard
   Alias /media "/usr/share/archivematica/dashboard/media/"
   <Directory "/usr/share/archivematica/dashboard/media/">

@@ -10,7 +10,6 @@ fi
 
 cd postBuildRunAssistScripts
 ./preMCPLogging.sh "$dpPassword"
-sudo mysqladmin create ica-atom $dpPassword
 sudo mysqladmin create dcb $dpPassword
 sudo mysqladmin create qubit $dpPassword
 sudo mysqladmin create dashboard $dpPassword

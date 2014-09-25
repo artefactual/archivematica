@@ -52,16 +52,10 @@ if [ -e  /etc/init/openoffice-service.conf ] ; then
     sudo stop openoffice-service
 	sudo rm "/etc/init/openoffice-service.conf"
 fi
-if [ ! -e  /etc/init/qubit-sword.conf ] ; then
-        sudo ln "${svnDir}qubit-git/init/qubit-sword.conf" "/etc/init/"
-fi
 
 sudo ln "${svnDir}localDevSetup/apache/apache.default" "/etc/apache2/sites-enabled/000-default.conf" -f
 sudo ln "${svnDir}localDevSetup/apache/apache.default" "/etc/apache2/sites-available/000-default.conf" -f
 sudo ln -sf "${svnDir}localDevSetup/apache/httpd.conf" "/etc/apache2/httpd.conf"
-
-sudo ln -sf "${svnDir}qubit-git" /var/www/ica-atom
-sudo chown -R www-data:www-data "${svnDir}qubit-git"
 
 sudo mkdir /var/archivematica/
 sudo ln -s "${svnDir}src/MCPServer/share/sharedDirectoryStructure" "/var/archivematica/sharedDirectory"
