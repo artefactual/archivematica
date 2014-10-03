@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import os, sys
-import django.core.handlers.wsgi
+from django.core.wsgi import get_wsgi_application
 
 # Ensure that the path does not get added multiple times
 path = '/usr/share/archivematica/dashboard'
@@ -25,7 +25,7 @@ if path not in sys.path:
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 
-application = django.core.handlers.wsgi.WSGIHandler()
+application = get_wsgi_application()
 
 # See http://blog.dscpl.com.au/2008/12/using-modwsgi-when-developing-django.html
 from django.conf import settings
