@@ -14,16 +14,18 @@ from django.utils import timezone
 
 import transcoder
 
+import django
+django.setup()
+# dashboard
+from fpr.models import FPRule
+from main.models import Derivation, FileFormatVersion, File, FileID
+from annoying.functions import get_object_or_None
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import databaseFunctions
 import fileOperations
 from dicts import ReplacementDict
-
-# dashboard
-from fpr.models import FPRule
-from main.models import Derivation, FileFormatVersion, File, FileID
-from annoying.functions import get_object_or_None
 
 # Return codes
 SUCCESS = 0

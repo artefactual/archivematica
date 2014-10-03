@@ -4,14 +4,16 @@ import argparse
 import sys
 import uuid
 
+import django
+django.setup()
+# dashboard
+from fpr.models import IDCommand, IDRule, FormatVersion
+from main.models import FileFormatVersion, File, UnitVariable, Event
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import getUTCDate, insertIntoEvents, insertIntoFilesIDs
-
-# dashboard
-from fpr.models import IDCommand, IDRule, FormatVersion
-from main.models import FileFormatVersion, File, UnitVariable, Event
 
 
 def save_idtool(file_, value):

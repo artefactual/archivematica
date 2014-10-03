@@ -5,9 +5,10 @@ import os
 import sys
 from uuid import uuid4
 
-from django.utils import timezone
-
+import django
+django.setup()
 # dashboard
+from django.utils import timezone
 from main.models import Derivation, File, FileFormatVersion
 from fpr.models import FPRule
 

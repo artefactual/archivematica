@@ -28,6 +28,8 @@ from xml.sax.saxutils import quoteattr
 
 import archivematicaXMLNamesSpace as ns
 
+import django
+django.setup()
 # dashboard
 from main.models import File
 

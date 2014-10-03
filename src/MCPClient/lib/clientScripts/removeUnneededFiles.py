@@ -2,6 +2,10 @@
 
 import os
 import sys
+
+# databaseFunctions requires Django to be set up
+import django
+django.setup()
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from databaseFunctions import fileWasRemoved

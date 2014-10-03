@@ -9,14 +9,16 @@ from __future__ import print_function
 import ast
 import sys
 
+import django
+django.setup()
+# dashboard
+from fpr.models import FPRule, FormatVersion
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 import databaseFunctions
 from dicts import replace_string_values
-
-# dashboard
-from fpr.models import FPRule, FormatVersion
 
 
 def main(file_path, file_uuid, sip_uuid):

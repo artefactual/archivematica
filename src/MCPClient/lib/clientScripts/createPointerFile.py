@@ -10,6 +10,8 @@ import uuid
 import archivematicaXMLNamesSpace as namespaces
 import archivematicaCreateMETS2
 
+import django
+django.setup()
 # dashboard
 from django.utils import timezone
 from main.models import DublinCore

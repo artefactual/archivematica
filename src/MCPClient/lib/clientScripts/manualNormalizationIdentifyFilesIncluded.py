@@ -22,6 +22,9 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import sys
 
+# fileOperations requires Django to be set up
+import django
+django.setup()
 # archivematicaCommon
 from fileOperations import updateFileGrpUse
 
@@ -30,4 +33,3 @@ logger = get_script_logger("archivematica.mcp.client.manualNormalizationIdentify
 
 fileUUID = sys.argv[1]
 updateFileGrpUse(fileUUID, "manualNormalization")
-

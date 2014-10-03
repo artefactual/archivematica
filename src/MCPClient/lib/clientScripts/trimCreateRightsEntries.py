@@ -31,6 +31,8 @@ from datetime import datetime
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
+import django
+django.setup()
 # dashboard
 from main.models import RightsStatement, RightsStatementOtherRightsInformation, RightsStatementOtherRightsDocumentationIdentifier, RightsStatementRightsGranted, RightsStatementRightsGrantedNote, RightsStatementRightsGrantedRestriction
 

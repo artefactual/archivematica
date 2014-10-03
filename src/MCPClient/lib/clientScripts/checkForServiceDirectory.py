@@ -25,11 +25,13 @@ import os
 from optparse import OptionParser
 import re
 
-# archivematicaCommon
-from custom_handlers import get_script_logger
-
+import django
+django.setup()
 # dashboard
 from main.models import File
+
+# archivematicaCommon
+from custom_handlers import get_script_logger
 
 
 def something(SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, date):

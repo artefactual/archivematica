@@ -5,15 +5,17 @@ import os
 import sys
 import uuid
 
+import django
+django.setup()
+# dashboard
+from fpr.models import FPCommand
+from main.models import FileFormatVersion, File
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import fileWasRemoved
 from fileOperations import addFileToTransfer, updateSizeAndChecksum
-
-# dashboard
-from fpr.models import FPCommand
-from main.models import FileFormatVersion, File
 
 # clientScripts
 from hasPackages import already_extracted

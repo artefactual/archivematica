@@ -23,13 +23,16 @@
 import sys
 import uuid
 from optparse import OptionParser
+
+import django
+django.setup()
+# dashboard
+from main.models import File
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from fileOperations import addFileToTransfer
 from fileOperations import addFileToSIP
 
-# dashboard
-from main.models import File
 
 
 if __name__ == '__main__':

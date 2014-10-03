@@ -1,9 +1,9 @@
 # Base requirements - for all installations
-Django==1.5.4
+Django>=1.7,<1.8
 django-braces==1.0.0
 django-model-utils==1.3.1
 logutils==0.3.3
-django-tastypie==0.10.0
+django-tastypie>=0.12.0
 django-extensions==1.1.1
 django-autoslug==1.7.1
 django-annoying==0.7.7

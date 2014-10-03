@@ -22,12 +22,15 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import os
 import sys
+
+import django
+django.setup()
+# dashboard
+from main.models import Transfer
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from fileOperations import renameAsSudo
-
-# dashboard
-from main.models import Transfer
 
 def updateDB(dst, transferUUID):
     Transfer.objects.filter(uuid=transferUUID).update(currentlocation=dst)

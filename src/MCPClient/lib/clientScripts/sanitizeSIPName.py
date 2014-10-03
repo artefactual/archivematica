@@ -24,11 +24,13 @@
 from archivematicaMoveSIP import moveSIP
 import sys
 
-# archivematicaCommon
-from custom_handlers import get_script_logger
-
+import django
+django.setup()
 # dashboard
 from main.models import SIP, Transfer
+
+# archivematicaCommon
+from custom_handlers import get_script_logger
 
 from sanitizeNames import sanitizePath
 

@@ -34,6 +34,8 @@ from uuid import uuid4
 
 import archivematicaXMLNamesSpace as ns
 
+import django
+django.setup()
 # dashboard
 from django.contrib.auth.models import User
 from django.utils import timezone

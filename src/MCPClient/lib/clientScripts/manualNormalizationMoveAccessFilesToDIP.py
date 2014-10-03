@@ -22,12 +22,15 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import os
 import sys
-# archivematicaCommon
-import fileOperations
 
+import django
+django.setup()
 from django.db.models import Q
 # dashboard
 from main.models import File
+
+# archivematicaCommon
+import fileOperations
 
 #--sipUUID "%SIPUUID%" --sipDirectory "%SIPDirectory%" --filePath "%relativeLocation%"
 from optparse import OptionParser

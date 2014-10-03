@@ -25,14 +25,16 @@ import subprocess
 import os
 import uuid
 
+import django
+django.setup()
+# dashboard
+from main.models import File
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from fileOperations import updateFileLocation
 from archivematicaFunctions import unicodeToStr
 import sanitizeNames
-
-# dashboard
-from main.models import File
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.sanitizeObjectNames")

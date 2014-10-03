@@ -20,8 +20,11 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import sys
 from optparse import OptionParser
+
+# fileOperations requires Django to be set up
+import django
+django.setup()
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from fileOperations import updateSizeAndChecksum

@@ -6,6 +6,8 @@ from glob import glob
 import os
 import sys
 
+import django
+django.setup()
 # dashboard
 from main.models import UnitVariable
 

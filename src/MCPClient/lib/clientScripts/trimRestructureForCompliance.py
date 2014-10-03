@@ -24,6 +24,9 @@
 import os
 import sys
 
+# fileOperations requires Django to be set up
+import django
+django.setup()
 # archivematicaCommon
 import archivematicaFunctions
 from archivematicaFunctions import REQUIRED_DIRECTORIES

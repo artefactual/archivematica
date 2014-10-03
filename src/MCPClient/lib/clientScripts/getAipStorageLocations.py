@@ -3,6 +3,10 @@
 import logging
 import sys
 
+# storageService requires Django to be set up
+import django
+django.setup()
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import storageService as storage_service

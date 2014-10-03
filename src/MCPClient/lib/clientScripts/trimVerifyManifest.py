@@ -25,16 +25,14 @@ import os
 import sys
 import uuid
 
-while False:
-    import time
-    time.sleep(10)
-
 transferUUID = sys.argv[1]
 transferName = sys.argv[2]
 transferPath = sys.argv[3]
 date = sys.argv[4]
- 
 
+# fileOperations, databaseFunctions requires Django to be set up
+import django
+django.setup()
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from fileOperations import getFileUUIDLike

@@ -36,6 +36,8 @@ logger = get_script_logger("archivematica.upload.qubit",
 # externals
 import requests
 
+import django
+django.setup()
 # dashboard
 import main.models as models
 

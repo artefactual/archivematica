@@ -26,6 +26,8 @@ from lxml import etree
 
 import archivematicaXMLNamesSpace
 
+import django
+django.setup()
 # dashboard
 from main.models import File
 

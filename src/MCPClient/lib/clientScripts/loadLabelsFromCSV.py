@@ -25,6 +25,8 @@ import sys
 import csv
 import os
 
+import django
+django.setup()
 # dashboard
 from main.models import File
 

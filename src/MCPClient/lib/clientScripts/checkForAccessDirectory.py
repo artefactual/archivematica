@@ -25,6 +25,8 @@ import os
 import sys
 from optparse import OptionParser
 
+import django
+django.setup()
 # dashboard
 from main.models import File
 

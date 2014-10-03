@@ -25,11 +25,13 @@ import os
 import sys
 import shutil
 
-# archivematicaCommon
-from custom_handlers import get_script_logger
-
+import django
+django.setup()
 # dashboard
 from main.models import File
+
+# archivematicaCommon
+from custom_handlers import get_script_logger
 
 
 if __name__ == '__main__':

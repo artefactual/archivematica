@@ -3,13 +3,15 @@
 import argparse
 import sys
 
+import django
+django.setup()
+# dashboard
+from main import models
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import elasticSearchFunctions
 import storageService as storage_service
-
-# dashboard
-from main import models
 
 def post_store_hook(sip_uuid):
     """

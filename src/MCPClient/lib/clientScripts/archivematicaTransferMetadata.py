@@ -5,11 +5,13 @@ from argparse import ArgumentParser
 from lxml import etree
 import sys
 
-# archivematicaCommon
-from custom_handlers import get_script_logger
-
+import django
+django.setup()
 # dashboard
 from main.models import Transfer
+
+# archivematicaCommon
+from custom_handlers import get_script_logger
 
 
 def fetch_set(sip_uuid):

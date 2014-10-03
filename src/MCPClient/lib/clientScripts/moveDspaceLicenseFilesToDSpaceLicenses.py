@@ -23,6 +23,10 @@
 import os
 import sys
 import lxml.etree as etree
+
+# fileOperations requires Django to be set up
+import django
+django.setup()
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from fileOperations import updateFileLocation

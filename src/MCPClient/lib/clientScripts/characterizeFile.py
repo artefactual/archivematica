@@ -11,15 +11,17 @@ import sys
 
 from lxml import etree
 
+import django
+django.setup()
+# dashboard
+from main.models import FPCommandOutput
+from fpr.models import FPRule, FormatVersion
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoFPCommandOutput
 from dicts import replace_string_values, ReplacementDict
-
-# dashboard
-from main.models import FPCommandOutput
-from fpr.models import FPRule, FormatVersion
 
 
 def main(file_path, file_uuid, sip_uuid):

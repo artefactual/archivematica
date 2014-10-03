@@ -3,12 +3,14 @@
 from __future__ import print_function
 import sys
 
-# archivematicaCommon
-from custom_handlers import get_script_logger
-
+import django
+django.setup()
 # dashboard
 from fpr.models import FPRule
 from main.models import FileFormatVersion, Transfer, File, Event
+
+# archivematicaCommon
+from custom_handlers import get_script_logger
 
 
 def is_extractable(f):

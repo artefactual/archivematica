@@ -44,6 +44,11 @@ import threading
 import time
 import uuid
 
+import django
+sys.path.append('/usr/share/archivematica/dashboard')
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+django.setup()
+
 # This project, alphabetical by import source
 import watchDirectory
 from jobChain import jobChain
@@ -60,7 +65,6 @@ import databaseFunctions
 from externals.singleInstance import singleinstance
 from archivematicaFunctions import unicodeToStr
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Job, SIP, Task, WatchedDirectory
 
 global countOfCreateUnitAndJobChainThreaded

@@ -26,14 +26,14 @@ from lxml import etree as etree
 import sys
 import traceback
 import uuid
+
+# fileOperations, databaseFunctions requires Django to be set up
+import django
+django.setup()
 # archivematicaCommon
 from externals.checksummingTools import md5_for_file
 from fileOperations import getFileUUIDLike
 import databaseFunctions
-
-while False:
-    import time
-    time.sleep(10)
 
 transferUUID = sys.argv[1]
 transferName = sys.argv[2]

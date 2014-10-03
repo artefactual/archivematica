@@ -48,14 +48,16 @@ config = ConfigParser.SafeConfigParser(
 config.read("/etc/archivematica/MCPClient/clientConfig.conf")
 os.environ['DJANGO_SETTINGS_MODULE'] = config.get('MCPClient', 'django_settings_module')
 
+import django
+sys.path.append("/usr/share/archivematica/dashboard")
+django.setup()
+from main.models import Task
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from custom_handlers import GroupWriteRotatingFileHandler
 import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 printOutputLock = threading.Lock()
-
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import Task
 
 
 replacementDic = {

@@ -24,6 +24,8 @@ import os
 import shutil
 import sys
 
+import django
+django.setup()
 # dashboard
 from main.models import SIP
 

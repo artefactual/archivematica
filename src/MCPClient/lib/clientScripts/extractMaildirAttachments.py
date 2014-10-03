@@ -28,6 +28,8 @@ import sys
 import traceback
 import uuid
 
+import django
+django.setup()
 # dashboard
 from main.models import File
 

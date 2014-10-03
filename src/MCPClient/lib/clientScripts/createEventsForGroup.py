@@ -22,6 +22,8 @@
 # @author Joseph Perry <joseph@artefactual.com>
 from optparse import OptionParser
 
+import django
+django.setup()
 # dashboard
 from main.models import File
 

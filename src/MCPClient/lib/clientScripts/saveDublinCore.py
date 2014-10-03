@@ -3,6 +3,8 @@
 import json
 import sys
 
+import django
+django.setup()
 # dashboard
 from main import models
 

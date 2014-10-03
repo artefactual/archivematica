@@ -21,7 +21,10 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 from optparse import OptionParser
-import sys
+
+# databaseFunctions requires Django to be set up
+import django
+django.setup()
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoEvents

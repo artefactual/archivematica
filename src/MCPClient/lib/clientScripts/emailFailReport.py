@@ -26,6 +26,8 @@ from email.mime.text import MIMEText
 from optparse import OptionParser
 from lxml import etree
 
+import django
+django.setup()
 # dashboard
 from django.contrib.auth.models import User
 

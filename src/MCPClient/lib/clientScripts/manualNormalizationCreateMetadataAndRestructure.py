@@ -15,14 +15,15 @@ import os
 import sys
 import uuid
 
+import django
+django.setup()
+from django.db.models import Q
+# dashboard
+from main.models import Event, File
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import databaseFunctions
 import fileOperations
-
-from django.db.models import Q
-# dashboard
-from main.models import Event, File
 
 logger = get_script_logger("archivematica.mcp.client.manualNormalizationCreateMetadataAndRestructure")
 
