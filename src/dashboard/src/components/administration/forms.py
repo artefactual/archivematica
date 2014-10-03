@@ -25,12 +25,13 @@ from main import models
 from components.administration.models import ArchivistsToolkitConfig, ArchivesSpaceConfig
 
 class AgentForm(forms.ModelForm):
-    identifiervalue = forms.CharField(required=True, widget=TextInput(attrs=settings.INPUT_ATTRS))
-    name = forms.CharField(required=True, widget=TextInput(attrs=settings.INPUT_ATTRS))
-
     class Meta:
         model = models.Agent
-        exclude = ('identifiertype')
+        fields = ('identifiervalue', 'name')
+        widgets = {
+            'identifiervalue': TextInput(attrs=settings.INPUT_ATTRS),
+            'name': TextInput(attrs=settings.INPUT_ATTRS),
+        }
 
 class SettingsForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -131,6 +132,7 @@ class AtomDipUploadSettingsForm(SettingsForm):
 class TaxonomyTermForm(ModelForm):
     class Meta:
         model = models.TaxonomyTerm
+        fields = ('taxonomy', 'term')
         widgets = {
             "term": TextInput(attrs=settings.INPUT_ATTRS)
         }

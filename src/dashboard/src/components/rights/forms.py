@@ -24,6 +24,8 @@ class RightsForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatement
         fields = ('rightsbasis',)
+        widgets = {
+            'rightsholder': forms.widgets.TextInput(attrs=settings.INPUT_ATTRS), }
 
     def __init__(self, *args, **kwargs):
         super(RightsForm, self).__init__(*args, **kwargs)
@@ -43,6 +45,7 @@ class RightsForm(forms.ModelForm):
 class RightsGrantedForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementRightsGranted
+        fields = ('act', 'startdate', 'enddate', 'enddateopen')
         widgets = {
             'act': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The action the preservation repository is allowed to take; eg replicate, migrate, modify, use, disseminate, delete"}),
             'restriction': forms.widgets.TextInput(attrs=settings.INPUT_ATTRS),
@@ -53,12 +56,14 @@ class RightsGrantedForm(forms.ModelForm):
 class RightsGrantedNotesForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementRightsGrantedNote
+        fields = ('rightsgrantednote',)
         widgets = {
             'rightsgranted': forms.widgets.TextInput(attrs=settings.TEXTAREA_ATTRS), }
 
 class RightsCopyrightForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementCopyright
+        fields = ('copyrightstatus', 'copyrightjurisdiction', 'copyrightstatusdeterminationdate', 'copyrightapplicablestartdate', 'copyrightapplicableenddate', 'copyrightenddateopen')
         widgets = {
             'copyrightstatus': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "A coded designation of the copyright status of the object at the time the rights statement is recorded. E.g. Copyrighted, Public Domain, Unknown"}),
             'copyrightjurisdiction': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The country whose copyright laws apply [ISO 3166]"}),
@@ -69,6 +74,7 @@ class RightsCopyrightForm(forms.ModelForm):
 class RightsStatementCopyrightDocumentationIdentifierForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementCopyrightDocumentationIdentifier
+        fields = ('copyrightdocumentationidentifiertype', 'copyrightdocumentationidentifiervalue', 'copyrightdocumentationidentifierrole')
         widgets = {
             'copyrightdocumentationidentifiertype': forms.widgets.TextInput(attrs=settings.INPUT_ATTRS),
             'copyrightdocumentationidentifiervalue': forms.widgets.TextInput(attrs=settings.INPUT_ATTRS),
@@ -78,12 +84,14 @@ class RightsStatementCopyrightDocumentationIdentifierForm(forms.ModelForm):
 class RightsCopyrightNoteForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementCopyrightNote
+        fields = ('copyrightnote',)
         widgets = {
             'copyrightnote': forms.widgets.Textarea(attrs=settings.TEXTAREA_ATTRS), }
 
 class RightsStatuteForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementStatuteInformation
+        fields = ('statutejurisdiction', 'statutecitation', 'statutedeterminationdate', 'statuteapplicablestartdate', 'statuteapplicableenddate', 'statuteenddateopen')
         widgets = {
             'statutejurisdiction': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The country or other political body enacting the statute."}),
             'statutecitation': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "An identifying designation for the statute."}),
@@ -94,12 +102,14 @@ class RightsStatuteForm(forms.ModelForm):
 class RightsStatuteNoteForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementStatuteInformationNote
+        fields = ('statutenote',)
         widgets = {
             'statutenote': forms.widgets.Textarea(attrs=settings.TEXTAREA_ATTRS), }
 
 class RightsOtherRightsForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementOtherRightsInformation
+        fields = ('otherrightsbasis', 'otherrightsapplicablestartdate', 'otherrightsapplicableenddate', 'otherrightsenddateopen')
         widgets = {
             'otherrightsbasis': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The designation of the basis for the other right or permission described in the rights statement identifier."}),
             'otherrightsapplicablestartdate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The date when the other right applies or is applied to the content."}),
@@ -108,6 +118,7 @@ class RightsOtherRightsForm(forms.ModelForm):
 class RightsLicenseForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementLicense
+        fields = ('licenseterms', 'licenseapplicablestartdate', 'licenseapplicableenddate', 'licenseenddateopen')
         widgets = {
             'licenseterms': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "Text describing the license or agreement by which permission as granted."}),
             'licenseapplicablestartdate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The date at which the license first applies or is applied to the content."}),
@@ -116,5 +127,6 @@ class RightsLicenseForm(forms.ModelForm):
 class RightsLicenseNoteForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementLicenseNote
+        fields = ('licensenote',)
         widgets = {
             'licensenote': forms.widgets.Textarea(attrs=settings.TEXTAREA_ATTRS), }

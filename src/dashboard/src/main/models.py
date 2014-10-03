@@ -379,9 +379,14 @@ class Task(models.Model):
 class Agent(models.Model):
     """ PREMIS Agents created for the system.  """
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
-    identifiertype = models.TextField(db_column='agentIdentifierType')
-    identifiervalue = models.TextField(db_column='agentIdentifierValue')
-    name = models.TextField(db_column='agentName')
+    identifiertype = models.TextField(verbose_name='Agent Identifier Type',
+        null=True, db_column='agentIdentifierType')
+    identifiervalue = models.TextField(verbose_name='Agent Identifier Value',
+        help_text='Used for premis:agentIdentifierValue and premis:linkingAgentIdentifierValue in the METS file.',
+        null=True, blank=False, db_column='agentIdentifierValue')
+    name = models.TextField(verbose_name='Agent Name',
+        help_text='Used for premis:agentName in the METS file.',
+        null=True, blank=False, db_column='agentName')
     agenttype = models.TextField(db_column='agentType')
 
     class Meta:
