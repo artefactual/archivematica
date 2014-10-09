@@ -40,7 +40,7 @@ def post_store_hook(sip_uuid):
                 user_email='archivematica system',
                 reason_for_deletion='All files in Transfer are now in AIPs.'
             )
-            elasticSearchFunctions.connect_and_remove_sip_transfer_files(transfer_uuid)
+            elasticSearchFunctions.connect_and_remove_transfer_files(transfer_uuid)
 
 
 if __name__ == '__main__':
