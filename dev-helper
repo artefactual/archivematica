@@ -133,13 +133,15 @@ function erase-indexes() {
 }
 
 function clear-storage() {
-  part="clear transfer backlog and AIP storage"
+  part="clear transfer backlog, uploaded DIPs, and AIP & DIP storage"
   echo -n "\"Would you like to ${part}?\" (y/N) "
   read a
   if [[ $a == "Y" || $a == "y" ]]; then
     set -x
     sudo rm -rf /var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals/*
+    sudo rm -rf /var/archivematica/sharedDirectory/watchedDirectories/uploadedDIPs/*
     sudo rm -rf /var/archivematica/sharedDirectory/www/AIPsStore/????
+    sudo rm -rf /var/archivematica/sharedDirectory/www/DIPsStore/*
     set +x
   else
     echo "Not going to ${part}"
