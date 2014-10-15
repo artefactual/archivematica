@@ -32,6 +32,16 @@ from components import helpers
 from main import models
 
 
+TRANSFER_TYPE_DIRECTORIES = {
+    'standard': 'standardTransfer',
+    'unzipped bag': 'baggitDirectory',
+    'zipped bag': 'baggitZippedDirectory',
+    'dspace': 'Dspace',
+    'maildir': 'maildir',
+    'TRIM': 'TRIM'
+}
+
+
 def authenticate_request(request):
     error = None
 
@@ -83,7 +93,9 @@ def unapproved_transfers(request):
                     type_and_directory = type_and_directory[:-1]
 
                 transfer_watch_directory = type_and_directory.split('/')[0]
-                transfer_type = helpers.transfer_type_by_directory(transfer_watch_directory)
+                # Get transfer type from transfer directory
+                transfer_type_directories_reversed = {v: k for k, v in TRANSFER_TYPE_DIRECTORIES.iteritems()}
+                transfer_type = transfer_type_directories_reversed[transfer_watch_directory]
 
                 job_directory = type_and_directory.replace(transfer_watch_directory + '/', '', 1)
 
@@ -168,7 +180,7 @@ def get_modified_standard_transfer_path(transfer_type=None):
 
     if transfer_type is not None:
         try:
-            path = os.path.join(path, helpers.transfer_directory_by_type(transfer_type))
+            path = os.path.join(path, TRANSFER_TYPE_DIRECTORIES[transfer_type])
         except:
             return None
 

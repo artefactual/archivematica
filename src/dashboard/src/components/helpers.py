@@ -199,35 +199,6 @@ def get_metadata_type_id_by_description(description):
     types = models.MetadataAppliesToType.objects.filter(description=description)
     return types[0]
 
-def transfer_type_directories():
-    return {
-      'standard':     'standardTransfer',
-      'unzipped bag': 'baggitDirectory',
-      'zipped bag':   'baggitZippedDirectory',
-      'dspace':       'Dspace',
-      'maildir':      'maildir',
-      'TRIM':         'TRIM'
-    }
-
-def transfer_directory_by_type(type):
-    type_paths = {
-      'standard':     'standardTransfer',
-      'unzipped bag': 'baggitDirectory',
-      'zipped bag':   'baggitZippedDirectory',
-      'dspace':       'Dspace',
-      'maildir':      'maildir',
-      'TRIM':         'TRIM'
-    }
-
-    return transfer_type_directories()[type]
-
-def transfer_type_by_directory(directory):
-    type_directories = transfer_type_directories()
-
-    # flip keys and values in dictionary
-    directory_types = dict((value, key) for key, value in type_directories.iteritems())
-
-    return directory_types[directory]
 
 def get_setting(setting, default=''):
     try:
