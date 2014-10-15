@@ -21,7 +21,7 @@ import os
 
 # Core Django, alphabetical
 from django.db.models import Q
-from django.http import Http404, HttpResponseForbidden, HttpResponseServerError
+import django.http
 
 # External dependencies, alphabetical
 from tastypie.authentication import ApiKeyAuthentication
@@ -115,7 +115,7 @@ def unapproved_transfers(request):
                 response['message'] = 'Fetched unapproved transfers successfully.'
 
                 if error is not None:
-                    return HttpResponseServerError(
+                    return django.http.HttpResponseServerError(
                         json.dumps(response),
                         mimetype='application/json'
                     )
@@ -124,12 +124,12 @@ def unapproved_transfers(request):
         else:
             response['message'] = auth_error
             response['error'] = True
-            return HttpResponseForbidden(
+            return django.http.HttpResponseForbidden(
                 json.dumps(response),
                 mimetype='application/json'
             )
     else:
-        return Http404
+        return django.http.HttpResponseNotAllowed(['GET'])
 
 
 def approve_transfer(request):
@@ -155,7 +155,7 @@ def approve_transfer(request):
                 response['message'] = 'Approval successful.'
 
             if error is not None:
-                return HttpResponseServerError(
+                return django.http.HttpResponseServerError(
                     json.dumps(response),
                     mimetype='application/json'
                 )
@@ -164,12 +164,12 @@ def approve_transfer(request):
         else:
             response['message'] = auth_error
             response['error'] = True
-            return HttpResponseForbidden(
+            return django.http.HttpResponseForbidden(
                 json.dumps(response),
                 mimetype='application/json'
             )
     else:
-        raise Http404
+        return django.http.HttpResponseNotAllowed(['POST'])
 
 
 def get_modified_standard_transfer_path(transfer_type=None):
