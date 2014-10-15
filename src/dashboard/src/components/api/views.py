@@ -31,13 +31,14 @@ from contrib.mcp.client import MCPClient
 from components import helpers
 from main import models
 
+
 def authenticate_request(request):
     error = None
 
     api_auth = ApiKeyAuthentication()
     authorized = api_auth.is_authenticated(request)
 
-    if authorized == True:
+    if authorized:
         client_ip = request.META['REMOTE_ADDR']
         whitelist = helpers.get_setting('api_whitelist', '127.0.0.1').split()
         # logging.debug('client IP: %s, whitelist: %s', client_ip, whitelist)
@@ -48,26 +49,25 @@ def authenticate_request(request):
 
     return error
 
-#
-# Example: http://127.0.0.1/api/transfer/unapproved?username=mike&api_key=<API key>
-#
+
 def unapproved_transfers(request):
+    # Example: http://127.0.0.1/api/transfer/unapproved?username=mike&api_key=<API key>
     if request.method == 'GET':
         auth_error = authenticate_request(request)
 
         response = {}
 
-        if auth_error == None:
-            error      = None
+        if auth_error is None:
+            error = None
             unapproved = []
 
             jobs = models.Job.objects.filter(
-                 (
-                     Q(jobtype="Approve standard transfer")
-                     | Q(jobtype="Approve DSpace transfer")
-                     | Q(jobtype="Approve bagit transfer")
-                     | Q(jobtype="Approve zipped bagit transfer")
-                 ) & Q(currentstep='Awaiting decision')
+                (
+                    Q(jobtype="Approve standard transfer")
+                    | Q(jobtype="Approve DSpace transfer")
+                    | Q(jobtype="Approve bagit transfer")
+                    | Q(jobtype="Approve zipped bagit transfer")
+                ) & Q(currentstep='Awaiting decision')
             )
 
             for job in jobs:
@@ -88,7 +88,7 @@ def unapproved_transfers(request):
                 job_directory = type_and_directory.replace(transfer_watch_directory + '/', '', 1)
 
                 unapproved.append({
-                    'type':      transfer_type,
+                    'type': transfer_type,
                     'directory': job_directory
                 })
 
@@ -96,13 +96,13 @@ def unapproved_transfers(request):
             # return list as JSON
             response['results'] = unapproved
 
-            if error != None:
+            if error is not None:
                 response['message'] = error
-                response['error']   = True
+                response['error'] = True
             else:
                 response['message'] = 'Fetched unapproved transfers successfully.'
 
-                if error != None:
+                if error is not None:
                     return HttpResponseServerError(
                         json.dumps(response),
                         mimetype='application/json'
@@ -111,7 +111,7 @@ def unapproved_transfers(request):
                     return helpers.json_response(response)
         else:
             response['message'] = auth_error
-            response['error']   = True 
+            response['error'] = True
             return HttpResponseForbidden(
                 json.dumps(response),
                 mimetype='application/json'
@@ -119,31 +119,30 @@ def unapproved_transfers(request):
     else:
         return Http404
 
-#
-# Example: curl --data \
-#   "username=mike&api_key=<API key>&directory=MyTransfer" \
-#   http://127.0.0.1/api/transfer/approve
-#
+
 def approve_transfer(request):
+    # Example: curl --data \
+    #   "username=mike&api_key=<API key>&directory=MyTransfer" \
+    #   http://127.0.0.1/api/transfer/approve
     if request.method == 'POST':
         auth_error = authenticate_request(request)
 
         response = {}
 
-        if auth_error == None:
-            error   = None
+        if auth_error is None:
+            error = None
 
             directory = request.POST.get('directory', '')
-            type      = request.POST.get('type', 'standard')
-            error     = approve_transfer_via_mcp(directory, type, request.user.id)
+            transfer_type = request.POST.get('type', 'standard')
+            error = approve_transfer_via_mcp(directory, transfer_type, request.user.id)
 
-            if error != None:
+            if error is not None:
                 response['message'] = error
-                response['error']   = True
+                response['error'] = True
             else:
                 response['message'] = 'Approval successful.'
 
-            if error != None:
+            if error is not None:
                 return HttpResponseServerError(
                     json.dumps(response),
                     mimetype='application/json'
@@ -152,7 +151,7 @@ def approve_transfer(request):
                 return helpers.json_response(response)
         else:
             response['message'] = auth_error
-            response['error']   = True
+            response['error'] = True
             return HttpResponseForbidden(
                 json.dumps(response),
                 mimetype='application/json'
@@ -160,32 +159,34 @@ def approve_transfer(request):
     else:
         raise Http404
 
-def get_modified_standard_transfer_path(type=None):
+
+def get_modified_standard_transfer_path(transfer_type=None):
     path = os.path.join(
         helpers.get_server_config_value('watchDirectoryPath'),
         'activeTransfers'
     )
 
-    if type != None:
+    if transfer_type is not None:
         try:
-            path = os.path.join(path, helpers.transfer_directory_by_type(type))
+            path = os.path.join(path, helpers.transfer_directory_by_type(transfer_type))
         except:
             return None
 
     shared_directory_path = helpers.get_server_config_value('sharedDirectory')
     return path.replace(shared_directory_path, '%sharedPath%', 1)
 
-def approve_transfer_via_mcp(directory, type, user_id):
+
+def approve_transfer_via_mcp(directory, transfer_type, user_id):
     error = None
 
     if (directory != ''):
         # assemble transfer path
-        modified_transfer_path = get_modified_standard_transfer_path(type)
+        modified_transfer_path = get_modified_standard_transfer_path(transfer_type)
 
-        if modified_transfer_path == None:
+        if modified_transfer_path is None:
             error = 'Invalid transfer type.'
         else:
-            if type == 'zipped bag':
+            if transfer_type == 'zipped bag':
                 transfer_path = os.path.join(modified_transfer_path, directory)
             else:
                 transfer_path = os.path.join(modified_transfer_path, directory) + '/'
@@ -195,15 +196,15 @@ def approve_transfer_via_mcp(directory, type, user_id):
                 job = models.Job.objects.filter(directory=transfer_path, currentstep='Awaiting decision')[0]
 
                 type_task_config_descriptions = {
-                    'standard':     'Approve standard transfer',
+                    'standard': 'Approve standard transfer',
                     'unzipped bag': 'Approve bagit transfer',
-                    'zipped bag':   'Approve zipped bagit transfer',
-                    'dspace':       'Approve DSpace transfer',
-                    'maildir':      'Approve maildir transfer',
-                    'TRIM':         'Approve TRIM transfer'
+                    'zipped bag': 'Approve zipped bagit transfer',
+                    'dspace': 'Approve DSpace transfer',
+                    'maildir': 'Approve maildir transfer',
+                    'TRIM': 'Approve TRIM transfer'
                 }
 
-                type_description = type_task_config_descriptions[type]
+                type_description = type_task_config_descriptions[transfer_type]
 
                 # use transfer type to fetch possible choices to execute
                 choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink__currenttask__description=type_description)
@@ -212,13 +213,12 @@ def approve_transfer_via_mcp(directory, type, user_id):
                 chain_to_execute = None
                 for choice in choices:
                     if choice.chainavailable.description == 'Approve transfer':
-                        chain_to_execute=choice.chainavailable.pk
+                        chain_to_execute = choice.chainavailable.pk
 
                 # execute choice if found
-                if chain_to_execute != None:
+                if chain_to_execute is not None:
                     client = MCPClient()
-
-                    result = client.execute(job.pk, chain_to_execute, user_id)
+                    client.execute(job.pk, chain_to_execute, user_id)
                 else:
                     error = 'Error: could not find MCP choice to execute.'
 
