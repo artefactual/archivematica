@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 import os
+import shutil
 import sys
 
 # dashboard
@@ -34,7 +35,7 @@ def updateDB(dst, sip_uuid):
     SIP.objects.filter(uuid=sip_uuid).update(currentpath=dst)
 
 def moveSIP(src, dst, sipUUID, sharedDirectoryPath):
-    # os.rename(src, dst)
+    # Prepare paths
     if src.endswith("/"):
         src = src[:-1]
 
@@ -44,6 +45,12 @@ def moveSIP(src, dst, sipUUID, sharedDirectoryPath):
     if dest.endswith("/."):
         dest = os.path.join(dest[:-1], os.path.basename(src))
     updateDB(dest + "/", sipUUID)
+
+    # If destination already exists, delete it with warning
+    dest_path = os.path.join(dst, os.path.basename(src))
+    if os.path.exists(dest_path):
+        print >>sys.stderr, dest_path, 'exists, deleting'
+        shutil.rmtree(dest_path)
 
     renameAsSudo(src, dst)
 
