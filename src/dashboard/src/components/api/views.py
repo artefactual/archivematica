@@ -60,6 +60,50 @@ def authenticate_request(request):
     return error
 
 
+def waiting_for_user_input(request):
+    # Example: http://127.0.0.1/api/transfer/waiting?username=mike&api_key=<API key>
+    if request.method not in ('GET',):
+        return django.http.HttpResponseNotAllowed(['GET'])
+
+    auth_error = authenticate_request(request)
+    response = {}
+    if auth_error is not None:
+        response = {'message': auth_error, 'error': True}
+        return django.http.HttpResponseForbidden(
+            json.dumps(response),
+            mimetype='application/json'
+        )
+
+    error = None
+    waiting_units = []
+
+    jobs = models.Job.objects.filter(currentstep='Awaiting decision')
+    for job in jobs:
+        unit_uuid = job.sipuuid
+        directory = os.path.basename(os.path.normpath(job.directory))
+        unit_name = directory.replace('-' + unit_uuid, '', 1)
+
+        waiting_units.append({
+            'sip_directory': directory,
+            'sip_uuid': unit_uuid,
+            'sip_name': unit_name,
+            'microservice': job.jobtype,
+            # 'choices': []  # TODO? Return list of choices, see ingest.views.ingest_status
+        })
+
+    response['results'] = waiting_units
+
+    if error is not None:
+        response['message'] = error
+        response['error'] = True
+        return django.http.HttpResponseServerError(
+            json.dumps(response),
+            mimetype='application/json'
+        )
+    response['message'] = 'Fetched transfers successfully.'
+    return helpers.json_response(response)
+
+
 def unapproved_transfers(request):
     # Example: http://127.0.0.1/api/transfer/unapproved?username=mike&api_key=<API key>
     if request.method == 'GET':

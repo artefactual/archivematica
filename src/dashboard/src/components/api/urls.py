@@ -19,5 +19,6 @@ from django.conf.urls import patterns
 
 urlpatterns = patterns('components.api.views',
     (r'transfer/approve', 'approve_transfer'), 
-    (r'transfer/unapproved', 'unapproved_transfers')
+    (r'transfer/unapproved', 'unapproved_transfers'),
+    (r'ingest/waiting', 'waiting_for_user_input'),
 )
