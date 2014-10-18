@@ -197,7 +197,7 @@ def get_jobs_by_sipuuid(uuid):
 
 def get_metadata_type_id_by_description(description):
     types = models.MetadataAppliesToType.objects.filter(description=description)
-    return types[0].id
+    return types[0]
 
 def transfer_type_directories():
     return {

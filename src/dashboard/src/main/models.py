@@ -33,6 +33,9 @@ from django_extensions.db.fields import UUIDField
 from contrib import utils
 import main
 
+
+# CUSTOM FIELDS
+
 class UUIDPkField(UUIDField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('max_length', 36)
@@ -40,15 +43,22 @@ class UUIDPkField(UUIDField):
         kwargs['db_column'] = 'pk'
         super(UUIDPkField, self).__init__(*args, **kwargs)
 
+
+# MODELS
+
 class DashboardSetting(models.Model):
+    """ Settings related to the dashboard stored as key-value pairs. """
     id = models.AutoField(primary_key=True, db_column='pk')
     name = models.CharField(max_length=255, db_column='name')
     value = models.TextField(db_column='value', blank=True)
+    lastmodified = models.DateTimeField(auto_now=True, db_column='lastModified')
 
     class Meta:
         db_table = u'DashboardSettings'
 
+
 class Access(models.Model):
+    """ Information about an upload to AtoM for a SIP. """
     id = models.AutoField(primary_key=True, db_column='pk')
     sipuuid = models.CharField(max_length=36, db_column='SIPUUID', blank=True)
     # Qubit ID (slug) generated or preexisting if a new description was not created
@@ -71,9 +81,9 @@ class Access(models.Model):
     #      - The deposited will be created asynchronously (Qubit has a job queue)
     #      - At this point self.resource should contains the created Qubit resource
     #      - ^ this resource could be under progres, ask to Qubit for the status
-    statuscode = models.IntegerField(null=True, db_column='statusCode', blank=True)
+    statuscode = models.PositiveSmallIntegerField(db_column='statusCode', null=True, blank=True)  # Actually a unsigned tinyint
     # Rsync exit code
-    exitcode = models.IntegerField(null=True, db_column='exitCode', blank=True)
+    exitcode = models.PositiveSmallIntegerField(db_column='exitCode', null=True, blank=True)  # Actually a unsigned tinyint
     # Timestamps
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
     updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True)
@@ -90,25 +100,26 @@ class Access(models.Model):
 
 
 class DublinCore(models.Model):
+    """ DublinCore metadata associated with a SIP or Transfer. """
     id = models.AutoField(primary_key=True, db_column='pk')
-    metadataappliestotype = models.CharField(max_length=36, db_column='metadataAppliesToType')
-    metadataappliestoidentifier = models.CharField(max_length=36, blank=True, null=True, db_column='metadataAppliesToidentifier')
-    title = models.CharField(max_length=255, db_column='title', blank=True, null=True)
-    is_part_of = models.CharField(verbose_name='Part of AIC', help_text='Optional: leave blank if unsure', max_length=255, db_column='isPartOf', blank=True, null=True)
-    creator = models.CharField(max_length=255, db_column='creator', blank=True, null=True)
-    subject = models.CharField(max_length=255, db_column='subject', blank=True, null=True)
-    description = models.TextField(db_column='description', blank=True, null=True)
-    publisher = models.CharField(max_length=255, db_column='publisher', blank=True, null=True)
-    contributor = models.CharField(max_length=255, db_column='contributor', blank=True, null=True)
-    date = models.CharField(help_text='Use ISO 8061 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)', max_length=255, db_column='date', blank=True, null=True)
-    type = models.CharField(max_length=255, db_column='type', blank=True, null=True)
-    format = models.CharField(max_length=255, db_column='format', blank=True, null=True)
-    identifier = models.CharField(max_length=255, db_column='identifier', blank=True, null=True)
-    source = models.CharField(max_length=255, db_column='source', blank=True, null=True)
-    relation = models.CharField(max_length=255, db_column='relation', blank=True, null=True)
-    language = models.CharField(help_text='Use ISO 639', max_length=255, db_column='language', blank=True, null=True)
-    coverage = models.CharField(max_length=255, db_column='coverage', blank=True, null=True)
-    rights = models.TextField(db_column='rights', blank=True, null=True)
+    metadataappliestotype = models.ForeignKey('MetadataAppliesToType', db_column='metadataAppliesToType')
+    metadataappliestoidentifier = models.CharField(max_length=36, db_column='metadataAppliesToidentifier')  # Foreign key to SIPs or Transfers
+    title = models.TextField(db_column='title', blank=True)
+    is_part_of = models.TextField(db_column='isPartOf', verbose_name='Part of AIC', help_text='Optional: leave blank if unsure', blank=True)
+    creator = models.TextField(db_column='creator', blank=True)
+    subject = models.TextField(db_column='subject', blank=True)
+    description = models.TextField(db_column='description', blank=True)
+    publisher = models.TextField(db_column='publisher', blank=True)
+    contributor = models.TextField(db_column='contributor', blank=True)
+    date = models.TextField(help_text='Use ISO 8061 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)', db_column='date', blank=True)
+    type = models.TextField(db_column='type', blank=True)
+    format = models.TextField(db_column='format', blank=True)
+    identifier = models.TextField(db_column='identifier', blank=True)
+    source = models.TextField(db_column='source', blank=True)
+    relation = models.TextField(db_column='relation', blank=True)
+    language = models.TextField(help_text='Use ISO 639', db_column='language', blank=True)
+    coverage = models.TextField(db_column='coverage', blank=True)
+    rights = models.TextField(db_column='rights', blank=True)
 
     class Meta:
         db_table = u'Dublincore'
@@ -119,7 +130,13 @@ class DublinCore(models.Model):
         else:
             return u'Untitled'
 
+
 class MetadataAppliesToType(models.Model):
+    """
+    What type of unit (SIP, DIP, Transfer etc) the metadata link is.
+
+    TODO replace this with choices fields.
+    """
     id = UUIDPkField()
     description = models.CharField(max_length=50, db_column='description')
     replaces = models.CharField(max_length=36, db_column='replaces')
@@ -130,15 +147,16 @@ class MetadataAppliesToType(models.Model):
 
 
 class Event(models.Model):
+    """ PREMIS Events associated with Files. """
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     event_id = UUIDField(auto=False, null=True, unique=True, db_column='eventIdentifierUUID')
     file_uuid = models.ForeignKey('File', db_column='fileUUID', to_field='uuid', null=True, blank=True)
-    event_type = models.CharField(max_length=256, db_column='eventType')
-    event_datetime = models.DateTimeField(db_column='eventDateTime')
-    event_detail = models.TextField(db_column='eventDetail')
-    event_outcome = models.CharField(max_length=256, db_column='eventOutcome')
-    event_outcome_detail = models.TextField(db_column='eventOutcomeDetailNote')
-    linking_agent = models.ForeignKey('Agent', db_column='linkingAgentIdentifier')
+    event_type = models.TextField(db_column='eventType', blank=True)
+    event_datetime = models.DateTimeField(db_column='eventDateTime', auto_now=True)
+    event_detail = models.TextField(db_column='eventDetail', blank=True)
+    event_outcome = models.TextField(db_column='eventOutcome', blank=True)
+    event_outcome_detail = models.TextField(db_column='eventOutcomeDetailNote', blank=True)  # TODO convert this to a BinaryField with Django >= 1.6
+    linking_agent = models.ForeignKey('Agent', db_column='linkingAgentIdentifier', null=True)
 
     class Meta:
         db_table = u'Events'
@@ -151,13 +169,18 @@ class Event(models.Model):
 
 
 class Derivation(models.Model):
+    """
+    Link between original and normalized files.
+
+    Eg original to preservation copy, or original to access copy.
+    """
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
-    source_file = models.ForeignKey('File', db_column='sourceFileUUID', to_field='uuid', related_name='derived_file_set', null=True)
-    derived_file = models.ForeignKey('File', db_column='derivedFileUUID', to_field='uuid', related_name='original_file_set', null=True)
-    event = models.ForeignKey(Event, db_column='relatedEventUUID', to_field='event_id', null=True)
+    source_file = models.ForeignKey('File', db_column='sourceFileUUID', to_field='uuid', related_name='derived_file_set')
+    derived_file = models.ForeignKey('File', db_column='derivedFileUUID', to_field='uuid', related_name='original_file_set')
+    event = models.ForeignKey('Event', db_column='relatedEventUUID', to_field='event_id', null=True, blank=True)
 
     class Meta:
-        db_table=u'Derivations'
+        db_table = u'Derivations'
 
     def __unicode__(self):
         return u'{derived} derived from {src} in {event}'.format(
@@ -166,43 +189,33 @@ class Derivation(models.Model):
             event=self.event)
 
 
-class Job(models.Model):
-    jobuuid = models.CharField(max_length=36, primary_key=True, db_column='jobUUID')
-    jobtype = models.CharField(max_length=250, db_column='jobType', blank=True)
-    createdtime = models.DateTimeField(db_column='createdTime')
-    createdtimedec = models.DecimalField(null=True, db_column='createdTimeDec', blank=True, max_digits=24, decimal_places=10)
-    directory = models.TextField(blank=True)
-    sipuuid = models.CharField(max_length=36, db_column='SIPUUID', blank=True)
-    unittype = models.CharField(max_length=36, db_column='unitType', blank=True)
-    currentstep = models.CharField(max_length=50, db_column='currentStep', blank=True)
-    microservicegroup = models.CharField(max_length=50, db_column='microserviceGroup', blank=True)
-    subjobof = models.CharField(max_length=36, db_column='subJobOf', blank=True)
-    hidden = models.BooleanField(default=False, blank=False)
-
-    class Meta:
-        db_table = u'Jobs'
-
-class SIPManager(models.Manager):
+class UnitHiddenManager(models.Manager):
     def is_hidden(self, uuid):
+        """ Return True if the unit (SIP, Transfer) with uuid is hidden. """
         try:
-            return SIP.objects.get(uuid__exact=uuid).hidden is True
+            return self.get_query_set().get(uuid=uuid).hidden
         except:
             return False
 
+
 class SIP(models.Model):
+    """ Information on SIP units. """
     uuid = models.CharField(max_length=36, primary_key=True, db_column='sipUUID')
     createdtime = models.DateTimeField(db_column='createdTime')
     currentpath = models.TextField(db_column='currentPath', null=True, blank=True)
-    # ...
-    hidden = models.BooleanField(default=False, blank=False)
+    hidden = models.BooleanField(default=False)
     aip_filename = models.TextField(db_column='aipFilename', null=True, blank=True)
     SIP_TYPE_CHOICES = (
         ('SIP', 'SIP'),
         ('AIC', 'AIC')
     )
-    sip_type = models.CharField(max_length=8, choices=SIP_TYPE_CHOICES, db_column='sipType', null=True)
+    sip_type = models.CharField(max_length=8, choices=SIP_TYPE_CHOICES, db_column='sipType', default='SIP')
 
-    objects = SIPManager()
+    # Deprecated
+    magiclink = models.ForeignKey('MicroServiceChainLink', db_column='magicLink', null=True, blank=True)
+    magiclinkexitmessage = models.CharField(max_length=50, db_column='magicLinkExitMessage', null=True, blank=True)
+
+    objects = UnitHiddenManager()
 
     class Meta:
         db_table = u'SIPs'
@@ -218,21 +231,30 @@ class TransferManager(models.Manager):
             return False
 
 class Transfer(models.Model):
+    """ Information on Transfer units. """
     uuid = models.CharField(max_length=36, primary_key=True, db_column='transferUUID')
     currentlocation = models.TextField(db_column='currentLocation')
     type = models.CharField(max_length=50, db_column='type')
     accessionid = models.TextField(db_column='accessionID')
-    transfermetadatasetrow = models.ForeignKey('TransferMetadataSet', db_column='transferMetadataSetRowUUID', to_field='id', null=True)
-    # ...
-    hidden = models.BooleanField(default=False, blank=False)
+    sourceofacquisition = models.TextField(db_column='sourceOfAcquisition', blank=True)
+    typeoftransfer = models.TextField(db_column='typeOfTransfer', blank=True)
+    description = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
+    hidden = models.BooleanField(default=False)
+    transfermetadatasetrow = models.ForeignKey('TransferMetadataSet', db_column='transferMetadataSetRowUUID', to_field='id', null=True, blank=True)
 
-    objects = TransferManager()
+    # Deprecated
+    magiclink = models.ForeignKey('MicroServiceChainLink', db_column='magicLink', null=True, blank=True)
+    magiclinkexitmessage = models.CharField(max_length=50, db_column='magicLinkExitMessage', null=True, blank=True)
+
+    objects = UnitHiddenManager()
 
     class Meta:
         db_table = u'Transfers'
 
 
 class SIPArrange(models.Model):
+    """ Information about arranged files: original and arranged location, current status. """
     original_path = models.CharField(max_length=255, null=True, blank=True, default=None, unique=True)
     arrange_path = models.CharField(max_length=255)
     file_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
@@ -250,15 +272,20 @@ class SIPArrange(models.Model):
 
 
 class File(models.Model):
+    """ Information about Files in units (Transfers, SIPs). """
     uuid = models.CharField(max_length=36, primary_key=True, db_column='fileUUID')
-    sip = models.ForeignKey(SIP, db_column='sipUUID', to_field = 'uuid')
-    transfer = models.ForeignKey(Transfer, db_column='transferUUID', to_field = 'uuid')
+    sip = models.ForeignKey(SIP, db_column='sipUUID', to_field='uuid', null=True, blank=True)
+    transfer = models.ForeignKey(Transfer, db_column='transferUUID', to_field='uuid', null=True, blank=True)
     # both actually `longblob` in the database
     originallocation = models.TextField(db_column='originalLocation')
     currentlocation = models.TextField(db_column='currentLocation')
-    filegrpuse = models.TextField(db_column='fileGrpUse')
-    checksum =  models.TextField(db_column='checksum')
-    size = models.TextField(db_column='fileSize')
+    filegrpuse = models.CharField(max_length=50, db_column='fileGrpUse', default='Original')
+    filegrpuuid = models.CharField(max_length=36L, db_column='fileGrpUUID', blank=True)
+    checksum = models.CharField(max_length=100, db_column='checksum', blank=True)
+    size = models.BigIntegerField(db_column='fileSize', null=True, blank=True)
+    label = models.TextField(blank=True)
+    enteredsystem = models.DateTimeField(db_column='enteredSystem', auto_now_add=True)
+    removedtime = models.DateTimeField(db_column='removedTime', null=True, default=None)
 
     class Meta:
         db_table = u'Files'
@@ -269,10 +296,16 @@ class File(models.Model):
             originallocation=self.originallocation,
             currentlocation=self.currentlocation)
 
+
 class FileFormatVersion(models.Model):
-    id = models.IntegerField(primary_key=True, db_column='pk')
-    file_uuid = models.ForeignKey(File, db_column='fileUUID', to_field='uuid', null=True)
-    format_version = models.ForeignKey('fpr.FormatVersion', db_column='fileID', to_field='uuid', null=True)
+    """
+    Link between a File and the FormatVersion it is identified as.
+
+    TODO? Replace this with a foreign key from File to FormatVersion.
+    """
+    id = models.AutoField(primary_key=True, db_column='pk', editable=False)
+    file_uuid = models.ForeignKey('File', db_column='fileUUID', to_field='uuid')
+    format_version = models.ForeignKey('fpr.FormatVersion', db_column='fileID', to_field='uuid')
 
     class Meta:
         db_table = u'FilesIdentifiedIDs'
@@ -280,59 +313,84 @@ class FileFormatVersion(models.Model):
     def __unicode__(self):
         return u'{file} is {format}'.format(file=self.file_uuid, format=self.format_version)
 
+
+class Job(models.Model):
+    jobuuid = UUIDField(db_column='jobUUID', primary_key=True)
+    jobtype = models.CharField(max_length=250, db_column='jobType', blank=True)
+    createdtime = models.DateTimeField(db_column='createdTime')
+    createdtimedec = models.DecimalField(db_column='createdTimeDec', max_digits=26, decimal_places=10, default=0.0)
+    directory = models.TextField(blank=True)
+    sipuuid = models.CharField(max_length=36, db_column='SIPUUID')  # Foreign key to SIPs or Transfers
+    unittype = models.CharField(max_length=50, db_column='unitType', blank=True)
+    currentstep = models.CharField(max_length=50, db_column='currentStep', blank=True)
+    microservicegroup = models.CharField(max_length=50, db_column='microserviceGroup', blank=True)
+    hidden = models.BooleanField(default=False)
+    microservicechainlink = models.ForeignKey('MicroServiceChainLink', db_column='MicroServiceChainLinksPK', null=True, blank=True)
+    subjobof = models.CharField(max_length=36, db_column='subJobOf', blank=True)
+
+    class Meta:
+        db_table = u'Jobs'
+
+
 class Task(models.Model):
     taskuuid = models.CharField(max_length=36, primary_key=True, db_column='taskUUID')
-    job = models.ForeignKey(Job, db_column='jobuuid', to_field = 'jobuuid')
+    job = models.ForeignKey('Job', db_column='jobuuid', to_field='jobuuid')
     createdtime = models.DateTimeField(db_column='createdTime')
-    fileuuid = models.CharField(max_length=36, db_column='fileUUID', blank=True)
+    fileuuid = models.CharField(max_length=36, db_column='fileUUID', null=True, blank=True)
     # Actually a `longblob` in the database, since filenames may contain
     # arbitrary non-unicode characters - other blob and binary fields
     # have these types for the same reason.
     # Note that Django doesn't have a specific blob type, hence the use of
     # the char field types instead.
-    filename = models.CharField(max_length=100, db_column='fileName', blank=True)
+    filename = models.TextField(db_column='fileName', blank=True)
     execution = models.CharField(max_length=250, db_column='exec', blank=True)
     # actually a `varbinary(1000)` in the database
     arguments = models.CharField(max_length=1000, blank=True)
-    starttime = models.DateTimeField(db_column='startTime')
+    starttime = models.DateTimeField(db_column='startTime', null=True, default=None)
+    endtime = models.DateTimeField(db_column='endTime', null=True, default=None)
     client = models.CharField(max_length=50, blank=True)
-    endtime = models.DateTimeField(db_column='endTime')
-    # both actually `longblobs` in the database
+    # stdout and stderror actually `longblobs` in the database
     stdout = models.TextField(db_column='stdOut', blank=True)
     stderror = models.TextField(db_column='stdError', blank=True)
-    exitcode = models.IntegerField(null=True, db_column='exitCode', blank=True)
+    exitcode = models.BigIntegerField(db_column='exitCode', null=True, blank=True)
 
     class Meta:
         db_table = u'Tasks'
 
+
 class Agent(models.Model):
+    """ PREMIS Agents created for the system.  """
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     identifiertype = models.TextField(db_column='agentIdentifierType')
     identifiervalue = models.TextField(db_column='agentIdentifierValue')
     name = models.TextField(db_column='agentName')
+    agenttype = models.TextField(db_column='agentType')
 
     class Meta:
         db_table = u'Agents'
 
+
 class Report(models.Model):
+    """ Reports of failures to display. """
     id = models.AutoField(primary_key=True, db_column='pk')
     unittype = models.CharField(max_length=50, db_column='unitType')
     unitname = models.CharField(max_length=50, db_column='unitName')
-    unitidentifier = models.CharField(max_length=50, db_column='unitIdentifier')
+    unitidentifier = models.CharField(max_length=36, db_column='unitIdentifier')  # Foreign key to SIP or Transfer
     content = models.TextField(db_column='content')
-    created = models.DateTimeField(db_column='created')
+    created = models.DateTimeField(db_column='created', auto_now_add=True)
 
     class Meta:
         db_table = u'Reports'
 
+
 class RightsStatement(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    metadataappliestotype = models.CharField(max_length=50, db_column='metadataAppliesToType')
-    metadataappliestoidentifier = models.CharField(max_length=50, blank=True, db_column='metadataAppliesToidentifier')
+    metadataappliestotype = models.ForeignKey('MetadataAppliesToType', db_column='metadataAppliesToType')
+    metadataappliestoidentifier = models.CharField(max_length=50, db_column='metadataAppliesToidentifier')
     rightsstatementidentifiertype = models.TextField(db_column='rightsStatementIdentifierType', blank=True, verbose_name='Type')
     rightsstatementidentifiervalue = models.TextField(db_column='rightsStatementIdentifierValue', blank=True, verbose_name='Value')
-    #rightsholder = models.TextField(db_column='fkAgent', blank=True, verbose_name='Rights holder')
-    rightsbasis = models.TextField(db_column='rightsBasis', verbose_name='Basis', blank=True)
+    rightsholder = models.IntegerField(db_column='fkAgent', default=0, verbose_name='Rights holder')
+    rightsbasis = models.TextField(db_column='rightsBasis', verbose_name='Basis')
 
     class Meta:
         db_table = u'RightsStatement'
@@ -510,12 +568,15 @@ class RightsStatementLinkingAgentIdentifier(models.Model):
         db_table = u'RightsStatementLinkingAgentIdentifier'
         verbose_name = 'Rights: Agent'
 
-""" MCP data interoperability """
+
+# MCP data interoperability
 
 class MicroServiceChain(models.Model):
     id = UUIDPkField()
-    startinglink = models.CharField(max_length=36, db_column='startingLink')
+    startinglink = models.ForeignKey('MicroServiceChainLink', db_column='startingLink')
     description = models.TextField(db_column='description')
+    replaces = models.ForeignKey('self', related_name='replaced_by', db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
 
     class Meta:
         db_table = u'MicroServiceChains'
@@ -525,14 +586,17 @@ class MicroServiceChain(models.Model):
             uuid=self.id,
             desc=self.description)
 
+
 class MicroServiceChainLink(models.Model):
     id = UUIDPkField()
-    currenttask =  models.CharField(max_length=36, db_column='currentTask')
-    defaultnextchainlink = models.CharField(max_length=36, null=True, default=1, db_column='defaultNextChainLink')
-    defaultplaysound = models.IntegerField(null=True, db_column='defaultPlaySound')
-    microservicegroup = models.TextField(db_column='microserviceGroup')
-    reloadfilelist = models.IntegerField(default=1, db_column='reloadFileList')
-    defaultexitmessage = models.TextField(default='Failed', db_column='defaultExitMessage')
+    currenttask = models.ForeignKey('TaskConfig', db_column='currentTask')
+    defaultnextchainlink = models.ForeignKey('self', db_column='defaultNextChainLink')
+    defaultplaysound = models.ForeignKey('Sounds', db_column='defaultPlaySound')
+    microservicegroup = models.CharField(max_length=50, db_column='microserviceGroup')
+    reloadfilelist = models.BooleanField(default=True, db_column='reloadFileList')
+    defaultexitmessage = models.CharField(max_length=36, db_column='defaultExitMessage', default='Failed')
+    replaces = models.ForeignKey('self', related_name='replaced_by', db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
 
     class Meta:
         db_table = u'MicroServiceChainLinks'
@@ -540,21 +604,27 @@ class MicroServiceChainLink(models.Model):
     def __unicode__(self):
         return u'MicroServiceChainLink ID: {}'.format(self.id)
 
+
 class MicroServiceChainLinkExitCode(models.Model):
     id = UUIDPkField()
-    microservicechainlink = models.CharField(max_length=36, db_column='microServiceChainLink')
-    exitcode = models.IntegerField(db_column='exitCode')
-    nextmicroservicechainlink = models.CharField(max_length=36, db_column='nextMicroServiceChainLink')
-    playsound = models.IntegerField(null=True, db_column='playSound')
-    exitmessage = models.TextField(db_column='exitMessage')
+    microservicechainlink = models.ForeignKey('MicroServiceChainLink', related_name='exit_codes', db_column='microServiceChainLink')
+    exitcode = models.IntegerField(db_column='exitCode', default=0)
+    nextmicroservicechainlink = models.ForeignKey('MicroServiceChainLink', related_name='parent_exit_codes+', db_column='nextMicroServiceChainLink', null=True, blank=True)
+    playsound = models.ForeignKey('Sounds', db_column='playSound', null=True, blank=True)
+    exitmessage = models.CharField(max_length=50, db_column='exitMessage', default='Completed successfully')
+    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
 
     class Meta:
         db_table = u'MicroServiceChainLinksExitCodes'
 
+
 class MicroServiceChainChoice(models.Model):
     id = UUIDPkField()
-    choiceavailableatlink = models.CharField(max_length=36, db_column='choiceAvailableAtLink')
-    chainavailable = models.ForeignKey(MicroServiceChain, db_column='chainAvailable')
+    choiceavailableatlink = models.ForeignKey('MicroServiceChainLink', db_column='choiceAvailableAtLink')
+    chainavailable = models.ForeignKey('MicroServiceChain', db_column='chainAvailable')
+    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
 
     class Meta:
         db_table = u'MicroServiceChainChoice'
@@ -565,11 +635,14 @@ class MicroServiceChainChoice(models.Model):
             chain=self.chainavailable,
             choice=self.choiceavailableatlink)
 
+
 class MicroServiceChoiceReplacementDic(models.Model):
     id = UUIDPkField()
-    choiceavailableatlink = models.CharField(max_length=36, db_column='choiceAvailableAtLink')
+    choiceavailableatlink = models.ForeignKey('MicroServiceChainLink', db_column='choiceAvailableAtLink')
     description = models.TextField(db_column='description', verbose_name='Description')
     replacementdic = models.TextField(db_column='replacementDic', verbose_name='Configuration')
+    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
 
     def clean(self):
         error = None
@@ -579,28 +652,35 @@ class MicroServiceChoiceReplacementDic(models.Model):
             error = 'Invalid syntax.'
         except SyntaxError:
             error = 'Invalid syntax.'
-        if error == None and not type(config) is dict:
+        if error is None and not type(config) is dict:
             error = 'Invalid syntax.'
-        if error != None:
+        if error is not None:
             raise forms.ValidationError(error)
 
     class Meta:
         db_table = u'MicroServiceChoiceReplacementDic'
 
-class StandardTaskConfig(models.Model):
+
+class TaskType(models.Model):
     id = UUIDPkField()
-    execute = models.TextField(db_column='execute', blank=True)
-    arguments = models.TextField(db_column='arguments', blank=True)
+    description = models.TextField(blank=True)
+    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
 
     class Meta:
-        db_table = u'StandardTasksConfigs'
+        db_table = 'TaskTypes'
+
+    def __unicode__(self):
+        return u'TaskType ID: {}, desc: {}'.format(self.id, self.description)
+
 
 class TaskConfig(models.Model):
     id = UUIDPkField()
-    # Foreign key to TaskTypes
-    tasktype = models.CharField(max_length=36, db_column='taskType')
-    tasktypepkreference = models.CharField(max_length=36, null=True, blank=True, db_column='taskTypePKReference')
+    tasktype = models.ForeignKey('TaskType', db_column='taskType')
+    tasktypepkreference = models.CharField(max_length=36, db_column='taskTypePKReference', null=True, blank=True, default=None)  # Foreign key to table depending on TaskType
     description = models.TextField(db_column='description')
+    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
 
     class Meta:
         db_table = u'TasksConfigs'
@@ -608,18 +688,84 @@ class TaskConfig(models.Model):
     def __unicode__(self):
         return u'TaskConfig ID: {}, desc: {}'.format(self.id, self.description)
 
+
+class StandardTaskConfig(models.Model):
+    id = UUIDPkField()
+    execute = models.CharField(max_length=250, db_column='execute')
+    arguments = models.TextField(db_column='arguments')
+    filter_subdir = models.CharField(max_length=50, db_column='filterSubDir', null=True, blank=True)
+    filter_file_start = models.CharField(max_length=50, db_column='filterFileStart', null=True, blank=True)
+    filter_file_end = models.CharField(max_length=50, db_column='filterFileEnd', null=True, blank=True)
+    requires_output_lock = models.BooleanField(db_column='requiresOutputLock', default=False)
+    stdout_file = models.CharField(max_length=250, db_column='standardOutputFile', null=True, blank=True)
+    stderr_file = models.CharField(max_length=250, db_column='standardErrorFile', null=True, blank=True)
+    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
+
+    class Meta:
+        db_table = u'StandardTasksConfigs'
+
+
+class TaskConfigAssignMagicLink(models.Model):
+    id = UUIDPkField()
+    execute = models.ForeignKey('MicroServiceChainLink', null=True, db_column='execute', blank=True)
+    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
+
+    class Meta(object):
+        db_table = u'TasksConfigsAssignMagicLink'
+
+
+class TaskConfigSetUnitVariable(models.Model):
+    id = UUIDPkField()
+    variable = models.TextField(blank=True)
+    variablevalue = models.TextField(null=True, blank=True, db_column='variableValue')
+    microservicechainlink = models.ForeignKey('MicroServiceChainLink', null=True, db_column='microServiceChainLink')
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True)
+
+    class Meta(object):
+        db_table = u'TasksConfigsSetUnitVariable'
+
+
+class TaskConfigUnitVariableLinkPull(models.Model):
+    id = UUIDPkField()
+    variable = models.TextField(blank=True)
+    variablevalue = models.TextField(null=True, blank=True, db_column='variableValue')
+    defaultmicroservicechainlink = models.ForeignKey('MicroServiceChainLink', null=True, db_column='defaultMicroServiceChainLink')
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True)
+
+    class Meta(object):
+        db_table = u'TasksConfigsUnitVariableLinkPull'
+
+
 class UnitVariable(models.Model):
     id = UUIDPkField()
-    unittype = models.CharField(max_length=50, null=True, db_column='unitType')
+    unittype = models.CharField(max_length=50, null=True, blank=True, db_column='unitType')
     unituuid = models.CharField(max_length=36, null=True, help_text='Semantically a foreign key to SIP or Transfer', db_column='unitUUID')
     variable = models.TextField(null=True, db_column='variable')
     variablevalue = models.TextField(null=True, db_column='variableValue')
-    microservicechainlink = models.CharField(null=True, max_length=36, help_text='UUID of the MicroServiceChainLink if used in task type linkTaskManagerUnitVariableLinkPull', db_column='microServiceChainLink')
+    microservicechainlink = models.ForeignKey('MicroServiceChainLink', null=True, blank=True, help_text='UUID of the MicroServiceChainLink if used in task type linkTaskManagerUnitVariableLinkPull', db_column='microServiceChainLink')
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
     updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True)
 
     class Meta:
         db_table = u'UnitVariables'
+
+
+class Sounds(models.Model):
+    id = UUIDPkField()
+    description = models.TextField(blank=True)
+    filelocation = models.TextField(db_column='fileLocation', blank=True)
+    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
+
+    class Meta:
+        db_table = 'Sounds'
+
+
+# END MCP data interoperability
 
 class AtkDIPObjectResourcePairing(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -691,3 +837,29 @@ class TaxonomyTerm(models.Model):
 
     def __unicode__(self):
         return self.term
+
+class WatchedDirectory(models.Model):
+    id = UUIDPkField()
+    watched_directory_path = models.TextField(null=True, blank=True, db_column='watchedDirectoryPath')
+    chain = models.ForeignKey('MicroServiceChain', null=True, db_column='chain')
+    only_act_on_directories = models.BooleanField(default=True, db_column='onlyActOnDirectories')
+    expected_type = models.ForeignKey('WatchedDirectoryExpectedType', null=True, db_column='expectedType')
+    replaces = models.ForeignKey('WatchedDirectory', null=True, db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
+
+    class Meta(object):
+        db_table = u"WatchedDirectories"
+
+class WatchedDirectoryExpectedType(models.Model):
+    id = UUIDPkField()
+    description = models.TextField(null=True)
+    replaces = models.ForeignKey('WatchedDirectoryExpectedType', null=True, db_column='replaces')
+    lastmodified = models.DateTimeField(db_column='lastModified')
+
+    class Meta(object):
+        db_table = u"WatchedDirectoriesExpectedTypes"
+
+class FPCommandOutput(models.Model):
+    file = models.ForeignKey('File', db_column='fileUUID', to_field='uuid')
+    content = models.TextField(null=True)
+    rule = models.ForeignKey('fpr.FPRule', db_column='ruleUUID', to_field='uuid')

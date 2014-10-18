@@ -153,7 +153,7 @@ def contentdm_dips(request):
 def administration_atk_dip_destination_select_link_id():
     taskconfigs = models.TaskConfig.objects.filter(description='Select target CONTENTdm server')
     taskconfig = taskconfigs[0]
-    links = models.MicroServiceChainLink.objects.filter(currenttask=taskconfig.id)
+    links = models.MicroServiceChainLink.objects.filter(currenttask=taskconfig)
     link = links[0]
     return link.id
 
@@ -161,7 +161,7 @@ def administration_atk_dip_destination_select_link_id():
 def contentdm_dip_destination_select_link_id():
     taskconfigs = models.TaskConfig.objects.filter(description='Select target CONTENTdm server')
     taskconfig = taskconfigs[0]
-    links = models.MicroServiceChainLink.objects.filter(currenttask=taskconfig.id)
+    links = models.MicroServiceChainLink.objects.filter(currenttask=taskconfig)
     link = links[0]
     return link.id
 

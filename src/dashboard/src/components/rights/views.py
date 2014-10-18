@@ -525,7 +525,7 @@ def rights_list(request, uuid, section):
     type_id = helpers.get_metadata_type_id_by_description(types[section])
 
     grants = models.RightsStatementRightsGranted.objects.filter(
-        rightsstatement__metadataappliestotype__exact=type_id,
+        rightsstatement__metadataappliestotype=type_id,
         rightsstatement__metadataappliestoidentifier__exact=uuid
     )
 
@@ -561,7 +561,7 @@ def rights_list(request, uuid, section):
         try:
             transfer_uuid = models.File.objects.filter(sip__uuid__exact=uuid)[0].transfer.uuid
             transfer_grants = models.RightsStatementRightsGranted.objects.filter(
-                rightsstatement__metadataappliestotype__exact=types['transfer'],
+                rightsstatement__metadataappliestotype=types['transfer'],
                 rightsstatement__metadataappliestoidentifier__exact=transfer_uuid
             )
         except:

@@ -24,7 +24,7 @@ def main(sip_uuid, dc_path):
     with open(dc_path) as json_data:
         data = json.load(json_data)
     dc = models.DublinCore(metadataappliestoidentifier=sip_uuid,
-                           metadataappliestotype=INGEST_METADATA_TYPE)
+                           metadataappliestotype_id=INGEST_METADATA_TYPE)
     for key, value in data.iteritems():
         try:
             setattr(dc, key, value)

@@ -23,6 +23,22 @@ class DublinCoreMetadataForm(forms.ModelForm):
     class Meta:
         model = models.DublinCore
         fields = ('title', 'is_part_of', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'format', 'identifier', 'source', 'relation', 'language', 'coverage', 'rights')
+        widgets = {
+            'title': forms.TextInput,
+            'is_part_of': forms.TextInput,
+            'creator': forms.TextInput,
+            'subject': forms.TextInput,
+            'publisher': forms.TextInput,
+            'contributor': forms.TextInput,
+            'date': forms.TextInput,
+            'type': forms.TextInput,
+            'format': forms.TextInput,
+            'identifier': forms.TextInput,
+            'source': forms.TextInput,
+            'relation': forms.TextInput,
+            'language': forms.TextInput,
+            'coverage': forms.TextInput,
+        }
 
     aic_prefix = 'AIC#'
 

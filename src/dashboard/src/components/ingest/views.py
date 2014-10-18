@@ -147,7 +147,7 @@ def ingest_sip_metadata_type_id():
 def ingest_metadata_list(request, uuid, jobs, name):
     # See MetadataAppliesToTypes table
     metadata = models.DublinCore.objects.filter(
-        metadataappliestotype__exact=ingest_sip_metadata_type_id(),
+        metadataappliestotype=ingest_sip_metadata_type_id(),
         metadataappliestoidentifier__exact=uuid
     )
 

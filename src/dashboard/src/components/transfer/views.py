@@ -207,7 +207,7 @@ def transfer_metadata_type_id():
 def transfer_metadata_list(request, uuid, jobs, name):
     # See MetadataAppliesToTypes table
     metadata = models.DublinCore.objects.filter(
-        metadataappliestotype__exact=transfer_metadata_type_id(),
+        metadataappliestotype=transfer_metadata_type_id(),
         metadataappliestoidentifier__exact=uuid
     )
 
@@ -219,8 +219,7 @@ def transfer_metadata_edit(request, uuid, id=None):
         dc = models.DublinCore.objects.get(pk=id)
     else:
         try:
-            dc = models.DublinCore.objects.get(metadataappliestotype__exact=1,
-                    metadataappliestoidentifier__exact=uuid)
+            dc = models.DublinCore.objects.get(metadataappliestotype=transfer_metadata_type_id(), metadataappliestoidentifier__exact=uuid)
             return redirect('components.transfer.views.transfer_metadata_edit', uuid, dc.id)
         except models.DublinCore.DoesNotExist:
             dc = models.DublinCore(
