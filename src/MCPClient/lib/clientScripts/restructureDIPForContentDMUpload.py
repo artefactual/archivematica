@@ -22,18 +22,17 @@
 # @author Mark Jordan <mark2jordan@gmail.com>
 
 import argparse
-import os
-import sys
-import glob
-import shutil
-import json
-import urllib
 import csv
-import collections
-import zipfile
-import re
-from xml.dom.minidom import parse, parseString
+import glob
+import json
 from lxml import etree
+import os
+import re
+import shutil
+import sys
+import urllib
+import xml.dom.minidom
+
 # archivematicaCommon
 from archivematicaFunctions import normalizeNonDcElementName
 from executeOrRunSubProcess import executeOrRun
@@ -63,19 +62,19 @@ def parseDmdSec(dmdSec, label = '[Placeholder title]'):
     if not hasattr(dmdSec, 'getElementsByTagName'):
         return {'title' : [label]}    
 
-    mdWraps = dmdSec.getElementsByTagName('mdWrap')
+    mdWraps = dmdSec.getElementsByTagNameNS('*', 'mdWrap')
     mdType = mdWraps[0].attributes["MDTYPE"]
     
     # If we are dealing with a DOM object representing the Dublin Core metadata,
     # check to see if there is a title (required by CONTENTdm). If not, assign a 
     # placeholder title and return.
     if mdType == 'DC' and hasattr(dmdSec, 'getElementsByTagName'):
-        dcTitlesDom = dmdSec.getElementsByTagName('title')
+        dcTitlesDom = dmdSec.getElementsByTagNameNS('*', 'title')
         if not dcTitlesDom:
             return {'title' : '[Placeholder title]'} 
 
     # Get all the elements found in the incoming XML DOM object.
-    elementsDom = dmdSec.getElementsByTagName('*')
+    elementsDom = dmdSec.getElementsByTagNameNS('*', '*')
     elementsDict = {}
     for element in elementsDom:
         # We only want elements that are not empty.
@@ -120,7 +119,7 @@ def parseStructMap(structMap, filesInObjectDirectory):
         
     # Get all the fptr elements.
     fptrOrder = 0
-    for node in structMap.getElementsByTagName('fptr'):
+    for node in structMap.getElementsByTagNameNS('*', 'fptr'):
         for k, v in node.attributes.items():
             if k == 'FILEID':
                 # DMDID is an attribute of the file's parent div.
@@ -276,11 +275,11 @@ def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
 # Return the dmdSec with the specific ID value. If dublinCore is True, return
 # the <dublincore> child node only.
 def getDmdSec(metsDom, dmdSecId = 'dmdSec_1', dublinCore = True):
-    for node in metsDom.getElementsByTagName('dmdSec'):
+    for node in metsDom.getElementsByTagNameNS('*', 'dmdSec'):
         for k, v in node.attributes.items():
             if dublinCore and k == 'ID' and v == dmdSecId:
                 # Assumes there is only one dublincore child element.
-                return node.getElementsByTagName('dublincore')[0]
+                return node.getElementsByTagNameNS('*', 'dublincore')[0]
             else:
                 return node
 
@@ -495,7 +494,7 @@ def generateFullFileEntry(title, filename, extension):
 # and then getting the value of that div's TYPE attribute; if it's 'item', the item
 # is simple, if it's 'directory', the item is compound.
 def getItemCountType(structMap):
-    for node in structMap.getElementsByTagName('div'):
+    for node in structMap.getElementsByTagNameNS('*', 'div'):
         for k, v in node.attributes.items():
             # We use a regex to cover 'dmdSec_1' or 'dmdSec_1 dmdSec_2'.
             match = re.search(r'dmdSec_1', v)
@@ -529,8 +528,8 @@ def groupDmdSecs(dmdSecs):
     # the same, we are dealing with dmdSec groups of 1 dmdSec; if they are
     # different, we are dealing with dmdSec groups of 2 dmdSecs.
     if dmdSecsLen > 1:
-        mdWrap1 = dmdSecs[0].getElementsByTagName('mdWrap')[0]
-        mdWrap2 = dmdSecs[1].getElementsByTagName('mdWrap')[0]
+        mdWrap1 = dmdSecs[0].getElementsByTagNameNS('*', 'mdWrap')[0]
+        mdWrap2 = dmdSecs[1].getElementsByTagNameNS('*', 'mdWrap')[0]
         if mdWrap1.attributes['MDTYPE'].value == mdWrap2.attributes['MDTYPE'].value:
             groupSize = 1
         else:
@@ -566,13 +565,13 @@ def splitDmdSecs(dmdSecs):
     dmdSecPair = dict()
     if lenDmdSecs == 2:
         for dmdSec in dmdSecs:
-            mdWrap = dmdSec.getElementsByTagName('mdWrap')[0]
+            mdWrap = dmdSec.getElementsByTagNameNS('*', 'mdWrap')[0]
             if mdWrap.attributes['MDTYPE'].value == 'OTHER':
                 dmdSecPair['nonDc'] = parseDmdSec(dmdSec)
             if mdWrap.attributes['MDTYPE'].value == 'DC':
                 dmdSecPair['dc'] = parseDmdSec(dmdSec)
     if lenDmdSecs == 1:
-        mdWrap = dmdSecs[0].getElementsByTagName('mdWrap')[0]
+        mdWrap = dmdSecs[0].getElementsByTagNameNS('*', 'mdWrap')[0]
         if mdWrap.attributes['MDTYPE'].value == 'OTHER':
             dmdSecPair['nonDc'] = parseDmdSec(dmdSecs[0])
             dmdSecPair['dc'] = None
@@ -596,13 +595,13 @@ def getFileIdsForDmdSec(structMaps, dmdSecIdValue):
     fileIds = []
     # We use the Archivematica default structMap, which is always the first.
     structMap = structMaps[0]
-    for div in structMap.getElementsByTagName('div'):
+    for div in structMap.getElementsByTagNameNS('*', 'div'):
         for k, v in div.attributes.items():
             # We match on the first dmdSec ID. Space is optional because 
             # there could be two dmdSec IDs in the value, separated by a space.
             match = re.search(r'%s\s?' % dmdSecIdValue, v)
             if k == 'DMDID' and match:
-                for fptr in div.getElementsByTagName('fptr'):
+                for fptr in div.getElementsByTagNameNS('*', 'fptr'):
                     for k, v in fptr.attributes.items():
                         if k == 'FILEID':
                             fileIds.append(v)               
@@ -1141,10 +1140,10 @@ if __name__ == '__main__':
     # which is true for both single-item transfers and bulk transfers.
     for infile in glob.glob(os.path.join(inputDipDir, "METS*.xml")):
         metsFile = infile
-    metsDom = parse(metsFile)
+    metsDom = xml.dom.minidom.parse(metsFile)
     
     # Get the structMaps so we can pass them into the DIP creation functions.
-    structMaps = metsDom.getElementsByTagName('structMap')
+    structMaps = metsDom.getElementsByTagNameNS('*', 'structMap')
 
     # If there is a user-submitted structMap (i.e., len(structMapts) is 2,
     # use that one.
@@ -1158,7 +1157,7 @@ if __name__ == '__main__':
     filesInThumbnailDirectory = glob.glob(os.path.join(inputDipDir, 'thumbnails', "*.jpg"))
     
     # Get the dmdSec nodes from the METS file.
-    dmdSecs = metsDom.getElementsByTagName('dmdSec')
+    dmdSecs = metsDom.getElementsByTagNameNS('*', 'dmdSec')
     numDmdSecs = len(dmdSecs)
     # Group the dmdSecs into item-specific pairs (for DC and OTHER; both types are optional).
     groupedDmdSecs = groupDmdSecs(dmdSecs)
