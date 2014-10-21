@@ -21,7 +21,9 @@
 # @subpackage archivematicaClientScript
 # @author Mark Jordan <mark2jordan@gmail.com>
 
+from __future__ import print_function
 import argparse
+import collections
 import csv
 import glob
 import json
@@ -31,11 +33,12 @@ import re
 import shutil
 import sys
 import urllib
-import xml.dom.minidom
+
+import archivematicaXMLNamesSpace as ns
 
 # archivematicaCommon
+import archivematicaFunctions
 from archivematicaFunctions import normalizeNonDcElementName
-from executeOrRunSubProcess import executeOrRun
 
 # Create the output dir for the CONTENTdm DIP and return the resulting path.
 # importMethod is either 'projectclient' or 'directupload'.
@@ -49,50 +52,43 @@ def prepareOutputDir(outputDipDir, importMethod, dipUuid):
     return outputDipDir
 
 
-# Takes in a DOM object containing the DC or OTHER dmdSec, returns a dictionary with 
-# tag : [ value1, value2] members. Also, since minidom only handles byte strings
-# so we need to encode strings before passing them to minidom functions. 'label' is
-# an optional arguement for use with compound item children.
-def parseDmdSec(dmdSec, label = '[Placeholder title]'):
+def parseDmdSec(dmdSec, label='[Placeholder title]'):
+    """
+    Parses a dmdSec into a dict with child tag names and their values
+
+    :param dmdSec: dmdSec elements
+    :param label: Default title if not provided. Required by CONTENTdm
+    :returns: Dict of {<child element tag>: [<value>, ...]
+    """
     # If the dmdSec object is empty (i.e, no DC metadata has been assigned
     # in the dashboard, and there was no metadata.csv or other metadata file
     # in the transfer), return a placeholder title.
     if dmdSec is None:
-        return {'title' : [label]}
-    if not hasattr(dmdSec, 'getElementsByTagNameNS'):
-        return {'title' : [label]}    
+        return collections.OrderedDict([('title', [label])])
+    elementsDict = archivematicaFunctions.OrderedListsDict()
 
-    mdWraps = dmdSec.getElementsByTagNameNS('*', 'mdWrap')
-    mdType = mdWraps[0].attributes["MDTYPE"]
-    
     # If we are dealing with a DOM object representing the Dublin Core metadata,
-    # check to see if there is a title (required by CONTENTdm). If not, assign a 
-    # placeholder title and return.
-    if mdType == 'DC' and hasattr(dmdSec, 'getElementsByTagNameNS'):
-        dcTitlesDom = dmdSec.getElementsByTagNameNS('*', 'title')
+    # check to see if there is a title (required by CONTENTdm). If not, assign a
+    # placeholder title.
+    mdType = dmdSec.xpath('mets:mdWrap/@MDTYPE', namespaces=ns.NSMAP)
+    if mdType == 'DC':
+        dcTitlesDom = dmdSec.findall('.//dcterms:title', namespaces=ns.NSMAP)
         if not dcTitlesDom:
-            return {'title' : '[Placeholder title]'} 
+            elementsDict['title'] = label
 
-    # Get all the elements found in the incoming XML DOM object.
-    elementsDom = dmdSec.getElementsByTagNameNS('*', '*')
-    elementsDict = {}
-    for element in elementsDom:
-        # We only want elements that are not empty.
-        if element.firstChild: 
-            # To get the values of repeated elements, we need to create a list to correspond
-            # to each element name. If the element name is not yet a key in elementsDict,
-            # create the element's value list.
-            if element.tagName not in elementsDict and element.tagName is not None and element.firstChild.nodeValue is not None:
-                elementsDict[element.tagName.encode("utf-8")] = [element.firstChild.nodeValue.encode("utf-8")]
-            # If the element name is present in elementsDict, append the element's value to
-            # its value list.
-            else:
-                # Skip tags that are METS wrapper tags and are not metadata elements.
-                wrapperTags = ['dublincore', 'mdWrap', 'xmlData']                
-                if element.tagName not in wrapperTags:
-                    elementsDict[element.tagName.encode("utf-8")].append(element.firstChild.nodeValue.encode("utf-8"))
-    
-    return elementsDict
+    # Iterate over all descendants and put in the return dict
+    # Key is the element's tag name, value is a list of the element's text
+    xmldata = dmdSec.find('.//mets:xmlData', namespaces=ns.NSMAP)
+    for element in xmldata.iterdescendants():
+        tagname = element.tag
+        # Strip namespace prefix
+        # TODO can tag names be unicode?
+        tagname = re.sub(r'{\S+}', '', tagname)  # \S = non whitespace
+        if tagname in ('dublincore', ):
+            continue
+        elementsDict[tagname] = element.text or ''  # OrderedListsDict appends to lists as needed
+
+    return collections.OrderedDict(elementsDict)
 
 
 # Takes in a DOM object containing the METS structMap, returns a dictionary with 
@@ -271,18 +267,6 @@ def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
     return collectionFieldInfo
 
 
-# Return the dmdSec with the specific ID value. If dublinCore is True, return
-# the <dublincore> child node only.
-def getDmdSec(metsDom, dmdSecId = 'dmdSec_1', dublinCore = True):
-    for node in metsDom.getElementsByTagNameNS('*', 'dmdSec'):
-        for k, v in node.attributes.items():
-            if dublinCore and k == 'ID' and v == dmdSecId:
-                # Assumes there is only one dublincore child element.
-                return node.getElementsByTagNameNS('*', 'dublincore')[0]
-            else:
-                return node
-
-
 def getObjectDirectoryFiles(objectDir):
     """
     Get a list of all the files (recursive) in the provided directory.
@@ -298,28 +282,6 @@ def getObjectDirectoryFiles(objectDir):
         for f in files:
             fileList.append(os.path.join(dirname, f))
     return fileList
-
-
-# Create a .7z file from the DIP files produced by generateXXProjectClientPackage
-# functions. Resulting file is written to the uploadedDIPs directory.
-def zipProjectClientOutput(outputDipDir, zipOutputDir, dipUuid):
-    currentDir = os.getcwd()
-    # We want to chdir to this directory so we can only include the DIP-specific
-    # structure in our zip file.
-    zipOutputPath = os.path.join(zipOutputDir, 'CONTENTdm', 'projectclient')
-    os.chdir(zipOutputPath)
-    # zipOutputFile will relative to zipOutputPath since we have chdir'ed.
-    zipOutputFile = dipUuid + '.7z'
-    # Also because we have chdir'ed, we use the relative dipUuid as the source
-    # directory for our zip file.
-    command = """/usr/bin/7z a -bd -t7z -y -m0=lzma -mx=3 %s %s """ % (zipOutputFile, dipUuid)
-    exitC, stdOut, stdErr = executeOrRun("command", command, printing=False)
-    if exitC != 0:
-        print stdOut
-        print >>sys.stderr, "Failed to create CONTENTdm DIP: ", command, "\r\n", stdErr
-        exit(exitC)
-    os.chdir(currentDir)
-
 
 # Generate a .desc file used in CONTENTdm 'direct import' packages. Use dcMetadata only
 # if nonDcMetadata is empty.
@@ -494,74 +456,51 @@ def generateFullFileEntry(title, filename, extension):
     return fullFileContent
 
 
-# Takes in a DOM object 'structMap' and determines if it describes simple or compound 
-# items by finding the div in structMaps[0] that contains the DMDID value "dmdSec_1",
-# and then getting the value of that div's TYPE attribute; if it's 'item', the item
-# is simple, if it's 'directory', the item is compound.
 def getItemCountType(structMap):
-    # QUESTION what is so special about dmdSec_1? Why is it a reliable indicator of simple vs compound?
-    # IDEA query structMap for any Directory divs that are children of objects
-    for node in structMap.getElementsByTagNameNS('*', 'div'):
-        for k, v in node.attributes.items():
-            # We use a regex to cover 'dmdSec_1' or 'dmdSec_1 dmdSec_2'.
-            match = re.search(r'dmdSec_1', v)
-            if k == 'DMDID' and match:
-                # Get the value of the TYPE attribute.
-                type = node.attributes["TYPE"]
-                if type.value == 'Item':
-                    return 'simple'
-                if type.value == 'Directory':
-                    return 'compound'
-
-
-def groupDmdSecs(dmdSecs):
     """
-    Given all the dmdSecs (which are DOM objects) from a METS files, group the dmdSecs
-    into item-specific pairs of DC and OTHER, or single-item groups of either if the
-    other type is absent.
+    Get whether this is a simple or compound DIP.
+
+    Compound DIPs have metadata attached to directories, simple DIPs have
+    metadata attached to files.
+
+    :param structMap: structMap element from the METS file
+    :return: String 'simple', 'compound-dirs' or 'compound-files'
+    """
+    divs_with_dmdsecs = structMap.findall('.//mets:div[@DMDID]', namespaces=ns.NSMAP)
+    # If any are TYPE Directory, then it is compound
+    if any([e.get('TYPE') == 'Directory' for e in divs_with_dmdsecs]):
+        # If all are TYPE Directory then it is bulk
+        if all([e.get('TYPE') == 'Directory' for e in divs_with_dmdsecs]):
+            return 'compound-dirs'
+        else:
+            return 'compound-files'
+    else:
+        return 'simple'
+
+
+def groupDmdSecs(dmdSecs, structMap):
+    """
+    Group dmdSecs by what structMap div they are associated with.
+
+    Group the dmdSecs into item-specific pairs of DC and OTHER, or single-item
+    groups of either if the other type is absent.
 
     :param dmdSecs: List of dmdSec elements
     :returns: List of 1- or 2-tuples of dmdSecs belonging to the same Item, or empty list
     """
-    # FIXME instead of assuming that sequential dmdSecs are associated with the same <div TYPE='Item'>, check the structMap and group by being in the same DMDID
     # IDEA Return dict of {'dc': <dmdSec or None>, 'nonDc': <dmdSec or None>} so that splitDmdSecs (below) is not needed
-    groupedDmdSecs = []
-    dmdSecsLen = len(dmdSecs)
-    # If dmdSecs is empty, return.
-    if dmdSecsLen == 0:
-        return groupedDmdSecs
-        
-    # If dmdSecs has only one dmdSec, return it.
-    if dmdSecsLen == 1:
-        tmpList = (dmdSecs[0],)
-        groupedDmdSecs.append(tmpList)
-        return groupedDmdSecs
-    
-    # Compare the MDTYPE values of the first two mdWrap elements. If they are
-    # the same, we are dealing with dmdSec groups of 1 dmdSec; if they are
-    # different, we are dealing with dmdSec groups of 2 dmdSecs.
-    mdWrap1 = dmdSecs[0].getElementsByTagNameNS('*', 'mdWrap')[0]
-    mdWrap2 = dmdSecs[1].getElementsByTagNameNS('*', 'mdWrap')[0]
-    if mdWrap1.attributes['MDTYPE'].value == mdWrap2.attributes['MDTYPE'].value:
-        groupSize = 1
-    else:
-        groupSize = 2
-             
-    # Loop through all the dmdSecs and pop them off in chuncks so we can
-    # group them. 
-    count = 0
-    while (count < dmdSecsLen):
-        count = count + 1
-        if groupSize == 1:
-            tmpList = (dmdSecs.pop(0),)
-            groupedDmdSecs.append(tmpList)
-        # We need to check to make sure we don't reduce the number of
-        # dmdSecs down to 0.
-        if groupSize == 2 and len(dmdSecs) >= groupSize:
-            tmpList = (dmdSecs.pop(0), dmdSecs.pop(0))
-            groupedDmdSecs.append(tmpList)
-     
-    return groupedDmdSecs
+    grouped_dmdsecs = []
+    dmdsecs_dict = {e.get('ID'): e for e in dmdSecs}
+
+    # Get all divs with DMDID
+    divs_with_dmdsecs = structMap.findall('.//mets:div[@DMDID]', namespaces=ns.NSMAP)
+    # For each div, get dmdSecs associated, add to return
+    for elem in divs_with_dmdsecs:
+        dmdids = elem.get('DMDID').split()
+        group = tuple(dmdsecs_dict[dmdid] for dmdid in dmdids)
+        grouped_dmdsecs.append(group)
+
+    return grouped_dmdsecs
 
 
 def splitDmdSecs(dmdSecs):
@@ -578,13 +517,13 @@ def splitDmdSecs(dmdSecs):
     lenDmdSecs = len(dmdSecs)
     dmdSecPair = {'dc': None, 'nonDc': None}
     if lenDmdSecs > 2:
-        print >> sys.stderr, 'Error splitting dmdSecs, more than 2 provided'
+        print('Error splitting dmdSecs, more than 2 provided', file=sys.stderr)
         return dmdSecPair
     for dmdSec in dmdSecs:
-        mdWrap = dmdSec.getElementsByTagNameNS('*', 'mdWrap')[0]
-        if mdWrap.attributes['MDTYPE'].value == 'OTHER':
+        mdWrap = dmdSec.find('mets:mdWrap', namespaces=ns.NSMAP)
+        if mdWrap.get('MDTYPE') == 'OTHER':
             dmdSecPair['nonDc'] = parseDmdSec(dmdSec)
-        if mdWrap.attributes['MDTYPE'].value == 'DC':
+        if mdWrap.get('MDTYPE') == 'DC':
             dmdSecPair['dc'] = parseDmdSec(dmdSec)
     if lenDmdSecs == 0:
         # If dmdSecs is empty, let parseDcXML() assign a placeholder title in dcMetadata.
@@ -593,59 +532,67 @@ def splitDmdSecs(dmdSecs):
     return dmdSecPair
 
 
-def getFileIdsForDmdSec(structMaps, dmdSecIdValue):
+def getFileIdsForDmdSec(structMaps, dmdid):
     """
     Given a list of structMaps and a DMDID value, return a list of all the
     <fptr> values for the files named in the structMap corresponding to
     to the DMDID.
 
     :param structMaps: List of structMaps in this METS file
-    :param dmdSecIdValue: DMDID to find the associated file(s) for
-    :return: List of fileIDs associated with the dmdSecIdValue
+    :param dmdid: DMDID to find the associated file(s) for
+    :return: List of FILEIDs associated with the dmdid
     """
-    dmdSecIdValue = dmdSecIdValue.strip()
-    fileIds = []
+    all_fileids = []
     # We use the Archivematica default structMap, which is always the first.
     structMap = structMaps[0]
-    # FIXME use LXML to query for element with DMDID=dmdSecIdValue
-    for div in structMap.getElementsByTagNameNS('*', 'div'):
-        dmdids = div.getAttribute('DMDID').split()
-        if dmdSecIdValue in dmdids:
-            for fptr in div.getElementsByTagNameNS('*', 'fptr'):
-                fileid = fptr.getAttribute('FILEID')
-                if fileid:
-                    fileIds.append(fileid)
-    return fileIds
+    # Find the div with the associated DMDID
+    divs = structMap.xpath('.//mets:div[contains(@DMDID, "' + dmdid + '")]', namespaces=ns.NSMAP)
+    for d in divs:
+        # Handle false positives from dmdSec_1 vs dmdSec_10
+        if d.get('DMDID') != dmdid:
+            divs.remove(d)
+        # Get the FILEID from all fptrs that are chlidren
+        fileids = d.xpath('.//mets:fptr/@FILEID', namespaces=ns.NSMAP)
+        all_fileids.extend(fileids)
+
+    return all_fileids
 
 
-# Given a group of dmdSecs and the METS structMaps, return a list of files
-# that are described by the dmdSecs.
-def getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps):    
-    filesInObjectDirectoryForThisDmdSecGroup = list()
+def getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps):
+    """
+    Given a group of dmdSecs and the METS structMaps, return a list of files
+    that are described by the dmdSecs.
+
+    :param dmdSecGroup: 1- or 2-tuple of dmdSec objects corresponding to the same file or folder
+    :param structMaps: List of all structMap elements in this document
+    :returns: List of full file paths associated with dmdSecGroup
+    """
+    filesInObjectDirectoryForThisDmdSecGroup = []
     # Get the value of ID for each <dmdSec> and put them in a list,
     # then pass the list into getFileIdsForDmdSec()
     for dmdSec in dmdSecGroup:
-        Id = dmdSec.attributes['ID']
-        fileIds = getFileIdsForDmdSec(structMaps, Id.value)
+        dmdid = dmdSec.get('ID')
+        fileIds = getFileIdsForDmdSec(structMaps, dmdid)
         for fileId in fileIds:
             filename = getFptrObjectFilename(fileId, filesInObjectDirectory)
             if filename is not None:
                 filesInObjectDirectoryForThisDmdSecGroup.append(filename)
-            
     return filesInObjectDirectoryForThisDmdSecGroup
 
 
-# Add the AIP UUID to the DC metadata. We handle non-DC metadata within 
-# each generateXXXProjectClientPackage function. Direct upload packages
-# have their DC metadata supplemented with the AIP UUID in generateDescFile().
 def addAipUuidToDcMetadata(dipUuid, dcMetadata):
+    """
+    Add the AIP UUID to the DC metadata.
+
+    :param dipUuid: UUID of the AIP to add as the identifier.
+    :param dcMetadata: Metadata dict to add identifier to, or None.
+    """
+    if not dcMetadata:
+        return None
     if 'identifier' not in dcMetadata:
-        dcMetadata['identifier'] = [dipUuid[-36:]]
+        dcMetadata['identifier'] = [dipUuid]
     else:
-        if len(dcMetadata['identifier']):
-            dcMetadata['identifier'].append(dipUuid[-36:])
-        else:
-            dcMetadata['identifier'] = dipUuid[-36:]
+        dcMetadata['identifier'].append(dipUuid)
     return dcMetadata
 
 
@@ -683,100 +630,6 @@ def generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, out
     fullFile = open(os.path.join(outputDipDir, objectFileBaseFilename + '.full'), "wb")
     fullFile.write(fullFileContents)
     fullFile.close()
-
-
-# Generate a 'project client' package for a simple item from the Archivematica DIP.
-# This package will contain the object file and a delimited metadata file in a format
-# suitable for importing into CONTENTdm using its Project Client.
-def generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup):
-    dmdSecPair = splitDmdSecs(dmdSecs)
-    nonDcMetadata = dmdSecPair['nonDc']
-    dcMetadata = dmdSecPair['dc']
-    collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
-    
-    # Add the AIP UUID to the DC metadata. We handle non-DC metadata below.
-    if dipUuid is not None and dcMetadata is not None:
-        dcMetadata = addAipUuidToDcMetadata(dipUuid, dcMetadata)   
-
-    # Since we are dealing with simple objects, there should only be one file
-    # in filesInObjectDirectoryForThisDmdSec. Copy it into the output directory.
-    shutil.copy(filesInObjectDirectoryForThisDmdSecGroup[0], outputDipDir)
-    # Get the object filename, which we will add to the delimited file below.
-    path, filename = os.path.split(filesInObjectDirectoryForThisDmdSecGroup[0])
-      
-    # Populate a row to write to the metadata file, with the first row containing the
-    # field labels and the second row containing the values. Both rows needs to be
-    # in the order expressed in collectionFieldInfo['order']. For each item in
-    # collectionFieldInfo['order'], query each mapping in collectionFieldInfo['mappings']
-    # to find a matching 'nick'; if the nick is found, write the value in the dmdSec's
-    # element that matches the mapping's key; if no matching mapping is found, write ''.
-    # The DIP filename (in this case, the file variable defined above) needs to go in
-    # the last column.
-    delimHeaderRow = []
-    delimValuesRow = []
-
-    for field in collectionFieldInfo['order']:
-        # Process the non-DC metadata, if there is any.
-        if nonDcMetadata is not None:
-            # We want to populate the AIP UUID field in the non-DC metadata with the last
-            # 36 characters of the SIP name.
-            aipUuidValues = [dipUuid[-36:]]
-            nonDcMetadata['aip_uuid'] = aipUuidValues
-            for k, v in collectionFieldInfo['nonDcMappings'].iteritems():
-                if field == v['nick']:
-                    # Append the field name to the header row.
-                    delimHeaderRow.append(v['name'])
-                    # Append the element value to the values row.
-                    if normalizeNonDcElementName(k) in nonDcMetadata:
-                        # In CONTENTdm, repeated values are joined with a semicolon.
-                        normalized_name = normalizeNonDcElementName(k)
-                        joinedNonDcMetadataValues = '; '.join(nonDcMetadata[normalized_name])                   
-                        # Rows can't contain new lines.
-                        joinedNonDcMetadataValues = joinedNonDcMetadataValues.replace("\r","")
-                        joinedNonDcMetadataValues = joinedNonDcMetadataValues.replace("\n","")
-                        delimValuesRow.append(joinedNonDcMetadataValues)
-                    # Append a placeholder to keep the row intact.
-                    else:
-                        delimValuesRow.append('')
-        # I.e., there is no nonDcMetadata.
-        else:
-            for k, v in collectionFieldInfo['dcMappings'].iteritems():
-                if field == v['nick']:
-                    # Append the field name to the header row.
-                    delimHeaderRow.append(v['name'])
-                    # Append the element value to the values row.
-                    if k in dcMetadata:
-                        # In CONTENTdm, repeated values are joined with a semicolon.
-                        joinedDcMetadataValues = '; '.join(dcMetadata[k])                   
-                        # Rows can't contain new lines.
-                        joinedDcMetadataValues = joinedDcMetadataValues.replace("\r","")
-                        joinedDcMetadataValues = joinedDcMetadataValues.replace("\n","")
-                        delimValuesRow.append(joinedDcMetadataValues)
-                    # Append a placeholder to keep the row intact.
-                    else:
-                        delimValuesRow.append('')
-
-    # Wite out a tab-delimited file containing the DC-mapped metadata,
-    # with 'Filename' as the last field.
-    simpleTxtFilePath = os.path.join(outputDipDir, 'simple.txt')   
-    # Check to see if simple.txt already exists, and if it does, append 
-    # delimValuesRow to it.
-    if os.path.exists(simpleTxtFilePath):
-        delimitedFile = open(simpleTxtFilePath, "ab")
-        writer = csv.writer(delimitedFile, delimiter='\t')
-    # If it doesn't exist yet, write out the header row.
-    else:
-        delimitedFile = open(simpleTxtFilePath, "wb")
-        writer = csv.writer(delimitedFile, delimiter='\t')
-        delimHeaderRow.append('Filename') # Must contain 'Filename' in last position
-        writer.writerow(delimHeaderRow)
-        
-    # Write out the object filename. The filename must be in the last field in the row.
-    delimValuesRow.append(filename)
-    
-    # Write the values row and close the file.
-    writer.writerow(delimValuesRow)
-    delimitedFile.close()
 
 
 # Generate a 'direct upload' package for a compound item from the Archivematica DIP.
@@ -933,203 +786,102 @@ def generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, dipUuid, o
     readyFile.close()
 
 
-# Generate a 'project client' package for a compound CONTENTdm item from the Archivematica DIP.
-# This package will contain the object files and a delimited metadata file in a format suitable
-# for importing into CONTENTdm using its Project Client.
-def generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, dipUuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, bulk):
-    dmdSecPair = splitDmdSecs(dmdSecs)
-    nonDcMetadata = dmdSecPair['nonDc']
-    dcMetadata = dmdSecPair['dc']    
-    collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
-    
-    # Add the AIP UUID to the DC metadata. We handle non-DC metadata below.
-    if dipUuid is not None and dcMetadata is not None:
-        dcMetadata = addAipUuidToDcMetadata(dipUuid, dcMetadata)
+def generate_project_client_package(output_dir, package_type, structmap, dmdsecs, dipuuid):
+    """
+    Generates a simple.txt or compound.txt from the METS of a DIP
 
-    # Archivematica's stuctMap is always the first one; the user-submitted structMap
-    # is always the second one. User-submitted structMaps are only supported in the
-    # 'direct upload' DIP.
-    structMapDom = structMaps[0]
-    structMapDict = parseStructMap(structMapDom, filesInObjectDirectoryForThisDmdSecGroup)
-    
-    # Each item needs to have its own directory under outputDipDir. For a single item, we use
-    # 'scans'; for bulk items, we also use a 'scans' directory, but within that, we need to make 
-    # up a unique directory name. To generate a unique name for each compound item, we use the 
-    # the first eight characters of the UUID of the first file in each compound item.
-    if bulk:
-        scansDir = os.path.join(outputDipDir, 'scans')
-        if not os.path.exists(scansDir):
-            os.mkdir(scansDir)
-        firstFilePath, firstFileFilename = os.path.split(filesInObjectDirectoryForThisDmdSecGroup[0])
-        itemDirUuid = firstFileFilename[:8]
-        outputItemDir = os.path.join(scansDir, itemDirUuid)
-        if not os.path.exists(outputItemDir):
-            os.mkdir(outputItemDir)
-        # Copy the files into the outputItemDir, giving them names that reflect
-        # the sort order expressed in their structMap.
-        Orders = []
-        for fptr, details in structMapDict.iteritems():
-            Orders.append(details['order'])
+    :param output_dir: Path to directory for simple/compound.txt
+    :param structmap: structMap element from the METS (Preparse somehow?)
+    :param dmdsecs: Dict of {<DMDID>: OrderedDict{column name: value} or <dmdSec element>? }
+    :param dipuuid: UUID of the DIP
+    """
+    print('DIP UUID:', dipuuid)
 
-        # Iterate through the list of order values and add the matching structMapDict entry
-        # to the delimited file and copy the file into the scans directory.
-        for order in sorted(Orders):
-            for k, v in structMapDict.iteritems():
-                # Original filenames should have expressed their order but we process them
-                # in structMap order anyway.
-                if order == v['order']:
-                    # Find the full path of the file identified in v['filename'].
-                    for fullPath in filesInObjectDirectoryForThisDmdSecGroup:
-                        if (v['filename'] in fullPath):
-                            objectFileBaseFilename, objectFileExtension = os.path.splitext(v['filename'])
-                            # Remove the UUID and '-' from the begging of objectFileBaseFilename
-                            objectFileBaseFilenameWithoutUUID = objectFileBaseFilename[37:]                            
-                            # Tack on the file's UUID so it can be associated with its original in Archivematica.
-                            shutil.copy(fullPath, os.path.join(outputItemDir, objectFileBaseFilenameWithoutUUID + '-' + v['filename'][:36] + objectFileExtension))
-  
-    # I.e., single item in DIP. We take care of copying the files and assembling the
-    # child-level metadata rows (applies to single, not bulk transfers, only) further down.
+    if 'compound' in package_type:
+        csv_path = os.path.join(output_dir, 'compound.txt')
     else:
-        scansDir = os.path.join(outputDipDir, 'scans')
-        os.mkdir(scansDir)
+        csv_path = os.path.join(output_dir, 'simple.txt')
 
-    # Write out the metadata file, with the first row containing the field labels and the
-    # second row containing the field values. Both rows needs to be in the order expressed
-    # in collectionFieldInfo['order']. For each item in collectionFieldInfo['order'],
-    # query each mapping in collectionFieldInfo['nonDcMappings'] to find a matching 'nick';
-    # if the nick is found, write the value in the dmdSec's element that matches the mapping's
-    # key; if no matching mapping is found, write ''. For single items, the child filename 
-    # needs to go in the last column; for bulk items, the item-level directory needs to go
-    # in the first column.
-    collectionFieldInfo = getContentdmCollectionFieldInfo(args.contentdmServer, args.targetCollection)
-    delimHeaderRow = []
-    delimItemValuesRow = []
-    for field in collectionFieldInfo['order']:
-        # Process the non-DC metadata, if there is any.
-        if nonDcMetadata is not None:
-            # We want to populate the AIP UUID field in the non-DC metadata with the last
-            # 36 characters of the SIP name.
-            aipUuidValues = [dipUuid[-36:]]
-            nonDcMetadata['aip_uuid'] = aipUuidValues
-            for k, v in collectionFieldInfo['nonDcMappings'].iteritems():
-                if field == v['nick']:
-                   # Append the field name to the header row.
-                   delimHeaderRow.append(v['name'])
-                   # Append the element value to the values row.
-                   if normalizeNonDcElementName(k) in nonDcMetadata:
-                       # In CONTENTdm, repeated values are joined with a semicolon.
-                       normalized_name = normalizeNonDcElementName(k)
-                       joinedNonDcMetadataValues = '; '.join(nonDcMetadata[normalized_name])
-                       # Rows can't contain new lines.
-                       joinedNonDcMetadataValues = joinedNonDcMetadataValues.replace("\r","")
-                       joinedNonDcMetadataValues = joinedNonDcMetadataValues.replace("\n","")
-                       delimItemValuesRow.append(joinedNonDcMetadataValues)
-                   # Append a placeholder to keep the row intact.
-                   else:
-                       delimItemValuesRow.append('')
-        # I.e., there is no nonDcMetadata.
-        else:          
-            for k, v in collectionFieldInfo['dcMappings'].iteritems():
-                if field == v['nick']:
-                    # Append the field name to the header row.
-                    delimHeaderRow.append(v['name'])
-                    # Append the element value to the values row.
-                    if k in dcMetadata:
-                        # In CONTENTdm, repeated values are joined with a semicolon.
-                        joinedDcMetadataValues = '; '.join(dcMetadata[k])    
-                        # Rows can't contain new lines.
-                        joinedDcMetadataValues = joinedDcMetadataValues.replace("\r","")
-                        joinedDcMetadataValues = joinedDcMetadataValues.replace("\n","")
-                        delimItemValuesRow.append(joinedDcMetadataValues)
-                    # Append a placeholder to keep the row intact.
-                    else:
-                        delimItemValuesRow.append('')
+    print('Package type:', package_type)
+    print('Path to the output tabfile', csv_path)
 
-    compoundTxtFilePath = os.path.join(outputDipDir, 'compound.txt')
-    # Check to see if compound.txt already exists, and if it does, open it
-    # for appending the current item row to it.
-    if os.path.exists(compoundTxtFilePath):
-        delimitedFile = open(compoundTxtFilePath, "ab")
-        writer = csv.writer(delimitedFile, delimiter='\t')
-    # If compound.txt doesn't exist, open it for writing and add the header row.
-    else:
-        delimitedFile = open(compoundTxtFilePath, "wb")
-        writer = csv.writer(delimitedFile, delimiter='\t')
-        # Write the header row. For bulk Project Client packages, the header
-        # row contains 'Directory name' in the first position; for single-item
-        # packages, it contains 'Filename' in the last position.
-        if bulk:
-            delimHeaderRow.insert(0, 'Directory name')
-        else:
-            delimHeaderRow.append('Filename')
-        writer.writerow(delimHeaderRow)
+    divs_with_dmdsecs = structmap.findall('.//mets:div[@DMDID]', namespaces=ns.NSMAP)
+    with open(csv_path, "wb") as csv_file:
+        writer = csv.writer(csv_file, delimiter='\t')
 
-    # If we're dealing with a bulk DIP, prepend the item directory name to the row.
-    if bulk:
-        delimItemValuesRow.insert(0, itemDirUuid)
-        
-    # Write the item-level metadata row.
-    writer.writerow(delimItemValuesRow) 
+        # Iterate through every div and create a row for each
+        csv_header_ref = None
+        for div in divs_with_dmdsecs:
+            # Find associated dmdSecs
+            dmdids = div.get('DMDID').split()
+            # Take nonDC dmdSec, fallback to DC dmdSec
+            dmdsecpair = splitDmdSecs([dmdsecs[dmdid] for dmdid in dmdids])
+            dmdsecpair['dc'] = addAipUuidToDcMetadata(dipuuid, dmdsecpair['dc'])
+            metadata = dmdsecpair['nonDc'] or dmdsecpair['dc']
+            # Create csv_header and csv_values from the dmdSec metadata
+            csv_header = []
+            csv_values = []
+            for header, value in metadata.iteritems():
+                csv_header.append(header)
+                value = '; '.join(value).replace('\r', '').replace('\n', '')
+                csv_values.append(archivematicaFunctions.unicodeToStr(value))
 
-    # Process a non-bulk DIP. Child-level titles for compound items only applies to single
-    # (non-bulk) DIP items, not bulk DIPs, since we're using the CONTENTdm 'object list' Project
-    # Client method of importing (see http://www.contentdm.org/help6/objects/multiple4.asp).
-    # Page labels for bulk items need to be applied within the project client.
-    if not bulk:
-        # Determine the order in which we will add the child-level rows to the delimited file.
-        Orders = []
-        for fptr, details in structMapDict.iteritems():
-            Orders.append(details['order'])
+            # Add AIP UUID
+            csv_header.append('AIP UUID')
+            csv_values.append(dipuuid)
 
-        # Iterate through the list of order values and add the matching structMapDict entry
-        # to the delimited file (and copy the file into the scans directory).
-        for order in sorted(Orders):
-            for k, v in structMapDict.iteritems():
-                # Original filenames should have expressed their order but we process them
-                # in structMap order anyway.
-                if order == v['order']:
-                    delimChildValuesRow = []
-                    # Find the full path of the file identified in v['filename'].
-                    for fullPath in filesInObjectDirectory:
-                        if (v['filename'] in fullPath):
-                            objectFileBaseFilename, objectFileExtension = os.path.splitext(v['filename'])
-                            # Remove the UUID and '-' from the begging of objectFileBaseFilename
-                            objectFileBaseFilenameWithoutUUID = objectFileBaseFilename[37:]
-                            # Tack on the file's UUID so it can be associated with its original in Archivematica.
-                            childFilename = objectFileBaseFilenameWithoutUUID + '-' + v['filename'][:36] + objectFileExtension
-                            shutil.copy(fullPath, os.path.join(scansDir, childFilename))                            
-                            
-                    # Write the child-level metadata row. For single (non-bulk) DIPs, we use
-                    # the delimited file format described at
-                    # http://www.contentdm.org/help6/objects/adding3a.asp; for bulk DIPs, we
-                    # use the 'object list' method described at
-                    # http://www.contentdm.org/help6/objects/multiple4.asp.
-                    # http://www.contentdm.org/help6/objects/multiple4.asp.
-                    titlePosition = collectionFieldInfo['order'].index('title')
-                    if titlePosition == 0:
-                        delimChildValuesRow.insert(0, v['label'])
-                        for i in range(1, len(delimHeaderRow) - 1):
-                            delimChildValuesRow.append('')
-                    # Rows for single compound itms must contain filenamein the last position.
-                    delimChildValuesRow.append(childFilename)
-                    writer.writerow(delimChildValuesRow)
-               
-    delimitedFile.close()
+            # Add file UUID
+            csv_header.append('file UUID')
+            if 'dirs' in package_type:
+                # Directories have no file UUID
+                csv_values.append('')
+            else:
+                file_uuid = ''
+                fptr = div.find('mets:fptr', namespaces=ns.NSMAP)
+                # Only files have fptrs as direct children
+                if fptr is not None:
+                    # File UUID is last 36 characters of FILEID
+                    file_uuid = fptr.get('FILEID')[-36:]
+                csv_values.append(file_uuid)
 
+            # Add file or directory name
+            name = div.attrib['LABEL']  # Fallback if LABEL doesn't exist?
+            if 'dirs' in package_type:
+                csv_header.insert(0, 'Directory name')
+                csv_values.insert(0, name)
+            else:
+                csv_header.append('Filename')
+                csv_values.append(name)
+
+            # Compare csv_header, if diff ERROR (first time set, write to file)
+            if csv_header_ref and csv_header_ref != csv_header:
+                print('ERROR headers differ,', csv_path, 'almost certainly invalid', file=sys.stderr)
+                print('Reference header:', csv_header_ref, file=sys.stderr)
+                print('Differing header:', csv_header, file=sys.stderr)
+            # If first time through, write out header
+            if not csv_header_ref:
+                csv_header_ref = csv_header
+                writer.writerow(csv_header_ref)
+                print('Tabfile header:', csv_header)
+            # Write csv_row
+            writer.writerow(csv_values)
+            print('Values:', csv_values)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='restructure')
+    # FIXME make --uuid param actually the UUID not the name
     parser.add_argument('--uuid', action="store", dest='uuid', metavar='UUID', help='SIP-UUID')
     parser.add_argument('--dipDir', action="store", dest='dipDir', metavar='dipDir', help='DIP Directory')
     parser.add_argument('--server', action="store", dest='contentdmServer', metavar='server', help='Target CONTENTdm server')
     parser.add_argument('--collection', action="store", dest='targetCollection',
                         metavar='targetCollection', help='Target CONTENTdm Collection')
-    parser.add_argument('--ingestFormat', action="store", dest='ingestFormat', metavar='ingestFormat',
+    parser.add_argument('--ingestFormat', action="store", dest='ingestFormat', metavar='ingestFormat', choices=('directupload', 'projectclient'),
                         default='directupload', help='The format of the ingest package, either directupload or projectclient')
     parser.add_argument('--outputDir', action="store", dest='outputDir', metavar='outputDir',
                         help='The destination for the restructured DIPs')
 
     args = parser.parse_args()
+    # FIXME move more of this to a main function - only parse the args in the if __name__==__main__
 
     # Define the directory where DIPs are waiting to be processed.
     inputDipDir = args.dipDir
@@ -1139,28 +891,25 @@ if __name__ == '__main__':
     outputDipDir = prepareOutputDir(args.outputDir, args.ingestFormat, args.uuid)
 
     # Perform some preliminary validation on the argument values.
-    if not os.path.exists(inputDipDir):
-        print "Can't find " + inputDipDir
-        sys.exit(1)
-    if args.ingestFormat not in ['directupload', 'projectclient']:
-        print "IngestFormat must be either 'directupload' or 'projectclient'"
+    if not os.path.isdir(inputDipDir):
+        print("Can't find", inputDipDir, ', exiting.')
         sys.exit(1)
 
     # Read and parse the METS file.
-    # TODO convert this to using lxml instead of minidom for better search capabilities
-    metsFile = os.path.join(inputDipDir, 'METS.' + args.uuid + '.xml')
-    metsDom = xml.dom.minidom.parse(metsFile)
+    metsFile = os.path.join(inputDipDir, 'METS.' + args.uuid[-36:] + '.xml')
+    root = etree.parse(metsFile)
 
     # Get the structMaps so we can pass them into the DIP creation functions.
-    structMaps = metsDom.getElementsByTagNameNS('*', 'structMap')
+    structMaps = root.findall('mets:structMap', namespaces=ns.NSMAP)
 
     # If there is a user-submitted structMap (i.e., len(structMapts) is 2,
     # use that one.
     # QUESTION why not use physical structMap always?
+    archivematica_structmap = structMaps[0]
     if len(structMaps) == 2:
         itemCountType = getItemCountType(structMaps[1])
     else:
-        itemCountType = getItemCountType(structMaps[0])
+        itemCountType = getItemCountType(archivematica_structmap)
 
     # Populate lists of files in the DIP objects and thumbnails directories.
     # QUESTION why not use the same function for both of these and filter for .jpg?
@@ -1168,11 +917,16 @@ if __name__ == '__main__':
     filesInThumbnailDirectory = glob.glob(os.path.join(inputDipDir, 'thumbnails', "*.jpg"))
     
     # Get the dmdSec nodes from the METS file.
-    dmdSecs = metsDom.getElementsByTagNameNS('*', 'dmdSec')
+    dmdSecs = root.findall('mets:dmdSec', namespaces=ns.NSMAP)
     numDmdSecs = len(dmdSecs)
     # Group the dmdSecs into item-specific pairs (for DC and OTHER; both types are optional).
-    groupedDmdSecs = groupDmdSecs(dmdSecs)
-    
+    groupedDmdSecs = groupDmdSecs(dmdSecs, archivematica_structmap)
+
+    if args.ingestFormat == 'projectclient':
+        dmdsecs = {e.get('ID'): e for e in dmdSecs}
+        generate_project_client_package(outputDipDir, itemCountType, archivematica_structmap, dmdsecs, args.uuid[-36:])
+        sys.exit(0)
+
     # Bulk DIP. Assumes that a single item (i.e. no bulk) will only have one
     # dmdSec, (i.e., not "dmdSec_1 dmdSec_2"). This is probably a safe assumption
     # because a single item's metadata would either come from a dublincore.xml
@@ -1181,38 +935,25 @@ if __name__ == '__main__':
     # a combination of dcterms and custom metadata.
     if numDmdSecs > 1:
         # For simple items.  
-        if itemCountType == 'simple':
+        if 'simple' in itemCountType:
             for dmdSecGroup in groupedDmdSecs:                
                 filesInObjectDirectoryForThisDmdSecGroup = getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps)
                 if args.ingestFormat == 'directupload':
                     generateSimpleContentDMDirectUploadPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory)
-                if args.ingestFormat == 'projectclient':
-                    generateSimpleContentDMProjectClientPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup)
 
         # For compound items.
-        if itemCountType == 'compound': 
+        if 'compound' in itemCountType:
             for dmdSecGroup in groupedDmdSecs:
                 filesInObjectDirectoryForThisDmdSecGroup = getFilesInObjectDirectoryForThisDmdSecGroup(dmdSecGroup, structMaps)
                 if args.ingestFormat == 'directupload':
                     generateCompoundContentDMDirectUploadPackage(dmdSecGroup, structMaps,  args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, filesInThumbnailDirectory)
-                if args.ingestFormat == 'projectclient':
-                    generateCompoundContentDMProjectClientPackage(dmdSecGroup, structMaps, args.uuid, outputDipDir, filesInObjectDirectoryForThisDmdSecGroup, True)
 
     # 0 or 1 dmdSec (single-item DIP).
     else:
         # For simple items.
         if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'directupload':
             generateSimpleContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
-        if len(filesInObjectDirectory) <= 1 and args.ingestFormat == 'projectclient':
-            generateSimpleContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory)
 
         # For compound items.
         if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'directupload':
             generateCompoundContentDMDirectUploadPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, filesInThumbnailDirectory)
-        if len(filesInObjectDirectory) > 1 and args.ingestFormat == 'projectclient':
-            generateCompoundContentDMProjectClientPackage(dmdSecs, structMaps, args.uuid, outputDipDir, filesInObjectDirectory, False)
-    
-    if args.ingestFormat == 'projectclient':
-        zipProjectClientOutput(outputDipDir, args.outputDir, args.uuid)
-        # Delete the unzipped version of the DIP since we don't use it.
-        shutil.rmtree(outputDipDir)

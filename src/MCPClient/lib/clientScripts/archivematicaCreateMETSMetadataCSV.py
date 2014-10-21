@@ -30,17 +30,9 @@ import os
 import sys
 import traceback
 # archivematicaCommon
+from archivematicaFunctions import OrderedListsDict
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
-
-class OrderedListsDict(collections.OrderedDict):
-    def __setitem__(self, key, value):
-        # When inserting, insert into a list of items with the same key
-        try:
-            self[key]
-        except KeyError:
-            super(OrderedListsDict, self).__setitem__(key, [])
-        self[key].append(value)
 
 def parseMetadata(SIPPath):
     """

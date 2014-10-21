@@ -21,6 +21,7 @@
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
 
+import collections
 import lxml.etree as etree
 import os
 import re
@@ -40,6 +41,20 @@ MANUAL_NORMALIZATION_DIRECTORIES = [
     "objects/manualNormalization/access",
     "objects/manualNormalization/preservation",
 ]
+
+class OrderedListsDict(collections.OrderedDict):
+    """
+    OrderedDict where all keys are lists, and elements are appended automatically.
+    """
+
+    def __setitem__(self, key, value):
+        # When inserting, insert into a list of items with the same key
+        try:
+            self[key]
+        except KeyError:
+            super(OrderedListsDict, self).__setitem__(key, [])
+        self[key].append(value)
+
 
 def unicodeToStr(string):
     if isinstance(string, unicode):
