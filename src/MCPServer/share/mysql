@@ -96,7 +96,7 @@ CREATE TABLE `Agents` (
 
 LOCK TABLES `Agents` WRITE;
 /*!40000 ALTER TABLE `Agents` DISABLE KEYS */;
-INSERT INTO `Agents` VALUES (1,'preservation system','Archivematica-1.1.0','Archivematica','software'),(2,'repository code','ORG','Your Organization Name Here','organization');
+INSERT INTO `Agents` VALUES (1,'preservation system','Archivematica-1.3.0','Archivematica','software'),(2,'repository code','ORG','Your Organization Name Here','organization');
 /*!40000 ALTER TABLE `Agents` ENABLE KEYS */;
 UNLOCK TABLES;
 
