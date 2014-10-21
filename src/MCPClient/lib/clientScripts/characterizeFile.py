@@ -10,6 +10,8 @@ from __future__ import print_function
 import os
 import sys
 
+from lxml import etree
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoFPCommandOutput
@@ -75,8 +77,13 @@ def main(file_path, file_uuid, sip_uuid):
         # FPCommandOutput can have multiple rows for a given file,
         # distinguished by the rule that produced it.
         if rule.command.output_format and rule.command.output_format.pronom_id == 'fmt/101':
-            insertIntoFPCommandOutput(file_uuid, stdout, rule.uuid)
-            print('Saved XML output for command "{}" ({})'.format(rule.command.description, rule.command.uuid))
+            try:
+                etree.fromstring(stdout)
+                insertIntoFPCommandOutput(file_uuid, stdout, rule.uuid)
+                print('Saved XML output for command "{}" ({})'.format(rule.command.description, rule.command.uuid))
+            except etree.XMLSyntaxError:
+                failed = True
+                print('XML output for command "{}" ({}) was not valid XML; not saving to database'.format(rule.command.description, rule.command.uuid), file=sys.stderr)
         else:
             # If the output isn't XML, print the stdout to the screen so it can
             # be monitored by the operator
