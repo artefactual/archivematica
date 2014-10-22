@@ -292,7 +292,7 @@ def set_up_mapping(conn, index):
         )
         print 'AIP file mapping created.'
 
-def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_aic=None):
+def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_aic=None, identifiers=[]):
     conn = connect_and_create_index('aips')
 
     tree = ElementTree.parse(pathToMETS)
@@ -330,6 +330,7 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_a
         'AICID': aic_identifier,
         'isPartOf': is_part_of,
         'countAIPsinAIC': aips_in_aic,
+        'identifiers': identifiers
     }
     wait_for_cluster_yellow_status(conn)
     try_to_index(conn, aipData, 'aips', 'aip')

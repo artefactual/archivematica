@@ -1,6 +1,7 @@
 #!/usr/bin/python2 -OO
 
 import ConfigParser
+from glob import glob
 import os
 import sys
 
@@ -11,6 +12,11 @@ from main.models import UnitVariable
 import elasticSearchFunctions
 from executeOrRunSubProcess import executeOrRun
 import storageService as storage_service
+from identifer_functions import extract_identifiers_from_mods
+
+
+def list_mods(sip_path):
+    return glob('{}/submissionDocumentation/**/mods/*.xml'.format(sip_path))
 
 
 def index_aip():
@@ -42,6 +48,11 @@ def index_aip():
     mets_name = 'METS.{}.xml'.format(sip_uuid)
     mets_path = os.path.join(sip_path, mets_name)
 
+    mods_paths = list_mods(sip_path)
+    identifiers = []
+    for mods in mods_paths:
+        identifiers.extend(extract_identifiers_from_mods(mods))
+
     # If this is an AIC, find the number of AIP stored in it and index that
     aips_in_aic = None
     if sip_type == "AIC":
@@ -59,7 +70,8 @@ def index_aip():
         aip_info['current_full_path'],
         mets_path,
         size=aip_info['size'],
-        aips_in_aic=aips_in_aic)
+        aips_in_aic=aips_in_aic,
+        identifiers=identifiers)
 
     return 0
 
