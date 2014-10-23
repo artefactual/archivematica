@@ -85,9 +85,7 @@ def main(file_path, file_uuid, sip_uuid):
                 failed = True
                 print('XML output for command "{}" ({}) was not valid XML; not saving to database'.format(rule.command.description, rule.command.uuid), file=sys.stderr)
         else:
-            # If the output isn't XML, print the stdout to the screen so it can
-            # be monitored by the operator
-            print(stdout)
+            print('Tool output for command "{}" ({}) is not XML; not saving to database'.format(rule.command.description, rule.command.uuid), file=sys.stderr)
 
     if failed:
         return -1
