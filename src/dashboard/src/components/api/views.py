@@ -24,6 +24,7 @@ from django.db.models import Q
 import django.http
 
 # External dependencies, alphabetical
+from annoying.functions import get_object_or_None
 from tastypie.authentication import ApiKeyAuthentication
 
 # This project, alphabetical
@@ -58,6 +59,97 @@ def authenticate_request(request):
         error = 'API key not valid.'
 
     return error
+
+
+def get_unit_status(unit_uuid, unit_type):
+    """
+    Get status for a SIP or Transfer.
+
+    Returns a tuple of (status, SIP UUID).
+
+    Status is one of FAILED, REJECTED, USER_INPUT, COMPLETE or PROCESSING.
+
+    SIP UUID is populated only if the unit_type was unitTransfer and status is
+    COMPLETE.  Otherwise, it is None.
+
+    :param str unit_uuid: UUID of the SIP or Transfer
+    :param str unit_type: unitSIP or unitTransfer
+    :return: Tuple (status, SIP UUID or None)
+    """
+    sip_uuid = None
+    job = models.Job.objects.filter(sipuuid=unit_uuid).filter(unittype=unit_type).order_by('-createdtime', '-createdtimedec')[0]
+    if job.currentstep == 'Awaiting decision':
+        status = 'USER_INPUT'
+    elif 'failed' in job.microservicegroup.lower():
+        status = 'FAILED'
+    elif 'reject' in job.microservicegroup.lower():
+        status = 'REJECTED'
+    elif job.jobtype == 'Remove the processing directory':  # Done storing AIP
+        status = 'COMPLETE'
+    elif models.Job.objects.filter(sipuuid=unit_uuid).filter(jobtype='Create SIP from transfer objects').exists():
+        status = 'COMPLETE'
+        # Get SIP UUID
+        sips = models.File.objects.filter(transfer_id=unit_uuid).values('sip').distinct()
+        if sips:
+            sip_uuid = sips[0]['sip']
+        else:
+            sip_uuid = None
+    elif models.Job.objects.filter(sipuuid=unit_uuid).filter(jobtype='Move transfer to backlog').exists():
+        status = 'COMPLETE'
+        sip_uuid = 'BACKLOG'
+    else:
+        status = 'PROCESSING'
+
+    return status, sip_uuid
+
+
+def status(request, unit_uuid, unit_type):
+    # Example: http://127.0.0.1/api/transfer/status/?username=mike&api_key=<API key>
+    if request.method not in ('GET',):
+        return django.http.HttpResponseNotAllowed(['GET'])
+    auth_error = authenticate_request(request)
+    response = {}
+    if auth_error is not None:
+        response = {'message': auth_error, 'error': True}
+        return django.http.HttpResponseForbidden(
+            json.dumps(response),
+            mimetype='application/json'
+        )
+    error = None
+
+    # Get info about unit
+    if unit_type == 'unitTransfer':
+        unit = get_object_or_None(models.Transfer, uuid=unit_uuid)
+    elif unit_type == 'unitSIP':
+        unit = get_object_or_None(models.SIP, uuid=unit_uuid)
+
+    if unit is None:
+        response['message'] = 'Cannot fetch {} with UUID {}'.format(unit_type, unit_uuid)
+        response['error'] = True
+        return django.http.HttpResponseBadRequest(
+            json.dumps(response),
+            mimetype='application/json',
+        )
+    directory = unit.currentpath if unit_type == 'unitSIP' else unit.currentlocation
+    response['directory'] = os.path.basename(os.path.normpath(directory))
+    response['name'] = response['directory'].replace('-' + unit_uuid, '', 1)
+    response['uuid'] = unit_uuid
+
+    # Get status
+    status, sip_uuid = get_unit_status(unit_uuid, unit_type)
+    response['status'] = status
+    if sip_uuid:
+        response['sip_uuid'] = sip_uuid
+
+    if error is not None:
+        response['message'] = error
+        response['error'] = True
+        return django.http.HttpResponseServerError(
+            json.dumps(response),
+            mimetype='application/json'
+        )
+    response['message'] = 'Fetched status for {} successfully.'.format(unit_uuid)
+    return helpers.json_response(response)
 
 
 def waiting_for_user_input(request):

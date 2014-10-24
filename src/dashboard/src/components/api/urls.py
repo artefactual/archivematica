@@ -15,10 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns
+from django.conf.urls import patterns, url
+from django.conf import settings
 
 urlpatterns = patterns('components.api.views',
     (r'transfer/approve', 'approve_transfer'), 
     (r'transfer/unapproved', 'unapproved_transfers'),
+    url(r'transfer/status/(?P<unit_uuid>' + settings.UUID_REGEX + ')', 'status', {'unit_type': 'unitTransfer'}),
+    url(r'ingest/status/(?P<unit_uuid>' + settings.UUID_REGEX + ')', 'status', {'unit_type': 'unitSIP'}),
     (r'ingest/waiting', 'waiting_for_user_input'),
 )
