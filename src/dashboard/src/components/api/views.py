@@ -145,7 +145,8 @@ def unapproved_transfers(request):
 
                 unapproved.append({
                     'type': transfer_type,
-                    'directory': job_directory
+                    'directory': job_directory,
+                    'uuid': job.sipuuid,
                 })
 
             # get list of unapproved transfers
@@ -190,20 +191,18 @@ def approve_transfer(request):
 
             directory = request.POST.get('directory', '')
             transfer_type = request.POST.get('type', 'standard')
-            error = approve_transfer_via_mcp(directory, transfer_type, request.user.id)
+            error, unit_uuid = approve_transfer_via_mcp(directory, transfer_type, request.user.id)
 
             if error is not None:
                 response['message'] = error
                 response['error'] = True
-            else:
-                response['message'] = 'Approval successful.'
-
-            if error is not None:
                 return django.http.HttpResponseServerError(
                     json.dumps(response),
                     mimetype='application/json'
                 )
             else:
+                response['message'] = 'Approval successful.'
+                response['uuid'] = unit_uuid
                 return helpers.json_response(response)
         else:
             response['message'] = auth_error
@@ -234,7 +233,7 @@ def get_modified_standard_transfer_path(transfer_type=None):
 
 def approve_transfer_via_mcp(directory, transfer_type, user_id):
     error = None
-
+    unit_uuid = None
     if (directory != ''):
         # assemble transfer path
         modified_transfer_path = get_modified_standard_transfer_path(transfer_type)
@@ -245,11 +244,11 @@ def approve_transfer_via_mcp(directory, transfer_type, user_id):
             if transfer_type == 'zipped bag':
                 transfer_path = os.path.join(modified_transfer_path, directory)
             else:
-                transfer_path = os.path.join(modified_transfer_path, directory) + '/'
-
+                transfer_path = os.path.join(modified_transfer_path, directory, '')
             # look up job UUID using transfer path
             try:
                 job = models.Job.objects.filter(directory=transfer_path, currentstep='Awaiting decision')[0]
+                unit_uuid = job.sipuuid
 
                 type_task_config_descriptions = {
                     'standard': 'Approve standard transfer',
@@ -285,4 +284,4 @@ def approve_transfer_via_mcp(directory, transfer_type, user_id):
     else:
         error = 'Please specify a transfer directory.'
 
-    return error
+    return error, unit_uuid
