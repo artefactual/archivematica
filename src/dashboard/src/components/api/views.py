@@ -42,6 +42,8 @@ TRANSFER_TYPE_DIRECTORIES = {
     'TRIM': 'TRIM'
 }
 
+SHARED_DIRECTORY_ROOT = helpers.get_server_config_value('sharedDirectory')
+
 
 def authenticate_request(request):
     error = None
@@ -65,42 +67,42 @@ def get_unit_status(unit_uuid, unit_type):
     """
     Get status for a SIP or Transfer.
 
-    Returns a tuple of (status, SIP UUID).
+    Returns a dict with status info.  Keys will always include 'status' and
+    'microservice', and may include 'sip_uuid'.
 
     Status is one of FAILED, REJECTED, USER_INPUT, COMPLETE or PROCESSING.
-
+    Microservice is the name of the current microservice.
     SIP UUID is populated only if the unit_type was unitTransfer and status is
     COMPLETE.  Otherwise, it is None.
 
     :param str unit_uuid: UUID of the SIP or Transfer
     :param str unit_type: unitSIP or unitTransfer
-    :return: Tuple (status, SIP UUID or None)
+    :return: Dict with status info.
     """
-    sip_uuid = None
+    ret = {}
     job = models.Job.objects.filter(sipuuid=unit_uuid).filter(unittype=unit_type).order_by('-createdtime', '-createdtimedec')[0]
+    ret['microservice'] = job.jobtype
     if job.currentstep == 'Awaiting decision':
-        status = 'USER_INPUT'
+        ret['status'] = 'USER_INPUT'
     elif 'failed' in job.microservicegroup.lower():
-        status = 'FAILED'
+        ret['status'] = 'FAILED'
     elif 'reject' in job.microservicegroup.lower():
-        status = 'REJECTED'
+        ret['status'] = 'REJECTED'
     elif job.jobtype == 'Remove the processing directory':  # Done storing AIP
-        status = 'COMPLETE'
+        ret['status'] = 'COMPLETE'
     elif models.Job.objects.filter(sipuuid=unit_uuid).filter(jobtype='Create SIP from transfer objects').exists():
-        status = 'COMPLETE'
+        ret['status'] = 'COMPLETE'
         # Get SIP UUID
         sips = models.File.objects.filter(transfer_id=unit_uuid).values('sip').distinct()
         if sips:
-            sip_uuid = sips[0]['sip']
-        else:
-            sip_uuid = None
+            ret['sip_uuid'] = sips[0]['sip']
     elif models.Job.objects.filter(sipuuid=unit_uuid).filter(jobtype='Move transfer to backlog').exists():
-        status = 'COMPLETE'
-        sip_uuid = 'BACKLOG'
+        ret['status'] = 'COMPLETE'
+        ret['sip_uuid'] = 'BACKLOG'
     else:
-        status = 'PROCESSING'
+        ret['status'] = 'PROCESSING'
 
-    return status, sip_uuid
+    return ret
 
 
 def status(request, unit_uuid, unit_type):
@@ -120,8 +122,10 @@ def status(request, unit_uuid, unit_type):
     # Get info about unit
     if unit_type == 'unitTransfer':
         unit = get_object_or_None(models.Transfer, uuid=unit_uuid)
+        response['type'] = 'transfer'
     elif unit_type == 'unitSIP':
         unit = get_object_or_None(models.SIP, uuid=unit_uuid)
+        response['type'] = 'SIP'
 
     if unit is None:
         response['message'] = 'Cannot fetch {} with UUID {}'.format(unit_type, unit_uuid)
@@ -131,15 +135,14 @@ def status(request, unit_uuid, unit_type):
             mimetype='application/json',
         )
     directory = unit.currentpath if unit_type == 'unitSIP' else unit.currentlocation
+    response['path'] = directory.replace('%sharedPath%', SHARED_DIRECTORY_ROOT, 1)
     response['directory'] = os.path.basename(os.path.normpath(directory))
     response['name'] = response['directory'].replace('-' + unit_uuid, '', 1)
     response['uuid'] = unit_uuid
 
-    # Get status
-    status, sip_uuid = get_unit_status(unit_uuid, unit_type)
-    response['status'] = status
-    if sip_uuid:
-        response['sip_uuid'] = sip_uuid
+    # Get status (including new SIP uuid, current microservice)
+    status_info = get_unit_status(unit_uuid, unit_type)
+    response.update(status_info)
 
     if error is not None:
         response['message'] = error
