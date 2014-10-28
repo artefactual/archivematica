@@ -29,18 +29,10 @@ from tastypie.authentication import ApiKeyAuthentication
 
 # This project, alphabetical
 from contrib.mcp.client import MCPClient
+from components.filesystem_ajax import views as filesystem_ajax_views
 from components import helpers
 from main import models
 
-
-TRANSFER_TYPE_DIRECTORIES = {
-    'standard': 'standardTransfer',
-    'unzipped bag': 'baggitDirectory',
-    'zipped bag': 'baggitZippedDirectory',
-    'dspace': 'Dspace',
-    'maildir': 'maildir',
-    'TRIM': 'TRIM'
-}
 
 SHARED_DIRECTORY_ROOT = helpers.get_server_config_value('sharedDirectory')
 
@@ -233,7 +225,7 @@ def unapproved_transfers(request):
 
                 transfer_watch_directory = type_and_directory.split('/')[0]
                 # Get transfer type from transfer directory
-                transfer_type_directories_reversed = {v: k for k, v in TRANSFER_TYPE_DIRECTORIES.iteritems()}
+                transfer_type_directories_reversed = {v: k for k, v in filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES.iteritems()}
                 transfer_type = transfer_type_directories_reversed[transfer_watch_directory]
 
                 job_directory = type_and_directory.replace(transfer_watch_directory + '/', '', 1)
@@ -318,7 +310,7 @@ def get_modified_standard_transfer_path(transfer_type=None):
 
     if transfer_type is not None:
         try:
-            path = os.path.join(path, TRANSFER_TYPE_DIRECTORIES[transfer_type])
+            path = os.path.join(path, filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES[transfer_type])
         except:
             return None
 

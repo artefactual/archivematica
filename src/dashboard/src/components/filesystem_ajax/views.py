@@ -53,6 +53,15 @@ ORIGINAL_DIR = os.path.join(SHARED_DIRECTORY_ROOT, 'www', 'AIPsStore', 'transfer
 DEFAULT_BACKLOG_PATH = 'originals/'
 DEFAULT_ARRANGE_PATH = '/arrange/'
 
+TRANSFER_TYPE_DIRECTORIES = {
+    'standard': 'standardTransfer',
+    'unzipped bag': 'baggitDirectory',
+    'zipped bag': 'baggitZippedDirectory',
+    'dspace': 'Dspace',
+    'maildir': 'maildir',
+    'TRIM': 'TRIM'
+}
+
 
 def directory_children_proxy_to_storage_server(request, location_uuid, basePath=False):
     path = ''
@@ -205,16 +214,7 @@ def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata
         basename = os.path.basename(filepath)
 
         # default to standard transfer
-        type_paths = {
-            'standard': 'standardTransfer',
-            'unzipped bag': 'baggitDirectory',
-            'zipped bag': 'baggitZippedDirectory',
-            'dspace': 'Dspace',
-            'maildir': 'maildir',
-            'TRIM': 'TRIM'
-        }
-
-        type_subdir = type_paths.get(type, 'standardTransfer')
+        type_subdir = TRANSFER_TYPE_DIRECTORIES.get(type, 'standardTransfer')
         destination = os.path.join(ACTIVE_TRANSFER_DIR, type_subdir)
 
         # if transfer compontent path leads to a ZIP file, treat as zipped
