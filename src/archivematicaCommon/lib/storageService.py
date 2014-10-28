@@ -5,8 +5,8 @@ import platform
 import slumber
 import sys
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import DashboardSetting
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica.log",
@@ -16,17 +16,15 @@ logging.basicConfig(filename="/tmp/archivematica.log",
 
 ############# HELPER FUNCTIONS #############
 
-def get_setting_no_orm(setting, default=''):
-    sql = """SELECT value FROM DashboardSettings WHERE name = '{}';""".format(setting)
+def get_setting(setting, default=''):
     try:
-        value = databaseInterface.queryAllSQL(sql)[0][0]
-        return value
-    except Exception:
+        return DashboardSetting.objects.get(name=setting).value
+    except DashboardSetting.DoesNotExist:
         return default
 
 def _storage_service_url():
     # Get storage service URL from DashboardSetting model
-    storage_service_url = get_setting_no_orm('storage_service_url', None)
+    storage_service_url = get_setting('storage_service_url', None)
     if storage_service_url is None:
         logging.error("Storage server not configured.")
         storage_service_url = 'http://localhost:8000/'
@@ -59,7 +57,7 @@ def _storage_relative_from_absolute(location_path, space_path):
 def create_pipeline(create_default_locations=False, shared_path=None, api_username=None, api_key=None):
     api = _storage_api()
     pipeline = {
-        'uuid': get_setting_no_orm('dashboard_uuid'),
+        'uuid': get_setting('dashboard_uuid'),
         'description': "Archivematica on {}".format(platform.node()),
         'create_default_locations': create_default_locations,
         'shared_path': shared_path,
@@ -108,7 +106,7 @@ def get_location(path=None, purpose=None, space=None):
     if space and path:
         path = _storage_relative_from_absolute(path, space['path'])
         space = space['uuid']
-    pipeline = _get_pipeline(get_setting_no_orm('dashboard_uuid'))
+    pipeline = _get_pipeline(get_setting('dashboard_uuid'))
     if pipeline is None:
         return None
     while True:
@@ -155,7 +153,7 @@ def copy_files(source_location, destination_location, files, api=None):
     """
     if api is None:
         api = _storage_api()
-    pipeline = _get_pipeline(get_setting_no_orm('dashboard_uuid'))
+    pipeline = _get_pipeline(get_setting('dashboard_uuid'))
     move_files = {
         'origin_location': source_location['resource_uri'],
         'files': files,
@@ -225,7 +223,7 @@ def create_file(uuid, origin_location, origin_path, current_location,
     """
 
     api = _storage_api()
-    pipeline = _get_pipeline(get_setting_no_orm('dashboard_uuid'))
+    pipeline = _get_pipeline(get_setting('dashboard_uuid'))
     if pipeline is None:
         return (None, 'Pipeline not available, see logs.')
     new_file = {
@@ -326,7 +324,7 @@ def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
     api = _storage_api()
     api_request = {
         'event_reason': reason_for_deletion,
-        'pipeline':     get_setting_no_orm('dashboard_uuid'),
+        'pipeline':     get_setting('dashboard_uuid'),
         'user_email':   user_email,
         'user_id':      user_id
     }
