@@ -27,20 +27,28 @@ import MySQLdb
 import uuid
 from archivematicaFunctions import unicodeToStr
 
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import Derivation, Event, File, FPCommandOutput, Job, SIP, Task, UnitVariable
+
 def insertIntoFiles(fileUUID, filePath, enteredSystem=databaseInterface.getUTCDate(), transferUUID="", sipUUID="", use="original"):
+    kwargs = {
+        "uuid": fileUUID,
+        "originallocation": filePath,
+        "currentlocation": filePath,
+        "enteredsystem": enteredSystem,
+        "filegrpuse": use
+    }
     if transferUUID != "" and sipUUID == "":
-        databaseInterface.runSQL("""INSERT INTO Files (fileUUID, originalLocation, currentLocation, enteredSystem, fileGrpUse, transferUUID) VALUES (%s, %s, %s, %s, %s, %s)""",
-            (fileUUID, filePath, filePath, enteredSystem, use, transferUUID)
-        )
+        kwargs["transfer_id"] = transferUUID
     elif transferUUID == "" and sipUUID != "":
-        databaseInterface.runSQL("""INSERT INTO Files (fileUUID, originalLocation, currentLocation, enteredSystem, fileGrpUse, sipUUID) VALUES (%s, %s, %s, %s, %s, %s)""",
-            (fileUUID, filePath, filePath, enteredSystem, use, sipUUID)
-        )
+        kwargs["sip_id"] = sipUUID
     else:
         print >>sys.stderr, "not supported yet - both SIP and transfer UUID's defined (or neither defined)"
         print >>sys.stderr, "SIP UUID:", sipUUID
         print >>sys.stderr, "transferUUID:", transferUUID
         raise Exception("not supported yet - both SIP and transfer UUID's defined (or neither defined)", sipUUID + "-" + transferUUID)
+
+    File.objects.create(**kwargs)
 
 def getAgentForFileUUID(fileUUID):
     agent = None
@@ -49,41 +57,47 @@ def getAgentForFileUUID(fileUUID):
         print >>sys.stderr, error_message
         raise Exception(error_message)
     else:
-        rows = databaseInterface.queryAllSQL("""SELECT sipUUID, transferUUID FROM Files WHERE fileUUID = %s;""", (fileUUID,))
-        sipUUID, transferUUID = rows[0]
-        if sipUUID:
-            rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = %s AND unitUUID = %s AND variable =%s;""", ('SIP', sipUUID, "activeAgent"))
-            if len(rows):
-                agent = rows[0][0]
-        if transferUUID and not agent: #agent hasn't been found yet
-            rows = databaseInterface.queryAllSQL("""SELECT variableValue FROM UnitVariables WHERE unitType = '%s' AND unitUUID = '%s' AND variable = '%s';""" % ("Transfer", transferUUID, "activeAgent"))
-            if len(rows):
-                agent = rows[0][0]
+        try:
+            f = File.objects.get(uuid=fileUUID)
+        except File.DoesNotExist:
+            return
+
+        if f.sip:
+            try:
+                var = UnitVariable.objects.get(unittype='SIP', unituuid=f.sip_id,
+                                               variable='activeAgent')
+                agent = var.variablevalue
+            except UnitVariable.DoesNotExist:
+                pass
+        if f.transfer and agent is None: # agent hasn't been found yet
+            try:
+                var = UnitVariable.objects.get(unittype='Transfer',
+                                               unituuid=f.transfer_id,
+                                               variable='activeAgent')
+                agent = var.variablevalue
+            except UnitVariable.DoesNotExist:
+                pass
     return agent
 
 def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=databaseInterface.getUTCDate(), eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
     agent = getAgentForFileUUID(fileUUID)
-    if eventIdentifierUUID == "":
-        eventIdentifierUUID = uuid.uuid4().__str__()
-    databaseInterface.runSQL("""INSERT INTO Events (fileUUID, eventIdentifierUUID, eventType, eventDateTime, eventDetail, eventOutcome, eventOutcomeDetailNote, linkingAgentIdentifier)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
-        (fileUUID, eventIdentifierUUID, eventType, eventDateTime,
-         eventDetail, eventOutcome, eventOutcomeDetailNote, agent)
-    )
+    if not eventIdentifierUUID:
+        eventIdentifierUUID = str(uuid.uuid4())
+
+    Event.objects.create(event_id=eventIdentifierUUID, file_uuid_id=fileUUID,
+                         event_type=eventType, event_datetime=eventDateTime,
+                         event_detail=eventDetail, event_outcome=eventOutcome,
+                         event_outcome_detail=eventOutcomeDetailNote,
+                         linking_agent_id=agent)
 
 def insertIntoDerivations(sourceFileUUID="", derivedFileUUID="", relatedEventUUID=""):
-    databaseInterface.runSQL("""INSERT INTO Derivations
-        (sourceFileUUID, derivedFileUUID, relatedEventUUID)
-        VALUES (%s, %s, %s)""",
-        (sourceFileUUID, derivedFileUUID, relatedEventUUID)
-    )
+    Derivation.objects.create(source_file_id=sourceFileUUID,
+                              derived_file_id=derivedFileUUID,
+                              event_id=relatedEventUUID)
 
 def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
-    databaseInterface.runSQL("""INSERT INTO FPCommandOutput
-        (fileUUID, content, ruleUUID)
-        VALUES (%s, %s, %s)""",
-        (fileUUID, fitsXMLString, ruleUUID)
-    )
+    FPCommandOutput.objects.create(file_id=fileUUID, content=fitsXMLString,
+                                   rule_id=ruleUUID)
 
 def insertIntoFilesIDs(fileUUID="", formatName="", formatVersion="", formatRegistryName="", formatRegistryKey=""):
     databaseInterface.runSQL("""INSERT INTO FilesIDs
@@ -106,17 +120,13 @@ def logTaskCreatedSQL(taskManager, commandReplacementDic, taskUUID, arguments):
     taskexec = taskManager.execute
     fileName = os.path.basename(os.path.abspath(commandReplacementDic["%relativeLocation%"]))
 
-    databaseInterface.runSQL("""INSERT INTO Tasks (taskUUID, jobUUID, fileUUID, fileName, exec, arguments, createdTime)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-        (taskUUID, jobUUID, fileUUID, fileName,
-         taskexec, arguments, databaseInterface.getUTCDate())
-    )
-
-def logTaskAssignedSQL(taskUUID, client, date):
-    databaseInterface.runSQL(
-        """UPDATE Tasks SET startTime=%s, client=%s WHERE taskUUID=%s;""",
-        (date, client, taskUUID)
-    )
+    Task.objects.create(taskuuid=taskUUID,
+                        job_id=jobUUID,
+                        fileuuid=fileUUID,
+                        filename=fileName,
+                        execution=taskexec,
+                        arguments=arguments,
+                        createdtime=databaseInterface.getUTCDate())
 
 def logTaskCompletedSQL(task):
     print "Logging task output to db", task.UUID
@@ -125,11 +135,12 @@ def logTaskCompletedSQL(task):
     stdOut = task.results["stdOut"]
     stdError = task.results["stdError"]
 
-    databaseInterface.runSQL(
-        """UPDATE Tasks SET endTime=%s, exitCode=%s, stdOut=%s, stdError=%s
-           WHERE taskUUID=%s""",
-        (databaseInterface.getUTCDate(), exitCode, stdOut, stdError, taskUUID)
-    )
+    task = Task.objects.get(taskuuid=taskUUID)
+    task.endtime = databaseInterface.getUTCDate()
+    task.exitcode = exitCode
+    task.stdout = stdOut
+    task.stderror = stdError
+    task.save()
 
 def logJobCreatedSQL(job):
     separator = databaseInterface.getSeparator()
@@ -137,20 +148,19 @@ def logJobCreatedSQL(job):
     decDate = databaseInterface.getDeciDate("." + job.createdDate.split(".")[-1])
     if job.unit.owningUnit != None:
         unitUUID = job.unit.owningUnit.UUID 
-    databaseInterface.runSQL("""INSERT INTO Jobs (jobUUID, jobType, directory, SIPUUID, currentStep, unitType, microserviceGroup, createdTime, createdTimeDec, MicroServiceChainLinksPK, subJobOf)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-        (job.UUID, job.description, job.unit.currentPath, unitUUID,
-         "Executing command(s)", job.unit.__class__.__name__,
-         str(job.microserviceGroup), job.createdDate, decDate, str(job.pk),
-         str(job.subJobOf))
-    )
-    #TODO -un hardcode executing exeCommand
+    Job.objects.create(jobuuid=job.UUID,
+                       jobtype=job.description,
+                       directory=job.unit.currentPath,
+                       sipuuid=unitUUID,
+                       currentstep="Executing command(s)",
+                       unittype=job.unit.__class__.__name__,
+                       microservicegroup=str(job.microserviceGroup),
+                       createdtime=job.createdDate,
+                       createdtimedec=decDate,
+                       microservicechainlink_id=str(job.pk),
+                       subjobof=str(job.subJobOf))
 
-def logJobStepCompletedSQL(job):
-    databaseInterface.runSQL("""INSERT INTO jobStepCompleted (jobUUID, step, completedTime)
-        VALUES (%s, %s, %s)""",
-        (job.UUID, job.step, databaseInterface.getUTCDate())
-    )
+    # TODO -un hardcode executing exeCommand
 
 def fileWasRemoved(fileUUID, utcDate=databaseInterface.getUTCDate(), eventDetail = "", eventOutcomeDetailNote = "", eventOutcome=""):
     eventIdentifierUUID = uuid.uuid4().__str__()
@@ -164,18 +174,20 @@ def fileWasRemoved(fileUUID, utcDate=databaseInterface.getUTCDate(), eventDetail
                        eventOutcome=eventOutcome, \
                        eventOutcomeDetailNote=eventOutcomeDetailNote)
 
-    databaseInterface.runSQL(
-        """UPDATE Files SET removedTime=%s, currentLocation=NULL WHERE fileUUID=%s""",
-        (utcDate, fileUUID)
-    )
+    f = File.objects.get(uuid=fileUUID)
+    f.removedtime = utcDate
+    f.currentlocation = None
+    f.save()
 
 def createSIP(path, UUID=None, sip_type='SIP'):
     if UUID is None:
         UUID = str(uuid.uuid4())
     print "Creating SIP:", UUID, "-", path
-    sql = """INSERT INTO SIPs (sipUUID, currentPath, sipType)
-        VALUES (%s, %s, %s)"""
-    databaseInterface.runSQL(sql, (UUID, path, sip_type))
+    sip = SIP(uuid=UUID,
+              currentpath=path,
+              sip_type=sip_type)
+    sip.save()
+
     return UUID
 
 def deUnicode(str):
