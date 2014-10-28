@@ -33,7 +33,9 @@ import sys
 import time
 from xml.etree import ElementTree
 
-from elasticsearch import Elasticsearch, ConnectionError, TransportError
+sys.path.append("/usr/share/archivematica/dashboard")
+from django.db.models import Q
+from main.models import DashboardSetting, File, Transfer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
@@ -41,6 +43,8 @@ import version
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import xmltodict
+
+from elasticsearch import Elasticsearch, ConnectionError, TransportError
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
@@ -85,13 +89,10 @@ def remove_tool_output_from_mets(doc):
     print "Removed FITS output from METS."
 
 def getDashboardUUID():
-    sql = "SELECT value FROM DashboardSettings WHERE name='%s'"
-    sql = sql % (MySQLdb.escape_string('dashboard_uuid'))
-
-    rows = databaseInterface.queryAllSQL(sql)
-
-    if len(rows) == 1:
-        return rows[0][0]
+    try:
+        return DashboardSetting.objects.get(name='dashboard_uuid').value
+    except DashboardSetting.DoesNotExist:
+        pass
 
 def getElasticsearchServerHostAndPort():
     clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
@@ -607,13 +608,12 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
     ]
 
     # Get accessionId and name from Transfers table using UUID
-    accession_id = ''
-    sql = "SELECT accessionID, currentLocation FROM Transfers WHERE transferUUID='{}';".format(MySQLdb.escape_string(uuid))
-    rows = databaseInterface.queryAllSQL(sql)
-    if len(rows) > 0:
-        accession_id = rows[0][0]
-        # TODO Transfer name should be stored in the DB, for now parse from path
-        transfer_name = rows[0][1].split('/')[-2]
+    try:
+        transfer = Transfer.objects.get(uuid=uuid)
+        accession_id = transfer.accessionid
+        transfer_name = transfer.currentlocation.split('/')[-2]
+    except Transfer.DoesNotExist:
+        accession_id = transfer_name = ''
 
     # Get dashboard UUID
     dashboard_uuid = getDashboardUUID()
@@ -623,12 +623,11 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
             # Get file UUID
             file_uuid = ''
             relative_path = filepath.replace(pathToTransfer, '%transferDirectory%')
-            sql = "SELECT fileUUID FROM Files WHERE currentLocation='{}' AND transferUUID='{}';".format(
-                MySQLdb.escape_string(relative_path),
-                MySQLdb.escape_string(uuid))
-            rows = databaseInterface.queryAllSQL(sql)
-            if len(rows) > 0:
-                file_uuid = rows[0][0]
+            try:
+                file_uuid = File.objects.get(currentlocation=relative_path,
+                                             transfer_id=uuid)
+            except File.DoesNotExist:
+                file_uuid = ''
 
             # Get file path info
             relative_path = relative_path.replace('%transferDirectory%', transfer_name+'/')
@@ -798,8 +797,8 @@ def connect_and_remove_transfer_files(uuid, unit_type=None):
     if unit_type == 'transfer':
         transfers = {uuid}
     else:
-        sql = "SELECT transferUUID FROM Files WHERE transferUUID=%s OR sipUUID=%s"
-        transfers = {f[0] for f in databaseInterface.queryAllSQL(sql, (uuid, uuid))}
+        condition = Q(transfer_id=uuid) | Q(sip_id=uuid)
+        transfers = {f[0] for f in File.objects.filter(condition).values_list('transfer_id')}
 
     if len(transfers) > 0:
         conn = connect_and_create_index('transfers')
