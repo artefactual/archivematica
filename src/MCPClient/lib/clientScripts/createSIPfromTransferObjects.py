@@ -20,16 +20,16 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import uuid
 import shutil
-import MySQLdb
 import os
 import sys
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File, SIP
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
-import databaseInterface
 import databaseFunctions
-
 
 if __name__ == '__main__':
     objectsDirectory = sys.argv[1]
@@ -46,14 +46,10 @@ if __name__ == '__main__':
 
     #create row in SIPs table if one doesn't already exist
     lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
-    sql = """SELECT sipUUID FROM SIPs WHERE currentPath = '""" + MySQLdb.escape_string(lookup_path) + "';"
-    rows = databaseInterface.queryAllSQL(sql)
-    if len(rows) > 0:
-        row = rows[0]
-        sipUUID = row[0]
-    else:
-        sipUUID = uuid.uuid4().__str__()
-        databaseFunctions.createSIP(lookup_path, sipUUID)
+    try:
+        sipUUID = SIP.objects.get(currentpath=lookup_path).uuid
+    except SIP.DoesNotExist:
+        sipUUID = databaseFunctions.createSIP(lookup_path)
 
     #move the objects to the SIPDir
     for item in os.listdir(objectsDirectory):
@@ -71,14 +67,16 @@ if __name__ == '__main__':
 
     #get the database list of files in the objects directory
     #for each file, confirm it's in the SIP objects directory, and update the current location/ owning SIP'
-    sql = """SELECT  fileUUID, currentLocation FROM Files WHERE removedTime = 0 AND currentLocation LIKE '\%transferDirectory\%objects%' AND transferUUID =  '""" + transferUUID + "'"
-    for row in databaseInterface.queryAllSQL(sql):
-        fileUUID = row[0]
-        currentPath = databaseFunctions.deUnicode(row[1])
+    files = File.objects.filter(transfer_id=transferUUID,
+                                currentlocation__startswith='%transferDirectory%objects',
+                                removedtime__isnull=True)
+    for f in files:
+        currentPath = databaseFunctions.deUnicode(f.currentlocation)
         currentSIPFilePath = currentPath.replace("%transferDirectory%", tmpSIPDir)
         if os.path.isfile(currentSIPFilePath):
-            sql = """UPDATE Files SET currentLocation='%s', sipUUID='%s' WHERE fileUUID='%s'""" % (MySQLdb.escape_string(currentPath.replace("%transferDirectory%", "%SIPDirectory%")), sipUUID, fileUUID)
-            databaseInterface.runSQL(sql)
+            f.currentlocation = currentPath.replace("%transferDirectory%", "%SIPDirectory%")
+            f.sip_id = sipUUID
+            f.save()
         else:
             print >>sys.stderr, "file not found: ", currentSIPFilePath
 

@@ -24,7 +24,6 @@ import os
 import sys
 import lxml.etree as etree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-#import databaseInterface
 from externals.checksummingTools import sha_for_file
 from externals.checksummingTools import md5_for_file
 
@@ -75,7 +74,6 @@ def verifyMetsFileSecChecksums(metsFile, date, taskUUID, relativeDirectory="./")
 
     return exitCode
 
-    #insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=databaseInterface.getUTCDate(), eventDetail="", eventOutcome="", eventOutcomeDetailNote="")
     databaseFunctions.insertIntoEvents(fileUUID=fileUUID, \
                  eventIdentifierUUID=eventIdentifierUUID, \
                  eventType="fixity check", \

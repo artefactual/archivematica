@@ -23,12 +23,11 @@
 import os
 import sys
 from lxml import etree
-import MySQLdb
 
 import archivematicaXMLNamesSpace
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
 
 def identify_dspace_files(mets_file, transfer_dir, transfer_uuid, relative_dir="./"):
     print mets_file
@@ -58,8 +57,7 @@ def identify_dspace_files(mets_file, transfer_dir, transfer_uuid, relative_dir="
                 print >> sys.stderr, 'Unexpected usage', use
                 continue
 
-            sql = """UPDATE Files SET fileGrpUse = '%s' WHERE currentLocation = '%s' AND transferUUID = '%s';""" % (db_use, MySQLdb.escape_string(db_location), transfer_uuid)
-            databaseInterface.runSQL(sql)
+            File.objects.filter(currentlocation=db_location, transfer_id=transfer_uuid).update(filegrpuse=db_use)
 
 
 if __name__ == '__main__':

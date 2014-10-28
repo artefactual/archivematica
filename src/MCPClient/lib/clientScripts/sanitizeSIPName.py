@@ -21,14 +21,13 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
-#import os
 from archivematicaMoveSIP import moveSIP
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
-from sanitizeNames import sanitizePath
 
-databaseInterface.printSQL = True
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import SIP, Transfer
+
+from sanitizeNames import sanitizePath
 
 DetoxDic={}
 
@@ -46,13 +45,11 @@ if __name__ == '__main__':
     
     
     if unitType == "SIP": 
-        table = "SIPs"
-        locationColumn = 'currentPath'
-        idColumn = 'sipUUID'
+        klass = SIP
+        locationColumn = 'currentpath'
     elif unitType == "Transfer":
-        table = "Transfers"
-        locationColumn = 'currentLocation'
-        idColumn = 'transferUUID'
+        klass = Transfer
+        locationColumn = 'currentlocation'
     else:
         print >>sys.stderr, "invalid unit type: ", unitType
         exit(1)
@@ -60,5 +57,7 @@ if __name__ == '__main__':
     if SIPDirectory != dst:
         dst = dst.replace(sharedDirectoryPath, "%sharedPath%", 1) + "/"
         print SIPDirectory.replace(sharedDirectoryPath, "%sharedPath%", 1) + " -> " + dst
-        sql =  """UPDATE %s SET %s='%s' WHERE %s='%s'; """ % (table, locationColumn, dst, idColumn, sipUUID)
-        databaseInterface.runSQL(sql)
+
+        unit = klass.objects.get(uuid=sipUUID)
+        setattr(unit, locationColumn, dst)
+        unit.save()

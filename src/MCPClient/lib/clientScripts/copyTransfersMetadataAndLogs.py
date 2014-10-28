@@ -25,8 +25,9 @@ import sys
 import shutil
 from optparse import OptionParser
 import traceback
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
 
 
 def main(sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath=""):
@@ -36,17 +37,10 @@ def main(sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath
         os.makedirs(transfersLogsDirectory)
 
     exitCode = 0
-    sql = """SELECT Files.transferUUID, Transfers.currentLocation FROM Files
-        JOIN Transfers on Transfers.transferUUID = Files.transferUUID
-        WHERE sipUUID = '%s'
-        GROUP BY Files.transferUUID;""" % (sipUUID)
 
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    while row != None:
+    files = File.objects.filter(sip_id=sipUUID, transfer__isnull=False).order_by('transfer__uuid').values_list('transfer__uuid', 'transfer__currentlocation')
+    for transferUUID, transferPath in files:
         try:
-            transferUUID = row[0]
-            transferPath = row[1]
             if sharedPath != "":
                 transferPath = transferPath.replace("%sharedPath%", sharedPath, 1)
             transferBasename = os.path.basename(os.path.abspath(transferPath))
@@ -71,14 +65,9 @@ def main(sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath
                 
 
         except Exception as inst:
-            print >>sys.stderr, type(inst)
-            print >>sys.stderr, inst.args
             traceback.print_exc(file=sys.stderr)
-            print >>sys.stderr, "Error with transfer: ", row
             exitCode += 1
-        row = c.fetchone()
 
-    sqlLock.release()
     exit(exitCode)
 
 if __name__ == '__main__':

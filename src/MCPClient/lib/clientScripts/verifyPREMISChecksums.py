@@ -23,21 +23,18 @@
 import sys
 import os
 from optparse import OptionParser
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 import databaseFunctions
 from externals.checksummingTools import sha_for_file
 
 def verifyChecksum(fileUUID, filePath, date, eventIdentifierUUID):
-    sql = """SELECT checksum FROM Files WHERE fileUUID = '""" + fileUUID + "'"
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    checksumDB = ""
-    while row != None:
-        checksumDB = row[0]
-        row = c.fetchone()
-    sqlLock.release()
-    if checksumDB == None or checksumDB == "" or checksumDB == "None":
+    f = File.objects.get(uuid=fileUUID)
+
+    if f.checksum in ("", "None"):
         print >>sys.stderr, "No checksum found in database for file:", fileUUID, filePath
         exit(1)
     checksumFile = sha_for_file(filePath)
@@ -45,18 +42,17 @@ def verifyChecksum(fileUUID, filePath, date, eventIdentifierUUID):
     eventOutcome=""
     eventOutcomeDetailNote=""
     exitCode = 0
-    if checksumFile != checksumDB:
-        eventOutcomeDetailNote = checksumFile.__str__() + " != " + checksumDB.__str__()
+    if checksumFile != f.checksum:
+        eventOutcomeDetailNote = str(checksumFile) + " != " + f.checksum
         eventOutcome="Fail"
         exitCode = 2
         print >>sys.stderr, "Checksums do not match:", fileUUID, filePath
         print >>sys.stderr, eventOutcomeDetailNote
     else:
-        eventOutcomeDetailNote = "%s %s" % (checksumFile.__str__(), "verified")
+        eventOutcomeDetailNote = "%s %s" % (str(checksumFile), "verified")
         eventOutcome="Pass"
         exitCode = 0
 
-    #insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=databaseInterface.getUTCDate(), eventDetail="", eventOutcome="", eventOutcomeDetailNote="")
     databaseFunctions.insertIntoEvents(fileUUID=fileUUID, \
                  eventIdentifierUUID=eventIdentifierUUID, \
                  eventType="fixity check", \

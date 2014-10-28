@@ -10,10 +10,13 @@ import uuid
 
 import archivematicaXMLNamesSpace as namespaces
 import archivematicaCreateMETS2
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import DublinCore
+
 PATH = "/usr/lib/archivematica/archivematicaCommon"
 if PATH not in sys.path:
     sys.path.append(PATH)
-import databaseInterface
 import fileOperations
 from externals import checksummingTools
 
@@ -66,12 +69,14 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     checksum = checksummingTools.sha_for_file(aip_path)
     # Get package type (AIP, AIC)
     sip_metadata_uuid = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
-    sql = """SELECT type FROM Dublincore WHERE metadataAppliesToType='{type}' AND metadataAppliesToidentifier='{uuid}';""".format(
-        type=sip_metadata_uuid, uuid=aip_uuid)
-    rows = databaseInterface.queryAllSQL(sql)
-    package_type = "Archival Information Package"
-    if rows and rows[0][0]:
-        package_type = rows[0][0]
+
+    try:
+        dc = DublinCore.objects.get(metadataappliestotype_id=sip_metadata_uuid,
+                                    metadataappliestoidentifier=aip_uuid)
+    except DublinCore.DoesNotExist:
+        package_type = "Archival Information Package"
+    else:
+        package_type = dc.type
 
     # Namespaces
     nsmap = {

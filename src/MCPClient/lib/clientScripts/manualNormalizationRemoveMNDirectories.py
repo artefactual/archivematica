@@ -22,9 +22,12 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import os
 import sys
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseFunctions
-import databaseInterface
 
 SIPDirectory = sys.argv[1]
 manual_normalization_dir = os.path.join(SIPDirectory, "objects", "manualNormalization")
@@ -50,14 +53,11 @@ if os.path.isdir(manual_normalization_dir):
         os.remove(normalization_csv)
         # Need SIP UUID to get file UUID to remove file in DB
         sipUUID = SIPDirectory[-37:-1] # Account for trailing /
-        sql = """SELECT fileUUID 
-                 FROM Files 
-                 WHERE removedTime = 0 AND 
-                    Files.originalLocation LIKE '%normalization.csv' AND 
-                    SIPUUID='{sipUUID}';""".format(sipUUID=sipUUID)
-        rows = databaseInterface.queryAllSQL(sql)
-        fileUUID = rows[0][0]
-        databaseFunctions.fileWasRemoved(fileUUID)
+
+        f = File.objects.get(removedtime__isnull=True,
+                             originallocation__endswith='normalization.csv',
+                             sip_id=sipUUID)
+        databaseFunctions.fileWasRemoved(f.uuid)
 
     # Recursively delete empty manual normalization dir
     try:

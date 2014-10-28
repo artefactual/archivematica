@@ -23,10 +23,13 @@
 
 import os
 import sys
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import Event
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoEvents
-import databaseInterface
 
 if __name__ == '__main__':
     fileUUID = sys.argv[1]
@@ -35,8 +38,7 @@ if __name__ == '__main__':
     taskUUID = sys.argv[4]
 
     # Check if scan event already exists for this file - if so abort early
-    sql = """SELECT COUNT(*) FROM Events WHERE fileUUID ='%s' AND eventType='virus check';""" % (fileUUID)
-    count = databaseInterface.queryAllSQL(sql)[0][0]
+    count = Event.objects.filter(file_uuid_id=fileUUID, event_type='virus check').count()
     if count >= 1:
         print 'Virus scan already performed, not running scan again'
         sys.exit(0)

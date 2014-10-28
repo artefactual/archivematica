@@ -11,7 +11,7 @@ from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
 import fileOperations
 
 
-def restructureForComplianceFileUUIDsAssigned(unit_path, unit_uuid, unit_type='sipUUID', unit_path_replacement='%SIPDirectory%'):
+def restructureForComplianceFileUUIDsAssigned(unit_path, unit_uuid, unit_type='sip_id', unit_path_replacement='%SIPDirectory%'):
     # Create required directories
     archivematicaFunctions.create_directories(REQUIRED_DIRECTORIES, unit_path, printing=True)
     unit_path = os.path.join(unit_path, '')  # Ensure both end with /

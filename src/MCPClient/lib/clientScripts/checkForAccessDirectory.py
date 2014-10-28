@@ -24,16 +24,19 @@
 import os
 import sys
 from optparse import OptionParser
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 from fileOperations import updateFileLocation
 from fileOperations import renameAsSudo
 
 def something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIPUUID, date, copy=False):
-    #exitCode = 435
+    # exitCode = 435
     exitCode = 179
     print SIPDirectory
-    #For every file, & directory Try to find the matching file & directory in the objects directory
+    # For every file, & directory Try to find the matching file & directory in the objects directory
     for (path, dirs, files) in os.walk(accessDirectory):
         for file in files:
             accessPath = os.path.join(path, file)
@@ -44,41 +47,30 @@ def something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIP
             if objectNameExtensionIndex != -1:
                 objectName = objectName[:objectNameExtensionIndex + 1]
                 objectNameLike = os.path.join( os.path.dirname(objectPath), objectName).replace(SIPDirectory, "%SIPDirectory%", 1)
-                #sql = "SELECT fileUUID, currentLocation FROM Files WHERE currentLocation LIKE  '%s%' AND removedTime = 0 AND SIPUUID = '%s'" % (objectNameLike, SIPUUID)
-                #ValueError: unsupported format character ''' (0x27) at index 76
-                sql = "SELECT fileUUID, currentLocation FROM Files WHERE currentLocation LIKE  '" + objectNameLike + "%' AND removedTime = 0 AND SIPUUID = '"+ SIPUUID + "'"
-                c, sqlLock = databaseInterface.querySQL(sql)
-                row = c.fetchone()
-                if not row:
+
+                files = File.objects.filter(removedtime__isnull=True,
+                                            currentlocation__startswith=objectNameLike,
+                                            sip_id=SIPUUID)
+                if not files.exists():
                     print >>sys.stderr, "No corresponding object for:", accessPath.replace(SIPDirectory, "%SIPDirectory%", 1)
                     exitCode = 1
                 update = []
-                while row != None:
-                    objectUUID = row[0]
-                    objectPath = row[1]
+                for objectUUID, objectPath in files.values_list('uuid', 'currentlocation'):
                     objectExtension = objectPath.replace(objectNameLike, "", 1)
                     print objectName[objectNameExtensionIndex + 1:], objectExtension, "\t",
                     if objectExtension.find(".") != -1:
-                        print
-                        row = c.fetchone()
                         continue
                     print objectName[objectNameExtensionIndex + 1:], objectExtension, "\t",
-                    print row  
                     dipPath = os.path.join(DIPDirectory,  "objects", "%s-%s" % (objectUUID, os.path.basename(accessPath)))
                     if copy:
                         print "TODO - copy not supported yet"
                     else:
-                        #
                         dest = dipPath
                         renameAsSudo(accessPath, dest)
 
                         src = accessPath.replace(SIPDirectory, "%SIPDirectory%")
                         dst = dest.replace(SIPDirectory, "%SIPDirectory%")
                         update.append((src, dst))
-
-                        #
-                    row = c.fetchone()
-                sqlLock.release()
                 for src, dst in update:
                     eventDetail = ""
                     eventOutcomeDetailNote = "moved from=\"" + src + "\"; moved to=\"" + dst + "\""

@@ -21,14 +21,12 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 import sys
-import MySQLdb
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 
-
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
 
 
 if __name__ == '__main__':
     metsFileUUID =  sys.argv[1]
-    sql = """UPDATE Files SET fileGrpUse = 'DSPACEMETS' WHERE fileUUID = '%s';""" % (MySQLdb.escape_string(metsFileUUID))
-    databaseInterface.runSQL(sql)
+
+    File.objects.filter(uuid=metsFileUUID).update(filegrpuse='DSPACEMETS')

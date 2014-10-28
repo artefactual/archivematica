@@ -4,10 +4,13 @@ import ConfigParser
 import os
 import sys
 
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import UnitVariable
+
 path = "/usr/lib/archivematica/archivematicaCommon"
 if path not in sys.path:
     sys.path.append(path)
-import databaseInterface
 import elasticSearchFunctions
 from executeOrRunSubProcess import executeOrRun
 import storageService as storage_service
@@ -81,10 +84,13 @@ def index_aip():
     # If this is an AIC, find the number of AIP stored in it and index that
     aips_in_aic = None
     if sip_type == "AIC":
-        sql = """SELECT variableValue FROM UnitVariables WHERE unitType='SIP' AND unitUUID='%s' AND variable='AIPsinAIC';""" % (sip_uuid,)
-        rows = databaseInterface.queryAllSQL(sql)
-        if rows:
-            aips_in_aic = rows[0][0]
+        try:
+            uv = UnitVariable.objects.get(unittype="SIP",
+                                          unituuid=sip_uuid,
+                                          variable="AIPsinAIC")
+            aips_in_aic = uv.variablevalue
+        except UnitVariable.DoesNotExist:
+            pass
 
     elasticSearchFunctions.connect_and_index_aip(
         sip_uuid,

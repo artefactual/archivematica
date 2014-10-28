@@ -22,9 +22,12 @@
 # @author Joseph Perry <joseph@artefactual.com>
 from optparse import OptionParser
 import sys
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from databaseFunctions import insertIntoEvents
-import databaseInterface
 
 
 if __name__ == '__main__':
@@ -41,10 +44,12 @@ if __name__ == '__main__':
 
 
     (opts, args) = parser.parse_args()
-    sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND %s = '%s';""" % (opts.groupType, opts.groupUUID)
-    rows = databaseInterface.queryAllSQL(sql)
-    for row in rows:
-        fileUUID = row[0]
+    kwargs = {
+        "removedtime__isnull": False,
+        opts.groupType: opts.groupUUID
+    }
+    file_uuids = File.objects.filter(**kwargs).values_list('uuid')
+    for fileUUID, in file_uuids:
         insertIntoEvents(fileUUID=fileUUID, \
                      eventIdentifierUUID=opts.eventIdentifierUUID, \
                      eventType=opts.eventType, \

@@ -27,12 +27,15 @@ import os
 import sys
 import traceback
 import uuid
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from externals.extractMaildirAttachments import parse
 from fileOperations import addFileToTransfer, updateSizeAndChecksum
 from archivematicaFunctions import unicodeToStr
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules 
-import databaseInterface
 
 
 def writeFile(filePath, fileContents):   
@@ -51,12 +54,13 @@ def addFile(filePath, transferPath, transferUUID, date, eventDetail = "", fileUU
     updateSizeAndChecksum(fileUUID, filePath, date, uuid.uuid4.__str__())
 
 def getFileUUIDofSourceFile(transferUUID, sourceFilePath):
-    ret = ""
-    sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND transferUUID = '%s' AND currentLocation LIKE '%s%%';""" % (transferUUID, sourceFilePath.replace('%', '\%'))
-    rows = databaseInterface.queryAllSQL(sql)
-    if len(rows):
-        ret = rows[0][0]
-    return ret
+    try:
+        return File.objects.get(removedtime__isnull=True,
+                                transfer_id=transferUUID,
+                                currentlocation__startswith=sourceFilePath).uuid
+    except File.DoesNotExist:
+        return ""
+
     
 def addKeyFileToNormalizeMaildirOffOf(relativePathToRepresent, mirrorDir, transferPath, transferUUID, date, eventDetail = "", fileUUID=uuid.uuid4().__str__()):
     basename = os.path.basename(mirrorDir)

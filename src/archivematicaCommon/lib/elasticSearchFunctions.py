@@ -625,7 +625,7 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
             relative_path = filepath.replace(pathToTransfer, '%transferDirectory%')
             try:
                 file_uuid = File.objects.get(currentlocation=relative_path,
-                                             transfer_id=uuid)
+                                             transfer_id=uuid).uuid
             except File.DoesNotExist:
                 file_uuid = ''
 

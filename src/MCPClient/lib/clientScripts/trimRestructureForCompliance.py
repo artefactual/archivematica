@@ -29,7 +29,7 @@ import archivematicaFunctions
 from archivematicaFunctions import REQUIRED_DIRECTORIES
 import fileOperations
 
-def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith = "%transferDirectory%"):
+def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType="transfer_id", unitPathReplaceWith="%transferDirectory%"):
     # Create required directories
     archivematicaFunctions.create_directories(REQUIRED_DIRECTORIES, unitPath)
 
@@ -80,4 +80,4 @@ if __name__ == '__main__':
     transferUUID = sys.argv[1]
     transferName = sys.argv[2]
     transferPath = sys.argv[3]
-    restructureTRIMForComplianceFileUUIDsAssigned(transferPath, transferUUID, "transferUUID")
+    restructureTRIMForComplianceFileUUIDsAssigned(transferPath, transferUUID)

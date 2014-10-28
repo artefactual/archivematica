@@ -24,12 +24,14 @@
 import os
 import sys
 import lxml.etree as etree
-import MySQLdb
 from xml.sax.saxutils import quoteattr
 
 import archivematicaXMLNamesSpace as ns
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 from archivematicaFunctions import escape
 
 
@@ -119,15 +121,17 @@ def createFileSec(path, parentBranch, structMapParent):
 
                     print "pathSTR", type(pathSTR), pathSTR
 
-                    sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND %s = '%s' AND Files.currentLocation = '%s';""" % (fileGroupIdentifier, SIPUUID, MySQLdb.escape_string(pathSTR))
-                    c, sqlLock = databaseInterface.querySQL(sql)
-                    row = c.fetchone()
-                    if row == None:
-                        print >>sys.stderr, "No uuid for file: \"", pathSTR, "\""
-                    while row != None:
-                        myuuid = row[0]
-                        row = c.fetchone()
-                    sqlLock.release()
+                    kwargs = {
+                        'removedtime__isnull': True,
+                        fileGroupIdentifier: SIPUUID,
+                        'currentlocation': pathSTR
+                    }
+                    try:
+                        f = File.objects.get(**kwargs)
+                    except File.DoesNotExist:
+                        print >> sys.stderr, "No uuid for file: \"", pathSTR, "\""
+                    else:
+                        myuuid = f.uuid
 
                     if includeAmdSec:
                         createDigiprovMD(myuuid, itempath, myuuid)

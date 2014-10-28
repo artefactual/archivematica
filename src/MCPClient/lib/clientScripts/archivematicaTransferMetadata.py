@@ -5,39 +5,20 @@ from argparse import ArgumentParser
 from lxml import etree
 import sys
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import Transfer
 
-def fetch_set_uuid(sip_uuid):
-    sql = """SELECT pk FROM TransferMetadataSets
-    INNER JOIN Transfers ON transferMetadataSetRowUUID = pk
-    WHERE transferUUID = '{}'
-    """.format(sip_uuid)
-    cursor, sql_lock = databaseInterface.querySQL(sql)
-    results = cursor.fetchone()
-    sql_lock.release()
 
-    # Will be empty if no metadata was saved
-    if not results:
-        return
-    else:
-        set_uuid, = results
-
-    return set_uuid
+def fetch_set(sip_uuid):
+    transfer = Transfer.objects.get(uuid=sip_uuid)
+    return transfer.transfermetadatasetrow
 
 def fetch_fields_and_values(sip_uuid):
-    set_uuid = fetch_set_uuid(sip_uuid)
-    if set_uuid is None:
+    metadata_set = fetch_set(sip_uuid)
+    if metadata_set is None:
         return []
 
-    sql = """SELECT fieldName, fieldValue FROM TransferMetadataFieldValues FV
-    INNER JOIN TransferMetadataFields F ON FV.fieldUUID = F.pk
-    WHERE FV.setUUID = '{}' AND fieldValue <> ''
-    """.format(set_uuid)
-    cursor, sql_lock = databaseInterface.querySQL(sql)
-
-    results = cursor.fetchall()
-    sql_lock.release()
+    results = metadata_set.transfermetadatafieldvalue_set.exclude(fieldvalue='').values_list('field__fieldname', 'fieldvalue')
 
     return results
 

@@ -24,15 +24,16 @@ import os
 import subprocess
 import shlex
 import sys
-import MySQLdb
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import SIP
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 from executeOrRunSubProcess import executeOrRun
 from fileOperations import renameAsSudo
 
-def updateDB(dst, sipUUID):
-    sql =  """UPDATE SIPs SET currentPath='""" + MySQLdb.escape_string(dst) + """' WHERE sipUUID='""" + sipUUID + """';"""
-    databaseInterface.runSQL(sql)
+def updateDB(dst, sip_uuid):
+    SIP.objects.filter(uuid=sip_uuid).update(currentpath=dst)
 
 def moveSIP(src, dst, sipUUID, sharedDirectoryPath):
     # os.rename(src, dst)

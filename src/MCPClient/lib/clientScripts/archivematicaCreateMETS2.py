@@ -24,13 +24,18 @@
 
 from glob import glob
 import lxml.etree as etree
-import MySQLdb
 import os
 import re
 import sys
 import traceback
 
 import archivematicaXMLNamesSpace as ns
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+sys.path.append("/usr/share/archivematica/dashboard")
+from django.contrib.auth.models import User
+from main.models import Agent, Derivation, DublinCore, Event, File, FPCommandOutput, SIP, Transfer
+
 from archivematicaCreateMETSMetadataCSV import parseMetadata
 from archivematicaCreateMETSRights import archivematicaGetRights
 from archivematicaCreateMETSRightsDspaceMDRef import archivematicaCreateMETSRightsDspaceMDRef
@@ -129,27 +134,24 @@ def createAgent(agentIdentifierType, agentIdentifierValue, agentName, agentType)
 SIPMetadataAppliesToType = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
 TransferMetadataAppliesToType = '45696327-44c5-4e78-849b-e027a189bf4d'
 FileMetadataAppliesToType = '7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17'
+
+
 def getDublinCore(unit, id):
-    field_list = ["title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "relation", "language", "coverage", "rights", "isPartOf"]
-    sql = """SELECT {fields}
-    FROM Dublincore WHERE metadataAppliesToType = '{type}' AND metadataAppliesToidentifier = '{id}';""".format(
-            fields=', '.join(field_list),
-            type=unit,
-            id=id)
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    ret = None
-    if row is not None:
-        ret = etree.Element(ns.dctermsBNS + "dublincore", nsmap={"dc":ns.dctermsNS})
-        ret.set(ns.xsiBNS+"schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
-    while row is not None:
-        #title, creator, subject, description, publisher, contributor, date, type, format, identifier, source, relation, language, coverage, rights = row
-        for i, term in enumerate(field_list):
-            txt = row[i] or ""
-            if txt:
-                newChild(ret, ns.dctermsBNS + term, text=txt)
-        row = c.fetchone()
-    sqlLock.release()
+    field_list = ["title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "relation", "language", "coverage", "rights", "is_part_of"]
+
+    try:
+        dc = DublinCore.objects.get(metadataappliestotype_id=unit,
+                                    metadataappliestoidentifier=id)
+    except DublinCore.DoesNotExist:
+        return
+
+    ret = etree.Element(ns.dctermsBNS + "dublincore", nsmap={"dc": ns.dctermsNS})
+    ret.set(ns.xsiBNS + "schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+
+    for term in field_list:
+        txt = getattr(dc, term)
+        if txt:
+            newChild(ret, ns.dctermsBNS + term, text=txt)
     return ret
 
 
@@ -287,14 +289,9 @@ def createTechMD(fileUUID):
 
     #premis = etree.SubElement( xmlData, "premis", attrib = {ns.xsiBNS+"type": "premis:file"})
 
-    sql = "SELECT fileSize, checksum FROM Files WHERE fileUUID = '%s';" % (fileUUID)
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    while row != None:
-        fileSize = row[0].__str__()
-        checksum = row[1].__str__()
-        row = c.fetchone()
-    sqlLock.release()
+    f = File.objects.get(uuid=fileUUID)
+    fileSize = str(f.size)
+    checksum = f.checksum
 
     #OBJECT
     object = etree.SubElement(xmlData, ns.premisBNS + "object", nsmap={'premis': ns.premisNS})
@@ -341,76 +338,59 @@ def createTechMD(fileUUID):
 
     objectCharacteristicsExtension = etree.SubElement(objectCharacteristics, ns.premisBNS + "objectCharacteristicsExtension")
 
-    sql = "SELECT FPCommandOutput.content FROM FPCommandOutput \
-           INNER JOIN fpr_fprule ON FPCommandOutput.ruleUUID = fpr_fprule.uuid \
-           WHERE fileUUID = '{file}' AND (purpose = 'characterization' OR purpose = 'default_characterization');".format(file=fileUUID)
-    c, sqlLock = databaseInterface.querySQL(sql)
     parser = etree.XMLParser(remove_blank_text=True)
-    for document, in c:
+    documents = FPCommandOutput.objects.filter(file_id=fileUUID, rule__purpose__in=['characterization', 'default_characterization']).values_list('content')
+    for document, in documents:
         # This needs to be converted into an str because lxml doesn't accept
         # XML documents in unicode strings if the document contains an
         # encoding declaration.
         output = etree.XML(document.encode("utf-8"), parser)
         objectCharacteristicsExtension.append(output)
-    sqlLock.release()
 
-    sql = "SELECT Files.originalLocation FROM Files WHERE Files.fileUUID = '" + fileUUID + "';"
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    if not row:
+    try:
+        f = File.objects.get(uuid=fileUUID)
+    except File.DoesNotExist:
         print >>sys.stderr, "Error: no location found."
-    while row != None:
-        etree.SubElement(object, ns.premisBNS + "originalName").text = escape(row[0])
-        row = c.fetchone()
-    sqlLock.release()
+    else:
+        etree.SubElement(object, ns.premisBNS + "originalName").text = escape(f.originallocation)
 
-    #Derivations
-    sql = "SELECT sourceFileUUID, derivedFileUUID, relatedEventUUID FROM Derivations WHERE sourceFileUUID = '" + fileUUID + "';"
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    while row != None:
+    # Derivations
+    derivations = Derivation.objects.filter(source_file_id=fileUUID)
+    for derivation in derivations:
         relationship = etree.SubElement(object, ns.premisBNS + "relationship")
         etree.SubElement(relationship, ns.premisBNS + "relationshipType").text = "derivation"
         etree.SubElement(relationship, ns.premisBNS + "relationshipSubType").text = "is source of"
 
         relatedObjectIdentification = etree.SubElement(relationship, ns.premisBNS + "relatedObjectIdentification")
         etree.SubElement(relatedObjectIdentification, ns.premisBNS + "relatedObjectIdentifierType").text = "UUID"
-        etree.SubElement(relatedObjectIdentification, ns.premisBNS + "relatedObjectIdentifierValue").text = row[1]
+        etree.SubElement(relatedObjectIdentification, ns.premisBNS + "relatedObjectIdentifierValue").text = derivation.derived_file_id
 
         relatedEventIdentification = etree.SubElement(relationship, ns.premisBNS + "relatedEventIdentification")
         etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierType").text = "UUID"
-        etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierValue").text = row[2]
+        etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierValue").text = derivation.event_id
 
-        row = c.fetchone()
-    sqlLock.release()
-
-    sql = "SELECT sourceFileUUID, derivedFileUUID, relatedEventUUID FROM Derivations WHERE derivedFileUUID = '" + fileUUID + "';"
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    while row != None:
+    derivations = Derivation.objects.filter(derived_file_id=fileUUID)
+    for derivation in derivations:
         relationship = etree.SubElement(object, ns.premisBNS + "relationship")
         etree.SubElement(relationship, ns.premisBNS + "relationshipType").text = "derivation"
         etree.SubElement(relationship, ns.premisBNS + "relationshipSubType").text = "has source"
 
         relatedObjectIdentification = etree.SubElement(relationship, ns.premisBNS + "relatedObjectIdentification")
         etree.SubElement(relatedObjectIdentification, ns.premisBNS + "relatedObjectIdentifierType").text = "UUID"
-        etree.SubElement(relatedObjectIdentification, ns.premisBNS + "relatedObjectIdentifierValue").text = row[0]
+        etree.SubElement(relatedObjectIdentification, ns.premisBNS + "relatedObjectIdentifierValue").text = derivation.source_file_id
 
         relatedEventIdentification = etree.SubElement(relationship, ns.premisBNS + "relatedEventIdentification")
         etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierType").text = "UUID"
-        etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierValue").text = row[2]
+        etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierValue").text = derivation.event_id
 
-        row = c.fetchone()
-    sqlLock.release()
     return ret
 
 def createDigiprovMD(fileUUID):
     ret = []
-    #EVENTS
+    # EVENTS
 
-    sql = "SELECT pk, fileUUID, eventIdentifierUUID, eventType, eventDateTime, eventDetail, eventOutcome, eventOutcomeDetailNote, linkingAgentIdentifier FROM Events WHERE fileUUID = '" + fileUUID + "';"
-    rows = databaseInterface.queryAllSQL(sql)
-    for row in rows:
+    events = Event.objects.filter(file_uuid_id=fileUUID)
+    for event_record in events:
         digiprovMD = etree.Element(ns.metsBNS + "digiprovMD")
         ret.append(digiprovMD) #newChild(amdSec, "digiprovMD")
         #digiprovMD.set("ID", "digiprov-"+ os.path.basename(filename) + "-" + fileUUID)
@@ -427,42 +407,34 @@ def createDigiprovMD(fileUUID):
 
         eventIdentifier = etree.SubElement(event, ns.premisBNS + "eventIdentifier")
         etree.SubElement(eventIdentifier, ns.premisBNS + "eventIdentifierType").text = "UUID"
-        etree.SubElement(eventIdentifier, ns.premisBNS + "eventIdentifierValue").text = row[2]
+        etree.SubElement(eventIdentifier, ns.premisBNS + "eventIdentifierValue").text = event_record.event_id
 
-        etree.SubElement(event, ns.premisBNS + "eventType").text = row[3]
-        etree.SubElement(event, ns.premisBNS + "eventDateTime").text = row[4].__str__().replace(" ", "T")
-        etree.SubElement(event, ns.premisBNS + "eventDetail").text = escape(row[5])
+        etree.SubElement(event, ns.premisBNS + "eventType").text = event_record.event_type
+        etree.SubElement(event, ns.premisBNS + "eventDateTime").text = event_record.event_datetime.isoformat()
+        etree.SubElement(event, ns.premisBNS + "eventDetail").text = escape(event_record.event_detail)
 
         eventOutcomeInformation  = etree.SubElement(event, ns.premisBNS + "eventOutcomeInformation")
-        etree.SubElement(eventOutcomeInformation, ns.premisBNS + "eventOutcome").text = row[6]
+        etree.SubElement(eventOutcomeInformation, ns.premisBNS + "eventOutcome").text = event_record.event_outcome
         eventOutcomeDetail = etree.SubElement(eventOutcomeInformation, ns.premisBNS + "eventOutcomeDetail")
-        etree.SubElement(eventOutcomeDetail, ns.premisBNS + "eventOutcomeDetailNote").text = escape(row[7])
+        etree.SubElement(eventOutcomeDetail, ns.premisBNS + "eventOutcomeDetailNote").text = escape(event_record.event_outcome_detail)
         
-        if row[8]:
+        if event_record.linking_agent:
             linkingAgentIdentifier = etree.SubElement(event, ns.premisBNS + "linkingAgentIdentifier")
             etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierType").text = "Archivematica user pk"
-            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = row[8].__str__()
+            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = str(event_record.linking_agent_id)
         
-        #linkingAgentIdentifier
-        sql = """SELECT agentIdentifierType, agentIdentifierValue, agentName, agentType FROM Agents;"""
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        while row != None:
+        # linkingAgentIdentifier
+        for agent in Agent.objects.all():
             linkingAgentIdentifier = etree.SubElement(event, ns.premisBNS + "linkingAgentIdentifier")
-            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierType").text = row[0]
-            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = row[1]
-            row = c.fetchone()
-        sqlLock.release()
+            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierType").text = agent.identifiertype
+            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = agent.identifiervalue
     return ret
 
 def createDigiprovMDAgents():
     ret = []
     global globalDigiprovMDCounter
-    #AGENTS
-    sql = """SELECT agentIdentifierType, agentIdentifierValue, agentName, agentType FROM Agents;"""
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    while row != None:
+    # AGENTS
+    for agent in Agent.objects.all():
         globalDigiprovMDCounter += 1
         digiprovMD = etree.Element(ns.metsBNS + "digiprovMD")
         digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
@@ -471,14 +443,18 @@ def createDigiprovMDAgents():
         mdWrap.set("MDTYPE", "PREMIS:AGENT")
         xmlData = newChild(mdWrap, ns.metsBNS + "xmlData")
         #agents = etree.SubElement(xmlData, "agents")
-        xmlData.append(createAgent(row[0], row[1], row[2], row[3]))
-        row = c.fetchone()
-    sqlLock.release()
-    
-    sql = """SELECT auth_user.id, auth_user.username, auth_user.first_name, auth_user.last_name FROM SIPs JOIN Files ON SIPs.sipUUID = Files.sipUUID JOIN Events ON Files.fileUUID = Events.fileUUID JOIN auth_user ON Events.linkingAgentIdentifier = auth_user.id WHERE SIPs.sipUUID = '%s' GROUP BY auth_user.id;""" % (fileGroupIdentifier)
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    while row != None:
+        xmlData.append(createAgent(agent.identifiertype, agent.identifiervalue, agent.name, agent.agenttype))
+
+    # If this function is being called by other scripts, fileGroupIdentifier
+    # will not be defined; just return right away in that case.
+    try:
+        user_ids = SIP.objects.get(uuid=fileGroupIdentifier).file_set.filter(event__linking_agent__isnull=False).values_list('event__linking_agent').distinct()
+    except SIP.DoesNotExist:
+        return ret
+
+    for user_id, in user_ids:
+        user = User.objects.get(id=user_id)
+
         globalDigiprovMDCounter += 1
         digiprovMD = etree.Element(ns.metsBNS + "digiprovMD")
         digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
@@ -487,22 +463,12 @@ def createDigiprovMDAgents():
         mdWrap.set("MDTYPE", "PREMIS:AGENT")
         xmlData = newChild(mdWrap, ns.metsBNS + "xmlData")
         #agents = etree.SubElement(xmlData, "agents")
-        
-        id, username, first_name, last_name = row
-        id = id.__str__()
-        if not username:
-            username = ""
-        if not first_name:
-            first_name = ""
-        if not last_name:
-            last_name = ""
+
         agentIdentifierType = "Archivematica user pk"
-        agentIdentifierValue = id
-        agentName = 'username="%s", first_name="%s", last_name="%s"' % (username, first_name, last_name)       
+        agentIdentifierValue = str(user.id)
+        agentName = 'username="%s", first_name="%s", last_name="%s"' % (user.username, user.first_name, user.last_name)
         agentType = "Archivematica user"
         xmlData.append(createAgent(agentIdentifierType, agentIdentifierValue, agentName, agentType))
-        row = c.fetchone()
-    sqlLock.release()
     
     return ret
 
@@ -629,28 +595,26 @@ def createFileSec(directoryPath, parentDiv):
             DMDIDS=""
             directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, baseDirectoryPathString, 1)
 
-            sql = """SELECT fileUUID, fileGrpUse, fileGrpUUID, Files.transferUUID, label, originalLocation, Transfers.type
-                    FROM Files
-                    LEFT OUTER JOIN Transfers ON Files.transferUUID = Transfers.transferUUID
-                    WHERE removedTime = 0 AND %s = '%s' AND Files.currentLocation = '%s';""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(directoryPathSTR))
-            c, sqlLock = databaseInterface.querySQL(sql)
-            row = c.fetchone()
-            if row == None:
+            kwargs = {
+                "removedtime__isnull": True,
+                fileGroupType: fileGroupIdentifier,
+                "currentlocation": directoryPathSTR
+            }
+            try:
+                f = File.objects.get(**kwargs)
+            except File.DoesNotExist:
                 print >>sys.stderr, "No uuid for file: \"", directoryPathSTR, "\""
                 sharedVariablesAcrossModules.globalErrorCount += 1
-                sqlLock.release()
                 continue
-            while row != None:
-                myuuid = row[0]
-                use = row[1]
-                fileGrpUUID = row[2]
-                transferUUID = row[3]
-                label = row[4]
-                originalLocation = row[5]
-                typeOfTransfer = row[6]
-                row = c.fetchone()
-            sqlLock.release()
-            
+
+            myuuid = f.uuid
+            use = f.filegrpuse
+            fileGrpUUID = f.filegrpuuid
+            transferUUID = f.transfer_id
+            label = f.label
+            originalLocation = f.originallocation
+            typeOfTransfer = f.transfer.type if f.transfer else None
+
             directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, "", 1)
 
             if typeOfTransfer == "TRIM" and trimStructMap is None:
@@ -716,34 +680,34 @@ def createFileSec(directoryPath, parentDiv):
             # Dspace transfers are treated specially, but some of these fileGrpUses
             # may be encountered in other types
             elif typeOfTransfer == "Dspace" and (use in ("license", "text/ocr", "DSPACEMETS")):
-                sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse = 'original' AND originalLocation LIKE '%s/%%'""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(os.path.dirname(originalLocation)).replace("%", "\%"))
-                c, sqlLock = databaseInterface.querySQL(sql)
-                row = c.fetchone()
-                while row != None:
-                    GROUPID = "Group-%s" % (row[0])
-                    row = c.fetchone()
-                sqlLock.release()
+                kwargs = {
+                    "removedtime__isnull": True,
+                    fileGroupType: fileGroupIdentifier,
+                    "filegrpuse": "original",
+                    "originallocation__startswith": os.path.dirname(originalLocation)
+                }
+                f = File.objects.get(**kwargs)
+                GROUPID = "Group-" + f.uuid
+
 
             elif use == "preservation" or use == "text/ocr":
-                sql = "SELECT * FROM Derivations WHERE derivedFileUUID = '" + myuuid + "';"
-                c, sqlLock = databaseInterface.querySQL(sql)
-                row = c.fetchone()
-                while row != None:
-                    GROUPID = "Group-%s" % (row[1])
-                    row = c.fetchone()
-                sqlLock.release()
+                d = Derivation.objects.get(derived_file_id=myuuid)
+                GROUPID = "Group-" + d.source_file_id
+
 
             elif use == "service":
                 fileFileIDPath = itemdirectoryPath.replace(baseDirectoryPath + "objects/service/", baseDirectoryPathString + "objects/")
                 objectNameExtensionIndex = fileFileIDPath.rfind(".")
                 fileFileIDPath = fileFileIDPath[:objectNameExtensionIndex + 1]
-                sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND %s = '%s' AND fileGrpUse = 'original' AND currentLocation LIKE '%s%%'""" % (fileGroupType, fileGroupIdentifier, MySQLdb.escape_string(fileFileIDPath.replace("%", "\%")))
-                c, sqlLock = databaseInterface.querySQL(sql)
-                row = c.fetchone()
-                while row != None:
-                    GROUPID = "Group-%s" % (row[0])
-                    row = c.fetchone()
-                sqlLock.release()
+
+                kwargs = {
+                    "removedtime__isnull": True,
+                    fileGroupType: fileGroupIdentifier,
+                    "filegrpuse": "original",
+                    "currentlocation__startswith": fileFileIDPath
+                }
+                f = File.objects.get(**kwargs)
+                GROUPID = "Group-" + f.uuid
             
             
             elif use == "TRIM container metadata":
@@ -752,9 +716,9 @@ def createFileSec(directoryPath, parentDiv):
             
 
             if transferUUID:
-                sql = "SELECT type FROM Transfers WHERE transferUUID = '%s';" % (transferUUID)
-                rows = databaseInterface.queryAllSQL(sql)
-                if rows[0][0] == "Dspace":
+                t = Transfer.objects.get(uuid=transferUUID)
+
+                if t.type == "Dspace":
                     if use == "DSPACEMETS":
                         use = "submissionDocumentation"
                         admidApplyTo = None

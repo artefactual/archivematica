@@ -22,8 +22,9 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import sys
 import os
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import UnitVariable
 
 SIPUUID = sys.argv[1]
 SIPName = sys.argv[2]
@@ -40,7 +41,7 @@ if os.path.isdir(manualNormalizationPath):
             # made and setting unit variables in client scripts is missed! This
             # should be eliminated (by having another way of setting when DIPs
             # are created) or moved to its own MSCL.
-            databaseInterface.runSQL("""UPDATE UnitVariables SET microServiceChainLink = 'f060d17f-2376-4c0b-a346-b486446e46ce' WHERE unitType='SIP' AND unitUUID = '%s' AND variable = 'returnFromManualNormalized' """ % (SIPUUID) )
+            UnitVariable.objects.filter(unittype="SIP", unituuid=SIPUUID, variable="returnFromManualNormalized").update(microservicechainlink_id="f060d17f-2376-4c0b-a346-b486446e46ce")
             exit(179)
     manualNormalizationPreservationPath = os.path.join(manualNormalizationPath, "preservation")
     if os.path.isdir(manualNormalizationPreservationPath):

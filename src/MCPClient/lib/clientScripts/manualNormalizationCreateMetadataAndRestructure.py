@@ -24,10 +24,12 @@ import os
 import sys
 import uuid
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 import databaseFunctions
 import fileOperations
-#databaseInterface.printSQL = True
+
+from django.db.models import Q
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import Event, File
 
 #"%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%fileUUID%" "%filePath%"
 SIPUUID = sys.argv[1]
@@ -44,17 +46,17 @@ k = os.path.basename(filePath).rfind(".")
 if i != -1 and k != -1:
     filePathLike = filePathLike[:i+1]
     # Matches "path/to/file/filename." Includes . so it doesn't false match foobar.txt when we wanted foo.txt
-    filePathLike1 = databaseInterface.MySQLdb.escape_string(filePathLike).replace("%", "\%") + "%"
+    filePathLike1 = filePathLike
     # Matches the exact filename.  For files with no extension.
-    filePathLike2 = databaseInterface.MySQLdb.escape_string(filePathLike)[:-1]
-unitIdentifierType = "sipUUID"
-unitIdentifier = SIPUUID
-sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '" + filePathLike1 + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
-rows = databaseInterface.queryAllSQL(sql)
-if not len(rows):
-    sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND fileGrpUse='original' AND Files.currentLocation LIKE '" + filePathLike2 + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
-    rows = databaseInterface.queryAllSQL(sql)
-if len(rows) != 1:
+    filePathLike2 = filePathLike[:-1]
+
+try:
+    path_condition = Q(currentlocation__startswith=filePathLike1) | Q(currentlocation=filePathLike2)
+    f = File.objects.get(path_condition,
+                         removedtime__isnull=True,
+                         filegrpuse="original",
+                         sip_id=SIPUUID)
+except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
     # Original file was not found, or there is more than one original file with
     # the same filename (differing extensions)
     # Look for a CSV that will specify the mapping
@@ -69,7 +71,7 @@ if len(rows) != 1:
         original = fileOperations.findFileInNormalizatonCSV(csv_path,
             "preservation", preservation_file, SIPUUID)
         if original is None:
-            if len(rows) < 1:
+            if isinstance(e, File.DoesNotExist):
                 print >>sys.stderr, "No matching file for: {0}".format(
                     filePath.replace(SIPDirectory, "%SIPDirectory%"))
                 exit(3)
@@ -78,25 +80,21 @@ if len(rows) != 1:
                         preservation_file=preservation_file, filename=csv_path)
                 exit(2)
         # If we found the original file, retrieve it from the DB
-        sql = """SELECT Files.fileUUID, Files.currentLocation 
-                 FROM Files 
-                 WHERE removedTime = 0 AND 
-                    fileGrpUse='original' AND 
-                    Files.originalLocation LIKE '%{filename}' AND
-                    {unitIdentifierType} = '{unitIdentifier}';""".format(
-                filename=original, unitIdentifierType=unitIdentifierType,
-                unitIdentifier=unitIdentifier)
-        rows = databaseInterface.queryAllSQL(sql)
-    elif len(rows) < 1:
-        print >>sys.stderr, "No matching file for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1)
-        exit(3)
+        f = File.objects.get(removedtime__isnull=True,
+                             filegrpuse="original",
+                             originallocation__endswith=original,
+                             sip_id=SIPUUID)
     else:
-        print >>sys.stderr, "Too many possible files for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1)
-        exit(2)
+        if isinstance(e, File.DoesNotExist):
+            print >>sys.stderr, "No matching file for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1)
+            exit(3)
+        elif isinstance(e, File.MultipleObjectsReturned):
+            print >>sys.stderr, "Too many possible files for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1)
+            exit(2)
 
 # We found the original file somewhere above, get the UUID and path
-for row in rows:
-    originalFileUUID, originalFilePath = row
+originalFileUUID = f.uuid
+originalFilePath = f.currentlocation
 
 print "matched: (%s) %s to (%s) %s" % (originalFileUUID, originalFilePath, fileUUID, filePath)
 basename = os.path.basename(filePath)
@@ -113,22 +111,18 @@ if os.path.isfile(dst) or os.path.isdir(dst):
 #Rename the file or directory src to dst. If dst is a directory, OSError will be raised. On Unix, if dst exists and is a file, it will be replaced silently if the user has permission. The operation may fail on some Unix flavors if src and dst are on different filesystems.
 #see http://docs.python.org/2/library/os.html
 os.rename(filePath, dst)
-sql =  """UPDATE Files SET currentLocation='%s' WHERE fileUUID='%s';""" % (dstR, fileUUID)
-databaseInterface.runSQL(sql)
+f.currentlocation = dstR
+f.save()
 
-sql = """SELECT eventIdentifierUUID FROM Events WHERE eventType ='normalization' AND fileUUID='%s'; """ % originalFileUUID
-rows = databaseInterface.queryAllSQL(sql)
-if len(rows) >= 1:
-    derivationEventUUID = rows[0][0]
+try:
     # Normalization event already exists, so just update it
     # fileUUID, eventIdentifierUUID, eventType, eventDateTime, eventDetail
     # probably already correct, and we only set eventOutcomeDetailNote here
-    sql = """UPDATE Events SET eventOutcomeDetailNote='%s' WHERE eventIdentifierUUID='%s';""" % (dstR, derivationEventUUID)
-    databaseInterface.runSQL(sql)
-else:
+    Event.objects.filter(event_type="normalization", file_uuid=f).update(event_outcome_detail=dstR)
+except Event.DoesNotExist:
     # No normalization event was created in normalize.py - probably manually
     # normalized during Ingest
-    derivationEventUUID = uuid.uuid4().__str__()
+    derivationEventUUID = str(uuid.uuid4())
     databaseFunctions.insertIntoEvents(
         fileUUID=originalFileUUID,
         eventIdentifierUUID=derivationEventUUID,

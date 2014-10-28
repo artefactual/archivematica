@@ -22,14 +22,15 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import uuid
 import shutil
-import MySQLdb
 import os
 import sys
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
-import databaseInterface
 import databaseFunctions
-
 
 if __name__ == '__main__':
     objectsDirectory = sys.argv[1]
@@ -38,6 +39,7 @@ if __name__ == '__main__':
     processingDirectory = sys.argv[4]
     autoProcessSIPDirectory = sys.argv[5]
     sharedPath = sys.argv[6]
+    transfer_objects_directory = '%transferDirectory%objects'
 
     for container in os.listdir(objectsDirectory):
         sipUUID = uuid.uuid4().__str__()
@@ -53,22 +55,25 @@ if __name__ == '__main__':
         archivematicaFunctions.create_structured_directory(tmpSIPDir, manual_normalization=True)
         databaseFunctions.createSIP(destSIPDir.replace(sharedPath, '%sharedPath%'), sipUUID)
     
-        #move the objects to the SIPDir
+        # move the objects to the SIPDir
         for item in os.listdir(containerPath):
             shutil.move(os.path.join(containerPath, item), os.path.join(tmpSIPDir, "objects", item))
     
-        #get the database list of files in the objects directory
-        #for each file, confirm it's in the SIP objects directory, and update the current location/ owning SIP'
-        sql = """SELECT  fileUUID, currentLocation FROM Files WHERE removedTime = 0 AND currentLocation LIKE '\%transferDirectory\%objects/""" + container + """/%' AND transferUUID =  '""" + transferUUID + "'"
-        for row in databaseInterface.queryAllSQL(sql):
-            fileUUID = row[0]
-            currentPath = databaseFunctions.deUnicode(row[1]).replace('%transferDirectory%objects/' + container, '%transferDirectory%objects')
+        # get the database list of files in the objects directory
+        # for each file, confirm it's in the SIP objects directory, and update the current location/ owning SIP'
+        directory = os.path.join(transfer_objects_directory, container)
+        files = File.objects.filter(removedtime__isnull=True,
+                                    currentlocation__startswith=directory,
+                                    transfer_id=transferUUID)
+        for f in files:
+            currentPath = databaseFunctions.deUnicode(f.currentlocation).replace(directory, transfer_objects_directory)
             currentSIPFilePath = currentPath.replace("%transferDirectory%", tmpSIPDir)
             if os.path.isfile(currentSIPFilePath):
-                sql = """UPDATE Files SET currentLocation='%s', sipUUID='%s' WHERE fileUUID='%s'""" % (MySQLdb.escape_string(currentPath.replace("%transferDirectory%", "%SIPDirectory%")), sipUUID, fileUUID)
-                databaseInterface.runSQL(sql)
+                f.currentlocation = currentPath.replace("%transferDirectory%", "%SIPDirectory%")
+                f.sip_id = sipUUID
+                f.save()
             else:
                 print >>sys.stderr, "file not found: ", currentSIPFilePath
 
-        #moveSIPTo autoProcessSIPDirectory
+        # moveSIPTo autoProcessSIPDirectory
         shutil.move(tmpSIPDir, destSIPDir)

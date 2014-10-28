@@ -26,8 +26,11 @@ import sys
 import uuid
 from optparse import OptionParser
 import re
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 from databaseFunctions import insertIntoDerivations
 
 
@@ -52,11 +55,18 @@ def something(SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, date):
                     a += 1 #include the period
                 file2Full = os.path.join(path, file[:a]).replace(SIPDirectory + "objects/service/", "%SIPDirectory%objects/", 1) #service
             accessPath = os.path.join(path, file)
-            sql = "UPDATE Files SET fileGrpUse='service' WHERE currentLocation =  '" + file1Full + "' AND removedTime = 0 AND SIPUUID = '"+ SIPUUID + "'"
-            rows = databaseInterface.runSQL(sql)
-            sql = "UPDATE Files SET fileGrpUUID= (SELECT fileUUID FROM (SELECT * FROM Files WHERE removedTime = 0 AND SIPUUID = '"+ SIPUUID + "')  AS F WHERE currentLocation LIKE  '" + file2Full + "%') WHERE currentLocation =  '" + file1Full + "' AND removedTime = 0 AND SIPUUID = '"+ SIPUUID + "'"
-            print sql
-            rows = databaseInterface.runSQL(sql)
+
+            f = File.objects.get(currentlocation=file1Full,
+                                 removedtime__isnull=True,
+                                 sip_id=SIPUUID)
+            f.filegrpuse = "service"
+
+            grp_file = File.objects.get(currentlocation__startswith=file2Full,
+                                        removedtime__isnull=True,
+                                        sip_id=SIPUUID)
+            f.filegrpuuid = grp_file.file_uuid
+            f.save()
+
     return exitCode
 
 
@@ -77,11 +87,18 @@ def regular(SIPDirectory, objectsDirectory, SIPUUID, date):
                 file2 = file.replace(m.group(0), m.group(0).replace("_me", "_m", 1))
                 file2Full = os.path.join(path, file2).replace(SIPDirectory, "%SIPDirectory%", 1) #original
                 accessPath = os.path.join(path, file)
-                sql = "UPDATE Files SET fileGrpUse='service' WHERE currentLocation =  '" + file1Full + "' AND removedTime = 0 AND SIPUUID = '"+ SIPUUID + "'"
-                rows = databaseInterface.runSQL(sql)
-                sql = "UPDATE Files SET fileGrpUUID= (SELECT fileUUID FROM (SELECT * FROM Files WHERE removedTime = 0 AND SIPUUID = '"+ SIPUUID + "')  AS F WHERE currentLocation =  '" + file2Full + "') WHERE currentLocation =  '" + file1Full + "' AND removedTime = 0 AND SIPUUID = '"+ SIPUUID + "'"
-                rows = databaseInterface.runSQL(sql)
-    
+
+                f = File.objects.get(currentlocation=file1Full,
+                                     removedtime__isnull=True,
+                                     sip_id=SIPUUID)
+                f.filegrpuse = "service"
+
+                grp_file = File.objects.get(currentlocation__startswith=file2Full,
+                                            removedtime__isnull=True,
+                                            sip_id=SIPUUID)
+                f.filegrpuuid = grp_file.uuid
+                f.save()
+
 
 if __name__ == '__main__':
     while False:

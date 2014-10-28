@@ -20,15 +20,9 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import os
-import subprocess
-import shlex
 import sys
-import MySQLdb
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface, elasticSearchFunctions
-from executeOrRunSubProcess import executeOrRun
-from fileOperations import renameAsSudo
 import elasticSearchFunctions
 
 if __name__ == '__main__':

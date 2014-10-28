@@ -3,18 +3,18 @@
 import argparse
 import os.path
 import sys
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import SIP
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 
 
 def update_unit(sip_uuid, compressed_location):
     # Set aipFilename in Unit
-    sql = """ UPDATE SIPs SET aipFilename='{aipFilename}' WHERE sipUUID='{sip_uuid}';""".format(
-        aipFilename=os.path.basename(compressed_location),
-        sip_uuid=sip_uuid)
-    databaseInterface.runSQL(sql)
+    SIP.objects.filter(uuid=sip_uuid).update(aip_filename=os.path.basename(compressed_location))
 
 
 def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uuid):

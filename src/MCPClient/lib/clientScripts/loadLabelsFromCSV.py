@@ -24,9 +24,9 @@
 import sys
 import csv
 import os
-import MySQLdb
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
 
 if __name__ == '__main__':
     transferUUID = sys.argv[1]
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     if not os.path.isfile(fileLabels):
         print "No such file:", fileLabels
         exit(0)
-    
+
     # use universal newline mode to support unusual newlines, like \r
     with open(fileLabels, 'rbU') as f:
         reader = csv.reader(f)
@@ -48,10 +48,4 @@ if __name__ == '__main__':
                 label = row[1]
                 filePath = row[0]
             filePath = os.path.join("%transferDirectory%objects/", filePath)
-            sql = """UPDATE Files SET label = '%s' WHERE originalLocation = '%s' AND transferUUID = '%s';""" % (MySQLdb.escape_string(label), MySQLdb.escape_string(filePath), transferUUID)
-            databaseInterface.runSQL(sql)
-            
-
-
-    
-    
+            File.objects.filter(originallocation=filePath, transfer_id=transferUUID).update(label=label)

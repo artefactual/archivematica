@@ -42,13 +42,15 @@ import sys
 import threading
 import traceback
 
+os.environ['DJANGO_SETTINGS_MODULE'] = "settings.common"
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from executeOrRunSubProcess import executeOrRun
 import databaseInterface
-from databaseFunctions import logTaskAssignedSQL
+from executeOrRunSubProcess import executeOrRun
 printOutputLock = threading.Lock()
 
-databaseInterface.printSQL = True
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import Task
 
 config = ConfigParser.SafeConfigParser({'MCPArchivematicaServerInterface': ""})
 config.read("/etc/archivematica/MCPClient/clientConfig.conf")
@@ -94,17 +96,17 @@ def executeCommand(gearman_worker, gearman_job):
         sInput = ""
         clientID = gearman_worker.worker_client_id
 
-
-        sql = """SELECT Tasks.taskUUID FROM Tasks WHERE taskUUID='%s' AND startTime != 0;""" % (gearman_job.unique.__str__())
-        rows = databaseInterface.queryAllSQL(sql)
-        if len(rows):
+        task = Task.objects.get(taskuuid=gearman_job.unique)
+        if task.starttime is not None:
             exitCode = -1
             stdOut = ""
             stdError = """Detected this task has already started!
 Unable to determine if it completed successfully."""
             return cPickle.dumps({"exitCode" : exitCode, "stdOut": stdOut, "stdError": stdError})
-        
-        logTaskAssignedSQL(gearman_job.unique.__str__(), clientID, utcDate)
+        else:
+            task.client = clientID
+            task.starttime = utcDate
+            task.save()
 
         if execute not in supportedModules:
             output = ["Error!", "Error! - Tried to run and unsupported command." ]

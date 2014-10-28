@@ -15,7 +15,6 @@ from lxml import etree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoFPCommandOutput
-import databaseInterface
 from dicts import replace_string_values, ReplacementDict
 
 path = '/usr/share/archivematica/dashboard'
@@ -23,6 +22,7 @@ if path not in sys.path:
     sys.path.append(path)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 
+from main.models import FPCommandOutput
 from fpr.models import FPRule, FormatVersion
 
 
@@ -31,11 +31,7 @@ def main(file_path, file_uuid, sip_uuid):
 
     # Check to see whether the file has already been characterized; don't try
     # to characterize it a second time if so.
-    sql = """SELECT count(fileUUID) FROM FPCommandOutput WHERE fileUUID='{}'""".format(file_uuid)
-    cursor, lock = databaseInterface.querySQL(sql)
-    count, = cursor.fetchone()
-    lock.release()
-    if count > 0:
+    if FPCommandOutput.objects.filter(file_id=file_uuid).count() > 0:
         return 0
 
     try:

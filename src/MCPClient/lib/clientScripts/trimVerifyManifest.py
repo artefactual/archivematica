@@ -38,8 +38,6 @@ date = sys.argv[4]
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from fileOperations import getFileUUIDLike
 import databaseFunctions
-#import databaseInterface
-#databaseInterface.printSQL = True
 topDirectory = None
 currentDirectory = ""
 fileCount = 0

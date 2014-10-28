@@ -21,9 +21,8 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 import sys
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-#import databaseInterface
-#databaseInterface.printSQL = True
 from fileOperations import updateFileGrpUse
 
 fileUUID = sys.argv[1]

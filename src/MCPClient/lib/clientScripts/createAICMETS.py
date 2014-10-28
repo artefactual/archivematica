@@ -9,13 +9,15 @@ import re
 import sys
 import uuid
 
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import UnitVariable
+
 import archivematicaCreateMETS2
 import archivematicaXMLNamesSpace as namespaces
 PATH = "/usr/lib/archivematica/archivematicaCommon"
 if PATH not in sys.path:
     sys.path.append(PATH)
 import databaseFunctions
-import databaseInterface
 import fileOperations
 import storageService as storage_service
 
@@ -137,8 +139,10 @@ def create_mets_file(aic, aips):
 
     # Insert the count of AIPs in the AIC into UnitVariables, so it can be
     # indexed later
-    sql = """INSERT INTO UnitVariables (pk, unitType, unitUUID, variable, variableValue) VALUES ('%s', 'SIP', '%s', 'AIPsinAIC', '%s');""" % (uuid.uuid4(), aic['uuid'], str(len(aips)))
-    databaseInterface.runSQL(sql)
+    UnitVariable.objects.create(unittype="SIP",
+                                unituuid=aic['uuid'],
+                                variable="AIPsinAIC",
+                                variablevalue=str(len(aips)))
 
 
 def create_aic_mets(aic_uuid, aic_dir):

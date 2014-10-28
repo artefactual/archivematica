@@ -25,9 +25,11 @@ import os
 import sys
 import lxml.etree as etree
 
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
+
 import archivematicaXMLNamesSpace as ns
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
 
@@ -52,20 +54,19 @@ def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
     return mdRef
 
 
-
 def archivematicaCreateMETSRightsDspaceMDRef(fileUUID, filePath, transferUUID, itemdirectoryPath):
     ret = []
     try:
         print fileUUID, filePath
-        #find the mets file
-        sql = "SELECT fileUUID, currentLocation FROM Files WHERE currentLocation = '%%SIPDirectory%%%s/mets.xml' AND transferUUID = '%s';" % (os.path.dirname(filePath), transferUUID)
-        rows = databaseInterface.queryAllSQL(sql)
-        for row in rows:
-            metsFileUUID = row[0]
-            metsLoc = row[1].replace("%SIPDirectory%", "", 1)
-            metsLocation = os.path.join(os.path.dirname(itemdirectoryPath), "mets.xml")
-            LABEL = "mets.xml-%s" % (metsFileUUID)
-            ret.append(createMDRefDMDSec(LABEL, metsLocation, metsLoc))
+        # find the mets file
+        path = "%SIPDirectory%{}/mets.xml".format(os.path.dirname(filePath))
+        mets = File.objects.get(currentlocation=path,
+                                transfer_id=transferUUID)
+        metsFileUUID = mets.uuid
+        metsLoc = mets.currentlocation.replace("%SIPDirectory%", "", 1)
+        metsLocation = os.path.join(os.path.dirname(itemdirectoryPath), "mets.xml")
+        LABEL = "mets.xml-%s" % (metsFileUUID)
+        ret.append(createMDRefDMDSec(LABEL, metsLocation, metsLoc))
 
         base = os.path.dirname(os.path.dirname(itemdirectoryPath))
         base2 = os.path.dirname(os.path.dirname(filePath))
@@ -79,20 +80,16 @@ def archivematicaCreateMETSRightsDspaceMDRef(fileUUID, filePath, transferUUID, i
                 continue
             if not os.path.isdir(fullDir):
                 continue
-            sql = "SELECT fileUUID, currentLocation FROM Files WHERE currentLocation = '%%SIPDirectory%%%s/mets.xml' AND transferUUID = '%s';" % (fullDir2, transferUUID)
-            print sql
-            rows = databaseInterface.queryAllSQL(sql)
-            for row in rows:
-                print row
-                metsFileUUID = row[0]
-                metsLoc = row[1].replace("%SIPDirectory%", "", 1)
-                metsLocation = os.path.join(fullDir, "mets.xml")
-                print metsLocation
-                LABEL = "mets.xml-%s" % (metsFileUUID)
-                ret.append(createMDRefDMDSec(LABEL, metsLocation, metsLoc))
 
-
-
+            path = "%SIPDirectory%{}/mets.xml".format(fullDir2)
+            f = File.objects.get(currentlocation=path,
+                                 transfer_id=transferUUID)
+            metsFileUUID = f.uuid
+            metsLoc = f.currentlocation.replace("%SIPDirectory%", "", 1)
+            metsLocation = os.path.join(fullDir, "mets.xml")
+            print metsLocation
+            LABEL = "mets.xml-" + metsFileUUID
+            ret.append(createMDRefDMDSec(LABEL, metsLocation, metsLoc))
 
     except Exception as inst:
         print >>sys.stderr, "Error creating mets dspace mdref", fileUUID, filePath

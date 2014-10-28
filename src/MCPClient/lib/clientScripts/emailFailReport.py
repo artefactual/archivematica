@@ -25,24 +25,21 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import string
 from optparse import OptionParser
+import os
 import sys
 from lxml import etree
+
+sys.path.append("/usr/share/archivematica/dashboard")
+os.environ['DJANGO_SETTINGS_MODULE'] = "settings.common"
+from django.contrib.auth.models import User
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 from externals.HTML import HTML 
 
 def getEmailsFromDashboardUsers():
-    ret = []
-    sql = "SELECT email FROM auth_user where is_active = 1;"
-    rows = databaseInterface.queryAllSQL(sql)
-    for row in rows:
-        email = row[0]
-        if email == "demo@example.com":
-            continue
-        if not email:
-            continue
-        ret.append(email)
-    return ret
+    return [u[0] for u in User.objects.filter(is_active=True).values_list('email').exclude(email__in=['demo@example.com', ''])]
+
 
 def sendEmail(subject, to, from_, content, server):
     to2 = ", ".join(to) 

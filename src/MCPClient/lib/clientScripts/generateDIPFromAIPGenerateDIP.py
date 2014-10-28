@@ -24,18 +24,21 @@
 import os
 import sys
 import shutil
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import Job, SIP
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 from databaseFunctions import createSIP
 
 if __name__ == '__main__':
-    #COPY THE METS FILE
-    #Move the DIP Directory
-    
+    # COPY THE METS FILE
+    # Move the DIP Directory
+
     fauxUUID = sys.argv[1]
     unitPath = sys.argv[2]
     date = sys.argv[3]
-    
+
     basename = os.path.basename(unitPath[:-1])
     uuidLen = 36
     originalSIPName = basename[:-(uuidLen+1)*2]
@@ -44,24 +47,25 @@ if __name__ == '__main__':
     if not os.path.isfile(METSPath):
         print >>sys.stderr, "Mets file not found: ", METSPath
         exit(-1)
-    
-    #move mets to DIP    
+
+    # move mets to DIP
     src = METSPath
     dst = os.path.join(unitPath, "DIP", os.path.basename(METSPath))
     shutil.move(src, dst)
-    
-    #Move DIP
+
+    # Move DIP
     src = os.path.join(unitPath, "DIP")
     dst = os.path.join("/var/archivematica/sharedDirectory/watchedDirectories/uploadDIP/", originalSIPName + "-" + originalSIPUUID)  
     shutil.move(src, dst)
-    
-    
-    sql = """SELECT sipUUID from SIPs where sipUUID = '%s'; """ % (originalSIPUUID)
-    rows = databaseInterface.queryAllSQL(sql)
-    if not len(rows):
-        #otherwise doesn't appear in dashboard
-        import uuid
+
+    try:
+        SIP.objects.get(uuid=originalSIPUUID)
+    except SIP.DoesNotExist:
+        # otherwise doesn't appear in dashboard
         createSIP(unitPath, UUID=originalSIPUUID)
-        databaseInterface.runSQL("""INSERT INTO Jobs (jobUUID, jobType, directory, SIPUUID, currentStep, unitType, subJobOf, microserviceGroup) 
-                 VALUES ('%s','Hack to make DIP Jobs appear', '%s', '%s', 'Completed successfully', 'unitSIP', '', 'Upload DIP');""" % (str(uuid.uuid4()), unitPath, originalSIPUUID))
-        
+        Job.objects.create(jobtype="Hack to make DIP Jobs appear",
+                           directory=unitPath,
+                           sip_id=originalSIPUUID,
+                           currentstep="Completed successfully",
+                           unittype="unitSIP",
+                           microservicegroup="Upload DIP")

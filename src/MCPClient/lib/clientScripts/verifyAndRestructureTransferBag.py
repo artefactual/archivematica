@@ -22,12 +22,15 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import os
 import sys
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
 import fileOperations
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoEvents
-import databaseInterface
 
 printSubProcessOutput=False
 exitCode = 0
@@ -67,7 +70,7 @@ def verifyBag(bag):
             print "Passed test: ", command
 
 
-def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith = "%transferDirectory%"):
+def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType="transfer_id", unitPathReplaceWith="%transferDirectory%"):
     bagFileDefaultDest = os.path.join(unitPath, "logs", "BagIt")
     REQUIRED_DIRECTORIES.append(bagFileDefaultDest)
     # This needs to be cast to a string since we're calling os.path.join(),
@@ -120,18 +123,19 @@ if __name__ == '__main__':
     if exitCode != 0:
         print >>sys.stderr, "Failed bagit compliance. Not restructuring."
         exit(exitCode) 
-    restructureBagForComplianceFileUUIDsAssigned(target, transferUUID, "transferUUID")
+    restructureBagForComplianceFileUUIDsAssigned(target, transferUUID)
     for i in range(len(verificationCommands)):
         print verificationCommands[i]
         print verificationCommandsOutputs[i]
         print
-        
-    sql = "SELECT Files.fileUUID FROM Files WHERE removedTime = 0 AND Files.currentLocation LIKE '\%transferDirectory\%objects/%' AND transferUUID = '" + transferUUID + "';"
-    rows = databaseInterface.queryAllSQL(sql)
-    for row in rows:
-        insertIntoEvents(fileUUID=row[0], \
-                     eventType="fixity check", \
-                     eventDetail="Bagit - verifypayloadmanifests", \
-                     eventOutcome="Pass")
-    
+
+    files = File.objects.filter(removedtime__isnull=True,
+                                transfer_id=transferUUID,
+                                currentlocation__startswith="%transferDirectory%objects/").values_list('uuid')
+    for uuid, in files:
+        insertIntoEvents(fileUUID=uuid,
+                         eventType="fixity check",
+                         eventDetail="Bagit - verifypayloadmanifests",
+                         eventOutcome="Pass")
+
     exit(exitCode)

@@ -23,9 +23,12 @@
 import shutil
 import os
 import sys
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import Transfer
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
-import databaseInterface
 
 def extract(target, destinationDirectory):
     filename, file_extension = os.path.splitext(target)
@@ -91,8 +94,7 @@ if __name__ == '__main__':
     
     #update transfer
     destinationDirectoryDB = destinationDirectory.replace(sharedPath, "%sharedPath%", 1)
-    sql = """UPDATE Transfers SET currentLocation = '%s' WHERE transferUUID = '%s';""" % (destinationDirectoryDB, transferUUID)
-    databaseInterface.runSQL(sql)
+    t = Transfer.objects.filter(uuid=transferUUID).update(currentlocation=destinationDirectoryDB)
     
     #remove bag
     os.remove(zipLocation)

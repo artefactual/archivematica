@@ -21,13 +21,15 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from datetime import datetime
 import os
 import sys
 import shutil
 import traceback
 from optparse import OptionParser
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import Derivation, Event, File
 
 
 def removeDIP(SIPDirectory, SIPUUID):
@@ -51,16 +53,16 @@ def removeThumbnails(SIPDirectory, SIPUUID):
 
 
 def removePreservationFiles(SIPDirectory, SIPUUID):
-    # Remove Archivematia-created preservation files
+    # Remove Archivematica-created preservation files
     try:
-        sql = """SELECT fileUUID, currentLocation FROM Files WHERE SIPUUID = '%s' AND removedTime = 0 AND fileGrpUse = 'preservation';""" % (SIPUUID)
-        files = databaseInterface.queryAllSQL(sql)
+        files = File.objects.filter(sip_id=SIPUUID,
+                                    removedtime__isnull=True,
+                                    filegrpuse="preservation")
         for file_ in files:
             try:
-                fileUUID, currentLocation = file_
-                sql = """UPDATE Files SET removedTime=NOW() WHERE fileUUID = '%s';""" % (fileUUID)
-                databaseInterface.runSQL(sql)
-                os.remove(currentLocation.replace("%SIPDirectory%", SIPDirectory, 1))
+                file_.removedtime = datetime.now()
+                file_.save()
+                os.remove(file_.currentlocation.replace("%SIPDirectory%", SIPDirectory, 1))
             except Exception:
                 print >> sys.stderr, 'Error removing preservation files'
                 traceback.print_exc(file=sys.stdout)
@@ -71,16 +73,14 @@ def removePreservationFiles(SIPDirectory, SIPUUID):
     # Remove manually normalized derivation links
     # TODO? Update this to delete for all derivations where the event is deleted
     try:
-        sql = """DELETE FROM Derivations USING Derivations JOIN Files ON Derivations.derivedFileUUID = Files.fileUUID WHERE fileGrpUse='manualNormalization' AND sipUUID = '%s';""" % SIPUUID
-        databaseInterface.runSQL(sql)
+        Derivation.objects.filter(derived_file__filegrpuse="manualNormalization", derived_file__sip_id=SIPUUID).delete()
     except Exception:
         print >> sys.stderr, 'Error deleting manual normalization links from database'
         traceback.print_exc(file=sys.stdout)
 
     # Remove normalization events
     try:
-        sql = """DELETE FROM Events USING Events JOIN Files ON Events.fileUUID = Files.fileUUID WHERE eventType='normalization' AND sipUUID = '%s';""" % SIPUUID
-        databaseInterface.runSQL(sql)
+        Event.objects.filter(file_uuid__sip_id=SIPUUID, event_type="normalization").delete()
     except Exception:
         print >> sys.stderr, 'Error deleting normalization events from database.'
         traceback.print_exc(file=sys.stdout)

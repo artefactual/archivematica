@@ -23,14 +23,16 @@
 import sys
 import subprocess
 import os
-import MySQLdb
 import uuid
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 from databaseFunctions import insertIntoEvents
 from fileOperations import updateFileLocation
 from archivematicaFunctions import unicodeToStr
 import sanitizeNames
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File
 
 if __name__ == '__main__':
     objectsDirectory = sys.argv[1] #the directory to run sanitization on.
@@ -69,19 +71,15 @@ if __name__ == '__main__':
             newfile = newfile.replace(objectsDirectory, relativeReplacement, 1) + "/"
             directoryContents = []
 
-            sql = "SELECT fileUUID, currentLocation FROM Files WHERE Files.removedTime = 0 AND Files.currentLocation LIKE '" + MySQLdb.escape_string(oldfile.replace("\\", "\\\\")).replace("%","\%") + "%' AND " + groupSQL + " = '" + groupID + "';"
-
-            c, sqlLock = databaseInterface.querySQL(sql)
-            row = c.fetchone()
-            while row != None:
-                fileUUID = row[0]
-                oldPath = row[1]
-                newPath = unicodeToStr(oldPath).replace(oldfile, newfile, 1)
-                directoryContents.append((fileUUID, oldPath, newPath))
-                row = c.fetchone()
-            sqlLock.release()
+            kwargs = {
+                "removedtime__isnull": True,
+                "currentlocation__startswith": oldfile,
+                groupSQL: groupID
+            }
+            files = File.objects.filter(**kwargs)
 
             print oldfile, " -> ", newfile
 
-            for fileUUID, oldPath, newPath in directoryContents:
-                updateFileLocation(oldPath, newPath, "name cleanup", date, "prohibited characters removed:" + eventDetail, fileUUID=fileUUID)
+            for f in files:
+                new_path = unicodeToStr(f.currentlocation).replace(oldfile, newfile, 1)
+                updateFileLocation(f.currentlocation, new_path, "name cleanup", date, "prohibited characters removed:" + eventDetail, fileUUID=f.uuid)
