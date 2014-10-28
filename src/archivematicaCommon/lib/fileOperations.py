@@ -24,7 +24,6 @@ import csv
 import os
 import uuid
 import sys
-import databaseInterface
 import shutil
 from databaseFunctions import insertIntoFiles
 from executeOrRunSubProcess import executeOrRun
@@ -33,14 +32,14 @@ from databaseFunctions import insertIntoEvents
 import MySQLdb
 from archivematicaFunctions import unicodeToStr
 
-def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID):
-    fileSize = os.path.getsize(filePath).__str__()
-    checksum = sha_for_file(filePath).__str__()
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import File, Transfer
 
-    sql = "UPDATE Files " + \
-        "SET fileSize='" + fileSize +"', checksum='" + checksum +  "' " + \
-        "WHERE fileUUID='" + fileUUID + "'"
-    databaseInterface.runSQL(sql)
+def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID):
+    fileSize = os.path.getsize(filePath)
+    checksum = str(sha_for_file(filePath))
+
+    File.objects.filter(uuid=fileUUID).update(size=fileSize, checksum=checksum)
 
     insertIntoEvents(fileUUID=fileUUID, \
                      eventIdentifierUUID=eventIdentifierUUID, \
@@ -63,12 +62,10 @@ def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, d
     addAccessionEvent(fileUUID, transferUUID, date)
 
 def addAccessionEvent(fileUUID, transferUUID, date):
-    
-    sql = """SELECT accessionID FROM Transfers WHERE transferUUID = '%s';""" % (transferUUID)
-    accessionID=databaseInterface.queryAllSQL(sql)[0][0]
-    if accessionID:
+    transfer = Transfer.objects.get(uuid=transferUUID)
+    if transfer.accessionid:
         eventIdentifierUUID = uuid.uuid4().__str__()
-        eventOutcomeDetailNote =  "accession#" + MySQLdb.escape_string(accessionID) 
+        eventOutcomeDetailNote =  "accession#" + MySQLdb.escape_string(transfer.accessionid) 
         insertIntoEvents(fileUUID=fileUUID, \
                eventIdentifierUUID=eventIdentifierUUID, \
                eventType="registration", \
@@ -134,14 +131,17 @@ def updateDirectoryLocation(src, dst, unitPath, unitIdentifier, unitIdentifierTy
     dstDB = dst.replace(unitPath, unitPathReplaceWith)
     if not dstDB.endswith("/") and dstDB != unitPathReplaceWith:
         dstDB += "/"
-    sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND Files.currentLocation LIKE '" + MySQLdb.escape_string(srcDB) + "%' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
-    rows = databaseInterface.queryAllSQL(sql)
-    for row in rows:
-        fileUUID = row[0]
-        location = row[1]
-        destDB = location.replace(srcDB, dstDB) 
-        sql =  """UPDATE Files SET currentLocation='%s' WHERE fileUUID='%s';""" % (MySQLdb.escape_string(destDB), fileUUID)
-        databaseInterface.runSQL(sql)
+
+    kwargs = {
+        "removedtime__isnull": True,
+        "currentlocation__startswith": srcDB,
+        unitIdentifierType: unitIdentifier
+    }
+    files = File.objects.filter(**kwargs)
+
+    for f in files:
+        f.currentlocation = f.currentlocation.replace(srcDB, dstDB)
+        f.save()
     if os.path.isdir(dst):
         if dst.endswith("/"):
             dst += "."
@@ -155,20 +155,28 @@ def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, 
     srcDB = src.replace(unitPath, unitPathReplaceWith)
     dstDB = dst.replace(unitPath, unitPathReplaceWith)
     # Fetch the file UUID
-    sql = """SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND Files.currentLocation = '%s' AND %s = '%s';""" % (MySQLdb.escape_string(srcDB) , unitIdentifierType, unitIdentifier)
-    rows = databaseInterface.queryAllSQL(sql)
-    if len(rows) != 1:
-        print >> sys.stderr, 'ERROR: file information not found:', len(rows), "rows for SQL:", sql
-        print >> sys.stderr, 'Rows returned:', rows
+    kwargs = {
+        "removedtime__isnull": True,
+        "currentlocation": srcDB,
+        unitIdentifierType: unitIdentifier
+    }
+
+    try:
+        f = File.objects.get(**kwargs)
+    except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
+        if isinstance(e, File.DoesNotExist):
+            message = "no results found"
+        else:
+            message = "multiple results found"
+        print >> sys.stderr, 'ERROR: file information not found:', message, "for arguments:", repr(kwargs)
         exit(4)
+
     # Move the file
     print "Moving", src, 'to', dst
     shutil.move(src, dst)
     # Update the DB
-    for row in rows:
-        fileUUID = row[0]
-        sql =  """UPDATE Files SET currentLocation='%s' WHERE fileUUID='%s';""" % (MySQLdb.escape_string(dstDB), fileUUID)
-        databaseInterface.runSQL(sql)
+    f.currentlocation = dstDB
+    f.save()
 
 def updateFileLocation(src, dst, eventType, eventDateTime, eventDetail, eventIdentifierUUID = uuid.uuid4().__str__(), fileUUID="None", sipUUID = None, transferUUID=None, eventOutcomeDetailNote = ""):
     """If the file uuid is not provided, will use the sip uuid and old path to find the file uuid"""
@@ -176,48 +184,46 @@ def updateFileLocation(src, dst, eventType, eventDateTime, eventDetail, eventIde
     dst = unicodeToStr(dst)
     fileUUID = unicodeToStr(fileUUID)
     if not fileUUID or fileUUID == "None":
-        sql = "Need to define transferUUID or sipUUID"
+        kwargs = {
+            "removedtime__isnull": True,
+            "currentlocation": src
+        }
+
         if sipUUID:
-            sql = "SELECT Files.fileUUID FROM Files WHERE removedTime = 0 AND Files.currentLocation = '" + MySQLdb.escape_string(src) + "' AND Files.sipUUID = '" + sipUUID + "';"
+            kwargs["sip_id"] = sipUUID
         elif transferUUID:
-            sql = "SELECT Files.fileUUID FROM Files WHERE removedTime = 0 AND Files.currentLocation = '" + MySQLdb.escape_string(src) + "' AND Files.transferUUID = '" + transferUUID + "';"
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        while row != None:
-            fileUUID = unicodeToStr(row[0])
-            row = c.fetchone()
-        sqlLock.release()
+            kwargs["transfer_id"] = transferUUID
+        else:
+            raise ValueError("One of fileUUID, sipUUID, or transferUUID must be provided")
+
+        f = File.objects.get(**kwargs)
+    else:
+        f = File.objects.get(uuid=fileUUID)
 
     if eventOutcomeDetailNote == "":
         eventOutcomeDetailNote = "Original name=\"%s\"; cleaned up name=\"%s\"" %(src, dst)
-        #eventOutcomeDetailNote = eventOutcomeDetailNote.decode('utf-8')
-    #CREATE THE EVENT
-    if not fileUUID:
-        print >>sys.stderr, "Unable to find file uuid for: ", src, " -> ", dst
-        exit(6)
-    insertIntoEvents(fileUUID=fileUUID, eventIdentifierUUID=eventIdentifierUUID, eventType=eventType, eventDateTime=eventDateTime, eventDetail=eventDetail, eventOutcome="", eventOutcomeDetailNote=eventOutcomeDetailNote)
+    # CREATE THE EVENT
+    insertIntoEvents(fileUUID=f.uuid, eventIdentifierUUID=eventIdentifierUUID, eventType=eventType, eventDateTime=eventDateTime, eventDetail=eventDetail, eventOutcome="", eventOutcomeDetailNote=eventOutcomeDetailNote)
 
-    #UPDATE THE CURRENT FILE PATH
-    sql =  """UPDATE Files SET currentLocation='%s' WHERE fileUUID='%s';""" % (MySQLdb.escape_string(dst), fileUUID)
-    databaseInterface.runSQL(sql)
+    # UPDATE THE CURRENT FILE PATH
+    f.currentlocation = dst
+    f.save()
 
 def getFileUUIDLike(filePath, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith):
     """Dest needs to be the actual full destination path with filename."""
-    ret = {}
     srcDB = filePath.replace(unitPath, unitPathReplaceWith)
-    sql = "SELECT Files.fileUUID, Files.currentLocation FROM Files WHERE removedTime = 0 AND Files.currentLocation LIKE '" + MySQLdb.escape_string(srcDB) + "' AND " + unitIdentifierType + " = '" + unitIdentifier + "';"
-    rows = databaseInterface.queryAllSQL(sql)
-    for row in rows:
-        ret[row[1]] = row[0]
-    return ret
+    kwargs = {
+        "removedtime__isnull": True,
+        "currentlocation__contains": srcDB,
+        unitIdentifierType: unitIdentifier
+    }
+    return {f.currentlocation: f.uuid for f in File.objects.filter(**kwargs)}
     
 def updateFileGrpUsefileGrpUUID(fileUUID, fileGrpUse, fileGrpUUID):
-    sql = "UPDATE Files SET fileGrpUse= '%s', fileGrpUUID= '%s' WHERE fileUUID = '%s';" % (fileGrpUse, fileGrpUUID, fileUUID)
-    rows = databaseInterface.runSQL(sql)
+    File.objects.filter(uuid=fileUUID).update(filegrpuse=fileGrpUse, filegrpuuid=fileGrpUUID)
 
 def updateFileGrpUse(fileUUID, fileGrpUse):
-    sql = "UPDATE Files SET fileGrpUse= '%s' WHERE fileUUID = '%s';" % (fileGrpUse, fileUUID)
-    rows = databaseInterface.runSQL(sql)
+    File.objects.filter(uuid=fileUUID).update(filegrpuse=fileGrpUse)
 
 def findFileInNormalizatonCSV(csv_path, commandClassification, target_file, sip_uuid):
     """ Returns the original filename or None for a manually normalized file.
@@ -234,13 +240,17 @@ def findFileInNormalizatonCSV(csv_path, commandClassification, target_file, sip_
         reader = csv.reader(csv_file)
         # Search CSV for an access/preservation filename that matches target_file
         # Get original name of target file, to handle sanitized names
-        sql = """SELECT Files.originalLocation FROM Files WHERE removedTime = 0 AND Files.currentLocation LIKE '%{filename}' AND sipUUID='{sip_uuid}';""".format(
-            filename=target_file, sip_uuid=sip_uuid)
-        rows = databaseInterface.queryAllSQL(sql)
-        if len(rows) != 1:
+        try:
+            f = File.objects.get(removedtime__isnull=True,
+                                 currentlocation__endswith=target_file,
+                                 sip_id=sip_uuid)
+        except File.MultipleObjectsReturned:
+            print >>sys.stderr, "More than one result found for {} file ({}) in DB.".format(commandClassification, target_file)
+            sys.exit(2)
+        except File.DoesNotExist:
             print >>sys.stderr, "{} file ({}) not found in DB.".format(commandClassification, target_file)
             sys.exit(2)
-        target_file = rows[0][0].replace('%transferDirectory%objects/', '', 1).replace('%SIPDirectory%objects/', '', 1)
+        target_file = f.originallocation.replace('%transferDirectory%objects/', '', 1).replace('%SIPDirectory%objects/', '', 1)
         try:
             for row in reader:
                 if not row:
