@@ -227,7 +227,8 @@ def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata
         # supplementary info from
         if accession != '' or transfer_metadata_set_row_uuid != '':
             temp_uuid = uuid.uuid4().__str__()
-            mcp_destination = destination.replace(SHARED_DIRECTORY_ROOT + '/', '%sharedPath%') + '/'
+            mcp_destination = destination.replace(os.path.join(SHARED_DIRECTORY_ROOT, ''), '%sharedPath%')
+            mcp_destination = os.path.join(mcp_destination, '')  # Add trailing /
             kwargs = {
                 "uuid": temp_uuid,
                 "accessionid": accession,
