@@ -33,10 +33,7 @@ def save_idtool(file_, value):
     # runs in both.
     # Check the SIP first - if it hasn't been assigned yet, then this is being
     # run during the transfer.
-    try:
-        unit = file_.sip
-    except:
-        unit = file_.transfer
+    unit = file_.sip or file_.transfer
 
     rd = {
         "%IDCommand%": value
