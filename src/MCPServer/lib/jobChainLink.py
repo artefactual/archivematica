@@ -120,7 +120,7 @@ class jobChainLink:
         elif taskType == constlinkTaskManagerSetUnitVariable:
             linkTaskManagerSetUnitVariable(self, taskTypePKReference, self.unit)
         else:
-            print sys.stderr, "unsupported task type: ", taskType
+            print >> sys.stderr, "unsupported task type: ", taskType
 
     # Deprecated, remove later
     def getSoundFileToPlay(self, exitCode):
