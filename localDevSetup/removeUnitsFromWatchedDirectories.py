@@ -22,8 +22,10 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import os
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
+
+sys.path.append("/usr/share/archivematica/dashboard")
+os.environ["DJANGO_SETTINGS_MODULE"] = "settings.local"
+from main.models import WatchedDirectory
 
 
 def removeEverythingInDirectory(directory):
@@ -34,19 +36,14 @@ def removeEverythingInDirectory(directory):
     os.system(execute)
 
 def cleanWatchedDirectories():
-    sql = """SELECT watchedDirectoryPath FROM WatchedDirectories;"""
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    while row != None:
+    for path, in WatchedDirectory.objects.values_list('watched_directory_path'):
         try:
-            directory = row[0].replace("%watchDirectoryPath%", "/var/archivematica/sharedDirectory/watchedDirectories/", 1)
+            directory = path.replace("%watchDirectoryPath%", "/var/archivematica/sharedDirectory/watchedDirectories/", 1)
             removeEverythingInDirectory(directory)
         except Exception as inst:
             print "debug except 2"
             print type(inst)     # the exception instance
             print inst.args      # arguments stored in .args
-        row = c.fetchone()
-    sqlLock.release()
 
 if __name__ == '__main__':
     import getpass
