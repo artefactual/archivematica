@@ -29,7 +29,7 @@ urlpatterns = patterns('components.filesystem_ajax.views',
     (r'^move_within_arrange/$', 'move_within_arrange'),
     (r'^create_directory_within_arrange/$', 'create_directory_within_arrange'),
     (r'^copy_to_arrange/$', 'copy_to_arrange'),
-    (r'^ransfer/$', 'start_transfer'),
+    (r'^ransfer/$', 'start_transfer_logged_in'),
     (r'^copy_from_arrange/$', 'copy_from_arrange_to_completed'),
     (r'^copy_metadata_files/$', 'copy_metadata_files'),
 )

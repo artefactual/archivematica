@@ -152,7 +152,13 @@ def delete_arrange(request):
     return helpers.json_response({'message': 'Delete successful.'})
 
 
-def start_transfer(request):
+def start_transfer_logged_in(request):
+    """
+    Endpoint for starting a transfer if logged in and calling from the dashboard.
+    """
+    if request.method not in ('POST',):
+        return django.http.HttpResponseNotAllowed(['POST'])
+
     transfer_name = archivematicaFunctions.unicodeToStr(request.POST.get('name', ''))
     transfer_type = archivematicaFunctions.unicodeToStr(request.POST.get('type', ''))
     accession = archivematicaFunctions.unicodeToStr(request.POST.get('accession', ''))
@@ -161,11 +167,25 @@ def start_transfer(request):
     paths = request.POST.getlist('paths[]', [])
     paths = [base64.b64decode(path) for path in paths]
     row_ids = request.POST.getlist('row_ids[]', [])
+    response = start_transfer(transfer_name, transfer_type, accession, paths, row_ids)
+    return helpers.json_response(response)
 
+
+def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
+    """
+    Start a new transfer.
+
+    :param str transfer_name: Name of new transfer.
+    :param str transfer_type: Type of new transfer. From TRANSFER_TYPE_DIRECTORIES.
+    :param str accession: Accession number of new transfer.
+    :param list paths: List of <location_uuid>:<relative_path> to be copied into the new transfer. Location UUIDs should be associated with this pipeline, and relative path should be relative to the location.
+    :param list row_ids: ID of the associated TransferMetadataSet for disk image ingest.
+    :returns: Dict with {'message': <message>, ['error': True, 'path': <path>]}.  Error is a boolean, present and True if there is an error.  Message describes the success or failure. Path is populated if there is no error.
+    """
     if not transfer_name:
-        return helpers.json_response({'error': True, 'message': 'No transfer name provided.'})
+        return {'error': True, 'message': 'No transfer name provided.'}
     if not paths:
-        return helpers.json_response({'error': True, 'message': 'No path provided.'})
+        return {'error': True, 'message': 'No path provided.'}
 
     # Create temp directory that everything will be copied into
     temp_base_dir = os.path.join(SHARED_DIRECTORY_ROOT, 'tmp')
@@ -193,17 +213,15 @@ def start_transfer(request):
         copy_from_transfer_sources([path], transfer_relative)
 
         try:
-            copy_to_start_transfer(filepath=filepath,
+            destination = copy_to_start_transfer(filepath=filepath,
                 type=transfer_type, accession=accession,
                 transfer_metadata_set_row_uuid=row_id)
         except Exception:
-            response = {'error': True,
-                'message': 'Error copying %s to start of transfer.' % filepath}
-            return helpers.json_response(response)
+            return {'error': True,
+                'message': 'Error copying {} to start of transfer.'.format(filepath)}
 
     shutil.rmtree(temp_dir)
-    response = {'message': 'Copy successful.'}
-    return helpers.json_response(response)
+    return {'message': 'Copy successful.', 'path': destination}
 
 
 def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata_set_row_uuid=''):
@@ -257,6 +275,7 @@ def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata
 
     if error:
         raise Exception(error)
+    return destination
 
 
 def create_arranged_sip(staging_sip_path, files):

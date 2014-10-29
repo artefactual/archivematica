@@ -22,6 +22,7 @@ urlpatterns = patterns('components.api.views',
     (r'transfer/approve', 'approve_transfer'), 
     (r'transfer/unapproved', 'unapproved_transfers'),
     url(r'transfer/status/(?P<unit_uuid>' + settings.UUID_REGEX + ')', 'status', {'unit_type': 'unitTransfer'}),
+    url(r'transfer/start_transfer/', 'start_transfer_api'),
     url(r'ingest/status/(?P<unit_uuid>' + settings.UUID_REGEX + ')', 'status', {'unit_type': 'unitSIP'}),
     (r'ingest/waiting', 'waiting_for_user_input'),
 )

@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 # stdlib, alphabetical
+import base64
 import json
 import os
 
@@ -188,6 +189,35 @@ def waiting_for_user_input(request):
             mimetype='application/json'
         )
     response['message'] = 'Fetched transfers successfully.'
+    return helpers.json_response(response)
+
+
+def start_transfer_api(request):
+    """
+    Endpoint for starting a transfer if calling remote and using an API key.
+    """
+    if request.method not in ('POST',):
+        return django.http.HttpResponseNotAllowed(['POST'])
+
+    auth_error = authenticate_request(request)
+    response = {}
+    if auth_error is not None:
+        response = {'message': auth_error, 'error': True}
+        return django.http.HttpResponseForbidden(
+            json.dumps(response),
+            mimetype='application/json'
+        )
+
+    transfer_name = request.POST.get('name', '')
+    transfer_type = request.POST.get('type', '')
+    accession = request.POST.get('accession', '')
+    # Note that the path may contain arbitrary, non-unicode characters,
+    # and hence is POSTed to the server base64-encoded
+    paths = request.POST.getlist('paths[]', [])
+    paths = [base64.b64decode(path) for path in paths]
+    row_ids = request.POST.getlist('row_ids[]', [''])
+
+    response = filesystem_ajax_views.start_transfer(transfer_name, transfer_type, accession, paths, row_ids)
     return helpers.json_response(response)
 
 
