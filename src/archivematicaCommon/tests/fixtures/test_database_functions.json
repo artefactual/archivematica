@@ -1,0 +1,228 @@
+[
+    {
+        "pk": 1,
+        "model": "main.file",
+        "fields": {
+            "checksum": "",
+            "currentlocation": "file_with_sip_agent",
+            "enteredsystem": "2014-10-30T00:00:00",
+            "filegrpuse": "original",
+            "filegrpuuid": "",
+            "label": "",
+            "originallocation": "",
+            "removedtime": null,
+            "sip": "742b0443-cf18-442a-94f9-6d5b4948227d",
+            "size": 0,
+            "transfer": null,
+            "uuid": "88c8f115-80bc-4da4-a1e6-0158f5df13b9"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "main.unitvariable",
+        "fields": {
+            "createdtime": "2014-10-30T00:00:00",
+            "microservicechainlink": null,
+            "unittype": "SIP",
+            "unituuid": "742b0443-cf18-442a-94f9-6d5b4948227d",
+            "updatedtime": "2014-10-30T00:00:00",
+            "variable": "activeAgent",
+            "variablevalue": "5"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "main.sip",
+        "fields": {
+            "aip_filename": "",
+            "createdtime": "2014-10-30T00:00:00",
+            "currentpath": "%path%",
+            "hidden": false,
+            "magiclink": null,
+            "magiclinkexitmessage": null,
+            "sip_type": "SIP",
+            "uuid": "742b0443-cf18-442a-94f9-6d5b4948227d"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "main.file",
+        "fields": {
+            "checksum": "",
+            "currentlocation": "file_with_sip_agent",
+            "enteredsystem": "2014-10-30T00:00:00",
+            "filegrpuse": "original",
+            "filegrpuuid": "",
+            "label": "",
+            "originallocation": "",
+            "removedtime": null,
+            "sip": null,
+            "size": 0,
+            "transfer": "11449c3c-a31d-4663-8a01-10d1c705410f",
+            "uuid": "1f4af873-8d60-4907-a92e-d1889e643524"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "main.unitvariable",
+        "fields": {
+            "createdtime": "2014-10-30T00:00:00",
+            "microservicechainlink": null,
+            "unittype": "Transfer",
+            "unituuid": "11449c3c-a31d-4663-8a01-10d1c705410f",
+            "updatedtime": "2014-10-30T00:00:00",
+            "variable": "activeAgent",
+            "variablevalue": "10"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "main.transfer",
+        "fields": {
+            "accessionid": "",
+            "currentlocation": "%path%",
+            "description": "",
+            "hidden": false,
+            "magiclink": null,
+            "magiclinkexitmessage": null,
+            "notes": "",
+            "sourceofacquisition": "",
+            "transfermetadatasetrow": null,
+            "type": "Standard",
+            "typeoftransfer": "",
+            "uuid": "11449c3c-a31d-4663-8a01-10d1c705410f"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "main.file",
+        "fields": {
+            "checksum": "",
+            "currentlocation": "file_with_sip_agent",
+            "enteredsystem": "2014-10-30T00:00:00",
+            "filegrpuse": "original",
+            "filegrpuuid": "",
+            "label": "",
+            "originallocation": "",
+            "removedtime": null,
+            "sip": "b266cd28-108c-41b3-9a49-a3d775ee6e76",
+            "size": 0,
+            "transfer": "b3c75166-86e9-443b-97ce-ddb4f7025219",
+            "uuid": "dc569efe-c88f-4be3-94d3-d9eac0c5d410"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "main.unitvariable",
+        "fields": {
+            "createdtime": "2014-10-30T00:00:00",
+            "microservicechainlink": null,
+            "unittype": "Transfer",
+            "unituuid": "b3c75166-86e9-443b-97ce-ddb4f7025219",
+            "updatedtime": "2014-10-30T00:00:00",
+            "variable": "activeAgent",
+            "variablevalue": "transfer_value"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "main.sip",
+        "fields": {
+            "aip_filename": "",
+            "createdtime": "2014-10-30T00:00:00",
+            "currentpath": "%path%",
+            "hidden": false,
+            "magiclink": null,
+            "magiclinkexitmessage": null,
+            "sip_type": "SIP",
+            "uuid": "b266cd28-108c-41b3-9a49-a3d775ee6e76"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "main.transfer",
+        "fields": {
+            "accessionid": "",
+            "currentlocation": "%path%",
+            "description": "",
+            "hidden": false,
+            "magiclink": null,
+            "magiclinkexitmessage": null,
+            "notes": "",
+            "sourceofacquisition": "",
+            "transfermetadatasetrow": null,
+            "type": "Standard",
+            "typeoftransfer": "",
+            "uuid": "b3c75166-86e9-443b-97ce-ddb4f7025219"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "main.unitvariable",
+        "fields": {
+            "createdtime": "2014-10-30T00:00:00",
+            "microservicechainlink": null,
+            "unittype": "SIP",
+            "unituuid": "b266cd28-108c-41b3-9a49-a3d775ee6e76",
+            "updatedtime": "2014-10-30T00:00:00",
+            "variable": "activeAgent",
+            "variablevalue": "sip_value"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "main.file",
+        "fields": {
+            "checksum": "",
+            "currentlocation": "file_with_no_unit_var",
+            "enteredsystem": "2014-10-30T00:00:00",
+            "filegrpuse": "original",
+            "filegrpuuid": "",
+            "label": "",
+            "originallocation": "",
+            "removedtime": null,
+            "sip": "01cf9fb8-bc01-40b4-b830-feb66e912f40",
+            "size": 0,
+            "transfer": null,
+            "uuid": "d4e599bd-f9ab-48d4-9ae7-9e87d4ac1619"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "main.sip",
+        "fields": {
+            "aip_filename": "",
+            "createdtime": "2014-10-30T00:00:00",
+            "currentpath": "%path%",
+            "hidden": false,
+            "magiclink": null,
+            "magiclinkexitmessage": null,
+            "sip_type": "SIP",
+            "uuid": "01cf9fb8-bc01-40b4-b830-feb66e912f40"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "main.sip",
+        "fields": {
+            "aip_filename": "",
+            "createdtime": "2014-10-30T00:00:00",
+            "currentpath": "%path%",
+            "hidden": false,
+            "magiclink": null,
+            "magiclinkexitmessage": null,
+            "sip_type": "SIP",
+            "uuid": "0049fa6c-152f-44a0-93b0-c5e856a02292"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "main.agent",
+        "fields": {
+            "agenttype": "testAgent",
+            "identifiertype": "fetched from event",
+            "identifiervalue": "event_agent_id",
+            "name": "Event agent"
+        }
+    }
+]

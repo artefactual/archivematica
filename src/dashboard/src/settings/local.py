@@ -24,4 +24,5 @@ FPR_VERIFY_CERT = False
 
 FIXTURE_DIRS = (
     'tests/fixtures/',
+    '../archivematicaCommon/tests/fixtures/'
 )
