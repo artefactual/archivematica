@@ -59,7 +59,7 @@ if __name__ == '__main__':
         # will move src_path into it rather than overwriting it;
         # to avoid incorrectly-nested paths, move src_path's contents
         # into it instead.
-        if os.path.exists(dst_path):
+        if os.path.exists(dst_path) and os.path.isdir(src_path):
             for subitem in os.listdir(src_path):
                 shutil.move(os.path.join(src_path, subitem), dst_path)
         else:
