@@ -31,6 +31,18 @@ sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Derivation, Event, File, FPCommandOutput, Job, SIP, Task, UnitVariable
 
 def insertIntoFiles(fileUUID, filePath, enteredSystem=databaseInterface.getUTCDate(), transferUUID="", sipUUID="", use="original"):
+    """
+    Creates a new entry in the Files table using the supplied arguments.
+
+    :param str fileUUID:
+    :param str filePath: The current path of the file on disk. Can contain variables; see the documentation for ReplacementDict for supported names.
+    :param datetime.datetime enteredSystem: Timestamp for the event of file ingestion. Defaults to the current timestamp when the record is created.
+    :param str transferUUID: UUID for the transfer containing this file. Can be empty. At least one of transferUUID or sipUUID must be defined. Mutually exclusive with sipUUID.
+    :param str sipUUID: UUID for the SIP containing this file. Can be empty. At least one of transferUUID or sipUUID must be defined. Mutually exclusive with transferUUID.
+    :param str use: A category used to group the file with others of the same kind. Will be included in the AIP's METS document in the USE attribute. Defaults to "original".
+
+    :returns: None
+    """
     kwargs = {
         "uuid": fileUUID,
         "originallocation": filePath,
@@ -51,6 +63,18 @@ def insertIntoFiles(fileUUID, filePath, enteredSystem=databaseInterface.getUTCDa
     File.objects.create(**kwargs)
 
 def getAgentForFileUUID(fileUUID):
+    """
+    Fetches the ID for the agent associated with the given file, if one exists.
+
+    The agent ID is stored in a UnitVariable with the name "activeAgent", associated with either the SIP or the transfer containing the file.
+    This function will attempt to fetch the unit variable from a SIP first,
+    then the transfer.
+
+    The agent ID is the pk to a row in the Agent table.
+    Note that this transfer does not actually verify that an agent with this pk exists, just that the value is contained in a UnitVariable associated with this SIP.
+
+    :returns: The agent ID, as a string, or None if no agent could be found.
+    """
     agent = None
     if fileUUID == 'None':
         error_message = "Unable to get agent for file: no file UUID provided."
@@ -80,6 +104,17 @@ def getAgentForFileUUID(fileUUID):
     return agent
 
 def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=databaseInterface.getUTCDate(), eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
+    """
+    Creates a new entry in the Events table using the supplied arguments.
+
+    :param str fileUUID: The UUID of the file with which this event is associated. Can be blank.
+    :param str eventIdentifierUUID: The UUID for the event being generated. If not provided, a new UUID will be calculated using the version 4 scheme.
+    :param str eventType: Can be blank.
+    :param datetime.datetime eventDateTime: The time at which the event occurred. If not provided, the current date will be used.
+    :param str eventDetail: Can be blank. Will be used in the eventDetail element in the AIP METS.
+    :param str eventOutcome: Can be blank. Will be used in the eventOutcome element in the AIP METS.
+    :param str eventOutcomeDetailNote: Can be blank. Will be used in the eventOutcomeDetailNote element in the AIP METS.
+    """
     agent = getAgentForFileUUID(fileUUID)
     if not eventIdentifierUUID:
         eventIdentifierUUID = str(uuid.uuid4())
@@ -91,6 +126,13 @@ def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDat
                          linking_agent_id=agent)
 
 def insertIntoDerivations(sourceFileUUID="", derivedFileUUID="", relatedEventUUID=""):
+    """
+    Creates a new entry in the Derivations table using the supplied arguments. The two files in this relationship should already exist in the Files table.
+
+    :param str sourceFileUUID: The UUID of the original file.
+    :param str derivedFileUUID: The UUID of the derived file.
+    :param str relatedEventUUID: The UUID for an event describing the creation of the derived file. Can be blank.
+    """
     if not sourceFileUUID:
         raise ValueError("sourceFileUUID must be specified")
     if not derivedFileUUID:
@@ -101,6 +143,15 @@ def insertIntoDerivations(sourceFileUUID="", derivedFileUUID="", relatedEventUUI
                               event_id=relatedEventUUID)
 
 def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
+    """
+    Creates a new entry in the FPCommandOutput table using the supplied argument.
+    This is typically used to store output of file characterization.
+    This data is intended to be unique per combination of fileUUID and ruleUUID; an exception will be raised if FPCommandOutput data already exists for a file with this ruleUUID.
+
+    :param str fileUUID:
+    :param str fitsXMLString: An XML document, encoded into a string. The name is historical; this can represent XML output from any software.
+    :param str ruleUUID: The UUID of the FPR rule used to generate this XML data. Foreign key to FPRule.
+    """
     FPCommandOutput.objects.create(file_id=fileUUID, content=fitsXMLString,
                                    rule_id=ruleUUID)
 
@@ -117,6 +168,14 @@ def insertIntoFilesIDs(fileUUID="", formatName="", formatVersion="", formatRegis
 #client connected/disconnected.
 
 def logTaskCreatedSQL(taskManager, commandReplacementDic, taskUUID, arguments):
+    """
+    Creates a new entry in the Tasks table using the supplied data.
+
+    :param MCPServer.linkTaskManager taskManager: A linkTaskManager subclass instance.
+    :param ReplacementDict commandReplacementDic: A ReplacementDict or dict instance. %fileUUID% and %relativeLocation% variables will be looked up from this dict.
+    :param str taskUUID: The UUID to be used for this Task in the database.
+    :param str arguments: The arguments to be passed to the command when it is executed, as a string. Can contain replacement variables; see ReplacementDict for supported values.
+    """
     taskUUID = taskUUID
     jobUUID = taskManager.jobChainLink.UUID
     fileUUID = ""
@@ -134,6 +193,13 @@ def logTaskCreatedSQL(taskManager, commandReplacementDic, taskUUID, arguments):
                         createdtime=databaseInterface.getUTCDate())
 
 def logTaskCompletedSQL(task):
+    """
+    Fetches execution data from the completed task and logs it to the database.
+    Updates the entry in the Tasks table with data in the provided task.
+    Saves the following fields: exitCode, stdOut, stdError
+
+    :param task:
+    """
     print "Logging task output to db", task.UUID
     taskUUID = task.UUID.__str__()
     exitCode = task.results["exitCode"].__str__()
@@ -148,6 +214,12 @@ def logTaskCompletedSQL(task):
     task.save()
 
 def logJobCreatedSQL(job):
+    """
+    Logs a job's properties into the Jobs table in the database.
+
+    :param jobChainLink job: A jobChainLink instance.
+    :returns None:    
+    """
     separator = databaseInterface.getSeparator()
     unitUUID =  job.unit.UUID
     decDate = databaseInterface.getDeciDate("." + job.createdDate.split(".")[-1])
@@ -168,6 +240,16 @@ def logJobCreatedSQL(job):
     # TODO -un hardcode executing exeCommand
 
 def fileWasRemoved(fileUUID, utcDate=databaseInterface.getUTCDate(), eventDetail = "", eventOutcomeDetailNote = "", eventOutcome=""):
+    """
+    Logs the removal of a file from the database.
+    Updates the properties of the row in the Files table for the provided fileUUID, and logs the removal in the Events table with an event of type "file removed".
+
+    :param str fileUUID:
+    :param datetime.datetime utcDate: The date of the removal. Defaults to the current date.
+    :param str eventDetail: The eventDetail for the logged event. Can be blank.
+    :param str eventOutcomeDetailNote: The eventOutcomeDetailNote for the logged event. Can be blank.
+    :param str eventOutcome: The eventOutcome for the logged event. Can be blank.
+    """
     eventIdentifierUUID = uuid.uuid4().__str__()
     eventType = "file removed"
     eventDateTime = utcDate
@@ -185,6 +267,15 @@ def fileWasRemoved(fileUUID, utcDate=databaseInterface.getUTCDate(), eventDetail
     f.save()
 
 def createSIP(path, UUID=None, sip_type='SIP'):
+    """
+    Create a new SIP object for a SIP at the given path.
+
+    :param str path: The current path of the SIP on disk. Can contain variables; see the documentation for ReplacementDict for supported names.
+    :param str UUID: The UUID to be created for the SIP. If not specified, a new UUID will be generated using the version 4 scheme.
+    :param str sip_type: A string representing the type of the SIP. Defaults to "SIP". The other value typically used is "AIC".
+
+    :returns str: The UUID for the created SIP.
+    """
     if UUID is None:
         UUID = str(uuid.uuid4())
     print "Creating SIP:", UUID, "-", path
@@ -196,6 +287,12 @@ def createSIP(path, UUID=None, sip_type='SIP'):
     return UUID
 
 def deUnicode(str):
+    """
+    Convert a unicode string into an str by encoding it using UTF-8.
+
+    :param unicode: A string. If not already a unicode string, it will be converted to one before encoding.
+    :returns str: A UTF-8 encoded string, or None if the provided string was None. May be identical to the original string, if the original string contained only ASCII values.
+    """
     if str == None:
         return None
     return unicode(str).encode('utf-8')
