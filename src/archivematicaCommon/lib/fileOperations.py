@@ -112,9 +112,7 @@ def writeToFile(output, fileName, writeWhite=False):
 
 def renameAsSudo(source, destination):
     """Used to move/rename Directories that the archivematica user may or may not have writes to move"""
-    command = "sudo mv \"" + source + "\"   \"" + destination + "\""
-    if isinstance(command, unicode):
-        command = command.encode("utf-8")
+    command = ["sudo", "mv", source, destination]
     exitCode, stdOut, stdError = executeOrRun("command", command, "", printing=False)
     if exitCode:
         print >>sys.stderr, "exitCode:", exitCode
