@@ -34,8 +34,7 @@ from linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList import linkTaskMa
 from linkTaskManagerSetUnitVariable import linkTaskManagerSetUnitVariable
 from linkTaskManagerUnitVariableLinkPull import linkTaskManagerUnitVariableLinkPull
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
-from databaseFunctions import logJobCreatedSQL
+from databaseFunctions import logJobCreatedSQL, getUTCDate
 from playAudioFileInCVLC import playAudioFileInThread
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode, TaskType
@@ -60,7 +59,7 @@ class jobChainLink:
         self.jobChain = jobChain
         self.unit = unit
         self.passVar=passVar
-        self.createdDate = databaseInterface.getUTCDate()
+        self.createdDate = getUTCDate()
         self.subJobOf = subJobOf
 
         # Depending on the path that led to this, jobChainLinkPK may

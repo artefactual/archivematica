@@ -45,7 +45,7 @@ import traceback
 os.environ['DJANGO_SETTINGS_MODULE'] = "settings.common"
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
+import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 printOutputLock = threading.Lock()
 
@@ -86,7 +86,7 @@ def executeCommand(gearman_worker, gearman_job):
         execute = gearman_job.task
         print "executing:", execute, "{", gearman_job.unique, "}"
         data = cPickle.loads(gearman_job.data)
-        utcDate = databaseInterface.getUTCDate()
+        utcDate = databaseFunctions.getUTCDate()
         arguments = data["arguments"]#.encode("utf-8")
         if isinstance(arguments, unicode):
             arguments = arguments.encode("utf-8")

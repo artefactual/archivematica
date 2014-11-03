@@ -44,10 +44,10 @@ from archivematicaCreateMETSTrim import getTrimFileDmdSec
 from archivematicaCreateMETSTrim import getTrimAmdSec
 from archivematicaCreateMETSTrim import getTrimFileAmdSec
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 from archivematicaFunctions import escape
 from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import normalizeNonDcElementName
+from databaseFunctions import getUTCDate
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 sharedVariablesAcrossModules.globalErrorCount = 0
 
@@ -849,7 +849,7 @@ if __name__ == '__main__':
         nsmap = rootNSMap,
         attrib = { "{" + ns.xsiNS + "}schemaLocation" : "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd" },
     )
-    etree.SubElement(root, ns.metsBNS + "metsHdr").set("CREATEDATE", databaseInterface.getUTCDate().split(".")[0])
+    etree.SubElement(root, ns.metsBNS + "metsHdr").set("CREATEDATE", getUTCDate().split(".")[0])
 
 
 

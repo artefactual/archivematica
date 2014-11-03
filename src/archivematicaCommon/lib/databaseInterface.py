@@ -25,10 +25,8 @@ import MySQLdb
 import warnings
 import os
 import threading
-import string
 import sys
 import time
-from datetime import datetime
 
 global separator
 separator = "', '"
@@ -69,21 +67,6 @@ def reconnect():
 def getSeparator():
     global separator
     return separator
-
-def getUTCDate():
-    """Returns a string of the UTC date & time in ISO format"""
-    d = datetime.utcnow()
-    return d.isoformat('T')
-
-def getDeciDate(date):
-    valid = "." + string.digits
-    ret = ""
-    for c in date:
-        if c in valid:
-            ret += c
-        #else:
-            #ret += replacementChar
-    return str("{:10.10f}".format(float(ret)))
 
 
 #sudo apt-get install python-mysqldb

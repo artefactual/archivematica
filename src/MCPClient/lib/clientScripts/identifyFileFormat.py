@@ -7,8 +7,7 @@ import uuid
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
-from databaseFunctions import insertIntoEvents, insertIntoFilesIDs
-from databaseInterface import getUTCDate
+from databaseFunctions import getUTCDate, insertIntoEvents, insertIntoFilesIDs
 
 path = '/usr/share/archivematica/dashboard'
 if path not in sys.path:

@@ -20,9 +20,10 @@
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
+from datetime import datetime
 import os
+import string
 import sys
-import databaseInterface
 import MySQLdb
 import uuid
 from archivematicaFunctions import unicodeToStr
@@ -30,7 +31,22 @@ from archivematicaFunctions import unicodeToStr
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, UnitVariable
 
-def insertIntoFiles(fileUUID, filePath, enteredSystem=databaseInterface.getUTCDate(), transferUUID="", sipUUID="", use="original"):
+def getUTCDate():
+    """Returns a string of the UTC date & time in ISO format"""
+    d = datetime.utcnow()
+    return d.isoformat('T')
+
+def getDeciDate(date):
+    valid = "." + string.digits
+    ret = ""
+    for c in date:
+        if c in valid:
+            ret += c
+        #else:
+            #ret += replacementChar
+    return str("{:10.10f}".format(float(ret)))
+
+def insertIntoFiles(fileUUID, filePath, enteredSystem=getUTCDate(), transferUUID="", sipUUID="", use="original"):
     """
     Creates a new entry in the Files table using the supplied arguments.
 
@@ -103,7 +119,7 @@ def getAgentForFileUUID(fileUUID):
                 pass
     return agent
 
-def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=databaseInterface.getUTCDate(), eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
+def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=getUTCDate(), eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
     """
     Creates a new entry in the Events table using the supplied arguments.
 
@@ -194,7 +210,7 @@ def logTaskCreatedSQL(taskManager, commandReplacementDic, taskUUID, arguments):
                         filename=fileName,
                         execution=taskexec,
                         arguments=arguments,
-                        createdtime=databaseInterface.getUTCDate())
+                        createdtime=getUTCDate())
 
 def logTaskCompletedSQL(task):
     """
@@ -211,7 +227,7 @@ def logTaskCompletedSQL(task):
     stdError = task.results["stdError"]
 
     task = Task.objects.get(taskuuid=taskUUID)
-    task.endtime = databaseInterface.getUTCDate()
+    task.endtime = getUTCDate()
     task.exitcode = exitCode
     task.stdout = stdOut
     task.stderror = stdError
@@ -226,7 +242,7 @@ def logJobCreatedSQL(job):
     """
     separator = databaseInterface.getSeparator()
     unitUUID =  job.unit.UUID
-    decDate = databaseInterface.getDeciDate("." + job.createdDate.split(".")[-1])
+    decDate = getDeciDate("." + job.createdDate.split(".")[-1])
     if job.unit.owningUnit != None:
         unitUUID = job.unit.owningUnit.UUID 
     Job.objects.create(jobuuid=job.UUID,
@@ -243,7 +259,7 @@ def logJobCreatedSQL(job):
 
     # TODO -un hardcode executing exeCommand
 
-def fileWasRemoved(fileUUID, utcDate=databaseInterface.getUTCDate(), eventDetail = "", eventOutcomeDetailNote = "", eventOutcome=""):
+def fileWasRemoved(fileUUID, utcDate=getUTCDate(), eventDetail = "", eventOutcomeDetailNote = "", eventOutcome=""):
     """
     Logs the removal of a file from the database.
     Updates the properties of the row in the Files table for the provided fileUUID, and logs the removal in the Events table with an event of type "file removed".

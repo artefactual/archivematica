@@ -253,7 +253,7 @@ def debugMonitor():
         if databaseInterface.sqlLock.acquire(False):
             databaseInterface.sqlLock.release()
             dblockstatus = "SQL Lock: Unlocked"
-        print "<DEBUG type=\"archivematicaMCP\">", "\tDate Time: ", databaseInterface.getUTCDate(), "\tThreadCount: ", threading.activeCount(), "\tcountOfCreateUnitAndJobChainThreaded", countOfCreateUnitAndJobChainThreaded, dblockstatus, "</DEBUG>"
+        print "<DEBUG type=\"archivematicaMCP\">", "\tDate Time: ", databaseFunctions.getUTCDate(), "\tThreadCount: ", threading.activeCount(), "\tcountOfCreateUnitAndJobChainThreaded", countOfCreateUnitAndJobChainThreaded, dblockstatus, "</DEBUG>"
         time.sleep(3600)
 
 def flushOutputs():
