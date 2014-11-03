@@ -15,7 +15,6 @@ import transcoder
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseFunctions
-import databaseInterface
 import fileOperations
 from dicts import ReplacementDict
 
@@ -24,7 +23,7 @@ if path not in sys.path:
     sys.path.append(path)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 from fpr.models import FPRule
-from main.models import Derivation, FileFormatVersion, File
+from main.models import Derivation, FileFormatVersion, File, FileID
 from annoying.functions import get_object_or_None
 
 # Return codes
@@ -237,8 +236,10 @@ def once_normalized(command, opts, replacement_dict):
         )
         ffv.save()
 
-        sql = "INSERT INTO FilesIDs (fileUUID, formatName, formatVersion, formatRegistryName, formatRegistryKey) VALUES ('%s', '%s', NULL, NULL, NULL);" % (output_file_uuid, command.fpcommand.output_format.description)
-        databaseInterface.runSQL(sql)
+        FileID.objects.create(
+            file_id=output_file_uuid,
+            format_name=command.fpcommand.output_format.description
+        )
 
 
 def insert_derivation_event(original_uuid, output_uuid, derivation_uuid,

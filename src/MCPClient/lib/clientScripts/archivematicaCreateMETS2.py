@@ -34,7 +34,7 @@ import archivematicaXMLNamesSpace as ns
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 sys.path.append("/usr/share/archivematica/dashboard")
 from django.contrib.auth.models import User
-from main.models import Agent, Derivation, DublinCore, Event, File, FPCommandOutput, SIP, Transfer
+from main.models import Agent, Derivation, DublinCore, Event, File, FileID, FPCommandOutput, SIP, Transfer
 
 from archivematicaCreateMETSMetadataCSV import parseMetadata
 from archivematicaCreateMETSRights import archivematicaGetRights
@@ -314,17 +314,14 @@ def createTechMD(fileUUID):
 
     etree.SubElement(objectCharacteristics, ns.premisBNS + "size").text = fileSize
 
-    sql = "SELECT formatName, formatVersion, formatRegistryName, formatRegistryKey FROM FilesIDs WHERE fileUUID = '%s';" % (fileUUID)
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    if not row:
+    files = FileID.objects.filter(file_id=fileUUID)
+    if not files.exists():
         format = etree.SubElement(objectCharacteristics, ns.premisBNS + "format")
         formatDesignation = etree.SubElement(format, ns.premisBNS + "formatDesignation")
         etree.SubElement(formatDesignation, ns.premisBNS + "formatName").text = "Unknown"
-    while row != None:
+    for row in files.values_list('format_name', 'format_version', 'format_registry_name', 'format_registry_key'):
         #print row
         format = etree.SubElement(objectCharacteristics, ns.premisBNS + "format")
-        #fileUUID = row[0]
 
         formatDesignation = etree.SubElement(format, ns.premisBNS + "formatDesignation")
         etree.SubElement(formatDesignation, ns.premisBNS + "formatName").text = row[0]
@@ -333,8 +330,6 @@ def createTechMD(fileUUID):
         formatRegistry = etree.SubElement(format, ns.premisBNS + "formatRegistry")
         etree.SubElement(formatRegistry, ns.premisBNS + "formatRegistryName").text = row[2]
         etree.SubElement(formatRegistry, ns.premisBNS + "formatRegistryKey").text = row[3]
-        row = c.fetchone()
-    sqlLock.release()
 
     objectCharacteristicsExtension = etree.SubElement(objectCharacteristics, ns.premisBNS + "objectCharacteristicsExtension")
 

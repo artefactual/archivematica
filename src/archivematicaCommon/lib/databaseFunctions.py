@@ -28,7 +28,7 @@ import uuid
 from archivematicaFunctions import unicodeToStr
 
 sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import Derivation, Event, File, FPCommandOutput, Job, SIP, Task, UnitVariable
+from main.models import Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, UnitVariable
 
 def insertIntoFiles(fileUUID, filePath, enteredSystem=databaseInterface.getUTCDate(), transferUUID="", sipUUID="", use="original"):
     """
@@ -156,12 +156,16 @@ def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
                                    rule_id=ruleUUID)
 
 def insertIntoFilesIDs(fileUUID="", formatName="", formatVersion="", formatRegistryName="", formatRegistryKey=""):
-    databaseInterface.runSQL("""INSERT INTO FilesIDs
-        (fileUUID, formatName, formatVersion, formatRegistryName, formatRegistryKey)
-        VALUES (%s, %s, %s, %s, %s)""",
-        (fileUUID, formatName, formatVersion,
-         formatRegistryName, formatRegistryKey)
-    )
+    """
+    Creates a new entry in the FilesIDs table using the provided data.
+    This function, and its associated table, may be removed in the future.
+    """
+    f = FileID(file_id=fileUUID,
+               format_name=formatName,
+               format_version=formatVersion,
+               format_registry_name=formatRegistryName,
+               format_registry_key=formatRegistryKey)
+    f.save()
 
 
 #user approved?

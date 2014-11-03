@@ -863,3 +863,19 @@ class FPCommandOutput(models.Model):
     file = models.ForeignKey('File', db_column='fileUUID', to_field='uuid')
     content = models.TextField(null=True)
     rule = models.ForeignKey('fpr.FPRule', db_column='ruleUUID', to_field='uuid')
+
+class FileID(models.Model):
+    """
+    This table duplicates file ID values from FPR formats. It predates the current FPR tables.
+
+    This table may be removed in the future.
+    """
+    id = models.AutoField(primary_key=True, db_column='pk')
+    file = models.ForeignKey('File', null=True, db_column='fileUUID', blank=True)
+    format_name = models.TextField(db_column='formatName', blank=True)
+    format_version = models.TextField(db_column='formatVersion', blank=True)
+    format_registry_name = models.TextField(db_column='formatRegistryName', blank=True)
+    format_registry_key = models.TextField(db_column='formatRegistryKey', blank=True)
+
+    class Meta:
+        db_table = 'FilesIDs'
