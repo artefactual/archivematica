@@ -28,8 +28,6 @@ import threading
 import sys
 import time
 
-global separator
-separator = "', '"
 printSQL = False
 printErrors = True
 
@@ -63,10 +61,6 @@ def reconnect():
             time.sleep(secondsBetweenRetry)
             if a+1 == retryAttempts:
                 raise 
-
-def getSeparator():
-    global separator
-    return separator
 
 
 #sudo apt-get install python-mysqldb

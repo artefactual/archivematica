@@ -240,7 +240,6 @@ def logJobCreatedSQL(job):
     :param jobChainLink job: A jobChainLink instance.
     :returns None:    
     """
-    separator = databaseInterface.getSeparator()
     unitUUID =  job.unit.UUID
     decDate = getDeciDate("." + job.createdDate.split(".")[-1])
     if job.unit.owningUnit != None:
