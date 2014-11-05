@@ -27,7 +27,7 @@ from components import advanced_search
 import xml.etree.ElementTree as ElementTree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivistsToolkit.atk as atk
-import elasticSearchFunctions, databaseInterface, databaseFunctions
+import elasticSearchFunctions, databaseFunctions
 
 # TODO: move into helpers module at some point
 # From http://www.ironzebra.com/news/23/converting-multi-dimensional-form-arrays-in-django
