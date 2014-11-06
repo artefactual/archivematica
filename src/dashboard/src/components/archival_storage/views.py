@@ -33,6 +33,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
 from django.template import RequestContext
+import pyes
 
 from main import models
 from components.archival_storage import forms
@@ -43,8 +44,6 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseFunctions
 import elasticSearchFunctions
 import storageService as storage_service
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematicaDashboard.log",

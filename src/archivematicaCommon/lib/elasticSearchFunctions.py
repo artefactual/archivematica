@@ -33,12 +33,14 @@ import sys
 import time
 from xml.etree import ElementTree
 
+import pyes
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 import version
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes, xmltodict
+import xmltodict
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematicaDashboard.log",

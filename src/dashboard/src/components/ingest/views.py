@@ -37,6 +37,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.utils.text import slugify
+import pyes
 
 # External dependencies, alphabetical
 
@@ -57,7 +58,7 @@ import elasticSearchFunctions
 import storageService as storage_service
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes, requests
+import requests
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematicaDashboard.log",

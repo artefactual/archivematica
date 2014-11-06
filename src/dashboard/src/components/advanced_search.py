@@ -15,12 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.http import HttpResponse
 import sys
+
+from django.http import HttpResponse
+import pyes
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes
 
 def search_parameter_prep(request):
     queries = request.GET.getlist('query')
