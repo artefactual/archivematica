@@ -10,3 +10,6 @@ django-annoying==0.7.7
 
 # Required by storage-service component
 slumber==0.6.0
+
+# Replaces the previous vendored copy
+pyes==0.19.0

@@ -4,7 +4,7 @@ import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
+
 import pyes
 
 # allow "-f" to override prompt
