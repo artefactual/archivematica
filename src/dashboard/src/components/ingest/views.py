@@ -57,7 +57,7 @@ import elasticSearchFunctions
 import storageService as storage_service
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes, requests
+import requests
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
@@ -440,7 +440,7 @@ def transfer_backlog(request):
             ops,
             fields,
             types,
-            must_haves=[pyes.TermQuery('status', 'backlog')]
+            must_haves={'term': {'status': 'backlog'}}
         )
 
         results = elasticSearchFunctions.search_raw_wrapper(
@@ -488,8 +488,8 @@ def transfer_backlog(request):
 def _transfer_backlog_augment_search_results(raw_results):
     modifiedResults = []
 
-    for item in raw_results.hits.hits:
-        clone = item._source.copy()
+    for item in raw_results['hits']['hits']:
+        clone = item['_source'].copy()
         clone['document_id'] = item[u'_id']
         modifiedResults.append(clone)
 

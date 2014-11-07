@@ -3,9 +3,9 @@
 import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import elasticSearchFunctions
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes
+from elasticSearchFunctions import getElasticsearchServerHostAndPort
+
+from elasticsearch import Elasticsearch, ConnectionError, TransportError
 
 # allow "-f" to override prompt
 options = sys.argv[1:]
@@ -13,25 +13,18 @@ if len(sys.argv) < 2 or not '-f' in options:
     proceed = raw_input("Are you sure you want to erase the ElasticSearch indexes? (y/N)\n")
     if proceed.lower() != 'y':
         print 'Not going to erase the indexes.'
-        exit(0)
+        sys.exit(0)
 
-conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
-
+conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
 try:
-    conn._send_request('GET', '')
-except pyes.exceptions.NoServerAvailable:
+    conn.info()
+except ConnectionError, TransportError:
     print "Connection error: Elasticsearch may not be running."
-    os._exit(1)
+    sys.exit(1)
 
 # delete transfers ElasticSearch index
-try:
-    conn.delete_index('transfers')
-except pyes.exceptions.IndexMissingException:
-    pass
-
-try:
-    conn.delete_index('aips')
-except pyes.exceptions.IndexMissingException:
-    pass
+# Ignore 404, in case the index is missing (e.g. already deleted)
+conn.indices.delete('transfers', ignore=404)
+conn.indices.delete('aips', ignore=404)
 
 print "ElasticSearch indexes deleted."

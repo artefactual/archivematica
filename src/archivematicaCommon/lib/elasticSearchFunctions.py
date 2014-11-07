@@ -33,12 +33,14 @@ import sys
 import time
 from xml.etree import ElementTree
 
+from elasticsearch import Elasticsearch, ConnectionError, TransportError
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 import version
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes, xmltodict
+import xmltodict
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
@@ -46,6 +48,11 @@ logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
 
 pathToElasticSearchServerConfigFile='/etc/elasticsearch/elasticsearch.yml'
 MAX_QUERY_SIZE = 50000  # TODO Check that this is a reasonable number
+MATCH_ALL_QUERY = {
+    "query": {
+        "match_all": {}
+    }
+}
 
 class ElasticsearchError(Exception):
     pass
@@ -94,16 +101,16 @@ def getElasticsearchServerHostAndPort():
         return '127.0.0.1:9200'
 
 def wait_for_cluster_yellow_status(conn, wait_between_tries=10, max_tries=10):
-    health = {}      
+    health = {}
     health['status'] = None
-    tries = 0       
+    tries = 0
 
     # wait for either yellow or green status
     while health['status'] != 'yellow' and health['status'] != 'green' and tries < max_tries:
         tries = tries + 1
 
         try:
-            health = conn.cluster_health()
+            health = conn.cluster.health()
         except:
             print 'ERROR: failed health check.'
             health['status'] = None
@@ -115,8 +122,8 @@ def wait_for_cluster_yellow_status(conn, wait_between_tries=10, max_tries=10):
 
 def check_server_status_and_create_indexes_if_needed():
     try:
-        conn = pyes.ES(getElasticsearchServerHostAndPort())
-        conn._send_request('GET', '/')
+        conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
+        check_server_status(conn)
     except:
         return 'Connection error'
 
@@ -142,29 +149,37 @@ def search_raw_wrapper(conn, query, indices=None, doc_types=None, **query_params
     results, this is a wrapper that fetches MAX_QUERY_SIZE results and logs a
     warning if more results were available.
     """
-    results = conn.search_raw(
-        query,
-        indices=indices,
-        doc_types=doc_types,
+    if isinstance(indices, list):
+        indices = ','.join(indices)
+
+    if isinstance(doc_types, list):
+        doc_types = ','.join(doc_types)
+
+    results = conn.search(
+        body=query,
+        index=indices,
+        doc_type=doc_types,
         size=MAX_QUERY_SIZE,
         **query_params)
 
-    if results.hits.total > MAX_QUERY_SIZE:
-        logging.warning('Number of items in backlog (%s) exceeds maximum amount fetched (%s)', results.hits.total, MAX_QUERY_SIZE)
+    if results['hits']['total'] > MAX_QUERY_SIZE:
+        logging.warning('Number of items in backlog (%s) exceeds maximum amount fetched (%s)', results['hits']['total'], MAX_QUERY_SIZE)
     return results
 
-def check_server_status():
+def check_server_status(conn=None):
+    if conn is None:
+        conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
+
     try:
-        conn = pyes.ES(getElasticsearchServerHostAndPort())
-        conn._send_request('GET', '/')
-    except:
+        conn.info()
+    except ConnectionError, TransportError:
         return 'Connection error'
 
     # no errors!
     return 'OK'
 
 def get_type_mapping(conn, index, type):
-    return conn._send_request('GET', '/' + index + '/' + type + '/_mapping')
+    return conn.indices.get_mapping(index, doc_type=type)[index]['mappings']
 
 def transfer_mapping_is_correct(conn):
     try:
@@ -191,15 +206,14 @@ def aip_mapping_is_correct(conn):
 # try up to three times to get a connection
 def connect_and_create_index(index, attempt=1):
     if attempt <= 3:
-        conn = pyes.ES(getElasticsearchServerHostAndPort())
-        try:
-            conn.create_index(index)
-            set_up_mapping(conn, index)
-            conn = connect_and_create_index(index, attempt + 1)
-        except:
-            # above exception was pyes.exceptions.IndexAlreadyExistsException
-            # but didn't work with ES 0.19.0
-            pass
+        conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
+
+        response = conn.indices.create(index, ignore=400)
+        if 'error' in response and 'IndexAlreadyExistsException' in response['error']:
+            return conn
+
+        set_up_mapping(conn, index)
+        conn = connect_and_create_index(index, attempt + 1)
     else:
         conn = False
 
@@ -238,12 +252,12 @@ def set_up_mapping(conn, index):
         }
 
         print 'Creating transfer file mapping...'
-        conn.put_mapping(doc_type='transferfile', mapping={'transferfile': {'properties': mapping}}, indices=['transfers'])
+        conn.indices.put_mapping(doc_type='transferfile', body={'transferfile': {'properties': mapping}}, index='transfers')
         print 'Transfer mapping created.'
 
     if index == 'aips':
         print 'Creating AIP mapping...'
-        conn.put_mapping(doc_type='aip', mapping={'aip': {'date_detection': False}}, indices=['aips'])
+        conn.indices.put_mapping(doc_type='aip', body={'aip': {'date_detection': False}}, index='aips')
         print 'AIP mapping created.'
 
         mapping = {
@@ -253,10 +267,10 @@ def set_up_mapping(conn, index):
         }
 
         print 'Creating AIP mapping...'
-        conn.put_mapping(
+        conn.indices.put_mapping(
             doc_type='aip',
-            mapping={'aip': {'date_detection': False, 'properties': mapping}},
-            indices=['aips']
+            body={'aip': {'date_detection': False, 'properties': mapping}},
+            index='aips'
         )
         print 'AIP mapping created.'
 
@@ -268,10 +282,10 @@ def set_up_mapping(conn, index):
         }
 
         print 'Creating AIP file mapping...'
-        conn.put_mapping(
+        conn.indices.put_mapping(
             doc_type='aipfile',
-            mapping={'aipfile': {'date_detection': False, 'properties': mapping}},
-            indices=['aips']
+            body={'aipfile': {'date_detection': False, 'properties': mapping}},
+            index='aips'
         )
         print 'AIP file mapping created.'
 
@@ -323,7 +337,7 @@ def try_to_index(conn, data, index, doc_type, wait_between_tries=10, max_tries=1
 
     for _ in xrange(0, max_tries):
         try:
-            return conn.index(data, index, doc_type)
+            return conn.index(body=data, index=index, doc_type=doc_type)
         except Exception as e:
             print "ERROR: error trying to index."
             print e
@@ -335,11 +349,21 @@ def try_to_index(conn, data, index, doc_type, wait_between_tries=10, max_tries=1
 
 def connect_and_get_aip_data(uuid):
     conn = connect_and_create_index('aips')
+
+    query = {
+        "query": {
+            "term": {
+                "uuid": uuid
+            }
+        }
+    }
+
     aips = conn.search(
-        query=pyes.FieldQuery(pyes.FieldParameter('uuid', uuid)),
+        body=query,
+        index='aips',
         fields='uuid,name,filePath,size,origin,created'
     )
-    return aips[0]
+    return aips['hits']['hits'][0]
 
 def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
 
@@ -633,7 +657,7 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
                 print 'Skipping indexing {}'.format(relative_path)
 
     if filesIndexed > 0:
-        conn.refresh()
+        conn.indices.refresh()
 
     return filesIndexed
 
@@ -662,9 +686,16 @@ def _document_ids_from_field_query(conn, index, doc_types, field, value):
 
     # Escape /'s with \\
     searchvalue = value.replace('/', '\\/')
+    query = {
+        'query': {
+            'term': {
+                field: searchvalue
+            }
+        }
+    }
     documents = search_raw_wrapper(
         conn,
-        query=pyes.FieldQuery(pyes.FieldParameter(field, searchvalue)),
+        query=query,
         doc_types=doc_types
     )
 
@@ -675,9 +706,16 @@ def _document_ids_from_field_query(conn, index, doc_types, field, value):
 
 def document_id_from_field_query(conn, index, doc_types, field, value):
     document_id = None
+    query = {
+        "query": {
+            "term": {
+                field, value
+            }
+        }
+    }
     documents = search_raw_wrapper(
         conn,
-        query=pyes.FieldQuery(pyes.FieldParameter(field, value)),
+        query=query,
         doc_types=doc_types
      )
     if len(documents['hits']['hits']) == 1:
@@ -691,8 +729,13 @@ def connect_and_change_transfer_file_status(uuid, status):
     document_ids = _document_ids_from_field_query(conn, 'transfers', ['transferfile'], 'sipuuid', uuid)
     # Update status
     for doc_id in document_ids:
+        doc = {
+            "doc": {
+                "status": status
+            }
+        }
         conn.update(
-            extra_doc={'status': status},
+            body=doc,
             index='transfers',
             doc_type='transferfile',
             id=doc_id,
@@ -707,15 +750,15 @@ def get_transfer_file_info(field, value):
     logging.debug('get_transfer_file_info: field: %s, value: %s', field, value)
     results = {}
     conn = connect_and_create_index('transfers')
-    indicies = ['transfers']
-    # doc_types='transferfile'
-    # Escape /'s with \\
-    searchvalue = value.replace('/', '\\/')
-    documents = search_raw_wrapper(
-        conn,
-        pyes.FieldQuery(pyes.FieldParameter(field, searchvalue)),
-        indicies=indicies,
-    )
+    indicies = 'transfers'
+    query = {
+        "query": {
+            "term": {
+                field: value
+            }
+        }
+    }
+    documents = search_raw_wrapper(conn, query=query, indices=indicies)
     result_count = len(documents['hits']['hits'])
     if result_count == 1:
         results = documents['hits']['hits'][0]['_source']
@@ -781,10 +824,17 @@ def delete_matching_documents(index, type, field, value, **kwargs):
     max_documents = kwargs.get('max_documents', 0)
 
     # cycle through fields to find matches
+    query = {
+        "query": {
+            "term": {
+                field, value
+            }
+        }
+    }
     documents = conn.search_raw(
         indices=[index],
         doc_types=[type],
-        query=pyes.FieldQuery(pyes.FieldParameter(field, value))
+        query=query
     )
 
     count = 0
@@ -800,13 +850,29 @@ def delete_matching_documents(index, type, field, value, **kwargs):
 
 def connect_and_delete_aip_files(uuid):
     deleted = 0
-    conn = pyes.ES(getElasticsearchServerHostAndPort())
-    documents = conn.search_raw(query=pyes.FieldQuery(pyes.FieldParameter('AIPUUID', uuid)))
+    conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
+    query = {
+        "query": {
+            "term": {
+                "AIPUUID", uuid
+            }
+        }
+    }
+    documents = conn.search_raw(query=query)
     if len(documents['hits']['hits']) > 0:
         for hit in documents['hits']['hits']:
             document_id = hit['_id']
-            conn.delete('aips', 'aipfile', document_id)
+            conn.delete(index='aips', doc_type='aipfile', id=document_id)
             deleted = deleted + 1
         print str(deleted) + ' index documents removed.'
     else:
         print 'No AIP files found.'
+
+def normalize_results_dict(d):
+    """
+    Given an ElasticSearch response, returns a normalized copy of its fields dict.
+
+    The "fields" dict always returns all sections of the response as arrays; however, for Archivematica's records, only a single value is ever contained.
+    This normalizes the dict by replacing the arrays with their first value.
+    """
+    return {k: v[0] for k, v in d['fields'].iteritems()}

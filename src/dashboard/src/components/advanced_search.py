@@ -17,10 +17,11 @@
 
 from django.http import HttpResponse
 import sys
+
+from elasticsearch import Elasticsearch
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes
 
 def search_parameter_prep(request):
     queries = request.GET.getlist('query')
@@ -117,12 +118,34 @@ def assemble_query(queries, ops, fields, types, **kwargs):
 
         index = index + 1
 
-    q = pyes.BoolQuery(must=must_haves, should=should_haves, must_not=must_not_haves).search()
-    q.facet.add_term_facet('fileExtension')
-    q.facet.add_term_facet('sipuuid', size=1000000000)
-    q.facet.add_term_facet('AIPUUID', size=1000000000)
-
-    return q
+    return {
+        "query": {
+            "bool": {
+                "must": must_haves,
+                "must_not": must_not_haves,
+                "should": should_haves,
+            }
+        },
+        "facets": {
+            "fileExtension": {
+                "terms": {
+                    "field": "fileExtension"
+                }
+            },
+            "sipuuid": {
+                "terms": {
+                    "field": "sipuuid",
+                    "size": 1000000000
+                }
+            },
+            "AIPUUID": {
+                "terms": {
+                    "field": "AIPUUID",
+                    "size": 1000000000
+                }
+            }
+        }
+    }
 
 def query_clause(index, queries, ops, fields, types):
     if fields[index] == '':
@@ -143,16 +166,15 @@ def query_clause(index, queries, ops, fields, types):
                  term_field = fields[index]
             else:
                 term_field = '_all'
-            return pyes.TermQuery(term_field, queries[index])
+            return {'term': {term_field, queries[index]}}
     else:
-        return pyes.StringQuery(queries[index], search_fields=search_fields)
+        return {'query_string': {'query': queries[index], 'fields': search_fields}}
 
 def indexed_count(index, types=None, query=None):
-    aip_indexed_file_count = 0
+    if types is not None:
+        types = ','.join(types)
     try:
-        conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
-        count_data = conn.count(indices=index, doc_types=types, query=query)
-        aip_indexed_file_count = count_data.count
+        conn = Elasticsearch(hosts=elasticSearchFunctions.getElasticsearchServerHostAndPort())
+        return conn.count(index=index, doc_type=types, body=query)['count']
     except:
-        pass
-    return aip_indexed_file_count
+        return 0

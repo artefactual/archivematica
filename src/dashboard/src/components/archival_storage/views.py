@@ -33,6 +33,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
 from django.template import RequestContext
+from elasticsearch import Elasticsearch
 
 from main import models
 from components.archival_storage import forms
@@ -43,8 +44,6 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseFunctions
 import elasticSearchFunctions
 import storageService as storage_service
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import pyes
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
@@ -104,7 +103,7 @@ def search(request):
     start = page * items_per_page + 1
 
     # perform search
-    conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
+    conn = Elasticsearch(hosts=elasticSearchFunctions.getElasticsearchServerHostAndPort())
 
     results = None
     try:
@@ -119,18 +118,18 @@ def search(request):
             # for an attribute of an AIP, the aipfile must index that
             # information about their AIP in
             # elasticSearchFunctions.index_mets_file_metadata
-            results = conn.search_raw(
-                query=query,
-                indices='aips',
-                type='aipfile',
+            results = conn.search(
+                body=query,
+                index='aips',
+                doc_type='aipfile',
                 fields='uuid'
             )
         else:
-            results = conn.search_raw(
-                query=query,
-                indices='aips',
-                type='aipfile',
-                start=start - 1,
+            results = conn.search(
+                body=query,
+                index='aips',
+                doc_type='aipfile',
+                from_=start - 1,
                 size=items_per_page,
                 fields='AIPUUID,filePath,FILEUUID'
             )
@@ -149,7 +148,7 @@ def search(request):
 
         aic_creation_form = forms.CreateAICForm(initial={'results': results})
     else:  # if file_mode
-        number_of_results = results.hits.total
+        number_of_results = results['hits']['total']
         results = search_augment_file_results(results)
 
     # set remaining paging variables
@@ -163,40 +162,55 @@ def search(request):
     return render(request, 'archival_storage/archival_storage_search.html', locals())
 
 def search_augment_aip_results(conn, aips):
+    new_aips = []
     for aip_uuid in aips:
-        documents = conn.search_raw(query=pyes.FieldQuery(
-            pyes.FieldParameter('uuid', aip_uuid.term)),
+        query = {
+            "query": {
+                "term": {
+                    "uuid": aip_uuid['term']
+                }
+            }
+        }
+        documents = conn.search(body=query,
             fields='name,size,created,status,AICID,isPartOf,countAIPsinAIC')
         if documents['hits']['hits']:
             aip_info = documents['hits']['hits'][0]
-            aip_uuid.name = aip_info['fields']['name']
-            aip_uuid.size = '{0:.2f} MB'.format(aip_info['fields']['size'])
-            aip_uuid.date = aip_info['fields']['created']
-            aip_uuid.isPartOf = aip_info['fields'].get('isPartOf', '')
-            aip_uuid.AICID = aip_info['fields'].get('AICID', '')
-            aip_uuid.aips_in_aic = aip_info['fields'].get('countAIPsinAIC', '(unknown)')
+
+            # Supplement the AIP dict with additional information from ES
+            aip = elasticSearchFunctions.normalize_results_dict(aip_info)
+            aip['uuid'] = aip_uuid['term']
+            aip['count'] = aip_uuid['count']
+            if 'isPartOf' not in aip:
+                aip['isPartOf'] = ''
+            if not 'AICID' in aip:
+                aip['AICID'] = ''
+            if not 'countAIPsinAIC' in aip:
+                aip['countAIPsinAIC'] = '(unknown)'
+            if 'size' in aip:
+                aip['size'] = '{0:.2f} MB'.format(aip['size'])
 
             # TODO is there a more reliable way to determine package type?
-            if 'AIC#' in aip_uuid.AICID:
-                aip_uuid.type = 'AIC'
+            if 'AIC#' in aip['AICID']:
+                aip['type'] = 'AIC'
             else:
-                aip_uuid.type = 'AIP'
-            if 'status' in aip_info['fields']:
-                 status = aip_info['fields']['status']
-                 aip_uuid.status = AIP_STATUS_DESCRIPTIONS[status]
+                aip['type'] = 'AIP'
+            if 'status' in aip:
+                 aip['status'] = AIP_STATUS_DESCRIPTIONS[aip['status']]
             else:
-                 aip_uuid.status = 'Stored'
+                 aip['status'] = 'Stored'
 
-            aip_uuid.document_id_no_hyphens = aip_info['_id'].replace('-', '____')
+            aip['document_id_no_hyphens'] = aip_info['_id'].replace('-', '____')
         else:
-            aip_uuid.name = '(data missing)'
-    return aips
+            aip['name'] = '(data missing)'
+
+        new_aips.append(aip)
+    return new_aips
 
 def search_augment_file_results(raw_results):
     modifiedResults = []
 
-    for item in raw_results.hits.hits:
-        clone = item.fields.copy()
+    for item in raw_results['hits']['hits']:
+        clone = {k: v[0] for k,v in item['fields'].copy().iteritems()}
 
         # try to find AIP details in database
         try:
@@ -204,9 +218,9 @@ def search_augment_file_results(raw_results):
             aip = elasticSearchFunctions.connect_and_get_aip_data(clone['AIPUUID'])
 
             # augment result data
-            clone['sipname'] = aip.name
+            clone['sipname'] = aip['fields']['name'][0]
             clone['fileuuid'] = clone['FILEUUID']
-            clone['href'] = aip.filePath.replace(AIPSTOREPATH + '/', "AIPsStore/")
+            clone['href'] = aip['fields']['filePath'][0].replace(AIPSTOREPATH + '/', "AIPsStore/")
 
         except:
             aip = None
@@ -279,9 +293,14 @@ def aip_delete(request, uuid):
         messages.info(request, response['message'])
 
         # mark AIP as having deletion requested
-        conn = pyes.ES(elasticSearchFunctions.getElasticsearchServerHostAndPort())
+        conn = Elasticsearch(hosts=elasticSearchFunctions.getElasticsearchServerHostAndPort())
         document_id = elasticSearchFunctions.document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', uuid)
-        conn.update({'status': 'DEL_REQ'}, 'aips', 'aip', document_id)
+        conn.update(
+            body={'status': 'DEL_REQ'},
+            index='aips',
+            doc_type='aip',
+            id=document_id
+        )
 
     except requests.exceptions.ConnectionError:
         error_message = 'Unable to connect to storage server. Please contact your administrator.'
@@ -306,7 +325,7 @@ def aip_file_download(request, uuid):
     # get file's AIP's properties
     sipuuid      = helpers.get_file_sip_uuid(uuid)
     aip          = elasticSearchFunctions.connect_and_get_aip_data(sipuuid)
-    aip_filepath = aip.filePath
+    aip_filepath = aip['fields']['filePath'][0]
 
     # work out path components
     aip_archive_filename = os.path.basename(aip_filepath)
@@ -327,7 +346,7 @@ def aip_file_download(request, uuid):
       file_basename
     )
 
-    redirect_url = storage_service.extract_file_url(aip.uuid, file_relative_path)
+    redirect_url = storage_service.extract_file_url(aip['fields']['uuid'][0], file_relative_path)
     return HttpResponseRedirect(redirect_url)
 
 def aip_pointer_file_download(request, uuid):
@@ -373,12 +392,18 @@ def elasticsearch_query_excluding_aips_pending_deletion(uuid_field_name):
     must_not_haves = []
 
     for aip_uuid in aips_pending_deletion():
-        must_not_haves.append(pyes.TermQuery(uuid_field_name, aip_uuid))
+        must_not_haves.append({uuid_field_name, aip_uuid})
 
     if len(must_not_haves):
-        query = pyes.BoolQuery(must_not=must_not_haves)
+        query = {
+            "query": {
+                "bool": {
+                    "must_not": must_not_haves
+                }
+            }
+        }
     else:
-        query = pyes.MatchAllQuery()
+        query = elasticSearchFunctions.MATCH_ALL_QUERY
 
     return query
 
@@ -388,12 +413,18 @@ def aip_file_count():
 
 def total_size_of_aips(conn):
     query = elasticsearch_query_excluding_aips_pending_deletion('uuid')
+    query['fields'] = 'size'
+    query['facets'] = {
+        'total': {
+            'statistical': {
+                'field': 'size'
+            }
+        }
+    }
 
-    query = query.search(fields='size')
-    query.facet.add(pyes.facets.StatisticalFacet('total', field='size'))
-
-    aipResults = conn.search(query, doc_types=['aip'], indices=['aips'])
-    total_size = aipResults.facets.total.total
+    results = conn.search(body=query, doc_type='aip', index='aips')
+    # TODO handle the return object
+    total_size = results['facets']['total']['total']
     total_size = '{0:.2f}'.format(total_size)
     return total_size
 
@@ -419,34 +450,53 @@ def list_display(request):
     # get list of UUIDs of AIPs that are deleted or pending deletion
     aips_deleted_or_pending_deletion = []
     should_haves = [
-        pyes.FieldQuery(pyes.FieldParameter('status', 'DEL_REQ')),
-        pyes.FieldQuery(pyes.FieldParameter('status', 'DELETED'))
+        {'term': {'status': 'DEL_REQ'}},
+        {'term': {'status': 'DELETED'}},
     ]
-    query = pyes.BoolQuery(should=should_haves).search()
+    query = {
+        "query": {
+            "bool": {
+                "should": should_haves
+            }
+        }
+    }
     deleted_aip_results = conn.search(
-        query,
-        indices=['aips'],
-        doc_types=['aip'],
+        body=query,
+        index='aips',
+        doc_type='aip',
         fields='uuid,status'
     )
-    for deleted_aip in deleted_aip_results:
+    for deleted_aip in deleted_aip_results['hits']['hits']:
         aips_deleted_or_pending_deletion.append(deleted_aip['uuid'])
 
     # get page of AIPs
     items_per_page = 10
     start          = (int(current_page_number) - 1) * items_per_page
 
-    aipResults = conn.search(
-        pyes.Search(pyes.MatchAllQuery(), start=start, size=items_per_page),
-        doc_types=['aip'],
-        indices=['aips'],
+    query = {
+        "query": {
+            "match_all": {},
+        },
+        "from": start,
+        "size": items_per_page
+    }
+    results = conn.search(
+        body=query,
+        doc_type='aip',
+        index='aips',
         fields='origin,uuid,filePath,created,name,size',
         sort=sort_specification
     )
 
+    # normalize results - each of the fields contains a single value,
+    # but is returned from the ES API as a single-length array
+    # e.g. {"fields": {"uuid": ["abcd"], "name": ["aip"] ...}}
+    normalized_results = [elasticSearchFunctions.normalize_results_dict(d)
+                          for d in results['hits']['hits']]
+
     # handle pagination
     page = helpers.pager(
-        aipResults,
+        normalized_results,
         items_per_page,
         current_page_number
     )
@@ -484,8 +534,8 @@ def list_display(request):
             aip['status'] = AIP_STATUS_DESCRIPTIONS[aip_status]
 
             try:
-                size = '{0:.2f} MB'.format(float(aip.size))
-            except:
+                size = '{0:.2f} MB'.format(float(aip['size']))
+            except TypeError, ValueError:
                 size = 'Removed'
 
             aip['size'] = size

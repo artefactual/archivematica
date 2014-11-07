@@ -71,7 +71,7 @@
       {% for term_usage in results %}
         <tr>
           <td>
-            <a href="{% url 'components.archival_storage.views.aip_download' term_usage.term %}">{{ term_usage.name }}</a>
+            <a href="{% url 'components.archival_storage.views.aip_download' term_usage.uuid %}">{{ term_usage.name }}</a>
             <a href='/archival-storage/search/json/aip/{{ term_usage.document_id_no_hyphens }}/' target='_blank'>(view raw)</a>
           </td>
           <td>
@@ -79,7 +79,7 @@
               {{ term_usage.size }}
             {% endif %}
           </td>
-          <td class="uuid">{{ term_usage.term }}</td>
+          <td class="uuid">{{ term_usage.uuid }}</td>
           {% if show_aics %}
           <td>
             {% if term_usage.type == 'AIC' %}
@@ -92,11 +92,11 @@
           </td>
           {% endif %}
           <td>{{ term_usage.count }} file{{term_usage.count|pluralize}}</td>
-          <td><span class='timestamp'>{{ term_usage.date }}</a></td>
+          <td><span class='timestamp'>{{ term_usage.created }}</a></td>
           <td>{{ term_usage.status }}</td>
-          <td><a href="{% url 'components.archival_storage.views.aip_pointer_file_download' term_usage.term %}">Pointer File</a></td>
+          <td><a href="{% url 'components.archival_storage.views.aip_pointer_file_download' term_usage.uuid %}">Pointer File</a></td>
           <td>
-            <a href="{% url 'components.archival_storage.views.aip_delete' term_usage.term %}"><img src="{{ STATIC_URL }}images/delete.png"/></a>
+            <a href="{% url 'components.archival_storage.views.aip_delete' term_usage.uuid %}"><img src="{{ STATIC_URL }}images/delete.png"/></a>
           </td>
         </tr>
       {% endfor %}
