@@ -7,4 +7,5 @@ currentDir="`dirname $0`"
 # Add post 1.0 development to the following files
 echo 'Running mysql_dev1'
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_dev_7464_processing_directory.sql;"
+mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_dev_7478_processing_directory.sql;"
 # ...
