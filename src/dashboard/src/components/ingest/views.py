@@ -450,6 +450,7 @@ def transfer_backlog(request):
             doc_types='transferfile',
         )
     except:
+        logger.exception('Error accessing index.')
         return HttpResponse('Error accessing index.')
 
 

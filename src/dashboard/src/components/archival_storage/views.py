@@ -134,6 +134,7 @@ def search(request):
                 fields='AIPUUID,filePath,FILEUUID'
             )
     except:
+        logger.exception('Error accessing index.')
         return HttpResponse('Error accessing index.')
 
     if not file_mode:
