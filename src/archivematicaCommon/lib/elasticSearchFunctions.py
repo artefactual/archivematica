@@ -502,16 +502,6 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
     tree = ElementTree.parse(metsFilePath)
     root = tree.getroot()
 
-    # TODO add a conditional to toggle this
-    remove_tool_output_from_mets(tree)
-
-    # get SIP-wide dmdSec
-    dmdSec = root.findall("mets:dmdSec/mets:mdWrap/mets:xmlData", namespaces=ns.NSMAP)
-    dmdSecData = {}
-    for item in dmdSec:
-        xml = ElementTree.tostring(item)
-        dmdSecData = xmltodict.parse(xml)
-
     # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore
     dublincore = root.find('mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore', namespaces=ns.NSMAP)
     aic_identifier = None
@@ -534,10 +524,6 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
         'fileExtension': '',
         'isPartOf': is_part_of,
         'AICID': aic_identifier,
-        'METS': {
-            'dmdSec': rename_dict_keys_with_child_dicts(normalize_dict_values(dmdSecData)),
-            'amdSec': {},
-        },
         'origin': get_dashboard_uuid(),
         'identifiers': identifiers,
         'transferMetadata': _extract_transfer_metadata(root),
@@ -570,10 +556,6 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
             amdSecInfo = root.find("mets:amdSec[@ID='{}']".format(admID), namespaces=ns.NSMAP)
             fileUUID = amdSecInfo.findtext("mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectIdentifier/premis:objectIdentifierValue", namespaces=ns.NSMAP)
 
-            # Index amdSec information
-            xml = ElementTree.tostring(amdSecInfo)
-            indexData['METS']['amdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
-
         indexData['FILEUUID'] = fileUUID
 
         # Get file path from FLocat and extension
@@ -586,10 +568,6 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
         # index data
         wait_for_cluster_yellow_status(client)
         result = try_to_index(client, indexData, index, type_)
-
-        # Reset fileData['METS']['amdSec'], since it is updated in the loop
-        # above. See http://stackoverflow.com/a/3975388 for explanation
-        fileData['METS']['amdSec'] = {}
 
     print 'Indexed AIP files and corresponding METS XML.'
 
