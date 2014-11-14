@@ -386,9 +386,6 @@ def set_up_mapping(client, index):
 def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=None, identifiers=[]):
     tree = ElementTree.parse(pathToMETS)
 
-    # TODO add a conditional to toggle this
-    remove_tool_output_from_mets(tree)
-
     root = tree.getroot()
     # Extract AIC identifier, other specially-indexed information
     aic_identifier = None
@@ -400,16 +397,11 @@ def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=N
             aic_identifier = dublincore.findtext('dc:identifier', namespaces=ns.NSMAP) or dublincore.findtext('dcterms:identifier', namespaces=ns.NSMAP)
         is_part_of = dublincore.findtext('dcterms:isPartOf', namespaces=ns.NSMAP)
 
-    # convert METS XML to dict
-    xml = ElementTree.tostring(root)
-    mets_data = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
-
     aipData = {
         'uuid': uuid,
         'name': name,
         'filePath': filePath,
         'size': (size or os.path.getsize(filePath)) / float(1024) / float(1024),
-        'mets': mets_data,
         'origin': get_dashboard_uuid(),
         'created': os.path.getmtime(pathToMETS),
         'AICID': aic_identifier,
