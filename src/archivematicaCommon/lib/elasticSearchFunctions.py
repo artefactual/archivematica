@@ -57,6 +57,9 @@ MATCH_ALL_QUERY = {
 class ElasticsearchError(Exception):
     pass
 
+class EmptySearchResultError(ElasticsearchError):
+    pass
+
 def remove_tool_output_from_mets(doc):
     """
     Given an ElementTree object, removes all objectsCharacteristicsExtensions elements.

@@ -477,10 +477,16 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
     for entry in entries:
         if entry not in ('processingMCP.xml'):
             path = os.path.join(original_path, entry)
+            relative_path = path.replace(DEFAULT_BACKLOG_PATH, '', 1)
             file_info = elasticSearchFunctions.get_transfer_file_info(
-                'relative_path', path.replace(DEFAULT_BACKLOG_PATH, '', 1))
-            file_uuid = file_info.get('fileuuid')
-            transfer_uuid = file_info.get('sipuuid')
+                'relative_path', relative_path)
+            try:
+                file_uuid = file_info['fileuuid']
+                transfer_uuid = file_info['sipuuid']
+            except KeyError:
+                message = 'No file information returned from Elasticsearch for file at relative_path: ' + relative_path
+                logging.warning(message)
+                raise elasticSearchFunctions.EmptySearchResultError(message)
             ret.append(
                 {'original_path': path,
                  'arrange_path': os.path.join(arrange_path, entry),
