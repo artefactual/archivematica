@@ -32,7 +32,12 @@ valid = "-_.()" + string.ascii_letters + string.digits
 replacementChar = "_"
 
 def transliterate(basename):
-    return unidecode(basename) 
+    # We get a more meaningful name sanitization if UTF-8 names
+    # are correctly decoded to unistrings instead of str
+    try:
+        return unidecode(basename.decode('utf-8'))
+    except UnicodeDecodeError:
+        return unidecode(basename)
     
 def sanitizeName(basename):
     ret = ""
