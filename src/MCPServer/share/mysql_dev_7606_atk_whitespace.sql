@@ -1,0 +1,3 @@
+-- Add quotes around all the ATK parameters to handle whitespace in names
+
+UPDATE StandardTasksConfigs SET arguments = '--host="%host%" --port="%port%" --dbname="%dbname%" --dbuser="%dbuser%" --dbpass="%dbpass%" --atuser="%atuser%" --dip_location="%SIPDirectory%" --dip_name="%SIPName%" --dip_uuid="%SIPUUID%" --restrictions="%restrictions%" --object_type="%object_type%" --ead_actuate="%ead_actuate%" --ead_show="%ead_show%" --use_statement="%use_statement%" --uri_prefix="%uri_prefix%" --access_conditions="%access_conditions%" --use_conditions="%use_conditions%"' WHERE pk='a650921e-b754-4e61-9713-1457cf52e77d';
