@@ -333,6 +333,7 @@ def set_up_mapping_transfer_index(client):
     transferfile_mapping = {
         'filename'     : {'type': 'string'},
         'relative_path': {'type': 'string'},
+        'original_path': {'type': 'string'},
         'fileuuid'     : MACHINE_READABLE_FIELD_SPEC,
         'sipuuid'      : MACHINE_READABLE_FIELD_SPEC,
         'accessionid'  : MACHINE_READABLE_FIELD_SPEC,
@@ -725,10 +726,12 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
                 f = File.objects.get(currentlocation=relative_path,
                                      transfer_id=uuid)
                 file_uuid = f.uuid
+                original_path = f.originallocation
                 formats = _get_file_formats(f)
                 bulk_extractor_reports = _list_bulk_extractor_reports(pathToTransfer, file_uuid)
             except File.DoesNotExist:
                 file_uuid = ''
+                original_path = ''
                 formats = []
                 bulk_extractor_reports = []
 
@@ -747,6 +750,7 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
                 indexData = {
                   'filename'     : filename,
                   'relative_path': relative_path,
+                  'original_path': original_path,
                   'fileuuid'     : file_uuid,
                   'sipuuid'      : uuid,
                   'accessionid'  : accession_id,
