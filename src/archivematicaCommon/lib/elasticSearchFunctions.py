@@ -383,6 +383,34 @@ def set_up_mapping(client, index):
     if index == 'aips':
         set_up_mapping_aip_index(client)
 
+def transform_dublin_core_to_dicts(doc):
+    """
+    Given an ElementTree representing a METS document, searches for all
+    dmdSec elements and transforms any Dublin Core metadata found into
+    a list of dictionaries.
+    """
+    nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
+        'dc': 'http://purl.org/dc/terms/',
+        'm': 'http://www.loc.gov/METS/',
+    }
+
+    results = []
+
+    for dc in doc.findall('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore', namespaces=nsmap):
+        # Handle AIC component information elsewhere
+        if dc.find('dc:isPartOf', namespaces=nsmap) is not None:
+            continue
+
+        dc_dict = {}
+
+        for child in dc.iterchildren():
+            tag = child.tag.replace('{' + child.nsmap[child.prefix] + '}', child.prefix + ':')
+            dc_dict[tag] = child.text
+
+        results.append(dc_dict)
+
+    return results
+
 
 def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=None, identifiers=[]):
     tree = ElementTree.parse(pathToMETS)
@@ -413,6 +441,7 @@ def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=N
         'identifiers': identifiers,
         'transferMetadata': _extract_transfer_metadata(root),
         'accession_ids': accession_ids,
+        'dublincore': dublincore,
     }
     wait_for_cluster_yellow_status(client)
     try_to_index(client, aipData, 'aips', 'aip')
@@ -516,6 +545,8 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
             aic_identifier = dublincore.findtext('dc:identifier', namespaces=ns.NSMAP) or dublincore.findtext('dcterms:identifier', namespaces=ns.NSMAP)
         elif aip_type == "Archival Information Package":
             is_part_of = dublincore.findtext('dcterms:isPartOf', namespaces=ns.NSMAP)
+
+    dublincore = transform_dublin_core_to_dicts(root)
 
     # establish structure to be indexed for each file item
     fileData = {
