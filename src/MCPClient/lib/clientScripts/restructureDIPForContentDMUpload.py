@@ -59,7 +59,7 @@ def parseDmdSec(dmdSec, label = '[Placeholder title]'):
     # in the transfer), return a placeholder title.
     if dmdSec is None:
         return {'title' : [label]}
-    if not hasattr(dmdSec, 'getElementsByTagName'):
+    if not hasattr(dmdSec, 'getElementsByTagNameNS'):
         return {'title' : [label]}    
 
     mdWraps = dmdSec.getElementsByTagNameNS('*', 'mdWrap')
@@ -68,7 +68,7 @@ def parseDmdSec(dmdSec, label = '[Placeholder title]'):
     # If we are dealing with a DOM object representing the Dublin Core metadata,
     # check to see if there is a title (required by CONTENTdm). If not, assign a 
     # placeholder title and return.
-    if mdType == 'DC' and hasattr(dmdSec, 'getElementsByTagName'):
+    if mdType == 'DC' and hasattr(dmdSec, 'getElementsByTagNameNS'):
         dcTitlesDom = dmdSec.getElementsByTagNameNS('*', 'title')
         if not dcTitlesDom:
             return {'title' : '[Placeholder title]'} 
@@ -256,14 +256,13 @@ def getContentdmCollectionFieldInfo(contentdmServer, targetCollection):
     # Define a set of CONTENTdm-generated fields that we don't want to show up in the mappings.
     systemFields = ['fullrs', 'dmoclcno', 'dmcreated', 'dmmodified', 'dmrecord', 'find']
     for fieldConfig in collectionFieldConfig:
-        for k, v in fieldConfig.iteritems():
-            fieldName = fieldConfig['name']
-            # For fields that have a DC mapping.
-            if fieldConfig['dc'] != 'BLANK' and fieldConfig['dc'] != '':
-                collectionFieldDcMappings[contentdmDctermsMap[fieldConfig['dc']]] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
-            # For all fields. 'NonDc' is used here to mean 'general', not to signify
-            # that the field doesn't have a DC mapping.
-            collectionFieldNonDcMappings[fieldName] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
+        fieldName = fieldConfig['name']
+        # For fields that have a DC mapping.
+        if fieldConfig['dc'] != 'BLANK' and fieldConfig['dc'] != '':
+            collectionFieldDcMappings[contentdmDctermsMap[fieldConfig['dc']]] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
+        # For all fields. 'NonDc' is used here to mean 'general', not to signify
+        # that the field doesn't have a DC mapping.
+        collectionFieldNonDcMappings[fieldName] = {'nick' : fieldConfig['nick'] , 'name' : fieldName}
         if fieldConfig['nick'] not in systemFields:
             collectionFieldOrder.append(fieldConfig['nick'])
     collectionFieldInfo['dcMappings'] = collectionFieldDcMappings
@@ -284,14 +283,20 @@ def getDmdSec(metsDom, dmdSecId = 'dmdSec_1', dublinCore = True):
                 return node
 
 
-# Get a list of all the files (recursive) in the DIP object directory. 
-# Even though there can be subdirectories in the objects directory, 
-# assumes each file should have a unique name.
 def getObjectDirectoryFiles(objectDir):
+    """
+    Get a list of all the files (recursive) in the provided directory.
+
+    "Even though there can be subdirectories in the objects directory,
+    assumes each file should have a unique name." What does this mean?
+
+    :param str objectDir: Full path to the objects directory
+    :returns: List of full paths to files in objectDir
+    """
     fileList = []
-    for root, subFolders, files in os.walk(objectDir):
-        for file in files:
-            fileList.append(os.path.join(root, file))
+    for dirname, _, files in os.walk(objectDir):
+        for f in files:
+            fileList.append(os.path.join(dirname, f))
     return fileList
 
 
@@ -494,6 +499,8 @@ def generateFullFileEntry(title, filename, extension):
 # and then getting the value of that div's TYPE attribute; if it's 'item', the item
 # is simple, if it's 'directory', the item is compound.
 def getItemCountType(structMap):
+    # QUESTION what is so special about dmdSec_1? Why is it a reliable indicator of simple vs compound?
+    # IDEA query structMap for any Directory divs that are children of objects
     for node in structMap.getElementsByTagNameNS('*', 'div'):
         for k, v in node.attributes.items():
             # We use a regex to cover 'dmdSec_1' or 'dmdSec_1 dmdSec_2'.
@@ -507,11 +514,18 @@ def getItemCountType(structMap):
                     return 'compound'
 
 
-# Given all the dmdSecs (which are DOM objects) from a METS files, group the dmdSecs
-# into item-specific pairs of DC and OTHER, or single-item groups of either if the
-# other type is absent.
 def groupDmdSecs(dmdSecs):
-    groupedDmdSecs = list()
+    """
+    Given all the dmdSecs (which are DOM objects) from a METS files, group the dmdSecs
+    into item-specific pairs of DC and OTHER, or single-item groups of either if the
+    other type is absent.
+
+    :param dmdSecs: List of dmdSec elements
+    :returns: List of 1- or 2-tuples of dmdSecs belonging to the same Item, or empty list
+    """
+    # FIXME instead of assuming that sequential dmdSecs are associated with the same <div TYPE='Item'>, check the structMap and group by being in the same DMDID
+    # IDEA Return dict of {'dc': <dmdSec or None>, 'nonDc': <dmdSec or None>} so that splitDmdSecs (below) is not needed
+    groupedDmdSecs = []
     dmdSecsLen = len(dmdSecs)
     # If dmdSecs is empty, return.
     if dmdSecsLen == 0:
@@ -519,21 +533,19 @@ def groupDmdSecs(dmdSecs):
         
     # If dmdSecs has only one dmdSec, return it.
     if dmdSecsLen == 1:
-        tmpList = list()
-        tmpList.append(dmdSecs[0])
+        tmpList = (dmdSecs[0],)
         groupedDmdSecs.append(tmpList)
         return groupedDmdSecs
     
     # Compare the MDTYPE values of the first two mdWrap elements. If they are
     # the same, we are dealing with dmdSec groups of 1 dmdSec; if they are
     # different, we are dealing with dmdSec groups of 2 dmdSecs.
-    if dmdSecsLen > 1:
-        mdWrap1 = dmdSecs[0].getElementsByTagNameNS('*', 'mdWrap')[0]
-        mdWrap2 = dmdSecs[1].getElementsByTagNameNS('*', 'mdWrap')[0]
-        if mdWrap1.attributes['MDTYPE'].value == mdWrap2.attributes['MDTYPE'].value:
-            groupSize = 1
-        else:
-            groupSize = 2
+    mdWrap1 = dmdSecs[0].getElementsByTagNameNS('*', 'mdWrap')[0]
+    mdWrap2 = dmdSecs[1].getElementsByTagNameNS('*', 'mdWrap')[0]
+    if mdWrap1.attributes['MDTYPE'].value == mdWrap2.attributes['MDTYPE'].value:
+        groupSize = 1
+    else:
+        groupSize = 2
              
     # Loop through all the dmdSecs and pop them off in chuncks so we can
     # group them. 
@@ -541,70 +553,68 @@ def groupDmdSecs(dmdSecs):
     while (count < dmdSecsLen):
         count = count + 1
         if groupSize == 1:
-            tmpList = list()
-            firstDmdSec = dmdSecs.pop(0)
-            tmpList.append(firstDmdSec)
+            tmpList = (dmdSecs.pop(0),)
             groupedDmdSecs.append(tmpList)
         # We need to check to make sure we don't reduce the number of
         # dmdSecs down to 0.
         if groupSize == 2 and len(dmdSecs) >= groupSize:
-            tmpList = list()
-            firstDmdSec = dmdSecs.pop(0)
-            tmpList.append(firstDmdSec)
-            secondDmdSec = dmdSecs.pop(0)
-            tmpList.append(secondDmdSec)
+            tmpList = (dmdSecs.pop(0), dmdSecs.pop(0))
             groupedDmdSecs.append(tmpList)
      
     return groupedDmdSecs
 
 
-# Given a group of two dmdSecs, split them out so they can be passed to
-# generateDescFile() with the expected values.
 def splitDmdSecs(dmdSecs):
+    """
+    Given a group of two dmdSecs, split them out so they can be passed to
+    generateDescFile() with the expected values.
+
+    The 'dc' key will be a dmdSec with a MDTYPE='DC' and the 'nonDc' key will be
+    a dmdSec with a MDTYPE='OTHER'. Both default to None.
+
+    :param dmdSecs: 1- or 2-tuple of dmdSecs
+    :return: Dict with {'dc': <dmdSec or None>, 'nonDc': <dmdSec or None>}
+    """
     lenDmdSecs = len(dmdSecs)
-    dmdSecPair = dict()
-    if lenDmdSecs == 2:
-        for dmdSec in dmdSecs:
-            mdWrap = dmdSec.getElementsByTagNameNS('*', 'mdWrap')[0]
-            if mdWrap.attributes['MDTYPE'].value == 'OTHER':
-                dmdSecPair['nonDc'] = parseDmdSec(dmdSec)
-            if mdWrap.attributes['MDTYPE'].value == 'DC':
-                dmdSecPair['dc'] = parseDmdSec(dmdSec)
-    if lenDmdSecs == 1:
-        mdWrap = dmdSecs[0].getElementsByTagNameNS('*', 'mdWrap')[0]
+    dmdSecPair = {'dc': None, 'nonDc': None}
+    if lenDmdSecs > 2:
+        print >> sys.stderr, 'Error splitting dmdSecs, more than 2 provided'
+        return dmdSecPair
+    for dmdSec in dmdSecs:
+        mdWrap = dmdSec.getElementsByTagNameNS('*', 'mdWrap')[0]
         if mdWrap.attributes['MDTYPE'].value == 'OTHER':
-            dmdSecPair['nonDc'] = parseDmdSec(dmdSecs[0])
-            dmdSecPair['dc'] = None
+            dmdSecPair['nonDc'] = parseDmdSec(dmdSec)
         if mdWrap.attributes['MDTYPE'].value == 'DC':
-            dmdSecPair['dc'] = parseDmdSec(dmdSecs[0])
-            dmdSecPair['nonDc'] = None
+            dmdSecPair['dc'] = parseDmdSec(dmdSec)
     if lenDmdSecs == 0:
         # If dmdSecs is empty, let parseDcXML() assign a placeholder title in dcMetadata.
-        dmdSec = dmdSecs
-        dmdSecPair['dc'] = parseDmdSec(dmdSec)
-        dmdSecPair['nonDc'] = None
+        dmdSecPair['dc'] = parseDmdSec(None)
 
     return dmdSecPair
 
 
-# Given a list of structMaps and a DMDID value, return a list of all the
-# <fptr> values for the files named in the structMap corresponding to
-# to the DMDID.
 def getFileIdsForDmdSec(structMaps, dmdSecIdValue):
+    """
+    Given a list of structMaps and a DMDID value, return a list of all the
+    <fptr> values for the files named in the structMap corresponding to
+    to the DMDID.
+
+    :param structMaps: List of structMaps in this METS file
+    :param dmdSecIdValue: DMDID to find the associated file(s) for
+    :return: List of fileIDs associated with the dmdSecIdValue
+    """
     dmdSecIdValue = dmdSecIdValue.strip()
     fileIds = []
     # We use the Archivematica default structMap, which is always the first.
     structMap = structMaps[0]
+    # FIXME use LXML to query for element with DMDID=dmdSecIdValue
     for div in structMap.getElementsByTagNameNS('*', 'div'):
-        for k, v in div.attributes.items():
-            # We match on the first dmdSec ID. Space is optional because 
-            # there could be two dmdSec IDs in the value, separated by a space.
-            match = re.search(r'%s\s?' % dmdSecIdValue, v)
-            if k == 'DMDID' and match:
-                for fptr in div.getElementsByTagNameNS('*', 'fptr'):
-                    for k, v in fptr.attributes.items():
-                        if k == 'FILEID':
-                            fileIds.append(v)               
+        dmdids = div.getAttribute('DMDID').split()
+        if dmdSecIdValue in dmdids:
+            for fptr in div.getElementsByTagNameNS('*', 'fptr'):
+                fileid = fptr.getAttribute('FILEID')
+                if fileid:
+                    fileIds.append(fileid)
     return fileIds
 
 
@@ -1136,23 +1146,24 @@ if __name__ == '__main__':
         print "IngestFormat must be either 'directupload' or 'projectclient'"
         sys.exit(1)
 
-    # Read and parse the METS file. Assumes there is one METS file in the DIP directory,
-    # which is true for both single-item transfers and bulk transfers.
-    for infile in glob.glob(os.path.join(inputDipDir, "METS*.xml")):
-        metsFile = infile
+    # Read and parse the METS file.
+    # TODO convert this to using lxml instead of minidom for better search capabilities
+    metsFile = os.path.join(inputDipDir, 'METS.' + args.uuid + '.xml')
     metsDom = xml.dom.minidom.parse(metsFile)
-    
+
     # Get the structMaps so we can pass them into the DIP creation functions.
     structMaps = metsDom.getElementsByTagNameNS('*', 'structMap')
 
     # If there is a user-submitted structMap (i.e., len(structMapts) is 2,
     # use that one.
+    # QUESTION why not use physical structMap always?
     if len(structMaps) == 2:
         itemCountType = getItemCountType(structMaps[1])
     else:
         itemCountType = getItemCountType(structMaps[0])
 
     # Populate lists of files in the DIP objects and thumbnails directories.
+    # QUESTION why not use the same function for both of these and filter for .jpg?
     filesInObjectDirectory = getObjectDirectoryFiles(os.path.join(inputDipDir, 'objects'))
     filesInThumbnailDirectory = glob.glob(os.path.join(inputDipDir, 'thumbnails', "*.jpg"))
     
