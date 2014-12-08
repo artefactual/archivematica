@@ -348,7 +348,7 @@ def try_to_index(conn, data, index, doc_type, wait_between_tries=10, max_tries=1
 
     # If indexing did not succeed after max_tries is already complete,
     # reraise the Elasticsearch exception to aid in debugging.
-    raise e
+    raise
 
 def connect_and_get_aip_data(uuid):
     conn = connect_and_create_index('aips')
