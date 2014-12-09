@@ -65,7 +65,7 @@ if os.path.isdir(manual_normalization_dir):
         os.rmdir(manual_normalization_dir)
     except OSError as e:
         print >>sys.stderr, "{0} could not be deleted: {1}".format(
-            directory, e.args)
+            manual_normalization_dir, e.args)
         errorCount += 1
 
 exit(errorCount)
