@@ -21,16 +21,11 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import uuid
 from unit import unit
-from unitFile import unitFile
 import archivematicaMCP
 import os
 import sys
 import lxml.etree as etree
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from databaseFunctions import insertIntoEvents
-from databaseFunctions import deUnicode
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import SIP
