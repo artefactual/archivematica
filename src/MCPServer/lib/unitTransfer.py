@@ -22,22 +22,12 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from unit import unit
-from unitFile import unitFile
 import uuid
 import archivematicaMCP
 import os
-import time
 import sys
-import traceback
-import pyinotify
-import threading
-import shutil
-import MySQLdb
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+
 import lxml.etree as etree
-from fileOperations import renameAsSudo
-from databaseFunctions import insertIntoEvents
-from databaseFunctions import deUnicode
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Transfer
