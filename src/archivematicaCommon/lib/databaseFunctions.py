@@ -24,9 +24,7 @@ from datetime import datetime
 import os
 import string
 import sys
-import MySQLdb
 import uuid
-from archivematicaFunctions import unicodeToStr
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, UnitVariable
