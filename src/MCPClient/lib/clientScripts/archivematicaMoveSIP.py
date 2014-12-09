@@ -21,15 +21,12 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 import os
-import subprocess
-import shlex
 import sys
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import SIP
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from executeOrRunSubProcess import executeOrRun
 from fileOperations import renameAsSudo
 
 def updateDB(dst, sip_uuid):
