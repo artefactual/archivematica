@@ -20,34 +20,10 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import os
-import subprocess
-import shlex
 import sys
-import MySQLdb
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
-from executeOrRunSubProcess import executeOrRun
-from fileOperations import renameAsSudo
 import elasticSearchFunctions
-
-def updateDB(dst, transferUUID):
-    sql =  """UPDATE Transfers SET currentLocation='""" + MySQLdb.escape_string(dst) + """' WHERE transferUUID='""" + transferUUID + """';"""
-    databaseInterface.runSQL(sql)
-
-def moveSIP(src, dst, transferUUID, sharedDirectoryPath):
-    # os.rename(src, dst)
-    if src.endswith("/"):
-        src = src[:-1]
-
-    dest = dst.replace(sharedDirectoryPath, "%sharedPath%", 1)
-    if dest.endswith("/"):
-        dest = os.path.join(dest, os.path.basename(src))
-    if dest.endswith("/."):
-        dest = os.path.join(dest[:-1], os.path.basename(src))
-    updateDB(dest + "/", transferUUID)
-
-    renameAsSudo(src, dst)
 
 if __name__ == '__main__':
     #"%SIPUUID%" "%SIPName%" "%SIPDirectory%"
@@ -57,4 +33,3 @@ if __name__ == '__main__':
     print 'Processing ' + transferUUID + '...'
     found = elasticSearchFunctions.connect_and_change_transfer_file_status(transferUUID, 'backlog') 
     print 'Updated ' + str(found) + ' transfer file entries.'
-    #moveSIP(src, dst, transferUUID, sharedDirectoryPath)
