@@ -37,8 +37,7 @@ urlpatterns = patterns('components.ingest.views',
     url(r'status/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'ingest_status'),
     url(r'normalization-report/(?P<uuid>' + settings.UUID_REGEX + ')/(?P<current_page>\d+)/$', 'ingest_normalization_report'),
     url(r'normalization-report/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'ingest_normalization_report'),
-    url(r'preview/aip/(?P<jobuuid>' + settings.UUID_REGEX + ')/$', 'ingest_browse_aip'),
-    url(r'preview/normalization/(?P<jobuuid>' + settings.UUID_REGEX + ')/$', 'ingest_browse_normalization'),
+    url(r'preview/(?P<browse_type>[\w-]+)/(?P<jobuuid>' + settings.UUID_REGEX + ')/$', 'ingest_browse'),
     url(r'backlog/file/download/(?P<uuid>' + settings.UUID_REGEX + ')/', 'transfer_file_download'),
     url(r'backlog/$', 'transfer_backlog')
 )

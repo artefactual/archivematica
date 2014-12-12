@@ -483,17 +483,20 @@ var MicroserviceGroupView = Backbone.View.extend({
           // add link to browse SIP before it's made into an AIP
           if (
             (
-              job.attributes.microservicegroup == 'Store AIP'
-              || job.attributes.type == 'Approve normalization'
+              job.attributes.currentstep == 'Awaiting decision' &&
+              (
+                job.attributes.type == 'Store AIP'
+                || job.attributes.type == 'Approve normalization'
+              )
             )
-            && job.attributes.currentstep == 'Awaiting decision'
-            && job.attributes.type != 'Store AIP location'
-            && job.attributes.choices != undefined
+            || job.attributes.type == 'Move to the uploadedDIPs directory'
           ) {
-            if (job.attributes.microservicegroup == 'Store AIP') {
+            if (job.attributes.type == 'Store AIP') {
               var url = '/ingest/preview/aip/' + job.attributes.uuid;
-            } else {
+            } else if (job.attributes.type == 'Approve normalization') {
               var url = '/ingest/preview/normalization/' + job.attributes.uuid;
+            } else if (job.attributes.type == 'Move to the uploadedDIPs directory') {
+              var url = '/ingest/preview/dip/' + job.attributes.uuid;
             }
             $(jobView.el)
               .children(':first')

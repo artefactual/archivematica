@@ -392,21 +392,23 @@ def ingest_normalization_report(request, uuid, current_page=None):
 
     return render(request, 'ingest/normalization_report.html', locals())
 
-def ingest_browse_normalization(request, jobuuid):
+def ingest_browse(request, browse_type, jobuuid):
+    watched_dir = helpers.get_server_config_value('watchDirectoryPath')
+    if browse_type == 'normalization':
+        title = 'Review normalization'
+        directory = os.path.join(watched_dir, 'approveNormalization')
+    elif browse_type == 'aip':
+        title = 'Review AIP'
+        directory = os.path.join(watched_dir, 'storeAIP')
+    elif browse_type == 'dip':
+        title = 'Download DIP'
+        directory = os.path.join(watched_dir, 'uploadedDIPs')
+    else:
+        raise Http404
+
     jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof='')
     job = jobs[0]
-    title = 'Review normalization'
     name = utils.get_directory_name_from_job(job)
-    directory = '/var/archivematica/sharedDirectory/watchedDirectories/approveNormalization'
-
-    return render(request, 'ingest/aip_browse.html', locals())
-
-def ingest_browse_aip(request, jobuuid):
-    jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof='')
-    job = jobs[0]
-    title = 'Review AIP'
-    name = utils.get_directory_name_from_job(job)
-    directory = '/var/archivematica/sharedDirectory/watchedDirectories/storeAIP'
 
     return render(request, 'ingest/aip_browse.html', locals())
 
