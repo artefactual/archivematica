@@ -244,7 +244,10 @@ def set_up_mapping(conn, index):
     if index == 'transfers':
         mapping = {
             'filename'     : {'type': 'string'},
-            'relative_path': {'type': 'string'},
+            # Analyzed copy allows the stirng to be found via free-text search,
+            # but a raw unanalyzed copy is required for exact string matches.
+            'relative_path': {'type': 'string',
+                              'fields': {'raw': machine_readable_field_spec}},
             'fileuuid'     : machine_readable_field_spec,
             'sipuuid'      : machine_readable_field_spec,
             'accessionid'  : machine_readable_field_spec,
