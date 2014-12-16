@@ -59,66 +59,6 @@ def excludeJhoveProperties(fits):
     return fits
 
 
-def formatValidationFITSAssist(fits):
-    global exitCode
-    prefix = ""
-    formatValidation = None
-
-    tools = getTagged(getTagged(fits, FITSNS + "toolOutput")[0], FITSNS + "tool")
-    for tool in tools:
-        if tool.get("name") == "Jhove":
-            formatValidation = tool
-            break
-    if formatValidation == None:
-        print >>sys.stderr, "No format validation tool output (Jhove)."
-        exitCode += 6
-        raise Exception('Jhove', 'not present')
-
-    repInfo = getTagged(formatValidation, "repInfo")[0]
-    #<eventDetail>program="DROID"; version="3.0"</eventDetail>
-    eventDetailText =   "program=\"" + formatValidation.get("name") \
-                        + "\"; version=\"" + formatValidation.get("version") + "\""
-
-
-    #<status>Well-Formed and valid</status>
-    status = getTagged( repInfo, prefix + "status")[0].text
-    eventOutcomeText = "fail"
-    if status == "Well-Formed and valid":
-        eventOutcomeText = "pass"
-
-    #<eventOutcomeDetailNote> format="Windows Bitmap"; version="3.0"; result="Well-formed and valid" </eventOutcomeDetailNote>
-    format = getTagged(repInfo, prefix + "format")[0].text
-    versionXML = getTagged(repInfo, prefix + "version")
-    version = ""
-    if len(versionXML):
-        version = versionXML[0].text
-    eventOutcomeDetailNote = "format=\"" + format
-    if version:
-        eventOutcomeDetailNote += "\"; version=\"" + version
-    eventOutcomeDetailNote += "\"; result=\"" + status + "\""
-
-    return tuple([eventDetailText, eventOutcomeText, eventOutcomeDetailNote]) #tuple([1, 2, 3]) returns (1, 2, 3).
-
-
-def includeFits(fits, xmlFile, date, eventUUID, fileUUID):
-    global exitCode
-    #TO DO... Gleam the event outcome information from the output
-
-    try:
-        eventDetailText, eventOutcomeText, eventOutcomeDetailNote = formatValidationFITSAssist(fits)
-    except:
-        eventDetailText = "Failed"
-        eventOutcomeText = "Failed"
-        eventOutcomeDetailNote = "Failed"
-        exitCode += 3
-    insertIntoEvents(fileUUID=fileUUID, \
-                     eventIdentifierUUID=uuid.uuid4().__str__(), \
-                     eventType="validation", \
-                     eventDateTime=date, \
-                     eventDetail=eventDetailText, \
-                     eventOutcome=eventOutcomeText, \
-                     eventOutcomeDetailNote=eventOutcomeDetailNote)
-
 if __name__ == '__main__':
     global exitCode
     exitCode = 0
@@ -171,7 +111,6 @@ if __name__ == '__main__':
         #       when characterization will become user-configurable and be decoupled from FITS specifically.
         #       Thus a stub rule must exist for FITS; this will be replaced with a real rule in the future.
         insertIntoFPCommandOutput(fileUUID, etree.tostring(fits, pretty_print=False), '3a19de70-0e42-4145-976b-3a248d43b462')
-        includeFits(fits, XMLfile, date, eventUUID, fileUUID)
 
     except OSError as ose:
         print >>sys.stderr, "Execution failed:", ose
