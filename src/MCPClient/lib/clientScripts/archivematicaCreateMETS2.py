@@ -21,15 +21,17 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import archivematicaXMLNamesSpace as ns
-import lxml.etree as etree
+import collections
 from glob import glob
+import lxml.etree as etree
+import MySQLdb
 import os
+import PyICU
 import re
 import sys
-import MySQLdb
-import PyICU
 import traceback
+
+import archivematicaXMLNamesSpace as ns
 from archivematicaCreateMETSMetadataCSV import parseMetadata
 from archivematicaCreateMETSMetadataCSV import CSVMetadata
 from archivematicaCreateMETSRights import archivematicaGetRights
@@ -153,18 +155,28 @@ def getDublinCore(unit, id):
 
 
 def createDMDIDSFromCSVParsedMetadataFiles(filePath):
-    simpleMetadataCSVkey, simpleMetadataCSV, compoundMetadataCSVkey, compoundMetadataCSV = CSVMetadata
+    simpleMetadataCSVkey, simpleMetadataCSV, _, _ = CSVMetadata
     if filePath in simpleMetadataCSV:
-        return createDMDIDSFromCSVParsedMetadataPart2(simpleMetadataCSVkey, simpleMetadataCSV[filePath])
+        # Restructure data
+        # Create OrderedDict with keys from simpleMetadataCSVkey and values for filePath
+        # Drop first element, since that is the filename
+        metadata = collections.OrderedDict(zip(simpleMetadataCSVkey[1:], simpleMetadataCSV[filePath][1:]))
+        dmdsecs = createDmdSecsFromCSVParsedMetadata(metadata)
+        return ' '.join([d.get('ID') for d in dmdsecs])
+
 
 def createDMDIDSFromCSVParsedMetadataDirectories(directory):
-    simpleMetadataCSVkey, simpleMetadataCSV, compoundMetadataCSVkey, compoundMetadataCSV = CSVMetadata
-    for key, values in compoundMetadataCSV.iteritems():
-        if directory == key:
-            return createDMDIDSFromCSVParsedMetadataPart2(compoundMetadataCSVkey, values)
+    _, _, compoundMetadataCSVkey, compoundMetadataCSV = CSVMetadata
+    if directory in compoundMetadataCSV:
+        # Restructure data
+        # Create OrderedDict with keys from compoundMetadataCSVkey and values for directory
+        # Drop first element, since that is the directory name
+        metadata = collections.OrderedDict(zip(compoundMetadataCSVkey[1:], compoundMetadataCSV[directory][1:]))
+        dmdsecs = createDmdSecsFromCSVParsedMetadata(metadata)
+        return ' '.join([d.get('ID') for d in dmdsecs])
 
 
-def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
+def createDmdSecsFromCSVParsedMetadata(metadata):
     global globalDmdSecCounter
     global dmdSecs
     dc = None
@@ -178,18 +190,15 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
     # e.g., dc.description.abstract is mapped to <dcterms:abstract>
     refinement_regex = re.compile('\w+\.(.+)')
 
-    for i in range(1, len(keys)):
-        key = keys[i]
-        value = values[i]
+    for key, value in metadata.iteritems():
         if key.startswith("dc.") or key.startswith("dcterms."):
             #print "dc item: ", key, value
             if dc is None:
                 globalDmdSecCounter += 1
-                dmdSec = etree.Element(ns.metsBNS + "dmdSec")
-                dmdSecs.append(dmdSec)
                 ID = "dmdSec_" + globalDmdSecCounter.__str__()
-                ret.append(ID)
-                dmdSec.set("ID", ID)
+                dmdSec = etree.Element(ns.metsBNS + "dmdSec", ID=ID)
+                dmdSecs.append(dmdSec)
+                ret.append(dmdSec)
                 mdWrap = etree.SubElement(dmdSec, ns.metsBNS + "mdWrap")
                 mdWrap.set("MDTYPE", "DC")
                 xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
@@ -210,17 +219,16 @@ def createDMDIDSFromCSVParsedMetadataPart2(keys, values):
         else:  # not a dublin core item
             if other is None:
                 globalDmdSecCounter += 1
-                dmdSec = etree.Element(ns.metsBNS + "dmdSec")
-                dmdSecs.append(dmdSec)
                 ID = "dmdSec_" + globalDmdSecCounter.__str__()
-                ret.append(ID)
-                dmdSec.set("ID", ID)
+                dmdSec = etree.Element(ns.metsBNS + "dmdSec", ID=ID)
+                dmdSecs.append(dmdSec)
+                ret.append(dmdSec)
                 mdWrap = etree.SubElement(dmdSec, ns.metsBNS + "mdWrap")
                 mdWrap.set("MDTYPE", "OTHER")
                 mdWrap.set("OTHERMDTYPE", "CUSTOM")
                 other = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
-            etree.SubElement(other, ns.dctermsBNS + normalizeNonDcElementName(key)).text = value
-    return " ".join(ret)
+            etree.SubElement(other, normalizeNonDcElementName(key)).text = value
+    return ret
 
 
 def createDublincoreDMDSecFromDBData(type, id):

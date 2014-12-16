@@ -51,28 +51,27 @@ def parseMetadata(SIPPath):
                                            transfer, "metadata.csv")
         if os.path.isfile(metadataCSVFilePath):
             try:
-                parseMetadtaCSV(metadataCSVFilePath)
-            except Exception as inst:
-                print >>sys.stderr, type(inst)     # the exception instance
-                print >>sys.stderr, inst.args
+                parseMetadataCSV(metadataCSVFilePath)
+            except Exception:
                 print >>sys.stderr, "error parsing: ", metadataCSVFilePath
-                traceback.print_exc(file=sys.stdout)
+                traceback.print_exc(file=sys.stderr)
                 sharedVariablesAcrossModules.globalErrorCount += 1
 
 
-def parseMetadtaCSV(metadataCSVFilePath):
+def parseMetadataCSV(metadataCSVFilePath):
     # use universal newline mode to support unusual newlines, like \r
     with open(metadataCSVFilePath, 'rbU') as f:
         reader = csv.reader(f)
         firstRow = True
         type = ""
         for row in reader:
+            entry_name = row[0]
             if firstRow:  # header row
-                type = row[0].lower()
+                type = entry_name.lower()
                 if type == "filename":
-                    CSVMetadata[0].extend(row)
+                    simpleMetadataCSVkey.extend(row)
                 elif type == "parts":
-                    CSVMetadata[2].extend(row)
+                    compoundMetadataCSVkey.extend(row)
                 else:
                     print >>sys.stderr, "error parsing: ", metadataCSVFilePath
                     print >>sys.stderr, "unsupported: ", type
@@ -81,10 +80,15 @@ def parseMetadtaCSV(metadataCSVFilePath):
                 firstRow = False
 
             else:  # data row
-                if type == "filename":
-                    simpleMetadataCSV[row[0]] = row
-                elif type == "parts":
-                    directory = row[0]
-                    if directory.endswith("/"):
-                        directory = directory[:-1]
-                    compoundMetadataCSV[directory] = row
+                if type == "filename":  # File
+                    simpleMetadataCSV[entry_name] = row
+                elif type == "parts":  # Directory
+                    if entry_name.endswith("/"):
+                        entry_name = entry_name[:-1]
+                    compoundMetadataCSV[entry_name] = row
+    global CSVMetadata
+    return CSVMetadata
+
+
+if __name__ == '__main__':
+    parseMetadata(sys.argv[1])
