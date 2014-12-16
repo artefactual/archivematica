@@ -43,6 +43,7 @@ CSVMetadata = (simpleMetadataCSVkey, simpleMetadataCSV,
 
 
 def parseMetadata(SIPPath):
+    # Parse the metadata.csv files from the transfers
     transfersPath = os.path.join(SIPPath, "objects", "metadata", "transfers")
     if not os.path.isdir(transfersPath):
         return
@@ -56,6 +57,15 @@ def parseMetadata(SIPPath):
                 print >>sys.stderr, "error parsing: ", metadataCSVFilePath
                 traceback.print_exc(file=sys.stderr)
                 sharedVariablesAcrossModules.globalErrorCount += 1
+    # Parse the SIP's metadata.csv if it exists
+    metadataCSVFilePath = os.path.join(SIPPath, 'objects', 'metadata', 'metadata.csv')
+    if os.path.isfile(metadataCSVFilePath):
+        try:
+            parseMetadataCSV(metadataCSVFilePath)
+        except Exception:
+            print >>sys.stderr, "error parsing: ", metadataCSVFilePath
+            traceback.print_exc(file=sys.stderr)
+            sharedVariablesAcrossModules.globalErrorCount += 1
 
 
 def parseMetadataCSV(metadataCSVFilePath):
@@ -81,8 +91,12 @@ def parseMetadataCSV(metadataCSVFilePath):
 
             else:  # data row
                 if type == "filename":  # File
+                    if simpleMetadataCSV.get(entry_name) and simpleMetadataCSV[entry_name] != row:
+                        print >> sys.stderr, 'Metadata for', entry_name, 'being overwritten. Old:', simpleMetadataCSV[entry_name], 'New:', row
                     simpleMetadataCSV[entry_name] = row
                 elif type == "parts":  # Directory
+                    if compoundMetadataCSV.get(entry_name) and compoundMetadataCSV[entry_name] != row:
+                        print >> sys.stderr, 'Metadata for', entry_name, 'being overwritten. Old:', compoundMetadataCSV[entry_name], 'New:', row
                     if entry_name.endswith("/"):
                         entry_name = entry_name[:-1]
                     compoundMetadataCSV[entry_name] = row
