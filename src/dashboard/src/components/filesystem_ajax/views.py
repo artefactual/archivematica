@@ -479,7 +479,7 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
             path = os.path.join(original_path, entry)
             relative_path = path.replace(DEFAULT_BACKLOG_PATH, '', 1)
             file_info = elasticSearchFunctions.get_transfer_file_info(
-                'relative_path', relative_path)
+                'relative_path.raw', relative_path)
             try:
                 file_uuid = file_info['fileuuid']
                 transfer_uuid = file_info['sipuuid']
@@ -566,7 +566,7 @@ def copy_to_arrange(request):
         else:
             arrange_path = os.path.join(destination, os.path.basename(sourcepath))
             file_info = elasticSearchFunctions.get_transfer_file_info(
-                'relative_path', sourcepath.replace(DEFAULT_BACKLOG_PATH, '', 1))
+                'relative_path.raw', sourcepath.replace(DEFAULT_BACKLOG_PATH, '', 1))
             file_uuid = file_info.get('fileuuid')
             transfer_uuid = file_info.get('sipuuid')
             to_add.append({'original_path': sourcepath,
