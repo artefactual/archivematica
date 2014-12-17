@@ -681,8 +681,13 @@ def createFileSec(directoryPath, parentDiv):
                     "filegrpuse": "original",
                     "originallocation__startswith": os.path.dirname(originalLocation)
                 }
-                f = File.objects.get(**kwargs)
-                GROUPID = "Group-" + f.uuid
+                try:
+                    f = File.objects.get(**kwargs)
+                except File.DoesNotExist:
+                    raise ValueError("Original not found for file at path: " + originalLocation)
+                except File.MultipleObjectsReturned:
+                    raise ValueError("More than one original found for file at path: " + originalLocation)
+                    GROUPID = "Group-" + f.uuid
 
 
             elif use == "preservation" or use == "text/ocr":
