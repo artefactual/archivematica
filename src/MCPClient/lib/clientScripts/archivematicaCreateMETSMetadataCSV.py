@@ -24,67 +24,103 @@
 
 #/src/dashboard/src/main/models.py
 
-
+import collections
+import csv
 import os
 import sys
-import csv
 import traceback
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
-METADATA_CSV_KEY = []
-METADATA_CSV_VALUE = {}
-
-CSVMetadata = (METADATA_CSV_KEY, METADATA_CSV_VALUE)
-
 
 def parseMetadata(SIPPath):
+    """
+    Parse all metadata.csv files in SIPPath.
+
+    Looking for metadata.csvs in metadata/ and
+    objects/metadata/transfers/<transfer name>/metadata/
+
+    See parseMetadataCSV for details on parsing.
+
+    :param SIPPath: Path to the SIP
+    :return: {<filename>: OrderedDict{<metadata name>=<metadata value>} }
+    """
+    all_metadata = {}
     # Parse the metadata.csv files from the transfers
     transfersPath = os.path.join(SIPPath, "objects", "metadata", "transfers")
     try:
         transfers = os.listdir(transfersPath)
     except OSError:
-        transfers = []
+        metadata_csvs = []
+    else:
+        metadata_csvs = [os.path.join(transfersPath, t, "metadata.csv") for t in transfers]
 
-    for transfer in transfers:
-        metadataCSVFilePath = os.path.join(transfersPath,
-                                           transfer, "metadata.csv")
+    # Parse the SIP's metadata.csv if it exists
+    metadataCSVFilePath = os.path.join(SIPPath, 'objects', 'metadata', 'metadata.csv')
+    metadata_csvs.append(metadataCSVFilePath)
+
+    for metadataCSVFilePath in metadata_csvs:
         if os.path.isfile(metadataCSVFilePath):
             try:
-                parseMetadataCSV(metadataCSVFilePath)
+                csv_metadata = parseMetadataCSV(metadataCSVFilePath)
             except Exception:
                 print >>sys.stderr, "error parsing: ", metadataCSVFilePath
                 traceback.print_exc(file=sys.stderr)
                 sharedVariablesAcrossModules.globalErrorCount += 1
-    # Parse the SIP's metadata.csv if it exists
-    metadataCSVFilePath = os.path.join(SIPPath, 'objects', 'metadata', 'metadata.csv')
-    if os.path.isfile(metadataCSVFilePath):
-        try:
-            parseMetadataCSV(metadataCSVFilePath)
-        except Exception:
-            print >>sys.stderr, "error parsing: ", metadataCSVFilePath
-            traceback.print_exc(file=sys.stderr)
-            sharedVariablesAcrossModules.globalErrorCount += 1
+            # Provide warning if this file already has differing metadata
+            # Not using all_metadata.update(csv_metadata) because of that
+            for entry, values in csv_metadata.iteritems():
+                if entry in all_metadata and all_metadata[entry] != values:
+                    print >> sys.stderr, 'Metadata for', entry, 'being updated. Old:', all_metadata[entry], 'New:', values
+                existing = all_metadata.get(entry, collections.OrderedDict())
+                existing.update(values)
+                all_metadata[entry] = existing
+
+    return all_metadata
 
 
 def parseMetadataCSV(metadataCSVFilePath):
+    """
+    Parses the metadata.csv into a dict with entries for each file.
+
+    Each file's entry is an OrderedDict containing the column header and value
+    for each column.
+
+    Example CSV:
+    Filename,dc.title,dc.date,Other metadata
+    objects/foo.jpg,Foo,2000,Taken on a sunny day
+    objects/bar/,Bar,2000,All taken on a rainy day
+
+    Produces:
+    {
+        'objects/foo.jpg': OrderedDict(dc.title=Foo, dc.date=2000, Other metadata=Taken on a sunny day)
+        'objects/bar': OrderedDict(dc.title=Bar, dc.date=2000, Other metadata=All taken on a rainy day)
+    }
+
+    :param metadataCSVFilePath: Path to the metadata CSV to parse
+    :return: {<filename>: OrderedDict{<metadata name>=<metadata value>} }
+    """
+    metadata = {}
     # use universal newline mode to support unusual newlines, like \r
     with open(metadataCSVFilePath, 'rbU') as f:
         reader = csv.reader(f)
         # Parse first row as header
-        # TODO? Check that header is either Parts or Filename?
-        row = reader.next()
-        METADATA_CSV_KEY.extend(row)
+        header = reader.next()
+        # Strip filename column
+        header = header[1:]
         # Parse data
         for row in reader:
             entry_name = row[0]
-            if METADATA_CSV_VALUE.get(entry_name) and METADATA_CSV_VALUE[entry_name] != row:
-                print >> sys.stderr, 'Metadata for', entry_name, 'being overwritten. Old:', METADATA_CSV_VALUE[entry_name], 'New:', row
             if entry_name.endswith("/"):
                 entry_name = entry_name[:-1]
-            METADATA_CSV_VALUE[entry_name] = row
-    global CSVMetadata
-    return CSVMetadata
+            # Strip file/dir name from values
+            row = row[1:]
+            values = collections.OrderedDict(zip(header, row))
+            if entry_name in metadata and metadata[entry_name] != values:
+                print >> sys.stderr, 'Metadata for', entry_name, 'being overwritten. Old:', metadata[entry_name], 'New:', values
+            metadata[entry_name] = values
+
+    return metadata
 
 
 if __name__ == '__main__':

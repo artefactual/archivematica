@@ -21,7 +21,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-import collections
+
 from glob import glob
 import lxml.etree as etree
 import MySQLdb
@@ -32,7 +32,6 @@ import traceback
 
 import archivematicaXMLNamesSpace as ns
 from archivematicaCreateMETSMetadataCSV import parseMetadata
-from archivematicaCreateMETSMetadataCSV import CSVMetadata
 from archivematicaCreateMETSRights import archivematicaGetRights
 from archivematicaCreateMETSRightsDspaceMDRef import archivematicaCreateMETSRightsDspaceMDRef
 from archivematicaCreateMETSTrim import getTrimDmdSec
@@ -100,6 +99,8 @@ trimStructMapObjects = None
 #GROUPID="G1" -> GROUPID="Group-%object's UUID%"
 ##group of the object and it's related access, license
 
+CSV_METADATA = {}
+
 #move to common
 def newChild(parent, tag, text=None, tailText=None, sets=[]):
     # TODO convert sets to a dict, and use **dict
@@ -159,14 +160,9 @@ def createDMDIDsFromCSVMetadata(path):
     :param path: Path relative to the SIP to find CSV metadata on
     :return: Space-separated list of DMDIDs or empty string
     """
-    keys, values = CSVMetadata
-    if path in values:
-        # Restructure data
-        # Create OrderedDict with keys from keys and values for path
-        # Drop first element, since that is the file/directory name
-        metadata = collections.OrderedDict(zip(keys[1:], values[path][1:]))
-        dmdsecs = createDmdSecsFromCSVParsedMetadata(metadata)
-        return ' '.join([d.get('ID') for d in dmdsecs])
+    metadata = CSV_METADATA.get(path, {})
+    dmdsecs = createDmdSecsFromCSVParsedMetadata(metadata)
+    return ' '.join([d.get('ID') for d in dmdsecs])
 
 
 def createDmdSecsFromCSVParsedMetadata(metadata):
@@ -864,7 +860,7 @@ if __name__ == '__main__':
         import time
         time.sleep(10)
 
-    parseMetadata(baseDirectoryPath)
+    CSV_METADATA = parseMetadata(baseDirectoryPath)
 
     if not baseDirectoryPath.endswith('/'):
         baseDirectoryPath += '/'
