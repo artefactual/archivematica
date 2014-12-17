@@ -40,8 +40,10 @@ class unit:
     def reloadFileList(self):
         """Match files to their UUID's via their location and the File table's currentLocation"""
         self.fileList = {}
-        currentPath = self.currentPath.replace("%sharedPath%", \
-                                               archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1) + "/"
+        # currentPath must be a string to return all filenames as bytestrings,
+        # and to safely concatenate with other bytestrings
+        currentPath = str(self.currentPath.replace("%sharedPath%", \
+                                                       archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1) + "/")
         try:
             for directory, subDirectories, files in os.walk(currentPath):
                 directory = directory.replace( currentPath, self.pathString, 1) 
