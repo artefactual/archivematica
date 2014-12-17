@@ -32,22 +32,21 @@ import traceback
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
-simpleMetadataCSVkey = []
-simpleMetadataCSV = {}
-compoundMetadataCSVkey = []
-compoundMetadataCSV = {}
+METADATA_CSV_KEY = []
+METADATA_CSV_VALUE = {}
 
-
-CSVMetadata = (simpleMetadataCSVkey, simpleMetadataCSV,
-               compoundMetadataCSVkey, compoundMetadataCSV)
+CSVMetadata = (METADATA_CSV_KEY, METADATA_CSV_VALUE)
 
 
 def parseMetadata(SIPPath):
     # Parse the metadata.csv files from the transfers
     transfersPath = os.path.join(SIPPath, "objects", "metadata", "transfers")
-    if not os.path.isdir(transfersPath):
-        return
-    for transfer in os.listdir(transfersPath):
+    try:
+        transfers = os.listdir(transfersPath)
+    except OSError:
+        transfers = []
+
+    for transfer in transfers:
         metadataCSVFilePath = os.path.join(transfersPath,
                                            transfer, "metadata.csv")
         if os.path.isfile(metadataCSVFilePath):
@@ -72,34 +71,18 @@ def parseMetadataCSV(metadataCSVFilePath):
     # use universal newline mode to support unusual newlines, like \r
     with open(metadataCSVFilePath, 'rbU') as f:
         reader = csv.reader(f)
-        firstRow = True
-        type = ""
+        # Parse first row as header
+        # TODO? Check that header is either Parts or Filename?
+        row = reader.next()
+        METADATA_CSV_KEY.extend(row)
+        # Parse data
         for row in reader:
             entry_name = row[0]
-            if firstRow:  # header row
-                type = entry_name.lower()
-                if type == "filename":
-                    simpleMetadataCSVkey.extend(row)
-                elif type == "parts":
-                    compoundMetadataCSVkey.extend(row)
-                else:
-                    print >>sys.stderr, "error parsing: ", metadataCSVFilePath
-                    print >>sys.stderr, "unsupported: ", type
-                    sharedVariablesAcrossModules.globalErrorCount += 1
-                    return
-                firstRow = False
-
-            else:  # data row
-                if type == "filename":  # File
-                    if simpleMetadataCSV.get(entry_name) and simpleMetadataCSV[entry_name] != row:
-                        print >> sys.stderr, 'Metadata for', entry_name, 'being overwritten. Old:', simpleMetadataCSV[entry_name], 'New:', row
-                    simpleMetadataCSV[entry_name] = row
-                elif type == "parts":  # Directory
-                    if compoundMetadataCSV.get(entry_name) and compoundMetadataCSV[entry_name] != row:
-                        print >> sys.stderr, 'Metadata for', entry_name, 'being overwritten. Old:', compoundMetadataCSV[entry_name], 'New:', row
-                    if entry_name.endswith("/"):
-                        entry_name = entry_name[:-1]
-                    compoundMetadataCSV[entry_name] = row
+            if METADATA_CSV_VALUE.get(entry_name) and METADATA_CSV_VALUE[entry_name] != row:
+                print >> sys.stderr, 'Metadata for', entry_name, 'being overwritten. Old:', METADATA_CSV_VALUE[entry_name], 'New:', row
+            if entry_name.endswith("/"):
+                entry_name = entry_name[:-1]
+            METADATA_CSV_VALUE[entry_name] = row
     global CSVMetadata
     return CSVMetadata
 

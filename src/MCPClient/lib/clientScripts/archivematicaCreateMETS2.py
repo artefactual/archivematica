@@ -152,24 +152,19 @@ def getDublinCore(unit, id):
     return ret
 
 
-def createDMDIDSFromCSVParsedMetadataFiles(filePath):
-    simpleMetadataCSVkey, simpleMetadataCSV, _, _ = CSVMetadata
-    if filePath in simpleMetadataCSV:
-        # Restructure data
-        # Create OrderedDict with keys from simpleMetadataCSVkey and values for filePath
-        # Drop first element, since that is the filename
-        metadata = collections.OrderedDict(zip(simpleMetadataCSVkey[1:], simpleMetadataCSV[filePath][1:]))
-        dmdsecs = createDmdSecsFromCSVParsedMetadata(metadata)
-        return ' '.join([d.get('ID') for d in dmdsecs])
+def createDMDIDsFromCSVMetadata(path):
+    """
+    Creates dmdSecs with metadata associated with path from the metadata.csv
 
-
-def createDMDIDSFromCSVParsedMetadataDirectories(directory):
-    _, _, compoundMetadataCSVkey, compoundMetadataCSV = CSVMetadata
-    if directory in compoundMetadataCSV:
+    :param path: Path relative to the SIP to find CSV metadata on
+    :return: Space-separated list of DMDIDs or empty string
+    """
+    keys, values = CSVMetadata
+    if path in values:
         # Restructure data
-        # Create OrderedDict with keys from compoundMetadataCSVkey and values for directory
-        # Drop first element, since that is the directory name
-        metadata = collections.OrderedDict(zip(compoundMetadataCSVkey[1:], compoundMetadataCSV[directory][1:]))
+        # Create OrderedDict with keys from keys and values for path
+        # Drop first element, since that is the file/directory name
+        metadata = collections.OrderedDict(zip(keys[1:], values[path][1:]))
         dmdsecs = createDmdSecsFromCSVParsedMetadata(metadata)
         return ' '.join([d.get('ID') for d in dmdsecs])
 
@@ -625,7 +620,7 @@ def createFileSec(directoryPath, parentDiv):
 
     structMapDiv = etree.SubElement(parentDiv, ns.metsBNS + 'div', TYPE='Directory', LABEL=os.path.basename(directoryPath))
 
-    DMDIDS = createDMDIDSFromCSVParsedMetadataDirectories(directoryPath.replace(baseDirectoryPath, "", 1))
+    DMDIDS = createDMDIDsFromCSVMetadata(directoryPath.replace(baseDirectoryPath, "", 1))
     if DMDIDS:
         structMapDiv.set("DMDID", DMDIDS)
 
@@ -706,7 +701,7 @@ def createFileSec(directoryPath, parentDiv):
                 if use == "maildirFile":
                     use = "original"
                 if use == "original":
-                    DMDIDS = createDMDIDSFromCSVParsedMetadataFiles(originalLocation.replace('%transferDirectory%', "", 1))
+                    DMDIDS = createDMDIDsFromCSVMetadata(originalLocation.replace('%transferDirectory%', "", 1))
                     if DMDIDS:
                         fileDiv.set("DMDID", DMDIDS)
                     if typeOfTransfer == "TRIM":
