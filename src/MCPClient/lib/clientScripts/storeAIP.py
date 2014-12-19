@@ -83,6 +83,16 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     else:
         uuid = sip_uuid
 
+    # If AIP is a directory, calculate size recursively
+    if os.path.isdir(aip_path):
+        size = 0
+        for dirpath, _, filenames in os.walk(aip_path):
+            for filename in filenames:
+                file_path = os.path.join(dirpath, filename)
+                size += os.path.getsize(file_path)
+    else:
+        size = os.path.getsize(aip_path)
+
     #Store the AIP
     (new_file, error_msg) = storage_service.create_file(
         uuid=uuid,
@@ -91,8 +101,9 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
         current_location=aip_destination_uri,
         current_path=current_path,
         package_type=package_type,
-        size=os.path.getsize(aip_path)
+        size=size
     )
+
     if new_file is not None and new_file.get('status', '') != "FAIL":
         message = "Storage service created {}: {}".format(sip_type, new_file)
         logging.info(message)
