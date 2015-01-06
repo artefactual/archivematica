@@ -192,7 +192,7 @@ $(document).ready(function() {
   $('#arrange_create_directory_button').click(function() {
     var path = prompt('Name of new directory?');
 
-    if (path != '') {
+    if (path) {
       var path_root = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId) || '/' + Base64.decode(arrange_browser.structure.name)
         , relative_path = path_root + '/' + path;
 
