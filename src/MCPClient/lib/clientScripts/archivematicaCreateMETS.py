@@ -33,6 +33,8 @@ from main.models import File
 
 # archivematicaCommon
 from archivematicaFunctions import escape
+from databaseFunctions import getAccessionNumberFromTransfer, getUTCDate
+from elasticSearchFunctions import getDashboardUUID
 
 
 UUIDsDic={}
@@ -56,6 +58,27 @@ XMLFile = opts.xmlFile
 includeAmdSec = opts.amdSec
 basePathString = "%%%s%%" % (opts.basePathString)
 fileGroupIdentifier = opts.fileGroupIdentifier
+
+
+def createMetsHdr():
+    header = etree.Element(ns.metsBNS + "metsHdr",
+                           CREATEDATE=getUTCDate().split(".")[0])
+    agent = etree.SubElement(header, ns.metsBNS + "agent",
+                             ROLE="CREATOR",
+                             TYPE="OTHER",
+                             OTHERTYPE="SOFTWARE")
+    name = etree.SubElement(agent, ns.metsBNS + "name")
+    name.text = getDashboardUUID()
+    note = etree.SubElement(agent, ns.metsBNS + "note")
+    note.text = "Archivematica dashboard UUID"
+
+    accession_number = getAccessionNumberFromTransfer(SIPUUID)
+    if accession_number:
+        alt_id = etree.SubElement(header, ns.metsBNS + "altRecordID",
+                                  TYPE="Accession number")
+        alt_id.text = accession_number
+
+    return header
 
 
 def newChild(parent, tag, text=None, tailText=None):
@@ -158,9 +181,14 @@ def createFileSec(path, parentBranch, structMapParent):
 
 if __name__ == '__main__':
     root = etree.Element(ns.metsBNS + "mets",
-        nsmap = {"xlink": ns.xlinkNS, "mets": ns.metsNS},
-        attrib = { "{" + ns.xsiNS + "}schemaLocation" : "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd" }
+        nsmap={"xlink": ns.xlinkNS, "mets": ns.metsNS},
+        attrib={
+            ns.xsiBNS + "schemaLocation": "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd",
+            "OBJID": SIPUUID
+        }
     )
+
+    root.append(createMetsHdr())
 
     #cd /tmp/$UUID;
     opath = os.getcwd()
