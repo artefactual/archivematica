@@ -85,7 +85,7 @@ def createFileSec(path, parentBranch, structMapParent):
         #currentBranch = newChild(parentBranch, "fileGrp")
         #currentBranch.set("USE", "directory")
         # structMap directory
-        div = newChild(structMapParent, "div")
+        div = newChild(structMapParent, ns.metsBNS + "div")
         createFileSec(os.path.join(path, "objects/"), parentBranch, div)
         doneFirstRun = False
     filename = os.path.basename(pathSTR)
@@ -108,7 +108,7 @@ def createFileSec(path, parentBranch, structMapParent):
                     #currentBranch = newChild(parentBranch, "fileGrp")
                     #currentBranch.set("USE", "directory")
                     # structMap directory
-                    div = newChild(structMapParent, "div")
+                    div = newChild(structMapParent, ns.metsBNS + "div")
 
                     createFileSec(os.path.join(path, item), parentBranch, div)
                 elif os.path.isfile(itempath):
@@ -135,7 +135,7 @@ def createFileSec(path, parentBranch, structMapParent):
 
                     pathSTR = itempath.replace(basePath, "", 1)
 
-                    fileI = etree.SubElement( parentBranch, "file")
+                    fileI = etree.SubElement( parentBranch, ns.metsBNS + "file")
 
                     filename = ''.join(quoteattr(item).split("\"")[1:-1])
                     #filename = replace /tmp/"UUID" with /objects/
@@ -145,20 +145,20 @@ def createFileSec(path, parentBranch, structMapParent):
                     if includeAmdSec:
                         fileI.set("ADMID", "digiprov-" + item.__str__() + "-"    + myuuid.__str__())
 
-                    Flocat = newChild(fileI, "FLocat")
+                    Flocat = newChild(fileI, ns.metsBNS + "FLocat")
                     Flocat.set(ns.xlinkBNS + "href", escape(pathSTR) )
                     Flocat.set("LOCTYPE", "OTHER")
                     Flocat.set("OTHERLOCTYPE", "SYSTEM")
 
                     # structMap file
                     #div = newChild(structMapParent, "div")
-                    fptr = newChild(structMapParent, "fptr")
+                    fptr = newChild(structMapParent, ns.metsBNS + "fptr")
                     FILEID = "file-" + myuuid.__str__()
                     fptr.set("FILEID", escape(FILEID))
 
 if __name__ == '__main__':
-    root = etree.Element("mets",
-        nsmap = {None: ns.metsNS, "xlink": ns.xlinkNS},
+    root = etree.Element(ns.metsBNS + "mets",
+        nsmap = {"xlink": ns.xlinkNS, "mets": ns.metsNS},
         attrib = { "{" + ns.xsiNS + "}schemaLocation" : "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd" }
     )
 
@@ -170,16 +170,16 @@ if __name__ == '__main__':
     #if includeAmdSec:
     #    amdSec = newChild(root, "amdSec")
 
-    fileSec = etree.Element("fileSec")
+    fileSec = etree.Element(ns.metsBNS + "fileSec")
     #fileSec.tail = "\n"
     root.append(fileSec)
 
-    sipFileGrp = etree.SubElement(fileSec, "fileGrp")
+    sipFileGrp = etree.SubElement(fileSec, ns.metsBNS + "fileGrp")
     sipFileGrp.set("USE", "original")
 
-    structMap = newChild(root, "structMap")
+    structMap = newChild(root, ns.metsBNS + "structMap")
     structMap.set("TYPE", "physical")
-    structMapDiv = newChild(structMap, "div")
+    structMapDiv = newChild(structMap, ns.metsBNS + "div")
 
     createFileSec(path, sipFileGrp, structMapDiv)
 
