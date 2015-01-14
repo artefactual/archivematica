@@ -857,11 +857,11 @@ def connect_and_delete_aip_files(uuid):
     query = {
         "query": {
             "term": {
-                "AIPUUID", uuid
+                "AIPUUID": uuid
             }
         }
     }
-    documents = conn.search_raw(query=query)
+    documents = search_raw_wrapper(query=query)
     if len(documents['hits']['hits']) > 0:
         for hit in documents['hits']['hits']:
             document_id = hit['_id']
