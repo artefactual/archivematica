@@ -163,7 +163,7 @@ def ingest_upload_atk_determine_resource_component_resource_id(resource_componen
 
     cursor = db.cursor()
 
-    cursor.execute("SELECT resourceId, parentResourceComponentId FROM resourcescomponents WHERE resourceComponentId=%s", (resource_component_id))
+    cursor.execute("SELECT resourceId, parentResourceComponentId FROM ResourcesComponents WHERE resourceComponentId=%s", (resource_component_id))
 
     row = cursor.fetchone()
 
@@ -205,11 +205,11 @@ def ingest_upload_atk_get_collection_ids(db, search_pattern=''):
 
     if search_pattern != '':
         cursor.execute(
-            "SELECT resourceId FROM resources WHERE (title LIKE %s OR resourceid LIKE %s) AND resourceLevel in ('recordgrp', 'collection') ORDER BY title",
+            "SELECT resourceId FROM Resources WHERE (title LIKE %s OR resourceid LIKE %s) AND resourceLevel in ('recordgrp', 'collection') ORDER BY title",
             ('%' + search_pattern + '%', '%' + search_pattern + '%')
         )
     else:
-        cursor.execute("SELECT resourceId FROM resources WHERE resourceLevel = 'collection' ORDER BY title")
+        cursor.execute("SELECT resourceId FROM Resources WHERE resourceLevel = 'collection' ORDER BY title")
 
     for row in cursor.fetchall():
         collections.append(row[0])
