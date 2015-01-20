@@ -183,7 +183,6 @@ def createDmdSecsFromCSVParsedMetadata(metadata):
 
     for key, value in metadata.iteritems():
         if key.startswith("dc.") or key.startswith("dcterms."):
-            #print "dc item: ", key, value
             if dc is None:
                 globalDmdSecCounter += 1
                 ID = "dmdSec_" + globalDmdSecCounter.__str__()
@@ -193,19 +192,22 @@ def createDmdSecsFromCSVParsedMetadata(metadata):
                 mdWrap = etree.SubElement(dmdSec, ns.metsBNS + "mdWrap")
                 mdWrap.set("MDTYPE", "DC")
                 xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
-                dc = etree.Element(ns.dctermsBNS + "dublincore", nsmap={"dc": ns.dctermsNS})
-                dc.set(ns.xsiBNS+"schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+                dc = etree.Element(ns.dctermsBNS + "dublincore", nsmap={"dcterms": ns.dctermsNS, 'dc': ns.dcNS})
+                dc.set(ns.xsiBNS + "schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
                 xmlData.append(dc)
+            elem_namespace = ""
             if key.startswith("dc."):
-                key2 = key.replace("dc.", "", 1)
+                key = key.replace("dc.", "", 1)
+                elem_namespace = ns.dcBNS
             elif key.startswith("dcterms."):
-                key2 = key.replace("dcterms.", "", 1)
+                key = key.replace("dcterms.", "", 1)
+                elem_namespace = ns.dctermsBNS
             value = value.decode('utf-8')
-            match = re.match(refinement_regex, key2)
+            match = re.match(refinement_regex, key)
             if match:
-                key2, = match.groups()
+                key, = match.groups()
 
-            el = etree.SubElement(dc, ns.dctermsBNS + key2)
+            el = etree.SubElement(dc, elem_namespace + key)
             el.text = value
         else:  # not a dublin core item
             if other is None:
