@@ -22,6 +22,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+import collections
 from glob import glob
 import lxml.etree as etree
 import os
@@ -255,20 +256,52 @@ def createDublincoreDMDSecFromDBData(type, id):
     xmlData.append(dc)
     return (dmdSec, ID)
 
-def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
+def createDSpaceDMDSec(label, dspace_mets_path, directoryPathSTR):
+    """
+    Parse DSpace METS file and create a dmdSecs from the info.
+
+    One dmdSec will contain a mdRef to the DSpace METS file. The other dmdSec
+    will contain Dublin Core metadata with the identifier and parent collection
+    identifier.
+
+    :param str label: LABEL for the mdRef
+    :param str dspace_mets_path: Path to the DSpace METS
+    :param str directoryPathSTR: Relative path to the DSpace METS
+    :return: dict of {<dmdSec ID>: <dmdSec Element>}
+    """
     global globalDmdSecCounter
+    dmdsecs = collections.OrderedDict()
+    root = etree.parse(dspace_mets_path)
+
+    # Create mdRef to DSpace METS file
     globalDmdSecCounter += 1
-    dmdSec = etree.Element(ns.metsBNS + "dmdSec")
-    ID = "dmdSec_" + globalDmdSecCounter.__str__()
-    dmdSec.set("ID", ID)
-    XPTR = "xpointer(id("
-    tree = etree.parse(itemdirectoryPath)
-    root = tree.getroot()
-    for item in root.findall("{http://www.loc.gov/METS/}dmdSec"):
-        XPTR = "%s %s" % (XPTR, item.get("ID"))
-    XPTR = XPTR.replace(" ", "'", 1) + "'))"
-    newChild(dmdSec, ns.metsBNS + "mdRef", text=None, sets=[("LABEL", LABEL), (ns.xlinkBNS +"href", directoryPathSTR), ("MDTYPE", "OTHER"), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM"), ("XPTR", XPTR)])
-    return (dmdSec, ID)
+    dmdid = "dmdSec_" + str(globalDmdSecCounter)
+    dmdsec = etree.Element(ns.metsBNS + "dmdSec", ID=dmdid)
+    dmdsecs[dmdid] = dmdsec
+    xptr_dmdids = [i.get('ID') for i in root.findall("{http://www.loc.gov/METS/}dmdSec")]
+    try:
+        xptr = "xpointer(id('{}'))".format(' '.join(xptr_dmdids))
+    except TypeError:  # Trying to .join() on a list with None
+        print >> sys.stderr, 'dmdSec in', dspace_mets_path, 'missing an ID'
+        raise
+    newChild(dmdsec, ns.metsBNS + "mdRef", text=None, sets=[("LABEL", label), (ns.xlinkBNS + "href", directoryPathSTR), ("MDTYPE", "OTHER"), ("LOCTYPE", "OTHER"), ("OTHERLOCTYPE", "SYSTEM"), ("XPTR", xptr)])
+
+    # Create dmdSec with DC identifier and isPartOf
+    identifier = root.findtext('mets:amdSec/mets:sourceMD/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@qualifier="uri"]', namespaces=ns.NSMAP)
+    part_of = root.findtext('mets:amdSec/mets:sourceMD/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@qualifier="isPartOf"]', namespaces=ns.NSMAP)
+    if identifier is None or part_of is None:
+        print >> sys.stderr, 'Unable to parse identifer and isPartOf from', dspace_mets_path
+        return {}
+    metadata = {
+        'dc.identifier': identifier,
+        'dcterms.isPartOf': part_of,
+    }
+    dc_dmdsecs = createDmdSecsFromCSVParsedMetadata(metadata)
+    dmdsec = dc_dmdsecs[0]  # Should only be one dmdSec
+    dmdid = dmdsec.get('ID')
+    dmdsecs[dmdid] = dmdsec
+
+    return dmdsecs
 
 
 def createTechMD(fileUUID):
@@ -723,14 +756,15 @@ def createFileSec(directoryPath, parentDiv):
                             GROUPID = myuuid
                             admidApplyTo = structMapDiv.getparent()
 
-
-                        LABEL = "mets.xml-%s" % (GROUPID)
-                        dmdSec, ID = createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR)
-                        dmdSecs.append(dmdSec)
-                        if admidApplyTo != None:
-                            admidApplyTo.set("DMDID", ID)
-                        else:
-                            dspaceMetsDMDID = ID
+                        label = "mets.xml-%s" % (GROUPID)
+                        dspace_dmdsecs = createDSpaceDMDSec(label, itemdirectoryPath, directoryPathSTR)
+                        if dspace_dmdsecs:
+                            dmdSecs.extend(dspace_dmdsecs.values())
+                            ids = ' '.join(dspace_dmdsecs.keys())
+                            if admidApplyTo is not None:
+                                admidApplyTo.set("DMDID", ids)
+                            else:
+                                dspaceMetsDMDID = ids
 
             if GROUPID=="":
                 sharedVariablesAcrossModules.globalErrorCount += 1
