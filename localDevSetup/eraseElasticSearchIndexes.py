@@ -2,6 +2,8 @@
 
 import os
 import sys
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from elasticSearchFunctions import getElasticsearchServerHostAndPort
 
