@@ -74,17 +74,6 @@ def verifyMetsFileSecChecksums(metsFile, date, taskUUID, relativeDirectory="./")
 
     return exitCode
 
-    databaseFunctions.insertIntoEvents(fileUUID=fileUUID, \
-                 eventIdentifierUUID=eventIdentifierUUID, \
-                 eventType="fixity check", \
-                 eventDateTime=date, \
-                 eventOutcome=eventOutcome, \
-                 eventOutcomeDetailNote=eventOutcomeDetailNote, \
-                 eventDetail=eventDetail)
-
-
-
-
 
 if __name__ == '__main__':
     metsFile = sys.argv[1]

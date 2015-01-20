@@ -38,33 +38,20 @@ class MCPClient:
         if uid != None:
             data["uid"] = uid
         completed_job_request = gm_client.submit_job("approveJob", cPickle.dumps(data), None)
-        #self.check_request_status(completed_job_request)
         gm_client.shutdown()
         return
 
     def list(self):
         gm_client = gearman.GearmanClient([self.server])
         completed_job_request = gm_client.submit_job("getJobsAwaitingApproval", "", None)
-        #self.check_request_status(completed_job_request)
         return cPickle.loads(completed_job_request.result)
 
     def notifications(self):
         gm_client = gearman.GearmanClient([self.server])
         completed_job_request = gm_client.submit_job("getNotifications", "", None)
-        #self.check_request_status(completed_job_request)
         gm_client.shutdown()
         return cPickle.loads(completed_job_request.result)
 
-    def check_request_status(self, job_request):
-        if job_request.complete:
-            self.results = cPickle.loads(job_request.result)
-            print "Task %s finished!  Result: %s - %s" % (job_request.job.unique, job_request.state, self.results)
-        elif job_request.timed_out:
-            print >>sys.stderr, "Task %s timed out!" % job_request.unique
-        elif job_request.state == JOB_UNKNOWN:
-            print >>sys.stderr, "Task %s connection failed!" % job_request.unique
-        else:
-            print >>sys.stderr, "Task %s failed!" % job_request.unique
 
 if __name__ == '__main__':
     mcpClient = MCPClient()

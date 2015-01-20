@@ -672,7 +672,7 @@ def copy_from_transfer_sources(paths, relative_destination):
     for pl in files.itervalues():
         reply, error = storage_service.copy_files(pl['location'], processing_location, pl['files'])
         if reply is None:
-            message.append(error)
+            message.append(str(error))
     if message:
         return True, 'The following errors occured: {}'.format(', '.join(message))
     else:

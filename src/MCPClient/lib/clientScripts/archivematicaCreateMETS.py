@@ -133,9 +133,6 @@ def createFileSec(path, parentBranch, structMapParent):
                     else:
                         myuuid = f.uuid
 
-                    if includeAmdSec:
-                        createDigiprovMD(myuuid, itempath, myuuid)
-
                     pathSTR = itempath.replace(basePath, "", 1)
 
                     fileI = etree.SubElement( parentBranch, "file")

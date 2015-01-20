@@ -381,7 +381,6 @@ def rights_edit(request, uuid, id=None, section='ingest'):
         else:
             url = reverse('components.rights.views.%s_rights_edit' % section, args=[uuid, createdRights.pk])
             try:
-                new_content_type_created                
                 url = url + '?created=' + new_content_type_created
             except:
                 pass
@@ -474,11 +473,6 @@ def rights_grants_edit(request, uuid, id, section='ingest'):
             return redirect('components.rights.views.%s_rights_list' % section, uuid)
         else:
             url = reverse('components.rights.views.%s_rights_grants_edit' % section, args=[uuid, viewRights.pk])
-            try:
-                new_content_type_created
-                url = url + '?created=' + new_content_type_created
-            except:
-                pass
             return redirect(url)
     else:
         return render(request, 'rights/rights_grants_edit.html', locals())

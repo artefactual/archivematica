@@ -123,5 +123,3 @@ def create_crumb(title, url=None):
         return '<li><a href="%s">%s</a>&nbsp;<span class="divider">/</span></li>' % (url, title)
     else:
         return "<li>%s</li>" % title
-
-    return crumb

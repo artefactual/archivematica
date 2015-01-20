@@ -94,7 +94,7 @@ class taskStandard():
             self.results["stdError"] = "Task %s timed out!" % job_request.unique
             self.linkTaskManager.taskCompletedCallBackFunction(self)
 
-        elif job_request.state == JOB_UNKNOWN:
+        elif job_request.state == gearman.client.JOB_UNKNOWN:
             print >>sys.stderr, "Task %s connection failed!" % job_request.unique
             self.results["stdError"] = "Task %s connection failed!" % job_request.unique
             self.results['exitCode'] = -1

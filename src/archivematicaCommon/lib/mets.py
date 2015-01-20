@@ -4,15 +4,6 @@ import subprocess
 from collections import defaultdict
  
 
-
-def browse_tree(d):
-    for k in d.iteritems:
-        if not isinstance(d[k], dict):
-            print "%s - %s" % (str(k), str(v))
-        else:
-            browse_tree(d[k])
-        
-
 class Tree(defaultdict):
     def __init__(self, value=None):
         super(Tree, self).__init__(Tree)
