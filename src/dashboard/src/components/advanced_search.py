@@ -166,7 +166,7 @@ def query_clause(index, queries, ops, fields, types):
                  term_field = fields[index]
             else:
                 term_field = '_all'
-            return {'term': {term_field, queries[index]}}
+            return {'term': {term_field: queries[index]}}
     else:
         return {'query_string': {'query': queries[index], 'fields': search_fields}}
 
