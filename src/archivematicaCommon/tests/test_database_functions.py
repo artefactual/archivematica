@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+import os
 import sys
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
@@ -10,10 +11,12 @@ from main.models import Event, File
 from django.test import TestCase
 import pytest
 
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class TestDatabaseFunctions(TestCase):
 
-    fixtures = ['test_database_functions.json']
+    fixture_files = ['test_database_functions.json']
+    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
 
     def test_insert_into_files_with_sip(self):
         path = "%sharedDirectory%/no_such_file"

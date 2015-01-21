@@ -1,11 +1,8 @@
 #! /usr/bin/python2
 
-# Run from src/dashboard with:
-# bash: PYTHONPATH='./src' py.test --ds 'settings.local' -v
-# fish: env PYTHONPATH='./src' py.test --ds 'settings.local' -v
-
 import base64
 import json
+import os
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -13,12 +10,12 @@ from django.test.client import Client
 
 from main import models
 
-# Run from src/dashboard:
-# env PYTHONPATH='./src' py.test --ds 'settings.local'
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class TestSIPArrange(TestCase):
 
-    fixtures = ['test_user.json', 'sip_arrange.json']
+    fixture_files = ['test_user.json', 'sip_arrange.json']
+    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
 
     def setUp(self):
         self.client = Client()
