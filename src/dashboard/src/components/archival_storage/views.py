@@ -393,7 +393,7 @@ def elasticsearch_query_excluding_aips_pending_deletion(uuid_field_name):
     must_not_haves = []
 
     for aip_uuid in aips_pending_deletion():
-        must_not_haves.append({uuid_field_name: aip_uuid})
+        must_not_haves.append({'term': {uuid_field_name: aip_uuid}})
 
     if len(must_not_haves):
         query = {
