@@ -1,5 +1,6 @@
 -r base.txt
 
-ipython==1.1.0
-pytest==2.5.1
-pytest-django==2.4
+ipython
+pytest>=2,<3
+pytest-django>=2,<3
+vcrpy>=1,<2

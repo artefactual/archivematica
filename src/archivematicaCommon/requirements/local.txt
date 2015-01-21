@@ -1,2 +1,5 @@
-pytest==2.5.2
-vcrpy==1.0.0
+-r base.txt
+
+pytest>=2,<3
+pytest-django>=2,<3
+vcrpy>=1,<2
