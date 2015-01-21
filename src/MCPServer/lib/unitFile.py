@@ -34,7 +34,7 @@ class unitFile(object):
         self.UUID = UUID
         self.owningUnit = owningUnit
         self.fileGrpUse = 'None'
-        self.fileList={currentPath:self}
+        self.fileList = {currentPath: self}
         self.pathString = ""
         if owningUnit:
             self.pathString = owningUnit.pathString
@@ -58,7 +58,7 @@ class unitFile(object):
             }
 
     def reload(self):
-        return
+        pass
 
     def reloadFileList(self):
-        return
+        pass

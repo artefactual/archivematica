@@ -22,15 +22,11 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from unit import unit
-from unitFile import unitFile
 import archivematicaMCP
 import os
 import sys
 
 import lxml.etree as etree
-
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import File
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
@@ -39,8 +35,8 @@ from dicts import ReplacementDict
 class UnitDIPError(Exception):
     pass
 
-class unitDIP(unit):
 
+class unitDIP(unit):
     def __init__(self, currentPath, UUID):
         self.currentPath = currentPath.__str__()
         self.UUID = UUID
@@ -50,19 +46,7 @@ class unitDIP(unit):
         self.unitType = "DIP"
 
     def reload(self):
-        #sql = """SELECT * FROM SIPs WHERE sipUUID =  '""" + self.UUID + "'"
-        #c, sqlLock = databaseInterface.querySQL(sql)
-        #row = c.fetchone()
-        #while row != None:
-        #    print row
-        #    #self.UUID = row[0]
-        #    self.createdTime = row[1]
-        #    self.currentPath = row[2]
-        #    row = c.fetchone()
-        #sqlLock.release()
-
-        #no-op for reload on DIP
-        return
+        pass
 
     def getReplacementDic(self, target):
         ret = ReplacementDict.frommodel(
