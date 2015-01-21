@@ -23,7 +23,6 @@
 
 from unit import unit
 import archivematicaMCP
-import os
 import sys
 import lxml.etree as etree
 
@@ -35,7 +34,6 @@ from dicts import ReplacementDict
 
 
 class unitSIP(unit):
-
     def __init__(self, currentPath, UUID):
         self.currentPath = currentPath.__str__()
         self.UUID = UUID
@@ -45,7 +43,7 @@ class unitSIP(unit):
         self.unitType = "SIP"
         self.aipFilename = ""
 
-    def setMagicLink(self,link, exitStatus=""):
+    def setMagicLink(self, link, exitStatus=""):
         """Assign a link to the unit to process when loaded.
         Deprecated! Replaced with Set/Load Unit Variable"""
         sip = SIP.objects.get(uuid=self.UUID)
@@ -62,7 +60,6 @@ class unitSIP(unit):
         except SIP.DoesNotExist:
             return
         return (sip.magiclink, sip.magiclinkexitmessage)
-
 
     def reload(self):
         sip = SIP.objects.get(uuid=self.UUID)

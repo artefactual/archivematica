@@ -24,7 +24,6 @@
 from unit import unit
 import uuid
 import archivematicaMCP
-import os
 import sys
 
 import lxml.etree as etree
@@ -40,10 +39,9 @@ class unitTransfer(unit):
     def __init__(self, currentPath, UUID=""):
         self.owningUnit = None
         self.unitType = "Transfer"
-        #Just Use the end of the directory name
+        # Just use the end of the directory name
         self.pathString = "%transferDirectory%"
-        currentPath2 = currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), \
-                       "%sharedPath%", 1)
+        currentPath2 = currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%", 1)
 
         if not UUID:
             try:
@@ -55,8 +53,8 @@ class unitTransfer(unit):
 
         if not UUID:
             uuidLen = -36
-            if archivematicaMCP.isUUID(currentPath[uuidLen-1:-1]):
-                UUID = currentPath[uuidLen-1:-1]
+            if archivematicaMCP.isUUID(currentPath[uuidLen - 1:-1]):
+                UUID = currentPath[uuidLen - 1:-1]
             else:
                 UUID = str(uuid.uuid4())
                 self.UUID = UUID
@@ -109,6 +107,5 @@ class unitTransfer(unit):
         etree.SubElement(unitXML, "UUID").text = self.UUID
         tempPath = self.currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%").decode("utf-8")
         etree.SubElement(unitXML, "currentPath").text = tempPath
-        
-        return ret
 
+        return ret
