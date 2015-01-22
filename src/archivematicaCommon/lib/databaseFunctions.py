@@ -27,7 +27,7 @@ import sys
 import uuid
 
 sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, UnitVariable
+from main.models import Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
 
 def getUTCDate():
     """Returns a string of the UTC date & time in ISO format"""
@@ -311,6 +311,22 @@ def createSIP(path, UUID=None, sip_type='SIP'):
     sip.save()
 
     return UUID
+
+def getAccessionNumberFromTransfer(UUID):
+    """
+    Fetches the accession number from a transfer, given its UUID.
+
+    :param str UUID: The UUID of the transfer, as a string.
+
+    :returns str: The accession number, as a string.
+    :raises ValueError: if the requested Transfer cannot be found.
+    """
+
+    try:
+        return Transfer.objects.get(uuid=UUID).accessionid
+    except Transfer.DoesNotExist:
+        raise ValueError("No Transfer found for UUID: {}".format(UUID))
+
 
 def deUnicode(str):
     """

@@ -224,5 +224,23 @@
             "identifiervalue": "event_agent_id",
             "name": "Event agent"
         }
+    },
+    {
+        "pk": 3,
+        "model": "main.transfer",
+        "fields": {
+            "accessionid": "Accession ID",
+            "currentlocation": "%path%",
+            "description": "",
+            "hidden": false,
+            "magiclink": null,
+            "magiclinkexitmessage": null,
+            "notes": "",
+            "sourceofacquisition": "",
+            "transfermetadatasetrow": null,
+            "type": "Standard",
+            "typeoftransfer": "",
+            "uuid": "5a8d0539-8e5a-4aa9-98d8-5e5053140398"
+        }
     }
 ]
