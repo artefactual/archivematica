@@ -58,7 +58,7 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[]):
         else:
             command.extend(arguments)
 
-        my_env = os.environ
+        my_env = os.environ.copy()
         my_env['PYTHONIOENCODING'] = 'utf-8'
         if (not my_env.has_key('LANG')) or (not my_env['LANG']):
              my_env['LANG'] = 'en_US.UTF-8'
