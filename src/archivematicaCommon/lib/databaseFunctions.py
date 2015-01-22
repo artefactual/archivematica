@@ -44,7 +44,7 @@ def getDeciDate(date):
             #ret += replacementChar
     return str("{:10.10f}".format(float(ret)))
 
-def insertIntoFiles(fileUUID, filePath, enteredSystem=getUTCDate(), transferUUID="", sipUUID="", use="original"):
+def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="", sipUUID="", use="original"):
     """
     Creates a new entry in the Files table using the supplied arguments.
 
@@ -57,6 +57,9 @@ def insertIntoFiles(fileUUID, filePath, enteredSystem=getUTCDate(), transferUUID
 
     :returns: None
     """
+    if enteredSystem is None:
+        enteredSystem = getUTCDate()
+
     kwargs = {
         "uuid": fileUUID,
         "originallocation": filePath,
@@ -117,7 +120,7 @@ def getAgentForFileUUID(fileUUID):
                 pass
     return agent
 
-def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=getUTCDate(), eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
+def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=None, eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
     """
     Creates a new entry in the Events table using the supplied arguments.
 
@@ -129,6 +132,9 @@ def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDat
     :param str eventOutcome: Can be blank. Will be used in the eventOutcome element in the AIP METS.
     :param str eventOutcomeDetailNote: Can be blank. Will be used in the eventOutcomeDetailNote element in the AIP METS.
     """
+    if eventDateTime is None:
+        eventDateTime = getUTCDate()
+
     agent = getAgentForFileUUID(fileUUID)
     if not eventIdentifierUUID:
         eventIdentifierUUID = str(uuid.uuid4())
@@ -256,7 +262,7 @@ def logJobCreatedSQL(job):
 
     # TODO -un hardcode executing exeCommand
 
-def fileWasRemoved(fileUUID, utcDate=getUTCDate(), eventDetail = "", eventOutcomeDetailNote = "", eventOutcome=""):
+def fileWasRemoved(fileUUID, utcDate=None, eventDetail = "", eventOutcomeDetailNote = "", eventOutcome=""):
     """
     Logs the removal of a file from the database.
     Updates the properties of the row in the Files table for the provided fileUUID, and logs the removal in the Events table with an event of type "file removed".
@@ -267,6 +273,9 @@ def fileWasRemoved(fileUUID, utcDate=getUTCDate(), eventDetail = "", eventOutcom
     :param str eventOutcomeDetailNote: The eventOutcomeDetailNote for the logged event. Can be blank.
     :param str eventOutcome: The eventOutcome for the logged event. Can be blank.
     """
+    if utcDate is None:
+        utcDate = getUTCDate()
+
     eventIdentifierUUID = uuid.uuid4().__str__()
     eventType = "file removed"
     eventDateTime = utcDate
