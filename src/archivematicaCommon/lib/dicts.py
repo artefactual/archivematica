@@ -245,5 +245,5 @@ else:
 
     # TODO This probably shouldn't be directly read here, but this file can't
     #      safely import archivematicaMCP because it has too many side effects.
-    config = ConfigParser.SafeConfigParser({'MCPArchivematicaServerInterface': ""})
+    config = ConfigParser.SafeConfigParser()
     config.read("/etc/archivematica/MCPServer/serverConfig.conf")

@@ -42,7 +42,10 @@ import sys
 import threading
 import traceback
 
-os.environ['DJANGO_SETTINGS_MODULE'] = "settings.common"
+config = ConfigParser.SafeConfigParser(
+    defaults={'django_settings_module': 'settings.common'})
+config.read("/etc/archivematica/MCPClient/clientConfig.conf")
+os.environ['DJANGO_SETTINGS_MODULE'] = config.get('MCPClient', 'django_settings_module')
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseFunctions
@@ -52,12 +55,10 @@ printOutputLock = threading.Lock()
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Task
 
-config = ConfigParser.SafeConfigParser({'MCPArchivematicaServerInterface': ""})
-config.read("/etc/archivematica/MCPClient/clientConfig.conf")
 
 replacementDic = {
-    "%sharedPath%":config.get('MCPClient', "sharedDirectoryMounted"), \
-    "%clientScriptsDirectory%":config.get('MCPClient', "clientScriptsDirectory")
+    "%sharedPath%": config.get('MCPClient', "sharedDirectoryMounted"),
+    "%clientScriptsDirectory%": config.get('MCPClient', "clientScriptsDirectory")
 }
 supportedModules = {}
 

@@ -64,7 +64,7 @@ from main.models import Job, SIP, Task, WatchedDirectory
 global countOfCreateUnitAndJobChainThreaded
 countOfCreateUnitAndJobChainThreaded = 0
 
-config = ConfigParser.SafeConfigParser({'MCPArchivematicaServerInterface': ""})
+config = ConfigParser.SafeConfigParser()
 config.read("/etc/archivematica/MCPServer/serverConfig.conf")
 
 #time to sleep to allow db to be updated with the new location of a SIP
