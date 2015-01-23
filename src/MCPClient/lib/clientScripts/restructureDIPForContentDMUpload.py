@@ -34,7 +34,7 @@ import zipfile
 import re
 from xml.dom.minidom import parse, parseString
 from lxml import etree
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from archivematicaFunctions import normalizeNonDcElementName
 from executeOrRunSubProcess import executeOrRun
 

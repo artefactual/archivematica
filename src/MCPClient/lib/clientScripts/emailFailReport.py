@@ -23,17 +23,13 @@
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import string
 from optparse import OptionParser
-import os
-import sys
 from lxml import etree
 
-sys.path.append("/usr/share/archivematica/dashboard")
-os.environ['DJANGO_SETTINGS_MODULE'] = "settings.common"
+# dashboard
 from django.contrib.auth.models import User
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 import databaseInterface
 from externals.HTML import HTML 
 

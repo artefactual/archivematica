@@ -1,18 +1,14 @@
 #!/usr/bin/python2
 
 import argparse
-import os
 import sys
 import uuid
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import getUTCDate, insertIntoEvents, insertIntoFilesIDs
 
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+# dashboard
 from fpr.models import IDCommand, IDRule, FormatVersion
 from main.models import FileFormatVersion, File, UnitVariable
 

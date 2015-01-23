@@ -25,7 +25,7 @@ import os
 import sys
 import uuid
 import shutil
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 import databaseInterface
 
 if __name__ == '__main__':

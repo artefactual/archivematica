@@ -26,7 +26,7 @@ import shutil
 from optparse import OptionParser
 import traceback
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import File
 
 

@@ -23,10 +23,10 @@
 import os
 import sys
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import SIP
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from fileOperations import renameAsSudo
 
 def updateDB(dst, sip_uuid):

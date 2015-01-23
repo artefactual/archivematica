@@ -4,10 +4,10 @@ import argparse
 import os.path
 import sys
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import SIP
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 

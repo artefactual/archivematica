@@ -24,7 +24,7 @@
 from archivematicaMoveSIP import moveSIP
 import sys
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import SIP, Transfer
 
 from sanitizeNames import sanitizePath

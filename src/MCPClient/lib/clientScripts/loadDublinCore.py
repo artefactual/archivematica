@@ -4,10 +4,7 @@ import json
 import os
 import sys
 
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+# dashboard
 from main import models
 
 # This is the UUID of SIP from the `MetadataAppliesToTypes` table

@@ -25,7 +25,7 @@ import sys
 import csv
 import os
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import File
 
 if __name__ == '__main__':

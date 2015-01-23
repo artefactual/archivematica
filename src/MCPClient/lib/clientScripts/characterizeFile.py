@@ -7,21 +7,16 @@
 # If a tool has no defined characterization commands, then the default
 # will be run instead (currently FITS).
 from __future__ import print_function
-import os
 import sys
 
 from lxml import etree
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoFPCommandOutput
 from dicts import replace_string_values, ReplacementDict
 
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-
+# dashboard
 from main.models import FPCommandOutput
 from fpr.models import FPRule, FormatVersion
 

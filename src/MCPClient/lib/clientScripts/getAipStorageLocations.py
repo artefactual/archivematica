@@ -1,22 +1,13 @@
 #!/usr/bin/python2 -OO
 
 import logging
-import os
 import sys
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematica.log",
     level=logging.INFO)
 
-# Set up Django settings
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-
-path = "/usr/lib/archivematica/archivematicaCommon"
-if path not in sys.path:
-    sys.path.append(path)
+# archivematicaCommon
 import storageService as storage_service
 
 

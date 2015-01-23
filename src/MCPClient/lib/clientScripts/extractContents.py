@@ -5,15 +5,12 @@ import os
 import sys
 import uuid
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import fileWasRemoved
 from fileOperations import addFileToTransfer, updateSizeAndChecksum
 
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+# dashboard
 from fpr.models import FPCommand
 from main.models import FileFormatVersion, File
 

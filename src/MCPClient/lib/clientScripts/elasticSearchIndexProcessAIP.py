@@ -20,10 +20,10 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Mike Cantelon <mike@artefactual.com>
-import sys, os, time, ConfigParser
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
+import ConfigParser
+import sys
+
+# archivematicaCommon
 import elasticSearchFunctions
 
 exitCode = 0

@@ -26,7 +26,7 @@ from lxml import etree
 
 import archivematicaXMLNamesSpace
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import File
 
 def identify_dspace_files(mets_file, transfer_dir, transfer_uuid, relative_dir="./"):

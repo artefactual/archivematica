@@ -22,7 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import sys
 from optparse import OptionParser
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from fileOperations import updateSizeAndChecksum
 
 if __name__ == '__main__':

@@ -35,7 +35,7 @@ transferPath = sys.argv[3]
 date = sys.argv[4]
  
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from fileOperations import getFileUUIDLike
 import databaseFunctions
 topDirectory = None

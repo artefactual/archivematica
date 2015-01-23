@@ -7,16 +7,14 @@ If a format has no defined validation commands, no command is run.
 """
 from __future__ import print_function
 import ast
-import os
 import sys
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from executeOrRunSubProcess import executeOrRun
 import databaseFunctions
 from dicts import replace_string_values
 
-sys.path.append('/usr/share/archivematica/dashboard')
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+# dashboard
 from fpr.models import FPRule, FormatVersion
 
 

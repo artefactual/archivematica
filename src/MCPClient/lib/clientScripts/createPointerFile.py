@@ -11,12 +11,10 @@ import uuid
 import archivematicaXMLNamesSpace as namespaces
 import archivematicaCreateMETS2
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import DublinCore
 
-PATH = "/usr/lib/archivematica/archivematicaCommon"
-if PATH not in sys.path:
-    sys.path.append(PATH)
+# archivematicaCommon
 import fileOperations
 from externals import checksummingTools
 

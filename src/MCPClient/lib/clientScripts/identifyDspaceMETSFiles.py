@@ -22,7 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import sys
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import File
 
 

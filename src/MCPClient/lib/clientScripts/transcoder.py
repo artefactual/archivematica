@@ -18,16 +18,12 @@
 
 # @package Archivematica
 # @subpackage archivematicaClient
-import os
 import sys
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from executeOrRunSubProcess import executeOrRun
 
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+# dashboard
 from django.db.models import F
 
 

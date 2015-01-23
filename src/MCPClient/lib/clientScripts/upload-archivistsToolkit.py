@@ -17,12 +17,11 @@
 #
 
 import os
-import sys
 import MySQLdb
 from time import localtime, strftime
 import argparse
 import logging
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 import archivistsToolkit.atk as atk
 import mets
 from xml2obj import mets_file

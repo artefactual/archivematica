@@ -6,17 +6,14 @@ from lxml import etree
 from lxml.builder import ElementMaker
 import os
 import re
-import sys
 import uuid
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import UnitVariable
 
 import archivematicaCreateMETS2
 import archivematicaXMLNamesSpace as namespaces
-PATH = "/usr/lib/archivematica/archivematicaCommon"
-if PATH not in sys.path:
-    sys.path.append(PATH)
+# archivematicaCommon
 import databaseFunctions
 import fileOperations
 import storageService as storage_service

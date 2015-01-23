@@ -1,15 +1,13 @@
 #!/usr/bin/python2 -OO
 
 import argparse
-import os
 import sys
 
-sys.path.append('/usr/lib/archivematica/archivematicaCommon')
+# archivematicaCommon
 import elasticSearchFunctions
 import storageService as storage_service
 
-sys.path.append('/usr/share/archivematica/dashboard')
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+# dashboard
 from main import models
 
 def post_store_hook(sip_uuid):

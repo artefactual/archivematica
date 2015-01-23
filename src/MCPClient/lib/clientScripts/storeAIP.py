@@ -26,9 +26,7 @@ import os
 import sys
 from uuid import uuid4
 
-path = "/usr/lib/archivematica/archivematicaCommon"
-if path not in sys.path:
-    sys.path.append(path)
+# archivematicaCommon
 import storageService as storage_service
 
 logger = logging.getLogger(__name__)

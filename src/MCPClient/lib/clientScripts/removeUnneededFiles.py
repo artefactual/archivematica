@@ -2,7 +2,7 @@
 
 import os
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from databaseFunctions import fileWasRemoved
 
 REMOVEABLE_FILES = ["Thumbs.db", "Icon", u"Icon\u000D"]

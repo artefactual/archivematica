@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 from lxml import etree
 import sys
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import Transfer
 
 

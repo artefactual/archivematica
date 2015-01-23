@@ -31,10 +31,10 @@ from datetime import datetime
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import RightsStatement, RightsStatementOtherRightsInformation, RightsStatementOtherRightsDocumentationIdentifier, RightsStatementRightsGranted, RightsStatementRightsGrantedNote, RightsStatementRightsGrantedRestriction
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from externals.checksummingTools import md5_for_file
 from fileOperations import getFileUUIDLike
 import databaseFunctions

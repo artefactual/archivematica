@@ -13,15 +13,12 @@ import uuid
 
 import transcoder
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 import databaseFunctions
 import fileOperations
 from dicts import ReplacementDict
 
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+# dashboard
 from fpr.models import FPRule
 from main.models import Derivation, FileFormatVersion, File, FileID
 from annoying.functions import get_object_or_None

@@ -27,11 +27,11 @@ import sys
 import uuid
 import lxml.etree as etree
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import RightsStatement
 
 import archivematicaXMLNamesSpace as ns
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from countryCodes import getCodeForCountry
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 

@@ -23,7 +23,7 @@
 import os
 import sys
 import lxml.etree as etree
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from externals.checksummingTools import sha_for_file
 from externals.checksummingTools import md5_for_file
 

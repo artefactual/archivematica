@@ -1,7 +1,7 @@
 #!/usr/bin/python -OO
 import sys
 import os
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from externals.maildirToMbox import maildir2mailbox2
 
 

@@ -22,11 +22,11 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import os
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 import fileOperations
 
 from django.db.models import Q
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import File
 
 #--sipUUID "%SIPUUID%" --sipDirectory "%SIPDirectory%" --filePath "%relativeLocation%"

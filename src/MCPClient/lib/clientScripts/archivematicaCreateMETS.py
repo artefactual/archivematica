@@ -28,10 +28,10 @@ from xml.sax.saxutils import quoteattr
 
 import archivematicaXMLNamesSpace as ns
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import File
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from archivematicaFunctions import escape
 
 

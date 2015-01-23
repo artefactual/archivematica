@@ -23,11 +23,11 @@
 import sys
 import uuid
 from optparse import OptionParser
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from fileOperations import addFileToTransfer
 from fileOperations import addFileToSIP
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import File
 
 

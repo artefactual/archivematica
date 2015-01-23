@@ -22,10 +22,10 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import os
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from fileOperations import renameAsSudo
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import Transfer
 
 def updateDB(dst, transferUUID):

@@ -25,13 +25,12 @@ import subprocess
 import os
 import uuid
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from databaseFunctions import insertIntoEvents
+# archivematicaCommon
 from fileOperations import updateFileLocation
 from archivematicaFunctions import unicodeToStr
 import sanitizeNames
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import File
 
 if __name__ == '__main__':

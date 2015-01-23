@@ -8,18 +8,11 @@ import sys
 from tempfile import gettempdir
 from uuid import uuid4
 
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-
+# dashboard
 from main.models import Derivation, File, FileFormatVersion
 from fpr.models import FPRule
 
-path = '/usr/lib/archivematica/archivematicaCommon'
-if path not in sys.path:
-    sys.path.append(path)
-
+# archivematicaCommon
 from dicts import ReplacementDict
 from executeOrRunSubProcess import executeOrRun
 import databaseFunctions

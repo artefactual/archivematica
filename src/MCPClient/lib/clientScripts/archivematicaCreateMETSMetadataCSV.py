@@ -29,7 +29,7 @@ import csv
 import os
 import sys
 import traceback
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
 

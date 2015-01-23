@@ -25,7 +25,7 @@ import os
 import sys
 import shutil
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import File
 
 

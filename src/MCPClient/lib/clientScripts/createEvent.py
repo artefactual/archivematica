@@ -22,7 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 from optparse import OptionParser
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from databaseFunctions import insertIntoEvents
 
 

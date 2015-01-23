@@ -27,7 +27,7 @@ import os
 import sys
 
 
-def launchSubProcess(command, stdIn="", printing=True, arguments=[]):
+def launchSubProcess(command, stdIn="", printing=True, arguments=[], env_updates={}):
     """
     Launches a subprocess using ``command``, where ``command`` is either:
     a) a single string containing a commandline statement, or
@@ -47,10 +47,11 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[]):
     arguments:  An array of arguments to pass to ``command``. Note that this is
                 only honoured if ``command`` is an array, and will be ignored
                 if ``command`` is a string.
+    env_updates: Dict of changes to apply to the started process' environment.
     """
     stdError = ""
     stdOut = ""
-    #print  >>sys.stderr, command
+
     try:
         # Split command strings but pass through arrays untouched
         if isinstance(command, basestring):
@@ -60,10 +61,11 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[]):
 
         my_env = os.environ.copy()
         my_env['PYTHONIOENCODING'] = 'utf-8'
-        if (not my_env.has_key('LANG')) or (not my_env['LANG']):
-             my_env['LANG'] = 'en_US.UTF-8'
-        if (not my_env.has_key('LANGUAGE')) or (not my_env['LANGUAGE']):
-             my_env['LANGUAGE'] = my_env['LANG']
+        if 'LANG' not in my_env or not my_env['LANG']:
+            my_env['LANG'] = 'en_US.UTF-8'
+        if 'LANGUAGE' not in my_env or not my_env['LANGUAGE']:
+            my_env['LANGUAGE'] = my_env['LANG']
+        my_env.update(env_updates)
 
         if isinstance(stdIn, basestring):
             stdin_pipe = subprocess.PIPE
@@ -92,9 +94,8 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[]):
     return retcode, stdOut, stdError
 
 
-
-def createAndRunScript(text, stdIn="", printing=True, arguments=[]):
-    #output the text to a /tmp/ file
+def createAndRunScript(text, stdIn="", printing=True, arguments=[], env_updates={}):
+    # Output the text to a /tmp/ file
     scriptPath = "/tmp/" + uuid.uuid4().__str__()
     FILE = os.open(scriptPath, os.O_WRONLY | os.O_CREAT, 0770)
     os.write(FILE, text)
@@ -102,17 +103,16 @@ def createAndRunScript(text, stdIn="", printing=True, arguments=[]):
     cmd = [scriptPath]
     cmd.extend(arguments)
 
-    #run it
-    ret = launchSubProcess(cmd, stdIn="", printing=True)
+    # Run it
+    ret = launchSubProcess(cmd, stdIn="", printing=True, env_updates=env_updates)
 
-    #remove the temp file
+    # Remove the temp file
     os.remove(scriptPath)
 
     return ret
 
 
-
-def executeOrRun(type, text, stdIn="", printing=True, arguments=[]):
+def executeOrRun(type, text, stdIn="", printing=True, arguments=[], env_updates={}):
     """
     Attempts to run the provided command on the shell, with the text of
     "stdIn" passed as standard input if provided. The type parameter
@@ -139,14 +139,15 @@ def executeOrRun(type, text, stdIn="", printing=True, arguments=[]):
     arguments:  An array of arguments to pass to ``command``. Note that this is only
                 honoured if ``command`` is an array, and will be ignored if ``command``
                 is a string.
+    env_updates: Dict of changes to apply to the started process' environment.
     """
     if type == "command":
-        return launchSubProcess(text, stdIn=stdIn, printing=printing, arguments=arguments)
+        return launchSubProcess(text, stdIn=stdIn, printing=printing, arguments=arguments, env_updates=env_updates)
     if type == "bashScript":
         text = "#!/bin/bash\n" + text
-        return createAndRunScript(text, stdIn=stdIn, printing=printing, arguments=arguments)
+        return createAndRunScript(text, stdIn=stdIn, printing=printing, arguments=arguments, env_updates=env_updates)
     if type == "pythonScript":
         text = "#!/usr/bin/python -OO\n" + text
-        return createAndRunScript(text, stdIn=stdIn, printing=printing, arguments=arguments)
+        return createAndRunScript(text, stdIn=stdIn, printing=printing, arguments=arguments, env_updates=env_updates)
     if type == "as_is":
-        return createAndRunScript(text, stdIn=stdIn, printing=printing, arguments=arguments)
+        return createAndRunScript(text, stdIn=stdIn, printing=printing, arguments=arguments, env_updates=env_updates)

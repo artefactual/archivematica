@@ -25,7 +25,7 @@ import os
 import sys
 import uuid
 from lxml import etree
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from fileOperations import addFileToSIP
 import databaseInterface
 

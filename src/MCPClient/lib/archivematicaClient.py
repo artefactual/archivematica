@@ -91,8 +91,6 @@ def executeCommand(gearman_worker, gearman_job):
         arguments = data["arguments"]#.encode("utf-8")
         if isinstance(arguments, unicode):
             arguments = arguments.encode("utf-8")
-        #if isinstance(arguments, str):
-        #    arguments = unicode(arguments)
 
         sInput = ""
         clientID = gearman_worker.worker_client_id
@@ -118,7 +116,7 @@ Unable to determine if it completed successfully."""
 
         replacementDic["%date%"] = utcDate
         replacementDic["%jobCreatedDate%"] = data["createdDate"]
-        #Replace replacement strings
+        # Replace replacement strings
         for key in replacementDic.iterkeys():
             command = command.replace ( key, replacementDic[key] )
             arguments = arguments.replace ( key, replacementDic[key] )
@@ -127,15 +125,20 @@ Unable to determine if it completed successfully."""
         value = gearman_job.unique.__str__()
         arguments = arguments.replace(key, value)
 
-        #execute command
+        # Add useful environment vars for client scripts
+        lib_paths = ['/usr/share/archivematica/dashboard/', '/usr/lib/archivematica/archivematicaCommon']
+        env_updates = {
+            'PYTHONPATH': os.pathsep.join(lib_paths),
+            'DJANGO_SETTINGS_MODULE': config.get('MCPClient', 'django_settings_module')
+        }
 
+        # Execute command
         command += " " + arguments
         printOutputLock.acquire()
         print "<processingCommand>{" + gearman_job.unique + "}" + command.__str__() + "</processingCommand>"
         printOutputLock.release()
-        exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=False)
-        return cPickle.dumps({"exitCode" : exitCode, "stdOut": stdOut, "stdError": stdError})
-    #catch OS errors
+        exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=False, env_updates=env_updates)
+        return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
     except OSError as ose:
         traceback.print_exc(file=sys.stdout)
         printOutputLock.acquire()
@@ -143,14 +146,14 @@ Unable to determine if it completed successfully."""
         printOutputLock.release()
         output = ["Archivematica Client Error!", traceback.format_exc()]
         exitCode = 1
-        return cPickle.dumps({"exitCode" : exitCode, "stdOut": output[0], "stdError": output[1]})
+        return cPickle.dumps({"exitCode": exitCode, "stdOut": output[0], "stdError": output[1]})
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
         printOutputLock.acquire()
         print "Unexpected error:", e
         printOutputLock.release()
         output = ["", traceback.format_exc()]
-        return cPickle.dumps({"exitCode" : -1, "stdOut": output[0], "stdError": output[1]})
+        return cPickle.dumps({"exitCode": -1, "stdOut": output[0], "stdError": output[1]})
 
 
 def startThread(threadNumber):

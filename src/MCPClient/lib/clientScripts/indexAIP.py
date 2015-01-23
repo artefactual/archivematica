@@ -4,13 +4,10 @@ import ConfigParser
 import os
 import sys
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import UnitVariable
 
-path = "/usr/lib/archivematica/archivematicaCommon"
-if path not in sys.path:
-    sys.path.append(path)
+# archivematicaCommon
 import elasticSearchFunctions
 from executeOrRunSubProcess import executeOrRun
 import storageService as storage_service

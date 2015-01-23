@@ -24,7 +24,7 @@
 import os
 import sys
 import shutil
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 import archivematicaFunctions
 
 if __name__ == '__main__':

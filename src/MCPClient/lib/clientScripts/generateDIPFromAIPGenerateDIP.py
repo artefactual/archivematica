@@ -25,10 +25,10 @@ import os
 import sys
 import shutil
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import Job, SIP
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from databaseFunctions import createSIP
 
 if __name__ == '__main__':

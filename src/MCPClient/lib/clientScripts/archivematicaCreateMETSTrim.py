@@ -26,7 +26,7 @@ import os
 import sys
 import lxml.etree as etree
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import File
 
 import archivematicaXMLNamesSpace as ns

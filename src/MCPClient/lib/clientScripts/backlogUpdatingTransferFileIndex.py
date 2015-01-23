@@ -22,7 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import sys
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 import elasticSearchFunctions
 
 if __name__ == '__main__':

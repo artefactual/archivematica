@@ -25,10 +25,10 @@ import os
 import sys
 from optparse import OptionParser
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import File
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from fileOperations import updateFileLocation
 from fileOperations import renameAsSudo
 

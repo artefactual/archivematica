@@ -34,11 +34,10 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 logger.addHandler(logging.FileHandler('/tmp/atom_upload.log', mode='a'))
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
+# externals
 import requests
 
-sys.path.append("/usr/share/archivematica/dashboard")
-os.environ['DJANGO_SETTINGS_MODULE'] = "settings.common"
+# dashboard
 import main.models as models
 
 PREFIX = "[uploadDIP]"

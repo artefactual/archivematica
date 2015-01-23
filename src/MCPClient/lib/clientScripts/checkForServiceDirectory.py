@@ -22,16 +22,11 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import os
-import sys
-import uuid
 from optparse import OptionParser
 import re
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import File
-
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from databaseFunctions import insertIntoDerivations
 
 
 def something(SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, date):

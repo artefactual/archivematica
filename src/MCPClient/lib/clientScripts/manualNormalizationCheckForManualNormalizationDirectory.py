@@ -23,7 +23,7 @@
 import sys
 import os
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import UnitVariable
 
 SIPUUID = sys.argv[1]

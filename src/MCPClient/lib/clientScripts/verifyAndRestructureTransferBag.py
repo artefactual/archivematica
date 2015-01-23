@@ -23,10 +23,10 @@
 import os
 import sys
 
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import File
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
 import fileOperations
 from executeOrRunSubProcess import executeOrRun

@@ -4,7 +4,7 @@ import os
 import shutil
 import sys
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from executeOrRunSubProcess import executeOrRun
 
 

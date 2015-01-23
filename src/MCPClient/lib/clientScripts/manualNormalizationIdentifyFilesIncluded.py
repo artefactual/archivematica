@@ -22,7 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import sys
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from fileOperations import updateFileGrpUse
 
 fileUUID = sys.argv[1]

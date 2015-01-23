@@ -23,12 +23,12 @@
 import os
 import sys
 import uuid
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 import databaseFunctions
 import fileOperations
 
 from django.db.models import Q
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from main.models import Event, File
 
 #"%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%fileUUID%" "%filePath%"

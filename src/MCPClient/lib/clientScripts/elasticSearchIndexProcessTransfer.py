@@ -21,15 +21,9 @@
 # @subpackage archivematicaClientScript
 # @author Mike Cantelon <mike@artefactual.com>
 import ConfigParser
-import os
 import sys
 
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 import elasticSearchFunctions
 
 exitCode = 0

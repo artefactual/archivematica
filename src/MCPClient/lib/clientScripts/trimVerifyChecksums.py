@@ -26,7 +26,7 @@ from lxml import etree as etree
 import sys
 import traceback
 import uuid
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from externals.checksummingTools import md5_for_file
 from fileOperations import getFileUUIDLike
 import databaseFunctions

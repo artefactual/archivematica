@@ -27,7 +27,7 @@ import uuid
 import subprocess
 import os
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from archivematicaFunctions import getTagged
 from archivematicaFunctions import escapeForCommand
 from databaseFunctions import insertIntoFPCommandOutput

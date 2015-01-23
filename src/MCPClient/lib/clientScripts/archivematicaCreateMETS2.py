@@ -31,8 +31,7 @@ import traceback
 
 import archivematicaXMLNamesSpace as ns
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-sys.path.append("/usr/share/archivematica/dashboard")
+# dashboard
 from django.contrib.auth.models import User
 from main.models import Agent, Derivation, DublinCore, Event, File, FileID, FPCommandOutput, SIP, Transfer
 
@@ -43,7 +42,7 @@ from archivematicaCreateMETSTrim import getTrimDmdSec
 from archivematicaCreateMETSTrim import getTrimFileDmdSec
 from archivematicaCreateMETSTrim import getTrimAmdSec
 from archivematicaCreateMETSTrim import getTrimFileAmdSec
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from archivematicaFunctions import escape
 from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import normalizeNonDcElementName

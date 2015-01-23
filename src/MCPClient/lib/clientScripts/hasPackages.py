@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 
-import os
 import sys
 
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+# dashboard
 from fpr.models import FPRule
 from main.models import FileFormatVersion, Transfer
 

@@ -23,7 +23,7 @@
 import os
 import sys
 import lxml.etree as etree
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 from fileOperations import updateFileLocation
 from fileOperations import renameAsSudo
 

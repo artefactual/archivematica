@@ -24,7 +24,7 @@ import os
 import sys
 import shutil
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+# archivematicaCommon
 import archivematicaFunctions
 from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
 
