@@ -497,15 +497,13 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
         if entry not in ('processingMCP.xml'):
             path = os.path.join(original_path, entry)
             relative_path = path.replace(DEFAULT_BACKLOG_PATH, '', 1)
-            file_info = elasticSearchFunctions.get_transfer_file_info(
-                'relative_path', relative_path)
             try:
-                file_uuid = file_info['fileuuid']
-                transfer_uuid = file_info['sipuuid']
-            except KeyError:
-                message = 'No file information returned from Elasticsearch for file at relative_path: ' + relative_path
-                logging.warning(message)
-                raise elasticSearchFunctions.EmptySearchResultError(message)
+                file_info = storage_service.get_file_metadata(relative_path=relative_path)[0]
+            except storage_service.ResourceNotFound:
+                logging.warning('No file information returned from the Storage Service for file at relative_path: %s', relative_path)
+                raise
+            file_uuid = file_info['fileuuid']
+            transfer_uuid = file_info['sipuuid']
             ret.append(
                 {'original_path': path,
                  'arrange_path': os.path.join(arrange_path, entry),
@@ -584,8 +582,12 @@ def copy_to_arrange(request):
             to_add.extend(_get_arrange_directory_tree(backlog_uuid, sourcepath, arrange_path))
         else:
             arrange_path = os.path.join(destination, os.path.basename(sourcepath))
-            file_info = elasticSearchFunctions.get_transfer_file_info(
-                'relative_path', sourcepath.replace(DEFAULT_BACKLOG_PATH, '', 1))
+            relative_path = sourcepath.replace(DEFAULT_BACKLOG_PATH, '', 1)
+            try:
+                file_info = storage_service.get_file_metadata(relative_path=relative_path)[0]
+            except storage_service.ResourceNotFound:
+                logging.warning('No file information returned from the Storage Service for file at relative_path: %s', relative_path)
+                raise
             file_uuid = file_info.get('fileuuid')
             transfer_uuid = file_info.get('sipuuid')
             to_add.append({'original_path': sourcepath,
