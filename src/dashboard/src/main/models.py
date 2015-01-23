@@ -207,7 +207,7 @@ class UnitHiddenManager(models.Manager):
     def is_hidden(self, uuid):
         """ Return True if the unit (SIP, Transfer) with uuid is hidden. """
         try:
-            return self.get_query_set().get(uuid=uuid).hidden
+            return self.get_queryset().get(uuid=uuid).hidden
         except:
             return False
 

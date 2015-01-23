@@ -29,7 +29,7 @@
                 {% endfor %}
               </tr>
             </thead>
-            <tr class="{% cycle row1,row2 %}">
+            <tr class="{% cycle 'row1' 'row2' %}">
               <td>{{ form.original_file }}</td>
               <td>{{ form.derived_file }}</td>
               {% for field in form.visible_fields %}
