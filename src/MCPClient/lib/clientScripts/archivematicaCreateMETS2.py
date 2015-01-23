@@ -639,7 +639,7 @@ def createFileSec(directoryPath, parentDiv):
             fileId="file-%s" % (myuuid, )
 
             #<fptr FILEID="file-<UUID>" LABEL="filename.ext">
-            label = item if label is None else label
+            label = item if not label else label
             fileDiv = etree.SubElement(structMapDiv, ns.metsBNS + "div", LABEL=label, TYPE='Item')
             etree.SubElement(fileDiv, ns.metsBNS + 'fptr', FILEID=fileId)
             fileNameToFileID[item] = fileId
@@ -682,11 +682,9 @@ def createFileSec(directoryPath, parentDiv):
                 }
                 try:
                     f = File.objects.get(**kwargs)
-                except File.DoesNotExist:
-                    raise ValueError("Original not found for file at path: " + originalLocation)
-                except File.MultipleObjectsReturned:
-                    raise ValueError("More than one original found for file at path: " + originalLocation)
-                    GROUPID = "Group-" + f.uuid
+                    GROUPID = 'Group-' + f.uuid
+                except (File.DoesNotExist, File.MultipleObjectsReturned):
+                    pass
 
 
             elif use == "preservation" or use == "text/ocr":

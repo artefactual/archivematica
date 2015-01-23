@@ -58,15 +58,18 @@ def archivematicaCreateMETSRightsDspaceMDRef(fileUUID, filePath, transferUUID, i
     ret = []
     try:
         print fileUUID, filePath
-        # find the mets file
+        # Find the mets file. May find none.
         path = "%SIPDirectory%{}/mets.xml".format(os.path.dirname(filePath))
-        mets = File.objects.get(currentlocation=path,
-                                transfer_id=transferUUID)
-        metsFileUUID = mets.uuid
-        metsLoc = mets.currentlocation.replace("%SIPDirectory%", "", 1)
-        metsLocation = os.path.join(os.path.dirname(itemdirectoryPath), "mets.xml")
-        LABEL = "mets.xml-%s" % (metsFileUUID)
-        ret.append(createMDRefDMDSec(LABEL, metsLocation, metsLoc))
+        try:
+            mets = File.objects.get(currentlocation=path, transfer_id=transferUUID)
+        except File.DoesNotExist:
+            pass
+        else:
+            metsFileUUID = mets.uuid
+            metsLoc = mets.currentlocation.replace("%SIPDirectory%", "", 1)
+            metsLocation = os.path.join(os.path.dirname(itemdirectoryPath), "mets.xml")
+            LABEL = "mets.xml-%s" % (metsFileUUID)
+            ret.append(createMDRefDMDSec(LABEL, metsLocation, metsLoc))
 
         base = os.path.dirname(os.path.dirname(itemdirectoryPath))
         base2 = os.path.dirname(os.path.dirname(filePath))
@@ -82,14 +85,17 @@ def archivematicaCreateMETSRightsDspaceMDRef(fileUUID, filePath, transferUUID, i
                 continue
 
             path = "%SIPDirectory%{}/mets.xml".format(fullDir2)
-            f = File.objects.get(currentlocation=path,
-                                 transfer_id=transferUUID)
-            metsFileUUID = f.uuid
-            metsLoc = f.currentlocation.replace("%SIPDirectory%", "", 1)
-            metsLocation = os.path.join(fullDir, "mets.xml")
-            print metsLocation
-            LABEL = "mets.xml-" + metsFileUUID
-            ret.append(createMDRefDMDSec(LABEL, metsLocation, metsLoc))
+            try:
+                f = File.objects.get(currentlocation=path, transfer_id=transferUUID)
+            except File.DoesNotExist:
+                pass
+            else:
+                metsFileUUID = f.uuid
+                metsLoc = f.currentlocation.replace("%SIPDirectory%", "", 1)
+                metsLocation = os.path.join(fullDir, "mets.xml")
+                print metsLocation
+                LABEL = "mets.xml-" + metsFileUUID
+                ret.append(createMDRefDMDSec(LABEL, metsLocation, metsLoc))
 
     except Exception as inst:
         print >>sys.stderr, "Error creating mets dspace mdref", fileUUID, filePath
