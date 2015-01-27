@@ -14,6 +14,9 @@ from fileOperations import addFileToTransfer, updateSizeAndChecksum
 from fpr.models import FPCommand
 from main.models import FileFormatVersion, File
 
+# clientScripts
+from hasPackages import already_extracted
+
 file_path_cache = {}
 
 def output_directory(file_path, date):
@@ -48,7 +51,7 @@ def delete_and_record_package_file(file_path, file_uuid, current_location):
     fileWasRemoved(file_uuid, eventDetail=event_detail_note)
 
 def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
-    files = File.objects.filter(transfer=transfer_uuid)
+    files = File.objects.filter(transfer=transfer_uuid, removedtime__isnull=True)
     if not files:
         print('No files found for transfer: ', transfer_uuid)
 
@@ -83,6 +86,14 @@ def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
             print('Not extracting contents from',
                 os.path.basename(file_.currentlocation),
                 ' - No rule found to extract',
+                file=sys.stderr)
+            continue
+
+        # Check if file has already been extracted
+        if already_extracted(file_):
+            print('Not extracting contents from',
+                os.path.basename(file_.currentlocation),
+                ' - extraction already happened.',
                 file=sys.stderr)
             continue
 
