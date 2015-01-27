@@ -158,26 +158,29 @@ def createFileSec(path, parentBranch, structMapParent):
 
                     pathSTR = itempath.replace(basePath, "", 1)
 
-                    fileI = etree.SubElement( parentBranch, ns.metsBNS + "file")
-
-                    filename = ''.join(quoteattr(item).split("\"")[1:-1])
-                    #filename = replace /tmp/"UUID" with /objects/
-
                     ID = "file-" + myuuid.__str__()
-                    fileI.set("ID", escape(ID))
-                    if includeAmdSec:
-                        fileI.set("ADMID", "digiprov-" + item.__str__() + "-"    + myuuid.__str__())
-
-                    Flocat = newChild(fileI, ns.metsBNS + "FLocat")
-                    Flocat.set(ns.xlinkBNS + "href", escape(pathSTR) )
-                    Flocat.set("LOCTYPE", "OTHER")
-                    Flocat.set("OTHERLOCTYPE", "SYSTEM")
-
                     # structMap file
-                    #div = newChild(structMapParent, "div")
                     fptr = newChild(structMapParent, ns.metsBNS + "fptr")
                     FILEID = "file-" + myuuid.__str__()
                     fptr.set("FILEID", escape(FILEID))
+
+                    # If the file already exists in the fileSec, don't create
+                    # a second entry.
+                    fileI = parentBranch.find('./mets:file[@ID="{}"]'.format(ID), namespaces=ns.NSMAP)
+                    if fileI is None:
+                        fileI = etree.SubElement( parentBranch, ns.metsBNS + "file")
+
+                        filename = ''.join(quoteattr(item).split("\"")[1:-1])
+                        #filename = replace /tmp/"UUID" with /objects/
+
+                        fileI.set("ID", escape(ID))
+                        if includeAmdSec:
+                            fileI.set("ADMID", "digiprov-" + item.__str__() + "-"    + myuuid.__str__())
+
+                        Flocat = newChild(fileI, ns.metsBNS + "FLocat")
+                        Flocat.set(ns.xlinkBNS + "href", escape(pathSTR) )
+                        Flocat.set("LOCTYPE", "OTHER")
+                        Flocat.set("OTHERLOCTYPE", "SYSTEM")
 
 if __name__ == '__main__':
     root = etree.Element(ns.metsBNS + "mets",
@@ -207,6 +210,7 @@ if __name__ == '__main__':
 
     structMap = newChild(root, ns.metsBNS + "structMap")
     structMap.set("TYPE", "physical")
+    structMap.set("LABEL", "original")
     structMapDiv = newChild(structMap, ns.metsBNS + "div")
 
     createFileSec(path, sipFileGrp, structMapDiv)
