@@ -639,7 +639,7 @@ def createFileSec(directoryPath, parentDiv):
             fileId="file-%s" % (myuuid, )
 
             #<fptr FILEID="file-<UUID>" LABEL="filename.ext">
-            label = item if label is None else label
+            label = label or item
             fileDiv = etree.SubElement(structMapDiv, ns.metsBNS + "div", LABEL=label, TYPE='Item')
             etree.SubElement(fileDiv, ns.metsBNS + 'fptr', FILEID=fileId)
             fileNameToFileID[item] = fileId
