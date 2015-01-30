@@ -106,8 +106,8 @@ def parseMetadataCSV(metadataCSVFilePath):
         reader = csv.reader(f)
         # Parse first row as header
         header = reader.next()
-        # Strip filename column
-        header = header[1:]
+        # Strip filename column, strip whitespace from header values
+        header = [h.strip() for h in header[1:]]
         # Parse data
         for row in reader:
             entry_name = row[0]
