@@ -26,7 +26,7 @@ from components import helpers
 from components import advanced_search
 import xml.etree.ElementTree as ElementTree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import archivistsToolkit.atk as atk
+from archivistsToolkit.client import ArchivistsToolkitClient
 import elasticSearchFunctions, databaseFunctions
 
 # TODO: move into helpers module at some point
@@ -36,26 +36,25 @@ def getDictArray(post, name):
     for k in post.keys():
         if k.startswith(name):
             rest = k[len(name):]
-            
+
             # split the string into different components
             parts = [p[:-1] for p in rest.split('[')][1:]
             id = int(parts[0])
-            
+
             # add a new dictionary if it doesn't exist yet
             if id not in dic:
                 dic[id] = {}
-                
+
             # add the information to the dictionary
             dic[id][parts[1]] = post.get(k)
     return dic
 
-def ingest_upload_atk_db_connection():
+def get_access_system_client():
     dict = models.MicroServiceChoiceReplacementDic.objects.get(description='Archivists Toolkit Config')
     config = ast.literal_eval(dict.replacementdic)
 
-    return MySQLdb.connect(
+    return ArchivistsToolkitClient(
         host=config['%host%'],
-        port=int(config['%port%']),
         user=config['%dbuser%'],
         passwd=config['%dbpass%'],
         db=config['%dbname%']
@@ -65,16 +64,16 @@ def ingest_upload_atk(request, uuid):
     try:
         query = request.GET.get('query', '').strip()
 
-        db = ingest_upload_atk_db_connection()
+        client = get_access_system_client()
 
         try:
-            resources = ingest_upload_atk_get_collection_ids(db, query)
+            resources = client.find_collection_ids(query)
         except MySQLdb.OperationalError:
             return HttpResponseServerError('Database connection error. Please contact an administration.')
 
         page = helpers.pager(resources, 10, request.GET.get('page', 1))
 
-        page.objects = augment_resource_data(db, page.object_list)
+        page['objects'] = client.augment_resource_ids(page['objects'])
 
     except (MySQLdb.ProgrammingError, MySQLdb.OperationalError) as e:
         return HttpResponseServerError(
@@ -126,20 +125,11 @@ def ingest_upload_atk_save_to_db(request, uuid):
 
     return saved
 
-def augment_resource_data(db, resource_ids):
-    resources_augmented = []
-    for id in resource_ids:
-        resources_augmented.append(
-            atk.get_resource_component_and_children(db, id, recurse_max_level=2)
-        )
-    return resources_augmented
-
 def ingest_upload_atk_resource(request, uuid, resource_id):
-    db = ingest_upload_atk_db_connection()
+    client = get_access_system_client()
     try:
         query = request.GET.get('query', '').strip()
-        resource_data = atk.get_resource_component_and_children(
-            db,
+        resource_data = client.get_resource_component_and_children(
             resource_id,
             'collection',
             recurse_max_level=2,
@@ -158,26 +148,11 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
         search_params = advanced_search.extract_url_search_params_from_request(request)
         return render(request, 'ingest/atk/resource_detail.html', locals())
 
-def ingest_upload_atk_determine_resource_component_resource_id(resource_component_id):
-    db = ingest_upload_atk_db_connection()
-
-    cursor = db.cursor()
-
-    cursor.execute("SELECT resourceId, parentResourceComponentId FROM ResourcesComponents WHERE resourceComponentId=%s", (resource_component_id))
-
-    row = cursor.fetchone()
-
-    if row[0] != None:
-        return row[0]
-    else:
-        return ingest_upload_atk_determine_resource_component_resource_id(row[1])
-
 def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
-    db = ingest_upload_atk_db_connection()
+    client = get_access_system_client()
     try:
         query = request.GET.get('query', '').strip()
-        resource_component_data = atk.get_resource_component_and_children(
-            db,
+        resource_component_data = client.get_resource_component_and_children(
             resource_component_id,
             'description',
             recurse_max_level=2,
@@ -188,7 +163,7 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     except MySQLdb.ProgrammingError:
         return HttpResponseServerError('Database error. Please contact an administrator.')
 
-    resource_id = ingest_upload_atk_determine_resource_component_resource_id(resource_component_id)
+    resource_id = client.find_resource_id_for_component(resource_component_id)
 
     if not resource_component_data['children'] and query == '':
         return HttpResponseRedirect(
@@ -198,24 +173,6 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
         search_params = advanced_search.extract_url_search_params_from_request(request)
         return render(request, 'ingest/atk/resource_component.html', locals())
 
-def ingest_upload_atk_get_collection_ids(db, search_pattern=''):
-    collections = []
-
-    cursor = db.cursor()
-
-    if search_pattern != '':
-        cursor.execute(
-            "SELECT resourceId FROM Resources WHERE (title LIKE %s OR resourceid LIKE %s) AND resourceLevel in ('recordgrp', 'collection') ORDER BY title",
-            ('%' + search_pattern + '%', '%' + search_pattern + '%')
-        )
-    else:
-        cursor.execute("SELECT resourceId FROM Resources WHERE resourceLevel = 'collection' ORDER BY title")
-
-    for row in cursor.fetchall():
-        collections.append(row[0])
-
-    return collections
-
 def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resource_id):
     # load object relative paths
     object_path_json = simplejson.JSONEncoder().encode(
@@ -224,9 +181,9 @@ def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resour
 
     try:
         # load resource and child data
-        db = ingest_upload_atk_db_connection()
+        client = get_access_system_client()
         resource_data_json = simplejson.JSONEncoder().encode(
-            atk.get_resource_children(db, resource_id)
+            client.get_resource_component_and_children(resource_id)
         )
     except:
         return HttpResponseServerError('Database error. Please contact an administrator.')
@@ -307,9 +264,9 @@ def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uu
 
     try:
         # load resource and child data
-        db = ingest_upload_atk_db_connection()
+        client = get_access_system_client()
         resource_data_json = simplejson.JSONEncoder().encode(
-            atk.get_resource_component_children(db, resource_component_id)
+            client.get_resource_component_children(resource_component_id)
         )
     except:
         return HttpResponseServerError('Database error. Please contact an administrator.')
