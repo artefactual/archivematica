@@ -159,6 +159,7 @@ class ReplacementDict(dict):
             rd['%fileFullName%'] = current_location
             name, ext = os.path.splitext(current_location)
             rd['%fileName%'] = os.path.basename(name)
+            rd['%fileExtension%'] = ext[1:]
             rd['%fileExtensionWithDot%'] = ext
 
         rd['%processingDirectory%'] = config.get('MCPServer', "processingDirectory")
