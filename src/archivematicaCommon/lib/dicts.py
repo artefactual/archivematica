@@ -149,6 +149,7 @@ class ReplacementDict(dict):
                 current_location = file_.currentlocation
             rd['%originalLocation%'] = origin
             rd['%currentLocation%'] = current_location
+            rd['%fileDirectory%'] = os.path.dirname(current_location)
             rd['%fileGrpUse%'] = file_.filegrpuse
             if type_ == 'file':
                 rd['%relativeLocation%'] = current_location
