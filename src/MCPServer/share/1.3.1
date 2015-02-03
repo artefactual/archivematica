@@ -1,3 +1,6 @@
+-- Archivematica 1.3.1 upgrade script
+
+-- #7464 Processing Directory
 -- Insert a "move to processing directory" immediately after "create tree";
 -- this ensures that the transfer is not inside a watched directory when the
 -- name is sanitized.
@@ -9,3 +12,25 @@ INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES
 INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('6eca2676-b4ed-48d9-adb0-374e1d5c6e71', 'Generate transfer structure report', 'Failed', '9f7029af-739d-4ec1-840d-b92d1d30f0c7', '61c316a6-0a50-4f65-8767-1f44b1eeb6dd');
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('310746b8-3580-40b7-a9ff-0730c8466fbb', '6eca2676-b4ed-48d9-adb0-374e1d5c6e71', 0, '56eebd45-5600-4768-a8c2-ec0114555a3d', 'Completed successfully');
 UPDATE MicroServiceChains SET startingLink='6eca2676-b4ed-48d9-adb0-374e1d5c6e71' WHERE pk='f6df8882-d076-441e-bb00-2f58d5eda098';
+
+-- #7478 Sip Name Cleanup Log
+-- Move Transfer/SIP name cleanup log into correct location
+UPDATE StandardTasksConfigs
+  SET standardErrorFile='%SIPLogsDirectory%SIPnameCleanup.log'
+  WHERE standardErrorFile='%SIPDirectory%SIPnameCleanup.log';
+
+-- #7603
+-- Continue processing if a file fails to be identified, like
+-- other identification services
+-- Fixes #7603
+--
+-- Metadata
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='04493ab2-6cad-400d-8832-06941f121a96' WHERE pk='b2444a6e-c626-4487-9abc-1556dd89a8ae';
+-- Submission documentation
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='33d7ac55-291c-43ae-bb42-f599ef428325' WHERE pk='1dce8e21-7263-4cc4-aa59-968d9793b5f2';
+
+
+-- #7606
+-- Add quotes around all the ATK parameters to handle whitespace in names
+
+UPDATE StandardTasksConfigs SET arguments = '--host="%host%" --port="%port%" --dbname="%dbname%" --dbuser="%dbuser%" --dbpass="%dbpass%" --atuser="%atuser%" --dip_location="%SIPDirectory%" --dip_name="%SIPName%" --dip_uuid="%SIPUUID%" --restrictions="%restrictions%" --object_type="%object_type%" --ead_actuate="%ead_actuate%" --ead_show="%ead_show%" --use_statement="%use_statement%" --uri_prefix="%uri_prefix%" --access_conditions="%access_conditions%" --use_conditions="%use_conditions%"' WHERE pk='a650921e-b754-4e61-9713-1457cf52e77d';
