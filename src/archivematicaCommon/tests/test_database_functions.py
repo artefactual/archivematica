@@ -60,7 +60,7 @@ class TestDatabaseFunctions(TestCase):
 
     def test_insert_into_events(self):
         assert Event.objects.filter(event_id="new_event").count() == 0
-        databaseFunctions.insertIntoEvents(eventIdentifierUUID="new_event")
+        databaseFunctions.insertIntoEvents(fileUUID="88c8f115-80bc-4da4-a1e6-0158f5df13b9", eventIdentifierUUID="new_event")
         assert Event.objects.filter(event_id="new_event").count() == 1
 
     def test_insert_into_event_fetches_correct_agent_from_file(self):

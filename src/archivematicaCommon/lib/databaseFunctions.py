@@ -119,11 +119,11 @@ def getAgentForFileUUID(fileUUID):
                 pass
     return agent
 
-def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDateTime=None, eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
+def insertIntoEvents(fileUUID, eventIdentifierUUID="", eventType="", eventDateTime=None, eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
     """
     Creates a new entry in the Events table using the supplied arguments.
 
-    :param str fileUUID: The UUID of the file with which this event is associated. Can be blank.
+    :param str fileUUID: The UUID of the file with which this event is associated. Must point to a valid File UUID.
     :param str eventIdentifierUUID: The UUID for the event being generated. If not provided, a new UUID will be calculated using the version 4 scheme.
     :param str eventType: Can be blank.
     :param datetime eventDateTime: The time at which the event occurred. If not provided, the current date will be used.
