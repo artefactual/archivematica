@@ -263,10 +263,12 @@ $(document).ready(function() {
       'Create SIP',
       'Are you sure you want to create a SIP?',
       function() {
+        $('.activity-indicator').show();
         $.post(
           '/filesystem/copy_from_arrange/',
           {filepath: Base64.encode(path+'/')},
           function(result) {
+            $('.activity-indicator').hide();
             var title = (result.error) ? 'Error' : ''
             arrange_browser.alert(
               title,

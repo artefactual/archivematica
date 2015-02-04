@@ -62,6 +62,9 @@
 {% block content %}
 
   {% include "ingest/backlog/_search_form.html" %}
+  <div class="activity-indicator">
+    <img src='/media/images/ajax-loader.gif' />
+  </div>
 
   <div style='float:left;'>
     <div id='originals' class='backbone-file-explorer' style='float:left; width: 460px;'></div>

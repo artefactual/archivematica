@@ -130,7 +130,7 @@ var TransferComponentFormView = Backbone.View.extend({
     // transfer directory counter goes back to 1 for the next transfer
     transferDirectoryPickerPathCounter = 1;
 
-    $('.transfer-component-activity-indicator').show();
+    $('.activity-indicator').show();
     $.ajax({
       url: '/filesystem/ransfer/',
       type: 'POST',
@@ -158,7 +158,7 @@ var TransferComponentFormView = Backbone.View.extend({
         components = {};
       }
     });
-    $('.transfer-component-activity-indicator').hide();
+    $('.activity-indicator').hide();
   },
 
   render: function() {

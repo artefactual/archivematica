@@ -390,6 +390,11 @@ li.user > a {
   background-color: rgba(0, 0, 0, 0.15);
 }
 
+.activity-indicator {
+  float: right;
+  display: none;
+}
+
 /*
  * Preservation planning report
  */

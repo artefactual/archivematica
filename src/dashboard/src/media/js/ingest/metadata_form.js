@@ -53,7 +53,7 @@ var MetadataFormView = Backbone.View.extend({
   },
 
   addFiles: function(sourcePaths) {
-    $('.transfer-component-activity-indicator').show()
+    $('.activity-indicator').show()
     // get path to temp directory in which to copy individual transfer
     // components
     $.ajax({
@@ -67,11 +67,11 @@ var MetadataFormView = Backbone.View.extend({
       success: function(results) {
         if (results['error']) {
           alert(results['error'])
-          $('.transfer-component-activity-indicator').hide()
+          $('.activity-indicator').hide()
           return;
         }
         $('#path_container').html('')
-        $('.transfer-component-activity-indicator').hide()
+        $('.activity-indicator').hide()
 
       }
     })
