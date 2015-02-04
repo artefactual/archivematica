@@ -15,20 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url, patterns
 from django.conf import settings
 
-urlpatterns = patterns('components.api.views',
-    (r'transfer/approve', 'approve_transfer'), 
-    (r'transfer/unapproved', 'unapproved_transfers'),
-    url(r'transfer/status/(?P<unit_uuid>' + settings.UUID_REGEX + ')', 'status', {'unit_type': 'unitTransfer'}),
-    url(r'transfer/start_transfer/', 'start_transfer_api'),
-    url(r'ingest/status/(?P<unit_uuid>' + settings.UUID_REGEX + ')', 'status', {'unit_type': 'unitSIP'}),
-    (r'ingest/waiting', 'waiting_for_user_input'),
+from components.api import views
 
-    url(r'^ingest/reingest', 'start_reingest'),
+urlpatterns = patterns('',
+    url(r'transfer/approve', views.approve_transfer),
+    url(r'transfer/unapproved', views.unapproved_transfers),
+    url(r'transfer/status/(?P<unit_uuid>' + settings.UUID_REGEX + ')', views.status, {'unit_type': 'unitTransfer'}),
+    url(r'transfer/start_transfer/', views.start_transfer_api),
+    url(r'ingest/status/(?P<unit_uuid>' + settings.UUID_REGEX + ')', views.status, {'unit_type': 'unitSIP'}),
+    url(r'ingest/waiting', views.waiting_for_user_input),
 
-    url(r'administration/dips/atom/levels/$', 'get_levels_of_description'),
-    url(r'administration/dips/atom/fetch_levels/$', 'fetch_levels_of_description_from_atom'),
-    url(r'filesystem/metadata/$', 'path_metadata'),
+    url(r'^ingest/reingest', views.start_reingest),
+
+    url(r'administration/dips/atom/levels/$', views.get_levels_of_description),
+    url(r'administration/dips/atom/fetch_levels/$', views.fetch_levels_of_description_from_atom),
+    url(r'filesystem/metadata/$', views.path_metadata),
 )

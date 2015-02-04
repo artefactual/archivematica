@@ -15,32 +15,32 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns
+from django.conf.urls import url, patterns
 from django.conf import settings
+from main import views
 
-urlpatterns = patterns('main.views',
-
+urlpatterns = patterns('',
     # Index
-    (r'^$', 'home'),
+    url(r'^$', views.home),
 
     # Forbidden
-    (r'forbidden/$', 'forbidden'),
+    url(r'forbidden/$', views.forbidden),
 
     # Elasticsearch check
-    (r'elasticsearch/$', 'elasticsearch_login_check'),
+    url(r'elasticsearch/$', views.elasticsearch_login_check),
 
     # Jobs and tasks (is part of ingest)
-    (r'jobs/(?P<uuid>' + settings.UUID_REGEX + ')/explore/$', 'jobs_explore'),
-    (r'jobs/(?P<uuid>' + settings.UUID_REGEX + ')/list-objects/$', 'jobs_list_objects'),
-    (r'tasks/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'tasks'),
-    (r'task/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'task'),
+    url(r'jobs/(?P<uuid>' + settings.UUID_REGEX + ')/explore/$', views.jobs_explore),
+    url(r'jobs/(?P<uuid>' + settings.UUID_REGEX + ')/list-objects/$', views.jobs_list_objects),
+    url(r'tasks/(?P<uuid>' + settings.UUID_REGEX + ')/$', views.tasks),
+    url(r'task/(?P<uuid>' + settings.UUID_REGEX + ')/$', views.task),
 
     # Access
-    (r'access/$', 'access_list'),
-    (r'access/(?P<id>\d+)/delete/$', 'access_delete'),
+    url(r'access/$', views.access_list),
+    url(r'access/(?P<id>\d+)/delete/$', views.access_delete),
 
     # JSON feeds
-    (r'status/$', 'status'),
-    (r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/(?P<delete_id>\d+)/$', 'formdata_delete'),
-    (r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/$', 'formdata'),
+    url(r'status/$', views.status),
+    url(r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/(?P<delete_id>\d+)/$', views.formdata_delete),
+    url(r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/$', views.formdata),
 )

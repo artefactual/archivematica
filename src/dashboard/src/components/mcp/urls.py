@@ -15,9 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns
+from django.conf.urls import url, patterns
+from components.mcp import views
 
-urlpatterns = patterns('components.mcp.views',
-    (r'execute/$', 'execute'),
-    (r'list/$', 'list'),
+urlpatterns = patterns('',
+    url(r'execute/$', views.execute),
+    url(r'list/$', views.list),
 )

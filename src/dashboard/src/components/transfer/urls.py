@@ -15,28 +15,25 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns
+from django.conf.urls import url, patterns
 from django.conf import settings
+from components.transfer import views
 
-urlpatterns = patterns('components.transfer.views',
-    (r'^$', 'grid'),
+urlpatterns = patterns('',
+    url(r'^$', views.grid),
 
     # Transfer metadata set functions
-    (r'^create_metadata_set_uuid/$', 'create_metadata_set_uuid'),
-    (r'^rename_metadata_set/(?P<set_uuid>' + settings.UUID_REGEX + ')/(?P<placeholder_id>[\w\-]+)/$', 'rename_metadata_set'),
-    (r'^cleanup_metadata_set/(?P<set_uuid>' + settings.UUID_REGEX + ')/$', 'cleanup_metadata_set'),
+    url(r'^create_metadata_set_uuid/$', views.create_metadata_set_uuid),
+    url(r'^rename_metadata_set/(?P<set_uuid>' + settings.UUID_REGEX + ')/(?P<placeholder_id>[\w\-]+)/$', views.rename_metadata_set),
+    url(r'^cleanup_metadata_set/(?P<set_uuid>' + settings.UUID_REGEX + ')/$', views.cleanup_metadata_set),
 
-    (r'component/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'component'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/$', 'detail'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/delete/$', 'delete'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/microservices/$', 'microservices'),
-    (r'status/$', 'status'),
-    (r'status/(?P<uuid>' + settings.UUID_REGEX + ')/$', 'status'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/$',
-        'transfer_metadata_list'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/add/$',
-        'transfer_metadata_edit'),
-    (r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/(?P<id>\d+)/$',
-        'transfer_metadata_edit'),
-
+    url(r'component/(?P<uuid>' + settings.UUID_REGEX + ')/$', views.component),
+    url(r'(?P<uuid>' + settings.UUID_REGEX + ')/$', views.detail),
+    url(r'(?P<uuid>' + settings.UUID_REGEX + ')/delete/$', views.delete),
+    url(r'(?P<uuid>' + settings.UUID_REGEX + ')/microservices/$', views.microservices),
+    url(r'status/$', views.status),
+    url(r'status/(?P<uuid>' + settings.UUID_REGEX + ')/$', views.status),
+    url(r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/$', views.transfer_metadata_list),
+    url(r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/add/$', views.transfer_metadata_edit),
+    url(r'(?P<uuid>' + settings.UUID_REGEX + ')/metadata/(?P<id>\d+)/$', views.transfer_metadata_edit),
 )

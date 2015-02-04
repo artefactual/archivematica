@@ -15,12 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import patterns
+from django.conf.urls import url, patterns
+from installer import views
 
-urlpatterns = patterns('installer.views',
-    (r'welcome/$', 'welcome'),
-    (r'fprconnect/$','fprconnect'),
-    (r'fprupload/$', 'fprupload'),
-    (r'fprdownload/$', 'fprdownload'),
-    (r'storagesetup/$', 'storagesetup'),
+urlpatterns = patterns('',
+    url(r'welcome/$', views.welcome),
+    url(r'fprconnect/$', views.fprconnect),
+    url(r'fprupload/$', views.fprupload),
+    url(r'fprdownload/$', views.fprdownload),
+    url(r'storagesetup/$', views.storagesetup),
 )
