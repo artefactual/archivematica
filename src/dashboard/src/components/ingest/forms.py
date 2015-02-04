@@ -60,6 +60,7 @@ class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
     class Meta:
         model = models.DublinCore
         fields = ('title', 'identifier', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'format', 'source', 'relation', 'language', 'coverage', 'rights')  # Removed 'is_part_of'
+        widgets = DublinCoreMetadataForm.Meta.widgets.copy()
 
     def __init__(self, *args, **kwargs):
         super(AICDublinCoreMetadataForm, self).__init__(*args, **kwargs)

@@ -83,7 +83,7 @@
           {% if show_aics %}
           <td>
             {% if term_usage.type == 'AIC' %}
-              {{ term_usage.AICID }} ({{ term_usage.aips_in_aic }} AIP{{ term_usage.aips_in_aic|pluralize }} in AIC)
+              {{ term_usage.AICID }} ({{ term_usage.countAIPsinAIC }} AIP{{ term_usage.countAIPsinAIC|pluralize }} in AIC)
             {% elif term_usage.isPartOf %}
               Part of {{ term_usage.isPartOf }}
             {% else %}

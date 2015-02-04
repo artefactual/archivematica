@@ -12,7 +12,7 @@ import uuid
 from main.models import UnitVariable
 
 import archivematicaCreateMETS2
-import archivematicaXMLNamesSpace as namespaces
+import archivematicaXMLNamesSpace as ns
 # archivematicaCommon
 import databaseFunctions
 import fileOperations
@@ -38,10 +38,6 @@ def get_aip_info(aic_dir):
         aips.append({'name': aip_name, 'uuid': filename})
 
     # Fetch the METS file and parse out the Dublic Core metadata with the label
-    nsmap = {
-        'm': namespaces.metsNS,  # METS
-        'dc': namespaces.dctermsNS,  # Dublin Core
-    }
     for aip in aips:
         mets_in_aip = "{aip_name}-{aip_uuid}/data/METS.{aip_uuid}.xml".format(
             aip_name=aip['name'], aip_uuid=aip['uuid'])
@@ -49,8 +45,11 @@ def get_aip_info(aic_dir):
         storage_service.extract_file(aip['uuid'], mets_in_aip, mets_path)
 
         root = etree.parse(mets_path)
-        aip['label'] = root.findtext('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore/dc:title',
-            namespaces=nsmap) or ""
+        # Title may be namespaced as dc: or dcterms: depending on version
+        aip['label'] = (
+            root.findtext('mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore/dc:title', namespaces=ns.NSMAP)
+            or root.findtext('mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore/dcterms:title', namespaces=ns.NSMAP)
+            or '')
 
         os.remove(mets_path)
 
@@ -63,9 +62,9 @@ def create_mets_file(aic, aips):
 
     # Prepare constants
     nsmap = {
-        None: namespaces.metsNS,  # METS
-        'xlink': namespaces.xlinkNS,
-        'xsi': namespaces.xsiNS,
+        None: ns.metsNS,
+        'xlink': ns.xlinkNS,
+        'xsi': ns.xsiNS,
     }
     now = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
@@ -111,7 +110,8 @@ def create_mets_file(aic, aips):
         file_id = '{name}-{uuid}'.format(name=aip['name'], uuid=aip['uuid'])
         etree.SubElement(file_grp, 'file', ID=file_id)
 
-        div = etree.SubElement(struct_div, 'div', LABEL=aip['label'])
+        label = aip['label'] or aip['name']
+        div = etree.SubElement(struct_div, 'div', LABEL=label)
         etree.SubElement(div, 'fptr', FILEID=file_id)
 
     print etree.tostring(mets, pretty_print=True)

@@ -174,6 +174,7 @@ def search_augment_aip_results(conn, aips):
         }
         documents = conn.search(body=query,
             fields='name,size,created,status,AICID,isPartOf,countAIPsinAIC')
+        aip = {}
         if documents['hits']['hits']:
             aip_info = documents['hits']['hits'][0]
 
@@ -263,7 +264,7 @@ def create_aic(request, *args, **kwargs):
 
         # Create files with filename = AIP UUID, and contents = AIP name
         for aip in results:
-            filepath = os.path.join(destination, aip['term'])
+            filepath = os.path.join(destination, aip['uuid'])
             with open(filepath, 'w') as f:
                 os.chmod(filepath, 0o660)
                 f.write(str(aip['name']))
