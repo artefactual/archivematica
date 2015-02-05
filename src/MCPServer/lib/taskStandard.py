@@ -141,9 +141,9 @@ class taskStandard():
             self.outputLock.release()
 
         if a:
-            self.stdError = "Failed to write to file{" + standardOut + "}\r\n" + self.results["stdOut"]
+            self.stdError = "Failed to write to file{" + standardOut.encode('utf-8') + "}\r\n" + self.results["stdOut"]
         if b:
-            self.stdError = "Failed to write to file{" + standardError + "}\r\n" + self.results["stdError"]
+            self.stdError = "Failed to write to file{" + standardError.encode('utf-8') + "}\r\n" + self.results["stdError"]
         if  self.results['exitCode']:
             return self.results['exitCode']
         return a + b
