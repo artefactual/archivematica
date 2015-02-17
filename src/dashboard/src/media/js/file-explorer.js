@@ -170,6 +170,10 @@
     context: function() {
       var context = this.model.toJSON();
       context.className = this.className;
+      context.extra = undefined
+      if (context['properties'] && context['properties']['display_string']){
+        context.extra = '(' + context['properties']['display_string'] + ')'
+      }
       return context;
     },
 

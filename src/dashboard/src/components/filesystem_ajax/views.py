@@ -27,6 +27,7 @@ import uuid
 
 import django.http
 from django.db import connection, IntegrityError
+import django.template.defaultfilters
 
 from components import helpers
 import components.filesystem_ajax.helpers as filesystem_ajax_helpers
@@ -63,6 +64,37 @@ TRANSFER_TYPE_DIRECTORIES = {
 }
 
 
+def _prepare_browse_response(response):
+    """
+    Additional common processing before passing a browse response back to JS.
+
+    Input should be a dictionary with keys 'entries', 'directories' and 'properties'.
+
+    'entries' is a list of strings, one for each entry in that directory, both file-like and folder-like.
+    'directories' is a list of strings for each folder-like entry. Each entry should also be listed in 'entries'.
+    'properties' is an optional dictionary that may contain additional information for the entries.  Keys are the entry name found in 'entries', values are a dictionary containing extra information. 'properties' may not contain all values from 'entries'.
+
+    Output will be the input dictionary with the following transforms applied:
+    * All filenames will be base64 encoded
+    * 'properties' dicts may have a new entry of 'display_string' with relevant information to display to the user.
+
+    :param dict response: Dict response from a browse call. See above.
+    :return: Dict response ready to be returned to file-browser JS.
+    """
+    # Generate display string based on properties
+    for entry, prop in response.get('properties', {}).iteritems():
+        logger.debug('Properties for %s: %s', entry, prop)
+        if 'object count' in prop:
+            prop['display_string'] = '{} objects'.format(prop['object count'])
+        elif 'size' in prop:
+            prop['display_string'] = django.template.defaultfilters.filesizeformat(prop['size'])
+
+    response['entries'] = map(base64.b64encode, response['entries'])
+    response['directories'] = map(base64.b64encode, response['directories'])
+    response['properties'] = {base64.b64encode(k): v for k, v in response.get('properties', {}).iteritems()}
+
+    return response
+
 def directory_children_proxy_to_storage_server(request, location_uuid, basePath=False):
     path = ''
     if (basePath):
@@ -71,8 +103,7 @@ def directory_children_proxy_to_storage_server(request, location_uuid, basePath=
     path = path + base64.b64decode(request.GET.get('path', ''))
 
     response = storage_service.browse_location(location_uuid, path)
-    response['entries'] = map(base64.b64encode, response['entries'])
-    response['directories'] = map(base64.b64encode, response['directories'])
+    response = _prepare_browse_response(response)
 
     return helpers.json_response(response)
 
@@ -98,18 +129,25 @@ def arrange_contents(request):
 
     # Convert the response into an entries [] and directories []
     # 'entries' contains everything (files and directories)
-    response = {'entries': [], 'directories': []}
+    entries = set()
+    directories = set()
+    properties = {}
     for path in paths:
-        # Stip common prefix
-        if path.startswith(base_path):
-            path = path[len(base_path):]
-        entry = path.split('/', 1)[0]
-        entry = base64.b64encode(entry)
-        # Only insert once
-        if entry and entry not in response['entries']:
-            response['entries'].append(entry)
-            if path.endswith('/'):  # path is a dir
-                response['directories'].append(entry)
+        # Strip common prefix
+        path_parts = path.replace(base_path, '', 1).split('/')
+        entry = path_parts[0]
+        if not entry:
+            continue
+        entries.add(entry)
+        if len(path_parts) > 1:  # Path is a directory
+            directories.add(entry)
+            # Don't add directories to the object count
+            if path_parts[-1]:
+                properties[entry] = properties.get(entry, {})  # Default empty dict
+                properties[entry]['object count'] = properties[entry].get('object count', 0) + 1  # Increment object count
+
+    response = {'entries': list(entries), 'directories': list(directories), 'properties': properties}
+    response = _prepare_browse_response(response)
 
     return helpers.json_response(response)
 
