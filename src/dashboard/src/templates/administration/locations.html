@@ -41,37 +41,4 @@
 
   </div>
 
-  <!-- Templates below -->
-
-  <script type="text/template" id="template-dir-level">
-    <div class="backbone-file-explorer-level"></div>
-  </script>
-
-  <script type="text/template" id="template-dir-entry">
-    <div class="backbone-file-explorer-entry" style="clear: both;">
-      <span class="backbone-file-explorer-directory_icon_button"></span>
-      <span class="backbone-file-explorer-directory_entry_name"><%= name %></span>
-      <span class="backbone-file-explorer-directory_entry_actions"></span>
-    </div>
-  </script>
-
-  <script type="text/template" id="template-source-directory-table">
-    <table>
-      <thead>
-        <th>Path</th>
-        <th></th>
-      </thead>
-      <tbody>
-        <%= rows %>
-      </tbody>
-    </table>
-  </script>
-
-  <script type="text/template" id="template-source-directory-table-row">
-    <tr>
-      <td><%= path %></td>
-      <td><a href="#" id="directory_<%= id %>" class="btn" style="float: right;">Remove</a></td>
-    </tr>
-  </script>
-
 {% endblock %}
