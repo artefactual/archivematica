@@ -126,7 +126,7 @@ function setupBacklogBrowser() {
     'parent': '',
     'children': [
       {'name': Base64.encode('Search the transfer backlog to populate this panel.'),
-       'not_draggable': true}]
+       'properties': {'not_draggable': true}}]
   };
 
   originals.itemsPerPage = 10;

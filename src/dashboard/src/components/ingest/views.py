@@ -421,20 +421,29 @@ def _es_results_to_directory_tree(path, return_list, not_draggable=False):
     if len(parts) == 1:  # path is a file
         return_list.append({
             'name': base64.b64encode(parts[0]),
-            'not_draggable': not_draggable})
+            'properties': {'not_draggable': not_draggable}})
     else:
         node, others = parts
         node = base64.b64encode(node)
         if not return_list or return_list[-1]['name'] != node:
             return_list.append({
                 'name': node,
-                'not_draggable': not_draggable,
+                'properties': {'not_draggable': not_draggable, 'object count': 0},
                 'children': []})
-        _es_results_to_directory_tree(others, return_list[-1]['children'],
+        this_node = return_list[-1]
+        # Populate children list
+        _es_results_to_directory_tree(others, this_node['children'],
             not_draggable=not_draggable)
+
+        # Generate count of all non-directory objects in this tree
+        object_count = sum(e['properties'].get('object count', 0) for e in this_node['children'])
+        object_count += len([e for e in this_node['children'] if not e.get('children')])
+
+        this_node['properties']['object count'] = object_count
+        this_node['properties']['display_string'] = '{} objects'.format(object_count)
         # If any children of a dir are draggable, the whole dir should be
         # Otherwise, directories have the draggability of their first child
-        return_list[-1]['not_draggable'] = return_list[-1]['not_draggable'] and not_draggable
+        this_node['properties']['not_draggable'] = this_node['properties']['not_draggable'] and not_draggable
 
 
 @decorators.elasticsearch_required()
@@ -478,12 +487,12 @@ def transfer_backlog(request):
 
     # Convert to a form JS can use:
     # [{'name': <filename>,
-    #   'not_draggable': False},
+    #   'properties': {'not_draggable': False}},
     #  {'name': <directory name>,
-    #   'not_draggable': True,
+    #   'properties': {'not_draggable': True, 'object count': 3, 'display_string': '3 objects'},
     #   'children': [
     #    {'name': <filename>,
-    #     'not_draggable': True},
+    #     'properties': {'not_draggable': True}},
     #    {'name': <directory name>,
     #     'children': [...]
     #    }

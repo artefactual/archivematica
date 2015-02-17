@@ -861,10 +861,10 @@
         for (var index in structure.children) {
           var child = structure.children[index];
           if (child.children != undefined) {
-            var parent = base.addDir({name: child.name, not_draggable: child.not_draggable});
+            var parent = base.addDir({name: child.name, properties: child.properties});
             parent = this.structureToObjects(child, parent);
           } else {
-            base.addFile({name: child.name, not_draggable: child.not_draggable});
+            base.addFile({name: child.name, properties: child.properties});
           }
         }
       } else {
