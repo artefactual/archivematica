@@ -51,25 +51,6 @@ from databaseFunctions import getUTCDate
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 sharedVariablesAcrossModules.globalErrorCount = 0
 
-from optparse import OptionParser
-parser = OptionParser()
-parser.add_option("-s",  "--baseDirectoryPath", action="store", dest="baseDirectoryPath", default="")
-parser.add_option("-b",  "--baseDirectoryPathString", action="store", dest="baseDirectoryPathString", default="SIPDirectory") #transferDirectory/
-parser.add_option("-f",  "--fileGroupIdentifier", action="store", dest="fileGroupIdentifier", default="") #transferUUID/sipUUID
-parser.add_option("-t",  "--fileGroupType", action="store", dest="fileGroupType", default="sipUUID") #
-parser.add_option("-x",  "--xmlFile", action="store", dest="xmlFile", default="")
-parser.add_option("-a",  "--amdSec", action="store_true", dest="amdSec", default=False)
-(opts, args) = parser.parse_args()
-
-
-baseDirectoryPath = opts.baseDirectoryPath
-XMLFile = opts.xmlFile
-includeAmdSec = opts.amdSec
-baseDirectoryPathString = "%%%s%%" % (opts.baseDirectoryPathString)
-fileGroupIdentifier = opts.fileGroupIdentifier
-fileGroupType = opts.fileGroupType
-includeAmdSec = opts.amdSec
-
 #Global Variables
 
 globalFileGrps = {}
@@ -853,6 +834,25 @@ def create_object_metadata(struct_map):
 
 
 if __name__ == '__main__':
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-s",  "--baseDirectoryPath", action="store", dest="baseDirectoryPath", default="")
+    parser.add_option("-b",  "--baseDirectoryPathString", action="store", dest="baseDirectoryPathString", default="SIPDirectory") #transferDirectory/
+    parser.add_option("-f",  "--fileGroupIdentifier", action="store", dest="fileGroupIdentifier", default="") #transferUUID/sipUUID
+    parser.add_option("-t",  "--fileGroupType", action="store", dest="fileGroupType", default="sipUUID") #
+    parser.add_option("-x",  "--xmlFile", action="store", dest="xmlFile", default="")
+    parser.add_option("-a",  "--amdSec", action="store_true", dest="amdSec", default=False)
+    (opts, args) = parser.parse_args()
+
+    baseDirectoryPath = opts.baseDirectoryPath
+    XMLFile = opts.xmlFile
+    includeAmdSec = opts.amdSec
+    baseDirectoryPathString = "%%%s%%" % (opts.baseDirectoryPathString)
+    fileGroupIdentifier = opts.fileGroupIdentifier
+    fileGroupType = opts.fileGroupType
+    includeAmdSec = opts.amdSec
+    global baseDirectoryPath, XMLFile, includeAmdSec, baseDirectoryPathString, fileGroupIdentifier, fileGroupType, includeAmdSec
+
     while False: #used to stall the mcp and stop the client for testing this module
         import time
         time.sleep(10)
