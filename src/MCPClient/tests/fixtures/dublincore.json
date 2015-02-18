@@ -1,0 +1,53 @@
+[
+{
+    "pk": 1,
+    "model": "main.dublincore",
+    "fields": {
+        "rights": "Public Domain",
+        "publisher": "Tortall Press",
+        "format": "parchement",
+        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "is_part_of": "AIC#42",
+        "creator": "Keladry of Mindelan",
+        "language": "en",
+        "type": "Archival Information Package",
+        "description": "Glaives are cool",
+        "title": "Yamani Weapons",
+        "date": "2015",
+        "relation": "None",
+        "source": "Numair's library",
+        "coverage": "",
+        "contributor": "Yuki",
+        "identifier": "42/1",
+        "metadataappliestoidentifier": "8b891d7c-5bd2-4249-84a1-2f00f725b981",
+        "subject": "Glaives"
+    }
+},
+{
+    "pk": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+    "model": "main.metadataappliestotype",
+    "fields": {
+        "lastmodified": "2012-10-01T17:25:05",
+        "replaces": null,
+        "description": "SIP"
+    }
+},
+{
+    "pk": "45696327-44c5-4e78-849b-e027a189bf4d",
+    "model": "main.metadataappliestotype",
+    "fields": {
+        "lastmodified": "2012-10-01T17:25:05",
+        "replaces": null,
+        "description": "Transfer"
+    }
+},
+{
+    "pk": "7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17",
+    "model": "main.metadataappliestotype",
+    "fields": {
+        "lastmodified": "2012-10-01T17:25:05",
+        "replaces": null,
+        "description": "File"
+    }
+}
+]

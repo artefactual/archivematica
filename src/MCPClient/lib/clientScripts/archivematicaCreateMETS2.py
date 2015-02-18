@@ -118,7 +118,24 @@ FileMetadataAppliesToType = '7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17'
 
 
 def getDublinCore(unit, id):
-    field_list = ["title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "relation", "language", "coverage", "rights", "is_part_of"]
+    db_field_mapping = collections.OrderedDict([
+        ("title", "title"),
+        ("creator", "creator"),
+        ("subject", "subject"),
+        ("description", "description"),
+        ("publisher", "publisher"),
+        ("contributor", "contributor"),
+        ("date", "date"),
+        ("type", "type"),
+        ("format", "format"),
+        ("identifier", "identifier"),
+        ("source", "source"),
+        ("relation", "relation"),
+        ("language", "language"),
+        ("coverage", "coverage"),
+        ("rights", "rights"),
+        ("is_part_of", "isPartOf"),
+    ])
 
     try:
         dc = DublinCore.objects.get(metadataappliestotype_id=unit,
@@ -126,13 +143,19 @@ def getDublinCore(unit, id):
     except DublinCore.DoesNotExist:
         return
 
-    ret = etree.Element(ns.dctermsBNS + "dublincore", nsmap={"dc": ns.dctermsNS})
+    ret = etree.Element(ns.dctermsBNS + "dublincore", nsmap={"dcterms": ns.dctermsNS, 'dc': ns.dcNS})
     ret.set(ns.xsiBNS + "schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
 
-    for term in field_list:
-        txt = getattr(dc, term)
+    for dbname, term in db_field_mapping.iteritems():
+        txt = getattr(dc, dbname)
+        elem_ns = ''
+        # See http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements for which elements are which namespace
+        if term in ('contributor', 'coverage', 'creator', 'date', 'description', 'format', 'identifier', 'language', 'publisher', 'relation', 'rights', 'source', 'subject', 'title', 'type'):
+            elem_ns = ns.dcBNS
+        elif term in ('isPartOf',):
+            elem_ns = ns.dctermsBNS
         if txt:
-            newChild(ret, ns.dctermsBNS + term, text=txt)
+            newChild(ret, elem_ns + term, text=txt)
     return ret
 
 
@@ -159,7 +182,7 @@ def createDmdSecsFromCSVParsedMetadata(metadata):
     # multitiered terms in the format dc.description.abstract
     # If these terms are encountered, an element with only the
     # last portion of the name will be added.
-    # e.g., dc.description.abstract is mapped to <dcterms:abstract>
+    # e.g., dc.description.abstract is mapped to <dc:abstract>
     refinement_regex = re.compile('\w+\.(.+)')
 
     for key, value in metadata.iteritems():

@@ -139,7 +139,7 @@ class MetadataAppliesToType(models.Model):
     """
     id = UUIDPkField()
     description = models.CharField(max_length=50, db_column='description')
-    replaces = models.CharField(max_length=36, db_column='replaces')
+    replaces = models.CharField(max_length=36, db_column='replaces', null=True, blank=True)
     lastmodified = models.DateTimeField(db_column='lastModified')
 
     class Meta:

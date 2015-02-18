@@ -73,7 +73,6 @@ def remove_tool_output_from_mets(doc):
     """
     root = doc.getroot()
     nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
-        'dc': 'http://purl.org/dc/terms/',
         'm': 'http://www.loc.gov/METS/',
         'p': 'info:lc/xmlns/premis-v2',
         'f': 'http://hul.harvard.edu/ois/xml/ns/fits/fits_output',
@@ -302,18 +301,19 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_a
 
     root = tree.getroot()
     nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
-        'dc': 'http://purl.org/dc/terms/',
+        'dcterms': 'http://purl.org/dc/terms/',
+        'dc': 'http://purl.org/dc/elements/1.1/',
         'm': 'http://www.loc.gov/METS/',
     }
     # Extract AIC identifier, other specially-indexed information
     aic_identifier = None
     is_part_of = None
-    dublincore = root.find('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore', namespaces=nsmap)
+    dublincore = root.find('m:dmdSec/m:mdWrap/m:xmlData/dcterms:dublincore', namespaces=nsmap)
     if dublincore is not None:
-        aip_type = dublincore.findtext('dc:type', namespaces=nsmap)
+        aip_type = dublincore.findtext('dc:type', namespaces=nsmap) or dublincore.findtext('dcterms:type', namespaces=nsmap)
         if aip_type == "Archival Information Collection":
-            aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap)
-        is_part_of = dublincore.findtext('dc:isPartOf', namespaces=nsmap)
+            aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap) or dublincore.findtext('dcterms:identifier', namespaces=nsmap)
+        is_part_of = dublincore.findtext('dcterms:isPartOf', namespaces=nsmap)
 
     # convert METS XML to dict
     xml = ElementTree.tostring(root)
@@ -428,7 +428,8 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName):
     tree = ElementTree.parse(metsFilePath)
     root = tree.getroot()
     nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
-        'dc': 'http://purl.org/dc/terms/',
+        'dcterms': 'http://purl.org/dc/terms/',
+        'dc': 'http://purl.org/dc/elements/1.1/',
         'm': 'http://www.loc.gov/METS/',
         'p': 'info:lc/xmlns/premis-v2',
         'f': 'http://hul.harvard.edu/ois/xml/ns/fits/fits_output',
@@ -445,15 +446,15 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName):
         dmdSecData = xmltodict.parse(xml)
 
     # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore
-    dublincore = root.find('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore', namespaces=nsmap)
+    dublincore = root.find('m:dmdSec/m:mdWrap/m:xmlData/dcterms:dublincore', namespaces=nsmap)
     aic_identifier = None
     is_part_of = None
     if dublincore is not None:
-        aip_type = dublincore.findtext('dc:type', namespaces=nsmap)
+        aip_type = dublincore.findtext('dc:type', namespaces=nsmap) or dublincore.findtext('dcterms:type', namespaces=nsmap)
         if aip_type == "Archival Information Collection":
-            aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap)
+            aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap) or dublincore.findtext('dcterms:identifier', namespaces=nsmap)
         elif aip_type == "Archival Information Package":
-            is_part_of = dublincore.findtext('dc:isPartOf', namespaces=nsmap)
+            is_part_of = dublincore.findtext('dcterms:isPartOf', namespaces=nsmap)
 
     # establish structure to be indexed for each file item
     fileData = {
