@@ -99,8 +99,8 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
       .children('.transfer_path_icons')
       .children('.transfer_path_delete_icon')
       .click(function() {
-        if (confirm('Are you sure you want to remove this transfer component?')) {
-          var path = $(this).parent().parent().prop("id").trim();
+        if (confirm('Are you sure you want to remove this transfer component (' + $(this).parent().prev().text() + ')?')) {
+          var path = $(this).parent().prev().prop("id").trim();
           var component = components[path];
 
           removeMetadataForms(component.uuid);
