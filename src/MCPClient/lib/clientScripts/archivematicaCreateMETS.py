@@ -38,7 +38,6 @@ from elasticSearchFunctions import getDashboardUUID
 
 
 UUIDsDic={}
-amdSec=[]
 
 from optparse import OptionParser
 parser = OptionParser()
@@ -47,7 +46,6 @@ parser.add_option("-b",  "--basePathString", action="store", dest="basePathStrin
 parser.add_option("-f",  "--fileGroupIdentifier", action="store", dest="fileGroupIdentifier", default="sipUUID") #transferUUID
 parser.add_option("-S",  "--sipUUID", action="store", dest="sipUUID", default="")
 parser.add_option("-x",  "--xmlFile", action="store", dest="xmlFile", default="")
-parser.add_option("-a",  "--amdSec", action="store_true", dest="amdSec", default=False)
 (opts, args) = parser.parse_args()
 print opts
 
@@ -55,7 +53,6 @@ print opts
 SIPUUID = opts.sipUUID
 basePath = opts.basePath
 XMLFile = opts.xmlFile
-includeAmdSec = opts.amdSec
 basePathString = "%%%s%%" % (opts.basePathString)
 fileGroupIdentifier = opts.fileGroupIdentifier
 
@@ -88,6 +85,51 @@ def newChild(parent, tag, text=None, tailText=None):
     return child
 
 
+def each_child(path):
+    """
+    Iterates over entries in a filesystem, beginning at `path`.
+
+    At each entry in the filesystem, yields either a File model instance
+    (for files) or a string (for directories).
+
+    When iterating, makes two passes: first iterating over files, then
+    directories. Does not iterate over directories; consumers should
+    call this function again on directory strings to recurse.
+
+    :param string path: path to a directory on disk to recurse into.
+    :raises ValueError: if the specified path does not exist, or is not a directory.
+    """
+    path = os.path.expanduser(path)
+
+    if not os.path.exists(path):
+        raise ValueError("Specified path {} does not exist!".format(path))
+    elif os.path.isfile(path):
+        raise ValueError("Specified path {} is a file, not a directory!".format(path))
+
+    for doDirectories in [False, True]:
+        directoryContents = sorted(os.listdir(path))
+        for item in directoryContents:
+            itempath = os.path.join(path, item)
+            if os.path.isdir(itempath):
+                if not doDirectories:
+                    continue
+
+                yield itempath
+            elif os.path.isfile(itempath):
+                if doDirectories:
+                    continue
+
+                pathSTR = itempath.replace(basePath, basePathString, 1)
+                kwargs = {
+                    'removedtime__isnull': True,
+                    fileGroupIdentifier: SIPUUID,
+                    'currentlocation': pathSTR
+                }
+                try:
+                    yield File.objects.get(**kwargs)
+                except File.DoesNotExist:
+                    print >> sys.stderr, "No uuid for file: \"", pathSTR, "\""
+
 
 #Do /SIP-UUID/
 #Force only /SIP-UUID/objects
@@ -116,71 +158,40 @@ def createFileSec(path, parentBranch, structMapParent):
     structMapParent.set("TYPE", "directory")
     structMapParent.set("LABEL", escape(filename))
 
-
     if doneFirstRun:
-        for doDirectories in [False, True]:
-            print "path", type(path), path
-            directoryContents = os.listdir(path)
-            directoryContents.sort()
-            for item in directoryContents:
-                print "item", type(item), item
-                itempath = os.path.join(path, item)
-                if os.path.isdir(itempath):
-                    if not doDirectories:
-                        continue
-                    #currentBranch = newChild(parentBranch, "fileGrp")
-                    #currentBranch.set("USE", "directory")
-                    # structMap directory
-                    div = newChild(structMapParent, ns.metsBNS + "div")
+        for item in each_child(path):
+            if isinstance(item, File):
+                pathSTR = item.currentlocation.replace('%transferDirectory%', "", 1)
 
-                    createFileSec(os.path.join(path, item), parentBranch, div)
-                elif os.path.isfile(itempath):
-                    if doDirectories:
-                        continue
-                    #myuuid = uuid.uuid4()
-                    myuuid=""
-                    #pathSTR = itempath.replace(basePath + "objects", "objects", 1)
-                    pathSTR = itempath.replace(basePath, basePathString, 1)
+                ID = "file-" + item.uuid.__str__()
 
-                    print "pathSTR", type(pathSTR), pathSTR
+                # structMap file
+                fptr = newChild(structMapParent, ns.metsBNS + "fptr")
+                FILEID = "file-" + item.uuid.__str__()
+                fptr.set("FILEID", escape(FILEID))
 
-                    kwargs = {
-                        'removedtime__isnull': True,
-                        fileGroupIdentifier: SIPUUID,
-                        'currentlocation': pathSTR
-                    }
-                    try:
-                        f = File.objects.get(**kwargs)
-                    except File.DoesNotExist:
-                        print >> sys.stderr, "No uuid for file: \"", pathSTR, "\""
-                    else:
-                        myuuid = f.uuid
+                # If the file already exists in the fileSec, don't create
+                # a second entry.
+                fileI = parentBranch.find('./mets:file[@ID="{}"]'.format(ID), namespaces=ns.NSMAP)
+                if fileI is None:
+                    fileI = etree.SubElement(parentBranch, ns.metsBNS + "file")
 
-                    pathSTR = itempath.replace(basePath, "", 1)
+                    filename = ''.join(quoteattr(pathSTR).split("\"")[1:-1])
 
-                    ID = "file-" + myuuid.__str__()
-                    # structMap file
-                    fptr = newChild(structMapParent, ns.metsBNS + "fptr")
-                    FILEID = "file-" + myuuid.__str__()
-                    fptr.set("FILEID", escape(FILEID))
+                    fileI.set("ID", escape(ID))
 
-                    # If the file already exists in the fileSec, don't create
-                    # a second entry.
-                    fileI = parentBranch.find('./mets:file[@ID="{}"]'.format(ID), namespaces=ns.NSMAP)
-                    if fileI is None:
-                        fileI = etree.SubElement( parentBranch, ns.metsBNS + "file")
+                    Flocat = newChild(fileI, ns.metsBNS + "FLocat")
+                    Flocat.set(ns.xlinkBNS + "href", escape(pathSTR))
+                    Flocat.set("LOCTYPE", "OTHER")
+                    Flocat.set("OTHERLOCTYPE", "SYSTEM")
 
-                        filename = ''.join(quoteattr(item).split("\"")[1:-1])
-                        #filename = replace /tmp/"UUID" with /objects/
+                    # used when adding amdSecs at a later time
+                    admid = "digiprov-" + item.uuid
+                    fileI.set("ADMID", admid)
 
-                        fileI.set("ID", escape(ID))
-                        if includeAmdSec:
-                            fileI.set("ADMID", "digiprov-" + item.__str__() + "-"    + myuuid.__str__())
-
-                        Flocat = newChild(fileI, ns.metsBNS + "FLocat")
-                        Flocat.set(ns.xlinkBNS + "href", escape(pathSTR) )
-                        Flocat.set("LOCTYPE", "OTHER")
-                        Flocat.set("OTHERLOCTYPE", "SYSTEM")
+            else:
+                div = newChild(structMapParent, ns.metsBNS + "div")
+                createFileSec(os.path.join(path, item), parentBranch, div)
 
 if __name__ == '__main__':
     root = etree.Element(ns.metsBNS + "mets",
@@ -197,9 +208,6 @@ if __name__ == '__main__':
     opath = os.getcwd()
     os.chdir(basePath)
     path = basePath
-
-    #if includeAmdSec:
-    #    amdSec = newChild(root, "amdSec")
 
     fileSec = etree.Element(ns.metsBNS + "fileSec")
     #fileSec.tail = "\n"

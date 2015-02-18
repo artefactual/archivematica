@@ -4,10 +4,27 @@ from __future__ import print_function
 import os
 import sys
 
-from archivematicaCreateMETS import createFileSec
+from archivematicaCreateMETS import createFileSec, each_child
+from archivematicaCreateMETS2 import createDigiprovMD
 import archivematicaXMLNamesSpace as ns
 
 from lxml import etree
+
+
+def create_amdSecs(base_path):
+    amdSecs = []
+
+    for child in each_child(base_path):
+        if isinstance(child, basestring):  # directory
+            amdSecs.extend(create_amdSecs(child))
+        else:  # file
+            admid = "digiprov-" + child.uuid
+            amdSec = etree.Element(ns.metsBNS + 'amdSec',
+                                   ID=admid)
+            amdSec.extend(createDigiprovMD(child.uuid))
+            amdSecs.append(amdSec)
+
+    return amdSecs
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -29,12 +46,18 @@ if __name__ == '__main__':
 
     fileGrp = doc.find(".//mets:fileSec/mets:fileGrp", namespaces=ns.NSMAP)
 
-    structMap = etree.SubElement(doc.getroot(), ns.metsBNS + "structMap",
+    root = doc.getroot()
+    structMap = etree.SubElement(root, ns.metsBNS + "structMap",
                                  TYPE="physical",
                                  LABEL="processed")
     structMapDiv = etree.SubElement(structMap, ns.metsBNS + "div")
 
     createFileSec(opts.basePath, fileGrp, structMapDiv)
+
+    # insert <amdSec>s after the <metsHdr>, which must be the first element
+    # within the <mets> element if present.
+    for el in create_amdSecs(opts.basePath):
+        root.insert(1, el)
 
     with open(opts.xmlFile, "w") as f:
         f.write(etree.tostring(doc,
