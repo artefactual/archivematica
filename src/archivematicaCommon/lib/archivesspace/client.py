@@ -330,22 +330,25 @@ class ArchivesSpaceClient(object):
             ],
             "language": language,
             "notes": [{
+                "jsonmodel_type": "note_digital_object",
                 "type": "originalsloc",
-                "content": dashboard_uuid
+                "content": [dashboard_uuid]
             }],
             "restrictions": restricted,
         }
 
-        if use_conditions is not None:
-            new_object["notes"] += {
+        if use_conditions:
+            new_object["notes"].append({
+                "jsonmodel_type": "note_digital_object",
                 "type": "userestrict",
-                "content": use_conditions,
-            }
-        if access_conditions is not None:
-            new_object["notes"] += {
+                "content": [use_conditions],
+            })
+        if access_conditions:
+            new_object["notes"].append({
+                "jsonmodel_type": "note_digital_object",
                 "type": "accessrestrict",
-                "content": access_conditions,
-            }
+                "content": [access_conditions],
+            })
 
         new_object_uri = self._post(repository + '/digital_objects', data=json.dumps(new_object)).json()["uri"]
 
@@ -354,4 +357,4 @@ class ArchivesSpaceClient(object):
             "instance_type": "digital_object",
             "digital_object": {"ref": new_object_uri}
         })
-        self._post(parent_archival_object, data=parent_record)
+        self._post(parent_archival_object, data=json.dumps(parent_record))

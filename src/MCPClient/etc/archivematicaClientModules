@@ -28,6 +28,7 @@ elasticSearchIndex_v0.0 = %clientScriptsDirectory%elasticSearchIndexProcessTrans
 restructureDIPForContentDMUpload_v0.0 = %clientScriptsDirectory%restructureDIPForContentDMUpload.py
 storeAIP_v0.0 = %clientScriptsDirectory%storeAIP.py
 upload-qubit_v0.0 = %clientScriptsDirectory%upload-qubit.py
+upload-archivesspace_v0.0 = %clientScriptsDirectory%upload-archivesspace.py
 upload-archivistsToolkit_v0.0 = %clientScriptsDirectory%upload-archivistsToolkit.py
 
 [supportedCommands]
