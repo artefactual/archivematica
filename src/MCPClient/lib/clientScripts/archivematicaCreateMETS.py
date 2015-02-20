@@ -37,9 +37,6 @@ from databaseFunctions import getAccessionNumberFromTransfer, getUTCDate
 from elasticSearchFunctions import getDashboardUUID
 
 
-UUIDsDic={}
-
-
 def createMetsHdr(sip_uuid):
     header = etree.Element(ns.metsBNS + "metsHdr",
                            CREATEDATE=getUTCDate().split(".")[0])
