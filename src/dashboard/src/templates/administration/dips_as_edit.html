@@ -1,0 +1,44 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block css %}
+  <style type="text/css">
+
+    td.option {
+      white-space: nowrap;
+    }
+
+  </style>
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+  {% include "administration/sidebar.html" %}
+
+  <div class="span12">
+    <h3>ArchivesSpace DIP upload</h3>
+    {% if valid_submission %}
+        Form data saved
+    {% endif %}
+<p>
+
+
+    <form class="form-stacked" method="post" action="{% url 'components.administration.views.administration_as_dips' %}">
+
+    {% include "_form.html" %}
+
+	
+	<div class="actions">
+        <button type="submit" class="btn primary">Save</button>
+        </div>
+    </form>
+  
+</div>
+
+{% endblock %}

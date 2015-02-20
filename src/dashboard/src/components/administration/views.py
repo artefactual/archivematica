@@ -34,10 +34,11 @@ from main import models
 import components.administration.views_processing as processing_views
 from components.administration.forms import AtomSettingsForm
 from components.administration.forms import AgentForm
+from components.administration.forms import ArchivesSpaceConfigForm
 from components.administration.forms import ArchivistsToolkitConfigForm
 from components.administration.forms import SettingsForm
 from components.administration.forms import StorageSettingsForm
-from components.administration.models import ArchivistsToolkitConfig
+from components.administration.models import ArchivesSpaceConfig, ArchivistsToolkitConfig
 from components.administration.forms import TaxonomyTermForm
 from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
 from django.template import RequestContext
@@ -95,6 +96,44 @@ def atom_dips(request):
 
     hide_features = helpers.hidden_features()
     return render(request, 'administration/dips_atom_edit.html', locals())
+
+
+def administration_as_dips(request):
+    as_config = ArchivesSpaceConfig.objects.all()[0]
+    if request.POST:
+        form = ArchivesSpaceConfigForm(request.POST, instance=as_config)
+        if form.is_valid():
+            new_asconfig = form.save()
+            # save this new form data into MicroServiceChoiceReplacementDic
+            settings = {
+                "%host%": new_asconfig.host,
+                "%port%": str(new_asconfig.port),
+                "%user%": new_asconfig.user,
+                "%passwd%": new_asconfig.passwd,
+                "%restrictions%": new_asconfig.premis,
+                "%object_type%": new_asconfig.object_type,
+                "%xlink_actuate%": new_asconfig.xlink_actuate,
+                "%xlink_show%": new_asconfig.xlink_show,
+                "%uri_prefix%": new_asconfig.uri_prefix,
+                "%access_conditions%": new_asconfig.access_conditions,
+                "%use_conditions%": new_asconfig.use_conditions,
+                "%use_statement%": new_asconfig.use_statement,
+            }
+
+            logger.debug('New ArchivesSpace settings: %s', (settings,))
+            new_mscrDic = models.MicroServiceChoiceReplacementDic.objects.get(description='ArchivesSpace Config')
+            logger.debug('Trying to save mscr %s', (new_mscrDic.description,))
+            new_asconfig.save()
+            logger.debug('Old: %s', (new_mscrDic.replacementdic,))
+            new_mscrDic.replacementdic = str(settings)
+            logger.debug('New: %s', (new_mscrDic.replacementdic,))
+            new_mscrDic.save()
+            logger.debug('Done')
+            messages.info(request, 'Saved.')
+            valid_submission = True
+    else:
+        form = ArchivesSpaceConfigForm(instance=as_config)
+    return render(request, 'administration/dips_as_edit.html', locals())
 
 
 def administration_atk_dips(request):
