@@ -39,25 +39,8 @@ from elasticSearchFunctions import getDashboardUUID
 
 UUIDsDic={}
 
-from optparse import OptionParser
-parser = OptionParser()
-parser.add_option("-s",  "--basePath", action="store", dest="basePath", default="")
-parser.add_option("-b",  "--basePathString", action="store", dest="basePathString", default="SIPDirectory") #transferDirectory
-parser.add_option("-f",  "--fileGroupIdentifier", action="store", dest="fileGroupIdentifier", default="sipUUID") #transferUUID
-parser.add_option("-S",  "--sipUUID", action="store", dest="sipUUID", default="")
-parser.add_option("-x",  "--xmlFile", action="store", dest="xmlFile", default="")
-(opts, args) = parser.parse_args()
-print opts
 
-
-SIPUUID = opts.sipUUID
-basePath = opts.basePath
-XMLFile = opts.xmlFile
-basePathString = "%%%s%%" % (opts.basePathString)
-fileGroupIdentifier = opts.fileGroupIdentifier
-
-
-def createMetsHdr():
+def createMetsHdr(sip_uuid):
     header = etree.Element(ns.metsBNS + "metsHdr",
                            CREATEDATE=getUTCDate().split(".")[0])
     agent = etree.SubElement(header, ns.metsBNS + "agent",
@@ -69,7 +52,7 @@ def createMetsHdr():
     note = etree.SubElement(agent, ns.metsBNS + "note")
     note.text = "Archivematica dashboard UUID"
 
-    accession_number = getAccessionNumberFromTransfer(SIPUUID)
+    accession_number = getAccessionNumberFromTransfer(sip_uuid)
     if accession_number:
         alt_id = etree.SubElement(header, ns.metsBNS + "altRecordID",
                                   TYPE="Accession number")
@@ -85,7 +68,7 @@ def newChild(parent, tag, text=None, tailText=None):
     return child
 
 
-def each_child(path):
+def each_child(path, file_group_identifier, base_path, base_path_name, sip_uuid):
     """
     Iterates over entries in a filesystem, beginning at `path`.
 
@@ -119,10 +102,10 @@ def each_child(path):
                 if doDirectories:
                     continue
 
-                pathSTR = itempath.replace(basePath, basePathString, 1)
+                pathSTR = itempath.replace(base_path, base_path_name, 1)
                 kwargs = {
                     'removedtime__isnull': True,
-                    fileGroupIdentifier: SIPUUID,
+                    file_group_identifier: sip_uuid,
                     'currentlocation': pathSTR
                 }
                 try:
@@ -134,24 +117,24 @@ def each_child(path):
 #Do /SIP-UUID/
 #Force only /SIP-UUID/objects
 doneFirstRun = False
-def createFileSec(path, parentBranch, structMapParent):
+def createFileSec(path, file_group_identifier, base_path, base_path_name, parentBranch, structMapParent, sip_uuid):
     print >>sys.stderr, "createFileSec: ", path, parentBranch, structMapParent
     doneFirstRun = True
     pathSTR = path.__str__()
     pathSTR = path.__str__()
-    if pathSTR == basePath + "objects/": #IF it's it's the SIP folder, it's OBJECTS
+    if pathSTR == base_path + "objects/": #IF it's it's the SIP folder, it's OBJECTS
         pathSTR = "objects"
     #pathSTR = string.replace(path.__str__(), "/tmp/" + sys.argv[2] + "/" + sys.argv[3], "objects", 1)
     #if pathSTR + "/" == basePath: #if it's the very first run through (recursive function)
-    if path == basePath: #if it's the very first run through (recursive function)
-        pathSTR = os.path.basename(os.path.dirname(basePath))
+    if path == base_path: #if it's the very first run through (recursive function)
+        pathSTR = os.path.basename(os.path.dirname(base_path))
         #structMapParent.set("DMDID", "SIP-description")
 
         #currentBranch = newChild(parentBranch, "fileGrp")
         #currentBranch.set("USE", "directory")
         # structMap directory
         div = newChild(structMapParent, ns.metsBNS + "div")
-        createFileSec(os.path.join(path, "objects/"), parentBranch, div)
+        createFileSec(os.path.join(path, "objects/"), file_group_identifier, base_path, base_path_name, parentBranch, div, sip_uuid)
         doneFirstRun = False
     filename = os.path.basename(pathSTR)
 
@@ -159,7 +142,7 @@ def createFileSec(path, parentBranch, structMapParent):
     structMapParent.set("LABEL", escape(filename))
 
     if doneFirstRun:
-        for item in each_child(path):
+        for item in each_child(path, file_group_identifier, base_path, base_path_name, sip_uuid):
             if isinstance(item, File):
                 pathSTR = item.currentlocation.replace('%transferDirectory%', "", 1)
 
@@ -191,23 +174,33 @@ def createFileSec(path, parentBranch, structMapParent):
 
             else:
                 div = newChild(structMapParent, ns.metsBNS + "div")
-                createFileSec(os.path.join(path, item), parentBranch, div)
+                createFileSec(os.path.join(path, item), file_group_identifier, base_path, base_path_name, parentBranch, div, sip_uuid)
 
 if __name__ == '__main__':
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-s", "--basePath", action="store", dest="basePath", default="")
+    parser.add_option("-b", "--basePathString", action="store", dest="basePathString", default="SIPDirectory")  # transferDirectory
+    parser.add_option("-f", "--fileGroupIdentifier", action="store", dest="fileGroupIdentifier", default="sipUUID")  # transferUUID
+    parser.add_option("-S", "--sipUUID", action="store", dest="sipUUID", default="")
+    parser.add_option("-x", "--xmlFile", action="store", dest="xmlFile", default="")
+    (opts, args) = parser.parse_args()
+    print opts
+
     root = etree.Element(ns.metsBNS + "mets",
         nsmap={"xlink": ns.xlinkNS, "mets": ns.metsNS},
         attrib={
             ns.xsiBNS + "schemaLocation": "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd",
-            "OBJID": SIPUUID
+            "OBJID": opts.sipUUID
         }
     )
 
-    root.append(createMetsHdr())
+    root.append(createMetsHdr(opts.sipUUID))
 
     #cd /tmp/$UUID;
     opath = os.getcwd()
-    os.chdir(basePath)
-    path = basePath
+    os.chdir(opts.basePath)
+    path = opts.basePath
 
     fileSec = etree.Element(ns.metsBNS + "fileSec")
     #fileSec.tail = "\n"
@@ -221,10 +214,11 @@ if __name__ == '__main__':
     structMap.set("LABEL", "original")
     structMapDiv = newChild(structMap, ns.metsBNS + "div")
 
-    createFileSec(path, sipFileGrp, structMapDiv)
+    basePathString = "%%%s%%" % (opts.basePathString)
+    createFileSec(path, opts.fileGroupIdentifier, opts.basePath, basePathString, sipFileGrp, structMapDiv, opts.sipUUID)
 
     tree = etree.ElementTree(root)
-    tree.write(XMLFile, pretty_print=True, xml_declaration=True)
+    tree.write(opts.xmlFile, pretty_print=True, xml_declaration=True)
 
     # Restore original path
     os.chdir(opath)

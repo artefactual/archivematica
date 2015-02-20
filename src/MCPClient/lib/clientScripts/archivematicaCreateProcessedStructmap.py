@@ -11,12 +11,12 @@ import archivematicaXMLNamesSpace as ns
 from lxml import etree
 
 
-def create_amdSecs(base_path):
+def create_amdSecs(path, file_group_identifier, base_path, base_path_name, sip_uuid):
     amdSecs = []
 
-    for child in each_child(base_path):
+    for child in each_child(path, file_group_identifier, base_path, base_path_name, sip_uuid):
         if isinstance(child, basestring):  # directory
-            amdSecs.extend(create_amdSecs(child))
+            amdSecs.extend(create_amdSecs(child, file_group_identifier, base_path, base_path_name, sip_uuid))
         else:  # file
             admid = "digiprov-" + child.uuid
             amdSec = etree.Element(ns.metsBNS + 'amdSec',
@@ -30,6 +30,9 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument("-s", "--basePath", action="store", dest="basePath", default="")
+    parser.add_argument("-b", "--basePathString", action="store", dest="basePathString", default="SIPDirectory")  # transferDirectory
+    parser.add_argument("-f", "--fileGroupIdentifier", action="store", dest="fileGroupIdentifier", default="sipUUID")  # transferUUID
+    parser.add_argument("-S", "--sipUUID", action="store", dest="sipUUID", default="")
     parser.add_argument("-x", "--xmlFile", action="store", dest="xmlFile", default="")
     opts = parser.parse_args()
 
@@ -52,11 +55,12 @@ if __name__ == '__main__':
                                  LABEL="processed")
     structMapDiv = etree.SubElement(structMap, ns.metsBNS + "div")
 
-    createFileSec(opts.basePath, fileGrp, structMapDiv)
+    basePathString = "%%%s%%" % (opts.basePathString)
+    createFileSec(opts.basePath, opts.fileGroupIdentifier, opts.basePath, basePathString, fileGrp, structMapDiv, opts.sipUUID)
 
     # insert <amdSec>s after the <metsHdr>, which must be the first element
     # within the <mets> element if present.
-    for el in create_amdSecs(opts.basePath):
+    for el in create_amdSecs(opts.basePath, opts.fileGroupIdentifier, opts.basePath, basePathString, opts.sipUUID):
         root.insert(1, el)
 
     with open(opts.xmlFile, "w") as f:
