@@ -30,3 +30,18 @@ class ArchivistsToolkitConfig(models.Model):
     access_conditions = models.CharField(max_length=50, blank=True, null=True)
     use_conditions = models.CharField(max_length=50, blank=True, null=True)
 
+class ArchivesSpaceConfig(models.Model):
+    id = UUIDPkField()
+    host = models.CharField(max_length=50)
+    port = models.IntegerField(default=8089)
+    user = models.CharField(max_length=50)
+    passwd = models.CharField(max_length=50)
+    premis = models.CharField(max_length=10)
+    xlink_show = models.CharField(max_length=50)
+    xlink_actuate = models.CharField(max_length=50)
+    object_type = models.CharField(max_length=50, blank=True, null=True)
+    use_statement = models.CharField(max_length=50)
+    uri_prefix = models.CharField(max_length=50)
+    access_conditions = models.CharField(max_length=50, blank=True, null=True)
+    use_conditions = models.CharField(max_length=50, blank=True, null=True)
+    repository = models.IntegerField(default=2)

@@ -21,7 +21,7 @@ from django.forms import ModelForm
 from django.forms.widgets import TextInput, Textarea, RadioSelect, CheckboxInput
 from main import models
 from django.conf import settings
-from components.administration.models import ArchivistsToolkitConfig
+from components.administration.models import ArchivistsToolkitConfig, ArchivesSpaceConfig
 
 class AtomSettingsForm(forms.ModelForm):
     class Meta:
@@ -98,6 +98,25 @@ class ArchivistsToolkitConfigForm(ModelForm):
  
     class Meta:
         model = ArchivistsToolkitConfig
+
+class ArchivesSpaceConfigForm(ModelForm):
+    id = forms.HiddenInput()
+    host = forms.CharField(widget=TextInput(attrs=settings.INPUT_ATTRS), label="ArchivesSpace host:")
+    port = forms.CharField(widget=TextInput(attrs=settings.INPUT_ATTRS), label="ArchivesSpace port:")
+    user = forms.CharField(widget=TextInput(attrs=settings.INPUT_ATTRS), label="ArchivesSpace administrative user:")
+    passwd = forms.CharField(widget=forms.PasswordInput(), label="ArchivesSpace administrative user password:", required=False)
+    premis = forms.ChoiceField(widget=RadioSelect(), label="Restrictions Apply:", choices=PREMIS_CHOICES)
+    xlink_actuate = forms.ChoiceField(widget=RadioSelect(), label="XLink Actuate:", choices=EAD_ACTUATE_CHOICES)
+    xlink_show = forms.ChoiceField(widget=RadioSelect(), label="XLink Show:", choices=EAD_SHOW_CHOICES)
+    use_statement = forms.CharField(widget=TextInput(attrs=settings.INPUT_ATTRS), label="Use statement:")
+    object_type = forms.CharField(widget=TextInput(attrs=settings.INPUT_ATTRS), label="Object type:", required=False)
+    access_conditions = forms.CharField(widget=TextInput(attrs=settings.INPUT_ATTRS), label="Conditions governing access:", required=False)
+    use_conditions = forms.CharField(widget=TextInput(attrs=settings.INPUT_ATTRS), label="Conditions governing use:", required=False)
+    uri_prefix = forms.CharField(widget=TextInput(attrs=settings.INPUT_ATTRS), label="URL prefix:")
+    repository = forms.CharField(widget=TextInput(attrs=settings.INPUT_ATTRS), label="ArchivesSpace repository number")
+
+    class Meta:
+        model = ArchivesSpaceConfig
 
 class TaxonomyTermForm(ModelForm):
     class Meta:
