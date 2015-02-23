@@ -25,75 +25,75 @@ class TestSIPArrange(TestCase):
         objs = models.SIPArrange.objects.all()
         assert len(objs) > 0
 
-    def test_arrange_contents_data(self):
+    def test_arrange_contents_data_no_path(self):
+        # Call endpoint
         response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': None}, follow=True)
-        # Order of response lists not guaranteed - this is set to be the same as the response
-        expected_json = {
-            "directories": [
-                base64.b64encode("newsip"),
-                base64.b64encode("toplevel"),
-            ],
-            "entries": [
-                base64.b64encode("newsip"),
-                base64.b64encode("toplevel"),
-            ]
-        }
+        # Verify
         assert response.status_code == 200
-        assert json.loads(response.content) == expected_json
+        response_dict = json.loads(response.content)
+        assert 'directories' in response_dict
+        assert base64.b64encode("newsip") in response_dict['directories']
+        assert base64.b64encode("toplevel") in response_dict['directories']
+        assert len(response_dict['directories']) == 2
+        assert 'entries' in response_dict
+        assert base64.b64encode("newsip") in response_dict['entries']
+        assert base64.b64encode("toplevel") in response_dict['entries']
+        assert len(response_dict['entries']) == 2
+        assert len(response_dict) == 2
 
+    def test_arrange_contents_data_path(self):
         # Folder, without /
         response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange/newsip/objects/')}, follow=True)
-        expected_json = {
-            "directories": [
-                base64.b64encode("evelyn_s_second_photo"),
-            ],
-            "entries": [
-                base64.b64encode("evelyn_s_photo.jpg"),
-                base64.b64encode("evelyn_s_second_photo"),
-            ]
-        }
+        # Verify
         assert response.status_code == 200
-        assert json.loads(response.content) == expected_json
+        response_dict = json.loads(response.content)
+        assert 'directories' in response_dict
+        assert base64.b64encode("evelyn_s_second_photo") in response_dict['directories']
+        assert len(response_dict['directories']) == 1
+        assert 'entries' in response_dict
+        assert base64.b64encode("evelyn_s_photo.jpg") in response_dict['entries']
+        assert base64.b64encode("evelyn_s_second_photo") in response_dict['entries']
+        assert len(response_dict['entries']) == 2
+        assert len(response_dict) == 2
 
     def test_delete_arranged_files(self):
+        # Check to-be-deleted exists
+        response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange')}, follow=True)
+        assert base64.b64encode('newsip') in json.loads(response.content)['directories']
         # Delete files
         response = self.client.post(reverse('components.filesystem_ajax.views.delete_arrange'), data={'filepath': base64.b64encode('/arrange/newsip/')}, follow=True)
         assert response.status_code == 200
         assert json.loads(response.content) == {'message': 'Delete successful.'}
         # Check deleted
         response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange')}, follow=True)
-        expected_json = {
-            "directories": [
-                base64.b64encode("toplevel"),
-            ],
-            "entries": [
-                base64.b64encode("toplevel"),
-            ]
-        }
         assert response.status_code == 200
-        assert json.loads(response.content) == expected_json
+        response_dict = json.loads(response.content)
+        assert base64.b64encode("toplevel") in response_dict['directories']
+        assert len(response_dict['directories']) == 1
+        assert base64.b64encode("toplevel") in response_dict['entries']
+        assert len(response_dict['entries']) == 1
 
     def test_create_arranged_directory(self):
+        # Verify does not exist already
+        response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange')}, follow=True)
+        assert base64.b64encode('new_dir') not in json.loads(response.content)['directories']
+        assert base64.b64encode('new_dir') not in json.loads(response.content)['entries']
         # Create directory
         response = self.client.post(reverse('components.filesystem_ajax.views.create_directory_within_arrange'), data={'path': base64.b64encode('/arrange/new_dir')}, follow=True)
         assert response.status_code == 200
         assert json.loads(response.content) == {'message': 'Creation successful.'}
         # Check created
         response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange')}, follow=True)
-        expected_json = {
-            "directories": [
-                base64.b64encode("newsip"),
-                base64.b64encode("new_dir"),
-                base64.b64encode("toplevel"),
-            ],
-            "entries": [
-                base64.b64encode("newsip"),
-                base64.b64encode("new_dir"),
-                base64.b64encode("toplevel"),
-            ]
-        }
         assert response.status_code == 200
-        assert json.loads(response.content) == expected_json
+        response_dict = json.loads(response.content)
+        assert base64.b64encode('new_dir') in response_dict['directories']
+        assert base64.b64encode('newsip') in response_dict['directories']
+        assert base64.b64encode('toplevel') in response_dict['directories']
+        assert len(response_dict['directories']) == 3
+        assert base64.b64encode('new_dir') in response_dict['entries']
+        assert base64.b64encode('newsip') in response_dict['entries']
+        assert base64.b64encode('toplevel') in response_dict['entries']
+        assert len(response_dict['entries']) == 3
 
     def test_move_within_arrange(self):
         # Move directory
@@ -102,27 +102,22 @@ class TestSIPArrange(TestCase):
         assert json.loads(response.content) == {'message': 'SIP files successfully moved.'}
         # Check gone from parent
         response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange')}, follow=True)
-        expected_json = {
-            "directories": [
-                base64.b64encode("toplevel"),
-            ],
-            "entries": [
-                base64.b64encode("toplevel"),
-            ]
-        }
         assert response.status_code == 200
-        assert json.loads(response.content) == expected_json
+        response_dict = json.loads(response.content)
+        assert base64.b64encode('toplevel') in response_dict['directories']
+        assert base64.b64encode('newsip') not in response_dict['directories']
+        assert len(response_dict['directories']) == 1
+        assert base64.b64encode('toplevel') in response_dict['entries']
+        assert base64.b64encode('newsip') not in response_dict['entries']
+        assert len(response_dict['entries']) == 1
+
         # Check now in subdirectory
         response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange/toplevel')}, follow=True)
-        expected_json = {
-            "directories": [
-                base64.b64encode("newsip"),
-                base64.b64encode("subsip"),
-            ],
-            "entries": [
-                base64.b64encode("newsip"),
-                base64.b64encode("subsip"),
-            ]
-        }
         assert response.status_code == 200
-        assert json.loads(response.content) == expected_json
+        response_dict = json.loads(response.content)
+        assert base64.b64encode('subsip') in response_dict['directories']
+        assert base64.b64encode('newsip') in response_dict['directories']
+        assert len(response_dict['directories']) == 2
+        assert base64.b64encode('subsip') in response_dict['entries']
+        assert base64.b64encode('newsip') in response_dict['entries']
+        assert len(response_dict['entries']) == 2
