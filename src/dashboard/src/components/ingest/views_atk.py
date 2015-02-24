@@ -15,41 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
-from django.shortcuts import render
-from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError
-from django.utils import simplejson
-import os, sys, MySQLdb, ast
+from django.http import HttpResponseServerError
+import sys, MySQLdb, ast
 from main import models
-from components import helpers
 from components import advanced_search
-import xml.etree.ElementTree as ElementTree
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivistsToolkit.client import ArchivistsToolkitClient
-import elasticSearchFunctions, databaseFunctions
 
-# TODO: move into helpers module at some point
-# From http://www.ironzebra.com/news/23/converting-multi-dimensional-form-arrays-in-django
-def getDictArray(post, name):
-    dic = {}
-    for k in post.keys():
-        if k.startswith(name):
-            rest = k[len(name):]
+import pair_matcher
 
-            # split the string into different components
-            parts = [p[:-1] for p in rest.split('[')][1:]
-            id = int(parts[0])
-
-            # add a new dictionary if it doesn't exist yet
-            if id not in dic:
-                dic[id] = {}
-
-            # add the information to the dictionary
-            dic[id][parts[1]] = post.get(k)
-    return dic
-
-def get_access_system_client():
+def get_atk_system_client():
     dict = models.MicroServiceChoiceReplacementDic.objects.get(description='Archivists Toolkit Config')
     config = ast.literal_eval(dict.replacementdic)
 
@@ -62,43 +37,22 @@ def get_access_system_client():
 
 def ingest_upload_atk(request, uuid):
     try:
+        client = get_atk_system_client()
         query = request.GET.get('query', '').strip()
+        page = request.GET.get('page', 1)
+        search_params = advanced_search.extract_url_search_params_from_request(request)
 
-        client = get_access_system_client()
-
-        try:
-            resources = client.find_collection_ids(query)
-        except MySQLdb.OperationalError:
-            return HttpResponseServerError('Database connection error. Please contact an administration.')
-
-        page = helpers.pager(resources, 10, request.GET.get('page', 1))
-
-        page['objects'] = client.augment_resource_ids(page['objects'])
-
+        return pair_matcher.list_records(client, request, query, page,
+                                         search_params,
+                                         'ingest/atk/resource_list.html',
+                                         uuid)
     except (MySQLdb.ProgrammingError, MySQLdb.OperationalError) as e:
         return HttpResponseServerError(
           'Database error {0}. Please contact an administrator.'.format(str(e))
         )
 
-    search_params = advanced_search.extract_url_search_params_from_request(request)
-    return render(request, 'ingest/atk/resource_list.html', locals())
-
 def ingest_upload_atk_save(request, uuid):
-    pairs_saved = ingest_upload_atk_save_to_db(request, uuid)
-
-    if pairs_saved > 0:
-        response = {
-            "message": "Submitted successfully."
-        }
-    else:
-        response = {
-            "message": "No pairs saved."
-        }
-
-    return HttpResponse(
-        simplejson.JSONEncoder().encode(response),
-        mimetype='application/json'
-    )
+    return pair_matcher.pairs_saved_response(ingest_upload_atk_save_to_db(request, uuid))
 
 def ingest_upload_atk_save_to_db(request, uuid):
     saved = 0
@@ -106,7 +60,7 @@ def ingest_upload_atk_save_to_db(request, uuid):
     # delete existing mapping, if any, for this DIP
     models.AtkDIPObjectResourcePairing.objects.filter(dipuuid=uuid).delete()
 
-    pairs = getDictArray(request.POST, 'pairs')
+    pairs = pair_matcher.getDictArray(request.POST, 'pairs')
 
     keys = pairs.keys()
     keys.sort()
@@ -126,149 +80,48 @@ def ingest_upload_atk_save_to_db(request, uuid):
     return saved
 
 def ingest_upload_atk_resource(request, uuid, resource_id):
-    client = get_access_system_client()
+    client = get_atk_system_client()
     try:
         query = request.GET.get('query', '').strip()
-        resource_data = client.get_resource_component_and_children(
-            resource_id,
-            'collection',
-            recurse_max_level=2,
-            search_pattern=query
-        )
-        if resource_data['children']:
-             page = helpers.pager(resource_data['children'], 10, request.GET.get('page', 1))
+        page = request.GET.get('page', 1)
+        search_params = advanced_search.extract_url_search_params_from_request(request)
+
+        return pair_matcher.render_resource(client, request, resource_id,
+                                            query, page, search_params,
+                                            'components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels',
+                                            'ingest/atk/resource_detail.html',
+                                            uuid)
     except MySQLdb.ProgrammingError:
         return HttpResponseServerError('Database error. Please contact an administrator.')
-
-    if not resource_data['children'] and query == '':
-        return HttpResponseRedirect(
-            reverse('components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels', args=[uuid, resource_id])
-        )
-    else:
-        search_params = advanced_search.extract_url_search_params_from_request(request)
-        return render(request, 'ingest/atk/resource_detail.html', locals())
 
 def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
-    client = get_access_system_client()
+    client = get_atk_system_client()
     try:
         query = request.GET.get('query', '').strip()
-        resource_component_data = client.get_resource_component_and_children(
-            resource_component_id,
-            'description',
-            recurse_max_level=2,
-            search_pattern=query
-        )
-        if resource_component_data['children']:
-            page = helpers.pager(resource_component_data['children'], 10, request.GET.get('page', 1))
+        page = request.GET.get('page', 1)
+        search_params = advanced_search.extract_url_search_params_from_request(request)
+        return pair_matcher.render_resource_component(client, request,
+                                                      resource_component_id,
+                                                      query, page, search_params,
+                                                      'components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_component_levels',
+                                                      'ingest/atk/resource_component.html',
+                                                      uuid)
     except MySQLdb.ProgrammingError:
         return HttpResponseServerError('Database error. Please contact an administrator.')
 
-    resource_id = client.find_resource_id_for_component(resource_component_id)
-
-    if not resource_component_data['children'] and query == '':
-        return HttpResponseRedirect(
-            reverse('components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_component_levels', args=[uuid, resource_component_id])
-        )
-    else:
-        search_params = advanced_search.extract_url_search_params_from_request(request)
-        return render(request, 'ingest/atk/resource_component.html', locals())
-
 def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resource_id):
-    # load object relative paths
-    object_path_json = simplejson.JSONEncoder().encode(
-        ingest_upload_atk_get_dip_object_paths(uuid)
-    )
-
     try:
         # load resource and child data
-        client = get_access_system_client()
-        resource_data_json = simplejson.JSONEncoder().encode(
-            client.get_resource_component_and_children(resource_id)
-        )
+        client = get_atk_system_client()
+        return pair_matcher.match_dip_objects_to_resource_levels(client, request, resource_id, 'ingest/atk/match.html', uuid)
     except:
         return HttpResponseServerError('Database error. Please contact an administrator.')
-
-    return render(request, 'ingest/atk/match.html', locals())
-
-def ingest_upload_atk_get_dip_object_paths(uuid):
-    # determine the DIP upload directory
-    watch_dir = helpers.get_server_config_value('watchDirectoryPath')
-    dip_upload_dir = os.path.join(watch_dir, 'uploadDIP')
-
-    # work out directory name for DIP (should be the same as the SIP)
-    try:
-        sip = models.SIP.objects.get(uuid=uuid)
-    except:
-         raise Http404
-
-    directory = os.path.basename(os.path.dirname(sip.currentpath))
-
-    # work out the path to the DIP's METS file
-    metsFilePath = os.path.join(dip_upload_dir, directory, 'METS.' + uuid + '.xml')
-
-    # read file paths from METS file
-    tree = ElementTree.parse(metsFilePath)
-    root = tree.getroot()
-
-    # use paths to create an array that we'll sort and store path UUIDs separately
-    paths = []
-    path_uuids = {}
-
-    # in the end we'll populate this using paths and path_uuids
-    files = []
-
-    # get each object's filepath
-    for item in root.findall("{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp[@USE='original']/{http://www.loc.gov/METS/}file"):
-        for item2 in item.findall("{http://www.loc.gov/METS/}FLocat"):
-            object_path = item2.attrib['{http://www.w3.org/1999/xlink}href']
-
-            # look up file's UUID
-            file = models.File.objects.get(
-                sip=uuid,
-                currentlocation='%SIPDirectory%' + object_path
-            )
-
-            # remove "objects/" dir when storing representation
-            if object_path.index('objects/') == 0:
-                object_path = object_path[8:]
-
-            paths.append(object_path)
-            path_uuids[object_path] = file.uuid
-
-    # create array of objects with object data
-    paths.sort()
-    for path in paths:
-        files.append({
-            'uuid': path_uuids[path],
-            'path': path
-        })
-
-    return files
-
-    """
-    files = [{
-        'uuid': '7665dc52-29f3-4309-b3fe-273c4c04df4b',
-        'path': 'dog.jpg'
-    },
-    {
-        'uuid': 'c2e41289-8280-4db9-ae4e-7730fbaa1471',
-        'path': 'inages/candy.jpg'
-    }]
-    """
 
 def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uuid, resource_component_id):
     # load object relative paths
-    object_path_json = simplejson.JSONEncoder().encode(
-        ingest_upload_atk_get_dip_object_paths(uuid)
-    )
-
     try:
         # load resource and child data
-        client = get_access_system_client()
-        resource_data_json = simplejson.JSONEncoder().encode(
-            client.get_resource_component_children(resource_component_id)
-        )
+        client = get_atk_system_client()
+        return pair_matcher.match_dip_objects_to_resource_component_levels(client, request, resource_component_id, 'ingest/atk/match.html', uuid)
     except:
         return HttpResponseServerError('Database error. Please contact an administrator.')
-
-    return render(request, 'ingest/atk/match.html', locals())

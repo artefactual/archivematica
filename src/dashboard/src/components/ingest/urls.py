@@ -42,6 +42,7 @@ urlpatterns = patterns('components.ingest.views',
     url(r'backlog/$', 'transfer_backlog')
 )
 
+# Archivists Toolkit
 urlpatterns = urlpatterns + patterns('components.ingest.views_atk',
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/match/resource/(?P<resource_id>\d+)/$', 'ingest_upload_atk_match_dip_objects_to_resource_levels'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/match/resourcecomponent/(?P<resource_component_id>\d+)/$', 'ingest_upload_atk_match_dip_objects_to_resource_component_levels'),
@@ -49,4 +50,14 @@ urlpatterns = urlpatterns + patterns('components.ingest.views_atk',
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/resourcecomponent/(?P<resource_component_id>\d+)/$', 'ingest_upload_atk_resource_component'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/save/$', 'ingest_upload_atk_save'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/$', 'ingest_upload_atk')
+)
+
+# ArchivesSpace
+urlpatterns = urlpatterns + patterns('components.ingest.views_as',
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/match/resource/(?P<resource_id>.+)/$', 'ingest_upload_as_match_dip_objects_to_resource_levels'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/match/resourcecomponent/(?P<resource_component_id>.+)/$', 'ingest_upload_as_match_dip_objects_to_resource_component_levels'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/resource/(?P<resource_id>.+)/$', 'ingest_upload_as_resource'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/resourcecomponent/(?P<resource_component_id>.+)/$', 'ingest_upload_as_resource_component'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/save/$', 'ingest_upload_as_save'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/$', 'ingest_upload_as')
 )

@@ -1,0 +1,42 @@
+﻿{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+
+{% block title %}Match{% endblock %}
+{% block h1 %}Match{% endblock %}
+{% block page_id %}atk_match{% endblock %}
+
+{% block content %}
+<div class="span12">
+
+  <ul class="breadcrumb">
+    {% breadcrumb 'DIP Upload' %} 
+  </ul>
+
+  <h1>
+    Collections<br />
+    <small>ArchivesSpace</small>
+  </h1>
+
+  {% include "ingest/as/_search_form.html" %}
+
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Dates</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for resource in page.objects %}
+        <tr>
+          <td><a href="{% url 'components.ingest.views_as.ingest_upload_as_resource' uuid resource.id %}">{{ resource.title }} ({{ resource.id }})</a></td>
+          <td><a href="{% url 'components.ingest.views_as.ingest_upload_as_resource' uuid resource.id %}">{{ resource.dates }}</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% include "_pager.html" %}
+
+</div>
+{% endblock %}

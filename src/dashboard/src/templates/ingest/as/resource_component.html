@@ -1,0 +1,57 @@
+﻿{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+
+{% block title %}Match{% endblock %}
+{% block h1 %}Match{% endblock %}
+{% block page_id %}atk_match{% endblock %}
+
+{% block content %}
+<div class="span12">
+
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'DIP Upload' 'components.ingest.views_as.ingest_upload_as' uuid %}
+    {% breadcrumb_url 'Collection' 'components.ingest.views_as.ingest_upload_as_resource' uuid resource_id %}
+    {% breadcrumb 'Description' %}
+  </ul>
+
+  <div style="float:right">
+    {% include "ingest/as/_search_form.html" %}
+  </div>
+
+  <h1>
+    Description<br />
+    <small>{{ resource_component_data.title }} ({{ resource_component_data.id }})</small>
+  </h1>
+
+  <a class='btn' href="{% url 'components.ingest.views_as.ingest_upload_as_match_dip_objects_to_resource_component_levels' uuid resource_component_id %}">Assign DIP objects to this level of description</a>
+
+  <br />
+  <br />
+
+  {% if page.objects %}
+    <table>
+      <thead>
+        <tr>
+          <th>Level of Description</th>
+          <th>Title</th>
+          <th>Dates</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for component in page.objects %}
+          <tr>
+            <td><a href="{% url 'components.ingest.views_as.ingest_upload_as_resource_component' uuid component.id %}">{{ component.levelOfDescription }}</a></td>
+            <td><a href="{% url 'components.ingest.views_as.ingest_upload_as_resource_component' uuid component.id %}">{{ component.title }} ({{ component.id }})</a></td>
+            <td><a href="{% url 'components.ingest.views_as.ingest_upload_as_resource_component' uuid component.id %}">{{ component.dates }}</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% include "_pager.html" %}
+  {% else %}
+    <p>No child descriptions found.</p>
+  {% endif %}
+
+</div>
+{% endblock %}
