@@ -317,6 +317,13 @@ $(function()
             window.location.href = '/ingest/' + this.model.sip.get('uuid') + '/upload/atk/';
           }
 
+          // redirect to object/resource mapping pages
+          if ('- Upload DIP to ArchivesSpace' == $select.find('option:selected').text())
+          {
+            $('body').html('<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Loading...</h1>');
+            window.location.href = '/ingest/' + this.model.sip.get('uuid') + '/upload/as/';
+          }
+
           // if ('Upload DIP' == this.model.get('type') && 13 == value)
           if ('- Upload DIP to Atom' == $select.find('option:selected').text())
           {
