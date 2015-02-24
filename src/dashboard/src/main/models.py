@@ -764,6 +764,22 @@ class AtkDIPObjectResourcePairing(models.Model):
     class Meta:
         db_table = u'AtkDIPObjectResourcePairing'
 
+class ArchivesSpaceDIPObjectResourcePairing(models.Model):
+    id = models.AutoField(primary_key=True, db_column='pk')
+    dipuuid = models.CharField(max_length=50, db_column='dipUUID')
+    fileuuid = models.CharField(max_length=50, db_column='fileUUID')
+    # This field holds URL fragments, for instance:
+    # /repositories/2/archival_objects/1
+    resourceid = models.CharField(max_length=150, db_column='resourceId')
+
+    class Meta:
+        db_table = u'ArchivesSpaceDIPObjectResourcePairing'
+        # Table name length is fine, but if the verbose name is too
+        # long it can result in confusing errors when trying to
+        # set up permissions: https://code.djangoproject.com/ticket/18866
+        verbose_name = u'ASDIPObjectResourcePairing'
+
+
 class TransferMetadataSet(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
