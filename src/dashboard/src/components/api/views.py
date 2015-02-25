@@ -86,7 +86,7 @@ def get_unit_status(unit_uuid, unit_type):
     elif models.Job.objects.filter(sipuuid=unit_uuid).filter(jobtype='Create SIP from transfer objects').exists():
         ret['status'] = 'COMPLETE'
         # Get SIP UUID
-        sips = models.File.objects.filter(transfer_id=unit_uuid).values('sip').distinct()
+        sips = models.File.objects.filter(transfer_id=unit_uuid, sip__isnull=False).values('sip').distinct()
         if sips:
             ret['sip_uuid'] = sips[0]['sip']
     elif models.Job.objects.filter(sipuuid=unit_uuid).filter(jobtype='Move transfer to backlog').exists():
