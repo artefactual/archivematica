@@ -208,6 +208,8 @@ $(function()
         'click .btn_reject_job': 'rejectJob',
         'click .btn_show_tasks': 'showTasks',
         'click .btn_normalization_report': 'normalizationReport',
+        'click .btn_as_upload': 'as_match',
+        'click .btn_atk_upload': 'atk_match',
         'change select': 'action'
       },
 
@@ -271,6 +273,18 @@ $(function()
           {
             this.$('.job-detail-actions')
               .append('<a class="btn_normalization_report" href="#" title="Report"><span>Report</span></a>');
+          }
+
+          if ('Choose Config for ArchivesSpace DIP Upload' == this.model.get('type'))
+          {
+            this.$('.job-detail-actions')
+            .append('<a class="btn_as_upload" href="#" title="Match DIP objects to resources"><span>Match DIP objects to resources</span>');
+          }
+
+          if ('Choose Config for Archivists Toolkit DIP Upload' == this.model.get('type'))
+          {
+            this.$('.job-detail-actions')
+            .append('<a class="btn_atk_upload" href="#" title="Match DIP objects to resources"><span>Match DIP objects to resources</span>');
           }
 
           this.$('.job-detail-microservice > a').tooltip();
@@ -427,7 +441,25 @@ $(function()
           var url = '/ingest/normalization-report/' + this.model.sip.get('uuid') + '/';
           window.open(url, '_blank');
           window.focus();
-        }
+        },
+
+      as_match: function(event)
+        {
+          event.preventDefault();
+
+          var url = '/ingest/' + this.model.sip.get('uuid') + '/upload/as/';
+          window.open(url, '_blank');
+          window.focus();
+        },
+
+      atk_match: function(event)
+        {
+          event.preventDefault();
+
+          var url = '/ingest/' + this.model.sip.get('uuid') + '/upload/atk/';
+          window.open(url, '_blank');
+          window.focus();
+        },
 
     });
 
