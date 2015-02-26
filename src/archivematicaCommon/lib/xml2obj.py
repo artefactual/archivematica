@@ -12,18 +12,18 @@ def mets_file(src):
     mets = Tree()
     
     file_uuid = None
-    for amd in raw.amdSec:
-        file_uuid = amd.techMD.mdWrap.xmlData.object.objectIdentifier.objectIdentifierValue
-        if amd.rightsMD:
-            for rights in amd.rightsMD:
+    for amd in raw.mets_amdSec:
+        file_uuid = amd.mets_techMD.mets_mdWrap.mets_xmlData.premis_object.premis_objectIdentifier.premis_objectIdentifierValue
+        if amd.mets_rightsMD:
+            for rights in amd.mets_rightsMD:
                 #print "found rightsMD: {}".format(rights['ID'])
-                if rights.mdWrap.xmlData.rightsStatement.rightsGranted:
-                    for granted in rights.mdWrap.xmlData.rightsStatement.rightsGranted:
-                        act = granted.act
-                        note = granted.rightsGrantedNote
+                if rights.mets_mdWrap.mets_xmlData.premis_rightsStatement.premis_rightsGranted:
+                    for granted in rights.mets_mdWrap.mets_xmlData.premis_rightsStatement.premis_rightsGranted:
+                        act = granted.premis_act
+                        note = granted.premis_rightsGrantedNote
                         #print "found {} has {} with {}".format(file_uuid, act, note)
-                        mets[file_uuid]['premis'][act]['restriction'] = granted.restriction
-                        mets[file_uuid]['premis'][act]['rightsGrantedNote'] = granted.rightsGrantedNote
+                        mets[file_uuid]['premis'][act]['restriction'] = granted.premis_restriction
+                        mets[file_uuid]['premis'][act]['rightsGrantedNote'] = granted.premis_rightsGrantedNote
     
     return mets
 
