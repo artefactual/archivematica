@@ -18,3 +18,4 @@ dev (1.4.0)
 * Handle linking_agent as an integer, not a foreign key, in Django models (#8230)
 * Index MODS identifiers in the aips/aipfile index (#8266)
 * Fix bag transfer names (#8229)
+* DSpace transfer type accepts either files or folders

@@ -88,13 +88,18 @@ var TransferComponentFormView = Backbone.View.extend({
       return true;
     };
 
+    display_filter = undefined;
+    if (this.transfer_type == 'zipped bag' || this.transfer_type == 'dspace') {
+      display_filter = zip_filter;
+    }
+
     createDirectoryPicker(
       locationUUID,
       sourceDir,
       'transfer-component-select-modal',
       'path_container',
       'transfer-component-path-item',
-      this.transfer_type == 'zipped bag' ? zip_filter : undefined
+      display_filter
     );
   },
 
