@@ -271,20 +271,17 @@ def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata
 
         # default to standard transfer
         type_subdir = TRANSFER_TYPE_DIRECTORIES.get(type, 'standardTransfer')
-        destination = os.path.join(ACTIVE_TRANSFER_DIR, type_subdir)
+        destination = os.path.join(ACTIVE_TRANSFER_DIR, type_subdir, basename)
+        destination = helpers.pad_destination_filepath_if_it_already_exists(destination)
 
-        # if transfer compontent path leads to a ZIP file, treat as zipped
-        # bag
-        if not helpers.file_is_an_archive(filepath):
-            destination = os.path.join(destination, basename)
-            destination = helpers.pad_destination_filepath_if_it_already_exists(destination)
+        # Ensure directories end with a trailing /
+        if os.path.isdir(filepath):
+            destination = os.path.join(destination, '')
 
-        # relay accession via DB row that MCPClient scripts will use to get
-        # supplementary info from
+        # If we need to pass additional data to the Transfer, create the object here instead of letting MCPClient create it
         if accession != '' or transfer_metadata_set_row_uuid != '':
-            temp_uuid = uuid.uuid4().__str__()
+            temp_uuid = str(uuid.uuid4())
             mcp_destination = destination.replace(os.path.join(SHARED_DIRECTORY_ROOT, ''), '%sharedPath%')
-            mcp_destination = os.path.join(mcp_destination, '')  # Add trailing /
             kwargs = {
                 "uuid": temp_uuid,
                 "accessionid": accession,
