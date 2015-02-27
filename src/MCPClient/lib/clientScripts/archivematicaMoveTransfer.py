@@ -42,7 +42,10 @@ def moveSIP(src, dst, transferUUID, sharedDirectoryPath):
         dest = os.path.join(dest, os.path.basename(src))
     if dest.endswith("/."):
         dest = os.path.join(dest[:-1], os.path.basename(src))
-    updateDB(dest + "/", transferUUID)
+
+    if os.path.isdir(src):
+        dest += "/"
+    updateDB(dest, transferUUID)
 
     renameAsSudo(src, dst)
 
