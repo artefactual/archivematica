@@ -128,43 +128,6 @@ def administration_atk_dips(request):
     return render(request, 'administration/dips_atk_edit.html', locals())
 
 
-
-def contentdm_dips(request):
-    link_id = contentdm_dip_destination_select_link_id()
-    ReplaceDirChoices = models.MicroServiceChoiceReplacementDic.objects.filter(choiceavailableatlink=link_id)
-
-    ReplaceDirChoiceFormSet = dips_formset()
-
-    valid_submission, formset, add_form = dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet)
-
-    if request.method != 'POST' or valid_submission:
-        formset = ReplaceDirChoiceFormSet(queryset=ReplaceDirChoices)
-
-    if request.method == 'POST':
-        if valid_submission:
-            messages.info(request, 'Saved.')
-        else:
-            messages.warning(request, 'An error has occurred.')
-
-    hide_features = helpers.hidden_features()
-    return render(request, 'administration/dips_contentdm_edit.html', locals())
-
-#TODO refactor the following 2 functions into 1
-def administration_atk_dip_destination_select_link_id():
-    taskconfigs = models.TaskConfig.objects.filter(description='Select target CONTENTdm server')
-    taskconfig = taskconfigs[0]
-    links = models.MicroServiceChainLink.objects.filter(currenttask=taskconfig)
-    link = links[0]
-    return link.id
-
-
-def contentdm_dip_destination_select_link_id():
-    taskconfigs = models.TaskConfig.objects.filter(description='Select target CONTENTdm server')
-    taskconfig = taskconfigs[0]
-    links = models.MicroServiceChainLink.objects.filter(currenttask=taskconfig)
-    link = links[0]
-    return link.id
-
 def dips_formset():
     return modelformset_factory(
         models.MicroServiceChoiceReplacementDic,
@@ -302,8 +265,6 @@ def general(request):
     toggleableSettings = {
         'dashboard_administration_atom_dip_enabled':
             'Hide AtoM DIP upload link',
-        'dashboard_administration_contentdm_dip_enabled':
-            'Hide CONTENTdm DIP upload link',
         'dashboard_administration_dspace_enabled':
             'Hide DSpace transfer type',
     }

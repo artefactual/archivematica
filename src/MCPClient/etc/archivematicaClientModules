@@ -28,7 +28,6 @@ elasticSearchAIPIndex_v0.0 = %clientScriptsDirectory%elasticSearchIndexProcessAI
 elasticSearchIndex_v0.0 = %clientScriptsDirectory%elasticSearchIndexProcessTransfer.py
 restructureDIPForContentDMUpload_v0.0 = %clientScriptsDirectory%restructureDIPForContentDMUpload.py
 storeAIP_v0.0 = %clientScriptsDirectory%storeAIP.py
-upload-contentDM_v0.0 = %clientScriptsDirectory%upload-contentDM.py
 upload-qubit_v0.0 = %clientScriptsDirectory%upload-qubit.py
 upload-archivistsToolkit_v0.0 = %clientScriptsDirectory%upload-archivistsToolkit.py
 
@@ -73,7 +72,6 @@ extractMaildirAttachments_v0.0 = %clientScriptsDirectory%extractMaildirAttachmen
 failedSIPCleanup_v1.0 = %clientScriptsDirectory%failedSIPCleanup.py
 FITS_v0.0 = %clientScriptsDirectory%archivematicaFITS.py
 generateDIPFromAIPGenerateDIP_v0.0 = %clientScriptsDirectory%generateDIPFromAIPGenerateDIP.py
-getContentdmCollectionList_v0.0 = %clientScriptsDirectory%getContentdmCollectionList.py
 getAipStorageLocations_v0.0 = %clientScriptsDirectory%getAipStorageLocations.py
 identifyDspaceMETSFiles_v0.0 = %clientScriptsDirectory%identifyDspaceMETSFiles.py
 identifyDspaceFiles_v0.0 = %clientScriptsDirectory%identifyDspaceFiles.py

@@ -6,7 +6,6 @@
   {% url 'components.administration.views.general' as url_general %}
   {% url 'components.administration.views.failure_report' as failure_report %}
   {% url 'components.administration.views.atom_dips' as url_dip %}
-  {% url 'components.administration.views.contentdm_dips' as url_contentdm_dips %}
   {% url 'components.administration.views.administration_atk_dips' as url_atk_dips %}
   {% url 'components.administration.views.sources' as url_sources %}
   {% url 'components.administration.views.storage' as url_storage %}
@@ -28,10 +27,6 @@
 
     {% if not hide_features.atom_dip_admin %}
     <li class="{% active request url_dip %}"><a href="{{ url_dip }}">AtoM DIP upload</a></li>
-    {% endif %}
-
-    {% if not hide_features.contentdm_dip_admin %}
-    <li class="{% active request url_contentdm_dips %}"><a href="{{ url_contentdm_dips }}">CONTENTdm DIP upload</a></li>
     {% endif %}
 
     <li class="{% active request url_atk_dips %}"><a href="{{ url_atk_dips }}">Archivists Toolkit DIP upload</a></li>
