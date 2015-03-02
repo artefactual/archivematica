@@ -344,8 +344,7 @@ def get_modified_standard_transfer_path(transfer_type=None):
         except:
             return None
 
-    shared_directory_path = helpers.get_server_config_value('sharedDirectory')
-    return path.replace(shared_directory_path, '%sharedPath%', 1)
+    return path.replace(SHARED_DIRECTORY_ROOT, '%sharedPath%', 1)
 
 
 def approve_transfer_via_mcp(directory, transfer_type, user_id):
@@ -358,13 +357,14 @@ def approve_transfer_via_mcp(directory, transfer_type, user_id):
         if modified_transfer_path is None:
             error = 'Invalid transfer type.'
         else:
-            if transfer_type == 'zipped bag':
-                transfer_path = os.path.join(modified_transfer_path, directory)
-            else:
-                transfer_path = os.path.join(modified_transfer_path, directory, '')
+            db_transfer_path = os.path.join(modified_transfer_path, directory)
+            transfer_path = db_transfer_path.replace('%sharedPath%', SHARED_DIRECTORY_ROOT, 1)
+            # Ensure directories end with /
+            if os.path.isdir(transfer_path):
+                db_transfer_path = os.path.join(db_transfer_path, '')
             # look up job UUID using transfer path
             try:
-                job = models.Job.objects.filter(directory=transfer_path, currentstep='Awaiting decision')[0]
+                job = models.Job.objects.filter(directory=db_transfer_path, currentstep='Awaiting decision')[0]
                 unit_uuid = job.sipuuid
 
                 type_task_config_descriptions = {
