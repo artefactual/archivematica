@@ -33,15 +33,6 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(filename="/tmp/archivematicaDashboard.log",
     level=logging.INFO)
 
-def rsync_copy(source, destination):
-    call([
-        'rsync',
-        '-r',
-        '-t',
-        source,
-        destination
-    ])
-
 def sorted_directory_list(path):
     cleaned = []
     entries = os.listdir(archivematicaFunctions.unicodeToStr(path))
