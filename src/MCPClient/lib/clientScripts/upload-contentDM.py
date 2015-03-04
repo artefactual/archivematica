@@ -22,7 +22,8 @@
 # @author Mark Jordan <mark2jordan@gmail.com>
 
 import os
-import stat
+import subprocess
+import sys
 import glob
 import argparse
 import json
@@ -94,14 +95,16 @@ if __name__ == '__main__':
     sourceDir = os.path.join(args.outputDir, 'CONTENTdm', 'directupload', args.uuid)
     sourceFiles = os.listdir(sourceDir)
         
-    rsyncCmd = "rsync -rv %s %s " % (sourceDir + '/', rsyncDestPath)
-    print "rsyc command: ", rsyncCmd
-    rsyncExitCode = os.system(rsyncCmd)
-    if rsyncExitCode != 0:
+    rsyncCmd = ["rsync", "--protect-args", "-rv",
+                os.path.join(sourceDir, ""),
+                rsyncDestPath]
+    print "rsyc command: ", " ".join(rsyncCmd)
+    try:
+        subprocess.check_call(rsyncCmd)
+    except subprocess.CalledProcessError as e:
         print "Error copying direct upload files to " + rsyncDestPath
-        print "Error code: ", rsyncExitCode
+        print "Error code: ", e.returncode
         quit(1)
-    print "rsyncCmd: " + rsyncCmd
 
     # Loop through all the files or directories and change their group and permisions.
     for sourceFilename in sourceFiles:
