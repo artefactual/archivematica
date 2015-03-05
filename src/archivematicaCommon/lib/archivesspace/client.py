@@ -242,6 +242,17 @@ class ArchivesSpaceClient(object):
         response = self._get(component_id)
         return response.json()['resource']['ref']
 
+    def find_parent_id_for_component(self, component_id):
+        """
+        Given the URL to a component, returns the parent component's URL.
+
+        :param string component_id: The URL of the component.
+        :return string: The URL of the component's immediate parent, or None if there is no parent.
+        """
+        response = self._get(component_id)
+        if 'parent' in response:
+            return response['parent']['ref']
+
     def find_collection_ids(self, search_pattern='', fetched=0, page=1):
         """
         Fetches a list of resource URLs for every collection in the database.

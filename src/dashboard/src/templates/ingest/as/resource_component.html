@@ -11,6 +11,9 @@
   <ul class="breadcrumb">
     {% breadcrumb_url 'DIP Upload' 'components.ingest.views_as.ingest_upload_as' uuid %}
     {% breadcrumb_url 'Collection' 'components.ingest.views_as.ingest_upload_as_resource' uuid resource_id %}
+    {% if parent_id %}
+      {% breadcrumb_url 'Parent record' 'components.ingest.views_as.ingest_upload_as_resource_component' parent_id %}
+    {% endif %}
     {% breadcrumb 'Description' %}
   </ul>
 

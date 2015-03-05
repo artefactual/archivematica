@@ -83,6 +83,7 @@ def render_resource_component(client, request, resource_component_id, query, pag
         page = helpers.pager(resource_component_data['children'], 10, page)
 
     resource_id = client.find_resource_id_for_component(resource_component_id)
+    parent_id = client.find_parent_id_for_component(resource_component_id)
 
     if not resource_component_data['children'] and query == '':
         return HttpResponseRedirect(
@@ -115,6 +116,8 @@ def match_dip_objects_to_resource_component_levels(client, request, resource_com
     resource_data_json = simplejson.JSONEncoder().encode(
         client.get_resource_component_children(resource_component_id)
     )
+
+    parent_id = client.find_parent_id_for_component(resource_component_id)
 
     return render(request, match_template, locals())
 

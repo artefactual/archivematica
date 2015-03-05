@@ -201,6 +201,20 @@ class ArchivistsToolkitClient(object):
         else:
             return resource_id
 
+    def find_parent_id_for_component(self, component_id):
+        """
+        Given the ID of a component, returns the parent component's ID.
+
+        :param string component_id: The ID of the component.
+        :return string: The ID of the component's immediate parent, or None if there is no parent.
+        """
+        cursor = self.db.cursor()
+
+        sql = "SELECT parentResourceComponentId FROM ResourcesComponents WHERE resourceComponentId=%s"
+        count = cursor.execute(sql, (component_id,))
+        if count > 0:
+            return cursor.fetchone()
+
     def find_collection_ids(self, search_pattern=''):
         """
         Fetches a list of all resource IDs for every collection in the database.
