@@ -178,8 +178,14 @@ def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, 
     f.currentlocation = dstDB
     f.save()
 
-def updateFileLocation(src, dst, eventType, eventDateTime, eventDetail, eventIdentifierUUID = uuid.uuid4().__str__(), fileUUID="None", sipUUID = None, transferUUID=None, eventOutcomeDetailNote = ""):
-    """If the file uuid is not provided, will use the sip uuid and old path to find the file uuid"""
+def updateFileLocation(src, dst, eventType="", eventDateTime="", eventDetail="", eventIdentifierUUID=uuid.uuid4().__str__(), fileUUID="None", sipUUID=None, transferUUID=None, eventOutcomeDetailNote="", createEvent=True):
+    """
+    Updates file location in the database, and optionally writes an event for the sanitization to the database.
+    Note that this does not actually move a file on disk.
+    If the file uuid is not provided, will use the SIP uuid and the old path to find the file uuid.
+    To suppress creation of an event, pass the createEvent keyword argument (for example, if the file moved due to the renaming of a parent directory and not the file itself).
+    """
+
     src = unicodeToStr(src)
     dst = unicodeToStr(dst)
     fileUUID = unicodeToStr(fileUUID)
@@ -200,14 +206,17 @@ def updateFileLocation(src, dst, eventType, eventDateTime, eventDetail, eventIde
     else:
         f = File.objects.get(uuid=fileUUID)
 
+    # UPDATE THE CURRENT FILE PATH
+    f.currentlocation = dst
+    f.save()
+
+    if not createEvent:
+        return
+
     if eventOutcomeDetailNote == "":
         eventOutcomeDetailNote = "Original name=\"%s\"; cleaned up name=\"%s\"" %(src, dst)
     # CREATE THE EVENT
     insertIntoEvents(fileUUID=f.uuid, eventIdentifierUUID=eventIdentifierUUID, eventType=eventType, eventDateTime=eventDateTime, eventDetail=eventDetail, eventOutcome="", eventOutcomeDetailNote=eventOutcomeDetailNote)
-
-    # UPDATE THE CURRENT FILE PATH
-    f.currentlocation = dst
-    f.save()
 
 def getFileUUIDLike(filePath, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith):
     """Dest needs to be the actual full destination path with filename."""

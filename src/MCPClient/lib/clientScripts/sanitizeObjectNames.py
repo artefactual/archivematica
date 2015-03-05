@@ -81,4 +81,12 @@ if __name__ == '__main__':
 
             for f in files:
                 new_path = unicodeToStr(f.currentlocation).replace(oldfile, newfile, 1)
-                updateFileLocation(f.currentlocation, new_path, "name cleanup", date, "prohibited characters removed:" + eventDetail, fileUUID=f.uuid)
+                updateFileLocation(f.currentlocation,
+                                   new_path,
+                                   fileUUID=f.uuid,
+                                   # Don't create sanitization events for each
+                                   # file, since it's only a parent directory
+                                   # somewhere up that changed.
+                                   # Otherwise, extra amdSecs will be generated
+                                   # from the resulting METS.
+                                   createEvent=False)
