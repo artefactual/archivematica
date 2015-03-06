@@ -12,3 +12,5 @@ INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode
 
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@newPackageMSCL WHERE microServiceChainLink='aaa929e4-5c35-447e-816a-033a66b9b90b';
 UPDATE MicroServiceChainLinks SET defaultNextChainLink=@newPackageMSCL WHERE pk='aaa929e4-5c35-447e-816a-033a66b9b90b';
+
+UPDATE StandardTasksConfigs SET arguments='"%IDCommand%" "%relativeLocation%" "%fileUUID%" --disable-reidentify' WHERE pk='9c3680a5-91cb-413f-af4e-d39c3346f8db';

@@ -10,7 +10,7 @@ from databaseFunctions import getUTCDate, insertIntoEvents, insertIntoFilesIDs
 
 # dashboard
 from fpr.models import IDCommand, IDRule, FormatVersion
-from main.models import FileFormatVersion, File, UnitVariable
+from main.models import FileFormatVersion, File, UnitVariable, Event
 
 
 def save_idtool(file_, value):
@@ -77,7 +77,7 @@ def write_file_id(file_uuid, format=None, output=''):
                        formatRegistryKey=key)
 
 
-def main(command_uuid, file_path, file_uuid):
+def main(command_uuid, file_path, file_uuid, disable_reidentify):
     print "IDCommand UUID:", command_uuid
     print "File: ({}) {}".format(file_uuid, file_path)
     if command_uuid == "None":
@@ -89,8 +89,14 @@ def main(command_uuid, file_path, file_uuid):
         sys.stderr.write("IDCommand with UUID {} does not exist.\n".format(command_uuid))
         return -1
 
-    # Save the selected ID command for use in a later chain
     file_ = File.objects.get(uuid=file_uuid)
+
+    # If reidentification is disabled and a format identification event exists for this file, exit
+    if disable_reidentify and file_.event_set.filter(event_type='format identification').exists():
+        print 'This file has already been identified, and re-identification is disabled. Skipping.'
+        return 0
+
+    # Save the selected ID command for use in a later chain
     save_idtool(file_, command_uuid)
 
     exitcode, output, _ = executeOrRun(command.script_type, command.script, arguments=[file_path], printing=False)
@@ -139,6 +145,7 @@ if __name__ == '__main__':
     parser.add_argument('idcommand', type=str, help='%IDCommand%')
     parser.add_argument('file_path', type=str, help='%relativeLocation%')
     parser.add_argument('file_uuid', type=str, help='%fileUUID%')
+    parser.add_argument('--disable-reidentify', action='store_true', help='Disable identification if it has already happened for this file.')
 
     args = parser.parse_args()
-    sys.exit(main(args.idcommand, args.file_path, args.file_uuid))
+    sys.exit(main(args.idcommand, args.file_path, args.file_uuid, args.disable_reidentify))
