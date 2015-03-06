@@ -106,9 +106,18 @@ def ingest_upload_as_resource_component(client, request, uuid, resource_componen
 
 @_authenticate_to_archivesspace
 def ingest_upload_as_match_dip_objects_to_resource_levels(client, request, uuid, resource_id):
-    return pair_matcher.match_dip_objects_to_resource_levels(client, request, resource_id, 'ingest/as/match.html', uuid)
+    # Locate existing matches for display in the "Pairs" panel
+    pairs = models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(dipuuid=uuid)
+    matches = [{"resource_id": pair.resourceid, "file_uuid": pair.fileuuid} for pair in pairs]
+
+    return pair_matcher.match_dip_objects_to_resource_levels(client, request, resource_id, 'ingest/as/match.html', uuid, matches=matches)
 
 
 @_authenticate_to_archivesspace
 def ingest_upload_as_match_dip_objects_to_resource_component_levels(client, request, uuid, resource_component_id):
-    return pair_matcher.match_dip_objects_to_resource_component_levels(client, request, resource_component_id, 'ingest/as/match.html', uuid)
+    # Locate existing matches for display in the "Pairs" panel
+    pairs = models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(
+        dipuuid=uuid)
+    matches = [{"resource_id": pair.resourceid, "file_uuid": pair.fileuuid} for pair in pairs]
+
+    return pair_matcher.match_dip_objects_to_resource_component_levels(client, request, resource_component_id, 'ingest/as/match.html', uuid, matches=matches)

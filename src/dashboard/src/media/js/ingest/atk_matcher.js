@@ -23,6 +23,7 @@ var ATKMatcherView = Backbone.View.extend({
           'DIPUUID',
           'objectPaths',
           'resourceData',
+          'initialMatches',
           'objectPaneCSSId',
           'objectPaneSearchCSSId',
           'objectPanePathsCSSId',
@@ -75,6 +76,23 @@ var ATKMatcherView = Backbone.View.extend({
     this.activateSaveButton();
     this.activateConfirmButton();
     this.activateCancelButton();
+    this.populateMatches();
+  },
+
+  populateMatches: function() {
+    var self = this;
+    // Find the path in self.objectPaths, given the file UUID
+    var path;
+    self.initialMatches.forEach(function(pair) {
+      for (var i in self.objectPaths) {
+        if (self.objectPaths[i].uuid == pair.file_uuid) {
+          path = self.objectPaths[i].path;
+          break;
+        }
+      }
+      var css_id = self.findIDFromPath(path);
+      self.matchPair(css_id, path, pair.resource_id);
+    })
   },
 
   // this can be replaced with Underscore's truncation once we update
@@ -333,6 +351,129 @@ var ATKMatcherView = Backbone.View.extend({
     });
   },
 
+  matchPair: function(id, path, resource_id) {
+    var self = this;
+    $('#' + id + ' > input').attr('disabled', 'disabled');
+    $('#' + id + ' > label').addClass('atk-matcher-disabled-object-label');
+
+    var resource = self.findResourceFromResourceId(resource_id);
+
+    // take note that resource has had objects assigned to it and visually
+    // indicate it
+    resource.set({'used': true});
+    $('#resource_' + resource.id + ' > td').addClass('atk-matcher-resource-item-paired');
+
+    // store pair in collection for easy retrieval
+    self.pairCollection.add({
+      'DIPUUID':                    self.DIPUUID,
+      'objectPath':                 path,
+      'objectUUID':                 self.pathData[path],
+      'resourceId':                 resource.get('id'),
+      'resourceCSSId':              'resource_' + resource.id,
+      'resourceLevelOfDescription': resource.get('levelOfDescription'),
+      'resourceSortPosition':       resource.get('sortPosition')
+    });
+
+    // get the pair model that was added
+    var pairModel = self.pairCollection.lastModelAdded();
+
+    var $newMatchEl = $(self.matchItemTemplate({
+      'tempId': pairModel.id,
+      'path': path,
+      'truncated_path': self.truncate(path, 40),
+      'title': resource.get('title'),
+      'truncated_title': self.truncate(resource.get('title'), 40),
+      'identifier': resource.get('identifier'),
+      'levelOfDescription': resource.get('levelOfDescription'),
+      'dates': resource.get('dates')
+    }));
+
+    // hide new pair, add it to the pane, then fade it in
+    $newMatchEl.hide();
+
+    // logic to place it according to sort position
+    var pairPlaced = false;
+    $('#' + self.matchPanePairsCSSId).children().each(function() {
+      var pairCSSId = $(this).attr('id'),
+          pairId = self.indexNumberFromCSSId(pairCSSId),
+          pairPosition = self.pairCollection.get(pairId).get('resourceSortPosition');
+
+      if (pairPosition > pairModel.get('resourceSortPosition')) {
+        $('#' + pairCSSId).parent().prepend($newMatchEl);
+        pairPlaced = true;
+      }
+    });
+
+    // if the pair hasn't been placed, add it to the end
+    if (!pairPlaced) {
+      $('#' + self.matchPanePairsCSSId).append($newMatchEl);
+    }
+
+    // hack to fix Firefox issue
+    $('tr').css('display', 'table-row');
+
+    // fade added element in and show Save button
+    $newMatchEl.fadeIn('slow');
+    $('#' + self.saveButtonCSSId).show();
+
+    // enable deletion of match
+    (function(index, pathId, resourceId) {
+      $('#match_delete_' + index).click(function() {
+        // enable checkbox and remove greying out of associated label
+        $('#' + pathId + ' > input').removeAttr('disabled');
+        $('#' + id + ' > label').removeClass('atk-matcher-disabled-object-label');
+
+        // un-check checkbox
+        $('#' + id + ' > input').removeAttr('checked');
+
+        // remove visual and internal pair representations
+        $('#match_' + index).remove();
+        var pair = self.pairCollection.get(index);
+        self.pairCollection.remove(pair);
+
+        // see if the resource in the pairing is still associated with any objects
+        var found = self.pairCollection.find(function(item) {
+          return item.get('resourceCSSId') === pair.get('resourceCSSId');
+        });
+
+        // if the resource isn't associated with any objects, remove usage highlighting
+        if (found == undefined) {
+          // TODO: redo using a class
+          $('#' + pair.get('resourceCSSId') + ' > td').removeClass('atk-matcher-resource-item-paired');
+          // set used in resource with ID resourceId to false
+          var resource = self.resourceCollection.get({id: resourceId});
+          resource.set({used: false});
+        }
+
+        // hide save button if no pairs now exist
+        if (self.pairCollection.length == 0) {
+          $('#' + self.saveButtonCSSId).hide();
+        }
+      });
+    })(pairModel.id, id, resource.id)
+    self.matchIndex++;
+
+    // deselect resource
+    self.selectedResourceCSSId = false;
+    self.resetBackgroundOfResourceTableRows();
+  },
+
+  findIDFromPath: function(path) {
+    var self = this;
+    var id = self.objectPanePathsCSSId;
+    return $('#' + id + '> div > label[title="' + path + '"]').parent().attr('id');
+  },
+
+  findResourceFromResourceId: function(resource_id) {
+    var self = this;
+    for (var i in self.resourceCollection.models) {
+      var m = self.resourceCollection.models[i];
+      if (m.attributes.id = resource_id) {
+        return m;
+      }
+    }
+  },
+
   activateMatchButtonAndKeypressResponse: function() {
     var self = this;
 
@@ -344,113 +485,8 @@ var ATKMatcherView = Backbone.View.extend({
         // if any paths have been selected
         if(selectedPaths.length) {
           selectedPaths.forEach(function(item) {
-            // disable the checkbox on the path being matched
-            $('#' + item.id + ' > input').attr('disabled', 'disabled');
-            $('#' + item.id + ' > label').addClass('atk-matcher-disabled-object-label');
-
-            var resource = self.resourceCollection.get(
-              self.indexNumberFromCSSId(self.selectedResourceCSSId)
-            );
-
-            // take note that resource has had objects assigned to it and visually
-            // indicate it
-            resource.set({'used': true});
-            $('#' + self.selectedResourceCSSId + ' > td').addClass('atk-matcher-resource-item-paired');
-
-            // store pair in collection for easy retrieval
-            self.pairCollection.add({
-              'DIPUUID':                    self.DIPUUID,
-              'objectPath':                 item.path,
-              'objectUUID':                 self.pathData[item.path],
-              'resourceId':                 resource.attributes.id,
-              'resourceCSSId':              self.selectedResourceCSSId,
-              'resourceLevelOfDescription': resource.get('levelOfDescription'),
-              'resourceSortPosition':       resource.get('sortPosition')
-            });
-
-            // get the pair model that was added
-            var pairModel = self.pairCollection.lastModelAdded();
-
-            var $newMatchEl = $(self.matchItemTemplate({
-              'tempId': pairModel.id,
-              'path': item.path,
-              'truncated_path': self.truncate(item.path, 40),
-              'title': resource.get('title'),
-              'truncated_title': self.truncate(resource.get('title'), 40),
-              'identifier': resource.get('identifier'),
-              'levelOfDescription': resource.get('levelOfDescription'),
-              'dates': resource.get('dates')
-            }));
-
-            // hide new pair, add it to the pane, then fade it in
-            $newMatchEl.hide();
-
-            // logic to place it according to sort position
-            var pairPlaced = false;
-            $('#' + self.matchPanePairsCSSId).children().each(function() {
-              var pairCSSId = $(this).attr('id'),
-                  pairId = self.indexNumberFromCSSId(pairCSSId),
-                  pairPosition = self.pairCollection.get(pairId).get('resourceSortPosition');
-
-              if (pairPosition > pairModel.get('resourceSortPosition')) {
-                $('#' + pairCSSId).parent().prepend($newMatchEl);
-                pairPlaced = true;
-              }
-            });
-
-            // if the pair hasn't been placed, add it to the end
-            if (!pairPlaced) {
-              $('#' + self.matchPanePairsCSSId).append($newMatchEl);
-            }
-
-            // hack to fix Firefox issue
-            $('tr').css('display', 'table-row');
-
-            // fade added element in and show Save button
-            $newMatchEl.fadeIn('slow');
-            $('#' + self.saveButtonCSSId).show();
-
-            // enable deletion of match
-            (function(index, pathId, resourceId) {
-              $('#match_delete_' + index).click(function() {
-                // enable checkbox and remove greying out of associated label
-                $('#' + pathId + ' > input').removeAttr('disabled');
-                $('#' + item.id + ' > label').removeClass('atk-matcher-disabled-object-label');
-
-                // un-check checkbox
-                $('#' + item.id + ' > input').removeAttr('checked');
-
-                // remove visual and internal pair representations
-                $('#match_' + index).remove();
-                var pair = self.pairCollection.get(index);
-                self.pairCollection.remove(pair);
-
-                // see if the resource in the pairing is still associated with any objects
-                var found = self.pairCollection.find(function(item) {
-                  return item.get('resourceCSSId') === pair.get('resourceCSSId');
-                });
-
-                // if the resource isn't associated with any objects, remove usage highlighting
-                if (found == undefined) {
-                  // TODO: redo using a class
-                  $('#' + pair.get('resourceCSSId') + ' > td').removeClass('atk-matcher-resource-item-paired');
-                  // set used in resource with ID resourceId to false
-                  var resource = self.resourceCollection.get({id: resourceId});
-                  resource.set({used: false});
-                }
-
-                // hide save button if no pairs now exist
-                if (self.pairCollection.length == 0) {
-                  $('#' + self.saveButtonCSSId).hide();
-                }
-              });
-            })(pairModel.id, item.id, resource.id)
-            self.matchIndex++;
+            self.matchPair(item.id, item.path, self.selectedResourceCSSId);
           });
-
-          // deselect resource
-          self.selectedResourceCSSId = false;
-          self.resetBackgroundOfResourceTableRows();
         } else {
           self.notify('No objects selected.');
         }

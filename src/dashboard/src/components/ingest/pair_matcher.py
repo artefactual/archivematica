@@ -93,7 +93,7 @@ def render_resource_component(client, request, resource_component_id, query, pag
         return render(request, resource_detail_template, locals())
 
 
-def match_dip_objects_to_resource_levels(client, request, resource_id, match_template, uuid):
+def match_dip_objects_to_resource_levels(client, request, resource_id, match_template, uuid, matches=[]):
     # load object relative paths
     object_path_json = simplejson.JSONEncoder().encode(
         ingest_upload_atk_get_dip_object_paths(uuid)
@@ -103,10 +103,12 @@ def match_dip_objects_to_resource_levels(client, request, resource_id, match_tem
         client.get_resource_component_and_children(resource_id)
     )
 
+    matches_json = simplejson.JSONEncoder().encode(matches)
+
     return render(request, match_template, locals())
 
 
-def match_dip_objects_to_resource_component_levels(client, request, resource_component_id, match_template, uuid):
+def match_dip_objects_to_resource_component_levels(client, request, resource_component_id, match_template, uuid, matches=[]):
     # load object relative paths
     object_path_json = simplejson.JSONEncoder().encode(
         ingest_upload_atk_get_dip_object_paths(uuid)
@@ -116,6 +118,8 @@ def match_dip_objects_to_resource_component_levels(client, request, resource_com
     resource_data_json = simplejson.JSONEncoder().encode(
         client.get_resource_component_children(resource_component_id)
     )
+
+    matches_json = simplejson.JSONEncoder().encode(matches)
 
     parent_id = client.find_parent_id_for_component(resource_component_id)
 
