@@ -1,8 +1,9 @@
 import ast
 from functools import wraps
+import json
 import sys
 
-from django.http import HttpResponseServerError
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError
 
 from components import advanced_search
 from main import models
@@ -104,11 +105,21 @@ def ingest_upload_as_resource_component(client, request, uuid, resource_componen
                                                   uuid)
 
 
+def _format_pair(client, resourceid, fileuuid):
+    return {
+        "resource_id": resourceid,
+        "file_uuid": fileuuid,
+        # Returns verbose details about the resource/component, required
+        # in order to populate the pair matching UI.
+        "resource": client.get_resource_component_children(resourceid)
+    }
+
+
 @_authenticate_to_archivesspace
 def ingest_upload_as_match_dip_objects_to_resource_levels(client, request, uuid, resource_id):
     # Locate existing matches for display in the "Pairs" panel
     pairs = models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(dipuuid=uuid)
-    matches = [{"resource_id": pair.resourceid, "file_uuid": pair.fileuuid} for pair in pairs]
+    matches = [_format_pair(client, pair.resourceid, pair.fileuuid) for pair in pairs]
 
     return pair_matcher.match_dip_objects_to_resource_levels(client, request, resource_id, 'ingest/as/match.html', uuid, matches=matches)
 
@@ -118,6 +129,41 @@ def ingest_upload_as_match_dip_objects_to_resource_component_levels(client, requ
     # Locate existing matches for display in the "Pairs" panel
     pairs = models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(
         dipuuid=uuid)
-    matches = [{"resource_id": pair.resourceid, "file_uuid": pair.fileuuid} for pair in pairs]
+    matches = [_format_pair(client, pair.resourceid, pair.fileuuid) for pair in pairs]
 
     return pair_matcher.match_dip_objects_to_resource_component_levels(client, request, resource_component_id, 'ingest/as/match.html', uuid, matches=matches)
+
+
+def ingest_upload_as_match(request, uuid):
+    try:
+        payload = json.load(request)
+    except ValueError:
+        payload = {}
+    resource_id = payload.get('resource_id')
+    file_uuid = payload.get('file_uuid')
+
+    if not resource_id or not file_uuid:
+        return HttpResponseBadRequest("Both a resource_id and file_uuid must be specified.")
+
+    if request.method == 'POST':
+        criteria = {
+            "dipuuid": uuid,
+            "fileuuid": file_uuid
+        }
+        # Ensure that this file hasn't already been matched before saving to the DB
+        records = models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(**criteria)
+        if records.count() < 1:
+            models.ArchivesSpaceDIPObjectResourcePairing.objects.create(
+                dipuuid=uuid, resourceid=resource_id, fileuuid=file_uuid
+            )
+            return HttpResponse(status=201)
+        else:
+            return HttpResponse(status=409)
+    elif request.method == 'DELETE':
+        rows = models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(dipuuid=uuid, resourceid=resource_id, fileuuid=file_uuid)
+        with open("/tmp/delete.log", "a") as log: print >> log, "Resource", resource_id, "File", "file_uuid", "matches", rows.count()
+        models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(dipuuid=uuid, resourceid=resource_id, fileuuid=file_uuid).delete()
+
+        return HttpResponse(status=204)
+    else:
+        return HttpResponse(status=405)

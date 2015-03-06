@@ -89,7 +89,61 @@ var ATKMatcherView = Backbone.View.extend({
         }
       }
       var css_id = self.findIDFromPath(path);
-      self.matchPair(css_id, path, pair.resource_id);
+      self.matchPair(css_id, path, pair.resource, false);
+    })
+  },
+
+  findUUIDFromPath: function(path) {
+    var self = this;
+    var uuid;
+
+    self.objectPaths.forEach(function(object_path) {
+      if (object_path['path'] == path) { uuid = object_path['uuid']; }
+    });
+
+    return uuid;
+  },
+
+  postMatch: function(resource_id, path) {
+    var self = this,
+      url = window.location.href.split('/').slice(0, 7).join('/') + '/match/';
+
+    var uuid = self.findUUIDFromPath(path);
+
+    $.ajax({
+      url: url,
+      context: this,
+      type: 'POST',
+      data: JSON.stringify({
+              'resource_id': resource_id,
+              'file_uuid': uuid
+      }),
+      dataType: 'json',
+      success: function(result) {
+        // TODO: make the display of the "delete" button conditional on success
+      }
+    });
+  },
+
+  deleteMatch: function(resource_id, path) {
+    var self = this,
+      url = window.location.href.split('/').slice(0, 7).join('/') + '/match/';
+
+    var uuid = self.findUUIDFromPath(path);
+
+    $.ajax({
+      url: url,
+      context: this,
+      type: 'DELETE',
+      data: JSON.stringify({
+              'resource_id': resource_id,
+              'file_uuid': uuid,
+      }),
+      dataType: 'json',
+      success: function(result) {
+        // TODO: delete the pair from the UI, and reactivate the elements?
+        //       Or leave that to happen independent of the request?
+      }
     })
   },
 
@@ -188,6 +242,8 @@ var ATKMatcherView = Backbone.View.extend({
 
     // store internal representation for reference
     resourceData['padding'] = padding;
+
+    resourceData['resourceId'] = resourceData.id;
     this.resourceCollection.add(resourceData);
 
     // recurse if children are found
@@ -349,27 +405,43 @@ var ATKMatcherView = Backbone.View.extend({
     });
   },
 
-  matchPair: function(id, path, resource_id) {
+  buildResourceObject: function(resource_id) {
+    var self = this;
+    var resource = self.findResourceFromCSSId(resource_id);
+    return {
+      'cssId': resource.attributes.id,
+      'dates': resource.get('dates'),
+      'id': resource.get('id'),
+      'identifier': resource.get('identifier'),
+      'levelOfDescription': resource.get('levelOfDescription'),
+      'model': resource,
+      'resourceId': resource.get('resourceId'),
+      'sortPosition': resource.get('sortPosition'),
+      'title': resource.get('title'),
+    }
+  },
+
+  matchPair: function(id, path, resource, post_data) {
     var self = this;
     $('#' + id + ' > input').attr('disabled', 'disabled');
     $('#' + id + ' > label').addClass('atk-matcher-disabled-object-label');
 
-    var resource = self.findResourceFromResourceId(resource_id);
-
-    // take note that resource has had objects assigned to it and visually
-    // indicate it
-    resource.set({'used': true});
-    $('#resource_' + resource.id + ' > td').addClass('atk-matcher-resource-item-paired');
+    if (undefined !== resource.model) {
+      // take note that resource has had objects assigned to it and visually
+      // indicate it
+      resource.model.set({'used': true});
+      $('#resource_' + resource.model.id + ' > td').addClass('atk-matcher-resource-item-paired');
+    }
 
     // store pair in collection for easy retrieval
     self.pairCollection.add({
       'DIPUUID':                    self.DIPUUID,
       'objectPath':                 path,
       'objectUUID':                 self.pathData[path],
-      'resourceId':                 resource.get('id'),
-      'resourceCSSId':              'resource_' + resource.id,
-      'resourceLevelOfDescription': resource.get('levelOfDescription'),
-      'resourceSortPosition':       resource.get('sortPosition')
+      'resourceId':                 resource.id,
+      'resourceCSSId':              resource.cssId,
+      'resourceLevelOfDescription': resource.levelOfDescription,
+      'resourceSortPosition':       resource.sortPosition
     });
 
     // get the pair model that was added
@@ -379,12 +451,15 @@ var ATKMatcherView = Backbone.View.extend({
       'tempId': pairModel.id,
       'path': path,
       'truncated_path': self.truncate(path, 40),
-      'title': resource.get('title'),
-      'truncated_title': self.truncate(resource.get('title'), 40),
-      'identifier': resource.get('identifier'),
-      'levelOfDescription': resource.get('levelOfDescription'),
-      'dates': resource.get('dates')
+      'title': resource.title,
+      'truncated_title': self.truncate(resource.title, 40),
+      'identifier': resource.identifier,
+      'levelOfDescription': resource.levelOfDescription,
+      'dates': resource.dates
     }));
+
+    // POST the new match to the server
+    if (post_data) { self.postMatch(resource.resourceId, path); }
 
     // hide new pair, add it to the pane, then fade it in
     $newMatchEl.hide();
@@ -416,6 +491,10 @@ var ATKMatcherView = Backbone.View.extend({
     // enable deletion of match
     (function(index, pathId, resourceId) {
       $('#match_delete_' + index).click(function() {
+        // send delete request to the server
+        var pair = self.pairCollection.get(index);
+        self.deleteMatch(pair.attributes.resourceId, pair.attributes.objectPath);
+
         // enable checkbox and remove greying out of associated label
         $('#' + pathId + ' > input').removeAttr('disabled');
         $('#' + id + ' > label').removeClass('atk-matcher-disabled-object-label');
@@ -425,7 +504,6 @@ var ATKMatcherView = Backbone.View.extend({
 
         // remove visual and internal pair representations
         $('#match_' + index).remove();
-        var pair = self.pairCollection.get(index);
         self.pairCollection.remove(pair);
 
         // see if the resource in the pairing is still associated with any objects
@@ -456,11 +534,12 @@ var ATKMatcherView = Backbone.View.extend({
     return $('#' + id + '> div > label[title="' + path + '"]').parent().attr('id');
   },
 
-  findResourceFromResourceId: function(resource_id) {
+  findResourceFromCSSId: function(resource_id) {
     var self = this;
     for (var i in self.resourceCollection.models) {
       var m = self.resourceCollection.models[i];
-      if (m.attributes.id = resource_id) {
+      if ("resource_" + m.id == resource_id) {
+        console.log(m);
         return m;
       }
     }
@@ -477,7 +556,8 @@ var ATKMatcherView = Backbone.View.extend({
         // if any paths have been selected
         if(selectedPaths.length) {
           selectedPaths.forEach(function(item) {
-            self.matchPair(item.id, item.path, self.selectedResourceCSSId);
+            var resource = self.buildResourceObject(self.selectedResourceCSSId);
+            self.matchPair(item.id, item.path, resource, true);
           });
         } else {
           self.notify('No objects selected.');
