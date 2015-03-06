@@ -33,7 +33,6 @@ var ATKMatcherView = Backbone.View.extend({
           'matchButtonCSSId',
           'matchPaneCSSId',
           'matchPanePairsCSSId',
-          'saveButtonCSSId',
           'confirmButtonCSSId',
           'cancelButtonCSSId'
         ];
@@ -73,7 +72,6 @@ var ATKMatcherView = Backbone.View.extend({
     this.activateResourceFiltering();
     this.activateResourceSorting();
     this.activateMatchButtonAndKeypressResponse();
-    this.activateSaveButton();
     this.activateConfirmButton();
     this.activateCancelButton();
     this.populateMatches();
@@ -412,9 +410,8 @@ var ATKMatcherView = Backbone.View.extend({
     // hack to fix Firefox issue
     $('tr').css('display', 'table-row');
 
-    // fade added element in and show Save button
+    // fade added element in
     $newMatchEl.fadeIn('slow');
-    $('#' + self.saveButtonCSSId).show();
 
     // enable deletion of match
     (function(index, pathId, resourceId) {
@@ -443,11 +440,6 @@ var ATKMatcherView = Backbone.View.extend({
           // set used in resource with ID resourceId to false
           var resource = self.resourceCollection.get({id: resourceId});
           resource.set({used: false});
-        }
-
-        // hide save button if no pairs now exist
-        if (self.pairCollection.length == 0) {
-          $('#' + self.saveButtonCSSId).hide();
         }
       });
     })(pairModel.id, id, resource.id)
@@ -534,33 +526,6 @@ var ATKMatcherView = Backbone.View.extend({
     });
   },
 
-  activateSaveButton: function() {
-    var self = this,
-        url = window.location.href.split('/').slice(0, 7).join('/') + '/save/',
-        fadeOutElementCSSIds = [
-          this.objectPaneCSSId,
-          this.resourcePaneCSSId,
-          this.saveButtonCSSId
-        ],
-        fadeInElementCSSIds = [
-          this.confirmButtonCSSId,
-          this.cancelButtonCSSId
-        ];
-
-    $('#' + self.saveButtonCSSId).click(function () {
-      self.sendPairData(
-        url,
-        function(result) {
-          self.fadeElementsByCSSIds(fadeOutElementCSSIds, 'out', 'fast');
-          self.fadeElementsByCSSIds(fadeInElementCSSIds, 'in', 'fast');
-        },
-        function() {
-          alert("Error submitting data.");
-        }
-      );
-    });
-  },
-
   activateConfirmButton: function() {
     $('#' + this.confirmButtonCSSId).click(function() {
       window.location.href = '/ingest';
@@ -571,8 +536,7 @@ var ATKMatcherView = Backbone.View.extend({
     var self = this,
         fadeInElementCSSIds = [
           this.objectPaneCSSId,
-          this.resourcePaneCSSId,
-          this.saveButtonCSSId
+          this.resourcePaneCSSId
         ],
         fadeOutElementCSSIds = [
           this.confirmButtonCSSId,

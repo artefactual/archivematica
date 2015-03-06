@@ -48,7 +48,7 @@
   resize: both;
 }
 
-#match_save_button, #match_confirm_button, #match_cancel_button {
+#match_confirm_button, #match_cancel_button {
   display: none;
 }
 

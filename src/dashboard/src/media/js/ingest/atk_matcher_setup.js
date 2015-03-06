@@ -14,7 +14,6 @@
     'matchPanePairsCSSId':      'match_pane_pairs',
     'matchItemTemplate':        $('#match-item-template').html(),
     'matchButtonCSSId':         'match_button',
-    'saveButtonCSSId':          'match_save_button',
     'confirmButtonCSSId':       'match_confirm_button',
     'cancelButtonCSSId':        'match_cancel_button',
     'DIPUUID':                  DIPUUID,
