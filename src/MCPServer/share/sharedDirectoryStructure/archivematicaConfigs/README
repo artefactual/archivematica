@@ -1,3 +1,0 @@
-#This folder should be a link to /etc/archivematica/ on the server machine
-#please run:
-ln /etc/archivematica/ ./
