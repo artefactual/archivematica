@@ -38,7 +38,6 @@ from django.db.models import Q
 from main.models import DashboardSetting, File, Transfer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 import version
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
@@ -380,11 +379,6 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
         config = ConfigParser.SafeConfigParser()
         config.read(clientConfigFilePath)
 
-        try:
-            backup_to_mysql = config.getboolean('MCPClient', "backupElasticSearchDocumentsToMySQL")
-        except:
-            backup_to_mysql = False
-
         # make sure transfer files exist
         if (os.path.exists(pathToArchive)):
             conn = connect_and_create_index(index)
@@ -522,9 +516,6 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, bac
         # index data
         wait_for_cluster_yellow_status(conn)
         result = try_to_index(conn, indexData, index, type)
-
-        if backup_to_mysql:
-            backup_indexed_document(result, indexData, index, type)
 
         # Reset fileData['METS']['amdSec'], since it is updated in the loop
         # above. See http://stackoverflow.com/a/3975388 for explanation
@@ -675,13 +666,6 @@ def list_files_in_dir(path, filepaths=[]):
 
     # return fully traversed data
     return filepaths
-
-def backup_indexed_document(result, indexData, index, type):
-    sql = "INSERT INTO ElasticsearchIndexBackup (docId, data, indexName, typeName) VALUES ('%s', '%s', '%s', '%s')"
-
-    sql = sql % (MySQLdb.escape_string(result['_id']), unicode(base64.encodestring(cPickle.dumps(indexData))), MySQLdb.escape_string(index), MySQLdb.escape_string(type))
-
-    databaseInterface.runSQL(sql)
 
 def _document_ids_from_field_query(conn, index, doc_types, field, value):
     document_ids = []
