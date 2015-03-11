@@ -45,12 +45,12 @@ def recursive_file_gen(mydir):
         for file in files:
             yield os.path.join(root, file)
 
-def process_sql(str):
+def process_sql(str, values=()):
     global cursor 
     if testMode:
         print str
     else:
-        cursor.execute(str)            
+        cursor.execute(str, values)
         newID = cursor.lastrowid
         return newID
 
@@ -219,15 +219,17 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         if uuid in pairs:
             is_resource = False
             if pairs[uuid]['rcid'] > 0:
+                val = pairs[uuid]['rcid']
                 sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
-                          resourcescomponents where resourcecomponentid = {}'''.format(pairs[uuid]['rcid'])
+                          resourcescomponents where resourcecomponentid = %s'''
             else:
                 is_resource = True
+                val = pairs[uuid]['rid']
                 sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
-                          resources where resourceid = {}'''.format(pairs[uuid]['rid']) 
+                          resources where resourceid = %s'''
                        
             logger.debug('sql1:' + sql1) 
-            cursor.execute(sql1)
+            cursor.execute(sql1, (val,))
             data = cursor.fetchone()
             rcid = data[0]
             dateBegin = data[1]
@@ -264,12 +266,12 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             newaDID = int(data[0]) + 1
 
             if is_resource:
-                sql4 = "insert into archdescriptioninstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceId) values (%d, 'digital','Digital object',%d)" % (newaDID, rcid)
+                sql4 = "insert into archdescriptioninstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceId) values (%s, 'digital', 'Digital object', %s)"
             else:
-                sql4 = "insert into archdescriptioninstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceComponentId) values (%d, 'digital','Digital object',%d)" % (newaDID, rcid)
+                sql4 = "insert into archdescriptioninstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceComponentId) values (%s, 'digital', 'Digital object', %s)"
         
             logger.debug('sql4:' + sql4)
-            adid = process_sql(sql4)
+            adid = process_sql(sql4, (newaDID, rcid))
             #added sanity checks in case date fields in original archival description were all empty
             if len(dateExpression) == 0:
                 dateExpression = 'null'
@@ -283,14 +285,14 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
                 `dateExpression`,`dateBegin`,`dateEnd`,`languageCode`,`restrictionsApply`,
                 `eadDaoActuate`,`eadDaoShow`,`metsIdentifier`,`objectType`,`objectOrder`,
                 `archDescriptionInstancesId`,`repositoryId`)
-               VALUES (1,'%s', '%s','%s','%s','%s','%s',%d, %d,'English',%d,'%s','%s','%s','%s',0,%d,%d)""" % (time_now, time_now, atuser, atuser, short_file_name,dateExpression, dateBegin, dateEnd, int(restrictions_apply), ead_actuate, ead_show,uuid, object_type, newaDID, repoId)
+               VALUES (1, %s, %s, %s, %s, %s, %s, %s, %s, 'English', %s, %s, %s, %s, %s, 0, %s, %s)"""
             logger.debug('sql5: ' + sql5)
-            doID = process_sql(sql5)
+            doID = process_sql(sql5, (time_now, time_now, atuser, atuser, short_file_name,dateExpression, dateBegin, dateEnd, int(restrictions_apply), ead_actuate, ead_show,uuid, object_type, newaDID, repoId))
             sql6 = """insert into fileversions (fileVersionId, version, lastUpdated, created, lastUpdatedBy, createdBy, uri, useStatement, sequenceNumber, eadDaoActuate,eadDaoShow, digitalObjectId)
                   values 
-               (%d, 1, '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s','%s', %d)""" % (base_fv_id,time_now, time_now,atuser,atuser,file_uri,use_statement,0, ead_actuate,ead_show, doID)
+               (%s, 1, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
             logger.debug('sql6: ' + sql6)
-            process_sql(sql6)
+            process_sql(sql6, (base_fv_id,time_now, time_now,atuser,atuser,file_uri,use_statement,0, ead_actuate,ead_show, doID))
 
             #create notes
             sql7 = " select max(archdescriptionrepeatingdataId) from archdescriptionrepeatingdata"
@@ -306,9 +308,9 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             sql8 = """insert into archdescriptionrepeatingdata 
                 (archdescriptionrepeatingdataid, descriminator, version, lastupdated, created, lastupdatedby ,createdby, repeatingdatatype, title, sequenceNumber,
                 digitalObjectId, noteContent, notesetctypeid, basic, multiPart,internalOnly) values 
-                (%d, 'note',%d, '%s', '%s', '%s', '%s','Note','', 0, %d, '%s',13, '', '', '')""" % (newadrd, seq_num, time_now, time_now, atuser, atuser, doID, note_content ) 
+                (%s, 'note', %s, %s, %s, %s, %s, 'Note', '', 0, %s, %s, 13, '', '', '')"""
             logger.debug('sql8: ' + sql8)
-            adrd = process_sql(sql8) 
+            adrd = process_sql(sql8, (newadrd, seq_num, time_now, time_now, atuser, atuser, doID, note_content ))
         
             #conditions governing access note
             newadrd += 1
@@ -318,9 +320,9 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             sql9 = """insert into archdescriptionrepeatingdata 
                 (archdescriptionrepeatingdataid, descriminator, version, lastupdated, created, lastupdatedby ,createdby, repeatingdatatype, title, sequenceNumber,
                 digitalObjectId, noteContent, notesetctypeid, basic, multipart, internalOnly) values 
-                (%d, 'note',0, '%s', '%s', '%s', '%s','Note','', %d, %d, '%s',8, '', '', '')""" % (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content )
-            adrd = process_sql(sql9) 
+                (%s, 'note', 0, %s, %s, %s, %s, 'Note', '', %s, %s, %s, 8, '', '', '')"""
             logger.debug('sql9:' + sql9)
+            adrd = process_sql(sql9, (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content))
          
             #conditions governing use` note
             newadrd += 1
@@ -330,9 +332,9 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             sql10 = """insert into archdescriptionrepeatingdata 
                 (archdescriptionrepeatingdataid, descriminator, version, lastupdated, created, lastupdatedby ,createdby, repeatingdatatype, title, sequenceNumber,
                 digitalObjectId, noteContent, notesetctypeid, basic, multipart, internalOnly) values 
-                (%d, 'note',0, '%s', '%s', '%s', '%s','Note','', %d, %d, '%s',9, '', '', '')""" % (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content )
-            adrd = process_sql(sql10)
+                (%s, 'note', 0, %s, %s, %s, %s, 'Note', '', %s, %s, %s, 9, '', '', '')"""
             logger.debug('sql10:' + sql10)
+            adrd = process_sql(sql10, (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content))
    
     process_sql("commit")
     delete_pairs(dip_uuid)
