@@ -40,7 +40,7 @@ select {
     $(document).ready(function() {
       var sourceDirectories = {
         {% for dir in source_directories %}
-          '{{ dir.uuid }}': '{{ dir.path }}',
+          '{{ dir.uuid }}': '{{ dir.description }}',
         {% endfor %}
       };
       var form = new MetadataFormView({
