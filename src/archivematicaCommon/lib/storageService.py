@@ -8,12 +8,7 @@ import sys
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import DashboardSetting
 
-from custom_handlers import GroupWriteRotatingFileHandler
-
-logger = logging.getLogger('archivematica.common')
-logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/archivematica.log",
-     maxBytes=4194304))
-logger.setLevel(logging.INFO)
+LOGGER = logging.getLogger("archivematica.common")
 
 
 class ResourceNotFound(Exception):
@@ -36,13 +31,13 @@ def _storage_service_url():
     # Get storage service URL from DashboardSetting model
     storage_service_url = get_setting('storage_service_url', None)
     if storage_service_url is None:
-        logging.error("Storage server not configured.")
+        LOGGER.error("Storage server not configured.")
         storage_service_url = 'http://localhost:8000/'
     # If the URL doesn't end in a /, add one
     if storage_service_url[-1] != '/':
         storage_service_url+='/'
     storage_service_url = storage_service_url+'api/v2/'
-    logging.debug("Storage service URL: {}".format(storage_service_url))
+    LOGGER.debug("Storage service URL: {}".format(storage_service_url))
     return storage_service_url
 
 
@@ -74,11 +69,11 @@ def create_pipeline(create_default_locations=False, shared_path=None, api_userna
         'api_username': api_username,
         'api_key': api_key,
     }
-    logging.info("Creating pipeline in storage service with {}".format(pipeline))
+    LOGGER.info("Creating pipeline in storage service with {}".format(pipeline))
     try:
         api.pipeline.post(pipeline)
     except slumber.exceptions.HttpClientError as e:
-        logging.warning("Unable to create Archivematica pipeline in storage service from {} because {}".format(pipeline, e.content))
+        LOGGER.warning("Unable to create Archivematica pipeline in storage service from {} because {}".format(pipeline, e.content))
         return False
     except slumber.exceptions.HttpServerError as e:
         if 'column uuid is not unique' in e.content:
@@ -93,7 +88,7 @@ def _get_pipeline(uuid):
         pipeline = api.pipeline(uuid).get()
     except slumber.exceptions.HttpClientError as e:
         if e.response.status_code == 404:
-            logging.warning("This Archivematica instance is not registered with the storage service or has been disabled.")
+            LOGGER.warning("This Archivematica instance is not registered with the storage service or has been disabled.")
         pipeline = None
     return pipeline
 
@@ -125,13 +120,13 @@ def get_location(path=None, purpose=None, space=None):
                                      purpose=purpose,
                                      space=space,
                                      offset=offset)
-        logging.debug("Storage locations retrieved: {}".format(locations))
+        LOGGER.debug("Storage locations retrieved: {}".format(locations))
         return_locations += locations['objects']
         if not locations['meta']['next']:
             break
         offset += locations['meta']['limit']
 
-    logging.info("Storage locations returned: {}".format(return_locations))
+    LOGGER.info("Storage locations returned: {}".format(return_locations))
     return return_locations
 
 def get_location_by_uri(uri):
@@ -173,10 +168,10 @@ def copy_files(source_location, destination_location, files, api=None):
     try:
         ret = api.location(destination_location['uuid']).post(move_files)
     except slumber.exceptions.HttpClientError as e:
-        logging.warning("Unable to move files with {} because {}".format(move_files, e.content))
+        LOGGER.warning("Unable to move files with {} because {}".format(move_files, e.content))
         return (None, e)
     except slumber.exceptions.HttpServerError as e:
-        logging.warning("Could not connect to storage service: {} ({})".format(
+        LOGGER.warning("Could not connect to storage service: {} ({})".format(
             e, e.content))
         return (None, e)
     return (ret, None)
@@ -215,13 +210,13 @@ def get_space(access_protocol=None, path=None):
         spaces = api.space.get(access_protocol=access_protocol,
                                path=path,
                                offset=offset)
-        logging.debug("Storage spaces retrieved: {}".format(spaces))
+        LOGGER.debug("Storage spaces retrieved: {}".format(spaces))
         return_spaces += spaces['objects']
         if not spaces['meta']['next']:
             break
         offset += spaces['meta']['limit']
 
-    logging.info("Storage spaces returned: {}".format(return_spaces))
+    LOGGER.info("Storage spaces returned: {}".format(return_spaces))
     return return_spaces
 
 ############# FILES #############
@@ -248,14 +243,14 @@ def create_file(uuid, origin_location, origin_path, current_location,
         'origin_pipeline': pipeline['resource_uri'],
     }
 
-    logging.info("Creating file with {}".format(new_file))
+    LOGGER.info("Creating file with {}".format(new_file))
     try:
         file_ = api.file.post(new_file)
     except slumber.exceptions.HttpClientError as e:
-        logging.warning("Unable to create file from {} because {}".format(new_file, e.content))
+        LOGGER.warning("Unable to create file from {} because {}".format(new_file, e.content))
         return (None, e)
     except slumber.exceptions.HttpServerError as e:
-        logging.warning("Could not connect to storage service: {} ({})".format(
+        LOGGER.warning("Could not connect to storage service: {} ({})".format(
             e, e.content))
         return (None, e)
     return (file_, None)
@@ -283,13 +278,13 @@ def get_file_info(uuid=None, origin_location=None, origin_path=None,
                              package_type=package_type,
                              status=status,
                              offset=offset)
-        logging.debug("Files retrieved: {}".format(files))
+        LOGGER.debug("Files retrieved: {}".format(files))
         return_files += files['objects']
         if not files['meta']['next']:
             break
         offset += files['meta']['limit']
 
-    logging.info("Files returned: {}".format(return_files))
+    LOGGER.info("Files returned: {}".format(return_files))
     return return_files
 
 def download_file_url(file_uuid):

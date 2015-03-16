@@ -23,6 +23,7 @@
 import archivematicaMCP
 import sys
 from linkTaskManagerChoice import choicesAvailableForUnits
+import logging
 import lxml.etree as etree
 import gearman
 import cPickle
@@ -30,6 +31,7 @@ import time
 import traceback
 from socket import gethostname
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from custom_handlers import GroupWriteRotatingFileHandler
 import databaseInterface
 
 def rpcError(code="", details=""):
@@ -105,6 +107,9 @@ def gearmanGetJobsAwaitingApproval(gearman_worker, gearman_job):
 
 
 def startRPCServer():
+    logger = logging.getLogger("archivematica")
+    logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/MCPServer/MCPServer.log", maxBytes=4194304))
+
     gm_worker = gearman.GearmanWorker([archivematicaMCP.config.get('MCPServer', 'GearmanServerWorker')])
     hostID = gethostname() + "_MCPServer"
     gm_worker.set_client_id(hostID)

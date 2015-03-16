@@ -35,6 +35,7 @@
 import ConfigParser
 import cPickle
 import gearman
+import logging
 import os
 import time
 from socket import gethostname
@@ -48,6 +49,7 @@ config.read("/etc/archivematica/MCPClient/clientConfig.conf")
 os.environ['DJANGO_SETTINGS_MODULE'] = config.get('MCPClient', 'django_settings_module')
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from custom_handlers import GroupWriteRotatingFileHandler
 import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 printOutputLock = threading.Lock()
@@ -201,6 +203,10 @@ def startThreads(t=1):
         t.start()
 
 if __name__ == '__main__':
+    logger = logging.getLogger("archivematica")
+    logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/MCPClient/MCPClient.log", maxBytes=4194304))
+    logger.setLevel(logging.INFO)
+
     loadSupportedModules(config.get('MCPClient', "archivematicaClientModules"))
     startThreads(config.getint('MCPClient', "numberOfTasks"))
     tl = threading.Lock()

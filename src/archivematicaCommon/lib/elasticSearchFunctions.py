@@ -38,18 +38,14 @@ from django.db.models import Q
 from main.models import DashboardSetting, File, Transfer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from custom_handlers import GroupWriteRotatingFileHandler
 import version
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import xmltodict
 
-from elasticsearch import Elasticsearch, ConnectionError, TransportError
+LOGGER = logging.getLogger("archivematica.common")
 
-logger = logging.getLogger('archivematica.common')
-logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/dashboard/dashboard.log",
-     maxBytes=4194304))
-logger.setLevel(logging.INFO)
+from elasticsearch import Elasticsearch, ConnectionError, TransportError
 
 pathToElasticSearchServerConfigFile='/etc/elasticsearch/elasticsearch.yml'
 MAX_QUERY_SIZE = 50000  # TODO Check that this is a reasonable number
@@ -167,7 +163,7 @@ def search_raw_wrapper(conn, query, indices=None, doc_types=None, **query_params
         **query_params)
 
     if results['hits']['total'] > MAX_QUERY_SIZE:
-        logging.warning('Number of items in backlog (%s) exceeds maximum amount fetched (%s)', results['hits']['total'], MAX_QUERY_SIZE)
+        LOGGER.warning('Number of items in backlog (%s) exceeds maximum amount fetched (%s)', results['hits']['total'], MAX_QUERY_SIZE)
     return results
 
 def check_server_status(conn=None):
@@ -415,7 +411,7 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
 
         else:
             error_message = "Directory does not exist: " + pathToArchive
-            logging.warning(error_message)
+            LOGGER.warning(error_message)
             print >>sys.stderr, error_message
             exitCode = 1
     else:
@@ -736,7 +732,7 @@ def get_transfer_file_info(field, value):
     """
     Get transferfile information from ElasticSearch with query field = value.
     """
-    logging.debug('get_transfer_file_info: field: %s, value: %s', field, value)
+    LOGGER.debug('get_transfer_file_info: field: %s, value: %s', field, value)
     results = {}
     conn = connect_and_create_index('transfers')
     indicies = 'transfers'
@@ -763,14 +759,14 @@ def get_transfer_file_info(field, value):
             results = filtered_results[0]['_source']
         if result_count > 1:
             results = filtered_results[0]['_source']
-            logging.warning('get_transfer_file_info returned %s results for query %s: %s (using first result)',
+            LOGGER.warning('get_transfer_file_info returned %s results for query %s: %s (using first result)',
                             result_count, field, value)
         elif result_count < 1:
-            logging.error('get_transfer_file_info returned no exact results for query %s: %s',
+            LOGGER.error('get_transfer_file_info returned no exact results for query %s: %s',
                           field, value)
             raise ElasticsearchError("get_transfer_file_info returned no exact results")
 
-    logging.debug('get_transfer_file_info: results: %s', results)
+    LOGGER.debug('get_transfer_file_info: results: %s', results)
     return results
 
 
@@ -798,7 +794,7 @@ def connect_and_remove_transfer_files(uuid, unit_type=None):
     else:
         if not unit_type:
             unit_type = 'transfer or SIP'
-        logging.warning("No transfers found for %s %s", unit_type, uuid)
+        LOGGER.warning("No transfers found for %s %s", unit_type, uuid)
 
 def delete_aip(uuid):
     return delete_matching_documents('aips', 'aip', 'uuid', uuid)

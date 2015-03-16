@@ -32,7 +32,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('archivematica.upload.qubit')
 logger.addHandler(logging.NullHandler())
-logger.addHandler(logging.FileHandler('/var/log/archivematica/atom_upload.log', mode='a'))
+logger.addHandler(logging.FileHandler('/var/log/archivematica/MCPClient/atom_upload.log', mode='a'))
 
 # externals
 import requests

@@ -35,15 +35,12 @@ from linkTaskManagerChoice import choicesAvailableForUnitsLock
 from linkTaskManagerChoice import waitingOnTimer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from custom_handlers import GroupWriteRotatingFileHandler
 from dicts import ReplacementDict, ChoicesDict
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import StandardTaskConfig
 
-logger = logging.getLogger('archivematica.mcp.server')
-logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/archivematica.log",
-    maxBytes=4194304))
-logger.setLevel(logging.INFO)
+LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
@@ -66,10 +63,10 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
                     break
             else:
                 print >>sys.stderr, "self.jobChainLink.passVar", self.jobChainLink.passVar
-                logging.error("ChoicesDict not found in passVar: {}".format(self.jobChainLink.passVar))
+                LOGGER.error("ChoicesDict not found in passVar: {}".format(self.jobChainLink.passVar))
                 raise Exception("ChoicesDict not found in passVar: {}".format(self.jobChainLink.passVar))
         else:
-            logging.error("passVar is {} instead of expected list".format(
+            LOGGER.error("passVar is {} instead of expected list".format(
                 type(self.jobChainLink.passVar)))
             raise Exception("passVar is {} instead of expected list".format(
                 type(self.jobChainLink.passVar)))

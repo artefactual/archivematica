@@ -33,6 +33,7 @@
 #
 # stdlib, alphabetical by import source
 import ConfigParser
+import logging
 import os
 from pwd import getpwnam
 import pyinotify
@@ -53,6 +54,7 @@ from unitTransfer import unitTransfer
 import RPCServer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from custom_handlers import GroupWriteRotatingFileHandler
 import databaseInterface
 import databaseFunctions
 from externals.singleInstance import singleinstance
@@ -269,6 +271,9 @@ def cleanupOldDbEntriesOnNewRun():
 
 
 if __name__ == '__main__':
+    logger = logging.getLogger("archivematica")
+    logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/MCPServer/MCPServer.log", maxBytes=4194304))
+
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     si = singleinstance(config.get('MCPServer', "singleInstancePIDFile"))

@@ -3,7 +3,6 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('archivematica.common')
-logger.addHandler(logging.NullHandler())
 
 def connect_db(atdbhost, atdbport, atdbuser, atpass, atdb):
     try:

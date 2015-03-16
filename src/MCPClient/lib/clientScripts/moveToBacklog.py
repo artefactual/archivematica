@@ -9,11 +9,6 @@ import sys
 from custom_handlers import GroupWriteRotatingFileHandler
 import storageService as storage_service
 
-logger = logging.getLogger('archivematica.mcp.client')
-logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/dashboard/dashboard.log",
-     maxBytes=4194304))
-logger.setLevel(logging.INFO)
-
 
 def main(transfer_uuid, transfer_path):
     current_location = storage_service.get_location(purpose="CP")[0]
@@ -61,6 +56,10 @@ def main(transfer_uuid, transfer_path):
 
 
 if __name__ == '__main__':
+    logger = logging.getLogger("archivematica")
+    logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/MCPClient/moveToBacklog.log", maxBytes=4194304))
+    logger.setLevel(logging.INFO)
+
     transfer_uuid = sys.argv[1]
     transfer_path = sys.argv[2]
     sys.exit(main(transfer_uuid, transfer_path))

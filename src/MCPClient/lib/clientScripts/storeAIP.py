@@ -30,11 +30,6 @@ from uuid import uuid4
 from custom_handlers import GroupWriteRotatingFileHandler
 import storageService as storage_service
 
-logger = logging.getLogger('archivematica.mcp.client')
-logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/archivematica.log",
-    maxBytes=4194304))
-logger.setLevel(logging.INFO)
-
 
 def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     """ Stores an AIP with the storage service.
@@ -133,6 +128,10 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     #     shutil.copy(os.path.join(thumbnailSourceDir, filename), thumbnailDestDir)
 
 if __name__ == '__main__':
+    logger = logging.getLogger("archivematica")
+    logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/MCPClient/storeAIP.log", maxBytes=4194304))
+    logger.setLevel(logging.INFO)
+
     parser = argparse.ArgumentParser(description='Create AIP pointer file.')
     parser.add_argument('aip_destination_uri', type=str, help='%AIPsStore%')
     parser.add_argument('aip_filename', type=str, help='%AIPFilename%')
