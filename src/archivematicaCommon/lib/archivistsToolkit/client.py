@@ -132,7 +132,7 @@ class ArchivistsToolkitClient(object):
         cursor = self.db.cursor()
 
         if resource_type == 'collection':
-            cursor.execute("SELECT title, dateExpression, resourceIdentifier1 FROM Resources WHERE resourceid=%s", (resource_id))
+            cursor.execute("SELECT title, dateExpression, resourceIdentifier1, resourceLevel FROM Resources WHERE resourceid=%s", (resource_id))
 
             for row in cursor.fetchall():
                 resource_data['id']                 = resource_id
@@ -140,7 +140,7 @@ class ArchivistsToolkitClient(object):
                 resource_data['title']              = row[0]
                 resource_data['dates']              = row[1]
                 resource_data['identifier']         = row[2]
-                resource_data['levelOfDescription'] = 'collection'
+                resource_data['levelOfDescription'] = row[3]
         else:
             cursor.execute("SELECT title, dateExpression, persistentID, resourceLevel FROM ResourcesComponents WHERE resourceComponentId=%s", (resource_id))
 
@@ -224,19 +224,19 @@ class ArchivistsToolkitClient(object):
 
     def find_collection_ids(self, search_pattern=''):
         """
-        Fetches a list of all resource IDs for every collection in the database.
+        Fetches a list of all resource IDs for every resource in the database.
 
-        :param string search_pattern: A search pattern to use in looking up collections by title or resourceid.
+        :param string search_pattern: A search pattern to use in looking up resources by title or resourceid.
             The search will match any title or resourceid containing this string;
             for example, "text" will match "this title has this text in it".
-            If omitted, then all collections will be fetched.
+            If omitted, then all resources will be fetched.
 
-        :return list: A list containing every matched collection's ID.
+        :return list: A list containing every matched resource's ID.
         """
         cursor = self.db.cursor()
 
         if search_pattern == '':
-            sql = "SELECT resourceId FROM Resources WHERE resourceLevel = 'collection' ORDER BY title"
+            sql = "SELECT resourceId FROM Resources ORDER BY title"
             params = ()
         else:
             sql = "SELECT resourceId FROM Resources WHERE (title LIKE %s OR resourceid LIKE %s) AND resourceLevel in ('recordgrp', 'collection') ORDER BY title"

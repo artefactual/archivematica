@@ -268,18 +268,18 @@ class ArchivesSpaceClient(object):
 
     def find_collection_ids(self, search_pattern='', fetched=0, page=1):
         """
-        Fetches a list of resource URLs for every collection in the database.
+        Fetches a list of resource URLs for every resource in the database.
 
-        :param string search_pattern: A search pattern to use in looking up collections by title or resourceid.
+        :param string search_pattern: A search pattern to use in looking up resources by title or resourceid.
             The search will match any title containing this string;
             for example, "text" will match "this title has this text in it".
-            If omitted, then all collections will be fetched.
+            If omitted, then all resources will be fetched.
 
-        :return list: A list containing every matched collection's URL.
+        :return list: A list containing every matched resource's URL.
         """
         params = {
             'page': page,
-            'q': 'primary_type:resource AND level:collection'
+            'q': 'primary_type:resource'
         }
         if search_pattern != '':
             params['q'] = params['q'] + ' AND title:{}'.format(search_pattern)
