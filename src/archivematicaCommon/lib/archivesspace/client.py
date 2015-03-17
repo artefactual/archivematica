@@ -34,6 +34,9 @@ class ArchivesSpaceClient(object):
     This change is due to the fact that the integer IDs are not unique across the collection in ArchivesSpace, as they were in Archivist's Toolkit.
     """
 
+    RESOURCE = 'resource'
+    RESOURCE_COMPONENT = 'resource_component'
+
     def __init__(self, host, user, passwd, port=8089, repository=2):
         parsed = urlparse(host)
         if not parsed.scheme:
@@ -247,11 +250,21 @@ class ArchivesSpaceClient(object):
         Given the URL to a component, returns the parent component's URL.
 
         :param string component_id: The URL of the component.
-        :return string: The URL of the component's immediate parent, or None if there is no parent.
+        :return tuple: A tuple containing:
+            * The type of the parent record; valid values are ArchivesSpaceClient.RESOURCE and ArchivesSpaceClient.RESOURCE_COMPONENT.
+            * The URL of the parent record.
+            If the provided URL fragment references a resource, this method will simply return the same URL.
         """
-        response = self._get(component_id)
+        response = self.get_record(component_id)
         if 'parent' in response:
-            return response['parent']['ref']
+            return (ArchivesSpaceClient.RESOURCE_COMPONENT, response['parent']['ref'])
+        # if this is the top archival object, return the resource instead
+        elif 'resource' in response:
+            return (ArchivesSpaceClient.RESOURCE, response['resource']['ref'])
+        # resource was passed in, which has no higher-up record;
+        # return the same ID
+        else:
+            return (ArchivesSpaceClient.RESOURCE, component_id)
 
     def find_collection_ids(self, search_pattern='', fetched=0, page=1):
         """

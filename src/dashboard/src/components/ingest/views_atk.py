@@ -100,6 +100,7 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
         query = request.GET.get('query', '').strip()
         page = request.GET.get('page', 1)
         search_params = advanced_search.extract_url_search_params_from_request(request)
+
         return pair_matcher.render_resource_component(client, request,
                                                       resource_component_id,
                                                       query, page, search_params,
@@ -113,7 +114,14 @@ def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resour
     try:
         # load resource and child data
         client = get_atk_system_client()
-        return pair_matcher.match_dip_objects_to_resource_levels(client, request, resource_id, 'ingest/atk/match.html', uuid)
+
+        parent_type, parent_id = client.find_parent_id_for_component(resource_id)
+        if parent_type == type(client).RESOURCE:
+            parent_url = 'components.ingest.views_atk.ingest_upload_as_resource'
+        else:
+            parent_url = 'components.ingest.views_atk.ingest_upload_as_resource_component'
+
+        return pair_matcher.match_dip_objects_to_resource_levels(client, request, resource_id, 'ingest/atk/match.html', parent_id, parent_url, uuid)
     except:
         return HttpResponseServerError('Database error. Please contact an administrator.')
 
@@ -122,6 +130,13 @@ def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uu
     try:
         # load resource and child data
         client = get_atk_system_client()
-        return pair_matcher.match_dip_objects_to_resource_component_levels(client, request, resource_component_id, 'ingest/atk/match.html', uuid)
+
+        parent_type, parent_id = client.find_parent_id_for_component(resource_component_id)
+        if parent_type == type(client).RESOURCE:
+            parent_url = 'components.ingest.views_atk.ingest_upload_as_resource'
+        else:
+            parent_url = 'components.ingest.views_atk.ingest_upload_as_resource_component'
+
+        return pair_matcher.match_dip_objects_to_resource_component_levels(client, request, resource_component_id, 'ingest/atk/match.html', parent_id, parent_url, uuid)
     except:
         return HttpResponseServerError('Database error. Please contact an administrator.')

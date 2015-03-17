@@ -8,6 +8,9 @@ logger.addHandler(logging.NullHandler())
 
 
 class ArchivistsToolkitClient(object):
+    RESOURCE = 'resource'
+    RESOURCE_COMPONENT = 'resource_component'
+
     def __init__(self, host, user, passwd, db):
         try:
             self.db = MySQLdb.connect(host=host,
@@ -206,14 +209,18 @@ class ArchivistsToolkitClient(object):
         Given the ID of a component, returns the parent component's ID.
 
         :param string component_id: The ID of the component.
-        :return string: The ID of the component's immediate parent, or None if there is no parent.
+        :return tuple: A tuple containing:
+            * The type of the parent record; valid values are ArchivesSpaceClient.RESOURCE and ArchivesSpaceClient.RESOURCE_COMPONENT.
+            * The ID of the parent record.
         """
         cursor = self.db.cursor()
 
         sql = "SELECT parentResourceComponentId FROM ResourcesComponents WHERE resourceComponentId=%s"
         count = cursor.execute(sql, (component_id,))
         if count > 0:
-            return cursor.fetchone()
+            return (ArchivistsToolkitClient.RESOURCE_COMPONENT, cursor.fetchone())
+
+        return (ArchivistsToolkitClient.RESOURCE, self.find_resource_id_for_component(component_id))
 
     def find_collection_ids(self, search_pattern=''):
         """

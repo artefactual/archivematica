@@ -121,7 +121,13 @@ def ingest_upload_as_match_dip_objects_to_resource_levels(client, request, uuid,
     pairs = models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(dipuuid=uuid)
     matches = [_format_pair(client, pair.resourceid, pair.fileuuid) for pair in pairs]
 
-    return pair_matcher.match_dip_objects_to_resource_levels(client, request, resource_id, 'ingest/as/match.html', uuid, matches=matches)
+    parent_type, parent_id = client.find_parent_id_for_component(resource_id)
+    if parent_type == type(client).RESOURCE:
+        parent_url = 'components.ingest.views_as.ingest_upload_as_resource'
+    else:
+        parent_url = 'components.ingest.views_as.ingest_upload_as_resource_component'
+
+    return pair_matcher.match_dip_objects_to_resource_levels(client, request, resource_id, 'ingest/as/match.html', parent_id, parent_url, uuid, matches=matches)
 
 
 @_authenticate_to_archivesspace
@@ -131,7 +137,13 @@ def ingest_upload_as_match_dip_objects_to_resource_component_levels(client, requ
         dipuuid=uuid)
     matches = [_format_pair(client, pair.resourceid, pair.fileuuid) for pair in pairs]
 
-    return pair_matcher.match_dip_objects_to_resource_component_levels(client, request, resource_component_id, 'ingest/as/match.html', uuid, matches=matches)
+    parent_type, parent_id = client.find_parent_id_for_component(resource_component_id)
+    if parent_type == type(client).RESOURCE:
+        parent_url = 'components.ingest.views_as.ingest_upload_as_resource'
+    else:
+        parent_url = 'components.ingest.views_as.ingest_upload_as_resource_component'
+
+    return pair_matcher.match_dip_objects_to_resource_component_levels(client, request, resource_component_id, 'ingest/as/match.html', parent_id, parent_url, uuid, matches=matches)
 
 
 def ingest_upload_as_match(request, uuid):

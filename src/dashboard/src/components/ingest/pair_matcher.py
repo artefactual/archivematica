@@ -82,9 +82,6 @@ def render_resource_component(client, request, resource_component_id, query, pag
     if resource_component_data['children']:
         page = helpers.pager(resource_component_data['children'], 10, page)
 
-    resource_id = client.find_resource_id_for_component(resource_component_id)
-    parent_id = client.find_parent_id_for_component(resource_component_id)
-
     if not resource_component_data['children'] and query == '':
         return HttpResponseRedirect(
             reverse(match_redirect_target, args=[uuid, resource_component_id])
@@ -93,7 +90,7 @@ def render_resource_component(client, request, resource_component_id, query, pag
         return render(request, resource_detail_template, locals())
 
 
-def match_dip_objects_to_resource_levels(client, request, resource_id, match_template, uuid, matches=[]):
+def match_dip_objects_to_resource_levels(client, request, resource_id, match_template, parent_id, parent_url, uuid, matches=[]):
     # load object relative paths
     object_path_json = simplejson.JSONEncoder().encode(
         ingest_upload_atk_get_dip_object_paths(uuid)
@@ -108,7 +105,7 @@ def match_dip_objects_to_resource_levels(client, request, resource_id, match_tem
     return render(request, match_template, locals())
 
 
-def match_dip_objects_to_resource_component_levels(client, request, resource_component_id, match_template, uuid, matches=[]):
+def match_dip_objects_to_resource_component_levels(client, request, resource_component_id, match_template, parent_id, parent_url, uuid, matches=[]):
     # load object relative paths
     object_path_json = simplejson.JSONEncoder().encode(
         ingest_upload_atk_get_dip_object_paths(uuid)
@@ -120,8 +117,6 @@ def match_dip_objects_to_resource_component_levels(client, request, resource_com
     )
 
     matches_json = simplejson.JSONEncoder().encode(matches)
-
-    parent_id = client.find_parent_id_for_component(resource_component_id)
 
     return render(request, match_template, locals())
 
