@@ -255,6 +255,7 @@ def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
                 type=transfer_type, accession=accession,
                 transfer_metadata_set_row_uuid=row_id)
         except Exception:
+            logging.exception("Error copying %s to start of transfer", filepath)
             return {'error': True,
                 'message': 'Error copying {} to start of transfer.'.format(filepath)}
 
