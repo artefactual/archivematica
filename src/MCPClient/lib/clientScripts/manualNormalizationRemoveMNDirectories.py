@@ -27,7 +27,10 @@ import sys
 from main.models import File
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 import databaseFunctions
+
+logger = get_script_logger("archivematica.mcp.client.manualNormalizationRemoveMNDirectories")
 
 SIPDirectory = sys.argv[1]
 manual_normalization_dir = os.path.join(SIPDirectory, "objects", "manualNormalization")

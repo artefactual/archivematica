@@ -4,6 +4,7 @@ import argparse
 import sys
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 import elasticSearchFunctions
 import storageService as storage_service
 
@@ -45,6 +46,8 @@ def post_store_hook(sip_uuid):
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
+
     parser = argparse.ArgumentParser()
     parser.add_argument('sip_uuid', help='%SIPUUID%')
 

@@ -23,13 +23,17 @@
 import os
 import sys
 import uuid
+
 # archivematicaCommon
+from custom_handlers import get_script_logger
 import databaseFunctions
 import fileOperations
 
 from django.db.models import Q
 # dashboard
 from main.models import Event, File
+
+logger = get_script_logger("archivematica.mcp.client.manualNormalizationCreateMetadataAndRestructure")
 
 #"%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%fileUUID%" "%filePath%"
 SIPUUID = sys.argv[1]

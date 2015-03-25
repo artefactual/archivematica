@@ -27,6 +27,7 @@ import shutil
 # archivematicaCommon
 import archivematicaFunctions
 from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
+from custom_handlers import get_script_logger
 
 
 def restructureDirectory(unitPath):
@@ -46,6 +47,8 @@ def restructureDirectory(unitPath):
             print "moving file to objects: ", item
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.restructureForCompliance")
+
     target = sys.argv[1]
     restructureDirectory(target)
     

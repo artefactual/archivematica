@@ -5,6 +5,9 @@ from argparse import ArgumentParser
 from lxml import etree
 import sys
 
+# archivematicaCommon
+from custom_handlers import get_script_logger
+
 # dashboard
 from main.models import Transfer
 
@@ -28,6 +31,8 @@ def build_element(label, value, root):
     return element
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.transferMetadata")
+
     parser = ArgumentParser(description='Create a generic XML document from transfer metadata')
     parser.add_argument('-S', '--sipUUID', action='store', dest='sip_uuid')
     parser.add_argument('-x', '--xmlFile', action='store', dest='xml_file')

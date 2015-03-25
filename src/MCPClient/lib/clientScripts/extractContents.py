@@ -6,6 +6,7 @@ import sys
 import uuid
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import fileWasRemoved
 from fileOperations import addFileToTransfer, updateSizeAndChecksum
@@ -136,6 +137,8 @@ def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
         return -1
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.extractContents")
+
     transfer_uuid = sys.argv[1]
     sip_directory = sys.argv[2]
     date = sys.argv[3]

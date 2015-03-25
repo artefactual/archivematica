@@ -28,6 +28,7 @@ import sys
 from main.models import Transfer
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 
 def extract(target, destinationDirectory):
@@ -56,6 +57,8 @@ def extract(target, destinationDirectory):
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.extractBagTransfer")
+
     target = sys.argv[1]
     transferUUID =  sys.argv[2]
     processingDirectory = sys.argv[3]

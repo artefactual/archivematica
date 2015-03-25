@@ -24,6 +24,7 @@ import os
 import sys
 import lxml.etree as etree
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from fileOperations import updateFileLocation
 from fileOperations import renameAsSudo
 
@@ -61,6 +62,8 @@ def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, tran
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.moveDspaceMetsFilesToDSpaceMETS")
+
     metsFile = sys.argv[1]
     date = sys.argv[2]
     taskUUID = sys.argv[3]

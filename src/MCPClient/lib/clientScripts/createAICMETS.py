@@ -13,7 +13,9 @@ from main.models import UnitVariable
 
 import archivematicaCreateMETS2
 import archivematicaXMLNamesSpace as ns
+
 # archivematicaCommon
+from custom_handlers import get_script_logger
 import databaseFunctions
 import fileOperations
 import storageService as storage_service
@@ -152,6 +154,8 @@ def create_aic_mets(aic_uuid, aic_dir):
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.createAICMETS")
+
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('aic_uuid', action='store', type=str, help="%SIPUUID%")
     parser.add_argument('aic_dir', action='store', type=str, help="%SIPDirectory%")

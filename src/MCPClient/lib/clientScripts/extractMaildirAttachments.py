@@ -32,6 +32,7 @@ import uuid
 from main.models import File
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from externals.extractMaildirAttachments import parse
 from fileOperations import addFileToTransfer, updateSizeAndChecksum
 from archivematicaFunctions import unicodeToStr
@@ -77,6 +78,8 @@ path = %s
     return
    
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.extractMaildirAttachments")
+
     #http://www.doughellmann.com/PyMOTW/mailbox/
     sharedVariablesAcrossModules.errorCounter = 0
     transferDir = sys.argv[1]

@@ -24,10 +24,14 @@
 import os
 import sys
 import shutil
+
 # archivematicaCommon
+from custom_handlers import get_script_logger
 import archivematicaFunctions
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.restructureBagAIPToSIP")
+
     path = sys.argv[1]
     os.makedirs(os.path.join(path, "metadata/submissionDocumentation"))
 

@@ -30,6 +30,7 @@ import os
 # archivematicaCommon
 from archivematicaFunctions import getTagged
 from archivematicaFunctions import escapeForCommand
+from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoFPCommandOutput
 from databaseFunctions import insertIntoEvents
 import databaseInterface
@@ -60,6 +61,8 @@ def excludeJhoveProperties(fits):
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.FITS")
+
     global exitCode
     exitCode = 0
     target = sys.argv[1]

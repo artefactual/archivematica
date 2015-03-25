@@ -2,6 +2,7 @@
 import sys
 import os
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from externals.maildirToMbox import maildir2mailbox2
 
 
@@ -22,6 +23,8 @@ def getFileDic(fileFullPath):
     return fileDic
 
 if __name__ == "__main__":
+    logger = get_script_logger("archivematica.mcp.client.maildirToMbox")
+
     while 0:
         import time
         time.sleep(10)

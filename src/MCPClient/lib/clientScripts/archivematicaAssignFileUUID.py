@@ -24,6 +24,7 @@ import sys
 import uuid
 from optparse import OptionParser
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from fileOperations import addFileToTransfer
 from fileOperations import addFileToSIP
 
@@ -32,6 +33,8 @@ from main.models import File
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.assignFileUUID")
+
     parser = OptionParser()
     parser.add_option("-i",  "--fileUUID",          action="store", dest="fileUUID", default="")
     parser.add_option("-p",  "--filePath",          action="store", dest="filePath", default="")

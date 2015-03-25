@@ -25,11 +25,15 @@ import os
 import sys
 import shutil
 
+# archivematicaCommon
+from custom_handlers import get_script_logger
+
 # dashboard
 from main.models import File
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.copyTransferSubmissionDocumentation")
     sipUUID = sys.argv[1]
     submissionDocumentationDirectory = sys.argv[2]
     sharedPath = sys.argv[3]

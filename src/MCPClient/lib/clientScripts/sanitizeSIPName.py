@@ -24,6 +24,9 @@
 from archivematicaMoveSIP import moveSIP
 import sys
 
+# archivematicaCommon
+from custom_handlers import get_script_logger
+
 # dashboard
 from main.models import SIP, Transfer
 
@@ -32,6 +35,8 @@ from sanitizeNames import sanitizePath
 DetoxDic={}
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.sanitizeSIPName")
+
     SIPDirectory = sys.argv[1]
     sipUUID =  sys.argv[2]
     date = sys.argv[3]

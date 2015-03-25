@@ -4,6 +4,8 @@ from __future__ import print_function
 import os
 import sys
 
+from custom_handlers import get_script_logger
+
 from archivematicaCreateMETS import createFileSec, each_child
 from archivematicaCreateMETS2 import createDigiprovMD
 import archivematicaXMLNamesSpace as ns
@@ -27,6 +29,8 @@ def create_amdSecs(path, file_group_identifier, base_path, base_path_name, sip_u
     return amdSecs
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.createProcessedStructmap")
+
     from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument("-s", "--basePath", action="store", dest="basePath", default="")

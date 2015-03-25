@@ -14,6 +14,7 @@ import uuid
 import transcoder
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 import databaseFunctions
 import fileOperations
 from dicts import ReplacementDict
@@ -376,6 +377,8 @@ def main(opts):
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.normalize")
+
     parser = argparse.ArgumentParser(description='Identify file formats.')
     # sip dir
     parser.add_argument('purpose', type=str, help='"preservation", "access", "thumbnail"')

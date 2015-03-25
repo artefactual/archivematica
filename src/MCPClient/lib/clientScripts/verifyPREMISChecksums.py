@@ -27,6 +27,7 @@ from optparse import OptionParser
 from main.models import File
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 import databaseFunctions
 from externals.checksummingTools import sha_for_file
 
@@ -64,6 +65,8 @@ def verifyChecksum(fileUUID, filePath, date, eventIdentifierUUID):
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.verifyPREMISChecksums")
+
     parser = OptionParser()
     parser.add_option("-i",  "--fileUUID",          action="store", dest="fileUUID", default="")
     parser.add_option("-p",  "--filePath",          action="store", dest="filePath", default="")

@@ -28,10 +28,12 @@ import sys
 from main.models import Event
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoEvents
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.clamscan")
     fileUUID = sys.argv[1]
     target = sys.argv[2]
     date = sys.argv[3]

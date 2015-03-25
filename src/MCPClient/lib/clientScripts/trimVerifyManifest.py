@@ -36,6 +36,7 @@ date = sys.argv[4]
  
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from fileOperations import getFileUUIDLike
 import databaseFunctions
 topDirectory = None
@@ -43,6 +44,7 @@ currentDirectory = ""
 fileCount = 0
 exitCode = 0
 
+logger = get_script_logger("archivematica.mcp.client.trimVerifyManifest")
 
 
 for line in open(os.path.join(transferPath, "manifest.txt"),'r'):

@@ -15,6 +15,7 @@ import archivematicaCreateMETS2
 from main.models import DublinCore
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 import fileOperations
 from externals import checksummingTools
 
@@ -224,6 +225,8 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     return 0
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.createPointerFile")
+
     parser = argparse.ArgumentParser(description='Create AIP pointer file.')
     parser.add_argument('aip_uuid', type=str, help='%SIPUUID%')
     parser.add_argument('aip_name', type=str, help='%SIPName%')

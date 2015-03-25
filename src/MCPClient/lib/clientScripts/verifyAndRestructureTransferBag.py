@@ -28,6 +28,7 @@ from main.models import File
 
 # archivematicaCommon
 from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
+from custom_handlers import get_script_logger
 import fileOperations
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoEvents
@@ -117,6 +118,8 @@ def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitI
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.verifyAndRestructureTransferBag")
+
     target = sys.argv[1]
     transferUUID =  sys.argv[2]
     verifyBag(target)

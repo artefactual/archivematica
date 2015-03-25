@@ -13,6 +13,7 @@ from main.models import Derivation, File, FileFormatVersion
 from fpr.models import FPRule
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from dicts import ReplacementDict
 from executeOrRunSubProcess import executeOrRun
 import databaseFunctions
@@ -143,6 +144,8 @@ def main(task_uuid, file_uuid):
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.transcribeFile")
+
     task_uuid = sys.argv[1]
     file_uuid = sys.argv[2]
     transcribe = sys.argv[3]

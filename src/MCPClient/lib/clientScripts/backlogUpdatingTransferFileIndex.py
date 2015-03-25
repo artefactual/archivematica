@@ -23,9 +23,12 @@
 import sys
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 import elasticSearchFunctions
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.backlogUpdatingTransferFileIndex")
+
     #"%SIPUUID%" "%SIPName%" "%SIPDirectory%"
     transferUUID = sys.argv[1]
     transferName = sys.argv[2]

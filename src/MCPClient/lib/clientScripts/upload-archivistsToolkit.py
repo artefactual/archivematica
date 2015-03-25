@@ -23,6 +23,7 @@ import argparse
 import logging
 # archivematicaCommon
 import archivistsToolkit.atk as atk
+from custom_handlers import GroupWriteRotatingFileHandler
 import mets
 from xml2obj import mets_file
 import MySQLdb
@@ -37,7 +38,7 @@ base_fv_id = 1
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('archivematica.mcp.client')
 logger.addHandler(logging.NullHandler())
-logger.addHandler(logging.FileHandler('/var/log/archivematica/at_upload.log', mode='a'))
+logger.addHandler(GroupWriteRotatingFileHandler('/var/log/archivematica/at_upload.log', mode='a'))
     
 def recursive_file_gen(mydir):
     for root, dirs, files in os.walk(mydir):

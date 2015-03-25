@@ -26,6 +26,9 @@ import shutil
 from optparse import OptionParser
 import traceback
 
+# archivematicaCommon
+from custom_handlers import get_script_logger
+
 # dashboard
 from main.models import File
 
@@ -71,6 +74,8 @@ def main(sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath
     exit(exitCode)
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.copyTransfersMetadataAndLogs")
+
     while False: #used to stall the mcp and stop the client for testing this module
         import time
         time.sleep(10)

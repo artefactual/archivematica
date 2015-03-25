@@ -5,6 +5,7 @@ import shutil
 import sys
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 
 
@@ -71,4 +72,6 @@ def verify_aip():
     return return_code
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.verifyAIP")
+
     sys.exit(verify_aip())

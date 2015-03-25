@@ -31,6 +31,7 @@ import sys
 import traceback
 # archivematicaCommon
 from archivematicaFunctions import OrderedListsDict
+from custom_handlers import get_script_logger
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
 
@@ -124,4 +125,6 @@ def parseMetadataCSV(metadataCSVFilePath):
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.createMETSMetadataCSV")
+
     parseMetadata(sys.argv[1])

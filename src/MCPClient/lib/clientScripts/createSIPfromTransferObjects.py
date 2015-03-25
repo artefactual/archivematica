@@ -29,9 +29,12 @@ from main.models import File, SIP
 
 # archivematicaCommon
 import archivematicaFunctions
+from custom_handlers import get_script_logger
 import databaseFunctions
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.createSIPFromTransferObjects")
+
     objectsDirectory = sys.argv[1]
     transferName = sys.argv[2]
     transferUUID = sys.argv[3]

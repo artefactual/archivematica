@@ -24,6 +24,7 @@ import argparse
 import logging
 # archivematicaCommon
 import archivistsToolkit.atk as atk
+from custom_handlers import GroupWriteRotatingFileHandler
 import mets
 from xml2obj import mets_file
 import databaseInterface
@@ -37,7 +38,7 @@ base_fv_id = 1
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('archivematica.mcp.client')
 logger.addHandler(logging.NullHandler())
-logger.addHandler(logging.FileHandler('/var/log/archivematica/at_upload.log', mode='a'))
+logger.addHandler(GroupWriteRotatingFileHandler('/var/log/archivematica/at_upload.log', mode='a'))
 
 
     

@@ -12,6 +12,7 @@ import sys
 from lxml import etree
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoFPCommandOutput
 from dicts import replace_string_values, ReplacementDict
@@ -84,6 +85,8 @@ def main(file_path, file_uuid, sip_uuid):
         return 0
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.characterizeFile")
+
     file_path = sys.argv[1]
     file_uuid = sys.argv[2]
     sip_uuid = sys.argv[3]

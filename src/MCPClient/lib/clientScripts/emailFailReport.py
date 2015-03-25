@@ -30,6 +30,7 @@ from lxml import etree
 from django.contrib.auth.models import User
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 import databaseInterface
 from externals.HTML import HTML 
 
@@ -156,6 +157,8 @@ def storeReport(content, type, name, UUID):
     databaseInterface.queryAllSQL(sql, (content, type, name, UUID))
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.emailFailReport")
+
     parser = OptionParser()
     parser.add_option("-t",  "--unitType",          action="store", dest="unitType", default="")
     parser.add_option("-i",  "--unitIdentifier",    action="store", dest="unitIdentifier", default="")

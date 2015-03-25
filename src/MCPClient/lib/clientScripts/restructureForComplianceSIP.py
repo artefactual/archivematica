@@ -7,6 +7,7 @@ import shutil
 # archivematicaCommon
 import archivematicaFunctions
 from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
+from custom_handlers import get_script_logger
 import fileOperations
 
 
@@ -61,6 +62,8 @@ def restructureForComplianceFileUUIDsAssigned(unit_path, unit_uuid, unit_type='s
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.restructureForComplianceSIP")
+
     parser = argparse.ArgumentParser(description='Restructure SIP or Transfer.')
     parser.add_argument('target', help='%SIPDirectory%')
     parser.add_argument('sip_uuid', help='%SIPUUID%')

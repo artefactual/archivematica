@@ -24,11 +24,14 @@ import ConfigParser
 import sys
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 import elasticSearchFunctions
 
 exitCode = 0
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.elasticSearchIndexProcessTransfer")
+
     clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
     config = ConfigParser.SafeConfigParser()
     config.read(clientConfigFilePath)

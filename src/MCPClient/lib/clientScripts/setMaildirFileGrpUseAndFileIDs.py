@@ -24,7 +24,9 @@
 import os
 import sys
 exitCode = 0
+
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from externals.extractMaildirAttachments import parse
 import databaseInterface
 
@@ -55,6 +57,8 @@ def setMaildirFiles(sipUUID, sipPath):
     
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.setMaildirFileGrpUseAndFileIDs")
+
     sipUUID = sys.argv[1]
     sipPath = sys.argv[2]
     setMaildirFiles(sipUUID, sipPath)    

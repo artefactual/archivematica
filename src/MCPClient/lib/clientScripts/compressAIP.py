@@ -8,6 +8,7 @@ import sys
 from main.models import SIP
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 
@@ -103,6 +104,8 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
     return exit_code
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.compressAIP")
+
     parser = argparse.ArgumentParser(description='Compress an AIP.')
     parser.add_argument('compression', type=str, help='%AIPCompressionAlgorithm%')
     parser.add_argument('compression_level', type=str, help='%AIPCompressionLevel%')

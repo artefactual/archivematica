@@ -5,6 +5,7 @@ import sys
 import uuid
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import getUTCDate, insertIntoEvents, insertIntoFilesIDs
 
@@ -141,6 +142,8 @@ def main(command_uuid, file_path, file_uuid, disable_reidentify):
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.identifyFileFormat")
+
     parser = argparse.ArgumentParser(description='Identify file formats.')
     parser.add_argument('idcommand', type=str, help='%IDCommand%')
     parser.add_argument('file_path', type=str, help='%relativeLocation%')

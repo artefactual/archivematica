@@ -23,7 +23,10 @@
 import os
 import sys
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
+
+logger = get_script_logger("archivematica.mcp.client.verifyBAG")
 
 printSubProcessOutput=True
 

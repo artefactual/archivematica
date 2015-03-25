@@ -3,6 +3,9 @@
 from __future__ import print_function
 import sys
 
+# archivematicaCommon
+from custom_handlers import get_script_logger
+
 # dashboard
 from fpr.models import FPRule
 from main.models import FileFormatVersion, Transfer, File, Event
@@ -46,4 +49,6 @@ def main(sip_uuid):
     return 1
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.hasPackages")
+
     sys.exit(main(sys.argv[1]))

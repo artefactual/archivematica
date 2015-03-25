@@ -26,6 +26,7 @@ import os
 import uuid
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from fileOperations import updateFileLocation
 from archivematicaFunctions import unicodeToStr
 import sanitizeNames
@@ -34,6 +35,8 @@ import sanitizeNames
 from main.models import File
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.sanitizeObjectNames")
+
     objectsDirectory = sys.argv[1] #the directory to run sanitization on.
     sipUUID =  sys.argv[2]
     date = sys.argv[3]

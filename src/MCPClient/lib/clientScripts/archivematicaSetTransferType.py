@@ -22,10 +22,14 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import sys
 
+# archivematicaCommon
+from custom_handlers import get_script_logger
+
 # dashboard
 from main.models import Transfer
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.setTransferType")
     transferUUID = sys.argv[1]
     transferType = sys.argv[2]
 

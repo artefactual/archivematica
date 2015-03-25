@@ -29,6 +29,7 @@ from optparse import OptionParser
 from main.models import File
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from fileOperations import updateFileLocation
 from fileOperations import renameAsSudo
 
@@ -80,6 +81,8 @@ def something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIP
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.checkForAccessDirectory")
+
     parser = OptionParser()
     #'--SIPDirectory "%SIPDirectory%" --accessDirectory "objects/access/" --objectsDirectory "objects" --DIPDirectory "DIP" -c'
     parser.add_option("-s",  "--SIPDirectory", action="store", dest="SIPDirectory", default="")

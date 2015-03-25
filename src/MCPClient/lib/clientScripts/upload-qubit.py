@@ -27,12 +27,11 @@ import subprocess
 import sys
 import tempfile
 import time
-import logging
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger('archivematica.upload.qubit')
-logger.addHandler(logging.NullHandler())
-logger.addHandler(logging.FileHandler('/var/log/archivematica/MCPClient/atom_upload.log', mode='a'))
+# archivematicaCommon
+from custom_handlers import get_script_logger
+logger = get_script_logger("archivematica.upload.qubit",
+                              logfile="/var/log/archivematica/MCPClient/atom_upload.log")
 
 # externals
 import requests

@@ -47,6 +47,7 @@ from archivematicaCreateMETSTrim import getTrimFileAmdSec
 from archivematicaFunctions import escape
 from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import normalizeNonDcElementName
+from custom_handlers import get_script_logger
 from databaseFunctions import getUTCDate
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 sharedVariablesAcrossModules.globalErrorCount = 0
@@ -862,6 +863,8 @@ def create_object_metadata(struct_map, baseDirectoryPath):
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.createMETS2")
+
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("-s",  "--baseDirectoryPath", action="store", dest="baseDirectoryPath", default="")

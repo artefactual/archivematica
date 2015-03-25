@@ -29,9 +29,12 @@ import shutil
 from main.models import Job, SIP
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from databaseFunctions import createSIP
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.generateDIPFromAIPGenerateDIP")
+
     # COPY THE METS FILE
     # Move the DIP Directory
 

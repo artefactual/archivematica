@@ -9,6 +9,7 @@ import sys
 from main.models import UnitVariable
 
 # archivematicaCommon
+from custom_handlers import get_script_logger
 import elasticSearchFunctions
 from executeOrRunSubProcess import executeOrRun
 import storageService as storage_service
@@ -77,4 +78,6 @@ def index_aip():
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.indexAIP")
+
     sys.exit(index_aip())

@@ -33,6 +33,7 @@ from main.models import File
 
 # archivematicaCommon
 from archivematicaFunctions import escape
+from custom_handlers import get_script_logger
 from databaseFunctions import getAccessionNumberFromTransfer, getUTCDate
 from elasticSearchFunctions import getDashboardUUID
 
@@ -174,6 +175,8 @@ def createFileSec(path, file_group_identifier, base_path, base_path_name, parent
                 createFileSec(os.path.join(path, item), file_group_identifier, base_path, base_path_name, parentBranch, div, sip_uuid)
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.createMETS")
+
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("-s", "--basePath", action="store", dest="basePath", default="")

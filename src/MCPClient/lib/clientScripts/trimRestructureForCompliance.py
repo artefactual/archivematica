@@ -27,6 +27,7 @@ import sys
 # archivematicaCommon
 import archivematicaFunctions
 from archivematicaFunctions import REQUIRED_DIRECTORIES
+from custom_handlers import get_script_logger
 import fileOperations
 
 def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType="transfer_id", unitPathReplaceWith="%transferDirectory%"):
@@ -77,6 +78,8 @@ def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unit
                 fileOperations.updateFileGrpUse(fileUUID, "TRIM metadata")
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.trimRestructureForCompliance")
+
     transferUUID = sys.argv[1]
     transferName = sys.argv[2]
     transferPath = sys.argv[3]

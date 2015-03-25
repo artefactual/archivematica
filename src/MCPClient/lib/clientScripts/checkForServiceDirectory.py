@@ -25,6 +25,9 @@ import os
 from optparse import OptionParser
 import re
 
+# archivematicaCommon
+from custom_handlers import get_script_logger
+
 # dashboard
 from main.models import File
 
@@ -96,6 +99,8 @@ def regular(SIPDirectory, objectsDirectory, SIPUUID, date):
 
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.checkForServiceDirectory")
+
     while False:
         import time
         time.sleep(10)

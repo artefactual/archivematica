@@ -34,6 +34,7 @@ import archivematicaXMLNamesSpace as ns
 
 # archivematicaCommon
 import archivematicaFunctions
+from custom_handlers import get_script_logger
 
 def parseDmdSec(dmdSec, label='[Placeholder title]'):
     """
@@ -224,6 +225,8 @@ def generate_project_client_package(output_dir, package_type, structmap, dmdsecs
     return 0
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.restrutureDIPForContentDMUpload")
+
     parser = argparse.ArgumentParser(description='restructure')
     parser.add_argument('--uuid', action="store", dest='uuid', metavar='UUID', help='%SIPUUID%')
     parser.add_argument('--dipDir', action="store", dest='dipDir', metavar='dipDir', help='%SIPDirectory%')

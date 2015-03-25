@@ -6,7 +6,7 @@ import shutil
 import sys
 
 # archivematicaCommon
-from custom_handlers import GroupWriteRotatingFileHandler
+from custom_handlers import get_script_logger
 import storageService as storage_service
 
 
@@ -56,9 +56,7 @@ def main(transfer_uuid, transfer_path):
 
 
 if __name__ == '__main__':
-    logger = logging.getLogger("archivematica")
-    logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/MCPClient/moveToBacklog.log", maxBytes=4194304))
-    logger.setLevel(logging.INFO)
+    logger = get_script_logger("archivematica.mcp.client.moveToBacklog")
 
     transfer_uuid = sys.argv[1]
     transfer_path = sys.argv[2]

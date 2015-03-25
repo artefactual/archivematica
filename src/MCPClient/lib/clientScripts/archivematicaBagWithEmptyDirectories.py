@@ -24,6 +24,7 @@ import argparse
 import os
 import sys
 # archivematicaCommon
+from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 
 
@@ -91,6 +92,7 @@ def bag_with_empty_directories(args):
     create_directories(os.path.join(args.destination, "data"), dir_list)
 
 if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.bagWithEmptyDirectories")
     # Parse arguments
     parser = argparse.ArgumentParser(description='Convert folder into a bag.')
     parser.add_argument('operation')

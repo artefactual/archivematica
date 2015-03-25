@@ -4,7 +4,7 @@ import logging
 import sys
 
 # archivematicaCommon
-from custom_handlers import GroupWriteRotatingFileHandler
+from custom_handlers import get_script_logger
 import storageService as storage_service
 
 
@@ -19,9 +19,7 @@ def get_aip_storage_locations(purpose):
 
 
 if __name__ == '__main__':
-    logger = logging.getLogger("archivematica")
-    logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/MCPClient/getAipStorageLocations.log", maxBytes=4194304))
-    logger.setLevel(logging.INFO)
+    logger = get_script_logger("archivematica.mcp.client.getAipStorageLocations")
 
     try:
         purpose = sys.argv[1]
