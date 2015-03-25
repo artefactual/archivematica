@@ -12,7 +12,7 @@ from main.models import UnitVariable
 import elasticSearchFunctions
 from executeOrRunSubProcess import executeOrRun
 import storageService as storage_service
-from identifer_functions import extract_identifiers_from_mods
+from identifier_functions import extract_identifiers_from_mods
 
 
 def list_mods(sip_path):
