@@ -1,4 +1,5 @@
-
+# -*- coding: utf8
+import csv
 import os
 import sys
 
@@ -7,6 +8,7 @@ from django.test import TestCase
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
 import archivematicaCreateMETS2
+import archivematicaCreateMETSMetadataCSV
 
 from main.models import DublinCore
 
@@ -63,3 +65,84 @@ class TestDublinCore(TestCase):
 
         dc_elem = archivematicaCreateMETS2.getDublinCore(siptypeuuid, sipuuid)
         assert dc_elem is None
+
+class TestCSVMetadata(TestCase):
+
+    def tearDown(self):
+        if os.path.exists('metadata.csv'):
+            os.remove('metadata.csv')
+
+    def test_parse_metadata_csv(self):
+        # Create metadata.csv
+        data = [
+            ['Filename', 'dc.title', 'dc.date', 'Other metadata'],
+            ['objects/foo.jpg', 'Foo', '2000', 'Taken on a sunny day'],
+            ['objects/bar/', 'Bar', '2000', 'All taken on a rainy day'],
+        ]
+        with open('metadata.csv', 'wb') as f:
+            writer = csv.writer(f)
+            for row in data:
+                writer.writerow(row)
+
+        # Run test
+        dc = archivematicaCreateMETSMetadataCSV.parseMetadataCSV('metadata.csv')
+        # Verify
+        assert dc
+        assert 'objects/foo.jpg' in dc
+        assert 'dc.title' in dc['objects/foo.jpg']
+        assert dc['objects/foo.jpg']['dc.title'] == ['Foo']
+        assert 'dc.date' in dc['objects/foo.jpg']
+        assert dc['objects/foo.jpg']['dc.date'] == ['2000']
+        assert 'Other metadata' in dc['objects/foo.jpg']
+        assert dc['objects/foo.jpg']['Other metadata'] == ['Taken on a sunny day']
+        assert dc['objects/foo.jpg'].keys() == ['dc.title', 'dc.date', 'Other metadata']
+
+        assert 'objects/bar' in dc
+        assert 'dc.title' in dc['objects/bar']
+        assert dc['objects/bar']['dc.title'] == ['Bar']
+        assert 'dc.date' in dc['objects/bar']
+        assert dc['objects/bar']['dc.date'] == ['2000']
+        assert 'Other metadata' in dc['objects/bar']
+        assert dc['objects/bar']['Other metadata'] == ['All taken on a rainy day']
+        assert dc['objects/bar'].keys() == ['dc.title', 'dc.date', 'Other metadata']
+
+    def test_parse_metadata_csv_repeated_columns(self):
+        # Create metadata.csv
+        data = [
+            ['Filename', 'dc.title', 'dc.type', 'dc.type', 'dc.type'],
+            ['objects/foo.jpg', 'Foo', 'Photograph', 'Still image', 'Picture'],
+        ]
+        with open('metadata.csv', 'wb') as f:
+            writer = csv.writer(f)
+            for row in data:
+                writer.writerow(row)
+
+        # Run test
+        dc = archivematicaCreateMETSMetadataCSV.parseMetadataCSV('metadata.csv')
+        # Verify
+        assert dc
+        assert 'objects/foo.jpg' in dc
+        assert 'dc.title' in dc['objects/foo.jpg']
+        assert dc['objects/foo.jpg']['dc.title'] == ['Foo']
+        assert 'dc.type' in dc['objects/foo.jpg']
+        assert dc['objects/foo.jpg']['dc.type'] == ['Photograph', 'Still image', 'Picture']
+        assert dc['objects/foo.jpg'].keys() == ['dc.title', 'dc.type']
+
+    def test_parse_metadata_csv_non_ascii(self):
+        # Create metadata.csv
+        data = [
+            ['Filename', 'dc.title'],
+            ['objects/foo.jpg', u'元気です'.encode('utf8')],
+        ]
+        with open('metadata.csv', 'wb') as f:
+            writer = csv.writer(f)
+            for row in data:
+                writer.writerow(row)
+
+        # Run test
+        dc = archivematicaCreateMETSMetadataCSV.parseMetadataCSV('metadata.csv')
+        # Verify
+        assert dc
+        assert 'objects/foo.jpg' in dc
+        assert 'dc.title' in dc['objects/foo.jpg']
+        assert dc['objects/foo.jpg']['dc.title'] == [u'元気です'.encode('utf8')]

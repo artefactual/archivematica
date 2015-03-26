@@ -33,6 +33,15 @@ import traceback
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
 
+class OrderedListsDict(collections.OrderedDict):
+    def __setitem__(self, key, value):
+        # When inserting, insert into a list of items with the same key
+        try:
+            self[key]
+        except KeyError:
+            super(OrderedListsDict, self).__setitem__(key, [])
+        self[key].append(value)
+
 def parseMetadata(SIPPath):
     """
     Parse all metadata.csv files in SIPPath.
@@ -43,7 +52,7 @@ def parseMetadata(SIPPath):
     See parseMetadataCSV for details on parsing.
 
     :param SIPPath: Path to the SIP
-    :return: {<filename>: OrderedDict{<metadata name>=<metadata value>} }
+    :return: {<filename>: OrderedDict(key: [values]) }
     """
     all_metadata = {}
     # Parse the metadata.csv files from the transfers
@@ -83,22 +92,21 @@ def parseMetadataCSV(metadataCSVFilePath):
     """
     Parses the metadata.csv into a dict with entries for each file.
 
-    Each file's entry is an OrderedDict containing the column header and value
-    for each column.
+    Each file's entry is an OrderedDict containing the column header and a list of values for each column.
 
     Example CSV:
-    Filename,dc.title,dc.date,Other metadata
-    objects/foo.jpg,Foo,2000,Taken on a sunny day
-    objects/bar/,Bar,2000,All taken on a rainy day
+    Filename,dc.title,dc.type,dc.type,Other metadata
+    objects/foo.jpg,Foo,Photograph,Still Image,Taken on a sunny day
+    objects/bar/,Bar,Photograph,Still Image,All taken on a rainy day
 
     Produces:
     {
-        'objects/foo.jpg': OrderedDict(dc.title=Foo, dc.date=2000, Other metadata=Taken on a sunny day)
-        'objects/bar': OrderedDict(dc.title=Bar, dc.date=2000, Other metadata=All taken on a rainy day)
+        'objects/foo.jpg': OrderedDict(dc.title=[Foo], dc.type=[Photograph, Still Image], Other metadata=[Taken on a sunny day])
+        'objects/bar': OrderedDict(dc.title=[Bar], dc.date=[Photograph, Still Image], Other metadata=[All taken on a rainy day])
     }
 
     :param metadataCSVFilePath: Path to the metadata CSV to parse
-    :return: {<filename>: OrderedDict{<metadata name>=<metadata value>} }
+    :return: {<filename>: OrderedDict(<metadata name>: [<metadata value>]) }
     """
     metadata = {}
     # use universal newline mode to support unusual newlines, like \r
@@ -115,12 +123,12 @@ def parseMetadataCSV(metadataCSVFilePath):
                 entry_name = entry_name[:-1]
             # Strip file/dir name from values
             row = row[1:]
-            values = collections.OrderedDict(zip(header, row))
+            values = OrderedListsDict(zip(header, row))
             if entry_name in metadata and metadata[entry_name] != values:
                 print >> sys.stderr, 'Metadata for', entry_name, 'being overwritten. Old:', metadata[entry_name], 'New:', values
             metadata[entry_name] = values
 
-    return metadata
+    return collections.OrderedDict(metadata)  # Return a normal OrderedDict
 
 
 if __name__ == '__main__':

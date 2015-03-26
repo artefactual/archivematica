@@ -172,6 +172,12 @@ def createDMDIDsFromCSVMetadata(path):
 
 
 def createDmdSecsFromCSVParsedMetadata(metadata):
+    """
+    Create dmdSec(s) from the provided metadata.
+
+    :param metadata: OrderedDict with the metadata keys and a list of values
+    :return: List of dmdSec Elements created
+    """
     global globalDmdSecCounter
     global dmdSecs
     dc = None
@@ -206,13 +212,13 @@ def createDmdSecsFromCSVParsedMetadata(metadata):
             elif key.startswith("dcterms."):
                 key = key.replace("dcterms.", "", 1)
                 elem_namespace = ns.dctermsBNS
-            value = value.decode('utf-8')
             match = re.match(refinement_regex, key)
             if match:
                 key, = match.groups()
-
-            el = etree.SubElement(dc, elem_namespace + key)
-            el.text = value
+            for v in value:
+                v = v.decode('utf-8')
+                el = etree.SubElement(dc, elem_namespace + key)
+                el.text = v
         else:  # not a dublin core item
             if other is None:
                 globalDmdSecCounter += 1
@@ -224,7 +230,8 @@ def createDmdSecsFromCSVParsedMetadata(metadata):
                 mdWrap.set("MDTYPE", "OTHER")
                 mdWrap.set("OTHERMDTYPE", "CUSTOM")
                 other = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
-            etree.SubElement(other, normalizeNonDcElementName(key)).text = value
+            for v in value:
+                etree.SubElement(other, normalizeNonDcElementName(key)).text = v
     return ret
 
 
