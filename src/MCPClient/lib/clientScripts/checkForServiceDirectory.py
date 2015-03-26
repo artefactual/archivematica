@@ -59,7 +59,7 @@ def something(SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, date):
             grp_file = File.objects.get(currentlocation__startswith=file2Full,
                                         removedtime__isnull=True,
                                         sip_id=SIPUUID)
-            f.filegrpuuid = grp_file.file_uuid
+            f.filegrpuuid = grp_file.uuid
             f.save()
 
     return exitCode

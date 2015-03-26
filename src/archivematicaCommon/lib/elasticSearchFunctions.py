@@ -696,7 +696,7 @@ def document_id_from_field_query(conn, index, doc_types, field, value):
     query = {
         "query": {
             "term": {
-                field, value
+                field: value
             }
         }
     }
