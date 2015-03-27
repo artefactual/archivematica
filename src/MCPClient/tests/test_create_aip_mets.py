@@ -1,4 +1,5 @@
 # -*- coding: utf8
+import collections
 import csv
 import os
 import sys
@@ -65,6 +66,167 @@ class TestDublinCore(TestCase):
 
         dc_elem = archivematicaCreateMETS2.getDublinCore(siptypeuuid, sipuuid)
         assert dc_elem is None
+
+    def test_dmdsec_from_csv_parsed_metadata_dc_only(self):
+        data = collections.OrderedDict([
+            ("dc.title", ["Yamani Weapons"]),
+            ("dc.creator", ["Keladry of Mindelan"]),
+            ("dc.subject", ["Glaives"]),
+            ("dc.description", ["Glaives are cool"]),
+            ("dc.publisher", ["Tortall Press"]),
+            ("dc.contributor", [u"雪 ユキ".encode('utf8')]),
+            ("dc.date", ["2015"]),
+            ("dc.type", ["Archival Information Package"]),
+            ("dc.format", ["parchement"]),
+            ("dc.identifier", ["42/1"]),
+            ("dc.source", ["Numair's library"]),
+            ("dc.relation", ["None"]),
+            ("dc.language", ["en"]),
+            ("dc.rights", ["Public Domain"]),
+            ("dcterms.isPartOf", ["AIC#42"]),
+        ])
+        # Test
+        ret = archivematicaCreateMETS2.createDmdSecsFromCSVParsedMetadata(data)
+        # Verify
+        assert ret
+        assert len(ret) == 1
+        dmdsec = ret[0]
+        assert dmdsec.tag == '{http://www.loc.gov/METS/}dmdSec'
+        assert 'ID' in dmdsec.attrib
+        mdwrap = dmdsec[0]
+        assert mdwrap.tag == '{http://www.loc.gov/METS/}mdWrap'
+        assert 'MDTYPE' in mdwrap.attrib
+        assert mdwrap.attrib['MDTYPE'] == 'DC'
+        xmldata = mdwrap[0]
+        assert xmldata.tag == '{http://www.loc.gov/METS/}xmlData'
+        # Elements are children of dublincore tag
+        dc_elem = xmldata[0]
+        assert dc_elem.tag == '{http://purl.org/dc/terms/}dublincore'
+        assert len(dc_elem) == 15
+        assert dc_elem[0].tag == '{http://purl.org/dc/elements/1.1/}title'
+        assert dc_elem[0].text == 'Yamani Weapons'
+        assert dc_elem[1].tag == '{http://purl.org/dc/elements/1.1/}creator'
+        assert dc_elem[1].text == 'Keladry of Mindelan'
+        assert dc_elem[2].tag == '{http://purl.org/dc/elements/1.1/}subject'
+        assert dc_elem[2].text == 'Glaives'
+        assert dc_elem[3].tag == '{http://purl.org/dc/elements/1.1/}description'
+        assert dc_elem[3].text == 'Glaives are cool'
+        assert dc_elem[4].tag == '{http://purl.org/dc/elements/1.1/}publisher'
+        assert dc_elem[4].text == 'Tortall Press'
+        assert dc_elem[5].tag == '{http://purl.org/dc/elements/1.1/}contributor'
+        assert dc_elem[5].text == u'雪 ユキ'
+        assert dc_elem[6].tag == '{http://purl.org/dc/elements/1.1/}date'
+        assert dc_elem[6].text == '2015'
+        assert dc_elem[7].tag == '{http://purl.org/dc/elements/1.1/}type'
+        assert dc_elem[7].text == 'Archival Information Package'
+        assert dc_elem[8].tag == '{http://purl.org/dc/elements/1.1/}format'
+        assert dc_elem[8].text == 'parchement'
+        assert dc_elem[9].tag == '{http://purl.org/dc/elements/1.1/}identifier'
+        assert dc_elem[9].text == '42/1'
+        assert dc_elem[10].tag == '{http://purl.org/dc/elements/1.1/}source'
+        assert dc_elem[10].text == "Numair's library"
+        assert dc_elem[11].tag == '{http://purl.org/dc/elements/1.1/}relation'
+        assert dc_elem[11].text == 'None'
+        assert dc_elem[12].tag == '{http://purl.org/dc/elements/1.1/}language'
+        assert dc_elem[12].text == 'en'
+        assert dc_elem[13].tag == '{http://purl.org/dc/elements/1.1/}rights'
+        assert dc_elem[13].text == 'Public Domain'
+        assert dc_elem[14].tag == '{http://purl.org/dc/terms/}isPartOf'
+        assert dc_elem[14].text == 'AIC#42'
+
+    def test_dmdsec_from_csv_parsed_metadata_other_only(self):
+        data = collections.OrderedDict([
+            ("Title", ["Yamani Weapons"]),
+            ("Contributor", [u"雪 ユキ".encode('utf8')]),
+            ("Long Description", ['This is about how glaives are used in the Yamani Islands'])
+        ])
+        # Test
+        ret = archivematicaCreateMETS2.createDmdSecsFromCSVParsedMetadata(data)
+        # Verify
+        assert ret
+        assert len(ret) == 1
+        dmdsec = ret[0]
+        assert dmdsec.tag == '{http://www.loc.gov/METS/}dmdSec'
+        assert 'ID' in dmdsec.attrib
+        mdwrap = dmdsec[0]
+        assert mdwrap.tag == '{http://www.loc.gov/METS/}mdWrap'
+        assert 'MDTYPE' in mdwrap.attrib
+        assert mdwrap.attrib['MDTYPE'] == 'OTHER'
+        assert 'OTHERMDTYPE' in mdwrap.attrib
+        assert mdwrap.attrib['OTHERMDTYPE'] == 'CUSTOM'
+        xmldata = mdwrap[0]
+        assert xmldata.tag == '{http://www.loc.gov/METS/}xmlData'
+        # Elements are direct children of xmlData
+        assert len(xmldata) == 3
+        assert xmldata[0].tag == 'title'
+        assert xmldata[0].text == 'Yamani Weapons'
+        assert xmldata[1].tag == 'contributor'
+        assert xmldata[1].text == u'雪 ユキ'
+        assert xmldata[2].tag == 'long_description'
+        assert xmldata[2].text == 'This is about how glaives are used in the Yamani Islands'
+
+
+    def test_dmdsec_from_csv_parsed_metadata_both(self):
+        data = collections.OrderedDict([
+            ("dc.title", ["Yamani Weapons"]),
+            ("dc.contributor", [u"雪 ユキ".encode('utf8')]),
+            ("dcterms.isPartOf", ["AIC#42"]),
+            ("Title", ["Yamani Weapons"]),
+            ("Contributor", [u"雪 ユキ".encode('utf8')]),
+            ("Long Description", ['This is about how glaives are used in the Yamani Islands'])
+        ])
+        # Test
+        ret = archivematicaCreateMETS2.createDmdSecsFromCSVParsedMetadata(data)
+        # Verify
+        assert ret
+        assert len(ret) == 2
+        # Return can be DC or OTHER first, but in this case DC should be first
+        dc_dmdsec = ret[0]
+        assert dc_dmdsec.tag == '{http://www.loc.gov/METS/}dmdSec'
+        assert 'ID' in dc_dmdsec.attrib
+        mdwrap = dc_dmdsec[0]
+        assert mdwrap.tag == '{http://www.loc.gov/METS/}mdWrap'
+        assert 'MDTYPE' in mdwrap.attrib
+        assert mdwrap.attrib['MDTYPE'] == 'DC'
+        xmldata = mdwrap[0]
+        assert xmldata.tag == '{http://www.loc.gov/METS/}xmlData'
+        dc_elem = xmldata[0]
+        # Elements are children of dublincore tag
+        assert dc_elem.tag == '{http://purl.org/dc/terms/}dublincore'
+        assert len(dc_elem) == 3
+        assert dc_elem[0].tag == '{http://purl.org/dc/elements/1.1/}title'
+        assert dc_elem[0].text == 'Yamani Weapons'
+        assert dc_elem[1].tag == '{http://purl.org/dc/elements/1.1/}contributor'
+        assert dc_elem[1].text == u'雪 ユキ'
+        assert dc_elem[2].tag == '{http://purl.org/dc/terms/}isPartOf'
+        assert dc_elem[2].text == 'AIC#42'
+
+        other_dmdsec = ret[1]
+        assert other_dmdsec.tag == '{http://www.loc.gov/METS/}dmdSec'
+        assert 'ID' in other_dmdsec.attrib
+        mdwrap = other_dmdsec[0]
+        assert mdwrap.tag == '{http://www.loc.gov/METS/}mdWrap'
+        assert 'MDTYPE' in mdwrap.attrib
+        assert mdwrap.attrib['MDTYPE'] == 'OTHER'
+        assert 'OTHERMDTYPE' in mdwrap.attrib
+        assert mdwrap.attrib['OTHERMDTYPE'] == 'CUSTOM'
+        xmldata = mdwrap[0]
+        assert xmldata.tag == '{http://www.loc.gov/METS/}xmlData'
+        # Elements are direct children of xmlData
+        assert len(xmldata) == 3
+        assert xmldata[0].tag == 'title'
+        assert xmldata[0].text == 'Yamani Weapons'
+        assert xmldata[1].tag == 'contributor'
+        assert xmldata[1].text == u'雪 ユキ'
+        assert xmldata[2].tag == 'long_description'
+        assert xmldata[2].text == 'This is about how glaives are used in the Yamani Islands'
+
+    def test_dmdsec_from_csv_parsed_metadata_no_data(self):
+        data = {}
+        # Test
+        ret = archivematicaCreateMETS2.createDmdSecsFromCSVParsedMetadata(data)
+        # Verify
+        assert ret == []
 
 class TestCSVMetadata(TestCase):
 

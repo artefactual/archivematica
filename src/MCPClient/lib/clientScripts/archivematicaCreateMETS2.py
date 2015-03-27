@@ -216,9 +216,7 @@ def createDmdSecsFromCSVParsedMetadata(metadata):
             if match:
                 key, = match.groups()
             for v in value:
-                v = v.decode('utf-8')
-                el = etree.SubElement(dc, elem_namespace + key)
-                el.text = v
+                etree.SubElement(dc, elem_namespace + key).text = v.decode('utf-8')
         else:  # not a dublin core item
             if other is None:
                 globalDmdSecCounter += 1
@@ -231,7 +229,7 @@ def createDmdSecsFromCSVParsedMetadata(metadata):
                 mdWrap.set("OTHERMDTYPE", "CUSTOM")
                 other = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
             for v in value:
-                etree.SubElement(other, normalizeNonDcElementName(key)).text = v
+                etree.SubElement(other, normalizeNonDcElementName(key)).text = v.decode('utf-8')
     return ret
 
 
