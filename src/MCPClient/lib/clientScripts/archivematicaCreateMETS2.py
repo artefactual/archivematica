@@ -612,7 +612,7 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
     filesInThisDirectory = []
     dspaceMetsDMDID = None
     try:
-        directoryContents = os.listdir(directoryPath)
+        directoryContents = sorted(os.listdir(directoryPath))
     except os.error:
         # Directory doesn't exist
         print >> sys.stderr, directoryPath, "doesn't exist"
