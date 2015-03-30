@@ -7,6 +7,7 @@ from main import models
 from components import helpers
 import xml.etree.ElementTree as ElementTree
 
+PAGE_SIZE = 30
 
 # TODO: move into helpers module at some point
 # From http://www.ironzebra.com/news/23/converting-multi-dimensional-form-arrays-in-django
@@ -32,7 +33,7 @@ def getDictArray(post, name):
 def list_records(client, request, query, page, search_params, list_redirect_target, uuid):
     resources = client.find_collection_ids(query)
 
-    page = helpers.pager(resources, 10, page)
+    page = helpers.pager(resources, PAGE_SIZE, page)
 
     page['objects'] = client.augment_resource_ids(page['objects'])
 
@@ -64,7 +65,7 @@ def render_resource(client, request, resource_id, query, page, search_params, ma
     )
 
     if resource_data['children']:
-        page = helpers.pager(resource_data['children'], 10, page)
+        page = helpers.pager(resource_data['children'], PAGE_SIZE, page)
 
     if not resource_data['children'] and query == '':
         return HttpResponseRedirect(reverse(match_redirect_target, args=[uuid, resource_id]))
@@ -80,7 +81,7 @@ def render_resource_component(client, request, resource_component_id, query, pag
         search_pattern=query
     )
     if resource_component_data['children']:
-        page = helpers.pager(resource_component_data['children'], 10, page)
+        page = helpers.pager(resource_component_data['children'], PAGE_SIZE, page)
 
     if not resource_component_data['children'] and query == '':
         return HttpResponseRedirect(
