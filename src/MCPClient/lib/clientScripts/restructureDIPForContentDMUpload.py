@@ -212,6 +212,7 @@ def generate_project_client_package(output_dir, package_type, structmap, dmdsecs
                 print('ERROR headers differ,', csv_path, 'almost certainly invalid', file=sys.stderr)
                 print('Reference header:', csv_header_ref, file=sys.stderr)
                 print('Differing header:', csv_header, file=sys.stderr)
+                return 1
             # If first time through, write out header
             if not csv_header_ref:
                 csv_header_ref = csv_header
@@ -220,6 +221,7 @@ def generate_project_client_package(output_dir, package_type, structmap, dmdsecs
             # Write csv_row
             writer.writerow(csv_values)
             print('Values:', csv_values)
+    return 0
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='restructure')
@@ -250,5 +252,4 @@ if __name__ == '__main__':
     # Get the dmdSec nodes from the METS file.
     dmdsecs = {e.get('ID'): e for e in root.findall('mets:dmdSec', namespaces=ns.NSMAP)}
 
-    generate_project_client_package(os.path.join(args.dipDir, 'objects'), itemCountType, archivematica_structmap, dmdsecs, args.uuid)
-    sys.exit(0)
+    sys.exit(generate_project_client_package(os.path.join(args.dipDir, 'objects'), itemCountType, archivematica_structmap, dmdsecs, args.uuid))
