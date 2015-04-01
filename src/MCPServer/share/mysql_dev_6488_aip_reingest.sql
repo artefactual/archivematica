@@ -182,6 +182,20 @@ DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1,
 DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10);
 -- /Merge Approve nodes
 
+-- Remove duplicated normalize for preservation chain
+UPDATE MicroServiceChainChoice SET chainAvailable='612e3609-ce9a-4df6-a9a3-63d634d2d934' WHERE pk='f68b9e34-2808-4943-919d-9aab95eae460';
+SET @d1 = '48199d23-afd0-4b9b-b8a3-cd80c7d45e7c' COLLATE utf8_unicode_ci;
+SET @d2 = '1798e1d4-ec91-4299-a767-d10c32155d19' COLLATE utf8_unicode_ci;
+SET @d3 = 'c425258a-cf54-44f9-b39f-cf14c7966a41' COLLATE utf8_unicode_ci;
+SET @d4 = '8adb23cc-dee3-44da-8356-fa6ce849e4d6' COLLATE utf8_unicode_ci;
+SET @d5 = 'd77ccaa0-3a3d-46ff-877f-4edf1a8179e2' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChains WHERE startingLink IN (@d1, @d2, @d3, @d4, @d5);
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5);
+DELETE FROM MicroServiceChainLinks WHERE defaultNextChainLink IN (@d1, @d2, @d3, @d4, @d5);
+DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3, @d4, @d5);
+
+-- /Remove duplicated normalize for preservation chain
+
 -- Delete all TasksConfigs that don't have MicroServiceChainLinks pointing at them
 DELETE FROM TasksConfigs USING TasksConfigs LEFT OUTER JOIN MicroServiceChainLinks ON currentTask=TasksConfigs.pk WHERE MicroServiceChainLinks.pk is NULL;
 -- Delete all StandardTasksConfigs that don't have TasksConfigs pointing at them
