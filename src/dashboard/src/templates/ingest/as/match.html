@@ -12,6 +12,14 @@
 {% block js %}
   <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/atk_matcher.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/atk_matcher_setup.js"></script>
+  <script>
+  function toggle_objects(source) {
+    checkboxes = document.querySelectorAll('.atk-matcher-object-path > input');
+    for (var i = 0, n = checkboxes.length; i < n; i++) {
+      checkboxes[i].checked = source.checked;
+    }
+  }
+  </script>
 
   <script type="text/javascript">
     $(document).ready(function()
@@ -58,7 +66,8 @@
       <div class="atk-pane-header">
         <h3>Objects</h3>
       </div>
-      <div id="object_pane_paths"></div>
+      <input type="checkbox" onClick="toggle_objects(this)"/> Select all
+      <div id="object_pane_paths"></div> <br>
     </div>
     <div id="resource_pane">
       <div class="atk-pane-header">
