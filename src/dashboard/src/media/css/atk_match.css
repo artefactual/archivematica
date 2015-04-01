@@ -55,3 +55,7 @@
 .atk-matcher-disabled-object-label {
   color: #aaa;
 }
+
+#finish_matching {
+  margin-bottom: 1em;
+}
