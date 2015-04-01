@@ -20,31 +20,25 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import sys
 import os
-
-# dashboard
-from main.models import UnitVariable
 
 SIPUUID = sys.argv[1]
 SIPName = sys.argv[2]
 SIPDirectory = sys.argv[3]
 
 manualNormalizationPath = os.path.join(SIPDirectory, "objects", "manualNormalization")
-print manualNormalizationPath 
+print('Manual normalization path:', manualNormalizationPath)
 if os.path.isdir(manualNormalizationPath):
-    manualNormalizationAccessPath = os.path.join(manualNormalizationPath, "access")
-    if os.path.isdir(manualNormalizationAccessPath):
-        if len(os.listdir(manualNormalizationAccessPath)):
-            # FIXME Workflow decisions should not be made in client scripts! It
-            # is not discoverable and leads to bugs when workflow changes are
-            # made and setting unit variables in client scripts is missed! This
-            # should be eliminated (by having another way of setting when DIPs
-            # are created) or moved to its own MSCL.
-            UnitVariable.objects.filter(unittype="SIP", unituuid=SIPUUID, variable="returnFromManualNormalized").update(microservicechainlink="f060d17f-2376-4c0b-a346-b486446e46ce")
-            exit(179)
-    manualNormalizationPreservationPath = os.path.join(manualNormalizationPath, "preservation")
-    if os.path.isdir(manualNormalizationPreservationPath):
-        if len(os.listdir(manualNormalizationPreservationPath)):
-            exit(179)
+    mn_access_path = os.path.join(manualNormalizationPath, "access")
+    mn_preserve_path = os.path.join(manualNormalizationPath, "preservation")
+    # Return to indicate manually normalized files exist
+    if os.path.isdir(mn_access_path) and os.listdir(mn_access_path):
+        print('Manually normalized files found')
+        sys.exit(179)
+
+    if os.path.isdir(mn_preserve_path) and os.listdir(mn_preserve_path):
+        print('Manually normalized files found')
+        sys.exit(179)
 exit(0)

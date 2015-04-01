@@ -141,6 +141,47 @@ UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@metadataMS
 UPDATE MicroServiceChainLinks SET defaultNextChainLink=@metadataMSCL WHERE pk='ee438694-815f-4b74-97e1-8e7dde2cc6d5';
 -- /ingest jsonMetadataToCSV
 
+-- Merge Approve nodes
+
+-- Replace 'load finish with metadata processing link' (f1e2) with 'check if DIP should be created' test -d %SIPDir%DIP
+DELETE FROM TasksConfigsUnitVariableLinkPull WHERE pk='49c816cd-b443-498f-9369-9274d060ddd3';
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('49c816cd-b443-498f-9369-9274d060ddd3', 0, 'test_v0.0', '-d "%SIPDirectory%DIP"');
+UPDATE TasksConfigs SET taskType='36b2e239-4a57-4aa5-8ebc-7a29139baca6', description='Check if DIP should be generated' WHERE pk='a493f430-d905-4f68-a742-f4393a43e694';
+-- DIP directory found
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='378ae4fc-7b62-40af-b448-a1ab47ac2c0c' WHERE microServiceChainLink='f1e286f9-4ec7-4e19-820c-dae7b8ea7d09' AND exitCode=0;
+-- DIP directory not found
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('99f8045f-8da0-40f6-8fb3-b45bfc7f3bfb', 'f1e286f9-4ec7-4e19-820c-dae7b8ea7d09', 1, '65240550-d745-4afe-848f-2bf5910457c9', 'Completed successfully');
+
+-- Remove duplicate Approve node
+DELETE FROM MicroServiceChains WHERE pk='cc884b80-3e89-4e0c-bc65-b73019fc0089';
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='83257841-594d-4a0e-a4a1-1e9269c30f3d' WHERE nextMicroServiceChainLink='39ac9205-cb08-47b1-8bc3-d3375e37d9eb';  -- Make everything point at same approve node
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='83257841-594d-4a0e-a4a1-1e9269c30f3d' WHERE defaultNextChainLink='39ac9205-cb08-47b1-8bc3-d3375e37d9eb';  -- Make everything point at same approve node
+-- Make WD just approveNormalization
+UPDATE StandardTasksConfigs SET arguments='"%SIPDirectory%" "%sharedPath%watchedDirectories/approveNormalization/." "%SIPUUID%" "%sharedPath%" "%SIPUUID%" "%sharedPath%"' WHERE pk='87fb2e00-03b9-4890-a4d4-0e28f27e32c2';  -- Move to approveNormalization instead of approveNormalization/preservationAndAccess
+UPDATE WatchedDirectories SET watchedDirectoryPath='%watchDirectoryPath%approveNormalization/' WHERE pk='fb77de49-855d-4949-bb85-553b23cdc708';  -- Change directory to watch
+UPDATE MicroServiceChains SET startingLink='0f0c1f33-29f2-49ae-b413-3e043da5df61' WHERE pk='1e0df175-d56d-450d-8bee-7df1dc7ae815';  --  Remove setting unitVar node
+DELETE FROM TasksConfigsSetUnitVariable WHERE pk IN ('c26b2859-7a96-462f-880a-0cd8d1b0ac32', '771dd17a-02d1-403b-a761-c70cc9cc1d1a', '6b4600f2-6df6-42cb-b611-32938b46a9cf', '5035632e-7879-4ece-bf43-2fc253026ff5', 'fc9f30bf-7f6e-4e62-9f99-689c8dc2e4ec');  -- Delete everything that sets a now unneeded unitVar
+-- Remove 'set resume after metadata'
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = '54b73077-a062-41cc-882c-4df1eba447d9' WHERE nextMicroServiceChainLink IN ('ab0d3815-a9a3-43e1-9203-23a40c00c551', 'c168f1ee-5d56-4188-8521-09f0c5475133', 'f060d17f-2376-4c0b-a346-b486446e46ce');
+UPDATE MicroServiceChainLinks SET defaultNextChainLink = '54b73077-a062-41cc-882c-4df1eba447d9' WHERE defaultNextChainLink IN ('ab0d3815-a9a3-43e1-9203-23a40c00c551', 'c168f1ee-5d56-4188-8521-09f0c5475133', 'f060d17f-2376-4c0b-a346-b486446e46ce');
+-- Delete now unneeded MSCL
+SET @d1 = '39ac9205-cb08-47b1-8bc3-d3375e37d9eb' COLLATE utf8_unicode_ci;
+SET @d2 = 'bf6873f4-90b8-4393-9057-7f14f4687d72' COLLATE utf8_unicode_ci;
+SET @d3 = '2f83c458-244f-47e5-a302-ce463163354e' COLLATE utf8_unicode_ci;
+SET @d4 = '150dcb45-46c3-4529-b35f-b0a8a5a553e9' COLLATE utf8_unicode_ci;
+SET @d5 = 'b443ba1a-a0b6-4f7c-aeb2-65bd83de5e8b' COLLATE utf8_unicode_ci;
+SET @d6 = '0b5ad647-5092-41ce-9fe5-1cc376d0bc3f' COLLATE utf8_unicode_ci;
+SET @d7 = 'f30b23d4-c8de-453d-9b92-50b86e21d3d5' COLLATE utf8_unicode_ci;
+SET @d8 = 'ab0d3815-a9a3-43e1-9203-23a40c00c551' COLLATE utf8_unicode_ci;
+SET @d9 = 'c168f1ee-5d56-4188-8521-09f0c5475133' COLLATE utf8_unicode_ci;
+SET @d10 = 'f060d17f-2376-4c0b-a346-b486446e46ce' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChainChoice WHERE choiceAvailableAtLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10);
+DELETE FROM WatchedDirectories WHERE pk='2d9e4ca0-2d20-4c65-82cb-8ca23901fd5b';
+DELETE FROM MicroServiceChains WHERE pk IN ('2256d500-a26e-438d-803d-3ffe17b8caf0', 'd7cf171e-82e8-4bbb-bc33-de6b8b256202', '45811f43-40d2-4efa-9c1d-876417834b7f');
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10);
+DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10);
+-- /Merge Approve nodes
+
 -- Delete all TasksConfigs that don't have MicroServiceChainLinks pointing at them
 DELETE FROM TasksConfigs USING TasksConfigs LEFT OUTER JOIN MicroServiceChainLinks ON currentTask=TasksConfigs.pk WHERE MicroServiceChainLinks.pk is NULL;
 -- Delete all StandardTasksConfigs that don't have TasksConfigs pointing at them
