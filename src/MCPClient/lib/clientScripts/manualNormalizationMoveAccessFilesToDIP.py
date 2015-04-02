@@ -88,7 +88,7 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
         kwargs = {
             "removedtime__isnull": True,
             "filegrpuse": "original",
-            "originallocation": original,
+            "originallocation__endswith": original,
             unitIdentifierType: unitIdentifier
         }
         f = File.objects.get(**kwargs)

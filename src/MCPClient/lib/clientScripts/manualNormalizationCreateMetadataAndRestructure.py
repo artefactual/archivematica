@@ -1,25 +1,16 @@
 #!/usr/bin/python -OO
+"""
+Associate manually normalized preservation files with their originals.
 
-# This file is part of Archivematica.
-#
-# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
-#
-# Archivematica is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Archivematica is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+Find the original file that matches this file by filename.
+Rename the preservation file to be in the same directory as the original.
+Generate a manual normalization event.
+Add a derivative link.
 
-# @package Archivematica
-# @subpackage archivematicaClientScript
-# @author Joseph Perry <joseph@artefactual.com>
+:param fileUUID: UUID of the preservation file.
+:param filePath: Path on disk of the preservation file.
+"""
+
 import os
 import sys
 import uuid
@@ -56,7 +47,7 @@ if i != -1 and k != -1:
 
 try:
     path_condition = Q(currentlocation__startswith=filePathLike1) | Q(currentlocation=filePathLike2)
-    f = File.objects.get(path_condition,
+    original_file = File.objects.get(path_condition,
                          removedtime__isnull=True,
                          filegrpuse="original",
                          sip_id=SIPUUID)
@@ -84,7 +75,7 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
                         preservation_file=preservation_file, filename=csv_path)
                 exit(2)
         # If we found the original file, retrieve it from the DB
-        f = File.objects.get(removedtime__isnull=True,
+        original_file = File.objects.get(removedtime__isnull=True,
                              filegrpuse="original",
                              originallocation__endswith=original,
                              sip_id=SIPUUID)
@@ -96,39 +87,40 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
             print >>sys.stderr, "Too many possible files for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1)
             exit(2)
 
-# We found the original file somewhere above, get the UUID and path
-originalFileUUID = f.uuid
-originalFilePath = f.currentlocation
-
-print "matched: (%s) %s to (%s) %s" % (originalFileUUID, originalFilePath, fileUUID, filePath)
+# We found the original file somewhere above
+print "Matched original file %s (%s) to  preservation file %s (%s)" % (original_file.currentlocation, original_file.uuid, filePath, fileUUID)
+# Generate the new preservation path: path/to/original/filename-uuid.ext
 basename = os.path.basename(filePath)
 i = basename.rfind(".")
-dstFile = basename[:i] + "-" + fileUUID + basename[i:] 
-dstDir = os.path.dirname(originalFilePath.replace("%SIPDirectory%", SIPDirectory, 1))
+dstFile = basename[:i] + "-" + fileUUID + basename[i:]
+dstDir = os.path.dirname(original_file.currentlocation.replace("%SIPDirectory%", SIPDirectory, 1))
 dst = os.path.join(dstDir, dstFile)
 dstR = dst.replace(SIPDirectory, "%SIPDirectory%", 1)
 
-if os.path.isfile(dst) or os.path.isdir(dst):
+if os.path.exists(dst):
     print >>sys.stderr, "already exists:", dstR
     exit(2)
 
-#Rename the file or directory src to dst. If dst is a directory, OSError will be raised. On Unix, if dst exists and is a file, it will be replaced silently if the user has permission. The operation may fail on some Unix flavors if src and dst are on different filesystems.
-#see http://docs.python.org/2/library/os.html
+# Rename the preservation file
+print 'Renaming preservation file', filePath, 'to', dst
 os.rename(filePath, dst)
-f.currentlocation = dstR
-f.save()
+# Update the preservation file's location
+File.objects.filter(uuid=fileUUID).update(currentlocation=dstR)
 
 try:
     # Normalization event already exists, so just update it
     # fileUUID, eventIdentifierUUID, eventType, eventDateTime, eventDetail
     # probably already correct, and we only set eventOutcomeDetailNote here
-    Event.objects.filter(event_type="normalization", file_uuid=f).update(event_outcome_detail=dstR)
+    # Not using .filter().update() because that doesn't generate an exception
+    e = Event.objects.get(event_type="normalization", file_uuid=original_file)
+    e.event_outcome_detail = dstR
+    e.save()
 except Event.DoesNotExist:
     # No normalization event was created in normalize.py - probably manually
     # normalized during Ingest
     derivationEventUUID = str(uuid.uuid4())
     databaseFunctions.insertIntoEvents(
-        fileUUID=originalFileUUID,
+        fileUUID=original_file.uuid,
         eventIdentifierUUID=derivationEventUUID,
         eventType="normalization",
         eventDateTime=date,
@@ -139,7 +131,7 @@ except Event.DoesNotExist:
     # Add linking information between files
     # Assuming that if an event already exists, then the derivation does as well
     databaseFunctions.insertIntoDerivations(
-        sourceFileUUID=originalFileUUID,
+        sourceFileUUID=original_file.uuid,
         derivedFileUUID=fileUUID,
         relatedEventUUID=derivationEventUUID)
 

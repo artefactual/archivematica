@@ -228,9 +228,9 @@ LOGGING = {
             'propagate': True,
         },
         'django': {
-            'handlers': ['null'],
+            'handlers': ['console', 'logfile'],
             'propagate': True,
-            'level': 'INFO',
+            'level': 'ERROR',
         },
         'archivematica.dashboard': {
             'handlers': ['console', 'logfile'],

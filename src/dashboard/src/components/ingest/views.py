@@ -260,7 +260,7 @@ def ingest_metadata_event_detail(request, uuid):
     # Add path for original and derived files to each form
     for form in formset:
         form.original_file = form.instance.file_uuid.originallocation.replace("%transferDirectory%objects/", "", 1)
-        form.derived_file = form.instance.file_uuid.derived_file_set.get().derived_file.originallocation.replace("%transferDirectory%objects/", "", 1)
+        form.derived_file = form.instance.file_uuid.derived_file_set.filter(derived_file__filegrpuse='preservation').get().derived_file.originallocation.replace("%transferDirectory%objects/", "", 1)
 
     # Get name of SIP from directory name of most recent job
     # Making list and slicing for speed: http://stackoverflow.com/questions/5123839/fastest-way-to-get-the-first-object-from-a-queryset-in-django
