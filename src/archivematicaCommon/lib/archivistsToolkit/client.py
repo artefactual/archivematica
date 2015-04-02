@@ -262,3 +262,6 @@ class ArchivistsToolkitClient(object):
             )
 
         return resources_augmented
+
+    def find_collections(self, search_pattern=''):
+        return self.augment_resource_ids(self.find_collection_ids(search_pattern))

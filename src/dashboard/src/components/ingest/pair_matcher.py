@@ -3,9 +3,12 @@ from django.shortcuts import render
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
 import os
+import sys
 from main import models
 from components import helpers
 import xml.etree.ElementTree as ElementTree
+
+from lazy_paged_sequence import LazyPagedSequence
 
 PAGE_SIZE = 30
 
@@ -30,12 +33,9 @@ def getDictArray(post, name):
     return dic
 
 
-def list_records(client, request, query, page, search_params, list_redirect_target, uuid):
-    resources = client.find_collection_ids(query)
-
-    page = helpers.pager(resources, PAGE_SIZE, page)
-
-    page['objects'] = client.augment_resource_ids(page['objects'])
+def list_records(client, request, query, page_number, search_params, list_redirect_target, uuid):
+    resources = LazyPagedSequence(lambda page, page_size: client.find_collections(search_pattern=query, page=page, page_size=page_size), PAGE_SIZE, client.count_collections())
+    page = helpers.pager(resources, PAGE_SIZE, page_number)
 
     return render(request, list_redirect_target, locals())
 

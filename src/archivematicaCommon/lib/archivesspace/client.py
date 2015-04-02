@@ -293,6 +293,38 @@ class ArchivesSpaceClient(object):
 
         return results
 
+    def count_collections(self, search_pattern=''):
+        params = {
+            'page': 1,
+            'q': 'primary_type:resource'
+        }
+        if search_pattern != '':
+            params['q'] = params['q'] + ' AND title:{}'.format(search_pattern)
+        return self._get(self.repository + '/search', params=params).json()['total_hits']
+
+    def find_collections(self, search_pattern='', fetched=0, page=1, page_size=30):
+        def format_record(record):
+            dates = self._fetch_dates_from_record(record)
+            return {
+                'id': record['uri'],
+                'sortPosition': 1,
+                'identifier': record.get('component_id', ''),
+                'title': record.get('title', ''),
+                'dates': dates,
+                'levelOfDescription': record['level']
+            }
+
+        params = {
+            'page': page,
+            'page_size': page_size,
+            'q': 'primary_type:resource'
+        }
+        if search_pattern != '':
+            params['q'] = params['q'] + ' AND title:{}'.format(search_pattern)
+        response = self._get(self.repository + '/search', params=params)
+        hits = response.json()
+        return [format_record(json.loads(r['json'])) for r in hits['results']]
+
     def augment_resource_ids(self, resource_ids):
         """
         Given a list of resource IDs, returns a list of dicts containing detailed information about the specified resources and their children.
