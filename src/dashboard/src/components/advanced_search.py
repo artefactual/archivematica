@@ -23,6 +23,11 @@ from elasticsearch import Elasticsearch
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
 
+OBJECT_FIELDS = (
+    "mets",
+    "transferMetadata",
+)
+
 def search_parameter_prep(request):
     queries = request.GET.getlist('query')
     ops     = request.GET.getlist('op')
@@ -147,11 +152,21 @@ def assemble_query(queries, ops, fields, types, **kwargs):
         }
     }
 
+def _fix_object_fields(fields):
+    """
+    Adjusts field names for nested object fields.
+
+    Elasticsearch is able to search through nested object fields, provided that the field name is specified appropriately in the query.
+    Appending .* to the field name (for example, transferMetadata.*) causes Elasticsearch to consider any of the values within key/value pairs nested in the object being searched.
+    Without doing this, Elasticsearch will attempt to match the value of transferMetadata itself, which will always fail since it's an object and not a string.
+    """
+    return [field + '.*' if field in OBJECT_FIELDS else field for field in fields]
+
 def query_clause(index, queries, ops, fields, types):
     if fields[index] == '':
         search_fields = []
     else:
-        search_fields = [fields[index]]
+        search_fields = _fix_object_fields([fields[index]])
 
     if (types[index] == 'term'):
         # a blank term should be ignored because it prevents any results: you
