@@ -328,7 +328,8 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_a
         'AICID': aic_identifier,
         'isPartOf': is_part_of,
         'countAIPsinAIC': aips_in_aic,
-        'identifiers': identifiers
+        'identifiers': identifiers,
+        'transferMetadata': _extract_transfer_metadata(root, nsmap),
     }
     wait_for_cluster_yellow_status(conn)
     try_to_index(conn, aipData, 'aips', 'aip')
@@ -421,6 +422,10 @@ def connect_and_index_files(index, type, uuid, pathToArchive, identifiers=[], si
 
     return exitCode
 
+def _extract_transfer_metadata(doc, nsmap):
+    return [xmltodict.parse(ElementTree.tostring(el))['transfer_metadata']
+            for el in doc.findall("m:amdSec/m:sourceMD/m:mdWrap/m:xmlData/transfer_metadata", namespaces=nsmap)]
+
 def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, identifiers=[]):
 
     # parse XML
@@ -472,6 +477,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, ide
         },
         'origin': getDashboardUUID(),
         'identifiers': identifiers,
+        'transferMetadata': _extract_transfer_metadata(root, nsmap),
     }
 
     # Index all files in a fileGrup with USE='original' or USE='metadata'

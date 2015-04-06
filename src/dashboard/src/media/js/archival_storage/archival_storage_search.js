@@ -49,14 +49,15 @@ $(document).ready(function() {
 
   // default field name field
   search.addSelect('field', {title: 'field name'}, {
-    ''             : 'Any',
-    'FILEUUID'     : 'File UUID',
-    'filePath'     : 'File path',
+    '': 'Any',
+    'FILEUUID': 'File UUID',
+    'filePath': 'File path',
     'fileExtension': 'File extension',
-    'AIPUUID'      : 'AIP UUID',
-    'sipName'      : 'AIP name',
-    'isPartOf'     : 'Part of AIC',
-    'AICID'        : 'AIC Identifier',
+    'AIPUUID': 'AIP UUID',
+    'sipName': 'AIP name',
+    'isPartOf': 'Part of AIC',
+    'AICID': 'AIC Identifier',
+    'transferMetadata': 'Transfer metadata',
   });
 
   // default field name field
