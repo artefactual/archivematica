@@ -52,6 +52,8 @@ from databaseFunctions import getUTCDate
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 sharedVariablesAcrossModules.globalErrorCount = 0
 
+from bagit import Bag, BagError
+
 #Global Variables
 
 globalFileGrps = {}
@@ -823,10 +825,21 @@ def find_source_metadata(path):
 
     return transfer, source
 
+def find_bag_metadata(bag_logs_path):
+    try:
+        return Bag(bag_logs_path).info
+    except BagError:
+        print >> sys.stderr, "Unable to locate or parse bag metadata at: {}".format(bag_logs_path)
+        return {}
+
 def create_object_metadata(struct_map, baseDirectoryPath):
     transfer_metadata_path = os.path.join(baseDirectoryPath, "objects/metadata/transfers")
     transfer, source = find_source_metadata(transfer_metadata_path)
-    if not transfer and not source:
+
+    paths = glob(os.path.join(baseDirectoryPath, "logs", "transfers", "**", "logs", "BagIt"))
+    bag_info = [find_bag_metadata(path) for path in paths]
+
+    if not transfer and not source and not bag_info:
         return
 
     global globalAmdSecCounter
@@ -858,6 +871,24 @@ def create_object_metadata(struct_map, baseDirectoryPath):
             'OTHERLOCTYPE': 'SYSTEM'
         }
         etree.SubElement(sourcemd, ns.metsBNS + 'mdRef', attributes)
+
+    for bagdata in bag_info:
+        # If there are no tags, skip creating an element
+        if not bagdata:
+            continue
+
+        sourcemd = etree.SubElement(el, ns.metsBNS + 'sourceMD', {'ID': 'sourceMD_{}'.format(source_md_counter)})
+        source_md_counter += 1
+        mdwrap = etree.SubElement(sourcemd, ns.metsBNS + 'mdWrap', {'MDTYPE': 'OTHER', 'OTHERMDTYPE': 'BagIt'})
+        xmldata = etree.SubElement(mdwrap, ns.metsBNS + 'xmlData')
+        bag_metadata = etree.SubElement(xmldata, "transfer_metadata")
+        for key, value in bagdata.iteritems():
+            try:
+                bag_tag = etree.SubElement(bag_metadata, key)
+            except ValueError:
+                print >> sys.stderr, "Skipping bag key {}; not a valid XML tag name".format(key)
+                continue
+            bag_tag.text = value
 
     return el
 
