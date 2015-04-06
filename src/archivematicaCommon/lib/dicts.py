@@ -117,7 +117,7 @@ class ReplacementDict(dict):
                 sipdir = relative_location
 
             rd['%SIPUUID%'] = sip.uuid
-            sip_name = os.path.basename(sipdir[:-1]).replace('-' + sip.uuid, '')
+            sip_name = os.path.basename(sipdir.rstrip('/')).replace('-' + sip.uuid, '')
             rd['%SIPName%'] = sip_name
             rd['%currentPath%'] = sipdir
             rd['%SIPDirectory%'] = sipdir
