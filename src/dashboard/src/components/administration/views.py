@@ -41,14 +41,10 @@ import components.helpers as helpers
 import storageService as storage_service
 
 sys.path.append('/usr/lib/archivematica/archivematicaCommon')
-from custom_handlers import GroupWriteRotatingFileHandler
 from version import get_full_version
 
 
 logger = logging.getLogger('archivematica.dashboard')
-logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/dashboard/dashboard.log",
-     maxBytes=4194304))
-logger.setLevel(logging.INFO)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Administration

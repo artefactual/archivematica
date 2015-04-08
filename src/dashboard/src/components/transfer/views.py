@@ -20,7 +20,6 @@ import json
 import logging
 from lxml import etree
 import os
-import sys
 from uuid import uuid4
 
 from django.db.models import Max
@@ -40,13 +39,7 @@ from components.ingest.forms import DublinCoreMetadataForm
 import components.decorators as decorators
 import storageService as storage_service
 
-sys.path.append('/usr/lib/archivematica/archivematicaCommon')
-from custom_handlers import GroupWriteRotatingFileHandler
-
 logger = logging.getLogger('archivematica.dashboard')
-logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/dashboard/dashboard.log",
-     maxBytes=4194304))
-logger.setLevel(logging.INFO)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Transfer

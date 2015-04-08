@@ -23,7 +23,6 @@ import os
 import pprint
 import urllib
 import json
-import sys
 
 from django.utils.dateformat import format
 from django.core.paginator import Paginator, EmptyPage
@@ -33,13 +32,7 @@ from django.core.servers.basehttp import FileWrapper
 from django.shortcuts import render
 from main import models
 
-sys.path.append('/usr/lib/archivematica/archivematicaCommon')
-from custom_handlers import GroupWriteRotatingFileHandler
-
 logger = logging.getLogger('archivematica.dashboard')
-logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/dashboard/dashboard.log",
-     maxBytes=4194304))
-logger.setLevel(logging.INFO)
 
 # Used for debugging
 def pr(object):

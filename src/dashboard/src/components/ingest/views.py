@@ -53,7 +53,6 @@ from main import models
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
-from custom_handlers import GroupWriteRotatingFileHandler
 import elasticSearchFunctions
 import storageService as storage_service
 
@@ -62,9 +61,6 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import requests
 
 logger = logging.getLogger('archivematica.dashboard')
-logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/dashboard/dashboard.log",
-     maxBytes=4194304))
-logger.setLevel(logging.INFO)
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Ingest

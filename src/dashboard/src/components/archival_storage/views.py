@@ -41,15 +41,11 @@ from components import advanced_search
 from components import decorators
 from components import helpers
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from custom_handlers import GroupWriteRotatingFileHandler
 import databaseFunctions
 import elasticSearchFunctions
 import storageService as storage_service
 
 logger = logging.getLogger('archivematica.dashboard')
-logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/dashboard/dashboard.log",
-     maxBytes=4194304))
-logger.setLevel(logging.INFO)
 
 AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'
 
