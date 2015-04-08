@@ -460,7 +460,7 @@ def createDigiprovMD(fileUUID):
         if event_record.linking_agent:
             linkingAgentIdentifier = etree.SubElement(event, ns.premisBNS + "linkingAgentIdentifier")
             etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierType").text = "Archivematica user pk"
-            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = str(event_record.linking_agent_id)
+            etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = str(event_record.linking_agent)
         
         # linkingAgentIdentifier
         for agent in Agent.objects.all():

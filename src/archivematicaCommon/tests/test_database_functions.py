@@ -6,7 +6,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseFunctions
 
 sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import Event, File
+from main.models import Agent, Event, File
 
 from django.test import TestCase
 import pytest
@@ -66,7 +66,8 @@ class TestDatabaseFunctions(TestCase):
     def test_insert_into_event_fetches_correct_agent_from_file(self):
         databaseFunctions.insertIntoEvents(fileUUID="88c8f115-80bc-4da4-a1e6-0158f5df13b9",
                                            eventIdentifierUUID="event_agent_id")
-        assert Event.objects.get(event_id="event_agent_id").linking_agent.name == "Event agent"
+        agent_id = Event.objects.get(event_id="event_agent_id").linking_agent
+        assert Agent.objects.get(id=agent_id).name == "Event agent"
 
     def test_get_accession_number_from_transfer(self):
         accession_id = databaseFunctions.getAccessionNumberFromTransfer("5a8d0539-8e5a-4aa9-98d8-5e5053140398")

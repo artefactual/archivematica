@@ -143,7 +143,7 @@ def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDat
                          event_type=eventType, event_datetime=eventDateTime,
                          event_detail=eventDetail, event_outcome=eventOutcome,
                          event_outcome_detail=eventOutcomeDetailNote,
-                         linking_agent_id=agent)
+                         linking_agent=agent)
 
 def insertIntoDerivations(sourceFileUUID="", derivedFileUUID="", relatedEventUUID=""):
     """

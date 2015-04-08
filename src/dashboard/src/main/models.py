@@ -156,7 +156,7 @@ class Event(models.Model):
     event_detail = models.TextField(db_column='eventDetail', blank=True)
     event_outcome = models.TextField(db_column='eventOutcome', blank=True)
     event_outcome_detail = models.TextField(db_column='eventOutcomeDetailNote', blank=True)  # TODO convert this to a BinaryField with Django >= 1.6
-    linking_agent = models.ForeignKey('Agent', db_column='linkingAgentIdentifier', null=True)
+    linking_agent = models.IntegerField(db_column='linkingAgentIdentifier', null=True)
 
     class Meta:
         db_table = u'Events'
