@@ -305,8 +305,8 @@ def createDSpaceDMDSec(label, dspace_mets_path, directoryPathSTR):
         print >> sys.stderr, 'Unable to parse identifer and isPartOf from', dspace_mets_path
         return {}
     metadata = {
-        'dc.identifier': identifier,
-        'dcterms.isPartOf': part_of,
+        'dc.identifier': [identifier],
+        'dcterms.isPartOf': [part_of],
     }
     dc_dmdsecs = createDmdSecsFromCSVParsedMetadata(metadata)
     dmdsec = dc_dmdsecs[0]  # Should only be one dmdSec
