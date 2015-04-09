@@ -257,7 +257,7 @@ def set_up_mapping(conn, index):
 
     if index == 'aips':
         print 'Creating AIP mapping...'
-        conn.indices.put_mapping(doc_type='aip', body={'aip': {'date_detection': False}}, index='aips')
+        conn.indices.put_mapping(doc_type='aip', body={'aip': {'date_detection': True}}, index='aips')
         print 'AIP mapping created.'
 
         mapping = {
@@ -269,7 +269,7 @@ def set_up_mapping(conn, index):
         print 'Creating AIP mapping...'
         conn.indices.put_mapping(
             doc_type='aip',
-            body={'aip': {'date_detection': False, 'properties': mapping}},
+            body={'aip': {'date_detection': True, 'properties': mapping}},
             index='aips'
         )
         print 'AIP mapping created.'
@@ -284,7 +284,7 @@ def set_up_mapping(conn, index):
         print 'Creating AIP file mapping...'
         conn.indices.put_mapping(
             doc_type='aipfile',
-            body={'aipfile': {'date_detection': False, 'properties': mapping}},
+            body={'aipfile': {'date_detection': True, 'properties': mapping}},
             index='aips'
         )
         print 'AIP file mapping created.'
