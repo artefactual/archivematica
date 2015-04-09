@@ -34,6 +34,11 @@
   margin-left: 20px;
 }
 
+#aip-search-query-other-field-name {
+  margin-left: 5px;
+  display: none;
+}
+
 div.search-summary p {
   font-weight: bold;
 }

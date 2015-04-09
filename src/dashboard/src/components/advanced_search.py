@@ -16,6 +16,8 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.http import HttpResponse
+from datetime import datetime
+import logging
 import sys
 
 from elasticsearch import Elasticsearch
@@ -23,9 +25,15 @@ from elasticsearch import Elasticsearch
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
 
+logger = logging.getLogger("archivematica.dashboard.advanced_search")
+
 OBJECT_FIELDS = (
     "mets",
     "transferMetadata",
+)
+
+OTHER_FIELDS = (
+    "transferMetadataOther"
 )
 
 def search_parameter_prep(request):
@@ -33,6 +41,7 @@ def search_parameter_prep(request):
     ops     = request.GET.getlist('op')
     fields  = request.GET.getlist('field')
     types   = request.GET.getlist('type')
+    other_fields = request.GET.getlist('fieldName')
 
     # prepend default op arg as first op can't be set manually
     ops.insert(0, 'or')
@@ -41,10 +50,8 @@ def search_parameter_prep(request):
         queries = ['*']
         fields  = ['']
     else:
-        index = 0
-
         # make sure each query has field/ops set
-        for query in queries:
+        for index, query in enumerate(queries):
             # a blank query makes ES error
             if queries[index] == '':
                 queries[index] = '*'
@@ -64,7 +71,21 @@ def search_parameter_prep(request):
             except:
                 types.insert(index, '')
 
-            index = index + 1
+        # For "other" fields, the actual title of the subfield is located in a second array;
+        # search for any such fields and replace the placeholder value in the `fields` array
+        # with the full name.
+        # In Elasticsearch, "." is used to search subdocuments; for example,
+        # transferMetadata.Bagging-Date would be used to search for the value of Bagging-Date
+        # in this nested object:
+        # {
+        #   "transferMetadata": {
+        #     "Start-Date": 0000-00-00,
+        #     "Bagging-Date": 0000-00-00
+        #   }
+        # }
+        for index, field in enumerate(fields):
+            if field == "transferMetadataOther":
+                fields[index] = 'transferMetadata.' + other_fields[index]
 
     return queries, ops, fields, types
 
@@ -162,13 +183,25 @@ def _fix_object_fields(fields):
     """
     return [field + '.*' if field in OBJECT_FIELDS else field for field in fields]
 
+def _parse_date_range(field):
+    """
+    Splits a range field into start and end values.
+
+    Expects data in the following format:
+        start:end
+    """
+    if ':' not in field:
+        return ('', field)
+
+    return field.split(':')[:2]
+
 def query_clause(index, queries, ops, fields, types):
     if fields[index] == '':
         search_fields = []
     else:
         search_fields = _fix_object_fields([fields[index]])
 
-    if (types[index] == 'term'):
+    if types[index] == 'term':
         # a blank term should be ignored because it prevents any results: you
         # can never find a blank term
         #
@@ -182,8 +215,17 @@ def query_clause(index, queries, ops, fields, types):
             else:
                 term_field = '_all'
             return {'term': {term_field: queries[index]}}
-    else:
+    elif types[index] == 'string':
         return {'query_string': {'query': queries[index], 'fields': search_fields}}
+    elif types[index] == 'range':
+        start, end = _parse_date_range(queries[index])
+        for date in (start, end):
+            try:
+                datetime.strptime(date, '%Y-%m-%d')
+            except ValueError:
+                logger.info("Invalid date received (%s); ignoring date query", (date))
+                return
+        return {'range': {fields[index]: {'gte': start, 'lte': end}}}
 
 def indexed_count(index, types=None, query=None):
     if types is not None:

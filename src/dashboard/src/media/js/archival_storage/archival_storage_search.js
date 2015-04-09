@@ -17,6 +17,14 @@ You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+function selectField(name) {
+  if (name == 'transferMetadataOther') {
+    $('#aip-search-query-other-field-name').show('fade', {}, 250);
+  } else {
+    $('#aip-search-query-other-field-name').hide('fade', {}, 250);
+  }
+}
+
 $(document).ready(function() {
 
   // create new form instance, providing a single row of default data
@@ -27,6 +35,7 @@ $(document).ready(function() {
       'op': '',
       'query': '',
       'field': '',
+      'fieldName': '',
       'type': ''
     }],
     'deleteHandleHtml': '<img src="/media/images/delete.png" style="margin-left: 5px"/>',
@@ -48,7 +57,7 @@ $(document).ready(function() {
   search.addInput('query', {title: 'search query', 'class': 'aip-search-query-input'});
 
   // default field name field
-  search.addSelect('field', {title: 'field name'}, {
+  search.addSelect('field', {title: 'field name', onchange: 'selectField(this.value)'}, {
     '': 'Any',
     'FILEUUID': 'File UUID',
     'filePath': 'File path',
@@ -58,12 +67,17 @@ $(document).ready(function() {
     'isPartOf': 'Part of AIC',
     'AICID': 'AIC Identifier',
     'transferMetadata': 'Transfer metadata',
+    'transferMetadataOther': 'Transfer metadata (other)',
   });
+
+  // "Other" field name, when selecting "transfer metadata (other)"
+  search.addInput('fieldName', {title: 'other field name', 'class': 'aip-search-query-input', 'id': 'aip-search-query-other-field-name'});
 
   // default field name field
   search.addSelect('type', {title: 'query type'}, {
     'term': 'Keyword',
-    'string': 'Phrase'
+    'string': 'Phrase',
+    'range': 'Date range'
   });
 
   // don't show first op field
@@ -77,6 +91,9 @@ $(document).ready(function() {
   }
 
   search.render();
+
+  // Ensure the select field name field is hidden/displayed as appropriate
+  selectField($('.advanced_search_form_field_field > select')[0].value);
 
   function aipSearchSubmit() {
     var destination = '/archival-storage/search/' + '?' + search.toUrlParams();
