@@ -12,6 +12,12 @@ from lazy_paged_sequence import LazyPagedSequence
 
 PAGE_SIZE = 30
 
+def _determine_reverse_sort_direction(sort):
+    if sort is None or sort == "asc":
+        return "desc"
+    else:
+        return "asc"
+
 # TODO: move into helpers module at some point
 # From http://www.ironzebra.com/news/23/converting-multi-dimensional-form-arrays-in-django
 def getDictArray(post, name):
@@ -33,9 +39,11 @@ def getDictArray(post, name):
     return dic
 
 
-def list_records(client, request, query, page_number, search_params, list_redirect_target, uuid):
-    resources = LazyPagedSequence(lambda page, page_size: client.find_collections(search_pattern=query, page=page, page_size=page_size), PAGE_SIZE, client.count_collections())
+def list_records(client, request, query, page_number, sort_by, search_params, list_redirect_target, uuid):
+    resources = LazyPagedSequence(lambda page, page_size: client.find_collections(search_pattern=query, page=page, page_size=page_size, sort_by=sort_by), PAGE_SIZE, client.count_collections())
     page = helpers.pager(resources, PAGE_SIZE, page_number)
+
+    sort_direction = _determine_reverse_sort_direction(sort_by)
 
     return render(request, list_redirect_target, locals())
 
@@ -56,13 +64,16 @@ def pairs_saved_response(pairs_saved):
     )
 
 
-def render_resource(client, request, resource_id, query, page, search_params, match_redirect_target, resource_detail_template, uuid):
+def render_resource(client, request, resource_id, query, page, sort_by, search_params, match_redirect_target, resource_detail_template, uuid):
     resource_data = client.get_resource_component_and_children(
         resource_id,
         'collection',
         recurse_max_level=2,
-        search_pattern=query
+        search_pattern=query,
+        sort_by=sort_by
     )
+
+    sort_direction = _determine_reverse_sort_direction(sort_by)
 
     if resource_data['children']:
         page = helpers.pager(resource_data['children'], PAGE_SIZE, page)
@@ -73,13 +84,17 @@ def render_resource(client, request, resource_id, query, page, search_params, ma
         return render(request, resource_detail_template, locals())
 
 
-def render_resource_component(client, request, resource_component_id, query, page, search_params, match_redirect_target, resource_detail_template, uuid):
+def render_resource_component(client, request, resource_component_id, query, page, sort_by, search_params, match_redirect_target, resource_detail_template, uuid):
     resource_component_data = client.get_resource_component_and_children(
         resource_component_id,
         'description',
         recurse_max_level=2,
-        search_pattern=query
+        search_pattern=query,
+        sort_by=sort_by
     )
+
+    sort_direction = _determine_reverse_sort_direction(sort_by)
+
     if resource_component_data['children']:
         page = helpers.pager(resource_component_data['children'], PAGE_SIZE, page)
 

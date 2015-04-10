@@ -84,10 +84,11 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
     try:
         query = request.GET.get('query', '').strip()
         page = request.GET.get('page', 1)
+        sort = request.GET.get('sort')
         search_params = advanced_search.extract_url_search_params_from_request(request)
 
         return pair_matcher.render_resource(client, request, resource_id,
-                                            query, page, search_params,
+                                            query, page, sort, search_params,
                                             'components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels',
                                             'ingest/atk/resource_detail.html',
                                             uuid)
@@ -99,11 +100,12 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     try:
         query = request.GET.get('query', '').strip()
         page = request.GET.get('page', 1)
+        sort = request.GET.get('sort')
         search_params = advanced_search.extract_url_search_params_from_request(request)
 
         return pair_matcher.render_resource_component(client, request,
                                                       resource_component_id,
-                                                      query, page, search_params,
+                                                      query, page, sort, search_params,
                                                       'components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_component_levels',
                                                       'ingest/atk/resource_component.html',
                                                       uuid)

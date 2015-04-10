@@ -44,10 +44,11 @@ def _authenticate_to_archivesspace(func):
 def ingest_upload_as(client, request, uuid):
     query = request.GET.get('query', '').strip()
     page = request.GET.get('page', 1)
+    sort = request.GET.get('sort')
     search_params = advanced_search.extract_url_search_params_from_request(request)
 
     return pair_matcher.list_records(client, request, query, page,
-                                     search_params,
+                                     sort, search_params,
                                      'ingest/as/resource_list.html',
                                      uuid)
 
@@ -82,10 +83,11 @@ def ingest_upload_as_save_to_db(request, uuid):
 def ingest_upload_as_resource(client, request, uuid, resource_id):
     query = request.GET.get('query', '').strip()
     page = request.GET.get('page', 1)
+    sort = request.GET.get('sort')
     search_params = advanced_search.extract_url_search_params_from_request(request)
 
     return pair_matcher.render_resource(client, request, resource_id,
-                                        query, page, search_params,
+                                        query, page, sort, search_params,
                                         'components.ingest.views_as.ingest_upload_as_match_dip_objects_to_resource_levels',
                                         'ingest/as/resource_detail.html',
                                         uuid)
@@ -95,11 +97,12 @@ def ingest_upload_as_resource(client, request, uuid, resource_id):
 def ingest_upload_as_resource_component(client, request, uuid, resource_component_id):
     query = request.GET.get('query', '').strip()
     page = request.GET.get('page', 1)
+    sort = request.GET.get('sort')
     search_params = advanced_search.extract_url_search_params_from_request(request)
 
     return pair_matcher.render_resource_component(client, request,
                                                   resource_component_id,
-                                                  query, page, search_params,
+                                                  query, page, sort, search_params,
                                                   'components.ingest.views_as.ingest_upload_as_match_dip_objects_to_resource_component_levels',
                                                   'ingest/as/resource_component.html',
                                                   uuid)

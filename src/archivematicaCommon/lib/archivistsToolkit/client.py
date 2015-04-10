@@ -222,7 +222,7 @@ class ArchivistsToolkitClient(object):
 
         return (ArchivistsToolkitClient.RESOURCE, self.find_resource_id_for_component(component_id))
 
-    def find_collection_ids(self, search_pattern=''):
+    def find_collection_ids(self, search_pattern='', page=None, page_size=30):
         """
         Fetches a list of all resource IDs for every resource in the database.
 
@@ -241,6 +241,10 @@ class ArchivistsToolkitClient(object):
         else:
             sql = "SELECT resourceId FROM Resources WHERE (title LIKE %s OR resourceid LIKE %s) AND resourceLevel in ('recordgrp', 'collection') ORDER BY title"
             params = ('%' + search_pattern + '%', '%' + search_pattern + '%')
+
+        if page is not None:
+            start = (page - 1) * page_size
+            sql = sql + " LIMIT {},{}".format(start, page_size)
 
         cursor.execute(sql, params)
 
@@ -263,5 +267,8 @@ class ArchivistsToolkitClient(object):
 
         return resources_augmented
 
-    def find_collections(self, search_pattern=''):
-        return self.augment_resource_ids(self.find_collection_ids(search_pattern))
+    def count_collections(self, search_pattern=''):
+        return len(self.find_collection_ids(search_pattern))
+
+    def find_collections(self, search_pattern='', page=1, page_size=30):
+        return self.augment_resource_ids(self.find_collection_ids(search_pattern, page=page, page_size=page_size))

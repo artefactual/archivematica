@@ -159,7 +159,7 @@ class ArchivesSpaceClient(object):
             end_date = record['dates'][0].get('end')
             return self._format_dates(start_date, end_date)
 
-    def _get_resources(self, resource_id, level=1, recurse_max_level=False):
+    def _get_resources(self, resource_id, level=1, recurse_max_level=False, sort_by=None):
         def format_record(record, level):
             descend = recurse_max_level != level
             level += 1
@@ -179,6 +179,9 @@ class ArchivesSpaceClient(object):
             }
             if record['children'] and descend:
                 result['children'] = [format_record(child, level) for child in record['children']]
+                if sort_by is not None:
+                    kwargs = {'reverse': True} if sort_by == 'desc' else {}
+                    result['children'] = sorted(result['children'], key=lambda c: c['title'], **kwargs)
             else:
                 result['children'] = False
 
@@ -188,7 +191,7 @@ class ArchivesSpaceClient(object):
         tree = response.json()
         return format_record(tree, 1)
 
-    def _get_components(self, resource_id, level=1, recurse_max_level=False):
+    def _get_components(self, resource_id, level=1, recurse_max_level=False, sort_by=None):
         def fetch_children(resource_id):
             return self._get(resource_id + '/children').json()
 
@@ -208,6 +211,9 @@ class ArchivesSpaceClient(object):
             children = fetch_children(record['uri'])
             if children and not recurse_max_level == level:
                 result['children'] = [format_record(child, level) for child in children]
+                if sort_by is not None:
+                    kwargs = {'reverse': True} if sort_by == 'desc' else {}
+                    result['children'] = sorted(children, key=lambda c: c['title'], **kwargs)
             else:
                 result['children'] = False
 
@@ -215,7 +221,7 @@ class ArchivesSpaceClient(object):
 
         return format_record(self._get(resource_id).json(), level)
 
-    def get_resource_component_and_children(self, resource_id, resource_type='collection', level=1, sort_data={}, recurse_max_level=False, **kwargs):
+    def get_resource_component_and_children(self, resource_id, resource_type='collection', level=1, sort_data={}, recurse_max_level=False, sort_by=None, **kwargs):
         """
         Fetch detailed metadata for the specified resource_id and all of its children.
 
@@ -231,9 +237,9 @@ class ArchivesSpaceClient(object):
             Consult ArchivistsToolkitClient.get_resource_component_and_children for the output format.
         """
         if resource_type == 'collection':
-            return self._get_resources(resource_id, recurse_max_level=recurse_max_level)
+            return self._get_resources(resource_id, recurse_max_level=recurse_max_level, sort_by=sort_by)
         else:
-            return self._get_components(resource_id, recurse_max_level=recurse_max_level)
+            return self._get_components(resource_id, recurse_max_level=recurse_max_level, sort_by=sort_by)
 
     def find_resource_id_for_component(self, component_id):
         """
@@ -302,7 +308,7 @@ class ArchivesSpaceClient(object):
             params['q'] = params['q'] + ' AND title:{}'.format(search_pattern)
         return self._get(self.repository + '/search', params=params).json()['total_hits']
 
-    def find_collections(self, search_pattern='', fetched=0, page=1, page_size=30):
+    def find_collections(self, search_pattern='', fetched=0, page=1, page_size=30, sort_by=None):
         def format_record(record):
             dates = self._fetch_dates_from_record(record)
             return {
@@ -319,8 +325,13 @@ class ArchivesSpaceClient(object):
             'page_size': page_size,
             'q': 'primary_type:resource'
         }
+
         if search_pattern != '':
             params['q'] = params['q'] + ' AND title:{}'.format(search_pattern)
+
+        if sort_by is not None:
+            params['sort'] = 'title_sort ' + sort_by
+
         response = self._get(self.repository + '/search', params=params)
         hits = response.json()
         return [format_record(json.loads(r['json'])) for r in hits['results']]
