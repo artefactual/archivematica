@@ -367,7 +367,7 @@ def connect_and_get_aip_data(uuid):
     )
     return aips['hits']['hits'][0]
 
-def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
+def connect_and_index_files(index, type, uuid, pathToArchive, identifiers=[], sipName=None):
 
     exitCode = 0
 
@@ -393,7 +393,8 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
                     metsFilePath,
                     index,
                     type,
-                    sipName
+                    sipName,
+                    identifiers=identifiers
                 )
 
             # index transfer
@@ -420,7 +421,7 @@ def connect_and_index_files(index, type, uuid, pathToArchive, sipName=None):
 
     return exitCode
 
-def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName):
+def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, identifiers=[]):
 
     # parse XML
     tree = ElementTree.parse(metsFilePath)
@@ -470,6 +471,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName):
             'amdSec': {},
         },
         'origin': getDashboardUUID(),
+        'identifiers': identifiers,
     }
 
     # Index all files in a fileGrup with USE='original' or USE='metadata'

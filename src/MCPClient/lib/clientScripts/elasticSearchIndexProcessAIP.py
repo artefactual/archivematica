@@ -21,13 +21,19 @@
 # @subpackage archivematicaClientScript
 # @author Mike Cantelon <mike@artefactual.com>
 import ConfigParser
+from glob import glob
 import sys
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import elasticSearchFunctions
+from identifier_functions import extract_identifiers_from_mods
 
 exitCode = 0
+
+
+def list_mods(sip_path):
+    return glob('{}/objects/submissionDocumentation/mods/*.xml'.format(sip_path))
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.elasticSearchIndexProcessAIP")
@@ -51,12 +57,20 @@ if __name__ == '__main__':
         uuid = sys.argv[2]
         sipName = sys.argv[3]
 
+        # Even though we treat MODS identifiers as SIP-level, we need to index them here
+        # because the archival storage tab actually searches on the aips/aipfile index.
+        mods_paths = list_mods(pathToAIP)
+        identifiers = []
+        for mods in mods_paths:
+            identifiers.extend(extract_identifiers_from_mods(mods))
+
         exitCode = elasticSearchFunctions.connect_and_index_files(
             'aips',
             'aipfile',
             uuid,
             pathToAIP,
-            sipName
+            sipName,
+            identifiers=identifiers
         )
 
 quit(exitCode)
