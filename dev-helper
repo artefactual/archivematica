@@ -150,38 +150,6 @@ function clear-storage() {
   fi
 }
 
-function restart() {
-  part="restart archivematica services"
-  echo -n "\"Would you like to ${part}?\" (y/N) "
-  read a
-  if [[ $a == "Y" || $a == "y" ]]; then
-          echo "Going to ${part} ..."
-          sudo stop archivematica-mcp-server
-          sudo stop archivematica-mcp-client
-          sudo /etc/init.d/gearman-job-server stop
-          sudo /etc/init.d/elasticsearch stop
-          sleep 1
-
-          if [ -e "/tmp/archivematicaMCPServerPID" ]
-          then
-            sudo kill -9 `cat /tmp/archivematicaMCPServerPID`
-          fi
-
-          sleep 3
-          sudo /etc/init.d/elasticsearch start
-          sudo /etc/init.d/gearman-job-server start
-          sudo rm /var/log/archivematica/*
-          sudo rm /var/log/archivematica/dashboard/*
-          sudo rm /var/log/archivematica/MCPClient/*
-          sudo rm /var/log/archivematica/MCPServer/*
-          colour sudo start archivematica-mcp-server
-          colour sudo start archivematica-mcp-client
-          colour sudo apache2ctl restart
-  else
-          echo "Not going to ${part}."
-  fi
-}
-
 function update-sampledata() {
   part="update sample data in $HOME/archivematica-sampledata"
   echo -n "\"Would you like to ${part}?\" (y/N) "
@@ -242,6 +210,5 @@ package-update
 recreate-db
 erase-indexes
 clear-storage
-restart
 update-sampledata
 export-sampledata
