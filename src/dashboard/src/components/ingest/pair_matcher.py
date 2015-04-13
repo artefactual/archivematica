@@ -40,7 +40,7 @@ def getDictArray(post, name):
 
 
 def list_records(client, request, query, page_number, sort_by, search_params, list_redirect_target, uuid):
-    resources = LazyPagedSequence(lambda page, page_size: client.find_collections(search_pattern=query, page=page, page_size=page_size, sort_by=sort_by), PAGE_SIZE, client.count_collections())
+    resources = LazyPagedSequence(lambda page, page_size: client.find_collections(search_pattern=query, page=page, page_size=page_size, sort_by=sort_by), PAGE_SIZE, client.count_collections(query))
     page = helpers.pager(resources, PAGE_SIZE, page_number)
 
     sort_direction = _determine_reverse_sort_direction(sort_by)
