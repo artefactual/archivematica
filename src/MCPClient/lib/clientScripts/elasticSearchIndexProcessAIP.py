@@ -69,7 +69,7 @@ if __name__ == '__main__':
             'aipfile',
             uuid,
             pathToAIP,
-            sipName,
+            sipName=sipName,
             identifiers=identifiers
         )
 
