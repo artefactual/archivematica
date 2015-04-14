@@ -24,7 +24,6 @@
 #the version numbers are versions of the protocol, not versions of the programs themselves.
 
 [supportedCommandsSpecial]
-elasticSearchAIPIndex_v0.0 = %clientScriptsDirectory%elasticSearchIndexProcessAIP.py
 elasticSearchIndex_v0.0 = %clientScriptsDirectory%elasticSearchIndexProcessTransfer.py
 restructureDIPForContentDMUpload_v0.0 = %clientScriptsDirectory%restructureDIPForContentDMUpload.py
 storeAIP_v0.0 = %clientScriptsDirectory%storeAIP.py

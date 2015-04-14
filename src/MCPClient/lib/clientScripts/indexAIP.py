@@ -1,5 +1,6 @@
 #!/usr/bin/python2 -OO
 
+from __future__ import print_function
 import ConfigParser
 from glob import glob
 import os
@@ -11,7 +12,6 @@ from main.models import UnitVariable
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import elasticSearchFunctions
-from executeOrRunSubProcess import executeOrRun
 import storageService as storage_service
 from identifier_functions import extract_identifiers_from_mods
 
@@ -38,12 +38,12 @@ def index_aip():
     except ConfigParser.NoOptionError:
         pass
     if elastic_search_disabled:
-        print 'Skipping indexing: indexing is currently disabled in {}.'.format(client_config_path)
+        print('Skipping indexing: indexing is currently disabled in', client_config_path)
         return 0
 
-    print 'sip_uuid', sip_uuid
+    print('SIP UUID:', sip_uuid)
     aip_info = storage_service.get_file_info(uuid=sip_uuid)
-    print 'aip_info', aip_info
+    print('AIP info:', aip_info)
     aip_info = aip_info[0]
 
     mets_name = 'METS.{}.xml'.format(sip_uuid)
@@ -65,6 +65,7 @@ def index_aip():
         except UnitVariable.DoesNotExist:
             pass
 
+    print('Indexing AIP info')
     elasticSearchFunctions.connect_and_index_aip(
         sip_uuid,
         sip_name,
@@ -73,6 +74,23 @@ def index_aip():
         size=aip_info['size'],
         aips_in_aic=aips_in_aic,
         identifiers=identifiers)
+
+    # Index AIP files
+    print('Indexing AIP files')
+    # Even though we treat MODS identifiers as SIP-level, we need to index them
+    # here because the archival storage tab actually searches on the
+    # aips/aipfile index.
+    exitCode = elasticSearchFunctions.connect_and_index_files(
+        index='aips',
+        type='aipfile',
+        uuid=sip_uuid,
+        pathToArchive=sip_path,
+        identifiers=identifiers,
+        sipName=sip_name,
+    )
+    if exitCode == 1:
+        print('Error indexing AIP files', file=sys.stderr)
+        return 1
 
     return 0
 
