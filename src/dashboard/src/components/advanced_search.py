@@ -16,10 +16,10 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.http import HttpResponse
-from datetime import datetime
 import logging
 import sys
 
+import dateutil.parser
 from elasticsearch import Elasticsearch
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
@@ -195,6 +195,12 @@ def _parse_date_range(field):
 
     return field.split(':')[:2]
 
+def _normalize_date(date):
+    try:
+        return dateutil.parser.parse(date).strftime('%Y-%m-%d')
+    except ValueError:
+        raise ValueError("Invalid date received ({}); ignoring date query".format(date))
+
 def query_clause(index, queries, ops, fields, types):
     if fields[index] == '':
         search_fields = []
@@ -219,12 +225,12 @@ def query_clause(index, queries, ops, fields, types):
         return {'query_string': {'query': queries[index], 'fields': search_fields}}
     elif types[index] == 'range':
         start, end = _parse_date_range(queries[index])
-        for date in (start, end):
-            try:
-                datetime.strptime(date, '%Y-%m-%d')
-            except ValueError:
-                logger.info("Invalid date received (%s); ignoring date query", (date))
-                return
+        try:
+            start = _normalize_date(start)
+            end = _normalize_date(end)
+        except ValueError as e:
+            logger.info(str(e))
+            return
         return {'range': {fields[index]: {'gte': start, 'lte': end}}}
 
 def indexed_count(index, types=None, query=None):

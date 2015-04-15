@@ -14,6 +14,7 @@ Depends:
 	apache2-mpm-prefork,
 	libapache2-mod-wsgi,
 	python-pip,
+	python-dateutil,
 	python-gearman,
 	python-simplejson
 Description: Web Dashboard for Archivematica
