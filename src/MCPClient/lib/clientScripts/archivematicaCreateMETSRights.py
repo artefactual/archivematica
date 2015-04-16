@@ -55,6 +55,7 @@ def archivematicaGetRights(metadataAppliesToList, fileUUID):
         for statement in statements:
             rightsStatement = etree.Element(ns.premisBNS + "rightsStatement", nsmap={'premis': ns.premisNS})
             rightsStatement.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
+            ret.append(rightsStatement)
             # rightsStatement.set("version", "2.1") # cvc-complex-type.3.2.2: Attribute 'version' is not allowed to appear in element 'rightsStatement'.
 
             rightsStatementIdentifier = etree.SubElement(rightsStatement, ns.premisBNS + "rightsStatementIdentifier")
