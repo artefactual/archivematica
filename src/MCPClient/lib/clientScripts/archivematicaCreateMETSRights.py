@@ -85,7 +85,7 @@ def archivematicaGetRights(metadataAppliesToList, fileUUID):
                         etree.SubElement(copyrightInformation, ns.premisBNS + "copyrightNote").text = note.copyrightnote
                         
                     # RightsStatementCopyrightDocumentationIdentifier
-                    getDocumentationIdentifier(copyright.rightsstatement, copyrightInformation)
+                    getDocumentationIdentifier(copyright, copyrightInformation)
 
                     copyrightApplicableDates = etree.SubElement(copyrightInformation, ns.premisBNS + "copyrightApplicableDates")
                     if copyright.copyrightapplicablestartdate:
@@ -161,11 +161,12 @@ def archivematicaGetRights(metadataAppliesToList, fileUUID):
             etree.SubElement(linkingObjectIdentifier, ns.premisBNS + "linkingObjectIdentifierValue").text = fileUUID
     return ret
 
-def getDocumentationIdentifier(identifier, parent):
-    statuteInformation = etree.SubElement(parent, ns.premisBNS + "copyrightDocumentationIdentifier")
-    etree.SubElement(statuteInformation, ns.premisBNS + "copyrightDocumentationIdentifierType").text = identifier.copyrightdocumentationidentifiertype
-    etree.SubElement(statuteInformation, ns.premisBNS + "copyrightDocumentationIdentifierValue").text = identifier.copyrightdocumentationidentifiervalue
-    etree.SubElement(statuteInformation, ns.premisBNS + "copyrightDocumentationRole").text = identifier.copyrightdocumentationidentifierrole
+def getDocumentationIdentifier(copyright, parent):
+    for identifier in copyright.rightsstatementcopyrightdocumentationidentifier_set.all():
+        statuteInformation = etree.SubElement(parent, ns.premisBNS + "copyrightDocumentationIdentifier")
+        etree.SubElement(statuteInformation, ns.premisBNS + "copyrightDocumentationIdentifierType").text = identifier.copyrightdocumentationidentifiertype
+        etree.SubElement(statuteInformation, ns.premisBNS + "copyrightDocumentationIdentifierValue").text = identifier.copyrightdocumentationidentifiervalue
+        etree.SubElement(statuteInformation, ns.premisBNS + "copyrightDocumentationRole").text = identifier.copyrightdocumentationidentifierrole
 
 
 def getstatuteInformation(statement, parent):
