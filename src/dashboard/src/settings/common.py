@@ -235,13 +235,17 @@ LOGGING = {
         'archivematica.dashboard': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
-            'propagate': True,
+            'propagate': False,
         },
         'archivematica': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
-            'propagate': True,
+            'propagate': False,
         },
+        'elasticsearch': {
+            'handlers': ['console', 'logfile'],
+            'level': 'INFO',
+        }
     }
 }
 
