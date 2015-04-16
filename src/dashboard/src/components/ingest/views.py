@@ -474,11 +474,11 @@ def transfer_backlog(request):
             filters={'term': {'status': 'backlog'}},
         )
 
-        results = elasticSearchFunctions.search_raw_wrapper(
+        results = elasticSearchFunctions.search_all_results(
             conn,
-            query=query,
-            indices='transfers',
-            doc_types='transferfile',
+            body=query,
+            index='transfers',
+            doc_type='transferfile',
         )
     except:
         logger.exception('Error accessing index.')

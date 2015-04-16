@@ -141,7 +141,7 @@ def check_server_status_and_create_indexes_if_needed():
     # no error!
     return 'OK'
 
-def search_raw_wrapper(conn, query, indices=None, doc_types=None, **query_params):
+def search_all_results(conn, body, index=None, doc_type=None, **query_params):
     """
     Performs conn.search_raw with the size set to MAX_QUERY_SIZE.
 
@@ -149,16 +149,16 @@ def search_raw_wrapper(conn, query, indices=None, doc_types=None, **query_params
     results, this is a wrapper that fetches MAX_QUERY_SIZE results and logs a
     warning if more results were available.
     """
-    if isinstance(indices, list):
-        indices = ','.join(indices)
+    if isinstance(index, list):
+        index = ','.join(index)
 
-    if isinstance(doc_types, list):
-        doc_types = ','.join(doc_types)
+    if isinstance(doc_type, list):
+        doc_type = ','.join(doc_type)
 
     results = conn.search(
-        body=query,
-        index=indices,
-        doc_type=doc_types,
+        body=body,
+        index=index,
+        doc_type=doc_type,
         size=MAX_QUERY_SIZE,
         **query_params)
 
@@ -686,10 +686,10 @@ def _document_ids_from_field_query(conn, index, doc_types, field, value):
             }
         }
     }
-    documents = search_raw_wrapper(
+    documents = search_all_results(
         conn,
-        query=query,
-        doc_types=doc_types
+        body=query,
+        doc_type=doc_types
     )
 
     if len(documents['hits']['hits']) > 0:
@@ -706,10 +706,10 @@ def document_id_from_field_query(conn, index, doc_types, field, value):
             }
         }
     }
-    documents = search_raw_wrapper(
+    documents = search_all_results(
         conn,
-        query=query,
-        doc_types=doc_types
+        body=query,
+        doc_type=doc_types
      )
     if len(documents['hits']['hits']) == 1:
         document_id = documents['hits']['hits'][0]['_id']
@@ -751,7 +751,7 @@ def get_transfer_file_info(field, value):
             }
         }
     }
-    documents = search_raw_wrapper(conn, query=query, indices=indicies)
+    documents = search_all_results(conn, body=query, index=indicies)
     result_count = len(documents['hits']['hits'])
     if result_count == 1:
         results = documents['hits']['hits'][0]['_source']
@@ -851,7 +851,7 @@ def connect_and_delete_aip_files(uuid):
             }
         }
     }
-    documents = search_raw_wrapper(conn, query)
+    documents = search_all_results(conn, query)
     if len(documents['hits']['hits']) > 0:
         for hit in documents['hits']['hits']:
             document_id = hit['_id']
