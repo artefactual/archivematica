@@ -210,7 +210,7 @@ def search_augment_file_results(raw_results):
     modifiedResults = []
 
     for item in raw_results['hits']['hits']:
-        clone = {k: v[0] for k,v in item['fields'].copy().iteritems()}
+        clone = {k: v[0] for k,v in item.get('fields', {}).copy().iteritems()}
 
         # try to find AIP details in database
         try:
