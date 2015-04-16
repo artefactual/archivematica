@@ -529,7 +529,7 @@ def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath
     AMD.append(createTechMD(fileUUID))
 
     if use == "original":
-        metadataAppliesToList = [(fileUUID, FileMetadataAppliesToType), (transferUUID, SIPMetadataAppliesToType), (transferUUID.__str__(), TransferMetadataAppliesToType)]
+        metadataAppliesToList = [(fileUUID, FileMetadataAppliesToType), (id, SIPMetadataAppliesToType), (transferUUID, TransferMetadataAppliesToType)]
         for a in archivematicaGetRights(metadataAppliesToList, fileUUID):
             globalRightsMDCounter +=1
             rightsMD = etree.SubElement(AMD, ns.metsBNS + "rightsMD")
