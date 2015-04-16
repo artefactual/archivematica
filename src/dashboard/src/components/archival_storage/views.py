@@ -16,15 +16,14 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import ast
+import copy
 import httplib
 import json
 import logging
 import os
 import requests
-import shutil
 import slumber
 import sys
-import tempfile
 import uuid
 
 from django.contrib import messages
@@ -406,7 +405,9 @@ def elasticsearch_query_excluding_aips_pending_deletion(uuid_field_name):
             }
         }
     else:
-        query = elasticSearchFunctions.MATCH_ALL_QUERY
+        # Return a deepcopy of MATCH_ALL_QUERY because it can be modified by the
+        # caller and we don't want those modifications to persist
+        query = copy.deepcopy(elasticSearchFunctions.MATCH_ALL_QUERY)
 
     return query
 
