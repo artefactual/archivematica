@@ -32,7 +32,8 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
 from django.template import RequestContext
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, ElasticsearchException
+from lazy_paged_sequence import LazyPagedSequence
 
 from main import models
 from components.archival_storage import forms
@@ -63,11 +64,14 @@ def search(request):
     # _archival_storage_search_form.html
     # Parse checkbox for file mode
     yes_options = ('checked', 'yes', 'true', 'on')
-    file_mode = False
-    checked_if_in_file_mode = ''
     if request.GET.get('filemode', '') in yes_options:
         file_mode = True
         checked_if_in_file_mode = 'checked'
+        items_per_page = 20
+    else:  # AIP list
+        file_mode = False
+        checked_if_in_file_mode = ''
+        items_per_page = 10
 
     # Parse checkbox for show AICs
     show_aics = ''
@@ -76,6 +80,7 @@ def search(request):
 
     # get search parameters from request
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
+    logger.debug('Queries: %s, Ops: %s, Fields: %s, Types: %s', queries, ops, fields, types)
 
     # redirect if no search params have been set
     if not 'query' in request.GET:
@@ -89,23 +94,14 @@ def search(request):
     # get string of URL parameters that should be passed along when paging
     search_params = advanced_search.extract_url_search_params_from_request(request)
 
-    # set paging variables
-    if not file_mode:
-        items_per_page = 10
-    else:
-        items_per_page = 20
-
-    page = advanced_search.extract_page_number_from_url(request)
-
-    start = page * items_per_page + 1
+    current_page_number = int(request.GET.get('page', 1))
 
     # perform search
     conn = Elasticsearch(hosts=elasticSearchFunctions.getElasticsearchServerHostAndPort())
 
     results = None
+    query = advanced_search.assemble_query(queries, ops, fields, types)
     try:
-        query=advanced_search.assemble_query(queries, ops, fields, types)
-
         # use all results to pull transfer facets if not in file mode
         # pulling only one field (we don't need field data as we augment
         # the results using separate queries)
@@ -115,6 +111,8 @@ def search(request):
             # for an attribute of an AIP, the aipfile must index that
             # information about their AIP in
             # elasticSearchFunctions.index_mets_file_metadata
+            # Because we're searching aips/aipfile and not aips/aip,
+            # cannot using LazyPagedSequence
             results = conn.search(
                 body=query,
                 index='aips',
@@ -122,42 +120,53 @@ def search(request):
                 fields='uuid'
             )
         else:
-            results = conn.search(
-                body=query,
-                index='aips',
-                doc_type='aipfile',
-                from_=start - 1,
-                size=items_per_page,
-                fields='AIPUUID,filePath,FILEUUID'
-            )
-    except:
+            # To reduce amount of data fetched from ES, use LazyPagedSequence
+            def es_pager(page, page_size):
+                """
+                Fetch one page of normalized aipfile entries from Elasticsearch.
+
+                :param page: 1-indexed page to fetch
+                :param page_size: Number of entries on a page
+                :return: List of dicts for each entry with additional information
+                """
+                start = (page - 1) * page_size
+                results = conn.search(
+                    body=query,
+                    index='aips',
+                    doc_type='aipfile',
+                    from_=start,
+                    size=page_size,
+                    fields='AIPUUID,filePath,FILEUUID'
+                )
+                return search_augment_file_results(results)
+            count = conn.count(index='aips', doc_type='aipfile', body={'query': query['query']})['count']
+            results = LazyPagedSequence(es_pager, items_per_page, count)
+
+    except ElasticsearchException:
         logger.exception('Error accessing index.')
         return HttpResponse('Error accessing index.')
 
     if not file_mode:
         # take note of facet data
         aip_uuids = results['facets']['AIPUUID']['terms']
-
-        number_of_results = len(aip_uuids)
-
-        page_data = helpers.pager(aip_uuids, items_per_page, page + 1)
-        aip_uuids = page_data['objects']
-        results = search_augment_aip_results(conn, aip_uuids)
-
+        page_data = helpers.pager(aip_uuids, items_per_page, current_page_number)
+        page_data.object_list = search_augment_aip_results(conn, page_data.object_list)
         aic_creation_form = forms.CreateAICForm(initial={'results': results})
     else:  # if file_mode
-        number_of_results = results['hits']['total']
-        results = search_augment_file_results(results)
+        page_data = helpers.pager(results, items_per_page, current_page_number)
+        aic_creation_form = None
 
-    # set remaining paging variables
-    end, previous_page, next_page = advanced_search.paging_related_values_for_template_use(
-       items_per_page,
-       page,
-       start,
-       number_of_results
+    return render(request, 'archival_storage/archival_storage_search.html',
+        {
+            'file_mode': file_mode,
+            'show_aics': show_aics,
+            'checked_if_in_file_mode': checked_if_in_file_mode,
+            'aic_creation_form': aic_creation_form,
+            'results': page_data.object_list,
+            'search_params': search_params,
+            'page': page_data,
+        }
     )
-
-    return render(request, 'archival_storage/archival_storage_search.html', locals())
 
 def search_augment_aip_results(conn, aips):
     new_aips = []
@@ -433,7 +442,8 @@ def total_size_of_aips(conn):
     return total_size
 
 def list_display(request):
-    current_page_number = request.GET.get('page', 1)
+    current_page_number = int(request.GET.get('page', 1))
+    logger.debug('Current page: %s', current_page_number)
 
     # get count of AIP files
     aip_indexed_file_count = aip_file_count()
@@ -473,34 +483,37 @@ def list_display(request):
     for deleted_aip in deleted_aip_results['hits']['hits']:
         aips_deleted_or_pending_deletion.append(deleted_aip['uuid'])
 
-    # get page of AIPs
+    # Fetch results and paginate
+    def es_pager(page, page_size):
+        """
+        Fetch one page of normalized entries from Elasticsearch.
+
+        :param page: 1-indexed page to fetch
+        :param page_size: Number of entries on a page
+        :return: List of dicts for each entry, where keys and values have been cleaned up
+        """
+        start = (page - 1) * page_size
+        results = conn.search(
+            index='aips',
+            doc_type='aip',
+            body=elasticSearchFunctions.MATCH_ALL_QUERY,
+            fields='origin,uuid,filePath,created,name,size',
+            sort=sort_specification,
+            size=page_size,
+            from_=start,
+        )
+        # normalize results - each of the fields contains a single value,
+        # but is returned from the ES API as a single-length array
+        # e.g. {"fields": {"uuid": ["abcd"], "name": ["aip"] ...}}
+        return [elasticSearchFunctions.normalize_results_dict(d) for d in results['hits']['hits']]
+
     items_per_page = 10
-    start          = (int(current_page_number) - 1) * items_per_page
+    count = conn.count(index='aips', doc_type='aip', body=elasticSearchFunctions.MATCH_ALL_QUERY)['count']
+    results = LazyPagedSequence(es_pager, page_size=items_per_page, length=count)
 
-    query = {
-        "query": {
-            "match_all": {},
-        },
-        "from": start,
-        "size": items_per_page
-    }
-    results = conn.search(
-        body=query,
-        doc_type='aip',
-        index='aips',
-        fields='origin,uuid,filePath,created,name,size',
-        sort=sort_specification
-    )
-
-    # normalize results - each of the fields contains a single value,
-    # but is returned from the ES API as a single-length array
-    # e.g. {"fields": {"uuid": ["abcd"], "name": ["aip"] ...}}
-    normalized_results = [elasticSearchFunctions.normalize_results_dict(d)
-                          for d in results['hits']['hits']]
-
-    # handle pagination
+    # Paginate
     page = helpers.pager(
-        normalized_results,
+        results,
         items_per_page,
         current_page_number
     )
@@ -551,7 +564,14 @@ def list_display(request):
 
     total_size = total_size_of_aips(conn)
 
-    return render(request, 'archival_storage/archival_storage.html', locals())
+    return render(request, 'archival_storage/archival_storage.html',
+        {
+            'total_size': total_size,
+            'aip_indexed_file_count': aip_indexed_file_count,
+            'aips': aips,
+            'page': page,
+        }
+    )
 
 def document_json_response(document_id_modified, type):
     document_id = document_id_modified.replace('____', '-')
