@@ -468,7 +468,10 @@ def transfer_backlog(request):
             ops,
             fields,
             types,
-            must_haves={'term': {'status': 'backlog'}}
+            # Specify this as a filter, not a must_have, for performance,
+            # and so that it doesn't cause the "should" queries in a
+            # should-only query to be ignored.
+            filters={'term': {'status': 'backlog'}},
         )
 
         results = elasticSearchFunctions.search_raw_wrapper(

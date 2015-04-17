@@ -127,6 +127,7 @@ def paging_related_values_for_template_use(items_per_page, page, start, number_o
 
 def assemble_query(queries, ops, fields, types, **kwargs):
     must_haves     = kwargs.get('must_haves', [])
+    filters        = kwargs.get('filters', {})
     should_haves   = []
     must_not_haves = []
     index          = 0
@@ -145,6 +146,7 @@ def assemble_query(queries, ops, fields, types, **kwargs):
         index = index + 1
 
     return {
+        "filter": filters,
         "query": {
             "bool": {
                 "must": must_haves,
