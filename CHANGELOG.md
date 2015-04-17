@@ -19,3 +19,7 @@ dev (1.4.0)
 * Index MODS identifiers in the aips/aipfile index (#8266)
 * Fix bag transfer names (#8229)
 * DSpace transfer type accepts either files or folders
+* Include the contents of bag-info.txt in AIP METS as <transfer_metata> (#8177)
+* Enable autodetection of date fields when indexing METS contents (#8181)
+* Add support for searching on the contents of transfer_metadata in archival storage (#8181)
+* Add support for searching date ranges in archival storage (#8181)
