@@ -547,7 +547,7 @@ def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath
                 rightsMD.append(a)
 
         elif typeOfTransfer == "TRIM":
-            digiprovMD = getTrimFileAmdSec(baseDirectoryPath, transferUUID, fileUUID)
+            digiprovMD = getTrimFileAmdSec(baseDirectoryPath, id, fileUUID)
             globalDigiprovMDCounter += 1
             digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
             AMD.append(digiprovMD)
@@ -555,7 +555,7 @@ def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath
     for a in createDigiprovMD(fileUUID):
         AMD.append(a)
 
-    for a in createDigiprovMDAgents(transferUUID):
+    for a in createDigiprovMDAgents(id):
         AMD.append(a)
     return ret
 
