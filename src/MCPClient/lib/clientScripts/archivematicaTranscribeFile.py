@@ -115,7 +115,11 @@ def main(task_uuid, file_uuid):
         print('No rules found for file {} and its derivatives; not transcribing'.format(file_uuid), file=sys.stderr)
         return 0
     else:
-        print('Transcribing {} derivative {}'.format(file_.filegrpuse, file_.uuid), file=sys.stderr)
+        if file_.filegrpuse == "original":
+            noun = "original"
+        else:
+            noun = file_.filegrpuse + " derivative"
+        print('Transcribing {} {}'.format(noun, file_.uuid), file=sys.stderr)
 
     rd = ReplacementDict.frommodel(file_=file_, type_='file')
 

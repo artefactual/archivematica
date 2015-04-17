@@ -195,7 +195,7 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
             reverse('components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_component_levels', args=[uuid, resource_component_id])
         )
     else:
-	search_params = advanced_search.extract_url_search_params_from_request(request)
+        search_params = advanced_search.extract_url_search_params_from_request(request)
         return render(request, 'ingest/atk/resource_component.html', locals())
 
 def ingest_upload_atk_get_collection_ids(db, search_pattern=''):
