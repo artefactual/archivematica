@@ -1,0 +1,6 @@
+-- Copy processingMCP.xml to the DIP, so preconfigured choices in the DIP chain work.
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('67a7341c-276e-46bf-9021-0dcd5123687f', 0, 'copy_v0.0', '"%SIPDirectory%processingMCP.xml" "%SIPDirectory%DIP/processingMCP.xml"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('8ed6f0e4-cd5c-4c4b-bce0-e8949ea696cd', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '67a7341c-276e-46bf-9021-0dcd5123687f', 'Copy preconfigured choice XML to DIP directory');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('1401c4d0-fb6f-42ef-94d3-c884c25800b2', 'Prepare DIP', 'Failed', '8ed6f0e4-cd5c-4c4b-bce0-e8949ea696cd', '7d728c39-395f-4892-8193-92f086c0546f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('11c406a3-cc0c-4918-9aec-75cf77dbf3f4', '1401c4d0-fb6f-42ef-94d3-c884c25800b2', 0, '43c72f8b-3cea-4b4c-b99d-cfdefdfcc270', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='1401c4d0-fb6f-42ef-94d3-c884c25800b2' WHERE microServiceChainLink='ad011cc2-b0eb-4f51-96bb-400149a2ea11';

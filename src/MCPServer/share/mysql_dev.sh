@@ -20,4 +20,5 @@ mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_dev_8019_dspace_at_fixes.sql;"
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_dev_7922_index_aips.sql;"
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_dev_8287_siegfried.sql;"
+mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_dev_7321_dip_processing_xml.sql;"
 # ...
