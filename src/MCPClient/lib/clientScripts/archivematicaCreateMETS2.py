@@ -219,7 +219,10 @@ def createDmdSecsFromCSVParsedMetadata(metadata):
             if match:
                 key, = match.groups()
             for v in value:
-                etree.SubElement(dc, elem_namespace + key).text = v.decode('utf-8')
+                try:
+                    etree.SubElement(dc, elem_namespace + key).text = v.decode('utf-8')
+                except UnicodeDecodeError:
+                    print >> sys.stderr, "Skipping DC value; not valid UTF-8: {}".format(v)
         else:  # not a dublin core item
             if other is None:
                 globalDmdSecCounter += 1
@@ -232,7 +235,10 @@ def createDmdSecsFromCSVParsedMetadata(metadata):
                 mdWrap.set("OTHERMDTYPE", "CUSTOM")
                 other = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
             for v in value:
-                etree.SubElement(other, normalizeNonDcElementName(key)).text = v.decode('utf-8')
+                try:
+                    etree.SubElement(other, normalizeNonDcElementName(key)).text = v.decode('utf-8')
+                except UnicodeDecodeError:
+                    print >> sys.stderr, "Skipping DC value; not valid UTF-8: {}".format(v)
     return ret
 
 
