@@ -6,7 +6,7 @@ function renderBacklogSearchForm(openInNewTab) {
       'op': '',
       'query': '',
       'field': '',
-      'type': ''
+      'type': 'term'
     }],
     'deleteHandleHtml': '<img src="/media/images/delete.png" style="margin-left: 5px"/>',
     'addHandleHtml': '<a>Add New</a>'
