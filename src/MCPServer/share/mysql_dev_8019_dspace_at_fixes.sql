@@ -26,10 +26,6 @@ DELETE FROM MicroServiceChains WHERE pk IN ('a7f8f67f-401f-4665-b7b3-35496fd5017
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
 DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
 
--- Zipped bags should also be moved to procesing directory
-UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='288b739d-40a1-4454-971b-812127a5e03d' WHERE microServiceChainLink='3229e01f-adf3-4294-85f7-4acb01b3fbcf';
-
-
 -- Delete all TasksConfigs that don't have MicroServiceChainLinks pointing at them
 DELETE FROM TasksConfigs USING TasksConfigs LEFT OUTER JOIN MicroServiceChainLinks ON currentTask=TasksConfigs.pk WHERE MicroServiceChainLinks.pk is NULL;
 -- Delete all StandardTasksConfigs that don't have TasksConfigs pointing at them
