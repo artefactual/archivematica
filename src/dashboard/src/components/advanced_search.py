@@ -215,7 +215,7 @@ def query_clause(index, queries, ops, fields, types):
         #
         # TODO: add condition to deal with a query with no clauses because all have
         #       been ignored
-        if (queries[index] == ''):
+        if (queries[index] in ('', '*')):
             return
         else:
             if (fields[index] != ''):
