@@ -101,30 +101,6 @@ def extract_url_search_params_from_request(request):
         pass
     return search_params
 
-def extract_page_number_from_url(request):
-    page = request.GET.get('page', 0)
-    if page == '':
-        page = 0
-    return int(page)
-
-def paging_related_values_for_template_use(items_per_page, page, start, number_of_results):
-    # limit end by total hits
-    end = start + items_per_page - 1
-    if end > number_of_results:
-        end = number_of_results
-
-    # determine the previous page, if any
-    previous_page = False
-    if page > 0:
-        previous_page = page - 1
-
-    # determine the next page, if any
-    next_page = False
-    if (items_per_page * (page + 1)) < number_of_results:
-        next_page = page + 1
-
-    return end, previous_page, next_page
-
 def assemble_query(queries, ops, fields, types, **kwargs):
     must_haves     = kwargs.get('must_haves', [])
     filters        = kwargs.get('filters', {})
@@ -219,7 +195,7 @@ def query_clause(index, queries, ops, fields, types):
             return
         else:
             if (fields[index] != ''):
-                 term_field = fields[index]
+                term_field = fields[index]
             else:
                 term_field = '_all'
             return {'term': {term_field: queries[index]}}

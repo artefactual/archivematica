@@ -83,7 +83,7 @@ def search(request):
     logger.debug('Queries: %s, Ops: %s, Fields: %s, Types: %s', queries, ops, fields, types)
 
     # redirect if no search params have been set
-    if not 'query' in request.GET:
+    if 'query' not in request.GET:
         return helpers.redirect_with_get_params(
             'components.archival_storage.views.search',
             query='',
@@ -178,7 +178,10 @@ def search_augment_aip_results(conn, aips):
                 }
             }
         }
-        documents = conn.search(body=query,
+        documents = conn.search(
+            body=query,
+            index='aips',
+            doc_type='aip',
             fields='name,size,created,status,AICID,isPartOf,countAIPsinAIC')
         aip = {}
         if documents['hits']['hits']:
@@ -190,9 +193,9 @@ def search_augment_aip_results(conn, aips):
             aip['count'] = aip_uuid['count']
             if 'isPartOf' not in aip:
                 aip['isPartOf'] = ''
-            if not 'AICID' in aip:
+            if 'AICID' not in aip:
                 aip['AICID'] = ''
-            if not 'countAIPsinAIC' in aip:
+            if 'countAIPsinAIC' not in aip:
                 aip['countAIPsinAIC'] = '(unknown)'
             if 'size' in aip:
                 aip['size'] = '{0:.2f} MB'.format(aip['size'])
@@ -203,9 +206,9 @@ def search_augment_aip_results(conn, aips):
             else:
                 aip['type'] = 'AIP'
             if 'status' in aip:
-                 aip['status'] = AIP_STATUS_DESCRIPTIONS[aip['status']]
+                aip['status'] = AIP_STATUS_DESCRIPTIONS[aip['status']]
             else:
-                 aip['status'] = 'Stored'
+                aip['status'] = 'Stored'
 
             aip['document_id_no_hyphens'] = aip_info['_id'].replace('-', '____')
         else:
@@ -552,7 +555,7 @@ def list_display(request):
 
             try:
                 size = '{0:.2f} MB'.format(float(aip['size']))
-            except TypeError, ValueError:
+            except (TypeError, ValueError):
                 size = 'Removed'
 
             aip['size'] = size
