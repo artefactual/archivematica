@@ -28,7 +28,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for report in page.objects %}
+            {% for report in page.object_list %}
             <tr>
               <td><a href="{% url 'components.administration.views.failure_report' report.pk %}"><span class='timestamp'>{{ report.created|date:"U" }}</span></a></td>
               <td><span class="label important">{{ report.unittype }}</span></td>

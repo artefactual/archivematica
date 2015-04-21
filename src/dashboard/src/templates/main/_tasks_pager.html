@@ -1,11 +1,11 @@
-{% if page.has_other %}
+{% if page.has_other_pages %}
 {% if page.has_previous %}
-<a class='btn' href='/tasks/{{ uuid }}/?page={{ page.previous }}'>Previous Page</a>
+<a class='btn' href='/tasks/{{ uuid }}/?page={{ page.previous_page_number }}'>Previous Page</a>
 {% endif %}
 
 {% if has_next and has_previous %}&nbsp;{% endif %}
 
 {% if page.has_next %}
-<a class='btn' href='/tasks/{{ uuid }}/?page={{ page.next }}'>Next Page</a>
+<a class='btn' href='/tasks/{{ uuid }}/?page={{ page.next_page_number }}'>Next Page</a>
 {% endif %}
 {% endif %}

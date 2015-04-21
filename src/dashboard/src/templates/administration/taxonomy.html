@@ -22,15 +22,15 @@
 
       <h3>Taxonomies</h3>
 
-      {% for taxonomy in page.objects %}
+      {% for taxonomy in page.object_list %}
         <p><a href='/administration/taxonomy/{{ taxonomy.pk }}/'>{{ taxonomy.name }}</a></p>
       {% endfor %}
 
       {% url 'components.administration.views.taxonomy' as taxonomy_admin %}
 
-      {% if page.has_other %}
+      {% if page.has_other_pages %}
       {% if page.has_previous %}
-      <a class='btn' href='{{ taxonomy_admin }}?page={{ page.previous }}'>Previous Page</a>
+      <a class='btn' href='{{ taxonomy_admin }}?page={{ page.previous_page_number }}'>Previous Page</a>
       {% endif %}
 
       {% if has_next and has_previous %}&nbsp;{% endif %}

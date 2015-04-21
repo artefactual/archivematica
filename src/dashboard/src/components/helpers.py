@@ -16,7 +16,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import ConfigParser
-import cPickle
 import logging
 import mimetypes
 import os
@@ -25,7 +24,7 @@ import urllib
 import json
 
 from django.utils.dateformat import format
-from django.core.paginator import Paginator, EmptyPage
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.servers.basehttp import FileWrapper
@@ -76,91 +75,55 @@ def json_response(data):
         mimetype='application/json'
     )
 
-# this class wraps Pyes search results so the Django Paginator class
-# can work on the results
-class DjangoPaginatableListFromPyesSearchResult:
-    def __init__(self, result, start, size):
-        self.result = result
-        self.start  = start
-        self.size   = size
-
-    def count(self):
-        return self.result.count()
-
-    def __len__(self):
-        return self.count()
-
-    def __getitem__(self, key):
-        if key < self.start:
-            return
-        else:
-            if key >= (self.start + self.size):
-                return
-            else:
-                return self.result[key - self.start]
 
 def pager(objects, items_per_page, current_page_number):
-    page = {}
+    """
 
-    # if a Pyes resultset, wrap it in a class so it emulates
-    # a standard Python list
-    if objects.__class__.__name__ == 'ResultSet':
-        p = Paginator(
-            DjangoPaginatableListFromPyesSearchResult(
-                objects,
-                (int(current_page_number) - 1) * items_per_page,
-                items_per_page
-            ),
-            items_per_page,
-        )
-    else:
-        p = Paginator(objects, items_per_page)
+    :param objects: Iterable of items to paginate
+    :param items_per_page: Number of items on each page
+    :param current_page_number: Page to return information for
+    :return: django.paginator.Page object (with additional attributes)
+    """
+    if current_page_number is None:
+        current_page_number = 1
 
-    page['current']      = 1 if current_page_number == None else int(current_page_number)
-
+    paginator = Paginator(objects, items_per_page)
     try:
-        pager = p.page(page['current'])
-
+        page = paginator.page(current_page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        page = paginator.page(1)
     except EmptyPage:
-        return False
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        page = paginator.page(paginator.num_pages)
 
-    page['has_next']     = pager.has_next()
-    page['next']         = page['current'] + 1
-    page['has_previous'] = pager.has_previous()
-    page['previous']     = page['current'] - 1
-    page['has_other']    = pager.has_other_pages()
+    # For compatibility with old code, add the alternate names as attributes
+    # TODO replace all places that call this with the actual parameters
+    page.objects = page.object_list
+    page.current = page.number
+    try:
+        page.previous = page.previous_page_number()
+    except InvalidPage:
+        page.previous = None
+    try:
+        page.next = page.next_page_number()
+    except InvalidPage:
+        page.next = None
+    page.has_other = page.has_other_pages()
+    page.total_items = paginator.count
+    page.num_pages = paginator.num_pages
 
-    page['end_index']    = pager.end_index()
-    page['start_index']  = pager.start_index()
-    page['total_items']  = len(objects)
-
-    # if a Pyes resultset, won't need paginator to splice it
-    if objects.__class__.__name__ == 'ResultSet':
-        page['objects']  = objects
+    # Add lists of the (up to) 5 adjacent pages
+    num_neighbours = 5
+    if page.number > num_neighbours:
+        page.previous_pages = range(page.number - num_neighbours, page.number)
     else:
-        page['objects']  = pager.object_list
+        page.previous_pages = range(1, page.number)
 
-    page['num_pages']    = p.num_pages
-
-    num_of_neighbors_to_show = 5
-    if page['current'] > num_of_neighbors_to_show:
-        page['previous_pages'] = range(
-            page['current'] - num_of_neighbors_to_show,
-            page['current']
-        )
+    if page.number < (paginator.num_pages - num_neighbours):
+        page.next_pages = range(page.number + 1, page.number + num_neighbours + 1)
     else:
-        page['previous_pages'] = range(1, page['current'])
-
-    if page['current'] < (page['num_pages'] - num_of_neighbors_to_show):
-        page['next_pages'] = range(
-            int(page['current']) + 1,
-            page['current'] + num_of_neighbors_to_show + 1
-        )
-    else:
-        page['next_pages'] = range(
-            page['current'] + 1,
-            page['num_pages'] + 1
-        )
+        page.next_pages = range(page.number + 1, paginator.num_pages + 1)
 
     return page
 

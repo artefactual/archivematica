@@ -135,7 +135,7 @@ def tasks(request, uuid):
         item.stderror = escape(item.stderror)
 
     page    = helpers.pager(objects, django_settings.TASKS_PER_PAGE, request.GET.get('page', None))
-    objects = page['objects']
+    objects = page.object_list
 
     # figure out duration in seconds
     for object in objects:

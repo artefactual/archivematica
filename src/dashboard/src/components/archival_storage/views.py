@@ -520,7 +520,7 @@ def list_display(request):
 
     # process deletion, etc., and format results
     aips = []
-    for aip in page['objects']:
+    for aip in page.object_list:
         # If an AIP was deleted or is pending deletion, react if status changed
         if aip['uuid'] in aips_deleted_or_pending_deletion:
             # check with storage server to see current status

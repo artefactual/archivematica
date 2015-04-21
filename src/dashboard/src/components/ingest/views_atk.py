@@ -74,7 +74,7 @@ def ingest_upload_atk(request, uuid):
 
         page = helpers.pager(resources, 10, request.GET.get('page', 1))
 
-        page['objects'] = augment_resource_data(db, page['objects'])
+        page.objects = augment_resource_data(db, page.object_list)
 
     except (MySQLdb.ProgrammingError, MySQLdb.OperationalError) as e:
         return HttpResponseServerError(
