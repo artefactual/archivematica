@@ -82,15 +82,9 @@
       </tbody>
     </table>
 
-    <script>
-    $(document).ready(function () {
-      $('#paging_jump_to').change(function() {
-        window.location = '/archival-storage/?{{ search_params }}&page=' + $(this).val();
-      });
-    });
-    </script>
-
-    {% include '_pager.html' %}
+    <div style='clear: both' class='search-summary'>
+      {% include "_pager.html" %}
+    </div>
 
   {% else %}
 

@@ -115,4 +115,11 @@ $(document).ready(function() {
     aipSearchSubmit();
     return false;
   });
+
+  $('.aip-search-query-input').keypress(function (e) {
+    if (e.which == 13) {  // Return key
+      aipSearchSubmit();
+      return false;
+    }
+  });
 });

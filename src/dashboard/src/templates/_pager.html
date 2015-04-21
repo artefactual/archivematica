@@ -41,6 +41,13 @@
     {% endif %}
 
     {% if page.paginator.num_pages > 1 %}
+    <script>
+    $(document).ready(function () {
+      $('#paging_jump_to').change(function() {
+        window.location = '?{{ search_params }}&page=' + $(this).val();
+      });
+    });
+    </script>
       <span style='margin-left: 2em'>
         Jump to &nbsp;<input id='paging_jump_to' style='width: 20px;' />
       </span>

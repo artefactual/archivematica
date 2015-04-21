@@ -35,7 +35,9 @@
     </div>
     {% endif %}
 
-    {% include "archival_storage/_archival_storage_search_summary.html" %}
+    <div style='clear: both' class='search-summary'>
+      {% include "_pager.html" %}
+    </div>
 
     {% if not file_mode %}
 
@@ -137,8 +139,8 @@
       {% endfor %}
     {% endif %}
 
-    <div style='clear: both'>
-      {% include "archival_storage/_archival_storage_search_summary.html" %}
+    <div style='clear: both' class='search-summary'>
+      {% include "_pager.html" %}
     </div>
 
   {% else %}
