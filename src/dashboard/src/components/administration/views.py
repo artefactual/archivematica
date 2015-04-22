@@ -282,12 +282,28 @@ def storage(request):
     system_directory_description = 'Available storage'
     return render(request, 'administration/locations.html', locals())
 
+"""
+Usage summary page
+
+Return page summarizing storage usage
+
+:param HttpRequest request
+:returns HttpResponse
+"""
 def usage(request):
     usage_dirs = _usage_dirs()
 
     context = {'usage_dirs': usage_dirs}
     return render(request, 'administration/usage.html', context)
 
+"""
+Provide usage data
+
+Return maximum size and, optionally, current usage of a number of directories
+
+:param bool calculate_usage: whether or not to calculate usage 
+:returns OrderedDict: data structure defining directories/usage/size
+"""
 def _usage_dirs(calculate_usage=True):
     # Put spaces before directories contained by the spaces
     #
@@ -343,6 +359,12 @@ def _usage_dirs(calculate_usage=True):
 
     return dirs
 
+"""
+Check the size of the volume containing a given path
+
+:param string path: path to check
+:returns int: size in bytes
+"""
 def _usage_check_directory_volume_size(path):
     # Get volume size (in 512 byte blocks)
     try:
@@ -355,25 +377,49 @@ def _usage_check_directory_volume_size(path):
         size = usage_summary.split()[1]
 
         return int(size) * 512
-    except Exception, e:
-        logger.exception(str(e))
+    except OSError:
+        logger.exception('No such directory: {}'.format(path))
+        return 0
+    except subprocess.CalledProcessError:
+        logger.exception('Unable to determine size of {}.'.format(path))
         return 0
 
+"""
+Check the spaced used at a given path
+
+:param string path: path to check
+:returns int: usage in bytes
+"""
 def _usage_get_directory_used_bytes(path):
     """ Get total usage in bytes """
     try:
         output = subprocess.check_output(["du", "--bytes", "--summarize", path])
         return output.split("\t")[0]
-    except Exception, e:
-        logger.exception(str(e))
+    except OSError:
+        logger.exception('No such directory: {}'.format(path))
+        return 0
+    except subprocess.CalledProcessError:
+        logger.exception('Unable to determine usage of {}.'.format(path))
         return 0
 
+"""
+Confirmation context for emptying a directory
+
+:param HttpRequest request
+:returns RequestContext
+"""
 def clear_context(request, dir_id):
     usage_dirs = _usage_dirs(False)
     prompt = 'Clear ' + usage_dirs[dir_id]['description'] + '?'
     cancel_url = reverse("components.administration.views.usage")
     return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
 
+"""
+Empty a directory
+
+:param HttpRequest request
+:returns HttpResponse
+"""
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
 @decorators.confirm_required('simple_confirm.html', clear_context)
 def usage_clear(request, dir_id):
@@ -405,9 +451,10 @@ def usage_clear(request, dir_id):
                     else:
                         shutil.rmtree(entry_path)
                 successes.append(directory)
-            except Exception, e:
-                logger.exception(str(e))
-                errors.append(str(e))
+            except OSError:
+                message = 'No such file or directory: {}'.format(directory)
+                logger.exception(message)
+                errors.append(message)
 
         # If any deletion attempts successed, summarize in flash message
         if len(successes):
