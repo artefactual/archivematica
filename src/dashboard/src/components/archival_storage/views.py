@@ -100,7 +100,7 @@ def search(request):
     conn = Elasticsearch(hosts=elasticSearchFunctions.getElasticsearchServerHostAndPort())
 
     results = None
-    query = advanced_search.assemble_query(queries, ops, fields, types)
+    query = advanced_search.assemble_query(queries, ops, fields, types, search_index='aips', doc_type='aipfile')
     try:
         # use all results to pull transfer facets if not in file mode
         # pulling only one field (we don't need field data as we augment

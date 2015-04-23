@@ -101,7 +101,7 @@ def extract_url_search_params_from_request(request):
         pass
     return search_params
 
-def assemble_query(queries, ops, fields, types, **kwargs):
+def assemble_query(queries, ops, fields, types, search_index=None, doc_type=None, **kwargs):
     must_haves     = kwargs.get('must_haves', [])
     filters        = kwargs.get('filters', {})
     should_haves   = []
@@ -110,7 +110,7 @@ def assemble_query(queries, ops, fields, types, **kwargs):
 
     for query in queries:
         if queries[index] != '':
-            clause = query_clause(index, queries, ops, fields, types)
+            clause = query_clause(index, queries, ops, fields, types, search_index=search_index, doc_type=doc_type)
             if clause:
                 if ops[index] == 'not':
                     must_not_haves.append(clause)
@@ -179,7 +179,48 @@ def _normalize_date(date):
     except ValueError:
         raise ValueError("Invalid date received ({}); ignoring date query".format(date))
 
-def query_clause(index, queries, ops, fields, types):
+def filter_search_fields(search_fields, index=None, doc_type=None):
+    """
+    Given search fields which search nested documents with wildcards (such as "transferMetadata.*"), returns a list of subfields filtered to contain only string-type fields.
+
+    When searching all fields of nested documents of mixed types using query_string queries, query_string queries may fail because the way the query string is interpreted depends on the type of the field being searched.
+    For example, given a nested document containing a string field and a date field, a query_string of "foo" would fail when Elasticsearch attempts to parse it as a date to match it against the date field.
+    This function uses the actual current mapping, so it supports automatically-mapped fields.
+
+    Sample input and output, given a nested document containing three fields, "Bagging-Date" (date), "Bag-Name" (string), and "Bag-Type" (string):
+    ["transferMetadata.*"] #=> ["transferMetadata.Bag-Name", "transferMetadata.Bag-Type"]
+
+    :param list search_fields: A list of strings representing nested object names.
+    :param str index: The name of the search index, used to look up the mapping document.
+        If not provided, the original search_fields is returned unmodified.
+    :param str doc_type: The name of the document type within the search index, used to look up the mapping document.
+        If not provided, the original search_fields is returned unmodified.
+    """
+    if index is None or doc_type is None:
+        return search_fields
+
+    new_fields = []
+    for field in search_fields:
+        # Not a wildcard nested document search, so just add to the list as-is
+        if not field.endswith('.*'):
+            new_fields.append(field)
+            continue
+        try:
+            field_name = field.rsplit('.', 1)[0]
+            conn = elasticSearchFunctions.connect_and_create_index(index)
+            mapping = elasticSearchFunctions.get_type_mapping(conn, index, doc_type)
+            subfields = mapping[doc_type]['properties'][field_name]['properties']
+        except KeyError:
+            # The requested field doesn't exist in the index, so don't worry about validating subfields
+            new_fields.append(field)
+        else:
+            for subfield, field_properties in subfields.iteritems():
+                if field_properties['type'] == 'string':
+                    new_fields.append(field_name + '.' + subfield)
+
+    return new_fields
+
+def query_clause(index, queries, ops, fields, types, search_index=None, doc_type=None):
     if fields[index] == '':
         search_fields = []
     else:
@@ -200,6 +241,7 @@ def query_clause(index, queries, ops, fields, types):
                 term_field = '_all'
             return {'term': {term_field: queries[index]}}
     elif types[index] == 'string':
+        search_fields = filter_search_fields(search_fields, index=search_index, doc_type=doc_type)
         return {'query_string': {'query': queries[index], 'fields': search_fields}}
     elif types[index] == 'range':
         start, end = _parse_date_range(queries[index])
