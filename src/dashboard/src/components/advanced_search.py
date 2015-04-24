@@ -224,7 +224,7 @@ def query_clause(index, queries, ops, fields, types, search_index=None, doc_type
     if fields[index] == '':
         search_fields = []
     else:
-        search_fields = _fix_object_fields([fields[index]])
+        search_fields = filter_search_fields(_fix_object_fields([fields[index]]), index=search_index, doc_type=doc_type)
 
     if types[index] == 'term':
         # a blank term should be ignored because it prevents any results: you
@@ -235,13 +235,10 @@ def query_clause(index, queries, ops, fields, types, search_index=None, doc_type
         if (queries[index] in ('', '*')):
             return
         else:
-            if (fields[index] != ''):
-                term_field = fields[index]
-            else:
-                term_field = '_all'
-            return {'term': {term_field: queries[index]}}
+            if len(search_fields) == 0:
+                search_fields = ['_all']
+            return {'multi_match': {'query': queries[index], 'fields': search_fields}}
     elif types[index] == 'string':
-        search_fields = filter_search_fields(search_fields, index=search_index, doc_type=doc_type)
         return {'query_string': {'query': queries[index], 'fields': search_fields}}
     elif types[index] == 'range':
         start, end = _parse_date_range(queries[index])
