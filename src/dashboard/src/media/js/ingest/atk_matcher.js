@@ -522,10 +522,6 @@ var ATKMatcherView = Backbone.View.extend({
       });
     })(pairModel.id, id, resource.id)
     self.matchIndex++;
-
-    // deselect resource
-    self.selectedResourceCSSId = false;
-    self.resetBackgroundOfResourceTableRows();
   },
 
   findIDFromPath: function(path) {
@@ -539,7 +535,6 @@ var ATKMatcherView = Backbone.View.extend({
     for (var i in self.resourceCollection.models) {
       var m = self.resourceCollection.models[i];
       if ("resource_" + m.id == resource_id) {
-        console.log(m);
         return m;
       }
     }
@@ -559,6 +554,11 @@ var ATKMatcherView = Backbone.View.extend({
             var resource = self.buildResourceObject(self.selectedResourceCSSId);
             self.matchPair(item.id, item.path, resource, true);
           });
+
+        // deselect resource
+        self.selectedResourceCSSId = false;
+        self.resetBackgroundOfResourceTableRows();
+
         } else {
           self.notify('No objects selected.');
         }
