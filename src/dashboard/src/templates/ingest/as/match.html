@@ -57,6 +57,11 @@
 
   <h1>Assign Objects<br /><small>Assign objects to descriptions</small></h1>
 
+  {% if reset_url %}
+    <div id='reset_matching'><a class="btn" href="{% url reset_url uuid %}">Restart matching</a>
+  {% else %}
+    <div id='reset_matching'><a class="btn disabled">Restart matching</a>
+  {% endif %}
   <div id='finish_matching'><a class="btn" href="{% url 'components.ingest.views.ingest_grid' %}">Finish matching</a></div>
 
   <div id='atk_matcher'></div>

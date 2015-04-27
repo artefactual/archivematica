@@ -26,6 +26,11 @@
     <small>{{ resource_component_data.title }} ({{ resource_component_data.id }})</small>
   </h1>
 
+  {% if reset_url %}
+    <div id='reset_matching'><a class="btn" href="{% url reset_url uuid %}">Restart matching</a>
+  {% else %}
+    <div id='reset_matching'><a class="btn disabled">Restart matching</a>
+  {% endif %}
   <a class='btn' href="{% url 'components.ingest.views_as.ingest_upload_as_match_dip_objects_to_resource_component_levels' uuid resource_component_id %}">Assign DIP objects to this level of description</a>
 
   <br />

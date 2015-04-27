@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.http import HttpResponseServerError
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect, HttpResponseServerError
 import sys, MySQLdb, ast
 from main import models
 from components import advanced_search
@@ -35,6 +36,13 @@ def get_atk_system_client():
         db=config['%dbname%']
     )
 
+def _get_reset_view(uuid):
+    """
+    Returns either the reset view name or None, depending on whether any pairings exist in the database.
+    """
+    if models.AtkDIPObjectResourcePairing.objects.filter(dipuuid=uuid).count() > 0:
+        return 'components.ingest.views_atk.ingest_upload_atk_reset'
+
 def ingest_upload_atk(request, uuid):
     try:
         client = get_atk_system_client()
@@ -45,6 +53,7 @@ def ingest_upload_atk(request, uuid):
         return pair_matcher.list_records(client, request, query, page,
                                          search_params,
                                          'ingest/atk/resource_list.html',
+                                         _get_reset_view(uuid),
                                          uuid)
     except (MySQLdb.ProgrammingError, MySQLdb.OperationalError) as e:
         return HttpResponseServerError(
@@ -53,6 +62,10 @@ def ingest_upload_atk(request, uuid):
 
 def ingest_upload_atk_save(request, uuid):
     return pair_matcher.pairs_saved_response(ingest_upload_atk_save_to_db(request, uuid))
+
+def ingest_upload_atk_reset(request, uuid):
+    models.AtkDIPObjectResourcePairing.objects.filter(dipuuid=uuid).delete()
+    return HttpResponseRedirect(reverse("components.ingest.views_atk.ingest_upload_atk", args=[uuid]))
 
 def ingest_upload_atk_save_to_db(request, uuid):
     saved = 0
@@ -91,6 +104,7 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
                                             query, page, sort, search_params,
                                             'components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels',
                                             'ingest/atk/resource_detail.html',
+                                            _get_reset_view(uuid),
                                             uuid)
     except MySQLdb.ProgrammingError:
         return HttpResponseServerError('Database error. Please contact an administrator.')
@@ -108,6 +122,7 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
                                                       query, page, sort, search_params,
                                                       'components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_component_levels',
                                                       'ingest/atk/resource_component.html',
+                                                      _get_reset_view(uuid),
                                                       uuid)
     except MySQLdb.ProgrammingError:
         return HttpResponseServerError('Database error. Please contact an administrator.')
@@ -123,7 +138,7 @@ def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resour
         else:
             parent_url = 'components.ingest.views_atk.ingest_upload_as_resource_component'
 
-        return pair_matcher.match_dip_objects_to_resource_levels(client, request, resource_id, 'ingest/atk/match.html', parent_id, parent_url, uuid)
+        return pair_matcher.match_dip_objects_to_resource_levels(client, request, resource_id, 'ingest/atk/match.html', parent_id, parent_url, _get_reset_view(uuid), uuid)
     except:
         return HttpResponseServerError('Database error. Please contact an administrator.')
 
@@ -139,6 +154,6 @@ def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uu
         else:
             parent_url = 'components.ingest.views_atk.ingest_upload_as_resource_component'
 
-        return pair_matcher.match_dip_objects_to_resource_component_levels(client, request, resource_component_id, 'ingest/atk/match.html', parent_id, parent_url, uuid)
+        return pair_matcher.match_dip_objects_to_resource_component_levels(client, request, resource_component_id, 'ingest/atk/match.html', parent_id, parent_url, _get_reset_view(uuid), uuid)
     except:
         return HttpResponseServerError('Database error. Please contact an administrator.')

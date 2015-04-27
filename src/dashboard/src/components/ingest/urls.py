@@ -49,6 +49,7 @@ urlpatterns = urlpatterns + patterns('components.ingest.views_atk',
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/resource/(?P<resource_id>\d+)/$', 'ingest_upload_atk_resource'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/resourcecomponent/(?P<resource_component_id>\d+)/$', 'ingest_upload_atk_resource_component'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/save/$', 'ingest_upload_atk_save'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/reset/$', 'ingest_upload_atk_reset'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/$', 'ingest_upload_atk')
 )
 
@@ -60,5 +61,6 @@ urlpatterns = urlpatterns + patterns('components.ingest.views_as',
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/resourcecomponent/(?P<resource_component_id>.+)/$', 'ingest_upload_as_resource_component'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/save/$', 'ingest_upload_as_save'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/match/$', 'ingest_upload_as_match'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/reset/$', 'ingest_upload_as_reset'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/$', 'ingest_upload_as')
 )

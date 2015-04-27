@@ -3,7 +3,8 @@ from functools import wraps
 import json
 import sys
 
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseServerError
 
 from components import advanced_search
 from main import models
@@ -24,6 +25,11 @@ def get_as_system_client():
         user=config['%user%'],
         passwd=config['%passwd%']
     )
+
+
+def _get_reset_view(uuid):
+    if models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(dipuuid=uuid).count() > 0:
+        return 'components.ingest.views_as.ingest_upload_as_reset'
 
 
 def _authenticate_to_archivesspace(func):
@@ -50,11 +56,17 @@ def ingest_upload_as(client, request, uuid):
     return pair_matcher.list_records(client, request, query, page,
                                      sort, search_params,
                                      'ingest/as/resource_list.html',
+                                     _get_reset_view(uuid),
                                      uuid)
 
 
 def ingest_upload_as_save(request, uuid):
     return pair_matcher.pairs_saved_response(ingest_upload_as_save_to_db(request, uuid))
+
+
+def ingest_upload_as_reset(request, uuid):
+    models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(dipuuid=uuid).delete()
+    return HttpResponseRedirect(reverse("components.ingest.views_as.ingest_upload_as", args=[uuid]))
 
 
 def ingest_upload_as_save_to_db(request, uuid):
@@ -90,6 +102,7 @@ def ingest_upload_as_resource(client, request, uuid, resource_id):
                                         query, page, sort, search_params,
                                         'components.ingest.views_as.ingest_upload_as_match_dip_objects_to_resource_levels',
                                         'ingest/as/resource_detail.html',
+                                        _get_reset_view(uuid),
                                         uuid)
 
 
@@ -105,6 +118,7 @@ def ingest_upload_as_resource_component(client, request, uuid, resource_componen
                                                   query, page, sort, search_params,
                                                   'components.ingest.views_as.ingest_upload_as_match_dip_objects_to_resource_component_levels',
                                                   'ingest/as/resource_component.html',
+                                                  _get_reset_view(uuid),
                                                   uuid)
 
 
@@ -130,7 +144,7 @@ def ingest_upload_as_match_dip_objects_to_resource_levels(client, request, uuid,
     else:
         parent_url = 'components.ingest.views_as.ingest_upload_as_resource_component'
 
-    return pair_matcher.match_dip_objects_to_resource_levels(client, request, resource_id, 'ingest/as/match.html', parent_id, parent_url, uuid, matches=matches)
+    return pair_matcher.match_dip_objects_to_resource_levels(client, request, resource_id, 'ingest/as/match.html', parent_id, parent_url, _get_reset_view(uuid), uuid, matches=matches)
 
 
 @_authenticate_to_archivesspace
@@ -146,7 +160,7 @@ def ingest_upload_as_match_dip_objects_to_resource_component_levels(client, requ
     else:
         parent_url = 'components.ingest.views_as.ingest_upload_as_resource_component'
 
-    return pair_matcher.match_dip_objects_to_resource_component_levels(client, request, resource_component_id, 'ingest/as/match.html', parent_id, parent_url, uuid, matches=matches)
+    return pair_matcher.match_dip_objects_to_resource_component_levels(client, request, resource_component_id, 'ingest/as/match.html', parent_id, parent_url, _get_reset_view(uuid), uuid, matches=matches)
 
 
 def ingest_upload_as_match(request, uuid):
