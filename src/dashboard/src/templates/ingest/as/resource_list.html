@@ -36,7 +36,7 @@
     <tbody>
       {% for resource in page.objects %}
         <tr>
-          <td><a href="{% url 'components.ingest.views_as.ingest_upload_as_resource' uuid resource.id %}">{{ resource.title }} ({{ resource.id }})</a></td>
+          <td><a href="{% url 'components.ingest.views_as.ingest_upload_as_resource' uuid resource.id %}">{{ resource.title }} ({{ resource.identifier }})</a></td>
           <td><a href="{% url 'components.ingest.views_as.ingest_upload_as_resource' uuid resource.id %}">{{ resource.dates }}</a></td>
         </tr>
       {% endfor %}

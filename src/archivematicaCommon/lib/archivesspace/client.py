@@ -311,10 +311,11 @@ class ArchivesSpaceClient(object):
     def find_collections(self, search_pattern='', fetched=0, page=1, page_size=30, sort_by=None):
         def format_record(record):
             dates = self._fetch_dates_from_record(record)
+            identifier = record['id_0'] if 'id_0' in record else record.get('component_id', '')
             return {
                 'id': record['uri'],
                 'sortPosition': 1,
-                'identifier': record.get('component_id', ''),
+                'identifier': identifier,
                 'title': record.get('title', ''),
                 'dates': dates,
                 'levelOfDescription': record['level']

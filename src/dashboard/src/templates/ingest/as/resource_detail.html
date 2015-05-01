@@ -44,7 +44,7 @@
         {% for component in page.objects %}
           <tr>
             <td><a href="{% url 'components.ingest.views_as.ingest_upload_as_resource_component' uuid component.id %}">{{ component.levelOfDescription }}</a></td>
-            <td><a href="{% url 'components.ingest.views_as.ingest_upload_as_resource_component' uuid component.id %}">{{ component.title }} ({{ component.id }})</a></td>
+            <td><a href="{% url 'components.ingest.views_as.ingest_upload_as_resource_component' uuid component.id %}">{{ component.title }} ({{ component.identifier }})</a></td>
             <td><a href="{% url 'components.ingest.views_as.ingest_upload_as_resource_component' uuid component.id %}">{{ component.dates }}</a></td>
           </tr>
         {% endfor %}
