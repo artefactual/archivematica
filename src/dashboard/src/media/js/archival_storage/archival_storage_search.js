@@ -31,13 +31,13 @@ $(document).ready(function() {
   var search = new advancedSearch.AdvancedSearchView({
     el: $('#search_form_container'),
 //    allowAdd: false,
-    rows: [{
+    rowTemplate: {
       'op': '',
       'query': '',
       'field': '',
       'fieldName': '',
       'type': 'term'
-    }],
+    },
     'deleteHandleHtml': '<img src="/media/images/delete.png" style="margin-left: 5px"/>',
     'addHandleHtml': '<a>Add New</a>'
   });

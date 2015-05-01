@@ -3,7 +3,8 @@
   exports.AdvancedSearchView = Backbone.View.extend({
 
     initialize: function() {
-      this.rows = this.options.rows || [];
+      // Default row is a single-length array of a copy of the row template
+      this.rows = [_.extend({}, this.options.rowTemplate)];
       this.fields = [];
       this.optionElements = {};
       this.allowAdd = (this.options.allowAdd != undefined)
@@ -41,14 +42,8 @@
     },
 
     generateBlankRow: function() {
-      var row = {};
-
-      for(var fieldIndex in this.fields) {
-        var fieldName = this.fields[fieldIndex]
-        row[fieldName] = '';
-      }
-
-      return row;
+      // New rows are created as copies of the row template
+      return _.extend({}, this.rowTemplate);
     },
 
     addBlankRow: function() {
