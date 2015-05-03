@@ -9,6 +9,7 @@
   {% url 'components.administration.views.administration_atk_dips' as url_atk_dips %}
   {% url 'components.administration.views.sources' as url_sources %}
   {% url 'components.administration.views.storage' as url_storage %}
+  {% url 'components.administration.views.usage' as url_usage %}
   {% url 'components.administration.views.premis_agent' as url_premis %}
   {% url 'components.administration.views.api' as url_api %}
   {% url 'components.administration.views.version' as url_version %}
@@ -24,6 +25,8 @@
     <li class="{% active request url_sources %}"><a href="{{ url_sources }}">Transfer source locations</a></li>
 
     <li class="{% active request url_storage %}"><a href="{{ url_storage }}">AIP storage locations</a></li>
+
+    <li class="{% active request url_usage %}"><a href="{{ url_usage }}">Processing storage usage</a></li>
 
     {% if not hide_features.atom_dip_admin %}
     <li class="{% active request url_dip %}"><a href="{{ url_dip }}">AtoM DIP upload</a></li>

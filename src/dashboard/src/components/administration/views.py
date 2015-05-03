@@ -15,11 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import collections
+import ConfigParser
 import logging
+import os
+import shutil
+import subprocess
 import sys
 
 from django.core.urlresolvers import reverse
 from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test
 from django.forms.models import modelformset_factory
 from django.shortcuts import redirect, render
 
@@ -33,7 +39,7 @@ from components.administration.forms import SettingsForm
 from components.administration.forms import StorageSettingsForm
 from components.administration.models import ArchivistsToolkitConfig
 from components.administration.forms import TaxonomyTermForm
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
 from django.template import RequestContext
 import components.decorators as decorators
 from django.template import RequestContext
@@ -183,6 +189,146 @@ def storage(request):
 
     system_directory_description = 'Available storage'
     return render(request, 'administration/locations.html', locals())
+
+def usage(request):
+    usage_dirs = _usage_dirs()
+
+    context = {'usage_dirs': usage_dirs}
+    return render(request, 'administration/usage.html', context)
+
+def _usage_dirs(calculate_usage=True):
+    # Put spaces before directories contained by the spaces
+    #
+    # Description is optional, but either a path or a location purpose (used to
+    # look up the path) should be specified
+    #
+    # If only certain sudirectories within a path should be deleted, set
+    # 'subdirectories' to a list of them
+    dir_defs = (
+        ('shared', {
+            'path': helpers.get_client_config_value('sharedDirectoryMounted')
+        }),
+        ('dips', {
+            'description': 'DIP uploads',
+            'path': os.path.join('watchedDirectories', 'uploadedDIPs'),
+            'contained_by': 'shared'
+        }),
+        ('rejected', {
+            'description': 'Rejected',
+            'path': 'rejected',
+            'contained_by': 'shared'
+        }),
+        ('failed', {
+            'description': 'Failed',
+            'path': 'failed',
+            'contained_by': 'shared'
+        }),
+        ('tmp', {
+            'description': 'Temporary file storage',
+            'path': 'tmp',
+            'contained_by': 'shared'
+        })
+    )
+
+    dirs = collections.OrderedDict(dir_defs)
+
+    # Resolve location paths and make relative paths absolute
+    for _, dir_spec in dirs.iteritems():
+        if 'contained_by' in dir_spec:
+            # If contained, make path absolute
+            space = dir_spec['contained_by']
+            absolute_path = os.path.join(dirs[space]['path'], dir_spec['path'])
+            dir_spec['path'] = absolute_path
+
+            if calculate_usage:
+                dir_spec['size'] = dirs[space]['size']
+                dir_spec['used'] = _usage_get_directory_used_bytes(dir_spec['path'])
+        elif calculate_usage:
+            # Get size/usage of space
+            space_path = dir_spec['path']
+            dir_spec['size'] = _usage_check_directory_volume_size(space_path)
+            dir_spec['used'] = _usage_get_directory_used_bytes(space_path)
+
+    return dirs
+
+def _usage_check_directory_volume_size(path):
+    # Get volume size (in 512 byte blocks)
+    try:
+        output = subprocess.check_output(["df", path])
+
+        # Second line returns disk usage-related values
+        usage_summary = output.split("\n")[1]
+
+        # Split value by whitespace and size (in blocks)
+        size = usage_summary.split()[1]
+
+        return int(size) * 512
+    except Exception, e:
+        logger.exception(str(e))
+        return 0
+
+def _usage_get_directory_used_bytes(path):
+    """ Get total usage in bytes """
+    try:
+        output = subprocess.check_output(["du", "--bytes", "--summarize", path])
+        return output.split("\t")[0]
+    except Exception, e:
+        logger.exception(str(e))
+        return 0
+
+def clear_context(request, dir_id):
+    usage_dirs = _usage_dirs(False)
+    prompt = 'Clear ' + usage_dirs[dir_id]['description'] + '?'
+    cancel_url = reverse("components.administration.views.usage")
+    return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
+
+@user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
+@decorators.confirm_required('simple_confirm.html', clear_context)
+def usage_clear(request, dir_id):
+    if request.method == 'POST':
+        usage_dirs = _usage_dirs(False)
+        dir_info = usage_dirs[dir_id]
+
+        # Prevent shared directory from being cleared
+        if dir_id == 'shared' or not dir_info:
+            raise Http404
+
+        # Determine if specific subdirectories need to be cleared, rather than
+        # whole directory
+        if 'subdirectories' in dir_info:
+            dirs_to_empty = [os.path.join(dir_info['path'], subdir) for subdir in dir_info['subdirectories']] 
+        else:
+            dirs_to_empty = [dir_info['path']]
+
+        # Attempt to clear directories
+        successes = []
+        errors = []
+
+        for directory in dirs_to_empty:
+            try:
+                for entry in os.listdir(directory):
+                    entry_path = os.path.join(directory, entry)
+                    if os.path.isfile(entry_path):
+                        os.unlink(entry_path)
+                    else:
+                        shutil.rmtree(entry_path)
+                successes.append(directory)
+            except Exception, e:
+                logger.exception(str(e))
+                errors.append(str(e))
+
+        # If any deletion attempts successed, summarize in flash message
+        if len(successes):
+            message = 'Cleared %s.' % ', '.join(successes)
+            messages.info(request, message)
+
+        # Show flash message for each error encountered
+        for error in errors:
+            messages.error(request, error)
+
+        return redirect('components.administration.views.usage')
+    else:
+        return HttpResponseNotAllowed()
 
 def sources(request):
     try:

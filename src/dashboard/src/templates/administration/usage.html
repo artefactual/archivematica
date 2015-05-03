@@ -1,0 +1,49 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+
+{% block title %}Usage{% endblock %}
+{% block h1 %}Usage{% endblock %}
+{% block page_id %}Usage{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <h3>Processing storage usage</h3>
+
+      <table>
+        <tr>
+          <th>Purpose</th>
+          <th>Path</th>
+          <th>Usage</th>
+          <th>Size</th>
+          <th></th>
+        </tr>
+        {% for id, dir in usage_dirs.items %}
+        <tr>
+          <td>{{ dir.description }}</td>
+          <td>{{ dir.path }}</td>
+          <td>{{ dir.used|filesizeformat }}
+            ({% if dir.used %}{% widthratio dir.used dir.size 100 %}{% else %}0{% endif %}%)
+          </td>
+          <td>{{ dir.size|filesizeformat }}</td>
+          <td>
+            {% if dir.description %}
+            <form method='POST' action='{% url 'components.administration.views.usage_clear' id %}'>
+              <input type='submit' value='Clear'>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+
+    </div>
+
+  </div>
+
+{% endblock %}
