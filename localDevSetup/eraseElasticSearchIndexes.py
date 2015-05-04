@@ -20,7 +20,7 @@ if len(sys.argv) < 2 or not '-f' in options:
 conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
 try:
     conn.info()
-except ConnectionError, TransportError:
+except (ConnectionError, TransportError):
     print "Connection error: Elasticsearch may not be running."
     sys.exit(1)
 

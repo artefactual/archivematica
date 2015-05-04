@@ -172,7 +172,7 @@ def check_server_status(conn=None):
 
     try:
         conn.info()
-    except ConnectionError, TransportError:
+    except (ConnectionError, TransportError):
         return 'Connection error'
 
     # no errors!
