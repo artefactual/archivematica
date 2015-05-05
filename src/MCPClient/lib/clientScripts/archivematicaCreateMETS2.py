@@ -402,7 +402,7 @@ def createTechMD(fileUUID):
         etree.SubElement(object, ns.premisBNS + "originalName").text = escape(f.originallocation)
 
     # Derivations
-    derivations = Derivation.objects.filter(source_file_id=fileUUID)
+    derivations = Derivation.objects.filter(source_file_id=fileUUID, event__isnull=False)
     for derivation in derivations:
         relationship = etree.SubElement(object, ns.premisBNS + "relationship")
         etree.SubElement(relationship, ns.premisBNS + "relationshipType").text = "derivation"
@@ -416,7 +416,7 @@ def createTechMD(fileUUID):
         etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierType").text = "UUID"
         etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierValue").text = derivation.event_id
 
-    derivations = Derivation.objects.filter(derived_file_id=fileUUID)
+    derivations = Derivation.objects.filter(derived_file_id=fileUUID, event__isnull=False)
     for derivation in derivations:
         relationship = etree.SubElement(object, ns.premisBNS + "relationship")
         etree.SubElement(relationship, ns.premisBNS + "relationshipType").text = "derivation"
