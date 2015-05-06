@@ -62,5 +62,6 @@ urlpatterns = urlpatterns + patterns('components.ingest.views_as',
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/save/$', 'ingest_upload_as_save'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/match/$', 'ingest_upload_as_match'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/reset/$', 'ingest_upload_as_reset'),
+    (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/review/$', 'ingest_upload_as_review_matches'),
     (r'(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/$', 'ingest_upload_as')
 )

@@ -1,0 +1,42 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+
+{% block title %}Review matches{% endblock %}
+{% block h1 %}Review matches{% endblock %}
+{% block page_id %}atk_review{% endblock %}
+
+{% block extra_css %}
+  <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/atk_match.css" />
+{% endblock %}
+
+{% block content %}
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'DIP Upload' 'components.ingest.views_as.ingest_upload_as' uuid %}
+  </ul>
+
+  <div id='reset_matching'><a class="btn" href="{% url 'components.ingest.views_as.ingest_upload_as_reset' uuid %}">Restart matching</a>
+  <a class='btn' href="{% url 'components.ingest.views.ingest_grid' %}">Finish matching</a>
+
+  <table>
+    <thead>
+      <tr>
+        <th>File</th>
+        <th>Level</th>
+        <th>Title</th>
+        <th>Identifier</th>
+        <th>Dates</th>
+      </tr>
+
+    {% for match in matches %}
+      <tr class="atk-matcher-match-item">
+        <td title="{{ match.object_path}}">{{ match.object_path }}</td>
+        <td>{{ match.resource.levelOfDescription }}</td>
+        <td title="{{ match.title }}">{{ match.resource.title }}</td>
+        <td>{{ match.resource.identifier }}</td>
+        <td>{{ match.resource.dates }}</td>
+      </tr>
+    {% endfor %}
+    </thead>
+  </table>
+
+{% endblock %}

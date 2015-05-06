@@ -163,6 +163,14 @@ def ingest_upload_as_match_dip_objects_to_resource_component_levels(client, requ
     return pair_matcher.match_dip_objects_to_resource_component_levels(client, request, resource_component_id, 'ingest/as/match.html', parent_id, parent_url, _get_reset_view(uuid), uuid, matches=matches)
 
 
+@_authenticate_to_archivesspace
+def ingest_upload_as_review_matches(client, request, uuid):
+    pairs = models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(dipuuid=uuid)
+    matches = [_format_pair(client, pair.resourceid, pair.fileuuid) for pair in pairs]
+
+    return pair_matcher.review_matches(client, request, 'ingest/as/review_matches.html', uuid, matches=matches)
+
+
 def ingest_upload_as_match(request, uuid):
     try:
         payload = json.load(request)

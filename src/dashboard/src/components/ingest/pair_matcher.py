@@ -137,6 +137,21 @@ def match_dip_objects_to_resource_component_levels(client, request, resource_com
     return render(request, match_template, locals())
 
 
+def review_matches(client, request, template, uuid, matches=[]):
+    object_paths = {pair['uuid']: pair['path']
+                    for pair in ingest_upload_atk_get_dip_object_paths(uuid)}
+    # Augment the match data with the path of the object (normally only
+    # fileuuid is included)
+    for match in matches:
+        object_path = object_paths[match['file_uuid']]
+        match['object_path'] = object_path
+
+    return render(request, template, {
+        "uuid": uuid,
+        "matches": matches
+    })
+
+
 def ingest_upload_atk_get_dip_object_paths(uuid):
     # determine the DIP upload directory
     watch_dir = helpers.get_server_config_value('watchDirectoryPath')
