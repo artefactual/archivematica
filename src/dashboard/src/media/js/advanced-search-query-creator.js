@@ -5,6 +5,7 @@
     initialize: function() {
       // Default row is a single-length array of a copy of the row template
       this.rows = [_.extend({}, this.options.rowTemplate)];
+      this.rowTemplate = this.options.rowTemplate;
       this.fields = [];
       this.optionElements = {};
       this.allowAdd = (this.options.allowAdd != undefined)
