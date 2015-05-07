@@ -17,11 +17,12 @@ You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function selectField(name) {
-  if (name == 'transferMetadataOther') {
-    $('#aip-search-query-other-field-name').show('fade', {}, 250);
+function selectField(el) {
+  var target = $(el.parentNode.nextSibling.firstChild);
+  if (el.value == 'transferMetadataOther') {
+    target.show('fade', {}, 250);
   } else {
-    $('#aip-search-query-other-field-name').hide('fade', {}, 250);
+    target.hide('fade', {}, 250);
   }
 }
 
@@ -57,7 +58,7 @@ $(document).ready(function() {
   search.addInput('query', {title: 'search query', 'class': 'aip-search-query-input'});
 
   // default field name field
-  search.addSelect('field', {title: 'field name', onchange: 'selectField(this.value)'}, {
+  search.addSelect('field', {title: 'field name', onchange: 'selectField(this)'}, {
     '': 'Any',
     'FILEUUID': 'File UUID',
     'filePath': 'File path',
@@ -93,7 +94,7 @@ $(document).ready(function() {
   search.render();
 
   // Ensure the select field name field is hidden/displayed as appropriate
-  selectField($('.advanced_search_form_field_field > select')[0].value);
+  selectField($('.advanced_search_form_field_field > select')[0]);
 
   function aipSearchSubmit() {
     var destination = '/archival-storage/search/' + '?' + search.toUrlParams();
