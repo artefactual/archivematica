@@ -253,7 +253,7 @@ def create_aic(request, *args, **kwargs):
     aic_form = forms.CreateAICForm(request.POST or None)
     if aic_form.is_valid():
         results = ast.literal_eval(aic_form.cleaned_data['results'])
-        logging.info("AIC AIP info: {}".format(results))
+        logger.info("AIC AIP info: {}".format(results))
 
         # Create files in staging directory with AIP information
         shared_dir = helpers.get_server_config_value('sharedDirectory')
@@ -267,7 +267,7 @@ def create_aic(request, *args, **kwargs):
             os.chmod(destination, 0o770)
         except os.error:
             messages.error(request, "Error creating AIC")
-            logging.exception("Error creating AIC: Error creating directory {}".format(destination))
+            logger.exception("Error creating AIC: Error creating directory {}".format(destination))
             return redirect('archival_storage_index')
 
         # Create SIP in DB
@@ -284,7 +284,7 @@ def create_aic(request, *args, **kwargs):
         return redirect('components.ingest.views.aic_metadata_add', temp_uuid)
     else:
         messages.error(request, "Error creating AIC")
-        logging.error("Error creating AIC: Form not valid: {}".format(aic_form))
+        logger.error("Error creating AIC: Form not valid: {}".format(aic_form))
         return redirect('archival_storage_index')
 
 def delete_context(request, uuid):
@@ -395,7 +395,7 @@ def aips_pending_deletion():
         aips = storage_service.get_file_info(status='DEL_REQ')
     except Exception as e:
         # TODO this should be messages.warning, but we need 'request' here
-        logging.warning("Error retrieving AIPs pending deletion: is the storage server running?  Error: {}".format(e))
+        logger.warning("Error retrieving AIPs pending deletion: is the storage server running?  Error: {}".format(e))
     else:
         for aip in aips:
             aip_uuids.append(aip['uuid'])
@@ -533,7 +533,7 @@ def list_display(request):
             except IndexError:
                 # Storage service does not know about this AIP
                 # TODO what should happen here?
-                logging.info("AIP not found in storage service: {}".format(aip))
+                logger.info("AIP not found in storage service: {}".format(aip))
                 continue
 
             # delete AIP metadata in ElasticSearch if AIP has been deleted from the
