@@ -44,7 +44,13 @@ def search_parameter_prep(request):
     other_fields = request.GET.getlist('fieldName')
 
     # prepend default op arg as first op can't be set manually
-    ops.insert(0, 'or')
+    # if there are no entries, insert the first as "or" (e.g. a "should" clause);
+    # otherwise copy the existing first entry
+    # this ensures that if the second clause is a "must," the first entry will be too, etc.
+    if len(ops) == 0:
+        ops.insert(0, 'or')
+    else:
+        ops.insert(0, ops[0])
 
     if len(queries) == 0:
         queries = ['*']
