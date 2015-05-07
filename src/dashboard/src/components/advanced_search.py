@@ -130,25 +130,6 @@ def assemble_query(queries, ops, fields, types, search_index=None, doc_type=None
                 "should": should_haves,
             }
         },
-        "facets": {
-            "fileExtension": {
-                "terms": {
-                    "field": "fileExtension"
-                }
-            },
-            "sipuuid": {
-                "terms": {
-                    "field": "sipuuid",
-                    "size": 1000000000
-                }
-            },
-            "AIPUUID": {
-                "terms": {
-                    "field": "AIPUUID",
-                    "size": 1000000000
-                }
-            }
-        }
     }
 
 def _fix_object_fields(fields):

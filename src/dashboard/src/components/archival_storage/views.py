@@ -117,7 +117,8 @@ def search(request):
                 body=query,
                 index='aips',
                 doc_type='aipfile',
-                fields='uuid'
+                fields='AIPUUID,sipName',
+                sort='sipName:desc',
             )
         else:
             # To reduce amount of data fetched from ES, use LazyPagedSequence
@@ -136,7 +137,8 @@ def search(request):
                     doc_type='aipfile',
                     from_=start,
                     size=page_size,
-                    fields='AIPUUID,filePath,FILEUUID'
+                    fields='AIPUUID,filePath,FILEUUID',
+                    sort='sipName:desc',
                 )
                 return search_augment_file_results(results)
             count = conn.count(index='aips', doc_type='aipfile', body={'query': query['query']})['count']
@@ -147,11 +149,27 @@ def search(request):
         return HttpResponse('Error accessing index.')
 
     if not file_mode:
-        # take note of facet data
-        aip_uuids = results['facets']['AIPUUID']['terms']
+        # Convert the fields info into a list of dicts like this:
+        # {'uuid': AIP uuid, 'name': AIP name, 'count': count of files in AIP}
+        # We need to process all the results because CreateAICForm needs to know the AIP name and UUID for all results, not just those displayed on this page
+        # Cannot use facets because the ordering is not the same between facets
+        aip_uuids = [elasticSearchFunctions.normalize_results_dict(r) for r in results['hits']['hits']]
+        working_dict = {}
+        for d in aip_uuids:
+            # Use AIP UUID as the key to check if an AIP has already been seen
+            if d['AIPUUID'] in working_dict:
+                working_dict[d['AIPUUID']]['count'] += 1
+            else:
+                working_dict[d['AIPUUID']] = {
+                    'name': d['sipName'],
+                    'uuid': d['AIPUUID'],
+                    'count': 1,
+                }
+        aip_uuids = working_dict.values()
         page_data = helpers.pager(aip_uuids, items_per_page, current_page_number)
         page_data.object_list = search_augment_aip_results(conn, page_data.object_list)
-        aic_creation_form = forms.CreateAICForm(initial={'results': results})
+        logger.debug('AIC form results: %s', aip_uuids)
+        aic_creation_form = forms.CreateAICForm(initial={'results': aip_uuids})
     else:  # if file_mode
         page_data = helpers.pager(results, items_per_page, current_page_number)
         aic_creation_form = None
@@ -170,11 +188,11 @@ def search(request):
 
 def search_augment_aip_results(conn, aips):
     new_aips = []
-    for aip_uuid in aips:
+    for original_aip_info in aips:
         query = {
             "query": {
                 "term": {
-                    "uuid": aip_uuid['term']
+                    "uuid": original_aip_info['uuid']
                 }
             }
         }
@@ -189,8 +207,8 @@ def search_augment_aip_results(conn, aips):
 
             # Supplement the AIP dict with additional information from ES
             aip = elasticSearchFunctions.normalize_results_dict(aip_info)
-            aip['uuid'] = aip_uuid['term']
-            aip['count'] = aip_uuid['count']
+            aip['uuid'] = original_aip_info['uuid']
+            aip['count'] = original_aip_info['count']
             if 'isPartOf' not in aip:
                 aip['isPartOf'] = ''
             if 'AICID' not in aip:
