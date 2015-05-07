@@ -64,57 +64,57 @@ def create_mets_file(aic, aips):
 
     # Prepare constants
     nsmap = {
-        None: ns.metsNS,
+        'mets': ns.metsNS,
         'xlink': ns.xlinkNS,
         'xsi': ns.xsiNS,
     }
     now = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
     # Set up structure
-    E = ElementMaker(namespace=None, nsmap=nsmap)
+    E = ElementMaker(namespace=ns.metsNS, nsmap=nsmap)
     mets = (
         E.mets(
             E.metsHdr(CREATEDATE=now),
             E.dmdSec(
                 E.mdWrap(
                     E.xmlData(),
-                    MDTYPE = "DC",  # mdWrap
+                    MDTYPE="DC",  # mdWrap
                 ),
-                ID = 'dmdSec_1',  # dmdSec
+                ID='dmdSec_1',  # dmdSec
             ),
             E.fileSec(
                 E.fileGrp(),
             ),
             E.structMap(
                 E.div(
-                    TYPE = "Archival Information Collection",
-                    DMDID = "dmdSec_1",
+                    TYPE="Archival Information Collection",
+                    DMDID="dmdSec_1",
                 ),
-                TYPE = 'logical',  # structMap
+                TYPE='logical',  # structMap
             ),
         )
     )
     mets.attrib['{{{ns}}}schemaLocation'.format(ns=nsmap['xsi'])] = "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd"
 
     # Add Dublin Core info
-    xml_data = mets.find('dmdSec/mdWrap/xmlData')
+    xml_data = mets.find('mets:dmdSec/mets:mdWrap/mets:xmlData', namespaces=ns.NSMAP)
     dublincore = archivematicaCreateMETS2.getDublinCore(
         archivematicaCreateMETS2.SIPMetadataAppliesToType, aic['uuid'])
     # Add <extent> with number of AIPs
-    extent = etree.SubElement(dublincore, 'extent')
+    extent = etree.SubElement(dublincore, ns.dctermsBNS + 'extent')
     extent.text = "{} AIPs".format(len(aips))
     xml_data.append(dublincore)
 
     # Add elements for each AIP
-    file_grp = mets.find('fileSec/fileGrp')
-    struct_div = mets.find('structMap/div')
+    file_grp = mets.find('mets:fileSec/mets:fileGrp', namespaces=ns.NSMAP)
+    struct_div = mets.find('mets:structMap/mets:div', namespaces=ns.NSMAP)
     for aip in aips:
         file_id = '{name}-{uuid}'.format(name=aip['name'], uuid=aip['uuid'])
-        etree.SubElement(file_grp, 'file', ID=file_id)
+        etree.SubElement(file_grp, ns.metsBNS + 'file', ID=file_id)
 
         label = aip['label'] or aip['name']
-        div = etree.SubElement(struct_div, 'div', LABEL=label)
-        etree.SubElement(div, 'fptr', FILEID=file_id)
+        div = etree.SubElement(struct_div, ns.metsBNS + 'div', LABEL=label)
+        etree.SubElement(div, ns.metsBNS + 'fptr', FILEID=file_id)
 
     print etree.tostring(mets, pretty_print=True)
 
@@ -125,7 +125,7 @@ def create_mets_file(aic, aips):
     with open(filename, 'w') as f:
         f.write(etree.tostring(mets, pretty_print=True))
     fileOperations.addFileToSIP(
-        filePathRelativeToSIP='%SIPDirectory%'+basename,
+        filePathRelativeToSIP='%SIPDirectory%' + basename,
         fileUUID=file_uuid,
         sipUUID=aic['uuid'],
         taskUUID=str(uuid.uuid4()),  # Unsure what should go here
