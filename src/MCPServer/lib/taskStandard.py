@@ -27,6 +27,7 @@ import gearman
 import cPickle
 import datetime
 import archivematicaMCP
+import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from fileOperations import writeToFile
@@ -110,40 +111,53 @@ class taskStandard():
 
 
 
-    #This function is used to verify that where
-    #the MCP is writing to is an allowable location
-    #@fileName - full path of file it wants to validate.
-    def writeOutputsValidateOutputFile(self, fileName):
-        ret = fileName
-        if ret:
-            if "%sharedPath%" in ret and "../" not in ret:
-                ret = ret.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1)
-            else:
-                ret = "<^Not allowed to write to file^> " + ret
-        return ret
+    def outputFileIsWritable(self, fileName):
+        """
+        Validates whether a given file is writeable or, if the file does not exist, whether its parent directory is writeable.
+        """
+        if os.path.exists(fileName):
+            target = fileName
+        else:
+            target = os.path.dirname(fileName)
+        return os.access(target, os.W_OK)
+
+    def validateOutputFile(self, fileName):
+        """
+        Returns True if the given file is writeable.
+        If the passed file is not None and isn't writeable, logs the filename.
+        """
+        if fileName is None:
+            return False
+
+        if not self.outputFileIsWritable(fileName):
+            print "taskStandard: unable to write to file {}".format(fileName)
+            return False
+
+        return True
 
     #Used to write the output of the commands to the specified files
     def writeOutputs(self):
         """Used to write the output of the commands to the specified files"""
 
-
         if self.outputLock != None:
             self.outputLock.acquire()
 
-        standardOut = self.writeOutputsValidateOutputFile(self.standardOutputFile)
-        standardError = self.writeOutputsValidateOutputFile(self.standardErrorFile)
-
-        #output , filename
-        a = writeToFile(self.results["stdOut"], standardOut)
-        b = writeToFile(self.results["stdError"], standardError)
+        if self.validateOutputFile(self.standardOutputFile):
+            stdoutStatus = writeToFile(self.results["stdOut"], self.standardOutputFile)
+        else:
+            stdoutStatus = -1
+        if self.validateOutputFile(self.standardErrorFile):
+            stderrStatus = writeToFile(self.results["stdError"], self.standardErrorFile)
+        else:
+            stderrStatus = -1
 
         if self.outputLock != None:
             self.outputLock.release()
 
-        if a:
-            self.stdError = "Failed to write to file{" + standardOut.encode('utf-8') + "}\r\n" + self.results["stdOut"]
-        if b:
-            self.stdError = "Failed to write to file{" + standardError.encode('utf-8') + "}\r\n" + self.results["stdError"]
+        if stdoutStatus and self.standardOutputFile is not None:
+            self.stdError = "Failed to write to file{" + self.standardOutputFile.encode('utf-8') + "}\r\n" + self.results["stdOut"]
+        if stderrStatus and self.standardErrorFile is not None:
+            self.stdError = "Failed to write to file{" + self.standardErrorFile.encode('utf-8') + "}\r\n" + self.results["stdError"]
         if  self.results['exitCode']:
             return self.results['exitCode']
-        return a + b
+        return stdoutStatus + stderrStatus
