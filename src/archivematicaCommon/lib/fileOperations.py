@@ -94,8 +94,6 @@ def writeToFile(output, fileName, writeWhite=False):
         return 0
     if fileName and output:
         #print "writing to: " + fileName
-        if fileName.startswith("<^Not allowed to write to file^> "):
-            return -1
         try:
             f = open(fileName, 'a')
             f.write(output.__str__())
