@@ -22,4 +22,3 @@ SET @d5='6fe4678a-b3fb-4144-a8a3-7386eb87247d' COLLATE utf8_unicode_ci;
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5);
 DELETE FROM MicroServiceChoiceReplacementDic WHERE choiceAvailableAtLink IN (@d1, @d2, @d3, @d4, @d5);
 UPDATE MicroServiceChainLinks SET defaultNextChainLink=NULL WHERE pk IN (@d1, @d2, @d3, @d4, @d5);
-DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3, @d4, @d5);

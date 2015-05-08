@@ -13,7 +13,6 @@ SET @d2 = '26cf64e2-21b5-4935-a52b-71695870f1f2' COLLATE utf8_unicode_ci;
 SET @d3 = '65916156-41a5-4ed2-9472-7dca11e6bc08' COLLATE utf8_unicode_ci;
 SET @d4 = '14a0678f-9c2a-4995-a6bd-5acd141eeef1' COLLATE utf8_unicode_ci;
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4);
-DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3, @d4);
 
 -- Update microserviceGroups
 UPDATE MicroServiceChainLinks SET microserviceGroup='Process manually normalized files' WHERE pk IN ('ab0d3815-a9a3-43e1-9203-23a40c00c551', '91ca6f1f-feb5-485d-99d2-25eed195e330', '10c40e41-fb10-48b5-9d01-336cd958afe8', 'e76aec15-5dfa-4b14-9405-735863e3a6fa', '9e9b522a-77ab-4c17-ab08-5a4256f49d59', 'a1b65fe3-9358-479b-93b9-68f2b5e71b2b', '78b7adff-861d-4450-b6dd-3fabe96a849e');
@@ -51,8 +50,6 @@ DELETE FROM MicroServiceChainLinksExitCodes WHERE nextMicroServiceChainLink in (
 DELETE FROM MicroServiceChainChoice WHERE choiceAvailableAtLink IN (@d0, @d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
 DELETE FROM WatchedDirectories WHERE chain IN (SELECT pk FROM MicroServiceChains WHERE startingLink IN (@d0, @d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8));
 DELETE FROM MicroServiceChains WHERE startingLink IN (@d0, @d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
-DELETE FROM MicroServiceChainLinks WHERE defaultNextChainLink in (@d0, @d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
-DELETE FROM MicroServiceChainLinks WHERE pk IN (@d0, @d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
 
 -- Remove Set faux UUIDs
 SET @del = '58fcd2fd-bcdf-4e49-ad99-7e24cc8c3ba5' COLLATE utf8_unicode_ci;
@@ -60,7 +57,6 @@ UPDATE MicroServiceChainLinks SET defaultNextChainLink='e4e19c32-16cc-4a7f-a64d-
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='e4e19c32-16cc-4a7f-a64d-a1f180bdb164' WHERE nextMicroServiceChainLink=@del;
 DELETE FROM StandardTasksConfigs WHERE pk IN (SELECT taskTypePKReference FROM TasksConfigs WHERE pk in (SELECT currentTask FROM MicroServiceChainLinks WHERE pk IN (@del)));
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@del);
-DELETE FROM MicroServiceChainLinks WHERE pk IN (@del);
 
 -- Normalization chain should exclude setting returnFromManuallyNormalized and postApproveNormalization
 UPDATE TasksConfigsSetUnitVariable SET microServiceChainLink='f2a6f2a5-2f92-47da-b63b-30326625f6ae' WHERE pk='d8e2c7b2-5452-4c26-b57a-04caafe9f95c';
@@ -68,7 +64,6 @@ SET @d1 = '4df4cc06-3b03-4c6f-b5c4-bec12a97dc90' COLLATE utf8_unicode_ci;
 SET @d2 = '5e4f7467-8637-49b2-a584-bae83dabf762' COLLATE utf8_unicode_ci;
 DELETE FROM TasksConfigsSetUnitVariable WHERE pk IN (SELECT taskTypePKReference FROM TasksConfigs WHERE pk in (SELECT currentTask FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2)));
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2);
-DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2);
 
 -- No need to load post approve normalization link - Approve chains just sent returnFromManualNormalized
 SET @d1 = '2307b24a-a019-4b5b-a520-a6fff270a852' COLLATE utf8_unicode_ci;
@@ -77,7 +72,6 @@ UPDATE MicroServiceChains SET startingLink='b443ba1a-a0b6-4f7c-aeb2-65bd83de5e8b
 UPDATE MicroServiceChains SET startingLink='0b5ad647-5092-41ce-9fe5-1cc376d0bc3f' WHERE startingLink=@d2;
 DELETE FROM TasksConfigsUnitVariableLinkPull WHERE pk IN (SELECT taskTypePKReference FROM TasksConfigs WHERE pk in (SELECT currentTask FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2)));
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2);
-DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2);
 
 -- Remove weirdness with magic link, createDip directory, and setting resumeAfterNormalizationFileIDToolSelected
 SET @setPreserveNormTC = '63866950-cb04-4fe2-9b1d-9d5f1d22fc86' COLLATE utf8_unicode_ci;
@@ -101,15 +95,12 @@ DELETE FROM WatchedDirectories WHERE chain IN (SELECT pk FROM MicroServiceChains
 DELETE FROM MicroServiceChains WHERE startingLink IN (@d1, @d2, @d3, @d4, @d5);
 DELETE FROM TasksConfigsAssignMagicLink WHERE execute IN (@d1, @d2, @d3, @d4, @d5);
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5);
-DELETE FROM MicroServiceChainLinks WHERE defaultNextChainLink IN (@d1, @d2, @d3, @d4, @d5);
-DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3, @d4, @d5);
 
 -- Remove duplicate create DIP
 SET @d1 = '25b5dc50-d42d-4ee2-91fc-5dcc3eef30a7' COLLATE utf8_unicode_ci;
 SET @d2 = '1c0f5926-fd76-4571-a706-aa6564555199' COLLATE utf8_unicode_ci;
 SET @d3 = '82c0eca0-d9b6-4004-9d77-ded9286a9ac7' COLLATE utf8_unicode_ci;
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3);
-DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3);
 
 -- Remove unnecessary watchedDir for access Normalization for DIP from AIP
 SET @accessNormMSCL = 'b3c5e343-5940-4aad-8a9f-fb0eccbfb3a3' COLLATE utf8_unicode_ci;
@@ -118,7 +109,6 @@ DELETE FROM WatchedDirectories WHERE chain IN (SELECT pk FROM MicroServiceChains
 DELETE FROM MicroServiceChains WHERE startingLink=@accessNormMSCL;
 UPDATE TasksConfigsSetUnitVariable SET microServiceChainLink=@accessNormMSCL WHERE microServiceChainLink=@d1;
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@d1;
-DELETE FROM MicroServiceChainLinks WHERE pk=@d1;
 
 -- Move MD reminder to start of submission docs
 SET @mdReminderMSCL = '54b73077-a062-41cc-882c-4df1eba447d9' COLLATE utf8_unicode_ci;
@@ -179,7 +169,6 @@ DELETE FROM MicroServiceChainChoice WHERE choiceAvailableAtLink IN (@d1, @d2, @d
 DELETE FROM WatchedDirectories WHERE pk='2d9e4ca0-2d20-4c65-82cb-8ca23901fd5b';
 DELETE FROM MicroServiceChains WHERE pk IN ('2256d500-a26e-438d-803d-3ffe17b8caf0', 'd7cf171e-82e8-4bbb-bc33-de6b8b256202', '45811f43-40d2-4efa-9c1d-876417834b7f');
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10);
-DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10);
 -- /Merge Approve nodes
 
 -- Remove duplicated normalize for preservation chain
@@ -191,8 +180,6 @@ SET @d4 = '8adb23cc-dee3-44da-8356-fa6ce849e4d6' COLLATE utf8_unicode_ci;
 SET @d5 = 'd77ccaa0-3a3d-46ff-877f-4edf1a8179e2' COLLATE utf8_unicode_ci;
 DELETE FROM MicroServiceChains WHERE startingLink IN (@d1, @d2, @d3, @d4, @d5);
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5);
-DELETE FROM MicroServiceChainLinks WHERE defaultNextChainLink IN (@d1, @d2, @d3, @d4, @d5);
-DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3, @d4, @d5);
 
 -- /Remove duplicated normalize for preservation chain
 

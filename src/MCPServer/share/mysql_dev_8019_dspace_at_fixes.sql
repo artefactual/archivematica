@@ -24,7 +24,7 @@ DELETE FROM TasksConfigsAssignMagicLink WHERE execute = @d5;
 DELETE FROM MicroServiceChainChoice WHERE choiceAvailableAtLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
 DELETE FROM MicroServiceChains WHERE pk IN ('a7f8f67f-401f-4665-b7b3-35496fd5017c', '2884ed7c-8c4c-4fa9-a6eb-e27bcaf9ab92');
 DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
-DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
+
 
 -- Delete all TasksConfigs that don't have MicroServiceChainLinks pointing at them
 DELETE FROM TasksConfigs USING TasksConfigs LEFT OUTER JOIN MicroServiceChainLinks ON currentTask=TasksConfigs.pk WHERE MicroServiceChainLinks.pk is NULL;
