@@ -25,10 +25,9 @@
 checkMD5NoGui="`dirname $0`/archivematicaCheckMD5NoGUI.sh"
 
 target="$1"
-checksums="$2"
-date="$3"
-eventID="$4"
-transferUUID="$5"
+date="$2"
+eventID="$3"
+transferUUID="$4"
 
 
 #       md5deep - Compute and compare MD5 message digests
@@ -39,7 +38,7 @@ transferUUID="$5"
 
 ret=0
 
-MD5FILE="${target}metadata/${checksums}.md5"
+MD5FILE="${target}metadata/checksum.md5"
 if [ -f "${MD5FILE}" ]; then
     "${checkMD5NoGui}" "${target}objects/" "${MD5FILE}" "${target}logs/`basename "${MD5FILE}"`-Check-`date`" "md5deep" && \
     "`dirname $0`/createEventsForGroup.py" --groupUUID "${transferUUID}" --groupType "transfer_id" --eventType "fixity" --eventDateTime "$date" --eventOutcome "Pass" --eventDetail "`md5deep -v` md5deep ${target}"   
@@ -48,7 +47,7 @@ else
     echo "File Does not exist:" "${MD5FILE}"
 fi
 
-SHA1FILE="${target}metadata/${checksums}.sha1"
+SHA1FILE="${target}metadata/checksum.sha1"
 if [ -f "${SHA1FILE}" ]; then
     "${checkMD5NoGui}" "${target}objects/" "${SHA1FILE}" "${target}logs/`basename "${SHA1FILE}"`-Check-`date`" "sha1deep" && \
     "`dirname $0`/createEventsForGroup.py" --groupUUID "${transferUUID}" --groupType "transfer_id" --eventType "fixity" --eventDateTime "$date" --eventOutcome "Pass" --eventDetail "`sha1deep -v` sha1deep ${target}"  
@@ -57,7 +56,7 @@ else
     echo "File Does not exist:" "${SHA1FILE}"
 fi
 
-SHA256FILE="${target}metadata/${checksums}.sha256"
+SHA256FILE="${target}metadata/checksum.sha256"
 if [ -f "${SHA256FILE}" ]; then
     "${checkMD5NoGui}" "${target}objects/" "${SHA256FILE}" "${target}logs/`basename "${SHA256FILE}"`-Check-`date`" "sha256deep" && \
     "`dirname $0`/createEventsForGroup.py" --groupUUID "${transferUUID}" --groupType "transfer_id" --eventType "fixity" --eventDateTime "$date" --eventOutcome "Pass" --eventDetail "`sha256deep -v` sha256deep ${target}"  

@@ -163,7 +163,6 @@ class ReplacementDict(dict):
             rd['%fileExtensionWithDot%'] = ext
 
         rd['%processingDirectory%'] = config.get('MCPServer', "processingDirectory")
-        rd['%checksumsNoExtension%'] = config.get('MCPServer', "checksumsNoExtention")
         rd['%watchDirectoryPath%'] = config.get('MCPServer', "watchDirectoryPath")
         rd['%rejectedDirectory%'] = config.get('MCPServer', "rejectedDirectory")
 
