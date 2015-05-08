@@ -144,7 +144,7 @@ def archivematicaGetRights(metadataAppliesToList, fileUUID):
                         otherRightsApplicableDates = etree.SubElement(otherRightsInformation, ns.premisBNS + "otherRightsApplicableDates")
                         if info.otherrightsapplicablestartdate:
                             etree.SubElement(otherRightsApplicableDates, ns.premisBNS + "startDate").text = formatDate(info.otherrightsapplicablestartdate)
-                        if info.otherrightsapplicableenddateopen:
+                        if info.otherrightsenddateopen:
                             etree.SubElement(otherRightsApplicableDates, ns.premisBNS + "endDate").text = "OPEN"
                         elif info.otherrightsapplicableenddate:
                             etree.SubElement(otherRightsApplicableDates, ns.premisBNS + "endDate").text = formatDate(info.otherrightsapplicableenddate)
