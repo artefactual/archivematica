@@ -22,5 +22,7 @@ mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_dev_8287_siegfried.sql;"
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_dev_7321_dip_processing_xml.sql;"
 # ...
+# optional delete unused MCSL's
+mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_dev_delete_links.sql;"
 
 touch $currentDir/mysql_dev.complete
