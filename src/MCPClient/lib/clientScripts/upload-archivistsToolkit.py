@@ -100,8 +100,8 @@ def get_pairs(dip_uuid):
     pairs = dict()
     #connect to archivematica db, make a set of pairs from pairs table
    
-    sql = """SELECT fileUUID, resourceId, resourceComponentId from AtkDIPObjectResourcePairing where dipUUID = '{}'""".format(dip_uuid)
-    c, sqlLock = databaseInterface.querySQL(sql)
+    sql = """SELECT fileUUID, resourceId, resourceComponentId from AtkDIPObjectResourcePairing where dipUUID = %s"""
+    c, sqlLock = databaseInterface.querySQL(sql, (dip_uuid,))
     dbresult = c.fetchall()
     for item in dbresult:
         ids = dict()
@@ -112,8 +112,8 @@ def get_pairs(dip_uuid):
     return pairs
 
 def delete_pairs(dip_uuid):
-    sql = """delete from AtkDIPObjectResourcePairing where dipUUID = '{}'""".format(dip_uuid)
-    c, sqlLock = databaseInterface.querySQL(sql)
+    sql = """delete from AtkDIPObjectResourcePairing where dipUUID = %s"""
+    c, sqlLock = databaseInterface.querySQL(sql, (dip_uuid,))
     sqlLock.release()
       
 def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):

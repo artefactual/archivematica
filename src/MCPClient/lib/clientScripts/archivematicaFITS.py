@@ -76,8 +76,8 @@ if __name__ == '__main__':
         print "file's fileGrpUse in exclusion list, skipping"
         exit(0)
 
-    sql = """SELECT fileUUID FROM FPCommandOutput WHERE fileUUID = '%s';""" % (fileUUID)
-    if len(databaseInterface.queryAllSQL(sql)):
+    sql = """SELECT fileUUID FROM FPCommandOutput WHERE fileUUID = %s;"""
+    if len(databaseInterface.queryAllSQL(sql, (fileUUID,))):
         print >>sys.stderr, "Warning: Fits has already run on this file. Not running again."
         exit(0)
 

@@ -105,11 +105,11 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
             j.jobType = 'Normalize for access'
         ) c
         ON a.fileUUID = c.fileUUID AND a.sipUUID = c.sipUUID
-        WHERE a.sipUUID = '{0}'
+        WHERE a.sipUUID = %s
         order by (access_normalization_failed + preservation_normalization_failed) desc;
-    """.format(sipUUID)
+    """
     
-    cursor.execute(sql)
+    cursor.execute(sql, (sipUUID,))
     objects = helpers.dictfetchall(cursor)
     #objects = databaseInterface.queryAllSQL(sql)
     return objects 

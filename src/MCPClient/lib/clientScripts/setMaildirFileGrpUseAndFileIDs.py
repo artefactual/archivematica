@@ -36,23 +36,23 @@ def setArchivematicaMaildirFiles(sipUUID, sipPath):
         for file in files:
             if file.endswith('.archivematicaMaildir'):
                 fileRelativePath = os.path.join(root, file).replace(sipPath, "%SIPDirectory%", 1)
-                sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND sipUUID = '%s' AND currentLocation = '%s';""" % (sipUUID, fileRelativePath)
-                rows = databaseInterface.queryAllSQL(sql)
+                sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND sipUUID = %s AND currentLocation = %s;"""
+                rows = databaseInterface.queryAllSQL(sql, (sipUUID, fileRelativePath))
                 if len(rows):
                     fileUUID = rows[0][0]
-                    sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', (SELECT pk FROM FileIDs WHERE enabled = TRUE AND description = 'A .archivematicaMaildir file')); """ % (fileUUID)
-                    databaseInterface.runSQL(sql)
+                    sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES (%s, (SELECT pk FROM FileIDs WHERE enabled = TRUE AND description = 'A .archivematicaMaildir file')); """
+                    databaseInterface.runSQL(sql, (fileUUID,))
         
 def setMaildirFiles(sipUUID, sipPath):
     for root, dirs, files in os.walk(os.path.join(sipPath, "objects", "Maildir")):
         for file in files:
             fileRelativePath = os.path.join(root, file).replace(sipPath, "%SIPDirectory%", 1)
-            sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND sipUUID = '%s' AND currentLocation = '%s';""" % (sipUUID, fileRelativePath)
-            rows = databaseInterface.queryAllSQL(sql)
+            sql = """SELECT fileUUID FROM Files WHERE removedTime = 0 AND sipUUID = %s AND currentLocation = %s;"""
+            rows = databaseInterface.queryAllSQL(sql, (sipUUID, fileRelativePath))
             if len(rows):
                 fileUUID = rows[0][0]
-                sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES ('%s', (SELECT pk FROM FileIDs WHERE enabled = TRUE AND description = 'A maildir email file')); """ % (fileUUID)
-                databaseInterface.runSQL(sql)
+                sql = """INSERT INTO FilesIdentifiedIDs (fileUUID, fileID) VALUES (%s, (SELECT pk FROM FileIDs WHERE enabled = TRUE AND description = 'A maildir email file')); """
+                databaseInterface.runSQL(sql, (fileUUID,))
     
     
 

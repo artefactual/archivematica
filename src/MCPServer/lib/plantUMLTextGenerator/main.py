@@ -53,9 +53,9 @@ def jobChainLinkExitCodesTextGet(indent, exitCode, nextMicroServiceChainLink, ex
 def jobChainLinkTextGet(indent, leadIn, pk, label = ""):
     global subChains
     global processedJobChainLinks
-    sql = """SELECT MicroServiceChainLinks.currentTask, MicroServiceChainLinks.defaultNextChainLink, TasksConfigs.taskType, TasksConfigs.taskTypePKReference, TasksConfigs.description, MicroServiceChainLinks.reloadFileList, Sounds.fileLocation, MicroServiceChainLinks.defaultExitMessage, MicroServiceChainLinks.microserviceGroup, StandardTasksConfigs.execute FROM MicroServiceChainLinks LEFT OUTER JOIN Sounds ON MicroServiceChainLinks.defaultPlaySound = Sounds.pk JOIN TasksConfigs on MicroServiceChainLinks.currentTask = TasksConfigs.pk LEFT OUTER JOIN StandardTasksConfigs ON TasksConfigs.taskTypePKReference = StandardTasksConfigs.pk WHERE MicroServiceChainLinks.pk = '%s';""" % (pk.__str__())
+    sql = """SELECT MicroServiceChainLinks.currentTask, MicroServiceChainLinks.defaultNextChainLink, TasksConfigs.taskType, TasksConfigs.taskTypePKReference, TasksConfigs.description, MicroServiceChainLinks.reloadFileList, Sounds.fileLocation, MicroServiceChainLinks.defaultExitMessage, MicroServiceChainLinks.microserviceGroup, StandardTasksConfigs.execute FROM MicroServiceChainLinks LEFT OUTER JOIN Sounds ON MicroServiceChainLinks.defaultPlaySound = Sounds.pk JOIN TasksConfigs on MicroServiceChainLinks.currentTask = TasksConfigs.pk LEFT OUTER JOIN StandardTasksConfigs ON TasksConfigs.taskTypePKReference = StandardTasksConfigs.pk WHERE MicroServiceChainLinks.pk = %s;"""
     print sql
-    rows = databaseInterface.queryAllSQL(sql)
+    rows = databaseInterface.queryAllSQL(sql, (pk,))
     for row in rows:
         currentTask = row[0]
         defaultNextChainLink = row[1]
@@ -69,8 +69,8 @@ def jobChainLinkTextGet(indent, leadIn, pk, label = ""):
         execute = row[9]
         
         if taskType == 3:
-            sql = """SELECT execute FROM StandardTasksConfigs where pk = '%s'""" % (pk)
-            rows = databaseInterface.queryAllSQL(sql)
+            sql = """SELECT execute FROM StandardTasksConfigs where pk = %s"""
+            rows = databaseInterface.queryAllSQL(sql, (pk,))
             leadOut = "%d. %s" % (pk, description)
             if label != "":
                 writePlant( ("%s%s \"%s %s - Assign Magic Link %s\"") % (indent, leadIn , label, leadOut, rows[0][0].__str__()) )
@@ -94,8 +94,8 @@ def jobChainLinkTextGet(indent, leadIn, pk, label = ""):
                 processedJobChainLinks.append(pk)
 
         if taskType == 0 or taskType == 1 or taskType == 3 or taskType == 5  or taskType == 6  or taskType == 7: #|    0 | one instance |    1 | for each file                   | 
-            sql = """SELECT exitCode, nextMicroServiceChainLink, exitMessage FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink = '%s';""" % (pk.__str__())
-            rows2 = databaseInterface.queryAllSQL(sql)
+            sql = """SELECT exitCode, nextMicroServiceChainLink, exitMessage FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink = %s;"""
+            rows2 = databaseInterface.queryAllSQL(sql, (pk,))
             set = False
             ifindent = indent + " "
             for row2 in rows2:
@@ -128,9 +128,9 @@ def jobChainLinkTextGet(indent, leadIn, pk, label = ""):
                 subChains[execute] = None #tag the sub chain to proceed down
             
         elif taskType == 2: #
-            sql = """SELECT description, chainAvailable from MicroServiceChainChoice Join MicroServiceChains ON MicroServiceChainChoice.chainAvailable = MicroServiceChains.pk WHERE choiceAvailableAtLink = %d;""" % (pk)
+            sql = """SELECT description, chainAvailable from MicroServiceChainChoice Join MicroServiceChains ON MicroServiceChainChoice.chainAvailable = MicroServiceChains.pk WHERE choiceAvailableAtLink = %s;"""
             print sql
-            rows2 = databaseInterface.queryAllSQL(sql)
+            rows2 = databaseInterface.queryAllSQL(sql, (pk,))
             first = True
             ifindent = indent
             for row2 in rows2:
@@ -151,8 +151,8 @@ def jobChainLinkTextGet(indent, leadIn, pk, label = ""):
             
 
 def jobChainTextGet(leadIn, pk, indent=""):
-    sql = """SELECT startingLink, description FROM MicroServiceChains WHERE pk = '%s';""" % (pk.__str__())
-    rows = databaseInterface.queryAllSQL(sql)
+    sql = """SELECT startingLink, description FROM MicroServiceChains WHERE pk = %s;"""
+    rows = databaseInterface.queryAllSQL(sql, (pk,))
     for row in rows:
         startingLink = row[0]
         description = row[1]
