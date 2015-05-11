@@ -479,6 +479,7 @@ def list_display(request):
         sort_direction = 'asc'
 
     sort_specification = order_by + ':' + sort_direction
+    sort_params = 'order_by=' + order_by + '&sort_by=' + sort_by
 
     conn = elasticSearchFunctions.connect_and_create_index('aips')
 
@@ -591,6 +592,7 @@ def list_display(request):
             'aip_indexed_file_count': aip_indexed_file_count,
             'aips': aips,
             'page': page,
+            'search_params': sort_params,
         }
     )
 
