@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     (opts, args) = parser.parse_args()
     kwargs = {
-        "removedtime__isnull": False,
+        "removedtime__isnull": True,
         opts.groupType: opts.groupUUID
     }
     file_uuids = File.objects.filter(**kwargs).values_list('uuid')
