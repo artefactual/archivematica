@@ -48,6 +48,7 @@ def assign_uuid(filename, package_uuid, transfer_uuid, date, task_uuid, sip_dire
 
 def delete_and_record_package_file(file_path, file_uuid, current_location):
     os.remove(file_path)
+    print("Package removed: " + file_path)
     event_detail_note = "removed from: " + current_location
     fileWasRemoved(file_uuid, eventDetail=event_detail_note)
 
