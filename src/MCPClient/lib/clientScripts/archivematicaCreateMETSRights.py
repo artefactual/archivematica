@@ -98,14 +98,14 @@ def archivematicaGetRights(metadataAppliesToList, fileUUID):
 
             elif statement.rightsbasis.lower() in ["license"]:
                 for license in statement.rightsstatementlicense_set.all():
-                    identifier = license.rightsstatementlicensedocumentationidentifier_set.get()
-
                     licenseInformation = etree.SubElement(rightsStatement, ns.premisBNS + "licenseInformation")
+
+                    for identifier in license.rightsstatementlicensedocumentationidentifier_set.all():
                     
-                    licenseDocumentIdentifier = etree.SubElement(licenseInformation, ns.premisBNS + "licenseDocumentationIdentifier")
-                    etree.SubElement(licenseDocumentIdentifier, ns.premisBNS + "licenseDocumentationIdentifierType").text = identifier.licensedocumentationidentifiertype
-                    etree.SubElement(licenseDocumentIdentifier, ns.premisBNS + "licenseDocumentationIdentifierValue").text = identifier.licensedocumentationidentifiervalue
-                    etree.SubElement(licenseDocumentIdentifier, ns.premisBNS + "licenseDocumentationRole").text = identifier.licensedocumentationidentifierrole
+                        licenseDocumentIdentifier = etree.SubElement(licenseInformation, ns.premisBNS + "licenseDocumentationIdentifier")
+                        etree.SubElement(licenseDocumentIdentifier, ns.premisBNS + "licenseDocumentationIdentifierType").text = identifier.licensedocumentationidentifiertype
+                        etree.SubElement(licenseDocumentIdentifier, ns.premisBNS + "licenseDocumentationIdentifierValue").text = identifier.licensedocumentationidentifiervalue
+                        etree.SubElement(licenseDocumentIdentifier, ns.premisBNS + "licenseDocumentationRole").text = identifier.licensedocumentationidentifierrole
                     
                     etree.SubElement(licenseInformation, ns.premisBNS + "licenseTerms").text = license.licenseterms
 
