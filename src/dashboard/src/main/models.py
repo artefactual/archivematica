@@ -591,7 +591,6 @@ class MicroServiceChainLink(models.Model):
     id = UUIDPkField()
     currenttask = models.ForeignKey('TaskConfig', db_column='currentTask')
     defaultnextchainlink = models.ForeignKey('self', db_column='defaultNextChainLink')
-    defaultplaysound = models.ForeignKey('Sounds', db_column='defaultPlaySound')
     microservicegroup = models.CharField(max_length=50, db_column='microserviceGroup')
     reloadfilelist = models.BooleanField(default=True, db_column='reloadFileList')
     defaultexitmessage = models.CharField(max_length=36, db_column='defaultExitMessage', default='Failed')
@@ -610,7 +609,6 @@ class MicroServiceChainLinkExitCode(models.Model):
     microservicechainlink = models.ForeignKey('MicroServiceChainLink', related_name='exit_codes', db_column='microServiceChainLink')
     exitcode = models.IntegerField(db_column='exitCode', default=0)
     nextmicroservicechainlink = models.ForeignKey('MicroServiceChainLink', related_name='parent_exit_codes+', db_column='nextMicroServiceChainLink', null=True, blank=True)
-    playsound = models.ForeignKey('Sounds', db_column='playSound', null=True, blank=True)
     exitmessage = models.CharField(max_length=50, db_column='exitMessage', default='Completed successfully')
     replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
     lastmodified = models.DateTimeField(db_column='lastModified')
@@ -752,17 +750,6 @@ class UnitVariable(models.Model):
 
     class Meta:
         db_table = u'UnitVariables'
-
-
-class Sounds(models.Model):
-    id = UUIDPkField()
-    description = models.TextField(blank=True)
-    filelocation = models.TextField(db_column='fileLocation', blank=True)
-    replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified')
-
-    class Meta:
-        db_table = 'Sounds'
 
 
 # END MCP data interoperability

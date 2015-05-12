@@ -35,7 +35,6 @@ from linkTaskManagerSetUnitVariable import linkTaskManagerSetUnitVariable
 from linkTaskManagerUnitVariableLinkPull import linkTaskManagerUnitVariableLinkPull
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from databaseFunctions import logJobCreatedSQL, getUTCDate
-from playAudioFileInCVLC import playAudioFileInThread
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode, TaskType
 
@@ -81,7 +80,6 @@ class jobChainLink:
         taskTypePKReference = link.currenttask.tasktypepkreference
         self.description = link.currenttask.description
         self.reloadFileList = link.reloadfilelist
-        self.defaultSoundFile = None
         self.defaultExitMessage = link.defaultexitmessage
         self.microserviceGroup = link.microservicegroup
 
@@ -121,10 +119,6 @@ class jobChainLink:
         else:
             print >> sys.stderr, "unsupported task type: ", taskType
 
-    # Deprecated, remove later
-    def getSoundFileToPlay(self, exitCode):
-        return self.defaultSoundFile
-
     def getNextChainLinkPK(self, exitCode):
         if exitCode is not None:
             try:
@@ -148,12 +142,5 @@ class jobChainLink:
             print "No exit message"
 
     def linkProcessingComplete(self, exitCode, passVar=None):
-        # Deprecated, remove later
-        playSounds = True
-        if playSounds:
-            filePath = self.getSoundFileToPlay(exitCode)
-            if filePath:
-                print "playing: ", filePath
-                playAudioFileInThread(filePath)
         self.updateExitMessage(exitCode)
         self.jobChain.nextChainLink(self.getNextChainLinkPK(exitCode), passVar=passVar)

@@ -53,7 +53,7 @@ def jobChainLinkExitCodesTextGet(indent, exitCode, nextMicroServiceChainLink, ex
 def jobChainLinkTextGet(indent, leadIn, pk, label = ""):
     global subChains
     global processedJobChainLinks
-    sql = """SELECT MicroServiceChainLinks.currentTask, MicroServiceChainLinks.defaultNextChainLink, TasksConfigs.taskType, TasksConfigs.taskTypePKReference, TasksConfigs.description, MicroServiceChainLinks.reloadFileList, Sounds.fileLocation, MicroServiceChainLinks.defaultExitMessage, MicroServiceChainLinks.microserviceGroup, StandardTasksConfigs.execute FROM MicroServiceChainLinks LEFT OUTER JOIN Sounds ON MicroServiceChainLinks.defaultPlaySound = Sounds.pk JOIN TasksConfigs on MicroServiceChainLinks.currentTask = TasksConfigs.pk LEFT OUTER JOIN StandardTasksConfigs ON TasksConfigs.taskTypePKReference = StandardTasksConfigs.pk WHERE MicroServiceChainLinks.pk = %s;"""
+    sql = """SELECT MicroServiceChainLinks.currentTask, MicroServiceChainLinks.defaultNextChainLink, TasksConfigs.taskType, TasksConfigs.taskTypePKReference, TasksConfigs.description, MicroServiceChainLinks.reloadFileList, MicroServiceChainLinks.defaultExitMessage, MicroServiceChainLinks.microserviceGroup, StandardTasksConfigs.execute FROM MicroServiceChainLinks JOIN TasksConfigs on MicroServiceChainLinks.currentTask = TasksConfigs.pk LEFT OUTER JOIN StandardTasksConfigs ON TasksConfigs.taskTypePKReference = StandardTasksConfigs.pk WHERE MicroServiceChainLinks.pk = %s;"""
     print sql
     rows = databaseInterface.queryAllSQL(sql, (pk,))
     for row in rows:
@@ -63,10 +63,9 @@ def jobChainLinkTextGet(indent, leadIn, pk, label = ""):
         taskTypePKReference = row[3]
         description = row[4]
         reloadFileList = row[5]
-        defaultSoundFile = row[6]
-        defaultExitMessage = row[7]
-        microserviceGroup = row[8]
-        execute = row[9]
+        defaultExitMessage = row[6]
+        microserviceGroup = row[7]
+        execute = row[8]
         
         if taskType == 3:
             sql = """SELECT execute FROM StandardTasksConfigs where pk = %s"""
