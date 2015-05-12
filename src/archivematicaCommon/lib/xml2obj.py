@@ -13,6 +13,11 @@ def mets_file(src):
     
     file_uuid = None
     for amd in raw.mets_amdSec:
+        # Some amdSecs are other types of metadata (for instance sourceMD),
+        # and we don't care about those; skip them.
+        if amd.mets_techMD is None:
+            continue
+
         file_uuid = amd.mets_techMD.mets_mdWrap.mets_xmlData.premis_object.premis_objectIdentifier.premis_objectIdentifierValue
         if amd.mets_rightsMD:
             for rights in amd.mets_rightsMD:
