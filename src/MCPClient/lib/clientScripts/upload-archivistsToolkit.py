@@ -24,7 +24,6 @@ import logging
 # archivematicaCommon
 import archivistsToolkit.atk as atk
 from custom_handlers import GroupWriteRotatingFileHandler
-import mets
 from xml2obj import mets_file
 import MySQLdb
 import databaseInterface
