@@ -5,4 +5,5 @@ share/mysql /usr/share/dbconfig-common/data/archivematica-mcp-server/install/
 share/1.1.0 /usr/share/dbconfig-common/data/archivematica-mcp-server/upgrade/mysql/
 share/1.2.0 /usr/share/dbconfig-common/data/archivematica-mcp-server/upgrade/mysql/
 share/1.3.0 /usr/share/dbconfig-common/data/archivematica-mcp-server/upgrade/mysql/
+share/1.4.0 /usr/share/dbconfig-common/data/archivematica-mcp-server/upgrade/mysql/
 share/* /usr/share/archivematica/

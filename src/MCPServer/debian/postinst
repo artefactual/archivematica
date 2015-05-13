@@ -5,6 +5,14 @@
 
 dbc_go archivematica-mcp-server $@
 
+userID=`id -u archivematica`
+
+if [ "${userID}" = 333 ]; then
+  echo "User archivematica exists"
+else
+  adduser --uid 333 --group --system --home /var/lib/archivematica/ archivematica
+fi
+
 if [ -d /var/archivematica/sharedDirectory ]; then
   echo "/var/archivematica/sharedDirectory exists"
 else
@@ -13,9 +21,13 @@ else
   rsync -a /usr/share/archivematica/sharedDirectoryStructure/* /var/archivematica/sharedDirectory/.
 fi
 
-chown -R archivematica:archivematica /var/archivematica/
+chown -R archivematica:archivematica /var/archivematica/sharedDirectory/
+
+logdir=/var/log/archivematica/MCPServer
+sudo mkdir -p $logdir
+sudo chown -R archivematica:archivematica $logdir
+sudo chmod -R g+ws $logdir
 
 /usr/share/archivematica/postinstSharedWithDev
 
 #DEBHELPER#
-
