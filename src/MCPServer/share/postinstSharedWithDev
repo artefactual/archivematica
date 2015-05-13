@@ -7,17 +7,10 @@ else
   adduser --uid 333 --group --system --home /var/lib/archivematica/ archivematica
 fi
 
-sudo usermod -a -G audio archivematica
-sudo chown -R archivematica:archivematica "/var/archivematica/"
 sudo chown -R archivematica:archivematica "/var/archivematica/sharedDirectory/"
-sudo chmod -R g+s "/var/archivematica/"
-sudo chmod -R 664 "/var/archivematica/sharedDirectory" 
-sudo find -L /var/archivematica/ -type d  | sudo xargs -IF chmod u+rwx,g+rwxt,o-rwx F
-
-logdir=/var/log/archivematica/MCPServer
-sudo mkdir -p $logdir
-sudo chown -R archivematica:archivematica $logdir
-sudo chmod -R g+s $logdir
+sudo chmod -R g+s "/var/archivematica/sharedDirectory/"
+sudo chmod -R 664 "/var/archivematica/sharedDirectory/"
+sudo find -L /var/archivematica/sharedDirectory -type d  | sudo xargs -IF chmod u+rwx,g+rwxt,o-rwx F
 
 #Configure sudoers for mcp and client
 echo "About to add archivematica sudoers file"
@@ -33,4 +26,3 @@ if [ "$?" -eq "0" ]; then
     sudo mv ${tmp} ${real}
 fi
 echo "archivematica sudoers file was added"
-

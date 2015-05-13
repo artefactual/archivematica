@@ -1,14 +1,16 @@
 Source: archivematica-dashboard
 Section: utils
 Priority: extra
-Maintainer: Austin Trask <austin@artefactual.com>
-Build-Depends: debhelper (>= 9)
-Standards-Version: 3.9.3
+Maintainer: Artefactual Systems Inc. <sysadmin@artefactual.com>
+Build-Depends:
+  debhelper (>= 9)
+Standards-Version: 3.9.5
+X-Python-Version: 2.7
 Homepage: http://archivematica.org
 
 Package: archivematica-dashboard
 Architecture: any
-Depends: 
+Depends:
 	${shlibs:Depends},
 	${misc:Depends},
 	apache2-mpm-prefork,
@@ -19,4 +21,3 @@ Depends:
 	python-simplejson
 Description: Web Dashboard for Archivematica
   Web based dashboard interface used to control an Archivematica pipeline.
-  
