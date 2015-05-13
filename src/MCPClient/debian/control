@@ -1,20 +1,20 @@
 Source: archivematica-mcp-client
 Section: utils
 Priority: extra
-Maintainer: Austin Trask <austin@artefactual.com>
-Build-Depends: debhelper (>= 9)
-Standards-Version: 3.9.3
+Maintainer: Artefactual Systems Inc. <sysadmin@artefactual.com>
+Build-Depends:
+  debhelper (>= 9)
+Standards-Version: 3.9.5
+X-Python-Version: 2.7
 Homepage: http://archivematica.org
 
 Package: archivematica-mcp-client
-Architecture: i386 amd64 
+Architecture: i386 amd64
 Depends: ${shlibs:Depends}, ${misc:Depends}, archivematica-common,
- atool, bagit, bulk-extractor, clamav, clamav-daemon, ffmpeg (>= 7:2.1.0), libavcodec-extra-56, fits (>= 0.8.0-3),
+ atool, bagit, bulk-extractor, clamav, clamav-daemon, ffmpeg (>= 7:2.6.1), libavcodec-extra-56, fits (>= 0.8.4),
  gearman, imagemagick, inkscape, jhove, libimage-exiftool-perl, libxml2-utils, logapp,
  md5deep, mediainfo, nailgun-client, nfs-common, openjdk-7-jre-headless, p7zip-full,
  pbzip2, postfix, python-fido, python-gearman, python-lxml,
  python-mysqldb, python-unidecode, readpst,
- rsync, siegfried, sleuthkit, tesseract-ocr, tika, tree, ufraw, unrar-free, uuid
+ rsync, siegfried (>=1.0.0), sleuthkit, tesseract-ocr, tika, tree, ufraw, unrar-free, uuid
 Description: MCP Client for Archivematica
-  
-  
