@@ -29,3 +29,18 @@ dev (1.4.0)
 * Fix blank Keyword ("term") queries in archival storage and transfer backlog (#8292)
 * Fix default value of "query type" dropdown in archival storage and transfer backlog (#8292)
 * Allow DIP choices to be preconfigured (#7321)
+* Search: restrict nested fields searched when using string searches (#8338)
+* Elasticsearch: fix exception handling (#4757)
+* Search: replace "term" queries with "multi_match" queries (#8343)
+* taskStandard: refactor stdout/stderr string writing (#8404)
+* Advanced search: improve handling of queries with conditions other than "or" (#8401)
+* Buildscripts: touch a file to indicate mysql_dev has been run
+* METS Rights: fix model attribute name, XML generation (#8425)
+* verifyMD5: fix group type, hardcode "checksum" filename (#8415)
+* verifyMD5: fix event UUID (#8424)
+* verifyMD5: event type string is now "fixity check", not "fixity" (#8443)
+* createEventsForGroup: fix SQL query
+* SQL: use placeholders instead of interpolating values into SQL statements (#4901)
+* Remove client-specific Archivist's Toolkit upload script
+* Remove unused code
+* xml2obj: Fix handling of METS files containing sourceMD elements (#8431)
