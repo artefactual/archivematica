@@ -22,11 +22,7 @@
 # @subpackage Dashboard
 # @author Joseph Perry <joseph@artefactual.com>
 # @author Justin Simpson <jsimpson@artefactual.com>
-#import sys
-#sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 
-#import databaseInterface
-#databaseInterface.printSQL = True
 from components import helpers
 from django.db import connection
     
@@ -111,7 +107,6 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
     
     cursor.execute(sql, (sipUUID, sipUUID))
     objects = helpers.dictfetchall(cursor)
-    #objects = databaseInterface.queryAllSQL(sql)
     return objects 
     
 
@@ -119,12 +114,6 @@ if __name__ == '__main__':
     import sys
     uuid = "'%s'" % (sys.argv[1])
     sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-    #import databaseInterface
-    #databaseInterface.printSQL = True
     print "testing normalization report"
     sql = getNormalizationReportQuery(sipUUID=uuid)
     print sql
-    #rows = databaseInterface.queryAllSQL(sql)
-    #for row in rows:
-    #    print row
-    #    print
