@@ -75,7 +75,7 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
             fpr_formatversion fid on fii.fileID = fid.uuid
         where 
             f.fileGrpUse in ('original', 'service')
-            and f.sipUUID = '{0}'
+            and f.sipUUID = %s
         ) a 
         Left Join (
         select
@@ -109,7 +109,7 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         order by (access_normalization_failed + preservation_normalization_failed) desc;
     """
     
-    cursor.execute(sql, (sipUUID,))
+    cursor.execute(sql, (sipUUID, sipUUID))
     objects = helpers.dictfetchall(cursor)
     #objects = databaseInterface.queryAllSQL(sql)
     return objects 
