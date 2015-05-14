@@ -52,20 +52,20 @@ class unitSIP(unit):
     def setMagicLink(self, link, exitStatus=""):
         """Assign a link to the unit to process when loaded.
         Deprecated! Replaced with Set/Load Unit Variable"""
-        sip = SIP.objects.get(uuid=self.UUID)
-        sip.magiclink = link
+        updates = {
+            'magiclink': link
+        }
         if exitStatus:
-            sip.magiclinkexitmessage = exitStatus
-        sip.save()
+            updates['magiclinkexitmessage'] = exitStatus
+        SIP.objects.filter(uuid=self.UUID).update(**updates)
 
     def getMagicLink(self):
         """Load a link from the unit to process.
         Deprecated! Replaced with Set/Load Unit Variable"""
         try:
-            sip = SIP.objects.get(uuid=self.UUID)
-        except SIP.DoesNotExist:
+            return SIP.objects.filter(uuid=self.UUID).values_list("magiclink", "magiclinkexitmessage")[0]
+        except IndexError:
             return
-        return (sip.magiclink, sip.magiclinkexitmessage)
 
     def reload(self):
         sip = SIP.objects.get(uuid=self.UUID)

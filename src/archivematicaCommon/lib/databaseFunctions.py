@@ -179,12 +179,12 @@ def insertIntoFilesIDs(fileUUID="", formatName="", formatVersion="", formatRegis
     Creates a new entry in the FilesIDs table using the provided data.
     This function, and its associated table, may be removed in the future.
     """
-    f = FileID(file_id=fileUUID,
-               format_name=formatName,
-               format_version=formatVersion,
-               format_registry_name=formatRegistryName,
-               format_registry_key=formatRegistryKey)
-    f.save()
+    FileID.objects.create(
+        file_id=fileUUID,
+        format_name=formatName,
+        format_version=formatVersion,
+        format_registry_name=formatRegistryName,
+        format_registry_key=formatRegistryKey)
 
 
 #user approved?
@@ -228,12 +228,12 @@ def logTaskCompletedSQL(task):
     stdOut = task.results["stdOut"]
     stdError = task.results["stdError"]
 
-    task = Task.objects.get(taskuuid=taskUUID)
-    task.endtime = getUTCDate()
-    task.exitcode = exitCode
-    task.stdout = stdOut
-    task.stderror = stdError
-    task.save()
+    Task.objects.filter(taskuuid=taskUUID).update(
+        endtime=getUTCDate(),
+        exitcode=exitCode,
+        stdout=stdOut,
+        stderror=stdError,
+    )
 
 def logJobCreatedSQL(job):
     """
@@ -285,10 +285,7 @@ def fileWasRemoved(fileUUID, utcDate=None, eventDetail = "", eventOutcomeDetailN
                        eventOutcome=eventOutcome, \
                        eventOutcomeDetailNote=eventOutcomeDetailNote)
 
-    f = File.objects.get(uuid=fileUUID)
-    f.removedtime = utcDate
-    f.currentlocation = None
-    f.save()
+    File.objects.filter(uuid=fileUUID).update(removedtime=utcDate, currentlocation=None)
 
 def createSIP(path, UUID=None, sip_type='SIP'):
     """
@@ -303,10 +300,10 @@ def createSIP(path, UUID=None, sip_type='SIP'):
     if UUID is None:
         UUID = str(uuid.uuid4())
     print "Creating SIP:", UUID, "-", path
-    sip = SIP(uuid=UUID,
-              currentpath=path,
-              sip_type=sip_type)
-    sip.save()
+    SIP.objects.create(
+        uuid=UUID,
+        currentpath=path,
+        sip_type=sip_type)
 
     return UUID
 

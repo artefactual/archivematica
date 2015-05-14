@@ -47,10 +47,9 @@ class unitTransfer(unit):
 
         if not UUID:
             try:
-                transfer = Transfer.objects.get(currentlocation=currentPath2)
-                UUID = transfer.uuid
+                UUID = Transfer.objects.filter(currentlocation=currentPath2).values_list('uuid')[0][0]
                 LOGGER.info('Using existing Transfer %s at %s', UUID, currentPath2)
-            except Transfer.DoesNotExist:
+            except IndexError:
                 pass
 
         if not UUID:
@@ -69,33 +68,26 @@ class unitTransfer(unit):
     def __str__(self):
         return 'unitTransfer: <UUID: {u.UUID}, path: {u.currentPath}>'.format(u=self)
 
-    def updateLocation(self, newLocation):
-        self.currentPath = newLocation
-        transfer = Transfer.objects.get(uuid=self.UUID)
-        transfer.currentlocation = newLocation
-        transfer.save()
-
     def setMagicLink(self, link, exitStatus=""):
         """Assign a link to the unit to process when loaded.
         Deprecated! Replaced with Set/Load Unit Variable"""
-        transfer = Transfer.objects.get(uuid=self.UUID)
-        transfer.magiclink = link
+        updates = {
+            "magiclink": link
+        }
         if exitStatus:
-            transfer.magiclinkexitmessage = exitStatus
-        transfer.save()
+            updates["magiclinkexitmessage"] = exitStatus
+        Transfer.objects.filter(uuid=self.UUID).update(**updates)
 
     def getMagicLink(self):
         """Load a link from the unit to process.
         Deprecated! Replaced with Set/Load Unit Variable"""
         try:
-            transfer = Transfer.objects.get(uuid=self.UUID)
-        except Transfer.DoesNotExist:
+            return Transfer.objects.filter(uuid=self.UUID).values_list("magiclink", "magiclinkexitmessage")[0]
+        except IndexError:
             return
-        return (transfer.magiclink, transfer.magiclinkexitmessage)
 
     def reload(self):
-        transfer = Transfer.objects.get(uuid=self.UUID)
-        self.currentPath = transfer.currentlocation
+        self.currentPath = Transfer.objects.filter(uuid=self.UUID).values_list("currentlocation")[0][0]
 
     def getReplacementDic(self, target):
         ret = ReplacementDict.frommodel(

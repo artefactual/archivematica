@@ -85,10 +85,7 @@ class unit:
                                            variable=variable)
         if variables:
             LOGGER.info('Existing UnitVariables for %s updated to %s (MSCL %s)', variable, variableValue, microServiceChainLink)
-            for var in variables:
-                var.variablevalue = variableValue
-                var.microservicechainlink_id = microServiceChainLink
-                var.save()
+            variables.update(variablevalue=variableValue, microservicechainlink_id=microServiceChainLink)
         else:
             LOGGER.info('New UnitVariable created for %s: %s (MSCL: %s)', variable, variableValue, microServiceChainLink)
             var = UnitVariable(
@@ -102,9 +99,10 @@ class unit:
     def getmicroServiceChainLink(self, variable, variableValue, defaultMicroServiceChainLink):
         LOGGER.debug('Fetching MicroServiceChainLink for %s (default %s)', variable, defaultMicroServiceChainLink)
         try:
-            var = UnitVariable.objects.get(unittype=self.unitType,
-                                           unituuid=self.UUID,
-                                           variable=variable)
-            return var.microservicechainlink
-        except UnitVariable.DoesNotExist:
+            return UnitVariable.objects.filter(
+                unittype=self.unitType,
+                unituuid=self.UUID,
+                variable=variable
+            ).values_list('microservicechainlink_id', flat=True)[0]
+        except IndexError:
             return defaultMicroServiceChainLink
