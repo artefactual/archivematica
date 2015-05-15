@@ -34,6 +34,7 @@
 # stdlib, alphabetical by import source
 import ConfigParser
 import logging
+import logging.config
 import os
 from pwd import getpwnam
 import pyinotify
@@ -270,9 +271,54 @@ def cleanupOldDbEntriesOnNewRun():
     Task.objects.filter(exitcode=None).update(exitcode=-1, stderror="MCP shut down while processing.")
 
 
+LOGGING_CONFIG = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'detailed': {
+            'format': '%(levelname)-8s  %(asctime)s  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+    },
+    'handlers': {
+        'logfile': {
+            'level': 'INFO',
+            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
+            'filename': '/var/log/archivematica/MCPServer/MCPServer.log',
+            'formatter': 'detailed',
+            'backupCount': 5,
+            'maxBytes': 4 * 1024 * 1024,  # 4 MiB
+        },
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+    },
+    'loggers': {
+        'archivematica.mcp.server': {
+            'handlers': ['logfile'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'archivematica.common': {
+            'handlers': ['debug_logfile', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'py.warnings': {
+            'handlers': ['null'],
+            'propagate': False,
+        }
+    },
+    'root': {
+        'handlers': ['logfile'],
+        'level': 'INFO',
+    }
+}
+
 if __name__ == '__main__':
-    logger = logging.getLogger("archivematica")
-    logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/MCPServer/MCPServer.log", maxBytes=4194304))
+    logging.config.dictConfig(LOGGING_CONFIG)
+    logger = logging.getLogger("archivematica.mcp.server")
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
