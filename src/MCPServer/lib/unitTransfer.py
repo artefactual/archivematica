@@ -64,6 +64,10 @@ class unitTransfer(unit):
         self.currentPath = currentPath2
         self.UUID = UUID
         self.fileList = {}
+        self.query = Transfer.objects.filter(uuid=self.UUID)
+
+    def getModel(self):
+        return self.query[0]
 
     def __str__(self):
         return 'unitTransfer: <UUID: {u.UUID}, path: {u.currentPath}>'.format(u=self)
@@ -76,23 +80,23 @@ class unitTransfer(unit):
         }
         if exitStatus:
             updates["magiclinkexitmessage"] = exitStatus
-        Transfer.objects.filter(uuid=self.UUID).update(**updates)
+        self.query.update(**updates)
 
     def getMagicLink(self):
         """Load a link from the unit to process.
         Deprecated! Replaced with Set/Load Unit Variable"""
         try:
-            return Transfer.objects.filter(uuid=self.UUID).values_list("magiclink", "magiclinkexitmessage")[0]
+            return self.query.values_list("magiclink", "magiclinkexitmessage")[0]
         except IndexError:
             return
 
     def reload(self):
-        self.currentPath = Transfer.objects.filter(uuid=self.UUID).values_list("currentlocation")[0][0]
+        self.currentPath = self.query.values_list("currentlocation")[0][0]
 
     def getReplacementDic(self, target):
         ret = ReplacementDict.frommodel(
             type_='transfer',
-            sip=self.UUID
+            sip=self.getModel(),
         )
         ret["%unitType%"] = self.unitType
         return ret

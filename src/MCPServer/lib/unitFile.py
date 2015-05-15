@@ -50,7 +50,8 @@ class unitFile(object):
         elif self.UUID != "None":
             return ReplacementDict.frommodel(
                 type_='file',
-                file_=self.UUID
+                file_=self.UUID,
+                sip=self.owningUnit.getModel(),
             )
         # If no UUID has been assigned yet, we can't use the
         # ReplacementDict.frommodel constructor; fall back to the

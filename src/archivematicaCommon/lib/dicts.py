@@ -132,16 +132,17 @@ class ReplacementDict(dict):
 
         if file_:
             rd['%fileUUID%'] = file_.uuid
-            try:
-                base_location = file_.sip.currentpath
-            except:
-                base_location = file_.transfer.currentlocation
 
             if expand_path and sipdir is not None:
-                base_location = base_location.replace('%sharedPath%', shared_path)
-                # If the original location contains non-unicode characters,
+                try:
+                    base_location = sip.currentpath
+                except:
+                    base_location = sip.currentlocation
+                # If the location contains non-unicode characters,
                 # using base_location as retrieved from the DB will raise.
-                origin = file_.originallocation.replace('%transferDirectory%', base_location.encode("utf-8"))
+                base_location = base_location.replace('%sharedPath%', shared_path).encode('utf-8')
+                sipdir = sipdir.encode('utf-8')
+                origin = file_.originallocation.replace('%transferDirectory%', base_location)
                 current_location = file_.currentlocation.replace('%transferDirectory%', base_location)
                 current_location = current_location.replace('%SIPDirectory%', sipdir)
             else:

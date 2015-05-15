@@ -45,6 +45,10 @@ class unitSIP(unit):
         self.owningUnit = None
         self.unitType = "SIP"
         self.aipFilename = ""
+        self.query = SIP.objects.filter(uuid=self.UUID)
+
+    def getModel(self):
+        return self.query[0]
 
     def __str__(self):
         return 'unitSIP: <UUID: {u.UUID}, path: {u.currentPath}>'.format(u=self)
@@ -57,13 +61,13 @@ class unitSIP(unit):
         }
         if exitStatus:
             updates['magiclinkexitmessage'] = exitStatus
-        SIP.objects.filter(uuid=self.UUID).update(**updates)
+        self.query.update(**updates)
 
     def getMagicLink(self):
         """Load a link from the unit to process.
         Deprecated! Replaced with Set/Load Unit Variable"""
         try:
-            return SIP.objects.filter(uuid=self.UUID).values_list("magiclink", "magiclinkexitmessage")[0]
+            return self.query.values_list("magiclink", "magiclinkexitmessage")[0]
         except IndexError:
             return
 
@@ -78,7 +82,7 @@ class unitSIP(unit):
         """ Return a dict with all of the replacement strings for this unit and the value to replace with. """
         ret = ReplacementDict.frommodel(
             type_='sip',
-            sip=self.UUID
+            sip=self.getModel()
         )
         ret["%AIPFilename%"] = self.aipFilename
         ret["%unitType%"] = self.unitType
