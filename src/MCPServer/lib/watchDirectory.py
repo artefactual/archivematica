@@ -21,6 +21,7 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 # @thanks to http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html
+import logging
 import os
 import time
 import threading
@@ -30,6 +31,8 @@ from archivematicaFunctions import unicodeToStr
 
 from archivematicaMCP import debug
 DEBUG = debug
+
+LOGGER = logging.getLogger('archivematica.mcp.server')
 
 class archivematicaWatchDirectory:
     """Watches for new files/directories to process in a watched directory. Directories are defined in the WatchedDirectoriesTable.""" 
@@ -65,8 +68,7 @@ class archivematicaWatchDirectory:
     def start(self):
         """Based on polling example: http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html"""
         self.run = True
-        if DEBUG:
-            print "watching directory: ", self.directory
+        LOGGER.info('Watching directory %s (Files: %s)', self.directory, self.alertOnFiles)
         before = dict ([(f, None) for f in os.listdir (self.directory)])
         while self.run:
             time.sleep (self.interval)
@@ -74,15 +76,13 @@ class archivematicaWatchDirectory:
             added = [f for f in after if not f in before]
             removed = [f for f in before if not f in after]
             if added: 
-                if DEBUG:
-                    print "Added: ", ", ".join (added)
+                LOGGER.debug('Added %s', added)
                 for i in added:
                     i = unicodeToStr(i)
                     directory = unicodeToStr(self.directory)
                     self.event(os.path.join(directory, i), self.variablesAdded, self.callBackFunctionAdded)
             if removed:
-                if DEBUG: 
-                    print "Removed: ", ", ".join (removed)
+                LOGGER.debug('Removed %s', removed)
                 for i in removed:
                     i = unicodeToStr(i)
                     directory = unicodeToStr(self.directory)
@@ -110,5 +110,3 @@ if __name__ == '__main__':
     #directory = "."
     variablesOnAdded = {"something":"yes", "nothing":"no"}
     archivematicaWatchDirectory(directory, threaded=False, variablesAdded=variablesOnAdded, callBackFunctionAdded=testCallBackFunction, callBackFunctionRemoved=testCallBackFunction)
-                  
-    

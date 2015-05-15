@@ -20,9 +20,10 @@
 # @package Archivematica
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
+import logging
 import sys
 import uuid
-import MySQLdb
+
 from linkTaskManagerDirectories import linkTaskManagerDirectories
 from linkTaskManagerFiles import linkTaskManagerFiles
 from linkTaskManagerChoice import linkTaskManagerChoice
@@ -33,10 +34,14 @@ from linkTaskManagerGetMicroserviceGeneratedListInStdOut import linkTaskManagerG
 from linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList import linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList
 from linkTaskManagerSetUnitVariable import linkTaskManagerSetUnitVariable
 from linkTaskManagerUnitVariableLinkPull import linkTaskManagerUnitVariableLinkPull
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from databaseFunctions import logJobCreatedSQL, getUTCDate
+
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode, TaskType
+
+LOGGER = logging.getLogger('archivematica.mcp.server')
 
 # Constants
 constOneTask = TaskType.objects.get(description="one instance").pk
@@ -83,7 +88,7 @@ class jobChainLink:
         self.defaultExitMessage = link.defaultexitmessage
         self.microserviceGroup = link.microservicegroup
 
-        print "<<<<<<<<< ", self.description, " >>>>>>>>>"
+        LOGGER.info('Running %s (unit %s)', self.description, self.unit.UUID)
         self.unit.reload()
 
         logJobCreatedSQL(self)
@@ -117,7 +122,7 @@ class jobChainLink:
         elif taskType == constlinkTaskManagerSetUnitVariable:
             linkTaskManagerSetUnitVariable(self, taskTypePKReference, self.unit)
         else:
-            print >> sys.stderr, "unsupported task type: ", taskType
+            LOGGER.error('Unsupported task type %s', taskType)
 
     def getNextChainLinkPK(self, exitCode):
         if exitCode is not None:
@@ -139,7 +144,7 @@ class jobChainLink:
         if message is not None:
             self.setExitMessage(message)
         else:
-            print "No exit message"
+            LOGGER.debug('No exit message')
 
     def linkProcessingComplete(self, exitCode, passVar=None):
         self.updateExitMessage(exitCode)

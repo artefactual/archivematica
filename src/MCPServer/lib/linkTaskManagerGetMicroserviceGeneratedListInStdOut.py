@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 # Stdlib, alphabetical by import source
+import logging
 import os
 import sys
 import threading
@@ -35,6 +36,7 @@ from dicts import ChoicesDict, ReplacementDict
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import StandardTaskConfig
 
+LOGGER = logging.getLogger('archivematica.mcp.server')
 
 class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
@@ -88,8 +90,7 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
         try:
             choices = ChoicesDict.fromstring(task.results["stdOut"])
         except Exception:
-            print >>sys.stderr, "ERROR: Unable to create dic from output", \
-                task.results["stdOut"], 'taskCompletedCallBackFunction'
+            LOGGER.exception('Unable to create dic from output %s', task.results['stdOut'])
             choices = ChoicesDict({})
         if self.jobChainLink.passVar is not None:
             if isinstance(self.jobChainLink.passVar, list):

@@ -21,11 +21,13 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+import logging
 import sys
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
+LOGGER = logging.getLogger('archivematica.mcp.server')
 
 class unitFile(object):
     """For objects representing a File"""
@@ -38,6 +40,9 @@ class unitFile(object):
         self.pathString = ""
         if owningUnit:
             self.pathString = owningUnit.pathString
+
+    def __str__(self):
+        return 'unitFile: <UUID: {u.UUID}, path: {u.currentPath}>'.format(u=self)
 
     def getReplacementDic(self, target=None):
         if target is not None and self.owningUnit:

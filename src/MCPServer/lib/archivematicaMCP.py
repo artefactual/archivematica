@@ -42,7 +42,6 @@ import signal
 import sys
 import threading
 import time
-import traceback
 import uuid
 
 # This project, alphabetical by import source
@@ -55,7 +54,6 @@ from unitTransfer import unitTransfer
 import RPCServer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from custom_handlers import GroupWriteRotatingFileHandler
 import databaseInterface
 import databaseFunctions
 from externals.singleInstance import singleinstance
@@ -121,24 +119,24 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
         sips = SIP.objects.filter(currentpath=path)
         count = sips.count()
         if count > 1:
-            print "Warning: found more than one matching SIP for path", path, "- using first result"
+            logger.warning('More than one SIP for path %s, using first result', path)
         if count > 0:
             UUID = sips[0].uuid
-            print "Opening existing SIP:", UUID, "-", path
+            logger.info('Using existing SIP %s at %s', UUID, path)
         else:
-            print "Not opening existing SIP:", UUID, "-", path
+            logger.info('Not using existing SIP %s at %s', UUID, path)
 
     #Create it
     if not UUID:
         UUID = databaseFunctions.createSIP(path)
-        print "DEBUG creating sip", path, UUID
+        logger.info('Creating SIP %s at %s', UUID, path)
     return UUID
 
 def createUnitAndJobChain(path, config, terminate=False):
     path = unicodeToStr(path)
     if os.path.isdir(path):
             path = path + "/"
-    print "createUnitAndJobChain", path, config
+    logger.debug('Creating unit and job chain for %s with %s', path, config)
     unit = None
     if os.path.isdir(path):
         if config[3] == "SIP":
@@ -166,24 +164,20 @@ def createUnitAndJobChain(path, config, terminate=False):
 def createUnitAndJobChainThreaded(path, config, terminate=True):
     global countOfCreateUnitAndJobChainThreaded
     try:
-        if debug:
-            print "DEBGUG alert watch path: ", path
+        logger.debug('Watching path %s', path)
         t = threading.Thread(target=createUnitAndJobChain, args=(path, config), kwargs={"terminate":terminate})
         t.daemon = True
         countOfCreateUnitAndJobChainThreaded += 1
         while(limitTaskThreads <= threading.activeCount() + reservedAsTaskProcessingThreads ):
             if stopSignalReceived:
-                print "Signal was received; stopping createUnitAndJobChainThreaded(path, config)"
+                logger.info('Signal was received; stopping createUnitAndJobChainThreaded(path, config)')
                 exit(0)
-            print threading.activeCount().__str__()
+            logger.debug('Active thread count: %s', threading.activeCount())
             time.sleep(.5)
         countOfCreateUnitAndJobChainThreaded -= 1
         t.start()
-    except Exception as inst:
-        print "DEBUG EXCEPTION!"
-        traceback.print_exc(file=sys.stdout)
-        print type(inst)     # the exception instance
-        print inst.args
+    except Exception:
+        logger.exception('Error creating threads to watch directories')
 
 def watchDirectories():
     """Start watching the watched directories defined in the WatchedDirectories table in the database."""
@@ -221,28 +215,19 @@ def watchDirectories():
 
 def signal_handler(signalReceived, frame):
     """Used to handle the stop/kill command signals (SIGKILL)"""
-    print signalReceived, frame
+    logger.info('Recieved signal %s in frame %s', signalReceived, frame)
     global stopSignalReceived
     stopSignalReceived = True
     threads = threading.enumerate()
     for thread in threads:
-        if False and isinstance(thread, threading.Thread):
-            try:
-                print "not stopping: ", type(thread), thread
-            except Exception as inst:
-                print "DEBUG EXCEPTION!"
-                print type(inst)     # the exception instance
-                print inst.args
-        elif isinstance(thread, pyinotify.ThreadedNotifier):
-            print "stopping: ", type(thread), thread
+        if isinstance(thread, pyinotify.ThreadedNotifier):
+            logger.info('Stopping %s %s', type(thread), thread)
             try:
                 thread.stop()
             except Exception as inst:
-                print >>sys.stderr, "DEBUG EXCEPTION!"
-                print >>sys.stderr, type(inst)     # the exception instance
-                print >>sys.stderr, inst.args
+                logger.exception('Error stopping thread')
         else:
-            print "not stopping: ", type(thread), thread
+            logger.warning('Not stopping %s %s', type(thread), thread)
     sys.stdout.flush()
     sys.stderr.flush()
     sys.exit(0)
@@ -256,7 +241,10 @@ def debugMonitor():
         if databaseInterface.sqlLock.acquire(False):
             databaseInterface.sqlLock.release()
             dblockstatus = "SQL Lock: Unlocked"
-        print "<DEBUG type=\"archivematicaMCP\">", "\tDate Time: ", databaseFunctions.getUTCDate(), "\tThreadCount: ", threading.activeCount(), "\tcountOfCreateUnitAndJobChainThreaded", countOfCreateUnitAndJobChainThreaded, dblockstatus, "</DEBUG>"
+        logger.debug('Debug monitor: datetime: %s', databaseFunctions.getUTCDate())
+        logger.debug('Debug monitor: thread count: %s', threading.activeCount())
+        logger.debug('Debug monitor: created job chain threaded: %s', countOfCreateUnitAndJobChainThreaded)
+        logger.debug('Debug monitor: DB lock status: %s', dblockstatus)
         time.sleep(3600)
 
 def flushOutputs():
@@ -281,6 +269,14 @@ LOGGING_CONFIG = {
         },
     },
     'handlers': {
+        'debug_logfile': {
+            'level': 'DEBUG',
+            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
+            'filename': '/var/log/archivematica/MCPServer/MCPServer.debug.log',
+            'formatter': 'detailed',
+            'backupCount': 5,
+            'maxBytes': 4 * 1024 * 1024,  # 4 MiB
+        },
         'logfile': {
             'level': 'INFO',
             'class': 'custom_handlers.GroupWriteRotatingFileHandler',
@@ -296,8 +292,8 @@ LOGGING_CONFIG = {
     },
     'loggers': {
         'archivematica.mcp.server': {
-            'handlers': ['logfile'],
-            'level': 'INFO',
+            'handlers': ['debug_logfile', 'logfile'],
+            'level': 'DEBUG',
             'propagate': False,
         },
         'archivematica.common': {
@@ -324,13 +320,13 @@ if __name__ == '__main__':
     signal.signal(signal.SIGTERM, signal_handler)
     si = singleinstance(config.get('MCPServer', "singleInstancePIDFile"))
     if si.alreadyrunning():
-        print >>sys.stderr, "Another instance is already running. Killing PID:", si.pid
+        logger.warning('Another instance is already running. Killing PID %s', si.pid)
         si.kill()
 
-    print "This PID: ", si.pid
+    logger.info('This PID: %s', si.pid)
 
     import getpass
-    print "user: ", getpass.getuser()
+    logger.info('User: %s', getpass.getuser())
     os.setuid(getpwnam('archivematica').pw_uid)
 
     t = threading.Thread(target=debugMonitor)

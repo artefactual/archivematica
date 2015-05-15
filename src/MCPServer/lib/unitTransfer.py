@@ -21,12 +21,13 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-from unit import unit
-import uuid
-import archivematicaMCP
-import sys
-
+import logging
 import lxml.etree as etree
+import sys
+import uuid
+
+import archivematicaMCP
+from unit import unit
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Transfer
@@ -34,6 +35,7 @@ from main.models import Transfer
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
+LOGGER = logging.getLogger('archivematica.mcp.server')
 
 class unitTransfer(unit):
     def __init__(self, currentPath, UUID=""):
@@ -47,7 +49,7 @@ class unitTransfer(unit):
             try:
                 transfer = Transfer.objects.get(currentlocation=currentPath2)
                 UUID = transfer.uuid
-                print "Opening existing Transfer:", UUID, "-", currentPath2
+                LOGGER.info('Using existing Transfer %s at %s', UUID, currentPath2)
             except Transfer.DoesNotExist:
                 pass
 
@@ -63,6 +65,9 @@ class unitTransfer(unit):
         self.currentPath = currentPath2
         self.UUID = UUID
         self.fileList = {}
+
+    def __str__(self):
+        return 'unitTransfer: <UUID: {u.UUID}, path: {u.currentPath}>'.format(u=self)
 
     def updateLocation(self, newLocation):
         self.currentPath = newLocation

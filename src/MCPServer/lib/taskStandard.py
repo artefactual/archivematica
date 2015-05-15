@@ -21,17 +21,21 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import uuid
-import time
-import gearman
 import cPickle
 import datetime
-import archivematicaMCP
+import gearman
+import logging
 import os
 import sys
+import time
+import uuid
+
+import archivematicaMCP
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from fileOperations import writeToFile
 
+LOGGER = logging.getLogger('archivematica.mcp.server')
 
 # ~Class Task~
 #Tasks are what are assigned to clients.
@@ -60,7 +64,7 @@ class taskStandard():
         gm_client = gearman.GearmanClient([archivematicaMCP.config.get('MCPServer', "MCPArchivematicaServer")])
         data = {"createdDate" : datetime.datetime.now().__str__()}
         data["arguments"] = self.arguments
-        print '"'+self.execute+'"', data
+        LOGGER.info('Executing %s %s', self.execute, data)
         completed_job_request = None
         failMaxSleep = 60
         failSleepInitial = 1
@@ -69,47 +73,40 @@ class taskStandard():
         while completed_job_request == None:
             try:
                 completed_job_request = gm_client.submit_job(self.execute.lower(), cPickle.dumps(data), self.UUID)
-            except gearman.errors.ServerUnavailable as inst:
+            except gearman.errors.ServerUnavailable:
                 completed_job_request = None
                 time.sleep(failSleep)
                 if failSleep == failSleepInitial:
-                    print >>sys.stderr, inst.args
-                    print >>sys.stderr, "Retrying issueing gearman command."
+                    LOGGER.exception('Error submitting job. Retrying.')
                 if failSleep < failMaxSleep:
                     failSleep += failSleepIncrementor
         limitGearmanConnectionsSemaphore.release()
         self.check_request_status(completed_job_request)
         gm_client.shutdown()
-        print "DEBUG: FINISHED PERFORMING TASK: ", self.UUID
+        LOGGER.debug('Finished performing task %s', self.UUID)
 
     def check_request_status(self, job_request):
         if job_request.complete:
             self.results = cPickle.loads(job_request.result)
-            print "Task %s finished!  Result: %s - %s" % (job_request.job.unique, job_request.state, self.results)
+            LOGGER.debug('Task %s finished! Result %s - %s', job_request.job.unique, job_request.state, self.results)
             self.writeOutputs()
             self.linkTaskManager.taskCompletedCallBackFunction(self)
-
         elif job_request.timed_out:
-            print >>sys.stderr, "Task %s timed out!" % job_request.unique
+            LOGGER.error('Task %s timed out!', job_request.unique)
             self.results['exitCode'] = -1
             self.results["stdError"] = "Task %s timed out!" % job_request.unique
             self.linkTaskManager.taskCompletedCallBackFunction(self)
 
         elif job_request.state == gearman.client.JOB_UNKNOWN:
-            print >>sys.stderr, "Task %s connection failed!" % job_request.unique
+            LOGGER.error('Task %s connection failed!', job_request.unique)
             self.results["stdError"] = "Task %s connection failed!" % job_request.unique
             self.results['exitCode'] = -1
             self.linkTaskManager.taskCompletedCallBackFunction(self)
-
         else:
-            print >>sys.stderr, "Task %s failed!" % job_request.unique
+            LOGGER.error('Task %s failed!', job_request.unique)
             self.results["stdError"] = "Task %s failed!" % job_request.unique
             self.results['exitCode'] = -1
             self.linkTaskManager.taskCompletedCallBackFunction(self)
-
-
-
-
 
     def outputFileIsWritable(self, fileName):
         """
@@ -130,7 +127,7 @@ class taskStandard():
             return False
 
         if not self.outputFileIsWritable(fileName):
-            print "taskStandard: unable to write to file {}".format(fileName)
+            LOGGER.warning('Unable to write to file %s', fileName)
             return False
 
         return True
