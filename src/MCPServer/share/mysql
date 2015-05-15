@@ -2501,32 +2501,32 @@ DROP TABLE IF EXISTS `fpr_fpcommand`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `fpr_fpcommand` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `replaces_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `enabled` tinyint(1) NOT NULL,
-  `lastmodified` datetime NOT NULL,
-  `uuid` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
-  `tool_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `description` varchar(256) COLLATE utf8_unicode_ci NOT NULL,
-  `command` longtext COLLATE utf8_unicode_ci NOT NULL,
-  `script_type` varchar(16) COLLATE utf8_unicode_ci NOT NULL,
-  `output_location` longtext COLLATE utf8_unicode_ci,
-  `output_format_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `command_usage` varchar(16) COLLATE utf8_unicode_ci NOT NULL,
-  `verification_command_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `event_detail_command_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid` (`uuid`),
-  KEY `output_format_id_refs_uuid_e187d88f` (`output_format_id`),
-  KEY `replaces_id_refs_uuid_bd1394fd` (`replaces_id`),
-  KEY `verification_command_id_refs_uuid_bd1394fd` (`verification_command_id`),
-  KEY `event_detail_command_id_refs_uuid_bd1394fd` (`event_detail_command_id`),
-  KEY `tool_id_refs_uuid_38b1c33` (`tool_id`),
-  CONSTRAINT `event_detail_command_id_refs_uuid_bd1394fd` FOREIGN KEY (`event_detail_command_id`) REFERENCES `fpr_fpcommand` (`uuid`),
-  CONSTRAINT `output_format_id_refs_uuid_e187d88f` FOREIGN KEY (`output_format_id`) REFERENCES `fpr_formatversion` (`uuid`),
-  CONSTRAINT `replaces_id_refs_uuid_bd1394fd` FOREIGN KEY (`replaces_id`) REFERENCES `fpr_fpcommand` (`uuid`),
-  CONSTRAINT `tool_id_refs_uuid_38b1c33` FOREIGN KEY (`tool_id`) REFERENCES `fpr_fptool` (`uuid`),
-  CONSTRAINT `verification_command_id_refs_uuid_bd1394fd` FOREIGN KEY (`verification_command_id`) REFERENCES `fpr_fpcommand` (`uuid`)
+`id` int(11) NOT NULL AUTO_INCREMENT,
+`replaces_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
+`enabled` tinyint(1) NOT NULL,
+`lastmodified` datetime NOT NULL,
+`uuid` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
+`tool_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
+`description` varchar(256) COLLATE utf8_unicode_ci NOT NULL,
+`command` longtext COLLATE utf8_unicode_ci NOT NULL,
+`script_type` varchar(16) COLLATE utf8_unicode_ci NOT NULL,
+`output_location` longtext COLLATE utf8_unicode_ci,
+`output_format_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
+`command_usage` varchar(16) COLLATE utf8_unicode_ci NOT NULL,
+`verification_command_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
+`event_detail_command_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `uuid` (`uuid`),
+KEY `output_format_id_refs_uuid_e187d88f` (`output_format_id`),
+KEY `replaces_id_refs_uuid_bd1394fd` (`replaces_id`),
+KEY `verification_command_id_refs_uuid_bd1394fd` (`verification_command_id`),
+KEY `event_detail_command_id_refs_uuid_bd1394fd` (`event_detail_command_id`),
+KEY `tool_id_refs_uuid_38b1c33` (`tool_id`),
+CONSTRAINT `event_detail_command_id_refs_uuid_bd1394fd` FOREIGN KEY (`event_detail_command_id`) REFERENCES `fpr_fpcommand` (`uuid`),
+CONSTRAINT `output_format_id_refs_uuid_e187d88f` FOREIGN KEY (`output_format_id`) REFERENCES `fpr_formatversion` (`uuid`),
+CONSTRAINT `replaces_id_refs_uuid_bd1394fd` FOREIGN KEY (`replaces_id`) REFERENCES `fpr_fpcommand` (`uuid`),
+CONSTRAINT `tool_id_refs_uuid_38b1c33` FOREIGN KEY (`tool_id`) REFERENCES `fpr_fptool` (`uuid`),
+CONSTRAINT `verification_command_id_refs_uuid_bd1394fd` FOREIGN KEY (`verification_command_id`) REFERENCES `fpr_fpcommand` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2548,25 +2548,25 @@ DROP TABLE IF EXISTS `fpr_fprule`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `fpr_fprule` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `replaces_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `enabled` tinyint(1) NOT NULL,
-  `lastmodified` datetime NOT NULL,
-  `uuid` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
-  `purpose` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
-  `command_id` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
-  `format_id` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
-  `count_attempts` int(11) NOT NULL,
-  `count_okay` int(11) NOT NULL,
-  `count_not_okay` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid` (`uuid`),
-  KEY `format_id_refs_uuid_365f2da7` (`format_id`),
-  KEY `replaces_id_refs_uuid_50262b13` (`replaces_id`),
-  KEY `command_id_refs_uuid_37ce2045` (`command_id`),
-  CONSTRAINT `command_id_refs_uuid_37ce2045` FOREIGN KEY (`command_id`) REFERENCES `fpr_fpcommand` (`uuid`),
-  CONSTRAINT `format_id_refs_uuid_365f2da7` FOREIGN KEY (`format_id`) REFERENCES `fpr_formatversion` (`uuid`),
-  CONSTRAINT `replaces_id_refs_uuid_50262b13` FOREIGN KEY (`replaces_id`) REFERENCES `fpr_fprule` (`uuid`)
+`id` int(11) NOT NULL AUTO_INCREMENT,
+`replaces_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
+`enabled` tinyint(1) NOT NULL,
+`lastmodified` datetime NOT NULL,
+`uuid` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
+`purpose` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+`command_id` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
+`format_id` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
+`count_attempts` int(11) NOT NULL,
+`count_okay` int(11) NOT NULL,
+`count_not_okay` int(11) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `uuid` (`uuid`),
+KEY `format_id_refs_uuid_365f2da7` (`format_id`),
+KEY `replaces_id_refs_uuid_50262b13` (`replaces_id`),
+KEY `command_id_refs_uuid_37ce2045` (`command_id`),
+CONSTRAINT `command_id_refs_uuid_37ce2045` FOREIGN KEY (`command_id`) REFERENCES `fpr_fpcommand` (`uuid`),
+CONSTRAINT `format_id_refs_uuid_365f2da7` FOREIGN KEY (`format_id`) REFERENCES `fpr_formatversion` (`uuid`),
+CONSTRAINT `replaces_id_refs_uuid_50262b13` FOREIGN KEY (`replaces_id`) REFERENCES `fpr_fprule` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=649 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2588,14 +2588,14 @@ DROP TABLE IF EXISTS `fpr_fptool`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `fpr_fptool` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `uuid` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
-  `description` varchar(256) COLLATE utf8_unicode_ci NOT NULL,
-  `version` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
-  `enabled` tinyint(1) NOT NULL,
-  `slug` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid` (`uuid`)
+`id` int(11) NOT NULL AUTO_INCREMENT,
+`uuid` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
+`description` varchar(256) COLLATE utf8_unicode_ci NOT NULL,
+`version` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+`enabled` tinyint(1) NOT NULL,
+`slug` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2617,22 +2617,22 @@ DROP TABLE IF EXISTS `fpr_idcommand`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `fpr_idcommand` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `replaces_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `enabled` tinyint(1) NOT NULL,
-  `lastmodified` datetime NOT NULL,
-  `uuid` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
-  `description` varchar(256) COLLATE utf8_unicode_ci NOT NULL,
-  `config` varchar(4) COLLATE utf8_unicode_ci NOT NULL,
-  `script` longtext COLLATE utf8_unicode_ci NOT NULL,
-  `script_type` varchar(16) COLLATE utf8_unicode_ci NOT NULL,
-  `tool_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid` (`uuid`),
-  KEY `replaces_id_refs_uuid_dc5c8519` (`replaces_id`),
-  KEY `tool_id_refs_uuid_8b5d5f5f` (`tool_id`),
-  CONSTRAINT `replaces_id_refs_uuid_dc5c8519` FOREIGN KEY (`replaces_id`) REFERENCES `fpr_idcommand` (`uuid`),
-  CONSTRAINT `tool_id_refs_uuid_8b5d5f5f` FOREIGN KEY (`tool_id`) REFERENCES `fpr_idtool` (`uuid`)
+`id` int(11) NOT NULL AUTO_INCREMENT,
+`replaces_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
+`enabled` tinyint(1) NOT NULL,
+`lastmodified` datetime NOT NULL,
+`uuid` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
+`description` varchar(256) COLLATE utf8_unicode_ci NOT NULL,
+`config` varchar(4) COLLATE utf8_unicode_ci NOT NULL,
+`script` longtext COLLATE utf8_unicode_ci NOT NULL,
+`script_type` varchar(16) COLLATE utf8_unicode_ci NOT NULL,
+`tool_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `uuid` (`uuid`),
+KEY `replaces_id_refs_uuid_dc5c8519` (`replaces_id`),
+KEY `tool_id_refs_uuid_8b5d5f5f` (`tool_id`),
+CONSTRAINT `replaces_id_refs_uuid_dc5c8519` FOREIGN KEY (`replaces_id`) REFERENCES `fpr_idcommand` (`uuid`),
+CONSTRAINT `tool_id_refs_uuid_8b5d5f5f` FOREIGN KEY (`tool_id`) REFERENCES `fpr_idtool` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2654,22 +2654,22 @@ DROP TABLE IF EXISTS `fpr_idrule`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `fpr_idrule` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `replaces_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `enabled` tinyint(1) NOT NULL,
-  `lastmodified` datetime NOT NULL,
-  `uuid` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
-  `command_id` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
-  `format_id` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
-  `command_output` longtext COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid` (`uuid`),
-  KEY `format_id_refs_uuid_419026e2` (`format_id`),
-  KEY `command_id_refs_uuid_9f407367` (`command_id`),
-  KEY `replaces_id_refs_uuid_a57a01f5` (`replaces_id`),
-  CONSTRAINT `command_id_refs_uuid_9f407367` FOREIGN KEY (`command_id`) REFERENCES `fpr_idcommand` (`uuid`),
-  CONSTRAINT `format_id_refs_uuid_419026e2` FOREIGN KEY (`format_id`) REFERENCES `fpr_formatversion` (`uuid`),
-  CONSTRAINT `replaces_id_refs_uuid_a57a01f5` FOREIGN KEY (`replaces_id`) REFERENCES `fpr_idrule` (`uuid`)
+`id` int(11) NOT NULL AUTO_INCREMENT,
+`replaces_id` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL,
+`enabled` tinyint(1) NOT NULL,
+`lastmodified` datetime NOT NULL,
+`uuid` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
+`command_id` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
+`format_id` varchar(36) COLLATE utf8_unicode_ci NOT NULL,
+`command_output` longtext COLLATE utf8_unicode_ci NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `uuid` (`uuid`),
+KEY `format_id_refs_uuid_419026e2` (`format_id`),
+KEY `command_id_refs_uuid_9f407367` (`command_id`),
+KEY `replaces_id_refs_uuid_a57a01f5` (`replaces_id`),
+CONSTRAINT `command_id_refs_uuid_9f407367` FOREIGN KEY (`command_id`) REFERENCES `fpr_idcommand` (`uuid`),
+CONSTRAINT `format_id_refs_uuid_419026e2` FOREIGN KEY (`format_id`) REFERENCES `fpr_formatversion` (`uuid`),
+CONSTRAINT `replaces_id_refs_uuid_a57a01f5` FOREIGN KEY (`replaces_id`) REFERENCES `fpr_idrule` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=657 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
