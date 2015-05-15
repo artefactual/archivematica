@@ -21,15 +21,17 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+import logging
 import os
 import sys
-import traceback
 
 import archivematicaMCP
 from unitFile import unitFile
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import File, UnitVariable
+
+LOGGER = logging.getLogger('archivematica.mcp.server')
 
 class unit:
     """A class to inherit from, to over-ride methods, defininging a processing object at the Job level"""
@@ -46,12 +48,12 @@ class unit:
                                                        archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1) + "/")
         try:
             for directory, subDirectories, files in os.walk(currentPath):
-                directory = directory.replace( currentPath, self.pathString, 1) 
-                for file in files:
-                    if self.pathString !=  directory:
-                        filePath = os.path.join(directory, file)
+                directory = directory.replace(currentPath, self.pathString, 1)
+                for file_ in files:
+                    if self.pathString != directory:
+                        filePath = os.path.join(directory, file_)
                     else:
-                        filePath = directory + file
+                        filePath = directory + file_
                     self.fileList[filePath] = unitFile(filePath, owningUnit=self)
 
             if self.unitType == "Transfer":
@@ -63,18 +65,16 @@ class unit:
                     self.fileList[f.currentlocation].UUID = f.uuid
                     self.fileList[f.currentlocation].fileGrpUse = f.filegrpuse
                 else:
-                    print >>sys.stderr, "!!!", self.unitType + " {" + self.UUID + "} has file {" + f.uuid + "}\"", f.currentlocation, "\" in the database, but file doesn't exist in the file system.", "!!!"
-        except Exception as inst:
-            traceback.print_exc(file=sys.stdout)
-            print  type(inst)
-            print  inst.args
+                    LOGGER.warning('%s %s has file (%s) %s in the database, but file does not exist in the file system',
+                        self.unitType, self.UUID, f.uuid, f.currentlocation)
+        except Exception:
+            LOGGER.exception('Error reloading file list for %s', currentPath)
             exit(1)
-
 
     def getMagicLink(self):
         return
 
-    def setMagicLink(self,link, exitStatus=""):
+    def setMagicLink(self, link, exitStatus=""):
         return
 
     def setVariable(self, variable, variableValue, microServiceChainLink):
@@ -84,20 +84,23 @@ class unit:
                                            unituuid=self.UUID,
                                            variable=variable)
         if variables:
+            LOGGER.info('Existing UnitVariables for %s updated to %s (MSCL %s)', variable, variableValue, microServiceChainLink)
             for var in variables:
                 var.variablevalue = variableValue
                 var.microservicechainlink_id = microServiceChainLink
                 var.save()
         else:
+            LOGGER.info('New UnitVariable created for %s: %s (MSCL: %s)', variable, variableValue, microServiceChainLink)
             var = UnitVariable(
                 unittype=self.unitType, unituuid=self.UUID,
                 variable=variable, variablevalue=variableValue,
                 microservicechainlink_id=microServiceChainLink
             )
             var.save()
-    
+
     # NOTE: variableValue argument is currently unused.
     def getmicroServiceChainLink(self, variable, variableValue, defaultMicroServiceChainLink):
+        LOGGER.debug('Fetching MicroServiceChainLink for %s (default %s)', variable, defaultMicroServiceChainLink)
         try:
             var = UnitVariable.objects.get(unittype=self.unitType,
                                            unituuid=self.UUID,

@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import datetime
+import logging
 import lxml.etree as etree
 import os
 import sys
@@ -41,6 +42,8 @@ sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import MicroServiceChainChoice
 
 waitingOnTimer="waitingOnTimer"
+
+LOGGER = logging.getLogger('archivematica.mcp.server')
 
 class linkTaskManagerChoice(LinkTaskManager):
     """Used to get a selection, from a list of chains, to process"""
@@ -101,8 +104,7 @@ class linkTaskManagerChoice(LinkTaskManager):
                                 nowTime=time.time()
                                 timeDifference = nowTime - unitTime
                                 timeToGo = delaySeconds - timeDifference
-                                print "time to go:", timeToGo
-                                #print "that will be: ", (nowTime + timeToGo)
+                                LOGGER.info('Time to go: %s', timeToGo)
                                 self.jobChainLink.setExitMessage("Waiting till: " + datetime.datetime.fromtimestamp((nowTime + timeToGo)).ctime())
 
                                 t = threading.Timer(timeToGo, self.proceedWithChoice, args=[desiredChoice, None], kwargs={"delayTimerStart":True})
@@ -112,9 +114,10 @@ class linkTaskManagerChoice(LinkTaskManager):
                                 return None
 
                         except Exception:
-                            print >>sys.stderr, "Error parsing xml for pre-configured choice"
+                            LOGGER.info('Error parsing XML', exc_info=True)
             except Exception:
-                print >>sys.stderr, "Error parsing xml for pre-configured choice"
+                LOGGER.warning('Error parsing xml at %s for pre-configured choice', xmlFilePath, exc_info=True)
+        LOGGER.info('Using preconfigured choice %s for %s', desiredChoice, self.jobChainLink.pk)
         return desiredChoice
 
     def xmlify(self):
@@ -129,8 +132,6 @@ class linkTaskManagerChoice(LinkTaskManager):
             etree.SubElement(choice, "description").text = description
         return ret
 
-
-
     def proceedWithChoice(self, chain, agent, delayTimerStart=False):
         if agent:
             self.unit.setVariable("activeAgent", agent, None)
@@ -143,4 +144,5 @@ class linkTaskManagerChoice(LinkTaskManager):
         self.delayTimerLock.release()
         choicesAvailableForUnitsLock.release()
         self.jobChainLink.setExitMessage("Completed successfully")
+        LOGGER.info('Using user selected chain %s', chain)
         jobChain.jobChain(self.unit, chain)

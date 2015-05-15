@@ -21,16 +21,18 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-from unit import unit
-import archivematicaMCP
+import logging
+import lxml.etree as etree
 import os
 import sys
 
-import lxml.etree as etree
+import archivematicaMCP
+from unit import unit
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
+LOGGER = logging.getLogger('archivematica.mcp.server')
 
 class UnitDIPError(Exception):
     pass
@@ -44,6 +46,9 @@ class unitDIP(unit):
         self.owningUnit = None
         self.pathString = "%SIPDirectory%"
         self.unitType = "DIP"
+
+    def __str__(self):
+        return 'unitDIP: <UUID: {u.UUID}, path: {u.currentPath}>'.format(u=self)
 
     def reload(self):
         pass

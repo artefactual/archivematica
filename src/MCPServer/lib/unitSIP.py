@@ -21,10 +21,12 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-from unit import unit
-import archivematicaMCP
+import logging
 import sys
 import lxml.etree as etree
+
+import archivematicaMCP
+from unit import unit
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import SIP
@@ -32,6 +34,7 @@ from main.models import SIP
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
+LOGGER = logging.getLogger('archivematica.mcp.server')
 
 class unitSIP(unit):
     def __init__(self, currentPath, UUID):
@@ -42,6 +45,9 @@ class unitSIP(unit):
         self.owningUnit = None
         self.unitType = "SIP"
         self.aipFilename = ""
+
+    def __str__(self):
+        return 'unitSIP: <UUID: {u.UUID}, path: {u.currentPath}>'.format(u=self)
 
     def setMagicLink(self, link, exitStatus=""):
         """Assign a link to the unit to process when loaded.

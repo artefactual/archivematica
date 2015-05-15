@@ -21,8 +21,9 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+import logging
 import sys
-import threading
+
 from jobChainLink import jobChainLink
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
@@ -36,6 +37,7 @@ from main.models import MicroServiceChain, UnitVariable
 #potentialToHold/getFromDB
 #-previous chain links
 
+LOGGER = logging.getLogger('archivematica.mcp.server')
 
 def fetchUnitVariableForUnit(unit_uuid):
     """
@@ -55,7 +57,7 @@ def fetchUnitVariableForUnit(unit_uuid):
 class jobChain:
     def __init__(self, unit, chainPK, notifyComplete=None, passVar=None, UUID=None, subJobOf=""):
         """Create an instance of a chain from the MicroServiceChains table"""
-        print "jobChain",  unit, chainPK
+        LOGGER.debug('Creating jobChain %s for chain %s', unit, chainPK)
         if chainPK == None:
             return None
         self.unit = unit
@@ -66,7 +68,7 @@ class jobChain:
         self.subJobOf = subJobOf
 
         chain = MicroServiceChain.objects.get(id=str(chainPK))
-        print "jobChain", chain
+        LOGGER.debug('Chain: %s', chain)
         self.startingChainLink = chain.startinglink_id
         self.description = chain.description
 
@@ -91,7 +93,7 @@ class jobChain:
         else:
             self.linkSplitCount -= 1
             if self.linkSplitCount == 0:
-                print "Done with UNIT:" + self.unit.UUID
+                LOGGER.debug('Done with unit %s', self.unit.UUID)
                 if self.notifyComplete:
                     self.notifyComplete(self)
 

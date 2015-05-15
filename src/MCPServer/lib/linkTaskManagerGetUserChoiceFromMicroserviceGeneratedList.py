@@ -32,7 +32,6 @@ from linkTaskManager import LinkTaskManager
 import archivematicaMCP
 from linkTaskManagerChoice import choicesAvailableForUnits
 from linkTaskManagerChoice import choicesAvailableForUnitsLock
-from linkTaskManagerChoice import waitingOnTimer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict, ChoicesDict
@@ -40,7 +39,6 @@ sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import StandardTaskConfig
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
-
 
 class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
@@ -52,7 +50,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
         choiceIndex = 0
         if isinstance(self.jobChainLink.passVar, list):
             for item in self.jobChainLink.passVar:
-                print item, "is ChoicesDict: ", isinstance(item, ChoicesDict)
+                LOGGER.debug('%s is ChoicesDict: %s', item, isinstance(item, ChoicesDict))
                 if isinstance(item, ChoicesDict):
                     # For display, convert the ChoicesDict passVar into a list
                     # of tuples: (index, description, replacement dict string)
@@ -62,16 +60,15 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
                         choiceIndex += 1
                     break
             else:
-                print >>sys.stderr, "self.jobChainLink.passVar", self.jobChainLink.passVar
-                LOGGER.error("ChoicesDict not found in passVar: {}".format(self.jobChainLink.passVar))
+                LOGGER.error("ChoicesDict not found in passVar: %s", self.jobChainLink.passVar)
                 raise Exception("ChoicesDict not found in passVar: {}".format(self.jobChainLink.passVar))
         else:
-            LOGGER.error("passVar is {} instead of expected list".format(
-                type(self.jobChainLink.passVar)))
+            LOGGER.error("passVar is %s instead of expected list",
+                type(self.jobChainLink.passVar))
             raise Exception("passVar is {} instead of expected list".format(
                 type(self.jobChainLink.passVar)))
 
-        print "LTM GetUserChoiceFromMicroserviceGeneratedList choices", self.choices
+        LOGGER.info('Choices: %s', self.choices)
 
         preConfiguredIndex = self.checkForPreconfiguredXML()
         if preConfiguredIndex is not None:
@@ -96,7 +93,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
             tree = etree.parse(xmlFilePath)
             root = tree.getroot()
         except (etree.LxmlError, IOError) as e:
-            print >>sys.stderr, "Error parsing xml for pre-configured choice", e
+            LOGGER.warning('Error parsing xml at %s for pre-configured choice', xmlFilePath, exc_info=True)
             return None
         for choice in root.findall(".//preconfiguredChoice"):
             # Find the choice whose text matches this link's description
@@ -112,7 +109,6 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
 
     def xmlify(self):
         """Returns an etree XML representation of the choices available."""
-        #print "xmlify"
         ret = etree.Element("choicesAvailableForUnit")
         etree.SubElement(ret, "UUID").text = self.jobChainLink.UUID
         ret.append(self.unit.xmlify())
@@ -121,10 +117,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
             choice = etree.SubElement(choices, "choice")
             etree.SubElement(choice, "chainAvailable").text = chainAvailable.__str__()
             etree.SubElement(choice, "description").text = description
-        #print etree.tostring(ret)
         return ret
-
-
 
     def proceedWithChoice(self, index, agent):
         if agent:

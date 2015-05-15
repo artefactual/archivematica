@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import ast
+import logging
 import os
 import threading
 import time
@@ -33,10 +34,11 @@ from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseFunctions
-from databaseFunctions import deUnicode
 from dicts import ReplacementDict
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import StandardTaskConfig, UnitVariable
+
+LOGGER = logging.getLogger('archivematica.mcp.server')
 
 class linkTaskManagerFiles(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
@@ -82,7 +84,6 @@ class linkTaskManagerFiles(LinkTaskManager):
         SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
         self.tasksLock.acquire()
         for file, fileUnit in unit.fileList.items():
-            #print "file:", file, fileUnit
             if filterFileEnd:
                 if not file.endswith(filterFileEnd):
                     continue
@@ -90,11 +91,6 @@ class linkTaskManagerFiles(LinkTaskManager):
                 if not os.path.basename(file).startswith(filterFileStart):
                     continue
             if filterSubDir:
-                #print "file", file, type(file)
-                #print unit.pathString, type(unit.pathString)
-                #filterSubDir = filterSubDir.encode('utf-8')
-                #print filterSubDir, type(filterSubDir)
-
                 if not file.startswith(unit.pathString + filterSubDir):
                     continue
 
@@ -114,12 +110,8 @@ class linkTaskManagerFiles(LinkTaskManager):
             commandReplacementDic = fileUnit.getReplacementDic()
             for key in commandReplacementDic.iterkeys():
                 value = commandReplacementDic[key].replace("\"", ("\\\""))
-                #print "key", type(key), key
-                #print "value", type(value), value
                 if isinstance(value, unicode):
                     value = value.encode("utf-8")
-                #key = key.encode("utf-8")
-                #value = value.encode("utf-8")
                 if execute:
                     execute = execute.replace(key, value)
                 if arguments:
@@ -131,12 +123,8 @@ class linkTaskManagerFiles(LinkTaskManager):
 
             for key in SIPReplacementDic.iterkeys():
                 value = SIPReplacementDic[key].replace("\"", ("\\\""))
-                #print "key", type(key), key
-                #print "value", type(value), value
                 if isinstance(value, unicode):
                     value = value.encode("utf-8")
-                #key = key.encode("utf-8")
-                #value = value.encode("utf-8")
 
                 if execute:
                     execute = execute.replace(key, value)
@@ -154,22 +142,17 @@ class linkTaskManagerFiles(LinkTaskManager):
             t = threading.Thread(target=task.performTask)
             t.daemon = True
             while(archivematicaMCP.limitTaskThreads <= threading.activeCount()):
-                #print "Waiting for active threads", threading.activeCount()
                 self.tasksLock.release()
                 time.sleep(archivematicaMCP.limitTaskThreadsSleep)
                 self.tasksLock.acquire()
-            print "Active threads:", threading.activeCount()
             t.start()
-
 
         self.clearToNextLink = True
         self.tasksLock.release()
         if self.tasks == {} :
             self.jobChainLink.linkProcessingComplete(self.exitCode)
 
-
     def taskCompletedCallBackFunction(self, task):
-        #logTaskCompleted()
         self.exitCode = max(self.exitCode, task.results["exitCode"])
         databaseFunctions.logTaskCompletedSQL(task)
 
@@ -177,12 +160,10 @@ class linkTaskManagerFiles(LinkTaskManager):
         if task.UUID in self.tasks:
             del self.tasks[task.UUID]
         else:
-            print >>sys.stderr, "Key Value Error:", task.UUID
-            print >>sys.stderr, "Key Value Error:", self.tasks
+            LOGGER.warning('Task UUID %s not in task list %s', task.UUID, self.tasks)
             exit(1)
 
-        
         if self.clearToNextLink == True and self.tasks == {} :
-            print "DEBUG proceeding to next link", self.jobChainLink.UUID
+            LOGGER.debug('Proceeding to next link %s', self.jobChainLink.UUID)
             self.jobChainLink.linkProcessingComplete(self.exitCode, self.jobChainLink.passVar)
         self.tasksLock.release()

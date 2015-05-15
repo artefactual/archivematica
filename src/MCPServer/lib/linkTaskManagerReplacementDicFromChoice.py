@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import datetime
+import logging
 import lxml.etree as etree
 import os
 import threading
@@ -39,6 +40,7 @@ from dicts import ReplacementDict
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import MicroServiceChoiceReplacementDic
 
+LOGGER = logging.getLogger('archivematica.mcp.server')
 
 class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
@@ -52,15 +54,12 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
         preConfiguredChain = self.checkForPreconfiguredXML()
         if preConfiguredChain != None:
             if preConfiguredChain != waitingOnTimer:
-                #time.sleep(archivematicaMCP.config.getint('MCPServer', "waitOnAutoApprove"))
-                #print "checking for xml file for processing rules. TODO"
                 self.jobChainLink.setExitMessage("Completed successfully")
-                #jobChain.jobChain(self.unit, preConfiguredChain)
                 rd = ReplacementDict.fromstring(preConfiguredChain)
                 self.update_passvar_replacement_dict(rd)
                 self.jobChainLink.linkProcessingComplete(0, passVar=self.jobChainLink.passVar)
             else:
-                print "waiting on delay to resume processing on unit:", unit
+                LOGGER.info('Waiting on delay to resume processing on unit %s', unit)
         else:
             choicesAvailableForUnitsLock.acquire()
             self.jobChainLink.setExitMessage('Awaiting decision')
@@ -96,8 +95,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                                 nowTime=time.time()
                                 timeDifference = nowTime - unitTime
                                 timeToGo = delaySeconds - timeDifference
-                                print "time to go:", timeToGo
-                                #print "that will be: ", (nowTime + timeToGo)
+                                LOGGER.info('Time to go: %s', timeToGo)
                                 self.jobChainLink.setExitMessage("Waiting till: " + datetime.datetime.fromtimestamp((nowTime + timeToGo)).ctime())
                                 rd = ReplacementDict.fromstring(ret)
                                 if self.jobChainLink.passVar != None:
@@ -114,13 +112,11 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                                 t2.start()
                                 return waitingOnTimer
 
-                        except Exception as inst:
-                            print >>sys.stderr, "Error parsing xml:"
-                            print >>sys.stderr, type(inst)
-                            print >>sys.stderr, inst.args
+                        except Exception:
+                            LOGGER.info('Error parsing XML', exc_info=True)
 
-            except Exception as inst:
-                print >>sys.stderr, "Error parsing xml for pre-configured choice"
+            except Exception:
+                LOGGER.warning('Error parsing xml at %s for pre-configured choice', xmlFilePath, exc_info=True)
         return ret
 
     def xmlify(self):
@@ -135,8 +131,6 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
             etree.SubElement(choice, "description").text = description
         print etree.tostring(ret)
         return ret
-
-
 
     def proceedWithChoice(self, index, agent):
         if agent:
