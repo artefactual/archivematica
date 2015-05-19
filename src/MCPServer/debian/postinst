@@ -26,8 +26,7 @@ chown -R archivematica:archivematica /var/archivematica/sharedDirectory/
 logdir=/var/log/archivematica/MCPServer
 sudo mkdir -p $logdir
 sudo chown -R archivematica:archivematica $logdir
-sudo chmod -R g+s $logdir
-sudo chmod -R g+w $logdir
+sudo chmod -R g+ws $logdir
 
 /usr/share/archivematica/postinstSharedWithDev
 

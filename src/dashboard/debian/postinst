@@ -12,7 +12,7 @@ fi
 
 logdir=/var/log/archivematica/dashboard
 mkdir -p $logdir
-chown -R archivematicaDashboard:archivematica $logdir
+chown -R archivematicadashboard:archivematica $logdir
 chmod -R g+ws $logdir
 
 #install dashboard requirements
