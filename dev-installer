@@ -106,10 +106,7 @@ if [[ $a == "Y" || $a == "y" ]]; then
         sudo stop archivematica-mcp-client
         sleep 1
         sudo stop archivematica-mcp-server
-        sudo rm \
-          /etc/init/archivematica-mcp-server.conf \
-          /etc/init/archivematica-mcp-client.conf \
-          /etc/init/openoffice-service.conf
+        sudo rm /etc/init/archivematica-mcp-server.conf /etc/init/archivematica-mcp-client.conf
         sudo ln src/MCPServer/init/archivematica-mcp-server.conf /etc/init/
         sudo ln src/MCPClient/init/archivematica-mcp-client.conf /etc/init/
 else
