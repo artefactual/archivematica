@@ -1,12 +1,13 @@
 #! /usr/bin/python2 -OO
 
 import argparse
-import datetime
 from lxml import etree
 from lxml.builder import ElementMaker
 import os
 import re
 import uuid
+
+from django.utils import timezone
 
 # dashboard
 from main.models import UnitVariable
@@ -68,7 +69,7 @@ def create_mets_file(aic, aips):
         'xlink': ns.xlinkNS,
         'xsi': ns.xsiNS,
     }
-    now = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    now = timezone.now().strftime("%Y-%m-%dT%H:%M:%S")
 
     # Set up structure
     E = ElementMaker(namespace=ns.metsNS, nsmap=nsmap)

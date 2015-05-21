@@ -21,13 +21,13 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
-from datetime import datetime
 import os
 import sys
 import shutil
 import traceback
 from optparse import OptionParser
 
+from django.utils import timezone
 # dashboard
 from main.models import Derivation, Event, File
 
@@ -60,7 +60,7 @@ def removePreservationFiles(SIPDirectory, SIPUUID):
                                     filegrpuse="preservation")
         for file_ in files:
             try:
-                file_.removedtime = datetime.now()
+                file_.removedtime = timezone.now()
                 file_.save()
                 os.remove(file_.currentlocation.replace("%SIPDirectory%", SIPDirectory, 1))
             except Exception:

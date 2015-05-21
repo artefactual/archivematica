@@ -1,12 +1,11 @@
 #!/usr/bin/python2
 
 from __future__ import print_function
-import datetime
 import os
-import subprocess
 import sys
-from tempfile import gettempdir
 from uuid import uuid4
+
+from django.utils import timezone
 
 # dashboard
 from main.models import Derivation, File, FileFormatVersion
@@ -42,7 +41,7 @@ def insert_transcription_event(status, file_uuid, rule, relative_location):
 
 def insert_file_into_database(file_uuid, sip_uuid, event_uuid, rule, output_path, relative_path):
     transcription_uuid = str(uuid4())
-    today = str(datetime.date.today())
+    today = timezone.now()
     fileOperations.addFileToSIP(
         relative_path,
         transcription_uuid,

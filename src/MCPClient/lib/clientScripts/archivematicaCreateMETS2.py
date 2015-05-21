@@ -34,6 +34,7 @@ import archivematicaXMLNamesSpace as ns
 
 # dashboard
 from django.contrib.auth.models import User
+from django.utils import timezone
 from main.models import Agent, Derivation, DublinCore, Event, File, FileID, FPCommandOutput, SIP, Transfer
 
 from archivematicaCreateMETSMetadataCSV import parseMetadata
@@ -48,7 +49,6 @@ from archivematicaFunctions import escape
 from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import normalizeNonDcElementName
 from custom_handlers import get_script_logger
-from databaseFunctions import getUTCDate
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 sharedVariablesAcrossModules.globalErrorCount = 0
 
@@ -954,7 +954,7 @@ if __name__ == '__main__':
         nsmap = rootNSMap,
         attrib = { "{" + ns.xsiNS + "}schemaLocation" : "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd" },
     )
-    etree.SubElement(root, ns.metsBNS + "metsHdr").set("CREATEDATE", getUTCDate().split(".")[0])
+    etree.SubElement(root, ns.metsBNS + "metsHdr").set("CREATEDATE", timezone.now().strftime("%Y-%m-%dT%H:%M:%S"))
 
 
 

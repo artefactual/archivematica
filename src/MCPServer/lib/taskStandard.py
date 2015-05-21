@@ -22,7 +22,6 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import cPickle
-import datetime
 import gearman
 import logging
 import os
@@ -31,6 +30,8 @@ import time
 import uuid
 
 import archivematicaMCP
+
+from django.utils import timezone
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from fileOperations import writeToFile
@@ -62,7 +63,7 @@ class taskStandard():
         from archivematicaMCP import limitGearmanConnectionsSemaphore
         limitGearmanConnectionsSemaphore.acquire()
         gm_client = gearman.GearmanClient([archivematicaMCP.config.get('MCPServer', "MCPArchivematicaServer")])
-        data = {"createdDate" : datetime.datetime.now().__str__()}
+        data = {"createdDate" : timezone.now().isoformat(' ')}
         data["arguments"] = self.arguments
         LOGGER.info('Executing %s %s', self.execute, data)
         completed_job_request = None
