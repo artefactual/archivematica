@@ -11,3 +11,4 @@ elasticsearch>=1.0.0,<2.0.0
 lazy-paged-sequence
 # Required by storage-service component
 slumber==0.6.0
+pytz
