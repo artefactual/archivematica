@@ -1,7 +1,6 @@
 #!/usr/bin/python2 -OO
 
 import argparse
-import datetime
 from lxml import etree
 from lxml.builder import ElementMaker
 import os.path
@@ -12,6 +11,7 @@ import archivematicaXMLNamesSpace as namespaces
 import archivematicaCreateMETS2
 
 # dashboard
+from django.utils import timezone
 from main.models import DublinCore
 
 # archivematicaCommon
@@ -30,7 +30,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     # Datetime format string from http://docs.python.org/2/library/datetime.html
     # %Y = 4 digit year, %m = 2 digit month, %d = 2 digit day
     # %H = 24-hour hour, %M = 2-digit minute, %S = 2 digit second
-    now = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    now = timezone.now().strftime("%Y-%m-%dT%H:%M:%S")
     aip_identifier = aip_name+'-'+aip_uuid
     aip_path = os.path.join(sip_dir, aip_filename)
     # Get archive tool and version

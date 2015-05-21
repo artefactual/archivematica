@@ -20,19 +20,18 @@
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
-from datetime import datetime
 import os
 import string
 import sys
 import uuid
 
 sys.path.append("/usr/share/archivematica/dashboard")
+from django.utils import timezone
 from main.models import Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
 
 def getUTCDate():
-    """Returns a string of the UTC date & time in ISO format"""
-    d = datetime.utcnow()
-    return d.isoformat('T')
+    """Returns a timezone-aware representation of the current datetime in UTC."""
+    return timezone.now()
 
 def getDeciDate(date):
     valid = "." + string.digits
@@ -50,7 +49,7 @@ def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="", sip
 
     :param str fileUUID:
     :param str filePath: The current path of the file on disk. Can contain variables; see the documentation for ReplacementDict for supported names.
-    :param datetime.datetime enteredSystem: Timestamp for the event of file ingestion. Defaults to the current timestamp when the record is created.
+    :param datetime enteredSystem: Timestamp for the event of file ingestion. Defaults to the current timestamp when the record is created.
     :param str transferUUID: UUID for the transfer containing this file. Can be empty. At least one of transferUUID or sipUUID must be defined. Mutually exclusive with sipUUID.
     :param str sipUUID: UUID for the SIP containing this file. Can be empty. At least one of transferUUID or sipUUID must be defined. Mutually exclusive with transferUUID.
     :param str use: A category used to group the file with others of the same kind. Will be included in the AIP's METS document in the USE attribute. Defaults to "original".
@@ -127,7 +126,7 @@ def insertIntoEvents(fileUUID="", eventIdentifierUUID="", eventType="", eventDat
     :param str fileUUID: The UUID of the file with which this event is associated. Can be blank.
     :param str eventIdentifierUUID: The UUID for the event being generated. If not provided, a new UUID will be calculated using the version 4 scheme.
     :param str eventType: Can be blank.
-    :param datetime.datetime eventDateTime: The time at which the event occurred. If not provided, the current date will be used.
+    :param datetime eventDateTime: The time at which the event occurred. If not provided, the current date will be used.
     :param str eventDetail: Can be blank. Will be used in the eventDetail element in the AIP METS.
     :param str eventOutcome: Can be blank. Will be used in the eventOutcome element in the AIP METS.
     :param str eventOutcomeDetailNote: Can be blank. Will be used in the eventOutcomeDetailNote element in the AIP METS.
@@ -200,7 +199,6 @@ def logTaskCreatedSQL(taskManager, commandReplacementDic, taskUUID, arguments):
     :param str taskUUID: The UUID to be used for this Task in the database.
     :param str arguments: The arguments to be passed to the command when it is executed, as a string. Can contain replacement variables; see ReplacementDict for supported values.
     """
-    taskUUID = taskUUID
     jobUUID = taskManager.jobChainLink.UUID
     fileUUID = ""
     if "%fileUUID%" in commandReplacementDic:
@@ -245,7 +243,7 @@ def logJobCreatedSQL(job):
     :returns None:    
     """
     unitUUID =  job.unit.UUID
-    decDate = getDeciDate("." + job.createdDate.split(".")[-1])
+    decDate = getDeciDate("." + str(job.createdDate.microsecond))
     if job.unit.owningUnit != None:
         unitUUID = job.unit.owningUnit.UUID 
     Job.objects.create(jobuuid=job.UUID,
@@ -268,7 +266,7 @@ def fileWasRemoved(fileUUID, utcDate=None, eventDetail = "", eventOutcomeDetailN
     Updates the properties of the row in the Files table for the provided fileUUID, and logs the removal in the Events table with an event of type "file removed".
 
     :param str fileUUID:
-    :param datetime.datetime utcDate: The date of the removal. Defaults to the current date.
+    :param datetime utcDate: The date of the removal. Defaults to the current date.
     :param str eventDetail: The eventDetail for the logged event. Can be blank.
     :param str eventOutcomeDetailNote: The eventOutcomeDetailNote for the logged event. Can be blank.
     :param str eventOutcome: The eventOutcome for the logged event. Can be blank.

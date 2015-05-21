@@ -40,7 +40,7 @@ from elasticSearchFunctions import getDashboardUUID
 
 def createMetsHdr(sip_uuid):
     header = etree.Element(ns.metsBNS + "metsHdr",
-                           CREATEDATE=getUTCDate().split(".")[0])
+                           CREATEDATE=getUTCDate().strftime("%Y-%m-%dT%H:%M:%S"))
     agent = etree.SubElement(header, ns.metsBNS + "agent",
                              ROLE="CREATOR",
                              TYPE="OTHER",

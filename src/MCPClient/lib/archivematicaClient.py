@@ -115,8 +115,7 @@ Unable to determine if it completed successfully."""
             return cPickle.dumps({"exitCode" : exitCode, "stdOut": output[0], "stdError": output[1]})
         command = supportedModules[execute]
 
-
-        replacementDic["%date%"] = utcDate
+        replacementDic["%date%"] = utcDate.isoformat()
         replacementDic["%jobCreatedDate%"] = data["createdDate"]
         # Replace replacement strings
         for key in replacementDic.iterkeys():

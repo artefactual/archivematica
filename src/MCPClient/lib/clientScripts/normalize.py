@@ -3,13 +3,14 @@ from __future__ import print_function
 import argparse
 import ConfigParser
 import csv
-import datetime
 import errno
 import os
 import shutil
 import sys
 import traceback
 import uuid
+
+from django.utils import timezone
 
 import transcoder
 
@@ -179,7 +180,7 @@ def once_normalized(command, opts, replacement_dict):
         if "thumbnails" in opts.purpose:
             continue
 
-        today = str(datetime.date.today())
+        today = timezone.now()
         output_file_uuid = str(uuid.uuid4())
         # TODO Add manual normalization for files of same name mapping?
         #Add the new file to the SIP
@@ -244,7 +245,7 @@ def insert_derivation_event(original_uuid, output_uuid, derivation_uuid,
         event_detail_output, outcome_detail_note, today=None):
     """ Add the derivation link for preservation files and the event. """
     if today is None:
-        today = str(datetime.date.today())
+        today = timezone.now()
     # Add event information to current file
     databaseFunctions.insertIntoEvents(
        fileUUID=original_uuid,
