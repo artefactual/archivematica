@@ -137,17 +137,31 @@ Date.prototype.getArchivematicaDateString = function()
     return dateText;
   };
 
-function localizeTimestampElements() {
-  $('.timestamp').each(function() {
-    $(this).text(timestampToLocal($(this).text()));
-  });
-}
-
 function timestampToLocal(timestamp) {
   // convert to milliseconds
+  'use strict';
   var date = new Date(timestamp * 1000);
 
   return date.getArchivematicaDateString();
+}
+
+function datetimeToLocal(timestamp) {
+  // Converts an ISO formatted string to localtime
+  // Append 'Z' so they are parsed as UTC
+  'use strict';
+  var date = new Date(timestamp+'Z');
+
+  return date.toLocaleFormat();
+}
+
+function localizeTimestampElements() {
+  'use strict';
+  $('.timestamp').each(function() {
+    $(this).text(timestampToLocal($(this).text()));
+  });
+  $('.datetime').each(function() {
+    $(this).text(datetimeToLocal($(this).text()));
+  });
 }
 
 function setCookie(c_name, value, exdays) {
