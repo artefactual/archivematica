@@ -417,6 +417,8 @@ class ArchivesSpaceClient(object):
                 "type": "accessrestrict",
                 "content": [access_conditions],
             })
+        if not restricted:
+            new_object["file_versions"][0]["publish"] = True
 
         new_object_uri = self._post(repository + '/digital_objects', data=json.dumps(new_object)).json()["uri"]
 
