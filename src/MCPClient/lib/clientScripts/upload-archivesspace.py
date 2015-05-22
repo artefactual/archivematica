@@ -3,7 +3,6 @@
 import argparse
 import logging
 import os
-from urlparse import urljoin
 
 from main.models import ArchivesSpaceDIPObjectResourcePairing
 
@@ -45,10 +44,6 @@ def get_files_from_dip(dip_location, dip_name, dip_uuid):
         exit(3)
 
 
-def get_uri(prefix, dip_uuid):
-    return urljoin(prefix, dip_uuid) + "/objects/"
-
-
 def get_pairs(dip_uuid):
     return {pair.fileuuid: pair.resourceid for pair in ArchivesSpaceDIPObjectResourcePairing.objects.filter(dipuuid=dip_uuid)}
 
@@ -57,9 +52,10 @@ def delete_pairs(dip_uuid):
     ArchivesSpaceDIPObjectResourcePairing.objects.filter(dipuuid=dip_uuid).delete()
 
 
-def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
+def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_type, use_statement, uri, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
 
-    uri = get_uri(uri_prefix, dip_uuid)
+    if not uri.endswith('/'):
+        uri += '/'
     pairs = get_pairs(dip_uuid)
     dashboard_uuid = getDashboardUUID()
 

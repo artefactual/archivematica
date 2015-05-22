@@ -118,10 +118,8 @@ def delete_pairs(dip_uuid):
 def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
     
     logger.info("inputs: actuate '{}' show '{}' type '{}'  use_statement '{}' use_conditions '{}'".format(ead_actuate, ead_show, object_type, use_statement, use_conditions))
-    if uri_prefix[-1] == '/':
-        uri_prefix = uri_prefix + dip_uuid + "/objects/"
-    else:
-        uri_prefix = uri_prefix + "/" + dip_uuid + "/objects/"
+    if not uri_prefix.endswith('/'):
+        uri_prefix += '/'
         
     #get mets object if needed
     mets = None
