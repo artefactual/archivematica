@@ -11,4 +11,6 @@ fi
 logdir=/var/log/archivematica/MCPClient
 mkdir -p $logdir
 chown -R archivematica:archivematica $logdir
-chmod -R g+s $logdir
+chmod -R g+ws $logdir
+
+#DEBHELPER#

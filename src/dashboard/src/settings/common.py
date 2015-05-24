@@ -65,6 +65,7 @@ USE_L10N = True
 # Enable timezone support, for more info see:
 # https://docs.djangoproject.com/en/dev/topics/i18n/timezones/
 USE_TZ = True
+TIME_ZONE = 'UTC'
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"

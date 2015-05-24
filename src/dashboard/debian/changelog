@@ -1,3 +1,10 @@
+archivematica-dashboard (1:1.3.2+4SNAPSHOT20150512174342-828eb-qa140~14.04) trusty; urgency=high
+
+  * commit: 828eb90be1a4bfe860b67a4398e8018456695dce
+  * 1.4 qa rc3 build
+
+ -- Justin Simpson <jsimpson@artefactual.com>  Tue, 12 May 2015 17:43:42 -0800
+
 archivematica-dashboard (1.3.0.rc.4-1~precise1) precise; urgency=high
 
   * Archivematica Dashboard 1.3.0 release candidate
@@ -6,6 +13,6 @@ archivematica-dashboard (1.3.0.rc.4-1~precise1) precise; urgency=high
 
 archivematica-dashboard (1.2.0-1~precise1) precise; urgency=high
 
-  * Archivematica Dashboard 1.2.0 release 
+  * Archivematica Dashboard 1.2.0 release
 
  -- Justin Simpson <jsimpson@artefactual.com>  Mon, 15 Sep 2014 11:23:30 -0700

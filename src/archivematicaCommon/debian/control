@@ -1,13 +1,15 @@
 Source: archivematica-common
 Section: utils
 Priority: extra
-Maintainer: Artefactual Systems Inc. <ops@artefactual.com>
-Build-Depends: debhelper (>= 9)
-Standards-Version: 3.9.3
+Maintainer: Artefactual Systems Inc. <sysadmin@artefactual.com>
+Build-Depends:
+  debhelper (>= 9)
+Standards-Version: 3.9.5
+X-Python-Version: 2.7
 Homepage: http://archivematica.org
 
 Package: archivematica-common
-Architecture: i386 amd64 
-Depends: ${shlibs:Depends}, ${misc:Depends}, python, python-pip, python2.7-elementtree, python-mimeparse, python-dateutil
+Architecture: i386 amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}, python (>= 2.7), python-pip, python2.7-elementtree, python-mimeparse, python-dateutil
 Description: Common libraries for archivematica
-  This package is a support package for archivematica. It contains a library of functions used in the archivematica system.  
+  This package is a support package for archivematica. It contains a library of functions used in the archivematica system.

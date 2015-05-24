@@ -1,4 +1,5 @@
 {% extends "layout_fluid.html" %}
+{% load l10n %}
 
 {% block content %}
 <a name='tasks_top'></a>
@@ -10,17 +11,17 @@
       {% for item in objects %}
         <tr class="{% cycle 'odd' 'even' %}{% ifnotequal item.exitcode 0 %} exiterror{% endifnotequal %}">
           <td>
-            <span>ATTTask UUID:</span> {{ item.taskuuid }}<br />
+            <span>Task UUID:</span> {{ item.taskuuid }}<br />
             <span>File UUID:</span> {{ item.fileuuid }}<br />
             <span>File name:</span> {{ item.filename }}<br />
             <span>Client:</span> {{ item.client }}<br />
             <span>&nbsp;</span> {{ item.exec_field }} (exit code: {{ item.exitcode }})
           </td>
           <td>
-            <abbr title="Start time">SST:</abbr> <span>{{ item.starttime }}</span><br />
-            <abbr title="End time">EET:</abbr> <span>{{ item.endtime }}</span><br />
-            <abbr title="Created time">CT:</abbr> <span>{{ item.createdtime }}</span><br />
-            <abbr title="Duration">DU:</abbtr> {{ item.duration }} second(s)
+            <span>Start time:</span> <span class='datetime'>{{ item.starttime.isoformat }}</span><br />
+            <span>End time:</span> <span class='datetime'>{{ item.endtime.isoformat }}</span><br />
+            <span>Created time:</span> <span class='datetime'>{{ item.createdtime.isoformat }}</span><br />
+            <span>Duration:</span> {{ item.duration }} second(s)
           </td>
         </tr>
         <tr>
@@ -50,5 +51,12 @@
   </table>
 
 {% include "main/_tasks_pager.html" %}
+
+
+  <script>
+  $(document).ready(function() {
+    localizeTimestampElements();
+  });
+  </script>
 
 {% endblock %}
