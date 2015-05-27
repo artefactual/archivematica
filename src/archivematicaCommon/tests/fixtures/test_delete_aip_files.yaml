@@ -1,0 +1,47 @@
+interactions:
+- request:
+    body: '{"query": {"term": {"AIPUUID": "a1ee611a-a4f5-4ba9-b7ce-b92695746514"}}}'
+    headers: {}
+    method: GET
+    uri: http://127.0.0.1:9200/aips/aipfile/_search?sort=FILEUUID%3Adesc&fields=AIPUUID%2CFILEUUID
+  response:
+    body: {string: !!python/unicode '{"took":3,"timed_out":false,"_shards":{"total":1,"successful":1,"failed":0},"hits":{"total":3,"max_score":null,"hits":[{"_index":"aips","_type":"aipfile","_id":"83MSFM3_TWWgcbRIKhA3KA","_score":null,"fields":{"FILEUUID":["b8bd3cdd-f224-4237-b0d7-99c217ff8e67"],"AIPUUID":["a1ee611a-a4f5-4ba9-b7ce-b92695746514"]},"sort":["b8bd3cdd-f224-4237-b0d7-99c217ff8e67"]},{"_index":"aips","_type":"aipfile","_id":"X-_nQAWiTdm7HIlaVRjDFA","_score":null,"fields":{"FILEUUID":["68babd3e-7e6b-40e5-99f6-00ea724d4ce8"],"AIPUUID":["a1ee611a-a4f5-4ba9-b7ce-b92695746514"]},"sort":["68babd3e-7e6b-40e5-99f6-00ea724d4ce8"]},{"_index":"aips","_type":"aipfile","_id":"05XQnT-5TDeIYQ4WeUgLLA","_score":null,"fields":{"FILEUUID":["547bbd92-d8a0-4624-a9d3-69ba706eacee"],"AIPUUID":["a1ee611a-a4f5-4ba9-b7ce-b92695746514"]},"sort":["547bbd92-d8a0-4624-a9d3-69ba706eacee"]}]}}'}
+    headers:
+      content-length: ['850']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: {}
+    method: PUT
+    uri: http://localhost:9200/aips
+  response:
+    body: {string: !!python/unicode '{"error":"IndexAlreadyExistsException[[aips]
+        already exists]","status":400}'}
+    headers:
+      content-length: ['75']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 400, message: Bad Request}
+- request:
+    body: '{"query": {"term": {"AIPUUID": "a1ee611a-a4f5-4ba9-b7ce-b92695746514"}}}'
+    headers: {}
+    method: DELETE
+    uri: http://localhost:9200/aips/aipfile/_query
+  response:
+    body: {string: !!python/unicode '{"_indices":{"aips":{"_shards":{"total":1,"successful":1,"failed":0}}}}'}
+    headers:
+      content-length: ['71']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+- request:
+    body: '{"query": {"term": {"AIPUUID": "a1ee611a-a4f5-4ba9-b7ce-b92695746514"}}}'
+    headers: {}
+    method: GET
+    uri: http://127.0.0.1:9200/aips/aipfile/_search?fields=AIPUUID%2CFILEUUID
+  response:
+    body: {string: !!python/unicode '{"took":1,"timed_out":false,"_shards":{"total":1,"successful":1,"failed":0},"hits":{"total":0,"max_score":null,"hits":[]}}'}
+    headers:
+      content-length: ['122']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+version: 1
