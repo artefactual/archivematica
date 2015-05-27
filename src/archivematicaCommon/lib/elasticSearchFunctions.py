@@ -143,7 +143,7 @@ def check_server_status_and_create_indexes_if_needed():
 
 def search_all_results(conn, body, index=None, doc_type=None, **query_params):
     """
-    Performs conn.search_raw with the size set to MAX_QUERY_SIZE.
+    Performs conn.search with the size set to MAX_QUERY_SIZE.
 
     By default search_raw returns only 10 results.  Since we usually want all
     results, this is a wrapper that fetches MAX_QUERY_SIZE results and logs a
@@ -807,16 +807,25 @@ def connect_and_remove_transfer_files(uuid, unit_type=None):
 def delete_aip(uuid):
     return delete_matching_documents('aips', 'aip', 'uuid', uuid)
 
-def delete_matching_documents(index, type, field, value, **kwargs):
+def connect_and_delete_aip_files(uuid):
+    return delete_matching_documents('aips', 'aipfile', 'AIPUUID', uuid)
+
+def delete_matching_documents(index, doc_type, field, value, **kwargs):
+    """
+    Deletes all documents in index & doc_type where field = value
+
+    :param str index: Name of the index. E.g. 'aips'
+    :param str doc_type: Document type in the index. E.g. 'aip'
+    :param str field: Field to query when deleting. E.g. 'uuid'
+    :param str value: Value of the field to query when deleting. E.g. 'cd0bb626-cf27-4ca3-8a77-f14496b66f04'
+    :param conn: Connection to Elasticsearch. Optional
+    :return: True if succeeded on shards, false otherwise
+    """
     # open connection if one hasn't been provided
-    conn = kwargs.get('conn', False)
+    conn = kwargs.get('conn', None)
     if not conn:
         conn = connect_and_create_index(index)
 
-    # a max_documents of 0 means unlimited
-    max_documents = kwargs.get('max_documents', 0)
-
-    # cycle through fields to find matches
     query = {
         "query": {
             "term": {
@@ -824,42 +833,16 @@ def delete_matching_documents(index, type, field, value, **kwargs):
             }
         }
     }
-    documents = conn.search(
-        body=query,
+    LOGGER.info('Deleting with query %s', query)
+    results = conn.delete_by_query(
         index=index,
-        doc_type=type,
+        doc_type=doc_type,
+        body=query
     )
 
-    count = 0
-    if len(documents['hits']['hits']) > 0:
-        for hit in documents['hits']['hits']:
-            document_id = hit['_id']
-            conn.delete(index, type, document_id)
-            count = count + 1
-            if count == max_documents:
-                return count
+    LOGGER.info('Deleted by query %s', results)
 
-    return count
-
-def connect_and_delete_aip_files(uuid):
-    deleted = 0
-    conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
-    query = {
-        "query": {
-            "term": {
-                "AIPUUID": uuid
-            }
-        }
-    }
-    documents = search_all_results(conn, query)
-    if len(documents['hits']['hits']) > 0:
-        for hit in documents['hits']['hits']:
-            document_id = hit['_id']
-            conn.delete(index='aips', doc_type='aipfile', id=document_id)
-            deleted = deleted + 1
-        print str(deleted) + ' index documents removed.'
-    else:
-        print 'No AIP files found.'
+    return results['_indices'][index]['_shards']['successful'] == results['_indices'][index]['_shards']['total']
 
 def connect_and_mark_deletion_requested(uuid):
     conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())

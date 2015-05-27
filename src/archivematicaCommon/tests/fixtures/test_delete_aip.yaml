@@ -1,0 +1,47 @@
+interactions:
+- request:
+    body: '{"query": {"term": {"uuid": "a1ee611a-a4f5-4ba9-b7ce-b92695746514"}}}'
+    headers: {}
+    method: GET
+    uri: http://127.0.0.1:9200/aips/aip/_search?fields=uuid
+  response:
+    body: {string: !!python/unicode '{"took":6,"timed_out":false,"_shards":{"total":1,"successful":1,"failed":0},"hits":{"total":1,"max_score":2.7917593,"hits":[{"_index":"aips","_type":"aip","_id":"sh6hMT1JScefY87-VJLjiw","_score":2.7917593,"fields":{"uuid":["a1ee611a-a4f5-4ba9-b7ce-b92695746514"]}}]}}'}
+    headers:
+      content-length: ['267']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: {}
+    method: PUT
+    uri: http://localhost:9200/aips
+  response:
+    body: {string: !!python/unicode '{"error":"IndexAlreadyExistsException[[aips]
+        already exists]","status":400}'}
+    headers:
+      content-length: ['75']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 400, message: Bad Request}
+- request:
+    body: '{"query": {"term": {"uuid": "a1ee611a-a4f5-4ba9-b7ce-b92695746514"}}}'
+    headers: {}
+    method: DELETE
+    uri: http://localhost:9200/aips/aip/_query
+  response:
+    body: {string: !!python/unicode '{"_indices":{"aips":{"_shards":{"total":1,"successful":1,"failed":0}}}}'}
+    headers:
+      content-length: ['71']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+- request:
+    body: '{"query": {"term": {"uuid": "a1ee611a-a4f5-4ba9-b7ce-b92695746514"}}}'
+    headers: {}
+    method: GET
+    uri: http://127.0.0.1:9200/aips/aip/_search?fields=uuid
+  response:
+    body: {string: !!python/unicode '{"took":2,"timed_out":false,"_shards":{"total":1,"successful":1,"failed":0},"hits":{"total":0,"max_score":null,"hits":[]}}'}
+    headers:
+      content-length: ['122']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+version: 1
