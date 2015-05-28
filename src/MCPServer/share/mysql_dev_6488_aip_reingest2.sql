@@ -30,3 +30,22 @@ ALTER TABLE RightsStatementRightsGranted
 -- Only one exit code for determine version
 DELETE FROM MicroServiceChainLinksExitCodes WHERE pk='7f2d5239-b464-4837-8e01-0fc43e31395d';
 UPDATE MicroServiceChainLinksExitCodes SET exitCode=0 WHERE pk='6e06fd5e-3892-4e79-b64f-069876bd95a1';
+
+-- Update DIPfromAIP to Reingest
+UPDATE MicroServiceChainLinks SET microserviceGroup='Reingest AIP' WHERE pk IN ('9520386f-bb6d-4fb9-a6b6-5845ef39375f', '77c722ea-5a8f-48c0-ae82-c66a3fa8ca77', 'c103b2fb-9a6b-4b68-8112-b70597a6cd14', '60b0e812-ebbe-487e-810f-56b1b6fdd819', '31fc3f66-34e9-478f-8d1b-c29cd0012360', 'e4e19c32-16cc-4a7f-a64d-a1f180bdb164', '83d5e887-6f7c-48b0-bd81-e3f00a9da772');
+-- Update Watched Directory
+UPDATE WatchedDirectories SET watchedDirectoryPath = '%watchDirectoryPath%system/reingestAIP/' WHERE watchedDirectoryPath='%watchDirectoryPath%system/createDIPFromAIP/';
+-- Rename DIPfromAIP
+UPDATE TasksConfigs SET description = 'Approve AIP reingest' WHERE pk='c450501a-251f-4de7-acde-91c47cf62e36';
+UPDATE MicroServiceChains SET description='Approve AIP reingest' WHERE startingLink='77c722ea-5a8f-48c0-ae82-c66a3fa8ca77';
+UPDATE MicroServiceChains SET description='AIP reingest approval chain' WHERE startingLink='9520386f-bb6d-4fb9-a6b6-5845ef39375f';
+
+-- Add processingMCP
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('ff516d0b-2bba-414c-88d4-f3575ebf050a', 'Reingest AIP', 'Failed', 'f89b9e0f-8789-4292-b5d0-4a330c0205e1', '7d728c39-395f-4892-8193-92f086c0546f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('545f54cc-475c-4980-9dff-8f7e65ebaeba', 'ff516d0b-2bba-414c-88d4-f3575ebf050a', 0, '60b0e812-ebbe-487e-810f-56b1b6fdd819', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='ff516d0b-2bba-414c-88d4-f3575ebf050a' WHERE microServiceChainLink='c103b2fb-9a6b-4b68-8112-b70597a6cd14';
+-- Redirect to typical normalization node
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='5d6a103c-9a5d-4010-83a8-6f4c61eb1478' WHERE microServiceChainLink IN ('83d5e887-6f7c-48b0-bd81-e3f00a9da772', 'e4e19c32-16cc-4a7f-a64d-a1f180bdb164') AND exitCode=0;
+
+-- Reject SIP should be the SIP chain, not transfer
+UPDATE MicroServiceChainChoice SET chainAvailable='a6ed697e-6189-4b4e-9f80-29209abc7937' WHERE choiceAvailableAtLink='9520386f-bb6d-4fb9-a6b6-5845ef39375f' AND chainAvailable='1b04ec43-055c-43b7-9543-bd03c6a778ba';
