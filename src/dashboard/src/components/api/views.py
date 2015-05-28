@@ -18,6 +18,8 @@
 # stdlib, alphabetical
 import base64
 import json
+import shutil
+import logging
 import os
 
 # Core Django, alphabetical
@@ -34,7 +36,7 @@ from components.filesystem_ajax import views as filesystem_ajax_views
 from components import helpers
 from main import models
 
-
+LOGGER = logging.getLogger('archivematica.dashboard')
 SHARED_DIRECTORY_ROOT = helpers.get_server_config_value('sharedDirectory')
 
 
@@ -389,3 +391,43 @@ def approve_transfer_via_mcp(directory, transfer_type, user_id):
         error = 'Please specify a transfer directory.'
 
     return error, unit_uuid
+
+
+def start_reingest(request):
+    """
+    Endpoint to approve reingest of an AIP.
+
+    Expects a POST request with the `uuid` of the SIP, and the `name`, which is
+    also the directory in %sharedPath%tmp where the SIP is found.
+
+    Example usage: curl --data "username=demo&api_key=<API key>&name=test-efeb95b4-5e44-45a4-ab5a-9d700875eb60&uuid=efeb95b4-5e44-45a4-ab5a-9d700875eb60"  http://localhost/api/ingest/reingest
+    """
+    if request.method == 'POST':
+        error = authenticate_request(request)
+        if error:
+            response = {'error': True, 'message': error}
+            return helpers.json_response(response, status_code=403)
+        sip_name = request.POST.get('name')
+        sip_uuid = request.POST.get('uuid')
+        if not all([sip_name, sip_uuid]):
+            response = {'error': True, 'message': '"name" and "uuid" are required.'}
+            return helpers.json_response(response, status_code=400)
+        # TODO Clear DB of residual stuff related to SIP
+        # Move to watched directory
+        shared_directory_path = helpers.get_server_config_value('sharedDirectory')
+        source = os.path.join(shared_directory_path, 'tmp', sip_name)
+        dest = os.path.join(shared_directory_path, 'watchedDirectories', 'system', 'reingestAIP', '')
+        try:
+            LOGGER.debug('Reingest moving from %s to %s', source, dest)
+            shutil.move(source, dest)
+        except (shutil.Error, OSError) as e:
+            error = e.strerror or "Unable to move reingested AIP to start reingest."
+            LOGGER.warning('Unable to move reingested AIP to start reingest', exc_info=True)
+        if error:
+            response = {'error': True, 'message': error}
+            return helpers.json_response(response, status_code=500)
+        else:
+            response = {'message': 'Approval successful.'}
+            return helpers.json_response(response)
+    else:
+        return django.http.HttpResponseNotAllowed(permitted_methods=['POST'])
