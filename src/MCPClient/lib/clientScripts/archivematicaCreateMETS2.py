@@ -242,8 +242,19 @@ def createDmdSecsFromCSVParsedMetadata(metadata):
     return ret
 
 
-def createDublincoreDMDSecFromDBData(type, id, baseDirectoryPath):
-    dc = getDublinCore(type, id)
+def createDublincoreDMDSecFromDBData(unit_type, unit_uuid, baseDirectoryPath):
+    """
+    Creates dmdSec containing DublinCore metadata for unit_uuid.
+
+    If DC metadata exists in the DB, use that.
+    If not, check the transfer metadata directory for a dublincore.xml file, and use that.
+
+    :param str unit_type: Pk from MetadataAppliesToType
+    :param str unit_uuid: SIP UUID
+    :param str baseDirectoryPath: SIP path to check for transfer metadata
+    :return: Tuple of (dmdSec Element, DMDID), or None
+    """
+    dc = getDublinCore(unit_type, unit_uuid)
     if dc is None:
         transfers = os.path.join(baseDirectoryPath, "objects/metadata/transfers/")
         if not os.path.isdir(transfers):
@@ -255,16 +266,15 @@ def createDublincoreDMDSecFromDBData(type, id, baseDirectoryPath):
                     parser = etree.XMLParser(remove_blank_text=True)
                     dtree = etree.parse(dcXMLFile, parser)
                     dc = dtree.getroot()
+                    break
                 except Exception as inst:
                     print >>sys.stderr, "error parsing file:", dcXMLFile
                     print >>sys.stderr, type(inst)     # the exception instance
                     print >>sys.stderr, inst.args
                     traceback.print_exc(file=sys.stdout)
                     sharedVariablesAcrossModules.globalErrorCount += 1
-                    return None
-            else:
-                return None
-
+        else:  # break not called, no DC successfully parsed
+            return None
     global globalDmdSecCounter
     globalDmdSecCounter += 1
     dmdSec = etree.Element(ns.metsBNS + "dmdSec")

@@ -17,13 +17,13 @@ class TestDublinCore(TestCase):
 
     fixture_files = ['dublincore.json']
     fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+    sipuuid = '8b891d7c-5bd2-4249-84a1-2f00f725b981'
+    siptypeuuid = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
 
     def test_get_dublincore(self):
-        sipuuid = '8b891d7c-5bd2-4249-84a1-2f00f725b981'
-        siptypeuuid = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
 
         # Generate DC element from DB
-        dc_elem = archivematicaCreateMETS2.getDublinCore(siptypeuuid, sipuuid)
+        dc_elem = archivematicaCreateMETS2.getDublinCore(self.siptypeuuid, self.sipuuid)
 
         # Verify created correctly
         assert dc_elem
@@ -62,10 +62,51 @@ class TestDublinCore(TestCase):
 
     def test_get_dublincore_none_found(self):
         sipuuid = 'dnednedn-5bd2-4249-84a1-2f00f725b981'
-        siptypeuuid = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
 
-        dc_elem = archivematicaCreateMETS2.getDublinCore(siptypeuuid, sipuuid)
+        dc_elem = archivematicaCreateMETS2.getDublinCore(self.siptypeuuid, sipuuid)
         assert dc_elem is None
+
+    def test_create_dc_dmdsec_dc_exists(self):
+        # Generate dmdSec if DC exists
+        dmdsec_elem, dmdid = archivematicaCreateMETS2.createDublincoreDMDSecFromDBData(self.siptypeuuid, self.sipuuid, THIS_DIR)
+        # Verify created correctly
+        assert dmdsec_elem
+        print dmdsec_elem
+        assert dmdsec_elem.tag == '{http://www.loc.gov/METS/}dmdSec'
+        assert dmdsec_elem.attrib['ID'] == dmdid
+        assert len(dmdsec_elem) == 1
+        mdwrap = dmdsec_elem[0]
+        assert mdwrap.tag == '{http://www.loc.gov/METS/}mdWrap'
+        assert mdwrap.attrib['MDTYPE'] == 'DC'
+        assert len(mdwrap) == 1
+        xmldata = mdwrap[0]
+        assert xmldata.tag == '{http://www.loc.gov/METS/}xmlData'
+        assert len(xmldata) == 1
+        assert xmldata[0].tag == '{http://purl.org/dc/terms/}dublincore'
+
+    def test_create_dc_dmdsec_no_dc_no_transfers_dir(self):
+        badsipuuid = 'dnednedn-5bd2-4249-84a1-2f00f725b981'
+        dmdsec_elem = archivematicaCreateMETS2.createDublincoreDMDSecFromDBData(self.siptypeuuid, badsipuuid, THIS_DIR)
+        # Expect no element
+        assert dmdsec_elem is None
+
+    def test_create_dc_dmdsec_no_dc_no_transfers(self):
+        badsipuuid = 'dnednedn-5bd2-4249-84a1-2f00f725b981'
+        empty_transfers_sip = os.path.join(THIS_DIR, 'fixtures', 'emptysip')
+        # Make sure directory is empty
+        try:
+            os.remove(os.path.join(empty_transfers_sip, 'objects', 'metadata', 'transfers', '.gitignore'))
+        except OSError:
+            pass
+        dmdsec_elem = archivematicaCreateMETS2.createDublincoreDMDSecFromDBData(self.siptypeuuid, badsipuuid, empty_transfers_sip)
+        assert dmdsec_elem is None
+        # Reset directory state
+        with open(os.path.join(empty_transfers_sip, 'objects', 'metadata', 'transfers', '.gitignore'), 'w'):
+            pass
+
+    def test_create_dc_dmdsec_no_dc_transfer_dc_xml(self):
+        # FIXME What is the expected behaviour of this? What should the fixture have?
+        transfers_sip = os.path.join(THIS_DIR, 'fixtures', 'transfer_dc')
 
     def test_dmdsec_from_csv_parsed_metadata_dc_only(self):
         data = collections.OrderedDict([
