@@ -277,22 +277,15 @@ def unapproved_transfers(request):
                 response['message'] = 'Fetched unapproved transfers successfully.'
 
                 if error is not None:
-                    return django.http.HttpResponseServerError(
-                        json.dumps(response),
-                        mimetype='application/json'
-                    )
+                    return helpers.json_response(response, status_code=500)
                 else:
                     return helpers.json_response(response)
         else:
             response['message'] = auth_error
             response['error'] = True
-            return django.http.HttpResponseForbidden(
-                json.dumps(response),
-                mimetype='application/json'
-            )
+            return helpers.json_response(response, status_code=403)
     else:
-        return django.http.HttpResponseNotAllowed(['GET'])
-
+        return django.http.HttpResponseNotAllowed(permitted_methods=['GET'])
 
 def approve_transfer(request):
     # Example: curl --data \
@@ -313,10 +306,7 @@ def approve_transfer(request):
             if error is not None:
                 response['message'] = error
                 response['error'] = True
-                return django.http.HttpResponseServerError(
-                    json.dumps(response),
-                    mimetype='application/json'
-                )
+                return helpers.json_response(response, status_code=500)
             else:
                 response['message'] = 'Approval successful.'
                 response['uuid'] = unit_uuid
@@ -324,12 +314,9 @@ def approve_transfer(request):
         else:
             response['message'] = auth_error
             response['error'] = True
-            return django.http.HttpResponseForbidden(
-                json.dumps(response),
-                mimetype='application/json'
-            )
+            return helpers.json_response(response, status_code=403)
     else:
-        return django.http.HttpResponseNotAllowed(['POST'])
+        return django.http.HttpResponseNotAllowed(permitted_methods=['POST'])
 
 
 def get_modified_standard_transfer_path(transfer_type=None):
