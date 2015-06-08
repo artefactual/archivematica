@@ -52,6 +52,7 @@ from unitDIP import unitDIP
 from unitFile import unitFile
 from unitTransfer import unitTransfer
 import RPCServer
+from utils import log_exceptions
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
@@ -132,6 +133,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
         logger.info('Creating SIP %s at %s', UUID, path)
     return UUID
 
+@log_exceptions
 def createUnitAndJobChain(path, config, terminate=False):
     path = unicodeToStr(path)
     if os.path.isdir(path):
@@ -233,6 +235,7 @@ def signal_handler(signalReceived, frame):
     sys.exit(0)
     exit(0)
 
+@log_exceptions
 def debugMonitor():
     """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
     global countOfCreateUnitAndJobChainThreaded
@@ -247,6 +250,7 @@ def debugMonitor():
         logger.debug('Debug monitor: DB lock status: %s', dblockstatus)
         time.sleep(3600)
 
+@log_exceptions
 def flushOutputs():
     while True:
         sys.stdout.flush()
@@ -258,6 +262,14 @@ def cleanupOldDbEntriesOnNewRun():
     Job.objects.filter(currentstep='Executing command(s)').update(currentstep='Failed')
     Task.objects.filter(exitcode=None).update(exitcode=-1, stderror="MCP shut down while processing.")
 
+
+def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
+    """
+    Replacement for default exception handler that logs exceptions.
+    """
+    # Reference http://stackoverflow.com/a/16993115/2475775
+    logger.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+    sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
 LOGGING_CONFIG = {
     'version': 1,
@@ -315,6 +327,9 @@ LOGGING_CONFIG = {
 if __name__ == '__main__':
     logging.config.dictConfig(LOGGING_CONFIG)
     logger = logging.getLogger("archivematica.mcp.server")
+
+    # Replace exception handler with one that logs exceptions
+    sys.excepthook = _except_hook_log_everything
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)

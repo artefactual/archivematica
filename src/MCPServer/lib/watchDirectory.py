@@ -29,6 +29,7 @@ import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivematicaFunctions import unicodeToStr
 
+from utils import log_exceptions
 from archivematicaMCP import debug
 DEBUG = debug
 
@@ -64,7 +65,8 @@ class archivematicaWatchDirectory:
             t.start()
         else:
             self.start()
-    
+
+    @log_exceptions
     def start(self):
         """Based on polling example: http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html"""
         self.run = True

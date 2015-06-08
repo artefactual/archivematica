@@ -32,6 +32,7 @@ import time
 from linkTaskManager import LinkTaskManager
 from executeOrRunSubProcess import executeOrRun
 import jobChain
+from utils import log_exceptions
 import archivematicaMCP
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
@@ -132,6 +133,7 @@ class linkTaskManagerChoice(LinkTaskManager):
             etree.SubElement(choice, "description").text = description
         return ret
 
+    @log_exceptions
     def proceedWithChoice(self, chain, agent, delayTimerStart=False):
         if agent:
             self.unit.setVariable("activeAgent", agent, None)

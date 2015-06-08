@@ -30,6 +30,7 @@ import time
 import uuid
 
 import archivematicaMCP
+from utils import log_exceptions
 
 from django.utils import timezone
 
@@ -58,7 +59,7 @@ class taskStandard():
         self.standardErrorFile = standardErrorFile
         self.outputLock = outputLock
 
-
+    @log_exceptions
     def performTask(self):
         from archivematicaMCP import limitGearmanConnectionsSemaphore
         limitGearmanConnectionsSemaphore.acquire()

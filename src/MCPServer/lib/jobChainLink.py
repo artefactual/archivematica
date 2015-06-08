@@ -24,6 +24,7 @@ import logging
 import sys
 import uuid
 
+from utils import log_exceptions
 from linkTaskManagerDirectories import linkTaskManagerDirectories
 from linkTaskManagerFiles import linkTaskManagerFiles
 from linkTaskManagerChoice import linkTaskManagerChoice
@@ -131,6 +132,7 @@ class jobChainLink:
             except (MicroServiceChainLinkExitCode.DoesNotExist, MicroServiceChainLinkExitCode.MultipleObjectsReturned):
                 return self.defaultNextChainLink
 
+    @log_exceptions
     def setExitMessage(self, message):
         Job.objects.filter(jobuuid=self.UUID).update(currentstep=str(message))
 
@@ -146,6 +148,7 @@ class jobChainLink:
         else:
             LOGGER.debug('No exit message')
 
+    @log_exceptions
     def linkProcessingComplete(self, exitCode, passVar=None):
         self.updateExitMessage(exitCode)
         self.jobChain.nextChainLink(self.getNextChainLinkPK(exitCode), passVar=passVar)
