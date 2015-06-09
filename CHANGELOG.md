@@ -1,6 +1,8 @@
 dev (1.5.0)
 ===========
 
+* Fix "active" templatetag when Django handles an uncaught exception
+
 1.4.0
 =====
 
