@@ -861,6 +861,20 @@ def connect_and_delete_aip_files(uuid):
     else:
         print 'No AIP files found.'
 
+def connect_and_mark_deletion_requested(uuid):
+    conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
+    document_id = document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', uuid)
+    conn.update(
+        body={
+            'doc': {
+                'status': 'DEL_REQ'
+            }
+        },
+        index='aips',
+        doc_type='aip',
+        id=document_id
+    )
+
 def normalize_results_dict(d):
     """
     Given an ElasticSearch response, returns a normalized copy of its fields dict.

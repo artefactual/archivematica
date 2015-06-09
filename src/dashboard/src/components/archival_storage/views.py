@@ -324,15 +324,7 @@ def aip_delete(request, uuid):
 
         messages.info(request, response['message'])
 
-        # mark AIP as having deletion requested
-        conn = Elasticsearch(hosts=elasticSearchFunctions.getElasticsearchServerHostAndPort())
-        document_id = elasticSearchFunctions.document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', uuid)
-        conn.update(
-            body={'status': 'DEL_REQ'},
-            index='aips',
-            doc_type='aip',
-            id=document_id
-        )
+        elasticSearchFunctions.connect_and_mark_deletion_requested(uuid)
 
     except requests.exceptions.ConnectionError:
         error_message = 'Unable to connect to storage server. Please contact your administrator.'
