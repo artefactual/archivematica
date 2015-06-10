@@ -26,11 +26,10 @@ from taskStandard import taskStandard
 import os
 import sys
 import threading
-import traceback
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
 import databaseFunctions
-from databaseFunctions import deUnicode
 from dicts import ReplacementDict
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import StandardTaskConfig
@@ -41,8 +40,6 @@ class linkTaskManagerDirectories(LinkTaskManager):
         super(linkTaskManagerDirectories, self).__init__(jobChainLink, pk, unit)
         self.tasks = []
         stc = StandardTaskConfig.objects.get(id=str(pk))
-        filterFileEnd = stc.filter_file_end
-        filterFileStart = stc.filter_file_start
         filterSubDir = stc.filter_subdir
         self.requiresOutputLock = stc.requires_output_lock
         standardOutputFile = stc.stdout_file
@@ -55,9 +52,9 @@ class linkTaskManagerDirectories(LinkTaskManager):
             directory = os.path.join(unit.currentPath, filterSubDir)
         else:
             directory = unit.currentPath
-        
+
         # Apply passvar replacement values
-        if self.jobChainLink.passVar != None:
+        if self.jobChainLink.passVar is not None:
             if isinstance(self.jobChainLink.passVar, list):
                 for passVar in self.jobChainLink.passVar:
                     if isinstance(passVar, ReplacementDict):

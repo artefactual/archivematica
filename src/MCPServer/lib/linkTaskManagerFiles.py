@@ -102,9 +102,9 @@ class linkTaskManagerFiles(LinkTaskManager):
             standardErrorFile = self.standardErrorFile
             execute = self.execute
             arguments = self.arguments
-            
+
             # Apply passvar replacement values
-            if self.jobChainLink.passVar != None:
+            if self.jobChainLink.passVar is not None:
                 if isinstance(self.jobChainLink.passVar, list):
                     for passVar in self.jobChainLink.passVar:
                         if isinstance(passVar, ReplacementDict):
@@ -136,7 +136,7 @@ class linkTaskManagerFiles(LinkTaskManager):
 
         self.clearToNextLink = True
         self.tasksLock.release()
-        if self.tasks == {} :
+        if self.tasks == {}:
             self.jobChainLink.linkProcessingComplete(self.exitCode)
 
     def taskCompletedCallBackFunction(self, task):
@@ -150,7 +150,7 @@ class linkTaskManagerFiles(LinkTaskManager):
             LOGGER.warning('Task UUID %s not in task list %s', task.UUID, self.tasks)
             exit(1)
 
-        if self.clearToNextLink == True and self.tasks == {} :
+        if self.clearToNextLink is True and self.tasks == {} :
             LOGGER.debug('Proceeding to next link %s', self.jobChainLink.UUID)
             self.jobChainLink.linkProcessingComplete(self.exitCode, self.jobChainLink.passVar)
         self.tasksLock.release()
