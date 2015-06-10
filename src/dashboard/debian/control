@@ -2,7 +2,7 @@ Source: archivematica-dashboard
 Section: utils
 Priority: extra
 Maintainer: Austin Trask <austin@artefactual.com>
-Build-Depends: debhelper (>= 9)
+Build-Depends: debhelper (>= 9), libffi-dev, libssl-dev
 Standards-Version: 3.9.3
 Homepage: http://archivematica.org
 

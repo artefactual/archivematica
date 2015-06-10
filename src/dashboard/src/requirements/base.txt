@@ -12,3 +12,6 @@ lazy-paged-sequence
 # Required by storage-service component
 slumber==0.6.0
 pytz
+pyopenssl
+ndg-httpsclient
+pyasn1
