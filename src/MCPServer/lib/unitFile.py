@@ -56,11 +56,11 @@ class unitFile(object):
         # ReplacementDict.frommodel constructor; fall back to the
         # old style of manual construction.
         else:
-            return {
+            return ReplacementDict({
                 "%relativeLocation%": self.currentPath,
                 "%fileUUID%": self.UUID,
                 "%fileGrpUse%": self.fileGrpUse
-            }
+            })
 
     def reload(self):
         pass

@@ -31,6 +31,7 @@ import threading
 from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import archivematicaFunctions
 import databaseFunctions
 from dicts import ChoicesDict, ReplacementDict
 sys.path.append("/usr/share/archivematica/dashboard")
@@ -58,26 +59,21 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
         else:
             directory = unit.currentPath
         
+        # Apply passvar replacement values
         if self.jobChainLink.passVar != None:
             if isinstance(self.jobChainLink.passVar, list):
                 for passVar in self.jobChainLink.passVar:
                     if isinstance(passVar, ReplacementDict):
-                        execute, arguments, standardOutputFile, standardErrorFile = passVar.replace(execute, arguments, standardOutputFile, standardErrorFile)
+                        arguments, standardOutputFile, standardErrorFile = passVar.replace(arguments, standardOutputFile, standardErrorFile)
             elif isinstance(self.jobChainLink.passVar, ReplacementDict):
-                execute, arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(execute, arguments, standardOutputFile, standardErrorFile)
-                    
+                arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(arguments, standardOutputFile, standardErrorFile)
+
+        # Apply unit (SIP/Transfer) replacement values
         commandReplacementDic = unit.getReplacementDic(directory)
-        # for each key replace all instances of the key in the command string
-        for key in commandReplacementDic.iterkeys():
-            value = commandReplacementDic[key].replace("\"", ("\\\""))
-            if execute:
-                execute = execute.replace(key, value)
-            if arguments:
-                arguments = arguments.replace(key, value)
-            if standardOutputFile:
-                standardOutputFile = standardOutputFile.replace(key, value)
-            if standardErrorFile:
-                standardErrorFile = standardErrorFile.replace(key, value)
+        # Escape all values for shell
+        for key, value in commandReplacementDic.items():
+                commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
+        arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
 
         self.task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, UUID=self.UUID)
         databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, self.UUID, arguments)
