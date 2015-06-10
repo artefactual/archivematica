@@ -33,6 +33,7 @@ import archivematicaMCP
 from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import archivematicaFunctions
 import databaseFunctions
 from dicts import ReplacementDict
 sys.path.append("/usr/share/archivematica/dashboard")
@@ -82,6 +83,9 @@ class linkTaskManagerFiles(LinkTaskManager):
                 filterSubDir = variableValue['filterSubDir']
 
         SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
+        # Escape all values for shell
+        for key, value in SIPReplacementDic.items():
+            SIPReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
         self.tasksLock.acquire()
         for file, fileUnit in unit.fileList.items():
             if filterFileEnd:
@@ -99,41 +103,24 @@ class linkTaskManagerFiles(LinkTaskManager):
             execute = self.execute
             arguments = self.arguments
             
+            # Apply passvar replacement values
             if self.jobChainLink.passVar != None:
                 if isinstance(self.jobChainLink.passVar, list):
                     for passVar in self.jobChainLink.passVar:
                         if isinstance(passVar, ReplacementDict):
-                            execute, arguments, standardOutputFile, standardErrorFile = passVar.replace(execute, arguments, standardOutputFile, standardErrorFile)
+                            arguments, standardOutputFile, standardErrorFile = passVar.replace(arguments, standardOutputFile, standardErrorFile)
                 elif isinstance(self.jobChainLink.passVar, ReplacementDict):
-                    execute, arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(execute, arguments, standardOutputFile, standardErrorFile)
+                    arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(arguments, standardOutputFile, standardErrorFile)
 
+            # Apply file replacement values
             commandReplacementDic = fileUnit.getReplacementDic()
-            for key in commandReplacementDic.iterkeys():
-                value = commandReplacementDic[key].replace("\"", ("\\\""))
-                if isinstance(value, unicode):
-                    value = value.encode("utf-8")
-                if execute:
-                    execute = execute.replace(key, value)
-                if arguments:
-                    arguments = arguments.replace(key, value)
-                if standardOutputFile:
-                    standardOutputFile = standardOutputFile.replace(key, value)
-                if standardErrorFile:
-                    standardErrorFile = standardErrorFile.replace(key, value)
+            for key, value in commandReplacementDic.items():
+                # Escape values for shell
+                commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
+            arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
 
-            for key in SIPReplacementDic.iterkeys():
-                value = SIPReplacementDic[key].replace("\"", ("\\\""))
-                if isinstance(value, unicode):
-                    value = value.encode("utf-8")
-
-                if execute:
-                    execute = execute.replace(key, value)
-                if arguments:
-                    arguments = arguments.replace(key, value)
-                if standardOutputFile:
-                    standardOutputFile = standardOutputFile.replace(key, value)
-                if standardErrorFile:
-                    standardErrorFile = standardErrorFile.replace(key, value)
+            # Apply unit (SIP/Transfer) replacement values
+            arguments, standardOutputFile, standardErrorFile = SIPReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
 
             UUID = str(uuid.uuid4())
             task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, outputLock=outputLock, UUID=UUID)
