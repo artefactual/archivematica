@@ -820,14 +820,14 @@ def delete_matching_documents(index, type, field, value, **kwargs):
     query = {
         "query": {
             "term": {
-                field, value
+                field: value
             }
         }
     }
-    documents = conn.search_raw(
-        indices=[index],
-        doc_types=[type],
-        query=query
+    documents = conn.search(
+        body=query,
+        index=index,
+        doc_type=type,
     )
 
     count = 0
