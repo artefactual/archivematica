@@ -104,6 +104,227 @@ class TestParseDublinCore(TestCase):
         assert dc.is_part_of == 'AIC#43'
 
 
+class TestParsePremisRights(TestCase):
+    """ Test parsing PREMIS:RIGHTS from a METS file into the DB. """
+
+    fixture_files = ['dublincore.json']
+    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    def test_none_found(self):
+        """ It should parse no rights if none found. """
+        sip_uuid = 'd481580e-53b9-4a52-96db-baa969e78adc'
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        rights = parse_mets_to_db.parse_rights(sip_uuid, root)
+        assert rights == []
+        assert models.RightsStatement.objects.filter(metadataappliestoidentifier=sip_uuid).exists() is False
+
+    def test_parse_copyright(self):
+        """ It should parse copyright rights. """
+        sip_uuid = '50d65db1-86cd-4579-80af-8d9c0dbd7fca'
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_all_rights.xml'))
+        rights_list = parse_mets_to_db.parse_rights(sip_uuid, root)
+        assert rights_list
+        rights = models.RightsStatement.objects.get(metadataappliestoidentifier=sip_uuid, rightsbasis='Copyright')
+        assert rights.rightsstatementidentifiertype == ''
+        assert rights.rightsstatementidentifiervalue == ''
+        assert rights.rightsholder == 0
+        assert rights.rightsbasis == 'Copyright'
+        assert rights.status == 'REINGEST'
+        cr = models.RightsStatementCopyright.objects.get(rightsstatement=rights)
+        assert cr.copyrightstatus == 'Under copyright'
+        assert cr.copyrightjurisdiction == 'CA'
+        assert cr.copyrightstatusdeterminationdate == '2015'
+        assert cr.copyrightapplicablestartdate == '1990'
+        assert cr.copyrightapplicableenddate is None
+        assert cr.copyrightenddateopen is True
+        di = models.RightsStatementCopyrightDocumentationIdentifier.objects.get(rightscopyright=cr)
+        assert di.copyrightdocumentationidentifiertype == ''
+        assert di.copyrightdocumentationidentifiervalue == ''
+        assert di.copyrightdocumentationidentifierrole == ''
+        note = models.RightsStatementCopyrightNote.objects.get(rightscopyright=cr)
+        assert note.copyrightnote == 'Copyright expires 2010'
+        rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
+        assert rg.act == 'Disseminate'
+        assert rg.startdate == '2000'
+        assert rg.enddate is None
+        assert rg.enddateopen is True
+        rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
+        assert rgnote.rightsgrantednote == 'Attribution required'
+        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(rightsgranted=rg)
+        assert rgrestriction.restriction == 'Allow'
+
+    def test_parse_license(self):
+        """ It should parse license rights. """
+        sip_uuid = '50d65db1-86cd-4579-80af-8d9c0dbd7fca'
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_all_rights.xml'))
+        rights_list = parse_mets_to_db.parse_rights(sip_uuid, root)
+        assert rights_list
+        rights = models.RightsStatement.objects.get(metadataappliestoidentifier=sip_uuid, rightsbasis='License')
+        assert rights.rightsstatementidentifiertype == ''
+        assert rights.rightsstatementidentifiervalue == ''
+        assert rights.rightsholder == 0
+        assert rights.rightsbasis == 'License'
+        assert rights.status == 'REINGEST'
+        li = models.RightsStatementLicense.objects.get(rightsstatement=rights)
+        assert li.licenseterms == 'CC-BY-SA'
+        assert li.licenseapplicablestartdate == '2015'
+        assert li.licenseapplicableenddate is None
+        assert li.licenseenddateopen is True
+        di = models.RightsStatementLicenseDocumentationIdentifier.objects.get(rightsstatementlicense=li)
+        assert di.licensedocumentationidentifiertype == ''
+        assert di.licensedocumentationidentifiervalue == ''
+        assert di.licensedocumentationidentifierrole == ''
+        note = models.RightsStatementLicenseNote.objects.get(rightsstatementlicense=li)
+        assert note.licensenote == ''
+        rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
+        assert rg.act == 'Disseminate'
+        assert rg.startdate == '2015'
+        assert rg.enddate is None
+        assert rg.enddateopen is True
+        rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
+        assert rgnote.rightsgrantednote == 'Attribution required'
+        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(rightsgranted=rg)
+        assert rgrestriction.restriction == 'Allow'
+
+    def test_parse_statute(self):
+        """ It should parse statute rights. """
+        sip_uuid = '50d65db1-86cd-4579-80af-8d9c0dbd7fca'
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_all_rights.xml'))
+        rights_list = parse_mets_to_db.parse_rights(sip_uuid, root)
+        assert rights_list
+        rights = models.RightsStatement.objects.get(metadataappliestoidentifier=sip_uuid, rightsbasis='Statute')
+        assert rights.rightsstatementidentifiertype == ''
+        assert rights.rightsstatementidentifiervalue == ''
+        assert rights.rightsholder == 0
+        assert rights.rightsbasis == 'Statute'
+        assert rights.status == 'REINGEST'
+        st = models.RightsStatementStatuteInformation.objects.get(rightsstatement=rights)
+        assert st.statutejurisdiction == 'BC, Canada'
+        assert st.statutecitation == 'Freedom of Information Act'
+        assert st.statutedeterminationdate == '2011'
+        assert st.statuteapplicablestartdate == '1994'
+        assert st.statuteapplicableenddate == '2094'
+        assert st.statuteenddateopen is False
+        di = models.RightsStatementStatuteDocumentationIdentifier.objects.get(rightsstatementstatute=st)
+        assert di.statutedocumentationidentifiertype == ''
+        assert di.statutedocumentationidentifiervalue == ''
+        assert di.statutedocumentationidentifierrole == ''
+        note = models.RightsStatementStatuteInformationNote.objects.get(rightsstatementstatute=st)
+        assert note.statutenote == 'SIN & health numbers'
+        rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
+        assert rg.act == 'Disseminate'
+        assert rg.startdate == '1994'
+        assert rg.enddate == '2094'
+        assert rg.enddateopen is False
+        rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
+        assert rgnote.rightsgrantednote == ''
+        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(rightsgranted=rg)
+        assert rgrestriction.restriction == 'Disallow'
+
+    def test_parse_policy(self):
+        """ It should parse policy rights. """
+        pass
+        sip_uuid = '50d65db1-86cd-4579-80af-8d9c0dbd7fca'
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_all_rights.xml'))
+        rights_list = parse_mets_to_db.parse_rights(sip_uuid, root)
+        assert rights_list
+        rights = models.RightsStatement.objects.get(metadataappliestoidentifier=sip_uuid, rightsbasis='Policy')
+        assert rights.rightsstatementidentifiertype == ''
+        assert rights.rightsstatementidentifiervalue == ''
+        assert rights.rightsholder == 0
+        assert rights.rightsbasis == 'Policy'
+        assert rights.status == 'REINGEST'
+        other = models.RightsStatementOtherRightsInformation.objects.get(rightsstatement=rights)
+        assert other.otherrightsbasis == 'Policy'
+        assert other.otherrightsapplicablestartdate == '1989'
+        assert other.otherrightsapplicableenddate is None
+        assert other.otherrightsenddateopen is True
+        di = models.RightsStatementOtherRightsDocumentationIdentifier.objects.get(rightsstatementotherrights=other)
+        assert di.otherrightsdocumentationidentifiertype == ''
+        assert di.otherrightsdocumentationidentifiervalue == ''
+        assert di.otherrightsdocumentationidentifierrole == ''
+        note = models.RightsStatementOtherRightsInformationNote.objects.get(rightsstatementotherrights=other)
+        assert note.otherrightsnote == 'Pubic relations office only'
+        rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
+        assert rg.act == 'Disseminate'
+        assert rg.startdate == '1989-01-01'
+        assert rg.enddate is None
+        assert rg.enddateopen is True
+        rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
+        assert rgnote.rightsgrantednote == ''
+        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(rightsgranted=rg)
+        assert rgrestriction.restriction == 'Conditional'
+
+    def test_parse_donor(self):
+        """ It should parse donor rights. """
+        pass
+        sip_uuid = '50d65db1-86cd-4579-80af-8d9c0dbd7fca'
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_all_rights.xml'))
+        rights_list = parse_mets_to_db.parse_rights(sip_uuid, root)
+        assert rights_list
+        rights = models.RightsStatement.objects.get(metadataappliestoidentifier=sip_uuid, rightsbasis='Donor')
+        assert rights.rightsstatementidentifiertype == ''
+        assert rights.rightsstatementidentifiervalue == ''
+        assert rights.rightsholder == 0
+        assert rights.rightsbasis == 'Donor'
+        assert rights.status == 'REINGEST'
+        other = models.RightsStatementOtherRightsInformation.objects.get(rightsstatement=rights)
+        assert other.otherrightsbasis == 'Donor'
+        assert other.otherrightsapplicablestartdate == '2000-01-01'
+        assert other.otherrightsapplicableenddate == '2020-01-01'
+        assert other.otherrightsenddateopen is False
+        di = models.RightsStatementOtherRightsDocumentationIdentifier.objects.get(rightsstatementotherrights=other)
+        assert di.otherrightsdocumentationidentifiertype == 'DID'
+        assert di.otherrightsdocumentationidentifiervalue == '1'
+        assert di.otherrightsdocumentationidentifierrole == '-'
+        note = models.RightsStatementOtherRightsInformationNote.objects.get(rightsstatementotherrights=other)
+        assert note.otherrightsnote == 'Contact in 2010 for earlier'
+        rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
+        assert rg.act == 'Publish'
+        assert rg.startdate == '2000-01-01'
+        assert rg.enddate == '2020-01-01'
+        assert rg.enddateopen is False
+        rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
+        assert rgnote.rightsgrantednote == ''
+        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(rightsgranted=rg)
+        assert rgrestriction.restriction == 'Conditional'
+
+    def test_parse_multiple_rights(self):
+        """ It should only parse the most recent rights. """
+        sip_uuid = '50d65db1-86cd-4579-80af-8d9c0dbd7fca'
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_updated_rights.xml'))
+        rights_list = parse_mets_to_db.parse_rights(sip_uuid, root)
+        assert rights_list
+        rights = models.RightsStatement.objects.get(metadataappliestoidentifier=sip_uuid, rightsbasis='Statute')
+        assert rights.rightsstatementidentifiertype == ''
+        assert rights.rightsstatementidentifiervalue == ''
+        assert rights.rightsholder == 0
+        assert rights.rightsbasis == 'Statute'
+        assert rights.status == 'REINGEST'
+        st = models.RightsStatementStatuteInformation.objects.get(rightsstatement=rights)
+        assert st.statutejurisdiction == 'British Columbia, Canada'
+        assert st.statutecitation == 'Freedom of Information Act and Protection of Privacy Act'
+        assert st.statutedeterminationdate == '2015'
+        assert st.statuteapplicablestartdate == '2000'
+        assert st.statuteapplicableenddate is None
+        assert st.statuteenddateopen is True
+        di = models.RightsStatementStatuteDocumentationIdentifier.objects.get(rightsstatementstatute=st)
+        assert di.statutedocumentationidentifiertype == 'Doc'
+        assert di.statutedocumentationidentifiervalue == '1'
+        assert di.statutedocumentationidentifierrole == '-'
+        note = models.RightsStatementStatuteInformationNote.objects.get(rightsstatementstatute=st)
+        assert note.statutenote == 'SIN and health numbers'
+        rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
+        assert rg.act == 'Disseminate'
+        assert rg.startdate == '2000'
+        assert rg.enddate is None
+        assert rg.enddateopen is True
+        rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
+        assert rgnote.rightsgrantednote == ''
+        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(rightsgranted=rg)
+        assert rgrestriction.restriction == 'Disallow'
+
+
 class TestParseFiles(TestCase):
     """ Test parsing file information from a METS file to the DB. """
 

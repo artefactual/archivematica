@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd">
+  <mets:metsHdr CREATEDATE="2015-06-16T18:33:32"/>
+  <mets:amdSec ID="amdSec_1">
+    <mets:techMD ID="techMD_1">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>c09903c4-bc29-4db4-92da-47355eec752f</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92</premis:messageDigest>
+              </premis:fixity>
+              <premis:size>158131</premis:size>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>JPEG 1.02</premis:formatName>
+                  <premis:formatVersion>1.02</premis:formatVersion>
+                </premis:formatDesignation>
+                <premis:formatRegistry>
+                  <premis:formatRegistryName>PRONOM</premis:formatRegistryName>
+                  <premis:formatRegistryKey>fmt/44</premis:formatRegistryKey>
+                </premis:formatRegistry>
+              </premis:format>
+            </premis:objectCharacteristics>
+            <premis:originalName>%transferDirectory%objects/evelyn's photo.jpg</premis:originalName>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+    <mets:rightsMD ID="rightsMD_1" STATUS="superseded">
+      <mets:mdWrap MDTYPE="PREMIS:RIGHTS">
+        <mets:xmlData>
+          <premis:rightsStatement xmlns:premis="info:lc/xmlns/premis-v2" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd">
+            <premis:rightsStatementIdentifier>
+              <premis:rightsStatementIdentifierType>UUID</premis:rightsStatementIdentifierType>
+              <premis:rightsStatementIdentifierValue>3ebf29f8-eed4-4f73-9224-0434314bd12d</premis:rightsStatementIdentifierValue>
+            </premis:rightsStatementIdentifier>
+            <premis:rightsBasis>Statute</premis:rightsBasis>
+            <premis:statuteInformation>
+              <premis:statuteJurisdiction>BC, Canada</premis:statuteJurisdiction>
+              <premis:statuteCitation>Freedom of Information Act</premis:statuteCitation>
+              <premis:statuteInformationDeterminationDate>2011</premis:statuteInformationDeterminationDate>
+              <premis:statuteNote>SIN &amp; health numbers</premis:statuteNote>
+              <premis:statuteApplicableDates>
+                <premis:startDate>1994</premis:startDate>
+                <premis:endDate>2094</premis:endDate>
+              </premis:statuteApplicableDates>
+            </premis:statuteInformation>
+            <premis:rightsGranted>
+              <premis:act>Disseminate</premis:act>
+              <premis:restriction>Disallow</premis:restriction>
+              <premis:termOfRestriction>
+                <premis:startDate>1994</premis:startDate>
+                <premis:endDate>2094</premis:endDate>
+              </premis:termOfRestriction>
+            </premis:rightsGranted>
+            <premis:linkingObjectIdentifier>
+              <premis:linkingObjectIdentifierType>UUID</premis:linkingObjectIdentifierType>
+              <premis:linkingObjectIdentifierValue>c09903c4-bc29-4db4-92da-47355eec752f</premis:linkingObjectIdentifierValue>
+            </premis:linkingObjectIdentifier>
+          </premis:rightsStatement>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:rightsMD>
+    <mets:rightsMD ID="rightsMD_2" STATUS="current">
+      <mets:mdWrap MDTYPE="PREMIS:RIGHTS">
+        <mets:xmlData>
+          <premis:rightsStatement xmlns:premis="info:lc/xmlns/premis-v2" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd">
+            <premis:rightsStatementIdentifier>
+              <premis:rightsStatementIdentifierType>UUID</premis:rightsStatementIdentifierType>
+              <premis:rightsStatementIdentifierValue>b8fe9ea1-3b00-433f-a823-449332dd7e8d</premis:rightsStatementIdentifierValue>
+            </premis:rightsStatementIdentifier>
+            <premis:rightsBasis>Statute</premis:rightsBasis>
+            <premis:statuteInformation>
+              <premis:statuteJurisdiction>British Columbia, Canada</premis:statuteJurisdiction>
+              <premis:statuteCitation>Freedom of Information Act and Protection of Privacy Act</premis:statuteCitation>
+              <premis:statuteInformationDeterminationDate>2015</premis:statuteInformationDeterminationDate>
+              <premis:statuteNote>SIN and health numbers</premis:statuteNote>
+              <premis:statuteDocumentationIdentifier>
+                <premis:statuteDocumentationIdentifierType>Doc</premis:statuteDocumentationIdentifierType>
+                <premis:statuteDocumentationIdentifierValue>1</premis:statuteDocumentationIdentifierValue>
+                <premis:statuteDocumentationRole>-</premis:statuteDocumentationRole>
+              </premis:statuteDocumentationIdentifier>
+              <premis:statuteApplicableDates>
+                <premis:startDate>2000</premis:startDate>
+                <premis:endDate>OPEN</premis:endDate>
+              </premis:statuteApplicableDates>
+            </premis:statuteInformation>
+            <premis:rightsGranted>
+              <premis:act>Disseminate</premis:act>
+              <premis:restriction>Disallow</premis:restriction>
+              <premis:termOfRestriction>
+                <premis:startDate>2000</premis:startDate>
+                <premis:endDate>OPEN</premis:endDate>
+              </premis:termOfRestriction>
+            </premis:rightsGranted>
+            <premis:linkingObjectIdentifier>
+              <premis:linkingObjectIdentifierType>UUID</premis:linkingObjectIdentifierType>
+              <premis:linkingObjectIdentifierValue>c09903c4-bc29-4db4-92da-47355eec752f</premis:linkingObjectIdentifierValue>
+            </premis:linkingObjectIdentifier>
+          </premis:rightsStatement>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:rightsMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_2">
+    <mets:techMD ID="techMD_2">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xmlns:premis="info:lc/xmlns/premis-v2" xsi:type="premis:file" xsi:schemaLocation="info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd" version="2.2">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>5dd420b2-d430-4789-939e-4dfa531299ec</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>162605ce2065cc5386bbc54dd4f50dc646fea890d2247a836f8428d7ef151f78</premis:messageDigest>
+              </premis:fixity>
+              <premis:size>12220</premis:size>
+              <premis:format>
+                <premis:formatDesignation>
+                  <premis:formatName>XML 1.0</premis:formatName>
+                  <premis:formatVersion>1.0</premis:formatVersion>
+                </premis:formatDesignation>
+                <premis:formatRegistry>
+                  <premis:formatRegistryName>PRONOM</premis:formatRegistryName>
+                  <premis:formatRegistryKey>fmt/101</premis:formatRegistryKey>
+                </premis:formatRegistry>
+              </premis:format>
+            </premis:objectCharacteristics>
+            <premis:originalName>%SIPDirectory%objects/submissionDocumentation/transfer-all-rights-37c5d3da-ba28-4220-9772-319f91823fee/METS.xml</premis:originalName>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:fileSec>
+    <mets:fileGrp USE="original">
+      <mets:file GROUPID="Group-c09903c4-bc29-4db4-92da-47355eec752f" ID="file-c09903c4-bc29-4db4-92da-47355eec752f" ADMID="amdSec_1">
+        <mets:FLocat xlink:href="objects/evelyn_s_photo.jpg" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="submissionDocumentation">
+      <mets:file GROUPID="Group-5dd420b2-d430-4789-939e-4dfa531299ec" ID="file-5dd420b2-d430-4789-939e-4dfa531299ec" ADMID="amdSec_2">
+        <mets:FLocat xlink:href="objects/submissionDocumentation/transfer-all-rights-37c5d3da-ba28-4220-9772-319f91823fee/METS.xml" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+  </mets:fileSec>
+  <mets:structMap ID="structMap_1" LABEL="Archivematica default" TYPE="physical">
+    <mets:div LABEL="all-rights-50d65db1-86cd-4579-80af-8d9c0dbd7fca" TYPE="Directory">
+      <mets:div LABEL="objects" TYPE="Directory">
+        <mets:div LABEL="evelyn_s_photo.jpg" TYPE="Item">
+          <mets:fptr FILEID="file-c09903c4-bc29-4db4-92da-47355eec752f"/>
+        </mets:div>
+        <mets:div LABEL="metadata" TYPE="Directory">
+          <mets:div LABEL="transfers" TYPE="Directory">
+            <mets:div LABEL="all-rights-37c5d3da-ba28-4220-9772-319f91823fee" TYPE="Directory"/>
+          </mets:div>
+        </mets:div>
+        <mets:div LABEL="submissionDocumentation" TYPE="Directory">
+          <mets:div LABEL="transfer-all-rights-37c5d3da-ba28-4220-9772-319f91823fee" TYPE="Directory">
+            <mets:div LABEL="METS.xml" TYPE="Item">
+              <mets:fptr FILEID="file-5dd420b2-d430-4789-939e-4dfa531299ec"/>
+            </mets:div>
+          </mets:div>
+        </mets:div>
+      </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>
