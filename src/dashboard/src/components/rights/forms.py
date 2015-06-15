@@ -30,6 +30,15 @@ class RightsForm(forms.ModelForm):
         self.fields['rightsbasis'].empty_label = None
         self.fields['rightsbasis'].widget.attrs['title'] = "Designation of the basis for the right or permission described in the rights statement identifier."
 
+    def save(self, *args, **kwargs):
+        # Status is set to REINGEST when metadata is parsed into the DB. If it
+        # is being saved through this form, then the user has modified it, and
+        # it should not be written out to the METS file. Set the status to
+        # UPDATED to indicate this.
+        if self.instance.status == models.METADATA_STATUS_REINGEST:
+            self.instance.status = models.METADATA_STATUS_UPDATED
+        return super(RightsForm, self).save(*args, **kwargs)
+
 
 class RightsGrantedForm(forms.ModelForm):
     class Meta:

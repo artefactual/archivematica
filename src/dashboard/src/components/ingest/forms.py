@@ -50,6 +50,15 @@ class DublinCoreMetadataForm(forms.ModelForm):
             elif isinstance(self.fields[field].widget, forms.widgets.Textarea):
                 self.fields[field].widget.attrs = settings.TEXTAREA_WITH_HELP_ATTRS
 
+    def save(self, *args, **kwargs):
+        # Status is set to REINGEST when metadata is parsed into the DB. If it
+        # is being saved through this form, then the user has modified it, and
+        # it should not be written out to the METS file. Set the status to
+        # UPDATED to indicate this.
+        if self.instance.status == models.METADATA_STATUS_REINGEST:
+            self.instance.status = models.METADATA_STATUS_UPDATED
+        return super(DublinCoreMetadataForm, self).save(*args, **kwargs)
+
     def clean_is_part_of(self):
         data = self.cleaned_data['is_part_of']
         if data and not data.startswith(self.aic_prefix):

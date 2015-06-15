@@ -59,3 +59,7 @@ INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES
 INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@repopulateMSCL, 'Reingest AIP', 'Failed', @repopulateTC, '7d728c39-395f-4892-8193-92f086c0546f');
 INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('7ec3b34f-7505-4459-a139-9d7f5738984c', @repopulateMSCL, 0, 'e4e19c32-16cc-4a7f-a64d-a1f180bdb164', 'Completed successfully');
 UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@repopulateMSCL WHERE microServiceChainLink='31fc3f66-34e9-478f-8d1b-c29cd0012360';
+
+-- Update metadata
+ALTER TABLE Dublincore ADD status varchar(8) DEFAULT 'ORIGINAL' COLLATE utf8_unicode_ci NOT NULL;
+ALTER TABLE RightsStatement ADD status varchar(8) DEFAULT 'ORIGINAL' COLLATE utf8_unicode_ci NOT NULL;

@@ -34,6 +34,15 @@ from contrib import utils
 import main
 
 
+METADATA_STATUS_ORIGINAL = 'ORIGINAL'
+METADATA_STATUS_REINGEST = 'REINGEST'
+METADATA_STATUS_UPDATED = 'UPDATED'
+METADATA_STATUS = (
+    (METADATA_STATUS_ORIGINAL, 'original'),
+    (METADATA_STATUS_REINGEST, 'parsed from reingest'),
+    (METADATA_STATUS_UPDATED, 'updated'),  # Might be updated for both, on rereingest
+)
+
 # CUSTOM FIELDS
 
 class UUIDPkField(UUIDField):
@@ -103,7 +112,7 @@ class DublinCore(models.Model):
     """ DublinCore metadata associated with a SIP or Transfer. """
     id = models.AutoField(primary_key=True, db_column='pk')
     metadataappliestotype = models.ForeignKey('MetadataAppliesToType', db_column='metadataAppliesToType')
-    metadataappliestoidentifier = models.CharField(max_length=36, db_column='metadataAppliesToidentifier')  # Foreign key to SIPs or Transfers
+    metadataappliestoidentifier = models.CharField(max_length=36, blank=True, null=True, default=None, db_column='metadataAppliesToidentifier')  # Foreign key to SIPs or Transfers
     title = models.TextField(db_column='title', blank=True)
     is_part_of = models.TextField(db_column='isPartOf', verbose_name='Part of AIC', help_text='Optional: leave blank if unsure', blank=True)
     creator = models.TextField(db_column='creator', blank=True)
@@ -120,6 +129,7 @@ class DublinCore(models.Model):
     language = models.TextField(help_text='Use ISO 639', db_column='language', blank=True)
     coverage = models.TextField(db_column='coverage', blank=True)
     rights = models.TextField(db_column='rights', blank=True)
+    status = models.CharField(db_column='status', max_length=8, choices=METADATA_STATUS, default=METADATA_STATUS_ORIGINAL)
 
     class Meta:
         db_table = u'Dublincore'
@@ -144,6 +154,9 @@ class MetadataAppliesToType(models.Model):
 
     class Meta:
         db_table = u'MetadataAppliesToTypes'
+
+    def __unicode__(self):
+        return unicode(self.description)
 
 
 class Event(models.Model):
@@ -401,6 +414,7 @@ class RightsStatement(models.Model):
         ('Other', 'Other')
     )
     rightsbasis = models.CharField(db_column='rightsBasis', choices=RIGHTS_BASIS_CHOICES, max_length=64, verbose_name='Basis', default='Copyright')
+    status = models.CharField(db_column='status', max_length=8, choices=METADATA_STATUS, default=METADATA_STATUS_ORIGINAL)
 
     class Meta:
         db_table = u'RightsStatement'
