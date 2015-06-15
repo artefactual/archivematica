@@ -17,6 +17,7 @@ import databaseFunctions
 from main import models
 from fpr import models as fpr_models
 
+MD_TYPE_SIP_ID = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
 
 def parse_files(root):
     filesec = root.find('.//mets:fileSec', namespaces=ns.NSMAP)
@@ -144,6 +145,67 @@ def update_files(sip_uuid, files):
             relatedEventUUID=file_info['derivation_event'],
         )
 
+def parse_dc(sip_uuid, root):
+    """
+    Parse SIP-level DublinCore metadata into the DublinCore table.
+
+    Deletes existing entries associated with this SIP.
+
+    :param str sip_uuid: UUID of the SIP to parse the metadata for.
+    :param root: root Element of the METS file.
+    :return: DublinCore DB object, or None
+    """
+    # Delete existing DC
+    models.DublinCore.objects.filter(metadataappliestoidentifier=sip_uuid, metadataappliestotype_id=MD_TYPE_SIP_ID).delete()
+    # Parse DC
+    dmds = root.xpath('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]/parent::*', namespaces=ns.NSMAP)
+    dc_model = None
+    # Find which DC to parse into DB
+    if len(dmds) > 0:
+        DC_TERMS_MATCHING = {
+            'title': 'title',
+            'creator': 'creator',
+            'subject': 'subject',
+            'description': 'description',
+            'publisher': 'publisher',
+            'contributor': 'contributor',
+            'date': 'date',
+            'type': 'type',
+            'format': 'format',
+            'identifier': 'identifier',
+            'source': 'source',
+            'relation': 'relation',
+            'language': 'language',
+            'coverage': 'coverage',
+            'rights': 'rights',
+            'isPartOf': 'is_part_of',
+        }
+        # Want most recently updated
+        dmds = sorted(dmds, key=lambda e: e.get('CREATED'))
+        # Only want SIP DC, not file DC
+        div = root.find('mets:structMap/mets:div/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=ns.NSMAP)
+        dmdids = div.get('DMDID')
+        # No SIP DC
+        if dmdids is None:
+            return
+        dmdids = dmdids.split()
+        for dmd in dmds[::-1]:  # Reversed
+            if dmd.get('ID') in dmdids:
+                dc_xml = dmd.find('mets:mdWrap/mets:xmlData/dcterms:dublincore', namespaces=ns.NSMAP)
+                break
+        dc_model = models.DublinCore(
+            metadataappliestoidentifier=sip_uuid,
+            metadataappliestotype_id=MD_TYPE_SIP_ID,
+            status=models.METADATA_STATUS_REINGEST,
+        )
+        print('Dublin Core:')
+        for elem in dc_xml:
+            tag = elem.tag.replace(ns.dctermsBNS, '', 1).replace(ns.dcBNS, '', 1)
+            print(tag, elem.text)
+            setattr(dc_model, DC_TERMS_MATCHING[tag], elem.text)
+        dc_model.save()
+    return dc_model
+
 def update_default_config(processing_path):
     root = etree.parse(processing_path)
 
@@ -205,6 +267,8 @@ def main():
 
     files = parse_files(root)
     update_files(sip_uuid, files)
+
+    parse_dc(sip_uuid, root)
 
     # Update processingMCP
     processing_path = os.path.join(sip_path, 'processingMCP.xml')

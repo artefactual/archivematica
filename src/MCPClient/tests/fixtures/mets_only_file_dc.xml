@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd">
+  <mets:metsHdr CREATEDATE="2015-06-15T20:00:44"/>
+  <mets:dmdSec ID="dmdSec_1">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+          <dc:title>Landing zone</dc:title>
+          <dc:date>July 27, 2009</dc:date>
+          <dc:provenance>Donated by Peters</dc:provenance>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_2">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+          <dc:title>Pretty marbles</dc:title>
+          <dc:date>1988</dc:date>
+          <dc:provenance>Gift of Marbles Company Inc.</dc:provenance>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_3">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+          <dc:title>Photo of Pretty marbles</dc:title>
+          <dc:date>1999</dc:date>
+          <dc:provenance>Gift of Marbles Company Inc.</dc:provenance>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:fileSec>
+    <mets:fileGrp USE="original">
+      <mets:file GROUPID="Group-a64a1177-d4de-43b2-8d39-4db64ccafe20" ID="file-a64a1177-d4de-43b2-8d39-4db64ccafe20">
+        <mets:FLocat xlink:href="objects/Landing_zone/Landing_zone.jpg" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-39fdce81-8ce8-4a73-982e-2c9a12f7efc8" ID="file-39fdce81-8ce8-4a73-982e-2c9a12f7efc8">
+        <mets:FLocat xlink:href="objects/Landing_zone/MARBLES.TGA" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-9454927f-24be-42ff-9b85-4cf277a2055f" ID="file-9454927f-24be-42ff-9b85-4cf277a2055f">
+        <mets:FLocat xlink:href="objects/Landing_zone.jpg" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-abb5b5bc-1723-4305-999e-767fd2388e07" ID="file-abb5b5bc-1723-4305-999e-767fd2388e07">
+        <mets:FLocat xlink:href="objects/MARBLES/MARBLES.TGA" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-3660f8d0-fdf5-4c09-a3ba-f4589ad932ca" ID="file-3660f8d0-fdf5-4c09-a3ba-f4589ad932ca">
+        <mets:FLocat xlink:href="objects/MARBLES.TGA" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="submissionDocumentation">
+      <mets:file GROUPID="Group-8e5406e1-1c2a-47e6-a461-5ceef3e56684" ID="file-8e5406e1-1c2a-47e6-a461-5ceef3e56684">
+        <mets:FLocat xlink:href="objects/submissionDocumentation/transfer-file-dc-7d046137-1697-49c6-adc4-1dc453c1b874/METS.xml" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-71afc7bb-4a6b-4a10-9709-f0e6568ef216" ID="file-71afc7bb-4a6b-4a10-9709-f0e6568ef216">
+        <mets:FLocat xlink:href="objects/submissionDocumentation/transfer-file-dc-7d046137-1697-49c6-adc4-1dc453c1b874/_datavibe-l__FW__job_vacancy.rtf" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="preservation">
+      <mets:file GROUPID="Group-a64a1177-d4de-43b2-8d39-4db64ccafe20" ID="file-5f4b70cb-19bf-4c56-a1b5-1b6990a2317a">
+        <mets:FLocat xlink:href="objects/Landing_zone/Landing_zone-6a227b33-1bbe-4a11-9951-f11d9ee39751.tif" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-39fdce81-8ce8-4a73-982e-2c9a12f7efc8" ID="file-4d0da539-efd6-4eb5-8d8b-14929f8bf4da">
+        <mets:FLocat xlink:href="objects/Landing_zone/MARBLES-7f10015f-ca84-4056-a8ed-ab26966b4d23.tif" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-9454927f-24be-42ff-9b85-4cf277a2055f" ID="file-ee511338-db2c-4d3b-a460-96b9af6ae348">
+        <mets:FLocat xlink:href="objects/Landing_zone-096ab547-b6fb-4b68-a7fb-4f43f6f1fa5e.tif" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-abb5b5bc-1723-4305-999e-767fd2388e07" ID="file-3fcb8f49-72a0-4b67-94e9-060c098debf6">
+        <mets:FLocat xlink:href="objects/MARBLES/MARBLES-c2ee5e9c-2f91-4906-bc16-c748f17644a8.tif" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file GROUPID="Group-3660f8d0-fdf5-4c09-a3ba-f4589ad932ca" ID="file-7ba6b8f7-d685-4e1d-bf78-b235f56763f7">
+        <mets:FLocat xlink:href="objects/MARBLES-100e4867-50ba-40f4-8eac-311db9a87064.tif" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="metadata">
+      <mets:file GROUPID="Group-bab4d986-54b0-4adf-a57f-148ad227e103" ID="file-bab4d986-54b0-4adf-a57f-148ad227e103">
+        <mets:FLocat xlink:href="objects/metadata/transfers/file-dc-7d046137-1697-49c6-adc4-1dc453c1b874/metadata.csv" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+  </mets:fileSec>
+  <mets:structMap ID="structMap_1" LABEL="Archivematica default" TYPE="physical">
+    <mets:div LABEL="file-dc-f35d2530-45eb-4eb1-aa09-fb30661e7dcd" TYPE="Directory">
+      <mets:div LABEL="objects" TYPE="Directory">
+        <mets:div LABEL="Landing_zone" TYPE="Directory">
+          <mets:div LABEL="Landing_zone-6a227b33-1bbe-4a11-9951-f11d9ee39751.tif" TYPE="Item">
+            <mets:fptr FILEID="file-5f4b70cb-19bf-4c56-a1b5-1b6990a2317a"/>
+          </mets:div>
+          <mets:div LABEL="Landing_zone.jpg" TYPE="Item">
+            <mets:fptr FILEID="file-a64a1177-d4de-43b2-8d39-4db64ccafe20"/>
+          </mets:div>
+          <mets:div LABEL="MARBLES-7f10015f-ca84-4056-a8ed-ab26966b4d23.tif" TYPE="Item">
+            <mets:fptr FILEID="file-4d0da539-efd6-4eb5-8d8b-14929f8bf4da"/>
+          </mets:div>
+          <mets:div LABEL="MARBLES.TGA" TYPE="Item">
+            <mets:fptr FILEID="file-39fdce81-8ce8-4a73-982e-2c9a12f7efc8"/>
+          </mets:div>
+        </mets:div>
+        <mets:div LABEL="Landing_zone-096ab547-b6fb-4b68-a7fb-4f43f6f1fa5e.tif" TYPE="Item">
+          <mets:fptr FILEID="file-ee511338-db2c-4d3b-a460-96b9af6ae348"/>
+        </mets:div>
+        <mets:div LABEL="Landing_zone.jpg" TYPE="Item" DMDID="dmdSec_1">
+          <mets:fptr FILEID="file-9454927f-24be-42ff-9b85-4cf277a2055f"/>
+        </mets:div>
+        <mets:div LABEL="MARBLES" TYPE="Directory" DMDID="dmdSec_2">
+          <mets:div LABEL="MARBLES-c2ee5e9c-2f91-4906-bc16-c748f17644a8.tif" TYPE="Item">
+            <mets:fptr FILEID="file-3fcb8f49-72a0-4b67-94e9-060c098debf6"/>
+          </mets:div>
+          <mets:div LABEL="MARBLES.TGA" TYPE="Item" DMDID="dmdSec_3">
+            <mets:fptr FILEID="file-abb5b5bc-1723-4305-999e-767fd2388e07"/>
+          </mets:div>
+        </mets:div>
+        <mets:div LABEL="MARBLES-100e4867-50ba-40f4-8eac-311db9a87064.tif" TYPE="Item">
+          <mets:fptr FILEID="file-7ba6b8f7-d685-4e1d-bf78-b235f56763f7"/>
+        </mets:div>
+        <mets:div LABEL="MARBLES.TGA" TYPE="Item">
+          <mets:fptr FILEID="file-3660f8d0-fdf5-4c09-a3ba-f4589ad932ca"/>
+        </mets:div>
+        <mets:div LABEL="metadata" TYPE="Directory">
+          <mets:div LABEL="transfers" TYPE="Directory">
+            <mets:div LABEL="file-dc-7d046137-1697-49c6-adc4-1dc453c1b874" TYPE="Directory">
+              <mets:div LABEL="metadata.csv" TYPE="Item">
+                <mets:fptr FILEID="file-bab4d986-54b0-4adf-a57f-148ad227e103"/>
+              </mets:div>
+            </mets:div>
+          </mets:div>
+        </mets:div>
+        <mets:div LABEL="submissionDocumentation" TYPE="Directory">
+          <mets:div LABEL="transfer-file-dc-7d046137-1697-49c6-adc4-1dc453c1b874" TYPE="Directory">
+            <mets:div LABEL="METS.xml" TYPE="Item">
+              <mets:fptr FILEID="file-8e5406e1-1c2a-47e6-a461-5ceef3e56684"/>
+            </mets:div>
+            <mets:div LABEL="_datavibe-l__FW__job_vacancy.rtf" TYPE="Item">
+              <mets:fptr FILEID="file-71afc7bb-4a6b-4a10-9709-f0e6568ef216"/>
+            </mets:div>
+          </mets:div>
+        </mets:div>
+      </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>

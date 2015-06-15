@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd">
+  <mets:metsHdr CREATEDATE="2015-06-15T20:10:16"/>
+  <mets:dmdSec ID="dmdSec_1" STATUS="original">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+          <dc:title>Yamani Weapons</dc:title>
+          <dc:creator>Keladry of Mindelan</dc:creator>
+          <dc:subject>Glaives</dc:subject>
+          <dc:description>Glaives are cool</dc:description>
+          <dc:publisher>Tortall Press</dc:publisher>
+          <dc:contributor>Yuki</dc:contributor>
+          <dc:date>2014</dc:date>
+          <dc:type>Archival Information Package</dc:type>
+          <dc:format>parchement</dc:format>
+          <dc:identifier>42/1</dc:identifier>
+          <dc:source>Numair's library</dc:source>
+          <dc:relation>None</dc:relation>
+          <dc:language>en</dc:language>
+          <dc:rights>Public Domain</dc:rights>
+          <dcterms:isPartOf>AIC#43</dcterms:isPartOf>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec ID="dmdSec_2" STATUS="updated" CREATED="2015-06-15T21:12:28">
+    <mets:mdWrap MDTYPE="DC">
+      <mets:xmlData>
+        <dcterms:dublincore xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+          <dc:title>Yamani Weapons</dc:title>
+          <dc:creator>Keladry of Mindelan</dc:creator>
+          <dc:subject>Glaives</dc:subject>
+          <dc:description>Glaives are awesome</dc:description>
+          <dc:publisher>Tortall Press</dc:publisher>
+          <dc:contributor>Yuki</dc:contributor>
+          <dc:date>2014</dc:date>
+          <dc:type>Archival Information Package</dc:type>
+          <dc:format>palimpsest</dc:format>
+          <dc:identifier>42/1</dc:identifier>
+          <dc:relation>Everyone!</dc:relation>
+          <dc:language>en</dc:language>
+          <dc:rights>Public Domain</dc:rights>
+          <dcterms:isPartOf>AIC#43</dcterms:isPartOf>
+        </dcterms:dublincore>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:fileSec>
+    <mets:fileGrp USE="original">
+      <mets:file GROUPID="Group-4ad45093-ca36-4ee4-bccd-b82dc502ae53" ID="file-4ad45093-ca36-4ee4-bccd-b82dc502ae53">
+        <mets:FLocat xlink:href="objects/evelyn_s_photo.jpg" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="submissionDocumentation">
+      <mets:file GROUPID="Group-e7bb725f-98f1-481f-b5b1-4c0134b801c3" ID="file-e7bb725f-98f1-481f-b5b1-4c0134b801c3">
+        <mets:FLocat xlink:href="objects/submissionDocumentation/transfer-sip-dc-c6adbd7b-c0e8-480c-ad37-dc887f97e214/METS.xml" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="preservation">
+      <mets:file GROUPID="Group-4ad45093-ca36-4ee4-bccd-b82dc502ae53" ID="file-6e3f5f63-8424-417e-8357-f0a1ea05af62">
+        <mets:FLocat xlink:href="objects/evelyn_s_photo-4a4dfb4d-caa3-40ff-99c0-34ed176bb84b.tif" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+  </mets:fileSec>
+  <mets:structMap ID="structMap_1" LABEL="Archivematica default" TYPE="physical">
+    <mets:div LABEL="sip-dc-eacbf65f-2528-4be0-8cb3-532f45fcdff8" TYPE="Directory">
+      <mets:div LABEL="objects" TYPE="Directory" DMDID="dmdSec_1 dmdSec_2">
+        <mets:div LABEL="evelyn_s_photo-4a4dfb4d-caa3-40ff-99c0-34ed176bb84b.tif" TYPE="Item">
+          <mets:fptr FILEID="file-6e3f5f63-8424-417e-8357-f0a1ea05af62"/>
+        </mets:div>
+        <mets:div LABEL="evelyn_s_photo.jpg" TYPE="Item">
+          <mets:fptr FILEID="file-4ad45093-ca36-4ee4-bccd-b82dc502ae53"/>
+        </mets:div>
+        <mets:div LABEL="metadata" TYPE="Directory">
+          <mets:div LABEL="transfers" TYPE="Directory">
+            <mets:div LABEL="sip-dc-c6adbd7b-c0e8-480c-ad37-dc887f97e214" TYPE="Directory"/>
+          </mets:div>
+        </mets:div>
+        <mets:div LABEL="submissionDocumentation" TYPE="Directory">
+          <mets:div LABEL="transfer-sip-dc-c6adbd7b-c0e8-480c-ad37-dc887f97e214" TYPE="Directory">
+            <mets:div LABEL="METS.xml" TYPE="Item">
+              <mets:fptr FILEID="file-e7bb725f-98f1-481f-b5b1-4c0134b801c3"/>
+            </mets:div>
+          </mets:div>
+        </mets:div>
+      </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>

@@ -12,6 +12,98 @@ import parse_mets_to_db
 import fpr
 from main import models
 
+class TestParseDublinCore(TestCase):
+    """ Test parsing SIP-level DublinCore from a METS file into the DB. """
+
+    fixture_files = ['dublincore.json']
+    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    def test_none_found(self):
+        """ It should parse no DC if none is found. """
+        sip_uuid = 'd481580e-53b9-4a52-96db-baa969e78adc'
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        dc = parse_mets_to_db.parse_dc(sip_uuid, root)
+        assert dc is None
+        assert models.DublinCore.objects.filter(metadataappliestoidentifier=sip_uuid).exists() is False
+
+    def test_no_sip_dc(self):
+        """ It should ignore file-level DC. """
+        sip_uuid = 'f35d2530-45eb-4eb1-aa09-fb30661e7dcd'
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_only_file_dc.xml'))
+        dc = parse_mets_to_db.parse_dc(sip_uuid, root)
+        assert dc is None
+        assert models.DublinCore.objects.filter(metadataappliestoidentifier=sip_uuid).exists() is False
+
+    def test_only_original(self):
+        """ It should parse a SIP-level DC if found. """
+        sip_uuid = 'eacbf65f-2528-4be0-8cb3-532f45fcdff8'
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_sip_dc.xml'))
+        dc = parse_mets_to_db.parse_dc(sip_uuid, root)
+        assert dc
+        assert models.DublinCore.objects.filter(metadataappliestoidentifier=sip_uuid).exists()
+        assert dc.title == 'Yamani Weapons'
+        assert dc.creator == 'Keladry of Mindelan'
+        assert dc.subject == 'Glaives'
+        assert dc.description == 'Glaives are cool'
+        assert dc.publisher == 'Tortall Press'
+        assert dc.contributor == 'Yuki'
+        assert dc.date == '2014'
+        assert dc.type == 'Archival Information Package'
+        assert dc.format == 'parchement'
+        assert dc.identifier == '42/1'
+        assert dc.source == "Numair's library"
+        assert dc.relation == 'None'
+        assert dc.language == 'en'
+        assert dc.rights == 'Public Domain'
+        assert dc.is_part_of == 'AIC#43'
+
+    def test_get_sip_dc_ignore_file_dc(self):
+        """ It should parse a SIP-level DC even if file-level DC is also present. """
+        sip_uuid = '55972e97-8d35-4b07-abaa-ae260c32d261'
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_sip_and_file_dc.xml'))
+        dc = parse_mets_to_db.parse_dc(sip_uuid, root)
+        assert dc
+        assert models.DublinCore.objects.filter(metadataappliestoidentifier=sip_uuid).exists()
+        assert dc.title == 'Yamani Weapons'
+        assert dc.creator == 'Keladry of Mindelan'
+        assert dc.subject == 'Glaives'
+        assert dc.description == 'Glaives are cool'
+        assert dc.publisher == 'Tortall Press'
+        assert dc.contributor == 'Yuki'
+        assert dc.date == '2014'
+        assert dc.type == 'Archival Information Package'
+        assert dc.format == 'parchement'
+        assert dc.identifier == '42/1'
+        assert dc.source == "Numair's library"
+        assert dc.relation == 'None'
+        assert dc.language == 'en'
+        assert dc.rights == 'Public Domain'
+        assert dc.is_part_of == 'AIC#43'
+
+    def test_multiple_sip_dc(self):
+        """ It should parse the most recent SIP DC if multiple exist. """
+        sip_uuid = 'eacbf65f-2528-4be0-8cb3-532f45fcdff8'
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_multiple_sip_dc.xml'))
+        dc = parse_mets_to_db.parse_dc(sip_uuid, root)
+        assert dc
+        assert models.DublinCore.objects.filter(metadataappliestoidentifier=sip_uuid).exists()
+        assert dc.title == 'Yamani Weapons'
+        assert dc.creator == 'Keladry of Mindelan'
+        assert dc.subject == 'Glaives'
+        assert dc.description == 'Glaives are awesome'
+        assert dc.publisher == 'Tortall Press'
+        assert dc.contributor == 'Yuki'
+        assert dc.date == '2014'
+        assert dc.type == 'Archival Information Package'
+        assert dc.format == 'palimpsest'
+        assert dc.identifier == '42/1'
+        assert dc.source == ''
+        assert dc.relation == 'Everyone!'
+        assert dc.language == 'en'
+        assert dc.rights == 'Public Domain'
+        assert dc.is_part_of == 'AIC#43'
+
+
 class TestParseFiles(TestCase):
     """ Test parsing file information from a METS file to the DB. """
 
