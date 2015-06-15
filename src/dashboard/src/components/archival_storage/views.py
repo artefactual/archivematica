@@ -478,8 +478,8 @@ def list_display(request):
     # get list of UUIDs of AIPs that are deleted or pending deletion
     aips_deleted_or_pending_deletion = []
     should_haves = [
-        {'term': {'status': 'DEL_REQ'}},
-        {'term': {'status': 'DELETED'}},
+        {'match': {'status': 'DEL_REQ'}},
+        {'match': {'status': 'DELETED'}},
     ]
     query = {
         "query": {
@@ -495,7 +495,7 @@ def list_display(request):
         fields='uuid,status'
     )
     for deleted_aip in deleted_aip_results['hits']['hits']:
-        aips_deleted_or_pending_deletion.append(deleted_aip['uuid'])
+        aips_deleted_or_pending_deletion.append(deleted_aip['fields']['uuid'][0])
 
     # Fetch results and paginate
     def es_pager(page, page_size):
