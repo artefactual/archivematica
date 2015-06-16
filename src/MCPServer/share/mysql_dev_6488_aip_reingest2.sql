@@ -49,3 +49,13 @@ UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='5d6a103c-9
 
 -- Reject SIP should be the SIP chain, not transfer
 UPDATE MicroServiceChainChoice SET chainAvailable='a6ed697e-6189-4b4e-9f80-29209abc7937' WHERE choiceAvailableAtLink='9520386f-bb6d-4fb9-a6b6-5845ef39375f' AND chainAvailable='1b04ec43-055c-43b7-9543-bd03c6a778ba';
+
+-- Add parse METS to DB MSCL
+SET @repopulateSTC = '12fcbb37-499b-4e1c-8164-3beb1657b6dd' COLLATE utf8_unicode_ci;
+SET @repopulateTC = '507c13db-63c9-476b-9a16-0c3a05aff1cb' COLLATE utf8_unicode_ci;
+SET @repopulateMSCL = '33533fbb-1607-434f-a82b-cf938c05f60b' COLLATE utf8_unicode_ci;
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES (@repopulateSTC, 0, 'parseMETStoDB_v1.0', '%SIPUUID% %SIPDirectory%');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@repopulateTC, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @repopulateSTC, 'Populate database with reingested AIP data');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@repopulateMSCL, 'Reingest AIP', 'Failed', @repopulateTC, '7d728c39-395f-4892-8193-92f086c0546f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('7ec3b34f-7505-4459-a139-9d7f5738984c', @repopulateMSCL, 0, 'e4e19c32-16cc-4a7f-a64d-a1f180bdb164', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@repopulateMSCL WHERE microServiceChainLink='31fc3f66-34e9-478f-8d1b-c29cd0012360';

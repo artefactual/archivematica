@@ -413,6 +413,10 @@ def start_reingest(request):
             response = {'error': True, 'message': '"name" and "uuid" are required.'}
             return helpers.json_response(response, status_code=400)
         # TODO Clear DB of residual stuff related to SIP
+        models.Task.objects.filter(job__sipuuid=sip_uuid).delete()
+        models.Job.objects.filter(sipuuid=sip_uuid).delete()
+        models.SIP.objects.filter(uuid=sip_uuid).delete()  # Delete is cascading
+
         # Move to watched directory
         shared_directory_path = helpers.get_server_config_value('sharedDirectory')
         source = os.path.join(shared_directory_path, 'tmp', sip_name)
