@@ -3,6 +3,8 @@ dev (1.5.0)
 
 * Fix "active" templatetag when Django handles an uncaught exception
 * Fix updating AIP records after marking files as deleted in archival storage (#8533)
+* Fix querying for deleted AIPs (#8533)
+* Fix marking AIPs as stored after deletion is rejected (#8533)
 
 1.4.0
 =====
