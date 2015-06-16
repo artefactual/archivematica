@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.23-72.1, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.5.43-37.2, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: MCP
 -- ------------------------------------------------------
--- Server version	5.6.23-72.1
+-- Server version	5.5.43-37.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -95,7 +95,7 @@ CREATE TABLE `Agents` (
 
 LOCK TABLES `Agents` WRITE;
 /*!40000 ALTER TABLE `Agents` DISABLE KEYS */;
-INSERT INTO `Agents` VALUES (1,'preservation system','Archivematica-1.4.0','Archivematica','software'),(2,'repository code','ORG','Your Organization Name Here','organization');
+INSERT INTO `Agents` VALUES (1,'preservation system','Archivematica-1.4.1','Archivematica','software'),(2,'repository code','ORG','Your Organization Name Here','organization');
 /*!40000 ALTER TABLE `Agents` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -505,16 +505,17 @@ LOCK TABLES `FauxFileIDsMap` WRITE;
 UNLOCK TABLES;
 
 --
--- Temporary view structure for view `FileExtensions`
+-- Temporary table structure for view `FileExtensions`
 --
 
 DROP TABLE IF EXISTS `FileExtensions`;
 /*!50001 DROP VIEW IF EXISTS `FileExtensions`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `FileExtensions` AS SELECT 
- 1 AS `FileUUID`,
- 1 AS `extension`*/;
+/*!50001 CREATE TABLE `FileExtensions` (
+  `FileUUID` tinyint NOT NULL,
+  `extension` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -643,26 +644,27 @@ LOCK TABLES `Files` WRITE;
 UNLOCK TABLES;
 
 --
--- Temporary view structure for view `FilesByUnit`
+-- Temporary table structure for view `FilesByUnit`
 --
 
 DROP TABLE IF EXISTS `FilesByUnit`;
 /*!50001 DROP VIEW IF EXISTS `FilesByUnit`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `FilesByUnit` AS SELECT 
- 1 AS `fileUUID`,
- 1 AS `originalLocation`,
- 1 AS `currentLocation`,
- 1 AS `unitUUID`,
- 1 AS `unitType`,
- 1 AS `removedTime`,
- 1 AS `enteredSystem`,
- 1 AS `fileSize`,
- 1 AS `checksum`,
- 1 AS `fileGrpUse`,
- 1 AS `fileGrpUUID`,
- 1 AS `label`*/;
+/*!50001 CREATE TABLE `FilesByUnit` (
+  `fileUUID` tinyint NOT NULL,
+  `originalLocation` tinyint NOT NULL,
+  `currentLocation` tinyint NOT NULL,
+  `unitUUID` tinyint NOT NULL,
+  `unitType` tinyint NOT NULL,
+  `removedTime` tinyint NOT NULL,
+  `enteredSystem` tinyint NOT NULL,
+  `fileSize` tinyint NOT NULL,
+  `checksum` tinyint NOT NULL,
+  `fileGrpUse` tinyint NOT NULL,
+  `fileGrpUUID` tinyint NOT NULL,
+  `label` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -998,27 +1000,28 @@ LOCK TABLES `Notifications` WRITE;
 UNLOCK TABLES;
 
 --
--- Temporary view structure for view `PDI_by_unit`
+-- Temporary table structure for view `PDI_by_unit`
 --
 
 DROP TABLE IF EXISTS `PDI_by_unit`;
 /*!50001 DROP VIEW IF EXISTS `PDI_by_unit`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `PDI_by_unit` AS SELECT 
- 1 AS `SIP_OR_TRANSFER_UUID`,
- 1 AS `unitType`,
- 1 AS `Total time processing`,
- 1 AS `Number_of_tasks`,
- 1 AS `Average time per task`,
- 1 AS `total file size`,
- 1 AS `number of files`,
- 1 AS `count( DISTINCT  FilesByUnit.fileUUID)`,
- 1 AS `average file size KB`,
- 1 AS `average file size MB`,
- 1 AS `time per task per MB`,
- 1 AS `currentLocation`,
- 1 AS `currentPath`*/;
+/*!50001 CREATE TABLE `PDI_by_unit` (
+  `SIP_OR_TRANSFER_UUID` tinyint NOT NULL,
+  `unitType` tinyint NOT NULL,
+  `Total time processing` tinyint NOT NULL,
+  `Number_of_tasks` tinyint NOT NULL,
+  `Average time per task` tinyint NOT NULL,
+  `total file size` tinyint NOT NULL,
+  `number of files` tinyint NOT NULL,
+  `count( DISTINCT  FilesByUnit.fileUUID)` tinyint NOT NULL,
+  `average file size KB` tinyint NOT NULL,
+  `average file size MB` tinyint NOT NULL,
+  `time per task per MB` tinyint NOT NULL,
+  `currentLocation` tinyint NOT NULL,
+  `currentPath` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -2225,7 +2228,7 @@ CREATE TABLE `auth_permission` (
   UNIQUE KEY `content_type_id` (`content_type_id`,`codename`),
   KEY `auth_permission_e4470c6e` (`content_type_id`),
   CONSTRAINT `content_type_id_refs_id_728de91f` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=241 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=265 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2234,7 +2237,7 @@ CREATE TABLE `auth_permission` (
 
 LOCK TABLES `auth_permission` WRITE;
 /*!40000 ALTER TABLE `auth_permission` DISABLE KEYS */;
-INSERT INTO `auth_permission` VALUES (22,'Can add api access',8,'add_apiaccess'),(23,'Can change api access',8,'change_apiaccess'),(24,'Can delete api access',8,'delete_apiaccess'),(25,'Can add api key',9,'add_apikey'),(26,'Can change api key',9,'change_apikey'),(27,'Can delete api key',9,'delete_apikey'),(28,'Can add permission',10,'add_permission'),(29,'Can change permission',10,'change_permission'),(30,'Can delete permission',10,'delete_permission'),(31,'Can add group',11,'add_group'),(32,'Can change group',11,'change_group'),(33,'Can delete group',11,'delete_group'),(34,'Can add user',12,'add_user'),(35,'Can change user',12,'change_user'),(36,'Can delete user',12,'delete_user'),(37,'Can add content type',13,'add_contenttype'),(38,'Can change content type',13,'change_contenttype'),(39,'Can delete content type',13,'delete_contenttype'),(40,'Can add session',14,'add_session'),(41,'Can change session',14,'change_session'),(42,'Can delete session',14,'delete_session'),(43,'Can add dashboard setting',15,'add_dashboardsetting'),(44,'Can change dashboard setting',15,'change_dashboardsetting'),(45,'Can delete dashboard setting',15,'delete_dashboardsetting'),(46,'Can add access',16,'add_access'),(47,'Can change access',16,'change_access'),(48,'Can delete access',16,'delete_access'),(49,'Can add dublin core',17,'add_dublincore'),(50,'Can change dublin core',17,'change_dublincore'),(51,'Can delete dublin core',17,'delete_dublincore'),(52,'Can add metadata applies to type',18,'add_metadataappliestotype'),(53,'Can change metadata applies to type',18,'change_metadataappliestotype'),(54,'Can delete metadata applies to type',18,'delete_metadataappliestotype'),(55,'Can add event',19,'add_event'),(56,'Can change event',19,'change_event'),(57,'Can delete event',19,'delete_event'),(58,'Can add derivation',20,'add_derivation'),(59,'Can change derivation',20,'change_derivation'),(60,'Can delete derivation',20,'delete_derivation'),(61,'Can add job',21,'add_job'),(62,'Can change job',21,'change_job'),(63,'Can delete job',21,'delete_job'),(64,'Can add sip',22,'add_sip'),(65,'Can change sip',22,'change_sip'),(66,'Can delete sip',22,'delete_sip'),(67,'Can add transfer',23,'add_transfer'),(68,'Can change transfer',23,'change_transfer'),(69,'Can delete transfer',23,'delete_transfer'),(70,'Can add Arranged SIPs',24,'add_siparrange'),(71,'Can change Arranged SIPs',24,'change_siparrange'),(72,'Can delete Arranged SIPs',24,'delete_siparrange'),(73,'Can add file',25,'add_file'),(74,'Can change file',25,'change_file'),(75,'Can delete file',25,'delete_file'),(76,'Can add file format version',26,'add_fileformatversion'),(77,'Can change file format version',26,'change_fileformatversion'),(78,'Can delete file format version',26,'delete_fileformatversion'),(79,'Can add task',27,'add_task'),(80,'Can change task',27,'change_task'),(81,'Can delete task',27,'delete_task'),(82,'Can add agent',28,'add_agent'),(83,'Can change agent',28,'change_agent'),(84,'Can delete agent',28,'delete_agent'),(85,'Can add report',29,'add_report'),(86,'Can change report',29,'change_report'),(87,'Can delete report',29,'delete_report'),(88,'Can add Rights Statement',30,'add_rightsstatement'),(89,'Can change Rights Statement',30,'change_rightsstatement'),(90,'Can delete Rights Statement',30,'delete_rightsstatement'),(91,'Can add Rights: Copyright',31,'add_rightsstatementcopyright'),(92,'Can change Rights: Copyright',31,'change_rightsstatementcopyright'),(93,'Can delete Rights: Copyright',31,'delete_rightsstatementcopyright'),(94,'Can add Rights: Copyright: Docs ID',32,'add_rightsstatementcopyrightdocumentationidentifier'),(95,'Can change Rights: Copyright: Docs ID',32,'change_rightsstatementcopyrightdocumentationidentifier'),(96,'Can delete Rights: Copyright: Docs ID',32,'delete_rightsstatementcopyrightdocumentationidentifier'),(97,'Can add Rights: Copyright: Note',33,'add_rightsstatementcopyrightnote'),(98,'Can change Rights: Copyright: Note',33,'change_rightsstatementcopyrightnote'),(99,'Can delete Rights: Copyright: Note',33,'delete_rightsstatementcopyrightnote'),(100,'Can add Rights: License',34,'add_rightsstatementlicense'),(101,'Can change Rights: License',34,'change_rightsstatementlicense'),(102,'Can delete Rights: License',34,'delete_rightsstatementlicense'),(103,'Can add Rights: License: Docs ID',35,'add_rightsstatementlicensedocumentationidentifier'),(104,'Can change Rights: License: Docs ID',35,'change_rightsstatementlicensedocumentationidentifier'),(105,'Can delete Rights: License: Docs ID',35,'delete_rightsstatementlicensedocumentationidentifier'),(106,'Can add Rights: License: Note',36,'add_rightsstatementlicensenote'),(107,'Can change Rights: License: Note',36,'change_rightsstatementlicensenote'),(108,'Can delete Rights: License: Note',36,'delete_rightsstatementlicensenote'),(109,'Can add Rights: Granted',37,'add_rightsstatementrightsgranted'),(110,'Can change Rights: Granted',37,'change_rightsstatementrightsgranted'),(111,'Can delete Rights: Granted',37,'delete_rightsstatementrightsgranted'),(112,'Can add Rights: Granted: Note',38,'add_rightsstatementrightsgrantednote'),(113,'Can change Rights: Granted: Note',38,'change_rightsstatementrightsgrantednote'),(114,'Can delete Rights: Granted: Note',38,'delete_rightsstatementrightsgrantednote'),(115,'Can add Rights: Granted: Restriction',39,'add_rightsstatementrightsgrantedrestriction'),(116,'Can change Rights: Granted: Restriction',39,'change_rightsstatementrightsgrantedrestriction'),(117,'Can delete Rights: Granted: Restriction',39,'delete_rightsstatementrightsgrantedrestriction'),(118,'Can add Rights: Statute',40,'add_rightsstatementstatuteinformation'),(119,'Can change Rights: Statute',40,'change_rightsstatementstatuteinformation'),(120,'Can delete Rights: Statute',40,'delete_rightsstatementstatuteinformation'),(121,'Can add Rights: Statute: Note',41,'add_rightsstatementstatuteinformationnote'),(122,'Can change Rights: Statute: Note',41,'change_rightsstatementstatuteinformationnote'),(123,'Can delete Rights: Statute: Note',41,'delete_rightsstatementstatuteinformationnote'),(124,'Can add Rights: Statute: Docs ID',42,'add_rightsstatementstatutedocumentationidentifier'),(125,'Can change Rights: Statute: Docs ID',42,'change_rightsstatementstatutedocumentationidentifier'),(126,'Can delete Rights: Statute: Docs ID',42,'delete_rightsstatementstatutedocumentationidentifier'),(127,'Can add Rights: Other',43,'add_rightsstatementotherrightsinformation'),(128,'Can change Rights: Other',43,'change_rightsstatementotherrightsinformation'),(129,'Can delete Rights: Other',43,'delete_rightsstatementotherrightsinformation'),(130,'Can add Rights: Other: Docs ID',44,'add_rightsstatementotherrightsdocumentationidentifier'),(131,'Can change Rights: Other: Docs ID',44,'change_rightsstatementotherrightsdocumentationidentifier'),(132,'Can delete Rights: Other: Docs ID',44,'delete_rightsstatementotherrightsdocumentationidentifier'),(133,'Can add Rights: Other: Note',45,'add_rightsstatementotherrightsinformationnote'),(134,'Can change Rights: Other: Note',45,'change_rightsstatementotherrightsinformationnote'),(135,'Can delete Rights: Other: Note',45,'delete_rightsstatementotherrightsinformationnote'),(136,'Can add Rights: Agent',46,'add_rightsstatementlinkingagentidentifier'),(137,'Can change Rights: Agent',46,'change_rightsstatementlinkingagentidentifier'),(138,'Can delete Rights: Agent',46,'delete_rightsstatementlinkingagentidentifier'),(139,'Can add micro service chain',47,'add_microservicechain'),(140,'Can change micro service chain',47,'change_microservicechain'),(141,'Can delete micro service chain',47,'delete_microservicechain'),(142,'Can add micro service chain link',48,'add_microservicechainlink'),(143,'Can change micro service chain link',48,'change_microservicechainlink'),(144,'Can delete micro service chain link',48,'delete_microservicechainlink'),(145,'Can add micro service chain link exit code',49,'add_microservicechainlinkexitcode'),(146,'Can change micro service chain link exit code',49,'change_microservicechainlinkexitcode'),(147,'Can delete micro service chain link exit code',49,'delete_microservicechainlinkexitcode'),(148,'Can add micro service chain choice',50,'add_microservicechainchoice'),(149,'Can change micro service chain choice',50,'change_microservicechainchoice'),(150,'Can delete micro service chain choice',50,'delete_microservicechainchoice'),(151,'Can add micro service choice replacement dic',51,'add_microservicechoicereplacementdic'),(152,'Can change micro service choice replacement dic',51,'change_microservicechoicereplacementdic'),(153,'Can delete micro service choice replacement dic',51,'delete_microservicechoicereplacementdic'),(154,'Can add standard task config',52,'add_standardtaskconfig'),(155,'Can change standard task config',52,'change_standardtaskconfig'),(156,'Can delete standard task config',52,'delete_standardtaskconfig'),(157,'Can add task config',53,'add_taskconfig'),(158,'Can change task config',53,'change_taskconfig'),(159,'Can delete task config',53,'delete_taskconfig'),(160,'Can add unit variable',54,'add_unitvariable'),(161,'Can change unit variable',54,'change_unitvariable'),(162,'Can delete unit variable',54,'delete_unitvariable'),(163,'Can add atk dip object resource pairing',55,'add_atkdipobjectresourcepairing'),(164,'Can change atk dip object resource pairing',55,'change_atkdipobjectresourcepairing'),(165,'Can delete atk dip object resource pairing',55,'delete_atkdipobjectresourcepairing'),(166,'Can add transfer metadata set',56,'add_transfermetadataset'),(167,'Can change transfer metadata set',56,'change_transfermetadataset'),(168,'Can delete transfer metadata set',56,'delete_transfermetadataset'),(169,'Can add transfer metadata field',57,'add_transfermetadatafield'),(170,'Can change transfer metadata field',57,'change_transfermetadatafield'),(171,'Can delete transfer metadata field',57,'delete_transfermetadatafield'),(172,'Can add transfer metadata field value',58,'add_transfermetadatafieldvalue'),(173,'Can change transfer metadata field value',58,'change_transfermetadatafieldvalue'),(174,'Can delete transfer metadata field value',58,'delete_transfermetadatafieldvalue'),(175,'Can add taxonomy',59,'add_taxonomy'),(176,'Can change taxonomy',59,'change_taxonomy'),(177,'Can delete taxonomy',59,'delete_taxonomy'),(178,'Can add taxonomy term',60,'add_taxonomyterm'),(179,'Can change taxonomy term',60,'change_taxonomyterm'),(180,'Can delete taxonomy term',60,'delete_taxonomyterm'),(181,'Can add replacement dict',61,'add_replacementdict'),(182,'Can change replacement dict',61,'change_replacementdict'),(183,'Can delete replacement dict',61,'delete_replacementdict'),(184,'Can add archivists toolkit config',62,'add_archiviststoolkitconfig'),(185,'Can change archivists toolkit config',62,'change_archiviststoolkitconfig'),(186,'Can delete archivists toolkit config',62,'delete_archiviststoolkitconfig'),(187,'Can add Format',63,'add_format'),(188,'Can change Format',63,'change_format'),(189,'Can delete Format',63,'delete_format'),(190,'Can add Format Group',64,'add_formatgroup'),(191,'Can change Format Group',64,'change_formatgroup'),(192,'Can delete Format Group',64,'delete_formatgroup'),(193,'Can add Format Version',65,'add_formatversion'),(194,'Can change Format Version',65,'change_formatversion'),(195,'Can delete Format Version',65,'delete_formatversion'),(196,'Can add Format Identification Command',66,'add_idcommand'),(197,'Can change Format Identification Command',66,'change_idcommand'),(198,'Can delete Format Identification Command',66,'delete_idcommand'),(199,'Can add Format Identification Rule',67,'add_idrule'),(200,'Can change Format Identification Rule',67,'change_idrule'),(201,'Can delete Format Identification Rule',67,'delete_idrule'),(202,'Can add Format Identification Tool',68,'add_idtool'),(203,'Can change Format Identification Tool',68,'change_idtool'),(204,'Can delete Format Identification Tool',68,'delete_idtool'),(205,'Can add Format Policy Rule',69,'add_fprule'),(206,'Can change Format Policy Rule',69,'change_fprule'),(207,'Can delete Format Policy Rule',69,'delete_fprule'),(208,'Can add Format Policy Command',70,'add_fpcommand'),(209,'Can change Format Policy Command',70,'change_fpcommand'),(210,'Can delete Format Policy Command',70,'delete_fpcommand'),(211,'Can add Normalization Tool',71,'add_fptool'),(212,'Can change Normalization Tool',71,'change_fptool'),(213,'Can delete Normalization Tool',71,'delete_fptool'),(214,'Can add agent',72,'add_agent'),(215,'Can change agent',72,'change_agent'),(216,'Can delete agent',72,'delete_agent'),(217,'Can add command type',73,'add_commandtype'),(218,'Can change command type',73,'change_commandtype'),(219,'Can delete command type',73,'delete_commandtype'),(220,'Can add command',74,'add_command'),(221,'Can change command',74,'change_command'),(222,'Can delete command',74,'delete_command'),(223,'Can add commands supported by',75,'add_commandssupportedby'),(224,'Can change commands supported by',75,'change_commandssupportedby'),(225,'Can delete commands supported by',75,'delete_commandssupportedby'),(226,'Can add file id type',76,'add_fileidtype'),(227,'Can change file id type',76,'change_fileidtype'),(228,'Can delete file id type',76,'delete_fileidtype'),(229,'Can add file id',77,'add_fileid'),(230,'Can change file id',77,'change_fileid'),(231,'Can delete file id',77,'delete_fileid'),(232,'Can add command classification',78,'add_commandclassification'),(233,'Can change command classification',78,'change_commandclassification'),(234,'Can delete command classification',78,'delete_commandclassification'),(235,'Can add command relationship',79,'add_commandrelationship'),(236,'Can change command relationship',79,'change_commandrelationship'),(237,'Can delete command relationship',79,'delete_commandrelationship'),(238,'Can add file i ds by single id',80,'add_fileidsbysingleid'),(239,'Can change file i ds by single id',80,'change_fileidsbysingleid'),(240,'Can delete file i ds by single id',80,'delete_fileidsbysingleid');
+INSERT INTO `auth_permission` VALUES (22,'Can add api access',8,'add_apiaccess'),(23,'Can change api access',8,'change_apiaccess'),(24,'Can delete api access',8,'delete_apiaccess'),(25,'Can add api key',9,'add_apikey'),(26,'Can change api key',9,'change_apikey'),(27,'Can delete api key',9,'delete_apikey'),(28,'Can add permission',10,'add_permission'),(29,'Can change permission',10,'change_permission'),(30,'Can delete permission',10,'delete_permission'),(31,'Can add group',11,'add_group'),(32,'Can change group',11,'change_group'),(33,'Can delete group',11,'delete_group'),(34,'Can add user',12,'add_user'),(35,'Can change user',12,'change_user'),(36,'Can delete user',12,'delete_user'),(37,'Can add content type',13,'add_contenttype'),(38,'Can change content type',13,'change_contenttype'),(39,'Can delete content type',13,'delete_contenttype'),(40,'Can add session',14,'add_session'),(41,'Can change session',14,'change_session'),(42,'Can delete session',14,'delete_session'),(43,'Can add dashboard setting',15,'add_dashboardsetting'),(44,'Can change dashboard setting',15,'change_dashboardsetting'),(45,'Can delete dashboard setting',15,'delete_dashboardsetting'),(46,'Can add access',16,'add_access'),(47,'Can change access',16,'change_access'),(48,'Can delete access',16,'delete_access'),(49,'Can add dublin core',17,'add_dublincore'),(50,'Can change dublin core',17,'change_dublincore'),(51,'Can delete dublin core',17,'delete_dublincore'),(52,'Can add metadata applies to type',18,'add_metadataappliestotype'),(53,'Can change metadata applies to type',18,'change_metadataappliestotype'),(54,'Can delete metadata applies to type',18,'delete_metadataappliestotype'),(55,'Can add event',19,'add_event'),(56,'Can change event',19,'change_event'),(57,'Can delete event',19,'delete_event'),(58,'Can add derivation',20,'add_derivation'),(59,'Can change derivation',20,'change_derivation'),(60,'Can delete derivation',20,'delete_derivation'),(61,'Can add job',21,'add_job'),(62,'Can change job',21,'change_job'),(63,'Can delete job',21,'delete_job'),(64,'Can add sip',22,'add_sip'),(65,'Can change sip',22,'change_sip'),(66,'Can delete sip',22,'delete_sip'),(67,'Can add transfer',23,'add_transfer'),(68,'Can change transfer',23,'change_transfer'),(69,'Can delete transfer',23,'delete_transfer'),(70,'Can add Arranged SIPs',24,'add_siparrange'),(71,'Can change Arranged SIPs',24,'change_siparrange'),(72,'Can delete Arranged SIPs',24,'delete_siparrange'),(73,'Can add file',25,'add_file'),(74,'Can change file',25,'change_file'),(75,'Can delete file',25,'delete_file'),(76,'Can add file format version',26,'add_fileformatversion'),(77,'Can change file format version',26,'change_fileformatversion'),(78,'Can delete file format version',26,'delete_fileformatversion'),(79,'Can add task',27,'add_task'),(80,'Can change task',27,'change_task'),(81,'Can delete task',27,'delete_task'),(82,'Can add agent',28,'add_agent'),(83,'Can change agent',28,'change_agent'),(84,'Can delete agent',28,'delete_agent'),(85,'Can add report',29,'add_report'),(86,'Can change report',29,'change_report'),(87,'Can delete report',29,'delete_report'),(88,'Can add Rights Statement',30,'add_rightsstatement'),(89,'Can change Rights Statement',30,'change_rightsstatement'),(90,'Can delete Rights Statement',30,'delete_rightsstatement'),(91,'Can add Rights: Copyright',31,'add_rightsstatementcopyright'),(92,'Can change Rights: Copyright',31,'change_rightsstatementcopyright'),(93,'Can delete Rights: Copyright',31,'delete_rightsstatementcopyright'),(94,'Can add Rights: Copyright: Docs ID',32,'add_rightsstatementcopyrightdocumentationidentifier'),(95,'Can change Rights: Copyright: Docs ID',32,'change_rightsstatementcopyrightdocumentationidentifier'),(96,'Can delete Rights: Copyright: Docs ID',32,'delete_rightsstatementcopyrightdocumentationidentifier'),(97,'Can add Rights: Copyright: Note',33,'add_rightsstatementcopyrightnote'),(98,'Can change Rights: Copyright: Note',33,'change_rightsstatementcopyrightnote'),(99,'Can delete Rights: Copyright: Note',33,'delete_rightsstatementcopyrightnote'),(100,'Can add Rights: License',34,'add_rightsstatementlicense'),(101,'Can change Rights: License',34,'change_rightsstatementlicense'),(102,'Can delete Rights: License',34,'delete_rightsstatementlicense'),(103,'Can add Rights: License: Docs ID',35,'add_rightsstatementlicensedocumentationidentifier'),(104,'Can change Rights: License: Docs ID',35,'change_rightsstatementlicensedocumentationidentifier'),(105,'Can delete Rights: License: Docs ID',35,'delete_rightsstatementlicensedocumentationidentifier'),(106,'Can add Rights: License: Note',36,'add_rightsstatementlicensenote'),(107,'Can change Rights: License: Note',36,'change_rightsstatementlicensenote'),(108,'Can delete Rights: License: Note',36,'delete_rightsstatementlicensenote'),(109,'Can add Rights: Granted',37,'add_rightsstatementrightsgranted'),(110,'Can change Rights: Granted',37,'change_rightsstatementrightsgranted'),(111,'Can delete Rights: Granted',37,'delete_rightsstatementrightsgranted'),(112,'Can add Rights: Granted: Note',38,'add_rightsstatementrightsgrantednote'),(113,'Can change Rights: Granted: Note',38,'change_rightsstatementrightsgrantednote'),(114,'Can delete Rights: Granted: Note',38,'delete_rightsstatementrightsgrantednote'),(115,'Can add Rights: Granted: Restriction',39,'add_rightsstatementrightsgrantedrestriction'),(116,'Can change Rights: Granted: Restriction',39,'change_rightsstatementrightsgrantedrestriction'),(117,'Can delete Rights: Granted: Restriction',39,'delete_rightsstatementrightsgrantedrestriction'),(118,'Can add Rights: Statute',40,'add_rightsstatementstatuteinformation'),(119,'Can change Rights: Statute',40,'change_rightsstatementstatuteinformation'),(120,'Can delete Rights: Statute',40,'delete_rightsstatementstatuteinformation'),(121,'Can add Rights: Statute: Note',41,'add_rightsstatementstatuteinformationnote'),(122,'Can change Rights: Statute: Note',41,'change_rightsstatementstatuteinformationnote'),(123,'Can delete Rights: Statute: Note',41,'delete_rightsstatementstatuteinformationnote'),(124,'Can add Rights: Statute: Docs ID',42,'add_rightsstatementstatutedocumentationidentifier'),(125,'Can change Rights: Statute: Docs ID',42,'change_rightsstatementstatutedocumentationidentifier'),(126,'Can delete Rights: Statute: Docs ID',42,'delete_rightsstatementstatutedocumentationidentifier'),(127,'Can add Rights: Other',43,'add_rightsstatementotherrightsinformation'),(128,'Can change Rights: Other',43,'change_rightsstatementotherrightsinformation'),(129,'Can delete Rights: Other',43,'delete_rightsstatementotherrightsinformation'),(130,'Can add Rights: Other: Docs ID',44,'add_rightsstatementotherrightsdocumentationidentifier'),(131,'Can change Rights: Other: Docs ID',44,'change_rightsstatementotherrightsdocumentationidentifier'),(132,'Can delete Rights: Other: Docs ID',44,'delete_rightsstatementotherrightsdocumentationidentifier'),(133,'Can add Rights: Other: Note',45,'add_rightsstatementotherrightsinformationnote'),(134,'Can change Rights: Other: Note',45,'change_rightsstatementotherrightsinformationnote'),(135,'Can delete Rights: Other: Note',45,'delete_rightsstatementotherrightsinformationnote'),(136,'Can add Rights: Agent',46,'add_rightsstatementlinkingagentidentifier'),(137,'Can change Rights: Agent',46,'change_rightsstatementlinkingagentidentifier'),(138,'Can delete Rights: Agent',46,'delete_rightsstatementlinkingagentidentifier'),(139,'Can add micro service chain',47,'add_microservicechain'),(140,'Can change micro service chain',47,'change_microservicechain'),(141,'Can delete micro service chain',47,'delete_microservicechain'),(142,'Can add micro service chain link',48,'add_microservicechainlink'),(143,'Can change micro service chain link',48,'change_microservicechainlink'),(144,'Can delete micro service chain link',48,'delete_microservicechainlink'),(145,'Can add micro service chain link exit code',49,'add_microservicechainlinkexitcode'),(146,'Can change micro service chain link exit code',49,'change_microservicechainlinkexitcode'),(147,'Can delete micro service chain link exit code',49,'delete_microservicechainlinkexitcode'),(148,'Can add micro service chain choice',50,'add_microservicechainchoice'),(149,'Can change micro service chain choice',50,'change_microservicechainchoice'),(150,'Can delete micro service chain choice',50,'delete_microservicechainchoice'),(151,'Can add micro service choice replacement dic',51,'add_microservicechoicereplacementdic'),(152,'Can change micro service choice replacement dic',51,'change_microservicechoicereplacementdic'),(153,'Can delete micro service choice replacement dic',51,'delete_microservicechoicereplacementdic'),(154,'Can add standard task config',52,'add_standardtaskconfig'),(155,'Can change standard task config',52,'change_standardtaskconfig'),(156,'Can delete standard task config',52,'delete_standardtaskconfig'),(157,'Can add task config',53,'add_taskconfig'),(158,'Can change task config',53,'change_taskconfig'),(159,'Can delete task config',53,'delete_taskconfig'),(160,'Can add unit variable',54,'add_unitvariable'),(161,'Can change unit variable',54,'change_unitvariable'),(162,'Can delete unit variable',54,'delete_unitvariable'),(163,'Can add atk dip object resource pairing',55,'add_atkdipobjectresourcepairing'),(164,'Can change atk dip object resource pairing',55,'change_atkdipobjectresourcepairing'),(165,'Can delete atk dip object resource pairing',55,'delete_atkdipobjectresourcepairing'),(166,'Can add transfer metadata set',56,'add_transfermetadataset'),(167,'Can change transfer metadata set',56,'change_transfermetadataset'),(168,'Can delete transfer metadata set',56,'delete_transfermetadataset'),(169,'Can add transfer metadata field',57,'add_transfermetadatafield'),(170,'Can change transfer metadata field',57,'change_transfermetadatafield'),(171,'Can delete transfer metadata field',57,'delete_transfermetadatafield'),(172,'Can add transfer metadata field value',58,'add_transfermetadatafieldvalue'),(173,'Can change transfer metadata field value',58,'change_transfermetadatafieldvalue'),(174,'Can delete transfer metadata field value',58,'delete_transfermetadatafieldvalue'),(175,'Can add taxonomy',59,'add_taxonomy'),(176,'Can change taxonomy',59,'change_taxonomy'),(177,'Can delete taxonomy',59,'delete_taxonomy'),(178,'Can add taxonomy term',60,'add_taxonomyterm'),(179,'Can change taxonomy term',60,'change_taxonomyterm'),(180,'Can delete taxonomy term',60,'delete_taxonomyterm'),(181,'Can add replacement dict',61,'add_replacementdict'),(182,'Can change replacement dict',61,'change_replacementdict'),(183,'Can delete replacement dict',61,'delete_replacementdict'),(184,'Can add archivists toolkit config',62,'add_archiviststoolkitconfig'),(185,'Can change archivists toolkit config',62,'change_archiviststoolkitconfig'),(186,'Can delete archivists toolkit config',62,'delete_archiviststoolkitconfig'),(187,'Can add Format',63,'add_format'),(188,'Can change Format',63,'change_format'),(189,'Can delete Format',63,'delete_format'),(190,'Can add Format Group',64,'add_formatgroup'),(191,'Can change Format Group',64,'change_formatgroup'),(192,'Can delete Format Group',64,'delete_formatgroup'),(193,'Can add Format Version',65,'add_formatversion'),(194,'Can change Format Version',65,'change_formatversion'),(195,'Can delete Format Version',65,'delete_formatversion'),(196,'Can add Format Identification Command',66,'add_idcommand'),(197,'Can change Format Identification Command',66,'change_idcommand'),(198,'Can delete Format Identification Command',66,'delete_idcommand'),(199,'Can add Format Identification Rule',67,'add_idrule'),(200,'Can change Format Identification Rule',67,'change_idrule'),(201,'Can delete Format Identification Rule',67,'delete_idrule'),(202,'Can add Format Identification Tool',68,'add_idtool'),(203,'Can change Format Identification Tool',68,'change_idtool'),(204,'Can delete Format Identification Tool',68,'delete_idtool'),(205,'Can add Format Policy Rule',69,'add_fprule'),(206,'Can change Format Policy Rule',69,'change_fprule'),(207,'Can delete Format Policy Rule',69,'delete_fprule'),(208,'Can add Format Policy Command',70,'add_fpcommand'),(209,'Can change Format Policy Command',70,'change_fpcommand'),(210,'Can delete Format Policy Command',70,'delete_fpcommand'),(211,'Can add Normalization Tool',71,'add_fptool'),(212,'Can change Normalization Tool',71,'change_fptool'),(213,'Can delete Normalization Tool',71,'delete_fptool'),(214,'Can add agent',72,'add_agent'),(215,'Can change agent',72,'change_agent'),(216,'Can delete agent',72,'delete_agent'),(217,'Can add command type',73,'add_commandtype'),(218,'Can change command type',73,'change_commandtype'),(219,'Can delete command type',73,'delete_commandtype'),(220,'Can add command',74,'add_command'),(221,'Can change command',74,'change_command'),(222,'Can delete command',74,'delete_command'),(223,'Can add commands supported by',75,'add_commandssupportedby'),(224,'Can change commands supported by',75,'change_commandssupportedby'),(225,'Can delete commands supported by',75,'delete_commandssupportedby'),(226,'Can add file id type',76,'add_fileidtype'),(227,'Can change file id type',76,'change_fileidtype'),(228,'Can delete file id type',76,'delete_fileidtype'),(229,'Can add file id',77,'add_fileid'),(230,'Can change file id',77,'change_fileid'),(231,'Can delete file id',77,'delete_fileid'),(232,'Can add command classification',78,'add_commandclassification'),(233,'Can change command classification',78,'change_commandclassification'),(234,'Can delete command classification',78,'delete_commandclassification'),(235,'Can add command relationship',79,'add_commandrelationship'),(236,'Can change command relationship',79,'change_commandrelationship'),(237,'Can delete command relationship',79,'delete_commandrelationship'),(238,'Can add file i ds by single id',80,'add_fileidsbysingleid'),(239,'Can change file i ds by single id',80,'change_fileidsbysingleid'),(240,'Can delete file i ds by single id',80,'delete_fileidsbysingleid'),(241,'Can add task type',81,'add_tasktype'),(242,'Can change task type',81,'change_tasktype'),(243,'Can delete task type',81,'delete_tasktype'),(244,'Can add task config assign magic link',82,'add_taskconfigassignmagiclink'),(245,'Can change task config assign magic link',82,'change_taskconfigassignmagiclink'),(246,'Can delete task config assign magic link',82,'delete_taskconfigassignmagiclink'),(247,'Can add task config set unit variable',83,'add_taskconfigsetunitvariable'),(248,'Can change task config set unit variable',83,'change_taskconfigsetunitvariable'),(249,'Can delete task config set unit variable',83,'delete_taskconfigsetunitvariable'),(250,'Can add task config unit variable link pull',84,'add_taskconfigunitvariablelinkpull'),(251,'Can change task config unit variable link pull',84,'change_taskconfigunitvariablelinkpull'),(252,'Can delete task config unit variable link pull',84,'delete_taskconfigunitvariablelinkpull'),(253,'Can add watched directory',85,'add_watcheddirectory'),(254,'Can change watched directory',85,'change_watcheddirectory'),(255,'Can delete watched directory',85,'delete_watcheddirectory'),(256,'Can add watched directory expected type',86,'add_watcheddirectoryexpectedtype'),(257,'Can change watched directory expected type',86,'change_watcheddirectoryexpectedtype'),(258,'Can delete watched directory expected type',86,'delete_watcheddirectoryexpectedtype'),(259,'Can add fp command output',87,'add_fpcommandoutput'),(260,'Can change fp command output',87,'change_fpcommandoutput'),(261,'Can delete fp command output',87,'delete_fpcommandoutput'),(262,'Can add file id',88,'add_fileid'),(263,'Can change file id',88,'change_fileid'),(264,'Can delete file id',88,'delete_fileid');
 /*!40000 ALTER TABLE `auth_permission` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2328,21 +2331,22 @@ LOCK TABLES `auth_user_user_permissions` WRITE;
 UNLOCK TABLES;
 
 --
--- Temporary view structure for view `developmentAide_choicesDisplayed`
+-- Temporary table structure for view `developmentAide_choicesDisplayed`
 --
 
 DROP TABLE IF EXISTS `developmentAide_choicesDisplayed`;
 /*!50001 DROP VIEW IF EXISTS `developmentAide_choicesDisplayed`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `developmentAide_choicesDisplayed` AS SELECT 
- 1 AS `pk`,
- 1 AS `choiceAvailableAtLink`,
- 1 AS `chainAvailable`,
- 1 AS `replaces`,
- 1 AS `lastModified`,
- 1 AS `Text`,
- 1 AS `Choice`*/;
+/*!50001 CREATE TABLE `developmentAide_choicesDisplayed` (
+  `pk` tinyint NOT NULL,
+  `choiceAvailableAtLink` tinyint NOT NULL,
+  `chainAvailable` tinyint NOT NULL,
+  `replaces` tinyint NOT NULL,
+  `lastModified` tinyint NOT NULL,
+  `Text` tinyint NOT NULL,
+  `Choice` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -2359,7 +2363,7 @@ CREATE TABLE `django_content_type` (
   `model` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `app_label` (`app_label`,`model`)
-) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2368,7 +2372,7 @@ CREATE TABLE `django_content_type` (
 
 LOCK TABLES `django_content_type` WRITE;
 /*!40000 ALTER TABLE `django_content_type` DISABLE KEYS */;
-INSERT INTO `django_content_type` VALUES (8,'api access','tastypie','apiaccess'),(9,'api key','tastypie','apikey'),(10,'permission','auth','permission'),(11,'group','auth','group'),(12,'user','auth','user'),(13,'content type','contenttypes','contenttype'),(14,'session','sessions','session'),(15,'dashboard setting','main','dashboardsetting'),(16,'access','main','access'),(17,'dublin core','main','dublincore'),(18,'metadata applies to type','main','metadataappliestotype'),(19,'event','main','event'),(20,'derivation','main','derivation'),(21,'job','main','job'),(22,'sip','main','sip'),(23,'transfer','main','transfer'),(24,'Arranged SIPs','main','siparrange'),(25,'file','main','file'),(26,'file format version','main','fileformatversion'),(27,'task','main','task'),(28,'agent','main','agent'),(29,'report','main','report'),(30,'Rights Statement','main','rightsstatement'),(31,'Rights: Copyright','main','rightsstatementcopyright'),(32,'Rights: Copyright: Docs ID','main','rightsstatementcopyrightdocumentationidentifier'),(33,'Rights: Copyright: Note','main','rightsstatementcopyrightnote'),(34,'Rights: License','main','rightsstatementlicense'),(35,'Rights: License: Docs ID','main','rightsstatementlicensedocumentationidentifier'),(36,'Rights: License: Note','main','rightsstatementlicensenote'),(37,'Rights: Granted','main','rightsstatementrightsgranted'),(38,'Rights: Granted: Note','main','rightsstatementrightsgrantednote'),(39,'Rights: Granted: Restriction','main','rightsstatementrightsgrantedrestriction'),(40,'Rights: Statute','main','rightsstatementstatuteinformation'),(41,'Rights: Statute: Note','main','rightsstatementstatuteinformationnote'),(42,'Rights: Statute: Docs ID','main','rightsstatementstatutedocumentationidentifier'),(43,'Rights: Other','main','rightsstatementotherrightsinformation'),(44,'Rights: Other: Docs ID','main','rightsstatementotherrightsdocumentationidentifier'),(45,'Rights: Other: Note','main','rightsstatementotherrightsinformationnote'),(46,'Rights: Agent','main','rightsstatementlinkingagentidentifier'),(47,'micro service chain','main','microservicechain'),(48,'micro service chain link','main','microservicechainlink'),(49,'micro service chain link exit code','main','microservicechainlinkexitcode'),(50,'micro service chain choice','main','microservicechainchoice'),(51,'micro service choice replacement dic','main','microservicechoicereplacementdic'),(52,'standard task config','main','standardtaskconfig'),(53,'task config','main','taskconfig'),(54,'unit variable','main','unitvariable'),(55,'atk dip object resource pairing','main','atkdipobjectresourcepairing'),(56,'transfer metadata set','main','transfermetadataset'),(57,'transfer metadata field','main','transfermetadatafield'),(58,'transfer metadata field value','main','transfermetadatafieldvalue'),(59,'taxonomy','main','taxonomy'),(60,'taxonomy term','main','taxonomyterm'),(61,'replacement dict','administration','replacementdict'),(62,'archivists toolkit config','administration','archiviststoolkitconfig'),(63,'Format','fpr','format'),(64,'Format Group','fpr','formatgroup'),(65,'Format Version','fpr','formatversion'),(66,'Format Identification Command','fpr','idcommand'),(67,'Format Identification Rule','fpr','idrule'),(68,'Format Identification Tool','fpr','idtool'),(69,'Format Policy Rule','fpr','fprule'),(70,'Format Policy Command','fpr','fpcommand'),(71,'Normalization Tool','fpr','fptool'),(72,'agent','fpr','agent'),(73,'command type','fpr','commandtype'),(74,'command','fpr','command'),(75,'commands supported by','fpr','commandssupportedby'),(76,'file id type','fpr','fileidtype'),(77,'file id','fpr','fileid'),(78,'command classification','fpr','commandclassification'),(79,'command relationship','fpr','commandrelationship'),(80,'file i ds by single id','fpr','fileidsbysingleid');
+INSERT INTO `django_content_type` VALUES (8,'api access','tastypie','apiaccess'),(9,'api key','tastypie','apikey'),(10,'permission','auth','permission'),(11,'group','auth','group'),(12,'user','auth','user'),(13,'content type','contenttypes','contenttype'),(14,'session','sessions','session'),(15,'dashboard setting','main','dashboardsetting'),(16,'access','main','access'),(17,'dublin core','main','dublincore'),(18,'metadata applies to type','main','metadataappliestotype'),(19,'event','main','event'),(20,'derivation','main','derivation'),(21,'job','main','job'),(22,'sip','main','sip'),(23,'transfer','main','transfer'),(24,'Arranged SIPs','main','siparrange'),(25,'file','main','file'),(26,'file format version','main','fileformatversion'),(27,'task','main','task'),(28,'agent','main','agent'),(29,'report','main','report'),(30,'Rights Statement','main','rightsstatement'),(31,'Rights: Copyright','main','rightsstatementcopyright'),(32,'Rights: Copyright: Docs ID','main','rightsstatementcopyrightdocumentationidentifier'),(33,'Rights: Copyright: Note','main','rightsstatementcopyrightnote'),(34,'Rights: License','main','rightsstatementlicense'),(35,'Rights: License: Docs ID','main','rightsstatementlicensedocumentationidentifier'),(36,'Rights: License: Note','main','rightsstatementlicensenote'),(37,'Rights: Granted','main','rightsstatementrightsgranted'),(38,'Rights: Granted: Note','main','rightsstatementrightsgrantednote'),(39,'Rights: Granted: Restriction','main','rightsstatementrightsgrantedrestriction'),(40,'Rights: Statute','main','rightsstatementstatuteinformation'),(41,'Rights: Statute: Note','main','rightsstatementstatuteinformationnote'),(42,'Rights: Statute: Docs ID','main','rightsstatementstatutedocumentationidentifier'),(43,'Rights: Other','main','rightsstatementotherrightsinformation'),(44,'Rights: Other: Docs ID','main','rightsstatementotherrightsdocumentationidentifier'),(45,'Rights: Other: Note','main','rightsstatementotherrightsinformationnote'),(46,'Rights: Agent','main','rightsstatementlinkingagentidentifier'),(47,'micro service chain','main','microservicechain'),(48,'micro service chain link','main','microservicechainlink'),(49,'micro service chain link exit code','main','microservicechainlinkexitcode'),(50,'micro service chain choice','main','microservicechainchoice'),(51,'micro service choice replacement dic','main','microservicechoicereplacementdic'),(52,'standard task config','main','standardtaskconfig'),(53,'task config','main','taskconfig'),(54,'unit variable','main','unitvariable'),(55,'atk dip object resource pairing','main','atkdipobjectresourcepairing'),(56,'transfer metadata set','main','transfermetadataset'),(57,'transfer metadata field','main','transfermetadatafield'),(58,'transfer metadata field value','main','transfermetadatafieldvalue'),(59,'taxonomy','main','taxonomy'),(60,'taxonomy term','main','taxonomyterm'),(61,'replacement dict','administration','replacementdict'),(62,'archivists toolkit config','administration','archiviststoolkitconfig'),(63,'Format','fpr','format'),(64,'Format Group','fpr','formatgroup'),(65,'Format Version','fpr','formatversion'),(66,'Format Identification Command','fpr','idcommand'),(67,'Format Identification Rule','fpr','idrule'),(68,'Format Identification Tool','fpr','idtool'),(69,'Format Policy Rule','fpr','fprule'),(70,'Format Policy Command','fpr','fpcommand'),(71,'Normalization Tool','fpr','fptool'),(72,'agent','fpr','agent'),(73,'command type','fpr','commandtype'),(74,'command','fpr','command'),(75,'commands supported by','fpr','commandssupportedby'),(76,'file id type','fpr','fileidtype'),(77,'file id','fpr','fileid'),(78,'command classification','fpr','commandclassification'),(79,'command relationship','fpr','commandrelationship'),(80,'file i ds by single id','fpr','fileidsbysingleid'),(81,'task type','main','tasktype'),(82,'task config assign magic link','main','taskconfigassignmagiclink'),(83,'task config set unit variable','main','taskconfigsetunitvariable'),(84,'task config unit variable link pull','main','taskconfigunitvariablelinkpull'),(85,'watched directory','main','watcheddirectory'),(86,'watched directory expected type','main','watcheddirectoryexpectedtype'),(87,'fp command output','main','fpcommandoutput'),(88,'file id','main','fileid');
 /*!40000 ALTER TABLE `django_content_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2713,72 +2717,75 @@ INSERT INTO `fpr_idtool` VALUES (1,'115bc526-c75b-4d2a-9fb9-090c5b49620f','File 
 UNLOCK TABLES;
 
 --
--- Temporary view structure for view `jobDurationsView`
+-- Temporary table structure for view `jobDurationsView`
 --
 
 DROP TABLE IF EXISTS `jobDurationsView`;
 /*!50001 DROP VIEW IF EXISTS `jobDurationsView`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `jobDurationsView` AS SELECT 
- 1 AS `jobUUID`,
- 1 AS `Time_spent_processing_in_seconds`,
- 1 AS `Time_spent_processing`,
- 1 AS `createdTime`,
- 1 AS `createdTimeDec`,
- 1 AS `startTime`,
- 1 AS `endTime`,
- 1 AS `time_from_start_of_processing_till_end_of_processing_in_seconds`,
- 1 AS `time_from_job_created_till_start_of_processing_in_seconds`,
- 1 AS `time_from_job_created_till_end_of_processing_in_seconds`,
- 1 AS `jobType`,
- 1 AS `directory`,
- 1 AS `SIPUUID`,
- 1 AS `unitType`,
- 1 AS `currentStep`,
- 1 AS `microserviceGroup`,
- 1 AS `MicroServiceChainLinksPK`*/;
+/*!50001 CREATE TABLE `jobDurationsView` (
+  `jobUUID` tinyint NOT NULL,
+  `Time_spent_processing_in_seconds` tinyint NOT NULL,
+  `Time_spent_processing` tinyint NOT NULL,
+  `createdTime` tinyint NOT NULL,
+  `createdTimeDec` tinyint NOT NULL,
+  `startTime` tinyint NOT NULL,
+  `endTime` tinyint NOT NULL,
+  `time_from_start_of_processing_till_end_of_processing_in_seconds` tinyint NOT NULL,
+  `time_from_job_created_till_start_of_processing_in_seconds` tinyint NOT NULL,
+  `time_from_job_created_till_end_of_processing_in_seconds` tinyint NOT NULL,
+  `jobType` tinyint NOT NULL,
+  `directory` tinyint NOT NULL,
+  `SIPUUID` tinyint NOT NULL,
+  `unitType` tinyint NOT NULL,
+  `currentStep` tinyint NOT NULL,
+  `microserviceGroup` tinyint NOT NULL,
+  `MicroServiceChainLinksPK` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary view structure for view `lastJobsInfo`
+-- Temporary table structure for view `lastJobsInfo`
 --
 
 DROP TABLE IF EXISTS `lastJobsInfo`;
 /*!50001 DROP VIEW IF EXISTS `lastJobsInfo`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `lastJobsInfo` AS SELECT 
- 1 AS `Completed Tasks`,
- 1 AS `min(startTime)`,
- 1 AS `max(endTime)`,
- 1 AS `Job duration`,
- 1 AS `Time Since last return`,
- 1 AS `AVG proc time`*/;
+/*!50001 CREATE TABLE `lastJobsInfo` (
+  `Completed Tasks` tinyint NOT NULL,
+  `min(startTime)` tinyint NOT NULL,
+  `max(endTime)` tinyint NOT NULL,
+  `Job duration` tinyint NOT NULL,
+  `Time Since last return` tinyint NOT NULL,
+  `AVG proc time` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary view structure for view `lastJobsTasks`
+-- Temporary table structure for view `lastJobsTasks`
 --
 
 DROP TABLE IF EXISTS `lastJobsTasks`;
 /*!50001 DROP VIEW IF EXISTS `lastJobsTasks`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `lastJobsTasks` AS SELECT 
- 1 AS `taskUUID`,
- 1 AS `jobUUID`,
- 1 AS `createdTime`,
- 1 AS `fileUUID`,
- 1 AS `fileName`,
- 1 AS `exec`,
- 1 AS `arguments`,
- 1 AS `startTime`,
- 1 AS `client`,
- 1 AS `endTime`,
- 1 AS `stdOut`,
- 1 AS `stdError`,
- 1 AS `exitCode`*/;
+/*!50001 CREATE TABLE `lastJobsTasks` (
+  `taskUUID` tinyint NOT NULL,
+  `jobUUID` tinyint NOT NULL,
+  `createdTime` tinyint NOT NULL,
+  `fileUUID` tinyint NOT NULL,
+  `fileName` tinyint NOT NULL,
+  `exec` tinyint NOT NULL,
+  `arguments` tinyint NOT NULL,
+  `startTime` tinyint NOT NULL,
+  `client` tinyint NOT NULL,
+  `endTime` tinyint NOT NULL,
+  `stdOut` tinyint NOT NULL,
+  `stdError` tinyint NOT NULL,
+  `exitCode` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -2840,53 +2847,56 @@ LOCK TABLES `main_siparrange` WRITE;
 UNLOCK TABLES;
 
 --
--- Temporary view structure for view `processingDurationInformation`
+-- Temporary table structure for view `processingDurationInformation`
 --
 
 DROP TABLE IF EXISTS `processingDurationInformation`;
 /*!50001 DROP VIEW IF EXISTS `processingDurationInformation`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `processingDurationInformation` AS SELECT 
- 1 AS `SIP_OR_TRANSFER_UUID`,
- 1 AS `client`,
- 1 AS `Time_spent_in_system`,
- 1 AS `Time_spent_processing`,
- 1 AS `Number_of_tasks`,
- 1 AS `currentLocation`,
- 1 AS `currentPath`*/;
+/*!50001 CREATE TABLE `processingDurationInformation` (
+  `SIP_OR_TRANSFER_UUID` tinyint NOT NULL,
+  `client` tinyint NOT NULL,
+  `Time_spent_in_system` tinyint NOT NULL,
+  `Time_spent_processing` tinyint NOT NULL,
+  `Number_of_tasks` tinyint NOT NULL,
+  `currentLocation` tinyint NOT NULL,
+  `currentPath` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary view structure for view `processingDurationInformation2`
+-- Temporary table structure for view `processingDurationInformation2`
 --
 
 DROP TABLE IF EXISTS `processingDurationInformation2`;
 /*!50001 DROP VIEW IF EXISTS `processingDurationInformation2`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `processingDurationInformation2` AS SELECT 
- 1 AS `sipUUID`,
- 1 AS `Time_spent_in_system`,
- 1 AS `startedTime`*/;
+/*!50001 CREATE TABLE `processingDurationInformation2` (
+  `sipUUID` tinyint NOT NULL,
+  `Time_spent_in_system` tinyint NOT NULL,
+  `startedTime` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary view structure for view `processingDurationInformationByClient`
+-- Temporary table structure for view `processingDurationInformationByClient`
 --
 
 DROP TABLE IF EXISTS `processingDurationInformationByClient`;
 /*!50001 DROP VIEW IF EXISTS `processingDurationInformationByClient`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `processingDurationInformationByClient` AS SELECT 
- 1 AS `SIP_OR_TRANSFER_UUID`,
- 1 AS `client`,
- 1 AS `Time_spent_in_system`,
- 1 AS `Time_spent_processing`,
- 1 AS `Number_of_tasks`,
- 1 AS `currentLocation`,
- 1 AS `currentPath`*/;
+/*!50001 CREATE TABLE `processingDurationInformationByClient` (
+  `SIP_OR_TRANSFER_UUID` tinyint NOT NULL,
+  `client` tinyint NOT NULL,
+  `Time_spent_in_system` tinyint NOT NULL,
+  `Time_spent_processing` tinyint NOT NULL,
+  `Number_of_tasks` tinyint NOT NULL,
+  `currentLocation` tinyint NOT NULL,
+  `currentPath` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -2915,17 +2925,18 @@ LOCK TABLES `south_migrationhistory` WRITE;
 UNLOCK TABLES;
 
 --
--- Temporary view structure for view `taskDurationsView`
+-- Temporary table structure for view `taskDurationsView`
 --
 
 DROP TABLE IF EXISTS `taskDurationsView`;
 /*!50001 DROP VIEW IF EXISTS `taskDurationsView`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `taskDurationsView` AS SELECT 
- 1 AS `taskUUID`,
- 1 AS `Time_spent_processing_in_seconds`,
- 1 AS `Time_spent_processing`*/;
+/*!50001 CREATE TABLE `taskDurationsView` (
+  `taskUUID` tinyint NOT NULL,
+  `Time_spent_processing_in_seconds` tinyint NOT NULL,
+  `Time_spent_processing` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -2983,23 +2994,25 @@ LOCK TABLES `tastypie_apikey` WRITE;
 UNLOCK TABLES;
 
 --
--- Temporary view structure for view `transfersAndSIPs`
+-- Temporary table structure for view `transfersAndSIPs`
 --
 
 DROP TABLE IF EXISTS `transfersAndSIPs`;
 /*!50001 DROP VIEW IF EXISTS `transfersAndSIPs`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `transfersAndSIPs` AS SELECT 
- 1 AS `unitUUID`,
- 1 AS `unitType`,
- 1 AS `currentLocation`*/;
+/*!50001 CREATE TABLE `transfersAndSIPs` (
+  `unitUUID` tinyint NOT NULL,
+  `unitType` tinyint NOT NULL,
+  `currentLocation` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
 -- Final view structure for view `FileExtensions`
 --
 
+/*!50001 DROP TABLE IF EXISTS `FileExtensions`*/;
 /*!50001 DROP VIEW IF EXISTS `FileExtensions`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -3018,6 +3031,7 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `FilesByUnit`
 --
 
+/*!50001 DROP TABLE IF EXISTS `FilesByUnit`*/;
 /*!50001 DROP VIEW IF EXISTS `FilesByUnit`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -3036,6 +3050,7 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `PDI_by_unit`
 --
 
+/*!50001 DROP TABLE IF EXISTS `PDI_by_unit`*/;
 /*!50001 DROP VIEW IF EXISTS `PDI_by_unit`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -3054,6 +3069,7 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `developmentAide_choicesDisplayed`
 --
 
+/*!50001 DROP TABLE IF EXISTS `developmentAide_choicesDisplayed`*/;
 /*!50001 DROP VIEW IF EXISTS `developmentAide_choicesDisplayed`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -3072,6 +3088,7 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `jobDurationsView`
 --
 
+/*!50001 DROP TABLE IF EXISTS `jobDurationsView`*/;
 /*!50001 DROP VIEW IF EXISTS `jobDurationsView`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -3090,6 +3107,7 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `lastJobsInfo`
 --
 
+/*!50001 DROP TABLE IF EXISTS `lastJobsInfo`*/;
 /*!50001 DROP VIEW IF EXISTS `lastJobsInfo`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -3108,6 +3126,7 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `lastJobsTasks`
 --
 
+/*!50001 DROP TABLE IF EXISTS `lastJobsTasks`*/;
 /*!50001 DROP VIEW IF EXISTS `lastJobsTasks`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -3126,6 +3145,7 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `processingDurationInformation`
 --
 
+/*!50001 DROP TABLE IF EXISTS `processingDurationInformation`*/;
 /*!50001 DROP VIEW IF EXISTS `processingDurationInformation`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -3144,6 +3164,7 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `processingDurationInformation2`
 --
 
+/*!50001 DROP TABLE IF EXISTS `processingDurationInformation2`*/;
 /*!50001 DROP VIEW IF EXISTS `processingDurationInformation2`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -3162,6 +3183,7 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `processingDurationInformationByClient`
 --
 
+/*!50001 DROP TABLE IF EXISTS `processingDurationInformationByClient`*/;
 /*!50001 DROP VIEW IF EXISTS `processingDurationInformationByClient`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -3180,6 +3202,7 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `taskDurationsView`
 --
 
+/*!50001 DROP TABLE IF EXISTS `taskDurationsView`*/;
 /*!50001 DROP VIEW IF EXISTS `taskDurationsView`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -3198,6 +3221,7 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `transfersAndSIPs`
 --
 
+/*!50001 DROP TABLE IF EXISTS `transfersAndSIPs`*/;
 /*!50001 DROP VIEW IF EXISTS `transfersAndSIPs`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -3221,4 +3245,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-05-25  9:37:07
+-- Dump completed on 2015-06-16 15:33:32
