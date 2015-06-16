@@ -844,19 +844,25 @@ def delete_matching_documents(index, doc_type, field, value, **kwargs):
 
     return results['_indices'][index]['_shards']['successful'] == results['_indices'][index]['_shards']['total']
 
-def connect_and_mark_deletion_requested(uuid):
+def connect_and_update_status(uuid, status):
     conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
     document_id = document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', uuid)
     conn.update(
         body={
             'doc': {
-                'status': 'DEL_REQ'
+                'status': status
             }
         },
         index='aips',
         doc_type='aip',
         id=document_id
     )
+
+def connect_and_mark_deletion_requested(uuid):
+    connect_and_update_status(uuid, 'DEL_REQ')
+
+def connect_and_mark_stored(uuid):
+    connect_and_update_status(uuid, 'UPLOADED')
 
 def normalize_results_dict(d):
     """

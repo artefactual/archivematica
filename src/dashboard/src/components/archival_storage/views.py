@@ -555,8 +555,7 @@ def list_display(request):
                 elasticSearchFunctions.connect_and_delete_aip_files(aip['uuid'])
             elif aip_status != 'DEL_REQ':
                 # update the status in ElasticSearch for this AIP
-                document_id = elasticSearchFunctions.document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', aip['uuid'])
-                conn.update({'status': 'UPLOADED'}, 'aips', 'aip', document_id)
+                elasticSearchFunctions.connect_and_mark_stored(aip['uuid'])
         else:
             aip_status = 'UPLOADED'
 
