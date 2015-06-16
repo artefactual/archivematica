@@ -1,5 +1,15 @@
-dev (1.4.0)
-===========
+1.4.1
+=====
+
+* Fix "active" templatetag when Django handles an uncaught exception
+* Fix updating AIP records after marking files as deleted in archival storage (#8533)
+* Fix querying for deleted AIPs (#8533)
+* Fix marking AIPs as stored after deletion is rejected (#8533)
+* MCPServer: log all exceptions (#8509)
+* MCPServer: remove duplicate ReplacementDict code (#8509)
+
+1.4.0
+=====
 
 * Remove unused Elasticsearch backup code (#8076)
 * Improve performance of indexing AIP by saving uncompressed METS (#7424)
