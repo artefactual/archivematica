@@ -17,6 +17,7 @@
 
 import os, sys, ConfigParser
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 
 path_of_this_file = os.path.abspath(os.path.dirname(__file__))
 
@@ -215,7 +216,7 @@ LOGGING = {
         },
         'logfile': {
             'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
             'filename': '/var/log/archivematica/dashboard/dashboard.log',
             'formatter': 'detailed',
             'backupCount': 5,
