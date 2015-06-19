@@ -7,6 +7,7 @@ dev (1.5.0)
 * Fix marking AIPs as stored after deletion is rejected (#8533)
 * MCPServer: log all exceptions (#8509)
 * MCPServer: remove duplicate ReplacementDict code (#8509)
+* Dashboard: use GroupWriteRotatingFileHandler to ensure group-writeability of rotated logs (#8587)
 
 1.4.0
 =====
