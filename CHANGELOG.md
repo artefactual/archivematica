@@ -8,6 +8,7 @@ dev (1.5.0)
 * MCPServer: log all exceptions (#8509)
 * MCPServer: remove duplicate ReplacementDict code (#8509)
 * Dashboard: use GroupWriteRotatingFileHandler to ensure group-writeability of rotated logs (#8587)
+* Dashboard: always show arguments in job detail view
 
 1.4.0
 =====
