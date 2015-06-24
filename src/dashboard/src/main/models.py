@@ -404,14 +404,17 @@ class RightsStatement(models.Model):
         db_table = u'RightsStatement'
         verbose_name = 'Rights Statement'
 
+    def __unicode__(self):
+        return u'{basis} for {unit} ({id})'.format(basis=self.rightsbasis, unit=self.metadataappliestoidentifier, id=self.id)
+
 class RightsStatementCopyright(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatement = models.ForeignKey(RightsStatement, db_column='fkRightsStatement')
-    copyrightstatus = models.TextField(db_column='copyrightStatus', blank=True, verbose_name='Copyright status')
-    copyrightjurisdiction = models.TextField(db_column='copyrightJurisdiction', blank=True, verbose_name='Copyright jurisdiction')
-    copyrightstatusdeterminationdate = models.TextField(db_column='copyrightStatusDeterminationDate', blank=True, verbose_name='Copyright determination date', help_text='Use ISO 8061 (YYYY-MM-DD)')
-    copyrightapplicablestartdate = models.TextField(db_column='copyrightApplicableStartDate', blank=True, verbose_name='Copyright start date', help_text='Use ISO 8061 (YYYY-MM-DD)')
-    copyrightapplicableenddate = models.TextField(db_column='copyrightApplicableEndDate', blank=True, verbose_name='Copyright end date', help_text='Use ISO 8061 (YYYY-MM-DD)')
+    copyrightstatus = models.TextField(db_column='copyrightStatus', verbose_name='Copyright status')
+    copyrightjurisdiction = models.TextField(db_column='copyrightJurisdiction', verbose_name='Copyright jurisdiction')
+    copyrightstatusdeterminationdate = models.TextField(db_column='copyrightStatusDeterminationDate', blank=True, null=True, verbose_name='Copyright determination date', help_text='Use ISO 8061 (YYYY-MM-DD)')
+    copyrightapplicablestartdate = models.TextField(db_column='copyrightApplicableStartDate', blank=True, null=True, verbose_name='Copyright start date', help_text='Use ISO 8061 (YYYY-MM-DD)')
+    copyrightapplicableenddate = models.TextField(db_column='copyrightApplicableEndDate', blank=True, null=True, verbose_name='Copyright end date', help_text='Use ISO 8061 (YYYY-MM-DD)')
     copyrightenddateopen = models.BooleanField(db_column='copyrightApplicableEndDateOpen', verbose_name='Open End Date', help_text='Indicate end date is open')
 
     class Meta:
@@ -421,9 +424,9 @@ class RightsStatementCopyright(models.Model):
 class RightsStatementCopyrightDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightscopyright = models.ForeignKey(RightsStatementCopyright, db_column='fkRightsStatementCopyrightInformation')
-    copyrightdocumentationidentifiertype = models.TextField(db_column='copyrightDocumentationIdentifierType', blank=True, verbose_name='Copyright document identification type')
-    copyrightdocumentationidentifiervalue = models.TextField(db_column='copyrightDocumentationIdentifierValue', blank=True, verbose_name='Copyright document identification value')
-    copyrightdocumentationidentifierrole = models.TextField(db_column='copyrightDocumentationIdentifierRole', blank=True, verbose_name='Copyright document identification role')
+    copyrightdocumentationidentifiertype = models.TextField(db_column='copyrightDocumentationIdentifierType', verbose_name='Copyright document identification type')
+    copyrightdocumentationidentifiervalue = models.TextField(db_column='copyrightDocumentationIdentifierValue', verbose_name='Copyright document identification value')
+    copyrightdocumentationidentifierrole = models.TextField(db_column='copyrightDocumentationIdentifierRole', null=True, blank=True, verbose_name='Copyright document identification role')
 
     class Meta:
         db_table = u'RightsStatementCopyrightDocumentationIdentifier'
@@ -432,7 +435,7 @@ class RightsStatementCopyrightDocumentationIdentifier(models.Model):
 class RightsStatementCopyrightNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightscopyright = models.ForeignKey(RightsStatementCopyright, db_column='fkRightsStatementCopyrightInformation')
-    copyrightnote = models.TextField(db_column='copyrightNote', blank=True, verbose_name='Copyright note')
+    copyrightnote = models.TextField(db_column='copyrightNote', verbose_name='Copyright note')
 
     class Meta:
         db_table = u'RightsStatementCopyrightNote'
@@ -441,9 +444,9 @@ class RightsStatementCopyrightNote(models.Model):
 class RightsStatementLicense(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatement = models.ForeignKey(RightsStatement, db_column='fkRightsStatement')
-    licenseterms = models.TextField(db_column='licenseTerms', blank=True, verbose_name='License terms')
-    licenseapplicablestartdate = models.TextField(db_column='licenseApplicableStartDate', blank=True, verbose_name='License start date', help_text='Use ISO 8061 (YYYY-MM-DD)')
-    licenseapplicableenddate = models.TextField(db_column='licenseApplicableEndDate', blank=True, verbose_name='License end date', help_text='Use ISO 8061 (YYYY-MM-DD)')
+    licenseterms = models.TextField(db_column='licenseTerms', blank=True, null=True, verbose_name='License terms')
+    licenseapplicablestartdate = models.TextField(db_column='licenseApplicableStartDate', blank=True, null=True, verbose_name='License start date', help_text='Use ISO 8061 (YYYY-MM-DD)')
+    licenseapplicableenddate = models.TextField(db_column='licenseApplicableEndDate', blank=True, null=True, verbose_name='License end date', help_text='Use ISO 8061 (YYYY-MM-DD)')
     licenseenddateopen = models.BooleanField(db_column='licenseApplicableEndDateOpen', verbose_name='Open End Date', help_text='Indicate end date is open')
 
     class Meta:
@@ -453,9 +456,9 @@ class RightsStatementLicense(models.Model):
 class RightsStatementLicenseDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementlicense = models.ForeignKey(RightsStatementLicense, db_column='fkRightsStatementLicense')
-    licensedocumentationidentifiertype = models.TextField(db_column='licenseDocumentationIdentifierType', blank=True, verbose_name='License documentation identification type')
-    licensedocumentationidentifiervalue = models.TextField(db_column='licenseDocumentationIdentifierValue', blank=True, verbose_name='License documentation identification value')
-    licensedocumentationidentifierrole = models.TextField(db_column='licenseDocumentationIdentifierRole', blank=True, verbose_name='License document identification role')
+    licensedocumentationidentifiertype = models.TextField(db_column='licenseDocumentationIdentifierType', verbose_name='License documentation identification type')
+    licensedocumentationidentifiervalue = models.TextField(db_column='licenseDocumentationIdentifierValue', verbose_name='License documentation identification value')
+    licensedocumentationidentifierrole = models.TextField(db_column='licenseDocumentationIdentifierRole', blank=True, null=True, verbose_name='License document identification role')
 
     class Meta:
         db_table = u'RightsStatementLicenseDocumentationIdentifier'
@@ -464,7 +467,7 @@ class RightsStatementLicenseDocumentationIdentifier(models.Model):
 class RightsStatementLicenseNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementlicense = models.ForeignKey(RightsStatementLicense, db_column='fkRightsStatementLicense')
-    licensenote = models.TextField(db_column='licenseNote', blank=True, verbose_name='License note')
+    licensenote = models.TextField(db_column='licenseNote', verbose_name='License note')
 
     class Meta:
         db_table = u'RightsStatementLicenseNote'
@@ -473,9 +476,9 @@ class RightsStatementLicenseNote(models.Model):
 class RightsStatementRightsGranted(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatement = models.ForeignKey(RightsStatement, db_column='fkRightsStatement')
-    act = models.TextField(db_column='act', blank=True)
-    startdate = models.TextField(db_column='startDate', verbose_name='Start', help_text='Use ISO 8061 (YYYY-MM-DD)', blank=True)
-    enddate = models.TextField(db_column='endDate', verbose_name='End', help_text='Use ISO 8061 (YYYY-MM-DD)', blank=True)
+    act = models.TextField(db_column='act')
+    startdate = models.TextField(db_column='startDate', verbose_name='Start', help_text='Use ISO 8061 (YYYY-MM-DD)', blank=True, null=True)
+    enddate = models.TextField(db_column='endDate', verbose_name='End', help_text='Use ISO 8061 (YYYY-MM-DD)', blank=True, null=True)
     enddateopen = models.BooleanField(db_column='endDateOpen', verbose_name='Open End Date', help_text='Indicate end date is open')
 
     class Meta:
@@ -485,7 +488,7 @@ class RightsStatementRightsGranted(models.Model):
 class RightsStatementRightsGrantedNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsgranted = models.ForeignKey(RightsStatementRightsGranted, db_column='fkRightsStatementRightsGranted')
-    rightsgrantednote = models.TextField(db_column='rightsGrantedNote', blank=True, verbose_name='Rights note')
+    rightsgrantednote = models.TextField(db_column='rightsGrantedNote', verbose_name='Rights note')
 
     class Meta:
         db_table = u'RightsStatementRightsGrantedNote'
@@ -494,7 +497,7 @@ class RightsStatementRightsGrantedNote(models.Model):
 class RightsStatementRightsGrantedRestriction(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsgranted = models.ForeignKey(RightsStatementRightsGranted, db_column='fkRightsStatementRightsGranted')
-    restriction = models.TextField(db_column='restriction', blank=True)
+    restriction = models.TextField(db_column='restriction')
 
     class Meta:
         db_table = u'RightsStatementRightsGrantedRestriction'
@@ -503,11 +506,11 @@ class RightsStatementRightsGrantedRestriction(models.Model):
 class RightsStatementStatuteInformation(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatement = models.ForeignKey(RightsStatement, db_column='fkRightsStatement')
-    statutejurisdiction = models.TextField(db_column='statuteJurisdiction', verbose_name='Statute jurisdiction', blank=True)
-    statutecitation = models.TextField(db_column='statuteCitation', verbose_name='Statute citation', blank=True)
-    statutedeterminationdate = models.TextField(db_column='statuteInformationDeterminationDate', verbose_name='Statute determination date', help_text='Use ISO 8061 (YYYY-MM-DD)', blank=True)
-    statuteapplicablestartdate = models.TextField(db_column='statuteApplicableStartDate', blank=True, verbose_name='Statute start date', help_text='Use ISO 8061 (YYYY-MM-DD)')
-    statuteapplicableenddate = models.TextField(db_column='statuteApplicableEndDate', blank=True, verbose_name='Statute end date', help_text='Use ISO 8061 (YYYY-MM-DD)')
+    statutejurisdiction = models.TextField(db_column='statuteJurisdiction', verbose_name='Statute jurisdiction')
+    statutecitation = models.TextField(db_column='statuteCitation', verbose_name='Statute citation')
+    statutedeterminationdate = models.TextField(db_column='statuteInformationDeterminationDate', verbose_name='Statute determination date', help_text='Use ISO 8061 (YYYY-MM-DD)', blank=True, null=True)
+    statuteapplicablestartdate = models.TextField(db_column='statuteApplicableStartDate', blank=True, null=True, verbose_name='Statute start date', help_text='Use ISO 8061 (YYYY-MM-DD)')
+    statuteapplicableenddate = models.TextField(db_column='statuteApplicableEndDate', blank=True, null=True, verbose_name='Statute end date', help_text='Use ISO 8061 (YYYY-MM-DD)')
     statuteenddateopen = models.BooleanField(db_column='statuteApplicableEndDateOpen', verbose_name='Open End Date', help_text='Indicate end date is open')
 
     class Meta:
@@ -517,7 +520,7 @@ class RightsStatementStatuteInformation(models.Model):
 class RightsStatementStatuteInformationNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatementstatute = models.ForeignKey(RightsStatementStatuteInformation, db_column='fkRightsStatementStatuteInformation')
-    statutenote = models.TextField(db_column='statuteNote', verbose_name='Statute note', blank=True)
+    statutenote = models.TextField(db_column='statuteNote', verbose_name='Statute note')
 
     class Meta:
         db_table = u'RightsStatementStatuteInformationNote'
@@ -526,9 +529,9 @@ class RightsStatementStatuteInformationNote(models.Model):
 class RightsStatementStatuteDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementstatute = models.ForeignKey(RightsStatementStatuteInformation, db_column='fkRightsStatementStatuteInformation')
-    statutedocumentationidentifiertype = models.TextField(db_column='statuteDocumentationIdentifierType', blank=True, verbose_name='Statute document identification type')
-    statutedocumentationidentifiervalue = models.TextField(db_column='statuteDocumentationIdentifierValue', blank=True, verbose_name='Statute document identification value')
-    statutedocumentationidentifierrole = models.TextField(db_column='statuteDocumentationIdentifierRole', blank=True, verbose_name='Statute document identification role')
+    statutedocumentationidentifiertype = models.TextField(db_column='statuteDocumentationIdentifierType', verbose_name='Statute document identification type')
+    statutedocumentationidentifiervalue = models.TextField(db_column='statuteDocumentationIdentifierValue', verbose_name='Statute document identification value')
+    statutedocumentationidentifierrole = models.TextField(db_column='statuteDocumentationIdentifierRole', blank=True, null=True, verbose_name='Statute document identification role')
 
     class Meta:
         db_table = u'RightsStatementStatuteDocumentationIdentifier'
@@ -537,9 +540,9 @@ class RightsStatementStatuteDocumentationIdentifier(models.Model):
 class RightsStatementOtherRightsInformation(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatement = models.ForeignKey(RightsStatement, db_column='fkRightsStatement')
-    otherrightsbasis = models.TextField(db_column='otherRightsBasis', verbose_name='Other rights basis', blank=True)
-    otherrightsapplicablestartdate = models.TextField(db_column='otherRightsApplicableStartDate', blank=True, verbose_name='Other rights start date', help_text='Use ISO 8061 (YYYY-MM-DD)')
-    otherrightsapplicableenddate = models.TextField(db_column='otherRightsApplicableEndDate', blank=True, verbose_name='Other rights end date', help_text='Use ISO 8061 (YYYY-MM-DD)')
+    otherrightsbasis = models.TextField(db_column='otherRightsBasis', verbose_name='Other rights basis', default='Other')
+    otherrightsapplicablestartdate = models.TextField(db_column='otherRightsApplicableStartDate', blank=True, null=True, verbose_name='Other rights start date', help_text='Use ISO 8061 (YYYY-MM-DD)')
+    otherrightsapplicableenddate = models.TextField(db_column='otherRightsApplicableEndDate', blank=True, null=True, verbose_name='Other rights end date', help_text='Use ISO 8061 (YYYY-MM-DD)')
     otherrightsenddateopen = models.BooleanField(db_column='otherRightsApplicableEndDateOpen', verbose_name='Open End Date', help_text='Indicate end date is open')
 
     class Meta:
@@ -549,9 +552,9 @@ class RightsStatementOtherRightsInformation(models.Model):
 class RightsStatementOtherRightsDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementotherrights = models.ForeignKey(RightsStatementOtherRightsInformation, db_column='fkRightsStatementOtherRightsInformation')
-    otherrightsdocumentationidentifiertype = models.TextField(db_column='otherRightsDocumentationIdentifierType', blank=True, verbose_name='Other rights document identification type')
-    otherrightsdocumentationidentifiervalue = models.TextField(db_column='otherRightsDocumentationIdentifierValue', blank=True, verbose_name='Other right document identification value')
-    otherrightsdocumentationidentifierrole = models.TextField(db_column='otherRightsDocumentationIdentifierRole', blank=True, verbose_name='Other rights document identification role')
+    otherrightsdocumentationidentifiertype = models.TextField(db_column='otherRightsDocumentationIdentifierType', verbose_name='Other rights document identification type')
+    otherrightsdocumentationidentifiervalue = models.TextField(db_column='otherRightsDocumentationIdentifierValue', verbose_name='Other right document identification value')
+    otherrightsdocumentationidentifierrole = models.TextField(db_column='otherRightsDocumentationIdentifierRole', blank=True, null=True, verbose_name='Other rights document identification role')
 
     class Meta:
         db_table = u'RightsStatementOtherRightsDocumentationIdentifier'
@@ -560,7 +563,7 @@ class RightsStatementOtherRightsDocumentationIdentifier(models.Model):
 class RightsStatementOtherRightsInformationNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatementotherrights = models.ForeignKey(RightsStatementOtherRightsInformation, db_column='fkRightsStatementOtherRightsInformation')
-    otherrightsnote = models.TextField(db_column='otherRightsNote', verbose_name='Other rights note', blank=True)
+    otherrightsnote = models.TextField(db_column='otherRightsNote', verbose_name='Other rights note')
 
     class Meta:
         db_table = u'RightsStatementOtherRightsNote'
