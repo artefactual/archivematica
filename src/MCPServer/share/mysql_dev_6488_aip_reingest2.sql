@@ -26,3 +26,7 @@ ALTER TABLE RightsStatementRightsGranted
     MODIFY startDate longtext COLLATE utf8_unicode_ci NULL,
     MODIFY endDate longtext COLLATE utf8_unicode_ci NULL
     ;
+
+-- Only one exit code for determine version
+DELETE FROM MicroServiceChainLinksExitCodes WHERE pk='7f2d5239-b464-4837-8e01-0fc43e31395d';
+UPDATE MicroServiceChainLinksExitCodes SET exitCode=0 WHERE pk='6e06fd5e-3892-4e79-b64f-069876bd95a1';

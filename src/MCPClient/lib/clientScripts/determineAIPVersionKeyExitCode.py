@@ -21,45 +21,40 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+import archivematicaXMLNamesSpace as ns
 import os
 import sys
-exitCode = 0
 from lxml import etree
 
-exitVersionToExitCodeMap = {None: -1, 
-                            'Archivematica-0.10': 100}
+VERSION_MAP = {
+    # Only change exit code if AIP format changes. If unknown, default to latest
+    # version. Currently, all AIPs are the same format so no special cases
+    # required.
+    # Example:
+    # 'Archivematica-1.2': 100,
+}
 
 
-def getArchivematicaVersionFromMetsXML(mets):
-    metsNameSpace = "http://www.loc.gov/METS/"
-    for agentIdentifier in mets.iter("{%s}%s" % (metsNameSpace, "agentIdentifier")):
-        type = agentIdentifier.find("{%s}%s" % (metsNameSpace, "agentIdentifierType"))
-        if type.text != "preservation system":
+def get_version_from_mets(mets):
+    for agent in mets.iter(ns.metsBNS+"agentIdentifier"):
+        if agent.findtext(ns.metsBNS+"agentIdentifierType") != "preservation system":
             continue
-        value = agentIdentifier.find("{%s}%s" % (metsNameSpace, "agentIdentifierValue"))
-        return value.text
-
+        return agent.findtext(ns.metsBNS+"agentIdentifierValue")
+    return None
 
 if __name__ == '__main__':
-    fauxUUID = sys.argv[1]
-    unitPath = sys.argv[2]
-    
-    basename = os.path.basename(unitPath[:-1])
-    uuidLen = 36
-    originalSIPName = basename[:-(uuidLen+1)*2]
-    originalSIPUUID = basename[:-(uuidLen+1)][-uuidLen:]
-    METSPath = os.path.join(unitPath, "data", "METS.%s.xml" % (originalSIPUUID))
-    if not os.path.isfile(METSPath):
-        print >>sys.stderr, "Mets file not found: ", METSPath
-        exit(-1)
-        
+    sip_uuid = sys.argv[1]
+    unit_path = sys.argv[2]
+
+    mets_path = os.path.join(unit_path, "data", "METS.%s.xml" % (sip_uuid))
+    if not os.path.isfile(mets_path):
+        print >>sys.stderr, "Mets file not found: ", mets_path
+        sys.exit(0)
+
     parser = etree.XMLParser(remove_blank_text=True)
-    metsTree = etree.parse(METSPath, parser)
-    mets = metsTree.getroot()
+    root = etree.parse(mets_path, parser)
     
-    version = getArchivematicaVersionFromMetsXML(mets)
-    print version
+    version = get_version_from_mets(root)
+    print 'Version found in METSt:', version
     
-    if version in exitVersionToExitCodeMap:
-        exit(exitVersionToExitCodeMap[version])
-    exit(exitCode)
+    sys.exit(VERSION_MAP.get(version, 0))
