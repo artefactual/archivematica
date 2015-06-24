@@ -1,4 +1,4 @@
-#!/usr/bin/python -OO
+#!/usr/bin/env python2
 #Author Bruce Eckel (www.BruceEckel.com)
 #Source http://www.artima.com/weblogs/viewpost.jsp?thread=230001
 

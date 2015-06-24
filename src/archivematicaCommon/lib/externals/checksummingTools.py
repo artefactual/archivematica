@@ -1,4 +1,4 @@
-#!/usr/bin/python -OO
+#!/usr/bin/env python2
 import hashlib
 
 #Borrowed from http://stackoverflow.com/questions/1131220/get-md5-hash-of-a-files-without-open-it-in-python

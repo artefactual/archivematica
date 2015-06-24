@@ -14,7 +14,7 @@ def test_json_csv_conversion(tmpdir):
     csv_path = os.path.join(str(tmpdir), 'metadata.csv')
     with open(json_path, 'w') as jsonfile:
         jsonfile.write(JSON)
-    subprocess.call([THIS_DIR + '/../lib/clientScripts/jsonMetadataToCSV.py', '', json_path])
+    subprocess.check_call([os.path.join(THIS_DIR, '../lib/clientScripts/jsonMetadataToCSV.py'), '', json_path])
     with open(csv_path) as csvfile:
         csvdata = csvfile.read()
 

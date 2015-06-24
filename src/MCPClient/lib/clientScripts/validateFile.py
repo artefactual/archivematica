@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python2
 """
 Runs a validation command on the provided file, and generates an Event from
 the results.

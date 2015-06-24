@@ -1,4 +1,4 @@
-#!/usr/bin/python -OO
+#!/usr/bin/env python2
 #Author Larry Bates http://code.activestate.com/recipes/users/651848/
 #Source {{{ http://code.activestate.com/recipes/546512/ (r1)
 #license: PSF http://docs.python.org/license.html

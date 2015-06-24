@@ -1,4 +1,4 @@
-#!/usr/bin/python -OO
+#!/usr/bin/env python2
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -147,7 +147,7 @@ def executeOrRun(type, text, stdIn="", printing=True, arguments=[], env_updates=
         text = "#!/bin/bash\n" + text
         return createAndRunScript(text, stdIn=stdIn, printing=printing, arguments=arguments, env_updates=env_updates)
     if type == "pythonScript":
-        text = "#!/usr/bin/python -OO\n" + text
+        text = "#!/usr/bin/env python2\n" + text
         return createAndRunScript(text, stdIn=stdIn, printing=printing, arguments=arguments, env_updates=env_updates)
     if type == "as_is":
         return createAndRunScript(text, stdIn=stdIn, printing=printing, arguments=arguments, env_updates=env_updates)

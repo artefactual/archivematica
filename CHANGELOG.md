@@ -9,6 +9,8 @@ dev (1.5.0)
 * MCPServer: remove duplicate ReplacementDict code (#8509)
 * Dashboard: use GroupWriteRotatingFileHandler to ensure group-writeability of rotated logs (#8587)
 * Dashboard: always show arguments in job detail view
+* Tests: Use an in-memory database
+* Specify python2 in shebangs.  Python version choice respects path.
 
 1.4.0
 =====

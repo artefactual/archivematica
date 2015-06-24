@@ -1,4 +1,4 @@
-#!/usr/bin/python2 -OO
+#!/usr/bin/env python2
 
 import argparse
 from lxml import etree

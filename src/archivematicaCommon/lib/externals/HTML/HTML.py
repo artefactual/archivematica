@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 # -*- coding: iso-8859-1 -*-
 """
 HTML.py - v0.04 2009-07-28 Philippe Lagadec

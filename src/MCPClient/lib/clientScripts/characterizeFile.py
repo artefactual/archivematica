@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python2
 #
 # Collects characterization commands for the provided file, then either
 # a) Inserts the tool's XML output into the database, or
