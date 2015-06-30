@@ -1,0 +1,68 @@
+interactions:
+- request:
+    body: password=admin
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Content-Length: ['14']
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.3.0 CPython/2.7.10 Darwin/14.4.0]
+    method: POST
+    uri: http://localhost:8089/users/admin/login
+  response:
+    body: {string: !!python/unicode '{"session":"c3c62cbd26ffe5bd1fa3457fac5f22cf1edfe7028f08aba9dec53d3ba277b14f","user":{"lock_version":15,"username":"admin","name":"Administrator","is_system_user":true,"create_time":"2015-06-11T17:04:21Z","system_mtime":"2015-06-30T23:26:43Z","user_mtime":"2015-06-30T23:26:43Z","jsonmodel_type":"user","groups":[],"is_admin":true,"uri":"/users/1","agent_record":{"ref":"/agents/people/1"},"permissions":{"/repositories/1":["update_location_record","delete_vocabulary_record","update_subject_record","delete_subject_record","update_agent_record","delete_agent_record","update_vocabulary_record","merge_subject_record","merge_agent_record","administer_system","become_user","cancel_importer_job","create_repository","delete_archival_record","delete_classification_record","delete_event_record","delete_repository","import_records","index_system","manage_agent_record","manage_repository","manage_subject_record","manage_users","manage_vocabulary_record","mediate_edits","merge_agents_and_subjects","merge_archival_record","suppress_archival_record","system_config","transfer_archival_record","transfer_repository","update_accession_record","update_classification_record","update_digital_object_record","update_event_record","update_resource_record","view_all_records","view_repository","view_suppressed"],"_archivesspace":["administer_system","become_user","cancel_importer_job","create_repository","delete_archival_record","delete_classification_record","delete_event_record","delete_repository","import_records","index_system","manage_agent_record","manage_repository","manage_subject_record","manage_users","manage_vocabulary_record","mediate_edits","merge_agents_and_subjects","merge_archival_record","suppress_archival_record","system_config","transfer_archival_record","transfer_repository","update_accession_record","update_classification_record","update_digital_object_record","update_event_record","update_resource_record","view_all_records","view_repository","view_suppressed","update_location_record","delete_vocabulary_record","update_subject_record","delete_subject_record","update_agent_record","delete_agent_record","update_vocabulary_record","merge_subject_record","merge_agent_record"]}}}
+
+'}
+    headers:
+      cache-control: ['private, must-revalidate, max-age=0']
+      content-length: ['2205']
+      content-type: [application/json]
+      date: ['Tue, 30 Jun 2015 23:26:43 GMT']
+      server: [Jetty(8.1.5.v20120716)]
+      x-content-type-options: [nosniff]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      User-Agent: [python-requests/2.3.0 CPython/2.7.10 Darwin/14.4.0]
+      X-ArchivesSpace-Session: [!!python/unicode c3c62cbd26ffe5bd1fa3457fac5f22cf1edfe7028f08aba9dec53d3ba277b14f]
+    method: GET
+    uri: http://localhost:8089/repositories/2/archival_objects/3
+  response:
+    body: {string: !!python/unicode '{"lock_version":1,"position":0,"publish":false,"ref_id":"e61c441cd04eb5731ce64de35a4339ff","component_id":"F1-1-1","title":"Test
+        subseries","display_string":"Test subseries","restrictions_apply":false,"created_by":"admin","last_modified_by":"admin","create_time":"2015-06-11T17:20:19Z","system_mtime":"2015-06-11T17:45:27Z","user_mtime":"2015-06-11T17:45:27Z","suppressed":false,"level":"subseries","jsonmodel_type":"archival_object","external_ids":[],"subjects":[],"linked_events":[],"extents":[],"dates":[],"external_documents":[],"rights_statements":[],"linked_agents":[],"instances":[],"notes":[],"uri":"/repositories/2/archival_objects/3","repository":{"ref":"/repositories/2"},"resource":{"ref":"/repositories/2/resources/1"},"parent":{"ref":"/repositories/2/archival_objects/1"},"has_unpublished_ancestor":true}
+
+'}
+    headers:
+      cache-control: ['private, must-revalidate, max-age=0']
+      content-length: ['819']
+      content-type: [application/json]
+      date: ['Tue, 30 Jun 2015 23:26:43 GMT']
+      server: [Jetty(8.1.5.v20120716)]
+      x-content-type-options: [nosniff]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      User-Agent: [python-requests/2.3.0 CPython/2.7.10 Darwin/14.4.0]
+      X-ArchivesSpace-Session: [!!python/unicode c3c62cbd26ffe5bd1fa3457fac5f22cf1edfe7028f08aba9dec53d3ba277b14f]
+    method: GET
+    uri: http://localhost:8089/repositories/2/archival_objects/1
+  response:
+    body: {string: !!python/unicode '{"lock_version":1,"position":0,"publish":false,"ref_id":"72aa597a3d4078c3f61f6000ac068f38","component_id":"F1-1","title":"Test
+        series","display_string":"Test series","restrictions_apply":false,"created_by":"admin","last_modified_by":"admin","create_time":"2015-06-11T17:14:48Z","system_mtime":"2015-06-11T17:45:18Z","user_mtime":"2015-06-11T17:45:18Z","suppressed":false,"level":"series","jsonmodel_type":"archival_object","external_ids":[],"subjects":[],"linked_events":[],"extents":[],"dates":[],"external_documents":[],"rights_statements":[],"linked_agents":[],"instances":[],"notes":[],"uri":"/repositories/2/archival_objects/1","repository":{"ref":"/repositories/2"},"resource":{"ref":"/repositories/2/resources/1"},"has_unpublished_ancestor":true}
+
+'}
+    headers:
+      cache-control: ['private, must-revalidate, max-age=0']
+      content-length: ['754']
+      content-type: [application/json]
+      date: ['Tue, 30 Jun 2015 23:26:43 GMT']
+      server: [Jetty(8.1.5.v20120716)]
+      x-content-type-options: [nosniff]
+    status: {code: 200, message: OK}
+version: 1

@@ -1,0 +1,49 @@
+interactions:
+- request:
+    body: password=admin
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Content-Length: ['14']
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.3.0 CPython/2.7.10 Darwin/14.4.0]
+    method: POST
+    uri: http://localhost:8089/users/admin/login
+  response:
+    body: {string: !!python/unicode '{"session":"28e0056b648ecddd66b7635758b6229fe2ccdf5143aaf56dacc621b0fd69fc56","user":{"lock_version":25,"username":"admin","name":"Administrator","is_system_user":true,"create_time":"2015-06-11T17:04:21Z","system_mtime":"2015-06-30T23:38:28Z","user_mtime":"2015-06-30T23:38:28Z","jsonmodel_type":"user","groups":[],"is_admin":true,"uri":"/users/1","agent_record":{"ref":"/agents/people/1"},"permissions":{"/repositories/1":["update_location_record","delete_vocabulary_record","update_subject_record","delete_subject_record","update_agent_record","delete_agent_record","update_vocabulary_record","merge_subject_record","merge_agent_record","administer_system","become_user","cancel_importer_job","create_repository","delete_archival_record","delete_classification_record","delete_event_record","delete_repository","import_records","index_system","manage_agent_record","manage_repository","manage_subject_record","manage_users","manage_vocabulary_record","mediate_edits","merge_agents_and_subjects","merge_archival_record","suppress_archival_record","system_config","transfer_archival_record","transfer_repository","update_accession_record","update_classification_record","update_digital_object_record","update_event_record","update_resource_record","view_all_records","view_repository","view_suppressed"],"_archivesspace":["administer_system","become_user","cancel_importer_job","create_repository","delete_archival_record","delete_classification_record","delete_event_record","delete_repository","import_records","index_system","manage_agent_record","manage_repository","manage_subject_record","manage_users","manage_vocabulary_record","mediate_edits","merge_agents_and_subjects","merge_archival_record","suppress_archival_record","system_config","transfer_archival_record","transfer_repository","update_accession_record","update_classification_record","update_digital_object_record","update_event_record","update_resource_record","view_all_records","view_repository","view_suppressed","update_location_record","delete_vocabulary_record","update_subject_record","delete_subject_record","update_agent_record","delete_agent_record","update_vocabulary_record","merge_subject_record","merge_agent_record"]}}}
+
+'}
+    headers:
+      cache-control: ['private, must-revalidate, max-age=0']
+      content-length: ['2205']
+      content-type: [application/json]
+      date: ['Tue, 30 Jun 2015 23:38:28 GMT']
+      server: [Jetty(8.1.5.v20120716)]
+      x-content-type-options: [nosniff]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      User-Agent: [python-requests/2.3.0 CPython/2.7.10 Darwin/14.4.0]
+      X-ArchivesSpace-Session: [!!python/unicode 28e0056b648ecddd66b7635758b6229fe2ccdf5143aaf56dacc621b0fd69fc56]
+    method: GET
+    uri: http://localhost:8089/repositories/2/search?q=primary_type%3Aresource&page=1
+  response:
+    body: {string: !!python/unicode '{"first_page":1,"last_page":1,"this_page":1,"offset_first":1,"offset_last":2,"total_hits":2,"results":[{"id":"/repositories/2/resources/1","title":"Test
+        fonds","primary_type":"resource","types":["resource"],"json":"{\"lock_version\":0,\"title\":\"Test
+        fonds\",\"publish\":false,\"restrictions\":false,\"created_by\":\"admin\",\"last_modified_by\":\"admin\",\"create_time\":\"2015-06-11T17:08:42Z\",\"system_mtime\":\"2015-06-11T17:08:42Z\",\"user_mtime\":\"2015-06-11T17:08:42Z\",\"suppressed\":false,\"id_0\":\"F1\",\"language\":\"eng\",\"level\":\"fonds\",\"jsonmodel_type\":\"resource\",\"external_ids\":[],\"subjects\":[],\"linked_events\":[],\"extents\":[{\"lock_version\":0,\"number\":\"1\",\"created_by\":\"admin\",\"last_modified_by\":\"admin\",\"create_time\":\"2015-06-11T17:08:42Z\",\"system_mtime\":\"2015-06-11T17:08:42Z\",\"user_mtime\":\"2015-06-11T17:08:42Z\",\"portion\":\"whole\",\"extent_type\":\"cassettes\",\"jsonmodel_type\":\"extent\"}],\"dates\":[{\"lock_version\":0,\"begin\":\"2015-01-01\",\"created_by\":\"admin\",\"last_modified_by\":\"admin\",\"create_time\":\"2015-06-11T17:08:42Z\",\"system_mtime\":\"2015-06-11T17:08:42Z\",\"user_mtime\":\"2015-06-11T17:08:42Z\",\"date_type\":\"single\",\"label\":\"creation\",\"jsonmodel_type\":\"date\"}],\"external_documents\":[],\"rights_statements\":[],\"linked_agents\":[],\"instances\":[],\"deaccessions\":[],\"related_accessions\":[],\"notes\":[],\"uri\":\"/repositories/2/resources/1\",\"repository\":{\"ref\":\"/repositories/2\"},\"tree\":{\"ref\":\"/repositories/2/resources/1/tree\"}}","suppressed":false,"publish":false,"system_generated":false,"repository":"/repositories/2","created_by":"admin","last_modified_by":"admin","user_mtime":"2015-06-11T17:08:42Z","system_mtime":"2015-06-11T17:08:42Z","create_time":"2015-06-11T17:08:42Z","level":"fonds","identifier":"F1","language":"eng","restrictions":"false","four_part_id":"F1","uri":"/repositories/2/resources/1","jsonmodel_type":"resource"},{"id":"/repositories/2/resources/2","title":"Some
+        other fonds","primary_type":"resource","types":["resource"],"json":"{\"lock_version\":0,\"title\":\"Some
+        other fonds\",\"publish\":false,\"restrictions\":false,\"created_by\":\"admin\",\"last_modified_by\":\"admin\",\"create_time\":\"2015-06-30T23:17:57Z\",\"system_mtime\":\"2015-06-30T23:17:57Z\",\"user_mtime\":\"2015-06-30T23:17:57Z\",\"suppressed\":false,\"id_0\":\"F2\",\"level\":\"fonds\",\"jsonmodel_type\":\"resource\",\"external_ids\":[],\"subjects\":[],\"linked_events\":[],\"extents\":[{\"lock_version\":0,\"number\":\"1\",\"created_by\":\"admin\",\"last_modified_by\":\"admin\",\"create_time\":\"2015-06-30T23:17:57Z\",\"system_mtime\":\"2015-06-30T23:17:57Z\",\"user_mtime\":\"2015-06-30T23:17:57Z\",\"portion\":\"whole\",\"extent_type\":\"cassettes\",\"jsonmodel_type\":\"extent\"}],\"dates\":[{\"lock_version\":0,\"begin\":\"2015-06-29\",\"created_by\":\"admin\",\"last_modified_by\":\"admin\",\"create_time\":\"2015-06-30T23:17:57Z\",\"system_mtime\":\"2015-06-30T23:17:57Z\",\"user_mtime\":\"2015-06-30T23:17:57Z\",\"date_type\":\"bulk\",\"label\":\"creation\",\"jsonmodel_type\":\"date\"}],\"external_documents\":[],\"rights_statements\":[],\"linked_agents\":[],\"instances\":[],\"deaccessions\":[],\"related_accessions\":[],\"notes\":[],\"uri\":\"/repositories/2/resources/2\",\"repository\":{\"ref\":\"/repositories/2\"},\"tree\":{\"ref\":\"/repositories/2/resources/2/tree\"}}","suppressed":false,"publish":false,"system_generated":false,"repository":"/repositories/2","created_by":"admin","last_modified_by":"admin","user_mtime":"2015-06-30T23:17:57Z","system_mtime":"2015-06-30T23:17:57Z","create_time":"2015-06-30T23:17:57Z","level":"fonds","identifier":"F2","restrictions":"false","four_part_id":"F2","uri":"/repositories/2/resources/2","jsonmodel_type":"resource"}],"facets":{"facet_queries":{},"facet_fields":{},"facet_dates":{},"facet_ranges":{}}}
+
+'}
+    headers:
+      cache-control: ['private, must-revalidate, max-age=0']
+      content-length: ['3900']
+      content-type: [application/json]
+      date: ['Tue, 30 Jun 2015 23:38:28 GMT']
+      server: [Jetty(8.1.5.v20120716)]
+      x-content-type-options: [nosniff]
+    status: {code: 200, message: OK}
+version: 1
