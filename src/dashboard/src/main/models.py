@@ -628,7 +628,7 @@ class MicroServiceChainLink(models.Model):
     microservicegroup = models.CharField(max_length=50, db_column='microserviceGroup')
     reloadfilelist = models.BooleanField(default=True, db_column='reloadFileList')
     defaultexitmessage = models.CharField(max_length=36, db_column='defaultExitMessage', default='Failed')
-    replaces = models.ForeignKey('self', related_name='replaced_by', db_column='replaces')
+    replaces = models.ForeignKey('self', related_name='replaced_by', db_column='replaces', null=True, blank=True)
     lastmodified = models.DateTimeField(db_column='lastModified')
 
     class Meta:
@@ -800,11 +800,15 @@ class AtkDIPObjectResourcePairing(models.Model):
 
 class ArchivesSpaceDIPObjectResourcePairing(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
+    # TODO these should be foreign keys?
     dipuuid = models.CharField(max_length=50, db_column='dipUUID')
     fileuuid = models.CharField(max_length=50, db_column='fileUUID')
     # This field holds URL fragments, for instance:
     # /repositories/2/archival_objects/1
     resourceid = models.CharField(max_length=150, db_column='resourceId')
+
+    def __str__(self):
+        return 'ArchivesSpace Pairing<dipuuid: {s.dipuuid}, resourceid: {s.resourceid}>'.format(s=self)
 
     class Meta:
         db_table = u'ArchivesSpaceDIPObjectResourcePairing'

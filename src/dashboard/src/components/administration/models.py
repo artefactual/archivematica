@@ -38,7 +38,7 @@ class ArchivistsToolkitConfig(models.Model):
 class ArchivesSpaceConfig(models.Model):
     id = UUIDPkField()
     host = models.CharField(max_length=50, verbose_name='ArchivesSpace host')
-    port = models.IntegerField(default=8089, verbose_name='ArchivesSpace port')
+    port = models.IntegerField(default=8089, verbose_name='ArchivesSpace backend port')
     user = models.CharField(max_length=50, verbose_name='ArchivesSpace administrative user')
     passwd = models.CharField(max_length=50, blank=True, verbose_name='ArchivesSpace administrative user password')
     premis = models.CharField(max_length=10, choices=PREMIS_CHOICES, verbose_name='Restrictions Apply', default='yes')

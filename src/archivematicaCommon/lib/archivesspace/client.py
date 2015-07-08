@@ -4,6 +4,8 @@ import re
 import requests
 from urlparse import urlparse
 
+__all__ = ['ArchivesSpaceError', 'ConnectionError', 'AuthenticationError', 'ArchivesSpaceClient']
+
 
 class ArchivesSpaceError(Exception):
     pass
@@ -165,7 +167,7 @@ class ArchivesSpaceClient(object):
             return start
 
     def _fetch_dates_from_record(self, record):
-        if not record['dates']:
+        if not record.get('dates'):
             return ''
         elif 'expression' in record['dates'][0]:
             return record['dates'][0]['expression']

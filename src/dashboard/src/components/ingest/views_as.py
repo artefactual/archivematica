@@ -16,8 +16,8 @@ from components.ingest import pair_matcher
 
 
 def get_as_system_client():
-    dict = models.MicroServiceChoiceReplacementDic.objects.get(description='ArchivesSpace Config')
-    config = ast.literal_eval(dict.replacementdic)
+    repl_dict = models.MicroServiceChoiceReplacementDic.objects.get(description='ArchivesSpace Config')
+    config = ast.literal_eval(repl_dict.replacementdic)
 
     return ArchivesSpaceClient(
         host=config['%host%'],
