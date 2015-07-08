@@ -62,6 +62,7 @@ createPointerFile_v0.0 = %clientScriptsDirectory%createPointerFile.py
 createSIPfromTransferObjects_v0.0 = %clientScriptsDirectory%createSIPfromTransferObjects.py
 createSIPsfromTRIMTransferContainers_v0.0 = %clientScriptsDirectory%createSIPsfromTRIMTransferContainers.py
 determineAIPVersionKeyExitCode_v0.0 = %clientScriptsDirectory%determineAIPVersionKeyExitCode.py
+dipGenerationHelper = %clientScriptsDirectory%dip_generation_helper.py
 echo_v0.0 = /bin/echo
 emailFailReport_v0.0 = %clientScriptsDirectory%emailFailReport.py
 examineContents_v0.0 = %clientScriptsDirectory%examineContents.py
