@@ -30,7 +30,7 @@ import os
 import sys
 import traceback
 # archivematicaCommon
-from archivematicaFunctions import OrderedListsDict
+import archivematicaFunctions
 from custom_handlers import get_script_logger
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
@@ -48,35 +48,23 @@ def parseMetadata(SIPPath):
     :return: {<filename>: OrderedDict(key: [values]) }
     """
     all_metadata = {}
-    # Parse the metadata.csv files from the transfers
-    transfersPath = os.path.join(SIPPath, "objects", "metadata", "transfers")
-    try:
-        transfers = os.listdir(transfersPath)
-    except OSError:
-        metadata_csvs = []
-    else:
-        metadata_csvs = [os.path.join(transfersPath, t, "metadata.csv") for t in transfers]
-
-    # Parse the SIP's metadata.csv if it exists
-    metadataCSVFilePath = os.path.join(SIPPath, 'objects', 'metadata', 'metadata.csv')
-    metadata_csvs.append(metadataCSVFilePath)
+    metadata_csvs = archivematicaFunctions.find_metadata_files(SIPPath, 'metadata.csv')
 
     for metadataCSVFilePath in metadata_csvs:
-        if os.path.isfile(metadataCSVFilePath):
-            try:
-                csv_metadata = parseMetadataCSV(metadataCSVFilePath)
-            except Exception:
-                print >>sys.stderr, "error parsing: ", metadataCSVFilePath
-                traceback.print_exc(file=sys.stderr)
-                sharedVariablesAcrossModules.globalErrorCount += 1
-            # Provide warning if this file already has differing metadata
-            # Not using all_metadata.update(csv_metadata) because of that
-            for entry, values in csv_metadata.iteritems():
-                if entry in all_metadata and all_metadata[entry] != values:
-                    print >> sys.stderr, 'Metadata for', entry, 'being updated. Old:', all_metadata[entry], 'New:', values
-                existing = all_metadata.get(entry, collections.OrderedDict())
-                existing.update(values)
-                all_metadata[entry] = existing
+        try:
+            csv_metadata = parseMetadataCSV(metadataCSVFilePath)
+        except Exception:
+            print >>sys.stderr, "error parsing: ", metadataCSVFilePath
+            traceback.print_exc(file=sys.stderr)
+            sharedVariablesAcrossModules.globalErrorCount += 1
+        # Provide warning if this file already has differing metadata
+        # Not using all_metadata.update(csv_metadata) because of that
+        for entry, values in csv_metadata.iteritems():
+            if entry in all_metadata and all_metadata[entry] != values:
+                print >> sys.stderr, 'Metadata for', entry, 'being updated. Old:', all_metadata[entry], 'New:', values
+            existing = all_metadata.get(entry, collections.OrderedDict())
+            existing.update(values)
+            all_metadata[entry] = existing
 
     return all_metadata
 
@@ -116,7 +104,7 @@ def parseMetadataCSV(metadataCSVFilePath):
                 entry_name = entry_name[:-1]
             # Strip file/dir name from values
             row = row[1:]
-            values = OrderedListsDict(zip(header, row))
+            values = archivematicaFunctions.OrderedListsDict(zip(header, row))
             if entry_name in metadata and metadata[entry_name] != values:
                 print >> sys.stderr, 'Metadata for', entry_name, 'being overwritten. Old:', metadata[entry_name], 'New:', values
             metadata[entry_name] = values
