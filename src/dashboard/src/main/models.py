@@ -624,7 +624,7 @@ class MicroServiceChain(models.Model):
 class MicroServiceChainLink(models.Model):
     id = UUIDPkField()
     currenttask = models.ForeignKey('TaskConfig', db_column='currentTask')
-    defaultnextchainlink = models.ForeignKey('self', db_column='defaultNextChainLink')
+    defaultnextchainlink = models.ForeignKey('self', db_column='defaultNextChainLink', null=True, blank=True)
     microservicegroup = models.CharField(max_length=50, db_column='microserviceGroup')
     reloadfilelist = models.BooleanField(default=True, db_column='reloadFileList')
     defaultexitmessage = models.CharField(max_length=36, db_column='defaultExitMessage', default='Failed')

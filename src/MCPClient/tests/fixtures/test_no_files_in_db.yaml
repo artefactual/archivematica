@@ -1,0 +1,25 @@
+interactions:
+- request:
+    body: password=admin
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['14']
+      Content-Type: [application/x-www-form-urlencoded]
+      User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-43-generic]
+    method: POST
+    uri: http://localhost:8089/users/admin/login
+  response:
+    body: {string: !!python/unicode '{"session":"88373637ab6bd52646d959ad310c1f281fb4ba02073e64c3f4da50b43d67b24a","user":{"lock_version":1159,"username":"admin","name":"Administrator","is_system_user":true,"create_time":"2014-12-05T20:32:17Z","system_mtime":"2015-07-09T23:18:47Z","user_mtime":"2015-07-09T23:18:47Z","jsonmodel_type":"user","groups":[],"is_admin":false,"uri":"/users/1","agent_record":{"ref":"/agents/people/1"},"permissions":{"/repositories/2":["view_repository","update_accession_record","update_resource_record","update_digital_object_record"],"_archivesspace":[]}}}
+
+        '}
+    headers:
+      cache-control: ['private, must-revalidate, max-age=0']
+      content-length: ['551']
+      content-type: [application/json]
+      date: ['Thu, 09 Jul 2015 23:18:47 GMT']
+      server: [Jetty(8.1.5.v20120716)]
+      x-content-type-options: [nosniff]
+    status: {code: 200, message: OK}
+version: 1

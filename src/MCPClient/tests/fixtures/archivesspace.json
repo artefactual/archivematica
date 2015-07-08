@@ -1,0 +1,26 @@
+[
+{
+    "pk": "f8749dd2-0923-4b57-a074-45cd92ace56f",
+    "model": "main.microservicechoicereplacementdic",
+    "fields": {
+        "lastmodified": "2015-07-08T17:53:08",
+        "replaces": null,
+        "choiceavailableatlink": "a0db8294-f02a-4f49-a557-b1310a715ffc",
+        "description": "ArchivesSpace Config",
+        "replacementdic": "{'%port%': '8089', '%object_type%': u'', '%host%': u'localhost', '%xlink_show%': u'none', '%use_statement%': u'none', '%uri_prefix%': u'none', '%xlink_actuate%': u'none', '%access_conditions%': u'', '%use_conditions%': u'', '%restrictions%': u'no', '%passwd%': u'admin', '%user%': u'admin'}"
+    }
+},
+{
+    "pk": "a0db8294-f02a-4f49-a557-b1310a715ffc",
+    "model": "main.microservicechainlink",
+    "fields": {
+        "microservicegroup": "Upload DIP",
+        "defaultexitmessage": "Failed",
+        "reloadfilelist": true,
+        "lastmodified": "2015-07-08T17:53:08",
+        "defaultnextchainlink": null,
+        "currenttask": "5ded9d05-dd24-484a-a8b2-73ec5d35aa63",
+        "replaces": null
+    }
+}
+]
