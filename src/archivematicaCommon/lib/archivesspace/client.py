@@ -372,6 +372,43 @@ class ArchivesSpaceClient(object):
         hits = response.json()
         return [format_record(json.loads(r['json'])) for r in hits['results']]
 
+    def find_by_field(self, field, search_pattern, fetched=0, page=1, page_size=30, sort_by=None):
+        """
+        Find resource when searching by field exact value.
+
+        Results are a dict in the format:
+        {
+            'id': <resource URI fragment>,
+            'identifier': <resource identifier>,
+            'title': <title of the resource>,
+            'levelOfDescription': <level of description>,
+        }
+
+        :param str field: Name of the field to search
+        :param search_pattern: Value of the field to search for
+        :return: List of dicts containing results.
+        """
+        def format_record(record):
+            return {
+                'id': record['uri'],
+                'identifier': record['identifier'],
+                'title': record.get('title', ''),
+                'levelOfDescription': record['level']
+            }
+
+        params = {
+            'page': page,
+            'page_size': page_size,
+            'q': '{}:{}'.format(field, search_pattern)
+        }
+
+        if sort_by is not None:
+            params['sort'] = 'title_sort ' + sort_by
+
+        response = self._get(self.repository + '/search', params=params)
+        hits = response.json()
+        return [format_record(r) for r in hits['results']]
+
     def augment_resource_ids(self, resource_ids):
         """
         Given a list of resource IDs, returns a list of dicts containing detailed information about the specified resources and their children.
