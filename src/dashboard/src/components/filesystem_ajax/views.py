@@ -419,7 +419,7 @@ def copy_from_arrange_to_completed(request):
 
     if error is not None:
         response = {
-            'message': error,
+            'message': str(error),
             'error': True,
         }
     else:
