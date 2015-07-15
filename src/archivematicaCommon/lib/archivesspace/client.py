@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import requests
 from urlparse import urlparse
 
@@ -105,6 +106,20 @@ class ArchivesSpaceClient(object):
                              params=params, data=data,
                              expected_response=expected_response)
 
+    def resource_type(self, resource_id):
+        """
+        Given an ID, determines whether a given resource is a resource or a resource_component.
+
+        :param resource_id string: The URI of the resource whose type to determine.
+        :raises ArchivesSpaceError: if the resource_id does not appear to be either type.
+        """
+        match = re.search(r'repositories/\d+/(resources|archival_objects)/\d+', resource_id)
+        if match and match.groups():
+            type_ = match.groups()[0]
+            return 'resource' if type_ == 'resources' else 'resource_component'
+        else:
+            raise ArchivesSpaceError('Unable to determine type of provided ID: {}'.format(resource_id))
+
     def get_record(self, record_id):
         return self._get(record_id).json()
 
@@ -140,7 +155,8 @@ class ArchivesSpaceClient(object):
 
         :param string resource_component_id: The URL of the resource component from which to fetch metadata.
         """
-        return self.get_resource_component_and_children(resource_component_id, 'resource')
+        resource_type = self.resource_type(resource_component_id)
+        return self.get_resource_component_and_children(resource_component_id, resource_type)
 
     def _format_dates(self, start, end=None):
         if end is not None:
@@ -226,7 +242,7 @@ class ArchivesSpaceClient(object):
         Fetch detailed metadata for the specified resource_id and all of its children.
 
         :param long resource_id: The resource for which to fetch metadata.
-        :param string resource_type: The level of description of the record.
+        :param str resource_type: no-op; not required or used in this implementation.
         :param int recurse_max_level: The maximum depth level to fetch when fetching children.
             Default is to fetch all of the resource's children, descending as deeply as necessary.
             Pass 1 to fetch no children.
@@ -236,7 +252,8 @@ class ArchivesSpaceClient(object):
         :return dict: A dict containing detailed metadata about both the requested resource and its children.
             Consult ArchivistsToolkitClient.get_resource_component_and_children for the output format.
         """
-        if resource_type == 'collection':
+        resource_type = self.resource_type(resource_id)
+        if resource_type == 'resource':
             return self._get_resources(resource_id, recurse_max_level=recurse_max_level, sort_by=sort_by)
         else:
             return self._get_components(resource_id, recurse_max_level=recurse_max_level, sort_by=sort_by)

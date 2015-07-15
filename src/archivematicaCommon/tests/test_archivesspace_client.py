@@ -2,10 +2,11 @@
 import os
 import sys
 
+import pytest
 import vcr
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from archivesspace.client import ArchivesSpaceClient
+from archivesspace.client import ArchivesSpaceClient, ArchivesSpaceError
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 AUTH = {
@@ -120,3 +121,15 @@ def test_augment_ids():
     assert len(data) == 2
     assert data[0]['title'] == 'Test fonds'
     assert data[1]['title'] == 'Some other fonds'
+
+@vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_resource_type.yaml'))
+def test_get_resource_type():
+    client = ArchivesSpaceClient(**AUTH)
+    assert client.resource_type('/repositories/2/resources/2') == 'resource'
+    assert client.resource_type('/repositories/2/archival_objects/3') == 'resource_component'
+
+@vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_resource_type.yaml'))
+def test_get_resource_type_raises_on_invalid_input():
+    client = ArchivesSpaceClient(**AUTH)
+    with pytest.raises(ArchivesSpaceError):
+        client.resource_type('invalid')
