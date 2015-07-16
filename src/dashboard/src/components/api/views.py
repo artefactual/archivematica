@@ -459,19 +459,15 @@ def fetch_levels_of_description_from_atom(request):
     """
     try:
         helpers.get_atom_levels_of_description(clear=True)
-        success = True
     except Exception as e:
         message = str(e)
-        success = False
-
-    if success:
-        return get_levels_of_description(request)
-    else:
         body = {
             "success": False,
             "error": message
         }
         return helpers.json_response(body, status_code=500)
+    else:
+        return get_levels_of_description(request)
 
 def path_metadata(request):
     """
