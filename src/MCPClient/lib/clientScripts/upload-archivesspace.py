@@ -4,7 +4,8 @@ import argparse
 import logging
 import os
 
-from main.models import ArchivesSpaceDIPObjectResourcePairing
+from main.models import ArchivesSpaceDIPObjectResourcePairing, File
+from fpr.models import FormatVersion
 
 # archivematicaCommon
 from archivesspace.client import ArchivesSpaceClient
@@ -117,6 +118,23 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
             if access_rightsGrantedNote:
                 access_conditions = access_rightsGrantedNote
 
+        # Get file & format info
+        # Client wants access copy info
+        try:
+            access_file = File.objects.get(
+                filegrpuse='access',
+                original_file_set__source_file=uuid
+            )
+        except (File.DoesNotExist, File.MultipleObjectsReturned):
+            size = format_name = format_version = None
+        else:
+            # HACK remove DIP from the path because create DIP doesn't
+            access_file_path = access_file.currentlocation.replace('%SIPDirectory%DIP/', dip_location)
+            size = os.path.getsize(access_file_path)
+            fv = FormatVersion.objects.get(fileformatversion__file_uuid=access_file.uuid)
+            format_version = fv.description
+            format_name = fv.format.description.lower()
+
         logger.info("Uploading {} to ArchivesSpace record {}".format(file_name, as_resource))
         client.add_digital_object(as_resource,
                                   dashboard_uuid,
@@ -130,7 +148,11 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
                                   xlink_actuate=xlink_actuate,
                                   restricted=restrictions_apply,
                                   use_conditions=use_conditions,
-                                  access_conditions=access_conditions)
+                                  access_conditions=access_conditions,
+                                  size=size,
+                                  format_name=format_name,
+                                  format_version=format_version,
+        )
 
         delete_pairs(dip_uuid)
 

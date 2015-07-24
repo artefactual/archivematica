@@ -1,10 +1,13 @@
 import json
+import logging
 import os
 import re
 import requests
 from urlparse import urlparse
 
 __all__ = ['ArchivesSpaceError', 'ConnectionError', 'AuthenticationError', 'ArchivesSpaceClient']
+
+LOGGER = logging.getLogger(__name__)
 
 
 class ArchivesSpaceError(Exception):
@@ -77,6 +80,8 @@ class ArchivesSpaceClient(object):
 
         response = method(self.host + url, params=params, data=data)
         if response.status_code != expected_response:
+            LOGGER.error('Response code: %s', response.status_code)
+            LOGGER.error('Response body: %s', response.text)
             # session has expired; acquire a new session, then retry once
             if retry and response.status_code == 412 and "SESSION_GONE" in response.text:
                 self._login()
@@ -427,7 +432,7 @@ class ArchivesSpaceClient(object):
 
         return resources_augmented
 
-    def add_digital_object(self, parent_archival_object, dashboard_uuid, title="", identifier=None, uri=None, object_type="text", xlink_show="embed", xlink_actuate="onLoad", restricted=False, use_statement="", use_conditions=None, access_conditions=None):
+    def add_digital_object(self, parent_archival_object, dashboard_uuid, title="", identifier=None, uri=None, object_type="text", xlink_show="embed", xlink_actuate="onLoad", restricted=False, use_statement="", use_conditions=None, access_conditions=None, size=None, format_name=None, format_version=None):
         """
         Creates a new digital object.
 
@@ -444,6 +449,9 @@ class ArchivesSpaceClient(object):
             If provided, creates a "conditions governing use" note in the digital object.
         :param string access_conditions: A paragraph of human-readable text to specify conditions of use for the digital object.
             If provided, creates a "conditions governing access" note in the digital object.
+        :param int size: Size in bytes of the digital object
+        :param str format_name: Name of the digital object's format
+        :param str format_version: Name of the digital object's format version
         """
         parent_record = self.get_record(parent_archival_object)
         repository = parent_record['repository']['ref']
@@ -491,6 +499,13 @@ class ArchivesSpaceClient(object):
             })
         if not restricted:
             new_object["file_versions"][0]["publish"] = True
+
+        if size:
+            new_object['file_versions'][0]['file_size_bytes'] = size
+        if format_name:
+            new_object['file_versions'][0]['file_format_name'] = format_name
+        if format_version:
+            new_object['file_versions'][0]['file_format_version'] = format_version
 
         new_object_uri = self._post(repository + '/digital_objects', data=json.dumps(new_object)).json()["uri"]
 
