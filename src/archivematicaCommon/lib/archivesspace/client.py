@@ -483,6 +483,8 @@ class ArchivesSpaceClient(object):
                 "content": [dashboard_uuid]
             }],
             "restrictions": restricted,
+            "subjects": parent_record['subjects'],
+            "linked_agents": parent_record['linked_agents'],
         }
 
         if use_conditions:
