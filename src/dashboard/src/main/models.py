@@ -28,7 +28,6 @@ from django import forms
 
 # Third party dependencies, alphabetical by import source
 from django_extensions.db.fields import UUIDField
-import requests
 
 # This project, alphabetical by import source
 from contrib import utils

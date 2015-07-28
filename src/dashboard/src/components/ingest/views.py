@@ -23,8 +23,8 @@ import json
 import logging
 from lxml import etree
 import os
+import requests
 import shutil
-import socket
 import sys
 from urlparse import urljoin
 
@@ -56,10 +56,6 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
 import elasticSearchFunctions
 import storageService as storage_service
-
-
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import requests
 
 logger = logging.getLogger('archivematica.dashboard')
 
