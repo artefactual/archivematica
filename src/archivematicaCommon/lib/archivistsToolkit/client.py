@@ -222,7 +222,7 @@ class ArchivistsToolkitClient(object):
 
         return (ArchivistsToolkitClient.RESOURCE, self.find_resource_id_for_component(component_id))
 
-    def find_collection_ids(self, search_pattern='', page=None, page_size=30):
+    def find_collection_ids(self, search_pattern='', identifier='', page=None, page_size=30):
         """
         Fetches a list of all resource IDs for every resource in the database.
 
@@ -235,12 +235,24 @@ class ArchivistsToolkitClient(object):
         """
         cursor = self.db.cursor()
 
-        if search_pattern == '':
+        if search_pattern == '' and identifier == '':
             sql = "SELECT resourceId FROM Resources ORDER BY title"
             params = ()
         else:
-            sql = "SELECT resourceId FROM Resources WHERE (title LIKE %s OR resourceid LIKE %s) AND resourceLevel in ('recordgrp', 'collection') ORDER BY title"
-            params = ('%' + search_pattern + '%', '%' + search_pattern + '%')
+            clause = 'resourceid LIKE %s'
+            params = ['%' + search_pattern + '%']
+
+            if search_pattern != '':
+                clause = 'title LIKE %s OR' + clause
+                params.insert(0, '%' + search_pattern + '%')
+
+            if identifier != '':
+                clause = 'resourceIdentifier1 LIKE %s OR ' + clause
+                params.insert(0, '%' + identifier + '%')
+
+            params = tuple(params)
+
+            sql = "SELECT resourceId FROM Resources WHERE ({}) AND resourceLevel in ('recordgrp', 'collection') ORDER BY title".format(clause)
 
         if page is not None:
             start = (page - 1) * page_size
@@ -267,8 +279,8 @@ class ArchivistsToolkitClient(object):
 
         return resources_augmented
 
-    def count_collections(self, search_pattern=''):
-        return len(self.find_collection_ids(search_pattern))
+    def count_collections(self, search_pattern='', identifier=''):
+        return len(self.find_collection_ids(search_pattern, identifier))
 
-    def find_collections(self, search_pattern='', page=1, page_size=30):
-        return self.augment_resource_ids(self.find_collection_ids(search_pattern, page=page, page_size=page_size))
+    def find_collections(self, search_pattern='', identifier='', page=1, page_size=30):
+        return self.augment_resource_ids(self.find_collection_ids(search_pattern, identifier, page=page, page_size=page_size))

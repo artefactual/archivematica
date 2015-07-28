@@ -133,3 +133,22 @@ def test_get_resource_type_raises_on_invalid_input():
     client = ArchivesSpaceClient(**AUTH)
     with pytest.raises(ArchivesSpaceError):
         client.resource_type('invalid')
+
+@vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_identifier_exact_match.yaml'))
+def test_identifier_search_exact_match():
+    client = ArchivesSpaceClient(**AUTH)
+    assert client.find_collection_ids(identifier='F1') == ['/repositories/2/resources/1']
+    assert client.count_collections(identifier='F1') == 1
+    assert len(client.find_collections(identifier='F1')) == 1
+
+@vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_identifier_wildcard.yaml'))
+def test_identifier_search_wildcard():
+    client = ArchivesSpaceClient(**AUTH)
+    # Searching for an identifier prefix with no wildcard returns nothing
+    assert client.find_collection_ids(identifier='F') == []
+    assert client.count_collections(identifier='F') == 0
+    assert len(client.find_collections(identifier='F')) == 0
+
+    assert client.find_collection_ids(identifier='F*') == ['/repositories/2/resources/1', '/repositories/2/resources/2']
+    assert client.count_collections(identifier='F*') == 2
+    assert len(client.find_collections(identifier='F*')) == 2

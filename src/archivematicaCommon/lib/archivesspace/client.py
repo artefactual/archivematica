@@ -289,7 +289,7 @@ class ArchivesSpaceClient(object):
         else:
             return (ArchivesSpaceClient.RESOURCE, component_id)
 
-    def find_collection_ids(self, search_pattern='', fetched=0, page=1):
+    def find_collection_ids(self, search_pattern='', identifier='', fetched=0, page=1):
         """
         Fetches a list of resource URLs for every resource in the database.
 
@@ -297,6 +297,9 @@ class ArchivesSpaceClient(object):
             The search will match any title containing this string;
             for example, "text" will match "this title has this text in it".
             If omitted, then all resources will be fetched.
+        :param string identifier: Only records containing this identifier will be returned.
+            Substring matching will not be performed; however, wildcards are supported.
+            For example, searching "F1" will only return records with the identifier "F1", while searching "F*" will return "F1", "F2", etc.
 
         :return list: A list containing every matched resource's URL.
         """
@@ -304,8 +307,13 @@ class ArchivesSpaceClient(object):
             'page': page,
             'q': 'primary_type:resource'
         }
+
         if search_pattern != '':
             params['q'] = params['q'] + ' AND title:{}'.format(search_pattern)
+
+        if identifier != '':
+            params['q'] = params['q'] + ' AND identifier:{}'.format(identifier)
+
         response = self._get(self.repository + '/search', params=params)
         hits = response.json()
         results = [r['uri'] for r in hits['results']]
@@ -316,16 +324,21 @@ class ArchivesSpaceClient(object):
 
         return results
 
-    def count_collections(self, search_pattern=''):
+    def count_collections(self, search_pattern='', identifier=''):
         params = {
             'page': 1,
             'q': 'primary_type:resource'
         }
+
         if search_pattern != '':
             params['q'] = params['q'] + ' AND title:{}'.format(search_pattern)
+
+        if identifier != '':
+            params['q'] = params['q'] + ' AND identifier:{}'.format(identifier)
+
         return self._get(self.repository + '/search', params=params).json()['total_hits']
 
-    def find_collections(self, search_pattern='', fetched=0, page=1, page_size=30, sort_by=None):
+    def find_collections(self, search_pattern='', identifier='', fetched=0, page=1, page_size=30, sort_by=None):
         def format_record(record):
             dates = self._fetch_dates_from_record(record)
             identifier = record['id_0'] if 'id_0' in record else record.get('component_id', '')
@@ -346,6 +359,9 @@ class ArchivesSpaceClient(object):
 
         if search_pattern != '':
             params['q'] = params['q'] + ' AND title:{}'.format(search_pattern)
+
+        if identifier != '':
+            params['q'] = params['q'] + ' AND identifier:{}'.format(identifier)
 
         if sort_by is not None:
             params['sort'] = 'title_sort ' + sort_by
