@@ -17,17 +17,17 @@
 
 import json
 import logging
-import requests_1_20 as requests
 import socket
 import sys
 import urlparse
 import uuid
 
+import requests
+
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.shortcuts import redirect
 
