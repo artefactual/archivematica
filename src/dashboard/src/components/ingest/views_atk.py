@@ -47,10 +47,11 @@ def ingest_upload_atk(request, uuid):
     try:
         client = get_atk_system_client()
         query = request.GET.get('query', '').strip()
+        identifier = request.GET.get('identifier', '').strip()
         page = request.GET.get('page', 1)
         search_params = advanced_search.extract_url_search_params_from_request(request)
 
-        return pair_matcher.list_records(client, request, query, page,
+        return pair_matcher.list_records(client, request, query, identifier, page,
                                          search_params,
                                          'ingest/atk/resource_list.html',
                                          _get_reset_view(uuid),

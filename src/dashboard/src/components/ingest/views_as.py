@@ -49,11 +49,12 @@ def _authenticate_to_archivesspace(func):
 @_authenticate_to_archivesspace
 def ingest_upload_as(client, request, uuid):
     query = request.GET.get('query', '').strip()
+    identifier = request.GET.get('identifier', '').strip()
     page = request.GET.get('page', 1)
     sort = request.GET.get('sort')
     search_params = advanced_search.extract_url_search_params_from_request(request)
 
-    return pair_matcher.list_records(client, request, query, page,
+    return pair_matcher.list_records(client, request, query, identifier, page,
                                      sort, search_params,
                                      'ingest/as/resource_list.html',
                                      _get_reset_view(uuid),
