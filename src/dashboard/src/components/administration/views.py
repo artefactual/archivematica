@@ -157,7 +157,6 @@ def administration_as_dips(request):
             new_mscrDic.save()
             logger.debug('Done')
             messages.info(request, 'Saved.')
-            valid_submission = True
     else:
         form = ArchivesSpaceConfigForm(instance=as_config)
     return render(request, 'administration/dips_as_edit.html', locals())
@@ -227,32 +226,39 @@ def administration_atk_dips(request):
     atk = ArchivistsToolkitConfig.objects.all()[0]
     if request.POST:
         form = ArchivistsToolkitConfigForm(request.POST, instance=atk)
-        usingpass =  atk.dbpass
+        usingpass = atk.dbpass
         if form.is_valid():
             newatk = form.save()
             if newatk.dbpass != '' and newatk.dbpass != usingpass:
                 usingpass = newatk.dbpass
             else:
                 newatk.dbpass = usingpass
-             #save this new form data into MicroServiceChoiceReplacementDic
-            new_settings_string = '{{"%host%":"{}", "%port%":"{}", "%dbname%":"{}", "%dbuser%":"{}", "%dbpass%":"{}", \
-                                   "%atuser%":"{}", "%restrictions%":"{}", "%object_type%":"{}", "%ead_actuate%":"{}", \
-                                   "%ead_show%":"{}", "%use_statement%":"{}", "%uri_prefix%":"{}", "%access_conditions%":"{}", \
-                                   "%use_conditions%":"{}"}}'.format(newatk.host, newatk.port, newatk.dbname, newatk.dbuser,
-                                                                    usingpass,newatk.atuser,newatk.premis, newatk.object_type,
-                                                                    newatk.ead_actuate, newatk.ead_show,newatk.use_statement,
-                                                                    newatk.uri_prefix, newatk.access_conditions, newatk.use_conditions)
-            logger.debug('new settings '+ new_settings_string)                       
+            # Save this new form data into MicroServiceChoiceReplacementDic
+            settings = {
+                "%host%": newatk.host,
+                "%port%": newatk.port,
+                "%dbname%": newatk.dbname,
+                "%dbuser%": newatk.dbuser,
+                "%dbpass%": usingpass,
+                "%atuser%": newatk.atuser,
+                "%restrictions%": newatk.premis,
+                "%object_type%": newatk.object_type,
+                "%ead_actuate%": newatk.ead_actuate,
+                "%ead_show%": newatk.ead_show,
+                "%use_statement%": newatk.use_statement,
+                "%uri_prefix%": newatk.uri_prefix,
+                "%access_conditions%": newatk.access_conditions,
+                "%use_conditions%": newatk.use_conditions,
+            }
+            logger.debug('New ATK settings %s', settings)
             new_mscrDic = models.MicroServiceChoiceReplacementDic.objects.get(description='Archivists Toolkit Config')
-            logger.debug('trying to save mscr ' + new_mscrDic.description)
+            logger.debug('Trying to save mscr %s', new_mscrDic.description)
             newatk.save()
-            logger.debug('old: ' + new_mscrDic.replacementdic)
-            new_mscrDic.replacementdic = new_settings_string
-            logger.debug('new: ' + new_mscrDic.replacementdic)
-            new_mscrDic.save() 
-            logger.debug('done')
+            logger.debug('Old: %s', new_mscrDic.replacementdic)
+            new_mscrDic.replacementdic = str(settings)
+            logger.debug('New: %s', new_mscrDic.replacementdic)
+            new_mscrDic.save()
             messages.info(request, 'Saved.')
-            valid_submission = True
     else:
         form = ArchivistsToolkitConfigForm(instance=atk)
     return render(request, 'administration/dips_atk_edit.html', locals())
@@ -265,47 +271,6 @@ def dips_formset():
         extra=0,
         can_delete=True
     )
-
-def dips_handle_updates(request, link_id, ReplaceDirChoiceFormSet):
-    valid_submission = True
-    formset = None
-
-    add_form = forms.MicroServiceChoiceReplacementDicForm()
-
-    if request.method == 'POST':
-        # if any new configuration data has been submitted, attempt to add it
-        if request.POST.get('description', '') != '' or request.POST.get('replacementdic', '') != '':
-            postData = request.POST.copy()
-            postData['choiceavailableatlink'] = link_id
-
-            add_form = forms.MicroServiceChoiceReplacementDicForm(postData)
-
-            if add_form.is_valid():
-                choice = models.MicroServiceChoiceReplacementDic()
-                choice.choiceavailableatlink = link_id
-                choice.description           = request.POST.get('description', '')
-                choice.replacementdic        = request.POST.get('replacementdic', '')
-                choice.save()
-
-                # create new blank field
-                add_form = forms.MicroServiceChoiceReplacementDicForm()
-
-        formset = ReplaceDirChoiceFormSet(request.POST)
-
-        # take note of formset validity because if submission was successful
-        # we reload it to reflect
-        # deletions, etc.
-        valid_submission = formset.is_valid()
-
-        if valid_submission:
-            # save/delete partial data (without association with specific link)
-            instances = formset.save()
-
-            # restore link association
-            for instance in instances:
-                instance.choiceavailableatlink = link_id
-                instance.save()
-    return valid_submission, formset, add_form
 
 def storage(request):
     try:

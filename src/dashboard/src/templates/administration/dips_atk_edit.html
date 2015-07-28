@@ -17,28 +17,17 @@
 
 {% block content %}
 
-  <div class="row">
-
+<div class="row">
   {% include "administration/sidebar.html" %}
-
   <div class="span12">
     <h3>Archivists Toolkit DIP upload</h3>
-    {% if valid_submission %}
-        Form data saved
-    {% endif %}
-<p>
-
-
     <form class="form-stacked" method="post" action="{% url 'components.administration.views.administration_atk_dips' %}">
-
-    {% include "_form.html" %}
-
-	
-	<div class="actions">
+      {% include "_form.html" %}
+      <div class="actions">
         <button type="submit" class="btn primary">Save</button>
-        </div>
+      </div>
     </form>
-  
+  </div>
 </div>
 
 {% endblock %}
