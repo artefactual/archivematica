@@ -20,7 +20,7 @@
 # @package Archivematica
 # @subpackage FPRClient
 # @author Joseph Perry <joseph@artefactual.com>
-import ast
+
 from optparse import OptionParser
 from httplib import responses
 import urlparse
@@ -74,6 +74,9 @@ def _get_from_rest_api(resource="", params=None, url="https://fpr.archivematica.
     # TOOD make this use slumber
     # How to dynamically set resource in api.resource.get()
     parsed_url = urlparse.urlparse(url)
+
+    if resource and not resource.endswith('/'):
+        resource += '/'
 
     # Don't make any modifications to existing querystring
     if parsed_url.query:

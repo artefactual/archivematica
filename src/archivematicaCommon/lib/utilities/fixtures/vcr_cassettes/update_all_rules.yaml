@@ -7,23 +7,6 @@ interactions:
       Connection: [keep-alive]
       User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-43-generic]
     method: GET
-    uri: http://localhost:9000/fpr/api/v2/format?limit=100&format=json
-  response:
-    body: {string: !!python/unicode ''}
-    headers:
-      content-type: [text/html; charset=utf-8]
-      date: ['Wed, 29 Jul 2015 18:54:57 GMT']
-      location: ['http://localhost:9000/fpr/api/v2/format/?limit=100&format=json']
-      server: [WSGIServer/0.1 Python/2.7.6]
-    status: {code: 301, message: MOVED PERMANENTLY}
-- request:
-    body: null
-    headers:
-      Accept: ['*/*']
-      Accept-Encoding: ['gzip, deflate']
-      Connection: [keep-alive]
-      User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-43-generic]
-    method: GET
     uri: http://localhost:9000/fpr/api/v2/format/?limit=100&format=json
   response:
     body: {string: !!python/unicode '{"meta": {"limit": 100, "next": null, "offset":
@@ -103,27 +86,10 @@ interactions:
     headers:
       cache-control: [no-cache]
       content-type: [application/json]
-      date: ['Wed, 29 Jul 2015 18:54:57 GMT']
+      date: ['Wed, 29 Jul 2015 18:55:24 GMT']
       server: [WSGIServer/0.1 Python/2.7.6]
       vary: ['Accept, Cookie']
     status: {code: 200, message: OK}
-- request:
-    body: null
-    headers:
-      Accept: ['*/*']
-      Accept-Encoding: ['gzip, deflate']
-      Connection: [keep-alive]
-      User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-43-generic]
-    method: GET
-    uri: http://localhost:9000/fpr/api/v2/format-version?order_by=lastmodified&lastmodified__gte=2000-01-01T00%3A00%3A00&limit=100&format=json
-  response:
-    body: {string: !!python/unicode ''}
-    headers:
-      content-type: [text/html; charset=utf-8]
-      date: ['Wed, 29 Jul 2015 18:54:57 GMT']
-      location: ['http://localhost:9000/fpr/api/v2/format-version/?order_by=lastmodified&lastmodified__gte=2000-01-01T00%3A00%3A00&limit=100&format=json']
-      server: [WSGIServer/0.1 Python/2.7.6]
-    status: {code: 301, message: MOVED PERMANENTLY}
 - request:
     body: null
     headers:
@@ -199,27 +165,10 @@ interactions:
     headers:
       cache-control: [no-cache]
       content-type: [application/json]
-      date: ['Wed, 29 Jul 2015 18:54:57 GMT']
+      date: ['Wed, 29 Jul 2015 18:55:24 GMT']
       server: [WSGIServer/0.1 Python/2.7.6]
       vary: ['Accept, Cookie']
     status: {code: 200, message: OK}
-- request:
-    body: null
-    headers:
-      Accept: ['*/*']
-      Accept-Encoding: ['gzip, deflate']
-      Connection: [keep-alive]
-      User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-43-generic]
-    method: GET
-    uri: http://localhost:9000/fpr/api/v2/id-tool?limit=100&format=json
-  response:
-    body: {string: !!python/unicode ''}
-    headers:
-      content-type: [text/html; charset=utf-8]
-      date: ['Wed, 29 Jul 2015 18:54:57 GMT']
-      location: ['http://localhost:9000/fpr/api/v2/id-tool/?limit=100&format=json']
-      server: [WSGIServer/0.1 Python/2.7.6]
-    status: {code: 301, message: MOVED PERMANENTLY}
 - request:
     body: null
     headers:
@@ -240,27 +189,10 @@ interactions:
     headers:
       cache-control: [no-cache]
       content-type: [application/json]
-      date: ['Wed, 29 Jul 2015 18:54:57 GMT']
+      date: ['Wed, 29 Jul 2015 18:55:24 GMT']
       server: [WSGIServer/0.1 Python/2.7.6]
       vary: ['Accept, Cookie']
     status: {code: 200, message: OK}
-- request:
-    body: null
-    headers:
-      Accept: ['*/*']
-      Accept-Encoding: ['gzip, deflate']
-      Connection: [keep-alive]
-      User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-43-generic]
-    method: GET
-    uri: http://localhost:9000/fpr/api/v2/id-command?order_by=lastmodified&lastmodified__gte=2000-01-01T00%3A00%3A00&limit=100&format=json
-  response:
-    body: {string: !!python/unicode ''}
-    headers:
-      content-type: [text/html; charset=utf-8]
-      date: ['Wed, 29 Jul 2015 18:54:57 GMT']
-      location: ['http://localhost:9000/fpr/api/v2/id-command/?order_by=lastmodified&lastmodified__gte=2000-01-01T00%3A00%3A00&limit=100&format=json']
-      server: [WSGIServer/0.1 Python/2.7.6]
-    status: {code: 301, message: MOVED PERMANENTLY}
 - request:
     body: null
     headers:
@@ -316,27 +248,10 @@ interactions:
     headers:
       cache-control: [no-cache]
       content-type: [application/json]
-      date: ['Wed, 29 Jul 2015 18:54:57 GMT']
+      date: ['Wed, 29 Jul 2015 18:55:24 GMT']
       server: [WSGIServer/0.1 Python/2.7.6]
       vary: ['Accept, Cookie']
     status: {code: 200, message: OK}
-- request:
-    body: null
-    headers:
-      Accept: ['*/*']
-      Accept-Encoding: ['gzip, deflate']
-      Connection: [keep-alive]
-      User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-43-generic]
-    method: GET
-    uri: http://localhost:9000/fpr/api/v2/id-rule?order_by=lastmodified&lastmodified__gte=2000-01-01T00%3A00%3A00&limit=100&format=json
-  response:
-    body: {string: !!python/unicode ''}
-    headers:
-      content-type: [text/html; charset=utf-8]
-      date: ['Wed, 29 Jul 2015 18:54:57 GMT']
-      location: ['http://localhost:9000/fpr/api/v2/id-rule/?order_by=lastmodified&lastmodified__gte=2000-01-01T00%3A00%3A00&limit=100&format=json']
-      server: [WSGIServer/0.1 Python/2.7.6]
-    status: {code: 301, message: MOVED PERMANENTLY}
 - request:
     body: null
     headers:
@@ -364,27 +279,10 @@ interactions:
     headers:
       cache-control: [no-cache]
       content-type: [application/json]
-      date: ['Wed, 29 Jul 2015 18:54:57 GMT']
+      date: ['Wed, 29 Jul 2015 18:55:24 GMT']
       server: [WSGIServer/0.1 Python/2.7.6]
       vary: ['Accept, Cookie']
     status: {code: 200, message: OK}
-- request:
-    body: null
-    headers:
-      Accept: ['*/*']
-      Accept-Encoding: ['gzip, deflate']
-      Connection: [keep-alive]
-      User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-43-generic]
-    method: GET
-    uri: http://localhost:9000/fpr/api/v2/fp-tool?limit=100&format=json
-  response:
-    body: {string: !!python/unicode ''}
-    headers:
-      content-type: [text/html; charset=utf-8]
-      date: ['Wed, 29 Jul 2015 18:54:57 GMT']
-      location: ['http://localhost:9000/fpr/api/v2/fp-tool/?limit=100&format=json']
-      server: [WSGIServer/0.1 Python/2.7.6]
-    status: {code: 301, message: MOVED PERMANENTLY}
 - request:
     body: null
     headers:
@@ -431,27 +329,10 @@ interactions:
     headers:
       cache-control: [no-cache]
       content-type: [application/json]
-      date: ['Wed, 29 Jul 2015 18:54:57 GMT']
+      date: ['Wed, 29 Jul 2015 18:55:24 GMT']
       server: [WSGIServer/0.1 Python/2.7.6]
       vary: ['Accept, Cookie']
     status: {code: 200, message: OK}
-- request:
-    body: null
-    headers:
-      Accept: ['*/*']
-      Accept-Encoding: ['gzip, deflate']
-      Connection: [keep-alive]
-      User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-43-generic]
-    method: GET
-    uri: http://localhost:9000/fpr/api/v2/fp-command?order_by=lastmodified&lastmodified__gte=2000-01-01T00%3A00%3A00&limit=100&format=json
-  response:
-    body: {string: !!python/unicode ''}
-    headers:
-      content-type: [text/html; charset=utf-8]
-      date: ['Wed, 29 Jul 2015 18:54:57 GMT']
-      location: ['http://localhost:9000/fpr/api/v2/fp-command/?order_by=lastmodified&lastmodified__gte=2000-01-01T00%3A00%3A00&limit=100&format=json']
-      server: [WSGIServer/0.1 Python/2.7.6]
-    status: {code: 301, message: MOVED PERMANENTLY}
 - request:
     body: null
     headers:
@@ -580,27 +461,10 @@ interactions:
     headers:
       cache-control: [no-cache]
       content-type: [application/json]
-      date: ['Wed, 29 Jul 2015 18:54:58 GMT']
+      date: ['Wed, 29 Jul 2015 18:55:24 GMT']
       server: [WSGIServer/0.1 Python/2.7.6]
       vary: ['Accept, Cookie']
     status: {code: 200, message: OK}
-- request:
-    body: null
-    headers:
-      Accept: ['*/*']
-      Accept-Encoding: ['gzip, deflate']
-      Connection: [keep-alive]
-      User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-43-generic]
-    method: GET
-    uri: http://localhost:9000/fpr/api/v2/fp-rule?order_by=lastmodified&lastmodified__gte=2000-01-01T00%3A00%3A00&limit=100&format=json
-  response:
-    body: {string: !!python/unicode ''}
-    headers:
-      content-type: [text/html; charset=utf-8]
-      date: ['Wed, 29 Jul 2015 18:54:58 GMT']
-      location: ['http://localhost:9000/fpr/api/v2/fp-rule/?order_by=lastmodified&lastmodified__gte=2000-01-01T00%3A00%3A00&limit=100&format=json']
-      server: [WSGIServer/0.1 Python/2.7.6]
-    status: {code: 301, message: MOVED PERMANENTLY}
 - request:
     body: null
     headers:
@@ -648,7 +512,7 @@ interactions:
     headers:
       cache-control: [no-cache]
       content-type: [application/json]
-      date: ['Wed, 29 Jul 2015 18:54:58 GMT']
+      date: ['Wed, 29 Jul 2015 18:55:24 GMT']
       server: [WSGIServer/0.1 Python/2.7.6]
       vary: ['Accept, Cookie']
     status: {code: 200, message: OK}
