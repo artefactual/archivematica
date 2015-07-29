@@ -674,7 +674,7 @@ class MicroServiceChoiceReplacementDic(models.Model):
     description = models.TextField(db_column='description', verbose_name='Description')
     replacementdic = models.TextField(db_column='replacementDic', verbose_name='Configuration')
     replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 
     def clean(self):
         error = None
