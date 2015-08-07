@@ -18,6 +18,7 @@
 from django import forms
 from django.conf import settings
 
+from helpers import clean_date
 from main import models
 
 class RightsForm(forms.ModelForm):
@@ -53,6 +54,12 @@ class RightsGrantedForm(forms.ModelForm):
             'enddate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The ending date of the rights or restrictions granted"}),
             'enddateopen': forms.widgets.CheckboxInput(attrs={'title': 'Use "OPEN" for an open ended term of restriction. Omit end date if the ending date is unknown or the permission statement applies to many objects with different end dates.'}), }
 
+    def clean_startdate(self):
+        return clean_date(self.cleaned_data['startdate'])
+
+    def clean_enddate(self):
+        return clean_date(self.cleaned_data['enddate'])
+
 class RightsGrantedNotesForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementRightsGrantedNote
@@ -70,6 +77,15 @@ class RightsCopyrightForm(forms.ModelForm):
             'copyrightstatusdeterminationdate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The date that the copyright status recorded in 'copyright status' was determined."}),
             'copyrightapplicablestartdate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The date when the particular copyright applies or is applied to the content."}),
             'copyrightapplicableenddate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The date when the particular copyright no longer applies or is applied to the content."}), }
+
+    def clean_copyrightstatusdeterminationdate(self):
+        return clean_date(self.cleaned_data['copyrightstatusdeterminationdate'])
+
+    def clean_copyrightapplicablestartdate(self):
+        return clean_date(self.cleaned_data['copyrightapplicablestartdate'])
+
+    def clean_copyrightapplicableenddate(self):
+        return clean_date(self.cleaned_data['copyrightapplicableenddate'])
 
 class RightsStatementCopyrightDocumentationIdentifierForm(forms.ModelForm):
     class Meta:
@@ -99,6 +115,15 @@ class RightsStatuteForm(forms.ModelForm):
             'statuteapplicablestartdate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The date when the statute begins to apply or is applied to the content."}),
             'statuteapplicableenddate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The date when the statute ceasees to apply or be applied to the content."}), }
 
+    def clean_statutedeterminationdate(self):
+        return clean_date(self.cleaned_data['statutedeterminationdate'])
+
+    def clean_statuteapplicablestartdate(self):
+        return clean_date(self.cleaned_data['statuteapplicablestartdate'])
+
+    def clean_statuteapplicableenddate(self):
+        return clean_date(self.cleaned_data['statuteapplicableenddate'])
+
 class RightsStatuteNoteForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementStatuteInformationNote
@@ -115,6 +140,12 @@ class RightsOtherRightsForm(forms.ModelForm):
             'otherrightsapplicablestartdate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The date when the other right applies or is applied to the content."}),
             'otherrightsapplicableenddate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The date when the other right no longer applies or is applied to the content."}), }
 
+    def clean_otherrightsapplicablestartdate(self):
+        return clean_date(self.cleaned_data['otherrightsapplicablestartdate'])
+
+    def clean_otherrightsapplicableenddate(self):
+        return clean_date(self.cleaned_data['otherrightsapplicableenddate'])
+
 class RightsLicenseForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatementLicense
@@ -123,6 +154,12 @@ class RightsLicenseForm(forms.ModelForm):
             'licenseterms': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "Text describing the license or agreement by which permission as granted."}),
             'licenseapplicablestartdate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The date at which the license first applies or is applied to the content."}),
             'licenseapplicableenddate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The end date at which the license no longer applies or is applied to the content."}), }
+
+    def clean_licenseapplicablestartdate(self):
+        return clean_date(self.cleaned_data['licenseapplicablestartdate'])
+
+    def clean_licenseapplicableenddate(self):
+        return clean_date(self.cleaned_data['licenseapplicableenddate'])
 
 class RightsLicenseNoteForm(forms.ModelForm):
     class Meta:
