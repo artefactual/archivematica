@@ -13,6 +13,7 @@ A few additional stylistic preferences might not get flagged by linters:
 * Don't use variable or parameter names that shadow builtin functions and types.
   For example, don't name a variable "file".
   (Unfortunately, Python uses many useful names for its builtin types and functions.)
+* Sort imports alphabetically within their grouping to reduce duplicate imports.
 
 ### Exceptions
 
@@ -38,3 +39,4 @@ Generally any function which isn't obvious (any function longer than a line or t
 When in doubt: document!
 Python's [PEP 257](https://www.python.org/dev/peps/pep-0257/) document provides a useful guideline for docstring style.
 Generally, prefer using [Sphinx-compatible docstrings](http://pythonhosted.org/an_example_pypi_project/sphinx.html#function-definitions).
+More [examples](http://sphinx-doc.org/domains.html#info-field-lists) and [attributes to use](http://sphinx-doc.org/domains.html#the-python-domain) can be found on the Sphinx website.
