@@ -40,3 +40,17 @@ When in doubt: document!
 Python's [PEP 257](https://www.python.org/dev/peps/pep-0257/) document provides a useful guideline for docstring style.
 Generally, prefer using [Sphinx-compatible docstrings](http://pythonhosted.org/an_example_pypi_project/sphinx.html#function-definitions).
 More [examples](http://sphinx-doc.org/domains.html#info-field-lists) and [attributes to use](http://sphinx-doc.org/domains.html#the-python-domain) can be found on the Sphinx website.
+
+## Tests
+
+New code should also have unit tests.
+Tests are written in [unittest](https://docs.python.org/2/library/unittest.html) style and run with [py.test](http://pytest.org).
+For tests requiring the Django ORM, we use the Django-provided [TestCase](https://docs.djangoproject.com/en/1.8/topics/testing/tools/#django.test.TestCase), which extends `unittest.TestCase`.
+
+Tests are found in the `tests` directory, a sibling of the directory containing the code.
+`test_foo.py` contains tests for `foo.py`.
+For clarity, group tests for the same function and similar tests into the same class within that file.
+This will also allow you to share setup and teardown code.
+
+If you are testing code that makes HTTP requests, using [VCR.py](https://github.com/kevin1024/vcrpy) is highly recommended.
+It should already be a development dependency.
