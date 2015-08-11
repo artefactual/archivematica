@@ -13,23 +13,6 @@ A few additional stylistic preferences might not get flagged by linters:
 * Don't use variable or parameter names that shadow builtin functions and types.
   For example, don't name a variable "file".
   (Unfortunately, Python uses many useful names for its builtin types and functions.)
-* Most of the time, prefer importing specific names from modules instead of importing the entire module.
-  This makes it easier to tell at the top of a file what is being used from its dependencies.
-  For example:
-
-```python
-# Good
-
-from main.models import File
-
-f = File.objects.get(uuid="something")
-
-# Bad
-
-import main.models
-
-f = models.File.objects.get(uuid="something")
-```
 
 ### Exceptions
 
