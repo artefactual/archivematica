@@ -53,4 +53,5 @@ In particular:
 New classes and functions should generally be documented using [docstrings](https://en.wikipedia.org/wiki/Docstring#Python); these help in providing clarity, and can also be used to generate API documentation later.
 Generally any function which isn't obvious (any function longer than a line or two) should have a docstring.
 When in doubt: document!
-Generally, prefer using [Sphinx-style docstrings](http://pythonhosted.org/an_example_pypi_project/sphinx.html#function-definitions).
+Python's [PEP 257](https://www.python.org/dev/peps/pep-0257/) document provides a useful guideline for docstring style.
+Generally, prefer using [Sphinx-compatible docstrings](http://pythonhosted.org/an_example_pypi_project/sphinx.html#function-definitions).
