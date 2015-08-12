@@ -247,6 +247,10 @@ class ArchivistsToolkitClient(object):
             The search will match any title or resourceid containing this string;
             for example, "text" will match "this title has this text in it".
             If omitted, then all resources will be fetched.
+        :param string identifier: Restrict records to only those with this identifier.
+            This refers to the human-assigned record identifier, not the automatically generated internal ID.
+            Unlike the ArchivesSpaceClient version of this method, wildcards are not supported; however, identifiers which begin or end with this string will be returned.
+            For example, if the passed identifier is "A1", then records with an identifier of "A1", "SAA1", "A10", and "SAA10" will all be returned.
 
         :return list: A list containing every matched resource's ID.
         """
