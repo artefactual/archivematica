@@ -357,6 +357,23 @@ class ArchivesSpaceClient(object):
         return self._get(self.repository + '/search', params=params).json()['total_hits']
 
     def find_collections(self, search_pattern='', identifier='', accession='', fetched=0, page=1, page_size=30, sort_by=None):
+        """
+        Fetches a list of all resource IDs for every resource in the database.
+
+        :param string search_pattern: A search pattern to use in looking up resources by title or resourceid.
+            The search will match any title or resourceid containing this string;
+            for example, "text" will match "this title has this text in it".
+            If omitted, then all resources will be fetched.
+        :param string identifier: Restrict records to only those with this identifier.
+            This refers to the human-assigned record identifier, not the automatically generated internal ID.
+            This value can contain wildcards.
+        :param string accession: Restrict records to only those associated with this accession.
+            This should be provided using ArchivesSpace's internal format, for instance /repositories/2/accessions/1; it does not refer to human-assigned accession identifiers.
+            Use ArchivesSpaceClient.find_collections_by_accession to locate records via a human-assigned accession identifier.
+
+        :return: A list containing every matched resource's ID.
+        :rtype: list
+        """
         def format_record(record):
             dates = self._fetch_dates_from_record(record)
             identifier = record['id_0'] if 'id_0' in record else record.get('component_id', '')
