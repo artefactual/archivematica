@@ -356,7 +356,7 @@ class ArchivesSpaceClient(object):
 
         return self._get(self.repository + '/search', params=params).json()['total_hits']
 
-    def find_collections(self, search_pattern='', identifier='', fetched=0, page=1, page_size=30, sort_by=None):
+    def find_collections(self, search_pattern='', identifier='', accession='', fetched=0, page=1, page_size=30, sort_by=None):
         def format_record(record):
             dates = self._fetch_dates_from_record(record)
             identifier = record['id_0'] if 'id_0' in record else record.get('component_id', '')
@@ -381,12 +381,48 @@ class ArchivesSpaceClient(object):
         if identifier != '':
             params['q'] = params['q'] + ' AND identifier:{}'.format(identifier)
 
+        if accession != '':
+            params['q'] = params['q'] + ' AND accession:{}'.format(accession)
+
         if sort_by is not None:
             params['sort'] = 'title_sort ' + sort_by
 
         response = self._get(self.repository + '/search', params=params)
         hits = response.json()
         return [format_record(json.loads(r['json'])) for r in hits['results']]
+
+    def find_collections_by_accession(self, accession, search_pattern='', identifier='', page=1, page_size=30, sort_by=None):
+        """
+        Return all resources associated with an accession matching the provided accession number.
+
+        Other parameters match ArchivesSpaceClient.find_collections, and full documentation can be found there.
+
+        :param string accession: The accession number, as entered into ArchivesSpace.
+        :param string search_pattern: Limits resources to only those whose title matches this string.
+        :param string identifier: Limits resources to only those whose identifiers match this string.
+
+        :rtype: list
+        """
+        collections = []
+
+        params = {
+            'page': page,
+            'page_size': page_size,
+            'q': 'identifier:{}'.format(accession)
+        }
+        response = self._get(self.repository + '/search', params=params)
+        hits = response.json()
+
+        for record in hits['results']:
+            accession_identifier = record['uri']
+            collections.extend(self.find_collections(accession=accession_identifier,
+                                                     search_pattern=search_pattern,
+                                                     identifier=identifier,
+                                                     page=page,
+                                                     page_size=page_size,
+                                                     sort_by=sort_by))
+
+        return collections
 
     def find_by_field(self, field, search_pattern, fetched=0, page=1, page_size=30, sort_by=None):
         """
