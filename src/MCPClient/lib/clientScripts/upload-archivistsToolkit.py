@@ -143,7 +143,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
     #get a list of all the items in this collection
     #col = atk.collection_list(db, resource_id)
     #logger.debug("got collection_list: {}".format(len(col)))
-    sql0 = "select max(fileVersionId) from fileversions"
+    sql0 = "select max(fileVersionId) from FileVersions"
     logger.info('sql0: ' + sql0)
     cursor.execute(sql0)
     data = cursor.fetchone()
@@ -220,12 +220,12 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             if pairs[uuid]['rcid'] > 0:
                 val = pairs[uuid]['rcid']
                 sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
-                          resourcescomponents where resourcecomponentid = %s'''
+                          ResourcesComponents where resourcecomponentid = %s'''
             else:
                 is_resource = True
                 val = pairs[uuid]['rid']
                 sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
-                          resources where resourceid = %s'''
+                          Resources where resourceid = %s'''
                        
             logger.debug('sql1:' + sql1) 
             cursor.execute(sql1, (val,))
@@ -251,23 +251,23 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             logger.debug("dates are  " + str(dateBegin) + "-" + str(dateEnd))
             logger.debug("short file name is " + str(short_file_name))
  
-            sql2 = "select repositoryId from repositories" 
+            sql2 = "select repositoryId from Repositories" 
             logger.debug('sql2: ' + sql2)
 
             cursor.execute(sql2)
             data = cursor.fetchone()
             repoId = data[0]
             logger.debug('repoId: ' + str(repoId))
-            sql3 = " select max(archDescriptionInstancesId) from archdescriptioninstances"
+            sql3 = " select max(archDescriptionInstancesId) from ArchDescriptionInstances"
             logger.debug('sql3: ' + sql3) 
             cursor.execute(sql3)
             data = cursor.fetchone()
             newaDID = int(data[0]) + 1
 
             if is_resource:
-                sql4 = "insert into archdescriptioninstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceId) values (%s, 'digital', 'Digital object', %s)"
+                sql4 = "insert into ArchDescriptionInstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceId) values (%s, 'digital', 'Digital object', %s)"
             else:
-                sql4 = "insert into archdescriptioninstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceComponentId) values (%s, 'digital', 'Digital object', %s)"
+                sql4 = "insert into ArchDescriptionInstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceComponentId) values (%s, 'digital', 'Digital object', %s)"
         
             logger.debug('sql4:' + sql4)
             adid = process_sql(sql4, (newaDID, rcid))
@@ -279,22 +279,22 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             if not dateEnd:
                 dateEnd = 0
    
-            sql5 = """INSERT INTO digitalobjects                  
+            sql5 = """INSERT INTO DigitalObjects                  
                (`version`,`lastUpdated`,`created`,`lastUpdatedBy`,`createdBy`,`title`,
                 `dateExpression`,`dateBegin`,`dateEnd`,`languageCode`,`restrictionsApply`,
-                `eadDaoActuate`,`eadDaoShow`,`metsIdentifier`,`objectType`,`objectOrder`,
-                `archDescriptionInstancesId`,`repositoryId`)
-               VALUES (1, %s, %s, %s, %s, %s, %s, %s, %s, 'English', %s, %s, %s, %s, %s, 0, %s, %s)"""
+                `eadDaoActuate`,`eadDaoShow`,`metsIdentifier`,`objectType`,`label`, 
+                `objectOrder`,`archDescriptionInstancesId`,`repositoryId`)
+               VALUES (1, %s, %s, %s, %s, %s, %s, %s, %s, 'English', %s, %s, %s, %s, %s,' ',  0, %s, %s)"""
             logger.debug('sql5: ' + sql5)
             doID = process_sql(sql5, (time_now, time_now, atuser, atuser, short_file_name,dateExpression, dateBegin, dateEnd, int(restrictions_apply), ead_actuate, ead_show,uuid, object_type, newaDID, repoId))
-            sql6 = """insert into fileversions (fileVersionId, version, lastUpdated, created, lastUpdatedBy, createdBy, uri, useStatement, sequenceNumber, eadDaoActuate,eadDaoShow, digitalObjectId)
+            sql6 = """insert into FileVersions (fileVersionId, version, lastUpdated, created, lastUpdatedBy, createdBy, uri, useStatement, sequenceNumber, eadDaoActuate,eadDaoShow, digitalObjectId)
                   values 
                (%s, 1, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
             logger.debug('sql6: ' + sql6)
             process_sql(sql6, (base_fv_id,time_now, time_now,atuser,atuser,file_uri,use_statement,0, ead_actuate,ead_show, doID))
 
             #create notes
-            sql7 = " select max(archdescriptionrepeatingdataId) from archdescriptionrepeatingdata"
+            sql7 = " select max(archdescriptionrepeatingdataId) from ArchDescriptionRepeatingData"
             logger.debug('sql7: ' + sql7) 
             cursor.execute(sql7)
             data = cursor.fetchone()
@@ -304,7 +304,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             seq_num = 0
             note_content = dip_uuid
             logger.debug("about to run sql8")
-            sql8 = """insert into archdescriptionrepeatingdata 
+            sql8 = """insert into ArchDescriptionRepeatingData 
                 (archdescriptionrepeatingdataid, descriminator, version, lastupdated, created, lastupdatedby ,createdby, repeatingdatatype, title, sequenceNumber,
                 digitalObjectId, noteContent, notesetctypeid, basic, multiPart,internalOnly) values 
                 (%s, 'note', %s, %s, %s, %s, %s, 'Note', '', 0, %s, %s, 13, '', '', '')"""
@@ -316,7 +316,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             seq_num += 1
             note_content = access_conditions
         
-            sql9 = """insert into archdescriptionrepeatingdata 
+            sql9 = """insert into ArchDescriptionRepeatingData 
                 (archdescriptionrepeatingdataid, descriminator, version, lastupdated, created, lastupdatedby ,createdby, repeatingdatatype, title, sequenceNumber,
                 digitalObjectId, noteContent, notesetctypeid, basic, multipart, internalOnly) values 
                 (%s, 'note', 0, %s, %s, %s, %s, 'Note', '', %s, %s, %s, 8, '', '', '')"""
@@ -328,7 +328,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             seq_num += 1
             note_content = use_conditions
 
-            sql10 = """insert into archdescriptionrepeatingdata 
+            sql10 = """insert into ArchDescriptionRepeatingData 
                 (archdescriptionrepeatingdataid, descriminator, version, lastupdated, created, lastupdatedby ,createdby, repeatingdatatype, title, sequenceNumber,
                 digitalObjectId, noteContent, notesetctypeid, basic, multipart, internalOnly) values 
                 (%s, 'note', 0, %s, %s, %s, %s, 'Note', '', %s, %s, %s, 9, '', '', '')"""
