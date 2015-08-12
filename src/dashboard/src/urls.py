@@ -32,5 +32,6 @@ urlpatterns = patterns('',
     url(r'^filesystem/', include('components.filesystem_ajax.urls')),
     url(r'^api/', include('components.api.urls')),
     url(r'^file/', include('components.file.urls')),
+    url(r'^access/', include('components.access.urls')),
     url(r'', include('main.urls'))
 )
