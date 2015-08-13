@@ -248,7 +248,18 @@ def set_up_mapping(conn, index):
             'origin'       : machine_readable_field_spec,
             'ingestdate'   : {'type': 'date' , 'format': 'dateOptionalTime'},
             'created'      : {'type': 'double'},
+            'size'         : {'type': 'double'},
+            'tags'         : machine_readable_field_spec,
             'file_extension': machine_readable_field_spec,
+            'bulk_extractor_reports': machine_readable_field_spec,
+            'format'       : {
+                'type'      : 'nested',
+                'properties': {
+                    'puid'  : machine_readable_field_spec,
+                    'format': {'type': 'string'},
+                    'group' : {'type': 'string'},
+                }
+            }
         }
 
         print 'Creating transfer file mapping...'
