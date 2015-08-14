@@ -594,6 +594,34 @@ def normalize_list_dict_elements(data):
             data[index] =  normalize_dict_values(value)
     return data
 
+def _get_file_formats(f):
+    formats = []
+    fields = ['format_version__pronom_id',
+              'format_version__description',
+              'format_version__format__group__description']
+    for puid, format, group in f.fileformatversion_set.all().values_list(*fields):
+        formats.append({
+            'puid': puid,
+            'format': format,
+            'group': group,
+        })
+
+    return formats
+
+def _list_bulk_extractor_reports(transfer_path, file_uuid):
+    reports = []
+    log_path = os.path.join(transfer_path, 'logs', 'bulk-' + file_uuid)
+
+    if not os.path.isdir(log_path):
+        return reports
+    for report in ['telephone', 'ccn', 'ccn_track2', 'pii']:
+        path = os.path.join(log_path, report + '.txt')
+        if os.path.isfile(path) and os.path.getsize(path) > 0:
+            reports.append(report)
+
+    return reports
+
+
 def index_transfer_files(conn, uuid, pathToTransfer, index, type):
     """
     Indexes files in the Transfer with UUID `uuid` at path `pathToTransfer`.
@@ -608,7 +636,6 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
     """
     filesIndexed = 0
     ingest_date  = str(datetime.datetime.today())[0:10]
-    create_time  = time.time()
 
     # Some files should not be indexed
     # This should match the basename of the file
@@ -633,15 +660,23 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
             file_uuid = ''
             relative_path = filepath.replace(pathToTransfer, '%transferDirectory%')
             try:
-                file_uuid = File.objects.get(currentlocation=relative_path,
-                                             transfer_id=uuid).uuid
+                f = File.objects.get(currentlocation=relative_path,
+                                     transfer_id=uuid)
+                file_uuid = f.uuid
+                formats = _get_file_formats(f)
+                bulk_extractor_reports = _list_bulk_extractor_reports(pathToTransfer, file_uuid)
             except File.DoesNotExist:
                 file_uuid = ''
+                formats = []
+                bulk_extractor_reports = []
 
             # Get file path info
             relative_path = relative_path.replace('%transferDirectory%', transfer_name+'/')
             file_extension = os.path.splitext(filepath)[1][1:].lower()
             filename = os.path.basename(filepath)
+            # Size in megabytes
+            size = os.path.getsize(filepath) / 1048576.0
+            create_time = os.stat(filepath).st_ctime
 
             if filename not in ignore_files:
                 print 'Indexing {} (UUID: {})'.format(relative_path, file_uuid)
@@ -657,7 +692,11 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
                   'origin'       : dashboard_uuid,
                   'ingestdate'   : ingest_date,
                   'created'      : create_time,
+                  'size'         : size,
+                  'tags'         : [],
                   'file_extension': file_extension,
+                  'bulk_extractor_reports': bulk_extractor_reports,
+                  'format'       : formats,
                 }
 
                 wait_for_cluster_yellow_status(conn)
