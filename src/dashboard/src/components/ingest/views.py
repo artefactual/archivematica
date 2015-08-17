@@ -27,6 +27,7 @@ import requests
 import shutil
 import sys
 from urlparse import urljoin
+import uuid
 
 # Django Core, alphabetical by import source
 from django.conf import settings as django_settings
@@ -390,7 +391,6 @@ def ingest_browse(request, browse_type, jobuuid):
 
     return render(request, 'ingest/aip_browse.html', locals())
 
-
 def _es_results_to_directory_tree(path, return_list, not_draggable=False):
     # Helper function for transfer_backlog
     # Paths MUST be input in sorted order
@@ -425,9 +425,82 @@ def _es_results_to_directory_tree(path, return_list, not_draggable=False):
         # Otherwise, directories have the draggability of their first child
         this_node['properties']['not_draggable'] = this_node['properties']['not_draggable'] and not_draggable
 
+def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_draggable=False):
+    """
+    Given a set of records from Elasticsearch, produces a list of records suitable for use with the appraisal tab.
+    This function mutates a provided `directory_list`; it does not return a value.
+
+    Elasticsearch results index only files; directories are inferred by splitting the filename and generating directory entries for each presumed directory.
+
+    :param dict record: A record from Elasticsearch.
+        This must be in the new format defined for Archivematica 1.6.
+    :param dict record_map: A dictionary to be used to track created directory objects.
+        This ensures that duplicate directories aren't created when processing multiple files.
+    :param dict directory_list: A list of top-level directories to return in the results.
+        This only contains directories which are not themselves contained within any other directories, e.g. transfers.
+        This will be appended to by this function in lieu of returning a value.
+    :param bool not_draggable: This property determines whether or not a given file should be able to be dragged in the user interface; passing this will override the default logic for determining if a file is draggable.
+    """
+    dir, fn = record['relative_path'].rsplit('/', 1)
+
+    # Recursively create elements for this item's parent directory,
+    # if not already present in the record map
+    components = dir.split('/')
+    directories = []
+    while len(components) > 0:
+        directories.insert(0, '/'.join(components))
+        components.pop(-1)
+
+    parent = None
+    for node in directories:
+        is_transfer = len(node.split('/')) == 1
+
+        if not node in record_map:
+            dir_record = {
+                'type': 'transfer' if is_transfer else 'directory',
+                # have to artificially create directory IDs, since we don't assign those
+                'id': str(uuid.uuid4()),
+                'title': base64.b64encode(os.path.basename(node)),
+                'relative_path': base64.b64encode(node),
+                'not_draggable': not_draggable,
+                'object_count': 0,
+                'children': [],
+            }
+            record_map[node] = dir_record
+            # directory_list should consist only of top-level records
+            if is_transfer:
+                directory_list.append(dir_record)
+        else:
+            dir_record = record_map[node]
+
+        if parent is not None and dir_record not in parent['children']:
+            parent['children'].append(dir_record)
+            parent['object_count'] += 1
+
+        parent = dir_record
+
+    child = {
+        'type': 'file',
+        'id': record['fileuuid'],
+        'title': base64.b64encode(fn),
+        'relative_path': base64.b64encode(record['relative_path']),
+        'size': record['size'],
+        'tags': record['tags'],
+        'bulk_extractor_reports': record['bulk_extractor_reports'],
+        'not_draggable': not_draggable
+    }
+    if record['format']:
+        format = record['format'][0]  # TODO handle multiple format identifications
+        child['format'] = format['format']
+        child['group'] = format['group']
+        child['puid'] = format['puid']
+
+    record_map[dir]['children'].append(child)
+    record_map[dir]['object_count'] += 1
+
 
 @decorators.elasticsearch_required()
-def transfer_backlog(request):
+def transfer_backlog(request, ui):
     """
     AJAX endpoint to query for and return transfer backlog items.
     """
@@ -486,6 +559,7 @@ def transfer_backlog(request):
     #  },
     # ]
     return_list = []
+    directory_map = {}
     # _es_results_to_directory_tree requires that paths MUST be sorted
     results.sort(key=lambda x: x['relative_path'])
     for path in results:
@@ -494,10 +568,18 @@ def transfer_backlog(request):
         if models.SIPArrange.objects.filter(
             original_path__endswith=path['relative_path']).exists():
             not_draggable = True
-        _es_results_to_directory_tree(path['relative_path'], return_list, not_draggable=not_draggable)
+        if ui == 'legacy':
+            _es_results_to_directory_tree(path['relative_path'], return_list, not_draggable=not_draggable)
+            response = return_list
+        else:
+            _es_results_to_appraisal_tab_format(path, directory_map, return_list, not_draggable=not_draggable)
+            response = {
+                "formats": [],  # TODO populate this
+                "transfers": return_list
+            }
 
     # retun JSON response
-    return helpers.json_response(return_list)
+    return helpers.json_response(response)
 
 
 def _transfer_backlog_augment_search_results(raw_results):
