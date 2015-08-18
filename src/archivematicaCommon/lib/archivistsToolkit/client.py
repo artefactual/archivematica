@@ -169,25 +169,24 @@ class ArchivistsToolkitClient(object):
                 resource_data['identifier']         = row[2]
                 resource_data['levelOfDescription'] = row[3]
 
-        resource_data['children'] = False
-
         # fetch children if we haven't reached the maximum recursion level
-        if (not recurse_max_level) or level < recurse_max_level:
-            if resource_type == 'collection':
-                if query == '':
-                    cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId IS NULL AND resourceId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
-                else:
-                    cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId IS NULL AND resourceId=%s AND (title LIKE %s OR persistentID LIKE %s) ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%', '%' + query + '%'))
+        if resource_type == 'collection':
+            if query == '':
+                cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId IS NULL AND resourceId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
             else:
-                if query == '':
-                    cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
-                else:
-                    cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId=%s AND (title LIKE %s OR persistentID LIKE %s) ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%', '%' + query + '%'))
+                cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId IS NULL AND resourceId=%s AND (title LIKE %s OR persistentID LIKE %s) ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%', '%' + query + '%'))
+        else:
+            if query == '':
+                cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId=%s ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id))
+            else:
+                cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE parentResourceComponentId=%s AND (title LIKE %s OR persistentID LIKE %s) ORDER BY FIND_IN_SET(resourceLevel, 'subseries,file'), title ASC", (resource_id, '%' + query + '%', '%' + query + '%'))
 
-            rows = cursor.fetchall()
+        rows = cursor.fetchall()
 
+        if (not recurse_max_level) or level < recurse_max_level:
             if len(rows):
                 resource_data['children'] = []
+                resource_data['has_children'] = True
 
                 for row in rows:
                     resource_data['children'].append(
@@ -198,6 +197,13 @@ class ArchivistsToolkitClient(object):
                             sort_data
                         )
                     )
+        else:
+            if len(rows):
+                resource_data['children'] = []
+                resource_data['has_children'] = True
+            else:
+                resource_data['children'] = False
+                resource_data['has_children'] = False
 
         return resource_data
 

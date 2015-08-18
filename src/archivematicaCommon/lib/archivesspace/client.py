@@ -213,11 +213,16 @@ class ArchivesSpaceClient(object):
             }
             if record['children'] and descend:
                 result['children'] = [format_record(child, level) for child in record['children']]
+                result['has_children'] = True
                 if sort_by is not None:
                     kwargs = {'reverse': True} if sort_by == 'desc' else {}
                     result['children'] = sorted(result['children'], key=lambda c: c['title'], **kwargs)
+            elif record['children']:
+                result['children'] = []
+                result['has_children'] = True
             else:
                 result['children'] = False
+                result['has_children'] = False
 
             return result
 
@@ -377,13 +382,22 @@ class ArchivesSpaceClient(object):
         def format_record(record):
             dates = self._fetch_dates_from_record(record)
             identifier = record['id_0'] if 'id_0' in record else record.get('component_id', '')
+
+            params = {
+                'page': 1,
+                'q': 'resource:{}'.format(record['uri'])
+            }
+            has_children = self._get(self.repository + '/search', params=params).json()['total_hits'] > 0
+
             return {
                 'id': record['uri'],
                 'sortPosition': 1,
                 'identifier': identifier,
                 'title': record.get('title', ''),
                 'dates': dates,
-                'levelOfDescription': record['level']
+                'levelOfDescription': record['level'],
+                'children': [] if has_children else False,
+                'has_children': has_children
             }
 
         params = {
