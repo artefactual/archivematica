@@ -433,27 +433,30 @@ def transfer_backlog(request):
     """
     # Get search parameters from request
     results = None
-    queries, ops, fields, types = advanced_search.search_parameter_prep(request)
+    conn = elasticSearchFunctions.connect_and_create_index('transfers')
 
-    # redirect if no search params have been set
-    # TODO fix what to do if no request - return nothing?  All?
     if not 'query' in request.GET:
-        return redirect(reverse('components.ingest.views.transfer_backlog'))
+        query = elasticSearchFunctions.MATCH_ALL_QUERY
+    else:
+        queries, ops, fields, types = advanced_search.search_parameter_prep(request)
+
+        try:
+            query = advanced_search.assemble_query(
+                queries,
+                ops,
+                fields,
+                types,
+                # Specify this as a filter, not a must_have, for performance,
+                # and so that it doesn't cause the "should" queries in a
+                # should-only query to be ignored.
+                filters={'term': {'status': 'backlog'}},
+            )
+        except:
+            logger.exception('Error accessing index.')
+            return HttpResponse('Error accessing index.')
 
     # perform search
-    conn = elasticSearchFunctions.connect_and_create_index('transfers')
     try:
-        query = advanced_search.assemble_query(
-            queries,
-            ops,
-            fields,
-            types,
-            # Specify this as a filter, not a must_have, for performance,
-            # and so that it doesn't cause the "should" queries in a
-            # should-only query to be ignored.
-            filters={'term': {'status': 'backlog'}},
-        )
-
         results = elasticSearchFunctions.search_all_results(
             conn,
             body=query,
