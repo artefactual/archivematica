@@ -1,0 +1,60 @@
+interactions:
+- request:
+    body: null
+    headers: {}
+    method: PUT
+    uri: http://localhost:9200/transfers
+  response:
+    body: {string: !!python/unicode '{"error":"IndexAlreadyExistsException[[transfers]
+        already exists]","status":400}'}
+    headers:
+      content-length: ['80']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 400, message: Bad Request}
+- request:
+    body: '{"query": {"term": {"fileuuid": "2101fa74-bc27-405b-8e29-614ebd9d5a89"}}}'
+    headers: {}
+    method: GET
+    uri: http://localhost:9200/_all/transferfile/_search?size=50000
+  response:
+    body: {string: !!python/unicode '{"took":2,"timed_out":false,"_shards":{"total":10,"successful":10,"failed":0},"hits":{"total":1,"max_score":1.6931472,"hits":[{"_index":"transfers","_type":"transferfile","_id":"AU9MJzbIgAJJz92ebm-q","_score":1.6931472,"_source":{"accessionid":"","status":"backlog","sipuuid":"f646a630-9697-46a2-875a-a603f2d68cc1","tags":["test"],"file_extension":"tga","relative_path":"Images-f646a630-9697-46a2-875a-a603f2d68cc1/objects/pictures/MARBLES.TGA","bulk_extractor_reports":[],"origin":"42105a31-3507-4790-9a8d-2afbdd9ef3a1","size":4.0638933181762695,"created":1.4400914032641463E9,"format":[{"puid":"fmt/402","group":"Image
+        (Raster)","format":"Truevision TGA Bitmap 2.0"}],"ingestdate":"2015-08-20","filename":"MARBLES.TGA","fileuuid":"2101fa74-bc27-405b-8e29-614ebd9d5a89"}}]}}'}
+    headers:
+      content-length: ['775']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+- request:
+    body: '{"doc": {"tags": ["test"]}}'
+    headers: {}
+    method: POST
+    uri: http://localhost:9200/transfers/transferfile/AU9MJzbIgAJJz92ebm-q/_update
+  response:
+    body: {string: !!python/unicode '{"_index":"transfers","_type":"transferfile","_id":"AU9MJzbIgAJJz92ebm-q","_version":9}'}
+    headers:
+      content-length: ['87']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: {}
+    method: PUT
+    uri: http://localhost:9200/transfers
+  response:
+    body: {string: !!python/unicode '{"error":"IndexAlreadyExistsException[[transfers]
+        already exists]","status":400}'}
+    headers:
+      content-length: ['80']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 400, message: Bad Request}
+- request:
+    body: '{"query": {"term": {"fileuuid": "2101fa74-bc27-405b-8e29-614ebd9d5a89"}}}'
+    headers: {}
+    method: GET
+    uri: http://localhost:9200/transfers/transferfile/_search?fields=tags
+  response:
+    body: {string: !!python/unicode '{"took":1,"timed_out":false,"_shards":{"total":5,"successful":5,"failed":0},"hits":{"total":1,"max_score":1.6931472,"hits":[{"_index":"transfers","_type":"transferfile","_id":"AU9MJzbIgAJJz92ebm-q","_score":1.6931472,"fields":{"tags":["test"]}}]}}'}
+    headers:
+      content-length: ['247']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+version: 1

@@ -1,0 +1,25 @@
+interactions:
+- request:
+    body: null
+    headers: {}
+    method: PUT
+    uri: http://localhost:9200/transfers
+  response:
+    body: {string: !!python/unicode '{"error":"IndexAlreadyExistsException[[transfers]
+        already exists]","status":400}'}
+    headers:
+      content-length: ['80']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 400, message: Bad Request}
+- request:
+    body: '{"query": {"term": {"fileuuid": "a410501b-64ac-4b81-92ca-efa9e815366d"}}}'
+    headers: {}
+    method: GET
+    uri: http://localhost:9200/transfers/transferfile/_search?fields=tags
+  response:
+    body: {string: !!python/unicode '{"took":4,"timed_out":false,"_shards":{"total":5,"successful":5,"failed":0},"hits":{"total":1,"max_score":1.6931472,"hits":[{"_index":"transfers","_type":"transferfile","_id":"AU9MJzaYgAJJz92ebm-j","_score":1.6931472,"fields":{"tags":["test1"]}}]}}'}
+    headers:
+      content-length: ['248']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+version: 1

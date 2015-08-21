@@ -61,6 +61,9 @@ class ElasticsearchError(Exception):
 class EmptySearchResultError(ElasticsearchError):
     pass
 
+class TooManyResultsError(ElasticsearchError):
+    pass
+
 def remove_tool_output_from_mets(doc):
     """
     Given an ElementTree object, removes all objectsCharacteristicsExtensions elements.
@@ -784,6 +787,72 @@ def connect_and_change_transfer_file_status(uuid, status):
             id=doc_id,
         )
     return len(document_ids)
+
+
+def connect_and_get_file_tags(uuid):
+    """
+    Retrieve the complete set of tags for the file with the fileuuid `uuid`.
+    Returns a list of zero or more strings.
+
+    :param str uuid: A file UUID.
+    """
+    conn = connect_and_create_index('transfers')
+    query = {
+        'query': {
+            "term": {
+                "fileuuid": uuid,
+            }
+        }
+    }
+
+    results = conn.search(
+        body=query,
+        index='transfers',
+        doc_type='transferfile',
+        fields='tags',
+    )
+
+    count = results['hits']['total']
+    if count == 0:
+        raise EmptySearchResultError('No matches found for file with UUID {}'.format(uuid))
+    if count > 1:
+        raise TooManyResultsError('{} matches found for file with UUID {}; unable to fetch a single result'.format(count, uuid))
+
+    result = results['hits']['hits'][0]
+    if 'fields' not in result:  # file has no tags
+        return []
+    return result['fields']['tags']
+
+
+def connect_and_set_file_tags(uuid, tags):
+    """
+    Updates the file(s) with the fileuuid `uuid` to the provided value(s).
+
+    :param str uuid: A file UUID.
+    :param list tags: A list of zero or more tags.
+        Passing an empty list clears the file's tags.
+    """
+    conn = connect_and_create_index('transfers')
+    document_ids = _document_ids_from_field_query(conn, 'transfers', ['transferfile'], 'fileuuid', uuid)
+
+    count = len(document_ids)
+    if count == 0:
+        raise EmptySearchResultError('No matches found for file with UUID {}'.format(uuid))
+    if count > 1:
+        raise TooManyResultsError('{} matches found for file with UUID {}; unable to fetch a single result'.format(count, uuid))
+
+    doc = {
+        'doc': {
+            'tags': tags,
+        }
+    }
+    conn.update(
+        body=doc,
+        index='transfers',
+        doc_type='transferfile',
+        id=document_ids[0]
+    )
+    return True
 
 
 def get_transfer_file_info(field, value):
