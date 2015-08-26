@@ -35,12 +35,16 @@ from databaseFunctions import insertIntoFPCommandOutput
 from databaseFunctions import insertIntoEvents
 import databaseInterface
 
+# initialize Django (required for Django 1.7)
+import django
+django.setup()
+
 databaseInterface.printSQL = False
 excludeJhoveProperties = True
 formats = []
 FITSNS = "{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}"
 
-            
+
 def excludeJhoveProperties(fits):
     """Exclude <properties> from <fits><toolOutput><tool name="Jhove" version="1.5"><repInfo> because that field contains unnecessary excess data and the key data are covered by output from other FITS tools."""
     formatValidation = None
