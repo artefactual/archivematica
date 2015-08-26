@@ -12,6 +12,9 @@ from archivesspace.client import ArchivesSpaceClient
 from elasticSearchFunctions import getDashboardUUID
 from xml2obj import mets_file
 
+# initialize Django (required for Django 1.7)
+import django
+django.setup()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

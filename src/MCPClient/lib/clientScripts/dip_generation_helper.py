@@ -13,6 +13,10 @@ from main import models
 import archivesspace
 import archivematicaFunctions
 
+# initialize Django (required for Django 1.7)
+import django
+django.setup()
+
 def create_archivesspace_client():
     """
     Create an ArchivesSpace client instance.
