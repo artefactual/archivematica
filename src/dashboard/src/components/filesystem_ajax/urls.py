@@ -22,6 +22,7 @@ from components.filesystem_ajax import views
 urlpatterns = patterns('',
     url(r'^download_ss/$', views.download_ss),
     url(r'^download_fs/$', views.download_fs),
+    url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/download/$', views.download_by_uuid),
     url(r'^contents/arrange/$', views.arrange_contents),
     url(r'^contents/$', views.contents),
     url(r'^children/location/(?P<location_uuid>' + settings.UUID_REGEX + ')/$', views.directory_children_proxy_to_storage_server),

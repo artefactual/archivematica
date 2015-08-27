@@ -30,6 +30,8 @@ from django.db import connection, IntegrityError
 from django.db.models import Q
 import django.template.defaultfilters
 
+import requests
+
 from components import helpers
 import components.filesystem_ajax.helpers as filesystem_ajax_helpers
 from main import models
@@ -813,3 +815,33 @@ def download_fs(request):
     except ValueError:
         raise django.http.Http404
 
+
+def download_by_uuid(request, uuid):
+    """
+    Download a file from the Storage Service, given its UUID.
+
+    This view will stream the response directly from the storage service, so, unlike download_ss, this will work even if the Storage Service is not accessible to the requestor.
+
+    Returns 404 if a file with the requested UUID cannot be found, and 400 if the storage service fails to retrieve the record.
+    """
+    try:
+        f = models.File.objects.get(uuid=uuid)
+    except models.File.DoesNotExist:
+        response = {
+            'success': False,
+            'message': 'File with UUID ' + uuid + ' could not be found',
+        }
+        return helpers.json_response(response, status_code=404)
+    relative_path = f.currentlocation.replace('%transferDirectory%', '')
+    redirect_url = storage_service.extract_file_url(f.transfer_id, relative_path)
+
+    stream = requests.get(redirect_url, stream=True)
+    if stream.status_code == 200:
+        content_type = stream.headers.get('content-type', 'text/plain')
+        return django.http.StreamingHttpResponse(stream, content_type=content_type)
+    else:
+        response = {
+            'success': False,
+            'message': 'Storage service returned {}; check logs?'.format(stream.status_code)
+        }
+        return helpers.json_response(response, status=400)
