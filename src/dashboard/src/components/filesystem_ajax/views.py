@@ -114,13 +114,16 @@ def contents(request):
     return helpers.json_response(response)
 
 def arrange_contents(request):
-    base_path = base64.b64decode(request.GET.get('path', DEFAULT_ARRANGE_PATH))
+    path = request.GET.get('path')
+    if path is not None:
+        base_path = base64.b64decode(path)
+        # Must indicate that base_path is a folder by ending with /
+        if not base_path.endswith('/'):
+            base_path += '/'
 
-    # Must indicate that base_path is a folder by ending with /
-    if not base_path.endswith('/'):
-        base_path += '/'
-
-    if not base_path.startswith(DEFAULT_ARRANGE_PATH):
+        if not base_path.startswith(DEFAULT_ARRANGE_PATH):
+            base_path = DEFAULT_ARRANGE_PATH
+    else:
         base_path = DEFAULT_ARRANGE_PATH
 
     # Query SIP Arrangement for results
