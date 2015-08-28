@@ -116,7 +116,14 @@ def contents(request):
 def arrange_contents(request):
     path = request.GET.get('path')
     if path is not None:
-        base_path = base64.b64decode(path)
+        try:
+            base_path = base64.b64decode(path)
+        except TypeError:
+            response = {
+                'success': False,
+                'message': 'Could not base64-decode provided path: {}'.format(path),
+            }
+            helpers.json_response(response, status_code=400)
         # Must indicate that base_path is a folder by ending with /
         if not base_path.endswith('/'):
             base_path += '/'
