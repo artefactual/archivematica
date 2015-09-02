@@ -191,7 +191,14 @@ def delete(request):
 
 
 def delete_arrange(request):
-    filepath = base64.b64decode(request.POST.get('filepath', ''))
+    try:
+        filepath = base64.b64decode(request.POST['filepath'])
+    except KeyError:
+        response = {
+            'success': False,
+            'message': 'No filepath to delete was provided!'
+        }
+        return helpers.json_response(response, status_code=400)
     models.SIPArrange.objects.filter(arrange_path__startswith=filepath).delete()
     return helpers.json_response({'message': 'Delete successful.'})
 
