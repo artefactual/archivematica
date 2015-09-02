@@ -159,7 +159,14 @@ def arrange_contents(request):
 
 
 def delete(request):
-    filepath = request.POST.get('filepath', '')
+    try:
+        filepath = request.POST['filepath']
+    except KeyError:
+        response = {
+            'success': False,
+            'message': 'No filepath to delete was provided!'
+        }
+        return helpers.json_response(response, status_code=400)
     filepath = os.path.join('/', filepath)
     error = filesystem_ajax_helpers.check_filepath_exists(filepath)
 
