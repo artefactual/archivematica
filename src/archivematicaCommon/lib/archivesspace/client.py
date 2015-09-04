@@ -130,6 +130,17 @@ class ArchivesSpaceClient(object):
     def get_record(self, record_id):
         return self._get(record_id).json()
 
+    def get_levels_of_description(self):
+        """
+        Returns an array of all levels of description defined in this ArchivesSpace instance.
+        """
+        if not hasattr(self, 'levels_of_description'):
+            # TODO: * fetch human-formatted strings
+            #       * is hardcoding this ID okay?
+            self.levels_of_description = self._get('/config/enumerations/32').json()['values']
+
+        return self.levels_of_description
+
     def collection_list(self, resource_id, resource_type='collection'):
         """
         Fetches a list of all resource IDs within the specified resource ID.

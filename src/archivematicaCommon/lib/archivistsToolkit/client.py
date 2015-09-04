@@ -22,6 +22,23 @@ class ArchivistsToolkitClient(object):
             logger.exception('Error connecting to ATK database')
             raise
 
+    def get_levels_of_description(self):
+        """
+        Returns an array of all levels of description defined in this Archivist's Toolkit instance.
+        """
+        if not hasattr(self, 'levels_of_description'):
+            cursor = self.db.cursor()
+            levels = set()
+            cursor.execute("SELECT distinct(resourceLevel) FROM Resources")
+            for row in cursor:
+                levels.add(row)
+            cursor.execute("SELECT distinct(resourceLevel) FROM ResourcesComponents")
+            for row in cursor:
+                levels.add(row)
+            self.levels_of_description = list(levels)
+
+        return self.levels_of_description
+
     def collection_list(self, resource_id, resource_type='collection'):
         """
         Fetches a list of all resource and component IDs within the specified resource.
