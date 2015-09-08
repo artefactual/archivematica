@@ -137,7 +137,7 @@ var TransferComponentFormView = Backbone.View.extend({
 
     $('.activity-indicator').show();
     $.ajax({
-      url: '/filesystem/ransfer/',
+      url: '/filesystem/transfer/',
       type: 'POST',
       cache: false,
       async: false,
