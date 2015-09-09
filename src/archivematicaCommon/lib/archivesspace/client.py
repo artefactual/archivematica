@@ -148,7 +148,8 @@ class ArchivesSpaceClient(object):
         :param resource_id long: The URI of the resource to fetch children from.
         :param resource_type str: no-op; not required or used in this implementation.
 
-        :return list: A list of strings representing the record URIs for all children of the requested record.
+        :return: A list of strings representing the record URIs for all children of the requested record.
+        :rtype list:
         """
         def fetch_children(children):
             results = []
@@ -272,8 +273,9 @@ class ArchivesSpaceClient(object):
         :param string search_pattern: If specified, limits fetched children to those whose titles or IDs match the provided query.
             See ArchivistsToolkitClient.find_collection_ids for documentation of the query format.
 
-        :return dict: A dict containing detailed metadata about both the requested resource and its children.
+        :return: A dict containing detailed metadata about both the requested resource and its children.
             Consult ArchivistsToolkitClient.get_resource_component_and_children for the output format.
+        :rtype dict:
         """
         resource_type = self.resource_type(resource_id)
         if resource_type == 'resource':
@@ -286,7 +288,8 @@ class ArchivesSpaceClient(object):
         Given the URL to a component, returns the parent resource's URL.
 
         :param string component_id: The URL of the resource.
-        :return string: The URL of the component's parent resource.
+        :return: The URL of the component's parent resource.
+        :rtype: string
         """
         response = self._get(component_id)
         return response.json()['resource']['ref']
@@ -296,10 +299,11 @@ class ArchivesSpaceClient(object):
         Given the URL to a component, returns the parent component's URL.
 
         :param string component_id: The URL of the component.
-        :return tuple: A tuple containing:
+        :return: A tuple containing:
             * The type of the parent record; valid values are ArchivesSpaceClient.RESOURCE and ArchivesSpaceClient.RESOURCE_COMPONENT.
             * The URL of the parent record.
             If the provided URL fragment references a resource, this method will simply return the same URL.
+        :rtype tuple:
         """
         response = self.get_record(component_id)
         if 'parent' in response:
@@ -324,7 +328,8 @@ class ArchivesSpaceClient(object):
             Substring matching will not be performed; however, wildcards are supported.
             For example, searching "F1" will only return records with the identifier "F1", while searching "F*" will return "F1", "F2", etc.
 
-        :return list: A list containing every matched resource's URL.
+        :return: A list containing every matched resource's URL.
+        :rtype list:
         """
         params = {
             'page': page,
@@ -500,7 +505,8 @@ class ArchivesSpaceClient(object):
         Consult the documentation of ArchivistsToolkitClient.get_resource_component_children for the format of the returned dicts.
 
         :param list resource_ids: A list of one or more resource IDs.
-        :return list: A list containing metadata dicts.
+        :return: A list containing metadata dicts.
+        :rtype list:
         """
         resources_augmented = []
         for id in resource_ids:

@@ -47,7 +47,8 @@ class ArchivistsToolkitClient(object):
         :param string resource_type: Specifies whether the resource to fetch is a collection or a child element.
             Defaults to 'collection'.
 
-        :return list: A list of longs representing the database resource IDs for all children of the requested record.
+        :return: A list of longs representing the database resource IDs for all children of the requested record.
+        :rtype list:
         """
         ret = []
 
@@ -87,7 +88,7 @@ class ArchivistsToolkitClient(object):
         :param string search_pattern: If specified, limits fetched children to those whose titles or IDs match the provided query.
             See ArchivistsToolkitClient.find_collection_ids for documentation of the query format.
 
-        :return dict: A dict containing detailed metadata about both the requested resource and its children.
+        :return: A dict containing detailed metadata about both the requested resource and its children.
             The dict follows this format:
         {
           'id': '31',
@@ -131,6 +132,7 @@ class ArchivistsToolkitClient(object):
             'children': False
           }]
         }
+        :rtype list:
         """
         # we pass the sort position as a dict so it passes by reference and we
         # can use it to share state during recursion
@@ -214,7 +216,8 @@ class ArchivistsToolkitClient(object):
         If the immediate parent of the component is itself a component, this method will progress up the tree until a resource is found.
 
         :param long component_id: The ID of the ResourceComponent.
-        :return long: The ID of the component's parent resource.
+        :return: The ID of the component's parent resource.
+        :rtype: long
         """
         cursor = self.db.cursor()
 
@@ -232,9 +235,10 @@ class ArchivistsToolkitClient(object):
         Given the ID of a component, returns the parent component's ID.
 
         :param string component_id: The ID of the component.
-        :return tuple: A tuple containing:
+        :return: A tuple containing:
             * The type of the parent record; valid values are ArchivesSpaceClient.RESOURCE and ArchivesSpaceClient.RESOURCE_COMPONENT.
             * The ID of the parent record.
+        :rtype tuple:
         """
         cursor = self.db.cursor()
 
@@ -258,7 +262,8 @@ class ArchivistsToolkitClient(object):
             Unlike the ArchivesSpaceClient version of this method, wildcards are not supported; however, identifiers which begin or end with this string will be returned.
             For example, if the passed identifier is "A1", then records with an identifier of "A1", "SAA1", "A10", and "SAA10" will all be returned.
 
-        :return list: A list containing every matched resource's ID.
+        :return: A list containing every matched resource's ID.
+        :rtype: list
         """
         cursor = self.db.cursor()
 
@@ -307,7 +312,8 @@ class ArchivistsToolkitClient(object):
         Consult the documentation of ArchivistsToolkitClient.get_resource_component_children for the format of the returned dicts.
 
         :param list resource_ids: A list of one or more resource IDs.
-        :return list: A list containing metadata dicts.
+        :return: A list containing metadata dicts.
+        :rtype: list
         """
         resources_augmented = []
         for id in resource_ids:
