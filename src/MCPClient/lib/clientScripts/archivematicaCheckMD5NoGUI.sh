@@ -38,7 +38,7 @@ cd "$checkFolder"
 #check for passing checksums
 "${checksumTool}" -r -m "$md5Digest" . > $passTmp
 #check for failing checksums
-"${checksumTool}" -r -n -m "$md5Digest" . > $failTmp
+"${checksumTool}" -r -x "$md5Digest" . > $failTmp
 cd $tmpDir      
 
 
