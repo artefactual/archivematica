@@ -133,3 +133,9 @@ def record_children(client, request, system='', record_id=''):
         pass
     elif request.method == 'GET':
         return helpers.json_response(get_record(client, request, system=system, record_id=record_id)['children'])
+
+
+@_authenticate_to_archivesspace
+def get_levels_of_description(client, request, system=''):
+    levels = client.get_levels_of_description()
+    return helpers.json_response(levels)
