@@ -638,3 +638,36 @@ class ArchivesSpaceClient(object):
             "digital_object": {"ref": new_object_uri}
         })
         self._post(parent_archival_object, data=json.dumps(parent_record))
+
+    def add_child(self, parent, title="", level=""):
+        """
+        Adds a new resource component parented within `parent`.
+
+        :param str parent: The ID to a resource or a resource component.
+        :param str title: A title for the record.
+        :param str level: The level of description.
+
+        :return: The ID of the newly-created record.
+        """
+        parent_record = self.get_record(parent)
+        record_type = self.resource_type(parent)
+        repository = parent_record['repository']['ref']
+
+        if record_type == 'resource':
+            resource = parent
+        else:
+            resource = parent_record['resource']['ref']
+
+        new_object = {
+            "title": title,
+            "level": level,
+            "jsonmodel_type": "archival_object",
+            "resource": {"ref": resource}
+        }
+
+        # "parent" always refers to an archival_object instance; if this is rooted
+        # directly to a resource, leave it out.
+        if record_type == 'resource_component':
+            new_object["parent"] = {"ref": parent},
+
+        return self._post(repository + '/archival_objects', data=json.dumps(new_object)).json()["uri"]

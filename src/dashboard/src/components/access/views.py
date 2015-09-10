@@ -129,8 +129,33 @@ def get_records_by_accession(client, request, system='', accession=''):
 
 @_authenticate_to_archivesspace
 def record_children(client, request, system='', record_id=''):
-    if request.method == 'PUT':
-        pass
+    record_id = record_id.replace('-', '/')
+
+    if request.method == 'POST':
+        new_record_data = json.load(request)
+        try:
+            new_id = client.add_child(record_id,
+                                      title=new_record_data.get('title', ''),
+                                      level=new_record_data.get('level', ''))
+        except ArchivesSpaceError as e:
+            response = {
+                'success': False,
+                'message': str(e),
+            }
+            return helpers.json_response(response, status_code=400)
+        except (MySQLdb.ProgrammingError, MySQLdb.OperationalError) as e:
+            response = {
+                'success': False,
+                'message': 'MySQL error encountered while communicating with Archivist\'s Toolkit: ' + str(e),
+            }
+            return helpers.json_response(response, status_code=400)
+
+        response = {
+            'success': True,
+            'id': new_id,
+            'message': 'New record successfully created',
+        }
+        return helpers.json_response(response)
     elif request.method == 'GET':
         return helpers.json_response(get_record(client, request, system=system, record_id=record_id)['children'])
 
