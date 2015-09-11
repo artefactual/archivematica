@@ -29,10 +29,13 @@ from django.utils.dateformat import format
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
 from django.core.urlresolvers import reverse
 from django.db.models import Max
+from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.servers.basehttp import FileWrapper
 from django.shortcuts import render
 from main import models
+
+import dateutil.parser
 
 logger = logging.getLogger('archivematica.dashboard')
 
@@ -334,3 +337,24 @@ def default_processing_config_path():
         get_server_config_value('sharedDirectory'),
         'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'
     )
+
+def clean_date(date):
+    """
+    Attempt to normalize a user-provided date value, for use in forms.
+
+    Parses a user-provided date, which can be in arbitrary formats, and returns a yyyy-MM-dd formatted version of the same date.
+    The current implemention uses python-dateutil to parse the date.
+    If the provided date value is falsy, returns the provided date without change.
+
+    :param str date: A string representation of a date.
+
+    :raises ValidationError: if the date cannot be parsed.
+    """
+    if date:
+        try:
+            return dateutil.parser.parse(date).strftime('%Y-%m-%d')
+        except ValueError:
+            raise forms.ValidationError('Unable to interpret as a date: %(date)s',
+                                        params={'date': date})
+    else:
+        return date

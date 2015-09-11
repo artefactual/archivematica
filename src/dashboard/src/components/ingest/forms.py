@@ -19,6 +19,8 @@ from django import forms
 from main import models
 from django.conf import settings
 
+from helpers import clean_date
+
 class DublinCoreMetadataForm(forms.ModelForm):
     class Meta:
         model = models.DublinCore
@@ -65,6 +67,9 @@ class DublinCoreMetadataForm(forms.ModelForm):
             data = self.aic_prefix+data
         return data
 
+    def clean_date(self):
+        return clean_date(self.cleaned_data['date'])
+
 class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
     class Meta:
         model = models.DublinCore
@@ -81,3 +86,5 @@ class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
             data = self.aic_prefix+data
         return data
 
+    def clean_date(self):
+        return clean_date(self.cleaned_data['date'])
