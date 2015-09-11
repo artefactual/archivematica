@@ -112,7 +112,7 @@ def record(client, request, system='', record_id=''):
                                                                  recurse_max_level=3)
             return helpers.json_response(records)
         except ArchivesSpaceError as e:
-            return helpers.json_response({"error": True, "message": str(e)})
+            return helpers.json_response({'success': False, "message": str(e)}, status_code=400)
 
 
 @_authenticate_to_archivesspace
