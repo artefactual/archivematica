@@ -130,6 +130,41 @@ class ArchivesSpaceClient(object):
     def get_record(self, record_id):
         return self._get(record_id).json()
 
+    def edit_record(self, new_record):
+        """
+        Update a record in ArchivesSpace using the provided new_record.
+
+        The format of new_record is identical to the format returned by get_resource_component_and_children and related methods; consult the documentation for that method in ArchivistsToolkitClient to see the format.
+        This means it's possible, for example, to request a record, modify the returned dict, and pass that dict to this method to update the server.
+
+        Currently supported fields are:
+            * title
+            * targetfield
+
+        :raises ValueError: if the 'id' field isn't specified, or no fields to edit were specified.
+        """
+        try:
+            record_id = new_record['id']
+        except KeyError:
+            raise ValueError('No record ID provided!')
+
+        record = self.get_record(record_id)
+
+        # TODO: add more fields?
+        field_map = [{'title': 'title', 'level': 'levelOfDescription'}]
+        fields_updated = False
+        for field, targetfield in field_map.iteritems():
+            try:
+                record[targetfield] = new_record[field]
+                fields_updated = True
+            except KeyError:
+                continue
+
+        if not fields_updated:
+            raise ValueError('No fields to update specified!')
+
+        self._post(record_id, data=json.dumps(record))
+
     def get_levels_of_description(self):
         """
         Returns an array of all levels of description defined in this ArchivesSpace instance.

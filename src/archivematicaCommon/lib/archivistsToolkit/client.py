@@ -7,6 +7,10 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
+class ArchivistsToolkitError(Exception):
+    pass
+
+
 class ArchivistsToolkitClient(object):
     RESOURCE = 'resource'
     RESOURCE_COMPONENT = 'resource_component'
@@ -21,6 +25,62 @@ class ArchivistsToolkitClient(object):
         except Exception:
             logger.exception('Error connecting to ATK database')
             raise
+
+    def resource_type(self, resource_id):
+        cursor = self.db.cursor()
+        cursor.execute("SELECT resourceId FROM Resources WHERE resourceId=%s", (resource_id,))
+        if cursor.fetchone() is not None:
+            return ArchivistsToolkitClient.RESOURCE
+
+        cursor.execute("SELECT resourceComponentId FROM ResourcesComponents WHERE resourceComponentId=%s", (resource_id,))
+        if cursor.fetchone() is not None:
+            return ArchivistsToolkitClient.RESOURCE_COMPONENT
+
+    def edit_record(self, new_record):
+        """
+        Update a record in Archivist's Toolkit using the provided new_record.
+
+        The format of new_record is identical to the format returned by get_resource_component_and_children and related methods.
+        This means it's possible, for example, to request a record, modify the returned dict, and pass that dict to this method to update the server.
+
+        Currently supported fields are:
+            * title
+            * targetfield
+
+        :raises ValueError: if the 'id' field isn't specified, or no fields to edit were specified.
+        """
+        try:
+            record_id = new_record['id']
+        except KeyError:
+            raise ValueError('No record ID provided!')
+
+        record_type = self.resource_type(record_id)
+        if record_type is None:
+            raise ArchivistsToolkitError('Could not determine type for record with ID {}; not in database?'.format(record_id))
+
+        clause = []
+        values = []
+        if 'title' in new_record:
+            clause.append('title=%s')
+            values.append(new_record['title'])
+        if 'levelOfDescription' in new_record:
+            clause.append('resourceLevel=%s')
+            values.append(new_record['levelOfDescription'])
+
+        # nothing to update
+        if not clause:
+            raise ValueError('No fields to update specified!')
+
+        clause = ', '.join(clause)
+        if record_type == ArchivistsToolkitClient.RESOURCE:
+            db_type = 'Resources'
+            db_id_field = 'resourceId'
+        else:
+            db_type = 'ResourcesComponents'
+            db_id_field = 'resourceComponentId'
+        sql = "UPDATE {} SET {} WHERE {}=%s".format(db_type, clause, db_id_field)
+        cursor = self.db.cursor()
+        cursor.execute(sql, tuple(values))
 
     def get_levels_of_description(self):
         """

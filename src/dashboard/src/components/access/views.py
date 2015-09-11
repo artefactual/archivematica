@@ -16,6 +16,7 @@ from components.ingest.views_atk import get_atk_system_client
 from components.ingest.views_as import get_as_system_client
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from archiviststoolkit.client import ArchivistsToolkitError
 from archivesspace.client import ArchivesSpaceError, AuthenticationError
 
 logger = logging.getLogger('archivematica.dashboard')
@@ -81,15 +82,37 @@ def all_records(client, request, system=''):
 
 
 @_authenticate_to_archivesspace
-def get_record(client, request, system='', record_id=''):
-    record_id = record_id.replace('-', '/')
+def record(client, request, system='', record_id=''):
+    if request.method == 'PUT':
+        try:
+            new_record = json.load(request)
+        except ValueError:
+            response = {
+                'success': False,
+                'message': 'No JSON object could be decoded from request body.',
+            }
+            return helpers.json_response(response, status_code=400)
 
-    try:
-        records = client.get_resource_component_and_children(record_id,
-                                                             recurse_max_level=3)
-        return helpers.json_response(records)
-    except ArchivesSpaceError as e:
-        return helpers.json_response({"error": True, "message": str(e)})
+        try:
+            client.edit_record(new_record)
+        except (ArchivesSpaceError, ArchivistsToolkitError) as e:
+            return helpers.json_response({
+                'sucess': False,
+                'message': str(e),
+            }, status_code=500)
+        return helpers.json_response({
+            'success': True,
+            'message': 'Record updated.',
+        })
+    elif request.method == 'GET':
+        record_id = record_id.replace('-', '/')
+
+        try:
+            records = client.get_resource_component_and_children(record_id,
+                                                                 recurse_max_level=3)
+            return helpers.json_response(records)
+        except ArchivesSpaceError as e:
+            return helpers.json_response({"error": True, "message": str(e)})
 
 
 @_authenticate_to_archivesspace
