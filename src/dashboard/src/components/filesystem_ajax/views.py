@@ -628,8 +628,13 @@ def copy_to_arrange(request):
     # If drop onto a file, drop it into its parent directory instead
     if not destination.endswith('/'):
         destination = os.path.dirname(destination)
-    # Files cannot go into the top level folder
-    if destination == DEFAULT_ARRANGE_PATH and not sourcepath.endswith('/'):
+    try:
+        leaf_dir = sourcepath.split('/')[-2]
+    except IndexError:
+        leaf_dir = ''
+    # Files cannot go into the top level folder,
+    # and neither can the "objects" directory
+    if destination == DEFAULT_ARRANGE_PATH and not (sourcepath.endswith('/') or leaf_dir == 'objects'):
         error = '{} must go in a SIP, cannot be dropped onto {}'.format(
             sourcepath, DEFAULT_ARRANGE_PATH)
 
@@ -641,7 +646,6 @@ def copy_to_arrange(request):
 
         # Construct the base arrange_path differently for files vs folders
         if sourcepath.endswith('/'):
-            leaf_dir = sourcepath.split('/')[-2]
             # If dragging objects/ folder, actually move the contents of (not
             # the folder itself)
             if leaf_dir == 'objects':
