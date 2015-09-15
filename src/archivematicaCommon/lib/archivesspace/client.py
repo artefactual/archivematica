@@ -482,13 +482,14 @@ class ArchivesSpaceClient(object):
                 'id': record['uri'],
                 'identifier': identifier,
                 'title': record.get('title', ''),
-                'levelOfDescription': record['level']
+                'levelOfDescription': record.get('level', ''),
+                'fullrecord': record,
             }
 
         params = {
             'page': page,
             'page_size': page_size,
-            'q': '{}:{}'.format(field, search_pattern)
+            'q': '{}:{} AND primary_type:(resource OR archival_object)'.format(field, search_pattern)
         }
 
         if sort_by is not None:
