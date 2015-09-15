@@ -136,7 +136,20 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
             size = os.path.getsize(access_file_path)
             fv = FormatVersion.objects.get(fileformatversion__file_uuid=access_file.uuid)
             format_version = fv.description
-            format_name = fv.format.description.lower()
+            format_name = fv.format.description
+
+            # HACK map the format version to ArchivesSpace's fixed list of formats it accepts.
+            as_formats = {
+                'Audio Interchange File Format': 'aiff',
+                'Audio/Video Interleaved': 'avi',
+                'Graphics Interchange Format': 'gif',
+                'JPEG': 'jpeg',
+                'MPEG Audio': 'mp3',
+                'PDF': 'pdf',
+                'Tagged Image File Format': 'tiff',
+                'Plain Text': 'txt',
+            }
+            format_name = as_formats.get(format_name)
 
         logger.info("Uploading {} to ArchivesSpace record {}".format(file_name, as_resource))
         client.add_digital_object(as_resource,
