@@ -31,7 +31,7 @@ interactions:
       User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-43-generic]
       X-ArchivesSpace-Session: [!!python/unicode '4a108561f24f7850cb136cd765405fd563853b39b626e7cf3bfc4a99ef2bab0c']
     method: GET
-    uri: http://localhost:8089/repositories/2/search?q=identifier%3ALI00022&page=1&page_size=30
+    uri: http://localhost:8089/repositories/2/search?q=fullrecord%3ALI00022+AND+primary_type%3A%28resource+OR+archival_object%29&page=1&page_size=30
   response:
     body: {string: !!python/unicode '{"first_page":1,"last_page":1,"this_page":1,"offset_first":1,"offset_last":1,"total_hits":1,"results":[{"id":"/repositories/2/resources/1151","title":"Digital
         futures : \nstrategies for the information age","primary_type":"resource","types":["resource"],"json":"{\"truncated\":
