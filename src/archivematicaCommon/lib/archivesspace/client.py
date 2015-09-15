@@ -477,9 +477,10 @@ class ArchivesSpaceClient(object):
         :return: List of dicts containing results.
         """
         def format_record(record):
+            identifier = record['identifier'] if 'identifier' in record else record.get('component_id', '')
             return {
                 'id': record['uri'],
-                'identifier': record['identifier'],
+                'identifier': identifier,
                 'title': record.get('title', ''),
                 'levelOfDescription': record['level']
             }
