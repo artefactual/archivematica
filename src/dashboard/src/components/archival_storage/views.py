@@ -386,7 +386,7 @@ def aip_file_download(request, uuid):
     )
 
     redirect_url = storage_service.extract_file_url(aip['fields']['uuid'][0], file_relative_path)
-    return HttpResponseRedirect(redirect_url)
+    return helpers.stream_file_from_storage_service(redirect_url, 'Storage service returned {}; check logs?')
 
 def aip_pointer_file_download(request, uuid):
     redirect_url = storage_service.pointer_file_url(uuid)

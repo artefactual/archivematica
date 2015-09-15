@@ -799,7 +799,8 @@ def download_ss(request):
     relative_path = filepath[filepath.find('/')+1:]
 
     redirect_url = storage_service.extract_file_url(transfer_uuid, relative_path)
-    return django.http.HttpResponseRedirect(redirect_url)
+    return helpers.stream_file_from_storage_service(redirect_url, 'Storage service returned {}; check logs?')
+
 
 def download_fs(request):
     shared_dir = os.path.realpath(helpers.get_server_config_value('sharedDirectory'))
@@ -834,14 +835,4 @@ def download_by_uuid(request, uuid):
         return helpers.json_response(response, status_code=404)
     relative_path = f.currentlocation.replace('%transferDirectory%', '')
     redirect_url = storage_service.extract_file_url(f.transfer_id, relative_path)
-
-    stream = requests.get(redirect_url, stream=True)
-    if stream.status_code == 200:
-        content_type = stream.headers.get('content-type', 'text/plain')
-        return django.http.StreamingHttpResponse(stream, content_type=content_type)
-    else:
-        response = {
-            'success': False,
-            'message': 'Storage service returned {}; check logs?'.format(stream.status_code)
-        }
-        return helpers.json_response(response, status=400)
+    return helpers.stream_file_from_storage_service(redirect_url, 'Storage service returned {}; check logs?')
