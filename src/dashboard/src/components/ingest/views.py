@@ -453,7 +453,12 @@ def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_
 
     parent = None
     for node in directories:
-        is_transfer = len(node.split('/')) == 1
+        node_parts = node.split('/')
+        is_transfer = len(node_parts) == 1
+        if not is_transfer:
+            node_not_draggable = not_draggable or node_parts[1] in ('logs', 'metadata')
+        else:
+            node_not_draggable = not_draggable
 
         if not node in record_map:
             dir_record = {
@@ -462,7 +467,7 @@ def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_
                 'id': str(uuid.uuid4()),
                 'title': base64.b64encode(os.path.basename(node)),
                 'relative_path': base64.b64encode(node),
-                'not_draggable': not_draggable,
+                'not_draggable': node_not_draggable,
                 'object_count': 0,
                 'children': [],
             }
@@ -479,6 +484,12 @@ def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_
 
         parent = dir_record
 
+    dir_parts = dir.split('/')
+    if len(dir_parts) > 1:
+        dir_not_draggable = not_draggable or dir_parts[1] in ('logs', 'metadata')
+    else:
+        dir_not_draggable = not_draggable
+
     child = {
         'type': 'file',
         'id': record['fileuuid'],
@@ -487,7 +498,7 @@ def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_
         'size': record['size'],
         'tags': record['tags'],
         'bulk_extractor_reports': record['bulk_extractor_reports'],
-        'not_draggable': not_draggable
+        'not_draggable': dir_not_draggable
     }
     if record['format']:
         format = record['format'][0]  # TODO handle multiple format identifications
