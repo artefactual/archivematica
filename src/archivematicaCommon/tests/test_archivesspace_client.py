@@ -80,7 +80,7 @@ def test_find_resource_children_recursion_level():
     client = ArchivesSpaceClient(**AUTH)
     data = client.get_resource_component_and_children('/repositories/2/resources/1',
                                                       recurse_max_level=1)
-    assert data['children'] is False
+    assert data['children'] == []
 
     data = client.get_resource_component_and_children('/repositories/2/resources/1',
                                                       recurse_max_level=2)
@@ -120,7 +120,7 @@ def test_find_by_field_identifier():
     assert len(data) == 1
     item = data[0]
     assert item['identifier'] == 'LI00022'
-    assert item['id'] == '/repositories/2/resources/1151'
+    assert item['id'] == '/repositories/2/resources/3'
     assert item['title'] == 'Digital futures : \nstrategies for the information age'
     assert item['levelOfDescription'] == 'item'
 
