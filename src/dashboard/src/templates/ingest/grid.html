@@ -35,7 +35,10 @@
   <script type="text/javascript">
     $(document).ready(function()
       {
-        renderBacklogSearchForm('/ingest/backlog/', originals_browser.display_data.bind(originals_browser));
+        var on_error = function(query_url) {
+          console.log('Failed to get transfer backlog data from ' + query_url);
+        };
+        renderBacklogSearchForm('/ingest/backlog/', originals_browser.display_data.bind(originals_browser), on_error);
 
         {% if polling_interval %}
           window.pollingInterval = {{ polling_interval }};
