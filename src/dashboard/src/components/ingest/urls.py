@@ -42,7 +42,7 @@ urlpatterns = patterns('',
     url(r'normalization-report/(?P<uuid>' + settings.UUID_REGEX + ')/$', views.ingest_normalization_report),
     url(r'preview/(?P<browse_type>[\w-]+)/(?P<jobuuid>' + settings.UUID_REGEX + ')/$', views.ingest_browse),
     url(r'backlog/file/download/(?P<uuid>' + settings.UUID_REGEX + ')/', views.transfer_file_download),
-    url(r'backlog/$', views.transfer_backlog, {'ui', 'legacy'}),
+    url(r'backlog/$', views.transfer_backlog, {'ui': 'legacy'}),
     url(r'appraisal_list/$', views.transfer_backlog, {'ui': 'appraisal'}),
 )
 
