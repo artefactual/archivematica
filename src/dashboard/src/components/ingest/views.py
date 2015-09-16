@@ -570,13 +570,16 @@ def transfer_backlog(request, ui):
             not_draggable = True
         if ui == 'legacy':
             _es_results_to_directory_tree(path['relative_path'], return_list, not_draggable=not_draggable)
-            response = return_list
         else:
             _es_results_to_appraisal_tab_format(path, directory_map, return_list, not_draggable=not_draggable)
-            response = {
-                "formats": [],  # TODO populate this
-                "transfers": return_list
-            }
+
+    if ui == 'legacy':
+        response = return_list
+    else:
+        response = {
+            'formats': [],  # TODO populate this
+            'transfers': return_list,
+        }
 
     # retun JSON response
     return helpers.json_response(response)
