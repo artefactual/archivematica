@@ -35,7 +35,7 @@
   <script type="text/javascript">
     $(document).ready(function()
       {
-        renderBacklogSearchForm(true);
+        renderBacklogSearchForm('/ingest/backlog/', originals_browser.display_data.bind(originals_browser));
 
         {% if polling_interval %}
           window.pollingInterval = {{ polling_interval }};

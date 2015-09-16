@@ -1,4 +1,4 @@
-function renderBacklogSearchForm(openInNewTab) {
+function renderBacklogSearchForm(search_uri, on_success) {
   // create new form instance, providing a single row of default data
   var search = new advancedSearch.AdvancedSearchView({
     el: $('#search_form_container'),
@@ -56,7 +56,7 @@ function renderBacklogSearchForm(openInNewTab) {
 
   function backlogSearchSubmit() {
     // Query Django, which queries ElasticSearch, to get the backlog file info
-    var query_url = '/ingest/backlog/' + '?' + search.toUrlParams();
+    var query_url = search_uri + '?' + search.toUrlParams();
     $.get(
       query_url,
       null,
@@ -64,7 +64,7 @@ function renderBacklogSearchForm(openInNewTab) {
         if (status == 'success') {
           // Originals browser from ingest_file_browser.js
           // Search information needs to go here
-          originals_browser.display_data(data)
+          on_success(data)
         } else {
           console.log('Failed to get transfer backlog data from '+query_url);
         }
