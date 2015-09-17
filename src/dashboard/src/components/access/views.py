@@ -157,7 +157,9 @@ def record_children(client, request, system='', record_id=''):
         }
         return helpers.json_response(response)
     elif request.method == 'GET':
-        return helpers.json_response(get_record(client, request, system=system, record_id=record_id)['children'])
+        records = client.get_resource_component_and_children(record_id,
+                                                             recurse_max_level=3)
+        return helpers.json_response(records['children'])
 
 
 @_authenticate_to_archivesspace
