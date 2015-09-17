@@ -16,7 +16,7 @@ from components.ingest.views_atk import get_atk_system_client
 from components.ingest.views_as import get_as_system_client
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from archiviststoolkit.client import ArchivistsToolkitError
+from archivistsToolkit.client import ArchivistsToolkitError
 from archivesspace.client import ArchivesSpaceError, AuthenticationError
 
 logger = logging.getLogger('archivematica.dashboard')
