@@ -288,6 +288,22 @@ class SIPArrange(models.Model):
             arrange=self.arrange_path)
 
 
+class SIPArrangeAccessMapping(models.Model):
+    """ Maps directories within SIPArrange to descriptive objects in a remote archival management system. """
+    ARCHIVESSPACE = "archivesspace"
+    ARCHIVISTS_TOOLKIT = "atk"
+    ATOM = "atom"
+    SYSTEMS = (
+        (ARCHIVESSPACE, "ArchivesSpace"),
+        (ARCHIVISTS_TOOLKIT, "Archivist's Toolkit"),
+        (ATOM, "AtoM"),
+    )
+
+    arrange_path = models.CharField(max_length=255)
+    system = models.CharField(choices=SYSTEMS, default=ATOM, max_length=255)
+    identifier = models.CharField(max_length=255)
+
+
 class File(models.Model):
     """ Information about Files in units (Transfers, SIPs). """
     uuid = models.CharField(max_length=36, primary_key=True, db_column='fileUUID')
