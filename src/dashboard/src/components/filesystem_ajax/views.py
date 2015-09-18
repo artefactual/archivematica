@@ -115,9 +115,9 @@ def contents(request):
     response = filesystem_ajax_helpers.directory_to_dict(path)
     return helpers.json_response(response)
 
-def arrange_contents(request):
-    path = request.GET.get('path')
-    if path is not None:
+def arrange_contents(request, path=None):
+    if path is None:
+        path = request.GET.get('path')
         try:
             base_path = base64.b64decode(path)
         except TypeError:
@@ -125,14 +125,15 @@ def arrange_contents(request):
                 'success': False,
                 'message': 'Could not base64-decode provided path: {}'.format(path),
             }
-            helpers.json_response(response, status_code=400)
-        # Must indicate that base_path is a folder by ending with /
-        if not base_path.endswith('/'):
-            base_path += '/'
-
-        if not base_path.startswith(DEFAULT_ARRANGE_PATH):
-            base_path = DEFAULT_ARRANGE_PATH
+            return helpers.json_response(response, status_code=400)
     else:
+        base_path = path
+
+    # Must indicate that base_path is a folder by ending with /
+    if not base_path.endswith('/'):
+        base_path += '/'
+
+    if not base_path.startswith(DEFAULT_ARRANGE_PATH):
         base_path = DEFAULT_ARRANGE_PATH
 
     # Query SIP Arrangement for results
@@ -393,7 +394,7 @@ def create_arranged_sip(staging_sip_path, files, sip_uuid):
     shutil.move(src=staging_abs_path, dst=sip_path)
 
 
-def copy_from_arrange_to_completed(request):
+def copy_from_arrange_to_completed(request, filepath=None):
     """ Create a SIP from the information stored in the SIPArrange table.
 
     Get all the files in the new SIP, and all their associated metadata, and
@@ -401,7 +402,8 @@ def copy_from_arrange_to_completed(request):
     and start the microservice chain.
     """
     error = None
-    filepath = base64.b64decode(request.POST.get('filepath', ''))
+    if filepath is None:
+        filepath = base64.b64decode(request.POST.get('filepath', ''))
     logging.info('copy_from_arrange_to_completed: filepath: %s', filepath)
 
     # Error checking
@@ -484,24 +486,31 @@ def copy_from_arrange_to_completed(request):
     return helpers.json_response(response, status_code=status_code)
 
 
+def create_arrange_directory(path):
+    if path.startswith(DEFAULT_ARRANGE_PATH):
+        models.SIPArrange.objects.get_or_create(
+            original_path=None,
+            arrange_path=os.path.join(path, ''), # ensure ends with /
+            file_uuid=None,
+        )
+    else:
+        raise ValueError('Directory is not within the arrange directory.')
+
+
 def create_directory_within_arrange(request):
     """ Creates a directory entry in the SIPArrange table.
 
     path: GET parameter, path to directory in DEFAULT_ARRANGE_PATH to create
     """
     error = None
-    
+
     path = base64.b64decode(request.POST.get('path', ''))
 
     if path:
-        if path.startswith(DEFAULT_ARRANGE_PATH):
-            models.SIPArrange.objects.create(
-                original_path=None,
-                arrange_path=os.path.join(path, ''), # ensure ends with /
-                file_uuid=None,
-            )
-        else:
-            error = 'Directory is not within the arrange directory.'
+        try:
+            create_arrange_directory(path)
+        except ValueError as e:
+            error = str(e)
 
     if error is not None:
         response = {
@@ -515,7 +524,7 @@ def create_directory_within_arrange(request):
 
     return helpers.json_response(response, status_code=status_code)
 
-def move_within_arrange(request):
+def move_within_arrange(request, sourcepath=None, destination=None):
     """ Move files/folders within SIP Arrange.
 
     source path is in GET parameter 'filepath'
@@ -524,8 +533,10 @@ def move_within_arrange(request):
     If a source/destination path ends with / it is assumed to be a folder,
     otherwise it is assumed to be a file.
     """
-    sourcepath = base64.b64decode(request.POST.get('filepath', ''))
-    destination = base64.b64decode(request.POST.get('destination', ''))
+    if sourcepath is None:
+        sourcepath = base64.b64decode(request.POST.get('filepath', ''))
+    if destination is None:
+        destination = base64.b64decode(request.POST.get('destination', ''))
     error = None
 
     logging.debug('Move within arrange: source: {}, destination: {}'.format(sourcepath, destination))
@@ -621,7 +632,7 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
     return ret
 
 
-def copy_to_arrange(request):
+def copy_to_arrange(request, sourcepath=None, destination=None):
     """ Add files from backlog to in-progress SIPs being arranged.
 
     sourcepath: GET parameter, path relative to this pipelines backlog. Leading
@@ -632,8 +643,10 @@ def copy_to_arrange(request):
     # Insert each file into the DB
 
     error = None
-    sourcepath  = base64.b64decode(request.POST.get('filepath', '')).lstrip('/')
-    destination = base64.b64decode(request.POST.get('destination', ''))
+    if sourcepath is None:
+        sourcepath = base64.b64decode(request.POST.get('filepath', '')).lstrip('/')
+    if destination is None:
+        destination = base64.b64decode(request.POST.get('destination', ''))
     logging.info('copy_to_arrange: sourcepath: {}'.format(sourcepath))
     logging.info('copy_to_arrange: destination: {}'.format(destination))
 

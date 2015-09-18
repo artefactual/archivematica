@@ -1,8 +1,10 @@
 # Standard library, alphabetical by import source
+import base64
 from functools import wraps
 import json
 import logging
 import sys
+import uuid
 
 # Django Core, alphabetical by import source
 import django.http
@@ -14,6 +16,8 @@ import MySQLdb  # for ATK exceptions
 from components import helpers
 from components.ingest.views_atk import get_atk_system_client
 from components.ingest.views_as import get_as_system_client
+import components.filesystem_ajax.views as filesystem_views
+from main.models import SIPArrangeAccessMapping
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivistsToolkit.client import ArchivistsToolkitError
@@ -65,6 +69,21 @@ def _authenticate_to_archivesspace(func):
                                                        content_type="application/json")
 
         return func(client, *args, **kwargs)
+    return wrapper
+
+
+def _get_arrange_path(func):
+    @wraps(func)
+    def wrapper(request, system='', record_id=''):
+        try:
+            mapping = SIPArrangeAccessMapping.objects.get(system=system, identifier=record_id.replace('-', '/'))
+            return func(request, mapping)
+        except SIPArrangeAccessMapping.DoesNotExist:
+            response = {
+                'success': False,
+                'message': 'No SIP Arrange mapping exists for record {}'.format(record_id),
+            }
+            return helpers.json_response(response, status_code=404)
     return wrapper
 
 
@@ -166,3 +185,97 @@ def record_children(client, request, system='', record_id=''):
 def get_levels_of_description(client, request, system=''):
     levels = client.get_levels_of_description()
     return helpers.json_response(levels)
+
+
+def create_arranged_directory(system, record_id):
+    """
+    Creates a directory to house an arranged SIP associated with `record_id` in `system`.
+
+    If a mapping already exists, returns the existing mapping.
+    Otherwise, creates one along with a directory in the arranged directory tree.
+    """
+    identifier = record_id.replace('-', '/')
+    mapping, created = SIPArrangeAccessMapping.objects.get_or_create(system=system,
+                                                                      identifier=identifier)
+    if created:
+        try:
+            filepath = '/arrange/' + record_id + str(uuid.uuid4())  # TODO: get this from the title?
+            filesystem_views.create_arrange_directory(filepath)
+        except ValueError:
+            mapping.delete()
+            return
+        else:
+            mapping.arrange_path = filepath
+            mapping.save()
+
+    return mapping
+
+
+def access_create_directory(request, system='', record_id=''):
+    """
+    Creates an arranged SIP directory for record `record_id` in `system`.
+    """
+    mapping = create_arranged_directory(system, record_id)
+    if mapping is not None:
+        response = {
+            'success': True,
+            'message': 'Creation successful.'
+        }
+        status_code = 201
+    else:
+        response = {
+            'success': False,
+            'message': 'Could not create arrange directory.'
+        }
+        status_code = 400
+    return helpers.json_response(response, status_code=status_code)
+
+
+def access_copy_to_arrange(request, system='', record_id=''):
+    """
+    Copies a record from POST parameter `filepath` into the SIP arrange directory for the specified record, creating a directory if necessary.
+
+    This should be used to copy files into the root of the SIP, while filesystem_ajax's version of this API should be used to copy deeper into the record.
+    """
+    mapping = create_arranged_directory(system, record_id)
+    if mapping is None:
+        response = {
+            'success': False,
+            'message': 'Unable to create directory.'
+        }
+        return helpers.json_response(response, status_code=400)
+    sourcepath = base64.b64decode(request.POST.get('filepath', '')).lstrip('/')
+    return filesystem_views.copy_to_arrange(request, sourcepath=sourcepath, destination=mapping.arrange_path + '/')
+
+
+def access_move_within_arrange(request, system='', record_id=''):
+    """
+    Moves a file from POST parameter `filepath` to the SIP arrange directory associated with the specified record, creating a directory if necessary.
+
+    This should be used to move files into the root of the SIP, while filesystem_ajax's version of this API should be used to copy deeper into the record.
+    """
+    mapping = create_arranged_directory(system, record_id)
+    if mapping is None:
+        response = {
+            'success': False,
+            'message': 'Unable to create directory.'
+        }
+        return helpers.json_response(response, status_code=400)
+    sourcepath = base64.b64decode(request.POST.get('filepath', '')).lstrip('/')
+    return filesystem_views.move_within_arrange(request, sourcepath=sourcepath, destination=mapping.arrange_path + '/')
+
+
+@_get_arrange_path
+def access_arrange_contents(request, mapping):
+    """
+    Lists the files in the root of the SIP arrange directory associated with this record.
+    """
+    return filesystem_views.arrange_contents(request, path=mapping.arrange_path + '/')
+
+
+@_get_arrange_path
+def access_arrange_start_sip(request, mapping):
+    """
+    Starts the SIP associated with this record.
+    """
+    return filesystem_views.copy_from_arrange_to_completed(request, filepath=mapping.arrange_path + '/')

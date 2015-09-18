@@ -1,0 +1,35 @@
+[
+{
+    "pk": 1,
+    "model": "main.siparrangeaccessmapping",
+    "fields": {
+        "arrange_path": "/arrange/-repositories-2-archival_objects-1-9634b79b-a7be-48ec-9961-a91aee35b53a",
+        "system": "archivesspace",
+        "identifier": "/repositories/2/archival_objects/1"
+    }
+},
+{
+    "pk": 1,
+    "model": "main.siparrange",
+    "fields": {
+        "transfer_uuid": null,
+        "aip_created": false,
+        "arrange_path": "/arrange/-repositories-2-archival_objects-1-9634b79b-a7be-48ec-9961-a91aee35b53a/",
+        "original_path": null,
+        "file_uuid": null,
+        "sip_created": false
+    }
+},
+{
+    "pk": 2, 
+    "model": "main.siparrange", 
+    "fields": {
+        "transfer_uuid": "a29e7e86-eca9-43b6-b059-6f23a9802dc8", 
+        "aip_created": false, 
+        "arrange_path": "/arrange/-repositories-2-archival_objects-1-9634b79b-a7be-48ec-9961-a91aee35b53a/evelyn_s_photo.jpg", 
+        "original_path": "originals/newsip-a29e7e86-eca9-43b6-b059-6f23a9802dc8/objects/evelyn_s_photo.jpg", 
+        "file_uuid": "4fa8f739-b633-4c0f-8833-d108a4f4e88d", 
+        "sip_created": false
+    }
+}
+]
