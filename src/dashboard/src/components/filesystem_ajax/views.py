@@ -201,10 +201,12 @@ def delete(request):
             'message': error,
             'error': True,
         }
+        status_code = 400
     else:
         response = {'message': 'Delete successful.'}
+        status_code = 200
 
-    return helpers.json_response(response)
+    return helpers.json_response(response, status_code=status_code)
 
 
 def delete_arrange(request):
@@ -465,10 +467,12 @@ def copy_from_arrange_to_completed(request):
             'message': str(error),
             'error': True,
         }
+        status_code = 400
     else:
         response = {'message': 'SIP created.'}
+        status_code = 201
 
-    return helpers.json_response(response)
+    return helpers.json_response(response, status_code=status_code)
 
 
 def create_directory_within_arrange(request):
@@ -495,10 +499,12 @@ def create_directory_within_arrange(request):
             'message': error,
             'error': True,
         }
+        status_code = 409
     else:
         response = {'message': 'Creation successful.'}
+        status_code = 201
 
-    return helpers.json_response(response)
+    return helpers.json_response(response, status_code=status_code)
 
 def move_within_arrange(request):
     """ Move files/folders within SIP Arrange.
@@ -536,10 +542,12 @@ def move_within_arrange(request):
             'message': error,
             'error': True,
         }
+        status_code = 400
     else:
         response = {'message': 'SIP files successfully moved.'}
+        status_code = 200
 
-    return helpers.json_response(response)
+    return helpers.json_response(response, status_code=status_code)
 
 def _find_uuid_of_transfer_in_originals_directory_using_path(transfer_path):
     transfer_basename = transfer_path.replace(ORIGINAL_DIR, '').split('/')[1]
@@ -700,10 +708,12 @@ def copy_to_arrange(request):
             'message': error,
             'error': True,
         }
+        status_code = 400
     else:
         response = {'message': 'Files added to the SIP.'}
+        status_code = 201
 
-    return helpers.json_response(response)
+    return helpers.json_response(response, status_code=status_code)
 
 
 def copy_metadata_files(request):
@@ -721,7 +731,7 @@ def copy_metadata_files(request):
             'error': True,
             'message': 'sip_uuid and source_paths[] both required.'
         }
-        return helpers.json_response(response)
+        return helpers.json_response(response, status_code=400)
 
     paths = [base64.b64decode(p) for p in paths]
     sip = models.SIP.objects.get(uuid=sip_uuid)
@@ -732,9 +742,12 @@ def copy_metadata_files(request):
 
     if not error:
         message = 'Metadata files added successfully.'
+        status_code = 201
+    else:
+        status_code = 500
     response = {'error': error, 'message': message}
 
-    return helpers.json_response(response)
+    return helpers.json_response(response, status_code=status_code)
 
 
 def copy_from_transfer_sources(paths, relative_destination):
