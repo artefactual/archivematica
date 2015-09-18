@@ -151,7 +151,7 @@ class ArchivesSpaceClient(object):
         record = self.get_record(record_id)
 
         # TODO: add more fields?
-        field_map = [{'title': 'title', 'level': 'levelOfDescription'}]
+        field_map = {'title': 'title', 'level': 'levelOfDescription'}
         fields_updated = False
         for field, targetfield in field_map.iteritems():
             try:
