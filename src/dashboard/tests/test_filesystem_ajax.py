@@ -88,7 +88,7 @@ class TestSIPArrange(TestCase):
         assert base64.b64encode('new_dir') not in json.loads(response.content)['entries']
         # Create directory
         response = self.client.post(reverse('components.filesystem_ajax.views.create_directory_within_arrange'), data={'path': base64.b64encode('/arrange/new_dir')}, follow=True)
-        assert response.status_code == 200
+        assert response.status_code == 201
         assert json.loads(response.content) == {'message': 'Creation successful.'}
         # Check created
         response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange')}, follow=True)
