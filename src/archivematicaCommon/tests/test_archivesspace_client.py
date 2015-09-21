@@ -80,7 +80,7 @@ def test_find_resource_children_recursion_level():
     client = ArchivesSpaceClient(**AUTH)
     data = client.get_resource_component_and_children('/repositories/2/resources/1',
                                                       recurse_max_level=1)
-    assert data['children'] == []
+    assert data['children'] is False
 
     data = client.get_resource_component_and_children('/repositories/2/resources/1',
                                                       recurse_max_level=2)
