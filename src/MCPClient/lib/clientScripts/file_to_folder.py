@@ -4,6 +4,8 @@ from __future__ import print_function
 import os
 import sys
 
+import django
+django.setup()
 # dashboard
 from main.models import Transfer
 
