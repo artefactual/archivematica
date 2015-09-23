@@ -57,4 +57,4 @@ class TestParseArchivesSpaceIDs(TestCase):
         r = ArchivesSpaceDIPObjectResourcePairing.objects.all()[0]
         assert r.dipuuid == self.sip_uuid
         assert r.fileuuid == 'ae8d4290-fe52-4954-b72a-0f591bee2e2f'
-        assert r.resourceid == '/repositories/2/resources/1151'
+        assert r.resourceid == '/repositories/2/archival_objects/752250'

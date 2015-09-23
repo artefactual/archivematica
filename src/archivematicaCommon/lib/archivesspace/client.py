@@ -495,9 +495,9 @@ class ArchivesSpaceClient(object):
 
         return collections
 
-    def find_by_field(self, field, search_pattern, fetched=0, page=1, page_size=30, sort_by=None):
+    def find_by_id(self, object_type, field, value):
         """
-        Find resource when searching by field exact value.
+        Find resource by a specific ID.
 
         Results are a dict in the format:
         {
@@ -507,32 +507,36 @@ class ArchivesSpaceClient(object):
             'levelOfDescription': <level of description>,
         }
 
-        :param str field: Name of the field to search
-        :param search_pattern: Value of the field to search for
+        :param str object_type: One of 'digital_object_components' or 'archival_objects'
+        :param str field: Name of the field to search.  One of 'component_id' or 'ref_id'.
+        :param value: Value of the field to search for
         :return: List of dicts containing results.
         """
         def format_record(record):
-            identifier = record['identifier'] if 'identifier' in record else record.get('component_id', '')
+            resolved = record['_resolved']
+            identifier = resolved['ref_id'] if 'ref_id' in resolved else resolved.get('component_id', '')
             return {
-                'id': record['uri'],
+                'id': record['ref'],
                 'identifier': identifier,
-                'title': record.get('title', ''),
-                'levelOfDescription': record.get('level', ''),
-                'fullrecord': record,
+                'title': resolved.get('title', ''),
+                'levelOfDescription': resolved.get('level', ''),
+                'fullrecord': resolved,
             }
 
+        if object_type not in ('digital_object_components', 'archival_objects'):
+            raise ValueError("object_type must be 'digital_object_components' or 'archival_objects'")
+        if field not in ('ref_id', 'component_id'):
+            raise ValueError("field must be 'component_id' or 'ref_id'")
+
         params = {
-            'page': page,
-            'page_size': page_size,
-            'q': '{}:{} AND primary_type:(resource OR archival_object)'.format(field, search_pattern)
+            field + '[]': value,
+            'resolve[]': object_type,
         }
 
-        if sort_by is not None:
-            params['sort'] = 'title_sort ' + sort_by
-
-        response = self._get(self.repository + '/search', params=params)
+        url = self.repository + '/find_by_id/' + object_type
+        response = self._get(url, params=params)
         hits = response.json()
-        return [format_record(r) for r in hits['results']]
+        return [format_record(r) for r in hits[object_type]]
 
     def augment_resource_ids(self, resource_ids):
         """

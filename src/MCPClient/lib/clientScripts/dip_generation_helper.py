@@ -104,7 +104,7 @@ def parse_archivesspace_ids(sip_path, sip_uuid):
         print('File:', f)
 
         # Query ref_id to client for resource_id
-        resource = client.find_by_field('fullrecord', ref_id)
+        resource = client.find_by_id('archival_objects', 'ref_id', ref_id)
         try:
             resource_id = resource[0]['id']
         except IndexError:

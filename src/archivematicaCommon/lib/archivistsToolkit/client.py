@@ -354,16 +354,9 @@ class ArchivistsToolkitClient(object):
 
         return [r[0] for r in cursor]
 
-    def find_by_field(self, field, search_pattern, fetched=0, page=1, page_size=30, sort_by=None):
-        """
-        Find resource when searching by field exact value.
-
-        Stubbed out to keep ArchivesSpace and Archivist's Toolkit APIs in sync.
-
-        :param str field: Name of the field to search
-        :param search_pattern: Value of the field to search for
-        """
-        raise NotImplementedError("Archivist's Toolkit does not implement find_by_field")
+    def find_by_id(self, object_type, field, value):
+        """ Find resource by a specific ID. """
+        raise NotImplementedError("Archivist's Toolkit does not implement find_by_id")
 
     def augment_resource_ids(self, resource_ids):
         """
