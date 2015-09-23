@@ -11,14 +11,14 @@ interactions:
     method: POST
     uri: http://localhost:8089/users/admin/login
   response:
-    body: {string: !!python/unicode '{"session":"4a108561f24f7850cb136cd765405fd563853b39b626e7cf3bfc4a99ef2bab0c","user":{"lock_version":898,"username":"admin","name":"Administrator","is_system_user":true,"create_time":"2014-12-05T20:32:17Z","system_mtime":"2015-07-08T21:38:45Z","user_mtime":"2015-07-08T21:38:45Z","jsonmodel_type":"user","groups":[],"is_admin":false,"uri":"/users/1","agent_record":{"ref":"/agents/people/1"},"permissions":{"/repositories/2":["view_repository","update_accession_record","update_resource_record","update_digital_object_record"],"_archivesspace":[]}}}
+    body: {string: !!python/unicode '{"session":"a7044300d27191551e5940423d1c0e9fb7a49354cab8d986eddcb1e940b9e6b4","user":{"lock_version":1508,"username":"admin","name":"Administrator","is_system_user":true,"create_time":"2014-12-05T20:32:17Z","system_mtime":"2015-09-23T00:07:23Z","user_mtime":"2015-09-23T00:07:23Z","jsonmodel_type":"user","groups":[],"is_admin":false,"uri":"/users/1","agent_record":{"ref":"/agents/people/1"},"permissions":{"/repositories/2":["view_repository","update_accession_record","update_resource_record","update_digital_object_record"],"_archivesspace":[]}}}
 
         '}
     headers:
       cache-control: ['private, must-revalidate, max-age=0']
-      content-length: ['550']
+      content-length: ['551']
       content-type: [application/json]
-      date: ['Wed, 08 Jul 2015 21:38:45 GMT']
+      date: ['Wed, 23 Sep 2015 00:07:23 GMT']
       server: [Jetty(8.1.5.v20120716)]
       x-content-type-options: [nosniff]
     status: {code: 200, message: OK}
@@ -29,7 +29,7 @@ interactions:
       Accept-Encoding: ['gzip, deflate']
       Connection: [keep-alive]
       User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-43-generic]
-      X-ArchivesSpace-Session: [!!python/unicode '4a108561f24f7850cb136cd765405fd563853b39b626e7cf3bfc4a99ef2bab0c']
+      X-ArchivesSpace-Session: [!!python/unicode 'a7044300d27191551e5940423d1c0e9fb7a49354cab8d986eddcb1e940b9e6b4']
     method: GET
     uri: http://localhost:8089/repositories/2/find_by_id/archival_objects?resolve%5B%5D=archival_objects&ref_id%5B%5D=a118514fab1b2ee6a7e9ad259e1de355
   response:
@@ -41,7 +41,7 @@ interactions:
       cache-control: ['private, must-revalidate, max-age=0']
       content-length: ['841']
       content-type: [application/json]
-      date: ['Wed, 08 Jul 2015 21:38:45 GMT']
+      date: ['Wed, 23 Sep 2015 00:07:23 GMT']
       server: [Jetty(8.1.5.v20120716)]
       x-content-type-options: [nosniff]
     status: {code: 200, message: OK}

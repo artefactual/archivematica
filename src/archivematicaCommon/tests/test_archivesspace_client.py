@@ -113,16 +113,16 @@ def test_count_collection_ids_search():
     ids = client.count_collections(search_pattern='Some')
     assert ids == 1
 
-@vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_find_by_field_identifier.yaml'))
-def test_find_by_field_identifier():
+@vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_find_by_id_refid.yaml'))
+def test_find_by_id_refid():
     client = ArchivesSpaceClient(**AUTH)
-    data = client.find_by_field('identifier', 'LI00022')
+    data = client.find_by_id('archival_objects', 'ref_id', 'a118514fab1b2ee6a7e9ad259e1de355')
     assert len(data) == 1
     item = data[0]
-    assert item['identifier'] == 'LI00022'
-    assert item['id'] == '/repositories/2/resources/3'
-    assert item['title'] == 'Digital futures : \nstrategies for the information age'
-    assert item['levelOfDescription'] == 'item'
+    assert item['identifier'] == 'a118514fab1b2ee6a7e9ad259e1de355'
+    assert item['id'] == '/repositories/2/archival_objects/752250'
+    assert item['title'] == 'Test AO'
+    assert item['levelOfDescription'] == 'file'
 
 @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_augment_ids.yaml'))
 def test_augment_ids():
