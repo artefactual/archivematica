@@ -991,3 +991,20 @@ def normalize_results_dict(d):
     This normalizes the dict by replacing the arrays with their first value.
     """
     return {k: v[0] for k, v in d['fields'].iteritems()}
+
+def augment_raw_search_results(raw_results):
+    """
+    This function takes JSON returned by an ES query and removes some superfluous data from the structure.
+    It also adds document_id.
+
+    :param raw_results: the raw JSON result from an elastic search query
+    :return: JSON result simplified, with document_id set
+    """
+    modifiedResults = []
+
+    for item in raw_results['hits']['hits']:
+        clone = item['_source'].copy()
+        clone['document_id'] = item[u'_id']
+        modifiedResults.append(clone)
+
+    return modifiedResults

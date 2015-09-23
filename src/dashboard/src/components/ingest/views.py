@@ -551,9 +551,8 @@ def transfer_backlog(request, ui):
         logger.exception('Error accessing index.')
         return HttpResponse('Error accessing index.')
 
-
     # Convert results into a more workable form
-    results = _transfer_backlog_augment_search_results(results)
+    results = elasticSearchFunctions.augment_raw_search_results(results)
 
     # Convert to a form JS can use:
     # [{'name': <filename>,
@@ -592,19 +591,8 @@ def transfer_backlog(request, ui):
             'transfers': return_list,
         }
 
-    # retun JSON response
+    # return JSON response
     return helpers.json_response(response)
-
-
-def _transfer_backlog_augment_search_results(raw_results):
-    modifiedResults = []
-
-    for item in raw_results['hits']['hits']:
-        clone = item['_source'].copy()
-        clone['document_id'] = item[u'_id']
-        modifiedResults.append(clone)
-
-    return modifiedResults
 
 
 def transfer_file_download(request, uuid):

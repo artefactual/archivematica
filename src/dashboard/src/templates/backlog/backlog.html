@@ -1,0 +1,64 @@
+{% extends "layout_fluid.html" %}
+
+{% block title %}Backlog search{% endblock %}
+{% block h1 %}Backlog search{% endblock %}
+{% block page_id %}Backlog search{% endblock %}
+
+{% block extra_css %}
+<link href="{{ STATIC_URL }}vendor/select2/select2.css" rel="stylesheet" type="text/css" />
+<link href="{{ STATIC_URL }}css/search.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/advanced-search-query-creator.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/backlog.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function()
+      {
+        renderBacklogSearchForm('/backlog/search', function(data) {
+          $('#backlog-entries tbody tr').remove();
+
+          $.each(data, function(k, v) {
+            transfer = v;
+
+            $('#backlog-entries').find('tbody')
+              .append($('<tr>')
+                .append($('<td>').text(transfer.name))
+                .append($('<td>').text(transfer.uuid))
+                .append($('<td>').text(transfer.file_count + ' files'))
+                .append($('<td>').text(transfer.ingest_date))
+                .append($('<td>')
+                  .append($('<a>')
+                    .attr('href', 'DELETETRANSFERURLHERE')
+                    .append($('<img>')
+                      .attr('src', '{{ STATIC_URL }}images/delete.png')
+                    )
+                  )
+                )
+              );
+          });
+        });
+      });
+  </script>
+{% endblock %}
+
+{% block content %}
+
+  {% include "ingest/backlog/_search_form.html" %}
+  <div class="activity-indicator">
+    <img src='/media/images/ajax-loader.gif' />
+  </div>
+
+  <table id="backlog-entries">
+    <thead>
+      <th>Transfer</th>
+      <th>UUID</th>
+      <th>Files</th>
+      <th>Ingest date</th>
+      <th>Actions</th>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+{% endblock %}
