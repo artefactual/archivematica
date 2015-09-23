@@ -905,6 +905,12 @@ class FPCommandOutput(models.Model):
     content = models.TextField(null=True)
     rule = models.ForeignKey('fpr.FPRule', db_column='ruleUUID', to_field='uuid')
 
+    class Meta(object):
+        db_table = u'FPCommandOutput'
+
+    def __unicode__(self):
+        return u'<file: {file}; rule: {rule}; content: {content}'.format(file=self.file, rule=self.rule, content=self.content[:20])
+
 class FileID(models.Model):
     """
     This table duplicates file ID values from FPR formats. It predates the current FPR tables.
