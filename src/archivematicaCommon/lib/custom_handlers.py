@@ -1,13 +1,14 @@
 import logging
+import logging.config
 import logging.handlers
 import os
 import sys
 
-class GroupWriteRotatingFileHandler(logging.handlers.RotatingFileHandler):    
+class GroupWriteRotatingFileHandler(logging.handlers.RotatingFileHandler):
     def _open(self):
         prevumask = os.umask(0o002)
         try:
-            rtv=logging.handlers.RotatingFileHandler._open(self)
+            rtv = logging.handlers.RotatingFileHandler._open(self)
             return rtv
         finally:
             os.umask(prevumask)
@@ -17,19 +18,41 @@ SCRIPT_FILE_FORMAT = "{}: %(levelname)-8s  %(asctime)s  %(name)s:%(funcName)s:%(
 
 
 def get_script_logger(name, formatter=SCRIPT_FILE_FORMAT, logfile="/var/log/archivematica/MCPClient/client_scripts.log", root="archivematica", logsize=4194304, level=logging.INFO):
-    formatter = logging.Formatter(fmt=formatter)
 
-    root_logger = logging.getLogger(root)
+    logging_config = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'fmt': {
+                'format': formatter,
+            },
+        },
+        'handlers': {
+            'logfile': {
+                'class': 'custom_handlers.GroupWriteRotatingFileHandler',
+                'formatter': 'fmt',
+                'filename': logfile,
+                'maxBytes': logsize,
+            }
+        },
+        'loggers': {
+            root: {  # 'archivematica'
+                'handlers': ['logfile'],
+                'level': level,
+                'propagate': False,
+            },
+            name: {  # 'archivematica.mcp.client.script_name'
+                'handlers': ['logfile'],
+                'level': level,
+                'propagate': False,
+            },
+        },
+        'root': {  # Everything else
+            'handlers': ['logfile'],
+            'level': 'WARNING',
+        },
+    }
+
+    logging.config.dictConfig(logging_config)
     logger = logging.getLogger(name)
-
-    root_handler = GroupWriteRotatingFileHandler(logfile, maxBytes=logsize)
-    root_handler.setFormatter(formatter)
-    handler = GroupWriteRotatingFileHandler(logfile, maxBytes=logsize)
-    handler.setFormatter(formatter)
-
-    root_logger.addHandler(root_handler)
-    root_logger.setLevel(level)
-    logger.addHandler(handler)
-    logger.setLevel(level)
-
     return logger
