@@ -281,6 +281,13 @@ def index(request):
                         target
                     )
 
+                    # use store DIP location for both DIP store chains
+                    if field['name'] == 'store_dip_location':
+                        xmlChoices.add_choice(
+                            '95172864-469a-4420-a4e7-e0df70349abc',
+                            target
+                        )
+
         xmlChoices.write_to_file(file_path)
 
         messages.info(request, 'Saved!')
