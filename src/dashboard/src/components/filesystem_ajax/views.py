@@ -670,15 +670,27 @@ def copy_to_arrange(request):
                    'file_uuid': None,
                    'transfer_uuid': None
                 })
-            to_add.extend(_get_arrange_directory_tree(backlog_uuid, sourcepath, arrange_path))
+            try:
+                to_add.extend(_get_arrange_directory_tree(backlog_uuid, sourcepath, arrange_path))
+            except storage_service.ResourceNotFound as e:
+                response = {
+                    'error': True,
+                    'message': 'Storage Service failed with the message: {}'.format(str(e))
+                }
+                return helpers.json_response(response, status_code=400)
         else:
             arrange_path = os.path.join(destination, os.path.basename(sourcepath))
             relative_path = sourcepath.replace(DEFAULT_BACKLOG_PATH, '', 1)
             try:
                 file_info = storage_service.get_file_metadata(relative_path=relative_path)[0]
             except storage_service.ResourceNotFound:
-                logging.warning('No file information returned from the Storage Service for file at relative_path: %s', relative_path)
-                raise
+                message = 'No file information returned from the Storage Service for file at relative_path: %s'
+                logging.warning(message, relative_path)
+                response = {
+                    'error': True,
+                    'message': message % relative_path,
+                }
+                return helpers.json_response(response, status_code=400)
             file_uuid = file_info.get('fileuuid')
             transfer_uuid = file_info.get('sipuuid')
             to_add.append({'original_path': sourcepath,
