@@ -305,35 +305,26 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             note_content = dip_uuid
             logger.debug("about to run sql8")
             sql8 = """insert into ArchDescriptionRepeatingData 
-                (archdescriptionrepeatingdataid, descriminator, version, lastupdated, created, lastupdatedby ,createdby, repeatingdatatype, title, sequenceNumber,
-                digitalObjectId, noteContent, notesetctypeid, basic, multiPart,internalOnly) values 
-                (%s, 'note', %s, %s, %s, %s, %s, 'Note', '', 0, %s, %s, 13, '', '', '')"""
+                (archDescriptionRepeatingDataId, descriminator, version, lastUpdated, created, lastUpdatedBy ,createdBy, repeatingDataType, title, sequenceNumber,
+                eadIngestProblem, digitalObjectId, noteContent, notesEtcTypeId, basic, multiPart, internalOnly) values 
+                (%s, 'note', 0, %s, %s, %s, %s, 'Note', '', %s, '', %s, %s, %s, '', '', '')"""
+
             logger.debug('sql8: ' + sql8)
-            adrd = process_sql(sql8, (newadrd, seq_num, time_now, time_now, atuser, atuser, doID, note_content ))
+            adrd = process_sql(sql8, (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content, 13 ))
         
             #conditions governing access note
             newadrd += 1
             seq_num += 1
             note_content = access_conditions
         
-            sql9 = """insert into ArchDescriptionRepeatingData 
-                (archdescriptionrepeatingdataid, descriminator, version, lastupdated, created, lastupdatedby ,createdby, repeatingdatatype, title, sequenceNumber,
-                digitalObjectId, noteContent, notesetctypeid, basic, multipart, internalOnly) values 
-                (%s, 'note', 0, %s, %s, %s, %s, 'Note', '', %s, %s, %s, 8, '', '', '')"""
-            logger.debug('sql9:' + sql9)
-            adrd = process_sql(sql9, (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content))
+            adrd = process_sql(sql8, (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content, 8))
          
             #conditions governing use` note
             newadrd += 1
             seq_num += 1
             note_content = use_conditions
 
-            sql10 = """insert into ArchDescriptionRepeatingData 
-                (archdescriptionrepeatingdataid, descriminator, version, lastupdated, created, lastupdatedby ,createdby, repeatingdatatype, title, sequenceNumber,
-                digitalObjectId, noteContent, notesetctypeid, basic, multipart, internalOnly) values 
-                (%s, 'note', 0, %s, %s, %s, %s, 'Note', '', %s, %s, %s, 9, '', '', '')"""
-            logger.debug('sql10:' + sql10)
-            adrd = process_sql(sql10, (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content))
+            adrd = process_sql(sql8, (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content, 9))
    
     process_sql("commit")
     delete_pairs(dip_uuid)
