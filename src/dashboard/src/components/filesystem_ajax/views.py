@@ -140,6 +140,13 @@ def arrange_contents(request):
     # need the objects, just the arrange_path
     paths = models.SIPArrange.objects.filter(sip_created=False).filter(aip_created=False).filter(arrange_path__startswith=base_path).order_by('arrange_path')
 
+    if len(paths) == 0:
+        response = {
+            'success': False,
+            'message': 'No files or directories found under path "{}"'.format(base_path)
+        }
+        return helpers.json_response(response, status_code=404)
+
     # Convert the response into an entries [] and directories []
     # 'entries' contains everything (files and directories)
     entries = set()

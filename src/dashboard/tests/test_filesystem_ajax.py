@@ -64,6 +64,12 @@ class TestSIPArrange(TestCase):
         assert response_dict['properties'][base64.b64encode("evelyn_s_second_photo")]['display_string'] == '1 objects'
         assert len(response_dict) == 3
 
+    def test_arrange_contents_404(self):
+        response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange/nosuchpath/')}, follow=True)
+        assert response.status_code == 404
+        response_dict = json.loads(response.content)
+        assert response_dict['success'] is False
+
     def test_delete_arranged_files(self):
         # Check to-be-deleted exists
         response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange')}, follow=True)
