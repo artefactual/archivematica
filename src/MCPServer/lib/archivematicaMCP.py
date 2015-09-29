@@ -45,7 +45,7 @@ import time
 import uuid
 
 import django
-sys.path.append('/usr/share/archivematica/dashboard')
+sys.path.append('/usr/lib/archivematica/MCPServer')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 django.setup()
 
@@ -357,6 +357,6 @@ if __name__ == '__main__':
     t.start()
     cleanupOldDbEntriesOnNewRun()
     watchDirectories()
-    
+
     # This is blocking the main thread with the worker loop
     RPCServer.startRPCServer()

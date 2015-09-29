@@ -26,6 +26,7 @@ import sys
 import uuid
 
 sys.path.append("/usr/share/archivematica/dashboard")
+from django_mysqlpool import auto_close_db
 from django.utils import timezone
 from main.models import Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
 
@@ -43,6 +44,7 @@ def getDeciDate(date):
             #ret += replacementChar
     return str("{:10.10f}".format(float(ret)))
 
+@auto_close_db
 def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="", sipUUID="", use="original"):
     """
     Creates a new entry in the Files table using the supplied arguments.
@@ -78,6 +80,7 @@ def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="", sip
 
     File.objects.create(**kwargs)
 
+@auto_close_db
 def getAgentForFileUUID(fileUUID):
     """
     Fetches the ID for the agent associated with the given file, if one exists.
@@ -119,6 +122,7 @@ def getAgentForFileUUID(fileUUID):
                 pass
     return agent
 
+@auto_close_db
 def insertIntoEvents(fileUUID, eventIdentifierUUID="", eventType="", eventDateTime=None, eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
     """
     Creates a new entry in the Events table using the supplied arguments.
@@ -144,6 +148,7 @@ def insertIntoEvents(fileUUID, eventIdentifierUUID="", eventType="", eventDateTi
                          event_outcome_detail=eventOutcomeDetailNote,
                          linking_agent=agent)
 
+@auto_close_db
 def insertIntoDerivations(sourceFileUUID="", derivedFileUUID="", relatedEventUUID=""):
     """
     Creates a new entry in the Derivations table using the supplied arguments. The two files in this relationship should already exist in the Files table.
@@ -161,6 +166,7 @@ def insertIntoDerivations(sourceFileUUID="", derivedFileUUID="", relatedEventUUI
                               derived_file_id=derivedFileUUID,
                               event_id=relatedEventUUID)
 
+@auto_close_db
 def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
     """
     Creates a new entry in the FPCommandOutput table using the supplied argument.
@@ -174,6 +180,7 @@ def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
     FPCommandOutput.objects.create(file_id=fileUUID, content=fitsXMLString,
                                    rule_id=ruleUUID)
 
+@auto_close_db
 def insertIntoFilesIDs(fileUUID="", formatName="", formatVersion="", formatRegistryName="", formatRegistryKey=""):
     """
     Creates a new entry in the FilesIDs table using the provided data.
@@ -189,7 +196,7 @@ def insertIntoFilesIDs(fileUUID="", formatName="", formatVersion="", formatRegis
 
 #user approved?
 #client connected/disconnected.
-
+@auto_close_db
 def logTaskCreatedSQL(taskManager, commandReplacementDic, taskUUID, arguments):
     """
     Creates a new entry in the Tasks table using the supplied data.
@@ -214,6 +221,7 @@ def logTaskCreatedSQL(taskManager, commandReplacementDic, taskUUID, arguments):
                         arguments=arguments,
                         createdtime=getUTCDate())
 
+@auto_close_db
 def logTaskCompletedSQL(task):
     """
     Fetches execution data from the completed task and logs it to the database.
@@ -235,17 +243,18 @@ def logTaskCompletedSQL(task):
     task.stderror = stdError
     task.save()
 
+@auto_close_db
 def logJobCreatedSQL(job):
     """
     Logs a job's properties into the Jobs table in the database.
 
     :param jobChainLink job: A jobChainLink instance.
-    :returns None:    
+    :returns None:
     """
     unitUUID =  job.unit.UUID
     decDate = getDeciDate("." + str(job.createdDate.microsecond))
     if job.unit.owningUnit != None:
-        unitUUID = job.unit.owningUnit.UUID 
+        unitUUID = job.unit.owningUnit.UUID
     Job.objects.create(jobuuid=job.UUID,
                        jobtype=job.description,
                        directory=job.unit.currentPath,
@@ -260,6 +269,7 @@ def logJobCreatedSQL(job):
 
     # TODO -un hardcode executing exeCommand
 
+@auto_close_db
 def fileWasRemoved(fileUUID, utcDate=None, eventDetail = "", eventOutcomeDetailNote = "", eventOutcome=""):
     """
     Logs the removal of a file from the database.
@@ -290,6 +300,7 @@ def fileWasRemoved(fileUUID, utcDate=None, eventDetail = "", eventOutcomeDetailN
     f.currentlocation = None
     f.save()
 
+@auto_close_db
 def createSIP(path, UUID=None, sip_type='SIP'):
     """
     Create a new SIP object for a SIP at the given path.
@@ -310,6 +321,7 @@ def createSIP(path, UUID=None, sip_type='SIP'):
 
     return UUID
 
+@auto_close_db
 def getAccessionNumberFromTransfer(UUID):
     """
     Fetches the accession number from a transfer, given its UUID.
