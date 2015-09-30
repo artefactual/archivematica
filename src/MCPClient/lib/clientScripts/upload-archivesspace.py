@@ -134,7 +134,7 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
             # HACK remove DIP from the path because create DIP doesn't
             access_file_path = access_file.currentlocation.replace('%SIPDirectory%DIP/', dip_location)
             size = os.path.getsize(access_file_path)
-            fv = FormatVersion.objects.get(fileformatversion__file_uuid=access_file.uuid)
+            fv = FormatVersion.objects.get(fileformatversion__file_uuid=uuid)
             format_version = fv.description
             format_name = fv.format.description
 
