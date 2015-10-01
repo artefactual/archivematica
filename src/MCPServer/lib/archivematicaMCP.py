@@ -291,7 +291,7 @@ LOGGING_CONFIG = {
         },
     },
     'handlers': {
-        'debug_logfile': {
+        'verboselogfile': {
             'level': 'DEBUG',
             'class': 'custom_handlers.GroupWriteRotatingFileHandler',
             'filename': '/var/log/archivematica/MCPServer/MCPServer.debug.log',
@@ -307,31 +307,16 @@ LOGGING_CONFIG = {
             'backupCount': 5,
             'maxBytes': 4 * 1024 * 1024,  # 4 MiB
         },
-        'null': {
-            'level': 'DEBUG',
-            'class': 'logging.NullHandler',
-        },
     },
     'loggers': {
-        'archivematica.mcp.server': {
-            'handlers': ['debug_logfile', 'logfile'],
+        'archivematica': {
             'level': 'DEBUG',
-            'propagate': False,
         },
-        'archivematica.common': {
-            'handlers': ['debug_logfile', 'logfile'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-        'py.warnings': {
-            'handlers': ['null'],
-            'propagate': False,
-        }
     },
     'root': {
-        'handlers': ['logfile'],
-        'level': 'INFO',
-    }
+        'handlers': ['logfile', 'verboselogfile'],
+        'level': 'WARNING',
+    },
 }
 
 if __name__ == '__main__':
