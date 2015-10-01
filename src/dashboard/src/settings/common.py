@@ -231,26 +231,26 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'django': {
-            'handlers': ['console', 'logfile'],
-            'propagate': True,
-            'level': 'ERROR',
-        },
-        'archivematica.dashboard': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
+        'archivematica.mcp': {
             'propagate': False,
         },
         'archivematica': {
-            'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
-            'propagate': False,
         },
         'elasticsearch': {
-            'handlers': ['console', 'logfile'],
             'level': 'INFO',
-        }
-    }
+        },
+        'archivesspace': {  # for archivematicaCommon/lib/archivesspace
+            'level': 'INFO',
+        },
+        'archiviststoolkit': {  # for archivematicaCommon/lib/archivistsToolkit
+            'level': 'INFO',
+        },
+    },
+    'root': {
+        'handlers': ['logfile'],
+        'level': 'WARNING',
+    },
 }
 
 # login-related settings
