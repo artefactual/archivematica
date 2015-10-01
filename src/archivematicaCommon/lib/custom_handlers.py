@@ -37,14 +37,10 @@ def get_script_logger(name, formatter=SCRIPT_FILE_FORMAT, logfile="/var/log/arch
         },
         'loggers': {
             root: {  # 'archivematica'
-                'handlers': ['logfile'],
                 'level': level,
-                'propagate': False,
             },
             name: {  # 'archivematica.mcp.client.script_name'
-                'handlers': ['logfile'],
                 'level': level,
-                'propagate': False,
             },
         },
         'root': {  # Everything else
