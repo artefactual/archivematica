@@ -211,10 +211,46 @@ def startThreads(t=1):
         t.daemon = True
         t.start()
 
+LOGGING_CONFIG = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'detailed': {
+            'format': '%(levelname)-8s  %(asctime)s  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+    },
+    'handlers': {
+        'logfile': {
+            'level': 'INFO',
+            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
+            'filename': '/var/log/archivematica/MCPClient/MCPClient.log',
+            'formatter': 'detailed',
+            'backupCount': 5,
+            'maxBytes': 4 * 1024 * 1024,  # 20 MiB
+        },
+        'verboselogfile': {
+            'level': 'DEBUG',
+            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
+            'filename': '/var/log/archivematica/MCPClient/MCPClient.debug.log',
+            'formatter': 'detailed',
+            'backupCount': 5,
+            'maxBytes': 4 * 1024 * 1024,  # 100 MiB
+        },
+    },
+    'loggers': {
+        'archivematica': {
+            'level': 'DEBUG',
+        },
+    },
+    'root': {
+        'handlers': ['logfile', 'verboselogfile'],
+        'level': 'WARNING',
+    }
+}
 if __name__ == '__main__':
-    logger = logging.getLogger("archivematica")
-    logger.addHandler(GroupWriteRotatingFileHandler("/var/log/archivematica/MCPClient/MCPClient.log", maxBytes=4194304))
-    logger.setLevel(logging.INFO)
+    logging.config.dictConfig(LOGGING_CONFIG)
+    logger = logging.getLogger("archivematica.mcp.client")
 
     loadSupportedModules(config.get('MCPClient', "archivematicaClientModules"))
     startThreads(config.getint('MCPClient', "numberOfTasks"))
