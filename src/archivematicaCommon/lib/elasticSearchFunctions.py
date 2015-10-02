@@ -55,6 +55,11 @@ MATCH_ALL_QUERY = {
     }
 }
 
+MACHINE_READABLE_FIELD_SPEC = {
+    'type': 'string',
+    'index': 'not_analyzed'
+}
+
 class ElasticsearchError(Exception):
     pass
 
@@ -234,74 +239,89 @@ def _sortable_string_field_specification(field_name):
         }
     }
 
-def set_up_mapping(conn, index):
-    machine_readable_field_spec = {
-        'type':  'string',
-        'index': 'not_analyzed'
+def set_up_mapping_aip_index(conn):
+    LOGGER.info('Creating AIP mapping...')
+    conn.indices.put_mapping(doc_type='aip', body={'aip': {'date_detection': True}}, index='aips')
+    LOGGER.info('AIP mapping created.')
+
+    mapping = {
+        'name': _sortable_string_field_specification('name'),
+        'size': {'type': 'double'},
+        'uuid': MACHINE_READABLE_FIELD_SPEC
     }
 
-    if index == 'transfers':
-        mapping = {
-            'filename'     : {'type': 'string'},
-            'relative_path': {'type': 'string'},
-            'fileuuid'     : machine_readable_field_spec,
-            'sipuuid'      : machine_readable_field_spec,
-            'accessionid'  : machine_readable_field_spec,
-            'status'       : machine_readable_field_spec,
-            'origin'       : machine_readable_field_spec,
-            'ingestdate'   : {'type': 'date' , 'format': 'dateOptionalTime'},
-            'created'      : {'type': 'double'},
-            'size'         : {'type': 'double'},
-            'tags'         : machine_readable_field_spec,
-            'file_extension': machine_readable_field_spec,
-            'bulk_extractor_reports': machine_readable_field_spec,
-            'format'       : {
-                'type'      : 'nested',
-                'properties': {
-                    'puid'  : machine_readable_field_spec,
-                    'format': {'type': 'string'},
-                    'group' : {'type': 'string'},
-                }
+    LOGGER.info('Creating AIP mapping...')
+    conn.indices.put_mapping(
+        doc_type='aip',
+        body={'aip': {'date_detection': True, 'properties': mapping}},
+        index='aips'
+    )
+    LOGGER.info('AIP mapping created.')
+
+    mapping = {
+        'AIPUUID': MACHINE_READABLE_FIELD_SPEC,
+        'FILEUUID': MACHINE_READABLE_FIELD_SPEC,
+        'isPartOf': MACHINE_READABLE_FIELD_SPEC,
+        'AICID': MACHINE_READABLE_FIELD_SPEC,
+    }
+
+    LOGGER.info('Creating AIP file mapping...')
+    conn.indices.put_mapping(
+        doc_type='aipfile',
+        body={'aipfile': {'date_detection': True, 'properties': mapping}},
+        index='aips'
+    )
+    LOGGER.info('AIP file mapping created.')
+
+def set_up_mapping_transfer_index(conn):
+    transferfile_mapping = {
+        'filename'     : {'type': 'string'},
+        'relative_path': {'type': 'string'},
+        'fileuuid'     : MACHINE_READABLE_FIELD_SPEC,
+        'sipuuid'      : MACHINE_READABLE_FIELD_SPEC,
+        'accessionid'  : MACHINE_READABLE_FIELD_SPEC,
+        'status'       : MACHINE_READABLE_FIELD_SPEC,
+        'origin'       : MACHINE_READABLE_FIELD_SPEC,
+        'ingestdate'   : {'type': 'date', 'format': 'dateOptionalTime'},
+        'created'      : {'type': 'double'},
+        'size'         : {'type': 'double'},
+        'tags'         : MACHINE_READABLE_FIELD_SPEC,
+        'file_extension': MACHINE_READABLE_FIELD_SPEC,
+        'bulk_extractor_reports': MACHINE_READABLE_FIELD_SPEC,
+        'format'        : {
+            'type'      : 'nested',
+            'properties': {
+                'puid'  : MACHINE_READABLE_FIELD_SPEC,
+                'format': {'type': 'string'},
+                'group' : {'type': 'string'},
             }
         }
+    }
 
-        print 'Creating transfer file mapping...'
-        conn.indices.put_mapping(doc_type='transferfile', body={'transferfile': {'properties': mapping}}, index='transfers')
-        print 'Transfer mapping created.'
+    LOGGER.info('Creating transfer file mapping...')
+    conn.indices.put_mapping(doc_type='transferfile', body={'transferfile': {'properties': transferfile_mapping}},
+                             index='transfers')
 
+    LOGGER.info('Transfer file mapping created.')
+
+    transfer_mapping = {
+        'name'       : {'type': 'string'},
+        'ingest_date': {'type': 'date', 'format': 'dateOptionalTime'},
+        'file_count' : {'type': 'integer'},
+        'sipuuid'    : MACHINE_READABLE_FIELD_SPEC,
+    }
+
+    LOGGER.info('Creating transfer mapping...')
+    conn.indices.put_mapping(doc_type='transfer', body={'transfer': {'properties': transfer_mapping}},
+                             index='transfers')
+
+    LOGGER.info('Transfer mapping created.')
+
+def set_up_mapping(conn, index):
+    if index == 'transfers':
+        set_up_mapping_transfer_index(conn)
     if index == 'aips':
-        print 'Creating AIP mapping...'
-        conn.indices.put_mapping(doc_type='aip', body={'aip': {'date_detection': True}}, index='aips')
-        print 'AIP mapping created.'
-
-        mapping = {
-            'name': _sortable_string_field_specification('name'),
-            'size': {'type': 'double'},
-            'uuid': machine_readable_field_spec
-        }
-
-        print 'Creating AIP mapping...'
-        conn.indices.put_mapping(
-            doc_type='aip',
-            body={'aip': {'date_detection': True, 'properties': mapping}},
-            index='aips'
-        )
-        print 'AIP mapping created.'
-
-        mapping = {
-            'AIPUUID': machine_readable_field_spec,
-            'FILEUUID': machine_readable_field_spec,
-            'isPartOf': machine_readable_field_spec,
-            'AICID': machine_readable_field_spec,
-        }
-
-        print 'Creating AIP file mapping...'
-        conn.indices.put_mapping(
-            doc_type='aipfile',
-            body={'aipfile': {'date_detection': True, 'properties': mapping}},
-            index='aips'
-        )
-        print 'AIP file mapping created.'
+        set_up_mapping_aip_index(conn)
 
 def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_aic=None, identifiers=[]):
     conn = connect_and_create_index('aips')
@@ -402,7 +422,7 @@ def connect_and_index_files(index, type, uuid, pathToArchive, identifiers=[], si
 
             # index AIP
             if os.path.isfile(metsFilePath):
-                filesIndexed = index_mets_file_metadata(
+                files_indexed = index_mets_file_metadata(
                     conn,
                     uuid,
                     metsFilePath,
@@ -414,7 +434,7 @@ def connect_and_index_files(index, type, uuid, pathToArchive, identifiers=[], si
 
             # index transfer
             else:
-                filesIndexed = index_transfer_files(
+                files_indexed = index_transfer_files(
                     conn,
                     uuid,
                     pathToArchive,
@@ -422,8 +442,10 @@ def connect_and_index_files(index, type, uuid, pathToArchive, identifiers=[], si
                     type
                 )
 
+                index_transfer(conn, uuid, files_indexed)
+
             print type + ' UUID: ' + uuid
-            print 'Files indexed: ' + str(filesIndexed)
+            print 'Files indexed: ' + str(files_indexed)
 
         else:
             error_message = "Directory does not exist: " + pathToArchive
@@ -625,6 +647,33 @@ def _list_bulk_extractor_reports(transfer_path, file_uuid):
     return reports
 
 
+def index_transfer(conn, uuid, file_count):
+    """
+    Indexes transfer with UUID `uuid`
+
+    :param conn: The ElasticSearch connection.
+    :param uuid: The UUID of the transfer we're indexing
+    :param file_count: The number of files in this transfer
+    :return: None
+    """
+    try:
+        transfer = Transfer.objects.get(uuid=uuid)
+        transfer_name = transfer.currentlocation.split('/')[-2]
+    except Transfer.DoesNotExist:
+        transfer_name = ''
+
+    transfer_data = {
+        'name'       : transfer_name,
+        'status'     : '',
+        'ingest_date': str(datetime.datetime.today())[0:10],
+        'file_count' : file_count,
+        'sipuuid'   : uuid,
+    }
+
+    wait_for_cluster_yellow_status(conn)
+    try_to_index(conn, transfer_data, 'transfers', 'transfer')
+
+
 def index_transfer_files(conn, uuid, pathToTransfer, index, type):
     """
     Indexes files in the Transfer with UUID `uuid` at path `pathToTransfer`.
@@ -637,7 +686,7 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
         trailing / but not including objects/
     index, type: index and type in ElasticSearch
     """
-    filesIndexed = 0
+    files_indexed = 0
     ingest_date  = str(datetime.datetime.today())[0:10]
 
     # Some files should not be indexed
@@ -687,7 +736,7 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
                 # TODO Index Backlog Location UUID?
                 indexData = {
                   'filename'     : filename,
-                  'relative_path' : relative_path,
+                  'relative_path': relative_path,
                   'fileuuid'     : file_uuid,
                   'sipuuid'      : uuid,
                   'accessionid'  : accession_id,
@@ -705,14 +754,14 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
                 wait_for_cluster_yellow_status(conn)
                 try_to_index(conn, indexData, index, type)
 
-                filesIndexed = filesIndexed + 1
+                files_indexed = files_indexed + 1
             else:
                 print 'Skipping indexing {}'.format(relative_path)
 
-    if filesIndexed > 0:
+    if files_indexed > 0:
         conn.indices.refresh()
 
-    return filesIndexed
+    return files_indexed
 
 def list_files_in_dir(path, filepaths=[]):
     # define entries
@@ -769,23 +818,32 @@ def document_id_from_field_query(conn, index, doc_types, field, value):
     return document_id
 
 def connect_and_change_transfer_file_status(uuid, status):
-    """ Update all files with sipuuid `uuid` to have status `status`. """
+    """ Update transfer sipuuid `uuid` to have status `status`.
+
+    This applies to both 'transfer' and 'transferfile' doc types.
+    """
+
     conn = connect_and_create_index('transfers')
-    # Fetch ES info for all files in the SIP
-    document_ids = _document_ids_from_field_query(conn, 'transfers', ['transferfile'], 'sipuuid', uuid)
-    # Update status
-    for doc_id in document_ids:
-        doc = {
-            "doc": {
-                "status": status
-            }
+    doc = {
+        "doc": {
+            "status": status
         }
+    }
+
+    # Update the status of all transfer files with this SIP UUID
+    document_ids = _document_ids_from_field_query(conn, 'transfers', ['transferfile'], 'sipuuid', uuid)
+    for doc_id in document_ids:
         conn.update(
             body=doc,
             index='transfers',
             doc_type='transferfile',
             id=doc_id,
         )
+
+    # Also update the status of the corresponding transfer doc_type
+    doc_id = document_id_from_field_query(conn, 'transfers', ['transfer'], 'sipuuid', uuid)
+    conn.update(body=doc, index='transfers', doc_type='transfer', id=doc_id)
+
     return len(document_ids)
 
 

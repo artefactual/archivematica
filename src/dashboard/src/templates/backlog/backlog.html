@@ -24,7 +24,7 @@
             $('#backlog-entries').find('tbody')
               .append($('<tr>')
                 .append($('<td>').text(transfer.name))
-                .append($('<td>').text(transfer.uuid))
+                .append($('<td>').text(transfer.sipuuid))
                 .append($('<td>').text(transfer.file_count + ' files'))
                 .append($('<td>').text(transfer.ingest_date))
                 .append($('<td>')
@@ -38,6 +38,7 @@
               );
           });
         });
+
       });
   </script>
 {% endblock %}

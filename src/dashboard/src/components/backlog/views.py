@@ -68,7 +68,7 @@ def search(request):
             results = conn.search(
                 body=query,
                 index='transfers',
-                doc_type='transferfile',
+                doc_type='transfer',
                 #fields='AIPUUID,sipName',
                 #sort='sipName:desc',
             )
@@ -104,19 +104,5 @@ def search(request):
         return helpers.json_response(results)
     else:
         transfers = elasticSearchFunctions.augment_raw_search_results(results)
-
-        working_dict = {}
-        for transfer in transfers:
-            # Use UUID as the key to check if an transfer has already been seen
-            if transfer['sipuuid'] in working_dict:
-                working_dict[transfer['sipuuid']]['file_count'] += 1
-            else:
-                working_dict[transfer['sipuuid']] = {
-                    'name': transfer['relative_path'].split('-')[0],
-                    'uuid': transfer['sipuuid'],
-                    'file_count': 1,
-                    'ingest_date': transfer['ingestdate']
-                }
-
-        return helpers.json_response(working_dict)
+        return helpers.json_response(transfers)
 
