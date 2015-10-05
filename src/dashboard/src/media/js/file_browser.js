@@ -45,7 +45,7 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
     }
 
     // the file explorer base class doesn't handle deletion
-    this.ajaxDeleteUrl = this.options.ajaxDeleteUrl || '/filesystem/delete/';
+    this.ajaxDeleteUrl = this.options.ajaxDeleteUrl || undefined;
 
     this.eventClickHandler = this.options.eventClickHandler;
 

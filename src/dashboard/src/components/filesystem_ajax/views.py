@@ -178,47 +178,6 @@ def arrange_contents(request, path=None):
     return helpers.json_response(response)
 
 
-def delete(request):
-    try:
-        filepath = request.POST['filepath']
-    except KeyError:
-        response = {
-            'success': False,
-            'message': 'No filepath to delete was provided!'
-        }
-        return helpers.json_response(response, status_code=400)
-    filepath = os.path.join('/', filepath)
-    error = filesystem_ajax_helpers.check_filepath_exists(filepath)
-
-    if error == None:
-        if os.path.isdir(filepath):
-            try:
-                shutil.rmtree(filepath)
-            except Exception:
-                logging.exception('Error deleting directory {}'.format(filepath))
-                error = 'Error attempting to delete directory.'
-        else:
-            os.remove(filepath)
-
-    # if deleting from originals, delete ES data as well
-    if ORIGINAL_DIR in filepath and filepath.index(ORIGINAL_DIR) == 0:
-        transfer_uuid = _find_uuid_of_transfer_in_originals_directory_using_path(filepath)
-        if transfer_uuid != None:
-            elasticSearchFunctions.connect_and_remove_backlog_transfer_files(transfer_uuid)
-
-    if error is not None:
-        response = {
-            'message': error,
-            'error': True,
-        }
-        status_code = 400
-    else:
-        response = {'message': 'Delete successful.'}
-        status_code = 200
-
-    return helpers.json_response(response, status_code=status_code)
-
-
 def delete_arrange(request):
     try:
         filepath = base64.b64decode(request.POST['filepath'])
