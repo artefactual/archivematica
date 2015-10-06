@@ -26,6 +26,9 @@ import lxml.etree as etree
 import os
 import re
 
+from django.db import close_old_connections
+
+
 REQUIRED_DIRECTORIES = [
     "logs",
     "logs/fileMeta",
@@ -200,3 +203,19 @@ def create_structured_directory(basepath, manual_normalization=False, printing=F
     create_directories(REQUIRED_DIRECTORIES, basepath=basepath, printing=printing)
     if manual_normalization:
         create_directories(MANUAL_NORMALIZATION_DIRECTORIES, basepath=basepath, printing=printing)
+
+
+def close_db_connections(fn):
+    """
+    Decorator to wrap a threaded function in a try-catch ensuring that the
+    database connections are closed if unrecoverable errors have occurred or if
+    it outlived its maximum age.
+
+    Similar to Django's behavior within HTTP request cycles.
+    """
+    def wrapped(*args,  **kwargs):
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            close_old_connections()
+    return wrapped

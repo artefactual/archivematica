@@ -38,6 +38,7 @@ from linkTaskManagerUnitVariableLinkPull import linkTaskManagerUnitVariableLinkP
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from databaseFunctions import logJobCreatedSQL, getUTCDate
+from archivematicaFunctions import close_db_connections
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode, TaskType
@@ -133,6 +134,7 @@ class jobChainLink:
                 return self.defaultNextChainLink
 
     @log_exceptions
+    @close_db_connections
     def setExitMessage(self, message):
         Job.objects.filter(jobuuid=self.UUID).update(currentstep=str(message))
 
@@ -149,6 +151,7 @@ class jobChainLink:
             LOGGER.debug('No exit message')
 
     @log_exceptions
+    @close_db_connections
     def linkProcessingComplete(self, exitCode, passVar=None):
         self.updateExitMessage(exitCode)
         self.jobChain.nextChainLink(self.getNextChainLinkPK(exitCode), passVar=passVar)
