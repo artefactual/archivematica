@@ -26,6 +26,9 @@ import lxml.etree as etree
 import os
 import re
 
+from django.db import close_old_connections
+
+
 REQUIRED_DIRECTORIES = [
     "logs",
     "logs/fileMeta",
@@ -211,9 +214,7 @@ def close_db_connections(fn):
     Similar to Django's behavior within HTTP request cycles.
     """
     def wrapped(*args,  **kwargs):
-        from django.db import close_old_connections
         try:
-            close_old_connections()
             return fn(*args, **kwargs)
         finally:
             close_old_connections()
