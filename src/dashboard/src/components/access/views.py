@@ -94,10 +94,17 @@ def all_records(client, request, system=''):
     search_pattern = request.GET.get('title', '')
     identifier = request.GET.get('identifier', '')
 
-    return helpers.json_response(client.find_collections(search_pattern=search_pattern,
-                                                         identifier=identifier,
-                                                         page=page,
-                                                         page_size=page_size))
+    records = client.find_collections(
+        search_pattern=search_pattern,
+        identifier=identifier,
+        page=page,
+        page_size=page_size,
+    )
+
+    for i, r in enumerate(records):
+        records[i] = _get_sip_arrange_children(r, system)
+
+    return helpers.json_response(records)
 
 
 @_authenticate_to_archivesspace
@@ -178,8 +185,22 @@ def record_children(client, request, system='', record_id=''):
     elif request.method == 'GET':
         records = client.get_resource_component_and_children(record_id,
                                                              recurse_max_level=3)
+        records = _get_sip_arrange_children(records, system)
         return helpers.json_response(records['children'])
 
+def _get_sip_arrange_children(record, system):
+    """ Recursively check for SIPArrange associations. """
+    try:
+        mapping = SIPArrangeAccessMapping.objects.get(system=system, identifier=record['id'])
+        record['path'] = mapping.arrange_path
+        record['children'] = record['children'] or []
+        record['has_children'] = True
+    except (SIPArrangeAccessMapping.MultipleObjectsReturned, SIPArrangeAccessMapping.DoesNotExist):
+        pass
+    if record['children']:  # record['children'] may be False
+        for i, r in enumerate(record['children']):
+            record['children'][i] = _get_sip_arrange_children(r, system)
+    return record
 
 @_authenticate_to_archivesspace
 def get_levels_of_description(client, request, system=''):
