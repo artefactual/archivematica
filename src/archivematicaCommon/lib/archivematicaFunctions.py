@@ -200,3 +200,21 @@ def create_structured_directory(basepath, manual_normalization=False, printing=F
     create_directories(REQUIRED_DIRECTORIES, basepath=basepath, printing=printing)
     if manual_normalization:
         create_directories(MANUAL_NORMALIZATION_DIRECTORIES, basepath=basepath, printing=printing)
+
+
+def close_db_connections(fn):
+    """
+    Decorator to wrap a threaded function in a try-catch ensuring that the
+    database connections are closed if unrecoverable errors have occurred or if
+    it outlived its maximum age.
+
+    Similar to Django's behavior within HTTP request cycles.
+    """
+    def wrapped(*args,  **kwargs):
+        from django.db import close_old_connections
+        try:
+            close_old_connections()
+            return fn(*args, **kwargs)
+        finally:
+            close_old_connections()
+    return wrapped

@@ -26,8 +26,9 @@ import os
 import time
 import threading
 import sys
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from archivematicaFunctions import unicodeToStr
+from archivematicaFunctions import unicodeToStr, close_db_connections
 
 from utils import log_exceptions
 from archivematicaMCP import debug
@@ -67,6 +68,7 @@ class archivematicaWatchDirectory:
             self.start()
 
     @log_exceptions
+    @close_db_connections
     def start(self):
         """Based on polling example: http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html"""
         self.run = True

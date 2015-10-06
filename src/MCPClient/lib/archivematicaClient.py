@@ -56,6 +56,7 @@ from main.models import Task
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from custom_handlers import GroupWriteRotatingFileHandler
 import databaseFunctions
+from archivematicaFunctions import close_db_connections
 from executeOrRunSubProcess import executeOrRun
 printOutputLock = threading.Lock()
 
@@ -86,6 +87,7 @@ def loadSupportedModules(file):
             loadSupportedModulesSupport(key, value)
 
 
+@close_db_connections
 def executeCommand(gearman_worker, gearman_job):
     try:
         execute = gearman_job.task
@@ -159,6 +161,7 @@ Unable to determine if it completed successfully."""
         return cPickle.dumps({"exitCode": -1, "stdOut": output[0], "stdError": output[1]})
 
 
+@close_db_connections
 def startThread(threadNumber):
     """Setup a gearman client, for the thread."""
     gm_worker = gearman.GearmanWorker([config.get('MCPClient', "MCPArchivematicaServer")])
@@ -184,6 +187,7 @@ def startThread(threadNumber):
                 failSleep += failSleepIncrementor
 
 
+@close_db_connections
 def flushOutputs():
     while True:
         sys.stdout.flush()

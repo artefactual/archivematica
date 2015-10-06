@@ -63,7 +63,7 @@ sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 import databaseFunctions
 from externals.singleInstance import singleinstance
-from archivematicaFunctions import unicodeToStr
+from archivematicaFunctions import unicodeToStr, close_db_connections
 
 from main.models import Job, SIP, Task, WatchedDirectory
 
@@ -138,6 +138,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
     return UUID
 
 @log_exceptions
+@close_db_connections
 def createUnitAndJobChain(path, config, terminate=False):
     path = unicodeToStr(path)
     if os.path.isdir(path):
@@ -240,6 +241,7 @@ def signal_handler(signalReceived, frame):
     exit(0)
 
 @log_exceptions
+@close_db_connections
 def debugMonitor():
     """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
     global countOfCreateUnitAndJobChainThreaded
@@ -255,6 +257,7 @@ def debugMonitor():
         time.sleep(3600)
 
 @log_exceptions
+@close_db_connections
 def flushOutputs():
     while True:
         sys.stdout.flush()

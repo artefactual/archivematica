@@ -38,7 +38,7 @@ global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 choicesAvailableForUnitsLock = threading.Lock()
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from archivematicaFunctions import unicodeToStr
+from archivematicaFunctions import unicodeToStr, close_db_connections
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import MicroServiceChainChoice
 
@@ -134,6 +134,7 @@ class linkTaskManagerChoice(LinkTaskManager):
         return ret
 
     @log_exceptions
+    @close_db_connections
     def proceedWithChoice(self, chain, agent, delayTimerStart=False):
         if agent:
             self.unit.setVariable("activeAgent", agent, None)
