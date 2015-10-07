@@ -240,7 +240,8 @@ def access_create_directory(request, system='', record_id=''):
     if mapping is not None:
         response = {
             'success': True,
-            'message': 'Creation successful.'
+            'message': 'Creation successful.',
+            'path': mapping.arrange_path,
         }
         status_code = 201
     else:
