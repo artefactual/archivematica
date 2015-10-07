@@ -70,6 +70,18 @@ class TestSIPArrange(TestCase):
         response_dict = json.loads(response.content)
         assert response_dict['success'] is False
 
+    def test_arrange_contents_empty_base_dir(self):
+        models.SIPArrange.objects.all().delete()
+        response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange/')}, follow=True)
+        assert response.status_code == 200
+        response_dict = json.loads(response.content)
+        assert 'directories' in response_dict
+        assert len(response_dict['directories']) == 0
+        assert 'entries' in response_dict
+        assert len(response_dict['entries']) == 0
+        assert 'properties' in response_dict
+        assert len(response_dict) == 3
+
     def test_delete_arranged_files(self):
         # Check to-be-deleted exists
         response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange')}, follow=True)

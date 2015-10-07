@@ -141,7 +141,7 @@ def arrange_contents(request, path=None):
     # need the objects, just the arrange_path
     paths = models.SIPArrange.objects.filter(sip_created=False).filter(aip_created=False).filter(arrange_path__startswith=base_path).order_by('arrange_path')
 
-    if len(paths) == 0:
+    if len(paths) == 0 and base_path != DEFAULT_ARRANGE_PATH:
         response = {
             'success': False,
             'message': 'No files or directories found under path "{}"'.format(base_path)
