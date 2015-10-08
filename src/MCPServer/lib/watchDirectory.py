@@ -26,12 +26,12 @@ import os
 import time
 import threading
 import sys
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from django_mysqlpool import auto_close_db
 from archivematicaFunctions import unicodeToStr
 
 from utils import log_exceptions
-from archivematicaMCP import debug
-DEBUG = debug
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -67,6 +67,7 @@ class archivematicaWatchDirectory:
             self.start()
 
     @log_exceptions
+    @auto_close_db
     def start(self):
         """Based on polling example: http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html"""
         self.run = True

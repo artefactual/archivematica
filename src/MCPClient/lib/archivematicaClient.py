@@ -46,19 +46,24 @@ import traceback
 config = ConfigParser.SafeConfigParser(
     defaults={'django_settings_module': 'settings.common'})
 config.read("/etc/archivematica/MCPClient/clientConfig.conf")
+
 os.environ['DJANGO_SETTINGS_MODULE'] = config.get('MCPClient', 'django_settings_module')
+sys.path.append("/usr/lib/archivematica/MCPClient")
 
 import django
 sys.path.append("/usr/share/archivematica/dashboard")
 django.setup()
+
 from main.models import Task
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from django_mysqlpool import auto_close_db
 from custom_handlers import GroupWriteRotatingFileHandler
 import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
-printOutputLock = threading.Lock()
 
+
+printOutputLock = threading.Lock()
 
 replacementDic = {
     "%sharedPath%": config.get('MCPClient', "sharedDirectoryMounted"),
@@ -86,6 +91,7 @@ def loadSupportedModules(file):
             loadSupportedModulesSupport(key, value)
 
 
+@auto_close_db
 def executeCommand(gearman_worker, gearman_job):
     try:
         execute = gearman_job.task
@@ -159,6 +165,7 @@ Unable to determine if it completed successfully."""
         return cPickle.dumps({"exitCode": -1, "stdOut": output[0], "stdError": output[1]})
 
 
+@auto_close_db
 def startThread(threadNumber):
     """Setup a gearman client, for the thread."""
     gm_worker = gearman.GearmanWorker([config.get('MCPClient', "MCPArchivematicaServer")])
@@ -184,6 +191,7 @@ def startThread(threadNumber):
                 failSleep += failSleepIncrementor
 
 
+@auto_close_db
 def flushOutputs():
     while True:
         sys.stdout.flush()

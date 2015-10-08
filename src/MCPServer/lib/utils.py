@@ -1,4 +1,3 @@
-
 import logging
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
