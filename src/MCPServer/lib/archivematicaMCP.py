@@ -44,22 +44,26 @@ import threading
 import time
 import uuid
 
-import django
-sys.path.append('/usr/share/archivematica/dashboard')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
+sys.path.append('/usr/lib/archivematica/MCPServer')
+
+import django
+sys.path.append("/usr/share/archivematica/dashboard")
 django.setup()
 
 # This project, alphabetical by import source
 import watchDirectory
+import RPCServer
+from utils import log_exceptions
+
 from jobChain import jobChain
 from unitSIP import unitSIP
 from unitDIP import unitDIP
 from unitFile import unitFile
 from unitTransfer import unitTransfer
-import RPCServer
-from utils import log_exceptions
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from django_mysqlpool import auto_close_db
 import databaseInterface
 import databaseFunctions
 from externals.singleInstance import singleinstance
@@ -81,7 +85,6 @@ limitTaskThreads = config.getint('Protocol', "limitTaskThreads")
 limitTaskThreadsSleep = config.getfloat('Protocol', "limitTaskThreadsSleep")
 limitGearmanConnectionsSemaphore = threading.Semaphore(value=config.getint('Protocol', "limitGearmanConnections"))
 reservedAsTaskProcessingThreads = config.getint('Protocol', "reservedAsTaskProcessingThreads")
-debug = False #Used to print additional debugging information
 stopSignalReceived = False #Tracks whether a sigkill has been received or not
 
 def isUUID(uuid):
@@ -138,6 +141,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
     return UUID
 
 @log_exceptions
+@auto_close_db
 def createUnitAndJobChain(path, config, terminate=False):
     path = unicodeToStr(path)
     if os.path.isdir(path):
@@ -240,6 +244,7 @@ def signal_handler(signalReceived, frame):
     exit(0)
 
 @log_exceptions
+@auto_close_db
 def debugMonitor():
     """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
     global countOfCreateUnitAndJobChainThreaded
@@ -255,6 +260,7 @@ def debugMonitor():
         time.sleep(3600)
 
 @log_exceptions
+@auto_close_db
 def flushOutputs():
     while True:
         sys.stdout.flush()
@@ -357,6 +363,6 @@ if __name__ == '__main__':
     t.start()
     cleanupOldDbEntriesOnNewRun()
     watchDirectories()
-    
+
     # This is blocking the main thread with the worker loop
     RPCServer.startRPCServer()

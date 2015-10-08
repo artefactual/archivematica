@@ -37,8 +37,11 @@ import archivematicaMCP
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 choicesAvailableForUnitsLock = threading.Lock()
+
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from django_mysqlpool import auto_close_db
 from archivematicaFunctions import unicodeToStr
+
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import MicroServiceChainChoice
 
@@ -134,6 +137,7 @@ class linkTaskManagerChoice(LinkTaskManager):
         return ret
 
     @log_exceptions
+    @auto_close_db
     def proceedWithChoice(self, chain, agent, delayTimerStart=False):
         if agent:
             self.unit.setVariable("activeAgent", agent, None)
