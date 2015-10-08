@@ -672,6 +672,6 @@ class ArchivesSpaceClient(object):
         # "parent" always refers to an archival_object instance; if this is rooted
         # directly to a resource, leave it out.
         if record_type == 'resource_component':
-            new_object["parent"] = {"ref": parent},
+            new_object["parent"] = {"ref": parent}
 
         return self._post(repository + '/archival_objects', data=json.dumps(new_object)).json()["uri"]

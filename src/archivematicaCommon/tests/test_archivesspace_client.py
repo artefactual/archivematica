@@ -162,3 +162,15 @@ def test_identifier_search_wildcard():
     assert client.find_collection_ids(identifier='F*') == ['/repositories/2/resources/1', '/repositories/2/resources/2']
     assert client.count_collections(identifier='F*') == 2
     assert len(client.find_collections(identifier='F*')) == 2
+
+@vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_add_child_resource.yaml'))
+def test_add_child_resource():
+    client = ArchivesSpaceClient(**AUTH)
+    uri = client.add_child('/repositories/2/resources/2', title='Test child', level='item')
+    assert uri == '/repositories/2/archival_objects/3'
+
+@vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_add_child_resource_component.yaml'))
+def test_add_child_resource_component():
+    client = ArchivesSpaceClient(**AUTH)
+    uri = client.add_child('/repositories/2/archival_objects/1', title='Test child', level='item')
+    assert uri == '/repositories/2/archival_objects/5'
