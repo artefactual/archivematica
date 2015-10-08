@@ -7,36 +7,75 @@
 {% block extra_css %}
 <link href="{{ STATIC_URL }}vendor/select2/select2.css" rel="stylesheet" type="text/css" />
 <link href="{{ STATIC_URL }}css/search.css" rel="stylesheet" type="text/css" />
+<link href="{{STATIC_URL}}vendor/datatables/css/jquery.dataTables.css" rel="stylesheet">
 {% endblock %}
 
 {% block js %}
   <script type="text/javascript" src="{{ STATIC_URL }}js/advanced-search-query-creator.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/backlog.js"></script>
+  <script type="text/javascript" src="{{STATIC_URL}}vendor/datatables/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/base64.js"></script>
+
   <script type="text/javascript">
     $(document).ready(function()
       {
-        renderBacklogSearchForm('/backlog/search', function(data) {
-          $('#backlog-entries tbody tr').remove();
+        var search = renderBacklogSearchForm(null, null, null);
 
-          $.each(data, function(k, v) {
-            transfer = v;
+        function render_file_actions_col(relative_path, type, row_data) {
+          return '<a target="_blank" href="' + '/filesystem/download_ss/?filepath=' +
+                  Base64.encode('/originals/' + relative_path) + '">Download</a>';
+        }
 
-            $('#backlog-entries').find('tbody')
-              .append($('<tr>')
-                .append($('<td>').text(transfer.name))
-                .append($('<td>').text(transfer.sipuuid))
-                .append($('<td>').text(transfer.file_count + ' files'))
-                .append($('<td>').text(transfer.ingest_date))
-                .append($('<td>')
-                  .append($('<a>')
-                    .attr('href', 'DELETETRANSFERURLHERE')
-                    .append($('<img>')
-                      .attr('src', '{{ STATIC_URL }}images/delete.png')
-                    )
-                  )
-                )
-              );
+        function get_datatable() {
+          if ($('#id_show_files').prop('checked')) {
+            var cols = [
+              {sTitle: 'Filename', mData: 'filename'},
+              {sTitle: 'File UUID', mData: 'fileuuid'},
+              {sTitle: 'SIP UUID', mData: 'sipuuid'},
+              {sTitle: 'Actions', mData: 'relative_path', mRender: render_file_actions_col}
+            ];
+          }
+          else {
+            var cols = [
+              {sTitle: 'Name', mData: 'name'},
+              {sTitle: 'SIP UUID', mData: 'sipuuid'},
+              {sTitle: 'File count', mData: 'file_count'},
+              {sTitle: 'Ingest date', mData: 'ingest_date'},
+              {sTitle: 'Actions', mData: null}
+            ];
+          }
+
+          return $('#backlog-entries').dataTable({
+            'bLengthChange': false,
+            'bFilter': false,
+            'sPaginationType': 'full_numbers',
+            'bServerSide': true,
+            'sAjaxSource': '/backlog/search?' + search.toUrlParams(),
+            'aoColumns': cols,
+            'fnServerData': function(sSource, aoData, fnCallback) {
+              aoData.push({ 'name': 'file_mode', 'value': $('#id_show_files').prop('checked') });
+              $.getJSON(sSource, aoData, function(json) {
+                fnCallback(json);
+              });
+            },
           });
+        }
+
+        dtable = get_datatable();
+
+        function refresh_search_results() {
+          $('#backlog-entries thead').empty();
+          dtable.fnDestroy();
+          dtable = get_datatable();
+        }
+
+        $('#id_show_files').change(function() {
+          refresh_search_results();
+          dtable.fnAdjustColumnSizing();
+        });
+
+        $('#search_submit').click(function() {
+          refresh_search_results();
         });
 
       });
@@ -51,15 +90,5 @@
   </div>
 
   <table id="backlog-entries">
-    <thead>
-      <th>Transfer</th>
-      <th>UUID</th>
-      <th>Files</th>
-      <th>Ingest date</th>
-      <th>Actions</th>
-    </thead>
-    <tbody>
-    </tbody>
   </table>
-
 {% endblock %}

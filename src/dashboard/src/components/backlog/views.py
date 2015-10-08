@@ -18,6 +18,8 @@
 import logging
 
 from django.shortcuts import render
+from django.http import HttpResponse
+
 import elasticSearchFunctions
 
 # This project, alphabetical by import source
@@ -34,75 +36,48 @@ def execute(request):
 
 @decorators.elasticsearch_required()
 def search(request):
+    """
+    A JSON end point that returns results for various backlog transfers and their files.
+    :param request:
+    :return:
+    """
     # get search parameters from request
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
     logger.debug('Backlog queries: %s, Ops: %s, Fields: %s, Types: %s', queries, ops, fields, types)
 
-    file_mode = request.GET.get('filemode', False)
+    file_mode = True if request.GET.get('file_mode') == 'true' else False
+    page_size = int(request.GET.get('iDisplayLength', 10))
+    start = int(request.GET.get('iDisplayStart', 0))
+
+    f = open('/tmp/lol', 'a')
+    print >> f, 'File mode: %r | page size: %d | start: %d' % (file_mode, page_size, start)
+    print >> f, repr(request.GET)
 
     conn = elasticSearchFunctions.connect_and_create_index('transfers')
 
-    # get string of URL parameters that should be passed along when paging
-    #search_params = advanced_search.extract_url_search_params_from_request(request)
-    #current_page_number = int(request.GET.get('page', 1))
-
-    results = None
-
     if 'query' not in request.GET:
-        queries, ops, fields, types = ('*', 'or', '', '')
+        queries, ops, fields, types = (['*'], ['or'], [''], ['term'])
 
+    print >> f, 'Queries: %r fields: %r types: %r ops: %r' % (queries, fields, types, ops)
     query = advanced_search.assemble_query(queries, ops, fields, types, search_index='transfers',
                                            doc_type='transferfile', filters={'term': {'status': 'backlog'}})
     try:
-        # use all results to pull transfer facets if not in file mode
-        # pulling only one field (we don't need field data as we augment
-        # the results using separate queries)
-        if not file_mode:
-            # Searching for AIPs still actually searches type 'aipfile', and
-            # returns the UUID of the AIP the files are a part of.  To search
-            # for an attribute of an AIP, the aipfile must index that
-            # information about their AIP in
-            # elasticSearchFunctions.index_mets_file_metadata
-            # Because we're searching aips/aipfile and not aips/aip,
-            # cannot using LazyPagedSequence
-            results = conn.search(
-                body=query,
-                index='transfers',
-                doc_type='transfer',
-                #fields='AIPUUID,sipName',
-                #sort='sipName:desc',
-            )
-        else:
-            # To reduce amount of data fetched from ES, use LazyPagedSequence
-            def es_pager(page, page_size):
-                """
-                Fetch one page of normalized aipfile entries from Elasticsearch.
+        doc_type = 'transferfile' if file_mode else 'transfer'
 
-                :param page: 1-indexed page to fetch
-                :param page_size: Number of entries on a page
-                :return: List of dicts for each entry with additional information
-                """
-                start = (page - 1) * page_size
-                results = conn.search(
-                    body=query,
-                    index='aips',
-                    doc_type='aipfile',
-                    from_=start,
-                    size=page_size,
-                    fields='AIPUUID,filePath,FILEUUID',
-                    sort='sipName:desc',
-                )
-                return search_augment_file_results(results)
-            count = conn.count(index='aips', doc_type='aipfile', body={'query': query['query']})['count']
-            results = LazyPagedSequence(es_pager, items_per_page, count)
+        hit_count = conn.search(index='transfers', doc_type=doc_type, body=query, search_type='count')['hits']['total']
+        hits = conn.search(index='transfers', doc_type=doc_type, body=query, from_=start, size=page_size)
 
-    except:
-        logger.exception('Error accessing index.')
+    except Exception as e:
+        logger.exception('Error accessing index: {}'.format(e))
         return HttpResponse('Error accessing index.')
 
-    if file_mode:
-        return helpers.json_response(results)
-    else:
-        transfers = elasticSearchFunctions.augment_raw_search_results(results)
-        return helpers.json_response(transfers)
+    r = {
+        'iTotalRecords': hit_count,
+        'iTotalDisplayRecords': hit_count,
+        'sEcho': int(request.GET.get('sEcho', 0)),  # It was recommended we convert sEcho to int to prevent XSS
+        'aaData': elasticSearchFunctions.augment_raw_search_results(hits)
+    }
 
+    print >> f, 'Replying: %r' % r
+
+    return helpers.json_response(r)
