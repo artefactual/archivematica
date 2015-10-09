@@ -113,6 +113,11 @@ class ArchivesSpaceClient(object):
                              params=params, data=data,
                              expected_response=expected_response)
 
+    def _delete(self, url, params={}, expected_response=200):
+        return self._request(self.session.delete, url,
+                             params=params,
+                             expected_response=expected_response)
+
     def resource_type(self, resource_id):
         """
         Given an ID, determines whether a given resource is a resource or a resource_component.
@@ -675,3 +680,9 @@ class ArchivesSpaceClient(object):
             new_object["parent"] = {"ref": parent}
 
         return self._post(repository + '/archival_objects', data=json.dumps(new_object)).json()["uri"]
+
+    def delete_record(self, record_id):
+        """
+        Delete a record with record_id.
+        """
+        return self._delete(record_id).json()

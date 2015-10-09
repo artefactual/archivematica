@@ -381,3 +381,6 @@ class ArchivistsToolkitClient(object):
 
     def find_collections(self, search_pattern='', identifier='', page=1, page_size=30):
         return self.augment_resource_ids(self.find_collection_ids(search_pattern, identifier, page=page, page_size=page_size))
+
+    def delete_record(self, record_id):
+        raise NotImplementedError("ArchivistsToolkitClient does not currently implement deleting records.")

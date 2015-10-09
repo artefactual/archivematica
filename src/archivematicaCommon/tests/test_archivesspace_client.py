@@ -6,7 +6,7 @@ import pytest
 import vcr
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from archivesspace.client import ArchivesSpaceClient, ArchivesSpaceError
+from archivesspace.client import ArchivesSpaceClient, ArchivesSpaceError, CommunicationError
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 AUTH = {
@@ -174,3 +174,23 @@ def test_add_child_resource_component():
     client = ArchivesSpaceClient(**AUTH)
     uri = client.add_child('/repositories/2/archival_objects/1', title='Test child', level='item')
     assert uri == '/repositories/2/archival_objects/5'
+
+@vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_delete_record_resource.yaml'))
+def test_delete_record_resource():
+    client = ArchivesSpaceClient(**AUTH)
+    record_id = '/repositories/2/resources/3'
+    assert client.get_record(record_id)
+    r = client.delete_record(record_id)
+    assert r['status'] == 'Deleted'
+    with pytest.raises(CommunicationError):
+        client.get_record(record_id)
+
+@vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_delete_record_archival_object.yaml'))
+def test_delete_record_archival_object():
+    client = ArchivesSpaceClient(**AUTH)
+    record_id = '/repositories/2/archival_objects/4'
+    assert client.get_record(record_id)
+    r = client.delete_record(record_id)
+    assert r['status'] == 'Deleted'
+    with pytest.raises(CommunicationError):
+        client.get_record(record_id)
