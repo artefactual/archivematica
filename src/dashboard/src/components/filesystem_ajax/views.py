@@ -178,15 +178,19 @@ def arrange_contents(request, path=None):
     return helpers.json_response(response)
 
 
-def delete_arrange(request):
-    try:
-        filepath = base64.b64decode(request.POST['filepath'])
-    except KeyError:
-        response = {
-            'success': False,
-            'message': 'No filepath to delete was provided!'
-        }
-        return helpers.json_response(response, status_code=400)
+def delete_arrange(request, filepath=None):
+    if filepath is None:
+        try:
+            filepath = base64.b64decode(request.POST['filepath'])
+        except KeyError:
+            response = {
+                'success': False,
+                'message': 'No filepath to delete was provided!'
+            }
+            return helpers.json_response(response, status_code=400)
+
+    # Delete access mapping if found
+    models.SIPArrangeAccessMapping.objects.filter(arrange_path=filepath).delete()
     models.SIPArrange.objects.filter(arrange_path__startswith=filepath).delete()
     return helpers.json_response({'message': 'Delete successful.'})
 

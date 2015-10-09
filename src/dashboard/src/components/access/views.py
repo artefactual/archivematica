@@ -139,6 +139,16 @@ def record(client, request, system='', record_id=''):
             return helpers.json_response(records)
         except ArchivesSpaceError as e:
             return helpers.json_response({'success': False, "message": str(e)}, status_code=400)
+    elif request.method == 'DELETE':
+        # Delete associated SIPArrange entries
+        try:
+            mapping = SIPArrangeAccessMapping.objects.get(system=system, identifier=record_id.replace('-', '/'))
+        except SIPArrangeAccessMapping.DoesNotExist:
+            logger.debug('No access mapping for %s', record_id)
+        else:
+            filesystem_views.delete_arrange(request, filepath=mapping.arrange_path + '/')
+        # Delete in Aspace
+        return helpers.json_response(client.delete_record(record_id.replace('-', '/')))
 
 
 @_authenticate_to_archivesspace
