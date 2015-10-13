@@ -9,13 +9,15 @@ import uuid
 
 import archivematicaXMLNamesSpace as ns
 
-# archivematicaCommon
-import fileOperations
-import databaseFunctions
-
+import django
+django.setup()
 # dashboard
 from main import models
 from fpr import models as fpr_models
+
+# archivematicaCommon
+import fileOperations
+import databaseFunctions
 
 MD_TYPE_SIP_ID = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
 
