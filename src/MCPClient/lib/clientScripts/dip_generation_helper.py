@@ -32,7 +32,8 @@ def create_archivesspace_client():
             host=config['%host%'],
             port=config['%port%'],
             user=config['%user%'],
-            passwd=config['%passwd%']
+            passwd=config['%passwd%'],
+            repository=config['%repository%']
         )
     except archivesspace.AuthenticationError:
         print("Unable to authenticate to ArchivesSpace server using the default user! Check administrative settings.")

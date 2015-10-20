@@ -7,7 +7,7 @@
         "replaces": null,
         "choiceavailableatlink": "a0db8294-f02a-4f49-a557-b1310a715ffc",
         "description": "ArchivesSpace Config",
-        "replacementdic": "{'%port%': '8089', '%object_type%': u'', '%host%': u'localhost', '%xlink_show%': u'none', '%use_statement%': u'none', '%uri_prefix%': u'none', '%xlink_actuate%': u'none', '%access_conditions%': u'', '%use_conditions%': u'', '%restrictions%': u'no', '%passwd%': u'admin', '%user%': u'admin'}"
+        "replacementdic": "{'%port%': '8089', '%object_type%': u'', '%host%': u'localhost', '%xlink_show%': u'none', '%use_statement%': u'none', '%uri_prefix%': u'none', '%xlink_actuate%': u'none', '%access_conditions%': u'', '%use_conditions%': u'', '%restrictions%': u'no', '%passwd%': u'admin', '%user%': u'admin', '%repository%': '2'}"
     }
 },
 {

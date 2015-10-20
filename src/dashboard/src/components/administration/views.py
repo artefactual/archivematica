@@ -142,6 +142,7 @@ def administration_as_dips(request):
                 "%access_conditions%": new_asconfig.access_conditions,
                 "%use_conditions%": new_asconfig.use_conditions,
                 "%use_statement%": new_asconfig.use_statement,
+                "%repository%": str(new_asconfig.repository),
             }
 
             logger.debug('New ArchivesSpace settings: %s', (settings,))
