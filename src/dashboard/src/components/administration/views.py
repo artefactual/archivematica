@@ -145,6 +145,7 @@ def administration_as_dips(request):
                 "%access_conditions%": new_asconfig.access_conditions,
                 "%use_conditions%": new_asconfig.use_conditions,
                 "%use_statement%": new_asconfig.use_statement,
+                "%repository%": str(new_asconfig.repository),
             }
 
             logger.debug('New ArchivesSpace settings: %s', (settings,))
@@ -387,7 +388,7 @@ def usage_clear(request, dir_id):
         # Determine if specific subdirectories need to be cleared, rather than
         # whole directory
         if 'subdirectories' in dir_info:
-            dirs_to_empty = [os.path.join(dir_info['path'], subdir) for subdir in dir_info['subdirectories']] 
+            dirs_to_empty = [os.path.join(dir_info['path'], subdir) for subdir in dir_info['subdirectories']]
         else:
             dirs_to_empty = [dir_info['path']]
 
