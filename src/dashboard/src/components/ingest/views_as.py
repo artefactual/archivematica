@@ -23,7 +23,8 @@ def get_as_system_client():
         host=config['%host%'],
         port=config['%port%'],
         user=config['%user%'],
-        passwd=config['%passwd%']
+        passwd=config['%passwd%'],
+        repository=config['%repository%']
     )
 
 
