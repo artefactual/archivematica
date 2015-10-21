@@ -26,11 +26,19 @@
                   Base64.encode('/originals/' + relative_path) + '">Download</a>';
         }
 
+        function render_transfer_actions_col(sipuuid, type, row_data) {
+          return '<a><img src="/media/images/delete.png"></a>';
+        }
+
+        function render_file_uuid_col(fileuuid, type, row_data) {
+          return fileuuid.length ? fileuuid : 'N/A'; // AM metadata files such as METS.xml won't have a file UUID
+        }
+
         function get_datatable() {
           if ($('#id_show_files').prop('checked')) {
             var cols = [
               {sTitle: 'Filename', mData: 'filename'},
-              {sTitle: 'File UUID', mData: 'fileuuid'},
+              {sTitle: 'File UUID', mData: 'fileuuid', mRender: render_file_uuid_col},
               {sTitle: 'SIP UUID', mData: 'sipuuid'},
               {sTitle: 'Actions', mData: 'relative_path', mRender: render_file_actions_col}
             ];
@@ -41,7 +49,7 @@
               {sTitle: 'SIP UUID', mData: 'sipuuid'},
               {sTitle: 'File count', mData: 'file_count'},
               {sTitle: 'Ingest date', mData: 'ingest_date'},
-              {sTitle: 'Actions', mData: null}
+              {sTitle: 'Actions', mData: 'sipuuid', mRender: render_transfer_actions_col}
             ];
           }
 
@@ -61,7 +69,7 @@
           });
         }
 
-        dtable = get_datatable();
+        var dtable = get_datatable();
 
         function refresh_search_results() {
           $('#backlog-entries thead').empty();

@@ -34,6 +34,27 @@ def execute(request):
     return render(request, 'backlog/backlog.html', locals())
 
 
+def get_es_property_from_column_index(index, file_mode):
+    """
+    When the user clicks a column header in the data table, we'll receive info in the ajax request
+    telling us which column # we're supposed to sort across in our query. This function will translate
+    the column index to the corresponding property name we'll tell ES to sort on.
+
+    :param index: The column index that the data table says we're sorting on
+    :param file_mode: Whether we're looking at transfers or transfer files
+    :return: The ES document property name corresponding to the column index in the data table.
+    """
+    table_columns = (
+        ('name', 'sipuuid', 'file_count', 'ingest_date', None),  # Transfers are being displayed
+        ('filename', 'fileuuid', 'sipuuid', None)                # Transfer files are being displayed
+    )
+
+    if index < 0 or index >= len(table_columns[file_mode]):
+        raise IndexError('Column index specified is invalid, got {}'.format(index))
+
+    return table_columns[file_mode][index]
+
+
 @decorators.elasticsearch_required()
 def search(request):
     """
@@ -49,35 +70,36 @@ def search(request):
     page_size = int(request.GET.get('iDisplayLength', 10))
     start = int(request.GET.get('iDisplayStart', 0))
 
-    f = open('/tmp/lol', 'a')
-    print >> f, 'File mode: %r | page size: %d | start: %d' % (file_mode, page_size, start)
-    print >> f, repr(request.GET)
+    order_by = get_es_property_from_column_index(int(request.GET.get('iSortCol_0', 0)), file_mode)
+    sort_direction = request.GET.get('sSortDir_0', 'asc')
 
     conn = elasticSearchFunctions.connect_and_create_index('transfers')
 
     if 'query' not in request.GET:
         queries, ops, fields, types = (['*'], ['or'], [''], ['term'])
 
-    print >> f, 'Queries: %r fields: %r types: %r ops: %r' % (queries, fields, types, ops)
     query = advanced_search.assemble_query(queries, ops, fields, types, search_index='transfers',
                                            doc_type='transferfile', filters={'term': {'status': 'backlog'}})
     try:
         doc_type = 'transferfile' if file_mode else 'transfer'
 
         hit_count = conn.search(index='transfers', doc_type=doc_type, body=query, search_type='count')['hits']['total']
-        hits = conn.search(index='transfers', doc_type=doc_type, body=query, from_=start, size=page_size)
+        hits = conn.search(
+            index='transfers',
+            doc_type=doc_type,
+            body=query,
+            from_=start,
+            size=page_size,
+            sort=order_by + ':' + sort_direction if order_by else ''
+        )
 
     except Exception as e:
         logger.exception('Error accessing index: {}'.format(e))
         return HttpResponse('Error accessing index.')
 
-    r = {
+    return helpers.json_response({
         'iTotalRecords': hit_count,
         'iTotalDisplayRecords': hit_count,
         'sEcho': int(request.GET.get('sEcho', 0)),  # It was recommended we convert sEcho to int to prevent XSS
         'aaData': elasticSearchFunctions.augment_raw_search_results(hits)
-    }
-
-    print >> f, 'Replying: %r' % r
-
-    return helpers.json_response(r)
+    })
