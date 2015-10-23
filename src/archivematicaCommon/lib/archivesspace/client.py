@@ -645,6 +645,7 @@ class ArchivesSpaceClient(object):
         repository = parent_record['repository']['ref']
         language = parent_record.get('language', '')
 
+
         if not title:
             filename = os.path.basename(uri) if uri is not None else 'Untitled'
             title = parent_record.get('title', filename)
@@ -668,27 +669,50 @@ class ArchivesSpaceClient(object):
             "notes": [{
                 "jsonmodel_type": "note_digital_object",
                 "type": "originalsloc",
-                "content": [dashboard_uuid]
+                "content": [dashboard_uuid],
+                "publish": True,
             }],
             "restrictions": restricted,
             "subjects": parent_record['subjects'],
             "linked_agents": parent_record['linked_agents'],
         }
 
+        note_digital_object_type = ["summary", "bioghist", "accessrestrict", "userestrict", "custodhist", "dimensions", "edition", "extent","altformavail", "originalsloc", "note", "acqinfo", "inscription", "langmaterial", "legalstatus", "physdesc", "prefercite", "processinfo", "relatedmaterial"]
+
+        for pnote in parent_record["notes"]:
+            content = []
+            if pnote["type"] in note_digital_object_type:
+                dnote = pnote["type"]
+            else:
+                dnote = "note"
+            for subnote in pnote["subnotes"]:
+                content.append(subnote["content"])
+
+            new_object["notes"].append({
+                "jsonmodel_type": "note_digital_object",
+                "type": dnote,
+                "label": pnote["label"],
+                "content": content,
+                "publish": pnote["publish"],
+            })
+
         if use_conditions:
             new_object["notes"].append({
                 "jsonmodel_type": "note_digital_object",
                 "type": "userestrict",
                 "content": [use_conditions],
+                "publish": True,
             })
         if access_conditions:
             new_object["notes"].append({
                 "jsonmodel_type": "note_digital_object",
                 "type": "accessrestrict",
                 "content": [access_conditions],
+                "publish": True,
             })
-        if not restricted:
-            new_object["file_versions"][0]["publish"] = True
+        if restricted:
+            new_object["file_versions"][0]["publish"] = False
+            new_object["publish"] = False
 
         if size:
             new_object['file_versions'][0]['file_size_bytes'] = size
