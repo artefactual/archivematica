@@ -306,9 +306,11 @@ def set_up_mapping_transfer_index(conn):
 
     transfer_mapping = {
         'name'       : {'type': 'string'},
+        'status'     : {'type': 'string'},
         'ingest_date': {'type': 'date', 'format': 'dateOptionalTime'},
         'file_count' : {'type': 'integer'},
         'sipuuid'    : MACHINE_READABLE_FIELD_SPEC,
+        'pending_deletion': {'type': 'boolean'}
     }
 
     LOGGER.info('Creating transfer mapping...')
@@ -663,11 +665,12 @@ def index_transfer(conn, uuid, file_count):
         transfer_name = ''
 
     transfer_data = {
-        'name'       : transfer_name,
-        'status'     : '',
-        'ingest_date': str(datetime.datetime.today())[0:10],
-        'file_count' : file_count,
-        'sipuuid'   : uuid,
+        'name'            : transfer_name,
+        'status'          : '',
+        'ingest_date'     : str(datetime.datetime.today())[0:10],
+        'file_count'      : file_count,
+        'sipuuid'         : uuid,
+        'pending_deletion': False,
     }
 
     wait_for_cluster_yellow_status(conn)
@@ -955,6 +958,10 @@ def get_transfer_file_info(field, value):
     return results
 
 
+def connect_and_remove_backlog_transfer(uuid):
+    return delete_matching_documents('transfers', 'transfer', 'sipuuid', uuid)
+
+
 def connect_and_remove_backlog_transfer_files(uuid):
     return connect_and_remove_transfer_files(uuid, 'transfer')
 
@@ -1021,25 +1028,38 @@ def delete_matching_documents(index, doc_type, field, value, **kwargs):
 
     return results['_indices'][index]['_shards']['successful'] == results['_indices'][index]['_shards']['total']
 
-def connect_and_update_status(uuid, status):
+
+def connect_and_update_field(uuid, index, doc_type, status_field, status):
     conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
-    document_id = document_id_from_field_query(conn, 'aips', ['aip'], 'uuid', uuid)
+    document_id = document_id_from_field_query(conn, index, [doc_type], 'uuid', uuid)
+
+    if document_id is None:
+        LOGGER.error('Unable to find document with UUID {} in index {}'.format(uuid, index))
+        return
+
     conn.update(
         body={
             'doc': {
-                'status': status
+                field: status
             }
         },
-        index='aips',
-        doc_type='aip',
+        index=index,
+        doc_type=doc_type,
         id=document_id
     )
 
-def connect_and_mark_deletion_requested(uuid):
-    connect_and_update_status(uuid, 'DEL_REQ')
 
-def connect_and_mark_stored(uuid):
-    connect_and_update_status(uuid, 'UPLOADED')
+def connect_and_mark_aip_deletion_requested(uuid):
+    connect_and_update_field(uuid, 'aips', 'aip', 'status', 'DEL_REQ')
+
+
+def connect_and_mark_aip_stored(uuid):
+    connect_and_update_field(uuid, 'aips', 'aip', 'status', 'UPLOADED')
+
+
+def connect_and_mark_backlog_deletion_requested(uuid):
+    connect_and_update_field(uuid, 'transfers', 'transfer', 'pending_deletion', True)
+
 
 def normalize_results_dict(d):
     """

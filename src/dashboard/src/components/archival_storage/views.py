@@ -324,7 +324,7 @@ def aip_delete(request, uuid):
 
         messages.info(request, response['message'])
 
-        elasticSearchFunctions.connect_and_mark_deletion_requested(uuid)
+        elasticSearchFunctions.connect_and_mark_aip_deletion_requested(uuid)
 
     except requests.exceptions.ConnectionError:
         error_message = 'Unable to connect to storage server. Please contact your administrator.'
@@ -570,7 +570,7 @@ def list_display(request):
                 elasticSearchFunctions.connect_and_delete_aip_files(aip['uuid'])
             elif aip_status != 'DEL_REQ':
                 # update the status in ElasticSearch for this AIP
-                elasticSearchFunctions.connect_and_mark_stored(aip['uuid'])
+                elasticSearchFunctions.connect_and_mark_aip_stored(aip['uuid'])
         else:
             aip_status = 'UPLOADED'
 

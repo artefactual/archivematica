@@ -16,11 +16,17 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import requests
+import slumber
 
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.contrib import messages
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.template import RequestContext
 
 import elasticSearchFunctions
+import storageService as storage_service
 
 # This project, alphabetical by import source
 from components import advanced_search
@@ -30,7 +36,45 @@ from components import helpers
 logger = logging.getLogger('archivematica.dashboard')
 
 
+def check_and_remove_deleted_transfers():
+    conn = elasticSearchFunctions.connect_and_create_index('transfers')
+
+    should_haves = [
+        {'match': {'pending_deletion': True}},
+    ]
+
+    query = {
+        "query": {
+            "bool": {
+                "should": should_haves
+            }
+        }
+    }
+
+    deletion_pending_results = conn.search(
+        body=query,
+        index='transfers',
+        doc_type='transfer',
+        fields='sipuuid,status'
+    )
+
+    for hit in deletion_pending_results['hits']['hits']:
+        transfer_uuid = hit['fields']['sipuuid'][0]
+
+        api_results = storage_service.get_file_info(uuid=transfer_uuid)
+        try:
+            aip_status = api_results[0]['status']
+        except IndexError:
+            logger.info("Transfer not found in storage service: {}".format(transfer_uuid))
+            continue
+
+        if aip_status == 'DELETED':
+            elasticSearchFunctions.connect_and_remove_backlog_transfer_files(transfer_uuid)
+            elasticSearchFunctions.connect_and_remove_backlog_transfer(transfer_uuid)
+
+
 def execute(request):
+    check_and_remove_deleted_transfers()
     return render(request, 'backlog/backlog.html', locals())
 
 
@@ -103,3 +147,32 @@ def search(request):
         'sEcho': int(request.GET.get('sEcho', 0)),  # It was recommended we convert sEcho to int to prevent XSS
         'aaData': elasticSearchFunctions.augment_raw_search_results(hits)
     })
+
+
+def delete_context(request, uuid):
+    prompt = 'Delete package?'
+    cancel_url = reverse("components.backlog.views.execute")
+    return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
+
+
+@decorators.confirm_required('backlog/delete_request.html', delete_context)
+def delete(request, uuid):
+    try:
+        reason_for_deletion = request.POST.get('reason_for_deletion', '')
+        response = storage_service.request_file_deletion(
+            uuid,
+            request.user.id,
+            request.user.email,
+            reason_for_deletion
+        )
+
+        messages.info(request, response['message'])
+        elasticSearchFunctions.connect_and_mark_backlog_deletion_requested(uuid)
+
+    except requests.exceptions.ConnectionError:
+        error_message = 'Unable to connect to storage server. Please contact your administrator.'
+        messages.warning(request, error_message)
+    except slumber.exceptions.HttpClientError:
+        raise Http404
+
+    return redirect('backlog_index')

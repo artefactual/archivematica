@@ -27,26 +27,21 @@
         }
 
         function render_transfer_actions_col(sipuuid, type, row_data) {
-          return '<a><img src="/media/images/delete.png"></a>';
-        }
-
-        function render_file_uuid_col(fileuuid, type, row_data) {
-          return fileuuid.length ? fileuuid : 'N/A'; // AM metadata files such as METS.xml won't have a file UUID
+          return '<a href="/backlog/delete/' + sipuuid + '"><img src="/media/images/delete.png"></a>';
         }
 
         function get_datatable() {
           if ($('#id_show_files').prop('checked')) {
             var cols = [
               {sTitle: 'Filename', mData: 'filename'},
-              {sTitle: 'File UUID', mData: 'fileuuid', mRender: render_file_uuid_col},
-              {sTitle: 'SIP UUID', mData: 'sipuuid'},
+              {sTitle: 'Transfer UUID', mData: 'sipuuid'},
               {sTitle: 'Actions', mData: 'relative_path', mRender: render_file_actions_col}
             ];
           }
           else {
             var cols = [
               {sTitle: 'Name', mData: 'name'},
-              {sTitle: 'SIP UUID', mData: 'sipuuid'},
+              {sTitle: 'Transfer UUID', mData: 'sipuuid'},
               {sTitle: 'File count', mData: 'file_count'},
               {sTitle: 'Ingest date', mData: 'ingest_date'},
               {sTitle: 'Actions', mData: 'sipuuid', mRender: render_transfer_actions_col}
