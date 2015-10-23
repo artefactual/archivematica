@@ -123,13 +123,33 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
 
         # Get file & format info
         # Client wants access copy info
+
+        original_name = ''
+        # Get file & format info
+        # Client wants access copy info
+        try:
+            original_file = File.objects.get(
+                filegrpuse='original',
+                uuid=uuid
+            )
+        except (File.DoesNotExist, File.MultipleObjectsReturned):
+            original_name=''
+            size = format_name = format_version = None
+        else:
+            # Set some variables based on the original, we will override most
+            # of these if there is an access derivative
+            size = os.path.getsize(f)
+            fv = FormatVersion.objects.get(fileformatversion__file_uuid=uuid)
+            format_version = fv.description
+            format_name = fv.format.description
+            original_name = os.path.basename(original_file.originallocation)
         try:
             access_file = File.objects.get(
                 filegrpuse='access',
                 original_file_set__source_file=uuid
             )
         except (File.DoesNotExist, File.MultipleObjectsReturned):
-            size = format_name = format_version = None
+            pass  # Just use original file info
         else:
             # HACK remove DIP from the path because create DIP doesn't
             access_file_path = access_file.currentlocation.replace('%SIPDirectory%DIP/', dip_location)
@@ -138,17 +158,18 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
             format_version = fv.description
             format_name = fv.format.description
 
-            # HACK map the format version to ArchivesSpace's fixed list of formats it accepts.
-            as_formats = {
-                'Audio Interchange File Format': 'aiff',
-                'Audio/Video Interleaved': 'avi',
-                'Graphics Interchange Format': 'gif',
-                'JPEG': 'jpeg',
-                'MPEG Audio': 'mp3',
-                'PDF': 'pdf',
-                'Tagged Image File Format': 'tiff',
-                'Plain Text': 'txt',
-            }
+        # HACK map the format version to ArchivesSpace's fixed list of formats it accepts.
+        as_formats = {
+            'Audio Interchange File Format': 'aiff',
+            'Audio/Video Interleaved': 'avi',
+            'Graphics Interchange Format': 'gif',
+            'JPEG': 'jpeg',
+            'MPEG Audio': 'mp3',
+            'PDF': 'pdf',
+            'Tagged Image File Format': 'tiff',
+            'Plain Text': 'txt',
+        }
+        if format_name is not None:
             format_name = as_formats.get(format_name)
 
         logger.info("Uploading {} to ArchivesSpace record {}".format(file_name, as_resource))
@@ -156,6 +177,7 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
                                   dashboard_uuid,
                                   # TODO: fetch a title from DC?
                                   #       Use the title of the parent record?
+                                  title=original_name,
                                   uri=uri + file_name,
                                   identifier=uuid,
                                   object_type=object_type,
