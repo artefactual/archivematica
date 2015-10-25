@@ -133,7 +133,7 @@ def start(data):
         # Add -e if data.rsync_command was passed to this script
         if data.rsync_command:
             # Insert in second position. Example: rsync -e "ssh -i key" ...
-            command.insert(1, "-e \"%s\"" % data.rsync_command)
+            command.insert(1, "-e %s" % data.rsync_command)
 
         log(' '.join(command))
 
