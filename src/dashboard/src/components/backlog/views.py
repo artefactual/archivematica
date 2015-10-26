@@ -63,12 +63,12 @@ def check_and_remove_deleted_transfers():
 
         api_results = storage_service.get_file_info(uuid=transfer_uuid)
         try:
-            aip_status = api_results[0]['status']
+            status = api_results[0]['status']
         except IndexError:
             logger.info("Transfer not found in storage service: {}".format(transfer_uuid))
             continue
 
-        if aip_status == 'DELETED':
+        if status == 'DELETED':
             elasticSearchFunctions.connect_and_remove_backlog_transfer_files(transfer_uuid)
             elasticSearchFunctions.connect_and_remove_backlog_transfer(transfer_uuid)
 
@@ -176,3 +176,7 @@ def delete(request, uuid):
         raise Http404
 
     return redirect('backlog_index')
+
+
+def download(request, uuid):
+    return HttpResponseRedirect(storage_service.download_file_url(uuid))

@@ -8,6 +8,7 @@
 <link href="{{ STATIC_URL }}vendor/select2/select2.css" rel="stylesheet" type="text/css" />
 <link href="{{ STATIC_URL }}css/search.css" rel="stylesheet" type="text/css" />
 <link href="{{STATIC_URL}}vendor/datatables/css/jquery.dataTables.css" rel="stylesheet">
+<link href="{{ STATIC_URL }}css/backlog.css" rel="stylesheet" type="text/css" />
 {% endblock %}
 
 {% block js %}
@@ -15,83 +16,11 @@
   <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/backlog.js"></script>
   <script type="text/javascript" src="{{STATIC_URL}}vendor/datatables/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/base64.js"></script>
-
-  <script type="text/javascript">
-    $(document).ready(function()
-      {
-        var search = renderBacklogSearchForm(null, null, null);
-
-        function render_file_actions_col(relative_path, type, row_data) {
-          return '<a target="_blank" href="' + '/filesystem/download_ss/?filepath=' +
-                  Base64.encode('/originals/' + relative_path) + '">Download</a>';
-        }
-
-        function render_transfer_actions_col(sipuuid, type, row_data) {
-          return '<a href="/backlog/delete/' + sipuuid + '"><img src="/media/images/delete.png"></a>';
-        }
-
-        function get_datatable() {
-          if ($('#id_show_files').prop('checked')) {
-            var cols = [
-              {sTitle: 'Filename', mData: 'filename'},
-              {sTitle: 'Transfer UUID', mData: 'sipuuid'},
-              {sTitle: 'Actions', mData: 'relative_path', mRender: render_file_actions_col}
-            ];
-          }
-          else {
-            var cols = [
-              {sTitle: 'Name', mData: 'name'},
-              {sTitle: 'Transfer UUID', mData: 'sipuuid'},
-              {sTitle: 'File count', mData: 'file_count'},
-              {sTitle: 'Ingest date', mData: 'ingest_date'},
-              {sTitle: 'Actions', mData: 'sipuuid', mRender: render_transfer_actions_col}
-            ];
-          }
-
-          return $('#backlog-entries').dataTable({
-            'bLengthChange': false,
-            'bFilter': false,
-            'sPaginationType': 'full_numbers',
-            'bServerSide': true,
-            'sAjaxSource': '/backlog/search?' + search.toUrlParams(),
-            'aoColumns': cols,
-            'fnServerData': function(sSource, aoData, fnCallback) {
-              aoData.push({ 'name': 'file_mode', 'value': $('#id_show_files').prop('checked') });
-              $.getJSON(sSource, aoData, function(json) {
-                fnCallback(json);
-              });
-            },
-          });
-        }
-
-        var dtable = get_datatable();
-
-        function refresh_search_results() {
-          $('#backlog-entries thead').empty();
-          dtable.fnDestroy();
-          dtable = get_datatable();
-        }
-
-        $('#id_show_files').change(function() {
-          refresh_search_results();
-          dtable.fnAdjustColumnSizing();
-        });
-
-        $('#search_submit').click(function() {
-          refresh_search_results();
-        });
-
-      });
-  </script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/backlog/backlog-search.js"></script>
 {% endblock %}
 
 {% block content %}
-
   {% include "ingest/backlog/_search_form.html" %}
-  <div class="activity-indicator">
-    <img src='/media/images/ajax-loader.gif' />
-  </div>
-
   <table id="backlog-entries">
   </table>
 {% endblock %}

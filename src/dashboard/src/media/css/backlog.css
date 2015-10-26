@@ -1,0 +1,12 @@
+.delete-icon {
+  vertical-align: middle;
+  margin-left: 3px;
+}
+
+.paging_full_numbers a.paginate_button {
+  background-color: white;
+}
+
+.dataTables_paginate {
+  margin-top: 2px;
+}
