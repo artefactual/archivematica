@@ -480,7 +480,8 @@ class ArchivesSpaceClient(object):
         params = {
             'page': page,
             'page_size': page_size,
-            'q': 'identifier:{}'.format(accession)
+            'q': 'identifier:{}'.format(accession),
+            'type[]': 'accession',
         }
         response = self._get(self.repository + '/search', params=params)
         hits = response.json()
