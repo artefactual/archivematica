@@ -35,6 +35,7 @@
 
             {% url 'main.views.home' as url_home %}
             {% url 'components.transfer.views.grid' as url_transfer %}
+            {% url 'components.backlog.views.execute' as url_backlog %}
             {% url 'components.ingest.views.ingest_grid' as url_ingest %}
             {% url 'components.archival_storage.views.overview' as url_archival_storage %}
             {% url 'fpr_index' as url_fpr %}
@@ -45,6 +46,7 @@
 
               <li class="{% active request url_transfer %}"><a href="{{ url_transfer }}">Transfer</a></li>
               <li class="{% active request url_ingest %}"><a href="{{ url_ingest }}">Ingest</a></li>
+              <li class="{% active request url_backlog %}"><a href="{{ url_backlog }}">Backlog</a></li>
               <li class="{% active request url_archival_storage %}"><a href="{{ url_archival_storage }}">Archival storage</a></li>
               <li class="{% active request url_fpr %}"><a href="{{ url_fpr }}">Preservation planning</a></li>
               <li class="{% active request url_access %}"><a href="{{ url_access }}">Access</a></li>
