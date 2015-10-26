@@ -3,13 +3,14 @@ $(document).ready(function()
     var search = renderBacklogSearchForm(null, null, null);
 
     function render_file_actions_col(relative_path, type, row_data) {
-      return '<a target="_blank" href="' + '/filesystem/download_ss/?filepath=' +
+      return '<a class="btn fa-download fa" target="_blank" href="' + '/filesystem/download_ss/?filepath=' +
               Base64.encode('/originals/' + relative_path) + '">Download</a>';
     }
 
-    function render_transfer_actions_col(sipuuid, type, row_data) {
-      return '<a class="btn" href="/backlog/download/' + sipuuid + '">Download</a>' +
-             '<a href="/backlog/delete/' + sipuuid + '"><img class="delete-icon" src="/media/images/delete.png"></a>';
+    function render_transfer_actions_col(uuid, type, row_data) {
+      return '<a class="btn" href="/backlog/download/' + uuid + '">Download</a>' +
+             '<a href="/backlog/delete/' + uuid + '"><img title="Request deletion" \
+             class="delete-icon" src="/media/images/delete.png"></a>';
     }
 
     function get_datatable() {
@@ -23,16 +24,17 @@ $(document).ready(function()
       else {
         var cols = [
           {sTitle: 'Name', mData: 'name'},
-          {sTitle: 'Transfer UUID', mData: 'sipuuid'},
+          {sTitle: 'Transfer UUID', mData: 'uuid'},
           {sTitle: 'File count', mData: 'file_count'},
           {sTitle: 'Ingest date', mData: 'ingest_date'},
-          {sTitle: 'Actions', mData: 'sipuuid', mRender: render_transfer_actions_col}
+          {sTitle: 'Actions', mData: 'uuid', mRender: render_transfer_actions_col}
         ];
       }
 
       return $('#backlog-entries').dataTable({
         'bLengthChange': false,
         'bFilter': false,
+        'bAutoWidth': false,
         'sPaginationType': 'full_numbers',
         'bServerSide': true,
         'sAjaxSource': '/backlog/search?' + search.toUrlParams(),
@@ -56,11 +58,9 @@ $(document).ready(function()
 
     $('#id_show_files').change(function() {
       refresh_search_results();
-      dtable.fnAdjustColumnSizing();
     });
 
     $('#search_submit').click(function() {
       refresh_search_results();
     });
-
   });

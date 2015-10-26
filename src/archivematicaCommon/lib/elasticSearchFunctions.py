@@ -240,10 +240,6 @@ def _sortable_string_field_specification(field_name):
     }
 
 def set_up_mapping_aip_index(conn):
-    LOGGER.info('Creating AIP mapping...')
-    conn.indices.put_mapping(doc_type='aip', body={'aip': {'date_detection': True}}, index='aips')
-    LOGGER.info('AIP mapping created.')
-
     mapping = {
         'name': _sortable_string_field_specification('name'),
         'size': {'type': 'double'},
@@ -309,7 +305,7 @@ def set_up_mapping_transfer_index(conn):
         'status'     : {'type': 'string'},
         'ingest_date': {'type': 'date', 'format': 'dateOptionalTime'},
         'file_count' : {'type': 'integer'},
-        'sipuuid'    : MACHINE_READABLE_FIELD_SPEC,
+        'uuid'       : MACHINE_READABLE_FIELD_SPEC,
         'pending_deletion': {'type': 'boolean'}
     }
 
@@ -669,7 +665,7 @@ def index_transfer(conn, uuid, file_count):
         'status'          : '',
         'ingest_date'     : str(datetime.datetime.today())[0:10],
         'file_count'      : file_count,
-        'sipuuid'         : uuid,
+        'uuid'            : uuid,
         'pending_deletion': False,
     }
 
@@ -844,7 +840,7 @@ def connect_and_change_transfer_file_status(uuid, status):
         )
 
     # Also update the status of the corresponding transfer doc_type
-    doc_id = document_id_from_field_query(conn, 'transfers', ['transfer'], 'sipuuid', uuid)
+    doc_id = document_id_from_field_query(conn, 'transfers', ['transfer'], 'uuid', uuid)
     conn.update(body=doc, index='transfers', doc_type='transfer', id=doc_id)
 
     return len(document_ids)
@@ -959,7 +955,7 @@ def get_transfer_file_info(field, value):
 
 
 def connect_and_remove_backlog_transfer(uuid):
-    return delete_matching_documents('transfers', 'transfer', 'sipuuid', uuid)
+    return delete_matching_documents('transfers', 'transfer', 'uuid', uuid)
 
 
 def connect_and_remove_backlog_transfer_files(uuid):
@@ -1029,7 +1025,7 @@ def delete_matching_documents(index, doc_type, field, value, **kwargs):
     return results['_indices'][index]['_shards']['successful'] == results['_indices'][index]['_shards']['total']
 
 
-def connect_and_update_field(uuid, index, doc_type, status_field, status):
+def connect_and_update_field(uuid, index, doc_type, field, status):
     conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
     document_id = document_id_from_field_query(conn, index, [doc_type], 'uuid', uuid)
 
@@ -1072,8 +1068,7 @@ def normalize_results_dict(d):
 
 def augment_raw_search_results(raw_results):
     """
-    This function takes JSON returned by an ES query and removes some superfluous data from the structure.
-    It also adds document_id.
+    This function takes JSON returned by an ES query and returns the source document for each result.
 
     :param raw_results: the raw JSON result from an elastic search query
     :return: JSON result simplified, with document_id set

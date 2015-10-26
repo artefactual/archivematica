@@ -17,7 +17,6 @@
 
 import logging
 import requests
-import slumber
 
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -26,6 +25,7 @@ from django.shortcuts import render, redirect
 from django.template import RequestContext
 
 import elasticSearchFunctions
+import slumber
 import storageService as storage_service
 
 # This project, alphabetical by import source
@@ -37,16 +37,23 @@ logger = logging.getLogger('archivematica.dashboard')
 
 
 def check_and_remove_deleted_transfers():
+    """
+    Check the storage service to see if transfers marked in ES as 'pending deletion' have been deleted yet. If so,
+    remove the transfer and its files from ES. This is a bit of a kludge (that we do elsewhere e.g. in the storage tab),
+    but it appears necessary as the storage service doesn't talk directly to ES.
+
+    :return: None
+    """
     conn = elasticSearchFunctions.connect_and_create_index('transfers')
 
-    should_haves = [
-        {'match': {'pending_deletion': True}},
-    ]
-
     query = {
-        "query": {
-            "bool": {
-                "should": should_haves
+        'query': {
+            'bool': {
+                'must': {
+                    'match': {
+                        'pending_deletion': True
+                    }
+                }
             }
         }
     }
@@ -55,17 +62,17 @@ def check_and_remove_deleted_transfers():
         body=query,
         index='transfers',
         doc_type='transfer',
-        fields='sipuuid,status'
+        fields='uuid,status'
     )
 
     for hit in deletion_pending_results['hits']['hits']:
-        transfer_uuid = hit['fields']['sipuuid'][0]
+        transfer_uuid = hit['fields']['uuid'][0]
 
         api_results = storage_service.get_file_info(uuid=transfer_uuid)
         try:
             status = api_results[0]['status']
         except IndexError:
-            logger.info("Transfer not found in storage service: {}".format(transfer_uuid))
+            logger.info('Transfer not found in storage service: {}'.format(transfer_uuid))
             continue
 
         if status == 'DELETED':
@@ -74,6 +81,12 @@ def check_and_remove_deleted_transfers():
 
 
 def execute(request):
+    """
+    Remove any deleted transfers from ES and render main backlog page.
+
+    :param request: The Django request object
+    :return: The main backlog page rendered
+    """
     check_and_remove_deleted_transfers()
     return render(request, 'backlog/backlog.html', locals())
 
@@ -89,12 +102,13 @@ def get_es_property_from_column_index(index, file_mode):
     :return: The ES document property name corresponding to the column index in the data table.
     """
     table_columns = (
-        ('name', 'sipuuid', 'file_count', 'ingest_date', None),  # Transfers are being displayed
-        ('filename', 'fileuuid', 'sipuuid', None)                # Transfer files are being displayed
+        ('name', 'uuid', 'file_count', 'ingest_date', None),     # Transfers are being displayed
+        ('filename', 'sipuuid', None)                            # Transfer files are being displayed
     )
 
     if index < 0 or index >= len(table_columns[file_mode]):
-        raise IndexError('Column index specified is invalid, got {}'.format(index))
+        logger.warning('Backlog column index specified is invalid for sorting, got {}'.format(index))
+        index = 0
 
     return table_columns[file_mode][index]
 
@@ -103,14 +117,14 @@ def get_es_property_from_column_index(index, file_mode):
 def search(request):
     """
     A JSON end point that returns results for various backlog transfers and their files.
-    :param request:
-    :return:
+
+    :param request: The Django request object
+    :return: A JSON object including required metadata for the datatable and the backlog search results.
     """
     # get search parameters from request
     queries, ops, fields, types = advanced_search.search_parameter_prep(request)
-    logger.debug('Backlog queries: %s, Ops: %s, Fields: %s, Types: %s', queries, ops, fields, types)
 
-    file_mode = True if request.GET.get('file_mode') == 'true' else False
+    file_mode = request.GET.get('file_mode') == 'true'
     page_size = int(request.GET.get('iDisplayLength', 10))
     start = int(request.GET.get('iDisplayStart', 0))
 
@@ -138,8 +152,9 @@ def search(request):
         )
 
     except Exception as e:
-        logger.exception('Error accessing index: {}'.format(e))
-        return HttpResponse('Error accessing index.')
+        err_desc = 'Error accessing transfers index'
+        logger.exception(err_desc)
+        return HttpResponse(err_desc)
 
     return helpers.json_response({
         'iTotalRecords': hit_count,
@@ -150,13 +165,27 @@ def search(request):
 
 
 def delete_context(request, uuid):
+    """
+    Provide contextual information to the deletion request page.
+
+    :param request: The Django request object
+    :param uuid: The UUID of the package requested for deletion.
+    :return: The request context
+    """
     prompt = 'Delete package?'
-    cancel_url = reverse("components.backlog.views.execute")
+    cancel_url = reverse('components.backlog.views.execute')
     return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
 
 
 @decorators.confirm_required('backlog/delete_request.html', delete_context)
 def delete(request, uuid):
+    """
+    Request deletion of a package from a backlog transfer
+
+    :param request: The Django request object
+    :param uuid: The UUID of the package requested for deletion.
+    :return: Redirects the user back to the backlog page
+    """
     try:
         reason_for_deletion = request.POST.get('reason_for_deletion', '')
         response = storage_service.request_file_deletion(
@@ -179,4 +208,11 @@ def delete(request, uuid):
 
 
 def download(request, uuid):
+    """
+    Download a package from a requested backlog transfer.
+
+    :param request: The Django request object
+    :param uuid: UUID for the transfer we're downloading the package from
+    :return: Respond with a TAR'd version of the requested package
+    """
     return HttpResponseRedirect(storage_service.download_file_url(uuid))
