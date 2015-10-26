@@ -329,10 +329,10 @@ def pad_destination_filepath_if_it_already_exists(filepath, original=None, attem
             return pad_destination_filepath_if_it_already_exists(new_filepath, original, attempt)
     return filepath
 
-def default_processing_config_path():
+def processing_config_path():
     return os.path.join(
         get_server_config_value('sharedDirectory'),
-        'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'
+        'sharedMicroServiceTasksConfigs/processingMCPConfigs'
     )
 
 def stream_file_from_storage_service(url, error_message='Remote URL returned {}'):

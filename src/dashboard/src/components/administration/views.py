@@ -32,7 +32,6 @@ from django.shortcuts import redirect, render
 
 from main import forms
 from main import models
-import components.administration.views_processing as processing_views
 from components.administration.forms import AtomDipUploadSettingsForm
 from components.administration.forms import AgentForm
 from components.administration.forms import ArchivesSpaceConfigForm
@@ -59,7 +58,7 @@ logger = logging.getLogger('archivematica.dashboard')
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 def administration(request):
-    return redirect('components.administration.views.processing')
+    return redirect('components.administration.views_processing.list')
 
 def failure_report(request, report_id=None):
     if report_id != None:

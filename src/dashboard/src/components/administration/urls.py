@@ -18,6 +18,7 @@
 from django.conf.urls import url, patterns
 from django.conf import settings
 from components.administration import views
+from components.administration import views_processing
 
 urlpatterns = patterns('',
     url(r'^$', views.administration),
@@ -32,7 +33,10 @@ urlpatterns = patterns('',
     url(r'storage/$', views.storage),
     url(r'usage/$', views.usage),
     url(r'usage/clear/(?P<dir_id>\w+)/$', views.usage_clear),
-    url(r'processing/$', views.processing),
+    url(r'processing/$', views_processing.list),
+    url(r'processing/add/$', views_processing.edit),
+    url(r'processing/edit/(?P<name>\w{1,16})/$', views_processing.edit),
+    url(r'processing/delete/(?P<name>\w{1,16})$', views_processing.delete),
     url(r'premis/agent/$', views.premis_agent),
     url(r'api/$', views.api),
     url(r'general/$', views.general),

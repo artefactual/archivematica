@@ -1,0 +1,47 @@
+{% extends "layout_fluid.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Administration" %}{% endblock %}
+{% block h1 %}{% trans "Administration" %}{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <h3>{% trans "Processing configuration" %}</h3>
+      
+      <form class="form-stacked" method="post">
+
+        {% csrf_token %}
+
+        <table>
+
+          {% for field in form %}
+            <tr>
+              <td>
+                {{ field.label_tag }}
+                {{ field.errors }}
+              </td>
+              <td>{{ field }}</td>
+            </tr>
+          {% endfor %}
+
+        </table>
+
+        <div class="actions">
+          <input type="submit" class="btn primary" value="{% trans "Save" %}"/>
+          <a class="btn" href="{% url "components.administration.views_processing.list" %}">{% trans "Cancel" %}</a>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+{% endblock %}
