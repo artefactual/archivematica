@@ -424,11 +424,7 @@ class ArchivesSpaceClient(object):
             dates = self._fetch_dates_from_record(record)
             identifier = record['id_0'] if 'id_0' in record else record.get('component_id', '')
 
-            params = {
-                'page': 1,
-                'q': 'resource:{}'.format(record['uri'])
-            }
-            has_children = self._get(self.repository + '/search', params=params).json()['total_hits'] > 0
+            has_children = len(self._get(record['uri'] + '/tree', params={'page': 1}).json()['children']) > 0
 
             return {
                 'id': record['uri'],
