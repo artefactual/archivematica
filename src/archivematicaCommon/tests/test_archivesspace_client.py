@@ -20,7 +20,7 @@ AUTH = {
 def test_listing_collections():
     client = ArchivesSpaceClient(**AUTH)
     collections = client.find_collections()
-    assert len(collections) == 1
+    assert len(collections) == 2
     assert collections[0]['title'] == 'Test fonds'
 
 
