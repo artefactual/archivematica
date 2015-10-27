@@ -293,7 +293,7 @@ def access_move_within_arrange(request, system='', record_id=''):
             'message': 'Unable to create directory.'
         }
         return helpers.json_response(response, status_code=400)
-    sourcepath = base64.b64decode(request.POST.get('filepath', '')).lstrip('/')
+    sourcepath = base64.b64decode(request.POST.get('filepath', ''))
     return filesystem_views.move_within_arrange(request, sourcepath=sourcepath, destination=mapping.arrange_path + '/')
 
 
