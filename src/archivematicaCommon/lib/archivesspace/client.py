@@ -114,6 +114,23 @@ class ArchivesSpaceClient(object):
                              params=params,
                              expected_response=expected_response)
 
+    def _format_notes(self, record):
+        """
+        Extracts notes from a record and reformats them in a simplified format.
+        """
+        notes = []
+        for note in record['notes']:
+            n = {}
+            n['type'] = note['type']
+            try:
+                n['content'] = note['subnotes'][0]['content']
+            except IndexError:
+                n['content'] = ''
+
+            notes.append(n)
+
+        return notes
+
     def resource_type(self, resource_id):
         """
         Given an ID, determines whether a given resource is a resource or a resource_component.
@@ -246,7 +263,8 @@ class ArchivesSpaceClient(object):
                 'identifier': identifier,
                 'title': record.get('title', ''),
                 'dates': dates,
-                'levelOfDescription': record['level']
+                'levelOfDescription': record['level'],
+                'notes': self._format_notes(full_record),
             }
             if record['children'] and descend:
                 result['children'] = [format_record(child, level) for child in record['children']]
@@ -281,7 +299,8 @@ class ArchivesSpaceClient(object):
                 'identifier': record.get('component_id', ''),
                 'title': record.get('title', ''),
                 'dates': dates,
-                'levelOfDescription': record['level']
+                'levelOfDescription': record['level'],
+                'notes': self._format_notes(record),
             }
 
             children = fetch_children(record['uri'])
@@ -434,7 +453,8 @@ class ArchivesSpaceClient(object):
                 'dates': dates,
                 'levelOfDescription': record['level'],
                 'children': [] if has_children else False,
-                'has_children': has_children
+                'has_children': has_children,
+                'notes': self._format_notes(record),
             }
 
         params = {
