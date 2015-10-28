@@ -157,6 +157,10 @@ class ArchivistsToolkitClient(object):
           'title': 'Parent',
           'levelOfDescription': 'collection',
           'dates': '1880-1889',
+          'notes': [
+            'type': 'odd',
+            'content': 'This is a note',
+          ],
           'children': [{
             'id': '23',
             'sortPosition': '2',
@@ -164,6 +168,7 @@ class ArchivistsToolkitClient(object):
             'title': 'Child A',
             'levelOfDescription': 'Sousfonds',
             'dates': '1880-1888',
+            'notes': [],
             'children': [{
               'id': '24',
               'sortPosition': '3',
@@ -171,6 +176,7 @@ class ArchivistsToolkitClient(object):
               'title': 'Grandchild A',
               'levelOfDescription': 'Item',
               'dates': '1880-1888',
+              'notes': [],
               'children': False
             },
             {
@@ -179,6 +185,7 @@ class ArchivistsToolkitClient(object):
               'identifier': 'GR02',
               'title': 'Grandchild B',
               'levelOfDescription': 'Item',
+              'notes': [],
               'children': False
             }]
           },
@@ -189,6 +196,7 @@ class ArchivistsToolkitClient(object):
             'title': 'Child B',
             'levelOfDescription': 'Sousfonds',
             'dates': '1889',
+            'notes': [],
             'children': False
           }]
         }
@@ -266,6 +274,9 @@ class ArchivistsToolkitClient(object):
             else:
                 resource_data['children'] = False
                 resource_data['has_children'] = False
+
+        # TODO: implement fetching notes
+        resource_data['notes'] = []
 
         return resource_data
 
