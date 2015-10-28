@@ -158,6 +158,7 @@ class ArchivesSpaceClient(object):
         Currently supported fields are:
             * title
             * targetfield
+            * notes
 
         :raises ValueError: if the 'id' field isn't specified, or no fields to edit were specified.
         """
@@ -177,6 +178,29 @@ class ArchivesSpaceClient(object):
                 fields_updated = True
             except KeyError:
                 continue
+
+        if 'notes' in new_record and new_record['notes']:
+            note = new_record['notes'][0]
+            new_note = {
+                'jsonmodel_type': 'note_multipart',
+                'publish': True,
+                'subnotes': [{
+                    'content': note['content'],
+                    'jsonmodel_type': 'note_text',
+                    'publish': True,
+                }],
+                'type': note['type'],
+            }
+            # This only supports editing a single note, and a single piece of content
+            # within that note.
+            # If the record already has at least one note, then replace the first note
+            # within that record with this one.
+            if not record['notes']:
+                record['notes'] = [new_note]
+            else:
+                record['notes'][0] = new_note
+
+            fields_updated = True
 
         if not fields_updated:
             raise ValueError('No fields to update specified!')
