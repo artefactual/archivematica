@@ -159,6 +159,9 @@ class ArchivesSpaceClient(object):
             * title
             * targetfield
             * notes
+            * start_date
+            * end_date
+            * date_expression
 
         :raises ValueError: if the 'id' field isn't specified, or no fields to edit were specified.
         """
@@ -199,6 +202,24 @@ class ArchivesSpaceClient(object):
                 record['notes'] = [new_note]
             else:
                 record['notes'][0] = new_note
+
+            fields_updated = True
+
+        if 'start_date' in new_record:
+            date = {
+                'begin': new_record['start_date'],
+                'date_type': 'inclusive',
+                'label': 'creation',
+            }
+            if 'end_date' in new_record:
+                date['end'] = new_record['end_date']
+            if 'date_expression' in new_record:
+                date['expression'] = new_record['date_expression']
+
+            if len(record['dates']) == 0:
+                record['dates'] = [date]
+            else:
+                record['dates'][0] = date
 
             fields_updated = True
 
