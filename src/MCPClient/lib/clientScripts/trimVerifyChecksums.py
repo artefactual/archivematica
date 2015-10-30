@@ -31,7 +31,7 @@ import uuid
 import django
 django.setup()
 # archivematicaCommon
-from externals.checksummingTools import md5_for_file
+from externals.checksummingTools import get_file_checksum
 from fileOperations import getFileUUIDLike
 import databaseFunctions
 
@@ -54,7 +54,7 @@ for dir in os.listdir(transferPath):
         filePath = os.path.join(dirPath, file)
         if  file == "ContainerMetadata.xml" or file.endswith("Metadata.xml") or not os.path.isfile(filePath):
             continue
-        
+
         i = file.rfind(".")
         if i != -1:
             xmlFile = file[:i] + "_Metadata.xml"
@@ -64,21 +64,21 @@ for dir in os.listdir(transferPath):
         try:
             tree = etree.parse(xmlFilePath)
             root = tree.getroot()
-    
+
             #extension = root.find("Document/Extension").text
             xmlMD5 = root.find("Document/MD5").text
         except:
-            print >>sys.stderr, "Error parsing: ", xmlFilePath 
+            print >>sys.stderr, "Error parsing: ", xmlFilePath
             exitCode += 1
             continue
         #if extension.lower() != file[i+1:].lower():
-        #    print >>sys.stderr, "Warning, extension mismatch(file/xml): ", file[:i], extension , file[i+1:] 
-        
-        objectMD5 = md5_for_file(filePath)
-        
+        #    print >>sys.stderr, "Warning, extension mismatch(file/xml): ", file[:i], extension , file[i+1:]
+
+        objectMD5 = get_file_checksum(filePath, 'md5')
+
         if objectMD5 == xmlMD5:
             print "File OK: ", xmlMD5, filePath.replace(transferPath, "%TransferDirectory%")
-            
+
             fileID = getFileUUIDLike(filePath, transferPath, transferUUID, "transferUUID", "%transferDirectory%")
             for path, fileUUID in fileID.iteritems():
                 eventDetail = "program=\"python\"; module=\"hashlib.md5()\""
@@ -95,5 +95,5 @@ for dir in os.listdir(transferPath):
         else:
             print >>sys.stderr, "Checksum mismatch: ", filePath.replace(transferPath, "%TransferDirectory%")
             exitCode += 1
-                 
+
 quit(exitCode)

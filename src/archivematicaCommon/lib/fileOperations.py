@@ -27,7 +27,7 @@ import sys
 import shutil
 from databaseFunctions import insertIntoFiles
 from executeOrRunSubProcess import executeOrRun
-from externals.checksummingTools import sha_for_file
+from externals.checksummingTools import get_file_checksum
 from databaseFunctions import insertIntoEvents
 import MySQLdb
 from archivematicaFunctions import unicodeToStr
@@ -37,52 +37,52 @@ from main.models import File, Transfer
 
 def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID):
     fileSize = os.path.getsize(filePath)
-    checksum = str(sha_for_file(filePath))
+    checksum = get_file_checksum(filePath, 'sha256')
 
     File.objects.filter(uuid=fileUUID).update(size=fileSize, checksum=checksum)
 
-    insertIntoEvents(fileUUID=fileUUID, \
-                     eventIdentifierUUID=eventIdentifierUUID, \
-                     eventType="message digest calculation", \
-                     eventDateTime=date, \
-                     eventDetail="program=\"python\"; module=\"hashlib.sha256()\"", \
+    insertIntoEvents(fileUUID=fileUUID,
+                     eventIdentifierUUID=eventIdentifierUUID,
+                     eventType="message digest calculation",
+                     eventDateTime=date,
+                     eventDetail="program=\"python\"; module=\"hashlib.sha256()\"",
                      eventOutcomeDetailNote=checksum)
 
 
 def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType="ingestion", eventDetail="", use="original"):
     #print filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType, eventDetail, use
     insertIntoFiles(fileUUID, filePathRelativeToSIP, date, transferUUID=transferUUID, use=use)
-    insertIntoEvents(fileUUID=fileUUID, \
-                   eventIdentifierUUID=taskUUID, \
-                   eventType=sourceType, \
-                   eventDateTime=date, \
-                   eventDetail=eventDetail, \
-                   eventOutcome="", \
-                   eventOutcomeDetailNote="")
+    insertIntoEvents(fileUUID=fileUUID,
+                     eventIdentifierUUID=taskUUID,
+                     eventType=sourceType,
+                     eventDateTime=date,
+                     eventDetail=eventDetail,
+                     eventOutcome="",
+                     eventOutcomeDetailNote="")
     addAccessionEvent(fileUUID, transferUUID, date)
 
 def addAccessionEvent(fileUUID, transferUUID, date):
     transfer = Transfer.objects.get(uuid=transferUUID)
     if transfer.accessionid:
         eventIdentifierUUID = uuid.uuid4().__str__()
-        eventOutcomeDetailNote =  "accession#" + MySQLdb.escape_string(transfer.accessionid) 
-        insertIntoEvents(fileUUID=fileUUID, \
-               eventIdentifierUUID=eventIdentifierUUID, \
-               eventType="registration", \
-               eventDateTime=date, \
-               eventDetail="", \
-               eventOutcome="", \
-               eventOutcomeDetailNote=eventOutcomeDetailNote)
-    
+        eventOutcomeDetailNote =  "accession#" + MySQLdb.escape_string(transfer.accessionid)
+        insertIntoEvents(fileUUID=fileUUID,
+                         eventIdentifierUUID=eventIdentifierUUID,
+                         eventType="registration",
+                         eventDateTime=date,
+                         eventDetail="",
+                         eventOutcome="",
+                         eventOutcomeDetailNote=eventOutcomeDetailNote)
+
 def addFileToSIP(filePathRelativeToSIP, fileUUID, sipUUID, taskUUID, date, sourceType="ingestion", use="original"):
     insertIntoFiles(fileUUID, filePathRelativeToSIP, date, sipUUID=sipUUID, use=use)
-    insertIntoEvents(fileUUID=fileUUID, \
-                   eventIdentifierUUID=taskUUID, \
-                   eventType=sourceType, \
-                   eventDateTime=date, \
-                   eventDetail="", \
-                   eventOutcome="", \
-                   eventOutcomeDetailNote="")
+    insertIntoEvents(fileUUID=fileUUID,
+                     eventIdentifierUUID=taskUUID,
+                     eventType=sourceType,
+                     eventDateTime=date,
+                     eventDetail="",
+                     eventOutcome="",
+                     eventOutcomeDetailNote="")
 
 #Used to write to file
 #@output - the text to append to the file
@@ -225,7 +225,7 @@ def getFileUUIDLike(filePath, unitPath, unitIdentifier, unitIdentifierType, unit
         unitIdentifierType: unitIdentifier
     }
     return {f.currentlocation: f.uuid for f in File.objects.filter(**kwargs)}
-    
+
 def updateFileGrpUsefileGrpUUID(fileUUID, fileGrpUse, fileGrpUUID):
     File.objects.filter(uuid=fileUUID).update(filegrpuse=fileGrpUse, filegrpuuid=fileGrpUUID)
 

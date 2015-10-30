@@ -31,7 +31,7 @@ from main.models import File
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import databaseFunctions
-from externals.checksummingTools import sha_for_file
+from externals.checksummingTools import get_file_checksum
 
 def verifyChecksum(fileUUID, filePath, date, eventIdentifierUUID):
     f = File.objects.get(uuid=fileUUID)
@@ -39,7 +39,7 @@ def verifyChecksum(fileUUID, filePath, date, eventIdentifierUUID):
     if f.checksum in ("", "None"):
         print >>sys.stderr, "No checksum found in database for file:", fileUUID, filePath
         exit(1)
-    checksumFile = sha_for_file(filePath)
+    checksumFile = get_file_checksum(filePath, 'sha256')
 
     eventOutcome=""
     eventOutcomeDetailNote=""

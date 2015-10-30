@@ -37,7 +37,6 @@ django.setup()
 from main.models import RightsStatement, RightsStatementOtherRightsInformation, RightsStatementOtherRightsDocumentationIdentifier, RightsStatementRightsGranted, RightsStatementRightsGrantedNote, RightsStatementRightsGrantedRestriction
 
 # archivematicaCommon
-from externals.checksummingTools import md5_for_file
 from fileOperations import getFileUUIDLike
 import databaseFunctions
 
@@ -79,7 +78,7 @@ def getDateTimeFromDateClosed(dateClosed):
         return
 
     dateClosedDT = datetime.strptime(dateClosed[:i], '%Y-%m-%dT%H:%M:%S')
-    print dateClosedDT     
+    print dateClosedDT
     offSet = dateClosed[i+1:].split(":")
     offSetTD = timedelta(hours=int(offSet[0]), minutes=int(offSet[1]))
 
@@ -119,7 +118,7 @@ for dir in os.listdir(transferPath):
 
     # make end time end of year
     endTimeEndOfYearDiff = datetime(endTime.year, 12, 31) - endTime
-    endTime = endTime + endTimeEndOfYearDiff 
+    endTime = endTime + endTimeEndOfYearDiff
 
 
     indexForOnlyDate = 10
@@ -168,7 +167,7 @@ for dir in os.listdir(transferPath):
             rightsgranted=granted,
             rightsgrantednote="Closed until " + endTime
         )
-        
+
         # RightsStatementRightsGrantedRestriction
         RightsStatementRightsGrantedRestriction.objects.create(
             rightsgranted=granted,

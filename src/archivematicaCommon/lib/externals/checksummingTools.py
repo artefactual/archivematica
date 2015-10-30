@@ -1,26 +1,37 @@
 #!/usr/bin/env python2
+
+from __future__ import print_function
+
 import hashlib
+import sys
 
-#Borrowed from http://stackoverflow.com/questions/1131220/get-md5-hash-of-a-files-without-open-it-in-python
-def md5_for_file(filename):
-    md5 = hashlib.md5()
+
+def get_file_checksum(filename, algorithm='sha256'):
+    """
+    Perform a checksum on the specified file.
+
+    This function reads in files incrementally to avoid memory exhaustion.
+    See: http://stackoverflow.com/questions/1131220/get-md5-hash-of-a-files-without-open-it-in-python
+
+    :param filename: The path to the file we want to check
+    :param algorithm: Which algorithm to use for hashing, e.g. 'md5'
+    :return: Returns a checksum string for the specified file.
+    """
+    h = hashlib.new(algorithm)
+
     with open(filename, 'rb') as f:
-        for chunk in iter(lambda: f.read(2**10 * md5.block_size), b''):
-            md5.update(chunk)
-    return md5.hexdigest()
+        for chunk in iter(lambda: f.read(1024 * h.block_size), b''):
+            h.update(chunk)
 
-
-#Modification of above borrowed function
-def sha_for_file(filename):
-    sha = hashlib.sha256()
-    with open(filename, 'rb') as f:
-        for chunk in iter(lambda: f.read(2**10 * sha.block_size), b''):
-            sha.update(chunk)
-    return sha.hexdigest()
+    return h.hexdigest()
 
 
 if __name__ == '__main__':
-    import sys
-    theFile = sys.argv[1]
-    print "md5:", md5_for_file(theFile)
-    print "sha256:", sha_for_file(theFile)
+    if len(sys.argv) != 2:
+        print('Please specify a filename.')
+        sys.exit(1)
+
+    input_file = sys.argv[1]
+    for alg in ('md5', 'sha1', 'sha256', 'sha512'):
+        print('{}: {}'.format(alg, get_file_checksum(input_file, alg)))
+

@@ -24,8 +24,7 @@ import os
 import sys
 import lxml.etree as etree
 # archivematicaCommon
-from externals.checksummingTools import sha_for_file
-from externals.checksummingTools import md5_for_file
+from externals.checksummingTools import get_file_checksum
 
 def verifyMetsFileSecChecksums(metsFile, date, taskUUID, relativeDirectory="./"):
     print metsFile
@@ -46,11 +45,11 @@ def verifyMetsFileSecChecksums(metsFile, date, taskUUID, relativeDirectory="./")
         #print "%s - %s - %s " % (checksumType, checksum, fileLocation)
         fileFullPath = os.path.join(relativeDirectory, fileLocation)
         if checksumType == "MD5":
-            checksum2 = md5_for_file(fileFullPath)
-            eventDetail = "program=\"python\"; module=\"hashlib.sha256()\""
-        elif checksumType == "sha256":
-            checksum2 = sha_for_file(fileFullPath)
+            checksum2 = get_file_checksum(fileFullPath, 'md5')
             eventDetail = "program=\"python\"; module=\"hashlib.md5()\""
+        elif checksumType == "sha256":
+            checksum2 = get_file_checksum(fileFullPath, 'sha256')
+            eventDetail = "program=\"python\"; module=\"hashlib.sha256()\""
         else:
             print >>sys.stderr, "Unsupported checksum type: %s" % (checksumType.__str__())
             exit(300)
