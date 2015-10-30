@@ -22,8 +22,8 @@ from collections import OrderedDict
 
 from django import forms
 from django.conf import settings
-from django.forms.widgets import TextInput, RadioSelect, CheckboxInput
 from django.utils.translation import ugettext as _
+from django.forms.widgets import TextInput, RadioSelect, CheckboxInput, Select
 
 from components import helpers
 from main import models
@@ -72,6 +72,16 @@ class SettingsForm(forms.Form):
 class StorageSettingsForm(SettingsForm):
     storage_service_url = forms.URLField(required=False,
         label="Full URL of the storage service")
+
+
+class ChecksumSettingsForm(SettingsForm):
+    CHOICES = (
+        ('md5', 'MD5'),
+        ('sha1', 'SHA-1'),
+        ('sha256', 'SHA-256'),
+        ('sha512', 'SHA-512')
+    )
+    checksum_type = forms.ChoiceField(choices=CHOICES, label='Select algorithm')
 
 
 class ArchivistsToolkitConfigForm(forms.ModelForm):

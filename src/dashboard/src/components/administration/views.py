@@ -37,7 +37,7 @@ from components.administration.forms import AgentForm
 from components.administration.forms import ArchivesSpaceConfigForm
 from components.administration.forms import ArchivistsToolkitConfigForm
 from components.administration.forms import SettingsForm
-from components.administration.forms import StorageSettingsForm
+from components.administration.forms import StorageSettingsForm, ChecksumSettingsForm
 from components.administration.models import ArchivesSpaceConfig, ArchivistsToolkitConfig
 from components.administration.forms import TaxonomyTermForm
 from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
@@ -386,7 +386,7 @@ def usage_clear(request, dir_id):
         # Determine if specific subdirectories need to be cleared, rather than
         # whole directory
         if 'subdirectories' in dir_info:
-            dirs_to_empty = [os.path.join(dir_info['path'], subdir) for subdir in dir_info['subdirectories']] 
+            dirs_to_empty = [os.path.join(dir_info['path'], subdir) for subdir in dir_info['subdirectories']]
         else:
             dirs_to_empty = [dir_info['path']]
 
@@ -511,10 +511,13 @@ def general(request):
         reverse_checkboxes=toggleableSettings)
     storage_form = StorageSettingsForm(request.POST or None, prefix='storage',
         initial=initial_data)
+    checksum_form = ChecksumSettingsForm(request.POST or None, prefix='checksum algorithm',
+        initial=initial_data)
 
-    if interface_form.is_valid() and storage_form.is_valid():
+    if interface_form.is_valid() and storage_form.is_valid() and checksum_form.is_valid():
         interface_form.save()
         storage_form.save()
+        checksum_form.save()
         messages.info(request, 'Saved.')
 
     dashboard_uuid = helpers.get_setting('dashboard_uuid')
