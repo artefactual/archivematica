@@ -706,7 +706,7 @@ class ArchivesSpaceClient(object):
         })
         self._post(parent_archival_object, data=json.dumps(parent_record))
 
-    def add_child(self, parent, title="", level=""):
+    def add_child(self, parent, title="", level="", start_date="", end_date="", date_expression=""):
         """
         Adds a new resource component parented within `parent`.
 
@@ -731,6 +731,16 @@ class ArchivesSpaceClient(object):
             "jsonmodel_type": "archival_object",
             "resource": {"ref": resource}
         }
+
+        if start_date:
+            date = {
+                'begin': start_date,
+                'date_type': 'inclusive',
+                'label': 'creation',
+                'expression': expression,
+            }
+            if end_date:
+                date['end'] = end_date
 
         # "parent" always refers to an archival_object instance; if this is rooted
         # directly to a resource, leave it out.
