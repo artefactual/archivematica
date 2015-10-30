@@ -89,7 +89,7 @@
   <br clear='all' />
   <br />
 
-  <div class="span12" id="sip-container">
+  <div class="col-md-12" id="sip-container">
     <div>
       <span class='grid-pager-previous-area'></span> <span class='grid-pager-next-area'></span>
     </div>
@@ -215,9 +215,9 @@
           {{ field.label_tag }}
           <div class="input">
             {% if field.name == "rights" or field.name == "description" %}
-              <textarea class="span9" name="{{ field.name }}" rows="4"><%= {{ field.name }} %></textarea>
+              <textarea class="col-md-9" name="{{ field.name }}" rows="4"><%= {{ field.name }} %></textarea>
             {% else %}
-              <input class="xlarge span9" type="text" name="{{ field.name }}" value="<%= {{ field.name }} %>" />
+              <input class="xlarge col-md-9" type="text" name="{{ field.name }}" value="<%= {{ field.name }} %>" />
             {% endif %}
             {% if field.help_text %}
               <span class="help-block">{{ field.help_text }}</p>
@@ -239,7 +239,7 @@
         <div class="clearfix">
           <label>Enter the permalink of the target description</label>
           <div class="input">
-            <input class="span8" type="text" />
+            <input class="col-md-8" type="text" />
             <span class="help-block">Example: if URL is http://myAtoM.ca/newsletters-2;rad enter <strong>newsletters-2</strong></span>
           </div>
         </div>
