@@ -508,3 +508,21 @@ def path_metadata(request):
         }
 
         return helpers.json_response(body, status_code=201)
+
+
+def processing_configuration(request, name):
+    """
+    Return a processing configuration XML document given its name, i.e. where
+    name is "default" the returned file will be "defaultProcessingMCP.xml"
+    found in the standard processing configuration directory.
+    """
+    accepted_types = request.META.get('HTTP_ACCEPT', '').lower()
+    if accepted_types != '*/*' and 'xml' not in accepted_types:
+        return django.http.HttpResponse(status=415)
+    config_path = os.path.join(helpers.processing_config_path(), '{}ProcessingMCP.xml'.format(name))
+    try:
+        with open(config_path, 'r') as f:
+            content = f.read()
+        return django.http.HttpResponse(content, content_type='text/xml')
+    except IOError:
+        raise django.http.Http404
