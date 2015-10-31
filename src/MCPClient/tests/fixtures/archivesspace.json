@@ -22,5 +22,25 @@
         "currenttask": "5ded9d05-dd24-484a-a8b2-73ec5d35aa63",
         "replaces": null
     }
+},
+{
+    "fields": {
+        "tasktypepkreference": "",
+        "lastmodified": "2015-10-29T22:49:37",
+        "replaces": null,
+        "description": "Choose Config for ArchivesSpace DIP Upload",
+        "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84"
+    },
+    "model": "main.taskconfig",
+    "pk": "5ded9d05-dd24-484a-a8b2-73ec5d35aa63"
+},
+{
+    "fields": {
+        "lastmodified": "2012-10-02T00:25:10",
+        "replaces": null,
+        "description": "get replacement dic from user choice"
+    },
+    "model": "main.tasktype",
+    "pk": "9c84b047-9a6d-463f-9836-eafa49743b84"
 }
 ]

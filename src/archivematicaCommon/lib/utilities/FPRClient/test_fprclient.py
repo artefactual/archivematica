@@ -40,6 +40,9 @@ class TestFPRClient(TestCase):
     Test fetching and updating rules.
     """
 
+    fixture_files = ['identification_links.json', ]
+    fixtures = [os.path.join(THIS_DIR, p) for p in fixture_files]
+
     # ID commands that replace each other
     rule_a = {
         "replaces": None,
@@ -99,6 +102,9 @@ class TestFPRClient(TestCase):
 
     def setUp(self):
         self.fprclient = client.FPRClient(fprserver=FPRSERVER)
+
+    def test_fixtures(self):
+        assert main.models.MicroServiceChainLink.objects.count() == 3
 
     def test_insert_initial_chain(self):
         """ Insert a chain of rules into a new install. """
