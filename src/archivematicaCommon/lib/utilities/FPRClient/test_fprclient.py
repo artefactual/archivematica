@@ -3,7 +3,7 @@ import os
 import sys
 import vcr
 
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 
 sys.path.append("/usr/share/archivematica/dashboard/")
 from fpr import models
@@ -35,7 +35,7 @@ class TestGetFromFPRRESTAPI(TestCase):
         records = list(getFromRestAPI.each_record("id-command", url=FPRSERVER))
         assert len(records) == 2
 
-class TestFPRClient(TestCase):
+class TestFPRClient(TransactionTestCase):
     """
     Test fetching and updating rules.
     """

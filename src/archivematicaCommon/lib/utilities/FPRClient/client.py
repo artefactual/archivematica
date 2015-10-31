@@ -83,7 +83,8 @@ class FPRClient(object):
 
         # Create
         try:
-            obj = model.objects.create(**valid_fields)
+            with django.db.transaction.atomic():
+                obj = model.objects.create(**valid_fields)
         except django.db.utils.IntegrityError:
             self.retry[model].append(valid_fields)
             print 'Integrity error failed; will retry later'
