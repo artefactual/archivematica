@@ -1,11 +1,53 @@
 body {
   padding-top: 60px !important;
+  font-size: 13px;
+  line-height: 18px;
 }
 
-.topbar .brand {
-  background: transparent url(../../media/images/logo_header.png) no-repeat 50% 50%;
+.topbar {
+  height: 40px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  overflow: visible;
+}
+
+.topbar-inner {
+  background-color: #222222;
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#333333), to(#222222));
+  background-image: -moz-linear-gradient(top, #333333, #222222);
+  background-image: -ms-linear-gradient(top, #333333, #222222);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #333333), color-stop(100%, #222222));
+  background-image: -webkit-linear-gradient(top, #333333, #222222);
+  background-image: -o-linear-gradient(top, #333333, #222222);
+  background-image: linear-gradient(top, #333333, #222222);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.topbar .navbar-brand {
   width: 229px;
   text-indent: -99999em;
+}
+
+.topbar a {
+  color: #BFBFBF;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* FIXME this is ported from Bootstrap 1.x, how to do this better? */
+.topbar a:hover, .topbar .brand:hover {
+  background-color: #333 !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+.topbar div > ul .active > a {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #FFF;
+  text-decoration: none;
 }
 
 .nav li {
