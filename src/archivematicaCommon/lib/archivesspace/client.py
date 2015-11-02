@@ -737,7 +737,7 @@ class ArchivesSpaceClient(object):
                 'begin': start_date,
                 'date_type': 'inclusive',
                 'label': 'creation',
-                'expression': expression,
+                'expression': date_expression,
             }
             if end_date:
                 date['end'] = end_date
