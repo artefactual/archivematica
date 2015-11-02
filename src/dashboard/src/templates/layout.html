@@ -28,7 +28,9 @@
         <div class="topbar-inner">
           <div class="container-fluid">
 
-            <a class="navbar-brand" href="{% url 'main.views.home' %}">Archivematica</a>
+            <a class="navbar-brand" href="{% url 'main.views.home' %}">
+              <img alt="Archivematica" src="../../media/images/logo_header.png"></a>
+            </a>
 
             {% url 'main.views.home' as url_home %}
             {% url 'components.transfer.views.grid' as url_transfer %}
@@ -39,7 +41,7 @@
             {% url 'main.views.access_list' as url_access %}
             {% url 'components.administration.views.administration' as url_administration %}
 
-            <ul class="nav">
+            <ul class="nav navbar-nav">
 
               <li class="{% active request url_transfer %}"><a href="{{ url_transfer }}">Transfer</a></li>
               <li class="{% active request url_ingest %}"><a href="{{ url_ingest }}">Ingest</a></li>
