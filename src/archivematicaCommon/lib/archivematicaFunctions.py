@@ -25,6 +25,11 @@ import collections
 import lxml.etree as etree
 import os
 import re
+import sys
+
+sys.path.append("/usr/share/archivematica/dashboard")
+from main.models import DashboardSetting
+
 
 REQUIRED_DIRECTORIES = [
     "logs",
@@ -33,6 +38,7 @@ REQUIRED_DIRECTORIES = [
     "metadata/submissionDocumentation",
     "objects",
 ]
+
 OPTIONAL_FILES = [
     "processingMCP.xml",
 ]
@@ -41,6 +47,13 @@ MANUAL_NORMALIZATION_DIRECTORIES = [
     "objects/manualNormalization/access",
     "objects/manualNormalization/preservation",
 ]
+
+def get_setting(setting, default=''):
+    try:
+        return DashboardSetting.objects.get(name=setting).value
+    except DashboardSetting.DoesNotExist:
+        return default
+
 
 class OrderedListsDict(collections.OrderedDict):
     """

@@ -4,10 +4,8 @@ import os
 import platform
 import requests
 import slumber
-import sys
 
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import DashboardSetting
+from archivematicaFunctions import get_setting
 
 LOGGER = logging.getLogger("archivematica.common")
 
@@ -21,12 +19,6 @@ class BadRequest(Exception):
 ######################### INTERFACE WITH STORAGE API #########################
 
 ############# HELPER FUNCTIONS #############
-
-def get_setting(setting, default=''):
-    try:
-        return DashboardSetting.objects.get(name=setting).value
-    except DashboardSetting.DoesNotExist:
-        return default
 
 def _storage_service_url():
     # Get storage service URL from DashboardSetting model
