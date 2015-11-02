@@ -170,12 +170,15 @@ def record_children(client, request, system='', record_id=''):
     if request.method == 'POST':
         new_record_data = json.load(request)
         try:
+            notes = new_record_data.get('notes', [])
+            note = notes[0] if notes else {}
             new_id = client.add_child(record_id,
                                       title=new_record_data.get('title', ''),
                                       level=new_record_data.get('level', ''),
                                       start_date=new_record_data.get('start_date', ''),
                                       end_date=new_record_data.get('end_date', ''),
-                                      date_expression=new_record_data.get('date_expression', ''))
+                                      date_expression=new_record_data.get('date_expression', ''),
+                                      note=note)
         except ArchivesSpaceError as e:
             response = {
                 'success': False,
