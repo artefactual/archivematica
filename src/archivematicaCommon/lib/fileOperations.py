@@ -35,17 +35,17 @@ from archivematicaFunctions import unicodeToStr
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import File, Transfer
 
-def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID):
+def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID, checksumType='sha256'):
     fileSize = os.path.getsize(filePath)
-    checksum = get_file_checksum(filePath, 'sha256')
+    checksum = get_file_checksum(filePath, checksumType)
 
-    File.objects.filter(uuid=fileUUID).update(size=fileSize, checksum=checksum)
+    File.objects.filter(uuid=fileUUID).update(size=fileSize, checksum=checksum, checksumtype=checksumType)
 
     insertIntoEvents(fileUUID=fileUUID,
                      eventIdentifierUUID=eventIdentifierUUID,
-                     eventType="message digest calculation",
+                     eventType='message digest calculation',
                      eventDateTime=date,
-                     eventDetail="program=\"python\"; module=\"hashlib.sha256()\"",
+                     eventDetail='program="python"; module="hashlib.{}()"'.format(checksumType),
                      eventOutcomeDetailNote=checksum)
 
 

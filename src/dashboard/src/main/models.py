@@ -319,6 +319,7 @@ class File(models.Model):
     filegrpuse = models.CharField(max_length=50, db_column='fileGrpUse', default='Original')
     filegrpuuid = models.CharField(max_length=36L, db_column='fileGrpUUID', blank=True)
     checksum = models.CharField(max_length=100, db_column='checksum', blank=True)
+    checksumtype = models.CharField(max_length=36, db_column='checksumType', blank=True)
     size = models.BigIntegerField(db_column='fileSize', null=True, blank=True)
     label = models.TextField(blank=True)
     enteredsystem = models.DateTimeField(db_column='enteredSystem', auto_now_add=True)
