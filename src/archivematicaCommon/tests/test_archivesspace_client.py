@@ -194,3 +194,30 @@ def test_delete_record_archival_object():
     assert r['status'] == 'Deleted'
     with pytest.raises(CommunicationError):
         client.get_record(record_id)
+
+@vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_edit_archival_object.yaml'))
+def test_edit_archival_object():
+    client = ArchivesSpaceClient(**AUTH)
+    original = client.get_record('/repositories/2/archival_objects/3')
+    assert original['title'] == 'Test subseries'
+    assert original['dates'][0]['end'] == '2015-01-01'
+    assert not original['notes']
+    new_record = {
+        'id': '/repositories/2/archival_objects/3',
+        'title': 'Test edited subseries',
+        'start_date': '2014-11-01',
+        'end_date': '2015-11-01',
+        'date_expression': 'November, 2014 to November, 2015',
+        'notes': [{
+            'type': 'odd',
+            'content': 'This is a test note'
+        }],
+    }
+    client.edit_record(new_record)
+    updated = client.get_record('/repositories/2/archival_objects/3')
+    assert updated['title'] == new_record['title']
+    assert updated['dates'][0]['begin'] == new_record['start_date']
+    assert updated['dates'][0]['end'] == new_record['end_date']
+    assert updated['dates'][0]['expression'] == new_record['date_expression']
+    assert updated['notes'][0]['type'] == new_record['notes'][0]['type']
+    assert updated['notes'][0]['subnotes'][0]['content'] == new_record['notes'][0]['content']
