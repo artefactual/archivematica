@@ -39,7 +39,7 @@ def verifyChecksum(fileUUID, filePath, date, eventIdentifierUUID):
     if f.checksum in ("", "None"):
         print >>sys.stderr, "No checksum found in database for file:", fileUUID, filePath
         exit(1)
-    checksumFile = get_file_checksum(filePath, 'sha256')
+    checksumFile = get_file_checksum(filePath, f.checksumtype)
 
     eventOutcome=""
     eventOutcomeDetailNote=""
