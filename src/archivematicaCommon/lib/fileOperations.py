@@ -30,13 +30,14 @@ from executeOrRunSubProcess import executeOrRun
 from externals.checksummingTools import get_file_checksum
 from databaseFunctions import insertIntoEvents
 import MySQLdb
-from archivematicaFunctions import unicodeToStr
+from archivematicaFunctions import unicodeToStr, get_setting
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import File, Transfer
 
-def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID, checksumType='sha256'):
+def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID):
     fileSize = os.path.getsize(filePath)
+    checksumType = get_setting('checksum_type', 'sha256')
     checksum = get_file_checksum(filePath, checksumType)
 
     File.objects.filter(uuid=fileUUID).update(size=fileSize, checksum=checksum, checksumtype=checksumType)

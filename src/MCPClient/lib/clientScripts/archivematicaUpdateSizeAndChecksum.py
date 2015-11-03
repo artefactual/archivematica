@@ -37,7 +37,6 @@ if __name__ == '__main__':
     parser.add_option("-p", "--filePath", action="store", dest="filePath", default="")
     parser.add_option("-d", "--date", action="store", dest="date", default="")
     parser.add_option("-u", "--eventIdentifierUUID", action="store", dest="eventIdentifierUUID", default="")
-    parser.add_option("-t", "--checksumType", action="store", dest="checksumType", default="sha256")
     (opts, args) = parser.parse_args()
 
-    updateSizeAndChecksum(opts.fileUUID, opts.filePath, opts.date, opts.eventIdentifierUUID, opts.checksumType)
+    updateSizeAndChecksum(opts.fileUUID, opts.filePath, opts.date, opts.eventIdentifierUUID)
