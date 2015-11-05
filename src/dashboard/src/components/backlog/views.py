@@ -215,4 +215,4 @@ def download(request, uuid):
     :param uuid: UUID for the transfer we're downloading the package from
     :return: Respond with a TAR'd version of the requested package
     """
-    return HttpResponseRedirect(storage_service.download_file_url(uuid))
+    return helpers.stream_file_from_storage_service(storage_service.download_file_url(uuid))
