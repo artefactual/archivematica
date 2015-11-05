@@ -310,7 +310,7 @@ def delete_context(request, uuid):
     cancel_url = reverse("components.archival_storage.views.overview")
     return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
 
-@decorators.confirm_required('archival_storage/delete_request.html', delete_context)
+@decorators.confirm_required('delete_request.html', delete_context)
 def aip_delete(request, uuid):
     try:
         reason_for_deletion = request.POST.get('reason_for_deletion', '')

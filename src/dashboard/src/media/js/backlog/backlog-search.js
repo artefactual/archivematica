@@ -63,4 +63,11 @@ $(document).ready(function()
     $('#search_submit').click(function() {
       refresh_search_results();
     });
+
+    // Prevent user from refreshing page by submitting the form when hitting 'enter'
+    $('.aip-search-query-input').keypress(function(e) {
+      if (e.which == 13) {
+        return false;
+      }
+    });
   });

@@ -107,7 +107,7 @@ def get_es_property_from_column_index(index, file_mode):
     )
 
     if index < 0 or index >= len(table_columns[file_mode]):
-        logger.warning('Backlog column index specified is invalid for sorting, got {}'.format(index))
+        logger.warning('Backlog column index specified is invalid for sorting, got %s', index)
         index = 0
 
     return table_columns[file_mode][index]
@@ -177,7 +177,7 @@ def delete_context(request, uuid):
     return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
 
 
-@decorators.confirm_required('backlog/delete_request.html', delete_context)
+@decorators.confirm_required('delete_request.html', delete_context)
 def delete(request, uuid):
     """
     Request deletion of a package from a backlog transfer
