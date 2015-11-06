@@ -84,7 +84,7 @@ globalRightsMDCounter = 0
 global globalDigiprovMDCounter
 globalDigiprovMDCounter = 0
 global fileNameToFileID #Used for mapping structMaps included with transfer
-fileNameToFileID = {} 
+fileNameToFileID = {}
 
 global trimStructMap
 trimStructMap = None
@@ -341,8 +341,8 @@ def createDSpaceDMDSec(label, dspace_mets_path, directoryPathSTR):
 
 def createTechMD(fileUUID):
     ret = etree.Element(ns.metsBNS + "techMD")
-    techMD = ret #newChild(amdSec, "digiprovMD")
-    #digiprovMD.set("ID", "digiprov-"+ os.path.basename(filename) + "-" + fileUUID)
+    techMD = ret
+
     global globalTechMDCounter
     globalTechMDCounter += 1
     techMD.set("ID", "techMD_"+ globalTechMDCounter.__str__())
@@ -350,15 +350,9 @@ def createTechMD(fileUUID):
     mdWrap = etree.SubElement(techMD, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "PREMIS:OBJECT")
     xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
-    #premis = etree.SubElement( xmlData, "premis", nsmap={None: ns.premisNS}, \
-    #    attrib = { "{" + ns.xsiNS + "}schemaLocation" : "info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/premis.xsd" })
-    #premis.set("version", "2.0")
-
-    #premis = etree.SubElement( xmlData, "premis", attrib = {ns.xsiBNS+"type": "premis:file"})
 
     f = File.objects.get(uuid=fileUUID)
     fileSize = str(f.size)
-    checksum = f.checksum
 
     #OBJECT
     object = etree.SubElement(xmlData, ns.premisBNS + "object", nsmap={'premis': ns.premisNS})
@@ -370,14 +364,12 @@ def createTechMD(fileUUID):
     etree.SubElement(objectIdentifier, ns.premisBNS + "objectIdentifierType").text = "UUID"
     etree.SubElement(objectIdentifier, ns.premisBNS + "objectIdentifierValue").text = fileUUID
 
-    #etree.SubElement(object, "objectCategory").text = "file"
-
     objectCharacteristics = etree.SubElement(object, ns.premisBNS + "objectCharacteristics")
     etree.SubElement(objectCharacteristics, ns.premisBNS + "compositionLevel").text = "0"
 
     fixity = etree.SubElement(objectCharacteristics, ns.premisBNS + "fixity")
-    etree.SubElement(fixity, ns.premisBNS + "messageDigestAlgorithm").text = "sha256"
-    etree.SubElement(fixity, ns.premisBNS + "messageDigest").text = checksum
+    etree.SubElement(fixity, ns.premisBNS + "messageDigestAlgorithm").text = f.checksumtype
+    etree.SubElement(fixity, ns.premisBNS + "messageDigest").text = f.checksum
 
     etree.SubElement(objectCharacteristics, ns.premisBNS + "size").text = fileSize
 
@@ -538,7 +530,7 @@ def createDigiprovMDAgents(fileGroupIdentifier=None):
         agentName = 'username="%s", first_name="%s", last_name="%s"' % (user.username, user.first_name, user.last_name)
         agentType = "Archivematica user"
         xmlData.append(createAgent(agentIdentifierType, agentIdentifierValue, agentName, agentType))
-    
+
     return ret
 
 
@@ -616,14 +608,14 @@ def getIncludedStructMap(baseDirectoryPath):
                 fileName = item.get("FILEID")
                 if fileName in fileNameToFileID:
                     #print fileName, " -> ", fileNameToFileID[fileName]
-                    item.set("FILEID", fileNameToFileID[fileName]) 
+                    item.set("FILEID", fileNameToFileID[fileName])
                 else:
                     print >>sys.stderr,"error: no fileUUID for ", fileName
                     sharedVariablesAcrossModules.globalErrorCount += 1
     for fileName, fileID in  fileNameToFileID.iteritems():
         #locate file based on key
         continue
-        print fileName 
+        print fileName
     if trimStructMap != None:
         ret.append(trimStructMap)
     return ret
@@ -639,7 +631,7 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
     global globalDigiprovMDCounter
     global dmdSecs
     global amdSecs
-    
+
     filesInThisDirectory = []
     dspaceMetsDMDID = None
     try:
@@ -735,7 +727,7 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
                         fileDiv.set("DMDID", DMDIDS)
                     if typeOfTransfer == "TRIM":
                         trimFileDiv = etree.SubElement(trimStructMapObjects, ns.metsBNS + "div", attrib={"TYPE":"Item"})
-                        
+
                         trimFileDmdSec = getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, myuuid)
                         globalDmdSecCounter += 1
                         dmdSecs.append(trimFileDmdSec)
@@ -780,12 +772,12 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
                 }
                 f = File.objects.get(**kwargs)
                 GROUPID = "Group-" + f.uuid
-            
-            
+
+
             elif use == "TRIM container metadata":
                 GROUPID = "Group-%s" % (myuuid)
                 use = "metadata"
-            
+
 
             if transferUUID:
                 t = Transfer.objects.get(uuid=transferUUID)
@@ -829,7 +821,7 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
     if dspaceMetsDMDID != None:
         for file_elem in filesInThisDirectory:
             file_elem.set("DMDID", dspaceMetsDMDID)
-    
+
     return structMapDiv
 
 def build_arranged_structmap(original_structmap, sip_uuid):
