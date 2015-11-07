@@ -520,7 +520,8 @@ def transfer_backlog(request, ui):
     conn = elasticSearchFunctions.connect_and_create_index('transfers')
 
     if not 'query' in request.GET:
-        query = elasticSearchFunctions.MATCH_ALL_QUERY
+        query = elasticSearchFunctions.MATCH_ALL_QUERY.copy()
+        query['filter'] = elasticSearchFunctions.BACKLOG_FILTER
     else:
         queries, ops, fields, types = advanced_search.search_parameter_prep(request)
 
@@ -530,10 +531,7 @@ def transfer_backlog(request, ui):
                 ops,
                 fields,
                 types,
-                # Specify this as a filter, not a must_have, for performance,
-                # and so that it doesn't cause the "should" queries in a
-                # should-only query to be ignored.
-                filters={'term': {'status': 'backlog'}},
+                filters=elasticSearchFunctions.BACKLOG_FILTER,
             )
         except:
             logger.exception('Error accessing index.')
