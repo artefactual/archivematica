@@ -1,15 +1,20 @@
 #!/usr/bin/env python2
 from __future__ import print_function
 import argparse
+from django.utils import timezone
 import os
 import sys
 import uuid
 
 import metsrw
 
+import django
+django.setup()
 from main import models
 
+# archivematicaCommon
 import databaseFunctions
+from archivematicaFunctions import get_file_checksum
 
 def get_db_objects(mets, transfer_uuid):
     """
@@ -91,6 +96,57 @@ def create_derivatives(mapping, dataverse_agent):
             )
             print('Added derivation from', original_uuid, 'to', f.uuid)
 
+def validate_checksums(mapping, unit_path):
+    date = timezone.now().isoformat(' ')
+    for entry, f in mapping.items():
+        if entry.checksum and entry.checksumtype:
+            print('Checking checksum', entry.checksum, 'for', entry.label)
+            verify_checksum(
+                file_uuid=f.uuid,
+                path=f.currentlocation.replace('%transferDirectory%', unit_path),
+                checksum=entry.checksum,
+                checksumtype=entry.checksumtype,
+                date=date,
+            )
+
+def verify_checksum(file_uuid, path, checksum, checksumtype, event_id=None, date=None):
+    """
+    Verify the checksum of a given file, and create a fixity event.
+
+    :param str file_uuid: UUID of the file to verify
+    :param str path: Path of the file to verify
+    :param str checksum: Checksum to compare against
+    :param str checksumtype: Type of the provided checksum (md5, sha256, etc)
+    :param str event_id: Event ID
+    :param str date: Date of the event
+    """
+    if event_id is None:
+        event_id = str(uuid.uuid4())
+    if date is None:
+        date = timezone.now().isoformat(' ')
+
+    checksumtype = checksumtype.lower()
+    generated_checksum = get_file_checksum(path, checksumtype)
+    event_detail = 'program="python"; module="hashlib.{}()"'.format(checksumtype)
+    if checksum != generated_checksum:
+        print('Checksum failed')
+        event_outcome = "Fail"
+        detail_note = 'Dataverse checksum %s verification failed' % checksum
+    else:
+        print('Checksum passed')
+        event_outcome = "Pass"
+        detail_note = 'Dataverse checksum %s verified' % checksum
+
+    databaseFunctions.insertIntoEvents(
+        fileUUID=file_uuid,
+        eventIdentifierUUID=event_id,
+        eventType='fixity check',
+        eventDateTime=date,
+        eventDetail=event_detail,
+        eventOutcome=event_outcome,
+        eventOutcomeDetailNote=detail_note,
+    )
+
 def main(unit_path, unit_uuid):
     dataverse_mets_path = os.path.join(unit_path, 'metadata', 'METS.xml')
     mets = metsrw.METSDocument.fromfile(dataverse_mets_path)
@@ -99,6 +155,7 @@ def main(unit_path, unit_uuid):
     update_file_use(mapping)
     agent = add_dataverse_agent()
     create_derivatives(mapping, agent)
+    validate_checksums(mapping, unit_path)
     return 0
 
 if __name__ == '__main__':

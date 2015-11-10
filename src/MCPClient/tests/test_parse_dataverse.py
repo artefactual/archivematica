@@ -100,4 +100,17 @@ class TestParseDataverse(TestCase):
         """
         It should do something with checksums to validate them??
         """
-        raise NotImplementedError()
+        assert models.Event.objects.count() == 0
+        mapping = parse_dataverse.get_db_objects(self.mets, self.uuid)
+        parse_dataverse.validate_checksums(mapping, self.unit_path)
+        # assert models.Event.objects.count() == 2
+        e = models.Event.objects.get(file_uuid_id='22fade0b-d2fc-4835-b669-970c8fdd9b76')
+        assert e.event_type == 'fixity check'
+        assert e.event_detail == 'program="python"; module="hashlib.md5()"'
+        assert e.event_outcome == 'Pass'
+        assert e.event_outcome_detail == 'Dataverse checksum 7ede51390fe3f01fb13632c001d2499d verified'
+        e = models.Event.objects.get(file_uuid_id='e2834eed-4178-469a-9a4e-c8f1490bb804')
+        assert e.event_type == 'fixity check'
+        assert e.event_detail == 'program="python"; module="hashlib.md5()"'
+        assert e.event_outcome == 'Pass'
+        assert e.event_outcome_detail == 'Dataverse checksum 4ca2a78963445bce067e027e10394b61 verified'
