@@ -20,6 +20,7 @@ import json
 import logging
 from lxml import etree
 import os
+import sys
 from uuid import uuid4
 
 from django.db.models import Max
@@ -29,6 +30,9 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.http import Http404, HttpResponse
 from django.utils.safestring import mark_safe
+
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from archivematicaFunctions import escape
 
 from contrib.mcp.client import MCPClient
 from contrib import utils
@@ -309,3 +313,54 @@ def cleanup_metadata_set(request, set_uuid):
         json.dumps(response),
         content_type='application/json'
     )
+
+
+def get_unidentified_files(request, uuid):
+    page_size = int(request.GET.get('iDisplayLength', 10))
+    start = int(request.GET.get('iDisplayStart', 0))
+
+    unidentified_file_count = models.File.objects.filter(
+        transfer_id=uuid,
+        event__event_type='format identification',
+        event__event_outcome='Not identified',
+    ).count()
+
+    total_file_count = models.File.objects.filter(transfer_id=uuid).count()
+
+    files = models.File.objects.filter(
+        transfer_id=uuid,
+        event__event_type='format identification',
+        event__event_outcome='Not identified',
+    )[start:start + page_size]
+
+    job_results = get_job_results(uuid)
+    r = []
+
+    for f in files:
+        stderror = job_results.get(f.uuid)
+        if not stderror:
+            continue
+        r.append({'filename': f.currentlocation.split('/')[-1], 'stderror': stderror})
+
+    response = {
+        'iTotalRecords': unidentified_file_count,
+        'iTotalDisplayRecords': unidentified_file_count,
+        'sEcho': int(request.GET.get('sEcho', 0)),
+        'aaData': r
+    }
+
+    return helpers.json_response(response)
+
+
+def unidentified_file_report(request, uuid):
+    return render(request, 'transfer/unidentified_files.html', locals())
+
+
+# TODO: Handle case where > 1 results for jobs
+def get_job_results(uuid):
+    jobs = models.Job.objects.filter(sipuuid=uuid, jobtype='Identify file format')
+
+    for job in jobs:
+        objects = job.task_set.all().order_by('-exitcode', '-endtime', '-starttime', '-createdtime')
+
+        return {unicode(task.taskuuid): escape(task.stderror) for task in objects}
