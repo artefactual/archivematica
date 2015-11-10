@@ -1,0 +1,42 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+
+{% block extra_css %}
+  <link href="{{ STATIC_URL }}vendor/datatables/css/jquery.dataTables.css" rel="stylesheet">
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="{{ STATIC_URL }}vendor/datatables/js/jquery.dataTables.min.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function()
+  {
+    var cols = [
+      {sTitle: 'Filename', mData: 'filename'},
+      {sTitle: 'STDERR', mData: 'stderror'},
+      {sTitle: 'Enter PUID manually', mData: null},
+      {sTitle: 'Submit to PRONOM', mData: null}
+    ];
+
+    var dtable = $('#files-table').dataTable({
+      'bLengthChange': false,
+      'bFilter': false,
+      'bAutoWidth': false,
+      'sPaginationType': 'full_numbers',
+      'bServerSide': true,
+      'sAjaxSource': '/transfer/get_unidentified_files/{{ uuid }}',
+      'aoColumns': cols,
+      'fnServerData': function(sSource, aoData, fnCallback) {
+        $.getJSON(sSource, aoData, function(json) {
+          fnCallback(json);
+        });
+      },
+    });
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+    <table id="files-table">
+    </table>
+{% endblock %}
