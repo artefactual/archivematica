@@ -134,5 +134,39 @@
     },
     "model": "main.file",
     "pk": "e7383616-1603-44b9-a251-8524362ff2f1"
+},
+{
+    "fields": {
+        "filegrpuuid": "",
+        "sip": null,
+        "originallocation": "%transferDirectory%objects/Weather_data.zip-2015-11-05T16:06:49.498453/Weather_data.RData",
+        "transfer": "6741c782-f22b-47b3-8bcf-72fd0c94e195",
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "c54c464c5efbdb4d6c903043c18d41b690653a38cbfcbc0cc31fabe6cda55a0e",
+        "enteredsystem": "2015-11-05T22:06:49",
+        "currentlocation": "%transferDirectory%objects/Weather_data.zip-2015-11-05T16_06_49.498453/Weather_data.RData",
+        "size": 563285
+    },
+    "model": "main.file",
+    "pk": "071e6af9-f676-40fa-a5ab-754ca6b653e0"
+},
+{
+    "fields": {
+        "filegrpuuid": "",
+        "sip": null,
+        "originallocation": "%transferDirectory%objects/Weather_data.zip-2015-11-05T16:06:49.498453/Weather_data.sav",
+        "transfer": "6741c782-f22b-47b3-8bcf-72fd0c94e195",
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "c54c464c5efbdb4d6c903043c18d41b690653a38cbfcbc0cc31fabe6cda55a0e",
+        "enteredsystem": "2015-11-05T22:06:49",
+        "currentlocation": "%transferDirectory%objects/Weather_data.zip-2015-11-05T16_06_49.498453/Weather_data.sav",
+        "size": 563285
+    },
+    "model": "main.file",
+    "pk": "e2834eed-4178-469a-9a4e-c8f1490bb804"
 }
 ]
