@@ -64,7 +64,7 @@
       <mets:file ID="file-2bd13f12-cd98-450d-8c49-416e9f666a9c" GROUPID="Group-2bd13f12-cd98-450d-8c49-416e9f666a9c" CHECKSUM="7ede51390fe3f01fb13632c001d2499d" CHECKSUMTYPE="MD5">
         <mets:FLocat xlink:href="chelan 052.jpg" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
       </mets:file>
-      <mets:file ID="file-fb3b1250-5e45-499f-b0b1-0f6a20d77366" GROUPID="Group-fb3b1250-5e45-499f-b0b1-0f6a20d77366" CHECKSUM="755a502c757e1e2aa4bcaebd687fa102" CHECKSUMTYPE="MD5">
+      <mets:file ID="file-fb3b1250-5e45-499f-b0b1-0f6a20d77366" GROUPID="Group-fb3b1250-5e45-499f-b0b1-0f6a20d77366" CHECKSUM="4ca2a78963445bce067e027e10394b61" CHECKSUMTYPE="MD5">
         <mets:FLocat xlink:href="Weather_data/Weather_data.sav" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
       </mets:file>
     </mets:fileGrp>
