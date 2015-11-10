@@ -106,73 +106,78 @@ def search(request):
         # pulling only one field (we don't need field data as we augment
         # the results using separate queries)
         if not file_mode:
+            # Fetch all unique AIP UUIDs in the returned set of files
+            query['aggs'] = {'aip_uuids': {'terms': {'field': 'AIPUUID', 'size': 0}}}
+            # Don't return results, just the aggregation
+            query['size'] = 0
             # Searching for AIPs still actually searches type 'aipfile', and
             # returns the UUID of the AIP the files are a part of.  To search
             # for an attribute of an AIP, the aipfile must index that
             # information about their AIP in
             # elasticSearchFunctions.index_mets_file_metadata
-            # Because we're searching aips/aipfile and not aips/aip,
-            # cannot using LazyPagedSequence
             results = conn.search(
                 body=query,
                 index='aips',
                 doc_type='aipfile',
-                fields='AIPUUID,sipName',
                 sort='sipName:desc',
             )
+            # Given these AIP UUIDs, now fetch the actual information we want from aips/aip
+            buckets = results['aggregations']['aip_uuids']['buckets']
+            uuids = [bucket['key'] for bucket in buckets]
+            uuid_file_counts = {bucket['key']: bucket['doc_count'] for bucket in buckets}
+            query = {
+                'query': {
+                    'terms': {
+                        'uuid': uuids,
+                    },
+                },
+            }
+            index = 'aips'
+            doc_type = 'aip'
+            fields = 'name,uuid,size,created,status,AICID,isPartOf,countAIPsinAIC'
+            sort = 'name:desc'
         else:
-            # To reduce amount of data fetched from ES, use LazyPagedSequence
-            def es_pager(page, page_size):
-                """
-                Fetch one page of normalized aipfile entries from Elasticsearch.
+            index = 'aips'
+            doc_type = 'aipfile'
+            fields = 'AIPUUID,filePath,FILEUUID'
+            sort = 'sipName:desc'
 
-                :param page: 1-indexed page to fetch
-                :param page_size: Number of entries on a page
-                :return: List of dicts for each entry with additional information
-                """
-                start = (page - 1) * page_size
-                results = conn.search(
-                    body=query,
-                    index='aips',
-                    doc_type='aipfile',
-                    from_=start,
-                    size=page_size,
-                    fields='AIPUUID,filePath,FILEUUID',
-                    sort='sipName:desc',
-                )
+        # To reduce amount of data fetched from ES, use LazyPagedSequence
+        def es_pager(page, page_size):
+            """
+            Fetch one page of normalized aipfile entries from Elasticsearch.
+
+            :param page: 1-indexed page to fetch
+            :param page_size: Number of entries on a page
+            :return: List of dicts for each entry with additional information
+            """
+            start = (page - 1) * page_size
+            results = conn.search(
+                body=query,
+                from_=start,
+                size=page_size,
+                index=index,
+                doc_type=doc_type,
+                fields=fields,
+                sort=sort,
+            )
+            if file_mode:
                 return search_augment_file_results(results)
-            count = conn.count(index='aips', doc_type='aipfile', body={'query': query['query']})['count']
-            results = LazyPagedSequence(es_pager, items_per_page, count)
+            else:
+                return search_augment_aip_results(results, uuid_file_counts)
+        count = conn.count(index=index, doc_type=doc_type, body={'query': query['query']})['count']
+        results = LazyPagedSequence(es_pager, items_per_page, count)
 
     except ElasticsearchException:
         logger.exception('Error accessing index.')
         return HttpResponse('Error accessing index.')
 
     if not file_mode:
-        # Convert the fields info into a list of dicts like this:
-        # {'uuid': AIP uuid, 'name': AIP name, 'count': count of files in AIP}
-        # We need to process all the results because CreateAICForm needs to know the AIP name and UUID for all results, not just those displayed on this page
-        # Cannot use facets because the ordering is not the same between facets
-        aip_uuids = [elasticSearchFunctions.normalize_results_dict(r) for r in results['hits']['hits']]
-        working_dict = {}
-        for d in aip_uuids:
-            # Use AIP UUID as the key to check if an AIP has already been seen
-            if d['AIPUUID'] in working_dict:
-                working_dict[d['AIPUUID']]['count'] += 1
-            else:
-                working_dict[d['AIPUUID']] = {
-                    'name': d['sipName'],
-                    'uuid': d['AIPUUID'],
-                    'count': 1,
-                }
-        aip_uuids = working_dict.values()
-        page_data = helpers.pager(aip_uuids, items_per_page, current_page_number)
-        page_data.object_list = search_augment_aip_results(conn, page_data.object_list)
-        logger.debug('AIC form results: %s', aip_uuids)
-        aic_creation_form = forms.CreateAICForm(initial={'results': aip_uuids})
+        aic_creation_form = forms.CreateAICForm(initial={'results': uuids})
     else:  # if file_mode
-        page_data = helpers.pager(results, items_per_page, current_page_number)
         aic_creation_form = None
+
+    page_data = helpers.pager(results, items_per_page, current_page_number)
 
     return render(request, 'archival_storage/archival_storage_search.html',
         {
@@ -186,54 +191,34 @@ def search(request):
         }
     )
 
-def search_augment_aip_results(conn, aips):
-    new_aips = []
-    for original_aip_info in aips:
-        query = {
-            "query": {
-                "term": {
-                    "uuid": original_aip_info['uuid']
-                }
-            }
+def _get_es_field(record, field, default=None):
+    if field not in record or not record[field]:
+        return default
+    return record[field][0]
+
+def search_augment_aip_results(raw_results, counts):
+    modified_results = []
+
+    for item in raw_results['hits']['hits']:
+        fields = item['fields']
+        new_item = {
+            'name': fields['name'][0],
+            'uuid': fields['uuid'][0],
+            'count': counts[fields['uuid'][0]],
+            'created': fields['created'][0],
+            'isPartOf': _get_es_field(fields, 'isPartOf'),
+            'AICID': _get_es_field(fields, 'AICID'),
+            'countAIPsinAIC': _get_es_field(fields, 'countAIPsinAIC', '(unknown)'),
+            'type': 'AIC' if 'AIC#' in _get_es_field(fields, 'AICID', '') else 'AIP',
+            'status': AIP_STATUS_DESCRIPTIONS[_get_es_field(fields, 'status', 'UPLOADED')],
+            'document_id_no_hyphens': item['_id'].replace('-', '____'),
         }
-        documents = conn.search(
-            body=query,
-            index='aips',
-            doc_type='aip',
-            fields='name,size,created,status,AICID,isPartOf,countAIPsinAIC')
-        aip = {}
-        if documents['hits']['hits']:
-            aip_info = documents['hits']['hits'][0]
+        size = _get_es_field(fields, 'size')
+        if size is not None:
+            new_item['size'] = '{0:.2f} MB'.format(size)
+        modified_results.append(new_item)
 
-            # Supplement the AIP dict with additional information from ES
-            aip = elasticSearchFunctions.normalize_results_dict(aip_info)
-            aip['uuid'] = original_aip_info['uuid']
-            aip['count'] = original_aip_info['count']
-            if 'isPartOf' not in aip:
-                aip['isPartOf'] = ''
-            if 'AICID' not in aip:
-                aip['AICID'] = ''
-            if 'countAIPsinAIC' not in aip:
-                aip['countAIPsinAIC'] = '(unknown)'
-            if 'size' in aip:
-                aip['size'] = '{0:.2f} MB'.format(aip['size'])
-
-            # TODO is there a more reliable way to determine package type?
-            if 'AIC#' in aip['AICID']:
-                aip['type'] = 'AIC'
-            else:
-                aip['type'] = 'AIP'
-            if 'status' in aip:
-                aip['status'] = AIP_STATUS_DESCRIPTIONS[aip['status']]
-            else:
-                aip['status'] = 'Stored'
-
-            aip['document_id_no_hyphens'] = aip_info['_id'].replace('-', '____')
-        else:
-            aip['name'] = '(data missing)'
-
-        new_aips.append(aip)
-    return new_aips
+    return modified_results
 
 def search_augment_file_results(raw_results):
     modifiedResults = []
@@ -270,8 +255,26 @@ def search_augment_file_results(raw_results):
 def create_aic(request, *args, **kwargs):
     aic_form = forms.CreateAICForm(request.POST or None)
     if aic_form.is_valid():
-        results = ast.literal_eval(aic_form.cleaned_data['results'])
-        logger.info("AIC AIP info: {}".format(results))
+        aip_uuids = ast.literal_eval(aic_form.cleaned_data['results'])
+        logger.info("AIC AIP UUIDs: {}".format(aip_uuids))
+
+        # The form was passed a raw list of all AIP UUIDs mapping the user's query;
+        # use those to fetch their names, which is used to produce files below.
+        query = {
+            "query": {
+                "terms": {
+                    "uuid": aip_uuids,
+                }
+            }
+        }
+        conn = Elasticsearch(hosts=elasticSearchFunctions.getElasticsearchServerHostAndPort())
+        results = conn.search(
+            body=query,
+            index='aips',
+            doc_type='aip',
+            fields='uuid,name',
+            size=elasticSearchFunctions.MAX_QUERY_SIZE,  # return all records
+        )
 
         # Create files in staging directory with AIP information
         shared_dir = helpers.get_server_config_value('sharedDirectory')
@@ -293,11 +296,11 @@ def create_aic(request, *args, **kwargs):
         databaseFunctions.createSIP(mcp_destination, UUID=temp_uuid, sip_type='AIC')
 
         # Create files with filename = AIP UUID, and contents = AIP name
-        for aip in results:
-            filepath = os.path.join(destination, aip['uuid'])
+        for aip in results['hits']['hits']:
+            filepath = os.path.join(destination, aip['fields']['uuid'][0])
             with open(filepath, 'w') as f:
                 os.chmod(filepath, 0o660)
-                f.write(str(aip['name']))
+                f.write(str(aip['fields']['name'][0]))
 
         return redirect('components.ingest.views.aic_metadata_add', temp_uuid)
     else:
