@@ -96,6 +96,8 @@ function package-update() {
           colour sudo ./installDependsFromDebianFile.py ./../src/MCPServer/debian/control
           colour sudo pip install -r ../src/dashboard/src/requirements/production.txt     
           cd ..
+          sudo pip install --upgrade -r src/dashboard/src/requirements/base.txt
+          sudo pip install --upgrade -r src/archivematicaCommon/requirements/local.txt
   else
           echo "Not going to ${part}."
   fi
