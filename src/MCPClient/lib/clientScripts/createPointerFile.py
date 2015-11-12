@@ -82,13 +82,13 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     # Namespaces
     nsmap = {
         # Default, unprefixed namespace
-        None: namespaces.metsNS,
+        'mets': namespaces.metsNS,
         'xsi': namespaces.xsiNS,
         'xlink': namespaces.xlinkNS,
     }
     # Set up structure
     E = ElementMaker(namespace=namespaces.metsNS, nsmap=nsmap)
-    E_P = ElementMaker(namespace=namespaces.premisNS, nsmap={None: namespaces.premisNS})
+    E_P = ElementMaker(namespace=namespaces.premisNS, nsmap={'premis': namespaces.premisNS})
 
     root = (
         E.mets(
@@ -158,7 +158,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
             ),
             version='2.2',
         )
-        obj.attrib[namespaces.xsiBNS+'type'] = 'file'
+        obj.attrib[namespaces.xsiBNS+'type'] = 'premis:file'
         obj.attrib[namespaces.xsiBNS+'schemaLocation'] = premis_schema_location
 
         # Add as child of xmldata
@@ -191,16 +191,16 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
 
         # compression - 7z or tar.bz2
         if extension == '.7z':
-            etree.SubElement(file_, "transformFile",
+            etree.SubElement(file_, namespaces.metsBNS + "transformFile",
                 TRANSFORMORDER='1',
                 TRANSFORMTYPE='decompression',
                 TRANSFORMALGORITHM=algorithm)
         elif extension == '.bz2':
-            etree.SubElement(file_, "transformFile",
+            etree.SubElement(file_, namespaces.metsBNS + "transformFile",
                 TRANSFORMORDER='1',
                 TRANSFORMTYPE='decompression',
                 TRANSFORMALGORITHM='bzip2')
-            etree.SubElement(file_, "transformFile",
+            etree.SubElement(file_, namespaces.metsBNS + "transformFile",
                 TRANSFORMORDER='2',
                 TRANSFORMTYPE='decompression',
                 TRANSFORMALGORITHM='tar')
