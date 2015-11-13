@@ -61,6 +61,7 @@ migrations=(
   mysql_dev_delete_views.sql
   mysql_dev_update_args_email_report.sql
   mysql_dev_8634_events_agents.sql
+  mysql_dev_8693_dataverse.sql
 )
 
 failed=()
