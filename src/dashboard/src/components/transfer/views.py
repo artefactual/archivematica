@@ -319,13 +319,7 @@ def get_unidentified_files(request, uuid):
     page_size = int(request.GET.get('iDisplayLength', 10))
     start = int(request.GET.get('iDisplayStart', 0))
 
-    unidentified_file_count = models.File.objects.filter(
-        transfer_id=uuid,
-        event__event_type='format identification',
-        event__event_outcome='Not identified',
-    ).count()
-
-    total_file_count = models.File.objects.filter(transfer_id=uuid).count()
+    unidentified_file_count = _get_unidentified_file_count(uuid)
 
     files = models.File.objects.filter(
         transfer_id=uuid,
@@ -348,6 +342,9 @@ def get_unidentified_files(request, uuid):
 
 
 def unidentified_file_report(request, uuid):
+    total_file_count = models.File.objects.filter(transfer_id=uuid).count()
+    unidentified_file_count = _get_unidentified_file_count(uuid)
+
     return render(request, 'transfer/unidentified_files.html', locals())
 
 
@@ -357,3 +354,11 @@ def get_job_results(uuid):
     objects = job.task_set.all().order_by('-exitcode', '-endtime', '-starttime', '-createdtime')
 
     return {task.fileuuid: escape(task.stderror) for task in objects}
+
+
+def _get_unidentified_file_count(transfer_uuid):
+    return models.File.objects.filter(
+        transfer_id=transfer_uuid,
+        event__event_type='format identification',
+        event__event_outcome='Not identified',
+    ).count()
