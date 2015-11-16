@@ -371,7 +371,7 @@ class ProcessingConfigurationForm(forms.Form):
         name = self.cleaned_data['name']
         del self.cleaned_data['name']
         config_path = os.path.join(helpers.processing_config_path(), '{}ProcessingMCP.xml'.format(name))
-        config = PreconfiguredChoices(config_path)
+        config = PreconfiguredChoices()
         for choice_uuid, value in self.cleaned_data.iteritems():
             fprops = self.processing_fields.get(choice_uuid)
             if fprops is None or value is None:
@@ -389,7 +389,7 @@ class ProcessingConfigurationForm(forms.Form):
                 config.add_choice(choice_uuid, fprops['chain'], delay_duration=delay, comment=fprops['label'])
             else:
                 config.add_choice(choice_uuid, value, comment=fprops['label'])
-        config.save()
+        config.save(config_path)
 
 
 def get_storage_locations(purpose):
