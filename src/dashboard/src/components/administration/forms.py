@@ -182,18 +182,20 @@ class ProcessingConfigurationForm(forms.Form):
     # The available processing fields indexed by choice_uuid.
     processing_fields = OrderedDict()
 
-    processing_fields['de909a42-c5b5-46e1-9985-c031b50e9d30'] = {
+    processing_fields['755b4177-c587-41a7-8c52-015277568302'] = {
         'type': 'boolean',
-        'name': 'normalize_transfer',
-        'label': 'Approve normalization',
-        'yes_option': '1e0df175-d56d-450d-8bee-7df1dc7ae815',
+        'name': 'quarantine_transfer',
+        'label': 'Send transfer to quarantine',
+        'yes_option': '97ea7702-e4d5-48bc-b4b5-d15d897806ab',
+        'no_option': 'd4404ab1-dc7f-4e9e-b1f8-aa861e766b8e',
     }
-    processing_fields['7079be6d-3a25-41e6-a481-cee5f352fe6e'] = {
-        'type': 'boolean',
-        'name': 'transcribe_file',
-        'label': 'Transcribe files (OCR)',
-        'yes_option': '5a9985d3-ce7e-4710-85c1-f74696770fa9',
-        'no_option': '1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53',
+    processing_fields['19adb668-b19a-4fcb-8938-f49d7485eaf3'] = {
+        'type': 'days',
+        'name': 'quarantine_expiry_days',
+        'label': 'Remove from quarantine after (days)',
+        'placeholder': 'days',
+        'chain': '333643b7-122a-4019-8bef-996443f3ecc5',
+        'min_value': 0,
     }
     processing_fields['56eebd45-5600-4768-a8c2-ec0114555a3d'] = {
         'type': 'boolean',
@@ -202,11 +204,10 @@ class ProcessingConfigurationForm(forms.Form):
         'yes_option': 'df54fec1-dae1-4ea6-8d17-a839ee7ac4a7',
         'no_option': 'e9eaef1e-c2e0-4e3b-b942-bfb537162795',
     }
-    processing_fields['bb194013-597c-4e4a-8493-b36d190f8717'] = {
-        'type': 'chain_choice',
-        'name': 'create_sip',
-        'label': 'Create SIP(s)',
-        'ignored_choices': ['Reject transfer'],
+    processing_fields['f09847c2-ee51-429a-9478-a860477f6b8d'] = {
+        'type': 'replace_dict',
+        'name': 'select_format_id_tool_transfer',
+        'label': 'Select file format identification command (Transfer)',
     }
     processing_fields['dec97e3c-5598-4b99-b26e-f87a435a6b7f'] = {
         'type': 'chain_choice',
@@ -220,31 +221,45 @@ class ProcessingConfigurationForm(forms.Form):
         'label': 'Delete packages after extraction',
         'uuid': '85b1e45d-8f98-4cae-8336-72f40e12cbef',
     }
+    processing_fields['accea2bf-ba74-4a3a-bb97-614775c74459'] = {
+        'type': 'chain_choice',
+        'name': 'examine',
+        'label': 'Examine contents',
+    }
+    processing_fields['bb194013-597c-4e4a-8493-b36d190f8717'] = {
+        'type': 'chain_choice',
+        'name': 'create_sip',
+        'label': 'Create SIP(s)',
+        'ignored_choices': ['Reject transfer'],
+    }
+    processing_fields['7a024896-c4f7-4808-a240-44c87c762bc5'] = {
+        'type': 'replace_dict',
+        'name': 'select_format_id_tool_ingest',
+        'label': 'Select file format identification command (Ingest)',
+    }
     processing_fields['cb8e5706-e73f-472f-ad9b-d1236af8095f'] = {
         'type': 'chain_choice',
         'name': 'normalize',
         'label': 'Normalize',
         'ignored_choices': ['Reject SIP'],
     }
+    processing_fields['de909a42-c5b5-46e1-9985-c031b50e9d30'] = {
+        'type': 'boolean',
+        'name': 'normalize_transfer',
+        'label': 'Approve normalization',
+        'yes_option': '1e0df175-d56d-450d-8bee-7df1dc7ae815',
+    }
     processing_fields['eeb23509-57e2-4529-8857-9d62525db048'] = {
         'type': 'chain_choice',
         'name':  'reminder',
         'label': 'Reminder: add metadata if desired',
     }
-    processing_fields['accea2bf-ba74-4a3a-bb97-614775c74459'] = {
-        'type': 'chain_choice',
-        'name': 'examine',
-        'label': 'Examine contents',
-    }
-    processing_fields['f09847c2-ee51-429a-9478-a860477f6b8d'] = {
-        'type': 'replace_dict',
-        'name': 'select_format_id_tool_transfer',
-        'label': 'Select file format identification command (Transfer)',
-    }
-    processing_fields['7a024896-c4f7-4808-a240-44c87c762bc5'] = {
-        'type': 'replace_dict',
-        'name': 'select_format_id_tool_ingest',
-        'label': 'Select file format identification command (Ingest)',
+    processing_fields['7079be6d-3a25-41e6-a481-cee5f352fe6e'] = {
+        'type': 'boolean',
+        'name': 'transcribe_file',
+        'label': 'Transcribe files (OCR)',
+        'yes_option': '5a9985d3-ce7e-4710-85c1-f74696770fa9',
+        'no_option': '1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53',
     }
     processing_fields['087d27be-c719-47d8-9bbb-9a7d8b609c44'] = {
         'type': 'replace_dict',
@@ -278,21 +293,6 @@ class ProcessingConfigurationForm(forms.Form):
         'name': 'store_dip_location',
         'label': 'Store DIP location',
         'purpose': 'DS',
-    }
-    processing_fields['755b4177-c587-41a7-8c52-015277568302'] = {
-        'type': 'boolean',
-        'name': 'quarantine_transfer',
-        'label': 'Send transfer to quarantine',
-        'yes_option': '97ea7702-e4d5-48bc-b4b5-d15d897806ab',
-        'no_option': 'd4404ab1-dc7f-4e9e-b1f8-aa861e766b8e',
-    }
-    processing_fields['19adb668-b19a-4fcb-8938-f49d7485eaf3'] = {
-        'type': 'days',
-        'name': 'quarantine_expiry_days',
-        'label': 'Remove from quarantine after (days)',
-        'placeholder': 'days',
-        'chain': '333643b7-122a-4019-8bef-996443f3ecc5',
-        'min_value': 0,
     }
 
     EMPTY_OPTION_NAME = _('None')
