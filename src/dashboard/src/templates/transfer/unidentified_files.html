@@ -7,6 +7,7 @@
 
 {% block js %}
 <script type="text/javascript" src="{{ STATIC_URL }}vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}vendor/readmore.min.js"></script>
 
 <script type="text/javascript">
   $(document).ready(function()
@@ -33,6 +34,10 @@
       'fnServerData': function(sSource, aoData, fnCallback) {
         $.getJSON(sSource, aoData, function(json) {
           fnCallback(json);
+
+          $('.stderror-col').readmore({
+            collapsedHeight: 45
+          });
         });
       },
     });
