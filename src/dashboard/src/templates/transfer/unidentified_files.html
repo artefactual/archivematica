@@ -11,9 +11,13 @@
 <script type="text/javascript">
   $(document).ready(function()
   {
+    function render_stderror_col(stderror, type, row_data) {
+      return '<pre class="stderror-col">' + stderror + '</pre>';
+    }
+
     var cols = [
       {sTitle: 'Filename', mData: 'filename'},
-      {sTitle: 'STDERR', mData: 'stderror'},
+      {sTitle: 'STDERR', mData: 'stderror', mRender: render_stderror_col},
       {sTitle: 'Enter PUID manually', mData: null},
       {sTitle: 'Submit to PRONOM', mData: null}
     ];

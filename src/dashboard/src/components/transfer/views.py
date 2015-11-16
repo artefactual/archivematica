@@ -334,19 +334,14 @@ def get_unidentified_files(request, uuid):
     )[start:start + page_size]
 
     job_results = get_job_results(uuid)
-    r = []
-
-    for f in files:
-        stderror = job_results.get(f.uuid)
-        if not stderror:
-            continue
-        r.append({'filename': f.currentlocation.split('/')[-1], 'stderror': stderror})
+    data = [{'filename': f.currentlocation.split('/')[-1],
+             'stderror': job_results.get(f.uuid, '')} for f in files]
 
     response = {
         'iTotalRecords': unidentified_file_count,
         'iTotalDisplayRecords': unidentified_file_count,
         'sEcho': int(request.GET.get('sEcho', 0)),
-        'aaData': r
+        'aaData': data
     }
 
     return helpers.json_response(response)
@@ -358,9 +353,7 @@ def unidentified_file_report(request, uuid):
 
 # TODO: Handle case where > 1 results for jobs
 def get_job_results(uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid, jobtype='Identify file format')
+    job = models.Job.objects.filter(sipuuid=uuid, jobtype='Identify file format')[0]
+    objects = job.task_set.all().order_by('-exitcode', '-endtime', '-starttime', '-createdtime')
 
-    for job in jobs:
-        objects = job.task_set.all().order_by('-exitcode', '-endtime', '-starttime', '-createdtime')
-
-        return {unicode(task.taskuuid): escape(task.stderror) for task in objects}
+    return {task.fileuuid: escape(task.stderror) for task in objects}
