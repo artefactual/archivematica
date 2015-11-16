@@ -77,11 +77,43 @@ class TestParseDataverse(TestCase):
         It should add a Dataverse agent.
         """
         assert models.Agent.objects.count() == 0
-        agent = parse_dataverse.add_dataverse_agent()
+        agent_id = parse_dataverse.add_external_agents(self.unit_path)
+        assert models.Agent.objects.count() == 1
+        assert agent_id
+        agent = models.Agent.objects.all()[0]
         assert agent.identifiertype == 'URI'
-        assert agent.identifiervalue == 'http://dataverse.scholarsportal.info/dvn/'
-        assert agent.name == 'SP Dataverse Network'
+        assert agent.identifiervalue == 'http://dataverse.example.com/dvn/'
+        assert agent.name == 'Example Dataverse Network'
         assert agent.agenttype == 'organization'
+
+    def test_parse_agent_already_exists(self):
+        """
+        It should not add a duplicate agent.
+        """
+        models.Agent.objects.create(
+            identifiertype='URI',
+            identifiervalue='http://dataverse.example.com/dvn/',
+            name='Example Dataverse Network',
+            agenttype='organization',
+        )
+        assert models.Agent.objects.count() == 1
+        agent_id = parse_dataverse.add_external_agents(self.unit_path)
+        assert models.Agent.objects.count() == 1
+        assert agent_id
+        agent = models.Agent.objects.all()[0]
+        assert agent.identifiertype == 'URI'
+        assert agent.identifiervalue == 'http://dataverse.example.com/dvn/'
+        assert agent.name == 'Example Dataverse Network'
+        assert agent.agenttype == 'organization'
+
+    def test_parse_agent_no_agents(self):
+        """
+        It should return None
+        """
+        assert models.Agent.objects.count() == 0
+        agent_id = parse_dataverse.add_external_agents(os.path.join(THIS_DIR, 'fixtures', 'emptysip', ''))
+        assert models.Agent.objects.count() == 0
+        assert agent_id is None
 
     def test_parse_derivative(self):
         """
@@ -89,7 +121,7 @@ class TestParseDataverse(TestCase):
         """
         assert models.Derivation.objects.count() == 0
         mapping = parse_dataverse.get_db_objects(self.mets, self.uuid)
-        agent = parse_dataverse.add_dataverse_agent()
+        agent = parse_dataverse.add_external_agents(self.unit_path)
         parse_dataverse.create_derivatives(mapping, agent)
         assert models.Event.objects.count() == 2
         assert models.Derivation.objects.count() == 2

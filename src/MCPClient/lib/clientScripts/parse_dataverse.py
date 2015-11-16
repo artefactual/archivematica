@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 from __future__ import print_function
 import argparse
+import json
 from django.utils import timezone
 import os
 import sys
@@ -55,21 +56,36 @@ def update_file_use(mapping):
         print(entry.label, 'file group use set to', entry.use)
         f.save()
 
-def add_dataverse_agent():
+def add_external_agents(unit_path):
     """
-    Add Dataverse agent
-    """
-    agent = None
-    # TODO Get this from the Dataverse METS?
-    agent = models.Agent.objects.create(
-        identifiertype='URI',
-        identifiervalue='',
-        name='',
-        agenttype='organization',
-    )
-    return agent
+    Add external agent(s).
 
-def create_derivatives(mapping, dataverse_agent):
+    :return: ID of the first agent, assuming that's the Dataverse agent.
+    """
+    agents_jsonfile = os.path.join(unit_path, 'metadata', 'agents.json')
+    try:
+        with open(agents_jsonfile, 'r') as f:
+            agents_json = json.load(f)
+    except (OSError, IOError):
+        return None
+
+    agent_id = None
+    for agent in agents_json:
+        a, created = models.Agent.objects.get_or_create(
+            identifiertype=agent['agentIdentifierType'],
+            identifiervalue=agent['agentIdentifierValue'],
+            name=agent['agentName'],
+            agenttype=agent['agentType'],
+        )
+        if created:
+            print('Added agent', agent)
+        else:
+            print('Agent already exists', agent)
+        agent_id = agent_id or a.id
+
+    return agent_id
+
+def create_derivatives(mapping, dataverse_agent_id):
     """
     Create derivatives for derived tabular data.
     """
@@ -86,7 +102,7 @@ def create_derivatives(mapping, dataverse_agent):
                 eventDetail="",  # From Dataverse?
                 eventOutcome="",  # From Dataverse?
                 eventOutcomeDetailNote=f.currentlocation,
-                agents=[dataverse_agent.id],
+                agents=[dataverse_agent_id],
             )
             # Add derivation
             databaseFunctions.insertIntoDerivations(
@@ -153,7 +169,7 @@ def main(unit_path, unit_uuid):
     mapping = get_db_objects(mets, unit_uuid)
 
     update_file_use(mapping)
-    agent = add_dataverse_agent()
+    agent = add_external_agents(unit_path)
     create_derivatives(mapping, agent)
     validate_checksums(mapping, unit_path)
     return 0
