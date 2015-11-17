@@ -99,9 +99,12 @@ def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitI
         if os.path.isfile(src):
             if item.startswith("manifest"):
                 dst = os.path.join(unitPath, "metadata", item)
+                fileOperations.updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+            elif item in OPTIONAL_FILES:
+                print "not moving:", item
             else:
                 dst = os.path.join(bagFileDefaultDest, item)
-            fileOperations.updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
+                fileOperations.updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
     for item in os.listdir(unitDataPath):
         itemPath =  os.path.join(unitDataPath, item)
         if os.path.isdir(itemPath) and item not in REQUIRED_DIRECTORIES:
