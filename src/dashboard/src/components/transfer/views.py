@@ -344,6 +344,7 @@ def get_unidentified_files(request, uuid):
 def unidentified_file_report(request, uuid):
     total_file_count = models.File.objects.filter(transfer_id=uuid).count()
     unidentified_file_count = _get_unidentified_file_count(uuid)
+    tool_choices = _get_file_identification_options()
 
     return render(request, 'transfer/unidentified_files.html', locals())
 
@@ -362,3 +363,11 @@ def _get_unidentified_file_count(transfer_uuid):
         event__event_type='format identification',
         event__event_outcome='Not identified',
     ).count()
+
+
+def _get_file_identification_options():
+    file_identification_link_uuid = '087d27be-c719-47d8-9bbb-9a7d8b609c44'
+    link = models.MicroServiceChainLink.objects.get(pk=file_identification_link_uuid)
+    replace_dicts = models.MicroServiceChoiceReplacementDic.objects.filter(choiceavailableatlink_id=link.pk)
+
+    return [(item.pk, item.description) for item in replace_dicts]

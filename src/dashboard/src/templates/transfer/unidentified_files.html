@@ -26,11 +26,12 @@
     var dtable = $('#files-table').dataTable({
       'bLengthChange': false,
       'bFilter': false,
-      'bAutoWidth': false,
+      'bAutoWidth': true,
       'sPaginationType': 'full_numbers',
       'bServerSide': true,
       'sAjaxSource': '/transfer/get_unidentified_files/{{ uuid }}',
       'aoColumns': cols,
+      'iDisplayLength': 5,
       'fnServerData': function(sSource, aoData, fnCallback) {
         $.getJSON(sSource, aoData, function(json) {
           fnCallback(json);
@@ -50,4 +51,12 @@
     Total unidentified files: {{ unidentified_file_count }}
     <table id="files-table">
     </table>
+
+    <br>
+    Re-identify selected files with:
+    <select>
+      {% for item in tool_choices %}
+        <option value="{{ item.0 }}">{{ item.1 }}</option>
+      {% endfor %}
+    </select>
 {% endblock %}
