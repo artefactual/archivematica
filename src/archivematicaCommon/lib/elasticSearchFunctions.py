@@ -243,7 +243,9 @@ def set_up_mapping_aip_index(conn):
     mapping = {
         'name': _sortable_string_field_specification('name'),
         'size': {'type': 'double'},
-        'uuid': MACHINE_READABLE_FIELD_SPEC
+        'uuid': MACHINE_READABLE_FIELD_SPEC,
+        # Prevent autodetection for dc:date
+        'mets': {'properties': {'ns0:mets_dict_list': {'properties': {'ns0:dmdSec_dict_list': {'properties': {'ns0:mdWrap_dict_list': {'properties': {'ns0:xmlData_dict_list': {'properties': {'ns2:dublincore_dict_list': {'properties': {'dc:date': {'type': 'string'}}}}}}}}}}}}},
     }
 
     LOGGER.info('Creating AIP mapping...')
@@ -259,6 +261,8 @@ def set_up_mapping_aip_index(conn):
         'FILEUUID': MACHINE_READABLE_FIELD_SPEC,
         'isPartOf': MACHINE_READABLE_FIELD_SPEC,
         'AICID': MACHINE_READABLE_FIELD_SPEC,
+        # Prevent autodetection for dc:date
+        'METS': {'properties': {'dmdSec': {'properties': {'ns0:xmlData_dict_list': {'properties': {'ns1:dublincore_dict_list': {'properties': {'dc:date': {'type': 'string'}}}}}}}}},
     }
 
     LOGGER.info('Creating AIP file mapping...')
