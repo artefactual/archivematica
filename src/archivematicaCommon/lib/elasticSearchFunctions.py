@@ -263,7 +263,9 @@ def set_up_mapping(conn, index):
         mapping = {
             'name': _sortable_string_field_specification('name'),
             'size': {'type': 'double'},
-            'uuid': machine_readable_field_spec
+            'uuid': machine_readable_field_spec,
+            # Prevent autodetection for dc:date
+            'mets': {'properties': {'ns0:mets_dict_list': {'properties': {'ns0:dmdSec_dict_list': {'properties': {'ns0:mdWrap_dict_list': {'properties': {'ns0:xmlData_dict_list': {'properties': {'ns2:dublincore_dict_list': {'properties': {'dc:date': {'type': 'string'}}}}}}}}}}}}},
         }
 
         print 'Creating AIP mapping...'
@@ -279,6 +281,8 @@ def set_up_mapping(conn, index):
             'FILEUUID': machine_readable_field_spec,
             'isPartOf': machine_readable_field_spec,
             'AICID': machine_readable_field_spec,
+            # Prevent autodetection for dc:date
+            'METS': {'properties': {'dmdSec': {'properties': {'ns0:xmlData_dict_list': {'properties': {'ns1:dublincore_dict_list': {'properties': {'dc:date': {'type': 'string'}}}}}}}}},
         }
 
         print 'Creating AIP file mapping...'
