@@ -62,7 +62,7 @@ from bagit import Bag, BagError
 #Global Variables
 
 globalFileGrps = {}
-globalFileGrpsUses = ["original", "submissionDocumentation", "preservation", "service", "access", "license", "text/ocr", "metadata"]
+globalFileGrpsUses = ["original", "submissionDocumentation", "preservation", "service", "access", "license", "text/ocr", "metadata", "derivative"]
 for use in globalFileGrpsUses:
     grp = etree.Element(ns.metsBNS + "fileGrp")
     grp.set("USE", use)
@@ -723,8 +723,8 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
                 except (File.DoesNotExist, File.MultipleObjectsReturned):
                     pass
 
-            elif use in ("preservation", "text/ocr"):
-                # Derived files should be in the original file's group
+            elif use in ("preservation", "text/ocr", "derivative"):
+                # Derived files (by AM or external) should be in the original file's group
                 d = Derivation.objects.get(derived_file_id=f.uuid)
                 GROUPID = "Group-" + d.source_file_id
 
