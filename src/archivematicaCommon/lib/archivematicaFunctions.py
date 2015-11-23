@@ -115,7 +115,7 @@ def normalizeNonDcElementName(string):
     normalizedString = normalizedString.lower()
     return normalizedString
 
-def find_metadata_files(sip_path, filename):
+def find_metadata_files(sip_path, filename, only_transfers=False):
     """
     Check the SIP and transfer metadata directories for filename.
 
@@ -125,6 +125,7 @@ def find_metadata_files(sip_path, filename):
 
     :param sip_path: Path of the SIP to check
     :param filename: Name of the metadata file to search for
+    :param only_transfers: True if it should only look at Transfer metadata, False if it should look at SIP metadata too.
     :return: List of full paths to instances of filename
     """
     paths = []
@@ -139,9 +140,10 @@ def find_metadata_files(sip_path, filename):
         if os.path.isfile(path):
             paths.append(path)
     # Check SIP metadata dir
-    path = os.path.join(sip_path, 'objects', 'metadata', filename)
-    if os.path.isfile(path):
-        paths.append(path)
+    if not only_transfers:
+        path = os.path.join(sip_path, 'objects', 'metadata', filename)
+        if os.path.isfile(path):
+            paths.append(path)
     return paths
 
 def create_directories(directories, basepath='', printing=False):
