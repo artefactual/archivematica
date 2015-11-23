@@ -18,7 +18,7 @@ from components import helpers
 from components.ingest.views_atk import get_atk_system_client
 from components.ingest.views_as import get_as_system_client
 import components.filesystem_ajax.views as filesystem_views
-from main.models import SIPArrangeAccessMapping
+from main.models import SIPArrangeAccessMapping, ArchivesSpaceDOComponent
 
 logger = logging.getLogger('archivematica.dashboard')
 
@@ -211,6 +211,128 @@ def record_children(client, request, system='', record_id=''):
         records = _get_sip_arrange_children(records, system)
         return helpers.json_response(records['children'])
 
+
+@_authenticate_to_archivesspace
+def digital_object_components(client, request, system='archivesspace', record_id=''):
+    """
+    List, modify or view the digital object components associated with the record `record_id`.
+
+    GET:
+    Returns a list of all digital object components in the database associated with `record_id`.
+    These are returned as dictionaries containing the keys `id`, `label`, and `title`.
+
+    POST:
+    Creates a new digital object component associated with `record_id`.
+    The `label` and `title` of the new object, and the `uuid` of a SIP with which the component should be associated, can be specified by including a JSON document in the request body with values in those keys.
+
+    PUT:
+    Updates an existing digital object component, using `title` and `label` values in a JSON document in the request body.
+    The `component_id` to the component to edit must be specified in the request body.
+    """
+    if request.method == 'POST':
+        record = json.load(request)
+        component = ArchivesSpaceDOComponent.objects.create(
+            resourceid=_normalize_record_id(record_id),
+            sip_id=record.get('uuid'),
+            label=record.get('label', ''),
+            title=record.get('title', ''),
+        )
+        response = {
+            'success': True,
+            'message': 'Digital object component successfully created',
+            'component_id': component.id,
+        }
+        return helpers.json_response(response)
+    elif request.method == 'GET':
+        components = list(ArchivesSpaceDOComponent.objects.filter(resourceid=_normalize_record_id(record_id), started=False).values('id', 'resourceid', 'label', 'title'))
+        for component in components:
+            component['type'] = 'digital_object'
+        return helpers.json_response(components)
+    elif request.method == 'PUT':
+        record = json.load(request)
+        try:
+            component_id = record['component_id']
+        except KeyError:
+            response = {
+                'success': False,
+                'message': 'No component_id was specified!'
+            }
+            return helpers.json_response(response, status_code=400)
+
+        try:
+            component = ArchivesSpaceDOComponent.objects.get(id=component_id)
+        except ArchivesSpaceDOComponent.DoesNotExist:
+            response = {
+                'success': False,
+                'message': 'No digital object component exists with the specified ID: {}'.format(component_id),
+            }
+            return helpers.json_response(response, status_code=404)
+        else:
+            component.label = record.get('label', '')
+            component.title = record.get('title', '')
+            component.save()
+            return django.http.HttpResponse(status=204)
+
+
+def _fetch_paths_from_request(request):
+    try:
+        record = json.load(request)
+        paths = map(base64.b64decode, record['paths'])
+    except ValueError:
+        raise ValueError('Response body was not JSON!')
+    except KeyError:
+        raise ValueError('No paths specified!')
+    except TypeError:
+        raise ValueError('Paths are not valid base64!')
+
+    if len(paths) == 0:
+        raise ValueError('Paths array is empty!')
+
+    return paths
+
+
+@_authenticate_to_archivesspace
+def digital_object_components_files(client, request, system='archivesspace', record_id='', component_id=''):
+    """
+    List, modify, or view the paths to be associated with the digital object component `component_id`.
+
+    GET:
+    Returns a JSON-formatted array of paths associated with this digital object component.
+
+    POST:
+    Associates one or more paths with this digital object component.
+    The request body must be a JSON object containing a key called `paths`, which is a list of one or more paths.
+
+    DELETE:
+    Unassociates one or more paths with this digital object component.
+    Request body is the same as with POST.
+    """
+    if request.method == 'POST':
+        try:
+            paths = _fetch_paths_from_request(request)
+        except ValueError as e:
+            return helpers.json_response({'success': False, 'message': str(e)}, status_code=400)
+
+        for relative_path in paths:
+            ArchivesSpaceDOComponentPairing.objects.create(
+                component_id=component_id,
+                relative_path=relative_path,
+            )
+        return helpers.json_response({'success': True}, status_code=201)
+    elif request.method == 'DELETE':
+        try:
+            paths = _fetch_paths_from_request(request)
+        except ValueError as e:
+            return helpers.json_response({'success': False, 'message': str(e)}, status_code=400)
+
+        ArchivesSpaceDOComponentPairing.objects.filter(component_id=component_id, relative_path__in=paths).delete()
+        return django.http.HttpResponse(status=204)
+    elif request.method == 'GET':
+        paths = [p[0] for p in
+                 ArchivesSpaceDOComponentPairing.objects.filter(component_id=component_id, started=False).values_list('relative_path')]
+        return helpers.json_response(paths)
+
+
 def _get_sip_arrange_children(record, system):
     """ Recursively check for SIPArrange associations. """
     try:
@@ -306,4 +428,5 @@ def access_arrange_start_sip(request, mapping):
     """
     Starts the SIP associated with this record.
     """
+    ArchivesSpaceDOComponent.objects.filter(resourceid=mapping.identifier, started=False).update(started=True)
     return filesystem_views.copy_from_arrange_to_completed(request, filepath=mapping.arrange_path + '/')
