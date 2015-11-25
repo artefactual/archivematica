@@ -315,25 +315,46 @@ def cleanup_metadata_set(request, set_uuid):
     )
 
 
+def get_unidentified_file_formats(request, uuid):
+    files = models.File.objects.filter(
+        transfer_id=uuid,
+        event__event_type='format identification',
+        event__event_outcome='Not identified',
+    )
+
+    fmts = {}
+    for f in files:
+        fmt = os.path.splitext(f.currentlocation)[1][1:].lower()
+        if fmt not in fmts:
+            fmts[fmt] = 1
+        else:
+            fmts[fmt] += 1
+
+    return helpers.json_response(fmts)
+
+
 def get_unidentified_files(request, uuid):
     page_size = int(request.GET.get('iDisplayLength', 10))
     start = int(request.GET.get('iDisplayStart', 0))
+    fmt = request.GET.get('fmt')
 
-    unidentified_file_count = _get_unidentified_file_count(uuid)
+    total_unidentified_count = _get_unidentified_file_count(uuid)
+    unidentified_count_for_fmt = _get_unidentified_file_count(uuid, fmt)
 
     files = models.File.objects.filter(
         transfer_id=uuid,
         event__event_type='format identification',
         event__event_outcome='Not identified',
+        currentlocation__iendswith='.{}'.format(fmt)
     )[start:start + page_size]
 
     job_results = get_job_results(uuid)
     data = [{'filename': f.currentlocation.split('/')[-1],
-             'stderror': job_results.get(f.uuid, '')} for f in files]
+             'stderror': job_results.get(f.uuid, '').lstrip()} for f in files]
 
     response = {
-        'iTotalRecords': unidentified_file_count,
-        'iTotalDisplayRecords': unidentified_file_count,
+        'iTotalRecords': total_unidentified_count,
+        'iTotalDisplayRecords': unidentified_count_for_fmt,
         'sEcho': int(request.GET.get('sEcho', 0)),
         'aaData': data
     }
@@ -357,12 +378,17 @@ def get_job_results(uuid):
     return {task.fileuuid: escape(task.stderror) for task in objects}
 
 
-def _get_unidentified_file_count(transfer_uuid):
-    return models.File.objects.filter(
-        transfer_id=transfer_uuid,
-        event__event_type='format identification',
-        event__event_outcome='Not identified',
-    ).count()
+def _get_unidentified_file_count(transfer_uuid, fmt=None):
+    args = {
+        'transfer_id': transfer_uuid,
+        'event__event_type': 'format identification',
+        'event__event_outcome': 'Not identified',
+    }
+
+    if fmt is not None:
+        args['currentlocation__iendswith'] = fmt
+
+    return models.File.objects.filter(**args).count()
 
 
 def _get_file_identification_options():
