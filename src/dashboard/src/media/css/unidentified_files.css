@@ -1,0 +1,25 @@
+.stderror-col {
+  margin-bottom: 0px;
+  padding-right: 0px;
+  padding-left: 2px;
+
+  border: 1px solid #666;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, .5);
+  -webkit-box-shadow: 1px 1px 1px rgba(0, 0, 0, .5);
+  -moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, .5);
+  -webkit-border-radius: 0px 4px 4px 0;
+  -moz-border-radius: 0px 4px 4px 0;
+  border-radius: 0px 4px 4px 0;
+}
+
+.paging_full_numbers a.paginate_button {
+  background-color: white;
+}
+
+.dataTables_paginate {
+  margin-top: 2px;
+}
+
+#file-formats {
+  margin-bottom: 0px;
+}
