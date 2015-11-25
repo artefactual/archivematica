@@ -595,29 +595,15 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
     return ret
 
 
-def copy_to_arrange(request, sourcepath=None, destination=None):
-    """ Add files from backlog to in-progress SIPs being arranged.
-
-    sourcepath: GET parameter, path relative to this pipelines backlog. Leading
-        '/'s are stripped
-    destination: GET parameter, path within arrange folder, should start with
-        DEFAULT_ARRANGE_PATH ('/arrange/')
-    """
+def copy_files_to_arrange(sourcepath, destination):
+    sourcepath = sourcepath.lstrip('/')  # starts with 'originals/', not '/originals/'
     # Insert each file into the DB
-
-    error = None
-    if sourcepath is None:
-        sourcepath = base64.b64decode(request.POST.get('filepath', '')).lstrip('/')
-    if destination is None:
-        destination = base64.b64decode(request.POST.get('destination', ''))
-    logging.info('copy_to_arrange: sourcepath: {}'.format(sourcepath))
-    logging.info('copy_to_arrange: destination: {}'.format(destination))
 
     # Lots of error checking:
     if not sourcepath or not destination:
-        error = "GET parameter 'filepath' or 'destination' was blank."
+        raise ValueError("GET parameter 'filepath' or 'destination' was blank.")
     if not destination.startswith(DEFAULT_ARRANGE_PATH):
-        error = '{} must be in arrange directory.'.format(destination)
+        raise ValueError('{} must be in arrange directory.'.format(destination))
     # If drop onto a file, drop it into its parent directory instead
     if not destination.endswith('/'):
         destination = os.path.dirname(destination)
@@ -628,81 +614,90 @@ def copy_to_arrange(request, sourcepath=None, destination=None):
     # Files cannot go into the top level folder,
     # and neither can the "objects" directory
     if destination == DEFAULT_ARRANGE_PATH and not (sourcepath.endswith('/') or leaf_dir == 'objects'):
-        error = '{} must go in a SIP, cannot be dropped onto {}'.format(
-            sourcepath, DEFAULT_ARRANGE_PATH)
+        raise ValueError('{} must go in a SIP, cannot be dropped onto {}'.format(
+                         sourcepath, DEFAULT_ARRANGE_PATH))
 
     # Create new SIPArrange entry for each object being copied over
-    if not error:
-        # IDEA memoize the backlog location?
-        backlog_uuid = storage_service.get_location(purpose='BL')[0]['uuid']
-        to_add = []
+    # IDEA memoize the backlog location?
+    backlog_uuid = storage_service.get_location(purpose='BL')[0]['uuid']
+    to_add = []
 
-        # Construct the base arrange_path differently for files vs folders
-        if sourcepath.endswith('/'):
-            # If dragging objects/ folder, actually move the contents of (not
-            # the folder itself)
-            if leaf_dir == 'objects':
-                arrange_path = os.path.join(destination, '')
-            else:
-                # Strip UUID from transfer name
-                uuid_regex = r'-[\w]{8}(-[\w]{4}){3}-[\w]{12}$'
-                leaf_dir = re.sub(uuid_regex, '', leaf_dir)
-                arrange_path = os.path.join(destination, leaf_dir) + '/'
-                to_add.append({'original_path': None,
-                   'arrange_path': arrange_path,
-                   'file_uuid': None,
-                   'transfer_uuid': None
-                })
-            try:
-                to_add.extend(_get_arrange_directory_tree(backlog_uuid, sourcepath, arrange_path))
-            except storage_service.ResourceNotFound as e:
-                response = {
-                    'error': True,
-                    'message': 'Storage Service failed with the message: {}'.format(str(e))
-                }
-                return helpers.json_response(response, status_code=400)
+    # Construct the base arrange_path differently for files vs folders
+    if sourcepath.endswith('/'):
+        # If dragging objects/ folder, actually move the contents of (not
+        # the folder itself)
+        if leaf_dir == 'objects':
+            arrange_path = os.path.join(destination, '')
         else:
-            arrange_path = os.path.join(destination, os.path.basename(sourcepath))
-            relative_path = sourcepath.replace(DEFAULT_BACKLOG_PATH, '', 1)
-            try:
-                file_info = storage_service.get_file_metadata(relative_path=relative_path)[0]
-            except storage_service.ResourceNotFound:
-                message = 'No file information returned from the Storage Service for file at relative_path: %s'
-                logging.warning(message, relative_path)
-                response = {
-                    'error': True,
-                    'message': message % relative_path,
-                }
-                return helpers.json_response(response, status_code=400)
-            file_uuid = file_info.get('fileuuid')
-            transfer_uuid = file_info.get('sipuuid')
-            to_add.append({'original_path': sourcepath,
+            # Strip UUID from transfer name
+            uuid_regex = r'-[\w]{8}(-[\w]{4}){3}-[\w]{12}$'
+            leaf_dir = re.sub(uuid_regex, '', leaf_dir)
+            arrange_path = os.path.join(destination, leaf_dir) + '/'
+            to_add.append({'original_path': None,
                'arrange_path': arrange_path,
-               'file_uuid': file_uuid,
-               'transfer_uuid': transfer_uuid
+               'file_uuid': None,
+               'transfer_uuid': None
             })
+        try:
+            to_add.extend(_get_arrange_directory_tree(backlog_uuid, sourcepath, arrange_path))
+        except storage_service.ResourceNotFound as e:
+            raise ValueError('Storage Service failed with the message: {}'.format(str(e)))
+    else:
+        arrange_path = os.path.join(destination, os.path.basename(sourcepath))
+        relative_path = sourcepath.replace(DEFAULT_BACKLOG_PATH, '', 1)
+        try:
+            file_info = storage_service.get_file_metadata(relative_path=relative_path)[0]
+        except storage_service.ResourceNotFound:
+            raise ValueError('No file information returned from the Storage Service for file at relative_path: {}'.format(relative_path))
+        file_uuid = file_info.get('fileuuid')
+        transfer_uuid = file_info.get('sipuuid')
+        to_add.append({'original_path': sourcepath,
+           'arrange_path': arrange_path,
+           'file_uuid': file_uuid,
+           'transfer_uuid': transfer_uuid
+        })
 
-        logging.info('copy_to_arrange: arrange_path: {}'.format(arrange_path))
-        logging.debug('copy_to_arrange: files to be added: {}'.format(to_add))
+    logging.info('copy_to_arrange: arrange_path: {}'.format(arrange_path))
+    logging.debug('copy_to_arrange: files to be added: {}'.format(to_add))
 
-        for entry in to_add:
-            try:
-                # TODO enforce uniqueness on arrange panel?
-                models.SIPArrange.objects.create(
-                    original_path=entry['original_path'],
-                    arrange_path=entry['arrange_path'],
-                    file_uuid=entry['file_uuid'],
-                    transfer_uuid=entry['transfer_uuid'],
-                )
-            except IntegrityError:
-                # FIXME Expecting this to catch duplicate original_paths, which
-                # we want to ignore since a file can only be in one SIP.  Needs
-                # to be updated not to ignore other classes of IntegrityErrors.
-                logging.exception('Integrity error inserting: %s', entry)
+    for entry in to_add:
+        try:
+            # TODO enforce uniqueness on arrange panel?
+            models.SIPArrange.objects.create(
+                original_path=entry['original_path'],
+                arrange_path=entry['arrange_path'],
+                file_uuid=entry['file_uuid'],
+                transfer_uuid=entry['transfer_uuid'],
+            )
+        except IntegrityError:
+            # FIXME Expecting this to catch duplicate original_paths, which
+            # we want to ignore since a file can only be in one SIP.  Needs
+            # to be updated not to ignore other classes of IntegrityErrors.
+            logging.exception('Integrity error inserting: %s', entry)
 
-    if error is not None:
+
+def copy_to_arrange(request, sourcepath=None, destination=None):
+    """ Add files from backlog to in-progress SIPs being arranged.
+
+    sourcepath: GET parameter, path relative to this pipelines backlog. Leading
+        '/'s are stripped
+    destination: GET parameter, path within arrange folder, should start with
+        DEFAULT_ARRANGE_PATH ('/arrange/')
+    """
+    # Insert each file into the DB
+
+    if sourcepath is None:
+        sourcepath = base64.b64decode(request.POST.get('filepath', '')).lstrip('/')
+    if destination is None:
+        destination = base64.b64decode(request.POST.get('destination', ''))
+    logging.info('copy_to_arrange: sourcepath: {}'.format(sourcepath))
+    logging.info('copy_to_arrange: destination: {}'.format(destination))
+
+    try:
+        copy_files_to_arrange(sourcepath, destination)
+    except ValueError as e:
         response = {
-            'message': error,
+            'message': str(e),
             'error': True,
         }
         status_code = 400
