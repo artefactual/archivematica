@@ -40,6 +40,7 @@ from django.utils import timezone
 from main.models import Agent, Derivation, DublinCore, Event, File, FileID, FPCommandOutput, SIP, SIPArrange, Transfer
 
 import archivematicaCreateMETSReingest
+from createMETSDataverse import create_dataverse_sip_dmdsec, create_dataverse_tabfile_dmdsec
 from archivematicaCreateMETSMetadataCSV import parseMetadata
 from archivematicaCreateMETSRights import archivematicaGetRights
 from archivematicaCreateMETSRightsDspaceMDRef import archivematicaCreateMETSRightsDspaceMDRef
@@ -764,6 +765,13 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
                     else:
                         dspaceMetsDMDID = ids
 
+            # If it's a .tab file, check if there's a Dataverse METS with additional metadata
+            if f.originallocation.endswith('.tab'):
+                dv_metadata = create_dataverse_tabfile_dmdsec(baseDirectoryPath, os.path.basename(f.originallocation))
+                dmdSecs.extend(dv_metadata)
+                ids = ' '.join([ds.get('ID') for ds in dv_metadata])
+                fileDiv.attrib['DMDID'] = fileDiv.attrib.get('DMDID', '') + ' ' + ids
+
             if GROUPID == "":
                 sharedVariablesAcrossModules.globalErrorCount += 1
                 print >>sys.stderr, "No groupID for file: \"", directoryPathSTR, "\""
@@ -1032,6 +1040,13 @@ if __name__ == '__main__':
     if dc != None:
         (dmdSec, ID) = dc
         structMapDivObjects.set("DMDID", ID)
+        root.append(dmdSec)
+    # Check for external (Dataverse) SIP-level dmdSecs
+    dv = create_dataverse_sip_dmdsec(baseDirectoryPath)
+    for dmdSec in dv:
+        dmdid = dmdSec.attrib['ID']
+        dmdids = structMapDivObjects.get("DMDID", '') + ' ' + dmdid
+        structMapDivObjects.set("DMDID", dmdids)
         root.append(dmdSec)
 
     for dmdSec in dmdSecs:
