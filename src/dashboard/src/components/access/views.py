@@ -3,6 +3,7 @@ import base64
 from functools import wraps
 import json
 import logging
+import os
 import uuid
 
 # Django Core, alphabetical by import source
@@ -212,6 +213,15 @@ def record_children(client, request, system='', record_id=''):
         return helpers.json_response(records['children'])
 
 
+def get_digital_object_component_path(record_id, component_id, system='archivesspace', create=True):
+    mapping = create_arranged_directory(system, record_id)
+    component_path = os.path.join(mapping.arrange_path, 'digital_object_component_{}'.format(component_id), '')
+    if create:
+        filesystem_views.create_arrange_directory(component_path)
+
+    return component_path
+
+
 @_authenticate_to_archivesspace
 def digital_object_components(client, request, system='archivesspace', record_id=''):
     """
@@ -237,6 +247,17 @@ def digital_object_components(client, request, system='archivesspace', record_id
             label=record.get('label', ''),
             title=record.get('title', ''),
         )
+
+        try:
+            get_digital_object_component_path(record_id, component.id, system=system, create=True)
+        except ValueError as e:
+            component.delete()
+            response = {
+                'success': False,
+                'message': str(e),
+            }
+            return helpers.json_response(response, status_code=400)
+
         response = {
             'success': True,
             'message': 'Digital object component successfully created',
@@ -246,6 +267,8 @@ def digital_object_components(client, request, system='archivesspace', record_id
     elif request.method == 'GET':
         components = list(ArchivesSpaceDOComponent.objects.filter(resourceid=_normalize_record_id(record_id), started=False).values('id', 'resourceid', 'label', 'title'))
         for component in components:
+            access_path = get_digital_object_component_path(record_id, component['id'], system=system)
+            component['path'] = access_path
             component['type'] = 'digital_object'
         return helpers.json_response(components)
     elif request.method == 'PUT':
@@ -313,11 +336,17 @@ def digital_object_components_files(client, request, system='archivesspace', rec
         except ValueError as e:
             return helpers.json_response({'success': False, 'message': str(e)}, status_code=400)
 
+        component_path = get_digital_object_component_path(record_id, component_id, system=system)
+
         for relative_path in paths:
             ArchivesSpaceDOComponentPairing.objects.create(
                 component_id=component_id,
                 relative_path=relative_path,
             )
+            if relative_path.startswith('/originals/'):
+                filesystem_views.copy_files_to_arrange(relative_path, component_path)
+            elif relative_path.startswith('/arrange/'):
+                filesystem_views.move_within_arrange(relative_path, component_path)
         return helpers.json_response({'success': True}, status_code=201)
     elif request.method == 'DELETE':
         try:
