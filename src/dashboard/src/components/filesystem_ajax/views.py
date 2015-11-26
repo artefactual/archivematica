@@ -677,7 +677,10 @@ def copy_to_arrange(request, sourcepath=None, destination=None):
             move_files_within_arrange(sourcepath, destination)
             response = {'message': 'SIP files successfully moved.'}
             status_code = 200
+        else:
+            raise ValueError('filepath is in neither the base backlog path nor the arrange path ({} provided)'.format(sourcepath))
     except ValueError as e:
+        logger.exception('copy_to_arrange failed copying %s to %s', (sourcepath, destination))
         response = {
             'message': str(e),
             'error': True,
