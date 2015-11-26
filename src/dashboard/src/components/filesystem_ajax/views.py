@@ -506,37 +506,6 @@ def move_files_within_arrange(sourcepath, destination):
         raise ValueError('You cannot drag and drop onto a file.')
 
 
-def move_within_arrange(request, sourcepath=None, destination=None):
-    """ Move files/folders within SIP Arrange.
-
-    source path is in GET parameter 'filepath'
-    destination path is in GET parameter 'destination'.
-
-    If a source/destination path ends with / it is assumed to be a folder,
-    otherwise it is assumed to be a file.
-    """
-    if sourcepath is None:
-        sourcepath = base64.b64decode(request.POST.get('filepath', ''))
-    if destination is None:
-        destination = base64.b64decode(request.POST.get('destination', ''))
-    error = None
-
-    logging.debug('Move within arrange: source: {}, destination: {}'.format(sourcepath, destination))
-
-    try:
-        move_within_arrange(sourcepath, destination)
-    except ValueError:
-        response = {
-            'message': error,
-            'error': True,
-        }
-        status_code = 400
-    else:
-        response = {'message': 'SIP files successfully moved.'}
-        status_code = 200
-
-    return helpers.json_response(response, status_code=status_code)
-
 def _find_uuid_of_transfer_in_originals_directory_using_path(transfer_path):
     transfer_basename = transfer_path.replace(ORIGINAL_DIR, '').split('/')[1]
 
@@ -682,7 +651,8 @@ def copy_files_to_arrange(sourcepath, destination):
 
 
 def copy_to_arrange(request, sourcepath=None, destination=None):
-    """ Add files from backlog to in-progress SIPs being arranged.
+    """ Add files to in-progress SIPs being arranged.
+    Files being copied can be located in either the backlog or in another SIP being arranged.
 
     sourcepath: GET parameter, path relative to this pipelines backlog. Leading
         '/'s are stripped
@@ -692,23 +662,27 @@ def copy_to_arrange(request, sourcepath=None, destination=None):
     # Insert each file into the DB
 
     if sourcepath is None:
-        sourcepath = base64.b64decode(request.POST.get('filepath', '')).lstrip('/')
+        sourcepath = base64.b64decode(request.POST.get('filepath', ''))
     if destination is None:
         destination = base64.b64decode(request.POST.get('destination', ''))
     logging.info('copy_to_arrange: sourcepath: {}'.format(sourcepath))
     logging.info('copy_to_arrange: destination: {}'.format(destination))
 
     try:
-        copy_files_to_arrange(sourcepath, destination)
+        if sourcepath.startswith('/' + DEFAULT_BACKLOG_PATH):
+            copy_files_to_arrange(sourcepath, destination)
+            response = {'message': 'Files added to the SIP.'}
+            status_code = 201
+        elif sourcepath.startswith(DEFAULT_ARRANGE_PATH):
+            move_files_within_arrange(sourcepath, destination)
+            response = {'message': 'SIP files successfully moved.'}
+            status_code = 200
     except ValueError as e:
         response = {
             'message': str(e),
             'error': True,
         }
         status_code = 400
-    else:
-        response = {'message': 'Files added to the SIP.'}
-        status_code = 201
 
     return helpers.json_response(response, status_code=status_code)
 

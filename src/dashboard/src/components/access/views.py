@@ -286,23 +286,6 @@ def access_copy_to_arrange(request, system='', record_id=''):
     return filesystem_views.copy_to_arrange(request, sourcepath=sourcepath, destination=mapping.arrange_path + '/')
 
 
-def access_move_within_arrange(request, system='', record_id=''):
-    """
-    Moves a file from POST parameter `filepath` to the SIP arrange directory associated with the specified record, creating a directory if necessary.
-
-    This should be used to move files into the root of the SIP, while filesystem_ajax's version of this API should be used to copy deeper into the record.
-    """
-    mapping = create_arranged_directory(system, record_id)
-    if mapping is None:
-        response = {
-            'success': False,
-            'message': 'Unable to create directory.'
-        }
-        return helpers.json_response(response, status_code=400)
-    sourcepath = base64.b64decode(request.POST.get('filepath', ''))
-    return filesystem_views.move_within_arrange(request, sourcepath=sourcepath, destination=mapping.arrange_path + '/')
-
-
 @_get_arrange_path
 def access_arrange_contents(request, mapping):
     """
