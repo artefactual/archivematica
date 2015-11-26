@@ -487,6 +487,25 @@ def create_directory_within_arrange(request):
 
     return helpers.json_response(response, status_code=status_code)
 
+
+def move_files_within_arrange(sourcepath, destination):
+    if not (sourcepath.startswith(DEFAULT_ARRANGE_PATH) and destination.startswith(DEFAULT_ARRANGE_PATH)):
+        raise ValueError('{} and {} must be inside {}'.format(sourcepath, destination, DEFAULT_ARRANGE_PATH))
+    elif destination.endswith('/'):  # destination is a directory
+        if sourcepath.endswith('/'):  # source is a directory
+            folder_contents = models.SIPArrange.objects.filter(arrange_path__startswith=sourcepath)
+            # Strip the last folder off sourcepath, but leave a trailing /, so
+            # we retain the folder name when we move the files.
+            source_parent = '/'.join(sourcepath.split('/')[:-2])+'/'
+            for entry in folder_contents:
+                entry.arrange_path = entry.arrange_path.replace(source_parent,destination,1)
+                entry.save()
+        else:  # source is a file
+            models.SIPArrange.objects.filter(arrange_path=sourcepath).update(arrange_path=destination+os.path.basename(sourcepath))
+    else:  # destination is a file (this should have been caught by JS)
+        raise ValueError('You cannot drag and drop onto a file.')
+
+
 def move_within_arrange(request, sourcepath=None, destination=None):
     """ Move files/folders within SIP Arrange.
 
@@ -504,23 +523,9 @@ def move_within_arrange(request, sourcepath=None, destination=None):
 
     logging.debug('Move within arrange: source: {}, destination: {}'.format(sourcepath, destination))
 
-    if not (sourcepath.startswith(DEFAULT_ARRANGE_PATH) and destination.startswith(DEFAULT_ARRANGE_PATH)):
-        error = '{} and {} must be inside {}'.format(sourcepath, destination, DEFAULT_ARRANGE_PATH)
-    elif destination.endswith('/'):  # destination is a directory
-        if sourcepath.endswith('/'):  # source is a directory
-            folder_contents = models.SIPArrange.objects.filter(arrange_path__startswith=sourcepath)
-            # Strip the last folder off sourcepath, but leave a trailing /, so
-            # we retain the folder name when we move the files.
-            source_parent = '/'.join(sourcepath.split('/')[:-2])+'/'
-            for entry in folder_contents:
-                entry.arrange_path = entry.arrange_path.replace(source_parent,destination,1)
-                entry.save()
-        else:  # source is a file
-            models.SIPArrange.objects.filter(arrange_path=sourcepath).update(arrange_path=destination+os.path.basename(sourcepath))
-    else:  # destination is a file (this should have been caught by JS)
-        error = 'You cannot drag and drop onto a file.'
-
-    if error is not None:
+    try:
+        move_within_arrange(sourcepath, destination)
+    except ValueError:
         response = {
             'message': error,
             'error': True,
