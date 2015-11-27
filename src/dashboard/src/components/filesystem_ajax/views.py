@@ -669,6 +669,15 @@ def copy_to_arrange(request, sourcepath=None, destination=None):
     logger.info('copy_to_arrange: destination: {}'.format(destination))
 
     try:
+        # The DEFAULT_BACKLOG_PATH constant is missing a leading slash for
+        # historical reasons; TODO change this at some point.
+        # External paths passed into these views are in the format
+        # /originals/, whereas copy_from_arrange_to_completed constructs
+        # paths without a leading slash as an implementation detail
+        # (to communicate with the Storage Service).
+        # Possibly the constant used to refer to externally-constructed
+        # paths and the one used solely internally should be two different
+        # constants.
         if sourcepath.startswith('/' + DEFAULT_BACKLOG_PATH):
             copy_files_to_arrange(sourcepath, destination)
             response = {'message': 'Files added to the SIP.'}
