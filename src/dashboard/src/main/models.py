@@ -169,11 +169,7 @@ class Event(models.Model):
     event_detail = models.TextField(db_column='eventDetail', blank=True)
     event_outcome = models.TextField(db_column='eventOutcome', blank=True)
     event_outcome_detail = models.TextField(db_column='eventOutcomeDetailNote', blank=True)  # TODO convert this to a BinaryField with Django >= 1.6
-    # For historical reasons, this can be either a foreign key to the
-    # Agent table or to the auth_user table. As a result we can't track
-    # it as a foreign key within Django.
-    # See 57495899bb094dcf791b5f6d859cb596ecc5c37e for more information.
-    linking_agent = models.IntegerField(db_column='linkingAgentIdentifier', null=True)
+    agents = models.ManyToManyField('Agent')
 
     class Meta:
         db_table = u'Events'
