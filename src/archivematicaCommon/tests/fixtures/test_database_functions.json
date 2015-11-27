@@ -49,7 +49,7 @@
         "model": "main.file",
         "fields": {
             "checksum": "",
-            "currentlocation": "file_with_sip_agent",
+            "currentlocation": "file_with_transfer_agent",
             "enteredsystem": "2014-10-30T00:00:00",
             "filegrpuse": "original",
             "filegrpuuid": "",
@@ -121,7 +121,7 @@
             "unituuid": "b3c75166-86e9-443b-97ce-ddb4f7025219",
             "updatedtime": "2014-10-30T00:00:00",
             "variable": "activeAgent",
-            "variablevalue": "transfer_value"
+            "variablevalue": "10"
         }
     },
     {
@@ -166,7 +166,7 @@
             "unituuid": "b266cd28-108c-41b3-9a49-a3d775ee6e76",
             "updatedtime": "2014-10-30T00:00:00",
             "variable": "activeAgent",
-            "variablevalue": "sip_value"
+            "variablevalue": "5"
         }
     },
     {
@@ -213,16 +213,6 @@
             "magiclinkexitmessage": null,
             "sip_type": "SIP",
             "uuid": "0049fa6c-152f-44a0-93b0-c5e856a02292"
-        }
-    },
-    {
-        "pk": 5,
-        "model": "main.agent",
-        "fields": {
-            "agenttype": "testAgent",
-            "identifiertype": "fetched from event",
-            "identifiervalue": "event_agent_id",
-            "name": "Event agent"
         }
     },
     {
