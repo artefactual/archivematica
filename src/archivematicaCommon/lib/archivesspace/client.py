@@ -304,6 +304,7 @@ class ArchivesSpaceClient(object):
 
             result = {
                 'id': record['record_uri'],
+                'type': 'resource',
                 'sortPosition': level,
                 'identifier': identifier,
                 'title': record.get('title', ''),
@@ -340,6 +341,7 @@ class ArchivesSpaceClient(object):
 
             result = {
                 'id': record['uri'],
+                'type': 'resource_component',
                 'sortPosition': level,
                 'identifier': record.get('component_id', ''),
                 'title': record.get('title', ''),
@@ -492,6 +494,7 @@ class ArchivesSpaceClient(object):
 
             return {
                 'id': record['uri'],
+                'type': 'resource',
                 'sortPosition': 1,
                 'identifier': identifier,
                 'title': record.get('title', ''),
@@ -580,6 +583,7 @@ class ArchivesSpaceClient(object):
             identifier = resolved['ref_id'] if 'ref_id' in resolved else resolved.get('component_id', '')
             return {
                 'id': record['ref'],
+                'type': self.resource_type(record['ref']),
                 'identifier': identifier,
                 'title': resolved.get('title', ''),
                 'levelOfDescription': resolved.get('level', ''),

@@ -152,6 +152,7 @@ class ArchivistsToolkitClient(object):
             The dict follows this format:
         {
           'id': '31',
+          'type': 'resource',
           'sortPosition': '1',
           'identifier': 'PR01',
           'title': 'Parent',
@@ -163,6 +164,7 @@ class ArchivistsToolkitClient(object):
           ],
           'children': [{
             'id': '23',
+            'type': 'resource_component',
             'sortPosition': '2',
             'identifier': 'CH01',
             'title': 'Child A',
@@ -171,6 +173,7 @@ class ArchivistsToolkitClient(object):
             'notes': [],
             'children': [{
               'id': '24',
+              'type': 'resource_component',
               'sortPosition': '3',
               'identifier': 'GR01',
               'title': 'Grandchild A',
@@ -181,6 +184,7 @@ class ArchivistsToolkitClient(object):
             },
             {
               'id': '25',
+              'type': 'resource_component',
               'sortPosition': '4',
               'identifier': 'GR02',
               'title': 'Grandchild B',
@@ -191,6 +195,7 @@ class ArchivistsToolkitClient(object):
           },
           {
             'id': '26',
+            'type': 'resource_component',
             'sortPosition': '5',
             'identifier': 'CH02',
             'title': 'Child B',
@@ -223,6 +228,7 @@ class ArchivistsToolkitClient(object):
 
             for row in cursor.fetchall():
                 resource_data['id']                 = resource_id
+                resource_data['type']               = 'resource'
                 resource_data['sortPosition']       = sort_data['position']
                 resource_data['title']              = row[0]
                 resource_data['dates']              = row[1]
@@ -233,6 +239,7 @@ class ArchivistsToolkitClient(object):
 
             for row in cursor.fetchall():
                 resource_data['id']                 = resource_id
+                resource_data['type']               = 'resource_component'
                 resource_data['sortPosition']       = sort_data['position']
                 resource_data['title']              = row[0]
                 resource_data['dates']              = row[1]

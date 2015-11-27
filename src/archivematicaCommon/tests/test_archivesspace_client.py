@@ -22,6 +22,7 @@ def test_listing_collections():
     collections = client.find_collections()
     assert len(collections) == 2
     assert collections[0]['title'] == 'Test fonds'
+    assert collections[0]['type'] == 'resource'
 
 
 @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_listing_collections_search.yaml'))
@@ -30,6 +31,7 @@ def test_listing_collections_search():
     collections = client.find_collections(search_pattern='Test fonds')
     assert len(collections) == 1
     assert collections[0]['title'] == 'Test fonds'
+    assert collections[0]['type'] == 'resource'
 
     no_results = client.find_collections(search_pattern='No such fonds')
     assert len(no_results) == 0
@@ -41,10 +43,12 @@ def test_listing_collections_sort():
     asc = client.find_collections(sort_by='asc')
     assert len(asc) == 2
     assert asc[0]['title'] == 'Some other fonds'
+    assert asc[0]['type'] == 'resource'
 
     desc = client.find_collections(sort_by='desc')
     assert len(desc) == 2
     assert desc[0]['title'] == 'Test fonds'
+    assert desc[0]['type'] == 'resource'
 
 
 @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_find_resource_id.yaml'))
@@ -74,6 +78,7 @@ def test_find_resource_children():
     assert type(data) == dict
     assert len(data['children']) == 2
     assert data['title'] == 'Test fonds'
+    assert data['type'] == 'resource'
 
 @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_find_resource_children_recursion.yaml'))
 def test_find_resource_children_recursion_level():
@@ -121,6 +126,7 @@ def test_find_by_id_refid():
     item = data[0]
     assert item['identifier'] == 'a118514fab1b2ee6a7e9ad259e1de355'
     assert item['id'] == '/repositories/2/archival_objects/752250'
+    assert item['type'] == 'resource_component'
     assert item['title'] == 'Test AO'
     assert item['levelOfDescription'] == 'file'
 
@@ -130,7 +136,9 @@ def test_augment_ids():
     data = client.augment_resource_ids(['/repositories/2/resources/1', '/repositories/2/resources/2'])
     assert len(data) == 2
     assert data[0]['title'] == 'Test fonds'
+    assert data[0]['type'] == 'resource'
     assert data[1]['title'] == 'Some other fonds'
+    assert data[1]['type'] == 'resource'
 
 @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_resource_type.yaml'))
 def test_get_resource_type():
