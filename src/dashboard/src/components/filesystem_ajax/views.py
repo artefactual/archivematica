@@ -260,7 +260,7 @@ def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
                 type=transfer_type, accession=accession,
                 transfer_metadata_set_row_uuid=row_id)
         except Exception:
-            logging.exception("Error copying %s to start of transfer", filepath)
+            logger.exception("Error copying %s to start of transfer", filepath)
             return {'error': True,
                 'message': 'Error copying {} to start of transfer.'.format(filepath)}
 
@@ -353,7 +353,7 @@ def create_arranged_sip(staging_sip_path, files, sip_uuid):
         f.writelines(log)
 
     # Move to watchedDirectories/SIPCreation/SIPsUnderConstruction
-    logging.info('create_arranged_sip: move from %s to %s', staging_abs_path, sip_path)
+    logger.info('create_arranged_sip: move from %s to %s', staging_abs_path, sip_path)
     shutil.move(src=staging_abs_path, dst=sip_path)
 
 
@@ -367,7 +367,7 @@ def copy_from_arrange_to_completed(request, filepath=None):
     error = None
     if filepath is None:
         filepath = base64.b64decode(request.POST.get('filepath', ''))
-    logging.info('copy_from_arrange_to_completed: filepath: %s', filepath)
+    logger.info('copy_from_arrange_to_completed: filepath: %s', filepath)
 
     # Error checking
     if not filepath.startswith(DEFAULT_ARRANGE_PATH):
@@ -380,7 +380,7 @@ def copy_from_arrange_to_completed(request, filepath=None):
         # Filepath is prefix on arrange_path in SIPArrange
         sip_name = os.path.basename(filepath.rstrip('/'))
         staging_sip_path = os.path.join('staging', sip_name, '')
-        logging.debug('copy_from_arrange_to_completed: staging_sip_path: %s', staging_sip_path)
+        logger.debug('copy_from_arrange_to_completed: staging_sip_path: %s', staging_sip_path)
         # Fetch all files with 'filepath' as prefix, and have a source path
         arrange = models.SIPArrange.objects.filter(sip_created=False).filter(arrange_path__startswith=filepath)
         arrange_files = arrange.filter(original_path__isnull=False)
@@ -410,7 +410,7 @@ def copy_from_arrange_to_completed(request, filepath=None):
                 if file_ not in files:
                     files.append(file_)
 
-        logging.debug('copy_from_arrange_to_completed: files: %s', files)
+        logger.debug('copy_from_arrange_to_completed: files: %s', files)
         # Move files from backlog to local staging path
         (sip, error) = storage_service.get_files_from_backlog(files)
 
@@ -542,7 +542,7 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
             try:
                 file_info = storage_service.get_file_metadata(relative_path=relative_path)[0]
             except storage_service.ResourceNotFound:
-                logging.warning('No file information returned from the Storage Service for file at relative_path: %s', relative_path)
+                logger.warning('No file information returned from the Storage Service for file at relative_path: %s', relative_path)
                 raise
             file_uuid = file_info['fileuuid']
             transfer_uuid = file_info['sipuuid']
@@ -631,8 +631,8 @@ def copy_files_to_arrange(sourcepath, destination):
            'transfer_uuid': transfer_uuid
         })
 
-    logging.info('copy_to_arrange: arrange_path: {}'.format(arrange_path))
-    logging.debug('copy_to_arrange: files to be added: {}'.format(to_add))
+    logger.info('copy_to_arrange: arrange_path: {}'.format(arrange_path))
+    logger.debug('copy_to_arrange: files to be added: {}'.format(to_add))
 
     for entry in to_add:
         try:
@@ -647,7 +647,7 @@ def copy_files_to_arrange(sourcepath, destination):
             # FIXME Expecting this to catch duplicate original_paths, which
             # we want to ignore since a file can only be in one SIP.  Needs
             # to be updated not to ignore other classes of IntegrityErrors.
-            logging.exception('Integrity error inserting: %s', entry)
+            logger.exception('Integrity error inserting: %s', entry)
 
 
 def copy_to_arrange(request, sourcepath=None, destination=None):
@@ -665,8 +665,8 @@ def copy_to_arrange(request, sourcepath=None, destination=None):
         sourcepath = base64.b64decode(request.POST.get('filepath', ''))
     if destination is None:
         destination = base64.b64decode(request.POST.get('destination', ''))
-    logging.info('copy_to_arrange: sourcepath: {}'.format(sourcepath))
-    logging.info('copy_to_arrange: destination: {}'.format(destination))
+    logger.info('copy_to_arrange: sourcepath: {}'.format(sourcepath))
+    logger.info('copy_to_arrange: destination: {}'.format(destination))
 
     try:
         if sourcepath.startswith('/' + DEFAULT_BACKLOG_PATH):
@@ -742,10 +742,10 @@ def copy_from_transfer_sources(paths, relative_destination):
         try:
             location, path = p.split(':', 1)
         except ValueError:
-            logging.debug('Path %s cannot be split into location:path', p)
+            logger.debug('Path %s cannot be split into location:path', p)
             continue
         if location not in files:
-            logging.debug('Location %s is not associated with this pipeline.', location)
+            logger.debug('Location %s is not associated with this pipeline.', location)
             continue
 
         source = path.replace(files[location]['location']['path'], '', 1).lstrip('/')
@@ -755,7 +755,7 @@ def copy_from_transfer_sources(paths, relative_destination):
         destination = os.path.join(processing_location['path'],
             relative_destination, last_segment).replace('%sharedPath%', '')
         files[location]['files'].append({'source': source, 'destination': destination})
-        logging.debug('source: %s, destination: %s', source, destination)
+        logger.debug('source: %s, destination: %s', source, destination)
 
     message = []
     for pl in files.itervalues():
@@ -770,7 +770,7 @@ def copy_from_transfer_sources(paths, relative_destination):
 
 def download_ss(request):
     filepath = base64.b64decode(request.GET.get('filepath', '')).lstrip('/')
-    logging.info('download filepath: %s', filepath)
+    logger.info('download filepath: %s', filepath)
     if not filepath.startswith(DEFAULT_BACKLOG_PATH):
         return django.http.HttpResponseBadRequest()
     filepath = filepath.replace(DEFAULT_BACKLOG_PATH, '', 1)
