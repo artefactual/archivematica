@@ -15,8 +15,10 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class TestDatabaseFunctions(TestCase):
 
-    fixture_files = ['test_database_functions.json']
+    fixture_files = ['agents.json', 'test_database_functions.json']
     fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    # insertIntoFiles
 
     def test_insert_into_files_with_sip(self):
         path = "%sharedDirectory%/no_such_file"
@@ -35,28 +37,35 @@ class TestDatabaseFunctions(TestCase):
             databaseFunctions.insertIntoFiles("both", "both_path", sipUUID="sip", transferUUID="transfer")
         assert "both SIP and transfer UUID" in str(excinfo.value)
 
+    # getAMAgentsForFile
+
     def test_get_agent_for_file_with_sip_agent(self):
-        agent_id = databaseFunctions.getAgentForFileUUID("88c8f115-80bc-4da4-a1e6-0158f5df13b9")
-        assert agent_id == "5"
+        agents = databaseFunctions.getAMAgentsForFile("88c8f115-80bc-4da4-a1e6-0158f5df13b9")
+        assert 5 in agents
+        assert 1 in agents  # AM software
+        assert 2 in agents  # organization
 
     def test_get_agent_for_file_with_transfer_agent(self):
-        agent_id = databaseFunctions.getAgentForFileUUID("1f4af873-8d60-4907-a92e-d1889e643524")
-        assert agent_id == "10"
+        agents = databaseFunctions.getAMAgentsForFile("1f4af873-8d60-4907-a92e-d1889e643524")
+        assert 10 in agents
+        assert 1 in agents  # AM software
+        assert 2 in agents  # organization
 
     def test_get_agent_prefers_sip_if_both_exist(self):
-        agent_id = databaseFunctions.getAgentForFileUUID("dc569efe-c88f-4be3-94d3-d9eac0c5d410")
-        assert agent_id == "sip_value"
-
-    def test_get_agent_fails_for_special_uuid_value(self):
-        with pytest.raises(Exception) as excinfo:
-            databaseFunctions.getAgentForFileUUID('None')
-        assert "no file UUID provided" in str(excinfo.value)
+        agents = databaseFunctions.getAMAgentsForFile("dc569efe-c88f-4be3-94d3-d9eac0c5d410")
+        assert 5 in agents
+        assert 1 in agents  # AM software
+        assert 2 in agents  # organization
 
     def test_get_agent_returns_none_for_invalid_uuid(self):
-        assert databaseFunctions.getAgentForFileUUID('no such file') is None
+        assert databaseFunctions.getAMAgentsForFile('no such file') == []
 
     def test_get_agent_returns_none_if_no_unit_variable(self):
-        assert databaseFunctions.getAgentForFileUUID("d4e599bd-f9ab-48d4-9ae7-9e87d4ac1619") is None
+        agents = databaseFunctions.getAMAgentsForFile("d4e599bd-f9ab-48d4-9ae7-9e87d4ac1619")
+        assert 1 in agents  # AM software
+        assert 2 in agents  # organization
+
+    # insertIntoEvents
 
     def test_insert_into_events(self):
         assert Event.objects.filter(event_id="new_event").count() == 0
@@ -66,8 +75,13 @@ class TestDatabaseFunctions(TestCase):
     def test_insert_into_event_fetches_correct_agent_from_file(self):
         databaseFunctions.insertIntoEvents(fileUUID="88c8f115-80bc-4da4-a1e6-0158f5df13b9",
                                            eventIdentifierUUID="event_agent_id")
-        agent_id = Event.objects.get(event_id="event_agent_id").linking_agent
-        assert Agent.objects.get(id=agent_id).name == "Event agent"
+        agents = Event.objects.get(event_id="event_agent_id").agents
+        assert agents.count() == 3
+        assert agents.get(id=1)
+        assert agents.get(id=2)
+        assert agents.get(id=5)
+
+    # getAccessionNumberFromTransfer
 
     def test_get_accession_number_from_transfer(self):
         accession_id = databaseFunctions.getAccessionNumberFromTransfer("5a8d0539-8e5a-4aa9-98d8-5e5053140398")
