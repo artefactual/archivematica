@@ -225,11 +225,7 @@ def add_events(root, sip_uuid):
             digiprov_counter += 1
             digiprovid = 'digiprovMD_%s' % digiprov_counter
             digiprovMD = etree.Element(ns.metsBNS + "digiprovMD", ID=digiprovid, )
-            mdWrap = etree.SubElement(digiprovMD, ns.metsBNS + "mdWrap", MDTYPE='PREMIS:AGENT')
-            xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
-            xmlData.append(createmets2.createAgent(
-                agent.identifiertype, agent.identifiervalue,
-                agent.name, agent.agenttype))
+            createmets2.createAgent(digiprovMD, agent)
             # Add digiprovMD after other agent digiprovMDs
             amdsec.xpath('mets:digiprovMD/mets:mdWrap[@MDTYPE="PREMIS:AGENT"]/parent::mets:digiprovMD', namespaces=ns.NSMAP)[-1].addnext(digiprovMD)
 

@@ -107,17 +107,6 @@ def newChild(parent, tag, text=None, tailText=None, sets=[]):
         child.set(key, value)
     return child
 
-def createAgent(agentIdentifierType, agentIdentifierValue, agentName, agentType):
-    agent = etree.Element(ns.premisBNS + "agent", nsmap={'premis': ns.premisNS})
-    agent.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
-    agent.set("version", "2.2")
-
-    agentIdentifier = etree.SubElement(agent, ns.premisBNS + "agentIdentifier")
-    etree.SubElement(agentIdentifier, ns.premisBNS + "agentIdentifierType").text = agentIdentifierType
-    etree.SubElement(agentIdentifier, ns.premisBNS + "agentIdentifierValue").text = agentIdentifierValue
-    etree.SubElement(agent, ns.premisBNS + "agentName").text = agentName
-    etree.SubElement(agent, ns.premisBNS + "agentType").text = agentType
-    return agent
 
 
 SIPMetadataAppliesToType = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
@@ -443,24 +432,30 @@ def createDigiprovMD(fileUUID):
     """
     Create digiprovMD for PREMIS Events and linking Agents.
     """
+    global globalDigiprovMDCounter
     ret = []
-    # EVENTS
 
     events = Event.objects.filter(file_uuid_id=fileUUID)
     for event_record in events:
-        digiprovMD = etree.Element(ns.metsBNS + "digiprovMD")
-        ret.append(digiprovMD)
-        global globalDigiprovMDCounter
         globalDigiprovMDCounter += 1
-        digiprovMD.set("ID", "digiprovMD_" + globalDigiprovMDCounter.__str__())
+        digiprovMD = etree.Element(ns.metsBNS + "digiprovMD", ID='digiprovMD_' + str(globalDigiprovMDCounter))
+        ret.append(digiprovMD)
 
         createEvent(digiprovMD, event_record)
+
+    agents = Agent.objects.filter(event__file_uuid_id=fileUUID).distinct()
+    for agent in agents:
+        globalDigiprovMDCounter += 1
+        digiprovMD = etree.Element(ns.metsBNS + "digiprovMD", ID='digiprovMD_' + str(globalDigiprovMDCounter))
+        ret.append(digiprovMD)
+
+        createAgent(digiprovMD, agent)
+
     return ret
 
 def createEvent(digiprovMD, event_record):
     """ Create a PREMIS Event as a SubElement of digiprovMD. """
-    mdWrap = etree.SubElement(digiprovMD, ns.metsBNS + "mdWrap")
-    mdWrap.set("MDTYPE", "PREMIS:EVENT")
+    mdWrap = etree.SubElement(digiprovMD, ns.metsBNS + "mdWrap", MDTYPE="PREMIS:EVENT")
     xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
     event = etree.SubElement(xmlData, ns.premisBNS + "event", nsmap={'premis': ns.premisNS})
     event.set(ns.xsiBNS + "schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
@@ -479,60 +474,25 @@ def createEvent(digiprovMD, event_record):
     eventOutcomeDetail = etree.SubElement(eventOutcomeInformation, ns.premisBNS + "eventOutcomeDetail")
     etree.SubElement(eventOutcomeDetail, ns.premisBNS + "eventOutcomeDetailNote").text = escape(event_record.event_outcome_detail)
 
-    if event_record.linking_agent:
-        linkingAgentIdentifier = etree.SubElement(event, ns.premisBNS + "linkingAgentIdentifier")
-        etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierType").text = "Archivematica user pk"
-        etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = str(event_record.linking_agent)
-
     # linkingAgentIdentifier
-    for agent in Agent.objects.all():
+    for agent in event_record.agents.all():
         linkingAgentIdentifier = etree.SubElement(event, ns.premisBNS + "linkingAgentIdentifier")
         etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierType").text = agent.identifiertype
         etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = agent.identifiervalue
 
+def createAgent(digiprovMD, agent_record):
+    """ Creates a PREMIS Agent as a SubElement of digiprovMD. """
+    mdWrap = etree.SubElement(digiprovMD, ns.metsBNS + "mdWrap", MDTYPE="PREMIS:AGENT")
+    xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
+    agent = etree.SubElement(xmlData, ns.premisBNS + "agent", nsmap={'premis': ns.premisNS})
+    agent.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
+    agent.set("version", "2.2")
 
-def createDigiprovMDAgents(fileGroupIdentifier=None):
-    ret = []
-    global globalDigiprovMDCounter
-    # AGENTS
-    for agent in Agent.objects.all():
-        globalDigiprovMDCounter += 1
-        digiprovMD = etree.Element(ns.metsBNS + "digiprovMD")
-        digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
-        ret.append(digiprovMD) #newChild(amdSec, "digiprovMD")
-        mdWrap = newChild(digiprovMD, ns.metsBNS + "mdWrap")
-        mdWrap.set("MDTYPE", "PREMIS:AGENT")
-        xmlData = newChild(mdWrap, ns.metsBNS + "xmlData")
-        #agents = etree.SubElement(xmlData, "agents")
-        xmlData.append(createAgent(agent.identifiertype, agent.identifiervalue, agent.name, agent.agenttype))
-
-    # If this function is being called by other scripts, fileGroupIdentifier
-    # will not be defined; just return right away in that case.
-    try:
-        user_ids = SIP.objects.get(uuid=fileGroupIdentifier).file_set.filter(event__linking_agent__isnull=False).values_list('event__linking_agent').distinct()
-    except SIP.DoesNotExist:
-        return ret
-
-    for user_id, in user_ids:
-        user = User.objects.get(id=user_id)
-
-        globalDigiprovMDCounter += 1
-        digiprovMD = etree.Element(ns.metsBNS + "digiprovMD")
-        digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
-        ret.append(digiprovMD) #newChild(amdSec, "digiprovMD")
-        mdWrap = newChild(digiprovMD, ns.metsBNS + "mdWrap")
-        mdWrap.set("MDTYPE", "PREMIS:AGENT")
-        xmlData = newChild(mdWrap, ns.metsBNS + "xmlData")
-        #agents = etree.SubElement(xmlData, "agents")
-
-        agentIdentifierType = "Archivematica user pk"
-        agentIdentifierValue = str(user.id)
-        agentName = 'username="%s", first_name="%s", last_name="%s"' % (user.username, user.first_name, user.last_name)
-        agentType = "Archivematica user"
-        xmlData.append(createAgent(agentIdentifierType, agentIdentifierValue, agentName, agentType))
-
-    return ret
-
+    agentIdentifier = etree.SubElement(agent, ns.premisBNS + "agentIdentifier")
+    etree.SubElement(agentIdentifier, ns.premisBNS + "agentIdentifierType").text = agent_record.identifiertype
+    etree.SubElement(agentIdentifier, ns.premisBNS + "agentIdentifierValue").text = agent_record.identifiervalue
+    etree.SubElement(agent, ns.premisBNS + "agentName").text = agent_record.name
+    etree.SubElement(agent, ns.premisBNS + "agentType").text = agent_record.agenttype
 
 
 def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath, typeOfTransfer, baseDirectoryPath):
@@ -575,8 +535,6 @@ def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath
     for a in createDigiprovMD(fileUUID):
         AMD.append(a)
 
-    for a in createDigiprovMDAgents(id):
-        AMD.append(a)
     return ret
 
 def getIncludedStructMap(baseDirectoryPath):
