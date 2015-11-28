@@ -300,7 +300,7 @@ class TestUpdateRights(TestCase):
 class TestAddEvents(TestCase):
     """ Test adding reingest events to all existing files. (add_events) """
 
-    fixture_files = ['sip.json', 'files.json', 'agents.json', 'reingest_events.json']
+    fixture_files = ['sip-reingest.json', 'files.json', 'agents.json', 'events-reingest.json']
     fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
 
     sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
@@ -340,7 +340,7 @@ class TestAddEvents(TestCase):
 class TestAddingNewFiles(TestCase):
     """ Test adding new metadata files to the structMap & fileSec. (add_new_files) """
 
-    fixture_files = ['sip.json', 'files.json']
+    fixture_files = ['sip-reingest.json', 'files.json']
     fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
 
     sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
@@ -418,7 +418,7 @@ class TestAddingNewFiles(TestCase):
 class TestUpdateMetadataCSV(TestCase):
     """ Test adding metadata.csv-based DC metadata. (update_metadata_csv) """
 
-    fixture_files = ['sip.json', 'files.json']
+    fixture_files = ['sip-reingest.json', 'files.json']
     fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
 
     sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'

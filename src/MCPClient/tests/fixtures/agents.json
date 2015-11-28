@@ -18,5 +18,25 @@
         "name": "demo", 
         "identifiertype": "repository code"
     }
+},
+{
+    "fields": {
+        "agenttype": "Archivematica user",
+        "identifiervalue": "1",
+        "name": "username=\"kmindelan\", first_name=\"Keladry\", last_name=\"Mindelan\"",
+        "identifiertype": "Archivematica user pk"
+    },
+    "model": "main.agent",
+    "pk": 3
+},
+{
+    "pk": 4,
+    "model": "main.agent",
+    "fields": {
+        "agenttype": "organization",
+        "identifiervalue": "Unrelated Agent",
+        "name": "Unrelated Agent",
+        "identifiertype": "repository code"
+    }
 }
 ]

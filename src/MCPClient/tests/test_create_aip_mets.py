@@ -438,6 +438,7 @@ class TestCSVMetadata(TestCase):
         assert len(dc) == 1
         assert 'objects/foo.jpg' in dc
 
+
 class TestRights(TestCase):
     """ Test archivematicaCreateMETSRights creating rightsMD. """
 
@@ -475,3 +476,55 @@ class TestRights(TestCase):
         assert rightsgranted[3].text == 'Attribution required'
         assert len(rightsgranted[3].attrib) == 0
         assert len(rightsgranted[3]) == 0
+
+
+class TestCreateDigiprovMD(TestCase):
+    """ Test creating PREMIS:EVENTS and PREMIS:AGENTS """
+
+    fixture_files = ['agents.json', 'sip.json', 'files.json', 'events-transfer.json']
+    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    def test_creates_events(self):
+        """
+        It should create Events
+        It should create Agents
+        It should link Events only with Agents for that Event
+        It should only include Agents used by that file
+        """
+        ret = archivematicaCreateMETS2.createDigiprovMD("ae8d4290-fe52-4954-b72a-0f591bee2e2f")
+        assert len(ret) == 9
+        # Events
+        assert ret[0][0].attrib['MDTYPE'] == 'PREMIS:EVENT'
+        assert ret[0].find('.//{info:lc/xmlns/premis-v2}eventType').text == 'ingestion'
+        assert len(ret[0].findall('.//{info:lc/xmlns/premis-v2}linkingAgentIdentifier')) == 3
+        assert ret[1][0].attrib['MDTYPE'] == 'PREMIS:EVENT'
+        assert ret[1].find('.//{info:lc/xmlns/premis-v2}eventType').text == 'message digest calculation'
+        assert len(ret[1].findall('.//{info:lc/xmlns/premis-v2}linkingAgentIdentifier')) == 3
+        assert ret[2][0].attrib['MDTYPE'] == 'PREMIS:EVENT'
+        assert ret[2].find('.//{info:lc/xmlns/premis-v2}eventType').text == 'virus check'
+        assert len(ret[2].findall('.//{info:lc/xmlns/premis-v2}linkingAgentIdentifier')) == 3
+        assert ret[3][0].attrib['MDTYPE'] == 'PREMIS:EVENT'
+        assert ret[3].find('.//{info:lc/xmlns/premis-v2}eventType').text == 'name cleanup'
+        assert len(ret[3].findall('.//{info:lc/xmlns/premis-v2}linkingAgentIdentifier')) == 3
+        assert ret[4][0].attrib['MDTYPE'] == 'PREMIS:EVENT'
+        assert ret[4].find('.//{info:lc/xmlns/premis-v2}eventType').text == 'format identification'
+        assert len(ret[4].findall('.//{info:lc/xmlns/premis-v2}linkingAgentIdentifier')) == 3
+        assert ret[5][0].attrib['MDTYPE'] == 'PREMIS:EVENT'
+        assert ret[5].find('.//{info:lc/xmlns/premis-v2}eventType').text == 'validation'
+        assert len(ret[5].findall('.//{info:lc/xmlns/premis-v2}linkingAgentIdentifier')) == 3
+        # Agents
+        assert ret[6][0].attrib['MDTYPE'] == 'PREMIS:AGENT'
+        assert ret[6].find('.//{info:lc/xmlns/premis-v2}agentIdentifierType').text == 'preservation system'
+        assert ret[6].find('.//{info:lc/xmlns/premis-v2}agentIdentifierValue').text == 'Archivematica-1.4.0'
+        assert ret[6].find('.//{info:lc/xmlns/premis-v2}agentName').text == 'Archivematica'
+        assert ret[6].find('.//{info:lc/xmlns/premis-v2}agentType').text == 'software'
+        assert ret[7][0].attrib['MDTYPE'] == 'PREMIS:AGENT'
+        assert ret[7].find('.//{info:lc/xmlns/premis-v2}agentIdentifierType').text == 'repository code'
+        assert ret[7].find('.//{info:lc/xmlns/premis-v2}agentIdentifierValue').text == 'demo'
+        assert ret[7].find('.//{info:lc/xmlns/premis-v2}agentName').text == 'demo'
+        assert ret[7].find('.//{info:lc/xmlns/premis-v2}agentType').text == 'organization'
+        assert ret[8][0].attrib['MDTYPE'] == 'PREMIS:AGENT'
+        assert ret[8].find('.//{info:lc/xmlns/premis-v2}agentIdentifierType').text == 'Archivematica user pk'
+        assert ret[8].find('.//{info:lc/xmlns/premis-v2}agentIdentifierValue').text == '1'
+        assert ret[8].find('.//{info:lc/xmlns/premis-v2}agentName').text == 'username="kmindelan", first_name="Keladry", last_name="Mindelan"'
+        assert ret[8].find('.//{info:lc/xmlns/premis-v2}agentType').text == 'Archivematica user'
