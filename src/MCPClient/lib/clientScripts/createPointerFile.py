@@ -165,12 +165,9 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
         # Add as child of xmldata
         amdsec.find('.//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]/mets:xmlData', namespaces=namespaces.NSMAP).append(obj)
 
-        # Add PREMIS:EVENT for compression, use archivematicaCreateMETS2 code
+        # Add PREMIS:EVENT for compression & PREMIS:AGENTs
+        # use archivematicaCreateMETS2 code
         elements = archivematicaCreateMETS2.createDigiprovMD(aip_uuid)
-        for element in elements:
-            amdsec.append(element)
-        # Add PREMIS:AGENT for Archivematica
-        elements = archivematicaCreateMETS2.createDigiprovMDAgents()
         for element in elements:
             amdsec.append(element)
 
