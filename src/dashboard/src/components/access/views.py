@@ -69,11 +69,21 @@ def _authenticate_to_archivesspace(func):
     return wrapper
 
 
+def _normalize_record_id(record_id):
+    """
+    Normalizes a record ID that has been mangled for a URL.
+
+    ArchivesSpace record IDs are URL fragments, in the format /repository/n/type/n.
+    The slashes are replaced by dashes so that they can be conveniently passed in URLs within this module;
+    this function transforms them back into the original format.
+    """
+    return record_id.replace('-', '/')
+
 def _get_arrange_path(func):
     @wraps(func)
     def wrapper(request, system='', record_id=''):
         try:
-            mapping = SIPArrangeAccessMapping.objects.get(system=system, identifier=record_id.replace('-', '/'))
+            mapping = SIPArrangeAccessMapping.objects.get(system=system, identifier=_normalize_record_id(record_id))
             return func(request, mapping)
         except SIPArrangeAccessMapping.DoesNotExist:
             response = {
@@ -128,7 +138,7 @@ def record(client, request, system='', record_id=''):
             'message': 'Record updated.',
         })
     elif request.method == 'GET':
-        record_id = record_id.replace('-', '/')
+        record_id = _normalize_record_id(record_id)
 
         try:
             records = client.get_resource_component_and_children(record_id,
@@ -139,13 +149,13 @@ def record(client, request, system='', record_id=''):
     elif request.method == 'DELETE':
         # Delete associated SIPArrange entries
         try:
-            mapping = SIPArrangeAccessMapping.objects.get(system=system, identifier=record_id.replace('-', '/'))
+            mapping = SIPArrangeAccessMapping.objects.get(system=system, identifier=_normalize_record_id(record_id))
         except SIPArrangeAccessMapping.DoesNotExist:
             logger.debug('No access mapping for %s', record_id)
         else:
             filesystem_views.delete_arrange(request, filepath=mapping.arrange_path + '/')
         # Delete in Aspace
-        return helpers.json_response(client.delete_record(record_id.replace('-', '/')))
+        return helpers.json_response(client.delete_record(_normalize_record_id(record_id)))
 
 
 @_authenticate_to_archivesspace
@@ -162,7 +172,7 @@ def get_records_by_accession(client, request, system='', accession=''):
 
 @_authenticate_to_archivesspace
 def record_children(client, request, system='', record_id=''):
-    record_id = record_id.replace('-', '/')
+    record_id = _normalize_record_id(record_id)
 
     if request.method == 'POST':
         new_record_data = json.load(request)
@@ -228,7 +238,7 @@ def create_arranged_directory(system, record_id):
     If a mapping already exists, returns the existing mapping.
     Otherwise, creates one along with a directory in the arranged directory tree.
     """
-    identifier = record_id.replace('-', '/')
+    identifier = _normalize_record_id(record_id)
     mapping, created = SIPArrangeAccessMapping.objects.get_or_create(system=system,
                                                                       identifier=identifier)
     if created:
