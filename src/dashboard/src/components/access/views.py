@@ -297,69 +297,10 @@ def digital_object_components(client, request, system='archivesspace', record_id
             return django.http.HttpResponse(status=204)
 
 
-def _fetch_paths_from_request(request):
-    try:
-        record = json.load(request)
-        paths = map(base64.b64decode, record['paths'])
-    except ValueError:
-        raise ValueError('Response body was not JSON!')
-    except KeyError:
-        raise ValueError('No paths specified!')
-    except TypeError:
-        raise ValueError('Paths are not valid base64!')
-
-    if len(paths) == 0:
-        raise ValueError('Paths array is empty!')
-
-    return paths
-
-
 @_authenticate_to_archivesspace
 def digital_object_components_files(client, request, system='archivesspace', record_id='', component_id=''):
-    """
-    List, modify, or view the paths to be associated with the digital object component `component_id`.
-
-    GET:
-    Returns a JSON-formatted array of paths associated with this digital object component.
-
-    POST:
-    Associates one or more paths with this digital object component.
-    The request body must be a JSON object containing a key called `paths`, which is a list of one or more paths.
-
-    DELETE:
-    Unassociates one or more paths with this digital object component.
-    Request body is the same as with POST.
-    """
-    if request.method == 'POST':
-        try:
-            paths = _fetch_paths_from_request(request)
-        except ValueError as e:
-            return helpers.json_response({'success': False, 'message': str(e)}, status_code=400)
-
-        component_path = get_digital_object_component_path(record_id, component_id, system=system)
-
-        for relative_path in paths:
-            ArchivesSpaceDOComponentPairing.objects.create(
-                component_id=component_id,
-                relative_path=relative_path,
-            )
-            if relative_path.startswith('/originals/'):
-                filesystem_views.copy_files_to_arrange(relative_path, component_path)
-            elif relative_path.startswith('/arrange/'):
-                filesystem_views.move_within_arrange(relative_path, component_path)
-        return helpers.json_response({'success': True}, status_code=201)
-    elif request.method == 'DELETE':
-        try:
-            paths = _fetch_paths_from_request(request)
-        except ValueError as e:
-            return helpers.json_response({'success': False, 'message': str(e)}, status_code=400)
-
-        ArchivesSpaceDOComponentPairing.objects.filter(component_id=component_id, relative_path__in=paths).delete()
-        return django.http.HttpResponse(status=204)
-    elif request.method == 'GET':
-        paths = [p[0] for p in
-                 ArchivesSpaceDOComponentPairing.objects.filter(component_id=component_id, started=False).values_list('relative_path')]
-        return helpers.json_response(paths)
+    access_path = get_digital_object_component_path(record_id, component_id, system=system)
+    return filesystem_views.arrange_contents(request, path=access_path + '/')
 
 
 def _get_sip_arrange_children(record, system):
