@@ -324,6 +324,7 @@ class File(models.Model):
     label = models.TextField(blank=True)
     enteredsystem = models.DateTimeField(db_column='enteredSystem', auto_now_add=True)
     removedtime = models.DateTimeField(db_column='removedTime', null=True, default=None)
+    extension = models.CharField(max_length=128, db_column='extension', null=True, default=None)
 
     class Meta:
         db_table = u'Files'

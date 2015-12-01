@@ -64,7 +64,8 @@ def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="", sip
         "originallocation": filePath,
         "currentlocation": filePath,
         "enteredsystem": enteredSystem,
-        "filegrpuse": use
+        "filegrpuse": use,
+        "extension": os.path.splitext(filePath)[1][1:] or None  # Use null in db if empty string
     }
     if transferUUID != "" and sipUUID == "":
         kwargs["transfer_id"] = transferUUID
@@ -240,12 +241,12 @@ def logJobCreatedSQL(job):
     Logs a job's properties into the Jobs table in the database.
 
     :param jobChainLink job: A jobChainLink instance.
-    :returns None:    
+    :returns None:
     """
     unitUUID =  job.unit.UUID
     decDate = getDeciDate("." + str(job.createdDate.microsecond))
     if job.unit.owningUnit != None:
-        unitUUID = job.unit.owningUnit.UUID 
+        unitUUID = job.unit.owningUnit.UUID
     Job.objects.create(jobuuid=job.UUID,
                        jobtype=job.description,
                        directory=job.unit.currentPath,
