@@ -36,7 +36,7 @@ from linkTaskManagerChoice import choicesAvailableForUnitsLock
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict, ChoicesDict
 sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import StandardTaskConfig
+from main.models import StandardTaskConfig, UserProfile
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -119,17 +119,20 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
             etree.SubElement(choice, "description").text = description
         return ret
 
-    def proceedWithChoice(self, index, agent):
-        if agent:
-            self.unit.setVariable("activeAgent", agent, None)
+    def proceedWithChoice(self, index, user_id):
+        if user_id:
+            agent_id = UserProfile.objects.get(user_id=int(user_id)).agent_id
+            agent_id = str(agent_id)
+            self.unit.setVariable("activeAgent", agent_id, None)
+
         choicesAvailableForUnitsLock.acquire()
         try:
             del choicesAvailableForUnits[self.jobChainLink.UUID]
         except KeyError:
             pass
         choicesAvailableForUnitsLock.release()
-        
-        #get the one at index, and go with it.
+
+        # get the one at index, and go with it.
         _, _, replace_dict = self.choices[int(index)]
         rd = ReplacementDict.fromstring(replace_dict)
         self.update_passvar_replacement_dict(rd)
