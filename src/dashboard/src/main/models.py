@@ -25,6 +25,7 @@ import ast
 # Core Django, alphabetical by import source
 from django.db import models
 from django import forms
+from django.contrib.auth.models import User
 
 # Third party dependencies, alphabetical by import source
 from django_extensions.db.fields import UUIDField
@@ -420,6 +421,14 @@ class Agent(models.Model):
     class Meta:
         db_table = u'Agents'
 
+
+class UserProfile(models.Model):
+    """ Extension of the User model for additional information. """
+    user = models.OneToOneField(User)
+    agent = models.OneToOneField(Agent)
+
+    class Meta:
+        db_table = u'main_userprofile'
 
 class Report(models.Model):
     """ Reports of failures to display. """
