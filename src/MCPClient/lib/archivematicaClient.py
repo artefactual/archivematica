@@ -252,8 +252,10 @@ if __name__ == '__main__':
     logging.config.dictConfig(LOGGING_CONFIG)
     logger = logging.getLogger("archivematica.mcp.client")
 
-    loadSupportedModules(config.get('MCPClient', "archivematicaClientModules"))
-    startThreads(config.getint('MCPClient', "numberOfTasks"))
-    tl = threading.Lock()
-    tl.acquire()
-    tl.acquire()
+    try:
+        loadSupportedModules(config.get('MCPClient', "archivematicaClientModules"))
+        startThreads(config.getint('MCPClient', "numberOfTasks"))
+        while True:
+            time.sleep(100)
+    except (KeyboardInterrupt, SystemExit):
+        logger.info('Received keyboard interrupt, quitting threads.')
