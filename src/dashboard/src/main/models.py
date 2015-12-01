@@ -21,11 +21,14 @@
 
 # stdlib, alphabetical by import source
 import ast
+import logging
 
 # Core Django, alphabetical by import source
-from django.db import models
 from django import forms
 from django.contrib.auth.models import User
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Third party dependencies, alphabetical by import source
 from django_extensions.db.fields import UUIDField
@@ -34,6 +37,7 @@ from django_extensions.db.fields import UUIDField
 from contrib import utils
 import main
 
+LOGGER = logging.getLogger('archivematica.dashboard')
 
 METADATA_STATUS_ORIGINAL = 'ORIGINAL'
 METADATA_STATUS_REINGEST = 'REINGEST'
@@ -53,6 +57,22 @@ class UUIDPkField(UUIDField):
         kwargs['db_column'] = 'pk'
         super(UUIDPkField, self).__init__(*args, **kwargs)
 
+
+# SIGNALS
+
+@receiver(post_save, sender=User)
+def create_user_agent(sender, instance, **kwargs):
+    LOGGER.debug('Caught post_save signal from %s with instance %r', sender, instance)
+    agent, created = Agent.objects.update_or_create(userprofile__user=instance,
+        defaults={
+            'identifiertype': 'Archivematica user pk',
+            'identifiervalue': str(instance.id),
+            'name': 'username="{u.username}", first_name="{u.first_name}", last_name="{u.last_name}"'.format(u=instance),
+            'agenttype': 'Archivematica user',
+        })
+    LOGGER.debug('Agent: %s; created: %s', agent, created)
+    if created:
+        UserProfile.objects.update_or_create(user=instance, defaults={'agent':agent})
 
 # MODELS
 
@@ -406,6 +426,9 @@ class Agent(models.Model):
         help_text='Used for premis:agentName in the METS file.',
         null=True, blank=False, db_column='agentName')
     agenttype = models.TextField(db_column='agentType')
+
+    def __str__(self):
+        return u'{a.agenttype}; {a.identifiertype}: {a.identifiervalue}; {a.name}'.format(a=self)
 
     class Meta:
         db_table = u'Agents'
