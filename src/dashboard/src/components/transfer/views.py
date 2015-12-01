@@ -336,16 +336,16 @@ def get_unidentified_file_formats(request, uuid):
 def get_unidentified_files(request, uuid):
     page_size = int(request.GET.get('iDisplayLength', 10))
     start = int(request.GET.get('iDisplayStart', 0))
-    fmt = request.GET.get('fmt')
+    ext = request.GET.get('fmt') or None
 
     total_unidentified_count = _get_unidentified_file_count(uuid)
-    unidentified_count_for_fmt = _get_unidentified_file_count(uuid, fmt)
+    unidentified_count_for_fmt = _get_unidentified_file_count(uuid, ext)
 
     files = models.File.objects.filter(
         transfer_id=uuid,
         event__event_type='format identification',
         event__event_outcome='Not identified',
-        currentlocation__iendswith='.{}'.format(fmt)
+        extension=ext
     )[start:start + page_size]
 
     job_results = get_job_results(uuid)
@@ -378,17 +378,17 @@ def get_job_results(uuid):
     return {task.fileuuid: escape(task.stderror) for task in objects}
 
 
-def _get_unidentified_file_count(transfer_uuid, fmt=None):
-    args = {
+def _get_unidentified_file_count(transfer_uuid, ext=''):
+    kwargs = {
         'transfer_id': transfer_uuid,
         'event__event_type': 'format identification',
         'event__event_outcome': 'Not identified',
     }
 
-    if fmt is not None:
-        args['currentlocation__iendswith'] = fmt
+    if ext != '':
+        kwargs['extension'] = ext
 
-    return models.File.objects.filter(**args).count()
+    return models.File.objects.filter(**kwargs).count()
 
 
 def _get_file_identification_options():

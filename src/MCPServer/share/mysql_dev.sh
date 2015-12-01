@@ -57,6 +57,7 @@ migrations=(
   mysql_dev_8896_checksum_algorithms.sql
   mysql_dev_9265_index_after_processing_decision.sql
   mysql_dev_delete_links.sql
+  mysql_dev_8897_unidentified_files_report.sql
 )
 
 failed=()
