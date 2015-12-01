@@ -83,13 +83,13 @@ class unit:
                                            unituuid=self.UUID,
                                            variable=variable)
         if variables:
-            LOGGER.info('Existing UnitVariables for %s updated to %s (MSCL %s)', variable, variableValue, microServiceChainLink)
+            LOGGER.info('Existing UnitVariables %s for %s updated to %s (MSCL %s)', variable, self.UUID, variableValue, microServiceChainLink)
             for var in variables:
                 var.variablevalue = variableValue
                 var.microservicechainlink_id = microServiceChainLink
                 var.save()
         else:
-            LOGGER.info('New UnitVariable created for %s: %s (MSCL: %s)', variable, variableValue, microServiceChainLink)
+            LOGGER.info('New UnitVariable %s created for %s: %s (MSCL: %s)', variable, self.UUID, variableValue, microServiceChainLink)
             var = UnitVariable(
                 unittype=self.unitType, unituuid=self.UUID,
                 variable=variable, variablevalue=variableValue,

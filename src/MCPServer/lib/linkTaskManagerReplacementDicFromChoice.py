@@ -38,7 +38,7 @@ from linkTaskManagerChoice import waitingOnTimer
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import MicroServiceChoiceReplacementDic
+from main.models import MicroServiceChoiceReplacementDic, UserProfile
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -132,14 +132,17 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
         print etree.tostring(ret)
         return ret
 
-    def proceedWithChoice(self, index, agent):
-        if agent:
-            self.unit.setVariable("activeAgent", agent, None)
+    def proceedWithChoice(self, index, user_id):
+        if user_id:
+            agent_id = UserProfile.objects.get(user_id=int(user_id)).agent_id
+            agent_id = str(agent_id)
+            self.unit.setVariable("activeAgent", agent_id, None)
+
         choicesAvailableForUnitsLock.acquire()
         del choicesAvailableForUnits[self.jobChainLink.UUID]
         choicesAvailableForUnitsLock.release()
-        
-        #get the one at index, and go with it.
+
+        # get the one at index, and go with it.
         choiceIndex, description, replacementDic2 = self.choices[int(index)]
         rd = ReplacementDict.fromstring(replacementDic2)
         self.update_passvar_replacement_dict(rd)
