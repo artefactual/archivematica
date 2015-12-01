@@ -8,8 +8,8 @@ ALTER TABLE Events DROP COLUMN linkingAgentIdentifier;
 -- SQL from Django
 CREATE TABLE `Events_agents` (
     `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    `event_id` bigint(20) unsigned NOT NULL,
-    `agent_id` int(10) unsigned NOT NULL,
+    `event_id` integer NOT NULL,
+    `agent_id` integer NOT NULL,
     UNIQUE (`event_id`, `agent_id`)
 )
 ;
