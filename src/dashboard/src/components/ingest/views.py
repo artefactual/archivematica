@@ -43,7 +43,6 @@ from django.utils.text import slugify
 # External dependencies, alphabetical
 
 # This project, alphabetical by import source
-from contrib import utils
 from contrib.mcp.client import MCPClient
 from components import advanced_search
 from components import helpers
@@ -92,7 +91,7 @@ def ingest_status(request, uuid=None):
             if models.SIP.objects.is_hidden(item['sipuuid']):
                 continue
             jobs = helpers.get_jobs_by_sipuuid(item['sipuuid'])
-            item['directory'] = utils.get_directory_name_from_job(jobs[0])
+            item['directory'] = jobs[0].get_directory_name()
             item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
             item['uuid'] = item['sipuuid']
             item['id'] = item['sipuuid']
@@ -183,7 +182,7 @@ def ingest_metadata_edit(request, uuid, id=None):
         dc.save()
         return redirect('components.ingest.views.ingest_metadata_list', uuid)
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = jobs[0].get_directory_name()
 
     return render(request, 'ingest/metadata_edit.html', locals())
 
@@ -201,7 +200,7 @@ def ingest_metadata_add_files(request, sip_uuid):
     # Get name of SIP from directory name of most recent job
     # Making list and slicing for speed: http://stackoverflow.com/questions/5123839/fastest-way-to-get-the-first-object-from-a-queryset-in-django
     jobs = list(models.Job.objects.filter(sipuuid=sip_uuid, subjobof='')[:1])
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = jobs[0].get_directory_name()
 
     return render(request, 'ingest/metadata_add_files.html', locals())
 
@@ -262,7 +261,7 @@ def ingest_metadata_event_detail(request, uuid):
     # Get name of SIP from directory name of most recent job
     # Making list and slicing for speed: http://stackoverflow.com/questions/5123839/fastest-way-to-get-the-first-object-from-a-queryset-in-django
     jobs = list(models.Job.objects.filter(sipuuid=uuid, subjobof='')[:1])
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = jobs[0].get_directory_name()
     return render(request, 'ingest/metadata_event_detail.html', locals())
 
 def delete_context(request, uuid, id):
@@ -282,12 +281,12 @@ def ingest_metadata_delete(request, uuid, id):
 def ingest_detail(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = jobs[0].get_directory_name()
     return render(request, 'ingest/detail.html', locals())
 
 def ingest_microservices(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = jobs[0].get_directory_name()
     return render(request, 'ingest/microservices.html', locals())
 
 def ingest_delete(request, uuid):
@@ -344,9 +343,6 @@ def ingest_upload(request, uuid):
         except:
             # pass
             raise Http404
-        # Disabled, it could be very slow
-        # job = models.Job.objects.get(jobtype='Upload DIP', sipuuid=uuid)
-        # data['size'] = utils.get_directory_size(job.directory)
         return helpers.json_response(data)
 
     return HttpResponseBadRequest()
@@ -354,7 +350,7 @@ def ingest_upload(request, uuid):
 def ingest_normalization_report(request, uuid, current_page=None):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     job = jobs[0]
-    sipname = utils.get_directory_name_from_job(job)
+    sipname = job.get_directory_name()
 
     objects = getNormalizationReportQuery(sipUUID=uuid)
     for o in objects:
@@ -386,7 +382,7 @@ def ingest_browse(request, browse_type, jobuuid):
 
     jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof='')
     job = jobs[0]
-    name = utils.get_directory_name_from_job(job)
+    name = job.get_directory_name()
 
     return render(request, 'ingest/aip_browse.html', locals())
 
