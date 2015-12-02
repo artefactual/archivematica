@@ -1,37 +1,9 @@
-# This file is part of Archivematica.
-#
-# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
-#
-# Archivematica is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Archivematica is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-
-# This Django model module was auto-generated and then updated manually
-# Needs some cleanups, make sure each model has its primary_key=True
-# Feel free to rename the models, but don't rename db_table values or field names.
-
-# stdlib, alphabetical by import source
 import ast
+import re
 
-# Core Django, alphabetical by import source
 from django.db import models
 from django import forms
-
-# Third party dependencies, alphabetical by import source
 from django_extensions.db.fields import UUIDField
-
-# This project, alphabetical by import source
-from contrib import utils
-import main
 
 
 METADATA_STATUS_ORIGINAL = 'ORIGINAL'
@@ -102,8 +74,8 @@ class Access(models.Model):
 
     def get_title(self):
         try:
-            jobs = main.models.Job.objects.filter(sipuuid=self.sipuuid, subjobof='')
-            return utils.get_directory_name_from_job(jobs[0])
+            jobs = Job.objects.filter(sipuuid=self.sipuuid, subjobof='')
+            return jobs[0].get_directory_name()
         except:
             return 'N/A'
 
@@ -242,12 +214,14 @@ class SIP(models.Model):
     def __unicode__(self):
         return u'SIP: {path}'.format(path=self.currentpath)
 
+
 class TransferManager(models.Manager):
     def is_hidden(self, uuid):
         try:
             return Transfer.objects.get(uuid__exact=uuid).hidden is True
         except:
             return False
+
 
 class Transfer(models.Model):
     """ Information on Transfer units. """
@@ -315,7 +289,7 @@ class File(models.Model):
     transfer = models.ForeignKey(Transfer, db_column='transferUUID', to_field='uuid', null=True, blank=True)
     # both actually `longblob` in the database
     originallocation = models.TextField(db_column='originalLocation')
-    currentlocation = models.TextField(db_column='currentLocation', null=True)
+    currentlocation = models.TextField(db_column='currentLocation')
     filegrpuse = models.CharField(max_length=50, db_column='fileGrpUse', default='Original')
     filegrpuuid = models.CharField(max_length=36L, db_column='fileGrpUUID', blank=True)
     checksum = models.CharField(max_length=100, db_column='checksum', blank=True)
@@ -368,6 +342,27 @@ class Job(models.Model):
 
     class Meta:
         db_table = u'Jobs'
+
+    def get_directory_name(self, default=None):
+        """
+        Attempts to extract a directory name given a transfer or SIP path. Expected format:
+        %sharedPath%watchedDirectories/workFlowDecisions/createDip/ImagesSIP-69826e50-87a2-4370-b7bd-406fc8aad94f/
+
+        Given this example, this function would return 'ImagesSIP'.
+
+        If the optional `default` keyword argument is passed in, the provided value will be used if no name can be extracted.
+        """
+        if default is None:
+            default = self.sipuuid
+        try:
+            return re.search(r'^.*/(?P<directory>.*)-[\w]{8}(-[\w]{4}){3}-[\w]{12}[/]{0,1}$', self.directory).group('directory')
+        except:
+            pass
+        try:
+            return re.search(r'^.*/(?P<directory>.*)/$', self.directory).group('directory')
+        except:
+            pass
+        return self.directory if self.directory else default
 
 
 class Task(models.Model):
@@ -451,6 +446,7 @@ class RightsStatement(models.Model):
     def __unicode__(self):
         return u'{basis} for {unit} ({id})'.format(basis=self.rightsbasis, unit=self.metadataappliestoidentifier, id=self.id)
 
+
 class RightsStatementCopyright(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatement = models.ForeignKey(RightsStatement, db_column='fkRightsStatement')
@@ -465,6 +461,7 @@ class RightsStatementCopyright(models.Model):
         db_table = u'RightsStatementCopyright'
         verbose_name = 'Rights: Copyright'
 
+
 class RightsStatementCopyrightDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightscopyright = models.ForeignKey(RightsStatementCopyright, db_column='fkRightsStatementCopyrightInformation')
@@ -476,6 +473,7 @@ class RightsStatementCopyrightDocumentationIdentifier(models.Model):
         db_table = u'RightsStatementCopyrightDocumentationIdentifier'
         verbose_name = 'Rights: Copyright: Docs ID'
 
+
 class RightsStatementCopyrightNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightscopyright = models.ForeignKey(RightsStatementCopyright, db_column='fkRightsStatementCopyrightInformation')
@@ -484,6 +482,7 @@ class RightsStatementCopyrightNote(models.Model):
     class Meta:
         db_table = u'RightsStatementCopyrightNote'
         verbose_name = 'Rights: Copyright: Note'
+
 
 class RightsStatementLicense(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -497,6 +496,7 @@ class RightsStatementLicense(models.Model):
         db_table = u'RightsStatementLicense'
         verbose_name = 'Rights: License'
 
+
 class RightsStatementLicenseDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementlicense = models.ForeignKey(RightsStatementLicense, db_column='fkRightsStatementLicense')
@@ -508,6 +508,7 @@ class RightsStatementLicenseDocumentationIdentifier(models.Model):
         db_table = u'RightsStatementLicenseDocumentationIdentifier'
         verbose_name = 'Rights: License: Docs ID'
 
+
 class RightsStatementLicenseNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementlicense = models.ForeignKey(RightsStatementLicense, db_column='fkRightsStatementLicense')
@@ -516,6 +517,7 @@ class RightsStatementLicenseNote(models.Model):
     class Meta:
         db_table = u'RightsStatementLicenseNote'
         verbose_name = 'Rights: License: Note'
+
 
 class RightsStatementRightsGranted(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -529,6 +531,7 @@ class RightsStatementRightsGranted(models.Model):
         db_table = u'RightsStatementRightsGranted'
         verbose_name = 'Rights: Granted'
 
+
 class RightsStatementRightsGrantedNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsgranted = models.ForeignKey(RightsStatementRightsGranted, db_column='fkRightsStatementRightsGranted')
@@ -538,6 +541,7 @@ class RightsStatementRightsGrantedNote(models.Model):
         db_table = u'RightsStatementRightsGrantedNote'
         verbose_name = 'Rights: Granted: Note'
 
+
 class RightsStatementRightsGrantedRestriction(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsgranted = models.ForeignKey(RightsStatementRightsGranted, db_column='fkRightsStatementRightsGranted')
@@ -546,6 +550,7 @@ class RightsStatementRightsGrantedRestriction(models.Model):
     class Meta:
         db_table = u'RightsStatementRightsGrantedRestriction'
         verbose_name = 'Rights: Granted: Restriction'
+
 
 class RightsStatementStatuteInformation(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -561,6 +566,7 @@ class RightsStatementStatuteInformation(models.Model):
         db_table = u'RightsStatementStatuteInformation'
         verbose_name = 'Rights: Statute'
 
+
 class RightsStatementStatuteInformationNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatementstatute = models.ForeignKey(RightsStatementStatuteInformation, db_column='fkRightsStatementStatuteInformation')
@@ -569,6 +575,7 @@ class RightsStatementStatuteInformationNote(models.Model):
     class Meta:
         db_table = u'RightsStatementStatuteInformationNote'
         verbose_name = 'Rights: Statute: Note'
+
 
 class RightsStatementStatuteDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -580,6 +587,7 @@ class RightsStatementStatuteDocumentationIdentifier(models.Model):
     class Meta:
         db_table = u'RightsStatementStatuteDocumentationIdentifier'
         verbose_name = 'Rights: Statute: Docs ID'
+
 
 class RightsStatementOtherRightsInformation(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
@@ -593,6 +601,7 @@ class RightsStatementOtherRightsInformation(models.Model):
         db_table = u'RightsStatementOtherRightsInformation'
         verbose_name = 'Rights: Other'
 
+
 class RightsStatementOtherRightsDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementotherrights = models.ForeignKey(RightsStatementOtherRightsInformation, db_column='fkRightsStatementOtherRightsInformation')
@@ -604,6 +613,7 @@ class RightsStatementOtherRightsDocumentationIdentifier(models.Model):
         db_table = u'RightsStatementOtherRightsDocumentationIdentifier'
         verbose_name = 'Rights: Other: Docs ID'
 
+
 class RightsStatementOtherRightsInformationNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatementotherrights = models.ForeignKey(RightsStatementOtherRightsInformation, db_column='fkRightsStatementOtherRightsInformation')
@@ -612,6 +622,7 @@ class RightsStatementOtherRightsInformationNote(models.Model):
     class Meta:
         db_table = u'RightsStatementOtherRightsNote'
         verbose_name = 'Rights: Other: Note'
+
 
 class RightsStatementLinkingAgentIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -819,6 +830,7 @@ class AtkDIPObjectResourcePairing(models.Model):
     class Meta:
         db_table = u'AtkDIPObjectResourcePairing'
 
+
 class ArchivesSpaceDIPObjectResourcePairing(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     # TODO these should be foreign keys?
@@ -847,6 +859,7 @@ class TransferMetadataSet(models.Model):
     class Meta:
         db_table = u'TransferMetadataSets'
 
+
 class TransferMetadataField(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
@@ -862,6 +875,7 @@ class TransferMetadataField(models.Model):
     def __unicode__(self):
         return self.fieldlabel
 
+
 class TransferMetadataFieldValue(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
@@ -871,6 +885,7 @@ class TransferMetadataFieldValue(models.Model):
 
     class Meta:
         db_table = u'TransferMetadataFieldValues'
+
 
 # Taxonomies and their field definitions are in separate tables
 # to leave room for future expansion. The possible taxonomy terms are
@@ -888,6 +903,7 @@ class Taxonomy(models.Model):
     def __unicode__(self):
         return self.name
 
+
 class TaxonomyTerm(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
@@ -899,6 +915,7 @@ class TaxonomyTerm(models.Model):
 
     def __unicode__(self):
         return self.term
+
 
 class WatchedDirectory(models.Model):
     id = UUIDPkField()
@@ -912,6 +929,7 @@ class WatchedDirectory(models.Model):
     class Meta(object):
         db_table = u"WatchedDirectories"
 
+
 class WatchedDirectoryExpectedType(models.Model):
     id = UUIDPkField()
     description = models.TextField(null=True)
@@ -920,6 +938,7 @@ class WatchedDirectoryExpectedType(models.Model):
 
     class Meta(object):
         db_table = u"WatchedDirectoriesExpectedTypes"
+
 
 class FPCommandOutput(models.Model):
     file = models.ForeignKey('File', db_column='fileUUID', to_field='uuid')
@@ -931,6 +950,7 @@ class FPCommandOutput(models.Model):
 
     def __unicode__(self):
         return u'<file: {file}; rule: {rule}; content: {content}'.format(file=self.file, rule=self.rule, content=self.content[:20])
+
 
 class FileID(models.Model):
     """
