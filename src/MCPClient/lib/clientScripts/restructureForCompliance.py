@@ -24,6 +24,12 @@ import os
 import sys
 import shutil
 
+import django
+django.setup()
+from main.models import Transfer
+
+from verifyBAG import verifyBAG
+
 # archivematicaCommon
 import archivematicaFunctions
 from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
@@ -38,7 +44,7 @@ def restructureDirectory(unitPath):
     # Move everything else to the objects directory
     for item in os.listdir(unitPath):
         dst = os.path.join(unitPath, "objects", '.')
-        itemPath =  os.path.join(unitPath, item)
+        itemPath = os.path.join(unitPath, item)
         if os.path.isdir(itemPath) and item not in REQUIRED_DIRECTORIES:
             shutil.move(itemPath, dst)
             print "moving directory to objects: ", item
@@ -46,9 +52,21 @@ def restructureDirectory(unitPath):
             shutil.move(itemPath, dst)
             print "moving file to objects: ", item
 
+
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.restructureForCompliance")
 
-    target = sys.argv[1]
-    restructureDirectory(target)
-    
+    sip_path = sys.argv[1]
+    sip_uuid = sys.argv[2]
+
+    transfer = Transfer.objects.get(uuid=sip_uuid)
+    print("Transfer.type", transfer.type)
+    if transfer.type == 'Archivematica AIP':
+        logger.info('Archivematica AIP detected, verifying bag...')
+        exit_code = verifyBAG(sip_path)
+        if exit_code > 0:
+            sys.exit(exit_code)
+        logger.info('Archivematica AIP: valid bag, removing bag structure...')
+        # TODO!
+
+    restructureDirectory(sip_path)
