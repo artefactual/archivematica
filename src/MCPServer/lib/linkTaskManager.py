@@ -24,7 +24,6 @@
 import sys
 import uuid
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
 

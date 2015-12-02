@@ -28,13 +28,13 @@ import lxml.etree as etree
 import archivematicaMCP
 from unit import unit
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import SIP
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
+
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 class unitSIP(unit):
     def __init__(self, currentPath, UUID):
@@ -50,8 +50,10 @@ class unitSIP(unit):
         return 'unitSIP: <UUID: {u.UUID}, path: {u.currentPath}>'.format(u=self)
 
     def setMagicLink(self, link, exitStatus=""):
-        """Assign a link to the unit to process when loaded.
-        Deprecated! Replaced with Set/Load Unit Variable"""
+        """
+        Assign a link to the unit to process when loaded.
+        Deprecated! Replaced with Set/Load Unit Variable.
+        """
         sip = SIP.objects.get(uuid=self.UUID)
         sip.magiclink = link
         if exitStatus:
@@ -59,8 +61,10 @@ class unitSIP(unit):
         sip.save()
 
     def getMagicLink(self):
-        """Load a link from the unit to process.
-        Deprecated! Replaced with Set/Load Unit Variable"""
+        """
+        Load a link from the unit to process.
+        Deprecated! Replaced with Set/Load Unit Variable.
+        """
         try:
             sip = SIP.objects.get(uuid=self.UUID)
         except SIP.DoesNotExist:
@@ -75,7 +79,10 @@ class unitSIP(unit):
         self.sipType = sip.sip_type
 
     def getReplacementDic(self, target):
-        """ Return a dict with all of the replacement strings for this unit and the value to replace with. """
+        """
+        Return a dict with all of the replacement strings for this unit and the
+        value to replace with.
+        """
         ret = ReplacementDict.frommodel(
             type_='sip',
             sip=self.UUID

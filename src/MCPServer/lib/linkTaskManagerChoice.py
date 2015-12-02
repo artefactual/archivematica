@@ -34,20 +34,21 @@ from executeOrRunSubProcess import executeOrRun
 import jobChain
 from utils import log_exceptions
 import archivematicaMCP
+
+from django_mysqlpool import auto_close_db
+from archivematicaFunctions import unicodeToStr
+
+from main.models import MicroServiceChainChoice
+
+
+LOGGER = logging.getLogger('archivematica.mcp.server')
+
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 choicesAvailableForUnitsLock = threading.Lock()
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from django_mysqlpool import auto_close_db
-from archivematicaFunctions import unicodeToStr
-
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import MicroServiceChainChoice
-
 waitingOnTimer="waitingOnTimer"
 
-LOGGER = logging.getLogger('archivematica.mcp.server')
 
 class linkTaskManagerChoice(LinkTaskManager):
     """Used to get a selection, from a list of chains, to process"""

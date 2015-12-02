@@ -2,7 +2,6 @@
 import os
 import sys
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict, ChoicesDict
 
 from main import models

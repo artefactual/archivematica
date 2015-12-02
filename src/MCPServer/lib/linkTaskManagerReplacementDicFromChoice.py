@@ -29,18 +29,19 @@ import threading
 import sys
 import time
 
-from linkTaskManager import LinkTaskManager
 import archivematicaMCP
+from linkTaskManager import LinkTaskManager
 from linkTaskManagerChoice import choicesAvailableForUnits
 from linkTaskManagerChoice import choicesAvailableForUnitsLock
 from linkTaskManagerChoice import waitingOnTimer
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
-sys.path.append("/usr/share/archivematica/dashboard")
+
 from main.models import MicroServiceChoiceReplacementDic
 
+
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
@@ -138,7 +139,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
         choicesAvailableForUnitsLock.acquire()
         del choicesAvailableForUnits[self.jobChainLink.UUID]
         choicesAvailableForUnitsLock.release()
-        
+
         #get the one at index, and go with it.
         choiceIndex, description, replacementDic2 = self.choices[int(index)]
         rd = ReplacementDict.fromstring(replacementDic2)

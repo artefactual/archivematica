@@ -22,15 +22,13 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import logging
-import sys
 
 from jobChainLink import jobChainLink
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import MicroServiceChain, UnitVariable
+
 
 #Holds:
 #-UNIT
@@ -41,6 +39,7 @@ from main.models import MicroServiceChain, UnitVariable
 #-previous chain links
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 def fetchUnitVariableForUnit(unit_uuid):
     """
@@ -56,6 +55,7 @@ def fetchUnitVariableForUnit(unit_uuid):
         results.update(rd)
 
     return results
+
 
 class jobChain:
     def __init__(self, unit, chainPK, notifyComplete=None, passVar=None, UUID=None, subJobOf=""):
@@ -99,4 +99,3 @@ class jobChain:
                 LOGGER.debug('Done with unit %s', self.unit.UUID)
                 if self.notifyComplete:
                     self.notifyComplete(self)
-

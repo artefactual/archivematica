@@ -26,7 +26,7 @@ from contrib import utils
 from components import helpers
 
 from main import models
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+
 import elasticSearchFunctions
 
 # Try to update context instead of sending new params

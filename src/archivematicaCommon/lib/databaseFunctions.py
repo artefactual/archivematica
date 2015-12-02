@@ -25,7 +25,6 @@ import string
 import sys
 import uuid
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from django.utils import timezone
 from main.models import Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
 

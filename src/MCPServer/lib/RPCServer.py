@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
+
 import archivematicaMCP
 import cPickle
 import gearman
@@ -31,16 +32,18 @@ import time
 
 from linkTaskManagerChoice import choicesAvailableForUnits
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseInterface
 
+
 LOGGER = logging.getLogger("archivematica.mcp.server.rpcserver")
+
 
 def rpcError(code="", details=""):
     ret = etree.Element("Error")
     etree.SubElement(ret, "code").text = code.__str__()
     etree.SubElement(ret, "details").text = details.__str__()
     return ret
+
 
 def verifyDatabaseIsNotLocked():
     timeBeforeReturningErrorLockedDB = 4
@@ -53,6 +56,7 @@ def verifyDatabaseIsNotLocked():
             return rpcError(code="DatabaseLock", details="Couldn't acquire database lock")
     databaseInterface.sqlLock.release()
     return None
+
 
 def getJobsAwaitingApproval():
     ret = etree.Element("choicesAvailableForUnits")
@@ -70,6 +74,7 @@ def approveJob(jobUUID, chain, agent):
         choicesAvailableForUnits[jobUUID].proceedWithChoice(chain, agent)
     return "approving: ", jobUUID, chain
 
+
 def gearmanApproveJob(gearman_worker, gearman_job):
     try:
         data = cPickle.loads(gearman_job.data)
@@ -84,6 +89,7 @@ def gearmanApproveJob(gearman_worker, gearman_job):
     except Exception:
         LOGGER.exception('Error approving job')
         return ""
+
 
 def gearmanGetJobsAwaitingApproval(gearman_worker, gearman_job):
     try:

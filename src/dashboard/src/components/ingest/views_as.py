@@ -9,7 +9,6 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedire
 from components import advanced_search
 from main import models
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivesspace.client import ArchivesSpaceClient, AuthenticationError, ConnectionError
 
 from components.ingest import pair_matcher

@@ -2,10 +2,8 @@
 import os
 import sys
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import databaseFunctions
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Agent, Event, File
 
 from django.test import TestCase

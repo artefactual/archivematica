@@ -21,16 +21,18 @@
 # @subpackage archivematicaClient
 # @author Joseph Perry <joseph@artefactual.com>
 
-#~DOC~
-#
-# --- This is the MCP Client---
-#It connects to the MCP server, and informs the server of the tasks it can perform.
-#The server can send a command (matching one of the tasks) for the client to perform.
-#The client will perform that task, and return the exit code and output to the server.
-#
-#For archivematica 0.9 release. Added integration with the transcoder.
-#The server will send the transcoder association pk, and file uuid to run.
-#The client is responsible for running the correct command on the file. 
+"""
+This is the MCP Client.
+
+It connects to the MCP server, and informs the server of the tasks it can
+perform. The server can send a command (matching one of the tasks) for the
+client to perform. The client will perform that task, and return the exit code
+and output to the server.
+
+For archivematica 0.9 release. Added integration with the transcoder.
+The server will send the transcoder association pk, and file uuid to run.
+The client is responsible for running the correct command on the file.
+"""
 
 import ConfigParser
 import cPickle
@@ -43,20 +45,14 @@ import sys
 import threading
 import traceback
 
-config = ConfigParser.SafeConfigParser(
-    defaults={'django_settings_module': 'settings.common'})
+config = ConfigParser.SafeConfigParser()
 config.read("/etc/archivematica/MCPClient/clientConfig.conf")
 
-os.environ['DJANGO_SETTINGS_MODULE'] = config.get('MCPClient', 'django_settings_module')
-sys.path.append("/usr/lib/archivematica/MCPClient")
-
 import django
-sys.path.append("/usr/share/archivematica/dashboard")
 django.setup()
 
 from main.models import Task
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
 from custom_handlers import GroupWriteRotatingFileHandler
 import databaseFunctions
@@ -64,12 +60,12 @@ from executeOrRunSubProcess import executeOrRun
 
 
 printOutputLock = threading.Lock()
-
 replacementDic = {
     "%sharedPath%": config.get('MCPClient', "sharedDirectoryMounted"),
     "%clientScriptsDirectory%": config.get('MCPClient', "clientScriptsDirectory")
 }
 supportedModules = {}
+
 
 def loadSupportedModulesSupport(key, value):
     for key2, value2 in replacementDic.iteritems():
@@ -77,6 +73,7 @@ def loadSupportedModulesSupport(key, value):
     if not os.path.isfile(value):
         print >>sys.stderr, "Warning - Module can't find file, or relies on system path:{%s}%s" % (key.__str__(), value.__str__())
     supportedModules[key] = value + " "
+
 
 def loadSupportedModules(file):
     supportedModulesConfig = ConfigParser.RawConfigParser()
@@ -109,8 +106,7 @@ def executeCommand(gearman_worker, gearman_job):
         if task.starttime is not None:
             exitCode = -1
             stdOut = ""
-            stdError = """Detected this task has already started!
-Unable to determine if it completed successfully."""
+            stdError = """Detected this task has already started! Unable to determine if it completed successfully."""
             return cPickle.dumps({"exitCode" : exitCode, "stdOut": stdOut, "stdError": stdError})
         else:
             task.client = clientID
@@ -125,6 +121,7 @@ Unable to determine if it completed successfully."""
 
         replacementDic["%date%"] = utcDate.isoformat()
         replacementDic["%jobCreatedDate%"] = data["createdDate"]
+
         # Replace replacement strings
         for key in replacementDic.iterkeys():
             command = command.replace ( key, replacementDic[key] )
@@ -134,19 +131,12 @@ Unable to determine if it completed successfully."""
         value = gearman_job.unique.__str__()
         arguments = arguments.replace(key, value)
 
-        # Add useful environment vars for client scripts
-        lib_paths = ['/usr/share/archivematica/dashboard/', '/usr/lib/archivematica/archivematicaCommon']
-        env_updates = {
-            'PYTHONPATH': os.pathsep.join(lib_paths),
-            'DJANGO_SETTINGS_MODULE': config.get('MCPClient', 'django_settings_module')
-        }
-
         # Execute command
         command += " " + arguments
         printOutputLock.acquire()
         print "<processingCommand>{" + gearman_job.unique + "}" + command.__str__() + "</processingCommand>"
         printOutputLock.release()
-        exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=False, env_updates=env_updates)
+        exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=False)
         return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
     except OSError as ose:
         traceback.print_exc(file=sys.stdout)
@@ -176,7 +166,7 @@ def startThread(threadNumber):
         print 'registering:"{}"'.format(key)
         printOutputLock.release()
         gm_worker.register_task(key, executeCommand)
-            
+
     failMaxSleep = 30
     failSleep = 1
     failSleepIncrementor = 2
@@ -198,8 +188,12 @@ def flushOutputs():
         sys.stderr.flush()
         time.sleep(5)
 
+
 def startThreads(t=1):
-    """Start a processing thread for each core (t=0), or a specified number of threads.""" 
+    """
+    Start a processing thread for each core (t=0), or a specified number of
+    threads.
+    """
     t2 = threading.Thread(target=flushOutputs)
     t2.daemon = True
     t2.start()
@@ -210,6 +204,7 @@ def startThreads(t=1):
         t = threading.Thread(target=startThread, args=(i+1, ))
         t.daemon = True
         t.start()
+
 
 LOGGING_CONFIG = {
     'version': 1,
@@ -248,6 +243,8 @@ LOGGING_CONFIG = {
         'level': 'WARNING',
     }
 }
+
+
 if __name__ == '__main__':
     logging.config.dictConfig(LOGGING_CONFIG)
     logger = logging.getLogger("archivematica.mcp.client")

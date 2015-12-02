@@ -21,17 +21,16 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-from linkTaskManager import LinkTaskManager
-from taskStandard import taskStandard
 import os
 import sys
 import threading
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
 import databaseFunctions
 from dicts import ReplacementDict
-sys.path.append("/usr/share/archivematica/dashboard")
+from linkTaskManager import LinkTaskManager
+from taskStandard import taskStandard
+
 from main.models import StandardTaskConfig
 
 

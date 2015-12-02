@@ -18,10 +18,15 @@
 import os, sys
 from django.core.wsgi import get_wsgi_application
 
-# Ensure that the path does not get added multiple times
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
+
+paths = (
+    '/usr/lib/archivematica/archivematicaCommon',
+    '/usr/share/archivematica/dashboard',
+)
+for item in paths:
+    if item not in sys.path:
+        sys.path.append(item)
+
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 

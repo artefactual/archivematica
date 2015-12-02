@@ -19,7 +19,6 @@ from components.ingest.views_as import get_as_system_client
 import components.filesystem_ajax.views as filesystem_views
 from main.models import SIPArrangeAccessMapping
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivistsToolkit.client import ArchivistsToolkitError
 from archivesspace.client import ArchivesSpaceError, AuthenticationError
 

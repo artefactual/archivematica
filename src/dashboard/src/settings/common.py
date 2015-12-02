@@ -15,9 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys, ConfigParser
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import os
+import sys
+import ConfigParser
+
+import custom_handlers
 
 path_of_this_file = os.path.abspath(os.path.dirname(__file__))
 

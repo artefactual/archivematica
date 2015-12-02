@@ -17,7 +17,7 @@ import sys
 from StringIO import StringIO
 import uuid
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 sharedVariablesAcrossModules.errorCounter = 0
 

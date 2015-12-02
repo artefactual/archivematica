@@ -15,17 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import subprocess
+import sys
+from lxml import etree
+
 from django.conf import settings as django_settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import Http404, HttpResponse
+
 from contrib.mcp.client import MCPClient
 from main import models
-from lxml import etree
-import os, subprocess, sys
 from components import helpers
 import components.decorators as decorators
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+
 import elasticSearchFunctions
 from archivematicaFunctions import escape
 

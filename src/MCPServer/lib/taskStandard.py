@@ -33,21 +33,24 @@ import archivematicaMCP
 from utils import log_exceptions
 
 from django.utils import timezone
-
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
 from fileOperations import writeToFile
 
+
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
-# ~Class Task~
-#Tasks are what are assigned to clients.
-#They have a zero-many(tasks) TO one(job) relationship
-#This relationship is formed by storing a pointer to it's owning job in its job variable.
-#They use a "replacement dictionary" to define variables for this task.
-#Variables used for the task are defined in the Job's configuration/module (The xml file)
+
 class taskStandard():
-    """A task to hand to gearman"""
+    """
+    A task to hand to gearman.
+
+    Tasks are what are assigned to clients.
+    They have a zero-many(tasks) TO one(job) relationship.
+    This relationship is formed by storing a pointer to it's owning job in its
+    job variable. They use a "replacement dictionary" to define variables for
+    this task. Variables used for the task are defined in the Job's
+    configuration/module (the xml file).
+    """
 
     def __init__(self, linkTaskManager, execute, arguments, standardOutputFile, standardErrorFile, outputLock=None, UUID=None):
         if UUID == None:
@@ -138,7 +141,9 @@ class taskStandard():
 
     #Used to write the output of the commands to the specified files
     def writeOutputs(self):
-        """Used to write the output of the commands to the specified files"""
+        """
+        Used to write the output of the commands to the specified files
+        """
 
         if self.outputLock != None:
             self.outputLock.acquire()
