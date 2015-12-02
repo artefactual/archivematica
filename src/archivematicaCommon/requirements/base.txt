@@ -3,3 +3,4 @@ Django>=1.7,<1.8
 elasticsearch>=1.0.0,<2.0.0
 requests==2.7.0
 django-mysqlpool
+git+git://github.com/artefactual-labs/agentarchives.git

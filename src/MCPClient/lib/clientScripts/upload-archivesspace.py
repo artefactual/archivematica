@@ -8,9 +8,11 @@ from main.models import ArchivesSpaceDIPObjectResourcePairing, File
 from fpr.models import FormatVersion
 
 # archivematicaCommon
-from archivesspace.client import ArchivesSpaceClient
 from elasticSearchFunctions import getDashboardUUID
 from xml2obj import mets_file
+
+# Third party dependencies, alphabetical by import source
+from agentarchives.archivesspace import ArchivesSpaceClient
 
 # initialize Django (required for Django 1.7)
 import django

@@ -1,7 +1,6 @@
 import ast
 from functools import wraps
 import json
-import sys
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseServerError
@@ -9,8 +8,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedire
 from components import advanced_search
 from main import models
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from archivesspace.client import ArchivesSpaceClient, AuthenticationError, ConnectionError
+from agentarchives.archivesspace import ArchivesSpaceClient, AuthenticationError, ConnectionError
 
 from components.ingest import pair_matcher
 

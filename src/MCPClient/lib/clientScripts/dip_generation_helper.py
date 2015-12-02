@@ -10,8 +10,10 @@ from django.db.models import Q
 from main import models
 
 # archivematicaCommon
-import archivesspace
 import archivematicaFunctions
+
+# Third party dependencies, alphabetical by import source
+from agentarchives import archivesspace
 
 # initialize Django (required for Django 1.7)
 import django
