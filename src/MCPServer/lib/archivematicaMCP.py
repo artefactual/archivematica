@@ -64,7 +64,6 @@ from unitTransfer import unitTransfer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
-import databaseInterface
 import databaseFunctions
 from externals.singleInstance import singleinstance
 from archivematicaFunctions import unicodeToStr
@@ -249,14 +248,9 @@ def debugMonitor():
     """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
     global countOfCreateUnitAndJobChainThreaded
     while True:
-        dblockstatus = "SQL Lock: Locked"
-        if databaseInterface.sqlLock.acquire(False):
-            databaseInterface.sqlLock.release()
-            dblockstatus = "SQL Lock: Unlocked"
         logger.debug('Debug monitor: datetime: %s', databaseFunctions.getUTCDate())
         logger.debug('Debug monitor: thread count: %s', threading.activeCount())
         logger.debug('Debug monitor: created job chain threaded: %s', countOfCreateUnitAndJobChainThreaded)
-        logger.debug('Debug monitor: DB lock status: %s', dblockstatus)
         time.sleep(3600)
 
 @log_exceptions

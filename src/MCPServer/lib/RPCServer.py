@@ -31,8 +31,6 @@ import time
 
 from linkTaskManagerChoice import choicesAvailableForUnits
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
 
 LOGGER = logging.getLogger("archivematica.mcp.server.rpcserver")
 
@@ -42,23 +40,9 @@ def rpcError(code="", details=""):
     etree.SubElement(ret, "details").text = details.__str__()
     return ret
 
-def verifyDatabaseIsNotLocked():
-    timeBeforeReturningErrorLockedDB = 4
-    timeToSleep = 0.1
-    numberOfRuns = 0  # count of number of runs in loop
-    while not databaseInterface.sqlLock.acquire(False):
-        time.sleep(timeToSleep)
-        numberOfRuns += 1
-        if numberOfRuns * timeToSleep > timeBeforeReturningErrorLockedDB:
-            return rpcError(code="DatabaseLock", details="Couldn't acquire database lock")
-    databaseInterface.sqlLock.release()
-    return None
 
 def getJobsAwaitingApproval():
     ret = etree.Element("choicesAvailableForUnits")
-    dbStatus = verifyDatabaseIsNotLocked()
-    if dbStatus:
-        return etree.tostring(dbStatus)
     for UUID, choice in choicesAvailableForUnits.items():
         ret.append(choice.xmlify())
     return etree.tostring(ret, pretty_print=True)
