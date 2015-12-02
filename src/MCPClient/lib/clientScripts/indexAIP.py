@@ -9,7 +9,7 @@ import sys
 import django
 django.setup()
 # dashboard
-from main.models import UnitVariable
+from maindb.models import UnitVariable
 
 # archivematicaCommon
 from custom_handlers import get_script_logger

@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
 import archivematicaCreateMETS2
 import archivematicaCreateMETSMetadataCSV
 
-from main.models import DublinCore
+from maindb.models import DublinCore
 
 class TestDublinCore(TestCase):
 

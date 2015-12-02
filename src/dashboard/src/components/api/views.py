@@ -34,7 +34,7 @@ from tastypie.authentication import ApiKeyAuthentication
 from contrib.mcp.client import MCPClient
 from components.filesystem_ajax import views as filesystem_ajax_views
 from components import helpers
-from main import models
+from maindb import models
 
 LOGGER = logging.getLogger('archivematica.dashboard')
 SHARED_DIRECTORY_ROOT = helpers.get_server_config_value('sharedDirectory')

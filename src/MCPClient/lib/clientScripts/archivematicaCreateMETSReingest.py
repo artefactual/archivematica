@@ -11,7 +11,7 @@ import archivematicaCreateMETSRights as createmetsrights
 import archivematicaCreateMETSMetadataCSV as createmetscsv
 
 # dashboard
-from main import models
+from maindb import models
 
 
 def update_header(root, now):

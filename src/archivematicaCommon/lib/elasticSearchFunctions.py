@@ -35,7 +35,7 @@ from xml.etree import ElementTree
 import version
 
 from django.db.models import Q
-from main.models import DashboardSetting, File, Transfer
+from maindb.models import DashboardSetting, File, Transfer
 
 from externals import xmltodict
 

@@ -14,7 +14,7 @@ from lxml import etree
 import django
 django.setup()
 # dashboard
-from main.models import FPCommandOutput
+from maindb.models import FPCommandOutput
 from fpr.models import FPRule, FormatVersion
 
 # archivematicaCommon

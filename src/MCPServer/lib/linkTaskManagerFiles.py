@@ -37,7 +37,7 @@ import archivematicaFunctions
 import databaseFunctions
 from dicts import ReplacementDict
 
-from main.models import StandardTaskConfig, UnitVariable
+from maindb.models import StandardTaskConfig, UnitVariable
 
 
 LOGGER = logging.getLogger('archivematica.mcp.server')

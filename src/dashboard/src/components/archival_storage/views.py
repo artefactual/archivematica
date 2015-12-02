@@ -35,7 +35,7 @@ from django.template import RequestContext
 from elasticsearch import Elasticsearch, ElasticsearchException
 from lazy_paged_sequence import LazyPagedSequence
 
-from main import models
+from maindb import models
 from components.archival_storage import forms
 from components import advanced_search
 from components import decorators

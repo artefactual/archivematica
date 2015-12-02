@@ -28,7 +28,7 @@ import os
 import django
 django.setup()
 # dashboard
-from main.models import File
+from maindb.models import File
 
 if __name__ == '__main__':
     transferUUID = sys.argv[1]

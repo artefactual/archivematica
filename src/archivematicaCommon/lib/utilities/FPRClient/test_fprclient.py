@@ -6,7 +6,7 @@ import vcr
 from django.test import TestCase, TransactionTestCase
 
 from fpr import models
-import main.models
+import maindb.models
 
 import client
 import getFromRestAPI
@@ -103,7 +103,7 @@ class TestFPRClient(TransactionTestCase):
         self.fprclient = client.FPRClient(fprserver=FPRSERVER)
 
     def test_fixtures(self):
-        assert main.models.MicroServiceChainLink.objects.count() == 3
+        assert maindb.models.MicroServiceChainLink.objects.count() == 3
 
     def test_insert_initial_chain(self):
         """ Insert a chain of rules into a new install. """
@@ -197,4 +197,4 @@ class TestFPRClient(TransactionTestCase):
         assert models.FPTool.objects.count() > 0
         assert models.FPCommand.objects.count() > 0
         assert models.FPRule.objects.count() > 0
-        assert main.models.UnitVariable.objects.get(unittype='FPR', variable='maxLastUpdate') != "2000-01-01T00:00:00"
+        assert maindb.models.UnitVariable.objects.get(unittype='FPR', variable='maxLastUpdate') != "2000-01-01T00:00:00"

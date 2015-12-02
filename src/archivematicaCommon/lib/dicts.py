@@ -235,7 +235,7 @@ if __name__ == '__main__':
     import doctest
     doctest.testmod()
 else:
-    from main import models
+    from maindb import models
 
     # TODO This probably shouldn't be directly read here, but this file can't
     #      safely import archivematicaMCP because it has too many side effects.

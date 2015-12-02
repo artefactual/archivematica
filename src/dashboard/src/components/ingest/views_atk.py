@@ -18,7 +18,7 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponseServerError
 import sys, MySQLdb, ast
-from main import models
+from maindb import models
 from components import advanced_search
 
 from archivistsToolkit.client import ArchivistsToolkitClient

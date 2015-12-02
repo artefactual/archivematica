@@ -31,7 +31,7 @@ from dicts import ReplacementDict
 from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
 
-from main.models import StandardTaskConfig
+from maindb.models import StandardTaskConfig
 
 
 class linkTaskManagerDirectories(LinkTaskManager):

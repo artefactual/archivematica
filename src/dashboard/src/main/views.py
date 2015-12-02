@@ -26,7 +26,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.http import Http404, HttpResponse
 
 from contrib.mcp.client import MCPClient
-from main import models
+from maindb import models
 from components import helpers
 import components.decorators as decorators
 

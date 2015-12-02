@@ -27,7 +27,7 @@ from jobChainLink import jobChainLink
 
 from dicts import ReplacementDict
 
-from main.models import MicroServiceChain, UnitVariable
+from maindb.models import MicroServiceChain, UnitVariable
 
 
 #Holds:

@@ -9,7 +9,7 @@ import django
 django.setup()
 # dashboard
 from django.utils import timezone
-from main.models import Derivation, File, FileFormatVersion
+from maindb.models import Derivation, File, FileFormatVersion
 from fpr.models import FPRule
 
 # archivematicaCommon

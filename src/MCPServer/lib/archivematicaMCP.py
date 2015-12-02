@@ -64,7 +64,7 @@ import databaseFunctions
 from externals.singleInstance import singleinstance
 from archivematicaFunctions import unicodeToStr
 
-from main.models import Job, SIP, Task, WatchedDirectory
+from maindb.models import Job, SIP, Task, WatchedDirectory
 
 
 global countOfCreateUnitAndJobChainThreaded

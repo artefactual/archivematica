@@ -39,7 +39,7 @@ from linkTaskManagerUnitVariableLinkPull import linkTaskManagerUnitVariableLinkP
 from django_mysqlpool import auto_close_db
 from databaseFunctions import logJobCreatedSQL, getUTCDate
 
-from main.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode, TaskType
+from maindb.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode, TaskType
 
 
 LOGGER = logging.getLogger('archivematica.mcp.server')

@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django import forms
-from main import models
+from maindb import models
 from django.conf import settings
 
 class DublinCoreMetadataForm(forms.ModelForm):

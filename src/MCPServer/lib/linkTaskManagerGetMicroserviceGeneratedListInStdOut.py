@@ -33,7 +33,7 @@ import archivematicaFunctions
 import databaseFunctions
 from dicts import ChoicesDict, ReplacementDict
 
-from main.models import StandardTaskConfig
+from maindb.models import StandardTaskConfig
 
 
 LOGGER = logging.getLogger('archivematica.mcp.server')

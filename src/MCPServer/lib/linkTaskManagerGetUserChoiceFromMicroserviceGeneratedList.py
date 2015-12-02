@@ -33,7 +33,7 @@ from linkTaskManagerChoice import choicesAvailableForUnitsLock
 
 from dicts import ReplacementDict, ChoicesDict
 
-from main.models import StandardTaskConfig
+from maindb.models import StandardTaskConfig
 
 
 LOGGER = logging.getLogger('archivematica.mcp.server')

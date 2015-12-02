@@ -24,7 +24,7 @@ from django.http import HttpResponse
 from django.template import RequestContext
 
 from components.rights import forms
-from main import models
+from maindb import models
 from components import helpers
 from components import decorators
 

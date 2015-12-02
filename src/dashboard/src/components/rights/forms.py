@@ -18,7 +18,7 @@
 from django import forms
 from django.conf import settings
 
-from main import models
+from maindb import models
 
 class RightsForm(forms.ModelForm):
     class Meta:

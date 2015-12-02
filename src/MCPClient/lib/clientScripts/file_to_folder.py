@@ -7,7 +7,7 @@ import sys
 import django
 django.setup()
 # dashboard
-from main.models import Transfer
+from maindb.models import Transfer
 
 def main(transfer_path, transfer_uuid, shared_path):
     """

@@ -34,7 +34,7 @@ from dateutil.relativedelta import relativedelta
 import django
 django.setup()
 # dashboard
-from main.models import RightsStatement, RightsStatementOtherRightsInformation, RightsStatementOtherRightsDocumentationIdentifier, RightsStatementRightsGranted, RightsStatementRightsGrantedNote, RightsStatementRightsGrantedRestriction
+from maindb.models import RightsStatement, RightsStatementOtherRightsInformation, RightsStatementOtherRightsDocumentationIdentifier, RightsStatementRightsGranted, RightsStatementRightsGrantedNote, RightsStatementRightsGrantedRestriction
 
 # archivematicaCommon
 from fileOperations import getFileUUIDLike

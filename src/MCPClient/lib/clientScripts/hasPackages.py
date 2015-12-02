@@ -7,7 +7,7 @@ import django
 django.setup()
 # dashboard
 from fpr.models import FPRule
-from main.models import FileFormatVersion, Transfer, File, Event
+from maindb.models import FileFormatVersion, Transfer, File, Event
 
 # archivematicaCommon
 from custom_handlers import get_script_logger

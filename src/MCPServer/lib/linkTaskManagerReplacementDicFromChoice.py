@@ -37,7 +37,7 @@ from linkTaskManagerChoice import waitingOnTimer
 
 from dicts import ReplacementDict
 
-from main.models import MicroServiceChoiceReplacementDic
+from maindb.models import MicroServiceChoiceReplacementDic
 
 
 LOGGER = logging.getLogger('archivematica.mcp.server')

@@ -39,7 +39,7 @@ import requests
 import django
 django.setup()
 # dashboard
-import main.models as models
+import maindb.models as models
 
 PREFIX = "[uploadDIP]"
 

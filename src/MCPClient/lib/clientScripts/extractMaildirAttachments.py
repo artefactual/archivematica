@@ -31,7 +31,7 @@ import uuid
 import django
 django.setup()
 # dashboard
-from main.models import File
+from maindb.models import File
 
 # archivematicaCommon
 from custom_handlers import get_script_logger

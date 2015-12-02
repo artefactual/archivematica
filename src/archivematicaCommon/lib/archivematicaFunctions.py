@@ -26,7 +26,7 @@ import os
 import re
 import sys
 
-from main.models import DashboardSetting
+from maindb.models import DashboardSetting
 
 
 REQUIRED_DIRECTORIES = [

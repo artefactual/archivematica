@@ -24,7 +24,7 @@ from django.template import RequestContext
 
 from components import helpers
 
-from main import models
+from maindb import models
 
 import elasticSearchFunctions
 

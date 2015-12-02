@@ -6,7 +6,7 @@ import sys
 import django
 django.setup()
 # dashboard
-from main import models
+from maindb import models
 
 FIELDS = [
     'title', 'creator', 'subject', 'description', 'publisher', 'contributor',

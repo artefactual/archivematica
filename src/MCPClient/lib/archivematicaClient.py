@@ -51,7 +51,7 @@ config.read("/etc/archivematica/MCPClient/clientConfig.conf")
 import django
 django.setup()
 
-from main.models import Task
+from maindb.models import Task
 
 from django_mysqlpool import auto_close_db
 from custom_handlers import GroupWriteRotatingFileHandler

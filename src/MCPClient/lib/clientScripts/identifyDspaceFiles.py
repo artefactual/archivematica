@@ -29,7 +29,7 @@ import archivematicaXMLNamesSpace
 import django
 django.setup()
 # dashboard
-from main.models import File
+from maindb.models import File
 
 def identify_dspace_files(mets_file, transfer_dir, transfer_uuid, relative_dir="./"):
     print mets_file

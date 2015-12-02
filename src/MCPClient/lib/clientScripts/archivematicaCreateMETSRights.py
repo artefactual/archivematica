@@ -28,7 +28,7 @@ import uuid
 import lxml.etree as etree
 
 # dashboard
-from main.models import RightsStatement
+from maindb.models import RightsStatement
 
 import archivematicaXMLNamesSpace as ns
 # archivematicaCommon

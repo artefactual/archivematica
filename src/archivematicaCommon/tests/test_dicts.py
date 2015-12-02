@@ -4,7 +4,7 @@ import sys
 
 from dicts import ReplacementDict, ChoicesDict
 
-from main import models
+from maindb import models
 
 TRANSFER = models.Transfer(
     uuid='fb0aa04d-8547-46fc-bb7f-288ea5827d2c',

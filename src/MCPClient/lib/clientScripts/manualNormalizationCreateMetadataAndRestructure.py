@@ -19,7 +19,7 @@ import django
 django.setup()
 from django.db.models import Q
 # dashboard
-from main.models import Event, File
+from maindb.models import Event, File
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import databaseFunctions

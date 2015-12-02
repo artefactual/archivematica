@@ -27,7 +27,7 @@ import sys
 import django
 django.setup()
 # dashboard
-from main.models import SIP, Transfer
+from maindb.models import SIP, Transfer
 
 # archivematicaCommon
 from custom_handlers import get_script_logger

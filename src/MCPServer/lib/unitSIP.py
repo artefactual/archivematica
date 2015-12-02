@@ -28,7 +28,7 @@ import lxml.etree as etree
 import archivematicaMCP
 from unit import unit
 
-from main.models import SIP
+from maindb.models import SIP
 
 from dicts import ReplacementDict
 

@@ -28,7 +28,7 @@ import sys
 import archivematicaMCP
 from unitFile import unitFile
 
-from main.models import File, UnitVariable
+from maindb.models import File, UnitVariable
 
 
 LOGGER = logging.getLogger('archivematica.mcp.server')

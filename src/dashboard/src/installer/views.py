@@ -36,7 +36,7 @@ from tastypie.models import ApiKey
 import components.helpers as helpers
 from components.administration.forms import StorageSettingsForm
 from installer.forms import SuperUserCreationForm
-from main.models import Agent
+from maindb.models import Agent
 from components.administration.models import ArchivistsToolkitConfig
 
 import utilities.FPRClient.client as FPRClient

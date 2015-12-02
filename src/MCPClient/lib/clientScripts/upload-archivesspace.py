@@ -4,7 +4,7 @@ import argparse
 import logging
 import os
 
-from main.models import ArchivesSpaceDIPObjectResourcePairing, File
+from maindb.models import ArchivesSpaceDIPObjectResourcePairing, File
 from fpr.models import FormatVersion
 
 # archivematicaCommon

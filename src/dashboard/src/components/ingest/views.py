@@ -50,7 +50,7 @@ from components import decorators
 from components.ingest import forms as ingest_forms
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
 from main import forms
-from main import models
+from maindb import models
 
 import archivematicaFunctions
 import elasticSearchFunctions

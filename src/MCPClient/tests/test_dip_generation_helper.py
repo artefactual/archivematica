@@ -9,7 +9,7 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
 import dip_generation_helper
 
-from main.models import ArchivesSpaceDIPObjectResourcePairing
+from maindb.models import ArchivesSpaceDIPObjectResourcePairing
 
 class TestParseArchivesSpaceIDs(TestCase):
 

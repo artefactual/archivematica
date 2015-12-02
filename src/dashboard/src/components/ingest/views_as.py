@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseServerError
 
 from components import advanced_search
-from main import models
+from maindb import models
 
 from archivesspace.client import ArchivesSpaceClient, AuthenticationError, ConnectionError
 

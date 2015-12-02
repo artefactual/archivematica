@@ -38,7 +38,7 @@ import archivematicaMCP
 from django_mysqlpool import auto_close_db
 from archivematicaFunctions import unicodeToStr
 
-from main.models import MicroServiceChainChoice
+from maindb.models import MicroServiceChainChoice
 
 
 LOGGER = logging.getLogger('archivematica.mcp.server')

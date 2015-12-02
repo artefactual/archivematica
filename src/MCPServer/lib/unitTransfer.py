@@ -29,7 +29,7 @@ import uuid
 import archivematicaMCP
 from unit import unit
 
-from main.models import Transfer
+from maindb.models import Transfer
 
 from dicts import ReplacementDict
 

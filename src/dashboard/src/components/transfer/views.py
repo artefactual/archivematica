@@ -32,7 +32,7 @@ from django.utils.safestring import mark_safe
 
 from contrib.mcp.client import MCPClient
 
-from main import models
+from maindb import models
 from components import helpers
 from components.ingest.forms import DublinCoreMetadataForm
 import components.decorators as decorators

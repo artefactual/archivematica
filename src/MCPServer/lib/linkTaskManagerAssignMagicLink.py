@@ -25,7 +25,7 @@ import sys
 
 from linkTaskManager import LinkTaskManager
 
-from main.models import TaskConfigAssignMagicLink
+from maindb.models import TaskConfigAssignMagicLink
 
 
 global choicesAvailableForUnits

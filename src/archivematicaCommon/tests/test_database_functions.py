@@ -4,7 +4,7 @@ import sys
 
 import databaseFunctions
 
-from main.models import Agent, Event, File
+from maindb.models import Agent, Event, File
 
 from django.test import TestCase
 import pytest

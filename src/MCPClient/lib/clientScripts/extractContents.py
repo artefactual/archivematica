@@ -9,7 +9,7 @@ import django
 django.setup()
 # dashboard
 from fpr.models import FPCommand
-from main.models import FileFormatVersion, File
+from maindb.models import FileFormatVersion, File
 
 # archivematicaCommon
 from custom_handlers import get_script_logger

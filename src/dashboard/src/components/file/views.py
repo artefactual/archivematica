@@ -12,7 +12,7 @@ import requests
 
 # This project, alphabetical by import source
 from components import helpers
-from main import models
+from maindb import models
 
 import elasticSearchFunctions
 import storageService as storage_service

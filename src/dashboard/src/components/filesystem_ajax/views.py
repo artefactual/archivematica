@@ -34,7 +34,7 @@ import requests
 
 from components import helpers
 import components.filesystem_ajax.helpers as filesystem_ajax_helpers
-from main import models
+from maindb import models
 
 import archivematicaFunctions
 import databaseFunctions

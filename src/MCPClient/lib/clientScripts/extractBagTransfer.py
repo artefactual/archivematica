@@ -27,7 +27,7 @@ import sys
 import django
 django.setup()
 # dashboard
-from main.models import Transfer
+from maindb.models import Transfer
 
 # archivematicaCommon
 from custom_handlers import get_script_logger

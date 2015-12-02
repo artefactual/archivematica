@@ -26,7 +26,7 @@ import sys
 import lxml.etree as etree
 
 # dashboard
-from main.models import File
+from maindb.models import File
 
 import archivematicaXMLNamesSpace as ns
 # archivematicaCommon

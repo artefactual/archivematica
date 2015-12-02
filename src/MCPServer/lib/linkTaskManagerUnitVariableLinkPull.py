@@ -25,7 +25,7 @@ import sys
 
 from linkTaskManager import LinkTaskManager
 
-from main.models import TaskConfigUnitVariableLinkPull
+from maindb.models import TaskConfigUnitVariableLinkPull
 
 
 global choicesAvailableForUnits
