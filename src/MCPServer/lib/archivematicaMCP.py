@@ -35,8 +35,8 @@
 import ConfigParser
 import logging
 import logging.config
+import getpass
 import os
-from pwd import getpwnam
 import pyinotify
 import signal
 import sys
@@ -329,9 +329,7 @@ if __name__ == '__main__':
 
     logger.info('This PID: %s', si.pid)
 
-    import getpass
     logger.info('User: %s', getpass.getuser())
-    os.setuid(getpwnam('archivematica').pw_uid)
 
     t = threading.Thread(target=debugMonitor)
     t.daemon = True
