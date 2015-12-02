@@ -65,7 +65,6 @@ from unitTransfer import unitTransfer
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
 import databaseFunctions
-from externals.singleInstance import singleinstance
 from archivematicaFunctions import unicodeToStr
 
 from main.models import Job, SIP, Task, WatchedDirectory
@@ -322,13 +321,8 @@ if __name__ == '__main__':
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-    si = singleinstance(config.get('MCPServer', "singleInstancePIDFile"))
-    if si.alreadyrunning():
-        logger.warning('Another instance is already running. Killing PID %s', si.pid)
-        si.kill()
 
-    logger.info('This PID: %s', si.pid)
-
+    logger.info('This PID: %s', os.getpid())
     logger.info('User: %s', getpass.getuser())
 
     t = threading.Thread(target=debugMonitor)
