@@ -624,11 +624,12 @@ class ArchivesSpaceClient(object):
 
         return resources_augmented
 
-    def add_digital_object(self, parent_archival_object, dashboard_uuid, title="", identifier=None, uri=None, object_type="text", xlink_show="embed", xlink_actuate="onLoad", restricted=False, use_statement="", use_conditions=None, access_conditions=None, size=None, format_name=None, format_version=None):
+    def add_digital_object(self, parent_archival_object, dashboard_uuid, identifier, title=None, uri=None, object_type="text", xlink_show="embed", xlink_actuate="onLoad", restricted=False, use_statement="", use_conditions=None, access_conditions=None, size=None, format_name=None, format_version=None):
         """
         Creates a new digital object.
 
         :param string parent_archival_object: The archival object to which the newly-created digital object will be parented.
+        :param string identifier: A unique identifier for the digital object, in any format.
         :param string title: The title of the digital object.
         :param string uri: The URI to an instantiation of the digital object.
         :param string object_type: The type of the digital object.
@@ -649,26 +650,14 @@ class ArchivesSpaceClient(object):
         repository = parent_record['repository']['ref']
         language = parent_record.get('language', '')
 
-
         if not title:
             filename = os.path.basename(uri) if uri is not None else 'Untitled'
             title = parent_record.get('title', filename)
-
-        if identifier is None:
-            identifier = os.path.dirname(uri)
 
         new_object = {
             "title": title,
             "digital_object_id": identifier,
             "digital_object_type": object_type,
-            "file_versions": [
-                {
-                    "file_uri": uri,
-                    "use_statement": use_statement,
-                    "xlink_show_attribute": xlink_show,
-                    "xlink_actuate_attribute": xlink_actuate,
-                },
-            ],
             "language": language,
             "notes": [{
                 "jsonmodel_type": "note_digital_object",
@@ -680,6 +669,14 @@ class ArchivesSpaceClient(object):
             "subjects": parent_record['subjects'],
             "linked_agents": parent_record['linked_agents'],
         }
+
+        if uri is not None:
+            new_object["file_versions"] = [{
+                "file_uri": uri,
+                "use_statement": use_statement,
+                "xlink_show_attribute": xlink_show,
+                "xlink_actuate_attribute": xlink_actuate,
+            }]
 
         note_digital_object_type = ["summary", "bioghist", "accessrestrict", "userestrict", "custodhist", "dimensions", "edition", "extent","altformavail", "originalsloc", "note", "acqinfo", "inscription", "langmaterial", "legalstatus", "physdesc", "prefercite", "processinfo", "relatedmaterial"]
 
