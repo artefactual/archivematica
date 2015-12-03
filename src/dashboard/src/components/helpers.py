@@ -345,4 +345,4 @@ def stream_file_from_storage_service(url, error_message='Remote URL returned {}'
             'success': False,
             'message': error_message.format(stream.status_code)
         }
-        return json_response(response, status=400)
+        return json_response(response, status_code=400)
