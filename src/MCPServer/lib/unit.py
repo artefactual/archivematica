@@ -28,19 +28,26 @@ import sys
 import archivematicaMCP
 from unitFile import unitFile
 
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import File, UnitVariable
+from maindb.models import File, UnitVariable
+
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 class unit:
-    """A class to inherit from, to over-ride methods, defininging a processing object at the Job level"""
+    """
+    A class to inherit from, to over-ride methods, defininging a processing
+    object at the Job level.
+    """
     def __init__(self, currentPath, UUID):
         self.currentPath = currentPath.__str__()
         self.UUID = UUID
 
     def reloadFileList(self):
-        """Match files to their UUID's via their location and the File table's currentLocation"""
+        """
+        Match files to their UUID's via their location and the File table's
+        currentLocation.
+        """
         self.fileList = {}
         # currentPath must be a string to return all filenames as bytestrings,
         # and to safely concatenate with other bytestrings

@@ -28,7 +28,7 @@ import shutil
 import django
 django.setup()
 # dashboard
-from main.models import Job, SIP
+from maindb.models import Job, SIP
 
 # archivematicaCommon
 from custom_handlers import get_script_logger

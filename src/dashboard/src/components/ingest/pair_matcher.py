@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 import os
-from main import models
+from maindb import models
 from components import helpers
 import xml.etree.ElementTree as ElementTree
 

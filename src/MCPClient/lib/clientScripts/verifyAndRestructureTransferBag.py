@@ -26,7 +26,7 @@ import sys
 import django
 django.setup()
 # dashboard
-from main.models import File
+from maindb.models import File
 
 # archivematicaCommon
 from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES

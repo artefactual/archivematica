@@ -25,9 +25,8 @@ import string
 import sys
 import uuid
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from django.utils import timezone
-from main.models import Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
+from maindb.models import Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
 
 def getUTCDate():
     """Returns a timezone-aware representation of the current datetime in UTC."""

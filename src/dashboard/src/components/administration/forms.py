@@ -26,10 +26,9 @@ from django.utils.translation import ugettext as _
 from django.forms.widgets import TextInput, RadioSelect, CheckboxInput, Select
 
 from components import helpers
-from main import models
+from maindb import models
 from components.administration.models import ArchivistsToolkitConfig, ArchivesSpaceConfig
 
-sys.path.append('/usr/lib/archivematica/archivematicaCommon')
 import storageService as storage_service
 
 

@@ -32,12 +32,13 @@ import uuid
 import archivematicaMCP
 from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+
 import archivematicaFunctions
 import databaseFunctions
 from dicts import ReplacementDict
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import StandardTaskConfig, UnitVariable
+
+from maindb.models import StandardTaskConfig, UnitVariable
+
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 

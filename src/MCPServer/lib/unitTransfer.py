@@ -29,13 +29,13 @@ import uuid
 import archivematicaMCP
 from unit import unit
 
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import Transfer
+from maindb.models import Transfer
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
+
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 class unitTransfer(unit):
     def __init__(self, currentPath, UUID=""):
@@ -76,8 +76,10 @@ class unitTransfer(unit):
         transfer.save()
 
     def setMagicLink(self, link, exitStatus=""):
-        """Assign a link to the unit to process when loaded.
-        Deprecated! Replaced with Set/Load Unit Variable"""
+        """
+        Assign a link to the unit to process when loaded.
+        Deprecated! Replaced with Set/Load Unit Variable.
+        """
         transfer = Transfer.objects.get(uuid=self.UUID)
         transfer.magiclink = link
         if exitStatus:
@@ -85,8 +87,10 @@ class unitTransfer(unit):
         transfer.save()
 
     def getMagicLink(self):
-        """Load a link from the unit to process.
-        Deprecated! Replaced with Set/Load Unit Variable"""
+        """
+        Load a link from the unit to process.
+        Deprecated! Replaced with Set/Load Unit Variable.
+        """
         try:
             transfer = Transfer.objects.get(uuid=self.UUID)
         except Transfer.DoesNotExist:

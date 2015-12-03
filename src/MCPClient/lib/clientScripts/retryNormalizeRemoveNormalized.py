@@ -31,7 +31,7 @@ import django
 django.setup()
 # dashboard
 from django.utils import timezone
-from main.models import Derivation, Event, File
+from maindb.models import Derivation, Event, File
 
 
 def removeDIP(SIPDirectory, SIPUUID):

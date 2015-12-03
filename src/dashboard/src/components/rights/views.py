@@ -15,17 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import re
+
 from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
-from contrib import utils
-from components.rights import forms
-from main import models
-from components import helpers
-import re
-from components import decorators
 from django.template import RequestContext
+
+from components.rights import forms
+from maindb import models
+from components import helpers
+from components import decorators
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Rights-related
@@ -93,7 +94,7 @@ def rights_parse_agent_id(input):
 
 def rights_edit(request, uuid, id=None, section='ingest'):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = jobs[0].get_directory_name()
 
     # flag indicating what kind of new content, if any, has been created
     new_content_type_created = None
@@ -317,7 +318,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
                 noteCreated.save()
                 new_content_type_created = 'statue'
             else:
-                # handle note creation for a parent grant that already exists 
+                # handle note creation for a parent grant that already exists
                 if request.POST.get('new_statute_note_' + str(form.instance.pk), '') != '':
                     noteCreated = models.RightsStatementStatuteInformationNote(rightsstatementstatute=form.instance)
                     noteCreated.statutenote = request.POST.get('new_statute_note_' + str(form.instance.pk), '')
@@ -399,7 +400,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
 
 def rights_grants_edit(request, uuid, id, section='ingest'):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = jobs[0].get_directory_name()
 
     viewRights = models.RightsStatement.objects.get(pk=id)
 
@@ -447,7 +448,7 @@ def rights_grants_edit(request, uuid, id, section='ingest'):
                 noteCreated.rightsgrantednote = request.POST.get('new_rights_note_None', '')
                 noteCreated.save()
             else:
-                # handle note creation for a parent grant that already exists 
+                # handle note creation for a parent grant that already exists
                 if request.POST.get('new_rights_note_' + str(form.instance.pk), '') != '':
                     noteCreated = models.RightsStatementRightsGrantedNote(rightsgranted=form.instance)
                     noteCreated.rightsgrantednote = request.POST.get('new_rights_note_' + str(form.instance.pk), '')
@@ -512,7 +513,7 @@ def rights_holders_autocomplete(request):
 
 def rights_list(request, uuid, section):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = jobs[0].get_directory_name()
 
     # See MetadataAppliesToTypes table
     types = {'transfer': 'Transfer', 'ingest': 'SIP', 'file': 'File'}

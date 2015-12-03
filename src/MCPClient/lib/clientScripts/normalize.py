@@ -18,7 +18,7 @@ import django
 django.setup()
 # dashboard
 from fpr.models import FPRule
-from main.models import Derivation, FileFormatVersion, File, FileID
+from maindb.models import Derivation, FileFormatVersion, File, FileID
 from annoying.functions import get_object_or_None
 
 # archivematicaCommon

@@ -32,20 +32,17 @@ import re
 import sys
 import time
 from xml.etree import ElementTree
-
-sys.path.append("/usr/share/archivematica/dashboard")
-from django.db.models import Q
-from main.models import DashboardSetting, File, Transfer
-
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import version
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import xmltodict
+from django.db.models import Q
+from maindb.models import DashboardSetting, File, Transfer
 
-LOGGER = logging.getLogger("archivematica.common")
+from externals import xmltodict
 
 from elasticsearch import Elasticsearch, ConnectionError, TransportError
+
+
+LOGGER = logging.getLogger("archivematica.common")
 
 pathToElasticSearchServerConfigFile='/etc/elasticsearch/elasticsearch.yml'
 MAX_QUERY_SIZE = 50000  # TODO Check that this is a reasonable number

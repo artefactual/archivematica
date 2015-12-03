@@ -21,23 +21,23 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-# Stdlib, alphabetical by import source
 import logging
 import os
 import sys
 import threading
 
-# This project,  alphabetical by import source
 from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+
 import archivematicaFunctions
 import databaseFunctions
 from dicts import ChoicesDict, ReplacementDict
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import StandardTaskConfig
+
+from maindb.models import StandardTaskConfig
+
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):

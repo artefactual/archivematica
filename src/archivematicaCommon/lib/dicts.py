@@ -27,9 +27,6 @@ import os
 import re
 import sys
 
-path = '/usr/lib/archivematica/archivematicaCommon/'
-if not path in sys.path:
-    sys.path.append(path)
 from archivematicaFunctions import unicodeToStr
 
 def replace_string_values(string, **kwargs):
@@ -238,11 +235,7 @@ if __name__ == '__main__':
     import doctest
     doctest.testmod()
 else:
-    path = '/usr/share/archivematica/dashboard'
-    if path not in sys.path:
-        sys.path.append(path)
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-    from main import models
+    from maindb import models
 
     # TODO This probably shouldn't be directly read here, but this file can't
     #      safely import archivematicaMCP because it has too many side effects.

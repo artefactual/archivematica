@@ -22,8 +22,11 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from linkTaskManager import LinkTaskManager
+
+
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
+
 
 class linkTaskManagerLoadMagicLink(LinkTaskManager):
     """Load a link from the unit to process.

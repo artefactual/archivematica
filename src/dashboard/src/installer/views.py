@@ -36,12 +36,10 @@ from tastypie.models import ApiKey
 import components.helpers as helpers
 from components.administration.forms import StorageSettingsForm
 from installer.forms import SuperUserCreationForm
-from main.models import Agent
+from maindb.models import Agent
 from components.administration.models import ArchivistsToolkitConfig
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/utilities")
-import FPRClient.client as FPRClient
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+import utilities.FPRClient.client as FPRClient
 import storageService as storage_service
 import version
 

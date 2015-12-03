@@ -31,7 +31,7 @@ from django.forms.models import modelformset_factory
 from django.shortcuts import redirect, render
 
 from main import forms
-from main import models
+from maindb import models
 from components.administration.forms import AtomDipUploadSettingsForm
 from components.administration.forms import AgentForm
 from components.administration.forms import ArchivesSpaceConfigForm
@@ -47,7 +47,6 @@ from django.template import RequestContext
 import components.helpers as helpers
 import storageService as storage_service
 
-sys.path.append('/usr/lib/archivematica/archivematicaCommon')
 from version import get_full_version
 
 

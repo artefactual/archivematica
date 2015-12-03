@@ -14,7 +14,7 @@ import django
 django.setup()
 # dashboard
 from django.utils import timezone
-from main.models import DublinCore
+from maindb.models import DublinCore
 
 # archivematicaCommon
 from custom_handlers import get_script_logger

@@ -25,7 +25,7 @@ from optparse import OptionParser
 import django
 django.setup()
 # dashboard
-from main.models import File
+from maindb.models import File
 
 # archivematicaCommon
 from databaseFunctions import insertIntoEvents

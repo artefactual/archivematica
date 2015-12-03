@@ -31,9 +31,8 @@ from django.http import Http404, HttpResponse
 from django.utils.safestring import mark_safe
 
 from contrib.mcp.client import MCPClient
-from contrib import utils
 
-from main import models
+from maindb import models
 from components import helpers
 from components.ingest.forms import DublinCoreMetadataForm
 import components.decorators as decorators
@@ -142,7 +141,7 @@ def status(request, uuid=None):
             if models.Transfer.objects.is_hidden(item['sipuuid']):
                 continue
             jobs = helpers.get_jobs_by_sipuuid(item['sipuuid'])
-            item['directory'] = os.path.basename(utils.get_directory_name_from_job(jobs[0]))
+            item['directory'] = os.path.basename(jobs[0].get_directory_name())
             item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
             item['uuid'] = item['sipuuid']
             item['id'] = item['sipuuid']
@@ -176,14 +175,14 @@ def status(request, uuid=None):
 
 def detail(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid)
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = jobs[0].get_directory_name()
     is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
     set_uuid = models.Transfer.objects.get(uuid=uuid).transfermetadatasetrow_id
     return render(request, 'transfer/detail.html', locals())
 
 def microservices(request, uuid):
     jobs = models.Job.objects.filter(sipuuid=uuid)
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = jobs[0].get_directory_name()
     return render(request, 'transfer/microservices.html', locals())
 
 def delete(request, uuid):
@@ -244,7 +243,7 @@ def transfer_metadata_edit(request, uuid, id=None):
             initial[item] = getattr(dc, item)
         form = DublinCoreMetadataForm(initial=initial)
         jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-        name = utils.get_directory_name_from_job(jobs[0])
+        name = jobs[0].get_directory_name()
 
     return render(request, 'transfer/metadata_edit.html', locals())
 

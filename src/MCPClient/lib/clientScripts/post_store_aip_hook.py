@@ -6,7 +6,7 @@ import sys
 import django
 django.setup()
 # dashboard
-from main import models
+from maindb import models
 
 # archivematicaCommon
 from custom_handlers import get_script_logger

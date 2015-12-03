@@ -27,7 +27,7 @@ import django
 django.setup()
 from django.db.models import Q
 # dashboard
-from main.models import File
+from maindb.models import File
 
 # archivematicaCommon
 import fileOperations

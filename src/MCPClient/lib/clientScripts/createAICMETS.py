@@ -11,7 +11,7 @@ import django
 django.setup()
 # dashboard
 from django.utils import timezone
-from main.models import UnitVariable
+from maindb.models import UnitVariable
 
 import archivematicaCreateMETS2
 import archivematicaXMLNamesSpace as ns

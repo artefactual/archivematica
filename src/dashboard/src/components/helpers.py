@@ -32,7 +32,7 @@ from django.db.models import Max
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.core.servers.basehttp import FileWrapper
 from django.shortcuts import render
-from main import models
+from maindb import models
 
 logger = logging.getLogger('archivematica.dashboard')
 

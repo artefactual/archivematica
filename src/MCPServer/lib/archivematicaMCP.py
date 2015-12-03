@@ -21,17 +21,19 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-#~DOC~
-#
-# --- This is the MCP (master control program) ---
-# The intention of this program is to provide a centralized automated distributed system for performing an arbitrary set of tasks on a directory.
-# Distributed in that the work can be performed on more than one physical computer simultaneously.
-# Centralized in that there is one centre point for configuring flow through the system.
-# Automated in that the tasks performed will be based on the config files and instantiated for each of the targets.
-#
-# It loads configurations from the database.
-#
-# stdlib, alphabetical by import source
+"""
+This is the MCP (master control program).
+
+The intention of this program is to provide a centralized automated distributed
+system for performing an arbitrary set of tasks on a directory.
+Distributed in that the work can be performed on more than one physical
+computer simultaneously. Centralized in that there is one centre point for
+configuring flow through the system. Automated in that the tasks performed will.
+be based on the config files and instantiated for each of the targets.
+
+It loads configurations from the database.
+"""
+
 import ConfigParser
 import logging
 import logging.config
@@ -44,32 +46,26 @@ import threading
 import time
 import uuid
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-sys.path.append('/usr/lib/archivematica/MCPServer')
-
 import django
-sys.path.append("/usr/share/archivematica/dashboard")
 django.setup()
 
-# This project, alphabetical by import source
 import watchDirectory
 import RPCServer
 from utils import log_exceptions
-
 from jobChain import jobChain
 from unitSIP import unitSIP
 from unitDIP import unitDIP
 from unitFile import unitFile
 from unitTransfer import unitTransfer
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
 import databaseInterface
 import databaseFunctions
 from externals.singleInstance import singleinstance
 from archivematicaFunctions import unicodeToStr
 
-from main.models import Job, SIP, Task, WatchedDirectory
+from maindb.models import Job, SIP, Task, WatchedDirectory
+
 
 global countOfCreateUnitAndJobChainThreaded
 countOfCreateUnitAndJobChainThreaded = 0
@@ -77,18 +73,22 @@ countOfCreateUnitAndJobChainThreaded = 0
 config = ConfigParser.SafeConfigParser()
 config.read("/etc/archivematica/MCPServer/serverConfig.conf")
 
-#time to sleep to allow db to be updated with the new location of a SIP
+# Time to sleep to allow db to be updated with the new location of a SIP
 dbWaitSleep = 2
-
 
 limitTaskThreads = config.getint('Protocol', "limitTaskThreads")
 limitTaskThreadsSleep = config.getfloat('Protocol', "limitTaskThreadsSleep")
 limitGearmanConnectionsSemaphore = threading.Semaphore(value=config.getint('Protocol', "limitGearmanConnections"))
 reservedAsTaskProcessingThreads = config.getint('Protocol', "reservedAsTaskProcessingThreads")
-stopSignalReceived = False #Tracks whether a sigkill has been received or not
+
+# Tracks whether a sigkill has been received or not
+stopSignalReceived = False
+
 
 def isUUID(uuid):
-    """Return boolean of whether it's string representation of a UUID v4"""
+    """
+    Return boolean of whether it's string representation of a UUID v4.
+    """
     split = uuid.split("-")
     if len(split) != 5 \
     or len(split[0]) != 8 \
@@ -99,14 +99,21 @@ def isUUID(uuid):
         return False
     return True
 
+
 def fetchUUIDFromPath(path):
-    #find UUID on end of SIP path
+    """
+    Find UUID on end of SIP path.
+    """
     uuidLen = -36
     if isUUID(path[uuidLen-1:-1]):
         return path[uuidLen-1:-1]
 
+
 def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
-    """Matches a directory to a database sip by it's appended UUID, or path. If it doesn't find one, it will create one"""
+    """
+    Matches a directory to a database sip by it's appended UUID, or path. If it
+    doesn't find one, it will create one.
+    """
     path = path.replace(config.get('MCPServer', "sharedDirectory"), "%sharedPath%", 1)
 
     # Find UUID on end of SIP path
@@ -123,7 +130,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
                 sip.currentpath = path
                 sip.save()
     else:
-        #Find it in the database
+        # Find it in the database
         sips = SIP.objects.filter(currentpath=path)
         count = sips.count()
         if count > 1:
@@ -134,11 +141,12 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
         else:
             logger.info('Not using existing SIP %s at %s', UUID, path)
 
-    #Create it
+    # Create it
     if not UUID:
         UUID = databaseFunctions.createSIP(path)
         logger.info('Creating SIP %s at %s', UUID, path)
     return UUID
+
 
 @log_exceptions
 @auto_close_db
@@ -171,6 +179,7 @@ def createUnitAndJobChain(path, config, terminate=False):
     if terminate:
         exit(0)
 
+
 def createUnitAndJobChainThreaded(path, config, terminate=True):
     global countOfCreateUnitAndJobChainThreaded
     try:
@@ -189,8 +198,12 @@ def createUnitAndJobChainThreaded(path, config, terminate=True):
     except Exception:
         logger.exception('Error creating threads to watch directories')
 
+
 def watchDirectories():
-    """Start watching the watched directories defined in the WatchedDirectories table in the database."""
+    """
+    Start watching the watched directories defined in the WatchedDirectories
+    table in the database.
+    """
     watched_dir_path = config.get('MCPServer', "watchDirectoryPath")
     interval = config.getint('MCPServer', "watchDirectoriesPollInterval")
 
@@ -223,8 +236,11 @@ def watchDirectories():
             interval=interval,
         )
 
+
 def signal_handler(signalReceived, frame):
-    """Used to handle the stop/kill command signals (SIGKILL)"""
+    """
+    Used to handle the stop/kill command signals (SIGKILL).
+    """
     logger.info('Recieved signal %s in frame %s', signalReceived, frame)
     global stopSignalReceived
     stopSignalReceived = True
@@ -243,10 +259,14 @@ def signal_handler(signalReceived, frame):
     sys.exit(0)
     exit(0)
 
+
 @log_exceptions
 @auto_close_db
 def debugMonitor():
-    """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
+    """
+    Periodically prints out status of MCP, including whether the database lock
+    is locked, thread count, etc.
+    """
     global countOfCreateUnitAndJobChainThreaded
     while True:
         dblockstatus = "SQL Lock: Locked"
@@ -259,6 +279,7 @@ def debugMonitor():
         logger.debug('Debug monitor: DB lock status: %s', dblockstatus)
         time.sleep(3600)
 
+
 @log_exceptions
 @auto_close_db
 def flushOutputs():
@@ -266,6 +287,7 @@ def flushOutputs():
         sys.stdout.flush()
         sys.stderr.flush()
         time.sleep(5)
+
 
 def cleanupOldDbEntriesOnNewRun():
     Job.objects.filter(currentstep='Awaiting decision').delete()
@@ -280,6 +302,7 @@ def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
     # Reference http://stackoverflow.com/a/16993115/2475775
     logger.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
     sys.__excepthook__(exc_type, exc_value, exc_traceback)
+
 
 LOGGING_CONFIG = {
     'version': 1,
@@ -318,6 +341,7 @@ LOGGING_CONFIG = {
         'level': 'WARNING',
     },
 }
+
 
 if __name__ == '__main__':
     logging.config.dictConfig(LOGGING_CONFIG)

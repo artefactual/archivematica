@@ -35,12 +35,12 @@ from django.template import RequestContext
 from elasticsearch import Elasticsearch, ElasticsearchException
 from lazy_paged_sequence import LazyPagedSequence
 
-from main import models
+from maindb import models
 from components.archival_storage import forms
 from components import advanced_search
 from components import decorators
 from components import helpers
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+
 import databaseFunctions
 import elasticSearchFunctions
 import storageService as storage_service

@@ -7,7 +7,7 @@ import sys
 
 # dashboard
 from django.db.models import Q
-from main import models
+from maindb import models
 
 # archivematicaCommon
 import archivesspace

@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
 import parse_mets_to_db
 
 import fpr
-from main import models
+from maindb import models
 
 class TestParseDublinCore(TestCase):
     """ Test parsing SIP-level DublinCore from a METS file into the DB. """

@@ -27,7 +27,7 @@ import sys
 import django
 django.setup()
 # dashboard
-from main.models import File, SIP
+from maindb.models import File, SIP
 
 # archivematicaCommon
 import archivematicaFunctions

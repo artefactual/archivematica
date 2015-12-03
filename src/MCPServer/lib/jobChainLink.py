@@ -20,8 +20,8 @@
 # @package Archivematica
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
+
 import logging
-import sys
 import uuid
 
 from utils import log_exceptions
@@ -36,16 +36,14 @@ from linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList import linkTaskMa
 from linkTaskManagerSetUnitVariable import linkTaskManagerSetUnitVariable
 from linkTaskManagerUnitVariableLinkPull import linkTaskManagerUnitVariableLinkPull
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
 from databaseFunctions import logJobCreatedSQL, getUTCDate
 
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode, TaskType
+from maindb.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode, TaskType
+
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
-# Constants
 constOneTask = TaskType.objects.get(description="one instance").pk
 constTaskForEachFile = TaskType.objects.get(description="for each file").pk
 constSelectPathTask = TaskType.objects.get(description="get user choice to proceed with").pk
@@ -56,6 +54,7 @@ constlinkTaskManagerGetMicroserviceGeneratedListInStdOut = TaskType.objects.get(
 constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList = TaskType.objects.get(description="Get user choice from microservice generated list").pk
 constlinkTaskManagerSetUnitVariable = TaskType.objects.get(description="linkTaskManagerSetUnitVariable").pk
 constlinkTaskManagerUnitVariableLinkPull = TaskType.objects.get(description="linkTaskManagerUnitVariableLinkPull").pk
+
 
 class jobChainLink:
     def __init__(self, jobChain, jobChainLinkPK, unit, passVar=None, subJobOf=""):

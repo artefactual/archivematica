@@ -1,5 +1,5 @@
 from django.db import models
-from main.models import UUIDPkField
+from maindb.models import UUIDPkField
 
 class ReplacementDict(models.Model):
     id = UUIDPkField()

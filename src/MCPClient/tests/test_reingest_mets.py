@@ -6,7 +6,7 @@ import sys
 
 from django.test import TestCase
 
-from main import models
+from maindb import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))

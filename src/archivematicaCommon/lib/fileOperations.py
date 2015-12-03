@@ -32,8 +32,7 @@ from databaseFunctions import insertIntoEvents
 import MySQLdb
 from archivematicaFunctions import unicodeToStr, get_setting
 
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import File, Transfer
+from maindb.models import File, Transfer
 
 def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID):
     fileSize = os.path.getsize(filePath)

@@ -12,7 +12,7 @@ import archivematicaXMLNamesSpace as ns
 import django
 django.setup()
 # dashboard
-from main import models
+from maindb import models
 from fpr import models as fpr_models
 
 # archivematicaCommon

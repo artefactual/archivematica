@@ -39,7 +39,7 @@ django.setup()
 # dashboard
 from django.contrib.auth.models import User
 from django.utils import timezone
-from main.models import Agent, Derivation, DublinCore, Event, File, FileID, FPCommandOutput, SIP, SIPArrange, Transfer
+from maindb.models import Agent, Derivation, DublinCore, Event, File, FileID, FPCommandOutput, SIP, SIPArrange, Transfer
 
 import archivematicaCreateMETSReingest
 from archivematicaCreateMETSMetadataCSV import parseMetadata

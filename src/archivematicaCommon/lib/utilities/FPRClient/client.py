@@ -7,15 +7,11 @@ from getFromRestAPI import each_record, FPRConnectionError
 
 from annoying.functions import get_object_or_None
 
-# Set up Django settings
-sys.path.append('/usr/share/archivematica/dashboard')
-if 'DJANGO_SETTINGS_MODULE' not in os.environ:
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 import django.db
 from django.conf import settings as django_settings
 
 from fpr import models
-import main.models
+import maindb.models
 
 
 class FPRClient(object):
@@ -29,14 +25,14 @@ class FPRClient(object):
         self.retry = {}
 
     def getMaxLastUpdate(self):
-        (last_updated, _) = main.models.UnitVariable.objects.get_or_create(
+        (last_updated, _) = maindb.models.UnitVariable.objects.get_or_create(
                 unittype='FPR', unituuid='Client', variable='maxLastUpdate',
                 defaults={'variablevalue': "2000-01-01T00:00:00"})
         self.maxLastUpdate = last_updated.variablevalue
         self.maxLastUpdateUUID = last_updated.id
 
     def setMaxLastUpdate(self):
-        main.models.UnitVariable.objects.filter(id=self.maxLastUpdateUUID).update(variablevalue=self.maxLastUpdate)
+        maindb.models.UnitVariable.objects.filter(id=self.maxLastUpdateUUID).update(variablevalue=self.maxLastUpdate)
 
     def addResource(self, fields, model):
         """ Add an object with data `fields` to the model `model`.  Adds to

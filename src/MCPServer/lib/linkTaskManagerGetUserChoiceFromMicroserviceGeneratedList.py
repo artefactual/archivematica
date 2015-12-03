@@ -21,24 +21,23 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-# Stdlib, alphabetical by import source
 import logging
 from lxml import etree
 import os
 import sys
 
-# This project,  alphabetical by import source
 from linkTaskManager import LinkTaskManager
 import archivematicaMCP
 from linkTaskManagerChoice import choicesAvailableForUnits
 from linkTaskManagerChoice import choicesAvailableForUnitsLock
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict, ChoicesDict
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import StandardTaskConfig
+
+from maindb.models import StandardTaskConfig
+
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
@@ -128,7 +127,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
         except KeyError:
             pass
         choicesAvailableForUnitsLock.release()
-        
+
         #get the one at index, and go with it.
         _, _, replace_dict = self.choices[int(index)]
         rd = ReplacementDict.fromstring(replace_dict)
