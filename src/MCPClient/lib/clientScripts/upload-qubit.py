@@ -30,8 +30,6 @@ import time
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
-logger = get_script_logger("archivematica.upload.qubit",
-                              logfile="/var/log/archivematica/MCPClient/atom_upload.log")
 
 # externals
 import requests
@@ -40,6 +38,10 @@ import django
 django.setup()
 # dashboard
 import main.models as models
+
+# moved after django.setup()
+logger = get_script_logger("archivematica.upload.qubit",
+                              logfile="/var/log/archivematica/MCPClient/atom_upload.log")
 
 PREFIX = "[uploadDIP]"
 
