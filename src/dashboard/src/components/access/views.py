@@ -3,7 +3,6 @@ import base64
 from functools import wraps
 import json
 import logging
-import sys
 import uuid
 
 # Django Core, alphabetical by import source
@@ -11,6 +10,8 @@ import django.http
 
 # External dependencies, alphabetical
 import MySQLdb  # for ATK exceptions
+from agentarchives.archivistsToolkit import ArchivistsToolkitError
+from agentarchives.archivesspace import ArchivesSpaceError, AuthenticationError
 
 # This project, alphabetical by import source
 from components import helpers
@@ -18,10 +19,6 @@ from components.ingest.views_atk import get_atk_system_client
 from components.ingest.views_as import get_as_system_client
 import components.filesystem_ajax.views as filesystem_views
 from main.models import SIPArrangeAccessMapping
-
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from archivistsToolkit.client import ArchivistsToolkitError
-from archivesspace.client import ArchivesSpaceError, AuthenticationError
 
 logger = logging.getLogger('archivematica.dashboard')
 
