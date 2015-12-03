@@ -20,42 +20,51 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import os
 import sys
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 
-logger = get_script_logger("archivematica.mcp.client.verifyBAG")
+logger = get_script_logger('archivematica.mcp.client.verifyBAG')
 
-printSubProcessOutput=True
+PRINT_SUBPROCESS_OUTPUT = True
+BAG = '/usr/share/bagit/bin/bag'
+BAG_INFO = 'bag-info.txt'
 
-bag = sys.argv[1]
-verificationCommands = []
-verificationCommands.append("/usr/share/bagit/bin/bag verifyvalid \"%s\"" % (bag)) #Verifies the validity of a bag.
-verificationCommands.append("/usr/share/bagit/bin/bag verifycomplete \"%s\"" % (bag)) #Verifies the completeness of a bag.
-verificationCommands.append("/usr/share/bagit/bin/bag verifypayloadmanifests \"%s\"" % (bag)) #Verifies the checksums in all payload manifests.
 
-bagInfoPath = os.path.join(bag, "bag-info.txt")
-if os.path.isfile(bagInfoPath):
-    for line in open(bagInfoPath,'r'):
-        if line.startswith("Payload-Oxum"):
-            verificationCommands.append("/usr/share/bagit/bin/bag checkpayloadoxum \"%s\"" % (bag)) #Generates Payload-Oxum and checks against Payload-Oxum in bag-info.txt.
+def verifyBAG(path):
+    bag_info = os.path.join(path, BAG_INFO)
+    verification_commands = (
+        '{} verifyvalid {}'.format(BAG, path),              # Verifies the validity of a bag
+        '{} verifycomplete {}'.format(BAG, path),           # Verifies the completeness of a bag
+        '{} verifypayloadmanifests {}'.format(BAG, path),   # Verifies the checksums in all payload manifests
+    )
+
+    if os.path.isfile(bag_info):
+        for line in open(bag_info, 'r'):
+            if line.startswith('Payload-Oxum'):
+                verification_commands.append('{} checkpayloadoxum {}'.format(BAG, path)) # Generates Payload-Oxum and checks against Payload-Oxum in bag-info.txt
+                break
+
+    for item in os.listdir(path):
+        if item.startswith('tagmanifest-') and item.endswith('.txt'):
+            verification_commands.append('{} verifytagmanifests {}'.format(BAG, path)) # Verifies the checksums in all tag manifests
             break
 
-for item in os.listdir(bag):
-    if item.startswith("tagmanifest-") and item.endswith(".txt"):        
-        verificationCommands.append("/usr/share/bagit/bin/bag verifytagmanifests \"%s\"" % (bag)) #Verifies the checksums in all tag manifests.
-        break
-        
-exitCode = 0
-for command in verificationCommands:
-    ret = executeOrRun("command", command, printing=printSubProcessOutput)
-    exit, stdOut, stdErr = ret
-    if exit != 0:
-        print >>sys.stderr, "Failed test: ", command
-        exitCode=1
-    else:
-        print >>sys.stderr, "Passed test: ", command
-quit(exitCode)
+    exit_code = 0
+    for command in verification_commands:
+        exit, stdout, stderr = executeOrRun('command', command, printing=PRINT_SUBPROCESS_OUTPUT)
+        if exit != 0:
+            print('Failed test:', command, file=sys.stderr)
+            exit_code = 1
+        else:
+            print('Passed test:', command, file=sys.stderr)
 
+    return exit_code
+
+
+if __name__ == '__main__':
+    sys.exit(verifyBAG(sys.argv[1]))

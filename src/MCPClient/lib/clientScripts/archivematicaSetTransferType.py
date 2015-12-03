@@ -35,4 +35,9 @@ if __name__ == '__main__':
     transferUUID = sys.argv[1]
     transferType = sys.argv[2]
 
-    Transfer.objects.filter(uuid=transferUUID).update(type=transferType)
+    transfer = Transfer.objects.get(uuid=transferUUID)
+    if transfer.type is not None:
+        sys.exit(0)
+
+    transfer.type = transferType
+    transfer.save()
