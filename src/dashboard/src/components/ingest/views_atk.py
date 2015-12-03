@@ -22,7 +22,7 @@ from main import models
 from components import advanced_search
 import pair_matcher
 
-from agentarchives.archivistsToolkit import ArchivistsToolkitClient
+from agentarchives.archivists_toolkit import ArchivistsToolkitClient
 
 def get_atk_system_client():
     dict = models.MicroServiceChoiceReplacementDic.objects.get(description='Archivists Toolkit Config')

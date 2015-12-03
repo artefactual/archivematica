@@ -10,7 +10,7 @@ import django.http
 
 # External dependencies, alphabetical
 import MySQLdb  # for ATK exceptions
-from agentarchives.archivistsToolkit import ArchivistsToolkitError
+from agentarchives.archivists_toolkit import ArchivistsToolkitError
 from agentarchives.archivesspace import ArchivesSpaceError, AuthenticationError
 
 # This project, alphabetical by import source
