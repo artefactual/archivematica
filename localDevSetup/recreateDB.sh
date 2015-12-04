@@ -63,6 +63,8 @@ mysql -u root "${dbpassword}" --execute="GRANT SELECT, UPDATE, INSERT, DELETE, C
 echo "Creating and populating MCP tables"
 # Set up initial DB state
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql;"
+# Run pre-syncdb scripts
+../src/MCPServer/share/mysql_dev_pre_django.sh ${databaseName} ${dbpassword}
 # Run Django's syncdb
 PYTHONPATH=/usr/lib/archivematica/archivematicaCommon:/usr/share/archivematica/dashboard ../src/dashboard/src/manage.py syncdb --noinput --settings='settings.local'
 # Run SQL dev scripts
