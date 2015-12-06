@@ -30,7 +30,7 @@
 #
 #For archivematica 0.9 release. Added integration with the transcoder.
 #The server will send the transcoder association pk, and file uuid to run.
-#The client is responsible for running the correct command on the file. 
+#The client is responsible for running the correct command on the file.
 
 import ConfigParser
 import cPickle
@@ -42,6 +42,48 @@ from socket import gethostname
 import sys
 import threading
 import traceback
+
+
+LOGGING_CONFIG = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'detailed': {
+            'format': '%(levelname)-8s  %(asctime)s  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+    },
+    'handlers': {
+        'logfile': {
+            'level': 'INFO',
+            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
+            'filename': '/var/log/archivematica/MCPClient/MCPClient.log',
+            'formatter': 'detailed',
+            'backupCount': 5,
+            'maxBytes': 4 * 1024 * 1024,  # 20 MiB
+        },
+        'verboselogfile': {
+            'level': 'DEBUG',
+            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
+            'filename': '/var/log/archivematica/MCPClient/MCPClient.debug.log',
+            'formatter': 'detailed',
+            'backupCount': 5,
+            'maxBytes': 4 * 1024 * 1024,  # 100 MiB
+        },
+    },
+    'loggers': {
+        'archivematica': {
+            'level': 'DEBUG',
+        },
+    },
+    'root': {
+        'handlers': ['logfile', 'verboselogfile'],
+        'level': 'WARNING',
+    }
+}
+
+logging.config.dictConfig(LOGGING_CONFIG)
+logger = logging.getLogger("archivematica.mcp.client")
 
 config = ConfigParser.SafeConfigParser(
     defaults={'django_settings_module': 'settings.common'})
@@ -63,8 +105,6 @@ import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 
 
-printOutputLock = threading.Lock()
-
 replacementDic = {
     "%sharedPath%": config.get('MCPClient', "sharedDirectoryMounted"),
     "%clientScriptsDirectory%": config.get('MCPClient', "clientScriptsDirectory")
@@ -75,7 +115,7 @@ def loadSupportedModulesSupport(key, value):
     for key2, value2 in replacementDic.iteritems():
         value = value.replace(key2, value2)
     if not os.path.isfile(value):
-        print >>sys.stderr, "Warning - Module can't find file, or relies on system path:{%s}%s" % (key.__str__(), value.__str__())
+        logger.error('Warning! Module can\'t find file, or relies on system path: {%s} %s', key, value)
     supportedModules[key] = value + " "
 
 def loadSupportedModules(file):
@@ -95,7 +135,7 @@ def loadSupportedModules(file):
 def executeCommand(gearman_worker, gearman_job):
     try:
         execute = gearman_job.task
-        print "executing:", execute, "{", gearman_job.unique, "}"
+        logger.info('Executing %s (%s)', execute, gearman_job.unique)
         data = cPickle.loads(gearman_job.data)
         utcDate = databaseFunctions.getUTCDate()
         arguments = data["arguments"]#.encode("utf-8")
@@ -143,24 +183,16 @@ Unable to determine if it completed successfully."""
 
         # Execute command
         command += " " + arguments
-        printOutputLock.acquire()
-        print "<processingCommand>{" + gearman_job.unique + "}" + command.__str__() + "</processingCommand>"
-        printOutputLock.release()
+        logger.info('<processingCommand>{%s}%s</processingCommand>', gearman_job.unique, command)
         exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=False, env_updates=env_updates)
         return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
     except OSError as ose:
-        traceback.print_exc(file=sys.stdout)
-        printOutputLock.acquire()
-        print >>sys.stderr, "Execution failed:", ose
-        printOutputLock.release()
+        logger.exception('Execution failed')
         output = ["Archivematica Client Error!", traceback.format_exc()]
         exitCode = 1
         return cPickle.dumps({"exitCode": exitCode, "stdOut": output[0], "stdError": output[1]})
     except Exception as e:
-        traceback.print_exc(file=sys.stdout)
-        printOutputLock.acquire()
-        print "Unexpected error:", e
-        printOutputLock.release()
+        logger.exception('Unexpected error')
         output = ["", traceback.format_exc()]
         return cPickle.dumps({"exitCode": -1, "stdOut": output[0], "stdError": output[1]})
 
@@ -172,11 +204,9 @@ def startThread(threadNumber):
     hostID = gethostname() + "_" + threadNumber.__str__()
     gm_worker.set_client_id(hostID)
     for key in supportedModules.iterkeys():
-        printOutputLock.acquire()
-        print 'registering:"{}"'.format(key)
-        printOutputLock.release()
+        logger.info('Registering: %s', key)
         gm_worker.register_task(key, executeCommand)
-            
+
     failMaxSleep = 30
     failSleep = 1
     failSleepIncrementor = 2
@@ -184,25 +214,14 @@ def startThread(threadNumber):
         try:
             gm_worker.work()
         except gearman.errors.ServerUnavailable as inst:
-            print >>sys.stderr, inst.args
-            print >>sys.stderr, "Retrying in %d seconds." % (failSleep)
+            logger.error('Gearman server is unavailable: %s. Retrying in %d seconds.', inst.args, failSleep)
             time.sleep(failSleep)
             if failSleep < failMaxSleep:
                 failSleep += failSleepIncrementor
 
 
-@auto_close_db
-def flushOutputs():
-    while True:
-        sys.stdout.flush()
-        sys.stderr.flush()
-        time.sleep(5)
-
 def startThreads(t=1):
-    """Start a processing thread for each core (t=0), or a specified number of threads.""" 
-    t2 = threading.Thread(target=flushOutputs)
-    t2.daemon = True
-    t2.start()
+    """Start a processing thread for each core (t=0), or a specified number of threads."""
     if t == 0:
         from externals.detectCores import detectCPUs
         t = detectCPUs()
@@ -211,47 +230,8 @@ def startThreads(t=1):
         t.daemon = True
         t.start()
 
-LOGGING_CONFIG = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'detailed': {
-            'format': '%(levelname)-8s  %(asctime)s  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s',
-            'datefmt': '%Y-%m-%d %H:%M:%S'
-        },
-    },
-    'handlers': {
-        'logfile': {
-            'level': 'INFO',
-            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
-            'filename': '/var/log/archivematica/MCPClient/MCPClient.log',
-            'formatter': 'detailed',
-            'backupCount': 5,
-            'maxBytes': 4 * 1024 * 1024,  # 20 MiB
-        },
-        'verboselogfile': {
-            'level': 'DEBUG',
-            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
-            'filename': '/var/log/archivematica/MCPClient/MCPClient.debug.log',
-            'formatter': 'detailed',
-            'backupCount': 5,
-            'maxBytes': 4 * 1024 * 1024,  # 100 MiB
-        },
-    },
-    'loggers': {
-        'archivematica': {
-            'level': 'DEBUG',
-        },
-    },
-    'root': {
-        'handlers': ['logfile', 'verboselogfile'],
-        'level': 'WARNING',
-    }
-}
-if __name__ == '__main__':
-    logging.config.dictConfig(LOGGING_CONFIG)
-    logger = logging.getLogger("archivematica.mcp.client")
 
+if __name__ == '__main__':
     try:
         loadSupportedModules(config.get('MCPClient', "archivematicaClientModules"))
         startThreads(config.getint('MCPClient', "numberOfTasks"))
