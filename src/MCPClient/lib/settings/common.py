@@ -15,21 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys, ConfigParser
 import django_mysqlpool
 
-# Get DB settings from main configuration file
-config = ConfigParser.SafeConfigParser()
-config.read('/etc/archivematica/archivematicaCommon/dbsettings')
+from ..config import settings
+
 
 DATABASES = {
     'default': {
         'ENGINE': 'django_mysqlpool.backends.mysqlpool',
-        'NAME': 'MCP',                                     # Or path to database file if using sqlite3.
-        'USER': config.get('client', 'user'),              # Not used with sqlite3.
-        'PASSWORD': config.get('client', 'password'),      # Not used with sqlite3.
-        'HOST': config.get('client', 'host'),              # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                                        # Set to empty string for default. Not used with sqlite3.
+        'NAME': settings.get('MCPClient', 'db_name'),
+        'USER': settings.get('MCPClient', 'db_user'),
+        'PASSWORD': settings.get('MCPClient', 'db_password'),
+        'HOST': settings.get('MCPClient', 'db_host'),
+        'PORT': settings.get('MCPClient', 'db_port'),
     }
 }
 
