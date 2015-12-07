@@ -25,7 +25,7 @@ form li>label {
     {% csrf_token %}
     <p>Package: {{ package_uuid }}</p>
     <div class='clearfix'>{{ form }}</div>
-    <a href="{% url 'archival_storage_index' %}" class='btn'>Cancel</a> <input class='btn primary' type="submit" value="Re-ingest Package" />
+    <a href="{% url 'archival_storage_index' %}" class='btn btn-default'>Cancel</a> <input class='btn primary' type="submit" value="Re-ingest Package" />
   </form>
 </div>
 {% endblock %}

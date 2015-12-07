@@ -20,11 +20,11 @@
   {% include "ingest/as/_search_form.html" %}
 
   {% if reset_url %}
-    <div id='reset_matching'><a class="btn" href="{% url reset_url uuid %}">Restart matching</a>
+    <div id='reset_matching'><a class="btn btn-default" href="{% url reset_url uuid %}">Restart matching</a>
   {% else %}
-    <div id='reset_matching'><a class="btn disabled">Restart matching</a>
+    <div id='reset_matching'><a class="btn btn-default disabled">Restart matching</a>
   {% endif %}
-  <a class="btn" href="{% url 'components.ingest.views_as.ingest_upload_as_review_matches' uuid %}">Review matches</a>
+  <a class="btn btn-default" href="{% url 'components.ingest.views_as.ingest_upload_as_review_matches' uuid %}">Review matches</a>
 
   <table>
     <thead>

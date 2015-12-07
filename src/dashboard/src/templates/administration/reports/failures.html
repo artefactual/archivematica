@@ -34,7 +34,7 @@
               <td><a href="{% url 'components.administration.views.failure_report' report.pk %}">{{ report.unitname }}</a></td>
               <td><a href="{% url 'components.administration.views.failure_report' report.pk %}">{{ report.unitidentifier }}</a></td>
               <td>
-                <a href="{% url 'components.administration.views.failure_report_delete' report.pk %}" class='btn'>Delete</a>
+                <a href="{% url 'components.administration.views.failure_report_delete' report.pk %}" class='btn btn-default'>Delete</a>
               </td>
             </tr>
             {% endfor %}

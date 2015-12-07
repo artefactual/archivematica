@@ -22,9 +22,9 @@
             <span title="{{ item.2 }}">{{ item.1 }}</attr>
           </td>
           <td>
-            <a class="btn" href="{% url "components.administration.views_processing.edit" item.1 %}">{% trans "Edit" %}</a>
+            <a class="btn btn-default" href="{% url "components.administration.views_processing.edit" item.1 %}">{% trans "Edit" %}</a>
             {% if item.1 != "default" %}
-              <a class="btn danger" href="{% url "components.administration.views_processing.delete" item.1 %}">{% trans "Delete" %}</a>
+              <a class="btn btn-danger" href="{% url "components.administration.views_processing.delete" item.1 %}">{% trans "Delete" %}</a>
             {% endif %}
           </td>
         </tr>
@@ -50,7 +50,7 @@
       {% endif %}
 
       <div class="form-stacked actions">
-        <a class="btn" href="{% url "components.administration.views_processing.edit" %}">{% trans "Add" %}</a>
+        <a class="btn btn-default" href="{% url "components.administration.views_processing.edit" %}">{% trans "Add" %}</a>
       </div>
 
     </div>

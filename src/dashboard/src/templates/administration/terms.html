@@ -32,13 +32,13 @@
 
       {% if page.has_other %}
       {% if page.has_previous %}
-      <a class='btn' href='/administration/taxonomy/terms/{{ taxonomy_uuid }}/?page={{ page.previous }}'>Previous Page</a>
+      <a class='btn btn-default' href='/administration/taxonomy/terms/{{ taxonomy_uuid }}/?page={{ page.previous }}'>Previous Page</a>
       {% endif %}
 
       {% if has_next and has_previous %}&nbsp;{% endif %}
 
       {% if page.has_next %}
-      <a class='btn' href='/administration/taxonomy/terms/{{ taxonomy_uuid }}/?page={{ page.next }}'>Next Page</a>
+      <a class='btn btn-default' href='/administration/taxonomy/terms/{{ taxonomy_uuid }}/?page={{ page.next }}'>Next Page</a>
       {% endif %}
       {% endif %}
     </div>

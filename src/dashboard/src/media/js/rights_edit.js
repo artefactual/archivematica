@@ -263,7 +263,7 @@ function appendRevealButton($list, dataType) {
     $list.last().hide();
 
     // make toggle button
-    var $toggleButton = $('<h3 class="btn" style="float:right">Create new ' + dataType + '?</h3>');
+    var $toggleButton = $('<h3 class="btn btn-default" style="float:right">Create new ' + dataType + '?</h3>');
 
     $toggleButton.click(function() {
       $toggleButton.fadeOut();
