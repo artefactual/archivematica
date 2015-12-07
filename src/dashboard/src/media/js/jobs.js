@@ -694,7 +694,7 @@ var BaseJobView = Backbone.View.extend({
           var $proxySelect = $select.clone();
 
           // display action selector in modal window
-          $('<div class="modal hide" id="big-choice-select-modal"><div class="modal-header"><button type="button" class="close" id="big-choice-select-close" data-dismiss="modal">×</button><h3>Select an action...</h3></div><div class="modal-body" id="big-choice-select-body"></div><div class="modal-footer"><a href="#" class="btn" data-dismiss="modal" id="big-choice-select-cancel">Cancel</a></div></div>')
+          $('<div class="modal hide" id="big-choice-select-modal"><div class="modal-header"><button type="button" class="close" id="big-choice-select-close" data-dismiss="modal">×</button><h3>Select an action...</h3></div><div class="modal-body" id="big-choice-select-body"></div><div class="modal-footer"><a href="#" class="btn btn-default" data-dismiss="modal" id="big-choice-select-cancel">Cancel</a></div></div>')
           .modal({show: true});
           $('#big-choice-select-body').append($proxySelect);
 

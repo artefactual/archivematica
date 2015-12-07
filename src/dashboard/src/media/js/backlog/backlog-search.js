@@ -3,12 +3,12 @@ $(document).ready(function()
     var search = renderBacklogSearchForm(null, null, null);
 
     function render_file_actions_col(relative_path, type, row_data) {
-      return '<a class="btn fa-download fa" target="_blank" href="' + '/filesystem/download_ss/?filepath=' +
+      return '<a class="btn btn-default fa-download fa" target="_blank" href="' + '/filesystem/download_ss/?filepath=' +
               Base64.encode('/originals/' + relative_path) + '">Download</a>';
     }
 
     function render_transfer_actions_col(uuid, type, row_data) {
-      return '<a class="btn" href="/backlog/download/' + uuid + '">Download</a>' +
+      return '<a class="btn btn-default" href="/backlog/download/' + uuid + '">Download</a>' +
              '<a href="/backlog/delete/' + uuid + '"><img title="Request deletion" \
              class="delete-icon" src="/media/images/delete.png"></a>';
     }

@@ -69,9 +69,9 @@
 
       <div class="actions" style="padding-left: 1em;">
         {% if section == 'ingest' %}
-          <a class="btn primary" href="{% url 'components.rights.views.ingest_rights_edit' uuid %}">Add</a>
+          <a class="btn btn-primary" href="{% url 'components.rights.views.ingest_rights_edit' uuid %}">Add</a>
         {% else %}
-          <a class="btn primary" href="{% url 'components.rights.views.transfer_rights_edit' uuid %}">Add</a>
+          <a class="btn btn-primary" href="{% url 'components.rights.views.transfer_rights_edit' uuid %}">Add</a>
         {% endif %}
       </div>
 

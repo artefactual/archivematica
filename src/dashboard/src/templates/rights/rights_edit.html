@@ -268,14 +268,14 @@
         </div>
 
         <div class="actions">
-          <button type="submit" class="btn primary">Save</button>
+          <button type="submit" class="btn btn-primary">Save</button>
 
-          <button type="submit" name='next_button' value='Next' class="btn primary">Next</button>
+          <button type="submit" name='next_button' value='Next' class="btn btn-primary">Next</button>
 
           {% if section == 'ingest' %}
-            <a href="{% url 'components.rights.views.ingest_rights_list' uuid %}" class="btn">Cancel</a>
+            <a href="{% url 'components.rights.views.ingest_rights_list' uuid %}" class="btn btn-default">Cancel</a>
           {% else %}
-             <a href="{% url 'components.rights.views.transfer_rights_list' uuid %}" class="btn">Cancel</a>
+             <a href="{% url 'components.rights.views.transfer_rights_list' uuid %}" class="btn btn-default">Cancel</a>
           {% endif %}
         </div>
 

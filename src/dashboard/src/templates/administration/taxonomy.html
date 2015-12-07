@@ -29,13 +29,13 @@
 
       {% if page.has_other_pages %}
       {% if page.has_previous %}
-      <a class='btn' href='{{ taxonomy_admin }}?page={{ page.previous_page_number }}'>Previous Page</a>
+      <a class='btn btn-default' href='{{ taxonomy_admin }}?page={{ page.previous_page_number }}'>Previous Page</a>
       {% endif %}
 
       {% if has_next and has_previous %}&nbsp;{% endif %}
 
       {% if page.has_next %}
-      <a class='btn' href='{{ taxonomy_admin }}?page={{ page.next }}'>Next Page</a>
+      <a class='btn btn-default' href='{{ taxonomy_admin }}?page={{ page.next }}'>Next Page</a>
       {% endif %}
       {% endif %}
 
