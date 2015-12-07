@@ -13,10 +13,14 @@ from custom_handlers import get_script_logger
 import elasticSearchFunctions
 import storageService as storage_service
 
+from config import settings
+
+
 def post_store_hook(sip_uuid):
     """
     Hook for doing any work after an AIP is stored successfully.
     """
+    client = elasticSearchFunctions.connect(settings.get_elasticsearch_hosts())
 
     # SIP ARRANGEMENT
 
@@ -41,7 +45,7 @@ def post_store_hook(sip_uuid):
                 user_email='archivematica system',
                 reason_for_deletion='All files in Transfer are now in AIPs.'
             )
-            elasticSearchFunctions.connect_and_remove_transfer_files(transfer_uuid)
+            elasticSearchFunctions.remove_transfer_files(client, transfer_uuid)
 
     # POST-STORE CALLBACK
     storage_service.post_store_aip_callback(sip_uuid)

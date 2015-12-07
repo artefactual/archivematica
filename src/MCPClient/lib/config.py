@@ -19,6 +19,10 @@ def _load_settings():
 settings = _load_settings()
 
 
+def get_elasticsearch_hosts():
+    return settings.get('MCPClient', 'elasticsearch_server', fallback='127.0.0.1:9200')
+
+
 LOGGING_CONFIG = {
     'version': 1,
     'disable_existing_loggers': False,

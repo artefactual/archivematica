@@ -45,7 +45,7 @@ logger = logging.getLogger('archivematica.dashboard')
       Transfer
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
-@decorators.elasticsearch_required()
+@decorators.elasticsearch()
 def grid(request):
     try:
         source_directories = storage_service.get_location(purpose="TS")

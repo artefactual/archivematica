@@ -15,6 +15,6 @@ logger = logging.getLogger('archivematica.dashboard')
       Appraisal
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
-@decorators.elasticsearch_required()
+@decorators.elasticsearch()
 def appraisal(request):
     return render(request, 'appraisal/appraisal.html')

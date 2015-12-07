@@ -27,6 +27,7 @@ from components import helpers
 
 from main import models
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from elasticsearch import ElasticsearchException, ImproperlyConfigured
 import elasticSearchFunctions
 
 # Try to update context instead of sending new params
@@ -41,19 +42,23 @@ def load_jobs(view):
         return view(request, uuid, *args, **kwargs)
     return inner
 
-# Requires ES server be running
-def elasticsearch_required():
+def elasticsearch():
+    """
+    Redirect the user to an error page when an exception realted to
+    Elasticsearch occurs.
+    """
     def decorator(func):
         def inner(request, *args, **kwargs):
-            elasticsearch_disabled = helpers.get_client_config_value('disableElasticsearchIndexing')
-            if elasticsearch_disabled:
+            try:
+                # TODO! Establish connection and share it with the view?
+                # kwargs['es_client'] = elasticSearchFunctions.connect('...')
                 return func(request, *args, **kwargs)
-            else:
-                status = elasticSearchFunctions.check_server_status()
-                if status == 'OK':
-                    return func(request, *args, **kwargs)
-                else:
-                    return render(request, 'elasticsearch_error.html', {'status': status})
+            except (ElasticsearchException, ImproperlyConfigured):
+                status = 'Elasticsearch operation failed'
+                return render(request, 'elasticsearch_error.html', {'status': status})
+            except elasticSearchFunctions.ElasticsearchError as e:
+                status = str(e)
+                return render(request, 'elasticsearch_error.html', {'status': status})
         return wraps(func)(inner)
     return decorator
 

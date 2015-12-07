@@ -40,7 +40,8 @@ def index_transfer(transfer_path, transfer_uuid):
     if not indexing_enabled:
         print('Skipping indexing because it is currently disabled.')
         return 0
-    return elasticSearchFunctions.connect_and_index_files('transfers', 'transferfile', transfer_uuid, transfer_path)
+    client = elasticSearchFunctions.connect(settings.get_elasticsearch_hosts())
+    return elasticSearchFunctions.index_files(client, 'transfers', 'transferfile', transfer_uuid, transfer_path)
 
 
 if __name__ == '__main__':

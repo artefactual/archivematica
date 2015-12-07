@@ -311,3 +311,6 @@ TEXTAREA_ATTRS           = {'rows': '4', 'class': 'span11'}
 TEXTAREA_WITH_HELP_ATTRS = {'rows': '4', 'class': 'span11 has_contextual_help'}
 INPUT_ATTRS              = {'class': 'span11'}
 INPUT_WITH_HELP_ATTRS    = {'class': 'span11 has_contextual_help'}
+
+ELASTICSEARCH_SERVER = os.environ.get('ARCHIVEMATICA_DASHBOARD_ELASTICSEARCH_SERVER')
+ELASTICSEARCH_INDEXING_ENABLED = os.environ.get('ARCHIVEMATICA_DASHBOARD_ELASTICSEARCH_INDEXING_ENABLED')

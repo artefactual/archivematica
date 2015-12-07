@@ -36,6 +36,8 @@ def index_aip():
         print('Skipping indexing because it is currently disabled.')
         return 0
 
+    client = elasticSearchFunctions.connect(settings.get_elasticsearch_hosts())
+
     print('SIP UUID:', sip_uuid)
     aip_info = storage_service.get_file_info(uuid=sip_uuid)
     print('AIP info:', aip_info)
@@ -63,11 +65,12 @@ def index_aip():
     print('Indexing AIP info')
     # Delete ES index before creating new one if reingesting
     if 'REIN' in sip_type:
-        elasticSearchFunctions.delete_aip(sip_uuid)
+        elasticSearchFunctions.delete_aip(client, sip_uuid)
         print('Deleted outdated entry for AIP with UUID', sip_uuid, ' from archival storage')
 
     # Index AIP
-    elasticSearchFunctions.connect_and_index_aip(
+    elasticSearchFunctions.index_aip(
+        client,
         sip_uuid,
         sip_name,
         aip_info['current_full_path'],
@@ -81,7 +84,8 @@ def index_aip():
     # Even though we treat MODS identifiers as SIP-level, we need to index them
     # here because the archival storage tab actually searches on the
     # aips/aipfile index.
-    exitCode = elasticSearchFunctions.connect_and_index_files(
+    exitCode = elasticSearchFunctions.index_files(
+        client,
         index='aips',
         type='aipfile',
         uuid=sip_uuid,

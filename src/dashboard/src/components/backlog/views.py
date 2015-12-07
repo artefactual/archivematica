@@ -18,6 +18,7 @@
 import logging
 import requests
 
+from django.conf import settings as django_settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404, HttpResponseRedirect
@@ -36,7 +37,7 @@ from components import helpers
 logger = logging.getLogger('archivematica.dashboard')
 
 
-def check_and_remove_deleted_transfers():
+def check_and_remove_deleted_transfers(es_client):
     """
     Check the storage service to see if transfers marked in ES as 'pending deletion' have been deleted yet. If so,
     remove the transfer and its files from ES. This is a bit of a kludge (that we do elsewhere e.g. in the storage tab),
@@ -44,8 +45,6 @@ def check_and_remove_deleted_transfers():
 
     :return: None
     """
-    conn = elasticSearchFunctions.connect_and_create_index('transfers')
-
     query = {
         'query': {
             'bool': {
@@ -58,7 +57,7 @@ def check_and_remove_deleted_transfers():
         }
     }
 
-    deletion_pending_results = conn.search(
+    deletion_pending_results = es_client.search(
         body=query,
         index='transfers',
         doc_type='transfer',
@@ -76,10 +75,11 @@ def check_and_remove_deleted_transfers():
             continue
 
         if status == 'DELETED':
-            elasticSearchFunctions.connect_and_remove_backlog_transfer_files(transfer_uuid)
-            elasticSearchFunctions.connect_and_remove_backlog_transfer(transfer_uuid)
+            elasticSearchFunctions.remove_backlog_transfer_files(es_client, transfer_uuid)
+            elasticSearchFunctions.remove_backlog_transfer(es_client, transfer_uuid)
 
 
+@decorators.elasticsearch()
 def execute(request):
     """
     Remove any deleted transfers from ES and render main backlog page.
@@ -87,7 +87,8 @@ def execute(request):
     :param request: The Django request object
     :return: The main backlog page rendered
     """
-    check_and_remove_deleted_transfers()
+    es_client = elasticSearchFunctions.connect(django_settings.ELASTICSEARCH_SERVER)
+    check_and_remove_deleted_transfers(es_client)
     return render(request, 'backlog/backlog.html', locals())
 
 
@@ -113,7 +114,7 @@ def get_es_property_from_column_index(index, file_mode):
     return table_columns[file_mode][index]
 
 
-@decorators.elasticsearch_required()
+@decorators.elasticsearch()
 def search(request):
     """
     A JSON end point that returns results for various backlog transfers and their files.
@@ -131,7 +132,7 @@ def search(request):
     order_by = get_es_property_from_column_index(int(request.GET.get('iSortCol_0', 0)), file_mode)
     sort_direction = request.GET.get('sSortDir_0', 'asc')
 
-    conn = elasticSearchFunctions.connect_and_create_index('transfers')
+    es_client = elasticSearchFunctions.connect(django_settings.ELASTICSEARCH_SERVER)
 
     if 'query' not in request.GET:
         queries, ops, fields, types = (['*'], ['or'], [''], ['term'])
@@ -141,8 +142,8 @@ def search(request):
     try:
         doc_type = 'transferfile' if file_mode else 'transfer'
 
-        hit_count = conn.search(index='transfers', doc_type=doc_type, body=query, search_type='count')['hits']['total']
-        hits = conn.search(
+        hit_count = es_client.search(index='transfers', doc_type=doc_type, body=query, search_type='count')['hits']['total']
+        hits = es_client.search(
             index='transfers',
             doc_type=doc_type,
             body=query,
@@ -178,6 +179,7 @@ def delete_context(request, uuid):
 
 
 @decorators.confirm_required('delete_request.html', delete_context)
+@decorators.elasticsearch()
 def delete(request, uuid):
     """
     Request deletion of a package from a backlog transfer
@@ -196,7 +198,8 @@ def delete(request, uuid):
         )
 
         messages.info(request, response['message'])
-        elasticSearchFunctions.connect_and_mark_backlog_deletion_requested(uuid)
+        es_client = elasticSearchFunctions.connect(django_settings.ELASTICSEARCH_SERVER)
+        elasticSearchFunctions.mark_backlog_deletion_requested(es_client, uuid)
 
     except requests.exceptions.ConnectionError:
         error_message = 'Unable to connect to storage server. Please contact your administrator.'
