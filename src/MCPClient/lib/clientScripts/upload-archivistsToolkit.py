@@ -22,7 +22,6 @@ from time import localtime, strftime
 import argparse
 import logging
 # archivematicaCommon
-import archivistsToolkit.atk as atk
 from custom_handlers import GroupWriteRotatingFileHandler
 from xml2obj import mets_file
 import MySQLdb
@@ -135,7 +134,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             
     global db
     global cursor
-    db = atk.connect_db(args.atdbhost, args.atdbport, args.atdbuser, args.atdbpass, args.atdb)
+    db = MySQLdb.connect(args.atdbhost, args.atdbuser, args.atdbpass, args.atdb, port=args.atdbport)
     cursor = db.cursor()
     
     #get a list of all the items in this collection
