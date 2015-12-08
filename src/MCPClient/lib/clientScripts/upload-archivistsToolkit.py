@@ -167,12 +167,6 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
                 if premis == 'publish':
                     use_restrictions = mets[uuid]['premis']['publish']['restriction']
                     use_rightsGrantedNote = mets[uuid]['premis']['publish']['rightsGrantedNote']
-        try:
-            container1 = file_name[44:47]
-            container2 = file_name[48:53]
-        except:
-            logger.error('file name does not have container ids in it')
-            exit(5)
         logger.debug ("determine restrictions")
         #determine restrictions
         if restrictions == 'no':
