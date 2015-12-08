@@ -14,6 +14,15 @@ body {
   overflow: visible;
 }
 
+.navbar-nav > li > a, .navbar-brand {
+    padding-top: 10px; 
+    padding-bottom: 0;
+    height: 40px;
+}
+.navbar {
+  min-height: 40px;
+}
+
 .topbar-inner {
   background-color: #222222;
   background-image: -khtml-gradient(linear, left top, left bottom, from(#333333), to(#222222));
