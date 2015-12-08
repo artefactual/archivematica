@@ -218,7 +218,7 @@ def get_space(access_protocol=None, path=None):
 ############# FILES #############
 
 def create_file(uuid, origin_location, origin_path, current_location,
-        current_path, package_type, size, update=False):
+        current_path, package_type, size, update=False, related_package_uuid=None):
     """ Creates a new file. Returns a tuple of (resulting dict, None) on success, (None, error) on failure.
 
     origin_location and current_location should be URIs for the storage service.
@@ -237,6 +237,7 @@ def create_file(uuid, origin_location, origin_path, current_location,
         'package_type': package_type,
         'size': size,
         'origin_pipeline': pipeline['resource_uri'],
+        'related_package_uuid': related_package_uuid
     }
 
     LOGGER.info("Creating file with {}".format(new_file))
