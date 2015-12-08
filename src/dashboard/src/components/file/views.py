@@ -5,6 +5,7 @@ import os
 import sys
 
 # Django Core, alphabetical by import source
+from django.conf import settings as django_settings
 from django.views.generic import View
 
 # External dependencies, alphabetical
@@ -32,7 +33,8 @@ class TransferFileTags(View):
         Returns a JSON-encoded list of the file's tags on success.
         """
         try:
-            tags = elasticSearchFunctions.connect_and_get_file_tags(fileuuid)
+            es_client = elasticSearchFunctions.connect(django_settings.ELASTICSEARCH_SERVER)
+            tags = elasticSearchFunctions.get_file_tags(es_client, fileuuid)
         except elasticSearchFunctions.ElasticsearchError as e:
             response = {
                 'success': False,
@@ -69,7 +71,8 @@ class TransferFileTags(View):
             return helpers.json_response(response, status_code=400)
 
         try:
-            elasticSearchFunctions.connect_and_set_file_tags(fileuuid, tags)
+            es_client = elasticSearchFunctions.connect(django_settings.ELASTICSEARCH_SERVER)
+            elasticSearchFunctions.set_file_tags(es_client, fileuuid, tags)
         except elasticSearchFunctions.ElasticsearchError as e:
             response = {
                 'success': False,
@@ -88,7 +91,8 @@ class TransferFileTags(View):
         Deletes all tags for the given file.
         """
         try:
-            elasticSearchFunctions.connect_and_set_file_tags(fileuuid, [])
+            es_client = elasticSearchFunctions.connect(django_settings.ELASTICSEARCH_SERVER)
+            elasticSearchFunctions.set_file_tags(es_client, fileuuid, [])
         except elasticSearchFunctions.ElasticsearchError as e:
             response = {
                 'success': False,
@@ -134,7 +138,8 @@ def bulk_extractor(request, fileuuid):
         return helpers.json_response(response, status_code=400)
 
     try:
-        record = elasticSearchFunctions.get_transfer_file_info('fileuuid', fileuuid)
+        es_client = elasticSearchFunctions.connect(django_settings.ELASTICSEARCH_SERVER)
+        record = elasticSearchFunctions.get_transfer_file_info(es_client, 'fileuuid', fileuuid)
     except elasticSearchFunctions.ElasticsearchError as e:
         message = str(e)
         response = {
@@ -189,7 +194,8 @@ def _parse_bulk_extractor_report(data):
 
 def file_details(request, fileuuid):
     try:
-        source = elasticSearchFunctions.get_transfer_file_info('fileuuid', fileuuid)
+        es_client = elasticSearchFunctions.connect(django_settings.ELASTICSEARCH_SERVER)
+        source = elasticSearchFunctions.get_transfer_file_info(es_client, 'fileuuid', fileuuid)
     except elasticSearchFunctions.ElasticsearchError as e:
         message = str(e)
         response = {

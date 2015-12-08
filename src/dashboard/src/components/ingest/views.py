@@ -64,7 +64,7 @@ logger = logging.getLogger('archivematica.dashboard')
       Ingest
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
-@decorators.elasticsearch_required()
+@decorators.elasticsearch()
 def ingest_grid(request):
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
@@ -510,14 +510,13 @@ def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_
     record_map[dir]['object_count'] += 1
 
 
-@decorators.elasticsearch_required()
+@decorators.elasticsearch()
 def transfer_backlog(request, ui):
     """
     AJAX endpoint to query for and return transfer backlog items.
     """
     # Get search parameters from request
     results = None
-    conn = elasticSearchFunctions.connect_and_create_index('transfers')
 
     if not 'query' in request.GET:
         query = elasticSearchFunctions.MATCH_ALL_QUERY
@@ -541,8 +540,9 @@ def transfer_backlog(request, ui):
 
     # perform search
     try:
+        es_client = elasticSearchFunctions.connect(django_settings.ELASTICSEARCH_SERVER)
         results = elasticSearchFunctions.search_all_results(
-            conn,
+            es_client,
             body=query,
             index='transfers',
             doc_type='transferfile',

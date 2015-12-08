@@ -25,9 +25,10 @@ import sys
 import tempfile
 import uuid
 
-import django.http
+from django.conf import settings as django_settings
 from django.db import connection, IntegrityError
 from django.db.models import Q
+import django.http
 import django.template.defaultfilters
 
 import requests
@@ -39,7 +40,6 @@ from main import models
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
 import databaseFunctions
-import elasticSearchFunctions
 import storageService as storage_service
 
 # for unciode sorting support

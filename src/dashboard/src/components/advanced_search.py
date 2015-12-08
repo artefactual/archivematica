@@ -20,7 +20,6 @@ import logging
 import sys
 
 import dateutil.parser
-from elasticsearch import Elasticsearch
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
@@ -166,7 +165,7 @@ def _normalize_date(date):
     except ValueError:
         raise ValueError("Invalid date received ({}); ignoring date query".format(date))
 
-def filter_search_fields(search_fields, index=None, doc_type=None):
+def filter_search_fields(es_client, search_fields, index=None, doc_type=None):
     """
     Given search fields which search nested documents with wildcards (such as "transferMetadata.*"), returns a list of subfields filtered to contain only string-type fields.
 
@@ -177,6 +176,7 @@ def filter_search_fields(search_fields, index=None, doc_type=None):
     Sample input and output, given a nested document containing three fields, "Bagging-Date" (date), "Bag-Name" (string), and "Bag-Type" (string):
     ["transferMetadata.*"] #=> ["transferMetadata.Bag-Name", "transferMetadata.Bag-Type"]
 
+    :param Elasticsearch es_client: Elasticsearch client
     :param list search_fields: A list of strings representing nested object names.
     :param str index: The name of the search index, used to look up the mapping document.
         If not provided, the original search_fields is returned unmodified.
@@ -194,8 +194,7 @@ def filter_search_fields(search_fields, index=None, doc_type=None):
             continue
         try:
             field_name = field.rsplit('.', 1)[0]
-            conn = elasticSearchFunctions.connect_and_create_index(index)
-            mapping = elasticSearchFunctions.get_type_mapping(conn, index, doc_type)
+            mapping = elasticSearchFunctions.get_type_mapping(es_client, index, doc_type)
             subfields = mapping[doc_type]['properties'][field_name]['properties']
         except KeyError:
             # The requested field doesn't exist in the index, so don't worry about validating subfields
@@ -237,11 +236,10 @@ def query_clause(index, queries, ops, fields, types, search_index=None, doc_type
             return
         return {'range': {fields[index]: {'gte': start, 'lte': end}}}
 
-def indexed_count(index, types=None, query=None):
+def indexed_count(es_client, index, types=None, query=None):
     if types is not None:
         types = ','.join(types)
     try:
-        conn = Elasticsearch(hosts=elasticSearchFunctions.getElasticsearchServerHostAndPort())
-        return conn.count(index=index, doc_type=types, body=query)['count']
+        return es_client.count(index=index, doc_type=types, body=query)['count']
     except:
         return 0

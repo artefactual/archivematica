@@ -20,7 +20,8 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Mike Cantelon <mike@artefactual.com>
-import ConfigParser
+
+from __future__ import print_function
 import sys
 
 # elasticSearchFunctions requires Django to be set up
@@ -30,34 +31,23 @@ django.setup()
 from custom_handlers import get_script_logger
 import elasticSearchFunctions
 
-exitCode = 0
+from config import settings
+
+
+def index_transfer(transfer_path, transfer_uuid):
+    # Check if Elasticsearch is enabled and exit otherwise
+    indexing_enabled = settings.getboolean('MCPClient', 'elasticsearch_indexing_enabled', fallback=True)
+    if not indexing_enabled:
+        print('Skipping indexing because it is currently disabled.')
+        return 0
+    client = elasticSearchFunctions.connect(settings.get_elasticsearch_hosts())
+    return elasticSearchFunctions.index_files(client, 'transfers', 'transferfile', transfer_uuid, transfer_path)
+
 
 if __name__ == '__main__':
-    logger = get_script_logger("archivematica.mcp.client.elasticSearchIndexProcessTransfer")
+    logger = get_script_logger('archivematica.mcp.client.elasticSearchIndexProcessTransfer')
 
-    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-    config = ConfigParser.SafeConfigParser()
-    config.read(clientConfigFilePath)
-
-    elasticsearchDisabled = False
-
-    try:
-        elasticsearchDisabled = config.getboolean('MCPClient', "disableElasticsearchIndexing")
-    except:
-        pass
-
-    if elasticsearchDisabled is True:
-        print 'Skipping indexing: indexing is currently disabled in ' + clientConfigFilePath + '.'
-
-    else:
-        pathToTransfer = sys.argv[1]
-        transferUUID = sys.argv[2]
-
-        exitCode = elasticSearchFunctions.connect_and_index_files(
-            'transfers',
-            'transferfile',
-            transferUUID,
-            pathToTransfer
-        )
-
-quit(exitCode)
+    sys.exit(main(
+        transfer_path=sys.argv[1],
+        transfer_uuid=sys.argv[2]
+    ))

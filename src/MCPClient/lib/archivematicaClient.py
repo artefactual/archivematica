@@ -30,232 +30,170 @@
 #
 #For archivematica 0.9 release. Added integration with the transcoder.
 #The server will send the transcoder association pk, and file uuid to run.
-#The client is responsible for running the correct command on the file. 
+#The client is responsible for running the correct command on the file.
 
-import ConfigParser
 import cPickle
-import gearman
 import logging
 import os
+import socket
 import time
-from socket import gethostname
 import sys
 import threading
 import traceback
 
-config = ConfigParser.SafeConfigParser(
-    defaults={'django_settings_module': 'settings.common'})
-config.read("/etc/archivematica/MCPClient/clientConfig.conf")
-
-os.environ['DJANGO_SETTINGS_MODULE'] = config.get('MCPClient', 'django_settings_module')
-sys.path.append("/usr/lib/archivematica/MCPClient")
+import gearman
 
 import django
-sys.path.append("/usr/share/archivematica/dashboard")
 django.setup()
-
 from main.models import Task
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
 from custom_handlers import GroupWriteRotatingFileHandler
+from externals.detectCores import detectCPUs
 import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 
+from .config import LOGGING_CONFIG, settings
+from .modules import replacement_dict, supported_modules
 
-printOutputLock = threading.Lock()
-
-replacementDic = {
-    "%sharedPath%": config.get('MCPClient', "sharedDirectoryMounted"),
-    "%clientScriptsDirectory%": config.get('MCPClient', "clientScriptsDirectory")
-}
-supportedModules = {}
-
-def loadSupportedModulesSupport(key, value):
-    for key2, value2 in replacementDic.iteritems():
-        value = value.replace(key2, value2)
-    if not os.path.isfile(value):
-        print >>sys.stderr, "Warning - Module can't find file, or relies on system path:{%s}%s" % (key.__str__(), value.__str__())
-    supportedModules[key] = value + " "
-
-def loadSupportedModules(file):
-    supportedModulesConfig = ConfigParser.RawConfigParser()
-    supportedModulesConfig.read(file)
-    for key, value in supportedModulesConfig.items('supportedCommands'):
-        loadSupportedModulesSupport(key, value)
-
-    loadSupportedCommandsSpecial = config.get('MCPClient', "LoadSupportedCommandsSpecial")
-    if loadSupportedCommandsSpecial.lower() == "yes" or \
-    loadSupportedCommandsSpecial.lower() == "true":
-        for key, value in supportedModulesConfig.items('supportedCommandsSpecial'):
-            loadSupportedModulesSupport(key, value)
+logging.config.dictConfig(LOGGING_CONFIG)
+logger = logging.getLogger('archivematica.mcp.client')
 
 
 @auto_close_db
-def executeCommand(gearman_worker, gearman_job):
+def execute_task(gearman_worker, gearman_job):
+    """
+    This is the function callback that processes the tasks assigned to this
+    worker. It should return a serialized dict (using cPickle) with the
+    following three fields: `exitCode`, `stdOut` and `stdError`.
+    """
     try:
         execute = gearman_job.task
-        print "executing:", execute, "{", gearman_job.unique, "}"
+        worker_id = gearman_worker.worker_client_id
+        date = databaseFunctions.getUTCDate()
         data = cPickle.loads(gearman_job.data)
-        utcDate = databaseFunctions.getUTCDate()
-        arguments = data["arguments"]#.encode("utf-8")
-        if isinstance(arguments, unicode):
-            arguments = arguments.encode("utf-8")
 
-        sInput = ""
-        clientID = gearman_worker.worker_client_id
+        logger.info('Executing %s (%s)', execute, gearman_job.unique)
+
+        # Extract arguments and ensure that they are encoded in utf-8
+        arguments = data['arguments']
+        if isinstance(arguments, unicode):
+            arguments = arguments.encode('utf-8')
 
         task = Task.objects.get(taskuuid=gearman_job.unique)
         if task.starttime is not None:
-            exitCode = -1
-            stdOut = ""
-            stdError = """Detected this task has already started!
-Unable to determine if it completed successfully."""
-            return cPickle.dumps({"exitCode" : exitCode, "stdOut": stdOut, "stdError": stdError})
-        else:
-            task.client = clientID
-            task.starttime = utcDate
-            task.save()
+            return cPickle.dumps({
+                'exitCode': -1,
+                'stdOut': '',
+                'stdError': 'Detected this task has already started! Unable to determine if it completed successfully.'
+            })
 
-        if execute not in supportedModules:
-            output = ["Error!", "Error! - Tried to run and unsupported command." ]
-            exitCode = -1
-            return cPickle.dumps({"exitCode" : exitCode, "stdOut": output[0], "stdError": output[1]})
-        command = supportedModules[execute]
+        # Update task
+        task.client = worker_id
+        task.starttime = date
+        task.save()
 
-        replacementDic["%date%"] = utcDate.isoformat()
-        replacementDic["%jobCreatedDate%"] = data["createdDate"]
+        # Exit if the module is not supported by this client
+        if execute not in supported_modules:
+            return cPickle.dumps({
+                'exitCode': -1,
+                'stdOut': 'Error!',
+                'stdError': 'Error! - Tried to run and unsupported command.'
+            })
+
+        command = supported_modules[execute]
+
         # Replace replacement strings
-        for key in replacementDic.iterkeys():
-            command = command.replace ( key, replacementDic[key] )
-            arguments = arguments.replace ( key, replacementDic[key] )
-
-        key = "%taskUUID%"
+        repdict = replacement_dict.copy()
+        repdict['%date%'] = date.isoformat()
+        repdict['%jobCreatedDate%'] = data['createdDate']
+        for key in repdict.iterkeys():
+            command = command.replace(key, repdict[key])
+            arguments = arguments.replace(key, repdict[key])
+        key = '%taskUUID%'
         value = gearman_job.unique.__str__()
         arguments = arguments.replace(key, value)
-
-        # Add useful environment vars for client scripts
-        lib_paths = ['/usr/share/archivematica/dashboard/', '/usr/lib/archivematica/archivematicaCommon']
-        env_updates = {
-            'PYTHONPATH': os.pathsep.join(lib_paths),
-            'DJANGO_SETTINGS_MODULE': config.get('MCPClient', 'django_settings_module')
-        }
+        command += '{} '.format(arguments)
 
         # Execute command
-        command += " " + arguments
-        printOutputLock.acquire()
-        print "<processingCommand>{" + gearman_job.unique + "}" + command.__str__() + "</processingCommand>"
-        printOutputLock.release()
-        exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=False, env_updates=env_updates)
-        return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
+        logger.info('<processingCommand>{%s}%s</processingCommand>', gearman_job.unique, command)
+        exitCode, stdOut, stdError = executeOrRun("command", command, stdIn='', printing=False)
+        return cPickle.dumps({
+            'exitCode': exitCode,
+            'stdOut': stdOut,
+            'stdError': stdError
+        })
+
     except OSError as ose:
-        traceback.print_exc(file=sys.stdout)
-        printOutputLock.acquire()
-        print >>sys.stderr, "Execution failed:", ose
-        printOutputLock.release()
-        output = ["Archivematica Client Error!", traceback.format_exc()]
-        exitCode = 1
-        return cPickle.dumps({"exitCode": exitCode, "stdOut": output[0], "stdError": output[1]})
+        logger.exception('Gearman task failed')
+        return cPickle.dumps({
+            'exitCode': 1,
+            'stdOut': 'Archivematica Client Error!',
+            'stdError': traceback.format_exc()
+        })
+
     except Exception as e:
-        traceback.print_exc(file=sys.stdout)
-        printOutputLock.acquire()
-        print "Unexpected error:", e
-        printOutputLock.release()
-        output = ["", traceback.format_exc()]
-        return cPickle.dumps({"exitCode": -1, "stdOut": output[0], "stdError": output[1]})
+        logger.exception('Gearman task failed (unexpected error)')
+        return cPickle.dumps({
+            'exitCode': -1,
+            'stdOut': '',
+            'stdError': traceback.format_exc()
+        })
 
 
 @auto_close_db
-def startThread(threadNumber):
-    """Setup a gearman client, for the thread."""
-    gm_worker = gearman.GearmanWorker([config.get('MCPClient', "MCPArchivematicaServer")])
-    hostID = gethostname() + "_" + threadNumber.__str__()
-    gm_worker.set_client_id(hostID)
-    for key in supportedModules.iterkeys():
-        printOutputLock.acquire()
-        print 'registering:"{}"'.format(key)
-        printOutputLock.release()
-        gm_worker.register_task(key, executeCommand)
-            
-    failMaxSleep = 30
-    failSleep = 1
-    failSleepIncrementor = 2
+def start_worker(worker_id):
+    """
+    Start a Gearman worker loop. If the Gearman server is unavailable this
+    function will retry more connection attempts with a delay between attempts
+    that starts with 1 second and increments 2 seconds each time. The function
+    gives up when the delay reaches 30 seconds.
+    """
+    worker = gearman.GearmanWorker([settings.get('MCPClient', 'server')])
+
+    host_id = '{}_{}'.format(socket.gethostname(), worker_id)
+    worker.set_client_id(host_id)
+
+    for key in supported_modules.iterkeys():
+        logger.info('Registering function %s', key)
+        worker.register_task(key, execute_task)
+
+    fail_sleep = 1
+    fail_sleep_inc = 2
+    fail_max_sleep = 30
     while True:
         try:
-            gm_worker.work()
+            # Loop indefinitely, complete tasks from all connections.
+            worker.work()
         except gearman.errors.ServerUnavailable as inst:
-            print >>sys.stderr, inst.args
-            print >>sys.stderr, "Retrying in %d seconds." % (failSleep)
-            time.sleep(failSleep)
-            if failSleep < failMaxSleep:
-                failSleep += failSleepIncrementor
+            logger.error('Gearman server is unavailable: %s. Retrying in %s seconds.', inst.args, fail_sleep)
+            time.sleep(fail_sleep)
+            if fail_sleep < fail_max_sleep:
+                fail_sleep += fail_sleep_inc
 
 
-@auto_close_db
-def flushOutputs():
-    while True:
-        sys.stdout.flush()
-        sys.stderr.flush()
-        time.sleep(5)
-
-def startThreads(t=1):
-    """Start a processing thread for each core (t=0), or a specified number of threads.""" 
-    t2 = threading.Thread(target=flushOutputs)
-    t2.daemon = True
-    t2.start()
-    if t == 0:
-        from externals.detectCores import detectCPUs
-        t = detectCPUs()
-    for i in range(t):
-        t = threading.Thread(target=startThread, args=(i+1, ))
+def start_workers():
+    """
+    Start daemonic threaded Gearman workers.
+    """
+    workers = 1
+    try:
+        workers = settings.getint('MCPClient', 'workers')
+    except:
+        pass
+    if workers == 0:
+        workers = detectCPUs()
+    for i in range(workers):
+        t = threading.Thread(target=start_worker, args=(i+1,))
         t.daemon = True
         t.start()
 
-LOGGING_CONFIG = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'detailed': {
-            'format': '%(levelname)-8s  %(asctime)s  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s',
-            'datefmt': '%Y-%m-%d %H:%M:%S'
-        },
-    },
-    'handlers': {
-        'logfile': {
-            'level': 'INFO',
-            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
-            'filename': '/var/log/archivematica/MCPClient/MCPClient.log',
-            'formatter': 'detailed',
-            'backupCount': 5,
-            'maxBytes': 4 * 1024 * 1024,  # 20 MiB
-        },
-        'verboselogfile': {
-            'level': 'DEBUG',
-            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
-            'filename': '/var/log/archivematica/MCPClient/MCPClient.debug.log',
-            'formatter': 'detailed',
-            'backupCount': 5,
-            'maxBytes': 4 * 1024 * 1024,  # 100 MiB
-        },
-    },
-    'loggers': {
-        'archivematica': {
-            'level': 'DEBUG',
-        },
-    },
-    'root': {
-        'handlers': ['logfile', 'verboselogfile'],
-        'level': 'WARNING',
-    }
-}
-if __name__ == '__main__':
-    logging.config.dictConfig(LOGGING_CONFIG)
-    logger = logging.getLogger("archivematica.mcp.client")
 
+if __name__ == '__main__':
     try:
-        loadSupportedModules(config.get('MCPClient', "archivematicaClientModules"))
-        startThreads(config.getint('MCPClient', "numberOfTasks"))
+        start_workers()
         while True:
             time.sleep(100)
     except (KeyboardInterrupt, SystemExit):
+        # TODO: clean up worker threads!
         logger.info('Received keyboard interrupt, quitting threads.')

@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-import ConfigParser
+
 import os
 import shutil
 import sys
@@ -7,6 +7,8 @@ import sys
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
+
+from config import settings
 
 
 def extract_aip(aip_path, extract_path):
@@ -24,7 +26,9 @@ def extract_aip(aip_path, extract_path):
 
 
 def verify_aip():
-    """ Verify the AIP was bagged correctly by extracting it and running verification on its contents.
+    """"
+    Verify the AIP was bagged correctly by extracting it and running
+    verification on its contents.
 
     sys.argv[1] = UUID
       UUID of the SIP, which will become the UUID of the AIP
@@ -35,10 +39,7 @@ def verify_aip():
     sip_uuid = sys.argv[1]  # %sip_uuid%
     aip_path = sys.argv[2]  # SIPDirectory%%sip_name%-%sip_uuid%.7z
 
-    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-    config = ConfigParser.SafeConfigParser()
-    config.read(clientConfigFilePath)
-    temp_dir = config.get('MCPClient', 'temp_dir')
+    temp_dir = settings.get('MCPClient', 'temp_dir', fallback='/var/archivematica/sharedDirectory/tmp')
 
     is_uncompressed_aip = os.path.isdir(aip_path)
 

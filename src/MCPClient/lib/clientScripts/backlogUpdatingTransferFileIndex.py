@@ -29,6 +29,7 @@ django.setup()
 from custom_handlers import get_script_logger
 import elasticSearchFunctions
 
+
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.backlogUpdatingTransferFileIndex")
 
@@ -37,5 +38,6 @@ if __name__ == '__main__':
     transferName = sys.argv[2]
     transferDirectory = sys.argv[3]
     print 'Processing ' + transferUUID + '...'
-    found = elasticSearchFunctions.connect_and_change_transfer_file_status(transferUUID, 'backlog') 
+    client = elasticSearchFunctions.connect(settings.get_elasticsearch_hosts())
+    found = elasticSearchFunctions.change_transfer_file_status(client, transferUUID, 'backlog')
     print 'Updated ' + str(found) + ' transfer file entries.'

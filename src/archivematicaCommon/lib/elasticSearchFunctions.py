@@ -47,7 +47,6 @@ LOGGER = logging.getLogger("archivematica.common")
 
 from elasticsearch import Elasticsearch, ConnectionError, TransportError
 
-pathToElasticSearchServerConfigFile='/etc/elasticsearch/elasticsearch.yml'
 MAX_QUERY_SIZE = 50000  # TODO Check that this is a reasonable number
 MATCH_ALL_QUERY = {
     "query": {
@@ -60,14 +59,27 @@ MACHINE_READABLE_FIELD_SPEC = {
     'index': 'not_analyzed'
 }
 
+
 class ElasticsearchError(Exception):
     pass
+
 
 class EmptySearchResultError(ElasticsearchError):
     pass
 
+
 class TooManyResultsError(ElasticsearchError):
     pass
+
+
+def connect(**kwargs):
+    """
+    TODO: We should try not to check the indexes this often.
+    """
+    client = Elasticsearch(**kwargs)
+    create_indexes_if_needed(client)
+    return client
+
 
 def remove_tool_output_from_mets(doc):
     """
@@ -92,23 +104,15 @@ def remove_tool_output_from_mets(doc):
 
     print "Removed FITS output from METS."
 
+
 def getDashboardUUID():
     try:
         return DashboardSetting.objects.get(name='dashboard_uuid').value
     except DashboardSetting.DoesNotExist:
         pass
 
-def getElasticsearchServerHostAndPort():
-    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-    config = ConfigParser.SafeConfigParser()
-    config.read(clientConfigFilePath)
 
-    try:
-        return config.get('MCPClient', "elasticsearchServer")
-    except:
-        return '127.0.0.1:9200'
-
-def wait_for_cluster_yellow_status(conn, wait_between_tries=10, max_tries=10):
+def wait_for_cluster_yellow_status(client, wait_between_tries=10, max_tries=10):
     health = {}
     health['status'] = None
     tries = 0
@@ -118,7 +122,7 @@ def wait_for_cluster_yellow_status(conn, wait_between_tries=10, max_tries=10):
         tries = tries + 1
 
         try:
-            health = conn.cluster.health()
+            health = client.cluster.health()
         except:
             print 'ERROR: failed health check.'
             health['status'] = None
@@ -128,30 +132,19 @@ def wait_for_cluster_yellow_status(conn, wait_between_tries=10, max_tries=10):
             print "Cluster not in yellow or green state... waiting to retry."
             time.sleep(wait_between_tries)
 
-def check_server_status_and_create_indexes_if_needed():
-    try:
-        conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
-        check_server_status(conn)
-    except:
-        return 'Connection error'
 
-    connect_and_create_index('aips')
-    connect_and_create_index('transfers')
+def create_indexes_if_needed(client):
+    create_index(client, 'aips')
+    create_index(client, 'transfers')
+    if not transfer_mapping_is_correct(client):
+        raise ElasticsearchError('The transfer index mapping is incorrect. The "transfers" index should be re-created.')
+    if not aip_mapping_is_correct(client):
+        raise ElasticsearchError('The AIP index mapping is incorrect. The "aips" index should be re-created.')
 
-    # make sure the mapping for the transfer index types looks OK
-    if not transfer_mapping_is_correct(conn):
-        return 'The transfer index mapping is incorrect. The "transfers" index should be re-created.'
 
-    # make sure the mapping for the aip index types looks OK
-    if not aip_mapping_is_correct(conn):
-        return 'The AIP index mapping is incorrect. The "aips" index should be re-created.'
-
-    # no error!
-    return 'OK'
-
-def search_all_results(conn, body, index=None, doc_type=None, **query_params):
+def search_all_results(client, body, index=None, doc_type=None, **query_params):
     """
-    Performs conn.search with the size set to MAX_QUERY_SIZE.
+    Performs client.search with the size set to MAX_QUERY_SIZE.
 
     By default search_raw returns only 10 results.  Since we usually want all
     results, this is a wrapper that fetches MAX_QUERY_SIZE results and logs a
@@ -163,7 +156,7 @@ def search_all_results(conn, body, index=None, doc_type=None, **query_params):
     if isinstance(doc_type, list):
         doc_type = ','.join(doc_type)
 
-    results = conn.search(
+    results = client.search(
         body=body,
         index=index,
         doc_type=doc_type,
@@ -174,58 +167,44 @@ def search_all_results(conn, body, index=None, doc_type=None, **query_params):
         LOGGER.warning('Number of items in backlog (%s) exceeds maximum amount fetched (%s)', results['hits']['total'], MAX_QUERY_SIZE)
     return results
 
-def check_server_status(conn=None):
-    if conn is None:
-        conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
 
-    try:
-        conn.info()
-    except (ConnectionError, TransportError):
-        return 'Connection error'
+def get_type_mapping(client, index, type):
+    return client.indices.get_mapping(index, doc_type=type)[index]['mappings']
 
-    # no errors!
-    return 'OK'
 
-def get_type_mapping(conn, index, type):
-    return conn.indices.get_mapping(index, doc_type=type)[index]['mappings']
-
-def transfer_mapping_is_correct(conn):
+def transfer_mapping_is_correct(client):
     try:
         # mapping already created
-        mapping = get_type_mapping(conn, 'transfers', 'transferfile')
+        mapping = get_type_mapping(client, 'transfers', 'transferfile')
     except:
         # create mapping
-        set_up_mapping(conn, 'transfers')
-        mapping = get_type_mapping(conn, 'transfers', 'transferfile')
+        set_up_mapping(client, 'transfers')
+        mapping = get_type_mapping(client, 'transfers', 'transferfile')
 
     return mapping['transferfile']['properties']['accessionid']['index'] == 'not_analyzed'
 
-def aip_mapping_is_correct(conn):
+
+def aip_mapping_is_correct(client):
     try:
         # mapping already created
-        mapping = get_type_mapping(conn, 'aips', 'aipfile')
+        mapping = get_type_mapping(client, 'aips', 'aipfile')
     except:
         # create mapping
-        set_up_mapping(conn, 'aips')
-        mapping = get_type_mapping(conn, 'aips', 'aipfile')
+        set_up_mapping(client, 'aips')
+        mapping = get_type_mapping(client, 'aips', 'aipfile')
 
     return mapping['aipfile']['properties']['AIPUUID']['index'] == 'not_analyzed'
 
-# try up to three times to get a connection
-def connect_and_create_index(index, attempt=1):
-    if attempt <= 3:
-        conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
 
-        response = conn.indices.create(index, ignore=400)
-        if 'error' in response and 'IndexAlreadyExistsException' in response['error']:
-            return conn
+def create_index(client, index, attempt=1):
+    if attempt > 3:
+        return
+    response = client.indices.create(index, ignore=400)
+    if 'error' in response and 'IndexAlreadyExistsException' in response['error']:
+        return
+    set_up_mapping(client, index)
+    create_index(client, index, attempt + 1)
 
-        set_up_mapping(conn, index)
-        conn = connect_and_create_index(index, attempt + 1)
-    else:
-        conn = False
-
-    return conn
 
 def _sortable_string_field_specification(field_name):
     return {
@@ -239,7 +218,8 @@ def _sortable_string_field_specification(field_name):
         }
     }
 
-def set_up_mapping_aip_index(conn):
+
+def set_up_mapping_aip_index(client):
     mapping = {
         'name': _sortable_string_field_specification('name'),
         'size': {'type': 'double'},
@@ -249,7 +229,7 @@ def set_up_mapping_aip_index(conn):
     }
 
     LOGGER.info('Creating AIP mapping...')
-    conn.indices.put_mapping(
+    client.indices.put_mapping(
         doc_type='aip',
         body={'aip': {'date_detection': True, 'properties': mapping}},
         index='aips'
@@ -266,14 +246,15 @@ def set_up_mapping_aip_index(conn):
     }
 
     LOGGER.info('Creating AIP file mapping...')
-    conn.indices.put_mapping(
+    client.indices.put_mapping(
         doc_type='aipfile',
         body={'aipfile': {'date_detection': True, 'properties': mapping}},
         index='aips'
     )
     LOGGER.info('AIP file mapping created.')
 
-def set_up_mapping_transfer_index(conn):
+
+def set_up_mapping_transfer_index(client):
     transferfile_mapping = {
         'filename'     : {'type': 'string'},
         'relative_path': {'type': 'string'},
@@ -299,7 +280,7 @@ def set_up_mapping_transfer_index(conn):
     }
 
     LOGGER.info('Creating transfer file mapping...')
-    conn.indices.put_mapping(doc_type='transferfile', body={'transferfile': {'properties': transferfile_mapping}},
+    client.indices.put_mapping(doc_type='transferfile', body={'transferfile': {'properties': transferfile_mapping}},
                              index='transfers')
 
     LOGGER.info('Transfer file mapping created.')
@@ -314,20 +295,20 @@ def set_up_mapping_transfer_index(conn):
     }
 
     LOGGER.info('Creating transfer mapping...')
-    conn.indices.put_mapping(doc_type='transfer', body={'transfer': {'properties': transfer_mapping}},
+    client.indices.put_mapping(doc_type='transfer', body={'transfer': {'properties': transfer_mapping}},
                              index='transfers')
 
     LOGGER.info('Transfer mapping created.')
 
-def set_up_mapping(conn, index):
+
+def set_up_mapping(client, index):
     if index == 'transfers':
-        set_up_mapping_transfer_index(conn)
+        set_up_mapping_transfer_index(client)
     if index == 'aips':
-        set_up_mapping_aip_index(conn)
+        set_up_mapping_aip_index(client)
 
-def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_aic=None, identifiers=[]):
-    conn = connect_and_create_index('aips')
 
+def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=None, identifiers=[]):
     tree = ElementTree.parse(pathToMETS)
 
     # TODO add a conditional to toggle this
@@ -367,16 +348,17 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_a
         'identifiers': identifiers,
         'transferMetadata': _extract_transfer_metadata(root, nsmap),
     }
-    wait_for_cluster_yellow_status(conn)
-    try_to_index(conn, aipData, 'aips', 'aip')
+    wait_for_cluster_yellow_status(client)
+    try_to_index(client, aipData, 'aips', 'aip')
 
-def try_to_index(conn, data, index, doc_type, wait_between_tries=10, max_tries=10):
+
+def try_to_index(client, data, index, doc_type, wait_between_tries=10, max_tries=10):
     if max_tries < 1:
         raise ValueError("max_tries must be 1 or greater")
 
     for _ in xrange(0, max_tries):
         try:
-            return conn.index(body=data, index=index, doc_type=doc_type)
+            return client.index(body=data, index=index, doc_type=doc_type)
         except Exception as e:
             print "ERROR: error trying to index."
             print e
@@ -386,9 +368,8 @@ def try_to_index(conn, data, index, doc_type, wait_between_tries=10, max_tries=1
     # reraise the Elasticsearch exception to aid in debugging.
     raise
 
-def connect_and_get_aip_data(uuid):
-    conn = connect_and_create_index('aips')
 
+def get_aip_data(client, uuid):
     query = {
         "query": {
             "term": {
@@ -397,75 +378,64 @@ def connect_and_get_aip_data(uuid):
         }
     }
 
-    aips = conn.search(
+    aips = client.search(
         body=query,
         index='aips',
         fields='uuid,name,filePath,size,origin,created'
     )
     return aips['hits']['hits'][0]
 
-def connect_and_index_files(index, type, uuid, pathToArchive, identifiers=[], sipName=None):
 
-    exitCode = 0
+def index_files(client, index, type, uuid, pathToArchive, identifiers=[], sipName=None):
+    """
+    This function is only used in clientScripts/*, don't be surprise if we
+    print to stdout/stderr.
+    """
+    # make sure transfer files exist
+    if not os.path.exists(pathToArchive):
+        error_message = "Directory does not exist: " + pathToArchive
+        LOGGER.warning(error_message)
+        print >>sys.stderr, error_message
+        return 1
 
-    # make sure elasticsearch is installed
-    if (os.path.exists(pathToElasticSearchServerConfigFile)):
+    # use METS file if indexing an AIP
+    metsFilePath = os.path.join(pathToArchive, 'METS.' + uuid + '.xml')
 
-        clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-        config = ConfigParser.SafeConfigParser()
-        config.read(clientConfigFilePath)
+    # index AIP
+    if os.path.isfile(metsFilePath):
+        files_indexed = index_mets_file_metadata(
+            client,
+            uuid,
+            metsFilePath,
+            index,
+            type,
+            sipName,
+            identifiers=identifiers
+        )
 
-        # make sure transfer files exist
-        if (os.path.exists(pathToArchive)):
-            conn = connect_and_create_index(index)
-
-            # use METS file if indexing an AIP
-            metsFilePath = os.path.join(pathToArchive, 'METS.' + uuid + '.xml')
-
-            # index AIP
-            if os.path.isfile(metsFilePath):
-                files_indexed = index_mets_file_metadata(
-                    conn,
-                    uuid,
-                    metsFilePath,
-                    index,
-                    type,
-                    sipName,
-                    identifiers=identifiers
-                )
-
-            # index transfer
-            else:
-                files_indexed = index_transfer_files(
-                    conn,
-                    uuid,
-                    pathToArchive,
-                    index,
-                    type
-                )
-
-                index_transfer(conn, uuid, files_indexed)
-
-            print type + ' UUID: ' + uuid
-            print 'Files indexed: ' + str(files_indexed)
-
-        else:
-            error_message = "Directory does not exist: " + pathToArchive
-            LOGGER.warning(error_message)
-            print >>sys.stderr, error_message
-            exitCode = 1
+    # index transfer
     else:
-        print >>sys.stderr, "Elasticsearch not found, normally installed at ", pathToElasticSearchServerConfigFile
-        exitCode = 1
+        files_indexed = index_transfer_files(
+            client,
+            uuid,
+            pathToArchive,
+            index,
+            type
+        )
 
-    return exitCode
+        index_transfer(client, uuid, files_indexed)
+
+    print type + ' UUID: ' + uuid
+    print 'Files indexed: ' + str(files_indexed)
+    return 0
+
 
 def _extract_transfer_metadata(doc, nsmap):
     return [xmltodict.parse(ElementTree.tostring(el))['transfer_metadata']
             for el in doc.findall("m:amdSec/m:sourceMD/m:mdWrap/m:xmlData/transfer_metadata", namespaces=nsmap)]
 
-def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, identifiers=[]):
 
+def index_mets_file_metadata(client, uuid, metsFilePath, index, type, sipName, identifiers=[]):
     # parse XML
     tree = ElementTree.parse(metsFilePath)
     root = tree.getroot()
@@ -559,8 +529,8 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, ide
             indexData['fileExtension'] = fileExtension[1:].lower()
 
         # index data
-        wait_for_cluster_yellow_status(conn)
-        result = try_to_index(conn, indexData, index, type)
+        wait_for_cluster_yellow_status(client)
+        result = try_to_index(client, indexData, index, type)
 
         # Reset fileData['METS']['amdSec'], since it is updated in the loop
         # above. See http://stackoverflow.com/a/3975388 for explanation
@@ -570,10 +540,10 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, ide
 
     return len(files)
 
+
 # To avoid Elasticsearch schema collisions, if a dict value is itself a
 # dict then rename the dict key to differentiate it from similar instances
 # where the same key has a different value type.
-#
 def rename_dict_keys_with_child_dicts(data):
     new = {}
     for key in data:
@@ -590,6 +560,7 @@ def rename_dict_keys_with_child_dicts(data):
             new[key] = data[key]
     return new
 
+
 def rename_list_elements_if_they_are_dicts(data):
     for index, value in enumerate(data):
         if isinstance(value, list):
@@ -598,13 +569,13 @@ def rename_list_elements_if_they_are_dicts(data):
             data[index] = rename_dict_keys_with_child_dicts(value)
     return data
 
+
 # Because an XML document node may include one or more children, conversion
 # to a dict can result in the converted child being one of two types.
 # this causes problems in an Elasticsearch index as it expects consistant
 # types to be indexed.
 # The below function recurses a dict and if a dict's value is another dict,
 # it encases it in a list.
-#
 def normalize_dict_values(data):
     for key in data:
         if isinstance(data[key], dict):
@@ -613,6 +584,7 @@ def normalize_dict_values(data):
             data[key] = normalize_list_dict_elements(data[key])
     return data
 
+
 def normalize_list_dict_elements(data):
     for index, value in enumerate(data):
         if isinstance(value, list):
@@ -620,6 +592,7 @@ def normalize_list_dict_elements(data):
         elif isinstance(value, dict):
             data[index] =  normalize_dict_values(value)
     return data
+
 
 def _get_file_formats(f):
     formats = []
@@ -635,6 +608,7 @@ def _get_file_formats(f):
 
     return formats
 
+
 def _list_bulk_extractor_reports(transfer_path, file_uuid):
     reports = []
     log_path = os.path.join(transfer_path, 'logs', 'bulk-' + file_uuid)
@@ -649,11 +623,11 @@ def _list_bulk_extractor_reports(transfer_path, file_uuid):
     return reports
 
 
-def index_transfer(conn, uuid, file_count):
+def index_transfer(client, uuid, file_count):
     """
     Indexes transfer with UUID `uuid`
 
-    :param conn: The ElasticSearch connection.
+    :param client: The ElasticSearch client
     :param uuid: The UUID of the transfer we're indexing
     :param file_count: The number of files in this transfer
     :return: None
@@ -673,17 +647,17 @@ def index_transfer(conn, uuid, file_count):
         'pending_deletion': False,
     }
 
-    wait_for_cluster_yellow_status(conn)
-    try_to_index(conn, transfer_data, 'transfers', 'transfer')
+    wait_for_cluster_yellow_status(client)
+    try_to_index(client, transfer_data, 'transfers', 'transfer')
 
 
-def index_transfer_files(conn, uuid, pathToTransfer, index, type):
+def index_transfer_files(client, uuid, pathToTransfer, index, type):
     """
     Indexes files in the Transfer with UUID `uuid` at path `pathToTransfer`.
 
     Returns the number of files indexed.
 
-    conn: ElasticSearch connection - see connect_and_create_index
+    client: ElasticSearch client
     uuid: UUID of the Transfer in the DB
     pathToTransfer: path on disk, including the transfer directory and a
         trailing / but not including objects/
@@ -754,17 +728,18 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
                   'format'       : formats,
                 }
 
-                wait_for_cluster_yellow_status(conn)
-                try_to_index(conn, indexData, index, type)
+                wait_for_cluster_yellow_status(client)
+                try_to_index(client, indexData, index, type)
 
                 files_indexed = files_indexed + 1
             else:
                 print 'Skipping indexing {}'.format(relative_path)
 
     if files_indexed > 0:
-        conn.indices.refresh()
+        client.indices.refresh()
 
     return files_indexed
+
 
 def list_files_in_dir(path, filepaths=[]):
     # define entries
@@ -779,7 +754,8 @@ def list_files_in_dir(path, filepaths=[]):
     # return fully traversed data
     return filepaths
 
-def _document_ids_from_field_query(conn, index, doc_types, field, value):
+
+def _document_ids_from_field_query(client, index, doc_types, field, value):
     document_ids = []
 
     # Escape /'s with \\
@@ -792,7 +768,7 @@ def _document_ids_from_field_query(conn, index, doc_types, field, value):
         }
     }
     documents = search_all_results(
-        conn,
+        client,
         body=query,
         doc_type=doc_types
     )
@@ -802,7 +778,8 @@ def _document_ids_from_field_query(conn, index, doc_types, field, value):
 
     return document_ids
 
-def document_id_from_field_query(conn, index, doc_types, field, value):
+
+def document_id_from_field_query(client, index, doc_types, field, value):
     document_id = None
     query = {
         "query": {
@@ -812,7 +789,7 @@ def document_id_from_field_query(conn, index, doc_types, field, value):
         }
     }
     documents = search_all_results(
-        conn,
+        client,
         body=query,
         doc_type=doc_types
      )
@@ -820,13 +797,12 @@ def document_id_from_field_query(conn, index, doc_types, field, value):
         document_id = documents['hits']['hits'][0]['_id']
     return document_id
 
-def connect_and_change_transfer_file_status(uuid, status):
+
+def change_transfer_file_status(client, uuid, status):
     """ Update transfer sipuuid `uuid` to have status `status`.
 
     This applies to both 'transfer' and 'transferfile' doc types.
     """
-
-    conn = connect_and_create_index('transfers')
     doc = {
         "doc": {
             "status": status
@@ -834,9 +810,9 @@ def connect_and_change_transfer_file_status(uuid, status):
     }
 
     # Update the status of all transfer files with this SIP UUID
-    document_ids = _document_ids_from_field_query(conn, 'transfers', ['transferfile'], 'sipuuid', uuid)
+    document_ids = _document_ids_from_field_query(client, 'transfers', ['transferfile'], 'sipuuid', uuid)
     for doc_id in document_ids:
-        conn.update(
+        client.update(
             body=doc,
             index='transfers',
             doc_type='transferfile',
@@ -844,20 +820,20 @@ def connect_and_change_transfer_file_status(uuid, status):
         )
 
     # Also update the status of the corresponding transfer doc_type
-    doc_id = document_id_from_field_query(conn, 'transfers', ['transfer'], 'uuid', uuid)
-    conn.update(body=doc, index='transfers', doc_type='transfer', id=doc_id)
+    doc_id = document_id_from_field_query(client, 'transfers', ['transfer'], 'uuid', uuid)
+    client.update(body=doc, index='transfers', doc_type='transfer', id=doc_id)
 
     return len(document_ids)
 
 
-def connect_and_get_file_tags(uuid):
+def get_file_tags(client, uuid):
     """
     Retrieve the complete set of tags for the file with the fileuuid `uuid`.
     Returns a list of zero or more strings.
 
+    :param Elasticsearch client: Elasticsearch client
     :param str uuid: A file UUID.
     """
-    conn = connect_and_create_index('transfers')
     query = {
         'query': {
             "term": {
@@ -866,7 +842,7 @@ def connect_and_get_file_tags(uuid):
         }
     }
 
-    results = conn.search(
+    results = client.search(
         body=query,
         index='transfers',
         doc_type='transferfile',
@@ -885,16 +861,16 @@ def connect_and_get_file_tags(uuid):
     return result['fields']['tags']
 
 
-def connect_and_set_file_tags(uuid, tags):
+def set_file_tags(client, uuid, tags):
     """
     Updates the file(s) with the fileuuid `uuid` to the provided value(s).
 
+    :param Elasticsearch client: Elasticsearch client
     :param str uuid: A file UUID.
     :param list tags: A list of zero or more tags.
         Passing an empty list clears the file's tags.
     """
-    conn = connect_and_create_index('transfers')
-    document_ids = _document_ids_from_field_query(conn, 'transfers', ['transferfile'], 'fileuuid', uuid)
+    document_ids = _document_ids_from_field_query(client, 'transfers', ['transferfile'], 'fileuuid', uuid)
 
     count = len(document_ids)
     if count == 0:
@@ -907,7 +883,7 @@ def connect_and_set_file_tags(uuid, tags):
             'tags': tags,
         }
     }
-    conn.update(
+    client.update(
         body=doc,
         index='transfers',
         doc_type='transferfile',
@@ -916,13 +892,12 @@ def connect_and_set_file_tags(uuid, tags):
     return True
 
 
-def get_transfer_file_info(field, value):
+def get_transfer_file_info(client, field, value):
     """
     Get transferfile information from ElasticSearch with query field = value.
     """
     LOGGER.debug('get_transfer_file_info: field: %s, value: %s', field, value)
     results = {}
-    conn = connect_and_create_index('transfers')
     indicies = 'transfers'
     query = {
         "query": {
@@ -931,7 +906,7 @@ def get_transfer_file_info(field, value):
             }
         }
     }
-    documents = search_all_results(conn, body=query, index=indicies)
+    documents = search_all_results(client, body=query, index=indicies)
     result_count = len(documents['hits']['hits'])
     if result_count == 1:
         results = documents['hits']['hits'][0]['_source']
@@ -958,17 +933,19 @@ def get_transfer_file_info(field, value):
     return results
 
 
-def connect_and_remove_backlog_transfer(uuid):
-    return delete_matching_documents('transfers', 'transfer', 'uuid', uuid)
+def remove_backlog_transfer(client, uuid):
+    return delete_matching_documents(client, 'transfers', 'transfer', 'uuid', uuid)
 
 
-def connect_and_remove_backlog_transfer_files(uuid):
-    return connect_and_remove_transfer_files(uuid, 'transfer')
+def remove_backlog_transfer_files(client, uuid):
+    return remove_transfer_files(client, uuid, 'transfer')
 
-def connect_and_remove_sip_transfer_files(uuid):
-    return connect_and_remove_transfer_files(uuid, 'sip')
 
-def connect_and_remove_transfer_files(uuid, unit_type=None):
+def remove_sip_transfer_files(client, uuid):
+    return remove_transfer_files(client, uuid, 'sip')
+
+
+def remove_transfer_files(client, uuid, unit_type=None):
     if unit_type == 'transfer':
         transfers = {uuid}
     else:
@@ -976,40 +953,36 @@ def connect_and_remove_transfer_files(uuid, unit_type=None):
         transfers = {f[0] for f in File.objects.filter(condition).values_list('transfer_id')}
 
     if len(transfers) > 0:
-        conn = connect_and_create_index('transfers')
-
         for transfer in transfers:
-            files = _document_ids_from_field_query(conn, 'transfers', ['transferfile'], 'sipuuid', transfer)
+            files = _document_ids_from_field_query(client, 'transfers', ['transferfile'], 'sipuuid', transfer)
             if len(files) > 0:
                 for f in files:
-                    conn.delete('transfers', 'transferfile', f)
+                    client.delete('transfers', 'transferfile', f)
     else:
         if not unit_type:
             unit_type = 'transfer or SIP'
         LOGGER.warning("No transfers found for %s %s", unit_type, uuid)
 
-def delete_aip(uuid):
-    return delete_matching_documents('aips', 'aip', 'uuid', uuid)
 
-def connect_and_delete_aip_files(uuid):
-    return delete_matching_documents('aips', 'aipfile', 'AIPUUID', uuid)
+def delete_aip(client, uuid):
+    return delete_matching_documents(client, 'aips', 'aip', 'uuid', uuid)
 
-def delete_matching_documents(index, doc_type, field, value, **kwargs):
+
+def delete_aip_files(client, uuid):
+    return delete_matching_documents(client, 'aips', 'aipfile', 'AIPUUID', uuid)
+
+
+def delete_matching_documents(client, index, doc_type, field, value):
     """
     Deletes all documents in index & doc_type where field = value
 
+    :param Elasticsearch client: Elasticsearch client
     :param str index: Name of the index. E.g. 'aips'
     :param str doc_type: Document type in the index. E.g. 'aip'
     :param str field: Field to query when deleting. E.g. 'uuid'
     :param str value: Value of the field to query when deleting. E.g. 'cd0bb626-cf27-4ca3-8a77-f14496b66f04'
-    :param conn: Connection to Elasticsearch. Optional
     :return: True if succeeded on shards, false otherwise
     """
-    # open connection if one hasn't been provided
-    conn = kwargs.get('conn', None)
-    if not conn:
-        conn = connect_and_create_index(index)
-
     query = {
         "query": {
             "term": {
@@ -1018,7 +991,7 @@ def delete_matching_documents(index, doc_type, field, value, **kwargs):
         }
     }
     LOGGER.info('Deleting with query %s', query)
-    results = conn.delete_by_query(
+    results = client.delete_by_query(
         index=index,
         doc_type=doc_type,
         body=query
@@ -1029,15 +1002,14 @@ def delete_matching_documents(index, doc_type, field, value, **kwargs):
     return results['_indices'][index]['_shards']['successful'] == results['_indices'][index]['_shards']['total']
 
 
-def connect_and_update_field(uuid, index, doc_type, field, status):
-    conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
-    document_id = document_id_from_field_query(conn, index, [doc_type], 'uuid', uuid)
+def update_field(client, uuid, index, doc_type, field, status):
+    document_id = document_id_from_field_query(client, index, [doc_type], 'uuid', uuid)
 
     if document_id is None:
         LOGGER.error('Unable to find document with UUID {} in index {}'.format(uuid, index))
         return
 
-    conn.update(
+    client.update(
         body={
             'doc': {
                 field: status
@@ -1049,16 +1021,16 @@ def connect_and_update_field(uuid, index, doc_type, field, status):
     )
 
 
-def connect_and_mark_aip_deletion_requested(uuid):
-    connect_and_update_field(uuid, 'aips', 'aip', 'status', 'DEL_REQ')
+def mark_aip_deletion_requested(client, uuid):
+    update_field(client, uuid, 'aips', 'aip', 'status', 'DEL_REQ')
 
 
-def connect_and_mark_aip_stored(uuid):
-    connect_and_update_field(uuid, 'aips', 'aip', 'status', 'UPLOADED')
+def mark_aip_stored(client, uuid):
+    update_field(client, uuid, 'aips', 'aip', 'status', 'UPLOADED')
 
 
-def connect_and_mark_backlog_deletion_requested(uuid):
-    connect_and_update_field(uuid, 'transfers', 'transfer', 'pending_deletion', True)
+def mark_backlog_deletion_requested(client, uuid):
+    update_field(client, uuid, 'transfers', 'transfer', 'pending_deletion', True)
 
 
 def normalize_results_dict(d):
@@ -1069,6 +1041,7 @@ def normalize_results_dict(d):
     This normalizes the dict by replacing the arrays with their first value.
     """
     return {k: v[0] for k, v in d['fields'].iteritems()}
+
 
 def augment_raw_search_results(raw_results):
     """

@@ -26,6 +26,7 @@ import os, subprocess, sys
 from components import helpers
 import components.decorators as decorators
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from elasticsearch import ElasticsearchException, ImproperlyConfigured
 import elasticSearchFunctions
 from archivematicaFunctions import escape
 
@@ -64,11 +65,16 @@ def home(request):
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 def elasticsearch_login_check(request):
-    status = elasticSearchFunctions.check_server_status_and_create_indexes_if_needed()
-    if status == 'OK':
-        return redirect('django.contrib.auth.views.login')
-    else:
+    try:
+        es_client = elasticSearchFunctions.connect(django_settings.ELASTICSEARCH_SERVER)
+        status = elasticSearchFunctions.create_indexes_if_needed(es_client)
+    except (ElasticsearchException, ImproperlyConfigured):
+        status = 'Elasticsearch operation failed'
         return render(request, 'elasticsearch_error.html', {'status': status})
+    except elasticSearchFunctions.ElasticsearchError as e:
+        status = str(e)
+        return render(request, 'elasticsearch_error.html', {'status': status})
+    return redirect('django.contrib.auth.views.login')
 
 # TODO: hide removed elements
 def status(request):

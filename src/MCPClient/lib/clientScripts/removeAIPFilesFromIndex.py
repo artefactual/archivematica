@@ -29,10 +29,14 @@ django.setup()
 from custom_handlers import get_script_logger
 import elasticSearchFunctions
 
+from config import settings
+
+
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.removeAIPFilesFromIndex")
 
     AIPUUID = sys.argv[1]
     print 'Removing indexed files for AIP ' + AIPUUID + '...'
-    elasticSearchFunctions.connect_and_delete_aip_files(AIPUUID)
+    client = elasticSearchFunctions.connect(settings.get_elasticsearch_hosts())
+    elasticSearchFunctions.delete_aip_files(client, AIPUUID)
     print 'Done.'

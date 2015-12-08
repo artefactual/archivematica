@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
+
 from __future__ import print_function
 import argparse
-import ConfigParser
 import csv
 import errno
 import os
@@ -26,6 +26,9 @@ from custom_handlers import get_script_logger
 import databaseFunctions
 import fileOperations
 from dicts import ReplacementDict
+
+from config import settings
+
 
 # Return codes
 SUCCESS = 0
@@ -343,13 +346,7 @@ def main(opts):
     # TODO is this still needed, with the storage service?
     if 'thumbnail' in opts.purpose:
         thumbnail_filepath = cl.commandObject.output_location
-        clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-        config = ConfigParser.SafeConfigParser()
-        config.read(clientConfigFilePath)
-        try:
-            shared_path = config.get('MCPClient', 'sharedDirectoryMounted')
-        except:
-            shared_path = '/var/archivematica/sharedDirectory/'
+        shared_path = settings.get('MCPClient', 'shared_directory', fallback='/var/archivematica/sharedDirectory/')
         thumbnail_storage_dir = os.path.join(
             shared_path,
             'www',
