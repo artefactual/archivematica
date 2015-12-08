@@ -69,9 +69,6 @@ mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir
 ../src/MCPServer/share/mysql_dev.sh ${databaseName} ${dbpasswordraw}
 # mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_dev1;"
 
-echo "Creating MCP Views"
-mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql2Views;"
-
 dbpassword=""
 
 #set +o verbose #echo off
