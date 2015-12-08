@@ -17,11 +17,13 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="col-md-12">
+    <div class="col-md-9">
 
       {% url 'components.administration.views.atom_levels_of_description' as url_atom_levels_of_description %}
 
@@ -46,5 +48,7 @@
     </div>
 
   </div>
+
+</div>
 
 {% endblock %}

@@ -6,15 +6,17 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="col-md-12">
+    <div class="col-md-9">
 
       <h3>Users</h3>
 
-      <table>
+      <table class="table">
 
         <tr>
           <th>Username</th>
@@ -51,5 +53,7 @@
     </div>
 
   </div>
+
+</td>
 
 {% endblock %}
