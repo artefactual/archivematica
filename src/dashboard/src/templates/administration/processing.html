@@ -7,15 +7,17 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="col-md-12">
+    <div class="col-md-9">
 
       <h3>{% trans "Processing configuration" %}</h3>
 
-      <table>
+      <table class="table">
         {% for item in files %}
         <tr>
           <td>
@@ -56,5 +58,7 @@
     </div>
 
   </div>
+
+</span>
 
 {% endblock %}

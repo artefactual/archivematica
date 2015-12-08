@@ -7,18 +7,20 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="col-md-12">
+    <div class="col-md-9">
 
       <h3>{{ system_directory_description }} locations</h3>
 
       <div id="directories"></div>
 
       {% if locations %}
-        <table>
+        <table class="table">
         <thead>
           <tr>
             <th>Description</th>
@@ -40,5 +42,7 @@
     </div>
 
   </div>
+
+</div>
 
 {% endblock %}
