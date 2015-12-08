@@ -52,9 +52,11 @@
               <li class="{% active request url_administration %}"><a href="{{ url_administration }}">Administration</a></li>
 
               {% if user.is_authenticated %}
-                <li class="user dropdown" data-dropdown="dropdown">
-                  <a class="dropdown-toggle">{{ request.user }}</a>
-                  <ul class="dropdown-menu">
+                <li class="user dropdown">
+                  <a class="dropdown-toggle" data-toggle="dropdown" id="dropdownUser" aria-haspopup="true">
+                    {{ request.user }} <div class="caret"></div>
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownUser">
                     <li><a href="{% url 'components.accounts.views.edit' %}">Your profile</a></li>
                     <li class="divider"></li>
                     <li><a href="{% url 'django.contrib.auth.views.logout_then_login' %}">Log out</a></li>
