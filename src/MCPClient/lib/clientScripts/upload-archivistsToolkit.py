@@ -27,6 +27,8 @@ from xml2obj import mets_file
 import MySQLdb
 import databaseInterface
 
+from main.models import AtkDIPObjectResourcePairing
+
 #global variables
 db = None
 cursor = None
@@ -95,24 +97,12 @@ def get_files_from_dip(dip_location, dip_name, dip_uuid):
         exit(3)
 
 def get_pairs(dip_uuid):
-    pairs = dict()
-    #connect to archivematica db, make a set of pairs from pairs table
-   
-    sql = """SELECT fileUUID, resourceId, resourceComponentId from AtkDIPObjectResourcePairing where dipUUID = %s"""
-    c, sqlLock = databaseInterface.querySQL(sql, (dip_uuid,))
-    dbresult = c.fetchall()
-    for item in dbresult:
-        ids = dict()
-        ids['rid'] = item[1]
-        ids['rcid'] = item[2]
-        pairs[item[0]] =  ids
-    sqlLock.release()
-    return pairs
+    # make a set of pairs from pairs table
+    return {pair.fileuuid: {'rid': pair.resourceid, 'rcid': pair.resourceComponentId}
+            for pair in AtkDIPObjectResourcePairing.objects.filter(dipuuid=dip_uuid)}
 
 def delete_pairs(dip_uuid):
-    sql = """delete from AtkDIPObjectResourcePairing where dipUUID = %s"""
-    c, sqlLock = databaseInterface.querySQL(sql, (dip_uuid,))
-    sqlLock.release()
+    AtkDIPObjectResourcePairing.objects.filter(dipuuid=dip_uuid).delete()
       
 def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
     
