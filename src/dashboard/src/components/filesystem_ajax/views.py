@@ -510,23 +510,6 @@ def move_files_within_arrange(sourcepath, destination):
         raise ValueError('You cannot drag and drop onto a file.')
 
 
-def _find_uuid_of_transfer_in_originals_directory_using_path(transfer_path):
-    transfer_basename = transfer_path.replace(ORIGINAL_DIR, '').split('/')[1]
-
-    # use lookup path to cleanly find UUID
-    lookup_path = '%sharedPath%www/AIPsStore/transferBacklog/originals/' + transfer_basename + '/'
-    cursor = connection.cursor()
-    sql = 'SELECT unitUUID FROM transfersAndSIPs WHERE currentLocation=%s LIMIT 1'
-    cursor.execute(sql, (lookup_path, ))
-    possible_uuid_data = cursor.fetchone()
-
-    # if UUID valid in system found, remove it
-    if possible_uuid_data:
-        return possible_uuid_data[0]
-    else:
-        return None
-
-
 def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
     """ Fetches all the children of original_path from backlog_uuid and creates
     an identical tree in arrange_path.
