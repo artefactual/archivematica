@@ -29,7 +29,7 @@
           <div class="container-fluid">
 
             <a class="navbar-brand" href="{% url 'main.views.home' %}">
-              <img alt="Archivematica" src="../../media/images/logo_header.png"></a>
+              <img alt="Archivematica" src="{{ STATIC_URL }}images/logo_header.png"></a>
             </a>
 
             {% url 'main.views.home' as url_home %}
