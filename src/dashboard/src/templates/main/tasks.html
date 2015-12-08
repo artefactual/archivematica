@@ -6,7 +6,7 @@
 
 {% include "main/_tasks_pager.html" %}
 
-  <table>
+  <table class="table">
     <tbody>
       {% for item in objects %}
         <tr class="{% cycle 'odd' 'even' %}{% ifnotequal item.exitcode 0 %} exiterror{% endifnotequal %}">
