@@ -71,7 +71,6 @@ extractContents_v0.0 = %clientScriptsDirectory%extractContents.py
 extractMaildirAttachments_v0.0 = %clientScriptsDirectory%extractMaildirAttachments.py
 failedSIPCleanup_v1.0 = %clientScriptsDirectory%failedSIPCleanup.py
 fileToFolder_v1.0 = %clientScriptsDirectory%file_to_folder.py
-FITS_v0.0 = %clientScriptsDirectory%archivematicaFITS.py
 generateDIPFromAIPGenerateDIP_v0.0 = %clientScriptsDirectory%generateDIPFromAIPGenerateDIP.py
 getAipStorageLocations_v0.0 = %clientScriptsDirectory%getAipStorageLocations.py
 identifyDspaceMETSFiles_v0.0 = %clientScriptsDirectory%identifyDspaceMETSFiles.py
