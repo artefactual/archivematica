@@ -44,6 +44,26 @@ import threading
 import traceback
 
 
+config = ConfigParser.SafeConfigParser(
+    defaults={'django_settings_module': 'settings.common'})
+config.read("/etc/archivematica/MCPClient/clientConfig.conf")
+
+os.environ['DJANGO_SETTINGS_MODULE'] = config.get('MCPClient', 'django_settings_module')
+sys.path.append("/usr/lib/archivematica/MCPClient")
+
+import django
+sys.path.append("/usr/share/archivematica/dashboard")
+django.setup()
+
+from main.models import Task
+
+sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from django_mysqlpool import auto_close_db
+from custom_handlers import GroupWriteRotatingFileHandler
+import databaseFunctions
+from executeOrRunSubProcess import executeOrRun
+
+
 LOGGING_CONFIG = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -83,26 +103,7 @@ LOGGING_CONFIG = {
 }
 
 logging.config.dictConfig(LOGGING_CONFIG)
-logger = logging.getLogger("archivematica.mcp.client")
-
-config = ConfigParser.SafeConfigParser(
-    defaults={'django_settings_module': 'settings.common'})
-config.read("/etc/archivematica/MCPClient/clientConfig.conf")
-
-os.environ['DJANGO_SETTINGS_MODULE'] = config.get('MCPClient', 'django_settings_module')
-sys.path.append("/usr/lib/archivematica/MCPClient")
-
-import django
-sys.path.append("/usr/share/archivematica/dashboard")
-django.setup()
-
-from main.models import Task
-
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from django_mysqlpool import auto_close_db
-from custom_handlers import GroupWriteRotatingFileHandler
-import databaseFunctions
-from executeOrRunSubProcess import executeOrRun
+logger = logging.getLogger('archivematica.mcp.client')
 
 
 replacementDic = {
