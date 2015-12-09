@@ -17,23 +17,18 @@
 #
 
 import os
-import MySQLdb
-from time import localtime, strftime
 import argparse
 import logging
 # archivematicaCommon
 from custom_handlers import GroupWriteRotatingFileHandler
 from xml2obj import mets_file
-import MySQLdb
-import databaseInterface
 
 from main.models import AtkDIPObjectResourcePairing
 
+from agentarchives.atk import ArchivistsToolkitClient
+
 #global variables
-db = None
-cursor = None
-testMode =0 
-base_fv_id = 1
+testMode = 0
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('archivematica.mcp.client')
@@ -44,15 +39,6 @@ def recursive_file_gen(mydir):
     for root, dirs, files in os.walk(mydir):
         for file in files:
             yield os.path.join(root, file)
-
-def process_sql(str, values=()):
-    global cursor 
-    if testMode:
-        print str
-    else:
-        cursor.execute(str, values)
-        newID = cursor.lastrowid
-        return newID
 
 def get_user_input():
     print "Archivematica import to AT script"
@@ -124,29 +110,12 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             
     global db
     global cursor
-    db = MySQLdb.connect(args.atdbhost, args.atdbuser, args.atdbpass, args.atdb, port=args.atdbport)
-    cursor = db.cursor()
+    client = ArchivistsToolkitClient(args.atdbhost, args.atdbuser, args.atdbpass, args.atdb)
     
-    #get a list of all the items in this collection
-    #col = atk.collection_list(db, resource_id)
-    #logger.debug("got collection_list: {}".format(len(col)))
-    sql0 = "select max(fileVersionId) from FileVersions"
-    logger.info('sql0: ' + sql0)
-    cursor.execute(sql0)
-    data = cursor.fetchone()
-    if not data[0]:
-        newfVID = 1
-    else:
-        newfVID = int(data[0]) 
-    logger.info('base file version id found is ' + str(data[0]))
-    global base_fv_id 
-    base_fv_id = newfVID        
-
     pairs = get_pairs(dip_uuid)
     #TODO test to make sure we got some pairs
     
     for f in mylist:
-        base_fv_id+=1 
         logger.info( 'using ' + f)
         file_name = os.path.basename(f)
         logger.info('file_name is ' + file_name)
@@ -191,123 +160,20 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         if len(access_conditions) == 0 or restrictions == 'premis':
             if access_rightsGrantedNote:
                 access_conditions = access_rightsGrantedNote
-        
-        short_file_name = file_name[37:]
-        time_now = strftime("%Y-%m-%d %H:%M:%S", localtime())
-        file_uri = uri_prefix  + file_name
+
+        file_uri = uri_prefix + file_name
 
         if uuid in pairs:
-            is_resource = False
-            if pairs[uuid]['rcid'] > 0:
-                val = pairs[uuid]['rcid']
-                sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
-                          ResourcesComponents where resourcecomponentid = %s'''
-            else:
-                is_resource = True
-                val = pairs[uuid]['rid']
-                sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
-                          Resources where resourceid = %s'''
-                       
-            logger.debug('sql1:' + sql1) 
-            cursor.execute(sql1, (val,))
-            data = cursor.fetchone()
-            rcid = data[0]
-            dateBegin = data[1]
-            dateEnd = data[2]
-            dateExpression = data[3]
-            rc_title = data[4]
-            logger.debug("found rc_title " + rc_title + ":" + str(len(rc_title)) ) 
-            if (not rc_title or len(rc_title) == 0):
-                if (not dateExpression or len(dateExpression) == 0):
-                    if dateBegin == dateEnd:
-                        short_file_name = str(dateBegin)
-                    else:
-                        short_file_name = str(dateBegin) + '-' + str(dateEnd)
-                else:
-                    short_file_name = dateExpression
-            else:
-                short_file_name = rc_title
+            resource_id = pairs[uuid]['rcid'] if pairs[uuid]['rcid'] > 0 else pairs[uuid]['rid']
+            client.add_digital_object(resource_id,
+                                      uuid,
+                                      uri=file_uri,
+                                      restricted=restrictions_apply,
+                                      xlink_actuate=ead_actuate,
+                                      xlink_show=ead_show,
+                                      location_of_originals=dip_uuid,
+                                      inherit_dates=True)
 
-            logger.debug("dateExpression is : " + str(dateExpression) + str(len(dateExpression)))
-            logger.debug("dates are  " + str(dateBegin) + "-" + str(dateEnd))
-            logger.debug("short file name is " + str(short_file_name))
- 
-            sql2 = "select repositoryId from Repositories" 
-            logger.debug('sql2: ' + sql2)
-
-            cursor.execute(sql2)
-            data = cursor.fetchone()
-            repoId = data[0]
-            logger.debug('repoId: ' + str(repoId))
-            sql3 = " select max(archDescriptionInstancesId) from ArchDescriptionInstances"
-            logger.debug('sql3: ' + sql3) 
-            cursor.execute(sql3)
-            data = cursor.fetchone()
-            newaDID = int(data[0]) + 1
-
-            if is_resource:
-                sql4 = "insert into ArchDescriptionInstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceId) values (%s, 'digital', 'Digital object', %s)"
-            else:
-                sql4 = "insert into ArchDescriptionInstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceComponentId) values (%s, 'digital', 'Digital object', %s)"
-        
-            logger.debug('sql4:' + sql4)
-            adid = process_sql(sql4, (newaDID, rcid))
-            #added sanity checks in case date fields in original archival description were all empty
-            if len(dateExpression) == 0:
-                dateExpression = 'null'
-            if not dateBegin: 
-                dateBegin = 0
-            if not dateEnd:
-                dateEnd = 0
-   
-            sql5 = """INSERT INTO DigitalObjects                  
-               (`version`,`lastUpdated`,`created`,`lastUpdatedBy`,`createdBy`,`title`,
-                `dateExpression`,`dateBegin`,`dateEnd`,`languageCode`,`restrictionsApply`,
-                `eadDaoActuate`,`eadDaoShow`,`metsIdentifier`,`objectType`,`label`, 
-                `objectOrder`,`archDescriptionInstancesId`,`repositoryId`)
-               VALUES (1, %s, %s, %s, %s, %s, %s, %s, %s, 'English', %s, %s, %s, %s, %s,' ',  0, %s, %s)"""
-            logger.debug('sql5: ' + sql5)
-            doID = process_sql(sql5, (time_now, time_now, atuser, atuser, short_file_name,dateExpression, dateBegin, dateEnd, int(restrictions_apply), ead_actuate, ead_show,uuid, object_type, newaDID, repoId))
-            sql6 = """insert into FileVersions (fileVersionId, version, lastUpdated, created, lastUpdatedBy, createdBy, uri, useStatement, sequenceNumber, eadDaoActuate,eadDaoShow, digitalObjectId)
-                  values 
-               (%s, 1, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-            logger.debug('sql6: ' + sql6)
-            process_sql(sql6, (base_fv_id,time_now, time_now,atuser,atuser,file_uri,use_statement,0, ead_actuate,ead_show, doID))
-
-            #create notes
-            sql7 = " select max(archdescriptionrepeatingdataId) from ArchDescriptionRepeatingData"
-            logger.debug('sql7: ' + sql7) 
-            cursor.execute(sql7)
-            data = cursor.fetchone()
-       
-            #existence and location of originals note 
-            newadrd = int(data[0]) + 1
-            seq_num = 0
-            note_content = dip_uuid
-            logger.debug("about to run sql8")
-            sql8 = """insert into ArchDescriptionRepeatingData 
-                (archDescriptionRepeatingDataId, descriminator, version, lastUpdated, created, lastUpdatedBy ,createdBy, repeatingDataType, title, sequenceNumber,
-                eadIngestProblem, digitalObjectId, noteContent, notesEtcTypeId, basic, multiPart, internalOnly) values 
-                (%s, 'note', 0, %s, %s, %s, %s, 'Note', '', %s, '', %s, %s, %s, '', '', '')"""
-
-            logger.debug('sql8: ' + sql8)
-            adrd = process_sql(sql8, (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content, 13 ))
-        
-            #conditions governing access note
-            newadrd += 1
-            seq_num += 1
-            note_content = access_conditions
-        
-            adrd = process_sql(sql8, (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content, 8))
-         
-            #conditions governing use` note
-            newadrd += 1
-            seq_num += 1
-            note_content = use_conditions
-
-            adrd = process_sql(sql8, (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content, 9))
-   
-    process_sql("commit")
     delete_pairs(dip_uuid)
     logger.info("completed upload successfully")
     
