@@ -46,7 +46,6 @@ import components.decorators as decorators
 import components.helpers as helpers
 import storageService as storage_service
 
-sys.path.append('/usr/lib/archivematica/archivematicaCommon')
 from version import get_full_version
 
 
