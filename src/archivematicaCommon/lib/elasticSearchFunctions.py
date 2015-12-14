@@ -49,6 +49,7 @@ LOGGER = logging.getLogger("archivematica.common")
 
 from elasticsearch import Elasticsearch, ConnectionError, TransportError
 
+_CLIENT_CONFIG_PATH = '/etc/archivematica/MCPClient/clientConfig.conf'
 MAX_QUERY_SIZE = 50000  # TODO Check that this is a reasonable number
 MATCH_ALL_QUERY = {
     "query": {
@@ -105,9 +106,8 @@ def remove_tool_output_from_mets(doc):
     print "Removed FITS output from METS."
 
 def getElasticsearchServerHostAndPort():
-    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
     config = ConfigParser.SafeConfigParser()
-    config.read(clientConfigFilePath)
+    config.read(_CLIENT_CONFIG_PATH)
 
     try:
         return config.get('MCPClient', "elasticsearchServer")
@@ -415,9 +415,8 @@ def connect_and_index_files(index, type, uuid, pathToArchive, identifiers=[], si
 
     exitCode = 0
 
-    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
     config = ConfigParser.SafeConfigParser()
-    config.read(clientConfigFilePath)
+    config.read(_CLIENT_CONFIG_PATH)
 
     # make sure transfer files exist
     if (os.path.exists(pathToArchive)):
