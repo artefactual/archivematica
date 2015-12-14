@@ -35,9 +35,10 @@ from xml.etree import ElementTree
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from django.db.models import Q
-from main.models import DashboardSetting, File, Transfer
+from main.models import File, Transfer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
+from archivematicaFunctions import get_dashboard_uuid
 import version
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
@@ -91,12 +92,6 @@ def remove_tool_output_from_mets(doc):
         parent.clear()
 
     print "Removed FITS output from METS."
-
-def getDashboardUUID():
-    try:
-        return DashboardSetting.objects.get(name='dashboard_uuid').value
-    except DashboardSetting.DoesNotExist:
-        pass
 
 def getElasticsearchServerHostAndPort():
     clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
@@ -359,7 +354,7 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_a
         'filePath': filePath,
         'size': (size or os.path.getsize(filePath)) / float(1024) / float(1024),
         'mets': mets_data,
-        'origin': getDashboardUUID(),
+        'origin': get_dashboard_uuid(),
         'created': os.path.getmtime(pathToMETS),
         'AICID': aic_identifier,
         'isPartOf': is_part_of,
@@ -513,7 +508,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, ide
             'dmdSec': rename_dict_keys_with_child_dicts(normalize_dict_values(dmdSecData)),
             'amdSec': {},
         },
-        'origin': getDashboardUUID(),
+        'origin': get_dashboard_uuid(),
         'identifiers': identifiers,
         'transferMetadata': _extract_transfer_metadata(root, nsmap),
     }
@@ -707,7 +702,7 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
         accession_id = transfer_name = ''
 
     # Get dashboard UUID
-    dashboard_uuid = getDashboardUUID()
+    dashboard_uuid = get_dashboard_uuid()
 
     for filepath in list_files_in_dir(pathToTransfer):
         if os.path.isfile(filepath):

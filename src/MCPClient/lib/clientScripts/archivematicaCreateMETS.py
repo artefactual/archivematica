@@ -34,10 +34,9 @@ django.setup()
 from main.models import File
 
 # archivematicaCommon
-from archivematicaFunctions import escape
+from archivematicaFunctions import escape, get_dashboard_uuid
 from custom_handlers import get_script_logger
 from databaseFunctions import getAccessionNumberFromTransfer, getUTCDate
-from elasticSearchFunctions import getDashboardUUID
 
 
 def createMetsHdr(sip_uuid):
@@ -48,7 +47,7 @@ def createMetsHdr(sip_uuid):
                              TYPE="OTHER",
                              OTHERTYPE="SOFTWARE")
     name = etree.SubElement(agent, ns.metsBNS + "name")
-    name.text = getDashboardUUID()
+    name.text = get_dashboard_uuid()
     note = etree.SubElement(agent, ns.metsBNS + "note")
     note.text = "Archivematica dashboard UUID"
 

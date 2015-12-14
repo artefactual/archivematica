@@ -53,6 +53,8 @@ def get_setting(setting, default=''):
     except DashboardSetting.DoesNotExist:
         return default
 
+def get_dashboard_uuid():
+    return get_setting('dashboard_uuid', default=None)
 
 class OrderedListsDict(collections.OrderedDict):
     """

@@ -8,7 +8,7 @@ from main.models import ArchivesSpaceDIPObjectResourcePairing, File
 from fpr.models import FormatVersion
 
 # archivematicaCommon
-from elasticSearchFunctions import getDashboardUUID
+from archivematicaFunctions import get_dashboard_uuid
 from xml2obj import mets_file
 
 # Third party dependencies, alphabetical by import source
@@ -63,7 +63,7 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
     if not uri.endswith('/'):
         uri += '/'
     pairs = get_pairs(dip_uuid)
-    dashboard_uuid = getDashboardUUID()
+    dashboard_uuid = get_dashboard_uuid()
 
     # get mets object if needed
     mets = None
