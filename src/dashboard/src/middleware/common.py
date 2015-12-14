@@ -15,24 +15,53 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+import traceback
+
 from django.conf import settings
 from django.http import HttpResponseServerError
+from django.shortcuts import render
 from django.template.base import TemplateDoesNotExist
+
+import elasticsearch
+
 
 class AJAXSimpleExceptionResponseMiddleware:
     def process_exception(self, request, exception):
-        if settings.DEBUG:
-            if request.is_ajax():
-                import sys, traceback
-                (exc_type, exc_info, tb) = sys.exc_info()
-                response = "%s\n" % exc_type.__name__
-                response += "%s\n\n" % exc_info
-                response += "TRACEBACK:\n"
-                for tb in traceback.format_tb(tb):
-                    response += "%s\n" % tb
-                return HttpResponseServerError(response)
+        if not settings.DEBUG or not request.is_ajax():
+            return
+        (exc_type, exc_info, tb) = sys.exc_info()
+        response = "%s\n" % exc_type.__name__
+        response += "%s\n\n" % exc_info
+        response += "TRACEBACK:\n"
+        for tb in traceback.format_tb(tb):
+            response += "%s\n" % tb
+        return HttpResponseServerError(response)
+
 
 class SpecificExceptionErrorPageResponseMiddleware:
     def process_exception(self, request, exception):
         if settings.DEBUG and type(exception) == TemplateDoesNotExist:
-            return HttpResponseServerError('Missing template: ' + str(exception)) 
+            return HttpResponseServerError('Missing template: ' + str(exception))
+
+
+class ElasticsearchMiddleware:
+    """
+    Redirect the user to a friendly error page when an exception related to
+    Elasticsearch is detected.
+
+    The goal is to inform the user that the error is related to Elasticsearch
+    when they are running in production, as this seems to be a common problem,
+    mainly because users frequently experience Elasticsearch node crashes when
+    running them with not enough memory.
+    """
+    EXCEPTIONS = (
+        elasticsearch.ElasticsearchException,
+        elasticsearch.ImproperlyConfigured,
+    )
+
+    def process_exception(self, request, exception):
+        if settings.DEBUG:
+            return
+        if isinstance(exception, self.EXCEPTIONS):
+            return render(request, 'elasticsearch_error.html', {'exception_type': str(type(exception))})

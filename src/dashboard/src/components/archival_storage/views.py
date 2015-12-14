@@ -53,9 +53,9 @@ AIP_STATUS_DESCRIPTIONS = {
     'DEL_REQ':  'Deletion requested'
 }
 
-@decorators.elasticsearch_required()
 def overview(request):
     return list_display(request)
+
 
 def search(request):
     # FIXME there has to be a better way of handling checkboxes than parsing
@@ -96,10 +96,9 @@ def search(request):
     current_page_number = int(request.GET.get('page', 1))
 
     # perform search
-    conn = Elasticsearch(hosts=elasticSearchFunctions.getElasticsearchServerHostAndPort())
-
+    es_client = elasticSearchFunctions.get_client()
     results = None
-    query = advanced_search.assemble_query(queries, ops, fields, types, search_index='aips', doc_type='aipfile')
+    query = advanced_search.assemble_query(es_client, queries, ops, fields, types, search_index='aips', doc_type='aipfile')
     try:
         # use all results to pull transfer facets if not in file mode
         # pulling only one field (we don't need field data as we augment
@@ -114,7 +113,7 @@ def search(request):
             # for an attribute of an AIP, the aipfile must index that
             # information about their AIP in
             # elasticSearchFunctions.index_mets_file_metadata
-            results = conn.search(
+            results = es_client.search(
                 body=query,
                 index='aips',
                 doc_type='aipfile',
@@ -151,7 +150,7 @@ def search(request):
             :return: List of dicts for each entry with additional information
             """
             start = (page - 1) * page_size
-            results = conn.search(
+            results = es_client.search(
                 body=query,
                 from_=start,
                 size=page_size,
@@ -161,10 +160,10 @@ def search(request):
                 sort=sort,
             )
             if file_mode:
-                return search_augment_file_results(results)
+                return search_augment_file_results(es_client, results)
             else:
                 return search_augment_aip_results(results, uuid_file_counts)
-        count = conn.count(index=index, doc_type=doc_type, body={'query': query['query']})['count']
+        count = es_client.count(index=index, doc_type=doc_type, body={'query': query['query']})['count']
         results = LazyPagedSequence(es_pager, items_per_page, count)
 
     except ElasticsearchException:
@@ -219,7 +218,7 @@ def search_augment_aip_results(raw_results, counts):
 
     return modified_results
 
-def search_augment_file_results(raw_results):
+def search_augment_file_results(es_client, raw_results):
     modifiedResults = []
 
     for item in raw_results['hits']['hits']:
@@ -231,7 +230,7 @@ def search_augment_file_results(raw_results):
         # try to find AIP details in database
         try:
             # get AIP data from ElasticSearch
-            aip = elasticSearchFunctions.connect_and_get_aip_data(clone['AIPUUID'])
+            aip = elasticSearchFunctions.get_aip_data(es_client, clone['AIPUUID'])
 
             # augment result data
             clone['sipname'] = aip['fields']['name'][0]
@@ -266,8 +265,8 @@ def create_aic(request, *args, **kwargs):
                 }
             }
         }
-        conn = Elasticsearch(hosts=elasticSearchFunctions.getElasticsearchServerHostAndPort())
-        results = conn.search(
+        es_client = elasticSearchFunctions.get_client()
+        results = es_client.search(
             body=query,
             index='aips',
             doc_type='aip',
@@ -326,7 +325,8 @@ def aip_delete(request, uuid):
 
         messages.info(request, response['message'])
 
-        elasticSearchFunctions.connect_and_mark_aip_deletion_requested(uuid)
+        es_client = elasticSearchFunctions.get_client()
+        elasticSearchFunctions.mark_aip_deletion_requested(es_client, uuid)
 
     except requests.exceptions.ConnectionError:
         error_message = 'Unable to connect to storage server. Please contact your administrator.'
@@ -365,7 +365,8 @@ def aip_file_download(request, uuid):
 
     # get file's AIP's properties
     sipuuid      = helpers.get_file_sip_uuid(uuid)
-    aip          = elasticSearchFunctions.connect_and_get_aip_data(sipuuid)
+    es_client    = elasticSearchFunctions.get_client()
+    aip          = elasticSearchFunctions.get_aip_data(es_client, sipuuid)
     aip_filepath = aip['fields']['filePath'][0]
 
     # work out path components
@@ -450,11 +451,11 @@ def elasticsearch_query_excluding_aips_pending_deletion(uuid_field_name):
 
     return query
 
-def aip_file_count():
+def aip_file_count(es_client):
     query = elasticsearch_query_excluding_aips_pending_deletion('AIPUUID')
-    return advanced_search.indexed_count('aips', ['aipfile'], query)
+    return advanced_search.indexed_count(es_client, 'aips', ['aipfile'], query)
 
-def total_size_of_aips(conn):
+def total_size_of_aips(es_client):
     query = elasticsearch_query_excluding_aips_pending_deletion('uuid')
     query['fields'] = 'size'
     query['facets'] = {
@@ -465,7 +466,7 @@ def total_size_of_aips(conn):
         }
     }
 
-    results = conn.search(body=query, doc_type='aip', index='aips')
+    results = es_client.search(body=query, doc_type='aip', index='aips')
     # TODO handle the return object
     total_size = results['facets']['total']['total']
     total_size = '{0:.2f}'.format(total_size)
@@ -476,7 +477,8 @@ def list_display(request):
     logger.debug('Current page: %s', current_page_number)
 
     # get count of AIP files
-    aip_indexed_file_count = aip_file_count()
+    es_client = elasticSearchFunctions.get_client()
+    aip_indexed_file_count = aip_file_count(es_client)
 
     # get AIPs
     order_by = request.GET.get('order_by', 'name_unanalyzed')
@@ -489,8 +491,6 @@ def list_display(request):
 
     sort_specification = order_by + ':' + sort_direction
     sort_params = 'order_by=' + order_by + '&sort_by=' + sort_by
-
-    conn = elasticSearchFunctions.connect_and_create_index('aips')
 
     # get list of UUIDs of AIPs that are deleted or pending deletion
     aips_deleted_or_pending_deletion = []
@@ -505,7 +505,7 @@ def list_display(request):
             }
         }
     }
-    deleted_aip_results = conn.search(
+    deleted_aip_results = es_client.search(
         body=query,
         index='aips',
         doc_type='aip',
@@ -524,7 +524,7 @@ def list_display(request):
         :return: List of dicts for each entry, where keys and values have been cleaned up
         """
         start = (page - 1) * page_size
-        results = conn.search(
+        results = es_client.search(
             index='aips',
             doc_type='aip',
             body=elasticSearchFunctions.MATCH_ALL_QUERY,
@@ -539,7 +539,7 @@ def list_display(request):
         return [elasticSearchFunctions.normalize_results_dict(d) for d in results['hits']['hits']]
 
     items_per_page = 10
-    count = conn.count(index='aips', doc_type='aip', body=elasticSearchFunctions.MATCH_ALL_QUERY)['count']
+    count = es_client.count(index='aips', doc_type='aip', body=elasticSearchFunctions.MATCH_ALL_QUERY)['count']
     results = LazyPagedSequence(es_pager, page_size=items_per_page, length=count)
 
     # Paginate
@@ -568,11 +568,11 @@ def list_display(request):
             # storage server
             # TODO: handle this asynchronously
             if aip_status == 'DELETED':
-                elasticSearchFunctions.delete_aip(aip['uuid'])
-                elasticSearchFunctions.connect_and_delete_aip_files(aip['uuid'])
+                elasticSearchFunctions.delete_aip(es_client, aip['uuid'])
+                elasticSearchFunctions.delete_aip_files(es_client, aip['uuid'])
             elif aip_status != 'DEL_REQ':
                 # update the status in ElasticSearch for this AIP
-                elasticSearchFunctions.connect_and_mark_aip_stored(aip['uuid'])
+                elasticSearchFunctions.mark_aip_stored(es_client, aip['uuid'])
         else:
             aip_status = 'UPLOADED'
 
@@ -592,7 +592,7 @@ def list_display(request):
 
             aips.append(aip)
 
-    total_size = total_size_of_aips(conn)
+    total_size = total_size_of_aips(es_client)
 
     return render(request, 'archival_storage/archival_storage.html',
         {
@@ -606,9 +606,9 @@ def list_display(request):
 
 def document_json_response(document_id_modified, type):
     document_id = document_id_modified.replace('____', '-')
-    conn = httplib.HTTPConnection(elasticSearchFunctions.getElasticsearchServerHostAndPort())
-    conn.request("GET", "/aips/" + type + "/" + document_id)
-    response = conn.getresponse()
+    es_client = httplib.HTTPConnection(elasticSearchFunctions.get_host())
+    es_client.request("GET", "/aips/" + type + "/" + document_id)
+    response = es_client.getresponse()
     data = response.read()
     pretty_json = json.dumps(json.loads(data), sort_keys=True, indent=2)
     return HttpResponse(pretty_json, content_type='application/json')

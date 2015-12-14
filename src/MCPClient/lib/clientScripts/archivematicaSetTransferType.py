@@ -30,6 +30,7 @@ from main.models import Transfer
 # archivematicaCommon
 from custom_handlers import get_script_logger
 
+
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.setTransferType")
     transferUUID = sys.argv[1]

@@ -14,7 +14,7 @@ interactions:
     body: null
     headers: {}
     method: PUT
-    uri: http://localhost:9200/aips
+    uri: http://127.0.0.1:9200/aips
   response:
     body: {string: !!python/unicode '{"error":"IndexAlreadyExistsException[[aips]
         already exists]","status":400}'}
@@ -26,7 +26,7 @@ interactions:
     body: '{"query": {"term": {"uuid": "a1ee611a-a4f5-4ba9-b7ce-b92695746514"}}}'
     headers: {}
     method: DELETE
-    uri: http://localhost:9200/aips/aip/_query
+    uri: http://127.0.0.1:9200/aips/aip/_query
   response:
     body: {string: !!python/unicode '{"_indices":{"aips":{"_shards":{"total":1,"successful":1,"failed":0}}}}'}
     headers:

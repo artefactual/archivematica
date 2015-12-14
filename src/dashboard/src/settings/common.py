@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys, ConfigParser
+import os
+import ConfigParser
 
 path_of_this_file = os.path.abspath(os.path.dirname(__file__))
 
@@ -138,7 +139,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'middleware.common.AJAXSimpleExceptionResponseMiddleware',
     'installer.middleware.ConfigurationCheckMiddleware',
-    'middleware.common.SpecificExceptionErrorPageResponseMiddleware'
+    'middleware.common.SpecificExceptionErrorPageResponseMiddleware',
+    'middleware.common.ElasticsearchMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
@@ -261,7 +263,7 @@ LOGGING = {
 
 # login-related settings
 LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/elasticsearch'
+LOGIN_URL = '/administration/accounts/login/'
 LOGIN_EXEMPT_URLS  = [
   r'^administration/accounts/login',
   r'^api'

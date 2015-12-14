@@ -14,6 +14,7 @@ class WSGIEnvironment(WSGIHandler):
     def __call__(self, environ, start_response):
         self.update_environment(environ)
         django.setup()
+        self.setup_elasticsearch()
         if settings.DEBUG:
             self.enable_monitor()
         return super(WSGIEnvironment, self).__call__(environ, start_response)
@@ -30,6 +31,10 @@ class WSGIEnvironment(WSGIHandler):
 
     def enable_monitor(self):
         monitor.start()
+
+    def setup_elasticsearch(self):
+        import elasticSearchFunctions
+        elasticSearchFunctions.setup_reading_from_client_conf()
 
 
 application = WSGIEnvironment()

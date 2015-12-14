@@ -17,6 +17,7 @@
 
 import os
 
+
 def get_directory_size(path='.'):
     total_size = 0
     for dirpath, dirnames, filenames in os.walk(path):
@@ -24,6 +25,7 @@ def get_directory_size(path='.'):
             fp = os.path.join(dirpath, f)
             total_size += os.path.getsize(fp)
     return total_size
+
 
 def get_directory_name(directory, default=None):
     """
@@ -50,6 +52,7 @@ def get_directory_name(directory, default=None):
         return directory
     else:
         return default
+
 
 def get_directory_name_from_job(job):
     return get_directory_name(job.directory, default=job.sipuuid)

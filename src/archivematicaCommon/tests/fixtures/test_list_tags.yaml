@@ -3,7 +3,7 @@ interactions:
     body: null
     headers: {}
     method: PUT
-    uri: http://localhost:9200/transfers
+    uri: http://127.0.0.1:9200/transfers
   response:
     body: {string: !!python/unicode '{"error":"IndexAlreadyExistsException[[transfers]
         already exists]","status":400}'}
@@ -15,7 +15,7 @@ interactions:
     body: '{"query": {"term": {"fileuuid": "a410501b-64ac-4b81-92ca-efa9e815366d"}}}'
     headers: {}
     method: GET
-    uri: http://localhost:9200/transfers/transferfile/_search?fields=tags
+    uri: http://127.0.0.1:9200/transfers/transferfile/_search?fields=tags
   response:
     body: {string: !!python/unicode '{"took":4,"timed_out":false,"_shards":{"total":5,"successful":5,"failed":0},"hits":{"total":1,"max_score":1.6931472,"hits":[{"_index":"transfers","_type":"transferfile","_id":"AU9MJzaYgAJJz92ebm-j","_score":1.6931472,"fields":{"tags":["test1"]}}]}}'}
     headers:
