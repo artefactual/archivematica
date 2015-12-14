@@ -20,7 +20,6 @@ import logging
 import sys
 
 import dateutil.parser
-from elasticsearch import Elasticsearch
 
 import elasticSearchFunctions
 
@@ -106,7 +105,7 @@ def extract_url_search_params_from_request(request):
         pass
     return search_params
 
-def assemble_query(queries, ops, fields, types, search_index=None, doc_type=None, **kwargs):
+def assemble_query(es_client, queries, ops, fields, types, search_index=None, doc_type=None, **kwargs):
     must_haves     = kwargs.get('must_haves', [])
     filters        = kwargs.get('filters', {})
     should_haves   = []
@@ -115,7 +114,7 @@ def assemble_query(queries, ops, fields, types, search_index=None, doc_type=None
 
     for query in queries:
         if queries[index] != '':
-            clause = query_clause(index, queries, ops, fields, types, search_index=search_index, doc_type=doc_type)
+            clause = query_clause(es_client, index, queries, ops, fields, types, search_index=search_index, doc_type=doc_type)
             if clause:
                 if ops[index] == 'not':
                     must_not_haves.append(clause)
@@ -165,7 +164,7 @@ def _normalize_date(date):
     except ValueError:
         raise ValueError("Invalid date received ({}); ignoring date query".format(date))
 
-def filter_search_fields(search_fields, index=None, doc_type=None):
+def filter_search_fields(es_client, search_fields, index=None, doc_type=None):
     """
     Given search fields which search nested documents with wildcards (such as "transferMetadata.*"), returns a list of subfields filtered to contain only string-type fields.
 
@@ -176,6 +175,7 @@ def filter_search_fields(search_fields, index=None, doc_type=None):
     Sample input and output, given a nested document containing three fields, "Bagging-Date" (date), "Bag-Name" (string), and "Bag-Type" (string):
     ["transferMetadata.*"] #=> ["transferMetadata.Bag-Name", "transferMetadata.Bag-Type"]
 
+    :param Elasticsearch es_client: Elasticsearch client
     :param list search_fields: A list of strings representing nested object names.
     :param str index: The name of the search index, used to look up the mapping document.
         If not provided, the original search_fields is returned unmodified.
@@ -193,8 +193,7 @@ def filter_search_fields(search_fields, index=None, doc_type=None):
             continue
         try:
             field_name = field.rsplit('.', 1)[0]
-            conn = elasticSearchFunctions.connect_and_create_index(index)
-            mapping = elasticSearchFunctions.get_type_mapping(conn, index, doc_type)
+            mapping = elasticSearchFunctions.get_type_mapping(es_client, index, doc_type)
             subfields = mapping[doc_type]['properties'][field_name]['properties']
         except KeyError:
             # The requested field doesn't exist in the index, so don't worry about validating subfields
@@ -206,11 +205,11 @@ def filter_search_fields(search_fields, index=None, doc_type=None):
 
     return new_fields
 
-def query_clause(index, queries, ops, fields, types, search_index=None, doc_type=None):
+def query_clause(es_client, index, queries, ops, fields, types, search_index=None, doc_type=None):
     if fields[index] == '':
         search_fields = []
     else:
-        search_fields = filter_search_fields(_fix_object_fields([fields[index]]), index=search_index, doc_type=doc_type)
+        search_fields = filter_search_fields(es_client, _fix_object_fields([fields[index]]), index=search_index, doc_type=doc_type)
 
     if types[index] == 'term':
         # a blank term should be ignored because it prevents any results: you
@@ -236,11 +235,10 @@ def query_clause(index, queries, ops, fields, types, search_index=None, doc_type
             return
         return {'range': {fields[index]: {'gte': start, 'lte': end}}}
 
-def indexed_count(index, types=None, query=None):
+def indexed_count(es_client, index, types=None, query=None):
     if types is not None:
         types = ','.join(types)
     try:
-        conn = Elasticsearch(hosts=elasticSearchFunctions.getElasticsearchServerHostAndPort())
-        return conn.count(index=index, doc_type=types, body=query)['count']
+        return es_client.count(index=index, doc_type=types, body=query)['count']
     except:
         return 0

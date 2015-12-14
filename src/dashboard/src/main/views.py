@@ -15,22 +15,25 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import subprocess
+
 from django.conf import settings as django_settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import Http404, HttpResponse
+
 from contrib.mcp.client import MCPClient
 from main import models
 from lxml import etree
-import os, subprocess, sys
 from components import helpers
-import components.decorators as decorators
-import elasticSearchFunctions
 from archivematicaFunctions import escape
+
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Home
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
+
 
 def home(request):
     # clean up user's session-specific data
@@ -58,16 +61,11 @@ def home(request):
         redirectUrl = reverse('components.transfer.views.grid')
     return redirect(redirectUrl)
 
+
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Status
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
-def elasticsearch_login_check(request):
-    status = elasticSearchFunctions.check_server_status_and_create_indexes_if_needed()
-    if status == 'OK':
-        return redirect('django.contrib.auth.views.login')
-    else:
-        return render(request, 'elasticsearch_error.html', {'status': status})
 
 # TODO: hide removed elements
 def status(request):
@@ -82,9 +80,11 @@ def status(request):
 
     return helpers.json_response(response)
 
+
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Access
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
+
 
 def access_list(request):
     access = models.Access.objects.all()
@@ -99,23 +99,28 @@ def access_list(request):
             item.destination = item.resource
     return render(request, 'main/access.html', locals())
 
+
 def access_delete(request, id):
     access = get_object_or_404(models.Access, pk=id)
     access.delete()
     return redirect('main.views.access_list')
 
+
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Misc
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
+
 def forbidden(request):
     return render(request, 'forbidden.html')
+
 
 def task(request, uuid):
     task = models.Task.objects.get(taskuuid=uuid)
     task.duration = helpers.task_duration_in_seconds(task)
     objects = [task]
     return render(request, 'main/tasks.html', locals())
+
 
 def tasks(request, uuid):
     job = models.Job.objects.get(jobuuid=uuid)
@@ -142,6 +147,7 @@ def tasks(request, uuid):
 
     return render(request, 'main/tasks.html', locals())
 
+
 def tasks_subjobs(request, uuid):
     jobs = []
     possible_jobs = models.Job.objects.filter(subjobof=uuid)
@@ -157,6 +163,7 @@ def tasks_subjobs(request, uuid):
     else:
         return render(request, 'main/tasks_subjobs.html', locals())
 
+
 def jobs_list_objects(request, uuid):
     response = []
     job = models.Job.objects.get(jobuuid=uuid)
@@ -167,6 +174,7 @@ def jobs_list_objects(request, uuid):
             response.append(os.path.join(directory, name))
 
     return helpers.json_response(response)
+
 
 def jobs_explore(request, uuid):
     # Database query
@@ -225,8 +233,10 @@ def jobs_explore(request, uuid):
 
     return helpers.json_response(response)
 
+
 def formdata_delete(request, type, parent_id, delete_id):
   return formdata(request, type, parent_id, delete_id)
+
 
 def formdata(request, type, parent_id, delete_id = None):
     model    = None

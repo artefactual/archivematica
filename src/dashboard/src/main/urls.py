@@ -26,9 +26,6 @@ urlpatterns = patterns('',
     # Forbidden
     url(r'forbidden/$', views.forbidden),
 
-    # Elasticsearch check
-    url(r'elasticsearch/$', views.elasticsearch_login_check),
-
     # Jobs and tasks (is part of ingest)
     url(r'jobs/(?P<uuid>' + settings.UUID_REGEX + ')/explore/$', views.jobs_explore),
     url(r'jobs/(?P<uuid>' + settings.UUID_REGEX + ')/list-objects/$', views.jobs_list_objects),
