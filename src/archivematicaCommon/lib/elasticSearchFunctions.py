@@ -49,7 +49,6 @@ LOGGER = logging.getLogger("archivematica.common")
 
 from elasticsearch import Elasticsearch, ConnectionError, TransportError
 
-pathToElasticSearchServerConfigFile='/etc/elasticsearch/elasticsearch.yml'
 MAX_QUERY_SIZE = 50000  # TODO Check that this is a reasonable number
 MATCH_ALL_QUERY = {
     "query": {
@@ -416,55 +415,49 @@ def connect_and_index_files(index, type, uuid, pathToArchive, identifiers=[], si
 
     exitCode = 0
 
-    # make sure elasticsearch is installed
-    if (os.path.exists(pathToElasticSearchServerConfigFile)):
+    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
+    config = ConfigParser.SafeConfigParser()
+    config.read(clientConfigFilePath)
 
-        clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-        config = ConfigParser.SafeConfigParser()
-        config.read(clientConfigFilePath)
+    # make sure transfer files exist
+    if (os.path.exists(pathToArchive)):
+        conn = connect_and_create_index(index)
 
-        # make sure transfer files exist
-        if (os.path.exists(pathToArchive)):
-            conn = connect_and_create_index(index)
+        # use METS file if indexing an AIP
+        metsFilePath = os.path.join(pathToArchive, 'METS.' + uuid + '.xml')
 
-            # use METS file if indexing an AIP
-            metsFilePath = os.path.join(pathToArchive, 'METS.' + uuid + '.xml')
+        # index AIP
+        if os.path.isfile(metsFilePath):
+            files_indexed = index_mets_file_metadata(
+                conn,
+                uuid,
+                metsFilePath,
+                index,
+                type,
+                sipName,
+                identifiers=identifiers
+            )
 
-            # index AIP
-            if os.path.isfile(metsFilePath):
-                files_indexed = index_mets_file_metadata(
-                    conn,
-                    uuid,
-                    metsFilePath,
-                    index,
-                    type,
-                    sipName,
-                    identifiers=identifiers
-                )
-
-            # index transfer
-            else:
-                files_indexed = index_transfer_files(
-                    conn,
-                    uuid,
-                    pathToArchive,
-                    index,
-                    type,
-                    status=status
-                )
-
-                index_transfer(conn, uuid, files_indexed, status=status)
-
-            print type + ' UUID: ' + uuid
-            print 'Files indexed: ' + str(files_indexed)
-
+        # index transfer
         else:
-            error_message = "Directory does not exist: " + pathToArchive
-            LOGGER.warning(error_message)
-            print >>sys.stderr, error_message
-            exitCode = 1
+            files_indexed = index_transfer_files(
+                conn,
+                uuid,
+                pathToArchive,
+                index,
+                type,
+                status=status
+            )
+
+            index_transfer(conn, uuid, files_indexed, status=status)
+
+        print type + ' UUID: ' + uuid
+        print 'Files indexed: ' + str(files_indexed)
+
     else:
-        print >>sys.stderr, "Elasticsearch not found, normally installed at ", pathToElasticSearchServerConfigFile
+        error_message = "Directory does not exist: " + pathToArchive
+        LOGGER.warning(error_message)
+        print >>sys.stderr, error_message
         exitCode = 1
 
     return exitCode
