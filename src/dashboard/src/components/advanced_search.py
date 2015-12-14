@@ -22,7 +22,6 @@ import sys
 import dateutil.parser
 from elasticsearch import Elasticsearch
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
 
 logger = logging.getLogger("archivematica.dashboard.advanced_search")

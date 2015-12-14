@@ -53,7 +53,6 @@ from components.ingest.views_NormalizationReport import getNormalizationReportQu
 from main import forms
 from main import models
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
 import elasticSearchFunctions
 import storageService as storage_service

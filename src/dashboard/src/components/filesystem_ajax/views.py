@@ -36,7 +36,6 @@ from components import helpers
 import components.filesystem_ajax.helpers as filesystem_ajax_helpers
 from main import models
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
 import databaseFunctions
 import elasticSearchFunctions
