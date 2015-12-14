@@ -283,14 +283,12 @@ def aip_mapping_is_correct(client):
     return mapping['aipfile']['properties']['AIPUUID']['index'] == 'not_analyzed'
 
 
-def create_index(client, index, attempt=1):
-    if attempt > 3:
-        return
-    response = client.indices.create(index, ignore=400)
-    if 'error' in response and 'IndexAlreadyExistsException' in response['error']:
-        return
+def create_index(client, index):
+    client.indices.create(index, ignore=400)
+    # Always put the mapping, even if the index already exists, because
+    # there may have been changes to the mapping structure; rerunning this
+    # will allow additional fields to be added to the index
     set_up_mapping(client, index)
-    create_index(client, index, attempt + 1)
 
 
 def _sortable_string_field_specification(field_name):
