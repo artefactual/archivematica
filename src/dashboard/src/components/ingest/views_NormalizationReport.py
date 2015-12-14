@@ -113,7 +113,6 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
 if __name__ == '__main__':
     import sys
     uuid = "'%s'" % (sys.argv[1])
-    sys.path.append("/usr/lib/archivematica/archivematicaCommon")
     print "testing normalization report"
     sql = getNormalizationReportQuery(sipUUID=uuid)
     print sql

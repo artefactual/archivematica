@@ -21,7 +21,6 @@ from subprocess import call
 import logging
 
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
 from components import helpers
 

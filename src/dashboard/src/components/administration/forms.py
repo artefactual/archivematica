@@ -29,7 +29,6 @@ from components import helpers
 from main import models
 from components.administration.models import ArchivistsToolkitConfig, ArchivesSpaceConfig
 
-sys.path.append('/usr/lib/archivematica/archivematicaCommon')
 import storageService as storage_service
 
 

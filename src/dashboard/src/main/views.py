@@ -25,7 +25,6 @@ from lxml import etree
 import os, subprocess, sys
 from components import helpers
 import components.decorators as decorators
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
 from archivematicaFunctions import escape
 
