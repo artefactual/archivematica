@@ -7,8 +7,6 @@ import sys
 import os
 import uuid
 
-import archivematicaXMLNamesSpace as ns
-
 import django
 django.setup()
 # dashboard
@@ -16,6 +14,7 @@ from main import models
 from fpr import models as fpr_models
 
 # archivematicaCommon
+import namespaces as ns
 import fileOperations
 import databaseFunctions
 

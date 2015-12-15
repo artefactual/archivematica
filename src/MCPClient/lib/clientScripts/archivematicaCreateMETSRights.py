@@ -30,9 +30,9 @@ import lxml.etree as etree
 # dashboard
 from main.models import RightsStatement
 
-import archivematicaXMLNamesSpace as ns
 # archivematicaCommon
 from countryCodes import getCodeForCountry
+import namespaces as ns
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
 RIGHTS_BASIS_OTHER = ["Policy", "Donor"]

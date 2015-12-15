@@ -21,7 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
-import archivematicaXMLNamesSpace as ns
+import namespaces as ns
 import os
 import sys
 from lxml import etree

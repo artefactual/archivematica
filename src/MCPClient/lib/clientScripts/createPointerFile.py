@@ -7,7 +7,6 @@ import os.path
 import sys
 import uuid
 
-import archivematicaXMLNamesSpace as namespaces
 import archivematicaCreateMETS2
 
 import django
@@ -20,6 +19,7 @@ from main.models import DublinCore
 from custom_handlers import get_script_logger
 import fileOperations
 from externals import checksummingTools
+import namespaces
 
 
 # TODO ask about what is duplicated for more files

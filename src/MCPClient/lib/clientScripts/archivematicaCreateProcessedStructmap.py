@@ -8,7 +8,7 @@ from custom_handlers import get_script_logger
 
 from archivematicaCreateMETS import createFileSec, each_child
 from archivematicaCreateMETS2 import createDigiprovMD
-import archivematicaXMLNamesSpace as ns
+import namespaces as ns
 
 from lxml import etree
 

@@ -32,8 +32,6 @@ import sys
 import traceback
 from uuid import uuid4
 
-import archivematicaXMLNamesSpace as ns
-
 import django
 django.setup()
 # dashboard
@@ -54,6 +52,7 @@ from archivematicaFunctions import escape
 from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import normalizeNonDcElementName
 from custom_handlers import get_script_logger
+import namespaces as ns
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 sharedVariablesAcrossModules.globalErrorCount = 0
 

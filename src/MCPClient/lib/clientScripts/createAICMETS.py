@@ -14,12 +14,12 @@ from django.utils import timezone
 from main.models import UnitVariable
 
 import archivematicaCreateMETS2
-import archivematicaXMLNamesSpace as ns
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import databaseFunctions
 import fileOperations
+import namespaces as ns
 import storageService as storage_service
 
 

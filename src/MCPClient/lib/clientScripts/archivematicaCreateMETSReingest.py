@@ -5,10 +5,10 @@ from lxml import etree
 import os
 import sys
 
-import archivematicaXMLNamesSpace as ns
 import archivematicaCreateMETS2 as createmets2
 import archivematicaCreateMETSRights as createmetsrights
 import archivematicaCreateMETSMetadataCSV as createmetscsv
+import namespaces as ns
 
 # dashboard
 from main import models

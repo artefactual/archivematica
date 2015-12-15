@@ -26,8 +26,6 @@ import sys
 import lxml.etree as etree
 from xml.sax.saxutils import quoteattr
 
-import archivematicaXMLNamesSpace as ns
-
 import django
 django.setup()
 # dashboard
@@ -37,6 +35,7 @@ from main.models import File
 from archivematicaFunctions import escape, get_dashboard_uuid
 from custom_handlers import get_script_logger
 from databaseFunctions import getAccessionNumberFromTransfer, getUTCDate
+import namespaces as ns
 
 
 def createMetsHdr(sip_uuid):
