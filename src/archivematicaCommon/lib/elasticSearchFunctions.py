@@ -39,6 +39,7 @@ from main.models import File, Transfer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivematicaFunctions import get_dashboard_uuid
+import namespaces as ns
 import version
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
@@ -79,14 +80,9 @@ def remove_tool_output_from_mets(doc):
     be usable.
     """
     root = doc.getroot()
-    nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
-        'm': 'http://www.loc.gov/METS/',
-        'p': 'info:lc/xmlns/premis-v2',
-        'f': 'http://hul.harvard.edu/ois/xml/ns/fits/fits_output',
-    }
 
     # remove tool output nodes
-    toolNodes = root.findall("m:amdSec/m:techMD/m:mdWrap/m:xmlData/p:object/p:objectCharacteristics/p:objectCharacteristicsExtension", namespaces=nsmap)
+    toolNodes = root.findall("mets:amdSec/mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectCharacteristics/premis:objectCharacteristicsExtension", namespaces=ns.NSMAP)
 
     for parent in toolNodes:
         parent.clear()
@@ -335,20 +331,15 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_a
     remove_tool_output_from_mets(tree)
 
     root = tree.getroot()
-    nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
-        'dcterms': 'http://purl.org/dc/terms/',
-        'dc': 'http://purl.org/dc/elements/1.1/',
-        'm': 'http://www.loc.gov/METS/',
-    }
     # Extract AIC identifier, other specially-indexed information
     aic_identifier = None
     is_part_of = None
-    dublincore = root.find('m:dmdSec/m:mdWrap/m:xmlData/dcterms:dublincore', namespaces=nsmap)
+    dublincore = root.find('mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore', namespaces=ns.NSMAP)
     if dublincore is not None:
-        aip_type = dublincore.findtext('dc:type', namespaces=nsmap) or dublincore.findtext('dcterms:type', namespaces=nsmap)
+        aip_type = dublincore.findtext('dc:type', namespaces=ns.NSMAP) or dublincore.findtext('dcterms:type', namespaces=ns.NSMAP)
         if aip_type == "Archival Information Collection":
-            aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap) or dublincore.findtext('dcterms:identifier', namespaces=nsmap)
-        is_part_of = dublincore.findtext('dcterms:isPartOf', namespaces=nsmap)
+            aic_identifier = dublincore.findtext('dc:identifier', namespaces=ns.NSMAP) or dublincore.findtext('dcterms:identifier', namespaces=ns.NSMAP)
+        is_part_of = dublincore.findtext('dcterms:isPartOf', namespaces=ns.NSMAP)
 
     # convert METS XML to dict
     xml = ElementTree.tostring(root)
@@ -366,7 +357,7 @@ def connect_and_index_aip(uuid, name, filePath, pathToMETS, size=None, aips_in_a
         'isPartOf': is_part_of,
         'countAIPsinAIC': aips_in_aic,
         'identifiers': identifiers,
-        'transferMetadata': _extract_transfer_metadata(root, nsmap),
+        'transferMetadata': _extract_transfer_metadata(root),
     }
     wait_for_cluster_yellow_status(conn)
     try_to_index(conn, aipData, 'aips', 'aip')
@@ -461,43 +452,36 @@ def connect_and_index_files(index, type, uuid, pathToArchive, identifiers=[], si
 
     return exitCode
 
-def _extract_transfer_metadata(doc, nsmap):
+def _extract_transfer_metadata(doc):
     return [xmltodict.parse(ElementTree.tostring(el))['transfer_metadata']
-            for el in doc.findall("m:amdSec/m:sourceMD/m:mdWrap/m:xmlData/transfer_metadata", namespaces=nsmap)]
+            for el in doc.findall("mets:amdSec/mets:sourceMD/mets:mdWrap/mets:xmlData/transfer_metadata", namespaces=ns.NSMAP)]
 
 def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, identifiers=[]):
 
     # parse XML
     tree = ElementTree.parse(metsFilePath)
     root = tree.getroot()
-    nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
-        'dcterms': 'http://purl.org/dc/terms/',
-        'dc': 'http://purl.org/dc/elements/1.1/',
-        'm': 'http://www.loc.gov/METS/',
-        'p': 'info:lc/xmlns/premis-v2',
-        'f': 'http://hul.harvard.edu/ois/xml/ns/fits/fits_output',
-    }
 
     # TODO add a conditional to toggle this
     remove_tool_output_from_mets(tree)
 
     # get SIP-wide dmdSec
-    dmdSec = root.findall("m:dmdSec/m:mdWrap/m:xmlData", namespaces=nsmap)
+    dmdSec = root.findall("mets:dmdSec/mets:mdWrap/mets:xmlData", namespaces=ns.NSMAP)
     dmdSecData = {}
     for item in dmdSec:
         xml = ElementTree.tostring(item)
         dmdSecData = xmltodict.parse(xml)
 
     # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore
-    dublincore = root.find('m:dmdSec/m:mdWrap/m:xmlData/dcterms:dublincore', namespaces=nsmap)
+    dublincore = root.find('mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore', namespaces=ns.NSMAP)
     aic_identifier = None
     is_part_of = None
     if dublincore is not None:
-        aip_type = dublincore.findtext('dc:type', namespaces=nsmap) or dublincore.findtext('dcterms:type', namespaces=nsmap)
+        aip_type = dublincore.findtext('dc:type', namespaces=ns.NSMAP) or dublincore.findtext('dcterms:type', namespaces=ns.NSMAP)
         if aip_type == "Archival Information Collection":
-            aic_identifier = dublincore.findtext('dc:identifier', namespaces=nsmap) or dublincore.findtext('dcterms:identifier', namespaces=nsmap)
+            aic_identifier = dublincore.findtext('dc:identifier', namespaces=ns.NSMAP) or dublincore.findtext('dcterms:identifier', namespaces=ns.NSMAP)
         elif aip_type == "Archival Information Package":
-            is_part_of = dublincore.findtext('dcterms:isPartOf', namespaces=nsmap)
+            is_part_of = dublincore.findtext('dcterms:isPartOf', namespaces=ns.NSMAP)
 
     # establish structure to be indexed for each file item
     fileData = {
@@ -516,12 +500,12 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, ide
         },
         'origin': get_dashboard_uuid(),
         'identifiers': identifiers,
-        'transferMetadata': _extract_transfer_metadata(root, nsmap),
+        'transferMetadata': _extract_transfer_metadata(root),
     }
 
     # Index all files in a fileGrup with USE='original' or USE='metadata'
-    original_files = root.findall("m:fileSec/m:fileGrp[@USE='original']/m:file", namespaces=nsmap)
-    metadata_files = root.findall("m:fileSec/m:fileGrp[@USE='metadata']/m:file", namespaces=nsmap)
+    original_files = root.findall("mets:fileSec/mets:fileGrp[@USE='original']/mets:file", namespaces=ns.NSMAP)
+    metadata_files = root.findall("mets:fileSec/mets:fileGrp[@USE='metadata']/mets:file", namespaces=ns.NSMAP)
     files = original_files + metadata_files
 
     # Index AIC METS file if it exists
@@ -543,8 +527,8 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, ide
             if len(set(uuids)) == 1:
                 fileUUID = uuids[0]
         else:
-            amdSecInfo = root.find("m:amdSec[@ID='{}']".format(admID), namespaces=nsmap)
-            fileUUID = amdSecInfo.findtext("m:techMD/m:mdWrap/m:xmlData/p:object/p:objectIdentifier/p:objectIdentifierValue", namespaces=nsmap)
+            amdSecInfo = root.find("mets:amdSec[@ID='{}']".format(admID), namespaces=ns.NSMAP)
+            fileUUID = amdSecInfo.findtext("mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectIdentifier/premis:objectIdentifierValue", namespaces=ns.NSMAP)
 
             # Index amdSec information
             xml = ElementTree.tostring(amdSecInfo)
@@ -553,7 +537,7 @@ def index_mets_file_metadata(conn, uuid, metsFilePath, index, type, sipName, ide
         indexData['FILEUUID'] = fileUUID
 
         # Get file path from FLocat and extension
-        filePath = file_.find('m:FLocat', namespaces=nsmap).attrib['{http://www.w3.org/1999/xlink}href']
+        filePath = file_.find('mets:FLocat', namespaces=ns.NSMAP).attrib['{http://www.w3.org/1999/xlink}href']
         indexData['filePath'] = filePath
         _, fileExtension = os.path.splitext(filePath)
         if fileExtension:
