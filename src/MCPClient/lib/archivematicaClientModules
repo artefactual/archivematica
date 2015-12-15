@@ -47,6 +47,7 @@ compressAIP_v0.0 = %clientScriptsDirectory%compressAIP.py
 copy_v0.0 = cp
 copyRecursive_v0.0 = %clientScriptsDirectory%copyRecursiveIfExists.sh
 copySubmissionDocs_v0.0 = %clientScriptsDirectory%copySubmissionDocs.sh
+copyToNetX_v0.0 = %clientScriptsDirectory%copyToNetX.py
 copyTransfersMetadataAndLogs_v0.0 = %clientScriptsDirectory%copyTransfersMetadataAndLogs.py
 copyTransferSubmissionDocumentation_v0.0 = %clientScriptsDirectory%copyTransferSubmissionDocumentation.py
 createAIC_METS_v1.0 =  %clientScriptsDirectory%createAICMETS.py
