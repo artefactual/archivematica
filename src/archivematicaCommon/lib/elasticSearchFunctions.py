@@ -256,6 +256,12 @@ def set_up_mapping_aip_index(conn):
         'FILEUUID': MACHINE_READABLE_FIELD_SPEC,
         'isPartOf': MACHINE_READABLE_FIELD_SPEC,
         'AICID': MACHINE_READABLE_FIELD_SPEC,
+        'sipName': {'type': 'string'},
+        'indexedAt': {'type': 'double'},
+        'filePath': {'type': 'string'},
+        'fileExtension': {'type': 'string'},
+        'origin': {'type': 'string'},
+        'identifiers': {'type': 'string'},
         # Prevent autodetection for dc:date
         'METS': {'properties': {'dmdSec': {'properties': {'ns0:xmlData_dict_list': {'properties': {'ns1:dublincore_dict_list': {'properties': {'dc:date': {'type': 'string'}}}}}}}}},
     }
