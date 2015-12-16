@@ -309,87 +309,105 @@ $(function()
             window.location.href = '/ingest/' + this.model.sip.get('uuid') + '/upload/as/';
           }
 
-          // if ('Upload DIP' == this.model.get('type') && 13 == value)
-          if ('- Upload DIP to AtoM' == $select.find('option:selected').text())
+          // if no DRMC object number is defined, ask for slug
+          if (
+            '- Upload to DRMC' == $select.find('option:selected').text()
+          )
           {
-            var modal = $('#upload-dip-modal');
-            var input = modal.find('input');
-            var process = false;
+            // if no TMS object ID provided, ask for one
             var url = '/ingest/' + this.model.sip.get('uuid') + '/upload/';
-            var self = this;
 
-            modal
+            if (this.model.sip.attributes.accession_id == ''
+              || this.model.sip.attributes.accession_id == null
+            ) {
+              var modal = $('#upload-dip-modal');
+              var input = modal.find('input');
+              var process = false;
+              var self = this;
 
-              .on('shown.bs.modal', function()
-                {
-                  $(this).find('input').first().focus();
-                })
+              modal
 
-              .one('show.bs.modal', function()
-                {
-                  var xhr = $.ajax(url, { type: 'GET' });
-                  xhr
-                    .done(function(data)
-                      {
-                        if (data.target)
+                .on('shown', function()
+                  {
+                    $(this).find('input').first().focus();
+                  })
+
+                .one('show.bs.modal', function()
+                  {
+                    var xhr = $.ajax(url, { type: 'GET' });
+                    xhr
+                      .done(function(data)
+                        {
+                          if (data.target)
                         {
                           input.filter(':text').val(data.target);
                         }
                       });
-                })
+                  })
 
-              .one('hidden.bs.modal', function()
-                {
-                  input.filter(':text').val('');
-                  input.filter(':checkbox').prop('checked', false);
-                  $select.val(0);
-                  modal.find('a.primary, a.secondary').unbind('click');
-                })
-
-              .find('a.btn-primary').bind('click', function(event)
-                {
-                  event.preventDefault();
-
-                  var target = input.filter(':text').val()
-                  if (!target)
+                .one('hidden.bs.modal', function()
                   {
-                    return;
-                  }
+                    input.filter(':text').val('');
+                    input.filter(':checkbox').prop('checked', false);
+                    $select.val(0);
+                    modal.find('a.primary, a.secondary').unbind('click');
+                  })
 
-                  $('#upload-dip-modal-spinner').show();
+                .find('a.btn-primary').bind('click', function(event)
+                  {
+                    event.preventDefault();
+                    if (input.filter(':text').val())
+                    {
+                      // get AtoM destination URL (so we can confirm it's up)
+                      var selectedPrefix = $('input[name=target_prefix]:checked').val();
+                      var xhr = $.ajax(url, { type: 'POST', data: {
+                        'target': selectedPrefix + input.filter(':text').val() }})
+                      .done(function(data)
+                        {
+                          if (data.ready)
+                          {
+                            executeCommand(self);
+                          }
+                        })
+                      .fail(function()
+                        {
+                          alert("Error.");
+                          $select.val(0);
+                        })
+                      .always(function()
+                        {
+                          modal.modal('hide');
+                        });
+                    }
+                  })
+                .end()
 
-                  // Chained XHR calls. Eventually, we should simplify this on the server side.
-                  $.when(
-                      $.ajax({ type: 'GET', url: '/ingest/upload/url/check/', data: { target: target } }),
-                      $.ajax({ type: 'POST', url: url, data: { target: target } })
-                    ).done(function(resp1, resp2) {
+                .find('a.secondary').bind('click', function(event)
+                  {
+                    event.preventDefault();
+                    $select.val(0);
+                    modal.modal('hide');
+                  })
+                .end()
 
-                      if (resp2[0].ready) {
-                        executeCommand(self);
-                      }
+                .modal('show');
+            } else {
+              // use accession ID for target with artwork record prefix
+              var xhr = $.ajax(url, { type: 'POST', data: {
+                'target': 'ar:' + this.model.sip.attributes.accession_id }})
 
-                    }).fail(function(resp1, resp2) {
-
-                      alert(gettext('There was a problem attempting to reach the destination URL.'));
-
-                    }).always(function() {
-
-                      modal.modal('hide');
-                      $select.val(0);
-
-                  });
-                })
-              .end()
-
-              .find('a.secondary').bind('click', function(event)
-                {
-                  event.preventDefault();
-                  $select.val(0);
-                  modal.modal('hide');
-                })
-              .end()
-
-              .modal('show');
+                .done(function(data)
+                  {
+                    if (data.ready)
+                    {
+                      executeCommand(self);
+                    }
+                  })
+                .fail(function()
+                  {
+                    alert("Error.");
+                  })
+            }
 
             return false;
           }
