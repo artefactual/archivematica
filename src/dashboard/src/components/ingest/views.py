@@ -108,6 +108,15 @@ def ingest_status(request, uuid=None):
             item['uuid'] = item['sipuuid']
             item['id'] = item['sipuuid']
             del item['sipuuid']
+
+            # embed accession ID in status data (for DRMC customization)
+            try:
+                sip = models.SIP.objects.get(uuid=item['uuid'])
+                file = models.File.objects.filter(sip=sip, transfer__isnull=False)[0]
+                item['accession_id'] = file.transfer.accessionid
+            except:
+                pass
+
             item['jobs'] = []
             for job in jobs:
                 newJob = {}
