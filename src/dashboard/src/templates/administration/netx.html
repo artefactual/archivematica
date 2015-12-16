@@ -1,0 +1,46 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block js %}
+{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <h3>NetX destination paths</h3>
+
+      <form method='POST'>
+        <div class="clearfix">
+          <label for="id_dest_path_csv">CSV path</label>
+          <div class="input">
+            <input name='dest_path_csv' id='id_dest_path_csv' style='width: 500px;' value='{{ dest_path_csv }}' />
+          </div>
+        </div>
+
+        <div class="clearfix">
+          <label for="id_dest_path_objects">Objects path</label>
+          <div class="input">
+            <input name='dest_path_objects' id='id_dest_path_objects' style='width: 500px;' value='{{ dest_path_objects }}' />
+          </div>
+        </div>
+
+        <input type='submit' value='Save' style='float:right;' class='btn' />
+      </form>
+
+    </div>
+
+  </div>
+
+{% endblock %}

@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'dips/atk/$', views.administration_atk_dips),
     url(r'dips/atom/$', views.atom_dips),
     url(r'dips/atom/edit_levels/$', views.atom_levels_of_description),
+    url(r'netx/$', views.netx),
     url(r'sources/$', views.sources),
     url(r'storage/$', views.storage),
     url(r'usage/$', views.usage),
