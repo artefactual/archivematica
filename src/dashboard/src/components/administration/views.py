@@ -274,6 +274,27 @@ def dips_formset():
         can_delete=True
     )
 
+
+def netx(request):
+    if request.method == 'POST':
+        dest_path_csv = request.POST.get('dest_path_csv', '')
+        helpers.set_setting('netx_dest_path_csv', dest_path_csv)
+        dest_path_objects = request.POST.get('dest_path_objects', '')
+        helpers.set_setting('netx_dest_path_objects', dest_path_objects)
+        messages.info(request, 'Saved.')
+
+        if not os.path.isdir(dest_path_csv):
+            messages.warning(request, 'The CSV path does not exist.')
+
+        if not os.path.isdir(dest_path_objects):
+            messages.warning(request, 'The objects path does not exist.')
+    else:
+        dest_path_csv = helpers.get_setting('netx_dest_path_csv', '/path/to/csv')
+        dest_path_objects = helpers.get_setting('netx_dest_path_objects', '/path/to/objects')
+
+    return render(request, 'administration/netx.html', locals())
+
+
 def storage(request):
     try:
         locations = storage_service.get_location(purpose="AS")
