@@ -39,6 +39,7 @@ echo -n "Enter the DATABASE root password (Hit enter if blank):"
 read dbpassword
 
 if [ ! -z "$dbpassword" ] ; then
+    dbpasswordraw=$dbpassword
     dbpassword="-p${dbpassword}"
 else
     dbpassword=""
@@ -65,7 +66,7 @@ mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir
 # Run Django's syncdb
 ../src/dashboard/src/manage.py syncdb --noinput --settings='settings.local'
 # Run SQL dev scripts
-../src/MCPServer/share/mysql_dev.sh ${databaseName} ${dbpassword}
+../src/MCPServer/share/mysql_dev.sh ${databaseName} ${dbpasswordraw}
 # mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_dev1;"
 
 echo "Creating MCP Views"
