@@ -1,0 +1,1 @@
+mysqldump -u root -p --extended-insert=FALSE --complete-insert=TRUE MCP > src/MCPServer/share/mysql
