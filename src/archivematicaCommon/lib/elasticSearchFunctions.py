@@ -338,7 +338,7 @@ def set_up_mapping_aip_index(client):
         'AICID': MACHINE_READABLE_FIELD_SPEC,
         'sipName': {'type': 'string'},
         'indexedAt': {'type': 'double'},
-        'filePath': {'type': 'string'},
+        'filePath': PATH_STRING_MULTIFIELD,
         'fileExtension': {'type': 'string'},
         'origin': {'type': 'string'},
         'identifiers': {'type': 'string'},
