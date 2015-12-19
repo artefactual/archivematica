@@ -1,0 +1,152 @@
+-- Updates to go from Archivematica 1.4.1 to 1.5.0
+
+UPDATE Agents SET agentIdentifierValue = 'Archivematica-1.5.0' WHERE agentIdentifierType = 'preservation system' AND agentName = 'Archivematica';
+
+
+-- mysql_dev_7595_archivesspace_upload
+
+-- Insert default values into the ArchivesSpaceConfig table.
+-- Leaving all other values null/blank is consistent with default ATK config.
+INSERT INTO administration_archivesspaceconfig (pk, port) VALUES ('5e6b9fb2-0ed0-41c4-b5cb-94d25de1a5dc', 8089);
+
+-- The new chain - begins with selecting config, then calls upload script.
+-- The magic that pops open a new window happens in the dashboard UI,
+-- and isn't handled here.
+SET @archivesspace_upload_chain = '3572f844-5e69-4000-a24b-4e32d3487f82' COLLATE utf8_unicode_ci;
+SET @archivesspace_select_config_tc = '5ded9d05-dd24-484a-a8b2-73ec5d35aa63' COLLATE utf8_unicode_ci;
+SET @archivesspace_select_config_mscl = 'a0db8294-f02a-4f49-a557-b1310a715ffc' COLLATE utf8_unicode_ci;
+
+-- Add the new DIP upload script
+SET @archivesspace_upload_stc = '10a0f352-aeb7-4c13-8e9e-e81bda9bca29' COLLATE utf8_unicode_ci;
+SET @archivesspace_upload_tc = '71eaef05-264d-453e-b8c4-7b7e2c7ac889' COLLATE utf8_unicode_ci;
+SET @archivesspace_upload_mscl = 'ff89a530-0540-4625-8884-5a2198dea05a' COLLATE utf8_unicode_ci;
+
+INSERT INTO StandardTasksConfigs (pk, execute, arguments, requiresOutputLock) VALUES (@archivesspace_upload_stc, 'upload-archivesspace_v0.0', '--host "%host%" --port "%port%" --user "%user%" --passwd "%passwd%" --dip_location "%SIPDirectory%" --dip_name "%SIPName%" --dip_uuid "%SIPUUID%" --restrictions "%restrictions%" --object_type "%object_type%" --xlink_actuate "%xlink_actuate%" --xlink_show "%xlink_show%" --use_statement "%use_statement%" --uri_prefix "%uri_prefix%" --access_conditions "%access_conditions%" --use_conditions "%use_conditions%"', 0);
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@archivesspace_upload_tc, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @archivesspace_upload_stc, 'Upload to ArchivesSpace');
+INSERT INTO MicroServiceChainLinks (pk, currentTask, defaultNextChainLink, microServiceGroup) VALUES (@archivesspace_upload_mscl, @archivesspace_upload_tc, 'e3efab02-1860-42dd-a46c-25601251b930', 'Upload DIP');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink) VALUES ('aa18a6d3-5d08-4827-99e7-b52abddcb812', @archivesspace_upload_mscl, 0, NULL);
+
+-- MSCL for "choose config"
+-- Empty string for taskTypePKReference is intentional;
+-- this is consistent with ArchivistsToolkit.
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@archivesspace_select_config_tc, '9c84b047-9a6d-463f-9836-eafa49743b84', '', 'Choose Config for ArchivesSpace DIP Upload');
+INSERT INTO MicroServiceChainLinks (pk, currentTask, defaultNextChainLink, microServiceGroup) VALUES (@archivesspace_select_config_mscl, @archivesspace_select_config_tc, @archivesspace_upload_mscl, 'Upload DIP');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink) VALUES ('1f53c86a-0afc-4eda-861d-c1501cb40e04', @archivesspace_select_config_mscl, 0, @archivesspace_upload_mscl);
+
+-- Create a new chain, beginning with "choose config",
+-- then insert a choice in the "Upload DIP?" choice
+INSERT INTO MicroServiceChains (pk, startingLink, description) VALUES (@archivesspace_upload_chain, @archivesspace_select_config_mscl, 'Upload DIP to ArchivesSpace');
+INSERT INTO MicroServiceChainChoice (pk, choiceAvailableAtLink, chainAvailable) VALUES ('96fecb69-c020-4b54-abfb-2b157afe5cdb', '92879a29-45bf-4f0b-ac43-e64474f0f2f9', @archivesspace_upload_chain);
+
+-- Insert a dummy ReplacementDict for ArchivesSpace, which will be replaced
+-- the first time the user saves anything in the settings
+INSERT INTO MicroServiceChoiceReplacementDic (pk, choiceAvailableAtLink, description, replacementDic) VALUES ('f8749dd2-0923-4b57-a074-45cd92ace56f', @archivesspace_select_config_mscl, 'ArchivesSpace Config', '{"%port%": "8089", "%object_type%": "", "%host%": "localhost", "%xlink_show%": "new", "%use_statement%": "Image-Service", "%uri_prefix%": "http://www.example.com/", "%xlink_actuate%": "onRequest", "%access_conditions%": "", "%use_conditions%": "", "%restrictions%": "premis", "%passwd%": "admin", "%user%": "admin"}');
+
+
+-- mysql_dev_6488_aip_reingest2
+
+-- Update for mandatory/optional fields
+ALTER TABLE RightsStatementCopyright
+    MODIFY copyrightStatusDeterminationDate longtext NULL,
+    MODIFY copyrightApplicableStartDate longtext NULL,
+    MODIFY copyrightApplicableEndDate longtext NULL
+    ;
+ALTER TABLE RightsStatementCopyrightDocumentationIdentifier MODIFY copyrightDocumentationIdentifierRole longtext NULL;
+ALTER TABLE RightsStatementLicense
+    MODIFY licenseApplicableStartDate longtext NULL,
+    MODIFY licenseApplicableEndDate longtext NULL
+    ;
+ALTER TABLE RightsStatementLicenseDocumentationIdentifier MODIFY licenseDocumentationIdentifierRole longtext NULL;
+ALTER TABLE RightsStatementStatuteInformation
+    MODIFY statuteInformationDeterminationDate longtext NULL,
+    MODIFY statuteApplicableStartDate longtext NULL,
+    MODIFY statuteApplicableEndDate longtext NULL
+    ;
+ALTER TABLE RightsStatementStatuteDocumentationIdentifier MODIFY statuteDocumentationIdentifierRole longtext NULL;
+ALTER TABLE RightsStatementOtherRightsInformation
+    MODIFY otherRightsApplicableStartDate longtext NULL,
+    MODIFY otherRightsApplicableEndDate longtext NULL
+    ;
+ALTER TABLE RightsStatementOtherRightsDocumentationIdentifier MODIFY otherRightsDocumentationIdentifierRole longtext NULL;
+ALTER TABLE RightsStatementRightsGranted
+    MODIFY startDate longtext COLLATE utf8_unicode_ci NULL,
+    MODIFY endDate longtext COLLATE utf8_unicode_ci NULL
+    ;
+
+-- Only one exit code for determine version
+DELETE FROM MicroServiceChainLinksExitCodes WHERE pk='7f2d5239-b464-4837-8e01-0fc43e31395d';
+UPDATE MicroServiceChainLinksExitCodes SET exitCode=0 WHERE pk='6e06fd5e-3892-4e79-b64f-069876bd95a1';
+
+-- Update DIPfromAIP to Reingest
+UPDATE MicroServiceChainLinks SET microserviceGroup='Reingest AIP' WHERE pk IN ('9520386f-bb6d-4fb9-a6b6-5845ef39375f', '77c722ea-5a8f-48c0-ae82-c66a3fa8ca77', 'c103b2fb-9a6b-4b68-8112-b70597a6cd14', '60b0e812-ebbe-487e-810f-56b1b6fdd819', '31fc3f66-34e9-478f-8d1b-c29cd0012360', 'e4e19c32-16cc-4a7f-a64d-a1f180bdb164', '83d5e887-6f7c-48b0-bd81-e3f00a9da772');
+-- Update Watched Directory
+UPDATE WatchedDirectories SET watchedDirectoryPath = '%watchDirectoryPath%system/reingestAIP/' WHERE watchedDirectoryPath='%watchDirectoryPath%system/createDIPFromAIP/';
+-- Rename DIPfromAIP
+UPDATE TasksConfigs SET description = 'Approve AIP reingest' WHERE pk='c450501a-251f-4de7-acde-91c47cf62e36';
+UPDATE MicroServiceChains SET description='Approve AIP reingest' WHERE startingLink='77c722ea-5a8f-48c0-ae82-c66a3fa8ca77';
+UPDATE MicroServiceChains SET description='AIP reingest approval chain' WHERE startingLink='9520386f-bb6d-4fb9-a6b6-5845ef39375f';
+
+-- Add processingMCP
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('ff516d0b-2bba-414c-88d4-f3575ebf050a', 'Reingest AIP', 'Failed', 'f89b9e0f-8789-4292-b5d0-4a330c0205e1', '7d728c39-395f-4892-8193-92f086c0546f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('545f54cc-475c-4980-9dff-8f7e65ebaeba', 'ff516d0b-2bba-414c-88d4-f3575ebf050a', 0, '60b0e812-ebbe-487e-810f-56b1b6fdd819', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='ff516d0b-2bba-414c-88d4-f3575ebf050a' WHERE microServiceChainLink='c103b2fb-9a6b-4b68-8112-b70597a6cd14';
+-- Redirect to typical normalization node
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='5d6a103c-9a5d-4010-83a8-6f4c61eb1478' WHERE microServiceChainLink IN ('83d5e887-6f7c-48b0-bd81-e3f00a9da772', 'e4e19c32-16cc-4a7f-a64d-a1f180bdb164') AND exitCode=0;
+
+-- Reject SIP should be the SIP chain, not transfer
+UPDATE MicroServiceChainChoice SET chainAvailable='a6ed697e-6189-4b4e-9f80-29209abc7937' WHERE choiceAvailableAtLink='9520386f-bb6d-4fb9-a6b6-5845ef39375f' AND chainAvailable='1b04ec43-055c-43b7-9543-bd03c6a778ba';
+
+-- Add parse METS to DB MSCL
+SET @repopulateSTC = '12fcbb37-499b-4e1c-8164-3beb1657b6dd' COLLATE utf8_unicode_ci;
+SET @repopulateTC = '507c13db-63c9-476b-9a16-0c3a05aff1cb' COLLATE utf8_unicode_ci;
+SET @repopulateMSCL = '33533fbb-1607-434f-a82b-cf938c05f60b' COLLATE utf8_unicode_ci;
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES (@repopulateSTC, 0, 'parseMETStoDB_v1.0', '%SIPUUID% %SIPDirectory%');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@repopulateTC, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @repopulateSTC, 'Populate database with reingested AIP data');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@repopulateMSCL, 'Reingest AIP', 'Failed', @repopulateTC, '7d728c39-395f-4892-8193-92f086c0546f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('7ec3b34f-7505-4459-a139-9d7f5738984c', @repopulateMSCL, 0, 'e4e19c32-16cc-4a7f-a64d-a1f180bdb164', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@repopulateMSCL WHERE microServiceChainLink='31fc3f66-34e9-478f-8d1b-c29cd0012360';
+
+-- Update metadata
+ALTER TABLE Dublincore ADD status varchar(8) DEFAULT 'ORIGINAL' COLLATE utf8_unicode_ci NOT NULL;
+ALTER TABLE RightsStatement ADD status varchar(8) DEFAULT 'ORIGINAL' COLLATE utf8_unicode_ci NOT NULL;
+
+-- Add SIP type to createMETS2
+UPDATE StandardTasksConfigs SET arguments = '--amdSec --baseDirectoryPath "%SIPDirectory%" --baseDirectoryPathString "SIPDirectory" --fileGroupIdentifier "%SIPUUID%" --fileGroupType "sip_id" --xmlFile "%SIPDirectory%METS.%SIPUUID%.xml" --sipType "%SIPType%"' WHERE pk='0aec05d4-7222-4c28-89f4-043d20a812cc';
+
+-- METS failure should result in a failed SIP
+SET @MoveSIPToFailedLink = '7d728c39-395f-4892-8193-92f086c0546f';
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@MoveSIPToFailedLink WHERE pk='ccf8ec5c-3a9a-404a-a7e7-8f567d3b36a0';
+-- /METS failure
+
+
+-- mysql_dev_hierarchical_dip_upload
+
+-- Set AtoM DIP upload defaults
+INSERT INTO DashboardSettings (name, value) VALUES ('dip_upload_atom_url', 'http://localhost/atom');
+INSERT INTO DashboardSettings (name, value) VALUES ('dip_upload_atom_email', 'demo@example.com');
+INSERT INTO DashboardSettings (name, value) VALUES ('dip_upload_atom_password', 'demo');
+INSERT INTO DashboardSettings (name, value) VALUES ('dip_upload_atom_version', '2');
+UPDATE StandardTasksConfigs SET arguments='--url=\"http://localhost/atom/index.php\" \\\r\n--email=\"demo@example.com\" \\\r\n--password=\"demo\" \\\r\n--uuid=\"%SIPUUID%\" \\\r\n--rsync-target=\"/tmp\" --version=2' WHERE pk='ee80b69b-6128-4e31-9db4-ef90aa677c87';
+
+-- New LevelOfDescription table will be created by syncdb automatically, since it is a new table
+-- Update SIPArrange table, since syncdb will not modify an existing table
+ALTER TABLE main_siparrange ADD sip_id varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL AFTER transfer_uuid, ADD level_of_description varchar(2014) COLLATE utf8_unicode_ci NOT NULL AFTER sip_id;
+ALTER TABLE main_siparrange ADD FOREIGN KEY (sip_id) REFERENCES SIPs(sipUUID);
+
+
+-- mysql_dev_8609_automate_matching_gui
+
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('cbe200ab-a634-4902-a0e6-8ed1858538d4', 0, 'dipGenerationHelper', '--sipUUID "%SIPUUID%" --sipPath "%SIPDirectory%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('5e0ac12e-6ce7-4d11-bd75-e14167210df4', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', 'cbe200ab-a634-4902-a0e6-8ed1858538d4', 'Pre-processing for DIP generation');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('5749c11f-ed08-4965-8d8e-1473b1016073', 'Prepare DIP', 'Failed', '5e0ac12e-6ce7-4d11-bd75-e14167210df4', '7d728c39-395f-4892-8193-92f086c0546f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('4447a11c-5c3b-4092-91fa-de613317cc82', '5749c11f-ed08-4965-8d8e-1473b1016073', 0, '61a8de9c-7b25-4f0f-b218-ad4dde261eed', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='5749c11f-ed08-4965-8d8e-1473b1016073' WHERE microServiceChainLink='6ee25a55-7c08-4c9a-a114-c200a37146c4';
+
+
+-- mysql_dev_delete_links
+
+-- Don't use weird normalization node, remove unitVars for that
+SET @d1 = '29dece8e-55a4-4f2c-b4c2-365ab6376ceb' COLLATE utf8_unicode_ci;
+SET @d2 = '635ba89d-0ad6-4fc9-acc3-e6069dffdcd5' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2);
+DELETE FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2);
