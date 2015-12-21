@@ -812,6 +812,14 @@ def connect_and_change_transfer_file_status(uuid, status):
     """
 
     conn = connect_and_create_index('transfers')
+
+    document_ids = _document_ids_from_field_query(conn, 'transfers', ['transferfile'], 'sipuuid', uuid)
+    if not document_ids:
+        raise ElasticsearchError("Unable to locate any files in the transfer with UUID \"{}\"".format(uuid))
+    transfer_id = document_id_from_field_query(conn, 'transfers', ['transfer'], 'uuid', uuid)
+    if transfer_id is None:
+        raise ElasticsearchError("Unable to locate a transfer with UUID \"{}\"".format(uuid))
+
     doc = {
         "doc": {
             "status": status
@@ -819,7 +827,6 @@ def connect_and_change_transfer_file_status(uuid, status):
     }
 
     # Update the status of all transfer files with this SIP UUID
-    document_ids = _document_ids_from_field_query(conn, 'transfers', ['transferfile'], 'sipuuid', uuid)
     for doc_id in document_ids:
         conn.update(
             body=doc,
@@ -829,8 +836,7 @@ def connect_and_change_transfer_file_status(uuid, status):
         )
 
     # Also update the status of the corresponding transfer doc_type
-    doc_id = document_id_from_field_query(conn, 'transfers', ['transfer'], 'uuid', uuid)
-    conn.update(body=doc, index='transfers', doc_type='transfer', id=doc_id)
+    conn.update(body=doc, index='transfers', doc_type='transfer', id=transfer_id)
 
     return len(document_ids)
 
