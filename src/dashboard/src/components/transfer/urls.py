@@ -27,6 +27,7 @@ urlpatterns = patterns('',
     url(r'^rename_metadata_set/(?P<set_uuid>' + settings.UUID_REGEX + ')/(?P<placeholder_id>[\w\-]+)/$', views.rename_metadata_set),
     url(r'^cleanup_metadata_set/(?P<set_uuid>' + settings.UUID_REGEX + ')/$', views.cleanup_metadata_set),
 
+url(r'^locations/$', views.transfer_source_locations),
     url(r'^component/(?P<uuid>' + settings.UUID_REGEX + ')/$', views.component),
     url(r'^status/$', views.status),
     url(r'^status/(?P<uuid>' + settings.UUID_REGEX + ')/$', views.status),

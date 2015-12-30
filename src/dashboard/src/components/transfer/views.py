@@ -63,6 +63,18 @@ def grid(request):
     hide_features = helpers.hidden_features()
     return render(request, 'transfer/grid.html', locals())
 
+def transfer_source_locations(request):
+    try:
+        return helpers.json_response(storage_service.get_location(purpose="TS"))
+    except:
+        message = 'Error retrieving source directories'
+        logger.exception(message)
+        response = {
+            'message': message,
+            'status': 'Failure',
+        }
+        return helpers.json_response(response, status_code=500)
+
 def component(request, uuid):
     messages = []
     fields_saved = False
