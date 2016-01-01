@@ -210,8 +210,14 @@ def start_transfer_logged_in(request):
     paths = request.POST.getlist('paths[]', [])
     paths = [base64.b64decode(path) for path in paths]
     row_ids = request.POST.getlist('row_ids[]', [])
-    response = start_transfer(transfer_name, transfer_type, accession, paths, row_ids)
-    return helpers.json_response(response)
+    try:
+        response = start_transfer(transfer_name, transfer_type, accession, paths, row_ids)
+    except ValueError as e:
+        return helpers.json_response({'error': True, 'message': str(e)}, status_code=400)
+    except storage_service.StorageServiceError as e:
+        return helpers.json_response({'error': True, 'message': str(e)}, status_code=500)
+    else:
+        return helpers.json_response(response)
 
 
 def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
@@ -226,9 +232,9 @@ def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
     :returns: Dict with {'message': <message>, ['error': True, 'path': <path>]}.  Error is a boolean, present and True if there is an error.  Message describes the success or failure. Path is populated if there is no error.
     """
     if not transfer_name:
-        return {'error': True, 'message': 'No transfer name provided.'}
+        raise ValueError('No transfer name provided.')
     if not paths:
-        return {'error': True, 'message': 'No path provided.'}
+        raise ValueError('No path provided.')
 
     # Create temp directory that everything will be copied into
     temp_base_dir = os.path.join(SHARED_DIRECTORY_ROOT, 'tmp')
@@ -261,8 +267,7 @@ def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
                 transfer_metadata_set_row_uuid=row_id)
         except Exception:
             logger.exception("Error copying %s to start of transfer", filepath)
-            return {'error': True,
-                'message': 'Error copying {} to start of transfer.'.format(filepath)}
+            raise storage_service.StorageServiceError('Error copying {} to start of transfer.'.format(filepath))
 
     shutil.rmtree(temp_dir)
     return {'message': 'Copy successful.', 'path': destination}
