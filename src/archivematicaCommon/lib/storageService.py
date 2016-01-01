@@ -16,6 +16,9 @@ class ResourceNotFound(Exception):
 class BadRequest(Exception):
     pass
 
+class StorageServiceError(Exception):
+    pass
+
 ######################### INTERFACE WITH STORAGE API #########################
 
 ############# HELPER FUNCTIONS #############
