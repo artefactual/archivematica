@@ -52,12 +52,17 @@ if __name__ == '__main__':
     else:
         pathToTransfer = sys.argv[1]
         transferUUID = sys.argv[2]
+        try:
+            status = sys.argv[3]
+        except IndexError:
+            status = ''
 
         exitCode = elasticSearchFunctions.connect_and_index_files(
             'transfers',
             'transferfile',
             transferUUID,
-            pathToTransfer
+            pathToTransfer,
+            status=status,
         )
 
 quit(exitCode)

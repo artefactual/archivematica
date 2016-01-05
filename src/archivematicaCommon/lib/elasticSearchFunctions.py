@@ -396,7 +396,7 @@ def connect_and_get_aip_data(uuid):
     )
     return aips['hits']['hits'][0]
 
-def connect_and_index_files(index, type, uuid, pathToArchive, identifiers=[], sipName=None):
+def connect_and_index_files(index, type, uuid, pathToArchive, identifiers=[], sipName=None, status=''):
 
     exitCode = 0
 
@@ -433,10 +433,11 @@ def connect_and_index_files(index, type, uuid, pathToArchive, identifiers=[], si
                     uuid,
                     pathToArchive,
                     index,
-                    type
+                    type,
+                    status=status
                 )
 
-                index_transfer(conn, uuid, files_indexed)
+                index_transfer(conn, uuid, files_indexed, status=status)
 
             print type + ' UUID: ' + uuid
             print 'Files indexed: ' + str(files_indexed)
@@ -634,7 +635,7 @@ def _list_bulk_extractor_reports(transfer_path, file_uuid):
     return reports
 
 
-def index_transfer(conn, uuid, file_count):
+def index_transfer(conn, uuid, file_count, status=''):
     """
     Indexes transfer with UUID `uuid`
 
@@ -651,7 +652,7 @@ def index_transfer(conn, uuid, file_count):
 
     transfer_data = {
         'name'            : transfer_name,
-        'status'          : '',
+        'status'          : status,
         'ingest_date'     : str(datetime.datetime.today())[0:10],
         'file_count'      : file_count,
         'uuid'            : uuid,
@@ -662,7 +663,7 @@ def index_transfer(conn, uuid, file_count):
     try_to_index(conn, transfer_data, 'transfers', 'transfer')
 
 
-def index_transfer_files(conn, uuid, pathToTransfer, index, type):
+def index_transfer_files(conn, uuid, pathToTransfer, index, type, status=''):
     """
     Indexes files in the Transfer with UUID `uuid` at path `pathToTransfer`.
 
@@ -728,7 +729,7 @@ def index_transfer_files(conn, uuid, pathToTransfer, index, type):
                   'fileuuid'     : file_uuid,
                   'sipuuid'      : uuid,
                   'accessionid'  : accession_id,
-                  'status'       : '',
+                  'status'       : status,
                   'origin'       : dashboard_uuid,
                   'ingestdate'   : ingest_date,
                   'created'      : create_time,
@@ -804,41 +805,6 @@ def document_id_from_field_query(conn, index, doc_types, field, value):
     if len(documents['hits']['hits']) == 1:
         document_id = documents['hits']['hits'][0]['_id']
     return document_id
-
-def connect_and_change_transfer_file_status(uuid, status):
-    """ Update transfer sipuuid `uuid` to have status `status`.
-
-    This applies to both 'transfer' and 'transferfile' doc types.
-    """
-
-    conn = connect_and_create_index('transfers')
-
-    document_ids = _document_ids_from_field_query(conn, 'transfers', ['transferfile'], 'sipuuid', uuid)
-    if not document_ids:
-        raise ElasticsearchError("Unable to locate any files in the transfer with UUID \"{}\"".format(uuid))
-    transfer_id = document_id_from_field_query(conn, 'transfers', ['transfer'], 'uuid', uuid)
-    if transfer_id is None:
-        raise ElasticsearchError("Unable to locate a transfer with UUID \"{}\"".format(uuid))
-
-    doc = {
-        "doc": {
-            "status": status
-        }
-    }
-
-    # Update the status of all transfer files with this SIP UUID
-    for doc_id in document_ids:
-        conn.update(
-            body=doc,
-            index='transfers',
-            doc_type='transferfile',
-            id=doc_id,
-        )
-
-    # Also update the status of the corresponding transfer doc_type
-    conn.update(body=doc, index='transfers', doc_type='transfer', id=transfer_id)
-
-    return len(document_ids)
 
 
 def connect_and_get_file_tags(uuid):
