@@ -441,7 +441,9 @@ def createDigiprovMD(fileUUID):
         digiprovMD = etree.Element(ns.metsBNS + "digiprovMD", ID='digiprovMD_' + str(globalDigiprovMDCounter))
         ret.append(digiprovMD)
 
-        createEvent(digiprovMD, event_record)
+        mdWrap = etree.SubElement(digiprovMD, ns.metsBNS + "mdWrap", MDTYPE="PREMIS:EVENT")
+        xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
+        xmlData.append(createEvent(event_record))
 
     agents = Agent.objects.filter(event__file_uuid_id=fileUUID).distinct()
     for agent in agents:
@@ -449,15 +451,15 @@ def createDigiprovMD(fileUUID):
         digiprovMD = etree.Element(ns.metsBNS + "digiprovMD", ID='digiprovMD_' + str(globalDigiprovMDCounter))
         ret.append(digiprovMD)
 
-        createAgent(digiprovMD, agent)
+        mdWrap = etree.SubElement(digiprovMD, ns.metsBNS + "mdWrap", MDTYPE="PREMIS:AGENT")
+        xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
+        xmlData.append(createAgent(agent))
 
     return ret
 
-def createEvent(digiprovMD, event_record):
-    """ Create a PREMIS Event as a SubElement of digiprovMD. """
-    mdWrap = etree.SubElement(digiprovMD, ns.metsBNS + "mdWrap", MDTYPE="PREMIS:EVENT")
-    xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
-    event = etree.SubElement(xmlData, ns.premisBNS + "event", nsmap={'premis': ns.premisNS})
+def createEvent(event_record):
+    """ Returns a PREMIS Event. """
+    event = etree.Element(ns.premisBNS + "event", nsmap={'premis': ns.premisNS})
     event.set(ns.xsiBNS + "schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
     event.set("version", "2.2")
 
@@ -479,12 +481,11 @@ def createEvent(digiprovMD, event_record):
         linkingAgentIdentifier = etree.SubElement(event, ns.premisBNS + "linkingAgentIdentifier")
         etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierType").text = agent.identifiertype
         etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = agent.identifiervalue
+    return event
 
-def createAgent(digiprovMD, agent_record):
+def createAgent(agent_record):
     """ Creates a PREMIS Agent as a SubElement of digiprovMD. """
-    mdWrap = etree.SubElement(digiprovMD, ns.metsBNS + "mdWrap", MDTYPE="PREMIS:AGENT")
-    xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
-    agent = etree.SubElement(xmlData, ns.premisBNS + "agent", nsmap={'premis': ns.premisNS})
+    agent = etree.Element(ns.premisBNS + "agent", nsmap={'premis': ns.premisNS})
     agent.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
     agent.set("version", "2.2")
 
@@ -493,7 +494,7 @@ def createAgent(digiprovMD, agent_record):
     etree.SubElement(agentIdentifier, ns.premisBNS + "agentIdentifierValue").text = agent_record.identifiervalue
     etree.SubElement(agent, ns.premisBNS + "agentName").text = agent_record.name
     etree.SubElement(agent, ns.premisBNS + "agentType").text = agent_record.agenttype
-
+    return agent
 
 def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath, typeOfTransfer, baseDirectoryPath):
     global globalAmdSecCounter
