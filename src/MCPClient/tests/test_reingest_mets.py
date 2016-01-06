@@ -1,5 +1,4 @@
 # -*- coding: utf8
-import datetime
 from lxml import etree
 import os
 import sys
@@ -7,6 +6,8 @@ import sys
 from django.test import TestCase
 
 from main import models
+
+import metsrw
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
@@ -27,8 +28,6 @@ class TestUpdateDublinCore(TestCase):
     fixture_files = ['dublincore.json']
     fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
 
-    now = datetime.datetime.utcnow().replace(microsecond=0).isoformat('T')
-
     sip_uuid_none = 'dnedne7c-5bd2-4249-84a1-2f00f725b981'
     sip_uuid_original = '8b891d7c-5bd2-4249-84a1-2f00f725b981'
     sip_uuid_reingest = '87d30df4-63f5-434b-9da6-25aa995de6fe'
@@ -36,29 +35,30 @@ class TestUpdateDublinCore(TestCase):
 
     def test_no_dc(self):
         """ It should do nothing if there is no DC entry. """
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
-        assert root.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
-        root = archivematicaCreateMETSReingest.update_dublincore(root, self.sip_uuid_none, self.now)
-        assert root.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert mets.tree.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
+        mets = archivematicaCreateMETSReingest.update_dublincore(mets, self.sip_uuid_none)
+        assert mets.serialize().find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
 
     def test_dc_not_updated(self):
         """ It should do nothing if the DC has not been modified. """
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
-        assert root.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
-        root = archivematicaCreateMETSReingest.update_dublincore(root, self.sip_uuid_reingest, self.now)
-        assert root.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert mets.tree.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
+        mets = archivematicaCreateMETSReingest.update_dublincore(mets, self.sip_uuid_reingest)
+        assert mets.serialize().find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
 
     def test_new_dc(self):
         """
         It should add a new DC if there was none before.
         It should add after the metsHdr if no dmdSecs exist.
         """
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
-        assert root.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
-        root = archivematicaCreateMETSReingest.update_dublincore(root, self.sip_uuid_original, self.now)
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert mets.tree.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is None
+        mets = archivematicaCreateMETSReingest.update_dublincore(mets, self.sip_uuid_original)
+        root = mets.serialize()
         assert root.find('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP) is not None
         dmdsec = root.find('mets:dmdSec', namespaces=NSMAP)
-        assert dmdsec.attrib['CREATED'] == self.now
+        assert dmdsec.attrib['CREATED']
         # Verify fileSec div updated
         assert root.find('mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=NSMAP).attrib['DMDID'] == dmdsec.attrib['ID']
         # Verify DC correct
@@ -101,9 +101,10 @@ class TestUpdateDublinCore(TestCase):
         It should ignore file-level DC.
         It should add after the last dmdSec.
         """
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_sip_and_file_dc.xml'), parser=REMOVE_BLANK_PARSER)
-        assert len(root.findall('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP)) == 4
-        root = archivematicaCreateMETSReingest.update_dublincore(root, self.sip_uuid_updated, self.now)
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_sip_and_file_dc.xml'))
+        assert len(mets.tree.findall('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP)) == 4
+        mets = archivematicaCreateMETSReingest.update_dublincore(mets, self.sip_uuid_updated)
+        root = mets.serialize()
         assert len(root.findall('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP)) == 5
         # Verify file-level DC not updated
         assert root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP).get('STATUS') is None
@@ -114,7 +115,7 @@ class TestUpdateDublinCore(TestCase):
         # Verify dmdSec created
         dmdsec = root.xpath('mets:dmdSec[not(@ID="dmdSec_1" or @ID="dmdSec_2" or @ID="dmdSec_3" or @ID="dmdSec_4")]', namespaces=NSMAP)[0]
         assert dmdsec.attrib['STATUS'] == 'updated'
-        assert dmdsec.attrib['CREATED'] == self.now
+        assert dmdsec.attrib['CREATED']
         # Verify fileSec div updated
         assert dmdsec.attrib['ID'] in root.find('mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=NSMAP).attrib['DMDID']
         assert 'dmdSec_4' in root.find('mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=NSMAP).attrib['DMDID']
@@ -151,9 +152,10 @@ class TestUpdateDublinCore(TestCase):
         It should add a new DC if old ones exist.
         It should not mark other reingested DC as original.
         """
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_multiple_sip_dc.xml'), parser=REMOVE_BLANK_PARSER)
-        assert len(root.findall('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP)) == 2
-        root = archivematicaCreateMETSReingest.update_dublincore(root, self.sip_uuid_updated, self.now)
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_multiple_sip_dc.xml'))
+        assert len(mets.tree.findall('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP)) == 2
+        mets = archivematicaCreateMETSReingest.update_dublincore(mets, self.sip_uuid_updated)
+        root = mets.serialize()
         assert len(root.findall('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP)) == 3
         # Verify existing DC marked as original
         assert root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP).get('STATUS') == 'original'
@@ -161,7 +163,7 @@ class TestUpdateDublinCore(TestCase):
         # Verify dmdSec created
         dmdsec = root.xpath('mets:dmdSec[not(@ID="dmdSec_1" or @ID="dmdSec_2")]', namespaces=NSMAP)[0]
         assert dmdsec.attrib['STATUS'] == 'updated'
-        assert dmdsec.attrib['CREATED'] == self.now
+        assert dmdsec.attrib['CREATED']
         # Verify fileSec div updated
         assert dmdsec.attrib['ID'] in root.find('mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=NSMAP).attrib['DMDID']
         assert 'dmdSec_1' in root.find('mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=NSMAP).attrib['DMDID']
@@ -201,8 +203,6 @@ class TestUpdateRights(TestCase):
     fixture_files = ['rights.json']
     fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
 
-    now = datetime.datetime.utcnow().replace(microsecond=0).isoformat('T')
-
     sip_uuid_none = 'dnedne7c-5bd2-4249-84a1-2f00f725b981'
     sip_uuid_original = 'a4a5480c-9f51-4119-8dcb-d3f12e647c14'
     sip_uuid_reingest = '10d57d98-29e5-4b2c-9f9f-d163e632eb31'
@@ -210,16 +210,18 @@ class TestUpdateRights(TestCase):
 
     def test_no_rights(self):
         """ It should do nothing if there are no rights entries. """
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'), parser=REMOVE_BLANK_PARSER)
-        assert root.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
-        root = archivematicaCreateMETSReingest.update_rights(root, self.sip_uuid_none, self.now)
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert mets.tree.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
+        mets = archivematicaCreateMETSReingest.update_rights(mets, self.sip_uuid_none)
+        root = mets.serialize()
         assert root.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
 
     def test_rights_not_updated(self):
         """ It should do nothing if the rights have not been modified. """
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'), parser=REMOVE_BLANK_PARSER)
-        assert root.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
-        root = archivematicaCreateMETSReingest.update_rights(root, self.sip_uuid_reingest, self.now)
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert mets.tree.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
+        mets = archivematicaCreateMETSReingest.update_rights(mets, self.sip_uuid_reingest)
+        root = mets.serialize()
         assert root.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
 
     def test_new_rights(self):
@@ -229,9 +231,10 @@ class TestUpdateRights(TestCase):
         It should add rights to all original files.
         It should not add rights to the METS file amdSec.
         """
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'), parser=REMOVE_BLANK_PARSER)
-        assert root.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
-        root = archivematicaCreateMETSReingest.update_rights(root, self.sip_uuid_original, self.now)
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert mets.tree.find('mets:amdSec/mets:rightsMD', namespaces=NSMAP) is None
+        mets = archivematicaCreateMETSReingest.update_rights(mets, self.sip_uuid_original)
+        root = mets.serialize()
 
         # Verify new rightsMD for all rightsstatements
         assert len(root.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 4
@@ -250,9 +253,10 @@ class TestUpdateRights(TestCase):
         It should add rights to all files.
         It should not add rights to the METS file.
         """
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_all_rights.xml'), parser=REMOVE_BLANK_PARSER)
-        assert len(root.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 5
-        root = archivematicaCreateMETSReingest.update_rights(root, self.sip_uuid_updated, self.now)
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_all_rights.xml'))
+        assert len(mets.tree.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 5
+        mets = archivematicaCreateMETSReingest.update_rights(mets, self.sip_uuid_updated)
+        root = mets.serialize()
 
         # Verify new rightsMD for all rightsstatements
         assert len(root.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 6
@@ -266,7 +270,7 @@ class TestUpdateRights(TestCase):
         new_rights = root.find('mets:amdSec[@ID="amdSec_1"]', namespaces=NSMAP)[6]
         assert new_rights is not None
         assert new_rights.attrib['STATUS'] == 'current'
-        assert new_rights.attrib['CREATED'] == self.now
+        assert new_rights.attrib['CREATED']
         assert new_rights.find('.//premis:statuteApplicableDates/premis:endDate', namespaces=NSMAP).text == '2054'
         assert new_rights.find('.//premis:termOfRestriction/premis:endDate', namespaces=NSMAP).text == '2054'
         assert new_rights.find('.//premis:statuteNote', namespaces=NSMAP).text == 'SIN'
@@ -278,9 +282,10 @@ class TestUpdateRights(TestCase):
         It should add rights to all files.
         It should not add rights to the METS file.
         """
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_updated_rights.xml'), parser=REMOVE_BLANK_PARSER)
-        assert len(root.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 2
-        root = archivematicaCreateMETSReingest.update_rights(root, self.sip_uuid_updated, self.now)
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_updated_rights.xml'))
+        assert len(mets.tree.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 2
+        mets = archivematicaCreateMETSReingest.update_rights(mets, self.sip_uuid_updated)
+        root = mets.serialize()
 
         # Verify new rightsMD for all rightsstatements
         assert len(root.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 3
@@ -291,7 +296,7 @@ class TestUpdateRights(TestCase):
         new_rights = root.find('mets:amdSec[@ID="amdSec_1"]', namespaces=NSMAP)[3]
         assert new_rights is not None
         assert new_rights.attrib['STATUS'] == 'current'
-        assert new_rights.attrib['CREATED'] == self.now
+        assert new_rights.attrib['CREATED']
         assert new_rights.find('.//premis:statuteApplicableDates/premis:endDate', namespaces=NSMAP).text == '2054'
         assert new_rights.find('.//premis:termOfRestriction/premis:endDate', namespaces=NSMAP).text == '2054'
         assert new_rights.find('.//premis:statuteNote', namespaces=NSMAP).text == 'SIN'
@@ -311,10 +316,11 @@ class TestAddEvents(TestCase):
         It should not change Agent information.
         """
         models.Agent.objects.all().delete()
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
-        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 16
-        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 9
-        root = archivematicaCreateMETSReingest.add_events(root, self.sip_uuid)
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert len(mets.tree.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 16
+        assert len(mets.tree.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 9
+        mets = archivematicaCreateMETSReingest.add_events(mets, self.sip_uuid)
+        root = mets.serialize()
         assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 19
         assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
         assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
@@ -323,10 +329,11 @@ class TestAddEvents(TestCase):
 
     def test_agent_not_in_mets(self):
         """ It should add a new Agent if it doesn't already exist. """
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
-        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 16
-        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 9
-        root = archivematicaCreateMETSReingest.add_events(root, self.sip_uuid)
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert len(mets.tree.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 16
+        assert len(mets.tree.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 9
+        mets = archivematicaCreateMETSReingest.add_events(mets, self.sip_uuid)
+        root = mets.serialize()
         assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 19
         assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 12
         assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
@@ -344,7 +351,6 @@ class TestAddingNewFiles(TestCase):
     fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
 
     sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
-    now = datetime.datetime.utcnow().replace(microsecond=0).isoformat('T')
 
     def test_no_new_files(self):
         """ It should not modify the fileSec or structMap if there are no new files. """
@@ -354,13 +360,14 @@ class TestAddingNewFiles(TestCase):
             os.remove(os.path.join(sip_dir, 'objects', 'metadata', 'transfers', '.gitignore'))
         except OSError:
             pass
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
-        assert len(root.findall('mets:amdSec', namespaces=NSMAP)) == 3
-        assert len(root.findall('mets:fileSec//mets:file', namespaces=NSMAP)) == 3
-        assert root.find('mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP) is None
-        assert len(root.findall('mets:structMap//mets:div', namespaces=NSMAP)) == 10
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert len(mets.tree.findall('mets:amdSec', namespaces=NSMAP)) == 3
+        assert len(mets.tree.findall('mets:fileSec//mets:file', namespaces=NSMAP)) == 3
+        assert mets.tree.find('mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP) is None
+        assert len(mets.tree.findall('mets:structMap//mets:div', namespaces=NSMAP)) == 10
 
-        root = archivematicaCreateMETSReingest.add_new_files(root, self.sip_uuid, sip_dir, self.now)
+        mets = archivematicaCreateMETSReingest.add_new_files(mets, self.sip_uuid, sip_dir)
+        root = mets.serialize()
         assert len(root.findall('mets:amdSec', namespaces=NSMAP)) == 3
         assert len(root.findall('mets:fileSec//mets:file', namespaces=NSMAP)) == 3
         assert root.find('mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP) is None
@@ -376,15 +383,16 @@ class TestAddingNewFiles(TestCase):
         It should add a dmdSec.  (Other testing for TestUpdateMetadataCSV)
         """
         sip_dir = os.path.join(THIS_DIR, 'fixtures', 'metadata_csv_sip', '')
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
-        assert len(root.findall('mets:amdSec', namespaces=NSMAP)) == 3
-        assert len(root.findall('mets:fileSec//mets:file', namespaces=NSMAP)) == 3
-        assert root.find('mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP) is None
-        assert len(root.findall('mets:structMap//mets:div', namespaces=NSMAP)) == 10
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert len(mets.tree.findall('mets:amdSec', namespaces=NSMAP)) == 3
+        assert len(mets.tree.findall('mets:fileSec//mets:file', namespaces=NSMAP)) == 3
+        assert mets.tree.find('mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP) is None
+        assert len(mets.tree.findall('mets:structMap//mets:div', namespaces=NSMAP)) == 10
 
-        root = archivematicaCreateMETSReingest.add_new_files(root, self.sip_uuid, sip_dir, self.now)
+        mets = archivematicaCreateMETSReingest.add_new_files(mets, self.sip_uuid, sip_dir)
 
         file_uuid = '66370f14-2f64-4750-9d50-547614be40e8'
+        root = mets.serialize()
         # Check structMap
         div = root.find('mets:structMap/mets:div/mets:div[@LABEL="objects"]/mets:div[@LABEL="metadata"]/mets:div[@TYPE="Item"]', namespaces=NSMAP)
         assert div is not None
@@ -414,6 +422,49 @@ class TestAddingNewFiles(TestCase):
         assert amdsec.findtext('.//premis:size', namespaces=NSMAP) == '154'
         assert amdsec.findtext('.//premis:originalName', namespaces=NSMAP) == '%SIPDirectory%metadata/metadata.csv'
 
+    def test_new_file_in_subdir(self):
+        """ It should add the new subdirs to the structMap. """
+        sip_dir = os.path.join(THIS_DIR, 'fixtures', 'metadata_file_in_subdir_sip', '')
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert len(mets.tree.findall('mets:amdSec', namespaces=NSMAP)) == 3
+        assert len(mets.tree.findall('mets:fileSec//mets:file', namespaces=NSMAP)) == 3
+        assert mets.tree.find('mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP) is None
+        assert len(mets.tree.findall('mets:structMap//mets:div', namespaces=NSMAP)) == 10
+
+        mets = archivematicaCreateMETSReingest.add_new_files(mets, self.sip_uuid, sip_dir)
+
+        file_uuid = '950253b2-e5b1-4222-bb86-4eb436af5713'
+        root = mets.serialize()
+        # Check structMap
+        # Dir
+        div = root.find('mets:structMap/mets:div/mets:div[@LABEL="objects"]/mets:div[@LABEL="metadata"]/mets:div[@LABEL="foo"]', namespaces=NSMAP)
+        assert div is not None
+        assert len(div) == 1
+        # File
+        div = root.find('mets:structMap/mets:div/mets:div[@LABEL="objects"]/mets:div[@LABEL="metadata"]/mets:div/mets:div[@TYPE="Item"]', namespaces=NSMAP)
+        assert div is not None
+        assert div.attrib['LABEL'] == 'foo.txt'
+        assert len(div) == 1
+        assert div[0].tag == '{http://www.loc.gov/METS/}fptr'
+        assert div[0].attrib['FILEID'] == 'file-' + file_uuid
+        # Check fileSec
+        mets_grp = root.find('mets:fileSec/mets:fileGrp[@USE="metadata"]', namespaces=NSMAP)
+        assert mets_grp is not None
+        assert len(mets_grp) == 1
+        assert mets_grp[0].tag == '{http://www.loc.gov/METS/}file'
+        assert mets_grp[0].attrib['ID'] == 'file-' + file_uuid
+        assert mets_grp[0].attrib['GROUPID'] == 'Group-' + file_uuid
+        adm_id = mets_grp[0].attrib['ADMID']
+        assert adm_id
+        assert len(mets_grp[0]) == 1
+        assert mets_grp[0][0].tag == '{http://www.loc.gov/METS/}FLocat'
+        assert mets_grp[0][0].attrib['LOCTYPE'] == 'OTHER'
+        assert mets_grp[0][0].attrib['OTHERLOCTYPE'] == 'SYSTEM'
+        assert mets_grp[0][0].attrib['{http://www.w3.org/1999/xlink}href'] == 'objects/metadata/foo/foo.txt'
+        # Check amdSec
+        amdsec = root.find('mets:amdSec[@ID="' + adm_id + '"]', namespaces=NSMAP)
+        assert amdsec is not None
+        assert amdsec.findtext('.//premis:objectIdentifierValue', namespaces=NSMAP) == file_uuid
 
 class TestUpdateMetadataCSV(TestCase):
     """ Test adding metadata.csv-based DC metadata. (update_metadata_csv) """
@@ -423,20 +474,20 @@ class TestUpdateMetadataCSV(TestCase):
 
     sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
     sip_dir = os.path.join(THIS_DIR, 'fixtures', 'metadata_csv_sip', '')
-    now = datetime.datetime.utcnow().replace(microsecond=0).isoformat('T')
 
     def setUp(self):
         self.csv_file = models.File.objects.get(uuid='66370f14-2f64-4750-9d50-547614be40e8')
 
     def test_new_dmdsecs(self):
         """ It should add file-level dmdSecs. """
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
-        assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 0
-        root = archivematicaCreateMETSReingest.update_metadata_csv(root, self.csv_file, self.sip_uuid, self.sip_dir, self.now)
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        assert len(mets.tree.findall('mets:dmdSec', namespaces=NSMAP)) == 0
+        mets = archivematicaCreateMETSReingest.update_metadata_csv(mets, self.csv_file, self.sip_uuid, self.sip_dir)
+        root = mets.serialize()
         assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 1
         dmdsec = root.find('mets:dmdSec', namespaces=NSMAP)
         assert dmdsec.attrib['ID']
-        assert dmdsec.attrib['CREATED'] == self.now
+        assert dmdsec.attrib['CREATED']
         assert dmdsec.attrib['STATUS'] == 'original'
         assert dmdsec.findtext('.//dc:title', namespaces=NSMAP) == 'Mountain Tents'
         assert dmdsec.findtext('.//dc:description', namespaces=NSMAP) == 'Tents on a mountain'
@@ -446,9 +497,10 @@ class TestUpdateMetadataCSV(TestCase):
         It should add new dmdSecs.
         It should updated the existing dmdSec as original.
         """
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_file_dc.xml'))
-        assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 1
-        root = archivematicaCreateMETSReingest.update_metadata_csv(root, self.csv_file, self.sip_uuid, self.sip_dir, self.now)
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_file_dc.xml'))
+        assert len(mets.tree.findall('mets:dmdSec', namespaces=NSMAP)) == 1
+        mets = archivematicaCreateMETSReingest.update_metadata_csv(mets, self.csv_file, self.sip_uuid, self.sip_dir)
+        root = mets.serialize()
         assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 2
         orig = root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP)
         assert orig.attrib['STATUS'] == 'original'
@@ -456,7 +508,7 @@ class TestUpdateMetadataCSV(TestCase):
         assert div.attrib['DMDID']
         dmdid = div.attrib['DMDID'].split()[1]
         new = root.find('mets:dmdSec[@ID="' + dmdid + '"]', namespaces=NSMAP)
-        assert new.attrib['CREATED'] == self.now
+        assert new.attrib['CREATED']
         assert new.attrib['STATUS'] == 'updated'
         assert new.findtext('.//dc:title', namespaces=NSMAP) == 'Mountain Tents'
         assert new.findtext('.//dc:description', namespaces=NSMAP) == 'Tents on a mountain'
@@ -466,9 +518,10 @@ class TestUpdateMetadataCSV(TestCase):
         It should add new dmdSecs.
         It should not updated the already updated dmdSecs.
         """
-        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_file_dc_updated.xml'))
-        assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 2
-        root = archivematicaCreateMETSReingest.update_metadata_csv(root, self.csv_file, self.sip_uuid, self.sip_dir, self.now)
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_file_dc_updated.xml'))
+        assert len(mets.tree.findall('mets:dmdSec', namespaces=NSMAP)) == 2
+        mets = archivematicaCreateMETSReingest.update_metadata_csv(mets, self.csv_file, self.sip_uuid, self.sip_dir)
+        root = mets.serialize()
         assert len(root.findall('mets:dmdSec', namespaces=NSMAP)) == 3
         orig = root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP)
         assert orig.attrib['STATUS'] == 'original'
@@ -478,7 +531,7 @@ class TestUpdateMetadataCSV(TestCase):
         assert div.attrib['DMDID']
         dmdid = div.attrib['DMDID'].split()[2]
         new = root.find('mets:dmdSec[@ID="' + dmdid + '"]', namespaces=NSMAP)
-        assert new.attrib['CREATED'] == self.now
+        assert new.attrib['CREATED']
         assert new.attrib['STATUS'] == 'updated'
         assert new.findtext('.//dc:title', namespaces=NSMAP) == 'Mountain Tents'
         assert new.findtext('.//dc:description', namespaces=NSMAP) == 'Tents on a mountain'
