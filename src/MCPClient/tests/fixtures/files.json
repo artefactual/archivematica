@@ -66,5 +66,22 @@
         "currentlocation": "%SIPDirectory%objects/metadata/metadata.csv",
         "size": 154
     }
+},
+{
+    "pk": "950253b2-e5b1-4222-bb86-4eb436af5713",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+        "originallocation": "%SIPDirectory%metadata/foo/foo.txt",
+        "transfer": null,
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2015-06-24T17:32:09Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/foo/foo.txt",
+        "size": 154
+    }
 }
 ]

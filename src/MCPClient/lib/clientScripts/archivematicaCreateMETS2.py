@@ -992,10 +992,11 @@ if __name__ == '__main__':
     if 'REIN' in SIP_TYPE:
         print('Updating METS during reingest')
         # fileGroupIdentifier is SIPUUID, baseDirectoryPath is SIP dir,
-        tree = archivematicaCreateMETSReingest.update_mets(
+        root = archivematicaCreateMETSReingest.update_mets(
             baseDirectoryPath,
             fileGroupIdentifier,
         )
+        tree = etree.ElementTree(root)
         write_mets(tree, XMLFile)
         sys.exit(0)
     # End reingest
