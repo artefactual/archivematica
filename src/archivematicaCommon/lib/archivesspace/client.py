@@ -498,13 +498,14 @@ class ArchivesSpaceClient(object):
         note_digital_object_type = ["summary", "bioghist", "accessrestrict", "userestrict", "custodhist", "dimensions", "edition", "extent","altformavail", "originalsloc", "note", "acqinfo", "inscription", "langmaterial", "legalstatus", "physdesc", "prefercite", "processinfo", "relatedmaterial"]
 
         for pnote in parent_record["notes"]:
-            content = []
             if pnote["type"] in note_digital_object_type:
                 dnote = pnote["type"]
             else:
                 dnote = "note"
-            for subnote in pnote["subnotes"]:
-                content.append(subnote["content"])
+            if "subnotes" in pnote:
+                content = [subnote["content"] for subnote in pnote["subnotes"]]
+            else:
+                content = pnote["content"]
 
             new_object["notes"].append({
                 "jsonmodel_type": "note_digital_object",
