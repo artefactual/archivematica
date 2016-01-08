@@ -545,8 +545,8 @@
             <premis:objectCharacteristics>
               <premis:compositionLevel>0</premis:compositionLevel>
               <premis:fixity>
-                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
-                <premis:messageDigest>51132e5ce1b5d2c2c363f05495f447ea924ab29c2cda2c11037b5fca2119e45a</premis:messageDigest>
+                <premis:messageDigestAlgorithm>md5</premis:messageDigestAlgorithm>
+                <premis:messageDigest>d41d8cd98f00b204e9800998ecf8427e</premis:messageDigest>
               </premis:fixity>
               <premis:size>12222</premis:size>
               <premis:format>
@@ -608,11 +608,11 @@
             </premis:eventIdentifier>
             <premis:eventType>message digest calculation</premis:eventType>
             <premis:eventDateTime>2015-06-24T00:27:24</premis:eventDateTime>
-            <premis:eventDetail>program="python"; module="hashlib.sha256()"</premis:eventDetail>
+            <premis:eventDetail>program="python"; module="hashlib.md5()"</premis:eventDetail>
             <premis:eventOutcomeInformation>
               <premis:eventOutcome/>
               <premis:eventOutcomeDetail>
-                <premis:eventOutcomeDetailNote>51132e5ce1b5d2c2c363f05495f447ea924ab29c2cda2c11037b5fca2119e45a</premis:eventOutcomeDetailNote>
+                <premis:eventOutcomeDetailNote>d41d8cd98f00b204e9800998ecf8427e</premis:eventOutcomeDetailNote>
               </premis:eventOutcomeDetail>
             </premis:eventOutcomeInformation>
             <premis:linkingAgentIdentifier>
@@ -708,11 +708,11 @@
             </premis:eventIdentifier>
             <premis:eventType>fixity check</premis:eventType>
             <premis:eventDateTime>2015-06-24T00:27:28</premis:eventDateTime>
-            <premis:eventDetail>program="python"; module="hashlib.sha256()"</premis:eventDetail>
+            <premis:eventDetail>program="python"; module="hashlib.md5()"</premis:eventDetail>
             <premis:eventOutcomeInformation>
               <premis:eventOutcome>Pass</premis:eventOutcome>
               <premis:eventOutcomeDetail>
-                <premis:eventOutcomeDetailNote>51132e5ce1b5d2c2c363f05495f447ea924ab29c2cda2c11037b5fca2119e45a verified</premis:eventOutcomeDetailNote>
+                <premis:eventOutcomeDetailNote>d41d8cd98f00b204e9800998ecf8427e verified</premis:eventOutcomeDetailNote>
               </premis:eventOutcomeDetail>
             </premis:eventOutcomeInformation>
             <premis:linkingAgentIdentifier>
