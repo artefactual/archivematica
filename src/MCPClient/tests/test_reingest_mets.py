@@ -196,6 +196,30 @@ class TestUpdateDublinCore(TestCase):
         assert dc_elem[11].tag == '{http://purl.org/dc/elements/1.1/}rights'
         assert dc_elem[11].text == 'Public Domain'
 
+    def test_delete_dc(self):
+        """ It should create a new dmdSec with no values. """
+        mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_multiple_sip_dc.xml'))
+        assert len(mets.tree.findall('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP)) == 2
+
+        mets = archivematicaCreateMETSReingest.update_dublincore(mets, self.sip_uuid_none)
+        root = mets.serialize()
+
+        assert len(root.findall('mets:dmdSec/mets:mdWrap[@MDTYPE="DC"]', namespaces=NSMAP)) == 3
+        # Verify existing DC marked as original
+        assert root.find('mets:dmdSec[@ID="dmdSec_1"]', namespaces=NSMAP).get('STATUS') == 'original'
+        assert root.find('mets:dmdSec[@ID="dmdSec_2"]', namespaces=NSMAP).get('STATUS') == 'updated'
+        # Verify dmdSec created
+        dmdsec = root.xpath('mets:dmdSec[not(@ID="dmdSec_1" or @ID="dmdSec_2")]', namespaces=NSMAP)[0]
+        assert dmdsec.attrib['STATUS'] == 'updated'
+        assert dmdsec.attrib['CREATED']
+        # Verify fileSec div updated
+        assert dmdsec.attrib['ID'] in root.find('mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=NSMAP).attrib['DMDID']
+        assert 'dmdSec_1' in root.find('mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=NSMAP).attrib['DMDID']
+        assert 'dmdSec_2' in root.find('mets:structMap/mets:div[@TYPE="Directory"]/mets:div[@TYPE="Directory"][@LABEL="objects"]', namespaces=NSMAP).attrib['DMDID']
+        # Verify new DC
+        dc_elem = dmdsec.find('.//dcterms:dublincore', namespaces=NSMAP)
+        assert len(dc_elem) == 0
+
 
 class TestUpdateRights(TestCase):
     """ Test updating PREMIS:RIGHTS. (update_rights and add_rights_elements) """
