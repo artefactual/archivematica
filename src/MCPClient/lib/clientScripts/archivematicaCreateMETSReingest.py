@@ -1,9 +1,8 @@
 #!/usr/bin/env python2
 from __future__ import print_function
+from lxml import etree
 import os
 import sys
-
-from django.db.models import Q
 
 import metsrw
 
@@ -20,20 +19,19 @@ def update_dublincore(mets, sip_uuid):
     """
     Add new dmdSec for updated Dublin Core info relating to entire SIP.
 
-    Case: No DC in DB: Do nothing
+    Case: No DC in DB, no DC in METS: Do nothing
+    Case: No DC in DB, DC in METS: Mark as deleted.
     Case: DC in DB is untouched (METADATA_STATUS_REINGEST): Do nothing
     Case: New DC in DB with METADATA_STATUS_ORIGINAL: Add new DC
     Case: DC in DB with METADATA_STATUS_UPDATED: mark old, create updated
     """
 
     # Check for DC in DB with METADATA_STATUS_UPDATED or METADATA_STATUS_ORIGINAL
-    updated = models.DublinCore.objects.filter(
+    untouched = models.DublinCore.objects.filter(
         metadataappliestoidentifier=sip_uuid,
         metadataappliestotype_id=createmets2.SIPMetadataAppliesToType,
-    ).filter(
-        Q(status=models.METADATA_STATUS_UPDATED) | Q(status=models.METADATA_STATUS_ORIGINAL)
-    ).exists()
-    if not updated:
+        status=models.METADATA_STATUS_REINGEST).exists()
+    if untouched:
         # No new or updated DC found - return early
         print('No updated or new DC metadata found')
         return mets
@@ -44,6 +42,17 @@ def update_dublincore(mets, sip_uuid):
 
     # Create element
     dc_elem = createmets2.getDublinCore(createmets2.SIPMetadataAppliesToType, sip_uuid)
+
+    if dc_elem is None:
+        if objects_div.dmdsecs:
+            print('DC metadata was deleted')
+            # Create 'deleted' DC element
+            dc_elem = etree.Element(ns.dctermsBNS + "dublincore", nsmap={"dcterms": ns.dctermsNS, 'dc': ns.dcNS})
+            dc_elem.set(ns.xsiBNS + "schemaLocation", ns.dctermsNS + " http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd")
+        else:
+            # No new or updated DC found - return early
+            print('No updated or new DC metadata found')
+            return mets
     dmdsec = objects_div.add_dublin_core(dc_elem)
     print('Adding new DC in dmdSec with ID', dmdsec.id_string())
     if len(objects_div.dmdsecs) > 1:
