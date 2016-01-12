@@ -236,6 +236,24 @@ def add_new_files(mets, sip_uuid, sip_dir):
     return mets
 
 
+def delete_files(mets, sip_uuid):
+    """
+    Update METS for deleted files.
+
+    Add a deletion event, update fileGrp USE to deleted, and remove FLocat.
+    """
+    deleted_files = models.File.objects.filter(
+        sip_id=sip_uuid,
+        event__event_type='deletion',
+    ).values_list('uuid', flat=True)
+    for file_uuid in deleted_files:
+        df = mets.get_file(file_uuid=file_uuid)
+        df.use = 'deleted'
+        df.path = None
+        df.label = None
+    return mets
+
+
 def update_metadata_csv(mets, metadata_csv, sip_uuid, sip_dir):
     print('Parse new metadata.csv')
     full_path = metadata_csv.currentlocation.replace('%SIPDirectory%', sip_dir, 1)
@@ -291,6 +309,7 @@ def update_mets(sip_dir, sip_uuid):
     update_rights(mets, sip_uuid)
     add_events(mets, sip_uuid)
     add_new_files(mets, sip_uuid, sip_dir)
+    delete_files(mets, sip_uuid)
 
     # Delete original METS
 
