@@ -123,8 +123,8 @@ def add_events(mets, sip_uuid):
     """
     Add reingest events for all existing files.
     """
-    # Get all reingestion events for files in this SIP
-    reingest_events = models.Event.objects.filter(file_uuid__sip__uuid=sip_uuid, event_type='reingestion')
+    # Get all events for files in this SIP
+    events = models.Event.objects.filter(file_uuid__sip__uuid=sip_uuid)
 
     # Get Agent
     try:
@@ -135,8 +135,10 @@ def add_events(mets, sip_uuid):
         agent = None
         print('WARNING multiple agents found for Archivematica')
 
-    for event in reingest_events:
-        print('Adding reingestion event to', event.file_uuid_id)
+    needs_agent = set()
+
+    for event in events:
+        print('Adding', event.event_type, 'event to file', event.file_uuid_id)
         fsentry = mets.get_file(file_uuid=event.file_uuid_id)
         fsentry.add_premis_event(createmets2.createEvent(event))
 
@@ -144,8 +146,11 @@ def add_events(mets, sip_uuid):
 
         # Add agent if it's not already in this amdSec
         if agent and not mets.tree.xpath('mets:amdSec[@AMDID="' + amdsec.id_string() + '"]//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]//premis:agentIdentifierValue[text()="' + agent.identifiervalue + '"]', namespaces=ns.NSMAP):
-            print('Adding Agent for', agent.identifiervalue)
-            fsentry.add_premis_agent(createmets2.createAgent(agent))
+            needs_agent.add(fsentry)
+
+    for fsentry in needs_agent:
+        print('Adding Agent for', agent.identifiervalue)
+        fsentry.add_premis_agent(createmets2.createAgent(agent))
 
     return mets
 

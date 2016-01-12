@@ -338,6 +338,7 @@ class TestAddEvents(TestCase):
     def test_all_files_get_events(self):
         """
         It should add reingestion events to all files.
+        It should add deletion events only to deleted files.
         It should not change Agent information.
         """
         models.Agent.objects.all().delete()
@@ -346,22 +347,27 @@ class TestAddEvents(TestCase):
         assert len(mets.tree.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 9
         mets = archivematicaCreateMETSReingest.add_events(mets, self.sip_uuid)
         root = mets.serialize()
-        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 19
+        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 20
         assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:eventType[text()="deletion"]', namespaces=NSMAP) != []
         assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
         assert root.xpath('mets:amdSec[@ID="amdSec_3"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
         assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 9
 
     def test_agent_not_in_mets(self):
-        """ It should add a new Agent if it doesn't already exist. """
+        """
+        It should add a new Agent if it doesn't already exist.
+        It should only add one new Agent even if multiple Events are added.
+        """
         mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
         assert len(mets.tree.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 16
         assert len(mets.tree.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 9
         mets = archivematicaCreateMETSReingest.add_events(mets, self.sip_uuid)
         root = mets.serialize()
-        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 19
+        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 20
         assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 12
         assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:eventType[text()="deletion"]', namespaces=NSMAP) != []
         assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]', namespaces=NSMAP) != []
         assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
         assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]', namespaces=NSMAP) != []
