@@ -104,6 +104,21 @@ PATH_STRING_MULTIFIELD = {
     },
 }
 
+MULTI_FIELDS = {
+    'transfers': {
+        'transferfile': {
+            'relative_path': ['raw', 'path', 'word'],
+        },
+        'transfer': {},
+    },
+    'aips': {
+        'aipfile': {
+            'filePath': ['raw', 'path', 'word'],
+        },
+        'aip': {},
+    },
+}
+
 class ElasticsearchError(Exception):
     """ Not operational errors. """
     pass

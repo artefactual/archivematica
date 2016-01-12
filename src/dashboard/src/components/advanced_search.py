@@ -28,6 +28,8 @@ logger = logging.getLogger("archivematica.dashboard.advanced_search")
 OBJECT_FIELDS = (
     "mets",
     "transferMetadata",
+    "relative_path",
+    "filePath",
 )
 
 OTHER_FIELDS = (
@@ -191,6 +193,14 @@ def filter_search_fields(es_client, search_fields, index=None, doc_type=None):
         if not field.endswith('.*'):
             new_fields.append(field)
             continue
+
+        # In some cases, these are explicitly documented because
+        # they're part of the mapping; in that case, don't look up
+        # the mapping from ES and just use the documented forms
+        if field.replace('.*', '') in elasticSearchFunctions.MULTI_FIELDS[index][doc_type]:
+            new_fields.extend(field.replace('*', row) for row in elasticSearchFunctions.MULTI_FIELDS[index][doc_type][field.replace('.*', '')])
+            continue
+
         try:
             field_name = field.rsplit('.', 1)[0]
             mapping = elasticSearchFunctions.get_type_mapping(es_client, index, doc_type)
