@@ -17,7 +17,9 @@
 
 import os, sys
 from django.core.wsgi import get_wsgi_application
-
+import time
+import traceback
+import signal
 # Ensure that the path does not get added multiple times
 path = '/usr/share/archivematica/dashboard'
 if path not in sys.path:
@@ -25,7 +27,20 @@ if path not in sys.path:
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 
-application = get_wsgi_application()
+# workaround to troubleshoot mod_wsgi issues
+# See http://stackoverflow.com/questions/30954398/django-populate-isnt-reentrant 
+
+try:
+    application = get_wsgi_application()
+    print 'WSGI without exception'
+except Exception:
+    print 'handling WSGI exception'
+    # Error loading applications
+    if 'mod_wsgi' in sys.modules:
+        traceback.print_exc()
+        os.kill(os.getpid(), signal.SIGINT)
+        time.sleep(2.5)
+
 
 # See http://blog.dscpl.com.au/2008/12/using-modwsgi-when-developing-django.html
 from django.conf import settings
