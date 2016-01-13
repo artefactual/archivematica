@@ -37,6 +37,7 @@ function renderBacklogSearchForm(search_uri, on_success, on_error) {
   // default field name field
   search.addSelect('field', {title: 'field name'}, {
     ''             : 'Any',
+    'relative_path': 'Path',
     'filename'     : 'File name',
     'file_extension': 'File extension',
     'accessionid'  : 'Accession number',
