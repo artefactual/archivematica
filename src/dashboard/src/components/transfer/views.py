@@ -46,17 +46,6 @@ logger = logging.getLogger('archivematica.dashboard')
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 def grid(request):
-    try:
-        source_directories = storage_service.get_location(purpose="TS")
-    except:
-        messages.warning(request, 'Error retrieving source directories: is the storage server running? Please contact an administrator.')
-    else:
-        logging.debug("Source directories found: {}".format(source_directories))
-        if not source_directories:
-            msg = "No <a href='{source_admin}'>transfer source locations</a> are available. Please contact an administrator.".format(
-                source_admin=reverse('components.administration.views.sources'))
-            messages.warning(request, mark_safe(msg))
-
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
     uid = request.user.id
