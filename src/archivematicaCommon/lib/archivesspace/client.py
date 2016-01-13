@@ -488,7 +488,7 @@ class ArchivesSpaceClient(object):
                 "jsonmodel_type": "note_digital_object",
                 "type": "originalsloc",
                 "content": [dashboard_uuid],
-                "publish": True,
+                "publish": False,
             }],
             "restrictions": restricted,
             "subjects": parent_record['subjects'],
