@@ -630,7 +630,7 @@ class MicroServiceChain(models.Model):
     id = UUIDPkField()
     startinglink = models.ForeignKey('MicroServiceChainLink', db_column='startingLink')
     description = models.TextField(db_column='description')
-    replaces = models.ForeignKey('self', related_name='replaced_by', db_column='replaces')
+    replaces = models.ForeignKey('self', related_name='replaced_by', db_column='replaces', null=True, blank=True)
     lastmodified = models.DateTimeField(db_column='lastModified')
 
     class Meta:
@@ -744,8 +744,8 @@ class TaskConfig(models.Model):
 
 class StandardTaskConfig(models.Model):
     id = UUIDPkField()
-    execute = models.CharField(max_length=250, db_column='execute')
-    arguments = models.TextField(db_column='arguments')
+    execute = models.CharField(max_length=250, db_column='execute', null=True)
+    arguments = models.TextField(db_column='arguments', null=True)
     filter_subdir = models.CharField(max_length=50, db_column='filterSubDir', null=True, blank=True)
     filter_file_start = models.CharField(max_length=50, db_column='filterFileStart', null=True, blank=True)
     filter_file_end = models.CharField(max_length=50, db_column='filterFileEnd', null=True, blank=True)
@@ -775,7 +775,7 @@ class TaskConfigSetUnitVariable(models.Model):
     variablevalue = models.TextField(null=True, blank=True, db_column='variableValue')
     microservicechainlink = models.ForeignKey('MicroServiceChainLink', null=True, db_column='microServiceChainLink')
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
-    updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True)
+    updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True, null=True)
 
     class Meta(object):
         db_table = u'TasksConfigsSetUnitVariable'
@@ -787,7 +787,7 @@ class TaskConfigUnitVariableLinkPull(models.Model):
     variablevalue = models.TextField(null=True, blank=True, db_column='variableValue')
     defaultmicroservicechainlink = models.ForeignKey('MicroServiceChainLink', null=True, db_column='defaultMicroServiceChainLink')
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
-    updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True)
+    updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True, null=True)
 
     class Meta(object):
         db_table = u'TasksConfigsUnitVariableLinkPull'
@@ -868,7 +868,7 @@ class TransferMetadataSet(models.Model):
 
 class TransferMetadataField(models.Model):
     id = UUIDPkField()
-    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True, null=True)
     fieldlabel = models.CharField(max_length=50, blank=True, db_column='fieldLabel')
     fieldname = models.CharField(max_length=50, db_column='fieldName')
     fieldtype = models.CharField(max_length=50, db_column='fieldType')
@@ -897,7 +897,7 @@ class TransferMetadataFieldValue(models.Model):
 # defining new fields are present in the code but currently disabled.)
 class Taxonomy(models.Model):
     id = UUIDPkField()
-    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True, null=True)
     name = models.CharField(max_length=255, blank=True, db_column='name')
     type = models.CharField(max_length=50, default='open')
 
@@ -909,7 +909,7 @@ class Taxonomy(models.Model):
 
 class TaxonomyTerm(models.Model):
     id = UUIDPkField()
-    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True, null=True)
     taxonomy = models.ForeignKey('Taxonomy', db_column='taxonomyUUID', to_field='id')
     term = models.CharField(max_length=255, db_column='term')
 
@@ -947,6 +947,7 @@ class FPCommandOutput(models.Model):
 
     class Meta(object):
         db_table = u'FPCommandOutput'
+        unique_together = ('file', 'rule')
 
     def __unicode__(self):
         return u'<file: {file}; rule: {rule}; content: {content}'.format(file=self.file, rule=self.rule, content=self.content[:20])

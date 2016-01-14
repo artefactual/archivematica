@@ -1064,71 +1064,6 @@
 },
 {
   "fields": {
-    "microservicegroup": "Normalize",
-    "defaultexitmessage": "Failed",
-    "reloadfilelist": true,
-    "lastmodified": "2012-11-10T02:08:12+00:00",
-    "defaultnextchainlink": null,
-    "currenttask": "9c04a06d-f3f6-4cb9-bb47-ec3761c13903",
-    "replaces": null
-  },
-  "model": "main.microservicechainlink",
-  "pk": "0ca642b8-d6e7-4204-ac66-7209c3bae1b0"
-},
-{
-  "fields": {
-    "microservicegroup": "Normalize",
-    "defaultexitmessage": "Failed",
-    "reloadfilelist": true,
-    "lastmodified": "2012-11-10T02:09:39+00:00",
-    "defaultnextchainlink": null,
-    "currenttask": "032bff90-0ec1-4c77-aa29-6a04183e99ef",
-    "replaces": null
-  },
-  "model": "main.microservicechainlink",
-  "pk": "0cc7077a-5c55-4229-ab7d-f92935e4f3d6"
-},
-{
-  "fields": {
-    "microservicegroup": "Normalize",
-    "defaultexitmessage": "Failed",
-    "reloadfilelist": true,
-    "lastmodified": "2012-11-10T02:09:44+00:00",
-    "defaultnextchainlink": null,
-    "currenttask": "3694dc49-bcc5-4b70-8721-50de40985af7",
-    "replaces": null
-  },
-  "model": "main.microservicechainlink",
-  "pk": "0ceb8f18-8896-409b-891f-694c40d990fe"
-},
-{
-  "fields": {
-    "microservicegroup": "Normalize",
-    "defaultexitmessage": "Failed",
-    "reloadfilelist": true,
-    "lastmodified": "2012-11-10T02:08:27+00:00",
-    "defaultnextchainlink": null,
-    "currenttask": "0853f765-5915-4e2d-b732-be56cdb05275",
-    "replaces": null
-  },
-  "model": "main.microservicechainlink",
-  "pk": "0cf7efd6-5475-4eb2-b11c-ac796a59f1af"
-},
-{
-  "fields": {
-    "microservicegroup": "Normalize",
-    "defaultexitmessage": "Failed",
-    "reloadfilelist": true,
-    "lastmodified": "2012-11-10T02:08:57+00:00",
-    "defaultnextchainlink": null,
-    "currenttask": "17fd2d32-e84d-4103-aee1-74f72460e8f8",
-    "replaces": null
-  },
-  "model": "main.microservicechainlink",
-  "pk": "0d381b64-dadd-4d3c-886e-8f4dd508e3a8"
-},
-{
-  "fields": {
     "microservicegroup": "Reject AIP",
     "defaultexitmessage": "Failed",
     "reloadfilelist": true,
@@ -1139,32 +1074,6 @@
   },
   "model": "main.microservicechainlink",
   "pk": "0d7f5dc2-b9af-43bf-b698-10fdcc5b014d"
-},
-{
-  "fields": {
-    "microservicegroup": "Normalize",
-    "defaultexitmessage": "Failed",
-    "reloadfilelist": true,
-    "lastmodified": "2012-11-10T02:08:08+00:00",
-    "defaultnextchainlink": null,
-    "currenttask": "0040be51-608e-470b-8007-9edec255fe3e",
-    "replaces": null
-  },
-  "model": "main.microservicechainlink",
-  "pk": "0dd6144f-8ca8-4f0c-9596-0bb44f30065c"
-},
-{
-  "fields": {
-    "microservicegroup": "Normalize",
-    "defaultexitmessage": "Failed",
-    "reloadfilelist": true,
-    "lastmodified": "2012-11-10T02:08:37+00:00",
-    "defaultnextchainlink": null,
-    "currenttask": "513df2fd-62a7-4186-8f49-82b9cfbeae83",
-    "replaces": null
-  },
-  "model": "main.microservicechainlink",
-  "pk": "0df8ce53-7a3b-4780-8bcc-2a8680130c88"
 },
 {
   "fields": {
@@ -14027,7 +13936,7 @@
     "execute": "createMETS_v2.0",
     "filter_subdir": null,
     "lastmodified": "2014-09-11T16:09:53+00:00",
-    "requires_output_lock": null,
+    "requires_output_lock": false,
     "filter_file_start": null,
     "stderr_file": null,
     "replaces": null,
@@ -15467,7 +15376,7 @@
     "execute": "emailFailReport_v0.0",
     "filter_subdir": null,
     "lastmodified": "2013-01-08T02:11:59+00:00",
-    "requires_output_lock": null,
+    "requires_output_lock": false,
     "filter_file_start": null,
     "stderr_file": null,
     "replaces": null,
