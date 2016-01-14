@@ -56,6 +56,7 @@ migrations=(
   mysql_dev_8609_automate_matching_gui.sql
   mysql_dev_8896_checksum_algorithms.sql
   mysql_dev_9265_index_after_processing_decision.sql
+  mysql_dev_8974_migrations.sql
   mysql_dev_delete_links.sql
 )
 
