@@ -138,6 +138,7 @@ $(function()
         'click .btn_approve_job': 'approveJob',
         'click .btn_reject_job': 'rejectJob',
         'click .btn_show_tasks': 'showTasks',
+        'click .btn_file_id_report': 'fileIdentificationReport',
         'change select': 'action'
       },
 
@@ -148,7 +149,7 @@ $(function()
           $(this.el).html(this.template(this.model.toJSON()));
 
           $(this.el).css(
-            'background-color', 
+            'background-color',
             this.getStatusColor(this.model.get('currentstep'))
           );
 
@@ -189,6 +190,12 @@ $(function()
             this.$('.job-detail-actions').append($select);
           }
 
+          if ('Identify file format' == this.model.get('type'))
+          {
+            this.$('.job-detail-actions')
+              .append('<a class="btn_file_id_report" href="#" title="Report"><span>Report</span></a>');
+          }
+
           this.$('.job-detail-microservice > a').tooltip();
 
           return this;
@@ -217,8 +224,16 @@ $(function()
               },
             url: '/mcp/execute/'
           });
-        }
+        },
 
+      fileIdentificationReport: function(event)
+        {
+          event.preventDefault();
+
+          var url = '/transfer/unidentified_file_report/' + this.model.sip.get('uuid') + '/';
+          window.open(url, '_blank');
+          window.focus();
+        },
     });
 
     window.DirectoryBrowserView = BaseDirectoryBrowserView.extend({
