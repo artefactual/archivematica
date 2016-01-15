@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
+
+from django.core.management import call_command
 from django.db import models, migrations
 import main.models
 import django_extensions.db.fields
 
+
+def load_fixtures(apps, schema_editor):
+    fixture_file = os.path.join(os.path.dirname(__file__), 'initial_data.json')
+    call_command('loaddata', fixture_file, app_label='main')
 
 class Migration(migrations.Migration):
 
@@ -989,4 +996,5 @@ class Migration(migrations.Migration):
             name='fpcommandoutput',
             unique_together=set([('file', 'rule')]),
         ),
+        migrations.RunPython(load_fixtures),
     ]
