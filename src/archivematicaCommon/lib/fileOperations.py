@@ -177,7 +177,7 @@ def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, 
     f.currentlocation = dstDB
     f.save()
 
-def updateFileLocation(src, dst, eventType="", eventDateTime="", eventDetail="", eventIdentifierUUID=uuid.uuid4().__str__(), fileUUID="None", sipUUID=None, transferUUID=None, eventOutcomeDetailNote="", createEvent=True):
+def updateFileLocation(src, dst, eventType="", eventDateTime="", eventDetail="", eventIdentifierUUID=None, fileUUID="None", sipUUID=None, transferUUID=None, eventOutcomeDetailNote="", createEvent=True):
     """
     Updates file location in the database, and optionally writes an event for the sanitization to the database.
     Note that this does not actually move a file on disk.
@@ -188,6 +188,8 @@ def updateFileLocation(src, dst, eventType="", eventDateTime="", eventDetail="",
     src = unicodeToStr(src)
     dst = unicodeToStr(dst)
     fileUUID = unicodeToStr(fileUUID)
+    if eventIdentifierUUID is None:
+        eventIdentifierUUID = str(uuid.uuid4())
     if not fileUUID or fileUUID == "None":
         kwargs = {
             "removedtime__isnull": True,
