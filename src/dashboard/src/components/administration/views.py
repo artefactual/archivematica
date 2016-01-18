@@ -16,7 +16,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import collections
-import ConfigParser
 import logging
 import os
 import shutil
@@ -28,7 +27,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Max, Min
 from django.forms.models import modelformset_factory
+from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import redirect, render
+from django.template import RequestContext
 
 from main import forms
 from main import models
@@ -38,12 +39,10 @@ from components.administration.forms import ArchivesSpaceConfigForm
 from components.administration.forms import ArchivistsToolkitConfigForm
 from components.administration.forms import SettingsForm
 from components.administration.forms import StorageSettingsForm, ChecksumSettingsForm
-from components.administration.models import ArchivesSpaceConfig, ArchivistsToolkitConfig
 from components.administration.forms import TaxonomyTermForm
-from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
-from django.template import RequestContext
+from components.administration.models import ArchivesSpaceConfig, ArchivistsToolkitConfig
+import components.administration.views_processing as processing_views
 import components.decorators as decorators
-from django.template import RequestContext
 import components.helpers as helpers
 import storageService as storage_service
 
