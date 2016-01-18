@@ -4,3 +4,6 @@
 [submodule "src/dashboard/src/external/appraisal-tab"]
 	path = src/dashboard/src/external/appraisal-tab
 	url = https://github.com/artefactual-labs/appraisal-tab.git
+[submodule "src/dashboard/src/external/base64-helpers"]
+	path = src/dashboard/src/external/base64-helpers
+	url = https://github.com/artefactual-labs/base64-helpers.git
