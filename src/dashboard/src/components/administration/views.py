@@ -279,29 +279,24 @@ def storage(request):
     system_directory_description = 'Available storage'
     return render(request, 'administration/locations.html', locals())
 
-"""
-Usage summary page
-
-Return page summarizing storage usage
-
-:param HttpRequest request
-:returns HttpResponse
-"""
 def usage(request):
+    """
+    Return page summarizing storage usage
+    """
     usage_dirs = _usage_dirs()
 
     context = {'usage_dirs': usage_dirs}
     return render(request, 'administration/usage.html', context)
 
-"""
-Provide usage data
-
-Return maximum size and, optionally, current usage of a number of directories
-
-:param bool calculate_usage: whether or not to calculate usage 
-:returns OrderedDict: data structure defining directories/usage/size
-"""
 def _usage_dirs(calculate_usage=True):
+    """
+    Provide usage data
+
+    Return maximum size and, optionally, current usage of a number of directories
+
+    :param bool calculate_usage: True if usage should be calculated.
+    :returns OrderedDict: Dict where key is a descriptive handle and value is a dict with the path, description, parent directory ID, and optionally size and usage.
+    """
     # Put spaces before directories contained by the spaces
     #
     # Description is optional, but either a path or a location purpose (used to
@@ -356,13 +351,13 @@ def _usage_dirs(calculate_usage=True):
 
     return dirs
 
-"""
-Check the size of the volume containing a given path
-
-:param string path: path to check
-:returns int: size in bytes
-"""
 def _usage_check_directory_volume_size(path):
+    """
+    Check the size of the volume containing a given path
+
+    :param string path: path to check
+    :returns int: size in bytes
+    """
     # Get volume size (in 512 byte blocks)
     try:
         output = subprocess.check_output(["df", path])
@@ -375,51 +370,48 @@ def _usage_check_directory_volume_size(path):
 
         return int(size) * 512
     except OSError:
-        logger.exception('No such directory: {}'.format(path))
+        logger.exception('No such directory: %s', path)
         return 0
     except subprocess.CalledProcessError:
-        logger.exception('Unable to determine size of {}.'.format(path))
+        logger.exception('Unable to determine size of %s', path)
         return 0
 
-"""
-Check the spaced used at a given path
-
-:param string path: path to check
-:returns int: usage in bytes
-"""
 def _usage_get_directory_used_bytes(path):
-    """ Get total usage in bytes """
+    """
+    Check the spaced used at a given path
+
+    :param string path: path to check
+    :returns: usage in bytes
+    """
     try:
         output = subprocess.check_output(["du", "--bytes", "--summarize", path])
         return output.split("\t")[0]
     except OSError:
-        logger.exception('No such directory: {}'.format(path))
+        logger.exception('No such directory: %s', path)
         return 0
     except subprocess.CalledProcessError:
-        logger.exception('Unable to determine usage of {}.'.format(path))
+        logger.exception('Unable to determine usage of %s.', path)
         return 0
 
-"""
-Confirmation context for emptying a directory
-
-:param HttpRequest request
-:returns RequestContext
-"""
 def clear_context(request, dir_id):
+    """
+    Confirmation context for emptying a directory
+
+    :param dir_id: Key for the directory in _usage_dirs
+    """
     usage_dirs = _usage_dirs(False)
     prompt = 'Clear ' + usage_dirs[dir_id]['description'] + '?'
     cancel_url = reverse("components.administration.views.usage")
     return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
 
-"""
-Empty a directory
-
-:param HttpRequest request
-:returns HttpResponse
-"""
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
 @decorators.confirm_required('simple_confirm.html', clear_context)
 def usage_clear(request, dir_id):
+    """
+    Empty a directory
+
+    :param dir_id: Descriptive shorthand for the directory, key for _usage_dirs
+    """
     if request.method == 'POST':
         usage_dirs = _usage_dirs(False)
         dir_info = usage_dirs[dir_id]
