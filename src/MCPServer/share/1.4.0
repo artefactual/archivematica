@@ -1,0 +1,618 @@
+#updates required to go from Archivematica 1.3.x to 1.4.0
+
+#7603
+-- Continue processing if a file fails to be identified, like
+-- other identification services
+-- Fixes #7603
+--
+-- Metadata
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='04493ab2-6cad-400d-8832-06941f121a96' WHERE pk='b2444a6e-c626-4487-9abc-1556dd89a8ae';
+-- Submission documentation
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='33d7ac55-291c-43ae-bb42-f599ef428325' WHERE pk='1dce8e21-7263-4cc4-aa59-968d9793b5f2';
+
+#7606
+-- Add quotes around all the ATK parameters to handle whitespace in names
+
+UPDATE StandardTasksConfigs SET arguments = '--host="%host%" --port="%port%" --dbname="%dbname%" --dbuser="%dbuser%" --dbpass="%dbpass%" --atuser="%atuser%" --dip_location="%SIPDirectory%" --dip_name="%SIPName%" --dip_uuid="%SIPUUID%" --restrictions="%restrictions%" --object_type="%object_type%" --ead_actuate="%ead_actuate%" --ead_show="%ead_show%" --use_statement="%use_statement%" --uri_prefix="%uri_prefix%" --access_conditions="%access_conditions%" --use_conditions="%use_conditions%"' WHERE pk='a650921e-b754-4e61-9713-1457cf52e77d';
+
+#6488
+-- Issue 6488
+
+-- Cleanup
+UPDATE TasksConfigs SET description='Determine processing path for this AIP version' WHERE pk='cd53e17c-1dd1-4e78-9086-e6e013a64536';  -- fix typo
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=NULL WHERE pk='b3c5e343-5940-4aad-8a9f-fb0eccbfb3a3';  -- choice doesn't need defaultNextChainLink
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='9e3dd445-551d-42d1-89ba-fe6dff7c6ee6' WHERE pk='8de9fe10-932f-4151-88b0-b50cf271e156'; -- fail set wrong
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='5d6a103c-9a5d-4010-83a8-6f4c61eb1478' WHERE pk='8ba83807-2832-4e41-843c-2e55ad10ea0b'; -- fail set wrong
+DELETE FROM MicroServiceChainChoice WHERE chainAvailable='e5bc60f8-4e64-4363-bf01-bef67154cfed';  -- Choice at link that wasn't a choice
+-- Chain not pointed to by anything anymore
+DELETE FROM MicroServiceChains WHERE pk='e5bc60f8-4e64-4363-bf01-bef67154cfed';
+SET @d1 = '1c7726a4-9165-4809-986a-bf4477c719ca' COLLATE utf8_unicode_ci;
+SET @d2 = '26cf64e2-21b5-4935-a52b-71695870f1f2' COLLATE utf8_unicode_ci;
+SET @d3 = '65916156-41a5-4ed2-9472-7dca11e6bc08' COLLATE utf8_unicode_ci;
+SET @d4 = '14a0678f-9c2a-4995-a6bd-5acd141eeef1' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4);
+
+-- Update microserviceGroups
+UPDATE MicroServiceChainLinks SET microserviceGroup='Process manually normalized files' WHERE pk IN ('ab0d3815-a9a3-43e1-9203-23a40c00c551', '91ca6f1f-feb5-485d-99d2-25eed195e330', '10c40e41-fb10-48b5-9d01-336cd958afe8', 'e76aec15-5dfa-4b14-9405-735863e3a6fa', '9e9b522a-77ab-4c17-ab08-5a4256f49d59', 'a1b65fe3-9358-479b-93b9-68f2b5e71b2b', '78b7adff-861d-4450-b6dd-3fabe96a849e');
+UPDATE MicroServiceChainLinks SET microserviceGroup='Generate AIP METS' WHERE pk IN ('ccf8ec5c-3a9a-404a-a7e7-8f567d3b36a0', '53e14112-21bb-46f0-aed3-4e8c2de6678f', '88807d68-062e-4d1a-a2d5-2d198c88d8ca');
+UPDATE MicroServiceChainLinks SET microserviceGroup='Add final metadata' WHERE pk IN ('c168f1ee-5d56-4188-8521-09f0c5475133', 'f060d17f-2376-4c0b-a346-b486446e46ce', '54b73077-a062-41cc-882c-4df1eba447d9', 'eeb23509-57e2-4529-8857-9d62525db048');
+-- Move Verify Checksums to after processing metadata dir
+SET @verifychecksumMSCL = '88807d68-062e-4d1a-a2d5-2d198c88d8ca' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinks SET microserviceGroup='Verify checksums' WHERE pk IN (@verifychecksumMSCL);
+--  Skip verify
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='ee438694-815f-4b74-97e1-8e7dde2cc6d5' WHERE defaultNextChainLink=@verifychecksumMSCL;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='ee438694-815f-4b74-97e1-8e7dde2cc6d5' WHERE nextMicroServiceChainLink=@verifychecksumMSCL;
+--   New predecessor point to verify
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@verifychecksumMSCL WHERE defaultNextChainLink='54b73077-a062-41cc-882c-4df1eba447d9';
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@verifychecksumMSCL WHERE nextMicroServiceChainLink='54b73077-a062-41cc-882c-4df1eba447d9';
+--   verify point to new successor
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='7d728c39-395f-4892-8193-92f086c0546f' WHERE pk=@verifychecksumMSCL;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='54b73077-a062-41cc-882c-4df1eba447d9' WHERE microServiceChainLink=@verifychecksumMSCL;
+
+-- Skip old file ID
+SET @moveToFileIDMSCL='a2173b55-abff-4d8f-97b9-79cc2e0a64fa' COLLATE utf8_unicode_ci;
+SET @moveToFileIDTC='8b846431-5da9-4743-906d-2cdc4e777f8f' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinks SET currentTask=@moveToFileIDTC WHERE pk=@moveToFileIDMSCL;
+-- Remove old style file ID
+SET @d0 = 'd05eaa5e-344b-4daa-b78b-c9f27c76499d' COLLATE utf8_unicode_ci;
+SET @d1 = 'f4dea20e-f3fe-4a37-b20f-0e70a7bc960e' COLLATE utf8_unicode_ci;
+SET @d2 = '5bddbb67-76b4-4bcb-9b85-a0d9337e7042' COLLATE utf8_unicode_ci;
+SET @d3 = 'f3efc52e-22e1-4337-b8ed-b38dac0f9f77' COLLATE utf8_unicode_ci;
+SET @d4 = 'd7681789-5f98-49bb-85d4-c01b34dac5b9' COLLATE utf8_unicode_ci;
+SET @d5 = 'cf26b361-dd5f-4b62-a493-6ee02728bd5f' COLLATE utf8_unicode_ci;
+SET @d6 = '01292b28-9588-4a85-953b-d92b29faf4d0' COLLATE utf8_unicode_ci;
+SET @d7 = '2d751fc6-dc9d-4c52-b0d9-a4454cefb359' COLLATE utf8_unicode_ci;
+SET @d8 = 'b063c4ce-ada1-4e72-a137-800f1c10905c' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d0, @d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
+DELETE FROM MicroServiceChainLinksExitCodes WHERE nextMicroServiceChainLink in (@d0, @d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
+DELETE FROM MicroServiceChainChoice WHERE choiceAvailableAtLink IN (@d0, @d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
+DELETE FROM WatchedDirectories WHERE chain IN (SELECT pk FROM MicroServiceChains WHERE startingLink IN (@d0, @d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8));
+DELETE FROM MicroServiceChains WHERE startingLink IN (@d0, @d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
+
+-- Remove Set faux UUIDs
+SET @del = '58fcd2fd-bcdf-4e49-ad99-7e24cc8c3ba5' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='e4e19c32-16cc-4a7f-a64d-a1f180bdb164' WHERE defaultNextChainLink=@del;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='e4e19c32-16cc-4a7f-a64d-a1f180bdb164' WHERE nextMicroServiceChainLink=@del;
+DELETE FROM StandardTasksConfigs WHERE pk IN (SELECT taskTypePKReference FROM TasksConfigs WHERE pk in (SELECT currentTask FROM MicroServiceChainLinks WHERE pk IN (@del)));
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@del);
+
+-- Normalization chain should exclude setting returnFromManuallyNormalized and postApproveNormalization
+UPDATE TasksConfigsSetUnitVariable SET microServiceChainLink='f2a6f2a5-2f92-47da-b63b-30326625f6ae' WHERE pk='d8e2c7b2-5452-4c26-b57a-04caafe9f95c';
+SET @d1 = '4df4cc06-3b03-4c6f-b5c4-bec12a97dc90' COLLATE utf8_unicode_ci;
+SET @d2 = '5e4f7467-8637-49b2-a584-bae83dabf762' COLLATE utf8_unicode_ci;
+DELETE FROM TasksConfigsSetUnitVariable WHERE pk IN (SELECT taskTypePKReference FROM TasksConfigs WHERE pk in (SELECT currentTask FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2)));
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2);
+
+-- No need to load post approve normalization link - Approve chains just sent returnFromManualNormalized
+SET @d1 = '2307b24a-a019-4b5b-a520-a6fff270a852' COLLATE utf8_unicode_ci;
+SET @d2 = 'c4e109d6-38ee-4c92-b83d-bc4d360f6f2e' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChains SET startingLink='b443ba1a-a0b6-4f7c-aeb2-65bd83de5e8b' WHERE startingLink=@d1;
+UPDATE MicroServiceChains SET startingLink='0b5ad647-5092-41ce-9fe5-1cc376d0bc3f' WHERE startingLink=@d2;
+DELETE FROM TasksConfigsUnitVariableLinkPull WHERE pk IN (SELECT taskTypePKReference FROM TasksConfigs WHERE pk in (SELECT currentTask FROM MicroServiceChainLinks WHERE pk IN (@d1, @d2)));
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2);
+
+-- Remove weirdness with magic link, createDip directory, and setting resumeAfterNormalizationFileIDToolSelected
+SET @setPreserveNormTC = '63866950-cb04-4fe2-9b1d-9d5f1d22fc86' COLLATE utf8_unicode_ci;
+SET @setPreserveNormMSCL = 'e219ed78-2eda-4263-8c0f-0c7f6a86c33e' COLLATE utf8_unicode_ci;
+SET @setPreservePKref = '1871a1a5-1937-4c4d-ab05-3b0c04a0bca1' COLLATE utf8_unicode_ci;
+SET @setAllNormTC = '235c3727-b138-4e62-9265-c8f07761a5fa' COLLATE utf8_unicode_ci;
+SET @setAllNormMSCL = '74665638-5d8f-43f3-b7c9-98c4c8889766' COLLATE utf8_unicode_ci;
+SET @setAllNormPKref = 'f85bbe03-8aca-4211-99b7-ddb7dfb24da1' COLLATE utf8_unicode_ci;
+SET @fileIDMSCL = 'a2173b55-abff-4d8f-97b9-79cc2e0a64fa' COLLATE utf8_unicode_ci;
+UPDATE TasksConfigs SET taskType='6f0b612c-867f-4dfd-8e43-5b35b7f882d7' WHERE pk IN (@setPreserveNormTC, @setAllNormTC); -- setUnitVariable
+UPDATE TasksConfigs SET taskTypePKReference=@setPreservePKref WHERE pk=@setPreserveNormTC;
+UPDATE TasksConfigs SET taskTypePKReference=@setAllNormPKref WHERE pk=@setAllNormTC;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@fileIDMSCL WHERE defaultNextChainLink='7d43afab-4d3e-4733-a3f2-84eb772e9e57';
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@fileIDMSCL WHERE nextMicroServiceChainLink='7d43afab-4d3e-4733-a3f2-84eb772e9e57';
+SET @d1 = '7d43afab-4d3e-4733-a3f2-84eb772e9e57' COLLATE utf8_unicode_ci;
+SET @d2 = '48bfc7e1-75ed-44eb-a65c-0701c022d934' COLLATE utf8_unicode_ci;
+SET @d3 = 'c73acd63-19c9-4ca8-912c-311107d0454e' COLLATE utf8_unicode_ci;
+SET @d4 = 'f63970a2-dc63-4ab4-80a6-9bfd72e3cf5a' COLLATE utf8_unicode_ci;
+SET @d5 = 'a58bd669-79af-4999-8654-951f638d4457' COLLATE utf8_unicode_ci;
+DELETE FROM WatchedDirectories WHERE chain IN (SELECT pk FROM MicroServiceChains WHERE startingLink IN (@d1, @d2, @d3, @d4, @d5));
+DELETE FROM MicroServiceChains WHERE startingLink IN (@d1, @d2, @d3, @d4, @d5);
+DELETE FROM TasksConfigsAssignMagicLink WHERE execute IN (@d1, @d2, @d3, @d4, @d5);
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5);
+
+-- Remove duplicate create DIP
+SET @d1 = '25b5dc50-d42d-4ee2-91fc-5dcc3eef30a7' COLLATE utf8_unicode_ci;
+SET @d2 = '1c0f5926-fd76-4571-a706-aa6564555199' COLLATE utf8_unicode_ci;
+SET @d3 = '82c0eca0-d9b6-4004-9d77-ded9286a9ac7' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3);
+
+-- Remove unnecessary watchedDir for access Normalization for DIP from AIP
+SET @accessNormMSCL = 'b3c5e343-5940-4aad-8a9f-fb0eccbfb3a3' COLLATE utf8_unicode_ci;
+SET @d1 = 'f2a6f2a5-2f92-47da-b63b-30326625f6ae' COLLATE utf8_unicode_ci;
+DELETE FROM WatchedDirectories WHERE chain IN (SELECT pk FROM MicroServiceChains WHERE startingLink=@accessNormMSCL);
+DELETE FROM MicroServiceChains WHERE startingLink=@accessNormMSCL;
+UPDATE TasksConfigsSetUnitVariable SET microServiceChainLink=@accessNormMSCL WHERE microServiceChainLink=@d1;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@d1;
+
+-- Move MD reminder to start of submission docs
+SET @mdReminderMSCL = '54b73077-a062-41cc-882c-4df1eba447d9' COLLATE utf8_unicode_ci;
+SET @afterMdReminderMSCL = '77a7fa46-92b9-418e-aa88-fbedd4114c9f' COLLATE utf8_unicode_ci;
+SET @createMETSMSCL='ccf8ec5c-3a9a-404a-a7e7-8f567d3b36a0' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@createMETSMSCL WHERE defaultNextChainLink=@mdReminderMSCL;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@createMETSMSCL WHERE nextMicroServiceChainLink=@mdReminderMSCL;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@mdReminderMSCL WHERE defaultNextChainLink=@afterMdReminderMSCL;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@mdReminderMSCL WHERE nextMicroServiceChainLink=@afterMdReminderMSCL;
+UPDATE MicroServiceChains SET startingLink=@afterMdReminderMSCL WHERE startingLink=@createMETSMSCL;
+-- Set MD reminder group
+UPDATE MicroServiceChainLinks SET microserviceGroup='Add final metadata' WHERE pk IN (@mdReminderMSCL, 'eeb23509-57e2-4529-8857-9d62525db048', @afterMdReminderMSCL);
+
+-- Add jsonMetadataToCSV to during post-norm metadata processing 8c8bac29-4102-4fd2-9d0a-a3bd2e607566
+SET @metadataMSCL = 'b0ffcd90-eb26-4caf-8fab-58572d205f04' COLLATE utf8_unicode_ci;
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('38b99e0c-7066-49c4-82ed-d77bd7f019a1', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '44d3789b-10ad-4a9c-9984-c2fe503c8720', 'Process JSON metadata');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@metadataMSCL, 'Process metadata directory', 'Failed', '38b99e0c-7066-49c4-82ed-d77bd7f019a1', 'e4b0c713-988a-4606-82ea-4b565936d9a7');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('f1292ec3-4749-4e64-a924-c2089f97c583', @metadataMSCL, 0, 'e4b0c713-988a-4606-82ea-4b565936d9a7', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@metadataMSCL WHERE microServiceChainLink='ee438694-815f-4b74-97e1-8e7dde2cc6d5';
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@metadataMSCL WHERE pk='ee438694-815f-4b74-97e1-8e7dde2cc6d5';
+-- /ingest jsonMetadataToCSV
+
+-- Merge Approve nodes
+
+-- Replace 'load finish with metadata processing link' (f1e2) with 'check if DIP should be created' test -d %SIPDir%DIP
+DELETE FROM TasksConfigsUnitVariableLinkPull WHERE pk='49c816cd-b443-498f-9369-9274d060ddd3';
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('49c816cd-b443-498f-9369-9274d060ddd3', 0, 'test_v0.0', '-d "%SIPDirectory%DIP"');
+UPDATE TasksConfigs SET taskType='36b2e239-4a57-4aa5-8ebc-7a29139baca6', description='Check if DIP should be generated' WHERE pk='a493f430-d905-4f68-a742-f4393a43e694';
+-- DIP directory found
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='378ae4fc-7b62-40af-b448-a1ab47ac2c0c' WHERE microServiceChainLink='f1e286f9-4ec7-4e19-820c-dae7b8ea7d09' AND exitCode=0;
+-- DIP directory not found
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('99f8045f-8da0-40f6-8fb3-b45bfc7f3bfb', 'f1e286f9-4ec7-4e19-820c-dae7b8ea7d09', 1, '65240550-d745-4afe-848f-2bf5910457c9', 'Completed successfully');
+
+-- Remove duplicate Approve node
+DELETE FROM MicroServiceChains WHERE pk='cc884b80-3e89-4e0c-bc65-b73019fc0089';
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='83257841-594d-4a0e-a4a1-1e9269c30f3d' WHERE nextMicroServiceChainLink='39ac9205-cb08-47b1-8bc3-d3375e37d9eb';  -- Make everything point at same approve node
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='83257841-594d-4a0e-a4a1-1e9269c30f3d' WHERE defaultNextChainLink='39ac9205-cb08-47b1-8bc3-d3375e37d9eb';  -- Make everything point at same approve node
+-- Make WD just approveNormalization
+UPDATE StandardTasksConfigs SET arguments='"%SIPDirectory%" "%sharedPath%watchedDirectories/approveNormalization/." "%SIPUUID%" "%sharedPath%" "%SIPUUID%" "%sharedPath%"' WHERE pk='87fb2e00-03b9-4890-a4d4-0e28f27e32c2';  -- Move to approveNormalization instead of approveNormalization/preservationAndAccess
+UPDATE WatchedDirectories SET watchedDirectoryPath='%watchDirectoryPath%approveNormalization/' WHERE pk='fb77de49-855d-4949-bb85-553b23cdc708';  -- Change directory to watch
+UPDATE MicroServiceChains SET startingLink='0f0c1f33-29f2-49ae-b413-3e043da5df61' WHERE pk='1e0df175-d56d-450d-8bee-7df1dc7ae815';  --  Remove setting unitVar node
+DELETE FROM TasksConfigsSetUnitVariable WHERE pk IN ('c26b2859-7a96-462f-880a-0cd8d1b0ac32', '771dd17a-02d1-403b-a761-c70cc9cc1d1a', '6b4600f2-6df6-42cb-b611-32938b46a9cf', '5035632e-7879-4ece-bf43-2fc253026ff5', 'fc9f30bf-7f6e-4e62-9f99-689c8dc2e4ec');  -- Delete everything that sets a now unneeded unitVar
+-- Remove 'set resume after metadata'
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink = '54b73077-a062-41cc-882c-4df1eba447d9' WHERE nextMicroServiceChainLink IN ('ab0d3815-a9a3-43e1-9203-23a40c00c551', 'c168f1ee-5d56-4188-8521-09f0c5475133', 'f060d17f-2376-4c0b-a346-b486446e46ce');
+UPDATE MicroServiceChainLinks SET defaultNextChainLink = '54b73077-a062-41cc-882c-4df1eba447d9' WHERE defaultNextChainLink IN ('ab0d3815-a9a3-43e1-9203-23a40c00c551', 'c168f1ee-5d56-4188-8521-09f0c5475133', 'f060d17f-2376-4c0b-a346-b486446e46ce');
+-- Delete now unneeded MSCL
+SET @d1 = '39ac9205-cb08-47b1-8bc3-d3375e37d9eb' COLLATE utf8_unicode_ci;
+SET @d2 = 'bf6873f4-90b8-4393-9057-7f14f4687d72' COLLATE utf8_unicode_ci;
+SET @d3 = '2f83c458-244f-47e5-a302-ce463163354e' COLLATE utf8_unicode_ci;
+SET @d4 = '150dcb45-46c3-4529-b35f-b0a8a5a553e9' COLLATE utf8_unicode_ci;
+SET @d5 = 'b443ba1a-a0b6-4f7c-aeb2-65bd83de5e8b' COLLATE utf8_unicode_ci;
+SET @d6 = '0b5ad647-5092-41ce-9fe5-1cc376d0bc3f' COLLATE utf8_unicode_ci;
+SET @d7 = 'f30b23d4-c8de-453d-9b92-50b86e21d3d5' COLLATE utf8_unicode_ci;
+SET @d8 = 'ab0d3815-a9a3-43e1-9203-23a40c00c551' COLLATE utf8_unicode_ci;
+SET @d9 = 'c168f1ee-5d56-4188-8521-09f0c5475133' COLLATE utf8_unicode_ci;
+SET @d10 = 'f060d17f-2376-4c0b-a346-b486446e46ce' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChainChoice WHERE choiceAvailableAtLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10);
+DELETE FROM WatchedDirectories WHERE pk='2d9e4ca0-2d20-4c65-82cb-8ca23901fd5b';
+DELETE FROM MicroServiceChains WHERE pk IN ('2256d500-a26e-438d-803d-3ffe17b8caf0', 'd7cf171e-82e8-4bbb-bc33-de6b8b256202', '45811f43-40d2-4efa-9c1d-876417834b7f');
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8, @d9, @d10);
+-- /Merge Approve nodes
+
+-- Remove duplicated normalize for preservation chain
+UPDATE MicroServiceChainChoice SET chainAvailable='612e3609-ce9a-4df6-a9a3-63d634d2d934' WHERE pk='f68b9e34-2808-4943-919d-9aab95eae460';
+SET @d1 = '48199d23-afd0-4b9b-b8a3-cd80c7d45e7c' COLLATE utf8_unicode_ci;
+SET @d2 = '1798e1d4-ec91-4299-a767-d10c32155d19' COLLATE utf8_unicode_ci;
+SET @d3 = 'c425258a-cf54-44f9-b39f-cf14c7966a41' COLLATE utf8_unicode_ci;
+SET @d4 = '8adb23cc-dee3-44da-8356-fa6ce849e4d6' COLLATE utf8_unicode_ci;
+SET @d5 = 'd77ccaa0-3a3d-46ff-877f-4edf1a8179e2' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChains WHERE startingLink IN (@d1, @d2, @d3, @d4, @d5);
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5);
+
+-- /Remove duplicated normalize for preservation chain
+
+-- Delete all TasksConfigs that don't have MicroServiceChainLinks pointing at them
+DELETE FROM TasksConfigs USING TasksConfigs LEFT OUTER JOIN MicroServiceChainLinks ON currentTask=TasksConfigs.pk WHERE MicroServiceChainLinks.pk is NULL;
+-- Delete all StandardTasksConfigs that don't have TasksConfigs pointing at them
+DELETE FROM StandardTasksConfigs USING StandardTasksConfigs LEFT OUTER JOIN TasksConfigs ON taskTypePKReference=StandardTasksConfigs.pk WHERE TasksConfigs.pk is NULL;
+-- /Issue 6488
+
+#7137
+-- These date fields used to use 0 as a "no date" value,
+-- but Django is not able to represent that value.
+-- Make them nullable and represent all non-dates as NULL instead.
+ALTER TABLE Files
+	MODIFY COLUMN removedTime timestamp NULL DEFAULT NULL;
+UPDATE Files SET removedTime=NULL WHERE removedTime=0;
+
+ALTER TABLE Tasks
+	MODIFY COLUMN startTime timestamp NULL DEFAULT NULL,
+	MODIFY COLUMN endTime timestamp NULL DEFAULT NULL;
+UPDATE Tasks SET startTime=NULL WHERE startTime=0;
+UPDATE Tasks SET endTime=NULL WHERE endTime=0;
+
+-- Update fileGroupType keys to Django's version instead of the column name
+UPDATE StandardTasksConfigs
+	SET arguments='--sipUUID "%SIPUUID%" --basePath "%SIPDirectory%" --xmlFile "%SIPDirectory%"metadata/submissionDocumentation/METS.xml --basePathString "transferDirectory" --fileGroupIdentifier "transfer_id"'
+	WHERE execute='createMETS_v0.0';
+UPDATE StandardTasksConfigs
+	SET arguments='--amdSec --baseDirectoryPath "%SIPDirectory%" --baseDirectoryPathString "SIPDirectory" --fileGroupIdentifier "%SIPUUID%" --fileGroupType "sip_id" --xmlFile "%SIPDirectory%METS.%SIPUUID%.xml"'
+	WHERE pk='0aec05d4-7222-4c28-89f4-043d20a812cc';
+UPDATE StandardTasksConfigs
+	SET arguments='--baseDirectoryPath "%SIPDirectory%" --baseDirectoryPathString "SIPDirectory" --fileGroupIdentifier "%SIPUUID%" --fileGroupType "sip_id" --xmlFile "%SIPDirectory%METS.%SIPUUID%.xml"'
+	WHERE pk='1f3f4e3b-2f5a-47a2-8d1c-27a6f1b94b95';
+UPDATE StandardTasksConfigs
+	set arguments='"%SIPDirectory%objects/metadata/" "%SIPUUID%" "%date%" "%taskUUID%" "SIPDirectory" "sip_id" "%SIPDirectory%"'
+	WHERE pk='58b192eb-0507-4a83-ae5a-f5e260634c2a';
+UPDATE StandardTasksConfigs
+	set arguments='"%SIPDirectory%objects/submissionDocumentation/" "%SIPUUID%" "%date%" "%taskUUID%" "SIPDirectory" "sip_id" "%SIPDirectory%"'
+	WHERE pk='ad65bf76-3491-4c3d-afb0-acc94ff28bee';
+UPDATE StandardTasksConfigs
+	SET arguments='"%SIPObjectsDirectory%" "%SIPUUID%" "%date%" "%taskUUID%" "transferDirectory" "transfer_id" "%SIPDirectory%"'
+	WHERE pk IN ('f368a36d-2b27-4f08-b662-2828a96d189a', '80759ad1-c79a-4c3b-b255-735c28a50f9e');
+UPDATE StandardTasksConfigs
+	SET arguments='"%SIPObjectsDirectory%attachments/" "%SIPUUID%" "%date%" "%taskUUID%" "transferDirectory" "transfer_id" "%SIPDirectory%"'
+	WHERE pk='89b4d447-1cfc-4bbf-beaa-fb6477b00f70';
+
+#7424
+-- Compressed AIP path no longer needed in indexAIP;
+-- instead pass the SIP directory, which contains the metadata files
+UPDATE StandardTasksConfigs SET arguments='"%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%SIPType%"' WHERE pk='81f36881-9e54-4c75-a5b2-838cfb2ca228';
+
+-- Don't delete the AIP METS, to avoid needing to re-extract it from the AIP
+-- during indexAIP.
+UPDATE StandardTasksConfigs SET arguments='-R "%SIPDirectory%%SIPName%-%SIPUUID%" "%SIPLogsDirectory%" "%SIPObjectsDirectory%" "%SIPDirectory%thumbnails/"' WHERE pk='d12b6b59-1f1c-47c2-b1a3-2bf898740eae';
+UPDATE StandardTasksConfigs SET arguments='-R "%SIPLogsDirectory%" "%SIPObjectsDirectory%" "%SIPDirectory%thumbnails/"' WHERE pk='d17b25c7-f83c-4862-904b-8074150b1395';
+
+-- Copies submission documentation back into the root of the SIP directory,
+-- so it's available to be used by indexAIP without extraction from
+-- a compressed AIP.
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('919dfbcd-b328-4a7e-9340-569a9d8859df', 0, 'copySubmissionDocs_v0.0', '"%SIPDirectory%" "%SIPName%-%SIPUUID%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('2894f4ea-0d11-431f-a7de-c2f765bd55a6', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '919dfbcd-b328-4a7e-9340-569a9d8859df', 'Copy submission documentation');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('0a63befa-327d-4655-a021-341b639ee9ed', 'Prepare AIP', 'Failed', '2894f4ea-0d11-431f-a7de-c2f765bd55a6', '7d728c39-395f-4892-8193-92f086c0546f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('264fdc03-9102-4eb6-b671-09e48b136d27', '0a63befa-327d-4655-a021-341b639ee9ed', 0, '0915f727-0bc3-47c8-b9b2-25dc2ecef2bb', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='0a63befa-327d-4655-a021-341b639ee9ed' WHERE microServiceChainLink='d55b42c8-c7c5-4a40-b626-d248d2bd883f';
+
+
+#7714
+-- Insert a new microservice, after package extraction, which creates
+-- a second structMap documenting the final state of the transfer.
+SET @characterizeExtractMSCL='303a65f6-a16f-4a06-807b-cb3425a30201' COLLATE utf8_unicode_ci;
+SET @processedStructmapSTC='fefd486c-e6ce-4229-ac3d-cf53e66f46cc' COLLATE utf8_unicode_ci;
+SET @processedStructmapTC='275b3640-68a6-4c4e-adc1-888ea3fdfba5' COLLATE utf8_unicode_ci;
+SET @processedStructmapMSCL='307edcde-ad10-401c-92c4-652917c993ed' COLLATE utf8_unicode_ci;
+
+INSERT INTO StandardTasksConfigs (pk, execute, arguments, requiresOutputLock) VALUES (@processedStructmapSTC, 'createProcessedStructmap_v0.0', '--sipUUID "%SIPUUID%" --basePath "%SIPDirectory%" --xmlFile "%SIPDirectory%"metadata/submissionDocumentation/METS.xml --basePathString "transferDirectory" --fileGroupIdentifier "transfer_id"', 0);
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES (@processedStructmapTC, '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @processedStructmapSTC, 'Add processed structMap to METS.xml document');
+INSERT INTO MicroServiceChainLinks (pk, currentTask, defaultNextChainLink, microServiceGroup, defaultExitMessage) VALUES (@processedStructmapMSCL, @processedStructmapTC, '61c316a6-0a50-4f65-8767-1f44b1eeb6dd', 'Update METS.xml document', 'Failed');
+UPDATE MicroServiceChains SET startingLink=@processedStructmapMSCL WHERE startingLink='303a65f6-a16f-4a06-807b-cb3425a30201';
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@processedStructmapMSCL WHERE microServiceChainLink='b944ec7f-7f99-491f-986d-58914c9bb4fa' AND exitCode=1;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@processedStructmapMSCL WHERE microServiceChainLink='aaa929e4-5c35-447e-816a-033a66b9b90b';
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@processedStructmapMSCL WHERE pk='aaa929e4-5c35-447e-816a-033a66b9b90b';
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@processedStructmapMSCL WHERE pk='1cb7e228-6e94-4c93-bf70-430af99b9264';
+INSERT INTO MicroServiceChainLinksExitCodes (microServiceChainLink, exitCode, nextMicroServiceChainLink) VALUES (@processedStructmapMSCL, 0, @characterizeExtractMSCL);
+
+#7690
+
+-- Add check for extractable files after aaa9
+SET @hasPackageSTC = '93039c6d-5ef7-4a95-bf07-5f89c8886808' COLLATE utf8_unicode_ci;
+SET @newPackageMSCL = 'bd792750-a55b-42e9-903a-8c898bb77df1' COLLATE utf8_unicode_ci;
+SET @continueMSCL = '307edcde-ad10-401c-92c4-652917c993ed' COLLATE utf8_unicode_ci;
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('cadd5e12-82b2-43ec-813e-85cd42b2d511', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', @hasPackageSTC, 'Determine if transfer still contains packages');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES (@newPackageMSCL, 'Extract packages', 'Failed', 'cadd5e12-82b2-43ec-813e-85cd42b2d511', @continueMSCL);
+-- If not continue
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('3ba57fba-c1c2-4898-a5ae-9052dc5dd018', @newPackageMSCL, 1, @continueMSCL, 'Completed successfully');
+-- If yes, return to 1cb7 extract contents
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('f8597642-7254-43a7-8857-8ca053d0fba5', @newPackageMSCL, 0, '1cb7e228-6e94-4c93-bf70-430af99b9264', 'Completed successfully');
+
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink=@newPackageMSCL WHERE microServiceChainLink='aaa929e4-5c35-447e-816a-033a66b9b90b';
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=@newPackageMSCL WHERE pk='aaa929e4-5c35-447e-816a-033a66b9b90b';
+
+UPDATE StandardTasksConfigs SET arguments='"%IDCommand%" "%relativeLocation%" "%fileUUID%" --disable-reidentify' WHERE pk='9c3680a5-91cb-413f-af4e-d39c3346f8db';
+
+#7239
+-- Move select upload type to after content DM selection
+-- Do not query server if upload type is project client
+
+-- Remove direct upload vs project client from STC
+UPDATE StandardTasksConfigs SET arguments='--uuid="%SIPUUID%" --dipDir "%SIPDirectory%"' WHERE pk='f9f7793c-5a70-4ffd-9727-159c1070e4f5';
+
+-- Skip collections questions
+SET @restructureMSCL='f12ece2c-fb7e-44de-ba87-7e3c5b6feb74' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChains SET startingLink=@restructureMSCL WHERE pk='526eded3-2280-4f10-ac86-eff6c464cc81';
+
+-- Skip upload DIP
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='e3efab02-1860-42dd-a46c-25601251b930' WHERE microServiceChainLink=@restructureMSCL;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='e3efab02-1860-42dd-a46c-25601251b930' WHERE pk=@restructureMSCL;
+
+-- Delete collections based MSCLs
+SET @d1='0745a713-c7dc-451d-87c1-ec3dc28568b8' COLLATE utf8_unicode_ci;
+SET @d2='f7323418-9987-46ce-aac5-1fe0913c753a' COLLATE utf8_unicode_ci;
+SET @d3='9304d028-8387-4ab5-9539-0aab9ac5bdb1' COLLATE utf8_unicode_ci;
+SET @d4='45f01e11-47c7-45a3-a99b-48677eb321a5' COLLATE utf8_unicode_ci;
+SET @d5='6fe4678a-b3fb-4144-a8a3-7386eb87247d' COLLATE utf8_unicode_ci;
+
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5);
+DELETE FROM MicroServiceChoiceReplacementDic WHERE choiceAvailableAtLink IN (@d1, @d2, @d3, @d4, @d5);
+UPDATE MicroServiceChainLinks SET defaultNextChainLink=NULL WHERE pk IN (@d1, @d2, @d3, @d4, @d5);
+
+#8825
+-- Verify PREMIS checksums - set default link to "email fail report",
+-- rather than continuing to the next microservice
+UPDATE MicroServiceChainLinks
+	SET defaultNextChainLink='7d728c39-395f-4892-8193-92f086c0546f'
+	WHERE pk='88807d68-062e-4d1a-a2d5-2d198c88d8ca';
+
+#8019
+
+-- DSpace AT sees files
+UPDATE WatchedDirectories SET onlyActOnDirectories=0 WHERE pk='e3b15e28-6370-42bf-a0e1-f61e4837a2a7';
+
+-- Add client script to extract DSpace zipped files into a dir
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('21f89353-30ba-4601-8690-7c235630736f', 0, 'fileToFolder_v1.0', '"%SIPDirectory%" "%SIPUUID%" "%sharedPath%"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('d9ebceed-2cfb-462b-b130-48fecdf55bbf', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '21f89353-30ba-4601-8690-7c235630736f', 'Check if file or folder');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) VALUES ('bda96b35-48c7-44fc-9c9e-d7c5a05016c1', 'Verify transfer compliance', 'Failed', 'd9ebceed-2cfb-462b-b130-48fecdf55bbf', '61c316a6-0a50-4f65-8767-1f44b1eeb6dd');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('c5c68ced-17d5-4b7d-b955-a56080d5b9bb', 'bda96b35-48c7-44fc-9c9e-d7c5a05016c1', 0, '26bf24c9-9139-4923-bf99-aa8648b1692b', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='bda96b35-48c7-44fc-9c9e-d7c5a05016c1' WHERE microServiceChainLink='0e1a8a6b-abcc-4ed6-b4fb-cbccfdc23ef5';
+
+-- Delete unused MSCLs
+SET @d1='663a11f6-91cb-4fef-9aa7-2594b3752e4c' COLLATE utf8_unicode_ci;
+SET @d2='a132193a-2e79-4221-a092-c51839d566fb' COLLATE utf8_unicode_ci;
+SET @d3='9e4e39be-0dad-41bc-bee0-35cb71e693df' COLLATE utf8_unicode_ci;
+SET @d4='e888269d-460a-4cdf-9bc7-241c92734402' COLLATE utf8_unicode_ci;
+-- Transfer backup
+SET @d5='9fa0a0d1-25bb-4507-a5f7-f177d7fa920d' COLLATE utf8_unicode_ci;
+SET @d6='c1339015-e15b-4303-8f37-a2516669ac4e' COLLATE utf8_unicode_ci;
+SET @d7='a72afc44-fa28-4de7-b35f-c79b9f01aa5c' COLLATE utf8_unicode_ci;
+SET @d8='478512a6-10e4-410a-847d-ce1e25d8d31c' COLLATE utf8_unicode_ci;
+
+DELETE FROM TasksConfigsAssignMagicLink WHERE execute = @d5;
+DELETE FROM MicroServiceChainChoice WHERE choiceAvailableAtLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
+DELETE FROM MicroServiceChains WHERE pk IN ('a7f8f67f-401f-4665-b7b3-35496fd5017c', '2884ed7c-8c4c-4fa9-a6eb-e27bcaf9ab92');
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink IN (@d1, @d2, @d3, @d4, @d5, @d6, @d7, @d8);
+
+
+-- Delete all TasksConfigs that don't have MicroServiceChainLinks pointing at them
+DELETE FROM TasksConfigs USING TasksConfigs LEFT OUTER JOIN MicroServiceChainLinks ON currentTask=TasksConfigs.pk WHERE MicroServiceChainLinks.pk is NULL;
+-- Delete all StandardTasksConfigs that don't have TasksConfigs pointing at them
+DELETE FROM StandardTasksConfigs USING StandardTasksConfigs LEFT OUTER JOIN TasksConfigs ON taskTypePKReference=StandardTasksConfigs.pk WHERE TasksConfigs.pk is NULL;
+
+#7922
+
+-- Remove 'remove indexed files' from rejected Store AIP
+UPDATE MicroServiceChains SET startingLink='f2e784a0-356b-4b92-9a5a-11887aa3cf48' WHERE pk='433f4e6b-1ef4-49f8-b1e4-49693791a806';
+SET @removeIndexedAIPFiles='bfade79c-ab7b-11e2-bace-08002742f837' COLLATE utf8_unicode_ci;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@removeIndexedAIPFiles;
+
+-- Remove elasticSearchIndexProcessAIP links (contents have been merged into indexAIP)
+SET @indexAIPfiles='3ba518ab-fc47-4cba-9b5c-79629adac10b' COLLATE utf8_unicode_ci;
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='3e25bda6-5314-4bb4-aa1e-90900dce887d' WHERE nextMicroServiceChainLink=@indexAIPfiles;
+UPDATE MicroServiceChainLinks SET defaultNextChainLink='3e25bda6-5314-4bb4-aa1e-90900dce887d' WHERE defaultNextChainLink=@indexAIPfiles;
+DELETE FROM MicroServiceChainLinksExitCodes WHERE microServiceChainLink=@indexAIPfiles;
+
+#8287
+-- Adds Siegfried as an ID tool
+INSERT INTO `fpr_idtool` (`uuid`, `description`, `version`, `enabled`, `slug`) VALUES ('ea5274a2-9866-439c-a68c-5c8aadf6d3cd', 'Siegfried', '1.0.0', 1, 'siegfried-100');
+INSERT INTO `fpr_idcommand` (`uuid`, `enabled`, `lastmodified`, `description`, `config`, `script_type`, `tool_id`, `script`) VALUES ('8cc792b4-362d-4002-8981-a4e808c04b24', 1, '2015-04-16 17:36:22', 'Identify using Siegfried', 'PUID', 'pythonScript', 'ea5274a2-9866-439c-a68c-5c8aadf6d3cd', 'from __future__ import print_function\n\nimport json\nimport subprocess\nimport sys\n\ndef file_tool(path):\n    return subprocess.check_output([\'file\', path]).strip()\n\ndef main(f):\n    try:\n        result = json.loads(subprocess.check_output(["sf", "-json", f]))\n    except subprocess.CalledProcessError as e:\n        print("Siegfried exited {} and no format was found.".format(e.returncode), file=sys.stderr)\n        return 1\n\n    match = result[\'files\'][0]\n    if len(match[\'matches\']) == 0 or match[\'matches\'][0][\'puid\'] == \'UNKNOWN\':\n        if "text" in file_tool(f):\n            print("x-fmt/111")\n        else:\n            print("Siegfried exited 0 but no format was found.", file=sys.stderr)\n            return 1\n    else:\n        print(match[\'matches\'][0][\'puid\'])\n\nif __name__ == \'__main__\':\n    sys.exit(main(sys.argv[1]))\n');
+-- Identify transfer
+INSERT INTO `MicroServiceChoiceReplacementDic` (`pk`, `choiceAvailableAtLink`, `description`, `replacementDic`, `replaces`, `lastModified`) VALUES ('bed4eeb1-d654-4d97-b98d-40eb51d3d4bb', 'f09847c2-ee51-429a-9478-a860477f6b8d', 'Siegfried version 1.0.0 PUID runs Identify using Siegfried', '{\"%IDCommand%\":\"8cc792b4-362d-4002-8981-a4e808c04b24\"}', NULL, NULL);
+-- Identify ingest
+INSERT INTO `MicroServiceChoiceReplacementDic` (`pk`, `choiceAvailableAtLink`, `description`, `replacementDic`, `replaces`, `lastModified`) VALUES ('664cbde3-e658-4288-87db-bd28266d83f5', '7a024896-c4f7-4808-a240-44c87c762bc5', 'Siegfried version 1.0.0 PUID runs Identify using Siegfried', '{\"%IDCommand%\":\"8cc792b4-362d-4002-8981-a4e808c04b24\"}', NULL, NULL);
+-- Identify submission docs
+INSERT INTO `MicroServiceChoiceReplacementDic` (`pk`, `choiceAvailableAtLink`, `description`, `replacementDic`, `replaces`, `lastModified`) VALUES ('25a91595-37f0-4373-a89a-56a757353fb8', '087d27be-c719-47d8-9bbb-9a7d8b609c44', 'Siegfried version 1.0.0 PUID runs Identify using Siegfried', '{\"%IDCommand%\":\"8cc792b4-362d-4002-8981-a4e808c04b24\"}', NULL, NULL);
+
+#7321
+-- Copy processingMCP.xml to the DIP, so preconfigured choices in the DIP chain work.
+INSERT INTO StandardTasksConfigs (pk, requiresOutputLock, execute, arguments) VALUES ('67a7341c-276e-46bf-9021-0dcd5123687f', 0, 'copy_v0.0', '"%SIPDirectory%processingMCP.xml" "%SIPDirectory%DIP/processingMCP.xml"');
+INSERT INTO TasksConfigs (pk, taskType, taskTypePKReference, description) VALUES ('8ed6f0e4-cd5c-4c4b-bce0-e8949ea696cd', '36b2e239-4a57-4aa5-8ebc-7a29139baca6', '67a7341c-276e-46bf-9021-0dcd5123687f', 'Copy preconfigured choice XML to DIP directory');
+INSERT INTO MicroServiceChainLinks(pk, microserviceGroup, defaultExitMessage, currentTask, defaultNextChainLink) values ('1401c4d0-fb6f-42ef-94d3-c884c25800b2', 'Prepare DIP', 'Failed', '8ed6f0e4-cd5c-4c4b-bce0-e8949ea696cd', '7d728c39-395f-4892-8193-92f086c0546f');
+INSERT INTO MicroServiceChainLinksExitCodes (pk, microServiceChainLink, exitCode, nextMicroServiceChainLink, exitMessage) VALUES ('11c406a3-cc0c-4918-9aec-75cf77dbf3f4', '1401c4d0-fb6f-42ef-94d3-c884c25800b2', 0, '43c72f8b-3cea-4b4c-b99d-cfdefdfcc270', 'Completed successfully');
+UPDATE MicroServiceChainLinksExitCodes SET nextMicroServiceChainLink='1401c4d0-fb6f-42ef-94d3-c884c25800b2' WHERE microServiceChainLink='ad011cc2-b0eb-4f51-96bb-400149a2ea11';
+
+#8415
+-- Remove unused "checksumNoExtention" argument
+UPDATE StandardTasksConfigs
+    SET arguments='"%relativeLocation%" "%date%" "%taskUUID%" "%SIPUUID%"'
+    WHERE execute='verifyMD5_v0.0';
+
+#8423
+UPDATE StandardTasksConfigs
+    SET standardOutputFile='%SIPLogsDirectory%extractContents.log'
+    WHERE pk='8fad772e-7d2e-4cdd-89e6-7976152b6696';
+
+#4757
+-- Remove the unused "Sounds" table and all foreign keys to it
+ALTER TABLE MicroServiceChainLinks DROP FOREIGN KEY MicroServiceChainLinks_ibfk_3;
+ALTER TABLE MicroServiceChainLinks DROP COLUMN defaultPlaySound;
+
+ALTER TABLE MicroServiceChainLinksExitCodes DROP FOREIGN KEY MicroServiceChainLinksExitCodes_ibfk_3;
+ALTER TABLE MicroServiceChainLinksExitCodes DROP COLUMN playSound;
+
+DROP TABLE Sounds;
+
+#8252
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('27d47bd3-3f74-4d32-8cf2-a5a95340a0b4', 'Sigma RAW Image', 'be86edbf-f62c-431f-b549-300d23c7cd0d', 'sigma-raw-image') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '202d9ae1-ad1a-4096-bce7-f0a37796f084', '27d47bd3-3f74-4d32-8cf2-a5a95340a0b4', NULL, 'fmt/661', 'Sigma RAW Image', 0, 0, 'sigma-raw-image') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('ef0c15dd-280d-4949-a5f5-8ab2ea8c3b05', 'Panasonic Raw', 'be86edbf-f62c-431f-b549-300d23c7cd0d', 'panasonic-raw') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '628eed01-ec73-4799-8537-e99bd749fcb1', 'ef0c15dd-280d-4949-a5f5-8ab2ea8c3b05', NULL, 'fmt/662', 'Panasonic Raw', 0, 0, 'panasonic-raw') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:25', '339bc14e-6cef-48bd-9fc7-592959a396c2', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '628eed01-ec73-4799-8537-e99bd749fcb1', '.RW2') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('9452a52c-1bd2-452f-91d9-b93731fe6c3d', 'Industry Foundation Classes XML', '89961b53-4d5c-49e2-9910-8825d96c8640', 'industry-foundation-classes-xml') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', 'de52dd3a-595c-4137-90a0-adca5e08964d', '9452a52c-1bd2-452f-91d9-b93731fe6c3d', NULL, 'fmt/663', 'Industry Foundation Classes XML', 0, 0, 'industry-foundation-classes-xml') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:25', '65de7bd6-f43e-46b9-acae-63a23a2d1780', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'de52dd3a-595c-4137-90a0-adca5e08964d', '.ifcXML') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('927a5fdd-0e31-4d4e-a98b-35ee7217c163', 'Gerber format', 'fdf9e267-a18c-46a4-a162-b81bcba6322f', 'gerber-format') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '395a63ba-cdd4-475a-b095-776d126cd615', '927a5fdd-0e31-4d4e-a98b-35ee7217c163', NULL, 'fmt/664', 'Gerber format', 0, 0, 'gerber-format') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:25', 'cbbfeb44-813f-474a-b9f7-04a59e8d48e5', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '395a63ba-cdd4-475a-b095-776d126cd615', '.gbr') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('f9430d60-db4b-4c57-88a1-d57534521d5e', 'Chasys Draw image file', 'be86edbf-f62c-431f-b549-300d23c7cd0d', 'chasys-draw-image-file') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '708f9bd7-0559-44ba-bf16-9fbefc068212', 'f9430d60-db4b-4c57-88a1-d57534521d5e', NULL, 'fmt/665', 'Chasys Draw CD5', 0, 0, 'chasys-draw-cd5') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:25', 'b7660b0e-2259-4b79-a69f-0b5e7d827522', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '708f9bd7-0559-44ba-bf16-9fbefc068212', '.cd5') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('5034152f-30d8-43ec-9b06-eda023888078', 'ART image format', 'be86edbf-f62c-431f-b549-300d23c7cd0d', 'art-image-format') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', 'bfcce732-c276-4fc1-92d8-33a570ef7e8a', '5034152f-30d8-43ec-9b06-eda023888078', NULL, 'fmt/666', 'ART aol', 0, 0, 'art-aol') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:25', '4ee5ab25-e322-4336-913a-ced18a0e1bb6', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'bfcce732-c276-4fc1-92d8-33a570ef7e8a', '.art') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('f9dd911b-c093-4452-b6af-400065da922b', 'Photoshop Curve File', 'fdf9e267-a18c-46a4-a162-b81bcba6322f', 'photoshop-curve-file') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '444deaa8-b295-4e7e-8436-1bf664f8700e', 'f9dd911b-c093-4452-b6af-400065da922b', NULL, 'fmt/667', 'Photoshop Curve File', 0, 0, 'photoshop-curve-file') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:25', 'ce9f5081-7e08-461d-9efa-fd0924eea88b', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '444deaa8-b295-4e7e-8436-1bf664f8700e', '.acv') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('fb22c4fb-0a48-4ee2-86b5-9f27469d69af', 'Olympus RAW', 'be86edbf-f62c-431f-b549-300d23c7cd0d', 'olympus-raw') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', 'cb5e15e0-780a-4cd8-a780-529a486b5ee5', 'fb22c4fb-0a48-4ee2-86b5-9f27469d69af', NULL, 'fmt/668', 'Olympus RAW big endian', 0, 0, 'olympus-raw-big-endian') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('ff6cf1d9-0026-4c7f-9cb7-c1ad324bd131', 'Minolta RAW', 'be86edbf-f62c-431f-b549-300d23c7cd0d', 'minolta-raw') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '2f51486a-42ab-4023-9d4a-430b97cc805d', 'ff6cf1d9-0026-4c7f-9cb7-c1ad324bd131', NULL, 'fmt/669', 'Minolta RAW', 0, 0, 'minolta-raw') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('f42c41e3-53ac-4ac0-be82-84bd8025a57a', 'PKCS #7 Crytographic message file', '57361413-1c3b-405d-a9c0-7d3ea381090e', 'pkcs-7-crytographic-message-file') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', 'c4fb9020-96e6-4053-a25e-ebbccd36011d', 'f42c41e3-53ac-4ac0-be82-84bd8025a57a', NULL, 'fmt/670', 'P7M', 0, 0, 'p7m') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:25', 'a11cea2d-18fc-4f86-81e1-6d0a8e719822', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'c4fb9020-96e6-4053-a25e-ebbccd36011d', '.p7m') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('5a848645-67eb-4d5f-ba28-bae3e911a4ed', 'Serif PagePlus Publication', '805d359a-32f0-4767-8a9c-cc14f13d8392', 'serif-pageplus-publication') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '83be54ea-4dab-4a82-818e-53f35667f9c0', '5a848645-67eb-4d5f-ba28-bae3e911a4ed', 'Generic', 'fmt/671', 'Serif PagePlus Publication', 0, 0, 'serif-pageplus-publication') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:25', 'c7e80e0a-b6c3-4809-9e3b-2ca2602f2f94', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '83be54ea-4dab-4a82-818e-53f35667f9c0', '.ppp') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '3e58da72-238a-413d-a951-6fbb8028cd26', '5a848645-67eb-4d5f-ba28-bae3e911a4ed', '4', 'fmt/672', 'Serif PagePlus Publication', 0, 0, 'serif-pageplus-publication-2') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '7ba5a3a2-f16a-4f63-9336-9445071366ab', '5a848645-67eb-4d5f-ba28-bae3e911a4ed', '5', 'fmt/673', 'Serif PagePlus Publication', 0, 0, 'serif-pageplus-publication-3') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '12974e24-6cf2-41f1-827c-6e58130de34d', '5a848645-67eb-4d5f-ba28-bae3e911a4ed', '6', 'fmt/674', 'Serif PagePlus Publication', 0, 0, 'serif-pageplus-publication-4') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '2a0aca1d-cea0-4375-9342-634cbdbe2b37', '5a848645-67eb-4d5f-ba28-bae3e911a4ed', '7', 'fmt/675', 'Serif PagePlus Publication', 0, 0, 'serif-pageplus-publication-5') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '31bae1e4-a74f-4d8e-9291-cbf6a0de897e', '5a848645-67eb-4d5f-ba28-bae3e911a4ed', '8', 'fmt/676', 'Serif PagePlus Publication', 0, 0, 'serif-pageplus-publication-6') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '91346401-fcf5-46c7-b2d4-9e9e8d384cdd', '5a848645-67eb-4d5f-ba28-bae3e911a4ed', '9', 'fmt/677', 'Serif PagePlus Publication', 0, 0, 'serif-pageplus-publication-7') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', 'c5f17c37-1881-4a0d-b690-5ec496edf38a', '5a848645-67eb-4d5f-ba28-bae3e911a4ed', '10', 'fmt/678', 'Serif PagePlus Publication', 0, 0, 'serif-pageplus-publication-8') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '25366ab7-aade-4b7b-a94a-39ed7fda2ed6', '5a848645-67eb-4d5f-ba28-bae3e911a4ed', '11', 'fmt/679', 'Serif PagePlus Publication', 0, 0, 'serif-pageplus-publication-9') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '6951f155-c18c-4837-9f0f-39a97758d7ab', '5a848645-67eb-4d5f-ba28-bae3e911a4ed', '12', 'fmt/680', 'Serif PagePlus Publication', 0, 0, 'serif-pageplus-publication-10') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '6e758b19-c06c-4238-9e68-948e448e003b', '5a848645-67eb-4d5f-ba28-bae3e911a4ed', '', 'fmt/681', 'Serif PagePlus Publication', 0, 0, 'serif-pageplus-publication-11') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('6762a689-8457-4a27-aba2-71920b0443c7', 'Thumbs DB file', 'c030a94d-5942-47c8-893b-ddb326b5da6c', 'thumbs-db-file') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '4f48449f-9ae2-4648-bb7a-a619ab95a177', '6762a689-8457-4a27-aba2-71920b0443c7', 'XP', 'fmt/682', 'Thumbs DB file', 0, 0, 'thumbs-db-file') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('a01f5dd3-d5a2-48c4-bab3-58f92def7496', 'Advanced Function Presentation', '873ff22f-4c71-4cfa-ad21-c6830cf1c881', 'advanced-function-presentation') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '8b6256be-b284-44fe-be68-74173e541ffa', 'a01f5dd3-d5a2-48c4-bab3-58f92def7496', NULL, 'fmt/683', 'AFP', 0, 0, 'afp') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:25', '7ab4b116-f3d1-499c-a75d-186f0a56c9a2', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '8b6256be-b284-44fe-be68-74173e541ffa', '.afp') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:25', '8cd728f8-ad81-47cd-bff2-dc22fab0cb3b', 'adac767d-00e6-48f9-ae3b-50408b90c03b', '2015', 'fmt/684', 'Vectorworks 2015', 0, 0, 'vectorworks-2015') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '4a75831b-eaaa-4a84-babc-96c29dd321ec', 'a9df9cf9-413f-4a5c-b1ff-56473296c1ed', '9', 'fmt/685', 'Quark Xpress 9 Data File (Motorola)', 0, 0, 'quark-xpress-9-data-file-motorola') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '434f2dae-7384-477d-941b-207dcdf1e751', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '4a75831b-eaaa-4a84-babc-96c29dd321ec', '.qxp') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'c9ed5c16-0c31-4b0e-8206-ad30f2ae0257', 'adac767d-00e6-48f9-ae3b-50408b90c03b', '2010', 'fmt/686', 'Vectorworks 2010', 0, 0, 'vectorworks-2010') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('21753f0d-0c25-4228-9e2b-4343ed5e95b1', 'Better Portable Graphics', 'be86edbf-f62c-431f-b549-300d23c7cd0d', 'better-portable-graphics') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '31121764-826a-435d-8cb5-c2a6c3d7a9f2', '21753f0d-0c25-4228-9e2b-4343ed5e95b1', NULL, 'fmt/687', 'Better Portable Graphics', 0, 0, 'better-portable-graphics') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'ed003363-eff5-4c5e-af5a-dd7592b423d2', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '31121764-826a-435d-8cb5-c2a6c3d7a9f2', '.bpg') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('ddd63b54-5cf1-4175-927f-0a96607116a6', 'Executable and Linkable Format', 'b1aab542-cc95-4eef-96e9-1a8c09196f73', 'executable-and-linkable-format') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '088098cc-4b6d-4032-9210-529868ff2c39', 'ddd63b54-5cf1-4175-927f-0a96607116a6', '', 'fmt/688', 'ELF 32bit LSB', 0, 0, 'elf-32bit-lsb') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '0e9f13aa-ad76-412b-970d-7b32c8c333c3', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '088098cc-4b6d-4032-9210-529868ff2c39', '.elf') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'f3bfd03c-3849-4bb2-b380-e4474cb160e6', 'ddd63b54-5cf1-4175-927f-0a96607116a6', '', 'fmt/689', 'ELF 32bit MSB', 0, 0, 'elf-32bit-msb') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '0df1368c-a875-436b-911b-f114a8d16b51', 'ddd63b54-5cf1-4175-927f-0a96607116a6', '', 'fmt/690', 'ELF 64bit LSB', 0, 0, 'elf-64bit-lsb') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'd4cebba7-6996-44df-9522-b0da5805b308', 'ddd63b54-5cf1-4175-927f-0a96607116a6', '', 'fmt/691', 'ELF 64bit MSB', 0, 0, 'elf-64bit-msb') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('af483b34-7c09-4fed-8961-e21af93e0ea7', 'Mach-O', 'c030a94d-5942-47c8-893b-ddb326b5da6c', 'mach-o') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '6c9127b9-58b5-4531-8d2c-0ad995348c0d', 'af483b34-7c09-4fed-8961-e21af93e0ea7', '32bit', 'fmt/692', 'Mach-O 32bit 1', 0, 0, 'mach-o-32bit-1') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '80f742e5-8993-459b-8cb4-56c896fa97ad', 'af483b34-7c09-4fed-8961-e21af93e0ea7', '64bit', 'fmt/693', 'Mach-O 64 bit 1', 0, 0, 'mach-o-64-bit-1') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('ffe87bb6-b234-4018-acea-8458da4cd28f', 'Dalvik Executable Format', 'b1aab542-cc95-4eef-96e9-1a8c09196f73', 'dalvik-executable-format') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '4276d9eb-d33d-4123-bcea-75860070a7f4', 'ffe87bb6-b234-4018-acea-8458da4cd28f', NULL, 'fmt/694', 'Dalvik Executable Format', 0, 0, 'dalvik-executable-format') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '041c0f35-8bf0-446c-a2b3-491ae287d98b', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '4276d9eb-d33d-4123-bcea-75860070a7f4', '.dex') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('fe93423c-b2dd-4cac-8f38-a00b757e9d0b', 'Optimised Dalvik Executable Format', 'b1aab542-cc95-4eef-96e9-1a8c09196f73', 'optimised-dalvik-executable-format') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '7a404cf1-9769-418f-9ea2-8f91494163d5', 'fe93423c-b2dd-4cac-8f38-a00b757e9d0b', NULL, 'fmt/695', 'Dalvik Executable Format Optimised', 0, 0, 'dalvik-executable-format-optimised') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'a14ecc45-403d-4678-8241-fee30087e7b0', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '7a404cf1-9769-418f-9ea2-8f91494163d5', '.odex') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('8de0402d-2f88-4c80-91cc-269ef0087cea', 'Sibelius', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'sibelius') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'bd194751-5bcc-44eb-b6e2-fab112f09b3a', '8de0402d-2f88-4c80-91cc-269ef0087cea', NULL, 'fmt/696', 'Sibelius', 0, 0, 'sibelius') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '8e097c88-05ce-41ef-b5ac-ca3e44613a5b', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'bd194751-5bcc-44eb-b6e2-fab112f09b3a', '.sib') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('51f83684-0db2-470b-b5b0-465d10c2976d', 'Additive Manufacturing File Format', '89961b53-4d5c-49e2-9910-8825d96c8640', 'additive-manufacturing-file-format') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '358f203b-76c3-46ad-8000-815376766585', '51f83684-0db2-470b-b5b0-465d10c2976d', NULL, 'fmt/697', 'Additive Manufacturing File Format', 0, 0, 'additive-manufacturing-file-format') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '8357751a-4665-47fa-9506-a1999a31f925', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '358f203b-76c3-46ad-8000-815376766585', '.amf') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('39a2e9bf-720f-4250-a1f1-130c14c54f23', 'Standard for the Exchange of Product model data', '57361413-1c3b-405d-a9c0-7d3ea381090e', 'standard-for-the-exchange-of-product-model-data') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '7375744b-3e62-4850-aaef-bc70fc21d94e', '39a2e9bf-720f-4250-a1f1-130c14c54f23', NULL, 'fmt/698', 'Standard for the Exchange of Product model data', 0, 0, 'standard-for-the-exchange-of-product-model-data') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '052f251a-0c16-4d7e-9341-e626b5b9e111', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '7375744b-3e62-4850-aaef-bc70fc21d94e', '.step') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'c12b6423-d71a-484d-aa47-5cf738f38977', '97a16fb4-3ec0-4e46-9823-ea13857150d7', '2x3', 'fmt/699', 'Industry Foundation Classes 2x3', 0, 0, 'industry-foundation-classes-2x3') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'd1a9a349-548e-4f3f-a6ad-1968d598befb', '97a16fb4-3ec0-4e46-9823-ea13857150d7', '4', 'fmt/700', 'Industry Foundation Classes 4', 0, 0, 'industry-foundation-classes-4') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('a16e6230-b126-4605-af64-386a58d7d240', 'Processing Development Environment', '57361413-1c3b-405d-a9c0-7d3ea381090e', 'processing-development-environment') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'f216f3a0-a6b9-42de-9f5a-f96f71b93434', 'a16e6230-b126-4605-af64-386a58d7d240', NULL, 'fmt/701', 'Processing Development Environment', 0, 0, 'processing-development-environment') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'ae878800-0158-4fac-a85b-b1b3e2165fcf', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'f216f3a0-a6b9-42de-9f5a-f96f71b93434', '.pde') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('919a0a6a-fb71-4a03-b61b-f96fe07317a9', 'Universal 3D File Format', 'fdf9e267-a18c-46a4-a162-b81bcba6322f', 'universal-3d-file-format') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '9526520f-3be2-43c2-86b7-d06591cd1241', '919a0a6a-fb71-4a03-b61b-f96fe07317a9', NULL, 'fmt/702', 'Universal 3D File Format', 0, 0, 'universal-3d-file-format') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '1a711a7f-ac3e-4d4d-8744-148950388946', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '9526520f-3be2-43c2-86b7-d06591cd1241', '.u3d') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('84cda47c-d4de-4349-be86-674a5b6e2251', 'Broadcast WAVE', 'c94ce0e6-c275-4c09-b802-695a18b7bf2a', 'broadcast-wave') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '1c2dcf4f-ac15-4aba-aff0-d41d5b462c3e', '84cda47c-d4de-4349-be86-674a5b6e2251', '', 'fmt/703', 'BWAVE PCM 0', 0, 0, 'bwave-pcm-0') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '15cf073e-1909-4923-b410-171521e8676a', '84cda47c-d4de-4349-be86-674a5b6e2251', '', 'fmt/704', 'BWAVE PCM 1', 0, 0, 'bwave-pcm-1') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '474c7e6d-f826-4347-a7ef-f418a73ade29', '84cda47c-d4de-4349-be86-674a5b6e2251', '', 'fmt/705', 'BWAVE PCM 2', 0, 0, 'bwave-pcm-2') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '497f69a6-a8b3-477b-918b-0cd948f1734a', '84cda47c-d4de-4349-be86-674a5b6e2251', '', 'fmt/706', 'BWAVE MPEG 0', 0, 0, 'bwave-mpeg-0') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'f2b84379-ebf3-4a59-9059-8846f9ec17c0', '84cda47c-d4de-4349-be86-674a5b6e2251', '', 'fmt/707', 'BWAVE MPEG 1', 0, 0, 'bwave-mpeg-1') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '3fc6c60c-75d4-4d9f-87ca-fd20b26dbd7a', '84cda47c-d4de-4349-be86-674a5b6e2251', '', 'fmt/708', 'BWAVE MPEG 2', 0, 0, 'bwave-mpeg-2') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '65236203-de3c-4bc8-8b17-2846f258bcfd', '84cda47c-d4de-4349-be86-674a5b6e2251', '', 'fmt/709', 'BWAVE WAVEFORMATEXTENSIBLE 0', 0, 0, 'bwave-waveformatextensible-0') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '44d5fb68-e029-4cc6-9741-fd76354c5a5c', '84cda47c-d4de-4349-be86-674a5b6e2251', '', 'fmt/710', 'BWAVE WAVEFORMATEXTENSIBLE 1', 0, 0, 'bwave-waveformatextensible-1') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'b05a3cfa-8aa2-4521-85eb-91887fb7ed62', '84cda47c-d4de-4349-be86-674a5b6e2251', '', 'fmt/711', 'BWAVE WAVEFORMATEXTENSIBLE 2', 0, 0, 'bwave-waveformatextensible-2') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('1d237293-d3be-44b3-9db5-3c3d9ff7a928', 'RF64', 'c94ce0e6-c275-4c09-b802-695a18b7bf2a', 'rf64') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'f8b9a3a7-816b-4922-965d-00b7622d80bb', '1d237293-d3be-44b3-9db5-3c3d9ff7a928', NULL, 'fmt/712', 'RF64', 0, 0, 'rf64') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('29222d96-5aff-435e-a1c3-e83a92878171', 'RF64 Multichannel Broadcast Wave format', 'c94ce0e6-c275-4c09-b802-695a18b7bf2a', 'rf64-multichannel-broadcast-wave-format') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '67cfb679-0086-4b3e-83a9-1d22023cb342', '29222d96-5aff-435e-a1c3-e83a92878171', NULL, 'fmt/713', 'RF64 MBWF', 0, 0, 'rf64-mbwf') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('155cf059-e93e-4261-b689-6f860935f2f0', 'Extensible Music Format', 'c94ce0e6-c275-4c09-b802-695a18b7bf2a', 'extensible-music-format') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '3d8a990a-595b-4482-8d7f-f23d17dd169a', '155cf059-e93e-4261-b689-6f860935f2f0', NULL, 'fmt/714', 'XMF', 0, 0, 'xmf') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '06d37ce3-664c-4769-8f52-fad077e3fea6', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '3d8a990a-595b-4482-8d7f-f23d17dd169a', '.xmf') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('e5a24445-1e46-4d64-8c08-e7a3fa925c2e', 'Impulse Tracker Module', 'c94ce0e6-c275-4c09-b802-695a18b7bf2a', 'impulse-tracker-module') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '8acd6214-bace-46d8-be22-008c0fc98b52', 'e5a24445-1e46-4d64-8c08-e7a3fa925c2e', NULL, 'fmt/715', 'Impulse Tracker Module', 0, 0, 'impulse-tracker-module') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'a9e41828-9466-46cd-9239-97f2b30244f8', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '8acd6214-bace-46d8-be22-008c0fc98b52', '.it') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('80ffd331-8736-44bf-9a5b-7bf6f91f1fa3', 'MOD Audio Module', 'c94ce0e6-c275-4c09-b802-695a18b7bf2a', 'mod-audio-module') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'eda023c0-2ebb-40ad-9a8a-3cb04f89e46c', '80ffd331-8736-44bf-9a5b-7bf6f91f1fa3', NULL, 'fmt/716', 'MOD Audio Module', 0, 0, 'mod-audio-module') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('ca1b348c-1b8e-46ae-bfe9-fe5749c819e0', 'Scream Tracker Module', 'c94ce0e6-c275-4c09-b802-695a18b7bf2a', 'scream-tracker-module') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '2e968562-a61f-4f56-9d8d-849d3b4a2209', 'ca1b348c-1b8e-46ae-bfe9-fe5749c819e0', '1-2', 'fmt/717', 'Scream Tracker Module 1-2', 0, 0, 'scream-tracker-module-1-2') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '3562c195-5726-4b75-9868-4709561b9478', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '2e968562-a61f-4f56-9d8d-849d3b4a2209', '.stm') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'c44610be-45ec-49d1-865f-867ea5880217', 'ca1b348c-1b8e-46ae-bfe9-fe5749c819e0', '3', 'fmt/718', 'Scream Tracker Module 3', 0, 0, 'scream-tracker-module-3') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'ccdeab11-c137-4bd8-94b1-dcb7cc3a49dd', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'c44610be-45ec-49d1-865f-867ea5880217', '.s3m') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('f90c6cbd-14d1-49d4-a971-ba636643b0fb', 'MultiTracker Module', 'c94ce0e6-c275-4c09-b802-695a18b7bf2a', 'multitracker-module') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'ac244ba3-6739-4fea-8280-2fe339a7f1c6', 'f90c6cbd-14d1-49d4-a971-ba636643b0fb', NULL, 'fmt/719', 'MultiTracker Module', 0, 0, 'multitracker-module') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '81736f5f-0bd9-4381-8150-c1ad3877601d', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'ac244ba3-6739-4fea-8280-2fe339a7f1c6', '.mtm') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'b4ff9da5-da8c-4156-b635-924f9280e2b4', '0adc6cb6-d283-497a-8cec-da6f8618120f', NULL, 'fmt/720', 'MBOX', 0, 0, 'mbox') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'f3ea1fcb-a6e8-45ed-b92d-44757017f2fc', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'b4ff9da5-da8c-4156-b635-924f9280e2b4', '.mbox') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('0513e0a7-6c81-4b15-bfb3-de3271ccbdb9', 'VLW Font File', '4be20e18-9075-431d-accd-d615d4f93ceb', 'vlw-font-file') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '6bf0751e-97f6-4344-a643-e16f778f79e8', '0513e0a7-6c81-4b15-bfb3-de3271ccbdb9', NULL, 'fmt/721', 'VLW Font File', 0, 0, 'vlw-font-file') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '1064ed11-b3af-4859-9142-60da116aaba6', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '6bf0751e-97f6-4344-a643-e16f778f79e8', '.vlw') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('dcefeebe-3a9c-4dd4-a406-02f2d6579f71', 'Oktalyzer Audio file', 'c94ce0e6-c275-4c09-b802-695a18b7bf2a', 'oktalyzer-audio-file') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'fc5c7245-c36b-4c1a-b997-be7f4a631c9b', 'dcefeebe-3a9c-4dd4-a406-02f2d6579f71', NULL, 'fmt/722', 'Oktalyzer', 0, 0, 'oktalyzer') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'd420b54d-b1f0-4afe-bdd5-ec51462d6624', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'fc5c7245-c36b-4c1a-b997-be7f4a631c9b', '.okt') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('e6ef9334-3838-4b71-b5b1-67c56f7c48e6', 'Farandole Composer Module', 'c94ce0e6-c275-4c09-b802-695a18b7bf2a', 'farandole-composer-module') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '642d62b3-bc8b-46cd-872f-98adf257e481', 'e6ef9334-3838-4b71-b5b1-67c56f7c48e6', NULL, 'fmt/723', 'Farandole Composer', 0, 0, 'farandole-composer') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '1e0004b1-3c19-42a3-b941-470047570cad', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '642d62b3-bc8b-46cd-872f-98adf257e481', '.far') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('13b140e3-a4f9-4bb5-8777-0a163d786df1', 'Keyhole Markup Language (Container)', 'e8d06de7-f66c-4792-b7d4-3f17a22ab313', 'keyhole-markup-language-container') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '9c8745ae-360c-478b-96be-5bd045196a63', '13b140e3-a4f9-4bb5-8777-0a163d786df1', NULL, 'fmt/724', 'Keyhole Markup Language (Container)', 0, 0, 'keyhole-markup-language-container') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '14e64f10-82f2-46ad-97f6-95985571c8f2', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '9c8745ae-360c-478b-96be-5bd045196a63', '.kmz') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'ede3e9cd-e88a-4c8c-bce6-d4883bcb5fba', 'efe751be-6225-469f-96d8-4abb25ba0302', '2010', 'fmt/725', 'Microsoft Project', 0, 0, 'microsoft-project-7') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('252d4555-2518-466d-8dbe-c8962ef174b1', 'Virtual Disk Image', '84362779-5e64-442d-9394-1d42ea961240', 'virtual-disk-image') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '4af079c2-c3e7-4ec9-a8f6-d6d21f38b0e0', '252d4555-2518-466d-8dbe-c8962ef174b1', NULL, 'fmt/726', 'Virtual Disk Image', 0, 0, 'virtual-disk-image') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '30964a64-3182-4314-bc9b-1807a95bfdd7', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '4af079c2-c3e7-4ec9-a8f6-d6d21f38b0e0', '.vdi') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('b4398126-3cd8-4fa1-8844-59b28eebef27', 'Cartesian Perceptual Compression image format', 'be86edbf-f62c-431f-b549-300d23c7cd0d', 'cartesian-perceptual-compression-image-format') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'fee03f86-49c5-4922-ad2d-5d1bc06afcbd', 'b4398126-3cd8-4fa1-8844-59b28eebef27', NULL, 'fmt/727', 'Cartesian Perceptual Compression', 0, 0, 'cartesian-perceptual-compression') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '674cd507-093f-415a-bcb9-d189d2f6444a', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'fee03f86-49c5-4922-ad2d-5d1bc06afcbd', '.cpi') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('3f316791-b348-46ce-902f-f3fd82c26fb5', 'RealLegal E-Transcript', '57361413-1c3b-405d-a9c0-7d3ea381090e', 'reallegal-e-transcript') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '1cba0464-7123-4849-a402-2e036ce329ba', '3f316791-b348-46ce-902f-f3fd82c26fb5', NULL, 'fmt/728', 'RealLegal E-Transcript', 0, 0, 'reallegal-e-transcript') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'a885a205-62a4-4918-a044-9f30586338d7', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '1cba0464-7123-4849-a402-2e036ce329ba', '.ptx') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('3588c0d1-bde9-4e18-b690-b8dd5559b37e', 'SQLite Database File Format', '7d161ac1-2879-445d-8e6d-cbc9eff5c225', 'sqlite-database-file-format') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '826dce9e-db82-44e3-8520-36adcd0ac289', '3588c0d1-bde9-4e18-b690-b8dd5559b37e', NULL, 'fmt/729', 'SQLite Database', 0, 0, 'sqlite-database') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '6b78301a-6271-4cdd-8a77-6a864e784d1e', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '826dce9e-db82-44e3-8520-36adcd0ac289', '.sqlite') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('263fd308-f220-4b46-b2b0-2863e1963449', 'Digital Negative Format (DNG)', 'be86edbf-f62c-431f-b549-300d23c7cd0d', 'digital-negative-format-dng') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'ed234525-4b53-4991-8838-8b05d9b9f113', '263fd308-f220-4b46-b2b0-2863e1963449', '1.4', 'fmt/730', 'DNG 1.4 (big-endian, BOF)', 0, 0, 'dng-14-big-endian-bof') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('1f8eb6d3-67da-41f6-a91e-5603e4b83e0b', 'Bink Video format', 'f22e9c29-9d4a-429e-adaf-38f3aecaff99', 'bink-video-format') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '0728779a-04a1-4183-a905-6d3d94949678', '1f8eb6d3-67da-41f6-a91e-5603e4b83e0b', '1', 'fmt/731', 'Bink Video 1', 0, 0, 'bink-video-1') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '4208c973-e02b-4361-9abd-95f63cd6889e', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '0728779a-04a1-4183-a905-6d3d94949678', '.bik') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '62f05659-b742-4c86-9a8b-09686e6b60d3', '1f8eb6d3-67da-41f6-a91e-5603e4b83e0b', '2', 'fmt/732', 'Bink Video 2', 0, 0, 'bink-video-2') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'cd4e33db-f0b7-4122-929d-12c102d1ad20', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '62f05659-b742-4c86-9a8b-09686e6b60d3', '.bik2') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('65ede45d-cb43-462a-bfe4-052c73d6c9d4', 'FL Studio project file (FLP)', 'c94ce0e6-c275-4c09-b802-695a18b7bf2a', 'fl-studio-project-file-flp') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '484c31da-8f62-42b0-83a2-5a21621e615d', '65ede45d-cb43-462a-bfe4-052c73d6c9d4', NULL, 'fmt/733', 'FL Studio FLP', 0, 0, 'fl-studio-flp') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', '3c546f8d-5387-4a10-96d5-acccdcd52106', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', '484c31da-8f62-42b0-83a2-5a21621e615d', '.flp') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('4d34edd4-f6b0-4c6b-9438-1cf2790a1aeb', 'SuperScape Virtual Reality format', 'fdf9e267-a18c-46a4-a162-b81bcba6322f', 'superscape-virtual-reality-format') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'ac7557d2-3990-433a-a32e-5aabc14798a8', '4d34edd4-f6b0-4c6b-9438-1cf2790a1aeb', NULL, 'fmt/734', 'SuperScape VR', 0, 0, 'superscape-vr') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'd882b07e-d37b-4ca0-958d-43daceb50659', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'ac7557d2-3990-433a-a32e-5aabc14798a8', '.svr') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('b8f99f43-8344-45c4-af2b-5af155cf16e9', 'Dolby Digital AC-3', 'c94ce0e6-c275-4c09-b802-695a18b7bf2a', 'dolby-digital-ac-3') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'd035eeea-2c30-499a-a4e6-8718a8f5b347', 'b8f99f43-8344-45c4-af2b-5af155cf16e9', NULL, 'fmt/735', 'Dolby Digital AC-3', 0, 0, 'dolby-digital-ac-3') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('480299fe-bb8b-40d1-a2f5-3c21ff2af983', 'ClarisWorks', '00abbdd0-51b3-4162-b93a-45deb4ed8654', 'clarisworks') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'b747a413-d8f8-4bf7-bac7-1076a7792976', '480299fe-bb8b-40d1-a2f5-3c21ff2af983', '', 'fmt/736', 'CWK 1 Generic', 0, 0, 'cwk-1-generic') ;
+INSERT INTO `fpr_idrule` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `command_id`, `format_id`, `command_output`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'a821ae5d-16df-4795-bb59-f966ab0c53c2', '41efbe1b-3fc7-4b24-9290-d0fb5d0ea9e9', 'b747a413-d8f8-4bf7-bac7-1076a7792976', '.cwk') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '5fd6fc43-c831-4286-a6f7-db6edd911b37', '480299fe-bb8b-40d1-a2f5-3c21ff2af983', '', 'fmt/737', 'CWK 2-3 Generic', 0, 0, 'cwk-2-3-generic') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('ee066bad-167d-4cee-9d31-9f75a1cd92b4', 'ClarisWorks Drawing', 'fdf9e267-a18c-46a4-a162-b81bcba6322f', 'clarisworks-drawing') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'e0a06d44-75fa-48d7-bde3-1225da028e71', 'ee066bad-167d-4cee-9d31-9f75a1cd92b4', '4', 'fmt/738', 'CWK 4 Drawing', 0, 0, 'cwk-4-drawing') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('65d7e516-ab15-406c-9fd7-f9c051a96046', 'ClarisWorks Word Processor', '805d359a-32f0-4767-8a9c-cc14f13d8392', 'clarisworks-word-processor') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '197a8ae8-77bc-4928-93db-44816e36ba89', '65d7e516-ab15-406c-9fd7-f9c051a96046', '4', 'fmt/739', 'CWK 4 Word Processor', 0, 0, 'cwk-4-word-processor') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('ef7b46f0-4ad3-4b9d-b6f5-8a2f6ed1d059', 'ClarisWorks Spreadsheet', 'fea8c626-4c6d-4d34-8747-b7df5c67c17c', 'clarisworks-spreadsheet') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'ff9c54f1-24d8-457d-8662-a9e5488259c9', 'ef7b46f0-4ad3-4b9d-b6f5-8a2f6ed1d059', '4', 'fmt/740', 'CWK 4 Spreadsheet', 0, 0, 'cwk-4-spreadsheet') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('78c38014-5893-4a30-a6ba-e593d8fb7eea', 'ClarisWorks Database', '7d161ac1-2879-445d-8e6d-cbc9eff5c225', 'clarisworks-database') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '01ee1398-254f-4909-975f-392d576fd407', '78c38014-5893-4a30-a6ba-e593d8fb7eea', '4', 'fmt/741', 'CWK 4 Database', 0, 0, 'cwk-4-database') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('7fce1a02-a3a0-4df5-852c-05d2f56eebdb', 'ClarisWorks Painting', 'be86edbf-f62c-431f-b549-300d23c7cd0d', 'clarisworks-painting') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '2dc5514f-ccd3-42dd-b7c5-3b70b8f9a31d', '7fce1a02-a3a0-4df5-852c-05d2f56eebdb', '4', 'fmt/742', 'CWK 4 Painting', 0, 0, 'cwk-4-painting') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('58de5fd2-bb2d-40b5-9cc0-c58c119e318e', 'ClarisWorks/AppleWorks Drawing', 'fdf9e267-a18c-46a4-a162-b81bcba6322f', 'clarisworksappleworks-drawing') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'e646b8e2-651c-4ece-8c84-bab520746bee', '58de5fd2-bb2d-40b5-9cc0-c58c119e318e', '5', 'fmt/743', 'CWK 5 Drawing', 0, 0, 'cwk-5-drawing') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('d818e795-04a7-49f3-8dd5-6a1f8252757e', 'ClarisWorks/AppleWorks Word Processor', '805d359a-32f0-4767-8a9c-cc14f13d8392', 'clarisworksappleworks-word-processor') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '32a4f662-051f-43dc-a3e7-922fc16440b7', 'd818e795-04a7-49f3-8dd5-6a1f8252757e', '5', 'fmt/744', 'CWK 5 Word Processor', 0, 0, 'cwk-5-word-processor') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('1a701bba-2e27-483c-91f3-bdf2465a155e', 'ClarisWorks/AppleWorks Spreadsheet', 'fea8c626-4c6d-4d34-8747-b7df5c67c17c', 'clarisworksappleworks-spreadsheet') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '070f91ba-455e-43a1-96ff-bd7c970fed9c', '1a701bba-2e27-483c-91f3-bdf2465a155e', '5', 'fmt/745', 'CWK 5 Spreadsheet', 0, 0, 'cwk-5-spreadsheet') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('d3c2957d-7d9f-483a-89c5-a8467a00ba07', 'ClarisWorks/AppleWorks Database', '7d161ac1-2879-445d-8e6d-cbc9eff5c225', 'clarisworksappleworks-database') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'e83827a8-5e09-49dc-8afa-e786a1565cc8', 'd3c2957d-7d9f-483a-89c5-a8467a00ba07', '5', 'fmt/746', 'CWK 5 Database', 0, 0, 'cwk-5-database') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('2c75f41c-867e-413d-9b43-3f8835cc7198', 'ClarisWorks/AppleWorks Painting', 'be86edbf-f62c-431f-b549-300d23c7cd0d', 'clarisworksappleworks-painting') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '92c91202-5b1c-488f-8aa5-33f74a831d62', '2c75f41c-867e-413d-9b43-3f8835cc7198', '5', 'fmt/747', 'CWK 5 Painting', 0, 0, 'cwk-5-painting') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('92bfd236-7b89-4db3-b818-82489fc89d88', 'AppleWorks Drawing', 'fdf9e267-a18c-46a4-a162-b81bcba6322f', 'appleworks-drawing') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'aedf3181-779a-42b0-b6b2-4336cdec1127', '92bfd236-7b89-4db3-b818-82489fc89d88', '6', 'fmt/748', 'CWK 6 Drawing', 0, 0, 'cwk-6-drawing') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('b7dae4df-29bf-4057-a159-509f569f7f44', 'AppleWorks Word Processor', '805d359a-32f0-4767-8a9c-cc14f13d8392', 'appleworks-word-processor') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '0dd8026d-2607-4136-aee2-5310a7e74cec', 'b7dae4df-29bf-4057-a159-509f569f7f44', '6', 'fmt/749', 'CWK 6 Word Processor', 0, 0, 'cwk-6-word-processor') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('eb2b7cdb-6934-4b77-b0d2-38baf698f409', 'AppleWorks Spreadsheet', 'fea8c626-4c6d-4d34-8747-b7df5c67c17c', 'appleworks-spreadsheet') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'e70717bb-fdaf-491a-85f9-e01f7de02ca9', 'eb2b7cdb-6934-4b77-b0d2-38baf698f409', '6', 'fmt/750', 'CWK 6 Spreadsheet', 0, 0, 'cwk-6-spreadsheet') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('07f1cda3-6d76-4b47-ba84-5d392acb3aa0', 'AppleWorks Database', '7d161ac1-2879-445d-8e6d-cbc9eff5c225', 'appleworks-database') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '66f98736-425c-4ecb-8f95-2002fc417d75', '07f1cda3-6d76-4b47-ba84-5d392acb3aa0', '6', 'fmt/751', 'CWK 6 Database', 0, 0, 'cwk-6-database') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('dc594b5f-c3e9-4c4f-825e-54684af5f5b5', 'AppleWorks Painting', 'be86edbf-f62c-431f-b549-300d23c7cd0d', 'appleworks-painting') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', '1c321ac2-ff18-4562-b691-09f956c03586', 'dc594b5f-c3e9-4c4f-825e-54684af5f5b5', '6', 'fmt/752', 'CWK 6 Painting', 0, 0, 'cwk-6-painting') ;
+INSERT INTO `fpr_format` (`uuid`, `description`, `group_id`, `slug`) VALUES ('319f3746-ecaa-494e-9e83-971b879a895c', 'AppleWorks Presentation', '3616a69f-e9c4-4357-b366-57082cf75a3e', 'appleworks-presentation') ;
+INSERT INTO `fpr_formatversion` (`replaces_id`, `enabled`, `lastmodified`, `uuid`, `format_id`, `version`, `pronom_id`, `description`, `access_format`, `preservation_format`, `slug`) VALUES (NULL, 1, '2015-05-15 04:13:26', 'd59e5611-3d9c-41a9-83e0-0a6b52f9ec8e', '319f3746-ecaa-494e-9e83-971b879a895c', '6', 'fmt/753', 'CWK 6 Presentation', 0, 0, 'cwk-6-presentation') ;
+
+#updates version number
+update Agents set agentIdentifierValue = 'Archivematica-1.4.0' where agentIdentifierType = 'preservation system' and agentName = 'Archivematica';

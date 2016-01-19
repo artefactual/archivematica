@@ -1,18 +1,20 @@
 Source: archivematica-mcp-server
 Section: utils
 Priority: extra
-Maintainer: Austin Trask <austin@artefactual.com>
-Build-Depends: debhelper (>= 9)
-Standards-Version: 3.9.3
+Maintainer: Artefactual Systems Inc. <sysadmin@artefactual.com>
+Build-Depends:
+  debhelper (>= 9),
+  dh-exec
+Standards-Version: 3.9.5
+X-Python-Version: 2.7
 Homepage: http://archivematica.org
 
 Package: archivematica-mcp-server
-Architecture: i386 amd64 
+Architecture: i386 amd64
 Depends:
 	${shlibs:Depends},
 	${misc:Depends},
 	archivematica-common,
-	archivematica-dashboard(>=1.2.0),
 	dbconfig-common,
 	mysql-server,
 	python-pyinotify,
@@ -22,5 +24,4 @@ Depends:
 	gearman,
 	uuid
 Description: MCP Server for Archivematica
-  Workflow manager for Archivematica 
-  
+  Workflow manager for Archivematica

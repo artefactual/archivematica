@@ -2,11 +2,19 @@
 
 a2enmod wsgi
 
+userID=`id -u archivematicadashboard`
+
+if [ "${userID}" = 334 ]; then
+  echo "User archivematicadashboard exists"
+else
+  adduser --uid 334 --group --system --home /var/lib/archivematica-django/ archivematicadashboard
+fi
 
 logdir=/var/log/archivematica/dashboard
 mkdir -p $logdir
-chown -R archivematica:archivematica $logdir
-chmod -R g+s $logdir
+touch $logdir/dashboard.log
+chown -R archivematicadashboard:archivematica $logdir
+chmod -R g+ws $logdir
 
 # TODO Remove this from the postinst of any version that is not updating Django
 # Remove .pyo's so Django uninstalls properly (See https://github.com/pypa/pip/issues/2209)
@@ -18,16 +26,8 @@ pip install --upgrade -r /usr/share/archivematica/dashboard/requirements.txt
 # AM 1.1.0 and earlier did not set charset and collation on db properly
 #this is required to allow syncdb to work properly
 mysql -u archivematica -pdemo MCP -e 'alter database MCP CHARACTER SET utf8 COLLATE utf8_unicode_ci'
-/usr/share/archivematica/dashboard/manage.py migrate --settings='settings.common'
+sudo -u archivematicadashboard /usr/share/archivematica/dashboard/manage.py migrate --settings='settings.common'
 
 /etc/init.d/apache2 restart
-
-userID=`id -u archivematicadashboard`
-
-if [ "${userID}" = 334 ]; then
-  echo "User archivematicadashboard exists"
-else
-  adduser --uid 334 --group --system --home /var/lib/archivematica-django/ archivematicadashboard
-fi
 
 #DEBHELPER#
