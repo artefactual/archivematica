@@ -110,7 +110,7 @@ class unitTransfer(unit):
         etree.SubElement(ret, "type").text = "Transfer"
         unitXML = etree.SubElement(ret, "unitXML")
         etree.SubElement(unitXML, "UUID").text = self.UUID
-        tempPath = self.currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%").decode("utf-8")
+        tempPath = self.currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
         etree.SubElement(unitXML, "currentPath").text = tempPath
 
         return ret
