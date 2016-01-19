@@ -60,25 +60,19 @@ def gearmanApproveJob(gearman_worker, gearman_job):
         jobUUID = data["jobUUID"]
         chain = data["chain"]
         agent = str(data["uid"])
-        ret = cPickle.dumps(approveJob(jobUUID, chain, agent))
-        if not ret:
-            ret = ""
-        return ""
-    #catch OS errors
+        return cPickle.dumps(approveJob(jobUUID, chain, agent))
+    # catch OS errors
     except Exception:
         LOGGER.exception('Error approving job')
-        return ""
+        raise
 
 def gearmanGetJobsAwaitingApproval(gearman_worker, gearman_job):
     try:
-        ret = cPickle.dumps(getJobsAwaitingApproval())
-        if not ret:
-            ret = ""
-        return ret
-    #catch OS errors
+        return cPickle.dumps(getJobsAwaitingApproval())
+    # catch OS errors
     except Exception:
         LOGGER.exception('Error getting jobs awaiting approval')
-        return ""
+        raise
 
 
 def startRPCServer():
