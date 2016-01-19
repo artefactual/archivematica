@@ -25,6 +25,11 @@ except ImportError:
         MCP_SERVER = ('localhost', 4730)
     settings = Settings()
 
+
+class RPCError(Exception):
+    pass
+
+
 class MCPClient:
 
     def __init__(self, host=settings.MCP_SERVER[0], port=settings.MCP_SERVER[1]):
@@ -44,13 +49,19 @@ class MCPClient:
     def list(self):
         gm_client = gearman.GearmanClient([self.server])
         completed_job_request = gm_client.submit_job("getJobsAwaitingApproval", "", None)
-        return cPickle.loads(completed_job_request.result)
+        if completed_job_request.state == gearman.JOB_COMPLETE:
+            return cPickle.loads(completed_job_request.result)
+        elif completed_job_request.state == gearman.JOB_FAILED:
+            raise RPCError("getJobsAwaitingApproval failed (check MCPServer logs)")
 
     def notifications(self):
         gm_client = gearman.GearmanClient([self.server])
         completed_job_request = gm_client.submit_job("getNotifications", "", None)
         gm_client.shutdown()
-        return cPickle.loads(completed_job_request.result)
+        if completed_job_request.state == gearman.JOB_COMPLETE:
+            return cPickle.loads(completed_job_request.result)
+        elif completed_job_request.state == gearman.JOB_FAILED:
+            raise RPCError("getNotifications failed (check MCPServer logs)")
 
 
 if __name__ == '__main__':
