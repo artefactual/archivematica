@@ -156,9 +156,17 @@ class taskStandard():
             self.outputLock.release()
 
         if stdoutStatus and self.standardOutputFile is not None:
-            self.stdError = "Failed to write to file{" + self.standardOutputFile.encode('utf-8') + "}\r\n" + self.results["stdOut"]
+            if isinstance(self.standardOutputFile, unicode):
+                stdout = self.standardOutputFile.encode('utf-8')
+            else:
+                stdout = self.standardOutputFile
+            self.stdError = "Failed to write to file{" + stdout + "}\r\n" + self.results["stdOut"]
         if stderrStatus and self.standardErrorFile is not None:
-            self.stdError = "Failed to write to file{" + self.standardErrorFile.encode('utf-8') + "}\r\n" + self.results["stdError"]
+            if isinstance(self.standardErrorFile, unicode):
+                stderr = self.standardErrorFile.encode('utf-8')
+            else:
+                stderr = self.standardErrorFile
+            self.stdError = "Failed to write to file{" + stderr + "}\r\n" + self.results["stdError"]
         if  self.results['exitCode']:
             return self.results['exitCode']
         return stdoutStatus + stderrStatus
