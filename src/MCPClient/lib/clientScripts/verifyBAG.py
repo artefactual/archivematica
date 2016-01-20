@@ -21,12 +21,19 @@ from __future__ import print_function
 
 import os
 import sys
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 
-logger = get_script_logger("archivematica.mcp.client.verifyBAG")
+logger = get_script_logger('archivematica.mcp.client.verifyBAG')
 
+PRINT_SUBPROCESS_OUTPUT = True
+BAG = '/usr/share/bagit/bin/bag'
+BAG_INFO = 'bag-info.txt'
+
+
+<<<<<<< 2c887e8c534aba024ae44c355a3a2388f9916ac1
 def verify_bag(bag):
     verificationCommands = [
         ["/usr/share/bagit/bin/bag", "verifyvalid", bag],  # Validity
@@ -65,3 +72,38 @@ def verify_bag(bag):
 if __name__ == '__main__':
     bag = sys.argv[1]
     sys.exit(verify_bag(bag))
+=======
+def verifyBAG(path):
+    bag_info = os.path.join(path, BAG_INFO)
+    verification_commands = [
+        '{} verifyvalid {}'.format(BAG, path),              # Verifies the validity of a bag
+        '{} verifycomplete {}'.format(BAG, path),           # Verifies the completeness of a bag
+        '{} verifypayloadmanifests {}'.format(BAG, path),   # Verifies the checksums in all payload manifests
+    ]
+
+    if os.path.isfile(bag_info):
+        for line in open(bag_info, 'r'):
+            if line.startswith('Payload-Oxum'):
+                verification_commands.append('{} checkpayloadoxum {}'.format(BAG, path)) # Generates Payload-Oxum and checks against Payload-Oxum in bag-info.txt
+                break
+
+    for item in os.listdir(path):
+        if item.startswith('tagmanifest-') and item.endswith('.txt'):
+            verification_commands.append('{} verifytagmanifests {}'.format(BAG, path)) # Verifies the checksums in all tag manifests
+            break
+
+    exit_code = 0
+    for command in verification_commands:
+        exit, stdout, stderr = executeOrRun('command', command, printing=PRINT_SUBPROCESS_OUTPUT)
+        if exit != 0:
+            print('Failed test:', command, file=sys.stderr)
+            exit_code = 1
+        else:
+            print('Passed test:', command, file=sys.stderr)
+
+    return exit_code
+
+
+if __name__ == '__main__':
+    sys.exit(verifyBAG(sys.argv[1]))
+>>>>>>> Re-ingest: update transfer clientScripts
