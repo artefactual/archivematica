@@ -24,6 +24,7 @@ urlpatterns = patterns('',
     url(r'^administration/accounts/', include('components.accounts.urls')),
     url(r'^archival-storage/', include('components.archival_storage.urls')),
     url(r'^fpr/', include('fpr.urls')),
+    url(r'^(?P<unit_type>transfer|ingest)/', include('components.unit.urls')),  # URLs common to transfer & ingest
     url(r'^transfer/(?P<uuid>' + settings.UUID_REGEX + ')/rights/', include('components.rights.transfer_urls')),
     url(r'^transfer/', include('components.transfer.urls')),
     url(r'^ingest/(?P<uuid>' + settings.UUID_REGEX + ')/rights/', include('components.rights.ingest_urls')),

@@ -7,7 +7,7 @@
 
       <ul class="breadcrumb">
         {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
-        {% breadcrumb_url name 'components.ingest.views.ingest_detail' uuid %}
+        {% breadcrumb_url name 'components.unit.views.detail' 'ingest' uuid %}
         {% breadcrumb 'Manual Normalization Event Detail' %}
       </ul>
 
@@ -46,7 +46,7 @@
           {% if formset.forms %}
           <button type="submit" class="btn primary">Save</button>
           {% endif %}
-          <a href="{% url 'components.ingest.views.ingest_detail' uuid %}" class="btn">Cancel</a>
+          <a href="{% url 'components.unit.views.detail' 'ingest' uuid %}" class="btn">Cancel</a>
         </div>
       </form>
     </div>

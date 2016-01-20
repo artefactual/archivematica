@@ -27,7 +27,7 @@ from django.conf import settings as django_settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.utils.safestring import mark_safe
 
 from contrib.mcp.client import MCPClient
@@ -173,29 +173,6 @@ def status(request, uuid=None):
     response['objects'] = objects
     response['mcp'] = mcp_available
     return HttpResponse(json.JSONEncoder(default=encoder).encode(response), content_type='application/json')
-
-def detail(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid)
-    name = utils.get_directory_name_from_job(jobs[0])
-    is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
-    set_uuid = models.Transfer.objects.get(uuid=uuid).transfermetadatasetrow_id
-    return render(request, 'transfer/detail.html', locals())
-
-def microservices(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid)
-    name = utils.get_directory_name_from_job(jobs[0])
-    return render(request, 'transfer/microservices.html', locals())
-
-def delete(request, uuid):
-    try:
-        transfer = models.Transfer.objects.get(uuid__exact=uuid)
-        transfer.hidden = True
-        transfer.save()
-        response = {'removed': True}
-        return helpers.json_response(response)
-    except:
-        raise Http404
-
 
 def transfer_metadata_type_id():
     return helpers.get_metadata_type_id_by_description('Transfer')

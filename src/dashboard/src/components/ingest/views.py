@@ -252,7 +252,7 @@ def ingest_metadata_event_detail(request, uuid):
 
     if formset.is_valid():
         formset.save()
-        return redirect('components.ingest.views.ingest_detail', uuid)
+        return redirect('components.unit.views.detail', unit_type='ingest', unit_uuid=uuid)
 
     # Add path for original and derived files to each form
     for form in formset:
@@ -276,29 +276,6 @@ def ingest_metadata_delete(request, uuid, id):
         models.DublinCore.objects.get(pk=id).delete()
         messages.info(request, 'Deleted.')
         return redirect('components.ingest.views.ingest_metadata_list', uuid)
-    except:
-        raise Http404
-
-def ingest_detail(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
-    name = utils.get_directory_name_from_job(jobs[0])
-    return render(request, 'ingest/detail.html', locals())
-
-def ingest_microservices(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs[0])
-    return render(request, 'ingest/microservices.html', locals())
-
-def ingest_delete(request, uuid):
-    try:
-        sip = models.SIP.objects.get(uuid__exact=uuid)
-        sip.hidden = True
-        sip.save()
-
-        response = { 'removed': True }
-        return helpers.json_response(response)
-
     except:
         raise Http404
 
