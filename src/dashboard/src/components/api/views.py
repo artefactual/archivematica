@@ -46,11 +46,13 @@ def authenticate_request(request):
     api_auth = ApiKeyAuthentication()
     authorized = api_auth.is_authenticated(request)
 
-    if authorized:
+    # 'authorized' can be True, False or tastypie.http.HttpUnauthorized
+    # Check explicitly for True, not just truthiness
+    if authorized is True:
         client_ip = request.META['REMOTE_ADDR']
         whitelist = helpers.get_setting('api_whitelist', '127.0.0.1').split()
-        # logging.debug('client IP: %s, whitelist: %s', client_ip, whitelist)
         if client_ip not in whitelist:
+            LOGGER.debug('API called by invalid IP %s', client_ip)
             error = 'Host/IP ' + client_ip + ' not authorized.'
     else:
         error = 'API key not valid.'
