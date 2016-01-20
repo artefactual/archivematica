@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+# -*- coding: utf-8 -*-
 
 # This file is part of Archivematica.
 #
@@ -17,63 +18,110 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-# @package Archivematica
-# @subpackage archivematicaClientScript
-# @author Joseph Perry <joseph@artefactual.com>
 from __future__ import print_function
+
+import argparse
+import os
+import re
 import sys
 import uuid
-from optparse import OptionParser
 
 import django
 django.setup()
 # dashboard
-from main.models import File
+from main.models import File, Transfer
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from fileOperations import addFileToTransfer
 from fileOperations import addFileToSIP
 
+import metsrw
+
+
+logger = get_script_logger('archivematica.mcp.client.assignFileUUID')
+
+
+def find_mets_file(unit_path):
+    """
+    Return the location of the original METS in a Archivematica AIP transfer.
+    """
+    p = re.compile(r'^METS\..*\.xml$', re.IGNORECASE)
+    src = os.path.join(unit_path, 'metadata')
+    for item in os.listdir(src):
+        m = p.match(item)
+        if m:
+            return os.path.join(src, m.group())
+
+
+def get_file_uuid_from_mets(sip_directory, file_path_relative_to_sip):
+    """
+    Look up the UUID of the file in the METS document using metsrw.
+    """
+    mets_file = find_mets_file(sip_directory)
+    if not mets_file:
+        logger.info('Archivematica AIP: METS file not found.')
+        return
+    logger.info('Archivematica AIP: reading METS file %s.', mets_file)
+    mets = metsrw.METSDocument.fromfile(mets_file)
+
+    file_path_relative_to_sip = file_path_relative_to_sip.replace('%transferDirectory%', '', 1)
+    file_path_relative_to_sip = file_path_relative_to_sip.replace('%SIPDirectory%', '', 1)
+
+    # Warning! This is not the fastest way to achieve this. But we will focus
+    # on optimizations later.
+    # TODO: is it ok to assume that the file structure is flat?
+    entry = mets.get_file(path=file_path_relative_to_sip)
+    if entry:
+        logger.info('Archivematica AIP: file UUID of has been found in the METS document (%s).', entry.path)
+        return entry.file_uuid
+    logger.info('Archivematica AIP: file UUID has not been found in the METS document: %s', file_path_relative_to_sip)
+
+
+def main(file_uuid=None, file_path='', date='', event_uuid=None, sip_directory='', sip_uuid=None, transfer_uuid=None, use='original', update_use=True):
+    if file_uuid == "None":
+        file_uuid = None
+    if file_uuid:
+        logger.error('File already has UUID: %s', file_uuid)
+        if update_use:
+            File.objects.filter(uuid=file_uuid).update(filegrpuse=use)
+        return 0
+
+    # Stop if both or neither of them are used
+    if all([sip_uuid, transfer_uuid]) or not any([sip_uuid, transfer_uuid]):
+        logger.error('SIP exclusive-or Transfer UUID must be defined')
+        return 2
+
+    # Transfer
+    if transfer_uuid:
+        file_path_relative_to_sip = file_path.replace(sip_directory, '%transferDirectory%', 1)
+        transfer = Transfer.objects.get(uuid=transfer_uuid)
+        if transfer.type == 'Archivematica AIP':
+            file_uuid = get_file_uuid_from_mets(sip_directory, file_path_relative_to_sip)
+        if not file_uuid:
+            file_uuid = str(uuid.uuid4())
+            logger.info('Generated UUID for this file: %s.', file_uuid)
+        addFileToTransfer(file_path_relative_to_sip, file_uuid, transfer_uuid, event_uuid, date, use=use)
+        return 0
+
+    # Ingest
+    if sip_uuid:
+        file_uuid = str(uuid.uuid4())
+        file_path_relative_to_sip = file_path.replace(sip_directory,"%SIPDirectory%", 1)
+        addFileToSIP(file_path_relative_to_sip, file_uuid, sip_uuid, event_uuid, date, use=use)
+        return 0
 
 
 if __name__ == '__main__':
-    logger = get_script_logger("archivematica.mcp.client.assignFileUUID")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--fileUUID', type=str, dest='file_uuid')
+    parser.add_argument('-p', '--filePath', action='store', dest='file_path', default='')
+    parser.add_argument('-d', '--date', action='store', dest='date', default='')
+    parser.add_argument('-u', '--eventIdentifierUUID', type=lambda x: str(uuid.UUID(x)), dest='event_uuid')
+    parser.add_argument('-s', '--sipDirectory', action='store', dest='sip_directory', default='')
+    parser.add_argument('-S', '--sipUUID', type=lambda x: str(uuid.UUID(x)), dest='sip_uuid')
+    parser.add_argument('-T', '--transferUUID', type=lambda x: str(uuid.UUID(x)), dest='transfer_uuid')
+    parser.add_argument('-e', '--use', action='store', dest="use", default='original')
+    parser.add_argument('--disable-update-filegrpuse', action='store_false', dest='update_use', default=True)
+    args = parser.parse_args()
 
-    parser = OptionParser()
-    parser.add_option("-i",  "--fileUUID",          action="store", dest="fileUUID", default="")
-    parser.add_option("-p",  "--filePath",          action="store", dest="filePath", default="")
-    parser.add_option("-d",  "--date",              action="store", dest="date", default="")
-    parser.add_option("-u",  "--eventIdentifierUUID", action="store", dest="eventIdentifierUUID", default="")
-    parser.add_option("-s",  "--sipDirectory", action="store", dest="sipDirectory", default="")
-    parser.add_option("-S",  "--sipUUID", action="store", dest="sipUUID", default="")
-    parser.add_option("-T",  "--transferUUID", action="store", dest="transferUUID", default="")
-    parser.add_option("-e",  "--use", action="store", dest="use", default="original")
-    parser.add_option("--disable-update-filegrpuse", action="store_false", dest="update_use", default=True)
-
-
-    (opts, args) = parser.parse_args()
-    opts2 = vars(opts)
-#    for key, value in opts2.iteritems():
-#        print type(key), key, type(value), value
-#        exec 'opts.' + key + ' = value.decode("utf-8")'
-    fileUUID = opts.fileUUID
-    if not fileUUID or fileUUID == "None":
-        fileUUID = uuid.uuid4().__str__()
-    else:
-        print("File already has UUID:", fileUUID, file=sys.stderr)
-        if opts.update_use:
-            File.objects.filter(uuid=fileUUID).update(filegrpuse=opts.use)
-        exit(0) 
-
-
-    if opts.sipUUID == "" and opts.transferUUID != "":
-        filePathRelativeToSIP = opts.filePath.replace(opts.sipDirectory,"%transferDirectory%", 1)
-        addFileToTransfer(filePathRelativeToSIP, fileUUID, opts.transferUUID, opts.eventIdentifierUUID, opts.date, use=opts.use)
-
-    elif opts.sipUUID != "" and opts.transferUUID == "":
-        filePathRelativeToSIP = opts.filePath.replace(opts.sipDirectory,"%SIPDirectory%", 1)
-        addFileToSIP(filePathRelativeToSIP, fileUUID, opts.sipUUID, opts.eventIdentifierUUID, opts.date, use=opts.use)
-
-    else:
-        print("SIP exclusive-or Transfer uuid must be defined", file=sys.stderr)
-        exit(2)
+    sys.exit(main(**vars(args)))

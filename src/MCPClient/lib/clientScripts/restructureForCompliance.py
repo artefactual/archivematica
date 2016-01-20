@@ -22,34 +22,112 @@
 
 from __future__ import print_function
 import os
+import re
 import sys
 import shutil
+
+import django
+django.setup()
+from main.models import Transfer
+
+from verifyBAG import verify_bag
 
 # archivematicaCommon
 import archivematicaFunctions
 from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
 from custom_handlers import get_script_logger
 
+logger = get_script_logger('archivematica.mcp.client.restructureForCompliance')
 
-def restructureDirectory(unitPath):
-    unitPath = str(unitPath)
+
+def _move_file(src, dst, exit_on_error=True):
+    logger.info('Moving %s to %s', src, dst)
+    try:
+        shutil.move(src, dst)
+    except IOError:
+        print('Could not move', src)
+        if exit_on_error:
+            raise
+
+
+def restructure_transfer(unit_path):
     # Create required directories
-    archivematicaFunctions.create_directories(
-        REQUIRED_DIRECTORIES, unitPath, printing=True)
+    archivematicaFunctions.create_structured_directory(unit_path, printing=True)
+
     # Move everything else to the objects directory
-    for item in os.listdir(unitPath):
-        dst = os.path.join(unitPath, "objects", '.')
-        itemPath =  os.path.join(unitPath, item)
-        if os.path.isdir(itemPath) and item not in REQUIRED_DIRECTORIES:
-            shutil.move(itemPath, dst)
-            print("moving directory to objects: ", item)
-        elif os.path.isfile(itemPath) and item not in OPTIONAL_FILES:
-            shutil.move(itemPath, dst)
-            print("moving file to objects: ", item)
+    for item in os.listdir(unit_path):
+        src = os.path.join(unit_path, item)
+        dst = os.path.join(unit_path, "objects", '.')
+        if os.path.isdir(src) and item not in REQUIRED_DIRECTORIES:
+            _move_file(src, dst)
+        elif os.path.isfile(src) and item not in OPTIONAL_FILES:
+            _move_file(src, dst)
+
+
+def restructure_transfer_aip(unit_path):
+    """
+    Restructure a transfer that comes from re-ingesting an Archivematica AIP.
+    """
+    old_bag = os.path.join(unit_path, 'old_bag', '')
+    os.makedirs(old_bag)
+
+    # Move everything to old_bag
+    for item in os.listdir(unit_path):
+        if item == 'old_bag':
+            continue
+        src = os.path.join(unit_path, item)
+        _move_file(src, old_bag)
+
+    # Create required directories
+    # - "/logs" and "/logs/fileMeta"
+    # - "/metadata" and "/metadata/submissionDocumentation"
+    # - "/objects"
+    archivematicaFunctions.create_structured_directory(unit_path, printing=True)
+
+    # Move /old_bag/data/METS.<UUID>.xml => /metadata/METS.<UUID>.xml
+    p = re.compile(r'^METS\..*\.xml$', re.IGNORECASE)
+    src = os.path.join(old_bag, 'data')
+    for item in os.listdir(src):
+        m = p.match(item)
+        if m:
+            break # Stop trying after the first match
+    src = os.path.join(src, m.group())
+    dst = os.path.join(unit_path, 'metadata')
+    _move_file(src, dst)
+
+    # Move /old_bag/data/objects/submissionDocumentation/* => /metadata/submissionDocumentation/
+    src = os.path.join(old_bag, 'data', 'objects', 'submissionDocumentation')
+    dst = os.path.join(unit_path, 'metadata', 'submissionDocumentation')
+    for item in os.listdir(src):
+        item_path = os.path.join(src, item)
+        _move_file(item_path, dst)
+    shutil.rmtree(src)
+
+    # Move /old_bag/data/objects/* => /objects/
+    src = os.path.join(old_bag, 'data', 'objects')
+    dst = os.path.join(unit_path, 'objects')
+    for item in os.listdir(src):
+        item_path = os.path.join(src, item)
+        _move_file(item_path, dst)
+
+    # Get rid of old_bag
+    shutil.rmtree(old_bag)
 
 if __name__ == '__main__':
-    logger = get_script_logger("archivematica.mcp.client.restructureForCompliance")
+    sip_path = sys.argv[1]
+    sip_uuid = sys.argv[2]
 
-    target = sys.argv[1]
-    restructureDirectory(target)
-    
+    transfer = Transfer.objects.get(uuid=sip_uuid)
+    logger.info('Transfer.type=%s', transfer.type)
+
+    if transfer.type == 'Archivematica AIP':
+        logger.info('Archivematica AIP detected, verifying bag...')
+        exit_code = verify_bag(sip_path)
+        if exit_code > 0:
+            logger.info('Archivematica AIP: bag verification failed!')
+            sys.exit(exit_code)
+        logger.info('Restructuring transfer (Archivematica AIP re-ingest)...')
+        restructure_transfer_aip(sip_path)
+    else:
+        logger.info('Restructuring transfer...')
+        restructure_transfer(sip_path)

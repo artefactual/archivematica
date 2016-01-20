@@ -36,18 +36,29 @@ from archivematicaFunctions import unicodeToStr, get_setting, get_file_checksum
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import File, Transfer
 
-def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID):
-    fileSize = os.path.getsize(filePath)
-    checksumType = get_setting('checksum_type', 'sha256')
-    checksum = get_file_checksum(filePath, checksumType)
+def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID, fileSize=None, checksum=None, checksumType=None, add_event=True):
+    """
+    Update a File with its size, checksum and checksum type. These are
+    parameters that can be either generated or provided via keywords.
+
+    Finally, insert the corresponding Event. This behavior can be cancelled
+    using the boolean keyword 'add_event'.
+    """
+    if not fileSize:
+        fileSize = os.path.getsize(filePath)
+    if not checksumType:
+        checksumType = get_setting('checksum_type', 'sha256')
+    if not checksum:
+        checksum = get_file_checksum(filePath, checksumType)
 
     File.objects.filter(uuid=fileUUID).update(size=fileSize, checksum=checksum, checksumtype=checksumType)
 
-    insertIntoEvents(fileUUID=fileUUID,
-                     eventType='message digest calculation',
-                     eventDateTime=date,
-                     eventDetail='program="python"; module="hashlib.{}()"'.format(checksumType),
-                     eventOutcomeDetailNote=checksum)
+    if add_event:
+        insertIntoEvents(fileUUID=fileUUID,
+                         eventType='message digest calculation',
+                         eventDateTime=date,
+                         eventDetail='program="python"; module="hashlib.{}()"'.format(checksumType),
+                         eventOutcomeDetailNote=checksum)
 
 
 def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType="ingestion", eventDetail="", use="original"):
