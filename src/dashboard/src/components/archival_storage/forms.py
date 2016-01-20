@@ -21,11 +21,17 @@ from django import forms
 class CreateAICForm(forms.Form):
     results = forms.CharField(label=None, required=True, widget=forms.widgets.HiddenInput())
 
+
 class ReingestAIPForm(forms.Form):
     METADATA_ONLY = 'metadata'
     OBJECTS = 'objects'
+    FULL = 'full'
     REINGEST_CHOICES = (
-        (METADATA_ONLY, 'Re-ingest metadata only'),
-        (OBJECTS, 'Re-ingest metadata and objects')
+        (METADATA_ONLY, 'Metadata re-ingest'),
+        (OBJECTS, 'Partial re-ingest'),
+        (FULL, 'Full re-ingest'),
     )
     reingest_type = forms.ChoiceField(choices=REINGEST_CHOICES,  widget=forms.RadioSelect, required=True)
+    processing_config = forms.CharField(required=False, initial='default',
+        help_text='Only needed in full re-ingest',
+        widget=forms.TextInput(attrs={'placeholder': 'default'}))
