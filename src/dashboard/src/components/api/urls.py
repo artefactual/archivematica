@@ -27,6 +27,7 @@ urlpatterns = patterns('',
     url(r'transfer/start_transfer/', views.start_transfer_api),
     url(r'ingest/status/(?P<unit_uuid>' + settings.UUID_REGEX + ')', views.status, {'unit_type': 'unitSIP'}),
     url(r'ingest/waiting', views.waiting_for_user_input),
+    url(r'^(?P<unit_type>transfer|ingest)/(?P<unit_uuid>' + settings.UUID_REGEX + ')/delete/', views.mark_hidden),
 
     url(r'^ingest/reingest', views.start_reingest),
 

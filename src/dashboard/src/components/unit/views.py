@@ -65,11 +65,16 @@ def microservices(request, unit_type, unit_uuid):
 
 def mark_hidden(request, unit_type, unit_uuid):
     """
-    Marks the unit as hidden to delete it.  API call.
+    Marks the unit as hidden to delete it.
+
+    This endpoint assumes you are already logged in.
 
     :param unit_type: 'transfer' or 'ingest' for a Transfer or SIP respectively
     :param unit_uuid: UUID of the Transfer or SIP
     """
+    if request.method not in ('DELETE',):
+        return django.http.HttpResponseNotAllowed(['DELETE'])
+
     try:
         if unit_type == 'transfer':
             unit_model = models.Transfer
