@@ -33,6 +33,7 @@ from tastypie.authentication import ApiKeyAuthentication
 # This project, alphabetical
 from contrib.mcp.client import MCPClient
 from components.filesystem_ajax import views as filesystem_ajax_views
+from components.unit import views as unit_views
 from components import helpers
 from main import models
 
@@ -194,6 +195,26 @@ def waiting_for_user_input(request):
         )
     response['message'] = 'Fetched transfers successfully.'
     return helpers.json_response(response)
+
+
+def mark_hidden(request, unit_type, unit_uuid):
+    """
+    Mark a unit as deleted and hide it in the dashboard.
+
+    This is just a wrapper around unit.views.mark_hidden that verifies API auth.
+
+    :param unit_type: 'transfer' or 'ingest' for a Transfer or SIP respectively
+    :param unit_uuid: UUID of the Transfer or SIP
+    """
+    auth_error = authenticate_request(request)
+    response = {}
+    if auth_error is not None:
+        response = {'message': auth_error, 'error': True}
+        return django.http.HttpResponseForbidden(
+            json.dumps(response),
+            content_type='application/json'
+        )
+    return unit_views.mark_hidden(request, unit_type, unit_uuid)
 
 
 def start_transfer_api(request):
