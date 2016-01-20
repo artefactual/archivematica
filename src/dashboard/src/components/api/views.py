@@ -21,6 +21,8 @@ import json
 import shutil
 import logging
 import os
+import uuid
+import re
 
 # Core Django, alphabetical
 from django.db.models import Q
@@ -40,6 +42,7 @@ from main import models
 
 LOGGER = logging.getLogger('archivematica.dashboard')
 SHARED_DIRECTORY_ROOT = helpers.get_server_config_value('sharedDirectory')
+UUID_REGEX = re.compile(r'^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$', re.IGNORECASE)
 
 
 def authenticate_request(request):
@@ -417,51 +420,83 @@ def approve_transfer_via_mcp(directory, transfer_type, user_id):
 
     return error, unit_uuid
 
-def start_reingest(request):
+
+def reingest(request, target):
     """
-    Endpoint to approve reingest of an AIP.
+    Endpoint to approve reingest of an AIP to the beginning of transfer or ingest.
 
     Expects a POST request with the `uuid` of the SIP, and the `name`, which is
     also the directory in %sharedPath%tmp where the SIP is found.
 
-    Example usage: curl --data "username=demo&api_key=<API key>&name=test-efeb95b4-5e44-45a4-ab5a-9d700875eb60&uuid=efeb95b4-5e44-45a4-ab5a-9d700875eb60"  http://localhost/api/ingest/reingest
+    Example usage:
+
+        $ http POST http://localhost/api/ingest/reingest \
+          username=demo api_key=$API_KEY \
+          name=test-efeb95b4-5e44-45a4-ab5a-9d700875eb60 \
+          uid=efeb95b4-5e44-45a4-ab5a-9d700875eb60
+
+    :param str target: ingest or transfer
     """
-    if request.method == 'POST':
-        error = authenticate_request(request)
-        if error:
-            response = {'error': True, 'message': error}
-            return helpers.json_response(response, status_code=403)
-        sip_name = request.POST.get('name')
-        sip_uuid = request.POST.get('uuid')
-        if not all([sip_name, sip_uuid]):
-            response = {'error': True, 'message': '"name" and "uuid" are required.'}
-            return helpers.json_response(response, status_code=400)
-        # TODO Clear DB of residual stuff related to SIP
-        models.Task.objects.filter(job__sipuuid=sip_uuid).delete()
-        models.Job.objects.filter(sipuuid=sip_uuid).delete()
-        models.SIP.objects.filter(uuid=sip_uuid).delete()  # Delete is cascading
-        models.RightsStatement.objects.filter(metadataappliestoidentifier=sip_uuid).delete()  # Not actually a foreign key
-        models.DublinCore.objects.filter(metadataappliestoidentifier=sip_uuid).delete()
-
-        # Move to watched directory
-        shared_directory_path = helpers.get_server_config_value('sharedDirectory')
-        source = os.path.join(shared_directory_path, 'tmp', sip_name)
-        dest = os.path.join(shared_directory_path, 'watchedDirectories', 'system', 'reingestAIP', '')
-        try:
-            LOGGER.debug('Reingest moving from %s to %s', source, dest)
-            shutil.move(source, dest)
-        except (shutil.Error, OSError) as e:
-            error = e.strerror or "Unable to move reingested AIP to start reingest."
-            LOGGER.warning('Unable to move reingested AIP to start reingest', exc_info=True)
-        if error:
-            response = {'error': True, 'message': error}
-            return helpers.json_response(response, status_code=500)
-        else:
-            response = {'message': 'Approval successful.'}
-            return helpers.json_response(response)
-    else:
+    if request.method != 'POST':
         return django.http.HttpResponseNotAllowed(permitted_methods=['POST'])
+    error = authenticate_request(request)
+    if error:
+        response = {'error': True, 'message': error}
+        return helpers.json_response(response, status_code=403)
+    sip_name = request.POST.get('name')
+    sip_uuid = request.POST.get('uuid')
+    if not all([sip_name, sip_uuid]):
+        response = {'error': True, 'message': '"name" and "uuid" are required.'}
+        return helpers.json_response(response, status_code=400)
+    if target not in ('transfer', 'ingest'):
+        response = {'error': True, 'message': 'Unknown tranfer type.'}
+        return helpers.json_response(response, status_code=400)
 
+    # TODO Clear DB of residual stuff related to SIP
+    models.Task.objects.filter(job__sipuuid=sip_uuid).delete()
+    models.Job.objects.filter(sipuuid=sip_uuid).delete()
+    models.SIP.objects.filter(uuid=sip_uuid).delete()  # Delete is cascading
+    models.RightsStatement.objects.filter(metadataappliestoidentifier=sip_uuid).delete()  # Not actually a foreign key
+    models.DublinCore.objects.filter(metadataappliestoidentifier=sip_uuid).delete()
+
+    shared_directory_path = helpers.get_server_config_value('sharedDirectory')
+    source = os.path.join(shared_directory_path, 'tmp', sip_name)
+
+    if target == 'transfer':
+        dest = os.path.join(shared_directory_path, 'watchedDirectories', 'activeTransfers', 'standardTransfer')
+        name_has_uuid = len(sip_name) > 36 and re.match(UUID_REGEX, sip_name[-36:]) is not None
+        if name_has_uuid:
+            dest = os.path.join(dest, os.path.basename(source[:-37]))
+            if os.path.isdir(dest):
+                response = {'error': True, 'message': 'There is already a transfer in standardTransfer with the same name.'}
+                return helpers.json_response(response, status_code=400)
+        dest = os.path.join(dest, '')
+
+        # Persist transfer record in the database
+        tdetails = {
+            'currentlocation': '%sharedPath%' + dest[len(shared_directory_path):],
+            'uuid': str(uuid.uuid4()),
+            'type': 'Archivematica AIP',
+        }
+        transfer = models.Transfer.objects.create(**tdetails)
+        LOGGER.info('Transfer saved in the database (uuid=%s, type=%s, location=%s)', tdetails['uuid'], tdetails['type'], tdetails['currentlocation'])
+
+    elif target == 'ingest':
+        dest = os.path.join(shared_directory_path, 'watchedDirectories', 'system', 'reingestAIP', '')
+
+    # Move to watched directory
+    try:
+        LOGGER.debug('Reingest moving from %s to %s', source, dest)
+        shutil.move(source, dest)
+    except (shutil.Error, OSError) as e:
+        error = e.strerror or "Unable to move reingested AIP to start reingest."
+        LOGGER.warning('Unable to move reingested AIP to start reingest', exc_info=True)
+    if error:
+        response = {'error': True, 'message': error}
+        return helpers.json_response(response, status_code=500)
+    else:
+        response = {'message': 'Approval successful.'}
+        return helpers.json_response(response)
 
 def get_levels_of_description(request):
     """
