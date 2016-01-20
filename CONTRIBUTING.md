@@ -3,6 +3,31 @@
 Thank you for considering a contribution to Archivematica!
 This document outlines the code review process for Archivematica, along with our standards for new code contributions.
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Contributing](#contributing)
+  - [Code review](#code-review)
+    - [Getting started](#getting-started)
+    - [When to submit code for review?](#when-to-submit-code-for-review)
+    - [Opening the pull request](#opening-the-pull-request)
+    - [Discussion](#discussion)
+    - [Cleaning up the commit history](#cleaning-up-the-commit-history)
+      - [Commits should be specific and atomic](#commits-should-be-specific-and-atomic)
+      - [Every commit should work](#every-commit-should-work)
+      - [Commit summaries should be concise](#commit-summaries-should-be-concise)
+      - [Commit messages should be as detailed as they need to be (and no more)](#commit-messages-should-be-as-detailed-as-they-need-to-be-and-no-more)
+  - [Contribution standards](#contribution-standards)
+    - [Style](#style)
+      - [Some extra notes](#some-extra-notes)
+      - [Exceptions](#exceptions)
+      - [Working with legacy code](#working-with-legacy-code)
+    - [Documentation](#documentation)
+    - [Tests](#tests)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Code review
 
 Every new feature and bugfix to a project is expected to go through code review before inclusion.
