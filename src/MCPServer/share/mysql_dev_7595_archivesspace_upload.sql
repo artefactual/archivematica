@@ -1,6 +1,6 @@
 -- Insert default values into the ArchivesSpaceConfig table.
 -- Leaving all other values null/blank is consistent with default ATK config.
-INSERT INTO administration_archivesspaceconfig (pk, port) VALUES ('5e6b9fb2-0ed0-41c4-b5cb-94d25de1a5dc', 8089);
+INSERT INTO administration_archivesspaceconfig (pk, port, repository) VALUES ('5e6b9fb2-0ed0-41c4-b5cb-94d25de1a5dc', 8089, 2);
 
 -- The new chain - begins with selecting config, then calls upload script.
 -- The magic that pops open a new window happens in the dashboard UI,
