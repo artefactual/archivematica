@@ -229,8 +229,11 @@
 
       if (this.allowAdd) {
         // add button to add blank rows
-        var $addBlankEl = $('<div style="clear:both">' + this.addHandleHtml + '</div>');
-        $addBlankEl.click(function() {
+        var $addButton = $(this.addHandleHtml);
+        var $addBlankEl = $('<div style="clear:both"></div>');
+        $addBlankEl.append($addButton);
+
+        $addButton.click(function() {
           self.addBlankRow();
           self.render();
         });
