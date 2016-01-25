@@ -16,6 +16,7 @@ from django.utils import timezone
 from main.models import DublinCore
 
 # archivematicaCommon
+from archivematicaFunctions import get_setting
 from custom_handlers import get_script_logger
 import fileOperations
 from externals import checksummingTools
@@ -66,7 +67,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
         print >> sys.stderr, "File {} does not exist or is inaccessible.  Aborting.".format(aip_path)
         return -1
     # Calculate checksum
-    checksum_algorithm = 'sha256'
+    checksum_algorithm = get_setting('checksum_type', 'sha256')
     checksum = checksummingTools.get_file_checksum(aip_path, checksum_algorithm)
     # Get package type (AIP, AIC)
     sip_metadata_uuid = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
