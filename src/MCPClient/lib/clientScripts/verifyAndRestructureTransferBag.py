@@ -32,45 +32,13 @@ from main.models import File
 from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
 from custom_handlers import get_script_logger
 import fileOperations
-from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoEvents
 
-printSubProcessOutput=False
+from verifyBAG import verify_bag
+
 exitCode = 0
-verificationCommands = []
-verificationCommandsOutputs = []
 
-def verifyBag(bag):
-    global exitCode
-    verificationCommands = []
-    verificationCommands.append("/usr/share/bagit/bin/bag verifyvalid \"%s\"" % (bag)) #Verifies the validity of a bag.
-    verificationCommands.append("/usr/share/bagit/bin/bag verifycomplete \"%s\"" % (bag)) #Verifies the completeness of a bag.
-    verificationCommands.append("/usr/share/bagit/bin/bag verifypayloadmanifests \"%s\"" % (bag)) #Verifies the checksums in all payload manifests.
-    
-    bagInfoPath = os.path.join(bag, "bag-info.txt")
-    if os.path.isfile(bagInfoPath):
-        for line in open(bagInfoPath,'r'):
-            if line.startswith("Payload-Oxum"):
-                verificationCommands.append("/usr/share/bagit/bin/bag checkpayloadoxum \"%s\"" % (bag)) #Generates Payload-Oxum and checks against Payload-Oxum in bag-info.txt.
-                break
-    
-    for item in os.listdir(bag):
-        if item.startswith("tagmanifest-") and item.endswith(".txt"):        
-            verificationCommands.append("/usr/share/bagit/bin/bag verifytagmanifests \"%s\"" % (bag)) #Verifies the checksums in all tag manifests.
-            break
-
-    for command in verificationCommands:
-        ret = executeOrRun("command", command, printing=printSubProcessOutput)
-        verificationCommandsOutputs.append(ret)
-        exit, stdOut, stdErr = ret
-        if exit != 0:
-            print >>sys.stderr, "Failed test: ", command
-            print >>sys.stderr, stdErr
-            print >>sys.stderr, stdOut
-            print >>sys.stderr
-            exitCode += 1
-        else:
-            print "Passed test: ", command
+logger = get_script_logger("archivematica.mcp.client.verifyAndRestructureTransferBag")
 
 
 def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType="transfer_id", unitPathReplaceWith="%transferDirectory%"):
@@ -85,7 +53,7 @@ def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitI
         dirPath = os.path.join(unitPath, dir)
         dirDataPath = os.path.join(unitPath, "data", dir)
         if os.path.isdir(dirDataPath):
-            #move to the top level
+            # move to the top level
             src = dirDataPath
             dst = dirPath
             fileOperations.updateDirectoryLocation(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
@@ -106,7 +74,7 @@ def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitI
                 dst = os.path.join(bagFileDefaultDest, item)
                 fileOperations.updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
     for item in os.listdir(unitDataPath):
-        itemPath =  os.path.join(unitDataPath, item)
+        itemPath = os.path.join(unitDataPath, item)
         if os.path.isdir(itemPath) and item not in REQUIRED_DIRECTORIES:
             print "moving directory to objects: ", item
             dst = os.path.join(unitPath, "objects", item)
@@ -123,19 +91,13 @@ def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitI
 
 
 if __name__ == '__main__':
-    logger = get_script_logger("archivematica.mcp.client.verifyAndRestructureTransferBag")
-
     target = sys.argv[1]
-    transferUUID =  sys.argv[2]
-    verifyBag(target)
+    transferUUID = sys.argv[2]
+    exitCode = verify_bag(target)
     if exitCode != 0:
         print >>sys.stderr, "Failed bagit compliance. Not restructuring."
-        exit(exitCode) 
+        sys.exit(exitCode)
     restructureBagForComplianceFileUUIDsAssigned(target, transferUUID)
-    for i in range(len(verificationCommands)):
-        print verificationCommands[i]
-        print verificationCommandsOutputs[i]
-        print
 
     files = File.objects.filter(removedtime__isnull=True,
                                 transfer_id=transferUUID,
@@ -146,4 +108,4 @@ if __name__ == '__main__':
                          eventDetail="Bagit - verifypayloadmanifests",
                          eventOutcome="Pass")
 
-    exit(exitCode)
+    sys.exit(exitCode)
