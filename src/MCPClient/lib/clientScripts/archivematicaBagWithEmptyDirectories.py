@@ -23,7 +23,12 @@
 import argparse
 import os
 import sys
+
+import django
+django.setup()
+
 # archivematicaCommon
+from archivematicaFunctions import get_setting
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 
@@ -101,6 +106,8 @@ if __name__ == '__main__':
     parser.add_argument('payload_entries', metavar='Payload', nargs='+',
                    help='All the files/folders that should go in the bag.')
     parser.add_argument('--writer', dest='writer')
-    parser.add_argument('--payloadmanifestalgorithm', dest='algorithm')
+
+    algorithm = get_setting('checksum_type', 'sha512')
+
     args = parser.parse_args()
-    bag_with_empty_directories(args.operation, args.destination, args.sip_directory, args.payload_entries, args.writer, args.algorithm)
+    bag_with_empty_directories(args.operation, args.destination, args.sip_directory, args.payload_entries, args.writer, algorithm)
