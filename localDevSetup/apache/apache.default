@@ -27,8 +27,9 @@
 
   # Django with mod_wsgi
   # http://code.google.com/p/modwsgi/wiki/IntegrationWithDjango
+  SetEnv DJANGO_SETTINGS_MODULE settings.local
   WSGIScriptAlias / /usr/share/archivematica/dashboard/apache/django.wsgi
-  WSGIDaemonProcess dashboard user=archivematicadashboard group=archivematica
+  WSGIDaemonProcess dashboard user=archivematicadashboard group=archivematica python-path=/usr/share/archivematica/dashboard:/usr/lib/archivematica/archivematicaCommon
   WSGIProcessGroup dashboard
   <Directory "/usr/share/archivematica/dashboard/apache/">
     Order allow,deny
