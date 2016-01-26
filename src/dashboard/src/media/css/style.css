@@ -346,6 +346,10 @@ li.user > a {
   font-family: "Courier New";
 }
 
+.shell-output > pre {
+  white-space: pre-wrap;
+}
+
 .stderror > pre {
   background-color: #f2d8d8; 
 }
