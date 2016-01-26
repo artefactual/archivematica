@@ -10,5 +10,5 @@ echo 'Running mysql_dev1'
 # ...
 # optional delete unused MCSL's
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_dev_delete_links.sql;"
-
+mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/mysql_dev_dip_storage_after_upload.sql;"
 touch $currentDir/mysql_dev.complete
