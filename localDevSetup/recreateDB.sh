@@ -64,7 +64,7 @@ echo "Creating and populating MCP tables"
 # Set up initial DB state
 mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql;"
 # Run Django's syncdb
-../src/dashboard/src/manage.py syncdb --noinput --settings='settings.local'
+PYTHONPATH=/usr/lib/archivematica/archivematicaCommon:/usr/share/archivematica/dashboard ../src/dashboard/src/manage.py syncdb --noinput --settings='settings.local'
 # Run SQL dev scripts
 ../src/MCPServer/share/mysql_dev.sh ${databaseName} ${dbpasswordraw}
 # mysql -u root "${dbpassword}" --execute="USE ${databaseName}; SOURCE $currentDir/../src/MCPServer/share/mysql_dev1;"
