@@ -33,18 +33,18 @@
 
       {% if request.method == 'POST' %}
         {% if form.is_valid %}
-          <div class="alert-message success">
+          <div class="alert alert-success">
             <p><strong>Saved!</p>
           </div>
         {% else %}
-          <div class="alert-message error">
+          <div class="alert alert-error">
             <p>An error has occurred.</p>
           </div>
         {% endif %}
       {% endif %}
 
       {% if new_content_type_created %}
-          <div class="alert-message info">
+          <div class="alert alert-info">
             {% if new_content_type_created == 'Other' %}
               <p>New content added.</p>
             {% else %}

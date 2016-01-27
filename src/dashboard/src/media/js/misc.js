@@ -68,7 +68,7 @@ var NotificationView = Backbone.View.extend({
         // if notification hasn't been displayed on this page yet, display it
         if (this.displayed.indexOf(notification.id) == -1)
         {
-          var $notificationDiv = $('<div class="alert-message"></div>');
+          var $notificationDiv = $('<div class="alert"></div>');
 
           $notificationDiv
             .html(notification.message)
