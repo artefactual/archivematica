@@ -17,13 +17,7 @@
 
 import gearman
 import cPickle
-
-try:
-    import django.conf.settings as settings
-except ImportError:
-    class Settings:
-        MCP_SERVER = ('localhost', 4730)
-    settings = Settings()
+from django.conf import settings
 
 
 class RPCError(Exception):
@@ -31,9 +25,8 @@ class RPCError(Exception):
 
 
 class MCPClient:
-
-    def __init__(self, host=settings.MCP_SERVER[0], port=settings.MCP_SERVER[1]):
-        self.server = "%s:%d" % (host, port)
+    def __init__(self):
+        self.server = settings.GEARMAN_SERVER
 
     def execute(self, uuid, choice, uid=None):
         gm_client = gearman.GearmanClient([self.server])
@@ -62,8 +55,3 @@ class MCPClient:
             return cPickle.loads(completed_job_request.result)
         elif completed_job_request.state == gearman.JOB_FAILED:
             raise RPCError("getNotifications failed (check MCPServer logs)")
-
-
-if __name__ == '__main__':
-    mcpClient = MCPClient()
-    print mcpClient.list()
