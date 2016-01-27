@@ -32,13 +32,13 @@
       <h1>Rights<br /><small>{{ name }}</small></h1>
 
       {% if request.method == 'POST' %}
-        <div class="alert-message success">
+        <div class="alert alert-success">
           <p><strong>Saved!</p>
         </div>
       {% endif %}
 
       {% if new_content_type_created %}
-          <div class="alert-message info">
+          <div class="alert alert-info">
             {% if new_content_type_created == 'Other' %}
               <p>You may now add additional information such as document identifers and notes.</p>
             {% else %}
