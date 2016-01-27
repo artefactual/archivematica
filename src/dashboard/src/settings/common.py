@@ -177,6 +177,8 @@ INSTALLED_APPS = (
 
     # For REST API
     'tastypie',
+
+    'django_forms_bootstrap',
 )
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
