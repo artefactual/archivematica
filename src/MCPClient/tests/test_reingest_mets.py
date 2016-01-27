@@ -339,20 +339,30 @@ class TestAddEvents(TestCase):
         """
         It should add reingestion events to all files.
         It should add deletion events only to deleted files.
+        It should add new format identification, normalization, fixity check events to the original object.
         It should not change Agent information.
         """
         models.Agent.objects.all().delete()
         mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        num_events = models.Event.objects.count()
         assert len(mets.tree.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 16
         assert len(mets.tree.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 9
         mets = archivematicaCreateMETSReingest.add_events(mets, self.sip_uuid)
         root = mets.serialize()
-        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 20
+        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 16 + num_events
+        # Preservation
         assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
         assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:eventType[text()="deletion"]', namespaces=NSMAP) != []
+        # Original object
         assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="format identification"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="normalization"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="fixity check"]', namespaces=NSMAP) != []
+        # Transfer METS
         assert root.xpath('mets:amdSec[@ID="amdSec_3"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
+        # Agents
         assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 9
+
 
     def test_agent_not_in_mets(self):
         """
@@ -360,17 +370,25 @@ class TestAddEvents(TestCase):
         It should only add one new Agent even if multiple Events are added.
         """
         mets = metsrw.METSDocument.fromfile(os.path.join(THIS_DIR, 'fixtures', 'mets_no_metadata.xml'))
+        num_events = models.Event.objects.count()
         assert len(mets.tree.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 16
         assert len(mets.tree.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 9
         mets = archivematicaCreateMETSReingest.add_events(mets, self.sip_uuid)
         root = mets.serialize()
-        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 20
+        assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:EVENT"]', namespaces=NSMAP)) == 16 + num_events
         assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 12
+        # Preservation
         assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
         assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:eventType[text()="deletion"]', namespaces=NSMAP) != []
         assert root.xpath('mets:amdSec[@ID="amdSec_1"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]', namespaces=NSMAP) != []
+        # Original
         assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="format identification"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="normalization"]', namespaces=NSMAP) != []
+        assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:eventType[text()="fixity check"]', namespaces=NSMAP) != []
+
         assert root.xpath('mets:amdSec[@ID="amdSec_2"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]', namespaces=NSMAP) != []
+        # Transfer METS
         assert root.xpath('mets:amdSec[@ID="amdSec_3"]//premis:eventType[text()="reingestion"]', namespaces=NSMAP) != []
         assert root.xpath('mets:amdSec[@ID="amdSec_3"]//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]', namespaces=NSMAP) != []
 
