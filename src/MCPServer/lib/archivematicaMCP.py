@@ -37,7 +37,6 @@ import logging
 import logging.config
 import getpass
 import os
-import pyinotify
 import signal
 import sys
 import threading
@@ -228,14 +227,7 @@ def signal_handler(signalReceived, frame):
     stopSignalReceived = True
     threads = threading.enumerate()
     for thread in threads:
-        if isinstance(thread, pyinotify.ThreadedNotifier):
-            logger.info('Stopping %s %s', type(thread), thread)
-            try:
-                thread.stop()
-            except Exception as inst:
-                logger.exception('Error stopping thread')
-        else:
-            logger.warning('Not stopping %s %s', type(thread), thread)
+        logger.warning('Not stopping %s %s', type(thread), thread)
     sys.stdout.flush()
     sys.stderr.flush()
     sys.exit(0)
