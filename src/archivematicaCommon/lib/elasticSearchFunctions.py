@@ -25,6 +25,7 @@ import base64
 import ConfigParser
 import cPickle
 import datetime
+import json
 import logging
 import MySQLdb
 import os
@@ -256,6 +257,17 @@ def set_up_mapping(conn, index):
         print 'Transfer mapping created.'
 
     if index == 'aips':
+        # Load external METS mappings
+        # These were generated from an AIP which had all the metadata fields filled out,
+        # and should represent a pretty complete structure.
+        # We don't want to leave this up to dynamic mapping, since automatic type
+        # detection may result in some fields being detected as date fields, and
+        # subsequently causing problems.
+        with open(os.path.normpath(os.path.join(__file__, "..", "elasticsearch", "aip_mets_mapping.json"))) as f:
+            aip_mets_mapping = json.load(f)
+        with open(os.path.normpath(os.path.join(__file__, "..", "elasticsearch", "aipfile_mets_mapping.json"))) as f:
+            aipfile_mets_mapping = json.load(f)
+
         print 'Creating AIP mapping...'
         conn.indices.put_mapping(doc_type='aip', body={'aip': {'date_detection': True}}, index='aips')
         print 'AIP mapping created.'
@@ -265,7 +277,7 @@ def set_up_mapping(conn, index):
             'size': {'type': 'double'},
             'uuid': machine_readable_field_spec,
             # Prevent autodetection for dc:date
-            'mets': {'properties': {'ns0:mets_dict_list': {'properties': {'ns0:dmdSec_dict_list': {'properties': {'ns0:mdWrap_dict_list': {'properties': {'ns0:xmlData_dict_list': {'properties': {'ns2:dublincore_dict_list': {'properties': {'dc:date': {'type': 'string'}}}}}}}}}}}}},
+            'mets': aip_mets_mapping,
         }
 
         print 'Creating AIP mapping...'
@@ -282,7 +294,7 @@ def set_up_mapping(conn, index):
             'isPartOf': machine_readable_field_spec,
             'AICID': machine_readable_field_spec,
             # Prevent autodetection for dc:date
-            'METS': {'properties': {'dmdSec': {'properties': {'ns0:xmlData_dict_list': {'properties': {'ns1:dublincore_dict_list': {'properties': {'dc:date': {'type': 'string'}}}}}}}}},
+            'METS': aipfile_mets_mapping,
         }
 
         print 'Creating AIP file mapping...'

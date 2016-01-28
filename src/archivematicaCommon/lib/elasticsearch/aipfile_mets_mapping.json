@@ -1,0 +1,474 @@
+{
+  "properties": {
+    "dmdSec": {
+      "properties": {
+        "ns0:xmlData_dict_list": {
+          "properties": {
+            "@xmlns:ns1": {
+              "type": "string"
+            },
+            "@xmlns:ns0": {
+              "type": "string"
+            },
+            "@xmlns:xsi": {
+              "type": "string"
+            },
+            "ns1:dublincore_dict_list": {
+              "properties": {
+                "dc:provenance": {
+                  "type": "string"
+                },
+                "dc:date": {
+                  "type": "string"
+                },
+                "@xsi:schemaLocation": {
+                  "type": "string"
+                },
+                "dc:title": {
+                  "type": "string"
+                },
+                "dc:description": {
+                  "type": "string"
+                }
+              }
+            },
+            "@xmlns:dc": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "amdSec": {
+      "properties": {
+        "ns0:amdSec_dict_list": {
+          "properties": {
+            "ns0:techMD_dict_list": {
+              "properties": {
+                "ns0:mdWrap_dict_list": {
+                  "properties": {
+                    "@MDTYPE": {
+                      "type": "string"
+                    },
+                    "ns0:xmlData_dict_list": {
+                      "properties": {
+                        "ns1:object_dict_list": {
+                          "properties": {
+                            "@version": {
+                              "type": "string"
+                            },
+                            "@xsi:type": {
+                              "type": "string"
+                            },
+                            "ns1:objectCharacteristics_dict_list": {
+                              "properties": {
+                                "ns1:compositionLevel": {
+                                  "type": "string"
+                                },
+                                "ns1:size": {
+                                  "type": "string"
+                                },
+                                "ns1:fixity_dict_list": {
+                                  "properties": {
+                                    "ns1:messageDigest": {
+                                      "type": "string"
+                                    },
+                                    "ns1:messageDigestAlgorithm": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns1:format_dict_list": {
+                                  "properties": {
+                                    "ns1:formatDesignation_dict_list": {
+                                      "properties": {
+                                        "ns1:formatName": {
+                                          "type": "string"
+                                        },
+                                        "ns1:formatVersion": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "ns1:formatRegistry_dict_list": {
+                                      "properties": {
+                                        "ns1:formatRegistryKey": {
+                                          "type": "string"
+                                        },
+                                        "ns1:formatRegistryName": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "ns1:originalName": {
+                              "type": "string"
+                            },
+                            "ns1:objectIdentifier_dict_list": {
+                              "properties": {
+                                "ns1:objectIdentifierType": {
+                                  "type": "string"
+                                },
+                                "ns1:objectIdentifierValue": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "@xsi:schemaLocation": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "@ID": {
+                  "type": "string"
+                }
+              }
+            },
+            "@xmlns:ns1": {
+              "type": "string"
+            },
+            "@xmlns:ns0": {
+              "type": "string"
+            },
+            "@xmlns:xsi": {
+              "type": "string"
+            },
+            "@ID": {
+              "type": "string"
+            },
+            "ns0:rightsMD_dict_list": {
+              "properties": {
+                "ns0:mdWrap_dict_list": {
+                  "properties": {
+                    "@MDTYPE": {
+                      "type": "string"
+                    },
+                    "ns0:xmlData_dict_list": {
+                      "properties": {
+                        "ns1:rightsStatement_dict_list": {
+                          "properties": {
+                            "ns1:otherRightsInformation_dict_list": {
+                              "properties": {
+                                "ns1:otherRightsDocumentationIdentifier_dict_list": {
+                                  "properties": {
+                                    "ns1:otherRightsDocumentationIdentifierValue": {
+                                      "type": "string"
+                                    },
+                                    "ns1:otherRightsDocumentationIdentifierType": {
+                                      "type": "string"
+                                    },
+                                    "ns1:otherRightsDocumentationRole": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns1:otherRightsBasis": {
+                                  "type": "string"
+                                },
+                                "ns1:otherRightsNote": {
+                                  "type": "string"
+                                },
+                                "ns1:otherRightsApplicableDates_dict_list": {
+                                  "properties": {
+                                    "ns1:startDate": {
+                                      "type": "string"
+                                    },
+                                    "ns1:endDate": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "ns1:rightsBasis": {
+                              "type": "string"
+                            },
+                            "ns1:licenseInformation_dict_list": {
+                              "properties": {
+                                "ns1:licenseNote": {
+                                  "type": "string"
+                                },
+                                "ns1:licenseTerms": {
+                                  "type": "string"
+                                },
+                                "ns1:licenseDocumentationIdentifier_dict_list": {
+                                  "properties": {
+                                    "ns1:licenseDocumentationRole": {
+                                      "type": "string"
+                                    },
+                                    "ns1:licenseDocumentationIdentifierValue": {
+                                      "type": "string"
+                                    },
+                                    "ns1:licenseDocumentationIdentifierType": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns1:licenseApplicableDates_dict_list": {
+                                  "properties": {
+                                    "ns1:startDate": {
+                                      "type": "string"
+                                    },
+                                    "ns1:endDate": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "ns1:rightsGranted_dict_list": {
+                              "properties": {
+                                "ns1:termOfRestriction_dict_list": {
+                                  "properties": {
+                                    "ns1:startDate": {
+                                      "type": "string"
+                                    },
+                                    "ns1:endDate": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns1:restriction": {
+                                  "type": "string"
+                                },
+                                "ns1:termOfGrant_dict_list": {
+                                  "properties": {
+                                    "ns1:startDate": {
+                                      "type": "string"
+                                    },
+                                    "ns1:endDate": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns1:rightsGrantedNote": {
+                                  "type": "string"
+                                },
+                                "ns1:act": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns1:rightsStatementIdentifier_dict_list": {
+                              "properties": {
+                                "ns1:rightsStatementIdentifierType": {
+                                  "type": "string"
+                                },
+                                "ns1:rightsStatementIdentifierValue": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns1:statuteInformation_dict_list": {
+                              "properties": {
+                                "ns1:statuteNote": {
+                                  "type": "string"
+                                },
+                                "ns1:statuteApplicableDates_dict_list": {
+                                  "properties": {
+                                    "ns1:startDate": {
+                                      "type": "string"
+                                    },
+                                    "ns1:endDate": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns1:statuteDocumentationIdentifier_dict_list": {
+                                  "properties": {
+                                    "ns1:statuteDocumentationIdentifierValue": {
+                                      "type": "string"
+                                    },
+                                    "ns1:statuteDocumentationRole": {
+                                      "type": "string"
+                                    },
+                                    "ns1:statuteDocumentationIdentifierType": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns1:statuteInformationDeterminationDate": {
+                                  "type": "string"
+                                },
+                                "ns1:statuteCitation": {
+                                  "type": "string"
+                                },
+                                "ns1:statuteJurisdiction": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns1:copyrightInformation_dict_list": {
+                              "properties": {
+                                "ns1:copyrightDocumentationIdentifier_dict_list": {
+                                  "properties": {
+                                    "ns1:copyrightDocumentationIdentifierType": {
+                                      "type": "string"
+                                    },
+                                    "ns1:copyrightDocumentationIdentifierValue": {
+                                      "type": "string"
+                                    },
+                                    "ns1:copyrightDocumentationRole": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns1:copyrightJurisdiction": {
+                                  "type": "string"
+                                },
+                                "ns1:copyrightStatusDeterminationDate": {
+                                  "type": "string"
+                                },
+                                "ns1:copyrightStatus": {
+                                  "type": "string"
+                                },
+                                "ns1:copyrightApplicableDates_dict_list": {
+                                  "properties": {
+                                    "ns1:startDate": {
+                                      "type": "string"
+                                    },
+                                    "ns1:endDate": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns1:copyrightNote": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns1:linkingObjectIdentifier_dict_list": {
+                              "properties": {
+                                "ns1:linkingObjectIdentifierValue": {
+                                  "type": "string"
+                                },
+                                "ns1:linkingObjectIdentifierType": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "@xsi:schemaLocation": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "@ID": {
+                  "type": "string"
+                }
+              }
+            },
+            "ns0:digiprovMD_dict_list": {
+              "properties": {
+                "ns0:mdWrap_dict_list": {
+                  "properties": {
+                    "@MDTYPE": {
+                      "type": "string"
+                    },
+                    "ns0:xmlData_dict_list": {
+                      "properties": {
+                        "ns1:event_dict_list": {
+                          "properties": {
+                            "ns1:eventOutcomeInformation_dict_list": {
+                              "properties": {
+                                "ns1:eventOutcome": {
+                                  "type": "string"
+                                },
+                                "ns1:eventOutcomeDetail_dict_list": {
+                                  "properties": {
+                                    "ns1:eventOutcomeDetailNote": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "ns1:eventIdentifier_dict_list": {
+                              "properties": {
+                                "ns1:eventIdentifierType": {
+                                  "type": "string"
+                                },
+                                "ns1:eventIdentifierValue": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns1:linkingAgentIdentifier_dict_list": {
+                              "properties": {
+                                "ns1:linkingAgentIdentifierValue": {
+                                  "type": "string"
+                                },
+                                "ns1:linkingAgentIdentifierType": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns1:eventDateTime": {
+                              "type": "date",
+                              "format": "dateOptionalTime"
+                            },
+                            "ns1:eventDetail": {
+                              "type": "string"
+                            },
+                            "ns1:eventType": {
+                              "type": "string"
+                            },
+                            "@version": {
+                              "type": "string"
+                            },
+                            "@xsi:schemaLocation": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "ns1:agent_dict_list": {
+                          "properties": {
+                            "ns1:agentIdentifier_dict_list": {
+                              "properties": {
+                                "ns1:agentIdentifierType": {
+                                  "type": "string"
+                                },
+                                "ns1:agentIdentifierValue": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns1:agentType": {
+                              "type": "string"
+                            },
+                            "@version": {
+                              "type": "string"
+                            },
+                            "@xsi:schemaLocation": {
+                              "type": "string"
+                            },
+                            "ns1:agentName": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "@ID": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

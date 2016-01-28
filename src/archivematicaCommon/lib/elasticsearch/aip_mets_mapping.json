@@ -1,0 +1,742 @@
+{
+  "properties": {
+    "ns0:mets_dict_list": {
+      "properties": {
+        "ns0:metsHdr_dict_list": {
+          "properties": {
+            "@CREATEDATE": {
+              "type": "date",
+              "format": "dateOptionalTime"
+            }
+          }
+        },
+        "ns0:amdSec_dict_list": {
+          "properties": {
+            "ns0:techMD_dict_list": {
+              "properties": {
+                "ns0:mdWrap_dict_list": {
+                  "properties": {
+                    "@MDTYPE": {
+                      "type": "string"
+                    },
+                    "ns0:xmlData_dict_list": {
+                      "properties": {
+                        "ns4:object_dict_list": {
+                          "properties": {
+                            "ns4:originalName": {
+                              "type": "string"
+                            },
+                            "@xsi:type": {
+                              "type": "string"
+                            },
+                            "ns4:objectCharacteristics_dict_list": {
+                              "properties": {
+                                "ns4:size": {
+                                  "type": "string"
+                                },
+                                "ns4:fixity_dict_list": {
+                                  "properties": {
+                                    "ns4:messageDigestAlgorithm": {
+                                      "type": "string"
+                                    },
+                                    "ns4:messageDigest": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns4:format_dict_list": {
+                                  "properties": {
+                                    "ns4:formatRegistry_dict_list": {
+                                      "properties": {
+                                        "ns4:formatRegistryName": {
+                                          "type": "string"
+                                        },
+                                        "ns4:formatRegistryKey": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "ns4:formatDesignation_dict_list": {
+                                      "properties": {
+                                        "ns4:formatVersion": {
+                                          "type": "string"
+                                        },
+                                        "ns4:formatName": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "ns4:compositionLevel": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns4:objectIdentifier_dict_list": {
+                              "properties": {
+                                "ns4:objectIdentifierValue": {
+                                  "type": "string"
+                                },
+                                "ns4:objectIdentifierType": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "@version": {
+                              "type": "string"
+                            },
+                            "@xsi:schemaLocation": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "@ID": {
+                  "type": "string"
+                }
+              }
+            },
+            "ns0:sourceMD_dict_list": {
+              "properties": {
+                "ns0:mdWrap_dict_list": {
+                  "properties": {
+                    "@MDTYPE": {
+                      "type": "string"
+                    },
+                    "ns0:xmlData_dict_list": {
+                      "properties": {
+                        "transfer_metadata_dict_list": {
+                          "properties": {
+                            "imaging_process_notes": {
+                              "type": "string"
+                            },
+                            "examiner": {
+                              "type": "string"
+                            },
+                            "imaging_software": {
+                              "type": "string"
+                            },
+                            "media_number": {
+                              "type": "string"
+                            },
+                            "imaging_date": {
+                              "type": "string"
+                            },
+                            "media_format": {
+                              "type": "string"
+                            },
+                            "serial_number": {
+                              "type": "string"
+                            },
+                            "imaging_interface": {
+                              "type": "string"
+                            },
+                            "source_filesystem": {
+                              "type": "string"
+                            },
+                            "label_text": {
+                              "type": "string"
+                            },
+                            "media_manufacture": {
+                              "type": "string"
+                            },
+                            "media_density": {
+                              "type": "string"
+                            },
+                            "image_fixity": {
+                              "type": "string"
+                            },
+                            "image_format": {
+                              "type": "string"
+                            },
+                            "imaging_success": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "@ID": {
+                  "type": "string"
+                }
+              }
+            },
+            "@ID": {
+              "type": "string"
+            },
+            "ns0:rightsMD_dict_list": {
+              "properties": {
+                "ns0:mdWrap_dict_list": {
+                  "properties": {
+                    "@MDTYPE": {
+                      "type": "string"
+                    },
+                    "ns0:xmlData_dict_list": {
+                      "properties": {
+                        "ns4:rightsStatement_dict_list": {
+                          "properties": {
+                            "ns4:copyrightInformation_dict_list": {
+                              "properties": {
+                                "ns4:copyrightJurisdiction": {
+                                  "type": "string"
+                                },
+                                "ns4:copyrightStatusDeterminationDate": {
+                                  "type": "string"
+                                },
+                                "ns4:copyrightStatus": {
+                                  "type": "string"
+                                },
+                                "ns4:copyrightNote": {
+                                  "type": "string"
+                                },
+                                "ns4:copyrightApplicableDates_dict_list": {
+                                  "properties": {
+                                    "ns4:endDate": {
+                                      "type": "string"
+                                    },
+                                    "ns4:startDate": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns4:copyrightDocumentationIdentifier_dict_list": {
+                                  "properties": {
+                                    "ns4:copyrightDocumentationIdentifierType": {
+                                      "type": "string"
+                                    },
+                                    "ns4:copyrightDocumentationRole": {
+                                      "type": "string"
+                                    },
+                                    "ns4:copyrightDocumentationIdentifierValue": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "ns4:licenseInformation_dict_list": {
+                              "properties": {
+                                "ns4:licenseDocumentationIdentifier_dict_list": {
+                                  "properties": {
+                                    "ns4:licenseDocumentationIdentifierType": {
+                                      "type": "string"
+                                    },
+                                    "ns4:licenseDocumentationRole": {
+                                      "type": "string"
+                                    },
+                                    "ns4:licenseDocumentationIdentifierValue": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns4:licenseApplicableDates_dict_list": {
+                                  "properties": {
+                                    "ns4:endDate": {
+                                      "type": "string"
+                                    },
+                                    "ns4:startDate": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns4:licenseTerms": {
+                                  "type": "string"
+                                },
+                                "ns4:licenseNote": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns4:rightsGranted_dict_list": {
+                              "properties": {
+                                "ns4:restriction": {
+                                  "type": "string"
+                                },
+                                "ns4:termOfRestriction_dict_list": {
+                                  "properties": {
+                                    "ns4:endDate": {
+                                      "type": "string"
+                                    },
+                                    "ns4:startDate": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns4:termOfGrant_dict_list": {
+                                  "properties": {
+                                    "ns4:endDate": {
+                                      "type": "string"
+                                    },
+                                    "ns4:startDate": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns4:rightsGrantedNote": {
+                                  "type": "string"
+                                },
+                                "ns4:act": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns4:rightsStatementIdentifier_dict_list": {
+                              "properties": {
+                                "ns4:rightsStatementIdentifierType": {
+                                  "type": "string"
+                                },
+                                "ns4:rightsStatementIdentifierValue": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns4:rightsBasis": {
+                              "type": "string"
+                            },
+                            "ns4:otherRightsInformation_dict_list": {
+                              "properties": {
+                                "ns4:otherRightsNote": {
+                                  "type": "string"
+                                },
+                                "ns4:otherRightsApplicableDates_dict_list": {
+                                  "properties": {
+                                    "ns4:endDate": {
+                                      "type": "string"
+                                    },
+                                    "ns4:startDate": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns4:otherRightsDocumentationIdentifier_dict_list": {
+                                  "properties": {
+                                    "ns4:otherRightsDocumentationIdentifierValue": {
+                                      "type": "string"
+                                    },
+                                    "ns4:otherRightsDocumentationRole": {
+                                      "type": "string"
+                                    },
+                                    "ns4:otherRightsDocumentationIdentifierType": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns4:otherRightsBasis": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns4:linkingObjectIdentifier_dict_list": {
+                              "properties": {
+                                "ns4:linkingObjectIdentifierType": {
+                                  "type": "string"
+                                },
+                                "ns4:linkingObjectIdentifierValue": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns4:statuteInformation_dict_list": {
+                              "properties": {
+                                "ns4:statuteInformationDeterminationDate": {
+                                  "type": "string"
+                                },
+                                "ns4:statuteNote": {
+                                  "type": "string"
+                                },
+                                "ns4:statuteDocumentationIdentifier_dict_list": {
+                                  "properties": {
+                                    "ns4:statuteDocumentationIdentifierValue": {
+                                      "type": "string"
+                                    },
+                                    "ns4:statuteDocumentationIdentifierType": {
+                                      "type": "string"
+                                    },
+                                    "ns4:statuteDocumentationRole": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns4:statuteJurisdiction": {
+                                  "type": "string"
+                                },
+                                "ns4:statuteCitation": {
+                                  "type": "string"
+                                },
+                                "ns4:statuteApplicableDates_dict_list": {
+                                  "properties": {
+                                    "ns4:endDate": {
+                                      "type": "string"
+                                    },
+                                    "ns4:startDate": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "@xsi:schemaLocation": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "@ID": {
+                  "type": "string"
+                }
+              }
+            },
+            "ns0:digiprovMD_dict_list": {
+              "properties": {
+                "ns0:mdWrap_dict_list": {
+                  "properties": {
+                    "@MDTYPE": {
+                      "type": "string"
+                    },
+                    "ns0:xmlData_dict_list": {
+                      "properties": {
+                        "ns4:event_dict_list": {
+                          "properties": {
+                            "ns4:eventOutcomeInformation_dict_list": {
+                              "properties": {
+                                "ns4:eventOutcomeDetail_dict_list": {
+                                  "properties": {
+                                    "ns4:eventOutcomeDetailNote": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "ns4:eventOutcome": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns4:eventType": {
+                              "type": "string"
+                            },
+                            "ns4:eventDetail": {
+                              "type": "string"
+                            },
+                            "ns4:linkingAgentIdentifier_dict_list": {
+                              "properties": {
+                                "ns4:linkingAgentIdentifierValue": {
+                                  "type": "string"
+                                },
+                                "ns4:linkingAgentIdentifierType": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns4:eventIdentifier_dict_list": {
+                              "properties": {
+                                "ns4:eventIdentifierType": {
+                                  "type": "string"
+                                },
+                                "ns4:eventIdentifierValue": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns4:eventDateTime": {
+                              "type": "date",
+                              "format": "dateOptionalTime"
+                            },
+                            "@version": {
+                              "type": "string"
+                            },
+                            "@xsi:schemaLocation": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "ns4:agent_dict_list": {
+                          "properties": {
+                            "ns4:agentIdentifier_dict_list": {
+                              "properties": {
+                                "ns4:agentIdentifierType": {
+                                  "type": "string"
+                                },
+                                "ns4:agentIdentifierValue": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "ns4:agentName": {
+                              "type": "string"
+                            },
+                            "@version": {
+                              "type": "string"
+                            },
+                            "@xsi:schemaLocation": {
+                              "type": "string"
+                            },
+                            "ns4:agentType": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "@ID": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "@xmlns:ns0": {
+          "type": "string"
+        },
+        "@xmlns:ns2": {
+          "type": "string"
+        },
+        "@xmlns:ns5": {
+          "type": "string"
+        },
+        "@xmlns:ns4": {
+          "type": "string"
+        },
+        "ns0:dmdSec_dict_list": {
+          "properties": {
+            "ns0:mdWrap_dict_list": {
+              "properties": {
+                "@MDTYPE": {
+                  "type": "string"
+                },
+                "ns0:xmlData_dict_list": {
+                  "properties": {
+                    "ns2:dublincore_dict_list": {
+                      "properties": {
+                        "dc:contributor": {
+                          "type": "string"
+                        },
+                        "dc:source": {
+                          "type": "string"
+                        },
+                        "dc:coverage": {
+                          "type": "string"
+                        },
+                        "dc:provenance": {
+                          "type": "string"
+                        },
+                        "dc:creator": {
+                          "type": "string"
+                        },
+                        "dc:subject": {
+                          "type": "string"
+                        },
+                        "dc:identifier": {
+                          "type": "string"
+                        },
+                        "dc:language": {
+                          "type": "string"
+                        },
+                        "@xsi:schemaLocation": {
+                          "type": "string"
+                        },
+                        "dc:relation": {
+                          "type": "string"
+                        },
+                        "dc:date": {
+                          "type": "string"
+                        },
+                        "dc:publisher": {
+                          "type": "string"
+                        },
+                        "dc:format": {
+                          "type": "string"
+                        },
+                        "dc:title": {
+                          "type": "string"
+                        },
+                        "dc:description": {
+                          "type": "string"
+                        },
+                        "dc:rights": {
+                          "type": "string"
+                        },
+                        "dcterms:isPartOf": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "@ID": {
+              "type": "string"
+            }
+          }
+        },
+        "@xmlns:xsi": {
+          "type": "string"
+        },
+        "ns0:structMap_dict_list": {
+          "properties": {
+            "@LABEL": {
+              "type": "string"
+            },
+            "@ID": {
+              "type": "string"
+            },
+            "@TYPE": {
+              "type": "string"
+            },
+            "ns0:div_dict_list": {
+              "properties": {
+                "@LABEL": {
+                  "type": "string"
+                },
+                "@TYPE": {
+                  "type": "string"
+                },
+                "ns0:div_dict_list": {
+                  "properties": {
+                    "@ADMID": {
+                      "type": "string"
+                    },
+                    "@LABEL": {
+                      "type": "string"
+                    },
+                    "@TYPE": {
+                      "type": "string"
+                    },
+                    "@DMDID": {
+                      "type": "string"
+                    },
+                    "ns0:div_dict_list": {
+                      "properties": {
+                        "ns0:fptr_dict_list": {
+                          "properties": {
+                            "@FILEID": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "@LABEL": {
+                          "type": "string"
+                        },
+                        "@TYPE": {
+                          "type": "string"
+                        },
+                        "@DMDID": {
+                          "type": "string"
+                        },
+                        "ns0:div_dict_list": {
+                          "properties": {
+                            "ns0:fptr_dict_list": {
+                              "properties": {
+                                "@FILEID": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "@LABEL": {
+                              "type": "string"
+                            },
+                            "@TYPE": {
+                              "type": "string"
+                            },
+                            "ns0:div_dict_list": {
+                              "properties": {
+                                "ns0:fptr_dict_list": {
+                                  "properties": {
+                                    "@FILEID": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "@LABEL": {
+                                  "type": "string"
+                                },
+                                "@TYPE": {
+                                  "type": "string"
+                                },
+                                "ns0:div_dict_list": {
+                                  "properties": {
+                                    "ns0:fptr_dict_list": {
+                                      "properties": {
+                                        "@FILEID": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "@LABEL": {
+                                      "type": "string"
+                                    },
+                                    "@TYPE": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "@xsi:schemaLocation": {
+          "type": "string"
+        },
+        "@xmlns:dc": {
+          "type": "string"
+        },
+        "ns0:fileSec_dict_list": {
+          "properties": {
+            "ns0:fileGrp_dict_list": {
+              "properties": {
+                "ns0:file_dict_list": {
+                  "properties": {
+                    "@ADMID": {
+                      "type": "string"
+                    },
+                    "@GROUPID": {
+                      "type": "string"
+                    },
+                    "@ID": {
+                      "type": "string"
+                    },
+                    "ns0:FLocat_dict_list": {
+                      "properties": {
+                        "@OTHERLOCTYPE": {
+                          "type": "string"
+                        },
+                        "@LOCTYPE": {
+                          "type": "string"
+                        },
+                        "@ns5:href": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "@USE": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
