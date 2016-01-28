@@ -22,7 +22,7 @@ from components.unit import views
 # The first segment of these urls is '^(?P<unit_type>transfer|ingest)/'
 # All views should expect a first parameter of unit_type, with a value of 'transfer' or 'ingest'
 urlpatterns = patterns('',
-    url(r'(?P<unit_uuid>' + settings.UUID_REGEX + ')/$', views.detail),
-    url(r'(?P<unit_uuid>' + settings.UUID_REGEX + ')/microservices/$', views.microservices),
-    url(r'(?P<unit_uuid>' + settings.UUID_REGEX + ')/delete/$', views.mark_hidden),
+    url(r'^(?P<unit_uuid>' + settings.UUID_REGEX + ')/$', views.detail),
+    url(r'^(?P<unit_uuid>' + settings.UUID_REGEX + ')/microservices/$', views.microservices),
+    url(r'^(?P<unit_uuid>' + settings.UUID_REGEX + ')/delete/$', views.mark_hidden),
 )
