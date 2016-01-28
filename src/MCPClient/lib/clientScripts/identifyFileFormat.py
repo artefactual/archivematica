@@ -63,7 +63,7 @@ def write_identification_event(file_uuid, command, format=None, success=True):
                      eventOutcomeDetailNote=format)
 
 
-def write_file_id(file_uuid, format=None, output=''):
+def write_file_id(file_uuid, format, output):
     """
     Write the identified format to the DB.
 
@@ -148,7 +148,7 @@ def main(command_uuid, file_path, file_uuid, disable_reidentify):
     print("{} identified as a {}".format(file_path, version.description))
 
     write_identification_event(file_uuid, command, format=version.pronom_id)
-    write_file_id(file_uuid, format=version, output=output)
+    write_file_id(file_uuid=file_uuid, format=version, output=output)
 
     return 0
 
