@@ -25,6 +25,7 @@ import base64
 import ConfigParser
 import cPickle
 import datetime
+import json
 import logging
 import MySQLdb
 import os
@@ -247,12 +248,22 @@ def _sortable_string_field_specification(field_name):
     }
 
 def set_up_mapping_aip_index(conn):
+    # Load external METS mappings
+    # These were generated from an AIP which had all the metadata fields filled out,
+    # and should represent a pretty complete structure.
+    # We don't want to leave this up to dynamic mapping, since automatic type
+    # detection may result in some fields being detected as date fields, and
+    # subsequently causing problems.
+    with open(os.path.normpath(os.path.join(__file__, "..", "elasticsearch", "aip_mets_mapping.json"))) as f:
+        aip_mets_mapping = json.load(f)
+    with open(os.path.normpath(os.path.join(__file__, "..", "elasticsearch", "aipfile_mets_mapping.json"))) as f:
+        aipfile_mets_mapping = json.load(f)
+
     mapping = {
         'name': _sortable_string_field_specification('name'),
         'size': {'type': 'double'},
         'uuid': MACHINE_READABLE_FIELD_SPEC,
-        # Prevent autodetection for dc:date
-        'mets': {'properties': {'ns0:mets_dict_list': {'properties': {'ns0:dmdSec_dict_list': {'properties': {'ns0:mdWrap_dict_list': {'properties': {'ns0:xmlData_dict_list': {'properties': {'ns2:dublincore_dict_list': {'properties': {'dc:date': {'type': 'string'}}}}}}}}}}}}},
+        'mets': aip_mets_mapping,
     }
 
     LOGGER.info('Creating AIP mapping...')
@@ -274,8 +285,7 @@ def set_up_mapping_aip_index(conn):
         'fileExtension': {'type': 'string'},
         'origin': {'type': 'string'},
         'identifiers': {'type': 'string'},
-        # Prevent autodetection for dc:date
-        'METS': {'properties': {'dmdSec': {'properties': {'ns0:xmlData_dict_list': {'properties': {'ns1:dublincore_dict_list': {'properties': {'dc:date': {'type': 'string'}}}}}}}}},
+        'METS': aipfile_mets_mapping,
     }
 
     LOGGER.info('Creating AIP file mapping...')
