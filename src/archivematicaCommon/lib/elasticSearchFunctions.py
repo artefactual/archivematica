@@ -149,7 +149,15 @@ def get_client():
     """
     if not _es_client:
         raise ImproperlyConfigured('The Elasticsearch client has not been set up yet. Please call setup() first.')
-    create_indexes_if_needed(_es_client) # TODO: find a better place!
+    #
+    # TODO!
+    # This should not be here. Three alternatives
+    # - apache/django.wsgi
+    # - custom manage.py task (requires change in the deployment process)
+    # - dashboard/installer (before or after user creation)
+    #
+    create_indexes_if_needed(_es_client)
+
     return _es_client
 
 
