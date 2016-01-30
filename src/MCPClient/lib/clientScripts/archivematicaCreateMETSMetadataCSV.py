@@ -57,6 +57,7 @@ def parseMetadata(SIPPath):
             print >>sys.stderr, "error parsing: ", metadataCSVFilePath
             traceback.print_exc(file=sys.stderr)
             sharedVariablesAcrossModules.globalErrorCount += 1
+            continue
         # Provide warning if this file already has differing metadata
         # Not using all_metadata.update(csv_metadata) because of that
         for entry, values in csv_metadata.iteritems():
@@ -99,6 +100,8 @@ def parseMetadataCSV(metadataCSVFilePath):
         header = [h.strip() for h in header[1:]]
         # Parse data
         for row in reader:
+            if not row:
+                continue
             entry_name = row[0]
             if entry_name.endswith("/"):
                 entry_name = entry_name[:-1]

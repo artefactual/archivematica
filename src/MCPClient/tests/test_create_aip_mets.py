@@ -348,3 +348,22 @@ class TestCSVMetadata(TestCase):
         assert 'objects/foo.jpg' in dc
         assert 'dc.title' in dc['objects/foo.jpg']
         assert dc['objects/foo.jpg']['dc.title'] == [u'元気です'.encode('utf8')]
+
+    def test_parse_metadata_csv_blank_rows(self):
+        # Create metadata.csv
+        data = [
+            ['Filename', 'dc.title', 'dc.type', 'dc.type', 'dc.type'],
+            ['objects/foo.jpg', 'Foo', 'Photograph', 'Still image', 'Picture'],
+            [],
+        ]
+        with open('metadata.csv', 'wb') as f:
+            writer = csv.writer(f)
+            for row in data:
+                writer.writerow(row)
+
+        # Run test
+        dc = archivematicaCreateMETSMetadataCSV.parseMetadataCSV('metadata.csv')
+        # Verify
+        assert dc
+        assert len(dc) == 1
+        assert 'objects/foo.jpg' in dc
