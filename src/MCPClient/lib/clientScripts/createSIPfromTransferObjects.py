@@ -28,7 +28,7 @@ import sys
 import django
 django.setup()
 # dashboard
-from main.models import File, SIP
+from main.models import File, SIP, Transfer
 
 # archivematicaCommon
 import archivematicaFunctions
@@ -50,14 +50,19 @@ if __name__ == '__main__':
     destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
     archivematicaFunctions.create_structured_directory(tmpSIPDir, manual_normalization=False)
 
-    #create row in SIPs table if one doesn't already exist
+    # Create row in SIPs table if one doesn't already exist
     lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
     try:
-        sipUUID = SIP.objects.get(currentpath=lookup_path).uuid
+        sip = SIP.objects.get(currentpath=lookup_path).uuid
     except SIP.DoesNotExist:
-        sipUUID = databaseFunctions.createSIP(lookup_path)
+        sip_uuid = databaseFunctions.createSIP(lookup_path)
+        sip = SIP.objects.get(uuid=sip_uuid)
 
-    #move the objects to the SIPDir
+    transfer = Transfer.objects.get(uuid=transferUUID)
+    if transfer.type == 'Archivematica AIP':
+        sip.sip_type = 'AIP-REIN'
+
+    # Move the objects to the SIPDir
     for item in os.listdir(objectsDirectory):
         src_path = os.path.join(objectsDirectory, item)
         dst_path = os.path.join(tmpSIPDir, "objects", item)
@@ -71,8 +76,9 @@ if __name__ == '__main__':
         else:
             shutil.move(src_path, dst_path)
 
-    #get the database list of files in the objects directory
-    #for each file, confirm it's in the SIP objects directory, and update the current location/ owning SIP'
+    # Get the database list of files in the objects directory.
+    # For each file, confirm it's in the SIP objects directory, and update the
+    # current location/ owning SIP'
     files = File.objects.filter(transfer_id=transferUUID,
                                 currentlocation__startswith='%transferDirectory%objects',
                                 removedtime__isnull=True)
@@ -81,7 +87,7 @@ if __name__ == '__main__':
         currentSIPFilePath = currentPath.replace("%transferDirectory%", tmpSIPDir)
         if os.path.isfile(currentSIPFilePath):
             f.currentlocation = currentPath.replace("%transferDirectory%", "%SIPDirectory%")
-            f.sip_id = sipUUID
+            f.sip = sip
             f.save()
         else:
             print("file not found: ", currentSIPFilePath, file=sys.stderr)
@@ -95,11 +101,11 @@ if __name__ == '__main__':
     # This file only exists if any metadata was created during the transfer
     if os.path.exists(src):
         shutil.copy(src, dst)
-    
-    #copy processingMCP.xml file
-    src = os.path.join(os.path.dirname(objectsDirectory[:-1]), "processingMCP.xml") 
+
+    # Copy processingMCP.xml file
+    src = os.path.join(os.path.dirname(objectsDirectory[:-1]), "processingMCP.xml")
     dst = os.path.join(tmpSIPDir, "processingMCP.xml")
     shutil.copy(src, dst)
-    
-    #moveSIPTo autoProcessSIPDirectory
+
+    # moveSIPTo autoProcessSIPDirectory
     shutil.move(tmpSIPDir, destSIPDir)
