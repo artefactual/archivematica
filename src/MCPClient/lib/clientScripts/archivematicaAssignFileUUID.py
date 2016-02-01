@@ -32,7 +32,6 @@ from main.models import File, Transfer
 from custom_handlers import get_script_logger
 from fileOperations import addFileToTransfer
 from fileOperations import addFileToSIP
-from option_parsers import UUIDArgAction
 
 import metsrw
 
@@ -110,13 +109,13 @@ def main(file_uuid=None, file_path='', date='', event_uuid=None, sip_directory='
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--fileUUID', action=UUIDArgAction, dest='file_uuid')
+    parser.add_argument('-i', '--fileUUID', type=lambda x: str(uuid.UUID(x)), dest='file_uuid')
     parser.add_argument('-p', '--filePath', action='store', dest='file_path', default='')
     parser.add_argument('-d', '--date', action='store', dest='date', default='')
-    parser.add_argument('-u', '--eventIdentifierUUID', action=UUIDArgAction, dest='event_uuid')
+    parser.add_argument('-u', '--eventIdentifierUUID', type=lambda x: str(uuid.UUID(x)), dest='event_uuid')
     parser.add_argument('-s', '--sipDirectory', action='store', dest='sip_directory', default='')
-    parser.add_argument('-S', '--sipUUID', action=UUIDArgAction, dest='sip_uuid')
-    parser.add_argument('-T', '--transferUUID', action=UUIDArgAction, dest='transfer_uuid')
+    parser.add_argument('-S', '--sipUUID', type=lambda x: str(uuid.UUID(x)), dest='sip_uuid')
+    parser.add_argument('-T', '--transferUUID', type=lambda x: str(uuid.UUID(x)), dest='transfer_uuid')
     parser.add_argument('-e', '--use', action='store', dest="use", default='original')
     parser.add_argument('--disable-update-filegrpuse', action='store_false', dest='update_use', default=True)
     args = parser.parse_args()

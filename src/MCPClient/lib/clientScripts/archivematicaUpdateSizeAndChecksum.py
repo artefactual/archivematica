@@ -30,7 +30,6 @@ from main.models import File, Transfer
 
 from custom_handlers import get_script_logger
 from fileOperations import updateSizeAndChecksum
-from option_parsers import UUIDArgAction
 
 import metsrw
 
@@ -129,10 +128,10 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('sharedPath')
-    parser.add_argument('-i', '--fileUUID', action=UUIDArgAction, dest='file_uuid')
+    parser.add_argument('-i', '--fileUUID', type=lambda x: str(uuid.UUID(x)), dest='file_uuid')
     parser.add_argument('-p', '--filePath', action='store', dest='file_path', default='')
     parser.add_argument('-d', '--date', action='store', dest='date', default='')
-    parser.add_argument('-u', '--eventIdentifierUUID', action=UUIDArgAction, dest='event_uuid')
+    parser.add_argument('-u', '--eventIdentifierUUID', type=lambda x: str(uuid.UUID(x)), dest='event_uuid')
     args = parser.parse_args()
 
     sys.exit(main(
