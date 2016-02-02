@@ -329,57 +329,95 @@ def createDSpaceDMDSec(label, dspace_mets_path, directoryPathSTR):
 
 
 def createTechMD(fileUUID):
+    """
+    Create a techMD containing a PREMIS:OBJECT for the file with fileUUID.
+
+    :param str fileUUID: UUID of the File to create an object for
+    :return: mets:techMD containing a premis:object
+    """
     ret = etree.Element(ns.metsBNS + "techMD")
     techMD = ret
 
     global globalTechMDCounter
     globalTechMDCounter += 1
-    techMD.set("ID", "techMD_"+ globalTechMDCounter.__str__())
+    techMD.set("ID", "techMD_" + str(globalTechMDCounter))
 
     mdWrap = etree.SubElement(techMD, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "PREMIS:OBJECT")
     xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
 
+    premis_object = create_premis_object(fileUUID)
+    xmlData.append(premis_object)
+    return ret
+
+def create_premis_object(fileUUID):
+    """
+    Create a PREMIS:OBJECT for fileUUID.
+
+    Access the models for File, FileID, FPCommandOutput, Derivation
+
+    :param str fileUUID: UUID of the File to create an object for
+    :return: premis:object Element, suitable for inserting into mets:xmlData
+    """
     f = File.objects.get(uuid=fileUUID)
-    fileSize = str(f.size)
+    # PREMIS:OBJECT
+    object_elem = etree.Element(ns.premisBNS + "object", nsmap={'premis': ns.premisNS})
+    object_elem.set(ns.xsiBNS+"type", "premis:file")
+    object_elem.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
+    object_elem.set("version", "2.2")
 
-    #OBJECT
-    object = etree.SubElement(xmlData, ns.premisBNS + "object", nsmap={'premis': ns.premisNS})
-    object.set(ns.xsiBNS+"type", "premis:file")
-    object.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
-    object.set("version", "2.2")
-
-    objectIdentifier = etree.SubElement(object, ns.premisBNS + "objectIdentifier")
+    objectIdentifier = etree.SubElement(object_elem, ns.premisBNS + "objectIdentifier")
     etree.SubElement(objectIdentifier, ns.premisBNS + "objectIdentifierType").text = "UUID"
     etree.SubElement(objectIdentifier, ns.premisBNS + "objectIdentifierValue").text = fileUUID
 
-    objectCharacteristics = etree.SubElement(object, ns.premisBNS + "objectCharacteristics")
+    objectCharacteristics = etree.SubElement(object_elem, ns.premisBNS + "objectCharacteristics")
     etree.SubElement(objectCharacteristics, ns.premisBNS + "compositionLevel").text = "0"
 
     fixity = etree.SubElement(objectCharacteristics, ns.premisBNS + "fixity")
     etree.SubElement(fixity, ns.premisBNS + "messageDigestAlgorithm").text = f.checksumtype
     etree.SubElement(fixity, ns.premisBNS + "messageDigest").text = f.checksum
 
-    etree.SubElement(objectCharacteristics, ns.premisBNS + "size").text = fileSize
+    etree.SubElement(objectCharacteristics, ns.premisBNS + "size").text = str(f.size)
 
+    for elem in create_premis_object_formats(fileUUID):
+        objectCharacteristics.append(elem)
+    for elem in create_premis_object_characteristics_extensions(fileUUID):
+        objectCharacteristics.append(elem)
+
+    etree.SubElement(object_elem, ns.premisBNS + "originalName").text = escape(f.originallocation)
+
+    for elem in create_premis_object_derivations(fileUUID):
+        object_elem.append(elem)
+
+    return object_elem
+
+
+def create_premis_object_formats(fileUUID):
     files = FileID.objects.filter(file_id=fileUUID)
+    elements = []
     if not files.exists():
-        format = etree.SubElement(objectCharacteristics, ns.premisBNS + "format")
-        formatDesignation = etree.SubElement(format, ns.premisBNS + "formatDesignation")
+        fmt = etree.Element(ns.premisBNS + "format")
+        formatDesignation = etree.SubElement(fmt, ns.premisBNS + "formatDesignation")
         etree.SubElement(formatDesignation, ns.premisBNS + "formatName").text = "Unknown"
+        elements.append(fmt)
     for row in files.values_list('format_name', 'format_version', 'format_registry_name', 'format_registry_key'):
-        #print row
-        format = etree.SubElement(objectCharacteristics, ns.premisBNS + "format")
+        fmt = etree.Element(ns.premisBNS + "format")
 
-        formatDesignation = etree.SubElement(format, ns.premisBNS + "formatDesignation")
+        formatDesignation = etree.SubElement(fmt, ns.premisBNS + "formatDesignation")
         etree.SubElement(formatDesignation, ns.premisBNS + "formatName").text = row[0]
         etree.SubElement(formatDesignation, ns.premisBNS + "formatVersion").text = row[1]
 
-        formatRegistry = etree.SubElement(format, ns.premisBNS + "formatRegistry")
+        formatRegistry = etree.SubElement(fmt, ns.premisBNS + "formatRegistry")
         etree.SubElement(formatRegistry, ns.premisBNS + "formatRegistryName").text = row[2]
         etree.SubElement(formatRegistry, ns.premisBNS + "formatRegistryKey").text = row[3]
+        elements.append(fmt)
 
-    objectCharacteristicsExtension = etree.SubElement(objectCharacteristics, ns.premisBNS + "objectCharacteristicsExtension")
+    return elements
+
+
+def create_premis_object_characteristics_extensions(fileUUID):
+    objectCharacteristicsExtension = etree.Element(ns.premisBNS + "objectCharacteristicsExtension")
+    elements = [objectCharacteristicsExtension]
 
     parser = etree.XMLParser(remove_blank_text=True)
     documents = FPCommandOutput.objects.filter(file_id=fileUUID, rule__purpose__in=['characterization', 'default_characterization']).values_list('content')
@@ -390,17 +428,14 @@ def createTechMD(fileUUID):
         output = etree.XML(document.encode("utf-8"), parser)
         objectCharacteristicsExtension.append(output)
 
-    try:
-        f = File.objects.get(uuid=fileUUID)
-    except File.DoesNotExist:
-        print("Error: no location found.", file=sys.stderr)
-    else:
-        etree.SubElement(object, ns.premisBNS + "originalName").text = escape(f.originallocation)
+    return elements
 
+def create_premis_object_derivations(fileUUID):
+    elements = []
     # Derivations
     derivations = Derivation.objects.filter(source_file_id=fileUUID, event__isnull=False)
     for derivation in derivations:
-        relationship = etree.SubElement(object, ns.premisBNS + "relationship")
+        relationship = etree.Element(ns.premisBNS + "relationship")
         etree.SubElement(relationship, ns.premisBNS + "relationshipType").text = "derivation"
         etree.SubElement(relationship, ns.premisBNS + "relationshipSubType").text = "is source of"
 
@@ -412,9 +447,11 @@ def createTechMD(fileUUID):
         etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierType").text = "UUID"
         etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierValue").text = derivation.event_id
 
+        elements.append(relationship)
+
     derivations = Derivation.objects.filter(derived_file_id=fileUUID, event__isnull=False)
     for derivation in derivations:
-        relationship = etree.SubElement(object, ns.premisBNS + "relationship")
+        relationship = etree.Element(ns.premisBNS + "relationship")
         etree.SubElement(relationship, ns.premisBNS + "relationshipType").text = "derivation"
         etree.SubElement(relationship, ns.premisBNS + "relationshipSubType").text = "has source"
 
@@ -426,7 +463,9 @@ def createTechMD(fileUUID):
         etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierType").text = "UUID"
         etree.SubElement(relatedEventIdentification, ns.premisBNS + "relatedEventIdentifierValue").text = derivation.event_id
 
-    return ret
+        elements.append(relationship)
+
+    return elements
 
 def createDigiprovMD(fileUUID):
     """
