@@ -24,6 +24,7 @@ from components.ingest import views_as
 urlpatterns = patterns('',
     url(r'^$', views.ingest_grid,
         name='ingest_index'),
+    url(r'^sips/$', views.SipsView.as_view()),
     url(r'^aic/(?P<uuid>' + settings.UUID_REGEX + ')/metadata/add/$', views.aic_metadata_add),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/metadata/$', views.ingest_metadata_list),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/metadata/add/$', views.ingest_metadata_edit),

@@ -219,6 +219,7 @@ class SIP(models.Model):
     """ Information on SIP units. """
     uuid = models.CharField(max_length=36, primary_key=True, db_column='sipUUID')
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    # If currentpath is null, this SIP is understood to not have been started yet.
     currentpath = models.TextField(db_column='currentPath', null=True, blank=True)
     hidden = models.BooleanField(default=False)
     aip_filename = models.TextField(db_column='aipFilename', null=True, blank=True)

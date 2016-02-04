@@ -39,6 +39,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.utils.text import slugify
+from django.views.generic import View
 
 # External dependencies, alphabetical
 
@@ -74,6 +75,17 @@ def ingest_grid(request):
         messages.warning(request, 'Error retrieving originals/arrange directory locations: is the storage server running? Please contact an administrator.')
 
     return render(request, 'ingest/grid.html', locals())
+
+class SipsView(View):
+    def post(self, request):
+        """
+        Creates a new stub SIP object, and returns its UUID in a JSON response.
+        """
+        sip = models.SIP.objects.create(uuid=str(uuid.uuid4()), currentpath=None)
+        return helpers.json_response({
+            "success": True,
+            "id": sip.uuid,
+        })
 
 def ingest_status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs WHERE unitType='unitSIP' GROUP BY SIPUUID
