@@ -331,8 +331,19 @@ def create_arranged_sip(staging_sip_path, files, sip_uuid):
     # Create SIP object
     sip_name = staging_sip_path.split('/')[1]
     sip_path = os.path.join(shared_dir, 'watchedDirectories', 'SIPCreation', 'SIPsUnderConstruction', sip_name)
+    currentpath = sip_path.replace(shared_dir, '%sharedPath%', 1) + '/'
     sip_path = helpers.pad_destination_filepath_if_it_already_exists(sip_path)
-    sip_uuid = databaseFunctions.createSIP(sip_path.replace(shared_dir, '%sharedPath%', 1)+'/', sip_uuid)
+    try:
+        sip = models.SIP.objects.get(uuid=sip_uuid)
+    except models.SIP.DoesNotExist:
+        # Create a SIP object if none exists
+        databaseFunctions.createSIP(currentpath, sip_uuid)
+    else:
+        # Update the already-created SIP with its path
+        if sip.currentpath is not None:
+            return "Provided SIP UUID ({}) belongs to an already-started SIP!".format(sip_uuid)
+        sip.currentpath = currentpath
+        sip.save()
 
     # Update currentLocation of files
     for file_ in files:
@@ -361,7 +372,7 @@ def create_arranged_sip(staging_sip_path, files, sip_uuid):
     shutil.move(src=staging_abs_path, dst=sip_path)
 
 
-def copy_from_arrange_to_completed(request, filepath=None):
+def copy_from_arrange_to_completed(request, filepath=None, sip_uuid=None):
     """ Create a SIP from the information stored in the SIPArrange table.
 
     Get all the files in the new SIP, and all their associated metadata, and
@@ -372,6 +383,17 @@ def copy_from_arrange_to_completed(request, filepath=None):
     if filepath is None:
         filepath = base64.b64decode(request.POST.get('filepath', ''))
     logger.info('copy_from_arrange_to_completed: filepath: %s', filepath)
+    # can optionally pass in the UUID to an unstarted SIP entity
+    if sip_uuid is None:
+        sip_uuid = request.POST.get('uuid')
+    try:
+        uuid.UUID(sip_uuid)
+    except ValueError:
+        response = {
+            'message': "Provided UUID ({}) isn't a valid UUID!".format(sip_uuid),
+            'error': True,
+        }
+        return helpers.json_response(response, status_code=400)
 
     # Error checking
     if not filepath.startswith(DEFAULT_ARRANGE_PATH):
@@ -420,7 +442,8 @@ def copy_from_arrange_to_completed(request, filepath=None):
 
         if error is None:
             # Create SIP object
-            sip_uuid = str(uuid.uuid4())
+            if sip_uuid is None:
+                sip_uuid = str(uuid.uuid4())
             error = create_arranged_sip(staging_sip_path, files, sip_uuid)
 
         if error is None:
