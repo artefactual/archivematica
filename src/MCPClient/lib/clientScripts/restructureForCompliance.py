@@ -29,7 +29,7 @@ import django
 django.setup()
 from main.models import Transfer
 
-from verifyBAG import verifyBAG
+from verifyBAG import verify_bag
 
 # archivematicaCommon
 import archivematicaFunctions
@@ -122,7 +122,7 @@ if __name__ == '__main__':
 
     if transfer.type == 'Archivematica AIP':
         logger.info('Archivematica AIP detected, verifying bag...')
-        exit_code = verifyBAG(sip_path)
+        exit_code = verify_bag(sip_path)
         if exit_code > 0:
             logger.info('Archivematica AIP: bag verification failed!')
             sys.exit(exit_code)
