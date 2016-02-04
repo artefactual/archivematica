@@ -33,7 +33,7 @@ def detail(request, unit_type, unit_uuid):
     :param unit_uuid: UUID of the Transfer or SIP
     """
     jobs = models.Job.objects.filter(sipuuid=unit_uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = utils.get_directory_name_from_job(jobs)
     is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
     context = {
         'name': name,
@@ -55,7 +55,7 @@ def microservices(request, unit_type, unit_uuid):
 
     """
     jobs = models.Job.objects.filter(sipuuid=unit_uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = utils.get_directory_name_from_job(jobs)
     return render(request, unit_type + '/microservices.html', {
         'jobs': jobs,
         'name': name,

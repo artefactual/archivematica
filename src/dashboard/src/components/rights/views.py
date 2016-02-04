@@ -93,7 +93,7 @@ def rights_parse_agent_id(input):
 
 def rights_edit(request, uuid, id=None, section='ingest'):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = utils.get_directory_name_from_job(jobs)
 
     # flag indicating what kind of new content, if any, has been created
     new_content_type_created = None
@@ -399,7 +399,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
 
 def rights_grants_edit(request, uuid, id, section='ingest'):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = utils.get_directory_name_from_job(jobs)
 
     viewRights = models.RightsStatement.objects.get(pk=id)
 
@@ -512,7 +512,7 @@ def rights_holders_autocomplete(request):
 
 def rights_list(request, uuid, section):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = utils.get_directory_name_from_job(jobs)
 
     # See MetadataAppliesToTypes table
     types = {'transfer': 'Transfer', 'ingest': 'SIP', 'file': 'File'}

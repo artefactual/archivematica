@@ -32,7 +32,7 @@ def load_jobs(view):
         if 0 == jobs.count:
             raise Http404
         kwargs['jobs'] = jobs
-        kwargs['name'] = utils.get_directory_name_from_job(jobs[0])
+        kwargs['name'] = utils.get_directory_name_from_job(jobs)
         return view(request, uuid, *args, **kwargs)
     return inner
 

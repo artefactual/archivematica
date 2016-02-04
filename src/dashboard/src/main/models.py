@@ -103,7 +103,7 @@ class Access(models.Model):
     def get_title(self):
         try:
             jobs = main.models.Job.objects.filter(sipuuid=self.sipuuid, subjobof='')
-            return utils.get_directory_name_from_job(jobs[0])
+            return utils.get_directory_name_from_job(jobs)
         except:
             return 'N/A'
 

@@ -91,7 +91,7 @@ def ingest_status(request, uuid=None):
             if models.SIP.objects.is_hidden(item['sipuuid']):
                 continue
             jobs = helpers.get_jobs_by_sipuuid(item['sipuuid'])
-            item['directory'] = utils.get_directory_name_from_job(jobs[0])
+            item['directory'] = utils.get_directory_name_from_job(jobs)
             item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
             item['uuid'] = item['sipuuid']
             item['id'] = item['sipuuid']
@@ -182,7 +182,7 @@ def ingest_metadata_edit(request, uuid, id=None):
         dc.save()
         return redirect('components.ingest.views.ingest_metadata_list', uuid)
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = utils.get_directory_name_from_job(jobs)
 
     return render(request, 'ingest/metadata_edit.html', locals())
 
@@ -200,7 +200,7 @@ def ingest_metadata_add_files(request, sip_uuid):
     # Get name of SIP from directory name of most recent job
     # Making list and slicing for speed: http://stackoverflow.com/questions/5123839/fastest-way-to-get-the-first-object-from-a-queryset-in-django
     jobs = list(models.Job.objects.filter(sipuuid=sip_uuid, subjobof='')[:1])
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = utils.get_directory_name_from_job(jobs)
 
     return render(request, 'ingest/metadata_add_files.html', locals())
 
@@ -261,7 +261,7 @@ def ingest_metadata_event_detail(request, uuid):
     # Get name of SIP from directory name of most recent job
     # Making list and slicing for speed: http://stackoverflow.com/questions/5123839/fastest-way-to-get-the-first-object-from-a-queryset-in-django
     jobs = list(models.Job.objects.filter(sipuuid=uuid, subjobof='')[:1])
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = utils.get_directory_name_from_job(jobs)
     return render(request, 'ingest/metadata_event_detail.html', locals())
 
 def delete_context(request, uuid, id):
@@ -329,8 +329,7 @@ def ingest_upload(request, uuid):
 
 def ingest_normalization_report(request, uuid, current_page=None):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    job = jobs[0]
-    sipname = utils.get_directory_name_from_job(job)
+    sipname = utils.get_directory_name_from_job(jobs)
 
     objects = getNormalizationReportQuery(sipUUID=uuid)
     for o in objects:
@@ -361,8 +360,7 @@ def ingest_browse(request, browse_type, jobuuid):
         raise Http404
 
     jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof='')
-    job = jobs[0]
-    name = utils.get_directory_name_from_job(job)
+    name = utils.get_directory_name_from_job(jobs)
 
     return render(request, 'ingest/aip_browse.html', locals())
 
