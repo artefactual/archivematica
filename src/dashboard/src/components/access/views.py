@@ -431,4 +431,8 @@ def access_arrange_start_sip(request, mapping):
     Starts the SIP associated with this record.
     """
     ArchivesSpaceDOComponent.objects.filter(resourceid=mapping.identifier, started=False).update(started=True)
-    return filesystem_views.copy_from_arrange_to_completed(request, filepath=mapping.arrange_path + '/')
+    arrange = SIPArrange.objects.get(arrange_path=os.path.join(mapping.arrange_path, ''))
+    sip_uuid = arrange.sip.uuid if arrange.sip else None
+    return filesystem_views.copy_from_arrange_to_completed(request,
+                                                           filepath=mapping.arrange_path + '/',
+                                                           sip_uuid=sip_uuid)
