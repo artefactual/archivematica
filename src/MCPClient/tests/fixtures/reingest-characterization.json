@@ -1,0 +1,20 @@
+[
+{
+    "fields": {
+        "content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<ffprobe>Stub ffprobe output</ffprobe>\n",
+        "rule": "23897fbf-e16d-4b3a-8322-74638e32b8bc",
+        "file": "ae8d4290-fe52-4954-b72a-0f591bee2e2f"
+    },
+    "model": "main.fpcommandoutput",
+    "pk": 1
+},
+{
+    "fields": {
+        "content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Mediainfo version=\"0.7.67\">Stub MediaInfo output</Mediainfo>\n\n",
+        "rule": "664b5fb0-f747-4ada-810d-7c9c44aa1d25",
+        "file": "ae8d4290-fe52-4954-b72a-0f591bee2e2f"
+    },
+    "model": "main.fpcommandoutput",
+    "pk": 2
+}
+]

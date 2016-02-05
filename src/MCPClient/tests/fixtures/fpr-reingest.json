@@ -1,0 +1,194 @@
+[
+{
+    "fields": {
+        "count_not_okay": 0,
+        "replaces": null,
+        "count_attempts": 0,
+        "uuid": "23897fbf-e16d-4b3a-8322-74638e32b8bc",
+        "format": "01fac958-274d-41ef-978f-d9cf711b3c4a",
+        "lastmodified": "2014-07-11T23:29:17Z",
+        "enabled": true,
+        "command": "80314f3c-5d48-4ad1-a9f2-2c0f7c7b229d",
+        "purpose": "characterization",
+        "count_okay": 0
+    },
+    "model": "fpr.fprule",
+    "pk": 325
+},
+{
+    "fields": {
+        "count_not_okay": 0,
+        "replaces": null,
+        "count_attempts": 0,
+        "uuid": "0e2bbe47-89b1-4773-a8f9-79916dddb5c3",
+        "format": "01fac958-274d-41ef-978f-d9cf711b3c4a",
+        "lastmodified": "2014-07-11T23:29:17Z",
+        "enabled": true,
+        "command": "99d5f508-7733-4e86-883f-bd6abc3fbac7",
+        "purpose": "characterization",
+        "count_okay": 0
+    },
+    "model": "fpr.fprule",
+    "pk": 389
+},
+{
+    "fields": {
+        "count_not_okay": 0,
+        "replaces": null,
+        "count_attempts": 0,
+        "uuid": "664b5fb0-f747-4ada-810d-7c9c44aa1d25",
+        "format": "01fac958-274d-41ef-978f-d9cf711b3c4a",
+        "lastmodified": "2014-07-11T23:29:18Z",
+        "enabled": true,
+        "command": "114c9525-d676-4fac-9962-4672faa924bb",
+        "purpose": "characterization",
+        "count_okay": 0
+    },
+    "model": "fpr.fprule",
+    "pk": 469
+},
+{
+    "fields": {
+        "replaces": null,
+        "uuid": "01fac958-274d-41ef-978f-d9cf711b3c4a",
+        "format": "0f4d6421-090c-40da-a4a5-f90b7840b231",
+        "lastmodified": "2013-11-15T01:18:30Z",
+        "enabled": true,
+        "access_format": false,
+        "preservation_format": false,
+        "version": "1.02",
+        "slug": "jpeg-102",
+        "pronom_id": "fmt/44",
+        "description": "JPEG 1.02"
+    },
+    "model": "fpr.formatversion",
+    "pk": 6
+},
+{
+    "fields": {
+        "replaces": null,
+        "uuid": "d60e5243-692e-4af7-90cd-40c53cb8dc7d",
+        "format": "589401a5-6ddc-41a7-a54d-3766edcb4003",
+        "lastmodified": "2013-11-15T01:18:31Z",
+        "enabled": true,
+        "access_format": false,
+        "preservation_format": true,
+        "version": "1.0",
+        "slug": "xml-10",
+        "pronom_id": "fmt/101",
+        "description": "XML 1.0"
+    },
+    "model": "fpr.formatversion",
+    "pk": 126
+},
+{
+    "fields": {
+        "slug": "xml",
+        "group": null,
+        "uuid": "589401a5-6ddc-41a7-a54d-3766edcb4003",
+        "description": "XML"
+    },
+    "model": "fpr.format",
+    "pk": 38
+},
+{
+    "fields": {
+        "slug": "jpg",
+        "group": null,
+        "uuid": "0f4d6421-090c-40da-a4a5-f90b7840b231",
+        "description": "JPEG"
+    },
+    "model": "fpr.format",
+    "pk": 11
+},
+{
+    "fields": {
+        "replaces": null,
+        "uuid": "114c9525-d676-4fac-9962-4672faa924bb",
+        "lastmodified": "2014-07-11T23:29:17Z",
+        "tool": "e0d7abce-39fd-49f7-ab98-aef1bdb0378f",
+        "enabled": true,
+        "event_detail_command": null,
+        "output_location": null,
+        "command_usage": "characterization",
+        "verification_command": null,
+        "command": "mediainfo --Language=Raw -f --Output=XML \"%fileFullName%\"",
+        "script_type": "bashScript",
+        "output_format": "d60e5243-692e-4af7-90cd-40c53cb8dc7d",
+        "description": "MediaInfo"
+    },
+    "model": "fpr.fpcommand",
+    "pk": 35
+},
+{
+    "fields": {
+        "replaces": null,
+        "uuid": "99d5f508-7733-4e86-883f-bd6abc3fbac7",
+        "lastmodified": "2014-07-11T23:29:17Z",
+        "tool": "bb957e1d-ee63-4354-a209-a41d23881e3e",
+        "enabled": true,
+        "event_detail_command": null,
+        "output_location": null,
+        "command_usage": "characterization",
+        "verification_command": null,
+        "command": "exiftool -X \"%fileFullName%\"",
+        "script_type": "bashScript",
+        "output_format": "d60e5243-692e-4af7-90cd-40c53cb8dc7d",
+        "description": "ExifTool"
+    },
+    "model": "fpr.fpcommand",
+    "pk": 34
+},
+{
+    "fields": {
+        "replaces": null,
+        "uuid": "80314f3c-5d48-4ad1-a9f2-2c0f7c7b229d",
+        "lastmodified": "2014-07-11T23:29:17Z",
+        "tool": "467a5875-f9ef-49ac-ac93-29f4bac3dbae",
+        "enabled": true,
+        "event_detail_command": null,
+        "output_location": null,
+        "command_usage": "characterization",
+        "verification_command": null,
+        "command": "ffprobe -i \"%fileFullName%\" -show_data -show_format -show_error -show_streams -show_chapters -show_private_data -show_versions -print_format xml",
+        "script_type": "bashScript",
+        "output_format": "d60e5243-692e-4af7-90cd-40c53cb8dc7d",
+        "description": "FFprobe"
+    },
+    "model": "fpr.fpcommand",
+    "pk": 33
+},
+{
+    "fields": {
+        "slug": "mediainfo-0752",
+        "version": "0.7.52",
+        "enabled": true,
+        "uuid": "e0d7abce-39fd-49f7-ab98-aef1bdb0378f",
+        "description": "MediaInfo"
+    },
+    "model": "fpr.fptool",
+    "pk": 15
+},
+{
+    "fields": {
+        "slug": "exiftool-927",
+        "version": "9.70",
+        "enabled": true,
+        "uuid": "bb957e1d-ee63-4354-a209-a41d23881e3e",
+        "description": "ExifTool"
+    },
+    "model": "fpr.fptool",
+    "pk": 14
+},
+{
+    "fields": {
+        "slug": "ffprobe-220",
+        "version": "2.2.0",
+        "enabled": true,
+        "uuid": "467a5875-f9ef-49ac-ac93-29f4bac3dbae",
+        "description": "FFprobe"
+    },
+    "model": "fpr.fptool",
+    "pk": 13
+}
+]
