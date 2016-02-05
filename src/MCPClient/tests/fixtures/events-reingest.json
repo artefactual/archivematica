@@ -56,40 +56,12 @@
     }
 },
 {
-    "pk": 25,
-    "model": "main.event",
-    "fields": {
-        "event_type": "format identification",
-        "event_id": "44455720-d9a7-43a4-90b6-a9cdf6e5c8cc",
-        "linking_agent": 1,
-        "event_detail": "program=\"Fido\"; version=\"1.2\"",
-        "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
-        "event_outcome_detail": "fmt/XXX",
-        "event_outcome": "Positive",
-        "event_datetime": "2016-02-13T22:19:49Z"
-    }
-},
-{
-    "pk": 26,
-    "model": "main.event",
-    "fields": {
-        "event_type": "normalization",
-        "event_id": "5abd70cf-0bc9-4c02-9c81-29015fb3417f",
-        "linking_agent": 1,
-        "event_detail": "ArchivematicaFPRCommandID=\"a34ddc9b-c922-4bb6-8037-bbe713332175\"; program=\"convert\"; version=\"Version: ImageMagick 6.7.7-10 2014-03-06 Q16 http://www.imagemagick.org\"",
-        "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
-        "event_outcome_detail": "%SIPDirectory%objects/MARBLES-28343892-04e7-4432-a781-fbe68a79c29f.tifa",
-        "event_outcome": "",
-        "event_datetime": "2016-02-13T22:20:49Z"
-    }
-},
-{
     "pk": 27,
     "model": "main.event",
     "fields": {
         "event_type": "fixity check",
         "event_id": "29ef6910-8814-4852-a80b-45d61176ba6b",
-        "linking_agent": 1,
+        "agents": [1,2.3],
         "event_detail": "program=\"python\"; module=\"hashlib.sha256()\"",
         "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
         "event_outcome_detail": "91a5ddca3637590c2ddb50da5feb73ff0b8a98cd09a98afb79adc2cf70bc6220 verified",

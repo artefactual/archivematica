@@ -1,0 +1,25 @@
+[
+{
+    "fields": {
+        "lastmodified": "2016-02-03T18:32:43",
+        "name": "checksum_type",
+        "value": "sha256"
+    },
+    "model": "main.dashboardsetting",
+    "pk": 5
+},
+{
+    "fields": {
+        "event_type": "message digest calculation",
+        "event_id": "5a561b24-cc7e-4032-b005-f75de2ec558a",
+        "agents": [1,2],
+        "event_detail": "program=\"python\"; module=\"hashlib.md5()\"",
+        "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
+        "event_outcome_detail": "ac63a92ba5a94c337e740d6f189200d0",
+        "event_outcome": "",
+        "event_datetime": "2016-02-03T18:36:36"
+    },
+    "model": "main.event",
+    "pk": 35
+}
+]

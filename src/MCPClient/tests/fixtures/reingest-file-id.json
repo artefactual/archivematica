@@ -1,0 +1,27 @@
+[
+{
+    "pk": 25,
+    "model": "main.event",
+    "fields": {
+        "event_type": "format identification",
+        "event_id": "44455720-d9a7-43a4-90b6-a9cdf6e5c8cc",
+        "agents": [1,2,3],
+        "event_detail": "program=\"Fido\"; version=\"1.2\"",
+        "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
+        "event_outcome_detail": "fmt/9000",
+        "event_outcome": "Positive",
+        "event_datetime": "2016-02-13T22:19:49Z"
+    }
+},
+{
+    "fields": {
+        "format_registry_name": "PRONOM",
+        "format_registry_key": "fmt/9000",
+        "format_name": "Newer fancier JPEG",
+        "file": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
+        "format_version": "9001"
+    },
+    "model": "main.fileid",
+    "pk": 1
+}
+]

@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 from __future__ import print_function
+import copy
 from lxml import etree
 import os
 import sys
@@ -14,6 +15,80 @@ import namespaces as ns
 # dashboard
 from main import models
 
+
+def update_object(mets, sip_uuid):
+    """
+    Updates PREMIS:OBJECT.
+
+    Updates techMD if any of the following have changed: checksumtype, identification, characterization, preservation derivative.
+    Most recent has STATUS='current', all others have STATUS='superseded'
+    """
+    # Iterate through original files
+    for fsentry in mets.all_files():
+        # Only update original files
+        if fsentry.use != 'original' or fsentry.type != 'Item' or not fsentry.file_uuid:
+            continue
+
+        # Copy techMD
+        old_techmd = None
+        for t in fsentry.amdsecs[0].subsections:
+            if t.subsection == 'techMD' and (not t.status or t.status == 'current'):
+                old_techmd = t
+                break
+        new_techmd_contents = copy.deepcopy(old_techmd.contents.document)
+        modified = False
+
+        # TODO do this with metsrw & PREMIS plugin
+        # If checksum recalculated event exists, update checksum
+        if models.Event.objects.filter(file_uuid_id=fsentry.file_uuid, event_type='message digest calculation').exists():
+            print('Updating checksum for', fsentry.file_uuid)
+            modified = True
+            f = models.File.objects.get(uuid=fsentry.file_uuid)
+            fixity = new_techmd_contents.find('.//premis:fixity', namespaces=ns.NSMAP)
+            fixity.find('premis:messageDigestAlgorithm', namespaces=ns.NSMAP).text = f.checksumtype
+            fixity.find('premis:messageDigest', namespaces=ns.NSMAP).text = f.checksum
+
+        # If FileID exists, update file ID
+        if models.FileID.objects.filter(file_id=fsentry.file_uuid):
+            print('Updating format for', fsentry.file_uuid)
+            modified = True
+            # Delete old formats
+            for f in new_techmd_contents.findall('premis:objectCharacteristics/premis:format', namespaces=ns.NSMAP):
+                f.getparent().remove(f)
+            # Insert new formats after size
+            formats = createmets2.create_premis_object_formats(fsentry.file_uuid)
+            size_elem = new_techmd_contents.find('premis:objectCharacteristics/premis:size', namespaces=ns.NSMAP)
+            for f in formats:
+                size_elem.addnext(f)
+
+        # If FPCommand output exists, update objectCharacteristicsExtension
+        if models.FPCommandOutput.objects.filter(file_id=fsentry.file_uuid, rule__purpose__in=['characterization', 'default_characterization']).exists():
+            print('Updating objectCharacteristicsExtension for', fsentry.file_uuid)
+            modified = True
+            # Delete old objectCharacteristicsExtension
+            for oce in new_techmd_contents.findall('premis:objectCharacteristics/premis:objectCharacteristicsExtension', namespaces=ns.NSMAP):
+                oce.getparent().remove(oce)
+            new_oce = createmets2.create_premis_object_characteristics_extensions(fsentry.file_uuid)
+            oc_elem = new_techmd_contents.find('premis:objectCharacteristics', namespaces=ns.NSMAP)
+            for oce in new_oce:
+                oc_elem.append(oce)
+
+        # If Derivation exists, update relationships
+        if models.Derivation.objects.filter(source_file_id=fsentry.file_uuid, event__isnull=False):
+            print('Updating relationships for', fsentry.file_uuid)
+            modified = True
+            # Delete old relationships
+            for r in new_techmd_contents.findall('premis:relationship', namespaces=ns.NSMAP):
+                r.getparent().remove(r)
+            derivations = createmets2.create_premis_object_derivations(fsentry.file_uuid)
+            for r in derivations:
+                new_techmd_contents.append(r)
+
+        if modified:
+            new_techmd = fsentry.add_premis_object(new_techmd_contents)
+            old_techmd.replace_with(new_techmd)
+
+    return mets
 
 def update_dublincore(mets, sip_uuid):
     """
@@ -310,6 +385,7 @@ def update_mets(sip_dir, sip_uuid):
     # Parse old METS
     mets = metsrw.METSDocument.fromfile(old_mets_path)
 
+    update_object(mets, sip_uuid)
     update_dublincore(mets, sip_uuid)
     update_rights(mets, sip_uuid)
     add_events(mets, sip_uuid)

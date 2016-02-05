@@ -22,14 +22,14 @@
     "fields": {
         "filegrpuuid": "", 
         "sip": "4060ee97-9c3f-4822-afaf-ebdf838284c3", 
-        "originallocation": "%SIPDirectory%objects/evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif", 
+        "originallocation": "%SIPDirectory%objects/evelyn_s_photo-8140ebe5-295c-490b-a34a-83955b7c844e.tif",
         "transfer": null, 
         "filegrpuse": "preservation", 
         "removedtime": null, 
         "label": "", 
         "checksum": "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9", 
         "enteredsystem": "2015-06-24T17:22:09Z",
-        "currentlocation": "%SIPDirectory%objects/evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif", 
+        "currentlocation": "%SIPDirectory%objects/evelyn_s_photo-8140ebe5-295c-490b-a34a-83955b7c844e.tif",
         "size": 1446772
     }
 },

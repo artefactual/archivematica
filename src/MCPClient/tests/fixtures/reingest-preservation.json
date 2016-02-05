@@ -1,0 +1,54 @@
+[
+
+{
+    "fields": {
+        "format_registry_name": "",
+        "format_registry_key": "",
+        "format_name": "TIFF",
+        "file": "d8cc7af7-284a-42f5-b7f4-e181a0efc35f",
+        "format_version": ""
+    },
+    "model": "main.fileid",
+    "pk": 2
+},
+{
+    "fields": {
+        "derived_file": "d8cc7af7-284a-42f5-b7f4-e181a0efc35f",
+        "source_file": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
+        "event": "291f9be4-d19a-4bcc-8e1c-d3f01e4a48b1"
+    },
+    "model": "main.derivation",
+    "pk": 1
+},
+{
+    "pk": 26,
+    "model": "main.event",
+    "fields": {
+        "event_type": "normalization",
+        "event_id": "291f9be4-d19a-4bcc-8e1c-d3f01e4a48b1",
+        "agents": [1,2,3],
+        "event_detail": "ArchivematicaFPRCommandID=\"a34ddc9b-c922-4bb6-8037-bbe713332175\"; program=\"convert\"; version=\"Version: ImageMagick 6.7.7-10 2014-03-06 Q16 http://www.imagemagick.org\"\n",
+        "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
+        "event_outcome_detail": "%SIPDirectory%objects/evelyn_s_photo-d8cc7af7-284a-42f5-b7f4-e181a0efc35f.tif",
+        "event_outcome": "",
+        "event_datetime": "2016-02-03T18:36:32"
+    }
+},
+{
+    "pk": "d8cc7af7-284a-42f5-b7f4-e181a0efc35f",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+        "originallocation": "%SIPDirectory%objects/evelyn_s_photo-d8cc7af7-284a-42f5-b7f4-e181a0efc35f.tif",
+        "transfer": null,
+        "filegrpuse": "preservation",
+        "removedtime": null,
+        "label": "",
+        "checksum": "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9",
+        "enteredsystem": "2015-06-24T17:22:09Z",
+        "currentlocation": "%SIPDirectory%objects/evelyn_s_photo-d8cc7af7-284a-42f5-b7f4-e181a0efc35f.tif",
+        "size": 1446772
+    }
+}
+]

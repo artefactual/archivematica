@@ -3,6 +3,7 @@ from lxml import etree
 import os
 import sys
 
+from django.core.management import call_command
 from django.test import TestCase
 
 from main import models
@@ -22,6 +23,200 @@ NSMAP = {
     'xlink': 'http://www.w3.org/1999/xlink',
 }
 REMOVE_BLANK_PARSER = etree.XMLParser(remove_blank_text=True)
+
+
+class TestUpdateObject(TestCase):
+    """ Test updating the PREMIS:OBJECT in the techMD. (update_object). """
+
+    fixture_files = ['sip-reingest.json', 'files.json', 'events-reingest.json']
+    fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
+
+    def setUp(self):
+        self.sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
+
+    def load_fixture(self, fixture_paths):
+        try:
+            call_command('loaddata', *fixture_paths,
+                         **{
+                             'verbosity': 0,
+                             'commit': False,
+                             'skip_checks': True,
+                         })
+        except Exception:
+            self._fixture_teardown()
+            raise
+
+    def test_object_not_updated(self):
+        """ It should do nothing if the object has not been updated. """
+        # Verify METS state
+        mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
+        assert len(mets.tree.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 1
+        # Run test
+        mets = archivematicaCreateMETSReingest.update_object(mets, self.sip_uuid)
+        root = mets.serialize()
+        # Verify no change
+        assert len(root.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 1
+
+    def test_update_checksum_type(self):
+        """ It should add a new techMD with the new checksum & checksumtype. """
+        # Set checksumtype values
+        self.load_fixture([os.path.join(FIXTURES_DIR, 'reingest-checksum.json')])
+        models.File.objects.filter(uuid='ae8d4290-fe52-4954-b72a-0f591bee2e2f').update(checksumtype='md5', checksum='ac63a92ba5a94c337e740d6f189200d0')
+        # Verify METS state
+        mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
+        assert len(mets.tree.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 1
+        # Run test
+        mets = archivematicaCreateMETSReingest.update_object(mets, self.sip_uuid)
+        root = mets.serialize()
+        assert len(root.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 2
+        # Verify old techMD
+        old_techmd = root.find('.//mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)
+        old_techmd = root.xpath('mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)[0]
+        assert old_techmd.attrib['STATUS'] == 'superseded'
+        assert old_techmd.findtext('.//premis:messageDigestAlgorithm', namespaces=NSMAP) == 'sha256'
+        assert old_techmd.findtext('.//premis:messageDigest', namespaces=NSMAP) == 'd2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92'
+        # Verify new techMD
+        new_techmd = root.xpath('mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID!="techMD_2"]', namespaces=NSMAP)[0]
+        assert new_techmd.attrib['STATUS'] == 'current'
+        assert new_techmd.findtext('.//premis:messageDigestAlgorithm', namespaces=NSMAP) == 'md5'
+        assert new_techmd.findtext('.//premis:messageDigest', namespaces=NSMAP) == 'ac63a92ba5a94c337e740d6f189200d0'
+        # Verify rest of new techMD was created
+        assert new_techmd.find('.//premis:formatName', namespaces=NSMAP) is not None
+        assert new_techmd.find('.//premis:relatedObjectIdentifierType', namespaces=NSMAP) is not None
+        assert len(new_techmd.find('.//premis:objectCharacteristicsExtension', namespaces=NSMAP)) > 0
+
+    def test_update_file_id(self):
+        """ It should add a new techMD with the new file ID. """
+        # Load fixture
+        self.load_fixture([os.path.join(FIXTURES_DIR, 'reingest-file-id.json')])
+        # Verify METS state
+        mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
+        assert len(mets.tree.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 1
+        # Run test
+        mets = archivematicaCreateMETSReingest.update_object(mets, self.sip_uuid)
+        root = mets.serialize()
+        assert len(root.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 2
+        # Verify old techMD
+        old_techmd = root.find('.//mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)
+        old_techmd = root.xpath('mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)[0]
+        assert old_techmd.attrib['STATUS'] == 'superseded'
+        assert old_techmd.findtext('.//premis:formatName', namespaces=NSMAP) == 'JPEG 1.02'
+        assert old_techmd.findtext('.//premis:formatVersion', namespaces=NSMAP) == '1.02'
+        assert old_techmd.findtext('.//premis:formatRegistryKey', namespaces=NSMAP) == 'fmt/44'
+        # Verify new techMD
+        new_techmd = root.xpath('mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID!="techMD_2"]', namespaces=NSMAP)[0]
+        assert new_techmd.attrib['STATUS'] == 'current'
+        assert new_techmd.findtext('.//premis:formatName', namespaces=NSMAP) == 'Newer fancier JPEG'
+        assert new_techmd.findtext('.//premis:formatVersion', namespaces=NSMAP) == '9001'
+        assert new_techmd.findtext('.//premis:formatRegistryKey', namespaces=NSMAP) == 'fmt/9000'
+        # Verify rest of new techMD was created
+        assert new_techmd.find('.//premis:relatedObjectIdentifierType', namespaces=NSMAP) is not None
+        assert len(new_techmd.find('.//premis:objectCharacteristicsExtension', namespaces=NSMAP)) > 0
+
+    def test_update_characterization(self):
+        """ It should add a new techMD with the new characterization. """
+        # Load fixture
+        self.load_fixture([os.path.join(FIXTURES_DIR, f) for f in ['reingest-characterization.json', 'fpr-reingest.json']])
+        # Verify METS state
+        mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
+        assert len(mets.tree.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 1
+        # Run test
+        mets = archivematicaCreateMETSReingest.update_object(mets, self.sip_uuid)
+        root = mets.serialize()
+        assert len(root.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 2
+        # Verify old techMD
+        old_techmd = root.find('.//mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)
+        old_techmd = root.xpath('mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)[0]
+        assert old_techmd.attrib['STATUS'] == 'superseded'
+        assert len(old_techmd.find('.//premis:objectCharacteristicsExtension', namespaces=NSMAP)) == 3
+        # Verify new techMD
+        new_techmd = root.xpath('mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID!="techMD_2"]', namespaces=NSMAP)[0]
+        assert new_techmd.attrib['STATUS'] == 'current'
+        assert len(new_techmd.find('.//premis:objectCharacteristicsExtension', namespaces=NSMAP)) == 2
+        assert new_techmd.find('.//premis:objectCharacteristicsExtension', namespaces=NSMAP)[0].text == 'Stub ffprobe output'
+        assert new_techmd.find('.//premis:objectCharacteristicsExtension', namespaces=NSMAP)[1].text == 'Stub MediaInfo output'
+        # Verify rest of new techMD was created
+        assert new_techmd.find('.//premis:formatName', namespaces=NSMAP) is not None
+        assert new_techmd.find('.//premis:relatedObjectIdentifierType', namespaces=NSMAP) is not None
+
+    def test_update_preservation_derivative(self):
+        """ It should add a new techMD with the new relationship. """
+        # Load fixture
+        self.load_fixture([os.path.join(FIXTURES_DIR, 'reingest-preservation.json')])
+        # Verify METS state
+        mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
+        assert len(mets.tree.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 1
+        # Run test
+        mets = archivematicaCreateMETSReingest.update_object(mets, self.sip_uuid)
+        root = mets.serialize()
+        assert len(root.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 2
+        # Verify old techMD
+        old_techmd = root.find('.//mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)
+        old_techmd = root.xpath('mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)[0]
+        assert old_techmd.attrib['STATUS'] == 'superseded'
+        assert old_techmd.findtext('.//premis:relatedObjectIdentifierValue', namespaces=NSMAP) == '8140ebe5-295c-490b-a34a-83955b7c844e'
+        assert old_techmd.findtext('.//premis:relatedEventIdentifierValue', namespaces=NSMAP) == '0ce13092-911f-4a89-b9e1-0e61921a03d4'
+        # Verify new techMD
+        new_techmd = root.xpath('mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID!="techMD_2"]', namespaces=NSMAP)[0]
+        assert new_techmd.attrib['STATUS'] == 'current'
+        assert new_techmd.findtext('.//premis:relatedObjectIdentifierValue', namespaces=NSMAP) == 'd8cc7af7-284a-42f5-b7f4-e181a0efc35f'
+        assert new_techmd.findtext('.//premis:relatedEventIdentifierValue', namespaces=NSMAP) == '291f9be4-d19a-4bcc-8e1c-d3f01e4a48b1'
+        # Verify rest of new techMD was created
+        assert new_techmd.find('.//premis:formatName', namespaces=NSMAP) is not None
+        assert new_techmd.find('.//premis:relatedObjectIdentifierType', namespaces=NSMAP) is not None
+        assert len(new_techmd.find('.//premis:objectCharacteristicsExtension', namespaces=NSMAP)) > 0
+
+    def test_update_all(self):
+        """
+        It should add new updated object and mark the old one as superseded.
+        It should add after the last techMD.
+        It should not modify other objects.
+        It should have a new format identification event.
+        """
+        # Load fixture
+        self.load_fixture([os.path.join(FIXTURES_DIR, f) for f in [
+            'reingest-checksum.json',
+            'reingest-file-id.json',
+            'reingest-characterization.json',
+            'fpr-reingest.json',
+            'reingest-preservation.json',
+        ]])
+        models.File.objects.filter(uuid='ae8d4290-fe52-4954-b72a-0f591bee2e2f').update(checksumtype='md5', checksum='ac63a92ba5a94c337e740d6f189200d0')
+        # Verify METS state
+        mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
+        assert len(mets.tree.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 1
+        # Run test
+        mets = archivematicaCreateMETSReingest.update_object(mets, self.sip_uuid)
+        root = mets.serialize()
+        assert len(root.findall('mets:amdSec[@ID="amdSec_2"]//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]', namespaces=NSMAP)) == 2
+        # Verify old techMD
+        old_techmd = root.find('.//mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)
+        old_techmd = root.xpath('mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID="techMD_2"]', namespaces=NSMAP)[0]
+        assert old_techmd.attrib['STATUS'] == 'superseded'
+        # Verify new techMD
+        new_techmd = root.xpath('mets:amdSec[@ID="amdSec_2"]/mets:techMD[@ID!="techMD_2"]', namespaces=NSMAP)[0]
+        assert new_techmd.attrib['STATUS'] == 'current'
+        # Checksums
+        assert new_techmd.findtext('.//premis:messageDigestAlgorithm', namespaces=NSMAP) == 'md5'
+        assert new_techmd.findtext('.//premis:messageDigest', namespaces=NSMAP) == 'ac63a92ba5a94c337e740d6f189200d0'
+        # File ID
+        assert new_techmd.findtext('.//premis:formatName', namespaces=NSMAP) == 'Newer fancier JPEG'
+        assert new_techmd.findtext('.//premis:formatVersion', namespaces=NSMAP) == '9001'
+        assert new_techmd.findtext('.//premis:formatRegistryKey', namespaces=NSMAP) == 'fmt/9000'
+        # Characterize
+        assert len(new_techmd.find('.//premis:objectCharacteristicsExtension', namespaces=NSMAP)) == 2
+        assert new_techmd.find('.//premis:objectCharacteristicsExtension', namespaces=NSMAP)[0].text == 'Stub ffprobe output'
+        assert new_techmd.find('.//premis:objectCharacteristicsExtension', namespaces=NSMAP)[1].text == 'Stub MediaInfo output'
+        # Preservation
+        assert new_techmd.findtext('.//premis:relatedObjectIdentifierValue', namespaces=NSMAP) == 'd8cc7af7-284a-42f5-b7f4-e181a0efc35f'
+        assert new_techmd.findtext('.//premis:relatedEventIdentifierValue', namespaces=NSMAP) == '291f9be4-d19a-4bcc-8e1c-d3f01e4a48b1'
+
+    def test_update_reingest_object(self):
+        """
+        It should add new updated object and mark all the old ones as superseded.
+        It should add after the last techMD.
+        """
+        raise NotImplementedError()
 
 
 class TestUpdateDublinCore(TestCase):

@@ -206,6 +206,11 @@
                   <premis:formatRegistryKey>fmt/44</premis:formatRegistryKey>
                 </premis:formatRegistry>
               </premis:format>
+              <premis:objectCharacteristicsExtension>
+                <ffprobe>Stub ffprobe output</ffprobe>
+                <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">Stub RDF output</rdf:RDF>
+                <Mediainfo version="0.7.67">Stub MediaInfo output</Mediainfo>
+              </premis:objectCharacteristicsExtension>
             </premis:objectCharacteristics>
             <premis:originalName>%transferDirectory%objects/evelyn's photo.jpg</premis:originalName>
             <premis:relationship>
@@ -300,8 +305,7 @@
             </premis:eventIdentifier>
             <premis:eventType>virus check</premis:eventType>
             <premis:eventDateTime>2015-06-24T00:22:36</premis:eventDateTime>
-            <premis:eventDetail>program="Clam AV"; version="ClamAV 0.98.7"; virusDefinitions="20605/Tue Jun 23 13:37:33 2015
-"</premis:eventDetail>
+            <premis:eventDetail>program="Clam AV"; version="ClamAV 0.98.7"; virusDefinitions="20605/Tue Jun 23 13:37:33 2015"</premis:eventDetail>
             <premis:eventOutcomeInformation>
               <premis:eventOutcome>Pass</premis:eventOutcome>
               <premis:eventOutcomeDetail>
@@ -433,8 +437,7 @@
             </premis:eventIdentifier>
             <premis:eventType>normalization</premis:eventType>
             <premis:eventDateTime>2015-06-24T00:22:51</premis:eventDateTime>
-            <premis:eventDetail>ArchivematicaFPRCommandID="a34ddc9b-c922-4bb6-8037-bbe713332175"; program="convert"; version="Version: ImageMagick 6.7.7-10 2014-03-06 Q16 http://www.imagemagick.org"
-</premis:eventDetail>
+            <premis:eventDetail>ArchivematicaFPRCommandID="a34ddc9b-c922-4bb6-8037-bbe713332175"; program="convert"; version="Version: ImageMagick 6.7.7-10 2014-03-06 Q16 http://www.imagemagick.org"</premis:eventDetail>
             <premis:eventOutcomeInformation>
               <premis:eventOutcome/>
               <premis:eventOutcomeDetail>
