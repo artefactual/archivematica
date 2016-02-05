@@ -8,6 +8,7 @@ import uuid
 
 # Django Core, alphabetical by import source
 import django.http
+from django.shortcuts import redirect
 
 # External dependencies, alphabetical
 import MySQLdb  # for ATK exceptions
@@ -19,7 +20,7 @@ from components import helpers
 from components.ingest.views_atk import get_atk_system_client
 from components.ingest.views_as import get_as_system_client
 import components.filesystem_ajax.views as filesystem_views
-from main.models import SIPArrangeAccessMapping, ArchivesSpaceDOComponent
+from main.models import SIP, SIPArrange, SIPArrangeAccessMapping, ArchivesSpaceDOComponent
 
 logger = logging.getLogger('archivematica.dashboard')
 
@@ -92,6 +93,25 @@ def _get_arrange_path(func):
                 'message': 'No SIP Arrange mapping exists for record {}'.format(record_id),
             }
             return helpers.json_response(response, status_code=404)
+    return wrapper
+
+
+def _get_or_create_arrange_path(func):
+    @wraps(func)
+    def wrapper(request, system='', record_id=''):
+        mapping = create_arranged_directory(system, record_id)
+        return func(request, mapping)
+    return wrapper
+
+
+def _get_sip(func):
+    @wraps(func)
+    def wrapper(request, mapping):
+        arrange = SIPArrange.objects.get(arrange_path=os.path.join(mapping.arrange_path, ''))
+        if arrange.sip is None:
+            arrange.sip = SIP.objects.create(uuid=(uuid.uuid4()), currentlocation=None)
+            arrange.save()
+        return func(request, arrange.sip)
     return wrapper
 
 
@@ -366,6 +386,18 @@ def access_create_directory(request, system='', record_id=''):
         }
         status_code = 400
     return helpers.json_response(response, status_code=status_code)
+
+
+@_get_or_create_arrange_path
+@_get_sip
+def access_sip_rights(request, sip):
+    return redirect('components.rights.views.ingest_rights_list', uuid=sip.uuid)
+
+
+@_get_or_create_arrange_path
+@_get_sip
+def access_sip_metadata(request, sip):
+    return redirect('components.ingest.views.ingest_metadata_list', uuid=sip.uuid)
 
 
 def access_copy_to_arrange(request, system='', record_id=''):
