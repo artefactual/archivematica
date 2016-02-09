@@ -609,7 +609,7 @@ class MicroServiceChain(models.Model):
     id = UUIDPkField()
     startinglink = models.ForeignKey('MicroServiceChainLink', db_column='startingLink')
     description = models.TextField(db_column='description')
-    replaces = models.ForeignKey('self', related_name='replaced_by', db_column='replaces')
+    replaces = models.ForeignKey('self', related_name='replaced_by', db_column='replaces', null=True)
     lastmodified = models.DateTimeField(db_column='lastModified')
 
     class Meta:

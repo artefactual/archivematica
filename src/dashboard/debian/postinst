@@ -18,6 +18,16 @@ pip install --upgrade -r /usr/share/archivematica/dashboard/requirements.txt
 # AM 1.1.0 and earlier did not set charset and collation on db properly
 #this is required to allow syncdb to work properly
 mysql -u archivematica -pdemo MCP -e 'alter database MCP CHARACTER SET utf8 COLLATE utf8_unicode_ci'
+
+# Fake migrations if necessary.  $2 is old version
+if [[ $2 == '1.4.1'* ]]; then
+    echo 'Faking 1.4.1 database setup'
+    /usr/share/archivematica/dashboard/manage.py migrate locations 0001_initial --fake --settings='settings.common'
+    echo 'Faking 1.4.1 data setup'
+    /usr/share/archivematica/dashboard/manage.py migrate locations 0002_initial_data --fake --settings='settings.common'
+fi
+
+# Run migrations
 /usr/share/archivematica/dashboard/manage.py migrate --settings='settings.common'
 
 /etc/init.d/apache2 restart
