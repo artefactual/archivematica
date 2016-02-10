@@ -144,7 +144,7 @@ def insertIntoEvents(fileUUID, eventIdentifierUUID="", eventType="", eventDateTi
                          event_outcome_detail=eventOutcomeDetailNote,
                          linking_agent=agent)
 
-def insertIntoDerivations(sourceFileUUID="", derivedFileUUID="", relatedEventUUID=""):
+def insertIntoDerivations(sourceFileUUID, derivedFileUUID, relatedEventUUID=None):
     """
     Creates a new entry in the Derivations table using the supplied arguments. The two files in this relationship should already exist in the Files table.
 

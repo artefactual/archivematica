@@ -23,6 +23,7 @@
 
 import os
 import sys
+import uuid
 
 import django
 django.setup()
@@ -39,7 +40,6 @@ if __name__ == '__main__':
     fileUUID = sys.argv[1]
     target = sys.argv[2]
     date = sys.argv[3]
-    taskUUID = sys.argv[4]
 
     # Check if scan event already exists for this file - if so abort early
     count = Event.objects.filter(file_uuid_id=fileUUID, event_type='virus check').count()
@@ -80,6 +80,6 @@ if __name__ == '__main__':
 
     print 'Event outcome:', eventOutcome
     if fileUUID != "None":
-        insertIntoEvents(fileUUID=fileUUID, eventIdentifierUUID=taskUUID, eventType="virus check", eventDateTime=date, eventDetail=eventDetailText, eventOutcome=eventOutcome, eventOutcomeDetailNote="")
+        insertIntoEvents(fileUUID=fileUUID, eventIdentifierUUID=str(uuid.uuid4()), eventType="virus check", eventDateTime=date, eventDetail=eventDetailText, eventOutcome=eventOutcome, eventOutcomeDetailNote="")
     if eventOutcome != "Pass":
         sys.exit(3)

@@ -42,7 +42,6 @@ def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID):
     File.objects.filter(uuid=fileUUID).update(size=fileSize, checksum=checksum)
 
     insertIntoEvents(fileUUID=fileUUID, \
-                     eventIdentifierUUID=eventIdentifierUUID, \
                      eventType="message digest calculation", \
                      eventDateTime=date, \
                      eventDetail="program=\"python\"; module=\"hashlib.sha256()\"", \
@@ -53,7 +52,6 @@ def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, d
     #print filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType, eventDetail, use
     insertIntoFiles(fileUUID, filePathRelativeToSIP, date, transferUUID=transferUUID, use=use)
     insertIntoEvents(fileUUID=fileUUID, \
-                   eventIdentifierUUID=taskUUID, \
                    eventType=sourceType, \
                    eventDateTime=date, \
                    eventDetail=eventDetail, \
@@ -67,7 +65,6 @@ def addAccessionEvent(fileUUID, transferUUID, date):
         eventIdentifierUUID = uuid.uuid4().__str__()
         eventOutcomeDetailNote =  "accession#" + MySQLdb.escape_string(transfer.accessionid) 
         insertIntoEvents(fileUUID=fileUUID, \
-               eventIdentifierUUID=eventIdentifierUUID, \
                eventType="registration", \
                eventDateTime=date, \
                eventDetail="", \
@@ -77,7 +74,6 @@ def addAccessionEvent(fileUUID, transferUUID, date):
 def addFileToSIP(filePathRelativeToSIP, fileUUID, sipUUID, taskUUID, date, sourceType="ingestion", use="original"):
     insertIntoFiles(fileUUID, filePathRelativeToSIP, date, sipUUID=sipUUID, use=use)
     insertIntoEvents(fileUUID=fileUUID, \
-                   eventIdentifierUUID=taskUUID, \
                    eventType=sourceType, \
                    eventDateTime=date, \
                    eventDetail="", \
@@ -214,7 +210,7 @@ def updateFileLocation(src, dst, eventType="", eventDateTime="", eventDetail="",
     if eventOutcomeDetailNote == "":
         eventOutcomeDetailNote = "Original name=\"%s\"; cleaned up name=\"%s\"" %(src, dst)
     # CREATE THE EVENT
-    insertIntoEvents(fileUUID=f.uuid, eventIdentifierUUID=eventIdentifierUUID, eventType=eventType, eventDateTime=eventDateTime, eventDetail=eventDetail, eventOutcome="", eventOutcomeDetailNote=eventOutcomeDetailNote)
+    insertIntoEvents(fileUUID=f.uuid, eventType=eventType, eventDateTime=eventDateTime, eventDetail=eventDetail, eventOutcome="", eventOutcomeDetailNote=eventOutcomeDetailNote)
 
 def getFileUUIDLike(filePath, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith):
     """Dest needs to be the actual full destination path with filename."""

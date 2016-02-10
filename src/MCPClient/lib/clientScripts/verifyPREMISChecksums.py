@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 import sys
 from optparse import OptionParser
+import uuid
 
 import django
 django.setup()
@@ -56,7 +57,7 @@ def verifyChecksum(fileUUID, filePath, date, eventIdentifierUUID):
         exitCode = 0
 
     databaseFunctions.insertIntoEvents(fileUUID=fileUUID, \
-                 eventIdentifierUUID=eventIdentifierUUID, \
+                 eventIdentifierUUID=str(uuid.uuid4()), \
                  eventType="fixity check", \
                  eventDateTime=date, \
                  eventOutcome=eventOutcome, \

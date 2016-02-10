@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 from optparse import OptionParser
+import uuid
 
 import django
 django.setup()
@@ -52,7 +53,7 @@ if __name__ == '__main__':
     file_uuids = File.objects.filter(**kwargs).values_list('uuid')
     for fileUUID, in file_uuids:
         insertIntoEvents(fileUUID=fileUUID, \
-                     eventIdentifierUUID=opts.eventIdentifierUUID, \
+                     eventIdentifierUUID=str(uuid.uuid4()), \
                      eventType=opts.eventType, \
                      eventDateTime=opts.eventDateTime, \
                      eventDetail=opts.eventDetail, \

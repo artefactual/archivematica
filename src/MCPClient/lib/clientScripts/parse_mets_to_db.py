@@ -144,7 +144,6 @@ def update_files(sip_uuid, files):
         databaseFunctions.insertIntoDerivations(
             sourceFileUUID=file_info['uuid'],
             derivedFileUUID=file_info['derivation'],
-            relatedEventUUID=file_info['derivation_event'],
         )
 
 def parse_dc(sip_uuid, root):
