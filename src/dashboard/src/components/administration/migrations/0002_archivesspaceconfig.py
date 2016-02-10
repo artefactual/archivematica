@@ -4,6 +4,15 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 import main.models
 
+def insert_data(apps, schema_editor):
+    # Insert default values into the ArchivesSpaceConfig table.
+    # Leaving all other values null/blank is consistent with default ATK config.
+    ArchivesSpaceConfig = apps.get_model('administration', 'ArchivesSpaceConfig')
+    ArchivesSpaceConfig.objects.create(
+        pk='5e6b9fb2-0ed0-41c4-b5cb-94d25de1a5dc',
+        port=8089,
+        repository=2,
+    )
 
 class Migration(migrations.Migration):
 
@@ -118,4 +127,5 @@ class Migration(migrations.Migration):
             field=models.CharField(max_length=50, verbose_name=b'Use Statement'),
             preserve_default=True,
         ),
+        migrations.RunPython(insert_data)
     ]

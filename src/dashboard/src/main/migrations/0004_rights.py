@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0003_archivesspacedipobjectresourcepairing'),
+        ('main', '0003_archivesspacedipobjectresourcepairing_data'),
     ]
 
     operations = [
