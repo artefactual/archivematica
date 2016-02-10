@@ -150,7 +150,7 @@ class MetadataAppliesToType(models.Model):
     id = UUIDPkField()
     description = models.CharField(max_length=50, db_column='description')
     replaces = models.CharField(max_length=36, db_column='replaces', null=True, blank=True)
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 
     class Meta:
         db_table = u'MetadataAppliesToTypes'
@@ -609,8 +609,8 @@ class MicroServiceChain(models.Model):
     id = UUIDPkField()
     startinglink = models.ForeignKey('MicroServiceChainLink', db_column='startingLink')
     description = models.TextField(db_column='description')
-    replaces = models.ForeignKey('self', related_name='replaced_by', db_column='replaces', null=True)
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    replaces = models.ForeignKey('self', related_name='replaced_by', db_column='replaces', null=True, blank=True)
+    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 
     class Meta:
         db_table = u'MicroServiceChains'
@@ -629,7 +629,7 @@ class MicroServiceChainLink(models.Model):
     reloadfilelist = models.BooleanField(default=True, db_column='reloadFileList')
     defaultexitmessage = models.CharField(max_length=36, db_column='defaultExitMessage', default='Failed')
     replaces = models.ForeignKey('self', related_name='replaced_by', db_column='replaces', null=True, blank=True)
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 
     class Meta:
         db_table = u'MicroServiceChainLinks'
@@ -645,7 +645,7 @@ class MicroServiceChainLinkExitCode(models.Model):
     nextmicroservicechainlink = models.ForeignKey('MicroServiceChainLink', related_name='parent_exit_codes+', db_column='nextMicroServiceChainLink', null=True, blank=True)
     exitmessage = models.CharField(max_length=50, db_column='exitMessage', default='Completed successfully')
     replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 
     class Meta:
         db_table = u'MicroServiceChainLinksExitCodes'
@@ -656,7 +656,7 @@ class MicroServiceChainChoice(models.Model):
     choiceavailableatlink = models.ForeignKey('MicroServiceChainLink', db_column='choiceAvailableAtLink')
     chainavailable = models.ForeignKey('MicroServiceChain', db_column='chainAvailable')
     replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 
     class Meta:
         db_table = u'MicroServiceChainChoice'
@@ -697,7 +697,7 @@ class TaskType(models.Model):
     id = UUIDPkField()
     description = models.TextField(blank=True)
     replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 
     class Meta:
         db_table = 'TaskTypes'
@@ -712,7 +712,7 @@ class TaskConfig(models.Model):
     tasktypepkreference = models.CharField(max_length=36, db_column='taskTypePKReference', null=True, blank=True, default=None)  # Foreign key to table depending on TaskType
     description = models.TextField(db_column='description')
     replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 
     class Meta:
         db_table = u'TasksConfigs'
@@ -723,8 +723,8 @@ class TaskConfig(models.Model):
 
 class StandardTaskConfig(models.Model):
     id = UUIDPkField()
-    execute = models.CharField(max_length=250, db_column='execute')
-    arguments = models.TextField(db_column='arguments')
+    execute = models.CharField(max_length=250, null=True, db_column='execute')
+    arguments = models.TextField(null=True, db_column='arguments')
     filter_subdir = models.CharField(max_length=50, db_column='filterSubDir', null=True, blank=True)
     filter_file_start = models.CharField(max_length=50, db_column='filterFileStart', null=True, blank=True)
     filter_file_end = models.CharField(max_length=50, db_column='filterFileEnd', null=True, blank=True)
@@ -732,7 +732,7 @@ class StandardTaskConfig(models.Model):
     stdout_file = models.CharField(max_length=250, db_column='standardOutputFile', null=True, blank=True)
     stderr_file = models.CharField(max_length=250, db_column='standardErrorFile', null=True, blank=True)
     replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 
     class Meta:
         db_table = u'StandardTasksConfigs'
@@ -742,7 +742,7 @@ class TaskConfigAssignMagicLink(models.Model):
     id = UUIDPkField()
     execute = models.ForeignKey('MicroServiceChainLink', null=True, db_column='execute', blank=True)
     replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 
     class Meta(object):
         db_table = u'TasksConfigsAssignMagicLink'
@@ -754,7 +754,7 @@ class TaskConfigSetUnitVariable(models.Model):
     variablevalue = models.TextField(null=True, blank=True, db_column='variableValue')
     microservicechainlink = models.ForeignKey('MicroServiceChainLink', null=True, db_column='microServiceChainLink')
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
-    updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True)
+    updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True, null=True)
 
     class Meta(object):
         db_table = u'TasksConfigsSetUnitVariable'
@@ -766,7 +766,7 @@ class TaskConfigUnitVariableLinkPull(models.Model):
     variablevalue = models.TextField(null=True, blank=True, db_column='variableValue')
     defaultmicroservicechainlink = models.ForeignKey('MicroServiceChainLink', null=True, db_column='defaultMicroServiceChainLink')
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
-    updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True)
+    updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True, null=True)
 
     class Meta(object):
         db_table = u'TasksConfigsUnitVariableLinkPull'
@@ -828,7 +828,7 @@ class TransferMetadataSet(models.Model):
 
 class TransferMetadataField(models.Model):
     id = UUIDPkField()
-    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True, null=True)
     fieldlabel = models.CharField(max_length=50, blank=True, db_column='fieldLabel')
     fieldname = models.CharField(max_length=50, db_column='fieldName')
     fieldtype = models.CharField(max_length=50, db_column='fieldType')
@@ -857,7 +857,7 @@ class TransferMetadataFieldValue(models.Model):
 # defining new fields are present in the code but currently disabled.)
 class Taxonomy(models.Model):
     id = UUIDPkField()
-    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True, null=True)
     name = models.CharField(max_length=255, blank=True, db_column='name')
     type = models.CharField(max_length=50, default='open')
 
@@ -869,7 +869,7 @@ class Taxonomy(models.Model):
 
 class TaxonomyTerm(models.Model):
     id = UUIDPkField()
-    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True, null=True)
     taxonomy = models.ForeignKey('Taxonomy', db_column='taxonomyUUID', to_field='id')
     term = models.CharField(max_length=255, db_column='term')
 
@@ -886,7 +886,7 @@ class WatchedDirectory(models.Model):
     only_act_on_directories = models.BooleanField(default=True, db_column='onlyActOnDirectories')
     expected_type = models.ForeignKey('WatchedDirectoryExpectedType', null=True, db_column='expectedType')
     replaces = models.ForeignKey('WatchedDirectory', null=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 
     class Meta(object):
         db_table = u"WatchedDirectories"
@@ -895,7 +895,7 @@ class WatchedDirectoryExpectedType(models.Model):
     id = UUIDPkField()
     description = models.TextField(null=True)
     replaces = models.ForeignKey('WatchedDirectoryExpectedType', null=True, db_column='replaces')
-    lastmodified = models.DateTimeField(db_column='lastModified')
+    lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 
     class Meta(object):
         db_table = u"WatchedDirectoriesExpectedTypes"

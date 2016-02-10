@@ -210,7 +210,7 @@ class Migration(migrations.Migration):
                 ('id', main.models.UUIDPkField(primary_key=True, db_column=b'pk', serialize=False, editable=False, max_length=36, blank=True)),
                 ('description', models.CharField(max_length=50, db_column=b'description')),
                 ('replaces', models.CharField(max_length=36, null=True, db_column=b'replaces', blank=True)),
-                ('lastmodified', models.DateTimeField(db_column=b'lastModified')),
+                ('lastmodified', models.DateTimeField(db_column=b'lastModified', auto_now=True)),
             ],
             options={
                 'db_table': 'MetadataAppliesToTypes',
@@ -222,7 +222,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', main.models.UUIDPkField(primary_key=True, db_column=b'pk', serialize=False, editable=False, max_length=36, blank=True)),
                 ('description', models.TextField(db_column=b'description')),
-                ('lastmodified', models.DateTimeField(db_column=b'lastModified')),
+                ('lastmodified', models.DateTimeField(db_column=b'lastModified', auto_now=True)),
                 ('replaces', models.ForeignKey(related_name='replaced_by', db_column=b'replaces', to='main.MicroServiceChain', null=True)),
             ],
             options={
@@ -234,7 +234,7 @@ class Migration(migrations.Migration):
             name='MicroServiceChainChoice',
             fields=[
                 ('id', main.models.UUIDPkField(primary_key=True, db_column=b'pk', serialize=False, editable=False, max_length=36, blank=True)),
-                ('lastmodified', models.DateTimeField(db_column=b'lastModified')),
+                ('lastmodified', models.DateTimeField(db_column=b'lastModified', auto_now=True)),
                 ('chainavailable', models.ForeignKey(to='main.MicroServiceChain', db_column=b'chainAvailable')),
             ],
             options={
@@ -249,7 +249,7 @@ class Migration(migrations.Migration):
                 ('microservicegroup', models.CharField(max_length=50, db_column=b'microserviceGroup')),
                 ('reloadfilelist', models.BooleanField(default=True, db_column=b'reloadFileList')),
                 ('defaultexitmessage', models.CharField(default=b'Failed', max_length=36, db_column=b'defaultExitMessage')),
-                ('lastmodified', models.DateTimeField(db_column=b'lastModified')),
+                ('lastmodified', models.DateTimeField(db_column=b'lastModified', auto_now=True)),
             ],
             options={
                 'db_table': 'MicroServiceChainLinks',
@@ -262,7 +262,7 @@ class Migration(migrations.Migration):
                 ('id', main.models.UUIDPkField(primary_key=True, db_column=b'pk', serialize=False, editable=False, max_length=36, blank=True)),
                 ('exitcode', models.IntegerField(default=0, db_column=b'exitCode')),
                 ('exitmessage', models.CharField(default=b'Completed successfully', max_length=50, db_column=b'exitMessage')),
-                ('lastmodified', models.DateTimeField(db_column=b'lastModified')),
+                ('lastmodified', models.DateTimeField(db_column=b'lastModified', auto_now=True)),
                 ('microservicechainlink', models.ForeignKey(related_name='exit_codes', db_column=b'microServiceChainLink', to='main.MicroServiceChainLink')),
                 ('nextmicroservicechainlink', models.ForeignKey(related_name='parent_exit_codes+', db_column=b'nextMicroServiceChainLink', blank=True, to='main.MicroServiceChainLink', null=True)),
                 ('replaces', models.ForeignKey(related_name='replaced_by', db_column=b'replaces', blank=True, to='main.MicroServiceChainLinkExitCode', null=True)),
@@ -278,7 +278,7 @@ class Migration(migrations.Migration):
                 ('id', main.models.UUIDPkField(primary_key=True, db_column=b'pk', serialize=False, editable=False, max_length=36, blank=True)),
                 ('description', models.TextField(verbose_name=b'Description', db_column=b'description')),
                 ('replacementdic', models.TextField(verbose_name=b'Configuration', db_column=b'replacementDic')),
-                ('lastmodified', models.DateTimeField(db_column=b'lastModified')),
+                ('lastmodified', models.DateTimeField(db_column=b'lastModified', auto_now=True)),
                 ('choiceavailableatlink', models.ForeignKey(to='main.MicroServiceChainLink', db_column=b'choiceAvailableAtLink')),
                 ('replaces', models.ForeignKey(related_name='replaced_by', db_column=b'replaces', blank=True, to='main.MicroServiceChoiceReplacementDic', null=True)),
             ],
@@ -590,15 +590,15 @@ class Migration(migrations.Migration):
             name='StandardTaskConfig',
             fields=[
                 ('id', main.models.UUIDPkField(primary_key=True, db_column=b'pk', serialize=False, editable=False, max_length=36, blank=True)),
-                ('execute', models.CharField(max_length=250, db_column=b'execute')),
-                ('arguments', models.TextField(db_column=b'arguments')),
+                ('execute', models.CharField(max_length=250, null=True, db_column=b'execute')),
+                ('arguments', models.TextField(null=True, db_column=b'arguments')),
                 ('filter_subdir', models.CharField(max_length=50, null=True, db_column=b'filterSubDir', blank=True)),
                 ('filter_file_start', models.CharField(max_length=50, null=True, db_column=b'filterFileStart', blank=True)),
                 ('filter_file_end', models.CharField(max_length=50, null=True, db_column=b'filterFileEnd', blank=True)),
                 ('requires_output_lock', models.BooleanField(default=False, db_column=b'requiresOutputLock')),
                 ('stdout_file', models.CharField(max_length=250, null=True, db_column=b'standardOutputFile', blank=True)),
                 ('stderr_file', models.CharField(max_length=250, null=True, db_column=b'standardErrorFile', blank=True)),
-                ('lastmodified', models.DateTimeField(db_column=b'lastModified')),
+                ('lastmodified', models.DateTimeField(db_column=b'lastModified', auto_now=True)),
                 ('replaces', models.ForeignKey(related_name='replaced_by', db_column=b'replaces', blank=True, to='main.StandardTaskConfig', null=True)),
             ],
             options={
@@ -634,7 +634,7 @@ class Migration(migrations.Migration):
                 ('id', main.models.UUIDPkField(primary_key=True, db_column=b'pk', serialize=False, editable=False, max_length=36, blank=True)),
                 ('tasktypepkreference', models.CharField(default=None, max_length=36, null=True, db_column=b'taskTypePKReference', blank=True)),
                 ('description', models.TextField(db_column=b'description')),
-                ('lastmodified', models.DateTimeField(db_column=b'lastModified')),
+                ('lastmodified', models.DateTimeField(db_column=b'lastModified', auto_now=True)),
                 ('replaces', models.ForeignKey(related_name='replaced_by', db_column=b'replaces', blank=True, to='main.TaskConfig', null=True)),
             ],
             options={
@@ -646,7 +646,7 @@ class Migration(migrations.Migration):
             name='TaskConfigAssignMagicLink',
             fields=[
                 ('id', main.models.UUIDPkField(primary_key=True, db_column=b'pk', serialize=False, editable=False, max_length=36, blank=True)),
-                ('lastmodified', models.DateTimeField(db_column=b'lastModified')),
+                ('lastmodified', models.DateTimeField(db_column=b'lastModified', auto_now=True)),
                 ('execute', models.ForeignKey(db_column=b'execute', blank=True, to='main.MicroServiceChainLink', null=True)),
                 ('replaces', models.ForeignKey(related_name='replaced_by', db_column=b'replaces', blank=True, to='main.TaskConfigAssignMagicLink', null=True)),
             ],
@@ -662,7 +662,7 @@ class Migration(migrations.Migration):
                 ('variable', models.TextField(blank=True)),
                 ('variablevalue', models.TextField(null=True, db_column=b'variableValue', blank=True)),
                 ('createdtime', models.DateTimeField(auto_now_add=True, db_column=b'createdTime')),
-                ('updatedtime', models.DateTimeField(auto_now=True, db_column=b'updatedTime')),
+                ('updatedtime', models.DateTimeField(auto_now=True, null=True, db_column=b'updatedTime')),
                 ('microservicechainlink', models.ForeignKey(db_column=b'microServiceChainLink', to='main.MicroServiceChainLink', null=True)),
             ],
             options={
@@ -677,7 +677,7 @@ class Migration(migrations.Migration):
                 ('variable', models.TextField(blank=True)),
                 ('variablevalue', models.TextField(null=True, db_column=b'variableValue', blank=True)),
                 ('createdtime', models.DateTimeField(auto_now_add=True, db_column=b'createdTime')),
-                ('updatedtime', models.DateTimeField(auto_now=True, db_column=b'updatedTime')),
+                ('updatedtime', models.DateTimeField(auto_now=True, null=True, db_column=b'updatedTime')),
                 ('defaultmicroservicechainlink', models.ForeignKey(db_column=b'defaultMicroServiceChainLink', to='main.MicroServiceChainLink', null=True)),
             ],
             options={
@@ -690,7 +690,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', main.models.UUIDPkField(primary_key=True, db_column=b'pk', serialize=False, editable=False, max_length=36, blank=True)),
                 ('description', models.TextField(blank=True)),
-                ('lastmodified', models.DateTimeField(db_column=b'lastModified')),
+                ('lastmodified', models.DateTimeField(db_column=b'lastModified', auto_now=True)),
                 ('replaces', models.ForeignKey(related_name='replaced_by', db_column=b'replaces', blank=True, to='main.TaskType', null=True)),
             ],
             options={
@@ -702,7 +702,7 @@ class Migration(migrations.Migration):
             name='Taxonomy',
             fields=[
                 ('id', main.models.UUIDPkField(primary_key=True, db_column=b'pk', serialize=False, editable=False, max_length=36, blank=True)),
-                ('createdtime', models.DateTimeField(auto_now_add=True, db_column=b'createdTime')),
+                ('createdtime', models.DateTimeField(auto_now_add=True, null=True, db_column=b'createdTime')),
                 ('name', models.CharField(max_length=255, db_column=b'name', blank=True)),
                 ('type', models.CharField(default=b'open', max_length=50)),
             ],
@@ -715,7 +715,7 @@ class Migration(migrations.Migration):
             name='TaxonomyTerm',
             fields=[
                 ('id', main.models.UUIDPkField(primary_key=True, db_column=b'pk', serialize=False, editable=False, max_length=36, blank=True)),
-                ('createdtime', models.DateTimeField(auto_now_add=True, db_column=b'createdTime')),
+                ('createdtime', models.DateTimeField(auto_now_add=True, null=True, db_column=b'createdTime')),
                 ('term', models.CharField(max_length=255, db_column=b'term')),
                 ('taxonomy', models.ForeignKey(to='main.Taxonomy', db_column=b'taxonomyUUID')),
             ],
@@ -748,7 +748,7 @@ class Migration(migrations.Migration):
             name='TransferMetadataField',
             fields=[
                 ('id', main.models.UUIDPkField(primary_key=True, db_column=b'pk', serialize=False, editable=False, max_length=36, blank=True)),
-                ('createdtime', models.DateTimeField(auto_now_add=True, db_column=b'createdTime')),
+                ('createdtime', models.DateTimeField(auto_now_add=True, null=True, db_column=b'createdTime')),
                 ('fieldlabel', models.CharField(max_length=50, db_column=b'fieldLabel', blank=True)),
                 ('fieldname', models.CharField(max_length=50, db_column=b'fieldName')),
                 ('fieldtype', models.CharField(max_length=50, db_column=b'fieldType')),
@@ -808,7 +808,7 @@ class Migration(migrations.Migration):
                 ('id', main.models.UUIDPkField(primary_key=True, db_column=b'pk', serialize=False, editable=False, max_length=36, blank=True)),
                 ('watched_directory_path', models.TextField(null=True, db_column=b'watchedDirectoryPath', blank=True)),
                 ('only_act_on_directories', models.BooleanField(default=True, db_column=b'onlyActOnDirectories')),
-                ('lastmodified', models.DateTimeField(db_column=b'lastModified')),
+                ('lastmodified', models.DateTimeField(db_column=b'lastModified', auto_now=True)),
                 ('chain', models.ForeignKey(db_column=b'chain', to='main.MicroServiceChain', null=True)),
             ],
             options={
@@ -821,7 +821,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', main.models.UUIDPkField(primary_key=True, db_column=b'pk', serialize=False, editable=False, max_length=36, blank=True)),
                 ('description', models.TextField(null=True)),
-                ('lastmodified', models.DateTimeField(db_column=b'lastModified')),
+                ('lastmodified', models.DateTimeField(db_column=b'lastModified', auto_now=True)),
                 ('replaces', models.ForeignKey(db_column=b'replaces', to='main.WatchedDirectoryExpectedType', null=True)),
             ],
             options={
@@ -880,13 +880,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='microservicechainlink',
             name='defaultnextchainlink',
-            field=models.ForeignKey(to='main.MicroServiceChainLink', db_column=b'defaultNextChainLink'),
+            field=models.ForeignKey(to='main.MicroServiceChainLink', null=True, db_column=b'defaultNextChainLink'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='microservicechainlink',
             name='replaces',
-            field=models.ForeignKey(related_name='replaced_by', db_column=b'replaces', to='main.MicroServiceChainLink'),
+            field=models.ForeignKey(related_name='replaced_by', db_column=b'replaces', to='main.MicroServiceChainLink', null=True, blank=True),
             preserve_default=True,
         ),
         migrations.AddField(
