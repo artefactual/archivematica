@@ -18,5 +18,23 @@
         "name": "demo", 
         "identifiertype": "repository code"
     }
+},
+{
+  "fields": {
+    "username": "keladry",
+    "first_name": "Keladry",
+    "last_name": "Mindelan",
+    "is_active": true,
+    "is_superuser": true,
+    "is_staff": true,
+    "last_login": "2016-02-05T00:24:09Z",
+    "groups": [],
+    "user_permissions": [],
+    "password": "pbkdf2_sha256$15000$dq63sJGkTF6C$/mDJUzeJQDz1eWnRQYEEbeBN+FVImEkilDsW25U2H3Y=",
+    "email": "keladry@mindelan.com",
+    "date_joined": "2016-02-05T00:24:09Z"
+  },
+  "model": "auth.user",
+  "pk": 1
 }
 ]
