@@ -45,10 +45,53 @@
         "filegrpuse": "preservation",
         "removedtime": null,
         "label": "",
+        "checksumtype": "sha256",
         "checksum": "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9",
         "enteredsystem": "2015-06-24T17:22:09Z",
         "currentlocation": "%SIPDirectory%objects/evelyn_s_photo-d8cc7af7-284a-42f5-b7f4-e181a0efc35f.tif",
         "size": 1446772
+    }
+},
+{
+    "pk": 28,
+    "model": "main.event",
+    "fields": {
+        "event_type": "creation",
+        "event_id": "a89e6b45-1ac0-49cc-9dda-a4d11ed63f2f",
+        "agents": [1,2,3],
+        "event_detail": "",
+        "file_uuid": "d8cc7af7-284a-42f5-b7f4-e181a0efc35f",
+        "event_outcome_detail": "",
+        "event_outcome": "",
+        "event_datetime": "2016-02-03T18:36:32"
+    }
+},
+{
+    "pk": 29,
+    "model": "main.event",
+    "fields": {
+        "event_type": "message digest calculation",
+        "event_id": "5c505f21-4e9a-49aa-b7dd-ed699fd4f8ef",
+        "agents": [1,2,3],
+        "event_detail": "program=\"python\"; module=\"hashlib.sha256()\"",
+        "file_uuid": "d8cc7af7-284a-42f5-b7f4-e181a0efc35f",
+        "event_outcome_detail": "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9",
+        "event_outcome": "",
+        "event_datetime": "2016-02-03T18:36:32"
+    }
+},
+{
+    "pk": 30,
+    "model": "main.event",
+    "fields": {
+        "event_type": "fixity check",
+        "event_id": "94ca2dee-b136-4a74-b477-a0b938bb49e9",
+        "agents": [1,2,3],
+        "event_detail": "program=\"python\"; module=\"hashlib.sha256()\"",
+        "file_uuid": "d8cc7af7-284a-42f5-b7f4-e181a0efc35f",
+        "event_outcome_detail": "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9 verified",
+        "event_outcome": "Pass",
+        "event_datetime": "2016-02-03T18:36:32"
     }
 }
 ]

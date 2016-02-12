@@ -232,15 +232,18 @@ def add_events(mets, sip_uuid):
 
 def add_new_files(mets, sip_uuid, sip_dir):
     """
-    Add new metadata files to structMap, fileSec. Parse metadata.csv to dmdSecs.
+    Add new files to structMap, fileSec.
+
+    This supports adding new metadata or preservation files.
+
+    If a new file is a metadata.csv, parse it to create dmdSecs.
     """
     # Find new metadata files
     # How tell new file from old with same name? Check hash?
     # QUESTION should the metadata.csv be parsed and only updated if different even if one already existed?
     new_files = []
-    metadata_path = os.path.join(sip_dir, 'objects', 'metadata')
     metadata_csv = None
-    for dirpath, _, filenames in os.walk(metadata_path):
+    for dirpath, _, filenames in os.walk(sip_dir):
         for filename in filenames:
             # Find in METS
             current_loc = os.path.join(dirpath, filename).replace(sip_dir, '%SIPDirectory%', 1)
@@ -250,11 +253,7 @@ def add_new_files(mets, sip_uuid, sip_dir):
             if fsentry is None:
                 # If not in METS, get File object and store for later
                 print(rel_path, 'not found in METS, must be new file')
-                f = models.File.objects.get(
-                    sip_id=sip_uuid,
-                    filegrpuse='metadata',
-                    currentlocation=current_loc,
-                )
+                f = models.File.objects.get(currentlocation=current_loc, sip_id=sip_uuid)
                 new_files.append(f)
                 if rel_path == 'objects/metadata/metadata.csv':
                     metadata_csv = f
@@ -269,7 +268,7 @@ def add_new_files(mets, sip_uuid, sip_dir):
     createmets2.globalTechMDCounter = int(mets.tree.xpath('count(mets:amdSec/mets:techMD)', namespaces=ns.NSMAP))
     createmets2.globalDigiprovMDCounter = int(mets.tree.xpath('count(mets:amdSec/mets:digiprovMD)', namespaces=ns.NSMAP))
 
-    metadata_fsentry = mets.get_file(label='metadata', type='Directory')
+    objects_fsentry = mets.get_file(label='objects', type='Directory')
 
     for f in new_files:
         # Create amdSecs
@@ -277,9 +276,9 @@ def add_new_files(mets, sip_uuid, sip_dir):
         amdsec, amdid = createmets2.getAMDSec(
             fileUUID=f.uuid,
             filePath=None,  # Only needed if use=original
-            use='metadata',
+            use=f.filegrpuse,
             type=None,  # Not used
-            sip_uuid=None,  # Not used
+            sip_uuid=sip_uuid,
             transferUUID=None,  # Only needed if use=original
             itemdirectoryPath=None,  # Only needed if use=original
             typeOfTransfer=None,  # Only needed if use=original
@@ -288,22 +287,29 @@ def add_new_files(mets, sip_uuid, sip_dir):
         print(f.uuid, 'has amdSec with ID', amdid)
 
         # Create parent directories if needed
-        dirs = os.path.dirname(f.currentlocation.replace('%SIPDirectory%objects/metadata/', '', 1)).split('/')
-        parent_fsentry = metadata_fsentry
+        dirs = os.path.dirname(f.currentlocation.replace('%SIPDirectory%objects/', '', 1)).split('/')
+        parent_fsentry = objects_fsentry
         for dirname in (d for d in dirs if d):
-            child = metsrw.FSEntry(
-                path=None,
-                type='Directory',
-                label=dirname,
-            )
-            parent_fsentry.add_child(child)
+            child = mets.get_file(type='Directory', label=dirname)
+            if child is None:
+                child = metsrw.FSEntry(
+                    path=None,
+                    type='Directory',
+                    label=dirname,
+                )
+                parent_fsentry.add_child(child)
             parent_fsentry = child
 
+        derived_from = None
+        if f.original_file_set.exists():
+            original_f = f.original_file_set.get().source_file
+            derived_from = mets.get_file(file_uuid=original_f.uuid)
         entry = metsrw.FSEntry(
             path=f.currentlocation.replace('%SIPDirectory%', '', 1),
-            use='metadata',
+            use=f.filegrpuse,
             type='Item',
             file_uuid=f.uuid,
+            derived_from=derived_from,
         )
         metsrw_amdsec = metsrw.AMDSec(tree=amdsec, section_id=amdid)
         entry.amdsecs.append(metsrw_amdsec)

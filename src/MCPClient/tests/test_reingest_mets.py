@@ -592,7 +592,7 @@ class TestAddEvents(TestCase):
 class TestAddingNewFiles(TestCase):
     """ Test adding new metadata files to the structMap & fileSec. (add_new_files) """
 
-    fixture_files = ['sip-reingest.json', 'files.json']
+    fixture_files = ['sip-reingest.json', 'files.json', 'reingest-preservation.json', 'agents.json']
     fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
 
     sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
@@ -667,7 +667,7 @@ class TestAddingNewFiles(TestCase):
         assert amdsec.findtext('.//premis:size', namespaces=NSMAP) == '154'
         assert amdsec.findtext('.//premis:originalName', namespaces=NSMAP) == '%SIPDirectory%metadata/metadata.csv'
 
-    def test_new_file_in_subdir(self):
+    def test_new_metadata_file_in_subdir(self):
         """ It should add the new subdirs to the structMap. """
         sip_dir = os.path.join(FIXTURES_DIR, 'metadata_file_in_subdir_sip', '')
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
@@ -710,6 +710,76 @@ class TestAddingNewFiles(TestCase):
         amdsec = root.find('mets:amdSec[@ID="' + adm_id + '"]', namespaces=NSMAP)
         assert amdsec is not None
         assert amdsec.findtext('.//premis:objectIdentifierValue', namespaces=NSMAP) == file_uuid
+
+    def test_new_preservation_file(self):
+        """
+        It should add an amdSec for the new file.
+        It should not have a reingestion event.
+        It should add the new file to the fileSec under 'preservation'.
+        It should add the new file to the structMap.
+        Done elsewhere:
+        update_object creates a new relationship in the original object.
+        add_events adds a new normalization event to the original object.
+        delete_files moves the old preservation object to 'deleted' fileGrp
+        """
+        # Verify existing
+        file_uuid = 'd8cc7af7-284a-42f5-b7f4-e181a0efc35f'
+        original_file_uuid = 'ae8d4290-fe52-4954-b72a-0f591bee2e2f'
+        file_path = 'evelyn_s_photo-d8cc7af7-284a-42f5-b7f4-e181a0efc35f.tif'
+        sip_dir = os.path.join(FIXTURES_DIR, 'new_preservation_file', '')
+        mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
+        assert len(mets.tree.findall('mets:amdSec', namespaces=NSMAP)) == 3
+        assert len(mets.tree.findall('mets:fileSec//mets:file', namespaces=NSMAP)) == 3
+        assert len(mets.tree.find('mets:fileSec/mets:fileGrp[@USE="preservation"]', namespaces=NSMAP)) == 1
+        assert len(mets.tree.findall('mets:structMap//mets:div', namespaces=NSMAP)) == 10
+        # Run test
+        mets = archivematicaCreateMETSReingest.add_new_files(mets, self.sip_uuid, sip_dir)
+        root = mets.serialize()
+        # Check fileSec
+        mets_grp = root.find('mets:fileSec/mets:fileGrp[@USE="preservation"]', namespaces=NSMAP)
+        assert len(mets_grp) == 2
+        file_ = mets_grp.find('mets:file[@ID="file-' + file_uuid + '"]', namespaces=NSMAP)
+        assert file_.attrib['GROUPID'] == 'Group-' + original_file_uuid
+        adm_id = file_.attrib['ADMID']
+        assert adm_id
+        assert len(file_) == 1
+        assert file_[0].tag == '{http://www.loc.gov/METS/}FLocat'
+        assert file_[0].attrib['LOCTYPE'] == 'OTHER'
+        assert file_[0].attrib['OTHERLOCTYPE'] == 'SYSTEM'
+        assert file_[0].attrib['{http://www.w3.org/1999/xlink}href'] == 'objects/evelyn_s_photo-d8cc7af7-284a-42f5-b7f4-e181a0efc35f.tif'
+        # Check structMap
+        div = root.find('mets:structMap/mets:div/mets:div[@LABEL="objects"]/mets:div[@LABEL="' + file_path + '"]', namespaces=NSMAP)
+        assert div is not None
+        assert div.attrib['TYPE'] == 'Item'
+        assert len(div) == 1
+        assert div[0].tag == '{http://www.loc.gov/METS/}fptr'
+        assert div[0].attrib['FILEID'] == 'file-' + file_uuid
+        # Check amdSec
+        assert len(root.findall('mets:amdSec', namespaces=NSMAP)) == 4
+        amdsec = root.find('mets:amdSec[@ID="' + adm_id + '"]', namespaces=NSMAP)
+        assert amdsec is not None
+        # Check techMD
+        premis_object = amdsec.find('.//premis:object', namespaces=NSMAP)
+        assert premis_object is not None
+        assert premis_object.findtext('.//premis:objectIdentifierValue', namespaces=NSMAP) == file_uuid
+        assert premis_object.findtext('.//premis:messageDigestAlgorithm', namespaces=NSMAP) == 'sha256'
+        assert premis_object.findtext('.//premis:messageDigest', namespaces=NSMAP) == 'd82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9'
+        assert premis_object.findtext('.//premis:size', namespaces=NSMAP) == '1446772'
+        assert premis_object.findtext('.//premis:formatName', namespaces=NSMAP) == 'TIFF'
+        assert premis_object.findtext('.//premis:originalName', namespaces=NSMAP) == '%SIPDirectory%objects/evelyn_s_photo-d8cc7af7-284a-42f5-b7f4-e181a0efc35f.tif'
+        assert premis_object.findtext('.//premis:relationshipType', namespaces=NSMAP) == 'derivation'
+        assert premis_object.findtext('.//premis:relationshipSubType', namespaces=NSMAP) == 'has source'
+        assert premis_object.findtext('.//premis:relatedObjectIdentifierValue', namespaces=NSMAP) == original_file_uuid
+        assert premis_object.findtext('.//premis:relatedEventIdentifierValue', namespaces=NSMAP) == '291f9be4-d19a-4bcc-8e1c-d3f01e4a48b1'
+        # Events: creation, message digest calculation, fixity check
+        assert amdsec.xpath('.//premis:eventType[text()="creation"]', namespaces=NSMAP) != []
+        assert amdsec.xpath('.//premis:eventType[text()="message digest calculation"]', namespaces=NSMAP) != []
+        assert amdsec.xpath('.//premis:eventType[text()="fixity check"]', namespaces=NSMAP) != []
+        # Agents
+        assert amdsec.xpath('.//premis:agentIdentifierValue[text()="Archivematica-1.4.0"]', namespaces=NSMAP) != []
+        assert amdsec.xpath('.//premis:agentIdentifierValue[text()="demo"]', namespaces=NSMAP) != []
+        assert amdsec.xpath('''.//premis:agentName[text()='username="kmindelan", first_name="Keladry", last_name="Mindelan"']''', namespaces=NSMAP) != []
+
 
 class TestDeleteFiles(TestCase):
     """ Test marking files in the METS as deleted. (delete_files) """
