@@ -572,21 +572,37 @@ def createDigiprovMDAgents(fileGroupIdentifier=None):
 
 
 
-def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath, typeOfTransfer, baseDirectoryPath):
+def getAMDSec(fileUUID, filePath, use, type, sip_uuid, transferUUID, itemdirectoryPath, typeOfTransfer, baseDirectoryPath):
+    """
+    Creates an amdSec.
+
+    techMD contains a PREMIS:OBJECT, see createTechMD
+    rightsMD contain PREMIS:RIGHTS, see archivematicaGetRights, archivematicaCreateMETSRightsDspaceMDRef or getTrimFileAmdSec
+    digiprovMD contain PREMIS:EVENT and PREMIS:AGENT, see createDigiprovMD and createDigiprovMDAgents
+
+    :param fileUUID: UUID of the file
+    :param filePath: For archivematicaCreateMETSRightsDspaceMDRef
+    :param use: If "original", look for rights metadata.
+    :param type: Unused
+    :param sip_uuid: UUID of the SIP this file is in, to check for original file rights metadata.
+    :param transferUUID: UUID of the Transfer this file was in, to check for original file rights metadata.
+    :param itemdirectoryPath: For archivematicaCreateMETSRightsDspaceMDRef
+    :param typeOfTransfer: Transfer type, used for checking for DSpace or TRIM rights metadata.
+    :param baseDirectoryPath: For getTrimFileAmdSec
+    """
     global globalAmdSecCounter
     global globalRightsMDCounter
     global globalDigiprovMDCounter
     globalAmdSecCounter += 1
     AMDID = "amdSec_%s" % (globalAmdSecCounter.__str__())
-    AMD = etree.Element(ns.metsBNS + "amdSec")
-    AMD.set("ID", AMDID)
+    AMD = etree.Element(ns.metsBNS + "amdSec", ID=AMDID)
     ret = (AMD, AMDID)
+
     #tech MD
-    #digiprob MD
     AMD.append(createTechMD(fileUUID))
 
     if use == "original":
-        metadataAppliesToList = [(fileUUID, FileMetadataAppliesToType), (id, SIPMetadataAppliesToType), (transferUUID, TransferMetadataAppliesToType)]
+        metadataAppliesToList = [(fileUUID, FileMetadataAppliesToType), (sip_uuid, SIPMetadataAppliesToType), (transferUUID, TransferMetadataAppliesToType)]
         for a in archivematicaGetRights(metadataAppliesToList, fileUUID):
             globalRightsMDCounter +=1
             rightsMD = etree.SubElement(AMD, ns.metsBNS + "rightsMD")
@@ -604,7 +620,7 @@ def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath
                 rightsMD.append(a)
 
         elif typeOfTransfer == "TRIM":
-            digiprovMD = getTrimFileAmdSec(baseDirectoryPath, id, fileUUID)
+            digiprovMD = getTrimFileAmdSec(baseDirectoryPath, sip_uuid, fileUUID)
             globalDigiprovMDCounter += 1
             digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
             AMD.append(digiprovMD)
@@ -612,7 +628,7 @@ def getAMDSec(fileUUID, filePath, use, type, id, transferUUID, itemdirectoryPath
     for a in createDigiprovMD(fileUUID):
         AMD.append(a)
 
-    for a in createDigiprovMDAgents(id):
+    for a in createDigiprovMDAgents(sip_uuid):
         AMD.append(a)
     return ret
 
