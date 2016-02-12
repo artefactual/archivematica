@@ -279,7 +279,7 @@ def add_new_files(mets, sip_uuid, sip_dir):
             filePath=None,  # Only needed if use=original
             use='metadata',
             type=None,  # Not used
-            id=None,  # Not used
+            sip_uuid=None,  # Not used
             transferUUID=None,  # Only needed if use=original
             itemdirectoryPath=None,  # Only needed if use=original
             typeOfTransfer=None,  # Only needed if use=original
