@@ -109,7 +109,7 @@ def _get_sip(func):
     def wrapper(request, mapping):
         arrange = SIPArrange.objects.get(arrange_path=os.path.join(mapping.arrange_path, ''))
         if arrange.sip is None:
-            arrange.sip = SIP.objects.create(uuid=(uuid.uuid4()), currentlocation=None)
+            arrange.sip = SIP.objects.create(uuid=(uuid.uuid4()), currentpath=None)
             arrange.save()
         return func(request, arrange.sip)
     return wrapper
