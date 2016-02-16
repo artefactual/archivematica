@@ -440,6 +440,8 @@ def start_reingest(request):
         models.Task.objects.filter(job__sipuuid=sip_uuid).delete()
         models.Job.objects.filter(sipuuid=sip_uuid).delete()
         models.SIP.objects.filter(uuid=sip_uuid).delete()  # Delete is cascading
+        models.RightsStatement.objects.filter(metadataappliestoidentifier=sip_uuid).delete()  # Not actually a foreign key
+        models.DublinCore.objects.filter(metadataappliestoidentifier=sip_uuid).delete()
 
         # Move to watched directory
         shared_directory_path = helpers.get_server_config_value('sharedDirectory')
