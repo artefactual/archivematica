@@ -386,14 +386,17 @@ def copy_from_arrange_to_completed(request, filepath=None, sip_uuid=None):
     # can optionally pass in the UUID to an unstarted SIP entity
     if sip_uuid is None:
         sip_uuid = request.POST.get('uuid')
-    try:
-        uuid.UUID(sip_uuid)
-    except ValueError:
-        response = {
-            'message': "Provided UUID ({}) isn't a valid UUID!".format(sip_uuid),
-            'error': True,
-        }
-        return helpers.json_response(response, status_code=400)
+    # if sip_uuid is None here, it will be created later,
+    # but we want to sanity-check provided values at this point.
+    if sip_uuid is not None:
+        try:
+            uuid.UUID(sip_uuid)
+        except ValueError:
+            response = {
+                'message': "Provided UUID ({}) isn't a valid UUID!".format(sip_uuid),
+                'error': True,
+            }
+            return helpers.json_response(response, status_code=400)
 
     # Error checking
     if not filepath.startswith(DEFAULT_ARRANGE_PATH):
