@@ -180,18 +180,6 @@ def record(client, request, system='', record_id=''):
 
 
 @_authenticate_to_archivesspace
-def get_records_by_accession(client, request, system='', accession=''):
-    page = request.GET.get('page', 1)
-    page_size = request.GET.get('page_size', 30)
-
-    try:
-        records = client.find_collections_by_accession(accession, page=page, page_size=page_size)
-        return helpers.json_response(records)
-    except ArchivesSpaceError as e:
-        return helpers.json_response({"error": True, "message": str(e)})
-
-
-@_authenticate_to_archivesspace
 def record_children(client, request, system='', record_id=''):
     record_id = _normalize_record_id(record_id)
 

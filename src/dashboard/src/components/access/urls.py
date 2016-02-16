@@ -11,7 +11,6 @@ urlpatterns = patterns('',
     url(r'(?P<system>archivesspace|atk)/(?P<record_id>[A-Za-z0-9-_]+)/create_directory_within_arrange/$', views.access_create_directory),
     url(r'(?P<system>archivesspace|atk)/(?P<record_id>[A-Za-z0-9-_]+)/rights/$', views.access_sip_rights),
     url(r'(?P<system>archivesspace|atk)/(?P<record_id>[A-Za-z0-9-_]+)/metadata/$', views.access_sip_metadata),
-    url(r'(?P<system>archivesspace|atk)/accession/(?P<accession>.+)/$', views.get_records_by_accession),
     url(r'(?P<system>archivesspace|atk)/(?P<record_id>.+)/children/$', views.record_children),
     # this API exists only for ArchivesSpace, not ATK
     url(r'archivesspace/(?P<record_id>.+)/digital_object_components/$', views.digital_object_components, {'system': 'archivesspace'}),
