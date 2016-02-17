@@ -15,17 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+import re
+
 from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
-from django.shortcuts import redirect, render
 from django.http import HttpResponse
-from contrib import utils
-from components.rights import forms
-from main import models
-from components import helpers
-import re
-from components import decorators
+from django.shortcuts import redirect, render
 from django.template import RequestContext
+
+from components import decorators
+from components import helpers
+from components.rights import forms
+from contrib import utils
+from main import models
+
+LOGGER = logging.getLogger('archivematica.dashboard')
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Rights-related
@@ -571,12 +576,12 @@ def rights_list(request, uuid, section):
     # The only way I've found to get the related transfer of a SIP is looking into the File table
     if section is "ingest":
         try:
-            transfer_uuid = models.File.objects.filter(sip__uuid__exact=uuid)[0].transfer.uuid
+            transfer_uuids = models.File.objects.filter(sip_id=uuid, removedtime__isnull=True, transfer_id__isnull=False).values_list('transfer', flat=True).distinct()
             transfer_grants = models.RightsStatementRightsGranted.objects.filter(
-                rightsstatement__metadataappliestotype=types['transfer'],
-                rightsstatement__metadataappliestoidentifier__exact=transfer_uuid
+                rightsstatement__metadataappliestotype__description=types['transfer'],
+                rightsstatement__metadataappliestoidentifier__in=transfer_uuids
             )
-        except:
-            pass
+        except Exception:
+            LOGGER.exception('Error fetching Transfer rights')
 
     return render(request, 'rights/rights_list.html', locals())
