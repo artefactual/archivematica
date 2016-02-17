@@ -13,6 +13,23 @@ form li>label {
   clear: both;
   width: auto;
 }
+form ul:after {
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0;
+}
+input#id_processing_config {
+  display: block;
+  clear: left;
+}
+.helptext {
+  display: inline-block;
+  margin-top: -10px;
+  color: #999;
+}
 </style>
 
 {% endblock %}
@@ -25,7 +42,7 @@ form li>label {
     {% csrf_token %}
     <p>Package: {{ package_uuid }}</p>
     <div class='clearfix'>{{ form }}</div>
-    <a href="{% url 'archival_storage_index' %}" class='btn'>Cancel</a> <input class='btn primary' type="submit" value="Re-ingest Package" />
+    <a href="{% url 'archival_storage_index' %}" class="btn">Cancel</a> <input class="btn primary" type="submit" value="Re-ingest package" />
   </form>
 </div>
 {% endblock %}

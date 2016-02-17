@@ -187,13 +187,13 @@ def createUnitAndJobChainThreaded(path, config, terminate=True):
         logger.exception('Error creating threads to watch directories')
 
 def watchDirectories():
-    """Start watching the watched directories defined in the WatchedDirectories table in the database."""
+    """
+    Start watching the watched directories defined in the WatchedDirectories
+    table in the database.
+    """
     watched_dir_path = config.get('MCPServer', "watchDirectoryPath")
     interval = config.getint('MCPServer', "watchDirectoriesPollInterval")
-
-    watched_directories = WatchedDirectory.objects.all()
-
-    for watched_directory in watched_directories:
+    for watched_directory in WatchedDirectory.objects.all():
         directory = watched_directory.watched_directory_path.replace("%watchDirectoryPath%", watched_dir_path, 1)
 
         # Tuple of variables that may be used by a callback
