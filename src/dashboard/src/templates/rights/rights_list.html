@@ -31,14 +31,14 @@
           {% for grant in grants %}
             <tr>
               <td>{{ grant.act }}</td>
-              <td>{{ grant.basis }}</td>
+              <td>{{ grant.rightsstatement.rightsbasis }}</td>
               <td>
-                {% for restriction in grant.restrictions %}
-                  <div>{{ restriction }}</div>
+                {% for restriction in grant.restrictions.all %}
+                  <div>{{ restriction.restriction }}</div>
                 {% endfor %}
               </td>
               <td>{{ grant.startdate }}</td>
-              <td>{{ grant.enddate }}</td>
+              <td>{% if grant.enddateopen %}(open){% else %}{{ grant.enddate}}{% endif %}</td>
               <td>
                 {% if section == 'ingest' %}
                   <a href="{% url 'components.rights.views.ingest_rights_edit' uuid grant.rightsstatement.id %}">Edit</a>
@@ -53,14 +53,14 @@
           {% for grant in transfer_grants %}
             <tr>
               <td>{{ grant.act }}</td>
-              <td>{{ grant.basis }}</td>
+              <td>{{ grant.rightsstatement.rightsbasis }}</td>
               <td>
-                {% for restriction in grant.restrictions %}
-                  <div>{{ restriction }}</div>
+                {% for restriction in grant.restrictions.all %}
+                  <div>{{ restriction.restriction }}</div>
                 {% endfor %}
               </td>
               <td>{{ grant.startdate }}</td>
-              <td>{{ grant.enddate }}</td>
+              <td>{% if grant.enddateopen %}(open){% else %}{{ grant.enddate}}{% endif %}</td>
               <td>Transfer</td>
             </tr>
           {% endfor %}

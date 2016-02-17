@@ -528,34 +528,9 @@ def rights_list(request, uuid, section):
         rightsstatement__metadataappliestoidentifier__exact=uuid
     )
 
-    # create result list that incorporates multiple restriction records
-    modifiedGrants = []
-    for grant in grants:
-        item = {
-            'id':           grant.pk,
-            'act':          grant.act,
-            'basis':        grant.rightsstatement.rightsbasis,
-            'restrictions': [],
-            'startdate':    grant.startdate,
-            'enddate':      grant.enddate,
-            'rightsstatement': grant.rightsstatement
-        }
-
-        if (grant.enddateopen):
-            item['enddate'] = '(open)'
-
-        restriction_data = models.RightsStatementRightsGrantedRestriction.objects.filter(rightsgranted=grant)
-        restrictions = []
-        for restriction in restriction_data:
-            #return HttpResponse(restriction.restriction)
-            restrictions.append(restriction.restriction)
-        item['restrictions'] = restrictions
-
-        modifiedGrants.append(item)
-    grants = modifiedGrants
-
     # When listing ingest rights we also want to show transfer rights
     # The only way I've found to get the related transfer of a SIP is looking into the File table
+    transfer_grants = None
     if section is "ingest":
         try:
             transfer_uuids = models.File.objects.filter(sip_id=uuid, removedtime__isnull=True, transfer_id__isnull=False).values_list('transfer', flat=True).distinct()
@@ -566,4 +541,11 @@ def rights_list(request, uuid, section):
         except Exception:
             LOGGER.exception('Error fetching Transfer rights')
 
-    return render(request, 'rights/rights_list.html', locals())
+    return render(request, 'rights/rights_list.html', {
+        'grants': grants,
+        'jobs': jobs,
+        'name': name,
+        'section': section,
+        'transfer_grants': transfer_grants,
+        'uuid': uuid,
+    })
