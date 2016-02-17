@@ -213,7 +213,7 @@ def getrightsGranted(statement, parent):
         etree.SubElement(rightsGranted, ns.premisBNS + "act").text = granted.act
         
         restriction = "Undefined"
-        for restriction in granted.rightsstatementrightsgrantedrestriction_set.all():
+        for restriction in granted.restrictions.all():
             restriction = restriction.restriction
             if not restriction.lower() in ["disallow", "conditional", "allow"]:
                 print >>sys.stderr, "The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional':", restriction
@@ -238,5 +238,5 @@ def getrightsGranted(statement, parent):
                 etree.SubElement(termOfGrant, ns.premisBNS + "endDate").text = formatDate(granted.enddate)
 
         # 4.1.6.4 rightsGrantedNote (O, R)
-        for note in granted.rightsstatementrightsgrantednote_set.all():
+        for note in granted.notes.all():
             etree.SubElement(rightsGranted, ns.premisBNS + "rightsGrantedNote").text = note.rightsgrantednote

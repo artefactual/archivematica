@@ -6,12 +6,22 @@ import sys
 
 from django.test import TestCase
 
+from lxml import etree
+
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(THIS_DIR, '../lib/clientScripts')))
 import archivematicaCreateMETS2
 import archivematicaCreateMETSMetadataCSV
+import archivematicaCreateMETSRights
 
-from main.models import DublinCore
+from main.models import RightsStatement
+
+NSMAP = {
+    'dc': 'http://purl.org/dc/elements/1.1/',
+    'dcterms': 'http://purl.org/dc/terms/',
+    'mets': 'http://www.loc.gov/METS/',
+    'premis': 'info:lc/xmlns/premis-v2',
+}
 
 class TestDublinCore(TestCase):
 
@@ -367,3 +377,41 @@ class TestCSVMetadata(TestCase):
         assert dc
         assert len(dc) == 1
         assert 'objects/foo.jpg' in dc
+
+class TestRights(TestCase):
+    """ Test archivematicaCreateMETSRights creating rightsMD. """
+
+    fixture_files = ['rights.json']
+    fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
+
+    def test_create_rights_granted(self):
+        # Setup
+        elem = etree.Element("{info:lc/xmlns/premis-v2}rightsStatement", nsmap={'premis': NSMAP['premis']})
+        statement = RightsStatement.objects.get(id=1)
+        # Test
+        archivematicaCreateMETSRights.getrightsGranted(statement, elem)
+        # Verify
+        assert len(elem) == 1
+        rightsgranted = elem[0]
+        assert rightsgranted.tag == '{info:lc/xmlns/premis-v2}rightsGranted'
+        assert len(rightsgranted.attrib) == 0
+        assert len(rightsgranted) == 4
+        assert rightsgranted[0].tag == '{info:lc/xmlns/premis-v2}act'
+        assert rightsgranted[0].text == 'Disseminate'
+        assert len(rightsgranted[0].attrib) == 0
+        assert len(rightsgranted[0]) == 0
+        assert rightsgranted[1].tag == '{info:lc/xmlns/premis-v2}restriction'
+        assert rightsgranted[1].text == 'Allow'
+        assert len(rightsgranted[1].attrib) == 0
+        assert len(rightsgranted[1]) == 0
+        assert rightsgranted[2].tag == '{info:lc/xmlns/premis-v2}termOfGrant'
+        assert len(rightsgranted[2].attrib) == 0
+        assert len(rightsgranted[2]) == 2
+        assert rightsgranted[2][0].tag == '{info:lc/xmlns/premis-v2}startDate'
+        assert rightsgranted[2][0].text == '2000'
+        assert rightsgranted[2][1].tag == '{info:lc/xmlns/premis-v2}endDate'
+        assert rightsgranted[2][1].text == 'OPEN'
+        assert rightsgranted[3].tag == '{info:lc/xmlns/premis-v2}rightsGrantedNote'
+        assert rightsgranted[3].text == 'Attribution required'
+        assert len(rightsgranted[3].attrib) == 0
+        assert len(rightsgranted[3]) == 0
