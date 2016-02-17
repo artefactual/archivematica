@@ -532,7 +532,7 @@ class RightsStatementRightsGranted(models.Model):
 
 class RightsStatementRightsGrantedNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
-    rightsgranted = models.ForeignKey(RightsStatementRightsGranted, db_column='fkRightsStatementRightsGranted')
+    rightsgranted = models.ForeignKey(RightsStatementRightsGranted, related_name='notes', db_column='fkRightsStatementRightsGranted')
     rightsgrantednote = models.TextField(db_column='rightsGrantedNote', verbose_name='Rights note')
 
     class Meta:
@@ -541,7 +541,7 @@ class RightsStatementRightsGrantedNote(models.Model):
 
 class RightsStatementRightsGrantedRestriction(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
-    rightsgranted = models.ForeignKey(RightsStatementRightsGranted, db_column='fkRightsStatementRightsGranted')
+    rightsgranted = models.ForeignKey(RightsStatementRightsGranted, related_name='restrictions', db_column='fkRightsStatementRightsGranted')
     restriction = models.TextField(db_column='restriction')
 
     class Meta:
