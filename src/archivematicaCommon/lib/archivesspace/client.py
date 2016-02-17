@@ -506,11 +506,11 @@ class ArchivesSpaceClient(object):
                 content = [subnote["content"] for subnote in pnote["subnotes"]]
             else:
                 content = pnote["content"]
-
+        
             new_object["notes"].append({
                 "jsonmodel_type": "note_digital_object",
                 "type": dnote,
-                "label": pnote["label"],
+                "label": pnote.get("label", ""),
                 "content": content,
                 "publish": pnote["publish"],
             })
