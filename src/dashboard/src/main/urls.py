@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 from django.conf import settings
 from main import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     # Index
     url(r'^$', views.home),
 
@@ -40,4 +40,4 @@ urlpatterns = patterns('',
     url(r'status/$', views.status),
     url(r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/(?P<delete_id>\d+)/$', views.formdata_delete),
     url(r'formdata/(?P<type>\w+)/(?P<parent_id>\d+)/$', views.formdata),
-)
+]

@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 from django.conf import settings
 from components.administration import views
 from components.administration import views_processing
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$', views.administration),
     url(r'reports/failures/delete/(?P<report_id>\w+)/$', views.failure_report_delete),
     url(r'reports/failures/(?P<report_id>\w+)/$', views.failure_report),
@@ -45,4 +45,4 @@ urlpatterns = patterns('',
     url(r'taxonomy/term/(?P<term_uuid>' + settings.UUID_REGEX + ')/delete/$', views.term_delete),
     url(r'taxonomy/(?P<taxonomy_uuid>' + settings.UUID_REGEX + ')/$', views.terms),
     url(r'taxonomy/$', views.taxonomy),
-)
+]

@@ -1,6 +1,6 @@
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 from components.appraisal import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$', views.appraisal, name='appraisal_index')
-)
+]

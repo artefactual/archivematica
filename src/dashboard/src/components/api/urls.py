@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 from django.conf import settings
 
 from components.api import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'transfer/approve', views.approve_transfer),
     url(r'transfer/unapproved', views.unapproved_transfers),
     url(r'transfer/status/(?P<unit_uuid>' + settings.UUID_REGEX + ')', views.status, {'unit_type': 'unitTransfer'}),
@@ -36,4 +36,4 @@ urlpatterns = patterns('',
     url(r'filesystem/metadata/$', views.path_metadata),
 
     url(r'processing-configuration/(?P<name>\w{1,16})', views.processing_configuration),
-)
+]

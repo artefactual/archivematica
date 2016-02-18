@@ -15,15 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 from django.conf import settings
 from components.backlog import views
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^$', views.execute, name='backlog_index'),
     url(r'search/$', views.search, name='backlog_search'),
     url(r'delete/(?P<uuid>' + settings.UUID_REGEX + ')/$', views.delete, name='backlog_delete'),
     url(r'download/(?P<uuid>' + settings.UUID_REGEX + ')/$', views.download, name='backlog_download'),
-
-)
+]

@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 from django.conf import settings
 from components.transfer import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$', views.grid),
 
     # Transfer metadata set functions
@@ -34,4 +34,4 @@ urlpatterns = patterns('',
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/metadata/$', views.transfer_metadata_list),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/metadata/add/$', views.transfer_metadata_edit),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/metadata/(?P<id>\d+)/$', views.transfer_metadata_edit),
-)
+]

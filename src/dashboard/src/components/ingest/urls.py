@@ -15,13 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 from django.conf import settings
 from components.ingest import views
 from components.ingest import views_atk
 from components.ingest import views_as
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$', views.ingest_grid,
         name='ingest_index'),
     url(r'^sips/$', views.SipsView.as_view()),
@@ -42,10 +42,10 @@ urlpatterns = patterns('',
     url(r'^backlog/file/download/(?P<uuid>' + settings.UUID_REGEX + ')/', views.transfer_file_download),
     url(r'^backlog/$', views.transfer_backlog, {'ui': 'legacy'}),
     url(r'^appraisal_list/$', views.transfer_backlog, {'ui': 'appraisal'}),
-)
+]
 
 # Archivists Toolkit
-urlpatterns += patterns('',
+urlpatterns += [
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/match/resource/(?P<resource_id>\d+)/$', views_atk.ingest_upload_atk_match_dip_objects_to_resource_levels),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/match/resourcecomponent/(?P<resource_component_id>\d+)/$', views_atk.ingest_upload_atk_match_dip_objects_to_resource_component_levels),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/resource/(?P<resource_id>\d+)/$', views_atk.ingest_upload_atk_resource),
@@ -53,10 +53,10 @@ urlpatterns += patterns('',
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/save/$', views_atk.ingest_upload_atk_save),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/reset/$', views_atk.ingest_upload_atk_reset),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/atk/$', views_atk.ingest_upload_atk)
-)
+]
 
 # ArchivesSpace
-urlpatterns = urlpatterns + patterns('components.ingest.views_as',
+urlpatterns += [
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/match/resource/(?P<resource_id>.+)/$', views_as.ingest_upload_as_match_dip_objects_to_resource_levels),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/match/resourcecomponent/(?P<resource_component_id>.+)/$', views_as.ingest_upload_as_match_dip_objects_to_resource_component_levels),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/resource/(?P<resource_id>.+)/$', views_as.ingest_upload_as_resource),
@@ -66,4 +66,4 @@ urlpatterns = urlpatterns + patterns('components.ingest.views_as',
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/reset/$', views_as.ingest_upload_as_reset),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/review/$', views_as.ingest_upload_as_review_matches),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/upload/as/$', views_as.ingest_upload_as)
-)
+]

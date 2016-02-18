@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url, include, patterns
+from django.conf.urls import url, include
 from django.conf import settings
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^mcp/', include('components.mcp.urls')),
     url(r'^installer/', include('installer.urls')),
     url(r'^administration/accounts/', include('components.accounts.urls')),
@@ -37,4 +37,4 @@ urlpatterns = patterns('',
     url(r'^access/', include('components.access.urls')),
     url(r'^backlog/', include('components.backlog.urls')),
     url(r'', include('main.urls'))
-)
+]

@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 from django.conf import settings
 from components.filesystem_ajax import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^download_ss/$', views.download_ss),
     url(r'^download_fs/$', views.download_fs),
     url(r'^(?P<uuid>' + settings.UUID_REGEX + ')/download/$', views.download_by_uuid),
@@ -32,4 +32,4 @@ urlpatterns = patterns('',
     url(r'^transfer/$', views.start_transfer_logged_in),
     url(r'^copy_from_arrange/$', views.copy_from_arrange_to_completed),
     url(r'^copy_metadata_files/$', views.copy_metadata_files),
-)
+]
