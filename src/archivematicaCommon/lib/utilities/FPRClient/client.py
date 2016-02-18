@@ -61,8 +61,9 @@ class FPRClient(object):
             fields['format'] = fields.pop('fmt')
 
         # Only keep fields that are in the model
+        model_field_names = [f.name for f in model._meta.get_fields()]
         valid_fields = {k: v for k, v in fields.iteritems()
-                        if k in model._meta.get_all_field_names()}
+                        if k in model_field_names}
 
         # Convert foreign keys from URIs to just UUIDs
         for field, value in valid_fields.iteritems():
@@ -134,8 +135,8 @@ class FPRClient(object):
         for table, resource in resources:
             print 'resource:', resource
             try:
-                table._meta.get_field_by_name('lastmodified')
-            except django.db.models.fields.FieldDoesNotExist:
+                table._meta.get_field('lastmodified')
+            except django.core.exceptions.FieldDoesNotExist:
                 start_at = None
             else:
                 start_at = maxLastUpdateAtStart
