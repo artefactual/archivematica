@@ -1,1 +1,30 @@
-{% include "{{ STATIC_URL }}appraisal/index.html" %}
+{% extends "layout_fluid.html" %}
+
+{% block title %}Appraisal{% endblock %}
+{% block h1 %}Appraisal{% endblock %}
+{% block page_id %}Appraisal{% endblock %}
+
+{% block extra_css %}
+<link href="{{ STATIC_URL }}vendor/select2/select2.css" rel="stylesheet" type="text/css" />
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/backbone-file-explorer.css" />
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/directory_picker.css" />
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/transfer_grid.css" />
+<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/search.css" />
+{% endblock %}
+
+{% block js %}
+<script src="{{ STATIC_URL }}vendor/jquery.js"></script>
+<script src="{{ STATIC_URL }}vendor/underscore.js"></script>
+<script src="{{ STATIC_URL }}vendor/backbone.js"></script>
+<script src="{{ STATIC_URL }}js/advanced-search-query-creator.js"></script>
+<script src="{{ STATIC_URL }}js/ingest/backlog.js"></script>
+<script src="{{ STATIC_URL }}js/appraisal_tab.js"></script>
+{% endblock %}
+
+{% block content %}
+{% verbatim %}
+<div ng-app="appraisalTab">
+    <ng-include src="'front_page/content.html'"></ng-include>
+</div>
+{% endverbatim %}
+{% endblock %}
