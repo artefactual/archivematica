@@ -163,9 +163,9 @@ li.user > a {
 #sip-header {
   font-weight: bold;
   padding: 3px 2px;
-  height: 19px;
+  height: 2em;
   margin-bottom: 7px;
-  background: url(/media/images/dots.gif) repeat-x bottom;
+  border-bottom: 1px dotted #CACACA;
 }
 
 #sip-header > div { float: left; padding: 3px 2px 3px 2px; }
