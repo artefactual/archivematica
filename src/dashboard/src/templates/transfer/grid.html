@@ -22,6 +22,7 @@
   <script type="text/javascript" src="{{ STATIC_URL }}js/directory_picker.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/transfer/component_directory_select.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/base64.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/transfer_browser.js"></script>
 
   <script type="text/javascript">
 
@@ -64,7 +65,9 @@
 
 {% block content %}
 
-  {% include 'transfer/browser.html' %}
+  <div ng-app="transferBrowse">
+    <ng-include src="'front_page/content.html'"></ng-include>
+  </div>
 
   <div id="sip-container">
     <div style='float:right'>
