@@ -164,6 +164,8 @@ function setupBacklogBrowser() {
       move.containerPath = arrangeDir+'/'
     } else if (destination.type() == 'directory') {
       move.containerPath+='/'
+    } else if (destination.type() == 'file') {
+      move.containerPath = move.containerPath.match(/.*\//)[0];
     }
 
     $.post(

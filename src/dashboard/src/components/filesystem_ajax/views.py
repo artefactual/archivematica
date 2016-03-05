@@ -577,7 +577,7 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
     return ret
 
 
-def copy_files_to_arrange(sourcepath, destination):
+def copy_files_to_arrange(sourcepath, destination, fetch_children=False, backlog_uuid=None):
     sourcepath = sourcepath.lstrip('/')  # starts with 'originals/', not '/originals/'
     # Insert each file into the DB
 
@@ -586,9 +586,7 @@ def copy_files_to_arrange(sourcepath, destination):
         raise ValueError("GET parameter 'filepath' or 'destination' was blank.")
     if not destination.startswith(DEFAULT_ARRANGE_PATH):
         raise ValueError('{} must be in arrange directory.'.format(destination))
-    # If drop onto a file, drop it into its parent directory instead
-    if not destination.endswith('/'):
-        destination = os.path.dirname(destination)
+
     try:
         leaf_dir = sourcepath.split('/')[-2]
     except IndexError:
@@ -600,8 +598,8 @@ def copy_files_to_arrange(sourcepath, destination):
                          sourcepath, DEFAULT_ARRANGE_PATH))
 
     # Create new SIPArrange entry for each object being copied over
-    # IDEA memoize the backlog location?
-    backlog_uuid = storage_service.get_location(purpose='BL')[0]['uuid']
+    if not backlog_uuid:
+        backlog_uuid = storage_service.get_location(purpose='BL')[0]['uuid']
     to_add = []
 
     # Construct the base arrange_path differently for files vs folders
@@ -620,12 +618,16 @@ def copy_files_to_arrange(sourcepath, destination):
                'file_uuid': None,
                'transfer_uuid': None
             })
-        try:
-            to_add.extend(_get_arrange_directory_tree(backlog_uuid, sourcepath, arrange_path))
-        except storage_service.ResourceNotFound as e:
-            raise ValueError('Storage Service failed with the message: {}'.format(str(e)))
+        if fetch_children:
+            try:
+                to_add.extend(_get_arrange_directory_tree(backlog_uuid, sourcepath, arrange_path))
+            except storage_service.ResourceNotFound as e:
+                raise ValueError('Storage Service failed with the message: {}'.format(str(e)))
     else:
-        arrange_path = os.path.join(destination, os.path.basename(sourcepath))
+        if destination.endswith('/'):
+            arrange_path = os.path.join(destination, os.path.basename(sourcepath))
+        else:
+            arrange_path = destination
         relative_path = sourcepath.replace(DEFAULT_BACKLOG_PATH, '', 1)
         try:
             file_info = storage_service.get_file_metadata(relative_path=relative_path)[0]
@@ -639,8 +641,8 @@ def copy_files_to_arrange(sourcepath, destination):
            'transfer_uuid': transfer_uuid
         })
 
-    logger.info('copy_to_arrange: arrange_path: {}'.format(arrange_path))
-    logger.debug('copy_to_arrange: files to be added: {}'.format(to_add))
+    logger.info('arrange_path: %s', arrange_path)
+    logger.debug('files to be added: %s', to_add)
 
     for entry in to_add:
         try:
@@ -658,46 +660,69 @@ def copy_files_to_arrange(sourcepath, destination):
             logger.exception('Integrity error inserting: %s', entry)
 
 
-def copy_to_arrange(request, sourcepath=None, destination=None):
-    """ Add files to in-progress SIPs being arranged.
+def copy_to_arrange(request, sources=None, destinations=None, fetch_children=False):
+    """
+    Add files to in-progress SIPs being arranged.
+
     Files being copied can be located in either the backlog or in another SIP being arranged.
 
-    sourcepath: GET parameter, path relative to this pipelines backlog. Leading
-        '/'s are stripped
-    destination: GET parameter, path within arrange folder, should start with
-        DEFAULT_ARRANGE_PATH ('/arrange/')
-    """
-    # Insert each file into the DB
+    If sources or destinations are strs not a list, they will be converted into a list and fetch_children will be set to True.
 
-    if sourcepath is None:
-        sourcepath = base64.b64decode(request.POST.get('filepath', ''))
-    if destination is None:
-        destination = base64.b64decode(request.POST.get('destination', ''))
-    logger.info('copy_to_arrange: sourcepath: {}'.format(sourcepath))
-    logger.info('copy_to_arrange: destination: {}'.format(destination))
+    :param list sources: List of paths relative to this pipelines backlog. If None, will look for filepath[] or filepath
+    :param list destinations: List of paths within arrange folder. All paths should start with DEFAULT_ARRANGE_PATH
+    :param bool fetch_children: If True, will fetch all children of the provided path(s) to copy to the destination.
+    """
+    if isinstance(sources, basestring) or isinstance(destinations, basestring):
+        fetch_children = True
+        sources = [sources]
+        destinations = [destinations]
+
+    if sources is None or destinations is None:
+        # List of sources & destinations
+        if 'filepath[]' in request.POST or 'destination[]' in request.POST:
+            sources = map(base64.b64decode, request.POST.getlist('filepath[]', []))
+            destinations = map(base64.b64decode, request.POST.getlist('destination[]', []))
+        # Single path representing tree
+        else:
+            fetch_children = True
+            sources = [base64.b64decode(request.POST.get('filepath', ''))]
+            destinations = [base64.b64decode(request.POST.get('destination', ''))]
+    logger.info('sources: %s', sources)
+    logger.info('destinations: %s', destinations)
+
+    # The DEFAULT_BACKLOG_PATH constant is missing a leading slash for
+    # historical reasons; TODO change this at some point.
+    # External paths passed into these views are in the format
+    # /originals/, whereas copy_from_arrange_to_completed constructs
+    # paths without a leading slash as an implementation detail
+    # (to communicate with the Storage Service).
+    # Possibly the constant used to refer to externally-constructed
+    # paths and the one used solely internally should be two different
+    # constants.
+    if sources[0].startswith('/' + DEFAULT_BACKLOG_PATH):
+        action = 'copy'
+        backlog_uuid = storage_service.get_location(purpose='BL')[0]['uuid']
+    elif sources[0].startswith(DEFAULT_ARRANGE_PATH):
+        action = 'move'
+    else:
+        logger.error('Filepath %s is not in base backlog path nor arrange path', sources[0])
+        return helpers.json_response(
+            {'error': True, 'message': '{} is not in base backlog path nor arrange path'.format(sources[0])}
+        )
 
     try:
-        # The DEFAULT_BACKLOG_PATH constant is missing a leading slash for
-        # historical reasons; TODO change this at some point.
-        # External paths passed into these views are in the format
-        # /originals/, whereas copy_from_arrange_to_completed constructs
-        # paths without a leading slash as an implementation detail
-        # (to communicate with the Storage Service).
-        # Possibly the constant used to refer to externally-constructed
-        # paths and the one used solely internally should be two different
-        # constants.
-        if sourcepath.startswith('/' + DEFAULT_BACKLOG_PATH):
-            copy_files_to_arrange(sourcepath, destination)
-            response = {'message': 'Files added to the SIP.'}
-            status_code = 201
-        elif sourcepath.startswith(DEFAULT_ARRANGE_PATH):
-            move_files_within_arrange(sourcepath, destination)
-            response = {'message': 'SIP files successfully moved.'}
-            status_code = 200
-        else:
-            raise ValueError('filepath is in neither the base backlog path nor the arrange path ({} provided)'.format(sourcepath))
+        for source, dest in zip(sources, destinations):
+            if action == 'copy':
+                copy_files_to_arrange(source, dest,
+                    fetch_children=fetch_children, backlog_uuid=backlog_uuid)
+                response = {'message': 'Files added to the SIP.'}
+                status_code = 201
+            elif action == 'move':
+                move_files_within_arrange(source, dest)
+                response = {'message': 'SIP files successfully moved.'}
+                status_code = 200
     except ValueError as e:
-        logger.exception('copy_to_arrange failed copying %s to %s', (sourcepath, destination))
+        logger.exception('Failed copying %s to %s', source, dest)
         response = {
             'message': str(e),
             'error': True,
