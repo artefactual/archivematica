@@ -69,6 +69,7 @@ extractBagTransfer_v0.0 = %clientScriptsDirectory%extractBagTransfer.py
 extractContents_v0.0 = %clientScriptsDirectory%extractContents.py
 extractMaildirAttachments_v0.0 = %clientScriptsDirectory%extractMaildirAttachments.py
 failedSIPCleanup_v1.0 = %clientScriptsDirectory%failedSIPCleanup.py
+failedTransferCleanup = %clientScriptsDirectory%failedTransferCleanup.py
 fileToFolder_v1.0 = %clientScriptsDirectory%file_to_folder.py
 FITS_v0.0 = %clientScriptsDirectory%archivematicaFITS.py
 generateDIPFromAIPGenerateDIP_v0.0 = %clientScriptsDirectory%generateDIPFromAIPGenerateDIP.py
