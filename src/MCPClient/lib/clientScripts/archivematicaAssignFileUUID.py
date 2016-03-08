@@ -53,19 +53,20 @@ def find_mets_file(unit_path):
             return os.path.join(src, m.group())
 
 
-def get_file_uuid_from_mets(sip_directory, file_path_relative_to_sip):
+def get_file_info_from_mets(sip_directory, file_path_relative_to_sip):
     """
-    Look up the UUID of the file in the METS document using metsrw.
+    Look up information about the file in the METS document using metsrw.
+
+    :return: Dict with info. Keys: 'uuid', 'filegrpuse'
     """
     mets_file = find_mets_file(sip_directory)
     if not mets_file:
         logger.info('Archivematica AIP: METS file not found.')
-        return
+        return {}
     logger.info('Archivematica AIP: reading METS file %s.', mets_file)
     mets = metsrw.METSDocument.fromfile(mets_file)
 
-    file_path_relative_to_sip = file_path_relative_to_sip.replace('%transferDirectory%', '', 1)
-    file_path_relative_to_sip = file_path_relative_to_sip.replace('%SIPDirectory%', '', 1)
+    file_path_relative_to_sip = file_path_relative_to_sip.replace('%transferDirectory%', '', 1).replace('%SIPDirectory%', '', 1)
 
     # Warning! This is not the fastest way to achieve this. But we will focus
     # on optimizations later.
@@ -73,9 +74,9 @@ def get_file_uuid_from_mets(sip_directory, file_path_relative_to_sip):
     entry = mets.get_file(path=file_path_relative_to_sip)
     if entry:
         logger.info('Archivematica AIP: file UUID of has been found in the METS document (%s).', entry.path)
-        return entry.file_uuid
+        return {'uuid': entry.file_uuid, 'filegrpuse': entry.use}
     logger.info('Archivematica AIP: file UUID has not been found in the METS document: %s', file_path_relative_to_sip)
-
+    return {}
 
 def main(file_uuid=None, file_path='', date='', event_uuid=None, sip_directory='', sip_uuid=None, transfer_uuid=None, use='original', update_use=True):
     if file_uuid == "None":
@@ -97,8 +98,10 @@ def main(file_uuid=None, file_path='', date='', event_uuid=None, sip_directory='
         transfer = Transfer.objects.get(uuid=transfer_uuid)
         event_type = 'ingestion'
         if transfer.type == 'Archivematica AIP':
-            file_uuid = get_file_uuid_from_mets(sip_directory, file_path_relative_to_sip)
+            info = get_file_info_from_mets(sip_directory, file_path_relative_to_sip)
             event_type = 'reingestion'
+            file_uuid = info.get('uuid', file_uuid)
+            use = info.get('filegrpuse', use)
         if not file_uuid:
             file_uuid = str(uuid.uuid4())
             logger.info('Generated UUID for this file: %s.', file_uuid)
@@ -108,7 +111,7 @@ def main(file_uuid=None, file_path='', date='', event_uuid=None, sip_directory='
     # Ingest
     if sip_uuid:
         file_uuid = str(uuid.uuid4())
-        file_path_relative_to_sip = file_path.replace(sip_directory,"%SIPDirectory%", 1)
+        file_path_relative_to_sip = file_path.replace(sip_directory, "%SIPDirectory%", 1)
         addFileToSIP(file_path_relative_to_sip, file_uuid, sip_uuid, event_uuid, date, use=use)
         return 0
 
