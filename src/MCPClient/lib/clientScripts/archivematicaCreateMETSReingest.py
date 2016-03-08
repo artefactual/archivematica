@@ -238,12 +238,13 @@ def add_new_files(mets, sip_uuid, sip_dir):
 
     If a new file is a metadata.csv, parse it to create dmdSecs.
     """
-    # Find new metadata files
+    # Find new files
     # How tell new file from old with same name? Check hash?
     # QUESTION should the metadata.csv be parsed and only updated if different even if one already existed?
     new_files = []
     metadata_csv = None
-    for dirpath, _, filenames in os.walk(sip_dir):
+    objects_dir = os.path.join(sip_dir, 'objects')
+    for dirpath, _, filenames in os.walk(objects_dir):
         for filename in filenames:
             # Find in METS
             current_loc = os.path.join(dirpath, filename).replace(sip_dir, '%SIPDirectory%', 1)
