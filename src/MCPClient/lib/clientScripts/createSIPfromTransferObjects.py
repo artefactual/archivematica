@@ -50,17 +50,28 @@ if __name__ == '__main__':
     destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
     archivematicaFunctions.create_structured_directory(tmpSIPDir, manual_normalization=False)
 
+    # If transfer is a reingested AIP, then pass that info to the SIP
+    sip_type = 'SIP'
+    sip_uuid = None
+    transfer = Transfer.objects.get(uuid=transferUUID)
+    if transfer.type == 'Archivematica AIP':
+        sip_type = 'AIP-REIN'
+        # Use reingested AIP's UUID as the SIP UUID
+        # Get AIP UUID from reingest METS name
+        print('path', os.path.join(objectsDirectory, '..', 'metadata'), 'listdir', os.listdir(os.path.join(objectsDirectory, '..', 'metadata')))
+        for item in os.listdir(os.path.join(objectsDirectory, '..', 'metadata')):
+            if item.startswith('METS'):
+                sip_uuid = item.replace('METS.', '').replace('.xml', '')
+    print('sip_uuid', sip_uuid)
+    print('sip_type', sip_type)
+
     # Create row in SIPs table if one doesn't already exist
     lookup_path = destSIPDir.replace(sharedPath, '%sharedPath%')
     try:
         sip = SIP.objects.get(currentpath=lookup_path).uuid
     except SIP.DoesNotExist:
-        sip_uuid = databaseFunctions.createSIP(lookup_path)
+        sip_uuid = databaseFunctions.createSIP(lookup_path, UUID=sip_uuid, sip_type=sip_type)
         sip = SIP.objects.get(uuid=sip_uuid)
-
-    transfer = Transfer.objects.get(uuid=transferUUID)
-    if transfer.type == 'Archivematica AIP':
-        sip.sip_type = 'AIP-REIN'
 
     # Move the objects to the SIPDir
     for item in os.listdir(objectsDirectory):
