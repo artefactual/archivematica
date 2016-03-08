@@ -95,12 +95,14 @@ def main(file_uuid=None, file_path='', date='', event_uuid=None, sip_directory='
     if transfer_uuid:
         file_path_relative_to_sip = file_path.replace(sip_directory, '%transferDirectory%', 1)
         transfer = Transfer.objects.get(uuid=transfer_uuid)
+        event_type = 'ingestion'
         if transfer.type == 'Archivematica AIP':
             file_uuid = get_file_uuid_from_mets(sip_directory, file_path_relative_to_sip)
+            event_type = 'reingestion'
         if not file_uuid:
             file_uuid = str(uuid.uuid4())
             logger.info('Generated UUID for this file: %s.', file_uuid)
-        addFileToTransfer(file_path_relative_to_sip, file_uuid, transfer_uuid, event_uuid, date, use=use)
+        addFileToTransfer(file_path_relative_to_sip, file_uuid, transfer_uuid, event_uuid, date, use=use, sourceType=event_type)
         return 0
 
     # Ingest
