@@ -215,6 +215,9 @@ def add_events(mets, sip_uuid):
     for event in events:
         print('Adding', event.event_type, 'event to file', event.file_uuid_id)
         fsentry = mets.get_file(file_uuid=event.file_uuid_id)
+        if fsentry is None:
+            print('File with UUID', event.file_uuid_id, 'not in METS file, skipping adding', event.event_type, 'event.')
+            continue
         fsentry.add_premis_event(createmets2.createEvent(event))
 
         amdsec = fsentry.amdsecs[0]
