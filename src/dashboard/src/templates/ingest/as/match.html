@@ -16,7 +16,13 @@
   function toggle_objects(source) {
     checkboxes = document.querySelectorAll('.atk-matcher-object-path > input');
     for (var i = 0, n = checkboxes.length; i < n; i++) {
-      checkboxes[i].checked = source.checked;
+      var $cb = $(checkboxes[i]);
+      // Only select if the checkbox is visible and not disabled
+      if ( $cb.is(":visible") && ! $cb.is(":disabled") ) {
+        checkboxes[i].checked = source.checked;
+      } else {
+        checkboxes[i].checked = false;
+      }
     }
   }
   </script>
