@@ -102,7 +102,18 @@ def render_resource_component(client, request, resource_component_id, query, pag
             reverse(match_redirect_target, args=[uuid, resource_component_id])
         )
     else:
-        return render(request, resource_detail_template, locals())
+        return render(request, resource_detail_template, {
+            'match_redirect_target': match_redirect_target,
+            'page': page,
+            'query': query,
+            'reset_url': reset_url,
+            'resource_component_data': resource_component_data,
+            'resource_component_id': resource_component_id,
+            'search_params': search_params,
+            'sort_by': sort_by,
+            'sort_direction': sort_direction,
+            'uuid': uuid,
+        })
 
 
 def match_dip_objects_to_resource_levels(client, request, resource_id, match_template, parent_id, parent_url, reset_url, uuid, matches=[]):
