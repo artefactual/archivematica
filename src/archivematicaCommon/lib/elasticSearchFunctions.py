@@ -276,7 +276,6 @@ def set_up_mapping(conn, index):
             'name': _sortable_string_field_specification('name'),
             'size': {'type': 'double'},
             'uuid': machine_readable_field_spec,
-            # Prevent autodetection for dc:date
             'mets': aip_mets_mapping,
         }
 
@@ -293,7 +292,6 @@ def set_up_mapping(conn, index):
             'FILEUUID': machine_readable_field_spec,
             'isPartOf': machine_readable_field_spec,
             'AICID': machine_readable_field_spec,
-            # Prevent autodetection for dc:date
             'METS': aipfile_mets_mapping,
         }
 
