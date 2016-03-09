@@ -516,8 +516,14 @@
                 },
                 "ns0:xmlData_dict_list": {
                   "properties": {
+                    "date_available": {
+                        "type": "string"
+                    },
                     "ns2:dublincore_dict_list": {
                       "properties": {
+                        "dc:available": {
+                          "type": "string"
+                        },
                         "dc:contributor": {
                           "type": "string"
                         },

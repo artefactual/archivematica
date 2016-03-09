@@ -15,6 +15,9 @@
             },
             "ns1:dublincore_dict_list": {
               "properties": {
+                "dc:available": {
+                  "type": "string"
+                },
                 "dc:provenance": {
                   "type": "string"
                 },
