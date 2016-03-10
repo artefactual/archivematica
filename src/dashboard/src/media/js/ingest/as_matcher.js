@@ -160,6 +160,8 @@ var ATKMatcherView = Backbone.View.extend({
     var self = this,
         index = 0;
 
+    // Sort by path
+    this.objectPaths.sort(function (a, b){return a.path.toLowerCase().localeCompare(b.path.toLowerCase())})
     // add each path to object pane
     this.objectPaths.forEach(function(pathData) {
       // create object path representation (checkbox and label)
@@ -321,7 +323,7 @@ var ATKMatcherView = Backbone.View.extend({
     // add comparator
     this.resourceCollection.comparator = function(resource) {
       if (self.resourceCollection.sortAttribute != undefined) {
-        return resource.get(self.resourceCollection.sortAttribute);
+        return resource.get(self.resourceCollection.sortAttribute).toLowerCase();
       } else {
         return resource.id;
       }
