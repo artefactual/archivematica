@@ -27,9 +27,10 @@ import uuid
 import django
 django.setup()
 
-from main.models import File, Transfer
+from main.models import File
 
 from custom_handlers import get_script_logger
+from databaseFunctions import insertIntoDerivations
 from fileOperations import updateSizeAndChecksum
 
 import metsrw
@@ -50,11 +51,13 @@ def find_mets_file(unit_path):
             return os.path.join(src, m.group())
 
 
-def get_size_and_checksum_from_mets(shared_path, file_):
+def get_file_info_from_mets(shared_path, file_):
     """
-    Given an instance of a File, return a tuple with three values: file_Size,
+    Get file size, checksum & type, and derivation for this file from METS.
+
+    Given an instance of a File, return a dict with keys: file_size,
     checksum and checksum_type, as they are described in the original METS
-    document of the transfer. The values will be None when not found.
+    document of the transfer. The dict will be empty or missing keys on error.
     """
     transfer = file_.transfer
     transfer_location = transfer.currentlocation.replace('%sharedPath%', shared_path, 1)
@@ -62,7 +65,7 @@ def get_size_and_checksum_from_mets(shared_path, file_):
     mets_file = find_mets_file(transfer_location)
     if not mets_file:
         logger.info('Archivematica AIP: METS file not found in %s.', transfer_location)
-        return
+        return {}
 
     logger.info('Archivematica AIP: reading METS file %s.', mets_file)
     mets = metsrw.METSDocument.fromfile(mets_file)
@@ -70,35 +73,39 @@ def get_size_and_checksum_from_mets(shared_path, file_):
     fsentry = mets.get_file(file_uuid=file_.uuid)
     if not fsentry:
         logger.error('Archivematica AIP: FSEntry with UUID %s not found', file_.uuid)
-        return None
+        return {}
     if not len(fsentry.amdsecs):
         logger.error('Archivematica AIP: FSEntry.amdsecs is empty')
-        return None
+        return {}
     amdsec = fsentry.amdsecs[0]
     for item in amdsec.subsections:
         if item.subsection == 'techMD':
             techmd = item
     if not techmd:
         logger.error('Archivematica AIP: techMD section could not be found')
-        return None
+        return {}
     if techmd.contents.mdtype != 'PREMIS:OBJECT':
         logger.error('Archivematica AIP: PREMIS:OBJECT could not be found')
-        return None
-    pobject = techmd.contents.document # Element
+        return {}
+    pobject = techmd.contents.document  # Element
 
-    size = checksum = checksum_type = None
-    r = pobject.xpath('premis:objectCharacteristics/premis:objectCharacteristicsExtension/Mediainfo/File/track[@type="General"]/File_size', namespaces=metsrw.utils.NAMESPACES)
-    if r:
-        size = r[0].text
-    r = pobject.xpath('premis:objectCharacteristics/premis:fixity/premis:messageDigest', namespaces=metsrw.utils.NAMESPACES)
-    if r:
-        checksum = r[0].text
-    r = pobject.xpath('premis:objectCharacteristics/premis:fixity/premis:messageDigestAlgorithm', namespaces=metsrw.utils.NAMESPACES)
-    if r:
-        checksum_type = r[0].text
+    size = pobject.findtext('premis:objectCharacteristics/premis:objectCharacteristicsExtension/Mediainfo/File/track[@type="General"]/File_size', namespaces=metsrw.utils.NAMESPACES)
+    checksum = pobject.findtext('premis:objectCharacteristics/premis:fixity/premis:messageDigest', namespaces=metsrw.utils.NAMESPACES)
+    checksum_type = pobject.findtext('premis:objectCharacteristics/premis:fixity/premis:messageDigestAlgorithm', namespaces=metsrw.utils.NAMESPACES)
 
-    ret = (size, checksum, checksum_type)
-    logger.info('Archivematica AIP: size=%s, checksum=%s, checksum_type=%s', *ret)
+    derivation_uuid = None
+    related_uuid = pobject.findtext('premis:relationship/premis:relatedObjectIdentification/premis:relatedObjectIdentifierValue', namespaces=metsrw.utils.NAMESPACES)
+    rel = pobject.findtext('premis:relationship/premis:relationshipSubType', namespaces=metsrw.utils.NAMESPACES)
+    if rel == 'is source of':
+        derivation_uuid = related_uuid
+
+    ret = {
+        'file_size': size,
+        'checksum': checksum,
+        'checksum_type': checksum_type,
+        'derivation': derivation_uuid,
+    }
+    logger.info('Archivematica AIP: %s', ret)
 
     return ret
 
@@ -116,8 +123,13 @@ def main(shared_path, file_uuid, file_path, date, event_uuid):
     kw = {}
     if file_.transfer and not file_.sip:
         if file_.transfer.type == 'Archivematica AIP':
-            file_size, checksum, checksum_type = get_size_and_checksum_from_mets(shared_path, file_)
-            kw.update(fileSize=file_size, checksum=checksum, checksumType=checksum_type, add_event=False)
+            info = get_file_info_from_mets(shared_path, file_)
+            kw.update(fileSize=info['file_size'], checksum=info['checksum'], checksumType=info['checksum_type'], add_event=False)
+            if info.get('derivation'):
+                insertIntoDerivations(
+                    sourceFileUUID=file_uuid,
+                    derivedFileUUID=info['derivation'],
+                )
 
     updateSizeAndChecksum(file_uuid, file_path, date, event_uuid, **kw)
 
