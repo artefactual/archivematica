@@ -22,25 +22,35 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
-import sys
+
+import argparse
 import os
-from optparse import OptionParser
+
+import django
+django.setup()
+from main.models import File
 
 def verifyFileUUID(fileUUID, filePath, sipDirectory):
     if fileUUID == "None":
         relativeFilePath = filePath.replace(sipDirectory, "%SIPDirectory%", 1)
-        print(relativeFilePath, file=sys.stderr)
+        print('Deleting', relativeFilePath, 'because it is not in the database.')
         os.remove(filePath)
-        quit(0)
+        return
+    file_ = File.objects.get(uuid=fileUUID)
+    if file_.filegrpuse == 'deleted':
+        if os.path.exists(filePath):
+            relativeFilePath = filePath.replace(sipDirectory, "%SIPDirectory%", 1)
+            print('Deleting', relativeFilePath, 'because it is marked as deleted')
+            os.remove(filePath)
 
 
 if __name__ == '__main__':
 
-    parser = OptionParser()
-    parser.add_option("-f",  "--inputFile",          action="store", dest="inputFile", default="")
-    parser.add_option("-o",  "--sipDirectory",  action="store", dest="sipDirectory", default="")
-    parser.add_option("-i",  "--fileUUID",           action="store", dest="fileUUID", default="")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", "--inputFile", default="")
+    parser.add_argument("-o", "--sipDirectory", default="")
+    parser.add_argument("-i", "--fileUUID", default="None")
 
-    (opts, args) = parser.parse_args()
+    args = parser.parse_args()
 
-    verifyFileUUID(opts.fileUUID, opts.inputFile, opts.sipDirectory)
+    verifyFileUUID(args.fileUUID, args.inputFile, args.sipDirectory)
