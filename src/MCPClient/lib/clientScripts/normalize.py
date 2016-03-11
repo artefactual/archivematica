@@ -296,6 +296,20 @@ def main(opts):
         print(os.path.basename(opts.file_path), 'is file group usage', file_.filegrpuse, 'instead of ', opts.normalize_file_grp_use, ' - skipping')
         return SUCCESS
 
+    # For re-ingest: clean up old derivations
+    # If the file already has a Derivation with the same purpose, remove it and mark the derived file as deleted
+    derivatives = Derivation.objects.filter(source_file=file_, derived_file__filegrpuse=opts.purpose)
+    for derivative in derivatives:
+        print(opts.purpose, 'derivative', derivative.derived_file_id, 'already exists, marking as deleted')
+        File.objects.filter(uuid=derivative.derived_file_id).update(filegrpuse='deleted')
+        # Don't create events for thumbnail files
+        if opts.purpose != 'thumbnail':
+            databaseFunctions.insertIntoEvents(
+                fileUUID=derivative.derived_file_id,
+                eventType='deletion',
+            )
+    derivatives.delete()
+
     # If a file has been manually normalized for this purpose, skip it
     manually_normalized_file = check_manual_normalization(opts)
     if manually_normalized_file:
