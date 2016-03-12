@@ -411,46 +411,6 @@ def parse_rights(sip_uuid, root):
             parsed_rights.append(rights)
     return parsed_rights
 
-def update_default_config(processing_path):
-    root = etree.parse(processing_path)
-
-    # Do not run file ID in ingest
-    ingest_id_mscl = '7a024896-c4f7-4808-a240-44c87c762bc5'
-    use_existing_choice = models.MicroServiceChoiceReplacementDic.objects.filter(choiceavailableatlink=ingest_id_mscl).get(description='Use existing data')
-    try:
-        applies_to = root.xpath('//appliesTo[text()="%s"]' % ingest_id_mscl)[0]
-    except IndexError:
-        # Entry did not existing in preconfigured choices, so create
-        choices = root.find('preconfiguredChoices')
-        choice = etree.SubElement(choices, 'preconfiguredChoice')
-        applies_to = etree.SubElement(choice, 'appliesTo').text = ingest_id_mscl
-        go_to_chain = etree.SubElement(choice, 'goToChain')
-    else:
-        # Update existing entry
-        go_to_chain = applies_to.getnext()
-    go_to_chain.text = use_existing_choice.id
-
-    # If normalize option has 'preservation', remove
-    normalize_mscl = 'cb8e5706-e73f-472f-ad9b-d1236af8095f'
-    try:
-        applies_to = root.xpath('//appliesTo[text()="%s"]' % normalize_mscl)[0]
-    except IndexError:
-        # Entry did not existing in preconfigured choices
-        pass
-    else:
-        # Update existing entry
-        go_to_chain = applies_to.getnext()
-        chain = models.MicroServiceChain.objects.get(pk=go_to_chain.text)
-        if 'preservation' in chain.description:
-            # Remove from processing MCP
-            choice = go_to_chain.getparent()
-            choice.getparent().remove(choice)
-
-    # Write out processingMCP
-    with open(processing_path, 'w') as f:
-        f.write(etree.tostring(root, pretty_print=True))
-
-
 def main():
     # HACK Most of this file is a hack to parse the METS file into the DB.
     # This should use the in-progress METS Reader/Writer
@@ -476,10 +436,6 @@ def main():
     parse_dc(sip_uuid, root)
 
     parse_rights(sip_uuid, root)
-
-    # Update processingMCP
-    processing_path = os.path.join(sip_path, 'processingMCP.xml')
-    update_default_config(processing_path)
 
 
 if __name__ == '__main__':
