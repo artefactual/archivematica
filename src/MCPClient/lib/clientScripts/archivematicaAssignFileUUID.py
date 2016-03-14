@@ -61,20 +61,39 @@ def get_file_info_from_mets(sip_directory, file_path_relative_to_sip):
     if not mets_file:
         logger.info('Archivematica AIP: METS file not found.')
         return {}
+    print('Reading METS file', mets_file, 'for reingested file information.')
     logger.info('Archivematica AIP: reading METS file %s.', mets_file)
     mets = metsrw.METSDocument.fromfile(mets_file)
+
+    current_path = file_path_relative_to_sip
 
     file_path_relative_to_sip = file_path_relative_to_sip.replace('%transferDirectory%', '', 1).replace('%SIPDirectory%', '', 1)
 
     # Warning! This is not the fastest way to achieve this. But we will focus
     # on optimizations later.
     # TODO: is it ok to assume that the file structure is flat?
+    # TODO will this work with original vs normalized paths?
     entry = mets.get_file(path=file_path_relative_to_sip)
-    if entry:
-        logger.info('Archivematica AIP: file UUID of has been found in the METS document (%s).', entry.path)
-        return {'uuid': entry.file_uuid, 'filegrpuse': entry.use}
-    logger.info('Archivematica AIP: file UUID has not been found in the METS document: %s', file_path_relative_to_sip)
-    return {}
+    if not entry:
+        print('Could not find', file_path_relative_to_sip, 'in METS.')
+        logger.info('Archivematica AIP: file UUID has not been found in the METS document: %s', file_path_relative_to_sip)
+        return {}
+    logger.info('Archivematica AIP: file UUID of has been found in the METS document (%s).', entry.path)
+
+    # Get original path
+    amdsec = entry.amdsecs[0]
+    for item in amdsec.subsections:
+        if item.subsection == 'techMD':
+            techmd = item
+    pobject = techmd.contents.document  # Element
+    original_path = pobject.findtext('premis:originalName', namespaces=metsrw.utils.NAMESPACES)
+
+    return {
+        'uuid': entry.file_uuid,
+        'filegrpuse': entry.use,
+        'current_path': current_path,
+        'original_path': original_path,
+    }
 
 def main(file_uuid=None, file_path='', date='', event_uuid=None, sip_directory='', sip_uuid=None, transfer_uuid=None, use='original', update_use=True):
     if file_uuid == "None":
@@ -95,15 +114,24 @@ def main(file_uuid=None, file_path='', date='', event_uuid=None, sip_directory='
         file_path_relative_to_sip = file_path.replace(sip_directory, '%transferDirectory%', 1)
         transfer = Transfer.objects.get(uuid=transfer_uuid)
         event_type = 'ingestion'
+        # For reingest, parse information from the METS
         if transfer.type == 'Archivematica AIP':
             info = get_file_info_from_mets(sip_directory, file_path_relative_to_sip)
             event_type = 'reingestion'
             file_uuid = info.get('uuid', file_uuid)
             use = info.get('filegrpuse', use)
+            file_path_relative_to_sip = info.get('original_path', file_path_relative_to_sip)
         if not file_uuid:
             file_uuid = str(uuid.uuid4())
             logger.info('Generated UUID for this file: %s.', file_uuid)
         addFileToTransfer(file_path_relative_to_sip, file_uuid, transfer_uuid, event_uuid, date, use=use, sourceType=event_type)
+        # For reingest, the original location was parsed from the METS
+        # Update the current location to reflect what's on disk
+        if transfer.type == 'Archivematica AIP':
+            print('updating current location for', file_uuid, 'with', info)
+            File.objects.filter(uuid=file_uuid).update(
+                currentlocation=info['current_path']
+            )
         return 0
 
     # Ingest
