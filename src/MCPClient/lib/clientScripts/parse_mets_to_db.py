@@ -20,6 +20,32 @@ import databaseFunctions
 
 MD_TYPE_SIP_ID = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
 
+
+def parse_format_version(element):
+    """
+    Parses the FPR FormatVersion for the file.
+
+    Element can be the amdSec, or a PREMIS:OBJECT
+
+    :param element: lxml Element that contains premis:format.
+    :return: FormatVersion object or None
+    """
+    format_version = None
+    try:
+        # Looks for PRONOM ID first
+        if element.findtext('.//premis:formatRegistryName', namespaces=ns.NSMAP) == 'PRONOM':
+            puid = element.findtext('.//premis:formatRegistryKey', namespaces=ns.NSMAP)
+            print('PUID', puid)
+            format_version = fpr_models.FormatVersion.active.get(pronom_id=puid)
+        elif element.findtext('.//premis:formatRegistryName', namespaces=ns.NSMAP) == 'Archivematica Format Policy Registry':
+            key = element.findtext('.//premis:formatRegistryKey', namespaces=ns.NSMAP)
+            print('FPR key', key)
+            format_version = fpr_models.IDRule.active.get(command_output=key).format
+    except fpr_models.FormatVersion.DoesNotExist:
+        pass
+    return format_version
+
+
 def parse_files(root):
     filesec = root.find('.//mets:fileSec', namespaces=ns.NSMAP)
     files = []
@@ -53,19 +79,7 @@ def parse_files(root):
         print('size', size)
 
         # FormatVersion
-        format_version = None
-        try:
-            # Looks for PRONOM ID first
-            if amdsec.findtext('.//premis:formatRegistryName', namespaces=ns.NSMAP) == 'PRONOM':
-                puid = amdsec.findtext('.//premis:formatRegistryKey', namespaces=ns.NSMAP)
-                print('PUID', puid)
-                format_version = fpr_models.FormatVersion.active.get(pronom_id=puid)
-            elif amdsec.findtext('.//premis:formatRegistryName', namespaces=ns.NSMAP) == 'Archivematica Format Policy Registry':
-                key = amdsec.findtext('.//premis:formatRegistryKey', namespaces=ns.NSMAP)
-                print('FPR key', key)
-                format_version = fpr_models.IDRule.active.get(command_output=key).format
-        except fpr_models.FormatVersion.DoesNotExist:
-            pass
+        format_version = parse_format_version(amdsec)
         print('format_version', format_version)
 
         # Derivation
@@ -121,6 +135,7 @@ def update_files(sip_uuid, files):
             use=file_info['use'],
         )
         # Update other file info
+        # This doesn't use updateSizeAndChecksum because it also updates currentlocation
         models.File.objects.filter(uuid=file_info['uuid']).update(
             checksum=file_info['checksum'],
             checksumtype=file_info['checksumtype'],

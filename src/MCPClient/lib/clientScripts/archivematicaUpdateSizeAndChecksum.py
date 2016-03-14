@@ -27,7 +27,7 @@ import uuid
 import django
 django.setup()
 
-from main.models import File
+from main.models import File, FileFormatVersion
 
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoDerivations
@@ -35,6 +35,7 @@ from fileOperations import updateSizeAndChecksum
 
 import metsrw
 
+import parse_mets_to_db
 
 logger = get_script_logger('archivematica.mcp.client.updateSizeAndChecksum')
 
@@ -99,11 +100,14 @@ def get_file_info_from_mets(shared_path, file_):
     if rel == 'is source of':
         derivation_uuid = related_uuid
 
+    format_version = parse_mets_to_db.parse_format_version(pobject)
+
     ret = {
         'file_size': size,
         'checksum': checksum,
         'checksum_type': checksum_type,
         'derivation': derivation_uuid,
+        'format_version': format_version,
     }
     logger.info('Archivematica AIP: %s', ret)
 
@@ -129,6 +133,11 @@ def main(shared_path, file_uuid, file_path, date, event_uuid):
                 insertIntoDerivations(
                     sourceFileUUID=file_uuid,
                     derivedFileUUID=info['derivation'],
+                )
+            if info.get('format_version'):
+                FileFormatVersion.objects.create(
+                    file_uuid_id=file_uuid,
+                    format_version=info['format_version']
                 )
 
     updateSizeAndChecksum(file_uuid, file_path, date, event_uuid, **kw)
