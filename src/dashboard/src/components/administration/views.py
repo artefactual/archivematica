@@ -355,12 +355,12 @@ def _usage_check_directory_volume_size(path):
     """
     Check the size of the volume containing a given path
 
-    :param string path: path to check
-    :returns int: size in bytes
+    :param str path: path to check
+    :returns: size in bytes, or 0 on error
     """
-    # Get volume size (in 512 byte blocks)
+    # Get volume size (in 1K blocks)
     try:
-        output = subprocess.check_output(["df", path])
+        output = subprocess.check_output(["df", '--block-size', '1024', path])
 
         # Second line returns disk usage-related values
         usage_summary = output.split("\n")[1]
@@ -368,7 +368,7 @@ def _usage_check_directory_volume_size(path):
         # Split value by whitespace and size (in blocks)
         size = usage_summary.split()[1]
 
-        return int(size) * 512
+        return int(size) * 1024
     except OSError:
         logger.exception('No such directory: %s', path)
         return 0
