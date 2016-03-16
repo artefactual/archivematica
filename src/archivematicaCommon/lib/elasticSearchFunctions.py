@@ -281,14 +281,15 @@ def set_up_mapping(conn, index):
                                                     },
                                                     'ns2:dublincore_dict_list': {
                                                         'properties': {
-                                                            # Prevent autodetection for dc:available
-                                                            'dc:available': {
-                                                                'type': 'string'
-                                                            },
-                                                            # Prevent autodetection for dc:date
-                                                            'dc:date': {
-                                                                'type': 'string'
-                                                            }
+                                                            # Prevent autodetection for dc date fields
+                                                            'dc:available': { 'type': 'string' },
+                                                            'dc:created': { 'type': 'string' },
+                                                            'dc:date': { 'type': 'string' },
+                                                            'dc:dateAccepted': { 'type': 'string' },
+                                                            'dc:dateCopyrighted': { 'type': 'string' },
+                                                            'dc:dateSubmitted': { 'type': 'string' },
+                                                            'dc:issued': { 'type': 'string' },
+                                                            'dc:modified': { 'type': 'string' },
                                                         }
                                                     }
                                                 }
@@ -324,14 +325,15 @@ def set_up_mapping(conn, index):
                                 'properties': {
                                     'ns1:dublincore_dict_list': {
                                         'properties': {
-                                            # Prevent autodetection for dc:available
-                                            'dc:available': {
-                                                'type': 'string'
-                                            },
-                                            # Prevent autodetection for dc:date
-                                            'dc:date': {
-                                                'type': 'string'
-                                            }
+                                            # Prevent autodetection for dc date fields
+                                            'dc:available': { 'type': 'string' },
+                                            'dc:created': { 'type': 'string' },
+                                            'dc:date': { 'type': 'string' },
+                                            'dc:dateAccepted': { 'type': 'string' },
+                                            'dc:dateCopyrighted': { 'type': 'string' },
+                                            'dc:dateSubmitted': { 'type': 'string' },
+                                            'dc:issued': { 'type': 'string' },
+                                            'dc:modified': { 'type': 'string' },
                                         }
                                     }
                                 }
