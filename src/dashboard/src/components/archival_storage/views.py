@@ -161,7 +161,7 @@ def search(request):
                 working_dict[d['AIPUUID']]['count'] += 1
             else:
                 working_dict[d['AIPUUID']] = {
-                    'name': d['sipName'],
+                    'name': d.get('sipName', None),
                     'uuid': d['AIPUUID'],
                     'count': 1,
                 }
