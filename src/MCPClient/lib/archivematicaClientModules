@@ -97,6 +97,7 @@ moveTransfer_v0.0 =  %clientScriptsDirectory%archivematicaMoveTransfer.py
 moveToBacklog_v1.0 = %clientScriptsDirectory%moveToBacklog.py
 normalize_v1.0 = %clientScriptsDirectory%normalize.py
 normalizeReport_v0.0 = %clientScriptsDirectory%normalizeReport.py
+parseExternalMETS = %clientScriptsDirectory%parse_external_mets.py
 parseMETStoDB_v1.0 = %clientScriptsDirectory%parse_mets_to_db.py
 postStoreAIPHook_v1.0 = %clientScriptsDirectory%post_store_aip_hook.py
 remove_v0.0 = rm
