@@ -9,6 +9,7 @@ def data_migration(apps, schema_editor):
     MicroServiceChainLinkExitCode = apps.get_model('main', 'MicroServiceChainLinkExitCode')
     TaskConfig = apps.get_model('main', 'TaskConfig')
     StandardTaskConfig = apps.get_model('main', 'StandardTaskConfig')
+    TaskConfigUnitVariableLinkPull = apps.get_model('main', 'TaskConfigUnitVariableLinkPull')
 
     # Add SIPUUID argument to restructureForCompliance_v0.0
     StandardTaskConfig.objects.filter(execute='restructureForCompliance_v0.0').update(arguments='"%SIPDirectory%" "%SIPUUID%"')
@@ -29,6 +30,15 @@ def data_migration(apps, schema_editor):
     MicroServiceChainLink.objects.create(id='ae5cdd0d-2f81-4935-a380-d5c6f1337d93', microservicegroup='Reject transfer', defaultexitmessage='Failed', currenttask_id='1fea5138-981f-4fef-9d74-4d6328fb9248', defaultnextchainlink_id='333532b9-b7c2-4478-9415-28a3056d58df')
     MicroServiceChainLinkExitCode.objects.create(id='e8b5ea83-a108-48b4-af8e-42fa6794b1de', microservicechainlink_id='ae5cdd0d-2f81-4935-a380-d5c6f1337d93', exitcode=0, nextmicroservicechainlink_id='333532b9-b7c2-4478-9415-28a3056d58df', exitmessage='Completed successfully')
     MicroServiceChain.objects.filter(id='1b04ec43-055c-43b7-9543-bd03c6a778ba').update(startinglink_id='ae5cdd0d-2f81-4935-a380-d5c6f1337d93')
+
+    # Add parse external METS
+    StandardTaskConfig.objects.create(id='d9708512-ac5f-4211-b07a-e5a41c6825b6', requires_output_lock=0, execute='parseExternalMETS', arguments='%SIPUUID% "%SIPDirectory%"')
+    TaskConfig.objects.create(id='9ecf18d4-652b-4bd2-a3f5-bfb5794299f8', tasktype_id='36b2e239-4a57-4aa5-8ebc-7a29139baca6', tasktypepkreference='d9708512-ac5f-4211-b07a-e5a41c6825b6', description='Parse external METS')
+    MicroServiceChainLink.objects.create(id='675acd22-828d-4949-adc7-1888240f5e3d', microservicegroup='Complete transfer', defaultexitmessage='Failed', currenttask_id='9ecf18d4-652b-4bd2-a3f5-bfb5794299f8', defaultnextchainlink_id='db99ab43-04d7-44ab-89ec-e09d7bbdc39d')
+    MicroServiceChainLinkExitCode.objects.create(id='575ab10a-560c-40ed-aa33-95a26ef52b65', microservicechainlink_id='675acd22-828d-4949-adc7-1888240f5e3d', exitcode=0, nextmicroservicechainlink_id='db99ab43-04d7-44ab-89ec-e09d7bbdc39d', exitmessage='Completed successfully')
+    MicroServiceChainLinkExitCode.objects.filter(microservicechainlink_id='8ec0b0c1-79ad-4d22-abcd-8e95fcceabbc').update(nextmicroservicechainlink_id='675acd22-828d-4949-adc7-1888240f5e3d')
+    MicroServiceChainLink.objects.filter(id='8ec0b0c1-79ad-4d22-abcd-8e95fcceabbc').update(defaultnextchainlink_id='675acd22-828d-4949-adc7-1888240f5e3d')
+    TaskConfigUnitVariableLinkPull.objects.filter(id='49d853a9-646d-4e9f-b825-d1bcc3ba77f0').update(defaultmicroservicechainlink_id='675acd22-828d-4949-adc7-1888240f5e3d')
 
 class Migration(migrations.Migration):
 
