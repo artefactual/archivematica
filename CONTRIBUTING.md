@@ -7,24 +7,26 @@ This document outlines the code review process for Archivematica, along with our
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Contributing](#contributing)
-  - [Code review](#code-review)
-    - [Getting started](#getting-started)
-    - [When to submit code for review?](#when-to-submit-code-for-review)
-    - [Opening the pull request](#opening-the-pull-request)
-    - [Discussion](#discussion)
-    - [Cleaning up the commit history](#cleaning-up-the-commit-history)
-      - [Commits should be specific and atomic](#commits-should-be-specific-and-atomic)
-      - [Every commit should work](#every-commit-should-work)
-      - [Commit summaries should be concise](#commit-summaries-should-be-concise)
-      - [Commit messages should be as detailed as they need to be (and no more)](#commit-messages-should-be-as-detailed-as-they-need-to-be-and-no-more)
-  - [Contribution standards](#contribution-standards)
-    - [Style](#style)
-      - [Some extra notes](#some-extra-notes)
-      - [Exceptions](#exceptions)
-      - [Working with legacy code](#working-with-legacy-code)
-    - [Documentation](#documentation)
-    - [Tests](#tests)
+- [Code review](#code-review)
+  - [Getting started](#getting-started)
+  - [When to submit code for review?](#when-to-submit-code-for-review)
+  - [Opening the pull request](#opening-the-pull-request)
+  - [Discussion](#discussion)
+  - [Cleaning up the commit history](#cleaning-up-the-commit-history)
+    - [Commits should be specific and atomic](#commits-should-be-specific-and-atomic)
+    - [Every commit should work](#every-commit-should-work)
+    - [Commit summaries should be concise](#commit-summaries-should-be-concise)
+    - [Commit messages should be as detailed as they need to be (and no more)](#commit-messages-should-be-as-detailed-as-they-need-to-be-and-no-more)
+- [Contribution standards](#contribution-standards)
+  - [Style](#style)
+    - [Some extra notes](#some-extra-notes)
+    - [Exceptions](#exceptions)
+    - [Working with legacy code](#working-with-legacy-code)
+  - [Documentation](#documentation)
+  - [Tests](#tests)
+- [Contributor's Agreement](#contributors-agreement)
+  - [Why do I have to sign a Contributor's Agreement?](#why-do-i-have-to-sign-a-contributors-agreement)
+  - [How do I send in an agreement?](#how-do-i-send-in-an-agreement)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -193,3 +195,30 @@ This will also allow you to share setup and teardown code.
 
 If you are testing code that makes HTTP requests, using [VCR.py](https://github.com/kevin1024/vcrpy) is highly recommended.
 It should already be a development dependency.
+
+## Contributor's Agreement
+
+In order for the Archivematica development team to accept any patches or code commits, contributors must first sign this [Contributor's Agreement](https://wiki.archivematica.org/images/2/25/Contributor_agreement.txt).
+The Archivematica contributor's agreement is based almost verbatim on the [Apache Foundation](http://apache.org )'s individual [contributor license](http://www.apache.org/licenses/icla.txt).
+
+If you have any questions or concerns about the Contributor's Agreement, please email us at agreement@artefactual.com to discuss them.
+
+### Why do I have to sign a Contributor's Agreement?
+
+One of the key challenges for open source software is to support a collaborative development environment while protecting the rights of contributors and users over the long-term.
+Unifying Archivematica copyrights through contributor agreements is the best way to protect the availability and sustainability of Archivematica over the long-term as free and open-source software.
+In all cases, contributors who sign the Contributor's Agreement retain full rights to use their original contributions for any other purpose outside of Archivematica, while enabling Artefactual Systems, any successor Foundation which may eventually take over responsibility for Archivematica, and the wider Archivematica community to benefit from their collaboration and contributions in this open source project.
+
+[Artefactual Systems](http://artefactual.com) has made the decision and has a proven track record of making our intellectual property available to the community at large.
+By standardizing contributions on these agreements the Archivematica intellectual property position does not become too complicated.
+This ensures our resources are devoted to making our project the best they can be, rather than fighting legal battles over contributions.
+
+### How do I send in an agreement?
+
+Please print out, read, sign, and scan the [contributor agreement](https://wiki.archivematica.org/images/2/25/Contributor_agreement.txt) and email it to agreement@artefactual.com
+Alternatively, you may send an original signed agreement to:
+
+    Artefactual Systems Inc.
+    201 - 301 Sixth Street
+    New Westminster BC  V3L 3A7
+    Canada
