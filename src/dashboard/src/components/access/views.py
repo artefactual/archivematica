@@ -322,6 +322,7 @@ def _get_sip_arrange_children(record, system):
     if record['children']:  # record['children'] may be False
         for i, r in enumerate(record['children']):
             record['children'][i] = _get_sip_arrange_children(r, system)
+    record['has_children'] = record['has_children'] or ArchivesSpaceDOComponent.objects.filter(resourceid=record['id']).exists()
     return record
 
 @_authenticate_to_archivesspace
