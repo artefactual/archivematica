@@ -183,7 +183,7 @@ def once_normalized(command, opts, replacement_dict):
             continue
 
         today = timezone.now()
-        output_file_uuid = str(uuid.uuid4())
+        output_file_uuid = opts.task_uuid  # Match the UUID on disk
         # TODO Add manual normalization for files of same name mapping?
         #Add the new file to the SIP
         path_relative_to_sip = ef.replace(opts.sip_path, "%SIPDirectory%", 1)
