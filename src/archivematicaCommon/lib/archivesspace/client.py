@@ -503,9 +503,14 @@ class ArchivesSpaceClient(object):
             else:
                 dnote = "note"
             if "subnotes" in pnote:
-                content = [subnote["content"] for subnote in pnote["subnotes"]]
+                content = []
+                for subnote in pnote['subnotes']:
+                    if 'content' in subnote:
+                        content.append(subnote['content'])
+                    else:
+                        LOGGER.info('No content fiel in %s, skipping adding to child digital object.', subnote)
             else:
-                content = pnote["content"]
+                content = pnote.get("content", '')
 
             new_object["notes"].append({
                 "jsonmodel_type": "note_digital_object",
