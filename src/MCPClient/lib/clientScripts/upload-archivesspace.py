@@ -8,7 +8,6 @@ from main.models import ArchivesSpaceDIPObjectResourcePairing, File
 from fpr.models import FormatVersion
 
 # archivematicaCommon
-from archivematicaFunctions import get_dashboard_uuid
 from xml2obj import mets_file
 
 # Third party dependencies, alphabetical by import source
@@ -63,7 +62,6 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
     if not uri.endswith('/'):
         uri += '/'
     pairs = get_pairs(dip_uuid)
-    dashboard_uuid = get_dashboard_uuid()
 
     # get mets object if needed
     mets = None
@@ -175,13 +173,13 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
             format_name = as_formats.get(format_name)
 
         logger.info("Uploading {} to ArchivesSpace record {}".format(file_name, as_resource))
-        client.add_digital_object(as_resource,
-                                  dashboard_uuid,
+        client.add_digital_object(parent_archival_object=as_resource,
+                                  identifier=uuid,
                                   # TODO: fetch a title from DC?
                                   #       Use the title of the parent record?
                                   title=original_name,
                                   uri=uri + file_name,
-                                  identifier=uuid,
+                                  location_of_originals=dip_uuid,
                                   object_type=object_type,
                                   use_statement=use_statement,
                                   xlink_show=xlink_show,
