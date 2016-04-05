@@ -9,7 +9,6 @@ from fpr.models import FormatVersion
 
 # archivematicaCommon
 from archivesspace.client import ArchivesSpaceClient
-from elasticSearchFunctions import getDashboardUUID
 from xml2obj import mets_file
 
 # initialize Django (required for Django 1.7)
@@ -61,7 +60,6 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
     if not uri.endswith('/'):
         uri += '/'
     pairs = get_pairs(dip_uuid)
-    dashboard_uuid = getDashboardUUID()
 
     # get mets object if needed
     mets = None
@@ -174,7 +172,7 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
 
         logger.info("Uploading {} to ArchivesSpace record {}".format(file_name, as_resource))
         client.add_digital_object(as_resource,
-                                  dashboard_uuid,
+                                  location_of_originals=dip_uuid,
                                   # TODO: fetch a title from DC?
                                   #       Use the title of the parent record?
                                   title=original_name,

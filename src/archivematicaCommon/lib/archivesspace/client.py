@@ -438,7 +438,7 @@ class ArchivesSpaceClient(object):
 
         return resources_augmented
 
-    def add_digital_object(self, parent_archival_object, dashboard_uuid, title="", identifier=None, uri=None, object_type="text", xlink_show="embed", xlink_actuate="onLoad", restricted=False, use_statement="", use_conditions=None, access_conditions=None, size=None, format_name=None, format_version=None):
+    def add_digital_object(self, parent_archival_object, location_of_originals=None, title="", identifier=None, uri=None, object_type="text", xlink_show="embed", xlink_actuate="onLoad", restricted=False, use_statement="", use_conditions=None, access_conditions=None, size=None, format_name=None, format_version=None):
         """
         Creates a new digital object.
 
@@ -487,7 +487,7 @@ class ArchivesSpaceClient(object):
             "notes": [{
                 "jsonmodel_type": "note_digital_object",
                 "type": "originalsloc",
-                "content": [dashboard_uuid],
+                "content": [location_of_originals],
                 "publish": False,
             }],
             "restrictions": restricted,
