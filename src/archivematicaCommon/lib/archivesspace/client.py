@@ -515,7 +515,7 @@ class ArchivesSpaceClient(object):
             new_object["notes"].append({
                 "jsonmodel_type": "note_digital_object",
                 "type": dnote,
-                "label": pnote["label"],
+                "label": pnote.get("label", ""),
                 "content": content,
                 "publish": pnote["publish"],
             })
