@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 # This file is part of Archivematica.
 #
@@ -20,7 +20,8 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
-from __future__ import print_function
+from __future__ import absolute_import, print_function
+
 import os
 import sys
 import shutil
@@ -68,20 +69,16 @@ def main(sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath
                 os.makedirs(transfersLogsDestDir)
                 shutil.copytree(transferPath + "logs", os.path.join(transfersLogsDestDir, "logs"))
                 print("copied: ", transferPath + "logs", " -> ", os.path.join(transfersLogsDestDir, "logs"))
-                
 
         except Exception as inst:
             traceback.print_exc(file=sys.stderr)
             exitCode += 1
 
-    exit(exitCode)
+    sys.exit(exitCode)
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.copyTransfersMetadataAndLogs")
 
-    while False: #used to stall the mcp and stop the client for testing this module
-        import time
-        time.sleep(10)
     parser = OptionParser()
     parser.add_option("-s",  "--sipDirectory", action="store", dest="sipDirectory", default="")
     parser.add_option("-S",  "--sipUUID", action="store", dest="sipUUID", default="")
