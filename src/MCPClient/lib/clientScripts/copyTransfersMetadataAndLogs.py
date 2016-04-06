@@ -31,7 +31,7 @@ import traceback
 import django
 django.setup()
 # dashboard
-from main.models import File
+from main.models import File, SIP
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
@@ -45,32 +45,45 @@ def main(sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath
 
     exitCode = 0
 
-    files = File.objects.filter(sip_id=sipUUID, transfer__isnull=False).order_by('transfer__uuid').values_list('transfer__uuid', 'transfer__currentlocation')
-    for transferUUID, transferPath in files:
+    sip = SIP.objects.get(uuid=sipUUID)
+    transfer_paths = File.objects.filter(sip_id=sipUUID, transfer__isnull=False).order_by('transfer__uuid').values_list('transfer__currentlocation', flat=True).distinct()
+    for transferPath in transfer_paths:
         try:
             if sharedPath != "":
                 transferPath = transferPath.replace("%sharedPath%", sharedPath, 1)
             transferBasename = os.path.basename(os.path.abspath(transferPath))
-            transferMetaDestDir = os.path.join(transfersMetadataDirectory, transferBasename)
-            transfersLogsDestDir = os.path.join(transfersLogsDirectory, transferBasename)
-            if not os.path.exists(transferMetaDestDir):
+
+            # Copy transfer metadata
+            if 'REIN' in sip.sip_type:
+                # For reingest, ignore this transfer's metadata, only copy metadata from the original Transfer
+                transferMetaDestDir = transfersMetadataDirectory
+                transferMetadataDirectory = os.path.join(transferPath, "metadata", 'transfers')
+            else:
+                transferMetaDestDir = os.path.join(transfersMetadataDirectory, transferBasename)
                 os.makedirs(transferMetaDestDir)
                 transferMetadataDirectory = os.path.join(transferPath, "metadata")
-                for met in os.listdir(transferMetadataDirectory):
-                    if met == "submissionDocumentation":
-                        continue
-                    item = os.path.join(transferMetadataDirectory, met)
-                    if os.path.isdir(item):
-                        shutil.copytree(item, os.path.join(transferMetaDestDir, met))
-                    else:
-                        shutil.copy(item, os.path.join(transferMetaDestDir, met))
-                print("copied: ", transferPath + "metadata", " -> ", os.path.join(transferMetaDestDir, "metadata"))
-            if not os.path.exists(transfersLogsDestDir):
-                os.makedirs(transfersLogsDestDir)
-                shutil.copytree(transferPath + "logs", os.path.join(transfersLogsDestDir, "logs"))
-                print("copied: ", transferPath + "logs", " -> ", os.path.join(transfersLogsDestDir, "logs"))
+            if not os.path.exists(transferMetadataDirectory):
+                continue
+            for met in os.listdir(transferMetadataDirectory):
+                if met == "submissionDocumentation":
+                    continue
+                src = os.path.join(transferMetadataDirectory, met)
+                dst = os.path.join(transferMetaDestDir, met)
+                if os.path.isdir(src):
+                    shutil.copytree(src, dst)
+                else:
+                    shutil.copy(src, dst)
+                print("copied: ", src, " -> ", dst)
 
-        except Exception as inst:
+            # Copy transfer logs
+            transfersLogsDestDir = os.path.join(transfersLogsDirectory, transferBasename)
+            os.makedirs(transfersLogsDestDir)
+            src = os.path.join(transferPath, "logs")
+            dst = os.path.join(transfersLogsDestDir, "logs")
+            shutil.copytree(src, dst)
+            print("copied: ", src, " -> ", dst)
+
+        except Exception:
             traceback.print_exc(file=sys.stderr)
             exitCode += 1
 
@@ -84,6 +97,5 @@ if __name__ == '__main__':
     parser.add_option("-S",  "--sipUUID", action="store", dest="sipUUID", default="")
     parser.add_option("-p",  "--sharedPath", action="store", dest="sharedPath", default="/var/archivematica/sharedDirectory/")
     (opts, args) = parser.parse_args()
-
 
     main(opts.sipUUID, opts.sipDirectory+"metadata/transfers/", opts.sipDirectory+"logs/transfers/", sharedPath=opts.sharedPath)
