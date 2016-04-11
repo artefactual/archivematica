@@ -120,7 +120,7 @@ class DublinCore(models.Model):
     description = models.TextField(db_column='description', blank=True)
     publisher = models.TextField(db_column='publisher', blank=True)
     contributor = models.TextField(db_column='contributor', blank=True)
-    date = models.TextField(help_text='Use ISO 8061 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)', db_column='date', blank=True)
+    date = models.TextField(help_text='Use ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)', db_column='date', blank=True)
     type = models.TextField(db_column='type', blank=True)
     format = models.TextField(db_column='format', blank=True)
     identifier = models.TextField(db_column='identifier', blank=True)
