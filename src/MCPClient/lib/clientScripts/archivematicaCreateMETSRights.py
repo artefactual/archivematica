@@ -37,7 +37,7 @@ from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
 
 def formatDate(date):
-    """hack fix for 0.8, easy dashboard insertion ISO 8061 -> edtfSimpleType"""
+    """hack fix for 0.8, easy dashboard insertion ISO 8601 -> edtfSimpleType"""
     if date:
         date = date.replace("/", "-")
     return date
