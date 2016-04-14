@@ -108,7 +108,7 @@ class ArchivistsToolkitConfigForm(forms.ModelForm):
 class ArchivesSpaceConfigForm(forms.ModelForm):
     class Meta:
         model = ArchivesSpaceConfig
-        fields = ('host', 'port', 'user', 'passwd', 'premis', 'xlink_actuate', 'xlink_show', 'use_statement', 'object_type', 'access_conditions', 'use_conditions', 'uri_prefix', 'repository')
+        fields = ('host', 'port', 'user', 'passwd', 'premis', 'xlink_actuate', 'xlink_show', 'use_statement', 'object_type', 'access_conditions', 'use_conditions', 'uri_prefix', 'repository', 'inherit_notes')
         widgets = {
             'host': TextInput(attrs=settings.INPUT_ATTRS),
             'port': TextInput(attrs=settings.INPUT_ATTRS),

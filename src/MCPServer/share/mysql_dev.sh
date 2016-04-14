@@ -61,6 +61,7 @@ migrations=(
   mysql_dev_delete_views.sql
   mysql_dev_update_args_email_report.sql
   mysql_dev_dip_storage_after_upload.sql
+  mysql_dev_9647_archivesspace_inherit_notes.sql
 )
 
 failed=()

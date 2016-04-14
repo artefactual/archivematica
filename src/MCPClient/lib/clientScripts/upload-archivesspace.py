@@ -57,7 +57,7 @@ def delete_pairs(dip_uuid):
     ArchivesSpaceDIPObjectResourcePairing.objects.filter(dipuuid=dip_uuid).delete()
 
 
-def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_type, use_statement, uri, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
+def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_type, use_statement, uri, dip_uuid, access_conditions, use_conditions, restrictions, dip_location, inherit_notes):
 
     if not uri.endswith('/'):
         uri += '/'
@@ -133,11 +133,11 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
                 uuid=uuid
             )
         except (File.DoesNotExist, File.MultipleObjectsReturned):
-            original_name=''
+            original_name = ''
             size = format_name = format_version = None
         else:
-            #set some variables based on the original, we will override most ofthese
-            #if there is an access derivative
+            # Set some variables based on the original, we will override most ofthese
+            # If there is an access derivative
             size = os.path.getsize(f)
             fv = FormatVersion.objects.get(fileformatversion__file_uuid=uuid)
             format_version = fv.description
@@ -149,7 +149,8 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
                 original_file_set__source_file=uuid
             )
         except (File.DoesNotExist, File.MultipleObjectsReturned):
-            pass #just use original file info
+            # Just use original file info
+            pass
         else:
             # HACK remove DIP from the path because create DIP doesn't
             access_file_path = access_file.currentlocation.replace('%SIPDirectory%DIP/', dip_location)
@@ -190,36 +191,40 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
                                   size=size,
                                   format_name=format_name,
                                   format_version=format_version,
+                                  inherit_notes=inherit_notes,
         )
 
         delete_pairs(dip_uuid)
+
 
 if __name__ == '__main__':
     RESTRICTIONS_CHOICES = ['yes', 'no', 'premis']
     EAD_SHOW_CHOICES = ['embed', 'new', 'none', 'other', 'replace']
     EAD_ACTUATE_CHOICES = ['none', 'onLoad', 'other', 'onRequest']
+    INHERIT_NOTES_CHOICES = ['yes', 'y', 'true', '1']
 
-    parser = argparse.ArgumentParser(description="A program to take digital objects from a DIP and upload them to an ArchivesSpace db")
-    parser.add_argument('--host', default="localhost", dest="host",
-        metavar="host", help="hostname of ArchivesSpace")
-    parser.add_argument('--port', type=int, default=8089, dest='port',
-        metavar="port", help="Port used by ArchivesSpace backend API")
-    parser.add_argument('--user', dest='user', metavar="Administrative user")
-    parser.add_argument('--passwd', dest='passwd', metavar="Administrative user password")
-    parser.add_argument('--dip_location', metavar="dip location")
-    parser.add_argument('--dip_name', metavar="dip name")
-    parser.add_argument('--dip_uuid', metavar="dip uuid")
-    parser.add_argument('--restrictions', metavar="restrictions apply", default="premis", choices=RESTRICTIONS_CHOICES)
-    parser.add_argument('--object_type', metavar="object type", default="")
-    parser.add_argument('--xlink_actuate', metavar="xlink actuate", default="onRequest", choices=EAD_ACTUATE_CHOICES)
-    parser.add_argument('--xlink_show', metavar="xlink show", default="new", choices=EAD_SHOW_CHOICES)
-    parser.add_argument('--use_statement', metavar="use statement")
-    parser.add_argument('--uri_prefix', metavar="uri prefix")
-    parser.add_argument('--access_conditions', metavar="conditions governing access", default="")
-    parser.add_argument('--use_conditions', metavar="conditions governing use", default="")
+    parser = argparse.ArgumentParser(description='A program to take digital objects from a DIP and upload them to an ArchivesSpace db')
+    parser.add_argument('--host', default='localhost', dest='host', metavar='host', help='Hostname of ArchivesSpace')
+    parser.add_argument('--port', type=int, default=8089, dest='port', metavar='port', help='Port used by ArchivesSpace backend API')
+    parser.add_argument('--user', dest='user', help='Administrative user')
+    parser.add_argument('--passwd', dest='passwd', help='Administrative user password')
+    parser.add_argument('--dip_location', help='DIP location')
+    parser.add_argument('--dip_name', help='DIP name')
+    parser.add_argument('--dip_uuid', help='DIP UUID')
+    parser.add_argument('--restrictions', help='Restrictions apply', default='premis', choices=RESTRICTIONS_CHOICES)
+    parser.add_argument('--object_type', help='object type', default='')
+    parser.add_argument('--xlink_actuate', help='XLink actuate', default='onRequest', choices=EAD_ACTUATE_CHOICES)
+    parser.add_argument('--xlink_show', help='XLink show', default='new', choices=EAD_SHOW_CHOICES)
+    parser.add_argument('--use_statement', help='USE statement')
+    parser.add_argument('--uri_prefix', help='URI prefix')
+    parser.add_argument('--access_conditions', help='Conditions governing access', default='')
+    parser.add_argument('--use_conditions', help='Conditions governing use', default='')
+    parser.add_argument('--inherit_notes', help='Inherit digital object notes from the parent component', default='no', type=str)
     parser.add_argument('--version', action='version', version='%(prog)s 0.1.0')
     args = parser.parse_args()
 
+    args.inherit_notes = args.inherit_notes.lower() in INHERIT_NOTES_CHOICES
+
     client = ArchivesSpaceClient(host=args.host, user=args.user, passwd=args.passwd)
     files = get_files_from_dip(args.dip_location, args.dip_name, args.dip_uuid)
-    upload_to_archivesspace(files, client, args.xlink_show, args.xlink_actuate, args.object_type, args.use_statement, args.uri_prefix, args.dip_uuid, args.access_conditions, args.use_conditions, args.restrictions, args.dip_location)
+    upload_to_archivesspace(files, client, args.xlink_show, args.xlink_actuate, args.object_type, args.use_statement, args.uri_prefix, args.dip_uuid, args.access_conditions, args.use_conditions, args.restrictions, args.dip_location, args.inherit_notes)
