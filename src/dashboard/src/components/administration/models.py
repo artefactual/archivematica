@@ -35,6 +35,7 @@ class ArchivistsToolkitConfig(models.Model):
     access_conditions = models.CharField(max_length=50, blank=True, verbose_name='Conditions governing access')
     use_conditions = models.CharField(max_length=50, blank=True, verbose_name='Conditions governing use')
 
+
 class ArchivesSpaceConfig(models.Model):
     id = UUIDPkField()
     host = models.CharField(max_length=50, verbose_name='ArchivesSpace host', help_text='Do not include http:// or www. Example: aspace.test.org ')
@@ -50,3 +51,4 @@ class ArchivesSpaceConfig(models.Model):
     access_conditions = models.CharField(max_length=50, blank=True, verbose_name='Conditions governing access', help_text='Populates Conditions governing access note')
     use_conditions = models.CharField(max_length=50, blank=True, verbose_name='Conditions governing use', help_text='Populates Conditions governing use note')
     repository = models.IntegerField(default=2, verbose_name='ArchivesSpace repository number', help_text='Default for single repository installation is 2')
+    inherit_notes = models.BooleanField(default=False, verbose_name='Inherit digital object notes from the parent component')

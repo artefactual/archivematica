@@ -146,6 +146,7 @@ def administration_as_dips(request):
                 "%use_conditions%": new_asconfig.use_conditions,
                 "%use_statement%": new_asconfig.use_statement,
                 "%repository%": str(new_asconfig.repository),
+                "%inherit_notes%": str(new_asconfig.inherit_notes),
             }
 
             logger.debug('New ArchivesSpace settings: %s', (settings,))
