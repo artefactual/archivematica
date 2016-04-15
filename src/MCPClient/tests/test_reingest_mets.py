@@ -791,32 +791,25 @@ class TestDeleteFiles(TestCase):
 
     def test_delete_file(self):
         """
-        It should change the fileGrp USE to deleted.
-        It should remove the FLocat from the fileSec.
+        It should remove it from the fileSec
         It should remove the div from the structMap.
-        It should add a deletion event (covered by add_events).
+        It should remove the amdSec.
         """
         mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_no_metadata.xml'))
         assert mets.tree.find('.//mets:fileGrp[@USE="preservation"]', namespaces=NSMAP) is not None
-        assert mets.tree.find('.//mets:fileGrp[@USE="deleted"]', namespaces=NSMAP) is None
         assert mets.tree.find('.//mets:file[@ID="file-8140ebe5-295c-490b-a34a-83955b7c844e"]', namespaces=NSMAP) is not None
         assert mets.tree.find('.//mets:FLocat[@xlink:href="objects/evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif"]', namespaces=NSMAP) is not None
         assert mets.tree.find('.//mets:div[@LABEL="evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif"]', namespaces=NSMAP) is not None
+        assert mets.tree.find('mets:amdSec[@ID="amdSec_1"]', namespaces=NSMAP) is not None
 
         mets = archivematicaCreateMETSReingest.delete_files(mets, self.sip_uuid)
         root = mets.serialize()
 
         assert root.find('.//mets:fileGrp[@USE="preservation"]', namespaces=NSMAP) is None
-        deletedgrp = root.find('.//mets:fileGrp[@USE="deleted"]', namespaces=NSMAP)
-        assert deletedgrp is not None
-        assert len(deletedgrp) == 1
-        assert deletedgrp[0].tag == '{http://www.loc.gov/METS/}file'
-        assert deletedgrp[0].attrib['ID'] == 'file-8140ebe5-295c-490b-a34a-83955b7c844e'
-        assert deletedgrp[0].attrib['GROUPID'] == 'Group-ae8d4290-fe52-4954-b72a-0f591bee2e2f'
-        assert deletedgrp[0].attrib['ADMID'] == 'amdSec_1'
-        assert len(deletedgrp[0].attrib) == 3
-        assert len(deletedgrp[0]) == 0
+        assert root.find('mets:fileSec//mets:file[@ID="file-8140ebe5-295c-490b-a34a-83955b7c844e"]', namespaces=NSMAP) is None
+        assert root.find('mets:fileSec//mets:FLocat[@xlink:href="objects/evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif"]', namespaces=NSMAP) is None
         assert root.find('.//mets:div[@LABEL="evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif"]', namespaces=NSMAP) is None
+        assert root.find('mets:amdSec[@ID="amdSec_1"]', namespaces=NSMAP) is None
 
 
 class TestUpdateMetadataCSV(TestCase):
