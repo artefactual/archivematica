@@ -57,12 +57,12 @@ def parse_files(root):
 
         amdid = fe.get('ADMID')
         print('amdid', amdid)
-        amdsec = root.find('.//mets:amdSec[@ID="'+amdid+'"]', namespaces=ns.NSMAP)
+        current_techmd = root.xpath('mets:amdSec[@ID="' + amdid + '"]/mets:techMD[not(@STATUS="superseded")]', namespaces=ns.NSMAP)[0]
 
-        file_uuid = amdsec.findtext('.//premis:objectIdentifierValue', namespaces=ns.NSMAP)
+        file_uuid = current_techmd.findtext('.//premis:objectIdentifierValue', namespaces=ns.NSMAP)
         print('file_uuid', file_uuid)
 
-        original_path = amdsec.findtext('.//premis:originalName', namespaces=ns.NSMAP)
+        original_path = current_techmd.findtext('.//premis:originalName', namespaces=ns.NSMAP)
         original_path = original_path.replace('%transferDirectory%', '%SIPDirectory%')
         print('original_path', original_path)
 
@@ -70,26 +70,26 @@ def parse_files(root):
         current_path = '%SIPDirectory%' + current_path
         print('current_path', current_path)
 
-        checksum = amdsec.findtext('.//premis:messageDigest', namespaces=ns.NSMAP)
+        checksum = current_techmd.findtext('.//premis:messageDigest', namespaces=ns.NSMAP)
         print('checksum', checksum)
 
-        checksumtype = amdsec.findtext('.//premis:messageDigestAlgorithm', namespaces=ns.NSMAP)
+        checksumtype = current_techmd.findtext('.//premis:messageDigestAlgorithm', namespaces=ns.NSMAP)
         print('checksumtype', checksumtype)
 
-        size = amdsec.findtext('.//premis:size', namespaces=ns.NSMAP)
+        size = current_techmd.findtext('.//premis:size', namespaces=ns.NSMAP)
         print('size', size)
 
         # FormatVersion
-        format_version = parse_format_version(amdsec)
+        format_version = parse_format_version(current_techmd)
         print('format_version', format_version)
 
         # Derivation
         derivation = derivation_event = None
-        event = amdsec.findtext('.//premis:relatedEventIdentifierValue', namespaces=ns.NSMAP)
+        event = current_techmd.findtext('.//premis:relatedEventIdentifierValue', namespaces=ns.NSMAP)
         print('derivation event', event)
-        related_uuid = amdsec.findtext('.//premis:relatedObjectIdentifierValue', namespaces=ns.NSMAP)
+        related_uuid = current_techmd.findtext('.//premis:relatedObjectIdentifierValue', namespaces=ns.NSMAP)
         print('related_uuid', related_uuid)
-        rel = amdsec.findtext('.//premis:relationshipSubType', namespaces=ns.NSMAP)
+        rel = current_techmd.findtext('.//premis:relationshipSubType', namespaces=ns.NSMAP)
         print('relationship', rel)
         if rel == 'is source of':
             derivation = related_uuid
