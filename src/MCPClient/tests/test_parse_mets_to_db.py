@@ -413,6 +413,48 @@ class TestParseFiles(TestCase):
         assert pres['derivation'] == self.PRES_INFO['derivation']
         assert pres['derivation_event'] == self.PRES_INFO['derivation_event']
 
+    def test_parse_file_info_reingest(self):
+        """
+        It should parse the correct techMD in the amdSec.
+        """
+        root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_superseded_techmd.xml'))
+        files = parse_mets_to_db.parse_files(root)
+        assert len(files) == 3
+        orig = files[0]
+        assert orig['uuid'] == self.ORIG_INFO['uuid']
+        assert orig['original_path'] == self.ORIG_INFO['original_path']
+        assert orig['current_path'] == self.ORIG_INFO['current_path']
+        assert orig['use'] == self.ORIG_INFO['use']
+        assert orig['checksum'] == self.ORIG_INFO['checksum']
+        assert orig['checksumtype'] == self.ORIG_INFO['checksumtype']
+        assert orig['size'] == self.ORIG_INFO['size']
+        assert orig['format_version'] == self.ORIG_INFO['format_version']
+        assert orig['derivation'] == self.ORIG_INFO['derivation']
+        assert orig['derivation_event'] == self.ORIG_INFO['derivation_event']
+        mets = files[1]
+        assert mets['uuid'] == self.METS_INFO['uuid']
+        assert mets['original_path'] == self.METS_INFO['original_path']
+        assert mets['current_path'] == self.METS_INFO['current_path']
+        assert mets['use'] == self.METS_INFO['use']
+        assert mets['checksum'] == self.METS_INFO['checksum']
+        assert mets['checksumtype'] == self.METS_INFO['checksumtype']
+        assert mets['size'] == self.METS_INFO['size']
+        assert mets['format_version'] == self.METS_INFO['format_version']
+        assert mets['derivation'] == self.METS_INFO['derivation']
+        assert mets['derivation_event'] == self.METS_INFO['derivation_event']
+        pres = files[2]
+        assert pres['uuid'] == self.PRES_INFO['uuid']
+        assert pres['original_path'] == self.PRES_INFO['original_path']
+        assert pres['current_path'] == self.PRES_INFO['current_path']
+        assert pres['use'] == self.PRES_INFO['use']
+        assert pres['checksum'] == self.PRES_INFO['checksum']
+        assert pres['checksumtype'] == self.PRES_INFO['checksumtype']
+        assert pres['size'] == self.PRES_INFO['size']
+        assert pres['format_version'] == self.PRES_INFO['format_version']
+        assert pres['derivation'] == self.PRES_INFO['derivation']
+        assert pres['derivation_event'] == self.PRES_INFO['derivation_event']
+
+
     def test_insert_file_info(self):
         """ It should insert file info into the DB. """
         files = [self.METS_INFO, self.PRES_INFO, self.ORIG_INFO]
