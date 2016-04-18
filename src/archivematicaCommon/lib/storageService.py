@@ -367,7 +367,7 @@ def pointer_file_url(file_uuid):
     return download_url
 
 
-def request_reingest(package_uuid, reingest_type):
+def request_reingest(package_uuid, reingest_type, processing_config):
     """
     Requests `package_uuid` for reingest in this pipeline.
 
@@ -379,7 +379,8 @@ def request_reingest(package_uuid, reingest_type):
     api = _storage_api()
     api_request = {
         'pipeline': get_setting('dashboard_uuid'),
-        'reingest_type': reingest_type
+        'reingest_type': reingest_type,
+        'processing_config': processing_config,
     }
     try:
         response = api.file(package_uuid).reingest.post(api_request)

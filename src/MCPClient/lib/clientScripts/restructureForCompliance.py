@@ -119,6 +119,12 @@ def restructure_transfer_aip(unit_path):
         item_path = os.path.join(src, item)
         _move_file(item_path, dst)
 
+    # Move /old_bag/processingMCP.xml => /processingMCP.xml
+    src = os.path.join(old_bag, 'processingMCP.xml')
+    dst = os.path.join(unit_path, 'processingMCP.xml')
+    if os.path.isfile(src):
+        _move_file(src, dst)
+
     # Get rid of old_bag
     shutil.rmtree(old_bag)
 

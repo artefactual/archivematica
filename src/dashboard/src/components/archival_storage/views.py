@@ -616,7 +616,7 @@ def view_aip(request, uuid):
         form_reingest = forms.ReingestAIPForm(request.POST, prefix='reingest')
         active_tab = 'reingest'
         if form_reingest.is_valid():
-            response = storage_service.request_reingest(uuid, form_reingest.cleaned_data['reingest_type'])
+            response = storage_service.request_reingest(uuid, form_reingest.cleaned_data['reingest_type'], form_reingest.cleaned_data['processing_config'])
             error = response.get('error', True)
             message = response.get('message', 'An unknown error occurred.')
             if error:
