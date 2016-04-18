@@ -177,6 +177,11 @@ def rights_edit(request, uuid, id=None, section='ingest'):
         form=forms.RightsOtherRightsForm
     )
 
+    copyrightFormset = CopyrightFormSet()
+    statuteFormset = StatuteFormSet()
+    licenseFormset = LicenseFormSet()
+    otherFormset = OtherFormSet()
+
     # handle form creation/saving
     if request.method == 'POST':
         if id:
@@ -189,6 +194,9 @@ def rights_edit(request, uuid, id=None, section='ingest'):
             createdRights = form.save()
 
         copyrightFormset = CopyrightFormSet(request.POST, instance=createdRights)
+        if not copyrightFormset.is_valid():
+            return render(request, 'rights/rights_edit.html', locals())
+
         createdCopyrightSet = copyrightFormset.save()
 
         # establish whether or not there is a copyright information instance to use as a parent
@@ -232,6 +240,9 @@ def rights_edit(request, uuid, id=None, section='ingest'):
             new_content_type_created = 'copyright'
 
         licenseFormset = LicenseFormSet(request.POST, instance=createdRights)
+        if not licenseFormset.is_valid():
+            return render(request, 'rights/rights_edit.html', locals())
+
         createdLicenseSet = licenseFormset.save()
 
         # establish whether or not there is a license instance to use as a parent
@@ -275,7 +286,11 @@ def rights_edit(request, uuid, id=None, section='ingest'):
             new_content_type_created = 'license'
 
         statuteFormset = StatuteFormSet(request.POST, instance=createdRights)
+        if not statuteFormset.is_valid():
+            return render(request, 'rights/rights_edit.html', locals())
+
         createdStatuteSet = statuteFormset.save()
+
         if request.POST.get('statute_previous_pk', '') == 'None' and len(createdStatuteSet) == 1:
             new_content_type_created = 'statute'
 
@@ -334,6 +349,9 @@ def rights_edit(request, uuid, id=None, section='ingest'):
         statuteFormset = StatuteFormSet(instance=createdRights)
 
         otherFormset = OtherFormSet(request.POST, instance=createdRights)
+        if not otherFormset.is_valid():
+            return render(request, 'rights/rights_edit.html', locals())
+
         createdOtherSet = otherFormset.save()
 
         # establish whether or not there is an "other" instance to use as a parent
@@ -387,9 +405,9 @@ def rights_edit(request, uuid, id=None, section='ingest'):
             return redirect(url)
     else:
         copyrightFormset = CopyrightFormSet(instance=viewRights)
-        statuteFormset   = StatuteFormSet(instance=viewRights)
-        licenseFormset   = LicenseFormSet(instance=viewRights)
-        otherFormset     = OtherFormSet(instance=viewRights)
+        statuteFormset = StatuteFormSet(instance=viewRights)
+        licenseFormset = LicenseFormSet(instance=viewRights)
+        otherFormset = OtherFormSet(instance=viewRights)
 
     # show what content's been created after a redirect
     if request.GET.get('created', '') != '':
