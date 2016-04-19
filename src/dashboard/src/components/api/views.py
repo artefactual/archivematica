@@ -433,7 +433,7 @@ def reingest(request, target):
         $ http POST http://localhost/api/ingest/reingest \
           username=demo api_key=$API_KEY \
           name=test-efeb95b4-5e44-45a4-ab5a-9d700875eb60 \
-          uid=efeb95b4-5e44-45a4-ab5a-9d700875eb60
+          uuid=efeb95b4-5e44-45a4-ab5a-9d700875eb60
 
     :param str target: ingest or transfer
     """
@@ -462,6 +462,7 @@ def reingest(request, target):
     shared_directory_path = helpers.get_server_config_value('sharedDirectory')
     source = os.path.join(shared_directory_path, 'tmp', sip_name)
 
+    reingest_uuid = sip_uuid
     if target == 'transfer':
         dest = os.path.join(shared_directory_path, 'watchedDirectories', 'activeTransfers', 'standardTransfer')
         name_has_uuid = len(sip_name) > 36 and re.match(UUID_REGEX, sip_name[-36:]) is not None
@@ -478,7 +479,8 @@ def reingest(request, target):
             'uuid': str(uuid.uuid4()),
             'type': 'Archivematica AIP',
         }
-        transfer = models.Transfer.objects.create(**tdetails)
+        reingest_uuid = tdetails['uuid']
+        models.Transfer.objects.create(**tdetails)
         LOGGER.info('Transfer saved in the database (uuid=%s, type=%s, location=%s)', tdetails['uuid'], tdetails['type'], tdetails['currentlocation'])
 
     elif target == 'ingest':
@@ -495,7 +497,7 @@ def reingest(request, target):
         response = {'error': True, 'message': error}
         return helpers.json_response(response, status_code=500)
     else:
-        response = {'message': 'Approval successful.'}
+        response = {'message': 'Approval successful.', 'reingest_uuid': reingest_uuid}
         return helpers.json_response(response)
 
 def get_levels_of_description(request):
