@@ -31,5 +31,5 @@ urlpatterns = [
     url(r'^copy_to_arrange/$', views.copy_to_arrange),
     url(r'^transfer/$', views.start_transfer_logged_in),
     url(r'^copy_from_arrange/$', views.copy_from_arrange_to_completed),
-    url(r'^copy_metadata_files/$', views.copy_metadata_files),
+    url(r'^copy_metadata_files/$', views.copy_metadata_files_logged_in),
 ]
