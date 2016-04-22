@@ -710,16 +710,22 @@ def copy_to_arrange(request, sourcepath=None, destination=None):
     return helpers.json_response(response, status_code=status_code)
 
 
-def copy_metadata_files(request):
+def copy_metadata_files_logged_in(request):
+    """
+    Endpoint for adding metadata files to a SIP if logged in and calling from the dashboard.
+    """
+    sip_uuid = request.POST.get('sip_uuid')
+    paths = request.POST.getlist('source_paths[]')
+    return copy_metadata_files(sip_uuid, paths)
+
+def copy_metadata_files(sip_uuid, paths):
     """
     Copy files from list `source_paths` to sip_uuid's metadata folder.
 
     sip_uuid: UUID of the SIP to put files in
-    source_paths: List of files to be copied, base64 encoded, in the format
+    paths: List of files to be copied, base64 encoded, in the format
         'source_location_uuid:full_path'
     """
-    sip_uuid = request.POST.get('sip_uuid')
-    paths = request.POST.getlist('source_paths[]')
     if not sip_uuid or not paths:
         response = {
             'error': True,
@@ -762,11 +768,11 @@ def copy_from_transfer_sources(paths, relative_destination):
         try:
             location, path = p.split(':', 1)
         except ValueError:
-            logger.debug('Path %s cannot be split into location:path', p)
-            continue
+            logger.warning('Path %s cannot be split into location:path', p)
+            return True, 'Path' + p + 'cannot be split into location:path'
         if location not in files:
-            logger.debug('Location %s is not associated with this pipeline.', location)
-            continue
+            logger.warning('Location %s is not associated with this pipeline.', location)
+            return True, 'Location' + location + 'is not associated with this pipeline'
 
         source = path.replace(files[location]['location']['path'], '', 1).lstrip('/')
         # Use the last segment of the path for the destination - basename for a
