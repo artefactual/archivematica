@@ -78,6 +78,58 @@
     }
 },
 {
+    "pk": 7,
+    "model": "main.rightsstatement",
+    "fields": {
+        "status": "REINGEST",
+        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
+        "rightsholder": 0,
+        "rightsstatementidentifiervalue": "",
+        "rightsbasis": "Copyright",
+        "rightsstatementidentifiertype": ""
+    }
+},
+{
+    "pk": 8,
+    "model": "main.rightsstatement",
+    "fields": {
+        "status": "REINGEST",
+        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
+        "rightsholder": 0,
+        "rightsstatementidentifiervalue": "",
+        "rightsbasis": "License",
+        "rightsstatementidentifiertype": ""
+    }
+},
+{
+    "pk": 9,
+    "model": "main.rightsstatement",
+    "fields": {
+        "status": "REINGEST",
+        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
+        "rightsholder": 0,
+        "rightsstatementidentifiervalue": "",
+        "rightsbasis": "Donor",
+        "rightsstatementidentifiertype": ""
+    }
+},
+{
+    "pk": 10,
+    "model": "main.rightsstatement",
+    "fields": {
+        "status": "REINGEST",
+        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
+        "rightsholder": 0,
+        "rightsstatementidentifiervalue": "",
+        "rightsbasis": "Policy",
+        "rightsstatementidentifiertype": ""
+    }
+},
+{
     "pk": 1,
     "model": "main.rightsstatementcopyright",
     "fields": {
