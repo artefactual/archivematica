@@ -492,9 +492,10 @@ class TestUpdateRights(TestCase):
         assert new_rights is not None
         assert new_rights.attrib['STATUS'] == 'current'
         assert new_rights.attrib['CREATED']
-        assert new_rights.find('.//premis:statuteApplicableDates/premis:endDate', namespaces=NSMAP).text == '2054'
-        assert new_rights.find('.//premis:termOfRestriction/premis:endDate', namespaces=NSMAP).text == '2054'
-        assert new_rights.find('.//premis:statuteNote', namespaces=NSMAP).text == 'SIN'
+        assert new_rights.findtext('.//premis:rightsBasis', namespaces=NSMAP) == 'Statute'
+        assert new_rights.findtext('.//premis:statuteApplicableDates/premis:endDate', namespaces=NSMAP) == '2054'
+        assert new_rights.findtext('.//premis:termOfRestriction/premis:endDate', namespaces=NSMAP) == '2054'
+        assert new_rights.findtext('.//premis:statuteNote', namespaces=NSMAP) == 'SIN'
 
     def test_update_reingested_rights(self):
         """
@@ -521,6 +522,33 @@ class TestUpdateRights(TestCase):
         assert new_rights.find('.//premis:statuteApplicableDates/premis:endDate', namespaces=NSMAP).text == '2054'
         assert new_rights.find('.//premis:termOfRestriction/premis:endDate', namespaces=NSMAP).text == '2054'
         assert new_rights.find('.//premis:statuteNote', namespaces=NSMAP).text == 'SIN'
+
+    def test_delete_rights(self):
+        """ It should mark the original rightsMD as obsolete. """
+        mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_all_rights.xml'))
+        assert len(mets.tree.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 5
+        mets = archivematicaCreateMETSReingest.update_rights(mets, self.sip_uuid_none)
+        root = mets.serialize()
+
+        assert len(root.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 5
+        assert len(root.findall('mets:amdSec/mets:rightsMD[@STATUS="superseded"]', namespaces=NSMAP)) == 5
+
+    def test_delete_and_add(self):
+        """
+        Use case: Entire rights basis deleted, new one added
+        Solution: Mark original rightsMD as superseded. New rightsMD marked as current. """
+        """ It should mark the original rightsMD as obsolete. """
+        mets = metsrw.METSDocument.fromfile(os.path.join(FIXTURES_DIR, 'mets_updated_rights.xml'))
+        assert len(mets.tree.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 2
+        mets = archivematicaCreateMETSReingest.update_rights(mets, self.sip_uuid_original)
+        root = mets.serialize()
+
+        assert len(root.findall('mets:amdSec/mets:rightsMD', namespaces=NSMAP)) == 6
+        assert len(root.findall('mets:amdSec/mets:rightsMD[@STATUS="superseded"]', namespaces=NSMAP)) == 2
+        assert root.find('mets:amdSec/mets:rightsMD[@ID="rightsMD_1"]', namespaces=NSMAP).attrib['STATUS'] == 'superseded'
+        assert root.find('mets:amdSec/mets:rightsMD[@ID="rightsMD_2"]', namespaces=NSMAP).attrib['STATUS'] == 'superseded'
+        assert len(root.findall('mets:amdSec/mets:rightsMD[@STATUS="current"]', namespaces=NSMAP)) == 4
+        assert root.xpath('mets:amdSec/mets:rightsMD[@STATUS="current"]//premis:rightsBasis[text()="Statute"]', namespaces=NSMAP) != []
 
 
 class TestAddEvents(TestCase):

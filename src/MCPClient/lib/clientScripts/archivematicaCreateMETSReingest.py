@@ -143,6 +143,30 @@ def update_rights(mets, sip_uuid):
     # Get original files to add rights to
     original_files = [f for f in mets.all_files() if f.use == 'original']
 
+    # Check for deleted rights - exist in METS but not in DB
+    # Cache rightsbasis in DB
+    rightsmds_db = {}  # memoize
+    for rightsbasis in models.RightsStatement.RIGHTS_BASIS_CHOICES:
+        # ORIGINAL RightsStatements are unrelated to the old one.
+        rightsmds_db[rightsbasis[0]] = models.RightsStatement.objects.filter(
+            metadataappliestoidentifier=sip_uuid,
+            metadataappliestotype_id=createmets2.SIPMetadataAppliesToType,
+            rightsbasis=rightsbasis[0],
+        ).exclude(status=models.METADATA_STATUS_ORIGINAL)
+
+    for fsentry in original_files:
+        rightsmds = [s for s in fsentry.amdsecs[0].subsections if s.subsection == 'rightsMD']
+        for r in rightsmds:
+            if r.status == 'superseded':
+                continue
+            rightsbasis = r.contents.document.findtext('.//premis:rightsBasis', namespaces=ns.NSMAP)
+            if rightsbasis == 'Other':
+                rightsbasis = r.contents.document.findtext('.//premis:otherRightsBasis', namespaces=ns.NSMAP)
+            db_rights = rightsmds_db[rightsbasis]
+            if not db_rights:  # TODO this may need to be more robust for RightsStatementRightsGranted
+                print('Rights', r.id_string(), 'looks deleted - making superseded')
+                r.status = 'superseded'
+
     # Check for newly added rights
     rights_list = models.RightsStatement.objects.filter(
         metadataappliestoidentifier=sip_uuid,
