@@ -392,38 +392,39 @@ def parse_rights(sip_uuid, root):
                 )
 
             # Parse rightsGranted
-            rights_act = statement.findtext('.//premis:rightsGranted/premis:act', namespaces=ns.NSMAP) or ""
-            rights_start_date = statement.findtext('.//premis:rightsGranted/*/premis:startDate', namespaces=ns.NSMAP) or ""
-            rights_end_date = statement.findtext('.//premis:rightsGranted/*/premis:endDate', namespaces=ns.NSMAP) or ""
-            rights_end_open = False
-            if rights_end_date == 'OPEN':
-                rights_end_date = None
-                rights_end_open = True
-            print('rights_act', rights_act)
-            print('rights_start_date', rights_start_date)
-            print('rights_end_date', rights_end_date)
-            print('rights_end_open', rights_end_open)
-            rights_granted = models.RightsStatementRightsGranted.objects.create(
-                rightsstatement=rights,
-                act=rights_act,
-                startdate=rights_start_date,
-                enddate=rights_end_date,
-                enddateopen=rights_end_open,
-            )
+            for rightsgranted_elem in statement.findall('.//premis:rightsGranted', namespaces=ns.NSMAP):
+                rights_act = rightsgranted_elem.findtext('premis:act', namespaces=ns.NSMAP) or ""
+                rights_start_date = rightsgranted_elem.findtext('.//premis:startDate', namespaces=ns.NSMAP) or ""
+                rights_end_date = rightsgranted_elem.findtext('.//premis:endDate', namespaces=ns.NSMAP) or ""
+                rights_end_open = False
+                if rights_end_date == 'OPEN':
+                    rights_end_date = None
+                    rights_end_open = True
+                print('rights_act', rights_act)
+                print('rights_start_date', rights_start_date)
+                print('rights_end_date', rights_end_date)
+                print('rights_end_open', rights_end_open)
+                rights_granted = models.RightsStatementRightsGranted.objects.create(
+                    rightsstatement=rights,
+                    act=rights_act,
+                    startdate=rights_start_date,
+                    enddate=rights_end_date,
+                    enddateopen=rights_end_open,
+                )
 
-            rights_note = statement.findtext('.//premis:rightsGranted/premis:rightsGrantedNote', namespaces=ns.NSMAP) or ""
-            print('rights_note', rights_note)
-            models.RightsStatementRightsGrantedNote.objects.create(
-                rightsgranted=rights_granted,
-                rightsgrantednote=rights_note,
-            )
+                rights_note = rightsgranted_elem.findtext('premis:rightsGrantedNote', namespaces=ns.NSMAP) or ""
+                print('rights_note', rights_note)
+                models.RightsStatementRightsGrantedNote.objects.create(
+                    rightsgranted=rights_granted,
+                    rightsgrantednote=rights_note,
+                )
 
-            rights_restriction = statement.findtext('.//premis:rightsGranted/premis:restriction', namespaces=ns.NSMAP) or ""
-            print('rights_restriction', rights_restriction)
-            models.RightsStatementRightsGrantedRestriction.objects.create(
-                rightsgranted=rights_granted,
-                restriction=rights_restriction,
-            )
+                rights_restriction = rightsgranted_elem.findtext('premis:restriction', namespaces=ns.NSMAP) or ""
+                print('rights_restriction', rights_restriction)
+                models.RightsStatementRightsGrantedRestriction.objects.create(
+                    rightsgranted=rights_granted,
+                    restriction=rights_restriction,
+                )
             parsed_rights.append(rights)
     return parsed_rights
 

@@ -119,7 +119,10 @@ class TestParsePremisRights(TestCase):
         assert models.RightsStatement.objects.filter(metadataappliestoidentifier=sip_uuid).exists() is False
 
     def test_parse_copyright(self):
-        """ It should parse copyright rights. """
+        """
+        It should parse copyright rights.
+        It should parse multiple rightsGranted.
+        """
         sip_uuid = '50d65db1-86cd-4579-80af-8d9c0dbd7fca'
         root = etree.parse(os.path.join(THIS_DIR, 'fixtures', 'mets_all_rights.xml'))
         rights_list = parse_mets_to_db.parse_rights(sip_uuid, root)
@@ -143,14 +146,23 @@ class TestParsePremisRights(TestCase):
         assert di.copyrightdocumentationidentifierrole == ''
         note = models.RightsStatementCopyrightNote.objects.get(rightscopyright=cr)
         assert note.copyrightnote == 'Copyright expires 2010'
-        rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
-        assert rg.act == 'Disseminate'
-        assert rg.startdate == '2000'
-        assert rg.enddate is None
-        assert rg.enddateopen is True
-        rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
+        rg = models.RightsStatementRightsGranted.objects.filter(rightsstatement=rights)
+        assert len(rg) == 2
+        assert rg[0].act == 'Disseminate'
+        assert rg[0].startdate == '2000'
+        assert rg[0].enddate is None
+        assert rg[0].enddateopen is True
+        rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg[0])
         assert rgnote.rightsgrantednote == 'Attribution required'
-        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(rightsgranted=rg)
+        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(rightsgranted=rg[0])
+        assert rgrestriction.restriction == 'Allow'
+        assert rg[1].act == 'Access'
+        assert rg[1].startdate == '1999'
+        assert rg[1].enddate is None
+        assert rg[1].enddateopen is True
+        rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg[1])
+        assert rgnote.rightsgrantednote == 'Access one year before dissemination'
+        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(rightsgranted=rg[1])
         assert rgrestriction.restriction == 'Allow'
 
     def test_parse_license(self):

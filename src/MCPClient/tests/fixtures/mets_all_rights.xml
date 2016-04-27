@@ -61,6 +61,15 @@
               </premis:termOfGrant>
               <premis:rightsGrantedNote>Attribution required</premis:rightsGrantedNote>
             </premis:rightsGranted>
+            <premis:rightsGranted>
+              <premis:act>Access</premis:act>
+              <premis:restriction>Allow</premis:restriction>
+              <premis:termOfGrant>
+                <premis:startDate>1999</premis:startDate>
+                <premis:endDate>OPEN</premis:endDate>
+              </premis:termOfGrant>
+              <premis:rightsGrantedNote>Access one year before dissemination</premis:rightsGrantedNote>
+            </premis:rightsGranted>
             <premis:linkingObjectIdentifier>
               <premis:linkingObjectIdentifierType>UUID</premis:linkingObjectIdentifierType>
               <premis:linkingObjectIdentifierValue>c09903c4-bc29-4db4-92da-47355eec752f</premis:linkingObjectIdentifierValue>
