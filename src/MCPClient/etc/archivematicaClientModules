@@ -130,4 +130,5 @@ verifyMD5_v0.0 = %clientScriptsDirectory%verifyMD5.sh
 verifyPREMISChecksums_v0.0 = %clientScriptsDirectory%verifyPREMISChecksums.py
 verifySIPCompliance_v0.0 = %clientScriptsDirectory%verifySIPCompliance.py
 verifyTransferCompliance_v0.0 = %clientScriptsDirectory%verifyTransferCompliance.py
+writeDigitalObjectComponentsToArchivesSpace_v0.0 = %clientScriptsDirectory%writeDigitalObjectComponentsToArchivesSpace.py
 
