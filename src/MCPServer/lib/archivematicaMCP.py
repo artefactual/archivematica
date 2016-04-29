@@ -57,6 +57,11 @@ import watchDirectory
 import RPCServer
 from utils import log_exceptions
 
+# Block until the datatabase is available. This is the latest it can be done
+# before the application hits the database.
+from wait_db import wait_db
+wait_db()
+
 from jobChain import jobChain
 from unitSIP import unitSIP
 from unitDIP import unitDIP
