@@ -906,7 +906,7 @@ class FPCommandOutput(models.Model):
     rule = models.ForeignKey('fpr.FPRule', db_column='ruleUUID', to_field='uuid')
 
     class Meta(object):
-        db_table = u'FPCommandOutput'
+        db_table = u'main_fpcommandoutput'
 
     def __unicode__(self):
         return u'<file: {file}; rule: {rule}; content: {content}'.format(file=self.file, rule=self.rule, content=self.content[:20])
