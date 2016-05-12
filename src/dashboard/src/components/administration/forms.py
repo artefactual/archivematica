@@ -69,9 +69,18 @@ class SettingsForm(forms.Form):
 
 
 class StorageSettingsForm(SettingsForm):
-    storage_service_url = forms.URLField(required=False,
-        label="Full URL of the storage service")
-
+    storage_service_url = forms.URLField(
+        label="Storage Service URL",
+        help_text='Full URL of the storage service. E.g. https://192.168.168.192:8000'
+    )
+    storage_service_user = forms.CharField(
+        label='Storage Service User',
+        help_text='User in the storage service to authenticate as. E.g. test'
+    )
+    storage_service_apikey = forms.CharField(
+        label='API key',
+        help_text='API key of the storage service user. E.g. 45f7684483044809b2de045ba59dc876b11b9810'
+    )
 
 class ChecksumSettingsForm(SettingsForm):
     CHOICES = (
