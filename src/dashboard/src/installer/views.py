@@ -158,8 +158,11 @@ def storagesetup(request):
     dashboard_uuid = helpers.get_setting('dashboard_uuid', None)
     assert dashboard_uuid is not None
     # Prefill the storage service URL
-    inital_data = {'storage_service_url':
-        helpers.get_setting('storage_service_url', 'http://localhost:8000')}
+    inital_data = {
+        'storage_service_url': helpers.get_setting('storage_service_url', 'http://localhost:8000'),
+        'storage_service_user': helpers.get_setting('storage_service_user', 'test'),
+        'storage_service_apikey': helpers.get_setting('storage_service_apikey', None)
+    }
     storage_form = StorageSettingsForm(request.POST or None, initial=inital_data)
     if storage_form.is_valid():
         # Set storage service URL

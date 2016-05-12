@@ -3,6 +3,7 @@ import logging
 import os
 import platform
 import requests
+from requests.auth import AuthBase
 import slumber
 import sys
 
@@ -21,6 +22,16 @@ class BadRequest(Exception):
 ######################### INTERFACE WITH STORAGE API #########################
 
 ############# HELPER FUNCTIONS #############
+
+class TastypieApikeyAuth(AuthBase):
+    def __init__(self, username, apikey):
+        self.username = username
+        self.apikey = apikey
+
+    def __call__(self, r):
+        r.headers['Authorization'] = "ApiKey {0}:{1}".format(self.username, self.apikey)
+        return r
+
 
 def get_setting(setting, default=''):
     try:
@@ -45,7 +56,9 @@ def _storage_service_url():
 def _storage_api():
     """ Returns slumber access to storage API. """
     storage_service_url = _storage_service_url()
-    api = slumber.API(storage_service_url)
+    username = get_setting('storage_service_user', 'test')
+    api_key = get_setting('storage_service_apikey', None)
+    api = slumber.API(storage_service_url, auth=TastypieApikeyAuth(username, api_key))
     return api
 
 def _storage_relative_from_absolute(location_path, space_path):
@@ -77,6 +90,7 @@ def create_pipeline(create_default_locations=False, shared_path=None, api_userna
         LOGGER.warning("Unable to create Archivematica pipeline in storage service from {} because {}".format(pipeline, e.content))
         return False
     except slumber.exceptions.HttpServerError as e:
+        LOGGER.warning("Unable to create Archivematica pipeline in storage service from {} because {}".format(pipeline, e.content), exc_info=True)
         if 'column uuid is not unique' in e.content:
             pass
         else:
@@ -90,6 +104,7 @@ def _get_pipeline(uuid):
     except slumber.exceptions.HttpClientError as e:
         if e.response.status_code == 404:
             LOGGER.warning("This Archivematica instance is not registered with the storage service or has been disabled.")
+        LOGGER.warning('Error fetching pipeline', exc_info=True)
         pipeline = None
     return pipeline
 
