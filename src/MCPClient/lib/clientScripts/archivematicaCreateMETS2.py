@@ -1041,17 +1041,27 @@ if __name__ == '__main__':
 
     CSV_METADATA = parseMetadata(baseDirectoryPath)
 
-    if not baseDirectoryPath.endswith('/'):
-        baseDirectoryPath += '/'
+    baseDirectoryPath = os.path.join(baseDirectoryPath, '')
+    objectsDirectoryPath = os.path.join(baseDirectoryPath, 'objects')
+    metadataDirectoryPath = os.path.join(objectsDirectoryPath, 'metadata')
+
+    # Delete empty directories, see #8427
+    for root, dirs, files in os.walk(objectsDirectoryPath, topdown=False):
+        try:
+            os.rmdir(root)
+            print "Deleted empty directory", root
+        except OSError:
+            pass
+
     structMap = etree.Element(ns.metsBNS + "structMap", TYPE='physical', ID='structMap_1', LABEL="Archivematica default")
     structMapDiv = etree.SubElement(structMap, ns.metsBNS + 'div', TYPE="Directory", LABEL=os.path.basename(baseDirectoryPath.rstrip('/')))
-    structMapDivObjects = createFileSec(os.path.join(baseDirectoryPath, "objects"), structMapDiv, baseDirectoryPath, baseDirectoryPathString, fileGroupIdentifier, fileGroupType, includeAmdSec)
+    structMapDivObjects = createFileSec(objectsDirectoryPath, structMapDiv, baseDirectoryPath, baseDirectoryPathString, fileGroupIdentifier, fileGroupType, includeAmdSec)
 
     el = create_object_metadata(structMapDivObjects, baseDirectoryPath)
     if el:
         amdSecs.append(el)
 
-    createFileSec(os.path.join(baseDirectoryPath, "metadata"), structMapDiv, baseDirectoryPath, baseDirectoryPathString, fileGroupIdentifier, fileGroupType, includeAmdSec)
+    createFileSec(metadataDirectoryPath, structMapDiv, baseDirectoryPath, baseDirectoryPathString, fileGroupIdentifier, fileGroupType, includeAmdSec)
 
     fileSec = etree.Element(ns.metsBNS + "fileSec")
     for group in globalFileGrpsUses: #globalFileGrps.itervalues():
