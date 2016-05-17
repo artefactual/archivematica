@@ -14,8 +14,11 @@ class Migration(migrations.Migration):
         cursor = schema_editor.connection.cursor()
         # Check if FPCommandOutput exists
         sql = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='FPCommandOutput'"
-        cursor.execute(sql)
-        contents = cursor.fetchall()
+        try:
+            cursor.execute(sql)
+            contents = cursor.fetchall()
+        except Exception:
+            return
 
         # If FPCommandOutput exists, merge
         if contents:
