@@ -857,7 +857,8 @@ def build_arranged_structmap(original_structmap, sip_uuid):
     # represented in this structMap.
     for label in ('submissionDocumentation', 'metadata'):
         div = objects.find('.mets:div[@LABEL="{}"]'.format(label), namespaces=ns.NSMAP)
-        objects.remove(div)
+        if div is not None:
+            objects.remove(div)
 
     # Handle objects level of description separately, since tag paths are relative to objects
     tag = tag_dict.get('.')
