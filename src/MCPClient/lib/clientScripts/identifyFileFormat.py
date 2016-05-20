@@ -82,7 +82,7 @@ def write_file_id(file_uuid, format=None, output=''):
 
     FileID.objects.create(
         file_id=file_uuid,
-        format_name=format.description,
+        format_name=format.format.description,
         format_version=version,
         format_registry_name=format_registry,
         format_registry_key=key

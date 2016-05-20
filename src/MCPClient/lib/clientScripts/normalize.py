@@ -239,7 +239,7 @@ def once_normalized(command, opts, replacement_dict):
 
         FileID.objects.create(
             file_id=output_file_uuid,
-            format_name=command.fpcommand.output_format.description
+            format_name=command.fpcommand.output_format.format.description
         )
 
 
