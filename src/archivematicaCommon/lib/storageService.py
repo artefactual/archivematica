@@ -5,6 +5,7 @@ import platform
 import requests
 from requests.auth import AuthBase
 import slumber
+import urllib
 
 from archivematicaFunctions import get_setting
 
@@ -55,6 +56,12 @@ def _storage_api():
     api_key = get_setting('storage_service_apikey', None)
     api = slumber.API(storage_service_url, auth=TastypieApikeyAuth(username, api_key))
     return api
+
+def _storage_api_params():
+    """ Returns API GET params username=USERNAME&api_key=KEY """
+    username = get_setting('storage_service_user', 'test')
+    api_key = get_setting('storage_service_apikey', None)
+    return urllib.urlencode({'username': username, 'api_key': api_key})
 
 def _storage_relative_from_absolute(location_path, space_path):
     """ Strip space_path and next / from location_path. """
@@ -308,8 +315,9 @@ def download_file_url(file_uuid):
     Returns URL to storage service for downloading `file_uuid`.
     """
     storage_service_url = _storage_service_url()
-    download_url = "{base_url}file/{uuid}/download/".format(
-        base_url=storage_service_url, uuid=file_uuid)
+    params = _storage_api_params()
+    download_url = "{base_url}file/{uuid}/download/?{params}".format(
+        base_url=storage_service_url, uuid=file_uuid, params=params)
     return download_url
 
 def extract_file_url(file_uuid, relative_path):
@@ -317,8 +325,9 @@ def extract_file_url(file_uuid, relative_path):
     Returns URL to storage service for `relative_path` in `file_uuid`.
     """
     storage_service_url = _storage_service_url()
-    download_url = "{base_url}file/{uuid}/extract_file/?relative_path_to_file={path}".format(
-        base_url=storage_service_url, uuid=file_uuid, path=relative_path)
+    api_params = _storage_api_params()
+    download_url = "{base_url}file/{uuid}/extract_file/?relative_path_to_file={path}&{params}".format(
+        base_url=storage_service_url, uuid=file_uuid, path=relative_path, params=api_params)
     return download_url
 
 def extract_file(uuid, relative_path, save_path):
@@ -335,8 +344,9 @@ def pointer_file_url(file_uuid):
     Returns URL to storage service for pointer file for `file_uuid`.
     """
     storage_service_url = _storage_service_url()
-    download_url = "{base_url}file/{uuid}/pointer_file/".format(
-        base_url=storage_service_url, uuid=file_uuid)
+    params = _storage_api_params()
+    download_url = "{base_url}file/{uuid}/pointer_file/?{params}".format(
+        base_url=storage_service_url, uuid=file_uuid, params=params)
     return download_url
 
 
