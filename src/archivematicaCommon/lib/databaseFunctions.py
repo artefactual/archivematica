@@ -174,18 +174,6 @@ def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
     FPCommandOutput.objects.create(file_id=fileUUID, content=fitsXMLString,
                                    rule_id=ruleUUID)
 
-def insertIntoFilesIDs(fileUUID="", formatName="", formatVersion="", formatRegistryName="", formatRegistryKey=""):
-    """
-    Creates a new entry in the FilesIDs table using the provided data.
-    This function, and its associated table, may be removed in the future.
-    """
-    f = FileID(file_id=fileUUID,
-               format_name=formatName,
-               format_version=formatVersion,
-               format_registry_name=formatRegistryName,
-               format_registry_key=formatRegistryKey)
-    f.save()
-
 
 #user approved?
 #client connected/disconnected.

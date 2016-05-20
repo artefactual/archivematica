@@ -8,12 +8,12 @@ import django
 django.setup()
 # dashboard
 from fpr.models import IDCommand, IDRule, FormatVersion
-from main.models import FileFormatVersion, File, UnitVariable, Event
+from main.models import FileFormatVersion, File, FileID, UnitVariable
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
-from databaseFunctions import getUTCDate, insertIntoEvents, insertIntoFilesIDs
+from databaseFunctions import getUTCDate, insertIntoEvents
 
 
 def save_idtool(file_, value):
@@ -63,6 +63,13 @@ def write_identification_event(file_uuid, command, format=None, success=True):
 
 
 def write_file_id(file_uuid, format=None, output=''):
+    """
+    Write the identified format to the DB.
+
+    :param str file_uuid: UUID of the file identified
+    :param FormatVersion format: FormatVersion it was identified as
+    :param str output: Text that generated the match
+    """
     if format.pronom_id:
         format_registry = 'PRONOM'
         key = format.pronom_id
@@ -73,11 +80,13 @@ def write_file_id(file_uuid, format=None, output=''):
     # Sometimes, this is null instead of an empty string
     version = format.version or ''
 
-    insertIntoFilesIDs(fileUUID=file_uuid,
-                       formatName=format.description,
-                       formatVersion=version,
-                       formatRegistryName=format_registry,
-                       formatRegistryKey=key)
+    FileID.objects.create(
+        file_id=file_uuid,
+        format_name=format.description,
+        format_version=version,
+        format_registry_name=format_registry,
+        format_registry_key=key
+    )
 
 
 def main(command_uuid, file_path, file_uuid, disable_reidentify):
