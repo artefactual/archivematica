@@ -438,7 +438,7 @@ class ArchivesSpaceClient(object):
 
         return resources_augmented
 
-    def add_digital_object(self, parent_archival_object, location_of_originals=None, title="", identifier=None, uri=None, object_type="text", xlink_show="embed", xlink_actuate="onLoad", restricted=False, use_statement="", use_conditions=None, access_conditions=None, size=None, format_name=None, format_version=None):
+    def add_digital_object(self, parent_archival_object, location_of_originals=None, title="", identifier=None, uri=None, object_type="text", xlink_show="embed", xlink_actuate="onLoad", restricted=False, use_statement="", use_conditions=None, access_conditions=None, size=None, format_name=None, format_version=None, inherit_notes=False):
         """
         Creates a new digital object.
 
@@ -458,6 +458,7 @@ class ArchivesSpaceClient(object):
         :param int size: Size in bytes of the digital object
         :param str format_name: Name of the digital object's format
         :param str format_version: Name of the digital object's format version
+        :param bool inherit_notes: Inherit parent notes
         """
         parent_record = self.get_record(parent_archival_object)
         repository = parent_record['repository']['ref']
@@ -497,28 +498,29 @@ class ArchivesSpaceClient(object):
 
         note_digital_object_type = ["summary", "bioghist", "accessrestrict", "userestrict", "custodhist", "dimensions", "edition", "extent","altformavail", "originalsloc", "note", "acqinfo", "inscription", "langmaterial", "legalstatus", "physdesc", "prefercite", "processinfo", "relatedmaterial"]
 
-        for pnote in parent_record["notes"]:
-            if pnote["type"] in note_digital_object_type:
-                dnote = pnote["type"]
-            else:
-                dnote = "note"
-            if "subnotes" in pnote:
-                content = []
-                for subnote in pnote['subnotes']:
-                    if 'content' in subnote:
-                        content.append(subnote['content'])
-                    else:
-                        LOGGER.info('No content field in %s, skipping adding to child digital object.', subnote)
-            else:
-                content = pnote.get("content", '')
+        if inherit_notes:
+            for pnote in parent_record["notes"]:
+                if pnote["type"] in note_digital_object_type:
+                    dnote = pnote["type"]
+                else:
+                    dnote = "note"
+                if "subnotes" in pnote:
+                    content = []
+                    for subnote in pnote['subnotes']:
+                        if 'content' in subnote:
+                            content.append(subnote['content'])
+                        else:
+                            LOGGER.info('No content field in %s, skipping adding to child digital object.', subnote)
+                else:
+                    content = pnote.get("content", '')
 
-            new_object["notes"].append({
-                "jsonmodel_type": "note_digital_object",
-                "type": dnote,
-                "label": pnote.get("label", ""),
-                "content": content,
-                "publish": pnote["publish"],
-            })
+                new_object["notes"].append({
+                    "jsonmodel_type": "note_digital_object",
+                    "type": dnote,
+                    "label": pnote.get("label", ""),
+                    "content": content,
+                    "publish": pnote["publish"],
+                })
 
         if use_conditions:
             new_object["notes"].append({
