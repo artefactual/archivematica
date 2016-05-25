@@ -32,14 +32,13 @@ from archivematicaFunctions import getTagged
 from archivematicaFunctions import escapeForCommand
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoFPCommandOutput
-from databaseFunctions import insertIntoEvents
-import databaseInterface
 
 # initialize Django (required for Django 1.7)
 import django
 django.setup()
+# dashboard
+from main.models import FPCommandOutput
 
-databaseInterface.printSQL = False
 excludeJhoveProperties = True
 formats = []
 FITSNS = "{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}"
@@ -80,8 +79,7 @@ if __name__ == '__main__':
         print "file's fileGrpUse in exclusion list, skipping"
         exit(0)
 
-    sql = """SELECT fileUUID FROM FPCommandOutput WHERE fileUUID = %s;"""
-    if len(databaseInterface.queryAllSQL(sql, (fileUUID,))):
+    if not FPCommandOutput.objects.filter(file=fileUUID).exists():
         print >>sys.stderr, "Warning: Fits has already run on this file. Not running again."
         exit(0)
 
