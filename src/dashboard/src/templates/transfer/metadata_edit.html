@@ -23,7 +23,7 @@ $(document).ready(function() {
 </script>
 
   <div class="row">
-    <div class="span16">
+    <div class="col-md-16">
 
       <ul class="breadcrumb">
         {% breadcrumb_url 'Transfer' 'components.transfer.views.grid' %}
@@ -48,11 +48,11 @@ $(document).ready(function() {
 
         <div class="actions">
           {% if id %}
-            <input type="submit" class="btn primary" value="Save" />
+            <input type="submit" class="btn btn-primary" value="Save" />
           {% else %}
-            <input type="submit" class="btn primary" value="Create" />
+            <input type="submit" class="btn btn-primary" value="Create" />
           {% endif %}
-          <a href="{% url 'components.transfer.views.transfer_metadata_list' uuid %}" class="btn">Cancel</a>
+          <a href="{% url 'components.transfer.views.transfer_metadata_list' uuid %}" class="btn btn-default">Cancel</a>
         </div>
 
       </form>

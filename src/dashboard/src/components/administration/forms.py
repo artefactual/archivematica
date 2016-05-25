@@ -350,7 +350,8 @@ class ProcessingConfigurationForm(forms.Form):
                 elif ftype == 'storage_service':
                     for loc in get_storage_locations(purpose=field['purpose']):
                         choices.append((loc['resource_uri'], loc['description']))
-                self.fields[choice_uuid] = forms.ChoiceField(**opts)
+                self.fields[choice_uuid] = forms.ChoiceField(widget=Select(attrs={'class': 'form-control'}),
+                                                             **opts)
 
     def load_config(self, name):
         """

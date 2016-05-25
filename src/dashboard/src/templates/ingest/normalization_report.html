@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-  <table>
+  <table class="table">
     <thead>
       <tr>
         <th>File name</th>
@@ -74,13 +74,13 @@
     Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.total_items }}
     <div style='float:right'>
     {% if page.has_previous %}
-      <a href="{% url 'components.ingest.views.ingest_normalization_report' uuid page.previous %}" class="btn">Previous</a>
+      <a href="{% url 'components.ingest.views.ingest_normalization_report' uuid page.previous %}" class="btn btn-default">Previous</a>
       {% if page.has_next %}
         &nbsp;
       {% endif %}
     {% endif %}
     {% if page.has_next %}
-      <a href="{% url 'components.ingest.views.ingest_normalization_report' uuid page.next %}" class="btn">Next</a>
+      <a href="{% url 'components.ingest.views.ingest_normalization_report' uuid page.next %}" class="btn btn-default">Next</a>
     {% endif %}
     </div>
   {% endif %}

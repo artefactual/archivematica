@@ -7,11 +7,13 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="span12">
+    <div class="col-md-9">
 
       <h3>{% trans "Processing configuration" %}</h3>
       
@@ -19,7 +21,7 @@
 
         {% csrf_token %}
 
-        <table>
+        <table class="table">
 
           {% for field in form %}
             <tr>
@@ -34,8 +36,8 @@
         </table>
 
         <div class="actions">
-          <input type="submit" class="btn primary" value="{% trans "Save" %}"/>
-          <a class="btn" href="{% url "components.administration.views_processing.list" %}">{% trans "Cancel" %}</a>
+          <input type="submit" class="btn btn-primary" value="{% trans "Save" %}"/>
+          <a class="btn btn-default" href="{% url "components.administration.views_processing.list" %}">{% trans "Cancel" %}</a>
         </div>
 
       </form>
@@ -43,5 +45,7 @@
     </div>
 
   </div>
+
+</div>
 
 {% endblock %}

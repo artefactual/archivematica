@@ -13,11 +13,13 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="span12">
+    <div class="col-md-9">
 
       <ul class="breadcrumb">
         {% breadcrumb_url 'Taxonomy' 'components.administration.views.taxonomy' %}
@@ -33,11 +35,13 @@
       {% include "_form.html" %}
 
       <div style='float: right'>
-        <input type='submit' value='Save' /> <a href='/administration/taxonomy/term/{{ term.pk }}/delete/' class='btn'>Delete</a>
+        <input type='submit' value='Save' /> <a href='/administration/taxonomy/term/{{ term.pk }}/delete/' class='btn btn-default'>Delete</a>
       </div>
       </form>
     </div>
 
   </div>
+
+</div>
 
 {% endblock %}

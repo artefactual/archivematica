@@ -22,3 +22,4 @@ ndg-httpsclient
 pyasn1
 requests==2.7.0
 lxml==3.5.0
+django-forms-bootstrap>=3.0.0,<4.0.0

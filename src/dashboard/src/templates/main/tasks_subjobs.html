@@ -5,7 +5,7 @@
 
 {% include "main/_tasks_pager.html" %}
 
-  <table>
+  <table class="table">
     <tbody>
       {% for item in jobs %}
         {% if not item.hidden and item.total_subjobs %}

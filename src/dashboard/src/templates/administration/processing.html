@@ -7,24 +7,26 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="span12">
+    <div class="col-md-9">
 
       <h3>{% trans "Processing configuration" %}</h3>
 
-      <table>
+      <table class="table">
         {% for item in files %}
         <tr>
           <td>
             <span title="{{ item.2 }}">{{ item.1 }}</attr>
           </td>
           <td>
-            <a class="btn" href="{% url "components.administration.views_processing.edit" item.1 %}">{% trans "Edit" %}</a>
+            <a class="btn btn-default" href="{% url "components.administration.views_processing.edit" item.1 %}">{% trans "Edit" %}</a>
             {% if item.1 != "default" %}
-              <a class="btn danger" href="{% url "components.administration.views_processing.delete" item.1 %}">{% trans "Delete" %}</a>
+              <a class="btn btn-danger" href="{% url "components.administration.views_processing.delete" item.1 %}">{% trans "Delete" %}</a>
             {% endif %}
           </td>
         </tr>
@@ -32,7 +34,7 @@
       </table>
 
       {% if not files %}
-        <div class="alert-message">
+        <div class="alert alert-info">
           <p>{% trans "No processing configuration file found (*ProcessingMCP.xml)." %}</p>
         </div>
       {% endif %}
@@ -50,11 +52,13 @@
       {% endif %}
 
       <div class="form-stacked actions">
-        <a class="btn" href="{% url "components.administration.views_processing.edit" %}">{% trans "Add" %}</a>
+        <a class="btn btn-default" href="{% url "components.administration.views_processing.edit" %}">{% trans "Add" %}</a>
       </div>
 
     </div>
 
   </div>
+
+</span>
 
 {% endblock %}

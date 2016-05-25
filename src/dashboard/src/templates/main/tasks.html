@@ -6,7 +6,7 @@
 
 {% include "main/_tasks_pager.html" %}
 
-  <table>
+  <table class="table">
     <tbody>
       {% for item in objects %}
         <tr class="{% cycle 'odd' 'even' %}{% ifnotequal item.exitcode 0 %} exiterror{% endifnotequal %}">
@@ -29,7 +29,7 @@
         </tr>
         {% if item.stdout %}
           <tr>
-            <td colspan="2" class="stdout">
+            <td colspan="2" class="stdout shell-output">
               <p>STDOUT</p>
               <pre>{{ item.stdout }}</pre>
             </td>
@@ -37,7 +37,7 @@
         {% endif %}
         {% if item.stderror %}
           <tr>
-            <td colspan="2" class="stderror">
+            <td colspan="2" class="stderror shell-output">
               <p>STDERR</p>
               <pre>{{ item.stderror }}</pre>
             </td>

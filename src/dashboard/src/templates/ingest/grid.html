@@ -21,8 +21,8 @@
   <script type="text/javascript" src="{{ STATIC_URL }}vendor/select2/select2.js"></script>
 
   <!-- browser related -->
-  <script type="text/javascript" src="{{ STATIC_URL }}vendor/jquery.event.drag-1.5.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}vendor/jquery.event.drop-1.1.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}vendor/jquery.event.drag-2.2.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}vendor/jquery.event.drop-2.2.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/base64.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/file-explorer.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/file_browser.js"></script>
@@ -73,23 +73,23 @@
   <div style='float:left;'>
     <div id='originals' class='backbone-file-explorer' style='float:left; width: 460px;'></div>
     <div id='originals_controls'>
-      <span id='originals_hide_button' class='btn'>Hide</span>
-      <span id='open_originals_file_button' class='btn'>View File</span>
+      <span id='originals_hide_button' class='btn btn-default'>Hide</span>
+      <span id='open_originals_file_button' class='btn btn-default'>View File</span>
     </div>
   </div>
   <div style='margin-left: 30px; float:left;'>
     <div id='arrange' class='backbone-file-explorer' style='float:left; width: 460px;'></div>
     <div id='arrange_controls'>
-      <span id='arrange_delete_button' class='btn'>Delete</span>
-      <span id='arrange_create_sip_button' class='btn'>Create SIP</span>
-      <span id='arrange_edit_metadata_button' class='btn'>Edit Metadata</span>
-      <span id='arrange_create_directory_button' class='btn'>Add Directory</span>
+      <span id='arrange_delete_button' class='btn btn-default'>Delete</span>
+      <span id='arrange_create_sip_button' class='btn btn-default'>Create SIP</span>
+      <span id='arrange_edit_metadata_button' class='btn btn-default'>Edit Metadata</span>
+      <span id='arrange_create_directory_button' class='btn btn-default'>Add Directory</span>
     </div>
   </div>
   <br clear='all' />
   <br />
 
-  <div class="span12" id="sip-container">
+  <div class="col-md-12" id="sip-container">
     <div>
       <span class='grid-pager-previous-area'></span> <span class='grid-pager-next-area'></span>
     </div>
@@ -129,7 +129,7 @@
     </div>
     <div class="modal-body" id="directory-metadata-form-body">
       <% if (levels.length > 1) { %>
-        <table>
+        <table class="table">
           <tbody>
             <tr>
               <td>AtoM level of description</td>
@@ -150,9 +150,9 @@
       <% } %>
     </div>
     <div class="modal-footer">
-      <a href="#" class="btn" data-dismiss="modal" id="directory-metadata-form-cancel">Cancel</a>
+      <a href="#" class="btn btn-default" data-dismiss="modal" id="directory-metadata-form-cancel">Cancel</a>
       <% if (levels.length > 1) { %>
-      <a href="#" class="btn" id="directory-metadata-form-save">Save</a>
+      <a href="#" class="btn btn-default" id="directory-metadata-form-save">Save</a>
       <% } %>
     </div>
   </script>
@@ -215,9 +215,9 @@
           {{ field.label_tag }}
           <div class="input">
             {% if field.name == "rights" or field.name == "description" %}
-              <textarea class="span9" name="{{ field.name }}" rows="4"><%= {{ field.name }} %></textarea>
+              <textarea class="col-md-9" name="{{ field.name }}" rows="4"><%= {{ field.name }} %></textarea>
             {% else %}
-              <input class="xlarge span9" type="text" name="{{ field.name }}" value="<%= {{ field.name }} %>" />
+              <input class="xlarge col-md-9" type="text" name="{{ field.name }}" value="<%= {{ field.name }} %>" />
             {% endif %}
             {% if field.help_text %}
               <span class="help-block">{{ field.help_text }}</p>
@@ -227,28 +227,5 @@
       {% endfor %}
     </form>
   </script>
-
-  <div id="upload-dip-modal" class="modal hide fade">
-    <div class="modal-header">
-      <a href="#" class="close">&times;</a>
-      <h3>Upload DIP <img id="upload-dip-modal-spinner" src="/media/images/ajax-loader.gif" /></h3>
-    </div>
-    <div class="modal-body">
-      <p>Upload the generated DIP to AtoM using the permalink of the target description.</p>
-      <form class="form-stacked">
-        <div class="clearfix">
-          <label>Enter the permalink of the target description</label>
-          <div class="input">
-            <input class="span8" type="text" />
-            <span class="help-block">Example: if URL is http://myAtoM.ca/newsletters-2;rad enter <strong>newsletters-2</strong></span>
-          </div>
-        </div>
-      </form>
-    </div>
-    <div class="modal-footer">
-      <a href="#" class="btn primary">Upload</a>
-      <a href="#" class="btn secondary">Cancel</a>
-    </div>
-  </div>
 
 {% endblock %}
