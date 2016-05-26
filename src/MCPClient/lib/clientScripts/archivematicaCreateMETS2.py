@@ -1049,7 +1049,7 @@ if __name__ == '__main__':
     objectsDirectoryPath = os.path.join(baseDirectoryPath, 'objects')
 
     # Delete empty directories, see #8427
-    for root, dirs, files in os.walk(objectsDirectoryPath, topdown=False):
+    for root, dirs, files in os.walk(baseDirectoryPath, topdown=False):
         try:
             os.rmdir(root)
             print "Deleted empty directory", root
