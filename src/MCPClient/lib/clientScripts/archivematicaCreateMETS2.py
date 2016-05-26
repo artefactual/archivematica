@@ -1087,7 +1087,13 @@ if __name__ == '__main__':
     dc = createDublincoreDMDSecFromDBData(SIPMetadataAppliesToType, fileGroupIdentifier, baseDirectoryPath)
     if dc != None:
         (dmdSec, ID) = dc
-        structMapDivObjects.set("DMDID", ID)
+        if structMapDivObjects is not None:
+            structMapDivObjects.set("DMDID", ID)
+        else:
+            # AICs have no objects directory but do have DC metadata
+            # Attach the DC metadata to the top level SIP div
+            # See #9822 for details
+            structMapDiv.set('DMDID', ID)
         root.append(dmdSec)
 
     for dmdSec in dmdSecs:
