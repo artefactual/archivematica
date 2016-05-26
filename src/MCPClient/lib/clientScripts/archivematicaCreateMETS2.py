@@ -1047,7 +1047,6 @@ if __name__ == '__main__':
 
     baseDirectoryPath = os.path.join(baseDirectoryPath, '')
     objectsDirectoryPath = os.path.join(baseDirectoryPath, 'objects')
-    metadataDirectoryPath = os.path.join(objectsDirectoryPath, 'metadata')
 
     # Delete empty directories, see #8427
     for root, dirs, files in os.walk(objectsDirectoryPath, topdown=False):
@@ -1065,6 +1064,8 @@ if __name__ == '__main__':
     if el:
         amdSecs.append(el)
 
+    # In an AIC, the metadata dir is not inside the objects dir
+    metadataDirectoryPath = os.path.join(baseDirectoryPath, 'metadata')
     createFileSec(metadataDirectoryPath, structMapDiv, baseDirectoryPath, baseDirectoryPathString, fileGroupIdentifier, fileGroupType, includeAmdSec)
 
     fileSec = etree.Element(ns.metsBNS + "fileSec")
