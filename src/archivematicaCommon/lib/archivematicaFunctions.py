@@ -144,7 +144,7 @@ def escapeForCommand(string):
 # and is primarily used for arbitrary strings (e.g. filenames, paths)
 # that might not be valid unicode to begin with.
 def escape(string):
-    if isinstance(string, basestring):
+    if isinstance(string, str):
         string = string.decode('utf-8', errors='replace')
     return string
 
