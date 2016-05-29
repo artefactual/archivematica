@@ -32,8 +32,11 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# Set defaults for required parameters
+db_defaults={'db':'MCP', 'user':'archivematica', 'password':'demo', 'host':'localhost'}
+
+config = ConfigParser.SafeConfigParser(db_defaults)
 # Get DB settings from main configuration file
-config = ConfigParser.SafeConfigParser()
 config.read('/etc/archivematica/archivematicaCommon/dbsettings')
 
 DATABASES = {
