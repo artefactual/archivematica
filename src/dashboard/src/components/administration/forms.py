@@ -60,6 +60,17 @@ class SettingsForm(forms.Form):
 
 
 class StorageSettingsForm(SettingsForm):
+
+    class StripCharField(forms.CharField):
+        """
+        Strip the value of leading and trailing whitespace.
+
+        This won't be needed in Django 1.9, see
+        https://docs.djangoproject.com/en/1.9/ref/forms/fields/#django.forms.CharField.strip.
+        """
+        def to_python(self, value):
+            return super(forms.CharField, self).to_python(value).strip()
+
     storage_service_url = forms.URLField(
         label="Storage Service URL",
         help_text='Full URL of the storage service. E.g. https://192.168.168.192:8000'
@@ -68,7 +79,7 @@ class StorageSettingsForm(SettingsForm):
         label='Storage Service User',
         help_text='User in the storage service to authenticate as. E.g. test'
     )
-    storage_service_apikey = forms.CharField(
+    storage_service_apikey = StripCharField(
         label='API key',
         help_text='API key of the storage service user. E.g. 45f7684483044809b2de045ba59dc876b11b9810'
     )
