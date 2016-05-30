@@ -62,11 +62,6 @@ def parse_files(root):
                 key = amdsec.findtext('.//premis:formatRegistryKey', namespaces=ns.NSMAP)
                 print('FPR key', key)
                 format_version = fpr_models.IDRule.active.get(command_output=key).format
-            # If not, look for formatName
-            if not format_version:
-                name = amdsec.findtext('.//premis:formatName', namespaces=ns.NSMAP)
-                print('Format name', name)
-                format_version = fpr_models.FormatVersion.active.get(description=name)
         except fpr_models.FormatVersion.DoesNotExist:
             pass
         print('format_version', format_version)
