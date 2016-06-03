@@ -42,3 +42,6 @@ CONN_MAX_AGE = 14400
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'e7b-$#-3fgu)j1k01)3tp@^e0=yv1hlcc4k-b6*ap^zezv2$48'
+
+USE_TZ = True
+TIME_ZONE = 'UTC'
