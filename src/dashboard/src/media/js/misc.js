@@ -145,13 +145,11 @@ function timestampToLocal(timestamp) {
   return date.getArchivematicaDateString();
 }
 
-function datetimeToLocal(timestamp) {
+function datetimeToLocal(dt) {
   // Converts an ISO formatted string to localtime
-  // Append 'Z' so they are parsed as UTC
   'use strict';
-  var date = new Date(timestamp+'Z');
-
-  return date.toLocaleFormat();
+  var date = new Date(dt);
+  return date.toLocaleString();
 }
 
 function localizeTimestampElements() {
