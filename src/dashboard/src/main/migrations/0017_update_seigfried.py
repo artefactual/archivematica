@@ -9,11 +9,9 @@ def data_migration(apps, schema_editor):
     #make the Seigfried replacementDics point at a new IDCommand for sf 1.5.0
     #see archivematica-fpr-admin branch 1.1.x
     
-    mscrd.objects.filter(id='bed4eeb1-d654-4d97-b98d-40eb51d3d4bb').update(replacementDic='{"%IDCommand%":"9d2cefc1-2bd2-44e4-8d55-6cf8151eecff"}')
-    
-    mscrd.objects.filter(id='664cbde3-e658-4288-87db-bd28266d83f5').update(replacementDic='{"%IDCommand%":"9d2cefc1-2bd2-44e4-8d55-6cf8151eecff"}')
-    
-    mscrd.objects.filter(id='25a91595-37f0-4373-a89a-56a757353fb8').update(replacementDic='{"%IDCommand%":"9d2cefc1-2bd2-44e4-8d55-6cf8151eecff"}')
+    mscrd.objects.filter(id='bed4eeb1-d654-4d97-b98d-40eb51d3d4bb').update(replacementdic='{"%IDCommand%":"9d2cefc1-2bd2-44e4-8d55-6cf8151eecff"}')
+    mscrd.objects.filter(id='664cbde3-e658-4288-87db-bd28266d83f5').update(replacementdic='{"%IDCommand%":"9d2cefc1-2bd2-44e4-8d55-6cf8151eecff"}')
+    mscrd.objects.filter(id='25a91595-37f0-4373-a89a-56a757353fb8').update(replacementdic='{"%IDCommand%":"9d2cefc1-2bd2-44e4-8d55-6cf8151eecff"}')
     
 
 class Migration(migrations.Migration):
