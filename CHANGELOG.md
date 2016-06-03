@@ -1,6 +1,13 @@
 dev (1.5.0)
 ===========
 
+* Dashboard: always show arguments in job detail view
+* Tests: Use an in-memory database
+* Specify python2 in shebangs.  Python version choice respects path.
+
+1.4.1
+=====
+
 * Fix "active" templatetag when Django handles an uncaught exception
 * Fix updating AIP records after marking files as deleted in archival storage (#8533)
 * Fix querying for deleted AIPs (#8533)
@@ -8,9 +15,6 @@ dev (1.5.0)
 * MCPServer: log all exceptions (#8509)
 * MCPServer: remove duplicate ReplacementDict code (#8509)
 * Dashboard: use GroupWriteRotatingFileHandler to ensure group-writeability of rotated logs (#8587)
-* Dashboard: always show arguments in job detail view
-* Tests: Use an in-memory database
-* Specify python2 in shebangs.  Python version choice respects path.
 
 1.4.0
 =====
