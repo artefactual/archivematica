@@ -1,4 +1,4 @@
-archivematica-common (1:1.4.1+2SNAPSHOT20160605122706~14.04) trusty; urgency=high
+archivematica-common (1:1.5.0-rc4-1~14.04) trusty; urgency=high
 
   * commit: 
   * checkout: dev/release-1.5
