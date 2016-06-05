@@ -22,10 +22,10 @@ mysql -u archivematica -pdemo MCP -e 'alter database MCP CHARACTER SET utf8 COLL
 # Fake migrations if necessary.  $2 is old version
 if [[ $2 == '1:1.4.1'* ]]; then
     echo 'Faking 1.4.1 database setup'
-    /usr/share/archivematica/dashboard/manage.py migrate locations 0001_initial --fake --settings='settings.common'
-    echo 'Faking 1.4.1 data setup'
-    /usr/share/archivematica/dashboard/manage.py migrate locations 0002_initial_data --fake --settings='settings.common'
     /usr/share/archivematica/dashboard/manage.py migrate --fake --settings='settings.common'
+    /usr/share/archivematica/dashboard/manage.py migrate administration 0001_initial --fake --settings='settings.common'
+    /usr/share/archivematica/dashboard/manage.py migrate main 0002_initial_data --fake --settings='settings.common'
+    /usr/share/archivematica/dashboard/manage.py migrate fpr 0002_initial_data --fake --settings='settings.common'
 fi
 
 # Run migrations
