@@ -1,4 +1,18 @@
-archivematica-common (1.3.0.rc.4-1~trusty1) trusty; urgency=high
+archivematica-common (1:1.4.1+2SNAPSHOT20160605122706~14.04) trusty; urgency=high
+
+  * commit: 
+  * checkout: dev/release-1.5
+
+ -- Artefactual Systems <sysadmin@artefactual.com>  Sun, 05 Jun 2016 12:27:06 -0700
+
+archivematica-common (1:1.4.1-1~14.04) trusty; urgency=high
+
+  * commit: cba09203e4bf62e603f2d05507574bb194886ed9
+  * checkout: stable/1.4.x
+
+ -- Artefactual Systems <sysadmin@artefactual.com>  Tue, 23 Jun 2015 22:27:06 +0000
+ 
+ archivematica-common (1.3.0.rc.4-1~trusty1) trusty; urgency=high
 
   * Archivematica Common 1.3.0 release candidate
 

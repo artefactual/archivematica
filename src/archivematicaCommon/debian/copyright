@@ -1,6 +1,6 @@
 This work was packaged for Ubuntu by:
 
-    Austin Trask <austin@artefactual.com>
+    Santiago Collazo <scollazo@artefactual.com>
 
 It was downloaded from http://archivematica.org
 
@@ -15,10 +15,13 @@ Upstream Author(s):
     Justin Simpson <jsimpson@artefactual.com>
     Holly Becker <hbecker@artefactual.com>
     Misty De Meo <mdemeo@artefactual.com>
-
+    Pieter De Praetere <pieter.de.praetere@helptux.be>
+    Hector Akamine <hakamine@artefactual.com>
+    Santiago Collazo <scollazo@artefactual.com>
+    
 Copyright:
 
-    Copyright (C) 2010-2014 Artefactual Systems Inc. <http://artefactual.com>
+    Copyright (C) 2010-2016 Artefactual Systems Inc. <http://artefactual.com>
 
 License:
 
@@ -38,4 +41,4 @@ License:
 
 The Debian packaging is:
 
-    Copyright (C) 2010-2014 Artefactual Systems Inc. <http://artefactual.com>
+    Copyright (C) 2010-2016 Artefactual Systems Inc. <http://artefactual.com>
