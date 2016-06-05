@@ -18,7 +18,8 @@ Depends:
 	python-gearman,
 	python-simplejson,
 	libffi-dev,
-	libssl-dev
+	libssl-dev,
+	python-dev
 Description: Web Dashboard for Archivematica
   Web based dashboard interface used to control an Archivematica pipeline.
   
