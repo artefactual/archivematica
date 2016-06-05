@@ -15,10 +15,13 @@ Upstream Author(s):
     Justin Simpson <jsimpson@artefactual.com>
     Holly Becker <hbecker@artefactual.com>
     Misty De Meo <mdemeo@artefactual.com>
+    Hector Akamine <hakamine@artefactual.com>
+    Santiago Collazo <scollazo@artefactual.com>
+    Vlastimil Krejcir <krejcir@ics.muni.cz>
 
 Copyright:
 
-    Copyright (C) 2010-2014 Artefactual Systems Inc. <http://artefactual.com>
+    Copyright (C) 2010-2016 Artefactual Systems Inc. <http://artefactual.com>
 
 License:
 
@@ -38,4 +41,4 @@ License:
 
 The Debian packaging is:
 
-    Copyright (C) 2010-2014 Artefactual Systems Inc. <http://artefactual.com>
+    Copyright (C) 2010-2016 Artefactual Systems Inc. <http://artefactual.com>
