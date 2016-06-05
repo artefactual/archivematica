@@ -16,7 +16,9 @@ Depends:
 	python-pip,
 	python-dateutil,
 	python-gearman,
-	python-simplejson
+	python-simplejson,
+	libffi-dev,
+	libssl-dev
 Description: Web Dashboard for Archivematica
   Web based dashboard interface used to control an Archivematica pipeline.
   
