@@ -1,9 +1,9 @@
 Source: archivematica-mcp-server
 Section: utils
 Priority: extra
-Maintainer: Austin Trask <austin@artefactual.com>
+Maintainer: Santiago Collazo <sysadmin@artefactual.com>
 Build-Depends: debhelper (>= 9)
-Standards-Version: 3.9.3
+Standards-Version: 3.9.8
 Homepage: http://archivematica.org
 
 Package: archivematica-mcp-server
@@ -11,8 +11,7 @@ Architecture: i386 amd64
 Depends:
 	${shlibs:Depends},
 	${misc:Depends},
-	archivematica-common,
-	archivematica-dashboard(>=1.2.0),
+	archivematica-common(>=1.5.0),
 	dbconfig-common,
 	mysql-server,
 	python-pyinotify,
