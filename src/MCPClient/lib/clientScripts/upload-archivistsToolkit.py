@@ -10,48 +10,41 @@
 # inputs:  requires information about the AT database, and the location of the DIP, plus some metadata supplied by the user
 #
 # first version of this script gets the input from prompts, next version will get it from MCP db.
-# 
+#
 # example usage:
 #
-# python at_import.py --host=localhost --port=3306 --dbname="ATTEST" --dbuser=ATuser --dbpass=hello --dip_location="/home/jhs/dip" --dip_name=mydip --atuser=myuser --use_statement="Image-Service" --uri_prefix="http://www.rockarch.org/" 
+# python at_import.py --host=localhost --port=3306 --dbname="ATTEST" --dbuser=ATuser --dbpass=hello --dip_location="/home/jhs/dip" --dip_name=mydip --atuser=myuser --use_statement="Image-Service" --uri_prefix="http://www.rockarch.org/"
 #
 
-import os
-import MySQLdb
-from time import localtime, strftime
 import argparse
 import logging
+import os
+import sys
+
 # archivematicaCommon
-import archivistsToolkit.atk as atk
 from custom_handlers import GroupWriteRotatingFileHandler
 from xml2obj import mets_file
-import MySQLdb
-import databaseInterface
 
-#global variables
-db = None
-cursor = None
-testMode =0 
-base_fv_id = 1
+# dashboard
+from main.models import AtkDIPObjectResourcePairing
+
+# external
+from agentarchives.atk import ArchivistsToolkitClient
+
+# global variables
+testMode = 0
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('archivematica.mcp.client')
 logger.addHandler(logging.NullHandler())
 logger.addHandler(GroupWriteRotatingFileHandler('/var/log/archivematica/at_upload.log', mode='a'))
-    
+
+
 def recursive_file_gen(mydir):
     for root, dirs, files in os.walk(mydir):
         for file in files:
             yield os.path.join(root, file)
 
-def process_sql(str, values=()):
-    global cursor 
-    if testMode:
-        print str
-    else:
-        cursor.execute(str, values)
-        newID = cursor.lastrowid
-        return newID
 
 def get_user_input():
     print "Archivematica import to AT script"
@@ -72,19 +65,18 @@ def get_user_input():
     use_statement = raw_input("Use Statement:")
 
     uri_prefix = raw_input("prefix for uri:")
-    #aip = raw_input("Name of mets file:")
-    #fileName = raw_input("File name:")
     return atdbhost, atdbport, atdbuser, atpass, atdb, dip_location, dip_name, atuser, object_type, ead_actuate, ead_show, use_statement, uri_prefix
 
+
 def get_files_from_dip(dip_location, dip_name, dip_uuid):
-    #need to find files in objects dir of dip:
+    # need to find files in objects dir of dip:
     # go to dipLocation/dipName/objects
     # get a directory listing
     # for each item, set fileName and go
     try:
         mydir = dip_location + "objects/"
         mylist = list(recursive_file_gen(mydir))
-        
+
         if len(mylist) > 0:
             return mylist
         else:
@@ -95,33 +87,23 @@ def get_files_from_dip(dip_location, dip_name, dip_uuid):
         raise
         exit(3)
 
+
 def get_pairs(dip_uuid):
-    pairs = dict()
-    #connect to archivematica db, make a set of pairs from pairs table
-   
-    sql = """SELECT fileUUID, resourceId, resourceComponentId from AtkDIPObjectResourcePairing where dipUUID = %s"""
-    c, sqlLock = databaseInterface.querySQL(sql, (dip_uuid,))
-    dbresult = c.fetchall()
-    for item in dbresult:
-        ids = dict()
-        ids['rid'] = item[1]
-        ids['rcid'] = item[2]
-        pairs[item[0]] =  ids
-    sqlLock.release()
-    return pairs
+    # make a set of pairs from pairs table
+    return {pair.fileuuid: {'rid': pair.resourceid, 'rcid': pair.resourceComponentId}
+            for pair in AtkDIPObjectResourcePairing.objects.filter(dipuuid=dip_uuid)}
+
 
 def delete_pairs(dip_uuid):
-    sql = """delete from AtkDIPObjectResourcePairing where dipUUID = %s"""
-    c, sqlLock = databaseInterface.querySQL(sql, (dip_uuid,))
-    sqlLock.release()
-      
+    AtkDIPObjectResourcePairing.objects.filter(dipuuid=dip_uuid).delete()
+
+
 def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statement, uri_prefix, dip_uuid, access_conditions, use_conditions, restrictions, dip_location):
-    
     logger.info("inputs: actuate '{}' show '{}' type '{}'  use_statement '{}' use_conditions '{}'".format(ead_actuate, ead_show, object_type, use_statement, use_conditions))
     if not uri_prefix.endswith('/'):
         uri_prefix += '/'
-        
-    #get mets object if needed
+
+    # get mets object if needed
     mets = None
     if restrictions == 'premis' or len(access_conditions) == 0 or len(use_conditions) == 0:
         try:
@@ -132,44 +114,23 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         except Exception:
             raise
             exit(4)
-            
-    global db
-    global cursor
-    db = atk.connect_db(args.atdbhost, args.atdbport, args.atdbuser, args.atdbpass, args.atdb)
-    cursor = db.cursor()
-    
-    #get a list of all the items in this collection
-    #col = atk.collection_list(db, resource_id)
-    #logger.debug("got collection_list: {}".format(len(col)))
-    sql0 = "select max(fileVersionId) from FileVersions"
-    logger.info('sql0: ' + sql0)
-    cursor.execute(sql0)
-    data = cursor.fetchone()
-    if not data[0]:
-        newfVID = 1
-    else:
-        newfVID = int(data[0]) 
-    logger.info('base file version id found is ' + str(data[0]))
-    global base_fv_id 
-    base_fv_id = newfVID        
+
+    client = ArchivistsToolkitClient(args.atdbhost, args.atdbuser, args.atdbpass, args.atdb)
 
     pairs = get_pairs(dip_uuid)
-    #TODO test to make sure we got some pairs
-    
+    # TODO test to make sure we got some pairs
+
     for f in mylist:
-        base_fv_id+=1 
-        logger.info( 'using ' + f)
+        logger.info('using ' + f)
         file_name = os.path.basename(f)
         logger.info('file_name is ' + file_name)
         uuid = file_name[0:36]
-        #aipUUID = aip[5:41]
         access_restrictions = None
         access_rightsGrantedNote = None
         use_restrictions = None
         use_rightsGrantedNote = None
-        #logging.info("looking for mets")
         if mets and mets[uuid]:
-            #get premis info from mets
+            # get premis info from mets
             for premis in mets[uuid]['premis']:
                 logger.debug("{} rights = {}, note={}".format(premis, mets[uuid]['premis'][premis]['restriction'],mets[uuid]['premis'][premis]['rightsGrantedNote']))
                 if premis == 'disseminate':
@@ -178,14 +139,8 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
                 if premis == 'publish':
                     use_restrictions = mets[uuid]['premis']['publish']['restriction']
                     use_rightsGrantedNote = mets[uuid]['premis']['publish']['rightsGrantedNote']
-        try:
-            container1 = file_name[44:47]
-            container2 = file_name[48:53]
-        except:
-            logger.error('file name does not have container ids in it')
-            exit(5)
-        logger.debug ("determine restrictions")
-        #determine restrictions
+        logger.debug("determine restrictions")
+        # determine restrictions
         if restrictions == 'no':
             restrictions_apply = False
         elif restrictions == 'yes':
@@ -199,8 +154,8 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
             else:
                 restrictions_apply = True
                 ead_actuate = "none"
-                ead_show = "none"        
-                
+                ead_show = "none"
+
         if len(use_conditions) == 0 or restrictions == 'premis':
             if use_rightsGrantedNote:
                 use_conditions = use_rightsGrantedNote
@@ -208,139 +163,36 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         if len(access_conditions) == 0 or restrictions == 'premis':
             if access_rightsGrantedNote:
                 access_conditions = access_rightsGrantedNote
-        
-        short_file_name = file_name[37:]
-        time_now = strftime("%Y-%m-%d %H:%M:%S", localtime())
-        file_uri = uri_prefix  + file_name
+
+        file_uri = uri_prefix + file_name
 
         if uuid in pairs:
-            is_resource = False
-            if pairs[uuid]['rcid'] > 0:
-                val = pairs[uuid]['rcid']
-                sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
-                          ResourcesComponents where resourcecomponentid = %s'''
-            else:
-                is_resource = True
-                val = pairs[uuid]['rid']
-                sql1 = '''select resourceComponentId, dateBegin, dateEnd, dateExpression, title from
-                          Resources where resourceid = %s'''
-                       
-            logger.debug('sql1:' + sql1) 
-            cursor.execute(sql1, (val,))
-            data = cursor.fetchone()
-            rcid = data[0]
-            dateBegin = data[1]
-            dateEnd = data[2]
-            dateExpression = data[3]
-            rc_title = data[4]
-            logger.debug("found rc_title " + rc_title + ":" + str(len(rc_title)) ) 
-            if (not rc_title or len(rc_title) == 0):
-                if (not dateExpression or len(dateExpression) == 0):
-                    if dateBegin == dateEnd:
-                        short_file_name = str(dateBegin)
-                    else:
-                        short_file_name = str(dateBegin) + '-' + str(dateEnd)
-                else:
-                    short_file_name = dateExpression
-            else:
-                short_file_name = rc_title
+            resource_id = pairs[uuid]['rcid'] if pairs[uuid]['rcid'] > 0 else pairs[uuid]['rid']
+            client.add_digital_object(resource_id,
+                                      uuid,
+                                      uri=file_uri,
+                                      restricted=restrictions_apply,
+                                      xlink_actuate=ead_actuate,
+                                      xlink_show=ead_show,
+                                      location_of_originals=dip_uuid,
+                                      inherit_dates=True)
 
-            logger.debug("dateExpression is : " + str(dateExpression) + str(len(dateExpression)))
-            logger.debug("dates are  " + str(dateBegin) + "-" + str(dateEnd))
-            logger.debug("short file name is " + str(short_file_name))
- 
-            sql2 = "select repositoryId from Repositories" 
-            logger.debug('sql2: ' + sql2)
-
-            cursor.execute(sql2)
-            data = cursor.fetchone()
-            repoId = data[0]
-            logger.debug('repoId: ' + str(repoId))
-            sql3 = " select max(archDescriptionInstancesId) from ArchDescriptionInstances"
-            logger.debug('sql3: ' + sql3) 
-            cursor.execute(sql3)
-            data = cursor.fetchone()
-            newaDID = int(data[0]) + 1
-
-            if is_resource:
-                sql4 = "insert into ArchDescriptionInstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceId) values (%s, 'digital', 'Digital object', %s)"
-            else:
-                sql4 = "insert into ArchDescriptionInstances (archDescriptionInstancesId, instanceDescriminator, instanceType, resourceComponentId) values (%s, 'digital', 'Digital object', %s)"
-        
-            logger.debug('sql4:' + sql4)
-            adid = process_sql(sql4, (newaDID, rcid))
-            #added sanity checks in case date fields in original archival description were all empty
-            if len(dateExpression) == 0:
-                dateExpression = 'null'
-            if not dateBegin: 
-                dateBegin = 0
-            if not dateEnd:
-                dateEnd = 0
-   
-            sql5 = """INSERT INTO DigitalObjects                  
-               (`version`,`lastUpdated`,`created`,`lastUpdatedBy`,`createdBy`,`title`,
-                `dateExpression`,`dateBegin`,`dateEnd`,`languageCode`,`restrictionsApply`,
-                `eadDaoActuate`,`eadDaoShow`,`metsIdentifier`,`objectType`,`label`, 
-                `objectOrder`,`archDescriptionInstancesId`,`repositoryId`)
-               VALUES (1, %s, %s, %s, %s, %s, %s, %s, %s, 'English', %s, %s, %s, %s, %s,' ',  0, %s, %s)"""
-            logger.debug('sql5: ' + sql5)
-            doID = process_sql(sql5, (time_now, time_now, atuser, atuser, short_file_name,dateExpression, dateBegin, dateEnd, int(restrictions_apply), ead_actuate, ead_show,uuid, object_type, newaDID, repoId))
-            sql6 = """insert into FileVersions (fileVersionId, version, lastUpdated, created, lastUpdatedBy, createdBy, uri, useStatement, sequenceNumber, eadDaoActuate,eadDaoShow, digitalObjectId)
-                  values 
-               (%s, 1, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-            logger.debug('sql6: ' + sql6)
-            process_sql(sql6, (base_fv_id,time_now, time_now,atuser,atuser,file_uri,use_statement,0, ead_actuate,ead_show, doID))
-
-            #create notes
-            sql7 = " select max(archdescriptionrepeatingdataId) from ArchDescriptionRepeatingData"
-            logger.debug('sql7: ' + sql7) 
-            cursor.execute(sql7)
-            data = cursor.fetchone()
-       
-            #existence and location of originals note 
-            newadrd = int(data[0]) + 1
-            seq_num = 0
-            note_content = dip_uuid
-            logger.debug("about to run sql8")
-            sql8 = """insert into ArchDescriptionRepeatingData 
-                (archDescriptionRepeatingDataId, descriminator, version, lastUpdated, created, lastUpdatedBy ,createdBy, repeatingDataType, title, sequenceNumber,
-                eadIngestProblem, digitalObjectId, noteContent, notesEtcTypeId, basic, multiPart, internalOnly) values 
-                (%s, 'note', 0, %s, %s, %s, %s, 'Note', '', %s, '', %s, %s, %s, '', '', '')"""
-
-            logger.debug('sql8: ' + sql8)
-            adrd = process_sql(sql8, (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content, 13 ))
-        
-            #conditions governing access note
-            newadrd += 1
-            seq_num += 1
-            note_content = access_conditions
-        
-            adrd = process_sql(sql8, (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content, 8))
-         
-            #conditions governing use` note
-            newadrd += 1
-            seq_num += 1
-            note_content = use_conditions
-
-            adrd = process_sql(sql8, (newadrd, time_now, time_now, atuser, atuser, seq_num, doID, note_content, 9))
-   
-    process_sql("commit")
     delete_pairs(dip_uuid)
     logger.info("completed upload successfully")
-    
+
 if __name__ == '__main__':
 
-    RESTRICTIONS_CHOICES=[ 'yes', 'no', 'premis' ]
-    EAD_SHOW_CHOICES=['embed', 'new', 'none', 'other', 'replace']
-    EAD_ACTUATE_CHOICES=['none','onLoad','other', 'onRequest']
+    RESTRICTIONS_CHOICES = ['yes', 'no', 'premis']
+    EAD_SHOW_CHOICES = ['embed', 'new', 'none', 'other', 'replace']
+    EAD_ACTUATE_CHOICES = ['none', 'onLoad', 'other', 'onRequest']
 
     parser = argparse.ArgumentParser(description="A program to take digital objects from a DIP and upload them to an archivists toolkit db")
-    parser.add_argument('--host', default="localhost", dest="atdbhost", 
-        metavar="host", help="hostname or ip of archivists toolkit db")
-    parser.add_argument('--port', type=int, default=3306, dest='atdbport', 
-        metavar="port", help="port used by archivists toolkit mysql db")
+    parser.add_argument('--host', default="localhost", dest="atdbhost",
+                        metavar="host", help="hostname or ip of archivists toolkit db")
+    parser.add_argument('--port', type=int, default=3306, dest='atdbport',
+                        metavar="port", help="port used by archivists toolkit mysql db")
     parser.add_argument('--dbname', dest='atdb', metavar="db",
-        help="name of mysql database used by archivists toolkit")
+                        help="name of mysql database used by archivists toolkit")
     parser.add_argument('--dbuser', dest='atdbuser', metavar="db user")
     parser.add_argument('--dbpass', dest='atdbpass', metavar="db password")
     parser.add_argument('--dip_location', metavar="dip location")
@@ -349,22 +201,21 @@ if __name__ == '__main__':
     parser.add_argument('--atuser', metavar="at user")
     parser.add_argument('--restrictions', metavar="restrictions apply", default="premis", choices=RESTRICTIONS_CHOICES)
     parser.add_argument('--object_type', metavar="object type", default="")
-    parser.add_argument('--ead_actuate', metavar="ead actuate", default="onRequest", choices=EAD_ACTUATE_CHOICES) 
-    parser.add_argument('--ead_show', metavar="ead show", default="new", choices=EAD_SHOW_CHOICES )
+    parser.add_argument('--ead_actuate', metavar="ead actuate", default="onRequest", choices=EAD_ACTUATE_CHOICES)
+    parser.add_argument('--ead_show', metavar="ead show", default="new", choices=EAD_SHOW_CHOICES)
     parser.add_argument('--use_statement', metavar="use statement")
     parser.add_argument('--uri_prefix', metavar="uri prefix")
     parser.add_argument('--access_conditions', metavar="conditions governing access", default="")
     parser.add_argument('--use_conditions', metavar="conditions governing use", default="")
     parser.add_argument('--version', action='version', version='%(prog)s 0.1.0')
-    args =  parser.parse_args()
-    if not (args.atdb):
+    args = parser.parse_args()
+    if not args.atdb:
         get_user_input()
-    
+
     try:
         mylist = get_files_from_dip(args.dip_location, args.dip_name, args.dip_uuid)
         upload_to_atk(mylist, args.atuser, args.ead_actuate, args.ead_show, args.object_type, args.use_statement, args.uri_prefix, args.dip_uuid, args.access_conditions, args.use_conditions, args.restrictions, args.dip_location)
-        
-    except Exception as exc:
-        print exc
-        exit(1) 
 
+    except Exception:
+        logging.exception("Unable to upload DIPs to Archivist's Toolkit")
+        sys.exit(1)

@@ -7,8 +7,6 @@ import sys
 import os
 import uuid
 
-import archivematicaXMLNamesSpace as ns
-
 import django
 django.setup()
 # dashboard
@@ -16,6 +14,7 @@ from main import models
 from fpr import models as fpr_models
 
 # archivematicaCommon
+import namespaces as ns
 import fileOperations
 import databaseFunctions
 
@@ -46,6 +45,9 @@ def parse_files(root):
 
         checksum = amdsec.findtext('.//premis:messageDigest', namespaces=ns.NSMAP)
         print('checksum', checksum)
+
+        checksumtype = amdsec.findtext('.//premis:messageDigestAlgorithm', namespaces=ns.NSMAP)
+        print('checksumtype', checksumtype)
 
         size = amdsec.findtext('.//premis:size', namespaces=ns.NSMAP)
         print('size', size)
@@ -84,6 +86,7 @@ def parse_files(root):
             'current_path': current_path,
             'use': filegrpuse,
             'checksum': checksum,
+            'checksumtype': checksumtype,
             'size': size,
             'format_version': format_version,
             'derivation': derivation,
@@ -120,6 +123,7 @@ def update_files(sip_uuid, files):
         # Update other file info
         models.File.objects.filter(uuid=file_info['uuid']).update(
             checksum=file_info['checksum'],
+            checksumtype=file_info['checksumtype'],
             size=file_info['size'],
             currentlocation=file_info['current_path']
         )

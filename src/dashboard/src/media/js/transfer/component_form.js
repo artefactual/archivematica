@@ -149,11 +149,6 @@ var TransferComponentFormView = Backbone.View.extend({
         "row_ids[]": transfer.sourcePaths.map(function(c) {return c.uuid})
       },
       success: function(results) {
-        if (results['error']) {
-          alert(results.message);
-          return;
-        }
-
         $('#transfer-name').val('');
         $('#transfer-accession-number').val('');
         $('#transfer-name-container').show();
@@ -161,6 +156,9 @@ var TransferComponentFormView = Backbone.View.extend({
         $('#path_container').html('');
 
         components = {};
+      },
+      error: function(error) {
+        alert(error.message);
       }
     });
     $('.activity-indicator').hide();

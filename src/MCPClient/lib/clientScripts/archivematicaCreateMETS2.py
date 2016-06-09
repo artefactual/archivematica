@@ -32,8 +32,6 @@ import sys
 import traceback
 from uuid import uuid4
 
-import archivematicaXMLNamesSpace as ns
-
 import django
 django.setup()
 # dashboard
@@ -54,6 +52,7 @@ from archivematicaFunctions import escape
 from archivematicaFunctions import strToUnicode
 from archivematicaFunctions import normalizeNonDcElementName
 from custom_handlers import get_script_logger
+import namespaces as ns
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 sharedVariablesAcrossModules.globalErrorCount = 0
 
@@ -84,7 +83,7 @@ globalRightsMDCounter = 0
 global globalDigiprovMDCounter
 globalDigiprovMDCounter = 0
 global fileNameToFileID #Used for mapping structMaps included with transfer
-fileNameToFileID = {} 
+fileNameToFileID = {}
 
 global trimStructMap
 trimStructMap = None
@@ -341,8 +340,8 @@ def createDSpaceDMDSec(label, dspace_mets_path, directoryPathSTR):
 
 def createTechMD(fileUUID):
     ret = etree.Element(ns.metsBNS + "techMD")
-    techMD = ret #newChild(amdSec, "digiprovMD")
-    #digiprovMD.set("ID", "digiprov-"+ os.path.basename(filename) + "-" + fileUUID)
+    techMD = ret
+
     global globalTechMDCounter
     globalTechMDCounter += 1
     techMD.set("ID", "techMD_"+ globalTechMDCounter.__str__())
@@ -350,15 +349,9 @@ def createTechMD(fileUUID):
     mdWrap = etree.SubElement(techMD, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "PREMIS:OBJECT")
     xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
-    #premis = etree.SubElement( xmlData, "premis", nsmap={None: ns.premisNS}, \
-    #    attrib = { "{" + ns.xsiNS + "}schemaLocation" : "info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/premis.xsd" })
-    #premis.set("version", "2.0")
-
-    #premis = etree.SubElement( xmlData, "premis", attrib = {ns.xsiBNS+"type": "premis:file"})
 
     f = File.objects.get(uuid=fileUUID)
     fileSize = str(f.size)
-    checksum = f.checksum
 
     #OBJECT
     object = etree.SubElement(xmlData, ns.premisBNS + "object", nsmap={'premis': ns.premisNS})
@@ -370,14 +363,12 @@ def createTechMD(fileUUID):
     etree.SubElement(objectIdentifier, ns.premisBNS + "objectIdentifierType").text = "UUID"
     etree.SubElement(objectIdentifier, ns.premisBNS + "objectIdentifierValue").text = fileUUID
 
-    #etree.SubElement(object, "objectCategory").text = "file"
-
     objectCharacteristics = etree.SubElement(object, ns.premisBNS + "objectCharacteristics")
     etree.SubElement(objectCharacteristics, ns.premisBNS + "compositionLevel").text = "0"
 
     fixity = etree.SubElement(objectCharacteristics, ns.premisBNS + "fixity")
-    etree.SubElement(fixity, ns.premisBNS + "messageDigestAlgorithm").text = "sha256"
-    etree.SubElement(fixity, ns.premisBNS + "messageDigest").text = checksum
+    etree.SubElement(fixity, ns.premisBNS + "messageDigestAlgorithm").text = f.checksumtype
+    etree.SubElement(fixity, ns.premisBNS + "messageDigest").text = f.checksum
 
     etree.SubElement(objectCharacteristics, ns.premisBNS + "size").text = fileSize
 
@@ -538,7 +529,7 @@ def createDigiprovMDAgents(fileGroupIdentifier=None):
         agentName = 'username="%s", first_name="%s", last_name="%s"' % (user.username, user.first_name, user.last_name)
         agentType = "Archivematica user"
         xmlData.append(createAgent(agentIdentifierType, agentIdentifierValue, agentName, agentType))
-    
+
     return ret
 
 
@@ -616,14 +607,14 @@ def getIncludedStructMap(baseDirectoryPath):
                 fileName = item.get("FILEID")
                 if fileName in fileNameToFileID:
                     #print fileName, " -> ", fileNameToFileID[fileName]
-                    item.set("FILEID", fileNameToFileID[fileName]) 
+                    item.set("FILEID", fileNameToFileID[fileName])
                 else:
                     print >>sys.stderr,"error: no fileUUID for ", fileName
                     sharedVariablesAcrossModules.globalErrorCount += 1
     for fileName, fileID in  fileNameToFileID.iteritems():
         #locate file based on key
         continue
-        print fileName 
+        print fileName
     if trimStructMap != None:
         ret.append(trimStructMap)
     return ret
@@ -631,6 +622,17 @@ def getIncludedStructMap(baseDirectoryPath):
 #DMDID="dmdSec_01" for an object goes in here
 #<file ID="file1-UUID" GROUPID="G1" DMDID="dmdSec_02" ADMID="amdSec_01">
 def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName, fileGroupIdentifier, fileGroupType, includeAmdSec=True):
+    """
+    Creates fileSec and structMap entries for files on disk recursively.
+
+    :param directoryPath: Path to recursively traverse and create METS entries for
+    :param parentDiv: structMap div to attach created children to
+    :param baseDirectoryPath: SIP path
+    :param baseDirectoryName: Name of the %var% for the SIP path
+    :param fileGroupIdentifier: SIP UUID
+    :param fileGroupType: Name of the foreign key field linking to SIP UUID in files.
+    :param includeAmdSec: If True, creates amdSecs for the files
+    """
     global fileNameToFileID
     global trimStructMap
     global trimStructMapObjects
@@ -639,7 +641,7 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
     global globalDigiprovMDCounter
     global dmdSecs
     global amdSecs
-    
+
     filesInThisDirectory = []
     dspaceMetsDMDID = None
     try:
@@ -660,8 +662,8 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
         if os.path.isdir(itemdirectoryPath):
             createFileSec(itemdirectoryPath, structMapDiv, baseDirectoryPath, baseDirectoryName, fileGroupIdentifier, fileGroupType, includeAmdSec)
         elif os.path.isfile(itemdirectoryPath):
-            myuuid=""
-            DMDIDS=""
+            # Setup variables for creating file metadata
+            DMDIDS = ""
             directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, baseDirectoryName, 1)
 
             kwargs = {
@@ -676,19 +678,16 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
                 sharedVariablesAcrossModules.globalErrorCount += 1
                 continue
 
-            myuuid = f.uuid
             use = f.filegrpuse
-            fileGrpUUID = f.filegrpuuid
-            transferUUID = f.transfer_id
             label = f.label
-            originalLocation = f.originallocation
             typeOfTransfer = f.transfer.type if f.transfer else None
 
             directoryPathSTR = itemdirectoryPath.replace(baseDirectoryPath, "", 1)
 
+            # Special TRIM processing
             if typeOfTransfer == "TRIM" and trimStructMap is None:
-                trimStructMap = etree.Element(ns.metsBNS + "structMap", attrib={"TYPE":"logical", "ID":"structMap_2", "LABEL":"Hierarchical arrangement"})
-                trimStructMapObjects = etree.SubElement(trimStructMap, ns.metsBNS + "div", attrib={"TYPE":"File", "LABEL":"objects"})
+                trimStructMap = etree.Element(ns.metsBNS + "structMap", attrib={"TYPE": "logical", "ID": "structMap_2", "LABEL": "Hierarchical arrangement"})
+                trimStructMapObjects = etree.SubElement(trimStructMap, ns.metsBNS + "div", attrib={"TYPE": "File", "LABEL": "objects"})
 
                 trimDmdSec = getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier)
                 globalDmdSecCounter += 1
@@ -705,38 +704,43 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
 
                 digiprovMD = getTrimAmdSec(baseDirectoryPath, fileGroupIdentifier)
                 globalDigiprovMDCounter += 1
-                digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
+                digiprovMD.set("ID", "digiprovMD_" + str(globalDigiprovMDCounter))
 
                 trimAmdSec.append(digiprovMD)
 
                 trimStructMapObjects.set("ADMID", ID)
 
-            fileId="file-%s" % (myuuid, )
-
-            #<fptr FILEID="file-<UUID>" LABEL="filename.ext">
+            # Create <div TYPE="Item"> and child <fptr>
+            # <fptr FILEID="file-<UUID>" LABEL="filename.ext">
+            fileId = "file-{}".format(f.uuid)
             label = item if not label else label
             fileDiv = etree.SubElement(structMapDiv, ns.metsBNS + "div", LABEL=label, TYPE='Item')
             etree.SubElement(fileDiv, ns.metsBNS + 'fptr', FILEID=fileId)
             fileNameToFileID[item] = fileId
 
+            # Determine fileGrp @GROUPID based on the file's fileGrpUse and transfer type
             GROUPID = ""
-            if fileGrpUUID:
-                GROUPID = "Group-%s" % (fileGrpUUID)
+            if f.filegrpuuid:
+                # GROUPID was determined elsewhere
+                GROUPID = "Group-%s" % (f.filegrpuuid)
                 if use == "TRIM file metadata":
                     use = "metadata"
 
             elif use in ("original", "submissionDocumentation", "metadata", "maildirFile"):
-                GROUPID = "Group-%s" % (myuuid)
+                # These files are in a group defined by themselves
+                GROUPID = "Group-%s" % (f.uuid)
                 if use == "maildirFile":
                     use = "original"
+                # Check for CSV-based Dublincore dmdSec
                 if use == "original":
-                    DMDIDS = createDMDIDsFromCSVMetadata(originalLocation.replace('%transferDirectory%', "", 1))
+                    DMDIDS = createDMDIDsFromCSVMetadata(f.originallocation.replace('%transferDirectory%', "", 1))
                     if DMDIDS:
                         fileDiv.set("DMDID", DMDIDS)
+                    # More special TRIM processing
                     if typeOfTransfer == "TRIM":
-                        trimFileDiv = etree.SubElement(trimStructMapObjects, ns.metsBNS + "div", attrib={"TYPE":"Item"})
-                        
-                        trimFileDmdSec = getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, myuuid)
+                        trimFileDiv = etree.SubElement(trimStructMapObjects, ns.metsBNS + "div", attrib={"TYPE": "Item"})
+
+                        trimFileDmdSec = getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, f.uuid)
                         globalDmdSecCounter += 1
                         dmdSecs.append(trimFileDmdSec)
                         ID = "dmdSec_" + globalDmdSecCounter.__str__()
@@ -746,28 +750,27 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
 
                         etree.SubElement(trimFileDiv, ns.metsBNS + "fptr", FILEID=fileId)
 
-            # Dspace transfers are treated specially, but some of these fileGrpUses
-            # may be encountered in other types
             elif typeOfTransfer == "Dspace" and (use in ("license", "text/ocr", "DSPACEMETS")):
+                # Dspace transfers are treated specially, but some of these fileGrpUses may be encountered in other types
                 kwargs = {
                     "removedtime__isnull": True,
                     fileGroupType: fileGroupIdentifier,
                     "filegrpuse": "original",
-                    "originallocation__startswith": os.path.dirname(originalLocation)
+                    "originallocation__startswith": os.path.dirname(f.originallocation)
                 }
                 try:
-                    f = File.objects.get(**kwargs)
-                    GROUPID = 'Group-' + f.uuid
+                    original_file = File.objects.get(**kwargs)
+                    GROUPID = 'Group-' + original_file.uuid
                 except (File.DoesNotExist, File.MultipleObjectsReturned):
                     pass
 
-
-            elif use == "preservation" or use == "text/ocr":
-                d = Derivation.objects.get(derived_file_id=myuuid)
+            elif use in ("preservation", "text/ocr"):
+                # Derived files should be in the original file's group
+                d = Derivation.objects.get(derived_file_id=f.uuid)
                 GROUPID = "Group-" + d.source_file_id
 
-
             elif use == "service":
+                # Service files are in the original file's group
                 fileFileIDPath = itemdirectoryPath.replace(baseDirectoryPath + "objects/service/", baseDirectoryName + "objects/")
                 objectNameExtensionIndex = fileFileIDPath.rfind(".")
                 fileFileIDPath = fileFileIDPath[:objectNameExtensionIndex + 1]
@@ -778,58 +781,53 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
                     "filegrpuse": "original",
                     "currentlocation__startswith": fileFileIDPath
                 }
-                f = File.objects.get(**kwargs)
-                GROUPID = "Group-" + f.uuid
-            
-            
+                original_file = File.objects.get(**kwargs)
+                GROUPID = "Group-" + original_file.uuid
+
             elif use == "TRIM container metadata":
-                GROUPID = "Group-%s" % (myuuid)
+                GROUPID = "Group-%s" % (f.uuid)
                 use = "metadata"
-            
 
-            if transferUUID:
-                t = Transfer.objects.get(uuid=transferUUID)
+            # Special DSPACEMETS processing
+            if f.transfer and f.transfer.type == "Dspace" and use == "DSPACEMETS":
+                use = "submissionDocumentation"
+                admidApplyTo = None
+                if GROUPID == "":  # is an AIP identifier
+                    GROUPID = f.uuid
+                    admidApplyTo = structMapDiv.getparent()
 
-                if t.type == "Dspace":
-                    if use == "DSPACEMETS":
-                        use = "submissionDocumentation"
-                        admidApplyTo = None
-                        if GROUPID=="": #is an AIP identifier
-                            GROUPID = myuuid
-                            admidApplyTo = structMapDiv.getparent()
+                label = "mets.xml-%s" % (GROUPID)
+                dspace_dmdsecs = createDSpaceDMDSec(label, itemdirectoryPath, directoryPathSTR)
+                if dspace_dmdsecs:
+                    dmdSecs.extend(dspace_dmdsecs.values())
+                    ids = ' '.join(dspace_dmdsecs.keys())
+                    if admidApplyTo is not None:
+                        admidApplyTo.set("DMDID", ids)
+                    else:
+                        dspaceMetsDMDID = ids
 
-                        label = "mets.xml-%s" % (GROUPID)
-                        dspace_dmdsecs = createDSpaceDMDSec(label, itemdirectoryPath, directoryPathSTR)
-                        if dspace_dmdsecs:
-                            dmdSecs.extend(dspace_dmdsecs.values())
-                            ids = ' '.join(dspace_dmdsecs.keys())
-                            if admidApplyTo is not None:
-                                admidApplyTo.set("DMDID", ids)
-                            else:
-                                dspaceMetsDMDID = ids
-
-            if GROUPID=="":
+            if GROUPID == "":
                 sharedVariablesAcrossModules.globalErrorCount += 1
                 print >>sys.stderr, "No groupID for file: \"", directoryPathSTR, "\""
 
             if use not in globalFileGrps:
-                print >>sys.stderr, "Invalid use: \"%s\"" % (use)
+                print >>sys.stderr, 'Invalid use: "%s"' % (use)
                 sharedVariablesAcrossModules.globalErrorCount += 1
             else:
                 file_elem = etree.SubElement(globalFileGrps[use], ns.metsBNS + "file", ID=fileId, GROUPID=GROUPID)
                 if use == "original":
                     filesInThisDirectory.append(file_elem)
                 #<Flocat xlink:href="objects/file1-UUID" locType="other" otherLocType="system"/>
-                newChild(file_elem, ns.metsBNS + "FLocat", sets=[(ns.xlinkBNS +"href",directoryPathSTR), ("LOCTYPE","OTHER"), ("OTHERLOCTYPE", "SYSTEM")])
+                newChild(file_elem, ns.metsBNS + "FLocat", sets=[(ns.xlinkBNS + "href", directoryPathSTR), ("LOCTYPE", "OTHER"), ("OTHERLOCTYPE", "SYSTEM")])
                 if includeAmdSec:
-                    AMD, ADMID = getAMDSec(myuuid, directoryPathSTR, use, fileGroupType, fileGroupIdentifier, transferUUID, itemdirectoryPath, typeOfTransfer, baseDirectoryPath)
+                    AMD, ADMID = getAMDSec(f.uuid, directoryPathSTR, use, fileGroupType, fileGroupIdentifier, f.transfer_id, itemdirectoryPath, typeOfTransfer, baseDirectoryPath)
                     amdSecs.append(AMD)
                     file_elem.set("ADMID", ADMID)
 
-    if dspaceMetsDMDID != None:
+    if dspaceMetsDMDID is not None:
         for file_elem in filesInThisDirectory:
             file_elem.set("DMDID", dspaceMetsDMDID)
-    
+
     return structMapDiv
 
 def build_arranged_structmap(original_structmap, sip_uuid):
@@ -1025,7 +1023,6 @@ if __name__ == '__main__':
     SIP_TYPE = opts.sip_type
     baseDirectoryPath = opts.baseDirectoryPath
     XMLFile = opts.xmlFile
-    includeAmdSec = opts.amdSec
     baseDirectoryPathString = "%%%s%%" % (opts.baseDirectoryPathString)
     fileGroupIdentifier = opts.fileGroupIdentifier
     fileGroupType = opts.fileGroupType

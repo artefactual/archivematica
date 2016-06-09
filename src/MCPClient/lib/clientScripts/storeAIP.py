@@ -20,15 +20,19 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from annoying.functions import get_object_or_None
 import argparse
 import logging
 import os
+import slumber
 import sys
 from uuid import uuid4
 
 # storageService requires Django to be set up
 import django
 django.setup()
+from main.models import UnitVariable
+
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import storageService as storage_service
@@ -78,10 +82,27 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     # DIPs cannot share the AIP UUID, as the storage service depends on
     # having a unique UUID; assign a new one before uploading.
     # TODO allow mapping the AIP UUID to the DIP UUID for retrieval.
+    related_package_uuid = None
     if sip_type == 'DIP':
         uuid = str(uuid4())
+        print 'Checking if DIP {} parent AIP has been created...'.format(uuid)
+
+        # Set related package UUID, so a relationship to the parent AIP can be
+        # created if if AIP has been stored. If the AIP hasn't yet been stored
+        # take note of the DIP's UUID so it the relationship can later be
+        # created when the AIP is stored.
+        api = storage_service._storage_api()
+        try:
+            api.file(sip_uuid).get()
+            related_package_uuid = sip_uuid
+            print 'Parent AIP exists so relationship can be created.'
+        except slumber.exceptions.HttpClientError:
+            UnitVariable.objects.create(unittype='SIP', unituuid=sip_uuid, variable='relatedPackage', variablevalue=uuid)
+            print 'Noting DIP UUID {} related to AIP so relationship can be created when AIP is stored.'.format(uuid)
     else:
         uuid = sip_uuid
+        related_package = get_object_or_None(UnitVariable, unituuid=sip_uuid, variable='relatedPackage')
+        related_package_uuid = related_package.variablevalue if related_package is not None else None
 
     # If AIP is a directory, calculate size recursively
     if os.path.isdir(aip_path):
@@ -103,6 +124,7 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
         package_type=package_type,
         size=size,
         update='REIN' in sip_type,
+        related_package_uuid=related_package_uuid,
     )
 
     if new_file is not None and new_file.get('status', '') != "FAIL":

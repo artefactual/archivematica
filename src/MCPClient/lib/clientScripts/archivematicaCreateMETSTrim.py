@@ -29,7 +29,7 @@ import lxml.etree as etree
 # dashboard
 from main.models import File
 
-import archivematicaXMLNamesSpace as ns
+import namespaces as ns
 
 
 def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):

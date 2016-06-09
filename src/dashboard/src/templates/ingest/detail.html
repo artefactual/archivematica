@@ -18,14 +18,14 @@
         <div class="alert-message block-message">
           <p>There are micro-services awaiting user decisions.</p>
           <div class="alert-actions">
-            <a class="btn small" href="{% url 'components.ingest.views.ingest_microservices' uuid %}">View micro-services</a>
+            <a class="btn small" href="{% url 'components.unit.views.microservices' unit_type uuid %}">View micro-services</a>
           </div>
         </div>
       {% endif %}
 
       <h5>Micro-Services</h5>
       <ul>
-        <li><a href="{% url 'components.ingest.views.ingest_microservices' uuid %}">List</a></li>
+        <li><a href="{% url 'components.unit.views.microservices' unit_type uuid %}">List</a></li>
       </ul>
 
       <h5>Rights</h5>

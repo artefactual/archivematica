@@ -30,11 +30,10 @@ import os
 import re
 import sys
 
-import archivematicaXMLNamesSpace as ns
-
 # archivematicaCommon
 import archivematicaFunctions
 from custom_handlers import get_script_logger
+import namespaces as ns
 
 def parseDmdSec(dmdSec, label='[Placeholder title]'):
     """

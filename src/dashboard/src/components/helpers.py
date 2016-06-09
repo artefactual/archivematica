@@ -29,7 +29,7 @@ from django.utils.dateformat import format
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
 from django.core.urlresolvers import reverse
 from django.db.models import Max
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.core.servers.basehttp import FileWrapper
 from django.shortcuts import render
 from main import models
@@ -329,8 +329,20 @@ def pad_destination_filepath_if_it_already_exists(filepath, original=None, attem
             return pad_destination_filepath_if_it_already_exists(new_filepath, original, attempt)
     return filepath
 
-def default_processing_config_path():
+def processing_config_path():
     return os.path.join(
         get_server_config_value('sharedDirectory'),
-        'sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml'
+        'sharedMicroServiceTasksConfigs/processingMCPConfigs'
     )
+
+def stream_file_from_storage_service(url, error_message='Remote URL returned {}'):
+    stream = requests.get(url, stream=True)
+    if stream.status_code == 200:
+        content_type = stream.headers.get('content-type', 'text/plain')
+        return StreamingHttpResponse(stream, content_type=content_type)
+    else:
+        response = {
+            'success': False,
+            'message': error_message.format(stream.status_code)
+        }
+        return json_response(response, status_code=400)

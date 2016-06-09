@@ -27,6 +27,7 @@ import requests
 import shutil
 import sys
 from urlparse import urljoin
+import uuid
 
 # Django Core, alphabetical by import source
 from django.conf import settings as django_settings
@@ -38,6 +39,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.utils.text import slugify
+from django.views.generic import View
 
 # External dependencies, alphabetical
 
@@ -52,7 +54,6 @@ from components.ingest.views_NormalizationReport import getNormalizationReportQu
 from main import forms
 from main import models
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
 import elasticSearchFunctions
 import storageService as storage_service
@@ -63,7 +64,6 @@ logger = logging.getLogger('archivematica.dashboard')
       Ingest
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
-@decorators.elasticsearch_required()
 def ingest_grid(request):
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
@@ -75,6 +75,17 @@ def ingest_grid(request):
         messages.warning(request, 'Error retrieving originals/arrange directory locations: is the storage server running? Please contact an administrator.')
 
     return render(request, 'ingest/grid.html', locals())
+
+class SipsView(View):
+    def post(self, request):
+        """
+        Creates a new stub SIP object, and returns its UUID in a JSON response.
+        """
+        sip = models.SIP.objects.create(uuid=str(uuid.uuid4()), currentpath=None)
+        return helpers.json_response({
+            "success": True,
+            "id": sip.uuid,
+        })
 
 def ingest_status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs WHERE unitType='unitSIP' GROUP BY SIPUUID
@@ -92,7 +103,7 @@ def ingest_status(request, uuid=None):
             if models.SIP.objects.is_hidden(item['sipuuid']):
                 continue
             jobs = helpers.get_jobs_by_sipuuid(item['sipuuid'])
-            item['directory'] = utils.get_directory_name_from_job(jobs[0])
+            item['directory'] = utils.get_directory_name_from_job(jobs)
             item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
             item['uuid'] = item['sipuuid']
             item['id'] = item['sipuuid']
@@ -183,7 +194,7 @@ def ingest_metadata_edit(request, uuid, id=None):
         dc.save()
         return redirect('components.ingest.views.ingest_metadata_list', uuid)
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = utils.get_directory_name_from_job(jobs)
 
     return render(request, 'ingest/metadata_edit.html', locals())
 
@@ -201,7 +212,7 @@ def ingest_metadata_add_files(request, sip_uuid):
     # Get name of SIP from directory name of most recent job
     # Making list and slicing for speed: http://stackoverflow.com/questions/5123839/fastest-way-to-get-the-first-object-from-a-queryset-in-django
     jobs = list(models.Job.objects.filter(sipuuid=sip_uuid, subjobof='')[:1])
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = utils.get_directory_name_from_job(jobs)
 
     return render(request, 'ingest/metadata_add_files.html', locals())
 
@@ -252,7 +263,7 @@ def ingest_metadata_event_detail(request, uuid):
 
     if formset.is_valid():
         formset.save()
-        return redirect('components.ingest.views.ingest_detail', uuid)
+        return redirect('components.unit.views.detail', unit_type='ingest', unit_uuid=uuid)
 
     # Add path for original and derived files to each form
     for form in formset:
@@ -262,7 +273,7 @@ def ingest_metadata_event_detail(request, uuid):
     # Get name of SIP from directory name of most recent job
     # Making list and slicing for speed: http://stackoverflow.com/questions/5123839/fastest-way-to-get-the-first-object-from-a-queryset-in-django
     jobs = list(models.Job.objects.filter(sipuuid=uuid, subjobof='')[:1])
-    name = utils.get_directory_name_from_job(jobs[0])
+    name = utils.get_directory_name_from_job(jobs)
     return render(request, 'ingest/metadata_event_detail.html', locals())
 
 def delete_context(request, uuid, id):
@@ -276,29 +287,6 @@ def ingest_metadata_delete(request, uuid, id):
         models.DublinCore.objects.get(pk=id).delete()
         messages.info(request, 'Deleted.')
         return redirect('components.ingest.views.ingest_metadata_list', uuid)
-    except:
-        raise Http404
-
-def ingest_detail(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
-    name = utils.get_directory_name_from_job(jobs[0])
-    return render(request, 'ingest/detail.html', locals())
-
-def ingest_microservices(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    name = utils.get_directory_name_from_job(jobs[0])
-    return render(request, 'ingest/microservices.html', locals())
-
-def ingest_delete(request, uuid):
-    try:
-        sip = models.SIP.objects.get(uuid__exact=uuid)
-        sip.hidden = True
-        sip.save()
-
-        response = { 'removed': True }
-        return helpers.json_response(response)
-
     except:
         raise Http404
 
@@ -353,8 +341,7 @@ def ingest_upload(request, uuid):
 
 def ingest_normalization_report(request, uuid, current_page=None):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-    job = jobs[0]
-    sipname = utils.get_directory_name_from_job(job)
+    sipname = utils.get_directory_name_from_job(jobs)
 
     objects = getNormalizationReportQuery(sipUUID=uuid)
     for o in objects:
@@ -385,11 +372,9 @@ def ingest_browse(request, browse_type, jobuuid):
         raise Http404
 
     jobs = models.Job.objects.filter(jobuuid=jobuuid, subjobof='')
-    job = jobs[0]
-    name = utils.get_directory_name_from_job(job)
+    name = utils.get_directory_name_from_job(jobs)
 
     return render(request, 'ingest/aip_browse.html', locals())
-
 
 def _es_results_to_directory_tree(path, return_list, not_draggable=False):
     # Helper function for transfer_backlog
@@ -425,31 +410,114 @@ def _es_results_to_directory_tree(path, return_list, not_draggable=False):
         # Otherwise, directories have the draggability of their first child
         this_node['properties']['not_draggable'] = this_node['properties']['not_draggable'] and not_draggable
 
+def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_draggable=False):
+    """
+    Given a set of records from Elasticsearch, produces a list of records suitable for use with the appraisal tab.
+    This function mutates a provided `directory_list`; it does not return a value.
 
-@decorators.elasticsearch_required()
-def transfer_backlog(request):
+    Elasticsearch results index only files; directories are inferred by splitting the filename and generating directory entries for each presumed directory.
+
+    :param dict record: A record from Elasticsearch.
+        This must be in the new format defined for Archivematica 1.6.
+    :param dict record_map: A dictionary to be used to track created directory objects.
+        This ensures that duplicate directories aren't created when processing multiple files.
+    :param dict directory_list: A list of top-level directories to return in the results.
+        This only contains directories which are not themselves contained within any other directories, e.g. transfers.
+        This will be appended to by this function in lieu of returning a value.
+    :param bool not_draggable: This property determines whether or not a given file should be able to be dragged in the user interface; passing this will override the default logic for determining if a file is draggable.
+    """
+    dir, fn = record['relative_path'].rsplit('/', 1)
+
+    # Recursively create elements for this item's parent directory,
+    # if not already present in the record map
+    components = dir.split('/')
+    directories = []
+    while len(components) > 0:
+        directories.insert(0, '/'.join(components))
+        components.pop(-1)
+
+    parent = None
+    for node in directories:
+        node_parts = node.split('/')
+        is_transfer = len(node_parts) == 1
+        if not is_transfer:
+            node_not_draggable = not_draggable or node_parts[1] in ('logs', 'metadata')
+        else:
+            node_not_draggable = not_draggable
+
+        if not node in record_map:
+            dir_record = {
+                'type': 'transfer' if is_transfer else 'directory',
+                # have to artificially create directory IDs, since we don't assign those
+                'id': str(uuid.uuid4()),
+                'title': base64.b64encode(os.path.basename(node)),
+                'relative_path': base64.b64encode(node),
+                'not_draggable': node_not_draggable,
+                'object_count': 0,
+                'children': [],
+            }
+            record_map[node] = dir_record
+            # directory_list should consist only of top-level records
+            if is_transfer:
+                directory_list.append(dir_record)
+        else:
+            dir_record = record_map[node]
+
+        if parent is not None and dir_record not in parent['children']:
+            parent['children'].append(dir_record)
+            parent['object_count'] += 1
+
+        parent = dir_record
+
+    dir_parts = dir.split('/')
+    if len(dir_parts) > 1:
+        dir_not_draggable = not_draggable or dir_parts[1] in ('logs', 'metadata')
+    else:
+        dir_not_draggable = not_draggable
+
+    child = {
+        'type': 'file',
+        'id': record['fileuuid'],
+        'title': base64.b64encode(fn),
+        'relative_path': base64.b64encode(record['relative_path']),
+        'size': record['size'],
+        'tags': record['tags'],
+        'bulk_extractor_reports': record['bulk_extractor_reports'],
+        'not_draggable': dir_not_draggable
+    }
+    if record['format']:
+        format = record['format'][0]  # TODO handle multiple format identifications
+        child['format'] = format['format']
+        child['group'] = format['group']
+        child['puid'] = format['puid']
+
+    record_map[dir]['children'].append(child)
+    record_map[dir]['object_count'] += 1
+
+
+def transfer_backlog(request, ui):
     """
     AJAX endpoint to query for and return transfer backlog items.
     """
+    es_client = elasticSearchFunctions.get_client()
+
     # Get search parameters from request
     results = None
-    conn = elasticSearchFunctions.connect_and_create_index('transfers')
 
     if not 'query' in request.GET:
-        query = elasticSearchFunctions.MATCH_ALL_QUERY
+        query = elasticSearchFunctions.MATCH_ALL_QUERY.copy()
+        query['filter'] = elasticSearchFunctions.BACKLOG_FILTER
     else:
         queries, ops, fields, types = advanced_search.search_parameter_prep(request)
 
         try:
             query = advanced_search.assemble_query(
+                es_client,
                 queries,
                 ops,
                 fields,
                 types,
-                # Specify this as a filter, not a must_have, for performance,
-                # and so that it doesn't cause the "should" queries in a
-                # should-only query to be ignored.
-                filters={'term': {'status': 'backlog'}},
+                filters=elasticSearchFunctions.BACKLOG_FILTER,
             )
         except:
             logger.exception('Error accessing index.')
@@ -458,7 +526,7 @@ def transfer_backlog(request):
     # perform search
     try:
         results = elasticSearchFunctions.search_all_results(
-            conn,
+            es_client,
             body=query,
             index='transfers',
             doc_type='transferfile',
@@ -467,9 +535,8 @@ def transfer_backlog(request):
         logger.exception('Error accessing index.')
         return HttpResponse('Error accessing index.')
 
-
     # Convert results into a more workable form
-    results = _transfer_backlog_augment_search_results(results)
+    results = elasticSearchFunctions.augment_raw_search_results(results)
 
     # Convert to a form JS can use:
     # [{'name': <filename>,
@@ -486,6 +553,7 @@ def transfer_backlog(request):
     #  },
     # ]
     return_list = []
+    directory_map = {}
     # _es_results_to_directory_tree requires that paths MUST be sorted
     results.sort(key=lambda x: x['relative_path'])
     for path in results:
@@ -494,21 +562,21 @@ def transfer_backlog(request):
         if models.SIPArrange.objects.filter(
             original_path__endswith=path['relative_path']).exists():
             not_draggable = True
-        _es_results_to_directory_tree(path['relative_path'], return_list, not_draggable=not_draggable)
+        if ui == 'legacy':
+            _es_results_to_directory_tree(path['relative_path'], return_list, not_draggable=not_draggable)
+        else:
+            _es_results_to_appraisal_tab_format(path, directory_map, return_list, not_draggable=not_draggable)
 
-    # retun JSON response
-    return helpers.json_response(return_list)
+    if ui == 'legacy':
+        response = return_list
+    else:
+        response = {
+            'formats': [],  # TODO populate this
+            'transfers': return_list,
+        }
 
-
-def _transfer_backlog_augment_search_results(raw_results):
-    modifiedResults = []
-
-    for item in raw_results['hits']['hits']:
-        clone = item['_source'].copy()
-        clone['document_id'] = item[u'_id']
-        modifiedResults.append(clone)
-
-    return modifiedResults
+    # return JSON response
+    return helpers.json_response(response)
 
 
 def transfer_file_download(request, uuid):

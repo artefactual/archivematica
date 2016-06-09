@@ -7,7 +7,12 @@ Standards-Version: 3.9.8
 Homepage: http://archivematica.org
 
 Package: archivematica-common
-Architecture: i386 amd64 
-Depends: ${shlibs:Depends}, ${misc:Depends}, python, python-pip, python2.7-elementtree, python-mimeparse, python-dateutil, python-dev
+Architecture: i386 amd64
+Depends:
+	${shlibs:Depends},
+	${misc:Depends},
+	python,
+	python-pip,
+	python-dev
 Description: Common libraries for archivematica
-  This package is a support package for archivematica. It contains a library of functions used in the archivematica system.  
+  This package is a support package for archivematica. It contains a library of functions used in the archivematica system.

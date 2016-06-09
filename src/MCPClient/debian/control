@@ -7,14 +7,43 @@ Standards-Version: 3.9.8
 Homepage: http://archivematica.org
 
 Package: archivematica-mcp-client
-Architecture: i386 amd64 
-Depends: ${shlibs:Depends}, ${misc:Depends}, archivematica-common (>=1.5.0),
- atool, bagit, bulk-extractor, clamav, clamav-daemon, ffmpeg (>= 7:3.0), libavcodec-extra-56, fits (>= 0.8.4),
- gearman, imagemagick (>=8:6.7.7.10), inkscape, jhove, libimage-exiftool-perl, libxml2-utils, logapp,
- md5deep, mediainfo, nailgun-client, nfs-common, openjdk-7-jre-headless, p7zip-full,
- pbzip2, postfix, python-fido (>=200.1.3.4), python-gearman, python-lxml,
- python-mysqldb, python-unidecode, readpst,
- rsync, siegfried (>=1.5.0), sleuthkit, tesseract-ocr, tika, tree, ufraw, unrar-free, uuid
+Architecture: i386 amd64
+Depends:
+	${shlibs:Depends},
+	${misc:Depends},
+	archivematica-common (>=1.5.0),
+	atool,
+	bagit,
+	bulk-extractor,
+	clamav,
+	clamav-daemon,
+	ffmpeg (>= 7:3.0),
+	libavcodec-extra-56,
+	fits (>= 0.8.4),
+	gearman,
+	imagemagick (>=8:6.7.7.10),
+	inkscape,
+	jhove,
+	libimage-exiftool-perl,
+	libxml2-utils,
+	logapp,
+	md5deep,
+	mediainfo,
+	nailgun-client,
+	nfs-common,
+	openjdk-7-jre-headless,
+	p7zip-full,
+	pbzip2,
+	postfix,
+	python-fido (>=200.1.3.4),
+	readpst,
+	rsync,
+	siegfried (>=1.5.0),
+	sleuthkit,
+	tesseract-ocr,
+	tika,
+	tree,
+	ufraw,
+	unrar-free,
+	uuid
 Description: MCP Client for Archivematica
-  
-  

@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#!/usr/bin/env python2
 
 import base64
 import json
@@ -64,6 +64,24 @@ class TestSIPArrange(TestCase):
         assert response_dict['properties'][base64.b64encode("evelyn_s_second_photo")]['display_string'] == '1 objects'
         assert len(response_dict) == 3
 
+    def test_arrange_contents_404(self):
+        response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange/nosuchpath/')}, follow=True)
+        assert response.status_code == 404
+        response_dict = json.loads(response.content)
+        assert response_dict['success'] is False
+
+    def test_arrange_contents_empty_base_dir(self):
+        models.SIPArrange.objects.all().delete()
+        response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange/')}, follow=True)
+        assert response.status_code == 200
+        response_dict = json.loads(response.content)
+        assert 'directories' in response_dict
+        assert len(response_dict['directories']) == 0
+        assert 'entries' in response_dict
+        assert len(response_dict['entries']) == 0
+        assert 'properties' in response_dict
+        assert len(response_dict) == 3
+
     def test_delete_arranged_files(self):
         # Check to-be-deleted exists
         response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange')}, follow=True)
@@ -105,7 +123,7 @@ class TestSIPArrange(TestCase):
 
     def test_move_within_arrange(self):
         # Move directory
-        response = self.client.post(reverse('components.filesystem_ajax.views.move_within_arrange'), data={'filepath': base64.b64encode('/arrange/newsip/'), 'destination': base64.b64encode('/arrange/toplevel/')}, follow=True)
+        response = self.client.post(reverse('components.filesystem_ajax.views.copy_to_arrange'), data={'filepath': base64.b64encode('/arrange/newsip/'), 'destination': base64.b64encode('/arrange/toplevel/')}, follow=True)
         assert response.status_code == 200
         assert json.loads(response.content) == {'message': 'SIP files successfully moved.'}
         # Check gone from parent

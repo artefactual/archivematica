@@ -8,8 +8,10 @@ from main.models import ArchivesSpaceDIPObjectResourcePairing, File
 from fpr.models import FormatVersion
 
 # archivematicaCommon
-from archivesspace.client import ArchivesSpaceClient
 from xml2obj import mets_file
+
+# Third party dependencies, alphabetical by import source
+from agentarchives.archivesspace import ArchivesSpaceClient
 
 # initialize Django (required for Django 1.7)
 import django
@@ -147,7 +149,8 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
                 original_file_set__source_file=uuid
             )
         except (File.DoesNotExist, File.MultipleObjectsReturned):
-            pass  # Just use original file info
+            # Just use original file info
+            pass
         else:
             # HACK remove DIP from the path because create DIP doesn't
             access_file_path = access_file.currentlocation.replace('%SIPDirectory%DIP/', dip_location)
@@ -171,13 +174,13 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
             format_name = as_formats.get(format_name)
 
         logger.info("Uploading {} to ArchivesSpace record {}".format(file_name, as_resource))
-        client.add_digital_object(as_resource,
-                                  location_of_originals=dip_uuid,
+        client.add_digital_object(parent_archival_object=as_resource,
+                                  identifier=uuid,
                                   # TODO: fetch a title from DC?
                                   #       Use the title of the parent record?
                                   title=original_name,
                                   uri=uri + file_name,
-                                  identifier=uuid,
+                                  location_of_originals=dip_uuid,
                                   object_type=object_type,
                                   use_statement=use_statement,
                                   xlink_show=xlink_show,

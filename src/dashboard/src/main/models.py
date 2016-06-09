@@ -103,7 +103,7 @@ class Access(models.Model):
     def get_title(self):
         try:
             jobs = main.models.Job.objects.filter(sipuuid=self.sipuuid, subjobof='')
-            return utils.get_directory_name_from_job(jobs[0])
+            return utils.get_directory_name_from_job(jobs)
         except:
             return 'N/A'
 
@@ -169,6 +169,10 @@ class Event(models.Model):
     event_detail = models.TextField(db_column='eventDetail', blank=True)
     event_outcome = models.TextField(db_column='eventOutcome', blank=True)
     event_outcome_detail = models.TextField(db_column='eventOutcomeDetailNote', blank=True)  # TODO convert this to a BinaryField with Django >= 1.6
+    # For historical reasons, this can be either a foreign key to the
+    # Agent table or to the auth_user table. As a result we can't track
+    # it as a foreign key within Django.
+    # See 57495899bb094dcf791b5f6d859cb596ecc5c37e for more information.
     linking_agent = models.IntegerField(db_column='linkingAgentIdentifier', null=True)
 
     class Meta:
@@ -215,6 +219,7 @@ class SIP(models.Model):
     """ Information on SIP units. """
     uuid = models.CharField(max_length=36, primary_key=True, db_column='sipUUID')
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    # If currentpath is null, this SIP is understood to not have been started yet.
     currentpath = models.TextField(db_column='currentPath', null=True, blank=True)
     hidden = models.BooleanField(default=False)
     aip_filename = models.TextField(db_column='aipFilename', null=True, blank=True)
@@ -288,6 +293,22 @@ class SIPArrange(models.Model):
             arrange=self.arrange_path)
 
 
+class SIPArrangeAccessMapping(models.Model):
+    """ Maps directories within SIPArrange to descriptive objects in a remote archival management system. """
+    ARCHIVESSPACE = "archivesspace"
+    ARCHIVISTS_TOOLKIT = "atk"
+    ATOM = "atom"
+    SYSTEMS = (
+        (ARCHIVESSPACE, "ArchivesSpace"),
+        (ARCHIVISTS_TOOLKIT, "Archivist's Toolkit"),
+        (ATOM, "AtoM"),
+    )
+
+    arrange_path = models.CharField(max_length=255)
+    system = models.CharField(choices=SYSTEMS, default=ATOM, max_length=255)
+    identifier = models.CharField(max_length=255)
+
+
 class File(models.Model):
     """ Information about Files in units (Transfers, SIPs). """
     uuid = models.CharField(max_length=36, primary_key=True, db_column='fileUUID')
@@ -299,6 +320,7 @@ class File(models.Model):
     filegrpuse = models.CharField(max_length=50, db_column='fileGrpUse', default='Original')
     filegrpuuid = models.CharField(max_length=36L, db_column='fileGrpUUID', blank=True)
     checksum = models.CharField(max_length=100, db_column='checksum', blank=True)
+    checksumtype = models.CharField(max_length=36, db_column='checksumType', blank=True)
     size = models.BigIntegerField(db_column='fileSize', null=True, blank=True)
     label = models.TextField(blank=True)
     enteredsystem = models.DateTimeField(db_column='enteredSystem', auto_now_add=True)
@@ -817,6 +839,25 @@ class ArchivesSpaceDIPObjectResourcePairing(models.Model):
         # set up permissions: https://code.djangoproject.com/ticket/18866
         verbose_name = u'ASDIPObjectResourcePairing'
 
+class ArchivesSpaceDOComponent(models.Model):
+    """
+    Represents a digital object component to be created in ArchivesSpace at the time an AIP is stored by Archivematica.
+
+    In ArchivesSpace, a digital object component is meant to be parented to a digital object record.
+    The workflow in use by the appraisal tab doesn't expose digital objects to the user, just components;
+    one digital object should be created as a parent for these components before creating the
+    components themselves.
+    """
+    sip = models.ForeignKey('SIP', to_field='uuid', null=True)
+    resourceid = models.CharField(max_length=150)
+    label = models.CharField(max_length=255, blank=True)
+    title = models.TextField(blank=True)
+    started = models.BooleanField(default=False,
+                                  help_text='Whether or not a SIP has been started using files in this digital object component.')
+    digitalobjectid = models.CharField(max_length=150, blank=True,
+                                       help_text='ID in the remote ArchivesSpace system of the digital object to which this object is parented.')
+    remoteid = models.CharField(max_length=150, blank=True,
+                                help_text='ID in the remote ArchivesSpace system, after component has been created.')
 
 class TransferMetadataSet(models.Model):
     id = UUIDPkField()

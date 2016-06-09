@@ -338,6 +338,7 @@ class TestParseFiles(TestCase):
             'current_path': '%SIPDirectory%objects/evelyn_s_photo.jpg',
             'use': 'original',
             'checksum': 'd2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92',
+            'checksumtype': 'sha256',
             'size': '158131',
             'format_version': fpr.models.FormatVersion.objects.get(uuid='01fac958-274d-41ef-978f-d9cf711b3c4a'),
             'derivation': '8140ebe5-295c-490b-a34a-83955b7c844e',
@@ -349,6 +350,7 @@ class TestParseFiles(TestCase):
             'current_path': '%SIPDirectory%objects/evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif',
             'use': 'preservation',
             'checksum': 'd82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9',
+            'checksumtype': 'sha256',
             'size': '1446772',
             'format_version': fpr.models.FormatVersion.objects.get(uuid='2ebdfa17-2257-49f8-8035-5f304bb46918'),
             'derivation': None,
@@ -359,7 +361,8 @@ class TestParseFiles(TestCase):
             'original_path': "%SIPDirectory%objects/submissionDocumentation/transfer-no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/METS.xml",
             'current_path': '%SIPDirectory%objects/submissionDocumentation/transfer-no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/METS.xml',
             'use': 'submissionDocumentation',
-            'checksum': '51132e5ce1b5d2c2c363f05495f447ea924ab29c2cda2c11037b5fca2119e45a',
+            'checksum': 'd41d8cd98f00b204e9800998ecf8427e',
+            'checksumtype': 'md5',
             'size': '12222',
             'format_version': fpr.models.FormatVersion.objects.get(uuid='d60e5243-692e-4af7-90cd-40c53cb8dc7d'),
             'derivation': None,
@@ -382,6 +385,7 @@ class TestParseFiles(TestCase):
         assert orig['current_path'] == self.ORIG_INFO['current_path']
         assert orig['use'] == self.ORIG_INFO['use']
         assert orig['checksum'] == self.ORIG_INFO['checksum']
+        assert orig['checksumtype'] == self.ORIG_INFO['checksumtype']
         assert orig['size'] == self.ORIG_INFO['size']
         assert orig['format_version'] == self.ORIG_INFO['format_version']
         assert orig['derivation'] == self.ORIG_INFO['derivation']
@@ -392,6 +396,7 @@ class TestParseFiles(TestCase):
         assert mets['current_path'] == self.METS_INFO['current_path']
         assert mets['use'] == self.METS_INFO['use']
         assert mets['checksum'] == self.METS_INFO['checksum']
+        assert mets['checksumtype'] == self.METS_INFO['checksumtype']
         assert mets['size'] == self.METS_INFO['size']
         assert mets['format_version'] == self.METS_INFO['format_version']
         assert mets['derivation'] == self.METS_INFO['derivation']
@@ -402,6 +407,7 @@ class TestParseFiles(TestCase):
         assert pres['current_path'] == self.PRES_INFO['current_path']
         assert pres['use'] == self.PRES_INFO['use']
         assert pres['checksum'] == self.PRES_INFO['checksum']
+        assert pres['checksumtype'] == self.PRES_INFO['checksumtype']
         assert pres['size'] == self.PRES_INFO['size']
         assert pres['format_version'] == self.PRES_INFO['format_version']
         assert pres['derivation'] == self.PRES_INFO['derivation']
@@ -420,6 +426,7 @@ class TestParseFiles(TestCase):
         assert orig.filegrpuse == self.ORIG_INFO['use']
         assert orig.filegrpuuid == ''
         assert orig.checksum == self.ORIG_INFO['checksum']
+        assert orig.checksumtype == self.ORIG_INFO['checksumtype']
         assert orig.size == int(self.ORIG_INFO['size'])
         assert models.Event.objects.get(file_uuid_id=self.ORIG_INFO['uuid'], event_type='reingestion')
         assert models.FileFormatVersion.objects.get(file_uuid_id=self.ORIG_INFO['uuid'], format_version=self.ORIG_INFO['format_version'])
@@ -433,6 +440,7 @@ class TestParseFiles(TestCase):
         assert pres.filegrpuse == self.PRES_INFO['use']
         assert pres.filegrpuuid == ''
         assert pres.checksum == self.PRES_INFO['checksum']
+        assert pres.checksumtype == self.PRES_INFO['checksumtype']
         assert pres.size == int(self.PRES_INFO['size'])
         assert models.Event.objects.get(file_uuid_id=self.PRES_INFO['uuid'], event_type='reingestion')
         assert models.FileFormatVersion.objects.get(file_uuid_id=self.PRES_INFO['uuid'], format_version=self.PRES_INFO['format_version'])
@@ -445,6 +453,7 @@ class TestParseFiles(TestCase):
         assert mets.filegrpuse == self.METS_INFO['use']
         assert mets.filegrpuuid == ''
         assert mets.checksum == self.METS_INFO['checksum']
+        assert mets.checksumtype == self.METS_INFO['checksumtype']
         assert mets.size == int(self.METS_INFO['size'])
         assert models.Event.objects.get(file_uuid_id=self.METS_INFO['uuid'], event_type='reingestion')
         assert models.FileFormatVersion.objects.get(file_uuid_id=self.METS_INFO['uuid'], format_version=self.METS_INFO['format_version'])

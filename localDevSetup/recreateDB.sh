@@ -39,6 +39,7 @@ echo -n "Enter the DATABASE root password (Hit enter if blank):"
 read dbpassword
 
 if [ ! -z "$dbpassword" ] ; then
+    dbpasswordraw=$dbpassword
     dbpassword="-p${dbpassword}"
 else
     dbpassword=""
@@ -62,8 +63,7 @@ mysql -u root "${dbpassword}" --execute="GRANT SELECT, UPDATE, INSERT, DELETE, C
 echo "Creating and populating MCP tables"
 
 # Run Django's syncdb
-../src/dashboard/src/manage.py migrate --noinput --settings='settings.local'
-
+PYTHONPATH=/usr/lib/archivematica/archivematicaCommon:/usr/share/archivematica/dashboard ../src/dashboard/src/manage.py migrate --noinput --settings='settings.local'
 
 dbpassword=""
 

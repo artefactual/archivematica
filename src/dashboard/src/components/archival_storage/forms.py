@@ -29,4 +29,3 @@ class ReingestAIPForm(forms.Form):
         (OBJECTS, 'Re-ingest metadata and objects')
     )
     reingest_type = forms.ChoiceField(choices=REINGEST_CHOICES,  widget=forms.RadioSelect, required=True)
-

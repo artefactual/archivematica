@@ -1,34 +1,40 @@
-# This file is part of Archivematica.
-#
-# Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
-#
-# Archivematica is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Archivematica is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+import os
 
-import os, sys
-from django.core.wsgi import get_wsgi_application
-
-# Ensure that the path does not get added multiple times
-path = '/usr/share/archivematica/dashboard'
-if path not in sys.path:
-    sys.path.append(path)
-
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-
-application = get_wsgi_application()
-
-# See http://blog.dscpl.com.au/2008/12/using-modwsgi-when-developing-django.html
+import django
 from django.conf import settings
-if settings.DEBUG:
-    import monitor
-    monitor.start(interval=1.0)
+from django.core.handlers.wsgi import WSGIHandler
+import monitor
+
+
+class WSGIEnvironment(WSGIHandler):
+    """
+    Similar to get_wsgi_application but with environment support.
+    See http://stackoverflow.com/a/21124143 for more details.
+    """
+    def __call__(self, environ, start_response):
+        self.update_environment(environ)
+        django.setup()
+        self.setup_elasticsearch()
+        if settings.DEBUG:
+            self.enable_monitor()
+        return super(WSGIEnvironment, self).__call__(environ, start_response)
+
+    def update_environment(self, environ):
+        """
+        Copy "DJANGO_SETTING_MODULES" and the environment variables prefixed
+        with "ARCHIVEMATICA_DASHBOARD" string.
+        """
+        os.environ['DJANGO_SETTINGS_MODULE'] = environ.get('DJANGO_SETTINGS_MODULE')
+        for key, value in environ.iteritems():
+            if key.startswith('ARCHIVEMATICA_DASHBOARD'):
+                os.environ[key] = value
+
+    def enable_monitor(self):
+        monitor.start()
+
+    def setup_elasticsearch(self):
+        import elasticSearchFunctions
+        elasticSearchFunctions.setup_reading_from_client_conf()
+
+
+application = WSGIEnvironment()

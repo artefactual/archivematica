@@ -133,8 +133,9 @@ function setupBacklogBrowser() {
     move.self.busy();
 
     // determine whether a move or copy should be performed
-    var actionUrlPath, source
-        arrangeDir = '/'+Base64.decode(move.self.structure.name)
+    var source,
+        actionUrlPath = '/filesystem/copy_to_arrange/',
+        arrangeDir = '/'+Base64.decode(move.self.structure.name);
 
     // do a move if drag and drop occurs within the arrange pane
     if (
@@ -142,11 +143,9 @@ function setupBacklogBrowser() {
       && move.containerPath.indexOf(arrangeDir) == 0
     ) {
       // arrange -> arrange
-      actionUrlPath = '/filesystem/move_within_arrange/';
       source = move.self.getByPath(move.droppedPath)
     } else {
       // originals -> arrange
-      actionUrlPath = '/filesystem/copy_to_arrange/';
       // TODO don't use global if possible
       source = originals.getByPath(move.droppedPath)
     }

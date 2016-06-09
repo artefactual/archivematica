@@ -20,12 +20,13 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+
+import hashlib
 import os
 import sys
 import lxml.etree as etree
-# archivematicaCommon
-from externals.checksummingTools import sha_for_file
-from externals.checksummingTools import md5_for_file
+
+from externals.checksummingTools import get_file_checksum
 
 def verifyMetsFileSecChecksums(metsFile, date, taskUUID, relativeDirectory="./"):
     print metsFile
@@ -33,44 +34,30 @@ def verifyMetsFileSecChecksums(metsFile, date, taskUUID, relativeDirectory="./")
     tree = etree.parse(metsFile)
     root = tree.getroot()
     for item in root.findall("{http://www.loc.gov/METS/}fileSec/{http://www.loc.gov/METS/}fileGrp/{http://www.loc.gov/METS/}file"):
-        #print etree.tostring(item)
-        #print item
-
         checksum = item.get("CHECKSUM")
-        checksumType = item.get("CHECKSUMTYPE")
+        checksumType = item.get('CHECKSUMTYPE', '').lower()
+
         for item2 in item:
             if item2.tag == "{http://www.loc.gov/METS/}FLocat":
-                #print "floc: ", item2.tag, etree.tostring(item2)
-                #print item2.attrib
                 fileLocation = item2.get("{http://www.w3.org/1999/xlink}href")
-        #print "%s - %s - %s " % (checksumType, checksum, fileLocation)
+
         fileFullPath = os.path.join(relativeDirectory, fileLocation)
-        if checksumType == "MD5":
-            checksum2 = md5_for_file(fileFullPath)
-            eventDetail = "program=\"python\"; module=\"hashlib.sha256()\""
-        elif checksumType == "sha256":
-            checksum2 = sha_for_file(fileFullPath)
-            eventDetail = "program=\"python\"; module=\"hashlib.md5()\""
+
+        if checksumType and checksumType in hashlib.algorithms:
+            checksum2 = get_file_checksum(fileFullPath, checksumType)
+            eventDetail = 'program="python"; module="hashlib.{}()"'.format(checksumType)
         else:
             print >>sys.stderr, "Unsupported checksum type: %s" % (checksumType.__str__())
             exit(300)
 
-
         if checksum != checksum2:
-            #eventOutcomeDetailNote = checksumFile.__str__() + " != " + checksumDB.__str__()
-            eventOutcome="Fail"
+            eventOutcome = "Fail"
             print "%s - %s - %s" % ((checksum == checksum2).__str__(), checksum.__str__(), checksum2.__str__())
-            print >>sys.stderr, eventOutcome,  fileFullPath
+            print >>sys.stderr, eventOutcome, fileFullPath
             exitCode = exitCode + 22
         else:
-            #eventOutcomeDetailNote = checksumFile.__str__() + "verified"
-            eventOutcome="Pass"
+            eventOutcome = "Pass"
             print eventOutcome, fileLocation
-
-
-
-
-
 
     return exitCode
 
@@ -79,7 +66,6 @@ if __name__ == '__main__':
     metsFile = sys.argv[1]
     date = sys.argv[2]
     taskUUID = sys.argv[3]
-
 
     ret = verifyMetsFileSecChecksums(metsFile, date, taskUUID, relativeDirectory=os.path.dirname(metsFile) + "/")
     quit(ret)

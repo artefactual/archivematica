@@ -5,11 +5,9 @@ import platform
 import requests
 from requests.auth import AuthBase
 import slumber
-import sys
 import urllib
 
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import DashboardSetting
+from archivematicaFunctions import get_setting
 
 LOGGER = logging.getLogger("archivematica.common")
 
@@ -18,6 +16,9 @@ class ResourceNotFound(Exception):
     pass
 
 class BadRequest(Exception):
+    pass
+
+class StorageServiceError(Exception):
     pass
 
 ######################### INTERFACE WITH STORAGE API #########################
@@ -33,12 +34,6 @@ class TastypieApikeyAuth(AuthBase):
         r.headers['Authorization'] = "ApiKey {0}:{1}".format(self.username, self.apikey)
         return r
 
-
-def get_setting(setting, default=''):
-    try:
-        return DashboardSetting.objects.get(name=setting).value
-    except DashboardSetting.DoesNotExist:
-        return default
 
 def _storage_service_url():
     # Get storage service URL from DashboardSetting model
@@ -245,7 +240,7 @@ def get_space(access_protocol=None, path=None):
 ############# FILES #############
 
 def create_file(uuid, origin_location, origin_path, current_location,
-        current_path, package_type, size, update=False):
+        current_path, package_type, size, update=False, related_package_uuid=None):
     """ Creates a new file. Returns a tuple of (resulting dict, None) on success, (None, error) on failure.
 
     origin_location and current_location should be URIs for the storage service.
@@ -264,6 +259,7 @@ def create_file(uuid, origin_location, origin_path, current_location,
         'package_type': package_type,
         'size': size,
         'origin_pipeline': pipeline['resource_uri'],
+        'related_package_uuid': related_package_uuid
     }
 
     LOGGER.info("Creating file with {}".format(new_file))

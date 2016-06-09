@@ -5,9 +5,9 @@ import sys
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from elasticSearchFunctions import getElasticsearchServerHostAndPort
+import elasticSearchFunctions
 
-from elasticsearch import Elasticsearch, ConnectionError, TransportError
+from elasticsearch import ConnectionError, TransportError
 
 # allow "-f" to override prompt
 options = sys.argv[1:]
@@ -17,16 +17,19 @@ if len(sys.argv) < 2 or not '-f' in options:
         print 'Not going to erase the indexes.'
         sys.exit(0)
 
-conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
+
+elasticSearchFunctions.setup_reading_from_client_conf()
+client = elasticSearchFunctions.get_client()
+
 try:
-    conn.info()
+    client.info()
 except (ConnectionError, TransportError):
     print "Connection error: Elasticsearch may not be running."
     sys.exit(1)
 
 # delete transfers ElasticSearch index
 # Ignore 404, in case the index is missing (e.g. already deleted)
-conn.indices.delete('transfers', ignore=404)
-conn.indices.delete('aips', ignore=404)
+client.indices.delete('transfers', ignore=404)
+client.indices.delete('aips', ignore=404)
 
 print "ElasticSearch indexes deleted."

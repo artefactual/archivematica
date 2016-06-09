@@ -36,9 +36,14 @@
 
         {% include "_form.html" with form=storage_form %}
 
+        <h4>Checksum algorithm</h4>
+
+        {% include "_form.html" with form=checksum_form %}
+
         <div class='span7'>
           <span style='float: right'><input type='submit' value='Save'></span>
         </div>
+
       </form>
 
     </div>

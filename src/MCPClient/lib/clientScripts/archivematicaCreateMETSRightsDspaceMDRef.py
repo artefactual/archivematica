@@ -28,8 +28,8 @@ import lxml.etree as etree
 # dashboard
 from main.models import File
 
-import archivematicaXMLNamesSpace as ns
 # archivematicaCommon
+import namespaces as ns
 from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
 

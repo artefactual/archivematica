@@ -35,9 +35,8 @@
 import ConfigParser
 import logging
 import logging.config
+import getpass
 import os
-from pwd import getpwnam
-import pyinotify
 import signal
 import sys
 import threading
@@ -50,6 +49,8 @@ sys.path.append('/usr/lib/archivematica/MCPServer')
 import django
 sys.path.append("/usr/share/archivematica/dashboard")
 django.setup()
+
+from django.db.models import Q
 
 # This project, alphabetical by import source
 import watchDirectory
@@ -64,9 +65,7 @@ from unitTransfer import unitTransfer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
-import databaseInterface
 import databaseFunctions
-from externals.singleInstance import singleinstance
 from archivematicaFunctions import unicodeToStr
 
 from main.models import Job, SIP, Task, WatchedDirectory
@@ -109,35 +108,49 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
     """Matches a directory to a database sip by it's appended UUID, or path. If it doesn't find one, it will create one"""
     path = path.replace(config.get('MCPServer', "sharedDirectory"), "%sharedPath%", 1)
 
+    query = Q(currentpath=path)
+
     # Find UUID on end of SIP path
     UUID = fetchUUIDFromPath(path)
+    sip = None
     if UUID:
-        try:
-            sip = SIP.objects.get(uuid=UUID)
-        except SIP.DoesNotExist:
-            databaseFunctions.createSIP(path, UUID=UUID)
-        else:
-            current_path = sip.currentpath
-            if current_path != path and unit_type == 'SIP':
-                # Ensure path provided matches path in DB
-                sip.currentpath = path
-                sip.save()
-    else:
-        #Find it in the database
-        sips = SIP.objects.filter(currentpath=path)
-        count = sips.count()
-        if count > 1:
-            logger.warning('More than one SIP for path %s, using first result', path)
-        if count > 0:
-            UUID = sips[0].uuid
-            logger.info('Using existing SIP %s at %s', UUID, path)
-        else:
-            logger.info('Not using existing SIP %s at %s', UUID, path)
+        query = query | Q(uuid=UUID)
 
-    #Create it
-    if not UUID:
-        UUID = databaseFunctions.createSIP(path)
+    sips = SIP.objects.filter(query)
+    count = sips.count()
+    if count > 1:
+        # This might have happened because the UUID at the end of the directory
+        # name corresponds to a different SIP in the database.
+        # Try refiltering the queryset on path alone, and see if that brought us
+        # down to a single SIP.
+        sips = sips.filter(currentpath=path)
+        count = sips.count()
+
+        # Darn: we must have multiple SIPs with the same path in the database.
+        # We have no reasonable way to recover from this condition.
+        if count > 1:
+            logger.error('More than one SIP for path %s and/or UUID %s, using first result', path, UUID)
+    if count > 0:
+        sip = sips[0]
+        UUID = sip.uuid
+        logger.info('Using existing SIP %s at %s', UUID, path)
+    else:
+        logger.info('Not using existing SIP %s at %s', UUID, path)
+
+    if sip is None:
+        # Create it
+        # Note that if UUID is None here, a new UUID will be generated
+        # and returned by the function; otherwise it returns the
+        # value that was passed in.
+        UUID = databaseFunctions.createSIP(path, UUID=UUID)
         logger.info('Creating SIP %s at %s', UUID, path)
+    else:
+        current_path = sip.currentpath
+        if current_path != path and unit_type == 'SIP':
+            # Ensure path provided matches path in DB
+            sip.currentpath = path
+            sip.save()
+
     return UUID
 
 @log_exceptions
@@ -230,14 +243,7 @@ def signal_handler(signalReceived, frame):
     stopSignalReceived = True
     threads = threading.enumerate()
     for thread in threads:
-        if isinstance(thread, pyinotify.ThreadedNotifier):
-            logger.info('Stopping %s %s', type(thread), thread)
-            try:
-                thread.stop()
-            except Exception as inst:
-                logger.exception('Error stopping thread')
-        else:
-            logger.warning('Not stopping %s %s', type(thread), thread)
+        logger.warning('Not stopping %s %s', type(thread), thread)
     sys.stdout.flush()
     sys.stderr.flush()
     sys.exit(0)
@@ -249,14 +255,9 @@ def debugMonitor():
     """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
     global countOfCreateUnitAndJobChainThreaded
     while True:
-        dblockstatus = "SQL Lock: Locked"
-        if databaseInterface.sqlLock.acquire(False):
-            databaseInterface.sqlLock.release()
-            dblockstatus = "SQL Lock: Unlocked"
         logger.debug('Debug monitor: datetime: %s', databaseFunctions.getUTCDate())
         logger.debug('Debug monitor: thread count: %s', threading.activeCount())
         logger.debug('Debug monitor: created job chain threaded: %s', countOfCreateUnitAndJobChainThreaded)
-        logger.debug('Debug monitor: DB lock status: %s', dblockstatus)
         time.sleep(3600)
 
 @log_exceptions
@@ -328,16 +329,9 @@ if __name__ == '__main__':
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-    si = singleinstance(config.get('MCPServer', "singleInstancePIDFile"))
-    if si.alreadyrunning():
-        logger.warning('Another instance is already running. Killing PID %s', si.pid)
-        si.kill()
 
-    logger.info('This PID: %s', si.pid)
-
-    import getpass
+    logger.info('This PID: %s', os.getpid())
     logger.info('User: %s', getpass.getuser())
-    os.setuid(getpwnam('archivematica').pw_uid)
 
     t = threading.Thread(target=debugMonitor)
     t.daemon = True

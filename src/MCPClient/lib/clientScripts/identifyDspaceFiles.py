@@ -24,7 +24,7 @@ import os
 import sys
 from lxml import etree
 
-import archivematicaXMLNamesSpace
+import namespaces
 
 import django
 django.setup()
@@ -34,8 +34,8 @@ from main.models import File
 def identify_dspace_files(mets_file, transfer_dir, transfer_uuid, relative_dir="./"):
     print mets_file
     nsmap = {
-        'm': archivematicaXMLNamesSpace.metsNS,
-        'x': archivematicaXMLNamesSpace.xlinkNS,
+        'm': namespaces.metsNS,
+        'x': namespaces.xlinkNS,
     }
     tree = etree.parse(mets_file)
     root = tree.getroot()
@@ -43,7 +43,7 @@ def identify_dspace_files(mets_file, transfer_dir, transfer_uuid, relative_dir="
         use = item.get("USE")
         if use in ('TEXT', 'LICENSE'):
             try:
-                filename = item.find('m:file/m:FLocat', namespaces=nsmap).get(archivematicaXMLNamesSpace.xlinkBNS+'href')
+                filename = item.find('m:file/m:FLocat', namespaces=nsmap).get(namespaces.xlinkBNS+'href')
             except AttributeError:  # Element not found
                 continue
             if filename is None: # Filename not an attribute

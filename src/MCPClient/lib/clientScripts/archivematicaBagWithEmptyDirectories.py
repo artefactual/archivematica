@@ -23,7 +23,12 @@
 import argparse
 import os
 import sys
+
+import django
+django.setup()
+
 # archivematicaCommon
+from archivematicaFunctions import get_setting
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 
@@ -68,28 +73,28 @@ def create_directories(base_dir, dir_list):
         except os.error:
             pass
 
-def bag_with_empty_directories(args):
+def bag_with_empty_directories(operation, destination, sip_directory, payload_entries, writer, algorithm):
     """ Run bagit create bag command, and create any empty directories from the SIP. """
     # Get list of directories in SIP
-    dir_list = get_sip_directories(args.sip_directory)
+    dir_list = get_sip_directories(sip_directory)
 
     # These are passed to this script as paths relative to their location in
     # the SIP; passing the full SIP location each time has the potential to
     # overflow the 1000-character limit the job's command has in the database,
     # especially with long SIP names.
-    full_paths = [os.path.join(args.sip_directory, p) for p in args.payload_entries]
+    full_paths = [os.path.join(sip_directory, p) for p in payload_entries]
     # Ensure all payload items actually exist
     payload_entries = [e for e in full_paths if os.path.exists(e)]
 
     # Reconstruct bagit arguments
     # Goal: bagit <operation> <destination> <flattened payload list> <optional args>
-    bagit_args = [args.operation, args.destination]
+    bagit_args = [operation, destination]
     bagit_args.extend(payload_entries)
-    bagit_args.extend(['--writer', args.writer, '--payloadmanifestalgorithm', args.algorithm])
+    bagit_args.extend(['--writer', writer, '--payloadmanifestalgorithm', algorithm])
 
     # Run bagit bag creator
     run_bag(bagit_args)
-    create_directories(os.path.join(args.destination, "data"), dir_list)
+    create_directories(os.path.join(destination, "data"), dir_list)
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.bagWithEmptyDirectories")
@@ -101,6 +106,8 @@ if __name__ == '__main__':
     parser.add_argument('payload_entries', metavar='Payload', nargs='+',
                    help='All the files/folders that should go in the bag.')
     parser.add_argument('--writer', dest='writer')
-    parser.add_argument('--payloadmanifestalgorithm', dest='algorithm')
+
+    algorithm = get_setting('checksum_type', 'sha512')
+
     args = parser.parse_args()
-    bag_with_empty_directories(args)
+    bag_with_empty_directories(args.operation, args.destination, args.sip_directory, args.payload_entries, args.writer, algorithm)

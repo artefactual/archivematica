@@ -1,0 +1,83 @@
+[
+{
+    "fields": {
+        "microservicegroup": "Identify file format",
+        "defaultexitmessage": "Failed",
+        "reloadfilelist": true,
+        "lastmodified": "2013-11-07T22:51:42",
+        "defaultnextchainlink": null,
+        "currenttask": "97545cb5-3397-4934-9bc5-143b774e4fa7",
+        "replaces": null
+    },
+    "model": "main.microservicechainlink",
+    "pk": "f09847c2-ee51-429a-9478-a860477f6b8d"
+},
+{
+    "fields": {
+        "tasktypepkreference": null,
+        "lastmodified": "2013-11-07T22:51:42",
+        "replaces": null,
+        "description": "Select file format identification command",
+        "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84"
+    },
+    "model": "main.taskconfig",
+    "pk": "97545cb5-3397-4934-9bc5-143b774e4fa7"
+},
+{
+    "fields": {
+        "microservicegroup": "Normalize",
+        "defaultexitmessage": "Failed",
+        "reloadfilelist": true,
+        "lastmodified": "2013-11-07T22:51:42",
+        "defaultnextchainlink": null,
+        "currenttask": "f8d0b7df-68e8-4214-a49d-60a91ed27029",
+        "replaces": null
+    },
+    "model": "main.microservicechainlink",
+    "pk": "7a024896-c4f7-4808-a240-44c87c762bc5"
+},
+{
+    "fields": {
+        "tasktypepkreference": null,
+        "lastmodified": "2013-11-07T22:51:42",
+        "replaces": null,
+        "description": "Select pre-normalize file format identification command",
+        "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84"
+    },
+    "model": "main.taskconfig",
+    "pk": "f8d0b7df-68e8-4214-a49d-60a91ed27029"
+},
+{
+    "fields": {
+        "microservicegroup": "Process submission documentation",
+        "defaultexitmessage": "Failed",
+        "reloadfilelist": true,
+        "lastmodified": "2014-09-11T16:09:53",
+        "defaultnextchainlink": null,
+        "currenttask": "0c95f944-837f-4ada-a396-2c7a818806c6",
+        "replaces": null
+    },
+    "model": "main.microservicechainlink",
+    "pk": "087d27be-c719-47d8-9bbb-9a7d8b609c44"
+},
+{
+    "fields": {
+        "tasktypepkreference": null,
+        "lastmodified": "2014-09-11T16:09:53",
+        "replaces": null,
+        "description": "Select file format identification command",
+        "tasktype": "9c84b047-9a6d-463f-9836-eafa49743b84"
+    },
+    "model": "main.taskconfig",
+    "pk": "0c95f944-837f-4ada-a396-2c7a818806c6"
+},
+{
+    "fields": {
+        "lastmodified": "2012-10-02T00:25:10",
+        "replaces": null,
+        "description": "get replacement dic from user choice"
+    },
+    "model": "main.tasktype",
+    "pk": "9c84b047-9a6d-463f-9836-eafa49743b84"
+}
+]

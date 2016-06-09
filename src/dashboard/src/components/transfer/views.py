@@ -27,7 +27,7 @@ from django.conf import settings as django_settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.utils.safestring import mark_safe
 
 from contrib.mcp.client import MCPClient
@@ -45,7 +45,6 @@ logger = logging.getLogger('archivematica.dashboard')
       Transfer
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
-@decorators.elasticsearch_required()
 def grid(request):
     try:
         source_directories = storage_service.get_location(purpose="TS")
@@ -63,6 +62,18 @@ def grid(request):
     uid = request.user.id
     hide_features = helpers.hidden_features()
     return render(request, 'transfer/grid.html', locals())
+
+def transfer_source_locations(request):
+    try:
+        return helpers.json_response(storage_service.get_location(purpose="TS"))
+    except:
+        message = 'Error retrieving source directories'
+        logger.exception(message)
+        response = {
+            'message': message,
+            'status': 'Failure',
+        }
+        return helpers.json_response(response, status_code=500)
 
 def component(request, uuid):
     messages = []
@@ -142,7 +153,7 @@ def status(request, uuid=None):
             if models.Transfer.objects.is_hidden(item['sipuuid']):
                 continue
             jobs = helpers.get_jobs_by_sipuuid(item['sipuuid'])
-            item['directory'] = os.path.basename(utils.get_directory_name_from_job(jobs[0]))
+            item['directory'] = os.path.basename(utils.get_directory_name_from_job(jobs))
             item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
             item['uuid'] = item['sipuuid']
             item['id'] = item['sipuuid']
@@ -173,29 +184,6 @@ def status(request, uuid=None):
     response['objects'] = objects
     response['mcp'] = mcp_available
     return HttpResponse(json.JSONEncoder(default=encoder).encode(response), content_type='application/json')
-
-def detail(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid)
-    name = utils.get_directory_name_from_job(jobs[0])
-    is_waiting = jobs.filter(currentstep='Awaiting decision').count() > 0
-    set_uuid = models.Transfer.objects.get(uuid=uuid).transfermetadatasetrow_id
-    return render(request, 'transfer/detail.html', locals())
-
-def microservices(request, uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid)
-    name = utils.get_directory_name_from_job(jobs[0])
-    return render(request, 'transfer/microservices.html', locals())
-
-def delete(request, uuid):
-    try:
-        transfer = models.Transfer.objects.get(uuid__exact=uuid)
-        transfer.hidden = True
-        transfer.save()
-        response = {'removed': True}
-        return helpers.json_response(response)
-    except:
-        raise Http404
-
 
 def transfer_metadata_type_id():
     return helpers.get_metadata_type_id_by_description('Transfer')
@@ -244,7 +232,7 @@ def transfer_metadata_edit(request, uuid, id=None):
             initial[item] = getattr(dc, item)
         form = DublinCoreMetadataForm(initial=initial)
         jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
-        name = utils.get_directory_name_from_job(jobs[0])
+        name = utils.get_directory_name_from_job(jobs)
 
     return render(request, 'transfer/metadata_edit.html', locals())
 

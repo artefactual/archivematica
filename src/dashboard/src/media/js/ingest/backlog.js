@@ -1,3 +1,10 @@
+//
+// Render the backlog search form
+// search_uri: The URI to the AJAX end point to post form data to / get results from
+// on_success: Method to call when ajax request succeeds. If set to NULL, no ajax query will occur.
+// on_error:   Method to call when ajax request returns an error
+// returns:    The instance of AdvancedSearchView created
+//
 function renderBacklogSearchForm(search_uri, on_success, on_error) {
   // create new form instance, providing a single row of default data
   var search = new advancedSearch.AdvancedSearchView({
@@ -17,6 +24,7 @@ function renderBacklogSearchForm(search_uri, on_success, on_error) {
     title: 'boolean operator',
     class: 'search_op_selector'
   }
+
   search.addSelect('op', opAttributes, {
     'or': 'or',
     'and': 'and',
@@ -54,27 +62,32 @@ function renderBacklogSearchForm(search_uri, on_success, on_error) {
 
   search.render();
 
-  function backlogSearchSubmit() {
-    // Query Django, which queries ElasticSearch, to get the backlog file info
-    var query_url = search_uri + '?' + search.toUrlParams();
-    $.ajax({
-      type: 'GET',
-      url: query_url,
-      data: null,
-      success: on_success,
-      error: function(jqXHR, textStatus, errorThrown) {
-        on_error(query_url, jqXHR, textStatus, errorThrown);
-      },
+  if (on_success !== null) {
+    function backlogSearchSubmit() {
+      // Query Django, which queries ElasticSearch, to get the backlog file info
+      var query_url = search_uri + '?' + search.toUrlParams();
+
+      $.ajax({
+        type: 'GET',
+        url: query_url,
+        data: null,
+        success: on_success,
+        error: function(jqXHR, textStatus, errorThrown) {
+          on_error(query_url, jqXHR, textStatus, errorThrown);
+        },
+      });
+    }
+
+    // submit logic
+    $('#search_submit').click(function() {
+      backlogSearchSubmit();
+    });
+
+    $('#search_form').submit(function() {
+      backlogSearchSubmit();
+      return false;
     });
   }
 
-  // submit logic
-  $('#search_submit').click(function() {
-    backlogSearchSubmit();
-  });
-
-  $('#search_form').submit(function() {
-    backlogSearchSubmit();
-    return false;
-  });
+  return search;
 }

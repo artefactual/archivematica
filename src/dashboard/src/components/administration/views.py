@@ -16,7 +16,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import collections
-import ConfigParser
 import logging
 import os
 import shutil
@@ -28,27 +27,25 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Max, Min
 from django.forms.models import modelformset_factory
+from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import redirect, render
+from django.template import RequestContext
 
 from main import forms
 from main import models
-import components.administration.views_processing as processing_views
 from components.administration.forms import AtomDipUploadSettingsForm
 from components.administration.forms import AgentForm
 from components.administration.forms import ArchivesSpaceConfigForm
 from components.administration.forms import ArchivistsToolkitConfigForm
 from components.administration.forms import SettingsForm
-from components.administration.forms import StorageSettingsForm
-from components.administration.models import ArchivesSpaceConfig, ArchivistsToolkitConfig
+from components.administration.forms import StorageSettingsForm, ChecksumSettingsForm
 from components.administration.forms import TaxonomyTermForm
-from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
-from django.template import RequestContext
+from components.administration.models import ArchivesSpaceConfig, ArchivistsToolkitConfig
+import components.administration.views_processing as processing_views
 import components.decorators as decorators
-from django.template import RequestContext
 import components.helpers as helpers
 import storageService as storage_service
 
-sys.path.append('/usr/lib/archivematica/archivematicaCommon')
 from version import get_full_version
 
 
@@ -59,7 +56,7 @@ logger = logging.getLogger('archivematica.dashboard')
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
 def administration(request):
-    return redirect('components.administration.views.processing')
+    return redirect('components.administration.views_processing.list')
 
 def failure_report(request, report_id=None):
     if report_id != None:
@@ -553,10 +550,13 @@ def general(request):
         reverse_checkboxes=toggleableSettings)
     storage_form = StorageSettingsForm(request.POST or None, prefix='storage',
         initial=initial_data)
+    checksum_form = ChecksumSettingsForm(request.POST or None, prefix='checksum algorithm',
+        initial=initial_data)
 
-    if interface_form.is_valid() and storage_form.is_valid():
+    if interface_form.is_valid() and storage_form.is_valid() and checksum_form.is_valid():
         interface_form.save()
         storage_form.save()
+        checksum_form.save()
         messages.info(request, 'Saved.')
 
     dashboard_uuid = helpers.get_setting('dashboard_uuid')

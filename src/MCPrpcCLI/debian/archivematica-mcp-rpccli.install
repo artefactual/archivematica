@@ -1,5 +1,0 @@
-lib/* /usr/share/pyshared/archivematica/
-lib/* /usr/share/archivematica/
-mcpcli /usr/bin/
-
-
