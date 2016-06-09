@@ -319,7 +319,7 @@ class File(models.Model):
     currentlocation = models.TextField(db_column='currentLocation', null=True)
     filegrpuse = models.CharField(max_length=50, db_column='fileGrpUse', default='Original')
     filegrpuuid = models.CharField(max_length=36L, db_column='fileGrpUUID', blank=True)
-    checksum = models.CharField(max_length=100, db_column='checksum', blank=True)
+    checksum = models.CharField(max_length=128, db_column='checksum', blank=True)
     checksumtype = models.CharField(max_length=36, db_column='checksumType', blank=True)
     size = models.BigIntegerField(db_column='fileSize', null=True, blank=True)
     label = models.TextField(blank=True)
