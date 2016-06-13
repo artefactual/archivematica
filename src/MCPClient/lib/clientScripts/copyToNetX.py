@@ -22,7 +22,6 @@
 # @author Mike Cantelon <mike@artefactual.com>
 
 import argparse
-
 import csv
 import ConfigParser
 import json
@@ -30,8 +29,11 @@ import os
 import shutil
 import sys
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseInterface
+import django
+
+from main import models
+
+django.setup()
 
 clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
 config = ConfigParser.SafeConfigParser()
@@ -54,7 +56,7 @@ def copyToNetX(sip_uuid):
     object_id = get_accession_number(transfer_uuid)
     if object_id is None:
         print 'No object ID found.'
-        exit(1)
+        sys.exit(1)
 
     component_id = get_component_id(transfer_uuid)
     if component_id is None:
@@ -93,73 +95,60 @@ def copyToNetX(sip_uuid):
             writer.writerow([object, object_id, component_id, sip_uuid])
 
 def get_dip_path(sip_uuid):
-    sql = """SELECT directory FROM Jobs WHERE jobType='Upload DIP' AND SIPUUID='%s'""" % (sip_uuid)
-    rows = databaseInterface.queryAllSQL(sql)
-
-    if len(rows) < 1:
+    try:
+        job = models.Job.objects.get(jobtype='Upload DIP', sipuuid=sip_uuid)
+        return job.directory.rstrip('/').replace('%sharedPath%', SHARED_DIR)
+    except (django.core.exceptions.MultipleObjectsReturned, django.core.exceptions.ObjectDoesNotExist):
         print >>sys.stderr, "Job directory not found in database."
-        exit(1)
-    else:
-        directory = rows[0][0]
-        return directory.rstrip('/').replace('%sharedPath%', SHARED_DIR)
+        sys.exit(1)
 
 def get_netx_path(path_type):
-    sql = """SELECT value FROM DashboardSettings WHERE name='netx_dest_path_%s'""" % (path_type)
-    rows = databaseInterface.queryAllSQL(sql)
-
-    if len(rows) != 1:
+    try:
+        return models.DashboardSetting.objects.get(name='netx_dest_path_' + path_type).value
+    except django.core.exceptions.ObjectDoesNotExist:
         print >>sys.stderr, "NetX %s path setting not found in database." % (path_type)
-        exit(1)
-    else:
-        return rows[0][0]
+        sys.exit(1)
 
 def get_transfer_uuid(sip_uuid):
-    sql = """SELECT transferUUID FROM Files WHERE sipUUID =  '%s' AND transferUUID IS NOT NULL LIMIT 1""" % (sip_uuid)
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    sqlLock.release()
-    if row is None:
+    try:
+        return models.File.objects.filter(sip_id=sip_uuid, transfer__isnull=False)[0].transfer_id
+    except IndexError:
         return None
-    return row[0]
 
 def get_accession_number(transfer_uuid):
-    sql = """SELECT accessionID FROM Transfers WHERE transferUUID =  '%s'""" % (transfer_uuid)
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    sqlLock.release()
-    if row is None:
+    try:
+        return models.Transfer.objects.get(uuid=transfer_uuid).accessionid
+    except django.core.exceptions.ObjectDoesNotExist:
         return None
-    return row[0]
 
 def get_component_id(transfer_uuid):
     # Attempt to get component ID from database
-    sql = """SELECT identifier FROM Dublincore WHERE metadataAppliesToidentifier = '%s'""" % (transfer_uuid)
-    c, sqlLock = databaseInterface.querySQL(sql)
-    row = c.fetchone()
-    sqlLock.release()
-    if row is None or row[0] == '':
-        # Get transfer location
-        sql = """SELECT currentLocation FROM Transfers WHERE transferUUID = '%s'""" % (transfer_uuid)
-        c, sqlLock = databaseInterface.querySQL(sql)
-        row = c.fetchone()
-        sqlLock.release()
-        if row is None:
-            return None
+    try:
+        identifier = models.DublinCore.objects.get(metadataappliestoidentifier=transfer_uuid).identifier
+        if identifier:
+            print 'Component ID found in Dublincore data.'
+            return identifier
+    except django.core.exceptions.ObjectDoesNotExist:
+        pass
 
-        # Attempt to get component ID from JSON file
-        transfer_path = row[0].rstrip('/').replace('%sharedPath%', SHARED_DIR)
-        json_file_path = os.path.join(transfer_path, 'metadata/netx.json')
+    # Get transfer location
+    try:
+        current_location = models.Transfer.objects.get(uuid=transfer_uuid).currentlocation
+    except django.core.exceptions.ObjectDoesNotExist:
+        return None
 
-        try:
-            netx_config = json.load(open(json_file_path))
+    # Attempt to get component ID from JSON file
+    transfer_path = current_location.rstrip('/').replace('%sharedPath%', SHARED_DIR)
+    json_file_path = os.path.join(transfer_path, 'metadata', 'netx.json')
 
-            print 'Component ID found in nets.json file.'
-            return netx_config[0]['component.identifier'] 
-        except:
-            return None
-    else:
-        print 'Component ID found in Dublincore data.'
-        return row[0]
+    with open(json_file_path) as f:
+        netx_config = json.load(f)
+    try:
+        identifier = netx_config[0]['component.identifier']
+        print 'Component ID found in nets.json file.'
+        return identifier
+    except (IndexError, KeyError):
+        return None
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='restructure')
