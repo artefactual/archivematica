@@ -102,6 +102,8 @@ class TestFPRClient(TransactionTestCase):
 
     def setUp(self):
         self.fprclient = client.FPRClient(fprserver=FPRSERVER)
+        # Delete real IDcommands so we can test with our stub ones
+        models.IDCommand.objects.all().delete()
 
     def test_fixtures(self):
         assert main.models.MicroServiceChainLink.objects.count() == 3

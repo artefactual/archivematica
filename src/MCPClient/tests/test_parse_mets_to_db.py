@@ -352,7 +352,7 @@ class TestParseFiles(TestCase):
             'checksum': 'd82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9',
             'checksumtype': 'sha256',
             'size': '1446772',
-            'format_version': fpr.models.FormatVersion.objects.get(uuid='2ebdfa17-2257-49f8-8035-5f304bb46918'),
+            'format_version': None,
             'derivation': None,
             'derivation_event': None,
         }
@@ -443,7 +443,7 @@ class TestParseFiles(TestCase):
         assert pres.checksumtype == self.PRES_INFO['checksumtype']
         assert pres.size == int(self.PRES_INFO['size'])
         assert models.Event.objects.get(file_uuid_id=self.PRES_INFO['uuid'], event_type='reingestion')
-        assert models.FileFormatVersion.objects.get(file_uuid_id=self.PRES_INFO['uuid'], format_version=self.PRES_INFO['format_version'])
+        assert models.FileFormatVersion.objects.filter(file_uuid_id=self.PRES_INFO['uuid']).exists() is False
         # Verify original file
         mets = models.File.objects.get(uuid=self.METS_INFO['uuid'])
         assert mets.sip_id == self.SIP_UUID

@@ -124,8 +124,8 @@ class TestSIPArrange(TestCase):
     def test_move_within_arrange(self):
         # Move directory
         response = self.client.post(reverse('components.filesystem_ajax.views.copy_to_arrange'), data={'filepath': base64.b64encode('/arrange/newsip/'), 'destination': base64.b64encode('/arrange/toplevel/')}, follow=True)
-        assert response.status_code == 200
-        assert json.loads(response.content) == {'message': 'SIP files successfully moved.'}
+        assert response.status_code == 201
+        assert json.loads(response.content) == {'message': 'Files added to the SIP.'}
         # Check gone from parent
         response = self.client.get(reverse('components.filesystem_ajax.views.arrange_contents'), {'path': base64.b64encode('/arrange')}, follow=True)
         assert response.status_code == 200
