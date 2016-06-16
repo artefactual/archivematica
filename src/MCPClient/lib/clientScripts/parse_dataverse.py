@@ -29,7 +29,8 @@ def get_db_objects(mets, transfer_uuid):
     # TODO does this assert that structMap files exist on disk? Does that need to be checked separately?
     mapping = {}
     for entry in mets.all_files():
-        if entry.type == 'Directory':
+        if entry.type == 'Directory' or entry.label == 'dataset.json':
+            continue
             continue
         # Get DB entry
         # Assuming that Dataverse has a flat file structure, so a filename uniquely identifies a file.
