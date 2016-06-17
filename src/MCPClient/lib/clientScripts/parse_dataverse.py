@@ -31,6 +31,8 @@ def get_db_objects(mets, transfer_uuid):
     for entry in mets.all_files():
         if entry.type == 'Directory' or entry.label == 'dataset.json':
             continue
+        # TODO remove this once RData files are returned
+        if entry.path.endswith('.RData'):
             continue
         # Get DB entry
         # Assuming that Dataverse has a flat file structure, so a filename uniquely identifies a file.
