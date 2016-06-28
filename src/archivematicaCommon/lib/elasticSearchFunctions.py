@@ -439,20 +439,19 @@ def try_to_index(client, data, index, doc_type, wait_between_tries=10, max_tries
     raise
 
 
-def get_aip_data(client, uuid):
-    query = {
-        "query": {
-            "term": {
-                "uuid": uuid
-            }
-        }
+def get_aip_data(client, uuid, fields=None):
+    search_params = {
+        'body': {
+            'query': {'term': {'uuid': uuid}}
+        },
+        'index': 'aips'
     }
 
-    aips = client.search(
-        body=query,
-        index='aips',
-        fields='uuid,name,filePath,size,origin,created'
-    )
+    if fields:
+        search_params['fields'] = fields
+
+    aips = client.search(**search_params)
+
     return aips['hits']['hits'][0]
 
 
