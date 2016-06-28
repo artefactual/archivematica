@@ -21,24 +21,19 @@ import httplib
 import json
 import logging
 import os
-import requests
-import slumber
-import sys
 import uuid
 
 from django.contrib import messages
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
-from django.template import RequestContext
-from elasticsearch import Elasticsearch, ElasticsearchException
+from elasticsearch import ElasticsearchException
 from lazy_paged_sequence import LazyPagedSequence
 
 from main import models
 from components.archival_storage import forms
+from components.archival_storage.atom import upload_dip_metadata_to_atom, AtomMetadataUploadError
 from components import advanced_search
-from components import decorators
 from components import helpers
 import databaseFunctions
 import elasticSearchFunctions
@@ -52,6 +47,7 @@ AIP_STATUS_DESCRIPTIONS = {
     'UPLOADED': 'Stored',
     'DEL_REQ':  'Deletion requested'
 }
+
 
 def overview(request):
     return list_display(request)
@@ -177,7 +173,7 @@ def search(request):
 
     page_data = helpers.pager(results, items_per_page, current_page_number)
 
-    return render(request, 'archival_storage/archival_storage_search.html',
+    return render(request, 'archival_storage/search.html',
         {
             'file_mode': file_mode,
             'show_aics': show_aics,
@@ -189,10 +185,12 @@ def search(request):
         }
     )
 
+
 def _get_es_field(record, field, default=None):
     if field not in record or not record[field]:
         return default
     return record[field][0]
+
 
 def search_augment_aip_results(raw_results, counts):
     modified_results = []
@@ -218,6 +216,7 @@ def search_augment_aip_results(raw_results, counts):
 
     return modified_results
 
+
 def search_augment_file_results(es_client, raw_results):
     modifiedResults = []
 
@@ -230,7 +229,7 @@ def search_augment_file_results(es_client, raw_results):
         # try to find AIP details in database
         try:
             # get AIP data from ElasticSearch
-            aip = elasticSearchFunctions.get_aip_data(es_client, clone['AIPUUID'])
+            aip = elasticSearchFunctions.get_aip_data(es_client, clone['AIPUUID'], fields='uuid,name,filePath,size,origin,created')
 
             # augment result data
             clone['sipname'] = aip['fields']['name'][0]
@@ -306,57 +305,11 @@ def create_aic(request, *args, **kwargs):
         logger.error("Error creating AIC: Form not valid: {}".format(aic_form))
         return redirect('archival_storage_index')
 
-def delete_context(request, uuid):
-    prompt = 'Delete AIP?'
-    cancel_url = reverse("components.archival_storage.views.overview")
-    return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
-
-@decorators.confirm_required('delete_request.html', delete_context)
-def aip_delete(request, uuid):
-    try:
-        reason_for_deletion = request.POST.get('reason_for_deletion', '')
-
-        response = storage_service.request_file_deletion(
-           uuid,
-           request.user.id,
-           request.user.email,
-           reason_for_deletion
-        )
-
-        messages.info(request, response['message'])
-
-        es_client = elasticSearchFunctions.get_client()
-        elasticSearchFunctions.mark_aip_deletion_requested(es_client, uuid)
-
-    except requests.exceptions.ConnectionError:
-        error_message = 'Unable to connect to storage server. Please contact your administrator.'
-        messages.warning(request, error_message)
-    except slumber.exceptions.HttpClientError:
-         raise Http404
-
-    # It would be more elegant to redirect to the AIP storage overview page, but because
-    # ElasticSearch processes updates asynchronously this would often result in the user
-    # having to refresh the page to get an up-to-date result
-    return render(request, 'archival_storage/delete_request_results.html', locals())
-
-def reingest_aip(request, package_uuid):
-    form = forms.ReingestAIPForm(request.POST or None)
-    if form.is_valid():
-        # POST to SS for reingest
-        response = storage_service.request_reingest(
-            package_uuid, form.cleaned_data['reingest_type'])
-        error = response.get('error', True)
-        message = response.get('message', 'An unknown error occurred.')
-        if error:
-            messages.error(request, 'Error re-ingesting package: {}'.format(message))
-        else:
-            messages.success(request, message)
-        return redirect('archival_storage_index')
-    return render(request, 'archival_storage/reingest_request.html', locals())
 
 def aip_download(request, uuid):
     redirect_url = storage_service.download_file_url(uuid)
     return HttpResponseRedirect(redirect_url)
+
 
 def aip_file_download(request, uuid):
     # get file basename
@@ -366,7 +319,7 @@ def aip_file_download(request, uuid):
     # get file's AIP's properties
     sipuuid      = helpers.get_file_sip_uuid(uuid)
     es_client    = elasticSearchFunctions.get_client()
-    aip          = elasticSearchFunctions.get_aip_data(es_client, sipuuid)
+    aip          = elasticSearchFunctions.get_aip_data(es_client, sipuuid, fields='uuid,name,filePath,size,origin,created')
     aip_filepath = aip['fields']['filePath'][0]
 
     # work out path components
@@ -391,9 +344,11 @@ def aip_file_download(request, uuid):
     redirect_url = storage_service.extract_file_url(aip['fields']['uuid'][0], file_relative_path)
     return helpers.stream_file_from_storage_service(redirect_url, 'Storage service returned {}; check logs?')
 
+
 def aip_pointer_file_download(request, uuid):
     redirect_url = storage_service.pointer_file_url(uuid)
     return HttpResponseRedirect(redirect_url)
+
 
 def send_thumbnail(request, fileuuid):
     # get AIP location to use to find root of AIP storage
@@ -417,6 +372,7 @@ def send_thumbnail(request, fileuuid):
 
     return helpers.send_file(request, thumbnail_path)
 
+
 def aips_pending_deletion():
     aip_uuids = []
     try:
@@ -428,6 +384,7 @@ def aips_pending_deletion():
         for aip in aips:
             aip_uuids.append(aip['uuid'])
     return aip_uuids
+
 
 def elasticsearch_query_excluding_aips_pending_deletion(uuid_field_name):
     # add UUIDs of AIPs pending deletion, if any, to boolean query
@@ -451,9 +408,11 @@ def elasticsearch_query_excluding_aips_pending_deletion(uuid_field_name):
 
     return query
 
+
 def aip_file_count(es_client):
     query = elasticsearch_query_excluding_aips_pending_deletion('AIPUUID')
     return advanced_search.indexed_count(es_client, 'aips', ['aipfile'], query)
+
 
 def total_size_of_aips(es_client):
     query = elasticsearch_query_excluding_aips_pending_deletion('uuid')
@@ -471,6 +430,7 @@ def total_size_of_aips(es_client):
     total_size = results['facets']['total']['total']
     total_size = '{0:.2f}'.format(total_size)
     return total_size
+
 
 def list_display(request):
     current_page_number = int(request.GET.get('page', 1))
@@ -594,7 +554,7 @@ def list_display(request):
 
     total_size = total_size_of_aips(es_client)
 
-    return render(request, 'archival_storage/archival_storage.html',
+    return render(request, 'archival_storage/list.html',
         {
             'total_size': total_size,
             'aip_indexed_file_count': aip_indexed_file_count,
@@ -603,6 +563,7 @@ def list_display(request):
             'search_params': sort_params,
         }
     )
+
 
 def document_json_response(document_id_modified, type):
     document_id = document_id_modified.replace('____', '-')
@@ -613,8 +574,81 @@ def document_json_response(document_id_modified, type):
     pretty_json = json.dumps(json.loads(data), sort_keys=True, indent=2)
     return HttpResponse(pretty_json, content_type='application/json')
 
+
 def file_json(request, document_id_modified):
     return document_json_response(document_id_modified, 'aipfile')
 
+
 def aip_json(request, document_id_modified):
     return document_json_response(document_id_modified, 'aip')
+
+
+def view_aip(request, uuid):
+    es_client = elasticSearchFunctions.get_client()
+    try:
+        es_aip_doc = elasticSearchFunctions.get_aip_data(es_client, uuid, fields='name,size,created,status,filePath')
+    except IndexError:
+        raise Http404
+
+    name = _get_es_field(es_aip_doc['fields'], 'name')
+    active_tab = None
+
+    form_upload = forms.UploadMetadataOnlyAtomForm(prefix='upload')
+    form_reingest = forms.ReingestAIPForm(prefix='reingest')
+    form_delete = forms.DeleteAIPForm(prefix='delete', uuid=uuid)
+
+    # Process metadata-only DIP upload form
+    if request.POST and 'submit-upload-form' in request.POST:
+        form_upload = forms.UploadMetadataOnlyAtomForm(request.POST, prefix='upload')
+        active_tab = 'upload'
+        if form_upload.is_valid():
+            try:
+                file_slug = upload_dip_metadata_to_atom(name, uuid, form_upload.cleaned_data['slug'])
+            except AtomMetadataUploadError:
+                messages.error(request, 'Metadata-only DIP upload failed, check the logs for more details')
+                logger.error('Unexepected error during metadata-only DIP upload (UUID: %s)', uuid, exc_info=True)
+            else:
+                messages.success(request, 'Metadata-only DIP upload has been completed successfully. New resource has slug: {}'.format(file_slug))
+            form_upload = forms.UploadMetadataOnlyAtomForm(prefix='upload')  # Reset form
+
+    # Process reingest form
+    if request.POST and 'submit-reingest-form' in request.POST:
+        form_reingest = forms.ReingestAIPForm(request.POST, prefix='reingest')
+        active_tab = 'reingest'
+        if form_reingest.is_valid():
+            response = storage_service.request_reingest(uuid, form_reingest.cleaned_data['reingest_type'])
+            error = response.get('error', True)
+            message = response.get('message', 'An unknown error occurred.')
+            if error:
+                messages.error(request, 'Error re-ingesting package: {}'.format(message))
+            else:
+                messages.success(request, message)
+            return redirect('archival_storage_index')
+
+    # Process delete form
+    if request.POST and 'submit-delete-form' in request.POST:
+        form_delete = forms.DeleteAIPForm(request.POST, prefix='delete', uuid=uuid)
+        active_tab = 'delete'
+        if form_delete.is_valid():
+            response = storage_service.request_file_deletion(uuid, request.user.id, request.user.email, form_delete.cleaned_data['reason'])
+            messages.info(request, response['message'])
+            es_client = elasticSearchFunctions.get_client()
+            elasticSearchFunctions.mark_aip_deletion_requested(es_client, uuid)
+            return redirect('archival_storage_index')
+
+    context = {
+        'uuid': uuid,
+        'name': name,
+        'created': _get_es_field(es_aip_doc['fields'], 'created'),
+        'status': AIP_STATUS_DESCRIPTIONS[_get_es_field(es_aip_doc['fields'], 'status', 'UPLOADED')],
+        'size': '{0:.2f} MB'.format(_get_es_field(es_aip_doc['fields'], 'size', 0)),
+        'location_basename': os.path.basename(_get_es_field(es_aip_doc['fields'], 'filePath')),
+        'active_tab': active_tab,
+        'forms': {
+            'upload': form_upload,
+            'reingest': form_reingest,
+            'delete': form_delete,
+        },
+    }
+
+    return render(request, 'archival_storage/view.html', context)

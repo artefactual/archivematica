@@ -20,6 +20,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import UserChangeForm
 
+
 class UserCreationForm(UserCreationForm):
     is_superuser = forms.BooleanField(label = 'Administrator',required=False)
 
@@ -28,7 +29,7 @@ class UserCreationForm(UserCreationForm):
         if data != '' and len(data) < 8:
             raise forms.ValidationError('Password should be at least 8 characters long')
         return data
-    
+
     def save(self, commit=True):
         user = super(UserCreationForm, self).save(commit=False)
         if commit:
@@ -61,7 +62,7 @@ class UserChangeForm(UserChangeForm):
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'is_superuser')
-            
+
     def clean_password(self):
         data = self.cleaned_data['password']
         if self.cleaned_data['password'] != '' and len(self.cleaned_data['password']) < 8:

@@ -15,18 +15,30 @@
   <link href="{{ STATIC_URL }}css/archival_storage.css" rel="stylesheet" type="text/css" />
 {% endblock %}
 
+{% block extra_js %}
+  <script>
+    $(document).ready(function() { localizeTimestampElements(); });
+  </script>
+{% endblock %}
+
 {% block content %}
+
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Archival storage' 'components.archival_storage.views.overview' %}
+    {% breadcrumb 'Search' %}
+  </ul>
 
   {% include "archival_storage/_archival_storage_search_form.html" %}
 
   {% if aips %}
+
     <h1>
       Browse archival storage<br/>
       <small>
         Total size: {{ total_size }} MB
-      {% if aip_indexed_file_count %}
-        &nbsp;&nbsp;Total files: {{ aip_indexed_file_count }} indexed
-      {% endif %}
+        {% if aip_indexed_file_count %}
+        | Files indexed: {{ aip_indexed_file_count }}
+        {% endif %}
       </small>
     </h1>
 
@@ -42,8 +54,8 @@
         <th>
           <div>
             Size
-            <a class="up {% if order_by == 'size' and sort_by == 'up' %} selected_up"{% endif %}" href="?order_by=size&sort_by=up">Sort</a>
-            <a class="down {% if order_by == 'size' and sort_by == 'down' %} selected_down"{% endif %}" href="?order_by=size&sort_by=down">Sort</a>
+            <a class="up {% if order_by == 'size' and sort_by == 'up' %} selected_up"{% endif %}" href="?order_by=size&amp;sort_by=up">Sort</a>
+            <a class="down {% if order_by == 'size' and sort_by == 'down' %} selected_down"{% endif %}" href="?order_by=size&amp;sort_by=down">Sort</a>
           </div>
         </th>
         <th>
@@ -54,8 +66,8 @@
         <th>
           <div>
             Date stored
-            <a class="up {% if order_by == 'created' and sort_by == 'up' %} selected_up{% endif %}" href="?order_by=created&sort_by=up">Sort</a>
-            <a class="down {% if order_by == 'created' and sort_by == 'down' %} selected_down{% endif %}" href="?order_by=created&sort_by=down">Sort</a>
+            <a class="up {% if order_by == 'created' and sort_by == 'up' %} selected_up{% endif %}" href="?order_by=created&amp;sort_by=up">Sort</a>
+            <a class="down {% if order_by == 'created' and sort_by == 'down' %} selected_down{% endif %}" href="?order_by=created&amp;sort_by=down">Sort</a>
           </div>
         </th>
         <th>
@@ -63,22 +75,21 @@
             Status
           </div>
         </th>
-        <th>Pointer File</th>
-        <th>Actions</th>
+        <th>
+          <div>
+            Actions
+          </div>
+        </th>
       </thead>
       <tbody>
         {% for item in aips %}
           <tr>
-            <td><a href="{% url 'components.archival_storage.views.aip_download' item.uuid %}">{{ item.name }}</a></td>
+            <td><a href="{% url 'view_aip' item.uuid %}">{{ item.name }}</a></td>
             <td class="size">{{ item.size }}</td>
-            <td class="uuid">{{ item.uuid }}</td>
-            <td><span class='timestamp'>{{ item.date }}</a></td>
+            <td class="uuid"><a href="{% url 'view_aip' item.uuid %}">{{ item.uuid }}</a></td>
+            <td><span class="timestamp">{{ item.date }}</span></td>
             <td>{{ item.status }}</td>
-            <td><a href="{% url 'components.archival_storage.views.aip_pointer_file_download' item.uuid %}">Pointer File</a></td>
-            <td>
-              <a href="{% url 'aip_delete' item.uuid %}"><img src="{{ STATIC_URL }}images/delete.png" /></a>
-              <a href="{% url 'reingest_aip' item.uuid %}" class='btn small'>Re-ingest</a>
-            </td>
+            <td><a href="{% url 'view_aip' item.uuid %}">View</a></td>
           </tr>
         {% endfor %}
       </tbody>
@@ -95,11 +106,5 @@
     </div>
 
   {% endif %}
-
-  <script>
-  $(document).ready(function() {
-    localizeTimestampElements();
-  });
-  </script>
 
 {% endblock %}

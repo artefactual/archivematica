@@ -42,3 +42,60 @@
 div.search-summary p {
   font-weight: bold;
 }
+
+/* route=view_aip */
+
+.aip-details code {
+  background-color: transparent;
+}
+
+.aip-details .uuid {
+  font-size: 1.2em;
+}
+
+.aip-details .location-preview {
+  margin-left: 10px;
+}
+
+.aip-details th {
+  vertical-align: middle;
+}
+
+/* A custom pane with tabs based on bs1 tabs, e.g. see archival storage view page */
+
+.am-tabs-pane {
+  margin-bottom: 20px;
+}
+
+.am-tabs-pane .form-stacked {
+  padding-right: 20px;
+}
+
+.am-tabs-pane .tabs {
+  margin-bottom: 0;
+}
+
+.am-tabs-pane .tab-content {
+  padding-top: 20px;
+  border: 1px solid #ddd;
+  border-top-width: 0;
+}
+
+.am-tabs-pane .tab-pane .am-actions {
+  background-color: #f5f5f5;
+  margin-left: -20px;
+  margin-right: -20px;
+  margin-bottom: -20px;
+  padding: 10px 20px;
+  border-bottom: 1px solid #ddd;
+  border-top: 1px solid #ddd;
+}
+
+.am-tabs-pane .errorlist {
+  margin: 0;
+}
+
+.am-tabs-pane .errorlist li {
+  list-style: none;
+  color: red;
+}

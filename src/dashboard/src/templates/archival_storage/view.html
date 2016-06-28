@@ -1,0 +1,147 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+{% load staticfiles %}
+
+{% block extra_css %}
+  <link href="{% static 'css/archival_storage.css' %}" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    $(document).ready(function() {
+
+      localizeTimestampElements();
+
+      var tbs = $('.tabs');
+      tbs.tabs();
+
+      var selection = false;
+      if (window.location.hash)
+      {
+        selection = window.location.hash;
+      }
+      else if (tbs.data('active-tab'))
+      {
+        selection = '#tab-' + tbs.data('active-tab');
+      }
+
+      if (selection)
+      {
+        var href = '[href=' + selection + ']';
+        var tab = $('.am-tabs-pane .tabs').find(href);
+        if (tab.length)
+        {
+          tab.trigger('click');
+        }
+      }
+
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+
+  <ul class="breadcrumb">
+    {% breadcrumb_url 'Archival storage' 'archival_storage_index' %}
+    {% breadcrumb name %}
+  </ul>
+
+  <h2 class="heading-aip-details">
+    {{ name }}
+    <small>Archival Information Package</small>
+  </h2>
+
+  <table class="bordered-table aip-details">
+    <tbody>
+      <tr>
+        <th>UUID</th>
+        <td><code class="uuid">{{ uuid }}</code></td>
+      </tr>
+      <tr>
+        <th>Size</th>
+        <td>{{ size }}</td>
+      </tr>
+      <tr>
+        <th>Date stored</th>
+        <td><span class="timestamp">{{ created }}</span></td>
+      </tr>
+      <tr>
+        <th>Status</th>
+        <td>{{ status }}</td>
+      </tr>
+      <tr>
+        <th>Location</th>
+        <td>
+          <a class="btn small" href="{% url 'components.archival_storage.views.aip_download' uuid %}">Download</a>
+          <code class="location-preview">[...]/{{ location_basename }}</code>
+        </td>
+      </tr>
+      <tr>
+        <th>Pointer file</th>
+        <td>
+          <a class="btn small" target="_blank" href="{% url 'components.archival_storage.views.aip_pointer_file_download' uuid %}">View</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Actions</h3>
+
+  <section class="am-tabs-pane">
+
+    <ul class="tabs" data-active-tab="{{ active_tab }}">
+      <li class="active"><a href="#tab-upload-dip">Upload DIP</a></li>
+      <li><a href="#tab-reingest">Re-ingest</a></li>
+      <li><a href="#tab-delete">Delete</a></li>
+    </ul>
+
+    <div class="tab-content">
+
+      <!-- Upload tab -->
+      <div class="tab-pane active" id="tab-upload-dip">
+        <form action="" method="POST" class="form-stacked">
+          {% csrf_token %}
+          <fieldset>
+            <legend>Metadata-only DIP upload to AtoM</legend>
+            {% include "_form.html" with form=forms.upload %}
+          </fieldset>
+          <div class="clearfix am-actions">
+            <button type="submit" class="btn primary" name="submit-upload-form">Upload</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Re-ingest tab -->
+      <div class="tab-pane" id="tab-reingest">
+        <form action="" method="POST" class="form-stacked">
+          {% csrf_token %}
+          <fieldset>
+            <legend>Choose type of re-ingest</legend>
+            {% include "_form.html" with form=forms.reingest %}
+          </fieldset>
+          <div class="clearfix am-actions">
+            <button type="submit" class="btn primary" name="submit-reingest-form">Re-ingest</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Delete tab -->
+      <div class="tab-pane" id="tab-delete">
+        <form action="" method="POST" class="form-stacked">
+          {% csrf_token %}
+          <fieldset>
+            <legend>Are you sure that you want to delete this AIP</legend>
+            <p>Choosing to delete this package will send a request to your Archival Storage administrator. If the administrator approves the request, your package will be deleted from your Archival Storage and your index will be updated. If the administrator denies the request, the package will remain in storage and the administrator will contact you.
+            {% include "_form.html" with form=forms.delete %}
+          </fieldset>
+          <div class="clearfix am-actions">
+            <button class="btn danger" name="submit-delete-form">Delete</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+  </section>
+
+{% endblock %}

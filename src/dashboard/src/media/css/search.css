@@ -108,6 +108,14 @@ td.size {
   margin-left: 20px;
 }
 
+#search_form {
+  background-color: #f5f5f5;
+  padding: 20px;
+  padding-bottom: 0;
+  border-radius: 2px;
+  border: 1px solid #ddd;
+}
+
 #search_form_container {
   float: left;
   margin-bottom: 20px;
