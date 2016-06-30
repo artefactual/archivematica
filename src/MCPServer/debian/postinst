@@ -13,6 +13,8 @@ else
   rsync -a /usr/share/archivematica/sharedDirectoryStructure/* /var/archivematica/sharedDirectory/.
 fi
 
+mkdir -p /var/archivematica/sharedDirectory/watchedDirectories/system/reingestAIP/
+
 chown -R archivematica:archivematica /var/archivematica/
 
 /usr/share/archivematica/postinstSharedWithDev
