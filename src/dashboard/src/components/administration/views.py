@@ -88,8 +88,7 @@ def failure_report_detail(request):
 def atom_dips(request):
     """ View to configure AtoM DIP upload. """
     initial_data = _intial_settings_data()
-    form = AtomDipUploadSettingsForm(request.POST or None, prefix='storage',
-        initial=initial_data)
+    form = AtomDipUploadSettingsForm(request.POST or None, prefix='storage', initial=initial_data)
     if form.is_valid():
         # Produce a set of commandline arguments for the AtoM upload job
         upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")

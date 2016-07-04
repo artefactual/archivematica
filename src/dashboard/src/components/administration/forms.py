@@ -168,6 +168,9 @@ class AtomDipUploadSettingsForm(SettingsForm):
         label="Debug mode",
         help_text="Show additional details.",
         choices=((False, 'No'), (True, 'Yes')))
+    dip_upload_atom_key = forms.CharField(required=False,
+        label="REST API key",
+        help_text="Used in metadata-only DIP upload.")
 
 
 class TaxonomyTermForm(forms.ModelForm):
