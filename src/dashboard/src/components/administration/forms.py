@@ -146,7 +146,7 @@ class AtomDipUploadSettingsForm(SettingsForm):
         label="Login password",
         help_text="E-mail account used to log into Qubit.")
     dip_upload_atom_version = forms.ChoiceField(label="AtoM version",
-        choices=((1, 'Atom 1.x'), (2, 'Atom 2.x')))
+        choices=((1, 'AtoM 1.x'), (2, 'AtoM 2.2 or older'), (3, 'AtoM 2.3 or newer')))
     dip_upload_atom_rsync_target = forms.CharField(required=False,
         label="Rsync target",
         help_text="The DIP can be sent with Rsync to a remote host before is deposited in Qubit. This is the destination value passed to Rsync (see man 1 rsync). For example: foobar.com:~/dips/.")
@@ -157,6 +157,9 @@ class AtomDipUploadSettingsForm(SettingsForm):
         label="Debug mode",
         help_text="Show additional details.",
         choices=((False, 'No'), (True, 'Yes')))
+    dip_upload_atom_key = forms.CharField(required=False,
+        label="REST API key",
+        help_text="Used in AtoM 2.3 or newer.")
 
 
 class TaxonomyTermForm(forms.ModelForm):

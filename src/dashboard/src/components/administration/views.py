@@ -88,15 +88,14 @@ def failure_report_detail(request):
 def atom_dips(request):
     """ View to configure AtoM DIP upload. """
     initial_data = _intial_settings_data()
-    form = AtomDipUploadSettingsForm(request.POST or None, prefix='storage',
-        initial=initial_data)
+    form = AtomDipUploadSettingsForm(request.POST or None, prefix='storage', initial=initial_data)
     if form.is_valid():
         # Produce a set of commandline arguments for the AtoM upload job
         upload_setting = models.StandardTaskConfig.objects.get(execute="upload-qubit_v0.0")
         opts = []
         char_fields = ['dip_upload_atom_url', 'dip_upload_atom_email',
                        'dip_upload_atom_password', 'dip_upload_atom_rsync_target',
-                       'dip_upload_atom_rsync_command', 'dip_upload_atom_version']
+                       'dip_upload_atom_rsync_command']
         for field in char_fields:
             value = form.cleaned_data.get(field)
             if not value:
@@ -105,6 +104,11 @@ def atom_dips(request):
             opts.append('--{}="{}"'.format(optname, value))
         if form.cleaned_data['dip_upload_atom_debug'] == 'True':
             opts.append('--debug')
+        version = int(form.cleaned_data['dip_upload_atom_version'])
+        # upload-qubit accepts --version=1 or --version=2
+        if version > 2:
+            version = 2
+        opts.append('--version="{}"'.format(version))
         # Add file UUID
         opts.append('--uuid="%SIPUUID%"')
         arguments = ' '.join(opts)
