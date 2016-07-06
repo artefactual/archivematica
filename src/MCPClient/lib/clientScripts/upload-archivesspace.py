@@ -124,6 +124,13 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
 
         original_name = ''
         # Get file & format info
+        try:
+            fv = FormatVersion.objects.get(fileformatversion__file_uuid=uuid)
+            format_version = fv.description
+            format_name = fv.format.description
+        except FormatVersion.DoesNotExist:
+            format_name = format_version = None
+
         # Client wants access copy info
         try:
             original_file = File.objects.get(
@@ -137,9 +144,6 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
             # Set some variables based on the original, we will override most
             # of these if there is an access derivative
             size = os.path.getsize(f)
-            fv = FormatVersion.objects.get(fileformatversion__file_uuid=uuid)
-            format_version = fv.description
-            format_name = fv.format.description
             original_name = os.path.basename(original_file.originallocation)
         try:
             access_file = File.objects.get(
@@ -152,9 +156,6 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
             # HACK remove DIP from the path because create DIP doesn't
             access_file_path = access_file.currentlocation.replace('%SIPDirectory%DIP/', dip_location)
             size = os.path.getsize(access_file_path)
-            fv = FormatVersion.objects.get(fileformatversion__file_uuid=uuid)
-            format_version = fv.description
-            format_name = fv.format.description
 
         # HACK map the format version to ArchivesSpace's fixed list of formats it accepts.
         as_formats = {
