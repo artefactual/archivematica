@@ -17,14 +17,14 @@ from databaseFunctions import getUTCDate, insertIntoEvents, insertIntoFilesIDs
 
 
 def save_idtool(file_, value):
-    """
-    Saves the chosen ID tool's UUID in a unit variable, which allows it to be
+    """Saves the chosen ID tool's UUID in a unit variable, which allows it to be
     refetched by a later chain.
 
     This is necessary in order to allow post-extraction identification to work.
     The replacement dict will be saved to the special 'replacementDict' unit
     variable, which will be transformed back into a passVar when a new chain in
     the same unit is begun.
+
     """
 
     # The unit_uuid foreign key can point to a transfer or SIP, and this tool
@@ -37,7 +37,10 @@ def save_idtool(file_, value):
         "%IDCommand%": value
     }
 
-    UnitVariable.objects.create(unituuid=unit.pk, variable='replacementDict', variablevalue=str(rd))
+    UnitVariable.objects.create(
+        unituuid=unit.pk,
+        variable='replacementDict',
+        variablevalue=str(rd))
 
 
 def write_identification_event(file_uuid, command, format=None, success=True):
@@ -81,22 +84,30 @@ def write_file_id(file_uuid, format=None, output=''):
 
 
 def main(command_uuid, file_path, file_uuid, disable_reidentify):
+    """
+    """
+
     print "IDCommand UUID:", command_uuid
     print "File: ({}) {}".format(file_uuid, file_path)
+
     if command_uuid == "None":
         print "Skipping file format identification"
         return 0
     try:
         command = IDCommand.active.get(uuid=command_uuid)
     except IDCommand.DoesNotExist:
-        sys.stderr.write("IDCommand with UUID {} does not exist.\n".format(command_uuid))
+        sys.stderr.write("IDCommand with UUID {} does not"
+            " exist.\n".format(command_uuid))
         return -1
 
     file_ = File.objects.get(uuid=file_uuid)
 
-    # If reidentification is disabled and a format identification event exists for this file, exit
-    if disable_reidentify and file_.event_set.filter(event_type='format identification').exists():
-        print 'This file has already been identified, and re-identification is disabled. Skipping.'
+    # If reidentification is disabled and a format identification event exists
+    # for this file, exit.
+    if (disable_reidentify and
+        file_.event_set.filter(event_type='format identification').exists()):
+        print ('This file has already been identified, and re-identification is'
+            ' disabled. Skipping.')
         return 0
 
     # Save the selected ID command for use in a later chain
@@ -150,7 +161,10 @@ if __name__ == '__main__':
     parser.add_argument('idcommand', type=str, help='%IDCommand%')
     parser.add_argument('file_path', type=str, help='%relativeLocation%')
     parser.add_argument('file_uuid', type=str, help='%fileUUID%')
-    parser.add_argument('--disable-reidentify', action='store_true', help='Disable identification if it has already happened for this file.')
+    parser.add_argument('--disable-reidentify', action='store_true',
+        help='Disable identification if it has already happened for this file.')
 
     args = parser.parse_args()
-    sys.exit(main(args.idcommand, args.file_path, args.file_uuid, args.disable_reidentify))
+    sys.exit(main(args.idcommand, args.file_path, args.file_uuid,
+        args.disable_reidentify))
+

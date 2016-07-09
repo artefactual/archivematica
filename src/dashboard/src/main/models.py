@@ -160,20 +160,30 @@ class MetadataAppliesToType(models.Model):
 
 
 class Event(models.Model):
-    """ PREMIS Events associated with Files. """
+    """PREMIS Events associated with Files.
+
+    """
+
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
-    event_id = UUIDField(auto=False, null=True, unique=True, db_column='eventIdentifierUUID')
-    file_uuid = models.ForeignKey('File', db_column='fileUUID', to_field='uuid', null=True, blank=True)
+    event_id = UUIDField(auto=False, null=True, unique=True,
+        db_column='eventIdentifierUUID')
+    file_uuid = models.ForeignKey('File', db_column='fileUUID',
+        to_field='uuid', null=True, blank=True)
     event_type = models.TextField(db_column='eventType', blank=True)
-    event_datetime = models.DateTimeField(db_column='eventDateTime', auto_now=True)
+    event_datetime = models.DateTimeField(db_column='eventDateTime',
+        auto_now=True)
     event_detail = models.TextField(db_column='eventDetail', blank=True)
     event_outcome = models.TextField(db_column='eventOutcome', blank=True)
-    event_outcome_detail = models.TextField(db_column='eventOutcomeDetailNote', blank=True)  # TODO convert this to a BinaryField with Django >= 1.6
+    # TODO convert this to a BinaryField with Django >= 1.6
+    event_outcome_detail = models.TextField(db_column='eventOutcomeDetailNote',
+        blank=True)
+
     # For historical reasons, this can be either a foreign key to the
     # Agent table or to the auth_user table. As a result we can't track
     # it as a foreign key within Django.
     # See 57495899bb094dcf791b5f6d859cb596ecc5c37e for more information.
-    linking_agent = models.IntegerField(db_column='linkingAgentIdentifier', null=True)
+    linking_agent = models.IntegerField(db_column='linkingAgentIdentifier',
+        null=True)
 
     class Meta:
         db_table = u'Events'
@@ -310,21 +320,34 @@ class SIPArrangeAccessMapping(models.Model):
 
 
 class File(models.Model):
-    """ Information about Files in units (Transfers, SIPs). """
-    uuid = models.CharField(max_length=36, primary_key=True, db_column='fileUUID')
-    sip = models.ForeignKey(SIP, db_column='sipUUID', to_field='uuid', null=True, blank=True)
-    transfer = models.ForeignKey(Transfer, db_column='transferUUID', to_field='uuid', null=True, blank=True)
+    """Information about Files in units (Transfers, SIPs).
+
+    """
+
+    uuid = models.CharField(max_length=36, primary_key=True,
+        db_column='fileUUID')
+    sip = models.ForeignKey(SIP, db_column='sipUUID', to_field='uuid',
+        null=True, blank=True)
+    transfer = models.ForeignKey(Transfer, db_column='transferUUID',
+        to_field='uuid', null=True, blank=True)
+
     # both actually `longblob` in the database
     originallocation = models.TextField(db_column='originalLocation')
     currentlocation = models.TextField(db_column='currentLocation', null=True)
-    filegrpuse = models.CharField(max_length=50, db_column='fileGrpUse', default='Original')
-    filegrpuuid = models.CharField(max_length=36L, db_column='fileGrpUUID', blank=True)
-    checksum = models.CharField(max_length=100, db_column='checksum', blank=True)
-    checksumtype = models.CharField(max_length=36, db_column='checksumType', blank=True)
+    filegrpuse = models.CharField(max_length=50, db_column='fileGrpUse',
+        default='Original')
+    filegrpuuid = models.CharField(max_length=36L, db_column='fileGrpUUID',
+        blank=True)
+    checksum = models.CharField(max_length=100, db_column='checksum',
+        blank=True)
+    checksumtype = models.CharField(max_length=36, db_column='checksumType',
+        blank=True)
     size = models.BigIntegerField(db_column='fileSize', null=True, blank=True)
     label = models.TextField(blank=True)
-    enteredsystem = models.DateTimeField(db_column='enteredSystem', auto_now_add=True)
-    removedtime = models.DateTimeField(db_column='removedTime', null=True, default=None)
+    enteredsystem = models.DateTimeField(db_column='enteredSystem',
+        auto_now_add=True)
+    removedtime = models.DateTimeField(db_column='removedTime', null=True,
+        default=None)
 
     class Meta:
         db_table = u'Files'
@@ -795,13 +818,28 @@ class TaskConfigUnitVariableLinkPull(models.Model):
 
 
 class UnitVariable(models.Model):
+    """Maps a variable name (`variable`) to a value (`variablevalue`) for a
+    given unit (i.e., a SIP or a Transfer).
+
+    """
+
     id = UUIDPkField()
-    unittype = models.CharField(max_length=50, null=True, blank=True, db_column='unitType')
-    unituuid = models.CharField(max_length=36, null=True, help_text='Semantically a foreign key to SIP or Transfer', db_column='unitUUID')
+    unittype = models.CharField(max_length=50, null=True, blank=True,
+        db_column='unitType')
+    unituuid = models.CharField(max_length=36, null=True,
+        help_text='Semantically a foreign key to SIP or Transfer',
+        db_column='unitUUID')
     variable = models.TextField(null=True, db_column='variable')
     variablevalue = models.TextField(null=True, db_column='variableValue')
-    microservicechainlink = models.ForeignKey('MicroServiceChainLink', null=True, blank=True, help_text='UUID of the MicroServiceChainLink if used in task type linkTaskManagerUnitVariableLinkPull', db_column='microServiceChainLink')
-    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    microservicechainlink = models.ForeignKey(
+        'MicroServiceChainLink',
+        null=True,
+        blank=True,
+        help_text=('UUID of the MicroServiceChainLink if used in task type'
+            ' linkTaskManagerUnitVariableLinkPull'),
+        db_column='microServiceChainLink')
+    createdtime = models.DateTimeField(db_column='createdTime',
+        auto_now_add=True)
     updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True)
 
     class Meta:
