@@ -17,7 +17,8 @@
 
 # This Django model module was auto-generated and then updated manually
 # Needs some cleanups, make sure each model has its primary_key=True
-# Feel free to rename the models, but don't rename db_table values or field names.
+# Feel free to rename the models, but don't rename db_table values or field
+# names.
 
 # stdlib, alphabetical by import source
 import ast
@@ -56,7 +57,10 @@ class UUIDPkField(UUIDField):
 # MODELS
 
 class DashboardSetting(models.Model):
-    """ Settings related to the dashboard stored as key-value pairs. """
+    """Settings related to the dashboard stored as key-value pairs.
+
+    """
+
     id = models.AutoField(primary_key=True, db_column='pk')
     name = models.CharField(max_length=255, db_column='name')
     value = models.TextField(db_column='value', blank=True)
@@ -67,34 +71,49 @@ class DashboardSetting(models.Model):
 
 
 class Access(models.Model):
-    """ Information about an upload to AtoM for a SIP. """
+    """Information about an upload to AtoM for a SIP.
+
+    """
+
     id = models.AutoField(primary_key=True, db_column='pk')
     sipuuid = models.CharField(max_length=36, db_column='SIPUUID', blank=True)
-    # Qubit ID (slug) generated or preexisting if a new description was not created
+
+    # Qubit ID (i.e., slug), generated or preexisting, if a new description was
+    # not created.
     resource = models.TextField(db_column='resource', blank=True)
-    # Before the UploadDIP micro-service is executed, a dialog shows up and ask the user
-    # the target archival description when the DIP will be deposited via SWORD
-    # This column is mandatory, the user won't be able to submit the form if this field is empty
+
+    # The `target` (archival description) is mandatory in order for a DIP to be
+    # uploaded via Sword (before the UploadDIP micro-service is executed).
     target = models.TextField(db_column='target', blank=True)
-    # Human readable status of an upload (rsync progress percentage, etc)
+
+    # Human-readable status of an upload (rsync progress percentage, etc)
     status = models.TextField(db_column='status', blank=True)
-    # Machine readable status code of an upload
+
+    # Machine-readable status code of an upload
     # 10 = Rsync is working
     # 11 = Rsync finished successfully
     # 12 = Rsync failed (then see self.exitcode to get rsync exit code)
     # 13 = SWORD deposit will be executed
     # 14 = Deposit done, Qubit returned code 200 (HTTP Created)
     #      - The deposited was created synchronously
-    #      - At this point self.resource should contains the created Qubit resource
+    #      - At this point self.resource should contain the created Qubit
+    #        resource
     # 15 = Deposit done, Qubit returned code 201 (HTTP Accepted)
-    #      - The deposited will be created asynchronously (Qubit has a job queue)
-    #      - At this point self.resource should contains the created Qubit resource
-    #      - ^ this resource could be under progres, ask to Qubit for the status
-    statuscode = models.PositiveSmallIntegerField(db_column='statusCode', null=True, blank=True)  # Actually a unsigned tinyint
+    #      - The deposited will be created asynchronously (Qubit has a job
+    #        queue)
+    #      - At this point self.resource should contain the created Qubit
+    #        resource
+    #      - ^ this resource could be in progress, ask Qubit for the status.
+    statuscode = models.PositiveSmallIntegerField(db_column='statusCode',
+        null=True, blank=True)  # Actually an unsigned tinyint
+
     # Rsync exit code
-    exitcode = models.PositiveSmallIntegerField(db_column='exitCode', null=True, blank=True)  # Actually a unsigned tinyint
+    exitcode = models.PositiveSmallIntegerField(db_column='exitCode',
+        null=True, blank=True)  # Actually an unsigned tinyint
+
     # Timestamps
-    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
+    createdtime = models.DateTimeField(db_column='createdTime',
+        auto_now_add=True)
     updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True)
 
     class Meta:
@@ -102,34 +121,54 @@ class Access(models.Model):
 
     def get_title(self):
         try:
-            jobs = main.models.Job.objects.filter(sipuuid=self.sipuuid, subjobof='')
+            jobs = main.models.Job.objects.filter(sipuuid=self.sipuuid,
+                subjobof='')
             return utils.get_directory_name_from_job(jobs)
         except:
             return 'N/A'
 
 
 class DublinCore(models.Model):
-    """ DublinCore metadata associated with a SIP or Transfer. """
+    """DublinCore metadata associated with a SIP or Transfer.
+
+    """
+
     id = models.AutoField(primary_key=True, db_column='pk')
-    metadataappliestotype = models.ForeignKey('MetadataAppliesToType', db_column='metadataAppliesToType')
-    metadataappliestoidentifier = models.CharField(max_length=36, blank=True, null=True, default=None, db_column='metadataAppliesToidentifier')  # Foreign key to SIPs or Transfers
+
+    # Type of entity, i.e., SIP or Transfer, that this metadata applies to.
+    metadataappliestotype = models.ForeignKey('MetadataAppliesToType',
+        db_column='metadataAppliesToType')
+
+    # Soft foreign key to SIPs or Transfers
+    metadataappliestoidentifier = models.CharField(max_length=36, blank=True,
+        null=True, default=None, db_column='metadataAppliesToidentifier')
+
     title = models.TextField(db_column='title', blank=True)
-    is_part_of = models.TextField(db_column='isPartOf', verbose_name='Part of AIC', help_text='Optional: leave blank if unsure', blank=True)
+    is_part_of = models.TextField(db_column='isPartOf',
+        verbose_name='Part of AIC',
+        help_text='Optional: leave blank if unsure', blank=True)
     creator = models.TextField(db_column='creator', blank=True)
     subject = models.TextField(db_column='subject', blank=True)
     description = models.TextField(db_column='description', blank=True)
     publisher = models.TextField(db_column='publisher', blank=True)
     contributor = models.TextField(db_column='contributor', blank=True)
-    date = models.TextField(help_text='Use ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)', db_column='date', blank=True)
+
+    # This help text confuses jrwdunham.
+    date = models.TextField(
+        help_text='Use ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)',
+        db_column='date', blank=True)
+
     type = models.TextField(db_column='type', blank=True)
     format = models.TextField(db_column='format', blank=True)
     identifier = models.TextField(db_column='identifier', blank=True)
     source = models.TextField(db_column='source', blank=True)
     relation = models.TextField(db_column='relation', blank=True)
-    language = models.TextField(help_text='Use ISO 639', db_column='language', blank=True)
+    language = models.TextField(help_text='Use ISO 639', db_column='language',
+        blank=True)
     coverage = models.TextField(db_column='coverage', blank=True)
     rights = models.TextField(db_column='rights', blank=True)
-    status = models.CharField(db_column='status', max_length=8, choices=METADATA_STATUS, default=METADATA_STATUS_ORIGINAL)
+    status = models.CharField(db_column='status', max_length=8,
+        choices=METADATA_STATUS, default=METADATA_STATUS_ORIGINAL)
 
     class Meta:
         db_table = u'Dublincore'
@@ -142,14 +181,20 @@ class DublinCore(models.Model):
 
 
 class MetadataAppliesToType(models.Model):
-    """
-    What type of unit (SIP, DIP, Transfer etc) the metadata link is.
+    """The type of unit (SIP, DIP, Transfer, etc.) that a piece of metadata
+    applies to.
 
     TODO replace this with choices fields.
+
+    Note: 'SIP', 'Transfer' and 'File' seem to be the standard (only possible?)
+    unit types.
+
     """
+
     id = UUIDPkField()
     description = models.CharField(max_length=50, db_column='description')
-    replaces = models.CharField(max_length=36, db_column='replaces', null=True, blank=True)
+    replaces = models.CharField(max_length=36, db_column='replaces', null=True,
+        blank=True)
     lastmodified = models.DateTimeField(db_column='lastModified')
 
     class Meta:
@@ -161,6 +206,12 @@ class MetadataAppliesToType(models.Model):
 
 class Event(models.Model):
     """PREMIS Events associated with Files.
+
+    There are many possible events for any given file within a unit. Events are
+    related to Files via UUID pks. Example events: 'fixity check', 'validation'.
+
+    Question: are events transitory or do they persist once a unit no longer
+    exists?
 
     """
 
@@ -179,7 +230,7 @@ class Event(models.Model):
         blank=True)
 
     # For historical reasons, this can be either a foreign key to the
-    # Agent table or to the auth_user table. As a result we can't track
+    # Agent table or to the auth_user table. As a result, we can't track
     # it as a foreign key within Django.
     # See 57495899bb094dcf791b5f6d859cb596ecc5c37e for more information.
     linking_agent = models.IntegerField(db_column='linkingAgentIdentifier',
@@ -196,15 +247,21 @@ class Event(models.Model):
 
 
 class Derivation(models.Model):
-    """
-    Link between original and normalized files.
+    """A derivation represents the link between an original file and its
+    normalized counterpart via a specified event.
 
-    Eg original to preservation copy, or original to access copy.
+    E.g., the link between the original and a preservation copy, or between the
+    original and an access copy.
+
     """
+
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
-    source_file = models.ForeignKey('File', db_column='sourceFileUUID', to_field='uuid', related_name='derived_file_set')
-    derived_file = models.ForeignKey('File', db_column='derivedFileUUID', to_field='uuid', related_name='original_file_set')
-    event = models.ForeignKey('Event', db_column='relatedEventUUID', to_field='event_id', null=True, blank=True)
+    source_file = models.ForeignKey('File', db_column='sourceFileUUID',
+        to_field='uuid', related_name='derived_file_set')
+    derived_file = models.ForeignKey('File', db_column='derivedFileUUID',
+        to_field='uuid', related_name='original_file_set')
+    event = models.ForeignKey('Event', db_column='relatedEventUUID',
+        to_field='event_id', null=True, blank=True)
 
     class Meta:
         db_table = u'Derivations'
@@ -217,8 +274,15 @@ class Derivation(models.Model):
 
 
 class UnitHiddenManager(models.Manager):
+    """Manager to endow all Unit models with `is_hidden` (boolean) attributes.
+
+    """
+
     def is_hidden(self, uuid):
-        """ Return True if the unit (SIP, Transfer) with uuid is hidden. """
+        """Return True if the unit (SIP, Transfer) with uuid is hidden.
+
+        """
+
         try:
             return self.get_queryset().get(uuid=uuid).hidden
         except:
@@ -226,24 +290,39 @@ class UnitHiddenManager(models.Manager):
 
 
 class SIP(models.Model):
-    """ Information on SIP units. """
-    uuid = models.CharField(max_length=36, primary_key=True, db_column='sipUUID')
-    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
-    # If currentpath is null, this SIP is understood to not have been started yet.
-    currentpath = models.TextField(db_column='currentPath', null=True, blank=True)
+    """Information on SIP units.
+
+    Note: an AIC is an Archival Information Collection, i.e., a collection of
+    AIPs. Question: can AICs contain AICs?
+
+    """
+
+    uuid = models.CharField(max_length=36, primary_key=True,
+        db_column='sipUUID')
+    createdtime = models.DateTimeField(db_column='createdTime',
+        auto_now_add=True)
+    # If currentpath is null, this SIP is understood to not have been started
+    # yet.
+    currentpath = models.TextField(db_column='currentPath', null=True,
+        blank=True)
     hidden = models.BooleanField(default=False)
-    aip_filename = models.TextField(db_column='aipFilename', null=True, blank=True)
+    aip_filename = models.TextField(db_column='aipFilename', null=True,
+        blank=True)
     SIP_TYPE_CHOICES = (
         ('SIP', 'SIP'),
         ('AIC', 'AIC'),
         ('AIP-REIN', 'Reingested AIP'),
         ('AIC-REIN', 'Reingested AIC'),
     )
-    sip_type = models.CharField(max_length=8, choices=SIP_TYPE_CHOICES, db_column='sipType', default='SIP')
+    sip_type = models.CharField(max_length=8, choices=SIP_TYPE_CHOICES,
+        db_column='sipType', default='SIP')
 
     # Deprecated
-    magiclink = models.ForeignKey('MicroServiceChainLink', db_column='magicLink', null=True, blank=True)
-    magiclinkexitmessage = models.CharField(max_length=50, db_column='magicLinkExitMessage', null=True, blank=True)
+    # Question: what did they used to do?
+    magiclink = models.ForeignKey('MicroServiceChainLink',
+        db_column='magicLink', null=True, blank=True)
+    magiclinkexitmessage = models.CharField(max_length=50,
+        db_column='magicLinkExitMessage', null=True, blank=True)
 
     objects = UnitHiddenManager()
 
@@ -253,6 +332,9 @@ class SIP(models.Model):
     def __unicode__(self):
         return u'SIP: {path}'.format(path=self.currentpath)
 
+
+# TODO: it seems class is not being used and could be deleted. Requesting
+# third-party verification.
 class TransferManager(models.Manager):
     def is_hidden(self, uuid):
         try:
@@ -260,22 +342,36 @@ class TransferManager(models.Manager):
         except:
             return False
 
+
 class Transfer(models.Model):
-    """ Information on Transfer units. """
-    uuid = models.CharField(max_length=36, primary_key=True, db_column='transferUUID')
+    """Information on Transfer units.
+
+    """
+
+    uuid = models.CharField(max_length=36, primary_key=True,
+        db_column='transferUUID')
     currentlocation = models.TextField(db_column='currentLocation')
     type = models.CharField(max_length=50, db_column='type')
+
+    # 'to accession' is to record the addition of (a new item) to a library,
+    # museum, or other collection
     accessionid = models.TextField(db_column='accessionID')
-    sourceofacquisition = models.TextField(db_column='sourceOfAcquisition', blank=True)
+
+    sourceofacquisition = models.TextField(db_column='sourceOfAcquisition',
+        blank=True)
     typeoftransfer = models.TextField(db_column='typeOfTransfer', blank=True)
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True)
     hidden = models.BooleanField(default=False)
-    transfermetadatasetrow = models.ForeignKey('TransferMetadataSet', db_column='transferMetadataSetRowUUID', to_field='id', null=True, blank=True)
+    transfermetadatasetrow = models.ForeignKey('TransferMetadataSet',
+        db_column='transferMetadataSetRowUUID', to_field='id', null=True,
+        blank=True)
 
     # Deprecated
-    magiclink = models.ForeignKey('MicroServiceChainLink', db_column='magicLink', null=True, blank=True)
-    magiclinkexitmessage = models.CharField(max_length=50, db_column='magicLinkExitMessage', null=True, blank=True)
+    magiclink = models.ForeignKey('MicroServiceChainLink',
+        db_column='magicLink', null=True, blank=True)
+    magiclinkexitmessage = models.CharField(max_length=50,
+        db_column='magicLinkExitMessage', null=True, blank=True)
 
     objects = UnitHiddenManager()
 
@@ -284,12 +380,24 @@ class Transfer(models.Model):
 
 
 class SIPArrange(models.Model):
-    """ Information about arranged files: original and arranged location, current status. """
-    original_path = models.CharField(max_length=255, null=True, blank=True, default=None, unique=True)
+    """Information about arranged files: original and arranged location,
+    current status.
+
+    Question: What is the point of arranging files? (Assuming it means altering
+    their position in a directory structure.)
+
+    Question: How does this model get mapped to the `main_siparrange` table? Is
+    this Django magick?
+
+    """
+
+    original_path = models.CharField(max_length=255, null=True, blank=True,
+        default=None, unique=True)
     arrange_path = models.CharField(max_length=255)
     file_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
     transfer_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
-    sip = models.ForeignKey(SIP, to_field='uuid', null=True, blank=True, default=None)
+    sip = models.ForeignKey(SIP, to_field='uuid', null=True, blank=True,
+        default=None)
     level_of_description = models.CharField(max_length=2014)
     sip_created = models.BooleanField(default=False)
     aip_created = models.BooleanField(default=False)
@@ -304,7 +412,11 @@ class SIPArrange(models.Model):
 
 
 class SIPArrangeAccessMapping(models.Model):
-    """ Maps directories within SIPArrange to descriptive objects in a remote archival management system. """
+    """Maps directories within SIPArrange to descriptive objects in a remote
+    archival management system.
+
+    """
+
     ARCHIVESSPACE = "archivesspace"
     ARCHIVISTS_TOOLKIT = "atk"
     ATOM = "atom"
@@ -316,6 +428,7 @@ class SIPArrangeAccessMapping(models.Model):
 
     arrange_path = models.CharField(max_length=255)
     system = models.CharField(choices=SYSTEMS, default=ATOM, max_length=255)
+
     identifier = models.CharField(max_length=255)
 
 
