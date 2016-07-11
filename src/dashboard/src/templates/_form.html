@@ -11,20 +11,36 @@
     {% if field|is_checkbox %}
       <ul class="inputs-list">
         <li>
-            <div class="input">
-              <label>
-                {{ field }}
-            	<span>{{ field.label }}</span>
+          <div class="input">
+            <label>
+              {{ field }}
+              <span>{{ field.label }}</span>
             </label>
-          </div> 
+          </div>
         </li>
+      </ul>
+    {% elif field|is_radioselect %}
+      {% if field.errors %}
+        {% for error in field.errors %}
+          <span class="help-inline">{{ error }}</span>
+        {% endfor %}
+      {% endif %}
+      <ul class="inputs-list">
+        {% for choice in field %}
+          <li>
+            <label>
+              {{ choice.tag }}
+              <span>{{ choice.choice_label }}</span>
+            </label>
+          </li>
+        {% endfor %}
       </ul>
     {% else %}
       {{ field.label_tag }}
       <div class="input">
         {{ field }}
         {% if field.help_text %}
-            <span class="help-block">{{ field.help_text }}</span>
+          <span class="help-block">{{ field.help_text }}</span>
         {% endif %}
         {% if field.errors %}
           {% for error in field.errors %}
