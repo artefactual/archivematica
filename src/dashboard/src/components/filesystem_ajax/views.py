@@ -21,17 +21,12 @@ import os
 import logging
 import re
 import shutil
-import sys
 import tempfile
 import uuid
 
-from django.conf import settings as django_settings
-from django.db import connection, IntegrityError
-from django.db.models import Q
+from django.db import IntegrityError
 import django.http
 import django.template.defaultfilters
-
-import requests
 
 from components import helpers
 import components.filesystem_ajax.helpers as filesystem_ajax_helpers
@@ -259,7 +254,7 @@ def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
 
         transfer_relative = transfer_dir.replace(SHARED_DIRECTORY_ROOT, '', 1)
         copy_from_transfer_sources([path], transfer_relative)
-
+        filepath = archivematicaFunctions.unicodeToStr(filepath)
         try:
             destination = copy_to_start_transfer(filepath=filepath,
                 type=transfer_type, accession=accession,

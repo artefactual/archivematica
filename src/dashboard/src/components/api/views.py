@@ -31,6 +31,7 @@ from annoying.functions import get_object_or_None
 from tastypie.authentication import ApiKeyAuthentication
 
 # This project, alphabetical
+import archivematicaFunctions
 from contrib.mcp.client import MCPClient
 from components.filesystem_ajax import views as filesystem_ajax_views
 from components.unit import views as unit_views
@@ -326,6 +327,7 @@ def approve_transfer(request):
 
             directory = request.POST.get('directory', '')
             transfer_type = request.POST.get('type', 'standard')
+            directory = archivematicaFunctions.unicodeToStr(directory)
             error, unit_uuid = approve_transfer_via_mcp(directory, transfer_type, request.user.id)
 
             if error is not None:
