@@ -281,7 +281,7 @@ def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
 
         transfer_relative = transfer_dir.replace(SHARED_DIRECTORY_ROOT, '', 1)
         copy_from_transfer_sources([path], transfer_relative)
-
+        filepath = archivematicaFunctions.unicodeToStr(filepath)
         try:
             destination = copy_to_start_transfer(filepath=filepath,
                 type=transfer_type, accession=accession,
