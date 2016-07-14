@@ -219,20 +219,29 @@ def get_atom_levels_of_description(clear=True):
     :param bool clear: When True, deletes all existing levels of description from the Archivematica database before fetching; otherwise, the fetched levels of description will be appended to the already-stored values.
     :raises AtomError: if no AtoM URL or authentication credentials are defined in the settings, or if the levels of description cannot be fetched for another reason
     """
+    version = get_setting('dip_upload_atom_version')
+    if not version:
+        raise AtomError("AtoM version not defined")
+
     url = get_setting('dip_upload_atom_url')
     if not url:
         raise AtomError("AtoM URL not defined!")
 
-    auth = (
-        get_setting('dip_upload_atom_email'),
-        get_setting('dip_upload_atom_password'),
-    )
-    if not auth:
-        raise AtomError("AtoM authentication settings not defined!")
+    dest = urljoin(url, 'api/taxonomies/34')  # taxonomy 34 is "level of description"
+    kwargs = {'params': {'culture': 'en'}}
 
-    # taxonomy 34 is "level of description"
-    dest = urljoin(url, 'api/taxonomies/34')
-    response = requests.get(dest, params={'culture': 'en'}, auth=auth)
+    if int(version) < 3:  # AtoM 2.2 or older
+        auth = (get_setting('dip_upload_atom_email'), get_setting('dip_upload_atom_password'))
+        if '' in auth:
+            raise AtomError("AtoM authentication settings not defined!")
+        kwargs['auth'] = auth
+    elif int(version) >= 3:  # AtoM 2.3 or newer
+        key = get_setting('dip_upload_atom_key')
+        if not key:
+            raise AtomError("AtoM API key not defined!")
+        kwargs['headers'] = {'REST-API-Key': key}
+
+    response = requests.get(dest, **kwargs)
     if response.status_code == 200:
         base = 1
         if clear:
