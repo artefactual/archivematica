@@ -43,7 +43,6 @@ def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID):
     File.objects.filter(uuid=fileUUID).update(size=fileSize, checksum=checksum, checksumtype=checksumType)
 
     insertIntoEvents(fileUUID=fileUUID,
-                     eventIdentifierUUID=eventIdentifierUUID,
                      eventType='message digest calculation',
                      eventDateTime=date,
                      eventDetail='program="python"; module="hashlib.{}()"'.format(checksumType),
@@ -54,7 +53,6 @@ def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, d
     #print filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType, eventDetail, use
     insertIntoFiles(fileUUID, filePathRelativeToSIP, date, transferUUID=transferUUID, use=use)
     insertIntoEvents(fileUUID=fileUUID,
-                     eventIdentifierUUID=taskUUID,
                      eventType=sourceType,
                      eventDateTime=date,
                      eventDetail=eventDetail,
@@ -65,10 +63,8 @@ def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, d
 def addAccessionEvent(fileUUID, transferUUID, date):
     transfer = Transfer.objects.get(uuid=transferUUID)
     if transfer.accessionid:
-        eventIdentifierUUID = uuid.uuid4().__str__()
         eventOutcomeDetailNote =  "accession#" + MySQLdb.escape_string(transfer.accessionid)
         insertIntoEvents(fileUUID=fileUUID,
-                         eventIdentifierUUID=eventIdentifierUUID,
                          eventType="registration",
                          eventDateTime=date,
                          eventDetail="",
@@ -78,7 +74,6 @@ def addAccessionEvent(fileUUID, transferUUID, date):
 def addFileToSIP(filePathRelativeToSIP, fileUUID, sipUUID, taskUUID, date, sourceType="ingestion", use="original"):
     insertIntoFiles(fileUUID, filePathRelativeToSIP, date, sipUUID=sipUUID, use=use)
     insertIntoEvents(fileUUID=fileUUID,
-                     eventIdentifierUUID=taskUUID,
                      eventType=sourceType,
                      eventDateTime=date,
                      eventDetail="",
