@@ -185,6 +185,21 @@ def copy_files(source_location, destination_location, files, api=None):
         'files': files,
         'pipeline': pipeline['resource_uri'],
     }
+
+    # Here we attempt to decode the 'source' attributes of each move-file to
+    # Unicode prior to passing to Slumber's ``post`` method. Slumber will do
+    # this anyway and will choke in certain specific cases, specifically where
+    # the JavaScript of the dashboard has base-64-encoded a Latin-1-encoded
+    # string.
+    for file_ in move_files['files']:
+        try:
+            file_['source'] = file_['source'].decode('utf8')
+        except UnicodeDecodeError:
+            try:
+                file_['source'] = file_['source'].decode('latin-1')
+            except UnicodeError:
+                pass
+
     try:
         ret = api.location(destination_location['uuid']).post(move_files)
     except slumber.exceptions.HttpClientError as e:
