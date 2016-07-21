@@ -157,7 +157,16 @@ var TransferComponentFormView = Backbone.View.extend({
         components = {};
       },
       error: function(error) {
-        alert(error.message);
+        // You need to parse the `responseText` if you want the error message
+        // from `filesystem_ajax/views.py`.
+        error = JSON.parse(error.responseText);
+        if (error.message.indexOf("'utf8' codec can't decode byte") !== -1) {
+          alert('Your transfer could not be started, probably because of an' +
+                ' issue related to non-ASCII (e.g., Unicode) characters in' +
+                ' the name of the directory that you are trying to transfer.');
+        } else {
+          alert(error.message);
+        }
       }
     });
     $('.activity-indicator').hide();
