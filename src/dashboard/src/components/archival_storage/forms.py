@@ -28,7 +28,7 @@ class CreateAICForm(forms.Form):
 
 
 class UploadMetadataOnlyAtomForm(forms.Form):
-    slug = forms.CharField(label='Insert slug', required=True, widget=forms.TextInput(attrs={'class': 'span8'}))
+    slug = forms.CharField(label='Insert slug', help_text='Only compatible with AtoM 2.4 or newer.', required=True, widget=forms.TextInput(attrs={'class': 'span8'}))
 
     def clean_slug(self):
         slug = self.cleaned_data['slug']
