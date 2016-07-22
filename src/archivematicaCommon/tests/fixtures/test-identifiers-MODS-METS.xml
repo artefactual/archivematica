@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mods xmlns="http://www.loc.gov/mods/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <titleInfo>
+    <title>Yamani Weapons</title>
+  </titleInfo>
+  <name>
+    <namePart>Keladry of Mindelan</namePart>
+    <role>
+      <roleTerm type="text">Provenance</roleTerm>
+    </role>
+  </name>
+  <name xmlns="">
+    <marker />
+    <namePart type="personal">Yuki</namePart>
+    <role>
+      <roleTerm type="text" />
+    </role>
+  </name>
+  <name xmlns="">
+    <marker />
+    <namePart type="personal">雪</namePart>
+    <role>
+      <roleTerm type="text" />
+    </role>
+  </name>
+  <identifier xmlns="" type="filename">F_374_18</identifier>
+  <identifier type="local">28475</identifier>
+  <identifier type="fonds">Yamani</identifier>
+  <identifier type="series" />
+  <identifier type="file">Glaive 18</identifier>
+  <identifier type="uri">http://archives.tortall.gov/yamani/permalink/28475</identifier>
+  <accessCondition type="copyrightHolder">Public domain</accessCondition>
+  <accessCondition type="copyrightExpiry" />
+  <accessCondition type="otherReproductionTerms">Researchers must contact the Royal University in Corus, Tortall for permission to use or reproduce.</accessCondition>
+  <accessCondition type="accessRestrictions">There are no restrictions on access.</accessCondition>
+  <note type="originalLocation">Yamani Islands</note>
+  <note type="otherFormats" />
+  <note type="language" />
+  <note type="numbering" />
+  <note type="gennote"></note>
+  <classification authority="digitalproject">Yamani</classification>
+  <subject>
+    <topic xmlns="" authority="aboriginalSubject">Weapons</topic>
+  </subject>
+  <language>
+    <languageTerm type="text" />
+  </language>
+  <genre type="grouping">Archival</genre>
+  <originInfo xmlns="">
+    <dateCreated>400-450</dateCreated>
+    <dateRange encoding="iso-8601"></dateRange>
+  </originInfo>
+  <typeOfResource>Photographs</typeOfResource>
+  <physicalDescription xmlns="">
+    <extent>one photograph</extent>
+    <note type="otherdetails">b&amp;w</note>
+    <note type="dimensions">16 cm x 10 cm</note>
+  </physicalDescription>
+  <abstract type="biohist"></abstract>
+  <abstract type="scopecontent"></abstract>
+  <location>
+    <physicalLocation />
+  </location>
+  <language>
+    <languageTerm authority="iso639-2b" type="code">eng</languageTerm>
+  </language>
+</mods>
+
