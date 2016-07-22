@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<METS:mets xmlns:METS="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" EXT_VERSION="1.1" OBJID="yamani:12" LABEL="Yamani Glaive" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.fedora.info/definitions/1/0/mets-fedora-ext1-1.xsd">
+  <METS:metsHdr CREATEDATE="2014-06-20T17:53:07.649Z" LASTMODDATE="2015-02-19T22:29:29.205Z" RECORDSTATUS="Active">
+    <METS:agent ROLE="IPOWNER">
+      <METS:name>fedoraAdmin</METS:name>
+    </METS:agent>
+  </METS:metsHdr>
+  <METS:amdSec ID="AUDIT" STATUS="A" VERSIONABLE="false">
+    <METS:digiprovMD ID="AUDIT.0" CREATED="2014-06-20T17:53:07.649Z">
+      <METS:mdWrap MIMETYPE="text/xml" MDTYPE="OTHER" OTHERMDTYPE="FEDORA-AUDIT" LABEL="Audit Trail for this object" FORMAT_URI="info:fedora/fedora-system:format/xml.fedora.audit">
+        <METS:xmlData>
+          <audit:auditTrail xmlns:audit="info:fedora/fedora-system:def/audit#">
+            <audit:record ID="AUDREC1">
+              <audit:process type="Fedora API-M" />
+              <audit:action>addDatastream</audit:action>
+              <audit:componentID>TN</audit:componentID>
+              <audit:responsibility>fedoraAdmin</audit:responsibility>
+              <audit:date>2014-06-20T17:53:37.872Z</audit:date>
+              <audit:justification>Copied datastream from yamani:12.</audit:justification>
+            </audit:record>
+            <audit:record ID="AUDREC2">
+              <audit:process type="Fedora API-M" />
+              <audit:action>addDatastream</audit:action>
+              <audit:componentID>MEDIUM_SIZE</audit:componentID>
+              <audit:responsibility>fedoraAdmin</audit:responsibility>
+              <audit:date>2014-06-20T17:53:38.082Z</audit:date>
+              <audit:justification>Copied datastream from yamani:12.</audit:justification>
+            </audit:record>
+            <audit:record ID="AUDREC3">
+              <audit:process type="Fedora API-M" />
+              <audit:action>modifyDatastreamByValue</audit:action>
+              <audit:componentID>RELS-EXT</audit:componentID>
+              <audit:responsibility>fedoraAdmin</audit:responsibility>
+              <audit:date>2014-07-31T23:27:59.412Z</audit:date>
+              <audit:justification />
+            </audit:record>
+            <audit:record ID="AUDREC4">
+              <audit:process type="Fedora API-M" />
+              <audit:action>modifyDatastreamByValue</audit:action>
+              <audit:componentID>RELS-EXT</audit:componentID>
+              <audit:responsibility>fedoraAdmin</audit:responsibility>
+              <audit:date>2015-02-19T20:58:15.951Z</audit:date>
+              <audit:justification />
+            </audit:record>
+            <audit:record ID="AUDREC5">
+              <audit:process type="Fedora API-M" />
+              <audit:action>addDatastream</audit:action>
+              <audit:componentID>RELS-INT</audit:componentID>
+              <audit:responsibility>fedoraAdmin</audit:responsibility>
+              <audit:date>2015-02-19T20:59:11.459Z</audit:date>
+              <audit:justification>Copied datastream from yamani:12.</audit:justification>
+            </audit:record>
+            <audit:record ID="AUDREC6">
+              <audit:process type="Fedora API-M" />
+              <audit:action>modifyDatastreamByValue</audit:action>
+              <audit:componentID>RELS-EXT</audit:componentID>
+              <audit:responsibility>fedoraAdmin</audit:responsibility>
+              <audit:date>2015-02-19T22:29:29.205Z</audit:date>
+              <audit:justification />
+            </audit:record>
+          </audit:auditTrail>
+        </METS:xmlData>
+      </METS:mdWrap>
+    </METS:digiprovMD>
+  </METS:amdSec>
+  <METS:amdSec ID="RELS-EXT" STATUS="A" VERSIONABLE="true">
+    <METS:techMD ID="RELS-EXT.0" CREATED="2014-06-20T17:53:07.663Z">
+      <METS:mdWrap MIMETYPE="application/rdf+xml" MDTYPE="OTHER" OTHERMDTYPE="UNSPECIFIED" LABEL="Fedora Object to Object Relationship Metadata." FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0">
+        <METS:xmlData>
+          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:fedora="info:fedora/fedora-system:def/relations-external#" xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:islandora="http://islandora.ca/ontology/relsext#">
+            <rdf:Description rdf:about="info:fedora/yamani:12">
+              <fedora-model:hasModel rdf:resource="info:fedora/islandora:sp_basic_image" />
+              <fedora:isMemberOfCollection rdf:resource="info:fedora/yamani:images" />
+            </rdf:Description>
+          </rdf:RDF>
+        </METS:xmlData>
+      </METS:mdWrap>
+    </METS:techMD>
+    <METS:techMD ID="RELS-EXT.1" CREATED="2014-07-31T23:27:59.412Z">
+      <METS:mdWrap MIMETYPE="application/rdf+xml" MDTYPE="OTHER" OTHERMDTYPE="UNSPECIFIED" LABEL="Fedora Object to Object Relationship Metadata." FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0">
+        <METS:xmlData>
+          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:fedora="info:fedora/fedora-system:def/relations-external#" xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:islandora="http://islandora.ca/ontology/relsext#">
+            <rdf:Description rdf:about="info:fedora/yamani:12">
+              <fedora-model:hasModel rdf:resource="info:fedora/islandora:sp_basic_image" />
+              <fedora:isMemberOfCollection rdf:resource="info:fedora/yamani:images" />
+              <edit_media xmlns="http://islandora.ca/archivematica#" rdf:resource="http://142.103.97.135:8000/api/v1/file/d4395054-f752-445e-9aa9-08592641c561/sword/media/" />
+            </rdf:Description>
+          </rdf:RDF>
+        </METS:xmlData>
+      </METS:mdWrap>
+    </METS:techMD>
+    <METS:techMD ID="RELS-EXT.2" CREATED="2015-02-19T20:58:15.951Z">
+      <METS:mdWrap MIMETYPE="application/rdf+xml" MDTYPE="OTHER" OTHERMDTYPE="UNSPECIFIED" LABEL="Fedora Object to Object Relationship Metadata." FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0">
+        <METS:xmlData>
+          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:fedora="info:fedora/fedora-system:def/relations-external#" xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:islandora="http://islandora.ca/ontology/relsext#">
+            <rdf:Description rdf:about="info:fedora/yamani:12">
+              <fedora-model:hasModel rdf:resource="info:fedora/islandora:sp_basic_image" />
+              <fedora:isMemberOfCollection rdf:resource="info:fedora/yamani:images" />
+              <edit_media xmlns="http://islandora.ca/archivematica#" rdf:resource="http://142.103.97.135:8000/api/v1/file/c9f21bf0-45a8-4cc0-8220-27ce48efca2f/sword/media/" />
+            </rdf:Description>
+          </rdf:RDF>
+        </METS:xmlData>
+      </METS:mdWrap>
+    </METS:techMD>
+    <METS:techMD ID="RELS-EXT.3" CREATED="2015-02-19T22:29:29.205Z">
+      <METS:mdWrap MIMETYPE="application/rdf+xml" MDTYPE="OTHER" OTHERMDTYPE="UNSPECIFIED" LABEL="Fedora Object to Object Relationship Metadata." FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0">
+        <METS:xmlData>
+          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:fedora="info:fedora/fedora-system:def/relations-external#" xmlns:fedora-model="info:fedora/fedora-system:def/model#" xmlns:islandora="http://islandora.ca/ontology/relsext#">
+            <rdf:Description rdf:about="info:fedora/yamani:12">
+              <fedora-model:hasModel rdf:resource="info:fedora/islandora:sp_basic_image" />
+              <fedora:isMemberOfCollection rdf:resource="info:fedora/yamani:images" />
+              <edit_media xmlns="http://islandora.ca/archivematica#" rdf:resource="http://142.103.97.135:8000/api/v1/file/31cfcbef-ddbd-4e56-ad7e-2c74e95d2159/sword/media/" />
+            </rdf:Description>
+          </rdf:RDF>
+        </METS:xmlData>
+      </METS:mdWrap>
+    </METS:techMD>
+  </METS:amdSec>
+  <METS:amdSec ID="DC" STATUS="A" VERSIONABLE="true">
+    <METS:techMD ID="DC.0" CREATED="2014-06-20T17:53:07.666Z">
+      <METS:mdWrap MIMETYPE="text/xml" MDTYPE="OTHER" OTHERMDTYPE="UNSPECIFIED" LABEL="DC Record">
+        <METS:xmlData>
+          <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+            <dc:identifier>yamani:12</dc:identifier>
+          </oai_dc:dc>
+        </METS:xmlData>
+      </METS:mdWrap>
+    </METS:techMD>
+  </METS:amdSec>
+  <METS:amdSec ID="RELS-INT" STATUS="A" VERSIONABLE="true">
+    <METS:techMD ID="RELS-INT.0" CREATED="2015-02-19T20:59:11.459Z">
+      <METS:mdWrap MIMETYPE="application/rdf+xml" MDTYPE="OTHER" OTHERMDTYPE="UNSPECIFIED" LABEL="Fedora Relationship Metadata." FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0">
+        <METS:xmlData>
+          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:islandora="http://islandora.ca/ontology/relsint#">
+            <rdf:Description rdf:about="info:fedora/yamani:12/OBJ">
+              <isReadyForDeletion xmlns="http://islandora.ca/archivematica#">TRUE</isReadyForDeletion>
+            </rdf:Description>
+          </rdf:RDF>
+        </METS:xmlData>
+      </METS:mdWrap>
+    </METS:techMD>
+  </METS:amdSec>
+  <METS:fileSec>
+    <METS:fileGrp ID="DATASTREAMS">
+      <METS:fileGrp ID="MODS" STATUS="A" VERSIONABLE="true">
+        <METS:file ID="MODS.0" CREATED="2014-06-20T17:53:07.663Z" MIMETYPE="text/xml" SIZE="5195" OWNERID="M">
+          <METS:FLocat xlink:title="MODS Record" LOCTYPE="URL" xlink:href="http://localhost:8080/fedora/get/yamani:12/MODS/2014-06-20T17:53:07.663Z" />
+        </METS:file>
+      </METS:fileGrp>
+      <METS:fileGrp ID="OBJ" STATUS="A" VERSIONABLE="true">
+        <METS:file ID="OBJ.0" CREATED="2014-06-20T17:53:07.666Z" MIMETYPE="image/jpeg" SIZE="35931" OWNERID="M">
+          <METS:FLocat xlink:title="OBJ datastream" LOCTYPE="URL" xlink:href="http://localhost:8080/fedora/get/yamani:12/OBJ/2014-06-20T17:53:07.666Z" />
+        </METS:file>
+      </METS:fileGrp>
+      <METS:fileGrp ID="TN" STATUS="A" VERSIONABLE="true">
+        <METS:file ID="TN.0" CREATED="2014-06-20T17:53:37.872Z" MIMETYPE="image/jpeg" SIZE="15876" OWNERID="M">
+          <METS:FLocat xlink:title="TN" LOCTYPE="URL" xlink:href="http://localhost:8080/fedora/get/yamani:12/TN/2014-06-20T17:53:37.872Z" />
+        </METS:file>
+      </METS:fileGrp>
+      <METS:fileGrp ID="MEDIUM_SIZE" STATUS="A" VERSIONABLE="true">
+        <METS:file ID="MEDIUM_SIZE.0" CREATED="2014-06-20T17:53:38.082Z" MIMETYPE="image/jpeg" SIZE="47005" OWNERID="M">
+          <METS:FLocat xlink:title="MEDIUM_SIZE" LOCTYPE="URL" xlink:href="http://localhost:8080/fedora/get/yamani:12/MEDIUM_SIZE/2014-06-20T17:53:38.082Z" />
+        </METS:file>
+      </METS:fileGrp>
+    </METS:fileGrp>
+  </METS:fileSec>
+</METS:mets>
