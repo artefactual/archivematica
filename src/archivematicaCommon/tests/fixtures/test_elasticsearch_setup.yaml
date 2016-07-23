@@ -1,0 +1,52 @@
+interactions:
+- request:
+    body: null
+    headers:
+      connection: [keep-alive]
+    method: PUT
+    uri: http://127.0.0.1:9200/aips
+  response:
+    body: {string: !!python/unicode '{"error":"IndexAlreadyExistsException[[aips]
+        already exists]","status":400}'}
+    headers:
+      content-length: ['75']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 400, message: Bad Request}
+- request:
+    body: null
+    headers:
+      connection: [keep-alive]
+    method: PUT
+    uri: http://127.0.0.1:9200/transfers
+  response:
+    body: {string: !!python/unicode '{"error":"IndexAlreadyExistsException[[transfers]
+        already exists]","status":400}'}
+    headers:
+      content-length: ['80']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 400, message: Bad Request}
+- request:
+    body: null
+    headers:
+      connection: [keep-alive]
+    method: GET
+    uri: http://127.0.0.1:9200/transfers/_mapping/transferfile
+  response:
+    body: {string: !!python/unicode '{"transfers":{"mappings":{"transferfile":{"properties":{"accessionid":{"type":"string","index":"not_analyzed"},"bulk_extractor_reports":{"type":"string","index":"not_analyzed"},"created":{"type":"double"},"file_extension":{"type":"string","index":"not_analyzed"},"filename":{"type":"string"},"fileuuid":{"type":"string","index":"not_analyzed"},"format":{"type":"nested","properties":{"format":{"type":"string"},"group":{"type":"string"},"puid":{"type":"string","index":"not_analyzed"}}},"ingestdate":{"type":"date","format":"dateOptionalTime"},"origin":{"type":"string","index":"not_analyzed"},"relative_path":{"type":"string"},"sipuuid":{"type":"string","index":"not_analyzed"},"size":{"type":"double"},"status":{"type":"string","index":"not_analyzed"},"tags":{"type":"string","index":"not_analyzed"}}}}}}'}
+    headers:
+      content-length: ['806']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      connection: [keep-alive]
+    method: GET
+    uri: http://127.0.0.1:9200/aips/_mapping/aipfile
+  response:
+    body: {string: !!python/unicode '{"aips":{"mappings":{"aipfile":{"properties":{"AICID":{"type":"string","index":"not_analyzed"},"AIPUUID":{"type":"string","index":"not_analyzed"},"FILEUUID":{"type":"string","index":"not_analyzed"},"METS":{"properties":{"amdSec":{"properties":{"ns0:amdSec_dict_list":{"properties":{"@ID":{"type":"string"},"@xmlns:ns0":{"type":"string"},"@xmlns:ns1":{"type":"string"},"@xmlns:xsi":{"type":"string"},"ns0:digiprovMD_dict_list":{"properties":{"@ID":{"type":"string"},"ns0:mdWrap_dict_list":{"properties":{"@MDTYPE":{"type":"string"},"ns0:xmlData_dict_list":{"properties":{"ns1:agent_dict_list":{"properties":{"@version":{"type":"string"},"@xsi:schemaLocation":{"type":"string"},"ns1:agentIdentifier_dict_list":{"properties":{"ns1:agentIdentifierType":{"type":"string"},"ns1:agentIdentifierValue":{"type":"string"}}},"ns1:agentName":{"type":"string"},"ns1:agentType":{"type":"string"}}},"ns1:event_dict_list":{"properties":{"@version":{"type":"string"},"@xsi:schemaLocation":{"type":"string"},"ns1:eventDateTime":{"type":"date","format":"dateOptionalTime"},"ns1:eventDetail":{"type":"string"},"ns1:eventIdentifier_dict_list":{"properties":{"ns1:eventIdentifierType":{"type":"string"},"ns1:eventIdentifierValue":{"type":"string"}}},"ns1:eventOutcomeInformation_dict_list":{"properties":{"ns1:eventOutcome":{"type":"string"},"ns1:eventOutcomeDetail_dict_list":{"properties":{"ns1:eventOutcomeDetailNote":{"type":"string"}}}}},"ns1:eventType":{"type":"string"},"ns1:linkingAgentIdentifier_dict_list":{"properties":{"ns1:linkingAgentIdentifierType":{"type":"string"},"ns1:linkingAgentIdentifierValue":{"type":"string"}}}}}}}}}}},"ns0:rightsMD_dict_list":{"properties":{"@ID":{"type":"string"},"ns0:mdWrap_dict_list":{"properties":{"@MDTYPE":{"type":"string"},"ns0:xmlData_dict_list":{"properties":{"ns1:rightsStatement_dict_list":{"properties":{"@xsi:schemaLocation":{"type":"string"},"ns1:copyrightInformation_dict_list":{"properties":{"ns1:copyrightApplicableDates_dict_list":{"properties":{"ns1:endDate":{"type":"string"},"ns1:startDate":{"type":"string"}}},"ns1:copyrightDocumentationIdentifier_dict_list":{"properties":{"ns1:copyrightDocumentationIdentifierType":{"type":"string"},"ns1:copyrightDocumentationIdentifierValue":{"type":"string"},"ns1:copyrightDocumentationRole":{"type":"string"}}},"ns1:copyrightJurisdiction":{"type":"string"},"ns1:copyrightNote":{"type":"string"},"ns1:copyrightStatus":{"type":"string"},"ns1:copyrightStatusDeterminationDate":{"type":"string"}}},"ns1:licenseInformation_dict_list":{"properties":{"ns1:licenseApplicableDates_dict_list":{"properties":{"ns1:endDate":{"type":"string"},"ns1:startDate":{"type":"string"}}},"ns1:licenseDocumentationIdentifier_dict_list":{"properties":{"ns1:licenseDocumentationIdentifierType":{"type":"string"},"ns1:licenseDocumentationIdentifierValue":{"type":"string"},"ns1:licenseDocumentationRole":{"type":"string"}}},"ns1:licenseNote":{"type":"string"},"ns1:licenseTerms":{"type":"string"}}},"ns1:linkingObjectIdentifier_dict_list":{"properties":{"ns1:linkingObjectIdentifierType":{"type":"string"},"ns1:linkingObjectIdentifierValue":{"type":"string"}}},"ns1:otherRightsInformation_dict_list":{"properties":{"ns1:otherRightsApplicableDates_dict_list":{"properties":{"ns1:endDate":{"type":"string"},"ns1:startDate":{"type":"string"}}},"ns1:otherRightsBasis":{"type":"string"},"ns1:otherRightsDocumentationIdentifier_dict_list":{"properties":{"ns1:otherRightsDocumentationIdentifierType":{"type":"string"},"ns1:otherRightsDocumentationIdentifierValue":{"type":"string"},"ns1:otherRightsDocumentationRole":{"type":"string"}}},"ns1:otherRightsNote":{"type":"string"}}},"ns1:rightsBasis":{"type":"string"},"ns1:rightsGranted_dict_list":{"properties":{"ns1:act":{"type":"string"},"ns1:restriction":{"type":"string"},"ns1:rightsGrantedNote":{"type":"string"},"ns1:termOfGrant_dict_list":{"properties":{"ns1:endDate":{"type":"string"},"ns1:startDate":{"type":"string"}}},"ns1:termOfRestriction_dict_list":{"properties":{"ns1:endDate":{"type":"string"},"ns1:startDate":{"type":"string"}}}}},"ns1:rightsStatementIdentifier_dict_list":{"properties":{"ns1:rightsStatementIdentifierType":{"type":"string"},"ns1:rightsStatementIdentifierValue":{"type":"string"}}},"ns1:statuteInformation_dict_list":{"properties":{"ns1:statuteApplicableDates_dict_list":{"properties":{"ns1:endDate":{"type":"string"},"ns1:startDate":{"type":"string"}}},"ns1:statuteCitation":{"type":"string"},"ns1:statuteDocumentationIdentifier_dict_list":{"properties":{"ns1:statuteDocumentationIdentifierType":{"type":"string"},"ns1:statuteDocumentationIdentifierValue":{"type":"string"},"ns1:statuteDocumentationRole":{"type":"string"}}},"ns1:statuteInformationDeterminationDate":{"type":"string"},"ns1:statuteJurisdiction":{"type":"string"},"ns1:statuteNote":{"type":"string"}}}}}}}}}}},"ns0:techMD_dict_list":{"properties":{"@ID":{"type":"string"},"ns0:mdWrap_dict_list":{"properties":{"@MDTYPE":{"type":"string"},"ns0:xmlData_dict_list":{"properties":{"ns1:object_dict_list":{"properties":{"@version":{"type":"string"},"@xsi:schemaLocation":{"type":"string"},"@xsi:type":{"type":"string"},"ns1:objectCharacteristics_dict_list":{"properties":{"ns1:compositionLevel":{"type":"string"},"ns1:fixity_dict_list":{"properties":{"ns1:messageDigest":{"type":"string"},"ns1:messageDigestAlgorithm":{"type":"string"}}},"ns1:format_dict_list":{"properties":{"ns1:formatDesignation_dict_list":{"properties":{"ns1:formatName":{"type":"string"},"ns1:formatVersion":{"type":"string"}}},"ns1:formatRegistry_dict_list":{"properties":{"ns1:formatRegistryKey":{"type":"string"},"ns1:formatRegistryName":{"type":"string"}}}}},"ns1:size":{"type":"string"}}},"ns1:objectIdentifier_dict_list":{"properties":{"ns1:objectIdentifierType":{"type":"string"},"ns1:objectIdentifierValue":{"type":"string"}}},"ns1:originalName":{"type":"string"}}}}}}}}}}}}},"dmdSec":{"properties":{"ns0:xmlData_dict_list":{"properties":{"@xmlns:dc":{"type":"string"},"@xmlns:ns0":{"type":"string"},"@xmlns:ns1":{"type":"string"},"@xmlns:xsi":{"type":"string"},"ns1:dublincore_dict_list":{"properties":{"@xsi:schemaLocation":{"type":"string"},"dc:available":{"type":"string"},"dc:date":{"type":"string"},"dc:description":{"type":"string"},"dc:provenance":{"type":"string"},"dc:title":{"type":"string"}}}}}}}}},"fileExtension":{"type":"string"},"filePath":{"type":"string"},"identifiers":{"type":"string"},"indexedAt":{"type":"double"},"isPartOf":{"type":"string","index":"not_analyzed"},"origin":{"type":"string"},"sipName":{"type":"string"}}}}}}'}
+    headers:
+      content-length: ['6520']
+      content-type: [application/json; charset=UTF-8]
+    status: {code: 200, message: OK}
+version: 1

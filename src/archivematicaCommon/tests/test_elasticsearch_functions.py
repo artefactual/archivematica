@@ -13,6 +13,7 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class TestElasticSearchFunctions(unittest.TestCase):
 
+    @vcr.use_cassette(os.path.join(THIS_DIR, 'fixtures', 'test_elasticsearch_setup.yaml'))
     def setUp(self):
         hosts = os.environ.get('ELASTICSEARCH_SERVER', '127.0.0.1:9200')
         elasticSearchFunctions.setup(hosts)
