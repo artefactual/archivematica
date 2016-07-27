@@ -60,12 +60,20 @@ class unit:
             else:
                 files = File.objects.filter(sip_id=self.UUID)
             for f in files:
-                if f.currentlocation in self.fileList:
-                    self.fileList[f.currentlocation].UUID = f.uuid
-                    self.fileList[f.currentlocation].fileGrpUse = f.filegrpuse
+                try:
+                    file_unit = self.fileList.get(
+                        f.currentlocation,
+                        self.fileList.get(f.currentlocation.encode('utf8')))
+                except UnicodeError:
+                    file_unit = None
+                if file_unit:
+                    file_unit.UUID = f.uuid
+                    file_unit.fileGrpUse = f.filegrpuse
                 else:
-                    LOGGER.warning('%s %s has file (%s) %s in the database, but file does not exist in the file system',
-                        self.unitType, self.UUID, f.uuid, f.currentlocation)
+                    LOGGER.warning('%s %s has file (%s) %s in the database, but'
+                                   ' file does not exist in the file system',
+                                   self.unitType, self.UUID, f.uuid,
+                                   f.currentlocation)
         except Exception:
             LOGGER.exception('Error reloading file list for %s', currentPath)
             exit(1)
