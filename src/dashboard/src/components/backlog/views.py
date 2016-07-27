@@ -135,10 +135,18 @@ def search(request):
     if 'query' not in request.GET:
         queries, ops, fields, types = (['*'], ['or'], [''], ['term'])
 
-    query = advanced_search.assemble_query(es_client, queries, ops, fields, types, search_index='transfers',
-                                           doc_type='transferfile', filters={'term': {'status': 'backlog'}})
+    query = advanced_search.assemble_query(
+        es_client, queries, ops, fields, types, search_index='transfers',
+        doc_type='transferfile', filters={'term': {'status': 'backlog'}}
+    )
+
     try:
-        doc_type = 'transferfile' if file_mode else 'transfer'
+        if file_mode:
+            doc_type = 'transferfile'
+            source = 'filename,sipuuid,relative_path'
+        else:  # Transfer mode
+            doc_type = 'transfer'
+            source = 'name,uuid,file_count,ingest_date'
 
         hit_count = es_client.search(index='transfers', doc_type=doc_type, body=query, search_type='count')['hits']['total']
         hits = es_client.search(
@@ -147,19 +155,22 @@ def search(request):
             body=query,
             from_=start,
             size=page_size,
-            sort=order_by + ':' + sort_direction if order_by else ''
+            sort=order_by + ':' + sort_direction if order_by else '',
+            _source=source,
         )
 
-    except Exception as e:
+    except Exception:
         err_desc = 'Error accessing transfers index'
         logger.exception(err_desc)
         return HttpResponse(err_desc)
+
+    results = [x['_source'] for x in hits['hits']['hits']]
 
     return helpers.json_response({
         'iTotalRecords': hit_count,
         'iTotalDisplayRecords': hit_count,
         'sEcho': int(request.GET.get('sEcho', 0)),  # It was recommended we convert sEcho to int to prevent XSS
-        'aaData': elasticSearchFunctions.augment_raw_search_results(hits)
+        'aaData': results,
     })
 
 
