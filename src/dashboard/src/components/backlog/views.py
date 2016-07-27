@@ -145,6 +145,22 @@ def search(request):
             doc_type = 'transferfile'
             source = 'filename,sipuuid,relative_path'
         else:  # Transfer mode
+            # Query to transfers/transferfile, but only fetch & aggregrate transfer UUIDs
+            # Based on transfer UUIDs, query to transfers/transfer
+            query['aggs'] = {'transfer_uuid': {'terms': {'field': 'sipuuid'}}}
+            hits = es_client.search(
+                index='transfers',
+                doc_type='transferfile',
+                body=query,
+                size=0,  # Don't return results, only aggregation
+            )
+            uuids = [x['key'] for x in hits['aggregations']['transfer_uuid']['buckets']]
+
+            query['query'] = {
+                'terms': {
+                    'uuid': uuids,
+                },
+            }
             doc_type = 'transfer'
             source = 'name,uuid,file_count,ingest_date'
 
