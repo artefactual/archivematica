@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+import os
 import sys
 import uuid
 from optparse import OptionParser
@@ -32,7 +33,25 @@ from main.models import File
 from custom_handlers import get_script_logger
 from fileOperations import addFileToTransfer
 from fileOperations import addFileToSIP
+from archivematicaFunctions import bytestring2unicode
 
+
+def is_transfer(opts):
+    return opts.sipUUID == "" and opts.transferUUID != ""
+
+
+def is_ingest(opts):
+    return opts.sipUUID != "" and opts.transferUUID == ""
+
+
+def rename2unicode(opts):
+    """Convert the file path to Unicode and move the file to a UTF-8-encoded
+    path. Retain the bytestring filepath for database/METS persistence (TODO).
+    """
+    bytestringFilePath = opts.filePath
+    unicodeFilePath = bytestring2unicode(opts.filePath)
+    os.rename(bytestringFilePath, unicodeFilePath)
+    return unicodeFilePath, bytestringFilePath
 
 
 if __name__ == '__main__':
@@ -49,12 +68,7 @@ if __name__ == '__main__':
     parser.add_option("-e",  "--use", action="store", dest="use", default="original")
     parser.add_option("--disable-update-filegrpuse", action="store_false", dest="update_use", default=True)
 
-
     (opts, args) = parser.parse_args()
-    opts2 = vars(opts)
-#    for key, value in opts2.iteritems():
-#        print type(key), key, type(value), value
-#        exec 'opts.' + key + ' = value.decode("utf-8")'
     fileUUID = opts.fileUUID
     if not fileUUID or fileUUID == "None":
         fileUUID = uuid.uuid4().__str__()
@@ -62,17 +76,24 @@ if __name__ == '__main__':
         print >>sys.stderr, "File already has UUID:", fileUUID
         if opts.update_use:
             File.objects.filter(uuid=fileUUID).update(filegrpuse=opts.use)
-        exit(0) 
+        exit(0)
 
-
-    if opts.sipUUID == "" and opts.transferUUID != "":
-        filePathRelativeToSIP = opts.filePath.replace(opts.sipDirectory,"%transferDirectory%", 1)
-        addFileToTransfer(filePathRelativeToSIP, fileUUID, opts.transferUUID, opts.eventIdentifierUUID, opts.date, use=opts.use)
-
-    elif opts.sipUUID != "" and opts.transferUUID == "":
-        filePathRelativeToSIP = opts.filePath.replace(opts.sipDirectory,"%SIPDirectory%", 1)
-        addFileToSIP(filePathRelativeToSIP, fileUUID, opts.sipUUID, opts.eventIdentifierUUID, opts.date, use=opts.use)
-
+    if is_transfer(opts):
+        unicodeFilePath, bytestringFilePath = rename2unicode(opts)
+        unicodeFilePathRelativeToSIP = unicodeFilePath.replace(
+            opts.sipDirectory, "%transferDirectory%", 1)
+        bytestringFilePathRelativeToSIP = bytestringFilePath.replace(
+            opts.sipDirectory, "%transferDirectory%", 1)
+        addFileToTransfer(
+            bytestringFilePathRelativeToSIP, fileUUID, opts.transferUUID,
+            opts.eventIdentifierUUID, opts.date, use=opts.use,
+            unicodeFilePathRelativeToSIP=unicodeFilePathRelativeToSIP)
+    elif is_ingest(opts):
+        filePathRelativeToSIP = opts.filePath.replace(
+            opts.sipDirectory, "%SIPDirectory%", 1)
+        addFileToSIP(
+            filePathRelativeToSIP, fileUUID, opts.sipUUID,
+            opts.eventIdentifierUUID, opts.date, use=opts.use)
     else:
         print >>sys.stderr, "SIP exclusive-or Transfer uuid must be defined"
         exit(2)

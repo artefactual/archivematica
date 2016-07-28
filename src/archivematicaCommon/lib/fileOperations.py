@@ -35,12 +35,14 @@ from archivematicaFunctions import unicodeToStr, get_setting
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import File, Transfer
 
+
 def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID):
     fileSize = os.path.getsize(filePath)
     checksumType = get_setting('checksum_type', 'sha256')
     checksum = get_file_checksum(filePath, checksumType)
 
-    File.objects.filter(uuid=fileUUID).update(size=fileSize, checksum=checksum, checksumtype=checksumType)
+    File.objects.filter(uuid=fileUUID)\
+        .update(size=fileSize, checksum=checksum, checksumtype=checksumType)
 
     insertIntoEvents(fileUUID=fileUUID,
                      eventType='message digest calculation',
@@ -49,9 +51,17 @@ def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID):
                      eventOutcomeDetailNote=checksum)
 
 
-def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType="ingestion", eventDetail="", use="original"):
-    #print filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType, eventDetail, use
-    insertIntoFiles(fileUUID, filePathRelativeToSIP, date, transferUUID=transferUUID, use=use)
+def addFileToTransfer(
+        filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date,
+        sourceType="ingestion", eventDetail="", use="original",
+        unicodeFilePathRelativeToSIP=None):
+    if not unicodeFilePathRelativeToSIP:
+        unicodeFilePathRelativeToSIP = filePathRelativeToSIP
+    # print (filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date,
+    #        sourceType, eventDetail, use, unicodeFilePathRelativeToSIP)
+    insertIntoFiles(fileUUID, filePathRelativeToSIP, date,
+                    transferUUID=transferUUID, use=use,
+                    unicodeFilePath=unicodeFilePathRelativeToSIP)
     insertIntoEvents(fileUUID=fileUUID,
                      eventType=sourceType,
                      eventDateTime=date,
@@ -59,6 +69,7 @@ def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, d
                      eventOutcome="",
                      eventOutcomeDetailNote="")
     addAccessionEvent(fileUUID, transferUUID, date)
+
 
 def addAccessionEvent(fileUUID, transferUUID, date):
     transfer = Transfer.objects.get(uuid=transferUUID)

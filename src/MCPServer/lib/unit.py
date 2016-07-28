@@ -33,6 +33,16 @@ from main.models import File, UnitVariable
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
+def get_file_unit(files_dict, file_model):
+    try:
+        return files_dict.get(
+            file_model.currentlocation.encode('utf8'))
+    except AttributeError:
+        # File model can have a ``None``-type current location
+        return files_dict.get(file_model.currentlocation)
+
+
 class unit:
     """A class to inherit from, to over-ride methods, defininging a processing object at the Job level"""
     def __init__(self, currentPath, UUID):
@@ -54,18 +64,12 @@ class unit:
                     else:
                         filePath = directory + file_
                     self.fileList[filePath] = unitFile(filePath, owningUnit=self)
-
             if self.unitType == "Transfer":
                 files = File.objects.filter(transfer_id=self.UUID)
             else:
                 files = File.objects.filter(sip_id=self.UUID)
             for f in files:
-                try:
-                    file_unit = self.fileList.get(
-                        f.currentlocation,
-                        self.fileList.get(f.currentlocation.encode('utf8')))
-                except UnicodeError:
-                    file_unit = None
+                file_unit = get_file_unit(self.fileList, f)
                 if file_unit:
                     file_unit.UUID = f.uuid
                     file_unit.fileGrpUse = f.filegrpuse

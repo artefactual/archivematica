@@ -43,26 +43,43 @@ def getDeciDate(date):
             #ret += replacementChar
     return str("{:10.10f}".format(float(ret)))
 
-def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="", sipUUID="", use="original"):
+def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="",
+                    sipUUID="", use="original", unicodeFilePath=None):
+
     """
     Creates a new entry in the Files table using the supplied arguments.
 
     :param str fileUUID:
-    :param str filePath: The current path of the file on disk. Can contain variables; see the documentation for ReplacementDict for supported names.
-    :param datetime enteredSystem: Timestamp for the event of file ingestion. Defaults to the current timestamp when the record is created.
-    :param str transferUUID: UUID for the transfer containing this file. Can be empty. At least one of transferUUID or sipUUID must be defined. Mutually exclusive with sipUUID.
-    :param str sipUUID: UUID for the SIP containing this file. Can be empty. At least one of transferUUID or sipUUID must be defined. Mutually exclusive with transferUUID.
-    :param str use: A category used to group the file with others of the same kind. Will be included in the AIP's METS document in the USE attribute. Defaults to "original".
+    :param str filePath: The current path of the file on disk. Can contain
+        variables; see the documentation for ReplacementDict for supported
+        names.
+    :param datetime enteredSystem: Timestamp for the event of file ingestion.
+        Defaults to the current timestamp when the record is created.
+    :param str transferUUID: UUID for the transfer containing this file. Can be
+        empty. At least one of transferUUID or sipUUID must be defined.
+        Mutually exclusive with sipUUID.
+    :param str sipUUID: UUID for the SIP containing this file. Can be empty. At
+        least one of transferUUID or sipUUID must be defined. Mutually
+        exclusive with transferUUID.
+    :param str use: A category used to group the file with others of the same
+        kind. Will be included in the AIP's METS document in the USE attribute.
+        Defaults to "original".
+    :param str unicodeFilePath: Same as ``filePath`` but is assumed to be a
+        Unicode string. Django will treat ``filePath`` as Unicode anyway when
+        it saves to and retrieves from db, so this param gives the caller
+        control over the Unicode representation.
 
     :returns: None
     """
+    if not unicodeFilePath:
+        unicodeFilePath = filePath
     if enteredSystem is None:
         enteredSystem = getUTCDate()
 
     kwargs = {
         "uuid": fileUUID,
-        "originallocation": filePath,
-        "currentlocation": filePath,
+        "originallocation": filePath,  # should be unmangled bytestring from filesystem
+        "currentlocation": unicodeFilePath,
         "enteredsystem": enteredSystem,
         "filegrpuse": use
     }

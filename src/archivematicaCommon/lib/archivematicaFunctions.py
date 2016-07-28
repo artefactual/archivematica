@@ -21,6 +21,7 @@
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
 
+import chardet
 import collections
 import os
 import re
@@ -79,6 +80,17 @@ def strToUnicode(string):
     if isinstance(string, str):
         string = string.decode("utf-8")
     return string
+
+
+def bytestring2unicode(bytestring):
+    """Like ``strToUnicode`` but uses chardet to attempt to detect the
+    encodying of the incoming ``bytestring``.
+    """
+    try:
+        encoding = chardet.detect(bytestring).get('encoding')
+    except TypeError:
+        encoding = 'utf-8'
+    return unicode(bytestring, encoding)
 
 
 def getTagged(root, tag):
