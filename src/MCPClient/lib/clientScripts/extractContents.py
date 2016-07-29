@@ -15,12 +15,14 @@ from main.models import FileFormatVersion, File
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import fileWasRemoved
-from fileOperations import addFileToTransfer, updateSizeAndChecksum
+from fileOperations import addFileToTransfer, updateSizeAndChecksum, rename2unicode
+from archivematicaFunctions import unicodeToStr
 
 # clientScripts
 from hasPackages import already_extracted
 
 file_path_cache = {}
+
 
 def output_directory(file_path, date):
     if file_path_cache.get(file_path):
@@ -30,20 +32,32 @@ def output_directory(file_path, date):
         file_path_cache[file_path] = path
         return path
 
+
 def tree(root):
-    for dirpath, dirs, files in os.walk(root):
+    for dirpath, dirs, files in os.walk(unicodeToStr(root)):
         for file in files:
             yield os.path.join(dirpath, file)
 
-def assign_uuid(filename, package_uuid, transfer_uuid, date, task_uuid, sip_directory, package_filename):
+
+def assign_uuid(filename, package_uuid, transfer_uuid, date, task_uuid,
+                sip_directory, package_filename):
     file_uuid = uuid.uuid4().__str__()
-    relative_path = filename.replace(sip_directory, "%transferDirectory%", 1)
-    relative_package_path = package_filename.replace(sip_directory, "%transferDirectory%", 1)
+    bytestring_path = filename
+    # NOTE: 7z will mangle non-UTF8-encoded filenames so this won't fix those.
+    unicode_path = rename2unicode(filename)
+    unicode_relative_path = unicode_path.replace(
+        sip_directory, "%transferDirectory%", 1)
+    relative_path = bytestring_path.replace(
+        sip_directory, "%transferDirectory%", 1)
+    relative_package_path = package_filename.replace(
+        sip_directory, "%transferDirectory%", 1)
     package_detail = "{} ({})".format(relative_package_path, package_uuid)
     event_detail = "Unpacked from: " + package_detail
-    addFileToTransfer(relative_path, file_uuid, transfer_uuid, task_uuid, date,
-        sourceType="unpacking", eventDetail=event_detail)
-    updateSizeAndChecksum(file_uuid, filename, date, uuid.uuid4().__str__())
+    addFileToTransfer(
+        relative_path, file_uuid, transfer_uuid, task_uuid, date,
+        sourceType="unpacking", eventDetail=event_detail,
+        unicodeFilePathRelativeToSIP=unicode_relative_path)
+    updateSizeAndChecksum(file_uuid, unicode_path, date, uuid.uuid4().__str__())
 
     print('Assigning new file UUID:', file_uuid, 'to file', filename,
         file=sys.stderr)
@@ -113,10 +127,9 @@ def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
             command_to_execute = command.command
             args = [file_path, output_directory(file_path, date)]
 
-        exitstatus, stdout, stderr = executeOrRun(command.script_type,
-                                        command_to_execute,
-                                        arguments=args,
-                                        printing=True)
+        exitstatus, stdout, stderr = executeOrRun(
+            command.script_type, command_to_execute, arguments=args,
+            printing=True)
 
         if not exitstatus == 0:
             # Dang, looks like the extraction failed
@@ -128,7 +141,8 @@ def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
             # Assign UUIDs and insert them into the database, so the newly-
             # extracted files are properly tracked by Archivematica
             for extracted_file in tree(output_directory(file_path, date)):
-                assign_uuid(extracted_file, file_.uuid, transfer_uuid, date, task_uuid, sip_directory, file_.currentlocation)
+                assign_uuid(extracted_file, file_.uuid, transfer_uuid, date,
+                            task_uuid, sip_directory, file_.currentlocation)
             # We may want to remove the original package file after extracting its contents
             if delete:
                 delete_and_record_package_file(file_path, file_.uuid, file_.currentlocation)

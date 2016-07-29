@@ -31,9 +31,7 @@ django.setup()
 from main.models import File
 # archivematicaCommon
 from custom_handlers import get_script_logger
-from fileOperations import addFileToTransfer
-from fileOperations import addFileToSIP
-from archivematicaFunctions import bytestring2unicode
+from fileOperations import addFileToTransfer, addFileToSIP, rename2unicode
 
 
 def is_transfer(opts):
@@ -42,16 +40,6 @@ def is_transfer(opts):
 
 def is_ingest(opts):
     return opts.sipUUID != "" and opts.transferUUID == ""
-
-
-def rename2unicode(opts):
-    """Convert the file path to Unicode and move the file to a UTF-8-encoded
-    path. Retain the bytestring filepath for database/METS persistence (TODO).
-    """
-    bytestringFilePath = opts.filePath
-    unicodeFilePath = bytestring2unicode(opts.filePath)
-    os.rename(bytestringFilePath, unicodeFilePath)
-    return unicodeFilePath, bytestringFilePath
 
 
 if __name__ == '__main__':
@@ -79,7 +67,8 @@ if __name__ == '__main__':
         exit(0)
 
     if is_transfer(opts):
-        unicodeFilePath, bytestringFilePath = rename2unicode(opts)
+        bytestringFilePath = opts.filePath
+        unicodeFilePath = rename2unicode(opts.filePath)
         unicodeFilePathRelativeToSIP = unicodeFilePath.replace(
             opts.sipDirectory, "%transferDirectory%", 1)
         bytestringFilePathRelativeToSIP = bytestringFilePath.replace(
