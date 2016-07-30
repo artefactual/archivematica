@@ -53,6 +53,17 @@ class UUIDPkField(UUIDField):
         super(UUIDPkField, self).__init__(*args, **kwargs)
 
 
+class BlobTextField(models.TextField):
+    """
+    Text field backed by `longblob` instead of `longtext`.
+
+    Used for storing strings that need to match unsanitized paths on disk.
+    """
+
+    def db_type(self, connection):
+        return 'longblob'
+
+
 # MODELS
 
 class DashboardSetting(models.Model):
@@ -315,8 +326,8 @@ class File(models.Model):
     sip = models.ForeignKey(SIP, db_column='sipUUID', to_field='uuid', null=True, blank=True)
     transfer = models.ForeignKey(Transfer, db_column='transferUUID', to_field='uuid', null=True, blank=True)
     # both actually `longblob` in the database
-    originallocation = models.TextField(db_column='originalLocation')
-    currentlocation = models.TextField(db_column='currentLocation', null=True)
+    originallocation = BlobTextField(db_column='originalLocation')
+    currentlocation = BlobTextField(db_column='currentLocation', null=True)
     filegrpuse = models.CharField(max_length=50, db_column='fileGrpUse', default='Original')
     filegrpuuid = models.CharField(max_length=36L, db_column='fileGrpUUID', blank=True)
     checksum = models.CharField(max_length=128, db_column='checksum', blank=True)
