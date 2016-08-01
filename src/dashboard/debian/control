@@ -19,7 +19,10 @@ Depends:
 	python-simplejson,
 	libffi-dev,
 	libssl-dev,
-	python-dev
+	python-dev,
+	libxml2-dev,
+	libxslt1-dev,
+	libmysqlclient-dev
 Description: Web Dashboard for Archivematica
   Web based dashboard interface used to control an Archivematica pipeline.
   
