@@ -147,7 +147,6 @@ li.user > a {
 #connection-status > #status-bullet > img {
   width: 16px;
   height: 16px;
-  margin-bottom: -3px;
 }
 
 #connection-status > #status-bullet > span {
