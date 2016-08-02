@@ -156,7 +156,7 @@ li.user > a {
 /* SIPs */
 
 #sip-container {
-  min-width: 950px;
+  width: 950px;
 }
 
 #sip-header {
