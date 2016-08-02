@@ -19,7 +19,8 @@ Depends:
 	python-mysqldb,
 	python-lxml,
 	gearman,
-	uuid
+	uuid,
+	rsync
 Description: MCP Server for Archivematica
   Workflow manager for Archivematica 
   
