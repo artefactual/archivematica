@@ -261,6 +261,10 @@ li.user > a {
   width: 100%;
 }
 
+.job:last-child {
+  border-bottom: 1px solid #999;
+}
+
 .job > div {
   padding: 2px 5px;
   float: left;
