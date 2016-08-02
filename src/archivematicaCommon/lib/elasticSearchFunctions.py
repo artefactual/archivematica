@@ -316,7 +316,7 @@ def set_up_mapping_aip_index(client):
         'filePath': {'type': 'string'},
         'fileExtension': {'type': 'string'},
         'origin': {'type': 'string'},
-        'identifiers': {'type': 'string'},
+        'identifiers': MACHINE_READABLE_FIELD_SPEC,
         'METS': aipfile_mets_mapping,
     }
 
