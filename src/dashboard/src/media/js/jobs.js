@@ -592,7 +592,7 @@ var BaseJobView = Backbone.View.extend({
         options.height = 640;
       }
 
-      var table = $('<table></table>');
+      var table = $('<table class="table"></table>');
       table.append(data);
       dialog.append(table)
 
