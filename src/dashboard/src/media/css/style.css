@@ -168,8 +168,8 @@ li.user > a {
 }
 
 #sip-header > div { float: left; padding: 3px 2px 3px 2px; }
-#sip-header-directory { width: 319px; }
-#sip-header-uuid { width: 304px; }
+#sip-header-directory { width: 322px; }
+#sip-header-uuid { width: 310px; }
 #sip-header-timestamp { width: 120px; }
 #sip-header-actions { }
 
