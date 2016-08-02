@@ -293,6 +293,7 @@ def set_up_mapping(conn, index):
             'isPartOf': machine_readable_field_spec,
             'AICID': machine_readable_field_spec,
             'METS': aipfile_mets_mapping,
+            'identifiers': machine_readable_field_spec,
         }
 
         print 'Creating AIP file mapping...'
