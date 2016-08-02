@@ -268,7 +268,7 @@ li.user > a {
 }
 
 .job-detail-microservice {
-  width: 620px;
+  width: 630px;
   border-right: 1px dotted #bbb;
 }
 
@@ -276,8 +276,10 @@ li.user > a {
   margin-left: 20px;
 }
 
-.job-detail-currentstep  { width: 170px; border-right: 1px dotted #bbb; }
-.job-detail-actions      { }
+.job-detail-currentstep {
+  width: 180px;
+  border-right: 1px dotted #bbb;
+}
 
 .job-detail-actions > a {
   display: block;
