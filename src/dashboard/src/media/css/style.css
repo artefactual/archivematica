@@ -198,7 +198,7 @@ li.user > a {
 .sip-row > div          { float:  left; }
 .sip-detail-icon-status { width:  26px; padding: 4px 0px; text-align: center; }
 .sip-detail-directory   {float: left; width: 300px; padding: 4px 0px; display: table-cell; white-space: nowrap; }
-.sip-detail-uuid        {float: left; width: 310px; padding: 4px 0px; font-family: "Courier New", Courier, "Lucida Console", monospace; }
+.sip-detail-uuid        {float: left; width: 310px; padding: 5px 0px 3px; font-family: "Courier New", Courier, "Lucida Console", monospace; }
 .sip-detail-timestamp   {float: left; width: 180px; padding: 4px 0px; }
 .sip-detail-actions     {float: left; }
 
