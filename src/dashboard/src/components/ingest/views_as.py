@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ast
 from functools import wraps
 import json
@@ -198,7 +199,8 @@ def ingest_upload_as_match(request, uuid):
             return HttpResponse(status=409)
     elif request.method == 'DELETE':
         rows = models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(dipuuid=uuid, resourceid=resource_id, fileuuid=file_uuid)
-        with open("/tmp/delete.log", "a") as log: print >> log, "Resource", resource_id, "File", "file_uuid", "matches", rows.count()
+        with open("/tmp/delete.log", "a") as log:
+            print("Resource", resource_id, "File", "file_uuid", "matches", rows.count(), file=log)
         models.ArchivesSpaceDIPObjectResourcePairing.objects.filter(dipuuid=uuid, resourceid=resource_id, fileuuid=file_uuid).delete()
 
         return HttpResponse(status=204)

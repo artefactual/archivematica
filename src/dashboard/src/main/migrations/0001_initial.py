@@ -133,7 +133,7 @@ class Migration(migrations.Migration):
                 ('originallocation', models.TextField(db_column=b'originalLocation')),
                 ('currentlocation', models.TextField(db_column=b'currentLocation')),
                 ('filegrpuse', models.CharField(default=b'Original', max_length=50, db_column=b'fileGrpUse')),
-                ('filegrpuuid', models.CharField(max_length=36L, db_column=b'fileGrpUUID', blank=True)),
+                ('filegrpuuid', models.CharField(max_length=36, db_column=b'fileGrpUUID', blank=True)),
                 ('checksum', models.CharField(max_length=100, db_column=b'checksum', blank=True)),
                 ('size', models.BigIntegerField(null=True, db_column=b'fileSize', blank=True)),
                 ('label', models.TextField(blank=True)),

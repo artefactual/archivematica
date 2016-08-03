@@ -15,12 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponseServerError
 import sys, MySQLdb, ast
 from main import models
 from components import advanced_search
-import pair_matcher
+from . import pair_matcher
 
 from agentarchives.archivists_toolkit import ArchivistsToolkitClient
 
