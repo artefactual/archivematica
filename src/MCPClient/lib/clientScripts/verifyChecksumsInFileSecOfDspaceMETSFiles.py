@@ -26,7 +26,7 @@ import os
 import sys
 import lxml.etree as etree
 
-from externals.checksummingTools import get_file_checksum
+from archivematicaFunctions import get_file_checksum
 
 def verifyMetsFileSecChecksums(metsFile, date, taskUUID, relativeDirectory="./"):
     print metsFile

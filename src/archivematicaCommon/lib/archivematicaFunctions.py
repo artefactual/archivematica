@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import collections
+import hashlib
 import os
 import re
 import sys
@@ -116,6 +117,25 @@ def normalizeNonDcElementName(string):
     # Lower case string.
     normalizedString = normalizedString.lower()
     return normalizedString
+
+def get_file_checksum(filename, algorithm='sha256'):
+    """
+    Perform a checksum on the specified file.
+
+    This function reads in files incrementally to avoid memory exhaustion.
+    See: http://stackoverflow.com/questions/1131220/get-md5-hash-of-a-files-without-open-it-in-python
+
+    :param filename: The path to the file we want to check
+    :param algorithm: Which algorithm to use for hashing, e.g. 'md5'
+    :return: Returns a checksum string for the specified file.
+    """
+    h = hashlib.new(algorithm)
+
+    with open(filename, 'rb') as f:
+        for chunk in iter(lambda: f.read(1024 * h.block_size), b''):
+            h.update(chunk)
+
+    return h.hexdigest()
 
 def find_metadata_files(sip_path, filename, only_transfers=False):
     """

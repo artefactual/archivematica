@@ -27,10 +27,9 @@ import sys
 import shutil
 from databaseFunctions import insertIntoFiles
 from executeOrRunSubProcess import executeOrRun
-from externals.checksummingTools import get_file_checksum
 from databaseFunctions import insertIntoEvents
 import MySQLdb
-from archivematicaFunctions import unicodeToStr, get_setting
+from archivematicaFunctions import unicodeToStr, get_setting, get_file_checksum
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import File, Transfer

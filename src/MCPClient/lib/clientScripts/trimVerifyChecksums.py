@@ -30,7 +30,7 @@ import django
 django.setup()
 
 # archivematicaCommon
-from externals.checksummingTools import get_file_checksum
+from archivematicaFunctions import get_file_checksum
 from fileOperations import getFileUUIDLike
 import databaseFunctions
 
