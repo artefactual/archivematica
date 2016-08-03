@@ -3,6 +3,7 @@
 """
 pronom-ident.py - Identify a bitstream against PRONOM; uses fido
 """
+from __future__ import print_function
 # https://github.com/anarchivist/fiwalk-dgi/blob/master/python/pronom_ident.py
 # Author  anarchivist
 
@@ -86,7 +87,7 @@ def main():
 
     for k, v in out.items():
         if v is not None:
-            print k + ': ' + str(v)
+            print(k + ': ' + str(v))
 
 if __name__ == "__main__":
     sys.exit(main())

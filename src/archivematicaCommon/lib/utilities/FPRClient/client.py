@@ -1,9 +1,11 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
+from __future__ import absolute_import
 import os
 import sys
 
-from getFromRestAPI import each_record, FPRConnectionError
+from .getFromRestAPI import each_record, FPRConnectionError
 
 from annoying.functions import get_object_or_None
 
@@ -49,7 +51,7 @@ class FPRClient(object):
         # If an fields with this UUID exists, update enabled
         obj = get_object_or_None(model, uuid=fields['uuid'])
         if obj:
-            print 'Object already in DB:', get_object_or_None(model, uuid=fields['uuid'])
+            print('Object already in DB:', get_object_or_None(model, uuid=fields['uuid']))
             if not hasattr(model, 'replaces') and hasattr(model, 'enabled'):
                 obj.enabled = fields['enabled']
                 obj.save()
@@ -88,7 +90,7 @@ class FPRClient(object):
                 obj = model.objects.create(**valid_fields)
         except django.db.utils.IntegrityError:
             self.retry[model].append(valid_fields)
-            print 'Integrity error failed; will retry later'
+            print('Integrity error failed; will retry later')
             return
         self.count_rules_updated += 1
 
@@ -115,12 +117,12 @@ class FPRClient(object):
                     existing_rules[0].replaces = obj
                     existing_rules[0].save()
 
-        print 'Added:', obj
+        print('Added:', obj)
 
     def autoUpdateFPR(self):
         self.getMaxLastUpdate()
         maxLastUpdateAtStart = self.maxLastUpdate
-        print 'maxLastUpdateAtStart', maxLastUpdateAtStart
+        print('maxLastUpdateAtStart', maxLastUpdateAtStart)
         resources = [
             (models.Format, 'format'),
             (models.FormatVersion, 'format-version'),
@@ -133,7 +135,7 @@ class FPRClient(object):
         ]
 
         for table, resource in resources:
-            print 'resource:', resource
+            print('resource:', resource)
             try:
                 table._meta.get_field('lastmodified')
             except django.core.exceptions.FieldDoesNotExist:
@@ -151,9 +153,9 @@ class FPRClient(object):
             self.retry[table] = []
             for entry in each_record(resource, **kwargs):
                 self.addResource(entry, table)
-            print 'Retrying entries that fail because of foreign keys'
+            print('Retrying entries that fail because of foreign keys')
             for entry in self.retry[table]:
-                print "Retrying:", entry
+                print("Retrying:", entry)
                 # Create
                 obj = table.objects.create(**entry)
                 self.count_rules_updated += 1
@@ -165,9 +167,9 @@ class FPRClient(object):
                     else:  # obj.replaces is disabled
                         obj.enabled = False
                         obj.save()
-                print 'Added:', obj
+                print('Added:', obj)
 
-        print 'maxLastUpdate at end', self.maxLastUpdate
+        print('maxLastUpdate at end', self.maxLastUpdate)
         if self.maxLastUpdate != maxLastUpdateAtStart:
             self.setMaxLastUpdate()
 
@@ -197,4 +199,4 @@ class FPRClient(object):
 
 if __name__ == '__main__':
     ret = FPRClient().getUpdates()
-    print ret
+    print(ret)

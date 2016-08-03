@@ -21,6 +21,8 @@
 # @subpackage archivematicaCommon
 # @author Mike Cantelon <mike@artefactual.com>
 
+from __future__ import print_function
+from __future__ import absolute_import
 import ConfigParser
 import datetime
 import json
@@ -36,14 +38,14 @@ from django.db.models import Q
 from main.models import File, Transfer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from archivematicaFunctions import get_dashboard_uuid
-import namespaces as ns
-import version
+from .archivematicaFunctions import get_dashboard_uuid
+from . import namespaces as ns
+from . import version
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
 import xmltodict
 
-from elasticsearch import Elasticsearch, ImproperlyConfigured
+from .elasticsearch import Elasticsearch, ImproperlyConfigured
 
 
 logger = logging.getLogger('archivematica.common')
@@ -169,7 +171,7 @@ def remove_tool_output_from_mets(doc):
     for parent in toolNodes:
         parent.clear()
 
-    print "Removed FITS output from METS."
+    print("Removed FITS output from METS.")
 
 
 def wait_for_cluster_yellow_status(client, wait_between_tries=10, max_tries=10):
@@ -184,12 +186,12 @@ def wait_for_cluster_yellow_status(client, wait_between_tries=10, max_tries=10):
         try:
             health = client.cluster.health()
         except:
-            print 'ERROR: failed health check.'
+            print('ERROR: failed health check.')
             health['status'] = None
 
         # sleep if cluster not healthy
         if health['status'] != 'yellow' and health['status'] != 'green':
-            print "Cluster not in yellow or green state... waiting to retry."
+            print("Cluster not in yellow or green state... waiting to retry.")
             time.sleep(wait_between_tries)
 
 
@@ -430,8 +432,8 @@ def try_to_index(client, data, index, doc_type, wait_between_tries=10, max_tries
         try:
             return client.index(body=data, index=index, doc_type=doc_type)
         except Exception as e:
-            print "ERROR: error trying to index."
-            print e
+            print("ERROR: error trying to index.")
+            print(e)
             time.sleep(wait_between_tries)
 
     # If indexing did not succeed after max_tries is already complete,
@@ -463,7 +465,7 @@ def index_files(client, index, type_, uuid, pathToArchive, identifiers=[], sipNa
     if not os.path.exists(pathToArchive):
         error_message = "Directory does not exist: " + pathToArchive
         logger.warning(error_message)
-        print >>sys.stderr, error_message
+        print(error_message, file=sys.stderr)
         return 1
 
     # Use METS file if indexing an AIP
@@ -494,8 +496,8 @@ def index_files(client, index, type_, uuid, pathToArchive, identifiers=[], sipNa
 
         index_transfer(client, uuid, files_indexed, status=status)
 
-    print type_ + ' UUID: ' + uuid
-    print 'Files indexed: ' + str(files_indexed)
+    print(type_ + ' UUID: ' + uuid)
+    print('Files indexed: ' + str(files_indexed))
     return 0
 
 
@@ -598,7 +600,7 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
         # above. See http://stackoverflow.com/a/3975388 for explanation
         fileData['METS']['amdSec'] = {}
 
-    print 'Indexed AIP files and corresponding METS XML.'
+    print('Indexed AIP files and corresponding METS XML.')
 
     return len(files)
 
@@ -770,7 +772,7 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
             create_time = os.stat(filepath).st_ctime
 
             if filename not in ignore_files:
-                print 'Indexing {} (UUID: {})'.format(relative_path, file_uuid)
+                print('Indexing {} (UUID: {})'.format(relative_path, file_uuid))
 
                 # TODO Index Backlog Location UUID?
                 indexData = {
@@ -795,7 +797,7 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
 
                 files_indexed = files_indexed + 1
             else:
-                print 'Skipping indexing {}'.format(relative_path)
+                print('Skipping indexing {}'.format(relative_path))
 
     if files_indexed > 0:
         client.indices.refresh()

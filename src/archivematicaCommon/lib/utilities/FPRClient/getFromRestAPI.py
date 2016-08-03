@@ -21,6 +21,7 @@
 # @subpackage FPRClient
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 from optparse import OptionParser
 from httplib import responses
 import urlparse
@@ -98,18 +99,18 @@ def _get_from_rest_api(resource="", params=None, url="https://fpr.archivematica.
     r = requests.get(resource_url, params=params, auth=auth, timeout=10, verify=verify)
 
     if r.status_code != 200:
-        print >>sys.stderr, "got error status code:", r.status_code, responses[r.status_code]
-        print >>sys.stderr, "resource_url:", resource_url, "params:", params
+        print("got error status code:", r.status_code, responses[r.status_code], file=sys.stderr)
+        print("resource_url:", resource_url, "params:", params, file=sys.stderr)
         raise FPRConnectionError(r.status_code, responses[r.status_code])
     if verbose:
-        print r
-        print r.headers['content-type']
-        print r.encoding
+        print(r)
+        print(r.headers['content-type'])
+        print(r.encoding)
 
     ret = json.loads(r.content)
     if verbose:
         for x in ret["objects"]:
-            print x
+            print(x)
     return ret
 
 

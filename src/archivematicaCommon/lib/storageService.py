@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import base64
 import logging
 import os
@@ -7,7 +8,7 @@ from requests.auth import AuthBase
 import slumber
 import urllib
 
-from archivematicaFunctions import get_setting
+from .archivematicaFunctions import get_setting
 
 LOGGER = logging.getLogger("archivematica.common")
 

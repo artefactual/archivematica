@@ -21,6 +21,7 @@
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import collections
 import hashlib
 import os
@@ -174,7 +175,7 @@ def create_directories(directories, basepath='', printing=False):
         if not os.path.isdir(dir_path):
             os.makedirs(dir_path)
             if printing:
-                print 'Creating directory', dir_path
+                print('Creating directory', dir_path)
 
 def create_structured_directory(basepath, manual_normalization=False, printing=False):
     create_directories(REQUIRED_DIRECTORIES, basepath=basepath, printing=printing)

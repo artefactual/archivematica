@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re
 import xml.sax.handler
 from collections import defaultdict
@@ -35,9 +36,9 @@ def mets_file(src):
 def test_mets(src):
     mets = mets_file(src)
     for f in mets:
-        print "uuid is {}".format(f)
+        print("uuid is {}".format(f))
         for p in mets[f]['premis']:
-            print "{} rights = {} {}".format(p, mets[f]['premis'][p]['restriction'],mets[f]['premis'][p]['rightsGrantedNote'])
+            print("{} rights = {} {}".format(p, mets[f]['premis'][p]['restriction'],mets[f]['premis'][p]['rightsGrantedNote']))
                         
 def xml2obj(src):
     """
@@ -61,7 +62,7 @@ def xml2obj(src):
             else:
                 return [self][key]
         def __contains__(self, name):
-            return self._attrs.has_key(name)
+            return name in self._attrs
         def __nonzero__(self):
             return bool(self._attrs or self.data)
         def __getattr__(self, name):

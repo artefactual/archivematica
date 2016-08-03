@@ -20,16 +20,18 @@
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import absolute_import, print_function
 import csv
 import os
 import uuid
 import sys
 import shutil
-from databaseFunctions import insertIntoFiles
-from executeOrRunSubProcess import executeOrRun
-from databaseFunctions import insertIntoEvents
+
+from .databaseFunctions import insertIntoFiles
+from .executeOrRunSubProcess import executeOrRun
+from .databaseFunctions import insertIntoEvents
 import MySQLdb
-from archivematicaFunctions import unicodeToStr, get_setting, get_file_checksum
+from .archivematicaFunctions import unicodeToStr, get_setting, get_file_checksum
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import File, Transfer
@@ -95,13 +97,14 @@ def writeToFile(output, fileName, writeWhite=False):
             f.close()
             os.chmod(fileName, 488)
         except OSError as ose:
-            print >>sys.stderr, "output Error", ose
+            print("output Error", ose, file=sys.stderr)
             return -2
-        except IOError as (errno, strerror):
-            print "I/O error({0}): {1}".format(errno, strerror)
+        except IOError as e:
+            (errno, strerror) = e.args
+            print("I/O error({0}): {1}".format(errno, strerror))
             return -3
     else:
-        print "No output, or file specified"
+        print("No output, or file specified")
     return 0
 
 def renameAsSudo(source, destination):
@@ -109,9 +112,9 @@ def renameAsSudo(source, destination):
     command = ["sudo", "mv", source, destination]
     exitCode, stdOut, stdError = executeOrRun("command", command, "", printing=False)
     if exitCode:
-        print >>sys.stderr, "exitCode:", exitCode
-        print >>sys.stderr, stdOut
-        print >>sys.stderr, stdError
+        print("exitCode:", exitCode, file=sys.stderr)
+        print(stdOut, file=sys.stderr)
+        print(stdError, file=sys.stderr)
         exit(exitCode)
 
 
@@ -138,7 +141,7 @@ def updateDirectoryLocation(src, dst, unitPath, unitIdentifier, unitIdentifierTy
             dst += "."
         else:
             dst += "/."
-    print "moving: ", src, dst
+    print("moving: ", src, dst)
     shutil.move(src, dst)
 
 def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith):
@@ -159,11 +162,11 @@ def updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, 
             message = "no results found"
         else:
             message = "multiple results found"
-        print >> sys.stderr, 'ERROR: file information not found:', message, "for arguments:", repr(kwargs)
+        print('ERROR: file information not found:', message, "for arguments:", repr(kwargs), file=sys.stderr)
         exit(4)
 
     # Move the file
-    print "Moving", src, 'to', dst
+    print("Moving", src, 'to', dst)
     shutil.move(src, dst)
     # Update the DB
     f.currentlocation = dstDB
@@ -245,10 +248,10 @@ def findFileInNormalizatonCSV(csv_path, commandClassification, target_file, sip_
                                  currentlocation__endswith=target_file,
                                  sip_id=sip_uuid)
         except File.MultipleObjectsReturned:
-            print >>sys.stderr, "More than one result found for {} file ({}) in DB.".format(commandClassification, target_file)
+            print("More than one result found for {} file ({}) in DB.".format(commandClassification, target_file), file=sys.stderr)
             sys.exit(2)
         except File.DoesNotExist:
-            print >>sys.stderr, "{} file ({}) not found in DB.".format(commandClassification, target_file)
+            print("{} file ({}) not found in DB.".format(commandClassification, target_file), file=sys.stderr)
             sys.exit(2)
         target_file = f.originallocation.replace('%transferDirectory%objects/', '', 1).replace('%SIPDirectory%objects/', '', 1)
         try:
@@ -259,14 +262,14 @@ def findFileInNormalizatonCSV(csv_path, commandClassification, target_file, sip_
                     continue
                 original, access, preservation = row
                 if commandClassification == "access" and access == target_file:
-                    print "Found access file ({0}) for original ({1})".format(access, original)
+                    print("Found access file ({0}) for original ({1})".format(access, original))
                     return original
                 if commandClassification == "preservation" and preservation == target_file:
-                    print "Found preservation file ({0}) for original ({1})".format(preservation, original)
+                    print("Found preservation file ({0}) for original ({1})".format(preservation, original))
                     return original
             else:
                 return None
         except csv.Error:
-            print >>sys.stderr, "Error reading {filename} on line {linenum}".format(
-                filename=csv_path, linenum=reader.line_num)
+            print("Error reading {filename} on line {linenum}".format(
+                filename=csv_path, linenum=reader.line_num), file=sys.stderr)
             sys.exit(2)

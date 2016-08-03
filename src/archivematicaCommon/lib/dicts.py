@@ -21,6 +21,7 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import absolute_import
 import ast
 import ConfigParser
 import os
@@ -30,7 +31,7 @@ import sys
 path = '/usr/lib/archivematica/archivematicaCommon/'
 if not path in sys.path:
     sys.path.append(path)
-from archivematicaFunctions import unicodeToStr
+from .archivematicaFunctions import unicodeToStr
 
 def replace_string_values(string, **kwargs):
     """

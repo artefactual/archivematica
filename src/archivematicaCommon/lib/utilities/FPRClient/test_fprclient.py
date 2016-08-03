@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+from __future__ import absolute_import
 import os
 import sys
 import vcr
@@ -9,8 +10,8 @@ sys.path.append("/usr/share/archivematica/dashboard/")
 from fpr import models
 import main.models
 
-import client
-import getFromRestAPI
+from . import client
+from . import getFromRestAPI
 
 # WARNING Rules must be refetched from the DB to get updated values
 FPRSERVER = 'http://localhost:9000/fpr/api/v2/'

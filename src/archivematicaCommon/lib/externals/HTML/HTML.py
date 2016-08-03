@@ -11,6 +11,7 @@ Project website: http://www.decalage.info/python/html
 License: CeCILL (open-source GPL compatible), see source code for details.
          http://www.cecill.info
 """
+from __future__ import print_function
 
 __version__ = '0.04'
 __date__    = '2009-07-28'
@@ -435,8 +436,8 @@ if __name__ == '__main__':
     t.rows.append(TableRow(['D', 'E', 'F']))
     t.rows.append(('i', 'j', 'k'))
     f.write(str(t) + '<p>\n')
-    print str(t)
-    print '-'*79
+    print(str(t))
+    print('-'*79)
 
     t2 = Table([
             ('1', '2'),
@@ -444,15 +445,15 @@ if __name__ == '__main__':
         ], width='100%', header_row=('col1', 'col2'),
         col_width=('', '75%'))
     f.write(str(t2) + '<p>\n')
-    print t2
-    print '-'*79
+    print(t2)
+    print('-'*79)
 
     t2.rows.append(['5', '6'])
     t2.rows[1][1] = TableCell('new', bgcolor='red')
     t2.rows.append(TableRow(['7', '8'], attribs={'align': 'center'}))
     f.write(str(t2) + '<p>\n')
-    print t2
-    print '-'*79
+    print(t2)
+    print('-'*79)
 
     # sample table with column attributes and styles:
     table_data = [
@@ -466,8 +467,8 @@ if __name__ == '__main__':
         col_align=['left', 'center', 'right', 'char'],
         col_styles=['font-size: large', '', 'font-size: small', 'background-color:yellow'])
     f.write(htmlcode + '<p>\n')
-    print htmlcode
-    print '-'*79
+    print(htmlcode)
+    print('-'*79)
 
     def gen_table_squares(n):
         """
@@ -482,7 +483,7 @@ if __name__ == '__main__':
     t = Table(rows=gen_table_squares(10), header_row=('x', 'square(x)'))
     f.write(str(t) + '<p>\n')
 
-    print '-'*79
+    print('-'*79)
     l = List(['aaa', 'bbb', 'ccc'])
     f.write(str(l) + '<p>\n')
     l.ordered = True

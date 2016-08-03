@@ -20,6 +20,7 @@
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import subprocess
 import shlex
 import uuid
@@ -80,16 +81,16 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[], env_updates
         stdOut, stdError = p.communicate(input=stdin_string)
         #append the output to stderror and stdout
         if printing:
-            print stdOut
-            print  >>sys.stderr, stdError
+            print(stdOut)
+            print(stdError, file=sys.stderr)
         retcode = p.returncode
     except OSError as ose:
-        print >>sys.stderr, "Execution failed:", ose
+        print("Execution failed:", ose, file=sys.stderr)
         return -1, "Config Error!", ose.__str__()
     except Exception as inst:
-        print  >>sys.stderr, "Execution failed:", command
-        print >>sys.stderr, type(inst)     # the exception instance
-        print >>sys.stderr, inst.args
+        print("Execution failed:", command, file=sys.stderr)
+        print(type(inst), file=sys.stderr)     # the exception instance
+        print(inst.args, file=sys.stderr)
         return -1, "Execution failed:", command
     return retcode, stdOut, stdError
 
@@ -97,7 +98,7 @@ def launchSubProcess(command, stdIn="", printing=True, arguments=[], env_updates
 def createAndRunScript(text, stdIn="", printing=True, arguments=[], env_updates={}):
     # Output the text to a /tmp/ file
     scriptPath = "/tmp/" + uuid.uuid4().__str__()
-    FILE = os.open(scriptPath, os.O_WRONLY | os.O_CREAT, 0770)
+    FILE = os.open(scriptPath, os.O_WRONLY | os.O_CREAT, 0o770)
     os.write(FILE, text)
     os.close(FILE)
     cmd = [scriptPath]

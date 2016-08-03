@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import xml.parsers.expat
 
 __author__ = 'Martin Blech'
@@ -154,5 +155,5 @@ if __name__ == '__main__':
             handle_item([], root)
     except KeyboardInterrupt:
         pass
-    except IOError, e:
-        print e
+    except IOError as e:
+        print(e)

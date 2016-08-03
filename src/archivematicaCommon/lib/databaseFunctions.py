@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import os
 import string
 import sys
@@ -71,9 +72,9 @@ def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="", sip
     elif transferUUID == "" and sipUUID != "":
         kwargs["sip_id"] = sipUUID
     else:
-        print >>sys.stderr, "not supported yet - both SIP and transfer UUID's defined (or neither defined)"
-        print >>sys.stderr, "SIP UUID:", sipUUID
-        print >>sys.stderr, "transferUUID:", transferUUID
+        print("not supported yet - both SIP and transfer UUID's defined (or neither defined)", file=sys.stderr)
+        print("SIP UUID:", sipUUID, file=sys.stderr)
+        print("transferUUID:", transferUUID, file=sys.stderr)
         raise Exception("not supported yet - both SIP and transfer UUID's defined (or neither defined)", sipUUID + "-" + transferUUID)
 
     File.objects.create(**kwargs)
@@ -94,7 +95,7 @@ def getAgentForFileUUID(fileUUID):
     agent = None
     if fileUUID == 'None':
         error_message = "Unable to get agent for file: no file UUID provided."
-        print >>sys.stderr, error_message
+        print(error_message, file=sys.stderr)
         raise Exception(error_message)
     else:
         try:
@@ -210,7 +211,7 @@ def logTaskCompletedSQL(task):
 
     :param task:
     """
-    print "Logging task output to db", task.UUID
+    print("Logging task output to db", task.UUID)
     taskUUID = task.UUID.__str__()
     exitCode = task.results["exitCode"].__str__()
     stdOut = task.results["stdOut"]
@@ -290,7 +291,7 @@ def createSIP(path, UUID=None, sip_type='SIP'):
     """
     if UUID is None:
         UUID = str(uuid.uuid4())
-    print "Creating SIP:", UUID, "-", path
+    print("Creating SIP:", UUID, "-", path)
     sip = SIP(uuid=UUID,
               currentpath=path,
               sip_type=sip_type)
