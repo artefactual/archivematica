@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
 import ConfigParser
 import os
 import sys
@@ -24,7 +25,7 @@ def remove_file(target_file, file_uuid):
 
     basename = os.path.basename(target_file)
     if basename in removableFiles:
-        print "Removing {filename} (UUID: {uuid})".format(uuid=file_uuid, filename=basename)
+        print("Removing {filename} (UUID: {uuid})".format(uuid=file_uuid, filename=basename))
         try:
             os.remove(target_file)
         except OSError:

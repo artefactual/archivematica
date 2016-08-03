@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import os
 import sys
 from verifySIPCompliance import checkDirectory
@@ -33,7 +34,7 @@ allowableFiles = ["processingMCP.xml"]
 def verifyDirectoriesExist(SIPDir, ret=0):
     for directory in requiredDirectories:
         if not os.path.isdir(os.path.join(SIPDir, directory)):
-            print >>sys.stderr, "Required Directory Does Not Exist: " + directory
+            print("Required Directory Does Not Exist: " + directory, file=sys.stderr)
             ret += 1
     return ret
 
@@ -41,11 +42,11 @@ def verifyNothingElseAtTopLevel(SIPDir, ret=0):
     for entry in os.listdir(SIPDir):
         if os.path.isdir(os.path.join(SIPDir, entry)):
             if entry not in requiredDirectories:
-                print >>sys.stderr, "Error, directory exists: " + entry
+                print("Error, directory exists: " + entry, file=sys.stderr)
                 ret += 1
         else:
             if entry not in allowableFiles:
-                print >>sys.stderr, "Error, file exists: " + entry
+                print("Error, file exists: " + entry, file=sys.stderr)
                 ret += 1
     return ret
 

@@ -21,14 +21,15 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import os
 import sys
 target = sys.argv[1]
 if not os.path.isdir(target):
-    print >>sys.stderr, "Directory doesn't exist: ", target
+    print("Directory doesn't exist: ", target, file=sys.stderr)
     os.mkdir(target)
 if os.listdir(target) == []:
-    print >>sys.stderr, "Directory is empty: ", target
+    print("Directory is empty: ", target, file=sys.stderr)
     fileName = os.path.join(target, "submissionDocumentation.log")
     f = open(fileName, 'a')
     f.write("No submission documentation added")

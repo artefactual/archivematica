@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import os
 import sys
 from lxml import etree
@@ -32,7 +33,7 @@ django.setup()
 from main.models import File
 
 def identify_dspace_files(mets_file, transfer_dir, transfer_uuid, relative_dir="./"):
-    print mets_file
+    print(mets_file)
     nsmap = {
         'm': namespaces.metsNS,
         'x': namespaces.xlinkNS,
@@ -48,7 +49,7 @@ def identify_dspace_files(mets_file, transfer_dir, transfer_uuid, relative_dir="
                 continue
             if filename is None: # Filename not an attribute
                 continue
-            print 'File:', filename, 'Use:', use
+            print('File:', filename, 'Use:', use)
             full_path = os.path.join(relative_dir, filename)
             db_location = full_path.replace(transfer_dir, "%transferDirectory%")
             if use == 'TEXT':
@@ -56,7 +57,7 @@ def identify_dspace_files(mets_file, transfer_dir, transfer_uuid, relative_dir="
             elif use == 'LICENSE':
                 db_use = 'license'
             else:
-                print >> sys.stderr, 'Unexpected usage', use
+                print('Unexpected usage', use, file=sys.stderr)
                 continue
 
             File.objects.filter(currentlocation=db_location, transfer_id=transfer_uuid).update(filegrpuse=db_use)

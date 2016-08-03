@@ -20,6 +20,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import os
 import sys
 import shutil
@@ -41,10 +42,10 @@ def restructureDirectory(unitPath):
         itemPath =  os.path.join(unitPath, item)
         if os.path.isdir(itemPath) and item not in REQUIRED_DIRECTORIES:
             shutil.move(itemPath, dst)
-            print "moving directory to objects: ", item
+            print("moving directory to objects: ", item)
         elif os.path.isfile(itemPath) and item not in OPTIONAL_FILES:
             shutil.move(itemPath, dst)
-            print "moving file to objects: ", item
+            print("moving file to objects: ", item)
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.restructureForCompliance")

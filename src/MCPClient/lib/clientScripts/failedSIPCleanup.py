@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
 import argparse
 import sys
 
@@ -17,7 +18,7 @@ FAILED = 'fail'
 def main(fail_type, sip_uuid):
     # Update SIP Arrange table for failed SIP
     file_uuids = models.File.objects.filter(sip=sip_uuid).values_list('uuid', flat=True)
-    print 'Allow files in this SIP to be arranged. UUIDs:', file_uuids
+    print('Allow files in this SIP to be arranged. UUIDs:', file_uuids)
     models.SIPArrange.objects.filter(sip_id=sip_uuid).delete()
 
     # Update storage service that reingest failed

@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
 import json
 import sys
 
@@ -21,15 +22,15 @@ def main(transfer_uuid, target_path):
         dc = models.DublinCore.objects.get(metadataappliestoidentifier=transfer_uuid)
     except:
         # There may not be any DC metadata for this transfer, and that's fine
-        print >> sys.stderr, "No DC metadata found; skipping"
+        print("No DC metadata found; skipping", file=sys.stderr)
         return 0
     for field in FIELDS:
         attr = getattr(dc, field)
         if attr:
             jsonified[field] = attr
 
-    print "Saving the following properties to:", target_path
-    print jsonified
+    print("Saving the following properties to:", target_path)
+    print(jsonified)
 
     with open(target_path, 'w') as json_file:
         json.dump(jsonified, json_file)

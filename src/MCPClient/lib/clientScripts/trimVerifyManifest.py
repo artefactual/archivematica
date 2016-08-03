@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import re
 import os
 import sys
@@ -52,7 +53,7 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
             currentDirectory = transferPath
             originalTransferName = topDirectory.split('\\')[-1]
             if originalTransferName != transferName:
-                print >>sys.stderr, "Warning, transfer was renamed from: ", originalTransferName  
+                print("Warning, transfer was renamed from: ", originalTransferName, file=sys.stderr)  
                  
         else:
             currentDirectory = line.strip().replace(topDirectory + '\\', transferPath, 1).replace('\\','/')
@@ -77,17 +78,17 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
             continue
         #check if directory exists
         if os.path.isdir(path):
-            print "Verified directory exists: ", path.replace(transferPath, "%TransferDirectory%")
+            print("Verified directory exists: ", path.replace(transferPath, "%TransferDirectory%"))
         else:
-            print >>sys.stderr, "Directory does not exists: ", path.replace(transferPath, "%TransferDirectory%")
+            print("Directory does not exists: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
             exitCode += 1
     else:
         if os.path.isfile(path):
-            print "Verified file exists: ", path.replace(transferPath, "%TransferDirectory%")
+            print("Verified file exists: ", path.replace(transferPath, "%TransferDirectory%"))
             fileCount += 1
             fileID = getFileUUIDLike(path, transferPath, transferUUID, "transferUUID", "%transferDirectory%")
             if not len(fileID):
-                print >>sys.stderr, "Could not find fileUUID for: ", path.replace(transferPath, "%TransferDirectory%")
+                print("Could not find fileUUID for: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
                 exitCode += 1
             for paths, fileUUID in fileID.iteritems():
                 eventDetail = "program=\"archivematica\"; module=\"trimVerifyManifest\""
@@ -105,11 +106,11 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
             i = path.rfind(".")
             path2 = path[:i] + path[i:].lower() 
             if i != -1 and os.path.isfile(path2):
-                print >>sys.stderr, "Warning, verified file exists, but with implicit extension case: ", path.replace(transferPath, "%TransferDirectory%")
+                print("Warning, verified file exists, but with implicit extension case: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
                 fileCount += 1
                 fileID = getFileUUIDLike(path2, transferPath, transferUUID, "transferUUID", "%transferDirectory%")
                 if not len(fileID):
-                    print >>sys.stderr, "Could not find fileUUID for: ", path.replace(transferPath, "%TransferDirectory%")
+                    print("Could not find fileUUID for: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
                     exitCode += 1
                 for paths, fileUUID in fileID.iteritems():
                     eventDetail = "program=\"archivematica\"; module=\"trimVerifyManifest\""
@@ -124,10 +125,10 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
                          eventOutcomeDetailNote=eventOutcomeDetailNote, \
                          eventDetail=eventDetail)
             else:
-                print >>sys.stderr, "File does not exists: ", path.replace(transferPath, "%TransferDirectory%")
+                print("File does not exists: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
                 exitCode += 1
 if fileCount:
     quit(exitCode)
 else:
-    print >>sys.stderr, "No files found."
+    print("No files found.", file=sys.stderr)
     quit(-1)

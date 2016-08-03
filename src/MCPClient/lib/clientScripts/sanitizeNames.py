@@ -21,6 +21,7 @@
 # @subpackage MCPClient
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import string
 import os
 from shutil import move as rename
@@ -54,11 +55,11 @@ def sanitizePath(path):
     dirname = os.path.dirname(path)
     sanitizedName = sanitizeName(basename)
     if False:
-        print "path: " + path
-        print "dirname: " + dirname
-        print "basename: " + basename
-        print "sanitizedName: " + sanitizedName
-        print "renamed:", basename != sanitizedName
+        print("path: " + path)
+        print("dirname: " + dirname)
+        print("basename: " + basename)
+        print("sanitizedName: " + sanitizedName)
+        print("renamed:", basename != sanitizedName)
     if basename == sanitizedName:
         return path
     else:
@@ -96,17 +97,17 @@ def sanitizeRecursively(path):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print >>sys.stderr, "Error, sanitizeNames takes one agrument PATH or -V (version)"
+        print("Error, sanitizeNames takes one agrument PATH or -V (version)", file=sys.stderr)
         quit(-1)
     path = sys.argv[1]
     if path == "-V":
-        print VERSION
+        print(VERSION)
         quit(0)
     if not os.path.isdir(path):
-        print >>sys.stderr, "Not a directory: " + path
+        print("Not a directory: " + path, file=sys.stderr)
         quit(-1)
-    print "Scanning: " + path
+    print("Scanning: " + path)
     sanitizations = sanitizeRecursively(path)
     for oldfile, newfile in sanitizations:
-        print oldfile, " -> ", newfile
-    print >>sys.stderr, "TEST DEBUG CLEAR DON'T INCLUDE IN RELEASE"
+        print(oldfile, " -> ", newfile)
+    print("TEST DEBUG CLEAR DON'T INCLUDE IN RELEASE", file=sys.stderr)

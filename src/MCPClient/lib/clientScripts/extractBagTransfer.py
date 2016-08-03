@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import shutil
 import os
 import sys
@@ -37,24 +38,24 @@ def extract(target, destinationDirectory):
     filename, file_extension = os.path.splitext(target)
 
     if file_extension != '.tgz' and file_extension != '.gz':
-        print 'Unzipping...'
+        print('Unzipping...')
 
         command = """/usr/bin/7z x -bd -o"%s" "%s" """ % (destinationDirectory, target)
         exitC, stdOut, stdErr = executeOrRun("command", command, printing=False)
         if exitC != 0:
-            print stdOut
-            print >>sys.stderr, "Failed extraction: ", command, "\r\n", stdErr
+            print(stdOut)
+            print("Failed extraction: ", command, "\r\n", stdErr, file=sys.stderr)
             exit(exitC)
     else:
-        print 'Untarring...'
+        print('Untarring...')
 
         parent_dir = os.path.abspath(os.path.join(destinationDirectory, os.pardir))
         file_extension = ''
         command = ("tar zxvf " + target + ' --directory="%s"') % (parent_dir)
         exitC, stdOut, stdErr = executeOrRun("command", command, printing=False)
         if exitC != 0:
-            print stdOut
-            print >>sys.stderr, "Failed to untar: ", command, "\r\n", stdErr
+            print(stdOut)
+            print("Failed to untar: ", command, "\r\n", stdErr, file=sys.stderr)
             exit(exitC)
 
 

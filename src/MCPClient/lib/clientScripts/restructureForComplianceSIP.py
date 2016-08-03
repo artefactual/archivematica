@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
 import argparse
 import os
 import shutil
@@ -37,7 +38,7 @@ def restructureForComplianceFileUUIDsAssigned(unit_path, unit_uuid, unit_type='s
             # Make directory at new location if not exists
             entry_objects_path = entry_path.replace(unit_path, objects_path)
             if not os.path.exists(entry_objects_path):
-                print 'Creating directory:', entry_objects_path
+                print('Creating directory:', entry_objects_path)
                 os.mkdir(entry_objects_path)
             # Walk and move to objects dir, preserving directory structure
             # and updating the DB
@@ -46,7 +47,7 @@ def restructureForComplianceFileUUIDsAssigned(unit_path, unit_uuid, unit_type='s
                 for dirname in dirnames:
                     create_dir = os.path.join(dirpath, dirname).replace(unit_path, objects_path)
                     if not os.path.exists(create_dir):
-                        print 'Creating directory:', create_dir
+                        print('Creating directory:', create_dir)
                         os.makedirs(create_dir)
                 # Move files
                 for filename in filenames:
@@ -60,7 +61,7 @@ def restructureForComplianceFileUUIDsAssigned(unit_path, unit_uuid, unit_type='s
                         unitIdentifierType=unit_type, # sipUUID or transferUUID
                         unitPathReplaceWith=unit_path_replacement)
             # Delete entry_path if it exists (is empty dir)
-            print 'Removing directory', entry_path
+            print('Removing directory', entry_path)
             shutil.rmtree(entry_path)
 
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+from __future__ import print_function
 import ConfigParser
 import os
 import shutil
@@ -12,7 +13,7 @@ from executeOrRunSubProcess import executeOrRun
 def extract_aip(aip_path, extract_path):
     os.makedirs(extract_path)
     command = "atool --extract-to={} -V0 {}".format(extract_path, aip_path)
-    print 'Running extraction command:', command
+    print('Running extraction command:', command)
     exit_code, _, _ = executeOrRun("command", command, printing=True)
     if exit_code != 0:
         raise Exception("Error extracting AIP")
@@ -49,7 +50,7 @@ def verify_aip():
             extract_dir = os.path.join(temp_dir, sip_uuid)
             bag = extract_aip(aip_path, extract_dir)
         except Exception:
-            print >>sys.stderr, 'Error extracting AIP at "{}"'.format(aip_path)
+            print('Error extracting AIP at "{}"'.format(aip_path), file=sys.stderr)
             return 1
 
     verification_commands = [
@@ -61,10 +62,10 @@ def verify_aip():
     ]
     return_code = 0
     for command in verification_commands:
-        print "Running test: ", command
+        print("Running test: ", command)
         exit_code, _, _ = executeOrRun("command", command, printing=True)
         if exit_code != 0:
-            print >>sys.stderr, "Failed test: ", command
+            print("Failed test: ", command, file=sys.stderr)
             return_code = 1
     #cleanup
     if not is_uncompressed_aip:

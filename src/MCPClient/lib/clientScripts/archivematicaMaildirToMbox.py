@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+from __future__ import print_function
 import sys
 import os
 # archivematicaCommon
@@ -34,12 +35,12 @@ if __name__ == "__main__":
     sipDirectory = os.path.dirname(os.path.dirname(os.path.dirname(fileFullPath)))
     fileDic = getFileDic(fileFullPath)
     if not 'path' in fileDic:
-        print >>sys.stderr, "no path in file"
+        print("no path in file", file=sys.stderr)
         exit(1)
     maildirPath = fileDic['path'].replace('%transferDirectory%', sipDirectory + "/", 1)
-    print maildirPath, " -> ", mboxOutputFileFullPath
+    print(maildirPath, " -> ", mboxOutputFileFullPath)
     maildir2mailbox2(maildirPath, mboxOutputFileFullPath)
-    print "Done" 
+    print("Done") 
     exit(0)
     
     

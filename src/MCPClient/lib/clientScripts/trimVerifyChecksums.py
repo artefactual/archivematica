@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import os
 from lxml import etree as etree
 import sys
@@ -63,14 +64,14 @@ for transfer_dir in os.listdir(transferPath):
 
             xmlMD5 = root.find('Document/MD5').text
         except:
-            print >>sys.stderr, 'Error parsing: ', xmlFilePath
+            print('Error parsing: ', xmlFilePath, file=sys.stderr)
             exitCode += 1
             continue
 
         objectMD5 = get_file_checksum(filePath, 'md5')
 
         if objectMD5 == xmlMD5:
-            print 'File OK: ', xmlMD5, filePath.replace(transferPath, '%TransferDirectory%')
+            print('File OK: ', xmlMD5, filePath.replace(transferPath, '%TransferDirectory%'))
 
             fileID = getFileUUIDLike(filePath, transferPath, transferUUID, 'transferUUID', '%transferDirectory%')
             for path, fileUUID in fileID.iteritems():
@@ -89,7 +90,7 @@ for transfer_dir in os.listdir(transferPath):
                     eventDetail=eventDetail
                 )
         else:
-            print >>sys.stderr, 'Checksum mismatch: ', filePath.replace(transferPath, '%TransferDirectory%')
+            print('Checksum mismatch: ', filePath.replace(transferPath, '%TransferDirectory%'), file=sys.stderr)
             exitCode += 1
 
 quit(exitCode)

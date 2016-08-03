@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 from annoying.functions import get_object_or_None
 import argparse
 import logging
@@ -85,7 +86,7 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     related_package_uuid = None
     if sip_type == 'DIP':
         uuid = str(uuid4())
-        print 'Checking if DIP {} parent AIP has been created...'.format(uuid)
+        print('Checking if DIP {} parent AIP has been created...'.format(uuid))
 
         # Set related package UUID, so a relationship to the parent AIP can be
         # created if if AIP has been stored. If the AIP hasn't yet been stored
@@ -95,10 +96,10 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
         try:
             api.file(sip_uuid).get()
             related_package_uuid = sip_uuid
-            print 'Parent AIP exists so relationship can be created.'
+            print('Parent AIP exists so relationship can be created.')
         except slumber.exceptions.HttpClientError:
             UnitVariable.objects.create(unittype='SIP', unituuid=sip_uuid, variable='relatedPackage', variablevalue=uuid)
-            print 'Noting DIP UUID {} related to AIP so relationship can be created when AIP is stored.'.format(uuid)
+            print('Noting DIP UUID {} related to AIP so relationship can be created when AIP is stored.'.format(uuid))
     else:
         uuid = sip_uuid
         related_package = get_object_or_None(UnitVariable, unituuid=sip_uuid, variable='relatedPackage')
@@ -130,11 +131,11 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     if new_file is not None and new_file.get('status', '') != "FAIL":
         message = "Storage service created {}: {}".format(sip_type, new_file)
         logging.info(message)
-        print message
+        print(message)
         sys.exit(0)
     else:
-        print >>sys.stderr, "{} creation failed.  See Storage Service logs for more details".format(sip_type)
-        print >>sys.stderr, error_msg or "Package status: Failed"
+        print("{} creation failed.  See Storage Service logs for more details".format(sip_type), file=sys.stderr)
+        print(error_msg or "Package status: Failed", file=sys.stderr)
         logging.warning("{} unabled to be created: {}.  See logs for more details.".format(sip_type, error_msg))
         sys.exit(1)
 

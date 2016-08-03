@@ -20,6 +20,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import argparse
 import os
 import sys
@@ -36,18 +37,18 @@ from executeOrRunSubProcess import executeOrRun
 def run_bag(arguments):
     """ Run Bagit's create bag command. """
     command = "/usr/share/bagit/bin/bag"
-    print 'Command to run:', command, "Arguments: ", arguments
+    print('Command to run:', command, "Arguments: ", arguments)
     exit_code, std_out, std_err = executeOrRun("command", [command], arguments=arguments, printing=False)
     if exit_code != 0:
-        print >> sys.stderr, "Error with command: ", command
-        print >> sys.stderr, "Standard OUT:"
-        print >> sys.stderr, std_out
-        print >> sys.stderr, "Standard Error:"
-        print >> sys.stderr, std_err
+        print("Error with command: ", command, file=sys.stderr)
+        print("Standard OUT:", file=sys.stderr)
+        print(std_out, file=sys.stderr)
+        print("Standard Error:", file=sys.stderr)
+        print(std_err, file=sys.stderr)
         exit(exit_code)
     else:
-        print std_out
-        print >> sys.stderr, std_err
+        print(std_out)
+        print(std_err, file=sys.stderr)
 
 def get_sip_directories(sip_dir):
     """ Get a list of directories in the SIP, to be created after bagged. """
@@ -56,9 +57,9 @@ def get_sip_directories(sip_dir):
         for subdir in subdirs:
             path = os.path.join(directory, subdir).replace(sip_dir + "/", "", 1)
             directory_list.append(path)
-    print "directory list:"
+    print("directory list:")
     for sip_dir in directory_list:
-        print "\t", sip_dir
+        print("\t", sip_dir)
     return directory_list
 
 def create_directories(base_dir, dir_list):

@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import cPickle
 import getpass
 import optparse
@@ -65,7 +66,7 @@ def log(message, access=None):
 
 # Print to stderr and exit
 def error(message, code=1):
-    print >>sys.stderr, "%s %s" % (PREFIX, hilite(message, False))
+    print("%s %s" % (PREFIX, hilite(message, False)), file=sys.stderr)
     sys.exit(1)
 
 # Make sure that archivematica user is executing this script
@@ -269,9 +270,9 @@ if __name__ == '__main__':
     try:
         start(opts)
     except Exception as inst:
-        print >>sys.stderr, "Exception!"
-        print >>sys.stderr, type(inst)
-        print >>sys.stderr, inst.args
+        print("Exception!", file=sys.stderr)
+        print(type(inst), file=sys.stderr)
+        print(inst.args, file=sys.stderr)
         import traceback
         traceback.print_exc()
         sys.exit(1)

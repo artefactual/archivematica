@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import smtplib
 import sys
 from email.mime.multipart import MIMEMultipart

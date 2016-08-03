@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
 import argparse
 from lxml import etree
 from lxml.builder import ElementMaker
@@ -57,7 +58,7 @@ def get_aip_info(aic_dir):
 
         os.remove(mets_path)
 
-    print 'AIP info:', aips
+    print('AIP info:', aips)
     return aips
 
 
@@ -118,7 +119,7 @@ def create_mets_file(aic, aips):
         div = etree.SubElement(struct_div, ns.metsBNS + 'div', LABEL=label)
         etree.SubElement(div, ns.metsBNS + 'fptr', FILEID=file_id)
 
-    print etree.tostring(mets, pretty_print=True)
+    print(etree.tostring(mets, pretty_print=True))
 
     # Write out the file
     file_uuid = str(uuid.uuid4())

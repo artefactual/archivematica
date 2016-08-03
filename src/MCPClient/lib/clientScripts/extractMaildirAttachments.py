@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 from lxml import etree
 import mailbox
 import os
@@ -99,7 +100,7 @@ if __name__ == '__main__':
     root.set("directory", maildir) 
     for maildirsub in (d for d in os.listdir(maildir) if os.path.isdir(os.path.join(maildir, d))):
         maildirsub_full_path = os.path.join(maildir, maildirsub)
-        print "Extracting attachments from: " + maildirsub_full_path
+        print("Extracting attachments from: " + maildirsub_full_path)
         md = mailbox.Maildir(maildirsub_full_path, None)
         directory = etree.SubElement(root, "subDir")
         directory.set("dir", maildirsub)
@@ -114,7 +115,7 @@ if __name__ == '__main__':
                     sharedVariablesAcrossModules.sourceFilePath = sourceFilePath
                     fil = md.get_file(item)
                     out = parse(fil)
-                    print 'Email Subject:', out.get('subject')
+                    print('Email Subject:', out.get('subject'))
                     if out['attachments']:
                         msg = etree.SubElement(directory, "msg")
                         etree.SubElement(msg, "Message-ID").text = out['msgobj']['Message-ID'][1:-1]
@@ -127,7 +128,7 @@ if __name__ == '__main__':
                         etree.SubElement(msg, "To").text = out["to"]
                         etree.SubElement(msg, "From").text = out["from"]
                         for attachment in out['attachments']:
-                            print '\tAttachment name:', attachment.name
+                            print('\tAttachment name:', attachment.name)
                             try:
                                 if attachment.name == None:
                                     continue
@@ -146,30 +147,30 @@ if __name__ == '__main__':
                                 #etree.SubElement(attch, "mod_date").text = attachment.mod_date
                                 #etree.SubElement(attch, "read_date").text = attachment.read_date
                                 filePath = os.path.join(transferDir, "objects", "attachments", maildirsub, subDir, "%s_%s" % (attachedFileUUID, attachment.name))
-                                print '\tAttachment path:', filePath
+                                print('\tAttachment path:', filePath)
                                 filePath = unicodeToStr(filePath)
                                 writeFile(filePath, attachment)
                                 eventDetail="Unpacked from: {%s}%s" % (sourceFileUUID, sourceFilePath) 
                                 addFile(filePath, transferDir, transferUUID, date, eventDetail=eventDetail, fileUUID=attachedFileUUID)
                             except Exception as inst:
-                                print >>sys.stderr, sourceFilePath
+                                print(sourceFilePath, file=sys.stderr)
                                 traceback.print_exc(file=sys.stderr)
-                                print >>sys.stderr, type(inst)     # the exception instance
-                                print >>sys.stderr, inst.args
-                                print >>sys.stderr, etree.tostring(msg) 
-                                print >>sys.stderr
+                                print(type(inst), file=sys.stderr)     # the exception instance
+                                print(inst.args, file=sys.stderr)
+                                print(etree.tostring(msg), file=sys.stderr) 
+                                print(file=sys.stderr)
                                 sharedVariablesAcrossModules.errorCounter += 1
                 except Exception as inst:
-                    print >>sys.stderr, sourceFilePath
+                    print(sourceFilePath, file=sys.stderr)
                     traceback.print_exc(file=sys.stderr)
-                    print >>sys.stderr, type(inst)     # the exception instance
-                    print >>sys.stderr, inst.args
-                    print >>sys.stderr
+                    print(type(inst), file=sys.stderr)     # the exception instance
+                    print(inst.args, file=sys.stderr)
+                    print(file=sys.stderr)
                     sharedVariablesAcrossModules.errorCounter += 1
         except Exception as inst:
-            print >>sys.stderr, "INVALID MAILDIR FORMAT"
-            print >>sys.stderr, type(inst)
-            print >>sys.stderr, inst.args
+            print("INVALID MAILDIR FORMAT", file=sys.stderr)
+            print(type(inst), file=sys.stderr)
+            print(inst.args, file=sys.stderr)
             exit(-10)
         mirrorDir = os.path.join(transferDir, "objects/attachments", maildirsub)
         try:

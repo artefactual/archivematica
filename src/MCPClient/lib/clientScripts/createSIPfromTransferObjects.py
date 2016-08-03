@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import shutil
 import os
 import sys
@@ -83,7 +84,7 @@ if __name__ == '__main__':
             f.sip_id = sipUUID
             f.save()
         else:
-            print >>sys.stderr, "file not found: ", currentSIPFilePath
+            print("file not found: ", currentSIPFilePath, file=sys.stderr)
 
     archivematicaFunctions.create_directories(archivematicaFunctions.MANUAL_NORMALIZATION_DIRECTORIES, basepath=tmpSIPDir)
 

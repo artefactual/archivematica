@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import os
 from optparse import OptionParser
 import re
@@ -37,7 +38,7 @@ from custom_handlers import get_script_logger
 def something(SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, date):
     #exitCode = 435
     exitCode = 0
-    print SIPDirectory
+    print(SIPDirectory)
     #For every file, & directory Try to find the matching file & directory in the objects directory
     for (path, dirs, files) in os.walk(serviceDirectory):
         for file in files:
@@ -123,7 +124,7 @@ if __name__ == '__main__':
     date = opts.date
 
     if not os.path.isdir(serviceDirectory):
-        print "no service directory in this sip"
+        print("no service directory in this sip")
         #regular(SIPDirectory, objectsDirectory, SIPUUID, date)
         exit(0)
 

@@ -10,6 +10,7 @@ Add a derivative link.
 :param fileUUID: UUID of the preservation file.
 :param filePath: Path on disk of the preservation file.
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -62,18 +63,18 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
         try:
             preservation_file = filePath[filePath.index('manualNormalization/preservation/'):]
         except ValueError:
-            print >>sys.stderr, "{0} not in manualNormalization directory".format(filePath)
+            print("{0} not in manualNormalization directory".format(filePath), file=sys.stderr)
             exit(4)
         original = fileOperations.findFileInNormalizatonCSV(csv_path,
             "preservation", preservation_file, SIPUUID)
         if original is None:
             if isinstance(e, File.DoesNotExist):
-                print >>sys.stderr, "No matching file for: {0}".format(
-                    filePath.replace(SIPDirectory, "%SIPDirectory%"))
+                print("No matching file for: {0}".format(
+                    filePath.replace(SIPDirectory, "%SIPDirectory%")), file=sys.stderr)
                 exit(3)
             else:
-                print >>sys.stderr, "Could not find {preservation_file} in {filename}".format(
-                        preservation_file=preservation_file, filename=csv_path)
+                print("Could not find {preservation_file} in {filename}".format(
+                        preservation_file=preservation_file, filename=csv_path), file=sys.stderr)
                 exit(2)
         # If we found the original file, retrieve it from the DB
         original_file = File.objects.get(removedtime__isnull=True,
@@ -82,14 +83,14 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
                              sip_id=SIPUUID)
     else:
         if isinstance(e, File.DoesNotExist):
-            print >>sys.stderr, "No matching file for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1)
+            print("No matching file for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1), file=sys.stderr)
             exit(3)
         elif isinstance(e, File.MultipleObjectsReturned):
-            print >>sys.stderr, "Too many possible files for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1)
+            print("Too many possible files for: ", filePath.replace(SIPDirectory, "%SIPDirectory%", 1), file=sys.stderr)
             exit(2)
 
 # We found the original file somewhere above
-print "Matched original file %s (%s) to  preservation file %s (%s)" % (original_file.currentlocation, original_file.uuid, filePath, fileUUID)
+print("Matched original file %s (%s) to  preservation file %s (%s)" % (original_file.currentlocation, original_file.uuid, filePath, fileUUID))
 # Generate the new preservation path: path/to/original/filename-uuid.ext
 basename = os.path.basename(filePath)
 i = basename.rfind(".")
@@ -99,11 +100,11 @@ dst = os.path.join(dstDir, dstFile)
 dstR = dst.replace(SIPDirectory, "%SIPDirectory%", 1)
 
 if os.path.exists(dst):
-    print >>sys.stderr, "already exists:", dstR
+    print("already exists:", dstR, file=sys.stderr)
     exit(2)
 
 # Rename the preservation file
-print 'Renaming preservation file', filePath, 'to', dst
+print('Renaming preservation file', filePath, 'to', dst)
 os.rename(filePath, dst)
 # Update the preservation file's location
 File.objects.filter(uuid=fileUUID).update(currentlocation=dstR)

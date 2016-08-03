@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import re
 import os
 from lxml import etree as etree
@@ -78,7 +79,7 @@ def getDateTimeFromDateClosed(dateClosed):
         return
 
     dateClosedDT = datetime.strptime(dateClosed[:i], '%Y-%m-%dT%H:%M:%S')
-    print dateClosedDT
+    print(dateClosedDT)
     offSet = dateClosed[i+1:].split(":")
     offSetTD = timedelta(hours=int(offSet[0]), minutes=int(offSet[1]))
 
@@ -87,7 +88,7 @@ def getDateTimeFromDateClosed(dateClosed):
     elif  dateClosed[i] == "+":
         dateClosedDT = dateClosedDT + offSetTD
     else:
-        print >>sys.stderr,"Error with offset in:", dateClosed
+        print("Error with offset in:", dateClosed, file=sys.stderr)
         return dateClosedDT
     return dateClosedDT
 
@@ -101,14 +102,14 @@ for dir in os.listdir(transferPath):
         tree = etree.parse(xmlFilePath)
         root = tree.getroot()
     except:
-        print >>sys.stderr, "Error parsing: ", xmlFilePath.replace(transferPath, "%transferDirectory%", 1)
+        print("Error parsing: ", xmlFilePath.replace(transferPath, "%transferDirectory%", 1), file=sys.stderr)
         exitCode += 1
         continue
     try:
         RetentionSchedule = root.find("Container/RetentionSchedule").text
         DateClosed = root.find("Container/DateClosed").text
     except:
-        print >>sys.stderr, "Error retrieving values from: ", xmlFilePath.replace(transferPath, "%transferDirectory%", 1)
+        print("Error retrieving values from: ", xmlFilePath.replace(transferPath, "%transferDirectory%", 1), file=sys.stderr)
         exitCode += 1
         continue
 

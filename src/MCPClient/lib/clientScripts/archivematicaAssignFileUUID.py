@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import sys
 import uuid
 from optparse import OptionParser
@@ -59,7 +60,7 @@ if __name__ == '__main__':
     if not fileUUID or fileUUID == "None":
         fileUUID = uuid.uuid4().__str__()
     else:
-        print >>sys.stderr, "File already has UUID:", fileUUID
+        print("File already has UUID:", fileUUID, file=sys.stderr)
         if opts.update_use:
             File.objects.filter(uuid=fileUUID).update(filegrpuse=opts.use)
         exit(0) 
@@ -74,5 +75,5 @@ if __name__ == '__main__':
         addFileToSIP(filePathRelativeToSIP, fileUUID, opts.sipUUID, opts.eventIdentifierUUID, opts.date, use=opts.use)
 
     else:
-        print >>sys.stderr, "SIP exclusive-or Transfer uuid must be defined"
+        print("SIP exclusive-or Transfer uuid must be defined", file=sys.stderr)
         exit(2)

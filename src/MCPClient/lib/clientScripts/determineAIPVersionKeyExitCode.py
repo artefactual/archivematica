@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import namespaces as ns
 import os
 import sys
@@ -48,13 +49,13 @@ if __name__ == '__main__':
 
     mets_path = os.path.join(unit_path, "data", "METS.%s.xml" % (sip_uuid))
     if not os.path.isfile(mets_path):
-        print >>sys.stderr, "Mets file not found: ", mets_path
+        print("Mets file not found: ", mets_path, file=sys.stderr)
         sys.exit(0)
 
     parser = etree.XMLParser(remove_blank_text=True)
     root = etree.parse(mets_path, parser)
     
     version = get_version_from_mets(root)
-    print 'Version found in METSt:', version
+    print('Version found in METSt:', version)
     
     sys.exit(VERSION_MAP.get(version, 0))

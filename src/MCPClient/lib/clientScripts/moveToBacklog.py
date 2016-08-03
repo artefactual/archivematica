@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
 import logging
 import os
 import shutil
@@ -45,15 +46,15 @@ def main(transfer_uuid, transfer_path):
     if new_file is not None and new_file.get('status', '') != "FAIL":
         message = "Transfer moved to backlog: {}".format(new_file)
         logging.info(message)
-        print message
+        print(message)
         # TODO update transfer location?  Files location?
 
         # Delete transfer from processing space
         shutil.rmtree(transfer_path)
         return 0
     else:
-        print >>sys.stderr, "Moving to backlog failed.  See Storage Service logs for more details"
-        print >>sys.stderr, error_msg or "Package status: Failed"
+        print("Moving to backlog failed.  See Storage Service logs for more details", file=sys.stderr)
+        print(error_msg or "Package status: Failed", file=sys.stderr)
         logging.warning("Moving to backlog failed: {}.  See logs for more details.".format(error_msg))
         return 1
 

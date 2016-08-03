@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import sys
 import csv
 import os
@@ -36,7 +37,7 @@ if __name__ == '__main__':
     labelFirst = False
     
     if not os.path.isfile(fileLabels):
-        print "No such file:", fileLabels
+        print("No such file:", fileLabels)
         exit(0)
 
     # use universal newline mode to support unusual newlines, like \r

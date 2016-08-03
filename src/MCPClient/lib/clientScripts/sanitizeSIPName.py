@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 from archivematicaMoveSIP import moveSIP
 import sys
 
@@ -58,12 +59,12 @@ if __name__ == '__main__':
         klass = Transfer
         locationColumn = 'currentlocation'
     else:
-        print >>sys.stderr, "invalid unit type: ", unitType
+        print("invalid unit type: ", unitType, file=sys.stderr)
         exit(1)
     dst = sanitizePath(SIPDirectory)
     if SIPDirectory != dst:
         dst = dst.replace(sharedDirectoryPath, "%sharedPath%", 1) + "/"
-        print SIPDirectory.replace(sharedDirectoryPath, "%sharedPath%", 1) + " -> " + dst
+        print(SIPDirectory.replace(sharedDirectoryPath, "%sharedPath%", 1) + " -> " + dst)
 
         unit = klass.objects.get(uuid=sipUUID)
         setattr(unit, locationColumn, dst)

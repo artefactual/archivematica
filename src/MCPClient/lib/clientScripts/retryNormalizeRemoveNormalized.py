@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import os
 import sys
 import shutil
@@ -40,7 +41,7 @@ def removeDIP(SIPDirectory, SIPUUID):
         if os.path.isdir(DIP):
             shutil.rmtree(DIP)
     except (os.error, shutil.Error):
-        print >> sys.stderr, 'Error deleting DIP'
+        print('Error deleting DIP', file=sys.stderr)
         traceback.print_exc(file=sys.stdout)
 
 
@@ -50,7 +51,7 @@ def removeThumbnails(SIPDirectory, SIPUUID):
         if os.path.isdir(thumbnails):
             shutil.rmtree(thumbnails)
     except (os.error, shutil.Error):
-        print >> sys.stderr, 'Error deleting thumbnails'
+        print('Error deleting thumbnails', file=sys.stderr)
         traceback.print_exc(file=sys.stdout)
 
 
@@ -66,10 +67,10 @@ def removePreservationFiles(SIPDirectory, SIPUUID):
                 file_.save()
                 os.remove(file_.currentlocation.replace("%SIPDirectory%", SIPDirectory, 1))
             except Exception:
-                print >> sys.stderr, 'Error removing preservation files'
+                print('Error removing preservation files', file=sys.stderr)
                 traceback.print_exc(file=sys.stdout)
     except Exception:
-        print >> sys.stderr, 'Error running SQL'
+        print('Error running SQL', file=sys.stderr)
         traceback.print_exc(file=sys.stdout)
 
     # Remove manually normalized derivation links
@@ -77,14 +78,14 @@ def removePreservationFiles(SIPDirectory, SIPUUID):
     try:
         Derivation.objects.filter(derived_file__filegrpuse="manualNormalization", derived_file__sip_id=SIPUUID).delete()
     except Exception:
-        print >> sys.stderr, 'Error deleting manual normalization links from database'
+        print('Error deleting manual normalization links from database', file=sys.stderr)
         traceback.print_exc(file=sys.stdout)
 
     # Remove normalization events
     try:
         Event.objects.filter(file_uuid__sip_id=SIPUUID, event_type="normalization").delete()
     except Exception:
-        print >> sys.stderr, 'Error deleting normalization events from database.'
+        print('Error deleting normalization events from database.', file=sys.stderr)
         traceback.print_exc(file=sys.stdout)
 
 

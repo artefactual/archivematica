@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
 import argparse
 import sys
 
@@ -31,12 +32,12 @@ def post_store_hook(sip_uuid):
     # TODO Storage service should index AIPs, knows when to update ES
     transfer_uuids = set(models.SIPArrange.objects.filter(file_uuid__in=file_uuids).values_list('transfer_uuid', flat=True))
     for transfer_uuid in transfer_uuids:
-        print 'Checking if transfer', transfer_uuid, 'is fully stored...'
+        print('Checking if transfer', transfer_uuid, 'is fully stored...')
         arranged_uuids = set(models.SIPArrange.objects.filter(transfer_uuid=transfer_uuid).filter(aip_created=True).values_list('file_uuid', flat=True))
         backlog_uuids = set(models.File.objects.filter(transfer=transfer_uuid).values_list('uuid', flat=True))
         # If all backlog UUIDs have been arranged
         if arranged_uuids == backlog_uuids:
-            print 'Transfer', transfer_uuid, 'fully stored, sending delete request to storage service, deleting from transfer backlog'
+            print('Transfer', transfer_uuid, 'fully stored, sending delete request to storage service, deleting from transfer backlog')
             # Submit delete req to SS (not actually delete), remove from ES
             storage_service.request_file_deletion(
                 uuid=transfer_uuid,

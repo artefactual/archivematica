@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
 import argparse
 from lxml import etree
 from lxml.builder import ElementMaker
@@ -63,7 +64,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     try:
         aip_size = os.path.getsize(aip_path)
     except os.error:
-        print >> sys.stderr, "File {} does not exist or is inaccessible.  Aborting.".format(aip_path)
+        print("File {} does not exist or is inaccessible.  Aborting.".format(aip_path), file=sys.stderr)
         return -1
     # Calculate checksum
     checksum_algorithm = get_setting('checksum_type', 'sha256')
@@ -209,7 +210,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
         div = etree.SubElement(structmap, namespaces.metsBNS+'div', ADMID=amdsec_id, TYPE=package_type)
         etree.SubElement(div, namespaces.metsBNS+'fptr', FILEID=aip_identifier)
 
-    print etree.tostring(root, pretty_print=True)
+    print(etree.tostring(root, pretty_print=True))
 
     # Write out pointer.xml
     xml_filename = 'pointer.xml'

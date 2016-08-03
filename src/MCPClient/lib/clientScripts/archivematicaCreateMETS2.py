@@ -22,6 +22,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import collections
 import copy
 from glob import glob
@@ -226,7 +227,7 @@ def createDmdSecsFromCSVParsedMetadata(metadata):
                 try:
                     etree.SubElement(dc, elem_namespace + key).text = v.decode('utf-8')
                 except UnicodeDecodeError:
-                    print >> sys.stderr, "Skipping DC value; not valid UTF-8: {}".format(v)
+                    print("Skipping DC value; not valid UTF-8: {}".format(v), file=sys.stderr)
         else:  # not a dublin core item
             if other is None:
                 globalDmdSecCounter += 1
@@ -242,7 +243,7 @@ def createDmdSecsFromCSVParsedMetadata(metadata):
                 try:
                     etree.SubElement(other, normalizeNonDcElementName(key)).text = v.decode('utf-8')
                 except UnicodeDecodeError:
-                    print >> sys.stderr, "Skipping DC value; not valid UTF-8: {}".format(v)
+                    print("Skipping DC value; not valid UTF-8: {}".format(v), file=sys.stderr)
     return ret
 
 
@@ -272,9 +273,9 @@ def createDublincoreDMDSecFromDBData(unit_type, unit_uuid, baseDirectoryPath):
                     dc = dtree.getroot()
                     break
                 except Exception as inst:
-                    print >>sys.stderr, "error parsing file:", dcXMLFile
-                    print >>sys.stderr, type(inst)     # the exception instance
-                    print >>sys.stderr, inst.args
+                    print("error parsing file:", dcXMLFile, file=sys.stderr)
+                    print(type(inst), file=sys.stderr)     # the exception instance
+                    print(inst.args, file=sys.stderr)
                     traceback.print_exc(file=sys.stdout)
                     sharedVariablesAcrossModules.globalErrorCount += 1
         else:  # break not called, no DC successfully parsed
@@ -316,7 +317,7 @@ def createDSpaceDMDSec(label, dspace_mets_path, directoryPathSTR):
     try:
         xptr = "xpointer(id('{}'))".format(' '.join(xptr_dmdids))
     except TypeError:  # Trying to .join() on a list with None
-        print >> sys.stderr, 'dmdSec in', dspace_mets_path, 'missing an ID'
+        print('dmdSec in', dspace_mets_path, 'missing an ID', file=sys.stderr)
         raise
     newChild(dmdsec, ns.metsBNS + "mdRef", text=None, sets=[("LABEL", label), (ns.xlinkBNS + "href", directoryPathSTR), ("MDTYPE", "OTHER"), ("LOCTYPE", "OTHER"), ("OTHERLOCTYPE", "SYSTEM"), ("XPTR", xptr)])
 
@@ -324,7 +325,7 @@ def createDSpaceDMDSec(label, dspace_mets_path, directoryPathSTR):
     identifier = root.findtext('mets:amdSec/mets:sourceMD/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@qualifier="uri"]', namespaces=ns.NSMAP)
     part_of = root.findtext('mets:amdSec/mets:sourceMD/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@qualifier="isPartOf"]', namespaces=ns.NSMAP)
     if identifier is None or part_of is None:
-        print >> sys.stderr, 'Unable to parse identifer and isPartOf from', dspace_mets_path
+        print('Unable to parse identifer and isPartOf from', dspace_mets_path, file=sys.stderr)
         return {}
     metadata = {
         'dc.identifier': [identifier],
@@ -403,7 +404,7 @@ def createTechMD(fileUUID):
     try:
         f = File.objects.get(uuid=fileUUID)
     except File.DoesNotExist:
-        print >>sys.stderr, "Error: no location found."
+        print("Error: no location found.", file=sys.stderr)
     else:
         etree.SubElement(object, ns.premisBNS + "originalName").text = escape(f.originallocation)
 
@@ -609,12 +610,12 @@ def getIncludedStructMap(baseDirectoryPath):
                     #print fileName, " -> ", fileNameToFileID[fileName]
                     item.set("FILEID", fileNameToFileID[fileName])
                 else:
-                    print >>sys.stderr,"error: no fileUUID for ", fileName
+                    print("error: no fileUUID for ", fileName, file=sys.stderr)
                     sharedVariablesAcrossModules.globalErrorCount += 1
     for fileName, fileID in  fileNameToFileID.iteritems():
         #locate file based on key
         continue
-        print fileName
+        print(fileName)
     if trimStructMap != None:
         ret.append(trimStructMap)
     return ret
@@ -648,7 +649,7 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
         directoryContents = sorted(os.listdir(directoryPath))
     except os.error:
         # Directory doesn't exist
-        print >> sys.stderr, directoryPath, "doesn't exist"
+        print(directoryPath, "doesn't exist", file=sys.stderr)
         return
 
     structMapDiv = etree.SubElement(parentDiv, ns.metsBNS + 'div', TYPE='Directory', LABEL=os.path.basename(directoryPath))
@@ -674,7 +675,7 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
             try:
                 f = File.objects.get(**kwargs)
             except File.DoesNotExist:
-                print >>sys.stderr, "No uuid for file: \"", directoryPathSTR, "\""
+                print("No uuid for file: \"", directoryPathSTR, "\"", file=sys.stderr)
                 sharedVariablesAcrossModules.globalErrorCount += 1
                 continue
 
@@ -808,10 +809,10 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
 
             if GROUPID == "":
                 sharedVariablesAcrossModules.globalErrorCount += 1
-                print >>sys.stderr, "No groupID for file: \"", directoryPathSTR, "\""
+                print("No groupID for file: \"", directoryPathSTR, "\"", file=sys.stderr)
 
             if use not in globalFileGrps:
-                print >>sys.stderr, 'Invalid use: "%s"' % (use)
+                print('Invalid use: "%s"' % (use), file=sys.stderr)
                 sharedVariablesAcrossModules.globalErrorCount += 1
             else:
                 file_elem = etree.SubElement(globalFileGrps[use], ns.metsBNS + "file", ID=fileId, GROUPID=GROUPID)
@@ -861,7 +862,7 @@ def build_arranged_structmap(original_structmap, sip_uuid):
     # Handle objects level of description separately, since tag paths are relative to objects
     tag = tag_dict.get('.')
     if tag:
-        print 'Adding TYPE=%s for logical structMap element objects' % tag
+        print('Adding TYPE=%s for logical structMap element objects' % tag)
         objects.attrib['TYPE'] = tag
     else:
         del objects.attrib['TYPE']
@@ -883,7 +884,7 @@ def build_arranged_structmap(original_structmap, sip_uuid):
         # no TYPE attribute.
         tag = tag_dict.get(relative_location)
         if tag:
-            print 'Adding TYPE=%s for logical structMap element %s' % (tag, relative_location)
+            print('Adding TYPE=%s for logical structMap element %s' % (tag, relative_location))
             element.attrib['TYPE'] = tag
         else:
             del element.attrib['TYPE']
@@ -915,7 +916,7 @@ def find_bag_metadata(bag_logs_path):
     try:
         return Bag(bag_logs_path).info
     except BagError:
-        print >> sys.stderr, "Unable to locate or parse bag metadata at: {}".format(bag_logs_path)
+        print("Unable to locate or parse bag metadata at: {}".format(bag_logs_path), file=sys.stderr)
         return {}
 
 def create_object_metadata(struct_map, baseDirectoryPath):
@@ -972,7 +973,7 @@ def create_object_metadata(struct_map, baseDirectoryPath):
             try:
                 bag_tag = etree.SubElement(bag_metadata, key)
             except ValueError:
-                print >> sys.stderr, "Skipping bag key {}; not a valid XML tag name".format(key)
+                print("Skipping bag key {}; not a valid XML tag name".format(key), file=sys.stderr)
                 continue
             bag_tag.text = value
 
@@ -1030,7 +1031,7 @@ if __name__ == '__main__':
 
     # If reingesting, do not create a new METS, just modify existing one
     if 'REIN' in SIP_TYPE:
-        print 'Updating METS during reingest'
+        print('Updating METS during reingest')
         # fileGroupIdentifier is SIPUUID, baseDirectoryPath is SIP dir,
         tree = archivematicaCreateMETSReingest.update_mets(
             baseDirectoryPath,
@@ -1049,7 +1050,7 @@ if __name__ == '__main__':
     for root, dirs, files in os.walk(baseDirectoryPath, topdown=False):
         try:
             os.rmdir(root)
-            print "Deleted empty directory", root
+            print("Deleted empty directory", root)
         except OSError:
             pass
 
@@ -1111,11 +1112,11 @@ if __name__ == '__main__':
 
     printSectionCounters = True
     if printSectionCounters:
-        print "DmdSecs:", globalDmdSecCounter
-        print "AmdSecs:", globalAmdSecCounter
-        print "TechMDs:", globalTechMDCounter
-        print "RightsMDs:", globalRightsMDCounter
-        print "DigiprovMDs:", globalDigiprovMDCounter
+        print("DmdSecs:", globalDmdSecCounter)
+        print("AmdSecs:", globalAmdSecCounter)
+        print("TechMDs:", globalTechMDCounter)
+        print("RightsMDs:", globalRightsMDCounter)
+        print("DigiprovMDs:", globalDigiprovMDCounter)
 
     tree = etree.ElementTree(root)
     write_mets(tree, XMLFile)

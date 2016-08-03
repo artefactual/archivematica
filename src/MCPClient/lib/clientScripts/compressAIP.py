@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
 import argparse
 import os.path
 import sys
@@ -40,7 +41,7 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
         program, compression_algorithm = compression.split('-')
     except ValueError:
         msg = "Invalid program-compression algorithm: {}".format(compression)
-        print >> sys.stderr, msg
+        print(msg, file=sys.stderr)
         return -1
 
     archive_path = '{name}-{uuid}'.format(name=sip_name, uuid=sip_uuid)
@@ -55,8 +56,8 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
         update_unit(sip_uuid, uncompressed_location)
         return 0
 
-    print "Compressing {} with {}, algorithm {}, level {}".format(
-        uncompressed_location, program, compression_algorithm, compression_level)
+    print("Compressing {} with {}, algorithm {}, level {}".format(
+        uncompressed_location, program, compression_algorithm, compression_level))
 
     if program == '7z':
         compressed_location = uncompressed_location+".7z"
@@ -75,10 +76,10 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
         tool_info_command = 'echo program=\"pbzip2\"\; version=\"`pbzip2 --version`\"'
     else:
         msg = "Program {} not recognized, exiting script prematurely.".format(program)
-        print >> sys.stderr, msg
+        print(msg, file=sys.stderr)
         return -1
 
-    print 'Executing command:', command
+    print('Executing command:', command)
     exit_code, std_out, std_err = executeOrRun("bashScript", command, printing=True)
 
     # Add new AIP File
@@ -91,7 +92,7 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
     )
 
     # Add compression event
-    print 'Tool info command:', tool_info_command
+    print('Tool info command:', tool_info_command)
     _, tool_info, _ = executeOrRun("bashScript", tool_info_command, printing=True)
     tool_output = 'Standard Output="{}"; Standard Error="{}"'.format(std_out, std_err)
     databaseFunctions.insertIntoEvents(

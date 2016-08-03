@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import os
 import sys
 
@@ -74,18 +75,18 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
         try:
             access_file = opts.filePath[opts.filePath.index('manualNormalization/access/'):]
         except ValueError:
-            print >>sys.stderr, "{0} not in manualNormalization directory".format(opts.filePath)
+            print("{0} not in manualNormalization directory".format(opts.filePath), file=sys.stderr)
             exit(4)
         original = fileOperations.findFileInNormalizatonCSV(csv_path,
             "access", access_file, unitIdentifier)
         if original is None:
             if isinstance(e, File.DoesNotExist):
-                print >>sys.stderr, "No matching file for: {0}".format(
-                    opts.filePath.replace(opts.sipDirectory, "%SIPDirectory%"))
+                print("No matching file for: {0}".format(
+                    opts.filePath.replace(opts.sipDirectory, "%SIPDirectory%")), file=sys.stderr)
                 exit(3)
             else:
-                print >>sys.stderr, "Could not find {access_file} in {filename}".format(
-                        access_file=access_file, filename=csv_path)
+                print("Could not find {access_file} in {filename}".format(
+                        access_file=access_file, filename=csv_path), file=sys.stderr)
                 exit(2)
         # If we found the original file, retrieve it from the DB
         kwargs = {
@@ -97,17 +98,17 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
         f = File.objects.get(**kwargs)
     else:
         if isinstance(e, File.DoesNotExist):
-            print >>sys.stderr, "No matching file for: ", opts.filePath.replace(opts.SIPDirectory, "%SIPDirectory%", 1)
+            print("No matching file for: ", opts.filePath.replace(opts.SIPDirectory, "%SIPDirectory%", 1), file=sys.stderr)
             exit(3)
         elif isinstance(e, File.MultipleObjectsReturned):
-            print >>sys.stderr, "Too many possible files for: ", opts.filePath.replace(opts.SIPDirectory, "%SIPDirectory%", 1)
+            print("Too many possible files for: ", opts.filePath.replace(opts.SIPDirectory, "%SIPDirectory%", 1), file=sys.stderr)
             exit(2)
 
 # We found the original file somewhere above, get the UUID and path
 originalFileUUID = f.uuid
 originalFilePath = f.originallocation
 
-print "matched: {%s}%s" % (originalFileUUID, originalFilePath)
+print("matched: {%s}%s" % (originalFileUUID, originalFilePath))
 dstDir = os.path.join(opts.sipDirectory, "DIP", "objects")
 dstFile = originalFileUUID + "-" + os.path.basename(opts.filePath)
 

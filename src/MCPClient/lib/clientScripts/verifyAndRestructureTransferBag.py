@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import os
 import sys
 
@@ -57,10 +58,10 @@ def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitI
             src = dirDataPath
             dst = dirPath
             fileOperations.updateDirectoryLocation(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
-            print "moving directory ", dir
+            print("moving directory ", dir)
         else:
             if not os.path.isdir(dirPath):
-                print "creating: ", dir
+                print("creating: ", dir)
                 os.mkdir(dirPath)
     for item in os.listdir(unitPath):
         src = os.path.join(unitPath, item)
@@ -69,24 +70,24 @@ def restructureBagForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitI
                 dst = os.path.join(unitPath, "metadata", item)
                 fileOperations.updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
             elif item in OPTIONAL_FILES:
-                print "not moving:", item
+                print("not moving:", item)
             else:
                 dst = os.path.join(bagFileDefaultDest, item)
                 fileOperations.updateFileLocation2(src, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
     for item in os.listdir(unitDataPath):
         itemPath = os.path.join(unitDataPath, item)
         if os.path.isdir(itemPath) and item not in REQUIRED_DIRECTORIES:
-            print "moving directory to objects: ", item
+            print("moving directory to objects: ", item)
             dst = os.path.join(unitPath, "objects", item)
             fileOperations.updateDirectoryLocation(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
         elif os.path.isfile(itemPath) and item not in OPTIONAL_FILES:
-            print "moving file to objects: ", item
+            print("moving file to objects: ", item)
             dst = os.path.join(unitPath, "objects", item)
             fileOperations.updateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
         elif item in OPTIONAL_FILES:
             dst = os.path.join(unitPath, item)
             fileOperations.updateFileLocation2(itemPath, dst, unitPath, unitIdentifier, unitIdentifierType, unitPathReplaceWith)
-    print "removing empty data directory"
+    print("removing empty data directory")
     os.rmdir(unitDataPath)
 
 
@@ -95,7 +96,7 @@ if __name__ == '__main__':
     transferUUID = sys.argv[2]
     exitCode = verify_bag(target)
     if exitCode != 0:
-        print >>sys.stderr, "Failed bagit compliance. Not restructuring."
+        print("Failed bagit compliance. Not restructuring.", file=sys.stderr)
         sys.exit(exitCode)
     restructureBagForComplianceFileUUIDsAssigned(target, transferUUID)
 

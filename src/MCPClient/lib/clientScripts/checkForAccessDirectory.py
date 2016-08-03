@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import os
 import sys
 from optparse import OptionParser
@@ -38,7 +39,7 @@ from fileOperations import renameAsSudo
 def something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIPUUID, date, copy=False):
     # exitCode = 435
     exitCode = 179
-    print SIPDirectory
+    print(SIPDirectory)
     # For every file, & directory Try to find the matching file & directory in the objects directory
     for (path, dirs, files) in os.walk(accessDirectory):
         for file in files:
@@ -55,18 +56,18 @@ def something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIP
                                             currentlocation__startswith=objectNameLike,
                                             sip_id=SIPUUID)
                 if not files.exists():
-                    print >>sys.stderr, "No corresponding object for:", accessPath.replace(SIPDirectory, "%SIPDirectory%", 1)
+                    print("No corresponding object for:", accessPath.replace(SIPDirectory, "%SIPDirectory%", 1), file=sys.stderr)
                     exitCode = 1
                 update = []
                 for objectUUID, objectPath in files.values_list('uuid', 'currentlocation'):
                     objectExtension = objectPath.replace(objectNameLike, "", 1)
-                    print objectName[objectNameExtensionIndex + 1:], objectExtension, "\t",
+                    print(objectName[objectNameExtensionIndex + 1:], objectExtension, "\t", end=' ')
                     if objectExtension.find(".") != -1:
                         continue
-                    print objectName[objectNameExtensionIndex + 1:], objectExtension, "\t",
+                    print(objectName[objectNameExtensionIndex + 1:], objectExtension, "\t", end=' ')
                     dipPath = os.path.join(DIPDirectory,  "objects", "%s-%s" % (objectUUID, os.path.basename(accessPath)))
                     if copy:
-                        print "TODO - copy not supported yet"
+                        print("TODO - copy not supported yet")
                     else:
                         dest = dipPath
                         renameAsSudo(accessPath, dest)
@@ -106,7 +107,7 @@ if __name__ == '__main__':
     copy = opts.copy
 
     if not os.path.isdir(accessDirectory):
-        print "no access directory in this sip"
+        print("no access directory in this sip")
         exit(0)
 
 
@@ -116,7 +117,7 @@ if __name__ == '__main__':
         if not os.path.isdir(os.path.join(DIPDirectory, "objects")):
             os.mkdir(os.path.join(DIPDirectory, "objects"))
     except:
-        print "error creating DIP directory"
+        print("error creating DIP directory")
 
     exitCode = something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIPUUID, date, copy)
     exit(exitCode)

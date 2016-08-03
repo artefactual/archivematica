@@ -16,6 +16,7 @@
 # python at_import.py --host=localhost --port=3306 --dbname="ATTEST" --dbuser=ATuser --dbpass=hello --dip_location="/home/jhs/dip" --dip_name=mydip --atuser=myuser --use_statement="Image-Service" --uri_prefix="http://www.rockarch.org/"
 #
 
+from __future__ import print_function
 import argparse
 import logging
 import os
@@ -47,8 +48,8 @@ def recursive_file_gen(mydir):
 
 
 def get_user_input():
-    print "Archivematica import to AT script"
-    print "Welcome\n"
+    print("Archivematica import to AT script")
+    print("Welcome\n")
     atdbhost = raw_input("AT database hostname:")
     atdbport = raw_input("AT database port:")
     atdbuser = raw_input("AT database user name:")

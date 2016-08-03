@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import os
 import shutil
 import sys
@@ -51,7 +52,7 @@ def moveSIP(src, dst, sipUUID, sharedDirectoryPath):
     # If destination already exists, delete it with warning
     dest_path = os.path.join(dst, os.path.basename(src))
     if os.path.exists(dest_path):
-        print >>sys.stderr, dest_path, 'exists, deleting'
+        print(dest_path, 'exists, deleting', file=sys.stderr)
         shutil.rmtree(dest_path)
 
     renameAsSudo(src, dst)

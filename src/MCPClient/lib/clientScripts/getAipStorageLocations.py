@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
 import logging
 import sys
 
@@ -19,7 +20,7 @@ def get_aip_storage_locations(purpose):
     choices = {}
     for storage_dir in storage_directories:
         choices[storage_dir['description']] = storage_dir['resource_uri']
-    print choices
+    print(choices)
 
 
 if __name__ == '__main__':

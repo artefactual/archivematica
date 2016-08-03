@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import sys
 import subprocess
 import os
@@ -60,14 +61,14 @@ if __name__ == '__main__':
         if os.path.isfile(newfile):
             oldfile = oldfile.replace(objectsDirectory, relativeReplacement, 1)
             newfile = newfile.replace(objectsDirectory, relativeReplacement, 1)
-            print oldfile, " -> ", newfile
+            print(oldfile, " -> ", newfile)
 
             if groupType == "%SIPDirectory%":
                 updateFileLocation(oldfile, newfile, "name cleanup", date, "prohibited characters removed:" + eventDetail, fileUUID=None, sipUUID=sipUUID)
             elif groupType == "%transferDirectory%":
                 updateFileLocation(oldfile, newfile, "name cleanup", date, "prohibited characters removed:" + eventDetail, fileUUID=None, transferUUID=sipUUID)
             else:
-                print >>sys.stderr, "bad group type", groupType
+                print("bad group type", groupType, file=sys.stderr)
                 exit(3)
 
         elif os.path.isdir(newfile):
@@ -82,7 +83,7 @@ if __name__ == '__main__':
             }
             files = File.objects.filter(**kwargs)
 
-            print oldfile, " -> ", newfile
+            print(oldfile, " -> ", newfile)
 
             for f in files:
                 new_path = unicodeToStr(f.currentlocation).replace(oldfile, newfile, 1)

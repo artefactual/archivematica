@@ -20,6 +20,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import os
 import sys
 import shutil
@@ -34,16 +35,16 @@ def restructureMaildirDirectory(unitPath):
         dirPath = os.path.join(unitPath, dir)
         if not os.path.isdir(dirPath):
             os.mkdir(dirPath)
-            print "creating: ", dir
+            print("creating: ", dir)
     for item in os.listdir(unitPath):
         dst = os.path.join(unitPath, "objects", "Maildir") + "/."
         itemPath =  os.path.join(unitPath, item)
         if os.path.isdir(itemPath) and item not in requiredDirectories:
             shutil.move(itemPath, dst)
-            print "moving directory to objects/Maildir: ", item
+            print("moving directory to objects/Maildir: ", item)
         elif os.path.isfile(itemPath) and item not in optionalFiles:
             shutil.move(itemPath, dst)
-            print "moving file to objects/Maildir: ", item
+            print("moving file to objects/Maildir: ", item)
 
 if __name__ == '__main__':
     target = sys.argv[1]

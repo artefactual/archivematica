@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import sys
 from optparse import OptionParser
 import uuid
@@ -40,7 +41,7 @@ def verifyChecksum(fileUUID, filePath, date, eventIdentifierUUID):
     f = File.objects.get(uuid=fileUUID)
 
     if f.checksum in ('', 'None'):
-        print >>sys.stderr, 'No checksum found in database for file:', fileUUID, filePath
+        print('No checksum found in database for file:', fileUUID, filePath, file=sys.stderr)
         exit(1)
 
     checksumFile = get_file_checksum(filePath, f.checksumtype)
@@ -53,8 +54,8 @@ def verifyChecksum(fileUUID, filePath, date, eventIdentifierUUID):
         eventOutcomeDetailNote = str(checksumFile) + ' != ' + f.checksum
         eventOutcome = 'Fail'
         exitCode = 2
-        print >>sys.stderr, 'Checksums do not match:', fileUUID, filePath
-        print >>sys.stderr, eventOutcomeDetailNote
+        print('Checksums do not match:', fileUUID, filePath, file=sys.stderr)
+        print(eventOutcomeDetailNote, file=sys.stderr)
     else:
         eventOutcomeDetailNote = '%s %s' % (str(checksumFile), 'verified')
         eventOutcome = 'Pass'

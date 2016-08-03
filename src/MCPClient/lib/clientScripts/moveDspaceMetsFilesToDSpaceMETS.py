@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import os
 import sys
 import lxml.etree as etree
@@ -33,14 +34,14 @@ from fileOperations import updateFileLocation
 from fileOperations import renameAsSudo
 
 def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, transferUUID, relativeDirectory="./"):
-    print metsFile
+    print(metsFile)
     DSpaceMets = "metadata/submissionDocumentation/DSpaceMets"
     try:
         path = os.path.join(transferDirectory, DSpaceMets)
         if not os.path.isdir(path):
             os.mkdir(path)
     except:
-        print "error creating DSpaceMets directory."
+        print("error creating DSpaceMets directory.")
     exitCode = 0
 
     metsDirectory = os.path.basename(os.path.dirname(metsFile))

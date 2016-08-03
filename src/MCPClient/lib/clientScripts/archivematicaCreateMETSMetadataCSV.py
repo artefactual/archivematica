@@ -24,6 +24,7 @@
 
 #/src/dashboard/src/main/models.py
 
+from __future__ import print_function
 import collections
 import csv
 import os
@@ -54,7 +55,7 @@ def parseMetadata(SIPPath):
         try:
             csv_metadata = parseMetadataCSV(metadataCSVFilePath)
         except Exception:
-            print >>sys.stderr, "error parsing: ", metadataCSVFilePath
+            print("error parsing: ", metadataCSVFilePath, file=sys.stderr)
             traceback.print_exc(file=sys.stderr)
             sharedVariablesAcrossModules.globalErrorCount += 1
             continue
@@ -62,7 +63,7 @@ def parseMetadata(SIPPath):
         # Not using all_metadata.update(csv_metadata) because of that
         for entry, values in csv_metadata.iteritems():
             if entry in all_metadata and all_metadata[entry] != values:
-                print >> sys.stderr, 'Metadata for', entry, 'being updated. Old:', all_metadata[entry], 'New:', values
+                print('Metadata for', entry, 'being updated. Old:', all_metadata[entry], 'New:', values, file=sys.stderr)
             existing = all_metadata.get(entry, collections.OrderedDict())
             existing.update(values)
             all_metadata[entry] = existing
@@ -95,7 +96,7 @@ def parseMetadataCSV(metadataCSVFilePath):
     with open(metadataCSVFilePath, 'rbU') as f:
         reader = csv.reader(f)
         # Parse first row as header
-        header = reader.next()
+        header = next(reader)
         # Strip filename column, strip whitespace from header values
         header = [h.strip() for h in header[1:]]
         # Parse data
@@ -109,7 +110,7 @@ def parseMetadataCSV(metadataCSVFilePath):
             row = row[1:]
             values = archivematicaFunctions.OrderedListsDict(zip(header, row))
             if entry_name in metadata and metadata[entry_name] != values:
-                print >> sys.stderr, 'Metadata for', entry_name, 'being overwritten. Old:', metadata[entry_name], 'New:', values
+                print('Metadata for', entry_name, 'being overwritten. Old:', metadata[entry_name], 'New:', values, file=sys.stderr)
             metadata[entry_name] = values
 
     return collections.OrderedDict(metadata)  # Return a normal OrderedDict

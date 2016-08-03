@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import uuid
 import shutil
 import os
@@ -50,7 +51,7 @@ if __name__ == '__main__':
         sipUUID = uuid.uuid4().__str__()
         containerPath = os.path.join(objectsDirectory, container)
         if not os.path.isdir(containerPath):
-            print >>sys.stderr, "file (not container) found: ", container
+            print("file (not container) found: ", container, file=sys.stderr)
             continue
             
         sipName = "%s-%s" % (transferName, container) 
@@ -78,7 +79,7 @@ if __name__ == '__main__':
                 f.sip_id = sipUUID
                 f.save()
             else:
-                print >>sys.stderr, "file not found: ", currentSIPFilePath
+                print("file not found: ", currentSIPFilePath, file=sys.stderr)
 
         # moveSIPTo autoProcessSIPDirectory
         shutil.move(tmpSIPDir, destSIPDir)

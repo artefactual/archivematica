@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import hashlib
 import os
 import sys
@@ -29,7 +30,7 @@ import lxml.etree as etree
 from archivematicaFunctions import get_file_checksum
 
 def verifyMetsFileSecChecksums(metsFile, date, taskUUID, relativeDirectory="./"):
-    print metsFile
+    print(metsFile)
     exitCode = 0
     tree = etree.parse(metsFile)
     root = tree.getroot()
@@ -47,17 +48,17 @@ def verifyMetsFileSecChecksums(metsFile, date, taskUUID, relativeDirectory="./")
             checksum2 = get_file_checksum(fileFullPath, checksumType)
             eventDetail = 'program="python"; module="hashlib.{}()"'.format(checksumType)
         else:
-            print >>sys.stderr, "Unsupported checksum type: %s" % (checksumType.__str__())
+            print("Unsupported checksum type: %s" % (checksumType.__str__()), file=sys.stderr)
             exit(300)
 
         if checksum != checksum2:
             eventOutcome = "Fail"
-            print "%s - %s - %s" % ((checksum == checksum2).__str__(), checksum.__str__(), checksum2.__str__())
-            print >>sys.stderr, eventOutcome, fileFullPath
+            print("%s - %s - %s" % ((checksum == checksum2).__str__(), checksum.__str__(), checksum2.__str__()))
+            print(eventOutcome, fileFullPath, file=sys.stderr)
             exitCode = exitCode + 22
         else:
             eventOutcome = "Pass"
-            print eventOutcome, fileLocation
+            print(eventOutcome, fileLocation)
 
     return exitCode
 

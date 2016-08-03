@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import sys
 import os
 from optparse import OptionParser
@@ -28,7 +29,7 @@ from optparse import OptionParser
 def verifyFileUUID(fileUUID, filePath, sipDirectory):
     if fileUUID == "None":
         relativeFilePath = filePath.replace(sipDirectory, "%SIPDirectory%", 1)
-        print >>sys.stderr, relativeFilePath
+        print(relativeFilePath, file=sys.stderr)
         os.remove(filePath)
         quit(0)
 

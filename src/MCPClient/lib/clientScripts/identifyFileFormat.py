@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
 import argparse
 import sys
 import uuid
@@ -90,10 +91,10 @@ def write_file_id(file_uuid, format=None, output=''):
 
 
 def main(command_uuid, file_path, file_uuid, disable_reidentify):
-    print "IDCommand UUID:", command_uuid
-    print "File: ({}) {}".format(file_uuid, file_path)
+    print("IDCommand UUID:", command_uuid)
+    print("File: ({}) {}".format(file_uuid, file_path))
     if command_uuid == "None":
-        print "Skipping file format identification"
+        print("Skipping file format identification")
         return 0
     try:
         command = IDCommand.active.get(uuid=command_uuid)
@@ -105,7 +106,7 @@ def main(command_uuid, file_path, file_uuid, disable_reidentify):
 
     # If reidentification is disabled and a format identification event exists for this file, exit
     if disable_reidentify and file_.event_set.filter(event_type='format identification').exists():
-        print 'This file has already been identified, and re-identification is disabled. Skipping.'
+        print('This file has already been identified, and re-identification is disabled. Skipping.')
         return 0
 
     # Save the selected ID command for use in a later chain
@@ -115,10 +116,10 @@ def main(command_uuid, file_path, file_uuid, disable_reidentify):
     output = output.strip()
 
     if exitcode != 0:
-        print >>sys.stderr, 'Error: IDCommand with UUID {} exited non-zero.'.format(command_uuid)
+        print('Error: IDCommand with UUID {} exited non-zero.'.format(command_uuid), file=sys.stderr)
         return -1
 
-    print 'Command output:', output
+    print('Command output:', output)
     # PUIDs are the same regardless of tool, so PUID-producing tools don't have "rules" per se - we just
     # go straight to the FormatVersion table to see if there's a matching PUID
     try:
@@ -128,15 +129,15 @@ def main(command_uuid, file_path, file_uuid, disable_reidentify):
             rule = IDRule.active.get(command_output=output, command=command)
             version = rule.format
     except IDRule.DoesNotExist:
-        print >>sys.stderr, 'Error: No FPR identification rule for tool output "{}" found'.format(output)
+        print('Error: No FPR identification rule for tool output "{}" found'.format(output), file=sys.stderr)
         write_identification_event(file_uuid, command, success=False)
         return -1
     except IDRule.MultipleObjectsReturned:
-        print >>sys.stderr, 'Error: Multiple FPR identification rules for tool output "{}" found'.format(output)
+        print('Error: Multiple FPR identification rules for tool output "{}" found'.format(output), file=sys.stderr)
         write_identification_event(file_uuid, command, success=False)
         return -1
     except FormatVersion.DoesNotExist:
-        print >>sys.stderr, 'Error: No FPR format record found for PUID {}'.format(output)
+        print('Error: No FPR format record found for PUID {}'.format(output), file=sys.stderr)
         write_identification_event(file_uuid, command, success=False)
         return -1
 
@@ -144,7 +145,7 @@ def main(command_uuid, file_path, file_uuid, disable_reidentify):
     if not created:  # Update the version if it wasn't created new
         ffv.format_version = version
         ffv.save()
-    print "{} identified as a {}".format(file_path, version.description)
+    print("{} identified as a {}".format(file_path, version.description))
 
     write_identification_event(file_uuid, command, format=version.pronom_id)
     write_file_id(file_uuid, format=version, output=output)

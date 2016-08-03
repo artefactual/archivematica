@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import os
 import sys
 import shutil
@@ -30,11 +31,11 @@ from custom_handlers import get_script_logger
 import archivematicaFunctions
 
 def _move_file(src, dst, exit_on_error=True):
-    print 'Moving', src, 'to', dst
+    print('Moving', src, 'to', dst)
     try:
         shutil.move(src, dst)
     except IOError:
-        print 'Could not move', src
+        print('Could not move', src)
         if exit_on_error:
             raise
 

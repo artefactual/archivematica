@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import os
 import sys
 import lxml.etree as etree
@@ -109,14 +110,14 @@ def each_child(path, file_group_identifier, base_path, base_path_name, sip_uuid)
                 try:
                     yield File.objects.get(**kwargs)
                 except File.DoesNotExist:
-                    print >> sys.stderr, "No uuid for file: \"", pathSTR, "\""
+                    print("No uuid for file: \"", pathSTR, "\"", file=sys.stderr)
 
 
 #Do /SIP-UUID/
 #Force only /SIP-UUID/objects
 doneFirstRun = False
 def createFileSec(path, file_group_identifier, base_path, base_path_name, parentBranch, structMapParent, sip_uuid):
-    print >>sys.stderr, "createFileSec: ", path, parentBranch, structMapParent
+    print("createFileSec: ", path, parentBranch, structMapParent, file=sys.stderr)
     doneFirstRun = True
     pathSTR = path.__str__()
     pathSTR = path.__str__()
@@ -185,7 +186,7 @@ if __name__ == '__main__':
     parser.add_option("-S", "--sipUUID", action="store", dest="sipUUID", default="")
     parser.add_option("-x", "--xmlFile", action="store", dest="xmlFile", default="")
     (opts, args) = parser.parse_args()
-    print opts
+    print(opts)
 
     root = etree.Element(ns.metsBNS + "mets",
         nsmap={"xlink": ns.xlinkNS, "mets": ns.metsNS},

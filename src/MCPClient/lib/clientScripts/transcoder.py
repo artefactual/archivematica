@@ -18,6 +18,7 @@
 
 # @package Archivematica
 # @subpackage archivematicaClient
+from __future__ import print_function
 import sys
 
 # archivematicaCommon
@@ -79,29 +80,29 @@ class Command(object):
         # [%fileName%, foo] => --file-name=foo
         else:
             args = self.replacement_dict.to_gnu_options()
-        print "Command to execute:", self.command
-        print "-----"
-        print "Command stdout:"
+        print("Command to execute:", self.command)
+        print("-----")
+        print("Command stdout:")
         self.exit_code, self.std_out, std_err = executeOrRun(self.type, self.command, arguments=args, printing=True)
-        print "-----"
-        print 'Command exit code:', self.exit_code
+        print("-----")
+        print('Command exit code:', self.exit_code)
         if self.exit_code == 0 and self.verification_command:
-            print "Running verification command", self.verification_command
-            print "-----"
-            print "Command stdout:"
+            print("Running verification command", self.verification_command)
+            print("-----")
+            print("Command stdout:")
             self.exit_code = self.verification_command.execute(skip_on_success=True)
-            print "-----"
-            print 'Verification Command exit code:', self.exit_code
+            print("-----")
+            print('Verification Command exit code:', self.exit_code)
 
         if self.exit_code == 0 and self.event_detail_command:
-            print "Running event detail command", self.event_detail_command
+            print("Running event detail command", self.event_detail_command)
             self.event_detail_command.execute(skip_on_success=True)
 
         # If unsuccesful
         if self.exit_code != 0:
-            print >> sys.stderr, "Failed:", self.fpcommand
-            print >> sys.stderr, "Standard out:", self.std_out
-            print >> sys.stderr, "Standard error:", std_err
+            print("Failed:", self.fpcommand, file=sys.stderr)
+            print("Standard out:", self.std_out, file=sys.stderr)
+            print("Standard error:", std_err, file=sys.stderr)
         else:
             if (not skip_on_success) and self.on_success:
                 self.on_success(self, self.opts, self.replacement_dict)

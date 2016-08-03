@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import os
 import sys
 
@@ -46,8 +47,8 @@ def recursivelyRemoveEmptyDirectories(dir):
             try:
                 os.rmdir(os.path.join(root, directory))
             except OSError as e:
-                print >>sys.stderr, "{0} could not be deleted: {1}".format(
-                    directory, e.args)
+                print("{0} could not be deleted: {1}".format(
+                    directory, e.args), file=sys.stderr)
                 error_count+= 1
     return error_count;
 
@@ -69,8 +70,8 @@ if os.path.isdir(manual_normalization_dir):
         errorCount += recursivelyRemoveEmptyDirectories(manual_normalization_dir)
         os.rmdir(manual_normalization_dir)
     except OSError as e:
-        print >>sys.stderr, "{0} could not be deleted: {1}".format(
-            manual_normalization_dir, e.args)
+        print("{0} could not be deleted: {1}".format(
+            manual_normalization_dir, e.args), file=sys.stderr)
         errorCount += 1
 
 exit(errorCount)

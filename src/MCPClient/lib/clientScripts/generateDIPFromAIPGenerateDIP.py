@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import os
 import sys
 import shutil
@@ -50,7 +51,7 @@ if __name__ == '__main__':
     originalSIPUUID = basename[:-(uuidLen+1)][-uuidLen:]
     METSPath = os.path.join(unitPath, "metadata/submissionDocumentation/data/", "METS.%s.xml" % (originalSIPUUID))
     if not os.path.isfile(METSPath):
-        print >>sys.stderr, "Mets file not found: ", METSPath
+        print("Mets file not found: ", METSPath, file=sys.stderr)
         exit(-1)
 
     # move mets to DIP

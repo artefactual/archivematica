@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 # @version svn: $Id$
 
+from __future__ import print_function
 import os
 import sys
 import lxml.etree as etree
@@ -90,7 +91,7 @@ def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
                              filegrpuuid=fileUUID,
                              filegrpuse="TRIM file metadata")
     except File.DoesNotExist:
-        print >>sys.stderr, "no metadata for original file: ", fileUUID
+        print("no metadata for original file: ", fileUUID, file=sys.stderr)
         return None
     else:
         xmlFilePath = f.currentlocation.replace('%SIPDirectory%', baseDirectoryPath, 1)
@@ -113,7 +114,7 @@ def getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
                              filegrpuuid=fileUUID,
                              filegrpuse="TRIM file metadata")
     except File.DoesNotExist:
-        print >>sys.stderr, "no metadata for original file: ", fileUUID
+        print("no metadata for original file: ", fileUUID, file=sys.stderr)
         return None
     else:
         label = os.path.basename(f.currentlocation)

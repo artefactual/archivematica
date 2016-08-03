@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import os
 import sys
 import lxml.etree as etree
@@ -57,7 +58,7 @@ def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
 def archivematicaCreateMETSRightsDspaceMDRef(fileUUID, filePath, transferUUID, itemdirectoryPath):
     ret = []
     try:
-        print fileUUID, filePath
+        print(fileUUID, filePath)
         # Find the mets file. May find none.
         path = "%SIPDirectory%{}/mets.xml".format(os.path.dirname(filePath))
         try:
@@ -77,9 +78,9 @@ def archivematicaCreateMETSRightsDspaceMDRef(fileUUID, filePath, transferUUID, i
         for dir in os.listdir(base):
             fullDir = os.path.join(base, dir)
             fullDir2 = os.path.join(base2, dir)
-            print fullDir
+            print(fullDir)
             if dir.startswith("ITEM"):
-                print "continue"
+                print("continue")
                 continue
             if not os.path.isdir(fullDir):
                 continue
@@ -93,13 +94,13 @@ def archivematicaCreateMETSRightsDspaceMDRef(fileUUID, filePath, transferUUID, i
                 metsFileUUID = f.uuid
                 metsLoc = f.currentlocation.replace("%SIPDirectory%", "", 1)
                 metsLocation = os.path.join(fullDir, "mets.xml")
-                print metsLocation
+                print(metsLocation)
                 LABEL = "mets.xml-" + metsFileUUID
                 ret.append(createMDRefDMDSec(LABEL, metsLocation, metsLoc))
 
     except Exception as inst:
-        print >>sys.stderr, "Error creating mets dspace mdref", fileUUID, filePath
-        print >>sys.stderr, type(inst), inst.args
+        print("Error creating mets dspace mdref", fileUUID, filePath, file=sys.stderr)
+        print(type(inst), inst.args, file=sys.stderr)
         sharedVariablesAcrossModules.globalErrorCount +=1
 
     return ret

@@ -23,6 +23,7 @@
 
 #/src/dashboard/src/main/models.py
 
+from __future__ import print_function
 import sys
 import uuid
 import lxml.etree as etree
@@ -216,7 +217,7 @@ def getrightsGranted(statement, parent):
         for restriction in granted.restrictions.all():
             restriction = restriction.restriction
             if not restriction.lower() in ["disallow", "conditional", "allow"]:
-                print >>sys.stderr, "The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional':", restriction
+                print("The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional':", restriction, file=sys.stderr)
                 sharedVariablesAcrossModules.globalErrorCount +=1
             etree.SubElement(rightsGranted, ns.premisBNS + "restriction").text = restriction
         
@@ -226,7 +227,7 @@ def getrightsGranted(statement, parent):
             elif restriction.lower() in ["disallow", "conditional"]:
                 termOfGrant = etree.SubElement(rightsGranted, ns.premisBNS + "termOfRestriction")
             else:
-                print >>sys.stderr, "The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional'"
+                print("The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional'", file=sys.stderr)
                 sharedVariablesAcrossModules.globalErrorCount +=1
                 continue
 

@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
+from __future__ import print_function
 import sys
 import os
 import shutil
@@ -31,17 +32,17 @@ def removeHiddenFilesFromDirectory(dir):
         fullPath = os.path.join(dir, item)
         if os.path.isdir(fullPath):
             if item.startswith("."):
-                print "Removing directory: ", fullPath
+                print("Removing directory: ", fullPath)
                 shutil.rmtree(fullPath)
             else:
                 removeHiddenFilesFromDirectory(fullPath)
         elif os.path.isfile(fullPath):
             if item.startswith(".") or item.endswith("~"):
-                print "Removing file: ", fullPath 
+                print("Removing file: ", fullPath) 
                 os.remove(fullPath)
                
         else:
-            print >>sys.stderr, "Not file or directory: ", fullPath
+            print("Not file or directory: ", fullPath, file=sys.stderr)
                 
             
 

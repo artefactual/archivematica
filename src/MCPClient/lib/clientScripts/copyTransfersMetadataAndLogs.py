@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import os
 import sys
 import shutil
@@ -62,11 +63,11 @@ def main(sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath
                         shutil.copytree(item, os.path.join(transferMetaDestDir, met))
                     else:
                         shutil.copy(item, os.path.join(transferMetaDestDir, met))
-                print "copied: ", transferPath + "metadata", " -> ", os.path.join(transferMetaDestDir, "metadata")
+                print("copied: ", transferPath + "metadata", " -> ", os.path.join(transferMetaDestDir, "metadata"))
             if not os.path.exists(transfersLogsDestDir):
                 os.makedirs(transfersLogsDestDir)
                 shutil.copytree(transferPath + "logs", os.path.join(transfersLogsDestDir, "logs"))
-                print "copied: ", transferPath + "logs", " -> ", os.path.join(transfersLogsDestDir, "logs")
+                print("copied: ", transferPath + "logs", " -> ", os.path.join(transfersLogsDestDir, "logs"))
                 
 
         except Exception as inst:
