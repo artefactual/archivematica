@@ -125,13 +125,14 @@ td.size {
   margin-bottom: 5px;
 }
 
-#search_form_container > div > div > div > select {
-  margin-left: 5px;
+#search_form_container > div > div > div > select:not(.search_op_selector) {
+  margin-left: 10px;
+  width: auto;
 }
 
 #search_form_submit_container {
   float: left;
-  margin-left: 15px;
+  margin-left: 5px;
 }
 
 .search_op_selector {
@@ -140,5 +141,5 @@ td.size {
 }
 
 .advanced_search_form_row_multiple > .advanced_search_form_field_op {
-  width: 90px;
+  width: 80px;
 }

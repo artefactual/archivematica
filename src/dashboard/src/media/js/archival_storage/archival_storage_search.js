@@ -46,7 +46,7 @@ $(document).ready(function() {
   // define op field
   var opAttributes = {
     title: 'boolean operator',
-    class: 'search_op_selector'
+    class: 'search_op_selector form-control'
   }
   search.addSelect('op', opAttributes, {
     'or': 'or',
@@ -55,10 +55,10 @@ $(document).ready(function() {
   });
 
   // define query field
-  search.addInput('query', {title: 'search query', 'class': 'aip-search-query-input'});
+  search.addInput('query', {title: 'search query', 'class': 'aip-search-query-input form-control'});
 
   // default field name field
-  search.addSelect('field', {title: 'field name', onchange: 'selectField(this)'}, {
+  search.addSelect('field', {title: 'field name', 'class': 'form-control', onchange: 'selectField(this)'}, {
     '': 'Any',
     'FILEUUID': 'File UUID',
     'filePath': 'File path',
@@ -72,10 +72,10 @@ $(document).ready(function() {
   });
 
   // "Other" field name, when selecting "transfer metadata (other)"
-  search.addInput('fieldName', {title: 'other field name', 'class': 'aip-search-query-input', 'id': 'aip-search-query-other-field-name'});
+  search.addInput('fieldName', {title: 'other field name', 'class': 'aip-search-query-input form-control', 'id': 'aip-search-query-other-field-name'});
 
   // default field name field
-  search.addSelect('type', {title: 'query type'}, {
+  search.addSelect('type', {title: 'query type', 'class': 'form-control'}, {
     'term': 'Keyword',
     'string': 'Phrase',
     'range': 'Date range'
