@@ -6,7 +6,7 @@
 }
 
 #transfer-type {
-  width: 100px;
+  width: 150px;
 }
 
 #transfer-type-container {
@@ -20,7 +20,7 @@
 }
 
 #transfer-accession-number {
-  width: 75px;
+  width: 100px;
   margin-right: 10px;
 }
 
@@ -29,12 +29,10 @@
   width: 450px;
 }
 
-#path_add_button {
-  margin-right: 10px;
-}
-
+#path_add_button,
 #start_transfer_button {
   margin-right: 10px;
+  vertical-align: inherit;
 }
 
 #transfer_metadata_edit_button {
@@ -43,6 +41,8 @@
 
 #path_source_select {
   margin-right: 10px;
+  width: 150px;
+  display: inline-block;
 }
 
 #path_container {

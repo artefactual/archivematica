@@ -169,9 +169,9 @@
         <img src='{{STATIC_URL}}images/ajax-loader.gif' />
       </div>
       <div style="float:left">
-        <form>
+        <form class="inline-form">
           <div id='transfer-type-container'>
-            <select type='text' id='transfer-type'>
+            <select type='text' id='transfer-type' class="form-control">
               <option value='standard'>Standard</option>
               <option value='unzipped bag'>Unzipped Bag</option>
               <option value='zipped bag'>Zipped Bag</option>
@@ -186,11 +186,11 @@
             <div class="help-block">Type</div>
           </div>
           <div id='transfer-name-container'>
-            <input type='text' id='transfer-name'></input>
+            <input type='text' id='transfer-name' class="form-control"></input>
             <div class="help-block">Transfer name</div>
           </div>
           <div style="float:left;">
-            <input type='text' id='transfer-accession-number'></input>
+            <input type='text' id='transfer-accession-number' class="form-control"></input>
             <div class="help-block">Accession no.</div>
           </div>
         </form>

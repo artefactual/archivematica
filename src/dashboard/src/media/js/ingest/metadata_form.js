@@ -86,7 +86,7 @@ var MetadataFormView = Backbone.View.extend({
     // add button to add paths via a pop-up selector
     var $buttonContainer = $('<div></div>')
     , $addButton = $('<span id="path_add_button" class="btn btn-default">Browse</span>')
-    , $sourceDirSelect = $('<select id="path_source_select"></select>')
+    , $sourceDirSelect = $('<select id="path_source_select" class="form-control"></select>')
     , $addFilesButton = $('<span id="start_transfer_button" class="btn btn-success">Add files</span>')
     , self = this;
 
