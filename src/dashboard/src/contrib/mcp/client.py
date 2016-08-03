@@ -62,8 +62,3 @@ class MCPClient:
             return cPickle.loads(completed_job_request.result)
         elif completed_job_request.state == gearman.JOB_FAILED:
             raise RPCError("getNotifications failed (check MCPServer logs)")
-
-
-if __name__ == '__main__':
-    mcpClient = MCPClient()
-    print mcpClient.list()

@@ -51,8 +51,6 @@ def add(request):
 
             messages.info(request, 'Saved.')
             return redirect('components.accounts.views.list')
-        else:
-            print "%s" % repr(form.errors)   
     else:
         #clearing out values that are getting inherited from currently logged in user
         data = {'email':' '} 

@@ -14,13 +14,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+import logging
 
 from django.template import Node, Variable, Library
 from django.utils.encoding import smart_unicode
 from django.templatetags.future import url
 from django.template import VariableDoesNotExist
 
-
+logger = logging.getLogger('archivematica.dashboard')
 register = Library()
 
 
@@ -94,7 +95,7 @@ class BreadcrumbNode(Node):
             try:
                 url = val.resolve(context)
             except VariableDoesNotExist:
-                print 'URL does not exist', val
+                logger.error('URL does not exist: %s', val)
                 url = None
 
         return create_crumb(title, url)

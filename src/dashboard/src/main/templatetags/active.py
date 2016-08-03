@@ -16,7 +16,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.template import Library
-import math
 
 register = Library()
 
