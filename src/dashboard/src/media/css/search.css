@@ -131,6 +131,10 @@ td.size {
   margin-left: 10px;
 }
 
+#search_form_submit_container #search_submit {
+  vertical-align: inherit;
+}
+
 .search_op_selector {
   width: 70px;
   margin-right: 5px;
