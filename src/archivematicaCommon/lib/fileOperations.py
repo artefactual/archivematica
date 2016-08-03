@@ -27,11 +27,11 @@ import uuid
 import sys
 import shutil
 
-from .databaseFunctions import insertIntoFiles
-from .executeOrRunSubProcess import executeOrRun
-from .databaseFunctions import insertIntoEvents
+from databaseFunctions import insertIntoFiles
+from executeOrRunSubProcess import executeOrRun
+from databaseFunctions import insertIntoEvents
 import MySQLdb
-from .archivematicaFunctions import unicodeToStr, get_setting, get_file_checksum
+from archivematicaFunctions import unicodeToStr, get_setting, get_file_checksum
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import File, Transfer

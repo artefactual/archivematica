@@ -37,15 +37,14 @@ sys.path.append("/usr/share/archivematica/dashboard")
 from django.db.models import Q
 from main.models import File, Transfer
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from .archivematicaFunctions import get_dashboard_uuid
-from . import namespaces as ns
-from . import version
+# archivematicaCommon
+from archivematicaFunctions import get_dashboard_uuid
+import namespaces as ns
+import version
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/externals")
-import xmltodict
+from externals import xmltodict
 
-from .elasticsearch import Elasticsearch, ImproperlyConfigured
+from elasticsearch import Elasticsearch, ImproperlyConfigured
 
 
 logger = logging.getLogger('archivematica.common')

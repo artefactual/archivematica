@@ -28,10 +28,8 @@ import os
 import re
 import sys
 
-path = '/usr/lib/archivematica/archivematicaCommon/'
-if not path in sys.path:
-    sys.path.append(path)
-from .archivematicaFunctions import unicodeToStr
+# archivematicaCommon
+from archivematicaFunctions import unicodeToStr
 
 def replace_string_values(string, **kwargs):
     """

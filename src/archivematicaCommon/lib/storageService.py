@@ -8,7 +8,8 @@ from requests.auth import AuthBase
 import slumber
 import urllib
 
-from .archivematicaFunctions import get_setting
+# archivematicaCommon
+from archivematicaFunctions import get_setting
 
 LOGGER = logging.getLogger("archivematica.common")
 
