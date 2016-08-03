@@ -50,15 +50,41 @@ body {
 }
 
 .topbar li > a:hover,
-.topbar .navbar-brand:hover {
-  background-color: #333;
+.topbar .navbar-brand:hover,
+.topbar .open > a,
+.topbar .open > a:hover,
+.topbar .open > a:focus {
+  background-color: rgba(255, 255, 255, 0.05);
   color: #fff;
+  border-color: #444;
 }
 
 .topbar div > ul .active > a {
   background-color: rgba(0, 0, 0, 0.5);
   color: #FFF;
   text-decoration: none;
+}
+
+.topbar div > ul .dropdown-menu {
+  background-color: #333;
+  border-color: #333;
+  font-size: 13px;
+}
+
+.topbar div > ul .dropdown-menu > li > a {
+  color: #999;
+}
+
+.topbar div > ul .dropdown-menu > li > a:hover {
+  color: #fff;
+  background-color: #191919;
+}
+
+.topbar div > ul .dropdown-menu > .divider {
+  height: 2px;
+  margin: 5px 0;
+  background-color: #222;
+  border-bottom: 1px solid #444;
 }
 
 .nav li {
