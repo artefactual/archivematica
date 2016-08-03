@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage DevCleanup
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import os
 import sys
 
@@ -35,7 +36,7 @@ def removeEverythingInDirectory(directory):
     if directory[-1] != "/":
         directory = "%s/" % (directory)
     execute = "sudo rm -rf \"%s\"*" % (directory)
-    print "executing: ", execute
+    print("executing: ", execute)
     os.system(execute)
 
 def cleanWatchedDirectories():
@@ -44,16 +45,16 @@ def cleanWatchedDirectories():
             directory = path.replace("%watchDirectoryPath%", "/var/archivematica/sharedDirectory/watchedDirectories/", 1)
             removeEverythingInDirectory(directory)
         except Exception as inst:
-            print "debug except 2"
-            print type(inst)     # the exception instance
-            print inst.args      # arguments stored in .args
+            print("debug except 2")
+            print(type(inst))     # the exception instance
+            print(inst.args)      # arguments stored in .args
 
 if __name__ == '__main__':
     import getpass
     user = getpass.getuser()
-    print "user: ", user
+    print("user: ", user)
     if user != "root":
-        print "Please run as root (with sudo)"
+        print("Please run as root (with sudo)")
         exit (1)
     cleanWatchedDirectories()
     alsoRemove = [

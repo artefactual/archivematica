@@ -22,6 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 #Depends: ${shlibs:Depends}, ${misc:Depends}, libapache2-mod-wsgi, python-django, python-django-doc
+from __future__ import print_function
 import os
 import sys
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
@@ -31,7 +32,7 @@ excludePackages = ["sip-creation-tools", "sanitize-names"]
 
 filePath = sys.argv[1]
 if not os.path.isfile(filePath):
-    print >>sys.stderr, "File doesn't exist."
+    print("File doesn't exist.", file=sys.stderr)
     exit(2)
 f = open(filePath, 'r')
 
@@ -61,13 +62,13 @@ for part in line.split(","):
     if part in excludePackages:
         continue
 
-    print sys.argv[1]
-    print "Attempting Install/Update of: ", part
+    print(sys.argv[1])
+    print("Attempting Install/Update of: ", part)
     command = "sudo apt-get install -y " + part
     exitCode, stdOut, stdError = executeOrRun("command", command, printing=False)
     if exitCode:
-        print "exitCode:", exitCode
-        print stdOut
-        print >>sys.stderr, stdError
+        print("exitCode:", exitCode)
+        print(stdOut)
+        print(stdError, file=sys.stderr)
     #else:
         #print "OK"
