@@ -224,7 +224,7 @@ def search_augment_file_results(es_client, raw_results):
         if 'fields' not in item:
             continue
 
-        clone = {k: v[0] for k,v in item['fields'].copy().iteritems()}
+        clone = {k: v[0] for k,v in item['fields'].copy().items()}
 
         # try to find AIP details in database
         try:

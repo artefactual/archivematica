@@ -77,7 +77,7 @@ def _prepare_browse_response(response):
     :return: Dict response ready to be returned to file-browser JS.
     """
     # Generate display string based on properties
-    for entry, prop in response.get('properties', {}).iteritems():
+    for entry, prop in response.get('properties', {}).items():
         logger.debug('Properties for %s: %s', entry, prop)
         if 'levelOfDescription' in prop:
             prop['display_string'] = prop['levelOfDescription']
@@ -88,7 +88,7 @@ def _prepare_browse_response(response):
 
     response['entries'] = map(base64.b64encode, response['entries'])
     response['directories'] = map(base64.b64encode, response['directories'])
-    response['properties'] = {base64.b64encode(k): v for k, v in response.get('properties', {}).iteritems()}
+    response['properties'] = {base64.b64encode(k): v for k, v in response.get('properties', {}).items()}
 
     return response
 
@@ -778,7 +778,7 @@ def copy_from_transfer_sources(paths, relative_destination):
         logger.debug('source: %s, destination: %s', source, destination)
 
     message = []
-    for pl in files.itervalues():
+    for pl in files.values():
         reply, error = storage_service.copy_files(pl['location'], processing_location, pl['files'])
         if reply is None:
             message.append(str(error))

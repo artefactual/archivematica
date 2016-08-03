@@ -199,7 +199,7 @@ def filter_search_fields(es_client, search_fields, index=None, doc_type=None):
             # The requested field doesn't exist in the index, so don't worry about validating subfields
             new_fields.append(field)
         else:
-            for subfield, field_properties in subfields.iteritems():
+            for subfield, field_properties in subfields.items():
                 if field_properties['type'] == 'string':
                     new_fields.append(field_name + '.' + subfield)
 

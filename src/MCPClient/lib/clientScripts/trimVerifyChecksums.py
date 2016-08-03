@@ -74,7 +74,7 @@ for transfer_dir in os.listdir(transferPath):
             print('File OK: ', xmlMD5, filePath.replace(transferPath, '%TransferDirectory%'))
 
             fileID = getFileUUIDLike(filePath, transferPath, transferUUID, 'transferUUID', '%transferDirectory%')
-            for path, fileUUID in fileID.iteritems():
+            for path, fileUUID in fileID.items():
                 eventDetail = 'program="python"; module="hashlib.md5()"'
                 eventOutcome = 'Pass'
                 eventOutcomeDetailNote = '%s %s' % (xmlFile.__str__(), 'verified')

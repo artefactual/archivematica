@@ -175,7 +175,7 @@ def generate_project_client_package(output_dir, package_type, structmap, dmdsecs
             # Create csv_header and csv_values from the dmdSec metadata
             csv_header = []
             csv_values = []
-            for header, value in metadata.iteritems():
+            for header, value in metadata.items():
                 csv_header.append(header)
                 value = '; '.join(value).replace('\r', '').replace('\n', '')
                 csv_values.append(archivematicaFunctions.unicodeToStr(value))

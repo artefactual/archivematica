@@ -333,7 +333,7 @@ def _usage_dirs(calculate_usage=True):
     dirs = collections.OrderedDict(dir_defs)
 
     # Resolve location paths and make relative paths absolute
-    for _, dir_spec in dirs.iteritems():
+    for _, dir_spec in dirs.items():
         if 'contained_by' in dir_spec:
             # If contained, make path absolute
             space = dir_spec['contained_by']

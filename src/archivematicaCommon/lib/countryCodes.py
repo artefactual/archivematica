@@ -290,7 +290,7 @@ def getCodeForCountry(country):
         return None
     
 def getCountryFromCode(code):
-    for key, value in countryCodes.iteritems():
+    for key, value in countryCodes.items():
         if value == code:
             return key
     return None

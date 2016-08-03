@@ -76,7 +76,7 @@ def ingest_upload_atk_save_to_db(request, uuid):
 
     pairs = pair_matcher.getDictArray(request.POST, 'pairs')
 
-    keys = pairs.keys()
+    keys = list(pairs.keys())
     keys.sort()
 
     for key in keys:

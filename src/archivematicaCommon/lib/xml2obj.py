@@ -120,4 +120,4 @@ def xml2obj(src):
         xml.sax.parseString(src, builder)
     else:
         xml.sax.parse(src, builder)
-    return builder.root._attrs.values()[0]
+    return list(builder.root._attrs.values())[0]

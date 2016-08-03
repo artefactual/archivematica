@@ -113,7 +113,7 @@ replacementDic = {
 supportedModules = {}
 
 def loadSupportedModulesSupport(key, value):
-    for key2, value2 in replacementDic.iteritems():
+    for key2, value2 in replacementDic.items():
         value = value.replace(key2, value2)
     if not os.path.isfile(value):
         logger.error("Warning! Module can't find file, or relies on system path: {%s} %s", key, value)
@@ -167,7 +167,7 @@ Unable to determine if it completed successfully."""
         replacementDic["%date%"] = utcDate.isoformat()
         replacementDic["%jobCreatedDate%"] = data["createdDate"]
         # Replace replacement strings
-        for key in replacementDic.iterkeys():
+        for key in replacementDic.keys():
             command = command.replace ( key, replacementDic[key] )
             arguments = arguments.replace ( key, replacementDic[key] )
 
@@ -204,7 +204,7 @@ def startThread(threadNumber):
     gm_worker = gearman.GearmanWorker([config.get('MCPClient', "MCPArchivematicaServer")])
     hostID = gethostname() + "_" + threadNumber.__str__()
     gm_worker.set_client_id(hostID)
-    for key in supportedModules.iterkeys():
+    for key in supportedModules.keys():
         logger.info('Registering: %s', key)
         gm_worker.register_task(key, executeCommand)
 

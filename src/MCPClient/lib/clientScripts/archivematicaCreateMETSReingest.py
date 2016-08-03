@@ -342,7 +342,7 @@ def update_metadata_csv(root, metadata_csv, sip_uuid, sip_dir, now):
     aip_div = root.find('mets:structMap[@TYPE="physical"]/mets:div', namespaces=ns.NSMAP)
 
     # FIXME Does this have to support having non DC metadata in the CSV?  Assuming not
-    for f, md in csvmetadata.iteritems():
+    for f, md in csvmetadata.items():
         # Verify file is in AIP
         print('Looking for', f, 'from metadata.csv in SIP')
         # Find File with original or current locationg matching metadata.csv

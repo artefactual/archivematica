@@ -164,7 +164,7 @@ def browse_location(uuid, path):
     browse = api.location(uuid).browse.get(path=path)
     browse['entries'] = map(base64.b64decode, browse['entries'])
     browse['directories'] = map(base64.b64decode, browse['directories'])
-    browse['properties'] = {base64.b64decode(k): v for k, v in browse.get('properties', {}).iteritems()}
+    browse['properties'] = {base64.b64decode(k): v for k, v in browse.get('properties', {}).items()}
     return browse
 
 def copy_files(source_location, destination_location, files, api=None):

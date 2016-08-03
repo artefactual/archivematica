@@ -364,7 +364,7 @@ class TestCSVMetadata(TestCase):
         assert dc['objects/foo.jpg']['dc.date'] == ['2000']
         assert 'Other metadata' in dc['objects/foo.jpg']
         assert dc['objects/foo.jpg']['Other metadata'] == ['Taken on a sunny day']
-        assert dc['objects/foo.jpg'].keys() == ['dc.title', 'dc.date', 'Other metadata']
+        assert list(dc['objects/foo.jpg'].keys()) == ['dc.title', 'dc.date', 'Other metadata']
 
         assert 'objects/bar' in dc
         assert 'dc.title' in dc['objects/bar']
@@ -373,7 +373,7 @@ class TestCSVMetadata(TestCase):
         assert dc['objects/bar']['dc.date'] == ['2000']
         assert 'Other metadata' in dc['objects/bar']
         assert dc['objects/bar']['Other metadata'] == ['All taken on a rainy day']
-        assert dc['objects/bar'].keys() == ['dc.title', 'dc.date', 'Other metadata']
+        assert list(dc['objects/bar'].keys()) == ['dc.title', 'dc.date', 'Other metadata']
 
     def test_parse_metadata_csv_repeated_columns(self):
         """It should put repeated elements into a list of values."""
@@ -396,7 +396,7 @@ class TestCSVMetadata(TestCase):
         assert dc['objects/foo.jpg']['dc.title'] == ['Foo']
         assert 'dc.type' in dc['objects/foo.jpg']
         assert dc['objects/foo.jpg']['dc.type'] == ['Photograph', 'Still image', 'Picture']
-        assert dc['objects/foo.jpg'].keys() == ['dc.title', 'dc.type']
+        assert list(dc['objects/foo.jpg'].keys()) == ['dc.title', 'dc.type']
 
     def test_parse_metadata_csv_non_ascii(self):
         """It should parse unicode."""

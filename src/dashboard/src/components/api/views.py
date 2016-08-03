@@ -281,7 +281,7 @@ def unapproved_transfers(request):
 
                 transfer_watch_directory = type_and_directory.split('/')[0]
                 # Get transfer type from transfer directory
-                transfer_type_directories_reversed = {v: k for k, v in filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES.iteritems()}
+                transfer_type_directories_reversed = {v: k for k, v in filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES.items()}
                 transfer_type = transfer_type_directories_reversed[transfer_watch_directory]
 
                 job_directory = type_and_directory.replace(transfer_watch_directory + '/', '', 1)

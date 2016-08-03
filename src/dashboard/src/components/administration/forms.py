@@ -331,7 +331,7 @@ class ProcessingConfigurationForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(ProcessingConfigurationForm, self).__init__(*args, **kwargs)
-        for choice_uuid, field in self.processing_fields.iteritems():
+        for choice_uuid, field in self.processing_fields.items():
             ftype = field['type']
             opts = self.DEFAULT_FIELD_OPTS.copy()
             if 'label' in field:
@@ -397,7 +397,7 @@ class ProcessingConfigurationForm(forms.Form):
         del self.cleaned_data['name']
         config_path = os.path.join(helpers.processing_config_path(), '{}ProcessingMCP.xml'.format(name))
         config = PreconfiguredChoices()
-        for choice_uuid, value in self.cleaned_data.iteritems():
+        for choice_uuid, value in self.cleaned_data.items():
             fprops = self.processing_fields.get(choice_uuid)
             if fprops is None or value is None:
                 continue

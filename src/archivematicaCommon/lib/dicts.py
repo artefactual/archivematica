@@ -195,7 +195,7 @@ class ReplacementDict(dict):
         for orig in strings:
             if orig is not None:
                 orig = unicodeToStr(orig)
-                for key, value in self.iteritems():
+                for key, value in self.items():
                     orig = orig.replace(key, unicodeToStr(value))
             ret.append(orig)
         return ret
@@ -211,7 +211,7 @@ class ReplacementDict(dict):
         ['--foo=bar']
         """
         args = []
-        for key, value in self.iteritems():
+        for key, value in self.items():
             optname = re.sub(r'([A-Z]+)', r'-\1', key[1:-1]).lower()
             opt = '--{k}={v}'.format(k=optname, v=value)
             args.append(opt)

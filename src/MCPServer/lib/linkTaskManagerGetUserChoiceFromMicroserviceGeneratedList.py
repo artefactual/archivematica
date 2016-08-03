@@ -54,7 +54,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
                 if isinstance(item, ChoicesDict):
                     # For display, convert the ChoicesDict passVar into a list
                     # of tuples: (index, description, replacement dict string)
-                    for description, value in item.iteritems():
+                    for description, value in item.items():
                         replacementDic_ = str({key: value})
                         self.choices.append((choiceIndex, description, replacementDic_))
                         choiceIndex += 1

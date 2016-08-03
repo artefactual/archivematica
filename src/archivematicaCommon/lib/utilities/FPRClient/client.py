@@ -64,11 +64,11 @@ class FPRClient(object):
 
         # Only keep fields that are in the model
         model_field_names = [f.name for f in model._meta.get_fields()]
-        valid_fields = {k: v for k, v in fields.iteritems()
+        valid_fields = {k: v for k, v in fields.items()
                         if k in model_field_names}
 
         # Convert foreign keys from URIs to just UUIDs
-        for field, value in valid_fields.iteritems():
+        for field, value in valid_fields.items():
             if isinstance(value, basestring) and value.startswith('/fpr/api/'):
                 # Parse out UUID.  value.split gives
                 # ['', 'fpr', 'api', '<version>', '<resource>', '<uuid>', '']

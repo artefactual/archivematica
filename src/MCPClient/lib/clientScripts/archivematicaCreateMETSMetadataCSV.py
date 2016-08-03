@@ -61,7 +61,7 @@ def parseMetadata(SIPPath):
             continue
         # Provide warning if this file already has differing metadata
         # Not using all_metadata.update(csv_metadata) because of that
-        for entry, values in csv_metadata.iteritems():
+        for entry, values in csv_metadata.items():
             if entry in all_metadata and all_metadata[entry] != values:
                 print('Metadata for', entry, 'being updated. Old:', all_metadata[entry], 'New:', values, file=sys.stderr)
             existing = all_metadata.get(entry, collections.OrderedDict())

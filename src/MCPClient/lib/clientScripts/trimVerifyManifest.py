@@ -90,7 +90,7 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
             if not len(fileID):
                 print("Could not find fileUUID for: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
                 exitCode += 1
-            for paths, fileUUID in fileID.iteritems():
+            for paths, fileUUID in fileID.items():
                 eventDetail = "program=\"archivematica\"; module=\"trimVerifyManifest\""
                 eventOutcome="Pass"
                 eventOutcomeDetailNote = "Verified file exists"
@@ -112,7 +112,7 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
                 if not len(fileID):
                     print("Could not find fileUUID for: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
                     exitCode += 1
-                for paths, fileUUID in fileID.iteritems():
+                for paths, fileUUID in fileID.items():
                     eventDetail = "program=\"archivematica\"; module=\"trimVerifyManifest\""
                     eventOutcome="Pass"
                     eventOutcomeDetailNote = "Verified file exists, but with implicit extension case"
