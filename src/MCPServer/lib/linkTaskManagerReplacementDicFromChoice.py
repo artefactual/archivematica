@@ -129,7 +129,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
             choice = etree.SubElement(choices, "choice")
             etree.SubElement(choice, "chainAvailable").text = chainAvailable.__str__()
             etree.SubElement(choice, "description").text = description
-        print etree.tostring(ret)
+
         return ret
 
     def proceedWithChoice(self, index, agent):

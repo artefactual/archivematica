@@ -102,14 +102,3 @@ class archivematicaWatchDirectory:
     
     def stop(self):
         self.run = False
-            
-def testCallBackFunction(path, variables):
-    print path, variables
-    
-
-if __name__ == '__main__':
-    print "example use"
-    directory = "/tmp/"
-    #directory = "."
-    variablesOnAdded = {"something":"yes", "nothing":"no"}
-    archivematicaWatchDirectory(directory, threaded=False, variablesAdded=variablesOnAdded, callBackFunctionAdded=testCallBackFunction, callBackFunctionRemoved=testCallBackFunction)
