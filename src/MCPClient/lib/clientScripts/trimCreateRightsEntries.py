@@ -138,7 +138,7 @@ for dir in os.listdir(transferPath):
             metadataappliestotype_id=FileMetadataAppliesToType,
             metadataappliestoidentifier=fileUUID,
             rightsstatementidentifiertype="UUID",
-            rightsstatementidentifiervalue=str(uuid.uuid4(),
+            rightsstatementidentifiervalue=str(uuid.uuid4()),
             rightsholder=1,
             rightsbasis="Other"
         )
