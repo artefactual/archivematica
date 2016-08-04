@@ -8,7 +8,7 @@ import main.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0017_update_seigfried'),
+        ('main', '0021_email_report_args'),
     ]
 
     operations = [
