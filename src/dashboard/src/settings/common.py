@@ -181,8 +181,9 @@ INSTALLED_APPS = (
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = '/tmp/dashboard-django'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = '127.0.0.1'
+EMAIL_TIMEOUT = '4'
 
 LOGGING = {
     'version': 1,
