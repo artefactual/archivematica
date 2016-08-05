@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+import ConfigParser
 import os
 import sys
 import shutil
@@ -10,17 +11,17 @@ django.setup()
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from databaseFunctions import fileWasRemoved
-import ConfigParser
 
-clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-config = ConfigParser.SafeConfigParser()
-config.read(clientConfigFilePath)
-try:
-    removableFiles = [e.strip() for e in config.get('MCPClient', 'removableFiles').split(',')]
-except:
-    removableFiles = ["Thumbs.db", "Icon", u"Icon\u000D", ".DS_Store"]
 
 def remove_file(target_file, file_uuid):
+    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
+    config = ConfigParser.SafeConfigParser()
+    config.read(clientConfigFilePath)
+    try:
+        removableFiles = [e.strip() for e in config.get('MCPClient', 'removableFiles').split(',')]
+    except ConfigParser.NoOptionError:
+        removableFiles = ["Thumbs.db", "Icon", u"Icon\u000D", ".DS_Store"]
+
     basename = os.path.basename(target_file)
     if basename in removableFiles:
         print "Removing {filename} (UUID: {uuid})".format(uuid=file_uuid, filename=basename)
@@ -32,6 +33,7 @@ def remove_file(target_file, file_uuid):
         # "None" (string)
         if file_uuid and file_uuid != "None":
             fileWasRemoved(file_uuid)
+
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.removeUnneededFiles")
