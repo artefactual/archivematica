@@ -106,7 +106,7 @@
     </div>
   </div>
 
-  <div id="directory-metadata-form" class="modal hide"></div>
+  <div id="directory-metadata-form" class="modal fade" role="dialog"></div>
 
   <!-- Templates -->
 
@@ -123,37 +123,41 @@
   </script>
 
   <script type="text/template" id='directory-metadata-form-modal'>
-    <div class="modal-header">
-      <button type="button" class="close" id="directory-metadata-form-close" data-dismiss="modal">×</button>
-      <h3>Edit metadata</h3>
-    </div>
-    <div class="modal-body" id="directory-metadata-form-body">
-      <% if (levels.length > 1) { %>
-        <table class="table">
-          <tbody>
-            <tr>
-              <td>AtoM level of description</td>
-              <td>
-                <select id="directory-metadata-form-lod-select">
-                  <% _.each(levels, function(level){ %>
-                    <option value="<%= level.id %>"
-                    <% if (level.name === currentLevel) { %>selected<% } %>
-                    ><%= level.name %>
-                  <% }); %>
-                </select>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      <% } else { %>
-        <strong>No AtoM levels of description found. Please contact an administrator.</strong>
-      <% } %>
-    </div>
-    <div class="modal-footer">
-      <a href="#" class="btn btn-default" data-dismiss="modal" id="directory-metadata-form-cancel">Cancel</a>
-      <% if (levels.length > 1) { %>
-      <a href="#" class="btn btn-default" id="directory-metadata-form-save">Save</a>
-      <% } %>
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" id="directory-metadata-form-close" data-dismiss="modal">×</button>
+          <h3>Edit metadata</h3>
+        </div>
+        <div class="modal-body" id="directory-metadata-form-body">
+          <% if (levels.length > 1) { %>
+            <table class="table">
+              <tbody>
+                <tr>
+                  <td>AtoM level of description</td>
+                  <td>
+                    <select id="directory-metadata-form-lod-select">
+                      <% _.each(levels, function(level){ %>
+                        <option value="<%= level.id %>"
+                        <% if (level.name === currentLevel) { %>selected<% } %>
+                        ><%= level.name %>
+                      <% }); %>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          <% } else { %>
+            <strong>No AtoM levels of description found. Please contact an administrator.</strong>
+          <% } %>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn btn-default" data-dismiss="modal" id="directory-metadata-form-cancel">Cancel</a>
+          <% if (levels.length > 1) { %>
+          <a href="#" class="btn btn-default" data-dismiss="modal" id="directory-metadata-form-save">Save</a>
+          <% } %>
+        </div>
+      </div>
     </div>
   </script>
 
