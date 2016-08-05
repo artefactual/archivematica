@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import division
 
 import os
 import sys
@@ -385,7 +386,7 @@ class ProcessingConfigurationForm(forms.Form):
             if fprops is None or go_to_chain is None or field is None:
                 continue
             if fprops['type'] == 'days':
-                field.initial = int(float(choice.findtext('delay'))) / (24 * 60 * 60)
+                field.initial = int(float(choice.findtext('delay'))) // (24 * 60 * 60)
             else:
                 field.initial = go_to_chain
 

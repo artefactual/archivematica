@@ -23,6 +23,7 @@
 
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
 import ConfigParser
 import datetime
 import json
@@ -409,7 +410,7 @@ def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=N
         'uuid': uuid,
         'name': name,
         'filePath': filePath,
-        'size': (size or os.path.getsize(filePath)) / float(1024) / float(1024),
+        'size': (size or os.path.getsize(filePath)) / 1024 / 1024,
         'mets': mets_data,
         'origin': get_dashboard_uuid(),
         'created': os.path.getmtime(pathToMETS),
@@ -767,7 +768,7 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
             file_extension = os.path.splitext(filepath)[1][1:].lower()
             filename = os.path.basename(filepath)
             # Size in megabytes
-            size = os.path.getsize(filepath) / 1048576.0
+            size = os.path.getsize(filepath) / (1024 * 1024)
             create_time = os.stat(filepath).st_ctime
 
             if filename not in ignore_files:
