@@ -793,6 +793,10 @@ textarea.command {
   padding-bottom: 0em;
 }
 
+#upload-dip-modal-spinner {
+  display: none;
+}
+
 /* FPR administration */
 
 .breadcrumb > li:before {
