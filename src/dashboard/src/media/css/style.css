@@ -545,6 +545,10 @@ textarea {
   resize: vertical;
 }
 
+.form-stacked .actions {
+  margin-bottom: 20px;
+}
+
 /*
  * Reset jQuery UI dialog
  */
