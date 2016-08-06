@@ -549,6 +549,10 @@ textarea {
   margin-bottom: 20px;
 }
 
+#page-accounts-edit form .actions {
+  margin: 20px 0;
+}
+
 /*
  * Reset jQuery UI dialog
  */
