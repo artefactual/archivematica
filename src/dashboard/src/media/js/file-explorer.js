@@ -640,15 +640,6 @@
 
     dragHandler: dragHandler,
 
-    // default drop handling logic for the entry list
-    // (returns element to its original position)
-    dropHandler: function(event, ui) {
-      var droppedId = $(ui.draggable).attr('id');
-
-      $('#' + droppedId).css({left: 0});
-      $('#' + droppedId).css({top: 0});
-    },
-
     // bind/re-bind drag-and-drop logic
     initDragAndDrop: function() {
       if (this.moveHandler) {
@@ -661,14 +652,9 @@
           drag: function(event, ui) {
             event.data = { self: self };
             self.dragHandler(event, ui);
-          }
-        });
-
-        // bind all list entries to drop handler
-        $(this.el).find('.backbone-file-explorer-entry').droppable({
-          drop: function(event, ui) {
-            event.data = { self: self };
-            self.dropHandler(event, ui);
+          },
+          revert: function(event, ui) {
+            return !event;
           }
         });
       }
@@ -797,23 +783,29 @@
       if (this.moveHandler) {
         // bind drag-and-drop functionality
         var self = this;
+        var $el = $(this.el);
 
         // exclude top-level directory from being dragged
         // Don't bind drag to anything with 'not_draggable' class
-        $(this.el).find('.backbone-file-explorer-entry:not(:first):not(.not_draggable)').draggable({
+        $el.find('.backbone-file-explorer-entry:not(:first):not(.not_draggable)').draggable({
           stack: 'div',
           drag: function(event, ui) {
             event.data = { self: self };
             self.dragHandler(event, ui);
+          },
+          revert: function(event, ui) {
+            return !event;
           }
         });
 
-        $(this.el).find('.backbone-file-explorer-entry').droppable({
-          drop: function(event, ui) {
-            event.data = { self: self };
-            self.dropHandler(event, ui);
-          }
-        });
+        if ($el.attr('id') !== 'originals') {
+          $el.find('.backbone-file-explorer-entry').droppable({
+            drop: function(event, ui) {
+              event.data = { self: self };
+              self.dropHandler(event, ui);
+            }
+          });
+        }
       }
     },
 
@@ -948,8 +940,6 @@
           'allowed': moveAllowed
         });
       }
-      $('#' + droppedId).css({left: 0});
-      $('#' + droppedId).css({top: 0});
     },
 
     // use a directory entry's CSS ID to determine its filepath
