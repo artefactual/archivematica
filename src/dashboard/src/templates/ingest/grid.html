@@ -136,7 +136,7 @@
                 <tr>
                   <td>AtoM level of description</td>
                   <td>
-                    <select id="directory-metadata-form-lod-select">
+                    <select id="directory-metadata-form-lod-select" class="form-control">
                       <% _.each(levels, function(level){ %>
                         <option value="<%= level.id %>"
                         <% if (level.name === currentLevel) { %>selected<% } %>

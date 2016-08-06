@@ -553,6 +553,10 @@ textarea {
   margin: 20px 0;
 }
 
+#directory-metadata-form td {
+  line-height: 35px;
+}
+
 /*
  * Reset jQuery UI dialog
  */
