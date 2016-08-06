@@ -769,26 +769,16 @@ textarea.command {
   background: #ffe;
 }
 
-.repeating-ajax-data-row {
-  margin-bottom: 1em;
-  padding-left: .5em;
-  padding-bottom: .5em;
+.repeating-ajax-data-row.repeating-data-multifield {
+  padding: 10px;
 }
 
-.repeating-ajax-data-row textarea {
-  width: 550px;
+.repeating-ajax-data-row {
+  margin-bottom: 10px;
 }
 
 .repeating-data-multifield {
   background-color: #eee;
-}
-
-.repeating-ajax-data-row > div > input {
-  width: 625px;
-}
-
-.repeating-ajax-data-row > textarea, .repeating-ajax-data-field > textarea {
-  width: 625px;
 }
 
 .rights-grant-restrictions > div > .repeating-ajax-data-row {
