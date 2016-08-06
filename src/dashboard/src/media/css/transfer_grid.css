@@ -3,6 +3,7 @@
   margin-bottom: 5px;
   margin-top: 10px;
   margin-bottom: 20px;
+  max-width: 950px;
 }
 
 #transfer-type {
@@ -46,9 +47,8 @@
 }
 
 #path_container {
-  width: 844px;
-  margin-top: 20px;
-  margin-bottom: 10px;
+  width: 950px;
+  margin-top: 35px;
 }
 
 .transfer_path_icons {

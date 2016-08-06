@@ -62,14 +62,13 @@ var TransferComponentFormView = Backbone.View.extend({
   },
 
   showSelector: function(sourceDir) {
-    // display action selector in modal window
-    $(this.modal_template).modal({show: true});
+    // display file browser
+    $('.inline-file-explorer').show();
 
-    // make it destroy rather than hide modal
-    $('#transfer-component-select-close, #transfer-component-select-cancel')
-      .click(function() {
-        $('#transfer-component-select-modal').remove();
-      });
+    // hide file browser on close button click
+    $('.inline-file-explorer button.close').on('click', function () {
+      $('.inline-file-explorer').hide();
+    });
 
     // add directory selector
     // Zipped bags should display archives, so set foldersOnly to false

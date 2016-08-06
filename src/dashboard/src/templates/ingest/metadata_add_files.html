@@ -35,6 +35,11 @@ select {
     {% if source_directories %}
 
     <div id='add_metadata_files_form'></div>
+    <div class="inline-file-explorer">
+      <h4>Select a directory</h4>
+      <button type="button" class="close">×</button>
+      <div id="explorer" class="backbone-file-explorer"></div>
+    </div>
 
     <script>
     $(document).ready(function() {
@@ -71,21 +76,6 @@ select {
       </div>
     </div>
     <br clear='all'/>
-  </script>
-
-  <script type="text/template" id='add-metadata-files-select-modal-layout'>
-    <div class="modal hide" id="metadata-file-select-modal">
-      <div class="modal-header">
-        <button type="button" class="close" id="metadata-file-select-close" data-dismiss="modal">×</button>
-        <h3>Select a directory</h3>
-      </div>
-      <div class="modal-body" id="metadata-file-select-body">
-        <div id="explorer" class="backbone-file-explorer"></div>
-      </div>
-      <div class="modal-footer">
-        <a href="#" class="btn btn-default" data-dismiss="modal" id="metadata-file-select-cancel">Cancel</a>
-      </div>
-    </div>
   </script>
 
   <script type="text/template" id='add-metadata-files-path-item'>

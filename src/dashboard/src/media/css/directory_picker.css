@@ -5,6 +5,23 @@
   box-sizing: border-box;
 }
 
+.inline-file-explorer {
+  max-width: 950px;
+  display: none;
+  margin-bottom: 20px;
+}
+
+.inline-file-explorer h4 {
+  font-weight: bold;
+  font-size: 13px;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.inline-file-explorer button.close {
+  float: right;
+}
+
 .backbone-file-explorer-busy {
   background-image: url('../images/ajax-loader.gif');
 }

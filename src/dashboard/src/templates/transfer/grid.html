@@ -67,6 +67,11 @@
   {% if source_directories %}
 
     <div id='transfer_component_form'></div>
+    <div class="inline-file-explorer">
+      <h4>Select a directory</h4>
+      <button type="button" class="close">×</button>
+      <div id="explorer" class="backbone-file-explorer"></div>
+    </div>
 
     <script>
     $(document).ready(function() {
@@ -200,25 +205,6 @@
       </div>
     </div>
     <br clear='all'/>
-  </script>
-
-  <script type="text/template" id='transfer-component-select-modal-layout'>
-    <div class="modal fade" id="transfer-component-select-modal" role="dialog">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" id="transfer-component-select-close" data-dismiss="modal">×</button>
-            <h3>Select a directory</h3>
-          </div>
-          <div class="modal-body" id="transfer-component-select-body">
-            <div id="explorer" class="backbone-file-explorer"></div>
-          </div>
-          <div class="modal-footer">
-            <a href="#" class="btn btn-default" data-dismiss="modal" id="transfer-component-select-cancel">Cancel</a>
-          </div>
-        </div>
-      </div>
-    </div>
   </script>
 
   <script type="text/template" id='transfer-component-path-item'>
