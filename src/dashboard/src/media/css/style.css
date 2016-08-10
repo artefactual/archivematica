@@ -118,11 +118,6 @@ li.user > a {
   border-left: 2px solid #444;
 }
 
-/* Override Bootstrap default */
-.container-fluid > .content {
-  margin-left: 0px;
-}
-
 /*
  * Tooltips
  */
