@@ -4,6 +4,10 @@ body {
   line-height: 18px;
 }
 
+/*
+ * Navigation bar
+ */
+
 .topbar {
   height: 40px;
   position: fixed;
@@ -116,6 +120,15 @@ li.active {
 li.user > a {
   cursor: pointer;
   border-left: 2px solid #444;
+}
+
+/*
+ * Content
+ */
+
+.container .content,
+.container-fluid .content {
+  padding-bottom: 20px;
 }
 
 /*
@@ -541,12 +554,8 @@ textarea {
   resize: vertical;
 }
 
-.form-stacked .actions {
-  margin-bottom: 20px;
-}
-
 #page-accounts-edit form .actions {
-  margin: 20px 0;
+  margin: 20px 0 0;
 }
 
 #directory-metadata-form td {
