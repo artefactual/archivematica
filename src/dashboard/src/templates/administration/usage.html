@@ -36,7 +36,7 @@
           <td>
             {% if dir.description %}
             <form method='POST' action='{% url 'components.administration.views.usage_clear' id %}'>
-              <input type='submit' value='Clear'>
+              <input type='submit' value='Clear' class='btn btn-default btn-sm'>
             </form>
             {% endif %}
           </td>
