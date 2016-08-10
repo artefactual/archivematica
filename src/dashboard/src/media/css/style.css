@@ -801,16 +801,6 @@ textarea.command {
 
 /* FPR administration */
 
-.breadcrumb > li:before {
-    margin-left: 5px;
-    margin-right: 5px;
-    color: #bbb;
-}
-
-.breadcrumb > li:first-child:before {
-    content: "";
-}
-
 .revisions_link {
   float: right;
   border: 1px solid #666;
