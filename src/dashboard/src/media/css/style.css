@@ -123,7 +123,9 @@ li.user > a {
   margin-left: 0px;
 }
 
-/* Tooltips */
+/*
+ * Tooltips
+ */
 
 .tooltip {
   position: absolute;
@@ -153,11 +155,9 @@ li.user > a {
   margin: 0 0 0 0;
 }
 
-/* Status widget */
-
-#connection-status {
-
-}
+/*
+ * Status widget
+ */
 
 #connection-status > #status-bullet {
   position: absolute;
@@ -177,7 +177,9 @@ li.user > a {
   color: #bfbfbf;
 }
 
-/* SIPs */
+/*
+ * SIPs
+ */
 
 #sip-container {
   width: 950px;
@@ -361,7 +363,6 @@ li.user > a {
 }
 
 .task-dialog > table {
-  /* width: 640px; */
   width: 100%;
 }
 
@@ -601,7 +602,7 @@ textarea {
 }
 
 /*
- *
+ * Command
  */
 
 input.command,
@@ -627,7 +628,10 @@ textarea.command {
 
 }
 
-/* Global file browser tweaks */
+/*
+ * Global file browser tweaks
+ */
+
 .backbone-file-explorer {
   border: 1px solid #eee;
   padding: 5px;
@@ -730,7 +734,9 @@ textarea.command {
   line-height: 28px;
 }
 
-/* Sidebar */
+/*
+ * Sidebar
+ */
 
 .sidebar ul,
 .sidebar li {
@@ -758,7 +764,10 @@ textarea.command {
   text-decoration: none;
 }
 
-/* Rights administration */
+
+/*
+ * Rights administration
+ */
 
 .rights-basis-fieldset {
   border-bottom: 1px solid #eee;
@@ -799,7 +808,9 @@ textarea.command {
   display: none;
 }
 
-/* FPR administration */
+/*
+ * FPR administration
+ */
 
 .revisions_link {
   float: right;
