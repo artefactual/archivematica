@@ -2,5 +2,5 @@
 
 pytest>=2,<3
 pytest-django>=2,<3
-vcrpy>=1,<2
 pytest-pythonpath
+vcrpy>=1,<2
