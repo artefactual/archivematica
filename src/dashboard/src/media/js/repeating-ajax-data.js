@@ -75,6 +75,8 @@ var RepeatingDataRecordView = Backbone.View.extend({
       $input.attr('name', field);
       $input.val(this.definition[field].value);
 
+      $input.attr('class', 'form-control')
+
       if (typeof label != 'undefined') {
         this.el.append('<label>' + label + '</label>');
       }
