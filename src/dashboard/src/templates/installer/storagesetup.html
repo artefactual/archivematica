@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% load bootstrap_tags %}
 
 {% block title %}Welcome{% endblock %}
 {% block h1 %}Welcome{% endblock %}
@@ -9,7 +10,6 @@
     .submit {
       margin-bottom: 1em;
     }
-    label { width: auto; }
   </style>
 {% endblock %}
 
@@ -25,11 +25,11 @@
           <p><code>{{ dashboard_uuid }}</code></p>
         </p>
 
-        {{ storage_form.as_p }}
+        {{ storage_form|as_bootstrap }}
 
       </div>
-      <input class="submit" type="submit" name="use_default" value="Register with the storage service &amp; use default configuration." />
-      <input class="submit" type="submit" name="configure" value="Register with the storage service &amp; set up custom configuration." onclick="window.open($('#id_storage_service_url').val());" />
+      <input class="submit btn btn-primary" type="submit" name="use_default" value="Register with the storage service &amp; use default configuration." />
+      <input class="submit btn btn-default" type="submit" name="configure" value="Register with the storage service &amp; set up custom configuration." onclick="window.open($('#id_storage_service_url').val());" />
     </form>
   </div>
 </div>
