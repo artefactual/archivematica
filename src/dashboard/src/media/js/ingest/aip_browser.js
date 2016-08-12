@@ -31,6 +31,7 @@ function setupAIPBrowser(directory) {
         );
       }
     },
+    disableDragAndDrop: true
   });
 
   explorer.options.actionHandlers = [];
