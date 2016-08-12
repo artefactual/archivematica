@@ -650,21 +650,6 @@ textarea.command {
   overflow: scroll;
 }
 
-/*
- * Welcome
- */
-
-#page-welcome form input {
-
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  width: 100%;
-  height: 28px;
-  font-size: 18px;
-  line-height: 1;
-
-}
 
 /*
  * Login
