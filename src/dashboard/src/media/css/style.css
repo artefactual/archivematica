@@ -163,6 +163,10 @@ li.user > a {
   margin: 0 0 0 0;
 }
 
+.tooltip {
+  opacity: 1;
+}
+
 /*
  * Status widget
  */
