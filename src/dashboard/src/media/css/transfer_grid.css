@@ -1,54 +1,6 @@
-#transfer_component_form {
-  border-bottom: 1px dotted #ddd;
-  margin-bottom: 5px;
-  margin-top: 10px;
-  margin-bottom: 20px;
-  max-width: 950px;
-}
-
-#transfer-type {
-  width: 150px;
-}
-
-#transfer-type-container {
-  float: left;
-  margin-right: 10px;
-}
-
-#transfer-name-container {
-  float: left;
-  margin-right: 10px;
-}
-
-#transfer-accession-number {
-  width: 100px;
-  margin-right: 10px;
-}
-
-#tranfer_paths_area {
-  float:left;
-  width: 450px;
-}
-
-#path_add_button,
-#start_transfer_button {
-  margin-right: 10px;
-  vertical-align: inherit;
-}
-
-#transfer_metadata_edit_button {
-  display: none;
-}
-
-#path_source_select {
-  margin-right: 10px;
-  width: 150px;
-  display: inline-block;
-}
-
 #path_container {
   width: 950px;
-  margin-top: 35px;
+  margin-bottom: 10px;
 }
 
 .transfer_path_icons {
@@ -66,4 +18,14 @@
 
 .microservice-group {
   padding: 2px 0px;
+}
+
+#transfer-browser-form {
+  width: 950px;
+}
+
+#transfer_browse_tree {
+  width: 950px;
+  margin-bottom: 60px;
+  margin-top: 10px;
 }
