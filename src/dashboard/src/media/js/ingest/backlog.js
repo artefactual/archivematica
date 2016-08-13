@@ -20,22 +20,17 @@ function renderBacklogSearchForm(search_uri, on_success, on_error) {
   });
 
   // define op field
-  var opAttributes = {
-    title: 'boolean operator',
-    class: 'search_op_selector'
-  }
-
-  search.addSelect('op', opAttributes, {
+  search.addSelect('op', {'title': 'boolean operator', 'class': 'form-control search_op_selector'}, {
     'or': 'or',
     'and': 'and',
     'not': 'not'
   });
 
   // define query field
-  search.addInput('query', {title: 'search query', 'class': 'aip-search-query-input'});
+  search.addInput('query', {title: 'search query', 'class': 'form-control aip-search-query-input'});
 
   // default field name field
-  search.addSelect('field', {title: 'field name'}, {
+  search.addSelect('field', {title: 'field name', 'class': 'form-control'}, {
     ''             : 'Any',
     'filename'     : 'File name',
     'file_extension': 'File extension',
@@ -45,7 +40,7 @@ function renderBacklogSearchForm(search_uri, on_success, on_error) {
   });
 
   // default field name field
-  search.addSelect('type', {title: 'query type'}, {
+  search.addSelect('type', {title: 'query type', 'class': 'form-control'}, {
     'term': 'Keyword',
     'string': 'Phrase'
   });

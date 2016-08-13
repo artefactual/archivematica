@@ -124,6 +124,6 @@ class UrlBreadcrumbNode(Node):
 
 def create_crumb(title, url=None):
     if url:
-        return '<li><a href="%s">%s</a>&nbsp;<span class="divider">/</span></li>' % (url, title)
+        return '<li><a href="%s">%s</a>&nbsp;</li>' % (url, title)
     else:
         return "<li>%s</li>" % title

@@ -51,7 +51,7 @@
     <small>Archival Information Package</small>
   </h2>
 
-  <table class="bordered-table aip-details">
+  <table class="table bordered-table aip-details">
     <tbody>
       <tr>
         <th>UUID</th>
@@ -72,14 +72,14 @@
       <tr>
         <th>Location</th>
         <td>
-          <a class="btn small" href="{% url 'components.archival_storage.views.aip_download' uuid %}">Download</a>
+          <a class="btn btn-default btn-sm" href="{% url 'components.archival_storage.views.aip_download' uuid %}">Download</a>
           <code class="location-preview">[...]/{{ location_basename }}</code>
         </td>
       </tr>
       <tr>
         <th>Pointer file</th>
         <td>
-          <a class="btn small" target="_blank" href="{% url 'components.archival_storage.views.aip_pointer_file_download' uuid %}">View</a>
+          <a class="btn btn-default btn-sm" target="_blank" href="{% url 'components.archival_storage.views.aip_pointer_file_download' uuid %}">View</a>
         </td>
       </tr>
     </tbody>
@@ -89,10 +89,10 @@
 
   <section class="am-tabs-pane">
 
-    <ul class="tabs" data-active-tab="{{ active_tab }}">
-      <li class="active"><a href="#tab-upload-dip">Upload DIP</a></li>
-      <li><a href="#tab-reingest">Re-ingest</a></li>
-      <li><a href="#tab-delete">Delete</a></li>
+    <ul class="nav nav-tabs" data-active-tab="{{ active_tab }}">
+      <li class="active"><a href="#tab-upload-dip" role="tab" data-toggle="tab">Upload DIP</a></li>
+      <li><a href="#tab-reingest" role="tab" data-toggle="tab">Re-ingest</a></li>
+      <li><a href="#tab-delete" role="tab" data-toggle="tab">Delete</a></li>
     </ul>
 
     <div class="tab-content">
@@ -106,7 +106,7 @@
             {% include "_form.html" with form=forms.upload %}
           </fieldset>
           <div class="clearfix am-actions">
-            <button type="submit" class="btn primary" name="submit-upload-form">Upload</button>
+            <button type="submit" class="btn btn-primary" name="submit-upload-form">Upload</button>
           </div>
         </form>
       </div>
@@ -120,7 +120,7 @@
             {% include "_form.html" with form=forms.reingest %}
           </fieldset>
           <div class="clearfix am-actions">
-            <button type="submit" class="btn primary" name="submit-reingest-form">Re-ingest</button>
+            <button type="submit" class="btn btn-primary" name="submit-reingest-form">Re-ingest</button>
           </div>
         </form>
       </div>
@@ -135,7 +135,7 @@
             {% include "_form.html" with form=forms.delete %}
           </fieldset>
           <div class="clearfix am-actions">
-            <button class="btn danger" name="submit-delete-form">Delete</button>
+            <button class="btn btn-danger" name="submit-delete-form">Delete</button>
           </div>
         </form>
       </div>

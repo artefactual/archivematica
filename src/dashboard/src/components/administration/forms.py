@@ -327,6 +327,7 @@ class ProcessingConfigurationForm(forms.Form):
     }
 
     name = forms.RegexField(max_length=16, regex=r'^\w+$', required=True)
+    name.widget.attrs['class'] = 'form-control'
 
     def __init__(self, *args, **kwargs):
         super(ProcessingConfigurationForm, self).__init__(*args, **kwargs)
@@ -341,6 +342,7 @@ class ProcessingConfigurationForm(forms.Form):
                 self.fields[choice_uuid] = forms.IntegerField(**opts)
                 if 'placeholder' in field:
                     self.fields[choice_uuid].widget.attrs['placeholder'] = field['placeholder']
+                self.fields[choice_uuid].widget.attrs['class'] = 'form-control'
             else:
                 choices = opts['choices'] = list(self.EMPTY_CHOICES)
                 if ftype == 'boolean':
@@ -364,7 +366,8 @@ class ProcessingConfigurationForm(forms.Form):
                 elif ftype == 'storage_service':
                     for loc in get_storage_locations(purpose=field['purpose']):
                         choices.append((loc['resource_uri'], loc['description']))
-                self.fields[choice_uuid] = forms.ChoiceField(**opts)
+                self.fields[choice_uuid] = forms.ChoiceField(widget=Select(attrs={'class': 'form-control'}),
+                                                             **opts)
 
     def load_config(self, name):
         """

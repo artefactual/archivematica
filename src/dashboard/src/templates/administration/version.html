@@ -7,15 +7,17 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="span12">
+    <div class="col-md-10">
 
       <h3>About Archivematica</h3>
 
-      <table>
+      <table class="table">
         <tr>
           <th>Version</th>
           <th>{{ version }}</th>
@@ -29,5 +31,7 @@
     </div>
 
   </div>
+
+</div>
 
 {% endblock %}

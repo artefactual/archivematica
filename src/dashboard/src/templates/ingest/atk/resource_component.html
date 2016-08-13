@@ -6,7 +6,7 @@
 {% block page_id %}atk_match{% endblock %}
 
 {% block content %}
-<div class="span12">
+<div class="col-md-12">
 
   <ul class="breadcrumb">
     {% breadcrumb_url 'DIP Upload' 'components.ingest.views_atk.ingest_upload_atk' uuid %}
@@ -23,13 +23,13 @@
     <small>{{ resource_component_data.title }} ({{ resource_component_data.id }})</small>
   </h1>
 
-  <a class='btn' href="{% url 'components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_component_levels' uuid resource_component_id %}">Assign DIP objects to this level of description</a>
+  <a class='btn btn-default' href="{% url 'components.ingest.views_atk.ingest_upload_atk_match_dip_objects_to_resource_component_levels' uuid resource_component_id %}">Assign DIP objects to this level of description</a>
 
   <br />
   <br />
 
   {% if page.objects %}
-    <table>
+    <table class="table">
       <thead>
         <tr>
           <th>Level of Description</th>

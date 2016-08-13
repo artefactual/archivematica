@@ -13,11 +13,13 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="span12">
+    <div class="col-md-10">
 
       <ul class="breadcrumb">
         {% breadcrumb_url 'Taxonomy' 'components.administration.views.taxonomy' %}
@@ -32,17 +34,19 @@
 
       {% if page.has_other %}
       {% if page.has_previous %}
-      <a class='btn' href='/administration/taxonomy/terms/{{ taxonomy_uuid }}/?page={{ page.previous }}'>Previous Page</a>
+      <a class='btn btn-default' href='/administration/taxonomy/terms/{{ taxonomy_uuid }}/?page={{ page.previous }}'>Previous Page</a>
       {% endif %}
 
       {% if has_next and has_previous %}&nbsp;{% endif %}
 
       {% if page.has_next %}
-      <a class='btn' href='/administration/taxonomy/terms/{{ taxonomy_uuid }}/?page={{ page.next }}'>Next Page</a>
+      <a class='btn btn-default' href='/administration/taxonomy/terms/{{ taxonomy_uuid }}/?page={{ page.next }}'>Next Page</a>
       {% endif %}
       {% endif %}
     </div>
 
   </div>
+
+</div>
 
 {% endblock %}

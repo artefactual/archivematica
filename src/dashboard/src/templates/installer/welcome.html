@@ -31,21 +31,21 @@
 
   <div class="row">
 
-    <div class="span9 offset2">
+    <div class="col-md-7 col-md-offset-2">
 
       <img src="{{ STATIC_URL }}images/logo_welcome.gif" style="margin-bottom: 20px;" />
 
       <div class="well">
         <h2>Welcome!</h2>
-        <p>It seems that Archivematica has been installed successfully. Now, please take a minute to create your first user in the system.</p>
+        <p>Archivematica has been installed successfully. Please take a minute to create your first user in the system.</p>
       </div>
 
       <form class="form-stacked" method="post" action="{% url 'installer.views.welcome' %}">
 
         {% include "_form.html" %}
 
-        <div class="well span9">
-          <button class="btn primary" type="submit">Create</button>
+        <div class="well">
+          <button class="btn btn-primary" type="submit">Create</button>
         </div>
 
       </form>

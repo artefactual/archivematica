@@ -71,6 +71,10 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
     });
 
     this.id = $(this.el).attr('id'); 
+
+    if (this.options.disableDragAndDrop) {
+      this.moveHandler = false;
+    }
   },
 
   deleteEntry: function(path, type) {

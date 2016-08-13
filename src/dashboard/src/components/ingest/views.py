@@ -366,7 +366,7 @@ def ingest_browse(request, browse_type, jobuuid):
         title = 'Review AIP'
         directory = os.path.join(watched_dir, 'storeAIP')
     elif browse_type == 'dip':
-        title = 'Download DIP'
+        title = 'Review DIP'
         directory = os.path.join(watched_dir, 'uploadedDIPs')
     else:
         raise Http404

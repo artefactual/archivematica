@@ -7,15 +7,17 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="span12">
+    <div class="col-md-10">
 
       <h3>Processing storage usage</h3>
 
-      <table>
+      <table class="table">
         <tr>
           <th>Purpose</th>
           <th>Path</th>
@@ -34,7 +36,7 @@
           <td>
             {% if dir.description %}
             <form method='POST' action='{% url 'components.administration.views.usage_clear' id %}'>
-              <input type='submit' value='Clear'>
+              <input type='submit' value='Clear' class='btn btn-default btn-sm'>
             </form>
             {% endif %}
           </td>
@@ -45,5 +47,7 @@
     </div>
 
   </div>
+
+</div>
 
 {% endblock %}

@@ -263,7 +263,7 @@ function appendRevealButton($list, dataType) {
     $list.last().hide();
 
     // make toggle button
-    var $toggleButton = $('<h3 class="btn" style="float:right">Create new ' + dataType + '?</h3>');
+    var $toggleButton = $('<h3 class="btn btn-default" style="float:right">Create new ' + dataType + '?</h3>');
 
     $toggleButton.click(function() {
       $toggleButton.fadeOut();
@@ -279,7 +279,7 @@ function appendRevealButton($list, dataType) {
 $(document).ready(function() {
 
   // apply input mask to date fields
-  $.extend($.inputmask.defaults.definitions, {
+  Inputmask.extendDefinitions({
     'd': { //basic day - from jquery.inputmask.date.extensions
         validator: "0[1-9]|[12][0-9]|3[01]",
         cardinality: 2,
