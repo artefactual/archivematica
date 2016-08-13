@@ -62,14 +62,13 @@ var TransferComponentFormView = Backbone.View.extend({
   },
 
   showSelector: function(sourceDir) {
-    // display action selector in modal window
-    $(this.modal_template).modal({show: true});
+    // display file browser
+    $('.inline-file-explorer').show();
 
-    // make it destroy rather than hide modal
-    $('#transfer-component-select-close, #transfer-component-select-cancel')
-      .click(function() {
-        $('#transfer-component-select-modal').remove();
-      });
+    // hide file browser on close button click
+    $('.inline-file-explorer button.close').on('click', function () {
+      $('.inline-file-explorer').hide();
+    });
 
     // add directory selector
     // Zipped bags should display archives, so set foldersOnly to false
@@ -172,10 +171,10 @@ var TransferComponentFormView = Backbone.View.extend({
 
     // add button to add paths via a pop-up selector
     var $buttonContainer = $('<div></div>')
-      , $addButton = $('<span id="path_add_button" class="btn">Browse</span>')
-      , $sourceDirSelect = $('<select id="path_source_select"></select>')
-      , $startTransferButton = $('<span id="start_transfer_button" class="btn success">Start transfer</span>')
-      , $metadataEditButton = $('<span id="transfer_metadata_edit_button" class="btn metadata-edit" title="Metadata entered in this form will be associated with the next component added to this transfer. Data will not be used if no component is added after the form is saved.">Add next</span>')
+      , $addButton = $('<span id="path_add_button" class="btn btn-default">Browse</span>')
+      , $sourceDirSelect = $('<select id="path_source_select" class="form-control"></select>')
+      , $startTransferButton = $('<span id="start_transfer_button" class="btn btn-success">Start transfer</span>')
+      , $metadataEditButton = $('<span id="transfer_metadata_edit_button" class="btn btn-default metadata-edit" title="Metadata entered in this form will be associated with the next component added to this transfer. Data will not be used if no component is added after the form is saved.">Add next</span>')
       , self = this;
 
     $buttonContainer

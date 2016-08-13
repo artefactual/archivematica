@@ -13,11 +13,13 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="span12">
+    <div class="col-md-10">
 
       <div style='margin-top: 10px; padding: 5px 15px 5px 15px; float:right; background-color: #eee;'>
         <p><b>Dashboard UUID</b> {{ dashboard_uuid }}</p>
@@ -40,8 +42,8 @@
 
         {% include "_form.html" with form=checksum_form %}
 
-        <div class='span7'>
-          <span style='float: right'><input type='submit' value='Save'></span>
+        <div>
+          <input type="submit" value="Save" class="btn btn-primary">
         </div>
 
       </form>
@@ -49,5 +51,7 @@
     </div>
 
   </div>
+
+</div>
 
 {% endblock %}

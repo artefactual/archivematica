@@ -3,10 +3,11 @@
   margin-bottom: 5px;
   margin-top: 10px;
   margin-bottom: 20px;
+  max-width: 950px;
 }
 
 #transfer-type {
-  width: 100px;
+  width: 150px;
 }
 
 #transfer-type-container {
@@ -20,7 +21,7 @@
 }
 
 #transfer-accession-number {
-  width: 75px;
+  width: 100px;
   margin-right: 10px;
 }
 
@@ -29,12 +30,10 @@
   width: 450px;
 }
 
-#path_add_button {
-  margin-right: 10px;
-}
-
+#path_add_button,
 #start_transfer_button {
   margin-right: 10px;
+  vertical-align: inherit;
 }
 
 #transfer_metadata_edit_button {
@@ -43,12 +42,13 @@
 
 #path_source_select {
   margin-right: 10px;
+  width: 150px;
+  display: inline-block;
 }
 
 #path_container {
-  width: 844px;
-  margin-top: 20px;
-  margin-bottom: 10px;
+  width: 950px;
+  margin-top: 35px;
 }
 
 .transfer_path_icons {
@@ -65,5 +65,5 @@
 }
 
 .microservice-group {
-  padding-bottom: 3px;
+  padding: 2px 0px;
 }

@@ -6,7 +6,7 @@
 {% block page_id %}atk_match{% endblock %}
 
 {% block content %}
-<div class="span12">
+<div class="col-md-12">
 
   <ul class="breadcrumb">
     {% breadcrumb_url 'DIP Upload' 'components.ingest.views_as.ingest_upload_as' uuid %}
@@ -22,17 +22,17 @@
   </h1>
 
   {% if reset_url %}
-    <div id='reset_matching'><a class="btn" href="{% url reset_url uuid %}">Restart matching</a>
+    <div id='reset_matching'><a class="btn btn-default" href="{% url reset_url uuid %}">Restart matching</a>
   {% else %}
-    <div id='reset_matching'><a class="btn disabled">Restart matching</a>
+    <div id='reset_matching'><a class="btn btn-default disabled">Restart matching</a>
   {% endif %}
-  <a class='btn' href="{% url 'components.ingest.views_as.ingest_upload_as_match_dip_objects_to_resource_levels' uuid resource_id %}">Assign DIP objects to this resource</a>
-  <a class="btn" href="{% url 'components.ingest.views_as.ingest_upload_as_review_matches' uuid %}">Review matches</a>
+  <a class='btn btn-default' href="{% url 'components.ingest.views_as.ingest_upload_as_match_dip_objects_to_resource_levels' uuid resource_id %}">Assign DIP objects to this resource</a>
+  <a class="btn btn-default" href="{% url 'components.ingest.views_as.ingest_upload_as_review_matches' uuid %}">Review matches</a>
   <br />
   <br />
 
   {% if page.objects %}
-    <table>
+    <table class="table">
       <thead>
         <tr>
           <th>Level of Description</th>

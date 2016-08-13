@@ -6,15 +6,17 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="span12">
+    <div class="col-md-10">
 
       <h3>Users</h3>
 
-      <table>
+      <table class="table">
 
         <tr>
           <th>Username</th>
@@ -35,8 +37,8 @@
             <td>{{ item.is_active }}</td>
             <td>
               {% if user.is_superuser or user.id == item.id %}
-                <a class="btn edit small" href="{% url 'components.accounts.views.edit' item.id %}">Edit</a>
-                <a class="btn danger small" href="{% url 'components.accounts.views.delete' item.id %}">Delete</a>
+                <a class="btn btn-default edit btn-sm" href="{% url 'components.accounts.views.edit' item.id %}">Edit</a>
+                <a class="btn btn-danger btn-sm" href="{% url 'components.accounts.views.delete' item.id %}">Delete</a>
               {% endif %}
           </tr>
 
@@ -45,11 +47,13 @@
       </table>
 
       <div class="actions">
-        <a class="btn" href="{% url 'components.accounts.views.add' %}">Add new</a>
+        <a class="btn btn-primary" href="{% url 'components.accounts.views.add' %}">Add new</a>
       </div>
 
     </div>
 
   </div>
+
+</td>
 
 {% endblock %}

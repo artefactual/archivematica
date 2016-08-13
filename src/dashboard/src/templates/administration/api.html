@@ -13,11 +13,13 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="span12">
+    <div class="col-md-10">
 
       <h3>REST API configuration</h3>
 
@@ -27,9 +29,9 @@
 
       <div style='width: 500px; height: 300px;'>
       <form method='POST'>
-        <textarea name='whitelist' style='width: 500px; height: 300px;'>{{ whitelist }}</textarea>
-        <div style='float:right;'>
-          <input type='submit' value='Save' class='btn' />
+        <textarea name='whitelist' class='form-control' style='margin-bottom: 1em;'>{{ whitelist }}</textarea>
+        <div>
+          <input type='submit' value='Save' class='btn btn-primary' />
         </div>
       </form>
       </div>
@@ -37,5 +39,7 @@
     </div>
 
   </div>
+
+</div>
 
 {% endblock %}

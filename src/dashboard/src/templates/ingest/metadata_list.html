@@ -3,7 +3,7 @@
 
 {% block content %}
   <div class="row">
-    <div class="span12">
+    <div class="col-md-12">
 
       <ul class="breadcrumb">
         {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
@@ -13,7 +13,7 @@
 
       <h1>Metadata<br /><small>{{ name }}</small></h1>
 
-      <table>
+      <table class="table">
         <thead>
           <tr>
             <th>Title</th>
@@ -36,7 +36,7 @@
       </table>
 
       <div class="actions" style="padding-left: 1em;">
-        <a class="btn primary" href="{% url 'components.ingest.views.ingest_metadata_edit' uuid %}">Add</a>
+        <a class="btn btn-primary" href="{% url 'components.ingest.views.ingest_metadata_edit' uuid %}">Add</a>
       </div>
 
     </div>

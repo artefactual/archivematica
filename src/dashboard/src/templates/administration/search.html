@@ -13,14 +13,16 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="span12">
+    <div class="col-md-10">
 
       {% if message %}
-        <div class="alert-message">{{ message }}</div>
+        <div class="alert alert-info">{{ message }}</div>
       {% endif %}
 
       <h3>Search administration</h3>
@@ -29,12 +31,14 @@
 
       {% if user.is_superuser %}
       <form action='{% url 'components.administration.views.administration_search_flush_aips' %}' method='POST'>
-        <input type='submit' value='Flush AIP Index' class='btn' />
+        <input type='submit' value='Flush AIP Index' class='btn btn-default' />
       </form>
       {% endif %}
 
     </div>
 
   </div>
+
+</div>
 
 {% endblock %}

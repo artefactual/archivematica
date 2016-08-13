@@ -3,7 +3,7 @@
 
 {% block content %}
   <div class="row">
-    <div class="span12">
+    <div class="col-md-12">
 
       <ul class="breadcrumb">
         {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
@@ -44,9 +44,9 @@
 
         <div class="actions">
           {% if formset.forms %}
-          <button type="submit" class="btn primary">Save</button>
+          <button type="submit" class="btn btn-primary">Save</button>
           {% endif %}
-          <a href="{% url 'components.unit.views.detail' 'ingest' uuid %}" class="btn">Cancel</a>
+          <a href="{% url 'components.unit.views.detail' 'ingest' uuid %}" class="btn btn-default">Cancel</a>
         </div>
       </form>
     </div>

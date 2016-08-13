@@ -3,7 +3,7 @@
 
 {% block content %}
   <div class="row">
-    <div class="span12">
+    <div class="col-md-12">
 
       <ul class="breadcrumb">
         {% if section == 'ingest' %}
@@ -18,7 +18,7 @@
 
       <h1>Rights<br /><small>{{ name }}</small></h1>
 
-      <table>
+      <table class="table">
         <thead>
           <th>Act</th>
           <th>Basis</th>
@@ -69,9 +69,9 @@
 
       <div class="actions" style="padding-left: 1em;">
         {% if section == 'ingest' %}
-          <a class="btn primary" href="{% url 'components.rights.views.ingest_rights_edit' uuid %}">Add</a>
+          <a class="btn btn-primary" href="{% url 'components.rights.views.ingest_rights_edit' uuid %}">Add</a>
         {% else %}
-          <a class="btn primary" href="{% url 'components.rights.views.transfer_rights_edit' uuid %}">Add</a>
+          <a class="btn btn-primary" href="{% url 'components.rights.views.transfer_rights_edit' uuid %}">Add</a>
         {% endif %}
       </div>
 

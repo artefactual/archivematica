@@ -13,23 +13,27 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="span12">
+    <div class="col-md-10">
 
       <h3>PREMIS agent</h3>
 
       <form method='POST'>
       {% include "_form.html" %}
-        <div style='float:right;'>
-          <input type='submit' value='Save' class='btn' />
+        <div>
+          <input type='submit' value='Save' class='btn btn-primary' />
         </div>
       </form>
 
     </div>
 
   </div>
+
+</div>
 
 {% endblock %}

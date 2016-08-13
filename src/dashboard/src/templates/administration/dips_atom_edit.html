@@ -17,16 +17,18 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="span12">
+    <div class="col-md-10">
 
       {% url 'components.administration.views.atom_levels_of_description' as url_atom_levels_of_description %}
 
       <div style="float: right">
-        <a href="{{ url_atom_levels_of_description }}" class="btn">Levels of Description</a>
+        <a href="{{ url_atom_levels_of_description }}" class="btn btn-default">Levels of Description</a>
       </div>
 
       <form class="form-stacked" method="post" action="{% url 'components.administration.views.atom_dips' %}">
@@ -38,7 +40,7 @@
         {% include "_form.html" %}
 
         <div class="actions">
-          <input type="submit" value="Save" class="btn primary" />
+          <input type="submit" value="Save" class="btn btn-primary" />
         </div>
 
       </form>
@@ -46,5 +48,7 @@
     </div>
 
   </div>
+
+</div>
 
 {% endblock %}

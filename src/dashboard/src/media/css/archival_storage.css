@@ -50,6 +50,7 @@ div.search-summary p {
 }
 
 .aip-details .uuid {
+  padding-left: 0;
   font-size: 1.2em;
 }
 
@@ -67,8 +68,12 @@ div.search-summary p {
   margin-bottom: 20px;
 }
 
+.am-tabs-pane legend {
+  padding-bottom: 10px;
+}
+
 .am-tabs-pane .form-stacked {
-  padding-right: 20px;
+  padding: 0px 20px 20px;
 }
 
 .am-tabs-pane .tabs {

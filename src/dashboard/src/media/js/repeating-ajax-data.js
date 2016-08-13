@@ -75,6 +75,8 @@ var RepeatingDataRecordView = Backbone.View.extend({
       $input.attr('name', field);
       $input.val(this.definition[field].value);
 
+      $input.attr('class', 'form-control')
+
       if (typeof label != 'undefined') {
         this.el.append('<label>' + label + '</label>');
       }
@@ -158,7 +160,7 @@ var RepeatingDataView = Backbone.View.extend({
   },
 
   newLinkEl: function() {
-    var $linkEl = $('<div class="btn">New ' + this.description + '</div>')
+    var $linkEl = $('<div class="btn btn-default">New ' + this.description + '</div>')
       , self = this;
 
     // allow suppression of button for creating new records

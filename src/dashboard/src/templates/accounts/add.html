@@ -7,11 +7,13 @@
 
 {% block content %}
 
+<div class="container-fluid">
+
   <div class="row">
 
     {% include "administration/sidebar.html" %}
 
-    <div class="span12">
+    <div class="col-md-10">
 
       <ul class="breadcrumb">
         {% breadcrumb_url 'Users' 'components.accounts.views.list' %}
@@ -25,8 +27,8 @@
         {% include "_form.html" %}
 
         <div class="actions">
-          <button type="submit" class="btn primary">Create</button>
-          <a class="btn" href="{% url 'components.accounts.views.list' %}">Cancel</a>
+          <button type="submit" class="btn btn-primary">Create</button>
+          <a class="btn btn-default" href="{% url 'components.accounts.views.list' %}">Cancel</a>
         </div>
 
       </form>
@@ -34,5 +36,7 @@
     </div>
 
   </div>
+
+</div>
 
 {% endblock %}

@@ -67,6 +67,11 @@
   {% if source_directories %}
 
     <div id='transfer_component_form'></div>
+    <div class="inline-file-explorer">
+      <h4>Select a directory</h4>
+      <button type="button" class="close">×</button>
+      <div id="explorer" class="backbone-file-explorer"></div>
+    </div>
 
     <script>
     $(document).ready(function() {
@@ -88,7 +93,7 @@
     </script>
   {% endif %}
 
-  <div class="span12" id="sip-container">
+  <div id="sip-container">
     <div style='float:right'>
       <span class='grid-pager-previous-area'></span>
       <span class='grid-pager-next-area'></span>
@@ -169,9 +174,9 @@
         <img src='{{STATIC_URL}}images/ajax-loader.gif' />
       </div>
       <div style="float:left">
-        <form>
+        <form class="form-inline">
           <div id='transfer-type-container'>
-            <select type='text' id='transfer-type'>
+            <select type='text' id='transfer-type' class="form-control">
               <option value='standard'>Standard</option>
               <option value='unzipped bag'>Unzipped Bag</option>
               <option value='zipped bag'>Zipped Bag</option>
@@ -186,11 +191,11 @@
             <div class="help-block">Type</div>
           </div>
           <div id='transfer-name-container'>
-            <input type='text' id='transfer-name'></input>
+            <input type='text' id='transfer-name' class="form-control"></input>
             <div class="help-block">Transfer name</div>
           </div>
           <div style="float:left;">
-            <input type='text' id='transfer-accession-number'></input>
+            <input type='text' id='transfer-accession-number' class="form-control"></input>
             <div class="help-block">Accession no.</div>
           </div>
         </form>
@@ -200,21 +205,6 @@
       </div>
     </div>
     <br clear='all'/>
-  </script>
-
-  <script type="text/template" id='transfer-component-select-modal-layout'>
-    <div class="modal hide" id="transfer-component-select-modal">
-      <div class="modal-header">
-        <button type="button" class="close" id="transfer-component-select-close" data-dismiss="modal">×</button>
-        <h3>Select a directory</h3>
-      </div>
-      <div class="modal-body" id="transfer-component-select-body">
-        <div id="explorer" class="backbone-file-explorer"></div>
-      </div>
-      <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal" id="transfer-component-select-cancel">Cancel</a>
-      </div>
-    </div>
   </script>
 
   <script type="text/template" id='transfer-component-path-item'>

@@ -17,13 +17,12 @@ var MetadataFormView = Backbone.View.extend({
   },
 
   showSelector: function(sourceDir) {
-    // display action selector in modal window
-    $(this.modal_template).modal({show: true});
+    // display file browser
+    $('.inline-file-explorer').show();
 
-    // make it destroy rather than hide modal
-    $('#metadata-file-select-close, #metadata-file-select-cancel')
-    .click(function() {
-      $('#metadata-file-select-modal').remove();
+    // hide file browser on close button click
+    $('.inline-file-explorer button.close').on('click', function () {
+      $('.inline-file-explorer').hide();
     });
 
     // add directory selector
@@ -85,9 +84,9 @@ var MetadataFormView = Backbone.View.extend({
 
     // add button to add paths via a pop-up selector
     var $buttonContainer = $('<div></div>')
-    , $addButton = $('<span id="path_add_button" class="btn">Browse</span>')
-    , $sourceDirSelect = $('<select id="path_source_select"></select>')
-    , $addFilesButton = $('<span id="start_transfer_button" class="btn success">Add files</span>')
+    , $addButton = $('<span id="path_add_button" class="btn btn-default">Browse</span>')
+    , $sourceDirSelect = $('<select id="path_source_select" class="form-control"></select>')
+    , $addFilesButton = $('<span id="start_transfer_button" class="btn btn-success">Add files</span>')
     , self = this;
 
     $buttonContainer

@@ -37,7 +37,7 @@
       <img src="{{ STATIC_URL }}images/zoom.png" />
     </span>
 
-    <input id='match_button' type='button' value='Pair' class='btn' />
+    <input id='match_button' type='button' value='Pair' class='btn btn-default' />
   </div>
 
   <ul class="breadcrumb">
@@ -62,7 +62,7 @@
       <div class="atk-pane-header">
         <h3>Resources</h3>
       </div>
-      <table>
+      <table class="table">
         <thead>
           <tr>
             <th><a class='atk_resource_sort' id='sort_by_sortPosition'>Level</a></th>
@@ -79,7 +79,7 @@
       <div class="atk-pane-header">
         <h3>Pairs</h3>
       </div>
-      <table>
+      <table class="table">
         <thead>
           <tr>
             <th>File</th>
@@ -93,8 +93,8 @@
         <tbody id="match_pane_pairs"></tbody>
       </table>
       <div style="float:right">
-        <input id="match_confirm_button" type='button' class='btn' value='Confirm' />
-        <input id="match_cancel_button" type='button' class='btn' value='Cancel' />
+        <input id="match_confirm_button" type='button' class='btn btn-default' value='Confirm' />
+        <input id="match_cancel_button" type='button' class='btn btn-default' value='Cancel' />
       </div>
     </div>
   </script>

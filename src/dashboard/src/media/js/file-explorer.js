@@ -598,22 +598,21 @@
    * Logic to handle keeping track of the location of a dragged entry.
    * @function
    */
-  function dragHandler(event) {
-    var id = event.currentTarget.id
-      , $el = $("[id='" + event.currentTarget.id + "']")
-      , offsets = $el.offset();
+  function dragHandler(event, ui) {
+    var id = event.target.id;
 
     // if an element hasn't been dragged yet, take note of its start
     // position
     if (exports.Data.startY[id] == undefined) {
-     exports.Data.startX[id] = offsets.left;
-     exports.Data.startY[id] = offsets.top;
+     exports.Data.startX[id] = event.target.offsetLeft;
+     exports.Data.startY[id] = event.target.offsetTop;
     }
 
-    // raise the element above others and reposition it
-    $el.css({'z-index': 1});
-    $el.css({left: exports.Data['mouseX'] - exports.Data.startX[id] + 5});
-    $el.css({top: exports.Data['mouseY'] - exports.Data.startY[id] + 5});
+    // reposition the element
+    ui.position = {
+      'top': exports.Data['mouseY'] - exports.Data.startY[id] + 5,
+      'left': exports.Data['mouseX'] - exports.Data.startX[id] + 5
+    };
   };
 
   /**
@@ -641,15 +640,6 @@
 
     dragHandler: dragHandler,
 
-    // default drop handling logic for the entry list
-    // (returns element to its original position)
-    dropHandler: function(event) {
-      var droppedId   = event.dragTarget.id;
-
-      $('#' + droppedId).css({left: 0});
-      $('#' + droppedId).css({top: 0});
-    },
-
     // bind/re-bind drag-and-drop logic
     initDragAndDrop: function() {
       if (this.moveHandler) {
@@ -657,16 +647,16 @@
         var self = this;
 
         // bind all list entries to drag handler
-        $(this.el)
-          .find('.backbone-file-explorer-entry:not(.not_draggable)')
-          .unbind('drag')
-          .bind('drag', {'self': self}, self.dragHandler);
-
-        // bind all list entries to drop handler
-        $(this.el)
-          .find('.backbone-file-explorer-entry')
-          .unbind('drop')
-          .bind('drop', {'self': self}, self.dropHandler);
+        $(this.el).find('.backbone-file-explorer-entry:not(:first):not(.not_draggable)').draggable({
+          stack: 'div',
+          drag: function(event, ui) {
+            event.data = { self: self };
+            self.dragHandler(event, ui);
+          },
+          revert: function(event, ui) {
+            return !event;
+          }
+        });
       }
     },
 
@@ -793,19 +783,29 @@
       if (this.moveHandler) {
         // bind drag-and-drop functionality
         var self = this;
+        var $el = $(this.el);
 
-       // exclude top-level directory from being dragged
-       // Don't bind drag to anything with 'not_draggable' class
-       $(this.el)
-          .find('.backbone-file-explorer-entry:not(:first):not(.not_draggable)')
-          .unbind('drag')
-          .bind('drag', {'self': self}, self.dragHandler);
+        // exclude top-level directory from being dragged
+        // Don't bind drag to anything with 'not_draggable' class
+        $el.find('.backbone-file-explorer-entry:not(:first):not(.not_draggable)').draggable({
+          stack: 'div',
+          drag: function(event, ui) {
+            event.data = { self: self };
+            self.dragHandler(event, ui);
+          },
+          revert: function(event, ui) {
+            return !event;
+          }
+        });
 
-       // allow top-level directory to be dragged into
-       $(this.el)
-          .find('.backbone-file-explorer-entry')
-          .unbind('drop')
-          .bind('drop', {'self': self}, self.dropHandler);
+        if ($el.attr('id') !== 'originals') {
+          $el.find('.backbone-file-explorer-entry').droppable({
+            drop: function(event, ui) {
+              event.data = { self: self };
+              self.dropHandler(event, ui);
+            }
+          });
+        }
       }
     },
 
@@ -924,9 +924,9 @@
     dragHandler: dragHandler,
 
     // logic to keep handle dropping a directory entry
-    dropHandler: function(event) {
-      var droppedId   = event.dragTarget.id;
-      var containerId = event.dropTarget.id;
+    dropHandler: function(event, ui) {
+      var droppedId = $(ui.draggable).attr('id');
+      var containerId = event.target.id;
       var self = event.data.self;
 
       if (droppedId != containerId) {
@@ -940,8 +940,6 @@
           'allowed': moveAllowed
         });
       }
-      $('#' + droppedId).css({left: 0});
-      $('#' + droppedId).css({top: 0});
     },
 
     // use a directory entry's CSS ID to determine its filepath

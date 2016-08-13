@@ -289,7 +289,7 @@ $(function()
 
           this.$('.job-detail-microservice > a').tooltip();
 
-          this.$('.job-detail-actions > a').twipsy();
+          this.$('.job-detail-actions > a').tooltip();
 
           return this;
         },
@@ -349,12 +349,12 @@ $(function()
 
             modal
 
-              .on('shown', function()
+              .on('shown.bs.modal', function()
                 {
                   $(this).find('input').first().focus();
                 })
 
-              .one('show', function()
+              .one('show.bs.modal', function()
                 {
                   var xhr = $.ajax(url, { type: 'GET' });
                   xhr
@@ -367,7 +367,7 @@ $(function()
                       });
                 })
 
-              .one('hidden', function()
+              .one('hidden.bs.modal', function()
                 {
                   input.filter(':text').val('');
                   input.filter(':checkbox').prop('checked', false);
@@ -375,7 +375,7 @@ $(function()
                   modal.find('a.primary, a.secondary').unbind('click');
                 })
 
-              .find('a.primary').bind('click', function(event)
+              .find('a.btn-primary').bind('click', function(event)
                 {
                   event.preventDefault();
 
@@ -481,6 +481,7 @@ $(function()
         // Create modal
         $('#upload-dip-modal')
           .modal({
+            show: false,
             backdrop: true,
             keyboard: true
           });
