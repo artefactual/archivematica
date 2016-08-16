@@ -256,7 +256,7 @@ def digital_object_components(client, request, system='archivesspace', record_id
         )
 
         try:
-            get_digital_object_component_path(record_id, component.id, system=system, create=True)
+            access_path = get_digital_object_component_path(record_id, component.id, system=system, create=True)
         except ValueError as e:
             component.delete()
             response = {
@@ -269,6 +269,7 @@ def digital_object_components(client, request, system='archivesspace', record_id
             'success': True,
             'message': 'Digital object component successfully created',
             'component_id': component.id,
+            'component_path': access_path
         }
         return helpers.json_response(response)
     elif request.method == 'GET':
