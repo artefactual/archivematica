@@ -367,7 +367,7 @@ def create_arranged_sip(staging_sip_path, files, sip_uuid):
     shutil.move(src=staging_abs_path, dst=sip_path)
 
 
-def copy_from_arrange_to_completed(request, filepath=None, sip_uuid=None):
+def copy_from_arrange_to_completed(request, filepath=None, sip_uuid=None, sip_name=None):
     """ Create a SIP from the information stored in the SIPArrange table.
 
     Get all the files in the new SIP, and all their associated metadata, and
@@ -401,8 +401,9 @@ def copy_from_arrange_to_completed(request, filepath=None, sip_uuid=None):
         # Must be a directory (end with /)
         error = '{} is not a directory'.format(filepath)
     else:
-        # Filepath is prefix on arrange_path in SIPArrange
-        sip_name = os.path.basename(filepath.rstrip('/'))
+        if not sip_name:
+            # Filepath is prefix on arrange_path in SIPArrange
+            sip_name = os.path.basename(filepath.rstrip('/'))
         staging_sip_path = os.path.join('staging', sip_name, '')
         logger.debug('copy_from_arrange_to_completed: staging_sip_path: %s', staging_sip_path)
         # Fetch all files with 'filepath' as prefix, and have a source path
