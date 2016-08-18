@@ -16,11 +16,11 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from lxml import etree
-import os
+import logging
 import sys
 
-from django.core.urlresolvers import reverse
 from django.contrib import messages
+from django.db import connection
 from django.shortcuts import redirect
 from django.shortcuts import render
 
@@ -33,6 +33,10 @@ if path not in sys.path:
     sys.path.append(path)
 import storageService as storage_service
 
+
+logger = logging.getLogger('archivematica.dashboard.administration')
+
+
 class PreconfiguredChoices:
     xml     = None
     choices = None
@@ -41,7 +45,11 @@ class PreconfiguredChoices:
         self.xml = etree.Element('processingMCP')
         self.choices = etree.Element('preconfiguredChoices')
 
-    def add_choice(self, applies_to_text, go_to_chain_text, delay_duration=None):
+    def add_choice(self, applies_to_text, go_to_chain_text, delay_duration=None, comment=None):
+        if comment is not None:
+            comment = etree.Comment(' {} '.format(comment))
+            self.choices.append(comment)
+
         choice = etree.Element('preconfiguredChoice')
 
         applies_to = etree.Element('appliesTo')
@@ -63,6 +71,42 @@ class PreconfiguredChoices:
         self.xml.append(self.choices)
         file = open(file_path, 'w')
         file.write(etree.tostring(self.xml, pretty_print=True))
+
+
+def save_select_field(field, request, xml_choices):
+    try:
+        name = field['name']
+        value = request.POST.get(field['name'])
+        choice_uuid = field['choice_uuid']
+        do_not_lookup = field.get('do_not_lookup', False)
+    except KeyError:
+        logger.warning('save_select_field() is missing parameters')
+        return
+
+    # Persist the choice made by the user for each of the existing chain links
+    # with the same name. See #10216 for more details.
+    if name == 'normalize':
+        sql = """
+            SELECT
+                MicroServiceChainLinks.pk,
+                MicroServiceChains.pk
+            FROM TasksConfigs
+            LEFT JOIN MicroServiceChainLinks ON (MicroServiceChainLinks.currentTask = TasksConfigs.pk)
+            LEFT JOIN MicroServiceChainChoice ON (MicroServiceChainChoice.choiceAvailableAtLink = MicroServiceChainLinks.pk)
+            LEFT JOIN MicroServiceChains ON (MicroServiceChains.pk = MicroServiceChainChoice.chainAvailable)
+            WHERE
+                TasksConfigs.description = %s
+                AND MicroServiceChains.description = %s;
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(sql, [name, value])
+            for i, row in enumerate(cursor):
+                xml_choices.add_choice(row[0], row[1], comment='{} (match {} for "{}")'.format(name, i+1, value))
+        return
+
+    target = value if do_not_lookup else uuid_from_description(value, choice_uuid)
+    xml_choices.add_choice(choice_uuid, target, comment=name)
+
 
 def index(request):
     file_path = helpers.default_processing_config_path()
@@ -246,13 +290,15 @@ def index(request):
                     if 'no_option' in field:
                         xmlChoices.add_choice(
                             field['choice_uuid'],
-                            go_to_chain_text
+                            go_to_chain_text,
+                            comment=field['name']
                         )
                     else:
                         if toggle == 'yes':
                             xmlChoices.add_choice(
                                 field['choice_uuid'],
-                                go_to_chain_text
+                                go_to_chain_text,
+                                comment=field['name']
                             )
 
         # set quarantine duration if applicable
@@ -262,24 +308,15 @@ def index(request):
             xmlChoices.add_choice(
                 '19adb668-b19a-4fcb-8938-f49d7485eaf3', # Remove from quarantine
                 '333643b7-122a-4019-8bef-996443f3ecc5', # Unquarantine
-                str(float(quarantine_expiry) * (24 * 60 * 60))
+                str(float(quarantine_expiry) * (24 * 60 * 60)),
+                comment='quarantine'
             )
 
         # use select field submissions to add to XML
         for field in select_fields:
             enabled = request.POST.get(field['name'] + '_enabled')
             if enabled == 'yes':
-                field_value = request.POST.get(field['name'], '')
-                if field_value != '':
-                    if field.get('do_not_lookup', False):
-                        target = field_value
-                    else:
-                        target = uuid_from_description(field_value, field['choice_uuid'])
-
-                    xmlChoices.add_choice(
-                        field['choice_uuid'],
-                        target
-                    )
+                save_select_field(field, request, xmlChoices)
 
         xmlChoices.write_to_file(file_path)
 
