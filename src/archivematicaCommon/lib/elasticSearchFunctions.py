@@ -333,6 +333,7 @@ def set_up_mapping_transfer_index(client):
     transferfile_mapping = {
         'filename'     : {'type': 'string'},
         'relative_path': {'type': 'string'},
+        'original_path': {'type': 'string'},
         'fileuuid'     : MACHINE_READABLE_FIELD_SPEC,
         'sipuuid'      : MACHINE_READABLE_FIELD_SPEC,
         'accessionid'  : MACHINE_READABLE_FIELD_SPEC,
@@ -382,12 +383,37 @@ def set_up_mapping(client, index):
     if index == 'aips':
         set_up_mapping_aip_index(client)
 
+def transform_dublin_core_to_dicts(doc):
+    """
+    Given an ElementTree representing a METS document, searches for all
+    dmdSec elements and transforms any Dublin Core metadata found into
+    a list of dictionaries.
+    """
+    nsmap = { #TODO use XML namespaces from archivematicaXMLNameSpaces.py
+        'dc': 'http://purl.org/dc/terms/',
+        'm': 'http://www.loc.gov/METS/',
+    }
+
+    results = []
+
+    for dc in doc.findall('m:dmdSec/m:mdWrap/m:xmlData/dc:dublincore', namespaces=nsmap):
+        # Handle AIC component information elsewhere
+        if dc.find('dc:isPartOf', namespaces=nsmap) is not None:
+            continue
+
+        dc_dict = {}
+
+        for child in dc.iterchildren():
+            tag = child.tag.replace('{' + child.nsmap[child.prefix] + '}', child.prefix + ':')
+            dc_dict[tag] = child.text
+
+        results.append(dc_dict)
+
+    return results
+
 
 def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=None, identifiers=[]):
     tree = ElementTree.parse(pathToMETS)
-
-    # TODO add a conditional to toggle this
-    remove_tool_output_from_mets(tree)
 
     root = tree.getroot()
     # Extract AIC identifier, other specially-indexed information
@@ -400,16 +426,13 @@ def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=N
             aic_identifier = dublincore.findtext('dc:identifier', namespaces=ns.NSMAP) or dublincore.findtext('dcterms:identifier', namespaces=ns.NSMAP)
         is_part_of = dublincore.findtext('dcterms:isPartOf', namespaces=ns.NSMAP)
 
-    # convert METS XML to dict
-    xml = ElementTree.tostring(root)
-    mets_data = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
+    accession_ids = [r[0] for r in File.objects.filter(sip_id=uuid).values_list('transfer__accessionid') if r[0]]
 
     aipData = {
         'uuid': uuid,
         'name': name,
         'filePath': filePath,
         'size': (size or os.path.getsize(filePath)) / float(1024) / float(1024),
-        'mets': mets_data,
         'origin': get_dashboard_uuid(),
         'created': os.path.getmtime(pathToMETS),
         'AICID': aic_identifier,
@@ -417,6 +440,8 @@ def index_aip(client, uuid, name, filePath, pathToMETS, size=None, aips_in_aic=N
         'countAIPsinAIC': aips_in_aic,
         'identifiers': identifiers,
         'transferMetadata': _extract_transfer_metadata(root),
+        'accession_ids': accession_ids,
+        'dublincore': dublincore,
     }
     wait_for_cluster_yellow_status(client)
     try_to_index(client, aipData, 'aips', 'aip')
@@ -509,16 +534,6 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
     tree = ElementTree.parse(metsFilePath)
     root = tree.getroot()
 
-    # TODO add a conditional to toggle this
-    remove_tool_output_from_mets(tree)
-
-    # get SIP-wide dmdSec
-    dmdSec = root.findall("mets:dmdSec/mets:mdWrap/mets:xmlData", namespaces=ns.NSMAP)
-    dmdSecData = {}
-    for item in dmdSec:
-        xml = ElementTree.tostring(item)
-        dmdSecData = xmltodict.parse(xml)
-
     # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore
     dublincore = root.find('mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore', namespaces=ns.NSMAP)
     aic_identifier = None
@@ -529,6 +544,8 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
             aic_identifier = dublincore.findtext('dc:identifier', namespaces=ns.NSMAP) or dublincore.findtext('dcterms:identifier', namespaces=ns.NSMAP)
         elif aip_type == "Archival Information Package":
             is_part_of = dublincore.findtext('dcterms:isPartOf', namespaces=ns.NSMAP)
+
+    dublincore = transform_dublin_core_to_dicts(root)
 
     # establish structure to be indexed for each file item
     fileData = {
@@ -541,10 +558,6 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
         'fileExtension': '',
         'isPartOf': is_part_of,
         'AICID': aic_identifier,
-        'METS': {
-            'dmdSec': rename_dict_keys_with_child_dicts(normalize_dict_values(dmdSecData)),
-            'amdSec': {},
-        },
         'origin': get_dashboard_uuid(),
         'identifiers': identifiers,
         'transferMetadata': _extract_transfer_metadata(root),
@@ -577,10 +590,6 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
             amdSecInfo = root.find("mets:amdSec[@ID='{}']".format(admID), namespaces=ns.NSMAP)
             fileUUID = amdSecInfo.findtext("mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectIdentifier/premis:objectIdentifierValue", namespaces=ns.NSMAP)
 
-            # Index amdSec information
-            xml = ElementTree.tostring(amdSecInfo)
-            indexData['METS']['amdSec'] = rename_dict_keys_with_child_dicts(normalize_dict_values(xmltodict.parse(xml)))
-
         indexData['FILEUUID'] = fileUUID
 
         # Get file path from FLocat and extension
@@ -593,10 +602,6 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
         # index data
         wait_for_cluster_yellow_status(client)
         result = try_to_index(client, indexData, index, type_)
-
-        # Reset fileData['METS']['amdSec'], since it is updated in the loop
-        # above. See http://stackoverflow.com/a/3975388 for explanation
-        fileData['METS']['amdSec'] = {}
 
     print 'Indexed AIP files and corresponding METS XML.'
 
@@ -754,10 +759,12 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
                 f = File.objects.get(currentlocation=relative_path,
                                      transfer_id=uuid)
                 file_uuid = f.uuid
+                original_path = f.originallocation
                 formats = _get_file_formats(f)
                 bulk_extractor_reports = _list_bulk_extractor_reports(pathToTransfer, file_uuid)
             except File.DoesNotExist:
                 file_uuid = ''
+                original_path = ''
                 formats = []
                 bulk_extractor_reports = []
 
@@ -776,6 +783,7 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
                 indexData = {
                   'filename'     : filename,
                   'relative_path': relative_path,
+                  'original_path': original_path,
                   'fileuuid'     : file_uuid,
                   'sipuuid'      : uuid,
                   'accessionid'  : accession_id,
