@@ -22,6 +22,7 @@
   <script type="text/javascript" src="{{ STATIC_URL }}js/directory_picker.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/transfer/component_directory_select.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/base64.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/transfer_browser.js"></script>
 
   <script type="text/javascript">
 
@@ -64,34 +65,9 @@
 
 {% block content %}
 
-  {% if source_directories %}
-
-    <div id='transfer_component_form'></div>
-    <div class="inline-file-explorer">
-      <h4>Select a directory</h4>
-      <button type="button" class="close">×</button>
-      <div id="explorer" class="backbone-file-explorer"></div>
-    </div>
-
-    <script>
-    $(document).ready(function() {
-      var sourceDirectories = {
-        {% for dir in source_directories %}
-          '{{ dir.uuid }}': '{{ dir.path }}',
-        {% endfor %}
-      };
-
-      var form = new TransferComponentFormView({
-        el: $('#transfer_component_form'),
-        form_layout_template: $('#transfer-component-layout').html(),
-        modal_template: $('#transfer-component-select-modal-layout').html(),
-        sourceDirectories: sourceDirectories
-      });
-
-      form.render();
-    });
-    </script>
-  {% endif %}
+  <div ng-app="transferBrowse">
+    <ng-include src="'front_page/content.html'"></ng-include>
+  </div>
 
   <div id="sip-container">
     <div style='float:right'>
