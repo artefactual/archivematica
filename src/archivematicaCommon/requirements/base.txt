@@ -1,5 +1,5 @@
 bagit==1.5.2
-Django>=1.7,<1.8
+Django>=1.8,<1.9
 elasticsearch>=1.0.0,<2.0.0
 requests==2.7.0
 python-dateutil==2.4.2
