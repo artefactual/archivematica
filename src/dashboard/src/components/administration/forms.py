@@ -233,6 +233,12 @@ class ProcessingConfigurationForm(forms.Form):
         'label': _('Store AIP location'),
         'purpose': 'AS',
     }
+    processing_fields['92879a29-45bf-4f0b-ac43-e64474f0f2f9'] = {
+        'type': 'chain_choice',
+        'name': 'upload_dip',
+        'label': 'Upload DIP',
+        'ignored_choices': []
+    }
     processing_fields['b7a83da6-ed5a-47f7-a643-1e9f9f46e364'] = {
         'type': 'storage_service',
         'name': 'store_dip_location',
