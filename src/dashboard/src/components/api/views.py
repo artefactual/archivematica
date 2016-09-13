@@ -423,6 +423,61 @@ def approve_transfer_via_mcp(directory, transfer_type, user_id):
 
 
 @_api_endpoint(expected_methods=['POST'])
+def reingest_approve(request):
+    """Approve an AIP partial re-ingest.
+
+    - Method:      POST
+    - URL:         api/ingest/reingest/approve
+    - POST params:
+                   - username -- AM username
+                   - api_key  -- AM API key
+                   - uuid     -- SIP UUID
+
+    TODO: this is just a temporary way of getting the API to do the
+    equivalent of clicking "Approve AIP reingest" in the dashboard when faced
+    with "Approve AIP reingest". This is non-dry given
+    ``approve_transfer_via_mcp`` above and should probably me made congruent
+    with that function and ``approve_transfer``.
+    """
+    sip_uuid = request.POST.get('uuid')
+    if sip_uuid is None:
+        response = {'error': True, 'message': '"uuid" is required.'}
+        return helpers.json_response(response, status_code=400)
+    job = models.Job.objects.filter(
+        sipuuid=sip_uuid,
+        microservicegroup='Reingest AIP',
+        currentstep=models.Job.STATUS_AWAITING_DECISION
+    ).first()
+    if job:
+        chain = models.MicroServiceChainChoice.objects.filter(
+            choiceavailableatlink__currenttask__description='Approve AIP reingest',
+            chainavailable__description='Approve AIP reingest'
+        ).first()
+
+        if chain:
+            approve_aip_reingest_choice_uuid = chain.chainavailable.pk
+            client = MCPClient()
+            client.execute(job.pk, approve_aip_reingest_choice_uuid, request.user.id)
+
+            response = {'message': 'Approval successful.'}
+        else:
+            # No choice was found.
+            response = {
+                'error': True,
+                'message': 'Could not find choice for approve AIP reingest'
+            }
+            return helpers.json_response(response, status_code=400)
+
+        return helpers.json_response(response)
+    else:
+        # No job to be found.
+        response = {'error': True,
+                    'message': ('There is no "Reingest AIP" job awaiting a'
+                                ' decision for SIP {}'.format(sip_uuid))}
+        return helpers.json_response(response, status_code=400)
+
+
+@_api_endpoint(expected_methods=['POST'])
 def reingest(request, target):
     """
     Endpoint to approve reingest of an AIP to the beginning of transfer or ingest.
