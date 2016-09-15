@@ -48,10 +48,10 @@ def getJobsAwaitingApproval():
     return etree.tostring(ret, pretty_print=True)
 
 
-def approveJob(jobUUID, chain, agent):
-    LOGGER.debug("Approving: %s %s %s", jobUUID, chain, agent)
+def approveJob(jobUUID, chain, user_id):
+    LOGGER.debug("Approving: %s %s %s", jobUUID, chain, user_id)
     if jobUUID in choicesAvailableForUnits:
-        choicesAvailableForUnits[jobUUID].proceedWithChoice(chain, agent)
+        choicesAvailableForUnits[jobUUID].proceedWithChoice(chain, user_id)
     return "approving: ", jobUUID, chain
 
 def gearmanApproveJob(gearman_worker, gearman_job):
@@ -59,8 +59,8 @@ def gearmanApproveJob(gearman_worker, gearman_job):
         data = cPickle.loads(gearman_job.data)
         jobUUID = data["jobUUID"]
         chain = data["chain"]
-        agent = str(data["uid"])
-        return cPickle.dumps(approveJob(jobUUID, chain, agent))
+        user_id = str(data["uid"])
+        return cPickle.dumps(approveJob(jobUUID, chain, user_id))
     # catch OS errors
     except Exception:
         LOGGER.exception('Error approving job')

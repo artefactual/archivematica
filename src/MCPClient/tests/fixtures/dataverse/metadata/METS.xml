@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='ASCII'?>
+<mets:mets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mets="http://www.loc.gov/METS/" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd">
+  <mets:metsHdr CREATEDATE="2015-09-12T00:01:35"/>
+  <mets:dmdSec CREATED="2015-09-12T00:01:35" ID="dmdSec_859112" STATUS="original">
+    <mets:mdWrap MDTYPE="DDI">
+      <mets:xmlData>
+        <ddi:codebook xmlns:ddi="http://www.icpsr.umich.edu/DDI" version="2.5" xsi:schemaLocation="http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd">
+          <ddi:stdyDscr>
+            <ddi:citation>
+              <ddi:titlStmt>
+                <ddi:titl>Metadata mapping test study</ddi:titl>
+                <ddi:IDNo agency="doi">10.5072/FK2/0MOPJM</ddi:IDNo>
+              </ddi:titlStmt>
+              <ddi:rspStmt>
+                <ddi:AuthEnty>McLellan, Evelyn</ddi:AuthEnty>
+              </ddi:rspStmt>
+              <ddi:distStmt>
+                <ddi:distrbtr>SP Dataverse Network</ddi:distrbtr>
+              </ddi:distStmt>
+              <ddi:verStmt>
+                <ddi:version date="2015-08-24T16:32:00Z" type="RELEASED">1.0</ddi:version>
+              </ddi:verStmt>
+            </ddi:citation>
+            <ddi:dataAccs>
+              <ddi:useStmt>
+                <ddi:restrctn/>
+              </ddi:useStmt>
+            </ddi:dataAccs>
+          </ddi:stdyDscr>
+        </ddi:codebook>
+      </mets:xmlData>
+    </mets:mdWrap>
+  </mets:dmdSec>
+  <mets:dmdSec CREATED="2015-09-12T00:01:35" ID="dmdSec_341017" STATUS="original">
+    <mets:mdRef LABEL="dataset.json" xlink:href="dataset.json" MDTYPE="OTHER" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+  </mets:dmdSec>
+  <mets:dmdSec CREATED="2015-09-12T00:01:35" ID="dmdSec_294721" STATUS="original">
+    <mets:mdRef LABEL="Weather_data-ddi.xml" xlink:href="Weather_data/Weather_data-ddi.xml" MDTYPE="DDI" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+  </mets:dmdSec>
+  <mets:fileSec>
+    <mets:fileGrp USE="derivative">
+      <mets:file ID="file-a001048d-4c3e-485d-af02-1d19584a93b1" GROUPID="Group-fb3b1250-5e45-499f-b0b1-0f6a20d77366">
+        <mets:FLocat xlink:href="Weather_data/Weather_data.RData" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file ID="file-e5fde5cb-a5d7-4e67-ae66-20b73552eedf" GROUPID="Group-fb3b1250-5e45-499f-b0b1-0f6a20d77366">
+        <mets:FLocat xlink:href="Weather_data/Weather_data.tab" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="metadata">
+      <mets:file ID="file-3dfc2e3f-22e2-4d3e-9913-e4bccc5257ff" GROUPID="Group-fb3b1250-5e45-499f-b0b1-0f6a20d77366">
+        <mets:FLocat xlink:href="Weather_data/Weather_data-ddi.xml" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file ID="file-d9b4e460-f306-43ce-8ee5-7f969595e4ab" GROUPID="Group-fb3b1250-5e45-499f-b0b1-0f6a20d77366">
+        <mets:FLocat xlink:href="Weather_data/Weather_datacitation-endnote.xml" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file ID="file-e9e0d762-feff-4b9c-9f70-b408c47149bc" GROUPID="Group-fb3b1250-5e45-499f-b0b1-0f6a20d77366">
+        <mets:FLocat xlink:href="Weather_data/Weather_datacitation-ris.ris" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file ID="file-20716608-2069-4bea-ace2-b3e81c2725e9" GROUPID="Group-20716608-2069-4bea-ace2-b3e81c2725e9">
+        <mets:FLocat xlink:href="dataset.json" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="original">
+      <mets:file ID="file-2bd13f12-cd98-450d-8c49-416e9f666a9c" GROUPID="Group-2bd13f12-cd98-450d-8c49-416e9f666a9c" CHECKSUM="7ede51390fe3f01fb13632c001d2499d" CHECKSUMTYPE="MD5">
+        <mets:FLocat xlink:href="chelan 052.jpg" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+      <mets:file ID="file-fb3b1250-5e45-499f-b0b1-0f6a20d77366" GROUPID="Group-fb3b1250-5e45-499f-b0b1-0f6a20d77366" CHECKSUM="4ca2a78963445bce067e027e10394b61" CHECKSUMTYPE="MD5">
+        <mets:FLocat xlink:href="Weather_data/Weather_data.sav" LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM"/>
+      </mets:file>
+    </mets:fileGrp>
+  </mets:fileSec>
+  <mets:structMap ID="structMap_1" LABEL="Archivematica default" TYPE="physical">
+    <mets:div LABEL="Metadata mapping test study" TYPE="Directory" DMDID="dmdSec_859112 dmdSec_341017">
+      <mets:div LABEL="chelan 052.jpg" TYPE="Item">
+        <mets:fptr FILEID="file-2bd13f12-cd98-450d-8c49-416e9f666a9c"/>
+      </mets:div>
+      <mets:div LABEL="dataset.json" TYPE="Item">
+        <mets:fptr FILEID="file-20716608-2069-4bea-ace2-b3e81c2725e9"/>
+      </mets:div>
+      <mets:div LABEL="Weather_data" TYPE="Directory">
+        <mets:div LABEL="Weather_data.sav" TYPE="Item">
+          <mets:fptr FILEID="file-fb3b1250-5e45-499f-b0b1-0f6a20d77366"/>
+        </mets:div>
+        <mets:div LABEL="Weather_data.RData" TYPE="Item">
+          <mets:fptr FILEID="file-a001048d-4c3e-485d-af02-1d19584a93b1"/>
+        </mets:div>
+        <mets:div LABEL="Weather_data.tab" TYPE="Item" DMDID="dmdSec_294721">
+          <mets:fptr FILEID="file-e5fde5cb-a5d7-4e67-ae66-20b73552eedf"/>
+        </mets:div>
+        <mets:div LABEL="Weather_data-ddi.xml" TYPE="Item">
+          <mets:fptr FILEID="file-3dfc2e3f-22e2-4d3e-9913-e4bccc5257ff"/>
+        </mets:div>
+        <mets:div LABEL="Weather_datacitation-endnote.xml" TYPE="Item">
+          <mets:fptr FILEID="file-d9b4e460-f306-43ce-8ee5-7f969595e4ab"/>
+        </mets:div>
+        <mets:div LABEL="Weather_datacitation-ris.ris" TYPE="Item">
+          <mets:fptr FILEID="file-e9e0d762-feff-4b9c-9f70-b408c47149bc"/>
+        </mets:div>
+      </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>

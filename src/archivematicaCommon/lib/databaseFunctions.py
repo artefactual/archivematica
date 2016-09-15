@@ -21,14 +21,19 @@
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
 from __future__ import print_function
+
+import logging
 import os
 import string
 import sys
 import uuid
 
 sys.path.append("/usr/share/archivematica/dashboard")
+from django.db.models import Q
 from django.utils import timezone
-from main.models import Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
+from main.models import Agent, Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
+
+LOGGER = logging.getLogger('archivematica.common')
 
 def getUTCDate():
     """Returns a timezone-aware representation of the current datetime in UTC."""
@@ -79,48 +84,47 @@ def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="", sip
 
     File.objects.create(**kwargs)
 
-def getAgentForFileUUID(fileUUID):
+def getAMAgentsForFile(fileUUID):
     """
-    Fetches the ID for the agent associated with the given file, if one exists.
+    Fetches the IDs for the Archivematica agents associated with the given file.
 
-    The agent ID is stored in a UnitVariable with the name "activeAgent", associated with either the SIP or the transfer containing the file.
+    The current user may be an Agent.
+    The current user's agent ID is stored in a UnitVariable with the name "activeAgent", associated with either the SIP or the transfer containing the file.
     This function will attempt to fetch the unit variable from a SIP first,
     then the transfer.
 
-    The agent ID is the pk to a row in the Agent table.
-    Note that this transfer does not actually verify that an agent with this pk exists, just that the value is contained in a UnitVariable associated with this SIP.
-
-    :returns: The agent ID, as a string, or None if no agent could be found.
+    :returns: A list of Agent IDs
     """
-    agent = None
-    if fileUUID == 'None':
-        error_message = "Unable to get agent for file: no file UUID provided."
-        print(error_message, file=sys.stderr)
-        raise Exception(error_message)
-    else:
+    agents = []
+
+    try:
+        f = File.objects.get(uuid=fileUUID)
+    except File.DoesNotExist:
+        LOGGER.warning('File with UUID %s does not exist in database; unable to fetch Agents', fileUUID)
+        return []
+
+    # Fetch Agent for the User
+    if f.sip:
         try:
-            f = File.objects.get(uuid=fileUUID)
-        except File.DoesNotExist:
-            return
+            var = UnitVariable.objects.get(unittype='SIP', unituuid=f.sip_id,
+                                           variable='activeAgent')
+            agents.append(int(var.variablevalue))
+        except UnitVariable.DoesNotExist:
+            pass
+    if f.transfer and not agents: # agent hasn't been found yet
+        try:
+            var = UnitVariable.objects.get(unittype='Transfer',
+                                           unituuid=f.transfer_id,
+                                           variable='activeAgent')
+            agents.append(int(var.variablevalue))
+        except UnitVariable.DoesNotExist:
+            pass
+    # Fetch other Archivematica Agents
+    am_agents = Agent.objects.filter(Q(identifiertype='repository code') | Q(identifiertype='preservation system')).values_list('pk', flat=True)
+    agents.extend(am_agents)
+    return agents
 
-        if f.sip:
-            try:
-                var = UnitVariable.objects.get(unittype='SIP', unituuid=f.sip_id,
-                                               variable='activeAgent')
-                agent = var.variablevalue
-            except UnitVariable.DoesNotExist:
-                pass
-        if f.transfer and agent is None: # agent hasn't been found yet
-            try:
-                var = UnitVariable.objects.get(unittype='Transfer',
-                                               unituuid=f.transfer_id,
-                                               variable='activeAgent')
-                agent = var.variablevalue
-            except UnitVariable.DoesNotExist:
-                pass
-    return agent
-
-def insertIntoEvents(fileUUID, eventIdentifierUUID="", eventType="", eventDateTime=None, eventDetail="", eventOutcome="", eventOutcomeDetailNote=""):
+def insertIntoEvents(fileUUID, eventIdentifierUUID="", eventType="", eventDateTime=None, eventDetail="", eventOutcome="", eventOutcomeDetailNote="", agents=None):
     """
     Creates a new entry in the Events table using the supplied arguments.
 
@@ -131,19 +135,28 @@ def insertIntoEvents(fileUUID, eventIdentifierUUID="", eventType="", eventDateTi
     :param str eventDetail: Can be blank. Will be used in the eventDetail element in the AIP METS.
     :param str eventOutcome: Can be blank. Will be used in the eventOutcome element in the AIP METS.
     :param str eventOutcomeDetailNote: Can be blank. Will be used in the eventOutcomeDetailNote element in the AIP METS.
+    :param list agents: List of Agent IDs to associate with this. If None provided, automatically fetches Agents representing Archivematica.
     """
     if eventDateTime is None:
         eventDateTime = getUTCDate()
 
-    agent = getAgentForFileUUID(fileUUID)
+    # Assume the Agent is Archivematica & the current user
+    if not agents:
+        agents = getAMAgentsForFile(fileUUID)
     if not eventIdentifierUUID:
         eventIdentifierUUID = str(uuid.uuid4())
 
-    Event.objects.create(event_id=eventIdentifierUUID, file_uuid_id=fileUUID,
-                         event_type=eventType, event_datetime=eventDateTime,
-                         event_detail=eventDetail, event_outcome=eventOutcome,
-                         event_outcome_detail=eventOutcomeDetailNote,
-                         linking_agent=agent)
+    event = Event.objects.create(
+        event_id=eventIdentifierUUID,
+        file_uuid_id=fileUUID,
+        event_type=eventType,
+        event_datetime=eventDateTime,
+        event_detail=eventDetail,
+        event_outcome=eventOutcome,
+        event_outcome_detail=eventOutcomeDetailNote
+    )
+    # Splat agents list into multiple arguments
+    event.agents.add(*agents)
 
 def insertIntoDerivations(sourceFileUUID, derivedFileUUID, relatedEventUUID=None):
     """

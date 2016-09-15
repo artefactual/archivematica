@@ -21,10 +21,14 @@
 
 # stdlib, alphabetical by import source
 import ast
+import logging
 
 # Core Django, alphabetical by import source
-from django.db import models
 from django import forms
+from django.contrib.auth.models import User
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Third party dependencies, alphabetical by import source
 from django_extensions.db.fields import UUIDField
@@ -33,6 +37,7 @@ from django_extensions.db.fields import UUIDField
 from contrib import utils
 import main
 
+LOGGER = logging.getLogger('archivematica.dashboard')
 
 METADATA_STATUS_ORIGINAL = 'ORIGINAL'
 METADATA_STATUS_REINGEST = 'REINGEST'
@@ -62,6 +67,23 @@ class BlobTextField(models.TextField):
 
     def db_type(self, connection):
         return 'longblob'
+
+
+# SIGNALS
+
+@receiver(post_save, sender=User)
+def create_user_agent(sender, instance, **kwargs):
+    LOGGER.debug('Caught post_save signal from %s with instance %r', sender, instance)
+    agent, created = Agent.objects.update_or_create(userprofile__user=instance,
+        defaults={
+            'identifiertype': 'Archivematica user pk',
+            'identifiervalue': str(instance.id),
+            'name': 'username="{u.username}", first_name="{u.first_name}", last_name="{u.last_name}"'.format(u=instance),
+            'agenttype': 'Archivematica user',
+        })
+    LOGGER.debug('Agent: %s; created: %s', agent, created)
+    if created:
+        UserProfile.objects.update_or_create(user=instance, defaults={'agent':agent})
 
 
 # MODELS
@@ -180,11 +202,7 @@ class Event(models.Model):
     event_detail = models.TextField(db_column='eventDetail', blank=True)
     event_outcome = models.TextField(db_column='eventOutcome', blank=True)
     event_outcome_detail = models.TextField(db_column='eventOutcomeDetailNote', blank=True)  # TODO convert this to a BinaryField with Django >= 1.6
-    # For historical reasons, this can be either a foreign key to the
-    # Agent table or to the auth_user table. As a result we can't track
-    # it as a foreign key within Django.
-    # See 57495899bb094dcf791b5f6d859cb596ecc5c37e for more information.
-    linking_agent = models.IntegerField(db_column='linkingAgentIdentifier', null=True)
+    agents = models.ManyToManyField('Agent')
 
     class Meta:
         db_table = u'Events'
@@ -421,9 +439,20 @@ class Agent(models.Model):
         null=True, blank=False, db_column='agentName')
     agenttype = models.TextField(db_column='agentType')
 
+    def __str__(self):
+        return u'{a.agenttype}; {a.identifiertype}: {a.identifiervalue}; {a.name}'.format(a=self)
+
     class Meta:
         db_table = u'Agents'
 
+
+class UserProfile(models.Model):
+    """ Extension of the User model for additional information. """
+    user = models.OneToOneField(User)
+    agent = models.OneToOneField(Agent)
+
+    class Meta:
+        db_table = u'main_userprofile'
 
 class Report(models.Model):
     """ Reports of failures to display. """

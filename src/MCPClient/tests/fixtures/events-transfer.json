@@ -1,0 +1,86 @@
+[
+{
+    "fields": {
+        "event_type": "ingestion",
+        "event_id": "df02faa6-ab9d-42a5-9857-7b1c11fcfbb7",
+        "event_detail": "",
+        "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
+        "event_outcome_detail": "",
+        "agents": [1, 2, 3],
+        "event_outcome": "",
+        "event_datetime": "2015-11-30T21:55:35"
+    },
+    "model": "main.event",
+    "pk": 1
+},
+{
+    "fields": {
+        "event_type": "message digest calculation",
+        "event_id": "7f2831f3-45f2-4184-86f2-77d0aa9fa473",
+        "event_detail": "program=\"python\"; module=\"hashlib.sha256()\"",
+        "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
+        "event_outcome_detail": "d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92",
+        "agents": [1, 2, 3],
+        "event_outcome": "",
+        "event_datetime": "2015-11-30T21:55:36"
+    },
+    "model": "main.event",
+    "pk": 2
+},
+{
+    "fields": {
+        "event_type": "virus check",
+        "event_id": "15f71683-4aae-4723-be31-eec0ba15c63d",
+        "event_detail": "program=\"Clam AV\"; version=\"ClamAV 0.98.7\"; virusDefinitions=\"21117/Mon Nov 30 09:32:13 2015\n\"",
+        "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
+        "event_outcome_detail": "",
+        "agents": [1, 2, 3],
+        "event_outcome": "Pass",
+        "event_datetime": "2015-11-30T21:55:38"
+    },
+    "model": "main.event",
+    "pk": 3
+},
+{
+    "fields": {
+        "event_type": "name cleanup",
+        "event_id": "870d4233-efa9-4360-a6f1-5e4b988efe5d",
+        "event_detail": "prohibited characters removed:program=\"sanitizeNames\"; version=\"1.10.9529a554732f6b96a561fd0adcf2711bb233166b\"",
+        "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
+        "event_outcome_detail": "Original name=\"%transferDirectory%objects/evelyn's photo.jpg\"; cleaned up name=\"%transferDirectory%objects/evelyn_s_photo.jpg\"",
+        "agents": [1, 2, 3],
+        "event_outcome": "",
+        "event_datetime": "2015-11-30T21:55:39"
+    },
+    "model": "main.event",
+    "pk": 4
+},
+{
+    "fields": {
+        "event_type": "format identification",
+        "event_id": "a85e12d5-dafa-4a84-8270-3768e9a113b2",
+        "event_detail": "program=\"Fido\"; version=\"1\"",
+        "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
+        "event_outcome_detail": "fmt/44",
+        "agents": [1, 2, 3],
+        "event_outcome": "Positive",
+        "event_datetime": "2015-11-30T21:55:40"
+    },
+    "model": "main.event",
+    "pk": 5
+},
+{
+    "fields": {
+        "event_type": "validation",
+        "event_id": "e631350b-f16c-41cf-8939-bc8afcb13151",
+        "event_detail": "program=\"JHOVE\"; version=\"1.6\"",
+        "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
+        "event_outcome_detail": "format=\"JPEG\"; version=\"1.02\"; result=\"Well-Formed and valid\"",
+        "agents": [1, 2, 3],
+        "event_outcome": "pass",
+        "event_datetime": "2015-11-30T21:55:44"
+    },
+    "model": "main.event",
+    "pk": 6
+}
+]

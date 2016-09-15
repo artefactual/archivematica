@@ -43,7 +43,7 @@ from django_mysqlpool import auto_close_db
 from archivematicaFunctions import unicodeToStr
 
 sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import MicroServiceChainChoice
+from main.models import MicroServiceChainChoice, UserProfile
 
 waitingOnTimer="waitingOnTimer"
 
@@ -138,9 +138,12 @@ class linkTaskManagerChoice(LinkTaskManager):
 
     @log_exceptions
     @auto_close_db
-    def proceedWithChoice(self, chain, agent, delayTimerStart=False):
-        if agent:
-            self.unit.setVariable("activeAgent", agent, None)
+    def proceedWithChoice(self, chain, user_id, delayTimerStart=False):
+        if user_id is not None:
+            agent_id = UserProfile.objects.get(user_id=int(user_id)).agent_id
+            agent_id = str(agent_id)
+            self.unit.setVariable("activeAgent", agent_id, None)
+
         choicesAvailableForUnitsLock.acquire()
         del choicesAvailableForUnits[self.jobChainLink.UUID]
         self.delayTimerLock.acquire()
