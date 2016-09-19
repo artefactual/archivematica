@@ -429,14 +429,20 @@ def access_arrange_start_sip(client, request, mapping, system=''):
         }
         return helpers.json_response(response, status_code=404)
     # Create digital objects in ASpace related to the resource instead of digital object components
-    for do in list(ArchivesSpaceDOComponent.objects.filter(resourceid=mapping.identifier, started=False)):
+    for do in ArchivesSpaceDOComponent.objects.filter(resourceid=mapping.identifier, started=False):
         new_do = client.add_digital_object(mapping.identifier, str(uuid.uuid4()))
         do.remoteid = new_do['id']
-        do.started = True
         do.save()
-    sip_uuid = arrange.sip.uuid if arrange.sip else None
+    sip_uuid = arrange.sip_id
     sip_name = json.load(request).get('sip_name', '')
-    return filesystem_views.copy_from_arrange_to_completed(request,
-                                                           filepath=mapping.arrange_path + '/',
-                                                           sip_uuid=sip_uuid,
-                                                           sip_name=sip_name)
+    status_code, response = filesystem_views.copy_from_arrange_to_completed_common(
+        filepath=mapping.arrange_path + '/',
+        sip_uuid=sip_uuid,
+        sip_name=sip_name,
+    )
+    if not response.get('error'):
+        logger.debug('New SIP UUID %s', response['sip_uuid'])
+        # Update ArchivesSpaceDOComponent with new SIP UUID
+        ArchivesSpaceDOComponent.objects.filter(resourceid=mapping.identifier, started=False).update(started=True, sip_id=response['sip_uuid'])
+
+    return helpers.json_response(response, status_code=status_code)

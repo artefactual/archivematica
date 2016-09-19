@@ -374,13 +374,25 @@ def copy_from_arrange_to_completed(request, filepath=None, sip_uuid=None, sip_na
     move to the processing space.  Create needed database entries for the SIP
     and start the microservice chain.
     """
-    error = None
     if filepath is None:
         filepath = base64.b64decode(request.POST.get('filepath', ''))
     logger.info('copy_from_arrange_to_completed: filepath: %s', filepath)
     # can optionally pass in the UUID to an unstarted SIP entity
     if sip_uuid is None:
         sip_uuid = request.POST.get('uuid')
+
+    status_code, response = copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name)
+    return helpers.json_response(response, status_code=status_code)
+
+
+def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
+    """Create a SIP from SIPArrange table.
+
+    Get all the files in the new SIP, and all their associated metadata, and
+    move to the processing space.
+    Create needed database entries for the SIP and start the microservice chain.
+    """
+    error = None
     # if sip_uuid is None here, it will be created later,
     # but we want to sanity-check provided values at this point.
     if sip_uuid is not None:
@@ -469,10 +481,10 @@ def copy_from_arrange_to_completed(request, filepath=None, sip_uuid=None, sip_na
         }
         status_code = 400
     else:
-        response = {'message': 'SIP created.'}
+        response = {'message': 'SIP created.', 'sip_uuid': sip_uuid}
         status_code = 201
 
-    return helpers.json_response(response, status_code=status_code)
+    return status_code, response
 
 
 def create_arrange_directory(path):
