@@ -1,0 +1,29 @@
+[
+{
+    "fields": {
+        "lastmodified": "2016-09-20T18:19:19Z",
+        "name": "storage_service_apikey",
+        "value": "326e86562d76b1db4a2479eccfd76d35a1d2fb5e"
+    },
+    "model": "main.dashboardsetting",
+    "pk": 7
+},
+{
+    "fields": {
+        "lastmodified": "2016-09-20T18:19:19Z",
+        "name": "storage_service_url",
+        "value": "http://localhost:8000"
+    },
+    "model": "main.dashboardsetting",
+    "pk": 8
+},
+{
+    "fields": {
+        "lastmodified": "2016-09-20T18:19:19Z",
+        "name": "storage_service_user",
+        "value": "test"
+    },
+    "model": "main.dashboardsetting",
+    "pk": 9
+}
+]

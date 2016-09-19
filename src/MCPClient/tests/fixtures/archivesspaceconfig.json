@@ -1,0 +1,22 @@
+[
+{
+    "fields": {
+        "inherit_notes": false,
+        "repository": 2,
+        "passwd": "admin",
+        "object_type": "",
+        "access_conditions": "",
+        "host": "localhost",
+        "user": "admin",
+        "use_statement": "text-data",
+        "xlink_actuate": "none",
+        "premis": "yes",
+        "uri_prefix": "none",
+        "use_conditions": "",
+        "port": 8089,
+        "xlink_show": "embed"
+    },
+    "model": "administration.archivesspaceconfig",
+    "pk": "5e6b9fb2-0ed0-41c4-b5cb-94d25de1a5dc"
+}
+]

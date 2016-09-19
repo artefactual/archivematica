@@ -1,0 +1,30 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept-Encoding: ['gzip, deflate']
+      Authorization: ['ApiKey test:326e86562d76b1db4a2479eccfd76d35a1d2fb5e']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-91-generic]
+      accept: [application/json]
+      content-type: [application/json]
+    method: GET
+    uri: http://localhost:8000/api/v2/file/?uuid=4060ee97-9c3f-4822-afaf-ebdf838284c3&offset=0
+  response:
+    body: {string: !!python/unicode '{"meta": {"limit": 20, "next": null, "offset":
+        0, "previous": null, "total_count": 1}, "objects": [{"current_full_path":
+        "http:/dspace5x.archivematica.org:8080/swordv2/collection/123456789/2/http:/dspace5x.archivematica.org:8080/swordv2/statement/92.atom",
+        "current_location": "/api/v2/location/758cf517-45f7-4c78-8074-32c686c653cb/",
+        "current_path": "http://dspace5x.archivematica.org:8080/swordv2/statement/92.atom",
+        "misc_attributes": {}, "origin_pipeline": "/api/v2/pipeline/32836b5b-950e-4409-a823-830d2dd01026/",
+        "package_type": "AIP", "related_packages": [], "resource_uri": "/api/v2/file/4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+        "size": 21244662, "status": "UPLOADED", "uuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3"}]}'}
+    headers:
+      cache-control: [no-cache]
+      content-type: [application/json]
+      date: ['Tue, 20 Sep 2016 23:11:32 GMT']
+      server: [WSGIServer/0.1 Python/2.7.6]
+      vary: ['Accept, Cookie']
+      x-frame-options: [SAMEORIGIN]
+    status: {code: 200, message: OK}
+version: 1

@@ -4,16 +4,84 @@ from __future__ import print_function
 import argparse
 import sys
 
+import requests
+
 import django
 django.setup()
 # dashboard
 from main import models
+from components.administration import models as admin_models
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
 import elasticSearchFunctions
 import storageService as storage_service
 
+logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
+
+COMPLETED = 0
+NO_ACTION = 1
+ERROR = 2
+
+def dspace_handle_to_archivesspace(sip_uuid):
+    """Fetch the DSpace handle from the Storage Service and send to ArchivesSpace."""
+    # Get association to ArchivesSpace if it exists
+    try:
+        digital_object = models.ArchivesSpaceDOComponent.objects.get(sip_id=sip_uuid)
+    except models.ArchivesSpaceDOComponent.DoesNotExist:
+        print('SIP', sip_uuid, 'not associated with an ArchivesSpace component')
+        return NO_ACTION
+    print('Digital Object', digital_object.remoteid, 'for SIP', digital_object.sip_id, 'found')
+    logger.info('Digital Object %s for SIP %s found', digital_object.remoteid, digital_object.sip_id)
+
+    # Get dspace handle from SS
+    file_info = storage_service.get_file_info(uuid=sip_uuid)[0]
+    try:
+        handle = file_info['misc_attributes']['handle']
+    except KeyError:
+        print('AIP has no DSpace handle stored')
+        return NO_ACTION
+    print('DSpace handle:', handle)
+    logger.info('DSpace handle: %s', handle)
+
+    # POST Dspace handle to ArchivesSpace
+    # Get ArchivesSpace config
+    config = admin_models.ArchivesSpaceConfig.objects.all()[0]
+    archivesspace_url = 'http://' + config.host + ':' + str(config.port)
+
+    # Log in
+    url = archivesspace_url + '/users/' + config.user + '/login'
+    params = {'password': config.passwd}
+    logger.debug('Log in to ArchivesSpace URL: %s', url)
+    response = requests.post(url, params=params)
+    logger.debug('Response: %s %s', response, response.content)
+    session_id = response.json()['session']
+    headers = {'X-ArchivesSpace-Session': session_id}
+
+    # Get Digital Object from ArchivesSpace
+    url = archivesspace_url + digital_object.remoteid
+    logger.debug('Get Digital Object info URL: %s', url)
+    response = requests.get(url, headers=headers)
+    logger.debug('Response: %s %s', response, response.content)
+    body = response.json()
+
+    # Update
+    url = archivesspace_url + digital_object.remoteid
+    file_version = {
+        "file_uri": handle,
+        "use_statement": config.use_statement,
+        "xlink_show_attribute": config.xlink_show,
+        "xlink_actuate_attribute": config.xlink_actuate,
+    }
+    body['file_versions'].append(file_version)
+    logger.debug('Modified Digital Object: %s', body)
+    response = requests.post(url, headers=headers, json=body)
+    print('Update response:', response, response.content)
+    logger.debug('Response: %s %s', response, response.content)
+    if response.status_code != 200:
+        print('Error updating', digital_object.remoteid)
+        return ERROR
+    return COMPLETED
 
 def post_store_hook(sip_uuid):
     """
@@ -47,13 +115,14 @@ def post_store_hook(sip_uuid):
             )
             elasticSearchFunctions.remove_transfer_files(client, transfer_uuid)
 
+    # DSPACE HANDLE TO ARCHIVESSPACE
+    dspace_handle_to_archivesspace(sip_uuid)
+
     # POST-STORE CALLBACK
     storage_service.post_store_aip_callback(sip_uuid)
 
 
 if __name__ == '__main__':
-    logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
-
     parser = argparse.ArgumentParser()
     parser.add_argument('sip_uuid', help='%SIPUUID%')
 
