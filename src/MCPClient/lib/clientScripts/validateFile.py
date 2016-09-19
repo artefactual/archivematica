@@ -67,6 +67,13 @@ def main(file_path, file_uuid, sip_uuid):
         output = ast.literal_eval(stdout)
         event_detail = 'program="{tool.description}"; version="{tool.version}"'.format(tool=rule.command.tool)
 
+        if (rule.command.description == 'Validate using MediaConch' and
+            output.get('eventOutcomeInformation') != 'pass'):
+            print('Command {} indicated failure with this'
+                  ' output:\n\n{}'.format(rule.command.description, stdout),
+                  file=sys.stderr)
+            failed = True
+
         print('Creating validation event for {} ({})'.format(file_path, file_uuid))
 
         databaseFunctions.insertIntoEvents(
