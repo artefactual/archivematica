@@ -1,0 +1,117 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept-Encoding: ['gzip, deflate']
+      Authorization: ['ApiKey test:326e86562d76b1db4a2479eccfd76d35a1d2fb5e']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-91-generic]
+      accept: [application/json]
+      content-type: [application/json]
+    method: GET
+    uri: http://localhost:8000/api/v2/file/?uuid=4060ee97-9c3f-4822-afaf-ebdf838284c3&offset=0
+  response:
+    body: {string: !!python/unicode '{"meta": {"limit": 20, "next": null, "offset":
+        0, "previous": null, "total_count": 1}, "objects": [{"current_full_path":
+        "http:/dspace5x.archivematica.org:8080/swordv2/collection/123456789/2/http:/dspace5x.archivematica.org:8080/swordv2/statement/92.atom",
+        "current_location": "/api/v2/location/758cf517-45f7-4c78-8074-32c686c653cb/",
+        "current_path": "http://dspace5x.archivematica.org:8080/swordv2/statement/92.atom",
+        "misc_attributes": {"handle": "123456789/41"}, "origin_pipeline": "/api/v2/pipeline/32836b5b-950e-4409-a823-830d2dd01026/",
+        "package_type": "AIP", "related_packages": [], "resource_uri": "/api/v2/file/4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+        "size": 21244662, "status": "UPLOADED", "uuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3"}]}'}
+    headers:
+      cache-control: [no-cache]
+      content-type: [application/json]
+      date: ['Tue, 20 Sep 2016 23:11:32 GMT']
+      server: [WSGIServer/0.1 Python/2.7.6]
+      vary: ['Accept, Cookie']
+      x-frame-options: [SAMEORIGIN]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['0']
+      User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-91-generic]
+    method: POST
+    uri: http://localhost:8089/users/admin/login?password=admin
+  response:
+    body: {string: !!python/unicode '{"session":"57823397705778ab52fea1cbb1a690c46218dfb0277ed021f496849dc328d37b","user":{"lock_version":6298,"username":"admin","name":"Administrator","is_system_user":true,"create_time":"2015-09-22T18:46:11Z","system_mtime":"2016-09-20T23:11:32Z","user_mtime":"2016-09-20T23:11:32Z","jsonmodel_type":"user","groups":[],"is_admin":true,"uri":"/users/1","agent_record":{"ref":"/agents/people/1"},"permissions":{"/repositories/1":["update_location_record","delete_vocabulary_record","update_subject_record","delete_subject_record","update_agent_record","delete_agent_record","update_vocabulary_record","merge_subject_record","merge_agent_record","system_config","administer_system","manage_users","become_user","view_all_records","create_repository","delete_repository","transfer_repository","index_system","manage_repository","update_accession_record","update_resource_record","update_digital_object_record","update_event_record","delete_event_record","suppress_archival_record","transfer_archival_record","delete_archival_record","view_suppressed","view_repository","update_classification_record","delete_classification_record","mediate_edits","import_records","cancel_importer_job","manage_subject_record","manage_agent_record","manage_vocabulary_record","merge_agents_and_subjects","merge_archival_record","manage_rde_templates"],"_archivesspace":["system_config","administer_system","manage_users","become_user","view_all_records","create_repository","delete_repository","transfer_repository","index_system","manage_repository","update_accession_record","update_resource_record","update_digital_object_record","update_event_record","delete_event_record","suppress_archival_record","transfer_archival_record","delete_archival_record","view_suppressed","view_repository","update_classification_record","delete_classification_record","mediate_edits","import_records","cancel_importer_job","manage_subject_record","manage_agent_record","manage_vocabulary_record","merge_agents_and_subjects","merge_archival_record","manage_rde_templates","update_location_record","delete_vocabulary_record","update_subject_record","delete_subject_record","update_agent_record","delete_agent_record","update_vocabulary_record","merge_subject_record","merge_agent_record"]}}}
+
+'}
+    headers:
+      cache-control: ['private, must-revalidate, max-age=0']
+      content-length: ['2253']
+      content-type: [application/json]
+      date: ['Tue, 20 Sep 2016 23:11:32 GMT']
+      server: [Jetty(8.1.5.v20120716)]
+      x-content-type-options: [nosniff]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-91-generic]
+      X-ArchivesSpace-Session: [!!python/unicode 57823397705778ab52fea1cbb1a690c46218dfb0277ed021f496849dc328d37b]
+    method: GET
+    uri: http://localhost:8089/repositories/2/digital_objects/211
+  response:
+    body: {string: !!python/unicode '{"lock_version":4,"digital_object_id":"ac256851-ba50-4c99-a488-25fa442ed242","title":"misty-test-1","publish":false,"restrictions":false,"created_by":"admin","last_modified_by":"admin","create_time":"2016-09-20T18:22:56Z","system_mtime":"2016-09-20T18:48:06Z","user_mtime":"2016-09-20T18:48:06Z","suppressed":false,"digital_object_type":"text","jsonmodel_type":"digital_object","external_ids":[],"subjects":[],"linked_events":[],"extents":[],"dates":[],"external_documents":[],"rights_statements":[],"linked_agents":[],"file_versions":[{"lock_version":0,"file_uri":"123456789/41","created_by":"admin","last_modified_by":"admin","create_time":"2016-09-20T18:48:06Z","system_mtime":"2016-09-20T18:48:06Z","user_mtime":"2016-09-20T18:48:06Z","use_statement":"text-data","xlink_actuate_attribute":"none","xlink_show_attribute":"embed","jsonmodel_type":"file_version","identifier":"289"},{"lock_version":0,"file_uri":"123456789/41","created_by":"admin","last_modified_by":"admin","create_time":"2016-09-20T18:48:06Z","system_mtime":"2016-09-20T18:48:06Z","user_mtime":"2016-09-20T18:48:06Z","use_statement":"text-data","xlink_actuate_attribute":"none","xlink_show_attribute":"embed","jsonmodel_type":"file_version","identifier":"290"}],"notes":[],"linked_instances":[{"ref":"/repositories/2/archival_objects/8887"}],"uri":"/repositories/2/digital_objects/211","repository":{"ref":"/repositories/2"},"tree":{"ref":"/repositories/2/digital_objects/211/tree"}}
+
+'}
+    headers:
+      cache-control: ['private, must-revalidate, max-age=0']
+      content-length: ['1453']
+      content-type: [application/json]
+      date: ['Tue, 20 Sep 2016 23:11:32 GMT']
+      server: [Jetty(8.1.5.v20120716)]
+      x-content-type-options: [nosniff]
+    status: {code: 200, message: OK}
+- request:
+    body: !!python/unicode '{"lock_version": 4, "system_mtime": "2016-09-20T18:48:06Z",
+      "extents": [], "jsonmodel_type": "digital_object", "create_time": "2016-09-20T18:22:56Z",
+      "publish": false, "repository": {"ref": "/repositories/2"}, "linked_instances":
+      [{"ref": "/repositories/2/archival_objects/8887"}], "title": "misty-test-1",
+      "created_by": "admin", "subjects": [], "external_documents": [], "linked_agents":
+      [], "digital_object_type": "text", "file_versions": [{"lock_version": 0, "system_mtime":
+      "2016-09-20T18:48:06Z", "xlink_show_attribute": "embed", "jsonmodel_type": "file_version",
+      "file_uri": "123456789/41", "user_mtime": "2016-09-20T18:48:06Z", "last_modified_by":
+      "admin", "create_time": "2016-09-20T18:48:06Z", "xlink_actuate_attribute": "none",
+      "created_by": "admin", "use_statement": "text-data", "identifier": "289"}, {"lock_version":
+      0, "system_mtime": "2016-09-20T18:48:06Z", "xlink_show_attribute": "embed",
+      "jsonmodel_type": "file_version", "file_uri": "123456789/41", "user_mtime":
+      "2016-09-20T18:48:06Z", "last_modified_by": "admin", "create_time": "2016-09-20T18:48:06Z",
+      "xlink_actuate_attribute": "none", "created_by": "admin", "use_statement": "text-data",
+      "identifier": "290"}, {"file_uri": "123456789/41", "xlink_actuate_attribute":
+      "none", "xlink_show_attribute": "embed", "use_statement": "text-data"}], "user_mtime":
+      "2016-09-20T18:48:06Z", "rights_statements": [], "linked_events": [], "external_ids":
+      [], "suppressed": false, "restrictions": false, "dates": [], "notes": [], "tree":
+      {"ref": "/repositories/2/digital_objects/211/tree"}, "uri": "/repositories/2/digital_objects/211",
+      "last_modified_by": "admin", "digital_object_id": "ac256851-ba50-4c99-a488-25fa442ed242"}'
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      Content-Length: ['1683']
+      Content-Type: [application/json]
+      User-Agent: [python-requests/2.7.0 CPython/2.7.6 Linux/3.13.0-91-generic]
+      X-ArchivesSpace-Session: [!!python/unicode 57823397705778ab52fea1cbb1a690c46218dfb0277ed021f496849dc328d37b]
+    method: POST
+    uri: http://localhost:8089/repositories/2/digital_objects/211
+  response:
+    body: {string: !!python/unicode '{"status":"Updated","id":211,"lock_version":5,"stale":null,"uri":"/repositories/2/digital_objects/211","warnings":[]}
+
+'}
+    headers:
+      cache-control: ['private, must-revalidate, max-age=0']
+      content-length: ['118']
+      content-type: [application/json]
+      date: ['Tue, 20 Sep 2016 23:11:33 GMT']
+      server: [Jetty(8.1.5.v20120716)]
+      x-content-type-options: [nosniff]
+    status: {code: 200, message: OK}
+version: 1
