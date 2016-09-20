@@ -46,7 +46,7 @@ class ArchivesSpaceConfig(models.Model):
     xlink_show = models.CharField(max_length=50, choices=EAD_SHOW_CHOICES, verbose_name='XLink Show', default='embed')
     xlink_actuate = models.CharField(max_length=50, choices=EAD_ACTUATE_CHOICES, verbose_name='XLink Actuate', default='none')
     object_type = models.CharField(max_length=50, blank=True, verbose_name='Object type', help_text='Optional, must come from ArchivesSpace controlled list. Example: sound_recording')
-    use_statement = models.CharField(max_length=50, verbose_name='Use statement', help_text='Mandatory, must come from ArchivesSpace controlled list. Example: image-master')
+    use_statement = models.CharField(max_length=50, verbose_name='Use statement', help_text='Optional, but if present should come from ArchivesSpace controlled list. Example: image-master', blank=True)
     uri_prefix = models.CharField(max_length=50, verbose_name='URL prefix', help_text='URL of DIP object server as you wish to appear in ArchivesSpace record. Example: http://example.com')
     access_conditions = models.CharField(max_length=50, blank=True, verbose_name='Conditions governing access', help_text='Populates Conditions governing access note')
     use_conditions = models.CharField(max_length=50, blank=True, verbose_name='Conditions governing use', help_text='Populates Conditions governing use note')
