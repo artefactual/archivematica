@@ -419,7 +419,9 @@ class Agent(models.Model):
     name = models.TextField(verbose_name='Agent Name',
         help_text='Used for premis:agentName in the METS file.',
         null=True, blank=False, db_column='agentName')
-    agenttype = models.TextField(db_column='agentType')
+    agenttype = models.TextField(verbose_name='Agent Type',
+        help_text='Used for premis:agentType in the METS file.',
+        db_column='agentType', default='organization')
 
     class Meta:
         db_table = u'Agents'

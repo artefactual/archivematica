@@ -36,10 +36,11 @@ import storageService as storage_service
 class AgentForm(forms.ModelForm):
     class Meta:
         model = models.Agent
-        fields = ('identifiervalue', 'name')
+        fields = ('identifiervalue', 'name', 'agenttype')
         widgets = {
             'identifiervalue': TextInput(attrs=settings.INPUT_ATTRS),
             'name': TextInput(attrs=settings.INPUT_ATTRS),
+            'agenttype': TextInput(attrs=settings.INPUT_ATTRS),
         }
 
 
