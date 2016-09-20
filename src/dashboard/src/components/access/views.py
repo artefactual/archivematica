@@ -419,8 +419,15 @@ def access_arrange_start_sip(request, mapping):
     """
     Starts the SIP associated with this record.
     """
+    try:
+        arrange = SIPArrange.objects.get(arrange_path=os.path.join(mapping.arrange_path, ''))
+    except SIPArrange.DoesNotExist:
+        response = {
+            'success': False,
+            'message': 'No SIP Arrange object exists for record {}'.format(mapping.identifier),
+        }
+        return helpers.json_response(response, status_code=404)
     ArchivesSpaceDOComponent.objects.filter(resourceid=mapping.identifier, started=False).update(started=True)
-    arrange = SIPArrange.objects.get(arrange_path=os.path.join(mapping.arrange_path, ''))
     sip_uuid = arrange.sip.uuid if arrange.sip else None
     sip_name = json.load(request).get('sip_name', '')
     return filesystem_views.copy_from_arrange_to_completed(request,
