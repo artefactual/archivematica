@@ -86,7 +86,7 @@ def _get_arrange_path(func):
     def wrapper(request, system='', record_id=''):
         try:
             mapping = SIPArrangeAccessMapping.objects.get(system=system, identifier=_normalize_record_id(record_id))
-            return func(request, mapping)
+            return func(request, mapping, system=system)
         except SIPArrangeAccessMapping.DoesNotExist:
             response = {
                 'success': False,
@@ -407,7 +407,7 @@ def access_copy_to_arrange(request, system='', record_id=''):
 
 
 @_get_arrange_path
-def access_arrange_contents(request, mapping):
+def access_arrange_contents(request, mapping, system=''):
     """
     Lists the files in the root of the SIP arrange directory associated with this record.
     """
@@ -415,7 +415,8 @@ def access_arrange_contents(request, mapping):
 
 
 @_get_arrange_path
-def access_arrange_start_sip(request, mapping):
+@_authenticate_to_archivesspace
+def access_arrange_start_sip(client, request, mapping, system=''):
     """
     Starts the SIP associated with this record.
     """
@@ -427,7 +428,12 @@ def access_arrange_start_sip(request, mapping):
             'message': 'No SIP Arrange object exists for record {}'.format(mapping.identifier),
         }
         return helpers.json_response(response, status_code=404)
-    ArchivesSpaceDOComponent.objects.filter(resourceid=mapping.identifier, started=False).update(started=True)
+    # Create digital objects in ASpace related to the resource instead of digital object components
+    for do in list(ArchivesSpaceDOComponent.objects.filter(resourceid=mapping.identifier, started=False)):
+        new_do = client.add_digital_object(mapping.identifier, str(uuid.uuid4()))
+        do.remoteid = new_do['id']
+        do.started = True
+        do.save()
     sip_uuid = arrange.sip.uuid if arrange.sip else None
     sip_name = json.load(request).get('sip_name', '')
     return filesystem_views.copy_from_arrange_to_completed(request,
