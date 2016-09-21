@@ -65,7 +65,7 @@ class RightsCopyrightForm(forms.ModelForm):
         model = models.RightsStatementCopyright
         fields = ('copyrightstatus', 'copyrightjurisdiction', 'copyrightstatusdeterminationdate', 'copyrightapplicablestartdate', 'copyrightapplicableenddate', 'copyrightenddateopen')
         widgets = {
-            'copyrightstatus': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "A coded designation of the copyright status of the object at the time the rights statement is recorded. E.g. Copyrighted, Public Domain, Unknown"}),
+            'copyrightstatus': forms.widgets.Select(attrs={'class': 'span11', 'title': "A coded designation of the copyright status of the object at the time the rights statement is recorded. Available options: Copyrighted, Public Domain, Unknown"}),
             'copyrightjurisdiction': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The country whose copyright laws apply [ISO 3166]"}),
             'copyrightstatusdeterminationdate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The date that the copyright status recorded in 'copyright status' was determined."}),
             'copyrightapplicablestartdate': forms.widgets.TextInput(attrs={'class': 'span11', 'title': "The date when the particular copyright applies or is applied to the content."}),

@@ -468,7 +468,12 @@ class RightsStatement(models.Model):
 class RightsStatementCopyright(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatement = models.ForeignKey(RightsStatement, db_column='fkRightsStatement')
-    copyrightstatus = models.TextField(db_column='copyrightStatus', verbose_name='Copyright status')
+    PREMIS_COPYRIGHT_STATUSES = (
+        ('copyrighted', 'copyrighted'),
+        ('public domain', 'public domain'),
+        ('unknown', 'unknown'),
+    )
+    copyrightstatus = models.TextField(db_column='copyrightStatus', blank=False, verbose_name='Copyright status', choices=PREMIS_COPYRIGHT_STATUSES, default='unknown')
     copyrightjurisdiction = models.TextField(db_column='copyrightJurisdiction', verbose_name='Copyright jurisdiction')
     copyrightstatusdeterminationdate = models.TextField(db_column='copyrightStatusDeterminationDate', blank=True, null=True, verbose_name='Copyright determination date', help_text='Use ISO 8061 (YYYY-MM-DD)')
     copyrightapplicablestartdate = models.TextField(db_column='copyrightApplicableStartDate', blank=True, null=True, verbose_name='Copyright start date', help_text='Use ISO 8061 (YYYY-MM-DD)')
