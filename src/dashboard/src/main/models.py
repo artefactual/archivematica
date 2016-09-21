@@ -319,6 +319,9 @@ class SIPArrangeAccessMapping(models.Model):
     system = models.CharField(choices=SYSTEMS, default=ATOM, max_length=255)
     identifier = models.CharField(max_length=255)
 
+    def __str__(self):
+        return 'arrange_path={s.arrange_path}, system={s.system}, identifier={s.identifier}'.format(s=self)
+
 
 class File(models.Model):
     """ Information about Files in units (Transfers, SIPs). """

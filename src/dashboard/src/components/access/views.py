@@ -9,6 +9,7 @@ import uuid
 # Django Core, alphabetical by import source
 import django.http
 from django.shortcuts import redirect
+from django.utils import timezone
 
 # External dependencies, alphabetical
 import MySQLdb  # for ATK exceptions
@@ -20,7 +21,7 @@ from components import helpers
 from components.ingest.views_atk import get_atk_system_client
 from components.ingest.views_as import get_as_system_client
 import components.filesystem_ajax.views as filesystem_views
-from main.models import SIP, SIPArrange, SIPArrangeAccessMapping, ArchivesSpaceDOComponent
+from main.models import SIP, SIPArrange, SIPArrangeAccessMapping, ArchivesSpaceDOComponent, DublinCore
 
 logger = logging.getLogger('archivematica.dashboard')
 
@@ -428,6 +429,33 @@ def access_arrange_start_sip(client, request, mapping, system=''):
             'message': 'No SIP Arrange object exists for record {}'.format(mapping.identifier),
         }
         return helpers.json_response(response, status_code=404)
+
+    # Get metadata from ArchivesSpace
+    archival_object = client.get_record(mapping.identifier)
+    logger.debug('archival object %s', archival_object)
+    # dc.creator is sort_name of the resource's linked_agent with role: creator
+    resource = client.get_record(archival_object['resource']['ref'])
+    logger.debug('resource %s', resource)
+    creators = [agent for agent in resource['linked_agents'] if agent['role'] == 'creator']
+    if creators:
+        creator = client.get_record(creators[0]['ref'])
+        logger.debug('creator %s', creator)
+        creator = creator['display_name']['sort_name']
+    else:
+        response = {'success': False, 'message': 'Unable to fetch ArchivesSpace metadata'}
+        return helpers.json_response(response, status_code=502)
+    # dc.description is general note's content
+    notes = [n for n in archival_object['notes'] if n['type'] == 'odd']
+    description = notes[0]['subnotes'][0]['content'] if notes else ''
+    # dc.relation is parent archival object's display names
+    relation = []
+    parent = archival_object.get('parent', {}).get('ref')
+    while parent:
+        parent_obj = client.get_record(parent)
+        relation = [parent_obj['title']] + relation
+        parent = parent_obj.get('parent', {}).get('ref')
+    relation = ' - '.join(relation)
+
     # Create digital objects in ASpace related to the resource instead of digital object components
     for do in ArchivesSpaceDOComponent.objects.filter(resourceid=mapping.identifier, started=False):
         new_do = client.add_digital_object(mapping.identifier, str(uuid.uuid4()))
@@ -440,9 +468,22 @@ def access_arrange_start_sip(client, request, mapping, system=''):
         sip_uuid=sip_uuid,
         sip_name=sip_name,
     )
+
     if not response.get('error'):
-        logger.debug('New SIP UUID %s', response['sip_uuid'])
+        sip_uuid = response['sip_uuid']
+        logger.debug('New SIP UUID %s', sip_uuid)
         # Update ArchivesSpaceDOComponent with new SIP UUID
         ArchivesSpaceDOComponent.objects.filter(resourceid=mapping.identifier, started=False).update(started=True, sip_id=response['sip_uuid'])
+        # Create new SIP-level DC with ArchivesSpace metadata
+        DublinCore.objects.create(
+            metadataappliestotype_id='3e48343d-e2d2-4956-aaa3-b54d26eb9761',  # SIP
+            metadataappliestoidentifier=sip_uuid,
+            title=archival_object['display_string'],
+            creator=creator,
+            date=str(timezone.now().year),
+            description=description,
+            rights='This content may be under copyright. Researchers are responsible for determining the appropriate use or reuse of materials.',
+            relation=relation,
+        )
 
     return helpers.json_response(response, status_code=status_code)
