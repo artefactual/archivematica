@@ -773,13 +773,15 @@ def copy_from_transfer_sources(paths, relative_destination):
         if location not in files:
             logging.debug('Location %s is not associated with this pipeline.', location)
             continue
-
         source = path.replace(files[location]['location']['path'].encode('utf8'), '', 1).lstrip('/')
         # Use the last segment of the path for the destination - basename for a
         # file, or the last folder if not. Keep the trailing / for folders.
         last_segment = os.path.basename(source.rstrip('/')) + '/' if source.endswith('/') else os.path.basename(source)
-        destination = os.path.join(processing_location['path'],
-            relative_destination, last_segment).replace('%sharedPath%', '')
+        destination = os.path.join(
+            processing_location['path'].encode('utf8'),
+            relative_destination,
+            last_segment
+        ).replace('%sharedPath%', '')
         files[location]['files'].append({'source': source, 'destination': destination})
         logging.debug('source: %s, destination: %s', source, destination)
 
