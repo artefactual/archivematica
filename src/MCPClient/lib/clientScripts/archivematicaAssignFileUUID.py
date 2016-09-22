@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+
 import sys
 import uuid
 from optparse import OptionParser
@@ -32,8 +33,15 @@ from main.models import File
 from custom_handlers import get_script_logger
 from fileOperations import addFileToTransfer
 from fileOperations import addFileToSIP
+from fileOperations import updateSizeAndChecksum
 
 
+# Update the file size and checksum in the database.
+def updateFileData(fileUUID, filePath, date, uuid):
+    updateSizeAndChecksum(fileUUID, \
+                          filePath, \
+                          date, \
+                          uuid)
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.assignFileUUID")
@@ -49,21 +57,16 @@ if __name__ == '__main__':
     parser.add_option("-e",  "--use", action="store", dest="use", default="original")
     parser.add_option("--disable-update-filegrpuse", action="store_false", dest="update_use", default=True)
 
-
     (opts, args) = parser.parse_args()
     opts2 = vars(opts)
-#    for key, value in opts2.iteritems():
-#        print type(key), key, type(value), value
-#        exec 'opts.' + key + ' = value.decode("utf-8")'
     fileUUID = opts.fileUUID
     if not fileUUID or fileUUID == "None":
         fileUUID = uuid.uuid4().__str__()
     else:
-        print >>sys.stderr, "File already has UUID:", fileUUID
+        logger.error("File already has UUID:", fileUUID)
         if opts.update_use:
             File.objects.filter(uuid=fileUUID).update(filegrpuse=opts.use)
-        exit(0) 
-
+        exit(0)
 
     if opts.sipUUID == "" and opts.transferUUID != "":
         filePathRelativeToSIP = opts.filePath.replace(opts.sipDirectory,"%transferDirectory%", 1)
@@ -74,5 +77,7 @@ if __name__ == '__main__':
         addFileToSIP(filePathRelativeToSIP, fileUUID, opts.sipUUID, opts.eventIdentifierUUID, opts.date, use=opts.use)
 
     else:
-        print >>sys.stderr, "SIP exclusive-or Transfer uuid must be defined"
+        logger.error("SIP exclusive-or Transfer uuid must be defined")
         exit(2)
+
+    updateFileData(fileUUID, opts.filePath, opts.date, uuid.uuid4().__str__())

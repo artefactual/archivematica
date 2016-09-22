@@ -122,7 +122,6 @@ trimCreateRightsEntries_v0.0 = %clientScriptsDirectory%trimCreateRightsEntries.p
 trimRestructureForCompliance_v0.0 = %clientScriptsDirectory%trimRestructureForCompliance.py
 trimVerifyChecksums_v0.0 = %clientScriptsDirectory%trimVerifyChecksums.py
 trimVerifyManifest_v0.0 = %clientScriptsDirectory%trimVerifyManifest.py
-updateSizeAndChecksum_v0.0 = %clientScriptsDirectory%archivematicaUpdateSizeAndChecksum.py
 validateFile_v1.0 = %clientScriptsDirectory%validateFile.py
 verifyAIP_v0.0 = %clientScriptsDirectory%verifyAIP.py
 verifyAndRestructureTransferBag_v0.0 = %clientScriptsDirectory%verifyAndRestructureTransferBag.py
