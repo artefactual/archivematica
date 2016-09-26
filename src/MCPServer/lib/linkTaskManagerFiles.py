@@ -140,7 +140,7 @@ class linkTaskManagerFiles(LinkTaskManager):
             self.jobChainLink.linkProcessingComplete(self.exitCode)
 
     def taskCompletedCallBackFunction(self, task):
-        self.exitCode = max(self.exitCode, task.results["exitCode"])
+        self.exitCode = max(self.exitCode, abs(task.results["exitCode"]))
         databaseFunctions.logTaskCompletedSQL(task)
 
         self.tasksLock.acquire()
