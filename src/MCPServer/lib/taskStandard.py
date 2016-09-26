@@ -35,7 +35,6 @@ from utils import log_exceptions
 from django.utils import timezone
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from django_mysqlpool import auto_close_db
 from fileOperations import writeToFile
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
@@ -61,7 +60,6 @@ class taskStandard():
         self.outputLock = outputLock
 
     @log_exceptions
-    @auto_close_db
     def performTask(self):
         from archivematicaMCP import limitGearmanConnectionsSemaphore
         limitGearmanConnectionsSemaphore.acquire()

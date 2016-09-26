@@ -44,6 +44,7 @@ DATABASES = {
         'PASSWORD': config.get('client', 'password'), # Not used with sqlite3.
         'HOST': config.get('client', 'host'),         # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                                   # Set to empty string for default. Not used with sqlite3.
+        'CONN_MAX_AGE': 500,
     }
 }
 

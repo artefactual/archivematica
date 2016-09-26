@@ -58,7 +58,6 @@ django.setup()
 from main.models import Task
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from django_mysqlpool import auto_close_db
 from custom_handlers import GroupWriteRotatingFileHandler
 import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
@@ -131,8 +130,6 @@ def loadSupportedModules(file):
         for key, value in supportedModulesConfig.items('supportedCommandsSpecial'):
             loadSupportedModulesSupport(key, value)
 
-
-@auto_close_db
 def executeCommand(gearman_worker, gearman_job):
     try:
         execute = gearman_job.task
@@ -197,8 +194,6 @@ Unable to determine if it completed successfully."""
         output = ["", traceback.format_exc()]
         return cPickle.dumps({"exitCode": -1, "stdOut": output[0], "stdError": output[1]})
 
-
-@auto_close_db
 def startThread(threadNumber):
     """Setup a gearman client, for the thread."""
     gm_worker = gearman.GearmanWorker([config.get('MCPClient', "MCPArchivematicaServer")])

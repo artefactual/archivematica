@@ -37,7 +37,6 @@ from linkTaskManagerSetUnitVariable import linkTaskManagerSetUnitVariable
 from linkTaskManagerUnitVariableLinkPull import linkTaskManagerUnitVariableLinkPull
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from django_mysqlpool import auto_close_db
 from databaseFunctions import logJobCreatedSQL, getUTCDate
 
 sys.path.append("/usr/share/archivematica/dashboard")
@@ -134,7 +133,6 @@ class jobChainLink:
                 return self.defaultNextChainLink
 
     @log_exceptions
-    @auto_close_db
     def setExitMessage(self, message):
         Job.objects.filter(jobuuid=self.UUID).update(currentstep=str(message))
 
@@ -151,7 +149,6 @@ class jobChainLink:
             LOGGER.debug('No exit message')
 
     @log_exceptions
-    @auto_close_db
     def linkProcessingComplete(self, exitCode, passVar=None):
         self.updateExitMessage(exitCode)
         self.jobChain.nextChainLink(self.getNextChainLinkPK(exitCode), passVar=passVar)

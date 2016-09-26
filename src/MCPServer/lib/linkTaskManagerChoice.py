@@ -39,7 +39,6 @@ choicesAvailableForUnits = {}
 choicesAvailableForUnitsLock = threading.Lock()
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from django_mysqlpool import auto_close_db
 from archivematicaFunctions import unicodeToStr
 
 sys.path.append("/usr/share/archivematica/dashboard")
@@ -137,7 +136,6 @@ class linkTaskManagerChoice(LinkTaskManager):
         return ret
 
     @log_exceptions
-    @auto_close_db
     def proceedWithChoice(self, chain, user_id, delayTimerStart=False):
         if user_id is not None:
             agent_id = UserProfile.objects.get(user_id=int(user_id)).agent_id
