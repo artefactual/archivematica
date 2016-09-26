@@ -64,7 +64,6 @@ from unitFile import unitFile
 from unitTransfer import unitTransfer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from django_mysqlpool import auto_close_db
 import databaseFunctions
 from archivematicaFunctions import unicodeToStr
 
@@ -154,7 +153,6 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
     return UUID
 
 @log_exceptions
-@auto_close_db
 def createUnitAndJobChain(path, config, terminate=False):
     path = unicodeToStr(path)
     if os.path.isdir(path):
@@ -250,7 +248,6 @@ def signal_handler(signalReceived, frame):
     exit(0)
 
 @log_exceptions
-@auto_close_db
 def debugMonitor():
     """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
     global countOfCreateUnitAndJobChainThreaded
@@ -261,7 +258,6 @@ def debugMonitor():
         time.sleep(3600)
 
 @log_exceptions
-@auto_close_db
 def flushOutputs():
     while True:
         sys.stdout.flush()
