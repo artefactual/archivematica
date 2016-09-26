@@ -57,9 +57,8 @@ django.setup()
 from main.models import Task
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from django_mysqlpool import auto_close_db
 from custom_handlers import GroupWriteRotatingFileHandler
-import databaseFunctions
+from databaseFunctions import auto_close_db, getUTCDate
 from executeOrRunSubProcess import executeOrRun
 
 
@@ -97,7 +96,7 @@ def executeCommand(gearman_worker, gearman_job):
         execute = gearman_job.task
         print "executing:", execute, "{", gearman_job.unique, "}"
         data = cPickle.loads(gearman_job.data)
-        utcDate = databaseFunctions.getUTCDate()
+        utcDate = getUTCDate()
         arguments = data["arguments"]#.encode("utf-8")
         if isinstance(arguments, unicode):
             arguments = arguments.encode("utf-8")

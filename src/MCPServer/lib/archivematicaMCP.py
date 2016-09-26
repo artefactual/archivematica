@@ -63,10 +63,9 @@ from unitFile import unitFile
 from unitTransfer import unitTransfer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-from django_mysqlpool import auto_close_db
 import databaseInterface
-import databaseFunctions
 from externals.singleInstance import singleinstance
+from databaseFunctions import auto_close_db, createSIP, getUTCDate
 from archivematicaFunctions import unicodeToStr
 
 from main.models import Job, SIP, Task, WatchedDirectory
@@ -115,7 +114,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
         try:
             sip = SIP.objects.get(uuid=UUID)
         except SIP.DoesNotExist:
-            databaseFunctions.createSIP(path, UUID=UUID)
+            createSIP(path, UUID=UUID)
         else:
             current_path = sip.currentpath
             if current_path != path and unit_type == 'SIP':
@@ -136,7 +135,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
 
     #Create it
     if not UUID:
-        UUID = databaseFunctions.createSIP(path)
+        UUID = createSIP(path)
         logger.info('Creating SIP %s at %s', UUID, path)
     return UUID
 
@@ -253,7 +252,7 @@ def debugMonitor():
         if databaseInterface.sqlLock.acquire(False):
             databaseInterface.sqlLock.release()
             dblockstatus = "SQL Lock: Unlocked"
-        logger.debug('Debug monitor: datetime: %s', databaseFunctions.getUTCDate())
+        logger.debug('Debug monitor: datetime: %s', getUTCDate())
         logger.debug('Debug monitor: thread count: %s', threading.activeCount())
         logger.debug('Debug monitor: created job chain threaded: %s', countOfCreateUnitAndJobChainThreaded)
         logger.debug('Debug monitor: DB lock status: %s', dblockstatus)

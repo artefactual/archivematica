@@ -20,16 +20,31 @@
 # @package Archivematica
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
+
+from functools import wraps
 import os
 import string
 import sys
 import uuid
+
+from django.db import close_old_connections
 
 from archivematicaFunctions import strToUnicode
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from django.utils import timezone
 from main.models import Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
+
+
+def auto_close_db(f):
+    """Decorator to ensure the db connection is closed when the function returns."""
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        finally:
+            close_old_connections()
+    return wrapper
 
 def getUTCDate():
     """Returns a timezone-aware representation of the current datetime in UTC."""
