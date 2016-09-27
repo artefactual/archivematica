@@ -36,4 +36,4 @@ if __name__ == '__main__':
     transferUUID = sys.argv[1]
     transferType = sys.argv[2]
 
-    Transfer.objects.filter(uuid=transferUUID, type__isnull=False).update(type=transferType)
+    Transfer.objects.filter(uuid=transferUUID, type__isnull=False).exclude(type="Archivematica AIP").update(type=transferType)
