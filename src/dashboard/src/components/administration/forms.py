@@ -17,12 +17,12 @@
 from __future__ import division
 
 import os
-import sys
 from lxml import etree
 from collections import OrderedDict
 
 from django import forms
 from django.conf import settings
+from django.db import connection
 from django.utils.translation import ugettext as _
 from django.forms.widgets import TextInput, RadioSelect, CheckboxInput, Select
 
@@ -193,9 +193,10 @@ class ProcessingConfigurationForm(forms.Form):
     constraints based on the type:
 
     - type = boolean
-      Required: yes_option or no_optino (or both)
+      Required: yes_option or no_option (or both)
     - type = chain_choice
-      Optional: ignored_choices
+      Optional: ignored_choices - list of choices that won't be presented to the user
+      Optional: find_duplicates - persist choice across chain links with the same name
     - type = storage_service
       Required: purpose
     - type = days
@@ -266,6 +267,7 @@ class ProcessingConfigurationForm(forms.Form):
         'name': 'normalize',
         'label': 'Normalize',
         'ignored_choices': ['Reject SIP'],
+        'find_duplicates': True,
     }
     processing_fields['de909a42-c5b5-46e1-9985-c031b50e9d30'] = {
         'type': 'boolean',
@@ -414,9 +416,42 @@ class ProcessingConfigurationForm(forms.Form):
                     continue
                 delay = str(float(value) * (24 * 60 * 60))
                 config.add_choice(choice_uuid, fprops['chain'], delay_duration=delay, comment=fprops['label'])
+            elif fprops['type'] == 'chain_choice' and fprops.get('find_duplicates', False):
+                # Persist the choice made by the user for each of the existing
+                # chain links with the same name. See #10216 for more details.
+                try:
+                    choice_name = models.MicroServiceChain.objects.get(id=value).description
+                except models.MicroServiceChainLink.DoesNotExist:
+                    pass
+                else:
+                    for i, item in enumerate(get_duplicated_choices(fprops['label'], choice_name)):
+                        comment = '{} (match {} for "{}")'.format(fprops['label'], i+1, choice_name)
+                        config.add_choice(item[0], item[1], comment=comment)
             else:
                 config.add_choice(choice_uuid, value, comment=fprops['label'])
         config.save(config_path)
+
+
+def get_duplicated_choices(choice_chain_name, choice_link_name):
+    """
+    Given the name of a choice chain and one of its choices, return a list
+    of matching links as doubles (tuples): UUID of chain, UUID of choice.
+    """
+    sql = """
+        SELECT
+            MicroServiceChainLinks.pk,
+            MicroServiceChains.pk
+        FROM TasksConfigs
+        LEFT JOIN MicroServiceChainLinks ON (MicroServiceChainLinks.currentTask = TasksConfigs.pk)
+        LEFT JOIN MicroServiceChainChoice ON (MicroServiceChainChoice.choiceAvailableAtLink = MicroServiceChainLinks.pk)
+        LEFT JOIN MicroServiceChains ON (MicroServiceChains.pk = MicroServiceChainChoice.chainAvailable)
+        WHERE
+            TasksConfigs.description = %s
+            AND MicroServiceChains.description = %s;
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(sql, [choice_chain_name, choice_link_name])
+        return cursor.fetchall()
 
 
 def get_storage_locations(purpose):
