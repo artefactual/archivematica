@@ -3,6 +3,7 @@ import collections
 import csv
 import os
 import sys
+import unittest
 
 from django.test import TestCase
 
@@ -117,9 +118,11 @@ class TestDublinCore(TestCase):
         with open(os.path.join(empty_transfers_sip, 'objects', 'metadata', 'transfers', '.gitignore'), 'w'):
             pass
 
+    @unittest.expectedFailure
     def test_create_dc_dmdsec_no_dc_transfer_dc_xml(self):
         # FIXME What is the expected behaviour of this? What should the fixture have?
         transfers_sip = os.path.join(THIS_DIR, 'fixtures', 'transfer_dc')
+        raise NotImplementedError()
 
     def test_dmdsec_from_csv_parsed_metadata_dc_only(self):
         """It should only create a DC dmdSec from parsed metadata."""
