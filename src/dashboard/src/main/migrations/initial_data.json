@@ -9977,7 +9977,7 @@
     "replaces": null, 
     "choiceavailableatlink": "01d64f58-8295-4b7b-9cab-8f1b153a504f", 
     "description": "Parallel bzip2", 
-    "replacementdic": "{\"%AIPCompressionAlgorithm%\":\"pbzip2-\"}"
+    "replacementdic": "{\"%AIPCompressionAlgorithm%\":\"lbzip2-\"}"
   }
 },
 {

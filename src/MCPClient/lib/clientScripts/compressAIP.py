@@ -22,7 +22,7 @@ def update_unit(sip_uuid, compressed_location):
 
 def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uuid):
     """ Compresses AIP according to compression algorithm and level.
-    compression = AIP compression algorithm, format: <program>-<algorithm>, eg. 7z-lzma, pbzip2-
+    compression = AIP compression algorithm, format: <program>-<algorithm>, eg. 7z-lzma, lbzip2-
     compression_level = AIP compression level, integer between 1 and 9 inclusive
     sip_directory = Absolute path to the directory where the SIP is
     sip_name = User-provided name of the SIP
@@ -66,13 +66,13 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
             compressed_location=compressed_location
         )
         tool_info_command = 'echo program=\"7z\"\; version=\"`7z | grep Version`\"'
-    elif program == 'pbzip2':
+    elif program == 'lbzip2':
         compressed_location = uncompressed_location+".tar.bz2"
-        command = '/bin/tar -c --directory "{sip_directory}" "{archive_path}" | /usr/bin/pbzip2 --compress -{level} > "{compressed_location}"'.format(
+        command = '/bin/tar -c --directory "{sip_directory}" "{archive_path}" | /usr/bin/lbzip2 --compress -{level} > "{compressed_location}"'.format(
             sip_directory=sip_directory, archive_path=archive_path,
             level=compression_level, compressed_location=compressed_location
         )
-        tool_info_command = 'echo program=\"pbzip2\"\; version=\"`pbzip2 --version`\"'
+        tool_info_command = 'echo program=\"lbzip2\"\; version=\"`lbzip2 --version`\"'
     else:
         msg = "Program {} not recognized, exiting script prematurely.".format(program)
         print >> sys.stderr, msg
