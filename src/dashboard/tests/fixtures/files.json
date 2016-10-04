@@ -1,0 +1,70 @@
+[
+{
+    "pk": "590bd882-7521-498c-8f89-0958218f779d",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+        "originallocation": "%SIPDirectory%objects/submissionDocumentation/transfer-no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/METS.xml",
+        "transfer": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
+        "filegrpuse": "submissionDocumentation",
+        "removedtime": null,
+        "label": "",
+        "checksum": "51132e5ce1b5d2c2c363f05495f447ea924ab29c2cda2c11037b5fca2119e45a",
+        "enteredsystem": "2015-06-24T17:22:09Z",
+        "currentlocation": "%SIPDirectory%objects/submissionDocumentation/transfer-no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/METS.xml",
+        "size": 12222
+    }
+},
+{
+    "pk": "8140ebe5-295c-490b-a34a-83955b7c844e",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+        "originallocation": "%SIPDirectory%objects/evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif",
+        "transfer": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
+        "filegrpuse": "preservation",
+        "removedtime": null,
+        "label": "",
+        "checksum": "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9",
+        "enteredsystem": "2015-06-24T17:22:09Z",
+        "currentlocation": "%SIPDirectory%objects/evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif",
+        "size": 1446772
+    }
+},
+{
+    "pk": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+        "originallocation": "%SIPDirectory%objects/evelyn's photo.jpg",
+        "transfer": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92",
+        "enteredsystem": "2015-06-24T17:22:09Z",
+        "currentlocation": "%SIPDirectory%objects/evelyn_s_photo.jpg",
+        "size": 158131
+    }
+},
+{
+    "pk": "66370f14-2f64-4750-9d50-547614be40e8",
+    "model": "main.file",
+    "fields": {
+        "filegrpuuid": "",
+        "sip": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+        "originallocation": "%SIPDirectory%metadata/metadata.csv",
+        "transfer": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
+        "filegrpuse": "metadata",
+        "removedtime": null,
+        "label": "",
+        "checksum": "e8121d8a660e2992872f0b67923d2d08dde9a1ba72dfd58e5a31e68fbac3633c",
+        "enteredsystem": "2015-06-24T17:32:09Z",
+        "currentlocation": "%SIPDirectory%objects/metadata/metadata.csv",
+        "size": 154
+    }
+}
+]

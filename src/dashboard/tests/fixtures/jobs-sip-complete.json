@@ -1,0 +1,1413 @@
+[
+    {
+        "fields": {
+            "microservicegroup": "Verify SIP compliance",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:56Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/system/autoProcessSIP/test/",
+            "hidden": false,
+            "createdtimedec": "0.4254590000",
+            "jobtype": "Move to processing directory"
+        },
+        "model": "main.job",
+        "pk": "40554613-5bd1-4d51-87ac-9f15b4a59c6c"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Verify SIP compliance",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:56Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test/",
+            "hidden": false,
+            "createdtimedec": "0.7398420000",
+            "jobtype": "Verify SIP compliance"
+        },
+        "model": "main.job",
+        "pk": "85942c06-b028-429c-bb67-2b17537ceb65"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Rename SIP directory with SIP UUID",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:56Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test/",
+            "hidden": false,
+            "createdtimedec": "0.8845960000",
+            "jobtype": "Rename SIP directory with SIP UUID"
+        },
+        "model": "main.job",
+        "pk": "86249e4d-7d23-4b76-b105-4c63293a96be"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Rename SIP directory with SIP UUID",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:56Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test/",
+            "hidden": false,
+            "createdtimedec": "0.8116700000",
+            "jobtype": "Check if SIP is from Maildir Transfer"
+        },
+        "model": "main.job",
+        "pk": "adeb24bd-c1ec-48f0-b961-0312014fb5f5"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Verify SIP compliance",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:56Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/system/autoProcessSIP/test/",
+            "hidden": false,
+            "createdtimedec": "0.3372020000",
+            "jobtype": "Set file permissions"
+        },
+        "model": "main.job",
+        "pk": "b9b23554-1fc4-496f-b8a6-8f6d5dd5b15a"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Verify transfer compliance",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:56Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test/",
+            "hidden": false,
+            "createdtimedec": "0.7839960000",
+            "jobtype": "Verify mets_structmap.xml compliance"
+        },
+        "model": "main.job",
+        "pk": "bc296d61-b8b3-44cb-80cb-fd48e9836eac"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Clean up names",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:57Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.9721070000",
+            "jobtype": "Load Dublin Core metadata from disk"
+        },
+        "model": "main.job",
+        "pk": "02b12c64-74bb-46ce-ab55-4e9de7494e39"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Clean up names",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:57Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.5839220000",
+            "jobtype": "Set file permissions"
+        },
+        "model": "main.job",
+        "pk": "66115eff-931a-48e6-916b-60649586085c"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Remove cache files",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:57Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.2731300000",
+            "jobtype": "Remove cache files"
+        },
+        "model": "main.job",
+        "pk": "bedc5bec-bc01-4736-afa9-eeb78c39afbf"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Include default SIP processingMCP.xml",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:57Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.2204110000",
+            "jobtype": "Include default SIP processingMCP.xml"
+        },
+        "model": "main.job",
+        "pk": "c967f32e-90f2-4952-92c2-b281ab278f71"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Clean up names",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:57Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.6769300000",
+            "jobtype": "Sanitize SIP name"
+        },
+        "model": "main.job",
+        "pk": "ef9498c1-418d-4c28-9b73-30c38f0c3476"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:58Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.2809660000",
+            "jobtype": "Identify manually normalized files"
+        },
+        "model": "main.job",
+        "pk": "00f244db-6890-46a2-bb08-fa0f673dca02"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:58Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.9485720000",
+            "jobtype": "Grant normalization options for no pre-existing DIP"
+        },
+        "model": "main.job",
+        "pk": "6d8d3e67-9a95-4c65-a9ce-bb3fece6b11f"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:58Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.9244260000",
+            "jobtype": "Set remove preservation and access normalized files to renormalize link."
+        },
+        "model": "main.job",
+        "pk": "78223479-e4fe-4a4b-b765-7c83ac117dd1"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:58Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.9709600000",
+            "jobtype": "Move to select file ID tool"
+        },
+        "model": "main.job",
+        "pk": "94cd4dd0-a547-4bee-999c-6b5b256b218c"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:58Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.3109450000",
+            "jobtype": "Check for Service directory"
+        },
+        "model": "main.job",
+        "pk": "bc7d9217-732f-4f59-89c6-150a4559d8fd"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:58Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.6265520000",
+            "jobtype": "Check for Access directory"
+        },
+        "model": "main.job",
+        "pk": "de2cfc4d-c9f9-4ac8-8e08-22ec21bec63d"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:59Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolIngest/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.6288920000",
+            "jobtype": "Normalize"
+        },
+        "model": "main.job",
+        "pk": "160c875c-2f9c-4753-8edc-ae9f26c6ce3c"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:59Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolIngest/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.2992880000",
+            "jobtype": "Select pre-normalize file format identification command"
+        },
+        "model": "main.job",
+        "pk": "1a607cab-0ef7-420e-8235-123862e1eee4"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:59Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolIngest/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.6229210000",
+            "jobtype": "Resume after normalization file identification tool selected."
+        },
+        "model": "main.job",
+        "pk": "9a2ae052-dce3-43d8-ab48-e94dab8f1cc6"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:05:59Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolIngest/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.3102850000",
+            "jobtype": "Identify file format"
+        },
+        "model": "main.job",
+        "pk": "bc54f710-527d-44ba-81bc-298e9fdf4f44"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:33Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolIngest/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.7844440000",
+            "jobtype": "Move to processing directory"
+        },
+        "model": "main.job",
+        "pk": "104994f9-d19f-46d2-a29c-504eed790c18"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:34Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.1301330000",
+            "jobtype": "Create thumbnails directory"
+        },
+        "model": "main.job",
+        "pk": "21ae4db2-291e-4dfb-8521-714bba3abbbe"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:34Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.1651430000",
+            "jobtype": "Normalize for thumbnails"
+        },
+        "model": "main.job",
+        "pk": "9313747d-9fba-4004-a2b1-24642dff9be7"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:35Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.2927860000",
+            "jobtype": "Normalize for preservation"
+        },
+        "model": "main.job",
+        "pk": "1a418733-14c6-475e-8ba4-4c3da1d0c6e7"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:35Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.9806470000",
+            "jobtype": "Set file permissions"
+        },
+        "model": "main.job",
+        "pk": "c1cb2b23-f559-4b3b-bcee-0b1738c4fe7d"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:36Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.4360160000",
+            "jobtype": "Normalization report"
+        },
+        "model": "main.job",
+        "pk": "6b57312a-2f53-49fa-8ae2-912b797a76b2"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:36Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.9409570000",
+            "jobtype": "Move to approve normalization directory"
+        },
+        "model": "main.job",
+        "pk": "7adbdbc8-4dcf-4a92-b572-00a383f1558c"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:36Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.1560990000",
+            "jobtype": "Remove files without linking information (failed normalization artifacts etc.)"
+        },
+        "model": "main.job",
+        "pk": "c8f1df62-87c9-4568-96c4-9a3975126de2"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:38Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/approveNormalization/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.7764100000",
+            "jobtype": "Move to processing directory"
+        },
+        "model": "main.job",
+        "pk": "2a177a92-d84c-4865-9d66-a9d0b0395843"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process manually normalized files",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:38Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.4940630000",
+            "jobtype": "Check for manual normalized files"
+        },
+        "model": "main.job",
+        "pk": "791af1b1-721c-44f8-896a-0db29b788693"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Add final metadata",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:38Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.5252800000",
+            "jobtype": "Move to metadata reminder"
+        },
+        "model": "main.job",
+        "pk": "e2e7a23a-ffd4-4ee5-8130-f6587478f1d4"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:38Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.4169400000",
+            "jobtype": "Set file permissions"
+        },
+        "model": "main.job",
+        "pk": "e9921e00-ffaf-4ea3-8c6f-f6579bab9d2d"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Normalize",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:38Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/approveNormalization/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.4256900000",
+            "jobtype": "Approve normalization"
+        },
+        "model": "main.job",
+        "pk": "ee19af5c-1681-43a2-826b-5f24726e0ebd"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Add final metadata",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:39Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.3326300000",
+            "jobtype": "Reminder: add metadata if desired"
+        },
+        "model": "main.job",
+        "pk": "09137a8b-b194-4110-a102-dc3975785310"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Transcribe SIP contents",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:39Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.1813980000",
+            "jobtype": "Transcribe"
+        },
+        "model": "main.job",
+        "pk": "0d65e0e9-ff63-490a-8186-4a8ccc420640"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:39Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.6143940000",
+            "jobtype": "Copy transfer submission documentation"
+        },
+        "model": "main.job",
+        "pk": "51616819-1a1c-45e3-a026-ba2cc52c00a7"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Add final metadata",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:39Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.6723500000",
+            "jobtype": "Set file permissions"
+        },
+        "model": "main.job",
+        "pk": "52e24a73-a06c-4c6d-9320-744c54bd7b3a"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Transcribe SIP contents",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:39Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.1687770000",
+            "jobtype": "Transcribe SIP contents"
+        },
+        "model": "main.job",
+        "pk": "d8970119-aa44-4735-8ee1-c7a10b58863f"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:39Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.9643760000",
+            "jobtype": "Move submission documentation into objects directory"
+        },
+        "model": "main.job",
+        "pk": "e4e31c6c-e73e-4254-b670-644a0cc8d416"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:39Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.9145590000",
+            "jobtype": "Check for submission documentation"
+        },
+        "model": "main.job",
+        "pk": "ef1d2cea-1887-48cb-b7b7-ab2fc8836c9b"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:40Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.3356390000",
+            "jobtype": "Assign checksums and file sizes to submissionDocumentation"
+        },
+        "model": "main.job",
+        "pk": "4cfa3b32-7fac-419b-8431-094329fd7aaf"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:40Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.1389600000",
+            "jobtype": "Assign file UUIDs to submission documentation"
+        },
+        "model": "main.job",
+        "pk": "535400a0-0716-4e55-83dc-9faa1112ba7c"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:40Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.9827810000",
+            "jobtype": "Scan for viruses in submission documentation"
+        },
+        "model": "main.job",
+        "pk": "73fecbc6-390d-4f52-8772-14af736e0d70"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:40Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.6613570000",
+            "jobtype": "Sanitize file and directory names in submission documentation"
+        },
+        "model": "main.job",
+        "pk": "c8a0b535-6020-4db3-87b7-317b6bc3e11e"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:41Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.3232770000",
+            "jobtype": "Select file format identification command"
+        },
+        "model": "main.job",
+        "pk": "cf49edb4-9ac5-4e76-b291-a913a1f21c09"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:41Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.3349100000",
+            "jobtype": "Identify file format"
+        },
+        "model": "main.job",
+        "pk": "e99ed349-8f19-41c6-a89b-7cc69e936bbd"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:41Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.7937940000",
+            "jobtype": "Characterize and extract metadata on submission documentation"
+        },
+        "model": "main.job",
+        "pk": "f1b39ec0-4d44-43f7-afee-09bf0a8178a5"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:44Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.9302990000",
+            "jobtype": "Copy transfers metadata and logs"
+        },
+        "model": "main.job",
+        "pk": "4f01a1d4-2f95-42b4-b664-988075747245"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process submission documentation",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:44Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.8445500000",
+            "jobtype": "Remove files without linking information (failed normalization artifacts etc.)"
+        },
+        "model": "main.job",
+        "pk": "b1b4a2b8-f453-4c61-8dc4-58d3b33dcb9b"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:45Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.7355400000",
+            "jobtype": "Assign file UUIDs to metadata"
+        },
+        "model": "main.job",
+        "pk": "133f5d84-031f-4fee-8dd6-ad16a07d979f"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:45Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.6214690000",
+            "jobtype": "Move metadata to objects directory"
+        },
+        "model": "main.job",
+        "pk": "4ed7cb76-73c6-478a-b0e6-aa86ee9330ed"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:45Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.5688830000",
+            "jobtype": "Process JSON metadata"
+        },
+        "model": "main.job",
+        "pk": "ddcb9a1a-e97a-4103-a599-943f765f5827"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:46Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.3955900000",
+            "jobtype": "Sanitize file and directory names in metadata"
+        },
+        "model": "main.job",
+        "pk": "2cea6ae1-6d77-4783-9356-5b323f7353cc"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:46Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.4354600000",
+            "jobtype": "Assign checksums and file sizes to metadata "
+        },
+        "model": "main.job",
+        "pk": "54a374bd-24bf-4b81-85c1-f381335bed36"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:46Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.6809020000",
+            "jobtype": "Scan for viruses in metadata"
+        },
+        "model": "main.job",
+        "pk": "ff09e8be-857e-4fc6-bb8d-3eea0aaa6617"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:47Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.1273600000",
+            "jobtype": "Identify file format of metadata files"
+        },
+        "model": "main.job",
+        "pk": "a112499c-4a28-4353-a467-263d9a44eaa9"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:47Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.4731440000",
+            "jobtype": "Characterize and extract metadata on metadata files"
+        },
+        "model": "main.job",
+        "pk": "c6bbdd5a-4631-4f30-a50e-32b9ee859370"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Verify checksums",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:48Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.3812910000",
+            "jobtype": "Verify checksums generated on ingest"
+        },
+        "model": "main.job",
+        "pk": "07ac6065-f99f-4ffb-abd9-918e082e1c1d"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Process metadata directory",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:48Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.9896800000",
+            "jobtype": "Remove empty manual normalization directories"
+        },
+        "model": "main.job",
+        "pk": "b174745a-2a31-46bb-90d4-831a716800d5"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:49Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.9121750000",
+            "jobtype": "Prepare AIP"
+        },
+        "model": "main.job",
+        "pk": "69d7482d-9341-402e-9026-f9eb34dacf92"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Generate AIP METS",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:49Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.2085550000",
+            "jobtype": "Generate METS.xml document"
+        },
+        "model": "main.job",
+        "pk": "b7332819-9801-4ede-bd0e-fa8c369f1e3c"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:49Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.6852380000",
+            "jobtype": "Check if DIP should be generated"
+        },
+        "model": "main.job",
+        "pk": "ce6ea740-20ab-4d6b-b7b6-2daf8e10efdc"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:49Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.7148690000",
+            "jobtype": "Set file permissions"
+        },
+        "model": "main.job",
+        "pk": "f22cc800-566a-42bb-8605-11bce3ad06a0"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:50Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.8267920000",
+            "jobtype": "Move to compressionAIPDecisions directory"
+        },
+        "model": "main.job",
+        "pk": "260bf6fe-6c26-45d1-8448-43b450448d9c"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:52Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.4031700000",
+            "jobtype": "Select compression algorithm"
+        },
+        "model": "main.job",
+        "pk": "63249f92-0e96-4811-9ff1-7209ec88d7b9"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:52Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.5285000000",
+            "jobtype": "Select compression level"
+        },
+        "model": "main.job",
+        "pk": "6709f4a8-fa07-4b27-9ba9-6f68b43fd3f7"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:52Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.6275900000",
+            "jobtype": "Compress AIP"
+        },
+        "model": "main.job",
+        "pk": "6cbc7e06-d992-4c5f-8aa1-3d3021ec9c6c"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:54Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.7604130000",
+            "jobtype": "Create AIP Pointer File"
+        },
+        "model": "main.job",
+        "pk": "bdabea26-5f13-4190-8e23-19bea31451c4"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:54Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.5572260000",
+            "jobtype": "Copy submission documentation"
+        },
+        "model": "main.job",
+        "pk": "d43c8cd6-ab9e-46af-ac27-127260b24147"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:55Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.2347570000",
+            "jobtype": "Set bag file permissions"
+        },
+        "model": "main.job",
+        "pk": "1d7a180c-1c9f-4598-b27c-26012811964f"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Store AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:55Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.3707780000",
+            "jobtype": "Move to the store AIP approval directory"
+        },
+        "model": "main.job",
+        "pk": "83813dd2-5805-46cc-b134-8ba3360e2ffb"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:55Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.2989980000",
+            "jobtype": "Removed bagged files"
+        },
+        "model": "main.job",
+        "pk": "a0f028dd-6b9d-4365-a7ec-2a237e7fc224"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Prepare AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:55Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/workFlowDecisions/compressionAIPDecisions/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.2664410000",
+            "jobtype": "Check if AIP is a file or directory"
+        },
+        "model": "main.job",
+        "pk": "c230dff2-16ce-418c-8d28-6671580eecc3"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Store AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:17:56Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/storeAIP/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.5513000000",
+            "jobtype": "Store AIP"
+        },
+        "model": "main.job",
+        "pk": "6148627c-1607-43ae-b9de-3eba70f48cc0"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Store AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:18:10Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/storeAIP/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.6377300000",
+            "jobtype": "Retrieve AIP Storage Locations"
+        },
+        "model": "main.job",
+        "pk": "795d967e-3aaf-41e0-b4bb-7327eacf0b96"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Store AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:18:10Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/storeAIP/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.7662470000",
+            "jobtype": "Store AIP location"
+        },
+        "model": "main.job",
+        "pk": "cf59ef57-fb9e-4904-a305-09517eb4c43f"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Store AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:18:37Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%watchedDirectories/storeAIP/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.8078550000",
+            "jobtype": "Move to processing directory"
+        },
+        "model": "main.job",
+        "pk": "4f91f6bf-e19a-467d-a5ab-f9932fbab502"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Store AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:18:38Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.2112580000",
+            "jobtype": "Verify AIP"
+        },
+        "model": "main.job",
+        "pk": "af18a688-9a37-4d41-b792-046258a5b40b"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Store AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:18:41Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.6074080000",
+            "jobtype": "Store the AIP"
+        },
+        "model": "main.job",
+        "pk": "0c1e9d06-c5dd-4f08-8978-7b112f3c9e4d"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Store AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:18:43Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.5373670000",
+            "jobtype": "Index AIP"
+        },
+        "model": "main.job",
+        "pk": "cffc99be-06a8-4179-ae07-e3ec45b659c8"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Store AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:18:46Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.2700590000",
+            "jobtype": "Clean up after storing AIP"
+        },
+        "model": "main.job",
+        "pk": "c3e2f1de-5cd2-4543-89de-e49a75a54dc4"
+    },
+    {
+        "fields": {
+            "microservicegroup": "Store AIP",
+            "sipuuid": "4060ee97-9c3f-4822-afaf-ebdf838284c3",
+            "microservicechainlink": null,
+            "currentstep": "Completed successfully",
+            "subjobof": "",
+            "createdtime": "2016-10-04T23:18:46Z",
+            "unittype": "unitSIP",
+            "directory": "%sharedPath%currentlyProcessing/test-4060ee97-9c3f-4822-afaf-ebdf838284c3/",
+            "hidden": false,
+            "createdtimedec": "0.8202620000",
+            "jobtype": "Remove the processing directory"
+        },
+        "model": "main.job",
+        "pk": "299c727c-e72b-4070-ae0a-a78a5aa0cfd3"
+    }
+]
