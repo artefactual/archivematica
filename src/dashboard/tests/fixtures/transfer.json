@@ -1,0 +1,19 @@
+[
+{
+    "fields": {
+        "accessionid": "",
+        "magiclink": null,
+        "description": "",
+        "magiclinkexitmessage": null,
+        "transfermetadatasetrow": null,
+        "notes": "",
+        "typeoftransfer": "",
+        "hidden": false,
+        "type": "Standard",
+        "currentlocation": "%sharedPath%watchedDirectories/SIPCreation/completedTransfers/test-3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e/",
+        "sourceofacquisition": ""
+    },
+    "model": "main.transfer",
+    "pk": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
+}
+]
