@@ -12,9 +12,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='file',
-            name='currentlocation',
-            field=main.models.BlobTextField(null=True, db_column=b'currentLocation', db_index=True),
-        ),
+        migrations.RunSQL('CREATE INDEX Files_currentLocation ON Files(currentLocation(255))')
     ]

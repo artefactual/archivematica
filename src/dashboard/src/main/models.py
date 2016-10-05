@@ -345,7 +345,7 @@ class File(models.Model):
     transfer = models.ForeignKey(Transfer, db_column='transferUUID', to_field='uuid', null=True, blank=True)
     # both actually `longblob` in the database
     originallocation = BlobTextField(db_column='originalLocation')
-    currentlocation = BlobTextField(db_column='currentLocation', null=True, db_index=True)
+    currentlocation = BlobTextField(db_column='currentLocation', null=True)
     filegrpuse = models.CharField(max_length=50, db_column='fileGrpUse', default='Original')
     filegrpuuid = models.CharField(max_length=36, db_column='fileGrpUUID', blank=True)
     checksum = models.CharField(max_length=128, db_column='checksum', blank=True)
