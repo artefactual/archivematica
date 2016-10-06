@@ -73,7 +73,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
         preConfiguredIndex = self.checkForPreconfiguredXML()
         if preConfiguredIndex is not None:
             self.jobChainLink.setExitMessage("Completed successfully")
-            self.proceedWithChoice(index=preConfiguredIndex, agent=None)
+            self.proceedWithChoice(index=preConfiguredIndex, user_id=None)
         else:
             choicesAvailableForUnitsLock.acquire()
             self.jobChainLink.setExitMessage('Awaiting decision')
