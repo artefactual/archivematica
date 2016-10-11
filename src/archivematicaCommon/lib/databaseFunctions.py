@@ -28,6 +28,8 @@ import string
 import sys
 import uuid
 
+from archivematicaFunctions import strToUnicode
+
 sys.path.append("/usr/share/archivematica/dashboard")
 from django.db.models import Q
 from django.utils import timezone
@@ -233,9 +235,13 @@ def logTaskCompletedSQL(task):
     task = Task.objects.get(taskuuid=taskUUID)
     task.endtime = getUTCDate()
     task.exitcode = exitCode
-    task.stdout = stdOut
-    task.stderror = stdError
+    # ``strToUnicode`` here prevents the MCP server from crashing when, e.g.,
+    # stderr contains Latin-1-encoded chars such as \xa9, i.e., the copyright
+    # symbol, cf. #9967.
+    task.stdout = strToUnicode(stdOut, obstinate=True)
+    task.stderror = strToUnicode(stdError, obstinate=True)
     task.save()
+
 
 def logJobCreatedSQL(job):
     """

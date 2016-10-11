@@ -77,9 +77,17 @@ def unicodeToStr(string):
         string = string.encode("utf-8")
     return string
 
-def strToUnicode(string):
+def strToUnicode(string, obstinate=False):
     if isinstance(string, str):
-        string = string.decode("utf-8")
+        try:
+            string = string.decode('utf8')
+        except UnicodeDecodeError:
+            if obstinate:
+                # Obstinately get a Unicode instance by replacing
+                # indecipherable bytes.
+                string = string.decode('utf8', 'replace')
+            else:
+                raise
     return string
 
 
