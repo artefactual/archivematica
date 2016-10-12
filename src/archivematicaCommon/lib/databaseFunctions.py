@@ -237,7 +237,9 @@ def logJobCreatedSQL(job):
     :returns None:    
     """
     unitUUID =  job.unit.UUID
-    decDate = getDeciDate("." + str(job.createdDate.microsecond))
+    # microseconds are always 6 digits
+    # The number returned may have a leading 0 which needs to be preserved
+    decDate = getDeciDate("." + str(job.createdDate.microsecond).zfill(6))
     if job.unit.owningUnit != None:
         unitUUID = job.unit.owningUnit.UUID 
     Job.objects.create(jobuuid=job.UUID,
