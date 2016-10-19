@@ -37,7 +37,6 @@ from components.administration.forms import AtomDipUploadSettingsForm
 from components.administration.forms import AgentForm
 from components.administration.forms import ArchivesSpaceConfigForm
 from components.administration.forms import ArchivistsToolkitConfigForm
-from components.administration.forms import SettingsForm
 from components.administration.forms import StorageSettingsForm, ChecksumSettingsForm
 from components.administration.forms import TaxonomyTermForm
 from components.administration.models import ArchivesSpaceConfig, ArchivistsToolkitConfig
@@ -113,11 +112,9 @@ def atom_dips(request):
         form.save()
         messages.info(request, 'Saved.')
 
-    hide_features = helpers.hidden_features()
     return render(request, 'administration/dips_atom_edit.html',
         {
             'form': form,
-            'hide_features': hide_features,
         })
 
 
@@ -480,7 +477,6 @@ def premis_agent(request):
     else:
         form = AgentForm(instance=agent)
 
-    hide_features = helpers.hidden_features()
     return render(request, 'administration/premis_agent.html', locals())
 
 def api(request):
@@ -491,7 +487,6 @@ def api(request):
     else:
         whitelist = helpers.get_setting('api_whitelist', '127.0.0.1')
 
-    hide_features = helpers.hidden_features()
     return render(request, 'administration/api.html', locals())
 
 def taxonomy(request):
@@ -538,22 +533,13 @@ def _intial_settings_data():
         'name', 'value'))
 
 def general(request):
-    toggleableSettings = {
-        'dashboard_administration_atom_dip_enabled':
-            'Hide AtoM DIP upload link',
-        'dashboard_administration_dspace_enabled':
-            'Hide DSpace transfer type',
-    }
     initial_data = _intial_settings_data()
-    interface_form = SettingsForm(request.POST or None, prefix='interface',
-        reverse_checkboxes=toggleableSettings)
     storage_form = StorageSettingsForm(request.POST or None, prefix='storage',
         initial=initial_data)
     checksum_form = ChecksumSettingsForm(request.POST or None, prefix='checksum algorithm',
         initial=initial_data)
 
-    if interface_form.is_valid() and storage_form.is_valid() and checksum_form.is_valid():
-        interface_form.save()
+    if storage_form.is_valid() and checksum_form.is_valid():
         storage_form.save()
         checksum_form.save()
         messages.info(request, 'Saved.')
@@ -566,7 +552,6 @@ def general(request):
     else:
         if not pipeline:
             messages.warning(request, "This pipeline is not registered with the storage service or has been disabled in the storage service.  Please contact an administrator.")
-    hide_features = helpers.hidden_features()
     return render(request, 'administration/general.html', locals())
 
 def version(request):

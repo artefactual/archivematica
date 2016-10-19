@@ -28,13 +28,11 @@ from django.template import RequestContext
 from tastypie.models import ApiKey
 from components.accounts.forms import UserCreationForm
 from components.accounts.forms import UserChangeForm
-from components.helpers import hidden_features
 from components.helpers import get_client_config_value
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
 def list(request):
     users = User.objects.all()
-    hide_features = hidden_features()
     return render(request, 'accounts/list.html', locals())
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
@@ -57,7 +55,6 @@ def add(request):
         form = UserCreationForm(initial=data)
 
     return render(request, 'accounts/add.html', {
-        'hide_features': hidden_features(),
         'form': form
     })
 
@@ -130,7 +127,6 @@ def edit(request, id=None):
         api_key = '<no API key generated>'
 
     return render(request, 'accounts/edit.html', {
-      'hide_features': hidden_features(),
       'form': form,
       'user': user,
       'api_key': api_key,
