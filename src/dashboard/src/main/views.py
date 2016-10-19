@@ -54,8 +54,6 @@ def home(request):
 
     if 'first_login' in request.session and request.session['first_login']:
         request.session.first_login = False
-        for feature_setting in helpers.feature_settings().values():
-            helpers.set_setting(feature_setting, 'True')
         redirectUrl = reverse('components.transfer.views.grid')
     else:
         redirectUrl = reverse('components.transfer.views.grid')

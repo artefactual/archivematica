@@ -28,9 +28,7 @@
 
     <li class="{% active request url_usage %}"><a href="{{ url_usage }}">Processing storage usage</a></li>
 
-    {% if not hide_features.atom_dip_admin %}
     <li class="{% active request url_dip %}"><a href="{{ url_dip }}">AtoM DIP upload</a></li>
-    {% endif %}
 
     <li class="{% active request url_as_dips %}"><a href="{{ url_as_dips }}">ArchivesSpace DIP upload</a></li>
 

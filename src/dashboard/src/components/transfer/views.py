@@ -49,7 +49,6 @@ def grid(request):
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
     uid = request.user.id
-    hide_features = helpers.hidden_features()
     return render(request, 'transfer/grid.html', locals())
 
 def transfer_source_locations(request):

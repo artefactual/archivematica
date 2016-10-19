@@ -44,33 +44,7 @@ class AgentForm(forms.ModelForm):
         }
 
 
-class SettingsForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        self.reverse_checkboxes = kwargs.pop('reverse_checkboxes', [])
-        super(SettingsForm, self).__init__(*args, **kwargs)
-
-        for setting in self.reverse_checkboxes:
-            # if it's enabled it shouldn't be checked and visa versa
-            checked = not helpers.get_boolean_setting(setting)
-            self.fields[setting] = forms.BooleanField(
-                required=False,
-                label=self.reverse_checkboxes[setting],
-                initial=checked,
-                widget=CheckboxInput()
-            )
-
-    def save(self, *args, **kwargs):
-        """ Save each of the fields in the form to the Settings table. """
-        for key in self.cleaned_data:
-            # If it's one of the reverse_checkboxes, reverse the checkbox value
-            if key in self.reverse_checkboxes:
-                helpers.set_setting(key, not self.cleaned_data[key])
-            # Otherwise, save the value
-            else:
-                helpers.set_setting(key, self.cleaned_data[key])
-
-
-class StorageSettingsForm(SettingsForm):
+class StorageSettingsForm(forms.Form):
 
     class StripCharField(forms.CharField):
         """
@@ -95,7 +69,7 @@ class StorageSettingsForm(SettingsForm):
         help_text='API key of the storage service user. E.g. 45f7684483044809b2de045ba59dc876b11b9810'
     )
 
-class ChecksumSettingsForm(SettingsForm):
+class ChecksumSettingsForm(forms.Form):
     CHOICES = (
         ('md5', 'MD5'),
         ('sha1', 'SHA-1'),
@@ -148,7 +122,7 @@ class ArchivesSpaceConfigForm(forms.ModelForm):
         }
 
 
-class AtomDipUploadSettingsForm(SettingsForm):
+class AtomDipUploadSettingsForm(forms.Form):
     dip_upload_atom_url = forms.CharField(required=True,
         label="Upload URL",
         help_text="URL where the Qubit index.php frontend lives, SWORD services path will be appended.")
