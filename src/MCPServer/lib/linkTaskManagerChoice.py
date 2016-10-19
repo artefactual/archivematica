@@ -40,6 +40,7 @@ choicesAvailableForUnitsLock = threading.Lock()
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from archivematicaFunctions import unicodeToStr
+from databaseFunctions import auto_close_db
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import MicroServiceChainChoice, UserProfile
@@ -136,6 +137,7 @@ class linkTaskManagerChoice(LinkTaskManager):
         return ret
 
     @log_exceptions
+    @auto_close_db
     def proceedWithChoice(self, chain, user_id, delayTimerStart=False):
         if user_id is not None:
             agent_id = UserProfile.objects.get(user_id=int(user_id)).agent_id

@@ -59,7 +59,7 @@ from main.models import Task
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from custom_handlers import GroupWriteRotatingFileHandler
-import databaseFunctions
+from databaseFunctions import auto_close_db, getUTCDate
 from executeOrRunSubProcess import executeOrRun
 
 
@@ -130,12 +130,13 @@ def loadSupportedModules(file):
         for key, value in supportedModulesConfig.items('supportedCommandsSpecial'):
             loadSupportedModulesSupport(key, value)
 
+@auto_close_db
 def executeCommand(gearman_worker, gearman_job):
     try:
         execute = gearman_job.task
         logger.info('Executing %s (%s)', execute, gearman_job.unique)
         data = cPickle.loads(gearman_job.data)
-        utcDate = databaseFunctions.getUTCDate()
+        utcDate = getUTCDate()
         arguments = data["arguments"]#.encode("utf-8")
         if isinstance(arguments, unicode):
             arguments = arguments.encode("utf-8")
@@ -194,6 +195,8 @@ Unable to determine if it completed successfully."""
         output = ["", traceback.format_exc()]
         return cPickle.dumps({"exitCode": -1, "stdOut": output[0], "stdError": output[1]})
 
+
+@auto_close_db
 def startThread(threadNumber):
     """Setup a gearman client, for the thread."""
     gm_worker = gearman.GearmanWorker([config.get('MCPClient', "MCPArchivematicaServer")])

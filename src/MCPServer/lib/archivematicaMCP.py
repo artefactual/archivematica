@@ -64,7 +64,7 @@ from unitFile import unitFile
 from unitTransfer import unitTransfer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import databaseFunctions
+from databaseFunctions import auto_close_db, createSIP, getUTCDate
 from archivematicaFunctions import unicodeToStr
 
 from main.models import Job, SIP, Task, WatchedDirectory
@@ -141,7 +141,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
         # Note that if UUID is None here, a new UUID will be generated
         # and returned by the function; otherwise it returns the
         # value that was passed in.
-        UUID = databaseFunctions.createSIP(path, UUID=UUID)
+        UUID = createSIP(path, UUID=UUID)
         logger.info('Creating SIP %s at %s', UUID, path)
     else:
         current_path = sip.currentpath
@@ -153,6 +153,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
     return UUID
 
 @log_exceptions
+@auto_close_db
 def createUnitAndJobChain(path, config, terminate=False):
     path = unicodeToStr(path)
     if os.path.isdir(path):
@@ -248,16 +249,18 @@ def signal_handler(signalReceived, frame):
     exit(0)
 
 @log_exceptions
+@auto_close_db
 def debugMonitor():
     """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
     global countOfCreateUnitAndJobChainThreaded
     while True:
-        logger.debug('Debug monitor: datetime: %s', databaseFunctions.getUTCDate())
+        logger.debug('Debug monitor: datetime: %s', getUTCDate())
         logger.debug('Debug monitor: thread count: %s', threading.activeCount())
         logger.debug('Debug monitor: created job chain threaded: %s', countOfCreateUnitAndJobChainThreaded)
         time.sleep(3600)
 
 @log_exceptions
+@auto_close_db
 def flushOutputs():
     while True:
         sys.stdout.flush()
