@@ -442,7 +442,7 @@ def access_arrange_start_sip(client, request, mapping, system=''):
         logger.debug('creator %s', creator)
         creator = creator['display_name']['sort_name']
     else:
-        response = {'success': False, 'message': 'Unable to fetch ArchivesSpace metadata'}
+        response = {'success': False, 'message': 'Unable to fetch ArchivesSpace creator'}
         return helpers.json_response(response, status_code=502)
     # dc.description is general note's content
     notes = [n for n in archival_object['notes'] if n['type'] == 'odd']
