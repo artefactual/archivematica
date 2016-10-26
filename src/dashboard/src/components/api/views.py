@@ -45,6 +45,37 @@ SHARED_DIRECTORY_ROOT = helpers.get_server_config_value('sharedDirectory')
 UUID_REGEX = re.compile(r'^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$', re.IGNORECASE)
 
 
+def _api_endpoint(expected_methods):
+    """
+    Decorator for authenticated API calls that handles boilerplate code.
+
+    Checks if method is allowed, and request is authenticated.
+    """
+    def decorator(func):
+        """The decorator applied to the endpoint."""
+        def wrapper(request, *args, **kwargs):
+            """Wrapper for custom endpoints with boilerplate code."""
+            # Check HTTP verb
+            if request.method not in expected_methods:
+                return django.http.HttpResponseNotAllowed(expected_methods)  # 405
+
+            # Auth
+            auth_error = authenticate_request(request)
+            if auth_error is not None:
+                response = {'message': auth_error, 'error': True}
+                return django.http.HttpResponseForbidden(  # 403
+                    json.dumps(response),
+                    content_type='application/json'
+                )
+
+            # Call the decorated method
+            result = func(request, *args, **kwargs)
+
+            return result
+        return wrapper
+    return decorator
+
+
 def authenticate_request(request):
     error = None
 
@@ -107,18 +138,10 @@ def get_unit_status(unit_uuid, unit_type):
     return ret
 
 
+@_api_endpoint(expected_methods=['GET'])
 def status(request, unit_uuid, unit_type):
     # Example: http://127.0.0.1/api/transfer/status/?username=mike&api_key=<API key>
-    if request.method not in ('GET',):
-        return django.http.HttpResponseNotAllowed(['GET'])
-    auth_error = authenticate_request(request)
     response = {}
-    if auth_error is not None:
-        response = {'message': auth_error, 'error': True}
-        return django.http.HttpResponseForbidden(
-            json.dumps(response),
-            content_type='application/json'
-        )
     error = None
 
     # Get info about unit
@@ -132,7 +155,7 @@ def status(request, unit_uuid, unit_type):
     if unit is None:
         response['message'] = 'Cannot fetch {} with UUID {}'.format(unit_type, unit_uuid)
         response['error'] = True
-        return django.http.HttpResponseBadRequest(
+        return django.http.HttpResponseBadRequest(  # 400
             json.dumps(response),
             content_type='application/json',
         )
@@ -149,7 +172,7 @@ def status(request, unit_uuid, unit_type):
     if error is not None:
         response['message'] = error
         response['error'] = True
-        return django.http.HttpResponseServerError(
+        return django.http.HttpResponseServerError(  # 500
             json.dumps(response),
             content_type='application/json'
         )
@@ -157,23 +180,13 @@ def status(request, unit_uuid, unit_type):
     return helpers.json_response(response)
 
 
+@_api_endpoint(expected_methods=['GET'])
 def waiting_for_user_input(request):
-    # Example: http://127.0.0.1/api/transfer/waiting?username=mike&api_key=<API key>
-    if request.method not in ('GET',):
-        return django.http.HttpResponseNotAllowed(['GET'])
-
-    auth_error = authenticate_request(request)
+    # Example: http://127.0.0.1/api/ingest/waiting?username=mike&api_key=<API key>
     response = {}
-    if auth_error is not None:
-        response = {'message': auth_error, 'error': True}
-        return django.http.HttpResponseForbidden(
-            json.dumps(response),
-            content_type='application/json'
-        )
-
-    error = None
     waiting_units = []
 
+    # TODO should this filter based on unit type into transfer vs SIP?
     jobs = models.Job.objects.filter(currentstep='Awaiting decision')
     for job in jobs:
         unit_uuid = job.sipuuid
@@ -189,18 +202,11 @@ def waiting_for_user_input(request):
         })
 
     response['results'] = waiting_units
-
-    if error is not None:
-        response['message'] = error
-        response['error'] = True
-        return django.http.HttpResponseServerError(
-            json.dumps(response),
-            content_type='application/json'
-        )
-    response['message'] = 'Fetched transfers successfully.'
+    response['message'] = 'Fetched units successfully.'
     return helpers.json_response(response)
 
 
+@_api_endpoint(expected_methods=['DELETE'])
 def mark_hidden(request, unit_type, unit_uuid):
     """
     Mark a unit as deleted and hide it in the dashboard.
@@ -210,33 +216,14 @@ def mark_hidden(request, unit_type, unit_uuid):
     :param unit_type: 'transfer' or 'ingest' for a Transfer or SIP respectively
     :param unit_uuid: UUID of the Transfer or SIP
     """
-    auth_error = authenticate_request(request)
-    response = {}
-    if auth_error is not None:
-        response = {'message': auth_error, 'error': True}
-        return django.http.HttpResponseForbidden(
-            json.dumps(response),
-            content_type='application/json'
-        )
     return unit_views.mark_hidden(request, unit_type, unit_uuid)
 
 
+@_api_endpoint(expected_methods=['POST'])
 def start_transfer_api(request):
     """
     Endpoint for starting a transfer if calling remote and using an API key.
     """
-    if request.method not in ('POST',):
-        return django.http.HttpResponseNotAllowed(['POST'])
-
-    auth_error = authenticate_request(request)
-    response = {}
-    if auth_error is not None:
-        response = {'message': auth_error, 'error': True}
-        return django.http.HttpResponseForbidden(
-            json.dumps(response),
-            content_type='application/json'
-        )
-
     transfer_name = request.POST.get('name', '')
     transfer_type = request.POST.get('type', '')
     accession = request.POST.get('accession', '')
@@ -250,48 +237,32 @@ def start_transfer_api(request):
     return helpers.json_response(response)
 
 
+@_api_endpoint(expected_methods=['GET'])
 def completed_transfers(request):
     """Return all completed transfers::
 
         GET /api/transfer/completed?username=<am-username>&api_key=<am-api-key>
 
     """
-    if request.method == 'GET':
-        auth_error = authenticate_request(request)
-        response = {}
-        if auth_error is None:
-            completed = _completed_units(unit_type='transfer')
-            response['results'] = completed
-            response['message'] = 'Fetched completed transfers successfully.'
-            return helpers.json_response(response)
-        else:
-            response['message'] = auth_error
-            response['error'] = True
-            return helpers.json_response(response, status_code=403)
-    else:
-        return django.http.HttpResponseNotAllowed(permitted_methods=['GET'])
+    response = {}
+    completed = _completed_units(unit_type='transfer')
+    response['results'] = completed
+    response['message'] = 'Fetched completed transfers successfully.'
+    return helpers.json_response(response)
 
 
+@_api_endpoint(expected_methods=['GET'])
 def completed_ingests(request):
     """Return all completed ingests::
 
         GET /api/ingest/completed?username=<am-username>&api_key=<am-api-key>
 
     """
-    if request.method == 'GET':
-        auth_error = authenticate_request(request)
-        response = {}
-        if auth_error is None:
-            completed = _completed_units(unit_type='ingest')
-            response['results'] = completed
-            response['message'] = 'Fetched completed ingests successfully.'
-            return helpers.json_response(response)
-        else:
-            response['message'] = auth_error
-            response['error'] = True
-            return helpers.json_response(response, status_code=403)
-    else:
-        return django.http.HttpResponseNotAllowed(permitted_methods=['GET'])
+    response = {}
+    completed = _completed_units(unit_type='ingest')
+    response['results'] = completed
+    response['message'] = 'Fetched completed ingests successfully.'
+    return helpers.json_response(response)
 
 
 def _completed_units(unit_type='transfer'):
@@ -309,103 +280,74 @@ def _completed_units(unit_type='transfer'):
     return completed
 
 
+@_api_endpoint(expected_methods=['GET'])
 def unapproved_transfers(request):
     # Example: http://127.0.0.1/api/transfer/unapproved?username=mike&api_key=<API key>
-    if request.method == 'GET':
-        auth_error = authenticate_request(request)
+    response = {}
+    unapproved = []
 
-        response = {}
+    jobs = models.Job.objects.filter(
+        (
+            Q(jobtype="Approve standard transfer")
+            | Q(jobtype="Approve DSpace transfer")
+            | Q(jobtype="Approve bagit transfer")
+            | Q(jobtype="Approve zipped bagit transfer")
+        ) & Q(currentstep='Awaiting decision')
+    )
 
-        if auth_error is None:
-            error = None
-            unapproved = []
+    for job in jobs:
+        # remove standard transfer path from directory (and last character)
+        type_and_directory = job.directory.replace(
+            get_modified_standard_transfer_path() + '/',
+            '',
+            1
+        )
 
-            jobs = models.Job.objects.filter(
-                (
-                    Q(jobtype="Approve standard transfer")
-                    | Q(jobtype="Approve DSpace transfer")
-                    | Q(jobtype="Approve bagit transfer")
-                    | Q(jobtype="Approve zipped bagit transfer")
-                ) & Q(currentstep='Awaiting decision')
-            )
+        # remove trailing slash if not a zipped bag file
+        if not helpers.file_is_an_archive(job.directory):
+            type_and_directory = type_and_directory[:-1]
 
-            for job in jobs:
-                # remove standard transfer path from directory (and last character)
-                type_and_directory = job.directory.replace(
-                    get_modified_standard_transfer_path() + '/',
-                    '',
-                    1
-                )
+        transfer_watch_directory = type_and_directory.split('/')[0]
+        # Get transfer type from transfer directory
+        transfer_type_directories_reversed = {v: k for k, v in filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES.items()}
+        transfer_type = transfer_type_directories_reversed[transfer_watch_directory]
 
-                # remove trailing slash if not a zipped bag file
-                if not helpers.file_is_an_archive(job.directory):
-                    type_and_directory = type_and_directory[:-1]
+        job_directory = type_and_directory.replace(transfer_watch_directory + '/', '', 1)
 
-                transfer_watch_directory = type_and_directory.split('/')[0]
-                # Get transfer type from transfer directory
-                transfer_type_directories_reversed = {v: k for k, v in filesystem_ajax_views.TRANSFER_TYPE_DIRECTORIES.items()}
-                transfer_type = transfer_type_directories_reversed[transfer_watch_directory]
+        unapproved.append({
+            'type': transfer_type,
+            'directory': job_directory,
+            'uuid': job.sipuuid,
+        })
 
-                job_directory = type_and_directory.replace(transfer_watch_directory + '/', '', 1)
+    # get list of unapproved transfers
+    # return list as JSON
+    response['results'] = unapproved
+    response['message'] = 'Fetched unapproved transfers successfully.'
+    return helpers.json_response(response)
 
-                unapproved.append({
-                    'type': transfer_type,
-                    'directory': job_directory,
-                    'uuid': job.sipuuid,
-                })
 
-            # get list of unapproved transfers
-            # return list as JSON
-            response['results'] = unapproved
-
-            if error is not None:
-                response['message'] = error
-                response['error'] = True
-            else:
-                response['message'] = 'Fetched unapproved transfers successfully.'
-
-                if error is not None:
-                    return helpers.json_response(response, status_code=500)
-                else:
-                    return helpers.json_response(response)
-        else:
-            response['message'] = auth_error
-            response['error'] = True
-            return helpers.json_response(response, status_code=403)
-    else:
-        return django.http.HttpResponseNotAllowed(permitted_methods=['GET'])
-
+@_api_endpoint(expected_methods=['POST'])
 def approve_transfer(request):
     # Example: curl --data \
     #   "username=mike&api_key=<API key>&directory=MyTransfer" \
     #   http://127.0.0.1/api/transfer/approve
-    if request.method == 'POST':
-        auth_error = authenticate_request(request)
+    response = {}
+    error = None
 
-        response = {}
+    directory = request.POST.get('directory', '')
+    transfer_type = request.POST.get('type', 'standard')
+    directory = archivematicaFunctions.unicodeToStr(directory)
+    error, unit_uuid = approve_transfer_via_mcp(directory, transfer_type, request.user.id)
 
-        if auth_error is None:
-            error = None
-
-            directory = request.POST.get('directory', '')
-            transfer_type = request.POST.get('type', 'standard')
-            directory = archivematicaFunctions.unicodeToStr(directory)
-            error, unit_uuid = approve_transfer_via_mcp(directory, transfer_type, request.user.id)
-
-            if error is not None:
-                response['message'] = error
-                response['error'] = True
-                return helpers.json_response(response, status_code=500)
-            else:
-                response['message'] = 'Approval successful.'
-                response['uuid'] = unit_uuid
-                return helpers.json_response(response)
-        else:
-            response['message'] = auth_error
-            response['error'] = True
-            return helpers.json_response(response, status_code=403)
+    if error is not None:
+        response['message'] = error
+        response['error'] = True
+        return helpers.json_response(response, status_code=500)
     else:
-        return django.http.HttpResponseNotAllowed(permitted_methods=['POST'])
+        response['message'] = 'Approval successful.'
+        response['uuid'] = unit_uuid
+        return helpers.json_response(response)
 
 
 def get_modified_standard_transfer_path(transfer_type=None):
@@ -480,6 +422,7 @@ def approve_transfer_via_mcp(directory, transfer_type, user_id):
     return error, unit_uuid
 
 
+@_api_endpoint(expected_methods=['POST'])
 def reingest(request, target):
     """
     Endpoint to approve reingest of an AIP to the beginning of transfer or ingest.
@@ -496,12 +439,7 @@ def reingest(request, target):
 
     :param str target: ingest or transfer
     """
-    if request.method != 'POST':
-        return django.http.HttpResponseNotAllowed(permitted_methods=['POST'])
-    error = authenticate_request(request)
-    if error:
-        response = {'error': True, 'message': error}
-        return helpers.json_response(response, status_code=403)
+    error = None
     sip_name = request.POST.get('name')
     sip_uuid = request.POST.get('uuid')
     if not all([sip_name, sip_uuid]):
@@ -561,6 +499,8 @@ def reingest(request, target):
         response = {'message': 'Approval successful.', 'reingest_uuid': reingest_uuid}
         return helpers.json_response(response)
 
+# TODO should this have auth?  Does it support GET?
+@_api_endpoint(expected_methods=['POST'])
 def copy_metadata_files_api(request):
     """
     Endpoint for adding metadata files to a SIP if using an API key.
@@ -569,6 +509,8 @@ def copy_metadata_files_api(request):
     paths = request.POST.getlist('source_paths[]')
     return filesystem_ajax_views.copy_metadata_files(sip_uuid, paths)
 
+# TODO should this have auth?
+@_api_endpoint(expected_methods=['GET'])
 def get_levels_of_description(request):
     """
     Returns a JSON-encoded set of the configured levels of description.
@@ -580,6 +522,8 @@ def get_levels_of_description(request):
     response = [{l.id: l.name} for l in levels]
     return helpers.json_response(response)
 
+# TODO should this have auth?
+@_api_endpoint(expected_methods=['GET'])
 def fetch_levels_of_description_from_atom(request):
     """
     Fetch all levels of description from an AtoM database, removing
@@ -602,6 +546,8 @@ def fetch_levels_of_description_from_atom(request):
     else:
         return get_levels_of_description(request)
 
+# TODO should this have auth?
+@_api_endpoint(expected_methods=['GET', 'POST'])
 def path_metadata(request):
     """
     Fetch metadata for a path (HTTP GET) or add/update it (HTTP POST).
@@ -643,6 +589,8 @@ def path_metadata(request):
         return helpers.json_response(body, status_code=201)
 
 
+# TODO should this have auth?
+@_api_endpoint(expected_methods=['GET'])
 def processing_configuration(request, name):
     """
     Return a processing configuration XML document given its name, i.e. where
