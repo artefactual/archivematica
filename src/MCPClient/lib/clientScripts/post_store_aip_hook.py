@@ -27,8 +27,8 @@ def dspace_handle_to_archivesspace(sip_uuid):
     """Fetch the DSpace handle from the Storage Service and send to ArchivesSpace."""
     # Get association to ArchivesSpace if it exists
     try:
-        digital_object = models.ArchivesSpaceDOComponent.objects.get(sip_id=sip_uuid)
-    except models.ArchivesSpaceDOComponent.DoesNotExist:
+        digital_object = models.ArchivesSpaceDigitalObject.objects.get(sip_id=sip_uuid)
+    except models.ArchivesSpaceDigitalObject.DoesNotExist:
         print('SIP', sip_uuid, 'not associated with an ArchivesSpace component')
         return NO_ACTION
     print('Digital Object', digital_object.remoteid, 'for SIP', digital_object.sip_id, 'found')

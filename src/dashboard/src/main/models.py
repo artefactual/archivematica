@@ -889,25 +889,18 @@ class ArchivesSpaceDIPObjectResourcePairing(models.Model):
         # set up permissions: https://code.djangoproject.com/ticket/18866
         verbose_name = u'ASDIPObjectResourcePairing'
 
-class ArchivesSpaceDOComponent(models.Model):
+class ArchivesSpaceDigitalObject(models.Model):
     """
-    Represents a digital object component to be created in ArchivesSpace at the time an AIP is stored by Archivematica.
-
-    In ArchivesSpace, a digital object component is meant to be parented to a digital object record.
-    The workflow in use by the appraisal tab doesn't expose digital objects to the user, just components;
-    one digital object should be created as a parent for these components before creating the
-    components themselves.
+    Represents a digital object to be created in ArchivesSpace at the time an AIP is stored by Archivematica.
     """
     sip = models.ForeignKey('SIP', to_field='uuid', null=True)
     resourceid = models.CharField(max_length=150)
     label = models.CharField(max_length=255, blank=True)
     title = models.TextField(blank=True)
     started = models.BooleanField(default=False,
-                                  help_text='Whether or not a SIP has been started using files in this digital object component.')
-    digitalobjectid = models.CharField(max_length=150, blank=True,
-                                       help_text='ID in the remote ArchivesSpace system of the digital object to which this object is parented.')
+        help_text='Whether or not a SIP has been started using files in this digital object.')
     remoteid = models.CharField(max_length=150, blank=True,
-                                help_text='ID in the remote ArchivesSpace system, after component has been created.')
+        help_text='ID in the remote ArchivesSpace system, after digital object has been created.')
 
 class TransferMetadataSet(models.Model):
     id = UUIDPkField()

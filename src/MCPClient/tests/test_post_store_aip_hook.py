@@ -27,8 +27,8 @@ class TestDSpaceToArchivesSpace(TestCase):
         self.sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
 
     def test_no_archivesspace(self):
-        """It should abort if no ArchivesSpaceDOComponent found."""
-        models.ArchivesSpaceDOComponent.objects.all().delete()
+        """It should abort if no ArchivesSpaceDigitalObject found."""
+        models.ArchivesSpaceDigitalObject.objects.all().delete()
         rc = post_store_aip_hook.dspace_handle_to_archivesspace(self.sip_uuid)
         assert rc == 1
 

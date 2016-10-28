@@ -6,10 +6,9 @@
         "title": "Digital Object",
         "started": true,
         "resourceid": "/repositories/2/archival_objects/8887",
-        "label": "",
-        "digitalobjectid": ""
+        "label": ""
     },
-    "model": "main.archivesspacedocomponent",
+    "model": "main.archivesspacedigitalobject",
     "pk": 1
 }
 ]

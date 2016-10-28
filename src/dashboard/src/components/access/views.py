@@ -21,7 +21,7 @@ from components import helpers
 from components.ingest.views_atk import get_atk_system_client
 from components.ingest.views_as import get_as_system_client
 import components.filesystem_ajax.views as filesystem_views
-from main.models import SIP, SIPArrange, SIPArrangeAccessMapping, ArchivesSpaceDOComponent, DublinCore
+from main.models import SIP, SIPArrange, SIPArrangeAccessMapping, ArchivesSpaceDigitalObject, DublinCore
 
 logger = logging.getLogger('archivematica.dashboard')
 
@@ -249,7 +249,7 @@ def digital_object_components(client, request, system='archivesspace', record_id
     """
     if request.method == 'POST':
         record = json.load(request)
-        component = ArchivesSpaceDOComponent.objects.create(
+        component = ArchivesSpaceDigitalObject.objects.create(
             resourceid=_normalize_record_id(record_id),
             sip_id=record.get('uuid'),
             label=record.get('label', ''),
@@ -274,7 +274,7 @@ def digital_object_components(client, request, system='archivesspace', record_id
         }
         return helpers.json_response(response)
     elif request.method == 'GET':
-        components = list(ArchivesSpaceDOComponent.objects.filter(resourceid=_normalize_record_id(record_id), started=False).values('id', 'resourceid', 'label', 'title'))
+        components = list(ArchivesSpaceDigitalObject.objects.filter(resourceid=_normalize_record_id(record_id), started=False).values('id', 'resourceid', 'label', 'title'))
         for component in components:
             access_path = get_digital_object_component_path(record_id, component['id'], system=system)
             component['path'] = access_path
@@ -292,8 +292,8 @@ def digital_object_components(client, request, system='archivesspace', record_id
             return helpers.json_response(response, status_code=400)
 
         try:
-            component = ArchivesSpaceDOComponent.objects.get(id=component_id)
-        except ArchivesSpaceDOComponent.DoesNotExist:
+            component = ArchivesSpaceDigitalObject.objects.get(id=component_id)
+        except ArchivesSpaceDigitalObject.DoesNotExist:
             response = {
                 'success': False,
                 'message': 'No digital object component exists with the specified ID: {}'.format(component_id),
@@ -324,7 +324,7 @@ def _get_sip_arrange_children(record, system):
     if record['children']:  # record['children'] may be False
         for i, r in enumerate(record['children']):
             record['children'][i] = _get_sip_arrange_children(r, system)
-    record['has_children'] = record['has_children'] or ArchivesSpaceDOComponent.objects.filter(resourceid=record['id']).exists()
+    record['has_children'] = record['has_children'] or ArchivesSpaceDigitalObject.objects.filter(resourceid=record['id']).exists()
     return record
 
 @_authenticate_to_archivesspace
@@ -457,7 +457,7 @@ def access_arrange_start_sip(client, request, mapping, system=''):
     relation = ' - '.join(relation)
 
     # Create digital objects in ASpace related to the resource instead of digital object components
-    for do in ArchivesSpaceDOComponent.objects.filter(resourceid=mapping.identifier, started=False):
+    for do in ArchivesSpaceDigitalObject.objects.filter(resourceid=mapping.identifier, started=False):
         new_do = client.add_digital_object(mapping.identifier, str(uuid.uuid4()))
         do.remoteid = new_do['id']
         do.save()
@@ -472,8 +472,8 @@ def access_arrange_start_sip(client, request, mapping, system=''):
     if not response.get('error'):
         sip_uuid = response['sip_uuid']
         logger.debug('New SIP UUID %s', sip_uuid)
-        # Update ArchivesSpaceDOComponent with new SIP UUID
-        ArchivesSpaceDOComponent.objects.filter(resourceid=mapping.identifier, started=False).update(started=True, sip_id=response['sip_uuid'])
+        # Update ArchivesSpaceDigitalObject with new SIP UUID
+        ArchivesSpaceDigitalObject.objects.filter(resourceid=mapping.identifier, started=False).update(started=True, sip_id=response['sip_uuid'])
         # Create new SIP-level DC with ArchivesSpace metadata
         DublinCore.objects.create(
             metadataappliestotype_id='3e48343d-e2d2-4956-aaa3-b54d26eb9761',  # SIP
