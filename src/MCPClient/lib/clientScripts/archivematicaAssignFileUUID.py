@@ -27,16 +27,19 @@ import sys
 import uuid
 
 import django
+
 django.setup()
 # dashboard
-from main.models import File, Transfer
+from main.models import File, Transfer, FileFormatVersion
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from fileOperations import addFileToTransfer
 from fileOperations import addFileToSIP
+from fileOperations import updateSizeAndChecksum
+from databaseFunctions import insertIntoDerivations
 
 import metsrw
-
+import parse_mets_to_db
 
 logger = get_script_logger('archivematica.mcp.client.assignFileUUID')
 
@@ -51,6 +54,14 @@ def find_mets_file(unit_path):
         m = p.match(item)
         if m:
             return os.path.join(src, m.group())
+
+
+# Update the file size and checksum in the database.
+def update_file_data_DB(file_UUID, file_path, date, event_uuid):
+    updateSizeAndChecksum(file_UUID,
+                          file_path,
+                          date,
+                          event_uuid)
 
 
 def get_file_info_from_mets(sip_directory, file_path_relative_to_sip):
@@ -82,7 +93,7 @@ def get_file_info_from_mets(sip_directory, file_path_relative_to_sip):
         return {}
     logger.info('Archivematica AIP: file UUID of %s has been found in the METS document (%s).', entry.file_uuid, entry.path)
 
-    # Get original path
+    # Get original path and other values.
     amdsec = entry.amdsecs[0]
     for item in amdsec.subsections:
         if item.subsection == 'techMD':
@@ -90,12 +101,29 @@ def get_file_info_from_mets(sip_directory, file_path_relative_to_sip):
     pobject = techmd.contents.document  # Element
     original_path = pobject.findtext('premis:originalName', namespaces=metsrw.utils.NAMESPACES)
 
+    size = pobject.findtext('premis:objectCharacteristics/premis:objectCharacteristicsExtension/Mediainfo/File/track[@type="General"]/File_size', namespaces=metsrw.utils.NAMESPACES)
+    checksum = pobject.findtext('premis:objectCharacteristics/premis:fixity/premis:messageDigest', namespaces=metsrw.utils.NAMESPACES)
+    checksum_type = pobject.findtext('premis:objectCharacteristics/premis:fixity/premis:messageDigestAlgorithm', namespaces=metsrw.utils.NAMESPACES)
+    derivation_uuid = None
+    related_uuid = pobject.findtext('premis:relationship/premis:relatedObjectIdentification/premis:relatedObjectIdentifierValue', namespaces=metsrw.utils.NAMESPACES)
+    rel = pobject.findtext('premis:relationship/premis:relationshipSubType', namespaces=metsrw.utils.NAMESPACES)
+    if rel == 'is source of':
+       derivation_uuid = related_uuid
+
+    format_version = parse_mets_to_db.parse_format_version(pobject)
+
     return {
         'uuid': entry.file_uuid,
         'filegrpuse': entry.use,
         'current_path': current_path,
         'original_path': original_path,
+        'file_size': size,
+        'checksum': checksum,
+        'checksum_type': checksum_type,
+        'derivation': derivation_uuid,
+        'format_version': format_version,
     }
+
 
 def main(file_uuid=None, file_path='', date='', event_uuid=None, sip_directory='', sip_uuid=None, transfer_uuid=None, use='original', update_use=True):
     if file_uuid == "None":
@@ -130,10 +158,25 @@ def main(file_uuid=None, file_path='', date='', event_uuid=None, sip_directory='
         # For reingest, the original location was parsed from the METS
         # Update the current location to reflect what's on disk
         if transfer.type == 'Archivematica AIP':
-            print('updating current location for', file_uuid, 'with', info)
+            logger.info('updating current location for', file_uuid, 'with', info)
             File.objects.filter(uuid=file_uuid).update(
                 currentlocation=info['current_path']
             )
+            if info.get('derivation'):
+                insertIntoDerivations(
+                    sourceFileUUID=file_uuid,
+                    derivedFileUUID=info['derivation'],
+                )
+            if info.get('format_version'):
+                FileFormatVersion.objects.create(
+                    file_uuid_id=file_uuid,
+                    format_version=info['format_version']
+                )
+            update_file_data_DB(file_uuid, info['current_path'], date, fileSize=info['file_size'], checksum=info['checksum'],
+                                checksumType=info['checksum_type'], add_event=False)
+        else:
+            update_file_data_DB(file_uuid, file_path, date, str(uuid.uuid4()))
+
         return 0
 
     # Ingest
@@ -141,6 +184,7 @@ def main(file_uuid=None, file_path='', date='', event_uuid=None, sip_directory='
         file_uuid = str(uuid.uuid4())
         file_path_relative_to_sip = file_path.replace(sip_directory, "%SIPDirectory%", 1)
         addFileToSIP(file_path_relative_to_sip, file_uuid, sip_uuid, event_uuid, date, use=use)
+        update_file_data_DB(file_uuid, file_path, date, str(uuid.uuid4()))
         return 0
 
 
