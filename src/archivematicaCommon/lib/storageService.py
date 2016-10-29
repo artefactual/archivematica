@@ -5,7 +5,6 @@ import os
 import platform
 import requests
 from requests.auth import AuthBase
-import slumber
 import urllib
 
 # archivematicaCommon
@@ -21,16 +20,17 @@ class BadRequest(Exception):
     pass
 
 class StorageServiceError(Exception):
-    pass
+    """Error related to the storage service."""
+
 
 ######################### INTERFACE WITH STORAGE API #########################
 
 ############# HELPER FUNCTIONS #############
 
-class TastypieApikeyAuth(AuthBase):
-    def __init__(self, username, apikey):
-        self.username = username
-        self.apikey = apikey
+class ApiKeyAuth(AuthBase):
+    def __init__(self, username=None, apikey=None):
+        self.username = username or get_setting('storage_service_user', 'test')
+        self.apikey = apikey or get_setting('storage_service_apikey', None)
 
     def __call__(self, r):
         r.headers['Authorization'] = "ApiKey {0}:{1}".format(self.username, self.apikey)
@@ -54,7 +54,7 @@ def _storage_api_session(auth=None, timeout=None):
     """ Returns a requests.Session with a customized adapter with timeout support. """
 
     class HTTPAdapterWithTimeout(requests.adapters.HTTPAdapter):
-        def __init__(self, timeout=None, *args, **kwargs):
+        def __init__(self, timeout=5, *args, **kwargs):
             self.timeout = timeout
             super(HTTPAdapterWithTimeout, self).__init__(*args, **kwargs)
 
@@ -68,13 +68,6 @@ def _storage_api_session(auth=None, timeout=None):
     session.mount('https://', HTTPAdapterWithTimeout(timeout=timeout))
     return session
 
-def _storage_api():
-    """ Returns slumber access to storage API. """
-    storage_service_url = _storage_service_url()
-    username = get_setting('storage_service_user', 'test')
-    api_key = get_setting('storage_service_apikey', None)
-    api = slumber.API(storage_service_url, session=_storage_api_session(auth=TastypieApikeyAuth(username, api_key), timeout=120))
-    return api
 
 def _storage_api_params():
     """ Returns API GET params username=USERNAME&api_key=KEY """
@@ -95,7 +88,6 @@ def _storage_relative_from_absolute(location_path, space_path):
 ############# PIPELINE #############
 
 def create_pipeline(create_default_locations=False, shared_path=None, api_username=None, api_key=None):
-    api = _storage_api()
     pipeline = {
         'uuid': get_setting('dashboard_uuid'),
         'description': "Archivematica on {}".format(platform.node()),
@@ -105,28 +97,27 @@ def create_pipeline(create_default_locations=False, shared_path=None, api_userna
         'api_key': api_key,
     }
     LOGGER.info("Creating pipeline in storage service with {}".format(pipeline))
+    url = _storage_service_url() + 'pipeline/'
     try:
-        api.pipeline.post(pipeline)
-    except slumber.exceptions.HttpClientError as e:
-        LOGGER.warning("Unable to create Archivematica pipeline in storage service from {} because {}".format(pipeline, e.content))
-        return False
-    except slumber.exceptions.HttpServerError as e:
-        LOGGER.warning("Unable to create Archivematica pipeline in storage service from {} because {}".format(pipeline, e.content), exc_info=True)
-        if 'column uuid is not unique' in e.content:
-            pass
-        else:
-            raise
+        response = requests.post(url, auth=ApiKeyAuth(), json=pipeline)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        LOGGER.warning('Unable to create Archivematica pipeline in storage service from %s because %s', pipeline, e, exc_info=True)
+        raise
     return True
 
 def _get_pipeline(uuid):
-    api = _storage_api()
+    url = _storage_service_url() + 'pipeline/' + uuid + '/'
     try:
-        pipeline = api.pipeline(uuid).get()
-    except slumber.exceptions.HttpClientError as e:
-        if e.response.status_code == 404:
+        response = requests.get(url, auth=ApiKeyAuth())
+        if response.status_code == 404:
             LOGGER.warning("This Archivematica instance is not registered with the storage service or has been disabled.")
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
         LOGGER.warning('Error fetching pipeline', exc_info=True)
-        pipeline = None
+        raise
+
+    pipeline = response.json()
     return pipeline
 
 ############# LOCATIONS #############
@@ -142,8 +133,6 @@ def get_location(path=None, purpose=None, space=None):
     path: Path to location.  If a space is passed in, paths starting with /
         have the space's path stripped.
     """
-    api = _storage_api()
-    offset = 0
     return_locations = []
     if space and path:
         path = _storage_relative_from_absolute(path, space['path'])
@@ -151,51 +140,51 @@ def get_location(path=None, purpose=None, space=None):
     pipeline = _get_pipeline(get_setting('dashboard_uuid'))
     if pipeline is None:
         return None
+    url = _storage_service_url() + 'location/'
+    params = {
+        'pipeline__uuid': pipeline['uuid'],
+        'relative_path': path,
+        'purpose': purpose,
+        'space': space,
+        'offset': 0,
+    }
     while True:
-        locations = api.location.get(pipeline__uuid=pipeline['uuid'],
-                                     relative_path=path,
-                                     purpose=purpose,
-                                     space=space,
-                                     offset=offset)
+        response = requests.get(url, auth=ApiKeyAuth(), params=params)
+        locations = response.json()
         LOGGER.debug("Storage locations retrieved: {}".format(locations))
         return_locations += locations['objects']
         if not locations['meta']['next']:
             break
-        offset += locations['meta']['limit']
+        params['offset'] += locations['meta']['limit']
 
     LOGGER.info("Storage locations returned: {}".format(return_locations))
     return return_locations
 
-def get_location_by_uri(uri):
-    """ Get a specific location by the URI.  Only returns one location. """
-    api = _storage_api()
-    # TODO check that location is associated with this pipeline
-    return api.location(uri).get()
 
 def browse_location(uuid, path):
     """
     Browse files in a location. Encodes path in base64 for transimission, returns decoded entries.
     """
-    api = _storage_api()
     path = base64.b64encode(path)
-    browse = api.location(uuid).browse.get(path=path)
+    url = _storage_service_url() + 'location/' + uuid + '/browse/'
+    params = {'path': path}
+    response = requests.get(url, auth=ApiKeyAuth(), params=params)
+    browse = response.json()
     browse['entries'] = map(base64.b64decode, browse['entries'])
     browse['directories'] = map(base64.b64decode, browse['directories'])
     browse['properties'] = {base64.b64decode(k): v for k, v in browse.get('properties', {}).items()}
     return browse
 
-def copy_files(source_location, destination_location, files, api=None):
+def copy_files(source_location, destination_location, files):
     """
     Copies `files` from `source_location` to `destination_location` using SS.
 
     source_location/destination_location: Dict with Location information, result
-        of a call to get_location or get_location_by_uri.
+        of a call to get_location.
     files: List of dicts with source and destination paths relative to
         source_location and destination_location, respectively.  All other
         fields ignored.
     """
-    if api is None:
-        api = _storage_api()
     pipeline = _get_pipeline(get_setting('dashboard_uuid'))
     move_files = {
         'origin_location': source_location['resource_uri'],
@@ -217,15 +206,14 @@ def copy_files(source_location, destination_location, files, api=None):
             except UnicodeError:
                 pass
 
+    url = _storage_service_url() + 'location/' + destination_location['uuid'] + '/'
     try:
-        ret = api.location(destination_location['uuid']).post(move_files)
-    except slumber.exceptions.HttpClientError as e:
+        response = requests.post(url, auth=ApiKeyAuth(), json=move_files)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
         LOGGER.warning("Unable to move files with {} because {}".format(move_files, e.content))
         return (None, e)
-    except slumber.exceptions.HttpServerError as e:
-        LOGGER.warning("Could not connect to storage service: {} ({})".format(
-            e, e.content))
-        return (None, e)
+    ret = response.json()
     return (ret, None)
 
 def get_files_from_backlog(files):
@@ -233,15 +221,13 @@ def get_files_from_backlog(files):
     Copies files from the backlog location to the currently processing location.
     See copy_files for more details.
     """
-    api = _storage_api()
-
     # Get Backlog location UUID
     # Assuming only one backlog location
     backlog = get_location(purpose='BL')[0]
     # Get currently processing location
     processing = get_location(purpose='CP')[0]
 
-    return copy_files(backlog, processing, files, api)
+    return copy_files(backlog, processing, files)
 
 
 ############# SPACES #############
@@ -255,18 +241,21 @@ def get_space(access_protocol=None, path=None):
     access_protocol: How the storage is accessed.  Should reference storage
         service purposes, in storage_service.locations.models.py
     """
-    api = _storage_api()
-    offset = 0
     return_spaces = []
+    url = _storage_service_url() + 'space/'
+    params = {
+        'access_protocol': access_protocol,
+        'path': path,
+        'offset': 0,
+    }
     while True:
-        spaces = api.space.get(access_protocol=access_protocol,
-                               path=path,
-                               offset=offset)
+        response = requests.get(url, auth=ApiKeyAuth(), params=params)
+        spaces = response.json()
         LOGGER.debug("Storage spaces retrieved: {}".format(spaces))
         return_spaces += spaces['objects']
         if not spaces['meta']['next']:
             break
-        offset += spaces['meta']['limit']
+        params['offset'] += spaces['meta']['limit']
 
     LOGGER.info("Storage spaces returned: {}".format(return_spaces))
     return return_spaces
@@ -279,8 +268,6 @@ def create_file(uuid, origin_location, origin_path, current_location,
 
     origin_location and current_location should be URIs for the storage service.
     """
-
-    api = _storage_api()
     pipeline = _get_pipeline(get_setting('dashboard_uuid'))
     if pipeline is None:
         return (None, 'Pipeline not available, see logs.')
@@ -300,16 +287,15 @@ def create_file(uuid, origin_location, origin_path, current_location,
     try:
         if update:
             new_file['reingest'] = pipeline['uuid']
-            file_ = api.file(uuid).put(new_file)
+            url = _storage_service_url() + 'file/' + uuid + '/'
+            response = requests.put(url, auth=ApiKeyAuth(), json=new_file)
         else:
-            file_ = api.file.post(new_file)
-    except slumber.exceptions.HttpClientError as e:
-        LOGGER.warning("Unable to create file from {} because {}".format(new_file, e.content))
+            url = _storage_service_url() + 'file/'
+            response = requests.post(url, auth=ApiKeyAuth(), json=new_file)
+    except requests.exceptions.RequestException as e:
+        LOGGER.warning("Unable to create file from {} because {}".format(new_file, e))
         return (None, e)
-    except slumber.exceptions.HttpServerError as e:
-        LOGGER.warning("Could not connect to storage service: {} ({})".format(
-            e, e.content))
-        return (None, e)
+    file_ = response.json()
     return (file_, None)
 
 def get_file_info(uuid=None, origin_location=None, origin_path=None,
@@ -323,23 +309,26 @@ def get_file_info(uuid=None, origin_location=None, origin_path=None,
     """
     # TODO Need a better way to deal with mishmash of relative and absolute
     # paths coming in
-    api = _storage_api()
-    offset = 0
     return_files = []
+    url = _storage_service_url() + 'file/'
+    params = {
+        'uuid': uuid,
+        'origin_location': origin_location,
+        'origin_path': origin_path,
+        'current_location': current_location,
+        'current_path': current_path,
+        'package_type': package_type,
+        'status': status,
+        'offset': 0,
+    }
     while True:
-        files = api.file.get(uuid=uuid,
-                             origin_location=origin_location,
-                             origin_path=origin_path,
-                             current_location=current_location,
-                             current_path=current_path,
-                             package_type=package_type,
-                             status=status,
-                             offset=offset)
+        response = requests.get(url, auth=ApiKeyAuth(), params=params)
+        files = response.json()
         LOGGER.debug("Files retrieved: {}".format(files))
         return_files += files['objects']
         if not files['meta']['next']:
             break
-        offset += files['meta']['limit']
+        params['offset'] += files['meta']['limit']
 
     LOGGER.info("Files returned: {}".format(return_files))
     return return_files
@@ -366,11 +355,14 @@ def extract_file_url(file_uuid, relative_path):
 
 def extract_file(uuid, relative_path, save_path):
     """ Fetches `relative_path` from package with `uuid` and saves to `save_path`. """
-    api = _storage_api()
+    url = _storage_service_url() + 'file/' + uuid + '/extract_file/'
     params = {'relative_path_to_file': relative_path}
-    with open(save_path, 'w') as f:
-        f.write(api.file(uuid).extract_file.get(**params))
-        os.chmod(save_path, 0o660)
+    response = requests.get(url, auth=ApiKeyAuth(), params=params, stream=True)
+    chunk_size = 1024 * 1024
+    with open(save_path, 'wb') as f:
+        for chunk in response.iter_content(chunk_size):
+            f.write(chunk)
+    os.chmod(save_path, 0o660)
 
 
 def pointer_file_url(file_uuid):
@@ -393,58 +385,57 @@ def request_reingest(package_uuid, reingest_type, processing_config):
 
     Returns a dict: {'error': [True|False], 'message': '<error message>'}
     """
-    api = _storage_api()
     api_request = {
         'pipeline': get_setting('dashboard_uuid'),
         'reingest_type': reingest_type,
         'processing_config': processing_config,
     }
+    url = _storage_service_url() + 'file/' + package_uuid + '/reingest/'
     try:
-        response = api.file(package_uuid).reingest.post(api_request)
-    except (slumber.exceptions.HttpClientError, slumber.exceptions.HttpServerError) as e:
-        LOGGER.exception("Unable to reingest {}".format(package_uuid))
-        try:
-            return e.response.json()
-        except Exception:
-            return {'error': True}
+        response = requests.post(url, auth=ApiKeyAuth(), json=api_request)
     except requests.ConnectionError as e:
         LOGGER.exception("Could not connect to storage service")
         return {'error': True, 'message': 'Could not connect to storage service'}
-    return response
+    except requests.exceptions.RequestException as e:
+        LOGGER.exception("Unable to reingest {}".format(package_uuid))
+        try:
+            return response.json()
+        except Exception:
+            return {'error': True}
+    return response.json()
 
 
 def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
     """ Returns the server response. """
 
-    api = _storage_api()
     api_request = {
         'event_reason': reason_for_deletion,
-        'pipeline':     get_setting('dashboard_uuid'),
-        'user_email':   user_email,
-        'user_id':      user_id
+        'pipeline': get_setting('dashboard_uuid'),
+        'user_email': user_email,
+        'user_id': user_id,
     }
-
-    return api.file(uuid).delete_aip.post(api_request)
-
+    url = _storage_service_url() + 'file/' + uuid + '/delete_aip/'
+    response = requests.post(url, auth=ApiKeyAuth(), json=api_request)
+    return response.json()
 
 def post_store_aip_callback(uuid):
-    api = _storage_api()
-    return api.file(uuid).send_callback.post_store.get()
+    url = _storage_service_url() + 'file/' + uuid + '/send_callback/post_store/'
+    response = requests.get(url, auth=ApiKeyAuth())
+    return response.json()
 
 def get_file_metadata(**kwargs):
-    api = _storage_api()
-    try:
-        return api.file.metadata.get(**kwargs)
-    except slumber.exceptions.HttpClientError:
+    url = _storage_service_url() + 'file/metadata/'
+    response = requests.get(url, auth=ApiKeyAuth(), params=kwargs)
+    if 400 <= response.status_code < 500:
         raise ResourceNotFound("No file found for arguments: {}".format(kwargs))
+    return response.json()
 
 def remove_files_from_transfer(transfer_uuid):
-    api = _storage_api()
-    api.file(transfer_uuid).contents.delete()
+    url = _storage_service_url() + 'file/' + transfer_uuid + '/contents/'
+    requests.delete(url, auth=ApiKeyAuth())
 
 def index_backlogged_transfer_contents(transfer_uuid, file_set):
-    api = _storage_api()
-    try:
-        api.file(transfer_uuid).contents.put(file_set)
-    except slumber.exceptions.HttpClientError as e:
-        raise BadRequest("Unable to add files to transfer: {}".format(e))
+    url = _storage_service_url() + 'file/' + transfer_uuid + '/contents/'
+    response = requests.put(url, auth=ApiKeyAuth(), json=file_set)
+    if 400 <= response.status_code < 500:
+        raise BadRequest("Unable to add files to transfer: {}".format(response.text))

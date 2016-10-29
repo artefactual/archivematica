@@ -72,8 +72,6 @@ def _get_from_rest_api(resource="", params=None, url="https://fpr.archivematica.
     should be checked. This is on by default, but can be disabled to connect
     to test FPR servers which may not have valid SSL certificates.
     """
-    # TOOD make this use slumber
-    # How to dynamically set resource in api.resource.get()
     parsed_url = urlparse.urlparse(url)
 
     if resource and not resource.endswith('/'):

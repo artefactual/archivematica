@@ -19,10 +19,11 @@ import logging
 import os
 import tempfile
 
+import requests
+
 from agentarchives.atom.client import AtomClient, AtomError, CommunicationError
 from metsrw import METSDocument
 from storageService import extract_file
-from slumber.exceptions import SlumberHttpBaseException
 
 from components import helpers
 
@@ -52,7 +53,7 @@ def upload_dip_metadata_to_atom(aip_name, aip_uuid, parent_slug):
         logger.debug('Extracting file %s into %s', mets_path, temp.name)
         try:
             extract_file(aip_uuid, mets_path, temp.name)
-        except SlumberHttpBaseException:
+        except requests.exceptions.RequestException:
             raise AtomMetadataUploadError
 
         client = get_atom_client()

@@ -26,7 +26,6 @@ from django.shortcuts import render, redirect
 from django.template import RequestContext
 
 import elasticSearchFunctions
-import slumber
 import storageService as storage_service
 
 # This project, alphabetical by import source
@@ -228,7 +227,7 @@ def delete(request, uuid):
     except requests.exceptions.ConnectionError:
         error_message = 'Unable to connect to storage server. Please contact your administrator.'
         messages.warning(request, error_message)
-    except slumber.exceptions.HttpClientError:
+    except requests.exceptions.RequestException:
         raise Http404
 
     return redirect('backlog_index')
