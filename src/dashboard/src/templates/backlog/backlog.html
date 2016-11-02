@@ -28,7 +28,7 @@
 {% endblock %}
 
 {% block content %}
-  {% include "ingest/backlog/_search_form.html" %}
+  {% include "ingest/backlog/_search_form.html" with show_files=True %}
   <table id="backlog-entries">
   </table>
 {% endblock %}

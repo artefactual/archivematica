@@ -63,7 +63,7 @@
 
 {% block content %}
 
-  {% include "ingest/backlog/_search_form.html" %}
+  {% include "ingest/backlog/_search_form.html" with show_files=False %}
   <div class="activity-indicator">
     <img src='/media/images/ajax-loader.gif' />
   </div>
