@@ -39,7 +39,7 @@ def transliterate(basename):
         return unidecode(basename.decode('utf-8'))
     except UnicodeDecodeError:
         return unidecode(basename)
-    
+
 def sanitizeName(basename):
     ret = ""
     basename = transliterate(basename)
@@ -54,12 +54,7 @@ def sanitizePath(path):
     basename = os.path.basename(path)
     dirname = os.path.dirname(path)
     sanitizedName = sanitizeName(basename)
-    if False:
-        print("path: " + path)
-        print("dirname: " + dirname)
-        print("basename: " + basename)
-        print("sanitizedName: " + sanitizedName)
-        print("renamed:", basename != sanitizedName)
+
     if basename == sanitizedName:
         return path
     else:
@@ -78,7 +73,7 @@ def sanitizePath(path):
 
         while os.path.exists(sanitizedName):
             sanitizedName = dirname + "/" + fileTitle + replacementChar + n.__str__() + fileExtension
-            n+=1
+            n += 1
         rename(path, sanitizedName)
         return sanitizedName
 
@@ -91,22 +86,16 @@ def sanitizeRecursively(path):
         sanitizations.append((path, sanitizedName))
     if os.path.isdir(sanitizedName):
         for f in os.listdir(sanitizedName):
-            sanitizations.extend(sanitizeRecursively(sanitizedName + "/" + f))
+            sanitizations.extend(sanitizeRecursively(os.path.join(sanitizedName, f)))
 
     return sanitizations
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print("Error, sanitizeNames takes one agrument PATH or -V (version)", file=sys.stderr)
-        quit(-1)
     path = sys.argv[1]
-    if path == "-V":
-        print(VERSION)
-        quit(0)
     if not os.path.isdir(path):
         print("Not a directory: " + path, file=sys.stderr)
-        quit(-1)
-    print("Scanning: " + path)
+        sys.exit(-1)
+    print("Scanning: ", path)
     sanitizations = sanitizeRecursively(path)
     for oldfile, newfile in sanitizations:
         print(oldfile, " -> ", newfile)

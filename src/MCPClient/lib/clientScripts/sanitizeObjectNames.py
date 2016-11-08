@@ -22,9 +22,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 from __future__ import print_function
 import sys
-import subprocess
 import os
-import uuid
 
 import django
 django.setup()
@@ -40,23 +38,21 @@ import sanitizeNames
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.sanitizeObjectNames")
 
-    objectsDirectory = sys.argv[1] #the directory to run sanitization on.
-    sipUUID =  sys.argv[2]
+    objectsDirectory = sys.argv[1]  # directory to run sanitization on.
+    sipUUID = sys.argv[2]
     date = sys.argv[3]
     taskUUID = sys.argv[4]
     groupType = sys.argv[5]
     groupType = "%%%s%%" % (groupType)
     groupSQL = sys.argv[6]
-    sipPath =  sys.argv[7] #the unit path
+    sipPath = sys.argv[7]  # unit path
     groupID = sipUUID
 
-    #relativeReplacement = "%sobjects/" % (groupType) #"%SIPDirectory%objects/"
-    relativeReplacement = objectsDirectory.replace(sipPath, groupType, 1) #"%SIPDirectory%objects/"
-
+    relativeReplacement = objectsDirectory.replace(sipPath, groupType, 1)  # "%SIPDirectory%objects/"
 
     sanitizations = sanitizeNames.sanitizeRecursively(objectsDirectory)
 
-    eventDetail= "program=\"sanitizeNames\"; version=\"" + sanitizeNames.VERSION + "\""
+    eventDetail = 'program="sanitizeNames"; version="' + sanitizeNames.VERSION + '"'
     for oldfile, newfile in sanitizations:
         if os.path.isfile(newfile):
             oldfile = oldfile.replace(objectsDirectory, relativeReplacement, 1)
