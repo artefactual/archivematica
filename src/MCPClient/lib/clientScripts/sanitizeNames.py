@@ -59,20 +59,11 @@ def sanitizePath(path):
         return path
     else:
         n = 1
-        s = sanitizedName
-        index = s.rfind('.')
-        fileTitle = sanitizedName
-        if index != -1:
-            fileTitle = s[:index]
-        fileExtension = s.split(".")[-1]
-        if fileExtension != sanitizedName:
-            fileExtension = "." + fileExtension
-        else:
-            fileExtension = ""
-        sanitizedName = dirname + "/" + fileTitle + fileExtension
+        fileTitle, fileExtension = os.path.splitext(sanitizedName)
+        sanitizedName = os.path.join(dirname, fileTitle + fileExtension)
 
         while os.path.exists(sanitizedName):
-            sanitizedName = dirname + "/" + fileTitle + replacementChar + n.__str__() + fileExtension
+            sanitizedName = os.path.join(dirname, fileTitle + replacementChar + str(n) + fileExtension)
             n += 1
         rename(path, sanitizedName)
         return sanitizedName
