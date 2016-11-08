@@ -25,6 +25,8 @@ import logging
 import os
 import sys
 
+import archivematicaFunctions
+
 import archivematicaMCP
 from unitFile import unitFile
 
@@ -60,9 +62,10 @@ class unit:
             else:
                 files = File.objects.filter(sip_id=self.UUID)
             for f in files:
-                if f.currentlocation in self.fileList:
-                    self.fileList[f.currentlocation].UUID = f.uuid
-                    self.fileList[f.currentlocation].fileGrpUse = f.filegrpuse
+                currentlocation = archivematicaFunctions.unicodeToStr(f.currentlocation)
+                if currentlocation in self.fileList:
+                    self.fileList[currentlocation].UUID = f.uuid
+                    self.fileList[currentlocation].fileGrpUse = f.filegrpuse
                 else:
                     LOGGER.warning('%s %s has file (%s) %s in the database, but file does not exist in the file system',
                         self.unitType, self.UUID, f.uuid, f.currentlocation)
