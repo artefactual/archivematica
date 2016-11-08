@@ -20,6 +20,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
+from __future__ import print_function
 import sys
 import os
 
@@ -38,56 +39,67 @@ if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.sanitizeObjectNames")
 
     objectsDirectory = sys.argv[1]  # directory to run sanitization on.
-    sipUUID = sys.argv[2]
-    date = sys.argv[3]
-    taskUUID = sys.argv[4]
-    groupType = sys.argv[5]
-    groupType = "%%%s%%" % (groupType)
-    groupSQL = sys.argv[6]
-    sipPath = sys.argv[7]  # unit path
-    groupID = sipUUID
+    sipUUID = sys.argv[2]  # %SIPUUID%
+    date = sys.argv[3]  # %date%
+    taskUUID = sys.argv[4]  # %taskUUID%, unused
+    groupType = sys.argv[5]  # SIPDirectory or transferDirectory
+    groupType = "%%%s%%" % (groupType)  # %SIPDirectory% or %transferDirectory%
+    groupSQL = sys.argv[6]  # transfer_id or sip_id
+    sipPath = sys.argv[7]  # %SIPDirectory%
 
     relativeReplacement = objectsDirectory.replace(sipPath, groupType, 1)  # "%SIPDirectory%objects/"
 
     sanitizations = sanitizeNames.sanitizeRecursively(objectsDirectory)
+    for oldfile, newfile in sanitizations.items():
+        logger.info('sanitizations: %s -> %s', oldfile, newfile)
 
     eventDetail = 'program="sanitizeNames"; version="' + sanitizeNames.VERSION + '"'
-    for oldfile, newfile in sanitizations:
-        if os.path.isfile(newfile):
-            oldfile = oldfile.replace(objectsDirectory, relativeReplacement, 1)
-            newfile = newfile.replace(objectsDirectory, relativeReplacement, 1)
-            print oldfile, " -> ", newfile
 
-            if groupType == "%SIPDirectory%":
-                updateFileLocation(oldfile, newfile, "name cleanup", date, "prohibited characters removed:" + eventDetail, fileUUID=None, sipUUID=sipUUID)
-            elif groupType == "%transferDirectory%":
-                updateFileLocation(oldfile, newfile, "name cleanup", date, "prohibited characters removed:" + eventDetail, fileUUID=None, transferUUID=sipUUID)
-            else:
-                print >>sys.stderr, "bad group type", groupType
-                exit(3)
+    kwargs = {
+        groupSQL: sipUUID,
+        "removedtime__isnull": True,
+    }
+    for f in File.objects.filter(**kwargs):
+        # Check all files to see if any parent directory had a sanitization event
+        current_location = f.currentlocation.replace(groupType, sipPath)
+        sanitized_location = unicodeToStr(current_location)
+        logger.info('Checking %s', current_location)
 
-        elif os.path.isdir(newfile):
-            oldfile = oldfile.replace(objectsDirectory, relativeReplacement, 1) + "/"
-            newfile = newfile.replace(objectsDirectory, relativeReplacement, 1) + "/"
-            directoryContents = []
+        # Check parent directories
+        # Since directory keys are a mix of sanitized and unsanitized, this is a little complicated
+        # Directories keys are in the form sanitized/sanitized/unsanitized
+        # When a match is found (eg 'unsanitized' -> 'sanitized') reset the search
+        # This will find 'sanitized/unsanitized2' -> 'sanitized/sanitized2' on the next pass
+        # TODO This should be checked for a more efficient solution
+        dirpath = sanitized_location
+        while objectsDirectory in dirpath:  # Stay within unit
+            if dirpath in sanitizations:  # Make replacement
+                sanitized_location = sanitized_location.replace(dirpath, sanitizations[dirpath])
+                dirpath = sanitized_location  # Reset search
+            else:  # Check next level up
+                dirpath = os.path.dirname(dirpath)
 
+        if current_location != sanitized_location:
+            oldfile = current_location.replace(objectsDirectory, relativeReplacement, 1)
+            newfile = sanitized_location.replace(objectsDirectory, relativeReplacement, 1)
             kwargs = {
-                "removedtime__isnull": True,
-                "currentlocation__startswith": oldfile,
-                groupSQL: groupID
+                'src': oldfile,
+                'dst': newfile,
+                'eventType': 'name cleanup',
+                'eventDateTime': date,
+                'eventDetail': "prohibited characters removed:" + eventDetail,
+                'fileUUID': None,
             }
-            files = File.objects.filter(**kwargs)
-
-            print oldfile, " -> ", newfile
-
-            for f in files:
-                new_path = unicodeToStr(f.currentlocation).replace(oldfile, newfile, 1)
-                updateFileLocation(f.currentlocation,
-                                   new_path,
-                                   fileUUID=f.uuid,
-                                   # Don't create sanitization events for each
-                                   # file, since it's only a parent directory
-                                   # somewhere up that changed.
-                                   # Otherwise, extra amdSecs will be generated
-                                   # from the resulting METS.
-                                   createEvent=False)
+            if groupType == "%SIPDirectory%":
+                kwargs['sipUUID'] = sipUUID
+            elif groupType == "%transferDirectory%":
+                kwargs['transferUUID'] = sipUUID
+            else:
+                print("bad group type", groupType, file=sys.stderr)
+                sys.exit(3)
+            logger.info('Sanitized name: %s -> %s', oldfile, newfile)
+            print('Sanitized name:', oldfile, " -> ", newfile)
+            updateFileLocation(**kwargs)
+        else:
+            logger.info('No sanitization for %s', current_location)
+            print('No sanitization found for', current_location)
