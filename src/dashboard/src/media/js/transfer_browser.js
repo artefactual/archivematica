@@ -32316,7 +32316,7 @@
 	var angular=window.angular,ngModule;
 	try {ngModule=angular.module(["ng"])}
 	catch(e){ngModule=angular.module("ng",[])}
-	var v1="<div ng-controller=\"HeaderController as vm\"> <div class=\"row\" id=\"transfer-browser-form\"> <div class=\"col-xs-3\"> <select class=\"form-control\" ng-model=\"vm.transfer.type\" ng-disabled=\"vm.transfer.components.length > 0\"> <option value=\"standard\" selected=\"selected\">Standard</option> <option value=\"unzipped bag\">Unzipped Bag</option> <option value=\"zipped bag\">Zipped bag</option> <option value=\"dspace\">DSpace</option> <option value=\"disk image\">Disk Image</option> </select> <div class=\"help-block\">Transfer type</div> </div> <div class=\"col-xs-3\" ng-if=\"vm.transfer.type !== 'zipped bag'\"> <input class=\"form-control\" ng-model=\"vm.transfer.name\"/> <div class=\"help-block\">Transfer name</div> </div> <div class=\"col-xs-2\"> <input class=\"form-control\" ng-model=\"vm.transfer.accession\"/> <div class=\"help-block\">Accession no.</div> </div> <div class=\"col-xs-1\"> <button type=\"submit\" class=\"btn btn-default\" data-toggle=\"collapse\" data-target=\"#transfer_browse_tree\" aria-expanded=\"false\" aria-controls=\"transfer_browse_tree\"> Browse </button> </div> <div class=\"col-xs-2\"> <button type=\"submit\" class=\"btn btn-success\" ng-disabled=\"!vm.enable_submit_button()\" ng-click=\"vm.transfer.start()\">Start transfer</button> </div> <div class=\"col-xs-1\"> <button type=\"submit\" class=\"btn btn-default\" ng-if=\"vm.transfer.type == 'disk image'\" ng-click=\"vm.add_next_metadata()\" title=\"Metadata entered in this form will be associated with the next component added to this transfer. Data will not be used if no component is added after the form is saved.\"> Add next </button> </div> </div>  <div id=\"path_container\"> <div ng-repeat=\"component in vm.transfer.components\" id=\"transfer-component-path-item-{{ $index + 1 }}\"> <span class=\"transfer_path\">{{ component.path }}</span>\n<span class=\"transfer_path_icons\"> <span ng-if=\"vm.transfer.type == 'disk_image'\" class=\"transfer_path_edit_icon\" ng-click=\"vm.open_edit_page(component)\"> <img src=\"/media/images/table_edit.png\"> </span>\n<span class=\"transfer_path_delete_icon\" ng-click=\"vm.remove_component(component)\"> <img src=\"/media/images/delete.png\"> </span> </span> </div> </div> </div> <div ng-controller=\"BrowseController as vm\" class=\"collapse\" id=\"transfer_browse_tree\"> <select class=\"form-control\" ng-model=\"vm.source_location\" ng-change=\"vm.browse(vm.source_location)\"> <option ng-repeat=\"(location_uuid, location) in vm.source_locations\" value=\"{{ location_uuid }}\">{{ location.description }}</option> </select> <div class=\"well well-sm transfer-tree-container\"> <treecontrol class=\"tree-classic\" tree-model=\"vm.data\" options=\"vm.options\" selected-node=\"vm.selected\" on-node-toggle=\"vm.on_toggle(node, expanded)\"> <span ng-class=\"{'disabled-file': !vm.file_can_be_added(node)}\"> {{ node.title }} ({{ node.properties.display_string }}) </span> </treecontrol> </div>  <button type=\"submit\" class=\"btn btn-primary pull-right\" ng-click=\"vm.transfer.add_component(vm.selected)\" ng-disabled=\"!vm.selected || !vm.file_can_be_added(vm.selected)\"> Add </button> </div>";
+	var v1="<div ng-controller=\"HeaderController as vm\"> <div class=\"row\" id=\"transfer-browser-form\"> <div class=\"col-xs-3\"> <select class=\"form-control\" ng-model=\"vm.transfer.type\" ng-disabled=\"vm.transfer.components.length > 0\"> <option value=\"standard\" selected=\"selected\">Standard</option> <option value=\"unzipped bag\">Unzipped Bag</option> <option value=\"zipped bag\">Zipped bag</option> <option value=\"dspace\">DSpace</option> <option value=\"disk image\">Disk Image</option> </select> <div class=\"help-block\">Transfer type</div> </div> <div class=\"col-xs-3\" ng-if=\"vm.transfer.type !== 'zipped bag'\"> <input class=\"form-control\" ng-model=\"vm.transfer.name\"/> <div class=\"help-block\">Transfer name</div> </div> <div class=\"col-xs-2\"> <input class=\"form-control\" ng-model=\"vm.transfer.accession\"/> <div class=\"help-block\">Accession no.</div> </div> <div class=\"col-xs-1\"> <button type=\"submit\" class=\"btn btn-default\" data-toggle=\"collapse\" data-target=\"#transfer_browse_tree\" aria-expanded=\"false\" aria-controls=\"transfer_browse_tree\"> Browse </button> </div> <div class=\"col-xs-2\"> <button type=\"submit\" class=\"btn btn-success\" ng-disabled=\"!vm.enable_submit_button()\" ng-click=\"vm.transfer.start()\">Start transfer</button> </div> <div class=\"col-xs-1\"> <button type=\"submit\" class=\"btn btn-default\" ng-if=\"vm.transfer.type == 'disk image'\" ng-click=\"vm.add_next_metadata()\" title=\"Metadata entered in this form will be associated with the next component added to this transfer. Data will not be used if no component is added after the form is saved.\"> Add next </button> </div> </div>  <div id=\"path_container\"> <div ng-repeat=\"component in vm.transfer.components\" id=\"transfer-component-path-item-{{ $index + 1 }}\"> <span class=\"transfer_path\">{{ component.path }}</span>\n<span class=\"transfer_path_icons\"> <span ng-if=\"vm.transfer.type == 'disk image'\" class=\"transfer_path_edit_icon\" ng-click=\"vm.open_edit_page(component)\"> <img src=\"/media/images/table_edit.png\"> </span>\n<span class=\"transfer_path_delete_icon\" ng-click=\"vm.remove_component(component)\"> <img src=\"/media/images/delete.png\"> </span> </span> </div> </div> </div> <div ng-controller=\"BrowseController as vm\" class=\"collapse\" id=\"transfer_browse_tree\"> <select class=\"form-control\" ng-model=\"vm.source_location\" ng-change=\"vm.browse(vm.source_location)\"> <option ng-repeat=\"(location_uuid, location) in vm.source_locations\" value=\"{{ location_uuid }}\">{{ location.description }}</option> </select> <div class=\"well well-sm transfer-tree-container\"> <treecontrol class=\"tree-classic\" tree-model=\"vm.data\" options=\"vm.options\" selected-node=\"vm.selected\" on-node-toggle=\"vm.on_toggle(node, expanded)\"> <span ng-class=\"{'disabled-file': !vm.file_can_be_added(node)}\"> {{ node.title }} ({{ node.properties.display_string }}) </span> </treecontrol> </div>  <button type=\"submit\" class=\"btn btn-primary pull-right\" ng-click=\"vm.transfer.add_component(vm.selected)\" ng-disabled=\"!vm.selected || !vm.file_can_be_added(vm.selected)\"> Add </button> </div>";
 	ngModule.run(["$templateCache",function(c){c.put("front_page/content.html",v1)}]);
 	module.exports=v1;
 
@@ -32340,13 +32340,13 @@
 
 	__webpack_require__(22);
 
-	__webpack_require__(27);
-
 	__webpack_require__(28);
 
-	__webpack_require__(30);
+	__webpack_require__(29);
 
 	__webpack_require__(31);
+
+	__webpack_require__(32);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -45295,7 +45295,7 @@
 	exports.decode_browse_response = decode_browse_response;
 	exports.format_entries = format_entries;
 
-	var _base64Helpers = __webpack_require__(23);
+	var _base64Helpers = __webpack_require__(27);
 
 	var _base64Helpers2 = _interopRequireDefault(_base64Helpers);
 
@@ -45373,6 +45373,52 @@
 /* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
+	(function(exports) {
+	    // Returns true if the passed string consists of codepoints between 0 and 255
+	    // which are valid within UTF-8.
+	    function all_bytes_valid_utf8 (str) {
+	        var invalid_chars = [0xc0, 0xc1, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9,
+	                             0xF0, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF];
+
+	        for (var i in str) {
+	            var cp = str.codePointAt(i);
+	            if (cp > 255 || invalid_chars.indexOf(cp) !== -1) {
+	                return false
+	            }
+	        }
+
+	        return true;
+	    };
+
+	    // Decodes the string before base64-encoding.
+	    function encode_escaped (str) {
+	        return window.btoa(unescape(encodeURIComponent(str)));
+	    };
+
+	    // If passed string is UTF-8, decodes to bytes first before encoding.
+	    exports.encode = function (str) {
+	        if (all_bytes_valid_utf8(str)) {
+	            return window.btoa(str);
+	        } else {
+	            return encode_escaped(str);
+	        }
+	    };
+
+	    // Returns a UTF-8 string if input is UTF-8, raw bytes otherwise.
+	    exports.decode = function (str) {
+	        try {
+	            return decodeURIComponent(escape(window.atob(str)));
+	        } catch (URIError) {
+	            return window.atob(str);
+	        }
+	    };
+	})( false ? this['Base64'] = {} : exports);
+
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -45423,7 +45469,7 @@
 	SourceLocations.$inject = ['Restangular'];
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45446,7 +45492,7 @@
 
 	var _base64Helpers2 = _interopRequireDefault(_base64Helpers);
 
-	var _jquery = __webpack_require__(29);
+	var _jquery = __webpack_require__(30);
 
 	var _jquery2 = _interopRequireDefault(_jquery);
 
@@ -45531,7 +45577,7 @@
 	exports.default = _angular2.default.module('services.transfer', []).service('Transfer', Transfer).name;
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -56545,7 +56591,7 @@
 
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -56662,7 +56708,7 @@
 	BrowseController.$inject = ['Browse', 'SourceLocations', 'Transfer'];
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -56677,7 +56723,7 @@
 
 	var _angular2 = _interopRequireDefault(_angular);
 
-	__webpack_require__(28);
+	__webpack_require__(29);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
