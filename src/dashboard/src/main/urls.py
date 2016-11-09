@@ -27,8 +27,6 @@ urlpatterns = [
     url(r'forbidden/$', views.forbidden),
 
     # Jobs and tasks (is part of ingest)
-    url(r'jobs/(?P<uuid>' + settings.UUID_REGEX + ')/explore/$', views.jobs_explore),
-    url(r'jobs/(?P<uuid>' + settings.UUID_REGEX + ')/list-objects/$', views.jobs_list_objects),
     url(r'tasks/(?P<uuid>' + settings.UUID_REGEX + ')/$', views.tasks),
     url(r'task/(?P<uuid>' + settings.UUID_REGEX + ')/$', views.task),
 

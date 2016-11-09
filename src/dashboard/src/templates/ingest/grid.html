@@ -185,7 +185,7 @@
 
   <script type="text/template" id="job-template">
     <div class="job-detail-microservice">
-      <span class="job-type-label">Job:&nbsp;</span><span title="<%= uuid %>"><%= type %> <% if(obj.filename) { %>(file: <i><%= filename %></i>)<% } %></span>
+      <span class="job-type-label">Job:&nbsp;</span><span title="<%= uuid %>"><%= type %></span>
       <% tmp = window.microservices_help[type]; %>
       <% if (tmp !== undefined) { %>
         [<a href="#" title="<%= tmp %>">?</a>]
@@ -195,11 +195,6 @@
     <div class="job-detail-actions">
       <a class="btn_show_tasks" href="#" title="Tasks"><span>Tasks</span></a>
     </div>
-  </script>
-
-  <script type="text/template" id="directory-browser-template">
-    <div id="directory-browser-tab">Directory browser (<a href="#">Close</a>)</div>
-    <div id="directory-browser-content"></div>
   </script>
 
   <script type="text/template" id="status-template">

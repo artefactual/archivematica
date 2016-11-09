@@ -16,19 +16,9 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django import forms
-from main import models
 from django.conf import settings
 
-
-class MicroServiceChoiceReplacementDicForm(forms.ModelForm):
-    class Meta:
-        model = models.MicroServiceChoiceReplacementDic
-        fields = ('choiceavailableatlink', 'description', 'replacementdic')
-        widgets = {
-            'description': forms.widgets.TextInput(attrs=settings.INPUT_ATTRS),
-            'replacementdic': forms.widgets.Textarea(attrs=settings.TEXTAREA_ATTRS),
-            'choiceavailableatlink': forms.widgets.HiddenInput
-        }
+from main import models
 
 
 class EventDetailForm(forms.ModelForm):

@@ -15,13 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import subprocess
-
 from django.conf import settings as django_settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.http import Http404, HttpResponse
 
 from contrib.mcp.client import MCPClient
 from main import models
@@ -160,76 +156,6 @@ def tasks_subjobs(request, uuid):
         return tasks(request, jobs[0].jobuuid)
     else:
         return render(request, 'main/tasks_subjobs.html', locals())
-
-
-def jobs_list_objects(request, uuid):
-    response = []
-    job = models.Job.objects.get(jobuuid=uuid)
-
-    for root, dirs, files in os.walk(job.directory + '/objects', False):
-        for name in files:
-            directory = root.replace(job.directory + '/objects', '')
-            response.append(os.path.join(directory, name))
-
-    return helpers.json_response(response)
-
-
-def jobs_explore(request, uuid):
-    # Database query
-    job = models.Job.objects.get(jobuuid=uuid)
-    # Prepare response object
-    contents = []
-    response = {}
-    response['contents'] = contents
-    # Parse request
-    if 'path' in request.REQUEST and len(request.REQUEST['path']) > 0:
-        directory = os.path.join(job.directory, request.REQUEST['path'])
-        response['base'] = request.REQUEST['path'].replace('.', '')
-    else:
-        directory = job.directory
-        response['base'] = ''
-    # Build directory
-    directory = os.path.abspath(directory)
-    # Security check
-    tmpDirectory = os.path.realpath(directory)
-    while True:
-        if tmpDirectory == os.path.realpath(job.directory):
-            break
-        elif tmpDirectory == '/':
-            raise Http404
-        else:
-            tmpDirectory = os.path.dirname(tmpDirectory)
-    # If it is a file, return the contents
-    if os.path.isfile(directory):
-        mime = subprocess.Popen('/usr/bin/file --mime-type ' + directory, shell=True, stdout=subprocess.PIPE).communicate()[0].split(' ')[-1].strip()
-        response = HttpResponse(content_type=mime)
-        response['Content-Disposition'] = 'attachment; filename=%s' %  os.path.basename(directory)
-        with open(directory) as resource:
-            response.write(resource.read())
-        return response
-    # Cleaning path
-    parentDir = os.path.dirname(directory)
-    parentDir = parentDir.replace('%s/' % job.directory, '')
-    parentDir = parentDir.replace('%s' % job.directory, '')
-    response['parent'] = parentDir
-    # Check if it is or not the root dir to add the "Go parent" link
-    if os.path.realpath(directory) != os.path.realpath(job.directory):
-        parent = {}
-        parent['name'] = 'Go to parent directory...'
-        parent['type'] = 'parent'
-        contents.append(parent)
-    # Add contents of the directory
-    for item in os.listdir(directory):
-        newItem = {}
-        newItem['name'] = item
-        if os.path.isdir(os.path.join(directory, item)):
-            newItem['type'] = 'dir'
-        else:
-            newItem['type'] = 'file'
-            newItem['size'] = os.path.getsize(os.path.join(directory, item))
-        contents.append(newItem)
-
-    return helpers.json_response(response)
 
 
 def formdata_delete(request, type, parent_id, delete_id):

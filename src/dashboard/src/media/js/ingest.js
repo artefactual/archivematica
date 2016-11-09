@@ -203,9 +203,6 @@ $(function()
       className: 'job',
 
       events: {
-        'click .btn_browse_job': 'browseJob',
-        'click .btn_approve_job': 'approveJob',
-        'click .btn_reject_job': 'rejectJob',
         'click .btn_show_tasks': 'showTasks',
         'click .btn_normalization_report': 'normalizationReport',
         'click .btn_as_upload': 'as_match',
@@ -219,33 +216,12 @@ $(function()
         {
           var jobData = this.model.toJSON();
 
-          if (
-            jobData.type == 'Access normalization failed - copying'
-            || jobData.type == 'Preservation normalization failed - copying'
-            || jobData.type == 'thumbnail normalization failed - copying'
-          ) {
-            jobData.currentstep = 'Failed';
-          }
-
           $(this.el).html(this.template(jobData));
 
           $(this.el).css(
             'background-color',
             this.getStatusColor(jobData.currentstep)
           );
-
-          // Micro-services requiring approval
-          if (1 === this.model.get('status'))
-          {
-            this.$('.job-detail-actions')
-              .append('<a class="btn_browse_job" href="#" title="Browse"><span>Browse</span></a>')
-              .append('<a class="btn_approve_job" href="#" title="Approve"><span>Approve</span></a>')
-              .append('<a class="btn_reject_job" href="#" title="Reject"><span>Reject</span></a>');
-          }
-          else
-          {
-            // ...
-          }
 
           choices = this.model.get('choices');
 
@@ -309,10 +285,7 @@ $(function()
                 type: 'POST',
                 success: function(data)
                   {
-                    context.model.set({
-                      'currentstep': 'Executing command(s)',
-                      'status': 0
-                    });
+                    context.model.set({'currentstep': 'Executing command(s)'});
 
                     context.model.sip.view.updateIcon();
 
@@ -462,10 +435,6 @@ $(function()
           window.focus();
         },
 
-    });
-
-    window.DirectoryBrowserView = BaseDirectoryBrowserView.extend({
-      template: _.template($('#directory-browser-template').html())
     });
 
     window.AppView = BaseAppView.extend({
