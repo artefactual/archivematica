@@ -570,7 +570,7 @@ var BaseJobView = Backbone.View.extend({
 
   initialize: function()
     {
-      _.bindAll(this, 'render', 'approveJob', 'rejectJob');
+      _.bindAll(this, 'render');
       this.model.bind('change', this.render);
       this.model.view = this;
       this.uid = this.options.uid;
@@ -614,57 +614,6 @@ var BaseJobView = Backbone.View.extend({
       event.preventDefault();
 
       window.open('/tasks/' + this.model.get('uuid') + '/', '_blank');
-    },
-
-  browseJob: function(event)
-    {
-      event.preventDefault();
-      event.stopPropagation();
-
-      this.directoryBrowser = new window.DirectoryBrowserView({ uuid: this.model.get('uuid') });
-    },
-
-  approveJob: function(event)
-    {
-      event.preventDefault();
-
-      $.ajax({
-        context: this,
-        data: { uuid: this.model.get('uuid') },
-        type: 'POST',
-        success: function(data)
-          {
-            this.model.set({
-              'currentstep': 'Executing command(s)',
-              'status': 0
-            });
-
-            this.model.sip.view.updateIcon();
-          },
-        url: '/mcp/approve-job/'
-      });
-    },
-
-  rejectJob: function(event)
-    {
-      event.preventDefault();
-
-      $.ajax({
-        context: this,
-        data: { uuid: this.model.get('uuid') },
-        type: 'POST',
-        success: function(data)
-          {
-            this.model.set({
-              'currentstep': 'Rejected',
-              'status': 0
-            });
-
-            this.model.sip.view.updateIcon();
-            // this.model.sip.view.toggleJobs();
-          },
-        url: '/mcp/reject-job/'
-      });
     },
 
   getStatusColor: function(status)
@@ -723,115 +672,6 @@ var BaseJobView = Backbone.View.extend({
     }
 });
 
-BaseDirectoryBrowserView = Backbone.View.extend({
-
-  id: 'directory-browser',
-
-  events: {
-      'click #directory-browser-tab > a': 'remove',
-      'click .dir > a': 'showDir',
-      'click .file > a': 'showFile',
-      'click .parent > a': 'showParent'
-    },
-
-  initialize: function()
-    {
-      _.bindAll(this, 'render');
-
-      this.render();
-    },
-
-  render: function()
-    {
-      $('#directory-browser').remove();
-
-      $(this.el).html(this.template).appendTo('body');
-
-      $(this.el).fadeIn('fast');
-
-      this.listContents();
-
-      this.$('#directory-browser-content').resizable({ handles: 'w, s, sw' });
-
-      return this;
-    },
-
-  remove: function(event)
-    {
-      event.preventDefault();
-
-      $(this.el).fadeOut('fast', function()
-        {
-          $(this).remove();
-        });
-    },
-
-  listContents: function(path)
-    {
-      var $ul = $('<ul></ul>');
-
-      if (undefined === path)
-      {
-        path = '.';
-      }
-
-      var self = this;
-
-      $.ajax({
-        data: { path: undefined === path ? '.' : path },
-        context: self,
-        url: '/jobs/explore/' + this.options.uuid + '/',
-        type: 'GET',
-        success: function(data)
-          {
-            for (i in data.contents)
-            {
-              var item = data.contents[i];
-              $ul.append('<li class="' + item.type + '"><a href="#"' + (undefined !== item.size ? ' title="' + parseInt(item.size / 1024, 10) + ' kB"' : '') + '>' + item.name + '</a></li>');
-            }
-
-            self.parent = data.parent;
-            self.base = data.base;
-          },
-        complete: function()
-          {
-            this.$('#directory-browser-content')
-              .html($ul).height($ul.height());
-          }
-      });
-    },
-
-  showDir: function(event)
-    {
-      event.preventDefault();
-
-      this.listContents(this.buildPath($(event.target).text()));
-    },
-
-  showFile: function(event)
-    {
-      event.preventDefault();
-
-      var $target = $(event.target);
-      var source = '/jobs/' + this.options.uuid + '/explore/?path=' + this.buildPath($target.text());
-
-      // Use iframe tag to open the browser download dialog...
-      $('body').append('<iframe style="display: none;" src="' + source + '" />');
-    },
-
-  buildPath: function(destination)
-    {
-      return (this.base.length ? this.base + '/' : '') + destination;
-    },
-
-  showParent: function(event)
-    {
-      event.preventDefault();
-
-      this.listContents(this.parent);
-    }
-});
-
 BaseAppView = Backbone.View.extend({
 
   interval: window.pollingInterval ? window.pollingInterval * 1000: 5000,
@@ -849,43 +689,7 @@ BaseAppView = Backbone.View.extend({
 
       window.statusWidget = new window.StatusView();
 
-      // this.manageIdle();
-
       this.poll(true);
-
-      // Close pop-ups when click event is triggered somewhere else
-      $(document).click(function(event)
-        {
-          $target = $(event.target);
-
-          if (!$target.parents().is('#directory-browser') && !$target.is('.btn_browse_job'))
-          {
-            $('#directory-browser').fadeOut('fast', function()
-              {
-                $(this).remove();
-              });
-          }
-
-        });
-    },
-
-  manageIdle: function()
-    {
-      $.idleTimer(this.interval * 10);
-
-      var self = this;
-      $(document)
-        .bind('idle.idleTimer', function()
-          {
-            self.idle = true;
-            $('<span id="polling-notification">Polling was disabled until next user activity is detected.</span>').appendTo('body');
-          })
-        .bind('active.idleTimer', function()
-          {
-            self.idle = false;
-            $('#polling-notification').fadeOut('fast');
-            self.poll();
-          });
     },
 
   add: function(sip)

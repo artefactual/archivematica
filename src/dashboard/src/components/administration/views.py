@@ -259,14 +259,6 @@ def administration_atk_dips(request):
     return render(request, 'administration/dips_atk_edit.html', locals())
 
 
-def dips_formset():
-    return modelformset_factory(
-        models.MicroServiceChoiceReplacementDic,
-        form=forms.MicroServiceChoiceReplacementDicForm,
-        extra=0,
-        can_delete=True
-    )
-
 def storage(request):
     try:
         locations = storage_service.get_location(purpose="AS")
