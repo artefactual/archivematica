@@ -177,6 +177,8 @@ class ProcessingConfigurationForm(forms.Form):
 
     - type = boolean
       Required: yes_option or no_option (or both)
+      yes_option: UUID of the Yes MicroServiceChain or MicroServiceChoiceReplacementDict
+      no_option: UUID for the No MicroServiceChain or MicroServiceChoiceReplacementDict
     - type = chain_choice
       Optional: ignored_choices - list of choices that won't be presented to the user
       Optional: find_duplicates - persist choice across chain links with the same name
@@ -296,6 +298,19 @@ class ProcessingConfigurationForm(forms.Form):
         'name': 'store_aip_location',
         'label': 'Store AIP location',
         'purpose': 'AS',
+    }
+    processing_fields['92879a29-45bf-4f0b-ac43-e64474f0f2f9'] = {
+        'type': 'chain_choice',
+        'name': 'upload_dip',
+        'label': 'Upload DIP',
+        'ignored_choices': ['Reject DIP'],
+    }
+    processing_fields['5e58066d-e113-4383-b20b-f301ed4d751c'] = {
+        'type': 'boolean',
+        'name': 'store_dip',
+        'label': 'Store DIP after uploading',
+        'yes_option': '8d29eb3d-a8a8-4347-806e-3d8227ed44a1',
+        'no_option': '4500f34e-f004-4ccf-8720-5c38d0be2254',
     }
     processing_fields['b7a83da6-ed5a-47f7-a643-1e9f9f46e364'] = {
         'type': 'storage_service',
