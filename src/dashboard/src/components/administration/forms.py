@@ -363,8 +363,7 @@ class ProcessingConfigurationForm(forms.Form):
                             continue
                         choices.append((chain.pk, chain.description))
                 elif ftype == 'replace_dict':
-                    link = models.MicroServiceChainLink.objects.get(pk=choice_uuid)
-                    replace_dicts = models.MicroServiceChoiceReplacementDic.objects.filter(choiceavailableatlink_id=link.pk)
+                    replace_dicts = models.MicroServiceChoiceReplacementDic.objects.filter(choiceavailableatlink_id=choice_uuid)
                     for item in replace_dicts:
                         choices.append((item.pk, item.description))
                 elif ftype == 'storage_service':
