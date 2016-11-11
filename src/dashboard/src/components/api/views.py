@@ -247,6 +247,33 @@ def start_transfer_api(request):
     return helpers.json_response(response)
 
 
+def completed_transfers(request):
+    """Return all completed transfers::
+
+        GET /api/transfer/completed?username=<am-username>&api_key=<am-api-key>
+
+    """
+    if request.method == 'GET':
+        auth_error = authenticate_request(request)
+        response = {}
+        if auth_error is None:
+            approved = []
+            transfers = models.Transfer.objects.filter(hidden=False)
+            for transfer in transfers:
+                status = get_unit_status(transfer.uuid, 'unitTransfer')
+                if status.get('status') == 'COMPLETE':
+                    approved.append(transfer.uuid)
+            response['results'] = approved
+            response['message'] = 'Fetched completed transfers successfully.'
+            return helpers.json_response(response)
+        else:
+            response['message'] = auth_error
+            response['error'] = True
+            return helpers.json_response(response, status_code=403)
+    else:
+        return django.http.HttpResponseNotAllowed(permitted_methods=['GET'])
+
+
 def unapproved_transfers(request):
     # Example: http://127.0.0.1/api/transfer/unapproved?username=mike&api_key=<API key>
     if request.method == 'GET':
