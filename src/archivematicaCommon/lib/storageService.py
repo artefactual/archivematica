@@ -50,13 +50,30 @@ def _storage_service_url():
     LOGGER.debug("Storage service URL: {}".format(storage_service_url))
     return storage_service_url
 
+def _storage_api_session(auth=None, timeout=None):
+    """ Returns a requests.Session with a customized adapter with timeout support. """
+
+    class HTTPAdapterWithTimeout(requests.adapters.HTTPAdapter):
+        def __init__(self, timeout=None, *args, **kwargs):
+            self.timeout = timeout
+            super(HTTPAdapterWithTimeout, self).__init__(*args, **kwargs)
+
+        def send(self, *args, **kwargs):
+            kwargs['timeout'] = self.timeout
+            return super(HTTPAdapterWithTimeout, self).send(*args, **kwargs)
+
+    session = requests.session()
+    session.auth = auth
+    session.mount('http://', HTTPAdapterWithTimeout(timeout=timeout))
+    session.mount('https://', HTTPAdapterWithTimeout(timeout=timeout))
+    return session
 
 def _storage_api():
     """ Returns slumber access to storage API. """
     storage_service_url = _storage_service_url()
     username = get_setting('storage_service_user', 'test')
     api_key = get_setting('storage_service_apikey', None)
-    api = slumber.API(storage_service_url, auth=TastypieApikeyAuth(username, api_key))
+    api = slumber.API(storage_service_url, session=_storage_api_session(auth=TastypieApikeyAuth(username, api_key), timeout=5))
     return api
 
 def _storage_api_params():
