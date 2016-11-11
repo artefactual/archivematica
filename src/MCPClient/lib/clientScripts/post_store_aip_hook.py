@@ -53,7 +53,7 @@ def dspace_handle_to_archivesspace(sip_uuid):
     url = archivesspace_url + '/users/' + config.user + '/login'
     params = {'password': config.passwd}
     logger.debug('Log in to ArchivesSpace URL: %s', url)
-    response = requests.post(url, params=params)
+    response = requests.post(url, params=params, timeout=60)
     logger.debug('Response: %s %s', response, response.content)
     session_id = response.json()['session']
     headers = {'X-ArchivesSpace-Session': session_id}
@@ -61,7 +61,7 @@ def dspace_handle_to_archivesspace(sip_uuid):
     # Get Digital Object from ArchivesSpace
     url = archivesspace_url + digital_object.remoteid
     logger.debug('Get Digital Object info URL: %s', url)
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=120)
     logger.debug('Response: %s %s', response, response.content)
     body = response.json()
 
@@ -75,7 +75,7 @@ def dspace_handle_to_archivesspace(sip_uuid):
     }
     body['file_versions'].append(file_version)
     logger.debug('Modified Digital Object: %s', body)
-    response = requests.post(url, headers=headers, json=body)
+    response = requests.post(url, headers=headers, json=body, timeout=120)
     print('Update response:', response, response.content)
     logger.debug('Response: %s %s', response, response.content)
     if response.status_code != 200:

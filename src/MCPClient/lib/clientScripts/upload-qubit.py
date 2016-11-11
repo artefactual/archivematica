@@ -210,7 +210,7 @@ def start(data):
     auth = requests.auth.HTTPBasicAuth(data.email, data.password)
 
     # Disable redirects: AtoM returns 302 instead of 202, but Location header field is valid
-    response = requests.request('POST', data.url, auth=auth, headers=headers, allow_redirects=False)
+    response = requests.request('POST', data.url, auth=auth, headers=headers, allow_redirects=False, timeout=5)
 
     # response.{content,headers,status_code}
     log("> Response code: %s" % response.status_code)
