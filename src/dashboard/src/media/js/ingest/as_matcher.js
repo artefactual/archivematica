@@ -546,31 +546,32 @@ var ATKMatcherView = Backbone.View.extend({
     var self = this;
 
     var doMatch = function() {
-      // if a resource is highlighted, attempt to add selected paths
-      if (self.selectedResourceCSSId) {
-        var selectedPaths = self.getSelectedPaths();
-
-        // if any paths have been selected
-        if(selectedPaths.length) {
-          selectedPaths.forEach(function(item) {
-            var resource = self.buildResourceObject(self.selectedResourceCSSId);
-            self.matchPair(item.id, item.path, resource, true);
-          });
-
-        // deselect resource
-        self.selectedResourceCSSId = false;
-        self.resetBackgroundOfResourceTableRows();
-
-        } else {
-          self.notify('No objects selected.');
-        }
-      } else {
+      // Stop if no resources have been selected.
+      if (!self.selectedResourceCSSId) {
         self.notify('No resource selected.');
+        return;
       }
+
+      // Stop if no objects have been selected.
+      var selectedPaths = self.getSelectedPaths();
+      if (!selectedPaths.length) {
+        self.notify('No objects selected.');
+        return;
+      }
+
+      // Pair
+      selectedPaths.forEach(function(item) {
+        var resource = self.buildResourceObject(self.selectedResourceCSSId);
+        self.matchPair(item.id, item.path, resource, true);
+      });
+
+      // Deselect resource
+      self.selectedResourceCSSId = false;
+      self.resetBackgroundOfResourceTableRows();
     };
 
-    $(document).bind('keypress', function(e){
-       if(e.which === 13) {
+    $(document).bind('keypress', function(e) {
+       if (e.which === 13) {
          doMatch();
        }
     });
@@ -631,24 +632,25 @@ var ATKMatcherView = Backbone.View.extend({
     });
   },
 
+
+  /**
+   * Return an array of objects with details of the objects that have been
+   * selected.
+   */
   getSelectedPaths: function() {
-    var self = this,
-        selectedPaths = [];
+    return $('#' + this.objectPanePathsCSSId + ' > div').map(function() {
+      var $this = $(this);
+      var $input = $this.children('input');
 
-    $('#' + self.objectPanePathsCSSId + ' > div').each(function() {
-      if (
-        $(this).children('input').attr('checked') == 'checked'
-        && $(this).children('input').attr('disabled') != 'disabled'
-      ) {
-        // the label title holds the complete path
-        selectedPaths.push({
-          'id': $(this).attr('id'),
-          'path': $(this).children('label').attr('title')
-        });
+      if ($input.is(':disabled') || !$input.is(':checked')) {
+        return undefined;
       }
-    });
 
-    return selectedPaths;
+      return {
+        'id': $this.attr('id'),
+        'path': $this.children('label').attr('title')
+      };
+    }).get();
   },
 
   indexNumberFromCSSId: function(CSSId) {
