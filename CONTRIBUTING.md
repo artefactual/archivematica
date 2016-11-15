@@ -65,7 +65,7 @@ Useful questions to answer if you're having problems include:
 Every new feature and bugfix to a project is expected to go through code review before inclusion.
 This applies both to developers at Artefactual and to outside contributors.
 
-Here's an outline of the code review process:
+Here's an outline of the contribution process:
 
 1. Fork the Artefactual project on GitHub, and commit your changes to a branch in your fork.
 2. Open a pull request.
@@ -115,6 +115,8 @@ Any discussion you have in a specific part of the diff will also be automaticall
 
 Anyone can participate in code review discussions.
 Feel free to jump in if you have something to contribute on another pull request, even if you're not the one who opened it.
+
+For more details about code review in particular, look at our [code review guidelines](code_review.md).
 
 ### Cleaning up the commit history
 
