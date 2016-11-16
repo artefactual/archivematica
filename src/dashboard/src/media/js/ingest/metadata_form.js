@@ -5,9 +5,6 @@ Modification of transfer/component_form.js to display and allow selection of fil
 var active_component;
 var components = {};
 
-// Stub for compatibility with component_directory_selec
-function createMetadataSetID() { return {} }
-
 var MetadataFormView = Backbone.View.extend({
   initialize: function(options) {
     this.form_layout_template = _.template(options.form_layout_template);
@@ -30,7 +27,6 @@ var MetadataFormView = Backbone.View.extend({
     createDirectoryPicker(
       locationUUID,
       sourceDir,
-      'metadata-file-select-modal',
       'path_container',
       'add-metadata-files-path-item',
       function(entry) {  // Display everything
