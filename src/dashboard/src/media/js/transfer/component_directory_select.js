@@ -18,10 +18,9 @@ along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 var components;
-var transferMetadataSetRowUUID;
 var transferDirectoryPickerPathCounter = 1;
 
-function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCssId, pathTemplateCssId, entryDisplayFilter) {
+function createDirectoryPicker(locationUUID, baseDirectory, targetCssId, pathTemplateCssId, entryDisplayFilter) {
   var selector = new DirectoryPickerView({
     ajaxChildDataUrl: '/filesystem/children/location/' + locationUUID + '/',
     el: $('#explorer'),
@@ -50,21 +49,16 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
     description: 'Select',
     iconHtml: 'Add',
     logic: function(result) {
-      // disable transfer type select as disk image transfer types
-      // are displayed with a metadata editing option, but others
-      // are not
-      $('#transfer-type').attr('disabled', 'disabled');
-
       var decoded_path = Base64.decode(result.path)
+      var trailing_slash = decoded_path + (result.type == 'directory' ? '/' : '');
+      var location_path = locationUUID+':'+trailing_slash;
 
-      if (components[decoded_path]) {
-        alert("Error: The selected path is already present in this transfer.");
+      if (components[location_path]) {
+        alert("Error: The selected path is already present.");
         return;
       }
 
       // render path component
-      var trailing_slash = decoded_path + (result.type == 'directory' ? '/' : '');
-      var location_path = locationUUID+':'+trailing_slash;
       $('#' + targetCssId).append(selector.pathTemplateRender({
         'path_counter': transferDirectoryPickerPathCounter,
         'path': decoded_path,
@@ -73,51 +67,26 @@ function createDirectoryPicker(locationUUID, baseDirectory, modalCssId, targetCs
         'delete_icon': '2'
       }));
 
-      if (!active_component) { active_component = createMetadataSetID(); }
-      var component = active_component;
-      component.path = location_path;
+      var component = {
+        'path': location_path
+      };
       components[location_path] = component;
-
-      // enable editing of transfer component metadata
-      if ($('#transfer-type').val() == 'disk image') {
-        var $transferEditIconEl = $(
-          '#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter
-        ).children('.transfer_path_icons').children('.transfer_path_edit_icon');
-
-        $transferEditIconEl.click(function() {
-          var component_metadata_url = '/transfer/component/' + component.uuid + '/';
-          window.open(component_metadata_url, '_blank');
-        });
-
-        $transferEditIconEl.show();
-      }
-
-      active_component = undefined;
 
       // activate edit and delete icons
       $('#' + pathTemplateCssId + '-' + transferDirectoryPickerPathCounter)
       .children('.transfer_path_icons')
       .children('.transfer_path_delete_icon')
       .click(function() {
-        if (confirm('Are you sure you want to remove this transfer component (' + $(this).parent().prev().text() + ')?')) {
+        if (confirm('Are you sure you want to remove ' + $(this).parent().prev().text() + '?')) {
           var path = $(this).parent().prev().prop("id").trim();
           var component = components[path];
 
-          removeMetadataForms(component.uuid);
-
           delete components[path];
           $(this).parent().parent().remove();
-          if ($('.transfer_path').length < 1) {
-            // re-enable transfer type select
-            $('#transfer-type').removeAttr('disabled');
-          }
         }
       });
 
       transferDirectoryPickerPathCounter++;
-
-      // remove directory picker
-      $('#' + modalCssId).remove();
 
       // tiger stripe transfer paths
       $('.transfer_path').each(function() {
