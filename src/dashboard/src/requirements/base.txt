@@ -24,3 +24,7 @@ pyasn1
 requests==2.7.0
 lxml==3.5.0
 django-forms-bootstrap>=3.0.0,<4.0.0
+
+# Required by LDAP authentication
+django-auth-ldap==1.2.0
+python-ldap==2.4.15
