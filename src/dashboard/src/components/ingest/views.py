@@ -108,6 +108,16 @@ def ingest_status(request, uuid=None):
             item['uuid'] = item['sipuuid']
             item['id'] = item['sipuuid']
             del item['sipuuid']
+
+            # embed accession ID in status data (for DRMC customization)
+            try:
+                transfers = models.Transfer.objects.filter(file__sip_id=item['uuid']).distinct()
+                if transfers.count() > 1:
+                    raise ValueError("Cannot handle arranged SIPs")
+                item['access_system_id'] = transfers[0].access_system_id
+            except:
+                pass
+
             item['jobs'] = []
             for job in jobs:
                 newJob = {}
