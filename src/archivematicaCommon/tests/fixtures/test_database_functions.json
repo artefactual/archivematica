@@ -80,6 +80,7 @@
         "model": "main.transfer",
         "fields": {
             "accessionid": "",
+            "access_system_id": "",
             "currentlocation": "%path%",
             "hidden": false,
             "magiclink": null,
@@ -139,6 +140,7 @@
         "model": "main.transfer",
         "fields": {
             "accessionid": "",
+            "access_system_id": "",
             "currentlocation": "%path%",
             "hidden": false,
             "magiclink": null,
@@ -212,6 +214,7 @@
         "model": "main.transfer",
         "fields": {
             "accessionid": "Accession ID",
+            "access_system_id": "",
             "currentlocation": "%path%",
             "hidden": false,
             "magiclink": null,

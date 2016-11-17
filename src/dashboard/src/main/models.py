@@ -285,6 +285,7 @@ class Transfer(models.Model):
     currentlocation = models.TextField(db_column='currentLocation')
     type = models.CharField(max_length=50, db_column='type')
     accessionid = models.TextField(db_column='accessionID')
+    access_system_id = models.TextField(db_column='access_system_id')
     hidden = models.BooleanField(default=False)
     transfermetadatasetrow = models.ForeignKey('TransferMetadataSet', db_column='transferMetadataSetRowUUID', to_field='id', null=True, blank=True)
 
