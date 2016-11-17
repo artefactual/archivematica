@@ -76,10 +76,8 @@ if "archivematica" != user:
 
 def start(data):
     # Make sure we are working with an existing SIP record
-    try:
-      sip = models.SIP.objects.get(pk=data.uuid)
-    except:
-      error("UUID not recognized")
+    if not models.SIP.objects.filter(pk=data.uuid).exists():
+        error("UUID not recognized")
 
     # Get directory
     jobs = models.Job.objects.filter(sipuuid=data.uuid, jobtype="Upload DIP")
@@ -97,7 +95,7 @@ def start(data):
         directory = directory.replace('uploadDIP', 'uploadedDIPs')
 
         if os.path.exists(directory) is False:
-          error("Directory not found: %s" % directory)
+            error("Directory not found: %s" % directory)
 
     try:
         # This upload was called before, restore Access record
@@ -222,7 +220,7 @@ def start(data):
         log("> Content received: %s" % response.content)
 
     # Check AtoM response status code
-    if not response.status_code in [200, 201, 302]:
+    if response.status_code not in [200, 201, 302]:
         error("Response code not expected")
 
     # Location is a must, if it is not included in the AtoM response something was wrong
