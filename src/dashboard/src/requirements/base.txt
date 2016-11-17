@@ -31,3 +31,7 @@ git+git://github.com/Brown-University-Library/django-shibboleth-remoteuser.git@6
 # Support for longer (>30 characters) usernames
 # Using a fork of the main package because this one provides Django (rather than South) migrations
 git+git://github.com/seatme/django-longer-username.git@seatme#egg=longerusername
+
+# Required by LDAP authentication
+django-auth-ldap==1.2.0
+python-ldap==2.4.15
