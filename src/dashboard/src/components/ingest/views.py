@@ -34,7 +34,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db import connection
 from django.forms.models import modelformset_factory
-from django.http import Http404, HttpResponse, HttpResponseBadRequest
+from django.http import Http404, HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.utils.text import slugify
@@ -327,9 +327,7 @@ def ingest_upload(request, uuid):
         - GET = It could be used to obtain DIP size
         - POST = Create Accesses tuple with permalink
     """
-    try:
-        models.SIP.objects.get(uuid__exact=uuid)
-    except models.SIP.DoesNotExist:
+    if not models.SIP.objects.filter(uuid__exact=uuid).exists():
         raise Http404
 
     if request.method == 'POST':
@@ -339,7 +337,8 @@ def ingest_upload(request, uuid):
             except:
                 access = models.Access(sipuuid=uuid)
             access.target = cPickle.dumps({
-                "target": request.POST['target']})
+                "target": request.POST['target']
+            })
             access.save()
             response = {'ready': True}
             return helpers.json_response(response)
@@ -354,7 +353,7 @@ def ingest_upload(request, uuid):
         # data['size'] = utils.get_directory_size(job.directory)
         return helpers.json_response(data)
 
-    return HttpResponseBadRequest()
+    return HttpResponseNotAllowed(['GET', 'POST'])
 
 
 def derivative_validation_report(obj):

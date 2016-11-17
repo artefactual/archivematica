@@ -75,10 +75,8 @@ def error(job, message, code=1):
 
 def start(job, data):
     # Make sure we are working with an existing SIP record
-    try:
-        models.SIP.objects.get(pk=data.uuid)
-    except models.SIP.DoesNotExist:
-        return error(job, "UUID not recognized")
+    if not models.SIP.objects.filter(pk=data.uuid).exists():
+        error("UUID not recognized")
 
     # Get directory
     jobs = models.Job.objects.filter(sipuuid=data.uuid, jobtype="Upload DIP")
@@ -97,6 +95,7 @@ def start(job, data):
 
         if os.path.exists(directory) is False:
             return error(job, "Directory not found: %s" % directory)
+            error("Directory not found: %s" % directory)
 
     try:
         # This upload was called before, restore Access record
