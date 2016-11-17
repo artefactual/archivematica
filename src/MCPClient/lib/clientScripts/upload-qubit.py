@@ -103,6 +103,12 @@ def start(data):
     except:
         # First time this job is called, create new Access record
         access = models.Access(sipuuid=data.uuid)
+        # Look for access system ID
+        transfers = models.Transfer.objects.filter(file__sip_id=data.uuid).distinct()
+        if transfers.count() == 1:
+            access.target = access.target = cPickle.dumps({
+                "target": transfers[0].access_system_id
+            })
         access.save()
 
     # The target columns contents a serialized Python dictionary

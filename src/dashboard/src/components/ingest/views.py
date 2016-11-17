@@ -110,9 +110,10 @@ def ingest_status(request, uuid=None):
 
             # embed accession ID in status data (for DRMC customization)
             try:
-                sip = models.SIP.objects.get(uuid=item['uuid'])
-                file = models.File.objects.filter(sip=sip, transfer__isnull=False)[0]
-                item['accession_id'] = file.transfer.accessionid
+                transfers = models.Transfer.objects.filter(file__sip_id=item['uuid']).distinct()
+                if transfers.count() > 1:
+                    raise ValueError("Cannot handle arranged SIPs")
+                item['access_system_id'] = transfers[0].access_system_id
             except:
                 pass
 

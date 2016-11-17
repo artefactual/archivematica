@@ -319,8 +319,8 @@ $(function()
             // if no TMS object ID provided, ask for one
             var url = '/ingest/' + this.model.sip.get('uuid') + '/upload/';
 
-            if (this.model.sip.attributes.accession_id == ''
-              || this.model.sip.attributes.accession_id == null
+            if (this.model.sip.attributes.access_system_id == ''
+              || this.model.sip.attributes.access_system_id == null
             ) {
               var modal = $('#upload-dip-modal');
               var input = modal.find('input');
@@ -398,7 +398,7 @@ $(function()
             } else {
               // use accession ID for target with artwork record prefix
               var xhr = $.ajax(url, { type: 'POST', data: {
-                'target': 'ar:' + this.model.sip.attributes.accession_id }})
+                'target': 'ar:' + this.model.sip.attributes.access_system_id }})
 
                 .done(function(data)
                   {
