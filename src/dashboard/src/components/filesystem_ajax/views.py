@@ -199,13 +199,14 @@ def start_transfer_logged_in(request):
     transfer_name = archivematicaFunctions.unicodeToStr(request.POST.get('name', ''))
     transfer_type = archivematicaFunctions.unicodeToStr(request.POST.get('type', ''))
     accession = archivematicaFunctions.unicodeToStr(request.POST.get('accession', ''))
+    access_id = archivematicaFunctions.unicodeToStr(request.POST.get('access_system_id', ''))
     # Note that the path may contain arbitrary, non-unicode characters,
     # and hence is POSTed to the server base64-encoded
     paths = request.POST.getlist('paths[]', [])
     paths = [base64.b64decode(path) for path in paths]
     row_ids = request.POST.getlist('row_ids[]', [])
     try:
-        response = start_transfer(transfer_name, transfer_type, accession, paths, row_ids)
+        response = start_transfer(transfer_name, transfer_type, accession, access_id, paths, row_ids)
     except ValueError as e:
         return helpers.json_response({'error': True, 'message': str(e)}, status_code=400)
     except storage_service.StorageServiceError as e:
@@ -214,13 +215,14 @@ def start_transfer_logged_in(request):
         return helpers.json_response(response)
 
 
-def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
+def start_transfer(transfer_name, transfer_type, accession, access_id, paths, row_ids):
     """
     Start a new transfer.
 
     :param str transfer_name: Name of new transfer.
     :param str transfer_type: Type of new transfer. From TRANSFER_TYPE_DIRECTORIES.
     :param str accession: Accession number of new transfer.
+    :param str access_id: Access system identifier for the new transfer.
     :param list paths: List of <location_uuid>:<relative_path> to be copied into the new transfer. Location UUIDs should be associated with this pipeline, and relative path should be relative to the location.
     :param list row_ids: ID of the associated TransferMetadataSet for disk image ingest.
     :returns: Dict with {'message': <message>, ['error': True, 'path': <path>]}.  Error is a boolean, present and True if there is an error.  Message describes the success or failure. Path is populated if there is no error.
@@ -258,6 +260,7 @@ def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
         try:
             destination = copy_to_start_transfer(filepath=filepath,
                 type=transfer_type, accession=accession,
+                access_id=access_id,
                 transfer_metadata_set_row_uuid=row_id)
         except Exception:
             logger.exception("Error copying %s to start of transfer", filepath)
@@ -267,7 +270,7 @@ def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
     return {'message': 'Copy successful.', 'path': destination}
 
 
-def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata_set_row_uuid=''):
+def copy_to_start_transfer(filepath='', type='', accession='', access_id='', transfer_metadata_set_row_uuid=''):
     error = filesystem_ajax_helpers.check_filepath_exists(filepath)
 
     if error is None:
@@ -283,30 +286,31 @@ def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata
         if os.path.isdir(filepath):
             destination = os.path.join(destination, '')
 
-        # If we need to pass additional data to the Transfer, create the object here instead of letting MCPClient create it
-        if accession != '' or transfer_metadata_set_row_uuid != '':
-            temp_uuid = str(uuid.uuid4())
-            mcp_destination = destination.replace(os.path.join(SHARED_DIRECTORY_ROOT, ''), '%sharedPath%')
-            kwargs = {
-                "uuid": temp_uuid,
-                "accessionid": accession,
-                "currentlocation": mcp_destination
-            }
+        # Create the Transfer here instead of letting MCPClient create it
+        # Used to pass additional information to the Transfer
+        temp_uuid = str(uuid.uuid4())
+        mcp_destination = destination.replace(os.path.join(SHARED_DIRECTORY_ROOT, ''), '%sharedPath%')
+        kwargs = {
+            "uuid": temp_uuid,
+            "accessionid": accession,
+            "access_system_id": access_id,
+            "currentlocation": mcp_destination,
+        }
 
-            # Even if a UUID is passed, there might not be a row with
-            # that UUID yet - for instance, if the user opened an edit
-            # form but did not save any metadata for that row.
-            if transfer_metadata_set_row_uuid:
-                try:
-                    row = models.TransferMetadataSet.objects.get(
-                        id=transfer_metadata_set_row_uuid
-                    )
-                    kwargs["transfermetadatasetrow"] = row
-                except models.TransferMetadataSet.DoesNotExist:
-                    pass
+        # Even if a UUID is passed, there might not be a row with
+        # that UUID yet - for instance, if the user opened an edit
+        # form but did not save any metadata for that row.
+        if transfer_metadata_set_row_uuid:
+            try:
+                row = models.TransferMetadataSet.objects.get(
+                    id=transfer_metadata_set_row_uuid
+                )
+                kwargs["transfermetadatasetrow"] = row
+            except models.TransferMetadataSet.DoesNotExist:
+                pass
 
-            transfer = models.Transfer.objects.create(**kwargs)
-            transfer.save()
+        transfer = models.Transfer.objects.create(**kwargs)
+        transfer.save()
 
         try:
             shutil.move(filepath, destination)
