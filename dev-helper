@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This file is part of Archivematica.
 #
@@ -21,188 +21,184 @@
 # @author Joseph Perry <joseph@artefactual.com>
 # @version svn: $Id$
 
-cd `dirname $0`
-fn_exists()
-{
-  type $1 2>/dev/null | grep -q 'is a function'
+cd $(dirname "${0}")
+fn_exists(){
+    type $1 2>/dev/null | grep -q 'is a function'
 }
 
-colour () { "$@" 2>&1>&3|sed 's,.*,\x1B[31m&\x1B[0m,'>&2;} 3>&1
+colour(){ "$@" 2>&1>&3|sed 's,.*,\x1B[31m&\x1B[0m,'>&2;} 3>&1
 
-function git-pull() {
-  part="git pull"
-  echo -n "\"Would you like to ${part}?\" (y/N) "
-  read a
-  if [[ $a == "Y" || $a == "y" ]]; then
-      echo "Doing ${part} ..."
-      echo "Cleaning up..."
-      cd localDevSetup/
-      colour ./cleanup.sh
-      cd ..
-      currentBranch=`git status | grep '# On branch ' | awk '{print $4}'`
-      gitDiff=`git diff`
-      if [ -z "$gitDiff" -a "${gitDiff+xxx}" = "xxx" ]; then
-        echo "No changes to store."
-      else
-        echo "Storing changes (to be restored with 'git stash pop'), viewed with git-diff."
-        git stash
-      fi
-      colour git pull --rebase origin ${currentBranch}
-      colour git submodule init
-      colour git submodule update
-      if [ -z "$gitDiff" -a "${gitDiff+xxx}" = "xxx" ]; then
-        echo "No changes to restore"
-      else
-        echo "Restoring changes"
-        git stash pop
-      fi
-      echo "Integrating into environment..."
-      cd localDevSetup/
-      colour ./createLocalDevDirectories.sh
-      cd ..
-
-      echo "Updating FPR admin..."
-      # this will do nothing if you are in a branch with no submodules
-      git submodule init
-      git submodule update
-      
-      if [ -d src/dashboard/src/fpr ]; then
-          echo "entering fpr admin module"
-          cd src/dashboard/src/fpr
-          git checkout 1.x
-          git pull
-          cd ../../../../
-      fi
-
-  else
-          echo "not going to ${part}"
-  fi
-}
-
-function package-update() {
-  part="update/install package requirements"
-  echo -n "\"Would you like to ${part}?\" (y/N) "
-  read a
-  if [[ $a == "Y" || $a == "y" ]]; then
-          echo "Going to ${part} ..."
-          cd localDevSetup/
-          colour sudo apt-get update
-          colour sudo ./installDependsFromDebianFile.py ./../src/archivematicaCommon/debian/control
-          #colour sudo ./installDependsFromDebianFile.py ./../src/createDublinCore/debian/control
-          colour sudo ./installDependsFromDebianFile.py ./../src/dashboard/debian/control
-          #./installDependsFromDebianFile.py ./../src/easy-extract/debian/control
-          colour sudo ./installDependsFromDebianFile.py ./../src/MCPClient/debian/control
-          colour sudo ./installDependsFromDebianFile.py ./../src/MCPrpcCLI/debian/control
-          colour sudo ./installDependsFromDebianFile.py ./../src/MCPServer/debian/control
-          colour sudo pip install -r ../src/dashboard/src/requirements/production.txt     
-          cd ..
-          sudo pip install --upgrade -r src/dashboard/src/requirements/base.txt
-          sudo pip install --upgrade -r src/archivematicaCommon/requirements/local.txt
-  else
-          echo "Not going to ${part}."
-  fi
-}
-
-function recreate-db() {
-  part="recreate the databases"
-  echo -n "\"Would you like to ${part}?\" (y/N) "
-  read a
-  if [[ $a == "Y" || $a == "y" ]]; then
-          echo "Going to ${part} ..."
-          cd localDevSetup/
-          sudo stop archivematica-mcp-server
-          sudo stop archivematica-mcp-client
-          sudo apache2ctl stop
-          colour ./recreateDB.sh
-          cd ..
-          sudo start archivematica-mcp-server
-          sudo start archivematica-mcp-client
-          sudo apachectl start
-  else
-          echo "Not going to ${part}."
-  fi
-}
-
-function erase-indexes() {
-  part="erase the ElasticSearch indexes"
-  echo -n "\"Would you like to ${part}?\" (y/N) "
-  read a
-  if [[ $a == "Y" || $a == "y" ]]; then
-          localDevSetup/eraseElasticSearchIndexes.py -f
-  else
-          echo "Not going to ${part}."
-  fi
-}
-
-function clear-storage() {
-  part="clear transfer backlog, uploaded DIPs, and AIP & DIP storage"
-  echo -n "\"Would you like to ${part}?\" (y/N) "
-  read a
-  if [[ $a == "Y" || $a == "y" ]]; then
-    set -x
-    sudo rm -rf /var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals/*
-    sudo rm -rf /var/archivematica/sharedDirectory/watchedDirectories/uploadedDIPs/*
-    sudo rm -rf /var/archivematica/sharedDirectory/www/AIPsStore/????
-    sudo rm -rf /var/archivematica/sharedDirectory/www/DIPsStore/*
-    set +x
-  else
-    echo "Not going to ${part}"
-  fi
-}
-
-function update-sampledata() {
-  part="update sample data in $HOME/archivematica-sampledata"
-  echo -n "\"Would you like to ${part}?\" (y/N) "
-  read a
-  if [[ $a == "Y" || $a == "y" ]]; then
-    if [ ! -d ~/archivematica-sampledata ]; then
-        cd 
-        colour git clone https://github.com/artefactual/archivematica-sampledata.git
+git-pull(){
+    part="git pull"
+    echo -n "\"Would you like to ${part}?\" (y/N) "
+    read a
+    if [[ "${a}" = [Yy] ]]; then
+        echo "Doing ${part} ..."
+        echo "Cleaning up..."
+        cd localDevSetup/
+        colour ./cleanup.sh
+        cd ..
+        currentBranch=`git status | grep '# On branch ' | awk '{print $4}'`
+        gitDiff=`git diff`
+        if [ -z "$gitDiff" -a "${gitDiff+xxx}" = "xxx" ]; then
+            echo "No changes to store."
+        else
+            echo "Storing changes (to be restored with 'git stash pop'), viewed with git-diff."
+            git stash
+        fi
+        colour git pull --rebase origin ${currentBranch}
+        colour git submodule init
+        colour git submodule update
+        if [ -z "$gitDiff" -a "${gitDiff+xxx}" = "xxx" ]; then
+            echo "No changes to restore"
+        else
+            echo "Restoring changes"
+            git stash pop
+        fi
+        echo "Integrating into environment..."
+        cd localDevSetup/
+        colour ./createLocalDevDirectories.sh
+        cd ..
+        echo "Updating FPR admin..."
+        # this will do nothing if you are in a branch with no submodules
+        git submodule init
+        git submodule update     
+        if [ -d src/dashboard/src/fpr ]; then
+            echo "entering fpr admin module"
+            cd src/dashboard/src/fpr
+            git checkout qa/1.x
+            git pull
+            cd ../../../../
+        fi
     else
-        cd ~/archivematica-sampledata
-        colour git pull
+        echo "not going to ${part}"
     fi
-    cd `dirname $0`
-  else
-          echo "Not going to ${part}."
-  fi
 }
 
-function export-sampledata() {
-  part="export sample data from $HOME/archivematica-sampledata"
-  echo -n "\"Would you like to ${part}?\" (y/N) "
-  read a
-  if [[ $a == "Y" || $a == "y" ]]; then
-    cd ~/archivematica-sampledata
-    DATE=`date +%Y-%m-%d-%H-%M-%S`
-    exportDir="$HOME/archivematica-sampledata-$DATE"
-    echo exporting to "${exportDir}"
-    mkdir "${exportDir}"
-    git archive master | tar -x -C "${exportDir}"
-    git submodule foreach "cd ~/archivematica-sampledata && 
+package-update(){
+    part="update/install package requirements"
+    echo -n "\"Would you like to ${part}?\" (y/N) "
+    read a
+    if [[ "${a}" = [Yy] ]]; then
+        echo "Going to ${part} ..."
+        cd localDevSetup/
+        colour sudo apt-get update
+        colour sudo ./installDependsFromDebianFile.py ./../src/archivematicaCommon/debian/control
+        #colour sudo ./installDependsFromDebianFile.py ./../src/createDublinCore/debian/control
+        colour sudo ./installDependsFromDebianFile.py ./../src/dashboard/debian/control
+        #./installDependsFromDebianFile.py ./../src/easy-extract/debian/control
+        colour sudo ./installDependsFromDebianFile.py ./../src/MCPClient/debian/control
+        colour sudo ./installDependsFromDebianFile.py ./../src/MCPrpcCLI/debian/control
+        colour sudo ./installDependsFromDebianFile.py ./../src/MCPServer/debian/control
+        colour sudo pip install -r ../src/dashboard/src/requirements/production.txt     
+        cd ..
+        sudo pip install --upgrade -r src/dashboard/src/requirements/base.txt
+        sudo pip install --upgrade -r src/archivematicaCommon/requirements/local.txt
+    else
+        echo "Not going to ${part}."
+    fi
+}
+
+recreate-db(){
+    part="recreate the databases"
+    echo -n "\"Would you like to ${part}?\" (y/N) "
+    read a
+    if [[ "${a}" = [Yy] ]]; then
+        echo "Going to ${part} ..."
+        cd localDevSetup/
+        sudo stop archivematica-mcp-server
+        sudo stop archivematica-mcp-client
+        sudo apache2ctl stop
+        colour ./recreateDB.sh
+        cd ..
+        sudo start archivematica-mcp-server
+        sudo start archivematica-mcp-client
+        sudo apachectl start
+    else
+        echo "Not going to ${part}."
+    fi
+}
+
+erase-indexes(){
+    part="erase the ElasticSearch indexes"
+    echo -n "\"Would you like to ${part}?\" (y/N) "
+    read a
+    if [[ "${a}" = [Yy] ]]; then
+        localDevSetup/eraseElasticSearchIndexes.py -f
+    else
+        echo "Not going to ${part}."
+    fi
+}
+
+clear-storage(){
+    part="clear transfer backlog, uploaded DIPs, and AIP & DIP storage"
+    echo -n "\"Would you like to ${part}?\" (y/N) "
+    read a
+    if [[ "${a}" = [Yy] ]]; then
+        set -x
+        sudo rm -rf /var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals/*
+        sudo rm -rf /var/archivematica/sharedDirectory/watchedDirectories/uploadedDIPs/*
+        sudo rm -rf /var/archivematica/sharedDirectory/www/AIPsStore/????
+        sudo rm -rf /var/archivematica/sharedDirectory/www/DIPsStore/*
+        set +x
+    else
+        echo "Not going to ${part}"
+    fi
+}
+
+update-sampledata(){
+    part="update sample data in $HOME/archivematica-sampledata"
+    echo -n "\"Would you like to ${part}?\" (y/N) "
+    read a
+    if [[ "${a}" = [Yy] ]]; then
+        if [ ! -d ~/archivematica-sampledata ]; then
+            cd 
+            colour git clone https://github.com/artefactual/archivematica-sampledata.git
+        else
+            cd ~/archivematica-sampledata
+            colour git pull
+        fi
+        cd $(dirname "${0}")
+    else
+        echo "Not going to ${part}."
+    fi
+}
+
+export-sampledata(){
+    part="export sample data from $HOME/archivematica-sampledata"
+    echo -n "\"Would you like to ${part}?\" (y/N) "
+    read a
+    if [[ "${a}" = [Yy] ]]; then
+        cd ~/archivematica-sampledata
+        DATE=$(date +%Y-%m-%d-%H-%M-%S)
+        exportDir="$HOME/archivematica-sampledata-${DATE}"
+        echo exporting to "${exportDir}"
+        mkdir "${exportDir}"
+        git archive master | tar -x -C "${exportDir}"
+        git submodule foreach "cd ~/archivematica-sampledata && 
         cd \"\$path\" &&
         git archive master | tar -x -C \"${exportDir}/\$path\"" 
-    cd `dirname $0`
-  else
-          echo "Not going to ${part}."
-  fi
+        cd $(dirname "${0}")
+    else
+        echo "Not going to ${part}."
+    fi
 }
 
-function example() {
-  part="example"
-  echo -n "\"Would you like to ${part}?\" (y/N) "
-  read a
-  if [[ $a == "Y" || $a == "y" ]]; then
-          echo "Going to ${part} ..."
-  else
-          echo "Not going to ${part}"
-  fi
+example(){
+    part="example"
+    echo -n "\"Would you like to ${part}?\" (y/N) "
+    read a
+    if [[ "${a}" = [Yy] ]]; then
+        echo "Going to ${part} ..."
+    else
+        echo "Not going to ${part}"
+    fi
 }
 
 # Run only one function if given
 if [ ! -z ${1} ]; then
-  ${1}
-  exit
+    ${1}
+    exit
 fi
 
 git-pull
