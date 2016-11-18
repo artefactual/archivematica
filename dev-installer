@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This file is part of Archivematica.
 #
@@ -21,117 +21,112 @@
 # @author Joseph Perry <joseph@artefactual.com>
 # @version svn: $Id$
 
-cd `dirname $0`
+cd $(dirname "${0}")
 
 part="create the archivematica user"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a == "Y" || $a == "y" ]]; then
-        echo "Going to ${part} ..."
-        sudo adduser --uid 333 --group --system --home /var/lib/archivematica/ archivematica
-        sudo adduser --uid 334 --group --system --home /var/lib/archivematica-django/ archivematicadashboard
-        sudo gpasswd -a $USER archivematica
-        sudo gpasswd -a archivematicadashboard archivematica
+if [[ $a = "Y" || $a = "y" ]]; then
+    echo "Going to ${part} ..."
+    sudo adduser --uid 333 --group --system --home /var/lib/archivematica/ archivematica
+    sudo adduser --uid 334 --group --system --home /var/lib/archivematica-django/ archivematicadashboard
+    sudo gpasswd -a $USER archivematica
+    sudo gpasswd -a archivematicadashboard archivematica
 else
-        echo "Not going to ${part}"
+    echo "Not going to ${part}"
 fi
-
 
 part="install Gearman"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a == "Y" || $a == "y" ]]; then
-        echo "Going to ${part} ..."
-        sudo apt-get install gearman 
-        sudo apt-get install python-setuptools 
-        sudo apt-get install python-gearman
-        #sudo easy_install gearman
+if [[ $a = "Y" || $a = "y" ]]; then
+    echo "Going to ${part} ..."
+    sudo apt-get install gearman 
+    sudo apt-get install python-setuptools 
+    sudo apt-get install python-gearman
+    #sudo easy_install gearman
 else
-        echo "Not going to ${part}"
+    echo "Not going to ${part}"
 fi
-
-
 
 part="install postfix"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a == "Y" || $a == "y" ]]; then
-        echo "Going to ${part} ..."
-        clear
-        echo select internet and defaults
-        read -n1 -r -p "Press any key to continue..." key
-        sudo apt-get install postfix 
+if [[ $a = "Y" || $a = "y" ]]; then
+    echo "Going to ${part} ..."
+    clear
+    echo select internet and defaults
+    read -n1 -r -p "Press any key to continue..." key
+    sudo apt-get install postfix 
 else
-        echo "Not going to ${part}"
+    echo "Not going to ${part}"
 fi
 
 part="install/update MySQL"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a == "Y" || $a == "y" ]]; then
-        echo "Going to ${part} ..."
-        sudo apt-get install mysql-server -y
+if [[ $a = "Y" || $a = "y" ]]; then
+    echo "Going to ${part} ..."
+    sudo apt-get install mysql-server -y
 else
-        echo "Not going to ${part}"
+    echo "Not going to ${part}"
 fi
 
 part="install/update Apache"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a == "Y" || $a == "y" ]]; then
-        echo "Going to ${part} ..."
-        sudo apt-get install apache2 -y
+if [[ $a = "Y" || $a = "y" ]]; then
+    echo "Going to ${part} ..."
+    sudo apt-get install apache2 -y
 else
-        echo "Not going to ${part}"
+    echo "Not going to ${part}"
 fi
 
 part="add ppa repositories"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a == "Y" || $a == "y" ]]; then
-	sudo apt-get install python-software-properties -y
-        sudo add-apt-repository ppa:archivematica/externals-dev
-        #sudo add-apt-repository ppa:twisted-dev/ppa
-        sudo apt-get update
+if [[ $a = "Y" || $a = "y" ]]; then
+    sudo apt-get install python-software-properties -y
+    sudo add-apt-repository ppa:archivematica/externals-dev
+    #sudo add-apt-repository ppa:twisted-dev/ppa
+    sudo apt-get update
 else
-        echo "Not going to ${part}"
+    echo "Not going to ${part}"
 fi
-
 
 part="reinstall archivematica upstart services - requires restart"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a == "Y" || $a == "y" ]]; then
-        echo "Going to ${part} ..."
-        sudo stop archivematica-mcp-client
-        sleep 1
-        sudo stop archivematica-mcp-server
-        sudo rm /etc/init/archivematica-mcp-server.conf /etc/init/archivematica-mcp-client.conf
-        sudo ln src/MCPServer/init/archivematica-mcp-server.conf /etc/init/
-        sudo ln src/MCPClient/init/archivematica-mcp-client.conf /etc/init/
+if [[ $a = "Y" || $a = "y" ]]; then
+    echo "Going to ${part} ..."
+    sudo stop archivematica-mcp-client
+    sleep 1
+    sudo stop archivematica-mcp-server
+    sudo rm /etc/init/archivematica-mcp-server.conf /etc/init/archivematica-mcp-client.conf
+    sudo ln src/MCPServer/init/archivematica-mcp-server.conf /etc/init/
+    sudo ln src/MCPClient/init/archivematica-mcp-client.conf /etc/init/
 else
-        echo "Not going to ${part}."
+    echo "Not going to ${part}."
 fi
-
 
 part="clone sample data into $HOME"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a == "Y" || $a == "y" ]]; then
-  CURRENT_REPO=`git remote -v | head -n 1 | sed "s/\t/ /" | cut -f2 -d" "`
-  if [ "$CURRENT_REPO" = "git@git.artefactual.com:archivematica" ]; then
-    SAMPLEDATA_REPO="git@git.artefactual.com:archivematica-sampledata.git"
-  else
-    SAMPLEDATA_REPO="https://github.com/artefactual/archivematica-sampledata.git"
-  fi
-  DATE=`date +%Y-%m-%d-%M-%S`
-  git clone $SAMPLEDATA_REPO ~/archivematica-sampledata
-  echo "Updating OPF..."
-  cd ~/archivematica-sampledata
-  git submodule init
-  git submodule update
+if [[ $a = "Y" || $a = "y" ]]; then
+    CURRENT_REPO=$(git remote -v | head -n 1 | sed "s/\t/ /" | cut -f2 -d" ")
+    if [ "${CURRENT_REPO}" = "git@git.artefactual.com:archivematica" ]; then
+        SAMPLEDATA_REPO="git@git.artefactual.com:archivematica-sampledata.git"
+    else
+        SAMPLEDATA_REPO="https://github.com/artefactual/archivematica-sampledata.git"
+    fi
+    DATE=`date +%Y-%m-%d-%M-%S`
+    git clone ${SAMPLEDATA_REPO} ~/archivematica-sampledata
+    echo "Updating OPF..."
+    cd ~/archivematica-sampledata
+    git submodule init
+    git submodule update
 else
-        echo "Not going to ${part}."
+    echo "Not going to ${part}."
 fi
 
 exit
@@ -139,8 +134,8 @@ exit
 part="example"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a == "Y" || $a == "y" ]]; then
-        echo "Going to ${part} ..."
+if [[ $a = "Y" || $a = "y" ]]; then
+    echo "Going to ${part} ..."
 else
-        echo "Not going to ${part}"
+    echo "Not going to ${part}"
 fi
