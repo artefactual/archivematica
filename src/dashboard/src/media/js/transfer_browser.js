@@ -56684,6 +56684,15 @@
 	        node.children_fetched = true;
 	      });
 	    }
+	  }, {
+	    key: 'zip_filter',
+	    value: function zip_filter(file) {
+	      // Check if it's a compressed file
+	      if (file.title.endsWith('.zip') || file.title.endsWith('.tgz') || file.title.endsWith('.tar.gz')) {
+	        return true;
+	      }
+	      return false;
+	    }
 
 	    // Determines whether a given file can be added to the transfer,
 	    // depending on the transfer type.
@@ -56692,7 +56701,9 @@
 	    key: 'file_can_be_added',
 	    value: function file_can_be_added(file) {
 	      if (this.transfer.type === 'zipped bag') {
-	        return !file.directory && (file.title.endsWith('.zip') || file.title.endsWith('.tgz') || file.title.endsWith('.tar.gz'));
+	        return !file.directory && this.zip_filter(file);
+	      } else if (this.transfer.type === 'dspace') {
+	        return file.directory || this.zip_filter(file);
 	      } else {
 	        return file.directory;
 	      }
