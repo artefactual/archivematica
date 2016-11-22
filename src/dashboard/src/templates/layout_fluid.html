@@ -6,17 +6,6 @@
 
     <div class="content">
 
-      <div id="notifications"></div>
-
-      <script>
-        var archivematicaNotifications;
-        $(document).ready(function() {
-          archivematicaNotifications = new NotificationView({
-            el: $('#notifications')
-          });
-          archivematicaNotifications.render();
-        });
-      </script>
       {% include "_messages.html" %}
 
       {% block content %}{% endblock %}

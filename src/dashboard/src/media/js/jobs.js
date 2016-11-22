@@ -743,37 +743,6 @@ BaseAppView = Backbone.View.extend({
         });
     },
 
-  cacheNotifications: function(notifications)
-    {
-      // get currently stored notifications
-      var localNotificationData = JSON.parse(localStorage.getItem('archivematicaNotifications'));
-
-      // cycle through existing notifications
-      for (var notificationIndex in notifications)
-      {
-        var notification = notifications[notificationIndex];
-
-        // see if notification already exists
-        var exists = false;
-        for (var index in localNotificationData.notifications)
-        {
-          var localNotification = localNotificationData.notifications[index];
-          if (localNotification.id == notification.id)
-          {
-            exists = true;
-          }
-        }
-
-        //  add to localstorage if not already there and not dismissed
-        if (!exists && localNotificationData.dismissed.indexOf(notification.id) == -1)
-        {
-          localNotificationData.notifications.push(notification);
-        }
-      }
-
-      localStorage.setItem('archivematicaNotifications', JSON.stringify(localNotificationData))
-    },
-
   updateSips: function(objects)
     {
       var itemsPerPage = 5
