@@ -177,9 +177,11 @@ INSTALLED_APPS = (
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
+# For configuration option details see:
+# https://docs.djangoproject.com/en/1.8/ref/settings/#email-backend
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = '127.0.0.1'
-EMAIL_TIMEOUT = '4'
+EMAIL_TIMEOUT = 15
 
 LOGGING = {
     'version': 1,
