@@ -84,8 +84,11 @@ def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
         # Extraction commands are defined in the FPR just like normalization
         # commands
         try:
-            command = FPCommand.active.get(fprule__format=format_id.format_version,
-            fprule__purpose='extract')
+            command = FPCommand.active.get(
+                fprule__format=format_id.format_version,
+                fprule__purpose='extract',
+                fprule__enabled=True,
+            )
         except FPCommand.DoesNotExist:
             print('Not extracting contents from',
                 os.path.basename(file_.currentlocation),
