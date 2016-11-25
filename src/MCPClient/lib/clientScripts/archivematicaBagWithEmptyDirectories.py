@@ -87,6 +87,10 @@ def bag_with_empty_directories(operation, destination, sip_directory, payload_en
     # Ensure all payload items actually exist
     payload_entries = [e for e in full_paths if os.path.exists(e)]
 
+    print('FOX running ``bag create on destination %s:' % destination)
+    import subprocess
+    print(subprocess.check_output(['tree', '-a', '--du', destination]))
+
     # Reconstruct bagit arguments
     # Goal: bagit <operation> <destination> <flattened payload list> <optional args>
     bagit_args = [operation, destination]

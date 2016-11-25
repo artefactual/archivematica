@@ -53,6 +53,10 @@ def verify_aip():
             print('Error extracting AIP at "{}"'.format(aip_path), file=sys.stderr)
             return 1
 
+    print('JOEL CHANGES')
+    import subprocess
+    print(subprocess.check_output(['tree', '-a', '--du', bag]))
+
     verification_commands = [
         '/usr/share/bagit/bin/bag verifyvalid "{}"'.format(bag),
         '/usr/share/bagit/bin/bag checkpayloadoxum "{}"'.format(bag),
