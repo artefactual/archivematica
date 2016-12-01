@@ -46,10 +46,19 @@ if __name__ == '__main__':
 
     (opts, args) = parser.parse_args()
 
-    insertIntoEvents(fileUUID=opts.fileUUID, \
-                     eventIdentifierUUID=str(uuid.uuid4()), \
-                     eventType=opts.eventType, \
-                     eventDateTime=opts.eventDateTime, \
-                     eventDetail=opts.eventDetail, \
-                     eventOutcome=opts.eventOutcome, \
-                     eventOutcomeDetailNote=opts.eventOutcomeDetailNote)
+    # The "Create removal from backlog PREMIS events" is one of the
+    # micro-services that uses this createEvent client script. It used to
+    # ignore everything not in an objects/ subdirectory. However, this becomes
+    # problematic when you create a SIP from a subdirectory of something in
+    # backlog; in that case there may be no objects/ root directory, in which
+    # case "removal from backlog" events will, contrary to desire, not be
+    # created. Therefore, we make sure that there is a file UUID value prior to
+    # creating an event.
+    if opts.fileUUID and opts.fileUUID != 'None':
+        insertIntoEvents(fileUUID=opts.fileUUID,
+                         eventIdentifierUUID=str(uuid.uuid4()),
+                         eventType=opts.eventType,
+                         eventDateTime=opts.eventDateTime,
+                         eventDetail=opts.eventDetail,
+                         eventOutcome=opts.eventOutcome,
+                         eventOutcomeDetailNote=opts.eventOutcomeDetailNote)
