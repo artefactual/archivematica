@@ -1,7 +1,10 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 from __future__ import print_function
-import ConfigParser
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+import configparser
 from glob import glob
 import os
 import sys
@@ -46,13 +49,13 @@ def index_aip():
 
     # Check if ElasticSearch is enabled
     client_config_path = '/etc/archivematica/MCPClient/clientConfig.conf'
-    config = ConfigParser.SafeConfigParser()
+    config = configparser.SafeConfigParser()
     config.read(client_config_path)
     elastic_search_disabled = False
     try:
         elastic_search_disabled = config.getboolean(
             'MCPClient', "disableElasticsearchIndexing")
-    except ConfigParser.NoOptionError:
+    except configparser.NoOptionError:
         pass
     if elastic_search_disabled:
         print('Skipping indexing: indexing is currently disabled in', client_config_path)

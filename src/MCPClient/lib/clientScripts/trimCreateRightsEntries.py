@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 # This file is part of Archivematica.
 #
@@ -21,6 +21,8 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import str
 import re
 import os
 from lxml import etree as etree

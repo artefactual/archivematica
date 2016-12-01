@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #
 # Collects characterization commands for the provided file, then either
 # a) Inserts the tool's XML output into the database, or
@@ -7,6 +7,7 @@
 # If a tool has no defined characterization commands, then the default
 # will be run instead (currently FITS).
 from __future__ import print_function
+from __future__ import unicode_literals
 import sys
 
 from lxml import etree

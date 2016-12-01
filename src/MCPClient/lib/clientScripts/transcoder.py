@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -19,6 +19,8 @@
 # @package Archivematica
 # @subpackage archivematicaClient
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import object
 import sys
 
 # archivematicaCommon
@@ -30,7 +32,7 @@ from django.db.models import F
 
 def toStrFromUnicode(inputString, encoding='utf-8'):
     """Converts to str, if it's unicode input type."""
-    if isinstance(inputString, unicode):
+    if isinstance(inputString, str):
         inputString = inputString.encode(encoding)
     return inputString
 

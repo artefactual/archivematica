@@ -1,4 +1,7 @@
-#!/usr/bin/env python2
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+#!/usr/bin/env python3
 
 # This file is part of Archivematica.
 #
@@ -20,7 +23,7 @@
 # @package Archivematica
 # @subpackage archivematicaClientScript
 # @author Mike Cantelon <mike@artefactual.com>
-import ConfigParser
+import configparser
 import sys
 
 # elasticSearchFunctions requires Django to be set up
@@ -36,13 +39,13 @@ logger = get_script_logger('archivematica.mcp.client.elasticSearchIndexProcessTr
 
 if __name__ == '__main__':
     config_file = '/etc/archivematica/MCPClient/clientConfig.conf'
-    config = ConfigParser.SafeConfigParser()
+    config = configparser.SafeConfigParser()
     config.read(config_file)
 
     elasticsearchDisabled = False
     try:
         elasticsearchDisabled = config.getboolean('MCPClient', "disableElasticsearchIndexing")
-    except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+    except (configparser.NoSectionError, configparser.NoOptionError):
         pass
     if elasticsearchDisabled is True:
         logger.info('Skipping indexing: indexing is currently disabled in %s.', config_file)

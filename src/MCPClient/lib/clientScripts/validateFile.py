@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """
 Runs a validation command on the provided file, and generates an Event from
 the results.
@@ -6,6 +6,7 @@ the results.
 If a format has no defined validation commands, no command is run.
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 import ast
 import sys
 

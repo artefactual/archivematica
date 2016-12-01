@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # This file is part of Archivematica.
 #
 # Copyright 2010-2013 Artefactual Systems Inc. <http://artefactual.com>
@@ -21,6 +21,7 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
+from __future__ import unicode_literals
 import os
 import re
 import sys

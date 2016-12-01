@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #
 # This file is part of Archivematica.
 #
@@ -25,6 +25,9 @@
 #/src/dashboard/src/main/models.py
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import next
+from builtins import zip
 import collections
 import csv
 import os
@@ -108,7 +111,7 @@ def parseMetadataCSV(metadataCSVFilePath):
                 entry_name = entry_name[:-1]
             # Strip file/dir name from values
             row = row[1:]
-            values = archivematicaFunctions.OrderedListsDict(zip(header, row))
+            values = archivematicaFunctions.OrderedListsDict(list(zip(header, row)))
             if entry_name in metadata and metadata[entry_name] != values:
                 print('Metadata for', entry_name, 'being overwritten. Old:', metadata[entry_name], 'New:', values, file=sys.stderr)
             metadata[entry_name] = values

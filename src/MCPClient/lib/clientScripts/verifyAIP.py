@@ -1,6 +1,9 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 from __future__ import print_function
-import ConfigParser
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+import configparser
 import os
 import shutil
 import sys
@@ -37,7 +40,7 @@ def verify_aip():
     aip_path = sys.argv[2]  # SIPDirectory%%sip_name%-%sip_uuid%.7z
 
     clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-    config = ConfigParser.SafeConfigParser()
+    config = configparser.SafeConfigParser()
     config.read(clientConfigFilePath)
     temp_dir = config.get('MCPClient', 'temp_dir')
 

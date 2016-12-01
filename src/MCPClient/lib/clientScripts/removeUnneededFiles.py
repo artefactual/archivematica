@@ -1,7 +1,10 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 from __future__ import print_function
-import ConfigParser
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+import configparser
 import os
 import sys
 import shutil
@@ -16,11 +19,11 @@ from databaseFunctions import fileWasRemoved
 
 def remove_file(target_file, file_uuid):
     clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-    config = ConfigParser.SafeConfigParser()
+    config = configparser.SafeConfigParser()
     config.read(clientConfigFilePath)
     try:
         removableFiles = [e.strip() for e in config.get('MCPClient', 'removableFiles').split(',')]
-    except ConfigParser.NoOptionError:
+    except configparser.NoOptionError:
         removableFiles = ["Thumbs.db", "Icon", u"Icon\u000D", ".DS_Store"]
 
     basename = os.path.basename(target_file)

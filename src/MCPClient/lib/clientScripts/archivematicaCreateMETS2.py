@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # This file is part of Archivematica.
@@ -23,6 +23,8 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import str
 import collections
 import copy
 from glob import glob
@@ -814,8 +816,8 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
                 label = "mets.xml-%s" % (GROUPID)
                 dspace_dmdsecs = createDSpaceDMDSec(label, itemdirectoryPath, directoryPathSTR)
                 if dspace_dmdsecs:
-                    dmdSecs.extend(dspace_dmdsecs.values())
-                    ids = ' '.join(dspace_dmdsecs.keys())
+                    dmdSecs.extend(list(dspace_dmdsecs.values()))
+                    ids = ' '.join(list(dspace_dmdsecs.keys()))
                     if admidApplyTo is not None:
                         admidApplyTo.set("DMDID", ids)
                     else:

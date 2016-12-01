@@ -1,4 +1,7 @@
-#!/usr/bin/env python2
+from __future__ import unicode_literals
+from builtins import range
+from past.builtins import basestring
+#!/usr/bin/env python3
 
 import csv
 import json
@@ -88,7 +91,7 @@ def object_to_row(row, headers):
     """
     def sort_row(keyvalue):
         return headers.index(keyvalue[0])
-    row = sorted(row.items(), key=sort_row)
+    row = sorted(list(row.items()), key=sort_row)
     row = [kv[1] for kv in row]
     return shallow_flatten(row)
 

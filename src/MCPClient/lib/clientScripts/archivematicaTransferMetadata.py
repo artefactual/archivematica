@@ -1,6 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 from __future__ import print_function
+from __future__ import unicode_literals
 from argparse import ArgumentParser
 from lxml import etree
 import sys

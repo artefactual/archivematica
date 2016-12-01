@@ -1,7 +1,11 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 from __future__ import print_function
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 import argparse
-import ConfigParser
+import configparser
 import csv
 import errno
 import os
@@ -363,7 +367,7 @@ def main(opts):
     if 'thumbnail' in opts.purpose:
         thumbnail_filepath = cl.commandObject.output_location
         clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-        config = ConfigParser.SafeConfigParser()
+        config = configparser.SafeConfigParser()
         config.read(clientConfigFilePath)
         try:
             shared_path = config.get('MCPClient', 'sharedDirectoryMounted')

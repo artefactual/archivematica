@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 # This file is part of Archivematica.
 #
@@ -22,6 +22,8 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import str
 from lxml import etree
 import mailbox
 import os
