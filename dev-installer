@@ -26,7 +26,7 @@ cd $(dirname "${0}")
 part="create the archivematica user"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a = "Y" || $a = "y" ]]; then
+if [[ "${a}" = [Yy] ]]; then
     echo "Going to ${part} ..."
     sudo adduser --uid 333 --group --system --home /var/lib/archivematica/ archivematica
     sudo adduser --uid 334 --group --system --home /var/lib/archivematica-django/ archivematicadashboard
@@ -39,7 +39,7 @@ fi
 part="install Gearman"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a = "Y" || $a = "y" ]]; then
+if [[ "${a}" = [Yy] ]]; then
     echo "Going to ${part} ..."
     sudo apt-get install gearman 
     sudo apt-get install python-setuptools 
@@ -52,7 +52,7 @@ fi
 part="install postfix"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a = "Y" || $a = "y" ]]; then
+if [[ "${a}" = [Yy] ]]; then
     echo "Going to ${part} ..."
     clear
     echo select internet and defaults
@@ -65,7 +65,7 @@ fi
 part="install/update MySQL"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a = "Y" || $a = "y" ]]; then
+if [[ "${a}" = [Yy] ]]; then
     echo "Going to ${part} ..."
     sudo apt-get install mysql-server -y
 else
@@ -75,7 +75,7 @@ fi
 part="install/update Apache"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a = "Y" || $a = "y" ]]; then
+if [[ "${a}" = [Yy] ]]; then
     echo "Going to ${part} ..."
     sudo apt-get install apache2 -y
 else
@@ -85,7 +85,7 @@ fi
 part="add ppa repositories"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a = "Y" || $a = "y" ]]; then
+if [[ "${a}" = [Yy] ]]; then
     sudo apt-get install python-software-properties -y
     sudo add-apt-repository ppa:archivematica/externals-dev
     #sudo add-apt-repository ppa:twisted-dev/ppa
@@ -97,7 +97,7 @@ fi
 part="reinstall archivematica upstart services - requires restart"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a = "Y" || $a = "y" ]]; then
+if [[ "${a}" = [Yy] ]]; then
     echo "Going to ${part} ..."
     sudo stop archivematica-mcp-client
     sleep 1
@@ -112,7 +112,7 @@ fi
 part="clone sample data into $HOME"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a = "Y" || $a = "y" ]]; then
+if [[ "${a}" = [Yy] ]]; then
     CURRENT_REPO=$(git remote -v | head -n 1 | sed "s/\t/ /" | cut -f2 -d" ")
     if [ "${CURRENT_REPO}" = "git@git.artefactual.com:archivematica" ]; then
         SAMPLEDATA_REPO="git@git.artefactual.com:archivematica-sampledata.git"
@@ -134,7 +134,7 @@ exit
 part="example"
 echo -n "\"Would you like to ${part}?\" (y/N) "
 read a
-if [[ $a = "Y" || $a = "y" ]]; then
+if [[ "${a}" = [Yy] ]]; then
     echo "Going to ${part} ..."
 else
     echo "Not going to ${part}"
