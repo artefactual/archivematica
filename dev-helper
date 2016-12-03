@@ -32,7 +32,7 @@ git-pull(){
     part="git pull"
     echo -n "\"Would you like to ${part}?\" (y/N) "
     read a
-    if [[ $a = "Y" || $a = "y" ]]; then
+    if [[ "${a}" = [Yy] ]]; then
         echo "Doing ${part} ..."
         echo "Cleaning up..."
         cd localDevSetup/
@@ -79,7 +79,7 @@ package-update(){
     part="update/install package requirements"
     echo -n "\"Would you like to ${part}?\" (y/N) "
     read a
-    if [[ $a = "Y" || $a = "y" ]]; then
+    if [[ "${a}" = [Yy] ]]; then
         echo "Going to ${part} ..."
         cd localDevSetup/
         colour sudo apt-get update
@@ -101,7 +101,7 @@ recreate-db(){
     part="recreate the databases"
     echo -n "\"Would you like to ${part}?\" (y/N) "
     read a
-    if [[ $a = "Y" || $a = "y" ]]; then
+    if [[ "${a}" = [Yy] ]]; then
         echo "Going to ${part} ..."
         cd localDevSetup/
         sudo stop archivematica-mcp-server
@@ -121,7 +121,7 @@ erase-indexes(){
     part="erase the ElasticSearch indexes"
     echo -n "\"Would you like to ${part}?\" (y/N) "
     read a
-    if [[ $a = "Y" || $a = "y" ]]; then
+    if [[ "${a}" = [Yy] ]]; then
         localDevSetup/eraseElasticSearchIndexes.py -f
     else
         echo "Not going to ${part}."
@@ -132,7 +132,7 @@ clear-storage(){
     part="clear transfer backlog, uploaded DIPs, and AIP & DIP storage"
     echo -n "\"Would you like to ${part}?\" (y/N) "
     read a
-    if [[ $a = "Y" || $a = "y" ]]; then
+    if [[ "${a}" = [Yy] ]]; then
         set -x
         sudo rm -rf /var/archivematica/sharedDirectory/www/AIPsStore/transferBacklog/originals/*
         sudo rm -rf /var/archivematica/sharedDirectory/watchedDirectories/uploadedDIPs/*
@@ -148,7 +148,7 @@ restart(){
     part="restart archivematica services"
     echo -n "\"Would you like to ${part}?\" (y/N) "
     read a
-    if [[ $a = "Y" || $a = "y" ]]; then
+    if [[ "${a}" = [Yy] ]]; then
         echo "Going to ${part} ..."
         sudo stop archivematica-mcp-server
         sudo stop archivematica-mcp-client
@@ -179,7 +179,7 @@ update-sampledata(){
     part="update sample data in $HOME/archivematica-sampledata"
     echo -n "\"Would you like to ${part}?\" (y/N) "
     read a
-    if [[ $a = "Y" || $a = "y" ]]; then
+    if [[ "${a}" = [Yy] ]]; then
         if [ ! -d ~/archivematica-sampledata ]; then
             cd 
             colour git clone https://github.com/artefactual/archivematica-sampledata.git
@@ -197,7 +197,7 @@ export-sampledata(){
     part="export sample data from $HOME/archivematica-sampledata"
     echo -n "\"Would you like to ${part}?\" (y/N) "
     read a
-    if [[ $a == "Y" || $a == "y" ]]; then
+    if [[ "${a}" = [Yy] ]]; then
         cd ~/archivematica-sampledata
         DATE=$(date +%Y-%m-%d-%H-%M-%S)
         exportDir="$HOME/archivematica-sampledata-${DATE}"
@@ -217,7 +217,7 @@ example(){
     part="example"
     echo -n "\"Would you like to ${part}?\" (y/N) "
     read a
-    if [[ $a = "Y" || $a = "y" ]]; then
+    if [[ "${a}" = [Yy] ]]; then
         echo "Going to ${part} ..."
     else
         echo "Not going to ${part}"
