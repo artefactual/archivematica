@@ -13,3 +13,6 @@ mysql_dev.complete
 .project
 .pydevproject
 .settings/
+
+# coverage data file
+.coverage

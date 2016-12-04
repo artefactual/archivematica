@@ -1,0 +1,3 @@
+[run]
+omit = **/migrations/*,**/settings/*,**/wsgi.py,**/tests/*,**/manage.py
+source = .
