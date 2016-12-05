@@ -2,6 +2,7 @@
 
 pytest>=2,<3
 pytest-cov==2.4.0
+coverage==4.2
 pytest-django>=2,<3
 pytest-pythonpath
 vcrpy>=1,<2
