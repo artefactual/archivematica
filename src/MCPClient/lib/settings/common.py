@@ -36,6 +36,7 @@ DATABASES = {
 MYSQLPOOL_BACKEND = 'QueuePool'
 MYSQLPOOL_ARGUMENTS = {
     'use_threadlocal': False,
+    'max_overflow': -1,
 }
 
 CONN_MAX_AGE = 14400
