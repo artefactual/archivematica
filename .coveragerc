@@ -14,3 +14,5 @@ source =
 	src/MCPClient/lib/
 	src/MCPClient/lib/clientScripts/
 	src/MCPServer/lib/
+
+branch = True
