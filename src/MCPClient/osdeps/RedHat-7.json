@@ -1,0 +1,65 @@
+{
+  "_comments": [
+    "Add any comments here",
+    "Include here keys, repos, and packages required by this component not already in archivematicaCommon osdeps file",
+    "consider to put clamav related pkgs separately (install with a different playbook, like ES or the mysql server)",
+    "epel-release nux-dextop-release cert-forensic-tools on top of package list because they enable repos to be able to install other packages",
+    "archivematica-extras: siegfried fits bagit-java atool jhove",
+    "nux-dextop-release: ffmpeg ufraw",
+    "cert-forensic-tools: bulk_extractor sleuthkit libewf",
+    "fido is not required here anymore, it is installed with pip (opf-fido)"
+  ],
+  "osdeps_repokeys": [
+  ],
+  "osdeps_repos": [
+    { "name": "archivematica-extras",
+      "description": "archivematica extras",
+      "baseurl": "https://packages.archivematica.org/1.6.x/centos-extras",
+      "gpgcheck": "no",
+      "enabled": "yes"
+    }
+  ],
+  "osdeps_packages": [
+  { "name": "epel-release", "state": "latest"}
+  ],
+  "osdeps_packages_2": [
+  { "name": "https://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm", "state": "present"},
+  { "name": "https://forensics.cert.org/cert-forensics-tools-release-el7.rpm", "state": "present"}
+  ],
+  "osdeps_packages_3": [
+  { "name": "atool", "state": "latest"},
+  { "name": "bagit-java", "state": "latest"},
+  { "name": "bulk_extractor", "state": "latest"},
+  { "name": "ffmpeg", "state": "latest"},
+  { "name": "fits", "state": "latest"},
+  { "name": "gearmand", "state": "latest"},
+  { "name": "ghostscript", "state": "latest"},
+  { "name": "ImageMagick", "state": "latest"},
+  { "name": "inkscape", "state": "latest"},
+  { "name": "jhove", "state": "latest"},
+  { "name": "libewf", "state": "latest"},
+  { "name": "libxml2", "state": "latest"},
+  { "name": "libpst", "state": "latest"},
+  { "name": "libraw1394", "state": "latest"},
+  { "name": "libvpx", "state": "latest"},
+  { "name": "md5deep", "state": "latest"},
+  { "name": "mediainfo", "state": "latest"},
+  { "name": "nfs-utils", "state": "latest"},
+  { "name": "java-1.7.0-openjdk-headless", "state": "latest"},
+  { "name": "openjpeg", "state": "latest"},
+  { "name": "p7zip", "state": "latest"},
+  { "name": "p7zip-plugins", "state": "latest"},
+  { "name": "pbzip2", "state": "latest"},
+  { "name": "perl-Image-ExifTool", "state": "latest"},
+  { "name": "postfix", "state": "latest"},
+  { "name": "python-unidecode", "state": "latest"},
+  { "name": "rsync", "state": "latest"},
+  { "name": "siegfried", "state": "latest"},
+  { "name": "sleuthkit", "state": "latest"},
+  { "name": "tesseract", "state": "latest"},
+  { "name": "tree", "state": "latest"},
+  { "name": "ufraw", "state": "latest"},
+  { "name": "uuid", "state": "latest"}
+  ]
+}
+
