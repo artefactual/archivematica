@@ -1,0 +1,15 @@
+{
+  "_comments": [
+    "Add any comments here",
+    "Include here keys, repos, and packages required by this component not already in archivematicaCommon osdeps file"
+  ],
+  "osdeps_repokeys": [
+  ],
+  "osdeps_repos": [
+  ],
+  "osdeps_packages": [
+  { "name": "dbconfig-common", "state": "latest"},
+  { "name": "logapp", "state": "latest"},
+  { "name": "uuid", "state": "latest"}
+  ]
+}
