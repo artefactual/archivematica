@@ -144,6 +144,7 @@ var TransferComponentFormView = Backbone.View.extend({
         name:      transfer.name,
         type:      transfer.type,
         accession: transfer.accessionNumber,
+        festival:  transfer.festival,
         "paths[]": transfer.sourcePaths.map(function (c) {return c.path}),
         "row_ids[]": transfer.sourcePaths.map(function(c) {return c.uuid})
       },
@@ -270,6 +271,7 @@ var TransferComponentFormView = Backbone.View.extend({
             'name':            transferName,
             'type':            $('#transfer-type').val(),
             'accessionNumber': $('#transfer-accession-number').val(),
+            'festival':        $('#transfer-festival').val(),
             'sourcePaths':     paths
           };
           self.startTransfer(transferData);
