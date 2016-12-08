@@ -50,6 +50,6 @@ if __name__ == '__main__':
         sys.exit()
 
     tree = etree.ElementTree(root)
-    tree.write(opts.xml_file, pretty_print=True, xml_declaration=True)
+    tree.write(opts.xml_file, pretty_print=True, xml_declaration=True, encoding='utf-8')
 
     print(etree.tostring(tree))

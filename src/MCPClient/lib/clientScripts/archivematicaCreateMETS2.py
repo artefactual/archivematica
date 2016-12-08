@@ -1001,7 +1001,7 @@ def write_mets(tree, filename):
     :param ElementTree tree: METS ElementTree
     :param str filename: Filename to write the METS to
     """
-    tree.write(filename, pretty_print=True, xml_declaration=True)
+    tree.write(filename, pretty_print=True, xml_declaration=True, encoding='utf-8')
 
     import cgi
     validate_filename = filename + ".validatorTester.html"
@@ -1017,7 +1017,7 @@ def write_mets(tree, filename):
     <br/>
   </form>
 </body>
-</html>""" % (cgi.escape(etree.tostring(tree, pretty_print=True, xml_declaration=True)))
+</html>""" % (cgi.escape(etree.tostring(tree, pretty_print=True, xml_declaration=True, encoding='utf-8')))
     with open(validate_filename, 'w') as f:
         f.write(fileContents)
 

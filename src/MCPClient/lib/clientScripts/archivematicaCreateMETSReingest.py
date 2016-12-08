@@ -440,4 +440,4 @@ def update_mets(sip_dir, sip_uuid):
 
 if __name__ == '__main__':
     tree = update_mets(*sys.argv[1:])
-    tree.write('mets.xml', pretty_print=True)
+    tree.write('mets.xml', pretty_print=True, xml_declaration=True, encoding='utf-8')
