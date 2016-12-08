@@ -126,7 +126,7 @@ def create_mets_file(aic, aips):
     basename = os.path.join('metadata', "METS.{}.xml".format(file_uuid))
     filename = os.path.join(aic['dir'], basename)
     with open(filename, 'w') as f:
-        f.write(etree.tostring(mets, pretty_print=True))
+        f.write(etree.tostring(mets, pretty_print=True, xml_declaration=True, encoding='utf-8'))
     fileOperations.addFileToSIP(
         filePathRelativeToSIP='%SIPDirectory%' + basename,
         fileUUID=file_uuid,

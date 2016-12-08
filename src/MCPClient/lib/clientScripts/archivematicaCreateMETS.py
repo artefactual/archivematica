@@ -219,7 +219,7 @@ if __name__ == '__main__':
     createFileSec(path, opts.fileGroupIdentifier, opts.basePath, basePathString, sipFileGrp, structMapDiv, opts.sipUUID)
 
     tree = etree.ElementTree(root)
-    tree.write(opts.xmlFile, pretty_print=True, xml_declaration=True)
+    tree.write(opts.xmlFile, pretty_print=True, xml_declaration=True, encoding='utf-8')
 
     # Restore original path
     os.chdir(opath)

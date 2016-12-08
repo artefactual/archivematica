@@ -213,7 +213,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     xml_filename = 'pointer.xml'
     filename = os.path.join(os.path.dirname(aip_path), xml_filename)
     with open(filename, 'w') as f:
-        f.write(etree.tostring(root, pretty_print=True))
+        f.write(etree.tostring(root, pretty_print=True, xml_declaration=True, encoding='utf-8'))
     fileOperations.addFileToSIP(
         filePathRelativeToSIP='%SIPDirectory%'+xml_filename,
         fileUUID=str(uuid.uuid4()),

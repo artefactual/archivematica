@@ -70,4 +70,5 @@ if __name__ == '__main__':
     with open(opts.xmlFile, "w") as f:
         f.write(etree.tostring(doc,
                                pretty_print=True,
-                               xml_declaration=True))
+                               xml_declaration=True,
+                               encoding='utf-8'))
