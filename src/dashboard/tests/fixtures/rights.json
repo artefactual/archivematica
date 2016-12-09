@@ -1,0 +1,37 @@
+[
+{
+    "fields": {
+        "status": "ORIGINAL",
+        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadataappliestoidentifier": "d64b0f43-f6d3-42ac-9821-c559dca13786",
+        "rightsholder": 0,
+        "rightsstatementidentifiervalue": "",
+        "rightsbasis": "Copyright",
+        "rightsstatementidentifiertype": ""
+    },
+    "model": "main.rightsstatement",
+    "pk": 1
+},
+{
+    "fields": {
+        "startdate": "2000",
+        "act": "Disseminate",
+        "enddate": null,
+        "enddateopen": true,
+        "rightsstatement": 1
+    },
+    "model": "main.rightsstatementrightsgranted",
+    "pk": 1
+},
+{
+    "fields": {
+        "startdate": "2016",
+        "act": "Access",
+        "enddate": "",
+        "enddateopen": false,
+        "rightsstatement": 1
+    },
+    "model": "main.rightsstatementrightsgranted",
+    "pk": 2
+}
+]
