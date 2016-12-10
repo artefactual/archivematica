@@ -22,6 +22,7 @@
 # stdlib, alphabetical by import source
 import ast
 import logging
+import uuid
 
 # Core Django, alphabetical by import source
 from django import forms
@@ -29,9 +30,6 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
-# Third party dependencies, alphabetical by import source
-from django_extensions.db.fields import UUIDField
 
 # This project, alphabetical by import source
 from contrib import utils
@@ -50,11 +48,12 @@ METADATA_STATUS = (
 
 # CUSTOM FIELDS
 
-class UUIDPkField(UUIDField):
+class UUIDPkField(models.UUIDField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('max_length', 36)
         kwargs['primary_key'] = True
         kwargs['db_column'] = 'pk'
+        kwargs['default'] = uuid.uuid4
         super(UUIDPkField, self).__init__(*args, **kwargs)
 
 
@@ -195,7 +194,7 @@ class MetadataAppliesToType(models.Model):
 class Event(models.Model):
     """ PREMIS Events associated with Files. """
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
-    event_id = UUIDField(auto=False, null=True, unique=True, db_column='eventIdentifierUUID')
+    event_id = models.UUIDField(default=None, null=True, unique=True, db_column='eventIdentifierUUID')
     file_uuid = models.ForeignKey('File', db_column='fileUUID', to_field='uuid', null=True, blank=True)
     event_type = models.TextField(db_column='eventType', blank=True)
     event_datetime = models.DateTimeField(db_column='eventDateTime', auto_now=True)
@@ -306,8 +305,8 @@ class SIPArrange(models.Model):
     """ Information about arranged files: original and arranged location, current status. """
     original_path = models.CharField(max_length=255, null=True, blank=True, default=None, unique=True)
     arrange_path = models.CharField(max_length=255)
-    file_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
-    transfer_uuid = UUIDField(auto=False, null=True, blank=True, default=None)
+    file_uuid = models.UUIDField(null=True, blank=True, default=None)
+    transfer_uuid = models.UUIDField(null=True, blank=True, default=None)
     sip = models.ForeignKey(SIP, to_field='uuid', null=True, blank=True, default=None)
     level_of_description = models.CharField(max_length=2014)
     sip_created = models.BooleanField(default=False)
@@ -386,7 +385,7 @@ class FileFormatVersion(models.Model):
 
 
 class Job(models.Model):
-    jobuuid = UUIDField(db_column='jobUUID', primary_key=True)
+    jobuuid = models.UUIDField(default=uuid.uuid4, db_column='jobUUID', primary_key=True)
     jobtype = models.CharField(max_length=250, db_column='jobType', blank=True)
     createdtime = models.DateTimeField(db_column='createdTime')
     createdtimedec = models.DecimalField(db_column='createdTimeDec', max_digits=26, decimal_places=10, default=0.0)
