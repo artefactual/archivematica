@@ -32340,13 +32340,13 @@
 
 	__webpack_require__(22);
 
+	__webpack_require__(27);
+
 	__webpack_require__(28);
 
-	__webpack_require__(29);
+	__webpack_require__(30);
 
 	__webpack_require__(31);
-
-	__webpack_require__(32);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -45287,15 +45287,16 @@
 
 	'use strict';
 
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 	exports.decode_browse_response = decode_browse_response;
 	exports.format_entries = format_entries;
 
-	var _base64Helpers = __webpack_require__(27);
+	var _base64Helpers = __webpack_require__(23);
 
 	var _base64Helpers2 = _interopRequireDefault(_base64Helpers);
 
@@ -45338,9 +45339,12 @@
 	};
 
 	function format_entries(data, parent_path) {
-	  var parent = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+	  var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-	  return data.entries.map(function (element) {
+	  var directories = [];
+	  var files = [];
+	  for (var index = 0; index < data.entries.length; ++index) {
+	    var element = data.entries[index];
 	    var child = {
 	      title: element,
 	      path: parent_path ? parent_path + '/' + element : element,
@@ -45358,65 +45362,20 @@
 	      child.children = [];
 	      child.children_fetched = false;
 	      child.directory = true;
+	      directories.push(child);
 	    } else {
 	      // file
 	      child.has_children = false;
 	      child.directory = false;
+	      files.push(child);
 	    }
-
-	    return child;
-	  });
+	  }
+	  return directories.concat(files);
 	}
 
 
 /***/ },
 /* 27 */
-/***/ function(module, exports, __webpack_require__) {
-
-	(function(exports) {
-	    // Returns true if the passed string consists of codepoints between 0 and 255
-	    // which are valid within UTF-8.
-	    function all_bytes_valid_utf8 (str) {
-	        var invalid_chars = [0xc0, 0xc1, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9,
-	                             0xF0, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF];
-
-	        for (var i in str) {
-	            var cp = str.codePointAt(i);
-	            if (cp > 255 || invalid_chars.indexOf(cp) !== -1) {
-	                return false
-	            }
-	        }
-
-	        return true;
-	    };
-
-	    // Decodes the string before base64-encoding.
-	    function encode_escaped (str) {
-	        return window.btoa(unescape(encodeURIComponent(str)));
-	    };
-
-	    // If passed string is UTF-8, decodes to bytes first before encoding.
-	    exports.encode = function (str) {
-	        if (all_bytes_valid_utf8(str)) {
-	            return window.btoa(str);
-	        } else {
-	            return encode_escaped(str);
-	        }
-	    };
-
-	    // Returns a UTF-8 string if input is UTF-8, raw bytes otherwise.
-	    exports.decode = function (str) {
-	        try {
-	            return decodeURIComponent(escape(window.atob(str)));
-	        } catch (URIError) {
-	            return window.atob(str);
-	        }
-	    };
-	})( false ? this['Base64'] = {} : exports);
-
-
-/***/ },
-/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45469,7 +45428,7 @@
 	SourceLocations.$inject = ['Restangular'];
 
 /***/ },
-/* 29 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45492,7 +45451,7 @@
 
 	var _base64Helpers2 = _interopRequireDefault(_base64Helpers);
 
-	var _jquery = __webpack_require__(30);
+	var _jquery = __webpack_require__(29);
 
 	var _jquery2 = _interopRequireDefault(_jquery);
 
@@ -45577,7 +45536,7 @@
 	exports.default = _angular2.default.module('services.transfer', []).service('Transfer', Transfer).name;
 
 /***/ },
-/* 30 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -56591,7 +56550,7 @@
 
 
 /***/ },
-/* 31 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -56719,7 +56678,7 @@
 	BrowseController.$inject = ['Browse', 'SourceLocations', 'Transfer'];
 
 /***/ },
-/* 32 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -56734,7 +56693,7 @@
 
 	var _angular2 = _interopRequireDefault(_angular);
 
-	__webpack_require__(29);
+	__webpack_require__(28);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
