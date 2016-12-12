@@ -44,7 +44,16 @@ class AgentForm(forms.ModelForm):
         }
 
 
-class StorageSettingsForm(forms.Form):
+class SettingsForm(forms.Form):
+    """Base class form to save settings to DashboardSettings."""
+    def save(self, *args, **kwargs):
+        """Save all the form fields to the DashboardSettings table."""
+        for key in self.cleaned_data:
+            # Save the value
+            helpers.set_setting(key, self.cleaned_data[key])
+
+
+class StorageSettingsForm(SettingsForm):
 
     class StripCharField(forms.CharField):
         """
@@ -69,7 +78,7 @@ class StorageSettingsForm(forms.Form):
         help_text='API key of the storage service user. E.g. 45f7684483044809b2de045ba59dc876b11b9810'
     )
 
-class ChecksumSettingsForm(forms.Form):
+class ChecksumSettingsForm(SettingsForm):
     CHOICES = (
         ('md5', 'MD5'),
         ('sha1', 'SHA-1'),
@@ -122,7 +131,7 @@ class ArchivesSpaceConfigForm(forms.ModelForm):
         }
 
 
-class AtomDipUploadSettingsForm(forms.Form):
+class AtomDipUploadSettingsForm(SettingsForm):
     dip_upload_atom_url = forms.CharField(required=True,
         label="Upload URL",
         help_text="URL where the Qubit index.php frontend lives, SWORD services path will be appended.")
