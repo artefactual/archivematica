@@ -524,9 +524,11 @@ def reingest(request, target):
     reingest_uuid = sip_uuid
     if target == 'transfer':
         dest = os.path.join(shared_directory_path, 'watchedDirectories', 'activeTransfers', 'standardTransfer')
-        name_has_uuid = len(sip_name) > 36 and re.match(UUID_REGEX, sip_name[-36:]) is not None
+        # If the destination dir has a UUID, remove it
+        sip_basename = os.path.basename(os.path.normpath(sip_name))
+        name_has_uuid = len(sip_basename) > 36 and re.match(UUID_REGEX, sip_basename[-36:]) is not None
         if name_has_uuid:
-            dest = os.path.join(dest, os.path.basename(source[:-37]))
+            dest = os.path.join(dest, sip_basename[:-37])
             if os.path.isdir(dest):
                 response = {'error': True, 'message': 'There is already a transfer in standardTransfer with the same name.'}
                 return helpers.json_response(response, status_code=400)
