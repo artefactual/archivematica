@@ -41,7 +41,7 @@ config.read('/etc/archivematica/archivematicaCommon/dbsettings')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',         # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'MCP',                                # Or path to database file if using sqlite3.
+        'NAME': config.get('client', 'db'),                                # Or path to database file if using sqlite3.
         'USER': config.get('client', 'user'),         # Not used with sqlite3.
         'PASSWORD': config.get('client', 'password'), # Not used with sqlite3.
         'HOST': config.get('client', 'host'),         # Set to empty string for localhost. Not used with sqlite3.
