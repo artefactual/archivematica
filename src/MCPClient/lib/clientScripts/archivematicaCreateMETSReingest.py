@@ -362,7 +362,9 @@ def delete_files(mets, sip_uuid):
     ).values_list('uuid', flat=True)
     for file_uuid in deleted_files:
         df = mets.get_file(file_uuid=file_uuid)
-        mets.remove_entry(df)
+        df.use = 'deleted'
+        df.path = None
+        df.label = None
     return mets
 
 
