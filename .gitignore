@@ -1,18 +1,16 @@
 *.py[co]
-src/dashboard/src/settings_local.py
-qubit-git
-*.pyo
-*~
-localDevSetup/ETCsudoersBackup
-*.directory
-*.sublime-project
-*.sublime-workspace
-mysql_dev.complete
+*.mo
 
-#eclipse IDE files
+# IDE specific
+*.directory
 .project
 .pydevproject
-.settings/
+.settings
+.vscode
+*.sublime-project
+*.sublime-workspace
+*.sw[po]
+*~
 
 # coverage data file
 .coverage
