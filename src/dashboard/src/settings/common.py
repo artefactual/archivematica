@@ -47,6 +47,16 @@ DATABASES = {
     }
 }
 
+# Memcached is the most efficient cache backend natively supported by Django.
+# However, Memcached is not available yet in the Archivetica stack but we may
+# consider adding it soon. Using local-memory caching for now so we can start
+# writing some cache-aware code.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
@@ -255,6 +265,12 @@ LOGGING = {
         'handlers': ['logfile', 'verboselogfile'],
         'level': 'WARNING',
     },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
 }
 
 # login-related settings
