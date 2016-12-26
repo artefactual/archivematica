@@ -1,34 +1,35 @@
 ﻿{% extends "layout_fluid.html" %}
+{% load static %}
 
 {% block title %}Ingest{% endblock %}
 {% block h1 %}Ingest{% endblock %}
 {% block page_id %}ingest{% endblock %}
 
 {% block extra_css %}
-<link href="{{ STATIC_URL }}vendor/select2/select2.css" rel="stylesheet" type="text/css" />
+<link href="{% static 'vendor/select2/select2.css' %}" rel="stylesheet" type="text/css" />
 
 <!-- browser related -->
-<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/backbone-file-explorer.css" />
-<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/directory_picker.css" />
+<link type="text/css" rel="stylesheet" media="all" href="{% static 'css/backbone-file-explorer.css' %}" />
+<link type="text/css" rel="stylesheet" media="all" href="{% static 'css/directory_picker.css' %}" />
 
-<link href="{{ STATIC_URL }}css/search.css" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/search.css' %}" rel="stylesheet" type="text/css" />
 {% endblock %}
 
 {% block js %}
-  <script type="text/javascript" src="{{ STATIC_URL }}js/jobs.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/online.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}vendor/select2/select2.js"></script>
+  <script type="text/javascript" src="{% static 'js/jobs.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/online.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/ingest.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/select2/select2.js' %}"></script>
 
   <!-- browser related -->
-  <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/base64.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/file-explorer.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/file_browser.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/directory-metadata-form-dialog.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/ingest_file_browser.js"></script>
+  <script type="text/javascript" src="{% static 'js/vendor/base64.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/file-explorer.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/file_browser.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/ingest/directory-metadata-form-dialog.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/ingest/ingest_file_browser.js' %}"></script>
 
-  <script type="text/javascript" src="{{ STATIC_URL }}js/advanced-search-query-creator.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/backlog.js"></script>
+  <script type="text/javascript" src="{% static 'js/advanced-search-query-creator.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/ingest/backlog.js' %}"></script>
 
   <script type="text/javascript">
     $(document).ready(function()
@@ -200,7 +201,7 @@
   <script type="text/template" id="status-template">
     <div id="status-bullet">
       <span>Initializing...</span>
-      <img src="{{ STATIC_URL }}images/bullet_delete.png" />
+      <img src="{% static 'images/bullet_delete.png' %}" />
     </div>
   </script>
 

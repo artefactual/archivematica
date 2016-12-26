@@ -1,9 +1,9 @@
 {% extends "layout_fluid.html" %}
-
+{% load static %}
 
 {% block js %}
-<script type="text/javascript" src="{{ STATIC_URL }}js/jobs.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/ingest/normalization_report.js"></script>
+<script type="text/javascript" src="{% static 'js/jobs.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/ingest/normalization_report.js' %}"></script>
 {% endblock %}
 
 {% block content %}

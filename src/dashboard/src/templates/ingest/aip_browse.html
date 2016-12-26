@@ -1,23 +1,24 @@
-﻿{% extends "layout.html" %}
+{% extends "layout.html" %}
 {% load breadcrumb %}
+{% load static %}
 
 {% block title %}AIP{% endblock %}
 {% block h1 %}AIP{% endblock %}
 {% block page_id %}aip{% endblock %}
 
 {% block extra_css %}
-  <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/backbone-file-explorer.css" />
-  <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/directory_picker.css" />
+  <link type="text/css" rel="stylesheet" media="all" href="{% static 'css/backbone-file-explorer.css' %}" />
+  <link type="text/css" rel="stylesheet" media="all" href="{% static 'css/directory_picker.css' %}" />
 {% endblock %}
 
 {% block js %}
-  <script type="text/javascript" src="{{ STATIC_URL }}js/online.js"></script>
+  <script type="text/javascript" src="{% static 'js/online.js' %}"></script>
 
   <!-- browser related -->
-  <script type="text/javascript" src="{{ STATIC_URL }}js/file-explorer.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/file_browser.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/aip_browser.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/base64.js"></script>
+  <script type="text/javascript" src="{% static 'js/file-explorer.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/file_browser.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/ingest/aip_browser.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/vendor/base64.js' %}"></script>
 {% endblock %}
 
 {% block topbar %}
@@ -64,7 +65,7 @@
       <script type="text/template" id="status-template">
         <div id="status-bullet">
           <span>Initializing...</span>
-          <img src="{{ STATIC_URL }}images/bullet_delete.png" />
+          <img src="{% static 'images/bullet_delete.png' %}" />
         </div>
       </script>
 

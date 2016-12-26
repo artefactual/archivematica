@@ -1,8 +1,9 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load static %}
 
 {% block js %}
-  <script type="text/javascript" src="{{ STATIC_URL }}js/contextual_help.js"></script>
+  <script type="text/javascript" src="{% static 'js/contextual_help.js' %}"></script>
 {% endblock %}
 
 {% block content %}

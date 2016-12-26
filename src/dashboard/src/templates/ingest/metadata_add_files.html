@@ -1,10 +1,11 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load static %}
 
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/backbone-file-explorer.css" />
-<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/directory_picker.css" />
-<link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/transfer_grid.css" />
+<link type="text/css" rel="stylesheet" media="all" href="{% static 'css/backbone-file-explorer.css' %}" />
+<link type="text/css" rel="stylesheet" media="all" href="{% static 'css/directory_picker.css' %}" />
+<link type="text/css" rel="stylesheet" media="all" href="{% static 'css/transfer_grid.css' %}" />
 
 <style type="text/css">
 select {
@@ -14,11 +15,11 @@ select {
 {% endblock %}
 
 {% block js %}
-  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/metadata_form.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/file-explorer.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/directory_picker.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/transfer/component_directory_select.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/base64.js"></script>
+  <script type="text/javascript" src="{% static 'js/ingest/metadata_form.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/file-explorer.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/directory_picker.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/transfer/component_directory_select.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/vendor/base64.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -69,7 +70,7 @@ select {
   <script type="text/template" id='add-metadata-files-layout'>
     <div id="metadata-file-form">
       <div class="activity-indicator">
-        <img src='{{STATIC_URL}}images/ajax-loader.gif' />
+        <img src="{% static 'images/ajax-loader.gif' %}" />
       </div>
       <div id="transfer_paths_area">
         <%= transfer_paths %>
@@ -82,8 +83,8 @@ select {
     <div id='add-metadata-files-path-item-<%= path_counter %>'>
       <span class="transfer_path" id="<%= location_path %>"><%= path %></span>
       <span class="transfer_path_icons">
-        <span class="transfer_path_edit_icon"><img src="{{STATIC_URL}}images/table_edit.png" /></span>
-        <span class="transfer_path_delete_icon"><img src="{{STATIC_URL}}images/delete.png" /></span>
+        <span class="transfer_path_edit_icon"><img src="{% static 'images/table_edit.png' %}" /></span>
+        <span class="transfer_path_delete_icon"><img src="{% static 'images/delete.png' %}" /></span>
       </span>
     </div>
   </script>

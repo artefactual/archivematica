@@ -1,18 +1,19 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load static %}
 
 {% block title %}Archival storage{% endblock %}
 {% block h1 %}Archival storage{% endblock %}
 {% block page_id %}archival-storage{% endblock %}
 
 {% block js %}
-  <script type="text/javascript" src="{{ STATIC_URL }}js/advanced-search-query-creator.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/archival_storage/archival_storage_search.js"></script>
+  <script type="text/javascript" src="{% static 'js/advanced-search-query-creator.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/archival_storage/archival_storage_search.js' %}"></script>
 {% endblock %}
 
 {% block extra_css %}
-  <link href="{{ STATIC_URL }}css/search.css" rel="stylesheet" type="text/css" />
-  <link href="{{ STATIC_URL }}css/archival_storage.css" rel="stylesheet" type="text/css" />
+  <link href="{% static 'css/search.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'css/archival_storage.css' %}" rel="stylesheet" type="text/css" />
 {% endblock %}
 
 {% block extra_js %}

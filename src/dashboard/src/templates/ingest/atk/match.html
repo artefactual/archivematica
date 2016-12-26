@@ -1,17 +1,18 @@
-﻿{% extends "layout_fluid.html" %}
+{% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load static %}
 
 {% block title %}Match{% endblock %}
 {% block h1 %}Match{% endblock %}
 {% block page_id %}atk_match{% endblock %}
 
 {% block extra_css %}
-  <link type="text/css" rel="stylesheet" media="all" href="{{ STATIC_URL }}css/atk_match.css" />
+  <link type="text/css" rel="stylesheet" media="all" href="{% static 'css/atk_match.css' %}" />
 {% endblock %}
 
 {% block js %}
-  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/atk_matcher.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/atk_matcher_setup.js"></script>
+  <script type="text/javascript" src="{% static 'js/ingest/atk_matcher.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/ingest/atk_matcher_setup.js' %}"></script>
 
   <script type="text/javascript">
     $(document).ready(function()
@@ -29,12 +30,12 @@
   <div style="padding: 5px; background-color: white; position: fixed; top: 57px; right: 10px; float: right;">
     <span id="object_pane_search">
       <input style="width: 150px" placeholder="Filter objects" />
-      <img src="{{ STATIC_URL }}images/zoom.png" />
+      <img src="{% static 'images/zoom.png' %}" />
     </span>
 
     <span id="resource_pane_search">
       <input style="width: 150px" placeholder="Filter resources" />
-      <img src="{{ STATIC_URL }}images/zoom.png" />
+      <img src="{% static 'images/zoom.png' %}" />
     </span>
 
     <input id='match_button' type='button' value='Pair' class='btn btn-default' />
@@ -123,7 +124,7 @@
       <td><%= identifier %></td>
       <td><%= dates %></td>
       <td id="match_delete_<%= tempId %>">
-        <img src="{{ STATIC_URL }}images/delete.png" title="Delete match" />
+        <img src="{% static 'images/delete.png' %}" title="Delete match" />
       </td>
     </tr>
   </script>

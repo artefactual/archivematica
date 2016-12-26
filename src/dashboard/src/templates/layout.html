@@ -1,23 +1,25 @@
 {% load active %}
+{% load static %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <title>Archivematica Dashboard - {% block title %}{% endblock %}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="shortcut icon" href="{{ STATIC_URL }}images/favicon.ico" />
-    <link href="{{ STATIC_URL }}vendor/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css" />
-    <link href="{{ STATIC_URL }}vendor/twitter-bootstrap/bootstrap.css" rel="stylesheet" type="text/css" />
-    <link href="{{ STATIC_URL }}css/style.css" rel="stylesheet" type="text/css" />
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+    <link href="{% static 'vendor/jquery-ui/jquery-ui.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'vendor/twitter-bootstrap/bootstrap.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css" />
     {% block extra_css %}{% endblock %}
-    <script src="{{ STATIC_URL }}vendor/jquery.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}vendor/jquery-ui/jquery-ui.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}vendor/jquery.idle-timer.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}vendor/underscore.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}vendor/backbone.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}vendor/twitter-bootstrap/js/bootstrap.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}js/status.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}js/misc.js" type="text/javascript"></script>
+    <script src="{% url 'javascript-catalog' %}" type="text/javascript"></script>
+    <script src="{% static 'vendor/jquery.js' %}" type="text/javascript"></script>
+    <script src="{% static 'vendor/jquery-ui/jquery-ui.js' %}" type="text/javascript"></script>
+    <script src="{% static 'vendor/jquery.idle-timer.js' %}" type="text/javascript"></script>
+    <script src="{% static 'vendor/underscore.js' %}" type="text/javascript"></script>
+    <script src="{% static 'vendor/backbone.js' %}" type="text/javascript"></script>
+    <script src="{% static 'vendor/twitter-bootstrap/js/bootstrap.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/status.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/misc.js' %}" type="text/javascript"></script>
     {% block js %}{% endblock %}
   </head>
   <body id="page-{% block page_id %}default{% endblock %}">
@@ -29,7 +31,7 @@
           <div class="container-fluid">
 
             <a class="navbar-brand" href="{% url 'main.views.home' %}">
-              <img alt="Archivematica" src="{{ STATIC_URL }}images/logo_header.png"></a>
+              <img alt="Archivematica" src="{% static 'images/logo_header.png' %}"></a>
             </a>
 
             {% url 'main.views.home' as url_home %}

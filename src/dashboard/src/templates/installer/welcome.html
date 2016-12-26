@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-
+{% load static %}
 
 {% block title %}Welcome{% endblock %}
 {% block h1 %}Welcome{% endblock %}
@@ -33,7 +33,7 @@
 
     <div class="col-md-7 col-md-offset-2">
 
-      <img src="{{ STATIC_URL }}images/logo_welcome.gif" style="margin-bottom: 20px;" />
+      <img src="{% static 'images/logo_welcome.gif' %}" style="margin-bottom: 20px;" />
 
       <div class="well">
         <h2>Welcome!</h2>

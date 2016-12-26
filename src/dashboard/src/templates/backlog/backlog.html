@@ -1,4 +1,5 @@
 {% extends "layout_fluid.html" %}
+{% load static %}
 
 {% block title %}
   Backlog search
@@ -13,18 +14,18 @@
 {% endblock %}
 
 {% block extra_css %}
-  <link href="{{ STATIC_URL }}vendor/select2/select2.css" rel="stylesheet" type="text/css" />
-  <link href="{{ STATIC_URL }}css/search.css" rel="stylesheet" type="text/css" />
-  <link href="{{ STATIC_URL }}vendor/datatables/css/jquery.dataTables.css" rel="stylesheet">
-  <link href="{{ STATIC_URL }}css/backlog.css" rel="stylesheet" type="text/css" />
+  <link href="{% static 'vendor/select2/select2.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'css/search.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'vendor/datatables/css/jquery.dataTables.css' %}" rel="stylesheet">
+  <link href="{% static 'css/backlog.css' %}" rel="stylesheet" type="text/css" />
 {% endblock %}
 
 {% block js %}
-  <script type="text/javascript" src="{{ STATIC_URL }}js/advanced-search-query-creator.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/ingest/backlog.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}vendor/datatables/js/jquery.dataTables.min.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/base64.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/backlog/backlog-search.js"></script>
+  <script type="text/javascript" src="{% static 'js/advanced-search-query-creator.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/ingest/backlog.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/datatables/js/jquery.dataTables.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/vendor/base64.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/backlog/backlog-search.js' %}"></script>
 {% endblock %}
 
 {% block content %}

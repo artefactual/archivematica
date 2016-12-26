@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% load bootstrap_tags %}
+{% load static %}
 
 {% block title %}Welcome{% endblock %}
 {% block h1 %}Welcome{% endblock %}
@@ -16,7 +17,7 @@
 {% block content %}
 <div class="row">
   <div class="col-md-7 col-md-offset-2">
-    <img src="{{ STATIC_URL }}images/logo_welcome.gif" style="margin-bottom: 20px;" />
+    <img src="{% static 'images/logo_welcome.gif' %}" style="margin-bottom: 20px;" />
 
     <form action="#" method="POST">
       <div id="storage" class="well">

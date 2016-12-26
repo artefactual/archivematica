@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% load static %}
 
 {% block title %}Welcome{% endblock %}
 {% block h1 %}Welcome{% endblock %}
@@ -78,7 +79,7 @@ function moreStuff() {
 
     <div class="col-md-7 col-md-offset-2">
 
-      <img src="{{ STATIC_URL }}images/logo_welcome.gif" style="margin-bottom: 20px;" />
+      <img src="{% static 'images/logo_welcome.gif' %}" style="margin-bottom: 20px;" />
 
       <div id="fpr" class="well">
           <p>Now connecting to the FPR Server.</p>
