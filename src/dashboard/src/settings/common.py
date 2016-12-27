@@ -18,6 +18,9 @@
 import os
 import ConfigParser
 
+from django.utils.translation import ugettext_lazy as _
+
+
 path_of_this_file = os.path.abspath(os.path.dirname(__file__))
 
 BASE_PATH = os.path.abspath(os.path.join(path_of_this_file, os.pardir))
@@ -61,6 +64,17 @@ CACHES = {
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
+# https://docs.djangoproject.com/en/dev/ref/settings/#languages
+LANGUAGES = [
+    ('fr', _('French')),
+    ('en', _('English')),
+    ('es', _('Spanish')),
+]
+
+LOCALE_PATHS = [
+    os.path.join(BASE_PATH, 'locale'),
+]
+
 SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
@@ -74,6 +88,8 @@ USE_L10N = True
 # Enable timezone support, for more info see:
 # https://docs.djangoproject.com/en/dev/topics/i18n/timezones/
 USE_TZ = True
+
+# https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-TIME_ZONE
 TIME_ZONE = 'UTC'
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
@@ -143,8 +159,9 @@ TEMPLATES = [
 ]
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
