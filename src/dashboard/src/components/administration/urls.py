@@ -15,8 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.conf import settings
+from django.views.generic import TemplateView
 from components.administration import views
 from components.administration import views_processing
 
@@ -29,6 +30,8 @@ urlpatterns = [
     url(r'dips/atk/$', views.administration_atk_dips),
     url(r'dips/atom/$', views.atom_dips),
     url(r'dips/atom/edit_levels/$', views.atom_levels_of_description),
+    url(r'^i18n/', include('django.conf.urls.i18n')),
+    url(r'language/$', TemplateView.as_view(template_name='administration/language.html'), name='admin_set_language'),
     url(r'sources/$', views.sources),
     url(r'storage/$', views.storage),
     url(r'usage/$', views.usage),

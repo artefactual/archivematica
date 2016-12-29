@@ -1,4 +1,6 @@
 {% load active %}
+{% load i18n %}
+
 <div class="col-md-2 sidebar">
 
   {% url 'components.administration.views_processing.list' as url_processing %}
@@ -13,6 +15,7 @@
   {% url 'components.administration.views.premis_agent' as url_premis %}
   {% url 'components.administration.views.api' as url_api %}
   {% url 'components.administration.views.version' as url_version %}
+  {% url 'admin_set_language' as url_language %}
   {% url 'components.accounts.views.list' as url_user_list %}
 
   <ul>
@@ -41,6 +44,8 @@
     {% if user.is_superuser %}
       <li class="{% active request url_user_list %}"><a href="{{ url_user_list }}">Users</a></li>
     {% endif %}
+
+    <li class="{% active request url_language %}"><a href="{{ url_language }}">{% trans "Language" %}</a></li>
 
     <li class="{% active request url_version %}"><a href="{{ url_version }}">Version</a></li>
   </ul>

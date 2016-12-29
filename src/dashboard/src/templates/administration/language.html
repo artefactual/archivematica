@@ -1,0 +1,61 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+{% load i18n %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block content %}
+
+  <div class="container-fluid">
+
+    <div class="row">
+
+      {% include "administration/sidebar.html" %}
+
+      <div class="col-md-10">
+
+        <h3>{% trans "Language" %}</h3>
+
+        {% get_current_language as LANGUAGE_CODE %}
+        {% get_available_languages as LANGUAGES %}
+        {% get_language_info_list for LANGUAGES as languages %}
+
+        <form action="{% url 'set_language' %}" method="post">
+
+          {% csrf_token %}
+          <input name="next" type="hidden" value="{% url 'main.views.home' %}" />
+
+          <p>{% trans "Select one of the following languages available:" %}</p>
+
+          <div class="form-group">
+
+            {% for language in languages %}
+              <div class="radio">
+                <label>
+                  <input type="radio" name="language" value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} checked="checked"{% endif %}>
+                  {{ language.name_local|capfirst }} ({{ language.code }})
+                </label>
+              </div>
+            {% endfor %}
+
+            <span class="help-block">
+              {% trans "Your choice will be recorded in the internal session store which doesn't not retain data forever." %}
+            </span>
+
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">{% trans 'Change' %}</button>
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  </div>
+
+{% endblock %}
