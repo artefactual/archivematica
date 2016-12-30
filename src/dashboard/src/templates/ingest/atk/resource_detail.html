@@ -1,23 +1,27 @@
 ﻿{% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Match{% endblock %}
-{% block h1 %}Match{% endblock %}
+{% block title %}{% trans "Match" %}{% endblock %}
+{% block h1 %}{% trans "Match" %}{% endblock %}
 {% block page_id %}atk_match{% endblock %}
 
 {% block content %}
 <div class="col-md-12">
 
   <ul class="breadcrumb">
-    {% breadcrumb_url 'DIP Upload' 'components.ingest.views_atk.ingest_upload_atk' uuid %}
-    {% breadcrumb 'Collection' %}
+    {% trans "DIP upload" as dip_upload_label %}
+    {% trans "Collection" as collection_label %}
+    {% breadcrumb_url dip_upload_label 'components.ingest.views_atk.ingest_upload_atk' uuid %}
+    {% breadcrumb collection_label %}
   </ul>
 
   <div style="float:right">
     {% include "ingest/atk/_search_form.html" %}
   </div>
 
-  <h1>Collection<br />
+  <h1>
+    {% trans "Collection" %}<br />
     <small>{{ resource_data.title }} ({{ resource_data.id }})</small>
   </h1>
 
@@ -29,9 +33,9 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Level of Description</th>
-          <th>Title</th>
-          <th>Dates</th>
+          <th>{% trans "Level of sescription" %}</th>
+          <th>{% trans "Title" %}</th>
+          <th>{% trans "Dates" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -47,7 +51,7 @@
 
     {% include "_pager.html" %}
   {% else %}
-    <p>No child descriptions found.</p>
+    <p>{% trans "No child descriptions found." %}</p>
   {% endif %}
 
 </div>

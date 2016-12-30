@@ -1,8 +1,9 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Usage{% endblock %}
-{% block h1 %}Usage{% endblock %}
+{% block title %}{% trans "Usage" %}{% endblock %}
+{% block h1 %}{% trans "Usage" %}{% endblock %}
 {% block page_id %}Usage{% endblock %}
 
 {% block content %}
@@ -15,14 +16,14 @@
 
     <div class="col-md-10">
 
-      <h3>Processing storage usage</h3>
+      <h3>{% trans "Processing storage usage" %}</h3>
 
       <table class="table">
         <tr>
-          <th>Purpose</th>
-          <th>Path</th>
-          <th>Usage</th>
-          <th>Size</th>
+          <th>{% trans "Purpose" %}</th>
+          <th>{% trans "Path" %}</th>
+          <th>{% trans "Usage" %}</th>
+          <th>{% trans "Size" %}</th>
           <th></th>
         </tr>
         {% for id, dir in usage_dirs.items %}
@@ -36,7 +37,7 @@
           <td>
             {% if dir.description %}
             <form method='POST' action='{% url 'components.administration.views.usage_clear' id %}'>
-              <input type='submit' value='Clear' class='btn btn-default btn-sm'>
+              <input type='submit' value='{% trans "Clear" %}' class='btn btn-default btn-sm'>
             </form>
             {% endif %}
           </td>

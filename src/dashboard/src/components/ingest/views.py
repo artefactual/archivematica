@@ -39,6 +39,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.utils.text import slugify
+from django.utils.translation import ugettext as _
 from django.views.generic import View
 
 # External dependencies, alphabetical
@@ -72,7 +73,7 @@ def ingest_grid(request):
     try:
         storage_service.get_location(purpose="BL")
     except:
-        messages.warning(request, 'Error retrieving originals/arrange directory locations: is the storage server running? Please contact an administrator.')
+        messages.warning(request, _('Error retrieving originals/arrange directory locations: is the storage server running? Please contact an administrator.'))
 
     return render(request, 'ingest/grid.html', locals())
 
@@ -198,12 +199,11 @@ def ingest_metadata_add_files(request, sip_uuid):
     try:
         source_directories = storage_service.get_location(purpose="TS")
     except:
-        messages.warning(request, 'Error retrieving source directories: is the storage server running? Please contact an administrator.')
+        messages.warning(request, _('Error retrieving source directories: is the storage server running? Please contact an administrator.'))
     else:
         logging.debug("Source directories found: {}".format(source_directories))
         if not source_directories:
-            msg = "No transfer source locations are available. Please contact an administrator."
-            messages.warning(request, msg)
+            messages.warning(request, _("No transfer source locations are available. Please contact an administrator."))
     # Get name of SIP from directory name of most recent job
     # Making list and slicing for speed: http://stackoverflow.com/questions/5123839/fastest-way-to-get-the-first-object-from-a-queryset-in-django
     jobs = list(models.Job.objects.filter(sipuuid=sip_uuid, subjobof='')[:1])
@@ -272,15 +272,14 @@ def ingest_metadata_event_detail(request, uuid):
     return render(request, 'ingest/metadata_event_detail.html', locals())
 
 def delete_context(request, uuid, id):
-    prompt = 'Are you sure you want to delete this metadata?'
     cancel_url = reverse("components.ingest.views.ingest_metadata_list", args=[uuid])
-    return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
+    return RequestContext(request, {'action': 'Delete', 'prompt': _('Are you sure you want to delete this metadata?'), 'cancel_url': cancel_url})
 
 @decorators.confirm_required('simple_confirm.html', delete_context)
 def ingest_metadata_delete(request, uuid, id):
     try:
         models.DublinCore.objects.get(pk=id).delete()
-        messages.info(request, 'Deleted.')
+        messages.info(request, _('Deleted.'))
         return redirect('components.ingest.views.ingest_metadata_list', uuid)
     except:
         raise Http404
@@ -355,13 +354,13 @@ def ingest_normalization_report(request, uuid, current_page=None):
 def ingest_browse(request, browse_type, jobuuid):
     watched_dir = helpers.get_server_config_value('watchDirectoryPath')
     if browse_type == 'normalization':
-        title = 'Review normalization'
+        title = _('Review normalization')
         directory = os.path.join(watched_dir, 'approveNormalization')
     elif browse_type == 'aip':
-        title = 'Review AIP'
+        title = _('Review AIP')
         directory = os.path.join(watched_dir, 'storeAIP')
     elif browse_type == 'dip':
-        title = 'Review DIP'
+        title = _('Review DIP')
         directory = os.path.join(watched_dir, 'uploadedDIPs')
     else:
         raise Http404

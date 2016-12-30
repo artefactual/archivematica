@@ -43,7 +43,7 @@ class TestSIPArrange(TestCase):
         assert base64.b64encode("newsip") in response_dict['properties']
         assert response_dict['properties'][base64.b64encode("newsip")]['display_string'] == '2 objects'
         assert base64.b64encode("toplevel") in response_dict['properties']
-        assert response_dict['properties'][base64.b64encode("toplevel")]['display_string'] == '1 objects'
+        assert response_dict['properties'][base64.b64encode("toplevel")]['display_string'] == '1 object'
         assert len(response_dict) == 3
 
     def test_arrange_contents_data_path(self):
@@ -61,7 +61,7 @@ class TestSIPArrange(TestCase):
         assert len(response_dict['entries']) == 2
         assert 'properties' in response_dict
         assert base64.b64encode("evelyn_s_second_photo") in response_dict['properties']
-        assert response_dict['properties'][base64.b64encode("evelyn_s_second_photo")]['display_string'] == '1 objects'
+        assert response_dict['properties'][base64.b64encode("evelyn_s_second_photo")]['display_string'] == '1 object'
         assert len(response_dict) == 3
 
     def test_arrange_contents_404(self):

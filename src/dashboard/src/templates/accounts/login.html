@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% load i18n %}
 
 {% block header %}{% endblock %}
 
@@ -17,8 +18,8 @@
       </div>
 
       <div class="actions">
-        <a id="forgot-password" style="display: none;" href="{% url 'django.contrib.auth.views.login' %}">Forgot your password?</a>
-        <button class="btn btn-primary" type="submit">Log in</button>
+        <a id="forgot-password" style="display: none;" href="{% url 'django.contrib.auth.views.login' %}">{% trans "Forgot your password?" %}</a>
+        <button class="btn btn-primary" type="submit">{% trans "Log in" %}</button>
       </div>
 
     </form>

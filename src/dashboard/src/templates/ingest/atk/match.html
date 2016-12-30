@@ -1,9 +1,10 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Match{% endblock %}
-{% block h1 %}Match{% endblock %}
+{% block title %}{% trans "Match" %}{% endblock %}
+{% block h1 %}{% trans "Match" %}{% endblock %}
 {% block page_id %}atk_match{% endblock %}
 
 {% block extra_css %}
@@ -29,24 +30,29 @@
 {% block content %}
   <div style="padding: 5px; background-color: white; position: fixed; top: 57px; right: 10px; float: right;">
     <span id="object_pane_search">
-      <input style="width: 150px" placeholder="Filter objects" />
+      <input style="width: 150px" placeholder="{% trans 'Filter objects' %}" />
       <img src="{% static 'images/zoom.png' %}" />
     </span>
 
     <span id="resource_pane_search">
-      <input style="width: 150px" placeholder="Filter resources" />
+      <input style="width: 150px" placeholder="{% trans 'Filter resources' %}" />
       <img src="{% static 'images/zoom.png' %}" />
     </span>
 
-    <input id='match_button' type='button' value='Pair' class='btn btn-default' />
+    <input id='match_button' type='button' value='{% trans "Pair" %}' class='btn btn-default' />
   </div>
 
   <ul class="breadcrumb">
-    {% breadcrumb_url 'DIP Upload' 'components.ingest.views_atk.ingest_upload_atk' uuid %}
-    {% breadcrumb 'Assign Objects' %}
+    {% trans "DIP upload" as dip_upload_label %}
+    {% trans "Assign objects" as assign_objects_label %}
+    {% breadcrumb_url dip_upload_label 'components.ingest.views_atk.ingest_upload_atk' uuid %}
+    {% breadcrumb assign_objects_label %}
   </ul>
 
-  <h1>Assign Objects<br /><small>Assign objects to descriptions</small></h1>
+  <h1>
+    {{ assign_objects_label }}<br />
+    <small>{% trans "Assign objects to descriptions" %}</small>
+  </h1>
 
   <div id='atk_matcher'></div>
 
@@ -55,21 +61,21 @@
   <script type="text/template" id="matcher-layout-template">
     <div id="object_pane">
       <div class="atk-pane-header">
-        <h3>Objects</h3>
+        <h3>{% trans "Objects" %}</h3>
       </div>
       <div id="object_pane_paths"></div>
     </div>
     <div id="resource_pane">
       <div class="atk-pane-header">
-        <h3>Resources</h3>
+        <h3>{% trans "Resources" %}</h3>
       </div>
       <table class="table">
         <thead>
           <tr>
-            <th><a class='atk_resource_sort' id='sort_by_sortPosition'>Level</a></th>
-            <th><a class='atk_resource_sort' id='sort_by_title'>Title</a></th>
-            <th><a class='atk_resource_sort' id='sort_by_identifier'>Identifier</a></th>
-            <th>Dates</th>
+            <th><a class='atk_resource_sort' id='sort_by_sortPosition'>{% trans "Level" %}</a></th>
+            <th><a class='atk_resource_sort' id='sort_by_title'>{% trans "Title" %}</a></th>
+            <th><a class='atk_resource_sort' id='sort_by_identifier'>{% trans "Identifier" %}</a></th>
+            <th>{% trans "Dates" %}</th>
           </tr>
         </thead>
         <tbody id="resource_pane_items">
@@ -78,24 +84,24 @@
     </div>
     <div id="match_pane">
       <div class="atk-pane-header">
-        <h3>Pairs</h3>
+        <h3>{% trans "Pairs" %}</h3>
       </div>
       <table class="table">
         <thead>
           <tr>
-            <th>File</th>
-            <th>Level</th>
-            <th>Title</th>
-            <th>Identifier</th>
-            <th>Dates</th>
+            <th>{% trans "File" %}</th>
+            <th>{% trans "Level" %}</th>
+            <th>{% trans "Title" %}</th>
+            <th>{% trans "Identifier" %}</th>
+            <th>{% trans "Dates" %}</th>
             <th></th>
           </tr>
         </thead>
         <tbody id="match_pane_pairs"></tbody>
       </table>
       <div style="float:right">
-        <input id="match_confirm_button" type='button' class='btn btn-default' value='Confirm' />
-        <input id="match_cancel_button" type='button' class='btn btn-default' value='Cancel' />
+        <input id="match_confirm_button" type='button' class='btn btn-default' value='{% trans "Confirm" %}' />
+        <input id="match_cancel_button" type='button' class='btn btn-default' value='{% trans "Cancel" %}' />
       </div>
     </div>
   </script>
@@ -124,7 +130,7 @@
       <td><%= identifier %></td>
       <td><%= dates %></td>
       <td id="match_delete_<%= tempId %>">
-        <img src="{% static 'images/delete.png' %}" title="Delete match" />
+        <img src="{% static 'images/delete.png' %}" title="{% trans 'Delete match' %}" />
       </td>
     </tr>
   </script>

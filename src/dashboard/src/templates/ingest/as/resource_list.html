@@ -1,36 +1,38 @@
 ﻿{% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Match{% endblock %}
-{% block h1 %}Match{% endblock %}
-{% block page_id %}atk_match{% endblock %}
+{% block title %}{% trans "Match" %}{% endblock %}
+{% block h1 %}{% trans "Match" %}{% endblock %}
+{% block page_id %}as_match{% endblock %}
 
 {% block content %}
 <div class="col-md-12">
 
   <ul class="breadcrumb">
-    {% breadcrumb 'DIP Upload' %} 
+    {% trans "DIP upload" as dip_upload_label %}
+    {% breadcrumb dip_upload_label %}
   </ul>
 
   <h1>
-    Collections<br />
+    {% trans "Collections" %}<br />
     <small>ArchivesSpace</small>
   </h1>
 
   {% include "ingest/as/_search_form.html" %}
 
   {% if reset_url %}
-    <div id='reset_matching'><a class="btn btn-default" href="{% url reset_url uuid %}">Restart matching</a>
+    <div id='reset_matching'><a class="btn btn-default" href="{% url reset_url uuid %}">{% trans "Restart matching" %}</a>
   {% else %}
-    <div id='reset_matching'><a class="btn btn-default disabled">Restart matching</a>
+    <div id='reset_matching'><a class="btn btn-default disabled">{% trans "Restart matching" %}</a>
   {% endif %}
-  <a class="btn btn-default" href="{% url 'components.ingest.views_as.ingest_upload_as_review_matches' uuid %}">Review matches</a>
+  <a class="btn btn-default" href="{% url 'components.ingest.views_as.ingest_upload_as_review_matches' uuid %}">{% trans "Review matches" %}</a>
 
   <table class="table">
     <thead>
       <tr>
-        <th><a href="?sort={{ sort_direction }}&amp;page=1">Title</a></th>
-        <th>Dates</th>
+        <th><a href="?sort={{ sort_direction }}&amp;page=1">{% trans "Title" %}</a></th>
+        <th>{% trans "Dates" %}</th>
       </tr>
     </thead>
     <tbody>

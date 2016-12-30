@@ -1,14 +1,18 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 {% load keyvalue %}
 
 {% block content %}
   <div class="row">
     <div class="col-md-12">
 
+      {% trans "Transfer" as transfer_label %}
+      {% trans "Component metadata" as rights_label %}
+
       <ul class="breadcrumb">
-        {% breadcrumb_url 'Transfer' 'components.transfer.views.grid' %}
-        Component metadata
+        {% breadcrumb_url transfer_label 'components.transfer.views.grid' %}
+        {% breadcrumb component_metadata_label %}
       </ul>
 
       <form method='POST'>
@@ -47,7 +51,7 @@
       {% endfor %}
         <tr>
           <td colspan=2>
-            <input type='submit' value='Save' />
+            <input type='submit' value='{% trans "Save" %}' />
           </td>
         </tr>
       </table>

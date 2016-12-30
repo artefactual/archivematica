@@ -1,49 +1,60 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
 {% block content %}
   <div class="row">
     <div class="col-md-12">
 
+      {% trans "Transfer" as transfer_label %}
+
       <ul class="breadcrumb">
-        {% breadcrumb_url 'Transfer' 'components.transfer.views.grid' %}
+        {% breadcrumb_url transfer_label 'components.transfer.views.grid' %}
         {% breadcrumb name %}
       </ul>
 
-      <h1>Transfer<br /><small>{{ name }}</small></h1>
+      <h1>
+        {{ transfer_label }}<br />
+        <small>{{ name }}</small>
+      </h1>
 
-      <p><strong>UUID:</strong> {{ uuid }}</p>
+      <p>
+        {% blocktrans with uuid=uuid %}
+          <strong>UUID:</strong> {{ uuid }}
+        {% endblocktrans %}
+      </p>
 
       {% if is_waiting %}
         <div class="alert alert-info block-message">
-          <p>There are micro-services awaiting user decisions.</p>
+          <p>{% trans "There are microservices awaiting user decisions." %}</p>
           <div class="alert-actions">
-            <a class="btn btn-sm" href="{% url 'components.unit.views.microservices' unit_type uuid %}">View micro-services</a>
+            <a class="btn btn-sm" href="{% url 'components.unit.views.microservices' unit_type uuid %}">{% trans "View microservices" %}</a>
           </div>
         </div>
       {% endif %}
 
-      <h5>Micro-Services</h5>
+      <h5>{% trans "Microservices" %}</h5>
       <ul>
-        <li><a href="{% url 'components.unit.views.microservices' unit_type uuid %}">List</a></li>
+        <li><a href="{% url 'components.unit.views.microservices' unit_type uuid %}">{% trans "List" %}</a></li>
       </ul>
-      <h5>Rights</h5>
+
+      <h5>{% trans "Rights" %}</h5>
       <ul>
-        <li><a href="{% url 'components.rights.views.transfer_rights_list' uuid %}">List</a></li>
-        <li><a href="{% url 'components.rights.views.transfer_rights_edit' uuid %}">Add</a></li>
+        <li><a href="{% url 'components.rights.views.transfer_rights_list' uuid %}">{% trans "List" %}</a></li>
+        <li><a href="{% url 'components.rights.views.transfer_rights_edit' uuid %}">{% trans "Add" %}</a></li>
       </ul>
 
       {% if set_uuid %}
-      <h5>Transfer Metadata</h5>
-      <ul>
-        <li><a href="{% url 'components.transfer.views.component' set_uuid %}">Edit</a></li>
-      </ul>
+        <h5>{% trans "Transfer metadata" %}</h5>
+        <ul>
+          <li><a href="{% url 'components.transfer.views.component' set_uuid %}">{% trans "Edit" %}</a></li>
+        </ul>
       {% endif %}
 
-      <h5>Metadata</h5>
+      <h5>{% trans "Metadata" %}</h5>
       <ul>
-        <li><a href="{% url 'components.transfer.views.transfer_metadata_list' uuid %}">List</a></li>
-        <li><a href="{% url 'components.transfer.views.transfer_metadata_edit' uuid %}">Add</a></li>
+        <li><a href="{% url 'components.transfer.views.transfer_metadata_list' uuid %}">{% trans "List" %}</a></li>
+        <li><a href="{% url 'components.transfer.views.transfer_metadata_edit' uuid %}">{% trans "Add" %}</a></li>
       </ul>
 
     </div>

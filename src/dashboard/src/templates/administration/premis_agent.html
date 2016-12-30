@@ -1,15 +1,10 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Administration{% endblock %}
-{% block h1 %}Administration{% endblock %}
+{% block title %}{% trans "Administration" %}{% endblock %}
+{% block h1 %}{% trans "Administration" %}{% endblock %}
 {% block page_id %}Administration{% endblock %}
-
-{% block js %}
-{% endblock %}
-
-{% block extra_css %}
-{% endblock %}
 
 {% block content %}
 
@@ -21,12 +16,12 @@
 
     <div class="col-md-10">
 
-      <h3>PREMIS agent</h3>
+      <h3>{% trans "PREMIS agent" %}</h3>
 
       <form method='POST'>
       {% include "_form.html" %}
         <div>
-          <input type='submit' value='Save' class='btn btn-primary' />
+          <input type='submit' value='{% trans "Save" %}' class='btn btn-primary' />
         </div>
       </form>
 

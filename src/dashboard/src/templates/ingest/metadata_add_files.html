@@ -1,5 +1,6 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 {% load static %}
 
 {% block extra_css %}
@@ -27,17 +28,23 @@ select {
     <div class="col-md-12">
 
     <ul class="breadcrumb">
-      {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
+      {% trans "Ingest" as ingest_label %}
+      {% trans "Add metadata files" as add_metadata_files_label %}
+      {% breadcrumb_url ingest_label 'components.ingest.views.ingest_grid' %}
       {% breadcrumb_url name 'components.unit.views.detail' 'ingest' sip_uuid %}
-      {% breadcrumb 'Add Metadata Files' %}
+      {% breadcrumb add_metadata_files_label %}
     </ul>
 
-    <h1>Add Metadata Files<br /><small>{{ name }}</small></h1>
+    <h1>
+      {{ add_metadata_files_label }}<br />
+      <small>{{ name }}</small>
+    </h1>
+
     {% if source_directories %}
 
     <div id='add_metadata_files_form'></div>
     <div class="inline-file-explorer">
-      <h4>Select a directory</h4>
+      <h4>{% trans "Select a directory" %}</h4>
       <button type="button" class="close">×</button>
       <div id="explorer" class="backbone-file-explorer"></div>
     </div>

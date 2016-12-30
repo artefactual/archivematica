@@ -1,9 +1,10 @@
 {% extends "layout.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}AIP{% endblock %}
-{% block h1 %}AIP{% endblock %}
+{% block title %}{% trans "AIP" %}{% endblock %}
+{% block h1 %}{% trans "AIP" %}{% endblock %}
 {% block page_id %}aip{% endblock %}
 
 {% block extra_css %}
@@ -34,7 +35,8 @@
       <h2>{{ title }}</h2>
 
       <ul class="breadcrumb">
-        {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
+        {% trans "Ingest" as ingest_label %}
+        {% breadcrumb_url ingest_label 'components.ingest.views.ingest_grid' %}
         {% breadcrumb name %}
       </ul>
 
@@ -64,7 +66,7 @@
 
       <script type="text/template" id="status-template">
         <div id="status-bullet">
-          <span>Initializing...</span>
+          <span>{% trans "Initializing..." %}</span>
           <img src="{% static 'images/bullet_delete.png' %}" />
         </div>
       </script>

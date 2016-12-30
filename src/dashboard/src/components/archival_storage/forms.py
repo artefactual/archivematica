@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 from django import forms
+from django.utils.translation import ugettext as _
 
 from agentarchives.atom.client import CommunicationError
 from requests import Timeout, ConnectionError
@@ -28,7 +29,7 @@ class CreateAICForm(forms.Form):
 
 
 class UploadMetadataOnlyAtomForm(forms.Form):
-    slug = forms.CharField(label='Insert slug', help_text='Only compatible with AtoM 2.4 or newer.', required=True, widget=forms.TextInput(attrs={'class': 'span8'}))
+    slug = forms.CharField(label=_('Insert slug'), help_text=_('Only compatible with AtoM 2.4 or newer.'), required=True, widget=forms.TextInput(attrs={'class': 'span8'}))
 
     def clean_slug(self):
         slug = self.cleaned_data['slug']
@@ -36,11 +37,11 @@ class UploadMetadataOnlyAtomForm(forms.Form):
         try:
             client.find_parent_id_for_component(slug)
         except (Timeout, ConnectionError) as e:
-            raise forms.ValidationError('Connection establishment failed: AtoM server cannot be reached.')
+            raise forms.ValidationError(_('Connection establishment failed: AtoM server cannot be reached.'))
         except CommunicationError as e:
             if '404' in e.message:
-                raise forms.ValidationError('Description with slug %(slug)s not found!', code='notfound', params={'slug': slug})
-            raise forms.ValidationError('Unknown error: %(error)s', code='error', params={'error': e.message})
+                raise forms.ValidationError(_('Description with slug %(slug)s not found!'), code='notfound', params={'slug': slug})
+            raise forms.ValidationError(_('Unknown error: %(error)s'), code='error', params={'error': e.message})
         return slug
 
 
@@ -49,28 +50,28 @@ class ReingestAIPForm(forms.Form):
     OBJECTS = 'objects'
     FULL = 'full'
     REINGEST_CHOICES = (
-        (METADATA_ONLY, 'Metadata re-ingest'),
-        (OBJECTS, 'Partial re-ingest'),
-        (FULL, 'Full re-ingest'),
+        (METADATA_ONLY, _('Metadata re-ingest')),
+        (OBJECTS, _('Partial re-ingest')),
+        (FULL, _('Full re-ingest')),
     )
     reingest_type = forms.ChoiceField(choices=REINGEST_CHOICES, widget=forms.RadioSelect, required=True)
     processing_config = forms.CharField(required=False, initial='default',
-        help_text='Only needed in full re-ingest',
-        widget=forms.TextInput(attrs={'placeholder': 'default'}))
+        help_text=_('Only needed in full re-ingest'),
+        widget=forms.TextInput(attrs={'placeholder': _('default')}))
 
 
 class DeleteAIPForm(forms.Form):
-    uuid = forms.CharField(label='Please type in the UUID to confirm', required=True, widget=forms.TextInput(attrs={'class': 'xxlarge', 'placeholder': 'UUID'}))
-    reason = forms.CharField(label='Reason for deletion', required=True, widget=forms.Textarea(attrs={'class': 'xxlarge', 'rows': '3'}))
+    uuid = forms.CharField(label=_('Please type in the UUID to confirm'), required=True, widget=forms.TextInput(attrs={'class': 'xxlarge', 'placeholder': _('UUID')}))
+    reason = forms.CharField(label=_('Reason for deletion'), required=True, widget=forms.Textarea(attrs={'class': 'xxlarge', 'rows': '3'}))
 
     def __init__(self, *args, **kwargs):
         self.uuid = kwargs.pop('uuid', None)
         if self.uuid is None:
-            raise ValueError('uuid must be defined')
+            raise ValueError(_('uuid must be defined'))
         super(forms.Form, self).__init__(*args, **kwargs)
 
     def clean_uuid(self):
         uuid = self.cleaned_data['uuid']
         if self.uuid != uuid:
-            raise forms.ValidationError('UUID mismatch')
+            raise forms.ValidationError(_('UUID mismatch'))
         return uuid

@@ -18,7 +18,7 @@
 from __future__ import absolute_import
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponseServerError
-import sys, MySQLdb, ast
+import MySQLdb, ast
 from main import models
 from components import advanced_search
 from . import pair_matcher

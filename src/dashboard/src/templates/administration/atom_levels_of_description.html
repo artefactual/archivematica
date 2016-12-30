@@ -1,9 +1,10 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Administration{% endblock %}
-{% block h1 %}Administration{% endblock %}
+{% block title %}{% trans "Administration" %}{% endblock %}
+{% block h1 %}{% trans "Administration" %}{% endblock %}
 {% block page_id %}Administration{% endblock %}
 
 {% block js %}
@@ -23,10 +24,10 @@
       {% url 'components.api.views.fetch_levels_of_description_from_atom' as url_fetch_atom_levels_of_description %}
 
       <div style="float: right">
-        <a onClick="fetchAtomLevelsOfDescription('{{ url_fetch_atom_levels_of_description }}')" class="btn btn-default">Fetch from AtoM</a>
+        <a onClick="fetchAtomLevelsOfDescription('{{ url_fetch_atom_levels_of_description }}')" class="btn btn-default">{% trans "Fetch from AtoM" %}</a>
       </div>
 
-      <h3>AtoM Levels of Description</h3>
+      <h3>{% trans "AtoM Levels of Description" %}</h3>
 
       {% if levels %}
         <form id="level_form" method="POST">
@@ -34,27 +35,25 @@
         <input id="level_id" name="id" type="hidden" />
         <table class="table">
           <thead>
-            <th>Name</th>
+            <th>{% trans "Name" %}</th>
             <th></th>
           </thead>
           <tbody>
             {% for level in levels %}
-    	        <tr>
+                <tr>
                 <td>{{ level.name }}</td>
                 <td>
-                  <a onClick="deleteLevel('{{ level.id }}')" href="#"><img src="{% static 'images/delete.png' %}" alt="Delete" title="Delete" /></a>
-                  <a onClick="promoteLevel('{{ level.id }}')" href="#"><img src="{% static 'images/bullet_arrow_up.png' %}" alt="Promote" title="Promote" {% if level.sortorder == sortorder_min %}style="visibility: hidden"{% endif %}/></a>
-                  {% if level.sortorder != sortorder_max %}
-                    <a onClick="demoteLevel('{{ level.id }}')" href="#"><img src="{% static 'images/bullet_arrow_down.png' %}" alt="Demote" title="Demote" /></a>
-                  {% endif %}
+                  <a onClick="deleteLevel('{{ level.id }}')" href="#"><img src="{% static 'images/delete.png' %}" alt="{% trans 'Delete' %}" title="{% trans 'Delete' %}" /></a>
+                  <a onClick="promoteLevel('{{ level.id }}')" href="#"><img src="{% static 'images/bullet_arrow_up.png' %}" alt="{% trans 'Promote' %}" title="{% trans 'Promote' %}" {% if level.sortorder == sortorder_min %}style="visibility: hidden"{% endif %}/></a>
+                  {% if level.sortorder != sortorder_max %}<a onClick="demoteLevel('{{ level.id }}')" href="#"><img src="{% static 'images/bullet_arrow_down.png' %} alt="{% trans 'Demote' %}" title="{% trans 'Demote' %}" /></a>{% endif %}
                 </td>
-	            </tr>
+                </tr>
             {% endfor %}
           </tbody>
         </table>
         </form>
       {% else %}
-        No levels found.
+        {% trans "No levels found." %}
       {% endif %}
 
     </div>

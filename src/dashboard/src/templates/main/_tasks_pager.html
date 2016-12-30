@@ -1,11 +1,13 @@
+{% load i18n %}
+
 {% if page.has_other_pages %}
 {% if page.has_previous %}
-<a class='btn btn-default' href='/tasks/{{ uuid }}/?page={{ page.previous_page_number }}'>Previous Page</a>
+<a class='btn btn-default' href='/tasks/{{ uuid }}/?page={{ page.previous_page_number }}'>{% trans "Previous page" %}</a>
 {% endif %}
 
 {% if has_next and has_previous %}&nbsp;{% endif %}
 
 {% if page.has_next %}
-<a class='btn btn-default' href='/tasks/{{ uuid }}/?page={{ page.next_page_number }}'>Next Page</a>
+<a class='btn btn-default' href='/tasks/{{ uuid }}/?page={{ page.next_page_number }}'>{% trans "Next page" %}</a>
 {% endif %}
 {% endif %}

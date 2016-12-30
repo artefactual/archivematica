@@ -1,14 +1,19 @@
 {% extends "layout.html" %}
+{% load i18n %}
 
 {% block content %}
 
-  <h1>Elasticsearch error</h1>
+  <h1>{% trans "Elasticsearch error" %}</h1>
 
-  <h3>Exception type: {{ exception_type }}</h3>
+  <h3>
+    {% blocktrans with exception_type=exception_type %}
+        Exception type: {{ exception_type }}
+    {% endblocktrans %}
+  </h3>
 
   <div class="alert block-message alert-warning">
-    <p>Sorry! The page that you are trying to view is not available.</p>
-    <p>Please contact an administrator.</p>
+    <p>{% trans "Sorry! The page that you are trying to view is not available." %}</p>
+    <p>{% trans "Please contact an administrator." %}</p>
   </div>
 
 {% endblock %}

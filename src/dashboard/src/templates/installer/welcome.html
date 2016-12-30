@@ -1,8 +1,9 @@
 {% extends "layout.html" %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Welcome{% endblock %}
-{% block h1 %}Welcome{% endblock %}
+{% block title %}{% trans "Welcome" %}{% endblock %}
+{% block h1 %}{% trans "Welcome" %}{% endblock %}
 {% block page_id %}welcome{% endblock %}
 
 {% block header %}{% endblock %}
@@ -36,8 +37,8 @@
       <img src="{% static 'images/logo_welcome.gif' %}" style="margin-bottom: 20px;" />
 
       <div class="well">
-        <h2>Welcome!</h2>
-        <p>Archivematica has been installed successfully. Please take a minute to create your first user in the system.</p>
+        <h2>{% trans "Welcome!" %}</h2>
+        <p>{% trans "Archivematica has been installed successfully. Please take a minute to create your first user in the system." %}</p>
       </div>
 
       <form class="form-stacked" method="post" action="{% url 'installer.views.welcome' %}">
@@ -45,7 +46,7 @@
         {% include "_form.html" %}
 
         <div class="well">
-          <button class="btn btn-primary" type="submit">Create</button>
+          <button class="btn btn-primary" type="submit">{% trans "Create" %}</button>
         </div>
 
       </form>

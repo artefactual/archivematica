@@ -27,11 +27,12 @@ import json
 
 from django.utils.dateformat import format
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
+from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
-from django.core.servers.basehttp import FileWrapper
 from django.shortcuts import render
+from django.utils.translation import ugettext as _
 from main import models
 
 logger = logging.getLogger('archivematica.dashboard')
@@ -60,16 +61,16 @@ def keynat(string):
     >>> sorted(items)
     ['10th', '1st', '9', 'Z', 'a']
     >>> sorted(items, key=keynat)
-    ['1st', '9', '10th', 'a', 'Z']    
+    ['1st', '9', '10th', 'a', 'Z']
     '''
     it = type(1)
     r = []
     for c in string:
         if c.isdigit():
             d = int(c)
-            if r and type( r[-1] ) == it: 
+            if r and type( r[-1] ) == it:
                 r[-1] = r[-1] * 10 + d
-            else: 
+            else:
                 r.append(d)
         else:
             r.append(c.lower())
@@ -221,14 +222,14 @@ def get_atom_levels_of_description(clear=True):
     """
     url = get_setting('dip_upload_atom_url')
     if not url:
-        raise AtomError("AtoM URL not defined!")
+        raise AtomError(_("AtoM URL not defined!"))
 
     auth = (
         get_setting('dip_upload_atom_email'),
         get_setting('dip_upload_atom_password'),
     )
     if not auth:
-        raise AtomError("AtoM authentication settings not defined!")
+        raise AtomError(_("AtoM authentication settings not defined!"))
 
     # taxonomy 34 is "level of description"
     dest = urljoin(url, 'api/taxonomies/34')
@@ -245,7 +246,7 @@ def get_atom_levels_of_description(clear=True):
             lod = models.LevelOfDescription(name=level['name'], sortorder=base + idx)
             lod.save()
     else:
-        raise AtomError("Unable to fetch levels of description from AtoM!")
+        raise AtomError(_("Unable to fetch levels of description from AtoM!"))
 
 
 def redirect_with_get_params(url_name, *args, **kwargs):

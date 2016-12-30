@@ -19,7 +19,7 @@ body {
 }
 
 .navbar-nav > li > a, .navbar-brand {
-    padding-top: 10px; 
+    padding-top: 10px;
     padding-bottom: 0;
     height: 40px;
 }
@@ -318,6 +318,10 @@ li.user > a {
   margin-left: 20px;
 }
 
+.job-detail-microservice > .job-type-label:after {
+  content: ':';
+}
+
 .job-detail-currentstep {
   width: 180px;
   border-right: 1px dotted #bbb;
@@ -380,17 +384,24 @@ li.user > a {
   text-decoration: none;
 }
 
-.task-dialog .stdout .stderror {
-  background-color: #ddd;
-  font-family: "Courier New";
+.task-exit-code {
+  margin-top: 6px;
+  font-size: 150%;
+}
+
+.task-body {
+  border-left: 8px solid #ccc;
+  padding-left: 20px;
+}
+
+.shell-output {
+  background-color: #f3f3f3;
 }
 
 .shell-output > pre {
   white-space: pre-wrap;
-}
-
-.stderror > pre {
-  background-color: #f2d8d8; 
+  margin: 0; padding: 0; border: 0;
+  background-color: transparent;
 }
 
 #polling-notification {

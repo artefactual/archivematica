@@ -27,6 +27,7 @@ import uuid
 from django.db import IntegrityError
 import django.http
 import django.template.defaultfilters
+from django.utils.translation import ugettext as _, ungettext
 
 from components import helpers
 import components.filesystem_ajax.helpers as filesystem_ajax_helpers
@@ -82,7 +83,7 @@ def _prepare_browse_response(response):
         if 'levelOfDescription' in prop:
             prop['display_string'] = prop['levelOfDescription']
         elif 'object count' in prop:
-            prop['display_string'] = '{} objects'.format(prop['object count'])
+            prop['display_string'] = ungettext("%(count)d object", "%(count)d objects", prop['object count']) % {'count': prop['object count']}
         elif 'size' in prop:
             prop['display_string'] = django.template.defaultfilters.filesizeformat(prop['size'])
 
@@ -91,6 +92,7 @@ def _prepare_browse_response(response):
     response['properties'] = {base64.b64encode(k): v for k, v in response.get('properties', {}).items()}
 
     return response
+
 
 def directory_children_proxy_to_storage_server(request, location_uuid, basePath=False):
     path = ''
@@ -104,10 +106,12 @@ def directory_children_proxy_to_storage_server(request, location_uuid, basePath=
 
     return helpers.json_response(response)
 
+
 def contents(request):
     path = request.GET.get('path', '/home')
     response = filesystem_ajax_helpers.directory_to_dict(path)
     return helpers.json_response(response)
+
 
 def arrange_contents(request, path=None):
     if path is None:
@@ -117,7 +121,7 @@ def arrange_contents(request, path=None):
         except TypeError:
             response = {
                 'success': False,
-                'message': 'Could not base64-decode provided path: {}'.format(path),
+                'message': _('Could not base64-decode provided path: %(path)s') % {'path': path},
             }
             return helpers.json_response(response, status_code=400)
     else:
@@ -138,7 +142,7 @@ def arrange_contents(request, path=None):
     if len(paths) == 0 and base_path != DEFAULT_ARRANGE_PATH:
         response = {
             'success': False,
-            'message': 'No files or directories found under path "{}"'.format(base_path)
+            'message': _('No files or directories found under path: %(path)s') % {'path': base_path}
         }
         return helpers.json_response(response, status_code=404)
 
@@ -179,14 +183,14 @@ def delete_arrange(request, filepath=None):
         except KeyError:
             response = {
                 'success': False,
-                'message': 'No filepath to delete was provided!'
+                'message': _('No filepath to delete was provided!'),
             }
             return helpers.json_response(response, status_code=400)
 
     # Delete access mapping if found
     models.SIPArrangeAccessMapping.objects.filter(arrange_path=filepath).delete()
     models.SIPArrange.objects.filter(arrange_path__startswith=filepath).delete()
-    return helpers.json_response({'message': 'Delete successful.'})
+    return helpers.json_response({'message': _('Delete successful.')})
 
 
 def start_transfer_logged_in(request):
@@ -256,7 +260,8 @@ def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
         copy_from_transfer_sources([path], transfer_relative)
         filepath = archivematicaFunctions.unicodeToStr(filepath)
         try:
-            destination = copy_to_start_transfer(filepath=filepath,
+            destination = copy_to_start_transfer(
+                filepath=filepath,
                 type=transfer_type, accession=accession,
                 transfer_metadata_set_row_uuid=row_id)
         except Exception:
@@ -264,7 +269,7 @@ def start_transfer(transfer_name, transfer_type, accession, paths, row_ids):
             raise storage_service.StorageServiceError('Error copying {} to start of transfer.'.format(filepath))
 
     shutil.rmtree(temp_dir)
-    return {'message': 'Copy successful.', 'path': destination}
+    return {'message': _('Copy successful.'), 'path': destination}
 
 
 def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata_set_row_uuid=''):
@@ -336,7 +341,7 @@ def create_arranged_sip(staging_sip_path, files, sip_uuid):
     else:
         # Update the already-created SIP with its path
         if sip.currentpath is not None:
-            return "Provided SIP UUID ({}) belongs to an already-started SIP!".format(sip_uuid)
+            return _('Provided SIP UUID (%(uuid)s) belongs to an already-started SIP!') % {'uuid': sip_uuid}
         sip.currentpath = currentpath
         sip.save()
 
@@ -345,7 +350,7 @@ def create_arranged_sip(staging_sip_path, files, sip_uuid):
         if file_.get('uuid'):
             # Strip 'arrange/sip_name' from file path
             in_sip_path = '/'.join(file_['destination'].split('/')[2:])
-            currentlocation = '%SIPDirectory%'+ in_sip_path
+            currentlocation = '%SIPDirectory%' + in_sip_path
             models.File.objects.filter(uuid=file_['uuid']).update(sip=sip_uuid, currentlocation=currentlocation)
 
     # Create directories for logs and metadata, if they don't exist
@@ -400,7 +405,7 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
             uuid.UUID(sip_uuid)
         except ValueError:
             response = {
-                'message': "Provided UUID ({}) isn't a valid UUID!".format(sip_uuid),
+                'message': _('Provided UUID (%(uuid)s) is not a valid UUID!') % {'uuid': sip_uuid},
                 'error': True,
             }
             return helpers.json_response(response, status_code=400)
@@ -408,10 +413,10 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
     # Error checking
     if not filepath.startswith(DEFAULT_ARRANGE_PATH):
         # Must be in DEFAULT_ARRANGE_PATH
-        error = '{} is not in {}'.format(filepath, DEFAULT_ARRANGE_PATH)
+        error = _('%(path1)s is not in %(path2)s') % {'path1': filepath, 'path2': DEFAULT_ARRANGE_PATH}
     elif not filepath.endswith('/'):
         # Must be a directory (end with /)
-        error = '{} is not a directory'.format(filepath)
+        error = _('%(path)s is not a directory') % {'path': filepath}
     else:
         if not sip_name:
             # Filepath is prefix on arrange_path in SIPArrange
@@ -425,13 +430,11 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
         # Collect file information.  Change path to be in staging, not arrange
         files = []
         for arranged_file in arrange_files:
-            files.append(
-                {'source': arranged_file.original_path.lstrip('/'),
-                 'destination': arranged_file.arrange_path.replace(
-                    filepath, staging_sip_path, 1),
-                 'uuid': arranged_file.file_uuid,
-                }
-            )
+            files.append({
+                'source': arranged_file.original_path.lstrip('/'),
+                'destination': arranged_file.arrange_path.replace(filepath, staging_sip_path, 1),
+                'uuid': arranged_file.file_uuid,
+            })
             # Get transfer folder name
             transfer_name = arranged_file.original_path.replace(
                 DEFAULT_BACKLOG_PATH, '', 1).split('/', 1)[0]
@@ -481,7 +484,7 @@ def copy_from_arrange_to_completed_common(filepath, sip_uuid, sip_name):
         }
         status_code = 400
     else:
-        response = {'message': 'SIP created.', 'sip_uuid': sip_uuid}
+        response = {'message': _('SIP created.'), 'sip_uuid': sip_uuid}
         status_code = 201
 
     return status_code, response
@@ -491,11 +494,11 @@ def create_arrange_directory(path):
     if path.startswith(DEFAULT_ARRANGE_PATH):
         models.SIPArrange.objects.get_or_create(
             original_path=None,
-            arrange_path=os.path.join(path, ''), # ensure ends with /
+            arrange_path=os.path.join(path, ''),  # ensure ends with /
             file_uuid=None,
         )
     else:
-        raise ValueError('Directory is not within the arrange directory.')
+        raise ValueError(_('Directory is not within the arrange directory.'))
 
 
 def create_directory_within_arrange(request):
@@ -520,7 +523,7 @@ def create_directory_within_arrange(request):
         }
         status_code = 409
     else:
-        response = {'message': 'Creation successful.'}
+        response = {'message': _('Creation successful.')}
         status_code = 201
 
     return helpers.json_response(response, status_code=status_code)
@@ -528,20 +531,20 @@ def create_directory_within_arrange(request):
 
 def move_files_within_arrange(sourcepath, destination):
     if not (sourcepath.startswith(DEFAULT_ARRANGE_PATH) and destination.startswith(DEFAULT_ARRANGE_PATH)):
-        raise ValueError('{} and {} must be inside {}'.format(sourcepath, destination, DEFAULT_ARRANGE_PATH))
+        raise ValueError(_('%(src)s and %(dst)s must be inside %(path)s') % {'src': sourcepath, 'dst': destination, 'path': DEFAULT_ARRANGE_PATH})
     elif destination.endswith('/'):  # destination is a directory
         if sourcepath.endswith('/'):  # source is a directory
             folder_contents = models.SIPArrange.objects.filter(arrange_path__startswith=sourcepath)
             # Strip the last folder off sourcepath, but leave a trailing /, so
             # we retain the folder name when we move the files.
-            source_parent = '/'.join(sourcepath.split('/')[:-2])+'/'
+            source_parent = '/'.join(sourcepath.split('/')[:-2]) + '/'
             for entry in folder_contents:
-                entry.arrange_path = entry.arrange_path.replace(source_parent,destination,1)
+                entry.arrange_path = entry.arrange_path.replace(source_parent, destination, 1)
                 entry.save()
         else:  # source is a file
-            models.SIPArrange.objects.filter(arrange_path=sourcepath).update(arrange_path=destination+os.path.basename(sourcepath))
+            models.SIPArrange.objects.filter(arrange_path=sourcepath).update(arrange_path=destination + os.path.basename(sourcepath))
     else:  # destination is a file (this should have been caught by JS)
-        raise ValueError('You cannot drag and drop onto a file.')
+        raise ValueError(_('You cannot drag and drop onto a file.'))
 
 
 def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
@@ -567,12 +570,12 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
                 raise
             file_uuid = file_info['fileuuid']
             transfer_uuid = file_info['sipuuid']
-            ret.append(
-                {'original_path': path,
-                 'arrange_path': os.path.join(arrange_path, entry),
-                 'file_uuid': file_uuid,
-                 'transfer_uuid': transfer_uuid
-                })
+            ret.append({
+                'original_path': path,
+                'arrange_path': os.path.join(arrange_path, entry),
+                'file_uuid': file_uuid,
+                'transfer_uuid': transfer_uuid,
+            })
 
     # Add directories and recurse, adding their children too
     for directory in browse['directories']:
@@ -580,11 +583,13 @@ def _get_arrange_directory_tree(backlog_uuid, original_path, arrange_path):
         arrange_dir = os.path.join(arrange_path, directory, '')
         # Don't fetch metadata or logs dirs
         # TODO only filter if the children of a SIP ie /arrange/sipname/metadata
-        if not directory in ('metadata', 'logs'):
-            ret.append({'original_path': None,
-                        'arrange_path': arrange_dir,
-                        'file_uuid': None,
-                        'transfer_uuid': None})
+        if directory not in ('metadata', 'logs'):
+            ret.append({
+                'original_path': None,
+                'arrange_path': arrange_dir,
+                'file_uuid': None,
+                'transfer_uuid': None,
+            })
             ret.extend(_get_arrange_directory_tree(backlog_uuid, original_dir, arrange_dir))
 
     return ret
@@ -596,9 +601,9 @@ def copy_files_to_arrange(sourcepath, destination, fetch_children=False, backlog
 
     # Lots of error checking:
     if not sourcepath or not destination:
-        raise ValueError("GET parameter 'filepath' or 'destination' was blank.")
+        raise ValueError(_("GET parameter 'filepath' or 'destination' was blank."))
     if not destination.startswith(DEFAULT_ARRANGE_PATH):
-        raise ValueError('{} must be in arrange directory.'.format(destination))
+        raise ValueError(_('%(path)s must be in arrange directory.') % {'path': destination})
 
     try:
         leaf_dir = sourcepath.split('/')[-2]
@@ -607,8 +612,7 @@ def copy_files_to_arrange(sourcepath, destination, fetch_children=False, backlog
     # Files cannot go into the top level folder,
     # and neither can the "objects" directory
     if destination == DEFAULT_ARRANGE_PATH and not (sourcepath.endswith('/') or leaf_dir == 'objects'):
-        raise ValueError('{} must go in a SIP, cannot be dropped onto {}'.format(
-                         sourcepath, DEFAULT_ARRANGE_PATH))
+        raise ValueError(_('%(path1)s must go in a SIP, cannot be dropped onto %(path2)s') % {'path1': sourcepath, 'path2': DEFAULT_ARRANGE_PATH})
 
     # Create new SIPArrange entry for each object being copied over
     if not backlog_uuid:
@@ -626,16 +630,17 @@ def copy_files_to_arrange(sourcepath, destination, fetch_children=False, backlog
             uuid_regex = r'-[\w]{8}(-[\w]{4}){3}-[\w]{12}$'
             leaf_dir = re.sub(uuid_regex, '', leaf_dir)
             arrange_path = os.path.join(destination, leaf_dir) + '/'
-            to_add.append({'original_path': None,
-               'arrange_path': arrange_path,
-               'file_uuid': None,
-               'transfer_uuid': None
+            to_add.append({
+                'original_path': None,
+                'arrange_path': arrange_path,
+                'file_uuid': None,
+                'transfer_uuid': None,
             })
         if fetch_children:
             try:
                 to_add.extend(_get_arrange_directory_tree(backlog_uuid, sourcepath, arrange_path))
             except storage_service.ResourceNotFound as e:
-                raise ValueError('Storage Service failed with the message: {}'.format(str(e)))
+                raise ValueError(_('Storage Service failed with the message: %(messsage)s') % {'message': str(e)})
     else:
         if destination.endswith('/'):
             arrange_path = os.path.join(destination, os.path.basename(sourcepath))
@@ -645,13 +650,14 @@ def copy_files_to_arrange(sourcepath, destination, fetch_children=False, backlog
         try:
             file_info = storage_service.get_file_metadata(relative_path=relative_path)[0]
         except storage_service.ResourceNotFound:
-            raise ValueError('No file information returned from the Storage Service for file at relative_path: {}'.format(relative_path))
+            raise ValueError(_('No file information returned from the Storage Service for file at relative_path: %(path)s') % {'path': relative_path})
         file_uuid = file_info.get('fileuuid')
         transfer_uuid = file_info.get('sipuuid')
-        to_add.append({'original_path': sourcepath,
-           'arrange_path': arrange_path,
-           'file_uuid': file_uuid,
-           'transfer_uuid': transfer_uuid
+        to_add.append({
+            'original_path': sourcepath,
+            'arrange_path': arrange_path,
+            'file_uuid': file_uuid,
+            'transfer_uuid': transfer_uuid
         })
 
     logger.info('arrange_path: %s', arrange_path)
@@ -720,19 +726,18 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
     else:
         logger.error('Filepath %s is not in base backlog path nor arrange path', sources[0])
         return helpers.json_response(
-            {'error': True, 'message': '{} is not in base backlog path nor arrange path'.format(sources[0])}
+            {'error': True, 'message': _('%(path)s is not in base backlog path nor arrange path') % {'path': sources[0]}}
         )
 
     try:
         for source, dest in zip(sources, destinations):
             if action == 'copy':
-                copy_files_to_arrange(source, dest,
-                    fetch_children=fetch_children, backlog_uuid=backlog_uuid)
-                response = {'message': 'Files added to the SIP.'}
+                copy_files_to_arrange(source, dest, fetch_children=fetch_children, backlog_uuid=backlog_uuid)
+                response = {'message': _('Files added to the SIP.')}
                 status_code = 201
             elif action == 'move':
                 move_files_within_arrange(source, dest)
-                response = {'message': 'SIP files successfully moved.'}
+                response = {'message': _('SIP files successfully moved.')}
                 status_code = 200
     except ValueError as e:
         logger.exception('Failed copying %s to %s', source, dest)
@@ -742,7 +747,7 @@ def copy_to_arrange(request, sources=None, destinations=None, fetch_children=Fal
         }
         status_code = 400
     else:
-        response = {'message': 'Files added to the SIP.'}
+        response = {'message': _('Files added to the SIP.')}
         status_code = 201
 
     return helpers.json_response(response, status_code=status_code)
@@ -755,6 +760,7 @@ def copy_metadata_files_logged_in(request):
     sip_uuid = request.POST.get('sip_uuid')
     paths = request.POST.getlist('source_paths[]')
     return copy_metadata_files(sip_uuid, paths)
+
 
 def copy_metadata_files(sip_uuid, paths):
     """
@@ -779,7 +785,7 @@ def copy_metadata_files(sip_uuid, paths):
     error, message = copy_from_transfer_sources(paths, relative_path)
 
     if not error:
-        message = 'Metadata files added successfully.'
+        message = _('Metadata files added successfully.')
         status_code = 201
     else:
         status_code = 500
@@ -810,14 +816,13 @@ def copy_from_transfer_sources(paths, relative_destination):
             return True, 'Path' + p + 'cannot be split into location:path'
         if location not in files:
             logger.warning('Location %s is not associated with this pipeline.', location)
-            return True, 'Location' + location + 'is not associated with this pipeline'
+            return True, _('Location %(location)s is not associated with this pipeline') % {'location': location}
 
         source = path.replace(files[location]['location']['path'], '', 1).lstrip('/')
         # Use the last segment of the path for the destination - basename for a
         # file, or the last folder if not. Keep the trailing / for folders.
         last_segment = os.path.basename(source.rstrip('/')) + '/' if source.endswith('/') else os.path.basename(source)
-        destination = os.path.join(processing_location['path'],
-            relative_destination, last_segment).replace('%sharedPath%', '')
+        destination = os.path.join(processing_location['path'], relative_destination, last_segment).replace('%sharedPath%', '')
         files[location]['files'].append({'source': source, 'destination': destination})
         logger.debug('source: %s, destination: %s', source, destination)
 
@@ -827,9 +832,9 @@ def copy_from_transfer_sources(paths, relative_destination):
         if reply is None:
             message.append(str(error))
     if message:
-        return True, 'The following errors occured: {}'.format(', '.join(message))
+        return True, _('The following errors occured: %(message)s') % {'message': ', '.join(message)}
     else:
-        return False, 'Files added successfully.'
+        return False, _('Files added successfully.')
 
 
 def download_ss(request):
@@ -845,7 +850,7 @@ def download_ss(request):
 
     # Get relative path
     # Find first /, should be at the end of the transfer name/uuid, rest is relative ptah
-    relative_path = filepath[filepath.find('/')+1:]
+    relative_path = filepath[filepath.find('/') + 1:]
 
     redirect_url = storage_service.extract_file_url(transfer_uuid, relative_path)
     return helpers.stream_file_from_storage_service(redirect_url, 'Storage service returned {}; check logs?')
@@ -879,7 +884,7 @@ def download_by_uuid(request, uuid):
     except models.File.DoesNotExist:
         response = {
             'success': False,
-            'message': 'File with UUID ' + uuid + ' could not be found',
+            'message': _('File with UUID %(uuid)s could not be found') % {'uuid': uuid},
         }
         return helpers.json_response(response, status_code=404)
     relative_path = f.currentlocation.replace('%transferDirectory%', '')

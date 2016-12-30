@@ -18,12 +18,12 @@
 import logging
 import requests
 
-from django.conf import settings as django_settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 
 import elasticSearchFunctions
 import storageService as storage_service
@@ -225,8 +225,7 @@ def delete(request, uuid):
         elasticSearchFunctions.mark_backlog_deletion_requested(es_client, uuid)
 
     except requests.exceptions.ConnectionError:
-        error_message = 'Unable to connect to storage server. Please contact your administrator.'
-        messages.warning(request, error_message)
+        messages.warning(request, _('Unable to connect to storage server. Please contact your administrator.'))
     except requests.exceptions.RequestException:
         raise Http404
 

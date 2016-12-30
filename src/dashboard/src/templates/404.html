@@ -1,11 +1,12 @@
 {% extends "layout.html" %}
+{% load i18n %}
 
 {% block content %}
 
-  <h1>404 - Page not found</h1>
+  <h1>404 - {% trans "Page not found" %}</h1>
 
   <div class="alert block-message alert-warning">
-    <p>Sorry! The page that you are trying to view is not here.</p>
+    <p>{% trans "Sorry! The page that you are trying to view is not here." %}</p>
   </div>
 
 {% endblock %}

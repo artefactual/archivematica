@@ -1,30 +1,40 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
 {% block content %}
   <div class="row">
     <div class="col-md-12">
 
+      {% trans "Ingest" as ingest_label %}
+      {% trans "Rights" as rights_label %}
+      {% trans "Transfer" as transfer_label %}
+      {% trans "Edit" as edit_label %}
+      {% trans "Add" as add_label %}
+
       <ul class="breadcrumb">
         {% if section == 'ingest' %}
-          {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
+          {% breadcrumb_url ingest_label 'components.ingest.views.ingest_grid' %}
           {% breadcrumb_url name 'components.unit.views.detail' 'ingest' uuid %}
         {% else %}
-          {% breadcrumb_url 'Transfer' 'components.transfer.views.grid' %}
+          {% breadcrumb_url transfer_label 'components.transfer.views.grid' %}
           {% breadcrumb_url name 'components.unit.views.detail' 'transfer' uuid %}
         {% endif %}
-        {% breadcrumb 'Rights' %}
+        {% breadcrumb rights_label %}
       </ul>
 
-      <h1>Rights<br /><small>{{ name }}</small></h1>
+      <h1>
+        {{ rights_label }}<br />
+        <small>{{ name }}</small>
+      </h1>
 
       <table class="table">
         <thead>
-          <th>Act</th>
-          <th>Basis</th>
-          <th>Restriction(s)</th>
-          <th>Start</th>
-          <th>End</th>
+          <th>{% trans "Act" %}</th>
+          <th>{% trans "Basis" %}</th>
+          <th>{% trans "Restriction(s)" %}</th>
+          <th>{% trans "Start" %}</th>
+          <th>{% trans "End" %}</th>
           <th></th>
         </thead>
         <tbody>
@@ -41,11 +51,11 @@
               <td>{% if grant.enddateopen %}(open){% else %}{{ grant.enddate}}{% endif %}</td>
               <td>
                 {% if section == 'ingest' %}
-                  <a href="{% url 'components.rights.views.ingest_rights_edit' uuid grant.rightsstatement.id %}">Edit</a>
-                  <a href="{% url 'components.rights.views.ingest_rights_grant_delete' uuid grant.id %}">Delete</a>
+                  <a href="{% url 'components.rights.views.ingest_rights_edit' uuid grant.rightsstatement.id %}">{% trans "Edit" %}</a>
+                  <a href="{% url 'components.rights.views.ingest_rights_grant_delete' uuid grant.id %}">{% trans "Delete" %}</a>
                 {% else %}
-                  <a href="{% url 'components.rights.views.transfer_rights_edit' uuid grant.rightsstatement.id %}">Edit</a>
-                  <a href="{% url 'components.rights.views.transfer_rights_grant_delete' uuid grant.id %}">Delete</a>
+                  <a href="{% url 'components.rights.views.transfer_rights_edit' uuid grant.rightsstatement.id %}">{% trans "Edit" %}</a>
+                  <a href="{% url 'components.rights.views.transfer_rights_grant_delete' uuid grant.id %}">{% trans "Delete" %}</a>
                 {% endif %}
               </td>
             </tr>
@@ -69,9 +79,9 @@
 
       <div class="actions" style="padding-left: 1em;">
         {% if section == 'ingest' %}
-          <a class="btn btn-primary" href="{% url 'components.rights.views.ingest_rights_edit' uuid %}">Add</a>
+          <a class="btn btn-primary" href="{% url 'components.rights.views.ingest_rights_edit' uuid %}">{% trans "Add" %}</a>
         {% else %}
-          <a class="btn btn-primary" href="{% url 'components.rights.views.transfer_rights_edit' uuid %}">Add</a>
+          <a class="btn btn-primary" href="{% url 'components.rights.views.transfer_rights_edit' uuid %}">{% trans "Add" %}</a>
         {% endif %}
       </div>
 

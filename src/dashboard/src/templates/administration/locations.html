@@ -1,8 +1,9 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Administration{% endblock %}
-{% block h1 %}Administration{% endblock %}
+{% block title %}{% trans "Administration" %}{% endblock %}
+{% block h1 %}{% trans "Administration" %}{% endblock %}
 {% block page_id %}Administration{% endblock %}
 
 {% block content %}
@@ -15,7 +16,7 @@
 
     <div class="col-md-10">
 
-      <h3>{{ system_directory_description }} locations</h3>
+      <h3>{{ system_directory_description }}</h3>
 
       <div id="directories"></div>
 
@@ -23,8 +24,8 @@
         <table class="table">
         <thead>
           <tr>
-            <th>Description</th>
-            <th>Path</th>
+            <th>{% trans "Description" %}</th>
+            <th>{% trans "Path" %}</th>
           </tr>
         </thead>
         <tbody>
@@ -37,7 +38,7 @@
         </tbody>
         </table>
       {% else %}
-        <p>No available locations.</p>
+        <p>{% trans "No available locations." %}</p>
       {% endif %}
     </div>
 

@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% load bootstrap_tags %}
+{% load i18n %}
 {% load static %}
 
 {% block title %}Welcome{% endblock %}
@@ -20,17 +21,23 @@
     <img src="{% static 'images/logo_welcome.gif' %}" style="margin-bottom: 20px;" />
 
     <form action="#" method="POST">
+
+      <h4>{% trans "Register this pipeline in the Storage Service" %}</h4>
+
       <div id="storage" class="well">
+
         <p>
-          <label>Dashboard UUID:</label>
-          <p><code>{{ dashboard_uuid }}</code></p>
+          <label>{% trans "Dashboard UUID" %}:</label>
+          <br />
+          <mark>{{ dashboard_uuid }}</mark></p>
         </p>
 
         {{ storage_form|as_bootstrap }}
 
       </div>
-      <input class="submit form-control btn btn-primary" type="submit" name="use_default" value="Register with the storage service &amp; use default configuration." />
-      <input class="submit form-control btn btn-default" type="submit" name="configure" value="Register with the storage service &amp; set up custom configuration." onclick="window.open($('#id_storage_service_url').val());" />
+
+      <input class="submit form-control btn btn-primary" type="submit" value="{% trans 'Register' %}"/>
+
     </form>
   </div>
 </div>

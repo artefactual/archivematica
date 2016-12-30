@@ -1,11 +1,12 @@
 {% extends "layout.html" %}
+{% load i18n %}
 
 {% block content %}
 
-  <h1>Forbidden</h1>
+  <h1>{% trans "Forbidden" %}</h1>
 
   <div class="alert block-message alert-warning">
-    <p>Sorry! You do not have enough access privileges for this operation.</p>
+    <p>{% trans "Sorry! You do not have enough access privileges for this operation." %}</p>
   </div>
 
 {% endblock %}

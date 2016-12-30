@@ -1,45 +1,54 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
 {% block content %}
   <div class="row">
     <div class="col-md-12">
 
       <ul class="breadcrumb">
-        {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
+        {% trans "Ingest" as ingest_label %}
+        {% breadcrumb_url ingest_label 'components.ingest.views.ingest_grid' %}
         {% breadcrumb name %}
       </ul>
 
-      <h1>Submission Information Package<br /><small>{{ name }}</small></h1>
+      <h1>
+        {% trans "Submission Information Package" %}<br />
+        <small>{{ name }}</small>
+      </h1>
 
-      <p><strong>UUID:</strong> {{ uuid }}</p>
+      <p>
+        {% blocktrans with uuid=uuid %}
+          <strong>UUID:</strong> {{ uuid }}
+        {% endblocktrans %}
+      </p>
 
       {% if is_waiting %}
         <div class="alert alert-info block-message">
-          <p>There are micro-services awaiting user decisions.</p>
+          <p>{% trans "There are micro-services awaiting user decisions." %}</p>
           <div class="alert-actions">
-            <a class="btn btn-sm" href="{% url 'components.unit.views.microservices' unit_type uuid %}">View micro-services</a>
+            <a class="btn btn-sm" href="{% url 'components.unit.views.microservices' unit_type uuid %}">{% trans "View micro-services" %}</a>
           </div>
         </div>
       {% endif %}
 
-      <h5>Micro-Services</h5>
+      <h5>{% trans "Microservices" %}</h5>
       <ul>
-        <li><a href="{% url 'components.unit.views.microservices' unit_type uuid %}">List</a></li>
+        <li><a href="{% url 'components.unit.views.microservices' unit_type uuid %}">{% trans "List" %}</a></li>
       </ul>
 
-      <h5>Rights</h5>
+      <h5>{% trans "Rights" %}</h5>
       <ul>
-        <li><a href="{% url 'components.rights.views.ingest_rights_list' uuid %}">List</a></li>
-        <li><a href="{% url 'components.rights.views.ingest_rights_edit' uuid %}">Add</a></li>
+        <li><a href="{% url 'components.rights.views.ingest_rights_list' uuid %}">{% trans "List" %}</a></li>
+        <li><a href="{% url 'components.rights.views.ingest_rights_edit' uuid %}">{% trans "Add" %}</a></li>
       </ul>
 
-      <h5>Metadata</h5>
+      <h5>{% trans "Metadata" %}</h5>
       <ul>
-        <li><a href="{% url 'components.ingest.views.ingest_metadata_list' uuid %}">List</a></li>
-        <li><a href="{% url 'components.ingest.views.ingest_metadata_edit' uuid %}">Add</a></li>
-        <li><a href="{% url 'components.ingest.views.ingest_metadata_event_detail' uuid %}">Manual Normalization Event Detail</a></li>
-        <li><a href="{% url 'components.ingest.views.ingest_metadata_add_files' uuid %}">Add Metadata Files</a></li>
+        <li><a href="{% url 'components.ingest.views.ingest_metadata_list' uuid %}">{% trans "List" %}</a></li>
+        <li><a href="{% url 'components.ingest.views.ingest_metadata_edit' uuid %}">{% trans "Add" %}</a></li>
+        <li><a href="{% url 'components.ingest.views.ingest_metadata_event_detail' uuid %}">{% trans "Manual normalization event detail" %}</a></li>
+        <li><a href="{% url 'components.ingest.views.ingest_metadata_add_files' uuid %}">{% trans "Add metadata files" %}</a></li>
       </ul>
 
     </div>

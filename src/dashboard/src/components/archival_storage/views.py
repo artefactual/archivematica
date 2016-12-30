@@ -27,6 +27,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
+from django.utils.translation import ugettext as _
 from elasticsearch import ElasticsearchException
 from lazy_paged_sequence import LazyPagedSequence
 
@@ -44,8 +45,8 @@ logger = logging.getLogger('archivematica.dashboard')
 AIPSTOREPATH = '/var/archivematica/sharedDirectory/www/AIPsStore'
 
 AIP_STATUS_DESCRIPTIONS = {
-    'UPLOADED': 'Stored',
-    'DEL_REQ':  'Deletion requested'
+    'UPLOADED': _('Stored'),
+    'DEL_REQ': _('Deletion requested')
 }
 
 
@@ -605,10 +606,10 @@ def view_aip(request, uuid):
             try:
                 file_slug = upload_dip_metadata_to_atom(name, uuid, form_upload.cleaned_data['slug'])
             except AtomMetadataUploadError:
-                messages.error(request, 'Metadata-only DIP upload failed, check the logs for more details')
+                messages.error(request, _('Metadata-only DIP upload failed, check the logs for more details'))
                 logger.error('Unexepected error during metadata-only DIP upload (UUID: %s)', uuid, exc_info=True)
             else:
-                messages.success(request, 'Metadata-only DIP upload has been completed successfully. New resource has slug: {}'.format(file_slug))
+                messages.success(request, _('Metadata-only DIP upload has been completed successfully. New resource has slug: %(slug)s') % {'slug': file_slug})
             form_upload = forms.UploadMetadataOnlyAtomForm(prefix='upload')  # Reset form
 
     # Process reingest form
@@ -620,7 +621,7 @@ def view_aip(request, uuid):
             error = response.get('error', True)
             message = response.get('message', 'An unknown error occurred.')
             if error:
-                messages.error(request, 'Error re-ingesting package: {}'.format(message))
+                messages.error(request, _('Error re-ingesting package: %(message)s') % {'message': message})
             else:
                 messages.success(request, message)
             return redirect('archival_storage_index')

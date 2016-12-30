@@ -16,7 +16,7 @@
     <div class="col-md-10">
 
       <h3>{% trans "Processing configuration" %}</h3>
-      
+
       <form class="form-stacked" method="post">
 
         {% csrf_token %}
@@ -36,7 +36,7 @@
         </table>
 
         <div class="actions">
-          <input type="submit" class="btn btn-primary" value="{% trans "Save" %}"/>
+          <input type="submit" class="btn btn-primary" value="{% trans 'Save' %}"/>
           <a class="btn btn-default" href="{% url "components.administration.views_processing.list" %}">{% trans "Cancel" %}</a>
         </div>
 

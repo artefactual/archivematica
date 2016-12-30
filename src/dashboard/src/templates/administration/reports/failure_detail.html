@@ -1,8 +1,9 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Administration{% endblock %}
-{% block h1 %}Administration{% endblock %}
+{% block title %}{% trans "Administration" %}{% endblock %}
+{% block h1 %}{% trans "Administration" %}{% endblock %}
 {% block page_id %}Administration{% endblock %}
 
 {% block content %}
@@ -13,7 +14,11 @@
 
     <div class="col-md-10">
 
-      <h3>Failure report: {{ report.unitname }}</h3>
+      <h3>
+        {% blocktrans with name=report.unitname %}
+          Failure report: {{ name }}
+        {% endblocktrans %}
+      </h3>
       <code>{{ report.unitidentifier }}</code>
 
       <p/>
@@ -23,7 +28,7 @@
 
       <div>
         <form action="{% url 'components.administration.views.failure_report_delete' report_id %}" method='POST'>
-          <input type="submit" value="Delete" class="btn btn-danger">
+          <input type="submit" value="{% trans 'Delete' %}" class="btn btn-danger">
         </form>
       </div>
 

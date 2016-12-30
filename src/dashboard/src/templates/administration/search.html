@@ -1,15 +1,10 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Administration{% endblock %}
-{% block h1 %}Administration{% endblock %}
+{% block title %}{% trans "Administration" %}{% endblock %}
+{% block h1 %}{% trans "Administration" %}{% endblock %}
 {% block page_id %}Administration{% endblock %}
-
-{% block js %}
-{% endblock %}
-
-{% block extra_css %}
-{% endblock %}
 
 {% block content %}
 
@@ -25,13 +20,17 @@
         <div class="alert alert-info">{{ message }}</div>
       {% endif %}
 
-      <h3>Search administration</h3>
+      <h3>{% trans "Search administration" %}</h3>
 
-      <p>{{ aip_files_indexed }} AIP files indexed.</p>
+      <p>
+        {% blocktrans with count=aip_files_indexed %}
+          {{ count }} AIP files indexed.
+        {% endblocktrans %}
+      </p>
 
       {% if user.is_superuser %}
       <form action='{% url 'components.administration.views.administration_search_flush_aips' %}' method='POST'>
-        <input type='submit' value='Flush AIP Index' class='btn btn-default' />
+        <input type='submit' value='{% trans "Flush AIP Index" %}' class='btn btn-default' />
       </form>
       {% endif %}
 

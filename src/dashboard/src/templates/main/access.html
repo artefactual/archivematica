@@ -1,19 +1,19 @@
 {% extends "layout_fluid.html" %}
+{% load i18n %}
 
-
-{% block title %}Administration{% endblock %}
-{% block h1 %}Access{% endblock %}
+{% block title %}{% trans "Access" %}{% endblock %}
+{% block h1 %}{% trans "Access" %}{% endblock %}
 {% block page_id %}access{% endblock %}
 
 {% block content %}
 
   <table class="table">
     <thead>
-      <th>AIP</th>
-      <th>DIP URL</th>
-      <th>Upload date</th>
-      <th>Upload status</th>
-      <th>Actions</th>
+      <th>{% trans "AIP" %}</th>
+      <th>{% trans "DIP URL" %}</th>
+      <th>{% trans "Upload date" %}</th>
+      <th>{% trans "Upload status" %}</th>
+      <th>{% trans "Actions" %}</th>
     </thead>
     <tbody>
       {% for item in access %}
@@ -22,7 +22,7 @@
           <td><a href="{{ item.destination }}">{{ item.destination }}</a></td>
           <td>{{ item.createdtime }}</td>
           <td>{{ item.status }}</td>
-          <td><a href="{% url 'main.views.access_delete' item.pk %}">Delete</a></td>
+          <td><a href="{% url 'main.views.access_delete' item.pk %}">{% trans "Delete" %}</a></td>
         </tr>
       {% endfor %}
     </tbody>

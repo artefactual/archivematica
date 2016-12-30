@@ -1,8 +1,9 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Administration{% endblock %}
-{% block h1 %}Administration{% endblock %}
+{% block title %}{% trans "Administration" %}{% endblock %}
+{% block h1 %}{% trans "Administration" %}{% endblock %}
 {% block page_id %}Administration{% endblock %}
 
 {% block extra_css %}
@@ -28,19 +29,19 @@
       {% url 'components.administration.views.atom_levels_of_description' as url_atom_levels_of_description %}
 
       <div style="float: right">
-        <a href="{{ url_atom_levels_of_description }}" class="btn btn-default">Levels of Description</a>
+        <a href="{{ url_atom_levels_of_description }}" class="btn btn-default">{% trans "Levels of Description" %}</a>
       </div>
 
       <form class="form-stacked" method="post" action="{% url 'components.administration.views.atom_dips' %}">
 
-        <h3>AtoM DIP upload</h3>
+        <h3>{% trans "AtoM DIP upload" %}</h3>
 
-        <p>The settings below configure DIP uploading to Atom.</p>
+        <p>{% trans "The settings below configure DIP uploading to Atom." %}</p>
 
         {% include "_form.html" %}
 
         <div class="actions">
-          <input type="submit" value="Save" class="btn btn-primary" />
+          <input type="submit" value="{% trans 'Save' %}" class="btn btn-primary" />
         </div>
 
       </form>

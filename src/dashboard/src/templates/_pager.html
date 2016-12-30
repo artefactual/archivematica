@@ -1,14 +1,16 @@
+{% load i18n %}
+
 <div style='height: 50px; line-height: 50px;'>
   <div style='float:right;'>
     {% if page.has_previous %}
       <span style='margin-right: 2em'>
         {% ifnotequal page.previous_page_number 1 %}
           <span style='margin-right: 1em'>
-            <a href='?{{ search_params }}&page=1'>First</a>
+            <a href='?{{ search_params }}&page=1'>{% trans "First" %}</a>
           </span>
         {% endifnotequal %}
 
-        <a href='?{{ search_params }}&page={{ page.previous_page_number }}'>Previous</a>
+        <a href='?{{ search_params }}&page={{ page.previous_page_number }}'>{% trans "Previous" %}</a>
       </span>
 
       {% if page.previous_pages %}
@@ -30,11 +32,11 @@
       {% endif %}
 
       <span style='margin-left: 2em'>
-        <a href='?{{ search_params }}&page={{ page.next_page_number }}'>Next</a>
+        <a href='?{{ search_params }}&page={{ page.next_page_number }}'>{% trans "Next" %}</a>
 
         {% ifnotequal page.next_page_number page.paginator.num_pages %}
           <span style='margin-left: 1em'>
-            <a href='?{{ search_params }}&page={{ page.paginator.num_pages }}' title='Page {{ page.paginator.num_pages }}'>Last</a>
+            <a href='?{{ search_params }}&page={{ page.paginator.num_pages }}' title='Page {{ page.paginator.num_pages }}'>{% trans "Last" %}</a>
           </span>
         {% endifnotequal %}
       </span>
@@ -49,12 +51,14 @@
     });
     </script>
       <span style='margin-left: 2em'>
-        Jump to &nbsp;<input id='paging_jump_to' style='width: 20px;' />
+        {% trans "Jump to" %}&nbsp;&nbsp;<input id='paging_jump_to' style='width: 20px;' />
       </span>
     {% endif %}
   </div>
 
   <p>
-    Found {{ page.paginator.count }} entries. Showing {{ page.start_index }} to {{ page.end_index }}.
+    {% blocktrans with start_index=page.start_index end_index=page.end_index count=page.paginator.count %}
+      Found {{ count }} entries. Showing {{ start_index }} to {{ end_index }}.
+    {% endblocktrans %}
   </p>
 </div>

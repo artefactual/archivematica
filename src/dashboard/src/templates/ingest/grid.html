@@ -1,8 +1,9 @@
 ﻿{% extends "layout_fluid.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Ingest{% endblock %}
-{% block h1 %}Ingest{% endblock %}
+{% block title %}{% trans "Ingest" %}{% endblock %}
+{% block h1 %}{% trans "Ingest" %}{% endblock %}
 {% block page_id %}ingest{% endblock %}
 
 {% block extra_css %}
@@ -72,17 +73,17 @@
   <div style='float:left;'>
     <div id='originals' class='backbone-file-explorer' style='float:left; width: 460px; margin-bottom: 10px;'></div>
     <div id='originals_controls'>
-      <span id='open_originals_file_button' class='btn btn-default'>View File</span>
-      <span id='originals_hide_button' class='btn btn-default'>Hide</span>
+      <span id='open_originals_file_button' class='btn btn-default'>{% trans "View file" %}</span>
+      <span id='originals_hide_button' class='btn btn-default'>{% trans "Hide" %}</span>
     </div>
   </div>
   <div style='margin-left: 30px; float:left;'>
     <div id='arrange' class='backbone-file-explorer' style='float:left; width: 460px; margin-bottom: 10px;'></div>
     <div id='arrange_controls'>
-      <span id='arrange_create_directory_button' class='btn btn-default'>Add Directory</span>
-      <span id='arrange_edit_metadata_button' class='btn btn-default'>Edit Metadata</span>
-      <span id='arrange_delete_button' class='btn btn-default'>Delete</span>
-      <span id='arrange_create_sip_button' class='btn btn-primary'>Create SIP</span>
+      <span id='arrange_create_directory_button' class='btn btn-default'>{% trans "Add directory" %}</span>
+      <span id='arrange_edit_metadata_button' class='btn btn-default'>{% trans "Edit metadata" %}</span>
+      <span id='arrange_delete_button' class='btn btn-default'>{% trans "Delete" %}</span>
+      <span id='arrange_create_sip_button' class='btn btn-primary'>{% trans "Create SIP" %}</span>
     </div>
   </div>
   <br clear='all' />
@@ -93,9 +94,9 @@
       <span class='grid-pager-previous-area'></span> <span class='grid-pager-next-area'></span>
     </div>
     <div id="sip-header">
-      <div id="sip-header-directory">Submission Information Package</div>
-      <div id="sip-header-uuid">UUID</div>
-      <div id="sip-header-timestamp">Ingest start time</div>
+      <div id="sip-header-directory">{% trans "Submission Information Package" %}</div>
+      <div id="sip-header-uuid">{% trans "UUID" %}</div>
+      <div id="sip-header-timestamp">{% trans "Ingest start time" %}</div>
       <div id="sip-header-actions">&nbsp;</div>
     </div>
     <div id="sip-body">
@@ -126,14 +127,14 @@
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" id="directory-metadata-form-close" data-dismiss="modal">×</button>
-          <h3>Edit metadata</h3>
+          <h3>{% trans "Edit metadata" %}</h3>
         </div>
         <div class="modal-body" id="directory-metadata-form-body">
           <% if (levels.length > 1) { %>
             <table class="table">
               <tbody>
                 <tr>
-                  <td>AtoM level of description</td>
+                  <td>{% trans "AtoM level of description" %}</td>
                   <td>
                     <select id="directory-metadata-form-lod-select" class="form-control">
                       <% _.each(levels, function(level){ %>
@@ -147,13 +148,13 @@
               </tbody>
             </table>
           <% } else { %>
-            <strong>No AtoM levels of description found. Please contact an administrator.</strong>
+            <strong>{% trans "No AtoM levels of description found. Please contact an administrator." %}</strong>
           <% } %>
         </div>
         <div class="modal-footer">
-          <a href="#" class="btn btn-default" data-dismiss="modal" id="directory-metadata-form-cancel">Cancel</a>
+          <a href="#" class="btn btn-default" data-dismiss="modal" id="directory-metadata-form-cancel">{% trans "Cancel" %}</a>
           <% if (levels.length > 1) { %>
-          <a href="#" class="btn btn-default" data-dismiss="modal" id="directory-metadata-form-save">Save</a>
+          <a href="#" class="btn btn-default" data-dismiss="modal" id="directory-metadata-form-save">{% trans "Save" %}</a>
           <% } %>
         </div>
       </div>
@@ -165,13 +166,13 @@
       <div class="sip-detail-icon-status"><%= this.model.jobs.getIcon() %></div>
       <div class="sip-detail-directory">
         <%= directory %>
-        <abbr title="<%= uuid %>">UUID</span>
+        <abbr title="<%= uuid %>">{% trans "UUID" %}</span>
       </div>
       <div class="sip-detail-uuid"><%= uuid %></div>
       <div class="sip-detail-timestamp"><%= this.getIngestStartTime() %></div>
       <div class="sip-detail-actions">
-        <a class="btn_show_metadata" href="#" title="Metadata"><span>Micro-Services</span></a>
-        <a class="btn_remove_sip" href="#" title="Remove"><span>Remove</span></a>
+        <a class="btn_show_metadata" href="#" title="{% trans 'Metadatos' %}"><span>{% trans "Metadatos" %}</span></a>
+        <a class="btn_remove_sip" href="#" title="{% trans 'Remove' %}"><span>{% trans "Remove" %}</span></a>
       </div>
     </div>
     <div class="sip-detail-job-container"></div>
@@ -180,13 +181,17 @@
   <script type="text/template" id="microservice-group-template">
     <div class="microservice-group" style="padding-bottom: 3px">
       &nbsp;<span class="microservice-group-arrow">&#x25B8;</span>
-      <span class="microservice-group-name">Micro-service: <%= name %></span>
+      <span class="microservice-group-name">{% trans "Microservice" %}: <%= name %></span>
     </div>
   </script>
 
   <script type="text/template" id="job-template">
     <div class="job-detail-microservice">
-      <span class="job-type-label">Job:&nbsp;</span><span title="<%= uuid %>"><%= type %></span>
+      <span class="job-type-label">{% trans "Job" %}</span>
+      <span title="<%= uuid %>">
+        <%= type %>
+        <% if (obj.filename) { %> (file: <i><%= filename %></i>)<% } %>
+      </span>
       <% tmp = window.microservices_help[type]; %>
       <% if (tmp !== undefined) { %>
         [<a href="#" title="<%= tmp %>">?</a>]
@@ -194,13 +199,13 @@
     </div>
     <div class="job-detail-currentstep"><span title="<%= new Date(timestamp * 1000).getArchivematicaDateTime() %>  /  <%= timestamp %>"><%= currentstep %></span></div>
     <div class="job-detail-actions">
-      <a class="btn_show_tasks" href="#" title="Tasks"><span>Tasks</span></a>
+      <a class="btn_show_tasks" href="#" title="{% trans 'Tasks' %}"><span>{% trans "Tasks" %}</span></a>
     </div>
   </script>
 
   <script type="text/template" id="status-template">
     <div id="status-bullet">
-      <span>Initializing...</span>
+      <span>{% trans "Initializing..." %}</span>
       <img src="{% static 'images/bullet_delete.png' %}" />
     </div>
   </script>
@@ -231,23 +236,23 @@
       <div class="modal-content">
         <div class="modal-header">
           <a href="#" class="close" data-dismiss="modal">&times;</a>
-          <h3>Upload DIP <img id="upload-dip-modal-spinner" src="/media/images/ajax-loader.gif" /></h3>
+          <h3>{% trans "Upload DIP" %} <img id="upload-dip-modal-spinner" src="/media/images/ajax-loader.gif" /></h3>
         </div>
         <div class="modal-body">
-          <p>Upload the generated DIP to AtoM using the permalink of the target description.</p>
+          <p>{% trans "Upload the generated DIP to AtoM using the permalink of the target description." %}</p>
           <form class="form-stacked">
             <div class="clearfix">
-              <label>Enter the permalink of the target description</label>
+              <label>{% trans "Enter the permalink of the target description" %}</label>
               <div class="input">
                 <input class="col-md-8 form-control" type="text" />
-                <span class="help-block">Example: if URL is http://myAtoM.ca/newsletters-2;rad enter <strong>newsletters-2</strong></span>
+                <span class="help-block">{% trans "Example: if URL is http://myAtoM.ca/newsletters-2;rad enter <strong>newsletters-2</strong>" %}</span>
               </div>
             </div>
           </form>
         </div>
         <div class="modal-footer">
-          <a href="#" class="btn btn-primary" data-dismiss="modal">Upload</a>
-          <a href="#" class="btn btn-danger secondary" data-dismiss="modal">Cancel</a>
+          <a href="#" class="btn btn-primary" data-dismiss="modal">{% trans "Upload" %}</a>
+          <a href="#" class="btn btn-danger secondary" data-dismiss="modal">{% trans "Cancel" %}</a>
         </div>
       </div>
     </div>

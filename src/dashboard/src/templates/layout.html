@@ -1,10 +1,11 @@
 {% load active %}
+{% load i18n %}
 {% load static %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-    <title>Archivematica Dashboard - {% block title %}{% endblock %}</title>
+    <title>{% trans "Archivematica Dashboard" %} - {% block title %}{% endblock %}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
     <link href="{% static 'vendor/jquery-ui/jquery-ui.css' %}" rel="stylesheet" type="text/css" />
@@ -46,14 +47,14 @@
 
             <ul class="nav navbar-nav">
 
-              <li class="{% active request url_transfer %}"><a href="{{ url_transfer }}">Transfer</a></li>
-              <li class="{% active request url_backlog %}"><a href="{{ url_backlog }}">Backlog</a></li>
-              <li class="{% active request url_appraisal %}"><a href="{{ url_appraisal }}">Appraisal</a></li>
-              <li class="{% active request url_ingest %}"><a href="{{ url_ingest }}">Ingest</a></li>
-              <li class="{% active request url_archival_storage %}"><a href="{{ url_archival_storage }}">Archival storage</a></li>
-              <li class="{% active request url_fpr %}"><a href="{{ url_fpr }}">Preservation planning</a></li>
-              <li class="{% active request url_access %}"><a href="{{ url_access }}">Access</a></li>
-              <li class="{% active request url_administration %}"><a href="{{ url_administration }}">Administration</a></li>
+              <li class="{% active request url_transfer %}"><a href="{{ url_transfer }}">{% trans "Transfer" %}</a></li>
+              <li class="{% active request url_backlog %}"><a href="{{ url_backlog }}">{% trans "Backlog" %}</a></li>
+              <li class="{% active request url_appraisal %}"><a href="{{ url_appraisal }}">{% trans "Appraisal" %}</a></li>
+              <li class="{% active request url_ingest %}"><a href="{{ url_ingest }}">{% trans "Ingest" %}</a></li>
+              <li class="{% active request url_archival_storage %}"><a href="{{ url_archival_storage }}">{% trans "Archival storage" %}</a></li>
+              <li class="{% active request url_fpr %}"><a href="{{ url_fpr }}">{% trans "Preservation planning" %}</a></li>
+              <li class="{% active request url_access %}"><a href="{{ url_access }}">{% trans "Access" %}</a></li>
+              <li class="{% active request url_administration %}"><a href="{{ url_administration }}">{% trans "Administration" %}</a></li>
 
               {% if user.is_authenticated %}
                 <li class="user dropdown">
@@ -61,9 +62,9 @@
                     {{ request.user }} <div class="caret"></div>
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="dropdownUser">
-                    <li><a href="{% url 'components.accounts.views.edit' %}">Your profile</a></li>
+                    <li><a href="{% url 'components.accounts.views.edit' %}">{% trans "Your profile" %}</a></li>
                     <li class="divider"></li>
-                    <li><a href="{% url 'django.contrib.auth.views.logout_then_login' %}">Log out</a></li>
+                    <li><a href="{% url 'django.contrib.auth.views.logout_then_login' %}">{% trans "Log out" %}</a></li>
                   </ul>
                 </li>
               {% endif %}

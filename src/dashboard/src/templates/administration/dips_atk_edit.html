@@ -1,8 +1,9 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Administration{% endblock %}
-{% block h1 %}Administration{% endblock %}
+{% block title %}{% trans "Administration" %}{% endblock %}
+{% block h1 %}{% trans "Administration" %}{% endblock %}
 {% block page_id %}Administration{% endblock %}
 
 {% block css %}
@@ -21,11 +22,11 @@
 <div class="row">
   {% include "administration/sidebar.html" %}
   <div class="col-md-10">
-    <h3>Archivists Toolkit DIP upload</h3>
+    <h3>{% trans "Archivists Toolkit DIP upload" %}</h3>
     <form class="form-stacked" method="post" action="{% url 'components.administration.views.administration_atk_dips' %}">
       {% include "_form.html" %}
       <div class="actions">
-        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
       </div>
     </form>
   </div>

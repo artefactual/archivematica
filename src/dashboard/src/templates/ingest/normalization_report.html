@@ -1,4 +1,5 @@
 {% extends "layout_fluid.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block js %}
@@ -10,60 +11,60 @@
   <table class="table">
     <thead>
       <tr>
-        <th>File name</th>
-        <th>File format</th>
-        <th>Preservation normalization attempted</th>
-        <th>Preservation normalization failed</th>
-        <th>Already in preservation format</th>
-        <th>Access normalization attempted</th>
-        <th>Access normalization failed</th>
-        <th>Already in access format</th>
+        <th>{% trans "File name" %}</th>
+        <th>{% trans "File format" %}</th>
+        <th>{% trans "Preservation normalization attempted" %}</th>
+        <th>{% trans "Preservation normalization failed" %}</th>
+        <th>{% trans "Already in preservation format" %}</th>
+        <th>{% trans "Access normalization attempted" %}</th>
+        <th>{% trans "Access normalization failed" %}</th>
+        <th>{% trans "Already in access format" %}</th>
       </tr>
     </thead>
     <tbody>
       {% for item in page.objects %}
-   
+
         <tr>
           <!-- File name -->
-          <td><a class="file-location" href="#" title="Location" data-location="{{ item.location }}">{{ item.fileName }}</a></td>
-          <td><a class="file-location" href="#" title="Format" data-location="{{ item.description }}">{{ item.description }}</a></td>
+          <td><a class="file-location" href="#" title="{% trans 'Location' %}" data-location="{{ item.location }}">{{ item.fileName }}</a></td>
+          <td><a class="file-location" href="#" title="{% trans 'Format' %}" data-location="{{ item.description }}">{{ item.description }}</a></td>
 
           <!-- Never red -->
           <td>
             {% if item.preservation_normalization_task_uuid %}
               <a href="{% url 'main.views.task' item.preservation_normalization_task_uuid %}" target="_blank">{{ item.preservation_normalization_attempted|yesno:"Yes,No" }}</a>
             {% else %}
-              {{ item.preservation_normalization_attempted|yesno:"Yes,No" }}
+              {{ item.preservation_normalization_attempted|yesno:_("Yes,No") }}
             {% endif %}
           </td>
 
           <!-- Red when yes -->
           <td class="{{ item.preservation_normalization_failed|yesno:"error,ok" }}">
-            {{ item.preservation_normalization_failed|yesno:"Yes,No" }}
+            {{ item.preservation_normalization_failed|yesno:_("Yes,No") }}
           </td>
 
           <!-- Red if reservation_normalization_attempted is No and already_in_preservation_format is No -->
           <td{% if not item.preservation_normalization_attempted and not item.already_in_preservation_format %} class="error"{% endif %}>
-            {{ item.already_in_preservation_format|yesno:"Yes,No" }}
+            {{ item.already_in_preservation_format|yesno:_("Yes,No") }}
           </td>
 
           <!-- Never red -->
           <td>
             {% if item.access_normalization_task_uuid %}
-              <a href="{% url 'main.views.task' item.access_normalization_task_uuid %}" target="_blank">{{ item.access_normalization_attempted|yesno:"Yes,No" }}</a>
+              <a href="{% url 'main.views.task' item.access_normalization_task_uuid %}" target="_blank">{{ item.access_normalization_attempted|yesno:_("Yes,No") }}</a>
             {% else %}
-              {{ item.access_normalization_attempted|yesno:"Yes,No" }}
+              {{ item.access_normalization_attempted|yesno:_("Yes,No") }}
             {% endif %}
           </td>
 
           <!-- Red when yes -->
           <td class="{{ item.access_normalization_failed|yesno:"error,ok" }}">
-            {{ item.access_normalization_failed|yesno:"Yes,No" }}
+            {{ item.access_normalization_failed|yesno:_("Yes,No") }}
           </td>
 
           <!-- Red if already_in_preservation_format is No and access_normalization_failed is No -->
           <td{% if not item.access_normalization_attempted and not item.already_in_access_format %} class="error"{% endif %}>
-            {{ item.already_in_access_format|yesno:"Yes,No" }}
+            {{ item.already_in_access_format|yesno:_("Yes,No") }}
           </td>
         </tr>
       {% endfor %}
@@ -71,16 +72,18 @@
   </table>
 
   {% if page.has_other %}
-    Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.total_items }}
+    {% blocktrans with start_index=page.start_index end_index=page.end_index total_items=page.total_items %}
+      Showing {{ start_index }}-{{ end_index }} of {{ total_items }}
+    {% endblocktrans %}
     <div style='float:right'>
     {% if page.has_previous %}
-      <a href="{% url 'components.ingest.views.ingest_normalization_report' uuid page.previous %}" class="btn btn-default">Previous</a>
+      <a href="{% url 'components.ingest.views.ingest_normalization_report' uuid page.previous %}" class="btn btn-default">{% trans "Previous" %}</a>
       {% if page.has_next %}
         &nbsp;
       {% endif %}
     {% endif %}
     {% if page.has_next %}
-      <a href="{% url 'components.ingest.views.ingest_normalization_report' uuid page.next %}" class="btn btn-default">Next</a>
+      <a href="{% url 'components.ingest.views.ingest_normalization_report' uuid page.next %}" class="btn btn-default">{% trans "Next" %}</a>
     {% endif %}
     </div>
   {% endif %}

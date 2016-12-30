@@ -19,21 +19,24 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import Http404, HttpResponse, HttpResponseBadRequest
-from django.shortcuts import redirect
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_protect
-import components.decorators as decorators
+from django.http import Http404
+from django.shortcuts import redirect, render
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
+
 from tastypie.models import ApiKey
+
 from components.accounts.forms import UserCreationForm
 from components.accounts.forms import UserChangeForm
+import components.decorators as decorators
 from components.helpers import get_client_config_value
+
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
 def list(request):
     users = User.objects.all()
     return render(request, 'accounts/list.html', locals())
+
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
 def add(request):
@@ -47,23 +50,24 @@ def add(request):
             api_key.key = api_key.generate_key()
             api_key.save()
 
-            messages.info(request, 'Saved.')
+            messages.info(request, _('Saved.'))
             return redirect('components.accounts.views.list')
     else:
-        #clearing out values that are getting inherited from currently logged in user
-        data = {'email':' '} 
+        # Clearing out values that are getting inherited from currently logged in user
+        data = {'email': ''}
         form = UserCreationForm(initial=data)
 
     return render(request, 'accounts/add.html', {
         'form': form
     })
 
+
 def edit(request, id=None):
     if get_client_config_value('kioskMode') == 'True':
         return redirect('main.views.forbidden')
 
     # Forbidden if user isn't an admin and is trying to edit another user
-    if str(request.user.id) != str(id) and id != None:
+    if str(request.user.id) != str(id) and id is not None:
         if request.user.is_superuser is False:
             return redirect('main.views.forbidden')
 
@@ -111,7 +115,7 @@ def edit(request, id=None):
             else:
                 return_view = 'components.accounts.views.list'
 
-            messages.info(request, 'Saved.')
+            messages.info(request, _('Saved.'))
             return redirect(return_view)
     else:
         suppress_administrator_toggle = True
@@ -127,17 +131,19 @@ def edit(request, id=None):
         api_key = '<no API key generated>'
 
     return render(request, 'accounts/edit.html', {
-      'form': form,
-      'user': user,
-      'api_key': api_key,
-      'title': title
+        'form': form,
+        'user': user,
+        'api_key': api_key,
+        'title': title
     })
+
 
 def delete_context(request, id):
     user = User.objects.get(pk=id)
     prompt = 'Delete user ' + user.username + '?'
     cancel_url = reverse("components.accounts.views.list")
     return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
+
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
 @decorators.confirm_required('simple_confirm.html', delete_context)

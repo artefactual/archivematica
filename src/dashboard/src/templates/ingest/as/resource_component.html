@@ -1,22 +1,27 @@
 ﻿{% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Match{% endblock %}
-{% block h1 %}Match{% endblock %}
-{% block page_id %}atk_match{% endblock %}
+{% block title %}{% trans "Match" %}{% endblock %}
+{% block h1 %}{% trans "Match" %}{% endblock %}
+{% block page_id %}as_match{% endblock %}
 
 {% block content %}
 <div class="col-md-12">
 
   <ul class="breadcrumb">
-    {% breadcrumb_url 'DIP Upload' 'components.ingest.views_as.ingest_upload_as' uuid %}
+    {% trans "DIP upload" as dip_upload_label %}
+    {% trans "Collection" as collection_label %}
+    {% trans "Parent record" as parent_record_label %}
+    {% trans "Description" as description_label %}
+    {% breadcrumb_url dip_upload_label 'components.ingest.views_as.ingest_upload_as' uuid %}
     {% if resource_id %}
-      {% breadcrumb_url 'Collection' 'components.ingest.views_as.ingest_upload_as_resource' uuid resource_id %}
+      {% breadcrumb_url collection_label 'components.ingest.views_as.ingest_upload_as_resource' uuid resource_id %}
     {% endif %}
     {% if parent_id %}
-      {% breadcrumb_url 'Parent record' 'components.ingest.views_as.ingest_upload_as_resource_component' parent_id %}
+      {% breadcrumb_url parent_record_label 'components.ingest.views_as.ingest_upload_as_resource_component' parent_id %}
     {% endif %}
-    {% breadcrumb 'Description' %}
+    {% breadcrumb description_label %}
   </ul>
 
   <div style="float:right">
@@ -24,17 +29,17 @@
   </div>
 
   <h1>
-    Description<br />
+    {% trans "Description" %}<br />
     <small>{{ resource_component_data.title }} ({{ resource_component_data.id }})</small>
   </h1>
 
   {% if reset_url %}
-    <div id='reset_matching'><a class="btn btn-default" href="{% url reset_url uuid %}">Restart matching</a>
+    <div id='reset_matching'><a class="btn btn-default" href="{% url reset_url uuid %}">{% trans "Restart matching" %}</a>
   {% else %}
-    <div id='reset_matching'><a class="btn btn-default disabled">Restart matching</a>
+    <div id='reset_matching'><a class="btn btn-default disabled">{% trans "Restart matching" %}</a>
   {% endif %}
-  <a class="btn btn-default" href="{% url 'components.ingest.views_as.ingest_upload_as_review_matches' uuid %}">Review matches</a>
-  <a class='btn btn-default' href="{% url 'components.ingest.views_as.ingest_upload_as_match_dip_objects_to_resource_component_levels' uuid resource_component_id %}">Assign DIP objects to this level of description</a>
+  <a class="btn btn-default" href="{% url 'components.ingest.views_as.ingest_upload_as_review_matches' uuid %}">{% trans "Review matches" %}</a>
+  <a class='btn btn-default' href="{% url 'components.ingest.views_as.ingest_upload_as_match_dip_objects_to_resource_component_levels' uuid resource_component_id %}">{% trans "Assign DIP objects to this level of description" %}</a>
 
   <br />
   <br />
@@ -43,9 +48,9 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Level of Description</th>
-          <th><a href="?sort={{ sort_direction }}&amp;page=1">Title</a></th>
-          <th>Dates</th>
+          <th>{% trans "Level of description" %}</th>
+          <th><a href="?sort={{ sort_direction }}&amp;page=1">{% trans "Title" %}</a></th>
+          <th>{% trans "Dates" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -61,7 +66,7 @@
 
     {% include "_pager.html" %}
   {% else %}
-    <p>No child descriptions found.</p>
+    <p>{% trans "No child descriptions found." %}</p>
   {% endif %}
 
 </div>

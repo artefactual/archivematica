@@ -1,17 +1,10 @@
 {% extends "layout_fluid.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}
-  Backlog search
-{% endblock %}
-
-{% block h1 %}
-  Backlog search
-{% endblock %}
-
-{% block page_id %}
-  Backlog search
-{% endblock %}
+{% block title %}{% trans "Backlog search" %}{% endblock %}
+{% block h1 %}{% trans "Backlog search" %}{% endblock %}
+{% block page_id %}backlog-search{% endblock %}
 
 {% block extra_css %}
   <link href="{% static 'vendor/select2/select2.css' %}" rel="stylesheet" type="text/css" />

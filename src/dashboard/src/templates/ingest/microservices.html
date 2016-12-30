@@ -1,17 +1,23 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
 {% block content %}
   <div class="row">
     <div class="col-md-12">
 
       <ul class="breadcrumb">
-        {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
+        {% trans "Ingest" as ingest_label %}
+        {% trans "Microservices" as microservices_label %}
+        {% breadcrumb_url ingest_label 'components.ingest.views.ingest_grid' %}
         {% breadcrumb_url name 'components.unit.views.detail' 'ingest' uuid %}
-        {% breadcrumb 'Micro-Services' %}
+        {% breadcrumb microservices_label %}
       </ul>
 
-      <h1>Micro-Services<br /><small>{{ name }}</small></h1>
+      <h1>
+        {{ microservices_label }}<br />
+        <small>{{ name }}</small>
+      </h1>
 
       {% regroup jobs by microservicegroup as groups %}
 

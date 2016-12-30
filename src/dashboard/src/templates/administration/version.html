@@ -1,8 +1,9 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Version{% endblock %}
-{% block h1 %}Version{% endblock %}
+{% block title %}{% trans "Version" %}{% endblock %}
+{% block h1 %}{% trans "Version" %}{% endblock %}
 {% block page_id %}Version{% endblock %}
 
 {% block content %}
@@ -15,15 +16,15 @@
 
     <div class="col-md-10">
 
-      <h3>About Archivematica</h3>
+      <h3>{% trans "About Archivematica" %}</h3>
 
       <table class="table">
         <tr>
-          <th>Version</th>
+          <th>{% trans "Version" %}</th>
           <th>{{ version }}</th>
         </tr>
         <tr>
-          <th>Agent code</th>
+          <th>{% trans "Agent code" %}</th>
           <th>{{ agent_code }}</th>
         </tr>
       </table>

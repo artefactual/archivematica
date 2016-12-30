@@ -1,8 +1,9 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Users - Add new{% endblock %}
-{% block h1 %}Users - Add new{% endblock %}
+{% block title %}{% trans "Users - Add new" %}{% endblock %}
+{% block h1 %}{% trans "Users - Add new" %}{% endblock %}
 {% block page_id %}accounts-add{% endblock %}
 
 {% block content %}
@@ -16,8 +17,10 @@
     <div class="col-md-10">
 
       <ul class="breadcrumb">
-        {% breadcrumb_url 'Users' 'components.accounts.views.list' %}
-        {% breadcrumb 'Add new user' %}
+        {% trans "Users" as users %}
+        {% trans "Add new user" as add_user %}
+        {% breadcrumb_url users 'components.accounts.views.list' %}
+        {% breadcrumb add_user %}
       </ul>
 
       <form method="post" action="{% url 'components.accounts.views.add' %}">
@@ -27,8 +30,8 @@
         {% include "_form.html" %}
 
         <div class="actions">
-          <button type="submit" class="btn btn-primary">Create</button>
-          <a class="btn btn-default" href="{% url 'components.accounts.views.list' %}">Cancel</a>
+          <button type="submit" class="btn btn-primary">{% trans "Create" %}</button>
+          <a class="btn btn-default" href="{% url 'components.accounts.views.list' %}">{% trans "Cancel" %}</a>
         </div>
 
       </form>

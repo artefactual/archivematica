@@ -1,11 +1,12 @@
 {% extends "layout.html" %}
+{% load i18n %}
 
 {% block content %}
 
-  <h1>Internal server error</h1>
+  <h1>{% trans "Internal server error" %}</h1>
 
   <div class="alert block-message alert-warning">
-    <p>Sorry! Something wrong happened. Please, contact with your administrator.</p>
+    <p>{% trans "Sorry! Something wrong happened. Please, contact with your administrator." %}</p>
   </div>
 
 {% endblock %}

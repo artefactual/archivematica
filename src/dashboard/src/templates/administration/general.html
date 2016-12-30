@@ -1,8 +1,9 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Administration{% endblock %}
-{% block h1 %}Administration{% endblock %}
+{% block title %}{% trans "Administration" %}{% endblock %}
+{% block h1 %}{% trans "Administration" %}{% endblock %}
 {% block page_id %}Administration{% endblock %}
 
 {% block js %}
@@ -22,22 +23,27 @@
     <div class="col-md-10">
 
       <div style='margin-top: 10px; padding: 5px 15px 5px 15px; float:right; background-color: #eee;'>
-        <p><b>Dashboard UUID</b> {{ dashboard_uuid }}</p>
+        <p>
+          {% blocktrans with uuid=dashboard_uuid %}
+            <b>Dashboard UUID</b> {{ uuid }}
+          {% endblocktrans %}
+        </p>
       </div>
 
-      <h3>General configuration</h3>
+      <h3>{% trans "General configuration" %}</h3>
 
       <form method='POST'>
-        <h4>Storage Service options</h4>
+
+        <h4>{% trans "Storage Service options" %}</h4>
 
         {% include "_form.html" with form=storage_form %}
 
-        <h4>Checksum algorithm</h4>
+        <h4>{% trans "Checksum algorithm" %}</h4>
 
         {% include "_form.html" with form=checksum_form %}
 
         <div>
-          <input type="submit" value="Save" class="btn btn-primary">
+          <input type="submit" value="{% trans 'Save' %}" class="btn btn-primary">
         </div>
 
       </form>

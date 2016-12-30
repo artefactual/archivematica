@@ -19,35 +19,35 @@
   {% url 'components.accounts.views.list' as url_user_list %}
 
   <ul>
-    <li class="{% active request url_processing %}"><a href="{{ url_processing }}">Processing configuration</a></li>
+    <li class="{% active request url_processing %}"><a href="{{ url_processing }}">{% trans "Processing configuration" %}</a></li>
 
-    <li class="{% active request url_general %}"><a href="{{ url_general }}">General</a></li>
+    <li class="{% active request url_general %}"><a href="{{ url_general }}">{% trans "General" %}</a></li>
 
-    <li class="{% active request failure_report %}"><a href="{{ failure_report }}">Failures</a></li>
+    <li class="{% active request failure_report %}"><a href="{{ failure_report }}">{% trans "Failures" %}</a></li>
 
-    <li class="{% active request url_sources %}"><a href="{{ url_sources }}">Transfer source locations</a></li>
+    <li class="{% active request url_sources %}"><a href="{{ url_sources }}">{% trans "Transfer source locations" %}</a></li>
 
-    <li class="{% active request url_storage %}"><a href="{{ url_storage }}">AIP storage locations</a></li>
+    <li class="{% active request url_storage %}"><a href="{{ url_storage }}">{% trans "AIP storage locations" %}</a></li>
 
-    <li class="{% active request url_usage %}"><a href="{{ url_usage }}">Processing storage usage</a></li>
+    <li class="{% active request url_usage %}"><a href="{{ url_usage }}">{% trans "Processing storage usage" %}</a></li>
 
-    <li class="{% active request url_dip %}"><a href="{{ url_dip }}">AtoM DIP upload</a></li>
+    <li class="{% active request url_dip %}"><a href="{{ url_dip }}">{% trans "AtoM DIP upload" %}</a></li>
 
-    <li class="{% active request url_as_dips %}"><a href="{{ url_as_dips }}">ArchivesSpace DIP upload</a></li>
+    <li class="{% active request url_as_dips %}"><a href="{{ url_as_dips }}">{% trans "ArchivesSpace DIP upload" %}</a></li>
 
-    <li class="{% active request url_atk_dips %}"><a href="{{ url_atk_dips }}">Archivists Toolkit DIP upload</a></li>
+    <li class="{% active request url_atk_dips %}"><a href="{{ url_atk_dips }}">{% trans "Archivists Toolkit DIP upload" %}</a></li>
 
-    <li class="{% active request url_premis %}"><a href="{{ url_premis }}">PREMIS agent</a></li>
+    <li class="{% active request url_premis %}"><a href="{{ url_premis }}">{% trans "PREMIS agent" %}</a></li>
 
-    <li class="{% active request url_api %}"><a href="{{ url_api }}">REST API</a></li>
+    <li class="{% active request url_api %}"><a href="{{ url_api }}">{% trans "REST API" %}</a></li>
 
     {% if user.is_superuser %}
-      <li class="{% active request url_user_list %}"><a href="{{ url_user_list }}">Users</a></li>
+      <li class="{% active request url_user_list %}"><a href="{{ url_user_list }}">{% trans "Users" %}</a></li>
     {% endif %}
 
     <li class="{% active request url_language %}"><a href="{{ url_language }}">{% trans "Language" %}</a></li>
 
-    <li class="{% active request url_version %}"><a href="{{ url_version }}">Version</a></li>
+    <li class="{% active request url_version %}"><a href="{{ url_version }}">{% trans "Version" %}</a></li>
   </ul>
 
 </div>

@@ -1,8 +1,9 @@
 {% extends "layout.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Welcome{% endblock %}
-{% block h1 %}Welcome{% endblock %}
+{% block title %}{% trans "Welcome" %}{% endblock %}
+{% block h1 %}{% trans "Welcome" %}{% endblock %}
 {% block page_id %}welcome{% endblock %}
 
 {% block extra_css %}
@@ -29,47 +30,59 @@
 
 
 <script type="text/javascript">
-     function AddElement(){  
-        var theNewElem = document.createElement('input');  
-        theNewElem.setAttribute('type','submit');  
-        theNewElem.setAttribute('value','Continue');
+
+  var local_i18n_labels = {
+    'continue': '{% trans "Continue" %}',
+    'register_ongoing': '{% trans "Registering new Archivematica installation..." %}',
+    'register_ok': '{% trans "Successfully registered with FPR Server." %}',
+    'register_error': '{% trans "Unable to register with the FPR Server" %}',
+    'update_ongoing': '{% trans "Updating format policy rules ..." %}',
+    'update_error': '{% trans "Unable to update FPR. You will not be able to get updated format policy rules until it is possible to connect to the FPR Server." %}',
+    'update_fail': '{% trans "Request error:" %}',
+    'update_done': '{% trans "Attempt completed." %}',
+  }
+
+     function AddElement(){
+        var theNewElem = document.createElement('input');
+        theNewElem.setAttribute('type','submit');
+        theNewElem.setAttribute('value',local_i18n_labels['continue']);
         theNewElem.setAttribute('class','form-control btn btn-primary');
-        document.getElementById('FormHere').appendChild(theNewElem);   
-      }  
+        document.getElementById('FormHere').appendChild(theNewElem);
+      }
 
     $(document).ready(function () {
-        $("div#fpr").append("<p>Registering new Archivematica installation ...</p> ");
+        $("div#fpr").append("<p>" + local_i18n_labels['register_ongoing'] + "</p> ");
         $.get("installer/fprupload/", function(data, textStatus)
         {
           if (data['result'] == 'success') {
-              $("div#fpr").append("<p>Successfully registered with FPR Server.</p>");
+              $("div#fpr").append("<p>" + local_i18n_labels['register_ok'] + "</p>");
           } else {
-              $("div#fpr").append("<p>Unable to register with the FPR Server.</p>");
+              $("div#fpr").append("<p>" + local_i18n_labels['register_error'] + "</p>");
           }
           moreStuff();
         }, "json");
 });
 
 function moreStuff() {
-    $("div#fpr").append("<p>Updating format policy rules . . .</p>");
+    $("div#fpr").append("<p>" + local_i18n_labels['update_ongoing'] + "</p>");
     $.getJSON("installer/fprdownload/", function(data, textStatus)
         {
             if (data['result'] == 'success') {
                 $("div#fpr").append("<p>" + data['response'] + "</p>");
             } else {
-                $("div#fpr").append("<p>Unable to update FPR.  You will not be able to get updated format policy rules until it is possible to connect to the FPR Server.</p>");
+                $("div#fpr").append("<p>" + local_i18n_labels['update_error'] + "</p>");
             }
         })
         .done(function() {
-          $("div#fpr").append("<p>Attempt completed.</p>");
+          $("div#fpr").append("<p>" + local_i18n_labels['update_done'] + "</p>");
         })
         .fail(function(jqxhr, textStatus, error) {
-            $("div#fpr").append("<p>Request error:</p>");
+            $("div#fpr").append("<p>" + local_i18n_labels['update_fail'] + "</p>");
             $("div#fpr").append("<p>"+ error + " : " + jqxhr +"</p>");
             $("div#fpr").append("<p>"+textStatus+ "</p>");
-            
+
             })
-        .always(function() { 
+        .always(function() {
         	AddElement();
         	});
 }
@@ -82,12 +95,12 @@ function moreStuff() {
       <img src="{% static 'images/logo_welcome.gif' %}" style="margin-bottom: 20px;" />
 
       <div id="fpr" class="well">
-          <p>Now connecting to the FPR Server.</p>
+        <p>{% trans "Now connecting to the FPR Server." %}</p>
       </div>
 
     <form name="test" method="POST">
-      <div id="FormHere"></div>  
-    </form>  
+      <div id="FormHere"></div>
+    </form>
     </div>
 
   </div>

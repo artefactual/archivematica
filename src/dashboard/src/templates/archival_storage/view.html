@@ -1,6 +1,11 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
-{% load staticfiles %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Archival storage" %}{% endblock %}
+{% block h1 %}{% trans "Archival storage" %}{% endblock %}
+{% block page_id %}archival-storage{% endblock %}
 
 {% block extra_css %}
   <link href="{% static 'css/archival_storage.css' %}" rel="stylesheet" type="text/css" />
@@ -42,57 +47,58 @@
 {% block content %}
 
   <ul class="breadcrumb">
-    {% breadcrumb_url 'Archival storage' 'archival_storage_index' %}
+    {% trans "Archival storage" as archival_storage_label %}
+    {% breadcrumb_url archival_storage_label 'archival_storage_index' %}
     {% breadcrumb name %}
   </ul>
 
   <h2 class="heading-aip-details">
     {{ name }}
-    <small>Archival Information Package</small>
+    <small>{% trans "Archival Information Package" %}</small>
   </h2>
 
   <table class="table bordered-table aip-details">
     <tbody>
       <tr>
-        <th>UUID</th>
+        <th>{% trans "UUID" %}</th>
         <td><code class="uuid">{{ uuid }}</code></td>
       </tr>
       <tr>
-        <th>Size</th>
+        <th>{% trans "Size" %}</th>
         <td>{{ size }}</td>
       </tr>
       <tr>
-        <th>Date stored</th>
+        <th>{% trans "Date stored" %}</th>
         <td><span class="timestamp">{{ created }}</span></td>
       </tr>
       <tr>
-        <th>Status</th>
+        <th>{% trans "Status" %}</th>
         <td>{{ status }}</td>
       </tr>
       <tr>
-        <th>Location</th>
+        <th>{% trans "Location" %}</th>
         <td>
-          <a class="btn btn-default btn-sm" href="{% url 'components.archival_storage.views.aip_download' uuid %}">Download</a>
+          <a class="btn btn-default btn-sm" href="{% url 'components.archival_storage.views.aip_download' uuid %}">{% trans "Download" %}</a>
           <code class="location-preview">[...]/{{ location_basename }}</code>
         </td>
       </tr>
       <tr>
-        <th>Pointer file</th>
+        <th>{% trans "Pointer file" %}</th>
         <td>
-          <a class="btn btn-default btn-sm" target="_blank" href="{% url 'components.archival_storage.views.aip_pointer_file_download' uuid %}">View</a>
+          <a class="btn btn-default btn-sm" target="_blank" href="{% url 'components.archival_storage.views.aip_pointer_file_download' uuid %}">{% trans "View" %}</a>
         </td>
       </tr>
     </tbody>
   </table>
 
-  <h3>Actions</h3>
+  <h3>{% trans "Actions" %}</h3>
 
   <section class="am-tabs-pane">
 
     <ul class="nav nav-tabs" data-active-tab="{{ active_tab }}">
-      <li class="active"><a href="#tab-upload-dip" role="tab" data-toggle="tab">Upload DIP</a></li>
-      <li><a href="#tab-reingest" role="tab" data-toggle="tab">Re-ingest</a></li>
-      <li><a href="#tab-delete" role="tab" data-toggle="tab">Delete</a></li>
+      <li class="active"><a href="#tab-upload-dip" role="tab" data-toggle="tab">{% trans "Upload DIP" %}</a></li>
+      <li><a href="#tab-reingest" role="tab" data-toggle="tab">{% trans "Re-ingest" %}</a></li>
+      <li><a href="#tab-delete" role="tab" data-toggle="tab">{% trans "Delete" %}</a></li>
     </ul>
 
     <div class="tab-content">
@@ -102,11 +108,11 @@
         <form action="" method="POST" class="form-stacked">
           {% csrf_token %}
           <fieldset>
-            <legend>Metadata-only DIP upload to AtoM</legend>
+            <legend>{% trans "Metadata-only DIP upload to AtoM" %}</legend>
             {% include "_form.html" with form=forms.upload %}
           </fieldset>
           <div class="clearfix am-actions">
-            <button type="submit" class="btn btn-primary" name="submit-upload-form">Upload</button>
+            <button type="submit" class="btn btn-primary" name="submit-upload-form">{% trans "Upload" %}</button>
           </div>
         </form>
       </div>
@@ -116,11 +122,11 @@
         <form action="" method="POST" class="form-stacked">
           {% csrf_token %}
           <fieldset>
-            <legend>Choose type of re-ingest</legend>
+            <legend>{% trans "Choose type of re-ingest" %}</legend>
             {% include "_form.html" with form=forms.reingest %}
           </fieldset>
           <div class="clearfix am-actions">
-            <button type="submit" class="btn btn-primary" name="submit-reingest-form">Re-ingest</button>
+            <button type="submit" class="btn btn-primary" name="submit-reingest-form">{% trans "Re-ingest" %}</button>
           </div>
         </form>
       </div>
@@ -130,12 +136,12 @@
         <form action="" method="POST" class="form-stacked">
           {% csrf_token %}
           <fieldset>
-            <legend>Are you sure that you want to delete this AIP</legend>
-            <p>Choosing to delete this package will send a request to your Archival Storage administrator. If the administrator approves the request, your package will be deleted from your Archival Storage and your index will be updated. If the administrator denies the request, the package will remain in storage and the administrator will contact you.
+            <legend>{% trans "Are you sure that you want to delete this AIP" %}</legend>
+            <p>{% trans "Choosing to delete this package will send a request to your Archival Storage administrator. If the administrator approves the request, your package will be deleted from your Archival Storage and your index will be updated. If the administrator denies the request, the package will remain in storage and the administrator will contact you." %}</p>
             {% include "_form.html" with form=forms.delete %}
           </fieldset>
           <div class="clearfix am-actions">
-            <button class="btn btn-danger" name="submit-delete-form">Delete</button>
+            <button class="btn btn-danger" name="submit-delete-form">{% trans "Delete" %}</button>
           </div>
         </form>
       </div>

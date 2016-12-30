@@ -1,59 +1,119 @@
 {% extends "layout_fluid.html" %}
+{% load i18n %}
 {% load l10n %}
 
 {% block content %}
-<a name='tasks_top'></a>
 
-{% include "main/_tasks_pager.html" %}
+  <ol class="breadcrumb">
+    {% if job.unittype == 'unitTransfer' %}
+      <li>{% blocktrans with uuid=job.sipuuid %}Transfer {{ uuid }}{% endblocktrans %}</li>
+    {% elif job.unittype == 'unitDIP' %}
+      <li>{% blocktrans with uuid=job.sipuuid %}DIP {{ uuid }}{% endblocktrans %}</li>
+    {% elif job.unittype == 'unitSIP' %}
+      <li>{% blocktrans with uuid=job.sipuuid %}SIP {{ uuid }}{% endblocktrans %}</li>
+    {% endif %}
+    <li>{{ job.jobtype }}</li>
+    <li>{% trans "Tasks" %}</li>
+  </ol>
 
-  <table class="table">
-    <tbody>
-      {% for item in objects %}
-        <tr class="{% cycle 'odd' 'even' %}{% ifnotequal item.exitcode 0 %} exiterror{% endifnotequal %}">
-          <td>
-            <span>Task UUID:</span> {{ item.taskuuid }}<br />
-            <span>File UUID:</span> {{ item.fileuuid }}<br />
-            <span>File name:</span> {{ item.filename }}<br />
-            <span>Client:</span> {{ item.client }}<br />
-            <span>&nbsp;</span> {{ item.exec_field }} (exit code: {{ item.exitcode }})
-          </td>
-          <td>
-            <span>Start time:</span> <span class='datetime'>{{ item.starttime.isoformat }}</span><br />
-            <span>End time:</span> <span class='datetime'>{{ item.endtime.isoformat }}</span><br />
-            <span>Created time:</span> <span class='datetime'>{{ item.createdtime.isoformat }}</span><br />
-            <span>Duration:</span> {{ item.duration }} second(s)
-          </td>
-        </tr>
-        <tr>
-          <td colspan="2">Command: {{ item.execution }} {{ item.arguments }}</td>
-        </tr>
-        {% if item.stdout %}
-          <tr>
-            <td colspan="2" class="stdout shell-output">
-              <p>STDOUT</p>
+  {% include "main/_tasks_pager.html" %}
+
+  {% for item in objects %}
+
+    <article class="task">
+
+      <div class="task-heading">
+        <h4>Task {{ item.taskuuid }}</h4>
+      </div>
+
+      <div class="task-body">
+        <div class="row">
+          <div class="col-sm-6">
+            <dl>
+              <dt>{% trans "File UUID" %}</dt>
+              <dd>{{ item.fileuuid|default:_('Unknown') }}</dd>
+
+              <dt>{% trans "File name" %}</dt>
+              <dd>{{ item.filename }}</dd>
+
+              <dt>{% trans "Client" %}</dt>
+              <dd>{{ item.client }}</dd>
+
+              <dt>{% trans "Exit code" %}</dt>
+              <dd class="task-exit-code">
+                {% if item.exitcode == 0 %}
+                  <span class="label label-success">{{ item.exitcode }}</span>
+                {% else %}
+                  <span class="label label-danger">{{ item.exitcode }}</span>
+                {% endif %}
+              </dd>
+            </dl>
+          </div>
+          <div class="col-sm-6">
+            <dl>
+              <dt>{% trans "Start time" %}</dt>
+              <dd><span class="datetime">{{ item.starttime.isoformat }}</span></dd>
+
+              <dt>{% trans "End time" %}</dt>
+              <dd><span class="datetime">{{ item.endtime.isoformat }}</span></dd>
+
+              <dt>{% trans "Created time" %}</dt>
+              <dd><span class="datetime">{{ item.createdtime.isoformat }}</span></dd>
+
+              <dt>{% trans "Duration" %}</dt>
+              <dd>{% blocktrans with duration=item.duration %}{{ duration }} seconds(s){% endblocktrans %}</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title panel-title-simple">
+              {% blocktrans with module=item.execution %}
+                Module {{ module }}
+              {% endblocktrans %}
+            </h3>
+          </div>
+          <div class="panel-body shell-output">
+            <pre>{{ item.arguments }}</pre>
+          </div>
+        </div>
+
+        {% if item.stdout|length > 0 or item.stderr|length > 0 %}
+          <h4>{% trans "Standard streams" %}</h4>
+        {% endif %}
+
+        {% if item.stdout|length > 0 %}
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">{% trans "Standard output (stdout)" %}</h3>
+            </div>
+            <div class="panel-body shell-output">
               <pre>{{ item.stdout }}</pre>
-            </td>
-          </tr>
+            </div>
+          </div>
         {% endif %}
-        {% if item.stderror %}
-          <tr>
-            <td colspan="2" class="stderror shell-output">
-              <p>STDERR</p>
-              <pre>{{ item.stderror }}</pre>
-            </td>
-          </tr>
+
+        {% if item.stderr|length > 0 %}
+          <div class="panel panel-danger">
+            <div class="panel-heading">
+              <h3 class="panel-title">{% trans "Standard error (stderr)" %}</h3>
+            </div>
+            <div class="panel-body shell-output">
+              <pre>{{ item.stderr }}</pre>
+            </div>
+          </div>
         {% endif %}
-      {% endfor %}
-    </tbody>
-  </table>
+      </div>
 
-{% include "main/_tasks_pager.html" %}
+    </article>
 
+  {% endfor %}
 
-  <script>
-  $(document).ready(function() {
-    localizeTimestampElements();
-  });
-  </script>
+  {% include "main/_tasks_pager.html" %}
 
+{% endblock %}
+
+{% block extra_js %}
+  <script>$(function() { localizeTimestampElements(); })</script>
 {% endblock %}

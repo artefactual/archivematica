@@ -1,9 +1,10 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Archival storage{% endblock %}
-{% block h1 %}Archival storage{% endblock %}
+{% block title %}{% trans "Archival storage" %}{% endblock %}
+{% block h1 %}{% trans "Archival storage" %}{% endblock %}
 {% block page_id %}archival-storage{% endblock %}
 
 {% block js %}
@@ -25,8 +26,10 @@
 {% block content %}
 
   <ul class="breadcrumb">
-    {% breadcrumb_url 'Archival storage' 'components.archival_storage.views.overview' %}
-    {% breadcrumb 'Search' %}
+    {% trans "Archival storage" as archival_storage_label %}
+    {% trans "Search" as search_label %}
+    {% breadcrumb_url archival_storage_label 'components.archival_storage.views.overview' %}
+    {% breadcrumb search_label %}
   </ul>
 
   {% include "archival_storage/_archival_storage_search_form.html" %}
@@ -34,12 +37,20 @@
   {% if aips %}
 
     <h1>
-      Browse archival storage<br/>
+      {% trans "Browse archival storage" %}<br/>
       <small>
-        Total size: {{ total_size }} MB
+
+        {% blocktrans with size=total_size %}
+          Total size: {{ size }} MB
+        {% endblocktrans %}
+
         {% if aip_indexed_file_count %}
-        | Files indexed: {{ aip_indexed_file_count }}
+          |
+          {% blocktrans with count=aip_indexed_file_count %}
+            Files indexed: {{ count }}
+          {% endblocktrans %}
         {% endif %}
+
       </small>
     </h1>
 
@@ -47,38 +58,38 @@
       <thead>
         <th>
           <div>
-            AIP
-            <a class="up {% if order_by == 'name_unanalyzed' and sort_by == 'up' %} selected_up{% endif %}" href="?order_by=name_unanalyzed&sort_by=up">Sort</a>
-            <a class="down {% if order_by == 'name_unanalyzed' and sort_by == 'down' %} selected_down{% endif %}" href="?order_by=name_unanalyzed&sort_by=down">Sort</a>
+            {% trans "AIP" %}
+            <a class="up {% if order_by == 'name_unanalyzed' and sort_by == 'up' %} selected_up{% endif %}" href="?order_by=name_unanalyzed&sort_by=up">{% trans "Sort" %}</a>
+            <a class="down {% if order_by == 'name_unanalyzed' and sort_by == 'down' %} selected_down{% endif %}" href="?order_by=name_unanalyzed&sort_by=down">{% trans "Sort" %}</a>
           </div>
         </th>
         <th>
           <div>
-            Size
-            <a class="up {% if order_by == 'size' and sort_by == 'up' %} selected_up"{% endif %}" href="?order_by=size&amp;sort_by=up">Sort</a>
-            <a class="down {% if order_by == 'size' and sort_by == 'down' %} selected_down"{% endif %}" href="?order_by=size&amp;sort_by=down">Sort</a>
+            {% trans "Size" %}
+            <a class="up {% if order_by == 'size' and sort_by == 'up' %} selected_up"{% endif %}" href="?order_by=size&amp;sort_by=up">{% trans "Sort" %}</a>
+            <a class="down {% if order_by == 'size' and sort_by == 'down' %} selected_down"{% endif %}" href="?order_by=size&amp;sort_by=down">{% trans "Sort" %}</a>
           </div>
         </th>
         <th>
           <div>
-            UUID
+            {% trans "UUID" %}
           </div>
         </th>
         <th>
           <div>
-            Date stored
-            <a class="up {% if order_by == 'created' and sort_by == 'up' %} selected_up{% endif %}" href="?order_by=created&amp;sort_by=up">Sort</a>
-            <a class="down {% if order_by == 'created' and sort_by == 'down' %} selected_down{% endif %}" href="?order_by=created&amp;sort_by=down">Sort</a>
+            {% trans "Date stored" %}
+            <a class="up {% if order_by == 'created' and sort_by == 'up' %} selected_up{% endif %}" href="?order_by=created&amp;sort_by=up">{% trans "Sort" %}</a>
+            <a class="down {% if order_by == 'created' and sort_by == 'down' %} selected_down{% endif %}" href="?order_by=created&amp;sort_by=down">{% trans "Sort" %}</a>
           </div>
         </th>
         <th>
           <div>
-            Status
+            {% trans "Status" %}
           </div>
         </th>
         <th>
           <div>
-            Actions
+            {% trans "Actions" %}
           </div>
         </th>
       </thead>
@@ -90,7 +101,7 @@
             <td class="uuid"><a href="{% url 'view_aip' item.uuid %}">{{ item.uuid }}</a></td>
             <td><span class="timestamp">{{ item.date }}</span></td>
             <td>{{ item.status }}</td>
-            <td><a href="{% url 'view_aip' item.uuid %}">View</a></td>
+            <td><a href="{% url 'view_aip' item.uuid %}">{% trans "View" %}</a></td>
           </tr>
         {% endfor %}
       </tbody>
@@ -103,7 +114,7 @@
   {% else %}
 
     <div class="alert alert-info">
-      <p>Archival storage is empty.</p>
+      <p>{% trans "Archival storage is empty." %}</p>
     </div>
 
   {% endif %}

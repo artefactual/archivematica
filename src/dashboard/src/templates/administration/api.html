@@ -1,8 +1,9 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Administration{% endblock %}
-{% block h1 %}Administration{% endblock %}
+{% block title %}{% trans "Administration" %}{% endblock %}
+{% block h1 %}{% trans "Administration" %}{% endblock %}
 {% block page_id %}Administration{% endblock %}
 
 {% block js %}
@@ -21,17 +22,17 @@
 
     <div class="col-md-10">
 
-      <h3>REST API configuration</h3>
+      <h3>{% trans "REST API configuration" %}</h3>
 
-      <h4>IP whitelist</h4>
+      <h4>{% trans "IP whitelist" %}</h4>
 
-      <p>Enter a whitespace-separated list of IPs or hostnames permitted to use the API.</p>
+      <p>{% trans "Enter a whitespace-separated list of IPs or hostnames permitted to use the API." %}</p>
 
       <div style='width: 500px; height: 300px;'>
       <form method='POST'>
         <textarea name='whitelist' class='form-control' style='margin-bottom: 1em;'>{{ whitelist }}</textarea>
         <div>
-          <input type='submit' value='Save' class='btn btn-primary' />
+          <input type='submit' value='{% trans "Save" %}' class='btn btn-primary' />
         </div>
       </form>
       </div>

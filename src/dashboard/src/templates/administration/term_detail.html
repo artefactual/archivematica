@@ -1,15 +1,10 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 
-{% block title %}Administration{% endblock %}
-{% block h1 %}Administration{% endblock %}
+{% block title %}{% trans "Administration" %}{% endblock %}
+{% block h1 %}{% trans "Administration" %}{% endblock %}
 {% block page_id %}Administration{% endblock %}
-
-{% block js %}
-{% endblock %}
-
-{% block css %}
-{% endblock %}
 
 {% block content %}
 
@@ -22,7 +17,8 @@
     <div class="col-md-10">
 
       <ul class="breadcrumb">
-        {% breadcrumb_url 'Taxonomy' 'components.administration.views.taxonomy' %}
+        {% trans "Taxonomy" as taxonomy_label %}
+        {% breadcrumb_url taxonomy_label 'components.administration.views.taxonomy' %}
         {% breadcrumb_url taxonomy.name 'components.administration.views.terms' taxonomy.id %}
         {% breadcrumb term.term %}
       </ul>
@@ -35,7 +31,8 @@
       {% include "_form.html" %}
 
       <div style='float: right'>
-        <input type='submit' value='Save' /> <a href='/administration/taxonomy/term/{{ term.pk }}/delete/' class='btn btn-danger'>Delete</a>
+        <input type='submit' value='{% trans "Save" %}' />
+        <a href='/administration/taxonomy/term/{{ term.pk }}/delete/' class='btn btn-danger'>{% trans "Delete" %}</a>
       </div>
       </form>
     </div>

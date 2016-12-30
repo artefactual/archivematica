@@ -23,6 +23,7 @@ from django.forms.models import inlineformset_factory
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 
 from components import decorators
 from components import helpers
@@ -224,7 +225,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
             copyrightNote.copyrightnote = request.POST.get('copyright_note', '')
             copyrightNote.save()
 
-            new_content_type_created = 'copyright'
+            new_content_type_created = _('copyright')
 
         # handle creation of new documentation identifiers
         if request.POST.get('copyright_documentation_identifier_type', '') != '' or request.POST.get('copyright_documentation_identifier_value', '') != '' or request.POST.get('copyright_documentation_identifier_role', ''):
@@ -242,7 +243,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
             copyrightDocIdentifier.copyrightdocumentationidentifierrole  = request.POST.get('copyright_documentation_identifier_role', '')
             copyrightDocIdentifier.save()
 
-            new_content_type_created = 'copyright'
+            new_content_type_created = _('copyright')
 
         licenseFormset = LicenseFormSet(request.POST, instance=createdRights)
         if not licenseFormset.is_valid():
@@ -270,7 +271,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
             licenseNote.licensenote = request.POST.get('license_note', '')
             licenseNote.save()
 
-            new_content_type_created = 'license'
+            new_content_type_created = _('license')
 
         # handle creation of new documentation identifiers
         if request.POST.get('license_documentation_identifier_type', '') != '' or request.POST.get('license_documentation_identifier_value', '') != '' or request.POST.get('license_documentation_identifier_role', ''):
@@ -288,7 +289,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
             licenseDocIdentifier.licensedocumentationidentifierrole  = request.POST.get('license_documentation_identifier_role', '')
             licenseDocIdentifier.save()
 
-            new_content_type_created = 'license'
+            new_content_type_created = _('license')
 
         statuteFormset = StatuteFormSet(request.POST, instance=createdRights)
         if not statuteFormset.is_valid():
@@ -297,7 +298,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
         createdStatuteSet = statuteFormset.save()
 
         if request.POST.get('statute_previous_pk', '') == 'None' and len(createdStatuteSet) == 1:
-            new_content_type_created = 'statute'
+            new_content_type_created = _('statute')
 
         noteCreated = False
         for form in statuteFormset.forms:
@@ -316,7 +317,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
                 statuteDocIdentifier.statutedocumentationidentifiervalue = request.POST.get('statute_documentation_identifier_value_None', '')
                 statuteDocIdentifier.statutedocumentationidentifierrole = request.POST.get('statute_documentation_identifier_role_None', '')
                 statuteDocIdentifier.save()
-                new_content_type_created = 'statute'
+                new_content_type_created = _('statute')
             else:
                 # handle documentation identifier creation for a parent statute that already exists
                 if request.POST.get('statute_documentation_identifier_type_' + str(form.instance.pk), '') != '' or request.POST.get('statute_documentation_identifier_value_' + str(form.instance.pk), '') or request.POST.get('statute_documentation_identifier_role_' + str(form.instance.pk), ''):
@@ -325,7 +326,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
                     statuteDocIdentifier.statutedocumentationidentifiervalue = request.POST.get('statute_documentation_identifier_value_' +  str(form.instance.pk), '')
                     statuteDocIdentifier.statutedocumentationidentifierrole = request.POST.get('statute_documentation_identifier_role_' +  str(form.instance.pk), '')
                     statuteDocIdentifier.save()
-                    new_content_type_created = 'statute'
+                    new_content_type_created = _('statute')
 
             # handle note creation for a parent that's a blank grant
             if request.POST.get('new_statute_note_None', '') != '' and not form.instance.pk:
@@ -335,14 +336,14 @@ def rights_edit(request, uuid, id=None, section='ingest'):
                 noteCreated = models.RightsStatementStatuteInformationNote(rightsstatementstatute=statuteCreated)
                 noteCreated.statutenote = request.POST.get('new_statute_note_None', '')
                 noteCreated.save()
-                new_content_type_created = 'statue'
+                new_content_type_created = _('statue')
             else:
-                # handle note creation for a parent grant that already exists 
+                # handle note creation for a parent grant that already exists
                 if request.POST.get('new_statute_note_' + str(form.instance.pk), '') != '':
                     noteCreated = models.RightsStatementStatuteInformationNote(rightsstatementstatute=form.instance)
                     noteCreated.statutenote = request.POST.get('new_statute_note_' + str(form.instance.pk), '')
                     noteCreated.save()
-                    new_content_type_created = 'statute'
+                    new_content_type_created = _('statute')
 
         # handle note creation for a parent that's just been created
         if request.POST.get('new_statute_note_None', '') != '' and not noteCreated:
@@ -470,7 +471,7 @@ def rights_grants_edit(request, uuid, id, section='ingest'):
                 noteCreated.rightsgrantednote = request.POST.get('new_rights_note_None', '')
                 noteCreated.save()
             else:
-                # handle note creation for a parent grant that already exists 
+                # handle note creation for a parent grant that already exists
                 if request.POST.get('new_rights_note_' + str(form.instance.pk), '') != '':
                     noteCreated = models.RightsStatementRightsGrantedNote(rightsgranted=form.instance)
                     noteCreated.rightsgrantednote = request.POST.get('new_rights_note_' + str(form.instance.pk), '')

@@ -1,5 +1,6 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 {% load static %}
 
 {% block js %}
@@ -13,43 +14,56 @@
   <div class="row">
     <div class="col-md-12">
 
+      {% trans "Ingest" as ingest_label %}
+      {% trans "Rights" as rights_label %}
+      {% trans "Transfer" as transfer_label %}
+      {% trans "Edit" as edit_label %}
+      {% trans "Add" as add_label %}
+
       <ul class="breadcrumb">
         {% if section == 'ingest' %}
-          {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
+          {% breadcrumb_url ingest_label 'components.ingest.views.ingest_grid' %}
           {% breadcrumb_url name 'components.unit.views.detail' 'ingest' uuid %}
-          {% breadcrumb_url 'Rights' 'components.rights.views.ingest_rights_list' uuid %}
+          {% breadcrumb_url rights_label 'components.rights.views.ingest_rights_list' uuid %}
         {% else %}
-          {% breadcrumb_url 'Transfer' 'components.transfer.views.grid' %}
+          {% breadcrumb_url transfer_label 'components.transfer.views.grid' %}
           {% breadcrumb_url name 'components.unit.views.detail' 'transfer' uuid %}
-          {% breadcrumb_url 'Rights' 'components.rights.views.transfer_rights_list' uuid %}
+          {% breadcrumb_url rights_label 'components.rights.views.transfer_rights_list' uuid %}
         {% endif %}
         {% if id %}
-          {% breadcrumb 'Edit' %}
+          {% breadcrumb edit_label %}
         {% else %}
-          {% breadcrumb 'Add' %}
+          {% breadcrumb add_label %}
         {% endif %}
       </ul>
 
-      <h1>Rights<br /><small>{{ name }}</small></h1>
+      <h1>
+        {{ rights_label }}<br />
+        <small>{{ name }}</small>
+      </h1>
 
       {% if request.method == 'POST' %}
         {% if form.is_valid %}
           <div class="alert alert-success">
-            <p><strong>Saved!</p>
+            <p><strong>{% trans "Saved" %}</strong></p>
           </div>
         {% else %}
           <div class="alert alert-error">
-            <p>An error has occurred.</p>
+            <p>{% trans "An error has occurred." %}</p>
           </div>
         {% endif %}
       {% endif %}
 
       {% if new_content_type_created %}
           <div class="alert alert-info">
-            {% if new_content_type_created == 'Other' %}
-              <p>New content added.</p>
+            {% if new_content_type_created == 'other' %}
+              <p>{% trans "New content added." %}</p>
             {% else %}
-              <p>New {{ new_content_type_created|lower }} content added.</p>
+              <p>
+                {% blocktrans with type=new_content_type_created %}
+                  New content added: {{ type }}.
+                {% endblocktrans %}
+              </p>
             {% endif %}
           </div>
       {% endif %}
@@ -80,27 +94,27 @@
             <input name='copyright_previous_pk' type='hidden' value='{{ form.instance.pk }}'>
 
             <div class='repeating-ajax-data-fieldset'>
-              <label>Copyright documentation identifier:</label>
+              <label>{% trans "Copyright documentation identifier:" %}</label>
 
               <div id='copyrightdocidfields_{{ form.instance.pk }}' class='repeating-data repeating-data-multifield'></div>
               <div class='repeating-ajax-data-row repeating-data-multifield'>
                 <div>
-                  <strong>Type</strong><br/>
+                  <strong>{% trans "Type" %}</strong><br/>
                   <input name='copyright_documentation_identifier_type' class="form-control">
                 </div>
                 <div>
-                  <strong>Value</strong><br/>
+                  <strong>{% trans "Value" %}</strong><br/>
                   <input name='copyright_documentation_identifier_value' class="form-control">
                 </div>
                 <div>
-                  <strong>Role</strong><br/>
+                  <strong>{% trans "Role" %}</strong><br/>
                   <input name='copyright_documentation_identifier_role' class="form-control">
                 </div>
               </div>
             </div>
 
             <div class='repeating-ajax-data-fieldset'>
-              <label>Copyright note</label>
+              <label>{% trans "Copyright note" %}</label>
 
               <div id='copyrightnotes_{{ form.instance.pk }}' class='repeating-data'></div>
 
@@ -131,28 +145,28 @@
             <input name='statute_previous_pk' type='hidden' value='{{ form.instance.pk }}'>
 
               <div class='repeating-ajax-data-fieldset'>
-                <label>Statute documentation identifier:</label>
+                <label>{% trans "Statute documentation identifier:" %}</label>
 
                 <div id='statutedocidfields_{{ form.instance.pk }}' class='repeating-data repeating-data-multifield'></div>
 
                 <div class='repeating-ajax-data-row repeating-data-multifield'>
                   <div>
-                    <strong>Type</strong><br/>
+                    <strong>{% trans "Type" %}</strong><br/>
                     <input name='statute_documentation_identifier_type_{{ form.instance.pk }}' class="form-control">
                   </div>
                   <div>
-                    <strong>Value</strong><br/>
+                    <strong>{% trans "Value" %}</strong><br/>
                     <input name='statute_documentation_identifier_value_{{ form.instance.pk }}' class="form-control">
                   </div>
                   <div>
-                    <strong>Role</strong><br/>
+                    <strong>{% trans "Role" %}</strong><br/>
                     <input name='statute_documentation_identifier_role_{{ form.instance.pk }}' class="form-control">
                   </div>
                 </div>
               </div>
 
               <div class='repeating-ajax-data-fieldset'>
-                <label>Statute note</label>
+                <label>{% trans "Statute note" %}</label>
 
                 <div class='repeating-ajax-data-row'>
                   <textarea name='new_statute_note_{{ form.instance.pk }}' class="form-control"></textarea>
@@ -181,28 +195,28 @@
             <input name='license_previous_pk' type='hidden' value='{{ form.instance.pk }}'>
 
             <div class='repeating-ajax-data-fieldset'>
-              <label>License documentation identifier:</label>
+              <label>{% trans "License documentation identifier:" %}</label>
 
               <div id='licensedocidfields_{{ form.instance.pk }}' class='repeating-data repeating-data-multifield'></div>
 
               <div class='repeating-ajax-data-row repeating-data-multifield'>
                 <div>
-                  <strong>Type</strong><br/>
+                  <strong>{% trans "Type" %}</strong><br/>
                   <input name='license_documentation_identifier_type' class="form-control">
                 </div>
                 <div>
-                  <strong>Value</strong><br/>
+                  <strong>{% trans "Value" %}</strong><br/>
                   <input name='license_documentation_identifier_value' class="form-control">
                 </div>
                 <div>
-                  <strong>Role</strong><br/>
+                  <strong>{% trans "Role" %}</strong><br/>
                   <input name='license_documentation_identifier_role' class="form-control">
                 </div>
               </div>
             </div>
 
             <div class='repeating-ajax-data-fieldset'>
-              <label>License note</label>
+              <label>{% trans "License note" %}</label>
 
               <div class='repeating-ajax-data-row'>
                 <textarea name='license_note' class="form-control"></textarea>
@@ -229,28 +243,28 @@
             <input name='other_previous_pk' type='hidden' value='{{ form.instance.pk }}'>
 
             <div class='repeating-ajax-data-fieldset'>
-              <label id='other_documentation_identifier_label'>Documentation identifier</label>
+              <label id='other_documentation_identifier_label'>{% trans "Documentation identifier" %}</label>
 
               <div id='otherrightsdocidfields_{{ form.instance.pk }}' class='repeating-data repeating-data-multifield'></div>
 
               <div class='repeating-ajax-data-row repeating-data-multifield'>
                 <div>
-                  <strong>Type</strong><br/>
+                  <strong>{% trans "Type" %}</strong><br/>
                   <input name='other_documentation_identifier_type' class="form-control">
                 </div>
                 <div>
-                  <strong>Value</strong><br/>
+                  <strong>{% trans "Value" %}</strong><br/>
                   <input name='other_documentation_identifier_value' class="form-control">
                 </div>
                 <div>
-                  <strong>Role</strong><br/>
+                  <strong>{% trans "Role" %}</strong><br/>
                   <input name='other_documentation_identifier_role' class="form-control">
                 </div>
               </div>
             </div>
 
             <div class='repeating-ajax-data-fieldset'>
-              <label id='other_rights_notes_label'>Note</label>
+              <label id='other_rights_notes_label'>{% trans "Note" %}</label>
 
               <div id='otherrightsnotes_{{ form.instance.pk }}' class='repeating-data'></div>
 
@@ -269,14 +283,14 @@
         </div>
 
         <div class="actions">
-          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
 
-          <button type="submit" name='next_button' value='Next' class="btn btn-primary">Next</button>
+          <button type="submit" name='next_button' value='Next' class="btn btn-primary">{% trans "Next" %}</button>
 
           {% if section == 'ingest' %}
-            <a href="{% url 'components.rights.views.ingest_rights_list' uuid %}" class="btn btn-default">Cancel</a>
+            <a href="{% url 'components.rights.views.ingest_rights_list' uuid %}" class="btn btn-default">{% trans "Cancel" %}</a>
           {% else %}
-             <a href="{% url 'components.rights.views.transfer_rights_list' uuid %}" class="btn btn-default">Cancel</a>
+             <a href="{% url 'components.rights.views.transfer_rights_list' uuid %}" class="btn btn-default">{% trans "Cancel" %}</a>
           {% endif %}
         </div>
 

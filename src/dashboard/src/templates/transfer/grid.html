@@ -1,8 +1,9 @@
 {% extends "layout_fluid.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Transfer{% endblock %}
-{% block h1 %}Transfer{% endblock %}
+{% block title %}{% trans "Transfer" %}{% endblock %}
+{% block h1 %}{% trans "Transfer" %}{% endblock %}
 {% block page_id %}transfer{% endblock %}
 
 {% block extra_css %}
@@ -74,9 +75,9 @@
     </span>
     </div>
     <div id="sip-header">
-      <div id="sip-header-directory">Transfer</div>
-      <div id="sip-header-uuid">UUID</div>
-      <div id="sip-header-timestamp">Transfer start time</div>
+      <div id="sip-header-directory">{% trans "Transfer" %}</div>
+      <div id="sip-header-uuid">{% trans "UUID" %}</div>
+      <div id="sip-header-timestamp">{% trans "Transfer start time" %}</div>
       <div id="sip-header-actions">&nbsp;</div>
     </div>
     <div id="sip-body">
@@ -95,13 +96,13 @@
       <div class="sip-detail-icon-status"><%= this.model.jobs.getIcon() %></div>
       <div class="sip-detail-directory">
         <%= directory %>
-        <abbr title="<%= uuid %>">UUID</span>
+        <abbr title="<%= uuid %>">{% trans "UUID" %}</span>
       </div>
       <div class="sip-detail-uuid"><%= uuid %></div>
       <div class="sip-detail-timestamp"><%= this.getIngestStartTime() %></div>
       <div class="sip-detail-actions">
-        <a class="btn_show_metadata" href="#" title="Metadata"><span>Micro-Services</span></a>
-        <a class="btn_remove_sip" href="#" title="Remove"><span>Remove</span></a>
+        <a class="btn_show_metadata" href="#" title="{% trans 'Metadata' %}"><span>{% trans "Metadata" %}</span></a>
+        <a class="btn_remove_sip" href="#" title="{% trans 'Remove' %}"><span>{% trans "Remove" %}</span></a>
       </div>
     </div>
     <div class="sip-detail-job-container"></div>
@@ -110,13 +111,14 @@
   <script type="text/template" id="microservice-group-template">
     <div class="microservice-group">
       &nbsp;<span class="microservice-group-arrow">&#x25B8;</span>
-      <span class="microservice-group-name">Micro-service: <%= name %></span>
+      <span class="microservice-group-name">{% trans "Microservice" %}: <%= name %></span>
     </div>
   </script>
 
   <script type="text/template" id="job-template">
     <div class="job-detail-microservice">
-      <span class="job-type-label">Job:&nbsp;</span><span title="<%= uuid %>"><%= type %></span>
+      <span class="job-type-label">{% trans "Job" %}</span>
+      <span title="<%= uuid %>"><%= type %></span>
       <% tmp = window.microservices_help[type]; %>
       <% if (tmp !== undefined) { %>
         [<a href="#" title="<%= tmp %>">?</a>]
@@ -124,13 +126,13 @@
     </div>
     <div class="job-detail-currentstep"><span title="<%= new Date(timestamp * 1000).getArchivematicaDateTime() %>  /  <%= timestamp %>"><%= currentstep %></span></div>
     <div class="job-detail-actions">
-      <a class="btn_show_tasks" href="#" title="Tasks"><span>Tasks</span></a>
+      <a class="btn_show_tasks" href="#" title="{% trans 'Tasks' %}"><span>{% trans "Tasks" %}</span></a>
     </div>
   </script>
 
   <script type="text/template" id="status-template">
     <div id="status-bullet">
-      <span>Initializing...</span>
+      <span>{% trans "Initializing..." %}</span>
       <img src="{% static 'images/bullet_delete.png' %}" />
     </div>
   </script>

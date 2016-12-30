@@ -1,4 +1,5 @@
 {% extends "layout_fluid.html" %}
+{% load i18n %}
 
 {% block content %}
 
@@ -6,7 +7,7 @@
 
 <form method="POST" action="">
   <input type="hidden" name="__confirm__" value="1" />
-  <input type="submit" value="{{ action }}" class='btn btn-primary' /> <a href="{{ cancel_url }}" class='btn btn-default'>Cancel</a>
+  <input type="submit" value="{{ action }}" class='btn btn-primary' /> <a href="{{ cancel_url }}" class='btn btn-default'>{% trans "Cancel" %}</a>
 </form>
 
 {% endblock %}

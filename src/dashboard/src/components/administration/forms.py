@@ -23,8 +23,8 @@ from collections import OrderedDict
 from django import forms
 from django.conf import settings
 from django.db import connection
-from django.utils.translation import ugettext as _
 from django.forms.widgets import TextInput, RadioSelect, CheckboxInput, Select
+from django.utils.translation import ugettext_lazy as _
 
 from components import helpers
 from main import models
@@ -66,17 +66,24 @@ class StorageSettingsForm(SettingsForm):
             return super(forms.CharField, self).to_python(value).strip()
 
     storage_service_url = forms.URLField(
-        label="Storage Service URL",
-        help_text='Full URL of the storage service. E.g. https://192.168.168.192:8000'
+        label=_("Storage Service URL"),
+        help_text=_('Full URL of the storage service. E.g. https://192.168.168.192:8000')
     )
     storage_service_user = forms.CharField(
-        label='Storage Service User',
-        help_text='User in the storage service to authenticate as. E.g. test'
+        label=_('Storage Service User'),
+        help_text=_('User in the storage service to authenticate as. E.g. test')
     )
     storage_service_apikey = StripCharField(
-        label='API key',
-        help_text='API key of the storage service user. E.g. 45f7684483044809b2de045ba59dc876b11b9810'
+        label=_('API key'),
+        help_text=_('API key of the storage service user. E.g. 45f7684483044809b2de045ba59dc876b11b9810')
     )
+    storage_service_use_default_config = forms.BooleanField(
+        required=False,
+        initial=True,
+        label=_('Use default configuration'),
+        help_text=_("You have to manually set up a custom configuration if the default configuration is not selected.")
+    )
+
 
 class ChecksumSettingsForm(SettingsForm):
     CHOICES = (
@@ -85,7 +92,7 @@ class ChecksumSettingsForm(SettingsForm):
         ('sha256', 'SHA-256'),
         ('sha512', 'SHA-512')
     )
-    checksum_type = forms.ChoiceField(choices=CHOICES, label='Select algorithm')
+    checksum_type = forms.ChoiceField(choices=CHOICES, label=_('Select algorithm'))
 
 
 class ArchivistsToolkitConfigForm(forms.ModelForm):
@@ -132,30 +139,14 @@ class ArchivesSpaceConfigForm(forms.ModelForm):
 
 
 class AtomDipUploadSettingsForm(SettingsForm):
-    dip_upload_atom_url = forms.CharField(required=True,
-        label="Upload URL",
-        help_text="URL where the Qubit index.php frontend lives, SWORD services path will be appended.")
-    dip_upload_atom_email = forms.CharField(required=True,
-        label="Login email",
-        help_text="E-mail account used to log into Qubit.")
-    dip_upload_atom_password = forms.CharField(required=True,
-        label="Login password",
-        help_text="E-mail account used to log into Qubit.")
-    dip_upload_atom_version = forms.ChoiceField(label="AtoM version",
-        choices=((1, 'Atom 1.x'), (2, 'Atom 2.x')))
-    dip_upload_atom_rsync_target = forms.CharField(required=False,
-        label="Rsync target",
-        help_text="The DIP can be sent with Rsync to a remote host before is deposited in Qubit. This is the destination value passed to Rsync (see man 1 rsync). For example: foobar.com:~/dips/.")
-    dip_upload_atom_rsync_command = forms.CharField(required=False,
-        label="Rsync command",
-        help_text="If --rsync-target is used, you can use this argument to specify the remote shell manually. For example: ssh -p 22222 -l user.")
-    dip_upload_atom_debug = forms.ChoiceField(required=False,
-        label="Debug mode",
-        help_text="Show additional details.",
-        choices=((False, 'No'), (True, 'Yes')))
-    dip_upload_atom_key = forms.CharField(required=False,
-        label="REST API key",
-        help_text="Used in metadata-only DIP upload.")
+    dip_upload_atom_url = forms.CharField(required=True, label=_("Upload URL"), help_text=_("URL where the Qubit index.php frontend lives, SWORD services path will be appended."))
+    dip_upload_atom_email = forms.CharField(required=True, label=_("Login email"), help_text=_("E-mail account used to log into Qubit."))
+    dip_upload_atom_password = forms.CharField(required=True, label=_("Login password"), help_text=_("E-mail account used to log into Qubit."))
+    dip_upload_atom_version = forms.ChoiceField(label=_("AtoM version"), choices=((1, 'Atom 1.x'), (2, 'Atom 2.x')))
+    dip_upload_atom_rsync_target = forms.CharField(required=False, label=_("Rsync target"), help_text=_("The DIP can be sent with Rsync to a remote host before is deposited in Qubit. This is the destination value passed to Rsync (see man 1 rsync). For example: foobar.com:~/dips/."))
+    dip_upload_atom_rsync_command = forms.CharField(required=False, label=_("Rsync command"), help_text=_("If --rsync-target is used, you can use this argument to specify the remote shell manually. For example: ssh -p 22222 -l user."))
+    dip_upload_atom_debug = forms.ChoiceField(required=False, label=_("Debug mode"), help_text=_("Show additional details."), choices=((False, _('No'), (True, _('Yes')))))
+    dip_upload_atom_key = forms.CharField(required=False, label=_("REST API key"), help_text=_("Used in metadata-only DIP upload."))
 
 
 class TaxonomyTermForm(forms.ModelForm):
@@ -193,114 +184,114 @@ class ProcessingConfigurationForm(forms.Form):
     processing_fields['755b4177-c587-41a7-8c52-015277568302'] = {
         'type': 'boolean',
         'name': 'quarantine_transfer',
-        'label': 'Send transfer to quarantine',
+        'label': _('Send transfer to quarantine'),
         'yes_option': '97ea7702-e4d5-48bc-b4b5-d15d897806ab',
         'no_option': 'd4404ab1-dc7f-4e9e-b1f8-aa861e766b8e',
     }
     processing_fields['19adb668-b19a-4fcb-8938-f49d7485eaf3'] = {
         'type': 'days',
         'name': 'quarantine_expiry_days',
-        'label': 'Remove from quarantine after (days)',
-        'placeholder': 'days',
+        'label': _('Remove from quarantine after (days)'),
+        'placeholder': _('days'),
         'chain': '333643b7-122a-4019-8bef-996443f3ecc5',
         'min_value': 0,
     }
     processing_fields['56eebd45-5600-4768-a8c2-ec0114555a3d'] = {
         'type': 'boolean',
         'name': 'tree',
-        'label': 'Generate transfer structure report',
+        'label': _('Generate transfer structure report'),
         'yes_option': 'df54fec1-dae1-4ea6-8d17-a839ee7ac4a7',
         'no_option': 'e9eaef1e-c2e0-4e3b-b942-bfb537162795',
     }
     processing_fields['f09847c2-ee51-429a-9478-a860477f6b8d'] = {
         'type': 'replace_dict',
         'name': 'select_format_id_tool_transfer',
-        'label': 'Select file format identification command (Transfer)',
+        'label': _('Select file format identification command (Transfer)'),
     }
     processing_fields['dec97e3c-5598-4b99-b26e-f87a435a6b7f'] = {
         'type': 'chain_choice',
         'name': 'extract_packages',
-        'label': 'Extract packages',
+        'label': _('Extract packages'),
         'uuid': '01d80b27-4ad1-4bd1-8f8d-f819f18bf685',
     }
     processing_fields['f19926dd-8fb5-4c79-8ade-c83f61f55b40'] = {
         'type': 'replace_dict',
         'name': 'delete_packages',
-        'label': 'Delete packages after extraction',
+        'label': _('Delete packages after extraction'),
         'uuid': '85b1e45d-8f98-4cae-8336-72f40e12cbef',
     }
     processing_fields['accea2bf-ba74-4a3a-bb97-614775c74459'] = {
         'type': 'chain_choice',
         'name': 'examine',
-        'label': 'Examine contents',
+        'label': _('Examine contents'),
     }
     processing_fields['bb194013-597c-4e4a-8493-b36d190f8717'] = {
         'type': 'chain_choice',
         'name': 'create_sip',
-        'label': 'Create SIP(s)',
+        'label': _('Create SIP(s)'),
         'ignored_choices': ['Reject transfer'],
     }
     processing_fields['7a024896-c4f7-4808-a240-44c87c762bc5'] = {
         'type': 'replace_dict',
         'name': 'select_format_id_tool_ingest',
-        'label': 'Select file format identification command (Ingest)',
+        'label': _('Select file format identification command (Ingest)'),
     }
     processing_fields['cb8e5706-e73f-472f-ad9b-d1236af8095f'] = {
         'type': 'chain_choice',
         'name': 'normalize',
-        'label': 'Normalize',
+        'label': _('Normalize'),
         'ignored_choices': ['Reject SIP'],
         'find_duplicates': True,
     }
     processing_fields['de909a42-c5b5-46e1-9985-c031b50e9d30'] = {
         'type': 'boolean',
         'name': 'normalize_transfer',
-        'label': 'Approve normalization',
+        'label': _('Approve normalization'),
         'yes_option': '1e0df175-d56d-450d-8bee-7df1dc7ae815',
     }
     processing_fields['eeb23509-57e2-4529-8857-9d62525db048'] = {
         'type': 'chain_choice',
-        'name':  'reminder',
-        'label': 'Reminder: add metadata if desired',
+        'name': 'reminder',
+        'label': _('Reminder: add metadata if desired'),
     }
     processing_fields['7079be6d-3a25-41e6-a481-cee5f352fe6e'] = {
         'type': 'boolean',
         'name': 'transcribe_file',
-        'label': 'Transcribe files (OCR)',
+        'label': _('Transcribe files (OCR)'),
         'yes_option': '5a9985d3-ce7e-4710-85c1-f74696770fa9',
         'no_option': '1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53',
     }
     processing_fields['087d27be-c719-47d8-9bbb-9a7d8b609c44'] = {
         'type': 'replace_dict',
         'name': 'select_format_id_tool_submissiondocs',
-        'label': 'Select file format identification command (Submission documentation & metadata)',
+        'label': _('Select file format identification command (Submission documentation & metadata)'),
     }
     processing_fields['01d64f58-8295-4b7b-9cab-8f1b153a504f'] = {
         'type': 'replace_dict',
         'name': 'compression_algo',
-        'label': 'Select compression algorithm',
+        'label': _('Select compression algorithm'),
     }
     processing_fields['01c651cb-c174-4ba4-b985-1d87a44d6754'] = {
         'type': 'replace_dict',
         'name': 'compression_level',
-        'label': 'Select compression level',
+        'label': _('Select compression level'),
     }
     processing_fields['2d32235c-02d4-4686-88a6-96f4d6c7b1c3'] = {
         'type': 'boolean',
         'name': 'store_aip',
-        'label': 'Store AIP',
+        'label': _('Store AIP'),
         'yes_option': '9efab23c-31dc-4cbd-a39d-bb1665460cbe',
     }
     processing_fields['b320ce81-9982-408a-9502-097d0daa48fa'] = {
         'type': 'storage_service',
         'name': 'store_aip_location',
-        'label': 'Store AIP location',
+        'label': _('Store AIP location'),
         'purpose': 'AS',
     }
     processing_fields['b7a83da6-ed5a-47f7-a643-1e9f9f46e364'] = {
         'type': 'storage_service',
         'name': 'store_dip_location',
-        'label': 'Store DIP location',
+        'label': _('Store DIP location'),
         'purpose': 'DS',
     }
 
@@ -334,9 +325,9 @@ class ProcessingConfigurationForm(forms.Form):
                 choices = opts['choices'] = list(self.EMPTY_CHOICES)
                 if ftype == 'boolean':
                     if 'yes_option' in field:
-                        choices.append((field['yes_option'], 'Yes'))
+                        choices.append((field['yes_option'], _('Yes')))
                     if 'no_option' in field:
-                        choices.append((field['no_option'], 'No'))
+                        choices.append((field['no_option'], _('No')))
                 elif ftype == 'chain_choice':
                     chain_choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink_id=choice_uuid)
                     ignored_choices = field.get('ignored_choices', [])

@@ -20,7 +20,6 @@ import logging
 import os
 import shutil
 import subprocess
-import sys
 
 from django.core.urlresolvers import reverse
 from django.contrib import messages
@@ -30,6 +29,7 @@ from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 
 from main import forms
 from main import models
@@ -78,7 +78,7 @@ def delete_context(request, report_id):
 @decorators.confirm_required('simple_confirm.html', delete_context)
 def failure_report_delete(request, report_id):
     models.Report.objects.get(pk=report_id).delete()
-    messages.info(request, 'Deleted.')
+    messages.info(request, _('Deleted.'))
     return redirect('components.administration.views.failure_report')
 
 def failure_report_detail(request):
@@ -164,21 +164,21 @@ def atom_levels_of_description(request):
 
         if level_operation == 'promote':
             if _atom_levels_of_description_sort_adjust(level_id, 'promote'):
-                messages.info(request, 'Promoted.')
+                messages.info(request, _('Promoted.'))
             else:
-                messages.error(request, 'Error attempting to promote level of description.')
+                messages.error(request, _('Error attempting to promote level of description.'))
         elif level_operation == 'demote':
             if _atom_levels_of_description_sort_adjust(level_id, 'demote'):
-                messages.info(request, 'Demoted.')
+                messages.info(request, _('Demoted.'))
             else:
-                messages.error(request, 'Error attempting to demote level of description.')
+                messages.error(request, _('Error attempting to demote level of description.'))
         elif level_operation == 'delete':
             try:
                 level = models.LevelOfDescription.objects.get(id=level_id)
                 level.delete()
-                messages.info(request, 'Deleted.')
+                messages.info(request, _('Deleted.'))
             except models.LevelOfDescription.DoesNotExist:
-                messages.error(request, 'Level of description not found.')
+                messages.error(request, _('Level of description not found.'))
 
     levels = models.LevelOfDescription.objects.order_by('sortorder')
     sortorder_min = models.LevelOfDescription.objects.aggregate(min=Min('sortorder'))['min']
@@ -263,7 +263,7 @@ def storage(request):
     try:
         locations = storage_service.get_location(purpose="AS")
     except:
-        messages.warning(request, 'Error retrieving locations: is the storage server running? Please contact an administrator.')
+        messages.warning(request, _('Error retrieving locations: is the storage server running? Please contact an administrator.'))
 
     system_directory_description = 'Available storage'
     return render(request, 'administration/locations.html', locals())
@@ -451,7 +451,7 @@ def sources(request):
     try:
         locations = storage_service.get_location(purpose="TS")
     except:
-        messages.warning(request, 'Error retrieving locations: is the storage server running? Please contact an administrator.')
+        messages.warning(request, _('Error retrieving locations: is the storage server running? Please contact an administrator.'))
 
     system_directory_description = 'Available transfer source'
     return render(request, 'administration/locations.html', locals())
@@ -464,7 +464,7 @@ def premis_agent(request):
     if request.POST:
         form = AgentForm(request.POST, instance=agent)
         if form.is_valid():
-            messages.info(request, 'Saved.')
+            messages.info(request, _('Saved.'))
             form.save()
     else:
         form = AgentForm(instance=agent)
@@ -475,7 +475,7 @@ def api(request):
     if request.method == 'POST':
         whitelist = request.POST.get('whitelist', '')
         helpers.set_setting('api_whitelist', whitelist)
-        messages.info(request, 'Saved.')
+        messages.info(request, _('Saved.'))
     else:
         whitelist = helpers.get_setting('api_whitelist', '127.0.0.1')
 
@@ -499,9 +499,7 @@ def term_detail(request, term_uuid):
         form = TaxonomyTermForm(request.POST, instance=term)
         if form.is_valid():
             form.save()
-            messages = [{
-              'text': 'Saved.'
-            }]
+            messages = [{'text': _('Saved.')}]
     else:
         form = TaxonomyTermForm(instance=term)
 
@@ -534,16 +532,16 @@ def general(request):
     if storage_form.is_valid() and checksum_form.is_valid():
         storage_form.save()
         checksum_form.save()
-        messages.info(request, 'Saved.')
+        messages.info(request, _('Saved.'))
 
     dashboard_uuid = helpers.get_setting('dashboard_uuid')
     try:
         pipeline = storage_service._get_pipeline(dashboard_uuid)
-    except Exception :
-        messages.warning(request, "Storage server inaccessible.  Please contact an administrator or update storage service URL below.")
+    except Exception:
+        messages.warning(request, _("Storage server inaccessible. Please contact an administrator or update storage service URL below."))
     else:
         if not pipeline:
-            messages.warning(request, "This pipeline is not registered with the storage service or has been disabled in the storage service.  Please contact an administrator.")
+            messages.warning(request, _("This pipeline is not registered with the storage service or has been disabled in the storage service. Please contact an administrator."))
     return render(request, 'administration/general.html', locals())
 
 def version(request):

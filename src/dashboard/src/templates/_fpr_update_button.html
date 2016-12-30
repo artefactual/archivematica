@@ -1,5 +1,7 @@
+{% load i18n %}
+
 <div id='fpr_update_button_container'>
-  <input id='fpr_update_button' type='button' class='btn btn-default' value='Update' />
+  <input id='fpr_update_button' type='button' class='btn btn-default' value='{% trans "Update" %}' />
   <img id='fpr_update_status_indicator' src='/media/images/ajax-loader.gif' style='display:none' />
 </div>
 
@@ -18,7 +20,7 @@ $(document).ready(function() {
         window.location = '/fpr/format';
       },
       error: function(results) {
-        alert('Error updating FPR.');
+        alert('{% trans "Error updating FPR." %}');
         console.log(results);
       }
     });

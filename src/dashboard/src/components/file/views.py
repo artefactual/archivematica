@@ -2,10 +2,8 @@
 import json
 import logging
 import os
-import sys
 
 # Django Core, alphabetical by import source
-from django.conf import settings as django_settings
 from django.views.generic import View
 
 # External dependencies, alphabetical
@@ -19,6 +17,7 @@ import elasticSearchFunctions
 import storageService as storage_service
 
 logger = logging.getLogger('archivematica.dashboard')
+
 
 class TransferFileTags(View):
     """

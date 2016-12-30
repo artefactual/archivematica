@@ -18,7 +18,6 @@
 import json
 import logging
 import socket
-import sys
 import urlparse
 import uuid
 
@@ -28,8 +27,8 @@ from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from django.shortcuts import render
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
+from django.utils.translation import ugettext as _
 
 from tastypie.models import ApiKey
 
@@ -51,7 +50,7 @@ def welcome(request):
         return redirect('main.views.home')
     # Form
     if request.method == 'POST':
-        
+
         # assign UUID to dashboard
         dashboard_uuid = str(uuid.uuid4())
         helpers.set_setting('dashboard_uuid', dashboard_uuid)
@@ -107,7 +106,7 @@ def get_my_ip():
     finally:
         del s
     return client
-    
+
 def fprconnect(request):
     if request.method == 'POST':
         return redirect('installer.views.storagesetup')
@@ -115,16 +114,16 @@ def fprconnect(request):
         return render(request, 'installer/fprconnect.html')
 
 def fprupload(request):
-    response_data = {} 
+    response_data = {}
     agent = Agent.objects.get(pk=2)
     #url = 'https://fpr.archivematica.org/fpr/api/v2/agent/'
     url = django_settings.FPR_URL + 'agent/'
     logging.info("FPR Server URL: {}".format(django_settings.FPR_URL))
-    payload = {'uuid': helpers.get_setting('dashboard_uuid'), 
-               'agentType': 'new install', 
-               'agentName': agent.name, 
-               'clientIP': get_my_ip(), 
-               'agentIdentifierType': agent.identifiertype, 
+    payload = {'uuid': helpers.get_setting('dashboard_uuid'),
+               'agentType': 'new install',
+               'agentName': agent.name,
+               'clientIP': get_my_ip(),
+               'agentIdentifierType': agent.identifiertype,
                'agentIdentifierValue': agent.identifiervalue
               }
     headers = {'Content-Type': 'application/json'}
@@ -135,9 +134,9 @@ def fprupload(request):
         else:
             response_data['result'] = 'failed to fetch from ' + url
     except:
-        response_data['result'] = 'failed to post to ' + url   
+        response_data['result'] = 'failed to post to ' + url
 
-    return helpers.json_response(response_data) 
+    return helpers.json_response(response_data)
 
 def fprdownload(request):
     response_data = {}
@@ -150,7 +149,7 @@ def fprdownload(request):
         logging.warning("FPR update error: {}".format(error))
 
     return helpers.json_response(response_data)
- 
+
 def storagesetup(request):
     # Display the dashboard UUID on the storage service setup page
     dashboard_uuid = helpers.get_setting('dashboard_uuid', None)
@@ -165,7 +164,7 @@ def storagesetup(request):
     if storage_form.is_valid():
         # Set storage service URL
         storage_form.save()
-        if "use_default" in request.POST:
+        if storage_form.cleaned_data['storage_service_use_default_config']:
             shared_path = helpers.get_server_config_value('sharedDirectory')
             # Post first user & API key
             user = User.objects.all()[0]
@@ -179,7 +178,7 @@ def storagesetup(request):
                     api_key=api_key.key,
                 )
             except Exception:
-                messages.warning(request, 'Error creating pipeline: is the storage server running? Please contact an administrator.')
+                messages.warning(request, _('Error creating pipeline: is the storage server running? Please contact an administrator.'))
             else:
                 # Add the storage service URL to the API whitelist
                 ss_url = urlparse.urlparse(helpers.get_setting('storage_service_url'))

@@ -1,11 +1,20 @@
 {% extends "layout.html" %}
+{% load i18n %}
 
 {% block content %}
 
-  <h1>{{ content_type }} not found</h1>
+  <h1>
+    {% blocktrans with content_type=content_type %}
+      {{ content_type }} not found
+    {% endblocktrans %}
+  </h1>
 
   <div class="alert block-message alert-warning">
-    <p>Sorry! The {{ content_type }} that you are trying to {{ verb }} is not here.</p>
+    <p>
+      {% blocktrans with content_type=content_type %}
+        Sorry! The {{ content_type }} that you are trying to {{ verb }} is not here.
+      {% endblocktrans %}
+    </p>
   </div>
 
 {% endblock %}

@@ -1,12 +1,14 @@
+{% load i18n %}
+
 <form id="search_form" class="form-inline">
   <div class="clearfix">
     <div id="search_form_container" class="clearfix"></div>
     <div id="search_form_submit_container" class="clearfix">
-      <span style="margin-left: 10px">Show files?</span>
+      <span style="margin-left: 10px">{% trans "Show files?" %}</span>
       <span style="margin-left: 5px"><input id="id_show_files" type="checkbox" {{ checked_if_in_file_mode }} /></span>
-      <span style="margin-left: 10px">Show AICs?</span>
+      <span style="margin-left: 10px">{% trans "Show AICs?" %}</span>
       <span style="margin-left: 5px"><input id="id_show_aics" type="checkbox" {{ show_aics }} /></span>
-      <input class="btn btn-primary" type="button" id="search_submit" value="Search archival storage" style="margin-left: 10px">
+      <input class="btn btn-primary" type="button" id="search_submit" value="{% trans 'Search archival storage' %}" style="margin-left: 10px">
     </div>
   </div>
 </form>

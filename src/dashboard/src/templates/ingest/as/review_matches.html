@@ -1,10 +1,11 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Review matches{% endblock %}
-{% block h1 %}Review matches{% endblock %}
-{% block page_id %}atk_review{% endblock %}
+{% block title %}{% trans "Review matches" %}{% endblock %}
+{% block h1 %}{% trans "Review matches" %}{% endblock %}
+{% block page_id %}as_review{% endblock %}
 
 {% block extra_css %}
   <link type="text/css" rel="stylesheet" media="all" href="{% static 'css/atk_match.css' %}" />
@@ -12,20 +13,20 @@
 
 {% block content %}
   <ul class="breadcrumb">
-    {% breadcrumb_url 'DIP Upload' 'components.ingest.views_as.ingest_upload_as' uuid %}
+    {% breadcrumb_url 'DIP upload' 'components.ingest.views_as.ingest_upload_as' uuid %}
   </ul>
 
-  <div id='reset_matching'><a class="btn btn-default" href="{% url 'components.ingest.views_as.ingest_upload_as_reset' uuid %}">Restart matching</a>
-  <a class='btn btn-default' href="{% url 'components.ingest.views.ingest_grid' %}">Finish matching</a>
+  <div id='reset_matching'><a class="btn btn-default" href="{% url 'components.ingest.views_as.ingest_upload_as_reset' uuid %}">{% trans "Restart matching" %}</a>
+  <a class='btn btn-default' href="{% url 'components.ingest.views.ingest_grid' %}">{% trans "Finish matching" %}</a>
 
   <table class="table">
     <thead>
       <tr>
-        <th>File</th>
-        <th>Level</th>
-        <th>Title</th>
-        <th>Identifier</th>
-        <th>Dates</th>
+        <th>{% trans "File" %}</th>
+        <th>{% trans "Level" %}</th>
+        <th>{% trans "Title" %}</th>
+        <th>{% trans "Identifier" %}</th>
+        <th>{% trans "Dates" %}</th>
       </tr>
 
     {% for match in matches %}

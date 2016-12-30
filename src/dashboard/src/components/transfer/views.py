@@ -24,11 +24,9 @@ from uuid import uuid4
 
 from django.db.models import Max
 from django.conf import settings as django_settings
-from django.contrib import messages
-from django.core.urlresolvers import reverse
-from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from django.utils.safestring import mark_safe
+from django.shortcuts import render, redirect
+from django.utils.translation import ugettext as _
 
 from contrib.mcp.client import MCPClient
 from contrib import utils
@@ -55,7 +53,7 @@ def transfer_source_locations(request):
     try:
         return helpers.json_response(storage_service.get_location(purpose="TS"))
     except:
-        message = 'Error retrieving source directories'
+        message = _('Error retrieving source directories')
         logger.exception(message)
         response = {
             'message': message,
@@ -248,10 +246,10 @@ def rename_metadata_set(request, set_uuid, placeholder_id):
         response['status'] = 'Success'
     except KeyError:
         response['status'] = 'Failure'
-        response['message'] = 'Updated path was not provided.'
+        response['message'] = _('Updated path was not provided.')
     except Exception as e:
         if not e.message:
-            message = 'Unable to update transfer metadata set: contact administrator.'
+            message = _('Unable to update transfer metadata set: contact administrator.')
         else:
             message = e.message
         response['status'] = 'Failure'

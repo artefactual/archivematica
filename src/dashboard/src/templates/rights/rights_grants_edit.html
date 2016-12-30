@@ -1,5 +1,6 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
+{% load i18n %}
 {% load static %}
 
 {% block js %}
@@ -13,37 +14,44 @@
   <div class="row">
     <div class="col-md-12">
 
+      {% trans "Ingest" as ingest_label %}
+      {% trans "Rights" as rights_label %}
+      {% trans "Transfer" as transfer_label %}
+      {% trans "Edit" as edit_label %}
+      {% trans "Add" as add_label %}
+
       <ul class="breadcrumb">
         {% if section == 'ingest' %}
-          {% breadcrumb_url 'Ingest' 'components.ingest.views.ingest_grid' %}
+          {% breadcrumb_url ingest_label 'components.ingest.views.ingest_grid' %}
           {% breadcrumb_url name 'components.unit.views.detail' 'ingest' uuid %}
-          {% breadcrumb_url 'Rights' 'components.rights.views.ingest_rights_list' uuid %}
+          {% breadcrumb_url rights_label 'components.rights.views.ingest_rights_list' uuid %}
         {% else %}
-          {% breadcrumb_url 'Transfer' 'components.transfer.views.grid' %}
+          {% breadcrumb_url transfer_label 'components.transfer.views.grid' %}
           {% breadcrumb_url name 'components.unit.views.detail' 'transfer' uuid %}
-          {% breadcrumb_url 'Rights' 'components.rights.views.transfer_rights_list' uuid %}
+          {% breadcrumb_url rights_label 'components.rights.views.transfer_rights_list' uuid %}
         {% endif %}
         {% if id %}
-          {% breadcrumb 'Edit' %}
+          {% breadcrumb edit_label %}
         {% else %}
-          {% breadcrumb 'Add' %}
+          {% breadcrumb add_label %}
         {% endif %}
       </ul>
 
-      <h1>Rights<br /><small>{{ name }}</small></h1>
+      <h1>
+        {{ rights_label }}<br />
+        <small>{{ name }}</small>
+      </h1>
 
       {% if request.method == 'POST' %}
         <div class="alert alert-success">
-          <p><strong>Saved!</p>
+          <p><strong>{% trans "Saved" %}</strong></p>
         </div>
       {% endif %}
 
       {% if new_content_type_created %}
           <div class="alert alert-info">
-            {% if new_content_type_created == 'Other' %}
-              <p>You may now add additional information such as document identifers and notes.</p>
-            {% else %}
-              <p>You may now add additional {{ new_content_type_created|lower }} information such as document identifers and notes.</p>
+            {% if new_content_type_created %}
+              <p>{% trans "You may now add additional information such as document identifers and notes." %}</p>
             {% endif %}
           </div>
       {% endif %}
@@ -69,15 +77,15 @@
             <div class='repeating-ajax-data-row'>
               <select name='new_rights_restriction_{{ form.instance.pk }}' class="form-control">
                 <option></option>
-                <option value='Allow'>Allow</option>
-                <option value='Disallow'>Disallow</option>
-                <option value='Conditional'>Conditional</option>
+                <option value='Allow'>{% trans "Allow" %}</option>
+                <option value='Disallow'>{% trans "Disallow" %}</option>
+                <option value='Conditional'>{% trans "Conditional" %}</option>
               </select>
             </div>
           </div>
 
           <div class='repeating-ajax-data-fieldset'>
-            <label>Grant/restriction note</label>
+            <label>{% trans "Grant/restriction note" %}</label>
 
             <div id='rightsfields_{{ form.instance.pk }}' class='repeating-data'></div>
 
@@ -96,14 +104,14 @@
         {% endfor %}
 
         <div class="actions">
-          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
 
-          <button type="submit" name='next_button' value='Next' class="btn btn-primary">Done</button>
+          <button type="submit" name='next_button' value='Next' class="btn btn-primary">{% trans "Done" %}</button>
 
           {% if section == 'ingest' %}
-            <a href="{% url 'components.rights.views.ingest_rights_list' uuid %}" class="btn btn-default">Cancel</a>
+            <a href="{% url 'components.rights.views.ingest_rights_list' uuid %}" class="btn btn-default">{% trans "Cancel" %}</a>
           {% else %}
-             <a href="{% url 'components.rights.views.transfer_rights_list' uuid %}" class="btn btn-default">Cancel</a>
+             <a href="{% url 'components.rights.views.transfer_rights_list' uuid %}" class="btn btn-default">{% trans "Cancel" %}</a>
           {% endif %}
         </div>
 
