@@ -29,6 +29,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.translation import ugettext as _, ugettext_lazy as _l
 
 # Third party dependencies, alphabetical by import source
 from django_extensions.db.fields import UUIDField
@@ -47,6 +48,7 @@ METADATA_STATUS = (
     (METADATA_STATUS_REINGEST, 'parsed from reingest'),
     (METADATA_STATUS_UPDATED, 'updated'),  # Might be updated for both, on rereingest
 )
+
 
 # CUSTOM FIELDS
 
@@ -74,16 +76,15 @@ class BlobTextField(models.TextField):
 @receiver(post_save, sender=User)
 def create_user_agent(sender, instance, **kwargs):
     LOGGER.debug('Caught post_save signal from %s with instance %r', sender, instance)
-    agent, created = Agent.objects.update_or_create(userprofile__user=instance,
-        defaults={
-            'identifiertype': 'Archivematica user pk',
-            'identifiervalue': str(instance.id),
-            'name': 'username="{u.username}", first_name="{u.first_name}", last_name="{u.last_name}"'.format(u=instance),
-            'agenttype': 'Archivematica user',
-        })
+    agent, created = Agent.objects.update_or_create(userprofile__user=instance, defaults={
+        'identifiertype': 'Archivematica user pk',
+        'identifiervalue': str(instance.id),
+        'name': 'username="{u.username}", first_name="{u.first_name}", last_name="{u.last_name}"'.format(u=instance),
+        'agenttype': 'Archivematica user',
+    })
     LOGGER.debug('Agent: %s; created: %s', agent, created)
     if created:
-        UserProfile.objects.update_or_create(user=instance, defaults={'agent':agent})
+        UserProfile.objects.update_or_create(user=instance, defaults={'agent': agent})
 
 
 # MODELS
@@ -138,7 +139,7 @@ class Access(models.Model):
             jobs = main.models.Job.objects.filter(sipuuid=self.sipuuid, subjobof='')
             return utils.get_directory_name_from_job(jobs)
         except:
-            return 'N/A'
+            return _('N/A')
 
 
 class DublinCore(models.Model):
@@ -147,19 +148,19 @@ class DublinCore(models.Model):
     metadataappliestotype = models.ForeignKey('MetadataAppliesToType', db_column='metadataAppliesToType')
     metadataappliestoidentifier = models.CharField(max_length=36, blank=True, null=True, default=None, db_column='metadataAppliesToidentifier')  # Foreign key to SIPs or Transfers
     title = models.TextField(db_column='title', blank=True)
-    is_part_of = models.TextField(db_column='isPartOf', verbose_name='Part of AIC', help_text='Optional: leave blank if unsure', blank=True)
+    is_part_of = models.TextField(db_column='isPartOf', verbose_name=_l('Part of AIC'), help_text=_l('Optional: leave blank if unsure'), blank=True)
     creator = models.TextField(db_column='creator', blank=True)
     subject = models.TextField(db_column='subject', blank=True)
     description = models.TextField(db_column='description', blank=True)
     publisher = models.TextField(db_column='publisher', blank=True)
     contributor = models.TextField(db_column='contributor', blank=True)
-    date = models.TextField(help_text='Use ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)', db_column='date', blank=True)
+    date = models.TextField(help_text=_l('Use ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)'), db_column='date', blank=True)
     type = models.TextField(db_column='type', blank=True)
     format = models.TextField(db_column='format', blank=True)
     identifier = models.TextField(db_column='identifier', blank=True)
     source = models.TextField(db_column='source', blank=True)
     relation = models.TextField(db_column='relation', blank=True)
-    language = models.TextField(help_text='Use ISO 639', db_column='language', blank=True)
+    language = models.TextField(help_text=_l('Use ISO 639'), db_column='language', blank=True)
     coverage = models.TextField(db_column='coverage', blank=True)
     rights = models.TextField(db_column='rights', blank=True)
     status = models.CharField(db_column='status', max_length=8, choices=METADATA_STATUS, default=METADATA_STATUS_ORIGINAL)
@@ -171,7 +172,7 @@ class DublinCore(models.Model):
         if self.title:
             return u'%s' % self.title
         else:
-            return u'Untitled'
+            return _('Untitled')
 
 
 class MetadataAppliesToType(models.Model):
@@ -208,10 +209,11 @@ class Event(models.Model):
         db_table = u'Events'
 
     def __unicode__(self):
-        return u"{event_type} event on {file} ({event_detail})".format(
-            event_type=self.event_type,
-            file=self.file_uuid,
-            event_detail=self.event_detail)
+        return _('%(type)s event on %(file_uuid)s (%(detail)s)') % {
+            'type': self.even_type,
+            'file_uuid': self.file_uuid,
+            'detail': self.event_detail
+        }
 
 
 class Derivation(models.Model):
@@ -229,10 +231,11 @@ class Derivation(models.Model):
         db_table = u'Derivations'
 
     def __unicode__(self):
-        return u'{derived} derived from {src} in {event}'.format(
-            src=self.source_file,
-            derived=self.derived_file,
-            event=self.event)
+        return _('%(derived)s derived from %(src)s in %(event)s') % {
+            'derived': self.derived_file,
+            'src': self.source_file,
+            'event': self.event
+        }
 
 
 class UnitHiddenManager(models.Manager):
@@ -253,10 +256,10 @@ class SIP(models.Model):
     hidden = models.BooleanField(default=False)
     aip_filename = models.TextField(db_column='aipFilename', null=True, blank=True)
     SIP_TYPE_CHOICES = (
-        ('SIP', 'SIP'),
-        ('AIC', 'AIC'),
-        ('AIP-REIN', 'Reingested AIP'),
-        ('AIC-REIN', 'Reingested AIC'),
+        ('SIP', _l('SIP')),
+        ('AIC', _l('AIC')),
+        ('AIP-REIN', _l('Reingested AIP')),
+        ('AIC-REIN', _l('Reingested AIC')),
     )
     sip_type = models.CharField(max_length=8, choices=SIP_TYPE_CHOICES, db_column='sipType', default='SIP')
 
@@ -270,7 +273,8 @@ class SIP(models.Model):
         db_table = u'SIPs'
 
     def __unicode__(self):
-        return u'SIP: {path}'.format(path=self.currentpath)
+        return _('SIP: {path}') % {'path': self.currentpath}
+
 
 class TransferManager(models.Manager):
     def is_hidden(self, uuid):
@@ -278,6 +282,7 @@ class TransferManager(models.Manager):
             return Transfer.objects.get(uuid__exact=uuid).hidden is True
         except:
             return False
+
 
 class Transfer(models.Model):
     """ Information on Transfer units. """
@@ -314,12 +319,13 @@ class SIPArrange(models.Model):
     aip_created = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name = "Arranged SIPs"
+        verbose_name = _l("Arranged SIPs")
 
     def __unicode__(self):
-        return u'{original} -> {arrange}'.format(
-            original=self.original_path,
-            arrange=self.arrange_path)
+        return _('%(original)s -> %(arrange)s') % {
+            'original': self.original_path,
+            'arrange': self.arrange_path
+        }
 
 
 class SIPArrangeAccessMapping(models.Model):
@@ -362,10 +368,11 @@ class File(models.Model):
         db_table = u'Files'
 
     def __unicode__(self):
-        return u'{uuid}: {originallocation} now at {currentlocation}'.format(
-            uuid=self.uuid,
-            originallocation=self.originallocation,
-            currentlocation=self.currentlocation)
+        return _('%(uuid)s: %(originallocation)s now at %(currentlocation)s') % {
+            'uuid': self.uuid,
+            'originallocation': self.originallocation,
+            'currentlocation': self.currentlocation
+        }
 
 
 class FileFormatVersion(models.Model):
@@ -382,7 +389,10 @@ class FileFormatVersion(models.Model):
         db_table = u'FilesIdentifiedIDs'
 
     def __unicode__(self):
-        return u'{file} is {format}'.format(file=self.file_uuid, format=self.format_version)
+        return u'%(file)s is %(format)s' % {
+            'file': self.file_uuid,
+            'format': self.format_version
+        }
 
 
 class Job(models.Model):
@@ -432,17 +442,10 @@ class Task(models.Model):
 class Agent(models.Model):
     """ PREMIS Agents created for the system.  """
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
-    identifiertype = models.TextField(verbose_name='Agent Identifier Type',
-        null=True, db_column='agentIdentifierType')
-    identifiervalue = models.TextField(verbose_name='Agent Identifier Value',
-        help_text='Used for premis:agentIdentifierValue and premis:linkingAgentIdentifierValue in the METS file.',
-        null=True, blank=False, db_column='agentIdentifierValue')
-    name = models.TextField(verbose_name='Agent Name',
-        help_text='Used for premis:agentName in the METS file.',
-        null=True, blank=False, db_column='agentName')
-    agenttype = models.TextField(verbose_name='Agent Type',
-        help_text='Used for premis:agentType in the METS file.',
-        db_column='agentType', default='organization')
+    identifiertype = models.TextField(verbose_name=_l('Agent Identifier Type'), null=True, db_column='agentIdentifierType')
+    identifiervalue = models.TextField(verbose_name=_l('Agent Identifier Value'), help_text=_l('Used for premis:agentIdentifierValue and premis:linkingAgentIdentifierValue in the METS file.'), null=True, blank=False, db_column='agentIdentifierValue')
+    name = models.TextField(verbose_name=_l('Agent Name'), help_text=_l('Used for premis:agentName in the METS file.'), null=True, blank=False, db_column='agentName')
+    agenttype = models.TextField(verbose_name=_l('Agent Type'), help_text=_l('Used for premis:agentType in the METS file.'), db_column='agentType', default='organization')
 
     def __str__(self):
         return u'{a.agenttype}; {a.identifiertype}: {a.identifiervalue}; {a.name}'.format(a=self)
@@ -458,6 +461,7 @@ class UserProfile(models.Model):
 
     class Meta:
         db_table = u'main_userprofile'
+
 
 class Report(models.Model):
     """ Reports of failures to display. """
@@ -476,118 +480,131 @@ class RightsStatement(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     metadataappliestotype = models.ForeignKey(MetadataAppliesToType, to_field='id', db_column='metadataAppliesToType')
     metadataappliestoidentifier = models.CharField(max_length=36, blank=True, db_column='metadataAppliesToidentifier')
-    rightsstatementidentifiertype = models.TextField(db_column='rightsStatementIdentifierType', blank=True, verbose_name='Type')
-    rightsstatementidentifiervalue = models.TextField(db_column='rightsStatementIdentifierValue', blank=True, verbose_name='Value')
-    rightsholder = models.IntegerField(db_column='fkAgent', default=0, verbose_name='Rights holder')
+    rightsstatementidentifiertype = models.TextField(db_column='rightsStatementIdentifierType', blank=True, verbose_name=_l('Type'))
+    rightsstatementidentifiervalue = models.TextField(db_column='rightsStatementIdentifierValue', blank=True, verbose_name=_l('Value'))
+    rightsholder = models.IntegerField(db_column='fkAgent', default=0, verbose_name=_l('Rights holder'))
     RIGHTS_BASIS_CHOICES = (
-        ('Copyright', 'Copyright'),
-        ('Statute', 'Statute'),
-        ('License', 'License'),
-        ('Donor', 'Donor'),
-        ('Policy', 'Policy'),
-        ('Other', 'Other')
+        ('Copyright', _l('Copyright')),
+        ('Statute', _l('Statute')),
+        ('License', _l('License')),
+        ('Donor', _l('Donor')),
+        ('Policy', _l('Policy')),
+        ('Other', _l('Other')),
     )
-    rightsbasis = models.CharField(db_column='rightsBasis', choices=RIGHTS_BASIS_CHOICES, max_length=64, verbose_name='Basis', default='Copyright')
+    rightsbasis = models.CharField(db_column='rightsBasis', choices=RIGHTS_BASIS_CHOICES, max_length=64, verbose_name=_l('Basis'), default='Copyright')
     status = models.CharField(db_column='status', max_length=8, choices=METADATA_STATUS, default=METADATA_STATUS_ORIGINAL)
 
     class Meta:
         db_table = u'RightsStatement'
-        verbose_name = 'Rights Statement'
+        verbose_name = _l('Rights Statement')
 
     def __unicode__(self):
-        return u'{basis} for {unit} ({id})'.format(basis=self.rightsbasis, unit=self.metadataappliestoidentifier, id=self.id)
+        return _('%(basis)s for %(unit)s (%(id)s)') % {
+            'basis': self.rightsbasis,
+            'unit': self.metadataappliestoidentifier,
+            'id': self.id
+        }
+
 
 class RightsStatementCopyright(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatement = models.ForeignKey(RightsStatement, db_column='fkRightsStatement')
     PREMIS_COPYRIGHT_STATUSES = (
-        ('copyrighted', 'copyrighted'),
-        ('public domain', 'public domain'),
-        ('unknown', 'unknown'),
+        ('copyrighted', _l('copyrighted')),
+        ('public domain', _l('public domain')),
+        ('unknown', _l('unknown')),
     )
-    copyrightstatus = models.TextField(db_column='copyrightStatus', blank=False, verbose_name='Copyright status', choices=PREMIS_COPYRIGHT_STATUSES, default='unknown')
-    copyrightjurisdiction = models.TextField(db_column='copyrightJurisdiction', verbose_name='Copyright jurisdiction')
-    copyrightstatusdeterminationdate = models.TextField(db_column='copyrightStatusDeterminationDate', blank=True, null=True, verbose_name='Copyright determination date', help_text='Use ISO 8061 (YYYY-MM-DD)')
-    copyrightapplicablestartdate = models.TextField(db_column='copyrightApplicableStartDate', blank=True, null=True, verbose_name='Copyright start date', help_text='Use ISO 8061 (YYYY-MM-DD)')
-    copyrightapplicableenddate = models.TextField(db_column='copyrightApplicableEndDate', blank=True, null=True, verbose_name='Copyright end date', help_text='Use ISO 8061 (YYYY-MM-DD)')
-    copyrightenddateopen = models.BooleanField(default=False, db_column='copyrightApplicableEndDateOpen', verbose_name='Open End Date', help_text='Indicate end date is open')
+    copyrightstatus = models.TextField(db_column='copyrightStatus', blank=False, verbose_name=_l('Copyright status'), choices=PREMIS_COPYRIGHT_STATUSES, default='unknown')
+    copyrightjurisdiction = models.TextField(db_column='copyrightJurisdiction', verbose_name=_l('Copyright jurisdiction'))
+    copyrightstatusdeterminationdate = models.TextField(db_column='copyrightStatusDeterminationDate', blank=True, null=True, verbose_name=_l('Copyright determination date'), help_text=_l('Use ISO 8061 (YYYY-MM-DD)'))
+    copyrightapplicablestartdate = models.TextField(db_column='copyrightApplicableStartDate', blank=True, null=True, verbose_name=_l('Copyright start date'), help_text=_l('Use ISO 8061 (YYYY-MM-DD)'))
+    copyrightapplicableenddate = models.TextField(db_column='copyrightApplicableEndDate', blank=True, null=True, verbose_name=_l('Copyright end date'), help_text=_l('Use ISO 8061 (YYYY-MM-DD)'))
+    copyrightenddateopen = models.BooleanField(default=False, db_column='copyrightApplicableEndDateOpen', verbose_name=_l('Open End Date'), help_text=_l('Indicate end date is open'))
 
     class Meta:
         db_table = u'RightsStatementCopyright'
-        verbose_name = 'Rights: Copyright'
+        verbose_name = _l('Rights: Copyright')
+
 
 class RightsStatementCopyrightDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightscopyright = models.ForeignKey(RightsStatementCopyright, db_column='fkRightsStatementCopyrightInformation')
-    copyrightdocumentationidentifiertype = models.TextField(db_column='copyrightDocumentationIdentifierType', verbose_name='Copyright document identification type')
-    copyrightdocumentationidentifiervalue = models.TextField(db_column='copyrightDocumentationIdentifierValue', verbose_name='Copyright document identification value')
-    copyrightdocumentationidentifierrole = models.TextField(db_column='copyrightDocumentationIdentifierRole', null=True, blank=True, verbose_name='Copyright document identification role')
+    copyrightdocumentationidentifiertype = models.TextField(db_column='copyrightDocumentationIdentifierType', verbose_name=_l('Copyright document identification type'))
+    copyrightdocumentationidentifiervalue = models.TextField(db_column='copyrightDocumentationIdentifierValue', verbose_name=_l('Copyright document identification value'))
+    copyrightdocumentationidentifierrole = models.TextField(db_column='copyrightDocumentationIdentifierRole', null=True, blank=True, verbose_name=_l('Copyright document identification role'))
 
     class Meta:
         db_table = u'RightsStatementCopyrightDocumentationIdentifier'
-        verbose_name = 'Rights: Copyright: Docs ID'
+        verbose_name = _l('Rights: Copyright: Docs ID')
+
 
 class RightsStatementCopyrightNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightscopyright = models.ForeignKey(RightsStatementCopyright, db_column='fkRightsStatementCopyrightInformation')
-    copyrightnote = models.TextField(db_column='copyrightNote', verbose_name='Copyright note')
+    copyrightnote = models.TextField(db_column='copyrightNote', verbose_name=_l('Copyright note'))
 
     class Meta:
         db_table = u'RightsStatementCopyrightNote'
-        verbose_name = 'Rights: Copyright: Note'
+        verbose_name = _l('Rights: Copyright: Note')
+
 
 class RightsStatementLicense(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatement = models.ForeignKey(RightsStatement, db_column='fkRightsStatement')
-    licenseterms = models.TextField(db_column='licenseTerms', blank=True, null=True, verbose_name='License terms')
-    licenseapplicablestartdate = models.TextField(db_column='licenseApplicableStartDate', blank=True, null=True, verbose_name='License start date', help_text='Use ISO 8061 (YYYY-MM-DD)')
-    licenseapplicableenddate = models.TextField(db_column='licenseApplicableEndDate', blank=True, null=True, verbose_name='License end date', help_text='Use ISO 8061 (YYYY-MM-DD)')
-    licenseenddateopen = models.BooleanField(default=False, db_column='licenseApplicableEndDateOpen', verbose_name='Open End Date', help_text='Indicate end date is open')
+    licenseterms = models.TextField(db_column='licenseTerms', blank=True, null=True, verbose_name=_l('License terms'))
+    licenseapplicablestartdate = models.TextField(db_column='licenseApplicableStartDate', blank=True, null=True, verbose_name=_l('License start date'), help_text=_l('Use ISO 8061 (YYYY-MM-DD)'))
+    licenseapplicableenddate = models.TextField(db_column='licenseApplicableEndDate', blank=True, null=True, verbose_name=_l('License end date'), help_text=_l('Use ISO 8061 (YYYY-MM-DD)'))
+    licenseenddateopen = models.BooleanField(default=False, db_column='licenseApplicableEndDateOpen', verbose_name=_l('Open End Date'), help_text=_l('Indicate end date is open'))
 
     class Meta:
         db_table = u'RightsStatementLicense'
-        verbose_name = 'Rights: License'
+        verbose_name = _l('Rights: License')
+
 
 class RightsStatementLicenseDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementlicense = models.ForeignKey(RightsStatementLicense, db_column='fkRightsStatementLicense')
-    licensedocumentationidentifiertype = models.TextField(db_column='licenseDocumentationIdentifierType', verbose_name='License documentation identification type')
-    licensedocumentationidentifiervalue = models.TextField(db_column='licenseDocumentationIdentifierValue', verbose_name='License documentation identification value')
-    licensedocumentationidentifierrole = models.TextField(db_column='licenseDocumentationIdentifierRole', blank=True, null=True, verbose_name='License document identification role')
+    licensedocumentationidentifiertype = models.TextField(db_column='licenseDocumentationIdentifierType', verbose_name=_l('License documentation identification type'))
+    licensedocumentationidentifiervalue = models.TextField(db_column='licenseDocumentationIdentifierValue', verbose_name=_l('License documentation identification value'))
+    licensedocumentationidentifierrole = models.TextField(db_column='licenseDocumentationIdentifierRole', blank=True, null=True, verbose_name=_l('License document identification role'))
 
     class Meta:
         db_table = u'RightsStatementLicenseDocumentationIdentifier'
-        verbose_name = 'Rights: License: Docs ID'
+        verbose_name = _l('Rights: License: Docs ID')
+
 
 class RightsStatementLicenseNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementlicense = models.ForeignKey(RightsStatementLicense, db_column='fkRightsStatementLicense')
-    licensenote = models.TextField(db_column='licenseNote', verbose_name='License note')
+    licensenote = models.TextField(db_column='licenseNote', verbose_name=_l('License note'))
 
     class Meta:
         db_table = u'RightsStatementLicenseNote'
-        verbose_name = 'Rights: License: Note'
+        verbose_name = _l('Rights: License: Note')
+
 
 class RightsStatementRightsGranted(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatement = models.ForeignKey(RightsStatement, db_column='fkRightsStatement')
     act = models.TextField(db_column='act')
-    startdate = models.TextField(db_column='startDate', verbose_name='Start', help_text='Use ISO 8061 (YYYY-MM-DD)', blank=True, null=True)
-    enddate = models.TextField(db_column='endDate', verbose_name='End', help_text='Use ISO 8061 (YYYY-MM-DD)', blank=True, null=True)
-    enddateopen = models.BooleanField(default=False, db_column='endDateOpen', verbose_name='Open End Date', help_text='Indicate end date is open')
+    startdate = models.TextField(db_column='startDate', verbose_name=_l('Start'), help_text=_l('Use ISO 8061 (YYYY-MM-DD)'), blank=True, null=True)
+    enddate = models.TextField(db_column='endDate', verbose_name=_l('End'), help_text=_l('Use ISO 8061 (YYYY-MM-DD)'), blank=True, null=True)
+    enddateopen = models.BooleanField(default=False, db_column='endDateOpen', verbose_name=_l('Open End Date'), help_text=_l('Indicate end date is open'))
 
     class Meta:
         db_table = u'RightsStatementRightsGranted'
-        verbose_name = 'Rights: Granted'
+        verbose_name = _l('Rights: Granted')
+
 
 class RightsStatementRightsGrantedNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsgranted = models.ForeignKey(RightsStatementRightsGranted, related_name='notes', db_column='fkRightsStatementRightsGranted')
-    rightsgrantednote = models.TextField(db_column='rightsGrantedNote', verbose_name='Rights note')
+    rightsgrantednote = models.TextField(db_column='rightsGrantedNote', verbose_name=_l('Rights note'))
 
     class Meta:
         db_table = u'RightsStatementRightsGrantedNote'
-        verbose_name = 'Rights: Granted: Note'
+        verbose_name = _l('Rights: Granted: Note')
+
 
 class RightsStatementRightsGrantedRestriction(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
@@ -596,83 +613,90 @@ class RightsStatementRightsGrantedRestriction(models.Model):
 
     class Meta:
         db_table = u'RightsStatementRightsGrantedRestriction'
-        verbose_name = 'Rights: Granted: Restriction'
+        verbose_name = _l('Rights: Granted: Restriction')
+
 
 class RightsStatementStatuteInformation(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatement = models.ForeignKey(RightsStatement, db_column='fkRightsStatement')
-    statutejurisdiction = models.TextField(db_column='statuteJurisdiction', verbose_name='Statute jurisdiction')
-    statutecitation = models.TextField(db_column='statuteCitation', verbose_name='Statute citation')
-    statutedeterminationdate = models.TextField(db_column='statuteInformationDeterminationDate', verbose_name='Statute determination date', help_text='Use ISO 8061 (YYYY-MM-DD)', blank=True, null=True)
-    statuteapplicablestartdate = models.TextField(db_column='statuteApplicableStartDate', blank=True, null=True, verbose_name='Statute start date', help_text='Use ISO 8061 (YYYY-MM-DD)')
-    statuteapplicableenddate = models.TextField(db_column='statuteApplicableEndDate', blank=True, null=True, verbose_name='Statute end date', help_text='Use ISO 8061 (YYYY-MM-DD)')
-    statuteenddateopen = models.BooleanField(default=False, db_column='statuteApplicableEndDateOpen', verbose_name='Open End Date', help_text='Indicate end date is open')
+    statutejurisdiction = models.TextField(db_column='statuteJurisdiction', verbose_name=_l('Statute jurisdiction'))
+    statutecitation = models.TextField(db_column='statuteCitation', verbose_name=_l('Statute citation'))
+    statutedeterminationdate = models.TextField(db_column='statuteInformationDeterminationDate', verbose_name=_l('Statute determination date'), help_text=_l('Use ISO 8061 (YYYY-MM-DD)'), blank=True, null=True)
+    statuteapplicablestartdate = models.TextField(db_column='statuteApplicableStartDate', blank=True, null=True, verbose_name=_l('Statute start date'), help_text=_l('Use ISO 8061 (YYYY-MM-DD)'))
+    statuteapplicableenddate = models.TextField(db_column='statuteApplicableEndDate', blank=True, null=True, verbose_name=_l('Statute end date'), help_text=_l('Use ISO 8061 (YYYY-MM-DD)'))
+    statuteenddateopen = models.BooleanField(default=False, db_column='statuteApplicableEndDateOpen', verbose_name=_l('Open End Date'), help_text=_l('Indicate end date is open'))
 
     class Meta:
         db_table = u'RightsStatementStatuteInformation'
-        verbose_name = 'Rights: Statute'
+        verbose_name = _l('Rights: Statute')
+
 
 class RightsStatementStatuteInformationNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatementstatute = models.ForeignKey(RightsStatementStatuteInformation, db_column='fkRightsStatementStatuteInformation')
-    statutenote = models.TextField(db_column='statuteNote', verbose_name='Statute note')
+    statutenote = models.TextField(db_column='statuteNote', verbose_name=_l('Statute note'))
 
     class Meta:
         db_table = u'RightsStatementStatuteInformationNote'
-        verbose_name = 'Rights: Statute: Note'
+        verbose_name = _l('Rights: Statute: Note')
+
 
 class RightsStatementStatuteDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementstatute = models.ForeignKey(RightsStatementStatuteInformation, db_column='fkRightsStatementStatuteInformation')
-    statutedocumentationidentifiertype = models.TextField(db_column='statuteDocumentationIdentifierType', verbose_name='Statute document identification type')
-    statutedocumentationidentifiervalue = models.TextField(db_column='statuteDocumentationIdentifierValue', verbose_name='Statute document identification value')
-    statutedocumentationidentifierrole = models.TextField(db_column='statuteDocumentationIdentifierRole', blank=True, null=True, verbose_name='Statute document identification role')
+    statutedocumentationidentifiertype = models.TextField(db_column='statuteDocumentationIdentifierType', verbose_name=_l('Statute document identification type'))
+    statutedocumentationidentifiervalue = models.TextField(db_column='statuteDocumentationIdentifierValue', verbose_name=_l('Statute document identification value'))
+    statutedocumentationidentifierrole = models.TextField(db_column='statuteDocumentationIdentifierRole', blank=True, null=True, verbose_name=_l('Statute document identification role'))
 
     class Meta:
         db_table = u'RightsStatementStatuteDocumentationIdentifier'
-        verbose_name = 'Rights: Statute: Docs ID'
+        verbose_name = _l('Rights: Statute: Docs ID')
+
 
 class RightsStatementOtherRightsInformation(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatement = models.ForeignKey(RightsStatement, db_column='fkRightsStatement')
-    otherrightsbasis = models.TextField(db_column='otherRightsBasis', verbose_name='Other rights basis', default='Other')
-    otherrightsapplicablestartdate = models.TextField(db_column='otherRightsApplicableStartDate', blank=True, null=True, verbose_name='Other rights start date', help_text='Use ISO 8061 (YYYY-MM-DD)')
-    otherrightsapplicableenddate = models.TextField(db_column='otherRightsApplicableEndDate', blank=True, null=True, verbose_name='Other rights end date', help_text='Use ISO 8061 (YYYY-MM-DD)')
-    otherrightsenddateopen = models.BooleanField(default=False, db_column='otherRightsApplicableEndDateOpen', verbose_name='Open End Date', help_text='Indicate end date is open')
+    otherrightsbasis = models.TextField(db_column='otherRightsBasis', verbose_name=_l('Other rights basis'), default='Other')
+    otherrightsapplicablestartdate = models.TextField(db_column='otherRightsApplicableStartDate', blank=True, null=True, verbose_name=_l('Other rights start date'), help_text=_l('Use ISO 8061 (YYYY-MM-DD)'))
+    otherrightsapplicableenddate = models.TextField(db_column='otherRightsApplicableEndDate', blank=True, null=True, verbose_name=_l('Other rights end date'), help_text=_l('Use ISO 8061 (YYYY-MM-DD)'))
+    otherrightsenddateopen = models.BooleanField(default=False, db_column='otherRightsApplicableEndDateOpen', verbose_name=_l('Open End Date'), help_text=_l('Indicate end date is open'))
 
     class Meta:
         db_table = u'RightsStatementOtherRightsInformation'
-        verbose_name = 'Rights: Other'
+        verbose_name = _l('Rights: Other')
+
 
 class RightsStatementOtherRightsDocumentationIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk', editable=False)
     rightsstatementotherrights = models.ForeignKey(RightsStatementOtherRightsInformation, db_column='fkRightsStatementOtherRightsInformation')
-    otherrightsdocumentationidentifiertype = models.TextField(db_column='otherRightsDocumentationIdentifierType', verbose_name='Other rights document identification type')
-    otherrightsdocumentationidentifiervalue = models.TextField(db_column='otherRightsDocumentationIdentifierValue', verbose_name='Other right document identification value')
-    otherrightsdocumentationidentifierrole = models.TextField(db_column='otherRightsDocumentationIdentifierRole', blank=True, null=True, verbose_name='Other rights document identification role')
+    otherrightsdocumentationidentifiertype = models.TextField(db_column='otherRightsDocumentationIdentifierType', verbose_name=_l('Other rights document identification type'))
+    otherrightsdocumentationidentifiervalue = models.TextField(db_column='otherRightsDocumentationIdentifierValue', verbose_name=_l('Other right document identification value'))
+    otherrightsdocumentationidentifierrole = models.TextField(db_column='otherRightsDocumentationIdentifierRole', blank=True, null=True, verbose_name=_l('Other rights document identification role'))
 
     class Meta:
         db_table = u'RightsStatementOtherRightsDocumentationIdentifier'
-        verbose_name = 'Rights: Other: Docs ID'
+        verbose_name = _l('Rights: Other: Docs ID')
+
 
 class RightsStatementOtherRightsInformationNote(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatementotherrights = models.ForeignKey(RightsStatementOtherRightsInformation, db_column='fkRightsStatementOtherRightsInformation')
-    otherrightsnote = models.TextField(db_column='otherRightsNote', verbose_name='Other rights note')
+    otherrightsnote = models.TextField(db_column='otherRightsNote', verbose_name=_l('Other rights note'))
 
     class Meta:
         db_table = u'RightsStatementOtherRightsNote'
-        verbose_name = 'Rights: Other: Note'
+        verbose_name = _l('Rights: Other: Note')
+
 
 class RightsStatementLinkingAgentIdentifier(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     rightsstatement = models.ForeignKey(RightsStatement, db_column='fkRightsStatement')
-    linkingagentidentifiertype = models.TextField(db_column='linkingAgentIdentifierType', verbose_name='Linking Agent', blank=True)
-    linkingagentidentifiervalue = models.TextField(db_column='linkingAgentIdentifierValue', verbose_name='Linking Agent Value', blank=True)
+    linkingagentidentifiertype = models.TextField(db_column='linkingAgentIdentifierType', verbose_name=_l('Linking Agent'), blank=True)
+    linkingagentidentifiervalue = models.TextField(db_column='linkingAgentIdentifierValue', verbose_name=_l('Linking Agent Value'), blank=True)
 
     class Meta:
         db_table = u'RightsStatementLinkingAgentIdentifier'
-        verbose_name = 'Rights: Agent'
+        verbose_name = _l('Rights: Agent')
 
 
 # MCP data interoperability
@@ -688,9 +712,10 @@ class MicroServiceChain(models.Model):
         db_table = u'MicroServiceChains'
 
     def __unicode__(self):
-        return u'MicroServiceChain ID: {uuid}; {desc}'.format(
-            uuid=self.id,
-            desc=self.description)
+        return _('MicroServiceChain ID: %(uuid)s; %(desc)s') % {
+            'uuid': self.id,
+            'desc': self.description
+        }
 
 
 class MicroServiceChainLink(models.Model):
@@ -707,7 +732,7 @@ class MicroServiceChainLink(models.Model):
         db_table = u'MicroServiceChainLinks'
 
     def __unicode__(self):
-        return u'MicroServiceChainLink ID: {}'.format(self.id)
+        return _('MicroServiceChainLink ID: %(id)s') % {'id': self.id}
 
 
 class MicroServiceChainLinkExitCode(models.Model):
@@ -734,17 +759,18 @@ class MicroServiceChainChoice(models.Model):
         db_table = u'MicroServiceChainChoice'
 
     def __unicode__(self):
-        return u'MicroServiceChainChoice ID: {uuid} ({chain} at {choice})'.format(
-            uuid=self.id,
-            chain=self.chainavailable,
-            choice=self.choiceavailableatlink)
+        return _('MicroServiceChainChoice ID: %(uuid)s (%(chain)s at %(choice)s)') % {
+            'uuid': self.id,
+            'chain': self.chainavailable,
+            'choice': self.choiceavailableatlink
+        }
 
 
 class MicroServiceChoiceReplacementDic(models.Model):
     id = UUIDPkField()
     choiceavailableatlink = models.ForeignKey('MicroServiceChainLink', db_column='choiceAvailableAtLink')
-    description = models.TextField(db_column='description', verbose_name='Description')
-    replacementdic = models.TextField(db_column='replacementDic', verbose_name='Configuration')
+    description = models.TextField(db_column='description', verbose_name=_l('Description'))
+    replacementdic = models.TextField(db_column='replacementDic', verbose_name=_l('Configuration'))
     replaces = models.ForeignKey('self', related_name='replaced_by', null=True, blank=True, db_column='replaces')
     lastmodified = models.DateTimeField(db_column='lastModified', auto_now=True)
 
@@ -752,12 +778,10 @@ class MicroServiceChoiceReplacementDic(models.Model):
         error = None
         try:
             config = ast.literal_eval(self.replacementdic)
-        except ValueError:
-            error = 'Invalid syntax.'
-        except SyntaxError:
-            error = 'Invalid syntax.'
+        except (ValueError, SyntaxError):
+            error = _('Invalid syntax.')
         if error is None and not type(config) is dict:
-            error = 'Invalid syntax.'
+            error = _('Invalid syntax.')
         if error is not None:
             raise forms.ValidationError(error)
 
@@ -775,7 +799,10 @@ class TaskType(models.Model):
         db_table = 'TaskTypes'
 
     def __unicode__(self):
-        return u'TaskType ID: {}, desc: {}'.format(self.id, self.description)
+        return _('TaskType ID: %(id), desc: %(desc)') % {
+            'id': self.id,
+            'desc': self.description
+        }
 
 
 class TaskConfig(models.Model):
@@ -790,7 +817,10 @@ class TaskConfig(models.Model):
         db_table = u'TasksConfigs'
 
     def __unicode__(self):
-        return u'TaskConfig ID: {}, desc: {}'.format(self.id, self.description)
+        return _('TaskType ID: %(id), desc: %(desc)') % {
+            'id': self.id,
+            'desc': self.description
+        }
 
 
 class StandardTaskConfig(models.Model):
@@ -847,10 +877,10 @@ class TaskConfigUnitVariableLinkPull(models.Model):
 class UnitVariable(models.Model):
     id = UUIDPkField()
     unittype = models.CharField(max_length=50, null=True, blank=True, db_column='unitType')
-    unituuid = models.CharField(max_length=36, null=True, help_text='Semantically a foreign key to SIP or Transfer', db_column='unitUUID')
+    unituuid = models.CharField(max_length=36, null=True, help_text=_l('Semantically a foreign key to SIP or Transfer'), db_column='unitUUID')
     variable = models.TextField(null=True, db_column='variable')
     variablevalue = models.TextField(null=True, db_column='variableValue')
-    microservicechainlink = models.ForeignKey('MicroServiceChainLink', null=True, blank=True, help_text='UUID of the MicroServiceChainLink if used in task type linkTaskManagerUnitVariableLinkPull', db_column='microServiceChainLink')
+    microservicechainlink = models.ForeignKey('MicroServiceChainLink', null=True, blank=True, help_text=_l('UUID of the MicroServiceChainLink if used in task type linkTaskManagerUnitVariableLinkPull'), db_column='microServiceChainLink')
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
     updatedtime = models.DateTimeField(db_column='updatedTime', auto_now=True)
 
@@ -870,6 +900,7 @@ class AtkDIPObjectResourcePairing(models.Model):
     class Meta:
         db_table = u'AtkDIPObjectResourcePairing'
 
+
 class ArchivesSpaceDIPObjectResourcePairing(models.Model):
     id = models.AutoField(primary_key=True, db_column='pk')
     # TODO these should be foreign keys?
@@ -887,7 +918,8 @@ class ArchivesSpaceDIPObjectResourcePairing(models.Model):
         # Table name length is fine, but if the verbose name is too
         # long it can result in confusing errors when trying to
         # set up permissions: https://code.djangoproject.com/ticket/18866
-        verbose_name = u'ASDIPObjectResourcePairing'
+        verbose_name = _l('ASDIPObjectResourcePairing')
+
 
 class ArchivesSpaceDigitalObject(models.Model):
     """
@@ -897,10 +929,9 @@ class ArchivesSpaceDigitalObject(models.Model):
     resourceid = models.CharField(max_length=150)
     label = models.CharField(max_length=255, blank=True)
     title = models.TextField(blank=True)
-    started = models.BooleanField(default=False,
-        help_text='Whether or not a SIP has been started using files in this digital object.')
-    remoteid = models.CharField(max_length=150, blank=True,
-        help_text='ID in the remote ArchivesSpace system, after digital object has been created.')
+    started = models.BooleanField(default=False, help_text=_l('Whether or not a SIP has been started using files in this digital object.'))
+    remoteid = models.CharField(max_length=150, blank=True, help_text=_l('ID in the remote ArchivesSpace system, after digital object has been created.'))
+
 
 class TransferMetadataSet(models.Model):
     id = UUIDPkField()
@@ -909,6 +940,7 @@ class TransferMetadataSet(models.Model):
 
     class Meta:
         db_table = u'TransferMetadataSets'
+
 
 class TransferMetadataField(models.Model):
     id = UUIDPkField()
@@ -925,6 +957,7 @@ class TransferMetadataField(models.Model):
     def __unicode__(self):
         return self.fieldlabel
 
+
 class TransferMetadataFieldValue(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True)
@@ -934,6 +967,7 @@ class TransferMetadataFieldValue(models.Model):
 
     class Meta:
         db_table = u'TransferMetadataFieldValues'
+
 
 # Taxonomies and their field definitions are in separate tables
 # to leave room for future expansion. The possible taxonomy terms are
@@ -951,6 +985,7 @@ class Taxonomy(models.Model):
     def __unicode__(self):
         return self.name
 
+
 class TaxonomyTerm(models.Model):
     id = UUIDPkField()
     createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True, null=True)
@@ -962,6 +997,7 @@ class TaxonomyTerm(models.Model):
 
     def __unicode__(self):
         return self.term
+
 
 class WatchedDirectory(models.Model):
     id = UUIDPkField()
@@ -975,6 +1011,7 @@ class WatchedDirectory(models.Model):
     class Meta(object):
         db_table = u"WatchedDirectories"
 
+
 class WatchedDirectoryExpectedType(models.Model):
     id = UUIDPkField()
     description = models.TextField(null=True)
@@ -983,6 +1020,7 @@ class WatchedDirectoryExpectedType(models.Model):
 
     class Meta(object):
         db_table = u"WatchedDirectoriesExpectedTypes"
+
 
 class FPCommandOutput(models.Model):
     file = models.ForeignKey('File', db_column='fileUUID', to_field='uuid')
@@ -993,6 +1031,7 @@ class FPCommandOutput(models.Model):
 
     def __unicode__(self):
         return u'<file: {file}; rule: {rule}; content: {content}'.format(file=self.file, rule=self.rule, content=self.content[:20])
+
 
 class FileID(models.Model):
     """
@@ -1010,6 +1049,7 @@ class FileID(models.Model):
     class Meta:
         db_table = 'FilesIDs'
 
+
 class LevelOfDescription(models.Model):
     id = UUIDPkField()
     name = models.CharField(max_length='1024')  # seems long, but AtoM allows this much
@@ -1017,4 +1057,7 @@ class LevelOfDescription(models.Model):
     sortorder = models.IntegerField(default=0, db_column='sortOrder')
 
     def __unicode__(self):
-        return u'{i.sortorder}: {i.name}'.format(i=self)
+        return _('%(sortorder)s: %(name)s') % {
+            'sortorder': self.sortorder,
+            'name': self.name
+        }
