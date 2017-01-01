@@ -1,7 +1,3 @@
-[submodule "src/dashboard/src/external/archivematica-fpr-admin"]
-	path = src/dashboard/src/external/archivematica-fpr-admin
-	url = https://github.com/artefactual/archivematica-fpr-admin.git
-	branch = stable/1.1.x
 [submodule "src/dashboard/src/external/base64-helpers"]
 	path = src/dashboard/src/external/base64-helpers
 	url = https://github.com/artefactual-labs/base64-helpers.git
