@@ -28,6 +28,8 @@ class StorageServiceError(Exception):
 ############# HELPER FUNCTIONS #############
 
 class ApiKeyAuth(AuthBase):
+    """Custom auth for requests that puts user & key in Authorization header."""
+
     def __init__(self, username=None, apikey=None):
         self.username = username or get_setting('storage_service_user', 'test')
         self.apikey = apikey or get_setting('storage_service_apikey', None)
@@ -45,14 +47,12 @@ def _storage_service_url():
         storage_service_url = 'http://localhost:8000/'
     # If the URL doesn't end in a /, add one
     if storage_service_url[-1] != '/':
-        storage_service_url+='/'
-    storage_service_url = storage_service_url+'api/v2/'
-    LOGGER.debug("Storage service URL: {}".format(storage_service_url))
+        storage_service_url += '/'
+    storage_service_url = storage_service_url + 'api/v2/'
     return storage_service_url
 
 def _storage_api_session(timeout=5):
-    """ Returns a requests.Session with a customized adapter with timeout support. """
-
+    """Return a requests.Session with a customized adapter with timeout support."""
     class HTTPAdapterWithTimeout(requests.adapters.HTTPAdapter):
         def __init__(self, timeout=None, *args, **kwargs):
             self.timeout = timeout
@@ -70,13 +70,13 @@ def _storage_api_session(timeout=5):
 
 
 def _storage_api_params():
-    """ Returns API GET params username=USERNAME&api_key=KEY """
+    """Return API GET params username=USERNAME&api_key=KEY for use in URL."""
     username = get_setting('storage_service_user', 'test')
     api_key = get_setting('storage_service_apikey', None)
     return urllib.urlencode({'username': username, 'api_key': api_key})
 
 def _storage_relative_from_absolute(location_path, space_path):
-    """ Strip space_path and next / from location_path. """
+    """Strip space_path and next / from location_path."""
     location_path = os.path.normpath(location_path)
     if location_path[0] == '/':
         strip = len(space_path)
@@ -96,7 +96,7 @@ def create_pipeline(create_default_locations=False, shared_path=None, api_userna
         'api_username': api_username,
         'api_key': api_key,
     }
-    LOGGER.info("Creating pipeline in storage service with {}".format(pipeline))
+    LOGGER.info("Creating pipeline in storage service with %s", pipeline)
     url = _storage_service_url() + 'pipeline/'
     try:
         response = _storage_api_session().post(url, json=pipeline)
@@ -113,7 +113,7 @@ def _get_pipeline(uuid):
         if response.status_code == 404:
             LOGGER.warning("This Archivematica instance is not registered with the storage service or has been disabled.")
         response.raise_for_status()
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException:
         LOGGER.warning('Error fetching pipeline', exc_info=True)
         raise
 
@@ -151,13 +151,12 @@ def get_location(path=None, purpose=None, space=None):
     while True:
         response = _storage_api_session().get(url, params=params)
         locations = response.json()
-        LOGGER.debug("Storage locations retrieved: {}".format(locations))
         return_locations += locations['objects']
         if not locations['meta']['next']:
             break
         params['offset'] += locations['meta']['limit']
 
-    LOGGER.info("Storage locations returned: {}".format(return_locations))
+    LOGGER.debug("Storage locations returned: %s", return_locations)
     return return_locations
 
 
@@ -211,7 +210,7 @@ def copy_files(source_location, destination_location, files):
         response = _storage_api_session().post(url, json=move_files)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        LOGGER.warning("Unable to move files with {} because {}".format(move_files, e.content))
+        LOGGER.warning("Unable to move files with %s because %s", move_files, e.content)
         return (None, e)
     ret = response.json()
     return (ret, None)
@@ -251,13 +250,12 @@ def get_space(access_protocol=None, path=None):
     while True:
         response = _storage_api_session().get(url, params=params)
         spaces = response.json()
-        LOGGER.debug("Storage spaces retrieved: {}".format(spaces))
         return_spaces += spaces['objects']
         if not spaces['meta']['next']:
             break
         params['offset'] += spaces['meta']['limit']
 
-    LOGGER.info("Storage spaces returned: {}".format(return_spaces))
+    LOGGER.debug("Storage spaces returned: {}".format(return_spaces))
     return return_spaces
 
 ############# FILES #############
@@ -283,7 +281,7 @@ def create_file(uuid, origin_location, origin_path, current_location,
         'related_package_uuid': related_package_uuid
     }
 
-    LOGGER.info("Creating file with {}".format(new_file))
+    LOGGER.info("Creating file with %s", new_file)
     try:
         session = _storage_api_session(timeout=None)
         if update:
@@ -294,7 +292,7 @@ def create_file(uuid, origin_location, origin_path, current_location,
             url = _storage_service_url() + 'file/'
             response = session.post(url, json=new_file)
     except requests.exceptions.RequestException as e:
-        LOGGER.warning("Unable to create file from {} because {}".format(new_file, e))
+        LOGGER.warning("Unable to create file from %s because %s", new_file, e)
         return (None, e)
     file_ = response.json()
     return (file_, None)
@@ -325,13 +323,12 @@ def get_file_info(uuid=None, origin_location=None, origin_path=None,
     while True:
         response = _storage_api_session().get(url, params=params)
         files = response.json()
-        LOGGER.debug("Files retrieved: {}".format(files))
         return_files += files['objects']
         if not files['meta']['next']:
             break
         params['offset'] += files['meta']['limit']
 
-    LOGGER.info("Files returned: {}".format(return_files))
+    LOGGER.debug("Files returned: %s", return_files)
     return return_files
 
 def download_file_url(file_uuid):
@@ -398,7 +395,7 @@ def request_reingest(package_uuid, reingest_type, processing_config):
         LOGGER.exception("Could not connect to storage service")
         return {'error': True, 'message': 'Could not connect to storage service'}
     except requests.exceptions.RequestException as e:
-        LOGGER.exception("Unable to reingest {}".format(package_uuid))
+        LOGGER.exception("Unable to reingest %s", package_uuid)
         try:
             return response.json()
         except Exception:
