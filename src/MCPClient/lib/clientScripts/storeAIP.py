@@ -91,12 +91,11 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
         # created if if AIP has been stored. If the AIP hasn't yet been stored
         # take note of the DIP's UUID so it the relationship can later be
         # created when the AIP is stored.
-        api = storage_service._storage_api()
         try:
-            api.file(sip_uuid).get()
+            storage_service.get_file_info(uuid=sip_uuid)[0]  # Check existence
             related_package_uuid = sip_uuid
             print('Parent AIP exists so relationship can be created.')
-        except requests.exceptions.RequestException:
+        except IndexError:
             UnitVariable.objects.create(unittype='SIP', unituuid=sip_uuid, variable='relatedPackage', variablevalue=uuid)
             print('Noting DIP UUID {} related to AIP so relationship can be created when AIP is stored.'.format(uuid))
     else:

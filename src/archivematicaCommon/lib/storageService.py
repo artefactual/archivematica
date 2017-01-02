@@ -50,11 +50,11 @@ def _storage_service_url():
     LOGGER.debug("Storage service URL: {}".format(storage_service_url))
     return storage_service_url
 
-def _storage_api_session(auth=None, timeout=None):
+def _storage_api_session(timeout=5):
     """ Returns a requests.Session with a customized adapter with timeout support. """
 
     class HTTPAdapterWithTimeout(requests.adapters.HTTPAdapter):
-        def __init__(self, timeout=5, *args, **kwargs):
+        def __init__(self, timeout=None, *args, **kwargs):
             self.timeout = timeout
             super(HTTPAdapterWithTimeout, self).__init__(*args, **kwargs)
 
@@ -63,7 +63,7 @@ def _storage_api_session(auth=None, timeout=None):
             return super(HTTPAdapterWithTimeout, self).send(*args, **kwargs)
 
     session = requests.session()
-    session.auth = auth
+    session.auth = ApiKeyAuth()
     session.mount('http://', HTTPAdapterWithTimeout(timeout=timeout))
     session.mount('https://', HTTPAdapterWithTimeout(timeout=timeout))
     return session
@@ -99,7 +99,7 @@ def create_pipeline(create_default_locations=False, shared_path=None, api_userna
     LOGGER.info("Creating pipeline in storage service with {}".format(pipeline))
     url = _storage_service_url() + 'pipeline/'
     try:
-        response = requests.post(url, auth=ApiKeyAuth(), json=pipeline)
+        response = _storage_api_session().post(url, json=pipeline)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         LOGGER.warning('Unable to create Archivematica pipeline in storage service from %s because %s', pipeline, e, exc_info=True)
@@ -109,7 +109,7 @@ def create_pipeline(create_default_locations=False, shared_path=None, api_userna
 def _get_pipeline(uuid):
     url = _storage_service_url() + 'pipeline/' + uuid + '/'
     try:
-        response = requests.get(url, auth=ApiKeyAuth())
+        response = _storage_api_session().get(url)
         if response.status_code == 404:
             LOGGER.warning("This Archivematica instance is not registered with the storage service or has been disabled.")
         response.raise_for_status()
@@ -149,7 +149,7 @@ def get_location(path=None, purpose=None, space=None):
         'offset': 0,
     }
     while True:
-        response = requests.get(url, auth=ApiKeyAuth(), params=params)
+        response = _storage_api_session().get(url, params=params)
         locations = response.json()
         LOGGER.debug("Storage locations retrieved: {}".format(locations))
         return_locations += locations['objects']
@@ -168,7 +168,7 @@ def browse_location(uuid, path):
     path = base64.b64encode(path)
     url = _storage_service_url() + 'location/' + uuid + '/browse/'
     params = {'path': path}
-    response = requests.get(url, auth=ApiKeyAuth(), params=params)
+    response = _storage_api_session().get(url, params=params)
     browse = response.json()
     browse['entries'] = map(base64.b64decode, browse['entries'])
     browse['directories'] = map(base64.b64decode, browse['directories'])
@@ -208,7 +208,7 @@ def copy_files(source_location, destination_location, files):
 
     url = _storage_service_url() + 'location/' + destination_location['uuid'] + '/'
     try:
-        response = requests.post(url, auth=ApiKeyAuth(), json=move_files)
+        response = _storage_api_session().post(url, json=move_files)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         LOGGER.warning("Unable to move files with {} because {}".format(move_files, e.content))
@@ -249,7 +249,7 @@ def get_space(access_protocol=None, path=None):
         'offset': 0,
     }
     while True:
-        response = requests.get(url, auth=ApiKeyAuth(), params=params)
+        response = _storage_api_session().get(url, params=params)
         spaces = response.json()
         LOGGER.debug("Storage spaces retrieved: {}".format(spaces))
         return_spaces += spaces['objects']
@@ -285,13 +285,14 @@ def create_file(uuid, origin_location, origin_path, current_location,
 
     LOGGER.info("Creating file with {}".format(new_file))
     try:
+        session = _storage_api_session(timeout=None)
         if update:
             new_file['reingest'] = pipeline['uuid']
             url = _storage_service_url() + 'file/' + uuid + '/'
-            response = requests.put(url, auth=ApiKeyAuth(), json=new_file)
+            response = session.put(url, json=new_file)
         else:
             url = _storage_service_url() + 'file/'
-            response = requests.post(url, auth=ApiKeyAuth(), json=new_file)
+            response = session.post(url, json=new_file)
     except requests.exceptions.RequestException as e:
         LOGGER.warning("Unable to create file from {} because {}".format(new_file, e))
         return (None, e)
@@ -322,7 +323,7 @@ def get_file_info(uuid=None, origin_location=None, origin_path=None,
         'offset': 0,
     }
     while True:
-        response = requests.get(url, auth=ApiKeyAuth(), params=params)
+        response = _storage_api_session().get(url, params=params)
         files = response.json()
         LOGGER.debug("Files retrieved: {}".format(files))
         return_files += files['objects']
@@ -357,7 +358,7 @@ def extract_file(uuid, relative_path, save_path):
     """ Fetches `relative_path` from package with `uuid` and saves to `save_path`. """
     url = _storage_service_url() + 'file/' + uuid + '/extract_file/'
     params = {'relative_path_to_file': relative_path}
-    response = requests.get(url, auth=ApiKeyAuth(), params=params, stream=True)
+    response = _storage_api_session().get(url, params=params, stream=True)
     chunk_size = 1024 * 1024
     with open(save_path, 'wb') as f:
         for chunk in response.iter_content(chunk_size):
@@ -392,7 +393,7 @@ def request_reingest(package_uuid, reingest_type, processing_config):
     }
     url = _storage_service_url() + 'file/' + package_uuid + '/reingest/'
     try:
-        response = requests.post(url, auth=ApiKeyAuth(), json=api_request)
+        response = _storage_api_session().post(url, json=api_request)
     except requests.ConnectionError as e:
         LOGGER.exception("Could not connect to storage service")
         return {'error': True, 'message': 'Could not connect to storage service'}
@@ -415,27 +416,30 @@ def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
         'user_id': user_id,
     }
     url = _storage_service_url() + 'file/' + uuid + '/delete_aip/'
-    response = requests.post(url, auth=ApiKeyAuth(), json=api_request)
+    response = _storage_api_session().post(url, json=api_request)
     return response.json()
 
 def post_store_aip_callback(uuid):
     url = _storage_service_url() + 'file/' + uuid + '/send_callback/post_store/'
-    response = requests.get(url, auth=ApiKeyAuth())
-    return response.json()
+    response = _storage_api_session().get(url)
+    try:
+        return response.json()
+    except Exception:
+        return response.text
 
 def get_file_metadata(**kwargs):
     url = _storage_service_url() + 'file/metadata/'
-    response = requests.get(url, auth=ApiKeyAuth(), params=kwargs)
+    response = _storage_api_session().get(url, params=kwargs)
     if 400 <= response.status_code < 500:
         raise ResourceNotFound("No file found for arguments: {}".format(kwargs))
     return response.json()
 
 def remove_files_from_transfer(transfer_uuid):
     url = _storage_service_url() + 'file/' + transfer_uuid + '/contents/'
-    requests.delete(url, auth=ApiKeyAuth())
+    _storage_api_session().delete(url)
 
 def index_backlogged_transfer_contents(transfer_uuid, file_set):
     url = _storage_service_url() + 'file/' + transfer_uuid + '/contents/'
-    response = requests.put(url, auth=ApiKeyAuth(), json=file_set)
+    response = _storage_api_session().put(url, json=file_set)
     if 400 <= response.status_code < 500:
         raise BadRequest("Unable to add files to transfer: {}".format(response.text))

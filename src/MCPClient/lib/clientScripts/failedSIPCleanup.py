@@ -22,9 +22,10 @@ def main(fail_type, sip_uuid):
     models.SIPArrange.objects.filter(sip_id=sip_uuid).delete()
 
     # Update storage service that reingest failed
-    api = storage_service._storage_api()
+    session = storage_service._storage_api_session()
+    url = storage_service._storage_service_url() + 'file/' + sip_uuid + '/'
     try:
-        api.file(sip_uuid).patch({'reingest': None})
+        session.patch(url, json={'reingest': None})
     except Exception:
         # Ignore errors, as this may not be reingest
         pass

@@ -18,7 +18,7 @@ FAILED = 'fail'
 
 def main(fail_type, transfer_uuid, transfer_path):
     # Update storage service that reingest failed
-    api = storage_service._storage_api()
+    session = storage_service._storage_api_session()
     aip_uuid = None
     # Get aip_uuid from reingest METS name
     if os.path.isdir(os.path.join(transfer_path, 'data')):
@@ -32,11 +32,13 @@ def main(fail_type, transfer_uuid, transfer_path):
             aip_uuid = item.replace('METS.', '').replace('.xml', '')
 
     print('AIP UUID for this Transfer is', aip_uuid)
-    try:
-        api.file(aip_uuid).patch({'reingest': None})
-    except Exception:
-        # Ignore errors, as this may not be reingest
-        pass
+    if aip_uuid:
+        url = storage_service._storage_service_url() + 'file/' + aip_uuid + '/'
+        try:
+            session.patch(url, json={'reingest': None})
+        except Exception:
+            # Ignore errors, as this may not be reingest
+            pass
 
     # Delete files for reingest transfer
     # A new reingest doesn't know to delete this because the UUID is different from the AIP, and it causes problems when re-parsing these files
