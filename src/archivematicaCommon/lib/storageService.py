@@ -229,35 +229,6 @@ def get_files_from_backlog(files):
     return copy_files(backlog, processing, files)
 
 
-############# SPACES #############
-
-def get_space(access_protocol=None, path=None):
-    """ Returns a list of storage spaces, optionally filtered by parameters.
-
-    Queries the storage service and returns a list of storage spaces,
-    optionally filtered by access_protocol or path.
-
-    access_protocol: How the storage is accessed.  Should reference storage
-        service purposes, in storage_service.locations.models.py
-    """
-    return_spaces = []
-    url = _storage_service_url() + 'space/'
-    params = {
-        'access_protocol': access_protocol,
-        'path': path,
-        'offset': 0,
-    }
-    while True:
-        response = _storage_api_session().get(url, params=params)
-        spaces = response.json()
-        return_spaces += spaces['objects']
-        if not spaces['meta']['next']:
-            break
-        params['offset'] += spaces['meta']['limit']
-
-    LOGGER.debug("Storage spaces returned: {}".format(return_spaces))
-    return return_spaces
-
 ############# FILES #############
 
 def create_file(uuid, origin_location, origin_path, current_location,
