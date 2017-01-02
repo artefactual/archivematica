@@ -18,6 +18,7 @@
 from django.conf.urls import url, include
 from django.conf import settings
 
+
 urlpatterns = [
     url(r'^mcp/', include('components.mcp.urls')),
     url(r'^installer/', include('installer.urls')),

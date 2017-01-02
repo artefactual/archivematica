@@ -17,11 +17,16 @@
 
 from django.conf.urls import url
 from django.conf import settings
+
 from main import views
+
 
 urlpatterns = [
     # Index
     url(r'^$', views.home),
+
+    # JavaScript i18n catalog
+    url(r'^jsi18n/$', views.cached_javascript_catalog, {'domain': 'djangojs'}, name='javascript-catalog'),
 
     # Forbidden
     url(r'forbidden/$', views.forbidden),
