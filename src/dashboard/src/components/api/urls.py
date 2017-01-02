@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^(?P<unit_type>transfer|ingest)/(?P<unit_uuid>' + settings.UUID_REGEX + ')/delete/', views.mark_hidden),
 
     url(r'^ingest/reingest', views.reingest, {'target': 'ingest'}),
+    url(r'^ingest/completed', views.completed_ingests),
     url(r'^ingest/copy_metadata_files/$', views.copy_metadata_files_api),
 
     url(r'administration/dips/atom/levels/$', views.get_levels_of_description),
