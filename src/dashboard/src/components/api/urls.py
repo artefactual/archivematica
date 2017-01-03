@@ -21,7 +21,7 @@ from django.conf import settings
 from components.api import views
 
 urlpatterns = [
-    url(r'transfer/approve$', views.approve_transfer),
+    url(r'transfer/approve', views.approve_transfer),
     url(r'transfer/unapproved', views.unapproved_transfers),
     url(r'transfer/completed', views.completed_transfers),
     url(r'transfer/status/(?P<unit_uuid>' + settings.UUID_REGEX + ')', views.status, {'unit_type': 'unitTransfer'}),
