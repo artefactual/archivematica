@@ -22,7 +22,6 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from __future__ import print_function
-from archivematicaMoveSIP import moveSIP
 import sys
 
 import django
@@ -35,24 +34,21 @@ from custom_handlers import get_script_logger
 
 from sanitizeNames import sanitizePath
 
-DetoxDic={}
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.sanitizeSIPName")
 
     SIPDirectory = sys.argv[1]
-    sipUUID =  sys.argv[2]
+    sipUUID = sys.argv[2]
     date = sys.argv[3]
     sharedDirectoryPath = sys.argv[4]
     unitType = sys.argv[5]
-    #os.path.abspath(SIPDirectory)
 
-    #remove trailing slash
+    # Remove trailing slash
     if SIPDirectory[-1] == "/":
         SIPDirectory = SIPDirectory[:-1]
-    
-    
-    if unitType == "SIP": 
+
+    if unitType == "SIP":
         klass = SIP
         locationColumn = 'currentpath'
     elif unitType == "Transfer":
