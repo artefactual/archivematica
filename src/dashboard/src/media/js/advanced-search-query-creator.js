@@ -11,8 +11,8 @@
       this.allowAdd = (this.options.allowAdd != undefined)
         ? this.options.allowAdd
         : true;
-      this.deleteHandleHtml = this.options.deleteHandleHtml || 'Del';
-      this.addHandleHtml    = this.options.addHandleHtml || 'Add';
+      this.deleteHandleHtml = this.options.deleteHandleHtml || gettext('Delete');
+      this.addHandleHtml    = this.options.addHandleHtml || gettext('Add');
       this.cssClassPrefix = this.options.cssClassPrefix || 'advanced_search_form';
     },
 

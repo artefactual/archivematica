@@ -46,7 +46,7 @@ function createDirectoryPicker(locationUUID, baseDirectory, targetCssId, pathTem
 
   selector.options.actionHandlers = [{
     name: 'Select',
-    description: 'Select',
+    description: gettext('Select'),
     iconHtml: 'Add',
     logic: function(result) {
       var decoded_path = Base64.decode(result.path)
@@ -54,7 +54,7 @@ function createDirectoryPicker(locationUUID, baseDirectory, targetCssId, pathTem
       var location_path = locationUUID+':'+trailing_slash;
 
       if (components[location_path]) {
-        alert("Error: The selected path is already present.");
+        alert(gettext("Error: The selected path is already present."));
         return;
       }
 
@@ -77,7 +77,8 @@ function createDirectoryPicker(locationUUID, baseDirectory, targetCssId, pathTem
       .children('.transfer_path_icons')
       .children('.transfer_path_delete_icon')
       .click(function() {
-        if (confirm('Are you sure you want to remove ' + $(this).parent().prev().text() + '?')) {
+        message = interpolate(gettext('Are you sure you want to remove %s?'), [$(this).parent().prev().text()]);
+        if (confirm(message)) {
           var path = $(this).parent().prev().prop("id").trim();
           var component = components[path];
 

@@ -14,7 +14,7 @@ var DirectoryMetadataFormView = Backbone.View.extend({
 
       this.fetchAvailableLevelsOfDescription(
         this.fetchMetadataThenShowModalCallback(),
-        this.requestErrorCallback('fetching levels of description')
+        this.requestErrorCallback(gettext('Fetching levels of description'))
       );
     }
   },
@@ -45,7 +45,7 @@ var DirectoryMetadataFormView = Backbone.View.extend({
 
       self.fetchMetadata(
         metadataSuccess,
-        self.requestErrorCallback('fetching metadata')
+        self.requestErrorCallback(gettext('Fetching metadata'))
       );
     }
   },
@@ -66,7 +66,10 @@ var DirectoryMetadataFormView = Backbone.View.extend({
 
   prepareDataForRendering: function(metadata, levelsOfDescription) {
     // Simplify level data structure for rendering
-    var levels = [{id: '', name: '--Select level of description--'}];
+    var levels = [{
+      id: '',
+      name: gettext('-- Select level of description--')
+    }];
 
     // Add objects representing each level
     for (var index in levelsOfDescription) {
@@ -99,7 +102,7 @@ var DirectoryMetadataFormView = Backbone.View.extend({
       success: function(levelsOfDescription) {
         callback(self.currentLevelName);
       },
-      error: self.requestErrorCallback('saving metadata')
+      error: self.requestErrorCallback(gettext('Saving metadata'))
     });
   },
 

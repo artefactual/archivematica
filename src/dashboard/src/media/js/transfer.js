@@ -73,14 +73,17 @@ $(function()
           var self = this;
 
           $('<div>' +
-              '<p><strong>Are you sure you want to remove this transfer from the dashboard? Note that this does not delete the transfer or related entities.</strong></p>' +
-              '<p>Directory: ' + this.model.get('directory') + '<br />UUID: ' + this.model.get('uuid') + '<br />Status: ' + $(this.el).find('.sip-detail-icon-status > img').attr('title') + '</p>' +
+              '<p><strong>' + gettext('Are you sure you want to remove this transfer from the dashboard? Note that this does not delete the transfer or related entities.') + '</strong></p>' +
+              '<p>' +
+                interpolate(gettext('Directory: %s'), [this.model.get('directory')]) + '<br />' +
+                interpolate(gettext('UUID: %s'), [this.model.get('uuid')]) + '<br />' +
+              '</p>' +
             '</div>').dialog(
             {
               modal: true,
               resizable: false,
               draggable: false,
-              title: 'Remove SIP',
+              title: gettext('Remove SIP'),
               width: 480,
               close: function(event, ui)
                 {
@@ -91,7 +94,7 @@ $(function()
                 },
               buttons: [
                   {
-                    text: 'Confirm',
+                    text: gettext('Confirm'),
                     click: function() {
 
                       var $dialog = $(this);
@@ -152,7 +155,7 @@ $(function()
           var choices = this.model.get('choices');
           if (choices)
           {
-            var $select = $('<select />').append('<option>Actions</option>')
+            var $select = $('<select />').append('<option>' + gettext('Actions') + '</option>')
               , numberOfChoices = Object.keys(choices).length
               , optionHtml;
 

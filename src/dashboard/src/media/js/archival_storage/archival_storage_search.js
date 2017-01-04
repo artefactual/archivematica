@@ -40,7 +40,7 @@ $(document).ready(function() {
       'type': 'term'
     },
     'deleteHandleHtml': '<img src="/media/images/delete.png" style="margin-left: 5px"/>',
-    'addHandleHtml': '<a>Add New</a>'
+    'addHandleHtml': '<a>' + gettext('Add new') + '</a>'
   });
 
   // define op field
@@ -59,27 +59,31 @@ $(document).ready(function() {
 
   // default field name field
   search.addSelect('field', {title: 'field name', 'class': 'form-control', onchange: 'selectField(this)'}, {
-    '': 'Any',
-    'FILEUUID': 'File UUID',
-    'filePath': 'File path',
-    'fileExtension': 'File extension',
-    'AIPUUID': 'AIP UUID',
-    'sipName': 'AIP name',
-    'identifiers': 'Identifiers',
-    'isPartOf': 'Part of AIC',
-    'AICID': 'AIC Identifier',
-    'transferMetadata': 'Transfer metadata',
-    'transferMetadataOther': 'Transfer metadata (other)',
+    '': gettext('Any'),
+    'FILEUUID': gettext('File UUID'),
+    'filePath': gettext('File path'),
+    'fileExtension': gettext('File extension'),
+    'AIPUUID': gettext('AIP UUID'),
+    'sipName': gettext('AIP name'),
+    'identifiers': gettext('Identifiers'),
+    'isPartOf': gettext('Part of AIC'),
+    'AICID': gettext('AIC Identifier'),
+    'transferMetadata': gettext('Transfer metadata'),
+    'transferMetadataOther': gettext('Transfer metadata (other)'),
   });
 
   // "Other" field name, when selecting "transfer metadata (other)"
-  search.addInput('fieldName', {title: 'other field name', 'class': 'aip-search-query-input form-control', 'id': 'aip-search-query-other-field-name'});
+  search.addInput('fieldName', {
+    title: gettext('other field name'),
+    'class': 'aip-search-query-input form-control',
+    'id': 'aip-search-query-other-field-name'
+  });
 
   // default field name field
   search.addSelect('type', {title: 'query type', 'class': 'form-control'}, {
-    'term': 'Keyword',
-    'string': 'Phrase',
-    'range': 'Date range'
+    'term': gettext('Keyword'),
+    'string': gettext('Phrase'),
+    'range': gettext('Date range')
   });
 
   // don't show first op field

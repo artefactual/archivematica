@@ -548,14 +548,14 @@ var ATKMatcherView = Backbone.View.extend({
     var doMatch = function() {
       // Stop if no resources have been selected.
       if (!self.selectedResourceCSSId) {
-        self.notify('No resource selected.');
+        self.notify(gettext('No resource selected.'));
         return;
       }
 
       // Stop if no objects have been selected.
       var selectedPaths = self.getSelectedPaths();
       if (!selectedPaths.length) {
-        self.notify('No objects selected.');
+        self.notify(gettext('No objects selected.'));
         return;
       }
 
@@ -667,11 +667,11 @@ var ATKMatcherView = Backbone.View.extend({
     }, 2000);
 
     dialog.dialog({
-      title: 'Warning',
+      title: gettext('Warning'),
       width: 640,
       height: 200,
       buttons: [{
-        text: 'Dismiss',
+        text: gettext('Dismiss'),
         click: function() { $(this).dialog('close'); }
       }]
     });

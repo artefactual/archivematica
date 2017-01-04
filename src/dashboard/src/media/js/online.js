@@ -43,14 +43,14 @@ $(function()
       connect: function()
         {
           // log('Connected.');
-          this.$led.attr({'src': '/media/images/bullet_green.png', 'title': 'Connected'});
-          this.$text.text('Connected');
+          this.$led.attr({'src': '/media/images/bullet_green.png', 'title': gettext('Connected')});
+          this.$text.text(gettext('Connected'));
         },
 
       startPoll: function()
         {
           // log('Start poll.');
-          this.$led.attr({'src': '/media/images/bullet_orange.png', 'title': 'Loading'});
+          this.$led.attr({'src': '/media/images/bullet_orange.png', 'title': gettext('Loading')});
         },
 
       endPoll: function()
@@ -64,12 +64,12 @@ $(function()
 
           if (true === error)
           {
-            this.$led.attr({'src': '/media/images/bullet_delete.png', 'title': 'Disconnected'});
+            this.$led.attr({'src': '/media/images/bullet_delete.png', 'title': gettext('Disconnected')});
             this.$text.text(message);
           }
           else
           {
-            this.$text.text('Connected');
+            this.$text.text(gettext('Connected'));
           }
         }
 

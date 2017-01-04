@@ -72,14 +72,17 @@ $(function()
           var self = this;
 
           $('<div>' +
-              '<p><strong>Are you sure you want to remove this SIP from the dashboard? Note that this does not delete the SIP or related entities.</strong></p>' +
-              '<p>Directory: ' + this.model.get('directory') + '<br />UUID: ' + this.model.get('uuid') + '<br />Status: ' + $(this.el).find('.sip-detail-icon-status > img').attr('title') + '</p>' +
+              '<p><strong>' + gettext('Are you sure you want to remove this SIP from the dashboard? Note that this does not delete the SIP or related entities.') + '</strong></p>' +
+              '<p>' +
+                interpolate(gettext('Directory: %s'), [this.model.get('directory')]) + '<br />' +
+                interpolate(gettext('UUID: %s'), [this.model.get('uuid')]) + '<br />' +
+              '</p>' +
             '</div>').dialog(
             {
               modal: true,
               resizable: false,
               draggable: false,
-              title: 'Remove SIP',
+              title: gettext('Remove SIP'),
               width: 480,
               close: function(event, ui)
                 {
@@ -90,7 +93,7 @@ $(function()
                 },
               buttons: [
                   {
-                    text: 'Confirm',
+                    text: gettext('Confirm'),
                     click: function() {
 
                       var $dialog = $(this);
@@ -118,7 +121,7 @@ $(function()
                     }
                   },
                   {
-                    text: 'Cancel',
+                    text: gettext('Cancel'),
                     click: function() {
                         $(this).dialog('close');
                         $(self.el).removeClass('sip-removing');
@@ -140,14 +143,14 @@ $(function()
               var dialog = $('<div class="metadata-dialog"></div>')
                 .append(_.template($('#metadata-dialog').html(), data))
                 .dialog({
-                  title: 'Dublin Core metadata editor',
+                  title: gettext('Dublin Core metadata editor'),
                   width: 610,
                   height: 480,
                   modal: true,
                   resizable: false,
                   buttons: [
                     {
-                      text: 'Close',
+                      text: gettext('Close'),
                       click: function()
                         {
                           $(this).dialog('close');
@@ -168,7 +171,7 @@ $(function()
                               },
                             error: function()
                               {
-                                alert("Error.");
+                                alert(gettext('Error'));
                               },
                             url: url});
                         }
@@ -227,7 +230,7 @@ $(function()
 
           if (choices)
           {
-            var $select = $('<select />').append('<option>Actions</option>')
+            var $select = $('<select />').append('<option>' + gettext('Actions') + '</option>')
               , numberOfChoices = Object.keys(choices).length;
 
             // use pop-up action selector for long choice lists
@@ -248,19 +251,20 @@ $(function()
           if ('Approve normalization' == this.model.get('type'))
           {
             this.$('.job-detail-actions')
-              .append('<a class="btn_normalization_report" href="#" title="Report"><span>Report</span></a>');
+              .append('<a class="btn_normalization_report" href="#" title="' + gettext('Report') + '"><span>' + gettext('Report') + '</span></a>');
           }
 
+          var message = gettext('Match DIP objects to resources');
           if ('Choose Config for ArchivesSpace DIP Upload' == this.model.get('type'))
           {
             this.$('.job-detail-actions')
-            .append('<a class="btn_as_upload" href="#" title="Match DIP objects to resources"><span>Match DIP objects to resources</span>');
+            .append('<a class="btn_as_upload" href="#" title="' + message + '"><span>' + message + '</span>');
           }
 
           if ('Choose Config for Archivists Toolkit DIP Upload' == this.model.get('type'))
           {
             this.$('.job-detail-actions')
-            .append('<a class="btn_atk_upload" href="#" title="Match DIP objects to resources"><span>Match DIP objects to resources</span>');
+            .append('<a class="btn_atk_upload" href="#" title="' + message + '"><span>' + message + '</span>');
           }
 
           this.$('.job-detail-microservice > a').tooltip();
@@ -300,14 +304,14 @@ $(function()
           // redict to object/resource mapping pages
           if ('- Upload DIP to Archivists Toolkit' == $select.find('option:selected').text())
           {
-            $('body').html('<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Loading...</h1>');
+            $('body').html('<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + gettext('Loading...') + '</h1>');
             window.location.href = '/ingest/' + this.model.sip.get('uuid') + '/upload/atk/';
           }
 
           // redirect to object/resource mapping pages
           if ('- Upload DIP to ArchivesSpace' == $select.find('option:selected').text())
           {
-            $('body').html('<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Loading...</h1>');
+            $('body').html('<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + gettext('Loading...') + '</h1>');
             window.location.href = '/ingest/' + this.model.sip.get('uuid') + '/upload/as/';
           }
 
@@ -364,7 +368,7 @@ $(function()
                         {
                           if (status_code_from_url_check != '200') {
                             $('#upload-dip-modal-spinner').hide();
-                            alert('There was a problem attempting to reach the destination URL.');
+                            alert(gettext('There was a problem attempting to reach the destination URL.'));
                           } else {
                                   var xhr = $.ajax(url, { type: 'POST', data: {
                                     'target': v_target }})
@@ -378,7 +382,7 @@ $(function()
                                       })
                                     .fail(function()
                                       {
-                                        alert("Error.");
+                                        alert(gettext("Error"));
                                         $select.val(0);
                                       })
                                     .always(function()

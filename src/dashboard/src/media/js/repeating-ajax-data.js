@@ -206,13 +206,13 @@ var RepeatingDataView = Backbone.View.extend({
   },
 
   appendDelHandlerToRecord: function(fieldEl, id) {
-    var $delHandle = $('<span>Delete</span>')
+    var $delHandle = $('<span>' + gettext('Delete') + '</span>')
       , self = this;
 
     $(fieldEl).append($delHandle);
 
     $delHandle.click(function() {
-      var deleteConfirm = 'Are you sure?';
+      var deleteConfirm = gettext('Are you sure?');
       if (confirm(deleteConfirm)) {
         $.ajax({
           url: self.url + '/' + id,

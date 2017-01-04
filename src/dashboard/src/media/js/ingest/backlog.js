@@ -16,7 +16,7 @@ function renderBacklogSearchForm(search_uri, on_success, on_error) {
       'type': 'term'
     },
     'deleteHandleHtml': '<img src="/media/images/delete.png" style="margin-left: 5px"/>',
-    'addHandleHtml': '<a>Add New</a>'
+    'addHandleHtml': '<a>' + gettext('Add new') + '</a>'
   });
 
   // define op field
@@ -31,18 +31,18 @@ function renderBacklogSearchForm(search_uri, on_success, on_error) {
 
   // default field name field
   search.addSelect('field', {title: 'field name', 'class': 'form-control'}, {
-    ''             : 'Any',
-    'filename'     : 'File name',
-    'file_extension': 'File extension',
-    'accessionid'  : 'Accession number',
-    'ingestdate'   : 'Ingest date (YYYY-MM-DD)',
-    'sipuuid'      : 'SIP UUID'
+    ''             : gettext('Any'),
+    'filename'     : gettext('File name'),
+    'file_extension': gettext('File extension'),
+    'accessionid'  : gettext('Accession number'),
+    'ingestdate'   : gettext('Ingest date (YYYY-MM-DD)'),
+    'sipuuid'      : gettext('SIP UUID')
   });
 
   // default field name field
   search.addSelect('type', {title: 'query type', 'class': 'form-control'}, {
-    'term': 'Keyword',
-    'string': 'Phrase'
+    'term': gettext('Keyword'),
+    'string': gettext('Phrase')
   });
 
   // don't show first op field

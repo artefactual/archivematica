@@ -122,11 +122,11 @@ function setupBacklogBrowser() {
   function moveHandler(move) {
     // don't allow moving anything into the originals directory
     if (move.self.id == 'originals') {
-      move.self.alert('Error', "You can't copy into the originals directory.");
+      move.self.alert(gettext('Error'), gettext("You can't copy into the originals directory."));
       return;
     }
     if (!move.allowed) {
-      move.self.alert('Error', "You can't move a directory into its subdirectory.");
+      move.self.alert(gettext('Error'), gettext("You can't move a directory into its subdirectory."));
       return;
     }
     // move.self is the arrange browser
@@ -159,7 +159,7 @@ function setupBacklogBrowser() {
       // Moving into the parent directory arrange/
       // Error if source is a file
       if (source.type() != 'directory') {
-        move.self.alert('Error', "Files must go in a SIP, not the parent directory.");
+        move.self.alert(gettext('Error'), gettext("Files must go in a SIP, not the parent directory."));
       }
       move.containerPath = arrangeDir+'/'
     } else if (destination.type() == 'directory') {
@@ -289,7 +289,7 @@ $(document).ready(function() {
     // if metadata button isn't disabled, execute
     if (typeof $('#arrange_edit_metadata_button').attr('disabled') === 'undefined') {
       if (typeof arrange_browser.selectedEntryId === 'undefined') {
-        arrange_browser.alert('Edit metadata', 'Please select a directory or file to edit.');
+        arrange_browser.alert(gettext('Edit metadata'), gettext('Please select a directory or file to edit.'));
         return;
       }
 
@@ -309,9 +309,9 @@ $(document).ready(function() {
       var selectedType = arrange_browser.getTypeForCssId(arrange_browser.selectedEntryId);
 
       if (selectedType != 'directory' && typeof arrange_browser.selectedEntryId !== 'undefined') {
-        arrange_browser.alert('Create Directory', "You can't create a directory in a file.");
+        arrange_browser.alert(gettext('Create directory'), ("You can't create a directory in a file."));
       } else {
-        var path = prompt('Name of new directory?');
+        var path = prompt(gettext('Name of new directory?'));
 
         if (path) {
           var path_root = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId) || '/' + Base64.decode(arrange_browser.structure.name)
@@ -340,15 +340,15 @@ $(document).ready(function() {
 
   $('#arrange_delete_button').click(function() {
     if (typeof arrange_browser.selectedEntryId === 'undefined') {
-      arrange_browser.alert('Delete', 'Please select a directory or file to delete.');
+      arrange_browser.alert(gettext('Delete'), gettext('Please select a directory or file to delete.'));
       return;
     }
     var path = arrange_browser.getPathForCssId(arrange_browser.selectedEntryId)
       , type = arrange_browser.getTypeForCssId(arrange_browser.selectedEntryId);
 
     arrange_browser.confirm(
-      'Delete',
-      'Are you sure you want to delete this directory or file?',
+      gettext('Delete'),
+      gettext('Are you sure you want to delete this directory or file?'),
       function() {
         if( type == 'directory') {
           path += '/'
@@ -373,7 +373,7 @@ $(document).ready(function() {
     if (typeof $('#arrange_create_sip_button').attr('disabled') === 'undefined') {
 
       if (typeof arrange_browser.selectedEntryId === 'undefined') {
-        arrange_browser.alert('Create SIP', 'Please select a directory before creating a SIP.');
+        arrange_browser.alert(gettext('Create SIP'), gettext('Please select a directory before creating a SIP.'));
         return
       }
       var entryDiv = $('#' + arrange_browser.selectedEntryId)
@@ -381,13 +381,13 @@ $(document).ready(function() {
         , entryObject = arrange_browser.getByPath(path)
 
       if (entryObject.type() != 'directory') {
-        arrange_browser.alert('Create SIP', 'SIPs can only be created from directories, not files.')
+        arrange_browser.alert(gettext('Create SIP'), gettext('SIPs can only be created from directories, not files.'))
         return
       }
 
       arrange_browser.confirm(
-        'Create SIP',
-        'Are you sure you want to create a SIP?',
+        gettext('Create SIP'),
+        gettext('Are you sure you want to create a SIP?'),
         function() {
           $('.activity-indicator').show();
           $.post(
@@ -416,14 +416,14 @@ $(document).ready(function() {
         // if view button isn't disabled, execute
         if (typeof $(buttonCssSelector).attr('disabled') === 'undefined') {
           if (typeof browser.selectedEntryId === 'undefined') {
-            browser.alert('Error', 'Please specifiy a file to view.');
+            browser.alert(gettext('Error'), gettext('Please specifiy a file to view.'));
           } else {
             var entryDiv = $('#' + browser.selectedEntryId)
                , path = browser.getPathForCssId(browser.selectedEntryId)
                , type = browser.getTypeForCssId(browser.selectedEntryId);
 
             if (type == 'directory') {
-              browser.alert('Error', 'Please specifiy a file to view.');
+              browser.alert(gettext('Error'), gettext('Please specifiy a file to view.'));
             } else {
               window.open(
                 '/filesystem/download_ss/?filepath=' + encodeURIComponent(Base64.encode(path)),

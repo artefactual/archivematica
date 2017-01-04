@@ -43,8 +43,8 @@ var DirectoryPickerView = fileBrowser.FileExplorer.extend({
     var self = this;
     this.options.actionHandlers = this.options.actionHandlers || [ 
       { 
-        name: 'Select', 
-        description: 'Select directory', 
+        name: gettext('Select'),
+        description: gettext('Select directory'), 
         iconHtml: 'Add', 
         logic: function(result) { 
           self.addDirectory(self, result.path); 
@@ -80,14 +80,14 @@ var DirectoryPickerView = fileBrowser.FileExplorer.extend({
         modal: true,
         buttons: [
           {
-            text: 'Yes',
+            text: gettext('Yes'),
             click: function() {
               $(this).dialog('close');
               logic();
             }
           },
           {
-            text: 'Cancel',
+            text: gettext('Cancel'),
             click: function() {
               $(this).dialog('close');
             }

@@ -14,7 +14,7 @@ function fetchAtomLevelsOfDescription(url) {
       window.location.reload();
     },
     error: function() {
-      alert('Error retrieving levels of description from AtoM');
+      alert(gettext('Error retrieving levels of description from AtoM'));
     }
   });
 }
@@ -40,7 +40,7 @@ function demoteLevel(id) {
 }
 
 function deleteLevel(id) {
-  if (confirm('Are you sure you want to delete this level of description?')) {
+  if (confirm(gettext('Are you sure you want to delete this level of description?'))) {
     submitAtomLevelOperation('delete', id);
   }
 }

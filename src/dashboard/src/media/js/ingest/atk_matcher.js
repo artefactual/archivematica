@@ -40,7 +40,8 @@ var ATKMatcherView = Backbone.View.extend({
 
     // set mandatory properties
     manditoryProperties.forEach(function(property) {
-      self[property] = options[property] || alert(property + ' required.');
+      var message = interpolate(pgettext('Archivists\'s Toolkit: specific property required', 'Property %(name) required.'), {'name': property}, true);
+      self[property] = options[property] || alert(message);
     });
 
     // set up matcher template methods

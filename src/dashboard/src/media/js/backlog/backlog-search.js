@@ -4,30 +4,30 @@ $(document).ready(function()
 
     function render_file_actions_col(relative_path, type, row_data) {
       return '<a class="btn btn-default fa-download fa" target="_blank" href="' + '/filesystem/download_ss/?filepath=' +
-              Base64.encode('/originals/' + relative_path) + '">Download</a>';
+              Base64.encode('/originals/' + relative_path) + '">' + gettext('Download') + '</a>';
     }
 
     function render_transfer_actions_col(uuid, type, row_data) {
-      return '<a class="btn btn-default" href="/backlog/download/' + uuid + '">Download</a>' +
-             '<a href="/backlog/delete/' + uuid + '"><img title="Request deletion" \
+      return '<a class="btn btn-default" href="/backlog/download/' + uuid + '">' + gettext('Download') + '</a>' +
+             '<a href="/backlog/delete/' + uuid + '"><img title="' + gettext('Request deletion') + '" \
              class="delete-icon" src="/media/images/delete.png"></a>';
     }
 
     function get_datatable() {
       if ($('#id_show_files').prop('checked')) {
         var cols = [
-          {sTitle: 'Filename', mData: 'filename'},
-          {sTitle: 'Transfer UUID', mData: 'sipuuid'},
-          {sTitle: 'Actions', mData: 'relative_path', mRender: render_file_actions_col}
+          {sTitle: gettext('Filename'), mData: 'filename'},
+          {sTitle: gettext('Transfer UUID'), mData: 'sipuuid'},
+          {sTitle: gettext('Actions'), mData: 'relative_path', mRender: render_file_actions_col}
         ];
       }
       else {
         var cols = [
-          {sTitle: 'Name', mData: 'name'},
-          {sTitle: 'Transfer UUID', mData: 'uuid'},
-          {sTitle: 'File count', mData: 'file_count'},
-          {sTitle: 'Ingest date', mData: 'ingest_date'},
-          {sTitle: 'Actions', mData: 'uuid', mRender: render_transfer_actions_col}
+          {sTitle: gettext('Name'), mData: 'name'},
+          {sTitle: gettext('Transfer UUID'), mData: 'uuid'},
+          {sTitle: gettext('File count'), mData: 'file_count'},
+          {sTitle: gettext('Ingest date'), mData: 'ingest_date'},
+          {sTitle: gettext('Actions'), mData: 'uuid', mRender: render_transfer_actions_col}
         ];
       }
 

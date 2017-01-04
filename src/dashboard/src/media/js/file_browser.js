@@ -56,13 +56,13 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
     // add delete handler
     var self = this;
     this.options.actionHandlers.push({ 
-        name: 'Delete', 
-        description: 'Delete file or directory', 
+        name: gettext('Delete'),
+        description: gettext('Delete file or directory'),
         iconHtml: "<img src='/media/images/delete.png' />", 
         logic: function(result) { 
           self.confirm(
-            'Delete',
-            'Are you sure you want to delete this directory or file?',
+            gettext('Delete'),
+            gettext('Are you sure you want to delete this directory or file?'),
             function() {
               self.deleteEntry(result.path, result.type);
             }
@@ -129,15 +129,13 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
   moveHandler: function(move) {
     if (move.allowed) {
       move.self.busy();
-      $('#message').text(
-        'Dropped ID ' + move.droppedPath + ' onto ' + move.containerPath
-      );
+      $('#message').text(interpolate(gettext('Dropped ID %(dropped_path) onto %(container_path)'), {'dropped_path': move.droppedPath, 'container_path': move.containerPath}, true));
       setTimeout(function() {
         move.self.idle();
         $('#message').text('');
       }, 2000);
     } else {
-      alert("You can't move a directory into its subdirectory.");
+      alert(gettext("You can't move a directory into its subdirectory."));
     }
   },
 
@@ -151,7 +149,7 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
         modal: true,
         buttons: [
           {
-            text: 'OK',
+            text: gettext('OK'),
             click: function() {
               $(this).dialog('close');
             }
@@ -170,14 +168,14 @@ var FileExplorer = fileBrowser.FileExplorer.extend({
         modal: true,
         buttons: [
           {
-            text: 'Yes',
+            text: gettext('Yes'),
             click: function() {
               $(this).dialog('close');
               logic();
             }
           },
           {
-            text: 'Cancel',
+            text: gettext('Cancel'),
             click: function() {
               $(this).dialog('close');
             }
