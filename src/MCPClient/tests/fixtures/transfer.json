@@ -1,0 +1,19 @@
+[
+{
+    "fields": {
+        "accessionid": "",
+        "magiclink": null,
+        "description": "",
+        "magiclinkexitmessage": null,
+        "transfermetadatasetrow": null,
+        "notes": "",
+        "typeoftransfer": "",
+        "hidden": false,
+        "type": "Standard",
+        "currentlocation": "%sharedPath%currentlyProcessing/ユニコード-e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6/",
+        "sourceofacquisition": ""
+    },
+    "model": "main.transfer",
+    "pk": "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"
+}
+]
