@@ -1,0 +1,74 @@
+[
+{
+    "fields": {
+        "filegrpuuid": "",
+        "sip": null,
+        "checksumtype": "sha256",
+        "originallocation": "%transferDirectory%objects/\u305f\u304f\u3055\u3093 directories/need sanitization/checking here/ev\u00e9lyn's photo.jpg",
+        "transfer": "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6",
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92",
+        "enteredsystem": "2017-01-04T19:35:20Z",
+        "currentlocation": "%transferDirectory%objects/\u305f\u304f\u3055\u3093 directories/need sanitization/checking here/ev\u00e9lyn's photo.jpg",
+        "size": 158131
+    },
+    "model": "main.file",
+    "pk": "47813453-6872-442b-9d65-6515be3c5aa1"
+},
+{
+    "fields": {
+        "filegrpuuid": "",
+        "sip": null,
+        "checksumtype": "sha256",
+        "originallocation": "%transferDirectory%objects/no_sanitization/needed_here/lion.svg",
+        "transfer": "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6",
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "f78615cd834f7fb84832177e73f13e3479f5b5b22ae7a9506c7fa0a14fd9df9e",
+        "enteredsystem": "2017-01-04T19:35:20Z",
+        "currentlocation": "%transferDirectory%objects/no_sanitization/needed_here/lion.svg",
+        "size": 18324
+    },
+    "model": "main.file",
+    "pk": "60e5c61b-14ef-4e92-89ec-9b9201e68adb"
+},
+{
+    "fields": {
+        "filegrpuuid": "",
+        "sip": null,
+        "checksumtype": "sha256",
+        "originallocation": "%transferDirectory%objects/\u305f\u304f\u3055\u3093 directories/need sanitization/checking here/lion\u5199\u771f.svg",
+        "transfer": "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6",
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "f78615cd834f7fb84832177e73f13e3479f5b5b22ae7a9506c7fa0a14fd9df9e",
+        "enteredsystem": "2017-01-04T19:35:20Z",
+        "currentlocation": "%transferDirectory%objects/\u305f\u304f\u3055\u3093 directories/need sanitization/checking here/lion\u5199\u771f.svg",
+        "size": 18324
+    },
+    "model": "main.file",
+    "pk": "791e07ea-ad44-4315-b55b-44ec771e95cf"
+},
+{
+    "fields": {
+        "filegrpuuid": "",
+        "sip": null,
+        "checksumtype": "sha256",
+        "originallocation": "%transferDirectory%objects/has space/lion.svg",
+        "transfer": "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6",
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "f78615cd834f7fb84832177e73f13e3479f5b5b22ae7a9506c7fa0a14fd9df9e",
+        "enteredsystem": "2017-01-04T19:35:20Z",
+        "currentlocation": "%transferDirectory%objects/has space/lion.svg",
+        "size": 18324
+    },
+    "model": "main.file",
+    "pk": "8a1f0b59-cf94-47ef-8078-647b77c8a147"
+}
+]

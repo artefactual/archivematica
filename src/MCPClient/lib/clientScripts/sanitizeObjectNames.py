@@ -21,6 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 from __future__ import print_function
+import logging
 import sys
 import os
 
@@ -35,26 +36,21 @@ from fileOperations import updateFileLocation
 from archivematicaFunctions import unicodeToStr
 import sanitizeNames
 
-if __name__ == '__main__':
-    logger = get_script_logger("archivematica.mcp.client.sanitizeObjectNames")
+logger = logging.getLogger()
 
-    objectsDirectory = sys.argv[1]  # directory to run sanitization on.
-    sipUUID = sys.argv[2]  # %SIPUUID%
-    date = sys.argv[3]  # %date%
-    taskUUID = sys.argv[4]  # %taskUUID%, unused
-    groupType = sys.argv[5]  # SIPDirectory or transferDirectory
-    groupType = "%%%s%%" % (groupType)  # %SIPDirectory% or %transferDirectory%
-    groupSQL = sys.argv[6]  # transfer_id or sip_id
-    sipPath = sys.argv[7]  # %SIPDirectory%
 
+def sanitize_object_names(objectsDirectory, sipUUID, date, groupType, groupSQL, sipPath):
+    """Sanitize object names in a Transfer/SIP."""
     relativeReplacement = objectsDirectory.replace(sipPath, groupType, 1)  # "%SIPDirectory%objects/"
 
+    # Sanitize objects on disk
     sanitizations = sanitizeNames.sanitizeRecursively(objectsDirectory)
     for oldfile, newfile in sanitizations.items():
         logger.info('sanitizations: %s -> %s', oldfile, newfile)
 
     eventDetail = 'program="sanitizeNames"; version="' + sanitizeNames.VERSION + '"'
 
+    # Update files in DB
     kwargs = {
         groupSQL: sipUUID,
         "removedtime__isnull": True,
@@ -103,3 +99,18 @@ if __name__ == '__main__':
         else:
             logger.info('No sanitization for %s', current_location)
             print('No sanitization found for', current_location)
+
+
+if __name__ == '__main__':
+    logger = get_script_logger("archivematica.mcp.client.sanitizeObjectNames")
+
+    objectsDirectory = sys.argv[1]  # directory to run sanitization on.
+    sipUUID = sys.argv[2]  # %SIPUUID%
+    date = sys.argv[3]  # %date%
+    taskUUID = sys.argv[4]  # %taskUUID%, unused
+    groupType = sys.argv[5]  # SIPDirectory or transferDirectory
+    groupType = "%%%s%%" % (groupType)  # %SIPDirectory% or %transferDirectory%
+    groupSQL = sys.argv[6]  # transfer_id or sip_id
+    sipPath = sys.argv[7]  # %SIPDirectory%
+
+    sanitize_object_names(objectsDirectory, sipUUID, date, groupType, groupSQL, sipPath)
