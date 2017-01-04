@@ -61,7 +61,7 @@ if __name__ == '__main__':
     }
     for f in File.objects.filter(**kwargs):
         # Check all files to see if any parent directory had a sanitization event
-        current_location = f.currentlocation.replace(groupType, sipPath)
+        current_location = unicodeToStr(f.currentlocation).replace(groupType, sipPath)
         sanitized_location = unicodeToStr(current_location)
         logger.info('Checking %s', current_location)
 
