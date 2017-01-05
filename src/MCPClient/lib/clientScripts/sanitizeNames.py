@@ -26,7 +26,9 @@ import string
 import os
 from shutil import move as rename
 import sys
+import unicodedata
 from unidecode import unidecode
+from archivematicaFunctions import unicodeToStr
 
 VERSION = "1.10." + "$Id$".split(" ")[1]
 valid = "-_.()" + string.ascii_letters + string.digits
@@ -74,7 +76,9 @@ def sanitizeRecursively(path):
 
     sanitizedName = sanitizePath(path)
     if sanitizedName != path:
-        sanitizations[path] = sanitizedName
+        path_key = unicodeToStr(
+            unicodedata.normalize('NFC', path.decode('utf8')))
+        sanitizations[path_key] = sanitizedName
     if os.path.isdir(sanitizedName):
         for f in os.listdir(sanitizedName):
             sanitizations.update(sanitizeRecursively(os.path.join(sanitizedName, f)))
