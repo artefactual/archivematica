@@ -24,6 +24,7 @@ from __future__ import print_function
 import logging
 import sys
 import os
+import unicodedata
 
 import django
 django.setup()
@@ -57,7 +58,9 @@ def sanitize_object_names(objectsDirectory, sipUUID, date, groupType, groupSQL, 
     }
     for f in File.objects.filter(**kwargs):
         # Check all files to see if any parent directory had a sanitization event
-        current_location = unicodeToStr(f.currentlocation).replace(groupType, sipPath)
+        current_location = unicodeToStr(
+            unicodedata.normalize('NFC', f.currentlocation)).replace(
+                groupType, sipPath)
         sanitized_location = unicodeToStr(current_location)
         logger.info('Checking %s', current_location)
 
