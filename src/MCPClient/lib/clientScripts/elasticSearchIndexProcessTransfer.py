@@ -1,7 +1,7 @@
+#!/usr/bin/env python3
 from __future__ import unicode_literals
 from future import standard_library
 standard_library.install_aliases()
-#!/usr/bin/env python3
 
 # This file is part of Archivematica.
 #

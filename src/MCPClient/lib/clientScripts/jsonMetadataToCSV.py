@@ -1,7 +1,7 @@
+#!/usr/bin/env python3
 from __future__ import unicode_literals
 from builtins import range
 from past.builtins import basestring
-#!/usr/bin/env python3
 
 import csv
 import json

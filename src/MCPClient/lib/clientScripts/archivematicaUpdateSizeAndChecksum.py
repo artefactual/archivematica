@@ -1,6 +1,6 @@
+#!/usr/bin/env python3
 from __future__ import unicode_literals
 from builtins import str
-#!/usr/bin/env python3
 
 # This file is part of Archivematica.
 #
