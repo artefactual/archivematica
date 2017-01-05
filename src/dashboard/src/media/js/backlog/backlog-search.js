@@ -32,6 +32,29 @@ $(document).ready(function()
       }
 
       return $('#backlog-entries').dataTable({
+        'language': {
+          'sEmptyTable':            pgettext('DataTable - sEmptyTable',         'No data available in table'),
+          'sInfo':                  pgettext('DataTable - sInfo',               'Showing _START_ to _END_ of _TOTAL_ entries'),
+          'sInfoEmpty':             pgettext('DataTable - sInfoEmpty',          'Showing 0 to 0 of 0 entries'),
+          'sInfoFiltered':          pgettext('DataTable - sInfoFiltered',       '(filtered from _MAX_ total entries)'),
+          'sInfoPostFix':           '', // pgettext('DataTable - sInfoPostFix',        ''),
+          'sInfoThousands':         pgettext('DataTable - sInfoThousands',      ','),
+          'sLengthMenu':            pgettext('DataTable - sLengthMenu',         'Show _MENU_ entries'),
+          'sLoadingRecords':        pgettext('DataTable - sLoadingRecords',     'Loading...'),
+          'sProcessing':            pgettext('DataTable - sProcessing',         'Processing...'),
+          'sSearch':                pgettext('DataTable - sSearch',             'Search:'),
+          'sZeroRecords':           pgettext('DataTable - sZeroRecords',        'No matching records found'),
+          'oPaginate': {
+              'sFirst':             pgettext('DataTable - sFirst',              'First'),
+              'sLast':              pgettext('DataTable - sLast',               'Last'),
+              'sNext':              pgettext('DataTable - sNext',               'Next'),
+              'sPrevious':          pgettext('DataTable - sPrevious',           'Previous')
+          },
+          'oAria': {
+              'sSortAscending':     pgettext('DataTable - sSortAscending',      ': activate to sort column ascending'),
+              'sSortDescending':    pgettext('DataTable - sSortDescending',     ': activate to sort column descending')
+          }
+        },
         'bLengthChange': false,
         'bFilter': false,
         'bAutoWidth': false,
