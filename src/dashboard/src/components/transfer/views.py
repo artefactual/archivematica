@@ -138,7 +138,7 @@ def status(request, uuid=None):
             # Check if hidden (TODO: this method is slow)
             if models.Transfer.objects.is_hidden(item['sipuuid']):
                 continue
-            jobs = helpers.get_jobs_by_sipuuid(item['sipuuid'])
+            jobs = models.Job.objects.filter(sipuuid=item['sipuuid'], subjobof='').order_by('-createdtime', 'subjobof')
             item['directory'] = os.path.basename(utils.get_directory_name_from_job(jobs))
             item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
             item['uuid'] = item['sipuuid']
@@ -153,6 +153,7 @@ def status(request, uuid=None):
                 newJob['microservicegroup'] = job.microservicegroup
                 newJob['subjobof'] = job.subjobof
                 newJob['currentstep'] = job.currentstep
+                newJob['currentstep_label'] = job.get_currentstep_display()
                 newJob['timestamp'] = '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1])
                 try: mcp_status
                 except NameError: pass

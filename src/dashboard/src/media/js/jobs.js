@@ -89,6 +89,17 @@ function tooltipPlugin(options)
 
 Sip = Backbone.Model.extend({
 
+  statuses: {
+    'STATUS_UNKNOWN': 0,
+    'STATUS_AWAITING_DECISION': 1,
+    'STATUS_COMPLETED_SUCCESSFULLY': 2,
+    'STATUS_EXECUTING_COMMANDS': 3,
+    'STATUS_FAILED': 4,
+
+    // These are only available on the client side :()
+    'STATUS_REJECTED': 'Rejected'
+  },
+
   methodUrl:
   {
     'delete': '/transfer/uuid/delete/'
@@ -110,22 +121,27 @@ Sip = Backbone.Model.extend({
       this.loadJobs();
     },
 
-  hasFinished: function()
+  hasFinished: function(attributes)
     {
-      return false === this.jobs.some(function(job)
+      var self = this;
+
+      return false === attributes.jobs.some(function(job)
         {
-          return -1 < jQuery.inArray(job.get('currentstep'), ['Requires approval', 'Executing command(s)']);
+          return -1 < jQuery.inArray(job.currentstep, [self.statuses['STATUS_EXECUTING_COMMANDS'], self.statuses['STATUS_AWAITING_DECISION']]);
         });
     },
 
   set: function(attributes, options)
     {
-      Backbone.Model.prototype.set.call(this, attributes, options);
+      res = Backbone.Model.prototype.set.call(this, attributes, options);
 
-      if (undefined !== this.jobs && !this.hasFinished())
+      // Update the view only if the unit is in progress
+      if (!this.hasFinished(attributes) && this.hasOwnProperty('view'))
       {
         this.view.update();
       }
+
+      return res;
     },
 
   loadJobs: function()
@@ -146,49 +162,6 @@ Job = Backbone.Model.extend({});
 JobCollection = Backbone.Collection.extend({
 
   model: Job,
-
-  getIcon: function()
-    {
-      var path = '/media/images/'
-        , icon
-        , title;
-
-      var statusIcons = {
-        'Requires approval':    'bell.png',
-        'Awaiting decision':    'bell.png',
-        'Failed':               'cancel.png',
-        'Executing command(s)': 'arrow_refresh.png',
-        'Rejected':             'control_stop_blue.png'
-      };
-
-      var job = this.toJSON().shift();
-
-      for(status in statusIcons) {
-         if (job.currentstep == status) {
-           icon = statusIcons[status];
-           title = job.currentstep;
-           break;
-         }
-      }
-
-      if (
-        job.microservicegroup == 'Reject SIP'
-        || job.type == 'Move to the rejected directory'
-      ) {
-        icon = 'control_stop_blue.png';
-        title = 'Reject SIP';
-      }
-
-      if (job.microservicegroup == 'Failed transfer') {
-        icon = 'cancel.png';
-        title = 'Failed transfer';
-      }
-
-      icon = icon   || 'accept.png';
-      title = title || 'Completed successfully';
-
-      return '<img src="' + path + '/' + icon + '" title="' + title + '" />';
-    },
 
   comparator: function(job)
     {
@@ -241,17 +214,9 @@ var BaseSipView = Backbone.View.extend({
       this.updateJobContainer();
 
       // if any jobs require user action, toggle the microservice group
-      this.$jobContainer
-        .children('.microservicegroup')
-        .children()
-        .children()
-        .children('.job-detail-currentstep')
-        .children('span')
-        .each(function() {
-          if ($(this).text() == 'Awaiting decision') {
-            self.doToggleJobs();
-          }
-        });
+      this.$jobContainer.find('.job-detail-currentstep[data-currentstep=' + this.model.statuses['STATUS_AWAITING_DECISION'] + ']').each(function() {
+        self.doToggleJobs();
+      });
 
       return this;
     },
@@ -342,17 +307,9 @@ var BaseSipView = Backbone.View.extend({
       });
 
       // open microservice if any jobs await a decision
-      this.$jobContainer
-        .children('.microservicegroup')
-        .children()
-        .children()
-        .children('.job-detail-currentstep')
-        .children('span')
-        .each(function() {
-          if ($(this).text() == 'Awaiting decision') {
-            $(this).parent().parent().parent().show();
-          }
-        });
+      this.$jobContainer.find('.job-detail-currentstep[data-currentstep=' + this.model.statuses['STATUS_AWAITING_DECISION'] + ']').each(function() {
+        $(this).parent().parent().show();
+      });
 
       this.$jobContainer.slideDown('fast', function()
         {
@@ -400,7 +357,7 @@ var BaseSipView = Backbone.View.extend({
 
   updateIcon: function()
     {
-      this.$('.sip-detail-icon-status').html(this.model.jobs.getIcon());
+      this.$('.sip-detail-icon-status').html(this.getIcon());
     },
 
   getIngestStartTime: function()
@@ -419,6 +376,36 @@ var BaseSipView = Backbone.View.extend({
       }
 
       return new Date(job.get('timestamp') * 1000).getArchivematicaDateTime();
+    },
+
+  getIcon: function()
+    {
+      // I feel like this should go somewhere else but it's ok for now.
+      var icons = new Object;
+      icons[this.model.statuses['STATUS_UNKNOWN']] = 'bell.png',
+      icons[this.model.statuses['STATUS_AWAITING_DECISION']] = 'bell.png',
+      icons[this.model.statuses['STATUS_COMPLETED_SUCCESSFULLY']] = 'accept.png',
+      icons[this.model.statuses['STATUS_EXECUTING_COMMANDS']] = 'arrow_refresh.png',
+      icons[this.model.statuses['STATUS_FAILED']] = 'cancel.png',
+      icons[this.model.statuses['STATUS_REJECTED']] = 'control_stop_blue.png'
+
+      var job = this.model.jobs.first();
+      var currentstep = job.get('currentstep');
+
+      // TODO: What is this? Can't the server tell us? Seriously...
+      if (job.microservicegroup == 'Reject SIP' || job.type == 'Move to the rejected directory') {
+        currentstep = this.model.statuses['STATUS_REJECTED'];
+      }
+      if (job.microservicegroup == 'Failed transfer') {
+        currentstep = this.model.statuses['STATUS_FAILED'];
+      }
+
+      var icon = 'accept.png';
+      if (icons.hasOwnProperty(currentstep)) {
+        icon = icons[currentstep];
+      }
+
+      return '<img src="/media/images/' + icon + '"/>';
     }
 });
 
@@ -433,132 +420,53 @@ var MicroserviceGroupView = Backbone.View.extend({
       this.uid  = this.options.uid;
     },
 
-  amalgamateSubjobs: function()
-    {
-      var subjobs = {}
-
-      this.jobs.each(function(job) {
-        if (job.attributes.subjobof != '') {
-          if (!subjobs[job.attributes.subjobof]) {
-            subjobs[job.attributes.subjobof] = [];
-          }
-          subjobs[job.attributes.subjobof].push(job);
-        }
-      });
-
-      return subjobs;
-    },
-
   render: function()
     {
       var self = this;
 
-      // render group wrapper
-      $(this.el).html(this.template({
-        name: this.name
-      }));
+      // Render group wrapper
+      $(this.el).html(this.template({ name: this.name }));
 
-      // add container for jobs
-      var jobDiv = $('<div></div>').hide();
+      // Add container for jobs
+      var jobDiv = $('<div class="job-container"></div>').hide();
       $(this.el).append(jobDiv);
 
-      var subjobs = this.amalgamateSubjobs();
-
-      // render jobs to container
-      var failedJobExists = false
-        , approveNormalizationFound = false;
+      var previewUrl = function(jobType, uuid) {
+        if (jobType == 'Store AIP') {
+          return '/ingest/preview/aip/' + uuid;
+        } else if (jobType == 'Approve normalization') {
+          return '/ingest/preview/normalization/' + uuid;
+        } else if (jobType == 'Move to the uploadedDIPs directory') {
+          return '/ingest/preview/dip/' + uuid;
+        }
+      }
 
       this.jobs.each(function(job) {
-        // render top-level jobs
-        if (job.attributes.subjobof == '') {
-          var jobView = new JobView({
-            model: job,
-            uid: self.uid
-          });
-          if (jobView.model.get('currentstep') == 'Failed') {
-            failedJobExists = true;
-          }
-          jobDiv.append(jobView.render().el);
 
-          // add link to browse SIP before it's made into an AIP
-          if (
-            (
-              job.attributes.currentstep == 'Awaiting decision' &&
-              (
-                job.attributes.type == 'Store AIP'
-                || job.attributes.type == 'Approve normalization'
-              )
-            )
-            || job.attributes.type == 'Move to the uploadedDIPs directory'
-          ) {
-            if (job.attributes.type == 'Store AIP') {
-              var url = '/ingest/preview/aip/' + job.attributes.uuid;
-            } else if (job.attributes.type == 'Approve normalization') {
-              var url = '/ingest/preview/normalization/' + job.attributes.uuid;
-            } else if (job.attributes.type == 'Move to the uploadedDIPs directory') {
-              var url = '/ingest/preview/dip/' + job.attributes.uuid;
-            }
-            $(jobView.el)
-              .children(':first')
-              .children(':nth-child(2)')
-              .append(
-                '&nbsp;<a href="'
-                + url
-                + '" target="_blank">(review)</a>'
-              );
-          }
-
-          // render subjobs, if any
-          // NOTE: currently disabled due to browser performance issues until
-          // we can implement paging
-          if (
-            false && subjobs[job.attributes.uuid]
-          ) {
-            var subJobDiv = $('<div class="subjob"></div>');
-            subJobDiv.hide();
-            for (var index in subjobs[job.attributes.uuid]) {
-              var subjob = subjobs[job.attributes.uuid][index];
-              var subjobView = new JobView({model: subjob});
-              if (subjobView.model.get('currentstep') == 'Failed') {
-                failedJobExists = true;
-              }
-              subJobDiv.append(subjobView.render().el);
-            }
-            jobDiv.append(subJobDiv);
-
-            // add a "link" to toggle subjob display
-            var subjobToggle = $('<span>&nbsp;</span><a>' + gettext('(more)') + '</a>');
-
-            $(jobView.el)
-              .children(':nth-child(1)')
-              .children(':nth-child(2)')
-              .append(subjobToggle);
-
-            // make it so clicking on the job reveals the subjobs
-            $(subjobToggle).click(function() {
-              if ($(subJobDiv).is(':visible')) {
-                subJobDiv.slideUp();
-              } else {
-                subJobDiv.slideDown(function() {
-                  // get rid of the "Job:" label to visually differentiate from
-                  // top-level jobs
-                  $('.subjob .job .job-detail-microservice .job-type-label').text(gettext('Subjob: '));
-                });
-              }
-            });
-          }
+        // Skip subjobs
+        if (job.attributes.subjobof != '') {
+          return;
         }
-      });
 
-      if (failedJobExists) {
-        $(this.el).css('background-color', '#f2d8d8');
-      }
+        // Render job
+        var view = new JobView({ model: job, uid: self.uid });
+        jobDiv.append(view.render().el);
+
+        // Add link to browse SIP before it's made into an AIP
+        if (
+          (job.get('currentstep') == job.sip.statuses['STATUS_AWAITING_DECISION'] && -1 < jQuery.inArray(job.get('type'), ['Store AIP', 'Approve normalization']))
+          || job.get('type') == 'Move to the uploadedDIPs directory'
+        ) {
+          $(view.el).children(':first').children(':nth-child(2)').append('&nbsp;<a href="' + previewUrl(job.get('type'), job.get('uuid')) + '" target="_blank" class="btn btn-default btn-xs">' + gettext('Review') + '</a>');
+        }
+
+      });
 
       // toggle job container when user clicks handle
       $(this.el).children(':first').click(function() {
-        var arrowEl = $(this).children('.microservice-group-arrow')
-          , arrowHtml = (jobDiv.is(':visible')) ? '&#x25B8' : '&#x25BE';
-        $(arrowEl).html(arrowHtml);
+        $(this)
+          .children('.microservice-group-arrow')
+          .html(jobDiv.is(':visible') ? '&#x25B8' : '&#x25BE');
         jobDiv.toggle('fast');
       });
 
@@ -616,20 +524,26 @@ var BaseJobView = Backbone.View.extend({
       window.open('/tasks/' + this.model.get('uuid') + '/', '_blank');
     },
 
+  /**
+   * TODO: this should be refactor to rely on CSS classes instead.
+   */
   getStatusColor: function(status)
     {
-      // use colors to differentiate status of jobs
-      var statusColors = {
-            'Failed':               '#f2d8d8',
-            'Rejected':             '#f2d8d8',
-            'Awaiting decision':    '#ffffff',
-            'Executing command(s)': '#fedda7',
-          },
-          bgColor;
+      var UNKNOWN_COLOR = '#d8f2dc';
 
-      return (statusColors[status] == undefined)
-        ? '#d8f2dc'
-        : statusColors[status];
+      var colors = new Object;
+      colors[this.model.sip.statuses['STATUS_UNKNOWN']] = UNKNOWN_COLOR;
+      colors[this.model.sip.statuses['STATUS_AWAITING_DECISION']] = '#ffffff';
+      colors[this.model.sip.statuses['STATUS_COMPLETED_SUCCESSFULLY']] = '#d8f2dc';
+      colors[this.model.sip.statuses['STATUS_EXECUTING_COMMANDS']] = '#fedda7';
+      colors[this.model.sip.statuses['STATUS_FAILED']] = '#f2d8d8';
+      colors[this.model.sip.statuses['STATUS_REJECTED']] = '#f2d8d8';
+
+      if (colors.hasOwnProperty(status)) {
+        return colors[status];
+      }
+
+      return UNKNOWN_COLOR;
     },
 
   // augment dashboard action select by using a pop-up with an enhanced select widget

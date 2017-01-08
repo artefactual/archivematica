@@ -44,8 +44,8 @@ from externals.HTML import HTML
 logger = get_script_logger('archivematica.mcp.client.emailFailReport')
 
 COLORS = {
-    'Completed successfully': '#dff0d8',
-    'Failed': '#f2dede',
+    Job.STATUS_COMPLETED_SUCCESSFULLY: '#dff0d8',
+    Job.STATUS_FAILED: '#f2dede',
     'default': 'yellow',
 }
 
@@ -144,7 +144,7 @@ def get_unit_job_log_html(sip_uuid):
             i += 1
             continue
 
-        status = rows[i-1][1]
+        status = rows[i - 1][1]
         bgcolor = COLORS.get(status, default_bgcolor)
         tr.set('bgcolor', bgcolor)
         i += 1

@@ -93,7 +93,7 @@
 
   <script type="text/template" id="sip-template">
     <div class="sip-row" id="sip-row-<%= uuid %>">
-      <div class="sip-detail-icon-status"><%= this.model.jobs.getIcon() %></div>
+      <div class="sip-detail-icon-status"><%= this.getIcon() %></div>
       <div class="sip-detail-directory">
         <%= directory %>
         <abbr title="<%= uuid %>">{% trans "UUID" %}</span>
@@ -124,7 +124,9 @@
         [<a href="#" title="<%= tmp %>">?</a>]
       <% } %>
     </div>
-    <div class="job-detail-currentstep"><span title="<%= new Date(timestamp * 1000).getArchivematicaDateTime() %>  /  <%= timestamp %>"><%= currentstep %></span></div>
+    <div class="job-detail-currentstep" data-currentstep="<%= currentstep %>">
+      <span title="<%= new Date(timestamp * 1000).getArchivematicaDateTime() %> / <%= timestamp %>"><%= currentstep_label %></span>
+    </div>
     <div class="job-detail-actions">
       <a class="btn_show_tasks" href="#" title="{% trans 'Tasks' %}"><span>{% trans "Tasks" %}</span></a>
     </div>

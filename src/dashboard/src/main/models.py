@@ -403,7 +403,19 @@ class Job(models.Model):
     directory = models.TextField(blank=True)
     sipuuid = models.CharField(max_length=36, db_column='SIPUUID')  # Foreign key to SIPs or Transfers
     unittype = models.CharField(max_length=50, db_column='unitType', blank=True)
-    currentstep = models.CharField(max_length=50, db_column='currentStep', blank=True)
+    STATUS_UNKNOWN = 0
+    STATUS_AWAITING_DECISION = 1
+    STATUS_COMPLETED_SUCCESSFULLY = 2
+    STATUS_EXECUTING_COMMANDS = 3
+    STATUS_FAILED = 4
+    STATUS = (
+        (STATUS_UNKNOWN, _l('Unknown')),
+        (STATUS_AWAITING_DECISION, _l('Awaiting decision')),
+        (STATUS_COMPLETED_SUCCESSFULLY, _l('Completed successfully')),
+        (STATUS_EXECUTING_COMMANDS, _l('Executing command(s)')),
+        (STATUS_FAILED, _l('Failed'))
+    )
+    currentstep = models.IntegerField(db_column='currentStep', choices=STATUS, default=0, blank=False)
     microservicegroup = models.CharField(max_length=50, db_column='microserviceGroup', blank=True)
     hidden = models.BooleanField(default=False)
     microservicechainlink = models.ForeignKey('MicroServiceChainLink', db_column='MicroServiceChainLinksPK', null=True, blank=True)

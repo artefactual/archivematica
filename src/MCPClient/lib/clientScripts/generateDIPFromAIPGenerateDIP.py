@@ -28,12 +28,14 @@ import shutil
 
 import django
 django.setup()
+
 # dashboard
 from main.models import Job, SIP
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from databaseFunctions import createSIP
+
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.generateDIPFromAIPGenerateDIP")
@@ -47,8 +49,8 @@ if __name__ == '__main__':
 
     basename = os.path.basename(unitPath[:-1])
     uuidLen = 36
-    originalSIPName = basename[:-(uuidLen+1)*2]
-    originalSIPUUID = basename[:-(uuidLen+1)][-uuidLen:]
+    originalSIPName = basename[:-(uuidLen + 1) * 2]
+    originalSIPUUID = basename[:-(uuidLen + 1)][-uuidLen:]
     METSPath = os.path.join(unitPath, "metadata/submissionDocumentation/data/", "METS.%s.xml" % (originalSIPUUID))
     if not os.path.isfile(METSPath):
         print("Mets file not found: ", METSPath, file=sys.stderr)
@@ -61,7 +63,7 @@ if __name__ == '__main__':
 
     # Move DIP
     src = os.path.join(unitPath, "DIP")
-    dst = os.path.join("/var/archivematica/sharedDirectory/watchedDirectories/uploadDIP/", originalSIPName + "-" + originalSIPUUID)  
+    dst = os.path.join("/var/archivematica/sharedDirectory/watchedDirectories/uploadDIP/", originalSIPName + "-" + originalSIPUUID)
     shutil.move(src, dst)
 
     try:
@@ -72,6 +74,6 @@ if __name__ == '__main__':
         Job.objects.create(jobtype="Hack to make DIP Jobs appear",
                            directory=unitPath,
                            sip_id=originalSIPUUID,
-                           currentstep="Completed successfully",
+                           currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
                            unittype="unitSIP",
                            microservicegroup="Upload DIP")

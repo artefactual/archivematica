@@ -25,6 +25,9 @@ from linkTaskManager import LinkTaskManager
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 
+from main.models import Job
+
+
 class linkTaskManagerLoadMagicLink(LinkTaskManager):
     """Load a link from the unit to process.
         Deprecated! Replaced with Set/Load Unit Variable"""
@@ -34,5 +37,5 @@ class linkTaskManagerLoadMagicLink(LinkTaskManager):
         magicLink = self.unit.getMagicLink()
         if magicLink != None:
             link, exitStatus = magicLink
-            self.jobChainLink.setExitMessage("Completed successfully")
+            self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
             self.jobChainLink.jobChain.nextChainLink(link, passVar=self.jobChainLink.passVar)

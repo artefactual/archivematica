@@ -28,7 +28,7 @@ global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 
 sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import TaskConfigUnitVariableLinkPull
+from main.models import TaskConfigUnitVariableLinkPull, Job
 
 class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
@@ -38,5 +38,5 @@ class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
         
         ###Update the unit
         if link != None:
-            self.jobChainLink.setExitMessage("Completed successfully")
+            self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
             self.jobChainLink.jobChain.nextChainLink(link, passVar=self.jobChainLink.passVar)

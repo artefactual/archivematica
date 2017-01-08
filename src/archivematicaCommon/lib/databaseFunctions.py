@@ -260,7 +260,7 @@ def logJobCreatedSQL(job):
                        jobtype=job.description,
                        directory=job.unit.currentPath,
                        sipuuid=unitUUID,
-                       currentstep="Executing command(s)",
+                       currentstep=Job.STATUS_EXECUTING_COMMANDS,
                        unittype=job.unit.__class__.__name__,
                        microservicegroup=str(job.microserviceGroup),
                        createdtime=job.createdDate,

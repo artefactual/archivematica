@@ -43,7 +43,7 @@ from django_mysqlpool import auto_close_db
 from archivematicaFunctions import unicodeToStr
 
 sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import MicroServiceChainChoice, UserProfile
+from main.models import MicroServiceChainChoice, UserProfile, Job
 
 waitingOnTimer="waitingOnTimer"
 
@@ -64,13 +64,13 @@ class linkTaskManagerChoice(LinkTaskManager):
         preConfiguredChain = self.checkForPreconfiguredXML()
         if preConfiguredChain != None:
             time.sleep(archivematicaMCP.config.getint('MCPServer', "waitOnAutoApprove"))
-            self.jobChainLink.setExitMessage("Completed successfully")
+            self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
             jobChain.jobChain(self.unit, preConfiguredChain)
 
         else:
             choicesAvailableForUnitsLock.acquire()
             if self.delayTimer == None:
-                self.jobChainLink.setExitMessage('Awaiting decision')
+                self.jobChainLink.setExitMessage(Job.STATUS_AWAITING_DECISION)
             choicesAvailableForUnits[self.jobChainLink.UUID] = self
             choicesAvailableForUnitsLock.release()
 
@@ -152,6 +152,6 @@ class linkTaskManagerChoice(LinkTaskManager):
             self.delayTimer = None
         self.delayTimerLock.release()
         choicesAvailableForUnitsLock.release()
-        self.jobChainLink.setExitMessage("Completed successfully")
+        self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
         LOGGER.info('Using user selected chain %s', chain)
         jobChain.jobChain(self.unit, chain)

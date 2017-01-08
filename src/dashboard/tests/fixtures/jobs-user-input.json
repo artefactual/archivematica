@@ -4,7 +4,7 @@
             "microservicegroup": "Create SIP from Transfer",
             "sipuuid": "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e",
             "microservicechainlink": null,
-            "currentstep": "Awaiting decision",
+            "currentstep": 1,
             "subjobof": "",
             "createdtime": "2016-10-04T22:50:57Z",
             "unittype": "unitTransfer",

@@ -30,13 +30,12 @@ import sys
 # This project,  alphabetical by import source
 from linkTaskManager import LinkTaskManager
 import archivematicaMCP
-from linkTaskManagerChoice import choicesAvailableForUnits
-from linkTaskManagerChoice import choicesAvailableForUnitsLock
+from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForUnitsLock
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict, ChoicesDict
 sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import StandardTaskConfig, UserProfile
+from main.models import StandardTaskConfig, UserProfile, Job
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -72,11 +71,11 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
 
         preConfiguredIndex = self.checkForPreconfiguredXML()
         if preConfiguredIndex is not None:
-            self.jobChainLink.setExitMessage("Completed successfully")
+            self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
             self.proceedWithChoice(index=preConfiguredIndex, user_id=None)
         else:
             choicesAvailableForUnitsLock.acquire()
-            self.jobChainLink.setExitMessage('Awaiting decision')
+            self.jobChainLink.setExitMessage(Job.STATUS_AWAITING_DECISION)
             choicesAvailableForUnits[self.jobChainLink.UUID] = self
             choicesAvailableForUnitsLock.release()
 

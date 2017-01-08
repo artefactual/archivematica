@@ -31,14 +31,12 @@ import time
 
 from linkTaskManager import LinkTaskManager
 import archivematicaMCP
-from linkTaskManagerChoice import choicesAvailableForUnits
-from linkTaskManagerChoice import choicesAvailableForUnitsLock
-from linkTaskManagerChoice import waitingOnTimer
+from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForUnitsLock, waitingOnTimer
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import MicroServiceChoiceReplacementDic, UserProfile
+from main.models import MicroServiceChoiceReplacementDic, UserProfile, Job
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -54,7 +52,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
         preConfiguredChain = self.checkForPreconfiguredXML()
         if preConfiguredChain != None:
             if preConfiguredChain != waitingOnTimer:
-                self.jobChainLink.setExitMessage("Completed successfully")
+                self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
                 rd = ReplacementDict.fromstring(preConfiguredChain)
                 self.update_passvar_replacement_dict(rd)
                 self.jobChainLink.linkProcessingComplete(0, passVar=self.jobChainLink.passVar)
@@ -62,7 +60,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                 LOGGER.info('Waiting on delay to resume processing on unit %s', unit)
         else:
             choicesAvailableForUnitsLock.acquire()
-            self.jobChainLink.setExitMessage('Awaiting decision')
+            self.jobChainLink.setExitMessage(Job.STATUS_AWAITING_DECISION)
             choicesAvailableForUnits[self.jobChainLink.UUID] = self
             choicesAvailableForUnitsLock.release()
 
@@ -108,7 +106,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                                 t.daemon = True
                                 t.start()
 
-                                t2 = threading.Timer(timeToGo, self.jobChainLink.setExitMessage, args=["Completed successfully"], kwargs={})
+                                t2 = threading.Timer(timeToGo, self.jobChainLink.setExitMessage, args=[Job.STATUS_COMPLETED_SUCCESSFULLY], kwargs={})
                                 t2.start()
                                 return waitingOnTimer
 

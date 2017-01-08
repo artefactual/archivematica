@@ -145,12 +145,9 @@ $(function()
 
       render: function()
         {
-          $(this.el).html(this.template(this.model.toJSON()));
-
-          $(this.el).css(
-            'background-color', 
-            this.getStatusColor(this.model.get('currentstep'))
-          );
+          $el = $(this.el);
+          $el.html(this.template(this.model.toJSON()));
+          $el.css('background-color', this.getStatusColor(this.model.get('currentstep')));
 
           var choices = this.model.get('choices');
           if (choices)
@@ -191,7 +188,7 @@ $(function()
             type: 'POST',
             success: function(data)
               {
-                this.model.set({'currentstep': 'Executing command(s)'});
+                this.model.set({ 'currentstep': this.model.sip.statuses['STATUS_EXECUTING_COMMANDS'] });
 
                 this.model.sip.view.updateIcon();
 

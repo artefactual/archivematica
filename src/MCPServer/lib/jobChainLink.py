@@ -135,18 +135,39 @@ class jobChainLink:
 
     @log_exceptions
     @auto_close_db
-    def setExitMessage(self, message):
-        Job.objects.filter(jobuuid=self.UUID).update(currentstep=str(message))
+    def setExitMessage(self, status_code):
+        """
+        Set the value of Job.currentstep, comming either from any
+        MicroServiceChainLinkExitCode.exitmessage or different code paths where
+        a value is manually assigned based on different circunstances.
+
+        Should this be a method of the Job model?
+
+        Note: linkTaskManager{Choice,ReplacementDicFromChoice}.py call this
+        method passing an unknown status, e.g. "Waiting till ${time}" which
+        we are going to map as UNKNOWN for now.
+        """
+        try:
+            status_code = int(status_code)
+        except ValueError:
+            status_code = 0
+        Job.objects.filter(jobuuid=self.UUID).update(currentstep=status_code)
 
     def updateExitMessage(self, exitCode):
-        message = self.defaultExitMessage
+        """
+        Assign a status to the current job after the exit code. The
+        corresponding status code is described in
+        MicroServiceChainLink.defaultexitmessage unless it's been listed in
+        MicroServiceChainLinkExitCode.exitmessage.
+        """
+        status_code = self.defaultExitMessage
         if exitCode is not None:
             try:
-                message = MicroServiceChainLinkExitCode.objects.get(microservicechainlink_id=str(self.pk), exitcode=str(exitCode)).exitmessage
+                status_code = MicroServiceChainLinkExitCode.objects.get(microservicechainlink_id=str(self.pk), exitcode=str(exitCode)).exitmessage
             except MicroServiceChainLinkExitCode.DoesNotExist:
                 pass
-        if message is not None:
-            self.setExitMessage(message)
+        if status_code is not None:
+            self.setExitMessage(status_code)
         else:
             LOGGER.debug('No exit message')
 

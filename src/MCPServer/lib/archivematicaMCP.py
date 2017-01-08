@@ -269,8 +269,8 @@ def flushOutputs():
         time.sleep(5)
 
 def cleanupOldDbEntriesOnNewRun():
-    Job.objects.filter(currentstep='Awaiting decision').delete()
-    Job.objects.filter(currentstep='Executing command(s)').update(currentstep='Failed')
+    Job.objects.filter(currentstep=Job.STATUS_AWAITING_DECISION).delete()
+    Job.objects.filter(currentstep=Job.STATUS_EXECUTING_COMMANDS).update(currentstep=Job.STATUS_FAILED)
     Task.objects.filter(exitcode=None).update(exitcode=-1, stderror="MCP shut down while processing.")
 
 

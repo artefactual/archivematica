@@ -148,22 +148,6 @@ def task_duration_in_seconds(task):
         duration = '< 1'
     return duration
 
-def get_jobs_by_sipuuid(uuid):
-    jobs = models.Job.objects.filter(sipuuid=uuid,subjobof='').order_by('-createdtime', 'subjobof')
-    priorities = {
-        'completedUnsuccessfully': 0,
-        'requiresAprroval': 1,
-        'requiresApproval': 1,
-        'exeCommand': 2,
-        'verificationCommand': 3,
-        'completedSuccessfully': 4,
-        'cleanupSuccessfulCommand': 5,
-    }
-    def get_priority(job):
-        try: return priorities[job.currentstep]
-        except Exception: return 0
-    return sorted(jobs, key = get_priority) # key = lambda job: priorities[job.currentstep]
-
 def get_metadata_type_id_by_description(description):
     return models.MetadataAppliesToType.objects.get(description=description)
 

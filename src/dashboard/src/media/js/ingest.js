@@ -217,17 +217,11 @@ $(function()
 
       render: function()
         {
-          var jobData = this.model.toJSON();
+          $el = $(this.el);
+          $el.html(this.template(this.model.toJSON()));
+          $el.css('background-color', this.getStatusColor(this.model.get('currentstep')));
 
-          $(this.el).html(this.template(jobData));
-
-          $(this.el).css(
-            'background-color',
-            this.getStatusColor(jobData.currentstep)
-          );
-
-          choices = this.model.get('choices');
-
+          var choices = this.model.get('choices');
           if (choices)
           {
             var $select = $('<select />').append('<option>' + gettext('Actions') + '</option>')
@@ -289,7 +283,7 @@ $(function()
                 type: 'POST',
                 success: function(data)
                   {
-                    context.model.set({'currentstep': 'Executing command(s)'});
+                    context.model.set({ 'currentstep': this.model.sip.statuses['STATUS_EXECUTING_COMMANDS'] });
 
                     context.model.sip.view.updateIcon();
 
