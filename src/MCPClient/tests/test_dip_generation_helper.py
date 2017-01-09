@@ -11,9 +11,10 @@ import dip_generation_helper
 
 from main.models import ArchivesSpaceDIPObjectResourcePairing
 
+
 class TestParseArchivesSpaceIDs(TestCase):
 
-    fixture_files = ['sip.json', 'files.json', 'archivesspace.json']
+    fixture_files = ['sip.json', 'files.json', 'archivesspaceconfig.json', 'archivesspace.json']
     sip_uuid = '4060ee97-9c3f-4822-afaf-ebdf838284c3'
     fixtures = [os.path.join(THIS_DIR, 'fixtures', p) for p in fixture_files]
 

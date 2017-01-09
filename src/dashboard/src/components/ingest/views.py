@@ -25,7 +25,6 @@ from lxml import etree
 import os
 import requests
 import shutil
-import sys
 from urlparse import urljoin
 import uuid
 
@@ -52,8 +51,7 @@ from components import helpers
 from components import decorators
 from components.ingest import forms as ingest_forms
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
-from main import forms
-from main import models
+from main import forms, models
 
 import archivematicaFunctions
 import elasticSearchFunctions
@@ -286,7 +284,8 @@ def ingest_metadata_delete(request, uuid, id):
         raise Http404
 
 def ingest_upload_destination_url_check(request):
-    url = helpers.get_setting('dip_upload_atom_url')
+    settings = models.DashboardSetting.objects.get_dict('upload-qubit_v0.0')
+    url = settings.get('url')
 
     # add target to URL
     url = urljoin(url, request.GET.get('target', ''))

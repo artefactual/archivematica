@@ -310,7 +310,7 @@ $(function()
           }
 
           // if ('Upload DIP' == this.model.get('type') && 13 == value)
-          if ('- Upload DIP to Atom' == $select.find('option:selected').text())
+          if ('- Upload DIP to AtoM' == $select.find('option:selected').text())
           {
             var modal = $('#upload-dip-modal');
             var input = modal.find('input');
@@ -350,43 +350,34 @@ $(function()
                 {
                   event.preventDefault();
 
-                  if (input.filter(':text').val())
+                  var target = input.filter(':text').val()
+                  if (!target)
                   {
-                    var v_target = input.filter(':text').val();
-                    $('#upload-dip-modal-spinner').show();
-                    // get AtoM destination URL (so we can confirm it's up)
-                    $.ajax({
-                      url: '/ingest/upload/url/check/?target=' + encodeURIComponent(v_target),
-                      type: 'GET',
-                      success: function(status_code_from_url_check)
-                        {
-                          if (status_code_from_url_check != '200') {
-                            $('#upload-dip-modal-spinner').hide();
-                            alert(gettext('There was a problem attempting to reach the destination URL.'));
-                          } else {
-                                  var xhr = $.ajax(url, { type: 'POST', data: {
-                                    'target': v_target }})
-
-                                    .done(function(data)
-                                      {
-                                        if (data.ready)
-                                        {
-                                          executeCommand(self);
-                                        }
-                                      })
-                                    .fail(function()
-                                      {
-                                        alert(gettext("Error"));
-                                        $select.val(0);
-                                      })
-                                    .always(function()
-                                      {
-                                        modal.modal('hide');
-                                      });
-                          }
-                        }
-                    });
+                    return;
                   }
+
+                  $('#upload-dip-modal-spinner').show();
+
+                  // Chained XHR calls. Eventually, we should simplify this on the server side.
+                  $.when(
+                      $.ajax({ type: 'GET', url: '/ingest/upload/url/check/', data: { target: target } }),
+                      $.ajax({ type: 'POST', url: url, data: { target: target } })
+                    ).done(function(resp1, resp2) {
+
+                      if (resp2.ready) {
+                        executeCommand(self);
+                      }
+
+                    }).fail(function(resp1, resp2) {
+
+                      alert(gettext('There was a problem attempting to reach the destination URL.'));
+
+                    }).always(function() {
+
+                      modal.modal('hide');
+                      $select.val(0);
+
+                  });
                 })
               .end()
 

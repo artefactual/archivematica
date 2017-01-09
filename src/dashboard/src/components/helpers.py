@@ -204,16 +204,18 @@ def get_atom_levels_of_description(clear=True):
     :param bool clear: When True, deletes all existing levels of description from the Archivematica database before fetching; otherwise, the fetched levels of description will be appended to the already-stored values.
     :raises AtomError: if no AtoM URL or authentication credentials are defined in the settings, or if the levels of description cannot be fetched for another reason
     """
-    url = get_setting('dip_upload_atom_url')
+    settings = models.DashboardSetting.objects.get_dict('upload-qubit_v0.0')
+
+    url = settings('url', None)
     if not url:
         raise AtomError(_("AtoM URL not defined!"))
 
-    auth = (
-        get_setting('dip_upload_atom_email'),
-        get_setting('dip_upload_atom_password'),
-    )
-    if not auth:
+    email = settings('email', None)
+    password = settings('password', None)
+    if not email or not password:
         raise AtomError(_("AtoM authentication settings not defined!"))
+    auth = (email, password)
+
 
     # taxonomy 34 is "level of description"
     dest = urljoin(url, 'api/taxonomies/34')

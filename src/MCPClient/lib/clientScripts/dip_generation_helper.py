@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 from __future__ import print_function
 import argparse
-import ast
 import csv
 import sys
 
@@ -24,16 +23,15 @@ def create_archivesspace_client():
     Create an ArchivesSpace client instance.
     """
     # TODO use same code as views_as.py?
-    repl_dict = models.MicroServiceChoiceReplacementDic.objects.get(description='ArchivesSpace Config')
-    config = ast.literal_eval(repl_dict.replacementdic)
+    config = models.DashboardSetting.objects.get_dict('upload-archivesspace_v0.0')
 
     try:
         client = archivesspace.ArchivesSpaceClient(
-            host=config['%host%'],
-            port=config['%port%'],
-            user=config['%user%'],
-            passwd=config['%passwd%'],
-            repository=config['%repository%']
+            host=config['host'],
+            port=config['port'],
+            user=config['user'],
+            passwd=config['passwd'],
+            repository=config['repository']
         )
     except archivesspace.AuthenticationError:
         print("Unable to authenticate to ArchivesSpace server using the default user! Check administrative settings.")

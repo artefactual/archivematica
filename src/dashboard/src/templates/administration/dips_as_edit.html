@@ -23,7 +23,7 @@
   {% include "administration/sidebar.html" %}
   <div class="col-md-10">
     <h3>{% trans "ArchivesSpace DIP upload" %}</h3>
-    <form class="form-stacked" method="post" action="{% url 'components.administration.views.administration_as_dips' %}">
+    <form class="form-stacked" method="post" action="{% url 'components.administration.views_dip_upload.admin_as' %}">
       {% include "_form.html" %}
       <div class="actions">
         <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>

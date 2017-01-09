@@ -10,7 +10,6 @@ import django
 django.setup()
 # dashboard
 from main import models
-from components.administration import models as admin_models
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
@@ -22,6 +21,7 @@ logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
 COMPLETED = 0
 NO_ACTION = 1
 ERROR = 2
+
 
 def dspace_handle_to_archivesspace(sip_uuid):
     """Fetch the DSpace handle from the Storage Service and send to ArchivesSpace."""
@@ -46,12 +46,12 @@ def dspace_handle_to_archivesspace(sip_uuid):
 
     # POST Dspace handle to ArchivesSpace
     # Get ArchivesSpace config
-    config = admin_models.ArchivesSpaceConfig.objects.all()[0]
-    archivesspace_url = 'http://' + config.host + ':' + str(config.port)
+    config = models.DashboardSetting.objects.get_dict('upload-archivesspace_v0.0')
+    archivesspace_url = 'http://' + config['host'] + ':' + str(config['port'])
 
     # Log in
-    url = archivesspace_url + '/users/' + config.user + '/login'
-    params = {'password': config.passwd}
+    url = archivesspace_url + '/users/' + config['user'] + '/login'
+    params = {'password': config['passwd']}
     logger.debug('Log in to ArchivesSpace URL: %s', url)
     response = requests.post(url, params=params, timeout=120)
     logger.debug('Response: %s %s', response, response.content)
@@ -69,9 +69,9 @@ def dspace_handle_to_archivesspace(sip_uuid):
     url = archivesspace_url + digital_object.remoteid
     file_version = {
         "file_uri": handle,
-        "use_statement": config.use_statement,
-        "xlink_show_attribute": config.xlink_show,
-        "xlink_actuate_attribute": config.xlink_actuate,
+        "use_statement": config['use_statement'],
+        "xlink_show_attribute": config['xlink_show'],
+        "xlink_actuate_attribute": config['xlink_actuate'],
     }
     body['file_versions'].append(file_version)
     logger.debug('Modified Digital Object: %s', body)
@@ -82,6 +82,7 @@ def dspace_handle_to_archivesspace(sip_uuid):
         print('Error updating', digital_object.remoteid)
         return ERROR
     return COMPLETED
+
 
 def post_store_hook(sip_uuid):
     """

@@ -26,7 +26,7 @@ import logging
 # Core Django, alphabetical by import source
 from django import forms
 from django.contrib.auth.models import User
-from django.db import models
+from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext as _, ugettext_lazy as _l
@@ -89,15 +89,64 @@ def create_user_agent(sender, instance, **kwargs):
 
 # MODELS
 
+class DashboardSettingManager(models.Manager):
+    """
+    Table-level dictionary behaviour for DashboardSetting.
+
+    WARNING: This class is used from at least one database migration
+    (0031_dashboard_scope). The implementation of set_dict should be backward
+    compatible compatible with the existing migrations using it. If it changes,
+    the migrations should be updated accordingly.
+    """
+    use_in_migrations = True  # Serialize manager into migration
+
+    def get_dict(self, scope):
+        """
+        Retrieve a dictionary given its scope. The returned dict will be empty
+        if the scope cannot not be found.
+
+            > DashboardSetting.objects.get_dict('My dictionary')
+            {u'foo': u'bar'}
+
+        """
+        return {key: value for (key, value) in self.get_queryset().filter(scope=scope).values_list('name', 'value')}
+
+    def set_dict(self, scope, items):
+        """
+        Store key: value pairs in a given scope. Each item in the dict will
+        be mapped into a table tuple. Existing pairs will be deleted. Django
+        will convert all the values into unicode strings.
+
+            > DashboardSetting.object.set_dict('My dictionary', {'foo': 'bar'})
+
+        """
+        if not isinstance(items, dict):
+            return False
+        with transaction.atomic():
+            self.unset_dict(scope)
+            self.bulk_create([
+                DashboardSetting(scope=scope, name=unicode(name), value=unicode(value)) for name, value in items.items()
+            ])
+
+    def unset_dict(self, scope):
+        return self.get_queryset().filter(scope=scope).delete()
+
+
 class DashboardSetting(models.Model):
     """ Settings related to the dashboard stored as key-value pairs. """
     id = models.AutoField(primary_key=True, db_column='pk')
+    scope = models.CharField(max_length=255, blank=True)
     name = models.CharField(max_length=255, db_column='name')
     value = models.TextField(db_column='value', blank=True)
     lastmodified = models.DateTimeField(auto_now=True, db_column='lastModified')
 
+    objects = DashboardSettingManager()
+
     class Meta:
         db_table = u'DashboardSettings'
+
+    def __str__(self):
+        return '[scope={}|name={}]: {}'.format(self.scope if self.scope else '<blank>', self.name, self.value)
 
 
 class Access(models.Model):

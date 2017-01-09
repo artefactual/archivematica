@@ -36,13 +36,13 @@ import components.helpers as helpers
 from components.administration.forms import StorageSettingsForm
 from installer.forms import SuperUserCreationForm
 from main.models import Agent
-from components.administration.models import ArchivistsToolkitConfig
 
 import utilities.FPRClient.client as FPRClient
 import storageService as storage_service
 import version
 
 logger = logging.getLogger('archivematica.dashboard')
+
 
 def welcome(request):
     # This form will be only accessible when the database has no users
@@ -60,9 +60,6 @@ def welcome(request):
         archivematica_agent.identifiervalue = "Archivematica-"+version.get_version()
         archivematica_agent.save()
 
-        # create blank ATK DIP upload config
-        config = ArchivistsToolkitConfig()
-        config.save()
 
         # save organization PREMIS agent if supplied
         org_name       = request.POST.get('org_name', '')

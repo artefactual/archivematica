@@ -6,9 +6,9 @@
   {% url 'components.administration.views_processing.list' as url_processing %}
   {% url 'components.administration.views.general' as url_general %}
   {% url 'components.administration.views.failure_report' as failure_report %}
-  {% url 'components.administration.views.atom_dips' as url_dip %}
-  {% url 'components.administration.views.administration_as_dips' as url_as_dips %}
-  {% url 'components.administration.views.administration_atk_dips' as url_atk_dips %}
+  {% url 'components.administration.views_dip_upload.admin_atom' as url_atom_dip %}
+  {% url 'components.administration.views_dip_upload.admin_as' as url_as_dips %}
+  {% url 'components.administration.views_dip_upload.admin_atk' as url_atk_dips %}
   {% url 'components.administration.views.sources' as url_sources %}
   {% url 'components.administration.views.storage' as url_storage %}
   {% url 'components.administration.views.usage' as url_usage %}
@@ -31,11 +31,14 @@
 
     <li class="{% active request url_usage %}"><a href="{{ url_usage }}">{% trans "Processing storage usage" %}</a></li>
 
-    <li class="{% active request url_dip %}"><a href="{{ url_dip }}">{% trans "AtoM DIP upload" %}</a></li>
-
-    <li class="{% active request url_as_dips %}"><a href="{{ url_as_dips }}">{% trans "ArchivesSpace DIP upload" %}</a></li>
-
-    <li class="{% active request url_atk_dips %}"><a href="{{ url_atk_dips }}">{% trans "Archivists Toolkit DIP upload" %}</a></li>
+    <li>
+      {% trans "DIP upload" %}
+      <ul>
+        <li class="{% active request url_atom_dip %}"><a href="{{ url_atom_dip }}">{% trans "AtoM" %}</a></li>
+        <li class="{% active request url_as_dips %}"><a href="{{ url_as_dips }}">{% trans "ArchivesSpace" %}</a></li>
+        <li class="{% active request url_atk_dips %}"><a href="{{ url_atk_dips }}">{% trans "Archivists’ Toolkit" %}</a></li>
+      </ul>
+    </li>
 
     <li class="{% active request url_premis %}"><a href="{{ url_premis }}">{% trans "PREMIS agent" %}</a></li>
 

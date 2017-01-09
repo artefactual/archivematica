@@ -36,9 +36,10 @@ from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForU
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import MicroServiceChoiceReplacementDic, UserProfile, Job
+from main.models import DashboardSetting, Job, MicroServiceChainLink, MicroServiceChoiceReplacementDic, StandardTaskConfig, UserProfile
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
@@ -48,6 +49,28 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
         dicts = MicroServiceChoiceReplacementDic.objects.filter(choiceavailableatlink=str(jobChainLink.pk))
         for i, dic in enumerate(dicts):
             self.choices.append((i, dic.description, dic.replacementdic))
+
+        # This is an attempt to find a choice in DashboardSettings for the
+        # chain link that the current MicroServiceChoiceReplacementDic is
+        # taking us. We're looking up the setting dict by the module name
+        # that the StandardTaskConfig wants to execute, e.g. upload-qubit_v0.0.
+        #
+        # Not implemented yet, but this could enable us to store more than a
+        # configuration set a specific chain link.
+        #
+        # DashboardSettings does not belong to MCPServer. We currently have
+        # direct access to the database but that may not be always possible.
+        try:
+            mscl = MicroServiceChainLink.objects.get(id=jobChainLink.pk)
+            task_id = mscl.defaultnextchainlink.currenttask.tasktypepkreference
+            stc = StandardTaskConfig.objects.get(id=task_id)
+        except (MicroServiceChainLink.DoesNotExist, StandardTaskConfig.DoesNotExist, AttributeError):
+            pass
+        else:
+            args = DashboardSetting.objects.get_dict(stc.execute)
+            if args:
+                args = {'%{}%'.format(key): value for key, value in args.items()}
+                self.choices.append((len(self.choices), stc.execute, str(args)))
 
         preConfiguredChain = self.checkForPreconfiguredXML()
         if preConfiguredChain != None:

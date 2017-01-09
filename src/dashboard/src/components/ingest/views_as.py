@@ -1,5 +1,4 @@
 from __future__ import print_function
-import ast
 from functools import wraps
 import json
 
@@ -15,15 +14,14 @@ from components.ingest import pair_matcher
 
 
 def get_as_system_client():
-    repl_dict = models.MicroServiceChoiceReplacementDic.objects.get(description='ArchivesSpace Config')
-    config = ast.literal_eval(repl_dict.replacementdic)
+    config = models.DashboardSetting.objects.get_dict('upload-archivesspace_v0.0')
 
     return ArchivesSpaceClient(
-        host=config['%host%'],
-        port=config['%port%'],
-        user=config['%user%'],
-        passwd=config['%passwd%'],
-        repository=config['%repository%']
+        host=config['host'],
+        port=config['port'],
+        user=config['user'],
+        passwd=config['passwd'],
+        repository=config['repository']
     )
 
 

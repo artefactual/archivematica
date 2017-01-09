@@ -12,6 +12,7 @@ from main import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
 class TestSIPArrange(TestCase):
 
     fixture_files = ['test_user.json', 'sip_arrange.json']

@@ -41,10 +41,10 @@ django.setup()
 import main.models as models
 
 # moved after django.setup()
-logger = get_script_logger("archivematica.upload.qubit",
-                              logfile="/var/log/archivematica/MCPClient/atom_upload.log")
+logger = get_script_logger("archivematica.upload.qubit", logfile="/var/log/archivematica/MCPClient/atom_upload.log")
 
 PREFIX = "[uploadDIP]"
+
 
 # Colorize output
 def hilite(string, status=True):
@@ -57,6 +57,7 @@ def hilite(string, status=True):
         attr.append('31')
     return '\x1b[%sm%s\x1b[0m' % (';'.join(attr), string)
 
+
 # Print to stdout
 def log(message, access=None):
     logger.error("%s %s" % (PREFIX, hilite(message)))
@@ -64,22 +65,19 @@ def log(message, access=None):
         access.status = message
         access.save()
 
+
 # Print to stderr and exit
 def error(message, code=1):
     print("%s %s" % (PREFIX, hilite(message, False)), file=sys.stderr)
     sys.exit(1)
 
-# Make sure that archivematica user is executing this script
-user = getpass.getuser()
-if "archivematica" != user:
-    error('This user is required to be executed as "archivematica" user but you are using %s.' % user)
 
 def start(data):
     # Make sure we are working with an existing SIP record
     try:
-      sip = models.SIP.objects.get(pk=data.uuid)
-    except:
-      error("UUID not recognized")
+        models.SIP.objects.get(pk=data.uuid)
+    except models.SIP.DoesNotExist:
+        error("UUID not recognized")
 
     # Get directory
     jobs = models.Job.objects.filter(sipuuid=data.uuid, jobtype="Upload DIP")
@@ -97,7 +95,7 @@ def start(data):
         directory = directory.replace('uploadDIP', 'uploadedDIPs')
 
         if os.path.exists(directory) is False:
-          error("Directory not found: %s" % directory)
+            error("Directory not found: %s" % directory)
 
     try:
         # This upload was called before, restore Access record
@@ -222,7 +220,7 @@ def start(data):
         log("> Content received: %s" % response.content)
 
     # Check AtoM response status code
-    if not response.status_code in [200, 201, 302]:
+    if response.status_code not in [200, 201, 302]:
         error("Response code not expected")
 
     # Location is a must, if it is not included in the AtoM response something was wrong
@@ -244,7 +242,6 @@ def start(data):
     # We also have to parse the XML document
 
 if __name__ == '__main__':
-
     parser = optparse.OptionParser(usage='Usage: %prog [options]')
 
     options = optparse.OptionGroup(parser, 'Basic options')
@@ -252,7 +249,7 @@ if __name__ == '__main__':
     options.add_option('-e', '--email', dest='email', metavar='EMAIL', help='account e-mail')
     options.add_option('-p', '--password', dest='password', metavar='PASSWORD', help='account password')
     options.add_option('-U', '--uuid', dest='uuid', metavar='UUID', help='UUID')
-    options.add_option('-d', '--debug', dest='debug', metavar='DEBUG', action="store_true", default=False, help='Debug mode, prints HTTP headers')
+    options.add_option('-d', '--debug', dest='debug', metavar='DEBUG', default='no', type=str, help='Debug mode, prints HTTP headers')
     options.add_option('-v', '--version', dest='version', type='int', default=1, help='AtoM version')
     parser.add_option_group(options)
 
@@ -263,9 +260,16 @@ if __name__ == '__main__':
 
     (opts, args) = parser.parse_args()
 
+    # Make sure that archivematica user is executing this script
+    user = getpass.getuser()
+    if 'archivematica' != user:
+        error('This user is required to be executed as "archivematica" user but you are using %s.' % user)
+
     if opts.email is None or opts.password is None or opts.url is None or opts.uuid is None:
         parser.print_help()
         error("Invalid syntax", 2)
+
+    opts.debug = opts.debug.lower() in ['yes', 'y', 'true', '1']
 
     try:
         start(opts)
