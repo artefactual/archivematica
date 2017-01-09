@@ -96,9 +96,9 @@ def copyToNetX(sip_uuid):
 
 def get_dip_path(sip_uuid):
     try:
-        job = models.Job.objects.get(jobtype='Upload DIP', sipuuid=sip_uuid)
+        job = models.Job.objects.filter(jobtype='Upload DIP', sipuuid=sip_uuid)[0]
         return job.directory.rstrip('/').replace('%sharedPath%', SHARED_DIR)
-    except (django.core.exceptions.MultipleObjectsReturned, django.core.exceptions.ObjectDoesNotExist):
+    except IndexError:
         print >>sys.stderr, "Job directory not found in database."
         sys.exit(1)
 
