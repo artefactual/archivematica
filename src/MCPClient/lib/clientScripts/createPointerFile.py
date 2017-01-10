@@ -15,6 +15,9 @@ django.setup()
 # dashboard
 from django.utils import timezone
 from main.models import DublinCore
+import os
+import subprocess
+
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
@@ -44,13 +47,12 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     # it to do when pointing at an uncompressed AIP.
     if program == 'None':
         return 0
-
     if program == '7z':
         archive_tool = '7-Zip'
         archive_tool_version = '9.20'  # TODO get this dynamically
-    elif program == 'pbzip2':
+    elif program == 'lbzip2':
         archive_tool = program
-        archive_tool_version = '1.1.6'  # TODO get this dynamically
+        archive_tool_version = subprocess.check_output(["/usr/bin/lbzip2", "--version"])
     # Format / file extension
     _, extension = os.path.splitext(aip_filename)
     # PRONOM ID and PRONOM name for each file extension
