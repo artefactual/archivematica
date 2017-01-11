@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+package pb;
+
+import "processing.proto";
+
+service Workflow {
+    rpc WorkflowGet (WorkflowGetRequest) returns (WorkflowGetResponse) {}
+}
+
+// rpc ApproveTransfer
+
+message WorkflowGetRequest {
+    string id = 1;
+}
+
+message WorkflowGetResponse {
+    WorkflowData workflow = 1;
+    string error = 2;
+}
+
+// Other message types
+
+message WorkflowData {
+    repeated WatchedDirectory watchedDirectories = 1;
+    map<string,Chain> chains = 2;
+    map<string,Link> links = 3;
+}
+
+message WatchedDirectory {
+    enum WatchedDirectoryType {
+        UNKNOWN = 0;
+        TRANSFER = 1;
+        SIP = 2;
+        DIP = 3;
+    }
+    WatchedDirectoryType type = 1;
+    string path = 2;
+    bool onlyDirs = 3;
+    string chainId = 4;
+}
+
+message Chain {
+    map<string, string> description = 1;
+    string linkId = 2;
+    string id = 3;
+}
+
+message Link {
+    message LinkExitCode {
+        uint32 code = 1;
+        Job.Status jobStatus = 2;
+        string linkId = 3;
+    }
+    message LinkConfig {
+        message Standard {
+            string execute = 1;
+            string arguments = 2;
+            string filterSubdir = 3;
+            string filterFileStart = 4;
+            string filterFileEnd = 5;
+            string stdoutFile = 6;
+            string stderrFile = 7;
+            bool requiresOutputLock = 8;
+        }
+        message UserChoice {
+            repeated string chainIds = 1;
+        }
+        message UserChoiceDict {
+            message Replacement {
+                string id = 1;
+                map<string, string> description = 2;
+                map<string, string> items = 3;
+            }
+            repeated Replacement replacements = 1;
+        }
+        message SetUnitVar {
+            string variable = 1;
+            string variableValue = 2;
+            string chainId = 3;
+        }
+        message GetUnitVar {
+            string variable = 1;
+            string chainId = 2;
+        }
+        message Magic {
+            string linkId = 1;
+        }
+        string manager = 1;
+        string model = 2;
+        oneof attrs {
+            Standard standard = 3;
+            UserChoice userChoice = 4;
+            UserChoiceDict userChoiceDict = 5;
+            SetUnitVar setUnitVar = 6;
+            GetUnitVar getUnitVar = 7;
+            Magic magic = 8;
+        }
+    }
+    map<string, string> description = 1;
+    map<string, string> group = 2;
+    Job.Status fallbackJobStatus = 3;
+    string fallbackLinkId = 4;
+    repeated LinkExitCode exitCodes = 5;
+    LinkConfig config = 6;
+    string id = 7;
+}

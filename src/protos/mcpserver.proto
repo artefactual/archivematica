@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package pb;
+
+service MCPServer {
+
+  // ApproveJob proceeds processing with a choice given by the user
+  rpc ApproveJob(ApproveJobRequest) returns (ApproveJobResponse);
+
+  // ApproveTransfer starts a transfer awaiting for approval
+  rpc ApproveTransfer(ApproveTransferRequest) returns (ApproveTransferResponse);
+
+  // ChoiceList returns the list of job choices awaiting for decision
+  rpc ChoiceList(ChoiceListRequest) returns (ChoiceListResponse);
+
+}
+
+// rpc ApproveTransfer
+
+message ApproveTransferRequest {
+  string id = 1;
+}
+
+message ApproveTransferResponse {
+  bool approved = 1;
+}
+
+// rpc ApproveJob
+
+message ApproveJobRequest {
+  string id = 1;
+  string choiceId = 2;
+}
+
+message ApproveJobResponse {
+  bool approved = 1;
+}
+
+// rpc ChoiceList
+
+message ChoiceListRequest {}
+
+message ChoiceListResponse {
+  message Job {
+    message Choice {
+      string value = 1;
+      string description = 2;
+    }
+    enum UnitType {
+      UNKNOWN = 0;
+      TRANSFER = 1;
+      INGEST = 2;
+      DIP = 3;
+    }
+    string id = 1;
+    UnitType unitType = 2;
+    repeated Choice choices = 3;
+  }
+  repeated Job jobs = 1;
+  int32 transferCount = 2;
+  int32 ingestCount = 3;
+}
