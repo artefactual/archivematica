@@ -381,10 +381,11 @@ $(function()
 
                   if (input.filter(':text').val())
                   {
+                    var v_target = input.filter(':text').val();
                     $('#upload-dip-modal-spinner').show();
                     // get AtoM destination URL (so we can confirm it's up)
                     $.ajax({
-                      url: '/ingest/upload/url/check/?target=' + encodeURIComponent(input.filter(':text').val()),
+                      url: '/ingest/upload/url/check/?target=' + encodeURIComponent(v_target),
                       type: 'GET',
                       success: function(status_code_from_url_check)
                         {
@@ -393,7 +394,7 @@ $(function()
                             alert('There was a problem attempting to reach the destination URL.');
                           } else {
                                   var xhr = $.ajax(url, { type: 'POST', data: {
-                                    'target': input.filter(':text').val() }})
+                                    'target': v_target }})
 
                                     .done(function(data)
                                       {
