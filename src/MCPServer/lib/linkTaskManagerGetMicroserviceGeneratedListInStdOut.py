@@ -21,41 +21,30 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-# Stdlib, alphabetical by import source
 import logging
 import os
-import sys
 import threading
 
-# This project,  alphabetical by import source
+from archivematicaFunctions import escapeForCommand
+from dicts import ChoicesDict, ReplacementDict
 from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import archivematicaFunctions
-import databaseFunctions
-from dicts import ChoicesDict, ReplacementDict
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import StandardTaskConfig
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
-class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
-    def __init__(self, jobChainLink, pk, unit):
-        super(linkTaskManagerGetMicroserviceGeneratedListInStdOut, self).__init__(jobChainLink, pk, unit)
-        self.tasks = []
-        stc = StandardTaskConfig.objects.get(id=str(pk))
-        filterSubDir = stc.filter_subdir
-        self.requiresOutputLock = stc.requires_output_lock
-        standardOutputFile = stc.stdout_file
-        standardErrorFile = stc.stderr_file
-        execute = stc.execute
-        self.execute = execute
-        arguments = stc.arguments
 
-        if filterSubDir:
-            directory = os.path.join(unit.currentPath, filterSubDir)
-        else:
-            directory = unit.currentPath
+class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
+    def __init__(self, jobChainLink):
+        super(linkTaskManagerGetMicroserviceGeneratedListInStdOut, self).__init__(jobChainLink)
+
+        config = self.get_config()
+
+        filterSubDir = config.filterSubdir
+        standardOutputFile = config.stdoutFile
+        standardErrorFile = config.stderrFile
+        execute = config.execute
+        self.execute = execute
+        arguments = config.arguments
 
         # Apply passvar replacement values
         if self.jobChainLink.passVar is not None:
@@ -67,25 +56,36 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
                 arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(arguments, standardOutputFile, standardErrorFile)
 
         # Apply unit (SIP/Transfer) replacement values
-        commandReplacementDic = unit.getReplacementDic(directory)
+        directory = os.path.join(self.unit.currentPath, filterSubDir) if filterSubDir else self.unit.currentPath
+        commandReplacementDic = self.unit.getReplacementDic(directory)
+
         # Escape all values for shell
         for key, value in commandReplacementDic.items():
-                commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
+                commandReplacementDic[key] = escapeForCommand(value)
         arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
 
         self.task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, UUID=self.UUID)
-        databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, self.UUID, arguments)
+        self.log_task(commandReplacementDic, self.UUID, arguments)
         t = threading.Thread(target=self.task.performTask)
         t.daemon = True
         t.start()
 
-    def taskCompletedCallBackFunction(self, task):
-        databaseFunctions.logTaskCompletedSQL(task)
+    def get_config(self):
+        return self.link.config.standard
+
+    def task_completed_callback(self, uuid, results):
+        """
+        This callback is triggered by the taskStandard once the Gearman job
+        completes.
+        """
+        self.log_completed_task(uuid, results)
+
         try:
-            choices = ChoicesDict.fromstring(task.results["stdOut"])
+            choices = ChoicesDict.fromstring(results["stdOut"])
         except Exception:
-            LOGGER.exception('Unable to create dic from output %s', task.results['stdOut'])
+            LOGGER.exception('Unable to create dic from output %s', results['stdOut'])
             choices = ChoicesDict({})
+
         if self.jobChainLink.passVar is not None:
             if isinstance(self.jobChainLink.passVar, list):
                 for index, value in enumerate(self.jobChainLink.passVar):
@@ -99,4 +99,4 @@ class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
         else:
             self.jobChainLink.passVar = [choices]
 
-        self.jobChainLink.linkProcessingComplete(task.results["exitCode"], self.jobChainLink.passVar)
+        self.jobChainLink.linkProcessingComplete(results["exitCode"], self.jobChainLink.passVar)

@@ -21,60 +21,57 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-from linkTaskManager import LinkTaskManager
-from taskStandard import taskStandard
 import os
-import sys
 import threading
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import archivematicaFunctions
-import databaseFunctions
+from archivematicaFunctions import escapeForCommand
 from dicts import ReplacementDict
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import StandardTaskConfig
+from linkTaskManager import LinkTaskManager
+from taskStandard import taskStandard
 
 
 class linkTaskManagerDirectories(LinkTaskManager):
-    def __init__(self, jobChainLink, pk, unit):
-        super(linkTaskManagerDirectories, self).__init__(jobChainLink, pk, unit)
-        self.tasks = []
-        stc = StandardTaskConfig.objects.get(id=str(pk))
-        filterSubDir = stc.filter_subdir
-        self.requiresOutputLock = stc.requires_output_lock
-        standardOutputFile = stc.stdout_file
-        standardErrorFile = stc.stderr_file
-        execute = stc.execute
-        self.execute = execute
-        arguments = stc.arguments
+    def __init__(self, jobChainLink):
+        super(linkTaskManagerDirectories, self).__init__(jobChainLink)
 
-        if filterSubDir:
-            directory = os.path.join(unit.currentPath, filterSubDir)
-        else:
-            directory = unit.currentPath
+        config = self.get_config()
+
+        arguments = config.arguments
+        stdout_file = config.stdoutFile
+        stderr_file = config.stderrFile
 
         # Apply passvar replacement values
         if self.jobChainLink.passVar is not None:
             if isinstance(self.jobChainLink.passVar, list):
                 for passVar in self.jobChainLink.passVar:
                     if isinstance(passVar, ReplacementDict):
-                        arguments, standardOutputFile, standardErrorFile = passVar.replace(arguments, standardOutputFile, standardErrorFile)
+                        arguments, stdout_file, stderr_file = passVar.replace(arguments, stdout_file, stdout_file)
             elif isinstance(self.jobChainLink.passVar, ReplacementDict):
-                arguments, standardOutputFile, standardErrorFile = self.jobChainLink.passVar.replace(arguments, standardOutputFile, standardErrorFile)
+                arguments, stdout_file, stderr_file = self.jobChainLink.passVar.replace(arguments, stdout_file, stderr_file)
 
         # Apply unit (SIP/Transfer) replacement values
-        commandReplacementDic = unit.getReplacementDic(directory)
+        directory = os.path.join(self.unit.currentPath, config.filterSubdir) if config.filterSubdir else self.unit.currentPath
+        commandReplacementDic = self.unit.getReplacementDic(directory)
+
         # Escape all values for shell
         for key, value in commandReplacementDic.items():
-            commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
-        arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
+            commandReplacementDic[key] = escapeForCommand(value)
+        arguments, stdout_file, stderr_file = commandReplacementDic.replace(arguments, stdout_file, stderr_file)
 
-        self.task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, UUID=self.UUID)
-        databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, self.UUID, arguments)
+        # Execute Gearman client in a different thread
+        self.task = taskStandard(self, config.execute, arguments, stdout_file, stderr_file, UUID=self.UUID)
+        self.log_task(commandReplacementDic, self.UUID, arguments)
         t = threading.Thread(target=self.task.performTask)
         t.daemon = True
         t.start()
 
-    def taskCompletedCallBackFunction(self, task):
-        databaseFunctions.logTaskCompletedSQL(task)
-        self.jobChainLink.linkProcessingComplete(task.results["exitCode"], self.jobChainLink.passVar)
+    def get_config(self):
+        return self.link.config.standard
+
+    def task_completed_callback(self, uuid, results):
+        """
+        This callback is triggered by the taskStandard once the Gearman job
+        completes.
+        """
+        self.log_completed_task(uuid, results)
+        self.jobChainLink.linkProcessingComplete(results["exitCode"], self.jobChainLink.passVar)

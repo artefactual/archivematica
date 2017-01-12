@@ -41,77 +41,59 @@ import signal
 import sys
 import threading
 import time
-import uuid
 
+# TODO: deal with this outside the application
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-sys.path.append('/usr/lib/archivematica/MCPServer')
+for item in ('/usr/lib/archivematica/archivematicaCommon', '/usr/share/archivematica/dashboard', '/usr/lib/archivematica/MCPServer'):
+    if item not in sys.path:
+        sys.path.append(item)
 
 import django
-sys.path.append("/usr/share/archivematica/dashboard")
 django.setup()
 
 from django.db.models import Q
+from django.utils import timezone
 
 # This project, alphabetical by import source
 import watchDirectory
-import RPCServer
-from utils import log_exceptions
+import gRPCServer
+from utils import log_exceptions, get_uuid_from_path
 
 from jobChain import jobChain
 from unitSIP import unitSIP
 from unitDIP import unitDIP
-from unitFile import unitFile
 from unitTransfer import unitTransfer
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
-import databaseFunctions
+from databaseFunctions import createSIP
 from archivematicaFunctions import unicodeToStr
+import workflow
+import protos.workflow_pb2 as workflow_pb2
 
-from main.models import Job, SIP, Task, WatchedDirectory
+from main.models import Job, SIP, Task
 
-global countOfCreateUnitAndJobChainThreaded
-countOfCreateUnitAndJobChainThreaded = 0
 
 config = ConfigParser.SafeConfigParser()
 config.read("/etc/archivematica/MCPServer/serverConfig.conf")
-
-#time to sleep to allow db to be updated with the new location of a SIP
-dbWaitSleep = 2
-
 
 limitTaskThreads = config.getint('Protocol', "limitTaskThreads")
 limitTaskThreadsSleep = config.getfloat('Protocol', "limitTaskThreadsSleep")
 limitGearmanConnectionsSemaphore = threading.Semaphore(value=config.getint('Protocol', "limitGearmanConnections"))
 reservedAsTaskProcessingThreads = config.getint('Protocol', "reservedAsTaskProcessingThreads")
-stopSignalReceived = False #Tracks whether a sigkill has been received or not
+stopSignalReceived = False  # Tracks whether a sigkill has been received or not
 
-def isUUID(uuid):
-    """Return boolean of whether it's string representation of a UUID v4"""
-    split = uuid.split("-")
-    if len(split) != 5 \
-    or len(split[0]) != 8 \
-    or len(split[1]) != 4 \
-    or len(split[2]) != 4 \
-    or len(split[3]) != 4 \
-    or len(split[4]) != 12 :
-        return False
-    return True
 
-def fetchUUIDFromPath(path):
-    #find UUID on end of SIP path
-    uuidLen = -36
-    if isUUID(path[uuidLen-1:-1]):
-        return path[uuidLen-1:-1]
-
-def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
-    """Matches a directory to a database sip by it's appended UUID, or path. If it doesn't find one, it will create one"""
+def findOrCreateSipInDB(path, unit_type):
+    """
+    Matches a directory to a database sip by it's appended UUID, or path. If it
+    doesn't find one, it will create one.
+    """
     path = path.replace(config.get('MCPServer', "sharedDirectory"), "%sharedPath%", 1)
 
     query = Q(currentpath=path)
 
     # Find UUID on end of SIP path
-    UUID = fetchUUIDFromPath(path)
+    UUID = get_uuid_from_path(path)
     sip = None
     if UUID:
         query = query | Q(uuid=UUID)
@@ -142,99 +124,111 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
         # Note that if UUID is None here, a new UUID will be generated
         # and returned by the function; otherwise it returns the
         # value that was passed in.
-        UUID = databaseFunctions.createSIP(path, UUID=UUID)
+        UUID = createSIP(path, UUID=UUID)
         logger.info('Creating SIP %s at %s', UUID, path)
     else:
         current_path = sip.currentpath
-        if current_path != path and unit_type == 'SIP':
+        if current_path != path and unit_type == workflow_pb2.WatchedDirectory.SIP:
             # Ensure path provided matches path in DB
             sip.currentpath = path
             sip.save()
 
     return UUID
 
+
 @log_exceptions
 @auto_close_db
 def createUnitAndJobChain(path, config, terminate=False):
     path = unicodeToStr(path)
     if os.path.isdir(path):
-            path = path + "/"
-    logger.debug('Creating unit and job chain for %s with %s', path, config)
+        path = os.path.join(path, '')
     unit = None
+    unit_type = config[3]
+    unit_type_name = workflow_pb2.WatchedDirectory.WatchedDirectoryType.Name(unit_type)
+
     if os.path.isdir(path):
-        if config[3] == "SIP":
-            UUID = findOrCreateSipInDB(path)
+        if unit_type == workflow_pb2.WatchedDirectory.SIP:
+            UUID = findOrCreateSipInDB(path, unit_type)
             unit = unitSIP(path, UUID)
-        elif config[3] == "DIP":
-            UUID = findOrCreateSipInDB(path, unit_type='DIP')
+        elif unit_type == workflow_pb2.WatchedDirectory.DIP:
+            UUID = findOrCreateSipInDB(path, unit_type)
             unit = unitDIP(path, UUID)
-        elif config[3] == "Transfer":
+        elif unit_type == workflow_pb2.WatchedDirectory.TRANSFER:
             unit = unitTransfer(path)
     elif os.path.isfile(path):
-        if config[3] == "Transfer":
+        if unit_type == workflow_pb2.WatchedDirectory.TRANSFER:
             unit = unitTransfer(path)
-        else:
-            return
-            UUID = uuid.uuid4()
-            unit = unitFile(path, UUID)
-    else:
+
+    if unit is None:
+        logger.warning('Unit not created! path="%s" type="%s"', path, unit_type_name)
         return
-    jobChain(unit, config[1])
+    logger.debug('New unit created! uuid="%s" type="%s"', unit.UUID, unit_type_name)
+
+    # Start chain, passing: unit, chainId, workflow and unit_choices
+    jobChain(unit, config[1], config[4], config[5])
 
     if terminate:
         exit(0)
 
+
 def createUnitAndJobChainThreaded(path, config, terminate=True):
-    global countOfCreateUnitAndJobChainThreaded
     try:
         logger.debug('Watching path %s', path)
-        t = threading.Thread(target=createUnitAndJobChain, args=(path, config), kwargs={"terminate":terminate})
+        t = threading.Thread(target=createUnitAndJobChain, args=(path, config), kwargs={"terminate": terminate})
         t.daemon = True
-        countOfCreateUnitAndJobChainThreaded += 1
         while(limitTaskThreads <= threading.activeCount() + reservedAsTaskProcessingThreads ):
             if stopSignalReceived:
                 logger.info('Signal was received; stopping createUnitAndJobChainThreaded(path, config)')
                 exit(0)
             logger.debug('Active thread count: %s', threading.activeCount())
             time.sleep(.5)
-        countOfCreateUnitAndJobChainThreaded -= 1
         t.start()
     except Exception:
         logger.exception('Error creating threads to watch directories')
 
-def watchDirectories():
-    """Start watching the watched directories defined in the WatchedDirectories table in the database."""
+
+def watchDirectories(workflow, unit_choices):
+    """
+    Start watching the directories listed in the workflow data.
+    """
     watched_dir_path = config.get('MCPServer', "watchDirectoryPath")
     interval = config.getint('MCPServer', "watchDirectoriesPollInterval")
 
-    watched_directories = WatchedDirectory.objects.all()
+    for watched_directory in workflow.watchedDirectories:
+        directory = os.path.join(watched_dir_path, watched_directory.path.lstrip('/'), '')
 
-    for watched_directory in watched_directories:
-        directory = watched_directory.watched_directory_path.replace("%watchDirectoryPath%", watched_dir_path, 1)
-
-        # Tuple of variables that may be used by a callback
-        row = (watched_directory.watched_directory_path, watched_directory.chain_id, watched_directory.only_act_on_directories, watched_directory.expected_type.description)
+        # Tuple of variables that may be used by a callback.
+        # This could be a collections.namedtuple.
+        row = (
+            watched_directory.path,
+            watched_directory.chainId,
+            watched_directory.onlyDirs,
+            watched_directory.type,
+            workflow,
+            unit_choices
+        )
 
         if not os.path.isdir(directory):
             os.makedirs(directory)
+
+        # Start processing of existing directories.
         for item in os.listdir(directory):
             if item == ".gitignore":
                 continue
             item = item.decode("utf-8")
-            path = os.path.join(unicode(directory), item)
-            while(limitTaskThreads <= threading.activeCount() + reservedAsTaskProcessingThreads ):
+            path = os.path.join(directory, item)
+            while limitTaskThreads <= (threading.activeCount() + reservedAsTaskProcessingThreads):
                 time.sleep(1)
             createUnitAndJobChainThreaded(path, row, terminate=False)
-        actOnFiles=True
-        if watched_directory.only_act_on_directories:
-            actOnFiles=False
+
         watchDirectory.archivematicaWatchDirectory(
             directory,
             variablesAdded=row,
             callBackFunctionAdded=createUnitAndJobChainThreaded,
-            alertOnFiles=actOnFiles,
+            alertOnFiles=watched_directory.onlyDirs,
             interval=interval,
         )
+
 
 def signal_handler(signalReceived, frame):
     """Used to handle the stop/kill command signals (SIGKILL)"""
@@ -249,16 +243,13 @@ def signal_handler(signalReceived, frame):
     sys.exit(0)
     exit(0)
 
+
 @log_exceptions
 @auto_close_db
-def debugMonitor():
-    """Periodically prints out status of MCP, including whether the database lock is locked, thread count, etc."""
-    global countOfCreateUnitAndJobChainThreaded
-    while True:
-        logger.debug('Debug monitor: datetime: %s', databaseFunctions.getUTCDate())
-        logger.debug('Debug monitor: thread count: %s', threading.activeCount())
-        logger.debug('Debug monitor: created job chain threaded: %s', countOfCreateUnitAndJobChainThreaded)
-        time.sleep(3600)
+def print_internal_state(signal_received, frame):
+    logger.debug('Debug monitor: datetime: %s', timezone.now())
+    logger.debug('Debug monitor: thread count: %s', threading.activeCount())
+
 
 @log_exceptions
 @auto_close_db
@@ -267,6 +258,7 @@ def flushOutputs():
         sys.stdout.flush()
         sys.stderr.flush()
         time.sleep(5)
+
 
 def cleanupOldDbEntriesOnNewRun():
     Job.objects.filter(currentstep=Job.STATUS_AWAITING_DECISION).delete()
@@ -282,12 +274,13 @@ def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
     logger.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
     sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
+
 LOGGING_CONFIG = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'detailed': {
-            'format': '%(levelname)-8s  %(asctime)s  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s',
+            'format': '%(levelname)-8s  %(asctime)s  %(thread)d  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S'
         },
     },
@@ -308,6 +301,11 @@ LOGGING_CONFIG = {
             'backupCount': 5,
             'maxBytes': 4 * 1024 * 1024,  # 4 MiB
         },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'detailed',
+        },
     },
     'loggers': {
         'archivematica': {
@@ -315,33 +313,59 @@ LOGGING_CONFIG = {
         },
     },
     'root': {
-        'handlers': ['logfile', 'verboselogfile'],
+        'handlers': ['logfile', 'verboselogfile', 'console'],
         'level': 'WARNING',
     },
 }
 
+
+class UnitChoices(dict):
+    """
+    Thread-safe store of MCP's weirdest global shared state data structure.
+    Currently, this is a subclass of dict that is expected to be used via the
+    with statement. Implementation details may change but the interface will
+    be maintained, e.g. see http://stackoverflow.com/a/3387975.
+    """
+    def __init__(self, *args, **kwargs):
+        dict.__init__(self, *args, **kwargs)
+        self._lock = threading.Lock()
+
+    def __repr__(self):
+        return 'UnitChoices:' + dict.__repr__(self)
+
+    def __enter__(self):
+        self._lock.acquire()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self._lock.release()
+
+
 if __name__ == '__main__':
     logging.config.dictConfig(LOGGING_CONFIG)
     logger = logging.getLogger("archivematica.mcp.server")
+
+    logger.info('Hello! pid=%s user=%s', os.getpid(), getpass.getuser())
 
     # Replace exception handler with one that logs exceptions
     sys.excepthook = _except_hook_log_everything
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGUSR1, print_internal_state)
 
-    logger.info('This PID: %s', os.getpid())
-    logger.info('User: %s', getpass.getuser())
+    unit_choices = UnitChoices()
 
-    t = threading.Thread(target=debugMonitor)
-    t.daemon = True
-    t.start()
+    try:
+        workflow_client = workflow.get_client()
+        workflow = workflow_client.get_workflow('default')
+    except workflow.Error:
+        logger.error('Workflow client error: %s', exc_info=True)
+        sys.exit(1)
 
-    t = threading.Thread(target=flushOutputs)
-    t.daemon = True
-    t.start()
     cleanupOldDbEntriesOnNewRun()
-    watchDirectories()
 
-    # This is blocking the main thread with the worker loop
-    RPCServer.startRPCServer()
+    watchDirectories(workflow, unit_choices)
+
+    # This is going to block the main thread
+    gRPCServer.start(workflow, unit_choices)

@@ -24,11 +24,9 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.http import last_modified
 from django.views.i18n import javascript_catalog
 
-from contrib.mcp.client import MCPClient
-from main import models
-from lxml import etree
-from components import helpers
 from archivematicaFunctions import escape
+from components import helpers
+from main import models
 
 
 @cache_page(86400, key_prefix='js18n-%s' % get_language())
@@ -74,16 +72,13 @@ def home(request):
 
 # TODO: hide removed elements
 def status(request):
-    client = MCPClient()
-    xml = etree.XML(client.list())
-
-    sip_count = len(xml.xpath('//choicesAvailableForUnits/choicesAvailableForUnit/unit/type[text()="SIP"]'))
-    transfer_count = len(xml.xpath('//choicesAvailableForUnits/choicesAvailableForUnit/unit/type[text()="Transfer"]'))
-    dip_count = len(xml.xpath('//choicesAvailableForUnits/choicesAvailableForUnit/unit/type[text()="DIP"]'))
-
-    response = {'sip': sip_count, 'transfer': transfer_count, 'dip': dip_count}
-
-    return helpers.json_response(response)
+    resp = helpers.get_mcpserver_client(request.user).list_choices()
+    return helpers.json_response({
+        'count': {
+            'transfer': resp.transferCount,
+            'ingest': resp.ingestCount,
+        }
+    })
 
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -130,6 +125,8 @@ def task(request, uuid):
 def tasks(request, uuid):
     job = models.Job.objects.get(jobuuid=uuid)
     objects = job.task_set.all().order_by('-exitcode', '-endtime', '-starttime', '-createdtime')
+    link = helpers.get_workflow_client().get_workflow('default').links[job.microservicechainlink_id]
+    job_type = helpers.get_translation(link.description)
 
     if (len(objects) == 0):
         return tasks_subjobs(request, uuid)
@@ -143,12 +140,12 @@ def tasks(request, uuid):
         item.stdout = escape(item.stdout)
         item.stderror = escape(item.stderror)
 
-    page    = helpers.pager(objects, django_settings.TASKS_PER_PAGE, request.GET.get('page', None))
+    page = helpers.pager(objects, django_settings.TASKS_PER_PAGE, request.GET.get('page', None))
     objects = page.object_list
 
     # figure out duration in seconds
     for object in objects:
-         object.duration = helpers.task_duration_in_seconds(object)
+        object.duration = helpers.task_duration_in_seconds(object)
 
     return render(request, 'main/tasks.html', locals())
 

@@ -12,7 +12,7 @@
     {% elif job.unittype == 'unitSIP' %}
       <li>{% blocktrans with uuid=job.sipuuid %}SIP {{ uuid }}{% endblocktrans %}</li>
     {% endif %}
-    <li>{{ job.jobtype }}</li>
+    <li>{{ job_type }}</li>
     <li>{% trans "Tasks" %}</li>
   </ol>
 
@@ -30,6 +30,9 @@
         <div class="row">
           <div class="col-sm-6">
             <dl>
+              <dt>{% trans "Link UUID" %}</dt>
+              <dd>{{ link.id }}</dd>
+
               <dt>{% trans "File UUID" %}</dt>
               <dd>{{ item.fileuuid|default:_('Unknown') }}</dd>
 

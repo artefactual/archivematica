@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
 import ConfigParser
+import calendar
 import logging
 import mimetypes
 import os
@@ -32,10 +33,15 @@ from django.core.urlresolvers import reverse
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import render
-from django.utils.translation import ugettext as _
+from django.utils.translation import get_language, ugettext as _
+
+from contrib import utils
 from main import models
+import mcpserver
+import workflow
 
 logger = logging.getLogger('archivematica.dashboard')
+
 
 class AtomError(Exception):
     pass
@@ -316,3 +322,74 @@ def stream_file_from_storage_service(url, error_message='Remote URL returned {}'
             'message': error_message.format(stream.status_code)
         }
         return json_response(response, status_code=400)
+
+
+def units_status(request, objects, unit_type):
+    jobs_awaiting = get_mcpserver_client(request.user).list_choices().jobs
+    wfw = get_workflow_client().get_workflow('default')
+    data = {'mcp': True, 'objects': list()}
+    model = {'ingest': models.SIP, 'transfer': models.Transfer}
+    unit_model = model[unit_type]
+    for item in objects:
+        if unit_model.objects.is_hidden(item['sipuuid']):
+            continue
+
+        jobs = models.Job.objects.filter(sipuuid=item['sipuuid'], subjobof='').order_by('-createdtime', 'subjobof')
+
+        # Add new unit to list
+        unit = {
+            'directory': utils.get_directory_name_from_job(jobs),
+            'timestamp': calendar.timegm(item['timestamp'].timetuple()),
+            'uuid': item['sipuuid'],
+            'id': item['sipuuid'],
+            'jobs': list(),
+        }
+        data['objects'].append(unit)
+
+        # Include in the unit the list of jobs
+        for job in jobs:
+            try:
+                link = wfw.links[job.microservicechainlink_id]
+            except KeyError:
+                continue
+            new_job = {
+                'uuid': job.jobuuid,
+                'type': get_translation(link.description),
+                'microservicegroup': get_translation(link.group),
+                'link_id': job.microservicechainlink_id,
+                'currentstep': job.currentstep,
+                'currentstep_label': job.get_currentstep_display(),
+                'timestamp': '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1]),
+            }
+            unit['jobs'].append(new_job)
+
+            # We should find a better way to do this!
+            for job_awaiting in jobs_awaiting:
+                if job_awaiting.id != job.jobuuid:
+                    continue
+                choices = dict()
+                for ch in job_awaiting.choices:
+                    choices[ch.value] = ch.description
+                if choices:
+                    new_job['choices'] = choices
+
+    return data
+
+
+def get_translation(props):
+    current_lang = get_language()
+    if current_lang in props:
+        return props.get(current_lang)
+    return props.get('en')
+
+
+def get_mcpserver_client(user):
+    kwargs = {
+        'user_id': user.id,
+        'user_lang': get_language(),
+    }
+    return mcpserver.get_client(**kwargs)
+
+
+def get_workflow_client():
+    return workflow.get_client()

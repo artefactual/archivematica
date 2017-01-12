@@ -23,33 +23,19 @@
 from __future__ import print_function
 
 import logging
-import os
-import string
 import sys
 import uuid
-
-from archivematicaFunctions import strToUnicode
 
 sys.path.append("/usr/share/archivematica/dashboard")
 from django.db.models import Q
 from django.utils import timezone
-from main.models import Agent, Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
+from main.models import Agent, Derivation, Event, File, FPCommandOutput, SIP, Transfer, UnitVariable
 
 LOGGER = logging.getLogger('archivematica.common')
 
 def getUTCDate():
     """Returns a timezone-aware representation of the current datetime in UTC."""
     return timezone.now()
-
-def getDeciDate(date):
-    valid = "." + string.digits
-    ret = ""
-    for c in date:
-        if c in valid:
-            ret += c
-        #else:
-            #ret += replacementChar
-    return str("{:10.10f}".format(float(ret)))
 
 def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="", sipUUID="", use="original"):
     """
@@ -177,6 +163,7 @@ def insertIntoDerivations(sourceFileUUID, derivedFileUUID, relatedEventUUID=None
                               derived_file_id=derivedFileUUID,
                               event_id=relatedEventUUID)
 
+
 def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
     """
     Creates a new entry in the FPCommandOutput table using the supplied argument.
@@ -190,85 +177,6 @@ def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
     FPCommandOutput.objects.create(file_id=fileUUID, content=fitsXMLString,
                                    rule_id=ruleUUID)
 
-
-#user approved?
-#client connected/disconnected.
-
-def logTaskCreatedSQL(taskManager, commandReplacementDic, taskUUID, arguments):
-    """
-    Creates a new entry in the Tasks table using the supplied data.
-
-    :param MCPServer.linkTaskManager taskManager: A linkTaskManager subclass instance.
-    :param ReplacementDict commandReplacementDic: A ReplacementDict or dict instance. %fileUUID% and %relativeLocation% variables will be looked up from this dict.
-    :param str taskUUID: The UUID to be used for this Task in the database.
-    :param str arguments: The arguments to be passed to the command when it is executed, as a string. Can contain replacement variables; see ReplacementDict for supported values.
-    """
-    jobUUID = taskManager.jobChainLink.UUID
-    fileUUID = ""
-    if "%fileUUID%" in commandReplacementDic:
-        fileUUID = commandReplacementDic["%fileUUID%"]
-    taskexec = taskManager.execute
-    fileName = os.path.basename(os.path.abspath(commandReplacementDic["%relativeLocation%"]))
-
-    Task.objects.create(taskuuid=taskUUID,
-                        job_id=jobUUID,
-                        fileuuid=fileUUID,
-                        filename=fileName,
-                        execution=taskexec,
-                        arguments=arguments,
-                        createdtime=getUTCDate())
-
-def logTaskCompletedSQL(task):
-    """
-    Fetches execution data from the completed task and logs it to the database.
-    Updates the entry in the Tasks table with data in the provided task.
-    Saves the following fields: exitCode, stdOut, stdError
-
-    :param task:
-    """
-    print("Logging task output to db", task.UUID)
-    taskUUID = task.UUID.__str__()
-    exitCode = task.results["exitCode"].__str__()
-    stdOut = task.results["stdOut"]
-    stdError = task.results["stdError"]
-
-    task = Task.objects.get(taskuuid=taskUUID)
-    task.endtime = getUTCDate()
-    task.exitcode = exitCode
-    # ``strToUnicode`` here prevents the MCP server from crashing when, e.g.,
-    # stderr contains Latin-1-encoded chars such as \xa9, i.e., the copyright
-    # symbol, cf. #9967.
-    task.stdout = strToUnicode(stdOut, obstinate=True)
-    task.stderror = strToUnicode(stdError, obstinate=True)
-    task.save()
-
-
-def logJobCreatedSQL(job):
-    """
-    Logs a job's properties into the Jobs table in the database.
-
-    :param jobChainLink job: A jobChainLink instance.
-    :returns None:    
-    """
-    unitUUID =  job.unit.UUID
-    # microseconds are always 6 digits
-    # The number returned may have a leading 0 which needs to be preserved
-    decDate = getDeciDate("." + str(job.createdDate.microsecond).zfill(6))
-    if job.unit.owningUnit != None:
-        unitUUID = job.unit.owningUnit.UUID 
-    Job.objects.create(jobuuid=job.UUID,
-                       jobtype=job.description,
-                       directory=job.unit.currentPath,
-                       sipuuid=unitUUID,
-                       currentstep=Job.STATUS_EXECUTING_COMMANDS,
-                       unittype=job.unit.__class__.__name__,
-                       microservicegroup=str(job.microserviceGroup),
-                       createdtime=job.createdDate,
-                       createdtimedec=decDate,
-                       microservicechainlink_id=str(job.pk),
-                       subjobof=str(job.subJobOf))
-
-    # TODO -un hardcode executing exeCommand
 
 def fileWasRemoved(fileUUID, utcDate=None, eventDetail = "", eventOutcomeDetailNote = "", eventOutcome=""):
     """

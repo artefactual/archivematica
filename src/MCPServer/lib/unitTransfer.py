@@ -22,80 +22,72 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import logging
-import lxml.etree as etree
-import sys
 import uuid
 
 import archivematicaMCP
 from unit import unit
+from utils import get_uuid_from_path
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Transfer
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 class unitTransfer(unit):
-    def __init__(self, currentPath, UUID=""):
+    def __init__(self, path):
         self.owningUnit = None
         self.unitType = "Transfer"
+        self.fileList = {}
         # Just use the end of the directory name
         self.pathString = "%transferDirectory%"
-        currentPath2 = currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%", 1)
+        self.currentPath = path.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%", 1)
 
-        if not UUID:
-            try:
-                transfer = Transfer.objects.get(currentlocation=currentPath2)
-                UUID = transfer.uuid
-                LOGGER.info('Using existing Transfer %s at %s', UUID, currentPath2)
-            except Transfer.DoesNotExist:
-                pass
-
-        if not UUID:
-            uuidLen = -36
-            if archivematicaMCP.isUUID(currentPath[uuidLen - 1:-1]):
-                UUID = currentPath[uuidLen - 1:-1]
-            else:
-                UUID = str(uuid.uuid4())
-                self.UUID = UUID
-                Transfer.objects.create(uuid=UUID, currentlocation=currentPath2)
-
-        self.currentPath = currentPath2
-        self.UUID = UUID
-        self.fileList = {}
+        self.init_transfer()
 
     def __str__(self):
         return 'unitTransfer: <UUID: {u.UUID}, path: {u.currentPath}>'.format(u=self)
 
-    def updateLocation(self, newLocation):
-        self.currentPath = newLocation
-        transfer = Transfer.objects.get(uuid=self.UUID)
-        transfer.currentlocation = newLocation
-        transfer.save()
+    def init_transfer(self):
+        """
+        Populate existing transfer or create a new one.
+        """
+        try:
+            self.transfer = Transfer.objects.get(currentlocation=self.currentPath)
+            self.UUID = self.transfer.uuid
+            LOGGER.info('Using existing Transfer %s at %s', self.UUID, self.currentPath)
+            return
+        except Transfer.DoesNotExist:
+            self.UUID = get_uuid_from_path(self.currentPath)
+            if self.UUID is None:
+                self.UUID = str(uuid.uuid4())
+            self.transfer = Transfer.objects.create(uuid=self.UUID, currentlocation=self.currentPath)
+            LOGGER.info('Created new Transfer %s for %s', self.UUID, self.currentPath)
 
-    def setMagicLink(self, link, exitStatus=""):
-        """Assign a link to the unit to process when loaded.
-        Deprecated! Replaced with Set/Load Unit Variable"""
-        transfer = Transfer.objects.get(uuid=self.UUID)
-        transfer.magiclink = link
-        if exitStatus:
-            transfer.magiclinkexitmessage = exitStatus
-        transfer.save()
+    def updateLocation(self, path):
+        self.transfer.currentlocation = path
+        self.transfer.save()
+        self.currentPath = path
+
+    def setMagicLink(self, link_id):
+        """
+        Assign a link to the unit to process when loaded.
+        Deprecated! Replaced with Set/Load Unit Variable.
+        """
+        self.transfer.magiclink_id = link_id
+        self.transfer.save()
 
     def getMagicLink(self):
-        """Load a link from the unit to process.
-        Deprecated! Replaced with Set/Load Unit Variable"""
-        try:
-            transfer = Transfer.objects.get(uuid=self.UUID)
-        except Transfer.DoesNotExist:
-            return
-        return (transfer.magiclink, transfer.magiclinkexitmessage)
+        """
+        Load a link from the unit to process.
+        Deprecated! Replaced with Set/Load Unit Variable.
+        """
+        return (self.transfer.magiclink, self.transfer.magiclinkexitmessage)
 
     def reload(self):
-        transfer = Transfer.objects.get(uuid=self.UUID)
-        self.currentPath = transfer.currentlocation
+        self.transfer = Transfer.objects.get(uuid=self.UUID)
+        self.currentPath = self.transfer.currentlocation
 
     def getReplacementDic(self, target):
         ret = ReplacementDict.frommodel(
@@ -103,14 +95,4 @@ class unitTransfer(unit):
             sip=self.UUID
         )
         ret["%unitType%"] = self.unitType
-        return ret
-
-    def xmlify(self):
-        ret = etree.Element("unit")
-        etree.SubElement(ret, "type").text = "Transfer"
-        unitXML = etree.SubElement(ret, "unitXML")
-        etree.SubElement(unitXML, "UUID").text = self.UUID
-        tempPath = self.currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
-        etree.SubElement(unitXML, "currentPath").text = tempPath
-
         return ret

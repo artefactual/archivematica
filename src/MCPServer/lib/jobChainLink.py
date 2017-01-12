@@ -20,159 +20,140 @@
 # @package Archivematica
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
+
 import logging
-import sys
+from importlib import import_module
 import uuid
 
-from utils import log_exceptions
-from linkTaskManagerDirectories import linkTaskManagerDirectories
-from linkTaskManagerFiles import linkTaskManagerFiles
-from linkTaskManagerChoice import linkTaskManagerChoice
-from linkTaskManagerAssignMagicLink import linkTaskManagerAssignMagicLink
-from linkTaskManagerLoadMagicLink import linkTaskManagerLoadMagicLink
-from linkTaskManagerReplacementDicFromChoice import linkTaskManagerReplacementDicFromChoice
-from linkTaskManagerGetMicroserviceGeneratedListInStdOut import linkTaskManagerGetMicroserviceGeneratedListInStdOut
-from linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList import linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList
-from linkTaskManagerSetUnitVariable import linkTaskManagerSetUnitVariable
-from linkTaskManagerUnitVariableLinkPull import linkTaskManagerUnitVariableLinkPull
-
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
-from databaseFunctions import logJobCreatedSQL, getUTCDate
+from django.utils import timezone
 
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode, TaskType
+from main.models import Job
+from utils import get_decimal_date, log_exceptions
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
-# Constants
-constOneTask = TaskType.objects.get(description="one instance").pk
-constTaskForEachFile = TaskType.objects.get(description="for each file").pk
-constSelectPathTask = TaskType.objects.get(description="get user choice to proceed with").pk
-constSetMagicLink = TaskType.objects.get(description="assign magic link").pk
-constLoadMagicLink = TaskType.objects.get(description="goto magic link").pk
-constGetReplacementDic = TaskType.objects.get(description="get replacement dic from user choice").pk
-constlinkTaskManagerGetMicroserviceGeneratedListInStdOut = TaskType.objects.get(description="Get microservice generated list in stdOut").pk
-constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList = TaskType.objects.get(description="Get user choice from microservice generated list").pk
-constlinkTaskManagerSetUnitVariable = TaskType.objects.get(description="linkTaskManagerSetUnitVariable").pk
-constlinkTaskManagerUnitVariableLinkPull = TaskType.objects.get(description="linkTaskManagerUnitVariableLinkPull").pk
 
 class jobChainLink:
-    def __init__(self, jobChain, jobChainLinkPK, unit, passVar=None, subJobOf=""):
-        if jobChainLinkPK == None:
-            return None
+    def __init__(self, jobChain, link_id, unit, passVar=None):
         self.UUID = uuid.uuid4().__str__()
         self.jobChain = jobChain
+        self.unit_choices = jobChain.unit_choices
         self.unit = unit
-        self.passVar=passVar
-        self.createdDate = getUTCDate()
-        self.subJobOf = subJobOf
+        self.passVar = passVar
 
-        # Depending on the path that led to this, jobChainLinkPK may
-        # either be a UUID or a MicroServiceChainLink instance
-        if isinstance(jobChainLinkPK, basestring):
-            try:
-                link = MicroServiceChainLink.objects.get(id=str(jobChainLinkPK))
-            # This will sometimes return no values
-            except MicroServiceChainLink.DoesNotExist:
-                return
-        else:
-            link = jobChainLinkPK
+        self.link = self.jobChain.workflow.links.get(link_id)
+        if self.link is None:
+            LOGGER.exception('jobChainLink error: link %s not found', link_id)
+            return
 
-        self.pk = link.id
+        LOGGER.debug('Creating jobChainLink for link %s', self.link.id)
+        LOGGER.info('Running %s (unit %s)', self.link.description['en'], self.unit.UUID)
 
-        self.currentTask = link.currenttask_id
-        self.defaultNextChainLink = link.defaultnextchainlink_id
-        taskType = link.currenttask.tasktype_id
-        taskTypePKReference = link.currenttask.tasktypepkreference
-        self.description = link.currenttask.description
-        self.reloadFileList = link.reloadfilelist
-        self.defaultExitMessage = link.defaultexitmessage
-        self.microserviceGroup = link.microservicegroup
-
-        LOGGER.info('Running %s (unit %s)', self.description, self.unit.UUID)
         self.unit.reload()
+        self.log_job()
+        self.start_manager()
 
-        logJobCreatedSQL(self)
+    def log_job(self):
+        """
+        Logs a job's properties into the Jobs table in the database.
+        """
+        unit_uuid = self.unit.UUID
+        if self.unit.owningUnit is not None:
+            unit_uuid = self.unit.owningUnit.UUID
 
-        if self.createTasks(taskType, taskTypePKReference) == None:
-            self.getNextChainLinkPK(None)
-            #can't have none represent end of chain, and no tasks to process.
-            #could return negative?
+        # Microseconds are always 6 digits
+        # The number returned may have a leading 0 which needs to be preserved
+        created_date = timezone.now()
+        decimal_date = get_decimal_date('.' + str(created_date.microsecond).zfill(6))
 
-    def createTasks(self, taskType, taskTypePKReference):
-        if taskType == constOneTask:
-            linkTaskManagerDirectories(self, taskTypePKReference, self.unit)
-        elif taskType == constTaskForEachFile:
-            if self.reloadFileList:
-                self.unit.reloadFileList();
-            linkTaskManagerFiles(self, taskTypePKReference, self.unit)
-        elif taskType == constSelectPathTask:
-            linkTaskManagerChoice(self, taskTypePKReference, self.unit)
-        elif taskType == constSetMagicLink:
-            linkTaskManagerAssignMagicLink(self, taskTypePKReference, self.unit)
-        elif taskType == constLoadMagicLink:
-            linkTaskManagerLoadMagicLink(self, taskTypePKReference, self.unit)
-        elif taskType == constGetReplacementDic:
-            linkTaskManagerReplacementDicFromChoice(self, taskTypePKReference, self.unit)
-        elif taskType == constlinkTaskManagerGetMicroserviceGeneratedListInStdOut:
-            linkTaskManagerGetMicroserviceGeneratedListInStdOut(self, taskTypePKReference, self.unit)
-        elif taskType == constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList:
-            linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(self, taskTypePKReference, self.unit)
-        elif taskType == constlinkTaskManagerUnitVariableLinkPull:
-            linkTaskManagerUnitVariableLinkPull(self, taskTypePKReference, self.unit)
-        elif taskType == constlinkTaskManagerSetUnitVariable:
-            linkTaskManagerSetUnitVariable(self, taskTypePKReference, self.unit)
-        else:
-            LOGGER.error('Unsupported task type %s', taskType)
+        Job.objects.create(
+            jobuuid=self.UUID,
+            directory=self.unit.currentPath,
+            sipuuid=unit_uuid,
+            currentstep=Job.STATUS_EXECUTING_COMMANDS,
+            unittype=self.unit.__class__.__name__,
+            createdtime=created_date,
+            createdtimedec=decimal_date,
+            microservicechainlink_id=self.link.id,
 
-    def getNextChainLinkPK(self, exitCode):
-        if exitCode is not None:
-            try:
-                return MicroServiceChainLinkExitCode.objects.get(microservicechainlink_id=str(self.pk), exitcode=str(exitCode)).nextmicroservicechainlink_id
-            except (MicroServiceChainLinkExitCode.DoesNotExist, MicroServiceChainLinkExitCode.MultipleObjectsReturned):
-                return self.defaultNextChainLink
+            # For backward-compatibility, using English values here
+            jobtype=self.link.description['en'],
+            microservicegroup=str(self.link.group['en'])
+        )
+
+    def start_manager(self):
+        manager_name = self.link.config.manager
+        try:
+            # The link configuration has a property called "manager" with the
+            # name of the manager class that corresponds to that link. We could
+            # change that property into an enum later.
+            mod = import_module(manager_name)
+            cls = getattr(mod, manager_name)
+        except (ImportError, AttributeError):
+            LOGGER.error('Unknown manager %s', manager_name)
+            return
+
+        if manager_name == 'linkTaskManagerFiles':
+            self.unit.reloadFileList()
+
+        # Instantiate the manager!
+        cls(self)
+
+    def get_exit_code_config(self, exit_code):
+        """
+        Looks up the Link.LinkExitCode matching the given exit code.
+        """
+        try:
+            exit_code = int(exit_code)
+        except ValueError:
+            return
+        # It is possible that there is a single entry in exitCodes for the exit
+        # code zero and linkId being an empty string representing the end of a
+        # chain. We make sure that None is returned in that case.
+        for item in self.link.exitCodes:
+            if item.code == exit_code:
+                return item
+
+    def get_next_chain_link(self, exit_code):
+        """
+        Look up the next chain link based on the exit code. If there is no
+        behaviour described for the exit_code specified, the default chain link
+        will be used instead.
+        """
+        ec_config = self.get_exit_code_config(exit_code)  # LinkExitCode
+        if ec_config is not None:
+            return ec_config.linkId
+        return self.link.fallbackLinkId
 
     @log_exceptions
     @auto_close_db
     def setExitMessage(self, status_code):
         """
-        Set the value of Job.currentstep, comming either from any
-        MicroServiceChainLinkExitCode.exitmessage or different code paths where
-        a value is manually assigned based on different circunstances.
-
-        Should this be a method of the Job model?
-
-        Note: linkTaskManager{Choice,ReplacementDicFromChoice}.py call this
-        method passing an unknown status, e.g. "Waiting till ${time}" which
-        we are going to map as UNKNOWN for now.
+        Updates Job database record. Defaults to Job.STATUS_UNKNOWN if the
+        code given is not an integer.
         """
         try:
             status_code = int(status_code)
         except ValueError:
-            status_code = 0
+            return
+        if status_code == 0:
+            return
         Job.objects.filter(jobuuid=self.UUID).update(currentstep=status_code)
 
-    def updateExitMessage(self, exitCode):
+    def updateExitMessage(self, exit_code):
         """
-        Assign a status to the current job after the exit code. The
-        corresponding status code is described in
-        MicroServiceChainLink.defaultexitmessage unless it's been listed in
-        MicroServiceChainLinkExitCode.exitmessage.
+        Updates the job status after the exit code.
         """
-        status_code = self.defaultExitMessage
-        if exitCode is not None:
-            try:
-                status_code = MicroServiceChainLinkExitCode.objects.get(microservicechainlink_id=str(self.pk), exitcode=str(exitCode)).exitmessage
-            except MicroServiceChainLinkExitCode.DoesNotExist:
-                pass
-        if status_code is not None:
-            self.setExitMessage(status_code)
-        else:
-            LOGGER.debug('No exit message')
+        job_status = self.link.fallbackJobStatus
+        ec_config = self.get_exit_code_config(exit_code)
+        LOGGER.debug('Updating job status: exit_code=%s, ec_config = %s', exit_code, ec_config)
+        if ec_config is not None:
+            job_status = ec_config.jobStatus
+        self.setExitMessage(job_status)
 
     @log_exceptions
     @auto_close_db
-    def linkProcessingComplete(self, exitCode, passVar=None):
-        self.updateExitMessage(exitCode)
-        self.jobChain.nextChainLink(self.getNextChainLinkPK(exitCode), passVar=passVar)
+    def linkProcessingComplete(self, exit_code, passVar=None):
+        self.updateExitMessage(exit_code)
+        self.jobChain.next_link(self.get_next_chain_link(exit_code), passVar=passVar)

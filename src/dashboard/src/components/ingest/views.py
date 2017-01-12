@@ -17,11 +17,9 @@
 
 # Standard library, alphabetical by import source
 import base64
-import calendar
 import cPickle
 import json
 import logging
-from lxml import etree
 import os
 import requests
 import shutil
@@ -45,10 +43,7 @@ from django.views.generic import View
 
 # This project, alphabetical by import source
 from contrib import utils
-from contrib.mcp.client import MCPClient
-from components import advanced_search
-from components import helpers
-from components import decorators
+from components import advanced_search, helpers, decorators
 from components.ingest import forms as ingest_forms
 from components.ingest.views_NormalizationReport import getNormalizationReportQuery
 from main import forms, models
@@ -86,60 +81,13 @@ class SipsView(View):
             "id": sip.uuid,
         })
 
+
 def ingest_status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs WHERE unitType='unitSIP' GROUP BY SIPUUID
     objects = models.Job.objects.filter(hidden=False, subjobof='').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains = 'None').filter(unittype__exact = 'unitSIP')
-    mcp_available = False
-    try:
-        client = MCPClient()
-        mcp_status = etree.XML(client.list())
-        mcp_available = True
-    except Exception: pass
-    def encoder(obj):
-        items = []
-        for item in obj:
-            # Check if hidden (TODO: this method is slow)
-            if models.SIP.objects.is_hidden(item['sipuuid']):
-                continue
-            jobs = models.Job.objects.filter(sipuuid=item['sipuuid'], subjobof='').order_by('-createdtime', 'subjobof')
-            item['directory'] = utils.get_directory_name_from_job(jobs)
-            item['timestamp'] = calendar.timegm(item['timestamp'].timetuple())
-            item['uuid'] = item['sipuuid']
-            item['id'] = item['sipuuid']
-            del item['sipuuid']
-            item['jobs'] = []
-            for job in jobs:
-                newJob = {}
-                item['jobs'].append(newJob)
+    status = helpers.units_status(request, objects, unit_type='ingest')
+    return helpers.json_response(status)
 
-                newJob['uuid'] = job.jobuuid
-                newJob['type'] = job.jobtype
-                newJob['microservicegroup'] = job.microservicegroup
-                newJob['subjobof'] = job.subjobof
-                newJob['currentstep'] = job.currentstep
-                newJob['currentstep_label'] = job.get_currentstep_display()
-                newJob['timestamp'] = '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1])
-                try: mcp_status
-                except NameError: pass
-                else:
-                    xml_unit = mcp_status.xpath('choicesAvailableForUnit[UUID="%s"]' % job.jobuuid)
-                    if xml_unit:
-                        xml_unit_choices = xml_unit[0].findall('choices/choice')
-                        choices = {}
-                        for choice in xml_unit_choices:
-                            choices[choice.find("chainAvailable").text] = choice.find("description").text
-                        newJob['choices'] = choices
-            items.append(item)
-        return items
-
-    response = {}
-    response['objects'] = objects
-    response['mcp'] = mcp_available
-
-    return HttpResponse(
-        json.JSONEncoder(default=encoder).encode(response),
-        content_type='application/json'
-    )
 
 def ingest_sip_metadata_type_id():
     return helpers.get_metadata_type_id_by_description('SIP')

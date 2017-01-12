@@ -362,18 +362,8 @@ var BaseSipView = Backbone.View.extend({
 
   getIngestStartTime: function()
     {
-      // Use "Assign file UUIDs and checksums" micro-service to represent ingest start time
-      // TODO: fastest solution would be to use the first microservice of the collection, once is ordered correctly
-      var job = this.model.jobs.detect(function(job)
-        {
-          return job.get('type') === 'Assign file UUIDs and checksums';
-        });
-
-      // Fallback: use last micro-service timestamp
-      if (undefined === job)
-      {
-        job = this.model.jobs.last();
-      }
+      // Use last micro-service timestamp
+      var job = this.model.jobs.last();
 
       return new Date(job.get('timestamp') * 1000).getArchivematicaDateTime();
     },
@@ -431,33 +421,36 @@ var MicroserviceGroupView = Backbone.View.extend({
       var jobDiv = $('<div class="job-container"></div>').hide();
       $(this.el).append(jobDiv);
 
-      var previewUrl = function(jobType, uuid) {
-        if (jobType == 'Store AIP') {
+      var previewUrl = function(linkId, uuid) {
+        // Store AIP
+        if (linkId == '2d32235c-02d4-4686-88a6-96f4d6c7b1c3') {
           return '/ingest/preview/aip/' + uuid;
-        } else if (jobType == 'Approve normalization') {
+        // Approve normalization
+        } else if (linkId == 'de909a42-c5b5-46e1-9985-c031b50e9d30') {
           return '/ingest/preview/normalization/' + uuid;
-        } else if (jobType == 'Move to the uploadedDIPs directory') {
+        // Move to the uploadedDIPs directory
+        } else if (linkId == '2e31580d-1678-474b-83e5-a53d97d150f6' || linkId == 'e3efab02-1860-42dd-a46c-25601251b930') {
           return '/ingest/preview/dip/' + uuid;
         }
       }
 
       this.jobs.each(function(job) {
 
-        // Skip subjobs
-        if (job.attributes.subjobof != '') {
-          return;
-        }
-
         // Render job
         var view = new JobView({ model: job, uid: self.uid });
         jobDiv.append(view.render().el);
 
+        // "Store AIP", "Approve normalization" or
+        var isStoreAIP = -1 < jQuery.inArray(job.get('link_id'), ['2d32235c-02d4-4686-88a6-96f4d6c7b1c3', 'de909a42-c5b5-46e1-9985-c031b50e9d30']) && job.get('currentstep') == job.sip.statuses['STATUS_AWAITING_DECISION'];
+        var isUpload = -1 < jQuery.inArray(job.get('link_id'), ['e3efab02-1860-42dd-a46c-25601251b930', '2e31580d-1678-474b-83e5-a53d97d150f6']);
+
         // Add link to browse SIP before it's made into an AIP
-        if (
-          (job.get('currentstep') == job.sip.statuses['STATUS_AWAITING_DECISION'] && -1 < jQuery.inArray(job.get('type'), ['Store AIP', 'Approve normalization']))
-          || job.get('type') == 'Move to the uploadedDIPs directory'
-        ) {
-          $(view.el).children(':first').children(':nth-child(2)').append('&nbsp;<a href="' + previewUrl(job.get('type'), job.get('uuid')) + '" target="_blank" class="btn btn-default btn-xs">' + gettext('Review') + '</a>');
+        if (isStoreAIP || isUpload)
+        {
+          $(view.el)
+            .children(':first')
+            .children(':nth-child(2)')
+            .append('&nbsp;<a href="' + previewUrl(job.get('link_id'), job.get('uuid')) + '" target="_blank" class="btn btn-default btn-xs">' + gettext('Review') + '</a>');
         }
 
       });

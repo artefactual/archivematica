@@ -14,21 +14,21 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+
 from __future__ import division
 
+from collections import OrderedDict
 import os
 from lxml import etree
-from collections import OrderedDict
 
 from django import forms
 from django.conf import settings
-from django.db import connection
-from django.forms.widgets import TextInput, CheckboxInput, Select
+from django.utils import six as django_six
 from django.utils.translation import ugettext_lazy as _
+from django.forms.widgets import TextInput, CheckboxInput, Select
 
 from components import helpers
 from main import models
-
 import storageService as storage_service
 
 
@@ -126,123 +126,105 @@ class ProcessingConfigurationForm(forms.Form):
     # The available processing fields indexed by choice_uuid.
     processing_fields = OrderedDict()
 
+    # Workflow decision - send transfer to quarantine
     processing_fields['755b4177-c587-41a7-8c52-015277568302'] = {
         'type': 'boolean',
-        'name': 'quarantine_transfer',
-        'label': _('Send transfer to quarantine'),
         'yes_option': '97ea7702-e4d5-48bc-b4b5-d15d897806ab',
         'no_option': 'd4404ab1-dc7f-4e9e-b1f8-aa861e766b8e',
     }
+    # Remove from quarantine
     processing_fields['19adb668-b19a-4fcb-8938-f49d7485eaf3'] = {
         'type': 'days',
-        'name': 'quarantine_expiry_days',
-        'label': _('Remove from quarantine after (days)'),
         'placeholder': _('days'),
         'chain': '333643b7-122a-4019-8bef-996443f3ecc5',
         'min_value': 0,
     }
+    # Generate transfer structure report
     processing_fields['56eebd45-5600-4768-a8c2-ec0114555a3d'] = {
         'type': 'boolean',
-        'name': 'tree',
-        'label': _('Generate transfer structure report'),
         'yes_option': 'df54fec1-dae1-4ea6-8d17-a839ee7ac4a7',
         'no_option': 'e9eaef1e-c2e0-4e3b-b942-bfb537162795',
     }
+    # Select file format identification command
     processing_fields['f09847c2-ee51-429a-9478-a860477f6b8d'] = {
         'type': 'replace_dict',
-        'name': 'select_format_id_tool_transfer',
-        'label': _('Select file format identification command (Transfer)'),
     }
+    # Extract packages?
     processing_fields['dec97e3c-5598-4b99-b26e-f87a435a6b7f'] = {
         'type': 'chain_choice',
-        'name': 'extract_packages',
-        'label': _('Extract packages'),
         'uuid': '01d80b27-4ad1-4bd1-8f8d-f819f18bf685',
     }
+    # Delete package after extraction?
     processing_fields['f19926dd-8fb5-4c79-8ade-c83f61f55b40'] = {
         'type': 'replace_dict',
-        'name': 'delete_packages',
-        'label': _('Delete packages after extraction'),
         'uuid': '85b1e45d-8f98-4cae-8336-72f40e12cbef',
     }
+    # Examine contents?
     processing_fields['accea2bf-ba74-4a3a-bb97-614775c74459'] = {
         'type': 'chain_choice',
-        'name': 'examine',
-        'label': _('Examine contents'),
     }
+    # Create SIP(s)
     processing_fields['bb194013-597c-4e4a-8493-b36d190f8717'] = {
         'type': 'chain_choice',
-        'name': 'create_sip',
-        'label': _('Create SIP(s)'),
         'ignored_choices': ['Reject transfer'],
     }
+    # Select pre-normalize file format identification command
     processing_fields['7a024896-c4f7-4808-a240-44c87c762bc5'] = {
         'type': 'replace_dict',
-        'name': 'select_format_id_tool_ingest',
-        'label': _('Select file format identification command (Ingest)'),
     }
+    # Normalize
     processing_fields['cb8e5706-e73f-472f-ad9b-d1236af8095f'] = {
         'type': 'chain_choice',
-        'name': 'normalize',
-        'label': _('Normalize'),
         'ignored_choices': ['Reject SIP'],
         'find_duplicates': True,
     }
+    # Approve normalization
     processing_fields['de909a42-c5b5-46e1-9985-c031b50e9d30'] = {
         'type': 'boolean',
-        'name': 'normalize_transfer',
-        'label': _('Approve normalization'),
         'yes_option': '1e0df175-d56d-450d-8bee-7df1dc7ae815',
     }
+    # Reminder: add metadata if desired
     processing_fields['eeb23509-57e2-4529-8857-9d62525db048'] = {
         'type': 'chain_choice',
-        'name': 'reminder',
-        'label': _('Reminder: add metadata if desired'),
     }
+    # Transcribe SIP contents
     processing_fields['7079be6d-3a25-41e6-a481-cee5f352fe6e'] = {
         'type': 'boolean',
-        'name': 'transcribe_file',
-        'label': _('Transcribe files (OCR)'),
         'yes_option': '5a9985d3-ce7e-4710-85c1-f74696770fa9',
         'no_option': '1170e555-cd4e-4b2f-a3d6-bfb09e8fcc53',
     }
+    # Select file format identification command
     processing_fields['087d27be-c719-47d8-9bbb-9a7d8b609c44'] = {
         'type': 'replace_dict',
-        'name': 'select_format_id_tool_submissiondocs',
-        'label': _('Select file format identification command (Submission documentation & metadata)'),
     }
+    # Select compression algorithm
     processing_fields['01d64f58-8295-4b7b-9cab-8f1b153a504f'] = {
         'type': 'replace_dict',
-        'name': 'compression_algo',
-        'label': _('Select compression algorithm'),
     }
+    # Select compression level
     processing_fields['01c651cb-c174-4ba4-b985-1d87a44d6754'] = {
         'type': 'replace_dict',
-        'name': 'compression_level',
-        'label': _('Select compression level'),
     }
+    # Store AIP
     processing_fields['2d32235c-02d4-4686-88a6-96f4d6c7b1c3'] = {
         'type': 'boolean',
-        'name': 'store_aip',
-        'label': _('Store AIP'),
         'yes_option': '9efab23c-31dc-4cbd-a39d-bb1665460cbe',
     }
+    # Store AIP location
     processing_fields['b320ce81-9982-408a-9502-097d0daa48fa'] = {
         'type': 'storage_service',
-        'name': 'store_aip_location',
-        'label': _('Store AIP location'),
         'purpose': 'AS',
     }
+    # Upload DIP
     processing_fields['92879a29-45bf-4f0b-ac43-e64474f0f2f9'] = {
         'type': 'chain_choice',
         'name': 'upload_dip',
         'label': 'Upload DIP',
         'ignored_choices': []
     }
+    # Store DIP location
     processing_fields['b7a83da6-ed5a-47f7-a643-1e9f9f46e364'] = {
         'type': 'storage_service',
-        'name': 'store_dip_location',
-        'label': _('Store DIP location'),
         'purpose': 'DS',
     }
 
@@ -260,11 +242,17 @@ class ProcessingConfigurationForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(ProcessingConfigurationForm, self).__init__(*args, **kwargs)
+
+        self.workflow = helpers.get_workflow_client().get_workflow('default')
+
         for choice_uuid, field in self.processing_fields.items():
+            chain_link = self._get_link(choice_uuid)
+            field['link'] = chain_link
+
             ftype = field['type']
             opts = self.DEFAULT_FIELD_OPTS.copy()
-            if 'label' in field:
-                opts['label'] = field['label']
+            opts['label'] = helpers.get_translation(chain_link.description)
+
             if ftype == 'days':
                 if 'min_value' in field:
                     opts['min_value'] = field['min_value']
@@ -272,30 +260,37 @@ class ProcessingConfigurationForm(forms.Form):
                 if 'placeholder' in field:
                     self.fields[choice_uuid].widget.attrs['placeholder'] = field['placeholder']
                 self.fields[choice_uuid].widget.attrs['class'] = 'form-control'
+
             else:
                 choices = opts['choices'] = list(self.EMPTY_CHOICES)
+
                 if ftype == 'boolean':
                     if 'yes_option' in field:
                         choices.append((field['yes_option'], _('Yes')))
                     if 'no_option' in field:
                         choices.append((field['no_option'], _('No')))
+
                 elif ftype == 'chain_choice':
-                    chain_choices = models.MicroServiceChainChoice.objects.filter(choiceavailableatlink_id=choice_uuid)
-                    ignored_choices = field.get('ignored_choices', [])
-                    for item in chain_choices:
-                        chain = item.chainavailable
-                        if chain.description in ignored_choices:
-                            continue
-                        choices.append((chain.pk, chain.description))
+                    if chain_link is not None:
+                        ignored_choices = field.get('ignored_choices', [])
+                        for index, chain_uuid in enumerate(chain_link.config.userChoice.chainIds):
+                            ch = self._get_chain(chain_uuid)
+                            if ch is None:
+                                continue
+                            if ch.description['en'] in ignored_choices:
+                                continue
+                            choices.append((index, helpers.get_translation(ch.description)))
+
                 elif ftype == 'replace_dict':
-                    replace_dicts = models.MicroServiceChoiceReplacementDic.objects.filter(choiceavailableatlink_id=choice_uuid)
-                    for item in replace_dicts:
-                        choices.append((item.pk, item.description))
+                    if chain_link is not None:
+                        for item in chain_link.config.userChoiceDict.replacements:
+                            choices.append((item.id, helpers.get_translation(item.description)))
+
                 elif ftype == 'storage_service':
                     for loc in get_storage_locations(purpose=field['purpose']):
                         choices.append((loc['resource_uri'], loc['description']))
-                self.fields[choice_uuid] = forms.ChoiceField(widget=Select(attrs={'class': 'form-control'}),
-                                                             **opts)
+
+                self.fields[choice_uuid] = forms.ChoiceField(widget=Select(attrs={'class': 'form-control'}), **opts)
 
     def load_config(self, name):
         """
@@ -303,6 +298,7 @@ class ProcessingConfigurationForm(forms.Form):
         """
         self.fields['name'].initial = name
         self.fields['name'].widget.attrs['readonly'] = 'readonly'
+
         config_path = os.path.join(helpers.processing_config_path(), '{}ProcessingMCP.xml'.format(name))
         root = etree.parse(config_path)
         for choice in root.findall('.//preconfiguredChoice'):
@@ -314,6 +310,11 @@ class ProcessingConfigurationForm(forms.Form):
                 continue
             if fprops['type'] == 'days':
                 field.initial = int(float(choice.findtext('delay'))) // (24 * 60 * 60)
+            elif fprops['type'] == 'chain_choice':
+                for i, chain_id in enumerate(fprops['link'].config.userChoice.chainIds):
+                    if chain_id == go_to_chain:
+                        field.initial = i
+                        continue
             else:
                 field.initial = go_to_chain
 
@@ -339,43 +340,55 @@ class ProcessingConfigurationForm(forms.Form):
                 if value == 0:
                     continue
                 delay = str(float(value) * (24 * 60 * 60))
-                config.add_choice(choice_uuid, fprops['chain'], delay_duration=delay, comment=fprops['label'])
-            elif fprops['type'] == 'chain_choice' and fprops.get('find_duplicates', False):
-                # Persist the choice made by the user for each of the existing
-                # chain links with the same name. See #10216 for more details.
+                config.add_choice(choice_uuid, fprops['chain'], delay_duration=delay, comment=fprops['link'].description['en'])
+            elif fprops['type'] == 'chain_choice':
+                # value is going to be None, 0, 1, 2...
                 try:
-                    choice_name = models.MicroServiceChain.objects.get(id=value).description
-                except models.MicroServiceChainLink.DoesNotExist:
-                    pass
+                    value = int(value)
+                except ValueError:
+                    continue
+                link = fprops['link']
+                chain_id = link.config.userChoice.chainIds[value]
+                if fprops.get('find_duplicates', False):
+                    chain = self._get_chain(chain_id)
+                    if chain is None:
+                        continue
+                    link_desc = link.description['en']    # e.g. "Normalize"
+                    chain_desc = chain.description['en']  # e.g. "Normalize for preservation"
+                    for i, link_id in enumerate(self._get_duplicated_choices(link, chain_id)):
+                        comment = '{} (match {} for "{}")'.format(link_desc, i + 1, chain_desc)
+                        config.add_choice(link_id, chain_id, comment=comment)
                 else:
-                    for i, item in enumerate(get_duplicated_choices(fprops['label'], choice_name)):
-                        comment = '{} (match {} for "{}")'.format(fprops['label'], i + 1, choice_name)
-                        config.add_choice(item[0], item[1], comment=comment)
+                    config.add_choice(choice_uuid, chain_id, comment=link.description['en'])
+
             else:
-                config.add_choice(choice_uuid, value, comment=fprops['label'])
+                config.add_choice(choice_uuid, value, comment=fprops['link'].description['en'])
         config.save(config_path)
 
+    def _get_link(self, uuid):
+        return self.workflow.links.get(uuid, None)
 
-def get_duplicated_choices(choice_chain_name, choice_link_name):
-    """
-    Given the name of a choice chain and one of its choices, return a list
-    of matching links as doubles (tuples): UUID of chain, UUID of choice.
-    """
-    sql = """
-        SELECT
-            MicroServiceChainLinks.pk,
-            MicroServiceChains.pk
-        FROM TasksConfigs
-        LEFT JOIN MicroServiceChainLinks ON (MicroServiceChainLinks.currentTask = TasksConfigs.pk)
-        LEFT JOIN MicroServiceChainChoice ON (MicroServiceChainChoice.choiceAvailableAtLink = MicroServiceChainLinks.pk)
-        LEFT JOIN MicroServiceChains ON (MicroServiceChains.pk = MicroServiceChainChoice.chainAvailable)
-        WHERE
-            TasksConfigs.description = %s
-            AND MicroServiceChains.description = %s;
-    """
-    with connection.cursor() as cursor:
-        cursor.execute(sql, [choice_chain_name, choice_link_name])
-        return cursor.fetchall()
+    def _get_chain(self, uuid):
+        return self.workflow.chains.get(uuid, None)
+
+    def _get_duplicated_choices(self, link, chain_uuid):
+        """
+        Given a MicroServiceChainChoice link, return a full list of
+        MicroServiceChainChoice links with the same description (e.g.
+        "Normalize") and only if chain_uuid is a valid option for them.
+        Not using dict.items() in PY2 to avoid slowness.
+        """
+        link_desc = link.description['en']
+        link_ids = []
+        for link_id, link in django_six.iteritems(self.workflow.links):
+            if link.description['en'] != link_desc:
+                continue
+            if link.config.model != 'MicroServiceChainChoice':
+                continue
+            if chain_uuid not in link.config.userChoice.chainIds:
+                continue
+            link_ids.append(link_id)
+        return link_ids
 
 
 def get_storage_locations(purpose):

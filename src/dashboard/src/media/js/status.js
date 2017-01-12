@@ -28,8 +28,7 @@ $(function()
           this.poll();
 
           this.transfer = this.$('ul.nav > li').eq(0);
-          this.sip = this.$('ul.nav > li').eq(3);
-          // this.dip = this.$('ul.nav > li').eq(4);
+          this.ingest = this.$('ul.nav > li').eq(3);
         },
 
       render: function()
@@ -74,9 +73,8 @@ $(function()
               },
             success: function(response)
               {
-                this.update(this.transfer, response.transfer);
-                this.update(this.sip, response.sip);
-                this.update(this.dip, response.dip);
+                this.update(this.transfer, response.count.transfer);
+                this.update(this.ingest, response.count.ingest);
               },
             complete: function()
               {
