@@ -75,7 +75,7 @@ class unitTransfer(unit):
         Assign a link to the unit to process when loaded.
         Deprecated! Replaced with Set/Load Unit Variable.
         """
-        self.transfer.magiclink_id = link_id
+        self.transfer.magiclink = link_id
         self.transfer.save()
 
     def getMagicLink(self):

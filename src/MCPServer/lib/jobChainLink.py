@@ -75,7 +75,7 @@ class jobChainLink:
             unittype=self.unit.__class__.__name__,
             createdtime=created_date,
             createdtimedec=decimal_date,
-            microservicechainlink_id=self.link.id,
+            microservicechainlink=self.link.id,
 
             # For backward-compatibility, using English values here
             jobtype=self.link.description['en'],

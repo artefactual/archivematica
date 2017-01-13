@@ -125,7 +125,7 @@ def task(request, uuid):
 def tasks(request, uuid):
     job = models.Job.objects.get(jobuuid=uuid)
     objects = job.task_set.all().order_by('-exitcode', '-endtime', '-starttime', '-createdtime')
-    link = helpers.get_workflow_client().get_workflow('default').links[job.microservicechainlink_id]
+    link = helpers.get_workflow_client().get_workflow('default').links[job.microservicechainlink]
     job_type = helpers.get_translation(link.description)
 
     if (len(objects) == 0):

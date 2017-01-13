@@ -349,14 +349,14 @@ def units_status(request, objects, unit_type):
         # Include in the unit the list of jobs
         for job in jobs:
             try:
-                link = wfw.links[job.microservicechainlink_id]
+                link = wfw.links[job.microservicechainlink]
             except KeyError:
                 continue
             new_job = {
                 'uuid': job.jobuuid,
                 'type': get_translation(link.description),
                 'microservicegroup': get_translation(link.group),
-                'link_id': job.microservicechainlink_id,
+                'link_id': job.microservicechainlink,
                 'currentstep': job.currentstep,
                 'currentstep_label': job.get_currentstep_display(),
                 'timestamp': '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1]),
