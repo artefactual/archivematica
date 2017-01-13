@@ -105,9 +105,10 @@ class TooManyResultsError(ElasticsearchError):
 
 _es_hosts = None
 _es_client = None
+DEFAULT_TIMEOUT = 10
 
 
-def setup(hosts):
+def setup(hosts, timeout=DEFAULT_TIMEOUT):
     """
     Initialize Elasticsearch client and share it as the attribute _es_client in
     the current module. An additional attribute _es_hosts is defined containing
@@ -119,6 +120,7 @@ def setup(hosts):
     _es_hosts = hosts
     _es_client = Elasticsearch(**{
         'hosts': _es_hosts,
+        'timeout': timeout,
         'dead_timeout': 2
     })
 
@@ -137,7 +139,12 @@ def setup_reading_from_client_conf(config=None):
         hosts = config.get('MCPClient', "elasticsearchServer")
     except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
         hosts = '127.0.0.1:9200'
-    setup(hosts)
+    try:
+        timeout = config.getfloat('MCPClient', "elasticsearchTimeout")
+    except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+        timeout = DEFAULT_TIMEOUT
+
+    setup(hosts, timeout)
 
 
 def get_host():
