@@ -234,13 +234,16 @@
       <h3>Upload DIP <img id="upload-dip-modal-spinner" src="/media/images/ajax-loader.gif" /></h3>
     </div>
     <div class="modal-body">
-      <p>Upload the generated DIP to AtoM using the permalink of the target description.</p>
+      <p>Upload the generated DIP to DRMC using a TMS object ID or a technology record slug.</p>
       <form class="form-stacked">
         <div class="clearfix">
-          <label>Enter the permalink of the target description</label>
+          <label>Enter the object ID or technology record slug</label>
           <div class="input">
             <input class="span8" type="text" />
-            <span class="help-block">Example: if URL is http://myAtoM.ca/newsletters-2;rad enter <strong>newsletters-2</strong></span>
+          </div>
+          <div>
+            <input name="target_prefix" type=radio value="tr:" checked>Technical record (slug)</radio>
+            <input name="target_prefix" type=radio value="ar:">Artwork (integer)</radio>
           </div>
         </div>
       </form>

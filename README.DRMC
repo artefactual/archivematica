@@ -1,0 +1,19 @@
+LDAP configuration
+------------------
+
+The Django dashboard settings file must be configured properly to allow LDAP
+authentication. See: src/dashboard/src/settings/common.py
+
+
+NetX configuration
+------------------
+
+To use the "Copy to NetX" functionality, the NetX destination paths must be
+set via the dashboard administration interface (/administration/netx/).
+
+
+DIP upload configuration
+------------------------
+
+As the DRMC is based on AtoM 2.x the "--version=2" flag must be set in DIP
+upload configuration.

@@ -99,6 +99,11 @@ class TestFPRClient(TestCase):
 
     def setUp(self):
         self.fprclient = client.FPRClient(fprserver=FPRSERVER)
+        # Delete real IDcommands so we can test with our stub ones
+        models.IDCommand.objects.all().delete()
+        models.Format.objects.all().delete()
+        models.IDTool.objects.all().delete()
+        models.FPTool.objects.all().delete()
 
     def test_insert_initial_chain(self):
         """ Insert a chain of rules into a new install. """
