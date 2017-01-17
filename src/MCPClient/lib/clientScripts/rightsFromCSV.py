@@ -164,7 +164,10 @@ class RightCsvReader:
 
         # Get file data
         filepath = self.column_value('file')
-        transfer_file = models.File.objects.filter(originallocation='%transferDirectory%objects/' + filepath, transfer_id=self.transfer_uuid).first()
+        transfer_file = models.File.objects.filter(originallocation='%transferDirectory%' + filepath, transfer_id=self.transfer_uuid).first()
+
+        if (transfer_file is None):
+            self.exit_with_error('Record not found for file', filepath)
 
         # Create rights statement
         rights_statement = models.RightsStatement()
