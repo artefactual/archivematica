@@ -1,0 +1,60 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block js %}
+{% endblock %}
+
+{% block css %}
+<style>
+pre {
+  overflow-x: scroll;
+}
+code {
+  white-space: pre;
+  line-height: 2em;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+  <style>
+    pre {
+      overflow-x: scroll;
+    }
+    code {
+      white-space: pre;
+      line-height: 2em;
+      background-color: transparent;
+    }
+  </style>
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="span12">
+
+      <ul class="breadcrumb">
+        {% breadcrumb_url 'Policies' 'components.administration.views.policies' %}
+        {% breadcrumb policy %}
+      </ul>
+
+      <h3>Policy {{ policy }}</h3>
+
+      {% if policy_text %}
+        <pre><code>{{ policy_text }}</code></pre>
+      {% else %}
+        <p>There is no policy named {{ policy }}.</p>
+      {% endif %}
+
+    </div>
+
+  </div>
+
+{% endblock %}
+

@@ -1,0 +1,79 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+
+{% block title %}Administration{% endblock %}
+{% block h1 %}Administration{% endblock %}
+{% block page_id %}Administration{% endblock %}
+
+{% block js %}
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="col-md-10">
+
+      <h3>Policies</h3>
+
+      {% if policies %}
+
+        <table>
+
+          <tr>
+            <th>Policy</th>
+            <th>&nbsp;</th>
+          </tr>
+
+          {% for policy in policies %}
+            <tr>
+              <td style='padding: 1em;'>
+                <a href="{% url 'components.administration.views.view_policy' policy %}"
+                >{{ policy }}</a></td>
+              <td><a class="btn btn-danger btn-sm"
+                     href="{% url 'components.administration.views.delete_policy' policy %}"
+                  >Delete</a></td>
+            </tr>
+          {% endfor %}
+
+        </table>
+
+      {% else %}
+        <p>No MediaConch policies have been uploaded yet.</p>
+      {% endif %}
+
+      <div class="actions">
+        <form action='{% url 'components.administration.views.policies' %}'
+              method='post' enctype='multipart/form-data'>
+
+          <div class='form-group'>
+            <label class='btn btn-default' for='file'>
+              <input id='file' type='file' name='file' style='display:none;'
+                onchange='$("#filename").html($(this).val().replace("C:\\fakepath\\", ""));'>
+              Browse
+            </label>
+            <span class='label label-info' id='filename'></span>
+          </div>
+
+          <div class='form-group'>
+            <input class='btn btn-primary' type='submit' value='Add new'>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+

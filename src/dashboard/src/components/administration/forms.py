@@ -167,6 +167,13 @@ class ProcessingConfigurationForm(forms.Form):
         'label': _('Delete packages after extraction'),
         'uuid': '85b1e45d-8f98-4cae-8336-72f40e12cbef',
     }
+    processing_fields['70fc7040-d4fb-4d19-a0e6-792387ca1006'] = {
+        'type': 'boolean',
+        'name': 'policy_checks_originals',
+        'label': 'Perform policy checks on originals',
+        'yes_option': 'c611a6ff-dfdb-46d1-b390-f366a6ea6f66',
+        'no_option': '3e891cc4-39d2-4989-a001-5107a009a223',
+    }
     processing_fields['accea2bf-ba74-4a3a-bb97-614775c74459'] = {
         'type': 'chain_choice',
         'name': 'examine',
@@ -195,6 +202,20 @@ class ProcessingConfigurationForm(forms.Form):
         'name': 'normalize_transfer',
         'label': _('Approve normalization'),
         'yes_option': '1e0df175-d56d-450d-8bee-7df1dc7ae815',
+    }
+    processing_fields['153c5f41-3cfb-47ba-9150-2dd44ebc27df'] = {
+        'type': 'boolean',
+        'name': 'policy_checks_preservation_derivatives',
+        'label': 'Perform policy checks on preservation derivatives',
+        'yes_option': '3a55f688-eca3-4ebc-a012-4ce68290e7b0',
+        'no_option': 'b7ce05f0-9d94-4b3e-86cc-d4b2c6dba546',
+    }
+    processing_fields['8ce07e94-6130-4987-96f0-2399ad45c5c2'] = {
+        'type': 'boolean',
+        'name': 'policy_checks_access_derivatives',
+        'label': 'Perform policy checks on access derivatives',
+        'yes_option': 'd9760427-b488-4381-832a-de10106de6fe',
+        'no_option': '76befd52-14c3-44f9-838f-15a4e01624b0',
     }
     processing_fields['eeb23509-57e2-4529-8857-9d62525db048'] = {
         'type': 'chain_choice',
