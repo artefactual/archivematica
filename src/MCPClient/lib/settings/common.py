@@ -19,7 +19,7 @@ import os, sys, ConfigParser
 import django_mysqlpool
 
 # Get DB settings from main configuration file
-config = ConfigParser.SafeConfigParser()
+config = ConfigParser.SafeConfigParser({'max_overflow': 40})
 config.read('/etc/archivematica/archivematicaCommon/dbsettings')
 
 DATABASES = {
@@ -36,7 +36,7 @@ DATABASES = {
 MYSQLPOOL_BACKEND = 'QueuePool'
 MYSQLPOOL_ARGUMENTS = {
     'use_threadlocal': False,
-    'max_overflow': -1,
+    'max_overflow': config.get('client', 'max_overflow'),
 }
 
 CONN_MAX_AGE = 14400

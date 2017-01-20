@@ -3,3 +3,4 @@ user=archivematica
 password=demo
 host=localhost
 database=MCP
+max_overflow=40
