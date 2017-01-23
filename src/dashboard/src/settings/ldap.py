@@ -9,7 +9,7 @@ from .common import *
 
 # Authentication
 AUTHENTICATION_BACKENDS = (
-    'CustomLdapConfig',
+    'contrib.auth.CustomLdapConfig',
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -33,22 +33,6 @@ AUTHENTICATION_BACKENDS = (
 #    Set Django's is_active based on membership in this group
 # * AUTH_LDAP_GROUP_IS_STAFF
 #    Set Django's is_staff based on membership in this group
-
-class CustomLdapConfig(django_auth_ldap.backend.LDAPBackend):
-    """Customize LDAP config."""
-
-    def __init__(self):
-        super(CustomLdapConfig, self).__init__()
-        self.replacement = os.environ.get('AUTH_LDAP_USERNAME_SUFFIX', '')
-
-    def ldap_to_django_username(self, username):
-        # Replaces user creation in get_ldap_users
-        return username.replace(self.replacement, '')
-
-    def django_to_ldap_username(self, username):
-        # Replaces user creation in get_ldap_users
-        return username + self.replacement
-
 
 # Server Config
 AUTH_LDAP_SERVER_URI = os.environ.get('AUTH_LDAP_SERVER_URI', '')
