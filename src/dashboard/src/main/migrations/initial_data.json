@@ -42,7 +42,7 @@
   "fields": {
     "agenttype": "organization", 
     "identifiervalue": "ORG", 
-    "name": "Your Organization Name Here", 
+    "name": "Your Organization Name Here",
     "identifiertype": "repository code"
   }
 },
@@ -1550,19 +1550,6 @@
   }
 },
 {
-  "pk": "2714cd07-b99f-40e3-9ae8-c97281d0d429", 
-  "model": "main.microservicechainlink", 
-  "fields": {
-    "microservicegroup": "Assign file UUIDs and checksums", 
-    "defaultexitmessage": "Failed", 
-    "reloadfilelist": true, 
-    "lastmodified": "2012-10-02T00:25:06+00:00",
-    "defaultnextchainlink": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd", 
-    "currenttask": "bf5a1f0c-1b3e-4196-b51f-f6d509091346", 
-    "replaces": null
-  }
-},
-{
   "pk": "2872d007-6146-4359-b554-6e9fe7a8eca6", 
   "model": "main.microservicechainlink", 
   "fields": {
@@ -1589,19 +1576,6 @@
   }
 },
 {
-  "pk": "28a9f8a8-0006-4828-96d5-892e6e279f72", 
-  "model": "main.microservicechainlink", 
-  "fields": {
-    "microservicegroup": "Assign file UUIDs and checksums", 
-    "defaultexitmessage": "Failed", 
-    "reloadfilelist": true, 
-    "lastmodified": "2012-10-02T00:25:06+00:00",
-    "defaultnextchainlink": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd", 
-    "currenttask": "1c7de28f-8f18-41c7-b03a-19f900d38f34", 
-    "replaces": null
-  }
-},
-{
   "pk": "2900f6d8-b64c-4f2a-8f7f-bb60a57394f6", 
   "model": "main.microservicechainlink", 
   "fields": {
@@ -1624,19 +1598,6 @@
     "lastmodified": "2013-11-07T22:51:35+00:00",
     "defaultnextchainlink": "7d728c39-395f-4892-8193-92f086c0546f", 
     "currenttask": "ec503c22-1f4d-442f-b546-f90c9a9e5c86", 
-    "replaces": null
-  }
-},
-{
-  "pk": "2a62f025-83ec-4f23-adb4-11d5da7ad8c2", 
-  "model": "main.microservicechainlink", 
-  "fields": {
-    "microservicegroup": "Process submission documentation", 
-    "defaultexitmessage": "Failed", 
-    "reloadfilelist": true, 
-    "lastmodified": "2012-10-02T00:25:06+00:00",
-    "defaultnextchainlink": "11033dbd-e4d4-4dd6-8bcf-48c424e222e3", 
-    "currenttask": "abeaa79e-668b-4de0-b8cb-70f8ab8056b6", 
     "replaces": null
   }
 },
@@ -1845,19 +1806,6 @@
     "lastmodified": "2013-04-19T22:39:27+00:00",
     "defaultnextchainlink": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd", 
     "currenttask": "4554c5f9-52f9-440c-bc69-0f7be3651949", 
-    "replaces": null
-  }
-},
-{
-  "pk": "370aca94-65ab-4f2a-9d7d-294a62c8b7ba", 
-  "model": "main.microservicechainlink", 
-  "fields": {
-    "microservicegroup": "Assign file UUIDs and checksums", 
-    "defaultexitmessage": "Failed", 
-    "reloadfilelist": true, 
-    "lastmodified": "2012-10-02T00:25:06+00:00",
-    "defaultnextchainlink": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd", 
-    "currenttask": "bd9769ba-4182-4dd4-ba85-cff24ea8733e", 
     "replaces": null
   }
 },
@@ -2200,7 +2148,7 @@
   }
 },
 {
-  "pk": "4edfe7e4-82ff-4c0a-ba5f-29f1ee14e17a", 
+  "pk": "4edfe7e4-82ff-4c0a-ba5f-29f1ee14e17a",
   "model": "main.microservicechainlink", 
   "fields": {
     "microservicegroup": "Process submission documentation", 
@@ -3760,19 +3708,6 @@
   }
 },
 {
-  "pk": "b6b0fe37-aa26-40bd-8be8-d3acebf3ccf8", 
-  "model": "main.microservicechainlink", 
-  "fields": {
-    "microservicegroup": "Process metadata directory", 
-    "defaultexitmessage": "Failed", 
-    "reloadfilelist": true, 
-    "lastmodified": "2013-02-13T22:03:40+00:00",
-    "defaultnextchainlink": "b21018df-f67d-469a-9ceb-ac92ac68654e", 
-    "currenttask": "5bd51fcb-6a68-4c5f-b99e-4fc36f51c40c", 
-    "replaces": null
-  }
-},
-{
   "pk": "b6c9de5a-4a9f-41e1-a524-360bdca39893", 
   "model": "main.microservicechainlink", 
   "fields": {
@@ -4020,19 +3955,6 @@
   }
 },
 {
-  "pk": "c77fee8c-7c4e-4871-a72e-94d499994869", 
-  "model": "main.microservicechainlink", 
-  "fields": {
-    "microservicegroup": "Approve transfer", 
-    "defaultexitmessage": "Failed", 
-    "reloadfilelist": true, 
-    "lastmodified": "2012-10-02T00:25:06+00:00",
-    "defaultnextchainlink": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd", 
-    "currenttask": "6405c283-9eed-410d-92b1-ce7d938ef080", 
-    "replaces": null
-  }
-},
-{
   "pk": "c8f7bf7b-d903-42ec-bfdf-74d357ac4230", 
   "model": "main.microservicechainlink", 
   "fields": {
@@ -4172,19 +4094,6 @@
     "lastmodified": "2013-11-07T22:51:42+00:00",
     "defaultnextchainlink": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd", 
     "currenttask": "38cea9c4-d75c-48f9-ba88-8052e9d3aa61", 
-    "replaces": null
-  }
-},
-{
-  "pk": "d2035da2-dfe1-4a56-8524-84d5732fd3a3", 
-  "model": "main.microservicechainlink", 
-  "fields": {
-    "microservicegroup": "TRIM transfer", 
-    "defaultexitmessage": "Failed", 
-    "reloadfilelist": true, 
-    "lastmodified": "2012-11-30T19:55:48+00:00",
-    "defaultnextchainlink": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd", 
-    "currenttask": "6405c283-9eed-410d-92b1-ce7d938ef080", 
     "replaces": null
   }
 },
@@ -4575,19 +4484,6 @@
     "lastmodified": "2012-11-30T19:55:48+00:00",
     "defaultnextchainlink": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd", 
     "currenttask": "feac0c04-3511-4e91-9403-5c569cff7bcc", 
-    "replaces": null
-  }
-},
-{
-  "pk": "e76aec15-5dfa-4b14-9405-735863e3a6fa", 
-  "model": "main.microservicechainlink", 
-  "fields": {
-    "microservicegroup": "Process manually normalized files", 
-    "defaultexitmessage": "Failed", 
-    "reloadfilelist": true, 
-    "lastmodified": "2013-01-03T02:10:38+00:00",
-    "defaultnextchainlink": "7d728c39-395f-4892-8193-92f086c0546f", 
-    "currenttask": "ded09ddd-2deb-4d62-bfe3-84703f60c522", 
     "replaces": null
   }
 },
@@ -5316,7 +5212,7 @@
   "fields": {
     "replaces": null, 
     "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "28a9f8a8-0006-4828-96d5-892e6e279f72", 
+    "nextmicroservicechainlink": "5e4bd4e8-d158-4c2a-be89-51e3e9bd4a06", 
     "microservicechainlink": "52269473-5325-4a11-b38a-c4aafcbd8f54", 
     "lastmodified": "2012-10-02T00:25:07+00:00",
     "exitcode": 0
@@ -5388,7 +5284,7 @@
   "fields": {
     "replaces": null, 
     "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "2a62f025-83ec-4f23-adb4-11d5da7ad8c2", 
+    "nextmicroservicechainlink": "11033dbd-e4d4-4dd6-8bcf-48c424e222e3", 
     "microservicechainlink": "4edfe7e4-82ff-4c0a-ba5f-29f1ee14e17a", 
     "lastmodified": "2012-10-02T00:25:07+00:00",
     "exitcode": 0
@@ -6324,7 +6220,7 @@
   "fields": {
     "replaces": null, 
     "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "b6b0fe37-aa26-40bd-8be8-d3acebf3ccf8", 
+    "nextmicroservicechainlink": "b21018df-f67d-469a-9ceb-ac92ac68654e", 
     "microservicechainlink": "dc9d4991-aefa-4d7e-b7b5-84e3c4336e74", 
     "lastmodified": "2013-02-13T22:03:40+00:00",
     "exitcode": 0
@@ -6535,18 +6431,6 @@
   }
 },
 {
-  "pk": "5cd0e0ee-75a1-419f-817c-4edd6adce857", 
-  "model": "main.microservicechainlinkexitcode", 
-  "fields": {
-    "replaces": null, 
-    "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "10c40e41-fb10-48b5-9d01-336cd958afe8", 
-    "microservicechainlink": "e76aec15-5dfa-4b14-9405-735863e3a6fa", 
-    "lastmodified": "2013-01-03T02:10:38+00:00",
-    "exitcode": 0
-  }
-},
-{
   "pk": "5d1e6692-a0fc-438d-8448-82490a874da4", 
   "model": "main.microservicechainlinkexitcode", 
   "fields": {
@@ -6564,7 +6448,7 @@
   "fields": {
     "replaces": null, 
     "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "370aca94-65ab-4f2a-9d7d-294a62c8b7ba", 
+    "nextmicroservicechainlink": "8c8bac29-4102-4fd2-9d0a-a3bd2e607566", 
     "microservicechainlink": "dc144ff4-ad74-4a6e-ac15-b0beedcaf662", 
     "lastmodified": "2012-10-02T00:25:07+00:00",
     "exitcode": 0
@@ -7200,7 +7084,7 @@
   "fields": {
     "replaces": null, 
     "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "d2035da2-dfe1-4a56-8524-84d5732fd3a3", 
+    "nextmicroservicechainlink": "cb48ef2a-3394-4936-af1f-557b39620efa", 
     "microservicechainlink": "e64d26f4-3330-4d0b-bffe-81edb0dbe93d", 
     "lastmodified": "2012-11-30T19:55:48+00:00",
     "exitcode": 0
@@ -7320,7 +7204,7 @@
   "fields": {
     "replaces": null, 
     "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "c77fee8c-7c4e-4871-a72e-94d499994869", 
+    "nextmicroservicechainlink": "f0f64c7e-30fa-47c1-9877-43955680c0d0",
     "microservicechainlink": "3c526a07-c3b8-4e53-801b-7f3d0c4857a5", 
     "lastmodified": "2012-10-02T00:25:07+00:00",
     "exitcode": 0
@@ -7380,7 +7264,7 @@
   "fields": {
     "replaces": null, 
     "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "2714cd07-b99f-40e3-9ae8-c97281d0d429", 
+    "nextmicroservicechainlink": "7c6a0b72-f37b-4512-87f3-267644de6f80", 
     "microservicechainlink": "66c9c178-2224-41c6-9c0b-dcb60ff57b1a", 
     "lastmodified": "2012-10-02T00:25:07+00:00",
     "exitcode": 0
@@ -7747,18 +7631,6 @@
   }
 },
 {
-  "pk": "a0f33c59-081b-4427-b430-43b811cf0594", 
-  "model": "main.microservicechainlinkexitcode", 
-  "fields": {
-    "replaces": null, 
-    "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "b21018df-f67d-469a-9ceb-ac92ac68654e", 
-    "microservicechainlink": "b6b0fe37-aa26-40bd-8be8-d3acebf3ccf8", 
-    "lastmodified": "2013-02-13T22:03:40+00:00",
-    "exitcode": 0
-  }
-},
-{
   "pk": "a38d1d45-42e7-47ea-9a83-01a139f28d59", 
   "model": "main.microservicechainlinkexitcode", 
   "fields": {
@@ -7827,18 +7699,6 @@
     "nextmicroservicechainlink": "f1bfce12-b637-443f-85f8-b6450ca01a13", 
     "microservicechainlink": "8c8bac29-4102-4fd2-9d0a-a3bd2e607566", 
     "lastmodified": "2014-09-11T16:09:53+00:00",
-    "exitcode": 0
-  }
-},
-{
-  "pk": "ad09d973-5c5d-44e9-84a2-a7dbb27dd23d", 
-  "model": "main.microservicechainlinkexitcode", 
-  "fields": {
-    "replaces": null, 
-    "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "7c6a0b72-f37b-4512-87f3-267644de6f80", 
-    "microservicechainlink": "2714cd07-b99f-40e3-9ae8-c97281d0d429", 
-    "lastmodified": "2012-10-02T00:25:07+00:00",
     "exitcode": 0
   }
 },
@@ -8131,18 +7991,6 @@
   }
 },
 {
-  "pk": "c4c7ff3c-3eef-42e3-a68d-f11ca3e7c6dd", 
-  "model": "main.microservicechainlinkexitcode", 
-  "fields": {
-    "replaces": null, 
-    "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "f0f64c7e-30fa-47c1-9877-43955680c0d0", 
-    "microservicechainlink": "c77fee8c-7c4e-4871-a72e-94d499994869", 
-    "lastmodified": "2012-10-02T00:25:07+00:00",
-    "exitcode": 0
-  }
-},
-{
   "pk": "c5c68ced-17d5-4b7d-b955-a56080d5b9bb", 
   "model": "main.microservicechainlinkexitcode", 
   "fields": {
@@ -8371,18 +8219,6 @@
   }
 },
 {
-  "pk": "d5690bcf-1c0f-44a1-846e-e63cea2b9087", 
-  "model": "main.microservicechainlinkexitcode", 
-  "fields": {
-    "replaces": null, 
-    "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "5e4bd4e8-d158-4c2a-be89-51e3e9bd4a06", 
-    "microservicechainlink": "28a9f8a8-0006-4828-96d5-892e6e279f72", 
-    "lastmodified": "2012-10-02T00:25:07+00:00",
-    "exitcode": 0
-  }
-},
-{
   "pk": "d6914e3c-4d4a-4b0d-9d26-eeb340ac027b", 
   "model": "main.microservicechainlinkexitcode", 
   "fields": {
@@ -8568,7 +8404,7 @@
   "fields": {
     "replaces": null, 
     "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "e76aec15-5dfa-4b14-9405-735863e3a6fa", 
+    "nextmicroservicechainlink": "10c40e41-fb10-48b5-9d01-336cd958afe8", 
     "microservicechainlink": "9e9b522a-77ab-4c17-ab08-5a4256f49d59", 
     "lastmodified": "2013-01-03T02:10:39+00:00",
     "exitcode": 0
@@ -8583,18 +8419,6 @@
     "nextmicroservicechainlink": "88807d68-062e-4d1a-a2d5-2d198c88d8ca", 
     "microservicechainlink": "75fb5d67-5efa-4232-b00b-d85236de0d3f", 
     "lastmodified": "2013-02-08T22:21:21+00:00",
-    "exitcode": 0
-  }
-},
-{
-  "pk": "e0d9e83b-89e1-4711-89e4-14dbe15bea4c", 
-  "model": "main.microservicechainlinkexitcode", 
-  "fields": {
-    "replaces": null, 
-    "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "8c8bac29-4102-4fd2-9d0a-a3bd2e607566", 
-    "microservicechainlink": "370aca94-65ab-4f2a-9d7d-294a62c8b7ba", 
-    "lastmodified": "2012-10-02T00:25:07+00:00",
     "exitcode": 0
   }
 },
@@ -8703,18 +8527,6 @@
     "nextmicroservicechainlink": "e2c0dae9-3295-4a98-b3ff-664ab2dc0cda", 
     "microservicechainlink": "2872d007-6146-4359-b554-6e9fe7a8eca6", 
     "lastmodified": "2012-10-02T00:25:07+00:00",
-    "exitcode": 0
-  }
-},
-{
-  "pk": "ea5b8e14-519e-473b-818c-e62879559816", 
-  "model": "main.microservicechainlinkexitcode", 
-  "fields": {
-    "replaces": null, 
-    "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "cb48ef2a-3394-4936-af1f-557b39620efa", 
-    "microservicechainlink": "d2035da2-dfe1-4a56-8524-84d5732fd3a3", 
-    "lastmodified": "2012-11-30T19:55:48+00:00",
     "exitcode": 0
   }
 },
@@ -9003,18 +8815,6 @@
     "nextmicroservicechainlink": "8bc92801-4308-4e3b-885b-1a89fdcd3014", 
     "microservicechainlink": "b21018df-f67d-469a-9ceb-ac92ac68654e", 
     "lastmodified": "2013-02-13T22:03:39+00:00",
-    "exitcode": 0
-  }
-},
-{
-  "pk": "fe188831-76b3-4487-8712-5d727a50e8ce", 
-  "model": "main.microservicechainlinkexitcode", 
-  "fields": {
-    "replaces": null, 
-    "exitmessage": "Completed successfully", 
-    "nextmicroservicechainlink": "11033dbd-e4d4-4dd6-8bcf-48c424e222e3", 
-    "microservicechainlink": "2a62f025-83ec-4f23-adb4-11d5da7ad8c2", 
-    "lastmodified": "2012-10-02T00:25:07+00:00",
     "exitcode": 0
   }
 },
@@ -10401,17 +10201,6 @@
   }
 },
 {
-  "pk": "1c7de28f-8f18-41c7-b03a-19f900d38f34", 
-  "model": "main.taskconfig", 
-  "fields": {
-    "tasktypepkreference": "ec54a7cb-690f-4dd6-ad2b-979ae9f8d25a", 
-    "lastmodified": "2012-10-02T00:25:11+00:00",
-    "replaces": null, 
-    "description": "Assign checksums and file sizes to objects", 
-    "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577"
-  }
-},
-{
   "pk": "1cd60a70-f78e-4625-9381-3863ff819f33", 
   "model": "main.taskconfig", 
   "fields": {
@@ -11292,17 +11081,6 @@
   }
 },
 {
-  "pk": "5bd51fcb-6a68-4c5f-b99e-4fc36f51c40c", 
-  "model": "main.taskconfig", 
-  "fields": {
-    "tasktypepkreference": "e377b543-d9b8-47a9-8297-4f95ca7600b3", 
-    "lastmodified": "2013-02-13T22:03:40+00:00",
-    "replaces": null, 
-    "description": "Assign checksums and file sizes to metadata ", 
-    "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577"
-  }
-},
-{
   "pk": "5c831a10-5d75-44ca-9741-06fdfc72052a", 
   "model": "main.taskconfig", 
   "fields": {
@@ -11344,17 +11122,6 @@
     "replaces": null, 
     "description": "Grant normalization options for pre-existing DIP", 
     "tasktype": "6f0b612c-867f-4dfd-8e43-5b35b7f882d7"
-  }
-},
-{
-  "pk": "6405c283-9eed-410d-92b1-ce7d938ef080", 
-  "model": "main.taskconfig", 
-  "fields": {
-    "tasktypepkreference": "c06ecc19-8f75-4ccf-a549-22fde3972f28", 
-    "lastmodified": "2012-10-02T00:25:11+00:00",
-    "replaces": null, 
-    "description": "Assign checksums and file sizes to objects", 
-    "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577"
   }
 },
 {
@@ -12205,17 +11972,6 @@
   }
 },
 {
-  "pk": "abeaa79e-668b-4de0-b8cb-70f8ab8056b6", 
-  "model": "main.taskconfig", 
-  "fields": {
-    "tasktypepkreference": "c8f93c3d-b078-428d-bd53-1b5789cde598", 
-    "lastmodified": "2012-10-02T00:25:11+00:00",
-    "replaces": null, 
-    "description": "Assign checksums and file sizes to submissionDocumentation", 
-    "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577"
-  }
-},
-{
   "pk": "accc69f9-5b99-4565-92b5-114c7727d9e9", 
   "model": "main.taskconfig", 
   "fields": {
@@ -12414,17 +12170,6 @@
   }
 },
 {
-  "pk": "bd9769ba-4182-4dd4-ba85-cff24ea8733e", 
-  "model": "main.taskconfig", 
-  "fields": {
-    "tasktypepkreference": "ec54a7cb-690f-4dd6-ad2b-979ae9f8d25a", 
-    "lastmodified": "2012-10-02T00:25:11+00:00",
-    "replaces": null, 
-    "description": "Assign checksums and file sizes to objects", 
-    "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577"
-  }
-},
-{
   "pk": "be4e3ee6-9be3-465f-93f0-77a4ccdfd1db", 
   "model": "main.taskconfig", 
   "fields": {
@@ -12455,17 +12200,6 @@
     "replaces": null, 
     "description": "Remove from quarantine", 
     "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c"
-  }
-},
-{
-  "pk": "bf5a1f0c-1b3e-4196-b51f-f6d509091346", 
-  "model": "main.taskconfig", 
-  "fields": {
-    "tasktypepkreference": "45df6fd4-9200-4ec7-bd31-ba0338c07806", 
-    "lastmodified": "2012-10-02T00:25:11+00:00",
-    "replaces": null, 
-    "description": "Assign checksums and file sizes to objects", 
-    "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577"
   }
 },
 {
@@ -12917,17 +12651,6 @@
     "replaces": null, 
     "description": "Workflow decision - send transfer to quarantine", 
     "tasktype": "61fb3874-8ef6-49d3-8a2d-3cb66e86a30c"
-  }
-},
-{
-  "pk": "ded09ddd-2deb-4d62-bfe3-84703f60c522", 
-  "model": "main.taskconfig", 
-  "fields": {
-    "tasktypepkreference": "0bdecdc8-f5ef-48dd-8a89-f937d2b3f2f9", 
-    "lastmodified": "2013-01-03T02:10:38+00:00",
-    "replaces": null, 
-    "description": "Assign checksums to manual normalized preservation files", 
-    "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577"
   }
 },
 {
@@ -13561,22 +13284,6 @@
     "stderr_file": null, 
     "replaces": null, 
     "arguments": "700 -R \"%relativeLocation%\"", 
-    "filter_file_end": null, 
-    "stdout_file": null
-  }
-},
-{
-  "pk": "0bdecdc8-f5ef-48dd-8a89-f937d2b3f2f9", 
-  "model": "main.standardtaskconfig", 
-  "fields": {
-    "execute": "updateSizeAndChecksum_v0.0", 
-    "filter_subdir": "objects/manualNormalization/preservation", 
-    "lastmodified": "2013-01-03T02:10:38+00:00",
-    "requires_output_lock": false, 
-    "filter_file_start": null, 
-    "stderr_file": null, 
-    "replaces": null, 
-    "arguments": "--filePath \"%relativeLocation%\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\"", 
     "filter_file_end": null, 
     "stdout_file": null
   }
@@ -14398,22 +14105,6 @@
   }
 },
 {
-  "pk": "45df6fd4-9200-4ec7-bd31-ba0338c07806", 
-  "model": "main.standardtaskconfig", 
-  "fields": {
-    "execute": "updateSizeAndChecksum_v0.0", 
-    "filter_subdir": "objects", 
-    "lastmodified": "2012-10-02T00:25:01+00:00",
-    "requires_output_lock": false, 
-    "filter_file_start": null, 
-    "stderr_file": null, 
-    "replaces": null, 
-    "arguments": "--filePath \"%relativeLocation%\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\"", 
-    "filter_file_end": null, 
-    "stdout_file": null
-  }
-},
-{
   "pk": "45f11547-0df9-4856-b95a-3b1ff0c658bd", 
   "model": "main.standardtaskconfig", 
   "fields": {
@@ -14470,7 +14161,7 @@
     "lastmodified": "2012-10-02T00:25:01+00:00",
     "requires_output_lock": true, 
     "filter_file_start": null, 
-    "stderr_file": "%SIPLogsDirectory%removeUnneededFiles.log", 
+    "stderr_file": "%SIPLogsDirectory%removeUnneededFiles.log",
     "replaces": null, 
     "arguments": "\"%relativeLocation%\" \"%fileUUID%\"", 
     "filter_file_end": null, 
@@ -15902,22 +15593,6 @@
   }
 },
 {
-  "pk": "c06ecc19-8f75-4ccf-a549-22fde3972f28", 
-  "model": "main.standardtaskconfig", 
-  "fields": {
-    "execute": "updateSizeAndChecksum_v0.0", 
-    "filter_subdir": null, 
-    "lastmodified": "2012-10-02T00:25:01+00:00",
-    "requires_output_lock": false, 
-    "filter_file_start": null, 
-    "stderr_file": null, 
-    "replaces": null, 
-    "arguments": "--filePath \"%relativeLocation%\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\"", 
-    "filter_file_end": null, 
-    "stdout_file": null
-  }
-},
-{
   "pk": "c0ae5130-0c17-4fc1-91c7-aa36265a21d5", 
   "model": "main.standardtaskconfig", 
   "fields": {
@@ -15993,22 +15668,6 @@
     "stderr_file": null, 
     "replaces": null, 
     "arguments": "\"%SIPDirectory%\" \"%sharedPath%failed/.\" \"%SIPUUID%\" \"%sharedPath%\" \"%SIPUUID%\" \"%sharedPath%\"", 
-    "filter_file_end": null, 
-    "stdout_file": null
-  }
-},
-{
-  "pk": "c8f93c3d-b078-428d-bd53-1b5789cde598", 
-  "model": "main.standardtaskconfig", 
-  "fields": {
-    "execute": "updateSizeAndChecksum_v0.0", 
-    "filter_subdir": "objects/submissionDocumentation", 
-    "lastmodified": "2012-10-02T00:25:01+00:00",
-    "requires_output_lock": false, 
-    "filter_file_start": null, 
-    "stderr_file": null, 
-    "replaces": null, 
-    "arguments": "--filePath \"%relativeLocation%\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\"", 
     "filter_file_end": null, 
     "stdout_file": null
   }
@@ -16238,22 +15897,6 @@
   }
 },
 {
-  "pk": "e377b543-d9b8-47a9-8297-4f95ca7600b3", 
-  "model": "main.standardtaskconfig", 
-  "fields": {
-    "execute": "updateSizeAndChecksum_v0.0", 
-    "filter_subdir": "objects/metadata", 
-    "lastmodified": "2013-02-13T22:03:40+00:00",
-    "requires_output_lock": false, 
-    "filter_file_start": null, 
-    "stderr_file": null, 
-    "replaces": null, 
-    "arguments": "--filePath \"%relativeLocation%\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\"", 
-    "filter_file_end": null, 
-    "stdout_file": null
-  }
-},
-{
   "pk": "e3c09c46-6d05-4369-8c12-b5af6657c8f7", 
   "model": "main.standardtaskconfig", 
   "fields": {
@@ -16377,22 +16020,6 @@
     "stderr_file": null, 
     "replaces": null, 
     "arguments": null, 
-    "filter_file_end": null, 
-    "stdout_file": null
-  }
-},
-{
-  "pk": "ec54a7cb-690f-4dd6-ad2b-979ae9f8d25a", 
-  "model": "main.standardtaskconfig", 
-  "fields": {
-    "execute": "updateSizeAndChecksum_v0.0", 
-    "filter_subdir": "objects", 
-    "lastmodified": "2012-10-02T00:25:01+00:00",
-    "requires_output_lock": false, 
-    "filter_file_start": null, 
-    "stderr_file": null, 
-    "replaces": null, 
-    "arguments": "--filePath \"%relativeLocation%\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\"", 
     "filter_file_end": null, 
     "stdout_file": null
   }
