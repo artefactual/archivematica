@@ -6,8 +6,6 @@ from glob import glob
 import os
 import sys
 
-import django
-django.setup()
 # dashboard
 from main.models import UnitVariable
 
@@ -15,11 +13,28 @@ from main.models import UnitVariable
 from custom_handlers import get_script_logger
 import elasticSearchFunctions
 import storageService as storage_service
-from identifier_functions import extract_identifiers_from_mods
+import identifier_functions
 
+import django
+django.setup()
 
-def list_mods(sip_path):
-    return glob('{}/submissionDocumentation/**/mods/*.xml'.format(sip_path))
+def get_identifiers(sip_path):
+    """Get additional identifiers to index."""
+    identifiers = []
+
+    # MODS
+    mods_paths = glob('{}/submissionDocumentation/**/mods/*.xml'.format(sip_path))
+    for mods in mods_paths:
+        identifiers.extend(identifier_functions.extract_identifiers_from_mods(mods))
+
+    # Islandora identifier
+    islandora_path = glob('{}/submissionDocumentation/**/*-METS.xml'.format(sip_path))
+    for mets in islandora_path:
+        identifiers.extend(identifier_functions.extract_identifier_from_islandora(mets))
+
+    print('Indexing additional identifiers %s', identifiers)
+
+    return identifiers
 
 
 def index_aip():
@@ -51,10 +66,7 @@ def index_aip():
     mets_name = 'METS.{}.xml'.format(sip_uuid)
     mets_path = os.path.join(sip_path, mets_name)
 
-    mods_paths = list_mods(sip_path)
-    identifiers = []
-    for mods in mods_paths:
-        identifiers.extend(extract_identifiers_from_mods(mods))
+    identifiers = get_identifiers(sip_path)
 
     # If this is an AIC, find the number of AIP stored in it and index that
     aips_in_aic = None
