@@ -11725,10 +11725,10 @@
   "model": "main.taskconfig", 
   "fields": {
     "tasktypepkreference": "66aa823d-3b72-4d13-9ad6-c5e6580857b8", 
-    "lastmodified": "2014-09-11T16:09:53+00:00",
+    "lastmodified": "2016-08-19T16:09:53+00:00",
     "replaces": null, 
     "description": "Remove unneeded files", 
-    "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577"
+    "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6"
   }
 },
 {
@@ -13166,10 +13166,10 @@
   "model": "main.taskconfig", 
   "fields": {
     "tasktypepkreference": "49b803e3-8342-4098-bb3f-434e1eb5cfa8", 
-    "lastmodified": "2012-10-02T00:25:11+00:00",
+    "lastmodified": "2016-08-19T00:25:11+00:00",
     "replaces": null, 
     "description": "Remove cache files", 
-    "tasktype": "a6b1c323-7d36-428e-846a-e7e819423577"
+    "tasktype": "36b2e239-4a57-4aa5-8ebc-7a29139baca6"
   }
 },
 {
@@ -14465,15 +14465,15 @@
   "pk": "49b803e3-8342-4098-bb3f-434e1eb5cfa8", 
   "model": "main.standardtaskconfig", 
   "fields": {
-    "execute": "removeUnneededFiles_v0.0", 
+    "execute": "removeUnneededFiles_v0.0",
     "filter_subdir": "objects", 
-    "lastmodified": "2012-10-02T00:25:01+00:00",
+    "lastmodified": "2016-08-19T00:25:01+00:00",
     "requires_output_lock": true, 
     "filter_file_start": null, 
     "stderr_file": "%SIPLogsDirectory%removeUnneededFiles.log", 
     "replaces": null, 
-    "arguments": "\"%relativeLocation%\" \"%fileUUID%\"", 
-    "filter_file_end": null, 
+    "arguments": "\"%SIPObjectsDirectory%\" \"%SIPUUID%\"",
+    "filter_file_end": null,
     "stdout_file": "%SIPLogsDirectory%removeUnneededFiles.log"
   }
 },
@@ -14819,12 +14819,12 @@
   "fields": {
     "execute": "removeUnneededFiles_v0.0", 
     "filter_subdir": null, 
-    "lastmodified": "2014-09-11T16:09:53+00:00",
+    "lastmodified": "2016-08-19T16:09:53+00:00",
     "requires_output_lock": true, 
     "filter_file_start": null, 
     "stderr_file": null, 
     "replaces": null, 
-    "arguments": "\"%relativeLocation%\" \"%fileUUID%\"", 
+    "arguments": "\"%SIPObjectsDirectory%\" \"%SIPUUID%\"",
     "filter_file_end": null, 
     "stdout_file": null
   }
@@ -14837,7 +14837,7 @@
     "filter_subdir": "objects", 
     "lastmodified": "2013-04-19T22:39:27+00:00",
     "requires_output_lock": false, 
-    "filter_file_start": null, 
+    "filter_file_start": null,
     "stderr_file": null, 
     "replaces": null, 
     "arguments": "--eventType \"placement in backlog\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --eventDateTime \"%jobCreatedDate%\"", 
