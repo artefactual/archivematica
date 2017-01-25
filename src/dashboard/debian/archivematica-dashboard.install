@@ -1,2 +1,4 @@
 src/* /usr/share/archivematica/dashboard/
-
+install/archivematica-dashboard.conf /etc/init/
+install/dashboard.conf /etc/nginx/sites-available/
+install/dashboard.gunicorn-config.py /etc/archivematica/
