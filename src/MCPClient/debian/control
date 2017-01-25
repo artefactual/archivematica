@@ -45,5 +45,6 @@ Depends:
 	tree,
 	ufraw,
 	unrar-free,
+	python-unidecode,
 	uuid
 Description: MCP Client for Archivematica
