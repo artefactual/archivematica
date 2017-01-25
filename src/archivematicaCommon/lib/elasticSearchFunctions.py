@@ -354,7 +354,8 @@ def try_to_index(conn, data, index, doc_type, wait_between_tries=10, max_tries=1
 
     for _ in xrange(0, max_tries):
         try:
-            return conn.index(body=data, index=index, doc_type=doc_type)
+            # TODO make timeout configurable (for now overrode the 10s default, refs. 10812)
+            return conn.index(body=data, index=index, doc_type=doc_type, request_timeout=60)
         except Exception as e:
             print "ERROR: error trying to index."
             print e
