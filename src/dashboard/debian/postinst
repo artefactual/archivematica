@@ -1,7 +1,5 @@
 #!/bin/bash
 
-a2enmod wsgi
-
 
 logdir=/var/log/archivematica/dashboard
 mkdir -p $logdir
@@ -18,6 +16,7 @@ pip install --upgrade -r /usr/share/archivematica/dashboard/requirements.txt
 # AM 1.1.0 and earlier did not set charset and collation on db properly
 #this is required to allow syncdb to work properly
 mysql -u archivematica -pdemo MCP -e 'alter database MCP CHARACTER SET utf8 COLLATE utf8_unicode_ci'
+export PYTHONPATH=/usr/lib/archivematica/archivematicaCommon/:/usr/share/archivematica/dashboard
 
 # Fake migrations if necessary.  $2 is old version
 if [[ $2 == '1:1.4.1'* ]]; then
@@ -30,8 +29,6 @@ fi
 
 # Run migrations
 /usr/share/archivematica/dashboard/manage.py migrate --settings='settings.common'
-
-/etc/init.d/apache2 restart
 
 userID=`id -u archivematicadashboard`
 
