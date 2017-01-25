@@ -28,7 +28,7 @@ import shutil
 
 import django
 django.setup()
-from main.models import Transfer
+from main.models import Transfer, SIP
 
 from verifyBAG import verify_bag
 
@@ -132,10 +132,19 @@ if __name__ == '__main__':
     sip_path = sys.argv[1]
     sip_uuid = sys.argv[2]
 
-    transfer = Transfer.objects.get(uuid=sip_uuid)
-    logger.info('Transfer.type=%s', transfer.type)
+    transfer = None
+    sip = None
+    try:
+        transfer = Transfer.objects.get(uuid=sip_uuid)
+    except Transfer.DoesNotExist:
+        sip = SIP.objects.get(uuid=sip_uuid)
 
-    if transfer.type == 'Archivematica AIP':
+    if transfer:
+        logger.info('Transfer.type=%s', transfer.type)
+    else:
+        logger.info('SIP.sip_type=%s', sip.sip_type)
+
+    if transfer and transfer.type == 'Archivematica AIP':
         logger.info('Archivematica AIP detected, verifying bag...')
         exit_code = verify_bag(sip_path)
         if exit_code > 0:
