@@ -12,6 +12,7 @@ Depends:
 	${shlibs:Depends},
 	${misc:Depends},
 	python,
-	python-dev
+	python-dev,
+	libmysqlclient-dev
 Description: Common libraries for archivematica
   This package is a support package for archivematica. It contains a library of functions used in the archivematica system.
