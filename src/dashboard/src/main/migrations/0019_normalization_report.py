@@ -30,7 +30,7 @@ def data_migration(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0022_blob_fields'),
+        ('main', '0018_archivesspace_sip_arrange'),
     ]
 
     operations = [

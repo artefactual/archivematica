@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0023_normalization_report'),
+        ('main', '0023_blob_fields'),
     ]
 
     operations = [

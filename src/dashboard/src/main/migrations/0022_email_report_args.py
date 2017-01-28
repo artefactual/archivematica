@@ -11,7 +11,7 @@ def data_migration(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0020_checksum_algorithms'),
+        ('main', '0021_checksum_algorithms'),
     ]
 
     operations = [
