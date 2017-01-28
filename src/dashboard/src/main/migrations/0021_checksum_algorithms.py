@@ -16,7 +16,7 @@ def data_migration(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0019_index_after_processing_decision'),
+        ('main', '0020_index_after_processing_decision'),
     ]
 
     operations = [

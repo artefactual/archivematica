@@ -46,7 +46,7 @@ def data_migration(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0018_archivesspace_sip_arrange'),
+        ('main', '0019_normalization_report'),
     ]
 
     operations = [
