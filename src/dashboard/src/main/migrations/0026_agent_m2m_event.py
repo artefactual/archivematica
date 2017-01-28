@@ -25,8 +25,10 @@ def data_migration(apps, schema_editor):
     org_agent = Agent.objects.get(pk=2)
     for e in Event.objects.all():
         e.agents.add(system_agent, org_agent)
-        user_agent = Agent.objects.get(userprofile__user_id=e.linking_agent)
-        e.agents.add(user_agent)
+        #linking_agent is nullable, can't link an event to an agent with no linking_agent id
+        if e.linking_agent is not None:
+            user_agent = Agent.objects.get(userprofile__user_id=e.linking_agent)
+            e.agents.add(user_agent)
 
 
 class Migration(migrations.Migration):
