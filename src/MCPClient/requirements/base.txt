@@ -10,3 +10,4 @@ lxml==3.5.0
 metsrw==0.1.0
 requests==2.7.0
 unidecode==0.04.19
+opf-fido==1.3.5
