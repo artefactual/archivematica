@@ -8,6 +8,9 @@ else
   adduser --uid 333 --group --system --home /var/lib/archivematica/ archivematica
 fi
 
+# use pip installed fido instead of os package version
+update-alternatives --install /usr/bin/fido fido /usr/local/bin/fido 1
+
 logdir=/var/log/archivematica/MCPClient
 mkdir -p $logdir
 chown -R archivematica:archivematica $logdir
