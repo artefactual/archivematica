@@ -12,7 +12,6 @@ Depends:
 	${shlibs:Depends},
 	${misc:Depends},
 	python,
-	python-pip,
 	python-dev
 Description: Common libraries for archivematica
   This package is a support package for archivematica. It contains a library of functions used in the archivematica system.
