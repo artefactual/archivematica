@@ -56,9 +56,9 @@ MATCH_ALL_QUERY = {
         "match_all": {}
     }
 }
-# Returns files which are in the backlog, omitting files without UUIDs,
+# Returns files which are in the backlog; *omits* files without UUIDs,
 # e.g. administrative files (AM metadata and logs directories).
-BACKLOG_FILTER = {
+BACKLOG_FILTER_NO_MD_LOGS = {
     'bool': {
         'must': {
             'term': {
@@ -71,6 +71,18 @@ BACKLOG_FILTER = {
             }
         }
     },
+}
+
+# Returns files which are in the backlog; *includes* files without UUIDs,
+# e.g. administrative files (AM metadata and logs directories).
+BACKLOG_FILTER = {
+    'bool': {
+        'must': {
+            'term': {
+                'status': 'backlog',
+            },
+        }
+    }
 }
 
 MACHINE_READABLE_FIELD_SPEC = {

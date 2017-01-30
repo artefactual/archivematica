@@ -61,6 +61,9 @@ function renderBacklogSearchForm(search_uri, on_success, on_error) {
     function backlogSearchSubmit() {
       // Query Django, which queries ElasticSearch, to get the backlog file info
       var query_url = search_uri + '?' + search.toUrlParams();
+      if (!$('#id_show_metadata_logs').is(':checked')) {
+          query_url = query_url + '&' + $.param({hidemetadatalogs: 1});
+      }
 
       $.ajax({
         type: 'GET',
