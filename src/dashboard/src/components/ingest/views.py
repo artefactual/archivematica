@@ -499,9 +499,16 @@ def transfer_backlog(request, ui):
     # Get search parameters from request
     results = None
 
+    # GET params in SIP arrange can control whether files in metadata/ and
+    # logs/ are returned. Appraisal tab always hides these dirs and their files
+    # (for now).
+    backlog_filter = elasticSearchFunctions.BACKLOG_FILTER
+    if ui == 'appraisal' or request.GET.get('hidemetadatalogs'):
+        backlog_filter = elasticSearchFunctions.BACKLOG_FILTER_NO_MD_LOGS
+
     if not 'query' in request.GET:
         query = elasticSearchFunctions.MATCH_ALL_QUERY.copy()
-        query['filter'] = elasticSearchFunctions.BACKLOG_FILTER
+        query['filter'] = backlog_filter
     else:
         queries, ops, fields, types = advanced_search.search_parameter_prep(request)
 
@@ -512,7 +519,7 @@ def transfer_backlog(request, ui):
                 ops,
                 fields,
                 types,
-                filters=elasticSearchFunctions.BACKLOG_FILTER,
+                filters=backlog_filter,
             )
         except:
             logger.exception('Error accessing index.')
