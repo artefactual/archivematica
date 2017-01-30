@@ -269,6 +269,7 @@ def add_new_files(mets, sip_uuid, sip_dir):
     # How tell new file from old with same name? Check hash?
     # QUESTION should the metadata.csv be parsed and only updated if different even if one already existed?
     new_files = []
+    old_mets_rel_path = _get_old_mets_rel_path(sip_uuid)
     metadata_csv = None
     objects_dir = os.path.join(sip_dir, 'objects')
     for dirpath, _, filenames in os.walk(objects_dir):
@@ -279,12 +280,15 @@ def add_new_files(mets, sip_uuid, sip_dir):
             print('Looking for', rel_path, 'in METS')
             fsentry = mets.get_file(path=rel_path)
             if fsentry is None:
-                # If not in METS, get File object and store for later
-                print(rel_path, 'not found in METS, must be new file')
-                f = models.File.objects.get(currentlocation=current_loc, sip_id=sip_uuid)
-                new_files.append(f)
-                if rel_path == 'objects/metadata/metadata.csv':
-                    metadata_csv = f
+                # If not in METS (and is not old METS), get File object and
+                # store for later
+                if rel_path != old_mets_rel_path:
+                    print(rel_path, 'not found in METS, must be new file')
+                    f = models.File.objects.get(
+                        currentlocation=current_loc, sip_id=sip_uuid)
+                    new_files.append(f)
+                    if rel_path == 'objects/metadata/metadata.csv':
+                        metadata_csv = f
             else:
                 print(rel_path, 'found in METS, no further work needed')
 
@@ -408,12 +412,16 @@ def update_metadata_csv(mets, metadata_csv, sip_uuid, sip_dir):
     return mets
 
 
-def update_mets(sip_dir, sip_uuid):
-    old_mets_path = os.path.join(
-        sip_dir,
+def _get_old_mets_rel_path(sip_uuid):
+    return os.path.join(
         'objects',
         'submissionDocumentation',
         'METS.' + sip_uuid + '.xml')
+
+
+def update_mets(sip_dir, sip_uuid):
+
+    old_mets_path = os.path.join(sip_dir, _get_old_mets_rel_path(sip_uuid))
     print('Looking for old METS at path', old_mets_path)
 
     # Parse old METS
