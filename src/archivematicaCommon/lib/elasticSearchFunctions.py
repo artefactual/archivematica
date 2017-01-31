@@ -78,6 +78,48 @@ MACHINE_READABLE_FIELD_SPEC = {
     'index': 'not_analyzed'
 }
 
+CUSTOM_ANALYZERS = {
+    'path': {
+        'type': 'pattern',
+        # splits on path delimiters (/ and \)
+        'pattern': '(\\/|\\\)',
+    },
+    'word': {
+        'type': 'pattern',
+        # splits on path delimiters, underscores, and dashes
+        'pattern': '(\\/|\\\|_|-)'
+    },
+}
+
+PATH_STRING_MULTIFIELD = {
+    'type': 'string',
+    'fields': {
+        'raw': MACHINE_READABLE_FIELD_SPEC,
+        'path': {
+            'type': 'string',
+            'analyzer': 'path',
+        },
+        'word': {
+            'type': 'string',
+            'analyzer': 'word',
+        },
+    },
+}
+
+MULTI_FIELDS = {
+    'transfers': {
+        'transferfile': {
+            'relative_path': ['raw', 'path', 'word'],
+        },
+        'transfer': {},
+    },
+    'aips': {
+        'aipfile': {
+            'filePath': ['raw', 'path', 'word'],
+        },
+        'aip': {},
+    },
+}
 
 class ElasticsearchError(Exception):
     """ Not operational errors. """
@@ -258,14 +300,12 @@ def aip_mapping_is_correct(client):
     return mapping['aipfile']['properties']['AIPUUID']['index'] == 'not_analyzed'
 
 
-def create_index(client, index, attempt=1):
-    if attempt > 3:
-        return
-    response = client.indices.create(index, ignore=400)
-    if 'error' in response and 'IndexAlreadyExistsException' in response['error']:
-        return
+def create_index(client, index):
+    client.indices.create(index, ignore=400)
+    # Always put the mapping, even if the index already exists, because
+    # there may have been changes to the mapping structure; rerunning this
+    # will allow additional fields to be added to the index
     set_up_mapping(client, index)
-    create_index(client, index, attempt + 1)
 
 
 def _sortable_string_field_specification(field_name):
@@ -280,7 +320,6 @@ def _sortable_string_field_specification(field_name):
         }
     }
 
-
 def set_up_mapping_aip_index(client):
     # Load external METS mappings
     # These were generated from an AIP which had all the metadata fields filled out,
@@ -293,6 +332,7 @@ def set_up_mapping_aip_index(client):
     with open(os.path.normpath(os.path.join(__file__, "..", "elasticsearch", "aipfile_mets_mapping.json"))) as f:
         aipfile_mets_mapping = json.load(f)
 
+    create_analyzers(client, 'aips')
     mapping = {
         'name': _sortable_string_field_specification('name'),
         'size': {'type': 'double'},
@@ -315,7 +355,7 @@ def set_up_mapping_aip_index(client):
         'AICID': MACHINE_READABLE_FIELD_SPEC,
         'sipName': {'type': 'string'},
         'indexedAt': {'type': 'double'},
-        'filePath': {'type': 'string'},
+        'filePath': PATH_STRING_MULTIFIELD,
         'fileExtension': {'type': 'string'},
         'origin': {'type': 'string'},
         'identifiers': MACHINE_READABLE_FIELD_SPEC,
@@ -331,10 +371,28 @@ def set_up_mapping_aip_index(client):
     logger.info('AIP file mapping created.')
 
 
+def create_analyzers(client, index):
+    try:
+        client.indices.create(index, ignore=400)
+        client.indices.close(index=index)
+        client.indices.put_settings(
+            index=index,
+            body={
+                'settings': {
+                    'analysis': {
+                        'analyzer': CUSTOM_ANALYZERS
+                    }
+                }
+            },
+        )
+    finally:
+        client.indices.open(index=index)
+
 def set_up_mapping_transfer_index(client):
+    create_analyzers(client, 'transfers')
     transferfile_mapping = {
         'filename'     : {'type': 'string'},
-        'relative_path': {'type': 'string'},
+        'relative_path': PATH_STRING_MULTIFIELD,
         'fileuuid'     : MACHINE_READABLE_FIELD_SPEC,
         'sipuuid'      : MACHINE_READABLE_FIELD_SPEC,
         'accessionid'  : MACHINE_READABLE_FIELD_SPEC,

@@ -513,6 +513,8 @@ def transfer_backlog(request, ui):
                 fields,
                 types,
                 filters=elasticSearchFunctions.BACKLOG_FILTER,
+                search_index='transfers',
+                doc_type='transferfile',
             )
         except:
             logger.exception('Error accessing index.')
