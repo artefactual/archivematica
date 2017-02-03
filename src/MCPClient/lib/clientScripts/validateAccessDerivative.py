@@ -7,7 +7,7 @@ import django
 django.setup()
 from main.models import Derivation, File
 
-from validateDerivative import DerivativeValidator
+from lib.validateDerivative import DerivativeValidator
 
 
 class AccessDerivativeValidator(DerivativeValidator):

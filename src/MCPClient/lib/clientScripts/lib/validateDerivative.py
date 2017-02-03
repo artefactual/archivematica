@@ -18,7 +18,7 @@ NOT_DERIVATIVE_CODE = 0
 NO_RULES_CODE = 0
 
 
-class DerivativeValidator:
+class DerivativeValidator(object):
     """Validates a preservation derivative.
 
     Initialize on a file and then call the ``validate`` method to determine

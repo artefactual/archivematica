@@ -3,7 +3,7 @@ from __future__ import print_function
 import sys
 from custom_handlers import get_script_logger
 
-from policyCheckDerivative import DerivativePolicyChecker
+from lib.policyCheckDerivative import DerivativePolicyChecker
 
 
 class AccessDerivativePolicyChecker(DerivativePolicyChecker):
@@ -22,6 +22,7 @@ class AccessDerivativePolicyChecker(DerivativePolicyChecker):
             print('File {uuid} is not for access.'.format(
                 uuid=self.file_uuid))
         return False
+
 
 if __name__ == '__main__':
     logger = get_script_logger(

@@ -20,7 +20,7 @@ class MediaConchException(Exception):
 Parse = namedtuple('Parse', 'etree_el stdout')
 
 
-class MediaConchPolicyCheckerCommand:
+class MediaConchPolicyCheckerCommand(object):
     """MC Policy Checker Command runs
     ``mediaconch -mc -fx -p <path_to_policy_xsl_file> <target>``,
     parses the returned XML, and prints out a JSON report summarizing the

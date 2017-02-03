@@ -44,7 +44,7 @@ urlpatterns = [
     url(r'premis/agent/$', views.premis_agent),
     url(r'api/$', views.api),
     url(r'policies/$', views.policies),
-    url(r'policies/view/(?P<policy>[^/]+)/$', views.view_policy),
+    url(r'policies/(?P<policy>[^/]+)/$', views.view_policy),
     url(r'policies/delete/(?P<policy>[^/]+)/$', views.delete_policy),
     url(r'general/$', views.general),
     url(r'version/$', views.version),

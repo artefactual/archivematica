@@ -3,7 +3,7 @@ from __future__ import print_function
 import sys
 from custom_handlers import get_script_logger
 
-from validateDerivative import DerivativeValidator
+from lib.validateDerivative import DerivativeValidator
 
 if __name__ == '__main__':
     logger = get_script_logger(

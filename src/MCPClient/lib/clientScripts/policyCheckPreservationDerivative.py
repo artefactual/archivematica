@@ -3,7 +3,7 @@ from __future__ import print_function
 import sys
 from custom_handlers import get_script_logger
 
-from policyCheckDerivative import DerivativePolicyChecker
+from lib.policyCheckDerivative import DerivativePolicyChecker
 
 
 class PreservationDerivativePolicyChecker(DerivativePolicyChecker):
@@ -16,6 +16,7 @@ class PreservationDerivativePolicyChecker(DerivativePolicyChecker):
                   ' performing a policy check.'.format(uuid=self.file_uuid))
             return False
         return True
+
 
 if __name__ == '__main__':
     logger = get_script_logger(

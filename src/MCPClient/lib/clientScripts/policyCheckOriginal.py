@@ -5,7 +5,7 @@ import sys
 
 from custom_handlers import get_script_logger
 from main.models import Transfer
-from policyCheck import PolicyChecker
+from lib.policyCheck import PolicyChecker
 
 
 class OriginalPolicyChecker(PolicyChecker):

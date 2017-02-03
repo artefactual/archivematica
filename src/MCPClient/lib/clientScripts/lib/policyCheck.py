@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 from __future__ import print_function
 import json
 import os
@@ -23,7 +22,7 @@ NOT_APPLICABLE_CODE = 0
 FAIL_CODE = 1
 
 
-class PolicyChecker:
+class PolicyChecker(object):
     """Checks whether a given file conforms to all of the MediaConch policies
     that the system is configured to run against that type of file, given the
     file's format and its purpose, i.e., whether it is intended for access or
@@ -318,14 +317,3 @@ class PolicyChecker:
                     [])
         else:
             return (rule.command.command, [self.file_path, self.policies_dir])
-
-if __name__ == '__main__':
-    logger = get_script_logger(
-        "archivematica.mcp.client.policyCheck")
-    file_path = sys.argv[1]
-    file_uuid = sys.argv[2]
-    sip_uuid = sys.argv[3]
-    shared_path = sys.argv[4]
-    policy_checker = PolicyChecker(file_path, file_uuid, sip_uuid,
-                                   shared_path)
-    sys.exit(policy_checker.check())
