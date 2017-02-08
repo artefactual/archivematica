@@ -282,7 +282,7 @@ else:
     }
 
 # Dashboard internal settings
-MCP_SERVER = ('127.0.0.1', 4730) # localhost:4730
+GEARMAN_SERVER = '127.0.0.1:4730'
 POLLING_INTERVAL = 5 # Seconds
 STATUS_POLLING_INTERVAL = 5 # Seconds
 TASKS_PER_PAGE = 10 # for paging in tasks dialog
