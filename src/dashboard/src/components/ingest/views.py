@@ -292,7 +292,7 @@ def ingest_upload_destination_url_check(request):
     url = urljoin(url, request.GET.get('target', ''))
 
     # make request for URL
-    response = requests.request('GET', url, timeout=5)
+    response = requests.request('GET', url, timeout=120)
 
     # return resulting status code from request
     return HttpResponse(response.status_code)

@@ -170,7 +170,7 @@ def bulk_extractor(request, fileuuid):
     for report in reports:
         relative_path = os.path.join('logs', 'bulk-' + fileuuid, report + '.txt')
         url = storage_service.extract_file_url(f.transfer_id, relative_path)
-        response = requests.get(url, timeout=5)
+        response = requests.get(url, timeout=120)
 
         if response.status_code != 200:
             message = 'Unable to retrieve ' + report + ' report for file with UUID ' + fileuuid
