@@ -73,7 +73,7 @@ def _storage_api():
     storage_service_url = _storage_service_url()
     username = get_setting('storage_service_user', 'test')
     api_key = get_setting('storage_service_apikey', None)
-    api = slumber.API(storage_service_url, session=_storage_api_session(auth=TastypieApikeyAuth(username, api_key), timeout=5))
+    api = slumber.API(storage_service_url, session=_storage_api_session(auth=TastypieApikeyAuth(username, api_key), timeout=120))
     return api
 
 def _storage_api_params():

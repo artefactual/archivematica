@@ -53,7 +53,7 @@ def dspace_handle_to_archivesspace(sip_uuid):
     url = archivesspace_url + '/users/' + config.user + '/login'
     params = {'password': config.passwd}
     logger.debug('Log in to ArchivesSpace URL: %s', url)
-    response = requests.post(url, params=params, timeout=60)
+    response = requests.post(url, params=params, timeout=120)
     logger.debug('Response: %s %s', response, response.content)
     session_id = response.json()['session']
     headers = {'X-ArchivesSpace-Session': session_id}

@@ -129,7 +129,7 @@ def fprupload(request):
               }
     headers = {'Content-Type': 'application/json'}
     try: 
-        r = requests.post(url, data=json.dumps(payload), headers=headers, timeout=5, verify=True)
+        r = requests.post(url, data=json.dumps(payload), headers=headers, timeout=120, verify=True)
         if r.status_code == 201:
             response_data['result'] = 'success'
         else:
