@@ -247,10 +247,7 @@ LOGGING = {
         'elasticsearch': {
             'level': 'INFO',
         },
-        'archivesspace': {  # for archivematicaCommon/lib/archivesspace
-            'level': 'INFO',
-        },
-        'archiviststoolkit': {  # for archivematicaCommon/lib/archivistsToolkit
+        'agentarchives': {
             'level': 'INFO',
         },
     },
