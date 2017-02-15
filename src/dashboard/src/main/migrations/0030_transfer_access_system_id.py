@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0029_clean_transfers'),
+        ('main', '0029_backlog_removal_event'),
     ]
 
     operations = [
