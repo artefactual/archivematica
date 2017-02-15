@@ -408,7 +408,7 @@ $(function()
             } else {
               // use accession ID for target with artwork record prefix
               var xhr = $.ajax(url, { type: 'POST', data: {
-                'target': 'ar:' + this.model.sip.attributes.access_system_id }})
+                'target': this.model.sip.attributes.access_system_id }})
 
                 .done(function(data)
                   {
