@@ -12,7 +12,6 @@ Depends:
 	${shlibs:Depends},
 	${misc:Depends},
 	nginx,
-	python-pip,
 	python-dateutil,
 	python-gearman,
 	python-simplejson,
