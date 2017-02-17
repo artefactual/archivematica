@@ -28,7 +28,7 @@ import namespaces
 def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
 
     # Prep work
-    mets_schema_location = 'http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version18/mets.xsd'
+    mets_schema_location = 'http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version111/mets.xsd'
     premis_schema_location = 'info:lc/xmlns/premis-v2 http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd'
     # Datetime format string from http://docs.python.org/2/library/datetime.html
     # %Y = 4 digit year, %m = 2 digit month, %d = 2 digit day
