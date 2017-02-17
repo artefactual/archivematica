@@ -1,5 +1,7 @@
 etc/* /etc/archivematica/MCPClient/
 lib/* /usr/lib/archivematica/MCPClient/
 init/* /etc/init/
+requirements.txt /usr/share/archivematica/MCPClient/
+requirements/* /usr/share/archivematica/MCPClient/requirements/
 
 
