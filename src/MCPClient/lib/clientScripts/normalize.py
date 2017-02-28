@@ -362,6 +362,27 @@ def main(opts):
     cl = transcoder.CommandLinker(rule, command, replacement_dict, opts, once_normalized)
     exitstatus = cl.execute()
 
+    # TODO does this need to check if the file exists? Or can we assume that a verification rule exists?
+    # If the rule failed, run the default access rule
+    if exitstatus != 0 and opts.purpose == 'access':
+        # Fall back to default rule
+        try:
+            fallback_rule = get_default_rule(opts.purpose)
+            print(opts.purpose, 'normalization failed, falling back to default', opts.purpose, 'rule')
+            status = RULE_FAILED  # TODO what status should this return?
+        except FPRule.DoesNotExist:
+            print('Not retrying normalizing for', os.path.basename(file_.currentlocation), ' - No default rule found to normalize for', opts.purpose, file=sys.stderr)
+            fallback_rule = None
+        # Don't re-run the same command
+        if fallback_rule and fallback_rule.command != command:
+            print('Fallback Format Policy Rule:', fallback_rule)
+            command = fallback_rule.command
+            print('Fallback Format Policy Command', command.description)
+
+            # Use existing replacement dict
+            cl = transcoder.CommandLinker(fallback_rule, command, replacement_dict, opts, once_normalized)
+            exitstatus = cl.execute()
+
     # Store thumbnails locally for use during AIP searches
     # TODO is this still needed, with the storage service?
     if 'thumbnail' in opts.purpose:
