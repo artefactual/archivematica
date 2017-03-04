@@ -1,0 +1,38 @@
+[
+{
+    "fields": {
+        "filegrpuuid": "",
+        "sip": null,
+        "checksumtype": "",
+        "originallocation": "%transferDirectory%objects/G31DS.TIF",
+        "transfer": "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6",
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2017-01-04T19:35:20Z",
+        "currentlocation": "%transferDirectory%objects/G31DS.TIF",
+        "size": 125968
+    },
+    "model": "main.file",
+    "pk": "47813453-6872-442b-9d65-6515be3c5aa1"
+},
+{
+    "fields": {
+        "filegrpuuid": "",
+        "sip": null,
+        "checksumtype": "",
+        "originallocation": "%transferDirectory%objects/lion.svg",
+        "transfer": "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6",
+        "filegrpuse": "original",
+        "removedtime": null,
+        "label": "",
+        "checksum": "",
+        "enteredsystem": "2017-01-04T19:35:20Z",
+        "currentlocation": "%transferDirectory%objects/lion.svg",
+        "size": 18324
+    },
+    "model": "main.file",
+    "pk": "60e5c61b-14ef-4e92-89ec-9b9201e68adb"
+}
+]
