@@ -1,0 +1,9 @@
+file,basis,status,determination_date,jurisdiction,start_date,end_date,terms,citation,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note,doc_id_type,doc_id_value,doc_id_role
+objects/G31DS.TIF,copyright,cop status,2001-01-01,cop juris,2002-02-02,2003-03-03,,,cop note,cop act,Allow,2004-04-04,2005-05-05,cop grant note,cop type,cop value,cop role
+objects/G31DS.TIF,copyright,cop status2,,cop juris2,,,,,cop note 2,cop act,Disallow,,,,,,
+objects/G31DS.TIF,copyright,cop status3,2001-01-01,cop juris3,2002-02-02,2003-03-03,,,cop note 3,cop act2,Allow,2004-04-04,2005-05-05,cop grant note3,cop type3,,
+objects/G31DS.TIF,license,,,,1982-01-01,1983-02-02,lic terms,,lic note,lic act,Allow,,,,license type,license value,
+objects/G31DS.TIF,statute,,1972-02-02,stat juris,1966-01-01,open,stat terms,stat cit,statute note,stat act,Allow,,,,statute type,statute value,statute role
+objects/G31DS.TIF,other,,,,1945-01-01,1950-05-05,,,other note,other act,Allow,1920-01-01,1921-01-01,other grant note,,,
+objects/lion.svg,donor,,,,,,,,,donor act,,,,,,,
+objects/lion.svg,policy,,,,,,,,,policy act,,,,,,,
