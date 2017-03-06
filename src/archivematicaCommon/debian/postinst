@@ -5,6 +5,6 @@
 echo "Removing Django's .pyo files to aid upgrade"
 find /usr/local/lib/python2.7/dist-packages/django/ -name '*.pyo' -delete
 
-pip install --upgrade -r /usr/share/archivematica/archivematicaCommon/requirements.txt
+/usr/local/bin/pip install --upgrade -r /usr/share/archivematica/archivematicaCommon/requirements.txt
 
 #DEBHELPER#

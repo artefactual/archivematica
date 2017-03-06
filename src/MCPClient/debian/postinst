@@ -8,7 +8,7 @@ else
   adduser --uid 333 --group --system --home /var/lib/archivematica/ archivematica
 fi
 
-pip install --upgrade -r /usr/share/archivematica/MCPClient/requirements.txt
+/usr/local/bin/pip install --upgrade -r /usr/share/archivematica/MCPClient/requirements.txt
 
 # use pip installed fido instead of os package version
 update-alternatives --install /usr/bin/fido fido /usr/local/bin/fido 1
