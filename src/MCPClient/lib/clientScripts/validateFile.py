@@ -67,12 +67,18 @@ def main(file_path, file_uuid, sip_uuid):
         output = ast.literal_eval(stdout)
         event_detail = 'program="{tool.description}"; version="{tool.version}"'.format(tool=rule.command.tool)
 
-        if (rule.command.description == 'Validate using MediaConch' and
-            output.get('eventOutcomeInformation') != 'pass'):
-            print('Command {} indicated failure with this'
-                  ' output:\n\n{}'.format(rule.command.description, stdout),
-                  file=sys.stderr)
+        # If the FPR command has not errored but the actual validation
+        # determined that the file is not valid, then we want to both create a
+        # validation event in the db and set ``failed`` to ``True`` because we
+        # want the micro-service in the dashboard GUI to indicate "Failed".
+        # NOTE: this requires that the stdout of all validation FPR commands be
+        # a dict (preferably a JSON object) with an ``eventOutcomeInformation``
+        # boolean attribute.
+        if output.get('eventOutcomeInformation') != 'pass':
+            print('Command {} indicated failure with this output:\n\n{}'.format(
+                rule.command.description, stdout), file=sys.stderr)
             failed = True
+
         print('Creating validation event for {} ({})'.format(file_path, file_uuid))
 
         databaseFunctions.insertIntoEvents(
