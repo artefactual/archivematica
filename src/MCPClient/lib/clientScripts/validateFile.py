@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 """
 Runs zero or more FPR validation commands against the provided file and returns
-an error code. May also print to stdout, generate an Event models in the db,
+an exit code. May also print to stdout, generate an Event models in the db,
 and/or write command-specific stdout to disk.
 
 If a format has no defined validation commands, no command is run.
@@ -46,8 +46,6 @@ class Validator(object):
 
     Usage: initialize on a file and then call the ``validate`` method to
     determine whether a given file conforms to a given specification.
-
-    TODO: validateAccessDerivative.py.
     """
 
     def __init__(self, file_path, file_uuid, sip_uuid, shared_path, file_type):

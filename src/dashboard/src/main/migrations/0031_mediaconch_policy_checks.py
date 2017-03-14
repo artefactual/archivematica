@@ -83,18 +83,18 @@ def data_migration(apps, schema_editor):
     prsrvtn_drvtv_policy_check_stc_pk = '0dc703b8-780a-4643-a427-bb60bd5879a8'
     StandardTaskConfig.objects.create(
         id=prsrvtn_drvtv_policy_check_stc_pk,
-        execute='policyCheckPreservationDerivative_v0.0',
+        execute='policyCheck_v0.0',
         arguments=('"%relativeLocation%" "%fileUUID%" "%SIPUUID%"'
-                   ' "%sharedPath%"')
+                   ' "%sharedPath%" "preservation"')
     )
 
     # Access Derivative Policy Check Standard Task Config.
     ccss_drvtv_policy_check_stc_pk = '0872e8ff-5b1b-4c00-a5ea-72efc498fcbf'
     StandardTaskConfig.objects.create(
         id=ccss_drvtv_policy_check_stc_pk,
-        execute='policyCheckAccessDerivative_v0.0',
+        execute='policyCheck_v0.0',
         arguments=('"%relativeLocation%" "%fileUUID%" "%SIPUUID%"'
-                   ' "%sharedPath%"')
+                   ' "%sharedPath%" "access"')
     )
 
     # Preservation Derivative Policy Check Task Config.
@@ -320,9 +320,9 @@ def data_migration(apps, schema_editor):
     rgnl_policy_check_stc_pk = 'cd5c8bbe-3699-4caf-a134-0e77c8ccc84a'
     StandardTaskConfig.objects.create(
         id=rgnl_policy_check_stc_pk,
-        execute='policyCheckOriginal_v0.0',
+        execute='policyCheck_v0.0',
         arguments=('"%relativeLocation%" "%fileUUID%" "%SIPUUID%"'
-                   ' "%sharedPath%"')
+                   ' "%sharedPath%" "original"')
         # filter_subdir='objects/'  <- not needed during transfer, I believe ...
     )
 
