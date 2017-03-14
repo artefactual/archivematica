@@ -19,9 +19,10 @@ def data_migration(apps, schema_editor):
        Preservation" chain link.
 
        i.   Standard Tasks Config
-            - references ``validatePreservationDerivative_v0.0`` executable
+            - references ``validateFile_v1.0`` executable with
+              preservation-specific command-line args.
        ii.  Task Config
-            - configures ``validatePreservationDerivative`` as a "for each
+            - configures validate preservation derivative as a "for each
               file" type
        iii. Chain Link ``vldt_prsrvtn_drvtv_cl``
             - puts validate preservation derivative in the "Normalize" group
@@ -36,9 +37,10 @@ def data_migration(apps, schema_editor):
        chain link.
 
        i.   Standard Tasks Config
-            - references ``validateAccessDerivative_v0.0`` executable
+            - references ``validateFile_v1.0`` executable with access-specific
+              command-line args.
        ii.  Task Config
-            - configures ``validateAccessDerivative`` as a "for each file" type
+            - configures validate access derivative as a "for each file" type
        iii. Chain Link ``vldt_ccss_drvtv_cl``
             - puts validate access derivative in the "Normalize" group
             - sets the next chain link to the link that was the next link after
@@ -91,9 +93,9 @@ def data_migration(apps, schema_editor):
     vldt_prsrvtn_drvtv_stc_pk = 'f8bc7b43-8bd4-4db8-88dc-d6f55732fb63'
     StandardTaskConfig.objects.create(
         id=vldt_prsrvtn_drvtv_stc_pk,
-        execute='validatePreservationDerivative_v0.0',
+        execute='validateFile_v1.0',
         arguments=('"%relativeLocation%" "%fileUUID%" "%SIPUUID%"'
-                   ' "%sharedPath%"'),
+                   ' "%sharedPath%" "preservation"'),
         filter_subdir='objects/'
     )
 
@@ -150,9 +152,9 @@ def data_migration(apps, schema_editor):
     vldt_ccss_drvtv_stc_pk = '52e7912e-2ce9-4192-9ba4-19a75b2a2807'
     StandardTaskConfig.objects.create(
         id=vldt_ccss_drvtv_stc_pk,
-        execute='validateAccessDerivative_v0.0',
+        execute='validateFile_v1.0',
         arguments=('"%relativeLocation%" "%fileUUID%" "%SIPUUID%"'
-                   ' "%sharedPath%"'),
+                   ' "%sharedPath%" "access"'),
         filter_subdir='DIP/objects/'
     )
 
