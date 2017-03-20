@@ -209,7 +209,8 @@ def connect_and_create_index(index, attempt=1):
     if attempt <= 3:
         conn = Elasticsearch(hosts=getElasticsearchServerHostAndPort())
 
-        response = conn.indices.create(index, ignore=400)
+        # TODO make timeout configurable (for now overrode the 10s default, refs. 10812, 10933)
+        response = conn.indices.create(index, ignore=400, request_timeout=60)
         if 'error' in response and 'IndexAlreadyExistsException' in response['error']:
             return conn
 
