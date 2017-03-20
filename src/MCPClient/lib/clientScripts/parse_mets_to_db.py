@@ -3,9 +3,11 @@
 from __future__ import print_function
 import argparse
 import datetime
+import logging
 from lxml import etree
 import sys
 import os
+import pprint
 import uuid
 
 import django
@@ -18,6 +20,10 @@ from fpr import models as fpr_models
 import namespaces as ns
 import fileOperations
 import databaseFunctions
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.FileHandler('/tmp/parse_mets_to_db.log', mode='a'))
 
 MD_TYPE_SIP_ID = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
 
@@ -66,9 +72,13 @@ def parse_files(root):
         original_path = original_path.replace('%transferDirectory%', '%SIPDirectory%')
         print('original_path', original_path)
 
-        current_path = fe.find('mets:FLocat', namespaces=ns.NSMAP).get(ns.xlinkBNS+'href')
-        current_path = '%SIPDirectory%' + current_path
-        print('current_path', current_path)
+        if filegrpuse == 'deleted':
+            print('No current path because file has been deleted')
+            current_path = ''
+        else:
+            current_path = fe.find('mets:FLocat', namespaces=ns.NSMAP).get(ns.xlinkBNS+'href')
+            current_path = '%SIPDirectory%' + current_path
+            print('current_path', current_path)
 
         checksum = current_techmd.findtext('.//premis:messageDigest', namespaces=ns.NSMAP)
         print('checksum', checksum)
