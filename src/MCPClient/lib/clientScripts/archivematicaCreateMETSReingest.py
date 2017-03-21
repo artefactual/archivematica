@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 from __future__ import print_function
 import copy
+from datetime import datetime
 from lxml import etree
 import os
 import sys
@@ -20,19 +21,27 @@ def update_object(mets, sip_uuid):
     """
     Updates PREMIS:OBJECT.
 
-    Updates techMD if any of the following have changed: checksumtype, identification, characterization, preservation derivative.
+    Updates techMD if any of the following have changed:
+        - checksumtype,
+        - identification,
+        - characterization,
+        - preservation derivative.
     Most recent has STATUS='current', all others have STATUS='superseded'
     """
-    # Iterate through original files
+
+    # Iterate through original files (from mets:structMap)
     for fsentry in mets.all_files():
         # Only update original files
-        if fsentry.use != 'original' or fsentry.type != 'Item' or not fsentry.file_uuid:
+        if (    fsentry.use != 'original' or
+                fsentry.type != 'Item' or
+                not fsentry.file_uuid):
             continue
 
         # Copy techMD
         old_techmd = None
         for t in fsentry.amdsecs[0].subsections:
-            if t.subsection == 'techMD' and (not t.status or t.status == 'current'):
+            if (    t.subsection == 'techMD' and
+                    (not t.status or t.status == 'current')):
                 old_techmd = t
                 break
         new_techmd_contents = copy.deepcopy(old_techmd.contents.document)
@@ -240,14 +249,22 @@ def add_events(mets, sip_uuid):
         print('Adding', event.event_type, 'event to file', event.file_uuid_id)
         fsentry = mets.get_file(file_uuid=event.file_uuid_id)
         if fsentry is None:
-            print('File with UUID', event.file_uuid_id, 'not in METS file, skipping adding', event.event_type, 'event.')
+            fsentry = mets.get_deleted_file(file_uuid=event.file_uuid_id)
+        if fsentry is None:
+            print('File with UUID', event.file_uuid_id,
+                  'not in METS file, skipping adding', event.event_type,
+                  'event.')
             continue
         fsentry.add_premis_event(createmets2.createEvent(event))
 
         amdsec = fsentry.amdsecs[0]
 
         # Add agent if it's not already in this amdSec
-        if agent and not mets.tree.xpath('mets:amdSec[@AMDID="' + amdsec.id_string() + '"]//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]//premis:agentIdentifierValue[text()="' + agent.identifiervalue + '"]', namespaces=ns.NSMAP):
+        if agent and not mets.tree.xpath(
+                'mets:amdSec[@AMDID="' + amdsec.id_string() +
+                '"]//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]'
+                '//premis:agentIdentifierValue[text()="' +
+                agent.identifiervalue + '"]', namespaces=ns.NSMAP):
             needs_agent.add(fsentry)
 
     for fsentry in needs_agent:
@@ -275,7 +292,8 @@ def add_new_files(mets, sip_uuid, sip_dir):
     for dirpath, _, filenames in os.walk(objects_dir):
         for filename in filenames:
             # Find in METS
-            current_loc = os.path.join(dirpath, filename).replace(sip_dir, '%SIPDirectory%', 1)
+            current_loc = os.path.join(dirpath, filename).replace(
+                sip_dir, '%SIPDirectory%', 1)
             rel_path = current_loc.replace('%SIPDirectory%', '', 1)
             print('Looking for', rel_path, 'in METS')
             fsentry = mets.get_file(path=rel_path)
@@ -419,13 +437,126 @@ def _get_old_mets_rel_path(sip_uuid):
         'METS.' + sip_uuid + '.xml')
 
 
+class ModifiedMETSDocument(metsrw.METSDocument):
+    """This is a monkey-patching of ``metsrw.METSDocument``. These changes, if
+    approved, should be merged into metsrw itself. The main conceptual change
+    is that deleted files from the fileSec of an input METS are retained in the
+    output METS when ``.serialize()`` is called.
+    """
+
+    def serialize(self, fully_qualified=True):
+        """Override superclass's ``serialize`` by adding deleted files to the
+        set of files used to serialize the metsrw document to a METS.xml
+        document.
+        TODO: merge this method override into metsrw.
+        """
+        now = datetime.utcnow().replace(microsecond=0).isoformat('T')
+        files = self.all_files()
+        files = files | set(self.all_deleted_files())
+        mdsecs = self._collect_mdsec_elements(files)
+        root = self._document_root(fully_qualified=fully_qualified)
+        root.append(self._mets_header(now=now))
+        for section in mdsecs:
+            root.append(section.serialize(now=now))
+        root.append(self._filesec(files))
+        root.append(self._structmap())
+        return root
+
+    def all_deleted_files(self):
+        return self._deleted_root_elements
+
+    def get_deleted_file(self, **kwargs):
+        for entry in self.all_deleted_files():
+            if all(value == getattr(entry, key) for key, value in
+                   kwargs.items()):
+                return entry
+        return None
+
+    def __init__(self):
+        super(ModifiedMETSDocument, self).__init__()
+        self._deleted_root_elements = []
+
+    def _parse_tree(self, tree=None):
+        """Extend ``_parse_tree`` by creating an instance attribute
+        ``self._deleted_root_elements``, which is a list of ``FSEntry``
+        instances representing the deleted files from the mets:fileSec.
+        """
+        super(ModifiedMETSDocument, self)._parse_tree(tree)
+        # Populate ``self._deleted_root_elements`` with a set of FSEntry
+        # instances, one for each deleted mets:file in
+        # mets:fileSec/mets:fileGrp[@USE="deleted"]/
+        tree = self.tree
+        deleted_filesec_files = tree.findall(
+            'mets:fileSec/mets:fileGrp[@USE="deleted"]/mets:file',
+            namespaces=metsrw.utils.NAMESPACES)
+        self._deleted_root_elements = self._parse_deleted_filesec_files(
+            tree, deleted_filesec_files)
+        # Associated derived files
+        for entry in self.all_deleted_files():
+            entry.derived_from = self.get_file(
+                file_uuid=entry.derived_from, type='Item')
+            if entry.derived_from is None:
+                # Is it possible for a deleted file to be derived from another
+                # deleted file?
+                entry.derived_from = self.get_deleted_file(
+                    file_uuid=entry.derived_from, type='Item')
+
+    def _parse_deleted_filesec_files(self, tree, deleted_filesec_files):
+        """Return a list of ``metsrw.FSEntry`` instances given a list of
+        ``lxml.Element`` instances in ``deleted_filesec_files`` representing
+        deleted files.
+        """
+        result = []
+        for file_elem in deleted_filesec_files:
+            path = label = file_uuid = derived_from = amdids = checksum = \
+                checksumtype = None
+            file_id = file_elem.get('ID')
+            file_uuid = file_id.replace(metsrw.utils.FILE_ID_PREFIX, '', 1)
+            group_uuid = file_elem.get('GROUPID', '').replace(
+                metsrw.utils.GROUP_ID_PREFIX, '', 1)
+            if group_uuid != file_uuid:
+                derived_from = group_uuid  # Use group_uuid as placeholder
+            amdids = file_elem.get('ADMID')
+            checksum = file_elem.get('CHECKSUM')
+            checksumtype = file_elem.get('CHECKSUMTYPE')
+            # Create FSEntry
+            fs_entry = metsrw.fsentry.FSEntry(
+                path=path,
+                label=label,
+                use='deleted',
+                type='Item',
+                children=[],
+                file_uuid=file_uuid,
+                derived_from=derived_from,
+                checksum=checksum,
+                checksumtype=checksumtype)
+            # Assuming that a deleted mets:file has no corresponding dmdSec
+            # elements. Valid assumption?
+            # Add AMDSecs
+            if amdids:
+                amdids = amdids.split()
+                for amdid in amdids:
+                    amdsec_elem = tree.find(
+                        'mets:amdSec[@ID="' + amdid + '"]',
+                        namespaces=metsrw.utils.NAMESPACES)
+                    amdsec = metsrw.metadata.AMDSec.parse(amdsec_elem)
+                    fs_entry.amdsecs.append(amdsec)
+            result.append(fs_entry)
+        return result
+
+
 def update_mets(sip_dir, sip_uuid):
+    """Updates the METS file (of the SIP with UUID ``sip_uuid``) that is stored
+    on disk at <sip_dir>/objects/submissionDocumentation/METS.<sip_uuid>.xml
+    """
 
     old_mets_path = os.path.join(sip_dir, _get_old_mets_rel_path(sip_uuid))
     print('Looking for old METS at path', old_mets_path)
 
     # Parse old METS
-    mets = metsrw.METSDocument.fromfile(old_mets_path)
+    # mets = metsrw.METSDocument.fromfile(old_mets_path)
+    # TODO: merge ModifiedMETSDocument changes into metsrw library
+    mets = ModifiedMETSDocument.fromfile(old_mets_path)
 
     update_object(mets, sip_uuid)
     update_dublincore(mets, sip_uuid)
