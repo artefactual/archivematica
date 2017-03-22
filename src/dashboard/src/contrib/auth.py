@@ -1,6 +1,6 @@
 import os
 
-import django_auth_ldap
+import django_auth_ldap.backend
 
 
 class CustomLdapConfig(django_auth_ldap.backend.LDAPBackend):
