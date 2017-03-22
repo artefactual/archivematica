@@ -208,7 +208,7 @@ li.user > a {
 #sip-header > div { float: left; padding: 3px 2px 3px 2px; }
 #sip-header-directory { width: 322px; }
 #sip-header-uuid { width: 310px; }
-#sip-header-timestamp { width: 120px; }
+#sip-header-timestamp { width: 180px; }
 #sip-header-actions { }
 
 .sip {
@@ -266,13 +266,26 @@ li.user > a {
   background-position: center left;
 }
 
-.sip-detail-actions > a > span {
+#sip-header-actions > a > span
+{
+  width: 1.2em;
+  display: inline-block;
+}
+
+.sip-detail-actions > a > span
+{
   display: none;
 }
 
 .btn_show_metadata { background-image: url(/media/images/zoom.png); }
 .sip-selected .btn_show_metadata { background-image: url(/media/images/table_edit.png); }
-.btn_remove_sip { background-image: url(/media/images/delete.png); }
+
+.btn_remove_sip,
+.btn_remove_all_sips
+{
+  background-image: url(/media/images/delete.png);
+}
+
 .btn_edit_metadata { background-image: url(/media/images/table_edit.png); }
 
 .sip-removing .sip-detail-actions > a,
@@ -504,7 +517,9 @@ textarea {
 }
 
 .ui-dialog .ui-widget-header {
-  background: none;
+  /* Commented out because white font on light grey background was hard to
+   * read. Uncomment if it was better before *
+   * background: none; */
   border: 0;
   border-bottom: 1px solid #e5e5e5;
 }

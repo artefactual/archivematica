@@ -91,3 +91,30 @@ def mark_hidden(request, unit_type, unit_uuid):
     except Exception:
         LOGGER.debug('Error setting %s %s to hidden', unit_type, unit_uuid, exc_info=True)
         raise django.http.Http404
+
+
+def mark_completed_hidden(request, unit_type):
+    """Marks all units of type ``unit_type`` as hidden, if and only if the unit
+    is completed or failed. This is what happens when the user clicks the
+    "Remove all completed" button in the dashboard GUI.
+
+    This endpoint assumes you are already logged in.
+
+    :param unit_type: 'transfer' or 'ingest' for hiding of Transfers or SIPs,
+        respectively
+    """
+    if request.method not in ('DELETE',):
+        return django.http.HttpResponseNotAllowed(['DELETE'])
+    try:
+        completed = helpers.completed_units_efficient(unit_type=unit_type)
+        if completed:
+            if unit_type == 'transfer':
+                unit_model = models.Transfer
+            elif unit_type == 'ingest':
+                unit_model = models.SIP
+            unit_model.objects.filter(uuid__in=completed).update(hidden=True)
+        response = {'removed': completed}
+        return helpers.json_response(response)
+    except Exception:
+        LOGGER.debug('Error setting completed %s units to hidden', unit_type, exc_info=True)
+        raise django.http.Http404
