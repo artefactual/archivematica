@@ -277,7 +277,7 @@ class PolicyChecker(object):
         input file to
         logs/policyChecks/<policy_filename>/<input_filename>.xml in the SIP.
         """
-        policy_filename = output.get('policy')
+        policy_filename = output.get('policyFileName')
         mc_stdout = output.get('stdout')
         if policy_filename and mc_stdout and self.sip_policy_checks_dir:
             policy_dirname, _ = os.path.splitext(policy_filename)
@@ -292,23 +292,21 @@ class PolicyChecker(object):
                 f.write(mc_stdout)
 
     def _save_policy_to_subm_doc_dir(self, output):
-        """Save the policy file ``policy_filename`` to
-        metadata/submissionDocumentation/policies/<policy_filename>.xsl in the
-        SIP, if it is not there already.
+        """Save the policy file text in ``output['policy']`` to a file named
+        ``output['policyFileName']`` in
+        metadata/submissionDocumentation/policies/ in the SIP, if it is not
+        there already.
         """
-        policy_filename = output.get('policy')
-        if policy_filename and self.sip_subm_doc_dir:
+        policy_filename = output.get('policyFileName')
+        policy = output.get('policy')
+        if policy_filename and policy and self.sip_subm_doc_dir:
             sip_policies_dir = os.path.join(self.sip_subm_doc_dir, 'policies')
             if not os.path.isdir(sip_policies_dir):
                 os.makedirs(sip_policies_dir)
             dst = os.path.join(sip_policies_dir, policy_filename)
             if not os.path.isfile(dst):
-                src = os.path.join(self.policies_dir, policy_filename)
-                if not os.path.isfile(src):
-                    print('Warning: unable to find policy file at'
-                          ' {}'.format(src))
-                else:
-                    shutil.copyfile(src, dst)
+                with open(dst, 'w') as fileo:
+                    fileo.write(policy)
 
     @property
     def sip_logs_dir(self):
@@ -358,7 +356,9 @@ class PolicyChecker(object):
             sip_model = SIP.objects.get(uuid=self.sip_uuid)
         except (SIP.DoesNotExist, SIP.MultipleObjectsReturned):
             print('Warning: unable to retrieve SIP model corresponding to SIP'
-                  ' UUID {}'.format(self.sip_uuid), file=sys.stderr)
+                  ' UUID {} (when attempting to get the path to'
+                  ' metadata/submissionDocumentation/'.format(
+                      self.sip_uuid), file=sys.stderr)
             return None
         else:
             sip_path = sip_model.currentpath.replace(
