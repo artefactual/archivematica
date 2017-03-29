@@ -59,7 +59,7 @@ def something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIP
                     print("No corresponding object for:", accessPath.replace(SIPDirectory, "%SIPDirectory%", 1), file=sys.stderr)
                     exitCode = 1
                 update = []
-                for objectUUID, objectPath in files.values_list('uuid', 'currentlocation'):
+                for index, (objectUUID, objectPath) in enumerate(files.values_list('uuid', 'currentlocation')):
                     objectExtension = objectPath.replace(objectNameLike, "", 1)
                     print(objectName[objectNameExtensionIndex + 1:], objectExtension, "\t", end=' ')
                     if objectExtension.find(".") != -1:
@@ -69,6 +69,20 @@ def something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIP
                     if copy:
                         print("TODO - copy not supported yet")
                     else:
+                        # If there are two or more files named X (without
+                        # extension) in objects/ and one file named X (again
+                        # without extension) in objects/access/, then
+                        # ``renameAsSudo`` will exit with a non-0 exit code
+                        # because it will be attempting to move a file in
+                        # access/ that it just moved in a previous iteration.
+                        # Attempting the mv operation always on the first
+                        # iteration and only on subsequent iterations when the
+                        # access file exists allows for multiple originals
+                        # corresponding to a single access copy. However, it is
+                        # unclear if we want users to be able to do this. See
+                        # issue #10979.
+                        if index != 0 and not os.path.exists(accessPath):
+                            continue
                         dest = dipPath
                         renameAsSudo(accessPath, dest)
 
