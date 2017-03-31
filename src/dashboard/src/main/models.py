@@ -289,6 +289,7 @@ class Transfer(models.Model):
     typeoftransfer = models.TextField(db_column='typeOfTransfer', blank=True)
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True)
+    access_system_id = models.TextField(db_column='access_system_id')
     hidden = models.BooleanField(default=False)
     transfermetadatasetrow = models.ForeignKey('TransferMetadataSet', db_column='transferMetadataSetRowUUID', to_field='id', null=True, blank=True)
 

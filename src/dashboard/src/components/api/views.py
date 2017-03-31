@@ -227,13 +227,14 @@ def start_transfer_api(request):
     transfer_name = request.POST.get('name', '')
     transfer_type = request.POST.get('type', '')
     accession = request.POST.get('accession', '')
+    access_id = request.POST.get('access_system_id', '')
     # Note that the path may contain arbitrary, non-unicode characters,
     # and hence is POSTed to the server base64-encoded
     paths = request.POST.getlist('paths[]', [])
     paths = [base64.b64decode(path) for path in paths]
     row_ids = request.POST.getlist('row_ids[]', [''])
 
-    response = filesystem_ajax_views.start_transfer(transfer_name, transfer_type, accession, paths, row_ids)
+    response = filesystem_ajax_views.start_transfer(transfer_name, transfer_type, accession, access_id, paths, row_ids)
     return helpers.json_response(response)
 
 

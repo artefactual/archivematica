@@ -314,13 +314,17 @@ $(function()
           // if ('Upload DIP' == this.model.get('type') && 13 == value)
           if ('- Upload DIP to Atom' == $select.find('option:selected').text())
           {
-            var modal = $('#upload-dip-modal');
-            var input = modal.find('input');
-            var process = false;
             var url = '/ingest/' + this.model.sip.get('uuid') + '/upload/';
-            var self = this;
 
-            modal
+            if (this.model.sip.attributes.access_system_id == ''
+              || this.model.sip.attributes.access_system_id == null
+            ) {
+              var modal = $('#upload-dip-modal');
+              var input = modal.find('input');
+              var process = false;
+              var self = this;
+
+              modal
 
               .on('shown.bs.modal', function()
                 {
@@ -392,15 +396,32 @@ $(function()
                 })
               .end()
 
-              .find('a.secondary').bind('click', function(event)
-                {
-                  event.preventDefault();
-                  $select.val(0);
-                  modal.modal('hide');
-                })
-              .end()
+                .find('a.secondary').bind('click', function(event)
+                  {
+                    event.preventDefault();
+                    $select.val(0);
+                    modal.modal('hide');
+                  })
+                .end()
 
-              .modal('show');
+                .modal('show');
+            } else {
+              // use accession ID for target with artwork record prefix
+              var xhr = $.ajax(url, { type: 'POST', data: {
+                'target': this.model.sip.attributes.access_system_id }})
+
+                .done(function(data)
+                  {
+                    if (data.ready)
+                    {
+                      executeCommand(self);
+                    }
+                  })
+                .fail(function()
+                  {
+                    alert("Error.");
+                  })
+            }
 
             return false;
           }
