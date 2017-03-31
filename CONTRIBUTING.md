@@ -2,7 +2,7 @@
 
 Thank you for considering a contribution to Archivematica!
 This document outlines the change submission process for Archivematica, along with our standards for new code contributions.
-Following these guidelines helps us assess your changes faster and makes it easier for us to merge you submission!
+Following these guidelines helps us assess your changes faster and makes it easier for us to merge your submission!
 
 There are many ways to contribute: writing tutorials or blog posts about your experience, improving the [documentation](https://github.com/artefactual/archivematica-docs/), submitting bug reports, answering questions on the [mailing list](https://groups.google.com/forum/#!forum/archivematica), or writing code which can be incorporated into Archivematica itself.
 
@@ -45,7 +45,7 @@ Anyone is welcome to request an account on that system to file issues there.
 To register for an account, please email info@artefactual.com.
 Please note that it may take up to two business days for your new account request to be approved.
 
-Issues can also be filed using GitHub Issues in the Archivematica project or any of the supporting Github repositories in the Artefactual organization.
+Issues can also be filed using GitHub Issues in the Archivematica project or any of the supporting GitHub repositories in the Artefactual organization.
 You can also post in our [technical](https://groups.google.com/forum/#!forum/archivematica-tech) or [user](https://groups.google.com/forum/#!forum/archivematica) mailing lists.
 A post to the mailing list is always welcome, especially if you're unsure if it's a bug or a local problem!
 
