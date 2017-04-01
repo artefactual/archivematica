@@ -131,21 +131,10 @@ LOGGING = {
         },
     },
     'handlers': {
-        'logfile': {
-            'level': 'INFO',
-            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
-            'filename': '/var/log/archivematica/MCPClient/MCPClient.log',
-            'formatter': 'detailed',
-            'backupCount': 5,
-            'maxBytes': 4 * 1024 * 1024,  # 20 MiB
-        },
-        'verboselogfile': {
+        'console': {
             'level': 'DEBUG',
-            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
-            'filename': '/var/log/archivematica/MCPClient/MCPClient.debug.log',
+            'class': 'logging.StreamHandler',
             'formatter': 'detailed',
-            'backupCount': 5,
-            'maxBytes': 4 * 1024 * 1024,  # 100 MiB
         },
     },
     'loggers': {
@@ -154,7 +143,7 @@ LOGGING = {
         },
     },
     'root': {
-        'handlers': ['logfile', 'verboselogfile'],
+        'handlers': ['console'],
         'level': 'WARNING',
     }
 }
