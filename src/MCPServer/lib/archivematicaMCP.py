@@ -287,26 +287,15 @@ LOGGING_CONFIG = {
     'disable_existing_loggers': False,
     'formatters': {
         'detailed': {
-            'format': '%(levelname)-8s  %(asctime)s  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s',
+            'format': '%(levelname)-8s  %(asctime)s  %(thread)d  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S'
         },
     },
     'handlers': {
-        'verboselogfile': {
+        'console': {
             'level': 'DEBUG',
-            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
-            'filename': '/var/log/archivematica/MCPServer/MCPServer.debug.log',
+            'class': 'logging.StreamHandler',
             'formatter': 'detailed',
-            'backupCount': 5,
-            'maxBytes': 4 * 1024 * 1024,  # 4 MiB
-        },
-        'logfile': {
-            'level': 'INFO',
-            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
-            'filename': '/var/log/archivematica/MCPServer/MCPServer.log',
-            'formatter': 'detailed',
-            'backupCount': 5,
-            'maxBytes': 4 * 1024 * 1024,  # 4 MiB
         },
     },
     'loggers': {
@@ -315,7 +304,7 @@ LOGGING_CONFIG = {
         },
     },
     'root': {
-        'handlers': ['logfile', 'verboselogfile'],
+        'handlers': ['console'],
         'level': 'WARNING',
     },
 }

@@ -59,7 +59,6 @@ from main.models import Task
 
 sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
-from custom_handlers import GroupWriteRotatingFileHandler
 import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 
@@ -69,26 +68,15 @@ LOGGING_CONFIG = {
     'disable_existing_loggers': False,
     'formatters': {
         'detailed': {
-            'format': '%(levelname)-8s  %(asctime)s  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s',
+            'format': '%(levelname)-8s  %(asctime)s  %(thread)d  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S'
         },
     },
     'handlers': {
-        'logfile': {
-            'level': 'INFO',
-            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
-            'filename': '/var/log/archivematica/MCPClient/MCPClient.log',
-            'formatter': 'detailed',
-            'backupCount': 5,
-            'maxBytes': 4 * 1024 * 1024,  # 20 MiB
-        },
-        'verboselogfile': {
+        'console': {
             'level': 'DEBUG',
-            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
-            'filename': '/var/log/archivematica/MCPClient/MCPClient.debug.log',
+            'class': 'logging.StreamHandler',
             'formatter': 'detailed',
-            'backupCount': 5,
-            'maxBytes': 4 * 1024 * 1024,  # 100 MiB
         },
     },
     'loggers': {
@@ -97,7 +85,7 @@ LOGGING_CONFIG = {
         },
     },
     'root': {
-        'handlers': ['logfile', 'verboselogfile'],
+        'handlers': ['console'],
         'level': 'WARNING',
     }
 }

@@ -41,7 +41,7 @@ django.setup()
 import main.models as models
 
 # moved after django.setup()
-logger = get_script_logger("archivematica.upload.qubit", logfile="/var/log/archivematica/MCPClient/atom_upload.log")
+logger = get_script_logger("archivematica.upload.qubit")
 
 PREFIX = "[uploadDIP]"
 

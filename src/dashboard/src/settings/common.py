@@ -242,22 +242,6 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
         },
-        'logfile': {
-            'level': 'INFO',
-            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
-            'filename': '/var/log/archivematica/dashboard/dashboard.log',
-            'formatter': 'detailed',
-            'backupCount': 5,
-            'maxBytes': 20 * 1024 * 1024,  # 20 MiB
-        },
-        'verboselogfile': {
-            'level': 'DEBUG',
-            'class': 'custom_handlers.GroupWriteRotatingFileHandler',
-            'filename': '/var/log/archivematica/dashboard/dashboard.debug.log',
-            'formatter': 'detailed',
-            'backupCount': 5,
-            'maxBytes': 100 * 1024 * 1024,  # 100 MiB
-        },
     },
     'loggers': {
         'django.request': {
@@ -279,7 +263,7 @@ LOGGING = {
         },
     },
     'root': {
-        'handlers': ['logfile', 'verboselogfile'],
+        'handlers': ['console'],
         'level': 'WARNING',
     },
 }
