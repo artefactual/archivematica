@@ -362,9 +362,16 @@ def main(opts):
     cl = transcoder.CommandLinker(rule, command, replacement_dict, opts, once_normalized)
     exitstatus = cl.execute()
 
-    # TODO does this need to check if the file exists? Or can we assume that a verification rule exists?
-    # If the rule failed, run the default access rule
-    if exitstatus != 0 and opts.purpose == 'access':
+    # If the access normalization command has errored AND a derivative was NOT
+    # created, then we run the default access rule. Note that we DO need to
+    # check if the derivative file exists. Even when a verification command
+    # exists for the normalization command, the transcoder.py::Command.execute
+    # method will only run the verification command if the normalization
+    # command returns a 0 exit code.
+    if (    exitstatus != 0 and
+            opts.purpose == 'access' and
+            cl.commandObject.output_location and
+            (not os.path.isfile(cl.commandObject.output_location))):
         # Fall back to default rule
         try:
             fallback_rule = get_default_rule(opts.purpose)
