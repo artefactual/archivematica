@@ -440,38 +440,31 @@ def reingest_approve(request):
     ``approve_transfer_via_mcp`` above and should probably me made congruent
     with that function and ``approve_transfer``.
     """
-    if request.method == 'POST':
-        error = authenticate_request(request)
-        if error:
-            response = {'error': True, 'message': error}
-            return helpers.json_response(response, status_code=403)
-        sip_name = request.POST.get('name')
-        sip_uuid = request.POST.get('uuid')
-        if not all([sip_name, sip_uuid]):
-            response = {'error': True,
-                        'message': '"name" and "uuid" are required.'}
-            return helpers.json_response(response, status_code=400)
-        job = models.Job.objects.filter(
-            sipuuid=sip_uuid,
-            microservicegroup='Reingest AIP',
-            currentstep=models.Job.STATUS_AWAITING_DECISION
-        ).first()
-        if job:
-            # Hard-coded UUID. Bad. Don't to this. Temporary.
-            approve_aip_reingest_choice_uuid = \
-                '260ef4ea-f87d-4acf-830d-d0de41e6d2af'
-            MCPClient().execute(
-                job.jobuuid, approve_aip_reingest_choice_uuid, '')
-            response = {'message': 'Approval successful.'}
-            return helpers.json_response(response)
-        else:
-            # No job to be found.
-            response = {'error': True,
-                        'message': ('There is no "Reingest AIP" job awaiting a'
-                                    ' decision for SIP {}'.format(sip_uuid))}
-            return helpers.json_response(response, status_code=400)
+    sip_name = request.POST.get('name')
+    sip_uuid = request.POST.get('uuid')
+    if not all([sip_name, sip_uuid]):
+        response = {'error': True,
+                    'message': '"name" and "uuid" are required.'}
+        return helpers.json_response(response, status_code=400)
+    job = models.Job.objects.filter(
+        sipuuid=sip_uuid,
+        microservicegroup='Reingest AIP',
+        currentstep=models.Job.STATUS_AWAITING_DECISION
+    ).first()
+    if job:
+        # Hard-coded UUID. Bad. Don't to this. Temporary.
+        approve_aip_reingest_choice_uuid = \
+            '260ef4ea-f87d-4acf-830d-d0de41e6d2af'
+        MCPClient().execute(
+            job.jobuuid, approve_aip_reingest_choice_uuid, '')
+        response = {'message': 'Approval successful.'}
+        return helpers.json_response(response)
     else:
-        return django.http.HttpResponseNotAllowed(permitted_methods=['POST'])
+        # No job to be found.
+        response = {'error': True,
+                    'message': ('There is no "Reingest AIP" job awaiting a'
+                                ' decision for SIP {}'.format(sip_uuid))}
+        return helpers.json_response(response, status_code=400)
 
 
 @_api_endpoint(expected_methods=['POST'])
