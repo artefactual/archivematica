@@ -452,12 +452,25 @@ def reingest_approve(request):
         currentstep=models.Job.STATUS_AWAITING_DECISION
     ).first()
     if job:
-        # Hard-coded UUID. Bad. Don't to this. Temporary.
-        approve_aip_reingest_choice_uuid = \
-            '260ef4ea-f87d-4acf-830d-d0de41e6d2af'
-        MCPClient().execute(
-            job.jobuuid, approve_aip_reingest_choice_uuid, '')
-        response = {'message': 'Approval successful.'}
+        chain = models.MicroServiceChainChoice.objects.filter(
+            choiceavailableatlink__currenttask__description='Approve AIP reingest',
+            chainavailable__description='Approve AIP reingest'
+        ).first()
+
+        if chain:
+            approve_aip_reingest_choice_uuid = chain.chainavailable.pk
+            client = MCPClient()
+            client.execute(job.pk, approve_aip_reingest_choice_uuid, request.user.id)
+
+            response = {'message': 'Approval successful.'}
+        else:
+            # No choice was found.
+            response = {
+                'error': True,
+                'message': 'Could not find choice for approve AIP reingest'
+            }
+            return helpers.json_response(response, status_code=400)
+
         return helpers.json_response(response)
     else:
         # No job to be found.
