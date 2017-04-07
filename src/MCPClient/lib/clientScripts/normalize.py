@@ -362,14 +362,18 @@ def main(opts):
     cl = transcoder.CommandLinker(rule, command, replacement_dict, opts, once_normalized)
     exitstatus = cl.execute()
 
-    # If the access normalization command has errored AND a derivative was NOT
-    # created, then we run the default access rule. Note that we DO need to
-    # check if the derivative file exists. Even when a verification command
-    # exists for the normalization command, the transcoder.py::Command.execute
-    # method will only run the verification command if the normalization
-    # command returns a 0 exit code.
+    # If the access/thumbnail normalization command has errored AND a
+    # derivative was NOT created, then we run the default access/thumbnail
+    # rule. Note that we DO need to check if the derivative file exists. Even
+    # when a verification command exists for the normalization command, the
+    # transcoder.py::Command.execute method will only run the verification
+    # command if the normalization command returns a 0 exit code.
+    # Errored thumbnail normalization also needs to result in default thumbnail
+    # normalization; if not, then a transfer with a single file that failed
+    # thumbnail normalization will result in a failed SIP at "Prepare DIP: Copy
+    # thumbnails to DIP directory"
     if (    exitstatus != 0 and
-            opts.purpose == 'access' and
+            opts.purpose in ('access', 'thumbnail') and
             cl.commandObject.output_location and
             (not os.path.isfile(cl.commandObject.output_location))):
         # Fall back to default rule
