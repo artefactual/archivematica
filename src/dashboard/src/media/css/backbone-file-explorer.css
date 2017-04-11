@@ -7,7 +7,7 @@
 .backbone-file-explorer-busy {
   background-color: '#eee';
   opacity: .5;
-  background-image: url('../img/ajax-loader.gif');
+  background-image: url('../images/ajax-loader.gif');
   background-position: 99% 50%;
 }
 
@@ -35,13 +35,13 @@
 }
 
 .backbone-file-explorer-directory {
-  background-image: url('../img/folder.png');
+  background-image: url('../images/folder.png');
   background-repeat: no-repeat;
   background-position: 3px 50%;
 }
 
 .backbone-file-explorer-directory_open {
-  background-image: url('../img/folderopen.png');
+  background-image: url('../images/filefolderopen.png');
 }
 
 .backbone-file-explorer-directory_icon_button {
