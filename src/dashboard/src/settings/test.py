@@ -35,3 +35,8 @@ LOGGING = {
         'level': 'WARNING',
     },
 }
+
+# Disable whitenoise
+STATICFILES_STORAGE = None
+if MIDDLEWARE_CLASSES[0] == 'whitenoise.middleware.WhiteNoiseMiddleware':
+    del MIDDLEWARE_CLASSES[0]
