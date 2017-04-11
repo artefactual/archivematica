@@ -64,7 +64,7 @@ class StorageSettingsForm(SettingsForm):
         def to_python(self, value):
             return super(forms.CharField, self).to_python(value).strip()
 
-    storage_service_url = forms.URLField(
+    storage_service_url = forms.CharField(
         label=_("Storage Service URL"),
         help_text=_('Full URL of the storage service. E.g. https://192.168.168.192:8000')
     )
