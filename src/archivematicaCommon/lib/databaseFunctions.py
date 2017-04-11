@@ -229,17 +229,29 @@ def logTaskCompletedSQL(task):
     print("Logging task output to db", task.UUID)
     taskUUID = task.UUID.__str__()
     exitCode = task.results["exitCode"].__str__()
-    stdOut = task.results["stdOut"]
-    stdError = task.results["stdError"]
+    # ``strToUnicode`` here prevents the MCP server from crashing when, e.g.,
+    # stderr contains Latin-1-encoded chars such as \xa9, i.e., the copyright
+    # symbol, cf. #9967.
+    stdOut = strToUnicode(task.results["stdOut"], obstinate=True)
+    stdError = strToUnicode(task.results["stdError"], obstinate=True)
+
+    # limit task stdout/stderror string size saved to database to 1MB
+    # (to prevent mysql server errors, refs. #10732) 
+    # if size limit exceeded, keep only initial and last part
+    TASK_STDOUT_LIMIT = 1024 * 1024
+    TASK_STDERR_LIMIT = 1024 * 1024
+    stdOut = (stdOut[:(TASK_STDOUT_LIMIT / 2 - 1)] + '..' +
+              stdOut[-(TASK_STDOUT_LIMIT / 2 - 1):]) \
+        if len(stdOut) > TASK_STDOUT_LIMIT else stdOut
+    stdError = (stdError[:(TASK_STDERR_LIMIT / 2 - 1)] + '..' +
+                stdError[-(TASK_STDERR_LIMIT / 2 - 1):]) \
+        if len(stdError) > TASK_STDERR_LIMIT else stdError
 
     task = Task.objects.get(taskuuid=taskUUID)
     task.endtime = getUTCDate()
     task.exitcode = exitCode
-    # ``strToUnicode`` here prevents the MCP server from crashing when, e.g.,
-    # stderr contains Latin-1-encoded chars such as \xa9, i.e., the copyright
-    # symbol, cf. #9967.
-    task.stdout = strToUnicode(stdOut, obstinate=True)
-    task.stderror = strToUnicode(stdError, obstinate=True)
+    task.stdout = stdOut
+    task.stderror = stdError
     task.save()
 
 
