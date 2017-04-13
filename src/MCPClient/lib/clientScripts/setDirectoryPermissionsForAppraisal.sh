@@ -26,13 +26,15 @@
 
 set -e
 
+exit 0
+
 target="$1"
 if [ -e "${target}" ]; then
 	sudo chown -R archivematica:archivematica "${target}"  
 	echo `basename "${target}"` owned by "archivematica:archivematica" now 
 	sudo chmod -R 660 "${target}"
 	sudo chmod 640 "${target}"
-    sudo find "${target}" -type d -execdir chmod 770 '{}' +
+	sudo find "${target}" -type d -execdir chmod 770 '{}' +
 	if [ -d "${target}objects" ]; then	
 		sudo chmod -R 660 "${target}objects"
         sudo find "${target}objects" -type d -execdir chmod 770 '{}' +

@@ -32,7 +32,7 @@ from main.models import SIP
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
-from fileOperations import renameAsSudo
+from fileOperations import rename
 
 def updateDB(dst, sip_uuid):
     SIP.objects.filter(uuid=sip_uuid).update(currentpath=dst)
@@ -55,7 +55,7 @@ def moveSIP(src, dst, sipUUID, sharedDirectoryPath):
         print(dest_path, 'exists, deleting', file=sys.stderr)
         shutil.rmtree(dest_path)
 
-    renameAsSudo(src, dst)
+    rename(src, dst)
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.moveSIP")

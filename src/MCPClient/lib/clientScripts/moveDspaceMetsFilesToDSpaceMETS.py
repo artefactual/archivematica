@@ -31,7 +31,7 @@ django.setup()
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from fileOperations import updateFileLocation
-from fileOperations import renameAsSudo
+from fileOperations import rename
 
 def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, transferUUID, relativeDirectory="./"):
     print(metsFile)
@@ -54,7 +54,7 @@ def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, tran
             os.mkdir(outputDirectory)
 
     dest = os.path.join(outputDirectory, "mets.xml")
-    renameAsSudo(metsFile, dest)
+    rename(metsFile, dest)
 
     src = metsFile.replace(transferDirectory, "%transferDirectory%")
     dst = dest.replace(transferDirectory, "%transferDirectory%")

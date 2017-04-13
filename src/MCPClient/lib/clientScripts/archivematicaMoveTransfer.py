@@ -30,7 +30,7 @@ from main.models import Transfer
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
-from fileOperations import renameAsSudo
+from fileOperations import rename
 
 def updateDB(dst, transferUUID):
     Transfer.objects.filter(uuid=transferUUID).update(currentlocation=dst)
@@ -50,7 +50,7 @@ def moveSIP(src, dst, transferUUID, sharedDirectoryPath):
         dest += "/"
     updateDB(dest, transferUUID)
 
-    renameAsSudo(src, dst)
+    rename(src, dst)
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.moveTransfer")

@@ -34,7 +34,7 @@ from main.models import File
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from fileOperations import updateFileLocation
-from fileOperations import renameAsSudo
+from fileOperations import rename
 
 def something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIPUUID, date, copy=False):
     # exitCode = 435
@@ -70,7 +70,7 @@ def something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIP
                         print("TODO - copy not supported yet")
                     else:
                         dest = dipPath
-                        renameAsSudo(accessPath, dest)
+                        rename(accessPath, dest)
 
                         src = accessPath.replace(SIPDirectory, "%SIPDirectory%")
                         dst = dest.replace(SIPDirectory, "%SIPDirectory%")
