@@ -24,6 +24,9 @@
 
 
 set -e
+
+exit 0
+
 sipPath="$1"
 metsFile="${sipPath}metadata/mets_structmap.xml"
 schema="/usr/lib/archivematica/archivematicaCommon/externals/mets/mets.xsd"
