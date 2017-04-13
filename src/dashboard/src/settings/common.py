@@ -18,12 +18,22 @@
 import os
 import ConfigParser
 
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
-
 
 path_of_this_file = os.path.abspath(os.path.dirname(__file__))
 
 BASE_PATH = os.path.abspath(os.path.join(path_of_this_file, os.pardir))
+
+
+def get_env_variable(var_name):
+    """ Get the environment variable or return exception """
+    try:
+        return os.environ[var_name]
+    except KeyError:
+        error_msg = "Set the %s environment variable" % var_name
+        raise ImproperlyConfigured(error_msg)
+
 
 # Django settings for app project.
 
@@ -310,7 +320,8 @@ UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
 FPR_URL = 'https://fpr.archivematica.org/fpr/api/v2/'
 FPR_VERIFY_CERT = True
 
-ALLOWED_HOSTS = ('*')
+ALLOWED_HOSTS = get_env_variable('DJANGO_ALLOWED_HOSTS').split(',')
+
 MICROSERVICES_HELP = {
     'Approve transfer': _('Select "Approve transfer" to begin processing or "Reject transfer" to start over again.'),
     'Workflow decision - create transfer backup': _('Create a complete backup of the transfer in case transfer/ingest are interrupted or fail. The transfer will automatically be deleted once the AIP has been moved into storage.'),
