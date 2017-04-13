@@ -48,7 +48,6 @@ config = ConfigParser.SafeConfigParser(
     defaults={'django_settings_module': 'settings.common'})
 config.read("/etc/archivematica/MCPClient/clientConfig.conf")
 
-os.environ['DJANGO_SETTINGS_MODULE'] = config.get('MCPClient', 'django_settings_module')
 sys.path.append("/usr/lib/archivematica/MCPClient")
 
 import django
@@ -164,10 +163,9 @@ Unable to determine if it completed successfully."""
         arguments = arguments.replace(key, value)
 
         # Add useful environment vars for client scripts
-        lib_paths = ['/usr/share/archivematica/dashboard/', '/usr/lib/archivematica/archivematicaCommon']
         env_updates = {
-            'PYTHONPATH': os.pathsep.join(lib_paths),
-            'DJANGO_SETTINGS_MODULE': config.get('MCPClient', 'django_settings_module')
+            'DJANGO_SETTINGS_MODULE': 'settings.clientscripts',
+            'DJANGO_ALLOWED_HOSTS': '*',
         }
 
         # Execute command
