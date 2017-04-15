@@ -203,6 +203,11 @@ TEMPLATES = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'shibboleth.backends.ShibbolethRemoteUserBackend',
+)
+
 MIDDLEWARE_CLASSES = (
     # 'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -212,6 +217,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'middleware.common.CustomShibbolethRemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'middleware.common.AJAXSimpleExceptionResponseMiddleware',
     'installer.middleware.ConfigurationCheckMiddleware',
@@ -377,3 +383,10 @@ INPUT_WITH_HELP_ATTRS = {'class': 'span11 has_contextual_help'}
 SHARED_DIRECTORY = config.get('shared_directory')
 WATCH_DIRECTORY = config.get('watch_directory')
 ELASTICSEARCH_SERVER = config.get('elasticsearch_server')
+
+SHIBBOLETH_REMOTE_USER_HEADER = 'HTTP_X_SHIB_USER'
+SHIBBOLETH_ATTRIBUTE_MAP = {
+    'HTTP_X_SHIB_GIVEN_NAME': (False, 'first_name'),
+    'HTTP_X_SHIB_SN': (False, 'last_name'),
+    'HTTP_X_SHIB_MAIL': (False, 'email'),
+}

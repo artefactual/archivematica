@@ -22,6 +22,7 @@ from django.conf import settings
 from django.http import HttpResponseServerError
 from django.shortcuts import render
 from django.template.base import TemplateDoesNotExist
+from shibboleth.middleware import ShibbolethRemoteUserMiddleware
 
 import elasticsearch
 
@@ -65,3 +66,18 @@ class ElasticsearchMiddleware:
             return
         if isinstance(exception, self.EXCEPTIONS):
             return render(request, 'elasticsearch_error.html', {'exception_type': str(type(exception))})
+
+
+SHIBBOLETH_REMOTE_USER_HEADER = getattr(
+    settings, 'SHIBBOLETH_REMOTE_USER_HEADER', 'REMOTE_USER'
+)
+
+
+class CustomShibbolethRemoteUserMiddleware(ShibbolethRemoteUserMiddleware):
+    """
+    Custom version of Shibboleth remote user middleware
+
+    THe aim of this is to provide a custom header name that is expected
+    to identify the remote Shibboleth user
+    """
+    header = SHIBBOLETH_REMOTE_USER_HEADER
