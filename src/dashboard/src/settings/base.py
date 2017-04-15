@@ -204,15 +204,25 @@ TEMPLATES = [
     },
 ]
 
+<<<<<<< HEAD:src/dashboard/src/settings/base.py
 MIDDLEWARE_CLASSES = [
     # 'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
+=======
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'shibboleth.backends.ShibbolethRemoteUserBackend',
+)
+
+MIDDLEWARE_CLASSES = (
+>>>>>>> Shibboleth auth for Archivematica Dashboard:src/dashboard/src/settings/common.py
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'middleware.common.CustomShibbolethRemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'middleware.common.AJAXSimpleExceptionResponseMiddleware',
     'installer.middleware.ConfigurationCheckMiddleware',
@@ -381,3 +391,10 @@ ELASTICSEARCH_TIMEOUT = config.get('elasticsearch_timeout')
 # Only required in production.py
 ALLOWED_HOSTS = ["*"]
 SECRET_KEY = "12345"
+
+SHIBBOLETH_REMOTE_USER_HEADER = 'HTTP_X_SHIB_USER'
+SHIBBOLETH_ATTRIBUTE_MAP = {
+    'HTTP_X_SHIB_GIVEN_NAME': (False, 'first_name'),
+    'HTTP_X_SHIB_SN': (False, 'last_name'),
+    'HTTP_X_SHIB_MAIL': (False, 'email'),
+}
