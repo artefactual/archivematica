@@ -10,7 +10,7 @@ django-extensions==1.1.1
 django-autoslug==1.7.1
 django-annoying==0.7.7
 elasticsearch>=1.0.0,<2.0.0
-git+https://github.com/artefactual/archivematica-fpr-admin.git@v1.3.0-beta.1#egg=archivematica-fpr-admin
+git+https://github.com/artefactual/archivematica-fpr-admin.git@389453ce6ed2046d69c4b7fd6723628aca8c5abf#egg=archivematica-fpr-admin
 gearman==2.0.2
 gevent==1.2.1  # used by gunicorn's async workers
 gunicorn==19.7.1
