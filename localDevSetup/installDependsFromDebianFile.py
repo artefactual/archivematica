@@ -25,7 +25,6 @@
 from __future__ import print_function
 import os
 import sys
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from executeOrRunSubProcess import executeOrRun
 excludePackages = ["sip-creation-tools", "sanitize-names"]
 

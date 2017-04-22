@@ -30,11 +30,9 @@ import threading
 # This project,  alphabetical by import source
 from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
 import databaseFunctions
 from dicts import ChoicesDict, ReplacementDict
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import StandardTaskConfig
 
 LOGGER = logging.getLogger('archivematica.mcp.server')

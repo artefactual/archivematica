@@ -26,8 +26,6 @@ import sys
 
 import django
 os.environ["DJANGO_SETTINGS_MODULE"] = "settings.local"
-sys.path.append("/usr/share/archivematica/dashboard")
-sys.path.append("/usr/lib/archivematica/archivematicaCommon/")
 django.setup()
 from main.models import WatchedDirectory
 

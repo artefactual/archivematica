@@ -30,7 +30,6 @@ import uuid
 
 from archivematicaFunctions import strToUnicode
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from django.db.models import Q
 from django.utils import timezone
 from main.models import Agent, Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
