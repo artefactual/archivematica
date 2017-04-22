@@ -25,7 +25,6 @@ import sys
 
 from linkTaskManager import LinkTaskManager
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import TaskConfigAssignMagicLink
 
 global choicesAvailableForUnits

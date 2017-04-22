@@ -29,10 +29,8 @@ import uuid
 import archivematicaMCP
 from unit import unit
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Transfer
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
 LOGGER = logging.getLogger('archivematica.mcp.server')

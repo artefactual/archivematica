@@ -34,7 +34,6 @@ import sys
 import time
 from xml.etree import ElementTree
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from django.db.models import Q
 from main.models import File, Transfer
 

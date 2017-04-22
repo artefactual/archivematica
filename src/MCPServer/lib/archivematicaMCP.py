@@ -44,10 +44,8 @@ import time
 import uuid
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
-sys.path.append('/usr/lib/archivematica/MCPServer')
 
 import django
-sys.path.append("/usr/share/archivematica/dashboard")
 django.setup()
 
 from django.db.models import Q
@@ -63,7 +61,6 @@ from unitDIP import unitDIP
 from unitFile import unitFile
 from unitTransfer import unitTransfer
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
 import databaseFunctions
 from archivematicaFunctions import unicodeToStr

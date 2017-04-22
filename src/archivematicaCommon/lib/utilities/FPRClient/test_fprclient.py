@@ -6,7 +6,6 @@ import vcr
 
 from django.test import TestCase, TransactionTestCase
 
-sys.path.append("/usr/share/archivematica/dashboard/")
 from fpr import models
 import main.models
 

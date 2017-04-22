@@ -10,7 +10,6 @@ from .getFromRestAPI import each_record, FPRConnectionError
 from annoying.functions import get_object_or_None
 
 # Set up Django settings
-sys.path.append('/usr/share/archivematica/dashboard')
 if 'DJANGO_SETTINGS_MODULE' not in os.environ:
     os.environ['DJANGO_SETTINGS_MODULE'] = 'settings.common'
 import django.db

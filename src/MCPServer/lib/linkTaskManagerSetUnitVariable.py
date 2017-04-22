@@ -27,7 +27,6 @@ from linkTaskManager import LinkTaskManager
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import TaskConfigSetUnitVariable
 
 class linkTaskManagerSetUnitVariable(LinkTaskManager):

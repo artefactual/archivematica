@@ -27,7 +27,6 @@ import time
 import threading
 import sys
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
 from archivematicaFunctions import unicodeToStr
 
