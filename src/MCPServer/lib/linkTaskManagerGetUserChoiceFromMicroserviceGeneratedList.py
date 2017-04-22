@@ -25,7 +25,6 @@
 import logging
 from lxml import etree
 import os
-import sys
 
 # This project,  alphabetical by import source
 from linkTaskManager import LinkTaskManager

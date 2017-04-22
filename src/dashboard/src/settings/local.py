@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from .common import *
+from .common import *  # noqa: F403
 
 DEBUG = True
-TEMPLATES[0]['OPTIONS']['debug'] = True
+TEMPLATES[0]['OPTIONS']['debug'] = True  # noqa: F405
 FPR_URL = 'https://fpr-qa.archivematica.org/fpr/api/v2/'
 FPR_VERIFY_CERT = False
 

@@ -25,7 +25,6 @@ import logging
 import os
 import time
 import threading
-import sys
 
 from django_mysqlpool import auto_close_db
 from archivematicaFunctions import unicodeToStr

@@ -22,7 +22,6 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import logging
-import sys
 
 from jobChainLink import jobChainLink
 

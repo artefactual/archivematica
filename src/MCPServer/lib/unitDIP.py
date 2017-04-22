@@ -24,7 +24,6 @@
 import logging
 import lxml.etree as etree
 import os
-import sys
 
 import archivematicaMCP
 from unit import unit

@@ -1,6 +1,5 @@
 # -*- coding: UTF-8 -*-
 import os
-import sys
 
 from dicts import ReplacementDict, ChoicesDict
 

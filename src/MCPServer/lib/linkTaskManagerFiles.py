@@ -26,7 +26,6 @@ import logging
 import os
 import threading
 import time
-import sys
 import uuid
 
 import archivematicaMCP

@@ -26,7 +26,6 @@ import gearman
 import logging
 import lxml.etree as etree
 from socket import gethostname
-import sys
 import time
 
 from linkTaskManagerChoice import choicesAvailableForUnits

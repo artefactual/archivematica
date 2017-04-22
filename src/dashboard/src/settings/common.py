@@ -300,7 +300,7 @@ LOGIN_EXEMPT_URLS  = [
 
 # Django debug toolbar
 try:
-    import debug_toolbar
+    import debug_toolbar  # noqa: F401
 except:
     pass
 else:

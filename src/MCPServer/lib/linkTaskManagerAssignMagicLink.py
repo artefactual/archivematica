@@ -21,8 +21,6 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import sys
-
 from linkTaskManager import LinkTaskManager
 
 from main.models import TaskConfigAssignMagicLink

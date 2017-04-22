@@ -26,7 +26,6 @@ import sys
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
-from externals.extractMaildirAttachments import parse
 
 import django
 django.setup()

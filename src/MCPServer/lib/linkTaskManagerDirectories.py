@@ -24,7 +24,6 @@
 from linkTaskManager import LinkTaskManager
 from taskStandard import taskStandard
 import os
-import sys
 import threading
 
 import archivematicaFunctions

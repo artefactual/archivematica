@@ -26,7 +26,6 @@ import sys
 
 import django
 django.setup()
-from django.db.models import Q
 # dashboard
 from main.models import File
 
@@ -49,7 +48,7 @@ if i != -1:
     filePathLike = filePathLike[:i+1]
     # Matches the exact filename.  For files with no extension.
     filePathLike2 = filePathLike[:-1]
-     
+
 unitIdentifierType = "sip_id"
 unitIdentifier = opts.sipUUID
 
@@ -69,7 +68,7 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
     # Original file was not found, or there is more than one original file with
     # the same filename (differing extensions)
     # Look for a CSV that will specify the mapping
-    csv_path = os.path.join(opts.sipDirectory, "objects", "manualNormalization", 
+    csv_path = os.path.join(opts.sipDirectory, "objects", "manualNormalization",
         "normalization.csv")
     if os.path.isfile(csv_path):
         try:
@@ -117,7 +116,7 @@ i = 0
 while os.path.exists(os.path.join(dstDir, dstFile)):
     i+=1
     dstFile = originalFileUUID + "-" + str(i) + "-" + os.path.basename(opts.filePath)
-    
+
 try:
     if not os.path.isdir(dstDir):
         os.makedirs(dstDir)

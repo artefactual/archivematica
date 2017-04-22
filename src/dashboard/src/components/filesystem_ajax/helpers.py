@@ -17,10 +17,8 @@
 
 import base64
 import os
-from subprocess import call
 import logging
 
-import sys
 import archivematicaFunctions
 from components import helpers
 

@@ -21,7 +21,6 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import sys
 import uuid
 
 from dicts import ReplacementDict

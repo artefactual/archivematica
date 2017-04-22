@@ -23,7 +23,6 @@
 
 import logging
 import lxml.etree as etree
-import sys
 import uuid
 
 import archivematicaMCP

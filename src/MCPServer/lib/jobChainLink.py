@@ -21,7 +21,6 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 import logging
-import sys
 import uuid
 
 from utils import log_exceptions

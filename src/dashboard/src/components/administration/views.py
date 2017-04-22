@@ -25,15 +25,13 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Max, Min
-from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
-from main import forms
 from main import models
-from components.administration.forms import AgentForm, SettingsForm, StorageSettingsForm, ChecksumSettingsForm, TaxonomyTermForm
+from components.administration.forms import AgentForm, StorageSettingsForm, ChecksumSettingsForm, TaxonomyTermForm
 import components.administration.views_processing as processing_views
 import components.decorators as decorators
 import components.helpers as helpers

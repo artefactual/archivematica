@@ -23,7 +23,6 @@
 from __future__ import print_function
 import os
 import sys
-import lxml.etree as etree
 
 # fileOperations requires Django to be set up
 import django

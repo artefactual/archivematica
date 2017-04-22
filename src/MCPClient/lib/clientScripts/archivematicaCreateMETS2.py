@@ -36,9 +36,8 @@ from uuid import uuid4
 import django
 django.setup()
 # dashboard
-from django.contrib.auth.models import User
 from django.utils import timezone
-from main.models import Agent, Derivation, DublinCore, Event, File, FileID, FPCommandOutput, SIP, SIPArrange, Transfer
+from main.models import Agent, Derivation, DublinCore, Event, File, FileID, FPCommandOutput, SIPArrange
 
 import archivematicaCreateMETSReingest
 from archivematicaCreateMETSMetadataCSV import parseMetadata

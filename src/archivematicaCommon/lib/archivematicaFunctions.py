@@ -26,7 +26,6 @@ import collections
 import hashlib
 import os
 import re
-import sys
 
 from main.models import DashboardSetting
 

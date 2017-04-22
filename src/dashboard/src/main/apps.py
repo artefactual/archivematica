@@ -4,4 +4,4 @@ class MainAppConfig(AppConfig):
     name = 'main'
 
     def ready(self):
-        import main.signals
+        import main.signals  # noqa: F401

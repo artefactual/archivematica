@@ -1,7 +1,5 @@
 import os
-import sys
 
-from elasticsearch import Elasticsearch
 import pytest
 import unittest
 import vcr

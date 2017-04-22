@@ -39,7 +39,6 @@ import logging
 import os
 import time
 from socket import gethostname
-import sys
 import threading
 import traceback
 
@@ -56,7 +55,6 @@ django.setup()
 from main.models import Task
 
 from django_mysqlpool import auto_close_db
-from custom_handlers import GroupWriteRotatingFileHandler
 import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 

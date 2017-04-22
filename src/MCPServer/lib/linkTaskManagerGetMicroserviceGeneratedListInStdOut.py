@@ -24,7 +24,6 @@
 # Stdlib, alphabetical by import source
 import logging
 import os
-import sys
 import threading
 
 # This project,  alphabetical by import source

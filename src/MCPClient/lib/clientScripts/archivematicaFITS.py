@@ -28,10 +28,8 @@ import tempfile
 
 # archivematicaCommon
 from archivematicaFunctions import getTagged
-from archivematicaFunctions import escapeForCommand
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoFPCommandOutput
-from databaseFunctions import insertIntoEvents
 from executeOrRunSubProcess import executeOrRun
 
 import django

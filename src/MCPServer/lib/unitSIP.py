@@ -22,7 +22,6 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import logging
-import sys
 import lxml.etree as etree
 
 import archivematicaMCP

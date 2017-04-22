@@ -15,9 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.http import HttpResponse
 import logging
-import sys
 
 import dateutil.parser
 

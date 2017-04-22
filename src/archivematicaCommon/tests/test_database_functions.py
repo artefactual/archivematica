@@ -1,10 +1,9 @@
 # -*- coding: UTF-8 -*-
 import os
-import sys
 
 import databaseFunctions
 
-from main.models import Agent, Event, File
+from main.models import Event, File
 
 from django.test import TestCase
 import pytest

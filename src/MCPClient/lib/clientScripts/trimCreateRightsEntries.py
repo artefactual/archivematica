@@ -21,7 +21,6 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 from __future__ import print_function
-import re
 import os
 from lxml import etree as etree
 import sys
@@ -39,7 +38,6 @@ from main.models import RightsStatement, RightsStatementOtherRightsInformation, 
 
 # archivematicaCommon
 from fileOperations import getFileUUIDLike
-import databaseFunctions
 
 while False:
     import time

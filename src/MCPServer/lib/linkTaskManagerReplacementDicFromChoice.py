@@ -26,7 +26,6 @@ import logging
 import lxml.etree as etree
 import os
 import threading
-import sys
 import time
 
 from linkTaskManager import LinkTaskManager

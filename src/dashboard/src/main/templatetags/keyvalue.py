@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.template import Node, Library
+from django.template import Library
 
 register = Library()
 

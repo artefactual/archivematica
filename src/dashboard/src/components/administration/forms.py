@@ -23,7 +23,7 @@ from collections import OrderedDict
 from django import forms
 from django.conf import settings
 from django.db import connection
-from django.forms.widgets import TextInput, CheckboxInput, Select
+from django.forms.widgets import TextInput, Select
 from django.utils.translation import ugettext_lazy as _
 
 from components import helpers

@@ -32,7 +32,7 @@ from archivematicaFunctions import strToUnicode
 
 from django.db.models import Q
 from django.utils import timezone
-from main.models import Agent, Derivation, Event, File, FileID, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
+from main.models import Agent, Derivation, Event, File, FPCommandOutput, Job, SIP, Task, Transfer, UnitVariable
 
 LOGGER = logging.getLogger('archivematica.common')
 
@@ -247,14 +247,14 @@ def logJobCreatedSQL(job):
     Logs a job's properties into the Jobs table in the database.
 
     :param jobChainLink job: A jobChainLink instance.
-    :returns None:    
+    :returns None:
     """
     unitUUID =  job.unit.UUID
     # microseconds are always 6 digits
     # The number returned may have a leading 0 which needs to be preserved
     decDate = getDeciDate("." + str(job.createdDate.microsecond).zfill(6))
     if job.unit.owningUnit != None:
-        unitUUID = job.unit.owningUnit.UUID 
+        unitUUID = job.unit.owningUnit.UUID
     Job.objects.create(jobuuid=job.UUID,
                        jobtype=job.description,
                        directory=job.unit.currentPath,
