@@ -38,19 +38,19 @@ def removeHiddenFilesFromDirectory(dir):
                 removeHiddenFilesFromDirectory(fullPath)
         elif os.path.isfile(fullPath):
             if item.startswith(".") or item.endswith("~"):
-                print("Removing file: ", fullPath) 
+                print("Removing file: ", fullPath)
                 os.remove(fullPath)
-               
+
         else:
             print("Not file or directory: ", fullPath, file=sys.stderr)
-                
-            
+
+
 
 if __name__ == '__main__':
     transferDirectory = sys.argv[1]
     removeHiddenFilesFromDirectory(transferDirectory)
-            
 
 
-    
-    
+
+
+

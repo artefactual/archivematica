@@ -35,7 +35,7 @@ class DictSAXHandler:
                     for (key, value) in attrs.items())
             self.item = self.xml_attribs and attrs or None
             self.data = None
-    
+
     def endElement(self, name):
         if len(self.path) == self.item_depth:
             item = self.item
@@ -115,7 +115,7 @@ def parse(xml_input, *args, **kwargs):
         >>> def handle(path, item):
         ...     print 'path:%s item:%s' % (path, item)
         ...     return True
-        ... 
+        ...
         >>> xmltodict.parse(\"\"\"
         ... <a prop="x">
         ...   <b>1</b>

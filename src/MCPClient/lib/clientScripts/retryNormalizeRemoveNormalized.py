@@ -99,12 +99,12 @@ if __name__ == '__main__':
     parser.add_option("-u",  "--SIPUUID", action="store", dest="SIPUUID", default="")
     parser.add_option("-p",  "--preservation", action="store_true", dest="preservation", default=False)
     parser.add_option("-t",  "--thumbnails", action="store_true", dest="thumbnails", default=False)
-    parser.add_option("-a",  "--access", action="store_true", dest="access", default=False)  
+    parser.add_option("-a",  "--access", action="store_true", dest="access", default=False)
     (opts, args) = parser.parse_args()
 
     SIPDirectory = opts.SIPDirectory
     SIPUUID = opts.SIPUUID
-    
+
     if opts.preservation:
         removePreservationFiles(SIPDirectory, SIPUUID)
     if opts.thumbnails:

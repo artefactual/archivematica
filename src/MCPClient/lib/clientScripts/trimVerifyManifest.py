@@ -53,25 +53,25 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
             currentDirectory = transferPath
             originalTransferName = topDirectory.split('\\')[-1]
             if originalTransferName != transferName:
-                print("Warning, transfer was renamed from: ", originalTransferName, file=sys.stderr)  
-                 
+                print("Warning, transfer was renamed from: ", originalTransferName, file=sys.stderr)
+
         else:
             currentDirectory = line.strip().replace(topDirectory + '\\', transferPath, 1).replace('\\','/')
-  
+
     #file/dir lines aren't and don't start with whitespace.
     if not line.strip():
         continue
     if line.startswith(" ") or line.startswith("\t"):
         continue
-    
+
     isDir = False
     if line.find('<DIR>') != -1:
         isDir = True
-    
+
     sections = re.split('\s+', line.strip())
     baseName = sections[-1] #assumes no spaces in file name
     path = os.path.join(transferPath, currentDirectory, baseName)
-    
+
     if isDir:
         #don't check if parent directory exists
         if baseName == "..":
@@ -104,7 +104,7 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
                      eventDetail=eventDetail)
         else:
             i = path.rfind(".")
-            path2 = path[:i] + path[i:].lower() 
+            path2 = path[:i] + path[i:].lower()
             if i != -1 and os.path.isfile(path2):
                 print("Warning, verified file exists, but with implicit extension case: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
                 fileCount += 1

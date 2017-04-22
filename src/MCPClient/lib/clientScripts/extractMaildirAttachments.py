@@ -39,19 +39,19 @@ from custom_handlers import get_script_logger
 from externals.extractMaildirAttachments import parse
 from fileOperations import addFileToTransfer, updateSizeAndChecksum
 from archivematicaFunctions import unicodeToStr
-from sharedVariablesAcrossModules import sharedVariablesAcrossModules 
+from sharedVariablesAcrossModules import sharedVariablesAcrossModules
 
 
-def writeFile(filePath, fileContents):   
+def writeFile(filePath, fileContents):
     try:
         os.makedirs(os.path.dirname(filePath))
     except:
         pass
     FILE = open(filePath, 'w')
-    FILE.writelines(fileContents)    
+    FILE.writelines(fileContents)
     FILE.close()
 
-def addFile(filePath, transferPath, transferUUID, date, eventDetail = "", fileUUID = uuid.uuid4().__str__()): 
+def addFile(filePath, transferPath, transferUUID, date, eventDetail = "", fileUUID = uuid.uuid4().__str__()):
     taskUUID = uuid.uuid4().__str__()
     filePathRelativeToSIP = filePath.replace(transferPath, "%transferDirectory%", 1)
     addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType="unpacking", eventDetail=eventDetail)
@@ -65,7 +65,7 @@ def getFileUUIDofSourceFile(transferUUID, sourceFilePath):
     except File.DoesNotExist:
         return ""
 
-    
+
 def addKeyFileToNormalizeMaildirOffOf(relativePathToRepresent, mirrorDir, transferPath, transferUUID, date, eventDetail = "", fileUUID=uuid.uuid4().__str__()):
     basename = os.path.basename(mirrorDir)
     dirname = os.path.dirname(mirrorDir)
@@ -79,7 +79,7 @@ path = %s
     f.close()
     addFile(outFile, transferPath, transferUUID, date, eventDetail=eventDetail, fileUUID=fileUUID)
     return
-   
+
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.extractMaildirAttachments")
 
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         pass
     #print "Extracting attachments from: " + maildir
     root = etree.Element("ArchivematicaMaildirAttachmentExtractionRecord")
-    root.set("directory", maildir) 
+    root.set("directory", maildir)
     for maildirsub in (d for d in os.listdir(maildir) if os.path.isdir(os.path.join(maildir, d))):
         maildirsub_full_path = os.path.join(maildir, maildirsub)
         print("Extracting attachments from: " + maildirsub_full_path)
@@ -122,7 +122,7 @@ if __name__ == '__main__':
                         etree.SubElement(msg, "Extracted-from").text = item
                         if isinstance(out["subject"], str):
                             etree.SubElement(msg, "Subject").text = out["subject"].decode('utf-8')
-                        else: 
+                        else:
                             etree.SubElement(msg, "Subject").text = out["subject"]
                         etree.SubElement(msg, "Date").text = out['msgobj']['date']
                         etree.SubElement(msg, "To").text = out["to"]
@@ -150,14 +150,14 @@ if __name__ == '__main__':
                                 print('\tAttachment path:', filePath)
                                 filePath = unicodeToStr(filePath)
                                 writeFile(filePath, attachment)
-                                eventDetail="Unpacked from: {%s}%s" % (sourceFileUUID, sourceFilePath) 
+                                eventDetail="Unpacked from: {%s}%s" % (sourceFileUUID, sourceFilePath)
                                 addFile(filePath, transferDir, transferUUID, date, eventDetail=eventDetail, fileUUID=attachedFileUUID)
                             except Exception as inst:
                                 print(sourceFilePath, file=sys.stderr)
                                 traceback.print_exc(file=sys.stderr)
                                 print(type(inst), file=sys.stderr)     # the exception instance
                                 print(inst.args, file=sys.stderr)
-                                print(etree.tostring(msg), file=sys.stderr) 
+                                print(etree.tostring(msg), file=sys.stderr)
                                 print(file=sys.stderr)
                                 sharedVariablesAcrossModules.errorCounter += 1
                 except Exception as inst:
@@ -184,4 +184,4 @@ if __name__ == '__main__':
     tree.write(outXML, pretty_print=True, xml_declaration=True)
     exit(sharedVariablesAcrossModules.errorCounter)
 
-                    
+

@@ -66,10 +66,10 @@ if __name__ == '__main__':
     transferUUID =  sys.argv[2]
     processingDirectory = sys.argv[3]
     sharedPath = sys.argv[4]
-    
+
     basename = os.path.basename(target)
     basename = basename[:basename.rfind(".")]
-    
+
     destinationDirectory = os.path.join(processingDirectory, basename)
 
     # trim off '.tar' if present (os.path.basename doesn't deal well with '.tar.gz')
@@ -80,27 +80,27 @@ if __name__ == '__main__':
         pass
 
     zipLocation = os.path.join(processingDirectory, os.path.basename(target))
-    
+
     #move to processing directory
     shutil.move(target, zipLocation)
-    
+
     #extract
     extract(zipLocation, destinationDirectory)
-    
+
     #checkForTopLevelBag
     listdir = os.listdir(destinationDirectory)
     if len(listdir) == 1:
         internalBagName = listdir[0]
-        #print "ignoring BagIt internal name: ", internalBagName  
+        #print "ignoring BagIt internal name: ", internalBagName
         temp = destinationDirectory + "-tmp"
         shutil.move(destinationDirectory, temp)
         #destinationDirectory = os.path.join(processingDirectory, internalBagName)
         shutil.move(os.path.join(temp, internalBagName), destinationDirectory)
         os.rmdir(temp)
-    
+
     #update transfer
     destinationDirectoryDB = destinationDirectory.replace(sharedPath, "%sharedPath%", 1)
     t = Transfer.objects.filter(uuid=transferUUID).update(currentlocation=destinationDirectoryDB)
-    
+
     #remove bag
     os.remove(zipLocation)

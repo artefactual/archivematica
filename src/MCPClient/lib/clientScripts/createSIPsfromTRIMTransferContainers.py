@@ -53,18 +53,18 @@ if __name__ == '__main__':
         if not os.path.isdir(containerPath):
             print("file (not container) found: ", container, file=sys.stderr)
             continue
-            
-        sipName = "%s-%s" % (transferName, container) 
-        
+
+        sipName = "%s-%s" % (transferName, container)
+
         tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
         destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
         archivematicaFunctions.create_structured_directory(tmpSIPDir, manual_normalization=True)
         databaseFunctions.createSIP(destSIPDir.replace(sharedPath, '%sharedPath%'), sipUUID)
-    
+
         # move the objects to the SIPDir
         for item in os.listdir(containerPath):
             shutil.move(os.path.join(containerPath, item), os.path.join(tmpSIPDir, "objects", item))
-    
+
         # get the database list of files in the objects directory
         # for each file, confirm it's in the SIP objects directory, and update the current location/ owning SIP'
         directory = os.path.join(transfer_objects_directory, container)

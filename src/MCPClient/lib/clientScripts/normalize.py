@@ -72,7 +72,7 @@ def get_replacement_dict(opts):
 
 
 def check_manual_normalization(opts):
-    """ Checks for manually normalized file, returns that path or None. 
+    """ Checks for manually normalized file, returns that path or None.
 
     Checks by looking for access/preservation files for a give original file.
 

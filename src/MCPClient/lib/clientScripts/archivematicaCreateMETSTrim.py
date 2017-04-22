@@ -35,7 +35,7 @@ import namespaces as ns
 
 def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
     #containerMetadata
-    ret = etree.Element(ns.metsBNS + "dmdSec") 
+    ret = etree.Element(ns.metsBNS + "dmdSec")
     mdWrap = etree.SubElement(ret, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "DC")
     xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")
@@ -55,7 +55,7 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
                                 sip_id=fileGroupIdentifier,
                                 filegrpuse="original")
     etree.SubElement(dublincore, ns.dctermsBNS + "extent").text = "%d digital objects".format(files.count())
-    
+
     files = File.objects.filter(removedtime__isnull=True,
                                 sip_id=fileGroupIdentifier,
                                 filegrpuse="TRIM file metadata")
@@ -80,7 +80,7 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
 
 
 def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
-    ret = etree.Element(ns.metsBNS + "dmdSec") 
+    ret = etree.Element(ns.metsBNS + "dmdSec")
     mdWrap = etree.SubElement(ret, ns.metsBNS + "mdWrap")
     mdWrap.set("MDTYPE", "DC")
     xmlData = etree.SubElement(mdWrap, ns.metsBNS + "xmlData")

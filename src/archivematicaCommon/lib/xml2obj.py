@@ -7,11 +7,11 @@ class Tree(defaultdict):
     def __init__(self, value=None):
         super(Tree, self).__init__(Tree)
         self.value = value
-        
+
 def mets_file(src):
-    raw = xml2obj(open(src))    
+    raw = xml2obj(open(src))
     mets = Tree()
-    
+
     file_uuid = None
     for amd in raw.mets_amdSec:
         # Some amdSecs are other types of metadata (for instance sourceMD),
@@ -30,7 +30,7 @@ def mets_file(src):
                         #print "found {} has {} with {}".format(file_uuid, act, note)
                         mets[file_uuid]['premis'][act]['restriction'] = granted.premis_restriction
                         mets[file_uuid]['premis'][act]['rightsGrantedNote'] = granted.premis_rightsGrantedNote
-    
+
     return mets
 
 def test_mets(src):
@@ -39,7 +39,7 @@ def test_mets(src):
         print("uuid is {}".format(f))
         for p in mets[f]['premis']:
             print("{} rights = {} {}".format(p, mets[f]['premis'][p]['restriction'],mets[f]['premis'][p]['rightsGrantedNote']))
-                        
+
 def xml2obj(src):
     """
     A simple function to converts XML data into native Python object.

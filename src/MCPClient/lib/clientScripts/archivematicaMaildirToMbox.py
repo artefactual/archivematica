@@ -31,7 +31,7 @@ if __name__ == "__main__":
         time.sleep(10)
     fileFullPath = sys.argv[1]
     mboxOutputFileFullPath = sys.argv[2]
-    
+
     sipDirectory = os.path.dirname(os.path.dirname(os.path.dirname(fileFullPath)))
     fileDic = getFileDic(fileFullPath)
     if not 'path' in fileDic:
@@ -40,8 +40,8 @@ if __name__ == "__main__":
     maildirPath = fileDic['path'].replace('%transferDirectory%', sipDirectory + "/", 1)
     print(maildirPath, " -> ", mboxOutputFileFullPath)
     maildir2mailbox2(maildirPath, mboxOutputFileFullPath)
-    print("Done") 
+    print("Done")
     exit(0)
-    
-    
-    
+
+
+

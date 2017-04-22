@@ -57,7 +57,7 @@ def parse_attachment(message_part, attachments=None):
                 attachment.mod_date = params.get('modification-date')
                 attachment.read_date = params.get('read-date')
                 # TODO convert dates to datetime
-                
+
                 filename = message_part.get_filename(None)
                 if filename:
                     # Filenames may be encoded with =?encoding?...
@@ -75,7 +75,7 @@ def parse_attachment(message_part, attachments=None):
 
                 attachment.name = filename
                 return attachment
-                            
+
         except Exception as inst:
             print(type(inst), file=sys.stderr)
             print(inst.args, file=sys.stderr)
@@ -94,7 +94,7 @@ def parse(content):
     attachments = []
     return parse2(msgobj, attachments)
 
-def parse2(msgobj, attachments=None):    
+def parse2(msgobj, attachments=None):
     if msgobj['Subject'] is not None:
         decodefrag = email.header.decode_header(msgobj['Subject'])
         subj_fragments = []
@@ -105,7 +105,7 @@ def parse2(msgobj, attachments=None):
         subject = ''.join(subj_fragments)
     else:
         subject = None
-    
+
     if attachments == None:
         attachments = []
     for part in msgobj.walk():
@@ -119,4 +119,4 @@ def parse2(msgobj, attachments=None):
         'attachments': attachments,
         'msgobj': msgobj,
     }
-                    
+

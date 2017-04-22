@@ -26,24 +26,24 @@
 from __future__ import print_function
 from components import helpers
 from django.db import connection
-    
+
 def getNormalizationReportQuery(sipUUID, idsRestriction=""):
     if idsRestriction:
-        idsRestriction = 'AND (%s)' % idsRestriction  
-    
+        idsRestriction = 'AND (%s)' % idsRestriction
+
     cursor = connection.cursor()
-        
+
     # not fetching name of ID Tool, don't think we need it.
-    
+
     sql = """
     select
-        CONCAT(a.currentLocation, ' ', a.fileUUID,' ', IFNULL(a.fileID, "")) AS 'pagingIndex', 
-        a.fileUUID, 
+        CONCAT(a.currentLocation, ' ', a.fileUUID,' ', IFNULL(a.fileID, "")) AS 'pagingIndex',
+        a.fileUUID,
         a.location,
-        substring(a.currentLocation,23) as fileName, 
-        a.fileID, 
+        substring(a.currentLocation,23) as fileName,
+        a.fileID,
         a.description,
-        a.already_in_access_format, 
+        a.already_in_access_format,
         a.already_in_preservation_format,
         case when c.exitCode < 2 and a.fileID is not null then 1 else 0 end as access_normalization_attempted,
         case when a.fileID is not null and c.exitcode = 1 then 1 else 0 end as access_normalization_failed,
@@ -56,32 +56,32 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
     from (
         select
             f.fileUUID,
-            f.sipUUID, 
+            f.sipUUID,
             f.originalLocation as location,
             f.currentLocation,
             fid.uuid as 'fileID',
-            fid.description, 
+            fid.description,
             f.fileGrpUse,
-            fid.access_format AS 'already_in_access_format', 
+            fid.access_format AS 'already_in_access_format',
             fid.preservation_format AS 'already_in_preservation_format'
-        from 
+        from
             Files f
             Left Join
             FilesIdentifiedIDs fii on f.fileUUID = fii.fileUUID
             Left Join
             fpr_formatversion fid on fii.fileID = fid.uuid
-        where 
+        where
             f.fileGrpUse in ('original', 'service')
             and f.sipUUID = %s
-        ) a 
+        ) a
         Left Join (
         select
             j.sipUUID,
             t.fileUUID,
             t.taskUUID,
             t.exitcode
-        from 
-            Jobs j 
+        from
+            Jobs j
             Join
             Tasks t on t.jobUUID = j.jobUUID
         where
@@ -94,8 +94,8 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
             t.fileUUID,
             t.taskUUID,
             t.exitcode
-        from 
-            Jobs j 
+        from
+            Jobs j
             join
             Tasks t on t.jobUUID = j.jobUUID
         Where
@@ -105,11 +105,11 @@ def getNormalizationReportQuery(sipUUID, idsRestriction=""):
         WHERE a.sipUUID = %s
         order by (access_normalization_failed + preservation_normalization_failed) desc;
     """
-    
+
     cursor.execute(sql, (sipUUID, sipUUID))
     objects = helpers.dictfetchall(cursor)
-    return objects 
-    
+    return objects
+
 
 if __name__ == '__main__':
     import sys
