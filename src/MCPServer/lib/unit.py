@@ -30,7 +30,6 @@ import archivematicaFunctions
 import archivematicaMCP
 from unitFile import unitFile
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import File, UnitVariable
 
 LOGGER = logging.getLogger('archivematica.mcp.server')

@@ -6,7 +6,6 @@ import pytest
 import unittest
 import vcr
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import elasticSearchFunctions
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))

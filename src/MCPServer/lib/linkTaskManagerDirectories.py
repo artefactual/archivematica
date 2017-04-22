@@ -27,11 +27,9 @@ import os
 import sys
 import threading
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 import archivematicaFunctions
 import databaseFunctions
 from dicts import ReplacementDict
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import StandardTaskConfig
 
 

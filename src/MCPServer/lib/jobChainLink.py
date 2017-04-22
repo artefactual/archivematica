@@ -36,11 +36,9 @@ from linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList import linkTaskMa
 from linkTaskManagerSetUnitVariable import linkTaskManagerSetUnitVariable
 from linkTaskManagerUnitVariableLinkPull import linkTaskManagerUnitVariableLinkPull
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from django_mysqlpool import auto_close_db
 from databaseFunctions import logJobCreatedSQL, getUTCDate
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import Job, MicroServiceChainLink, MicroServiceChainLinkExitCode, TaskType
 
 LOGGER = logging.getLogger('archivematica.mcp.server')

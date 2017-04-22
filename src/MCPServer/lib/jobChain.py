@@ -26,10 +26,8 @@ import sys
 
 from jobChainLink import jobChainLink
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import MicroServiceChain, UnitVariable
 
 #Holds:

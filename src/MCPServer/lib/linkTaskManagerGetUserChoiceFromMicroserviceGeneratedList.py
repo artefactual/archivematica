@@ -32,9 +32,7 @@ from linkTaskManager import LinkTaskManager
 import archivematicaMCP
 from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForUnitsLock
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict, ChoicesDict
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import StandardTaskConfig, UserProfile, Job
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
