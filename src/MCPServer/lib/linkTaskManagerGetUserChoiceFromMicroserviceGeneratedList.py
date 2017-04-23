@@ -88,7 +88,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
         try:
             tree = etree.parse(xmlFilePath)
             root = tree.getroot()
-        except (etree.LxmlError, IOError) as e:
+        except (etree.LxmlError, IOError):
             LOGGER.warning('Error parsing xml at %s for pre-configured choice', xmlFilePath, exc_info=True)
             return None
         for choice in root.findall(".//preconfiguredChoice"):

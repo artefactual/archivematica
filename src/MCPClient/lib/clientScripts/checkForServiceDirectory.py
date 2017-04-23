@@ -47,7 +47,6 @@ def something(SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, date):
             file1Full = os.path.join(path, file).replace(SIPDirectory, "%SIPDirectory%", 1) #service
 
             a = file.rfind(servicePreExtension + ".")
-            file2 = ""
             if a != -1:
                 file2Full = os.path.join(path, file[:a] + originalPreExtension + ".").replace(SIPDirectory + "objects/service/", "%SIPDirectory%objects/", 1) #service
             else:
@@ -55,7 +54,6 @@ def something(SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, date):
                 if a != -1: #if a period is found
                     a += 1 #include the period
                 file2Full = os.path.join(path, file[:a]).replace(SIPDirectory + "objects/service/", "%SIPDirectory%objects/", 1) #service
-            accessPath = os.path.join(path, file)
 
             f = File.objects.get(currentlocation=file1Full,
                                  removedtime__isnull=True,
@@ -76,9 +74,6 @@ def regular(SIPDirectory, objectsDirectory, SIPUUID, date):
     searchForRegularExpressions = True
     if not searchForRegularExpressions:
         return
-    original = ""
-    service = ""
-
 
     for (path, dirs, files) in os.walk(objectsDirectory):
         for file in files:
@@ -87,7 +82,6 @@ def regular(SIPDirectory, objectsDirectory, SIPUUID, date):
                 file1Full = os.path.join(path, file).replace(SIPDirectory, "%SIPDirectory%", 1) #service
                 file2 = file.replace(m.group(0), m.group(0).replace("_me", "_m", 1))
                 file2Full = os.path.join(path, file2).replace(SIPDirectory, "%SIPDirectory%", 1) #original
-                accessPath = os.path.join(path, file)
 
                 f = File.objects.get(currentlocation=file1Full,
                                      removedtime__isnull=True,

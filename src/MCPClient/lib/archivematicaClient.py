@@ -182,12 +182,12 @@ Unable to determine if it completed successfully."""
         logger.info('<processingCommand>{%s}%s</processingCommand>', gearman_job.unique, command)
         exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=False, env_updates=env_updates)
         return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
-    except OSError as ose:
+    except OSError:
         logger.exception('Execution failed')
         output = ["Archivematica Client Error!", traceback.format_exc()]
         exitCode = 1
         return cPickle.dumps({"exitCode": exitCode, "stdOut": output[0], "stdError": output[1]})
-    except Exception as e:
+    except Exception:
         logger.exception('Unexpected error')
         output = ["", traceback.format_exc()]
         return cPickle.dumps({"exitCode": -1, "stdOut": output[0], "stdError": output[1]})

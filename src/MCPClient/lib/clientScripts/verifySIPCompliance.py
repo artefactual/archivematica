@@ -34,7 +34,7 @@ def checkDirectory(directory, ret=0):
     try:
         for directory, subDirectories, files in os.walk(directory):
             for file in files:
-                filePath = os.path.join(directory, file)
+                os.path.join(directory, file)
     except Exception as inst:
         print("Error navigating directory:", directory.__str__(), file=sys.stderr)
         print(type(inst), file=sys.stderr)

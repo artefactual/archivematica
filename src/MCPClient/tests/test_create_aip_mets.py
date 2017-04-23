@@ -121,7 +121,7 @@ class TestDublinCore(TestCase):
     @unittest.expectedFailure
     def test_create_dc_dmdsec_no_dc_transfer_dc_xml(self):
         # FIXME What is the expected behaviour of this? What should the fixture have?
-        transfers_sip = os.path.join(THIS_DIR, 'fixtures', 'transfer_dc')
+        # transfers_sip = os.path.join(THIS_DIR, 'fixtures', 'transfer_dc')
         raise NotImplementedError()
 
     def test_dmdsec_from_csv_parsed_metadata_dc_only(self):

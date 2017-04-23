@@ -38,8 +38,7 @@ def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
     XPTR = "xpointer(id("
     tree = etree.parse(itemdirectoryPath)
     root = tree.getroot()
-    a = """<amdSec ID="amd_496">
-<rightsMD ID="rightsMD_499">"""
+    # a = """<amdSec ID="amd_496"><rightsMD ID="rightsMD_499">"""
     for item in root.findall("{http://www.loc.gov/METS/}amdSec/{http://www.loc.gov/METS/}rightsMD"):
         #print "rights id:", item.get("ID")
         XPTR = "%s %s" % (XPTR, item.get("ID"))

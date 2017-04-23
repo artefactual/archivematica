@@ -296,7 +296,7 @@ class TestRightsImportFromCsvWithUnicode(TestRightsImportFromCsvBase):
         It should process all rows of the CSV file even if file paths have unicode characters in them.
         It should populate the rights-related models using data from the CSV file.
         """
-        file = models.File.objects.get(pk='47813453-6872-442b-9d65-6515be3c5aa1')
+        models.File.objects.get(pk='47813453-6872-442b-9d65-6515be3c5aa1')
 
         rights_csv_filepath = os.path.join(THIS_DIR, 'fixtures/rights-unicode-filepath.csv')
         parser = rightsFromCSV.RightCsvReader(self.transfer_uuid, u"%s" % rights_csv_filepath)

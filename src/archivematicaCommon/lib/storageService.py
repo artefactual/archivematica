@@ -362,10 +362,10 @@ def request_reingest(package_uuid, reingest_type, processing_config):
     url = _storage_service_url() + 'file/' + package_uuid + '/reingest/'
     try:
         response = _storage_api_session().post(url, json=api_request)
-    except requests.ConnectionError as e:
+    except requests.ConnectionError:
         LOGGER.exception("Could not connect to storage service")
         return {'error': True, 'message': 'Could not connect to storage service'}
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException:
         LOGGER.exception("Unable to reingest %s", package_uuid)
         try:
             return response.json()

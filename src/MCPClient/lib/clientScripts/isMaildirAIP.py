@@ -35,7 +35,7 @@ def isMaildir(path):
     try:
         for maildirsub2 in os.listdir(maildir):
             maildirsub = os.path.join(maildir, maildirsub2)
-            md = mailbox.Maildir(maildirsub, None)
+            mailbox.Maildir(maildirsub, None)
     except:
         return False
     return True

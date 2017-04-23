@@ -63,7 +63,7 @@ def maildir2mailbox(maildirname, mboxfilename):
     maildir.close()
 
 def maildir2mailbox2(dirname, mboxname):
-    mboxdirname=mboxname+'.sbd'
+    # mboxdirname=mboxname+'.sbd'
     maildir2mailbox(dirname,mboxname)
     #if not os.path.exists(mboxdirname): os.makedirs(mboxdirname)
 

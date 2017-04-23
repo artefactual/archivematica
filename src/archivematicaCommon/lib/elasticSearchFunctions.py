@@ -605,7 +605,7 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
 
         # index data
         wait_for_cluster_yellow_status(client)
-        result = try_to_index(client, indexData, index, type_)
+        try_to_index(client, indexData, index, type_)
 
         # Reset fileData['METS']['amdSec'], since it is updated in the loop
         # above. See http://stackoverflow.com/a/3975388 for explanation

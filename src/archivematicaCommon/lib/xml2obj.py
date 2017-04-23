@@ -26,7 +26,7 @@ def mets_file(src):
                 if rights.mets_mdWrap.mets_xmlData.premis_rightsStatement.premis_rightsGranted:
                     for granted in rights.mets_mdWrap.mets_xmlData.premis_rightsStatement.premis_rightsGranted:
                         act = granted.premis_act
-                        note = granted.premis_rightsGrantedNote
+                        # note = granted.premis_rightsGrantedNote
                         #print "found {} has {} with {}".format(file_uuid, act, note)
                         mets[file_uuid]['premis'][act]['restriction'] = granted.premis_restriction
                         mets[file_uuid]['premis'][act]['rightsGrantedNote'] = granted.premis_rightsGrantedNote

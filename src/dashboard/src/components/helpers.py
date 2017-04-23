@@ -265,7 +265,7 @@ def send_file(request, filepath):
     extensions_to_download = ['.7z', '.zip']
 
     try:
-        index = extensions_to_download.index(extension)
+        extensions_to_download.index(extension)
         response['Content-Type'] = 'application/force-download'
         response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
     except:

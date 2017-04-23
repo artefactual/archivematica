@@ -304,8 +304,8 @@ def ingest_upload(request, uuid):
         - POST = Create Accesses tuple with permalink
     """
     try:
-        sip = models.SIP.objects.get(uuid__exact=uuid)
-    except:
+        models.SIP.objects.get(uuid__exact=uuid)
+    except models.SIP.DoesNotExist:
         raise Http404
 
     if request.method == 'POST':
@@ -587,7 +587,6 @@ def transfer_file_download(request, uuid):
     except:
         raise Http404
 
-    file_basename = os.path.basename(file.currentlocation)
     shared_directory_path = helpers.get_server_config_value('sharedDirectory')
     transfer = models.Transfer.objects.get(uuid=file.transfer.uuid)
     path_to_transfer = transfer.currentlocation.replace('%sharedPath%', shared_directory_path)
