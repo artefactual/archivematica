@@ -49,8 +49,3 @@ def removeHiddenFilesFromDirectory(dir):
 if __name__ == '__main__':
     transferDirectory = sys.argv[1]
     removeHiddenFilesFromDirectory(transferDirectory)
-
-
-
-
-

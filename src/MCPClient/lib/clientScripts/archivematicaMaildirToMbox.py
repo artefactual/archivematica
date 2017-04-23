@@ -42,6 +42,3 @@ if __name__ == "__main__":
     maildir2mailbox2(maildirPath, mboxOutputFileFullPath)
     print("Done")
     exit(0)
-
-
-

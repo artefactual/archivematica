@@ -119,4 +119,3 @@ def parse2(msgobj, attachments=None):
         'attachments': attachments,
         'msgobj': msgobj,
     }
-

@@ -18,7 +18,7 @@ class FiwalkFido(fido.Fido):
     def __init__(self, **kwargs):
         fido.Fido.__init__(self, kwargs)
         self.handle_matches = self.parse_matches
-    
+
     def identify_file(self, filename):
         """Identify the type of @param filename.
 """
@@ -47,7 +47,7 @@ class FiwalkFido(fido.Fido):
         except IOError:
             #print >> sys.stderr, "FIDO: Error in identify_file: Path is {0}".format(filename)
             sys.stderr.write("FIDO: Error in identify_file: Path is {0}\n".format(filename))
-    
+
     def parse_matches(self, fullname, matches, delta_t, matchtype=''):
         out = {}
         out['pronomSoftware'] = 'fido ' + fido.version
@@ -73,15 +73,15 @@ class FiwalkFido(fido.Fido):
 def pronom_ident(fn):
     f = FiwalkFido(quiet=True)
     return f.identify_file(fn)
-    
+
 def main():
     parser = OptionParser()
     opts, args = parser.parse_args()
-    
+
     if len(args) < 1:
         parser.print_help()
         exit(-1)
-    
+
     filename = args[0]
     out = pronom_ident(filename)
 
@@ -91,4 +91,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-

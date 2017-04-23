@@ -96,4 +96,3 @@ class jobChain:
                 LOGGER.debug('Done with unit %s', self.unit.UUID)
                 if self.notifyComplete:
                     self.notifyComplete(self)
-

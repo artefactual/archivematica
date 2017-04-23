@@ -183,5 +183,3 @@ if __name__ == '__main__':
     tree = etree.ElementTree(root)
     tree.write(outXML, pretty_print=True, xml_declaration=True)
     exit(sharedVariablesAcrossModules.errorCounter)
-
-
