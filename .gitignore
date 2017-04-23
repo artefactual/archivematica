@@ -17,3 +17,6 @@
 
 # pytest's working directory
 .cache
+
+# tox working directory
+.tox/
