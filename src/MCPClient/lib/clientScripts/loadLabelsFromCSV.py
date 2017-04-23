@@ -35,7 +35,7 @@ if __name__ == '__main__':
     transferUUID = sys.argv[1]
     fileLabels = sys.argv[2]
     labelFirst = False
-    
+
     if not os.path.isfile(fileLabels):
         print("No such file:", fileLabels)
         exit(0)

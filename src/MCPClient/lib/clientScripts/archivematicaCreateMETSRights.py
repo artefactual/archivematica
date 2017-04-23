@@ -212,7 +212,7 @@ def getrightsGranted(statement, parent):
     for granted in statement.rightsstatementrightsgranted_set.all():
         rightsGranted = etree.SubElement(parent, ns.premisBNS + "rightsGranted")
         etree.SubElement(rightsGranted, ns.premisBNS + "act").text = granted.act
-        
+
         restriction = "Undefined"
         for restriction in granted.restrictions.all():
             restriction = restriction.restriction
@@ -220,7 +220,7 @@ def getrightsGranted(statement, parent):
                 print("The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional':", restriction, file=sys.stderr)
                 sharedVariablesAcrossModules.globalErrorCount +=1
             etree.SubElement(rightsGranted, ns.premisBNS + "restriction").text = restriction
-        
+
         if granted.startdate or granted.enddate or granted.enddateopen:
             if restriction.lower() in ["allow"]:
                 termOfGrant = etree.SubElement(rightsGranted, ns.premisBNS + "termOfGrant")

@@ -45,7 +45,7 @@ def something(SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, date):
             servicePreExtension = "_me"
             originalPreExtension = "_m"
             file1Full = os.path.join(path, file).replace(SIPDirectory, "%SIPDirectory%", 1) #service
-            
+
             a = file.rfind(servicePreExtension + ".")
             file2 = ""
             if a != -1:
@@ -78,7 +78,7 @@ def regular(SIPDirectory, objectsDirectory, SIPUUID, date):
         return
     original = ""
     service = ""
-    
+
 
     for (path, dirs, files) in os.walk(objectsDirectory):
         for file in files:

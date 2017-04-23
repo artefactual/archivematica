@@ -62,7 +62,7 @@ def get_script_logger(name, formatter=SCRIPT_FILE_FORMAT, logfile="/var/log/arch
             logging_config['root']['handlers'] = ['console']
     except KeyError:
         pass
-   
+
     logging.config.dictConfig(logging_config)
     logger = logging.getLogger(name)
     return logger

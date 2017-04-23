@@ -54,8 +54,8 @@ if __name__ == '__main__':
 
     parser = etree.XMLParser(remove_blank_text=True)
     root = etree.parse(mets_path, parser)
-    
+
     version = get_version_from_mets(root)
     print('Version found in METSt:', version)
-    
+
     sys.exit(VERSION_MAP.get(version, 0))

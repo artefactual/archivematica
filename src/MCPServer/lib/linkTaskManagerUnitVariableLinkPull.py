@@ -32,7 +32,7 @@ class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
         super(linkTaskManagerUnitVariableLinkPull, self).__init__(jobChainLink, pk, unit)
         var = TaskConfigUnitVariableLinkPull.objects.get(id=pk)
         link = self.unit.getmicroServiceChainLink(var.variable, var.variablevalue, var.defaultmicroservicechainlink_id)
-        
+
         ###Update the unit
         if link != None:
             self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
