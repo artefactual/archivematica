@@ -59,7 +59,7 @@ def ingest_upload_atk(request, uuid):
                                          uuid)
     except (MySQLdb.ProgrammingError, MySQLdb.OperationalError) as e:
         return HttpResponseServerError(
-          'Database error {0}. Please contact an administrator.'.format(str(e))
+            'Database error {0}. Please contact an administrator.'.format(str(e))
         )
 
 def ingest_upload_atk_save(request, uuid):

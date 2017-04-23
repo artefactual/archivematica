@@ -96,12 +96,12 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
                 eventOutcomeDetailNote = "Verified file exists"
                 eventIdentifierUUID=uuid.uuid4().__str__()
                 databaseFunctions.insertIntoEvents(fileUUID=fileUUID, \
-                     eventIdentifierUUID=eventIdentifierUUID, \
-                     eventType="manifest check", \
-                     eventDateTime=date, \
-                     eventOutcome=eventOutcome, \
-                     eventOutcomeDetailNote=eventOutcomeDetailNote, \
-                     eventDetail=eventDetail)
+                                                   eventIdentifierUUID=eventIdentifierUUID, \
+                                                   eventType="manifest check", \
+                                                   eventDateTime=date, \
+                                                   eventOutcome=eventOutcome, \
+                                                   eventOutcomeDetailNote=eventOutcomeDetailNote, \
+                                                   eventDetail=eventDetail)
         else:
             i = path.rfind(".")
             path2 = path[:i] + path[i:].lower()
@@ -118,12 +118,12 @@ for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
                     eventOutcomeDetailNote = "Verified file exists, but with implicit extension case"
                     eventIdentifierUUID=uuid.uuid4().__str__()
                     databaseFunctions.insertIntoEvents(fileUUID=fileUUID, \
-                         eventIdentifierUUID=eventIdentifierUUID, \
-                         eventType="manifest check", \
-                         eventDateTime=date, \
-                         eventOutcome=eventOutcome, \
-                         eventOutcomeDetailNote=eventOutcomeDetailNote, \
-                         eventDetail=eventDetail)
+                                                       eventIdentifierUUID=eventIdentifierUUID, \
+                                                       eventType="manifest check", \
+                                                       eventDateTime=date, \
+                                                       eventOutcome=eventOutcome, \
+                                                       eventOutcomeDetailNote=eventOutcomeDetailNote, \
+                                                       eventDetail=eventDetail)
             else:
                 print("File does not exists: ", path.replace(transferPath, "%TransferDirectory%"), file=sys.stderr)
                 exitCode += 1

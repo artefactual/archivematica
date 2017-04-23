@@ -176,11 +176,11 @@ def ingest_metadata_edit(request, uuid, id=None):
     # If the SIP is an AIC, use the AIC metadata form
     if 'AIC' in models.SIP.objects.get(uuid=uuid).sip_type:
         form = ingest_forms.AICDublinCoreMetadataForm(request.POST or None,
-            instance=dc)
+                                                      instance=dc)
         dc_type = "Archival Information Collection"
     else:
         form = ingest_forms.DublinCoreMetadataForm(request.POST or None,
-            instance=dc)
+                                                   instance=dc)
         dc_type = "Archival Information Package"
 
     if form.is_valid():
@@ -315,7 +315,7 @@ def ingest_upload(request, uuid):
             except:
                 access = models.Access(sipuuid=uuid)
             access.target = cPickle.dumps({
-              "target": request.POST['target'] })
+                "target": request.POST['target'] })
             access.save()
             response = { 'ready': True }
             return helpers.json_response(response)
@@ -392,7 +392,7 @@ def _es_results_to_directory_tree(path, return_list, not_draggable=False):
         this_node = return_list[-1]
         # Populate children list
         _es_results_to_directory_tree(others, this_node['children'],
-            not_draggable=not_draggable)
+                                      not_draggable=not_draggable)
 
         # Generate count of all non-directory objects in this tree
         object_count = sum(e['properties'].get('object count', 0) for e in this_node['children'])
@@ -561,7 +561,7 @@ def transfer_backlog(request, ui):
         # If a path is in SIPArrange.original_path, then it shouldn't be draggable
         not_draggable = False
         if models.SIPArrange.objects.filter(
-            original_path__endswith=path['relative_path']).exists():
+                original_path__endswith=path['relative_path']).exists():
             not_draggable = True
         if ui == 'legacy':
             _es_results_to_directory_tree(path['relative_path'], return_list, not_draggable=not_draggable)

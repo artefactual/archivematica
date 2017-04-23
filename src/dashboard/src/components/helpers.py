@@ -161,9 +161,9 @@ def get_setting(setting, default=''):
 def get_boolean_setting(setting, default=''):
     setting = get_setting(setting, default)
     if setting == 'False':
-       return False
+        return False
     else:
-       return bool(setting)
+        return bool(setting)
 
 def set_setting(setting, value=''):
     try:

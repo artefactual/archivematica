@@ -62,7 +62,7 @@ def main(file_path, file_uuid, sip_uuid):
                                                   arguments=args)
         if exitstatus != 0:
             print('Command {} failed with exit status {}; stderr:'.format(rule.command.description, exitstatus),
-                stderr, file=sys.stderr)
+                  stderr, file=sys.stderr)
             failed = True
             continue
         # fmt/101 is XML - we want to collect and package any XML output, while

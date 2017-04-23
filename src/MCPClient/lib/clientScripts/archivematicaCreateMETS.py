@@ -189,12 +189,12 @@ if __name__ == '__main__':
     print(opts)
 
     root = etree.Element(ns.metsBNS + "mets",
-        nsmap={"xlink": ns.xlinkNS, "mets": ns.metsNS},
-        attrib={
-            ns.xsiBNS + "schemaLocation": "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd",
-            "OBJID": opts.sipUUID
-        }
-    )
+                         nsmap={"xlink": ns.xlinkNS, "mets": ns.metsNS},
+                         attrib={
+                             ns.xsiBNS + "schemaLocation": "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd",
+                             "OBJID": opts.sipUUID
+                         }
+                         )
 
     root.append(createMetsHdr(opts.sipUUID))
 

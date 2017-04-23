@@ -135,10 +135,10 @@ def check_manual_normalization(opts):
     path = os.path.splitext(opts.file_path.replace(opts.sip_path, '%SIPDirectory%', 1))[0]
     if "preservation" in opts.purpose:
         path = path.replace("%SIPDirectory%objects/",
-            "%SIPDirectory%objects/manualNormalization/preservation/")
+                            "%SIPDirectory%objects/manualNormalization/preservation/")
     elif "access" in opts.purpose:
         path = path.replace("%SIPDirectory%objects/",
-            "%SIPDirectory%objects/manualNormalization/access/")
+                            "%SIPDirectory%objects/manualNormalization/access/")
     else:
         return None
     try:
@@ -244,19 +244,19 @@ def once_normalized(command, opts, replacement_dict):
 
 
 def insert_derivation_event(original_uuid, output_uuid, derivation_uuid,
-        event_detail_output, outcome_detail_note, today=None):
+                            event_detail_output, outcome_detail_note, today=None):
     """ Add the derivation link for preservation files and the event. """
     if today is None:
         today = timezone.now()
     # Add event information to current file
     databaseFunctions.insertIntoEvents(
-       fileUUID=original_uuid,
-       eventIdentifierUUID=derivation_uuid,
-       eventType="normalization",
-       eventDateTime=today,
-       eventDetail=event_detail_output,
-       eventOutcome="",
-       eventOutcomeDetailNote=outcome_detail_note or "",
+        fileUUID=original_uuid,
+        eventIdentifierUUID=derivation_uuid,
+        eventType="normalization",
+        eventDateTime=today,
+        eventDetail=event_detail_output,
+        eventOutcome="",
+        eventOutcomeDetailNote=outcome_detail_note or "",
     )
 
     # Add linking information between files
@@ -343,12 +343,12 @@ def main(opts):
             try:
                 rule = get_default_rule(opts.purpose)
                 print("No rule for", os.path.basename(file_.currentlocation),
-                    "falling back to default", opts.purpose, "rule")
+                      "falling back to default", opts.purpose, "rule")
                 status = NO_RULE_FOUND
             except FPRule.DoesNotExist:
                 print('Not normalizing', os.path.basename(file_.currentlocation),
-                    ' - No rule or default rule found to normalize for', opts.purpose,
-                    file=sys.stderr)
+                      ' - No rule or default rule found to normalize for', opts.purpose,
+                      file=sys.stderr)
                 return NO_RULE_FOUND
     print('Format Policy Rule:', rule)
     command = rule.command

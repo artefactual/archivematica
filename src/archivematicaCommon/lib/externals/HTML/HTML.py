@@ -118,8 +118,8 @@ class TableCell (object):
     """
 
     def __init__(self, text="", bgcolor=None, header=False, width=None,
-                align=None, char=None, charoff=None, valign=None, style=None,
-                attribs=None):
+                 align=None, char=None, charoff=None, valign=None, style=None,
+                 attribs=None):
         """TableCell constructor"""
         self.text    = text
         self.bgcolor = bgcolor
@@ -174,8 +174,8 @@ class TableRow (object):
     """
 
     def __init__(self, cells=None, bgcolor=None, header=False, attribs=None,
-                col_align=None, col_valign=None, col_char=None,
-                col_charoff=None, col_styles=None):
+                 col_align=None, col_valign=None, col_char=None,
+                 col_charoff=None, col_styles=None):
         """TableCell constructor"""
         self.bgcolor     = bgcolor
         self.cells       = cells
@@ -241,9 +241,9 @@ class Table (object):
     """
 
     def __init__(self, rows=None, border='1', style=None, width=None,
-                cellspacing=None, cellpadding=4, attribs=None, header_row=None,
-                col_width=None, col_align=None, col_valign=None,
-                col_char=None, col_charoff=None, col_styles=None):
+                 cellspacing=None, cellpadding=4, attribs=None, header_row=None,
+                 col_width=None, col_align=None, col_valign=None,
+                 col_char=None, col_charoff=None, col_styles=None):
         """TableCell constructor"""
         self.border = border
         self.style = style
@@ -440,9 +440,9 @@ if __name__ == '__main__':
     print('-'*79)
 
     t2 = Table([
-            ('1', '2'),
-            ['3', '4']
-        ], width='100%', header_row=('col1', 'col2'),
+        ('1', '2'),
+        ['3', '4']
+    ], width='100%', header_row=('col1', 'col2'),
         col_width=('', '75%'))
     f.write(str(t2) + '<p>\n')
     print(t2)
@@ -457,15 +457,15 @@ if __name__ == '__main__':
 
     # sample table with column attributes and styles:
     table_data = [
-            ['Smith',       'John',         30,    4.5],
-            ['Carpenter',   'Jack',         47,    7],
-            ['Johnson',     'Paul',         62,    10.55],
-        ]
+        ['Smith',       'John',         30,    4.5],
+        ['Carpenter',   'Jack',         47,    7],
+        ['Johnson',     'Paul',         62,    10.55],
+    ]
     htmlcode = table(table_data,
-        header_row = ['Last name',   'First name',   'Age', 'Score'],
-        col_width=['', '20%', '10%', '10%'],
-        col_align=['left', 'center', 'right', 'char'],
-        col_styles=['font-size: large', '', 'font-size: small', 'background-color:yellow'])
+                     header_row = ['Last name',   'First name',   'Age', 'Score'],
+                     col_width=['', '20%', '10%', '10%'],
+                     col_align=['left', 'center', 'right', 'char'],
+                     col_styles=['font-size: large', '', 'font-size: small', 'background-color:yellow'])
     f.write(htmlcode + '<p>\n')
     print(htmlcode)
     print('-'*79)

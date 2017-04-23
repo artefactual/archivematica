@@ -175,16 +175,16 @@ def search(request):
     page_data = helpers.pager(results, items_per_page, current_page_number)
 
     return render(request, 'archival_storage/search.html',
-        {
-            'file_mode': file_mode,
-            'show_aics': show_aics,
-            'checked_if_in_file_mode': checked_if_in_file_mode,
-            'aic_creation_form': aic_creation_form,
-            'results': page_data.object_list,
-            'search_params': search_params,
-            'page': page_data,
-        }
-    )
+                  {
+                      'file_mode': file_mode,
+                      'show_aics': show_aics,
+                      'checked_if_in_file_mode': checked_if_in_file_mode,
+                      'aic_creation_form': aic_creation_form,
+                      'results': page_data.object_list,
+                      'search_params': search_params,
+                      'page': page_data,
+                  }
+                  )
 
 
 def _get_es_field(record, field, default=None):
@@ -336,10 +336,10 @@ def aip_file_download(request, uuid):
     path_to_file_within_aip_data_dir = os.path.dirname(file.currentlocation.replace('%transferDirectory%', '').replace('%SIPDirectory%', ''))
 
     file_relative_path = os.path.join(
-      subdir,
-      'data',
-      path_to_file_within_aip_data_dir,
-      file_basename
+        subdir,
+        'data',
+        path_to_file_within_aip_data_dir,
+        file_basename
     )
 
     redirect_url = storage_service.extract_file_url(aip['fields']['uuid'][0], file_relative_path)
@@ -556,14 +556,14 @@ def list_display(request):
     total_size = total_size_of_aips(es_client)
 
     return render(request, 'archival_storage/list.html',
-        {
-            'total_size': total_size,
-            'aip_indexed_file_count': aip_indexed_file_count,
-            'aips': aips,
-            'page': page,
-            'search_params': sort_params,
-        }
-    )
+                  {
+                      'total_size': total_size,
+                      'aip_indexed_file_count': aip_indexed_file_count,
+                      'aips': aips,
+                      'page': page,
+                      'search_params': sort_params,
+                  }
+                  )
 
 
 def document_json_response(document_id_modified, type):

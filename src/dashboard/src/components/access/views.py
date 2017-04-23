@@ -342,7 +342,7 @@ def create_arranged_directory(system, record_id):
     """
     identifier = _normalize_record_id(record_id)
     mapping, created = SIPArrangeAccessMapping.objects.get_or_create(system=system,
-                                                                      identifier=identifier)
+                                                                     identifier=identifier)
     if created:
         try:
             filepath = '/arrange/' + record_id + str(uuid.uuid4())  # TODO: get this from the title?

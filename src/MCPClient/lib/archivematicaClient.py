@@ -122,7 +122,7 @@ def loadSupportedModules(file):
 
     loadSupportedCommandsSpecial = config.get('MCPClient', "LoadSupportedCommandsSpecial")
     if loadSupportedCommandsSpecial.lower() == "yes" or \
-    loadSupportedCommandsSpecial.lower() == "true":
+            loadSupportedCommandsSpecial.lower() == "true":
         for key, value in supportedModulesConfig.items('supportedCommandsSpecial'):
             loadSupportedModulesSupport(key, value)
 

@@ -87,9 +87,9 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
     def checkForPreconfiguredXML(self):
         ret = None
         xmlFilePath = os.path.join( \
-                                        self.unit.currentPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1) + "/", \
-                                        archivematicaMCP.config.get('MCPServer', "processingXMLFile") \
-                                    )
+            self.unit.currentPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1) + "/", \
+            archivematicaMCP.config.get('MCPServer', "processingXMLFile") \
+        )
 
         if os.path.isfile(xmlFilePath):
             # For a list of items with pks:
@@ -109,7 +109,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                             if unitAtimeXML != None and unitAtimeXML.lower() != "no":
                                 delaySeconds=int(delayXML.text)
                                 unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%", \
-                                               archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
+                                                                                          archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
                                 nowTime=time.time()
                                 timeDifference = nowTime - unitTime
                                 timeToGo = delaySeconds - timeDifference
@@ -117,11 +117,11 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                                 self.jobChainLink.setExitMessage("Waiting till: " + datetime.datetime.fromtimestamp((nowTime + timeToGo)).ctime())
                                 rd = ReplacementDict.fromstring(ret)
                                 if self.jobChainLink.passVar != None:
-                                        if isinstance(self.jobChainLink.passVar, ReplacementDict):
-                                            new = {}
-                                            new.update(self.jobChainLink.passVar.dic)
-                                            new.update(rd.dic)
-                                            rd.dic = new
+                                    if isinstance(self.jobChainLink.passVar, ReplacementDict):
+                                        new = {}
+                                        new.update(self.jobChainLink.passVar.dic)
+                                        new.update(rd.dic)
+                                        rd.dic = new
                                 t = threading.Timer(timeToGo, self.jobChainLink.linkProcessingComplete, args=[0, rd], kwargs={})
                                 t.daemon = True
                                 t.start()

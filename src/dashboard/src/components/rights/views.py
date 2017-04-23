@@ -432,11 +432,11 @@ def rights_grants_edit(request, uuid, id, section='ingest'):
 
     # create inline formsets for child elements
     GrantFormSet = inlineformset_factory(
-      models.RightsStatement,
-      models.RightsStatementRightsGranted,
-      extra=extra_grant_forms,
-      can_delete=False,
-      form=forms.RightsGrantedForm
+        models.RightsStatement,
+        models.RightsStatementRightsGranted,
+        extra=extra_grant_forms,
+        can_delete=False,
+        form=forms.RightsGrantedForm
     )
 
     # handle form creation/saving

@@ -232,7 +232,7 @@ def get_files_from_backlog(files):
 ############# FILES #############
 
 def create_file(uuid, origin_location, origin_path, current_location,
-        current_path, package_type, size, update=False, related_package_uuid=None):
+                current_path, package_type, size, update=False, related_package_uuid=None):
     """ Creates a new file. Returns a tuple of (resulting dict, None) on success, (None, error) on failure.
 
     origin_location and current_location should be URIs for the storage service.
@@ -269,8 +269,8 @@ def create_file(uuid, origin_location, origin_path, current_location,
     return (file_, None)
 
 def get_file_info(uuid=None, origin_location=None, origin_path=None,
-        current_location=None, current_path=None, package_type=None,
-        status=None):
+                  current_location=None, current_path=None, package_type=None,
+                  status=None):
     """ Returns a list of files, optionally filtered by parameters.
 
     Queries the storage service and returns a list of files,

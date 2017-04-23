@@ -69,7 +69,7 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
     # the same filename (differing extensions)
     # Look for a CSV that will specify the mapping
     csv_path = os.path.join(opts.sipDirectory, "objects", "manualNormalization",
-        "normalization.csv")
+                            "normalization.csv")
     if os.path.isfile(csv_path):
         try:
             access_file = opts.filePath[opts.filePath.index('manualNormalization/access/'):]
@@ -77,7 +77,7 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
             print("{0} not in manualNormalization directory".format(opts.filePath), file=sys.stderr)
             exit(4)
         original = fileOperations.findFileInNormalizatonCSV(csv_path,
-            "access", access_file, unitIdentifier)
+                                                            "access", access_file, unitIdentifier)
         if original is None:
             if isinstance(e, File.DoesNotExist):
                 print("No matching file for: {0}".format(
@@ -85,7 +85,7 @@ except (File.DoesNotExist, File.MultipleObjectsReturned) as e:
                 exit(3)
             else:
                 print("Could not find {access_file} in {filename}".format(
-                        access_file=access_file, filename=csv_path), file=sys.stderr)
+                    access_file=access_file, filename=csv_path), file=sys.stderr)
                 exit(2)
         # If we found the original file, retrieve it from the DB
         kwargs = {

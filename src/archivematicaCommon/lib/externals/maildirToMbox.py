@@ -40,27 +40,27 @@ import email
 import os
 
 def maildir2mailbox(maildirname, mboxfilename):
-   """
-   slightly adapted from maildir2mbox.py,
-   Nathan R. Yergler, 6 June 2010
-   http://yergler.net/blog/2010/06/06/batteries-included-or-maildir-to-mbox-again/
+    """
+    slightly adapted from maildir2mbox.py,
+    Nathan R. Yergler, 6 June 2010
+    http://yergler.net/blog/2010/06/06/batteries-included-or-maildir-to-mbox-again/
 
 
-   """
-   # open the existing maildir and the target mbox file
-   maildir = mailbox.Maildir(maildirname, email.message_from_file)
-   mbox = mailbox.mbox(mboxfilename)
+    """
+    # open the existing maildir and the target mbox file
+    maildir = mailbox.Maildir(maildirname, email.message_from_file)
+    mbox = mailbox.mbox(mboxfilename)
 
-   # lock the mbox
-   mbox.lock()
+    # lock the mbox
+    mbox.lock()
 
-   # iterate over messages in the maildir and add to the mbox
-   for msg in maildir:
-       mbox.add(msg)
+    # iterate over messages in the maildir and add to the mbox
+    for msg in maildir:
+        mbox.add(msg)
 
-   # close and unlock
-   mbox.close()
-   maildir.close()
+    # close and unlock
+    mbox.close()
+    maildir.close()
 
 def maildir2mailbox2(dirname, mboxname):
     mboxdirname=mboxname+'.sbd'
@@ -69,11 +69,11 @@ def maildir2mailbox2(dirname, mboxname):
 
     listofdirs=[dn for dn in os.walk(dirname).next()[1] if dn not in ['new', 'cur', 'tmp']]
     for curfold in listofdirs:
-       curlist=[mboxname]+curfold.split('.')
-       curpath=os.path.join(*[dn+'.sbd' for dn in curlist if dn])
-       if not os.path.exists(curpath): os.makedirs(curpath)
-       print('| ' +curfold +' -> '+curpath[:-4])
-       maildir2mailbox(os.path.join(dirname,curfold),curpath[:-4])
+        curlist=[mboxname]+curfold.split('.')
+        curpath=os.path.join(*[dn+'.sbd' for dn in curlist if dn])
+        if not os.path.exists(curpath): os.makedirs(curpath)
+        print('| ' +curfold +' -> '+curpath[:-4])
+        maildir2mailbox(os.path.join(dirname,curfold),curpath[:-4])
 
 
 if __name__ == "__main__":

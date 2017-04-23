@@ -34,7 +34,7 @@ class TestConfigReader(TestCase):
         config = self.read_test_config(
             prefix='ARCHIVEMATICA_NICESERVICE',
             test_config=
-"""
+            """
 [queue]
 max_size = 500
 """)
@@ -49,7 +49,7 @@ max_size = 500
         config = self.read_test_config(
             prefix='ARCHIVEMATICA_NICESERVICE',
             test_config=
-"""
+            """
 [network]
 tls = on
 """)
@@ -61,7 +61,7 @@ tls = on
         when undefined.
         """
         config = self.read_test_config(
-"""
+            """
 [main]
 foo = bar
 """)
@@ -74,7 +74,7 @@ foo = bar
         when undefined.
         """
         config = self.read_test_config(
-"""
+            """
 [main]
 foo = bar
 """)
@@ -87,7 +87,7 @@ foo = bar
         configuration even if it's undefiend.
         """
         config = self.read_test_config(
-"""
+            """
 [main]
 foo = bar
 """)

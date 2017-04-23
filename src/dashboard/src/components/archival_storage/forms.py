@@ -56,8 +56,8 @@ class ReingestAIPForm(forms.Form):
     )
     reingest_type = forms.ChoiceField(choices=REINGEST_CHOICES, widget=forms.RadioSelect, required=True)
     processing_config = forms.CharField(required=False, initial='default',
-        help_text=_('Only needed in full re-ingest'),
-        widget=forms.TextInput(attrs={'placeholder': _('default')}))
+                                        help_text=_('Only needed in full re-ingest'),
+                                        widget=forms.TextInput(attrs={'placeholder': _('default')}))
 
 
 class DeleteAIPForm(forms.Form):

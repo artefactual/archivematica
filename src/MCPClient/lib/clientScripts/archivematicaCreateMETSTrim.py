@@ -69,9 +69,9 @@ def getTrimDmdSec(baseDirectoryPath, fileGroupIdentifier):
             root2 = tree2.getroot()
             dateMod = root2.find("Document/DateModified").text
             if minDateMod ==  None or dateMod < minDateMod:
-               minDateMod = dateMod
+                minDateMod = dateMod
             if maxDateMod ==  None or dateMod > maxDateMod:
-               maxDateMod = dateMod
+                maxDateMod = dateMod
 
     etree.SubElement(dublincore, ns.dctermsBNS + "date").text = "%s/%s" % (minDateMod, maxDateMod)
 

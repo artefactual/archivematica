@@ -43,7 +43,7 @@ errorCount = 0
 def recursivelyRemoveEmptyDirectories(dir):
     error_count = 0
     for root, dirs, files in os.walk(dir,topdown=False):
-       for directory in dirs:
+        for directory in dirs:
             try:
                 os.rmdir(os.path.join(root, directory))
             except OSError as e:

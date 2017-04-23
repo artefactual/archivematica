@@ -144,8 +144,8 @@ for dir in os.listdir(transferPath):
 
         # RightsStatementOtherRightsInformation
         info = RightsStatementOtherRightsInformation.objects.create(
-           rightsstatement=statement,
-           otherrightsbasis="Policy"
+            rightsstatement=statement,
+            otherrightsbasis="Policy"
         )
 
         # RightsStatementOtherRightsDocumentationIdentifier

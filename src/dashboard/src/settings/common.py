@@ -294,8 +294,8 @@ CACHES = {
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/administration/accounts/login/'
 LOGIN_EXEMPT_URLS  = [
-  r'^administration/accounts/login',
-  r'^api'
+    r'^administration/accounts/login',
+    r'^api'
 ]
 
 # Django debug toolbar

@@ -33,7 +33,7 @@ def get_aip_info(aic_dir):
     # are AIP UUIDs, and the contents are the AIP name.
     uuid_regex = r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$'
     files = [d for d in os.listdir(aic_dir)
-        if os.path.isfile(os.path.join(aic_dir, d)) and re.match(uuid_regex, d)]
+             if os.path.isfile(os.path.join(aic_dir, d)) and re.match(uuid_regex, d)]
     for filename in files:
         file_path = os.path.join(aic_dir, filename)
         with open(file_path, 'r') as f:

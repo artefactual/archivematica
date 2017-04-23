@@ -66,7 +66,7 @@ class unit:
                     self.fileList[currentlocation].fileGrpUse = f.filegrpuse
                 else:
                     LOGGER.warning('%s %s has file (%s) %s in the database, but file does not exist in the file system',
-                        self.unitType, self.UUID, f.uuid, f.currentlocation)
+                                   self.unitType, self.UUID, f.uuid, f.currentlocation)
         except Exception:
             LOGGER.exception('Error reloading file list for %s', currentPath)
             exit(1)
@@ -81,8 +81,8 @@ class unit:
         if not variableValue:
             variableValue = ""
         variables = UnitVariable.objects.filter(unittype=self.unitType,
-                                           unituuid=self.UUID,
-                                           variable=variable)
+                                                unituuid=self.UUID,
+                                                variable=variable)
         if variables:
             LOGGER.info('Existing UnitVariables %s for %s updated to %s (MSCL %s)', variable, self.UUID, variableValue, microServiceChainLink)
             for var in variables:

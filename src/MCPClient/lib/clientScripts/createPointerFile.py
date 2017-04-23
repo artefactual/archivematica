@@ -190,18 +190,18 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
         # compression - 7z or tar.bz2
         if extension == '.7z':
             etree.SubElement(file_, namespaces.metsBNS + "transformFile",
-                TRANSFORMORDER='1',
-                TRANSFORMTYPE='decompression',
-                TRANSFORMALGORITHM=algorithm)
+                             TRANSFORMORDER='1',
+                             TRANSFORMTYPE='decompression',
+                             TRANSFORMALGORITHM=algorithm)
         elif extension == '.bz2':
             etree.SubElement(file_, namespaces.metsBNS + "transformFile",
-                TRANSFORMORDER='1',
-                TRANSFORMTYPE='decompression',
-                TRANSFORMALGORITHM='bzip2')
+                             TRANSFORMORDER='1',
+                             TRANSFORMTYPE='decompression',
+                             TRANSFORMALGORITHM='bzip2')
             etree.SubElement(file_, namespaces.metsBNS + "transformFile",
-                TRANSFORMORDER='2',
-                TRANSFORMTYPE='decompression',
-                TRANSFORMALGORITHM='tar')
+                             TRANSFORMORDER='2',
+                             TRANSFORMTYPE='decompression',
+                             TRANSFORMALGORITHM='tar')
 
         # structMap
         div = etree.SubElement(structmap, namespaces.metsBNS+'div', ADMID=amdsec_id, TYPE=package_type)

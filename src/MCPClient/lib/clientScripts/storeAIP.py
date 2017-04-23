@@ -165,4 +165,4 @@ if __name__ == '__main__':
     parser.add_argument('sip_type', type=str, help='%SIPType%')
     args = parser.parse_args()
     sys.exit(store_aip(args.aip_destination_uri, args.aip_filename,
-        args.sip_uuid, args.sip_name, args.sip_type))
+                       args.sip_uuid, args.sip_name, args.sip_type))

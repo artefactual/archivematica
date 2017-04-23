@@ -60,7 +60,7 @@ class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager)
                 raise Exception("ChoicesDict not found in passVar: {}".format(self.jobChainLink.passVar))
         else:
             LOGGER.error("passVar is %s instead of expected list",
-                type(self.jobChainLink.passVar))
+                         type(self.jobChainLink.passVar))
             raise Exception("passVar is {} instead of expected list".format(
                 type(self.jobChainLink.passVar)))
 

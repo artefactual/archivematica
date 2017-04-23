@@ -40,7 +40,7 @@ def main(file_path, file_uuid, sip_uuid):
     for rule in rules:
         if rule.command.script_type in ('bashScript', 'command'):
             command_to_execute = replace_string_values(rule.command.command,
-                file_=file_uuid, sip=sip_uuid, type_='file')
+                                                       file_=file_uuid, sip=sip_uuid, type_='file')
             args = []
         else:
             command_to_execute = rule.command.command
@@ -48,10 +48,10 @@ def main(file_path, file_uuid, sip_uuid):
 
         print('Running', rule.command.description)
         exitstatus, stdout, stderr = executeOrRun(rule.command.script_type,
-            command_to_execute, arguments=args)
+                                                  command_to_execute, arguments=args)
         if exitstatus != 0:
             print('Command {} failed with exit status {}; stderr:'.format(rule.command.description, exitstatus),
-                stderr, file=sys.stderr)
+                  stderr, file=sys.stderr)
             failed = True
             continue
 

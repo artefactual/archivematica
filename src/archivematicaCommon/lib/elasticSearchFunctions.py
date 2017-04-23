@@ -369,7 +369,7 @@ def set_up_mapping_transfer_index(client):
 
     logger.info('Creating transfer file mapping...')
     client.indices.put_mapping(doc_type='transferfile', body={'transferfile': {'properties': transferfile_mapping}},
-                             index='transfers')
+                               index='transfers')
 
     logger.info('Transfer file mapping created.')
 
@@ -384,7 +384,7 @@ def set_up_mapping_transfer_index(client):
 
     logger.info('Creating transfer mapping...')
     client.indices.put_mapping(doc_type='transfer', body={'transfer': {'properties': transfer_mapping}},
-                             index='transfers')
+                               index='transfers')
 
     logger.info('Transfer mapping created.')
 
@@ -787,20 +787,20 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
 
                 # TODO Index Backlog Location UUID?
                 indexData = {
-                  'filename'     : filename,
-                  'relative_path': relative_path,
-                  'fileuuid'     : file_uuid,
-                  'sipuuid'      : uuid,
-                  'accessionid'  : accession_id,
-                  'status'       : status,
-                  'origin'       : dashboard_uuid,
-                  'ingestdate'   : ingest_date,
-                  'created'      : create_time,
-                  'size'         : size,
-                  'tags'         : [],
-                  'file_extension': file_extension,
-                  'bulk_extractor_reports': bulk_extractor_reports,
-                  'format'       : formats,
+                    'filename'     : filename,
+                    'relative_path': relative_path,
+                    'fileuuid'     : file_uuid,
+                    'sipuuid'      : uuid,
+                    'accessionid'  : accession_id,
+                    'status'       : status,
+                    'origin'       : dashboard_uuid,
+                    'ingestdate'   : ingest_date,
+                    'created'      : create_time,
+                    'size'         : size,
+                    'tags'         : [],
+                    'file_extension': file_extension,
+                    'bulk_extractor_reports': bulk_extractor_reports,
+                    'format'       : formats,
                 }
 
                 wait_for_cluster_yellow_status(client)
@@ -970,10 +970,10 @@ def get_transfer_file_info(client, field, value):
         if result_count > 1:
             results = filtered_results[0]['_source']
             logger.warning('get_transfer_file_info returned %s results for query %s: %s (using first result)',
-                            result_count, field, value)
+                           result_count, field, value)
         elif result_count < 1:
             logger.error('get_transfer_file_info returned no exact results for query %s: %s',
-                          field, value)
+                         field, value)
             raise ElasticsearchError("get_transfer_file_info returned no exact results")
 
     logger.debug('get_transfer_file_info: results: %s', results)

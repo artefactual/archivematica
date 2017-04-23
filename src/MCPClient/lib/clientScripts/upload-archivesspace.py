@@ -192,8 +192,7 @@ def upload_to_archivesspace(files, client, xlink_show, xlink_actuate, object_typ
                                   size=size,
                                   format_name=format_name,
                                   format_version=format_version,
-                                  inherit_notes=inherit_notes,
-        )
+                                  inherit_notes=inherit_notes)
 
         delete_pairs(dip_uuid)
 

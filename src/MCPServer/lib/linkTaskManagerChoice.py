@@ -74,9 +74,9 @@ class linkTaskManagerChoice(LinkTaskManager):
     def checkForPreconfiguredXML(self):
         desiredChoice = None
         xmlFilePath = os.path.join( \
-                                        self.unit.currentPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1), \
-                                        archivematicaMCP.config.get('MCPServer', "processingXMLFile") \
-                                    )
+            self.unit.currentPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1), \
+            archivematicaMCP.config.get('MCPServer', "processingXMLFile") \
+        )
         xmlFilePath = unicodeToStr(xmlFilePath)
         if os.path.isfile(xmlFilePath):
             # For a list of items with pks:
@@ -101,7 +101,7 @@ class linkTaskManagerChoice(LinkTaskManager):
                             if unitAtimeXML is not None and unitAtimeXML.lower() != "no":
                                 delaySeconds=int(delayXML.text)
                                 unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%", \
-                                               archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
+                                                                                          archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
                                 nowTime=time.time()
                                 timeDifference = nowTime - unitTime
                                 timeToGo = delaySeconds - timeDifference

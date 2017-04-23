@@ -117,4 +117,4 @@ if __name__ == '__main__':
     parser.add_argument('sip_uuid', type=str, help='%SIPUUID%')
     args = parser.parse_args()
     sys.exit(compress_aip(args.compression, args.compression_level,
-        args.sip_directory, args.sip_name, args.sip_uuid))
+                          args.sip_directory, args.sip_name, args.sip_uuid))

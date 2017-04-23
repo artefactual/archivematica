@@ -287,12 +287,12 @@ def fileWasRemoved(fileUUID, utcDate=None, eventDetail = "", eventOutcomeDetailN
     eventType = "file removed"
     eventDateTime = utcDate
     insertIntoEvents(fileUUID=fileUUID, \
-                       eventIdentifierUUID=eventIdentifierUUID, \
-                       eventType=eventType, \
-                       eventDateTime=eventDateTime, \
-                       eventDetail=eventDetail, \
-                       eventOutcome=eventOutcome, \
-                       eventOutcomeDetailNote=eventOutcomeDetailNote)
+                     eventIdentifierUUID=eventIdentifierUUID, \
+                     eventType=eventType, \
+                     eventDateTime=eventDateTime, \
+                     eventDetail=eventDetail, \
+                     eventOutcome=eventOutcome, \
+                     eventOutcomeDetailNote=eventOutcomeDetailNote)
 
     f = File.objects.get(uuid=fileUUID)
     f.removedtime = utcDate

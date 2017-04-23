@@ -105,7 +105,7 @@ if __name__ == '__main__':
     parser.add_argument('destination')
     parser.add_argument('sip_directory')
     parser.add_argument('payload_entries', metavar='Payload', nargs='+',
-                   help='All the files/folders that should go in the bag.')
+                        help='All the files/folders that should go in the bag.')
     parser.add_argument('--writer', dest='writer')
 
     algorithm = get_setting('checksum_type', 'sha512')

@@ -10,12 +10,12 @@ class ParsingInterrupted(Exception): pass
 
 class DictSAXHandler:
     def __init__(self,
-            item_depth=0,
-            xml_attribs=True,
-            item_callback=lambda *args: True,
-            attr_prefix='@',
-            cdata_key='#text',
-            force_cdata=False):
+                 item_depth=0,
+                 xml_attribs=True,
+                 item_callback=lambda *args: True,
+                 attr_prefix='@',
+                 cdata_key='#text',
+                 force_cdata=False):
         self.path = []
         self.stack = []
         self.data = None
@@ -32,7 +32,7 @@ class DictSAXHandler:
         if len(self.path) > self.item_depth:
             self.stack.append((self.item, self.data))
             attrs = dict((self.attr_prefix+key, value)
-                    for (key, value) in attrs.items())
+                         for (key, value) in attrs.items())
             self.item = self.xml_attribs and attrs or None
             self.data = None
 
@@ -149,8 +149,8 @@ if __name__ == '__main__':
 
     try:
         root = parse(sys.stdin,
-                item_depth=item_depth,
-                item_callback=handle_item)
+                     item_depth=item_depth,
+                     item_callback=handle_item)
         if item_depth == 0:
             handle_item([], root)
     except KeyboardInterrupt:

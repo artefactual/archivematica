@@ -89,7 +89,7 @@ def welcome(request):
 
     return render(request, 'installer/welcome.html', {
         'form': form,
-      })
+    })
 
 def get_my_ip():
     server_addr = '1.2.3.4'
@@ -121,8 +121,7 @@ def fprupload(request):
                'agentName': agent.name,
                'clientIP': get_my_ip(),
                'agentIdentifierType': agent.identifiertype,
-               'agentIdentifierValue': agent.identifiervalue
-              }
+               'agentIdentifierValue': agent.identifiervalue}
     headers = {'Content-Type': 'application/json'}
     try:
         r = requests.post(url, data=json.dumps(payload), headers=headers, timeout=120, verify=True)

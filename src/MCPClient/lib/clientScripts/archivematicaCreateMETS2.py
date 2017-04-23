@@ -1092,9 +1092,9 @@ if __name__ == '__main__':
         'xlink': ns.xlinkNS,
     }
     root = etree.Element(ns.metsBNS + "mets",
-        nsmap = rootNSMap,
-        attrib = { "{" + ns.xsiNS + "}schemaLocation" : "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version111/mets.xsd" },
-    )
+                         nsmap = rootNSMap,
+                         attrib = { "{" + ns.xsiNS + "}schemaLocation" : "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version111/mets.xsd" },
+                         )
     etree.SubElement(root, ns.metsBNS + "metsHdr").set("CREATEDATE", timezone.now().strftime("%Y-%m-%dT%H:%M:%S"))
 
     dc = createDublincoreDMDSecFromDBData(SIPMetadataAppliesToType, fileGroupIdentifier, baseDirectoryPath)

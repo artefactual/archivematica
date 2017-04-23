@@ -30,8 +30,8 @@ class FPRClient(object):
 
     def getMaxLastUpdate(self):
         (last_updated, _) = main.models.UnitVariable.objects.get_or_create(
-                unittype='FPR', unituuid='Client', variable='maxLastUpdate',
-                defaults={'variablevalue': "2000-01-01T00:00:00"})
+            unittype='FPR', unituuid='Client', variable='maxLastUpdate',
+            defaults={'variablevalue': "2000-01-01T00:00:00"})
         self.maxLastUpdate = last_updated.variablevalue
         self.maxLastUpdateUUID = last_updated.id
 
