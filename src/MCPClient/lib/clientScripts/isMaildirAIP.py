@@ -45,5 +45,5 @@ if __name__ == '__main__':
     path = sys.argv[1]
     if isMaildir(path):
         exit(exitCodes['maildir'])
-        
+
     exit(exitCodes[None])
