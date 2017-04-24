@@ -165,6 +165,7 @@ class TableCell (object):
 
 # ------------------------------------------------------------------------------
 
+
 class TableRow (object):
     """
     a TableRow object is used to create a row in a HTML table. (TR tag)
@@ -225,6 +226,7 @@ class TableRow (object):
         return result
 
 # ------------------------------------------------------------------------------
+
 
 class Table (object):
     """
@@ -429,12 +431,15 @@ class List (object):
 def Link(text, url):
     return '<a href="%s">%s</a>' % (url, text)
 
+
 def link(text, url):
     return '<a href="%s">%s</a>' % (url, text)
+
 
 def table(*args, **kwargs):
     'return HTML code for a table as a string. See Table class for parameters.'
     return str(Table(*args, **kwargs))
+
 
 def list(*args, **kwargs):
     'return HTML code for a list as a string. See List class for parameters.'

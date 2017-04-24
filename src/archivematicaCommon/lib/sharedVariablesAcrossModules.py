@@ -21,7 +21,9 @@
 # @subpackage archivematicaCommon
 # @author Joseph Perry <joseph@artefactual.com>
 
+
 class SharedVariablesAcrossModules:
     "used to share variables across multiple files"
+
 
 sharedVariablesAcrossModules = SharedVariablesAcrossModules()

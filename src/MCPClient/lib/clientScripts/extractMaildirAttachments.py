@@ -51,11 +51,13 @@ def writeFile(filePath, fileContents):
     FILE.writelines(fileContents)
     FILE.close()
 
+
 def addFile(filePath, transferPath, transferUUID, date, eventDetail="", fileUUID=uuid.uuid4().__str__()):
     taskUUID = uuid.uuid4().__str__()
     filePathRelativeToSIP = filePath.replace(transferPath, "%transferDirectory%", 1)
     addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType="unpacking", eventDetail=eventDetail)
     updateSizeAndChecksum(fileUUID, filePath, date, uuid.uuid4.__str__())
+
 
 def getFileUUIDofSourceFile(transferUUID, sourceFilePath):
     try:
@@ -79,6 +81,7 @@ path = %s
     f.close()
     addFile(outFile, transferPath, transferUUID, date, eventDetail=eventDetail, fileUUID=fileUUID)
     return
+
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.extractMaildirAttachments")

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
+
 def data_migration(apps, schema_editor):
     MicroServiceChain = apps.get_model('main', 'MicroServiceChain')
     MicroServiceChainLink = apps.get_model('main', 'MicroServiceChainLink')
@@ -39,6 +40,7 @@ def data_migration(apps, schema_editor):
     MicroServiceChainLinkExitCode.objects.filter(microservicechainlink_id='8ec0b0c1-79ad-4d22-abcd-8e95fcceabbc').update(nextmicroservicechainlink_id='675acd22-828d-4949-adc7-1888240f5e3d')
     MicroServiceChainLink.objects.filter(id='8ec0b0c1-79ad-4d22-abcd-8e95fcceabbc').update(defaultnextchainlink_id='675acd22-828d-4949-adc7-1888240f5e3d')
     TaskConfigUnitVariableLinkPull.objects.filter(id='49d853a9-646d-4e9f-b825-d1bcc3ba77f0').update(defaultmicroservicechainlink_id='675acd22-828d-4949-adc7-1888240f5e3d')
+
 
 class Migration(migrations.Migration):
 

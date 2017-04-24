@@ -33,6 +33,7 @@ from custom_handlers import get_script_logger
 from fileOperations import updateFileLocation
 from fileOperations import renameAsSudo
 
+
 def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, transferUUID, relativeDirectory="./"):
     print(metsFile)
     DspaceLicenses = "metadata/submissionDocumentation/DspaceLicenses"
@@ -68,7 +69,6 @@ def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, tran
     return exitCode
 
 
-
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.moveDspaceLicenseFilesToDSpaceLicenses")
 
@@ -77,7 +77,6 @@ if __name__ == '__main__':
     taskUUID = sys.argv[3]
     transferDirectory = sys.argv[4]
     transferUUID = sys.argv[5]
-
 
     ret = verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, transferUUID, relativeDirectory=os.path.dirname(metsFile) + "/")
     quit(ret)

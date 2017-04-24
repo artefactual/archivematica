@@ -26,9 +26,9 @@ import sys
 import shutil
 
 
-
 requiredDirectories = ["logs", "logs/fileMeta", "metadata", "metadata/submissionDocumentation", "objects", "objects/Maildir"]
 optionalFiles = "processingMCP.xml"
+
 
 def restructureMaildirDirectory(unitPath):
     for dir in requiredDirectories:
@@ -45,6 +45,7 @@ def restructureMaildirDirectory(unitPath):
         elif os.path.isfile(itemPath) and item not in optionalFiles:
             shutil.move(itemPath, dst)
             print("moving file to objects/Maildir: ", item)
+
 
 if __name__ == '__main__':
     target = sys.argv[1]

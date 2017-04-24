@@ -35,6 +35,7 @@ def main(transfer_uuid, target_path):
         json.dump(jsonified, json_file)
     return 0
 
+
 if __name__ == '__main__':
     transfer_uuid = sys.argv[1]
     target_path = sys.argv[2]

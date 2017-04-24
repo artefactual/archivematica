@@ -26,6 +26,7 @@ import sys
 import mailbox
 exitCodes = {None: 0, 'maildir': 179}
 
+
 def isMaildir(path):
     maildir = path + "objects/Maildir/"
     if not os.path.isdir(maildir):

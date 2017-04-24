@@ -36,6 +36,7 @@ from custom_handlers import get_script_logger
 from fileOperations import updateFileLocation
 from fileOperations import renameAsSudo
 
+
 def something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIPUUID, date, copy=False):
     # exitCode = 435
     exitCode = 179
@@ -82,7 +83,6 @@ def something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIP
     return exitCode
 
 
-
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.checkForAccessDirectory")
 
@@ -109,7 +109,6 @@ if __name__ == '__main__':
     if not os.path.isdir(accessDirectory):
         print("no access directory in this sip")
         exit(0)
-
 
     try:
         if not os.path.isdir(DIPDirectory):

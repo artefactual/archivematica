@@ -107,12 +107,14 @@ replacementDic = {
 }
 supportedModules = {}
 
+
 def loadSupportedModulesSupport(key, value):
     for key2, value2 in replacementDic.items():
         value = value.replace(key2, value2)
     if not os.path.isfile(value):
         logger.error("Warning! Module can't find file, or relies on system path: {%s} %s", key, value)
     supportedModules[key] = value + " "
+
 
 def loadSupportedModules(file):
     supportedModulesConfig = ConfigParser.RawConfigParser()

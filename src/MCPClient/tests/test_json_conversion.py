@@ -9,6 +9,7 @@ CSV_MULTICOLUMN = 'filename,dc.subject,dc.subject,dc.subject,dc.title\r\nobjects
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 
+
 def test_json_csv_conversion(tmpdir):
     json_path = os.path.join(str(tmpdir), 'metadata.json')
     csv_path = os.path.join(str(tmpdir), 'metadata.csv')

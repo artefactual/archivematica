@@ -30,6 +30,7 @@ import shutil
 from custom_handlers import get_script_logger
 import archivematicaFunctions
 
+
 def _move_file(src, dst, exit_on_error=True):
     print('Moving', src, 'to', dst)
     try:
@@ -38,6 +39,7 @@ def _move_file(src, dst, exit_on_error=True):
         print('Could not move', src)
         if exit_on_error:
             raise
+
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.restructureBagAIPToSIP")

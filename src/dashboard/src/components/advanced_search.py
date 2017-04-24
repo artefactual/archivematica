@@ -32,6 +32,7 @@ OTHER_FIELDS = (
     "transferMetadataOther"
 )
 
+
 def search_parameter_prep(request):
     queries = request.GET.getlist('query')
     ops = request.GET.getlist('op')
@@ -92,6 +93,8 @@ def search_parameter_prep(request):
     return queries, ops, fields, types
 
 # these are used in templates to prevent query params
+
+
 def extract_url_search_params_from_request(request):
     # set pagination-related variables
     search_params = ''
@@ -102,6 +105,7 @@ def extract_url_search_params_from_request(request):
     except:
         pass
     return search_params
+
 
 def assemble_query(es_client, queries, ops, fields, types, search_index=None, doc_type=None, **kwargs):
     must_haves = kwargs.get('must_haves', [])
@@ -134,6 +138,7 @@ def assemble_query(es_client, queries, ops, fields, types, search_index=None, do
         },
     }
 
+
 def _fix_object_fields(fields):
     """
     Adjusts field names for nested object fields.
@@ -143,6 +148,7 @@ def _fix_object_fields(fields):
     Without doing this, Elasticsearch will attempt to match the value of transferMetadata itself, which will always fail since it's an object and not a string.
     """
     return [field + '.*' if field in OBJECT_FIELDS else field for field in fields]
+
 
 def _parse_date_range(field):
     """
@@ -156,11 +162,13 @@ def _parse_date_range(field):
 
     return field.split(':')[:2]
 
+
 def _normalize_date(date):
     try:
         return dateutil.parser.parse(date).strftime('%Y-%m-%d')
     except ValueError:
         raise ValueError("Invalid date received ({}); ignoring date query".format(date))
+
 
 def filter_search_fields(es_client, search_fields, index=None, doc_type=None):
     """
@@ -203,6 +211,7 @@ def filter_search_fields(es_client, search_fields, index=None, doc_type=None):
 
     return new_fields
 
+
 def query_clause(es_client, index, queries, ops, fields, types, search_index=None, doc_type=None):
     if fields[index] == '':
         search_fields = []
@@ -232,6 +241,7 @@ def query_clause(es_client, index, queries, ops, fields, types, search_index=Non
             logger.info(str(e))
             return
         return {'range': {fields[index]: {'gte': start, 'lte': end}}}
+
 
 def indexed_count(es_client, index, types=None, query=None):
     if types is not None:

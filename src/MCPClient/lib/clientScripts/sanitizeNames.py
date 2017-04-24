@@ -34,6 +34,7 @@ VERSION = "1.10." + "$Id$".split(" ")[1]
 valid = "-_.()" + string.ascii_letters + string.digits
 replacementChar = "_"
 
+
 def transliterate(basename):
     # We get a more meaningful name sanitization if UTF-8 names
     # are correctly decoded to unistrings instead of str
@@ -41,6 +42,7 @@ def transliterate(basename):
         return unidecode(basename.decode('utf-8'))
     except UnicodeDecodeError:
         return unidecode(basename)
+
 
 def sanitizeName(basename):
     ret = ""
@@ -51,6 +53,7 @@ def sanitizeName(basename):
         else:
             ret += replacementChar
     return ret.encode('utf-8')
+
 
 def sanitizePath(path):
     basename = os.path.basename(path)
@@ -70,6 +73,7 @@ def sanitizePath(path):
         rename(path, sanitizedName)
         return sanitizedName
 
+
 def sanitizeRecursively(path):
     path = os.path.abspath(path)
     sanitizations = {}
@@ -84,6 +88,7 @@ def sanitizeRecursively(path):
             sanitizations.update(sanitizeRecursively(os.path.join(sanitizedName, f)))
 
     return sanitizations
+
 
 if __name__ == '__main__':
     path = sys.argv[1]

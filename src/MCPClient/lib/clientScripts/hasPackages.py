@@ -29,6 +29,7 @@ def is_extractable(f):
     else:
         return False
 
+
 def already_extracted(f):
     """
     Returns True if this package has already been extracted, False otherwise.
@@ -49,6 +50,7 @@ def main(sip_uuid):
             return 0
     print('No extractable files found.')
     return 1
+
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.hasPackages")

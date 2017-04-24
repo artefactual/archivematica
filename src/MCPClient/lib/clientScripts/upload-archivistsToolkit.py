@@ -181,6 +181,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
     delete_pairs(dip_uuid)
     logger.info("completed upload successfully")
 
+
 if __name__ == '__main__':
 
     RESTRICTIONS_CHOICES = ['yes', 'no', 'premis']

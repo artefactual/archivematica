@@ -33,6 +33,7 @@ from archivematicaFunctions import REQUIRED_DIRECTORIES
 from custom_handlers import get_script_logger
 import fileOperations
 
+
 def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unitIdentifierType="transfer_id", unitPathReplaceWith="%transferDirectory%"):
     # Create required directories
     archivematicaFunctions.create_directories(REQUIRED_DIRECTORIES, unitPath)
@@ -79,6 +80,7 @@ def restructureTRIMForComplianceFileUUIDsAssigned(unitPath, unitIdentifier, unit
             for key, value in files.items():
                 fileUUID = value
                 fileOperations.updateFileGrpUse(fileUUID, "TRIM metadata")
+
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.trimRestructureForCompliance")

@@ -37,12 +37,14 @@ def get_atk_system_client():
         db=config['dbname']
     )
 
+
 def _get_reset_view(uuid):
     """
     Returns either the reset view name or None, depending on whether any pairings exist in the database.
     """
     if models.AtkDIPObjectResourcePairing.objects.filter(dipuuid=uuid).count() > 0:
         return 'components.ingest.views_atk.ingest_upload_atk_reset'
+
 
 def ingest_upload_atk(request, uuid):
     try:
@@ -62,12 +64,15 @@ def ingest_upload_atk(request, uuid):
             'Database error {0}. Please contact an administrator.'.format(str(e))
         )
 
+
 def ingest_upload_atk_save(request, uuid):
     return pair_matcher.pairs_saved_response(ingest_upload_atk_save_to_db(request, uuid))
+
 
 def ingest_upload_atk_reset(request, uuid):
     models.AtkDIPObjectResourcePairing.objects.filter(dipuuid=uuid).delete()
     return HttpResponseRedirect(reverse("components.ingest.views_atk.ingest_upload_atk", args=[uuid]))
+
 
 def ingest_upload_atk_save_to_db(request, uuid):
     saved = 0
@@ -93,6 +98,7 @@ def ingest_upload_atk_save_to_db(request, uuid):
 
     return saved
 
+
 def ingest_upload_atk_resource(request, uuid, resource_id):
     client = get_atk_system_client()
     try:
@@ -109,6 +115,7 @@ def ingest_upload_atk_resource(request, uuid, resource_id):
                                             uuid)
     except MySQLdb.ProgrammingError:
         return HttpResponseServerError('Database error. Please contact an administrator.')
+
 
 def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     client = get_atk_system_client()
@@ -128,6 +135,7 @@ def ingest_upload_atk_resource_component(request, uuid, resource_component_id):
     except MySQLdb.ProgrammingError:
         return HttpResponseServerError('Database error. Please contact an administrator.')
 
+
 def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resource_id):
     try:
         # load resource and child data
@@ -142,6 +150,7 @@ def ingest_upload_atk_match_dip_objects_to_resource_levels(request, uuid, resour
         return pair_matcher.match_dip_objects_to_resource_levels(client, request, resource_id, 'ingest/atk/match.html', parent_id, parent_url, _get_reset_view(uuid), uuid)
     except:
         return HttpResponseServerError('Database error. Please contact an administrator.')
+
 
 def ingest_upload_atk_match_dip_objects_to_resource_component_levels(request, uuid, resource_component_id):
     # load object relative paths

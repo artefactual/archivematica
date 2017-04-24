@@ -23,6 +23,7 @@ def getFileDic(fileFullPath):
     f.close()
     return fileDic
 
+
 if __name__ == "__main__":
     logger = get_script_logger("archivematica.mcp.client.maildirToMbox")
 

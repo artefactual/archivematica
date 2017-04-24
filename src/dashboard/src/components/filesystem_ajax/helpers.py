@@ -28,11 +28,13 @@ locale.setlocale(locale.LC_ALL, '')
 
 logger = logging.getLogger('archivematica.dashboard')
 
+
 def sorted_directory_list(path):
     cleaned = []
     entries = os.listdir(archivematicaFunctions.unicodeToStr(path))
     cleaned = [archivematicaFunctions.unicodeToStr(entry) for entry in entries]
     return sorted(cleaned, key=helpers.keynat)
+
 
 def directory_to_dict(path, directory={}, entry=False):
     # if starting traversal, set entry to directory root
@@ -61,6 +63,7 @@ def directory_to_dict(path, directory={}, entry=False):
 
     # return fully traversed data
     return directory
+
 
 def check_filepath_exists(filepath):
     error = None

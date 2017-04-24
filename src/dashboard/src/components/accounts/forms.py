@@ -36,10 +36,10 @@ class UserCreationForm(UserCreationForm):
             user.save()
         return user
 
-
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'is_superuser')
+
 
 class UserChangeForm(UserChangeForm):
     email = forms.EmailField(required=True)

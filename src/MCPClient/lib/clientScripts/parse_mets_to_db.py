@@ -161,6 +161,7 @@ def update_files(sip_uuid, files):
             derivedFileUUID=file_info['derivation'],
         )
 
+
 def parse_dc(sip_uuid, root):
     """
     Parse SIP-level DublinCore metadata into the DublinCore table.
@@ -221,6 +222,7 @@ def parse_dc(sip_uuid, root):
             setattr(dc_model, DC_TERMS_MATCHING[tag], elem.text)
         dc_model.save()
     return dc_model
+
 
 def parse_rights(sip_uuid, root):
     """

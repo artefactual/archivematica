@@ -13,8 +13,10 @@ import time
 from optparse import OptionParser
 from fido import fido
 
+
 class FiwalkFido(fido.Fido):
     """docstring for FiwalkFido"""
+
     def __init__(self, **kwargs):
         fido.Fido.__init__(self, kwargs)
         self.handle_matches = self.parse_matches
@@ -70,9 +72,11 @@ class FiwalkFido(fido.Fido):
                 out['pronomFormatAlias'] = alias.text if alias is not None else None
         return out
 
+
 def pronom_ident(fn):
     f = FiwalkFido(quiet=True)
     return f.identify_file(fn)
+
 
 def main():
     parser = OptionParser()
@@ -88,6 +92,7 @@ def main():
     for k, v in out.items():
         if v is not None:
             print(k + ': ' + str(v))
+
 
 if __name__ == "__main__":
     sys.exit(main())

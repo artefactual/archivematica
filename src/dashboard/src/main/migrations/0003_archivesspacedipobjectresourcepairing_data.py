@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
+
 def data_migration(apps, schema_editor):
     # The new chain - begins with selecting config, then calls upload script.
     # The magic that pops open a new window happens in the dashboard UI, and isn't handled here.

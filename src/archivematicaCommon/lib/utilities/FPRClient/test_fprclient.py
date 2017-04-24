@@ -15,6 +15,7 @@ from . import getFromRestAPI
 FPRSERVER = 'http://localhost:9000/fpr/api/v2/'
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
 class TestGetFromFPRRESTAPI(TestCase):
     """
     Test functions in getFromRestAPI.py
@@ -33,6 +34,7 @@ class TestGetFromFPRRESTAPI(TestCase):
     def test_can_fetch_records(self):
         records = list(getFromRestAPI.each_record("id-command", url=FPRSERVER))
         assert len(records) == 2
+
 
 class TestFPRClient(TransactionTestCase):
     """

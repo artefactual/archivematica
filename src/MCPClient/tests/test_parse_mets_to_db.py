@@ -12,6 +12,7 @@ import parse_mets_to_db
 import fpr
 from main import models
 
+
 class TestParseDublinCore(TestCase):
     """ Test parsing SIP-level DublinCore from a METS file into the DB. """
 
@@ -465,7 +466,6 @@ class TestParseFiles(TestCase):
         assert pres['format_version'] == self.PRES_INFO['format_version']
         assert pres['derivation'] == self.PRES_INFO['derivation']
         assert pres['derivation_event'] == self.PRES_INFO['derivation_event']
-
 
     def test_insert_file_info(self):
         """ It should insert file info into the DB. """

@@ -2,6 +2,7 @@ import logging
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 def log_exceptions(fn):
     """
     Decorator to wrap a function in a try-catch that logs the exception.

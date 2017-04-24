@@ -37,47 +37,60 @@ LOGGER = logging.getLogger('archivematica.dashboard')
       Rights-related
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
+
 def transfer_rights_list(request, uuid):
     return rights_list(request, uuid, 'transfer')
+
 
 def transfer_rights_edit(request, uuid, id=None):
     return rights_edit(request, uuid, id, 'transfer')
 
+
 def transfer_rights_delete(request, uuid, id):
     return rights_delete(request, uuid, id, 'transfer')
+
 
 def transfer_grant_delete_context(request, uuid, id):
     prompt = 'Delete rights grant?'
     cancel_url = reverse("components.rights.views.transfer_rights_list", args=[uuid])
     return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
 
+
 @decorators.confirm_required('simple_confirm.html', transfer_grant_delete_context)
 def transfer_rights_grant_delete(request, uuid, id):
     return rights_grant_delete(request, uuid, id, 'transfer')
 
+
 def transfer_rights_grants_edit(request, uuid, id):
     return rights_grants_edit(request, uuid, id, 'transfer')
+
 
 def ingest_rights_list(request, uuid):
     return rights_list(request, uuid, 'ingest')
 
+
 def ingest_rights_edit(request, uuid, id=None):
     return rights_edit(request, uuid, id, 'ingest')
 
+
 def ingest_rights_delete(request, uuid, id):
     return rights_delete(request, uuid, id, 'ingest')
+
 
 def ingest_grant_delete_context(request, uuid, id):
     prompt = 'Delete rights grant?'
     cancel_url = reverse("components.rights.views.ingest_rights_list", args=[uuid])
     return RequestContext(request, {'action': 'Delete', 'prompt': prompt, 'cancel_url': cancel_url})
 
+
 @decorators.confirm_required('simple_confirm.html', ingest_grant_delete_context)
 def ingest_rights_grant_delete(request, uuid, id):
     return rights_grant_delete(request, uuid, id, 'ingest')
 
+
 def ingest_rights_grants_edit(request, uuid, id):
     return rights_grants_edit(request, uuid, id, 'ingest')
+
 
 def rights_parse_agent_id(input):
     return 0
@@ -96,6 +109,7 @@ def rights_parse_agent_id(input):
             else:
                 agentId = 0
     return agentId
+
 
 def rights_edit(request, uuid, id=None, section='ingest'):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
@@ -421,6 +435,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
 
     return render(request, 'rights/rights_edit.html', locals())
 
+
 def rights_grants_edit(request, uuid, id, section='ingest'):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     name = utils.get_directory_name_from_job(jobs)
@@ -501,13 +516,16 @@ def rights_grants_edit(request, uuid, id, section='ingest'):
     else:
         return render(request, 'rights/rights_grants_edit.html', locals())
 
+
 def rights_delete(request, uuid, id, section):
     models.RightsStatement.objects.get(pk=id).delete()
     return redirect('components.rights.views.%s_rights_list' % section, uuid)
 
+
 def rights_grant_delete(request, uuid, id, section):
     models.RightsStatementRightsGranted.objects.get(pk=id).delete()
     return redirect('components.rights.views.%s_rights_list' % section, uuid)
+
 
 def rights_holders_lookup(request, id):
     try:
@@ -516,6 +534,7 @@ def rights_holders_lookup(request, id):
     except:
         result = ''
     return HttpResponse(result)
+
 
 def rights_holders_autocomplete(request):
 
@@ -534,6 +553,7 @@ def rights_holders_autocomplete(request):
         response[value] = value
 
     return helpers.json_response(response)
+
 
 def rights_list(request, uuid, section):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')

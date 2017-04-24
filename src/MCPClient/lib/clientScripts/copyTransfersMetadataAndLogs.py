@@ -89,6 +89,7 @@ def main(sipUUID, transfersMetadataDirectory, transfersLogsDirectory, sharedPath
 
     sys.exit(exitCode)
 
+
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.copyTransfersMetadataAndLogs")
 

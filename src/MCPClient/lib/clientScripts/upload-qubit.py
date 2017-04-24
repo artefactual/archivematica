@@ -240,6 +240,7 @@ def start(data):
 
     # We also have to parse the XML document
 
+
 if __name__ == '__main__':
     parser = optparse.OptionParser(usage='Usage: %prog [options]')
 

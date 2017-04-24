@@ -27,8 +27,10 @@ from dicts import ReplacementDict
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 class unitFile(object):
     """For objects representing a File"""
+
     def __init__(self, currentPath, UUID="None", owningUnit=None):
         self.currentPath = currentPath
         self.UUID = UUID

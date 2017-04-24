@@ -108,6 +108,7 @@ class Command(object):
                 self.on_success(self, self.opts, self.replacement_dict)
         return self.exit_code
 
+
 class CommandLinker(object):
     def __init__(self, fprule, command, replacement_dict, opts, on_success):
         self.fprule = fprule

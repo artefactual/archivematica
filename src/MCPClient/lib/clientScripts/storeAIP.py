@@ -137,7 +137,6 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
         logging.warning("{} unabled to be created: {}.  See logs for more details.".format(sip_type, error_msg))
         sys.exit(1)
 
-
     # FIXME this should be moved to the storage service and areas that rely
     # on the thumbnails should be updated
 
@@ -153,6 +152,7 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     # thumbnails = os.listdir(thumbnailSourceDir)
     # for filename in thumbnails:
     #     shutil.copy(os.path.join(thumbnailSourceDir, filename), thumbnailDestDir)
+
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.storeAIP")

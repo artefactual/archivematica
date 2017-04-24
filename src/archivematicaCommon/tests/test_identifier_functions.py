@@ -7,6 +7,7 @@ import identifier_functions
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.join(THIS_DIR, 'fixtures')
 
+
 class TestIdentifierFunctions(unittest.TestCase):
     """Test extracting additional identifiers for indexing."""
 

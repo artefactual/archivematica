@@ -51,8 +51,10 @@ date = sys.argv[4]
 currentDirectory = ""
 exitCode = 0
 
+
 def callWithException(exception):
     traceback
+
 
 def getTimedeltaFromRetensionSchedule(RetentionSchedule):
     ret = 0
@@ -90,6 +92,7 @@ def getDateTimeFromDateClosed(dateClosed):
         return dateClosedDT
     return dateClosedDT
 
+
 for dir in os.listdir(transferPath):
     dirPath = os.path.join(transferPath, dir)
     if not os.path.isdir(dirPath):
@@ -118,7 +121,6 @@ for dir in os.listdir(transferPath):
     # make end time end of year
     endTimeEndOfYearDiff = datetime(endTime.year, 12, 31) - endTime
     endTime = endTime + endTimeEndOfYearDiff
-
 
     indexForOnlyDate = 10
     startTime = startTime.__str__()[:indexForOnlyDate]

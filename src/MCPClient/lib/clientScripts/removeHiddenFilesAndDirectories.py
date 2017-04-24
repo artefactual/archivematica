@@ -45,7 +45,6 @@ def removeHiddenFilesFromDirectory(dir):
             print("Not file or directory: ", fullPath, file=sys.stderr)
 
 
-
 if __name__ == '__main__':
     transferDirectory = sys.argv[1]
     removeHiddenFilesFromDirectory(transferDirectory)

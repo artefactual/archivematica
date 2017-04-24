@@ -5,6 +5,7 @@
 from __future__ import print_function
 import os
 
+
 def detectCPUs():
     """
     Detects the number of CPUs on a system. Cribbed from pp.
@@ -22,6 +23,7 @@ def detectCPUs():
     if ncpus > 0:
         return ncpus
     return 1  # Default
+
 
 if __name__ == '__main__':
     print(detectCPUs())

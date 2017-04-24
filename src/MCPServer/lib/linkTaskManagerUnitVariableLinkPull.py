@@ -27,6 +27,7 @@ choicesAvailableForUnits = {}
 
 from main.models import TaskConfigUnitVariableLinkPull, Job
 
+
 class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerUnitVariableLinkPull, self).__init__(jobChainLink, pk, unit)

@@ -18,6 +18,7 @@ import identifier_functions
 import django
 django.setup()
 
+
 def get_identifiers(sip_path):
     """Get additional identifiers to index."""
     identifiers = []

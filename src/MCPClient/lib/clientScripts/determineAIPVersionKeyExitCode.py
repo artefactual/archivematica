@@ -43,6 +43,7 @@ def get_version_from_mets(mets):
         return agent.findtext(ns.metsBNS + "agentIdentifierValue")
     return None
 
+
 if __name__ == '__main__':
     sip_uuid = sys.argv[1]
     unit_path = sys.argv[2]

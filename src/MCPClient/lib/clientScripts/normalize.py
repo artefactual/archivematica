@@ -32,6 +32,7 @@ SUCCESS = 0
 RULE_FAILED = 1
 NO_RULE_FOUND = 2
 
+
 def get_replacement_dict(opts):
     """ Generates values for all knows %var% replacement variables. """
     prefix = ""
@@ -148,6 +149,7 @@ def check_manual_normalization(opts):
         # No file with the correct path found, assume not manually normalized
         return None
     return None
+
 
 def once_normalized(command, opts, replacement_dict):
     """ Updates the database if normalization completed successfully.
@@ -266,8 +268,10 @@ def insert_derivation_event(original_uuid, output_uuid, derivation_uuid,
         relatedEventUUID=derivation_uuid,
     )
 
+
 def get_default_rule(purpose):
     return FPRule.active.get(purpose='default_' + purpose)
+
 
 def main(opts):
     """ Find and execute normalization commands on input file. """

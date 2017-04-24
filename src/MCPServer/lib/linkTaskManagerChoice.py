@@ -46,8 +46,10 @@ waitingOnTimer = "waitingOnTimer"
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 class linkTaskManagerChoice(LinkTaskManager):
     """Used to get a selection, from a list of chains, to process"""
+
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerChoice, self).__init__(jobChainLink, pk, unit)
         self.choices = []

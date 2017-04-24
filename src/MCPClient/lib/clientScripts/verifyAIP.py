@@ -72,6 +72,7 @@ def verify_aip():
         shutil.rmtree(extract_dir)
     return return_code
 
+
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.verifyAIP")
 

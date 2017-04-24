@@ -63,6 +63,7 @@ logger = logging.getLogger('archivematica.dashboard')
       Ingest
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
+
 def ingest_grid(request):
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
@@ -75,6 +76,7 @@ def ingest_grid(request):
 
     return render(request, 'ingest/grid.html', locals())
 
+
 class SipsView(View):
     def post(self, request):
         """
@@ -86,6 +88,7 @@ class SipsView(View):
             "id": sip.uuid,
         })
 
+
 def ingest_status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs WHERE unitType='unitSIP' GROUP BY SIPUUID
     objects = models.Job.objects.filter(hidden=False, subjobof='').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains='None').filter(unittype__exact='unitSIP')
@@ -96,6 +99,7 @@ def ingest_status(request, uuid=None):
         mcp_available = True
     except Exception:
         pass
+
     def encoder(obj):
         items = []
         for item in obj:
@@ -144,8 +148,10 @@ def ingest_status(request, uuid=None):
         content_type='application/json'
     )
 
+
 def ingest_sip_metadata_type_id():
     return helpers.get_metadata_type_id_by_description('SIP')
+
 
 @decorators.load_jobs  # Adds jobs, name
 def ingest_metadata_list(request, uuid, jobs, name):
@@ -156,6 +162,7 @@ def ingest_metadata_list(request, uuid, jobs, name):
     )
 
     return render(request, 'ingest/metadata_list.html', locals())
+
 
 def ingest_metadata_edit(request, uuid, id=None):
     if id:
@@ -252,6 +259,7 @@ def aic_metadata_add(request, uuid):
     aic = True
     return render(request, 'ingest/metadata_edit.html', locals())
 
+
 def ingest_metadata_event_detail(request, uuid):
     EventDetailFormset = modelformset_factory(models.Event, form=forms.EventDetailForm, extra=0)
     manual_norm_files = models.File.objects.filter(sip=uuid).filter(originallocation__icontains='manualNormalization/preservation')
@@ -273,9 +281,11 @@ def ingest_metadata_event_detail(request, uuid):
     name = utils.get_directory_name_from_job(jobs)
     return render(request, 'ingest/metadata_event_detail.html', locals())
 
+
 def delete_context(request, uuid, id):
     cancel_url = reverse("components.ingest.views.ingest_metadata_list", args=[uuid])
     return RequestContext(request, {'action': 'Delete', 'prompt': _('Are you sure you want to delete this metadata?'), 'cancel_url': cancel_url})
+
 
 @decorators.confirm_required('simple_confirm.html', delete_context)
 def ingest_metadata_delete(request, uuid, id):
@@ -285,6 +295,7 @@ def ingest_metadata_delete(request, uuid, id):
         return redirect('components.ingest.views.ingest_metadata_list', uuid)
     except:
         raise Http404
+
 
 def ingest_upload_destination_url_check(request):
     settings = models.DashboardSetting.objects.get_dict('upload-qubit_v0.0')
@@ -298,6 +309,7 @@ def ingest_upload_destination_url_check(request):
 
     # return resulting status code from request
     return HttpResponse(response.status_code)
+
 
 def ingest_upload(request, uuid):
     """
@@ -335,6 +347,7 @@ def ingest_upload(request, uuid):
 
     return HttpResponseBadRequest()
 
+
 def ingest_normalization_report(request, uuid, current_page=None):
     jobs = models.Job.objects.filter(sipuuid=uuid, subjobof='')
     sipname = utils.get_directory_name_from_job(jobs)
@@ -352,6 +365,7 @@ def ingest_normalization_report(request, uuid, current_page=None):
     hit_count = len(objects)
 
     return render(request, 'ingest/normalization_report.html', locals())
+
 
 def ingest_browse(request, browse_type, jobuuid):
     watched_dir = helpers.get_server_config_value('watchDirectoryPath')
@@ -371,6 +385,7 @@ def ingest_browse(request, browse_type, jobuuid):
     name = utils.get_directory_name_from_job(jobs)
 
     return render(request, 'ingest/aip_browse.html', locals())
+
 
 def _es_results_to_directory_tree(path, return_list, not_draggable=False):
     # Helper function for transfer_backlog
@@ -405,6 +420,7 @@ def _es_results_to_directory_tree(path, return_list, not_draggable=False):
         # If any children of a dir are draggable, the whole dir should be
         # Otherwise, directories have the draggability of their first child
         this_node['properties']['not_draggable'] = this_node['properties']['not_draggable'] and not_draggable
+
 
 def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_draggable=False):
     """

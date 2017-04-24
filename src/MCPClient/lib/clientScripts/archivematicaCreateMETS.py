@@ -116,6 +116,8 @@ def each_child(path, file_group_identifier, base_path, base_path_name, sip_uuid)
 # Do /SIP-UUID/
 # Force only /SIP-UUID/objects
 doneFirstRun = False
+
+
 def createFileSec(path, file_group_identifier, base_path, base_path_name, parentBranch, structMapParent, sip_uuid):
     print("createFileSec: ", path, parentBranch, structMapParent, file=sys.stderr)
     doneFirstRun = True
@@ -174,6 +176,7 @@ def createFileSec(path, file_group_identifier, base_path, base_path_name, parent
             else:
                 div = newChild(structMapParent, ns.metsBNS + "div")
                 createFileSec(os.path.join(path, item), file_group_identifier, base_path, base_path_name, parentBranch, div, sip_uuid)
+
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.createMETS")

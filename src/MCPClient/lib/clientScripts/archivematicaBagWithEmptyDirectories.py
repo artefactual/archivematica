@@ -50,6 +50,7 @@ def run_bag(arguments):
         print(std_out)
         print(std_err, file=sys.stderr)
 
+
 def get_sip_directories(sip_dir):
     """ Get a list of directories in the SIP, to be created after bagged. """
     directory_list = []
@@ -62,6 +63,7 @@ def get_sip_directories(sip_dir):
         print("\t", sip_dir)
     return directory_list
 
+
 def create_directories(base_dir, dir_list):
     """ Create all the SIP's directories in the bag's data/ folder.
 
@@ -73,6 +75,7 @@ def create_directories(base_dir, dir_list):
             os.makedirs(directory)
         except os.error:
             pass
+
 
 def bag_with_empty_directories(operation, destination, sip_directory, payload_entries, writer, algorithm):
     """ Run bagit create bag command, and create any empty directories from the SIP. """
@@ -96,6 +99,7 @@ def bag_with_empty_directories(operation, destination, sip_directory, payload_en
     # Run bagit bag creator
     run_bag(bagit_args)
     create_directories(os.path.join(destination, "data"), dir_list)
+
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.bagWithEmptyDirectories")

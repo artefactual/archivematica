@@ -39,6 +39,7 @@ import sys
 import email
 import os
 
+
 def maildir2mailbox(maildirname, mboxfilename):
     """
     slightly adapted from maildir2mbox.py,
@@ -61,6 +62,7 @@ def maildir2mailbox(maildirname, mboxfilename):
     # close and unlock
     mbox.close()
     maildir.close()
+
 
 def maildir2mailbox2(dirname, mboxname):
     # mboxdirname=mboxname+'.sbd'

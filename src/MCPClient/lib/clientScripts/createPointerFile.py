@@ -224,6 +224,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     )
     return 0
 
+
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.createPointerFile")
 

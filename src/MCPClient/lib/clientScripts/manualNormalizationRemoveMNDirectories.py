@@ -40,6 +40,7 @@ manual_normalization_dir = os.path.join(SIPDirectory, "objects", "manualNormaliz
 
 errorCount = 0
 
+
 def recursivelyRemoveEmptyDirectories(dir):
     error_count = 0
     for root, dirs, files in os.walk(dir, topdown=False):
@@ -51,6 +52,7 @@ def recursivelyRemoveEmptyDirectories(dir):
                     directory, e.args), file=sys.stderr)
                 error_count += 1
     return error_count
+
 
 if os.path.isdir(manual_normalization_dir):
     # Delete normalization.csv if present

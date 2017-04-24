@@ -30,6 +30,7 @@ import re
 # archivematicaCommon
 from archivematicaFunctions import unicodeToStr
 
+
 def replace_string_values(string, **kwargs):
     """
     Replace standard Archivematica variables in a string given data from
@@ -225,6 +226,7 @@ class ChoicesDict(ReplacementDict):
         See ReplacementDict.fromstring.
         """
         return ChoicesDict(ast.literal_eval(s))
+
 
 # We can't guarantee this is being run from an actual
 # Archivematica installation if this is being run via

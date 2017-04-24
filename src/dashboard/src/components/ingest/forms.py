@@ -19,6 +19,7 @@ from django import forms
 from main import models
 from django.conf import settings
 
+
 class DublinCoreMetadataForm(forms.ModelForm):
     class Meta:
         model = models.DublinCore
@@ -64,6 +65,7 @@ class DublinCoreMetadataForm(forms.ModelForm):
         if data and not data.startswith(self.aic_prefix):
             data = self.aic_prefix + data
         return data
+
 
 class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
     class Meta:

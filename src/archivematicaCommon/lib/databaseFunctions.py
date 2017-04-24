@@ -36,9 +36,11 @@ from main.models import Agent, Derivation, Event, File, FPCommandOutput, Job, SI
 
 LOGGER = logging.getLogger('archivematica.common')
 
+
 def getUTCDate():
     """Returns a timezone-aware representation of the current datetime in UTC."""
     return timezone.now()
+
 
 def getDeciDate(date):
     valid = "." + string.digits
@@ -49,6 +51,7 @@ def getDeciDate(date):
         # else:
         #     ret += replacementChar
     return str("{:10.10f}".format(float(ret)))
+
 
 def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="", sipUUID="", use="original"):
     """
@@ -84,6 +87,7 @@ def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="", sip
         raise Exception("not supported yet - both SIP and transfer UUID's defined (or neither defined)", sipUUID + "-" + transferUUID)
 
     File.objects.create(**kwargs)
+
 
 def getAMAgentsForFile(fileUUID):
     """
@@ -125,6 +129,7 @@ def getAMAgentsForFile(fileUUID):
     agents.extend(am_agents)
     return agents
 
+
 def insertIntoEvents(fileUUID, eventIdentifierUUID="", eventType="", eventDateTime=None, eventDetail="", eventOutcome="", eventOutcomeDetailNote="", agents=None):
     """
     Creates a new entry in the Events table using the supplied arguments.
@@ -159,6 +164,7 @@ def insertIntoEvents(fileUUID, eventIdentifierUUID="", eventType="", eventDateTi
     # Splat agents list into multiple arguments
     event.agents.add(*agents)
 
+
 def insertIntoDerivations(sourceFileUUID, derivedFileUUID, relatedEventUUID=None):
     """
     Creates a new entry in the Derivations table using the supplied arguments. The two files in this relationship should already exist in the Files table.
@@ -175,6 +181,7 @@ def insertIntoDerivations(sourceFileUUID, derivedFileUUID, relatedEventUUID=None
     Derivation.objects.create(source_file_id=sourceFileUUID,
                               derived_file_id=derivedFileUUID,
                               event_id=relatedEventUUID)
+
 
 def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
     """
@@ -216,6 +223,7 @@ def logTaskCreatedSQL(taskManager, commandReplacementDic, taskUUID, arguments):
                         execution=taskexec,
                         arguments=arguments,
                         createdtime=getUTCDate())
+
 
 def logTaskCompletedSQL(task):
     """
@@ -269,6 +277,7 @@ def logJobCreatedSQL(job):
 
     # TODO -un hardcode executing exeCommand
 
+
 def fileWasRemoved(fileUUID, utcDate=None, eventDetail="", eventOutcomeDetailNote="", eventOutcome=""):
     """
     Logs the removal of a file from the database.
@@ -299,6 +308,7 @@ def fileWasRemoved(fileUUID, utcDate=None, eventDetail="", eventOutcomeDetailNot
     f.currentlocation = None
     f.save()
 
+
 def createSIP(path, UUID=None, sip_type='SIP'):
     """
     Create a new SIP object for a SIP at the given path.
@@ -318,6 +328,7 @@ def createSIP(path, UUID=None, sip_type='SIP'):
     sip.save()
 
     return UUID
+
 
 def getAccessionNumberFromTransfer(UUID):
     """

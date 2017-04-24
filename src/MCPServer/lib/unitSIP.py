@@ -33,6 +33,7 @@ from dicts import ReplacementDict
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 class unitSIP(unit):
     def __init__(self, currentPath, UUID):
         self.currentPath = currentPath.__str__()

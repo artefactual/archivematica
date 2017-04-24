@@ -47,14 +47,17 @@ MANUAL_NORMALIZATION_DIRECTORIES = [
     "objects/manualNormalization/preservation",
 ]
 
+
 def get_setting(setting, default=''):
     try:
         return DashboardSetting.objects.get(name=setting).value
     except DashboardSetting.DoesNotExist:
         return default
 
+
 def get_dashboard_uuid():
     return get_setting('dashboard_uuid', default=None)
+
 
 class OrderedListsDict(collections.OrderedDict):
     """
@@ -74,6 +77,7 @@ def unicodeToStr(string):
     if isinstance(string, unicode):
         string = string.encode("utf-8")
     return string
+
 
 def strToUnicode(string, obstinate=False):
     if isinstance(string, str):
@@ -96,6 +100,7 @@ def getTagged(root, tag):
             ret.append(element)
     return ret
 
+
 def escapeForCommand(string):
     ret = string
     if isinstance(ret, basestring):
@@ -109,6 +114,8 @@ def escapeForCommand(string):
 # This replaces non-unicode characters with a replacement character,
 # and is primarily used for arbitrary strings (e.g. filenames, paths)
 # that might not be valid unicode to begin with.
+
+
 def escape(string):
     if isinstance(string, str):
         string = string.decode('utf-8', errors='replace')
@@ -124,6 +131,7 @@ def normalizeNonDcElementName(string):
     # Lower case string.
     normalizedString = normalizedString.lower()
     return normalizedString
+
 
 def get_file_checksum(filename, algorithm='sha256'):
     """
@@ -143,6 +151,7 @@ def get_file_checksum(filename, algorithm='sha256'):
             h.update(chunk)
 
     return h.hexdigest()
+
 
 def find_metadata_files(sip_path, filename, only_transfers=False):
     """
@@ -175,6 +184,7 @@ def find_metadata_files(sip_path, filename, only_transfers=False):
             paths.append(path)
     return paths
 
+
 def create_directories(directories, basepath='', printing=False):
     for directory in directories:
         dir_path = os.path.join(basepath, directory)
@@ -182,6 +192,7 @@ def create_directories(directories, basepath='', printing=False):
             os.makedirs(dir_path)
             if printing:
                 print('Creating directory', dir_path)
+
 
 def create_structured_directory(basepath, manual_normalization=False, printing=False):
     create_directories(REQUIRED_DIRECTORIES, basepath=basepath, printing=printing)

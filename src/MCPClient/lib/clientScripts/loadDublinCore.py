@@ -34,6 +34,7 @@ def main(sip_uuid, dc_path):
     dc.save()
     return 0
 
+
 if __name__ == '__main__':
     sip_uuid = sys.argv[1]
     dc_path = sys.argv[2]

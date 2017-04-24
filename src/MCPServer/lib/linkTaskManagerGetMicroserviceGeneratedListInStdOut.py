@@ -36,6 +36,7 @@ from main.models import StandardTaskConfig
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 class linkTaskManagerGetMicroserviceGeneratedListInStdOut(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerGetMicroserviceGeneratedListInStdOut, self).__init__(jobChainLink, pk, unit)

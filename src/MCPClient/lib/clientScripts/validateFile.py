@@ -82,6 +82,7 @@ def main(file_path, file_uuid, sip_uuid):
     else:
         return 0
 
+
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.validateFile")
 

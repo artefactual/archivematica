@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 from django.conf import settings
 
+
 def data_migration(apps, schema_editor):
     Agent = apps.get_model('main', 'Agent')
     Event = apps.get_model('main', 'Event')

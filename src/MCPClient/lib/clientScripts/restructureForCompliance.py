@@ -128,6 +128,7 @@ def restructure_transfer_aip(unit_path):
     # Get rid of old_bag
     shutil.rmtree(old_bag)
 
+
 if __name__ == '__main__':
     sip_path = sys.argv[1]
     sip_uuid = sys.argv[2]

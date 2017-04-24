@@ -25,6 +25,7 @@ from main import models
 
 LOGGER = logging.getLogger('archivematica.dashboard')
 
+
 def detail(request, unit_type, unit_uuid):
     """
     Display detailed information about the unit.
@@ -46,6 +47,7 @@ def detail(request, unit_type, unit_uuid):
         context['set_uuid'] = set_uuid
     return render(request, unit_type + '/detail.html', context)
 
+
 def microservices(request, unit_type, unit_uuid):
     """
     Display information about what microservices have run.
@@ -62,6 +64,7 @@ def microservices(request, unit_type, unit_uuid):
         'uuid': unit_uuid,
         'unit_type': unit_type,
     })
+
 
 def mark_hidden(request, unit_type, unit_uuid):
     """

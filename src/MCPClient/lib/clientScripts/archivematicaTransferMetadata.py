@@ -18,6 +18,7 @@ def fetch_set(sip_uuid):
     transfer = Transfer.objects.get(uuid=sip_uuid)
     return transfer.transfermetadatasetrow
 
+
 def fetch_fields_and_values(sip_uuid):
     metadata_set = fetch_set(sip_uuid)
     if metadata_set is None:
@@ -27,10 +28,12 @@ def fetch_fields_and_values(sip_uuid):
 
     return results
 
+
 def build_element(label, value, root):
     element = etree.SubElement(root, label)
     element.text = value
     return element
+
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.transferMetadata")

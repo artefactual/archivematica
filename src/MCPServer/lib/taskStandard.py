@@ -44,6 +44,8 @@ LOGGER = logging.getLogger('archivematica.mcp.server')
 # This relationship is formed by storing a pointer to it's owning job in its job variable.
 # They use a "replacement dictionary" to define variables for this task.
 # Variables used for the task are defined in the Job's configuration/module (The xml file)
+
+
 class taskStandard():
     """A task to hand to gearman"""
 

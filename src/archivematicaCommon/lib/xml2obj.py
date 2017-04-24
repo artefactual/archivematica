@@ -3,10 +3,12 @@ import re
 import xml.sax.handler
 from collections import defaultdict
 
+
 class Tree(defaultdict):
     def __init__(self, value=None):
         super(Tree, self).__init__(Tree)
         self.value = value
+
 
 def mets_file(src):
     raw = xml2obj(open(src))
@@ -33,6 +35,7 @@ def mets_file(src):
 
     return mets
 
+
 def test_mets(src):
     mets = mets_file(src)
     for f in mets:
@@ -40,12 +43,14 @@ def test_mets(src):
         for p in mets[f]['premis']:
             print("{} rights = {} {}".format(p, mets[f]['premis'][p]['restriction'], mets[f]['premis'][p]['rightsGrantedNote']))
 
+
 def xml2obj(src):
     """
     A simple function to converts XML data into native Python object.
     """
 
     non_id_char = re.compile('[^_0-9a-zA-Z]')
+
     def _name_mangle(name):
         return non_id_char.sub('_', name)
 
@@ -53,23 +58,29 @@ def xml2obj(src):
         def __init__(self):
             self._attrs = {}    # XML attributes and child elements
             self.data = None    # child text data
+
         def __len__(self):
             # treat single element as a list of 1
             return 1
+
         def __getitem__(self, key):
             if isinstance(key, basestring):
                 return self._attrs.get(key, None)
             else:
                 return [self][key]
+
         def __contains__(self, name):
             return name in self._attrs
+
         def __nonzero__(self):
             return bool(self._attrs or self.data)
+
         def __getattr__(self, name):
             if name.startswith('__'):
                 # need to do this for Python special methods???
                 raise AttributeError(name)
             return self._attrs.get(name, None)
+
         def _add_xml_attr(self, name, value):
             if name in self._attrs:
                 # multiple attribute of the same name are represented by a list
@@ -80,8 +91,10 @@ def xml2obj(src):
                 children.append(value)
             else:
                 self._attrs[name] = value
+
         def __str__(self):
             return self.data or ''
+
         def __repr__(self):
             items = sorted(self._attrs.items())
             if self.data:
@@ -94,6 +107,7 @@ def xml2obj(src):
             self.root = DataNode()
             self.current = self.root
             self.text_parts = []
+
         def startElement(self, name, attrs):
             self.stack.append((self.current, self.text_parts))
             self.current = DataNode()
@@ -101,6 +115,7 @@ def xml2obj(src):
             # xml attributes --> python attributes
             for k, v in attrs.items():
                 self.current._add_xml_attr(_name_mangle(k), v)
+
         def endElement(self, name):
             text = ''.join(self.text_parts).strip()
             if text:
@@ -112,6 +127,7 @@ def xml2obj(src):
                 obj = text or ''
             self.current, self.text_parts = self.stack.pop()
             self.current._add_xml_attr(_name_mangle(name), obj)
+
         def characters(self, content):
             self.text_parts.append(content)
 

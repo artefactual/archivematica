@@ -552,6 +552,8 @@ def reingest(request, target):
         return helpers.json_response(response)
 
 # TODO should this have auth?  Does it support GET?
+
+
 @_api_endpoint(expected_methods=['POST'])
 def copy_metadata_files_api(request):
     """
@@ -562,6 +564,8 @@ def copy_metadata_files_api(request):
     return filesystem_ajax_views.copy_metadata_files(sip_uuid, paths)
 
 # TODO should this have auth?
+
+
 @_api_endpoint(expected_methods=['GET'])
 def get_levels_of_description(request):
     """
@@ -575,6 +579,8 @@ def get_levels_of_description(request):
     return helpers.json_response(response)
 
 # TODO should this have auth?
+
+
 @_api_endpoint(expected_methods=['GET'])
 def fetch_levels_of_description_from_atom(request):
     """
@@ -599,6 +605,8 @@ def fetch_levels_of_description_from_atom(request):
         return get_levels_of_description(request)
 
 # TODO should this have auth?
+
+
 @_api_endpoint(expected_methods=['GET', 'POST'])
 def path_metadata(request):
     """

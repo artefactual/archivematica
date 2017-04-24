@@ -105,6 +105,7 @@ def getTrimFileDmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
 
     return ret
 
+
 def getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
     ret = etree.Element(ns.metsBNS + "digiprovMD")
 
@@ -121,6 +122,7 @@ def getTrimFileAmdSec(baseDirectoryPath, fileGroupIdentifier, fileUUID):
         attrib = {"LABEL": label, ns.xlinkBNS + "href": f.currentlocation.replace("%SIPDirectory%", "", 1), "MDTYPE": "OTHER", "OTHERMDTYPE": "CUSTOM", 'LOCTYPE': "OTHER", 'OTHERLOCTYPE': "SYSTEM"}
         etree.SubElement(ret, ns.metsBNS + "mdRef", attrib=attrib)
     return ret
+
 
 def getTrimAmdSec(baseDirectoryPath, fileGroupIdentifier):
     ret = etree.Element(ns.metsBNS + "digiprovMD")

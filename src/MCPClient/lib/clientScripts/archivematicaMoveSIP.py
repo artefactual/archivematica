@@ -34,8 +34,10 @@ from main.models import SIP
 from custom_handlers import get_script_logger
 from fileOperations import renameAsSudo
 
+
 def updateDB(dst, sip_uuid):
     SIP.objects.filter(uuid=sip_uuid).update(currentpath=dst)
+
 
 def moveSIP(src, dst, sipUUID, sharedDirectoryPath):
     # Prepare paths
@@ -56,6 +58,7 @@ def moveSIP(src, dst, sipUUID, sharedDirectoryPath):
         shutil.rmtree(dest_path)
 
     renameAsSudo(src, dst)
+
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.moveSIP")

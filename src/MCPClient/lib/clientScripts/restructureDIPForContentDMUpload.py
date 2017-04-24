@@ -35,6 +35,7 @@ import archivematicaFunctions
 from custom_handlers import get_script_logger
 import namespaces as ns
 
+
 def parseDmdSec(dmdSec, label='[Placeholder title]'):
     """
     Parses a dmdSec into a dict with child tag names and their values
@@ -222,6 +223,7 @@ def generate_project_client_package(output_dir, package_type, structmap, dmdsecs
             writer.writerow(csv_values)
             print('Values:', csv_values)
     return 0
+
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.restrutureDIPForContentDMUpload")

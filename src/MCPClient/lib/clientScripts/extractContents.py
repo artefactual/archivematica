@@ -22,6 +22,7 @@ from hasPackages import already_extracted
 
 file_path_cache = {}
 
+
 def output_directory(file_path, date):
     if file_path_cache.get(file_path):
         return file_path_cache[file_path]
@@ -30,10 +31,12 @@ def output_directory(file_path, date):
         file_path_cache[file_path] = path
         return path
 
+
 def tree(root):
     for dirpath, dirs, files in os.walk(root):
         for file in files:
             yield os.path.join(dirpath, file)
+
 
 def assign_uuid(filename, package_uuid, transfer_uuid, date, task_uuid, sip_directory, package_filename):
     file_uuid = uuid.uuid4().__str__()
@@ -48,11 +51,13 @@ def assign_uuid(filename, package_uuid, transfer_uuid, date, task_uuid, sip_dire
     print('Assigning new file UUID:', file_uuid, 'to file', filename,
           file=sys.stderr)
 
+
 def delete_and_record_package_file(file_path, file_uuid, current_location):
     os.remove(file_path)
     print("Package removed: " + file_path)
     event_detail_note = "removed from: " + current_location
     fileWasRemoved(file_uuid, eventDetail=event_detail_note)
+
 
 def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
     files = File.objects.filter(transfer=transfer_uuid, removedtime__isnull=True)
@@ -140,6 +145,7 @@ def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
         return 0
     else:
         return -1
+
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.extractContents")

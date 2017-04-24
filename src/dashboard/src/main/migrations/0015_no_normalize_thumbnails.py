@@ -9,6 +9,7 @@ def data_migration(apps, schema_editor):
     # Do not Normalize generate thumbnails should use original not service
     StandardTaskConfig.objects.filter(id='26309e7d-6435-4700-9171-131005f29cbb').update(arguments='thumbnail "%fileUUID%" "%relativeLocation%" "%SIPDirectory%" "%SIPUUID%" "%taskUUID%" "original"')
 
+
 class Migration(migrations.Migration):
 
     dependencies = [

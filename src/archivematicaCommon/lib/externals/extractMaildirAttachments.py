@@ -85,6 +85,7 @@ def parse_attachment(message_part, attachments=None):
             sharedVariablesAcrossModules.errorCounter += 1
     return None
 
+
 def parse(content):
     """
     Eメールのコンテンツを受け取りparse,encodeして返す
@@ -93,6 +94,7 @@ def parse(content):
     msgobj = p.parse(content)
     attachments = []
     return parse2(msgobj, attachments)
+
 
 def parse2(msgobj, attachments=None):
     if msgobj['Subject'] is not None:

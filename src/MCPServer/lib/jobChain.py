@@ -39,6 +39,7 @@ from main.models import MicroServiceChain, UnitVariable
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 def fetchUnitVariableForUnit(unit_uuid):
     """
     Returns a dict combining all of the replacementDict unit variables for the
@@ -53,6 +54,7 @@ def fetchUnitVariableForUnit(unit_uuid):
         results.update(rd)
 
     return results
+
 
 class jobChain:
     def __init__(self, unit, chainPK, notifyComplete=None, passVar=None, UUID=None, subJobOf=""):

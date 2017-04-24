@@ -31,12 +31,14 @@ requiredDirectories = ["objects", \
                        "metadata/submissionDocumentation"]
 allowableFiles = ["processingMCP.xml"]
 
+
 def verifyDirectoriesExist(SIPDir, ret=0):
     for directory in requiredDirectories:
         if not os.path.isdir(os.path.join(SIPDir, directory)):
             print("Required Directory Does Not Exist: " + directory, file=sys.stderr)
             ret += 1
     return ret
+
 
 def verifyNothingElseAtTopLevel(SIPDir, ret=0):
     for entry in os.listdir(SIPDir):
@@ -49,6 +51,7 @@ def verifyNothingElseAtTopLevel(SIPDir, ret=0):
                 print("Error, file exists: " + entry, file=sys.stderr)
                 ret += 1
     return ret
+
 
 if __name__ == '__main__':
     SIPDir = sys.argv[1]

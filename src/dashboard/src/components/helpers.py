@@ -37,14 +37,19 @@ from main import models
 
 logger = logging.getLogger('archivematica.dashboard')
 
+
 class AtomError(Exception):
     pass
 
 # Used for debugging
+
+
 def pr(object):
     return pprint.pformat(object)
 
 # Used for raw SQL queries to return data in dictionaries instead of lists
+
+
 def dictfetchall(cursor):
     "Returns all rows from a cursor as a dict"
     desc = cursor.description
@@ -52,6 +57,7 @@ def dictfetchall(cursor):
         dict(zip([col[0] for col in desc], row))
         for row in cursor.fetchall()
     ]
+
 
 def keynat(string):
     r'''A natural sort helper function for sort() and sorted()
@@ -75,6 +81,7 @@ def keynat(string):
         else:
             r.append(c.lower())
     return r
+
 
 def json_response(data, status_code=200):
     return HttpResponse(
@@ -135,9 +142,11 @@ def pager(objects, items_per_page, current_page_number):
 
     return page
 
+
 def get_file_sip_uuid(fileuuid):
     file = models.File.objects.get(uuid=fileuuid)
     return file.sip.uuid
+
 
 def task_duration_in_seconds(task):
     if task.endtime is not None:
@@ -148,8 +157,10 @@ def task_duration_in_seconds(task):
         duration = '< 1'
     return duration
 
+
 def get_metadata_type_id_by_description(description):
     return models.MetadataAppliesToType.objects.get(description=description)
+
 
 def get_setting(setting, default=''):
     try:
@@ -158,12 +169,14 @@ def get_setting(setting, default=''):
     except:
         return default
 
+
 def get_boolean_setting(setting, default=''):
     setting = get_setting(setting, default)
     if setting == 'False':
         return False
     else:
         return bool(setting)
+
 
 def set_setting(setting, value=''):
     try:
@@ -175,6 +188,7 @@ def set_setting(setting, value=''):
     setting_data.value = value
     setting_data.save()
 
+
 def get_client_config_value(field):
     clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
     config = ConfigParser.SafeConfigParser()
@@ -185,6 +199,7 @@ def get_client_config_value(field):
     except:
         return ''
 
+
 def get_server_config_value(field):
     clientConfigFilePath = '/etc/archivematica/MCPServer/serverConfig.conf'
     config = ConfigParser.SafeConfigParser()
@@ -194,6 +209,7 @@ def get_server_config_value(field):
         return config.get('MCPServer', field)
     except:
         return ''
+
 
 def get_atom_levels_of_description(clear=True):
     """
@@ -215,7 +231,6 @@ def get_atom_levels_of_description(clear=True):
     if not email or not password:
         raise AtomError(_("AtoM authentication settings not defined!"))
     auth = (email, password)
-
 
     # taxonomy 34 is "level of description"
     dest = urljoin(url, 'api/taxonomies/34')
@@ -240,6 +255,7 @@ def redirect_with_get_params(url_name, *args, **kwargs):
     params = urllib.urlencode(kwargs)
     return HttpResponseRedirect(url + "?%s" % params)
 
+
 def send_file_or_return_error_response(request, filepath, content_type, verb='download'):
     if os.path.exists(filepath):
         return send_file(request, filepath)
@@ -248,6 +264,7 @@ def send_file_or_return_error_response(request, filepath, content_type, verb='do
             'content_type': content_type,
             'verb': verb
         })
+
 
 def send_file(request, filepath):
     """
@@ -275,9 +292,11 @@ def send_file(request, filepath):
     response['Content-Length'] = os.path.getsize(filepath)
     return response
 
+
 def file_is_an_archive(file):
     file = file.lower()
     return file.endswith('.zip') or file.endswith('.tgz') or file.endswith('.tar.gz')
+
 
 def pad_destination_filepath_if_it_already_exists(filepath, original=None, attempt=0):
     if original is None:
@@ -299,11 +318,13 @@ def pad_destination_filepath_if_it_already_exists(filepath, original=None, attem
             return pad_destination_filepath_if_it_already_exists(new_filepath, original, attempt)
     return filepath
 
+
 def processing_config_path():
     return os.path.join(
         get_server_config_value('sharedDirectory'),
         'sharedMicroServiceTasksConfigs/processingMCPConfigs'
     )
+
 
 def stream_file_from_storage_service(url, error_message='Remote URL returned {}'):
     stream = requests.get(url, stream=True, timeout=120)

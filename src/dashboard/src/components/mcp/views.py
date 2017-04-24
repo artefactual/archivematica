@@ -19,6 +19,7 @@ from django.http import HttpResponse
 from contrib.mcp.client import MCPClient
 from lxml import etree
 
+
 def execute(request):
     result = ''
     if 'uuid' in request.REQUEST:
@@ -28,6 +29,7 @@ def execute(request):
         uid = request.REQUEST.get('uid', '')
         result = client.execute(uuid, choice, uid)
     return HttpResponse(result, content_type='text/plain')
+
 
 def list(request):
     client = MCPClient()

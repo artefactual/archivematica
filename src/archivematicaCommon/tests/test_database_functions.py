@@ -10,6 +10,7 @@ import pytest
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
 class TestDatabaseFunctions(TestCase):
 
     fixture_files = ['agents.json', 'test_database_functions.json']

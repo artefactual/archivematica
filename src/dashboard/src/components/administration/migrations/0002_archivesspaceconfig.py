@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 import main.models
 
+
 def insert_data(apps, schema_editor):
     # Insert default values into the ArchivesSpaceConfig table.
     # Leaving all other values null/blank is consistent with default ATK config.
@@ -13,6 +14,7 @@ def insert_data(apps, schema_editor):
         port=8089,
         repository=2,
     )
+
 
 class Migration(migrations.Migration):
 

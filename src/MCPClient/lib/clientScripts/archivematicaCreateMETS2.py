@@ -95,6 +95,8 @@ trimStructMapObjects = None
 CSV_METADATA = {}
 
 # move to common
+
+
 def newChild(parent, tag, text=None, tailText=None, sets=[]):
     # TODO convert sets to a dict, and use **dict
     child = etree.SubElement(parent, tag)
@@ -105,7 +107,6 @@ def newChild(parent, tag, text=None, tailText=None, sets=[]):
         key, value = set
         child.set(key, value)
     return child
-
 
 
 SIPMetadataAppliesToType = '3e48343d-e2d2-4956-aaa3-b54d26eb9761'
@@ -279,6 +280,7 @@ def createDublincoreDMDSecFromDBData(unit_type, unit_uuid, baseDirectoryPath):
     xmlData.append(dc)
     return (dmdSec, ID)
 
+
 def createDSpaceDMDSec(label, dspace_mets_path, directoryPathSTR):
     """
     Parse DSpace METS file and create a dmdSecs from the info.
@@ -348,6 +350,7 @@ def createTechMD(fileUUID):
     premis_object = create_premis_object(fileUUID)
     xmlData.append(premis_object)
     return ret
+
 
 def create_premis_object(fileUUID):
     """
@@ -429,6 +432,7 @@ def create_premis_object_characteristics_extensions(fileUUID):
 
     return elements
 
+
 def create_premis_object_derivations(fileUUID):
     elements = []
     # Derivations
@@ -466,6 +470,7 @@ def create_premis_object_derivations(fileUUID):
 
     return elements
 
+
 def createDigiprovMD(fileUUID):
     """
     Create digiprovMD for PREMIS Events and linking Agents.
@@ -495,6 +500,7 @@ def createDigiprovMD(fileUUID):
 
     return ret
 
+
 def createEvent(event_record):
     """ Returns a PREMIS Event. """
     event = etree.Element(ns.premisBNS + "event", nsmap={'premis': ns.premisNS})
@@ -521,6 +527,7 @@ def createEvent(event_record):
         etree.SubElement(linkingAgentIdentifier, ns.premisBNS + "linkingAgentIdentifierValue").text = agent.identifiervalue
     return event
 
+
 def createAgent(agent_record):
     """ Creates a PREMIS Agent as a SubElement of digiprovMD. """
     agent = etree.Element(ns.premisBNS + "agent", nsmap={'premis': ns.premisNS})
@@ -533,6 +540,7 @@ def createAgent(agent_record):
     etree.SubElement(agent, ns.premisBNS + "agentName").text = agent_record.name
     etree.SubElement(agent, ns.premisBNS + "agentType").text = agent_record.agenttype
     return agent
+
 
 def getAMDSec(fileUUID, filePath, use, type, sip_uuid, transferUUID, itemdirectoryPath, typeOfTransfer, baseDirectoryPath):
     """
@@ -592,6 +600,7 @@ def getAMDSec(fileUUID, filePath, use, type, sip_uuid, transferUUID, itemdirecto
 
     return ret
 
+
 def getIncludedStructMap(baseDirectoryPath):
     global fileNameToFileID
     global trimStructMap
@@ -635,6 +644,8 @@ def getIncludedStructMap(baseDirectoryPath):
 
 # DMDID="dmdSec_01" for an object goes in here
 # <file ID="file1-UUID" GROUPID="G1" DMDID="dmdSec_02" ADMID="amdSec_01">
+
+
 def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName, fileGroupIdentifier, fileGroupType, includeAmdSec=True):
     """
     Creates fileSec and structMap entries for files on disk recursively.
@@ -844,6 +855,7 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
 
     return structMapDiv
 
+
 def build_arranged_structmap(original_structmap, sip_uuid):
     """
     Given a structMap, builds a new copy of the structMap with file and directory labels assigned according to their intellectual arrangement.
@@ -904,6 +916,7 @@ def build_arranged_structmap(original_structmap, sip_uuid):
 
     return structmap
 
+
 def find_source_metadata(path):
     """
     Returns lists of all metadata to be referenced in the final document.
@@ -925,12 +938,14 @@ def find_source_metadata(path):
 
     return transfer, source
 
+
 def find_bag_metadata(bag_logs_path):
     try:
         return Bag(bag_logs_path).info
     except BagError:
         print("Unable to locate or parse bag metadata at: {}".format(bag_logs_path), file=sys.stderr)
         return {}
+
 
 def create_object_metadata(struct_map, baseDirectoryPath):
     transfer_metadata_path = os.path.join(baseDirectoryPath, "objects/metadata/transfers")
@@ -1019,6 +1034,7 @@ def write_mets(tree, filename):
 </html>""" % (cgi.escape(etree.tostring(tree, pretty_print=True, xml_declaration=True, encoding='utf-8')))
     with open(validate_filename, 'w') as f:
         f.write(fileContents)
+
 
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.createMETS2")

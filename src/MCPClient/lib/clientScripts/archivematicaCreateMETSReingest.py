@@ -90,6 +90,7 @@ def update_object(mets, sip_uuid):
 
     return mets
 
+
 def update_dublincore(mets, sip_uuid):
     """
     Add new dmdSec for updated Dublin Core info relating to entire SIP.
@@ -437,6 +438,7 @@ def update_mets(sip_dir, sip_uuid):
     # Delete original METS
 
     return mets.serialize()
+
 
 if __name__ == '__main__':
     tree = update_mets(*sys.argv[1:])

@@ -32,6 +32,7 @@ from dicts import ReplacementDict
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 class UnitDIPError(Exception):
     pass
 

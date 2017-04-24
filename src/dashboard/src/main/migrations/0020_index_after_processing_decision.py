@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
+
 def data_migration(apps, schema_editor):
     MicroServiceChain = apps.get_model('main', 'MicroServiceChain')
     MicroServiceChainLink = apps.get_model('main', 'MicroServiceChainLink')
@@ -42,6 +43,7 @@ def data_migration(apps, schema_editor):
 
     # Finally, mark nextMicroServiceChainLink as null for the new last link
     MicroServiceChainLinkExitCode.objects.filter(microservicechainlink='561bbb52-d95c-4004-b0d3-739c0a65f406').update(nextmicroservicechainlink=None)
+
 
 class Migration(migrations.Migration):
 

@@ -43,11 +43,13 @@ logger = logging.getLogger('archivematica.dashboard')
       Transfer
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
 
+
 def grid(request):
     polling_interval = django_settings.POLLING_INTERVAL
     microservices_help = django_settings.MICROSERVICES_HELP
     uid = request.user.id
     return render(request, 'transfer/grid.html', locals())
+
 
 def transfer_source_locations(request):
     try:
@@ -60,6 +62,7 @@ def transfer_source_locations(request):
             'status': 'Failure',
         }
         return helpers.json_response(response, status_code=500)
+
 
 def component(request, uuid):
     messages = []
@@ -123,6 +126,7 @@ def component(request, uuid):
 
     return render(request, 'transfer/component.html', locals())
 
+
 def status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs GROUP BY SIPUUID
     objects = models.Job.objects.filter(hidden=False, subjobof='', unittype__exact='unitTransfer').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains='None').order_by('-timestamp')
@@ -133,6 +137,7 @@ def status(request, uuid=None):
         mcp_available = True
     except Exception:
         pass
+
     def encoder(obj):
         items = []
         for item in obj:
@@ -174,6 +179,7 @@ def status(request, uuid=None):
     response['objects'] = objects
     response['mcp'] = mcp_available
     return HttpResponse(json.JSONEncoder(default=encoder).encode(response), content_type='application/json')
+
 
 def transfer_metadata_type_id():
     return helpers.get_metadata_type_id_by_description('Transfer')
@@ -226,6 +232,7 @@ def transfer_metadata_edit(request, uuid, id=None):
 
     return render(request, 'transfer/metadata_edit.html', locals())
 
+
 def create_metadata_set_uuid(request):
     """
     Transfer metadata sets are used to associate a group of metadata field values with
@@ -239,6 +246,7 @@ def create_metadata_set_uuid(request):
         json.dumps(response),
         content_type='application/json'
     )
+
 
 def rename_metadata_set(request, set_uuid, placeholder_id):
     response = {}
@@ -263,6 +271,7 @@ def rename_metadata_set(request, set_uuid, placeholder_id):
         json.dumps(response),
         content_type='application/json'
     )
+
 
 def cleanup_metadata_set(request, set_uuid):
     """

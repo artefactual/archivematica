@@ -21,6 +21,7 @@ def main(target, output):
     except Exception as e:
         return e
 
+
 if __name__ == '__main__':
     target = sys.argv[1]
     sipdir = sys.argv[2]

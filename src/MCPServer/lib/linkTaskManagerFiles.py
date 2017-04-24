@@ -38,6 +38,7 @@ from main.models import StandardTaskConfig, UnitVariable
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 class linkTaskManagerFiles(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerFiles, self).__init__(jobChainLink, pk, unit)

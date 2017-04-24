@@ -22,7 +22,6 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 
-
 # http://www.iso.org/iso/country_codes.htm
 # Country Codes - ISO 3166
 # Country Name;ISO 3166-1-alpha-2 code
@@ -280,14 +279,17 @@ countryCodes = {
     "ZIMBABWE": "ZW"
 }
 
+
 def getCountryCodes():
     return countryCodes
+
 
 def getCodeForCountry(country):
     if country in countryCodes:
         return countryCodes[country]
     else:
         return None
+
 
 def getCountryFromCode(code):
     for key, value in countryCodes.items():

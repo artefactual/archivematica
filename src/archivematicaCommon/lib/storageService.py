@@ -16,8 +16,10 @@ LOGGER = logging.getLogger("archivematica.common")
 class ResourceNotFound(Exception):
     pass
 
+
 class BadRequest(Exception):
     pass
+
 
 class StorageServiceError(Exception):
     """Error related to the storage service."""
@@ -51,6 +53,7 @@ def _storage_service_url():
     storage_service_url = storage_service_url + 'api/v2/'
     return storage_service_url
 
+
 def _storage_api_session(timeout=5):
     """Return a requests.Session with a customized adapter with timeout support."""
     class HTTPAdapterWithTimeout(requests.adapters.HTTPAdapter):
@@ -75,6 +78,7 @@ def _storage_api_params():
     api_key = get_setting('storage_service_apikey', None)
     return urllib.urlencode({'username': username, 'api_key': api_key})
 
+
 def _storage_relative_from_absolute(location_path, space_path):
     """Strip space_path and next / from location_path."""
     location_path = os.path.normpath(location_path)
@@ -86,6 +90,7 @@ def _storage_relative_from_absolute(location_path, space_path):
     return location_path
 
 # ########### PIPELINE #############
+
 
 def create_pipeline(create_default_locations=False, shared_path=None, api_username=None, api_key=None):
     pipeline = {
@@ -106,6 +111,7 @@ def create_pipeline(create_default_locations=False, shared_path=None, api_userna
         raise
     return True
 
+
 def _get_pipeline(uuid):
     url = _storage_service_url() + 'pipeline/' + uuid + '/'
     try:
@@ -121,6 +127,7 @@ def _get_pipeline(uuid):
     return pipeline
 
 # ########### LOCATIONS #############
+
 
 def get_location(path=None, purpose=None, space=None):
     """ Returns a list of storage locations, filtered by parameters.
@@ -174,6 +181,7 @@ def browse_location(uuid, path):
     browse['properties'] = {base64.b64decode(k): v for k, v in browse.get('properties', {}).items()}
     return browse
 
+
 def copy_files(source_location, destination_location, files):
     """
     Copies `files` from `source_location` to `destination_location` using SS.
@@ -214,6 +222,7 @@ def copy_files(source_location, destination_location, files):
         return (None, e)
     ret = response.json()
     return (ret, None)
+
 
 def get_files_from_backlog(files):
     """
@@ -268,6 +277,7 @@ def create_file(uuid, origin_location, origin_path, current_location,
     file_ = response.json()
     return (file_, None)
 
+
 def get_file_info(uuid=None, origin_location=None, origin_path=None,
                   current_location=None, current_path=None, package_type=None,
                   status=None):
@@ -302,6 +312,7 @@ def get_file_info(uuid=None, origin_location=None, origin_path=None,
     LOGGER.debug("Files returned: %s", return_files)
     return return_files
 
+
 def download_file_url(file_uuid):
     """
     Returns URL to storage service for downloading `file_uuid`.
@@ -312,6 +323,7 @@ def download_file_url(file_uuid):
         base_url=storage_service_url, uuid=file_uuid, params=params)
     return download_url
 
+
 def extract_file_url(file_uuid, relative_path):
     """
     Returns URL to storage service for `relative_path` in `file_uuid`.
@@ -321,6 +333,7 @@ def extract_file_url(file_uuid, relative_path):
     download_url = "{base_url}file/{uuid}/extract_file/?relative_path_to_file={path}&{params}".format(
         base_url=storage_service_url, uuid=file_uuid, path=relative_path, params=api_params)
     return download_url
+
 
 def extract_file(uuid, relative_path, save_path):
     """ Fetches `relative_path` from package with `uuid` and saves to `save_path`. """
@@ -387,6 +400,7 @@ def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
     response = _storage_api_session().post(url, json=api_request)
     return response.json()
 
+
 def post_store_aip_callback(uuid):
     url = _storage_service_url() + 'file/' + uuid + '/send_callback/post_store/'
     response = _storage_api_session().get(url)
@@ -395,6 +409,7 @@ def post_store_aip_callback(uuid):
     except Exception:
         return response.text
 
+
 def get_file_metadata(**kwargs):
     url = _storage_service_url() + 'file/metadata/'
     response = _storage_api_session().get(url, params=kwargs)
@@ -402,9 +417,11 @@ def get_file_metadata(**kwargs):
         raise ResourceNotFound("No file found for arguments: {}".format(kwargs))
     return response.json()
 
+
 def remove_files_from_transfer(transfer_uuid):
     url = _storage_service_url() + 'file/' + transfer_uuid + '/contents/'
     _storage_api_session().delete(url)
+
 
 def index_backlogged_transfer_contents(transfer_uuid, file_set):
     url = _storage_service_url() + 'file/' + transfer_uuid + '/contents/'

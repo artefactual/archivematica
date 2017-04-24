@@ -6,8 +6,10 @@ __author__ = 'Martin Blech'
 __version__ = '0.1.dev'
 __license__ = 'MIT'
 
+
 class ParsingInterrupted(Exception):
     pass
+
 
 class DictSAXHandler:
     def __init__(self,
@@ -79,6 +81,7 @@ class DictSAXHandler:
         except KeyError:
             self.item[key] = data
 
+
 def parse(xml_input, *args, **kwargs):
     """Parse the given XML input and convert it into a dictionary.
 
@@ -136,6 +139,7 @@ def parse(xml_input, *args, **kwargs):
     else:
         parser.Parse(xml_input, True)
     return handler.item
+
 
 if __name__ == '__main__':
     import sys

@@ -170,6 +170,7 @@ def createRightsStatement(statement, fileUUID):
     etree.SubElement(linkingObjectIdentifier, ns.premisBNS + "linkingObjectIdentifierValue").text = fileUUID
     return rightsStatement
 
+
 def getDocumentationIdentifier(copyright, parent):
     for identifier in copyright.rightsstatementcopyrightdocumentationidentifier_set.all():
         statuteInformation = etree.SubElement(parent, ns.premisBNS + "copyrightDocumentationIdentifier")

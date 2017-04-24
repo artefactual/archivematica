@@ -27,6 +27,7 @@ from __future__ import print_function
 from components import helpers
 from django.db import connection
 
+
 def getNormalizationReportQuery(sipUUID, idsRestriction=""):
     if idsRestriction:
         idsRestriction = 'AND (%s)' % idsRestriction

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
+
 def data_migration(apps, schema_editor):
     mscrd = apps.get_model('main', 'MicroServiceChoiceReplacementDic')
 

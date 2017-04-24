@@ -29,6 +29,7 @@ import lxml.etree as etree
 
 from archivematicaFunctions import get_file_checksum
 
+
 def verifyMetsFileSecChecksums(metsFile, date, taskUUID, relativeDirectory="./"):
     print(metsFile)
     exitCode = 0

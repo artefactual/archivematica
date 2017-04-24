@@ -4,6 +4,7 @@ import logging.handlers
 import os
 import sys
 
+
 class GroupWriteRotatingFileHandler(logging.handlers.RotatingFileHandler):
     def _open(self):
         prevumask = os.umask(0o002)
@@ -12,6 +13,7 @@ class GroupWriteRotatingFileHandler(logging.handlers.RotatingFileHandler):
             return rtv
         finally:
             os.umask(prevumask)
+
 
 STANDARD_FORMAT = "%(levelname)-8s  %(asctime)s  %(name)s.%(funcName)s:%(lineno)d  %(message)s"
 SCRIPT_FILE_FORMAT = "{}: %(levelname)-8s  %(asctime)s  %(name)s:%(funcName)s:%(lineno)d:  %(message)s".format(os.path.basename(sys.argv[0]))

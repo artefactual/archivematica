@@ -83,6 +83,7 @@ limitGearmanConnectionsSemaphore = threading.Semaphore(value=config.getint('Prot
 reservedAsTaskProcessingThreads = config.getint('Protocol', "reservedAsTaskProcessingThreads")
 stopSignalReceived = False  # Tracks whether a sigkill has been received or not
 
+
 def isUUID(uuid):
     """Return boolean of whether it's string representation of a UUID v4"""
     split = uuid.split("-")
@@ -95,11 +96,13 @@ def isUUID(uuid):
         return False
     return True
 
+
 def fetchUUIDFromPath(path):
     # find UUID on end of SIP path
     uuidLen = -36
     if isUUID(path[uuidLen - 1:-1]):
         return path[uuidLen - 1:-1]
+
 
 def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
     """Matches a directory to a database sip by it's appended UUID, or path. If it doesn't find one, it will create one"""
@@ -150,6 +153,7 @@ def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
 
     return UUID
 
+
 @log_exceptions
 @auto_close_db
 def createUnitAndJobChain(path, config, terminate=False):
@@ -181,6 +185,7 @@ def createUnitAndJobChain(path, config, terminate=False):
     if terminate:
         exit(0)
 
+
 def createUnitAndJobChainThreaded(path, config, terminate=True):
     global countOfCreateUnitAndJobChainThreaded
     try:
@@ -198,6 +203,7 @@ def createUnitAndJobChainThreaded(path, config, terminate=True):
         t.start()
     except Exception:
         logger.exception('Error creating threads to watch directories')
+
 
 def watchDirectories():
     """Start watching the watched directories defined in the WatchedDirectories table in the database."""
@@ -233,6 +239,7 @@ def watchDirectories():
             interval=interval,
         )
 
+
 def signal_handler(signalReceived, frame):
     """Used to handle the stop/kill command signals (SIGKILL)"""
     logger.info('Recieved signal %s in frame %s', signalReceived, frame)
@@ -246,6 +253,7 @@ def signal_handler(signalReceived, frame):
     sys.exit(0)
     exit(0)
 
+
 @log_exceptions
 @auto_close_db
 def debugMonitor():
@@ -257,6 +265,7 @@ def debugMonitor():
         logger.debug('Debug monitor: created job chain threaded: %s', countOfCreateUnitAndJobChainThreaded)
         time.sleep(3600)
 
+
 @log_exceptions
 @auto_close_db
 def flushOutputs():
@@ -264,6 +273,7 @@ def flushOutputs():
         sys.stdout.flush()
         sys.stderr.flush()
         time.sleep(5)
+
 
 def cleanupOldDbEntriesOnNewRun():
     Job.objects.filter(currentstep=Job.STATUS_AWAITING_DECISION).delete()
@@ -278,6 +288,7 @@ def _except_hook_log_everything(exc_type, exc_value, exc_traceback):
     # Reference http://stackoverflow.com/a/16993115/2475775
     logger.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
     sys.__excepthook__(exc_type, exc_value, exc_traceback)
+
 
 LOGGING_CONFIG = {
     'version': 1,

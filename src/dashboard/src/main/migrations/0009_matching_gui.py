@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
+
 def data_migration(apps, schema_editor):
     StandardTaskConfig = apps.get_model('main', 'StandardTaskConfig')
     TaskConfig = apps.get_model('main', 'TaskConfig')
@@ -14,6 +15,7 @@ def data_migration(apps, schema_editor):
     MicroServiceChainLink.objects.create(pk='5749c11f-ed08-4965-8d8e-1473b1016073', microservicegroup='Prepare DIP', defaultexitmessage='Failed', currenttask_id='5e0ac12e-6ce7-4d11-bd75-e14167210df4', defaultnextchainlink_id='7d728c39-395f-4892-8193-92f086c0546f')
     MicroServiceChainLinkExitCode.objects.create(id='4447a11c-5c3b-4092-91fa-de613317cc82', microservicechainlink_id='5749c11f-ed08-4965-8d8e-1473b1016073', exitcode=0, nextmicroservicechainlink_id='61a8de9c-7b25-4f0f-b218-ad4dde261eed', exitmessage='Completed successfully')
     MicroServiceChainLinkExitCode.objects.filter(microservicechainlink_id='6ee25a55-7c08-4c9a-a114-c200a37146c4').update(nextmicroservicechainlink_id='5749c11f-ed08-4965-8d8e-1473b1016073')
+
 
 class Migration(migrations.Migration):
 

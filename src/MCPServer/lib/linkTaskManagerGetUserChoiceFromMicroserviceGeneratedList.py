@@ -36,6 +36,7 @@ from main.models import StandardTaskConfig, UserProfile, Job
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 class linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList(LinkTaskManager):
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList, self).__init__(jobChainLink, pk, unit)

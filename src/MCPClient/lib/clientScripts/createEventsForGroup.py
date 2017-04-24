@@ -44,7 +44,6 @@ if __name__ == '__main__':
     parser.add_option("-n", "--eventOutcomeDetailNote", action="store", dest="eventOutcomeDetailNote", default="")
     parser.add_option("-u", "--eventIdentifierUUID", action="store", dest="eventIdentifierUUID", default="")
 
-
     (opts, args) = parser.parse_args()
     kwargs = {
         "removedtime__isnull": True,

@@ -28,9 +28,11 @@ from main.models import TaskConfigAssignMagicLink
 global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 
+
 class linkTaskManagerAssignMagicLink(LinkTaskManager):
     """Assign a link to the unit to process when loaded.
         Deprecated! Replaced with Set/Load Unit Variable"""
+
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerAssignMagicLink, self).__init__(jobChainLink, pk, unit)
 

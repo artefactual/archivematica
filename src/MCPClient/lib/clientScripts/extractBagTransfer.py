@@ -34,6 +34,7 @@ from main.models import Transfer
 from custom_handlers import get_script_logger
 from executeOrRunSubProcess import executeOrRun
 
+
 def extract(target, destinationDirectory):
     filename, file_extension = os.path.splitext(target)
 

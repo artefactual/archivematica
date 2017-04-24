@@ -33,8 +33,10 @@ from utils import log_exceptions
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 class archivematicaWatchDirectory:
     """Watches for new files/directories to process in a watched directory. Directories are defined in the WatchedDirectoriesTable."""
+
     def __init__(self, directory,
                  variablesAdded=None,
                  callBackFunctionAdded=None,

@@ -589,7 +589,6 @@ class TestAddEvents(TestCase):
         # Agents
         assert len(root.findall('.//mets:mdWrap[@MDTYPE="PREMIS:AGENT"]', namespaces=NSMAP)) == 9
 
-
     def test_agent_not_in_mets(self):
         """
         It should add a new Agent if it doesn't already exist.

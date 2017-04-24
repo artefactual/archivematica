@@ -60,7 +60,6 @@ def welcome(request):
         archivematica_agent.identifiervalue = "Archivematica-" + version.get_version()
         archivematica_agent.save()
 
-
         # save organization PREMIS agent if supplied
         org_name = request.POST.get('org_name', '')
         org_identifier = request.POST.get('org_identifier', '')
@@ -91,6 +90,7 @@ def welcome(request):
         'form': form,
     })
 
+
 def get_my_ip():
     server_addr = '1.2.3.4'
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -104,11 +104,13 @@ def get_my_ip():
         del s
     return client
 
+
 def fprconnect(request):
     if request.method == 'POST':
         return redirect('installer.views.storagesetup')
     else:
         return render(request, 'installer/fprconnect.html')
+
 
 def fprupload(request):
     response_data = {}
@@ -134,6 +136,7 @@ def fprupload(request):
 
     return helpers.json_response(response_data)
 
+
 def fprdownload(request):
     response_data = {}
 
@@ -145,6 +148,7 @@ def fprdownload(request):
         logging.warning("FPR update error: {}".format(error))
 
     return helpers.json_response(response_data)
+
 
 def storagesetup(request):
     # Display the dashboard UUID on the storage service setup page

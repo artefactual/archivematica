@@ -54,6 +54,7 @@ constlinkTaskManagerGetUserChoiceFromMicroserviceGeneratedList = TaskType.object
 constlinkTaskManagerSetUnitVariable = TaskType.objects.get(description="linkTaskManagerSetUnitVariable").pk
 constlinkTaskManagerUnitVariableLinkPull = TaskType.objects.get(description="linkTaskManagerUnitVariableLinkPull").pk
 
+
 class jobChainLink:
     def __init__(self, jobChain, jobChainLinkPK, unit, passVar=None, subJobOf=""):
         if jobChainLinkPK is None:

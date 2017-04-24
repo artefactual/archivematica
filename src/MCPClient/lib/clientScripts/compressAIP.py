@@ -106,6 +106,7 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
 
     return exit_code
 
+
 if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.compressAIP")
 

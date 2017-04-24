@@ -16,6 +16,7 @@ from main.models import File, Transfer
 REJECTED = 'reject'
 FAILED = 'fail'
 
+
 def main(fail_type, transfer_uuid, transfer_path):
     # Update storage service that reingest failed
     session = storage_service._storage_api_session()
@@ -46,6 +47,7 @@ def main(fail_type, transfer_uuid, transfer_path):
     if transfer.type == 'Archivematica AIP':
         File.objects.filter(transfer_id=transfer_uuid).delete()
     return 0
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Cleanup from failed/rejected Transfers.')
