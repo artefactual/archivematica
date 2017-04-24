@@ -40,15 +40,15 @@ def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
     root = tree.getroot()
     # a = """<amdSec ID="amd_496"><rightsMD ID="rightsMD_499">"""
     for item in root.findall("{http://www.loc.gov/METS/}amdSec/{http://www.loc.gov/METS/}rightsMD"):
-        #print "rights id:", item.get("ID")
+        # print "rights id:", item.get("ID")
         XPTR = "%s %s" % (XPTR, item.get("ID"))
     XPTR = XPTR.replace(" ", "'", 1) + "'))"
     mdRef = etree.Element(ns.metsBNS + "mdRef")
     mdRef.set("LABEL", LABEL)
-    mdRef.set(ns.xlinkBNS +"href", directoryPathSTR)
+    mdRef.set(ns.xlinkBNS + "href", directoryPathSTR)
     mdRef.set("MDTYPE", "OTHER")
     mdRef.set("OTHERMDTYPE", "METSRIGHTS")
-    mdRef.set("LOCTYPE","OTHER")
+    mdRef.set("LOCTYPE", "OTHER")
     mdRef.set("OTHERLOCTYPE", "SYSTEM")
     mdRef.set("XPTR", XPTR)
     return mdRef
@@ -100,6 +100,6 @@ def archivematicaCreateMETSRightsDspaceMDRef(fileUUID, filePath, transferUUID, i
     except Exception as inst:
         print("Error creating mets dspace mdref", fileUUID, filePath, file=sys.stderr)
         print(type(inst), inst.args, file=sys.stderr)
-        sharedVariablesAcrossModules.globalErrorCount +=1
+        sharedVariablesAcrossModules.globalErrorCount += 1
 
     return ret

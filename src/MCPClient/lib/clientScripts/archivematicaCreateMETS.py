@@ -113,24 +113,24 @@ def each_child(path, file_group_identifier, base_path, base_path_name, sip_uuid)
                     print("No uuid for file: \"", pathSTR, "\"", file=sys.stderr)
 
 
-#Do /SIP-UUID/
-#Force only /SIP-UUID/objects
+# Do /SIP-UUID/
+# Force only /SIP-UUID/objects
 doneFirstRun = False
 def createFileSec(path, file_group_identifier, base_path, base_path_name, parentBranch, structMapParent, sip_uuid):
     print("createFileSec: ", path, parentBranch, structMapParent, file=sys.stderr)
     doneFirstRun = True
     pathSTR = path.__str__()
     pathSTR = path.__str__()
-    if pathSTR == base_path + "objects/": #IF it's it's the SIP folder, it's OBJECTS
+    if pathSTR == base_path + "objects/":  # IF it's it's the SIP folder, it's OBJECTS
         pathSTR = "objects"
-    #pathSTR = string.replace(path.__str__(), "/tmp/" + sys.argv[2] + "/" + sys.argv[3], "objects", 1)
-    #if pathSTR + "/" == basePath: #if it's the very first run through (recursive function)
-    if path == base_path: #if it's the very first run through (recursive function)
+    # pathSTR = string.replace(path.__str__(), "/tmp/" + sys.argv[2] + "/" + sys.argv[3], "objects", 1)
+    # if pathSTR + "/" == basePath: #if it's the very first run through (recursive function)
+    if path == base_path:  # if it's the very first run through (recursive function)
         pathSTR = os.path.basename(os.path.dirname(base_path))
-        #structMapParent.set("DMDID", "SIP-description")
+        # structMapParent.set("DMDID", "SIP-description")
 
-        #currentBranch = newChild(parentBranch, "fileGrp")
-        #currentBranch.set("USE", "directory")
+        # currentBranch = newChild(parentBranch, "fileGrp")
+        # currentBranch.set("USE", "directory")
         # structMap directory
         div = newChild(structMapParent, ns.metsBNS + "div")
         createFileSec(os.path.join(path, "objects/"), file_group_identifier, base_path, base_path_name, parentBranch, div, sip_uuid)
@@ -198,13 +198,13 @@ if __name__ == '__main__':
 
     root.append(createMetsHdr(opts.sipUUID))
 
-    #cd /tmp/$UUID;
+    # cd /tmp/$UUID;
     opath = os.getcwd()
     os.chdir(opts.basePath)
     path = opts.basePath
 
     fileSec = etree.Element(ns.metsBNS + "fileSec")
-    #fileSec.tail = "\n"
+    # fileSec.tail = "\n"
     root.append(fileSec)
 
     sipFileGrp = etree.SubElement(fileSec, ns.metsBNS + "fileGrp")

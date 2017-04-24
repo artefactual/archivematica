@@ -28,7 +28,7 @@ import fileOperations
 
 logger = get_script_logger("archivematica.mcp.client.manualNormalizationCreateMetadataAndRestructure")
 
-#"%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%fileUUID%" "%filePath%"
+# "%SIPUUID%" "%SIPName%" "%SIPDirectory%" "%fileUUID%" "%filePath%"
 SIPUUID = sys.argv[1]
 SIPName = sys.argv[2]
 SIPDirectory = sys.argv[3]
@@ -41,7 +41,7 @@ filePathLike = filePath.replace(os.path.join(SIPDirectory, "objects", "manualNor
 i = filePathLike.rfind(".")
 k = os.path.basename(filePath).rfind(".")
 if i != -1 and k != -1:
-    filePathLike = filePathLike[:i+1]
+    filePathLike = filePathLike[:i + 1]
     # Matches "path/to/file/filename." Includes . so it doesn't false match foobar.txt when we wanted foo.txt
     filePathLike1 = filePathLike
     # Matches the exact filename.  For files with no extension.

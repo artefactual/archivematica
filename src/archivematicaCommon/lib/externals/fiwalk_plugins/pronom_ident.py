@@ -45,7 +45,7 @@ class FiwalkFido(fido.Fido):
             if self.zip:
                 self.identify_contents(filename, type=self.container_type(matches))
         except IOError:
-            #print >> sys.stderr, "FIDO: Error in identify_file: Path is {0}".format(filename)
+            # print >> sys.stderr, "FIDO: Error in identify_file: Path is {0}".format(filename)
             sys.stderr.write("FIDO: Error in identify_file: Path is {0}\n".format(filename))
 
     def parse_matches(self, fullname, matches, delta_t, matchtype=''):

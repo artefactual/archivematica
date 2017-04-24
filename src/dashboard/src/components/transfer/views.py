@@ -73,7 +73,7 @@ def component(request, uuid):
         metadata_set.save()
     fields = models.TransferMetadataField.objects.all().order_by('sortorder')
     values = {}  # field values
-    options = [] # field options (for value selection)
+    options = []  # field options (for value selection)
 
     for field in fields:
         if field.optiontaxonomy is not None:
@@ -91,7 +91,7 @@ def component(request, uuid):
             for term in field.optiontaxonomy.taxonomyterm_set.iterator():
                 optionvalues.append(term.term)
             options.append({
-                'field':   field,
+                'field': field,
                 'options': optionvalues
             })
 
@@ -116,7 +116,7 @@ def component(request, uuid):
             field_value.fieldvalue = request.POST.get(field.fieldname, '')
             field_value.save()
             fields_saved = True
-            values[(field.fieldname)] = field_value.fieldvalue # override initially loaded value, if any
+            values[(field.fieldname)] = field_value.fieldvalue  # override initially loaded value, if any
 
     if fields_saved:
         messages.append('Metadata saved.')
@@ -125,7 +125,7 @@ def component(request, uuid):
 
 def status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs GROUP BY SIPUUID
-    objects = models.Job.objects.filter(hidden=False, subjobof='', unittype__exact='unitTransfer').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains = 'None').order_by('-timestamp')
+    objects = models.Job.objects.filter(hidden=False, subjobof='', unittype__exact='unitTransfer').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains='None').order_by('-timestamp')
     mcp_available = False
     try:
         client = MCPClient()

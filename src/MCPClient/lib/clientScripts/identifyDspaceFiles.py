@@ -44,10 +44,10 @@ def identify_dspace_files(mets_file, transfer_dir, transfer_uuid, relative_dir="
         use = item.get("USE")
         if use in ('TEXT', 'LICENSE'):
             try:
-                filename = item.find('m:file/m:FLocat', namespaces=nsmap).get(namespaces.xlinkBNS+'href')
+                filename = item.find('m:file/m:FLocat', namespaces=nsmap).get(namespaces.xlinkBNS + 'href')
             except AttributeError:  # Element not found
                 continue
-            if filename is None: # Filename not an attribute
+            if filename is None:  # Filename not an attribute
                 continue
             print('File:', filename, 'Use:', use)
             full_path = os.path.join(relative_dir, filename)

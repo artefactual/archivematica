@@ -236,7 +236,7 @@ def get_atom_levels_of_description(clear=True):
 
 
 def redirect_with_get_params(url_name, *args, **kwargs):
-    url = reverse(url_name, args = args)
+    url = reverse(url_name, args=args)
     params = urllib.urlencode(kwargs)
     return HttpResponseRedirect(url + "?%s" % params)
 

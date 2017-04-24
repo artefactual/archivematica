@@ -1,8 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf8
 
-#Author Ian Lewis
-#http://www.ianlewis.org/en/parsing-email-attachments-python
+# Author Ian Lewis
+# http://www.ianlewis.org/en/parsing-email-attachments-python
 
 
 # Modification
@@ -113,9 +113,9 @@ def parse2(msgobj, attachments=None):
         if attachment:
             attachments.append(attachment)
     return {
-        'subject' : subject,
-        'from' : email.utils.parseaddr(msgobj.get('From'))[1], # 名前は除いてメールアドレスのみ抽出
-        'to' : email.utils.parseaddr(msgobj.get('To'))[1], # 名前は除いてメールアドレスのみ抽出
+        'subject': subject,
+        'from': email.utils.parseaddr(msgobj.get('From'))[1],  # 名前は除いてメールアドレスのみ抽出
+        'to': email.utils.parseaddr(msgobj.get('To'))[1],  # 名前は除いてメールアドレスのみ抽出
         'attachments': attachments,
         'msgobj': msgobj,
     }

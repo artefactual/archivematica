@@ -88,7 +88,7 @@ class SipsView(View):
 
 def ingest_status(request, uuid=None):
     # Equivalent to: "SELECT SIPUUID, MAX(createdTime) AS latest FROM Jobs WHERE unitType='unitSIP' GROUP BY SIPUUID
-    objects = models.Job.objects.filter(hidden=False, subjobof='').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains = 'None').filter(unittype__exact = 'unitSIP')
+    objects = models.Job.objects.filter(hidden=False, subjobof='').values('sipuuid').annotate(timestamp=Max('createdtime')).exclude(sipuuid__icontains='None').filter(unittype__exact='unitSIP')
     mcp_available = False
     try:
         client = MCPClient()
@@ -147,7 +147,7 @@ def ingest_status(request, uuid=None):
 def ingest_sip_metadata_type_id():
     return helpers.get_metadata_type_id_by_description('SIP')
 
-@decorators.load_jobs # Adds jobs, name
+@decorators.load_jobs  # Adds jobs, name
 def ingest_metadata_list(request, uuid, jobs, name):
     # See MetadataAppliesToTypes table
     metadata = models.DublinCore.objects.filter(
@@ -243,7 +243,7 @@ def aic_metadata_add(request, uuid):
         dir_name = '{name}-{uuid}'.format(name=name, uuid=uuid)
         destination = os.path.join(watched_dir, 'system', 'createAIC', dir_name)
 
-        destination_db = destination.replace(shared_dir, '%sharedPath%')+'/'
+        destination_db = destination.replace(shared_dir, '%sharedPath%') + '/'
         models.SIP.objects.filter(uuid=uuid).update(currentpath=destination_db)
         shutil.move(source, destination)
         return redirect('ingest_index')
@@ -318,9 +318,9 @@ def ingest_upload(request, uuid):
             except:
                 access = models.Access(sipuuid=uuid)
             access.target = cPickle.dumps({
-                "target": request.POST['target'] })
+                "target": request.POST['target']})
             access.save()
-            response = { 'ready': True }
+            response = {'ready': True}
             return helpers.json_response(response)
     elif request.method == 'GET':
         try:

@@ -147,7 +147,7 @@ class linkTaskManagerFiles(LinkTaskManager):
             LOGGER.warning('Task UUID %s not in task list %s', task.UUID, self.tasks)
             exit(1)
 
-        if self.clearToNextLink is True and self.tasks == {} :
+        if self.clearToNextLink is True and self.tasks == {}:
             LOGGER.debug('Proceeding to next link %s', self.jobChainLink.UUID)
             self.jobChainLink.linkProcessingComplete(self.exitCode, self.jobChainLink.passVar)
         self.tasksLock.release()

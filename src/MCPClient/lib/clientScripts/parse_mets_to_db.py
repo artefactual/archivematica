@@ -66,7 +66,7 @@ def parse_files(root):
         original_path = original_path.replace('%transferDirectory%', '%SIPDirectory%')
         print('original_path', original_path)
 
-        current_path = fe.find('mets:FLocat', namespaces=ns.NSMAP).get(ns.xlinkBNS+'href')
+        current_path = fe.find('mets:FLocat', namespaces=ns.NSMAP).get(ns.xlinkBNS + 'href')
         current_path = '%SIPDirectory%' + current_path
         print('current_path', current_path)
 

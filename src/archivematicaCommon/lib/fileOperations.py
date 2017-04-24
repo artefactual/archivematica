@@ -61,7 +61,7 @@ def updateSizeAndChecksum(fileUUID, filePath, date, eventIdentifierUUID, fileSiz
 
 
 def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType="ingestion", eventDetail="", use="original"):
-    #print filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType, eventDetail, use
+    # print filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, date, sourceType, eventDetail, use
     insertIntoFiles(fileUUID, filePathRelativeToSIP, date, transferUUID=transferUUID, use=use)
     insertIntoEvents(fileUUID=fileUUID,
                      eventType=sourceType,
@@ -74,7 +74,7 @@ def addFileToTransfer(filePathRelativeToSIP, fileUUID, transferUUID, taskUUID, d
 def addAccessionEvent(fileUUID, transferUUID, date):
     transfer = Transfer.objects.get(uuid=transferUUID)
     if transfer.accessionid:
-        eventOutcomeDetailNote =  "accession#" + MySQLdb.escape_string(transfer.accessionid)
+        eventOutcomeDetailNote = "accession#" + MySQLdb.escape_string(transfer.accessionid)
         insertIntoEvents(fileUUID=fileUUID,
                          eventType="registration",
                          eventDateTime=date,
@@ -91,16 +91,16 @@ def addFileToSIP(filePathRelativeToSIP, fileUUID, sipUUID, taskUUID, date, sourc
                      eventOutcome="",
                      eventOutcomeDetailNote="")
 
-#Used to write to file
-#@output - the text to append to the file
-#@fileName - The name of the file to create, or append to.
-#@returns - 0 if ok, non zero if error occured.
+# Used to write to file
+# @output - the text to append to the file
+# @fileName - The name of the file to create, or append to.
+# @returns - 0 if ok, non zero if error occured.
 def writeToFile(output, fileName, writeWhite=False):
-    #print fileName
+    # print fileName
     if not writeWhite and output.isspace():
         return 0
     if fileName and output:
-        #print "writing to: " + fileName
+        # print "writing to: " + fileName
         try:
             f = open(fileName, 'a')
             f.write(output.__str__())
@@ -218,7 +218,7 @@ def updateFileLocation(src, dst, eventType="", eventDateTime="", eventDetail="",
         return
 
     if eventOutcomeDetailNote == "":
-        eventOutcomeDetailNote = "Original name=\"%s\"; cleaned up name=\"%s\"" %(src, dst)
+        eventOutcomeDetailNote = "Original name=\"%s\"; cleaned up name=\"%s\"" % (src, dst)
     # CREATE THE EVENT
     insertIntoEvents(fileUUID=f.uuid, eventType=eventType, eventDateTime=eventDateTime, eventDetail=eventDetail, eventOutcome="", eventOutcomeDetailNote=eventOutcomeDetailNote)
 

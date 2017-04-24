@@ -225,7 +225,7 @@ def search_augment_file_results(es_client, raw_results):
         if 'fields' not in item:
             continue
 
-        clone = {k: v[0] for k,v in item['fields'].copy().items()}
+        clone = {k: v[0] for k, v in item['fields'].copy().items()}
 
         # try to find AIP details in database
         try:
@@ -314,13 +314,13 @@ def aip_download(request, uuid):
 
 def aip_file_download(request, uuid):
     # get file basename
-    file          = models.File.objects.get(uuid=uuid)
+    file = models.File.objects.get(uuid=uuid)
     file_basename = os.path.basename(file.currentlocation)
 
     # get file's AIP's properties
-    sipuuid      = helpers.get_file_sip_uuid(uuid)
-    es_client    = elasticSearchFunctions.get_client()
-    aip          = elasticSearchFunctions.get_aip_data(es_client, sipuuid, fields='uuid,name,filePath,size,origin,created')
+    sipuuid = helpers.get_file_sip_uuid(uuid)
+    es_client = elasticSearchFunctions.get_client()
+    aip = elasticSearchFunctions.get_aip_data(es_client, sipuuid, fields='uuid,name,filePath,size,origin,created')
     aip_filepath = aip['fields']['filePath'][0]
 
     # work out path components
@@ -443,7 +443,7 @@ def list_display(request):
 
     # get AIPs
     order_by = request.GET.get('order_by', 'name_unanalyzed')
-    sort_by  = request.GET.get('sort_by', 'up')
+    sort_by = request.GET.get('sort_by', 'up')
 
     if sort_by == 'down':
         sort_direction = 'desc'

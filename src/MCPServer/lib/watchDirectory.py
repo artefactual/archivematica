@@ -52,7 +52,7 @@ class archivematicaWatchDirectory:
         self.directory = directory
         self.alertOnDirectories = alertOnDirectories
         self.alertOnFiles = alertOnFiles
-        self.interval= interval
+        self.interval = interval
 
         if not os.path.isdir(directory):
             os.makedirs(directory, mode=770)
@@ -70,10 +70,10 @@ class archivematicaWatchDirectory:
         """Based on polling example: http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html"""
         self.run = True
         LOGGER.info('Watching directory %s (Files: %s)', self.directory, self.alertOnFiles)
-        before = dict ([(f, None) for f in os.listdir (self.directory)])
+        before = dict([(f, None) for f in os.listdir(self.directory)])
         while self.run:
-            time.sleep (self.interval)
-            after = dict ([(f, None) for f in os.listdir (self.directory)])
+            time.sleep(self.interval)
+            after = dict([(f, None) for f in os.listdir(self.directory)])
             added = [f for f in after if f not in before]
             removed = [f for f in before if f not in after]
             if added:

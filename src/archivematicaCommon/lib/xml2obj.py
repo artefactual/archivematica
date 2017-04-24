@@ -22,12 +22,12 @@ def mets_file(src):
         file_uuid = amd.mets_techMD.mets_mdWrap.mets_xmlData.premis_object.premis_objectIdentifier.premis_objectIdentifierValue
         if amd.mets_rightsMD:
             for rights in amd.mets_rightsMD:
-                #print "found rightsMD: {}".format(rights['ID'])
+                # print "found rightsMD: {}".format(rights['ID'])
                 if rights.mets_mdWrap.mets_xmlData.premis_rightsStatement.premis_rightsGranted:
                     for granted in rights.mets_mdWrap.mets_xmlData.premis_rightsStatement.premis_rightsGranted:
                         act = granted.premis_act
                         # note = granted.premis_rightsGrantedNote
-                        #print "found {} has {} with {}".format(file_uuid, act, note)
+                        # print "found {} has {} with {}".format(file_uuid, act, note)
                         mets[file_uuid]['premis'][act]['restriction'] = granted.premis_restriction
                         mets[file_uuid]['premis'][act]['rightsGrantedNote'] = granted.premis_rightsGrantedNote
 
@@ -38,7 +38,7 @@ def test_mets(src):
     for f in mets:
         print("uuid is {}".format(f))
         for p in mets[f]['premis']:
-            print("{} rights = {} {}".format(p, mets[f]['premis'][p]['restriction'],mets[f]['premis'][p]['rightsGrantedNote']))
+            print("{} rights = {} {}".format(p, mets[f]['premis'][p]['restriction'], mets[f]['premis'][p]['rightsGrantedNote']))
 
 def xml2obj(src):
     """
@@ -58,7 +58,7 @@ def xml2obj(src):
             return 1
         def __getitem__(self, key):
             if isinstance(key, basestring):
-                return self._attrs.get(key,None)
+                return self._attrs.get(key, None)
             else:
                 return [self][key]
         def __contains__(self, name):
@@ -69,7 +69,7 @@ def xml2obj(src):
             if name.startswith('__'):
                 # need to do this for Python special methods???
                 raise AttributeError(name)
-            return self._attrs.get(name,None)
+            return self._attrs.get(name, None)
         def _add_xml_attr(self, name, value):
             if name in self._attrs:
                 # multiple attribute of the same name are represented by a list
@@ -86,7 +86,7 @@ def xml2obj(src):
             items = sorted(self._attrs.items())
             if self.data:
                 items.append(('data', self.data))
-            return u'{%s}' % ', '.join([u'%s:%s' % (k,repr(v)) for k,v in items])
+            return u'{%s}' % ', '.join([u'%s:%s' % (k, repr(v)) for k, v in items])
 
     class TreeBuilder(xml.sax.handler.ContentHandler):
         def __init__(self):
@@ -116,7 +116,7 @@ def xml2obj(src):
             self.text_parts.append(content)
 
     builder = TreeBuilder()
-    if isinstance(src,basestring):
+    if isinstance(src, basestring):
         xml.sax.parseString(src, builder)
     else:
         xml.sax.parse(src, builder)

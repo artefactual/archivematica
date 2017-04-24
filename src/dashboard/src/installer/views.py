@@ -57,18 +57,18 @@ def welcome(request):
 
         # Update Archivematica version in DB
         archivematica_agent = Agent.objects.get(pk=1)
-        archivematica_agent.identifiervalue = "Archivematica-"+version.get_version()
+        archivematica_agent.identifiervalue = "Archivematica-" + version.get_version()
         archivematica_agent.save()
 
 
         # save organization PREMIS agent if supplied
-        org_name       = request.POST.get('org_name', '')
+        org_name = request.POST.get('org_name', '')
         org_identifier = request.POST.get('org_identifier', '')
 
         if org_name != '' or org_identifier != '':
             agent = Agent.objects.get(pk=2)
-            agent.name            = org_name
-            agent.identifiertype  = 'repository code'
+            agent.name = org_name
+            agent.identifiertype = 'repository code'
             agent.identifiervalue = org_identifier
             agent.save()
 
@@ -113,7 +113,7 @@ def fprconnect(request):
 def fprupload(request):
     response_data = {}
     agent = Agent.objects.get(pk=2)
-    #url = 'https://fpr.archivematica.org/fpr/api/v2/agent/'
+    # url = 'https://fpr.archivematica.org/fpr/api/v2/agent/'
     url = django_settings.FPR_URL + 'agent/'
     logging.info("FPR Server URL: {}".format(django_settings.FPR_URL))
     payload = {'uuid': helpers.get_setting('dashboard_uuid'),

@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from .common import *  # noqa: F401, F403
 
-########## IN-MEMORY TEST DATABASE
+# IN-MEMORY TEST DATABASE
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",

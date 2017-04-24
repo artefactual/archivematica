@@ -46,8 +46,8 @@ def getDeciDate(date):
     for c in date:
         if c in valid:
             ret += c
-        #else:
-            #ret += replacementChar
+        # else:
+        #     ret += replacementChar
     return str("{:10.10f}".format(float(ret)))
 
 def insertIntoFiles(fileUUID, filePath, enteredSystem=None, transferUUID="", sipUUID="", use="original"):
@@ -112,7 +112,7 @@ def getAMAgentsForFile(fileUUID):
             agents.append(int(var.variablevalue))
         except UnitVariable.DoesNotExist:
             pass
-    if f.transfer and not agents: # agent hasn't been found yet
+    if f.transfer and not agents:  # agent hasn't been found yet
         try:
             var = UnitVariable.objects.get(unittype='Transfer',
                                            unituuid=f.transfer_id,
@@ -190,8 +190,8 @@ def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
                                    rule_id=ruleUUID)
 
 
-#user approved?
-#client connected/disconnected.
+# user approved?
+# client connected/disconnected.
 
 def logTaskCreatedSQL(taskManager, commandReplacementDic, taskUUID, arguments):
     """
@@ -249,7 +249,7 @@ def logJobCreatedSQL(job):
     :param jobChainLink job: A jobChainLink instance.
     :returns None:
     """
-    unitUUID =  job.unit.UUID
+    unitUUID = job.unit.UUID
     # microseconds are always 6 digits
     # The number returned may have a leading 0 which needs to be preserved
     decDate = getDeciDate("." + str(job.createdDate.microsecond).zfill(6))
@@ -269,7 +269,7 @@ def logJobCreatedSQL(job):
 
     # TODO -un hardcode executing exeCommand
 
-def fileWasRemoved(fileUUID, utcDate=None, eventDetail = "", eventOutcomeDetailNote = "", eventOutcome=""):
+def fileWasRemoved(fileUUID, utcDate=None, eventDetail="", eventOutcomeDetailNote="", eventOutcome=""):
     """
     Logs the removal of a file from the database.
     Updates the properties of the row in the Files table for the provided fileUUID, and logs the removal in the Events table with an event of type "file removed".

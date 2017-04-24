@@ -113,7 +113,7 @@ def store_aip(aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     else:
         size = os.path.getsize(aip_path)
 
-    #Store the AIP
+    # Store the AIP
     (new_file, error_msg) = storage_service.create_file(
         uuid=uuid,
         origin_location=current_location['resource_uri'],

@@ -42,7 +42,7 @@ from archivematicaFunctions import unicodeToStr
 
 from main.models import MicroServiceChainChoice, UserProfile, Job
 
-waitingOnTimer="waitingOnTimer"
+waitingOnTimer = "waitingOnTimer"
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -92,23 +92,23 @@ class linkTaskManagerChoice(LinkTaskManager):
                     if preconfiguredChoice.find("appliesTo").text == self.jobChainLink.pk:
                         desiredChoice = preconfiguredChoice.find("goToChain").text
                         try:
-                            #<delay unitAtime="yes">30</delay>
+                            # <delay unitAtime="yes">30</delay>
                             delayXML = preconfiguredChoice.find("delay")
                             if delayXML is not None:
                                 unitAtimeXML = delayXML.get("unitCtime")
                             else:
                                 unitAtimeXML = None
                             if unitAtimeXML is not None and unitAtimeXML.lower() != "no":
-                                delaySeconds=int(delayXML.text)
+                                delaySeconds = int(delayXML.text)
                                 unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%", \
                                                                                           archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
-                                nowTime=time.time()
+                                nowTime = time.time()
                                 timeDifference = nowTime - unitTime
                                 timeToGo = delaySeconds - timeDifference
                                 LOGGER.info('Time to go: %s', timeToGo)
                                 self.jobChainLink.setExitMessage("Waiting till: " + datetime.datetime.fromtimestamp((nowTime + timeToGo)).ctime())
 
-                                t = threading.Timer(timeToGo, self.proceedWithChoice, args=[desiredChoice, None], kwargs={"delayTimerStart":True})
+                                t = threading.Timer(timeToGo, self.proceedWithChoice, args=[desiredChoice, None], kwargs={"delayTimerStart": True})
                                 t.daemon = True
                                 self.delayTimer = t
                                 t.start()

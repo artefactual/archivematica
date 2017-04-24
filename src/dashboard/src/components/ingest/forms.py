@@ -62,7 +62,7 @@ class DublinCoreMetadataForm(forms.ModelForm):
     def clean_is_part_of(self):
         data = self.cleaned_data['is_part_of']
         if data and not data.startswith(self.aic_prefix):
-            data = self.aic_prefix+data
+            data = self.aic_prefix + data
         return data
 
 class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
@@ -78,5 +78,5 @@ class AICDublinCoreMetadataForm(DublinCoreMetadataForm):
     def clean_identifier(self):
         data = self.cleaned_data['identifier']
         if data and not data.startswith(self.aic_prefix):
-            data = self.aic_prefix+data
+            data = self.aic_prefix + data
         return data

@@ -145,10 +145,10 @@ def rights_edit(request, uuid, id=None, section='ingest'):
             viewRights = models.RightsStatement()
 
         extra_copyright_forms = max_notes
-        extra_statute_forms   = max_notes
-        extra_license_forms   = max_notes
-        extra_license_notes   = max_notes
-        extra_other_forms     = max_notes
+        extra_statute_forms = max_notes
+        extra_license_forms = max_notes
+        extra_license_notes = max_notes
+        extra_other_forms = max_notes
 
     # create inline formsets for child elements
     CopyrightFormSet = inlineformset_factory(
@@ -238,9 +238,9 @@ def rights_edit(request, uuid, id=None, section='ingest'):
                     createdCopyright.save()
 
             copyrightDocIdentifier = models.RightsStatementCopyrightDocumentationIdentifier(rightscopyright=createdCopyright)
-            copyrightDocIdentifier.copyrightdocumentationidentifiertype  = request.POST.get('copyright_documentation_identifier_type', '')
+            copyrightDocIdentifier.copyrightdocumentationidentifiertype = request.POST.get('copyright_documentation_identifier_type', '')
             copyrightDocIdentifier.copyrightdocumentationidentifiervalue = request.POST.get('copyright_documentation_identifier_value', '')
-            copyrightDocIdentifier.copyrightdocumentationidentifierrole  = request.POST.get('copyright_documentation_identifier_role', '')
+            copyrightDocIdentifier.copyrightdocumentationidentifierrole = request.POST.get('copyright_documentation_identifier_role', '')
             copyrightDocIdentifier.save()
 
             new_content_type_created = _('copyright')
@@ -284,9 +284,9 @@ def rights_edit(request, uuid, id=None, section='ingest'):
                     createdLicense.save()
 
             licenseDocIdentifier = models.RightsStatementLicenseDocumentationIdentifier(rightsstatementlicense=createdLicense)
-            licenseDocIdentifier.licensedocumentationidentifiertype  = request.POST.get('license_documentation_identifier_type', '')
+            licenseDocIdentifier.licensedocumentationidentifiertype = request.POST.get('license_documentation_identifier_type', '')
             licenseDocIdentifier.licensedocumentationidentifiervalue = request.POST.get('license_documentation_identifier_value', '')
-            licenseDocIdentifier.licensedocumentationidentifierrole  = request.POST.get('license_documentation_identifier_role', '')
+            licenseDocIdentifier.licensedocumentationidentifierrole = request.POST.get('license_documentation_identifier_role', '')
             licenseDocIdentifier.save()
 
             new_content_type_created = _('license')
@@ -322,9 +322,9 @@ def rights_edit(request, uuid, id=None, section='ingest'):
                 # handle documentation identifier creation for a parent statute that already exists
                 if request.POST.get('statute_documentation_identifier_type_' + str(form.instance.pk), '') != '' or request.POST.get('statute_documentation_identifier_value_' + str(form.instance.pk), '') or request.POST.get('statute_documentation_identifier_role_' + str(form.instance.pk), ''):
                     statuteDocIdentifier = models.RightsStatementStatuteDocumentationIdentifier(rightsstatementstatute=form.instance)
-                    statuteDocIdentifier.statutedocumentationidentifiertype = request.POST.get('statute_documentation_identifier_type_' +  str(form.instance.pk), '')
-                    statuteDocIdentifier.statutedocumentationidentifiervalue = request.POST.get('statute_documentation_identifier_value_' +  str(form.instance.pk), '')
-                    statuteDocIdentifier.statutedocumentationidentifierrole = request.POST.get('statute_documentation_identifier_role_' +  str(form.instance.pk), '')
+                    statuteDocIdentifier.statutedocumentationidentifiertype = request.POST.get('statute_documentation_identifier_type_' + str(form.instance.pk), '')
+                    statuteDocIdentifier.statutedocumentationidentifiervalue = request.POST.get('statute_documentation_identifier_value_' + str(form.instance.pk), '')
+                    statuteDocIdentifier.statutedocumentationidentifierrole = request.POST.get('statute_documentation_identifier_role_' + str(form.instance.pk), '')
                     statuteDocIdentifier.save()
                     new_content_type_created = _('statute')
 
@@ -393,9 +393,9 @@ def rights_edit(request, uuid, id=None, section='ingest'):
                     createdOther.save()
 
             otherDocIdentifier = models.RightsStatementOtherRightsDocumentationIdentifier(rightsstatementotherrights=createdOther)
-            otherDocIdentifier.otherrightsdocumentationidentifiertype  = request.POST.get('other_documentation_identifier_type', '')
+            otherDocIdentifier.otherrightsdocumentationidentifiertype = request.POST.get('other_documentation_identifier_type', '')
             otherDocIdentifier.otherrightsdocumentationidentifiervalue = request.POST.get('other_documentation_identifier_value', '')
-            otherDocIdentifier.otherrightsdocumentationidentifierrole  = request.POST.get('other_documentation_identifier_role', '')
+            otherDocIdentifier.otherrightsdocumentationidentifierrole = request.POST.get('other_documentation_identifier_role', '')
             otherDocIdentifier.save()
 
             new_content_type_created = 'other'

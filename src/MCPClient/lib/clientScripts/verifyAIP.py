@@ -67,7 +67,7 @@ def verify_aip():
         if exit_code != 0:
             print("Failed test: ", command, file=sys.stderr)
             return_code = 1
-    #cleanup
+    # cleanup
     if not is_uncompressed_aip:
         shutil.rmtree(extract_dir)
     return return_code

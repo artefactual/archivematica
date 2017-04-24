@@ -65,25 +65,25 @@ def getTimedeltaFromRetensionSchedule(RetentionSchedule):
                 entry = "%s%s" % (entry, c)
         rs.append(entry)
     for entry in rs:
-        ret += int (entry)
+        ret += int(entry)
 
     ret = relativedelta(years=ret)
     return ret
 
 
 def getDateTimeFromDateClosed(dateClosed):
-    i = 19 #the + or minus for offset (DST + timezone)
+    i = 19  # the + or minus for offset (DST + timezone)
     if dateClosed is None:
         return
 
     dateClosedDT = datetime.strptime(dateClosed[:i], '%Y-%m-%dT%H:%M:%S')
     print(dateClosedDT)
-    offSet = dateClosed[i+1:].split(":")
+    offSet = dateClosed[i + 1:].split(":")
     offSetTD = timedelta(hours=int(offSet[0]), minutes=int(offSet[1]))
 
     if dateClosed[i] == "-":
         dateClosedDT = dateClosedDT - offSetTD
-    elif  dateClosed[i] == "+":
+    elif dateClosed[i] == "+":
         dateClosedDT = dateClosedDT + offSetTD
     else:
         print("Error with offset in:", dateClosed, file=sys.stderr)
@@ -126,7 +126,7 @@ for dir in os.listdir(transferPath):
 
     for file in os.listdir(dirPath):
         filePath = os.path.join(dirPath, file)
-        if  file == "ContainerMetadata.xml" or file.endswith("Metadata.xml") or not os.path.isfile(filePath):
+        if file == "ContainerMetadata.xml" or file.endswith("Metadata.xml") or not os.path.isfile(filePath):
             continue
 
         fileUUID = getFileUUIDLike(filePath, transferPath, transferUUID, "transferUUID", "%transferDirectory%")[filePath.replace(transferPath, "%transferDirectory%", 1)]

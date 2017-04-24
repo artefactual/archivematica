@@ -33,7 +33,7 @@ class linkTaskManagerLoadMagicLink(LinkTaskManager):
         Deprecated! Replaced with Set/Load Unit Variable"""
     def __init__(self, jobChainLink, pk, unit):
         super(linkTaskManagerLoadMagicLink, self).__init__(jobChainLink, pk, unit)
-        ###Update the unit
+        # Update the unit
         magicLink = self.unit.getMagicLink()
         if magicLink is not None:
             link, exitStatus = magicLink

@@ -34,9 +34,9 @@ OTHER_FIELDS = (
 
 def search_parameter_prep(request):
     queries = request.GET.getlist('query')
-    ops     = request.GET.getlist('op')
-    fields  = request.GET.getlist('field')
-    types   = request.GET.getlist('type')
+    ops = request.GET.getlist('op')
+    fields = request.GET.getlist('field')
+    types = request.GET.getlist('type')
     other_fields = request.GET.getlist('fieldName')
 
     # prepend default op arg as first op can't be set manually
@@ -50,7 +50,7 @@ def search_parameter_prep(request):
 
     if len(queries) == 0:
         queries = ['*']
-        fields  = ['']
+        fields = ['']
     else:
         # make sure each query has field/ops set
         for index, query in enumerate(queries):
@@ -104,11 +104,11 @@ def extract_url_search_params_from_request(request):
     return search_params
 
 def assemble_query(es_client, queries, ops, fields, types, search_index=None, doc_type=None, **kwargs):
-    must_haves     = kwargs.get('must_haves', [])
-    filters        = kwargs.get('filters', {})
-    should_haves   = []
+    must_haves = kwargs.get('must_haves', [])
+    filters = kwargs.get('filters', {})
+    should_haves = []
     must_not_haves = []
-    index          = 0
+    index = 0
 
     for query in queries:
         if queries[index] != '':

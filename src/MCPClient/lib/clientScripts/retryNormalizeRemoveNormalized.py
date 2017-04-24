@@ -91,15 +91,15 @@ def removePreservationFiles(SIPDirectory, SIPUUID):
 
 if __name__ == '__main__':
     parser = OptionParser()
-    #mysql> UPDATE StandardTasksConfigs SET arguments = '--SIPDirectory "%SIPDirectory%" --SIPUUID "%SIPUUID%" --preservation --thumbnails' WHERE PK = '352fc88d-4228-4bc8-9c15-508683dabc58';
-    #mysql> UPDATE StandardTasksConfigs SET arguments = '--SIPDirectory "%SIPDirectory%" --SIPUUID "%SIPUUID%" --preservation --thumbnails --access' WHERE PK = 'c15de53e-a5b2-41a1-9eee-1a7b4dd5447a';
+    # mysql> UPDATE StandardTasksConfigs SET arguments = '--SIPDirectory "%SIPDirectory%" --SIPUUID "%SIPUUID%" --preservation --thumbnails' WHERE PK = '352fc88d-4228-4bc8-9c15-508683dabc58';
+    # mysql> UPDATE StandardTasksConfigs SET arguments = '--SIPDirectory "%SIPDirectory%" --SIPUUID "%SIPUUID%" --preservation --thumbnails --access' WHERE PK = 'c15de53e-a5b2-41a1-9eee-1a7b4dd5447a';
 
-    #'--SIPDirectory "%SIPDirectory%" --accessDirectory "objects/access/" --objectsDirectory "objects" --DIPDirectory "DIP" -c'
-    parser.add_option("-s",  "--SIPDirectory", action="store", dest="SIPDirectory", default="")
-    parser.add_option("-u",  "--SIPUUID", action="store", dest="SIPUUID", default="")
-    parser.add_option("-p",  "--preservation", action="store_true", dest="preservation", default=False)
-    parser.add_option("-t",  "--thumbnails", action="store_true", dest="thumbnails", default=False)
-    parser.add_option("-a",  "--access", action="store_true", dest="access", default=False)
+    # '--SIPDirectory "%SIPDirectory%" --accessDirectory "objects/access/" --objectsDirectory "objects" --DIPDirectory "DIP" -c'
+    parser.add_option("-s", "--SIPDirectory", action="store", dest="SIPDirectory", default="")
+    parser.add_option("-u", "--SIPUUID", action="store", dest="SIPUUID", default="")
+    parser.add_option("-p", "--preservation", action="store_true", dest="preservation", default=False)
+    parser.add_option("-t", "--thumbnails", action="store_true", dest="thumbnails", default=False)
+    parser.add_option("-a", "--access", action="store_true", dest="access", default=False)
     (opts, args) = parser.parse_args()
 
     SIPDirectory = opts.SIPDirectory

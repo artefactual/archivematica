@@ -162,7 +162,7 @@ def get_client():
     """
     if not _es_client:
         raise ImproperlyConfigured('The Elasticsearch client has not been set up yet. Please call setup() first.')
-    create_indexes_if_needed(_es_client) # TODO: find a better place!
+    create_indexes_if_needed(_es_client)  # TODO: find a better place!
     return _es_client
 
 
@@ -342,25 +342,25 @@ def set_up_mapping_aip_index(client):
 
 def set_up_mapping_transfer_index(client):
     transferfile_mapping = {
-        'filename'     : {'type': 'string'},
+        'filename': {'type': 'string'},
         'relative_path': {'type': 'string'},
-        'fileuuid'     : MACHINE_READABLE_FIELD_SPEC,
-        'sipuuid'      : MACHINE_READABLE_FIELD_SPEC,
-        'accessionid'  : MACHINE_READABLE_FIELD_SPEC,
-        'status'       : MACHINE_READABLE_FIELD_SPEC,
-        'origin'       : MACHINE_READABLE_FIELD_SPEC,
-        'ingestdate'   : {'type': 'date', 'format': 'dateOptionalTime'},
-        'created'      : {'type': 'double'},
-        'size'         : {'type': 'double'},
-        'tags'         : MACHINE_READABLE_FIELD_SPEC,
+        'fileuuid': MACHINE_READABLE_FIELD_SPEC,
+        'sipuuid': MACHINE_READABLE_FIELD_SPEC,
+        'accessionid': MACHINE_READABLE_FIELD_SPEC,
+        'status': MACHINE_READABLE_FIELD_SPEC,
+        'origin': MACHINE_READABLE_FIELD_SPEC,
+        'ingestdate': {'type': 'date', 'format': 'dateOptionalTime'},
+        'created': {'type': 'double'},
+        'size': {'type': 'double'},
+        'tags': MACHINE_READABLE_FIELD_SPEC,
         'file_extension': MACHINE_READABLE_FIELD_SPEC,
         'bulk_extractor_reports': MACHINE_READABLE_FIELD_SPEC,
-        'format'        : {
-            'type'      : 'nested',
+        'format': {
+            'type': 'nested',
             'properties': {
-                'puid'  : MACHINE_READABLE_FIELD_SPEC,
+                'puid': MACHINE_READABLE_FIELD_SPEC,
                 'format': {'type': 'string'},
-                'group' : {'type': 'string'},
+                'group': {'type': 'string'},
             }
         }
     }
@@ -372,11 +372,11 @@ def set_up_mapping_transfer_index(client):
     logger.info('Transfer file mapping created.')
 
     transfer_mapping = {
-        'name'       : {'type': 'string'},
-        'status'     : {'type': 'string'},
+        'name': {'type': 'string'},
+        'status': {'type': 'string'},
         'ingest_date': {'type': 'date', 'format': 'dateOptionalTime'},
-        'file_count' : {'type': 'integer'},
-        'uuid'       : MACHINE_READABLE_FIELD_SPEC,
+        'file_count': {'type': 'integer'},
+        'uuid': MACHINE_READABLE_FIELD_SPEC,
         'pending_deletion': {'type': 'boolean'}
     }
 
@@ -568,7 +568,7 @@ def index_mets_file_metadata(client, uuid, metsFilePath, index, type_, sipName, 
 
     # Index AIC METS file if it exists
     for file_ in files:
-        indexData = fileData.copy() # Deep copy of dict, not of dict contents
+        indexData = fileData.copy()  # Deep copy of dict, not of dict contents
 
         # Get file UUID.  If and ADMID exists, look in the amdSec for the UUID,
         # otherwise parse it out of the file ID.
@@ -663,7 +663,7 @@ def normalize_list_dict_elements(data):
         if isinstance(value, list):
             data[index] = normalize_list_dict_elements(value)
         elif isinstance(value, dict):
-            data[index] =  normalize_dict_values(value)
+            data[index] = normalize_dict_values(value)
     return data
 
 
@@ -712,11 +712,11 @@ def index_transfer(client, uuid, file_count, status=''):
         transfer_name = ''
 
     transfer_data = {
-        'name'            : transfer_name,
-        'status'          : status,
-        'ingest_date'     : str(datetime.datetime.today())[0:10],
-        'file_count'      : file_count,
-        'uuid'            : uuid,
+        'name': transfer_name,
+        'status': status,
+        'ingest_date': str(datetime.datetime.today())[0:10],
+        'file_count': file_count,
+        'uuid': uuid,
         'pending_deletion': False,
     }
 
@@ -773,7 +773,7 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
                 bulk_extractor_reports = []
 
             # Get file path info
-            relative_path = relative_path.replace('%transferDirectory%', transfer_name+'/')
+            relative_path = relative_path.replace('%transferDirectory%', transfer_name + '/')
             file_extension = os.path.splitext(filepath)[1][1:].lower()
             filename = os.path.basename(filepath)
             # Size in megabytes
@@ -785,20 +785,20 @@ def index_transfer_files(client, uuid, pathToTransfer, index, type_, status=''):
 
                 # TODO Index Backlog Location UUID?
                 indexData = {
-                    'filename'     : filename,
+                    'filename': filename,
                     'relative_path': relative_path,
-                    'fileuuid'     : file_uuid,
-                    'sipuuid'      : uuid,
-                    'accessionid'  : accession_id,
-                    'status'       : status,
-                    'origin'       : dashboard_uuid,
-                    'ingestdate'   : ingest_date,
-                    'created'      : create_time,
-                    'size'         : size,
-                    'tags'         : [],
+                    'fileuuid': file_uuid,
+                    'sipuuid': uuid,
+                    'accessionid': accession_id,
+                    'status': status,
+                    'origin': dashboard_uuid,
+                    'ingestdate': ingest_date,
+                    'created': create_time,
+                    'size': size,
+                    'tags': [],
                     'file_extension': file_extension,
                     'bulk_extractor_reports': bulk_extractor_reports,
-                    'format'       : formats,
+                    'format': formats,
                 }
 
                 wait_for_cluster_yellow_status(client)

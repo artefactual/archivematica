@@ -50,7 +50,7 @@ def something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIP
 
             if objectNameExtensionIndex != -1:
                 objectName = objectName[:objectNameExtensionIndex + 1]
-                objectNameLike = os.path.join( os.path.dirname(objectPath), objectName).replace(SIPDirectory, "%SIPDirectory%", 1)
+                objectNameLike = os.path.join(os.path.dirname(objectPath), objectName).replace(SIPDirectory, "%SIPDirectory%", 1)
 
                 files = File.objects.filter(removedtime__isnull=True,
                                             currentlocation__startswith=objectNameLike,
@@ -65,7 +65,7 @@ def something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIP
                     if objectExtension.find(".") != -1:
                         continue
                     print(objectName[objectNameExtensionIndex + 1:], objectExtension, "\t", end=' ')
-                    dipPath = os.path.join(DIPDirectory,  "objects", "%s-%s" % (objectUUID, os.path.basename(accessPath)))
+                    dipPath = os.path.join(DIPDirectory, "objects", "%s-%s" % (objectUUID, os.path.basename(accessPath)))
                     if copy:
                         print("TODO - copy not supported yet")
                     else:
@@ -78,7 +78,7 @@ def something(SIPDirectory, accessDirectory, objectsDirectory, DIPDirectory, SIP
                 for src, dst in update:
                     eventDetail = ""
                     eventOutcomeDetailNote = "moved from=\"" + src + "\"; moved to=\"" + dst + "\""
-                    updateFileLocation(src, dst, "movement", date, eventDetail, sipUUID=SIPUUID, eventOutcomeDetailNote = eventOutcomeDetailNote)
+                    updateFileLocation(src, dst, "movement", date, eventDetail, sipUUID=SIPUUID, eventOutcomeDetailNote=eventOutcomeDetailNote)
     return exitCode
 
 
@@ -87,13 +87,13 @@ if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.checkForAccessDirectory")
 
     parser = OptionParser()
-    #'--SIPDirectory "%SIPDirectory%" --accessDirectory "objects/access/" --objectsDirectory "objects" --DIPDirectory "DIP" -c'
-    parser.add_option("-s",  "--SIPDirectory", action="store", dest="SIPDirectory", default="")
-    parser.add_option("-u",  "--SIPUUID", action="store", dest="SIPUUID", default="")
-    parser.add_option("-a",  "--accessDirectory", action="store", dest="accessDirectory", default="")
-    parser.add_option("-o",  "--objectsDirectory", action="store", dest="objectsDirectory", default="")
-    parser.add_option("-d",  "--DIPDirectory", action="store", dest="DIPDirectory", default="")
-    parser.add_option("-t",  "--date", action="store", dest="date", default="")
+    # '--SIPDirectory "%SIPDirectory%" --accessDirectory "objects/access/" --objectsDirectory "objects" --DIPDirectory "DIP" -c'
+    parser.add_option("-s", "--SIPDirectory", action="store", dest="SIPDirectory", default="")
+    parser.add_option("-u", "--SIPUUID", action="store", dest="SIPUUID", default="")
+    parser.add_option("-a", "--accessDirectory", action="store", dest="accessDirectory", default="")
+    parser.add_option("-o", "--objectsDirectory", action="store", dest="objectsDirectory", default="")
+    parser.add_option("-d", "--DIPDirectory", action="store", dest="DIPDirectory", default="")
+    parser.add_option("-t", "--date", action="store", dest="date", default="")
     parser.add_option('-c', '--copy', dest='copy', action='store_true')
 
     (opts, args) = parser.parse_args()

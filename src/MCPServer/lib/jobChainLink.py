@@ -61,7 +61,7 @@ class jobChainLink:
         self.UUID = uuid.uuid4().__str__()
         self.jobChain = jobChain
         self.unit = unit
-        self.passVar=passVar
+        self.passVar = passVar
         self.createdDate = getUTCDate()
         self.subJobOf = subJobOf
 
@@ -94,8 +94,8 @@ class jobChainLink:
 
         if self.createTasks(taskType, taskTypePKReference) is None:
             self.getNextChainLinkPK(None)
-            #can't have none represent end of chain, and no tasks to process.
-            #could return negative?
+            # can't have none represent end of chain, and no tasks to process.
+            # could return negative?
 
     def createTasks(self, taskType, taskTypePKReference):
         if taskType == constOneTask:

@@ -37,10 +37,10 @@ VERSION_MAP = {
 
 
 def get_version_from_mets(mets):
-    for agent in mets.iter(ns.metsBNS+"agentIdentifier"):
-        if agent.findtext(ns.metsBNS+"agentIdentifierType") != "preservation system":
+    for agent in mets.iter(ns.metsBNS + "agentIdentifier"):
+        if agent.findtext(ns.metsBNS + "agentIdentifierType") != "preservation system":
             continue
-        return agent.findtext(ns.metsBNS+"agentIdentifierValue")
+        return agent.findtext(ns.metsBNS + "agentIdentifierValue")
     return None
 
 if __name__ == '__main__':

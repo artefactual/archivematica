@@ -29,6 +29,6 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    url(r'login/$', django.contrib.auth.views.login, { 'template_name': 'accounts/login.html' }),
+    url(r'login/$', django.contrib.auth.views.login, {'template_name': 'accounts/login.html'}),
     url(r'logout/$', django.contrib.auth.views.logout_then_login)
 ]

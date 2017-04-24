@@ -93,9 +93,9 @@ if __name__ == '__main__':
     logger = get_script_logger("archivematica.mcp.client.copyTransfersMetadataAndLogs")
 
     parser = OptionParser()
-    parser.add_option("-s",  "--sipDirectory", action="store", dest="sipDirectory", default="")
-    parser.add_option("-S",  "--sipUUID", action="store", dest="sipUUID", default="")
-    parser.add_option("-p",  "--sharedPath", action="store", dest="sharedPath", default="/var/archivematica/sharedDirectory/")
+    parser.add_option("-s", "--sipDirectory", action="store", dest="sipDirectory", default="")
+    parser.add_option("-S", "--sipUUID", action="store", dest="sipUUID", default="")
+    parser.add_option("-p", "--sharedPath", action="store", dest="sharedPath", default="/var/archivematica/sharedDirectory/")
     (opts, args) = parser.parse_args()
 
-    main(opts.sipUUID, opts.sipDirectory+"metadata/transfers/", opts.sipDirectory+"logs/transfers/", sharedPath=opts.sharedPath)
+    main(opts.sipUUID, opts.sipDirectory + "metadata/transfers/", opts.sipDirectory + "logs/transfers/", sharedPath=opts.sharedPath)

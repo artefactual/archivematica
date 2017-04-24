@@ -57,7 +57,7 @@ if __name__ == '__main__':
         sipName = "%s-%s" % (transferName, container)
 
         tmpSIPDir = os.path.join(processingDirectory, sipName) + "/"
-        destSIPDir =  os.path.join(autoProcessSIPDirectory, sipName) + "/"
+        destSIPDir = os.path.join(autoProcessSIPDirectory, sipName) + "/"
         archivematicaFunctions.create_structured_directory(tmpSIPDir, manual_normalization=True)
         databaseFunctions.createSIP(destSIPDir.replace(sharedPath, '%sharedPath%'), sipUUID)
 

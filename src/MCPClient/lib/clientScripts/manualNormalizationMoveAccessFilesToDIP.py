@@ -32,12 +32,12 @@ from main.models import File
 # archivematicaCommon
 import fileOperations
 
-#--sipUUID "%SIPUUID%" --sipDirectory "%SIPDirectory%" --filePath "%relativeLocation%"
+# --sipUUID "%SIPUUID%" --sipDirectory "%SIPDirectory%" --filePath "%relativeLocation%"
 from optparse import OptionParser
 parser = OptionParser()
-parser.add_option("-s",  "--sipUUID", action="store", dest="sipUUID", default="")
-parser.add_option("-d",  "--sipDirectory", action="store", dest="sipDirectory", default="") #transferDirectory/
-parser.add_option("-f",  "--filePath", action="store", dest="filePath", default="") #transferUUID/sipUUID
+parser.add_option("-s", "--sipUUID", action="store", dest="sipUUID", default="")
+parser.add_option("-d", "--sipDirectory", action="store", dest="sipDirectory", default="")  # transferDirectory/
+parser.add_option("-f", "--filePath", action="store", dest="filePath", default="")  # transferUUID/sipUUID
 (opts, args) = parser.parse_args()
 
 # Search for original file associated with the access file given in filePath
@@ -45,7 +45,7 @@ filePathLike = opts.filePath.replace(os.path.join(opts.sipDirectory, "objects", 
 i = filePathLike.rfind(".")
 if i != -1:
     # Matches "path/to/file/filename." Includes . so it doesn't false match foobar.txt when we wanted foo.txt
-    filePathLike = filePathLike[:i+1]
+    filePathLike = filePathLike[:i + 1]
     # Matches the exact filename.  For files with no extension.
     filePathLike2 = filePathLike[:-1]
 
@@ -111,10 +111,10 @@ print("matched: {%s}%s" % (originalFileUUID, originalFilePath))
 dstDir = os.path.join(opts.sipDirectory, "DIP", "objects")
 dstFile = originalFileUUID + "-" + os.path.basename(opts.filePath)
 
-#ensure unique output file name
+# ensure unique output file name
 i = 0
 while os.path.exists(os.path.join(dstDir, dstFile)):
-    i+=1
+    i += 1
     dstFile = originalFileUUID + "-" + str(i) + "-" + os.path.basename(opts.filePath)
 
 try:
@@ -123,8 +123,8 @@ try:
 except:
     pass
 
-#Rename the file or directory src to dst. If dst is a directory, OSError will be raised. On Unix, if dst exists and is a file, it will be replaced silently if the user has permission. The operation may fail on some Unix flavors if src and dst are on different filesystems.
-#see http://docs.python.org/2/library/os.html
+# Rename the file or directory src to dst. If dst is a directory, OSError will be raised. On Unix, if dst exists and is a file, it will be replaced silently if the user has permission. The operation may fail on some Unix flavors if src and dst are on different filesystems.
+# see http://docs.python.org/2/library/os.html
 os.rename(opts.filePath, os.path.join(dstDir, dstFile))
 
 exit(0)

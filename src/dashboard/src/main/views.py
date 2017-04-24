@@ -143,7 +143,7 @@ def tasks(request, uuid):
         item.stdout = escape(item.stdout)
         item.stderror = escape(item.stderror)
 
-    page    = helpers.pager(objects, django_settings.TASKS_PER_PAGE, request.GET.get('page', None))
+    page = helpers.pager(objects, django_settings.TASKS_PER_PAGE, request.GET.get('page', None))
     objects = page.object_list
 
     # figure out duration in seconds
@@ -173,9 +173,9 @@ def formdata_delete(request, type, parent_id, delete_id):
     return formdata(request, type, parent_id, delete_id)
 
 
-def formdata(request, type, parent_id, delete_id = None):
-    model    = None
-    results  = None
+def formdata(request, type, parent_id, delete_id=None):
+    model = None
+    results = None
     response = {}
 
     # define types handled
@@ -295,7 +295,7 @@ def formdata(request, type, parent_id, delete_id = None):
         instance.save()
 
         if id == 0:
-            response['new_id']  = instance.pk
+            response['new_id'] = instance.pk
 
         response['message'] = _('Added.')
 

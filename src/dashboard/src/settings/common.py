@@ -44,7 +44,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',         # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': config.get('client', 'database'),     # Or path to database file if using sqlite3.
         'USER': config.get('client', 'user'),         # Not used with sqlite3.
-        'PASSWORD': config.get('client', 'password'), # Not used with sqlite3.
+        'PASSWORD': config.get('client', 'password'),  # Not used with sqlite3.
         'HOST': config.get('client', 'host'),         # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                                   # Set to empty string for default. Not used with sqlite3.
     }
@@ -141,7 +141,7 @@ SECRET_KEY = 'e7b-$#-3fgu)j1k01)3tp@^e0=yv1hlcc4k-b6*ap^zezv2$48'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_PATH, 'templates'),],
+        'DIRS': [os.path.join(BASE_PATH, 'templates'), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -293,7 +293,7 @@ CACHES = {
 # login-related settings
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/administration/accounts/login/'
-LOGIN_EXEMPT_URLS  = [
+LOGIN_EXEMPT_URLS = [
     r'^administration/accounts/login',
     r'^api'
 ]
@@ -312,10 +312,10 @@ else:
     }
 
 # Dashboard internal settings
-MCP_SERVER = ('127.0.0.1', 4730) # localhost:4730
-POLLING_INTERVAL = 5 # Seconds
-STATUS_POLLING_INTERVAL = 5 # Seconds
-TASKS_PER_PAGE = 10 # for paging in tasks dialog
+MCP_SERVER = ('127.0.0.1', 4730)  # localhost:4730
+POLLING_INTERVAL = 5  # Seconds
+STATUS_POLLING_INTERVAL = 5  # Seconds
+TASKS_PER_PAGE = 10  # for paging in tasks dialog
 UUID_REGEX = '[\w]{8}(-[\w]{4}){3}-[\w]{12}'
 
 FPR_URL = 'https://fpr.archivematica.org/fpr/api/v2/'
@@ -336,7 +336,7 @@ MICROSERVICES_HELP = {
 }
 
 # Form styling
-TEXTAREA_ATTRS           = {'rows': '4', 'class': 'span11'}
+TEXTAREA_ATTRS = {'rows': '4', 'class': 'span11'}
 TEXTAREA_WITH_HELP_ATTRS = {'rows': '4', 'class': 'span11 has_contextual_help'}
-INPUT_ATTRS              = {'class': 'span11'}
-INPUT_WITH_HELP_ATTRS    = {'class': 'span11 has_contextual_help'}
+INPUT_ATTRS = {'class': 'span11'}
+INPUT_WITH_HELP_ATTRS = {'class': 'span11 has_contextual_help'}

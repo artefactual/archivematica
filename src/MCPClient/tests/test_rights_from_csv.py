@@ -16,9 +16,9 @@ import rightsFromCSV
 
 class TestRightsImportFromCsvBase(TestCase):
 
-    transfer_uuid = 'e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6' # UUID of transfer created by transfer.json
-    file_1_uuid = '47813453-6872-442b-9d65-6515be3c5aa1' # UUID of first file created by files-transfer.json fixture
-    file_2_uuid = '60e5c61b-14ef-4e92-89ec-9b9201e68adb' # UUID of second file created by files-transfer.json fixture
+    transfer_uuid = 'e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6'  # UUID of transfer created by transfer.json
+    file_1_uuid = '47813453-6872-442b-9d65-6515be3c5aa1'  # UUID of first file created by files-transfer.json fixture
+    file_2_uuid = '60e5c61b-14ef-4e92-89ec-9b9201e68adb'  # UUID of second file created by files-transfer.json fixture
 
     def get_metadata_applies_to_type_for_file(self):
         """ Get MetadataAppliesToType instance that allies to files. """
@@ -44,7 +44,7 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
 
         # Test rows processed and model intance counts
         assert rows_processed == 8
-        assert models.RightsStatement.objects.count() == 7 # One row in fixture CSV skipped due to duplicate basis/act combination
+        assert models.RightsStatement.objects.count() == 7  # One row in fixture CSV skipped due to duplicate basis/act combination
         assert models.RightsStatementLicense.objects.count() == 1
         assert models.RightsStatementCopyright.objects.count() == 2
         assert models.RightsStatementStatuteInformation.objects.count() == 1
@@ -55,7 +55,7 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         assert models.RightsStatementLicenseNote.objects.count() == 1
         assert models.RightsStatementStatuteDocumentationIdentifier.objects.count() == 1
         assert models.RightsStatementStatuteInformationNote.objects.count() == 1
-        assert models.RightsStatementOtherRightsDocumentationIdentifier.objects.count() == 0 # Not created as all related columns are blank
+        assert models.RightsStatementOtherRightsDocumentationIdentifier.objects.count() == 0  # Not created as all related columns are blank
         assert models.RightsStatementOtherRightsInformationNote.objects.count() == 1
         assert models.RightsStatementRightsGranted.objects.count() == 7
         assert models.RightsStatementRightsGrantedRestriction.objects.count() == 5

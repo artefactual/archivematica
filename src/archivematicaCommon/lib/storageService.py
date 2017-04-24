@@ -23,9 +23,9 @@ class StorageServiceError(Exception):
     """Error related to the storage service."""
 
 
-######################### INTERFACE WITH STORAGE API #########################
+# ####################### INTERFACE WITH STORAGE API #########################
 
-############# HELPER FUNCTIONS #############
+# ########### HELPER FUNCTIONS #############
 
 class ApiKeyAuth(AuthBase):
     """Custom auth for requests that puts user & key in Authorization header."""
@@ -85,7 +85,7 @@ def _storage_relative_from_absolute(location_path, space_path):
         location_path = location_path[strip:]
     return location_path
 
-############# PIPELINE #############
+# ########### PIPELINE #############
 
 def create_pipeline(create_default_locations=False, shared_path=None, api_username=None, api_key=None):
     pipeline = {
@@ -120,7 +120,7 @@ def _get_pipeline(uuid):
     pipeline = response.json()
     return pipeline
 
-############# LOCATIONS #############
+# ########### LOCATIONS #############
 
 def get_location(path=None, purpose=None, space=None):
     """ Returns a list of storage locations, filtered by parameters.
@@ -229,7 +229,7 @@ def get_files_from_backlog(files):
     return copy_files(backlog, processing, files)
 
 
-############# FILES #############
+# ########### FILES #############
 
 def create_file(uuid, origin_location, origin_path, current_location,
                 current_path, package_type, size, update=False, related_package_uuid=None):

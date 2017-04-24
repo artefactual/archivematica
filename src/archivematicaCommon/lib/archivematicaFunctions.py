@@ -102,8 +102,8 @@ def escapeForCommand(string):
         ret = ret.replace("\\", "\\\\")
         ret = ret.replace("\"", "\\\"")
         ret = ret.replace("`", "\`")
-        #ret = ret.replace("'", "\\'")
-        #ret = ret.replace("$", "\\$")
+        # ret = ret.replace("'", "\\'")
+        # ret = ret.replace("$", "\\$")
     return ret
 
 # This replaces non-unicode characters with a replacement character,

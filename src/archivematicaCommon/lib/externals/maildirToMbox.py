@@ -64,22 +64,22 @@ def maildir2mailbox(maildirname, mboxfilename):
 
 def maildir2mailbox2(dirname, mboxname):
     # mboxdirname=mboxname+'.sbd'
-    maildir2mailbox(dirname,mboxname)
-    #if not os.path.exists(mboxdirname): os.makedirs(mboxdirname)
+    maildir2mailbox(dirname, mboxname)
+    # if not os.path.exists(mboxdirname): os.makedirs(mboxdirname)
 
-    listofdirs=[dn for dn in os.walk(dirname).next()[1] if dn not in ['new', 'cur', 'tmp']]
+    listofdirs = [dn for dn in os.walk(dirname).next()[1] if dn not in ['new', 'cur', 'tmp']]
     for curfold in listofdirs:
-        curlist=[mboxname]+curfold.split('.')
-        curpath=os.path.join(*[dn+'.sbd' for dn in curlist if dn])
+        curlist = [mboxname] + curfold.split('.')
+        curpath = os.path.join(*[dn + '.sbd' for dn in curlist if dn])
         if not os.path.exists(curpath):
             os.makedirs(curpath)
-        print('| ' +curfold +' -> '+curpath[:-4])
-        maildir2mailbox(os.path.join(dirname,curfold),curpath[:-4])
+        print('| ' + curfold + ' -> ' + curpath[:-4])
+        maildir2mailbox(os.path.join(dirname, curfold), curpath[:-4])
 
 
 if __name__ == "__main__":
-    dirname=sys.argv[-2]
-    mboxname=sys.argv[-1]
-    print(dirname + ' -> ' +mboxname)
+    dirname = sys.argv[-2]
+    mboxname = sys.argv[-1]
+    print(dirname + ' -> ' + mboxname)
     maildir2mailbox2(dirname, mboxname)
     print('Done')

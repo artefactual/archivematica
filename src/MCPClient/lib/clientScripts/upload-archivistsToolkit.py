@@ -133,7 +133,7 @@ def upload_to_atk(mylist, atuser, ead_actuate, ead_show, object_type, use_statem
         if mets and mets[uuid]:
             # get premis info from mets
             for premis in mets[uuid]['premis']:
-                logger.debug("{} rights = {}, note={}".format(premis, mets[uuid]['premis'][premis]['restriction'],mets[uuid]['premis'][premis]['rightsGrantedNote']))
+                logger.debug("{} rights = {}, note={}".format(premis, mets[uuid]['premis'][premis]['restriction'], mets[uuid]['premis'][premis]['rightsGrantedNote']))
                 if premis == 'disseminate':
                     access_restrictions = mets[uuid]['premis']['disseminate']['restriction']
                     access_rightsGrantedNote = mets[uuid]['premis']['disseminate']['rightsGrantedNote']

@@ -22,7 +22,7 @@ from django.contrib.auth.forms import UserChangeForm
 
 
 class UserCreationForm(UserCreationForm):
-    is_superuser = forms.BooleanField(label = 'Administrator',required=False)
+    is_superuser = forms.BooleanField(label='Administrator', required=False)
 
     def clean_password1(self):
         data = self.cleaned_data['password1']
@@ -39,13 +39,13 @@ class UserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name','last_name','email', 'is_active','is_superuser')
+        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'is_superuser')
 
 class UserChangeForm(UserChangeForm):
     email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput, required=False)
     password_confirmation = forms.CharField(widget=forms.PasswordInput, required=False)
-    is_superuser = forms.BooleanField(label = 'Administrator', required=False)
+    is_superuser = forms.BooleanField(label='Administrator', required=False)
     regenerate_api_key = forms.CharField(widget=forms.CheckboxInput, label='Regenerate API key (shown below)?')
 
     def __init__(self, *args, **kwargs):

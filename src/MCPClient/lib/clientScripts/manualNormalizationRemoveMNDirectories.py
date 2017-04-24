@@ -42,14 +42,14 @@ errorCount = 0
 
 def recursivelyRemoveEmptyDirectories(dir):
     error_count = 0
-    for root, dirs, files in os.walk(dir,topdown=False):
+    for root, dirs, files in os.walk(dir, topdown=False):
         for directory in dirs:
             try:
                 os.rmdir(os.path.join(root, directory))
             except OSError as e:
                 print("{0} could not be deleted: {1}".format(
                     directory, e.args), file=sys.stderr)
-                error_count+= 1
+                error_count += 1
     return error_count
 
 if os.path.isdir(manual_normalization_dir):
@@ -58,7 +58,7 @@ if os.path.isdir(manual_normalization_dir):
     if os.path.isfile(normalization_csv):
         os.remove(normalization_csv)
         # Need SIP UUID to get file UUID to remove file in DB
-        sipUUID = SIPDirectory[-37:-1] # Account for trailing /
+        sipUUID = SIPDirectory[-37:-1]  # Account for trailing /
 
         f = File.objects.get(removedtime__isnull=True,
                              originallocation__endswith='normalization.csv',

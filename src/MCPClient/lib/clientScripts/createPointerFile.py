@@ -34,7 +34,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     # %Y = 4 digit year, %m = 2 digit month, %d = 2 digit day
     # %H = 24-hour hour, %M = 2-digit minute, %S = 2 digit second
     now = timezone.now().strftime("%Y-%m-%dT%H:%M:%S")
-    aip_identifier = aip_name+'-'+aip_uuid
+    aip_identifier = aip_name + '-' + aip_uuid
     aip_path = os.path.join(sip_dir, aip_filename)
     # Get archive tool and version
     program, algorithm = compression.split('-')
@@ -105,13 +105,13 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     )
     # Namespaced attributes have to be added separately - don't know how to do
     # inline with E
-    root.attrib[namespaces.xsiBNS+'schemaLocation'] = mets_schema_location
+    root.attrib[namespaces.xsiBNS + 'schemaLocation'] = mets_schema_location
 
     add_amdsec_after = root.find('mets:metsHdr', namespaces=namespaces.NSMAP)
     filegrp = root.find('.//mets:fileGrp', namespaces=namespaces.NSMAP)
     structmap = root.find('.//mets:structMap', namespaces=namespaces.NSMAP)
     # For each file, add amdSec, file, fptr
-    for admin_id in range(1, num_files+1):
+    for admin_id in range(1, num_files + 1):
 
         # amdSec
         amdsec_id = 'amdSec_{}'.format(admin_id)
@@ -159,8 +159,8 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
             ),
             version='2.2',
         )
-        obj.attrib[namespaces.xsiBNS+'type'] = 'premis:file'
-        obj.attrib[namespaces.xsiBNS+'schemaLocation'] = premis_schema_location
+        obj.attrib[namespaces.xsiBNS + 'type'] = 'premis:file'
+        obj.attrib[namespaces.xsiBNS + 'schemaLocation'] = premis_schema_location
 
         # Add as child of xmldata
         amdsec.find('.//mets:mdWrap[@MDTYPE="PREMIS:OBJECT"]/mets:xmlData', namespaces=namespaces.NSMAP).append(obj)
@@ -204,8 +204,8 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
                              TRANSFORMALGORITHM='tar')
 
         # structMap
-        div = etree.SubElement(structmap, namespaces.metsBNS+'div', ADMID=amdsec_id, TYPE=package_type)
-        etree.SubElement(div, namespaces.metsBNS+'fptr', FILEID=aip_identifier)
+        div = etree.SubElement(structmap, namespaces.metsBNS + 'div', ADMID=amdsec_id, TYPE=package_type)
+        etree.SubElement(div, namespaces.metsBNS + 'fptr', FILEID=aip_identifier)
 
     print(etree.tostring(root, pretty_print=True))
 
@@ -215,7 +215,7 @@ def main(aip_uuid, aip_name, compression, sip_dir, aip_filename):
     with open(filename, 'w') as f:
         f.write(etree.tostring(root, pretty_print=True, xml_declaration=True, encoding='utf-8'))
     fileOperations.addFileToSIP(
-        filePathRelativeToSIP='%SIPDirectory%'+xml_filename,
+        filePathRelativeToSIP='%SIPDirectory%' + xml_filename,
         fileUUID=str(uuid.uuid4()),
         sipUUID=aip_uuid,
         taskUUID=str(uuid.uuid4()),  # Unsure what should go here

@@ -74,7 +74,7 @@ class RightCsvReader(object):
 
     def __init__(self, transfer_uuid, rights_csv_filepath):
         """Initialize parser."""
-        #self.allowed_column_names = self.optional_column_names + self.required_column_names
+        # self.allowed_column_names = self.optional_column_names + self.required_column_names
         self.transfer_uuid = transfer_uuid
         self.rights_csv_filepath = rights_csv_filepath
 

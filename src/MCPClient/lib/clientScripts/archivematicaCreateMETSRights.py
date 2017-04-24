@@ -21,7 +21,7 @@
 # @subpackage archivematicaClientScript
 # @author Joseph Perry <joseph@artefactual.com>
 
-#/src/dashboard/src/main/models.py
+# /src/dashboard/src/main/models.py
 
 from __future__ import print_function
 import sys
@@ -218,7 +218,7 @@ def getrightsGranted(statement, parent):
             restriction = restriction.restriction
             if not restriction.lower() in ["disallow", "conditional", "allow"]:
                 print("The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional':", restriction, file=sys.stderr)
-                sharedVariablesAcrossModules.globalErrorCount +=1
+                sharedVariablesAcrossModules.globalErrorCount += 1
             etree.SubElement(rightsGranted, ns.premisBNS + "restriction").text = restriction
 
         if granted.startdate or granted.enddate or granted.enddateopen:
@@ -228,7 +228,7 @@ def getrightsGranted(statement, parent):
                 termOfGrant = etree.SubElement(rightsGranted, ns.premisBNS + "termOfRestriction")
             else:
                 print("The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional'", file=sys.stderr)
-                sharedVariablesAcrossModules.globalErrorCount +=1
+                sharedVariablesAcrossModules.globalErrorCount += 1
                 continue
 
             if granted.startdate:

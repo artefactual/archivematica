@@ -59,7 +59,7 @@ def verifyMetsFileSecChecksums(metsFile, date, taskUUID, transferDirectory, tran
     dst = dest.replace(transferDirectory, "%transferDirectory%")
     eventDetail = ""
     eventOutcomeDetailNote = "moved from=\"" + src + "\"; moved to=\"" + dst + "\""
-    updateFileLocation(src, dst, "movement", date, eventDetail, transferUUID=transferUUID, eventOutcomeDetailNote = eventOutcomeDetailNote)
+    updateFileLocation(src, dst, "movement", date, eventDetail, transferUUID=transferUUID, eventOutcomeDetailNote=eventOutcomeDetailNote)
 
     return exitCode
 

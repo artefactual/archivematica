@@ -614,7 +614,7 @@ def path_metadata(request):
     file_lod = get_object_or_None(models.SIPArrange, arrange_path=path, sip_created=False)
     if file_lod is None:
         # Try with trailing / to see if it's a directory
-        file_lod = get_object_or_None(models.SIPArrange, arrange_path=path+'/', sip_created=False)
+        file_lod = get_object_or_None(models.SIPArrange, arrange_path=path + '/', sip_created=False)
 
     # Return current metadata, if requested
     if request.method == 'GET':

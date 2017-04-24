@@ -32,7 +32,7 @@ class DictSAXHandler:
         self.path.append((name, attrs or None))
         if len(self.path) > self.item_depth:
             self.stack.append((self.item, self.data))
-            attrs = dict((self.attr_prefix+key, value)
+            attrs = dict((self.attr_prefix + key, value)
                          for (key, value) in attrs.items())
             self.item = self.xml_attribs and attrs or None
             self.data = None

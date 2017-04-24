@@ -21,7 +21,7 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-#~DOC~
+# ~DOC~
 #
 # --- This is the MCP (master control program) ---
 # The intention of this program is to provide a centralized automated distributed system for performing an arbitrary set of tasks on a directory.
@@ -73,7 +73,7 @@ countOfCreateUnitAndJobChainThreaded = 0
 config = ConfigParser.SafeConfigParser()
 config.read("/etc/archivematica/MCPServer/serverConfig.conf")
 
-#time to sleep to allow db to be updated with the new location of a SIP
+# time to sleep to allow db to be updated with the new location of a SIP
 dbWaitSleep = 2
 
 
@@ -81,7 +81,7 @@ limitTaskThreads = config.getint('Protocol', "limitTaskThreads")
 limitTaskThreadsSleep = config.getfloat('Protocol', "limitTaskThreadsSleep")
 limitGearmanConnectionsSemaphore = threading.Semaphore(value=config.getint('Protocol', "limitGearmanConnections"))
 reservedAsTaskProcessingThreads = config.getint('Protocol', "reservedAsTaskProcessingThreads")
-stopSignalReceived = False #Tracks whether a sigkill has been received or not
+stopSignalReceived = False  # Tracks whether a sigkill has been received or not
 
 def isUUID(uuid):
     """Return boolean of whether it's string representation of a UUID v4"""
@@ -96,10 +96,10 @@ def isUUID(uuid):
     return True
 
 def fetchUUIDFromPath(path):
-    #find UUID on end of SIP path
+    # find UUID on end of SIP path
     uuidLen = -36
-    if isUUID(path[uuidLen-1:-1]):
-        return path[uuidLen-1:-1]
+    if isUUID(path[uuidLen - 1:-1]):
+        return path[uuidLen - 1:-1]
 
 def findOrCreateSipInDB(path, waitSleep=dbWaitSleep, unit_type='SIP'):
     """Matches a directory to a database sip by it's appended UUID, or path. If it doesn't find one, it will create one"""
@@ -185,10 +185,10 @@ def createUnitAndJobChainThreaded(path, config, terminate=True):
     global countOfCreateUnitAndJobChainThreaded
     try:
         logger.debug('Watching path %s', path)
-        t = threading.Thread(target=createUnitAndJobChain, args=(path, config), kwargs={"terminate":terminate})
+        t = threading.Thread(target=createUnitAndJobChain, args=(path, config), kwargs={"terminate": terminate})
         t.daemon = True
         countOfCreateUnitAndJobChainThreaded += 1
-        while(limitTaskThreads <= threading.activeCount() + reservedAsTaskProcessingThreads ):
+        while(limitTaskThreads <= threading.activeCount() + reservedAsTaskProcessingThreads):
             if stopSignalReceived:
                 logger.info('Signal was received; stopping createUnitAndJobChainThreaded(path, config)')
                 exit(0)
@@ -219,12 +219,12 @@ def watchDirectories():
                 continue
             item = item.decode("utf-8")
             path = os.path.join(unicode(directory), item)
-            while(limitTaskThreads <= threading.activeCount() + reservedAsTaskProcessingThreads ):
+            while(limitTaskThreads <= threading.activeCount() + reservedAsTaskProcessingThreads):
                 time.sleep(1)
             createUnitAndJobChainThreaded(path, row, terminate=False)
-        actOnFiles=True
+        actOnFiles = True
         if watched_directory.only_act_on_directories:
-            actOnFiles=False
+            actOnFiles = False
         watchDirectory.archivematicaWatchDirectory(
             directory,
             variablesAdded=row,

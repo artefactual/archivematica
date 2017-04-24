@@ -29,13 +29,13 @@ from dicts import ReplacementDict
 
 from main.models import MicroServiceChain, UnitVariable
 
-#Holds:
-#-UNIT
-#-Job chain link
-#-Job chain description
+# Holds:
+# -UNIT
+# -Job chain link
+# -Job chain description
 #
-#potentialToHold/getFromDB
-#-previous chain links
+# potentialToHold/getFromDB
+# -previous chain links
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 

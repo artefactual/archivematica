@@ -33,8 +33,7 @@ class TestConfigReader(TestCase):
         self.environ['ARCHIVEMATICA_NICESERVICE_QUEUE_MAX_SIZE'] = '100'
         config = self.read_test_config(
             prefix='ARCHIVEMATICA_NICESERVICE',
-            test_config=
-            """
+            test_config="""
 [queue]
 max_size = 500
 """)
@@ -48,8 +47,7 @@ max_size = 500
         self.environ['ARCHIVEMATICA_NICESERVICE_TLS'] = 'off'
         config = self.read_test_config(
             prefix='ARCHIVEMATICA_NICESERVICE',
-            test_config=
-            """
+            test_config="""
 [network]
 tls = on
 """)

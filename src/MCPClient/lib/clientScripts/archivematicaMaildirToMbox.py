@@ -9,7 +9,7 @@ from externals.maildirToMbox import maildir2mailbox2
 
 def getFileDic(fileFullPath):
     f = open(fileFullPath, 'r')
-    #for line in f.readlines():
+    # for line in f.readlines():
     fileDic = {}
     for line in f:
         if line.startswith('#'):
@@ -18,7 +18,7 @@ def getFileDic(fileFullPath):
             eqIndex = line.find('=')
             if eqIndex != -1:
                 key = line[:eqIndex].strip()
-                value =  line[eqIndex+1:].strip()
+                value = line[eqIndex + 1:].strip()
                 fileDic[key] = value
     f.close()
     return fileDic

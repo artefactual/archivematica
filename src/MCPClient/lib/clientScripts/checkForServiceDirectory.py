@@ -36,24 +36,24 @@ from custom_handlers import get_script_logger
 
 
 def something(SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, date):
-    #exitCode = 435
+    # exitCode = 435
     exitCode = 0
     print(SIPDirectory)
-    #For every file, & directory Try to find the matching file & directory in the objects directory
+    # For every file, & directory Try to find the matching file & directory in the objects directory
     for (path, dirs, files) in os.walk(serviceDirectory):
         for file in files:
             servicePreExtension = "_me"
             originalPreExtension = "_m"
-            file1Full = os.path.join(path, file).replace(SIPDirectory, "%SIPDirectory%", 1) #service
+            file1Full = os.path.join(path, file).replace(SIPDirectory, "%SIPDirectory%", 1)  # service
 
             a = file.rfind(servicePreExtension + ".")
             if a != -1:
-                file2Full = os.path.join(path, file[:a] + originalPreExtension + ".").replace(SIPDirectory + "objects/service/", "%SIPDirectory%objects/", 1) #service
+                file2Full = os.path.join(path, file[:a] + originalPreExtension + ".").replace(SIPDirectory + "objects/service/", "%SIPDirectory%objects/", 1)  # service
             else:
                 a = file.rfind(".")
-                if a != -1: #if a period is found
-                    a += 1 #include the period
-                file2Full = os.path.join(path, file[:a]).replace(SIPDirectory + "objects/service/", "%SIPDirectory%objects/", 1) #service
+                if a != -1:  # if a period is found
+                    a += 1  # include the period
+                file2Full = os.path.join(path, file[:a]).replace(SIPDirectory + "objects/service/", "%SIPDirectory%objects/", 1)  # service
 
             f = File.objects.get(currentlocation=file1Full,
                                  removedtime__isnull=True,
@@ -69,7 +69,7 @@ def something(SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, date):
     return exitCode
 
 
-#only works if files have the same extension
+# only works if files have the same extension
 def regular(SIPDirectory, objectsDirectory, SIPUUID, date):
     searchForRegularExpressions = True
     if not searchForRegularExpressions:
@@ -79,9 +79,9 @@ def regular(SIPDirectory, objectsDirectory, SIPUUID, date):
         for file in files:
             m = re.search("_me\.[a-zA-Z0-9]{2,4}$", file)
             if m is not None:
-                file1Full = os.path.join(path, file).replace(SIPDirectory, "%SIPDirectory%", 1) #service
+                file1Full = os.path.join(path, file).replace(SIPDirectory, "%SIPDirectory%", 1)  # service
                 file2 = file.replace(m.group(0), m.group(0).replace("_me", "_m", 1))
-                file2Full = os.path.join(path, file2).replace(SIPDirectory, "%SIPDirectory%", 1) #original
+                file2Full = os.path.join(path, file2).replace(SIPDirectory, "%SIPDirectory%", 1)  # original
 
                 f = File.objects.get(currentlocation=file1Full,
                                      removedtime__isnull=True,
@@ -102,12 +102,12 @@ if __name__ == '__main__':
         import time
         time.sleep(10)
     parser = OptionParser()
-    #'--SIPDirectory "%SIPDirectory%" --serviceDirectory "objects/service/" --objectsDirectory "objects/" --SIPUUID "%SIPUUID%" --date "%date%"' );
-    parser.add_option("-s",  "--SIPDirectory", action="store", dest="SIPDirectory", default="")
-    parser.add_option("-u",  "--SIPUUID", action="store", dest="SIPUUID", default="")
-    parser.add_option("-a",  "--serviceDirectory", action="store", dest="serviceDirectory", default="")
-    parser.add_option("-o",  "--objectsDirectory", action="store", dest="objectsDirectory", default="")
-    parser.add_option("-t",  "--date", action="store", dest="date", default="")
+    # '--SIPDirectory "%SIPDirectory%" --serviceDirectory "objects/service/" --objectsDirectory "objects/" --SIPUUID "%SIPUUID%" --date "%date%"' );
+    parser.add_option("-s", "--SIPDirectory", action="store", dest="SIPDirectory", default="")
+    parser.add_option("-u", "--SIPUUID", action="store", dest="SIPUUID", default="")
+    parser.add_option("-a", "--serviceDirectory", action="store", dest="serviceDirectory", default="")
+    parser.add_option("-o", "--objectsDirectory", action="store", dest="objectsDirectory", default="")
+    parser.add_option("-t", "--date", action="store", dest="date", default="")
 
     (opts, args) = parser.parse_args()
 
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
     if not os.path.isdir(serviceDirectory):
         print("no service directory in this sip")
-        #regular(SIPDirectory, objectsDirectory, SIPUUID, date)
+        # regular(SIPDirectory, objectsDirectory, SIPUUID, date)
         exit(0)
 
     exitCode = something(SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, date)

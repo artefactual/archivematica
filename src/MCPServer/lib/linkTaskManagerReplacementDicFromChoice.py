@@ -103,14 +103,14 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                         dic = MicroServiceChoiceReplacementDic.objects.get(id=desiredChoice, choiceavailableatlink=self.jobChainLink.pk)
                         ret = dic.replacementdic
                         try:
-                            #<delay unitAtime="yes">30</delay>
+                            # <delay unitAtime="yes">30</delay>
                             delayXML = preconfiguredChoice.find("delay")
                             unitAtimeXML = delayXML.get("unitCtime")
                             if unitAtimeXML is not None and unitAtimeXML.lower() != "no":
-                                delaySeconds=int(delayXML.text)
+                                delaySeconds = int(delayXML.text)
                                 unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%", \
                                                                                           archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
-                                nowTime=time.time()
+                                nowTime = time.time()
                                 timeDifference = nowTime - unitTime
                                 timeToGo = delaySeconds - timeDifference
                                 LOGGER.info('Time to go: %s', timeToGo)

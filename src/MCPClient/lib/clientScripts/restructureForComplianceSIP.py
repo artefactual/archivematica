@@ -32,7 +32,7 @@ def restructureForComplianceFileUUIDsAssigned(unit_path, unit_uuid, unit_type='s
                 dst=dst,
                 unitPath=unit_path,
                 unitIdentifier=unit_uuid,
-                unitIdentifierType=unit_type, # sipUUID or transferUUID
+                unitIdentifierType=unit_type,  # sipUUID or transferUUID
                 unitPathReplaceWith=unit_path_replacement)
         if os.path.isdir(entry_path) and entry not in REQUIRED_DIRECTORIES:
             # Make directory at new location if not exists
@@ -58,7 +58,7 @@ def restructureForComplianceFileUUIDsAssigned(unit_path, unit_uuid, unit_type='s
                         dst=dst,
                         unitPath=unit_path,
                         unitIdentifier=unit_uuid,
-                        unitIdentifierType=unit_type, # sipUUID or transferUUID
+                        unitIdentifierType=unit_type,  # sipUUID or transferUUID
                         unitPathReplaceWith=unit_path_replacement)
             # Delete entry_path if it exists (is empty dir)
             print('Removing directory', entry_path)

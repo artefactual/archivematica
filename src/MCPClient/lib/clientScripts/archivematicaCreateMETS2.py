@@ -58,7 +58,7 @@ sharedVariablesAcrossModules.globalErrorCount = 0
 
 from bagit import Bag, BagError
 
-#Global Variables
+# Global Variables
 
 globalFileGrps = {}
 globalFileGrpsUses = ["original", "submissionDocumentation", "preservation", "service", "access", "license", "text/ocr", "metadata"]
@@ -67,7 +67,7 @@ for use in globalFileGrpsUses:
     grp.set("USE", use)
     globalFileGrps[use] = grp
 
-##counters
+# counters
 global amdSecs
 amdSecs = []
 global dmdSecs
@@ -82,19 +82,19 @@ global globalRightsMDCounter
 globalRightsMDCounter = 0
 global globalDigiprovMDCounter
 globalDigiprovMDCounter = 0
-global fileNameToFileID #Used for mapping structMaps included with transfer
+global fileNameToFileID  # Used for mapping structMaps included with transfer
 fileNameToFileID = {}
 
 global trimStructMap
 trimStructMap = None
 global trimStructMapObjects
 trimStructMapObjects = None
-#GROUPID="G1" -> GROUPID="Group-%object's UUID%"
-##group of the object and it's related access, license
+# GROUPID="G1" -> GROUPID="Group-%object's UUID%"
+# group of the object and it's related access, license
 
 CSV_METADATA = {}
 
-#move to common
+# move to common
 def newChild(parent, tag, text=None, tailText=None, sets=[]):
     # TODO convert sets to a dict, and use **dict
     child = etree.SubElement(parent, tag)
@@ -361,8 +361,8 @@ def create_premis_object(fileUUID):
     f = File.objects.get(uuid=fileUUID)
     # PREMIS:OBJECT
     object_elem = etree.Element(ns.premisBNS + "object", nsmap={'premis': ns.premisNS})
-    object_elem.set(ns.xsiBNS+"type", "premis:file")
-    object_elem.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
+    object_elem.set(ns.xsiBNS + "type", "premis:file")
+    object_elem.set(ns.xsiBNS + "schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
     object_elem.set("version", "2.2")
 
     objectIdentifier = etree.SubElement(object_elem, ns.premisBNS + "objectIdentifier")
@@ -524,7 +524,7 @@ def createEvent(event_record):
 def createAgent(agent_record):
     """ Creates a PREMIS Agent as a SubElement of digiprovMD. """
     agent = etree.Element(ns.premisBNS + "agent", nsmap={'premis': ns.premisNS})
-    agent.set(ns.xsiBNS+"schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
+    agent.set(ns.xsiBNS + "schemaLocation", ns.premisNS + " http://www.loc.gov/standards/premis/v2/premis-v2-2.xsd")
     agent.set("version", "2.2")
 
     agentIdentifier = etree.SubElement(agent, ns.premisBNS + "agentIdentifier")
@@ -560,13 +560,13 @@ def getAMDSec(fileUUID, filePath, use, type, sip_uuid, transferUUID, itemdirecto
     AMD = etree.Element(ns.metsBNS + "amdSec", ID=AMDID)
     ret = (AMD, AMDID)
 
-    #tech MD
+    # tech MD
     AMD.append(createTechMD(fileUUID))
 
     if use == "original":
         metadataAppliesToList = [(fileUUID, FileMetadataAppliesToType), (sip_uuid, SIPMetadataAppliesToType), (transferUUID, TransferMetadataAppliesToType)]
         for a in archivematicaGetRights(metadataAppliesToList, fileUUID):
-            globalRightsMDCounter +=1
+            globalRightsMDCounter += 1
             rightsMD = etree.SubElement(AMD, ns.metsBNS + "rightsMD")
             rightsMD.set("ID", "rightsMD_" + globalRightsMDCounter.__str__())
             mdWrap = newChild(rightsMD, ns.metsBNS + "mdWrap")
@@ -576,7 +576,7 @@ def getAMDSec(fileUUID, filePath, use, type, sip_uuid, transferUUID, itemdirecto
 
         if typeOfTransfer == "Dspace":
             for a in archivematicaCreateMETSRightsDspaceMDRef(fileUUID, filePath, transferUUID, itemdirectoryPath):
-                globalRightsMDCounter +=1
+                globalRightsMDCounter += 1
                 rightsMD = etree.SubElement(AMD, ns.metsBNS + "rightsMD")
                 rightsMD.set("ID", "rightsMD_" + globalRightsMDCounter.__str__())
                 rightsMD.append(a)
@@ -584,7 +584,7 @@ def getAMDSec(fileUUID, filePath, use, type, sip_uuid, transferUUID, itemdirecto
         elif typeOfTransfer == "TRIM":
             digiprovMD = getTrimFileAmdSec(baseDirectoryPath, sip_uuid, fileUUID)
             globalDigiprovMDCounter += 1
-            digiprovMD.set("ID", "digiprovMD_"+ globalDigiprovMDCounter.__str__())
+            digiprovMD.set("ID", "digiprovMD_" + globalDigiprovMDCounter.__str__())
             AMD.append(digiprovMD)
 
     for a in createDigiprovMD(fileUUID):
@@ -610,8 +610,8 @@ def getIncludedStructMap(baseDirectoryPath):
             continue
         if os.path.isfile(structMapXmlPath):
             tree = etree.parse(structMapXmlPath)
-            root = tree.getroot() #TDOD - not root to return, but sub element structMap
-            #print etree.tostring(root)
+            root = tree.getroot()  # TDOD - not root to return, but sub element structMap
+            # print etree.tostring(root)
             structMap = root.find(ns.metsBNS + "structMap")
             id = structMap.get("ID")
             if not id:
@@ -620,21 +620,21 @@ def getIncludedStructMap(baseDirectoryPath):
             for item in structMap.findall(".//" + ns.metsBNS + "fptr"):
                 fileName = item.get("FILEID")
                 if fileName in fileNameToFileID:
-                    #print fileName, " -> ", fileNameToFileID[fileName]
+                    # print fileName, " -> ", fileNameToFileID[fileName]
                     item.set("FILEID", fileNameToFileID[fileName])
                 else:
                     print("error: no fileUUID for ", fileName, file=sys.stderr)
                     sharedVariablesAcrossModules.globalErrorCount += 1
-    for fileName, fileID in  fileNameToFileID.items():
-        #locate file based on key
+    for fileName, fileID in fileNameToFileID.items():
+        # locate file based on key
         continue
         print(fileName)
     if trimStructMap is not None:
         ret.append(trimStructMap)
     return ret
 
-#DMDID="dmdSec_01" for an object goes in here
-#<file ID="file1-UUID" GROUPID="G1" DMDID="dmdSec_02" ADMID="amdSec_01">
+# DMDID="dmdSec_01" for an object goes in here
+# <file ID="file1-UUID" GROUPID="G1" DMDID="dmdSec_02" ADMID="amdSec_01">
 def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName, fileGroupIdentifier, fileGroupType, includeAmdSec=True):
     """
     Creates fileSec and structMap entries for files on disk recursively.
@@ -831,7 +831,7 @@ def createFileSec(directoryPath, parentDiv, baseDirectoryPath, baseDirectoryName
                 file_elem = etree.SubElement(globalFileGrps[use], ns.metsBNS + "file", ID=fileId, GROUPID=GROUPID)
                 if use == "original":
                     filesInThisDirectory.append(file_elem)
-                #<Flocat xlink:href="objects/file1-UUID" locType="other" otherLocType="system"/>
+                # <Flocat xlink:href="objects/file1-UUID" locType="other" otherLocType="system"/>
                 newChild(file_elem, ns.metsBNS + "FLocat", sets=[(ns.xlinkBNS + "href", directoryPathSTR), ("LOCTYPE", "OTHER"), ("OTHERLOCTYPE", "SYSTEM")])
                 if includeAmdSec:
                     AMD, ADMID = getAMDSec(f.uuid, directoryPathSTR, use, fileGroupType, fileGroupIdentifier, f.transfer_id, itemdirectoryPath, typeOfTransfer, baseDirectoryPath)
@@ -1026,12 +1026,12 @@ if __name__ == '__main__':
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("--sipType", action="store", dest="sip_type", default="SIP")
-    parser.add_option("-s",  "--baseDirectoryPath", action="store", dest="baseDirectoryPath", default="")
-    parser.add_option("-b",  "--baseDirectoryPathString", action="store", dest="baseDirectoryPathString", default="SIPDirectory") #transferDirectory/
-    parser.add_option("-f",  "--fileGroupIdentifier", action="store", dest="fileGroupIdentifier", default="") #transferUUID/sipUUID
-    parser.add_option("-t",  "--fileGroupType", action="store", dest="fileGroupType", default="sipUUID") #
-    parser.add_option("-x",  "--xmlFile", action="store", dest="xmlFile", default="")
-    parser.add_option("-a",  "--amdSec", action="store_true", dest="amdSec", default=False)
+    parser.add_option("-s", "--baseDirectoryPath", action="store", dest="baseDirectoryPath", default="")
+    parser.add_option("-b", "--baseDirectoryPathString", action="store", dest="baseDirectoryPathString", default="SIPDirectory")  # transferDirectory/
+    parser.add_option("-f", "--fileGroupIdentifier", action="store", dest="fileGroupIdentifier", default="")  # transferUUID/sipUUID
+    parser.add_option("-t", "--fileGroupType", action="store", dest="fileGroupType", default="sipUUID")
+    parser.add_option("-x", "--xmlFile", action="store", dest="xmlFile", default="")
+    parser.add_option("-a", "--amdSec", action="store_true", dest="amdSec", default=False)
     (opts, args) = parser.parse_args()
 
     SIP_TYPE = opts.sip_type
@@ -1081,7 +1081,7 @@ if __name__ == '__main__':
     createFileSec(metadataDirectoryPath, structMapDiv, baseDirectoryPath, baseDirectoryPathString, fileGroupIdentifier, fileGroupType, includeAmdSec)
 
     fileSec = etree.Element(ns.metsBNS + "fileSec")
-    for group in globalFileGrpsUses: #globalFileGrps.itervalues():
+    for group in globalFileGrpsUses:  # globalFileGrps.itervalues():
         grp = globalFileGrps[group]
         if len(grp) > 0:
             fileSec.append(grp)
@@ -1092,8 +1092,8 @@ if __name__ == '__main__':
         'xlink': ns.xlinkNS,
     }
     root = etree.Element(ns.metsBNS + "mets",
-                         nsmap = rootNSMap,
-                         attrib = { "{" + ns.xsiNS + "}schemaLocation" : "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version111/mets.xsd" },
+                         nsmap=rootNSMap,
+                         attrib={"{" + ns.xsiNS + "}schemaLocation": "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version111/mets.xsd"},
                          )
     etree.SubElement(root, ns.metsBNS + "metsHdr").set("CREATEDATE", timezone.now().strftime("%Y-%m-%dT%H:%M:%S"))
 

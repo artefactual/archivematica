@@ -8,7 +8,7 @@ def log_exceptions(fn):
 
     Useful for catching exceptions in threads, which do not normally report back to the parent thread.
     """
-    def wrapped(*args,  **kwargs):
+    def wrapped(*args, **kwargs):
         try:
             return fn(*args, **kwargs)
         except Exception:

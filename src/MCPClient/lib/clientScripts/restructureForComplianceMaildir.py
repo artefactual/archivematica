@@ -38,7 +38,7 @@ def restructureMaildirDirectory(unitPath):
             print("creating: ", dir)
     for item in os.listdir(unitPath):
         dst = os.path.join(unitPath, "objects", "Maildir") + "/."
-        itemPath =  os.path.join(unitPath, item)
+        itemPath = os.path.join(unitPath, item)
         if os.path.isdir(itemPath) and item not in requiredDirectories:
             shutil.move(itemPath, dst)
             print("moving directory to objects/Maildir: ", item)

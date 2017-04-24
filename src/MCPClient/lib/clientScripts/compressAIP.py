@@ -45,7 +45,7 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
         return -1
 
     archive_path = '{name}-{uuid}'.format(name=sip_name, uuid=sip_uuid)
-    uncompressed_location = sip_directory+archive_path
+    uncompressed_location = sip_directory + archive_path
 
     # Even though no actual compression is taking place,
     # the location still needs to be set in the unit to ensure that the
@@ -60,7 +60,7 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
         uncompressed_location, program, compression_algorithm, compression_level))
 
     if program == '7z':
-        compressed_location = uncompressed_location+".7z"
+        compressed_location = uncompressed_location + ".7z"
         command = '/usr/bin/7z a -bd -t7z -y -m0={algorithm} -mx={level} -mta=on -mtc=on -mtm=on -mmt=on "{compressed_location}" "{uncompressed_location}"'.format(
             algorithm=compression_algorithm, level=compression_level,
             uncompressed_location=uncompressed_location,
@@ -68,7 +68,7 @@ def compress_aip(compression, compression_level, sip_directory, sip_name, sip_uu
         )
         tool_info_command = 'echo program=\"7z\"\; version=\"`7z | grep Version`\"'
     elif program == 'pbzip2':
-        compressed_location = uncompressed_location+".tar.bz2"
+        compressed_location = uncompressed_location + ".tar.bz2"
         command = '/bin/tar -c --directory "{sip_directory}" "{archive_path}" | /usr/bin/pbzip2 --compress -{level} > "{compressed_location}"'.format(
             sip_directory=sip_directory, archive_path=archive_path,
             level=compression_level, compressed_location=compressed_location
