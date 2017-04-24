@@ -33,7 +33,12 @@ def get_script_logger(name, formatter=SCRIPT_FILE_FORMAT, logfile="/var/log/arch
                 'formatter': 'fmt',
                 'filename': logfile,
                 'maxBytes': logsize,
-            }
+            },
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'fmt',
+            },
         },
         'loggers': {
             root: {  # 'archivematica'
@@ -49,6 +54,15 @@ def get_script_logger(name, formatter=SCRIPT_FILE_FORMAT, logfile="/var/log/arch
         },
     }
 
+    # Don't use the `logfile` handler during testing so we don't force the
+    # developer to run the suite as the archivematica user.
+    try:
+        if os.environ['DJANGO_SETTINGS_MODULE'] == 'settings.test':
+            del logging_config['handlers']['logfile']
+            logging_config['root']['handlers'] = ['console']
+    except KeyError:
+        pass
+   
     logging.config.dictConfig(logging_config)
     logger = logging.getLogger(name)
     return logger
