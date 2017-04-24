@@ -109,12 +109,12 @@ class RightCsvReader(object):
             raise RightsRowException("The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional'", self)
 
         # Initialize hash to note which basis/act combinations for file have alredy been imported
-        if not filepath in self.object_basis_act_usage:
+        if filepath not in self.object_basis_act_usage:
             self.object_basis_act_usage[filepath] = {}
 
         basis = self.column_value('basis').lower().capitalize()
 
-        if not basis in self.object_basis_act_usage[filepath]:
+        if basis not in self.object_basis_act_usage[filepath]:
             self.object_basis_act_usage[filepath][basis] = {}
 
         # Check that act is set and normalize value
@@ -124,7 +124,7 @@ class RightCsvReader(object):
         act = act.lower().capitalize()
 
         # Process row if basis/act combination for file hasn't yet been imported
-        if not act in self.object_basis_act_usage[filepath][basis]:
+        if act not in self.object_basis_act_usage[filepath][basis]:
             self.store_row()
             self.object_basis_act_usage[filepath][basis][act] = True
         else:
@@ -174,11 +174,11 @@ class RightCsvReader(object):
     def validate_columns(self, row):
         """Check for invalid/missing columns."""
         for column_name in row.keys():
-            if not column_name in self.allowed_column_names:
+            if column_name not in self.allowed_column_names:
                 raise RightsRowException('Invalid column found: {}'.format(column_name), self)
 
         for column_name in self.required_column_names:
-            if not column_name in row:
+            if column_name not in row:
                 raise RightsRowException('Missing required column: {}'.format(column_name), self)
 
     def column_value(self, column_name):

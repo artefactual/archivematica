@@ -78,7 +78,7 @@ def test_replacementdict_model_constructor_sip():
     assert rd['%relativeLocation%'] == SIP.currentpath
     assert rd['%currentPath%'] == SIP.currentpath
     assert rd['%SIPDirectory%'] == SIP.currentpath
-    assert not '%transferDirectory%' in rd
+    assert '%transferDirectory%' not in rd
     assert rd['%SIPDirectoryBasename%'] == os.path.basename(SIP.currentpath)
     assert rd['%SIPLogsDirectory%'] == os.path.join(SIP.currentpath, 'logs/')
     assert rd['%SIPObjectsDirectory%'] == os.path.join(SIP.currentpath, 'objects/')
@@ -108,8 +108,8 @@ def test_replacementdict_options():
 
 def test_replacementdict_replace_returns_bytestring():
     in_str = u"%originalLocation%/location/การแปล"
-    assert type(in_str) == unicode
+    assert isinstance(in_str, unicode)
 
     d = ReplacementDict({'%originalLocation%': '\x82\xdb\x82\xc1\x82\xd5\x82\xe9\x83\x81\x83C\x83\x8b'})
     out_str = d.replace(in_str)[0]
-    assert type(out_str) == str
+    assert isinstance(out_str, str)

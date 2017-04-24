@@ -62,16 +62,13 @@ def _modified(path):
 
         if mtime != _times[path]:
             return True
-    except:
-        # If any exception occured, likely that file has been
-        # been removed just before stat(), so force a restart.
-
+    except:  # If any exception occured, likely that file has been removed just before stat(), so force a restart.
         return True
 
     return False
 
 def _monitor():
-    while 1:
+    while True:
         # Check modification times on all files in sys.modules.
 
         for module in sys.modules.values():
@@ -112,7 +109,7 @@ def _exiting():
 atexit.register(_exiting)
 
 def track(path):
-    if not path in _files:
+    if path not in _files:
         _files.append(path)
 
 def start(interval=1.0):

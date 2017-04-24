@@ -40,7 +40,7 @@ class MCPClient:
         data = {}
         data["jobUUID"] = uuid
         data["chain"] = choice
-        if uid != None:
+        if uid is not None:
             data["uid"] = uid
         gm_client.submit_job("approveJob", cPickle.dumps(data), None)
         gm_client.shutdown()

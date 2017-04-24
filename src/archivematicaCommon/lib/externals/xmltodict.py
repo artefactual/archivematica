@@ -6,7 +6,8 @@ __author__ = 'Martin Blech'
 __version__ = '0.1.dev'
 __license__ = 'MIT'
 
-class ParsingInterrupted(Exception): pass
+class ParsingInterrupted(Exception):
+    pass
 
 class DictSAXHandler:
     def __init__(self,
@@ -23,7 +24,7 @@ class DictSAXHandler:
         self.item_depth = item_depth
         self.xml_attribs = xml_attribs
         self.item_callback = item_callback
-        self.attr_prefix = attr_prefix;
+        self.attr_prefix = attr_prefix
         self.cdata_key = cdata_key
         self.force_cdata = force_cdata
 

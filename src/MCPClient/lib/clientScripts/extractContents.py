@@ -75,7 +75,7 @@ def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
                   ' - file format not identified',
                   file=sys.stderr)
             continue
-        if format_id.format_version == None:
+        if format_id.format_version is None:
             print('Not extracting contents from',
                   os.path.basename(file_.currentlocation),
                   ' - file format not identified',
@@ -136,8 +136,7 @@ def main(transfer_uuid, sip_directory, date, task_uuid, delete=False):
             if delete:
                 delete_and_record_package_file(file_path, file_.uuid, file_.currentlocation)
 
-
-    if extracted == True:
+    if extracted:
         return 0
     else:
         return -1

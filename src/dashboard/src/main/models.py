@@ -841,7 +841,7 @@ class MicroServiceChoiceReplacementDic(models.Model):
             config = ast.literal_eval(self.replacementdic)
         except (ValueError, SyntaxError):
             error = _('Invalid syntax.')
-        if error is None and not type(config) is dict:
+        if error is None and not isinstance(config, dict):
             error = _('Invalid syntax.')
         if error is not None:
             raise forms.ValidationError(error)

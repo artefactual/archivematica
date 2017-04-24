@@ -253,7 +253,7 @@ def logJobCreatedSQL(job):
     # microseconds are always 6 digits
     # The number returned may have a leading 0 which needs to be preserved
     decDate = getDeciDate("." + str(job.createdDate.microsecond).zfill(6))
-    if job.unit.owningUnit != None:
+    if job.unit.owningUnit is not None:
         unitUUID = job.unit.owningUnit.UUID
     Job.objects.create(jobuuid=job.UUID,
                        jobtype=job.description,
@@ -342,6 +342,6 @@ def deUnicode(str):
     :param unicode: A string. If not already a unicode string, it will be converted to one before encoding.
     :returns str: A UTF-8 encoded string, or None if the provided string was None. May be identical to the original string, if the original string contained only ASCII values.
     """
-    if str == None:
+    if str is None:
         return None
     return unicode(str).encode('utf-8')

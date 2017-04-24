@@ -56,7 +56,7 @@ def exclude_jhove_properties(fits):
         if tool.get("name") == "Jhove":
             format_validation = tool
             break
-    if format_validation == None:
+    if format_validation is None:
         return fits
     repInfo = getTagged(format_validation, "repInfo")[0]
     properties = getTagged(repInfo, "properties")

@@ -36,7 +36,7 @@ def sorted_directory_list(path):
 
 def directory_to_dict(path, directory={}, entry=False):
     # if starting traversal, set entry to directory root
-    if (entry == False):
+    if entry is False:
         entry = directory
         # remove leading slash
         entry['parent'] = base64.b64encode(os.path.dirname(path)[1:])
@@ -56,7 +56,7 @@ def directory_to_dict(path, directory={}, entry=False):
 
         # if entry is a directory, recurse
         child_path = os.path.join(path, file)
-        if new_entry != None and os.path.isdir(child_path) and os.access(child_path, os.R_OK):
+        if new_entry is not None and os.path.isdir(child_path) and os.access(child_path, os.R_OK):
             directory_to_dict(child_path, directory, new_entry)
 
     # return fully traversed data
@@ -68,7 +68,7 @@ def check_filepath_exists(filepath):
         error = 'No filepath provided.'
 
     # check if exists
-    if error == None and not os.path.exists(filepath):
+    if error is None and not os.path.exists(filepath):
         error = 'Filepath ' + filepath + ' does not exist.'
 
     # check if is file or directory

@@ -73,7 +73,7 @@ def getTimedeltaFromRetensionSchedule(RetentionSchedule):
 
 def getDateTimeFromDateClosed(dateClosed):
     i = 19 #the + or minus for offset (DST + timezone)
-    if dateClosed== None:
+    if dateClosed is None:
         return
 
     dateClosedDT = datetime.strptime(dateClosed[:i], '%Y-%m-%dT%H:%M:%S')

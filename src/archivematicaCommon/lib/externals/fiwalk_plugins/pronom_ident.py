@@ -63,11 +63,11 @@ class FiwalkFido(fido.Fido):
                 out['pronomFormatName'] = f.find('name').text
                 out['pronomSignatureName'] = s.find('name').text
                 mime = f.find('mime')
-                out['pronomFormatMimeType'] = mime.text if mime != None else None
+                out['pronomFormatMimeType'] = mime.text if mime is not None else None
                 version = f.find('version')
-                out['pronomFormatVersion'] = version.text if version != None else None
+                out['pronomFormatVersion'] = version.text if version is not None else None
                 alias = f.find('alias')
-                out['pronomFormatAlias'] = alias.text if alias != None else None
+                out['pronomFormatAlias'] = alias.text if alias is not None else None
         return out
 
 def pronom_ident(fn):

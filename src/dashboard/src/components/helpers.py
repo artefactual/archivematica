@@ -68,7 +68,7 @@ def keynat(string):
     for c in string:
         if c.isdigit():
             d = int(c)
-            if r and type( r[-1] ) == it:
+            if r and isinstance(r[-1], it):
                 r[-1] = r[-1] * 10 + d
             else:
                 r.append(d)
@@ -140,7 +140,7 @@ def get_file_sip_uuid(fileuuid):
     return file.sip.uuid
 
 def task_duration_in_seconds(task):
-    if task.endtime != None:
+    if task.endtime is not None:
         duration = int(format(task.endtime, 'U')) - int(format(task.starttime, 'U'))
     else:
         duration = ''
@@ -280,7 +280,7 @@ def file_is_an_archive(file):
     return file.endswith('.zip') or file.endswith('.tgz') or file.endswith('.tar.gz')
 
 def pad_destination_filepath_if_it_already_exists(filepath, original=None, attempt=0):
-    if original == None:
+    if original is None:
         original = filepath
     attempt = attempt + 1
     if os.path.exists(filepath):

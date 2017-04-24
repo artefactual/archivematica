@@ -78,7 +78,7 @@ def regular(SIPDirectory, objectsDirectory, SIPUUID, date):
     for (path, dirs, files) in os.walk(objectsDirectory):
         for file in files:
             m = re.search("_me\.[a-zA-Z0-9]{2,4}$", file)
-            if m != None:
+            if m is not None:
                 file1Full = os.path.join(path, file).replace(SIPDirectory, "%SIPDirectory%", 1) #service
                 file2 = file.replace(m.group(0), m.group(0).replace("_me", "_m", 1))
                 file2Full = os.path.join(path, file2).replace(SIPDirectory, "%SIPDirectory%", 1) #original

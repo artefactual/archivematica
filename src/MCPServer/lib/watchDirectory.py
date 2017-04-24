@@ -74,8 +74,8 @@ class archivematicaWatchDirectory:
         while self.run:
             time.sleep (self.interval)
             after = dict ([(f, None) for f in os.listdir (self.directory)])
-            added = [f for f in after if not f in before]
-            removed = [f for f in before if not f in after]
+            added = [f for f in after if f not in before]
+            removed = [f for f in before if f not in after]
             if added:
                 LOGGER.debug('Added %s', added)
                 for i in added:

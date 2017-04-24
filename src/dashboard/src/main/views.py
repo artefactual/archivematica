@@ -301,14 +301,14 @@ def formdata(request, type, parent_id, delete_id = None):
 
     # handle deletion
     if (request.method == 'DELETE'):
-        if (delete_id == None):
+        if (delete_id is None):
             response['message'] = _('Error: no delete ID supplied.')
         else:
             model.objects.filter(pk=delete_id).delete()
             response['message'] = _('Deleted.')
 
     # send back revised data
-    if (results != None):
+    if (results is not None):
         response['results'] = []
         for result in results:
             values = {}
@@ -317,9 +317,9 @@ def formdata(request, type, parent_id, delete_id = None):
             response['results'].append({
                 'id': result.pk,
                 'values': values
-            });
+            })
 
-    if (model == None):
+    if (model is None):
         response['message'] = _('Incorrect type.')
 
     return helpers.json_response(response)

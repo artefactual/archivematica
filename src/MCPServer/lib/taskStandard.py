@@ -48,7 +48,7 @@ class taskStandard():
     """A task to hand to gearman"""
 
     def __init__(self, linkTaskManager, execute, arguments, standardOutputFile, standardErrorFile, outputLock=None, UUID=None):
-        if UUID == None:
+        if UUID is None:
             UUID = uuid.uuid4().__str__()
         self.UUID = UUID
         self.linkTaskManager = linkTaskManager
@@ -72,7 +72,7 @@ class taskStandard():
         failSleepInitial = 1
         failSleep = failSleepInitial
         failSleepIncrementor = 2
-        while completed_job_request == None:
+        while completed_job_request is None:
             try:
                 completed_job_request = gm_client.submit_job(self.execute.lower(), cPickle.dumps(data), self.UUID)
             except gearman.errors.ServerUnavailable:
@@ -138,7 +138,7 @@ class taskStandard():
     def writeOutputs(self):
         """Used to write the output of the commands to the specified files"""
 
-        if self.outputLock != None:
+        if self.outputLock is not None:
             self.outputLock.acquire()
 
         if self.validateOutputFile(self.standardOutputFile):
@@ -150,7 +150,7 @@ class taskStandard():
         else:
             stderrStatus = -1
 
-        if self.outputLock != None:
+        if self.outputLock is not None:
             self.outputLock.release()
 
         if stdoutStatus and self.standardOutputFile is not None:

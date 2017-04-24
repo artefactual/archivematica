@@ -77,8 +77,7 @@ def ingest_upload_atk_save_to_db(request, uuid):
 
     pairs = pair_matcher.getDictArray(request.POST, 'pairs')
 
-    keys = list(pairs.keys())
-    keys.sort()
+    keys = sorted(pairs.keys())
 
     for key in keys:
         pairing = models.AtkDIPObjectResourcePairing.objects.create(

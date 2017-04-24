@@ -629,7 +629,7 @@ def getIncludedStructMap(baseDirectoryPath):
         #locate file based on key
         continue
         print(fileName)
-    if trimStructMap != None:
+    if trimStructMap is not None:
         ret.append(trimStructMap)
     return ret
 
@@ -1098,7 +1098,7 @@ if __name__ == '__main__':
     etree.SubElement(root, ns.metsBNS + "metsHdr").set("CREATEDATE", timezone.now().strftime("%Y-%m-%dT%H:%M:%S"))
 
     dc = createDublincoreDMDSecFromDBData(SIPMetadataAppliesToType, fileGroupIdentifier, baseDirectoryPath)
-    if dc != None:
+    if dc is not None:
         (dmdSec, ID) = dc
         if structMapDivObjects is not None:
             structMapDivObjects.set("DMDID", ID)

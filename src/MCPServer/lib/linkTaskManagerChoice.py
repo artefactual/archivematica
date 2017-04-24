@@ -59,14 +59,14 @@ class linkTaskManagerChoice(LinkTaskManager):
             self.choices.append((choice.chainavailable_id, choice.chainavailable.description))
 
         preConfiguredChain = self.checkForPreconfiguredXML()
-        if preConfiguredChain != None:
+        if preConfiguredChain is not None:
             time.sleep(archivematicaMCP.config.getint('MCPServer', "waitOnAutoApprove"))
             self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
             jobChain.jobChain(self.unit, preConfiguredChain)
 
         else:
             choicesAvailableForUnitsLock.acquire()
-            if self.delayTimer == None:
+            if self.delayTimer is None:
                 self.jobChainLink.setExitMessage(Job.STATUS_AWAITING_DECISION)
             choicesAvailableForUnits[self.jobChainLink.UUID] = self
             choicesAvailableForUnitsLock.release()
@@ -144,7 +144,7 @@ class linkTaskManagerChoice(LinkTaskManager):
         choicesAvailableForUnitsLock.acquire()
         del choicesAvailableForUnits[self.jobChainLink.UUID]
         self.delayTimerLock.acquire()
-        if self.delayTimer != None and not delayTimerStart:
+        if self.delayTimer is not None and not delayTimerStart:
             self.delayTimer.cancel()
             self.delayTimer = None
         self.delayTimerLock.release()

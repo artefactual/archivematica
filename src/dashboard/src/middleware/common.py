@@ -41,7 +41,7 @@ class AJAXSimpleExceptionResponseMiddleware:
 
 class SpecificExceptionErrorPageResponseMiddleware:
     def process_exception(self, request, exception):
-        if settings.DEBUG and type(exception) == TemplateDoesNotExist:
+        if settings.DEBUG and isinstance(exception, TemplateDoesNotExist):
             return HttpResponseServerError('Missing template: ' + str(exception))
 
 

@@ -70,7 +70,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                 self.choices.append((len(self.choices), stc.execute, str(args)))
 
         preConfiguredChain = self.checkForPreconfiguredXML()
-        if preConfiguredChain != None:
+        if preConfiguredChain is not None:
             if preConfiguredChain != waitingOnTimer:
                 self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
                 rd = ReplacementDict.fromstring(preConfiguredChain)
@@ -106,7 +106,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                             #<delay unitAtime="yes">30</delay>
                             delayXML = preconfiguredChoice.find("delay")
                             unitAtimeXML = delayXML.get("unitCtime")
-                            if unitAtimeXML != None and unitAtimeXML.lower() != "no":
+                            if unitAtimeXML is not None and unitAtimeXML.lower() != "no":
                                 delaySeconds=int(delayXML.text)
                                 unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%", \
                                                                                           archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
@@ -116,7 +116,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                                 LOGGER.info('Time to go: %s', timeToGo)
                                 self.jobChainLink.setExitMessage("Waiting till: " + datetime.datetime.fromtimestamp((nowTime + timeToGo)).ctime())
                                 rd = ReplacementDict.fromstring(ret)
-                                if self.jobChainLink.passVar != None:
+                                if self.jobChainLink.passVar is not None:
                                     if isinstance(self.jobChainLink.passVar, ReplacementDict):
                                         new = {}
                                         new.update(self.jobChainLink.passVar.dic)

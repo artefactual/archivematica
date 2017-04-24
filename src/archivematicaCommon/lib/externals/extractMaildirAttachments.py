@@ -106,7 +106,7 @@ def parse2(msgobj, attachments=None):
     else:
         subject = None
 
-    if attachments == None:
+    if attachments is None:
         attachments = []
     for part in msgobj.walk():
         attachment = parse_attachment(part, attachments=attachments)

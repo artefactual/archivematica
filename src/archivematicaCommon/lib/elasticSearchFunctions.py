@@ -249,8 +249,7 @@ def transfer_mapping_is_correct(client):
     try:
         # mapping already created
         mapping = get_type_mapping(client, 'transfers', 'transferfile')
-    except:
-        # create mapping
+    except:  # create mapping
         set_up_mapping(client, 'transfers')
         mapping = get_type_mapping(client, 'transfers', 'transferfile')
 
@@ -261,8 +260,7 @@ def aip_mapping_is_correct(client):
     try:
         # mapping already created
         mapping = get_type_mapping(client, 'aips', 'aipfile')
-    except:
-        # create mapping
+    except:  # create mapping
         set_up_mapping(client, 'aips')
         mapping = get_type_mapping(client, 'aips', 'aipfile')
 

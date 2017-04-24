@@ -50,7 +50,7 @@ def recursivelyRemoveEmptyDirectories(dir):
                 print("{0} could not be deleted: {1}".format(
                     directory, e.args), file=sys.stderr)
                 error_count+= 1
-    return error_count;
+    return error_count
 
 if os.path.isdir(manual_normalization_dir):
     # Delete normalization.csv if present

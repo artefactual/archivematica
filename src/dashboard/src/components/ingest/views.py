@@ -94,7 +94,8 @@ def ingest_status(request, uuid=None):
         client = MCPClient()
         mcp_status = etree.XML(client.list())
         mcp_available = True
-    except Exception: pass
+    except Exception:
+        pass
     def encoder(obj):
         items = []
         for item in obj:
@@ -119,8 +120,10 @@ def ingest_status(request, uuid=None):
                 newJob['currentstep'] = job.currentstep
                 newJob['currentstep_label'] = job.get_currentstep_display()
                 newJob['timestamp'] = '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1])
-                try: mcp_status
-                except NameError: pass
+                try:
+                    mcp_status
+                except NameError:
+                    pass
                 else:
                     xml_unit = mcp_status.xpath('choicesAvailableForUnit[UUID="%s"]' % job.jobuuid)
                     if xml_unit:
@@ -324,7 +327,6 @@ def ingest_upload(request, uuid):
             access = models.Access.objects.get(sipuuid=uuid)
             data = cPickle.loads(str(access.target))
         except:
-            # pass
             raise Http404
         # Disabled, it could be very slow
         # job = models.Job.objects.get(jobtype='Upload DIP', sipuuid=uuid)
@@ -343,7 +345,7 @@ def ingest_normalization_report(request, uuid, current_page=None):
 
     results_per_page = 10
 
-    if current_page == None:
+    if current_page is None:
         current_page = 1
 
     page = helpers.pager(objects, results_per_page, current_page)
@@ -439,7 +441,7 @@ def _es_results_to_appraisal_tab_format(record, record_map, directory_list, not_
         else:
             node_not_draggable = not_draggable
 
-        if not node in record_map:
+        if node not in record_map:
             dir_record = {
                 'type': 'transfer' if is_transfer else 'directory',
                 # have to artificially create directory IDs, since we don't assign those
@@ -505,7 +507,7 @@ def transfer_backlog(request, ui):
     if ui == 'appraisal' or request.GET.get('hidemetadatalogs'):
         backlog_filter = elasticSearchFunctions.BACKLOG_FILTER_NO_MD_LOGS
 
-    if not 'query' in request.GET:
+    if 'query' not in request.GET:
         query = elasticSearchFunctions.MATCH_ALL_QUERY.copy()
         query['filter'] = backlog_filter
     else:

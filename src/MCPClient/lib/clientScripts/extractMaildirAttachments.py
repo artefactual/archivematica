@@ -130,7 +130,7 @@ if __name__ == '__main__':
                         for attachment in out['attachments']:
                             print('\tAttachment name:', attachment.name)
                             try:
-                                if attachment.name == None:
+                                if attachment.name is None:
                                     continue
                                 #these are versions of the body of the email - I think
                                 if attachment.name == 'rtf-body.rtf':

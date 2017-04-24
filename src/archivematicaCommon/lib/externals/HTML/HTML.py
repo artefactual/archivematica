@@ -131,19 +131,26 @@ class TableCell (object):
         self.valign  = valign
         self.style   = style
         self.attribs = attribs
-        if attribs==None:
+        if attribs is None:
             self.attribs = {}
 
     def __str__(self):
         """return the HTML code for the table cell as a string"""
         attribs_str = ""
-        if self.bgcolor: self.attribs['bgcolor'] = self.bgcolor
-        if self.width:   self.attribs['width']   = self.width
-        if self.align:   self.attribs['align']   = self.align
-        if self.char:    self.attribs['char']    = self.char
-        if self.charoff: self.attribs['charoff'] = self.charoff
-        if self.valign:  self.attribs['valign']  = self.valign
-        if self.style:   self.attribs['style']   = self.style
+        if self.bgcolor:
+            self.attribs['bgcolor'] = self.bgcolor
+        if self.width:
+            self.attribs['width'] = self.width
+        if self.align:
+            self.attribs['align'] = self.align
+        if self.char:
+            self.attribs['char'] = self.char
+        if self.charoff:
+            self.attribs['charoff'] = self.charoff
+        if self.valign:
+            self.attribs['valign'] = self.valign
+        if self.style:
+            self.attribs['style'] = self.style
         for attr in self.attribs:
             attribs_str += ' %s="%s"' % (attr, self.attribs[attr])
         if self.text:
@@ -186,13 +193,14 @@ class TableRow (object):
         self.col_charoff = col_charoff
         self.col_styles  = col_styles
         self.attribs     = attribs
-        if attribs==None:
+        if attribs is None:
             self.attribs = {}
 
     def __str__(self):
         """return the HTML code for the table row as a string"""
         attribs_str = ""
-        if self.bgcolor: self.attribs['bgcolor'] = self.bgcolor
+        if self.bgcolor:
+            self.attribs['bgcolor'] = self.bgcolor
         for attr in self.attribs:
             attribs_str += ' %s="%s"' % (attr, self.attribs[attr])
         result = ' <TR%s>\n' % attribs_str
@@ -201,16 +209,16 @@ class TableRow (object):
             if not isinstance(cell, TableCell):
                 cell = TableCell(cell, header=self.header)
             # apply column alignment if specified:
-            if self.col_align and cell.align==None:
+            if self.col_align and cell.align is None:
                 cell.align = self.col_align[col]
-            if self.col_char and cell.char==None:
+            if self.col_char and cell.char is None:
                 cell.char = self.col_char[col]
-            if self.col_charoff and cell.charoff==None:
+            if self.col_charoff and cell.charoff is None:
                 cell.charoff = self.col_charoff[col]
-            if self.col_valign and cell.valign==None:
+            if self.col_valign and cell.valign is None:
                 cell.valign = self.col_valign[col]
             # apply column style if specified:
-            if self.col_styles and cell.style==None:
+            if self.col_styles and cell.style is None:
                 cell.style = self.col_styles[col]
             result += str(cell)
         result += ' </TR>\n'
@@ -248,15 +256,18 @@ class Table (object):
         self.border = border
         self.style = style
         # style for thin borders by default
-        if style == None: self.style = TABLE_STYLE_THINBORDER
+        if style is None:
+            self.style = TABLE_STYLE_THINBORDER
         self.width       = width
         self.cellspacing = cellspacing
         self.cellpadding = cellpadding
         self.header_row  = header_row
         self.rows        = rows
-        if not rows: self.rows = []
+        if not rows:
+            self.rows = []
         self.attribs     = attribs
-        if not attribs: self.attribs = {}
+        if not attribs:
+            self.attribs = {}
         self.col_width   = col_width
         self.col_align   = col_align
         self.col_char    = col_char
@@ -267,11 +278,16 @@ class Table (object):
     def __str__(self):
         """return the HTML code for the table as a string"""
         attribs_str = ""
-        if self.border: self.attribs['border'] = self.border
-        if self.style:  self.attribs['style'] = self.style
-        if self.width:  self.attribs['width'] = self.width
-        if self.cellspacing:  self.attribs['cellspacing'] = self.cellspacing
-        if self.cellpadding:  self.attribs['cellpadding'] = self.cellpadding
+        if self.border:
+            self.attribs['border'] = self.border
+        if self.style:
+            self.attribs['style'] = self.style
+        if self.width:
+            self.attribs['width'] = self.width
+        if self.cellspacing:
+            self.attribs['cellspacing'] = self.cellspacing
+        if self.cellpadding:
+            self.attribs['cellpadding'] = self.cellpadding
         for attr in self.attribs:
             attribs_str += ' %s="%s"' % (attr, self.attribs[attr])
         result = '<TABLE%s>\n' % attribs_str
@@ -362,11 +378,14 @@ class List (object):
     def __str__(self):
         """return the HTML code for the list as a string"""
         attribs_str = ""
-        if self.start:  self.attribs['start'] = self.start
+        if self.start:
+            self.attribs['start'] = self.start
         for attr in self.attribs:
             attribs_str += ' %s="%s"' % (attr, self.attribs[attr])
-        if self.ordered: tag = 'OL'
-        else:            tag = 'UL'
+        if self.ordered:
+            tag = 'OL'
+        else:
+            tag = 'UL'
         result = '<%s%s>\n' % (tag, attribs_str)
         for line in self.lines:
             result += ' <LI>%s\n' % str(line)

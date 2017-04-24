@@ -400,7 +400,7 @@ def rights_edit(request, uuid, id=None, section='ingest'):
 
             new_content_type_created = 'other'
 
-        if request.POST.get('next_button', '') != None and request.POST.get('next_button', '') != '':
+        if request.POST.get('next_button', '') is not None and request.POST.get('next_button', '') != '':
             return redirect('components.rights.views.%s_rights_grants_edit' % section, uuid, createdRights.pk)
         else:
             url = reverse('components.rights.views.%s_rights_edit' % section, args=[uuid, createdRights.pk])
@@ -493,7 +493,7 @@ def rights_grants_edit(request, uuid, id, section='ingest'):
     grantFormset = GrantFormSet(instance=viewRights)
 
     if request.method == 'POST':
-        if request.POST.get('next_button', '') != None and request.POST.get('next_button', '') != '':
+        if request.POST.get('next_button', '') is not None and request.POST.get('next_button', '') != '':
             return redirect('components.rights.views.%s_rights_list' % section, uuid)
         else:
             url = reverse('components.rights.views.%s_rights_grants_edit' % section, args=[uuid, viewRights.pk])
@@ -523,7 +523,8 @@ def rights_holders_autocomplete(request):
 
     try:
         search_text = request.REQUEST['text']
-    except Exception: pass
+    except Exception:
+        pass
 
     response = {}
 

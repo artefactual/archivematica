@@ -71,7 +71,8 @@ def maildir2mailbox2(dirname, mboxname):
     for curfold in listofdirs:
         curlist=[mboxname]+curfold.split('.')
         curpath=os.path.join(*[dn+'.sbd' for dn in curlist if dn])
-        if not os.path.exists(curpath): os.makedirs(curpath)
+        if not os.path.exists(curpath):
+            os.makedirs(curpath)
         print('| ' +curfold +' -> '+curpath[:-4])
         maildir2mailbox(os.path.join(dirname,curfold),curpath[:-4])
 

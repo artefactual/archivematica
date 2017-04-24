@@ -48,7 +48,7 @@ logger = get_script_logger("archivematica.mcp.client.trimVerifyManifest")
 
 for line in open(os.path.join(transferPath, "manifest.txt"),'r'):
     if line.startswith(" Directory of "):
-        if topDirectory == None:
+        if topDirectory is None:
             topDirectory = line.strip()
             currentDirectory = transferPath
             originalTransferName = topDirectory.split('\\')[-1]

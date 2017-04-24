@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     sipDirectory = os.path.dirname(os.path.dirname(os.path.dirname(fileFullPath)))
     fileDic = getFileDic(fileFullPath)
-    if not 'path' in fileDic:
+    if 'path' not in fileDic:
         print("no path in file", file=sys.stderr)
         exit(1)
     maildirPath = fileDic['path'].replace('%transferDirectory%', sipDirectory + "/", 1)

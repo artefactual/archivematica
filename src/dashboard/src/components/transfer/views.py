@@ -131,7 +131,8 @@ def status(request, uuid=None):
         client = MCPClient()
         mcp_status = etree.XML(client.list())
         mcp_available = True
-    except Exception: pass
+    except Exception:
+        pass
     def encoder(obj):
         items = []
         for item in obj:
@@ -155,8 +156,10 @@ def status(request, uuid=None):
                 newJob['currentstep'] = job.currentstep
                 newJob['currentstep_label'] = job.get_currentstep_display()
                 newJob['timestamp'] = '%d.%s' % (calendar.timegm(job.createdtime.timetuple()), str(job.createdtimedec).split('.')[-1])
-                try: mcp_status
-                except NameError: pass
+                try:
+                    mcp_status
+                except NameError:
+                    pass
                 else:
                     xml_unit = mcp_status.xpath('choicesAvailableForUnit[UUID="%s"]' % job.jobuuid)
                     if xml_unit:
@@ -208,7 +211,7 @@ def transfer_metadata_edit(request, uuid, id=None):
         form = DublinCoreMetadataForm(request.POST)
         if form.is_valid():
             for item in fields:
-                if not item in form.cleaned_data:
+                if item not in form.cleaned_data:
                     continue
                 setattr(dc, item, form.cleaned_data[item])
             dc.save()

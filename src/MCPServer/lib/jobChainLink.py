@@ -56,7 +56,7 @@ constlinkTaskManagerUnitVariableLinkPull = TaskType.objects.get(description="lin
 
 class jobChainLink:
     def __init__(self, jobChain, jobChainLinkPK, unit, passVar=None, subJobOf=""):
-        if jobChainLinkPK == None:
+        if jobChainLinkPK is None:
             return None
         self.UUID = uuid.uuid4().__str__()
         self.jobChain = jobChain
@@ -92,7 +92,7 @@ class jobChainLink:
 
         logJobCreatedSQL(self)
 
-        if self.createTasks(taskType, taskTypePKReference) == None:
+        if self.createTasks(taskType, taskTypePKReference) is None:
             self.getNextChainLinkPK(None)
             #can't have none represent end of chain, and no tasks to process.
             #could return negative?
@@ -102,7 +102,7 @@ class jobChainLink:
             linkTaskManagerDirectories(self, taskTypePKReference, self.unit)
         elif taskType == constTaskForEachFile:
             if self.reloadFileList:
-                self.unit.reloadFileList();
+                self.unit.reloadFileList()
             linkTaskManagerFiles(self, taskTypePKReference, self.unit)
         elif taskType == constSelectPathTask:
             linkTaskManagerChoice(self, taskTypePKReference, self.unit)

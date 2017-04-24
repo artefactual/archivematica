@@ -52,7 +52,7 @@ def administration(request):
 
 
 def failure_report(request, report_id=None):
-    if report_id != None:
+    if report_id is not None:
         report = models.Report.objects.get(pk=report_id)
         return render(request, 'administration/reports/failure_detail.html', locals())
     else:

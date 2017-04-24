@@ -100,8 +100,7 @@ def start(data):
     try:
         # This upload was called before, restore Access record
         access = models.Access.objects.get(sipuuid=data.uuid)
-    except:
-        # First time this job is called, create new Access record
+    except:  # First time this job is called, create new Access record
         access = models.Access(sipuuid=data.uuid)
         access.save()
 
