@@ -86,9 +86,9 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
 
     def checkForPreconfiguredXML(self):
         ret = None
-        xmlFilePath = os.path.join( \
-            self.unit.currentPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1) + "/", \
-            archivematicaMCP.config.get('MCPServer', "processingXMLFile") \
+        xmlFilePath = os.path.join(
+            self.unit.currentPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1) + "/",
+            archivematicaMCP.config.get('MCPServer', "processingXMLFile")
         )
 
         if os.path.isfile(xmlFilePath):
@@ -108,7 +108,7 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                             unitAtimeXML = delayXML.get("unitCtime")
                             if unitAtimeXML is not None and unitAtimeXML.lower() != "no":
                                 delaySeconds = int(delayXML.text)
-                                unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%", \
+                                unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%",
                                                                                           archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
                                 nowTime = time.time()
                                 timeDifference = nowTime - unitTime

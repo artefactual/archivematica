@@ -25,9 +25,9 @@ import os
 import sys
 from verifySIPCompliance import checkDirectory
 
-requiredDirectories = ["objects", \
-                       "logs", \
-                       "metadata",\
+requiredDirectories = ["objects",
+                       "logs",
+                       "metadata",
                        "metadata/submissionDocumentation"]
 allowableFiles = ["processingMCP.xml"]
 

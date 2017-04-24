@@ -51,10 +51,10 @@ if __name__ == '__main__':
     }
     file_uuids = File.objects.filter(**kwargs).values_list('uuid')
     for fileUUID, in file_uuids:
-        insertIntoEvents(fileUUID=fileUUID, \
-                         eventIdentifierUUID=str(uuid.uuid4()), \
-                         eventType=opts.eventType, \
-                         eventDateTime=opts.eventDateTime, \
-                         eventDetail=opts.eventDetail, \
-                         eventOutcome=opts.eventOutcome, \
+        insertIntoEvents(fileUUID=fileUUID,
+                         eventIdentifierUUID=str(uuid.uuid4()),
+                         eventType=opts.eventType,
+                         eventDateTime=opts.eventDateTime,
+                         eventDetail=opts.eventDetail,
+                         eventOutcome=opts.eventOutcome,
                          eventOutcomeDetailNote=opts.eventOutcomeDetailNote)

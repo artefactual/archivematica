@@ -24,9 +24,9 @@ from __future__ import print_function
 import os
 import sys
 
-requiredDirectories = ["objects", \
-                       "logs", \
-                       "metadata",\
+requiredDirectories = ["objects",
+                       "logs",
+                       "metadata",
                        "metadata/submissionDocumentation"]
 allowableFiles = ["processingMCP.xml"]
 
