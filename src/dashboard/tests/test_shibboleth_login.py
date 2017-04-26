@@ -41,3 +41,17 @@ class TestShibbolethLogin(TestCase):
 
         assert response.status_code == 200
         assert response.context['user'] == user
+
+    def test_long_username(self):
+        long_email = 'person-with-very-long-name@long-institution-name.ac.uk'
+        shib_headers = {
+            'HTTP_X_SHIB_USER': long_email,
+            'HTTP_X_SHIB_GIVEN_NAME': 'Test',
+            'HTTP_X_SHIB_SN': 'User',
+            'HTTP_X_SHIB_MAIL': 'test@example.com'
+        }
+
+        response = self.client.get('/transfer/', **shib_headers)
+
+        assert response.status_code == 200
+        assert response.context['user'].username == long_email

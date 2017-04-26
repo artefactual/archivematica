@@ -259,6 +259,9 @@ INSTALLED_APPS = (
     'tastypie',
 
     'django_forms_bootstrap',
+
+    # Support long (>30 characters) usernames
+    'longerusername',
 )
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
