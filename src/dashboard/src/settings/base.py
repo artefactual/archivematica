@@ -198,6 +198,8 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
+                'shibboleth.context_processors.login_link',
+                'shibboleth.context_processors.logout_link',
             ],
             'debug': DEBUG,
         },
@@ -259,6 +261,9 @@ INSTALLED_APPS = (
     'tastypie',
 
     'django_forms_bootstrap',
+
+    # Shibboleth authentication'
+    'shibboleth',
 
     # Support long (>30 characters) usernames
     'longerusername',
@@ -338,12 +343,15 @@ CACHES = {
 
 # login-related settings
 LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/administration/accounts/login/'
+LOGIN_URL = '/Shibboleth.sso/Login'
+SHIBBOLETH_LOGOUT_URL = '/Shibboleth.sso/Logout?target=%s'
+SHIBBOLETH_LOGOUT_REDIRECT_URL = '/administration/accounts/logged-out'
 LOGIN_EXEMPT_URLS = [
     r'^administration/accounts/login',
-    r'^api'
+    r'^api',
+    r'^administration/accounts/logged-out',
+    r'^Shibboleth.sso/',
 ]
-
 # Django debug toolbar
 try:
     import debug_toolbar  # noqa: F401
