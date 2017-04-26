@@ -70,7 +70,7 @@
                   <ul class="dropdown-menu" aria-labelledby="dropdownUser">
                     <li><a href="{% url 'components.accounts.views.edit' %}">{% trans "Your profile" %}</a></li>
                     <li class="divider"></li>
-                    <li><a href="{% url 'django.contrib.auth.views.logout_then_login' %}">{% trans "Log out" %}</a></li>
+                    <li><a href="{{ logout_link }}">{% trans "Log out" %}</a></li>
                   </ul>
                 </li>
               {% endif %}

@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% load i18n %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+
+  <p>
+    {% trans "You are logged out." %}
+  </p>
+
+  <p>
+  <a href="{% url "shibboleth:login" %}">{% trans "Log in again" %}</a>
+  </p>
+
+{% endblock content %}

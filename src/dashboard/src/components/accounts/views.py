@@ -160,3 +160,8 @@ def delete(request, id):
         return redirect('components.accounts.views.list')
     except:
         raise Http404
+
+
+def logged_out(request):
+    # Display a post-logout message
+    return render(request, 'accounts/logged_out.html')
