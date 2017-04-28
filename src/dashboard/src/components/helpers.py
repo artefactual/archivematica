@@ -35,6 +35,7 @@ from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpRespons
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from main import models
+from tastypie.models import ApiKey
 
 logger = logging.getLogger('archivematica.dashboard')
 
@@ -359,3 +360,15 @@ def completed_units_efficient(unit_type='transfer', include_failed=True):
                          'failed' in ms_group.lower()))):
                 completed.add(uuid)
     return list(completed)
+
+
+def generate_api_key(user):
+    """
+    Generate API key for a user
+    """
+    try:
+        api_key = ApiKey.objects.get(user_id=user.pk)
+    except ApiKey.DoesNotExist:
+        api_key = ApiKey.objects.create(user=user)
+    api_key.key = api_key.generate_key()
+    api_key.save()

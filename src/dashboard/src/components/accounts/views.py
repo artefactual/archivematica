@@ -28,7 +28,9 @@ from tastypie.models import ApiKey
 
 from components.accounts.forms import UserCreationForm
 from components.accounts.forms import UserChangeForm
+from components.accounts.forms import ApiKeyForm
 import components.decorators as decorators
+from components.helpers import generate_api_key
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/forbidden/')
@@ -58,6 +60,34 @@ def add(request):
 
     return render(request, 'accounts/add.html', {
         'form': form
+    })
+
+
+def profile(request):
+    user = request.user
+    title = _('Your profile (%s)') % user
+
+    if request.method == 'POST':
+        form = ApiKeyForm(request.POST)
+        if form.is_valid():
+            if form['regenerate_api_key'] != '':
+                generate_api_key(user)
+
+            return redirect('profile')
+    else:
+        form = ApiKeyForm()
+
+    # load API key for display
+    try:
+        api_key_data = ApiKey.objects.get(user_id=user.pk)
+        api_key = api_key_data.key
+    except ApiKey.DoesNotExist:
+        api_key = _('<no API key generated>')
+
+    return render(request, 'accounts/profile.html', {
+      'form': form,
+      'api_key': api_key,
+      'title': title
     })
 
 
@@ -98,12 +128,7 @@ def edit(request, id=None):
             # regenerate API key if requested
             regenerate_api_key = request.POST.get('regenerate_api_key', '')
             if regenerate_api_key != '':
-                try:
-                    api_key = ApiKey.objects.get(user_id=user.pk)
-                except ApiKey.DoesNotExist:
-                    api_key = ApiKey.objects.create(user=user)
-                api_key.key = api_key.generate_key()
-                api_key.save()
+                generate_api_key(user)
 
             # determine where to redirect to
             if request.user.is_superuser is False:
