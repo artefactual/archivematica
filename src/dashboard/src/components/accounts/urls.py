@@ -24,8 +24,9 @@ urlpatterns = [
     url(r'add/$', views.add),
     url(r'(?P<id>\d+)/delete/$', views.delete),
     url(r'(?P<id>\d+)/edit/$', views.edit),
-    url(r'profile/$', views.edit),
-    url(r'list/$', views.list)
+    url(r'profile/$', views.profile, name='profile'),
+    url(r'list/$', views.list),
+    url(r'logged-out', views.logged_out, name='logged-out'),
 ]
 
 urlpatterns += [
