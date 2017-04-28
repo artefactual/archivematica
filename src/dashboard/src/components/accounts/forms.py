@@ -81,3 +81,10 @@ class UserChangeForm(UserChangeForm):
         if commit:
             user.save()
         return user
+
+
+class ApiKeyForm(forms.Form):
+    regenerate_api_key = forms.CharField(
+        widget=forms.CheckboxInput,
+        label='Regenerate API key (shown below)?'
+    )

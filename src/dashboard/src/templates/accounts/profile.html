@@ -1,0 +1,57 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+{% load i18n %}
+
+{% block title %}Users - Edit {{ user }}{% endblock %}
+{% block h1 %}Users - Edit {{ user }}{% endblock %}
+{% block page_id %}accounts-edit{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+  <div class="row">
+
+    {% include "administration/sidebar.html" %}
+
+    <div class="col-md-10">
+
+      <ul class="breadcrumb">
+        {% breadcrumb title %}
+      </ul>
+
+      <form method="post" action="{% url 'profile' %}">
+
+        {% csrf_token %}
+
+        <dl class="dl-horizontal">
+          <dt>{% trans "Username" %}</dt>
+          <dd>{{ user.username }}</dd>
+          <dt>{% trans "Name" %}</dt>
+          <dd>{{ user.get_full_name }}</dd>
+          <dt>{% trans "E-mail" %}</dt>
+          <dd>{{ user.email }}</dd>
+          <dt>{% trans "Admin" %}</dt>
+          <dd>{{ user.is_superuser|yesno }}</dd>
+        </dl>
+
+        {% include "_form.html" %}
+
+        <div>
+          <div class='input'><code>{{ api_key }}</code></div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+          <a class="btn btn-default" href="{% url 'main.views.home' %}">{% trans "Cancel" %}</a>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

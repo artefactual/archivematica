@@ -34,6 +34,7 @@ from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpRespons
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from main import models
+from tastypie.models import ApiKey
 
 logger = logging.getLogger('archivematica.dashboard')
 
@@ -315,3 +316,15 @@ def stream_file_from_storage_service(url, error_message='Remote URL returned {}'
             'message': error_message.format(stream.status_code)
         }
         return json_response(response, status_code=400)
+
+
+def generate_api_key(user):
+    """
+    Generate API key for a user
+    """
+    try:
+        api_key = ApiKey.objects.get(user_id=user.pk)
+    except ApiKey.DoesNotExist:
+        api_key = ApiKey.objects.create(user=user)
+    api_key.key = api_key.generate_key()
+    api_key.save()
