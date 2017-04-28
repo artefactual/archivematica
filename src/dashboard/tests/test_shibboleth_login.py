@@ -28,6 +28,7 @@ class TestShibbolethLogin(TestCase):
         assert user.get_full_name() == 'Test User'
         assert user.email == 'test@example.com'
         assert not user.has_usable_password()
+        assert user.api_key
 
     def test_uses_existing_user(self):
         user = User.objects.create(username='testuser')
