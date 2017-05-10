@@ -297,31 +297,6 @@ class Table (object):
         if self.col_width:
             for width in self.col_width:
                 result += '  <COL width="%s">\n' % width
-        # The following code would also generate column attributes for style
-        # and alignement according to HTML4 specs,
-        # BUT it is not supported completely (only width) on Mozilla Firefox:
-        # see https://bugzilla.mozilla.org/show_bug.cgi?id=915
-# n_cols = max(len(self.col_styles), len(self.col_width),
-# len(self.col_align), len(self.col_valign))
-# for i in range(n_cols):
-#             col = ''
-# try:
-# if self.col_styles[i]:
-#                     col += ' style="%s"' % self.col_styles[i]
-# except: pass
-# try:
-# if self.col_width[i]:
-#                     col += ' width="%s"' % self.col_width[i]
-# except: pass
-# try:
-# if self.col_align[i]:
-#                     col += ' align="%s"' % self.col_align[i]
-# except: pass
-# try:
-# if self.col_valign[i]:
-#                     col += ' valign="%s"' % self.col_valign[i]
-# except: pass
-#             result += '<COL%s>\n' % col
         # First insert a header row if specified:
         if self.header_row:
             if not isinstance(self.header_row, TableRow):
@@ -393,36 +368,6 @@ class List (object):
             result += ' <LI>%s\n' % str(line)
         result += '</%s>\n' % tag
         return result
-
-
-# class Link (object):
-# """
-# a Link object is used to create link in HTML. (<a> tag)
-#
-# Attributes:
-# - text: str, text of the link
-# - url: str, URL of the link
-# - attribs: dict, additional attributes for the A tag
-#
-# Reference: http://www.w3.org/TR/html4
-# """
-#
-# def __init__(self, text, url=None, attribs=None):
-#         """Link constructor"""
-#         self.text = text
-#         self.url = url
-# if attribs:
-#             self.attribs = attribs
-# else:
-#             self.attribs = {}
-#
-# def __str__(self):
-#         """return the HTML code for the link as a string"""
-#         attribs_str = ""
-#         if self.url:  self.attribs['href'] = self.url
-# for attr in self.attribs:
-#             attribs_str += ' %s="%s"' % (attr, self.attribs[attr])
-# return '<a%s>%s</a>' % (attribs_str, text)
 
 
 # == FUNCTIONS ===============================================================
@@ -498,9 +443,6 @@ if __name__ == '__main__':
         """
         Generator to create table rows for integers from 1 to n
         """
-# First, header row:
-# yield TableRow(('x', 'square(x)'), header=True, bgcolor='blue')
-# Then all rows:
         for x in range(1, n + 1):
             yield (x, x * x)
 
