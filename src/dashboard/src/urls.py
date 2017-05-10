@@ -20,7 +20,6 @@ from django.conf import settings
 
 
 urlpatterns = [
-    url(r'^mcp/', include('components.mcp.urls')),
     url(r'^installer/', include('installer.urls')),
     url(r'^administration/accounts/', include('components.accounts.urls')),
     url(r'^archival-storage/', include('components.archival_storage.urls')),

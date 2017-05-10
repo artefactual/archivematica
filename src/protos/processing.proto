@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package pb;
+
+message Job {
+  enum Status {
+    UNKNOWN = 0;
+    AWAITING_DECISION = 1;
+    COMPLETED_SUCCESSFULLY = 2;
+    EXECUTING_COMMANDS = 3;
+    FAILED = 4;
+  }
+  Status status = 1;
+}

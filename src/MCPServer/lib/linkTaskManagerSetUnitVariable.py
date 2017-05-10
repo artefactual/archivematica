@@ -21,22 +21,17 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import sys
-
 from linkTaskManager import LinkTaskManager
-global choicesAvailableForUnits
-choicesAvailableForUnits = {}
 
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import TaskConfigSetUnitVariable
 
 class linkTaskManagerSetUnitVariable(LinkTaskManager):
-    def __init__(self, jobChainLink, pk, unit):
-        super(linkTaskManagerSetUnitVariable, self).__init__(jobChainLink, pk, unit)
-        ###GET THE MAGIC NUMBER FROM THE TASK stuff
-        var = TaskConfigSetUnitVariable.objects.get(id=pk)
+    def __init__(self, jobChainLink):
+        super(linkTaskManagerSetUnitVariable, self).__init__(jobChainLink)
 
-        ###Update the unit
-        #set the magic number
-        self.unit.setVariable(var.variable, var.variablevalue, var.microservicechainlink_id)
+        config = self.get_config()
+        self.unit.setVariable(config.variable, config.variableValue, config.chainId)
+
         self.jobChainLink.linkProcessingComplete(0)
+
+    def get_config(self):
+        return self.link.config.setUnitVar

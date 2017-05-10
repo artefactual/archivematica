@@ -21,22 +21,22 @@
 # @subpackage MCPServer
 # @author Joseph Perry <joseph@artefactual.com>
 
-import sys
-
 from linkTaskManager import LinkTaskManager
-global choicesAvailableForUnits
-choicesAvailableForUnits = {}
 
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import TaskConfigUnitVariableLinkPull, Job
+from main.models import Job
+
 
 class linkTaskManagerUnitVariableLinkPull(LinkTaskManager):
-    def __init__(self, jobChainLink, pk, unit):
-        super(linkTaskManagerUnitVariableLinkPull, self).__init__(jobChainLink, pk, unit)
-        var = TaskConfigUnitVariableLinkPull.objects.get(id=pk)
-        link = self.unit.getmicroServiceChainLink(var.variable, var.variablevalue, var.defaultmicroservicechainlink_id)
-        
-        ###Update the unit
-        if link != None:
-            self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
-            self.jobChainLink.jobChain.nextChainLink(link, passVar=self.jobChainLink.passVar)
+    def __init__(self, jobChainLink):
+        super(linkTaskManagerUnitVariableLinkPull, self).__init__(jobChainLink)
+
+        config = self.get_config()
+        link_id = self.unit.getmicroServiceChainLink(config.variable)
+        if not link_id:
+            link_id = config.chainId  # This is really a linkId, just a naming bug
+
+        self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
+        self.jobChainLink.jobChain.next_link(link_id, passVar=self.jobChainLink.passVar)
+
+    def get_config(self):
+        return self.link.config.getUnitVar

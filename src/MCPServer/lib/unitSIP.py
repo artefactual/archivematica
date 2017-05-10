@@ -22,19 +22,15 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import logging
-import sys
-import lxml.etree as etree
 
-import archivematicaMCP
 from unit import unit
 
-sys.path.append("/usr/share/archivematica/dashboard")
 from main.models import SIP
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 class unitSIP(unit):
     def __init__(self, currentPath, UUID):
@@ -49,14 +45,12 @@ class unitSIP(unit):
     def __str__(self):
         return 'unitSIP: <UUID: {u.UUID}, path: {u.currentPath}>'.format(u=self)
 
-    def setMagicLink(self, link, exitStatus=""):
-        """Assign a link to the unit to process when loaded.
-        Deprecated! Replaced with Set/Load Unit Variable"""
-        sip = SIP.objects.get(uuid=self.UUID)
-        sip.magiclink = link
-        if exitStatus:
-            sip.magiclinkexitmessage = exitStatus
-        sip.save()
+    def setMagicLink(self, link_id):
+        """
+        Assign a link to the unit to process when loaded.
+        Deprecated! Replaced with Set/Load Unit Variable.
+        """
+        SIP.objects.filter(uuid=self.UUID).update(magiclink=link_id)
 
     def getMagicLink(self):
         """Load a link from the unit to process.
@@ -83,12 +77,4 @@ class unitSIP(unit):
         ret["%AIPFilename%"] = self.aipFilename
         ret["%unitType%"] = self.unitType
         ret["%SIPType%"] = self.sipType
-        return ret
-
-    def xmlify(self):
-        ret = etree.Element("unit")
-        etree.SubElement(ret, "type").text = "SIP"
-        unitXML = etree.SubElement(ret, "unitXML")
-        etree.SubElement(unitXML, "UUID").text = self.UUID
-        etree.SubElement(unitXML, "currentPath").text = self.currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
         return ret

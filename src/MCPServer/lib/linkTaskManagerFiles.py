@@ -26,53 +26,46 @@ import logging
 import os
 import threading
 import time
-import sys
 import uuid
 
-import archivematicaMCP
-from linkTaskManager import LinkTaskManager
-from taskStandard import taskStandard
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
-import archivematicaFunctions
-import databaseFunctions
+from archivematicaFunctions import escapeForCommand
+from archivematicaMCP import limitTaskThreads, limitTaskThreadsSleep
 from dicts import ReplacementDict
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import StandardTaskConfig, UnitVariable
+from linkTaskManager import LinkTaskManager
+from main.models import UnitVariable
+from taskStandard import taskStandard
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
+
 class linkTaskManagerFiles(LinkTaskManager):
-    def __init__(self, jobChainLink, pk, unit):
-        super(linkTaskManagerFiles, self).__init__(jobChainLink, pk, unit)
+    def __init__(self, jobChainLink):
+        super(linkTaskManagerFiles, self).__init__(jobChainLink)
+
         self.tasks = {}
         self.tasksLock = threading.Lock()
         self.exitCode = 0
         self.clearToNextLink = False
 
-        stc = StandardTaskConfig.objects.get(id=str(pk))
+        config = self.get_config()
+
         # These three may be concatenated/compared with other strings,
         # so they need to be bytestrings here
-        filterFileEnd = str(stc.filter_file_end) if stc.filter_file_end else ''
-        filterFileStart = str(stc.filter_file_start) if stc.filter_file_start else ''
-        filterSubDir = str(stc.filter_subdir) if stc.filter_subdir else ''
-        self.standardOutputFile = stc.stdout_file
-        self.standardErrorFile = stc.stderr_file
-        self.execute = stc.execute
-        self.arguments = stc.arguments
+        filterFileEnd = str(config.filterFileEnd) if config.filterFileEnd else ''
+        filterFileStart = str(config.filterFileStart) if config.filterFileStart else ''
+        filterSubDir = str(config.filterSubdir) if config.filterSubdir else ''
+        self.standardOutputFile = config.stdoutFile
+        self.standardErrorFile = config.stderrFile
+        self.execute = config.execute
+        self.arguments = config.arguments
 
-        if stc.requires_output_lock:
-            outputLock = threading.Lock()
-        else:
-            outputLock = None
+        outputLock = threading.Lock() if config.requiresOutputLock else None
 
         # Check if filterSubDir has been overridden for this Transfer/SIP
         try:
-            var = UnitVariable.objects.get(unittype=self.unit.unitType,
-                                           unituuid=self.unit.UUID,
-                                           variable=self.execute)
+            var = UnitVariable.objects.get(unittype=self.unit.unitType, unituuid=self.unit.UUID, variable=self.execute)
         except (UnitVariable.DoesNotExist, UnitVariable.MultipleObjectsReturned):
             var = None
-
         if var:
             try:
                 variableValue = ast.literal_eval(var.variablevalue)
@@ -82,12 +75,12 @@ class linkTaskManagerFiles(LinkTaskManager):
             else:
                 filterSubDir = variableValue['filterSubDir']
 
-        SIPReplacementDic = unit.getReplacementDic(unit.currentPath)
+        SIPReplacementDic = self.unit.getReplacementDic(self.unit.currentPath)
         # Escape all values for shell
         for key, value in SIPReplacementDic.items():
-            SIPReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
+            SIPReplacementDic[key] = escapeForCommand(value)
         self.tasksLock.acquire()
-        for file, fileUnit in unit.fileList.items():
+        for file, fileUnit in self.unit.fileList.items():
             if filterFileEnd:
                 if not file.endswith(filterFileEnd):
                     continue
@@ -95,7 +88,7 @@ class linkTaskManagerFiles(LinkTaskManager):
                 if not os.path.basename(file).startswith(filterFileStart):
                     continue
             if filterSubDir:
-                if not file.startswith(unit.pathString + filterSubDir):
+                if not file.startswith(self.unit.pathString + filterSubDir):
                     continue
 
             standardOutputFile = self.standardOutputFile
@@ -116,7 +109,7 @@ class linkTaskManagerFiles(LinkTaskManager):
             commandReplacementDic = fileUnit.getReplacementDic()
             for key, value in commandReplacementDic.items():
                 # Escape values for shell
-                commandReplacementDic[key] = archivematicaFunctions.escapeForCommand(value)
+                commandReplacementDic[key] = escapeForCommand(value)
             arguments, standardOutputFile, standardErrorFile = commandReplacementDic.replace(arguments, standardOutputFile, standardErrorFile)
 
             # Apply unit (SIP/Transfer) replacement values
@@ -125,32 +118,39 @@ class linkTaskManagerFiles(LinkTaskManager):
             UUID = str(uuid.uuid4())
             task = taskStandard(self, execute, arguments, standardOutputFile, standardErrorFile, outputLock=outputLock, UUID=UUID)
             self.tasks[UUID] = task
-            databaseFunctions.logTaskCreatedSQL(self, commandReplacementDic, UUID, arguments)
+            self.log_task(commandReplacementDic, UUID, arguments)
             t = threading.Thread(target=task.performTask)
             t.daemon = True
-            while(archivematicaMCP.limitTaskThreads <= threading.activeCount()):
+            while(limitTaskThreads <= threading.activeCount()):
                 self.tasksLock.release()
-                time.sleep(archivematicaMCP.limitTaskThreadsSleep)
+                time.sleep(limitTaskThreadsSleep)
                 self.tasksLock.acquire()
             t.start()
 
         self.clearToNextLink = True
         self.tasksLock.release()
-        if self.tasks == {}:
+        if not self.tasks:
             self.jobChainLink.linkProcessingComplete(self.exitCode)
 
-    def taskCompletedCallBackFunction(self, task):
-        self.exitCode = max(self.exitCode, abs(task.results["exitCode"]))
-        databaseFunctions.logTaskCompletedSQL(task)
+    def get_config(self):
+        return self.link.config.standard
 
-        self.tasksLock.acquire()
-        if task.UUID in self.tasks:
-            del self.tasks[task.UUID]
-        else:
-            LOGGER.warning('Task UUID %s not in task list %s', task.UUID, self.tasks)
-            exit(1)
+    def task_completed_callback(self, uuid, results):
+        """
+        This callback is triggered by the taskStandard once the Gearman job
+        completes.
+        """
+        self.log_completed_task(uuid, results)
 
-        if self.clearToNextLink is True and self.tasks == {} :
-            LOGGER.debug('Proceeding to next link %s', self.jobChainLink.UUID)
-            self.jobChainLink.linkProcessingComplete(self.exitCode, self.jobChainLink.passVar)
-        self.tasksLock.release()
+        self.exitCode = max(self.exitCode, abs(results['exitCode']))
+
+        with self.tasksLock:
+            if uuid in self.tasks:
+                del self.tasks[uuid]
+            else:
+                LOGGER.warning('Task UUID %s not in task list %s', uuid, self.tasks)
+                exit(1)
+
+            if self.clearToNextLink is True and not self.tasks:
+                LOGGER.debug('Proceeding to next link %s', self.jobChainLink.UUID)
+                self.jobChainLink.linkProcessingComplete(self.exitCode, self.jobChainLink.passVar)

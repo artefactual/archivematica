@@ -22,12 +22,11 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import logging
-import sys
 
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 class unitFile(object):
     """For objects representing a File"""

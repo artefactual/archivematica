@@ -22,32 +22,19 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 import logging
-import sys
 
-from jobChainLink import jobChainLink
-
-sys.path.append("/usr/lib/archivematica/archivematicaCommon")
 from dicts import ReplacementDict
-
-sys.path.append("/usr/share/archivematica/dashboard")
-from main.models import MicroServiceChain, UnitVariable
-
-#Holds:
-#-UNIT
-#-Job chain link
-#-Job chain description
-#
-#potentialToHold/getFromDB
-#-previous chain links
+from jobChainLink import jobChainLink
+from main.models import UnitVariable
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
+
 
 def fetchUnitVariableForUnit(unit_uuid):
     """
     Returns a dict combining all of the replacementDict unit variables for the
     specified unit.
     """
-
     results = ReplacementDict()
     variables = UnitVariable.objects.filter(unituuid=unit_uuid, variable="replacementDict").values_list('variablevalue')
 
@@ -57,46 +44,35 @@ def fetchUnitVariableForUnit(unit_uuid):
 
     return results
 
-class jobChain:
-    def __init__(self, unit, chainPK, notifyComplete=None, passVar=None, UUID=None, subJobOf=""):
-        """Create an instance of a chain from the MicroServiceChains table"""
-        LOGGER.debug('Creating jobChain %s for chain %s', unit, chainPK)
-        if chainPK == None:
-            return None
-        self.unit = unit
-        self.pk = chainPK
-        self.notifyComplete = notifyComplete
-        self.UUID = UUID
-        self.linkSplitCount = 1
-        self.subJobOf = subJobOf
 
-        chain = MicroServiceChain.objects.get(id=str(chainPK))
-        LOGGER.debug('Chain: %s', chain)
-        self.startingChainLink = chain.startinglink_id
-        self.description = chain.description
+class jobChain:
+    """
+    Represents a workflow chain and controls its execution.
+    """
+    def __init__(self, unit, chain_id, workflow, unit_choices):
+        self.unit = unit
+        self.pk = chain_id
+        self.workflow = workflow
+        self.unit_choices = unit_choices
+
+        self.chain = self.workflow.chains[self.pk]
+        if self.chain is None:
+            LOGGER.error('jobChain error: chain %s not found (unit=%s)', chain_id, unit)
+            return
+        LOGGER.debug('Creating jobChain (chain=%s, unit=%s)', chain_id, unit)
 
         # Migrate over unit variables containing replacement dicts from previous chains,
         # but prioritize any values contained in passVars passed in as kwargs
         rd = fetchUnitVariableForUnit(unit.UUID)
-        if passVar:
-            rd.update(passVar)
 
-        self.currentLink = jobChainLink(self, self.startingChainLink, unit, passVar=rd, subJobOf=subJobOf)
-        if self.currentLink == None:
-            return None
+        # Start processing
+        self.next_link(self.chain.linkId, passVar=rd)
 
-    def nextChainLink(self, pk, passVar=None, incrementLinkSplit=False, subJobOf=""):
-        """Proceed to next link, as passed(pk)"""
-        if self.subJobOf and not subJobOf:
-            subJobOf = self.subJobOf
-        if incrementLinkSplit:
-            self.linkSplitCount += 1
-        if pk != None:
-            jobChainLink(self, pk, self.unit, passVar=passVar, subJobOf=subJobOf)
-        else:
-            self.linkSplitCount -= 1
-            if self.linkSplitCount == 0:
-                LOGGER.debug('Done with unit %s', self.unit.UUID)
-                if self.notifyComplete:
-                    self.notifyComplete(self)
-
+    def next_link(self, link_id, passVar=None):
+        """
+        Proceed to next link, as passed (link_id).
+        """
+        if not link_id:
+            return  # End of chain!
+        LOGGER.debug('Moving to next link id=%s', link_id)
+        jobChainLink(self, link_id, self.unit, passVar=passVar)

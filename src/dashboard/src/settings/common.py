@@ -190,7 +190,6 @@ INSTALLED_APPS = (
     'installer',
     'components.accounts',
     'main',
-    'components.mcp',
     'components.administration',
 
     # FPR

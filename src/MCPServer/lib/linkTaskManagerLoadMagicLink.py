@@ -22,20 +22,22 @@
 # @author Joseph Perry <joseph@artefactual.com>
 
 from linkTaskManager import LinkTaskManager
-global choicesAvailableForUnits
-choicesAvailableForUnits = {}
 
 from main.models import Job
 
 
 class linkTaskManagerLoadMagicLink(LinkTaskManager):
-    """Load a link from the unit to process.
-        Deprecated! Replaced with Set/Load Unit Variable"""
-    def __init__(self, jobChainLink, pk, unit):
-        super(linkTaskManagerLoadMagicLink, self).__init__(jobChainLink, pk, unit)
-        ###Update the unit
+    """
+    Load a link from the unit to process.
+    Deprecated! Replaced with Set/Load Unit Variable.
+    """
+    def __init__(self, jobChainLink):
+        super(linkTaskManagerLoadMagicLink, self).__init__(jobChainLink)
+
         magicLink = self.unit.getMagicLink()
-        if magicLink != None:
-            link, exitStatus = magicLink
-            self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
-            self.jobChainLink.jobChain.nextChainLink(link, passVar=self.jobChainLink.passVar)
+        if magicLink is None:
+            return
+        link, exitStatus = magicLink
+
+        self.jobChainLink.setExitMessage(Job.STATUS_COMPLETED_SUCCESSFULLY)
+        self.jobChainLink.jobChain.next_link(link.id, passVar=self.jobChainLink.passVar)
