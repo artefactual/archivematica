@@ -8,6 +8,5 @@
   "osdeps_repos": [
   ],
   "osdeps_packages": [
-  { "name": "uuid", "state": "latest"}
   ]
 }

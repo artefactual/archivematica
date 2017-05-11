@@ -14,7 +14,6 @@ Depends:
 	archivematica-common(>=1.6.0),
 	dbconfig-common,
 	mysql-server,
-	gearman,
-	uuid
+	gearman
 Description: MCP Server for Archivematica
   Workflow manager for Archivematica 

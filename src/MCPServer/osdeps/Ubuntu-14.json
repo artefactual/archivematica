@@ -8,8 +8,5 @@
   "osdeps_repos": [
   ],
   "osdeps_packages": [
-  { "name": "dbconfig-common", "state": "latest"},
-  { "name": "logapp", "state": "latest"},
-  { "name": "uuid", "state": "latest"}
   ]
 }
