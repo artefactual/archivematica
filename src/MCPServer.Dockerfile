@@ -24,9 +24,6 @@ ADD MCPServer/requirements/ /src/MCPServer/requirements/
 RUN pip install -r /src/MCPServer/requirements/production.txt -r /src/MCPServer/requirements/dev.txt
 ADD MCPServer/ /src/MCPServer/
 
-ADD archivematicaCommon/etc/dbsettings /etc/archivematica/archivematicaCommon/dbsettings
-ADD MCPServer/etc/serverConfig.conf /etc/archivematica/MCPServer/serverConfig.conf
-
 RUN set -ex \
 	&& groupadd -r archivematica \
 	&& useradd -r -g archivematica archivematica

@@ -80,9 +80,6 @@ ADD MCPClient/requirements/ /src/MCPClient/requirements/
 RUN pip install -r /src/MCPClient/requirements/production.txt -r /src/MCPClient/requirements/dev.txt
 ADD MCPClient/ /src/MCPClient/
 
-ADD archivematicaCommon/etc/dbsettings /etc/archivematica/archivematicaCommon/dbsettings
-ADD MCPClient/etc/clientConfig.conf /etc/archivematica/MCPClient/clientConfig.conf
-
 RUN set -ex \
 	&& groupadd -r archivematica \
 	&& useradd -r -g archivematica archivematica

@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
 from __future__ import print_function
-import ConfigParser
+
 from glob import glob
 import os
 import sys
@@ -17,6 +17,8 @@ import identifier_functions
 
 import django
 django.setup()
+
+from django.conf import settings as mcpclient_settings
 
 
 def get_identifiers(sip_path):
@@ -45,21 +47,11 @@ def index_aip():
     sip_path = sys.argv[3]  # %SIPDirectory%
     sip_type = sys.argv[4]  # %SIPType%
 
-    # Check if ElasticSearch is enabled
-    client_config_path = '/etc/archivematica/MCPClient/clientConfig.conf'
-    config = ConfigParser.SafeConfigParser()
-    config.read(client_config_path)
-    elastic_search_disabled = False
-    try:
-        elastic_search_disabled = config.getboolean(
-            'MCPClient', "disableElasticsearchIndexing")
-    except ConfigParser.NoOptionError:
-        pass
-    if elastic_search_disabled:
-        print('Skipping indexing: indexing is currently disabled in', client_config_path)
+    if mcpclient_settings.DISABLE_SEARCH_INDEXING is True:
+        logger.info('Skipping indexing: indexing is currently disabled.')
         return 0
 
-    elasticSearchFunctions.setup_reading_from_client_conf(config)
+    elasticSearchFunctions.setup_reading_from_client_conf(mcpclient_settings)
     client = elasticSearchFunctions.get_client()
 
     print('SIP UUID:', sip_uuid)

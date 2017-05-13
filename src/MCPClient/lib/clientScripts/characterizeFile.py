@@ -23,8 +23,13 @@ from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import insertIntoFPCommandOutput
 from dicts import replace_string_values, ReplacementDict
 
+from django.conf import settings as mcpclient_settings
+from lib import setup_dicts
+
 
 def main(file_path, file_uuid, sip_uuid):
+    setup_dicts(mcpclient_settings)
+
     failed = False
 
     # Check to see whether the file has already been characterized; don't try

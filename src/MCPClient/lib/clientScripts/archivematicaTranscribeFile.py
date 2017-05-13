@@ -19,6 +19,9 @@ from executeOrRunSubProcess import executeOrRun
 import databaseFunctions
 import fileOperations
 
+from django.conf import settings as mcpclient_settings
+from lib import setup_dicts
+
 
 def insert_transcription_event(status, file_uuid, rule, relative_location):
     outcome = "transcribed" if status is 0 else "not transcribed"
@@ -92,6 +95,8 @@ def fetch_rules_for_derivatives(file_):
 
 
 def main(task_uuid, file_uuid):
+    setup_dicts(mcpclient_settings)
+
     succeeded = True
 
     file_ = File.objects.get(uuid=file_uuid)

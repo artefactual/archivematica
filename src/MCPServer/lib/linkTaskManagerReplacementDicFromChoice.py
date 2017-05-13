@@ -29,11 +29,11 @@ import threading
 import time
 
 from linkTaskManager import LinkTaskManager
-import archivematicaMCP
 from linkTaskManagerChoice import choicesAvailableForUnits, choicesAvailableForUnitsLock, waitingOnTimer
 
 from dicts import ReplacementDict
 from main.models import DashboardSetting, Job, MicroServiceChainLink, MicroServiceChoiceReplacementDic, StandardTaskConfig, UserProfile
+from django.conf import settings as django_settings
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -87,8 +87,10 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
     def checkForPreconfiguredXML(self):
         ret = None
         xmlFilePath = os.path.join(
-            self.unit.currentPath.replace("%sharedPath%", archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1) + "/",
-            archivematicaMCP.config.get('MCPServer', "processingXMLFile")
+            self.unit.currentPath.replace(
+                "%sharedPath%",
+                django_settings.SHARED_DIRECTORY, 1) + "/",
+            django_settings.PROCESSING_XML_FILE
         )
 
         if os.path.isfile(xmlFilePath):
@@ -108,8 +110,11 @@ class linkTaskManagerReplacementDicFromChoice(LinkTaskManager):
                             unitAtimeXML = delayXML.get("unitCtime")
                             if unitAtimeXML is not None and unitAtimeXML.lower() != "no":
                                 delaySeconds = int(delayXML.text)
-                                unitTime = os.path.getmtime(self.unit.currentPath.replace("%sharedPath%",
-                                                                                          archivematicaMCP.config.get('MCPServer', "sharedDirectory"), 1))
+                                unitTime = os.path.getmtime(
+                                    self.unit.currentPath.replace(
+                                        "%sharedPath%",
+                                        django_settings.SHARED_DIRECTORY,
+                                        1))
                                 nowTime = time.time()
                                 timeDifference = nowTime - unitTime
                                 timeToGo = delaySeconds - timeDifference

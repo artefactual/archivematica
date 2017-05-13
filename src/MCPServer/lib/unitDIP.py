@@ -25,10 +25,11 @@ import logging
 import lxml.etree as etree
 import os
 
-import archivematicaMCP
 from unit import unit
 
 from dicts import ReplacementDict
+
+from django.conf import settings as django_settings
 
 LOGGER = logging.getLogger('archivematica.mcp.server')
 
@@ -61,8 +62,8 @@ class unitDIP(unit):
         # augment the dict here, because DIP is a special case whose paths are
         # not entirely based on data from the database - the locations need to
         # be overridden.
-        sip_directory = self.currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
-        relative_directory_location = target.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
+        sip_directory = self.currentPath.replace(django_settings.SHARED_DIRECTORY, "%sharedPath%")
+        relative_directory_location = target.replace(django_settings.SHARED_DIRECTORY, "%sharedPath%")
 
         ret["%SIPLogsDirectory%"] = os.path.join(sip_directory, "logs", "")
         ret["%SIPObjectsDirectory%"] = os.path.join(sip_directory, "objects", "")
@@ -77,5 +78,5 @@ class unitDIP(unit):
         etree.SubElement(ret, "type").text = "DIP"
         unitXML = etree.SubElement(ret, "unitXML")
         etree.SubElement(unitXML, "UUID").text = self.UUID
-        etree.SubElement(unitXML, "currentPath").text = self.currentPath.replace(archivematicaMCP.config.get('MCPServer', "sharedDirectory"), "%sharedPath%")
+        etree.SubElement(unitXML, "currentPath").text = self.currentPath.replace(django_settings.SHARED_DIRECTORY, "%sharedPath%")
         return ret

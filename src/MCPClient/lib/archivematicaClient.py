@@ -42,13 +42,10 @@ from socket import gethostname
 import threading
 import traceback
 
-
-config = ConfigParser.SafeConfigParser(
-    defaults={'django_settings_module': 'settings.common'})
-config.read("/etc/archivematica/MCPClient/clientConfig.conf")
-
 import django
 django.setup()
+
+from django.conf import settings as django_settings
 
 from main.models import Task
 
@@ -57,40 +54,11 @@ import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 
 
-LOGGING_CONFIG = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'detailed': {
-            'format': '%(levelname)-8s  %(asctime)s  %(thread)d  %(name)s:%(module)s:%(funcName)s:%(lineno)d:  %(message)s',
-            'datefmt': '%Y-%m-%d %H:%M:%S'
-        },
-    },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'detailed',
-        },
-    },
-    'loggers': {
-        'archivematica': {
-            'level': 'DEBUG',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'WARNING',
-    }
-}
-
-logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger('archivematica.mcp.client')
 
-
 replacementDic = {
-    "%sharedPath%": config.get('MCPClient', "sharedDirectoryMounted"),
-    "%clientScriptsDirectory%": config.get('MCPClient', "clientScriptsDirectory")
+    "%sharedPath%": django_settings.SHARED_DIRECTORY,
+    "%clientScriptsDirectory%": django_settings.CLIENT_SCRIPTS_DIRECTORY,
 }
 supportedModules = {}
 
@@ -109,9 +77,7 @@ def loadSupportedModules(file):
     for key, value in supportedModulesConfig.items('supportedCommands'):
         loadSupportedModulesSupport(key, value)
 
-    loadSupportedCommandsSpecial = config.get('MCPClient', "LoadSupportedCommandsSpecial")
-    if loadSupportedCommandsSpecial.lower() == "yes" or \
-            loadSupportedCommandsSpecial.lower() == "true":
+    if django_settings.LOAD_SUPPORTED_COMMANDS_SPECIAL:
         for key, value in supportedModulesConfig.items('supportedCommandsSpecial'):
             loadSupportedModulesSupport(key, value)
 
@@ -161,14 +127,16 @@ Unable to determine if it completed successfully."""
 
         # Add useful environment vars for client scripts
         env_updates = {
-            'DJANGO_SETTINGS_MODULE': 'settings.clientscripts',
-            'DJANGO_ALLOWED_HOSTS': '*',
+            'PYTHONPATH': '{}:{}'.format(
+                os.path.dirname(os.path.abspath(__file__)),
+                os.environ['PYTHONPATH'],
+            ),
         }
 
         # Execute command
         command += " " + arguments
         logger.info('<processingCommand>{%s}%s</processingCommand>', gearman_job.unique, command)
-        exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=False, env_updates=env_updates)
+        exitCode, stdOut, stdError = executeOrRun("command", command, sInput, printing=True, env_updates=env_updates)
         return cPickle.dumps({"exitCode": exitCode, "stdOut": stdOut, "stdError": stdError})
     except OSError:
         logger.exception('Execution failed')
@@ -184,7 +152,7 @@ Unable to determine if it completed successfully."""
 @auto_close_db
 def startThread(threadNumber):
     """Setup a gearman client, for the thread."""
-    gm_worker = gearman.GearmanWorker([config.get('MCPClient', "MCPArchivematicaServer")])
+    gm_worker = gearman.GearmanWorker([django_settings.GEARMAN_SERVER])
     hostID = gethostname() + "_" + threadNumber.__str__()
     gm_worker.set_client_id(hostID)
     for key in supportedModules.keys():
@@ -217,8 +185,8 @@ def startThreads(t=1):
 
 if __name__ == '__main__':
     try:
-        loadSupportedModules(config.get('MCPClient', "archivematicaClientModules"))
-        startThreads(config.getint('MCPClient', "numberOfTasks"))
+        loadSupportedModules(django_settings.CLIENT_MODULES_FILE)
+        startThreads(django_settings.NUMBER_OF_TASKS)
         while True:
             time.sleep(100)
     except (KeyboardInterrupt, SystemExit):

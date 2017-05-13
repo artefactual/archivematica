@@ -24,6 +24,7 @@ import shutil
 import tempfile
 import uuid
 
+from django.conf import settings as django_settings
 from django.db import IntegrityError
 import django.http
 import django.template.defaultfilters
@@ -43,7 +44,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 logger = logging.getLogger('archivematica.dashboard')
 
-SHARED_DIRECTORY_ROOT = helpers.get_server_config_value('sharedDirectory')
+SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY
 ACTIVE_TRANSFER_DIR = os.path.join(SHARED_DIRECTORY_ROOT, 'watchedDirectories', 'activeTransfers')
 ORIGINAL_DIR = os.path.join(SHARED_DIRECTORY_ROOT, 'www', 'AIPsStore', 'transferBacklog', 'originals')
 
@@ -324,7 +325,7 @@ def copy_to_start_transfer(filepath='', type='', accession='', transfer_metadata
 
 
 def create_arranged_sip(staging_sip_path, files, sip_uuid):
-    shared_dir = helpers.get_server_config_value('sharedDirectory')
+    shared_dir = django_settings.SHARED_DIRECTORY
     staging_sip_path = staging_sip_path.lstrip('/')
     staging_abs_path = os.path.join(shared_dir, staging_sip_path)
 
@@ -857,7 +858,7 @@ def download_ss(request):
 
 
 def download_fs(request):
-    shared_dir = os.path.realpath(helpers.get_server_config_value('sharedDirectory'))
+    shared_dir = os.path.realpath(django_settings.SHARED_DIRECTORY)
     filepath = base64.b64decode(request.GET.get('filepath', ''))
     requested_filepath = os.path.realpath('/' + filepath)
 

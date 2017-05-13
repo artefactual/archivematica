@@ -34,7 +34,7 @@ class WSGIEnvironment(WSGIHandler):
 
     def setup_elasticsearch(self):
         import elasticSearchFunctions
-        elasticSearchFunctions.setup_reading_from_client_conf()
+        elasticSearchFunctions.setup(settings.ELASITCSEARCH_HOST)
 
 
 application = WSGIEnvironment()

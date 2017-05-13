@@ -34,8 +34,6 @@ ADD dashboard/src/requirements/ /src/dashboard/src/requirements/
 RUN pip install -r /src/dashboard/src/requirements/production.txt -r /src/dashboard/src/requirements/dev.txt
 ADD dashboard/ /src/dashboard/
 
-ADD archivematicaCommon/etc/dbsettings /etc/archivematica/archivematicaCommon/dbsettings
-
 RUN set -ex \
 	&& groupadd -r archivematica \
 	&& useradd -r -g archivematica archivematica
@@ -51,8 +49,8 @@ USER archivematica
 
 RUN env \
 	DJANGO_SETTINGS_MODULE=settings.local \
-	DJANGO_SECRET_KEY=12345 \
-	DJANGO_ALLOWED_HOSTS=127.0.0.1 \
+	ARCHIVEMATICA_DASHBOARD_DASHBOARD_DJANGO_SECRET_KEY=12345 \
+	ARCHIVEMATICA_DASHBOARD_DASHBOARD_DJANGO_ALLOWED_HOSTS=127.0.0.1 \
 		/src/dashboard/src/manage.py collectstatic --noinput --clear
 
 EXPOSE 8000

@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 
-import ConfigParser
 import logging
 import mimetypes
 import os
@@ -25,6 +24,7 @@ import urllib
 from urlparse import urljoin
 import json
 
+from django.conf import settings as django_settings
 from django.utils.dateformat import format
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
 from django.core.servers.basehttp import FileWrapper
@@ -189,28 +189,6 @@ def set_setting(setting, value=''):
     setting_data.save()
 
 
-def get_client_config_value(field):
-    clientConfigFilePath = '/etc/archivematica/MCPClient/clientConfig.conf'
-    config = ConfigParser.SafeConfigParser()
-    config.read(clientConfigFilePath)
-
-    try:
-        return config.get('MCPClient', field)
-    except:
-        return ''
-
-
-def get_server_config_value(field):
-    clientConfigFilePath = '/etc/archivematica/MCPServer/serverConfig.conf'
-    config = ConfigParser.SafeConfigParser()
-    config.read(clientConfigFilePath)
-
-    try:
-        return config.get('MCPServer', field)
-    except:
-        return ''
-
-
 def get_atom_levels_of_description(clear=True):
     """
     Fetch levels of description from an AtoM instance and store them in the database.
@@ -321,7 +299,7 @@ def pad_destination_filepath_if_it_already_exists(filepath, original=None, attem
 
 def processing_config_path():
     return os.path.join(
-        get_server_config_value('sharedDirectory'),
+        django_settings.SHARED_DIRECTORY,
         'sharedMicroServiceTasksConfigs/processingMCPConfigs'
     )
 
