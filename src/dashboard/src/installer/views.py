@@ -165,7 +165,7 @@ def storagesetup(request):
         # Set storage service URL
         storage_form.save()
         if storage_form.cleaned_data['storage_service_use_default_config']:
-            shared_path = helpers.get_server_config_value('sharedDirectory')
+            shared_path = django_settings.SHARED_DIRECTORY
             # Post first user & API key
             user = User.objects.all()[0]
             api_key = ApiKey.objects.get(user=user)

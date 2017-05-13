@@ -25,7 +25,6 @@ from linkTaskManager import LinkTaskManager
 
 from main.models import TaskConfigAssignMagicLink
 
-global choicesAvailableForUnits
 choicesAvailableForUnits = {}
 
 
